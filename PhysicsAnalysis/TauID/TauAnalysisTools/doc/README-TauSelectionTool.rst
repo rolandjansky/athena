@@ -7,6 +7,8 @@ TauSelectionTool
 
 .. contents:: Table of contents
 
+**NOTE:** The eleBDT working points were updated to the new re-tuned eleBDT scores. These are only available in new derivations with AODfix (since 21.2.54.0, p3759). In cases where an electron veto is needed and older derivations are used, you may have to switch the ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM working points. See the below ``CutEleBDTWP`` table with all eleBDT working points. 
+
 ------------
 Introduction
 ------------
@@ -114,7 +116,7 @@ setup:
      - accepting taus with the given absolute charge
      - if ``AbsCharge`` is configured, ``AbsCharges`` configuration wont be considered
 
-   * - ``CutNTracks``
+   * - ``CutNTrack``
      - ``NTracks``
      - ``std::vector<size_t>``
      - accepting taus with a set of track multiplicities, each value in the vector will be accepted
@@ -271,15 +273,25 @@ and for ``CutEleBDTWP``:
 
 .. list-table::
    :header-rows: 1
+   :widths: 5 30
 
    * - Electron veto working points
      - description
      
    * - ELEIDBDTLOOSE
-     - BDT loose electron veto 
+     - BDT loose electron veto (BDTEleScoreSigTrans_retuned > 0.05), available in new derivations with AODfix (since 21.2.54.0, p3759)
      
    * - ELEIDBDTMEDIUM
-     - BDT medium electron veto 
+     - BDT medium electron veto (BDTEleScoreSigTrans_retuned > 0.15), available in new derivations with AODfix (since 21.2.54.0, p3759)
+     
+   * - ELEIDBDTTIGHT
+     - BDT tight electron veto (BDTEleScoreSigTrans_retuned > 0.25), available in new derivations with AODfix (since 21.2.54.0, p3759)
+     
+   * - ELEIDBDTOLDLOOSE
+     - old BDT loose electron veto (BDTEleScoreSigTrans > 0.05)
+
+   * - ELEIDBDTOLDMEDIUM
+     - old BDT medium electron veto (BDTEleScoreSigTrans > 0.15)
      
 
 If one wants to use a different setup one has three options:

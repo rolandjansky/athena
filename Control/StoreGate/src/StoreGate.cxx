@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGate/StoreGate.h"
@@ -51,7 +51,7 @@ getStore() {
 }
 
 StoreGateSvc* 
-getStore(std::string name) throw (std::runtime_error) {
+getStore(std::string name) {
   StoreGateSvc* pSGService(0);
   static const bool CREATEIF(true);
   if ((Gaudi::svcLocator()->service(name, pSGService, CREATEIF)).isSuccess()) {

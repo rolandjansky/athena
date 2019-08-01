@@ -54,6 +54,14 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
     declareProperty( "DSID",             m_DSID = -1);
     declareProperty( "IsMC",             m_IsMC = true);
 
+    declareProperty( "dR_truthJet",      m_dR_truthJet = 0.75);
+    declareProperty( "dR_truthPart",     m_dR_truthPart = 0.75);
+    declareProperty( "mLowTop",          m_mLowTop = 140.);
+    declareProperty( "mHighTop",         m_mHighTop = -1);
+    declareProperty( "mLowW",            m_mLowW = 50.);
+    declareProperty( "mHighW",           m_mHighW = 100.);
+    declareProperty( "mLowZ",            m_mLowZ = 60.);
+    declareProperty( "mHighZ",           m_mHighZ = 110.);
 }
 
 JSSWTopTaggerDNN::~JSSWTopTaggerDNN() {}
@@ -356,7 +364,7 @@ Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
   float jet_weight=1.0;
   if ( m_calcSF && (!m_acc_truthLabel.isAvailable(jet) || FatjetTruthLabel::intToEnum(m_acc_truthLabel(jet))==FatjetTruthLabel::UNKNOWN) ){
     if ( m_IsMC ){
-      if (decorateTruthLabel(jet, m_truthLabelDecorationName) == StatusCode::FAILURE){
+      if (decorateTruthLabel(jet) == StatusCode::FAILURE){
 	ATH_MSG_FATAL("Failed to decorate jet truth label. Please check truth container names");
       }
     }
@@ -434,16 +442,14 @@ double JSSWTopTaggerDNN::getWeight(const xAOD::Jet& jet) const {
       // full-contained top tagger
       if( jetContainment==FatjetTruthLabel::tqqb ){
 	truthLabelStr="t_qqb";
-      //}else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq ){
-	//truthLabelStr="V_qq";
       }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
 	truthLabelStr="q";
       }
     }else{
       // W/Z tagger or inclusive top tagger
-      if( jetContainment==FatjetTruthLabel::tqqb || jetContainment==FatjetTruthLabel::Wqq_From_t || jetContainment==FatjetTruthLabel::other_From_t ){
+      if( jetContainment==FatjetTruthLabel::tqqb || jetContainment==FatjetTruthLabel::other_From_t ){
 	truthLabelStr="t";
-      }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq){
+      }else if( jetContainment==FatjetTruthLabel::Wqq || jetContainment==FatjetTruthLabel::Zqq || jetContainment==FatjetTruthLabel::Wqq_From_t ){
 	truthLabelStr="V_qq";
       }else if( jetContainment==FatjetTruthLabel::notruth || jetContainment==FatjetTruthLabel::qcd ) {
 	truthLabelStr="q";

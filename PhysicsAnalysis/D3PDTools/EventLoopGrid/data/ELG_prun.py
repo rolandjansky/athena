@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 import os.path
@@ -31,7 +31,9 @@ def ELG_prun(sample) :
             'nJobs',
             'maxFileSize',
             'maxNFilesPerJob',
+            'addNthFieldOfInDSToLFN',
             'voms',
+            'workingGroup',
             'tmpDir']
 
     #These are options that can be set by the user
@@ -44,7 +46,8 @@ def ELG_prun(sample) :
                 'official',
                 'mergeOutput',
                 'useRootCore',
-                'useAthenaPackages']
+                'useAthenaPackages',
+                'useContElementBoundary']
 
     for opt in opts :
         arg = sample.getMetaDouble('nc_' + opt, -1)        

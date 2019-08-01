@@ -63,6 +63,7 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 PHYSThinningHelper = ThinningHelper( "PHYSThinningHelper" )
 PHYSThinningHelper.AppendToStream( PHYSStream )
 
+# Inner detector group recommendations for indet tracks in analysis
 PHYS_thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 PHYSTrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name                    = "PHYSTrackParticleThinningTool",
@@ -73,13 +74,22 @@ PHYSTrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name 
 
 ToolSvc += PHYSTrackParticleThinningTool
 
+# Include inner detector tracks associated with muons
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+PHYSMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "PHYSMuonTPThinningTool",
+                                                                        ThinningService         = PHYSThinningHelper.ThinningSvc(),
+                                                                        MuonKey                 = "Muons",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                        ApplyAnd = False)
+ToolSvc += PHYSMuonTPThinningTool
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
-                                                                       ThinningTools = [PHYSTrackParticleThinningTool],
+                                                                       ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool],
                                                                        AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
 #====================================================================
 # JET/MET   
@@ -94,6 +104,11 @@ if (DerivationFrameworkIsMonteCarlo):
    reducedJetList.append("AntiKt4TruthJets")  
 replaceAODReducedJets(reducedJetList,DerivationFrameworkJob,"PHYS")
 addDefaultTrimmedJets(DerivationFrameworkJob,"PHYS",dotruth=DerivationFrameworkIsMonteCarlo)
+
+addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=DerivationFrameworkJob,algname="QGTaggerToolAlg")
+addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob,algname="QGTaggerToolPFAlg")
+
+
 
 #updateJVT_xAODColl("AntiKt4EMTopo")
 #addAntiKt4LowPtJets(DerivationFrameworkJob,"PHYS")
@@ -127,11 +142,10 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "PrimaryVertices", 
                                        "InDetTrackParticles",
                                        "AntiKt4EMTopoJets",
-                                       "AntiKt4LCTopoJets", 
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMTopo",
+                                       "BTagging_AntiKt4EMPFlow",
                                        "MET_Reference_AntiKt4EMTopo",
-                                       "MET_Reference_AntiKt4LCTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",      
@@ -186,7 +200,9 @@ PHYSSlimmingHelper.AllVariables = ["MET_Truth",
 
 PHYSSlimmingHelper.ExtraVariables = ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
                                      "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.weights.crossSection",
-                                     "AntiKt2PV0TrackJets.pt.eta.phi.m"]
+                                     "AntiKt2PV0TrackJets.pt.eta.phi.m",
+                                     "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID",
+                                     "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.NumTrkPt500PV.PartonTruthLabelID"]
 
 # Add trigger matching
 PHYS_trigmatching_helper.add_to_slimming(PHYSSlimmingHelper)

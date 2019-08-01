@@ -137,7 +137,7 @@ namespace ana
 
     // Initialize the calibration tool
     ATH_CHECK (ASG_MAKE_ANA_TOOL (m_calibration, CP::EgammaCalibrationAndSmearingTool));
-    ATH_CHECK (m_calibration.setProperty ("ESModel", "es2017_R21_v1"));
+    ATH_CHECK (m_calibration.setProperty ("ESModel", "es2018_R21_v0"));
     ATH_CHECK (m_calibration.setProperty ("decorrelationModel", "1NP_v1"));
     ATH_CHECK (m_calibration.setProperty ("useAFII", m_isAF2?1:0));
     ATH_CHECK( m_calibration.initialize() );

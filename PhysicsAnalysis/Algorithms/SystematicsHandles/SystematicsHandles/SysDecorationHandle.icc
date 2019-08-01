@@ -19,31 +19,11 @@
 
 namespace CP
 {
-  template<typename T> inline MsgStream& SysDecorationHandle<T> ::
-  msg () const
-  {
-    assert (m_msg != nullptr);
-    return *m_msg;
-  }
-
-
-
-  template<typename T> inline MsgStream& SysDecorationHandle<T> ::
-  msg (MSG::Level lvl) const
-  {
-    assert (m_msg != nullptr);
-    *m_msg << lvl;
-    return *m_msg;
-  }
-
-
-
   template<typename T> template<typename T2> SysDecorationHandle<T> ::
   SysDecorationHandle (T2 *owner, const std::string& propertyName,
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
-    : m_inputName (propertyValue)
-    , m_msg (&owner->msg())
+    : AsgMessagingForward (owner), m_inputName (propertyValue)
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
     owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);

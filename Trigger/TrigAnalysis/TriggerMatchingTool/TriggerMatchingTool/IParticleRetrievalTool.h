@@ -50,10 +50,13 @@ namespace Trig {
        * @brief Retrieve particles that caused this trigger element to pass.
        * @param[out] combination All particles that caused this TE to fire.
        * @param te The trigger element to be interrogated.
+       * @param[out] navFailure Use to communicate a failure in the navigation
+       * without an error.
        */
       StatusCode retrieveParticles(
           std::vector<const xAOD::IParticle*>& combination,
-          const HLT::TriggerElement* te) const;
+          const HLT::TriggerElement* te,
+          bool& navFailure) const;
 
       /**
        * @brief Get the type of particle that should be retrieved from this TE.
@@ -70,17 +73,22 @@ namespace Trig {
        * @param[out] particle The retrieved particle
        * @param feature The feature containing the particle
        * @param te The trigger element containing this feature
+       * @param[out] navFailure Use to communicate a failure in the navigation
+       * without an error.
        */
       StatusCode retrieveFeatureParticle(
           const xAOD::IParticle*& particle,
           const HLT::TriggerElement::FeatureAccessHelper& feature,
-          const HLT::TriggerElement* te) const;
+          const HLT::TriggerElement* te,
+          bool& navFailure) const;
 
     private:
       // Properties
       /// The TrigDecisionTool that will be used to get the navigation
       ToolHandle<Trig::TrigDecisionTool> m_tdt {
         "Trig::TrigDecisionTool/TrigDecisionTool"};
+      /// Be forgiving about the navigation not matching our expectations
+      bool m_warnOnNavigationFailure;
   }; //> end class IParticleRetrievalTool
 } //> end namespace Trig
 

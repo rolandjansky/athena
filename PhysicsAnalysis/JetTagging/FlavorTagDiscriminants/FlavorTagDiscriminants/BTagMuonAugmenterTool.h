@@ -6,14 +6,12 @@
 #ifndef BTAG_MUON_AUGMENTER_TOOL_H
 #define BTAG_MUON_AUGMENTER_TOOL_H
 
-#include "BTagMuonAugmenter.h"
-
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/ISingleJetModifier.h"
 
 namespace FlavorTagDiscriminants {
 
-  // class BTagMuonAugmenter;
+  class BTagMuonAugmenter;
 
   class BTagMuonAugmenterTool : public asg::AsgTool, virtual public ISingleJetModifier
   {
@@ -31,6 +29,8 @@ namespace FlavorTagDiscriminants {
     std::string m_muonAssociationName;
     float m_muonMinDR;
     float m_muonMinpT;
+    std::string m_schema;
+    std::string m_flipTagConfig;
     // You'll probably have to add some accessors here
   };
 

@@ -47,6 +47,7 @@
 #include "TopJetSubstructure/TopJetSubstructure.h"
 
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
+#include "BoostedJetTaggers/SmoothedWZTagger.h"
 
 // Forward declaration(s):
 namespace top{
@@ -132,9 +133,7 @@ namespace top{
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario3;
       ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolReducedNPScenario4;
 
-      ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR_strong;
-      ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR_medium;
-      ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR_weak;
+      ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
      
       ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
       ToolHandle<IJetModifier> m_fjvtTool;
@@ -149,14 +148,15 @@ namespace top{
       systMap m_systMap_ReducedNPScenario2;
       systMap m_systMap_ReducedNPScenario3;
       systMap m_systMap_ReducedNPScenario4;
-      systMap m_systMap_LargeR_strong;
-      systMap m_systMap_LargeR_medium;
-      systMap m_systMap_LargeR_weak;
+      systMap m_systMap_LargeR;
 
       typedef std::unordered_map<CP::SystematicSet,CP::SystematicSet>::const_iterator Itr;
 
       StatusCode decorateBJets(xAOD::Jet& jet);
       StatusCode decorateHSJets();
+      
+      ///-- Large R jet truth labeling --///
+      std::unique_ptr<SmoothedWZTagger> m_TaggerForJES;
 
       // DL1 decoration                                                                          
       std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelToolsDL1Decor;

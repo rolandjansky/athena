@@ -11,11 +11,15 @@
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PathResolver/PathResolver.h"
 #include <boost/algorithm/string.hpp>
+#include "xAODPrimitives/IsolationHelpers.h"
 
 #ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #endif //ROOTCORE
+
+#include "TFile.h"
+#include "xAODEventShape/EventShape.h"
 
 namespace CP {
 
@@ -34,6 +38,10 @@ namespace CP {
     declareProperty("Correct_etcone",              m_correct_etcone       = false);
     declareProperty("Trouble_categories",          m_trouble_categories   = true);
     declareProperty("Apply_ddshifts",              m_apply_ddDefault      = true);
+    declareProperty("Apply_SC_leakcorr",           m_apply_SC_leak_corr   = false);
+    declareProperty("Apply_etaEDParPU_correction",    m_apply_etaEDParPU_corr= false);
+    declareProperty("CorrFile_etaEDParPU_correction", m_corr_etaEDParPU_file = "IsolationCorrections/zetas_pu.root");
+
     m_isol_corr = new IsolationCorrection(name);
   }
 
@@ -116,6 +124,21 @@ namespace CP {
     if (!m_usemetadata) {
       m_isol_corr->SetAFII(m_AFII_corr);
       m_isol_corr->SetDataMC(m_is_mc);    
+    }
+
+    if(m_apply_etaEDParPU_corr){
+      std::string filename = PathResolverFindCalibFile( m_corr_etaEDParPU_file );
+      if (filename.empty()){
+        ATH_MSG_ERROR ( "Could NOT resolve file name " << m_corr_etaEDParPU_file );
+        return StatusCode::FAILURE ;
+      }
+      ATH_MSG_INFO(" Path found = "<<filename);
+      std::unique_ptr<TFile> f(new TFile(filename.c_str(), "READ"));
+
+      m_map_isotype_zetaPU[xAOD::Iso::topoetcone20] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone20"));
+      m_map_isotype_zetaPU[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone30"));
+      m_map_isotype_zetaPU[xAOD::Iso::topoetcone40] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone40"));
+      f->Close();
     }
 
     return m_isol_corr->initialize();
@@ -292,7 +315,39 @@ namespace CP {
 
     static SG::AuxElement::Decorator<float> decDDcor20("topoetcone20_DDcorr");
     static SG::AuxElement::Decorator<float> decDDcor40("topoetcone40_DDcorr");
+
+    float SCsub = 0;
+    if(m_apply_SC_leak_corr){
+      float topoetconecoreConeEnergyCorrection = 0;
+      if(!eg.isolationCaloCorrection(topoetconecoreConeEnergyCorrection, xAOD::Iso::topoetcone, xAOD::Iso::coreCone, xAOD::Iso::coreEnergy)){
+          ATH_MSG_WARNING("Could not find SC based core");
+      }
+      float core57cells = 0.;
+      if(!eg.isolationCaloCorrection(core57cells, xAOD::Iso::topoetcone, xAOD::Iso::core57cells, xAOD::Iso::coreEnergy)){
+          ATH_MSG_WARNING("Could not find core57cells to apply SC based core correction");
+      }
+      ATH_MSG_VERBOSE("Old core correction value: " << core57cells);
+      ATH_MSG_VERBOSE("SC based core correction value: " << topoetconecoreConeEnergyCorrection);
+      SCsub = - topoetconecoreConeEnergyCorrection + core57cells;
+    }
 	
+    float centralDensity = 0.;
+    float forwardDensity = 0.;
+    if(m_apply_etaEDParPU_corr){
+      const xAOD::EventShape* evtShapeCentral;
+      const xAOD::EventShape* evtShapeForward;
+      if(evtStore()->retrieve(evtShapeCentral, "TopoClusterIsoCentralEventShape").isFailure()){
+        ATH_MSG_WARNING("Cannot retrieve density container " << "TopoClusterIsoCentralEventShape" << " for isolation correction.");
+        return CP::CorrectionCode::Error;
+      }
+      if(evtStore()->retrieve(evtShapeForward, "TopoClusterIsoForwardEventShape").isFailure()){
+        ATH_MSG_WARNING("Cannot retrieve density container " << "TopoClusterIsoForwardEventShape" << " for isolation correction.");
+        return CP::CorrectionCode::Error;
+      }
+      centralDensity = evtShapeCentral->getDensity(xAOD::EventShape::Density);
+      forwardDensity = evtShapeForward->getDensity(xAOD::EventShape::Density);
+    }
+
     static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
 									      /* xAOD::Iso::topoetcone30, */
 									      xAOD::Iso::topoetcone40};
@@ -302,7 +357,6 @@ namespace CP {
 	ATH_MSG_DEBUG("leakage correction not stored for isolation type " << xAOD::Iso::toString(type) << ". Nothing done");
 	continue;
       }
-      float newleak = this->GetPtCorrection(eg,type);
       float oldiso  = 0;
       bool gotIso   = eg.isolationValue(oldiso,type);
       if (!gotIso) continue;
@@ -329,8 +383,42 @@ namespace CP {
       // Don't use DD Corrections for AFII if not rel21 ? (I do not know what was done for rel20.7 !!!) 
       if (m_tool_ver_str != "REL21" && m_AFII_corr) m_apply_dd = false;
       
-      float iso     = oldiso + (oldleak-newleak);
+      float iso     = oldiso;
+      float newleak = 0.;
+      if(m_apply_SC_leak_corr){
+        ATH_MSG_VERBOSE("Iso before SC correction: " << iso);
+        iso += (SCsub + oldleak);
+        ATH_MSG_VERBOSE("Iso after SC correction: " << iso);
+      }
+      else {
+        newleak = this->GetPtCorrection(eg,type);
+        iso += (oldleak - newleak);
+      }
       float ddcorr  = 0;
+
+      // this correction is derived purly from data, but can also be applied to mc
+      if(m_apply_etaEDParPU_corr){
+        float abseta = fabs(eg.caloCluster()->etaBE(2));
+        float densityOldCorrection = 0.;
+        if(abseta <= 1.5){
+          densityOldCorrection = centralDensity;
+        }
+        else{
+          densityOldCorrection = forwardDensity;
+        }
+        float dR = xAOD::Iso::coneSize(type);
+        static const float a_core = 5*7*0.025*TMath::Pi()/128;
+        float area = TMath::Pi()*dR*dR-a_core;
+        float oldpu_corr = densityOldCorrection*area;
+        float newpu_corr = m_map_isotype_zetaPU[type]->Eval(abseta)*centralDensity*area;
+        iso = iso + oldpu_corr - newpu_corr;
+        ATH_MSG_VERBOSE("Applying parametrized pileup correction to " << eg.type() << " with |eta|="<< abseta);
+        ATH_MSG_VERBOSE("Old parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<oldpu_corr);
+        ATH_MSG_VERBOSE("New parametrized pileup correction for "<<xAOD::Iso::toString(type)<< ": "<<newpu_corr);
+        ATH_MSG_VERBOSE("Isolation after new correction for "<<xAOD::Iso::toString(type)<< ": "<<iso);
+        ATH_MSG_VERBOSE("Isolation after old correction for "<<xAOD::Iso::toString(type)<< ": "<<iso+newpu_corr-oldpu_corr);
+      }
+
       if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30 && eg.type() == xAOD::Type::Photon) {
 	ddcorr = this->GetDDCorrection(eg,type);
 	if (type == xAOD::Iso::topoetcone20)

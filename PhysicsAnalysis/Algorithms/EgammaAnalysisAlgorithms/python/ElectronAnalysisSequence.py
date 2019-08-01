@@ -77,7 +77,10 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
                 outputPropName = 'particlesOut',
                 stageName = 'calibration' )
     selectionDecorNames.append( alg.selectionDecoration )
-    selectionDecorCount.append( 2 )
+    if crackVeto :
+        selectionDecorCount.append( 5 )
+    else :
+        selectionDecorCount.append( 4 )
 
     # Set up the track selection algorithm:
     alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',

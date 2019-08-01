@@ -29,6 +29,7 @@ namespace FlavorTagDiscriminants {
     int modifyJet(xAOD::Jet& jet) const;
   private:
     std::string m_schema;
+    std::string m_flipTagConfig;
     std::unique_ptr<BTagJetAugmenter> m_aug; //!
   };
 

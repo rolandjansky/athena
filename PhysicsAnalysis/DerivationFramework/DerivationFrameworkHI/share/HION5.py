@@ -181,7 +181,7 @@ if HIDerivationFlags.isSimulation() :
     thinningTools.append(HION5TruthGenTool)
 
 
-JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets', 'AntiKt2HIJets_Seed1']
+JetCollectionList = ['AntiKt2HIJets', 'AntiKt4HIJets', 'DFAntiKt2HIJets', 'DFAntiKt4HIJets', 'DFAntiKt8HIJets', 'AntiKt10HIJets','DFAntiKt10HIJets', 'AntiKt2HIJets_Seed1']
 
 ###############Augmentation#############
 HIGlobalAugmentationTool = addHIGlobalAugmentationTool('HION5',3,500)
@@ -248,7 +248,7 @@ addMETOutputs(HION5SlimmingHelper,met_ptCutList)
 HION5SlimmingHelper.AllVariables += ["AntiKt4HITrackJets"]
 HION5SlimmingHelper.AllVariables += HIGlobalVars
 if HIDerivationFlags.isPPb(): HION5SlimmingHelper.AllVariables += ["HIEventShape", "ForwardElectrons", "ForwardElectronClusters"]
-if HIDerivationFlags.isSimulation() : HION5SlimmingHelper.AllVariables += ["AntiKt2TruthJets","AntiKt4TruthJets","egammaTruthParticles","TruthEvents","TruthVertices","TruthParticles"]
+if HIDerivationFlags.isSimulation() : HION5SlimmingHelper.AllVariables += ["AntiKt2TruthJets","AntiKt4TruthJets","AntiKt8TruthJets","AntiKt10TruthJets","egammaTruthParticles","TruthEvents","TruthVertices","TruthParticles"]
 
 
 HION5SlimmingHelper.IncludeEGammaTriggerContent = True

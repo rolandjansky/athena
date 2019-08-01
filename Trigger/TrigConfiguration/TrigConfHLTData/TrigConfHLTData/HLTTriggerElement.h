@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConf_HLTTriggerElement
@@ -72,8 +72,8 @@ namespace TrigConf {
       void setL2(bool on=true) const { set(); if(on) m_level |= 0x1; else m_level &= 0x2; }
       void setEF(bool on=true) const { set(); if(on) m_level |= 0x2; else m_level &= 0x1; }
       void reset() const { m_level = 0x4; }
-      bool inL2() const { return (m_level|0x1) != 0; }
-      bool inEF() const { return (m_level|0x2) != 0; }
+      bool inL2() const { return (m_level&0x1) != 0; }
+      bool inEF() const { return (m_level&0x2) != 0; }
       bool isSet() const { return (m_level&0x4) == 0; }
 
    private:

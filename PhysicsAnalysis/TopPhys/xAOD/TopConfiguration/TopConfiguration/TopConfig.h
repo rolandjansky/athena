@@ -468,6 +468,9 @@ class TopConfig final {
 
   // Electron configuration
   inline virtual void egammaSystematicModel( const std::string& s ){if(!m_configFixed){m_egammaSystematicModel = s;}}
+  inline virtual void electronEfficiencySystematicModel( const std::string& s ){if(!m_configFixed){m_electronEfficiencySystematicModel = s;}}
+  inline virtual void electronEfficiencySystematicModelEtaBinning( const std::string& s ){if(!m_configFixed){m_electronEfficiencySystematicModelEtaBinning = s;}}
+  inline virtual void electronEfficiencySystematicModelEtBinning( const std::string& s ){if(!m_configFixed){m_electronEfficiencySystematicModelEtBinning = s;}}
   inline virtual void electronID( const std::string& s    ){if(!m_configFixed){m_electronID    = s;}}
   inline virtual void electronIDLoose( const std::string& s ){if(!m_configFixed){m_electronIDLoose = s;}}
   inline         void removeElectronVetoLArCrack()         {if(!m_configFixed){m_electronVetoLArCrack = false;}}
@@ -480,6 +483,9 @@ class TopConfig final {
   inline virtual void useElectronChargeIDSelection(const std::string& s){if(!m_configFixed){ m_useElectronChargeIDSelection = (s=="True" || s=="true");}}
 
   inline virtual const std::string& egammaSystematicModel(){return m_egammaSystematicModel;}
+  inline virtual const std::string& electronEfficiencySystematicModel(){return m_electronEfficiencySystematicModel;}
+  inline virtual const std::string& electronEfficiencySystematicModelEtaBinning(){return m_electronEfficiencySystematicModelEtaBinning;}
+  inline virtual const std::string& electronEfficiencySystematicModelEtBinning(){return m_electronEfficiencySystematicModelEtBinning;}
   inline virtual const std::string& electronID()     const {return m_electronID;   }
   inline virtual const std::string& electronIDLoose()  const {return m_electronIDLoose;}
   inline virtual bool electronVetoLArCrack() const {return m_electronVetoLArCrack;}
@@ -551,11 +557,11 @@ class TopConfig final {
 
   inline virtual void largeRJetPtcut(const float pt)    {if(!m_configFixed){m_largeRJetPtcut = pt;}}
   inline virtual void largeRJetEtacut(const float eta)  {if(!m_configFixed){m_largeRJetEtacut = eta;}}
-  inline virtual void largeRJESUncertaintyConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESUncertaintyConfig = largeR_config;}}
+  inline virtual void largeRJetUncertainties_NPModel(const std::string& largeR_config) {if(!m_configFixed){m_largeRJetUncertainties_NPModel = largeR_config;}}
   inline virtual void largeRJESJMSConfig(const std::string& largeR_config) {if(!m_configFixed){m_largeRJESJMSConfig = largeR_config;}}
   inline virtual float largeRJetPtcut()  const {return m_largeRJetPtcut;}
   inline virtual float largeRJetEtacut() const {return m_largeRJetEtacut;}
-  inline virtual const std::string& largeRJESUncertaintyConfig() const {return m_largeRJESUncertaintyConfig;}
+  inline virtual const std::string& largeRJetUncertainties_NPModel() const {return m_largeRJetUncertainties_NPModel;}
   inline virtual const std::string& largeRJESJMSConfig() const {return m_largeRJESJMSConfig;}
 
   inline virtual void trackJetPtcut(const float pt)    {if(!m_configFixed){m_trackJetPtcut = pt;}}
@@ -1199,6 +1205,9 @@ class TopConfig final {
 
   // Electron configuration
   std::string m_egammaSystematicModel;
+  std::string m_electronEfficiencySystematicModel;
+  std::string m_electronEfficiencySystematicModelEtaBinning;
+  std::string m_electronEfficiencySystematicModelEtBinning;
   std::string m_electronID;
   std::string m_electronIDLoose;
   bool m_electronVetoLArCrack;
@@ -1260,8 +1269,8 @@ class TopConfig final {
   // Large R jet configuration
   float m_largeRJetPtcut; // large R jet object selection pT cut
   float m_largeRJetEtacut; // large R jet object selection (abs) eta cut
-  std::string m_largeRJESUncertaintyConfig; // large R jet JES uncertainty configuration file
-  // see: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertainties2015PrerecLargeR
+  std::string m_largeRJetUncertainties_NPModel; //large R JES/(plus old JMS, JMR, JER) uncertainties configuration file
+  //See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019LargeR
   std::string m_largeRJESJMSConfig; // large R jet JES/JMS calibration choice - see ANALYSISTO-210
 
   // Track jet configuration

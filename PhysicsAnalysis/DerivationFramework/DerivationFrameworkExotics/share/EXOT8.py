@@ -12,16 +12,19 @@ from DerivationFrameworkFlavourTag.HbbCommon           import *
 from DerivationFrameworkCore.WeightMetadata            import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon    import FlavorTagInit
 from DerivationFrameworkFlavourTag.FlavourTagCommon    import applyBTagging_xAODColl
-from JetRec.JetRecFlags import jetFlags
-from JetRec.JetRecConf import JetAlgorithm
+from JetRec.JetRecFlags                                import jetFlags
+from JetRec.JetRecConf                                 import JetAlgorithm
 from DerivationFrameworkJetEtMiss.DFJetMetFlags        import *
 from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__JetDecorAlg
 from DerivationFrameworkInDet.InDetCommon              import *
+from TriggerMenu.api.TriggerAPI                        import TriggerAPI
+from TriggerMenu.api.TriggerEnums                      import TriggerPeriod, TriggerType
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 from DerivationFrameworkCore.DerivationFrameworkCoreConf   import DerivationFramework__DerivationKernel
 
 #========================================================================================================================================
@@ -32,96 +35,55 @@ fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
 EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
 
+#========================================================================================================================================
+# Triggers (https://indico.cern.ch/event/403233/contribution/4/material/slides/0.pdf)
+#
+# Not yet known: 25ns menu, L1_HT menu
+#========================================================================================================================================
+
+allperiods = TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.y2018 | TriggerPeriod.future2e34
+
+electronTriggers = TriggerAPI.getUnprescaledAnyPeriod(allperiods, TriggerType.el_single, livefraction=0.95)
+electronTriggers.append("HLT_e24_lhmedium_nod0_L1EM20VH")
+muonTriggers = TriggerAPI.getUnprescaledAnyPeriod(allperiods, TriggerType.mu_single, livefraction=0.95)
+jetTriggers = TriggerAPI.getUnprescaledAnyPeriod(allperiods, TriggerType.j, livefraction=0.95)
+jetTriggers += TriggerAPI.getUnprescaledAnyPeriod(allperiods, TriggerType.bj, livefraction=0.95)
+jetTriggers += TriggerAPI.getUnprescaledAnyPeriod(allperiods, TriggerType.ht, livefraction=0.95)
+jetTriggers += TriggerAPI.getUnprescaledAnyPeriod(allperiods, TriggerType.bj, TriggerType.j, livefraction=0.95)
+jetTriggers.append("HLT_j60_gsc100_bmv2c1050_split_xe80_mht_L1XE60")
+jetTriggers.append("HLT_2j25_gsc45_bmv2c1070_split_xe80_mht_L12J15_XE55")
+jetTriggers.append("HLT_3j15_gsc35_bmv2c1077_split_xe60_mht_L13J15.0ETA25_XE40")
+jetTriggers.append("HLT_j35_gsc55_bmv2c1050_split_ht700_L1HT190-J15s5.ETA21")
+jetTriggers.append("HLT_2j35_gsc55_bmv2c1050_split_ht300_L1HT190-J15s5.ETA21")
+jetTriggers.append("HLT_2j35_gsc55_bmv2c1060_split_ht300_L1HT190-J15s5.ETA21")
+jetTriggers.append("HLT_j55_bmv2c2060_split_ht500_L14J15")
+jetTriggers.append("HLT_2j55_bmv2c2060_split_ht300_L14J15")
+jetTriggers.append("HLT_j80_bmv2c2060_split_xe60_L12J50_XE40")
+jetTriggers.append("HLT_j110")
+jetTriggers.append("HLT_j260_a10_lcw_L1J75")
+jetTriggers.append("HLT_j260_a10t_lcw_jes_L1J75")
+jetTriggers.append("HLT_j260_a10t_lcw_jes_L1J75")
+
+triggers = jetTriggers + electronTriggers + muonTriggers
+
+photonTrigger = "HLT_g140_loose"
+
 #
 #  Trigger Nav thinning
 #
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT8ThinningHelper = ThinningHelper( "EXOT8ThinningHelper" )
 if globalflags.DataSource() is not "geant4":
-    # single small-R jet
-    EXOT8ThinningHelper.TriggerChains = 'HLT_j0_perf_L1RD0_FILLED|HLT_j15|HLT_j25|HLT_j35|HLT_j45|HLT_j55|HLT_j60|HLT_j85|HLT_j110|HLT_j175|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j260|HLT_j340|HLT_j360|HLT_j380|HLT_j400|HLT_j420|HLT_j450|HLT_j225_gsc380_boffperf_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j225_gsc400_boffperf_split|HLT_j225_gsc420_boffperf_split|HLT_j225_gsc440_boffperf_split|'
+    EXOT8ThinningHelper.TriggerChains = ''
 
-    # multi small-R jet
-    EXOT8ThinningHelper.TriggerChains += 'HLT_3j175|HLT_3j200|HLT_3j225|HLT_4j85|HLT_4j100|HLT_4j120|HLT_5j55|HLT_5j60|HLT_5j70_L14J15|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_5j85_L14J15|HLT_5j90|HLT_5j90_L14J150ETA25|HLT_6j45|HLT_6j60|HLT_6j60_L14J15|HLT_6j70|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_6j70_L14J15|HLT_7j45|HLT_7j45_L14J15|HLT_7j45_L14J150ETA25|HLT_7j45_L14J20|HLT_10j40_L14J15|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_10j40_L14J20|HLT_10j40_L14J150ETA25|HLT_10j40_L16J15|HLT_4j60_gsc100_boffperf_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_4j60_gsc115_boffperf_split|HLT_4j85_gsc115_boffperf_split|HLT_5j50_gsc70_boffperf_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_5j50_gsc70_boffperf_split_L14J150ETA25|HLT_5j60_gsc85_boffperf_split|HLT_5j60_gsc85_boffperf_split_L14J15|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_5j60_gsc85_boffperf_split_L14J150ETA25|HLT_5j60_gsc90_boffperf_split|HLT_5j60_gsc90_boffperf_split_L14J150ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_6j45_gsc60_boffperf_split|HLT_6j45_gsc60_boffperf_split_L14J150ETA25|HLT_6j50_gsc70_boffperf_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_6j50_gsc70_boffperf_split_L14J15|HLT_6j50_gsc70_boffperf_split_L14J150ETA25|HLT_7j25_gsc45_boffperf_split_L14J20|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_7j25_gsc45_boffperf_split_L14J150ETA25|HLT_7j35_gsc45_boffperf_split_L14J15|HLT_5j65_0eta240_L14J15|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_5j70_0eta240_L14J15|HLT_5j75_0eta240|HLT_5j75_0eta240_L14J150ETA25|HLT_6j45_0eta240|HLT_6j45_0eta240_L14J20|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_6j50_0eta240_L14J15|HLT_6j55_0eta240_L14J15|HLT_6j60_0eta240_L14J20|HLT_6j60_0eta240_L14J150ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_5j50_gsc65_boffperf_split_0eta240|HLT_5j50_gsc65_boffperf_split_0eta240_L14J150ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_5j50_gsc70_boffperf_split_0eta240|HLT_5j50_gsc70_boffperf_split_0eta240_L14J15|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_5j50_gsc70_boffperf_split_0eta240_L14J150ETA25|HLT_5j55_gsc75_boffperf_split_0eta240|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_5j55_gsc75_boffperf_split_0eta240_L14J150ETA25|HLT_6j25_gsc45_boffperf_split_0eta240_L14J20|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_6j25_gsc45_boffperf_split_0eta240_L14J150ETA25|HLT_6j25_gsc50_boffperf_split_0eta240_L14J20|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_6j25_gsc50_boffperf_split_0eta240_L14J150ETA25|HLT_6j35_gsc55_boffperf_split_0eta240_L14J150ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_6j35_gsc55_boffperf_split_0eta240_L14J20|HLT_6j35_gsc55_boffperf_split_0eta240_L15J150ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_6j45_gsc55_boffperf_split_0eta240_L14J15|HLT_j260_320eta490|'
-
-    # jet+MET
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j80_xe80|'
-
-    # large-R jets
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j.*a10.*|'
-
-    # HT
-    EXOT8ThinningHelper.TriggerChains += 'HLT_ht700_L1J75|HLT_ht1000|HLT_ht1000_L1J100|'
-
-    # b-jet
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j225_bloose|HLT_j175_bmedium|HLT_j175_bmv2c2040_split|HLT_j225_bmv2c2060_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j275_bmv2c2070_split|HLT_j300_bmv2c2077_split|HLT_j360_bmv2c2085_split|HLT_j175_gsc225_bmv2c1040_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j225_gsc275_bmv2c1070_split|HLT_j225_gsc275_bmv2c1060_split|HLT_j225_gsc275_bhmv2c1060_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j225_gsc300_bmv2c1077_split|HLT_j225_gsc300_bmv2c1070_split|HLT_j225_gsc300_bhmv2c1070_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j225_gsc360_bmv2c1085_split|HLT_j225_gsc360_bmv2c1077_split|HLT_j225_gsc360_bhmv2c1077_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j65_btight_3j65_L13J25.0ETA23|HLT_j65_bmv2c2070_split_3j65_L14J15|HLT_j70_bmedium_3j70_L13J25.0ETA23|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j75_bmv2c2070_split_3j75_L14J15.0ETA25|HLT_j50_gsc65_bmv2c1040_split_3j50_gsc65_boffperf_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split|HLT_j60_gsc85_bmv2c1050_split_3j60_gsc85_boffperf_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j100_2j55_bmedium|HLT_j150_bmedium_j50_bmedium|HLT_2j35_btight_2j35_L13J25.0ETA23|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j45_bmedium_2j45_L13J25.0ETA23|HLT_2j65_btight_j65|HLT_2j70_bmedium_j70|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j150_bmv2c2077_split_j50_bmv2c2077_split|HLT_j150_bmv2c2060_split_j50_bmv2c2060_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j175_bmv2c2060_split_j50_bmv2c2050_split|HLT_j150_gsc175_bmv2c1070_split_j45_gsc60_bmv2c1070_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j150_gsc175_bmv2c1060_split_j45_gsc60_bmv2c1060_split|HLT_j100_2j55_bmv2c2077_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j100_2j55_bmv2c2060_split|HLT_2j65_bmv2c2070_split_j65|HLT_2j70_bmv2c2070_split_j70|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j70_bmv2c2060_split_j70|HLT_2j75_bmv2c2070_split_j75|HLT_j110_gsc150_boffperf_split_2j35_gsc55_bmv2c1077_split_L1J85_3J30|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j110_gsc150_boffperf_split_2j35_gsc55_bmv2c1070_split_L1J85_3J30|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j110_gsc150_boffperf_split_2j45_gsc55_bmv2c1070_split_L1J85_3J30|HLT_2j35_bmv2c2070_split_2j35_L14J15|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j35_bmv2c1060_split_2j35_L14J15.0ETA25|HLT_2j35_bmv2c1040_split_2j35_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j35_bmv2c2060_split_2j35_L14J15.0ETA25|HLT_2j35_bmv2c2050_split_2j35_L14J15|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j15_gsc35_bmv2c1050_split_2j15_gsc35_boffperf_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j25_gsc45_bmv2c1060_split_2j25_gsc45_boffperf_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j25_gsc45_bmv2c1050_split_2j25_gsc45_boffperf_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j35_gsc45_bmv2c1050_split_2j35_gsc45_boffperf_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j35_gsc55_bmv2c1070_split_2j35_gsc55_boffperf_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j35_gsc55_bmv2c1060_split_2j35_gsc55_boffperf_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j45_gsc55_bmv2c1060_split_2j45_gsc55_boffperf_split_L14J15.0ETA25|HLT_2j35_bmv2c1060_split_3j35|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j45_bmv2c2077_split_3j45|HLT_2j45_bmv2c2077_split_3j45_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j15_gsc35_bmv2c1060_split_3j15_gsc35_boffperf_split|HLT_2j15_gsc35_bmv2c1050_split_3j15_gsc35_boffperf_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j25_gsc45_bmv2c1070_split_3j25_gsc45_boffperf_split|HLT_2j25_gsc45_bmv2c1060_split_3j25_gsc45_boffperf_split|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j35_gsc45_bmv2c1060_split_3j35_gsc45_boffperf_split|HLT_3j50_gsc65_bmv2c1077_split_L13J35.0ETA23|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_3j35_bmv2c1070_split_j35_L14J15.0ETA25|HLT_3j15_gsc35_bmv2c1070_split_j15_gsc35_boffperf_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_4j35_bmv2c1077_split_L14J15.0ETA25|HLT_2j35_bmv2c1070_split_2j35_bmv2c1085_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_4j15_gsc35_bmv2c1077_split_L14J15.0ETA25|HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_j55_bmv2c2060_split_ht500_L14J15|HLT_j45_gsc55_bmv2c1050_split_ht700_L1HT190-J15s5.ETA21|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j55_bmv2c2070_split_ht300_L14J15|HLT_2j55_bmv2c2060_split_ht300_L14J15|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_2j45_gsc55_bmv2c1050_split_ht300_L1HT190-J15s5.ETA21|HLT_mu4_j40_dr05_3j40_L14J20|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_mu4_4j40_dr05_L1MU4_3J15|HLT_mu4_3j45_dr05_L1MU4_3J15|HLT_j80_bmv2c2060_split_xe60_L12J50_XE40|'
-
-    # single electron
-    EXOT8ThinningHelper.TriggerChains += 'HLT_e24_lhmedium_L1EM20VH|HLT_e60_lhmedium|HLT_e120_lhloose|HLT_e24_lhtight_nod0_ivarloose|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_e24_lhmedium_nod0_L1EM20VH|HLT_e60_lhmedium_nod0|HLT_e60_medium|HLT_e140_lhloose_nod0|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_e300_etcut|HLT_e26_lhtight_nod0_ivarloose|HLT_e26_lhtight_nod0|'
-
-    # single muon
-    EXOT8ThinningHelper.TriggerChains += 'HLT_mu20_iloose_L1MU15|HLT_mu40|HLT_mu60_0eta105_msonly|HLT_mu24_iloose|HLT_mu24_iloose_L1MU15|HLT_mu24_ivarloose|'
-    EXOT8ThinningHelper.TriggerChains += 'HLT_mu24_ivarloose_L1MU15|HLT_mu50|HLT_mu24_ivarmedium|HLT_mu24_imedium|HLT_mu26_ivarmedium|HLT_mu26_imedium'
+    EXOT8ThinningHelper.TriggerChains += "|".join(electronTriggers)
+    EXOT8ThinningHelper.TriggerChains += "|".join(muonTriggers)
+    EXOT8ThinningHelper.TriggerChains += "|".join(photonTrigger)
+    
+    for trigger in jetTriggers:
+      if ('bmv2c' or 'bhmv2c' or 'bloose' or 'bmedium' or 'btight') in trigger:
+        EXOT8ThinningHelper.TriggerChains += trigger + "|"
+    
 EXOT8ThinningHelper.AppendToStream( EXOT8Stream )
 
 #========================================================================================================================================
@@ -187,11 +149,11 @@ thinningTools.append(EXOT8MuonTPThinningTool)
 #########################################
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "EXOT8ElectronTPThinningTool",
-                                                                                ThinningService        = EXOT8ThinningHelper.ThinningSvc(),
-                                                                                SGKey                  = "Electrons",
-                                                                                InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                                SelectionString        = "Electrons.pt > 25*GeV", # Remove tracks with high pt cut
-                                                                                ConeSize               = 0)
+                                                                               ThinningService        = EXOT8ThinningHelper.ThinningSvc(),
+                                                                               SGKey                  = "Electrons",
+                                                                               InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                               SelectionString        = "Electrons.pt > 5*GeV",
+                                                                               ConeSize               = 0)
 ToolSvc += EXOT8ElectronTPThinningTool
 thinningTools.append(EXOT8ElectronTPThinningTool)
 
@@ -207,7 +169,6 @@ ToolSvc += EXOT8PhotonTPThinningTool
 thinningTools.append(EXOT8PhotonTPThinningTool)
 
 # Thin ak4 jets
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 EXOT8ak4ThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT8ak4ThinningTool",
                                                                   ThinningService = EXOT8ThinningHelper.ThinningSvc(),
                                                                   ContainerName   = "AntiKt4EMTopoJets",
@@ -217,7 +178,6 @@ ToolSvc += EXOT8ak4ThinningTool
 thinningTools.append(EXOT8ak4ThinningTool)
 
 # Thin ak10 jets
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 EXOT8ak10ThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT8ak10ThinningTool",
                                                                    ThinningService = EXOT8ThinningHelper.ThinningSvc(),
                                                                    ContainerName   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
@@ -228,7 +188,6 @@ thinningTools.append(EXOT8ak10ThinningTool)
 
 
 # Thin ak10 untrimmed jets
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 EXOT8ak10UntrimmedThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT8ak10UntrimmedThinningTool",
                                                                              ThinningService = EXOT8ThinningHelper.ThinningSvc(),
                                                                              ContainerName   = "AntiKt10LCTopoJets",
@@ -267,6 +226,33 @@ EXOT8ak10ak2ThinningTool = ThinAssociatedObjectsTool(name               = "EXOT8
 
 ToolSvc += EXOT8ak10ak2ThinningTool
 thinningTools.append(EXOT8ak10ak2ThinningTool)
+
+# Thin electrons
+EXOT8electronThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT8electronThinningTool",
+                                                                       ThinningService = EXOT8ThinningHelper.ThinningSvc(),
+                                                                       ContainerName   = "Electrons",
+                                                                       ApplyAnd        = False,
+                                                                       SelectionString = "Electrons.pt > 5*GeV")
+ToolSvc += EXOT8electronThinningTool
+thinningTools.append(EXOT8electronThinningTool)
+
+# Thin muons
+EXOT8muonThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT8muonThinningTool",
+                                                                   ThinningService = EXOT8ThinningHelper.ThinningSvc(),
+                                                                   ContainerName   = "Muons",
+                                                                   ApplyAnd        = False,
+                                                                   SelectionString = "Muons.pt > 5*GeV")
+ToolSvc += EXOT8muonThinningTool
+thinningTools.append(EXOT8muonThinningTool)
+
+# Thin photons
+EXOT8photonThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT8photonThinningTool",
+                                                                     ThinningService = EXOT8ThinningHelper.ThinningSvc(),
+                                                                     ContainerName   = "Photons",
+                                                                     ApplyAnd        = False,
+                                                                     SelectionString = "Photons.pt > 50*GeV")
+ToolSvc += EXOT8photonThinningTool
+thinningTools.append(EXOT8photonThinningTool)
 
 #########################################
 # truth containers a la TRUTH3
@@ -309,264 +295,10 @@ triggers_for_matching = ['HLT_g60_loose',
                          ]
 
 from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
-TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="EXOT6",
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="EXOT8",
                                                  PhotonTriggers=triggers_for_matching)
 
 augmentationTools.append(TrigMatchAug)
-
-#========================================================================================================================================
-# Triggers (https://indico.cern.ch/event/403233/contribution/4/material/slides/0.pdf)
-#
-# Not yet known: 25ns menu, L1_HT menu
-#========================================================================================================================================
-triggers = [# single small-R jet
-            "HLT_j0_perf_L1RD0_FILLED",
-            "HLT_j15",
-            "HLT_j25",
-            "HLT_j35",
-            "HLT_j45",
-            "HLT_j55",
-            "HLT_j60",
-            "HLT_j85",
-            "HLT_j110",
-            "HLT_j175",
-            "HLT_j260",
-            "HLT_j340",
-            "HLT_j360",
-            "HLT_j380",
-            "HLT_j400",
-            "HLT_j420",
-            "HLT_j450",
-            "HLT_j225_gsc380_boffperf_split",
-            "HLT_j225_gsc400_boffperf_split",
-            "HLT_j225_gsc420_boffperf_split",
-            "HLT_j225_gsc440_boffperf_split",
-
-            # multi small-R jet
-            "HLT_3j175",
-            "HLT_3j200",
-            "HLT_3j225",
-            "HLT_4j85",
-            "HLT_4j100",
-            "HLT_4j120",
-            "HLT_5j55",
-            "HLT_5j60",
-            "HLT_5j70_L14J15",
-            "HLT_5j85_L14J15",
-            "HLT_5j90",
-            "HLT_5j90_L14J150ETA25",
-            "HLT_6j45",
-            "HLT_6j60",
-            "HLT_6j60_L14J15",
-            "HLT_6j70",
-            "HLT_6j70_L14J15",
-            "HLT_7j45",
-            "HLT_7j45_L14J15",
-            "HLT_7j45_L14J150ETA25",
-            "HLT_7j45_L14J20",
-            "HLT_10j40_L14J15",
-            "HLT_10j40_L14J20",
-            "HLT_10j40_L14J150ETA25",
-            "HLT_10j40_L16J15",
-            "HLT_4j60_gsc100_boffperf_split",
-            "HLT_4j60_gsc115_boffperf_split",
-            "HLT_4j85_gsc115_boffperf_split",
-            "HLT_5j50_gsc70_boffperf_split",
-            "HLT_5j50_gsc70_boffperf_split_L14J150ETA25",
-            "HLT_5j60_gsc85_boffperf_split",
-            "HLT_5j60_gsc85_boffperf_split_L14J15",
-            "HLT_5j60_gsc85_boffperf_split_L14J150ETA25",
-            "HLT_5j60_gsc90_boffperf_split",
-            "HLT_5j60_gsc90_boffperf_split_L14J150ETA25",
-            "HLT_6j45_gsc60_boffperf_split",
-            "HLT_6j45_gsc60_boffperf_split_L14J150ETA25",
-            "HLT_6j50_gsc70_boffperf_split",
-            "HLT_6j50_gsc70_boffperf_split_L14J15",
-            "HLT_6j50_gsc70_boffperf_split_L14J150ETA25",
-            "HLT_7j25_gsc45_boffperf_split_L14J20",
-            "HLT_7j25_gsc45_boffperf_split_L14J150ETA25",
-            "HLT_7j35_gsc45_boffperf_split_L14J15",
-
-            # multi small-R jet: central
-            "HLT_5j65_0eta240_L14J15",
-            "HLT_5j70_0eta240_L14J15",
-            "HLT_5j75_0eta240",
-            "HLT_5j75_0eta240_L14J150ETA25",
-            "HLT_6j45_0eta240",
-            "HLT_6j45_0eta240_L14J20",
-            "HLT_6j50_0eta240_L14J15",
-            "HLT_6j55_0eta240_L14J15",
-            "HLT_6j60_0eta240_L14J20",
-            "HLT_6j60_0eta240_L14J150ETA25",
-
-            "HLT_5j50_gsc65_boffperf_split_0eta240",
-            "HLT_5j50_gsc65_boffperf_split_0eta240_L14J150ETA25",
-            "HLT_5j50_gsc70_boffperf_split_0eta240",
-            "HLT_5j50_gsc70_boffperf_split_0eta240_L14J15",
-            "HLT_5j50_gsc70_boffperf_split_0eta240_L14J150ETA25",
-            "HLT_5j55_gsc75_boffperf_split_0eta240",
-            "HLT_5j55_gsc75_boffperf_split_0eta240_L14J150ETA25",
-            "HLT_6j25_gsc45_boffperf_split_0eta240_L14J20",
-            "HLT_6j25_gsc45_boffperf_split_0eta240_L14J150ETA25",
-            "HLT_6j25_gsc50_boffperf_split_0eta240_L14J20",
-            "HLT_6j25_gsc50_boffperf_split_0eta240_L14J150ETA25",
-            "HLT_6j35_gsc55_boffperf_split_0eta240_L14J150ETA25",
-            "HLT_6j35_gsc55_boffperf_split_0eta240_L14J20",
-            "HLT_6j35_gsc55_boffperf_split_0eta240_L15J150ETA25",
-            "HLT_6j45_gsc55_boffperf_split_0eta240_L14J15",
-
-            # small-R jet: forward
-            "HLT_j260_320eta490",
-
-            # jet+MET
-            "HLT_j80_xe80",
-
-            # large-R jet triggers
-            "HLT_j.*a10.*",
-
-            # HT
-            "HLT_ht700_L1J75",
-            "HLT_ht1000",
-            "HLT_ht1000_L1J100",
-
-            # 1b
-            "HLT_j225_bloose",
-            "HLT_j175_bmedium",
-            "HLT_j175_bmv2c2040_split",
-            "HLT_j225_bmv2c2060_split",
-            "HLT_j275_bmv2c2070_split",
-            "HLT_j300_bmv2c2077_split",
-            "HLT_j360_bmv2c2085_split",
-            "HLT_j175_gsc225_bmv2c1040_split",
-            "HLT_j225_gsc275_bmv2c1070_split",
-            "HLT_j225_gsc275_bmv2c1060_split",
-            "HLT_j225_gsc275_bhmv2c1060_split",
-            "HLT_j225_gsc300_bmv2c1077_split",
-            "HLT_j225_gsc300_bmv2c1070_split",
-            "HLT_j225_gsc300_bhmv2c1070_split",
-            "HLT_j225_gsc360_bmv2c1085_split",
-            "HLT_j225_gsc360_bmv2c1077_split",
-            "HLT_j225_gsc360_bhmv2c1077_split",
-
-            # 1b+3j
-            "HLT_j65_btight_3j65_L13J25.0ETA23",
-            "HLT_j65_bmv2c2070_split_3j65_L14J15",
-            "HLT_j70_bmedium_3j70_L13J25.0ETA23",
-            "HLT_j75_bmv2c2070_split_3j75_L14J15.0ETA25",
-            "HLT_j50_gsc65_bmv2c1040_split_3j50_gsc65_boffperf_split",
-            "HLT_j55_gsc75_bmv2c1040_split_3j55_gsc75_boffperf_split",
-            "HLT_j60_gsc85_bmv2c1050_split_3j60_gsc85_boffperf_split",
-
-            # 2b
-            "HLT_j100_2j55_bmedium",
-            "HLT_j150_bmedium_j50_bmedium",
-            "HLT_2j35_btight_2j35_L13J25.0ETA23",
-            "HLT_2j45_bmedium_2j45_L13J25.0ETA23",
-            "HLT_2j65_btight_j65",
-            "HLT_2j70_bmedium_j70",
-            "HLT_j150_bmv2c2077_split_j50_bmv2c2077_split",
-            "HLT_j150_bmv2c2060_split_j50_bmv2c2060_split",
-            "HLT_j175_bmv2c2060_split_j50_bmv2c2050_split",
-            "HLT_j150_gsc175_bmv2c1070_split_j45_gsc60_bmv2c1070_split",
-            "HLT_j150_gsc175_bmv2c1060_split_j45_gsc60_bmv2c1060_split",
-
-            # 2b+1j
-            "HLT_j100_2j55_bmv2c2077_split",
-            "HLT_j100_2j55_bmv2c2060_split",
-            "HLT_2j65_bmv2c2070_split_j65",
-            "HLT_2j70_bmv2c2070_split_j70",
-            "HLT_2j70_bmv2c2060_split_j70",
-            "HLT_2j75_bmv2c2070_split_j75",
-
-            "HLT_j110_gsc150_boffperf_split_2j35_gsc55_bmv2c1077_split_L1J85_3J30",
-            "HLT_j110_gsc150_boffperf_split_2j35_gsc55_bmv2c1070_split_L1J85_3J30",
-            "HLT_j110_gsc150_boffperf_split_2j45_gsc55_bmv2c1070_split_L1J85_3J30",
-
-            # 2b+2j
-            "HLT_2j35_bmv2c2070_split_2j35_L14J15",
-            "HLT_2j35_bmv2c1060_split_2j35_L14J15.0ETA25",
-            "HLT_2j35_bmv2c1040_split_2j35_L14J15.0ETA25",
-            "HLT_2j35_bmv2c2060_split_2j35_L14J15.0ETA25",
-            "HLT_2j35_bmv2c2050_split_2j35_L14J15",
-
-            "HLT_2j15_gsc35_bmv2c1050_split_2j15_gsc35_boffperf_split_L14J15.0ETA25",
-            "HLT_2j15_gsc35_bmv2c1040_split_2j15_gsc35_boffperf_split_L14J15.0ETA25",
-            "HLT_2j25_gsc45_bmv2c1060_split_2j25_gsc45_boffperf_split_L14J15.0ETA25",
-            "HLT_2j25_gsc45_bmv2c1050_split_2j25_gsc45_boffperf_split_L14J15.0ETA25",
-            "HLT_2j35_gsc45_bmv2c1050_split_2j35_gsc45_boffperf_split_L14J15.0ETA25",
-            "HLT_2j35_gsc55_bmv2c1070_split_2j35_gsc55_boffperf_split_L14J15.0ETA25",
-            "HLT_2j35_gsc55_bmv2c1060_split_2j35_gsc55_boffperf_split_L14J15.0ETA25",
-            "HLT_2j45_gsc55_bmv2c1060_split_2j45_gsc55_boffperf_split_L14J15.0ETA25",
-
-            # 2b+3j
-            "HLT_2j35_bmv2c1060_split_3j35",
-            "HLT_2j45_bmv2c2077_split_3j45",
-            "HLT_2j45_bmv2c2077_split_3j45_L14J15.0ETA25",
-            "HLT_2j15_gsc35_bmv2c1060_split_3j15_gsc35_boffperf_split",
-            "HLT_2j15_gsc35_bmv2c1050_split_3j15_gsc35_boffperf_split",
-            "HLT_2j25_gsc45_bmv2c1070_split_3j25_gsc45_boffperf_split",
-            "HLT_2j25_gsc45_bmv2c1060_split_3j25_gsc45_boffperf_split",
-            "HLT_2j35_gsc45_bmv2c1060_split_3j35_gsc45_boffperf_split",
-
-            # 3b
-            "HLT_3j50_gsc65_bmv2c1077_split_L13J35.0ETA23",
-
-            # 3b+1j
-            "HLT_3j35_bmv2c1070_split_j35_L14J15.0ETA25",
-            "HLT_3j15_gsc35_bmv2c1070_split_j15_gsc35_boffperf_split_L14J15.0ETA25",
-
-            # 4b
-            "HLT_4j35_bmv2c1077_split_L14J15.0ETA25",
-            "HLT_2j35_bmv2c1070_split_2j35_bmv2c1085_split_L14J15.0ETA25",
-            "HLT_4j15_gsc35_bmv2c1077_split_L14J15.0ETA25",
-            "HLT_2j15_gsc35_bmv2c1070_split_2j15_gsc35_bmv2c1085_split_L14J15.0ETA25",
-
-            # 1b+HT
-            "HLT_j55_bmv2c2060_split_ht500_L14J15",
-            "HLT_j45_gsc55_bmv2c1050_split_ht700_L1HT190-J15s5.ETA21",
-
-            # 2b+HT
-            "HLT_2j55_bmv2c2070_split_ht300_L14J15",
-            "HLT_2j55_bmv2c2060_split_ht300_L14J15",
-            "HLT_2j45_gsc55_bmv2c1050_split_ht300_L1HT190-J15s5.ETA21",
-
-            # b-jet+mu
-            "HLT_mu4_j40_dr05_3j40_L14J20",
-            "HLT_mu4_4j40_dr05_L1MU4_3J15",
-            "HLT_mu4_3j45_dr05_L1MU4_3J15",
-
-            # b-jet+MET
-            "HLT_j80_bmv2c2060_split_xe60_L12J50_XE40",
-
-            # single electron
-            "HLT_e24_lhmedium_L1EM20VH",
-            "HLT_e60_lhmedium",
-            "HLT_e120_lhloose",
-            "HLT_e24_lhtight_nod0_ivarloose",
-            "HLT_e24_lhmedium_nod0_L1EM20VH",
-            "HLT_e60_lhmedium_nod0",
-            "HLT_e60_medium",
-            "HLT_e140_lhloose_nod0",
-            "HLT_e300_etcut",
-            "HLT_e26_lhtight_nod0_ivarloose",
-            "HLT_e26_lhtight_nod0",
-
-            # single muon
-            "HLT_mu20_iloose_L1MU15",
-            "HLT_mu40",
-            "HLT_mu60_0eta105_msonly",
-            "HLT_mu24_iloose",
-            "HLT_mu24_iloose_L1MU15",
-            "HLT_mu24_ivarloose",
-            "HLT_mu24_ivarloose_L1MU15",
-            "HLT_mu50",
-            "HLT_mu24_ivarmedium",
-            "HLT_mu24_imedium",
-            "HLT_mu26_ivarmedium",
-            "HLT_mu26_imedium",
-            ]
-
-trigger_photon = "HLT_g140_loose"
 
 #========================================================================================================================================
 # Event Skimming
@@ -622,7 +354,7 @@ eventSkim_zeroLepton   = "((%s) || (%s))" % (resolved_4jet, boosted_1LargeR)
 eventSkim_singleLepton = "((%s) && (%s))" % (singleLepton, resolved_2jet)
 eventSkim_photonSel = "((%s) && (%s))" % (photon, boosted_1LargeR_photon)
 
-preSkim_photon = "((%s) && (%s))" % (trigger_photon, photon)
+preSkim_photon = "((%s) && (%s))" % (photonTrigger, photon)
 
 #------------------------------------------
 #pre-skimming tools
@@ -659,7 +391,7 @@ EXOT8SkimmingTool_zl = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8
 ToolSvc += EXOT8SkimmingTool_zl
 
 #photon trigger
-EXOT8SkimmingTool_ph_trig = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8SkimmingTool_ph_trig", expression = trigger_photon)
+EXOT8SkimmingTool_ph_trig = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8SkimmingTool_ph_trig", expression = photonTrigger)
 ToolSvc += EXOT8SkimmingTool_ph_trig
 
 #photon + large-R
@@ -735,10 +467,11 @@ addStandardJets("AntiKt",0.2,"LCTopo", mods="lctopo_ungroomed", calibOpt="none",
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(exot8Seq)
+addVRJets(exot8Seq, do_ghost=True)
+
 # Also add Hbb Tagger
 addHbbTagger(exot8Seq, ToolSvc)
 addHbbTagger(exot8Seq, ToolSvc,nn_file_name="BoostedJetTaggers/HbbTagger/Summer2018/MulticlassNetwork.json",nn_config_file="BoostedJetTaggers/HbbTaggerDNN/MulticlassConfigJune2018.json")
-
 
 #b-tagging
 
@@ -802,7 +535,7 @@ EXOT8SlimmingHelper = SlimmingHelper("EXOT8SlimmingHelper")
 
 EXOT8SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt2Track",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                         "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
                                         "PrimaryVertices",
                                         "Electrons",
@@ -851,7 +584,6 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "BTagging_AntiKt4EMTopo.JetVertexCharge_discriminant",
                                       "BTagging_AntiKt4EMTopo.SV1_normdist",
                                       "BTagging_AntiKt4EMTopo.SV1_masssvx",
-                                      "BTagging_AntiKt2Track.JetVertexCharge_discriminant",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.GhostTrackCount",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.Tau1",
                                       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.Tau2",
@@ -872,7 +604,6 @@ EXOT8SlimmingHelper.AllVariables   = ["TruthEvents",
                                       "TruthTop",
                                       "TruthBoson",
                                       "AntiKt10LCTopoJets",
-                                      "AntiKt2PV0TrackJets",
                                       "AntiKt10TruthJets",
                                       "CombinedMuonTrackParticles",
                                       "ExtrapolatedMuonTrackParticles",
@@ -889,19 +620,15 @@ EXOT8SlimmingHelper.StaticContent = [
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT8SlimmingHelper.AppendToDictionary = {
-    "AntiKtVR30Rmax4Rmin02TrackJets"                 :   "xAOD::JetContainer"        ,
-    "AntiKtVR30Rmax4Rmin02TrackJetsAux"              :   "xAOD::JetAuxContainer"     ,
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"    :   "xAOD::JetContainer"        ,
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux" :   "xAOD::JetAuxContainer"     ,
-    "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
     "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer"   , 
     "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
 }
                                
 # Add all variabless for VR track-jets
-EXOT8SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
 EXOT8SlimmingHelper.SmartCollections  += ["BTagging_AntiKtVR30Rmax4Rmin02Track"]
+EXOT8SlimmingHelper.SmartCollections  += ["BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag"]
 
 # Save certain b-tagging variables for VR track-jet
 EXOT8SlimmingHelper.ExtraVariables += [
@@ -909,10 +636,10 @@ EXOT8SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
-]
-EXOT8SlimmingHelper.ExtraVariables += [
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore",
-    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD"
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.XbbScoreHiggs.XbbScoreTop.XbbScoreQCD",
+    "AntiKtVR30Rmax4Rmin02TrackGhostTagJets.GhostBHadronsFinal.GhostCHadronsFinal",
+    "AntiKt10LCTopoJets.NumTrkPt500.NumTrkPt1000.SumPtTrkPt500.SumPtTrkPt1000.TrackWidthPt500.TrackWidthPt1000",
 ]
 
 

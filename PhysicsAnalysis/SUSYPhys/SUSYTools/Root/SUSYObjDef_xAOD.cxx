@@ -872,12 +872,12 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
       fmd->value(xAOD::FileMetaData::mcProcID, dsid);
       fmd->value(xAOD::FileMetaData::amiTag, amiTag);
       if ( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
-      else if ( amiTag.find("r11036")!=string::npos ) mcCampaignMD = "mc16a";
+      else if ( amiTag.find("r11285")!=string::npos ) mcCampaignMD = "mc16a";
       else if ( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
       else if ( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
-      else if ( amiTag.find("r11037")!=string::npos ) mcCampaignMD = "mc16d";
+      else if ( amiTag.find("r11279")!=string::npos ) mcCampaignMD = "mc16d";
       else if ( amiTag.find("r10724")!=string::npos ) mcCampaignMD = "mc16e";
-      else if ( amiTag.find("r11038")!=string::npos ) mcCampaignMD = "mc16e";
+      else if ( amiTag.find("r11249")!=string::npos ) mcCampaignMD = "mc16e";
       else {
 	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample");
 	return StatusCode::FAILURE;
@@ -1319,7 +1319,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   configFromFile(m_BtagTagger_trkJet, "BtagTrkJet.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP_trkJet, "BtagTrkJet.WP", rEnv, "FixedCutBEff_77");
@@ -1881,6 +1881,18 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_trigGlobalEffCorrTool_diLep.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
+    for(auto &sfop : m_elecTrigEffTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig); 
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigEffTools (dilepton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_elecTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigSFTools (dilepton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_muonTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_muonTrigSFTools (dilepton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (dilepton trigger) for systematic var. " << systConfig.name() );
       return ret;
@@ -1890,6 +1902,18 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_trigGlobalEffCorrTool_multiLep.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
+    for(auto &sfop : m_elecTrigEffTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig); 
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigEffTools (multilep trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_elecTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_elecTrigSFTools (multilep trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_muonTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_muonTrigSFTools (multilep trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (multi-lepton trigger) for systematic var. " << systConfig.name() );
       return ret;
@@ -1962,6 +1986,14 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_trigGlobalEffCorrTool_diPhoton.empty()) {
     CP::SystematicCode ret = m_trigGlobalEffCorrTool_diPhoton->applySystematicVariation(systConfig);
+    for(auto &sfop : m_photonTrigEffTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig); 
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_photonTrigEffTools (diphoton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
+    for(auto &sfop : m_photonTrigSFTools){
+      CP::SystematicCode ret1 = sfop->applySystematicVariation(systConfig);
+      if (ret1 != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure m_photonTrigSFTools (diphoton trigger) for systematic var. " << systConfig.name() ); return ret1; }
+    }
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (diphoton trigger) for systematic var. " << systConfig.name() );
       return ret;

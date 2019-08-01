@@ -373,6 +373,11 @@ namespace EL
     static const std::string optBackgroundProcess;
 
 
+    /// \brief the output sample name
+  public:
+    static const std::string optOutputSampleName;
+
+
     /// description: grid-specific options
     /// rationale: these are named so as to correspond to prun equivalents,
     ///   bare the optGrid prefix.
@@ -393,6 +398,10 @@ namespace EL
     static const std::string optGridExpress;
     static const std::string optGridNoSubmit;
     static const std::string optGridMergeOutput;
+    static const std::string optGridUseContElementBoundary;
+    static const std::string optGridAddNthFieldOfInDSToLFN;
+    static const std::string optGridWorkingGroup;
+    static const std::string optGridShowCmd;
     static const std::string optTmpDir;
     static const std::string optRootVer;
     static const std::string optCmtConfig;
@@ -422,6 +431,22 @@ namespace EL
     static const std::string optBatchSlurmWrapperExec;
     /// This overrides the asetup command if you need to use a custom one
     static const std::string optBatchSetupCommand;
+
+    /// \brief this is the name of the docker image, when using docker
+    /// with a supported batch driver
+    static const std::string optDockerImage;
+
+    /// \brief any extra options we may want to pass to docker
+    static const std::string optDockerOptions;
+
+    /// \brief the job submission configuration file (used by some
+    /// drivers that need more complex configuration)
+    static const std::string optBatchConfigFile;
+
+    /// \brief the job submission setup file.  unlike \ref
+    /// optBatchConfigFile this only gets used once per submission
+    /// instead of once per job.
+    static const std::string optBatchSetupFile;
 
 
   public:

@@ -638,6 +638,8 @@ int TauSelectionTool::convertStrToEleBDTWP(std::string sEleBDTWP)
   else if (sEleBDTWP == "ELEIDBDTLOOSE") return int(ELEIDBDTLOOSE);
   else if (sEleBDTWP == "ELEIDBDTMEDIUM") return int(ELEIDBDTMEDIUM);
   else if (sEleBDTWP == "ELEIDBDTTIGHT") return int(ELEIDBDTTIGHT);
+  else if (sEleBDTWP == "ELEIDBDTOLDLOOSE") return int(ELEIDBDTOLDLOOSE);
+  else if (sEleBDTWP == "ELEIDBDTOLDMEDIUM") return int(ELEIDBDTOLDMEDIUM);
 
   ATH_MSG_ERROR( "electron ID working point "<<sEleBDTWP<<" is unknown, the cut EleBDTWP will not accept any tau!" );
   return -1;
@@ -725,6 +727,12 @@ std::string TauSelectionTool::convertEleBDTWPToStr(int iEleBDTWP)
     break;
   case ELEIDBDTTIGHT:
     return "ELEIDBDTTIGHT";
+    break;
+  case ELEIDBDTOLDLOOSE:
+    return "ELEIDBDTOLDLOOSE";
+    break;
+  case ELEIDBDTOLDMEDIUM:
+    return "ELEIDBDTOLDMEDIUM";
     break;
   default:
     ATH_MSG_ERROR( "ID working point with enum "<<iEleBDTWP<<" is unknown, the cut EleBDTWP will not accept any tau!" );

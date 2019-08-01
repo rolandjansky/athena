@@ -45,8 +45,9 @@ namespace DerivationFramework {
       ToolHandle<CaloClusterCollectionProcessor> m_caloFillRectangularTool;
       CaloFillRectangularCluster *m_tool;
       std::string m_CellCollectionName;
-      
-      void decorateObject(const xAOD::Egamma*& egamma) const;
+      bool m_saveExtraDebugInformation;
+
+      StatusCode decorateObject(const xAOD::Egamma*& egamma) const;
   };
 }
 

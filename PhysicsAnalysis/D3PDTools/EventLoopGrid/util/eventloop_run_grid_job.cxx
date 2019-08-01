@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <EventLoopGrid/GridWorker.h>
+#include <EventLoop/Worker.h>
 #include <TROOT.h>
 #include <iostream>
 #include <string>
@@ -24,5 +24,7 @@ int main (int argc, char **argv)
 
   std::string sampleName = argv[1];
 
-  EL::GridWorker::execute (sampleName);
+  EL::Worker worker;
+  ANA_CHECK (worker.gridExecute (sampleName));
+  return 0;
 }

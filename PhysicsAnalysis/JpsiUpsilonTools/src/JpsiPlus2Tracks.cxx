@@ -446,6 +446,7 @@ namespace Analysis {
                     theJpsiPreceding.push_back(*jpsiItr);
                     if(m_vertexFittingWithPV){
                         const xAOD::Vertex* closestPV = JpsiUpsilonCommon::ClosestPV(bHelper, importedPVerticesCollection);
+		        if (!closestPV) continue;
                         std::unique_ptr<xAOD::Vertex> bVertexPV (fit(QuadletTracks, importedTrackCollection, closestPV, importedGSFTrackCollection));
                         if(!bVertexPV) continue;
                         double bChi2DOFPV = bVertexPV->chiSquared()/bVertexPV->numberDoF();

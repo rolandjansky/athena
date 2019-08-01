@@ -10,6 +10,7 @@ ExtraContentElectrons=[
 
 # only if DoCellReweighting is ON
 ExtraContentElectrons += ["NewSwElectrons.trackParticleLinks.pt.eta.phi.m.caloClusterLinks.author.OQ.ethad1.ethad.f1.f3.f3core.e233.e237.e277.weta1.weta2.e2tsts1.fracs1.wtots1.emins1.emaxs1.etcone20.ptcone30.deltaEta1.deltaPhi1.deltaPhi2.deltaPhiRescaled2.deltaPhiFromLastMeasurement.Loose.Medium.Tight.LHLoose.DFCommonElectronsLHLoose.DFCommonElectronsLHLooseBL.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.DFCommonElectronsML.ptcone20.ptcone30.ptcone40.ptvarcone20.ptvarcone30.ptvarcone40.topoetcone20.topoetcone30.topoetcone40.charge.Reta.Rphi.Eratio.Rhad.Rhad1.DeltaE.topoetcone20ptCorrection.topoetcone30ptCorrection.topoetcone40ptCorrection.etcone20ptCorrection.etcone30ptCorrection.etcone40ptCorrection.ambiguityLink.truthParticleLink.truthOrigin.truthType.truthPdgId.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherTruthParticleLink.firstEgMotherPdgId.lastEgMotherTruthType.lastEgMotherTruthOrigin.lastEgMotherTruthParticleLink.lastEgMotherPdgId.ambiguityType"]
+# might need to add extra variables for Min/Max variations... but not for the moment
 
 ExtraElectronsTruth=[
     "Electrons.truthOrigin",
@@ -97,7 +98,9 @@ ExtraContainersPhotons=["Photons",
                         "egammaClusters",
                         "ForwardElectrons",
                         "ForwardElectronClusters",
-                        "NewSwPhotons" # only if DoCellReweighting is ON
+                        "NewSwPhotons", # only if DoCellReweighting is ON
+                        "MaxVarSwPhotons", # if variations are ON
+                        "MinVarSwPhotons"  # if variations are ON
                         ]
 
 # for trigger studies

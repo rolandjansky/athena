@@ -5,16 +5,6 @@
 #ifndef EVENT_LOOP_WORKER_HH
 #define EVENT_LOOP_WORKER_HH
 
-//          Copyright Nils Krumnack 2011.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-
 #include <EventLoop/Global.h>
 
 #include <EventLoop/IWorker.h>
@@ -24,7 +14,7 @@
 
 namespace EL
 {
-  class Worker : public IWorker, private Detail::ModuleData
+  class Worker final : public IWorker, private Detail::ModuleData
   {
     //
     // public interface
@@ -38,7 +28,6 @@ namespace EL
 
     /// effects: standard destructor
     /// guarantee: no-fail
-    /// rationale: virtual destructor for base class
   public:
     virtual ~Worker ();
 
@@ -215,18 +204,58 @@ namespace EL
 
 
     //
-    // protected interface
+    // public interface for the drivers
     //
 
-    /// effects: standard constructor
-    /// guarantee: strong
-    /// failures: low level errors I
-    /// requires: val_metaData != 0
-    /// requires: output != 0
-    /// warning: you have to keep the meta-data object around until
-    ///   the worker object is destroyed.
-  protected:
+    /// \brief standard constructor
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory I
+  public:
     Worker ();
+
+
+
+    //
+    // old interface for the drivers
+    //
+
+    /// \brief run the job
+    /// \par Guarantee
+    ///   basic
+  public:
+    ::StatusCode directExecute (const SH::SamplePtr& sample, const Job& job,
+                               const std::string& location, const SH::MetaObject& options);
+
+
+    /// effects: do what is needed to execute the given job segment
+    /// guarantee: basic
+    /// failures: job specific
+  public:
+    ::StatusCode batchExecute (unsigned job_id, const char *confFile);
+
+  public:
+    ::StatusCode gridExecute (const std::string& sampleName);
+
+
+  private:
+    void gridNotifyJobFinished(uint64_t eventsProcessed,
+                           const std::vector<std::string>& fileList);
+
+  private:
+    void gridAbort();
+
+  private:    
+    enum GridErrorCodes {
+      EC_FAIL = 220,
+      EC_ABORT = 221,
+      EC_NOTFINISHED = 222,
+      EC_BADINPUT = 223
+    };
+
+  private:
+    void gridCreateJobSummary(uint64_t eventsProcessed);
 
 
     /// \brief set the \ref metaData
@@ -370,18 +399,12 @@ namespace EL
 
 
     //
-    // virtual interface
-    //
-
-
-
-    //
     // private interface
     //
 
     /// description: the list of output files
   private:
-    std::map<std::string,Detail::OutputStreamData> m_outputs; //!
+    std::map<std::string,Detail::OutputStreamData> m_outputs;
 
 
     /// description: whether we are skipping the event
@@ -391,7 +414,7 @@ namespace EL
 
     /// \brief the list of modules we hold
   private:
-    std::vector<std::unique_ptr<Detail::Module> > m_modules; //!
+    std::vector<std::unique_ptr<Detail::Module> > m_modules;
 
 
     /// \brief whether this is a new input file (i.e. one that has not

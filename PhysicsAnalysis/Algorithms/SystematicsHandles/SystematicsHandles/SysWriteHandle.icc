@@ -18,32 +18,12 @@
 
 namespace CP
 {
-  template<typename T,typename Aux> inline MsgStream& SysWriteHandle<T,Aux> ::
-  msg () const
-  {
-    assert (m_msg != nullptr);
-    return *m_msg;
-  }
-
-
-
-  template<typename T,typename Aux> inline MsgStream& SysWriteHandle<T,Aux> ::
-  msg (MSG::Level lvl) const
-  {
-    assert (m_msg != nullptr);
-    *m_msg << lvl;
-    return *m_msg;
-  }
-
-
-
   template<typename T,typename Aux> template<typename T2> SysWriteHandle<T,Aux> ::
   SysWriteHandle (T2 *owner, const std::string& propertyName,
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
-    : m_outputName (propertyValue)
+    : AsgMessagingForward (owner), m_outputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
-    , m_msg (&owner->msg())
   {
     owner->declareProperty (propertyName, m_outputName, propertyDescription);
   }
@@ -83,32 +63,12 @@ namespace CP
 
 
 
-  template<typename T> inline MsgStream& SysWriteHandle<T,void> ::
-  msg () const
-  {
-    assert (m_msg != nullptr);
-    return *m_msg;
-  }
-
-
-
-  template<typename T> inline MsgStream& SysWriteHandle<T,void> ::
-  msg (MSG::Level lvl) const
-  {
-    assert (m_msg != nullptr);
-    *m_msg << lvl;
-    return *m_msg;
-  }
-
-
-
   template<typename T> template<typename T2> SysWriteHandle<T,void> ::
   SysWriteHandle (T2 *owner, const std::string& propertyName,
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
-    : m_outputName (propertyValue)
+    : AsgMessagingForward (owner), m_outputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
-    , m_msg (&owner->msg())
   {
     owner->declareProperty (propertyName, m_outputName, propertyDescription);
   }

@@ -206,13 +206,13 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
     }
 
-    // remove Insitu if it's in the string if not data, and add _Smear if not AFII
+    // remove Insitu if it's in the string if not data, and add _Smear
     if (!isData()) {
       std::string insitu("_Insitu");
       auto found = calibseq.find(insitu);
       if(found != std::string::npos){
 	calibseq.erase(found, insitu.length());
-	if ( ! isAtlfast() ) calibseq.append("_Smear");
+	calibseq.append("_Smear");
       }
     }
 
@@ -1275,6 +1275,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (m_showerType == 1) MCshowerID = "410558";      // Powheg+Herwig7
   else if (m_showerType == 2) MCshowerID = "426131"; // Sherpa 2.1
   else if (m_showerType == 3) MCshowerID = "410250"; // Sherpa 2.2
+  else if (m_showerType == 4) MCshowerID = "410464"; // aMC@NLO+Pythia8
 
   // btagEfficiencyTool
   if (!m_btagEffTool.isUserConfigured() && !m_BtagWP.empty()) {

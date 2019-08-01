@@ -11,7 +11,12 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
-exot12Seq = CfgMgr.AthSequencer("EXOT12Sequence")
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
+
+EXOT12Seq = CfgMgr.AthSequencer("EXOT12Sequence")
+DerivationFrameworkJob += EXOT12Seq
 
 #====================================================================
 # SET UP STREAM   
@@ -142,28 +147,19 @@ ToolSvc += EXOT12SkimmingTool
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += exot12Seq
-exot12Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT12Kernel_skim", SkimmingTools = [EXOT12SkimmingTool])
-exot12Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT12Kernel",
+EXOT12Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT12Kernel_skim", SkimmingTools = [EXOT12SkimmingTool])
+EXOT12Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT12Kernel",
                                                           ThinningTools = thinningTools,
                                                           AugmentationTools = augmentationTools)
 
 #=======================================
 # JETS
 #=======================================
-
-#restore AOD-reduced jet collections
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT12"] = []
-reducedJetList = [
-  "AntiKt4TruthJets",
-  "AntiKt4TruthWZJets"
-]
-replaceAODReducedJets(reducedJetList, exot12Seq, "EXOT12")
 
-#Adding Btagging for PFlowJets
+# Adding Btagging for PFlowJets
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot12Seq)
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = EXOT12Seq)
 
 
 #====================================================================

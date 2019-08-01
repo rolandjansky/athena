@@ -17,7 +17,9 @@
 #include <SelectionHelpers/SelectionAccessorInvert.h>
 #include <SelectionHelpers/SelectionAccessorList.h>
 #include <SelectionHelpers/SelectionAccessorNull.h>
+#include <SelectionHelpers/SelectionExprParser.h>
 #include <exception>
+#include <unordered_map>
 
 //
 // method implementations
@@ -41,52 +43,39 @@ namespace CP
       return result;
     }
 
-
-    StatusCode
-    makeSelectionAccessorList (const std::string& name,
-                               std::unique_ptr<ISelectionAccessor>& accessor,
-                               bool defaultToChar)
+  }
+  
+    StatusCode 
+    makeSelectionAccessor(const std::string& expr, 
+                                      std::unique_ptr<ISelectionAccessor>& accessor,
+                                      bool defaultToChar)
     {
       using namespace msgSelectionHelpers;
 
-      std::vector<std::string> subnames = splitString (name, "&&");
-
-      std::vector<std::unique_ptr<ISelectionAccessor> > list;
-      for (const std::string& subname : subnames)
+      if (expr.empty())
       {
-        if (subname.empty())
-        {
-          ANA_MSG_ERROR ("provided empty selection decoration in decoration list: " << name);
-          return StatusCode::FAILURE;
-        }
-
-        std::unique_ptr<ISelectionAccessor> subaccessor;
-        ANA_CHECK (makeSelectionAccessor (subname, subaccessor, defaultToChar));
-        list.emplace_back (std::move (subaccessor));
+        accessor = std::make_unique<SelectionAccessorNull> (true);
+        return StatusCode::SUCCESS;
       }
-      accessor = std::make_unique<SelectionAccessorList> (std::move (list));
+
+      try {
+        SelectionExprParser parser(expr, defaultToChar);
+        ANA_CHECK(parser.build(accessor));
+      } catch (const std::exception& e) {
+        ANA_MSG_FATAL("Failure to parse expression: '" << expr << "': " << e.what());
+        return StatusCode::FAILURE;
+      }
+
       return StatusCode::SUCCESS;
     }
-  }
-
 
 
   StatusCode
-  makeSelectionAccessor (const std::string& name,
+  makeSelectionAccessorVar (const std::string& name,
                          std::unique_ptr<ISelectionAccessor>& accessor,
                          bool defaultToChar)
   {
     using namespace msgSelectionHelpers;
-
-    if (name.empty())
-    {
-      accessor = std::make_unique<SelectionAccessorNull> ();
-      return StatusCode::SUCCESS;
-    }
-
-    // treat decoration lists separately
-    if (name.find ("&&") != std::string::npos)
-      return makeSelectionAccessorList (name, accessor, defaultToChar);
 
     std::string var;
     bool asChar = false;

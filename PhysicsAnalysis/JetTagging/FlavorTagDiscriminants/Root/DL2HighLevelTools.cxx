@@ -68,30 +68,50 @@ namespace FlavorTagDiscriminants {
 
 
   // functions to rewrite input names
-  std::string sub_first(const ReplaceRegexes& res,
+  std::string sub_first(const StringRegexes& res,
                         const std::string var_name) {
     for (const auto& pair: res) {
       const std::regex& re = pair.first;
       const std::string& fmt = pair.second;
       std::string new_name = std::regex_replace(
         var_name, re, fmt, std::regex_constants::format_no_copy);
-      if (new_name.size() > 0) return new_name;
+      if (new_name.size() > 0) {
+        return new_name;
+      }
     }
     throw std::logic_error(
       "no regex match found for variable '" + var_name + "' while building "
       "negative tag b-btagger");
   }
-  void rewriteFlipConfig(lwt::GraphConfig& config, const ReplaceRegexes& res){
+  void rewriteFlipConfig(lwt::GraphConfig& config,
+                         const StringRegexes& res){
     for (auto& node: config.inputs) {
       for (auto& var: node.variables) {
         var.name = sub_first(res, var.name);
       }
+      std::map<std::string, double> new_defaults;
+      for (auto& pair: node.defaults) {
+        new_defaults[sub_first(res, pair.first)] = pair.second;
+      }
+      node.defaults = new_defaults;
     }
     std::map<std::string, lwt::OutputNodeConfig> new_outputs;
     for (auto& pair: config.outputs) {
       new_outputs[sub_first(res, pair.first)] = pair.second;
     }
     config.outputs = new_outputs;
+  }
+
+  void flipSequenceSigns(lwt::GraphConfig& config,
+                         const std::regex& re) {
+    for (auto& node: config.input_sequences) {
+      for (auto& var: node.variables) {
+        if (std::regex_match(var.name, re)) {
+          var.offset *= -1.0;
+          var.scale *= -1.0;
+        }
+      }
+    }
   }
 
 }

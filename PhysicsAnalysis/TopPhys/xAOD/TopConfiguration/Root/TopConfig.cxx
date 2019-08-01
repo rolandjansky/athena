@@ -170,6 +170,9 @@ namespace top{
 
     // Electron configuration
     m_egammaSystematicModel("1NP_v1"),
+    m_electronEfficiencySystematicModel("TOTAL"),
+    m_electronEfficiencySystematicModelEtaBinning(""),
+    m_electronEfficiencySystematicModelEtBinning(""),
     m_electronID("SetMe"),
     m_electronIDLoose("SetMe"),
     m_electronVetoLArCrack(true),
@@ -221,7 +224,7 @@ namespace top{
 
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
-    m_largeRJESUncertaintyConfig("SetMe"),
+    m_largeRJetUncertainties_NPModel("CategoryReduction"),
     m_largeRJESJMSConfig("SetMe"),
 
     m_trackJetPtcut(7000.0),
@@ -755,6 +758,9 @@ namespace top{
 
     // Electron configuration
     this->egammaSystematicModel( settings->value("EgammaSystematicModel") );
+    this->electronEfficiencySystematicModel( settings->value("ElectronEfficiencySystematicModel") );
+    this->electronEfficiencySystematicModelEtaBinning( settings->value("ElectronEfficiencySystematicModelEtaBinning") );
+    this->electronEfficiencySystematicModelEtBinning( settings->value("ElectronEfficiencySystematicModelEtBinning") );
     this->electronID( settings->value("ElectronID") );
     this->electronIDLoose( settings->value("ElectronIDLoose") );
     {
@@ -887,7 +893,7 @@ namespace top{
 
     this->largeRJetPtcut( std::stof(settings->value("LargeRJetPt")) );
     this->largeRJetEtacut( std::stof(settings->value("LargeRJetEta")) );
-    this->largeRJESUncertaintyConfig( settings->value("LargeRJESUncertaintyConfig") );
+    this->largeRJetUncertainties_NPModel( settings->value("LargeRJetUncertainties_NPModel") );
     this->largeRJESJMSConfig( settings->value("LargeRJESJMSConfig") );
 
     this->trackJetPtcut( std::stof(settings->value("TrackJetPt")) );

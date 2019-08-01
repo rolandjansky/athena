@@ -29,6 +29,8 @@ from ThinningUtils.ThinningUtilsConf import (
     EleLinkThinningTool,
     ThinAssociatedObjectsTool)
 from DerivationFrameworkTrigger.TriggerMatchingHelper import TriggerMatchingHelper
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+
 
 # CP group common variables
 import DerivationFrameworkJetEtMiss.JetCommon as JetCommon
@@ -42,12 +44,12 @@ import DerivationFrameworkInDet.InDetCommon as InDetCommon
 from JetRec.JetRecStandardToolManager import jtm
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import (
     DerivationFramework__GenericTruthThinning)
-import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
 from BTagging.BTaggingFlags import BTaggingFlags
 from DerivationFrameworkCore.FullListOfSmartContainers import (
     FullListOfSmartContainers)
 # Make sure all the normal truth stuff is there
 if DerivationFrameworkIsMonteCarlo: 
+  import DerivationFrameworkMCTruth.MCTruthCommon as MCTruthCommon
   MCTruthCommon.addStandardTruthContents()
 
 import DerivationFrameworkExotics.EXOT27Utils as EXOT27Utils
@@ -165,6 +167,9 @@ vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
 JetCommon.OutputJets["EXOT27Jets"].append(vrGhostTagTrackJets+"Jets")
 
+# schedule pflow tagging
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=EXOT27Seq)
+
 # *Something* is asking for the pseudo jet getters for the FR track jets so I'm
 # still producing them, just not outputting them.
 replace_jet_list = [
@@ -222,6 +227,8 @@ for collection in toBeAssociatedTo:
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 # Schedule for output
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track")
+outputContainer("BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag")
+outputContainer("BTagging_AntiKt4EMPFlow")
 
 # Add in Xbb tagging variables
 HbbCommon.addRecommendedXbbTaggers(EXOT27Seq, ToolSvc, logger=logger)
@@ -383,6 +390,24 @@ EXOT27ThinningTools.append(
       SGKey = "TauJets",
       ChildThinningTools = [ToolSvc.EXOT27TauTrackLinksThinningTool]) )
 
+# subjet thinning, only applied to GhostTag selection for now
+ToolSvc += EleLinkThinningTool(
+    "EXOT27SubjetThinningTool",
+    LinkName = "Parent.{glink}({jets}).btaggingLink({btag})".format(
+        glink="GhostVR30Rmax4Rmin02TrackJetGhostTag",
+        jets="AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
+        btag="BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag"),
+    ThinningService = EXOT27ThinningHelper.ThinningSvc() )
+large_r = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+# for now we only apply this above 100 GeV (same as the large-R jet
+# thinning above) but we could set ths separately if needed
+EXOT27ThinningTools.append(
+    ThinAssociatedObjectsTool(
+        "EXOT27SubjetAssocThinningTool",
+        ThinningService = EXOT27ThinningHelper.ThinningSvc(),
+        SGKey = large_r,
+        ChildThinningTools = [ToolSvc.EXOT27SubjetThinningTool] ) )
+
 # TODO (perhaps): truth thinning
 # What I have here is extremely simplistic - designed to at least have what I
 # need for my immediate studies and (by inspection) what is used by XAMPP truth
@@ -448,6 +473,7 @@ if sel_string:
       expression = sel_string
       )
   EXOT27SkimmingTools.append(EXOT27StringSkimmingTool)
+
 
 # Add additional skimming for events passing lepton and photon triggers
 # Ideally we would add similar requirements for events passing the MET triggers
@@ -552,6 +578,7 @@ JetCommon.addJetOutputs(
     smartlist = [
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
       "AntiKt2LCTopoJets",
+      "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
     ],
     vetolist = [
     "AntiKt2PV0TrackJets",

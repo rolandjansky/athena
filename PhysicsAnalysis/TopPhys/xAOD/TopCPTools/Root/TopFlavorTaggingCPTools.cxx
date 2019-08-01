@@ -42,11 +42,11 @@ StatusCode FlavorTaggingCPTools::initialize() {
   }
 
   m_tagger          = ""; // Extract in the loop
-  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-10-19_v1.root";
+  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root";
   // This ordering needs to match the indexing in TDP (for missing cases, we use default which gives a MC/MC of 1 as its the same as the eff used in the calibration
   // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1)
   // Default changed from 410501 to 410470 in the CDI release of October 2018 
-  m_efficiency_maps = "default;410558;410470;410250;default";
+  m_efficiency_maps = "default;410558;410470;410250;default;410464";
 
   // List of algorithms in R21
   m_tagger_algorithms = {"MV2c10", "MV2r", "MV2rmu", 

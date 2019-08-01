@@ -45,6 +45,11 @@ double tauP(const xAOD::TauJet& xTau);
 double tauEta(const xAOD::TauJet& xTau);
 double tauAbsEta(const xAOD::TauJet& xTau);
 double tauLeadTrackEta(const xAOD::TauJet& xTau);
+double truthDecayMode(const xAOD::TauJet& xTau);
+const xAOD::TruthParticle* getTruth(const xAOD::TauJet& xTau);
+xAOD::TauJetParameters::DecayMode getTruthDecayMode(const xAOD::TruthParticle& xTruthTau);
+xAOD::TauJetParameters::DecayMode getTruthDecayMode(const xAOD::TauJet& xTau);
+int getNTauDecayParticles(const xAOD::TruthParticle& xTruthTau, int iPdgId, bool bCompareAbsoluteValues);
 
 bool testFileForEOFContainsCharacters(std::string sFileName);
 void createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& vPi0s);

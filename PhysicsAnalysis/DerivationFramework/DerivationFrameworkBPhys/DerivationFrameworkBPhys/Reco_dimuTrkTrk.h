@@ -38,7 +38,7 @@ namespace DerivationFramework {
     private:
       
       ToolHandle<Trk::V0Tools>                    m_v0Tools;
-      ToolHandle<Analysis::JpsiPlus2Tracks>        m_jpsi2Track;
+      ToolHandle<Analysis::ICandidateSearch>        m_jpsi2Track;
       ToolHandle<Analysis::PrimaryVertexRefitter> m_pvRefitter;
       ServiceHandle<IBeamCondSvc>                 m_beamSpotSvc;
 

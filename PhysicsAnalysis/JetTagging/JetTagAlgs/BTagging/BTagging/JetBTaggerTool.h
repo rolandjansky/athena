@@ -45,7 +45,8 @@ class  JetBTaggerTool:
   std::string m_JetName;
   std::string m_BTagName;
   std::string m_BTagSVName; 
-  std::string m_BTagJFVtxName; 
+  std::string m_BTagJFVtxName;
+  bool m_do2019Retraining;
 
   // FIXME: mutable
   mutable ToolHandle< IBTagTool > m_bTagTool; 
@@ -65,6 +66,9 @@ class  JetBTaggerTool:
     StatusCode overwrite(const std::string& key, bool doCopy = true) const;
   template< class CONTAINER, class AUXSTORE >
     StatusCode overwriteImp(const std::string& key, bool doCopy = true) const;
+
+  SG::AuxElement::Decorator<char> m_bad_auxdata;
+
 };
 
 }

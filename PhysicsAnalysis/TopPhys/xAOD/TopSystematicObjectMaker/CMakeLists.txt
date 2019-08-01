@@ -71,6 +71,7 @@ atlas_add_library( TopSystematicObjectMaker Root/*.cxx Root/*.h Root/*.icc
                                   InDetTrackSystematicsToolsLib
 				  MuonAnalysisInterfacesLib
 				  FTagAnalysisInterfacesLib
+                                  BoostedJetTaggersLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

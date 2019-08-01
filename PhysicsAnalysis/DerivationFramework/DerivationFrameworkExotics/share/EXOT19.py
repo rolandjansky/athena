@@ -11,7 +11,12 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
-exot19Seq = CfgMgr.AthSequencer("EXOT19Sequence")
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
+
+EXOT19Seq = CfgMgr.AthSequencer("EXOT19Sequence")
+DerivationFrameworkJob += EXOT19Seq
 
 #====================================================================
 # SET UP STREAM   
@@ -147,19 +152,11 @@ ToolSvc += EXOT19SkimmingTool
 #=======================================
 # JETS
 #=======================================
-
-#restore AOD-reduced jet collections
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT19"] = []
-reducedJetList = [
-  "AntiKt4TruthJets",
-  "AntiKt4TruthWZJets"
-]
-replaceAODReducedJets(reducedJetList, exot19Seq, "EXOT19")
 
-#Adding Btagging for PFlowJets
+# Adding Btagging for PFlowJets
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot19Seq)
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = EXOT19Seq)
 
 
 #=======================================
@@ -167,9 +164,8 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = exot19Seq)
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += exot19Seq
-exot19Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT19Kernel_skim", SkimmingTools = [EXOT19SkimmingTool])
-exot19Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT19Kernel",
+EXOT19Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT19Kernel_skim", SkimmingTools = [EXOT19SkimmingTool])
+EXOT19Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT19Kernel",
                                                           ThinningTools = thinningTools,
                                                           AugmentationTools = augmentationTools)
 

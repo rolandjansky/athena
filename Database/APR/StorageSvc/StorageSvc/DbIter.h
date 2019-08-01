@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DbIter.h 726071 2016-02-25 09:23:05Z krasznaa $
@@ -87,7 +87,7 @@ namespace pool  {
     /// Dereference operator
     T* object()  const                  {    return m_obj.ptr();              }
     /// Access to cursor token
-    const Token* token() const          {    return m_token;                  }
+    const Token* token() const          {    return &m_token;                 }
     /// Scan the container
     DbStatus scan(const DbContainer& cntH, const DbTypeInfo* typ);
     /// Retrieve next element

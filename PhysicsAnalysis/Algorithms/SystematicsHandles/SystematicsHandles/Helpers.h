@@ -14,6 +14,10 @@ namespace CP
 {
   class SystematicSet;
 
+  /// \brief nominal systematics name
+  std::string nominalSystematicsName ();
+
+
   /// \brief make the name for the given systematics
   /// \par Guarantee
   ///   strong

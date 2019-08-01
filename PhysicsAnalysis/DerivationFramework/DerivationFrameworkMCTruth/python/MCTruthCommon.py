@@ -6,37 +6,40 @@ from RecExConfig.ObjKeyStore import objKeyStore
 from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
 from DerivationFrameworkMCTruth.TruthDerivationTools import *
 
-dfInputIsEVNT = False # Flag to distinguish EVNT from AOD input
-# Build truth collection if input is HepMC. Must be scheduled first to allow slimming.
-# Input file is EVNT
-if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-    DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
-    dfInputIsEVNT = True
-# Input file is HITS and translation hasn't been scheduled - careful with the name difference!
-elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
-    if not hasattr(DerivationFrameworkJob,'GEN_AOD2xAOD'):
-        DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
-    dfInputIsEVNT = True
-# If it isn't available, make a truth meta data object (will hold MC Event Weights)
-if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) and not dfInputIsEVNT:
-    # If we are going to be making the truth collection (dfInputIsEVNT) then this will be made elsewhere
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
-    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-    DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
-                                                                AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
-                                                                 )
-# Add in some jets - global config if we are running on EVNT
-if dfInputIsEVNT:
-    from JetRec.JetRecFlags import jetFlags
-    jetFlags.useTruth = True
-    jetFlags.useTracks = False
-    jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
-                                "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
-                                "TausFinal",
-                                "Partons",
-                                ]
+# Execute this only for MC
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
+if DerivationFrameworkIsMonteCarlo:
+    dfInputIsEVNT = False # Flag to distinguish EVNT from AOD input
+    # Build truth collection if input is HepMC. Must be scheduled first to allow slimming.
+    # Input file is EVNT
+    if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+        DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
+        dfInputIsEVNT = True
+    # Input file is HITS and translation hasn't been scheduled - careful with the name difference!
+    elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
+        if not hasattr(DerivationFrameworkJob,'GEN_AOD2xAOD'):
+            DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
+        dfInputIsEVNT = True
+    # If it isn't available, make a truth meta data object (will hold MC Event Weights)
+    if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) and not dfInputIsEVNT:
+        # If we are going to be making the truth collection (dfInputIsEVNT) then this will be made elsewhere
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
+        from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
+                                                                    AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
+                                                                     )
+    # Add in some jets - global config if we are running on EVNT
+    if dfInputIsEVNT:
+        from JetRec.JetRecFlags import jetFlags
+        jetFlags.useTruth = True
+        jetFlags.useTracks = False
+        jetFlags.truthFlavorTags = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
+                                    "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
+                                    "TausFinal",
+                                    "Partons",
+                                    ]
 
 def addTruthJetsEVNT(kernel=None, decorationDressing=None):
     # Ensure that we are running on something
@@ -157,7 +160,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
         if kernel is None:
             from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
             kernel = DerivationFrameworkJob
-        # make sure if we are using EVNT that we don't try to check sim metadata 
+        # make sure if we are using EVNT that we don't try to check sim metadata
         barCodeFromMetadata=2
         if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
             barCodeFromMetadata=0
@@ -237,7 +240,7 @@ def schedulePreJetMCTruthAugmentations(kernel=None, decorationDressing=None):
                                                              )
 
 
-    
+
 
 
 def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
@@ -250,7 +253,7 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         # Already there!  Carry on...
         return
 
-    # Tau collections are built separately 
+    # Tau collections are built separately
     # truth tau matching needs truth jets, truth electrons and truth muons
     from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
     scheduleTauTruthTools(kernel)
@@ -298,7 +301,7 @@ def addParentAndDownstreamParticles(kernel=None,
                                     parents=[6],
                                     prefix='TopQuark',
                                     collection_prefix=None,
-                                    rejectHadronChildren=False): 
+                                    rejectHadronChildren=False):
   # Ensure that we are adding it to something
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
@@ -326,16 +329,16 @@ def addTausAndDownstreamParticles(kernel=None, generations=1):
     return addParentAndDownstreamParticles(kernel=kernel,
                                     generations=generations,
                                     parents=[15],
-                                    prefix='Tau') 
+                                    prefix='Tau')
 
-# Add W bosons and their downstream particles 
+# Add W bosons and their downstream particles
 def addWbosonsAndDownstreamParticles(kernel=None, generations=1,
                                      rejectHadronChildren=False):
     return addParentAndDownstreamParticles(kernel=kernel,
                                            generations=generations,
                                            parents=[24],
                                            prefix='Wboson',
-                                           rejectHadronChildren=rejectHadronChildren) 
+                                           rejectHadronChildren=rejectHadronChildren)
 
 # Add W/Z/H bosons and their downstream particles (notice "boson" here does not include photons and gluons)
 def addBosonsAndDownstreamParticles(kernel=None, generations=1,
@@ -344,7 +347,7 @@ def addBosonsAndDownstreamParticles(kernel=None, generations=1,
                                            generations=generations,
                                            parents=[23,24,25],
                                            prefix='Boson',
-                                           rejectHadronChildren=rejectHadronChildren) 
+                                           rejectHadronChildren=rejectHadronChildren)
 
 
 def addBottomQuarkAndDownstreamParticles(kernel=None, generations=1, rejectHadronChildren=False):
@@ -497,7 +500,7 @@ def addLargeRJetD2(kernel=None):
         kernel = DerivationFrameworkJob
     if hasattr(kernel,'TRUTHD2Kernel'):
         # Already there!  Carry on...
-        return 
+        return
 
     #Extra classifier for D2 variable
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthD2Decorator

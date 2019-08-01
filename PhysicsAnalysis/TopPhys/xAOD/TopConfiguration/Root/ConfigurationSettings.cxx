@@ -42,14 +42,17 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("GRLDir","Location of GRL File","TopAnalysis");
     registerParameter("GRLFile","Name of GRL File", " ");
 
-    registerParameter("TDPPath","Path to TopDataPreparation file (accessible via PathResolver)","dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data");
+    registerParameter("TDPPath","Path to TopDataPreparation file (accessible via PathResolver)","dev/AnalysisTop/TopDataPreparation/XSection-MC16-13TeV.data");
 
     registerParameter("DumpBtagSystsInSystTrees", "Dump systematics-shifted b-tagging SFs in systematic TTrees, True or False (default: False)","False");
 
     registerParameter("ElectronID", "Type of electron. Likelihood LooseAndBLayerLH, MediumLH, TightLH","TightLH");
     registerParameter("ElectronIDLoose", "Type of electron for background. Likelihood LooseAndBLayerLH, MediumLH, TightLH","MediumLH");
     registerParameter("ElectronPt", "Electron pT cut for object selection (in MeV). Default 25 GeV.", "25000.");
-    registerParameter("EgammaSystematicModel","Egamma Systematic model : FULL_v1 , 1NP_v1 (default)","1NP_v1");
+    registerParameter("EgammaSystematicModel","Egamma Calibration Systematic model : FULL_v1 , 1NP_v1 (default)","1NP_v1");
+    registerParameter("ElectronEfficiencySystematicModel","Electron Efficiency Systematic model : FULL, SIMPLIFIED, TOTAL (default)","TOTAL");
+    registerParameter("ElectronEfficiencySystematicModelEtaBinning","Electron Efficiency Systematic model eta binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ, e.g. 0.0:1.37:4.9)","default");
+    registerParameter("ElectronEfficiencySystematicModelEtBinning","Electron Efficiency Systematic model E_T binning (option for SIMPLIFIED model, do not specify to use default; format XXX:YYY:ZZZ. e.g. 4000:7000:10000:15000:13000000)","default");
     registerParameter("ElectronIsolation","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, None","Gradient");
     registerParameter("ElectronIsolationLoose","Isolation to use : Gradient, FCLoose, FCTight, FCHighPtCaloOnly, None","None");
     registerParameter("ElectronIsolationSF", "Force electron isolation SF (e.g. None). EXPERIMENTAL!", " ");
@@ -115,9 +118,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("LargeRJetPt", "Track Jet pT cut for object selection (in MeV). Default 7 GeV.", "25000.");
     registerParameter("LargeRJetEta", "Absolute large-R jet eta cut for object selection. Default 2.0.", "2.0" );
-    registerParameter("LargeRJESUncertaintyConfig",
-		      "Variables to be varied with JES uncertainties. Options:D2Beta1,Tau21WTA,Tau32WTA,Split12,Split23,Qw ( default Split23,Tau32WTA)",
-		      "Split23,Tau32WTA");
+    registerParameter("LargeRJetUncertainties_NPModel", "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, - for Large-R Jet Uncertainties","CategoryReduction");
     registerParameter("LargeRJESJMSConfig",
 		      "Calibration for large-R JES/JMS. CombMass or CaloMass (default CombMass).",
                       "CombMass");

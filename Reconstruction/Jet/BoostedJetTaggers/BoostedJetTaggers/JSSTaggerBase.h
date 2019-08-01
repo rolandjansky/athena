@@ -13,6 +13,7 @@
 #include "JetInterface/IJetSelector.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "BoostedJetTaggers/IJetSelectorLabelTool.h"
 #include "BoostedJetTaggers/FatjetLabelEnum.h"
 
 #include "PATCore/TAccept.h"
@@ -21,9 +22,9 @@
 #include <stdlib.h>
 
 class JSSTaggerBase :   public asg::AsgTool ,
-			virtual public IJetSelectorTool,
-			virtual public IJetSelector {
-  ASG_TOOL_CLASS2(JSSTaggerBase, IJetSelectorTool, IJetSelector )
+			virtual public IJetSelector,
+                        virtual public IJetSelectorLabelTool {
+  ASG_TOOL_CLASS2(JSSTaggerBase, IJetSelector, IJetSelectorLabelTool )
   
   protected:
   
@@ -53,6 +54,15 @@ class JSSTaggerBase :   public asg::AsgTool ,
   std::string m_truthWBosonContainerName;
   std::string m_truthZBosonContainerName;
   std::string m_truthTopQuarkContainerName;
+  // parameters for truth labeling
+  double m_dR_truthJet;
+  double m_dR_truthPart;
+  double m_mLowTop;
+  double m_mHighTop;
+  double m_mLowW;
+  double m_mHighW;
+  double m_mLowZ;
+  double m_mHighZ;
 
    // default constructor - to be used in all derived classes
   JSSTaggerBase(const std::string &name);
@@ -70,7 +80,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
   int matchToWZ_Sherpa(const xAOD::Jet& jet,
 			const xAOD::TruthParticleContainer* truthParts,
 			double dRmax) const;
-  virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, std::string decorName="FatjetTruthLabel", double dR_truthJet=0.75, double dR_truthPart=0.75, double mLowTop=140, double mHighTop=-1, double mLowW=50, double mHighW=100, double mLowZ=60, double mHighZ=110) const;
+  virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet) const;
   virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
   bool getIsSherpa(const int DSID) const {
     if( (304307 <= DSID && DSID <=304309) || // Sherpa 2.2.1 W+jets

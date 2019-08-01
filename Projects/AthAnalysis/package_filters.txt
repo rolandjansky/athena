@@ -154,7 +154,6 @@
 + Control/PerformanceMonitoring/PerfMonKernel
 + Control/PerformanceMonitoring/PerfMonComps
 + Control/PerformanceMonitoring/PerfMonEvent
-+ Control/PerformanceMonitoring/PerfMonKernel
 + Control/PerformanceMonitoring/PerfMonGPerfTools
 + Control/Navigation
 

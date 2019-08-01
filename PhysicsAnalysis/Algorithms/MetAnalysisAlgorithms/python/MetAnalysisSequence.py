@@ -4,7 +4,7 @@
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True ):
+def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True, postfix = '' ):
     """Create a met analysis algorithm sequence
 
     After creating the sequence object, it needs to be configured with a call
@@ -40,10 +40,10 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True ):
         raise ValueError ("invalid data type: " + dataType)
 
     # Create the analysis algorithm sequence object:
-    seq = AnaAlgSequence( "MetAnalysisSequence" )
+    seq = AnaAlgSequence( "MetAnalysisSequence" + postfix )
 
     # Set up the met maker algorithm:
-    alg = createAlgorithm( 'CP::MetMakerAlg', 'MetMakerAlg' )
+    alg = createAlgorithm( 'CP::MetMakerAlg', 'MetMakerAlg' + postfix)
     addPrivateTool( alg, 'makerTool', 'met::METMaker' )
     alg.makerTool.DoPFlow = 'PFlow' in metSuffix
     if useFJVT:
@@ -55,23 +55,24 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True ):
                                   'electrons' : 'electrons',
                                   'photons'   : 'photons',
                                   'muons'     : 'muons',
-                                  'taus'      : 'taus' },
+                                  'taus'      : 'taus',
+                                  'invisible' : 'invisible'},
                 outputPropName = 'met',
                 affectingSystematics = '(^MET_.*)' )
 
     if dataType != "data" :
-        alg = createAlgorithm( 'CP::MetSystematicsAlg', 'MetSystematicsAlg' )
+        alg = createAlgorithm( 'CP::MetSystematicsAlg', 'MetSystematicsAlg' + postfix )
         addPrivateTool( alg, 'systematicsTool', 'met::METSystematicsTool' )
         seq.append( alg, inputPropName = 'met',
                     affectingSystematics = '(^MET_.*)' )
         pass
 
     # Set up the met builder algorithm:
-    alg = createAlgorithm( 'CP::MetBuilderAlg', 'MetBuilderAlg' )
+    alg = createAlgorithm( 'CP::MetBuilderAlg', 'MetBuilderAlg' + postfix )
     seq.append( alg, inputPropName = 'met' )
 
     # Set up the met significance algorithm:
-    alg = createAlgorithm( 'CP::MetSignificanceAlg', 'MetSignificanceAlg' )
+    alg = createAlgorithm( 'CP::MetSignificanceAlg', 'MetSignificanceAlg' + postfix )
     addPrivateTool( alg, 'significanceTool', 'met::METSignificance' )
     alg.significanceTool.SoftTermParam = 0
     alg.significanceTool.TreatPUJets = True

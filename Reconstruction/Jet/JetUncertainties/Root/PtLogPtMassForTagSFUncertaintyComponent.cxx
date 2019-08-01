@@ -77,7 +77,7 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
       
       SG::AuxElement::ConstAccessor<int> accResult(m_result_name.Data());
       if ( !accResult.isAvailable(jet) ){
-	ATH_MSG_ERROR("TAccept is not decorated to the jet.");
+	ATH_MSG_ERROR(m_result_name+" is not decorated to the jet.");
       } else {
 	FatjetCutResult::TypeEnum myCutResult=FatjetCutResult::intToEnum(accResult(jet));
 	if ( m_region==CompTaggerRegionVar::passMpassD2_2Var ||
@@ -103,9 +103,9 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
       }
     }
     if ( (m_label==CompFlavorLabelVar::t_qqb && jetFlavorLabel!=FatjetTruthLabel::tqqb) ||
-	 (m_label==CompFlavorLabelVar::t && jetFlavorLabel!=FatjetTruthLabel::tqqb && jetFlavorLabel!=FatjetTruthLabel::Wqq_From_t && jetFlavorLabel!=FatjetTruthLabel::other_From_t) ||
-	 (m_label==CompFlavorLabelVar::V_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq && jetFlavorLabel!=FatjetTruthLabel::Zqq) ||
-	 (m_label==CompFlavorLabelVar::W_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq) ||
+	 (m_label==CompFlavorLabelVar::t && jetFlavorLabel!=FatjetTruthLabel::tqqb && jetFlavorLabel!=FatjetTruthLabel::other_From_t) ||
+	 (m_label==CompFlavorLabelVar::V_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq && jetFlavorLabel!=FatjetTruthLabel::Zqq && jetFlavorLabel!=FatjetTruthLabel::Wqq_From_t) ||
+	 (m_label==CompFlavorLabelVar::W_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq && jetFlavorLabel!=FatjetTruthLabel::Wqq_From_t) ||
 	 (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel!=FatjetTruthLabel::Zqq) ||
 	 (m_label==CompFlavorLabelVar::q && jetFlavorLabel!=FatjetTruthLabel::notruth && jetFlavorLabel!=FatjetTruthLabel::qcd) ) {
       // if the type of uncertainty is not match to the jet truth label, return 0% uncertainty

@@ -527,7 +527,7 @@ def checkForShowerAlgorithm(Samples, cutfile):
     if customTDPFile:
         tdpFile = ROOT.PathResolver.find_calib_file(customTDPFile)
     else:
-        tdpFile = ROOT.PathResolver.find_file("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data", "CALIBPATH", ROOT.PathResolver.RecursiveSearch)
+        tdpFile = ROOT.PathResolver.find_file("dev/AnalysisTop/TopDataPreparation/XSection-MC16-13TeV.data", "CALIBPATH", ROOT.PathResolver.RecursiveSearch)
     # Load the file
     print tdpFile
     tdp = analysis.TopDataPreparation(tdpFile)
@@ -541,7 +541,7 @@ def checkForShowerAlgorithm(Samples, cutfile):
                     continue
                 dsid = sample.split('.')[1]
                 dsid = int(dsid)
-                hasShower = tdp.getShower(dsid) in ['sherpa','sherpa21','pythia','pythia8','herwigpp']
+                hasShower = tdp.getShower(dsid) in ['sherpa','sherpa21','pythia','pythia8','herwigpp','amcatnlopythia8']
                 #print hasShower,"   ",sample
                 if not tdp.hasID(dsid) or not hasShower:
                     noShowerDatasets += [dsid]
