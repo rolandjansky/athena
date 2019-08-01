@@ -20,13 +20,21 @@ from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon import CfgMgr
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
+from MuonRecExample.MuonRecTools import MuonIdHelperTool
 
 muonRecFlags.setDefaults()
 
 topSequence = AlgSequence()
+
+# ESDtoAOD and AODtoTAG need a configured MuonIdHelperTool (e.g. for the RPC_ResidualPullCalculator)
+# Since it is not automatically created by the job configuration (as for RDOtoESD),
+# do it here manually (hope this will be fixed with the movement to the new configuration for release 22)
+if rec.readESD() or rec.readAOD():
+    MuonIdHelperTool()
 
 if muonRecFlags.doDigitization():
     include("MuonRecExample/MuonDigitization_jobOptions.py")
@@ -131,7 +139,7 @@ if muonRecFlags.doStandalone():
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
         col =  "MuonSpectrometerTracks" 
-        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], UseCSC=muonRecFlags.doCSCs())
+        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], HasCSC=MuonGeometryFlags.hasCSC())
         topSequence += TrackTruthSelector(name= col + "Selector", 
                                           DetailedTrackTruthName = col + "Truth",
                                           OutputName             = col + "Truth") 

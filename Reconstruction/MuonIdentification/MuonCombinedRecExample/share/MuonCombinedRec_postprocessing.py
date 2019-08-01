@@ -1,6 +1,7 @@
 #
 include.block ("MuonCombinedRecExample/MuonCombinedRec_postprocessing.py")
 from AthenaCommon import CfgMgr
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
     
 if rec.doMuonCombined() and muonCombinedRecFlags.doCosmicSplitTracks() and muonCombinedRecFlags.doAnyMuons() \
   and jobproperties.Beam.beamType() == 'cosmics':
@@ -21,7 +22,7 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
     cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedMuonTracks" ]
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker",
-                                              TrackCollectionNames = cols, UseCSC=muonRecFlags.doCSCs() )
+                                              TrackCollectionNames = cols, HasCSC=MuonGeometryFlags.hasCSC() )
         
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
     for i in range(0, len(cols)):

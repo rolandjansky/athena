@@ -24,7 +24,8 @@ from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
 mdtCalibFlags.setDefaults()
 
 from RecExConfig.RecFlags import rec
-
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
      getService,getServiceClone,getAlgorithm,getAlgorithmClone
@@ -221,9 +222,16 @@ def MuonExtrapolator(name='MuonExtrapolator',**kwargs):
     return CfgMgr.Trk__Extrapolator(name,**kwargs)
 # end of factory function MuonExtrapolator
 
+def MuonIdHelperTool(name="MuonIdHelperTool",**kwargs):
+    from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperTool
+    kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC())
+    kwargs.setdefault("HasSTgc", (CommonGeometryFlags.Run()=="RUN3"))
+    kwargs.setdefault("HasMM", (CommonGeometryFlags.Run()=="RUN3"))
+    return Muon__MuonIdHelperTool(name,**kwargs)
+
 def MuonEDMHelperTool(name='MuonEDMHelperTool',**kwargs):
     # configure some tools that are used but are not declared as properties (they should be!)
-    getPublicTool("MuonIdHelperTool")
+    kwargs.setdefault("MuonIdHelperTool", "MuonIdHelperTool")
     getPublicTool("MuonExtrapolator")
     getPublicTool("AtlasExtrapolator")
 
@@ -238,7 +246,7 @@ class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
     def __init__(self,name='MuonEDMPrinterTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
         super(MuonEDMPrinterTool,self).__init__(name,**kwargs)
-        getPublicTool("MuonIdHelperTool")
+        kwargs.setdefault("MuonIdHelperTool", "MuonIdHelperTool")
         getPublicTool("MuonEDMHelperTool")
 # end of class MuonEDMPrinterTool
 
@@ -429,7 +437,7 @@ if DetFlags.detdescr.Muon_on() and rec.doMuon():
     getPublicTool("MuonEDMPrinterTool")
     getPublicTool("MuonSegmentMomentum")
     getPublicTool("MuonClusterOnTrackCreator")
-    if muonRecFlags.doCSCs():
+    if MuonGeometryFlags.hasCSC():
         getPublicTool("CscClusterOnTrackCreator")
         getPublicTool("CscBroadClusterOnTrackCreator")
     getPublicTool("MdtDriftCircleOnTrackCreator")

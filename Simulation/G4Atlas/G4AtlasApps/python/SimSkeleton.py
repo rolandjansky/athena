@@ -105,7 +105,7 @@ class SimSkeleton(object):
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
             from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+            if CommonGeometryFlags.Run()=="RUN3" :
                 stream1.ItemList += ["sTGCSimHitCollection#*"]
                 stream1.ItemList += ["MMSimHitCollection#*"]
         ## Lucid

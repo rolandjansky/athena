@@ -17,8 +17,9 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from AthenaCommon.CfgGetter import getAlgorithm
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
-if muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on() and (DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on()):
+if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on() and (DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on()):
     topSequence += getAlgorithm("CscRdoToCscPrepData")
 
 if muonRecFlags.doMDTs() and DetFlags.makeRIO.MDT_on() and (DetFlags.haveRDO.MDT_on() or DetFlags.digitize.MDT_on()):
@@ -47,7 +48,7 @@ if not muonRecFlags.doFastDigitization():
 if muonRecFlags.doPrdSelect():
     include("MuonPrdSelector/MuonPrdSelector_jobOptions.py")
 
-if muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on():
+if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on():
     topSequence += getAlgorithm("CscThresholdClusterBuilder")
 
 

@@ -18,6 +18,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.BFieldFlags import jobproperties
 from AthenaCommon import CfgMgr
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from RecExConfig.RecFlags import rec
 
@@ -351,7 +352,7 @@ def MuonErrorOptimisationTool(name,extraFlags=None,**kwargs):
     fitter=getattr(extraFlags,"Fitter",None)
     if fitter is not None:
         cloneArgs["Fitter"] = fitter
-    if not muonRecFlags.doCSCs():
+    if not MuonGeometryFlags.hasCSC():
         cloneArgs["CscRotCreator"] = ""
     if "RefitTool" not in kwargs:
         if namePrefix or namePostfix:
@@ -491,7 +492,7 @@ getPublicTool("MCTBFitterMaterialFromTrack")
 getPublicTool("MCTBSLFitterMaterialFromTrack")
 getPublicTool("MuonSeededSegmentFinder")
 mCHRT = getPublicTool("MuonChamberHoleRecoveryTool")
-if not muonRecFlags.doCSCs():
+if not MuonGeometryFlags.hasCSC():
     mCHRT.CscRotCreator = ""
     mCHRT.CscPrepDataContainer = ""
 getPublicTool("MuonTrackSelectorTool")

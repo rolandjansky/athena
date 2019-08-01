@@ -31,9 +31,12 @@ DetFlags.DBM_setOff()
 DetFlags.sTGC_setOff()
 DetFlags.Micromegas_setOff()
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+if CommonGeometryFlags.Run()=="RUN3" :
     DetFlags.sTGC_setOn()
     DetFlags.Micromegas_setOn()
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+if not MuonGeometryFlags.hasCSC():
+    DetFlags.CSC_setOff()
 
 ## Switch off tasks
 DetFlags.pileup.all_setOff()
@@ -119,26 +122,6 @@ if simFlags.SimulateCavern.get_Value():
 gms.AlignCallbacks = False
 ## Muon GeoModel tweaks
 if DetFlags.Muon_on():
-    ## Turn off caching in the muon system
-    from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
-    MuonDetectorTool = MuonDetectorTool()
-    MuonDetectorTool.FillCacheInitTime = 0 # default is 1
-    if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
-        MuonDetectorTool.StationSelection  = 2
-        MuonDetectorTool.SelectedStations  = [ "EIL1" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL2" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL6" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL7" ]
-        MuonDetectorTool.SelectedStations  += [ "EIS*" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL10" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL11" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL12" ]
-        MuonDetectorTool.SelectedStations  += [ "EIL17" ]
-        MuonDetectorTool.SelectedStations  += [ "CSS*" ]
-        MuonDetectorTool.SelectedStations  += [ "CSL*" ]
-        MuonDetectorTool.SelectedStations  += [ "T4E*" ]
-        MuonDetectorTool.SelectedStations  += [ "T4F*" ]
-
     ## Additional material in the muon system
     from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
     AGDD2Geo = AGDDtoGeoSvc()
@@ -146,7 +129,7 @@ if DetFlags.Muon_on():
     if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
         ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
         AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
-    if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+    if CommonGeometryFlags.Run()=="RUN3" :
         if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
             ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
             AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
@@ -226,10 +209,10 @@ if not simFlags.ISFRun:
         if DetFlags.Muon_on():
             stream1.ItemList += ["RPCSimHitCollection#*",
                                  "TGCSimHitCollection#*",
-                                 "CSCSimHitCollection#*",
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
-            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+            if MuonGeometryFlags.hasCSC(): stream1.ItemList += ["CSCSimHitCollection#*"]
+            if CommonGeometryFlags.Run()=="RUN3" :
                 stream1.ItemList += ["sTGCSimHitCollection#*"]
                 stream1.ItemList += ["MMSimHitCollection#*"]
 

@@ -160,7 +160,9 @@ namespace Muon {
     /** @brief return sector number 1-16, odd=large, even=small */
     int sector( const Identifier& id ) const;
 
-    bool UseCSC() const;
+    bool HasCSC() const;
+    bool HasSTgc() const;
+    bool HasMM() const;
 
   private:
     const RpcIdHelper*                  m_rpcIdHelper;
@@ -169,7 +171,9 @@ namespace Muon {
     const MdtIdHelper*                  m_mdtIdHelper;
     const MmIdHelper*                   m_mmIdHelper;
     const sTgcIdHelper*                 m_stgcIdHelper;
-    bool                                m_useCSC;
+    bool                                m_hasCSC;
+    bool                                m_hasSTgc;
+    bool                                m_hasMM;
 
     struct StationNameData {
       std::string stationName;
