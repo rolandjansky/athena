@@ -88,6 +88,8 @@ protected :
 	bool IseFEXIsoTDR (const std::vector<float>& EM2allCell, const float& seedPlace, const float& Isovalue) const ;
 	/** retrieve the cell ID helper */
 	StatusCode getIDHelper(const CaloCell_SuperCell_ID*& m_idHelper);
+	/** retrieve the tile ID helper */
+	StatusCode getTileIDHelper(const TileID*& m_idHelper);
 	/** calculate the ET of an input cell */
 	float CaloCellET(CaloCell* const &inputCell, float digitScale, float digitThreshold);
 	/** SC from container is returned according to its ID */
@@ -148,6 +150,10 @@ protected :
 	double HadronicET(std::vector<CaloCell*> inputVector, const CaloCellContainer* scells, const xAOD::TriggerTowerContainer* &TTContainer, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh);
 	/** calculate the hadronic isolation of the central cell */
 	double RHad(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const xAOD::TriggerTowerContainer* &TTContainer, const CaloCell_SuperCell_ID* idHelper, float digitScale , float digitThresh, float &HadronicET);
+	/** match all Tile cells to a given L2Cluster and determine the summed energy per Tile layer */
+	std::vector<float> EnergyPerTileLayer(std::vector<CaloCell*> &inputSCVector, const CaloCellContainer* CellCon, const TileID* tileIDHelper, bool isOW);
+	/** calculate the hadronic isolation for a seed cell using TileCal cells */
+	std::vector<float> RHadTile(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh);
 	/** calculate the lateral isolation aorund the central cell */
 	double L1Width(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale , float digitThresh );
 	/** find cluster and associated variables using a "loose" algorithm */
@@ -224,6 +230,8 @@ protected :
   	float m_eta_dropL1Width;
 	/** boolean for caluclating REta using Layer 1 in addition to Layer 2 */
 	bool m_use_REtaL12;
+	/** boolean for using Tile cells instead of Tile TT */
+	bool m_use_tileCells;
 };
 
 #endif

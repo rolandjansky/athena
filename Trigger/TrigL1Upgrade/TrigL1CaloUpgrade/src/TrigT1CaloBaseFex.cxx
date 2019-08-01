@@ -15,6 +15,7 @@
 
 #include "TrigT1CaloBaseFex.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "TileEvent/TileCellContainer.h"
 #include <math.h>
 #include <string>
 #include "TFile.h"
@@ -49,6 +50,7 @@ TrigT1CaloBaseFex::TrigT1CaloBaseFex( const std::string& name, ISvcLocator* pSvc
   	declareProperty("L1WidthThreshold", m_L1Width_thresh = 0.02);
   	declareProperty("EtaThresholdToApplyL1Width", m_eta_dropL1Width = 2.3);
 	declareProperty("UseREtaL12", m_use_REtaL12 = false);
+	declareProperty("UseTileCells", m_use_tileCells);
 }
 
 StatusCode TrigT1CaloBaseFex::initialize(){
@@ -549,6 +551,16 @@ StatusCode TrigT1CaloBaseFex::getIDHelper(const CaloCell_SuperCell_ID*& m_idHelp
 	m_idHelper = caloMgr->getCaloCell_SuperCell_ID();
 	if (!m_idHelper) return StatusCode::FAILURE;
 	else return StatusCode::SUCCESS;
+}
+
+StatusCode TrigT1CaloBaseFex::getTileIDHelper(const TileID*& m_idHelper){
+	const CaloIdManager* caloMgr(0);
+	if (detStore()->retrieve(caloMgr).isFailure()){
+		return StatusCode::FAILURE;
+	}
+	m_idHelper = caloMgr->getTileID();
+	if (!m_idHelper) return StatusCode::FAILURE;
+	return StatusCode::SUCCESS;
 }
 
 float TrigT1CaloBaseFex::CaloCellET(CaloCell* const &inputCell, float digitScale, float digitThreshold){
@@ -1604,6 +1616,109 @@ double TrigT1CaloBaseFex::RHad(CaloCell* centreCell, int etaWidth, int phiWidth,
         return result;
 }
 
+std::vector<float> TrigT1CaloBaseFex::EnergyPerTileLayer(std::vector<CaloCell*> &inputSCVector, const CaloCellContainer* CellCon, const TileID* tileIDHelper, bool isOW){
+	MsgStream msg(msgSvc(), name());
+	std::vector<float> layerEnergy;
+        if (CellCon==NULL) return layerEnergy;
+        if (CellCon->size()==0) return layerEnergy;
+        if (inputSCVector.size()==0) return layerEnergy;
+	float ELayer0 = 0, ELayer1 = 0, ELayer2 = 0;
+	std::vector<const TileCell*> tileCellVector;
+	for (auto ithSC : inputSCVector){
+	  float ithSCEta = ithSC->eta();
+	  float ithSCPhi = ithSC->phi();
+	  //std::cout << "Input SC (eta,phi) = (" << ithSCEta << "," << ithSCPhi << ") \n";  
+	  int matchingCells = 0;
+	  CaloCellContainer::const_iterator fCell = CellCon->beginConstCalo(CaloCell_ID::TILE);
+	  CaloCellContainer::const_iterator lCell = CellCon->endConstCalo(CaloCell_ID::TILE);
+	  for ( ; fCell != lCell; ++fCell){
+	    const TileCell* tileCell = static_cast<const TileCell*>(*fCell);
+	    if (!tileCell){
+		  msg << MSG::WARNING << "Failed to cast from CaloCell to TileCell" << endreq;
+		  return layerEnergy;
+	    }
+	    int layer = tileIDHelper->sample(tileCell->ID());
+	    float ithdR = dR(tileCell->eta(), tileCell->phi(), ithSCEta, ithSCPhi);
+	    if (layer < 2){
+		    float matchingDistance = 0.;
+		    if (isOW && (fabs(ithSCEta) > 1.38 && fabs(ithSCEta) < 1.42)) matchingDistance = 0.065;
+		    else matchingDistance = 0.05;
+		    if (ithdR <= matchingDistance){
+			    bool isAlreadyThere = false;
+			    checkTileCell(tileCell, tileCellVector, isAlreadyThere);
+			    if (isAlreadyThere) continue;
+			    matchingCells++;
+			    if (layer == 0) ELayer0 += tileCellEnergyCalib(tileCell->e(), tileCell->eta(), 0.);
+			    if (layer == 1) ELayer1 += tileCellEnergyCalib(tileCell->e(), tileCell->eta(), 0.);
+		    }
+	    }
+	    else if (layer == 2){
+	            float matchingDistance = 0.;
+		    if (fabs(ithSCEta) > 0.7 && fabs(ithSCEta) < 0.8) matchingDistance = 0.05;
+		    else if (fabs(ithSCEta) > 0.9 && fabs(ithSCEta) < 1.0) matchingDistance = 0.05;
+		    else matchingDistance = 0.09;
+		    if (ithdR < matchingDistance){
+			    bool isAlreadyThere = false;
+			    checkTileCell(tileCell, tileCellVector, isAlreadyThere);
+			    if (isAlreadyThere) continue;
+			    matchingCells++;
+			    int tempPos = detRelPos(ithSCEta);
+			    // Unknown : tempPos = -1, Right PMT : tempPos = 0, Left PMT : tempPos = 1, Both PMTs : tempPos = 2
+			    if (tempPos < 0){
+				    msg << MSG::WARNING << "Unknown behaviour matching Tile cells to the SC" << endreq;
+				    layerEnergy.clear();
+				    return layerEnergy;
+			    }
+			    else if (tempPos == 0) ELayer2 += tileCellEnergyCalib(tileCell->ene2(), tileCell->eta(), 0.);
+			    else if (tempPos == 1) ELayer2 += tileCellEnergyCalib(tileCell->ene1(), tileCell->eta(), 0.);
+			    else	           ELayer2 += tileCellEnergyCalib(tileCell->e(),    tileCell->eta(), 0.);
+		    }
+	    }
+	  }
+	  if ((matchingCells > 3 && !isOW) || (matchingCells > 3 && isOW && fabs(ithSCEta) > 1.42) || (matchingCells > 4 && isOW && fabs(ithSCEta) < 1.42)){
+		    msg << MSG::WARNING << matchingCells << " matching Tile cells:" << endreq;
+		    msg << MSG::WARNING << "Input SC: (eta,phi) = (" << ithSCEta << "," << ithSCPhi << ")" << endreq;
+		    for (auto cell : tileCellVector){
+		      msg << MSG::WARNING << "Tile cell: (eta,phi) = (" << cell->eta() << "," << cell->phi() << ")" << " dR = " << dR(cell->eta(), cell->phi(), ithSCEta, ithSCPhi) << " layer = " << tileIDHelper->sample(cell->ID()) << endreq;
+		    }
+		    layerEnergy.clear();
+		    return layerEnergy;
+	  }
+	}
+	layerEnergy = {ELayer0, ELayer1, ELayer2};
+	return layerEnergy;*/
+}
+
+std::vector<float> TrigT1CaloBaseFex::RHadTile(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh){
+	MsgStream msg(msgSvc(), name());
+	std::vector<float> outVec;
+	// Last Tile cell boundary: eta = 1.6
+	// Last outer wheel SC seed that still falls into Tile boundary: eta = 1.5625
+	if (fabs(centreCell->eta()) > 1.57) return outVec;
+	const TileID* m_tileIDHelper = nullptr;
+	if (getTileIDHelper(m_tileIDHelper).isFailure()){
+		msg << MSG::WARNING << "Could not get Tile ID manager " << endreq;
+		return outVec;
+	}	
+	const CaloCellContainer* tileCellCon(0);
+	if (evtStore()->retrieve(tileCellCon, "AllCalo").isFailure()){
+		msg << MSG::WARNING << "Could not find cell container" << endreq;
+		return outVec;
+	}
+	std::vector<CaloCell*> L2Cells = L2cluster(centreCell, etaWidth, phiWidth, scells, idHelper, digitScale, digitThresh);
+	const int barrel_ec = idHelper->pos_neg(centreCell->ID());
+	bool isOW = false;
+	if (fabs(barrel_ec) == 2) isOW = true;
+	//if (isOW) std::cout << "For cell eta = " << centreCell->eta() << " pos_neg = " << barrel_ec << std::endl;
+	std::vector<float> energyPerLayer = EnergyPerTileLayer(L2Cells, tileCellCon, m_tileIDHelper, isOW);
+	/*if (energyPerLayer.size()==0) return outVec;
+	else {
+		outVec = energyPerLayer;
+		return outVec;
+	}*/
+	return outVec;
+}
+
 double TrigT1CaloBaseFex::L1Width(CaloCell* centreCell, int etaWidth, int phiWidth, const CaloCellContainer* scells, const CaloCell_SuperCell_ID* idHelper, float digitScale, float digitThresh){
 	// Finds a L2 cluster and the corresponding L1 cells
         std::vector<CaloCell*> L2cells = L2cluster(centreCell, etaWidth, phiWidth, scells, idHelper,digitScale, digitThresh);
@@ -1681,7 +1796,13 @@ std::vector<std::vector<float>> TrigT1CaloBaseFex::looseAlg(const CaloCellContai
             float ithL1Width = L1Width(ithCell, m_etaWidth_wstotIsolation, m_phiWidth_wstotIsolation, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
 	    float L2ClusterET33 = L2clusET(ithCell, 3, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
 	    float L2ClusterET37 = L2clusET(ithCell, 7, 3, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh)/1e3;
-            if (!m_use_REtaL12){ 
+	    float ithREtaL12 = -1;
+	    std::vector<float> ithTileHadIso;
+	    //float ithRHadTileCells = -1;
+	    if (m_use_REtaL12) float ithREtaL12 = REtaL12(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
+	    if (m_use_tileCells) ithTileHadIso = RHadTile(ithCell, m_etaWidth_RHadIsolation, m_phiWidth_RHadIsolation, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
+	    
+            /*if (!m_use_REtaL12){ 
 		    std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37};
 		    result.push_back(ithResult);
 	    }
@@ -1689,7 +1810,7 @@ std::vector<std::vector<float>> TrigT1CaloBaseFex::looseAlg(const CaloCellContai
 		    float ithREtaL12 = REtaL12(ithCell, m_etaWidth_REtaIsolation_num, m_phiWidth_REtaIsolation_num, m_etaWidth_REtaIsolation_den, m_phiWidth_REtaIsolation_den, SCs, idHelper, m_nominalDigitization, m_nominalNoise_thresh);
 		    std::vector<float> ithResult = {ithEta, ithPhi, clustET, ithREta, ithRHad, ithL1Width, HadET, L2ClusterET33, L2ClusterET37, ithREtaL12};
 		    result.push_back(ithResult);
-	    }
+	    }*/
           }
         }
         return result;
