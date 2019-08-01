@@ -317,109 +317,119 @@ StatusCode HLTMuonMonTool::fillMuonEFDQA()
   // Section 1: simple histograms
   // First try from xAOD::Muon
   const xAOD::MuonContainer* muonEFcontainer(0);
-  StatusCode sc_muonEFi = evtStore()->retrieve(muonEFcontainer, "HLT_xAOD__MuonContainer_MuonEFInfo");
-  // ATH_MSG_INFO ( "EF muon xAOD: " << sc_muonEFi );
+  // container names for MT setup
+  std::vector< std::string > efcontnames = {"HLT_MuonsCB_FS", "HLT_Muons_RoI", "HLT_MuonsCBOutsideIn"}; //last one should be replaced with HLT_MuonsCB_RoI once it works
+  // container names for legacy run-2 setup
+  if (getTDT()->getNavigationFormat() == "TriggerElement") efcontnames = {"HLT_xAOD__MuonContainer_MuonEFInfo"};
+  bool gotxAODMuon = false;
+  for(auto efcontname : efcontnames) {
+    StatusCode sc_muonEFi = evtStore()->retrieve(muonEFcontainer, efcontname);
   
-  if (!sc_muonEFi.isFailure()) { // xAOD for EF muon found
-    for (auto muon : *muonEFcontainer) {
-      ATH_MSG_DEBUG( "Muon found, " << muon->pt() );
-
+    if (!sc_muonEFi.isFailure()) { // xAOD for EF muon found
+      gotxAODMuon = true;
+      for (auto muon : *muonEFcontainer) {
+        ATH_MSG_DEBUG( "Muon found, " << muon->pt() );
+        
 	// Note:  muonSpectrometerTrackParticle() is not available for EF muons
-      const xAOD::Muon::MuonType muontype = muon->muonType();
-      if (xAOD::Muon::MuonType::Combined == muontype
-	  || xAOD::Muon::MuonType::MuonStandAlone == muontype 
-	  || muon->extrapolatedMuonSpectrometerTrackParticleLink()) {
-	float pt         = float(muon->pt()/CLHEP::GeV);
-	//float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV * ((*muon).charge()))  ;
-	const xAOD::TrackParticle* trk = muon->primaryTrackParticle();
-	if(!trk) {
-	  ATH_MSG_WARNING("Could not retrieve linked primary track particle");
-	  continue;
-	}
-	float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV *trk->charge());
-	float eta        = float(muon->eta());
-	float phi        = float(muon->phi());
-
-	ATH_MSG_DEBUG( "muonType" << muontype << " : raw pt"
-		       << pt << " raw charge " << trk->charge() << " signed pt " << signed_pt );
-
-	float pt_hist = pt;
-	if( fabs(pt_hist) > PT_HISTMAX ){ pt_hist =  PT_OVFL; }
-
-	float signed_pt_hist = signed_pt;
-	if( signed_pt_hist > PT_HISTMAX ) { signed_pt_hist =  PT_OVFL; }
-	else if ( signed_pt_hist < -PT_HISTMAX ){ signed_pt_hist = -PT_OVFL; }
-
-	// fill combined muon information
-	if (xAOD::Muon::MuonType::Combined == muontype) {
-	  nMuonEFCB++;
-
-	  m_pt_EFCBmuon.push_back(pt);
-	  m_eta_EFCBmuon.push_back(eta);
-	  m_phi_EFCBmuon.push_back(phi);
-		
-	  hist("EFCB_pt", m_histdirmuonef) ->Fill(pt_hist);
-	  hist("EFCB_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
-	  hist("EFCB_eta", m_histdirmuonef)->Fill(eta);
-	  hist("EFCB_phi", m_histdirmuonef)->Fill(phi);
-	  hist2("EFCB_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
-	  hist2("EFCB_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
-	}
-
-	// fill corresponding MS muon information
-	if (muon->extrapolatedMuonSpectrometerTrackParticleLink()) {
-	  ATH_MSG_DEBUG(  "EF MS muon found" );
-
-	  nMuonEFMS++;
-
-	  const xAOD::TrackParticle* mooreMuon = 0;
-	  mooreMuon = *(muon->extrapolatedMuonSpectrometerTrackParticleLink());
-	  float pt = mooreMuon->pt()/CLHEP::GeV;
-	  float charge = mooreMuon->charge();
-	  float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV * charge)  ;
-	  float eta = mooreMuon->eta();
-	  float phi = mooreMuon->phi();
-
-	  float pt_hist = pt;
-	  if( fabs(pt_hist) > PT_HISTMAX ){ pt_hist =  PT_OVFL; }
-
-	  float signed_pt_hist = signed_pt;
-	  if( signed_pt_hist > PT_HISTMAX ) { signed_pt_hist =  PT_OVFL; }
-	  else if ( signed_pt_hist < -PT_HISTMAX ){ signed_pt_hist = -PT_OVFL; }
-
-	  m_pt_EFMSmuon.push_back(pt);
-	  m_eta_EFMSmuon.push_back(eta);
-	  m_phi_EFMSmuon.push_back(phi);
-		
-	  hist("EFMS_pt", m_histdirmuonef) ->Fill(pt_hist);
-	  hist("EFMS_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
-	  hist("EFMS_eta", m_histdirmuonef)->Fill(eta);
-	  hist("EFMS_phi", m_histdirmuonef)->Fill(phi);
-	  hist2("EFMS_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
-	  hist2("EFMS_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
-
-	}
-
-	if ( xAOD::Muon::MuonType::MuonStandAlone == muontype ) {
-	  nMuonEFSA++;
-
-	  m_pt_EFSAmuon.push_back(pt);
-	  m_eta_EFSAmuon.push_back(eta);
-	  m_phi_EFSAmuon.push_back(phi);              
- 
-	  hist("EFSA_pt", m_histdirmuonef) ->Fill(pt_hist);
-	  hist("EFSA_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
-	  hist("EFSA_eta", m_histdirmuonef)->Fill(eta);
-	  hist("EFSA_phi", m_histdirmuonef)->Fill(phi);
-	  hist2("EFSA_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
-	  hist2("EFSA_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
-	}
-	
-      }
-    } // end loop on EF muon
+        const xAOD::Muon::MuonType muontype = muon->muonType();
+        if (xAOD::Muon::MuonType::Combined == muontype
+            || xAOD::Muon::MuonType::MuonStandAlone == muontype 
+            || muon->extrapolatedMuonSpectrometerTrackParticleLink()) {
+          float pt         = float(muon->pt()/CLHEP::GeV);
+          //float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV * ((*muon).charge()))  ;
+          const xAOD::TrackParticle* trk = muon->primaryTrackParticle();
+          if(!trk) {
+            // in MT, it is currently expected that the MS tracks are not linked to muons in combined chains
+            if(xAOD::Muon::MuonType::MuonStandAlone == muontype) ATH_MSG_DEBUG("Could not retrieve linked primary track particle");
+            else ATH_MSG_WARNING("Could not retrieve linked primary track particle");
+            continue;
+          }
+          float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV *trk->charge());
+          float eta        = float(muon->eta());
+          float phi        = float(muon->phi());
+          
+          ATH_MSG_DEBUG( "muonType" << muontype << " : raw pt"
+                         << pt << " raw charge " << trk->charge() << " signed pt " << signed_pt );
+          
+          float pt_hist = pt;
+          if( fabs(pt_hist) > PT_HISTMAX ){ pt_hist =  PT_OVFL; }
+          
+          float signed_pt_hist = signed_pt;
+          if( signed_pt_hist > PT_HISTMAX ) { signed_pt_hist =  PT_OVFL; }
+          else if ( signed_pt_hist < -PT_HISTMAX ){ signed_pt_hist = -PT_OVFL; }
+          
+          // fill combined muon information
+          if (xAOD::Muon::MuonType::Combined == muontype) {
+            nMuonEFCB++;
+            
+            m_pt_EFCBmuon.push_back(pt);
+            m_eta_EFCBmuon.push_back(eta);
+            m_phi_EFCBmuon.push_back(phi);
+            
+            hist("EFCB_pt", m_histdirmuonef) ->Fill(pt_hist);
+            hist("EFCB_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+            hist("EFCB_eta", m_histdirmuonef)->Fill(eta);
+            hist("EFCB_phi", m_histdirmuonef)->Fill(phi);
+            hist2("EFCB_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+            hist2("EFCB_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
+          }
+          
+          // fill corresponding MS muon information
+          if (muon->extrapolatedMuonSpectrometerTrackParticleLink()) {
+            
+            nMuonEFMS++;
+            
+            const xAOD::TrackParticle* mooreMuon = 0;
+            mooreMuon = *(muon->extrapolatedMuonSpectrometerTrackParticleLink());
+            float pt = mooreMuon->pt()/CLHEP::GeV;
+            float charge = mooreMuon->charge();
+            float signed_pt  = float(std::abs(muon->pt())/CLHEP::GeV * charge)  ;
+            float eta = mooreMuon->eta();
+            float phi = mooreMuon->phi();
+            
+            float pt_hist = pt;
+            if( fabs(pt_hist) > PT_HISTMAX ){ pt_hist =  PT_OVFL; }
+            
+            float signed_pt_hist = signed_pt;
+            if( signed_pt_hist > PT_HISTMAX ) { signed_pt_hist =  PT_OVFL; }
+            else if ( signed_pt_hist < -PT_HISTMAX ){ signed_pt_hist = -PT_OVFL; }
+            
+            m_pt_EFMSmuon.push_back(pt);
+            m_eta_EFMSmuon.push_back(eta);
+            m_phi_EFMSmuon.push_back(phi);
+            
+            hist("EFMS_pt", m_histdirmuonef) ->Fill(pt_hist);
+            hist("EFMS_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+            hist("EFMS_eta", m_histdirmuonef)->Fill(eta);
+            hist("EFMS_phi", m_histdirmuonef)->Fill(phi);
+            hist2("EFMS_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+            hist2("EFMS_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
+            
+          } 
+          
+          if ( xAOD::Muon::MuonType::MuonStandAlone == muontype ) {
+            nMuonEFSA++;
+            
+            m_pt_EFSAmuon.push_back(pt);
+            m_eta_EFSAmuon.push_back(eta);
+            m_phi_EFSAmuon.push_back(phi);              
+            
+            hist("EFSA_pt", m_histdirmuonef) ->Fill(pt_hist);
+            hist("EFSA_signed_pt", m_histdirmuonef) ->Fill(signed_pt_hist);
+            hist("EFSA_eta", m_histdirmuonef)->Fill(eta);
+            hist("EFSA_phi", m_histdirmuonef)->Fill(phi);
+            hist2("EFSA_eta_vs_phi", m_histdirmuonef)->Fill(eta,phi);
+            hist2("EFSA_eta_vs_phi_in_10LBs", m_histdircoverage)->Fill(eta,phi);
+          }
+          
+        }
+      
+      } // end loop on EF muon
+    }
     if(nMuonEFMS) nmethod=1;
+  } //loop on xAOD container names
 
-  } else {
+  if(!gotxAODMuon) {
     ATH_MSG_DEBUG( "Failed to retrieve xAOD Muon" );
     // Retrieve Muon from TrigMuonEFInfoContainer
     ATH_MSG_DEBUG( "about to get TrigMuonEFInfo" );
@@ -1498,12 +1508,12 @@ StatusCode HLTMuonMonTool :: fillEFSingleChainHistos(const std::vector<std::stri
     for(const Trig::Feature<xAOD::MuonContainer> &fEF : fEFs){
       const xAOD::MuonContainer *cont = fEF.cptr(); 
       for( const xAOD::Muon* ef : *cont ){
-	const HLT::TriggerElement *efTE = fEF.te();
-	if(efTE->getActiveState()){//pass
-	  hist(Form("EF_pt_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->pt()/CLHEP::GeV );
-	  hist(Form("EF_eta_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->eta() );
-	  hist(Form("EF_phi_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->phi() );
-	}
+        const HLT::TriggerElement *efTE = fEF.te();
+        if(efTE->getActiveState()){//pass
+          hist(Form("EF_pt_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->pt()/CLHEP::GeV );
+          hist(Form("EF_eta_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->eta() );
+          hist(Form("EF_phi_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->phi() );
+        }
       }
     }
   }
