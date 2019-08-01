@@ -32,9 +32,9 @@ FourMuonEvent::FourMuonEvent()
   m_container = PerfMonServices::MUON_COLLECTION; //PerfMonServices::ELECTRON_COLLECTION
 
   m_doDebug = false;
-  m_workAsFourMuons = true;
+  m_workAsFourMuons = false;
   m_workAsFourElectrons = false;
-  m_workAsFourLeptons = false;
+  m_workAsFourLeptons = true;
 
   // Setup the muon tags
   m_uMuonTags   = 4;
@@ -74,7 +74,7 @@ void FourMuonEvent::Init()
 //==================================================================================
 bool FourMuonEvent::Reco()
 {
-  bool thisdebug = true;
+  bool thisdebug = false;
   m_eventCount++;
   if(m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * starting * event count " << m_eventCount << std::endl; }
 
@@ -125,7 +125,7 @@ bool FourMuonEvent::Reco()
   // here must go the electron selection
   //
   // if electrons are requested 
-  if (m_workAsFourElectrons || m_workAsFourLeptons || false) {
+  if (m_workAsFourElectrons || m_workAsFourLeptons) {
     // Get the electron AOD container
     const xAOD::ElectronContainer* pxElecContainer = nullptr;
     if (m_doDebug || thisdebug){ std::cout << " * FourMuonEvent::Reco * retrieving xAOD::ElectronContainer " << PerfMonServices::ELECTRON_COLLECTION << std::endl; }
@@ -187,33 +187,32 @@ bool FourMuonEvent::Reco()
   } // end of workAsFourMuons
   
   if (m_workAsFourElectrons) {
-    std::cout << " * FourMuonEvent::Reco * applying 4 electron selection " << std::endl;
+    if (m_doDebug) std::cout << " * FourMuonEvent::Reco * applying 4 electron selection " << std::endl;
     m_passedFourElectronSelection = false; // unless the event has 4 muons, assume it is not good
     
     if (m_numberOfFullPassElectrons == 4) {
       bool goodprogress = true;
       if (goodprogress) goodprogress = this->ReconstructKinematicsNew();
-      // if (goodprogress) goodprogress = this->CheckMuonVertices();
       if (goodprogress) goodprogress = this->EventSelectionNew(ID);
       
       m_passedFourElectronSelection = goodprogress;
       
       if (m_passedFourElectronSelection) {
 	m_FourMuonInvMass = m_fInvariantMass[ID]; // store invariant mass
-	if (m_doDebug || true) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " is a GOOD 4-electrom event " << std::endl;
+	if (m_doDebug) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " is a GOOD 4-electrom event " << std::endl;
       }
       else {
-	if (m_doDebug || true) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " FAILS the 4-electron event selection " << std::endl;
+	if (m_doDebug) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " FAILS the 4-electron event selection " << std::endl;
       }
     }
     else {
-	if (m_doDebug || true) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " is not a 4-electron event " << std::endl;
+	if (m_doDebug) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " is not a 4-electron event " << std::endl;
     }
   } // end of workAsFourElectrons
 
 
   if (m_workAsFourLeptons) {
-    std::cout << " * FourMuonEvent::Reco * applying 4 lepton selection " << std::endl;
+    if (m_doDebug) std::cout << " * FourMuonEvent::Reco * applying 4 lepton selection " << std::endl;
     m_passedFourLeptonSelection = false;
 
     bool enoughleptons = false;
@@ -222,9 +221,9 @@ bool FourMuonEvent::Reco()
     if (m_numberOfFullPassMuons >= 2 && m_numberOfFullPassElectrons >= 2) enoughleptons = true;
 
     if ( enoughleptons) {
-      std::cout << " * FourMuonEvent::Reco * Event with " << m_numberOfFullPassMuons
-		<< " muons & " << m_numberOfFullPassElectrons << " electrons"
-		<< std::endl;
+      if (m_doDebug) std::cout << " * FourMuonEvent::Reco * Event with " << m_numberOfFullPassMuons
+			       << " muons & " << m_numberOfFullPassElectrons << " electrons"
+			       << std::endl;
       bool goodprogress = true;
       if (goodprogress) goodprogress = this->ReconstructKinematicsNew();
       if (goodprogress) goodprogress = this->CheckMuonVertices();
@@ -241,7 +240,7 @@ bool FourMuonEvent::Reco()
       }
     }
     else {
-      std::cout << " * FourMuonEvent::Reco * 4lpeton selection Not enough muons or electrons. Event has " << m_numberOfFullPassMuons
+      if (m_doDebug) std::cout << " * FourMuonEvent::Reco * 4lpeton selection Not enough muons or electrons. Event has " << m_numberOfFullPassMuons
 		<< " muons & " << m_numberOfFullPassElectrons << " electrons"
 		<< std::endl;
     }
@@ -301,10 +300,11 @@ bool FourMuonEvent::Reco()
 
   if (m_doDebug || thisdebug || m_passedSelectionCuts) {
     std::cout << " * FourMuonEvent::Reco * COMPLETED * Event has " << m_numberOfFullPassMuons 
-	      << " muons. " << m_acceptedEventCount 
+	      << " muons & " << m_numberOfFullPassElectrons
+	      << " electrons. So far there are " << m_acceptedEventCount 
 	      << " events accpeted out of " <<  m_eventCount 
 	      << " tested ";
-    if (m_passedSelectionCuts) std::cout << " This m= " << m_FourMuonInvMass;
+    if (m_passedSelectionCuts) std::cout << "    -FourMuon- This m= " << m_FourMuonInvMass;
     std::cout << " * return " << m_passedSelectionCuts << std::endl; 
   }
   
@@ -323,9 +323,8 @@ void FourMuonEvent::BookHistograms()
 //==================================================================================
 bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
 {
-  bool inputdebug = m_doDebug;
-  m_doDebug = true;
-
+  //bool inputdebug = m_doDebug;
+  //m_doDebug = false;
 
   bool eventisgood = true;
   if(m_doDebug){  std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") ** started ** " << std::endl 
@@ -565,8 +564,8 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
       //if (vtxListX.size() >= m_numberOfFullPassElectrons - 1) vertexstatus = false;
       // and allow no electron without vertex
       //if (noVertexCountElec > 0) vertexstatus = false;
-      if (m_doDebug || true) {
-	std::cout << " * FourMuonEvent::EventSelection(" << eType <<") * vertices in event = " << std::endl;
+      if (m_doDebug) {
+	std::cout << " * FourMuonEvent::EventSelection(" << eType <<") * vertices in event = " << vtxListX.size() << std::endl;
 	for (int imu=0; imu < NUM_MUONS; imu++) {
 	  if (m_pxMUTrack[imu]) std::cout << "                   mu    " << m_muon_vtx[imu] << "  pt: " << m_pxMUTrack[imu]->pt() << std::endl;
 	}
@@ -602,7 +601,7 @@ bool FourMuonEvent::EventSelectionNew(ZTYPE eType)
   //
   if(m_doDebug){  std::cout <<" * FourMuonEvent::EventSelection(" << eType << ") ** completed ** result= " << eventisgood << std::endl;}
 
-  m_doDebug = inputdebug;
+  //m_doDebug = inputdebug;
 
   return eventisgood;
 }
@@ -1143,7 +1142,6 @@ bool FourMuonEvent::ReconstructKinematicsNew()
 
   // first step get the list of TrackParticles for muons and electrons
   // -- muons (a bit more complex than for electrons)
-  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- copy muons -- " << std::endl; 
   if (m_muonneg1 >= 0) m_pxMUTrack[0] = m_pxIDTrack[m_muonneg1];  
   if (m_muonneg2 >= 0) m_pxMUTrack[1] = m_pxIDTrack[m_muonneg2];  
   if (m_muonpos1 >= 0) m_pxMUTrack[2] = m_pxIDTrack[m_muonpos1];  
@@ -1154,7 +1152,6 @@ bool FourMuonEvent::ReconstructKinematicsNew()
   } 
   
   // -- electrons
-  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- copy electrons -- " << std::endl; 
   m_pxELTrack[0] = m_xElecID.GetElecNegTrackParticle(0); 
   m_pxELTrack[1] = m_xElecID.GetElecNegTrackParticle(1); 
   m_pxELTrack[2] = m_xElecID.GetElecPosTrackParticle(0); 
@@ -1164,7 +1161,6 @@ bool FourMuonEvent::ReconstructKinematicsNew()
     for (int i=0; i<4; i++) m_pxELTrack[i] = nullptr;
   } 
   
-  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- numberOfFullPassMuons =  " << m_numberOfFullPassMuons << std::endl;
   if ( m_numberOfFullPassMuons == 4 ) {
     bool goodtracks = true;
     if (m_pxMUTrack[0] == nullptr) goodtracks = false;
@@ -1191,7 +1187,6 @@ bool FourMuonEvent::ReconstructKinematicsNew()
     if (kinematicscomputed)        std::cout << "                                           invariant mass (4mu) = " << m_fInvariantMass[ID] << std::endl;
   }
 
-  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- numberOfFullPassElectrons =  " << m_numberOfFullPassElectrons << std::endl; 
   double invmass_test = -1.; // default value
   if ( m_numberOfFullPassElectrons == 4) { 
     // before computing the kinematic parameters check track particles are ok
@@ -1221,8 +1216,6 @@ bool FourMuonEvent::ReconstructKinematicsNew()
     std::cout << "                                           invariant mass (4e) = " <<  invmass_test << std::endl; 
   }
 
-  std::cout << " * FourMuonEvent * ReconstructKinematicsNew * -- numberOfFullPassMuons     =  " << m_numberOfFullPassMuons << std::endl; 
-  std::cout << "                                                 numberOfFullPassElectrons =  " << m_numberOfFullPassElectrons << std::endl; 
   if ( m_numberOfFullPassMuons >= 2 && m_numberOfFullPassElectrons >= 2 && !kinematicscomputed) {
     // before computing the kinematic parameters check track particles are ok
     bool goodtracks = true;
@@ -1513,7 +1506,7 @@ void FourMuonEvent::OrderMuonList()
   m_muon1 = m_muonpos1; // to be deleted when no more m_muon is left
   m_muon2 = m_muonneg1; // to be deleted when no more m_muon is left
 
-  if ((m_doDebug || true) && m_numberOfFullPassMuons >= 2){ 
+  if ((m_doDebug) && m_numberOfFullPassMuons >= 2){ 
     std::cout << " * FourMuonEvent::OrderMuonList * taking " << m_numberOfFullPassMuons << "  muons from the input list of " << nMuonsAtEntry << " muons: " << std::endl;
     if (muMinus1Id >= 0) std::cout << "                                  leading mu-: " << muMinus1Id << "   Pt = " << muMinus1Pt << std::endl;
     if (muMinus2Id >= 0) std::cout << "                                  second  mu-: " << muMinus2Id << "   Pt = " << muMinus2Pt << std::endl;
@@ -1524,7 +1517,7 @@ void FourMuonEvent::OrderMuonList()
     if(m_doDebug) std::cout << " * FourMuonEvent::OrderMuonList * This event has less than 2 muons :("  << std::endl;
   }
   
-  if(m_doDebug || true) std::cout << " * FourMuonEvent::OrderMuonList * completed * m_numberOfFullPassMuons= " << m_numberOfFullPassMuons << std::endl;
+  if(m_doDebug) std::cout << " * FourMuonEvent::OrderMuonList * completed * m_numberOfFullPassMuons= " << m_numberOfFullPassMuons << std::endl;
   return;
 }
 

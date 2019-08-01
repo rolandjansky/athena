@@ -7,7 +7,7 @@ m_testArea = ""
 m_packagePath = ""
 m_theUser = ""
 m_savingFile = "acZmumu_history.txt"
-m_reconmerge = "merge" # "deriv" "merge" "%"
+m_reconmerge = "deriv" #"merge" # "deriv" "merge" "%"
 m_workDirPlatform = ""
 
 # options
@@ -310,6 +310,12 @@ def submitGridJobsUserDataSet ():
 
     print " <acZmumu> submitting grid job when user provides the data set name "
     theCommand = getGridSubmissionCommand(0, infoFromAMI)
+    if type(theCommand) is tuple:
+        tempCommand = theCommand[0]
+        print " -- SALVA -- tenim tuple ",theCommand
+        print " -- SALVA -- posible command: ",tempCommand
+        theCommand = tempCommand
+    print " -- SALVA -- theCommand = %s" %theCommand
     if (m_submitExec): 
         print (" <acZmumu> m_submitExec = True --> job to be submmited");
         # move to the submission folder
@@ -527,7 +533,7 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
     else: 
         if ("NONE" not in m_userDataSet):
             #theOptions = "--useShortLivedReplicas  --forceStaged"
-            theOptions = "--useShortLivedReplicas" # under test. Suggested by Ilija Vukotic on 14/July/2019
+            theOptions = "--useShortLivedReplicas --forceStaged" # under test. Suggested by Ilija Vukotic on 14/July/2019
 
     theExtraOptions = "" 
     if (len(m_workDirPlatform)>0): 

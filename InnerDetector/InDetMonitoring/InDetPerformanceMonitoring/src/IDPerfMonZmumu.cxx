@@ -880,7 +880,6 @@ StatusCode IDPerfMonZmumu::execute()
     m_4mu.SetZ0GapCut        (m_Z0GapCut);
     m_4mu.setDebugMode       (m_doDebug);
 
-    std::cout << " -- SALVA -- calling m_4mu.Reco() " << std::endl;
     if(m_4mu.Reco()){
       ATH_MSG_INFO ("Sucessfull 4-muon reconstruction. # accepted events " << m_4mu.getAcceptedEvents() << "  Invariant mass = " << m_4mu.GetInvMass() << " GeV ");
 

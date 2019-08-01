@@ -167,16 +167,17 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
   }
 
   const xAOD::CaloCluster* cluster = thisElec->caloCluster();
-  if(!cluster) electronisgood = false;
+  if(!cluster) {
+    electronisgood = false;
+    (*m_msgStream) << MSG::DEBUG << "   -- electron candidate has no CaloCluster  " << endreq; 
+    std::cout << "   -- electron candidate has no CaloCluster  " << std::endl; 
+  }
 
-  if (electronisgood && (cluster->e() * cos(theTrackParticle->theta())) * CGeV < m_ptCut) { // cut on et of the cluster
+  if (electronisgood && (cluster->e() * sin(theTrackParticle->theta())) * CGeV < m_ptCut) { // cut on et of the cluster
     electronisgood = false;
     (*m_msgStream) << MSG::DEBUG << "   -- electron fails cluster Et cut  -- Et= " << (cluster->e() * cos(theTrackParticle->theta()))* CGeV 
 		   << " < " << m_ptCut << " (cut value) "
 		   << endreq;
-    std::cout << "   -- electron fails cluster Et cut  -- Et= " << (cluster->e() * cos(theTrackParticle->theta()))* CGeV 
-	      << " < " << m_ptCut << " (cut value) "
-	      << std::endl;
   }
 
   if (electronisgood && (fabs(cluster->eta())> m_etaCut || fabs(theTrackParticle->eta())> m_etaCut) ) { // cut in eta for the cluster and the track 
@@ -191,7 +192,7 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
     calocluster4mom.setPz ( cluster->e() * cos(theTrackParticle->theta()) );
     calocluster4mom.setE  ( cluster->e() );
   
-    if (true) {
+    if (false) {
       std::cout << " -- ElectronSelector::RecordElectron -- id " << m_pxElTrackList.size()
 		<< "  track Pt: " << theTrackParticle->pt() 
 		<< "  cluster ET: " << calocluster4mom.perp()
@@ -205,7 +206,7 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
     float qsign = (theTrackParticle->qOverP() > 0) ? 1. : -1.;
     newtp->setDefiningParameters(theTrackParticle->d0(), theTrackParticle->z0(), theTrackParticle->phi(), theTrackParticle->theta(), qsign/cluster->e());
 
-    if (true) {
+    if (false) {
       std::cout << " -- new method                       -- id " << m_pxElTrackList.size()
 		<< "  track Pt: " << theTrackParticle->pt() 
 		<< "  new track Pt: " << newtp->pt() 
@@ -219,7 +220,7 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
     // store this electron?
     // m_pxElTrackList.push_back(theTrackParticle);
     m_pxElTrackList.push_back(newtp);
-    (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << theTrackParticle->pt() << std::endl;
+    (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << newtp->pt() << std::endl;
   }
 
   return electronisgood;
@@ -245,7 +246,6 @@ void ElectronSelector::Clear()
 bool ElectronSelector::OrderElectronList()
 {
   (*m_msgStream) << MSG::DEBUG << " -- ElectronSelector::OrderElectronList -- START  -- list size: " << m_pxElTrackList.size( ) << endreq;
-  std::cout << " -- ElectronSelector::OrderElectronList -- START  -- list size: " << m_pxElTrackList.size( ) << std::endl;
   
   bool goodlist = true;
 
@@ -305,7 +305,7 @@ bool ElectronSelector::OrderElectronList()
       goodlist = false;
     }
 
-    if ((m_doDebug || true) && elecposcount + elecnegcount >= 2 ){ 
+    if ((m_doDebug) && elecposcount + elecnegcount >= 2 ){ 
       std::cout << " -- ElectronSelector::OrderElectronList -- electron summary list taking " << elecposcount + elecnegcount 
 		<< "  electrons from the input list of " << m_pxElTrackList.size() << " electrons: " << std::endl;
       if (m_elecneg1 >= 0) std::cout << "                                leading e-: " << m_elecneg1 << "   Pt = " << ptMinus1 << std::endl;
