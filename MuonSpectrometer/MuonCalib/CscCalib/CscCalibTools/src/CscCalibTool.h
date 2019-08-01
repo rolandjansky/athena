@@ -122,7 +122,6 @@ public:
   // this function is defined. Return value is pair and the first one is driftTime.
   virtual std::pair<double,double> addBipfunc(const double driftTime0, const double stripCharge0,
                                               const double driftTime1, const double stripCharge1) const override final;
-  virtual std::string getDetDescr() const override final;
 
   // 09/2010
   virtual std::vector<float> getSamplesFromBipolarFunc(const double driftTime0, const double stripCharge0) const override final;
