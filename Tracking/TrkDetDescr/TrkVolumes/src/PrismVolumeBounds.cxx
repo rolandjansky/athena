@@ -24,7 +24,7 @@
 Trk::PrismVolumeBounds::PrismVolumeBounds() :
  VolumeBounds(),
  m_halfZ(),
- m_baseBounds(0),
+ m_baseBounds(nullptr),
  m_ordering(-1),
  m_objectAccessor()
 {}
@@ -32,35 +32,38 @@ Trk::PrismVolumeBounds::PrismVolumeBounds() :
 Trk::PrismVolumeBounds::PrismVolumeBounds(std::vector<std::pair<float,float> > xyVtx, float halez) :
  VolumeBounds(),
  m_halfZ(halez),
- m_baseBounds(0),
+ m_baseBounds(nullptr),
  m_ordering(-1),
  m_objectAccessor()
 {  
   m_xyVtx.resize(xyVtx.size());
   m_xyVtx.assign(xyVtx.begin(),xyVtx.end()); 
+  m_baseBounds = new Trk::TriangleBounds(m_xyVtx); 
 }
 
 
 Trk::PrismVolumeBounds::PrismVolumeBounds(std::vector<std::pair<double,double> > xyVtx, double halez) :
  VolumeBounds(),
  m_halfZ(halez),
- m_baseBounds(0),
+ m_baseBounds(nullptr),
  m_ordering(-1),
  m_objectAccessor()
 {  
   m_xyVtx.resize(xyVtx.size());
-  m_xyVtx.assign(xyVtx.begin(),xyVtx.end()); 
+  m_xyVtx.assign(xyVtx.begin(),xyVtx.end());
+  m_baseBounds = new Trk::TriangleBounds(m_xyVtx);  
 }
 
 Trk::PrismVolumeBounds::PrismVolumeBounds(const Trk::PrismVolumeBounds& trabo) :
  VolumeBounds(),
  m_halfZ(trabo.m_halfZ),
- m_baseBounds(0),
+ m_baseBounds(nullptr),
  m_ordering(trabo.m_ordering),
  m_objectAccessor(trabo.m_objectAccessor)
 {
   m_xyVtx.resize(trabo.m_xyVtx.size());
   m_xyVtx.assign(trabo.m_xyVtx.begin(),trabo.m_xyVtx.end());  
+  m_baseBounds = new Trk::TriangleBounds(m_xyVtx); 
 }
 
 Trk::PrismVolumeBounds::~PrismVolumeBounds()
@@ -75,7 +78,8 @@ Trk::PrismVolumeBounds& Trk::PrismVolumeBounds::operator=(const Trk::PrismVolume
     m_objectAccessor   = trabo.m_objectAccessor;
     m_xyVtx.resize(trabo.m_xyVtx.size());
     m_xyVtx.assign(trabo.m_xyVtx.begin(),trabo.m_xyVtx.end()); 
-    m_baseBounds = 0;
+    delete m_baseBounds;
+    m_baseBounds = new Trk::TriangleBounds(m_xyVtx); 
     m_ordering = trabo.m_ordering;
   }
   return *this;
@@ -154,7 +158,6 @@ bool Trk::PrismVolumeBounds::inside(const Amg::Vector3D& pos, double tol) const
   if (fabs(pos.z()) > m_halfZ + tol) return false;
   // xy plane
   Amg::Vector2D locp(pos.x(), pos.y());
-  if (!m_baseBounds) m_baseBounds = new Trk::TriangleBounds(m_xyVtx);
   return (m_baseBounds->inside(locp, tol, tol)); 
 }
 
