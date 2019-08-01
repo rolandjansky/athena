@@ -51,6 +51,11 @@ StatusCode MuonCreatorAlg::initialize()
   m_clusterContainerLinkName = m_clusterContainerName.key()+"_links";
   ATH_CHECK(m_clusterContainerLinkName.initialize(m_makeClusters));
 
+  if ( not m_monTool.name().empty() ) {
+    std::cout << "CHECK: RETRIEVE MON TOOL" << std::endl;
+    ATH_CHECK( m_monTool.retrieve() );
+  }
+
   return StatusCode::SUCCESS; 
 }
 

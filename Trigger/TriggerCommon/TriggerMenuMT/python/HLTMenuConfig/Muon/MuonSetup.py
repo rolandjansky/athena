@@ -563,11 +563,6 @@ def muEFSARecoSequence( RoIs, name ):
 
   theMuonCandidateAlg=CfgMgr.MuonCombinedMuonCandidateAlg("MuonCandidateAlg_"+name,MuonCandidateTool=theCandidateTool,MuonCandidateLocation="MuonCandidates")
 
-  # Monitoring tool for MuonCreatorAlg
-  from MuonCombinedAlgs.MuonCombinedAlgsConf import *
-  from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
-  theMuonCandidateAlg.MonTool = MuonCreatorAlgMonitoring()
-
   muonparticlecreator = getPublicToolClone("MuonParticleCreator", "TrackParticleCreatorTool", UseTrackSummaryTool=False, UseMuonSummaryTool=True, KeepAllPerigee=True)
   theTrackQueryNoFit = getPublicToolClone("TrigMuonTrackQueryNoFitSA", "MuonTrackQuery", Fitter="")
   thecreatortool= getPublicToolClone("MuonCreatorTool_SA", "MuonCreatorTool", ScatteringAngleTool="", MuonSelectionTool="", FillTimingInformation=False, UseCaloCells=False, MakeSAMuons=True, MomentumBalanceTool="",  TrackParticleCreator=muonparticlecreator,TrackQuery=theTrackQueryNoFit)
@@ -576,6 +571,11 @@ def muEFSARecoSequence( RoIs, name ):
   if 'FS' in name:
     msMuonName = muNamesFS.EFSAName
   themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg_"+name, MuonCreatorTool=thecreatortool, CreateSAmuons=True, MakeClusters=False, TagMaps=[], MuonContainerLocation=msMuonName,ExtrapolatedLocation = "HLT_MSExtrapolatedMuons_"+name, MSOnlyExtrapolatedLocation = "HLT_MSOnlyExtrapolatedMuons_"+name )
+
+  # Monitoring tool for MuonCreatorAlg
+  # from MuonCombinedAlgs.MuonCombinedAlgsConf import MuonCreatorAlg
+  from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
+  themuoncreatoralg.MonTool = MuonCreatorAlgMonitoring()
 
   #Algorithms to views
   efAlgs.append( theSegmentFinderAlg )
