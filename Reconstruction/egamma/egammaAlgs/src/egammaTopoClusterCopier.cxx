@@ -22,7 +22,6 @@ public:
   }
 };
 
-// =============================================================
 egammaTopoClusterCopier::egammaTopoClusterCopier(const std::string& name, 
                                                  ISvcLocator* pSvcLocator): 
   AthReentrantAlgorithm(name, pSvcLocator),
@@ -32,7 +31,6 @@ egammaTopoClusterCopier::egammaTopoClusterCopier(const std::string& name,
 {
 }
 
-// =============================================================
 StatusCode egammaTopoClusterCopier::initialize() {
 
   ATH_MSG_DEBUG("Initializing " << name() << "...");
@@ -46,7 +44,6 @@ StatusCode egammaTopoClusterCopier::initialize() {
   return StatusCode::SUCCESS;
 }
 
-// =========================================================================
 StatusCode egammaTopoClusterCopier::finalize() {
   
   ATH_MSG_INFO( name() << " All Clusters " << m_AllClusters );
