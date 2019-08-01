@@ -5,6 +5,7 @@
 #include "TrigT1CaloFexSim/JGTowerReader.h"
 #include "TrigT1CaloFexSim/JGTower.h"
 #include "TrigT1CaloFexSim/JetAlg.h"
+#include "TrigT1CaloFexSim/Objects.h"
 #include "TSystem.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TTree.h"
@@ -234,103 +235,7 @@ StatusCode JGTowerReader::execute() {
 
   const xAOD::JGTowerContainer* gTowers =0;
   CHECK( evtStore()->retrieve( gTowers,"GTower"));
-  //combine EM and Had layers
-  //ConstDataVector<xAOD::JGTowerContainer> gT_combined(SG::VIEW_ELEMENTS);
 
-  //std::cout<<"Collapsing EM and Had layers"<<std::endl;
-  xAOD::JGTowerAuxContainer* gCaloTowersAux = new xAOD::JGTowerAuxContainer();
-  xAOD::JGTowerContainer* gCaloTowers = new xAOD::JGTowerContainer();
-  gCaloTowers->setStore(gCaloTowersAux);
-
-  for(unsigned t = 0; t < gTowers->size(); t++){
-    const xAOD::JGTower* gt_em = gTowers->at(t);
-    const float eta = gt_em->eta();
-    const float phi = gt_em->phi();
-    const float deta = gt_em->deta();
-    const float dphi = gt_em->dphi();
-    float totalEt = 0;
-
-    if(fabs(eta) < 3.15 && gt_em->sampling() == 0){
-      const xAOD::JGTower* gt_had = gTowers->at(t+544);
-      totalEt = gt_em->et() + gt_had->et();
-    }
-    //if(t > 544) totalEt = 0;
-    const float tEt = totalEt; 
-
-    const std::vector<int> index(2, 0);
-
-    xAOD::JGTower* m_tower = new xAOD::JGTower();
-    gCaloTowers->push_back(m_tower);
-    const int t_ = t; 
-    m_tower->initialize(t_, eta, phi);
-    m_tower->setdEta(deta);                                                                     
-    m_tower->setdPhi(dphi);                                                                     
-    m_tower->setEt(tEt);                                                                
-    m_tower->setSCIndex(index);                                                                    
-    m_tower->setTileIndex(index);
-    const int sampling = gt_em->sampling(); 
-    m_tower->setSampling(sampling);
-
-  }
-  ConstDataVector<xAOD::JGTowerContainer> temp_a(SG::VIEW_ELEMENTS);
-  ConstDataVector<xAOD::JGTowerContainer> temp_b(SG::VIEW_ELEMENTS);
-  ConstDataVector<xAOD::JGTowerContainer> temp_c(SG::VIEW_ELEMENTS);
-
-  for(unsigned int t = 0; t < gCaloTowers->size(); t++){
-    const xAOD::JGTower* tower = gCaloTowers->at(t);
-    float eta = tower->eta();
-
-    if(eta > -2.5 && eta < 0) temp_a.push_back(tower);
-    if(eta > 0 && eta < 2.5) temp_b.push_back(tower);
-    if(fabs(eta) >= 2.5) temp_c.push_back(tower);
-  }
-  const xAOD::JGTowerContainer* fpga_a = temp_a.asDataVector();
-  const xAOD::JGTowerContainer* fpga_b = temp_b.asDataVector();
-  const xAOD::JGTowerContainer* fpga_c = temp_c.asDataVector();
-
-  xAOD::JGTowerAuxContainer* pu_subAux = new xAOD::JGTowerAuxContainer();
-  xAOD::JGTowerContainer* pu_sub = new xAOD::JGTowerContainer();
-  pu_sub->setStore(pu_subAux);
-
-  float rhoA = METAlg::Rho_avg_etaRings(fpga_a, 1, false);
-  float rhoB = METAlg::Rho_avg_etaRings(fpga_b, 2, false);
-  float rhoC = METAlg::Rho_avg_etaRings(fpga_c, 3, false);
-  
-  for(unsigned int t = 0; t < gCaloTowers->size(); t++){
-    const xAOD::JGTower* tower = gCaloTowers->at(t);
-    const float eta = tower->eta();
-    const float phi = tower->phi();
-    const float deta = tower->deta();
-    const float dphi = tower->dphi();
-    float Et_sub = tower->et();
-
-    if(eta < 0 && eta >= -2.5){
-      if(eta > -2.4) Et_sub -= rhoA;
-      else Et_sub -= 0.5*rhoA;
-    }
-    if(eta > 0 && eta <= 2.5){
-      if(eta < 2.4) Et_sub -= rhoB;
-      else Et_sub -= 0.5*rhoB;
-    }
-    if(fabs(eta) > 2.5){
-      if(fabs(eta) < 3.2) Et_sub -= rhoC;
-      else Et_sub -= 4*rhoC;
-    }
- 
-    const std::vector<int> index(2,0);
-    const int sampling = tower->sampling();
-    xAOD::JGTower* m_tower = new xAOD::JGTower();
-    pu_sub->push_back(m_tower);
-    m_tower->initialize(t, eta, phi);
-    m_tower->setdEta(deta);
-    m_tower->setdPhi(dphi);
-    m_tower->setEt(Et_sub);
-    m_tower->setSCIndex(index);
-    m_tower->setTileIndex(index);
-    m_tower->setSampling(sampling);
-  }
-    
-  //const xAOD::JGTowerContainer* gTs = gT_combined.asDataVector();
   //when noise file is not available, set the noise as constant for EM, Had, and FCal respectively
   if(gT_noise.size()==0){
     ATH_MSG_INFO (" Failed to find noise file, setting gTower noise manually ");
@@ -395,8 +300,7 @@ StatusCode JGTowerReader::execute() {
   ATH_MSG_DEBUG ("About to call JFexAlg");
   CHECK(JFexAlg(jTowers)); // all the functions for JFex shall be executed here
   ATH_MSG_DEBUG ("About to call GFexAlg");
-  CHECK(GFexAlg(gCaloTowers)); // all the functions for GFex shall be executed here
-  //CHECK(GFexAlg(pu_sub)); //run all gFEX algs with pileup subtracted towers
+  CHECK(GFexAlg(gTowers)); // all the functions for GFex shall be executed here
 
   ATH_MSG_DEBUG ("About to call ProcessObject()");
   CHECK(ProcessObjects());  // this is the function to make output as well as memory cleaning
@@ -404,12 +308,6 @@ StatusCode JGTowerReader::execute() {
  
   ATH_MSG_DEBUG ("Algorithm passed");
 
-  //manage containers that have been created: save gCaloTowers and pu_sub to SG
-  CHECK(evtStore()->record(gCaloTowers,"gCaloTowers"));
-  CHECK(evtStore()->record(gCaloTowersAux, "gCaloTowersAux."));
-  CHECK(evtStore()->record(pu_sub,"pu_subTowers"));
-  CHECK(evtStore()->record(pu_subAux, "pu_subTowersAux."));
-  
   setFilterPassed(true); //if got here, assume that means algorithm passed
   return StatusCode::SUCCESS;
 }
@@ -429,6 +327,50 @@ StatusCode JGTowerReader::beginInputFile() {
   //std::vector<float> bunchPattern; CHECK( retrieveMetadata("/Digitiation/Parameters","BeamIntensityPattern",bunchPattern) );
 
 
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode JGTowerReader::BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, const bool useNegTowers){
+
+  blocks.clear();
+  TowerObject::TowerGrid grid = TowerObject::TowerGrid(towers);
+
+  for(const xAOD::JGTower* seed: towers){
+    int seedIndex = std::find(towers.begin(), towers.end(), seed) - towers.begin();
+
+    std::vector<int> neighbors = grid.neighbors(*seed, blockRows, blockCols);
+    float seed_Et = seed->et();
+    if(!useNegTowers) seed_Et = TMath::Abs(seed_Et);
+    double block_area(0.0);
+    double sum_deta(0.0);
+    double sum_dphi(0.0);
+    double block_pt(seed_Et);
+    double neighbor_pt = 0;
+
+    for(const int& neighborIndex: neighbors){
+      const xAOD::JGTower* neighbor = towers.at(neighborIndex);
+      block_area += neighbor->deta()*neighbor->dphi();
+      sum_deta += neighbor->deta();
+      sum_dphi += neighbor->dphi();
+      neighbor_pt = neighbor->et();
+      if(!useNegTowers) neighbor_pt = TMath::Abs(neighbor_pt);
+      block_pt += neighbor_pt;
+    }
+
+    TowerObject::Block block(block_pt, seed->eta(), seed->phi(), 0.0);
+    block.seedIndex(seedIndex);
+    block.numEta(blockCols);
+    block.numPhi(blockRows);
+    block.area(block_area);
+    block.sumDeta(sum_deta);
+    block.sumDphi(sum_dphi);
+    block.numConstituents(neighbors.size());
+
+    blocks.push_back(block);
+  }
+
+  std::sort(blocks.rbegin(), blocks.rend());
 
   return StatusCode::SUCCESS;
 }
@@ -505,7 +447,163 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
       gT_noise.push_back(1000);
     }
   }
+
+  //build gCaloTowers
+  xAOD::JGTowerAuxContainer* gCaloTowersAux = new xAOD::JGTowerAuxContainer();
+  xAOD::JGTowerContainer* gCaloTowers = new xAOD::JGTowerContainer();
+  gCaloTowers->setStore(gCaloTowersAux);
+
+  for(unsigned int t = 0; t < gTs->size(); t++){
+    const xAOD::JGTower* gt_em = gTs->at(t);
+    const float eta = gt_em->eta();
+    const float phi = gt_em->phi();
+    const float deta = gt_em->deta();
+    const float dphi = gt_em->dphi();
+    float totalEt = 0;
+
+    if(fabs(eta) < 3.15 && gt_em->sampling() == 0){
+      const xAOD::JGTower* gt_had = gTs->at(t+544);
+      totalEt = gt_em->et() + gt_had->et();
+    }
+    //if(t > 544) totalEt = 0;
+    const float tEt = totalEt; 
+
+    const std::vector<int> index(2, 0);
+    xAOD::JGTower* new_tower = new xAOD::JGTower();
+    gCaloTowers->push_back(new_tower);
+    const int t_ = t; 
+    new_tower->initialize(t_, eta, phi);
+    new_tower->setdEta(deta);                                                                     
+    new_tower->setdPhi(dphi);                                                                     
+    new_tower->setEt(tEt);                                                                
+    new_tower->setSCIndex(index);                                                                    
+    new_tower->setTileIndex(index);
+    const int sampling = gt_em->sampling(); 
+    new_tower->setSampling(sampling);
+
+  }
+
+  //split towers per fpga for rho subtraction
+  ConstDataVector<xAOD::JGTowerContainer> temp_a(SG::VIEW_ELEMENTS);
+  ConstDataVector<xAOD::JGTowerContainer> temp_b(SG::VIEW_ELEMENTS);
+  ConstDataVector<xAOD::JGTowerContainer> temp_c(SG::VIEW_ELEMENTS);
+
+  TH1F* h_fpga_a = new TH1F();
+  TH1F* h_fpga_b = new TH1F();
+  TH1F* h_fpga_c = new TH1F();
+
+  for(unsigned int t = 0; t < gCaloTowers->size(); t++){
+    const xAOD::JGTower* tower = gCaloTowers->at(t);
+    float eta = tower->eta();
+
+    if(eta > -2.5 && eta < 0){
+      temp_a.push_back(tower);
+      h_fpga_a->Fill(tower->et());
+    }
+    if(eta > 0 && eta < 2.5){
+      temp_b.push_back(tower);
+      h_fpga_b->Fill(tower->et());
+    }
+    if(fabs(eta) >= 2.5){
+      temp_c.push_back(tower);
+      h_fpga_c->Fill(tower->et());
+    }
+  }
+  const xAOD::JGTowerContainer* fpga_a = temp_a.asDataVector();
+  const xAOD::JGTowerContainer* fpga_b = temp_b.asDataVector();
+  const xAOD::JGTowerContainer* fpga_c = temp_c.asDataVector();
+
+  float thresh_a = 3*h_fpga_a->GetRMS();
+  float thresh_b = 3*h_fpga_b->GetRMS();
+  float thresh_c = 3*h_fpga_c->GetRMS();
+
+  //build pileup subtracted towers
+  xAOD::JGTowerAuxContainer* pu_subAux = new xAOD::JGTowerAuxContainer();
+  xAOD::JGTowerContainer* pu_sub = new xAOD::JGTowerContainer();
+  pu_sub->setStore(pu_subAux);
+
+  float rhoA = METAlg::Rho_avg_etaRings(fpga_a, 1, false);
+  float rhoB = METAlg::Rho_avg_etaRings(fpga_b, 2, false);
+  float rhoC = METAlg::Rho_avg_etaRings(fpga_c, 3, false);
   
+  float rho_barrel = METAlg::Rho_avg(gCaloTowers, false);
+
+  for(unsigned int t = 0; t < gCaloTowers->size(); t++){
+    const xAOD::JGTower* tower = gCaloTowers->at(t);
+    const float eta = tower->eta();
+    const float phi = tower->phi();
+    const float deta = tower->deta();
+    const float dphi = tower->dphi();
+    float Et_sub = tower->et();
+
+    if(eta < 0 && eta >= -2.5){
+      if(eta > -2.4) Et_sub -= rhoA;
+      else Et_sub -= 0.5*rhoA;
+
+      if(Et_sub < thresh_a) Et_sub = 0;
+    }
+    if(eta > 0 && eta <= 2.5){
+      if(eta < 2.4) Et_sub -= rhoB;
+      else Et_sub -= 0.5*rhoB;
+
+      if(Et_sub < thresh_b) Et_sub = 0;
+    }
+    if(fabs(eta) > 2.5){
+      if(fabs(eta) < 3.2) Et_sub -= rhoC;
+      else Et_sub -= 4*rhoC;
+
+      if(Et_sub < thresh_c) Et_sub = 0;
+    }
+ 
+    const std::vector<int> index(2,0);
+    const int sampling = tower->sampling();
+    xAOD::JGTower* new_tower = new xAOD::JGTower();
+    pu_sub->push_back(new_tower);
+    new_tower->initialize(t, eta, phi);
+    new_tower->setdEta(deta);
+    new_tower->setdPhi(dphi);
+    new_tower->setEt(Et_sub);
+    new_tower->setSCIndex(index);
+    new_tower->setTileIndex(index);
+    new_tower->setSampling(sampling);
+  }
+
+  //build gBlocks
+  std::vector<TowerObject::Block> temp_gBlocks;
+  std::vector<TowerObject::Block> temp_puSub_gBlocks;
+
+  CHECK(BuildBlocksFromTowers(temp_gBlocks, *gCaloTowers, 3, 3, m_useNegTowers));
+  CHECK(BuildBlocksFromTowers(temp_puSub_gBlocks, *pu_sub, 3, 3, m_useNegTowers));
+
+  const std::vector<TowerObject::Block> gBlocks = temp_gBlocks;
+  const std::vector<TowerObject::Block> puSub_gBlocks = temp_puSub_gBlocks;
+
+  xAOD::JGTowerAuxContainer* gBAux = new xAOD::JGTowerAuxContainer();
+  xAOD::JGTowerContainer* gBs = new xAOD::JGTowerContainer();
+  gBs->setStore(gBAux);
+
+  const std::vector<int> index(2, 0);
+  
+  for(unsigned int b = 0; b < gBlocks.size(); b++){
+    float phi = gBlocks[b].Phi();
+    float eta = gBlocks[b].Eta();
+    float deta = gBlocks[b].sumDeta(); //sum of delta eta between seed tower to all others? 
+    float dphi = gBlocks[b].sumDphi(); //sum of delta phi between seed tower and all others? 
+    float pt = gBlocks[b].pt();
+    int seedTowerIndex = gBlocks[b].seedIndex();
+    const int sampling = gCaloTowers->at(seedTowerIndex)->sampling();
+
+    xAOD::JGTower* m_block = new xAOD::JGTower();
+    const int b_ = b; 
+    gBs->push_back(m_block);
+    m_block->initialize(b_, eta, phi);
+    m_block->setdEta(deta);                                                 
+    m_block->setdPhi(dphi);                                                                   
+    m_block->setSCIndex(index);  // Not sure what these are supposed to be?
+    m_block->setTileIndex(index);// Not sure what these are supposed to be?
+    m_block->setSampling(sampling);
+  }  
+
   // jet algorithms
   if(JetAlg::m_SeedMap.find("gSeeds") == JetAlg::m_SeedMap.end())
      CHECK(JetAlg::SeedGrid(gTs,"gSeeds",m_dumpSeedsEtaPhi));
@@ -515,16 +613,16 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
                                                                          // Careful to ensure the range set to be no tower double counted
   //CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr)); //default gFex jets are cone jets wih radius of 1.0
   
-  CHECK(JetAlg::BuildFatJet(*gTs, "gL1Jets", m_gJet_r, gT_noise, m_gJet_jet_tower_noise_multiplier, m_gJet_jet_total_noise_multiplier, m_gJet_jet_min_ET_MeV));
+  CHECK(JetAlg::BuildFatJet(*gCaloTowers, "gL1Jets", m_gJet_r, gT_noise, m_gJet_jet_tower_noise_multiplier, m_gJet_jet_total_noise_multiplier, m_gJet_jet_min_ET_MeV, rho_barrel));
+  CHECK(JetAlg::BuildgBlocksJets(gBs, "gBlockJets",rho_barrel));
   //gFEX MET algorithms
+  std::vector<float> noNoise; 
   if(m_developerMET){
-    std::vector<float> noNoise; 
     for(int i=0; i<=1; i++){
       bool NegTowers=false;
       if(i==1)NegTowers=true;
-      CHECK(METAlg::Baseline_MET(gTs,Form("gNoCutsNeg%d",NegTowers),noNoise, NegTowers) );//basic MET, no threshold, pass no noise thresholds, and use negative towers 
-      CHECK(METAlg::Baseline_MET(gTs,Form("gBaselineNeg%d",NegTowers),gT_noise, NegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
-      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%d",NegTowers),m_useRMS,m_useMedian,NegTowers)); //pileup subtracted MET, can apply dynamic noise cut and use either median or avg rho
+      CHECK(METAlg::Baseline_MET(gCaloTowers,Form("gNoCutsNeg%d",NegTowers),noNoise, NegTowers) );//basic MET, no threshold, pass no noise thresholds, and use negative towers 
+      CHECK(METAlg::Baseline_MET(gCaloTowers,Form("gBaselineNeg%d",NegTowers),gT_noise, NegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
     //No RMS 
       //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMedian",NegTowers),0,1,NegTowers));//Median
       //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMean",NegTowers),0,0,NegTowers));//Mean
@@ -532,256 +630,35 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
       //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMedianRMS",NegTowers), 1, 1,NegTowers));
       //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMeanRMS",NegTowers), 1, 0,NegTowers));
 
-      CHECK(METAlg::Softkiller_MET(gTs, Form("SKNeg%d",NegTowers), NegTowers) ); //pileup subtracted SoftKiller (with avg rho)
-      CHECK(METAlg::JwoJ_MET(gTs,Form("JwoJNeg%d",NegTowers),m_pTcone_cut, false, false, NegTowers) ); //Jets without Jets
+      CHECK(METAlg::Softkiller_MET(pu_sub, Form("SKNeg%d",NegTowers), NegTowers) ); //pileup subtracted SoftKiller (with avg rho)
+      CHECK(METAlg::JwoJ_MET(pu_sub, gBlocks,Form("JwoJNeg%d",NegTowers),m_pTcone_cut, false, false, NegTowers) ); //Jets without Jets
       //CHECK(METAlg::Pufit_MET(gTs,Form("PUfitNeg%d",NegTowers), NegTowers) ); //L1 version of PUfit, using gTowers
     }
 
   }//developer met
   else{
-    CHECK(METAlg::Baseline_MET(gTs,"gXENOISECUT",gT_noise, m_useNegTowers));
-    CHECK(METAlg::JwoJ_MET(gTs,"gXEJWOJ",m_pTcone_cut,false, false, m_useNegTowers));
-    //CHECK(METAlg::JwoJ_MET(gTs,"gXEJWOJRHO",m_pTcone_cut,false, true, m_useNegTowers));
-    CHECK(METAlg::Pufit_MET(gTs,"gXEPUFIT", m_useNegTowers) ); 
-    //CHECK(METAlg::SubtractRho_MET(gTs, "RhoSub_A", 1, true, false, false)); //simulating the 3 fpgas in the gFEX for rho subtraction
-    //CHECK(METAlg::SubtractRho_MET(gTs, "RhoSub_B", 2, true, false, false)); //simulating the 3 fpgas in the gFEX for rho subtraction
-    //CHECK(METAlg::SubtractRho_MET(gTs, "RhoSub_C", 3, true, false, false)); //simulating the 3 fpgas in the gFEX for rho subtraction
-    //CHECK(METAlg::Pufit_MET(gTs, "PUfit_A", 1, false)); //simulating the 3 fpgas in the gFEX for PUfit
-    //CHECK(METAlg::Pufit_MET(gTs, "PUfit_B", 2, false)); //simulating the 3 fpgas in the gFEX for PUfit
-    //CHECK(METAlg::Pufit_MET(gTs, "PUfit_C", 3,false)); //simulating the 3 fpgas in the gFEX for PUfit
-    CHECK(METAlg::SubtractRho_MET(gTs,"gXERHO", false, m_useRMS,false, m_useNegTowers)); 
-    CHECK(MET_etaBins(gTs,"RhoSub_etaBins", true, true, false, false) ); 
-    CHECK(MET_etaBins(gTs,"PUfit_etaBins", true, false, false, true) ); 
-    CHECK(MET_etaBins(gTs,"JwoJ_etaBins", true, false, true, false) ); 
+    CHECK(METAlg::Baseline_MET(pu_sub, "gXERHO", noNoise, m_useNegTowers));
+    CHECK(METAlg::Baseline_MET(gCaloTowers,"gXENOISECUT",gT_noise, m_useNegTowers));
+    CHECK(METAlg::JwoJ_MET(pu_sub, puSub_gBlocks,"gXEJWOJRHO",m_pTcone_cut,false, false, m_useNegTowers));
+    CHECK(METAlg::JwoJ_MET(gTs, gBlocks, "gXEJWOJ",m_pTcone_cut,false, true, m_useNegTowers));
+    CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_useNegTowers) ); 
+
+
   }//main definitions for simplicity
 
-  return StatusCode::SUCCESS;
-}
+  //manage conatiners that have been created: save gCaloTowers and pu_sub to SG
+  CHECK(evtStore()->record(gCaloTowers, "gCaloTowers"));
+  CHECK(evtStore()->record(gCaloTowersAux, "gCaloTowersAux."));
+  CHECK(evtStore()->record(pu_sub, "pu_subTowers"));
+  CHECK(evtStore()->record(pu_subAux, "pu_subTowersAux."));
 
-StatusCode JGTowerReader::MET_etaBins(const xAOD::JGTowerContainer* gTs, TString metName, bool usegFEX, bool useRhoSub, bool useJwoJ, bool usePUfit){
+  delete fpga_a;
+  delete fpga_b;
+  delete fpga_c;
 
-  //std::cout<<"Calculating MET in rings of eta..."<<std::endl;
-  float met_x = 0;
-  float met_y = 0;
-  std::shared_ptr<METAlg::MET> met = std::make_shared<METAlg::MET>();
-
-  TString metA = "";
-  TString metB = "";
-  TString metC = "";
-
-  if(usegFEX){
-
-
-    //xAOD::JGTowerContainer fpga_b;
-    //xAOD::JGTowerContainer fpga_c;
-
-    ConstDataVector<xAOD::JGTowerContainer> temp_a(SG::VIEW_ELEMENTS);
-    ConstDataVector<xAOD::JGTowerContainer> temp_b(SG::VIEW_ELEMENTS);
-    ConstDataVector<xAOD::JGTowerContainer> temp_c(SG::VIEW_ELEMENTS);
-
-    //loop for splitting gTowers into 3 fpgas                                                              
-    for(unsigned int t = 0; t < gTs->size(); t++){
-      const xAOD::JGTower* tower = gTs->at(t);
-      float eta = tower->eta();
-
-      //std::cout<<"tower eta = "<<new_tower->eta()<<std::endl;
-
-      if(eta > -2.5 && eta < 0){
-	temp_a.push_back(tower);
-      }
-      if(eta > 0 && eta < 2.5){
-	temp_b.push_back(tower);
-      }
-      if(TMath::Abs(eta) >= 2.5){
-	temp_c.push_back(tower);
-      }
-    }
-    const xAOD::JGTowerContainer* fpga_a = temp_a.asDataVector();
-    const xAOD::JGTowerContainer* fpga_b = temp_b.asDataVector();
-    const xAOD::JGTowerContainer* fpga_c = temp_c.asDataVector();
-
-    if(fpga_a->size() == 0)       std::cout<<"FPGA A is empty! "<<std::endl;
-    if(fpga_b->size() == 0)       std::cout<<"FPGA B is empty! "<<std::endl;
-    if(fpga_c->size() == 0)       std::cout<<"FPGA C is empty! "<<std::endl;
-    
-    if(useRhoSub){
-      metA = "RhoSubA";
-      metB = "RhoSubB";
-      metC = "RhoSubC";
-
-      //std::cout<<"Calculating MET on FPGA A"<<std::endl;
-      CHECK(METAlg::SubtractRho_MET(fpga_a, metA, true, true, false, false));
-      //std::cout<<"Calculating MET on FPGA B"<<std::endl;
-      CHECK(METAlg::SubtractRho_MET(fpga_b, metB, true, true, false, false));
-      //std::cout<<"Calculating MET on FPGA C"<<std::endl;
-      CHECK(METAlg::SubtractRho_MET(fpga_c, metC, true, true, false, false));
-
-    }
-    if(useJwoJ){
-      metA = "JwoJA";
-      metB = "JwoJB";
-      metC = "JwoJC";
-
-      CHECK(METAlg::JwoJ_MET(fpga_a, metA, m_pTcone_cut, true, false, false));
-      CHECK(METAlg::JwoJ_MET(fpga_b, metB, m_pTcone_cut, true, false, false));
-      CHECK(METAlg::JwoJ_MET(fpga_c, metC, m_pTcone_cut, true, false, false));
-
-    }
-    if(usePUfit){
-      metA = "PUfitA";
-      metB = "PUfitB";
-      metC = "PUfitC";
-      
-      CHECK(METAlg::Pufit_MET(fpga_a, metA, false));
-      CHECK(METAlg::Pufit_MET(fpga_b, metB, false));
-      CHECK(METAlg::Pufit_MET(fpga_c, metC, false));
-    }
-    if(useJwoJ){
-      float mht_ax = METAlg::m_METMap[metA]->mht_x;
-      float mst_ax = METAlg::m_METMap[metA]->mst_x;
-      float mht_ay = METAlg::m_METMap[metA]->mht_y;
-      float mst_ay = METAlg::m_METMap[metA]->mst_y;
-
-      float mht_bx = METAlg::m_METMap[metB]->mht_x;
-      float mst_bx = METAlg::m_METMap[metB]->mst_x;
-      float mht_by = METAlg::m_METMap[metB]->mht_y;
-      float mst_by = METAlg::m_METMap[metB]->mst_y;
-
-      float mht_cx = METAlg::m_METMap[metC]->mht_x;
-      float mst_cx = METAlg::m_METMap[metC]->mst_x;
-      float mht_cy = METAlg::m_METMap[metC]->mht_y;
-      float mst_cy = METAlg::m_METMap[metC]->mst_y;
-
-      float mht_x = mht_ax + mht_bx + mht_cx;
-      float mht_y = mht_ay + mht_by + mht_cy;
-      float mst_x = mst_ax + mst_bx + mst_cx;
-      float mst_y = mst_ay + mst_by + mst_cy;
-
-      //std::cout<<"MSTx = "<<mst_x<<std::endl;
-      //std::cout<<"MSTy = "<<mst_y<<std::endl;
-      float sT = METAlg::m_METMap[metA]->scalar_Et + METAlg::m_METMap[metB]->scalar_Et + METAlg::m_METMap[metC]->scalar_Et;
-      
-      float ax = 0;
-      float bx = 0;
-      float cx = 0;
-      float ay = 0;
-      float by = 0;
-      float cy = 0;
-
-      //set coefficients based on ST
-      if(sT <= 500*Gaudi::Units::GeV){
-	ax = 1.45;
-	bx = 1.15;
-	cx = 1.;
-
-	ay = 1.45;
-	by = 1.1;
-	cy = 1.5;
-      }
-      else if(sT <= 700*Gaudi::Units::GeV){
-	ax = 1.35;
-	bx = 1.05;
-	cx = -1.5;
-
-	ay = 1.35;
-	by = 0.95;
-	cy = 0.;
-      }
-      else if(sT <= 900*Gaudi::Units::GeV){
-	ax = 1.35;
-	bx = 1.0;
-	cx = 0.5;
-
-	ay = 1.35;
-	by = 0.95;
-	cy = -1.;
-      }
-      else if(sT <= 1100*Gaudi::Units::GeV){
-	ax = 1.3;
-	bx = 0.95;
-	cx = -1.;
-
-	ay = 1.3;
-	by = 0.95;
-	cy = -1;
-      }
-      else if(sT <= 1300*Gaudi::Units::GeV){
-	ax = 1.3;
-	bx = 0.9;
-	cx = 0.75;
-
-	ay = 1.25;
-	by = 0.8;
-	cy = 0.5;
-      }
-      else if(sT <= 1500*Gaudi::Units::GeV){
-	ax = 1.25;
-	bx = 0.8;
-	cx = 0.5;
-
-	ay = 1.25;
-	by = 0.8;
-	cy = 0.5;
-      }
-      else if(sT <= 1700*Gaudi::Units::GeV){
-	ax = 1.3;
-	bx = 0.75;
-	cx = 1.5;
-
-	ay = 1.25;
-	by = 0.75;
-	cy = 0.5;
-      }
-      else{
-	ax = 1.25;
-	bx = 0.75;
-	cx = 0.75;
-
-	ay = 1.25;
-	by = 0.75;
-	cy = 2.;
-      }
-      float mht = TMath::Sqrt(mht_x*mht_x + mht_y*mht_y);
-      float mst = TMath::Sqrt(mst_x*mst_x + mst_y*mst_y);
-      float Ex = ax*mht_x + bx*mst_x + cx;
-      float Ey = ay*mht_y + by*mst_y + cy;
-
-      float EtMiss = TMath::Sqrt(Ex*Ex + Ey*Ey);
-      float phi = 0;
-      if(EtMiss > 0) phi = TMath::ACos(Ex/EtMiss);
-      if(Ey < 0) phi = - phi;
-      
-      met->et = EtMiss;
-      met->phi = phi;
-      met->mht = mht;
-      met->mst = mst;
-      met->scalar_Et = sT;
-      //std::cout<<"Et = "<<met->et<<std::endl;
-    }else{
-      float met_a = METAlg::m_METMap[metA]->et;
-      float phi_a = METAlg::m_METMap[metA]->phi;
-      
-      float met_b = METAlg::m_METMap[metB]->et;
-      float phi_b = METAlg::m_METMap[metB]->phi;
-      
-      float met_c = METAlg::m_METMap[metC]->et;
-      float phi_c = METAlg::m_METMap[metC]->phi;
-      
-      met_x = met_a*TMath::Cos(phi_a) + met_b*TMath::Cos(phi_b) + met_c*TMath::Cos(phi_c);
-      met_y = met_a*TMath::Sin(phi_a) + met_b*TMath::Sin(phi_b) + met_c*TMath::Sin(phi_c);
-      
-      float met_et = TMath::Sqrt(met_x*met_x + met_y*met_y);
-      float phi = 0;
-      
-      if(met_et != 0) phi = TMath::ACos(met_x/met_et);
-      if(met_y < 0) phi = -phi;
-      
-      met->et = met_et;
-      met->phi = phi;
-    }
-  }
-
-  if(METAlg::m_METMap.find(metName) == METAlg::m_METMap.end()) METAlg::m_METMap[metName] = met;
+  delete h_fpga_a;
+  delete h_fpga_b;
+  delete h_fpga_c;
 
   return StatusCode::SUCCESS;
 }
