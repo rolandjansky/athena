@@ -20,7 +20,7 @@ def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
         egammaCaloClusterGSFSelector = egammaCaloClusterSelector(name='caloClusterGSFSelector',
                                                                  egammaCheckEnergyDepositTool=egammaCheckEnergyDepositTool(),
                                                                  EMEtRanges = [2000.],
-                                                                 EMFCuts = [0.0],
+                                                                 EMFCuts = [0.7],
                                                                  RetaCut = [0.65]
                                                                  )
 
