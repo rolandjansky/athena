@@ -80,10 +80,10 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
   private: 
 
-  Gaudi::Property<bool>      m_monitorAll{this, "MonitorAll", false, "Monitor every HLT event, e.g. for offline validation."};
-  Gaudi::Property<bool>      m_printTimes{this, "PrintTimes", false, "Sends per-algorithm timing to MSG::INFO."};
+  Gaudi::Property<bool>      m_monitorAllEvents{this, "MonitorAllEvents", false, "Monitor every HLT event, e.g. for offline validation."};
   Gaudi::Property<bool>      m_saveHashes{this, "SaveHashes", false, "Store a copy of the hash dictionary for easier debugging"};
-  Gaudi::Property<unsigned>  m_eventSlots{this, "EventSlots", 0,     "Number of concurrent processing slots."};
+  
+  size_t  m_eventSlots; //!< Number of concurrent processing slots. Cached from Gaudi
 
   /**
    * @return If the event is flagged as being monitored. Allows for a quick return if not

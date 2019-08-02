@@ -385,12 +385,14 @@ class ComponentAccumulator(object):
         if (overwrite or key not in (self._theAppProps)):
             self._theAppProps[key]=value
         else:
-            if isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
+            if self._theAppProps[key] == value:
+                self._msg.debug("ApplicationMgr property '%s' already set to '%s'.", key, value)
+            elif isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
                 value=unifySet(self._theAppProps[key],value)
                 self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
                 self._theAppProps[key]=value
             else:
-                raise DeduplicationFailed("AppMgr property %s set twice: %s and %s",key,(self._theAppProps[key],value))
+                raise DeduplicationFailed("AppMgr property %s set twice: %s and %s" % (key, self._theAppProps[key], value))
 
 
         pass

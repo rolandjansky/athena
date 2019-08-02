@@ -104,7 +104,11 @@ class L1Decoder(L1Decoder) :
             unpackers, rerunUnpackers = createMuonRoIUnpackers()
             self.roiUnpackers += unpackers
             self.rerunRoiUnpackers += rerunUnpackers
-            
+
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        self.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
+        self.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
+
         self.L1DecoderSummaryKey = "L1DecoderSummary"
 
 
@@ -131,7 +135,8 @@ def L1DecoderCfg(flags):
     decoderAlg.roiUnpackers += unpackers
     decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
-
+    decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
+    decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
     from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
     acc.merge( TrigConfigSvcCfg( flags ) )
