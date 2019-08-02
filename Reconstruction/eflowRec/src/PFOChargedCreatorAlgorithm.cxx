@@ -117,7 +117,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
       for (auto trackClusterLink : trackClusterLinks){
 
 	if (false == trackClusterLink.second) continue;
-	
+
 	eflowRecCluster* efRecCluster = (trackClusterLink.first)->getCluster();
 	ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
 

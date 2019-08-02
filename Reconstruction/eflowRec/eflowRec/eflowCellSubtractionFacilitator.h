@@ -31,7 +31,7 @@ class eflowCellSubtractionFacilitator{
   eflowCellSubtractionFacilitator();
 
   double subtractCells(eflowRingSubtractionManager& ringSubtractionManager, double trackEnergy, xAOD::CaloCluster* tracksClus, eflowCellList& orderedCells);
-  double subtractCells(eflowRingSubtractionManager& ringSubtractionManager, double trackEnergy, std::vector<std::pair<xAOD::CaloCluster*, bool> > tracksClus, eflowCellList& orderedCells);
+  double subtractCells(eflowRingSubtractionManager& ringSubtractionManager, double trackEnergy, std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClus, eflowCellList& orderedCells);
   bool annFlag() {return m_annFlag;}
   void setAnnFlag() { m_annFlag = true; }
 
@@ -56,7 +56,7 @@ class eflowCellSubtractionFacilitator{
 
   bool subtractCaloCell(double & eSubtracted, const double eExpect, xAOD::CaloCluster* cluster, CaloCell* cell);
   void annihilateClusters(std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters);
-  bool subtractReorderedCells(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters,
+  bool subtractReorderedCells(std::vector<std::pair<xAOD::CaloCluster*, bool> >& tracksClusters,
                             double eSubtracted, const double eExpect, eflowCellList& orderedCells);
 };
 #endif

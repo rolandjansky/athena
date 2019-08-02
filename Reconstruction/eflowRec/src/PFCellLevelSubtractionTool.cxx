@@ -18,6 +18,7 @@
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
 #include "eflowRec/eflowRingThicknesses.h"
+#include "eflowRec/PFSubtractionStatusSetter.h"
 
 #include "CaloEvent/CaloCluster.h"
 
@@ -309,6 +310,8 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(){
 void PFCellLevelSubtractionTool::performSubtraction() {
 
   ATH_MSG_DEBUG("In performSubtraction");
+
+  PFSubtractionStatusSetter pfSubtractionStatusSetter;
   
   unsigned int nEFCaloObs = m_eflowCaloObjectContainer->size();
   for (unsigned int iEFCalOb = 0; iEFCalOb < nEFCaloObs; ++iEFCalOb) {
@@ -349,8 +352,9 @@ void PFCellLevelSubtractionTool::performSubtraction() {
     ATH_MSG_DEBUG("About to perform subtraction for this eflowCaloObject");
 
     const std::vector<std::pair<eflowTrackClusterLink*, bool> >& matchedTrackList = thisEflowCaloObject->efRecLink();
-    
+
     if (canAnnihilated(expectedEnergy, expectedSigma, clusterEnergy)) {
+
       /* Check if we can annihilate right away */
       std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterList;
       unsigned nCluster = thisEflowCaloObject->nClusters();
@@ -360,10 +364,10 @@ void PFCellLevelSubtractionTool::performSubtraction() {
       Subtractor::annihilateClusters(clusterList);
 
       //Now we should mark all of these clusters as being subtracted
-      this->markSubtractionStatus(clusterList, *thisEflowCaloObject);
+      pfSubtractionStatusSetter.markSubtractionStatus(clusterList, *thisEflowCaloObject);
 
     } else {
-    
+
       /* Subtract the track from all matched clusters */
       
       for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
@@ -377,7 +381,6 @@ void PFCellLevelSubtractionTool::performSubtraction() {
 	}
      
 	if (efRecTrack->isInDenseEnvironment()) continue;
-
 
 	ATH_MSG_DEBUG("Have bin and am not in dense environment for this eflowCaloObject");
       
@@ -395,8 +398,7 @@ void PFCellLevelSubtractionTool::performSubtraction() {
       
 	Subtractor::subtractTracksFromClusters(efRecTrack, clusterSubtractionList);
 	//Now need to mark which clusters were modified in the subtraction procedure
-	this->markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
-
+	pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
 	
 	ATH_MSG_DEBUG("Have performed subtraction for this eflowCaloObject");
       
@@ -404,7 +406,7 @@ void PFCellLevelSubtractionTool::performSubtraction() {
 	if (canAnnihilated(0, expectedSigma, clusterEnergy)) {
 	  Subtractor::annihilateClusters(clusterSubtractionList);
 	  //Now we should mark all of these clusters as being subtracted
-	  this->markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
+	  pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
 	}
 	
 	ATH_MSG_DEBUG("Have checked if can annihilate clusters for this eflowCaloOject");
@@ -467,27 +469,4 @@ void PFCellLevelSubtractionTool::printAllClusters(const eflowRecClusterContainer
       }
     }
   }
-}
-
-void PFCellLevelSubtractionTool::markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, eflowCaloObject& thisEflowCaloObject){
-  //An eflowCaloObject may have one cluster and N tracks, and then one would have N eflowTrackClusterLink* for each track-cluster pair
-  //Hence there can be more entries in the track cluster link list due to duplication
-
-  const std::vector<std::pair<eflowTrackClusterLink*, bool> >& matchedTrackList = thisEflowCaloObject.efRecLink();
-  
-  for (auto thisClusterPair : clusterList){
-    xAOD::CaloCluster* thisCluster = thisClusterPair.first;
-
-    for (auto thisTrackClusterLinkPair : matchedTrackList){
-      //if the subtraction status is already true, then no need to update it
-      if (true == thisTrackClusterLinkPair.second) continue;
-      //eflowTrackCluster link returns an eflowRecCluster pointer, which in turn returns an xAIOD:;CaloCluster* pointer
-      xAOD::CaloCluster* thisMatchedTrackCluster = (thisTrackClusterLinkPair.first)->getCluster()->getCluster();
-      //Now we can do a floating point comparison of the energy to check which cluster we have
-      if (fabs(thisCluster->e() - thisMatchedTrackCluster->e()) < 0.0001){
-	if (true == thisClusterPair.second) thisTrackClusterLinkPair.second = true;
-      }//if have a match of the cluster
-    }//loop on track cluster link pairs
-    
-  }//loop on cluster pair list
 }

@@ -49,8 +49,7 @@ public:
   std::string printTrack(const xAOD::TrackParticle* track);
   std::string printCluster(const xAOD::CaloCluster* cluster);
   void printAllClusters(const eflowRecClusterContainer& recClusterContainer);
-  void markSubtractionStatus(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterList, eflowCaloObject& thisEflowCaloObject);  
-  
+
   eflowCaloObjectContainer* m_eflowCaloObjectContainer;
   eflowRecTrackContainer* m_eflowTrackContainer;
   eflowRecClusterContainer* m_eflowClusterContainer;

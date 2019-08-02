@@ -26,7 +26,7 @@
 
 namespace eflowSubtract {
 
-  void Subtractor::subtractTracksFromClusters(eflowRecTrack* efRecTrack, std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList) {
+  void Subtractor::subtractTracksFromClusters(eflowRecTrack* efRecTrack, std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterSubtractionList) {
 
     /* Make ordered cell list */
     /* (Invokes newCluster() on orderedCells, than adds all the cells in tracksClus) */
@@ -66,7 +66,13 @@ namespace eflowSubtract {
 
 
   void Subtractor::annihilateClusters(std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters) {
-    for (auto thisPair : clusters) annihilateCluster(thisPair.first);
+
+    for (auto& thisPair : clusters) {
+      annihilateCluster(thisPair.first);
+      //mark subtraction status as true
+      thisPair.second = true;
+    }
+
   }
 
   void Subtractor::annihilateCluster(xAOD::CaloCluster* cluster) {
