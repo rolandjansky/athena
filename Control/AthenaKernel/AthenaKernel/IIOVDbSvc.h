@@ -62,8 +62,8 @@ public:
     /// Signal that callback has been fired
     virtual void       signalEndProxyPreload() = 0;
 
-    /// Register callback for TagInfo access
-    virtual StatusCode registerTagInfoCallback() = 0;
+    /// Process TagInfo
+    virtual StatusCode processTagInfo() = 0;
 
     // return list of SG keys being provided by IOVDbSvc
     virtual std::vector<std::string> getKeyList() = 0;

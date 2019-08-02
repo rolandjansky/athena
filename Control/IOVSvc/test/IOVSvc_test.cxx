@@ -178,7 +178,7 @@ public:
   virtual void       signalEndProxyPreload() override
   { std::abort(); }
 
-  virtual StatusCode registerTagInfoCallback() override
+  virtual StatusCode processTagInfo() override
   { std::abort(); }
 
   virtual std::vector<std::string> getKeyList() override
