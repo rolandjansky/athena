@@ -28,7 +28,7 @@ def metCellRecoSequence():
     #################################################
     metAlg = EFMissingETAlgMT( name="EFMET_cell" )
     flagsTool = EFMissingETFlagsMT("theFlagsTool")
-    metAlg.METContainerKey = recordable("HLT_MET")
+    metAlg.METContainerKey = recordable("HLT_MET_cell")
     metAlg.MonTool = getMETMonTool()
 
     #///////////////////////////////////////////
