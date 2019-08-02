@@ -4,12 +4,14 @@
 
 // Framework includes
 #include "GaudiKernel/INamedInterface.h"
+#include "GaudiKernel/MsgStream.h"
 
 // PerfMonKernel includes
 #include "PerfMonKernel/IPerfMonMTSvc.h"
 
 // PerfMonComps includes
-#include "PerfMonComps/PerfMonMTAuditor.h"
+#include "PerfMonMTAuditor.h"
+
 
 /*
  * Constructor
@@ -42,34 +44,30 @@ void PerfMonMTAuditor::before( StandardEventType etype, INamedInterface* compone
   return m_perfMonMTSvc->startAud( toStr(etype) , component->name() );
 }
 
-void PerfMonMTAuditor::before( StandardEventType, const std::string& ) {
-  return;
+void PerfMonMTAuditor::before( StandardEventType etype, const std::string& compName ) {
+  return m_perfMonMTSvc->startAud( toStr(etype) , compName );
 }
 
-void PerfMonMTAuditor::before( CustomEventTypeRef, INamedInterface* ) {
-  // don't poll for custom event type for now...
-  return;
+void PerfMonMTAuditor::before( CustomEventTypeRef etype, INamedInterface* component ) {
+  return m_perfMonMTSvc->startAud( etype , component->name() );
 }
 
-void PerfMonMTAuditor::before( CustomEventTypeRef, const std::string& ) {
-  // don't poll for custom event type for now...
-  return;
+void PerfMonMTAuditor::before( CustomEventTypeRef etype, const std::string& compName ) {
+  return m_perfMonMTSvc->startAud( etype , compName );
 }
 
 void PerfMonMTAuditor::after( StandardEventType etype, INamedInterface* component, const StatusCode& ) {
   return m_perfMonMTSvc->stopAud( toStr(etype), component->name() );
 }
 
-void PerfMonMTAuditor::after( StandardEventType, const std::string&, const StatusCode& ) {
-  return;
+void PerfMonMTAuditor::after( StandardEventType etype, const std::string& compName, const StatusCode& ) {
+  return m_perfMonMTSvc->stopAud( toStr(etype), compName );
 }
 
-void PerfMonMTAuditor::after( CustomEventTypeRef, INamedInterface*, const StatusCode& ) {
-  // don't poll for custom event type for now...
-  return;
+void PerfMonMTAuditor::after( CustomEventTypeRef etype, INamedInterface* component, const StatusCode& ) {
+  return m_perfMonMTSvc->stopAud( etype, component->name() );
 }
 
-void PerfMonMTAuditor::after( CustomEventTypeRef, const std::string&, const StatusCode& ) {
-  // don't poll for custom event type for now...
-  return;
+void PerfMonMTAuditor::after( CustomEventTypeRef etype, const std::string& compName , const StatusCode& ) {
+  return m_perfMonMTSvc->stopAud( etype, compName );
 }
