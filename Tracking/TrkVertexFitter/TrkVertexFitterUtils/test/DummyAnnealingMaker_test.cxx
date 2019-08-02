@@ -23,13 +23,14 @@
 void test1 (Trk::IVertexAnnealingMaker& tool)
 {
   std::cout << "test1\n";
-  tool.reset();
-  assert (tool.isEquilibrium());
-  tool.anneal();
-  assert (tool.isEquilibrium());
-  assert (tool.actualTemp() == 0);
-  assert (tool.getWeight (1) == 0.5);
-  assert (tool.getWeight (1, std::vector<double>{1, 2, 3}) == 0.5);
+  Trk::IVertexAnnealingMaker::AnnealingState astate;
+  tool.reset(astate);
+  assert (tool.isEquilibrium(astate));
+  tool.anneal(astate);
+  assert (tool.isEquilibrium(astate));
+  assert (tool.actualTemp(astate) == 0);
+  assert (tool.getWeight (astate, 1) == 0.5);
+  assert (tool.getWeight (astate, 1, std::vector<double>{1, 2, 3}) == 0.5);
 }
 
 

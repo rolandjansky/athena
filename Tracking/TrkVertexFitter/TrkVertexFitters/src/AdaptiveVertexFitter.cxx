@@ -410,7 +410,8 @@ namespace Trk
   {
   
     //now reset the annealing maker
-    m_AnnealingMaker->reset();
+    Trk::IVertexAnnealingMaker::AnnealingState astate;
+    m_AnnealingMaker->reset(astate);
 
     //Count the steps for the fit and the number of relinearizations needed in the fit
     int num_steps(0);
@@ -420,7 +421,7 @@ namespace Trk
     xAOD::Vertex* ActualVertex = new xAOD::Vertex();
     ActualVertex->makePrivateStore(); // xAOD::VertexContainer will take ownership of AuxStore when ActualVertex is added to it
     ActualVertex->setPosition( ConstraintVertex.position() );
-    ActualVertex->setCovariancePosition( ConstraintVertex.covariancePosition() / m_AnnealingMaker->getWeight(1.) );
+    ActualVertex->setCovariancePosition( ConstraintVertex.covariancePosition() / m_AnnealingMaker->getWeight(astate, 1.) );
     ActualVertex->setFitQuality( ConstraintVertex.chiSquared(), ConstraintVertex.numberDoF() );
     ActualVertex->vxTrackAtVertex() = myLinTracks;
     ActualVertex->setVertexType(xAOD::VxType::NotSpecified); // to mimic the initialization present in the old EDM constructor
@@ -432,7 +433,7 @@ namespace Trk
     if(msgLvl(MSG::VERBOSE))
     {
       msg(MSG::VERBOSE) << "Num max of steps is " << m_maxIterations << endmsg;
-      msg(MSG::VERBOSE) << "m_AnnealingMaker->isEquilibrium() is " << m_AnnealingMaker->isEquilibrium() << endmsg;
+      msg(MSG::VERBOSE) << "m_AnnealingMaker->isEquilibrium() is " << m_AnnealingMaker->isEquilibrium(astate) << endmsg;
     }
 
     std::vector<Trk::VxTrackAtVertex>::iterator lintracksBegin = ActualVertex->vxTrackAtVertex().begin();
@@ -445,12 +446,12 @@ namespace Trk
     do {
 
       ActualVertex->setPosition( ConstraintVertex.position() );
-      ActualVertex->setCovariancePosition( ConstraintVertex.covariancePosition() / m_AnnealingMaker->getWeight(1.) );
+      ActualVertex->setCovariancePosition( ConstraintVertex.covariancePosition() / m_AnnealingMaker->getWeight(astate, 1.) );
       ActualVertex->setFitQuality( ConstraintVertex.chiSquared(), ConstraintVertex.numberDoF() );
 
       if(msgLvl(MSG::DEBUG))
       {
-        msg(MSG::DEBUG) << "Correction applied to constraint weight is: " << m_AnnealingMaker->getWeight(1.) << endmsg;
+        msg(MSG::DEBUG) << "Correction applied to constraint weight is: " << m_AnnealingMaker->getWeight(astate, 1.) << endmsg;
       }
 
       //To reweight here through an extrapolation is not ideal, but maybe I'll change this in the future...
@@ -495,12 +496,12 @@ namespace Trk
         m_TrackCompatibilityEstimator->estimate(*iter,NewVertex);
 
         //use the obtained estimate and ask the Annealing Maker what is the corresponding weight at the actual temperature step
-        iter->setWeight( m_AnnealingMaker->getWeight( iter->vtxCompatibility() ) );
+        iter->setWeight( m_AnnealingMaker->getWeight( astate, iter->vtxCompatibility() ) );
         if(msgLvl(MSG::VERBOSE))
         {
           msg(MSG::VERBOSE) << "Before annealing: " << iter->vtxCompatibility() <<
               " Annealing RESULT is:" << iter->weight() << " at T: " <<
-              m_AnnealingMaker->actualTemp() << endmsg;
+              m_AnnealingMaker->actualTemp(astate) << endmsg;
         }
 
 
@@ -566,13 +567,13 @@ namespace Trk
         msg(MSG::VERBOSE) << "Now calling one step of annealing" << endmsg;
       }
 
-      m_AnnealingMaker->anneal();
+      m_AnnealingMaker->anneal(astate);
       num_steps+=1;
 
       //continue to fit until max iteration number has been reached or "thermal equilibrium"
       //has been obtained in the annealing process
 
-    } while (num_steps<m_maxIterations && !(m_AnnealingMaker->isEquilibrium()) );
+    } while (num_steps<m_maxIterations && !(m_AnnealingMaker->isEquilibrium(astate)) );
 
     //Here smooth the vertex (refitting of the track)
     

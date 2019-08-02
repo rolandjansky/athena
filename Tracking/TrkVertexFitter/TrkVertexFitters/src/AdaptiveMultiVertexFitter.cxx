@@ -146,7 +146,8 @@ namespace Trk
     int num_steps(0);
     
     //reset the annealing
-    m_AnnealingMaker->reset();
+    Trk::IVertexAnnealingMaker::AnnealingState astate;
+    m_AnnealingMaker->reset(astate);
     #ifdef MULTIFITTER_DEBUG
     std::cout << "Entering cycle of AdaptiveMultiVertexFitter" << std::endl;
     #endif
@@ -206,13 +207,13 @@ namespace Trk
 	//reput everything to the constraint level
         // TODO: previously,
 	//(*iter)->setRecVertex(*(static_cast<Trk::MVFVxCandidate*>(*iter))->vertexFitInfo().constraintVertex());
-	//(*iter)->recVertex().scaleError(m_AnnealingMaker->getWeight(1.));
+	//(*iter)->recVertex().scaleError(m_AnnealingMaker->getWeight(astate,1.));
 
         // TODO: now,
         (*iter)->setPosition( MvfFitInfo( *(*iter) )->constraintVertex()->position() );
         (*iter)->setCovariancePosition( MvfFitInfo( *(*iter) )->constraintVertex()->covariancePosition() );
         (*iter)->setFitQuality( MvfFitInfo(*(*iter))->constraintVertex()->chiSquared(), MvfFitInfo( *(*iter) )->constraintVertex()->numberDoF() );
-        (*iter)->setCovariancePosition( (*iter)->covariancePosition() * 1./float(m_AnnealingMaker->getWeight(1.)) );
+        (*iter)->setCovariancePosition( (*iter)->covariancePosition() * 1./float(m_AnnealingMaker->getWeight(astate,1.)) );
 
         #ifdef MULTIFITTER_DEBUG
 	std::cout << "Running TrackCompatibilityEstimator on each track" << std::endl;
@@ -293,9 +294,9 @@ namespace Trk
           #ifdef MULTIFITTER_DEBUG
 	  std::cout << "The vtxcompatibility for the track is: " << (*trkiter)->vtxCompatibility() << std::endl;
           #endif
-	  (*trkiter)->setWeight(m_AnnealingMaker->getWeight((*trkiter)->vtxCompatibility(),*allweights));
+	  (*trkiter)->setWeight(m_AnnealingMaker->getWeight(astate,(*trkiter)->vtxCompatibility(),*allweights));
           #ifdef MULTIFITTER_DEBUG
-	  std::cout << "The resulting weight for the track is " << m_AnnealingMaker->getWeight((*trkiter)->vtxCompatibility(),*allweights)
+	  std::cout << "The resulting weight for the track is " << m_AnnealingMaker->getWeight(astate,(*trkiter)->vtxCompatibility(),*allweights)
 		    << std::endl;
 	  std::cout << "Deleting allweights" << std::endl;
           #endif
@@ -356,9 +357,9 @@ namespace Trk
       } //iterator on vertexes
       
       //call now one more step of annealing
-      if (!(m_AnnealingMaker->isEquilibrium()))
+      if (!(m_AnnealingMaker->isEquilibrium(astate)))
       {
-        m_AnnealingMaker->anneal();
+        m_AnnealingMaker->anneal(astate);
       }
 
       //August 2009: sometimes the fitter has not converged when the annealing has finished
@@ -392,7 +393,7 @@ namespace Trk
       
       num_steps+=1;
 
-    } while (num_steps<m_maxIterations && (!(m_AnnealingMaker->isEquilibrium()) || !shiftIsSmall) );
+    } while (num_steps<m_maxIterations && (!(m_AnnealingMaker->isEquilibrium(astate)) || !shiftIsSmall) );
 
     if (num_steps>=m_maxIterations)
     {
