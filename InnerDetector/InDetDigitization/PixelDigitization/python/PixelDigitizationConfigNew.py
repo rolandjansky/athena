@@ -36,7 +36,7 @@ def Pixel_LastXing(flags):
 
 def PixelItemList():
     """Return list of item names needed for Pixel output"""
-    return ["InDet::SiClusterContainer#*", "InDet::PixelGangedClusterAmbiguities#*", "PixelRDO_Container#*"]
+    return ["InDetSimDataCollection#*", "PixelRDO_Container#*"]
 
 def ChargeCollProbSvcCfg(name="ChargeCollProbSvc", **kwargs):
     """Return a Charge Collection Prob service"""
@@ -189,19 +189,23 @@ def PixelDigitizationBasicCfg(toolCfg, flags, name="PixelDigitizationBasic", **k
     acc.addEventAlgo(PixelDigitization(name, **kwargs))
     return acc
 
-def PixelDigitizationCfg(toolCfg, flags, name="PixelDigitization", **kwargs):
+def PixelDigitizationOutputCfg(toolCfg, flags, name="PixelDigitization", **kwargs):
     """Return a ComponentAccumulator with toolCfg type Pixel digitization and Output"""
     acc = PixelDigitizationBasicCfg(toolCfg, flags, name, **kwargs)
     acc.merge(OutputStreamCfg(flags, "RDO", PixelItemList()))
     return acc
 
+def PixelDigitizationCfg(flags, name="PixelDigitization", **kwargs):
+    """Return a ComponentAccumulator with standard Pixel Digitization"""
+    return PixelDigitizationOutputCfg(PixelDigitizationToolCfg, flags, name, **kwargs)
+
 def PixelDigitizationHSCfg(flags, name="PixelDigitizationHS", **kwargs):
-    """Return a ComponentAccumulator with Hard Scatter Pixel Digitization"""
-    return PixelDigitizationCfg(PixelDigitizationHSToolCfg, flags, name, **kwargs)
+    """Return a ComponentAccumulator with Hard Scatter-only Pixel Digitization"""
+    return PixelDigitizationOutputCfg(PixelDigitizationHSToolCfg, flags, name, **kwargs)
 
 def PixelDigitizationPUCfg(flags, name="PixelDigitizationPU", **kwargs):
-    """Return a ComponentAccumulator with Hard Scatter Pixel Digitization"""
-    return PixelDigitizationCfg(PixelDigitizationPUToolCfg, flags, name, **kwargs)
+    """Return a ComponentAccumulator with Pile-up-only Pixel Digitization"""
+    return PixelDigitizationOutputCfg(PixelDigitizationPUToolCfg, flags, name, **kwargs)
 
 def PixelDigitizationOverlayCfg(flags, name="PixelDigitizationOverlay", **kwargs):
     """Return a ComponentAccumulator with Hard Scatter Pixel Digitization"""
