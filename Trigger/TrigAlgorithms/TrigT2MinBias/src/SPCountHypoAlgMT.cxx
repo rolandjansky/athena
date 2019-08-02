@@ -23,8 +23,8 @@ StatusCode SPCountHypoAlgMT::initialize()
 
   if (m_spacePointsKey.key() == "Undefined")
   {
-ATH_MSG_ERROR("SpacePoint Key name undefined " );
-return StatusCode::FAILURE;
+    ATH_MSG_ERROR("SpacePoint Key name undefined " );
+    return StatusCode::FAILURE;
 
   }
   ATH_CHECK(m_hypoTools.retrieve());
@@ -44,8 +44,8 @@ StatusCode SPCountHypoAlgMT::execute(const EventContext& context) const
 
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
-  if( not previousDecisionsHandle.isValid() ) {//implicit
-    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
+  if( not previousDecisionsHandle.isValid() ) {
+    ATH_MSG_ERROR( "Missing previous decisions "<<  decisionInput().key() );
     return StatusCode::FAILURE;
   }
 
