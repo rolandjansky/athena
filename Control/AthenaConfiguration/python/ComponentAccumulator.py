@@ -520,14 +520,25 @@ class ComponentAccumulator(object):
 
         self._msg.debug("Merging services with global setup")
         for s in self._services:
-            deduplicate(s, ServiceMgr.getChildren())
+            if s.getFullName() in [fn.getFullName() for fn in ServiceMgr.getChildren()]: 
+                existingS=getattr(ServiceMgr,s.getName())
+                deduplicateComponent(existingS,s)
+            else:
+                ServiceMgr+=s
 
             if s.getJobOptName() in _servicesToCreate \
                     and s.getJobOptName() not in theApp.CreateSvc:
                 theApp.CreateSvc.append(s.getJobOptName())
 
+        self._msg.debug("Merging AlgTools with global setup")
         for t in self._publicTools:
-            deduplicate(t,ToolSvc)
+            if t.getFullName() in [fn.getFullName() for fn in ToolSvc.getChildren()]:
+                #deduplicate
+                existingT=getattr(ToolSvc,t.getName())
+                deduplicateComponent(existingT,t)
+                pass
+            else:
+                ToolSvc+=t
 
         self._msg.debug("Merging conditions algorithms with global setup")
         condseq=AthSequencer ("AthCondSeq")
