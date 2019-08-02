@@ -9,7 +9,7 @@ def DQTDataFlowMonAlgConfig(flags):
     return helper.result()
 
 def DQTDataFlowMonAlgConfigOld(flags):
-    from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelperOld
+    from AthenaMonitoring import AthMonitorCfgHelperOld
     from AthenaCommon.GlobalFlags import globalflags
     helper = AthMonitorCfgHelperOld(flags, 'DQTDataFlowMonAlgCfg')
     _DQTDataFlowMonAlgConfigCore(helper, globalflags.DataSource() == 'geant4')
