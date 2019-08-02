@@ -4178,7 +4178,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ss << "  rankdir = BT" << std::endl;
 
   const std::vector<std::string> vetoList = { // Patterns to ignore when dumping all
-    "TrigCostContainer",
+    "HLT_TrigCostContainer",
     "L1DecoderSummary"
     };
 

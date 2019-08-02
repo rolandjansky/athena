@@ -24,6 +24,8 @@ flags.Detector.GeometryCSC   = True
 flags.Detector.GeometryRPC   = True     
 flags.Trigger.writeBS=True # switches on HLTResultMT creation
 
+flags.Trigger.CostMonitoring.doCostMonitoring = True
+
 
 import importlib
 setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup

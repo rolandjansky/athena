@@ -134,6 +134,7 @@ def triggerSummaryCfg(flags, hypos):
     """
     acc = ComponentAccumulator()
     from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
     decisionSummaryAlg = DecisionSummaryMakerAlg()
     allChains = {}
     for stepName, stepHypos in sorted( hypos.items() ):
@@ -146,8 +147,9 @@ def triggerSummaryCfg(flags, hypos):
     decisionSummaryAlg.FinalDecisionKeys = list(set(allChains.values()))
     decisionSummaryAlg.FinalStepDecisions = allChains
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
+    decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
+    decisionSummaryAlg.CostWriteHandleKey = recordable(flags.Trigger.CostMonitoring.outputCollection)
     return acc, decisionSummaryAlg
-
 
 
 def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
@@ -378,6 +380,9 @@ def triggerRunCfg( flags, menu=None ):
 
     monitoringAcc, monitoringAlg = triggerMonitoringCfg( flags, hypos, filters, l1DecoderAlg )
     acc.merge( monitoringAcc )
+
+    from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+    acc.merge( TrigCostMonitorMTCfg( flags ) )
 
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg )
     __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )

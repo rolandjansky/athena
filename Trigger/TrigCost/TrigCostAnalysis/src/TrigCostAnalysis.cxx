@@ -19,7 +19,9 @@ TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLo
 StatusCode  TrigCostAnalysis::initialize() {
   ATH_MSG_VERBOSE("In initialize()");
 
+  ATH_MSG_DEBUG("Reading from " << m_costDataKey.key());
   ATH_CHECK( m_costDataKey.initialize() );
+
   if (!m_enhancedBiasTool.name().empty()) {
     ATH_CHECK( m_enhancedBiasTool.retrieve() );
   } else {
@@ -29,10 +31,12 @@ StatusCode  TrigCostAnalysis::initialize() {
       return StatusCode::FAILURE;
     }
   }
+
   ATH_CHECK( m_TimeRangeLengthLB > 0 );
   if (m_hashDictionaryFromFile) {
     TrigConf::HLTUtils::file2hashes();
   }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -69,6 +73,7 @@ StatusCode TrigCostAnalysis::execute() {
     ATH_MSG_DEBUG("Monitoring event " << context.eventID().event_number() << " in range " << range->getName());
     
     SG::ReadHandle<xAOD::TrigCompositeContainer> costDataHandle(m_costDataKey, context);
+    ATH_CHECK( costDataHandle.isValid() );
 
     CostData costData;
     ATH_CHECK( costData.set(costDataHandle.get()) );
