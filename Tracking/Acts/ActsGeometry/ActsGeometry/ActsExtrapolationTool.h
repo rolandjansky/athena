@@ -15,6 +15,7 @@
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 #include "ActsGeometry/ActsGeometryContext.h"
+#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 
 // ACTS
 #include "Acts/Propagator/EigenStepper.hpp"
@@ -22,13 +23,13 @@
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
 #include "Acts/Propagator/AbortList.hpp"
 #include "Acts/Propagator/ActionList.hpp"
-#include "Acts/Extrapolator/Navigator.hpp"
+#include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/detail/DebugOutputActor.hpp"
 #include "Acts/Propagator/detail/StandardAborters.hpp"
-#include "ActsGeometry/ATLASMagneticFieldWrapper.h"
 #include "Acts/MagneticField/ConstantBField.hpp"
-#include "Acts/Utilities/MagneticFieldContext.hpp"
+#include "Acts/MagneticField/MagneticFieldContext.hpp"
 #include "Acts/Utilities/Result.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 // BOOST
 #include <boost/variant/variant.hpp>
@@ -61,6 +62,7 @@ public:
             const parameters_t& startParameters,
             double pathLimit = std::numeric_limits<double>::max()) const
   {
+    using namespace Acts::UnitLiterals;
     ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
 
     Acts::MagneticFieldContext mctx;
@@ -76,9 +78,9 @@ public:
 
     options.loopProtection
       = (Acts::VectorHelpers::perp(startParameters.momentum())
-          < m_ptLoopers * Acts::units::_MeV);
+          < m_ptLoopers * 1_MeV);
 
-    options.maxStepSize = m_maxStepSize * Acts::units::_m;
+    options.maxStepSize = m_maxStepSize * 1_m;
 
     PropagatorVisitor<parameters_t, Options> visitor(startParameters, std::move(options));
 
