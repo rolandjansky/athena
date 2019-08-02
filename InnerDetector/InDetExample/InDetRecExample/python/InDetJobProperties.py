@@ -271,6 +271,14 @@ class doLowPtRoI(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class LowPtRoIStrategy(InDetFlagsJobProperty):
+    """Set the strategy to extract the RoI; 1 = with tracks, 2 = with HS Truth, 3 = from file
+    """
+    statusOn     = True
+    allowedTypes = ['int']
+    allowedValues= [1,2,3]
+    StoredValue  = 1
+
 class doSLHCConversionFinding(InDetFlagsJobProperty):
     """Turn running of doSLHCConversionFinding second pass on and off"""
     statusOn     = True
@@ -2735,6 +2743,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowPt,
                             doVeryLowPt,
                             doLowPtRoI,
+                            LowPtRoIStrategy,
                             doSLHCConversionFinding,
                             doForwardTracks,
                             doLowPtLargeD0,

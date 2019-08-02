@@ -160,48 +160,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
 
   // Find reference point of the event and create z boundary region
   //
-
-  const xAOD::EventInfo* eventIn;
-
-  CHECK(evtStore()->retrieve( eventIn, "EventInfo"));
-
-  unsigned long long evtN = eventIn->eventNumber();
-  int runN = eventIn->runNumber();
-
-  m_listRoIs.clear();
-  std::string line;
-  std::ifstream inFile("/global/projecta/projectdirs/atlas/wmccorma/TrkExclusiveWW/low-pt-tracking/roi_test.txt");
-  if (inFile.is_open()){
-
-    while (std::getline(inFile, line)){
-      
-      std::istringstream iss(line);
-      //float val;
-
-      int runnum;
-      unsigned long long eventnum;
-      float zref;
-
-      int i = 0;
-      while( iss >> runnum >> eventnum >> zref){
-	//no need to go past the right line
-	if(runnum == runN && eventnum == evtN) break;
-      }
-
-      if(runnum == runN && eventnum == evtN){ //No need to fill if there isn't an ROI
-	InDet::IZWindowRoISeedTool::ZWindow readinref;
-	readinref.z_reference = zref;
-	readinref.z_window[0] = zref -1.0;
-	readinref.z_window[1] = zref + 1.0;
-	m_listRoIs.push_back(readinref);
-      }
-      
-    }
-  }
-
-  inFile.close();
-
-  //m_listRoIs =  m_ZWindowRoISeedTool->getRoIs();
+  m_listRoIs =  m_ZWindowRoISeedTool->getRoIs();
 
   double ZBoundary[2];
   //if no RoI found; no need to go further
