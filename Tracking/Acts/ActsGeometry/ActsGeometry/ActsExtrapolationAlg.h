@@ -13,7 +13,7 @@
 
 // ACTS
 #include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 
 // PACKAGE
