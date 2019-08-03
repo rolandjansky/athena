@@ -37,6 +37,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelUtilities
                           Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           MuonSpectrometer/MuonCablings/MuonCablingData
                           MuonSpectrometer/MuonCalib/MuonCalibEvent
                           MuonSpectrometer/MuonCnv/MuonContainerManager
@@ -56,7 +57,7 @@ atlas_add_library( TrigL2MuonSALib
                      src/*.cxx
                      PUBLIC_HEADERS TrigL2MuonSA
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib StoreGateLib SGtests EventInfo MuonCablingData MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonIdHelpersLib PathResolver GeoModelUtilities )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GSL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier RegionSelectorLib ByteStreamCnvSvcBaseLib xAODTrigMuon xAODTrigger GaudiKernel MuonMDT_CablingLib MuonTGC_CablingLib RPCcablingInterfaceLib MdtCalibSvcLib MuonRDO CscClusterizationLib MuonPrepRawData MuonRecToolInterfaces TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1RPCRecRoiSvcLib TrigTimeAlgsLib StoreGateLib SGtests EventInfo xAODEventInfo MuonCablingData MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonIdHelpersLib PathResolver GeoModelUtilities )
 
 atlas_add_component( TrigL2MuonSA
                      src/*.cxx
