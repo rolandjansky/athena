@@ -10,7 +10,9 @@ atlas_depends_on_subdirs(
    Control/AthContainersInterfaces
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODBase
+   Event/xAOD/xAODCutFlow
    Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODMetaData
    PhysicsAnalysis/Algorithms/SelectionHelpers
    PhysicsAnalysis/Algorithms/SystematicsHandles
    PhysicsAnalysis/AnalysisCommon/PATCore
@@ -34,7 +36,7 @@ atlas_add_library( AsgAnalysisAlgorithmsLib
      xAODEventInfo SelectionHelpersLib SystematicsHandlesLib PATCoreLib
      PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces AssociationUtilsLib
      IsolationSelectionLib
-   PRIVATE_LINK_LIBRARIES xAODCore xAODJet xAODMuon xAODTau xAODEgamma xAODTracking
+   PRIVATE_LINK_LIBRARIES xAODCore xAODCutFlow xAODMetaData xAODJet xAODMuon xAODTau xAODEgamma xAODTracking
      RootCoreUtils )
 
 atlas_add_dictionary( AsgAnalysisAlgorithmsDict

@@ -155,6 +155,11 @@ def makeEventAlgorithmsSequence (dataType) :
         makeEventSelectionAnalysisSequence( dataType, userGRLFiles=GRLFiles )
     algSeq += eventSelectionSequence
 
+    # Set up the file metadata algorithm:
+    if dataType != 'data':
+        algSeq += createAlgorithm( 'CP::AsgCutBookkeeperAlg', 'CutBookkeeperAlg' )
+        algSeq.CutBookkeeperAlg.runNumber = 123456
+
     # Set up an ntuple to check the job with:
     treeMaker = createAlgorithm( 'CP::TreeMakerAlg', 'TreeMaker' )
     treeMaker.TreeName = 'events'
