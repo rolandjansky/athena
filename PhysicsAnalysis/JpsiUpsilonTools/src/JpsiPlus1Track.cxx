@@ -365,7 +365,7 @@ namespace Analysis {
     
     xAOD::Vertex* JpsiPlus1Track::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks, const xAOD::TrackParticleContainer* importedTrackCollection, const xAOD::TrackParticleContainer* gsfCollection) const {
         
-        m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
         
         // Set the mass constraint if requested by user (default=true)
         // Can be set by user (m_altMassConstraint) - default is -1.0.
@@ -374,10 +374,10 @@ namespace Analysis {
         constexpr double jpsiTableMass = 3096.916;
 
         if (m_useMassConst) {
-            m_VKVFitter->setMassInputParticles(m_muonMasses);
+            m_VKVFitter->setMassInputParticles(m_muonMasses, *state);
             std::vector<int> indices = {1, 2};
-            if (m_altMassConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices);
-            if (m_altMassConst>0.0) m_VKVFitter->setMassForConstraint(m_altMassConst,indices);
+            if (m_altMassConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices, *state);
+            if (m_altMassConst>0.0) m_VKVFitter->setMassForConstraint(m_altMassConst,indices, *state);
         }
         
         // Do the fit itself.......
@@ -388,7 +388,7 @@ namespace Analysis {
         int errorcode = 0;
         Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1,&aPerigee2,sflag,errorcode);
         if (errorcode != 0) {startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
-        xAOD::Vertex* theResult = m_VKVFitter->fit(inputTracks, startingPoint);
+        xAOD::Vertex* theResult = m_VKVFitter->fit(inputTracks, startingPoint, *state);
 
         // Added by ASC
         if(theResult != 0){
