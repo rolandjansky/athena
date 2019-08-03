@@ -94,6 +94,11 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
                          const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
                          const std::vector<double>& inputMasses);
 
+    StatusCode vertexFit(xAOD::TrigBphys * result,
+                         const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
+                         const std::vector<double>& inputMasses,
+                         Trk::IVKalState& istate);
+
 
     StatusCode vertexFit(xAOD::TrigBphys * result,
 		       const std::vector<const xAOD::TrackParticle*> &trks,
@@ -110,6 +115,9 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     /// Use the fitted position and the beamline to determine lxy, tau, etc.
     /// call after setting the kinematic values, to do ok.
     void setBeamlineDisplacement(xAOD::TrigBphys* bphys,const std::vector<const xAOD::TrackParticle*> &ptls);
+
+    std::unique_ptr<Trk::IVKalState> makeVKalState() const;
+
     
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
