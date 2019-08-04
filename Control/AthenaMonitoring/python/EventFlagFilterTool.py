@@ -16,12 +16,14 @@ def GetEventFlagFilterTool(name, doLAr=True, doTile=True, doSCT=True, doCore=Tru
         - doCore: do Core event building cleaning (optional; default=True)
         - alwaysReturnTrue: short-circuit all checks and return True (optional; default=False)
     """
-    from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.Logging import logging
     log = logging.getLogger('EventFlagFilterTool')
+    log.debug('Setting up DQEventFlagFilter tool with arguments doLAr=%s, doTile=%s, doSCT=%s, doCore=%s, alwaysReturnTrue=%s)', 
+              doLAr, doTile, doSCT, doCore, alwaysReturnTrue)
 
     from AthenaMonitoring.AthenaMonitoringConf import DQEventFlagFilterTool
     monFilterTool = DQEventFlagFilterTool(name, doLAr=doLAr, doTile=doTile,
-                                          doSCT=doSCT, doCore=doCore)
+                                          doSCT=doSCT, doCore=doCore,
+                                          alwaysReturnTrue=alwaysReturnTrue)
 
     return monFilterTool
