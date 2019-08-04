@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,6 +13,7 @@
 // STL include(s):
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 
 // includes for trigger matching framework
 #include "TrigObjectMatching/ObjectMatching.h"
@@ -22,6 +23,8 @@
 
 // includes for navigation access
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
+
+#include "CxxUtils/checker_macros.h"
 
 namespace Trig {
    class FeatureContainer;
@@ -387,25 +390,55 @@ protected:
 
    void buildL1L2Map();
 
-   // List of chain names.
-   // The first m_nConfiguredChainNames are those that come from
-   // the configuration.  The remainder are those added for user
-   // queries (they could be regexps).
-   std::vector< std::string > m_chainNames;
-   size_t m_nConfiguredChainNames;
-
    // cache the map from l1 items to the combined l2
    // string for access in the tdt
    std::map< std::string, std::string > m_l1l2Map;
 
-   // Rebuild map from chain names to indices.
-   void buildChainIndexMap();
+
+   // Clear saved chain name -> index mapping and rebuild from current
+   // configuration.
+   void clearChainIndex();
+
+  
 
 
 private:
-   // Map from chain names to indices.
-   typedef std::unordered_map<std::string, size_t> chainIndexMap_t ;
-   chainIndexMap_t m_chainIndexMap;
+   // Associate from chain name to integer index.
+   // Methods of this class are thread-safe.
+   class ChainNameIndex
+   {
+   public:
+     ChainNameIndex (TrigMatchToolCore* core);
+     size_t chainNameToIndex (const std::string& chainName);
+     std::vector<std::string> configuredChainNames();
+     std::string chainName (size_t index);
+     void clear();
+    
+
+   private:
+     void assertConfiguredChainNames();
+
+     typedef std::mutex mutex_t;
+     typedef std::lock_guard<mutex_t> lock_t;
+
+     mutex_t m_mutex;
+    
+     TrigMatchToolCore* m_core;
+
+     // List of chain names.
+     // The first m_nConfiguredChainNames are those that come from
+     // the configuration.  The remainder are those added for user
+     // queries (they could be regexps).
+     std::vector< std::string > m_chainNames;
+     size_t m_nConfiguredChainNames = 0;
+
+     // Map from chain names to indices.
+     typedef std::unordered_map<std::string, size_t> chainIndexMap_t ;
+     chainIndexMap_t m_chainIndexMap;
+   };
+
+
+   mutable ChainNameIndex m_chainNameIndex ATLAS_THREAD_SAFE;
 
    // function for printing warnings - note that this depends on whether
    // you are in ARA or not
@@ -418,9 +451,9 @@ private:
    // we cannot get this info in ARA.
    virtual bool changedDecisionAware() const { return false; };
 
-   // ensure that configured chain names is good to go.  Note that 
+   // return configured chain names.  Note that 
    // this is different for ARA and athena versions of the tool.
-   virtual void assertConfiguredChainNames() = 0;
+   virtual std::vector<std::string> getConfiguredChainNames() const = 0;
 
    // Functionality for loading the trigger objects from the navigation
 
@@ -479,7 +512,7 @@ private:
                         bool onlyPassedFeatures,
                         const TrigMatch::AncestorAttached* ) const;
 
-   size_t chainNameToIndex (const std::string& chainName);
+   size_t chainNameToIndex (const std::string& chainName) const;
 
    /**
     * @brief Alternate version of @c getTriggerObjects taking a chain index.

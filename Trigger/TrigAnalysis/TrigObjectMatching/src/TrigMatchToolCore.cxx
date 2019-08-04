@@ -12,7 +12,7 @@
 #include "TrigObjectMatching/TrigMatchToolCore.h"
 
 TrigMatchToolCore::TrigMatchToolCore()
-  : m_nConfiguredChainNames(0),
+  : m_chainNameIndex (this),
     m_trigDecisionToolCore(0),
     m_nFeatureContainers (100)
 {
@@ -88,11 +88,7 @@ void TrigMatchToolCore::buildL1L2Map() {
 
    if( m_l1l2Map.size() ) return;
 
-   // loop through all the L2 chains and check if they are seeded by the L1 item
-   this->assertConfiguredChainNames();
-
-   for (size_t i = 0; i < m_nConfiguredChainNames; i++) {
-      const std::string& chainName = m_chainNames[i];
+   for (const std::string& chainName : m_chainNameIndex.configuredChainNames()){
 
       if( chainName.find("L2_") == std::string::npos ) {
          continue;
@@ -110,6 +106,7 @@ void TrigMatchToolCore::buildL1L2Map() {
    return;
 }
 
+
 void TrigMatchToolCore::endEvent() {
 
    BOOST_FOREACH (const cacheMap_t::value_type& p, m_cacheMap) {
@@ -122,6 +119,14 @@ void TrigMatchToolCore::endEvent() {
    std::vector<bool>().swap (m_featureContainersValid);
    
    return;
+}
+
+
+// Clear saved chain name -> index mapping and rebuild from current
+// configuration.
+void TrigMatchToolCore::clearChainIndex()
+{
+  m_chainNameIndex.clear();
 }
 
 
@@ -144,27 +149,10 @@ TrigMatchToolCore::getCache1 (const std::type_info* tid, int& type_key)
 }
 
 
-void TrigMatchToolCore::buildChainIndexMap()
-{
-  m_chainIndexMap.clear();
-  for (size_t i = 0; i < m_chainNames.size(); i++)
-    m_chainIndexMap[m_chainNames[i]] = i;
-}
-
-
 size_t
-TrigMatchToolCore::chainNameToIndex (const std::string& chainName)
+TrigMatchToolCore::chainNameToIndex (const std::string& chainName) const
 {
-  this->assertConfiguredChainNames();
-  chainIndexMap_t::iterator it = m_chainIndexMap.find (chainName);
-  if (it == m_chainIndexMap.end()) {
-    size_t chainIndex = m_chainNames.size();
-    m_chainIndexMap[chainName] = chainIndex;
-    m_chainNames.push_back (chainName);
-    return chainIndex;
-  }
-  else
-    return it->second;
+  return m_chainNameIndex.chainNameToIndex (chainName);
 }
 
 
@@ -182,12 +170,12 @@ TrigMatchToolCore::getCachedFeatureContainer (size_t chainIndex)
 #if 0
     // Use this once FeatureContainer::swap is available to avoid copies.
     Trig::FeatureContainer fc = 
-      this->getFeatureContainer (m_chainNames[chainIndex],
+      this->getFeatureContainer (m_chainNameIndex.chainName(chainIndex),
                                  TrigDefs::alsoDeactivateTEs);
     m_featureContainers[chainIndex].swap (fc);
 #else
     m_featureContainers[chainIndex] = 
-      this->getFeatureContainer (m_chainNames[chainIndex],
+      this->getFeatureContainer (m_chainNameIndex.chainName(chainIndex),
                                  TrigDefs::alsoDeactivateTEs);
 #endif
     m_featureContainersValid[chainIndex] = true;
@@ -195,3 +183,73 @@ TrigMatchToolCore::getCachedFeatureContainer (size_t chainIndex)
 
   return m_featureContainers[chainIndex];
 }
+
+
+//***************************************************************************
+
+
+TrigMatchToolCore::ChainNameIndex::ChainNameIndex (TrigMatchToolCore* core)
+  : m_core (core)
+{
+}
+
+
+void
+TrigMatchToolCore::ChainNameIndex::assertConfiguredChainNames()
+{
+  if (m_chainNames.empty()) {
+    m_chainNames = m_core->getConfiguredChainNames();
+    m_nConfiguredChainNames = m_chainNames.size();
+    m_chainIndexMap.clear();
+    for (size_t i = 0; i < m_chainNames.size(); i++)
+      m_chainIndexMap[m_chainNames[i]] = i;
+  }
+}
+
+
+size_t
+TrigMatchToolCore::ChainNameIndex::chainNameToIndex (const std::string& chainName)
+{
+  lock_t lock (m_mutex);
+  assertConfiguredChainNames();
+  chainIndexMap_t::iterator it = m_chainIndexMap.find (chainName);
+  if (it == m_chainIndexMap.end()) {
+    size_t chainIndex = m_chainNames.size();
+    m_chainIndexMap[chainName] = chainIndex;
+    m_chainNames.push_back (chainName);
+    return chainIndex;
+  }
+  else
+    return it->second;
+}
+
+
+std::vector<std::string>
+TrigMatchToolCore::ChainNameIndex::configuredChainNames()
+{
+  lock_t lock (m_mutex);
+  assertConfiguredChainNames();
+  return std::vector<std::string> (m_chainNames.begin(),
+                                   m_chainNames.begin() + m_nConfiguredChainNames);
+}
+
+
+std::string
+TrigMatchToolCore::ChainNameIndex::chainName (size_t index)
+{
+  lock_t lock (m_mutex);
+  assertConfiguredChainNames();
+  return m_chainNames.at (index);
+}
+
+
+void
+TrigMatchToolCore::ChainNameIndex::clear()
+{
+  lock_t lock (m_mutex);
+  m_chainNames.clear();
+  m_chainIndexMap.clear();
+  m_nConfiguredChainNames = 0;
+  assertConfiguredChainNames();
+}
+
