@@ -230,6 +230,8 @@ JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Je
 JETM1SlimmingHelper.ExtraVariables  += ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                         "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1"]
 
+JETM1SlimmingHelper.ExtraVariables  += ["InDetTrackParticles.truthMatchProbability"]
+
 if DerivationFrameworkIsMonteCarlo:
 
   JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta0Zcut10Jets"]
