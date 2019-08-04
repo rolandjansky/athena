@@ -32,10 +32,14 @@ muonTriggers = TriggerLists.single_mu_Trig()
 jetTriggers = TriggerLists.jetTrig()
 
 # Applying a pT cut of 300 GeV on ungroomed jets, which should be sufficient for the grooming scan studies
-jetSelection = '((count( AntiKt10LCTopoJets.pt > 300.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1) || (count( AntiKt10LCTopoCSSKJets.pt > 300.*GeV && abs(AntiKt10LCTopoCSSKJets.eta) < 2.5 ) >=1) || (count( AntiKt10EMPFlowCSSKJets.pt > 300.*GeV && abs(AntiKt10EMPFlowCSSKJets.eta) < 2.5 ) >=1)  || (count( AntiKt10TrackCaloClusterJets.pt > 300.*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.5 ) >=1))' 
+jetSelection = '((count( AntiKt10LCTopoJets.pt > 300.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1) ||  \
+                 (count( AntiKt10LCTopoCSSKJets.pt > 300.*GeV && abs(AntiKt10LCTopoCSSKJets.eta) < 2.5 ) >=1) ||  \
+                 (count( AntiKt10EMPFlowCSSKJets.pt > 300.*GeV && abs(AntiKt10EMPFlowCSSKJets.eta) < 2.5 ) >=1)  ||  \
+                 (count( AntiKt10TrackCaloClusterJets.pt > 300.*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.5 ) >=1) || \
+                 (count( AntiKt10UFOCHSJets.pt > 300.*GeV && abs(AntiKt10UFOCHSJets.eta) < 2.5 ) >=1) || \
+                 (count( AntiKt10UFOCSSKJets.pt > 300.*GeV && abs(AntiKt10UFOCSSKJets.eta) < 2.5 ) >=1) \
+                )' 
 
-#if DerivationFrameworkIsMonteCarlo:
-#  jetSelection = '((count( AntiKt10LCTopoJets.pt > 180.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1) ||  (count( AntiKt10LCTopoCSSKJets.pt > 180.*GeV && abs(AntiKt10LCTopoCSSKJets.eta) < 2.5 ) >=1) ||    (count( AntiKt10EMPFlowCSSKJets.pt > 180.*GeV && abs(AntiKt10EMPFlowCSSKJets.eta) < 2.5 ) >=1) ||  (count( AntiKt10TrackCaloClusterJets.pt > 180.*GeV && abs(AntiKt10TrackCaloClusterJets.eta) < 2.5 ) >=1))'
 
 orstr  = ' || '
 andstr = ' && '
@@ -100,6 +104,22 @@ JETM15Akt10JetTPThinningToolTCC = DerivationFramework__JetTrackParticleThinning(
                                                                         ApplyAnd                = False)
 ToolSvc += JETM15Akt10JetTPThinningToolTCC
 thinningTools.append(JETM15Akt10JetTPThinningToolTCC)
+
+JETM15Akt10JetEMUFOThinningToolTCC = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetCHSUFOThinningTool",
+                                                                        ThinningService         = "JETM15ThinningSvc",
+                                                                        JetKey                  = "AntiKt10UFOCHSJets",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                        ApplyAnd                = False)
+ToolSvc += JETM15Akt10JetEMUFOThinningToolTCC
+thinningTools.append(JETM15Akt10JetEMUFOThinningToolTCC)
+
+JETM15Akt10JetCSSKUFOThinningToolTCC = DerivationFramework__JetTrackParticleThinning( name          = "JETM15Akt10JetCSSKUFOThinningTool",
+                                                                        ThinningService         = "JETM15ThinningSvc",
+                                                                        JetKey                  = "AntiKt10UFOCSSKJets",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                        ApplyAnd                = False)
+ToolSvc += JETM15Akt10JetCSSKUFOThinningToolTCC
+thinningTools.append(JETM15Akt10JetCSSKUFOThinningToolTCC)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -169,13 +189,37 @@ JETM15TCCTPThinningToolCSSK = DerivationFramework__TCCTrackParticleThinning(name
 ToolSvc += JETM15TCCTPThinningToolCSSK
 thinningTools.append(JETM15TCCTPThinningToolCSSK)
 
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UFOTrackParticleThinning
+
+JETM15EMUFOTPThinningTool = DerivationFramework__UFOTrackParticleThinning(name                      = "JETM15EMUFOTPThinningTool",
+                                                                       ThinningService              = "JETM15ThinningSvc",
+                                                                       JetKey                       = "AntiKt10UFOCHSJets",
+                                                                       UFOKey                       = "CHSUFO",
+                                                                       InDetTrackParticlesKey       = "InDetTrackParticles",
+                                                                       PFOCollectionSGKey       = "CHS",
+                                                                        AdditionalPFOKey  = ["CSSK", "CHS"])
+ToolSvc += JETM15EMUFOTPThinningTool
+thinningTools.append(JETM15EMUFOTPThinningTool)
+
+JETM15EMCSSKUFOTPThinningTool = DerivationFramework__UFOTrackParticleThinning(name                  = "JETM15CSSKUFOTPThinningTool",
+                                                                       ThinningService              = "JETM15ThinningSvc",
+                                                                       JetKey                       = "AntiKt10UFOCSSKJets",
+                                                                       UFOKey                       = "CSSKUFO",
+                                                                       InDetTrackParticlesKey       = "InDetTrackParticles",
+                                                                       PFOCollectionSGKey       = "JetETMiss",
+                                                                        AdditionalPFOKey  = ["CSSK", "CHS"])
+ToolSvc += JETM15EMCSSKUFOTPThinningTool
+thinningTools.append(JETM15EMCSSKUFOTPThinningTool)
+
+
+
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetPFlowThinning
 JETM15AKt10PFOThinningTool = DerivationFramework__JetPFlowThinning(name                = "JETM15Ak10PFlowThinningTool",
                                                                       ThinningService       = "JETM15ThinningSvc",
                                                                       SGKey                 = "AntiKt10EMPFlowCSSKJets",
                                                                       PFOCollectionSGKey    = "JetETMiss",
                                                                       SelectionString       = "AntiKt10EMPFlowCSSKJets.pt > 300*GeV && abs(AntiKt10EMPFlowCSSKJets.eta) < 2.8",
-                                                                      AdditionalPFOKey      = ["CSSK"],
+                                                                      AdditionalPFOKey      = ["CSSK", "CHS"],
                                                                       )
 ToolSvc += JETM15AKt10PFOThinningTool
 thinningTools.append(JETM15AKt10PFOThinningTool)
@@ -210,7 +254,6 @@ reducedJetList = ["AntiKt2PV0TrackJets",
 replaceAODReducedJets(reducedJetList,jetm15Seq,"JETM15")
 
 addDefaultTrimmedJets(jetm15Seq,"JETM15")
-#addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm15Seq, outputGroup="JETM15")
 
 addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm15Seq, "JETM15", ptmin=40000, 
                     ptminFilter=50000, mods="lctopo_ungroomed", addGetters=[])
@@ -218,6 +261,20 @@ addCHSPFlowObjects()
 
 addConstModJets("AntiKt", 1.0, "EMPFlow", ["CS", "SK"], jetm15Seq, "JETM15", ptmin=40000, 
                     ptminFilter=50000)
+
+# Now we can run the UFO building taking our unified PFlow container as input
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
+emufoAlg = runUFOReconstruction(jetm15Seq,ToolSvc, PFOPrefix="CHS")
+emcsskufoAlg = runUFOReconstruction(jetm15Seq,ToolSvc, PFOPrefix="CSSK")
+
+from JetRec.JetRecConf import PseudoJetGetter
+
+csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="TrackCaloCluster", SkipNegativeEnergy=True)
+jtm+=csskufopjgetter
+ufopjgetter     = PseudoJetGetter("ufoPJGetter",     InputContainer="CHSUFO",     OutputContainer="CHSUFOPJ",     Label="TrackCaloCluster", SkipNegativeEnergy=True)
+jtm+=ufopjgetter
+addStandardJets("AntiKt", 1.0, "UFO", ptmin=40000, algseq=jetm15Seq, outputGroup="JETM15", customGetters = [csskufopjgetter], namesuffix = "CSSK")
+addStandardJets("AntiKt", 1.0, "UFO", ptmin=40000, algseq=jetm15Seq, outputGroup="JETM15", customGetters = [ufopjgetter],     namesuffix = "CHS")
 
 
 # Create TCC objects
@@ -332,13 +389,28 @@ JETM15SlimmingHelper.AppendToDictionary["JetETMissChargedParticleFlowObjects"]='
 JETM15SlimmingHelper.AppendToDictionary["JetETMissChargedParticleFlowObjectsAux"]='xAOD::PFOAuxContainer'
 JETM15SlimmingHelper.ExtraVariables.append('JetETMissChargedParticleFlowObjects.pt.eta.phi.m.e.charge')
 
+JETM15SlimmingHelper.AppendToDictionary["CSSKUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM15SlimmingHelper.AppendToDictionary['CSSKUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM15SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.taste' ]
+
+JETM15SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM15SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM15SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.taste' ]
+
+
 JETM15SlimmingHelper.AppendToDictionary["CSSKChargedParticleFlowObjects"]='xAOD::PFOContainer'
 JETM15SlimmingHelper.AppendToDictionary["CSSKChargedParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
 
 JETM15SlimmingHelper.AppendToDictionary["CSSKNeutralParticleFlowObjects"]='xAOD::PFOContainer'
 JETM15SlimmingHelper.AppendToDictionary["CSSKNeutralParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
 
-JETM15SlimmingHelper.AllVariables  += ["LCOriginTopoClusters", "LCOriginCSSKTopoClusters", "CSSKNeutralParticleFlowObjects", "CSSKChargedParticleFlowObjects", "TrackCaloClustersCombinedAndNeutral"]
+JETM15SlimmingHelper.AppendToDictionary["CHSChargedParticleFlowObjects"]='xAOD::PFOContainer'
+JETM15SlimmingHelper.AppendToDictionary["CHSChargedParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
+
+JETM15SlimmingHelper.AppendToDictionary["CHSNeutralParticleFlowObjects"]='xAOD::PFOContainer'
+JETM15SlimmingHelper.AppendToDictionary["CHSNeutralParticleFlowObjectsAux"]='xAOD::ShallowAuxContainer'
+
+JETM15SlimmingHelper.AllVariables  += ["LCOriginTopoClusters", "LCOriginCSSKTopoClusters", "CSSKNeutralParticleFlowObjects", "CSSKChargedParticleFlowObjects", "TrackCaloClustersCombinedAndNeutral", "CHSChargedParticleFlowObjects", "CHSNeutralParticleFlowObjects"]
 JETM15SlimmingHelper.ExtraVariables.append("AntiKt4EMTopoJets.btaggingLink")
 JETM15SlimmingHelper.ExtraVariables.append("BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu.DL1_pb.DL1_pc.DL1_pu.DL1mu_pb.DL1mu_pc.DL1mu_pu.DL1rnn_pb.DL1rnn_pc.DL1rnn_pu.JetVertexCharge_discriminant")
 
@@ -362,7 +434,7 @@ for truthc in [
 # Add the jet containers to the stream
 # explicitely add the container we want :
 addJetOutputs(JETM15SlimmingHelper,[
-        "AntiKt10LCTopoJets",    "AntiKt10LCTopoCSSKJets",  "AntiKt10EMPFlowCSSKJets",  "AntiKt10TrackCaloClusterJets",
+        "AntiKt10LCTopoJets",    "AntiKt10LCTopoCSSKJets",  "AntiKt10EMPFlowCSSKJets",  "AntiKt10TrackCaloClusterJets", "AntiKt10UFOCHSJets", "AntiKt10UFOCSSKJets",
         "JETM15", # jets defined in this file
         ])
 
