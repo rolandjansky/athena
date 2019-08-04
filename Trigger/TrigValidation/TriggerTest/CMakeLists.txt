@@ -12,5 +12,4 @@ atlas_depends_on_subdirs( PUBLIC
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.cxx Testing/*.conf )
-atlas_install_scripts( test/exec*.sh test/test*.sh )
-
+atlas_install_scripts( test/exec*.sh test/test*.sh test/test*.py )
