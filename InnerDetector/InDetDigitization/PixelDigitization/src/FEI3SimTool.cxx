@@ -43,14 +43,16 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   // Add cross-talk
   CrossTalk(moduleData->getCrossTalk(barrel_ec,layerIndex),chargedDiodes);
 
-  // Add thermal noise
-  ThermalNoise(moduleData->getThermalNoise(barrel_ec,layerIndex),chargedDiodes, rndmEngine);
+  if (m_doNoise) {
+    // Add thermal noise
+    ThermalNoise(moduleData->getThermalNoise(barrel_ec,layerIndex),chargedDiodes, rndmEngine);
 
-  // Add random noise
-  RandomNoise(chargedDiodes, rndmEngine);
+    // Add random noise
+    RandomNoise(chargedDiodes, rndmEngine);
+  }
 
   // Add random diabled pixels
-  RandomDisable(chargedDiodes, rndmEngine);
+  RandomDisable(chargedDiodes, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
 
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
     // Merge ganged pixel
@@ -94,7 +96,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     double th0 = calibData->getAnalogThreshold((int)moduleHash, circ, type);
     double ith0 = calibData->getInTimeThreshold((int)moduleHash, circ, type);
 
-    double threshold = th0+calibData->getAnalogThresholdSigma((int)moduleHash,circ,type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine)+calibData->getAnalogThresholdNoise((int)moduleHash, circ, type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+    double threshold = th0+calibData->getAnalogThresholdSigma((int)moduleHash,circ,type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine)+calibData->getAnalogThresholdNoise((int)moduleHash, circ, type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine); // This noise check is unaffected by digitizationFlags.doInDetNoise in 21.0 - see PixelCellDiscriminator.cxx in that branch
     double intimethreshold = (ith0/th0)*threshold;
 
     if (charge>threshold) {
