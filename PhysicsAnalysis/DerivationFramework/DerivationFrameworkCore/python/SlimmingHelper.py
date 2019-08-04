@@ -451,6 +451,12 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt8EMPFlowExKt3SubJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3SubJetsCPContent import AntiKt8EMPFlowExKt3SubJetsCPContent
                         items.extend(AntiKt8EMPFlowExKt3SubJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt2GASubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt2GASubJetsCPContent import AntiKt8EMPFlowExKt2GASubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt2GASubJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt3GASubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3GASubJetsCPContent import AntiKt8EMPFlowExKt3GASubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt3GASubJetsCPContent)
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackGhostTagJets":
                         items.append(collectionName)
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets":
@@ -513,6 +519,12 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt8EMPFlowExKt3Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt3SubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt2GASub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt2GASubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt3GASub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt3GASubJets"))
                 elif collectionName=="BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"))
