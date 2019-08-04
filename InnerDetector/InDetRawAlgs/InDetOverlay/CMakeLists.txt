@@ -65,3 +65,7 @@ atlas_add_test( PixelOverlayConfig_test
 atlas_add_test( SCTOverlayConfig_test
                 SCRIPT test/SCTOverlayConfig_test.py
                 PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( TRTOverlayConfig_test
+                SCRIPT test/TRTOverlayConfig_test.py
+                PROPERTIES TIMEOUT 300 )
