@@ -26,13 +26,10 @@ def remember_cwd():
 
 def package_prefix(package):
     '''Returns a prefix included in names of all tests from the given package'''
-    dict = {'TriggerTest':      'trig_',
-            'TrigP1Test':       'trigP1_',
-            'TrigAnalysisTest': 'trigAna_',
-            'TrigUpgradeTest':  'trigUpgr_'}
+    from TrigValTools.TrigValSteering.Common import package_prefix_dict
     if package=='ALL':
-        return '({})'.format('|'.join(dict.values()))
-    elif package in dict:
+        return '({})'.format('|'.join(package_prefix_dict.values()))
+    elif package in package_prefix_dict:
         return dict[package]
     else:
         return None
