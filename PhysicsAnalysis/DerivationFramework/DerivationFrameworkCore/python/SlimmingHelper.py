@@ -40,6 +40,7 @@ from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansio
 from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
 from DerivationFrameworkCore.AllVariablesDisallowed import AllVariablesDisallowed
 from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
+from DerivationFrameworkCore.PreliminarySmartContainers import PreliminarySmartContainers
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags  import globalflags
 import PyUtils.Logging as L
@@ -140,6 +141,10 @@ class SlimmingHelper:
                         for item in self.AllVariables:
                                 # Block AllVariables for containers with smart slimming lists, for those formats for which it is disallowed
                                 if (formatName in AllVariablesDisallowed) and (item in FullListOfSmartContainers):
+                                    # We have a preliminary list of smart collections as a way to roll out new ones
+                                    if item in PreliminarySmartContainers:
+                                        msg.warning("Using AllVariables for a container with a smart slimming list ("+item+") will soon be disabled for format "+formatName+" - please use smart slimming and/or ExtraVariables, this will be promoted to an exception soon!")
+                                    else:
                                         msg.error("Using AllVariables for a container with a smart slimming list ("+item+") is not permitted for the format "+formatName+" - please use smart slimming and/or ExtraVariables")
                                         raise RuntimeError("AllVariables not permitted for requested DAOD format")
                                 masterItemList.extend(self.GetWholeContentItems(item))
