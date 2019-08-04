@@ -40,8 +40,8 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     acc.merge(MagneticFieldSvcCfg(flags))
     # included options
     acc.addService(PartPropSvc(InputFile="PDGTABLE.MeV=PDG"))
-    if flags.Detector.Overlay and flags.Input.isMC:
-        acc.merge(addFolders("/TRT/Cond/DigVers", "TRT_OFL"))
+    if flags.Detector.Overlay and not flags.Input.isMC:
+        acc.merge(addFolders(flags, "/TRT/Cond/DigVers", "TRT_OFL", className="CondAttrListCollection"))
     # default arguments
     kwargs.setdefault("PAI_Tool_Xe", TRT_PAI_Process_XeToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Ar", TRT_PAI_Process_ArToolCfg(flags))
