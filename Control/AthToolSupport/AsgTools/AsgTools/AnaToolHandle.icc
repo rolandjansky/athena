@@ -5,7 +5,7 @@
 #ifndef ASGTOOLS_ANATOOLHANDLE_ICC
 #define ASGTOOLS_ANATOOLHANDLE_ICC
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <assert.h>
 #include <cstdlib>
 

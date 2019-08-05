@@ -8,8 +8,8 @@
 #include <string>
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/AsgMessagingConf.h"
+#include "AsgMessaging/StatusCode.h"
 
 // Complain if we try using this header in Athena:
 #ifndef ASGTOOL_STANDALONE

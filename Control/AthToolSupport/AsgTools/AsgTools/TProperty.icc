@@ -3,7 +3,7 @@
 #ifndef ASGTOOLS_TPROPERTY_ICC
 #define ASGTOOLS_TPROPERTY_ICC
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 #include <sstream>
 #include <typeinfo>
 #include <type_traits>

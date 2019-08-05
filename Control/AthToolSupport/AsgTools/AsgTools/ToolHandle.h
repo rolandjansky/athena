@@ -4,7 +4,7 @@
 #define ASGTOOLS_TOOLHANDLE_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
+#include "AsgMessaging/AsgMessagingConf.h"
 
 #ifdef ASGTOOL_ATHENA
 #   include "GaudiKernel/ToolHandle.h"
@@ -15,7 +15,7 @@
 #include <iosfwd>
 
 // Local include(s):
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 class INamedInterface;
 

@@ -4,8 +4,8 @@
 #define ASGTOOLS_SGTEVENTMETA_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/AsgMessagingConf.h"
+#include "AsgMessaging/StatusCode.h"
 
 // Complain if we try using this header in Athena:
 #ifdef ASGTOOL_ATHENA

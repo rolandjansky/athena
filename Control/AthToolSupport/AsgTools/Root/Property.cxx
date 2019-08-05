@@ -5,7 +5,7 @@
 
 // Local include(s):
 #include "AsgTools/Property.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 /// Macro used in implementing the type->name translation function
 #define DECLARE_TYPE( TYPE, NAME )              \

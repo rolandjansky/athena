@@ -10,7 +10,7 @@
 
 // Local include(s):
 #include "AsgTools/IAsgTool.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 namespace asg {
 
