@@ -11,6 +11,6 @@
 
 // #warning "use of this file is deprecated, please include the header from AsgMessaging instead"
 
-#include <AsgMessaging/MsgMevel.h>
+#include <AsgMessaging/MsgLevel.h>
 
 #endif
