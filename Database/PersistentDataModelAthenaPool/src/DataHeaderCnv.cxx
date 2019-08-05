@@ -83,7 +83,7 @@ StatusCode DataHeaderCnv::updateRep(IOpaqueAddress* pAddress, DataObject* pObjec
 {
    if( m_sharedWriterCachedDH ) {
       MsgStream log(msgSvc(), "DataHeaderCnv");
-      log << MSG::ERROR << "updateRep called but the prevoius DataHeader was not yet processed."
+      log << MSG::ERROR << "updateRep called but the previous DataHeader was not yet processed."
           << " cached DH Key=" << m_sharedWriterCachedDHKey
           << " cached DH Ref=" << m_sharedWriterCachedDHToken
           << endmsg;
