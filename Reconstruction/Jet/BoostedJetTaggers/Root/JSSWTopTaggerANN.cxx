@@ -108,13 +108,13 @@ StatusCode JSSWTopTaggerANN::initialize(){
     // get the name of the Keras output node
     m_kerasConfigOutputName = configReader.GetValue("KerasOutput" ,"");
 
-    // get min and max jet mass. The unit is GeV now. Need to be consistent with ATLAS convention in the futre
+    // get min and max jet mass. The unit is GeV now. Need to be consistent with ATLAS convention in the future
     m_strMassCutLow  = configReader.GetValue("MassCutLow_in_GeV" ,"");
     m_strMassCutHigh = configReader.GetValue("MassCutHigh_in_GeV" ,"");
 
-    // get min and max jet pt. The unit is GeV now. Need to be consistent with ATLAS convention in the futre
-    m_jetPtMin = configReader.GetValue("pTCutLow_in_GeV", "");
-    m_jetPtMax = configReader.GetValue("pTCutHigh_in_GeV", "");
+    // get min and max jet pt. The unit is GeV now. Need to be consistent with ATLAS convention in the future
+    m_jetPtMin = configReader.GetValue("pTCutLow_in_GeV", 200);
+    m_jetPtMax = configReader.GetValue("pTCutHigh_in_GeV", 2000);
 
     // get cut for ANN score
     m_strScoreCut = configReader.GetValue("ScoreCut" ,"");
