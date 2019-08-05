@@ -21,8 +21,8 @@
 #include <memory>
 #include <TSystem.h>
 #include <EventLoop/Job.h>
-#include <EventLoop/JobSubmitInfo.h>
-#include <EventLoop/JobSubmitStep.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/ManagerStep.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/Worker.h>
 #include <EventLoop/OutputStream.h>
@@ -58,42 +58,42 @@ namespace EL
 
 
   ::StatusCode DirectDriver ::
-  doSubmitStep (Detail::JobSubmitInfo& info,
-                Detail::JobSubmitStep step) const
+  doManagerStep (Detail::ManagerData& data,
+                Detail::ManagerStep step) const
   {
     using namespace msgEventLoop;
-    ANA_CHECK (Driver::doSubmitStep (info, step));
+    ANA_CHECK (Driver::doManagerStep (data, step));
     switch (step)
     {
-    case Detail::JobSubmitStep::updateOutputLocation:
+    case Detail::ManagerStep::updateOutputLocation:
       {
-        for (Job::outputMIter out = info.job->outputBegin(),
-               end = info.job->outputEnd(); out != end; ++ out)
+        for (Job::outputMIter out = data.job->outputBegin(),
+               end = data.job->outputEnd(); out != end; ++ out)
         {
           if (out->output() == 0)
           {
             out->output (new SH::DiskOutputLocal
-                         (info.submitDir + "/data-" + out->label() + "/"));
+                         (data.submitDir + "/data-" + out->label() + "/"));
           }
         }
       }
       break;
 
-    case Detail::JobSubmitStep::submitJob:
+    case Detail::ManagerStep::submitJob:
       {
-        for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin(),
-               end = info.job->sampleHandler().end(); sample != end; ++ sample)
+        for (SH::SampleHandler::iterator sample = data.job->sampleHandler().begin(),
+               end = data.job->sampleHandler().end(); sample != end; ++ sample)
         {
           Worker worker;
-          ANA_CHECK (worker.directExecute (*sample, *info.job, info.submitDir, info.options));
+          ANA_CHECK (worker.directExecute (*sample, *data.job, data.submitDir, data.options));
         }
-        info.submitted = true;
+        data.submitted = true;
       }
       break;
 
-    case Detail::JobSubmitStep::directSaveOutput:
+    case Detail::ManagerStep::directSaveOutput:
       {
-        diskOutputSave (info.submitDir, *info.job);
+        diskOutputSave (data.submitDir, *data.job);
       }
       break;
 

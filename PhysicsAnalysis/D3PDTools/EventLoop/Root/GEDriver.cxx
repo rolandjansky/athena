@@ -18,7 +18,7 @@
 #include <EventLoop/GEDriver.h>
 
 #include <EventLoop/Job.h>
-#include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/ManagerData.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
 #include <sstream>
@@ -48,19 +48,19 @@ namespace EL
 
 
   void GEDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info) const
+  batchSubmit (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
 
     // safely ignoring: resubmit
 
     std::ostringstream cmd;
-    cmd << "cd " << info.submitDir << "/submit";
-    for (std::size_t iter : info.batchJobIndices)
+    cmd << "cd " << data.submitDir << "/submit";
+    for (std::size_t iter : data.batchJobIndices)
     {
-      cmd << " && qsub " << info.options.castString (Job::optSubmitFlags)
-          << " -o " << info.submitDir << "/submit/log-" << iter << ".out"
-          << " -e " << info.submitDir << "/submit/log-" << iter << ".err"
+      cmd << " && qsub " << data.options.castString (Job::optSubmitFlags)
+          << " -o " << data.submitDir << "/submit/log-" << iter << ".out"
+          << " -e " << data.submitDir << "/submit/log-" << iter << ".err"
           << " run " << iter;
     }
     if (gSystem->Exec (cmd.str().c_str()) != 0)

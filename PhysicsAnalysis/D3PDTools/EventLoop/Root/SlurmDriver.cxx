@@ -19,7 +19,7 @@
 
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/Job.h>
-#include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/ManagerData.h>
 #include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -58,7 +58,7 @@ namespace EL
   }
   //****************************************************
   void SlurmDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info) const
+  batchSubmit (Detail::ManagerData& data) const
   {
     using namespace msgEventLoop;
 
@@ -75,22 +75,22 @@ namespace EL
 
     RCU_READ_INVARIANT (this);
 
-    if (info.resubmit)
+    if (data.resubmit)
       RCU_THROW_MSG ("resubmission not supported for this driver");
 
-    assert (!info.batchJobIndices.empty());
-    assert (info.batchJobIndices.back() + 1 == info.batchJobIndices.size());
-    const std::size_t njob = info.batchJobIndices.size();
+    assert (!data.batchJobIndices.empty());
+    assert (data.batchJobIndices.back() + 1 == data.batchJobIndices.size());
+    const std::size_t njob = data.batchJobIndices.size();
 
-    if(!info.options.castBool(Job::optBatchSharedFileSystem,true))
+    if(!data.options.castBool(Job::optBatchSharedFileSystem,true))
     {
-      int status=gSystem->CopyFile("RootCore.par",(info.submitDir+"/submit/RootCore.par").c_str());
+      int status=gSystem->CopyFile("RootCore.par",(data.submitDir+"/submit/RootCore.par").c_str());
       if(status != 0)
       RCU_THROW_MSG ("failed to copy RootCore.par");
     }
 
     {
-      std::ofstream file ((info.submitDir + "/submit/submit").c_str());
+      std::ofstream file ((data.submitDir + "/submit/submit").c_str());
 
       file << "#!/bin/bash \n";
       file << "\n";
@@ -103,16 +103,16 @@ namespace EL
       if(!m_memory    .empty()) file << "#SBATCH --mem=" << m_memory << "\n";
       if(!m_constraint.empty()) file << "#SBATCH --constraint=" << m_constraint << "\n";
       file << "\n";
-      file << info.options.castString(Job::optBatchSlurmExtraConfigLines) << "\n";
+      file << data.options.castString(Job::optBatchSlurmExtraConfigLines) << "\n";
       file << "\n";
       //note: no "\n" at the of this string since this goes as pre-command to the execution of the next line
-      file << info.options.castString(Job::optBatchSlurmWrapperExec);
+      file << data.options.castString(Job::optBatchSlurmWrapperExec);
       file << "./run ${SLURM_ARRAY_TASK_ID}\n";
     }
 
     {
       std::ostringstream cmd;
-      cmd << "cd " << info.submitDir << "/submit && sbatch --array=0-" << njob-1 << " " << info.options.castString (Job::optSubmitFlags) << " submit";
+      cmd << "cd " << data.submitDir << "/submit && sbatch --array=0-" << njob-1 << " " << data.options.castString (Job::optSubmitFlags) << " submit";
       if (gSystem->Exec (cmd.str().c_str()) != 0)
       RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
     }

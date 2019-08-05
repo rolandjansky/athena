@@ -19,7 +19,7 @@
 #include <EventLoop/SoGEDriver.h>
 
 #include <EventLoop/Job.h>
-#include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/ManagerData.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
 #include <sstream>
@@ -58,20 +58,20 @@ namespace EL
 
 
   void SoGEDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info) const
+  batchSubmit (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
 
-    if (info.resubmit)
+    if (data.resubmit)
       RCU_THROW_MSG ("resubmission not supported for this driver");
 
-    assert (!info.batchJobIndices.empty());
-    assert (info.batchJobIndices.back() + 1 == info.batchJobIndices.size());
-    const std::size_t njob = info.batchJobIndices.size();
+    assert (!data.batchJobIndices.empty());
+    assert (data.batchJobIndices.back() + 1 == data.batchJobIndices.size());
+    const std::size_t njob = data.batchJobIndices.size();
 
     std::ostringstream cmd;
-    cmd << "cd " << info.submitDir << "/submit && qsub "
-        << info.options.castString (Job::optSubmitFlags)
+    cmd << "cd " << data.submitDir << "/submit && qsub "
+        << data.options.castString (Job::optSubmitFlags)
         << " -t 1-" << (njob) << " run";
     if (gSystem->Exec (cmd.str().c_str()) != 0)
       RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());

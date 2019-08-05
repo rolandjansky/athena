@@ -60,12 +60,12 @@ namespace EL
 
   protected:
     virtual ::StatusCode
-    doSubmitStep (Detail::JobSubmitInfo& info,
-                  Detail::JobSubmitStep step) const override;
+    doManagerStep (Detail::ManagerData& data,
+                  Detail::ManagerStep step) const override;
 
   private:
     virtual void
-    doResubmit (Detail::JobSubmitInfo& info) const override;
+    doResubmit (Detail::ManagerData& data) const override;
 
   private:
     virtual bool
@@ -127,7 +127,7 @@ namespace EL
     /// rationale: the virtual part of batch submission
   private:
     virtual void
-    batchSubmit (Detail::JobSubmitInfo& info)
+    batchSubmit (Detail::ManagerData& data)
       const = 0;
 
 
@@ -141,7 +141,7 @@ namespace EL
     /// failures: out of memory II
     /// failures: i/o errors
   private:
-    void makeScript (Detail::JobSubmitInfo& info,
+    void makeScript (Detail::ManagerData& data,
                      std::size_t njobs, bool sharedFileSystem) const;
 
 
@@ -157,7 +157,7 @@ namespace EL
     /// returns: path to directory for writing
     /// guarantee: strong
   private:
-    std::string getWriteLocation(const Detail::JobSubmitInfo& info) const;
+    std::string getWriteLocation(const Detail::ManagerData& data) const;
 
     /// effects: determine location with input configuration
     /// returns: path to directory with input configuration

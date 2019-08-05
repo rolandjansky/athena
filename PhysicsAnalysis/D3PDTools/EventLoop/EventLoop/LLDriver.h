@@ -85,7 +85,7 @@ namespace EL
     /// rationale: the virtual part of batch submission
   private:
     virtual void
-    batchSubmit (Detail::JobSubmitInfo& info) const override;
+    batchSubmit (Detail::ManagerData& data) const override;
 
 
 

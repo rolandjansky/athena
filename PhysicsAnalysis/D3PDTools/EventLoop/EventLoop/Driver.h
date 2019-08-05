@@ -251,8 +251,8 @@ namespace EL
     ///   job submission errors
   protected:
     virtual ::StatusCode
-    doSubmitStep (Detail::JobSubmitInfo& info,
-                  Detail::JobSubmitStep step) const;
+    doManagerStep (Detail::ManagerData& data,
+                  Detail::ManagerStep step) const;
 
 
     /// \copydoc resubmit
@@ -260,7 +260,7 @@ namespace EL
     ///   the virtual part of \ref resubmit
   private:
     virtual void
-    doResubmit (Detail::JobSubmitInfo& info) const;
+    doResubmit (Detail::ManagerData& data) const;
 
 
     /// \copydoc retrieve

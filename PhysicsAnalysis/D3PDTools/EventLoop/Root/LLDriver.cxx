@@ -18,7 +18,7 @@
 
 #include <EventLoop/LLDriver.h>
 
-#include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/ManagerData.h>
 #include <EventLoop/Job.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
@@ -85,20 +85,20 @@ namespace EL
 
 
   void LLDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info) const
+  batchSubmit (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
 
     // safely ignoring: resubmit
 
     // Submit n jobs with loadleveler
-    for (std::size_t iter : info.batchJobIndices)
+    for (std::size_t iter : data.batchJobIndices)
     {
       // Submit!
 
       std::ostringstream cmd;
-      cmd << "cd " << info.submitDir << "/submit && llsubmit "
-          << info.options.castString (Job::optSubmitFlags)
+      cmd << "cd " << data.submitDir << "/submit && llsubmit "
+          << data.options.castString (Job::optSubmitFlags)
           << " run"<<iter<<".cmd";
 
       if (gSystem->Exec (cmd.str().c_str()) != 0)

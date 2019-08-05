@@ -6,8 +6,8 @@
 
 
 
-#ifndef EVENT_LOOP__JOB_SUBMIT_INFO_H
-#define EVENT_LOOP__JOB_SUBMIT_INFO_H
+#ifndef EVENT_LOOP__MANAGER_DATA_H
+#define EVENT_LOOP__MANAGER_DATA_H
 
 #include <EventLoop/Global.h>
 
@@ -34,21 +34,21 @@ namespace EL
     /// restructure the submission process and factor out utility
     /// functions.
 
-    struct JobSubmitInfo final
+    struct ManagerData final
     {
       /// \brief standard constructor
       ///
       /// This is mostly defined, so that this include file doesn't
       /// need to include a whole bunch of other files, just to
       /// destruct their objects
-      JobSubmitInfo () noexcept;
+      ManagerData () noexcept;
 
       /// \brief standard destructor
       ///
       /// This is mostly defined, so that this include file doesn't
       /// need to include a whole bunch of other files, just to
       /// destruct their objects
-      ~JobSubmitInfo () noexcept;
+      ~ManagerData () noexcept;
 
 
       /// \brief the path to the submission directory

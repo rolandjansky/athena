@@ -20,8 +20,8 @@
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/BatchSample.h>
 #include <EventLoop/BatchSegment.h>
-#include <EventLoop/JobSubmitInfo.h>
-#include <EventLoop/JobSubmitStep.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/ManagerStep.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
@@ -310,18 +310,18 @@ namespace EL
 
 
   ::StatusCode BatchDriver ::
-  doSubmitStep (Detail::JobSubmitInfo& info,
-                Detail::JobSubmitStep step) const
+  doManagerStep (Detail::ManagerData& data,
+                Detail::ManagerStep step) const
   {
     using namespace msgEventLoop;
-    ANA_CHECK (Driver::doSubmitStep (info, step));
+    ANA_CHECK (Driver::doManagerStep (data, step));
     switch (step)
     {
-    case Detail::JobSubmitStep::updateOutputLocation:
+    case Detail::ManagerStep::updateOutputLocation:
       {
-        const std::string writeLocation=getWriteLocation(info);
-        for (Job::outputMIter out = info.job->outputBegin(),
-               end = info.job->outputEnd(); out != end; ++ out)
+        const std::string writeLocation=getWriteLocation(data);
+        for (Job::outputMIter out = data.job->outputBegin(),
+               end = data.job->outputEnd(); out != end; ++ out)
         {
           if (out->output() == 0)
           {
@@ -332,28 +332,28 @@ namespace EL
       }
       break;
 
-    case Detail::JobSubmitStep::batchCreateDirectories:
+    case Detail::ManagerStep::batchCreateDirectories:
       {
-        ANA_MSG_DEBUG ("submitting batch job in location " << info.submitDir);
-        const std::string submitDir = info.submitDir + "/submit";
+        ANA_MSG_DEBUG ("submitting batch job in location " << data.submitDir);
+        const std::string submitDir = data.submitDir + "/submit";
         if (gSystem->MakeDirectory (submitDir.c_str()) != 0)
         {
           ANA_MSG_ERROR ("failed to create directory " + submitDir);
           return ::StatusCode::FAILURE;
         }
-        const std::string runDir = info.submitDir + "/run";
+        const std::string runDir = data.submitDir + "/run";
         if (gSystem->MakeDirectory (runDir.c_str()) != 0)
         {
           ANA_MSG_ERROR ("failed to create directory " + runDir);
           return ::StatusCode::FAILURE;
         }
-        const std::string fetchDir = info.submitDir + "/fetch";
+        const std::string fetchDir = data.submitDir + "/fetch";
         if (gSystem->MakeDirectory (fetchDir.c_str()) != 0)
         {
           ANA_MSG_ERROR ("failed to create directory " + fetchDir);
           return ::StatusCode::FAILURE;
         }
-        const std::string statusDir = info.submitDir + "/status";
+        const std::string statusDir = data.submitDir + "/status";
         if (gSystem->MakeDirectory (statusDir.c_str()) != 0)
         {
           ANA_MSG_ERROR ("failed to create directory " + statusDir);
@@ -362,45 +362,45 @@ namespace EL
       }
       break;
 
-    case Detail::JobSubmitStep::batchCreateJob:
+    case Detail::ManagerStep::batchCreateJob:
       {
-        info.batchJob = std::make_unique<BatchJob> ();
-        fillFullJob (*info.batchJob, *info.job, info.submitDir, info.options);
-        info.batchJob->location=getWriteLocation(info);
+        data.batchJob = std::make_unique<BatchJob> ();
+        fillFullJob (*data.batchJob, *data.job, data.submitDir, data.options);
+        data.batchJob->location=getWriteLocation(data);
         {
-          std::string path = info.submitDir + "/submit/config.root";
+          std::string path = data.submitDir + "/submit/config.root";
           std::unique_ptr<TFile> file (TFile::Open (path.c_str(), "RECREATE"));
-          info.batchJob->Write ("job");
+          data.batchJob->Write ("job");
         }
         {
-          std::ofstream file ((info.submitDir + "/submit/segments").c_str());
-          for (std::size_t iter = 0, end = info.batchJob->segments.size();
+          std::ofstream file ((data.submitDir + "/submit/segments").c_str());
+          for (std::size_t iter = 0, end = data.batchJob->segments.size();
                iter != end; ++ iter)
           {
-            file << iter << " " << info.batchJob->segments[iter].fullName << "\n";
+            file << iter << " " << data.batchJob->segments[iter].fullName << "\n";
           }
         }
       }
       break;
 
-    case Detail::JobSubmitStep::batchMakeScript:
+    case Detail::ManagerStep::batchMakeScript:
       {
-        makeScript (info, info.batchJob->segments.size(),
-                    info.options.castBool(Job::optBatchSharedFileSystem,true));
+        makeScript (data, data.batchJob->segments.size(),
+                    data.options.castBool(Job::optBatchSharedFileSystem,true));
       }
       break;
 
-    case Detail::JobSubmitStep::batchMakeIndices:
+    case Detail::ManagerStep::batchMakeIndices:
       {
-        for (std::size_t index = 0; index != info.batchJob->segments.size(); ++ index)
-          info.batchJobIndices.push_back (index);
+        for (std::size_t index = 0; index != data.batchJob->segments.size(); ++ index)
+          data.batchJobIndices.push_back (index);
       }
       break;
 
-    case Detail::JobSubmitStep::submitJob:
+    case Detail::ManagerStep::submitJob:
       {
-        batchSubmit (info);
-        info.submitted = true;
+        batchSubmit (data);
+        data.submitted = true;
       }
       break;
 
@@ -413,21 +413,21 @@ namespace EL
 
 
   void BatchDriver ::
-  doResubmit (Detail::JobSubmitInfo& info) const
+  doResubmit (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
 
     bool all_missing = false;
-    if (info.resubmitOption == "ALL_MISSING")
+    if (data.resubmitOption == "ALL_MISSING")
     {
       all_missing = true;
     } else
     {
-      RCU_THROW_MSG ("unknown resubmit option " + info.resubmitOption);
+      RCU_THROW_MSG ("unknown resubmit option " + data.resubmitOption);
     }
 
     std::unique_ptr<TFile> file
-      (TFile::Open ((info.submitDir + "/submit/config.root").c_str(), "READ"));
+      (TFile::Open ((data.submitDir + "/submit/config.root").c_str(), "READ"));
     RCU_ASSERT_SOFT (file.get() != 0);
     std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
     RCU_ASSERT_SOFT (config.get() != 0);
@@ -437,35 +437,35 @@ namespace EL
       if (all_missing)
       {
         std::ostringstream completed_file;
-        completed_file << info.submitDir << "/status/completed-" << segment;
+        completed_file << data.submitDir << "/status/completed-" << segment;
         if (gSystem->AccessPathName (completed_file.str().c_str()) != 0)
-          info.batchJobIndices.push_back (segment);
+          data.batchJobIndices.push_back (segment);
       } else
       {
         std::ostringstream fail_file;
-        fail_file << info.submitDir << "/status/fail-" << segment;
+        fail_file << data.submitDir << "/status/fail-" << segment;
         if (gSystem->AccessPathName (fail_file.str().c_str()) == 0)
-          info.batchJobIndices.push_back (segment);
+          data.batchJobIndices.push_back (segment);
       }
     }
 
-    if (info.batchJobIndices.empty())
+    if (data.batchJobIndices.empty())
     {
       RCU_PRINT_MSG ("found no jobs to resubmit");
       return;
     }
 
-    for (std::size_t segment : info.batchJobIndices)
+    for (std::size_t segment : data.batchJobIndices)
     {
       std::ostringstream command;
       command << "rm -rf";
-      command << " " << info.submitDir << "/status/completed-" << segment;
-      command << " " << info.submitDir << "/status/fail-" << segment;
-      command << " " << info.submitDir << "/status/done-" << segment;
+      command << " " << data.submitDir << "/status/completed-" << segment;
+      command << " " << data.submitDir << "/status/fail-" << segment;
+      command << " " << data.submitDir << "/status/done-" << segment;
       RCU::Shell::exec (command.str());
     }
-    info.options = *config->job.options();
-    batchSubmit (info);
+    data.options = *config->job.options();
+    batchSubmit (data);
   }
 
 
@@ -596,13 +596,13 @@ namespace EL
 
 
   void BatchDriver ::
-  makeScript (Detail::JobSubmitInfo& info,
+  makeScript (Detail::ManagerData& data,
               std::size_t njobs, bool sharedFileSystem) const
   {
     RCU_READ_INVARIANT (this);
 
-    const std::string writeLocation=getWriteLocation(info);
-    const std::string submitLocation=getSubmitLocation(info.submitDir);
+    const std::string writeLocation=getWriteLocation(data);
+    const std::string submitLocation=getSubmitLocation(data.submitDir);
 
     std::string name = batchName ();
     bool multiFile = (name.find ("{JOBID}") != std::string::npos);
@@ -610,7 +610,7 @@ namespace EL
     {
       std::ostringstream str;
       str << index;
-      const std::string fileName = info.submitDir + "/submit/" + RCU::substitute (name, "{JOBID}", str.str());
+      const std::string fileName = data.submitDir + "/submit/" + RCU::substitute (name, "{JOBID}", str.str());
 
       {
         std::ofstream file (fileName.c_str());
@@ -795,11 +795,11 @@ namespace EL
   }
 
   std::string BatchDriver ::
-  getWriteLocation (const Detail::JobSubmitInfo& info) const
+  getWriteLocation (const Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
-    if(info.options.castBool(Job::optBatchSharedFileSystem,true)) // Shared file-system, write to output
-      return info.submitDir;
+    if(data.options.castBool(Job::optBatchSharedFileSystem,true)) // Shared file-system, write to output
+      return data.submitDir;
     else
       return ".";
   }

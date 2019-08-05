@@ -19,7 +19,7 @@
 
 #include <EventLoop/BatchJob.h>
 #include <EventLoop/Job.h>
-#include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/ManagerData.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
@@ -58,18 +58,18 @@ namespace EL
   }
 
   void CondorDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info) const
+  batchSubmit (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
 
     // name of tarball being made (this needs to match BatchDriver.cxx)
     const std::string tarballName("AnalysisPackage.tar.gz");
 
-    if (!info.resubmit)
+    if (!data.resubmit)
     {
-      if(!info.options.castBool(Job::optBatchSharedFileSystem,true))
+      if(!data.options.castBool(Job::optBatchSharedFileSystem,true))
       {
-        const std::string newLocation = info.submitDir + "/submit/" + tarballName;
+        const std::string newLocation = data.submitDir + "/submit/" + tarballName;
         int status=gSystem->CopyFile(tarballName.c_str(),newLocation.c_str());
         if(status != 0)
           RCU_THROW_MSG( ("failed to copy " + tarballName + " to " + newLocation).c_str() );
@@ -77,14 +77,14 @@ namespace EL
     }
 
     {
-      std::ofstream file ((info.submitDir + "/submit/submit").c_str());
+      std::ofstream file ((data.submitDir + "/submit/submit").c_str());
       file << "executable              = run\n";
       file << "universe                = vanilla\n";
       file << "log                     = submit/run.log\n";
       file << "output                  = submit/log-$(Item).out\n";
       file << "error                   = submit/log-$(Item).err\n";
-      file << "initialdir              = " << info.submitDir << "\n";
-      if(!info.options.castBool(Job::optBatchSharedFileSystem,true))
+      file << "initialdir              = " << data.submitDir << "\n";
+      if(!data.options.castBool(Job::optBatchSharedFileSystem,true))
 	{ // Transfer data with non-shared file-systems
 	  file << "should_transfer_files   = YES\n";
 	  file << "when_to_transfer_output = ON_EXIT\n";
@@ -93,10 +93,10 @@ namespace EL
 	  file << "x509userproxy           = " << gSystem->Getenv("X509_USER_PROXY") <<"\n";
 	}
       file << "arguments               = $(Item)\n";
-      file << "\n" << info.options.castString (Job::optCondorConf) << "\n";
+      file << "\n" << data.options.castString (Job::optCondorConf) << "\n";
       file << "queue in ( ";
       bool first {true};
-      for (std::size_t index : info.batchJobIndices)
+      for (std::size_t index : data.batchJobIndices)
       {
         if (first)
           first = false;
@@ -109,8 +109,8 @@ namespace EL
 
     {
       std::ostringstream cmd;
-      cmd << "cd " << info.submitDir << "/submit && condor_submit "
-	  << info.options.castString (Job::optSubmitFlags) << " submit";
+      cmd << "cd " << data.submitDir << "/submit && condor_submit "
+	  << data.options.castString (Job::optSubmitFlags) << " submit";
       if (gSystem->Exec (cmd.str().c_str()) != 0)
 	RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
     }
