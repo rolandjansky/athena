@@ -9,7 +9,7 @@
 // Local include(s):
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolStore.h"
-#include "AsgTools/MsgStreamMacros.h"
+#include "AsgMessaging/MsgStreamMacros.h"
 
 // Create a simple version of the MSGSTREAM_REPORT_PREFIX macro for Athena:
 #ifdef ASGTOOL_ATHENA

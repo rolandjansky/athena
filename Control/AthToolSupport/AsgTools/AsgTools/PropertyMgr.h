@@ -4,7 +4,7 @@
 #define ASGTOOLS_PROPERTYMGR_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
+#include "AsgMessaging/AsgMessagingConf.h"
 
 #ifdef ASGTOOL_ATHENA
 #   include "GaudiKernel/PropertyMgr.h"
@@ -15,9 +15,9 @@
 #include <map>
 
 // Local include(s):
-#include "AsgTools/MsgStream.h"
+#include "AsgMessaging/MsgStream.h"
 #include "AsgTools/Property.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 /// Replacement of Gaudi's property manager in standalone usage
 ///

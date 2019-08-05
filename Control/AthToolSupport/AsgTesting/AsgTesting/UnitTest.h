@@ -9,9 +9,9 @@
 #ifndef ASG_TOOLS__UNIT_TEST_H
 #define ASG_TOOLS__UNIT_TEST_H
 
-#include <AsgTools/MessageCheck.h>
-#include <AsgTools/MessagePrinterErrorCollect.h>
-#include <AsgTools/MessagePrinterOverlay.h>
+#include <AsgMessaging/MessageCheck.h>
+#include <AsgMessaging/MessagePrinterErrorCollect.h>
+#include <AsgMessaging/MessagePrinterOverlay.h>
 #include <string>
 #include <exception>
 #include <gtest/gtest.h>

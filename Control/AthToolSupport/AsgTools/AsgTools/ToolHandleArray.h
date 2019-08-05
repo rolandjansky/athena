@@ -4,7 +4,7 @@
 #define ASGTOOLS_TOOLHANDLEARRAY_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
+#include "AsgMessaging/AsgMessagingConf.h"
 
 #ifdef ASGTOOL_ATHENA
 #   include "GaudiKernel/ToolHandle.h"

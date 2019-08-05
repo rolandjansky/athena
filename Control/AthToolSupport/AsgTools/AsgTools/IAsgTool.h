@@ -7,15 +7,15 @@
 #include <string>
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
+#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgTools/AsgToolMacros.h"
-#include "AsgTools/INamedInterface.h"
+#include "AsgMessaging/INamedInterface.h"
 
 // Environment specific include(s):
 #ifdef ASGTOOL_ATHENA
 #   include "GaudiKernel/IAlgTool.h"
 #elif defined(ASGTOOL_STANDALONE)
-#   include "AsgTools/StatusCode.h"
+#   include "AsgMessaging/StatusCode.h"
 #else
 #   error "What environment are we in?!?"
 #endif // Environment selection

@@ -8,7 +8,7 @@
 
 // Local include(s):
 #include "AsgTools/TProperty.h"
-#include "AsgTools/MsgStreamMacros.h"
+#include "AsgMessaging/MsgStreamMacros.h"
 
 template< typename T >
 Property* PropertyMgr::declareProperty( const std::string& name, T& loc ) {

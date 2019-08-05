@@ -4,14 +4,14 @@
 #define ASGTOOLS_ASGTOOL_H
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
+#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgTools/IAsgTool.h"
-#include "AsgTools/MsgLevel.h"
-#include "AsgTools/MessageCheck.h"
+#include "AsgMessaging/MsgLevel.h"
+#include "AsgMessaging/MessageCheck.h"
 
 // Environment specific include(s):
 #ifdef ASGTOOL_STANDALONE
-#   include "AsgTools/AsgMessaging.h"
+#   include "AsgMessaging/AsgMessaging.h"
 #   include "AsgTools/SgTEvent.h"
    // Forward declaration(s):
    class Property;
