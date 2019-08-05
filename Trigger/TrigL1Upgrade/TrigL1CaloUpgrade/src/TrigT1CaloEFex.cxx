@@ -67,6 +67,7 @@ StatusCode TrigT1CaloEFex::initialize(){
 		m_PhiSElectron = new TH1F("PhiSElectron","Phi of Super Cell based Electron",64,-3.2,3.2);
 		m_EtSElectronEta = new TH2F("EtSElectronEta","Et of Super Cell based Electron versus Eta",50,-5.0,5.0,60,0,60);
 		m_HadEtSElectronEta = new TH2F("HadEtSElectronEta","HadEt of Super Cell based Electron versus Eta",50,-5.0,5.0,60,0,60);
+		m_HadronicIsolation = new TH1F("hadronicIso","",50, 0 , 1);
 	}
 	return StatusCode::SUCCESS;
 }
@@ -86,9 +87,19 @@ StatusCode TrigT1CaloEFex::execute(){
         MsgStream msg(msgSvc(), name());
 	CaloCellContainer* scells(0);
 	const xAOD::TriggerTowerContainer* TTs(0);
-	if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
-		msg << MSG::WARNING << "Could not get containers" << endreq;
-		return StatusCode::FAILURE;
+	const TileID* m_tileIDHelper = nullptr;
+	const CaloCellContainer* tileCellCon(0);
+	if (!m_use_tileCells){
+		if ( getContainers(scells, TTs).isFailure() || (TTs==0) ) {
+			msg << MSG::WARNING << "Could not get containers" << endreq;
+			return StatusCode::FAILURE;
+		}
+	}
+	else {
+		if ( getContainersAndID(scells, m_tileIDHelper, tileCellCon).isFailure() ){
+			msg << MSG::WARNING << "Could not get containers and/or Tile ID" << endreq;
+			return StatusCode::FAILURE;
+		}
 	}
 	// Prepare output containers
 	xAOD::TrigEMClusterContainer* clusters = new xAOD::TrigEMClusterContainer();
@@ -111,7 +122,7 @@ StatusCode TrigT1CaloEFex::execute(){
 			msg << MSG::WARNING << "Could not get ID manager " << endreq;
 			return StatusCode::FAILURE;
 		}
-		std::vector<std::vector<float>> clustering = baselineAlg(scells, TTs, m_idHelper);
+		std::vector<std::vector<float>> clustering = baselineAlg(scells, TTs, m_idHelper, m_tileIDHelper, tileCellCon);
 		for (auto ithCluster : clustering){
 		  if ( m_enableMon ) {
 			  m_EtaSElectron->Fill( ithCluster[0] );
@@ -122,6 +133,7 @@ StatusCode TrigT1CaloEFex::execute(){
 				  m_HadEtSElectron->Fill( ithCluster[6] );
 				  m_HadEtSElectronEta->Fill( ithCluster[0], ithCluster[6] );
 			  }
+			  m_HadronicIsolation->Fill(ithCluster[4]);
 		  }
 		  xAOD::TrigEMCluster* cl = new xAOD::TrigEMCluster();
 		  clusters->push_back( cl );
@@ -170,6 +182,8 @@ StatusCode TrigT1CaloEFex::execute(){
 	        /////////////////////////////////////////////////////////////////
 	        // Note that there are several additional differences 
 	        // on top of the different cluster formation:
+	        //   -- Method requires TT, if m_use_tileCells = false do not use
+	        //      energy weighted cluster formation
 	        //   -- The energy of the cluster is not given as multiples
 	        //      of the digitization scale (25 MeV)
 	        //   -- The cluster sizes differ per default (but can be adjusted)

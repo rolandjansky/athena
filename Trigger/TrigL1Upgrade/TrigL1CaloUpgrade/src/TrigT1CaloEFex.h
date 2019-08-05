@@ -37,6 +37,7 @@ private :
 	TH1F* m_HadEtSElectron;
 	TH1F* m_EtaSElectron;
 	TH1F* m_PhiSElectron;
+	TH1F* m_HadronicIsolation;
 	TH2F* m_EtSElectronEta;
 	TH2F* m_HadEtSElectronEta;
         /** output name */
