@@ -768,23 +768,8 @@ void IOVDbSvc::handle( const Incident& inc) {
   }
 }
 
-StatusCode IOVDbSvc::registerTagInfoCallback() {
-  // register callback for taginfo handling
-  // for the moment, this calls processTagInfo directly, rather than going
-  // via a call back (following RDS 08/2006)
-  ATH_MSG_DEBUG( "registerTagInfoCallback called" );
-  std::list<std::string> alist;
-  int a=0;
-  if (StatusCode::SUCCESS!=processTagInfo(a,alist)) {
-    ATH_MSG_ERROR( "Cannot process TagInfo" );
-    return StatusCode::FAILURE;
-  } else {
-    return StatusCode::SUCCESS;
-  }
-}
-
-StatusCode IOVDbSvc::processTagInfo(IOVSVC_CALLBACK_ARGS) {
-  // Processing of taginfo callback
+StatusCode IOVDbSvc::processTagInfo() {
+  // Processing of taginfo
   // Set GlobalTag and any folder-specific overrides if given
   const TagInfo* tagInfo=0;
   if (StatusCode::SUCCESS!=m_h_detStore->retrieve(tagInfo)) {

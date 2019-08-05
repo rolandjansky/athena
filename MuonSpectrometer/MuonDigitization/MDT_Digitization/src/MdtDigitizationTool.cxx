@@ -73,7 +73,6 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
   ATH_MSG_INFO ( "DigitizationTool       " << m_digiTool            );
   ATH_MSG_INFO ( "MdtCalibrationDbTool    " << m_calibrationDbTool  );
-  ATH_MSG_INFO ( "MDTCondSummarySvc      " << m_pSummarySvc         );
   ATH_MSG_INFO ( "UseDeadChamberSvc      " << m_UseDeadChamberSvc   );
   if (!m_UseDeadChamberSvc) ATH_MSG_INFO ( "MaskedStations         " << m_maskedStations      );
   ATH_MSG_INFO ( "GetT0FromDB            " << m_t0_from_DB          );
@@ -167,10 +166,7 @@ StatusCode MdtDigitizationTool::initialize() {
 
   //Retrieve the Conditions service
   if (m_UseDeadChamberSvc==true) {
-    ATH_MSG_DEBUG("Using Database DCS MDT Conditions for masking dead/missing chambers");
-    if (StatusCode::SUCCESS != m_pSummarySvc.retrieve()) {
-      ATH_MSG_ERROR("Could not retrieve the summary service");
-    }
+    ATH_CHECK(m_readKey.initialize());
   }
   else {
     ATH_MSG_DEBUG("Using JobOptions for masking dead/missing chambers");
@@ -371,15 +367,18 @@ StatusCode MdtDigitizationTool::doDigitization(MdtDigitContainer* digitContainer
   CLHEP::HepRandomEngine *twinRndmEngine = getRandomEngine("Twin");
   CLHEP::HepRandomEngine *toolRndmEngine = getRandomEngine(m_digiTool->name());
 
+
   //Get the list of dead/missing chambers and cache it
   if ( m_UseDeadChamberSvc ) { 
+    SG::ReadCondHandle<MdtCondDbData> readHandle{m_readKey};
+    const MdtCondDbData* readCdo{*readHandle};
     m_IdentifiersToMask.clear();
-    int size_id = m_pSummarySvc->deadStationsId().size();
+    int size_id = readCdo->getDeadStationsId().size();
     ATH_MSG_DEBUG ( "Number of dead/missing stations retrieved from CondService= "<< size_id );	
     
     for(int k=0;k<size_id;k++) {
-      Identifier Id = m_pSummarySvc->deadStationsId()[k];
-      m_IdentifiersToMask.push_back( m_pSummarySvc->deadStationsId()[k] );
+      Identifier Id = readCdo->getDeadStationsId()[k];
+      m_IdentifiersToMask.push_back( readCdo->getDeadStationsId()[k] );
       ATH_MSG_VERBOSE ( "Dead/missing chambers id from CondDB: " << m_idHelper->show_to_string(Id) );
     }  
   }

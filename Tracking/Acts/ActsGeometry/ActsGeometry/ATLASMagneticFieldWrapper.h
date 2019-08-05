@@ -7,7 +7,8 @@
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/MagneticFieldContext.hpp"
+#include "Acts/Utilities/Units.hpp"
+#include "Acts/MagneticField/MagneticFieldContext.hpp"
 
 class ATLASMagneticFieldWrapper
 {
@@ -61,7 +62,7 @@ public:
 
   private:
     MagField::IMagFieldSvc *m_fieldService;
-    const double m_bFieldUnit = 1000.*Acts::units::_T;
+    const double m_bFieldUnit = 1000.*Acts::UnitConstants::T;
   };
 
   ATLASMagneticFieldWrapper(MagField::IMagFieldSvc *fieldService)
@@ -119,7 +120,7 @@ private:
   FieldCell m_fieldCell;
 
   MagField::IMagFieldSvc *m_fieldService;
-  const double m_bFieldUnit = 1000.*Acts::units::_T;
+  const double m_bFieldUnit = 1000.*Acts::UnitConstants::T;
 };
 
 

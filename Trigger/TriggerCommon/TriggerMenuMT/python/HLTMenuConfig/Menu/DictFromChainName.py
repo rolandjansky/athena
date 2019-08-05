@@ -15,7 +15,7 @@ __doc__="Decoding of chain name into a dictionary"
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 logDict = logging.getLogger('TriggerMenu.menu.DictFromChainName')
-
+import re
 
 def getOverallL1item(chainName):
     """
@@ -28,6 +28,14 @@ def getOverallL1item(chainName):
     # this assumes that the last string of a chain name is the overall L1 item
     cNameParts = chainName.split("_L1")
     return 'L1_' + cNameParts[-1]
+
+def getL1item(chainName):
+    mainL1 = getOverallL1item(chainName)
+    #replace the '_' left-closest-to ETA by '.' so that L1J75_31ETA49 becomes L1J75.31ETA49
+    if 'ETA' in mainL1:
+        r = re.compile("_(?P<eta>..ETA..)")
+        mainL1 = r.sub(".\\g<eta>", mainL1)
+    return mainL1
 
 def getAllThresholdsFromItem(item):
     """
@@ -97,7 +105,7 @@ class DictFromChainName(object):
         else:
             logDict.error("Format of chainInfo passed to genChainDict not known")
 
-        L1item = getOverallL1item(chainName)
+        L1item = getL1item(chainName)
 
         logDict.debug("Analysing chain with name: %s", chainName)
         chainDict = self.analyseShortName(chainName,  L1chainParts, L1item)
@@ -122,6 +130,10 @@ class DictFromChainName(object):
             logDict.debug('SUPER FINAL dictionary: %s', pp.pformat(chainDict))
 
         return chainDict
+
+
+
+
 
     def getChainMultFromDict(self, chainDict):
         allMultis = []
@@ -187,7 +199,7 @@ class DictFromChainName(object):
         genchainDict['chainName'] = chainName
 
         # remove the L1 item from the name
-        hltChainName = chainName.replace(L1item.replace("L1_", "_L1"),'')
+        hltChainName = chainName[:chainName.index("_L1")]
 
         # ---- specific chain part information ----
         allChainProperties=[]

@@ -24,5 +24,12 @@ testalg1 = Trk__VertexSeedFinderTestAlg ('testalg1',
                                          PriVert = [0.3, 0.1],
                                          Expected1 = [8.48745, 8.54651, -6.48485],
                                          Expected2 = [3.44848, 3.26226, -7.06364],
-                                         Expected3 = [-0.180517, -2.12594, 14.4642])
+                                         Expected3 = [-0.180517, -2.12594, 14.4642],
+                                         Expected1PhiModes = [0.525193, 0.785398, 0.967545],
+                                         Expected1RModes = [3.61433, 12.4693, 7.05322],
+                                         Expected1ZModes = [-7.88629, -6.5, -5.61236],
+                                         Expected1Weights = [0.137994, 6.88709, 0.341206],
+                                         Expected1Indices = [0, 1, 2],
+                                         Expected1CorrDist = [-9.9, -9.9],
+                                         )
 topSequence += testalg1

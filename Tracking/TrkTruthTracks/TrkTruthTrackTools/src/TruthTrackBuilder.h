@@ -12,7 +12,6 @@
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/IPartPropSvc.h"
 // Trk includes
 #include "TrkTruthTrackInterfaces/ITruthTrackBuilder.h"
@@ -38,7 +37,7 @@ namespace Trk {
    @author Andreas.Salzburger -at- cern.ch, Thijs.Cornelissen -at- cern.ch
    */
      
-  class TruthTrackBuilder : public AthAlgTool, public IIncidentListener, virtual public ITruthTrackBuilder {
+  class TruthTrackBuilder : public AthAlgTool, virtual public ITruthTrackBuilder {
 
      public:     
         //** Constructor with parameters */
@@ -51,12 +50,7 @@ namespace Trk {
        /** return a map of GenParticles to PRDs for further processing **/
        Track* createTrack(const PRD_TruthTrajectory& prdTraj, SegmentCollection* segs = 0 ) const;
 
-       /** the incident listener for cache refresh */
-       void handle(const Incident& inc) ;
-    
-
      private:
-        ServiceHandle<IIncidentSvc>                 m_incidentSvc;               //!< Incident Service for cache cleaning
         ToolHandle<ITrackFitter>                    m_trackFitter;               //!< fits the PRDs
         ToolHandle<IExtrapolator>                   m_extrapolator;              //!< extrapolator
         ToolHandle< IRIO_OnTrackCreator >           m_rotcreator;

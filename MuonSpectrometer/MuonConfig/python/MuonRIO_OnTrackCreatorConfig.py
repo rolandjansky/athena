@@ -13,7 +13,8 @@ def CscClusterOnTrackCreatorCfg(flags,**kwargs):
 
     result=ComponentAccumulator()
     
-    acc, qrat = QratCscClusterFitterCfg(flags)
+    acc = QratCscClusterFitterCfg(flags)
+    qrat = acc.getPrimary()
     result.addPublicTool(qrat)
     result.merge(acc)
     

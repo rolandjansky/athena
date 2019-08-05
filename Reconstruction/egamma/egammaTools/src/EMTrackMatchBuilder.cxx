@@ -7,16 +7,18 @@
 #include "EMTrackMatchBuilder.h"
 
 #include "egammaRecEvent/egammaRec.h"
+#include "egammaRecEvent/egammaRecContainer.h"
 
-#include "CaloUtils/CaloCellList.h"
+
 #include "xAODCaloEvent/CaloCluster.h"
-
 #include "xAODTracking/TrackParticle.h" 
 #include "xAODTracking/TrackParticleContainer.h" 
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 #include "egammaUtils/CandidateMatchHelpers.h"
+#include "CaloUtils/CaloCellList.h"
 #include "FourMomUtils/P4Helpers.h"
+
 #include "SGTools/CurrentEventStore.h"
 #include "StoreGate/ReadHandle.h"
 #include "GaudiKernel/EventContext.h"
@@ -24,10 +26,6 @@
 #include <cmath>
 
 //  END OF HEADER FILES INCLUDE
-
-/////////////////////////////////////////////////////////////////
-
-//  CONSTRUCTOR:
 
 EMTrackMatchBuilder::EMTrackMatchBuilder(const std::string& type,
                                          const std::string& name,
@@ -38,35 +36,16 @@ EMTrackMatchBuilder::EMTrackMatchBuilder(const std::string& type,
   declareInterface<IEMTrackMatchBuilder>(this);
 }
 
-// ==============================================================
-EMTrackMatchBuilder::~EMTrackMatchBuilder() 
-{ 
-  //
-  // destructor
-  //
+EMTrackMatchBuilder::~EMTrackMatchBuilder() { 
 }
 
-// ==============================================================
 StatusCode EMTrackMatchBuilder::initialize()
 {
-
   ATH_MSG_DEBUG("Initializing EMTrackMatchBuilder");
-
   ATH_CHECK(m_TrackParticlesKey.initialize());
-
+  
   // the extrapolation tool
-  if(m_extrapolationTool.retrieve().isFailure()){
-    ATH_MSG_ERROR("initialize: Cannot retrieve extrapolationTool " << m_extrapolationTool);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("initialize: Retrieved extrapolationTool " << m_extrapolationTool);
-  }
-
-  // Boolean to use candidate matching
-  if (m_useCandidateMatch) { 
-    ATH_MSG_INFO("initialize: useCandidateMatch is true");
-  }
-  else ATH_MSG_INFO("initialize: useCandidateMatch is turned off");
+  ATH_CHECK(m_extrapolationTool.retrieve());
 
   // set things up for the sorting
   m_sorter = TrackMatchSorter(m_distanceForScore);
@@ -77,29 +56,16 @@ StatusCode EMTrackMatchBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode EMTrackMatchBuilder::executeRec(const EventContext& ctx, egammaRec* eg) const
+StatusCode EMTrackMatchBuilder::executeRec(const EventContext& ctx, 
+                                           EgammaRecContainer* egammas) const
 {
-  //
-  // standard egamma execute method
-  // egamma* is an input
-  //
 
   ATH_MSG_DEBUG("Executing EMTrackMatchBuilder");
 
   // protection against bad pointers
-  if (eg==0 ) {
+  if (egammas==0 ) {
     return StatusCode::SUCCESS;
   }
-  // retrieve the cluster
-  const xAOD::CaloCluster* cluster = eg->caloCluster();
-  if (cluster == 0) {
-    return StatusCode::SUCCESS;
-  }
-  // check for 0 or negative energy clusters
-  if (cluster->e() <= 0.0) {
-    return StatusCode::SUCCESS;
-  }
-
   // retrieve the trackparticle container
   SG::ReadHandle<xAOD::TrackParticleContainer> trackPC(m_TrackParticlesKey, ctx);
 
@@ -108,9 +74,11 @@ StatusCode EMTrackMatchBuilder::executeRec(const EventContext& ctx, egammaRec* e
     ATH_MSG_ERROR("Couldn't retrieve TrackParticle container with key: " << m_TrackParticlesKey.key());
     return StatusCode::FAILURE;
   }
-
-  // call the execute method
-  CHECK( trackExecute(ctx, eg, trackPC.cptr()) );
+  //Loop over calling the trackExecute method
+  for (egammaRec* eg: *egammas){ 
+    // retrieve the cluster
+    ATH_CHECK(trackExecute(ctx,eg,trackPC.cptr()));
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -118,21 +86,17 @@ StatusCode EMTrackMatchBuilder::executeRec(const EventContext& ctx, egammaRec* e
 StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec* eg, 
                                              const xAOD::TrackParticleContainer* trackPC) const
 {
-  if (!eg || !trackPC)
-  {
+  if (!eg || !trackPC){
     ATH_MSG_WARNING("trackExecute: NULL pointer to egammaRec or TrackParticleContainer");
     return StatusCode::SUCCESS;
   }
-
   // retrieve corresponding cluster
   const xAOD::CaloCluster* cluster = eg->caloCluster();
-
-  // check for 0 energy clusters
-  if (cluster && cluster->e() == 0.0) {
+  // check if the cluster is sane
+  if (cluster && cluster->e() ==0.0) {
     ATH_MSG_WARNING("trackExecute: cluster energy is 0.0! Ignoring cluster.");
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_DEBUG("in trackExecute");
 
   // Loop over tracks and fill TrackMatch vector
   std::vector<TrackMatch> trkMatches; 
@@ -157,7 +121,6 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
     }
   }
 
-
   if(trkMatches.size()>0){
     //sort the track matches
     std::sort(trkMatches.begin(), trkMatches.end(), m_sorter);
@@ -171,7 +134,6 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
     eg->setDeltaPhiLast(bestTrkMatch.deltaPhiLast);
 
     //set the element Links
-    ATH_MSG_DEBUG("============================================");
     typedef ElementLink<xAOD::TrackParticleContainer> EL;
     std::vector<EL> trackParticleLinks;
     trackParticleLinks.reserve (trkMatches.size());
@@ -189,7 +151,6 @@ StatusCode EMTrackMatchBuilder::trackExecute(const EventContext& ctx, egammaRec*
     }
     eg->setTrackParticles(trackParticleLinks);
   }
-  ATH_MSG_DEBUG("================================================");  
 
   return StatusCode::SUCCESS;
 }
@@ -221,8 +182,6 @@ EMTrackMatchBuilder::inBroadWindow(const EventContext& ctx,
   std::vector<double>  deltaPhi(4, -999.0);    
   std::vector<double>  deltaEtaRes(4, -999.0);
   std::vector<double>  deltaPhiRes(4, -999.0); 
-  ATH_MSG_DEBUG("### Matching #### ");  
-
   /*
    * Try both from perigee
    * and from perigee Rescale.
@@ -411,51 +370,57 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*  cluster,
                                       bool                      flip) const
 {
   // loose cluster-track matching
-  if ( m_useCandidateMatch ) {
-    ATH_MSG_DEBUG("EMTrackMatch builder , broad window");
-    if (cluster == 0 || track == 0) return false;
-    //////
-    const Trk::Perigee candidatePerigee =track->perigeeParameters();
-    double trkPhi = candidatePerigee.parameters()[Trk::phi];
-    double trkEta = candidatePerigee.eta();
-    //Decide whether to try the opposite direction (cosmics)
-    if(flip) {trkPhi = -trkPhi; trkEta = -trkEta;}
-    double r_first=candidatePerigee.position().perp();
-    double z_first=candidatePerigee.position().z();
-    //===========================================================//     
-    double clusterEta=cluster->etaBE(2);
-    bool isEndCap= cluster->inEndcap();
-    double Et= cluster->e()/cosh(trkEta);
-    
-    double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
-    double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
-    double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
-    
-    double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
-    double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
-    double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
-    double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
-    double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
-    
-    //check eta match . Both metrics need to fail in order to disgard the track
-    if ( (fabs(cluster->etaBE(2) - trkEta) > 2.*m_broadDeltaEta) && 
-         (fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta)){
-      ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
-                    << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
-      return false;
-    }
-    //It has to fail all metrics in order to be disgarded
-    else if ( (fabs(deltaPhi2) > 2.*m_broadDeltaPhi) && 
-              (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) && 
-              (fabs(deltaPhiStd) > 2.*m_broadDeltaPhi) ){
-      ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
-                    << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
-      return false;
-    }
-    //if not false returned we end up here
+  if ( !m_useCandidateMatch ) {
     return true;
-  }//use candidate match   
-  return true; 
+  }
+  ATH_MSG_DEBUG("EMTrackMatch builder , broad window");
+ 
+  //Tracking
+  const Trk::Perigee candidatePerigee =track->perigeeParameters();
+  //Decide whether to try the opposite direction (cosmics)
+  const double trkPhi = (!flip) ? candidatePerigee.parameters()[Trk::phi] : -candidatePerigee.parameters()[Trk::phi];
+  const double trkEta = (!flip) ? candidatePerigee.eta() : -candidatePerigee.eta();
+  const double r_first=candidatePerigee.position().perp();
+  const double z_first=candidatePerigee.position().z();
+  
+  //Cluster variables
+  const double clusterEta=cluster->etaBE(2);
+  const bool isEndCap= cluster->inEndcap();
+  const double Et= cluster->e()/cosh(trkEta);
+  const double clusterPhi=cluster->phiBE(2);
+
+  //Avoid clusters with |eta| > 10 or Et less than 10 MeV
+  if(fabs(clusterEta)>10.0 || Et <10){
+    return false;
+  }
+ 
+  const double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
+  const double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
+  const double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
+    
+  const double deltaPhiStd = P4Helpers::deltaPhi(clusterPhi, trkPhi);
+  const double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
+  const double deltaPhi2 = P4Helpers::deltaPhi(clusterPhi, trkPhiCorr);
+  const double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
+  const double deltaPhi2Track = P4Helpers::deltaPhi(clusterPhi, trkPhiCorrTrack);
+    
+  //check eta match . Both metrics need to fail in order to disgard the track
+  if ( (fabs(clusterEta - trkEta) > 2.*m_broadDeltaEta) && 
+       (fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta)){
+    ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
+                  << trkEta << ", " << clusterEta <<", "<<etaclus_corrected<<")" );
+    return false;
+  }
+  //It has to fail all phi metrics in order to be disgarded
+  if ( (fabs(deltaPhi2) > 2.*m_broadDeltaPhi) && 
+       (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) && 
+       (fabs(deltaPhiStd) > 2.*m_broadDeltaPhi) ){
+    ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
+                  << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
+    return false;
+  }
+  //if not false returned we end up here
+  return true;
 }
 
 bool EMTrackMatchBuilder::TrackMatchSorter::operator()(const EMTrackMatchBuilder::TrackMatch& match1,

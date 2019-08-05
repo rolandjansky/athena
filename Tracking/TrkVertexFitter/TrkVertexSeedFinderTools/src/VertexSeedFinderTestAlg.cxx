@@ -9,6 +9,7 @@
  */
 
 
+#undef NDEBUG
 #include "VertexSeedFinderTestAlg.h"
 #include "StoreGate/WriteHandle.h"
 #include "TestTools/FLOATassert.h"
@@ -77,6 +78,39 @@ void assertVec3D (const char* which,
 }
 
 
+void dumpVector (const std::vector<float>& v)
+{
+  std::cerr << "  [";
+  for (float f : v) {
+    std::cerr << f << ", ";
+  }
+  std::cerr << "]\n";
+}
+void failVector (const char* which,
+                 const std::vector<float>& a,
+                 const std::vector<float>& b)
+{
+  std::cerr << "VertexSeedFinderTestAlg::assertVector mismatch " << which
+            << "\n";
+  dumpVector (a);
+  dumpVector (b);
+  std::abort();
+}
+void assertVector (const char* which,
+                   const std::vector<float>& a,
+                   const std::vector<float>& b)
+{
+  if (a.size() != b.size()) {
+    failVector (which, a, b);
+  }
+  for (size_t i=0; i < a.size(); i++) {
+    if (! Athena_test::isEqual (a[i], b[i], 1e-5) ) {
+      failVector (which, a, b);
+    }
+  }
+}
+
+
 } // anonymous namespace
 
 
@@ -130,6 +164,43 @@ StatusCode VertexSeedFinderTestAlg::execute()
 
     p = m_finder->findSeed (v1b);
     assertVec3D ("1b", p,  m_expected1);
+
+    if (!m_expected1PhiModes.empty()) {
+      std::vector<float> phi;
+      std::vector<float> r;
+      std::vector<float> z;
+      std::vector<float> w;
+      size_t sz = m_finder->getModes1d (phi, r, z, w);
+      assert (sz == phi.size());
+      assert (sz == r.size());
+      assert (sz == z.size());
+      assert (sz == w.size());
+      assertVector ("phiModes", phi, m_expected1PhiModes);
+      assertVector ("rModes",     r, m_expected1RModes);
+      assertVector ("zModes",     z, m_expected1ZModes);
+      assertVector ("weights",    w, m_expected1Weights);
+    }
+
+    if (!m_expected1Indices.empty()) {
+      std::vector<const Trk::TrackParameters*> p;
+      size_t sz = m_finder->perigeesAtSeed (&p, v1a);
+      assert (sz == p.size());
+      std::vector<int> ndx;
+      for (const Trk::TrackParameters* pp : p) {
+        auto it = std::find (v1a.begin(), v1a.end(), pp);
+        assert (it != v1a.end());
+        ndx.push_back (it - v1a.begin());
+      }
+      assert (ndx == m_expected1Indices);
+    }
+
+    if (!m_expected1CorrDist.empty()) {
+      double cXY = 0;
+      double cZ = 0;
+      m_finder->getCorrelationDistance (cXY, cZ);
+      assert (Athena_test::isEqual (cXY, m_expected1CorrDist[0], 1e-5));
+      assert (Athena_test::isEqual (cZ, m_expected1CorrDist[1], 1e-5));
+    }
   }
 
   xAOD::Vertex vert1;

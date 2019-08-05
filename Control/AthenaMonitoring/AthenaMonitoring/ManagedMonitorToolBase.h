@@ -38,6 +38,10 @@ class TH1;
 class TH2;
 class TTree;
 class ITHistSvc;
+class TEfficiency;
+namespace Trig {
+   class ITrigDecisionTool;
+}
 class IDQFilterTool;
 
 #include <cctype>
@@ -48,6 +52,7 @@ class IDQFilterTool;
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
+#include "TEfficiency.h"
 //#include "../src/AthMonBench.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
@@ -182,6 +187,13 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
             StatusCode getHist( TH2*& h, const std::string& hName );
 
 
+            /**
+             * Registers a TEfficiency to be included in the output stream.
+             */
+
+            StatusCode regEfficiency( TEfficiency* e );
+
+	    
             /**
              * Registers a TGraph to be included in the output stream
              * using logical parameters that describe the histogram.  The optional 'dqmAlgorithm'
@@ -535,6 +547,14 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
 
       /**
+       * Registers a TEfficiency to be included in the output stream
+       * using logical parameters that describe the plot.
+       */
+      virtual StatusCode regEfficiency( TEfficiency* e, const MonGroup& group );
+
+
+
+      /**
        * Registers a TGraph to be included in the output stream
        * using logical parameters that describe the graph.
        */
@@ -718,6 +738,10 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
       std::map< Interval_t, std::vector< MgmtParams<LWHist> > > m_templateLWHistograms;
       // Runs over the vector of managed histograms and register them (just a helper method).
       StatusCode regManagedLWHistograms(std::vector< MgmtParams<LWHist> >& templateLWHistograms);
+
+      std::map< Interval_t, std::vector< MgmtParams<TEfficiency> > > m_templateEfficiencies;
+      // Runs over the vector of managed graphs, register clonned graph and saves it to a file.
+      StatusCode regManagedEfficiencies(std::vector< MgmtParams<TEfficiency> >& templateEfficiencies);
 
       std::vector<std::string> m_vTrigChainNames, m_vTrigGroupNames;
       StatusCode parseList(const std::string&, std::vector<std::string>&);

@@ -39,8 +39,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
         stgcTable = None
         ftkTable  = None       
       
-        self.WriteTables = True
-
         from AthenaCommon.DetFlags import DetFlags
 
         if DetFlags.detdescr.ID_on():

@@ -12,16 +12,27 @@ desc = 'Tool to check for error messages in a log file. By default ERROR, FATAL 
 provide patterns of lines to exclude from this check - known problems or false positives. \
 If no config file is provided, all errors will be shown.'
 
-epilogue = 'Note that at least one of errors and warnings must be true, otherwise there is nothing to search for.\
-    Using --errors will disable errors.'
-
 errorRegex = ["^ERROR | ERROR | FATAL |CRITICAL |ABORT_CHAIN",
-"^Exception\:|^Caught signal|^Core dump|Traceback|Shortened traceback|stack trace|^Algorithm stack\:|IncludeError|ImportError|AttributeError|inconsistent use of tabs and spaces in indentation\
+"^Exception\:|^Caught signal|^Core dump|Traceback|Shortened traceback|stack trace|^Algorithm stack\:|inconsistent use of tabs and spaces in indentation\
 |glibc detected|tcmalloc\: allocation failed|athenaHLT.py\: error|There was a crash|illegal instruction"]
+
+#Get list of all builtin Python errors 
+builtins = dir(locals()['__builtins__'])
+pythonErrors = ""
+for builtin in builtins:
+    if "Error" in builtin:
+        pythonErrors += builtin + "|"
+
+#Remove final "|"
+pythonErrors = pythonErrors[:-1]
+
+errorRegex.append(pythonErrors)
+
+      
 
 traceback = ['Traceback|Shortened traceback|^Algorithm stack|Thread .*0x']
 
-warningRegex = ['WARNING']
+warningRegex = ['WARNING ']
 
 def main():
     parseOptions()
@@ -30,7 +41,7 @@ def main():
     printResults()
 
 def parseOptions():
-    parser = argparse.ArgumentParser(description=desc, epilog=epilogue)
+    parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('logfile',metavar='<logfile>')
     parser.add_argument('--config',
     metavar='<file>',
@@ -45,12 +56,12 @@ def parseOptions():
     parser.add_argument('--warnings',
     action = 'store_true',
     default = False,
-    help ='check in addition for WARNING messages (default False)'
+    help ='check for WARNING messages'
     )
     parser.add_argument('--errors',
-    action = 'store_false',
-    default = True,
-    help = 'check errors (default true)'
+    action = 'store_true',
+    default = False,
+    help = 'check errors'
     )
     global args
     args = parser.parse_args()
@@ -88,27 +99,27 @@ def scanLogfile():
     global msgLevels
     global logFileAddress
     if args.warnings == True:
-        pattern.extend(warningRegex)
+        pattern = warningRegex
     if args.errors == True:
-        pattern.extend(errorRegex)
+        pattern = errorRegex
     msgLevels = re.compile('|'.join(pattern))
     igLevels = re.compile('|'.join(ignorePattern))
     logFileAddress = args.logfile
-    try:
-        with open(logFileAddress,'r') as logFile:
-            tracing = False
-            for line in logFile:
-                if re.search(tPattern,line):
-                    tracing = True
-                    resultsA.append('\n')
-                elif line =='\n':
-                    tracing = False
-                if re.search(msgLevels,line):
-                    resultsA.append(line)
-                elif tracing:
-                    resultsA.append(line)
-    except:
-        sys.exit(2)
+    with open(logFileAddress,'r') as logFile:
+        tracing = False
+        for line in logFile:
+            #Tracing only makes sense for errors
+            if args.errors == True and re.search(tPattern,line):
+            #if re.search(tPattern,line):
+                tracing = True
+                resultsA.append('\n')
+            elif line =='\n':
+                tracing = False
+            if re.search(msgLevels,line):
+                resultsA.append(line)
+            elif tracing:
+                resultsA.append(line)
+
     if args.showexcludestats and not noConfig:
         separateIgnoreRegex = [re.compile(line) for line in ignorePattern]
         global ignoreDict
@@ -136,7 +147,7 @@ def printResults():
             if ignoreDict[s] > 0:
                 print(str(ignoreDict[s]) + "x " + s)
         print('\n')
-    print('Found ' + str(len(results)) + ' messages in ' + logFileAddress)
+    print('Found messages in ' + logFileAddress + ' (' + str(len(results)) + '):')
     if len(results) > 0:
         for msg in results: print(msg.strip('\n'))
         print("FAILURE : error/fatal found in " + logFileAddress)

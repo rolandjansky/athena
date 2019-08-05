@@ -58,6 +58,14 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/StoreGateTestCommon.txt )
 
 # Configuration tests
+atlas_add_test( PixelOverlayConfig_test
+                SCRIPT test/PixelOverlayConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
 atlas_add_test( SCTOverlayConfig_test
                 SCRIPT test/SCTOverlayConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
+atlas_add_test( TRTOverlayConfig_test
+                SCRIPT test/TRTOverlayConfig_test.py
                 PROPERTIES TIMEOUT 300 )

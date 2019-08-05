@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -529,8 +529,9 @@ StatusCode VFitZmmOnAOD::zmm_on_aod() {
       myMuonMasses.push_back(mMuon);
 
       // vertex contrained to the primary vertex
-      m_VKVrtFitter->setVertexForConstraint(primaryVtx);
-      m_VKVrtFitter->setMassInputParticles(myMuonMasses);
+      std::unique_ptr<Trk::IVKalState> state = m_VKVrtFitter->makeState();
+      m_VKVrtFitter->setVertexForConstraint(primaryVtx, *state);
+      m_VKVrtFitter->setMassInputParticles(myMuonMasses, *state);
 
       // define variables returned by the vertex fit
       Amg::Vector3D retVtxPos;
@@ -543,7 +544,7 @@ StatusCode VFitZmmOnAOD::zmm_on_aod() {
       double  invMass_VKFit=0;
       double dxy_vk=0, dz_vk=0;
 
-      sc = m_VKVrtFitter->VKalVrtFit(myTrackBases, retVtxPos,retMom4,retQ,errMatrix,chi2PerTrk,trkAtVrt,fitChi2_vk);
+      sc = m_VKVrtFitter->VKalVrtFit(myTrackBases, retVtxPos,retMom4,retQ,errMatrix,chi2PerTrk,trkAtVrt,fitChi2_vk,*state);
       
       if (sc.isSuccess()) {
          invMass_VKFit = retMom4.M();

@@ -12,15 +12,15 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 // ACTS
-#include "Acts/Detector/TrackingGeometry.hpp"
-#include "Acts/Tools/ITrackingVolumeBuilder.hpp"
-#include "Acts/Tools/LayerArrayCreator.hpp"
-#include "Acts/Tools/SurfaceArrayCreator.hpp"
-#include "Acts/Tools/LayerCreator.hpp"
-#include "Acts/Tools/TrackingVolumeArrayCreator.hpp"
-#include "Acts/Tools/CylinderVolumeHelper.hpp"
-#include "Acts/Tools/TrackingGeometryBuilder.hpp"
-#include "Acts/Tools/CylinderVolumeBuilder.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
+#include "Acts/Geometry/ITrackingVolumeBuilder.hpp"
+#include "Acts/Geometry/LayerArrayCreator.hpp"
+#include "Acts/Geometry/SurfaceArrayCreator.hpp"
+#include "Acts/Geometry/LayerCreator.hpp"
+#include "Acts/Geometry/TrackingVolumeArrayCreator.hpp"
+#include "Acts/Geometry/CylinderVolumeHelper.hpp"
+#include "Acts/Geometry/TrackingGeometryBuilder.hpp"
+#include "Acts/Geometry/CylinderVolumeBuilder.hpp"
 #include "Acts/ActsVersion.hpp"
 
 // PACKAGE

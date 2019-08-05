@@ -1,16 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcsimrecAthenaSvc_H
-#define AmdcsimrecAthenaSvc_H
+#ifndef AMDCATH_AMDCSIMRECATHENASVC_H
+#define AMDCATH_AMDCSIMRECATHENASVC_H
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class StoreGateSvc;
 
-class ITagInfoMgr;
 class IGeoModelSvc;
 
 namespace MuonGM {
@@ -89,11 +88,6 @@ public:
                                const AmdcBlineStore*& pAmdcBlineStore ,
                                const AmdcIlineStore*& pAmdcIlineStore
                               );
-
-   /**Set and Get TagInfoXML */
-   StatusCode SetTagInfoXML(IOVSVC_CALLBACK_ARGS);
-   int GetTagInfoXMLStamp();
-   std::vector< std::pair<std::string,std::string> > GetTagInfoXML();
 
    /**Get AGDD2GeoSwitches data*/
    int GetAGDD2GeoSwitchesStamp();
@@ -231,11 +225,6 @@ private:
 //Xtomo check
     int m_XtomoCheck ; //!< Optional Check of Xtomo stuff
     void TestXtomoStuff();
-
-//Tag Info 
-    ITagInfoMgr*  p_ITagInfoMgr ; //!< Pointer On ITagInfoMgr
-    int m_TagInfoXMLStamp   ; //!< Volatility Status
-    std::vector< std::pair<std::string,std::string> > m_TagInfoXML  ; //!< Store infos from TagInfo
 
 //AGDD2GeoSwitches Data
     int m_AGDD2GeoSwitchesStamp   ; //!< Volatility Status

@@ -1,7 +1,7 @@
 // dear emacs this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -161,7 +161,7 @@ struct instantiate_dataelementlink;
 template<typename C>
 struct instantiate_dataelementlink<C,true>{
   static void do_it(){
-  __attribute__((__unused__))
+    [[maybe_unused]]
     bool (HLT::NavigationCore::*temp)(const HLT::TriggerElement*,DataLink<C>& link,
 				      const std::string&, const HLT::TriggerElement*&, std::string&);
   temp = &HLT::NavigationCore::getRecentFeatureDataOrElementLink<DataLink<C> >;  
@@ -172,7 +172,7 @@ struct instantiate_dataelementlink<C,true>{
 template<typename C>
 struct instantiate_dataelementlink<C,false>{
   static void do_it(){
-    __attribute__((__unused__))
+    [[maybe_unused]]
     bool (HLT::NavigationCore::*temp)(const HLT::TriggerElement*,ElementLink<C>& link,
 				      const std::string&, const HLT::TriggerElement*&, std::string&);
   temp = &HLT::NavigationCore::getRecentFeatureDataOrElementLink<ElementLink<C> >;
@@ -185,18 +185,18 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
   HLT::TypeMaps::registerFeatureContainer<T, C>();
 
   //  staements below force generation of the specializations for the methods
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::Navigation::*temp_attachFeature)( TriggerElement*, const T*,
 					       Navigation::MemoryManagement, std::string&, const std::string&  );
   temp_attachFeature = &HLT::Navigation::attachFeature<T>;
 
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::Navigation::*temp_associateExternalCollection)( const std::string& );
   temp_associateExternalCollection = &HLT::Navigation::associateExternalCollection<T>;
 
 
 
-  __attribute__((__unused__))
+  [[maybe_unused]]
     typename acquire_attachFeatureConstDV<T, std::is_same<T,C>::value && ConstDVCompatible<T>::value>::type temp_attachFeatureConstDV;
   temp_attachFeatureConstDV = acquire_attachFeatureConstDV<T,
 							   std::is_same<T,C>::value && 
@@ -208,61 +208,61 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
 
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getFeatures)( const TriggerElement*, std::vector< const T*>&, 
 					     const std::string&, std::map<const T*, std::string>* );
   temp_getFeatures = &HLT::NavigationCore::getFeatures<T>;
 
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getFeature)( const TriggerElement*, const T*&, const std::string&, std::string&);
   temp_getFeature = &HLT::NavigationCore::getFeature<T>;
 
 
   //const T* (HLT::NavigationCore::*temp_featureLink2Object)( const TrigFeatureLink& ); 
-  __attribute__((__unused__))
+  [[maybe_unused]]
   typename FeatureLinkMethods<T>::fl2o temp_featureLink2Object;
   temp_featureLink2Object = acquire_featureLinkToObject<T, std::is_same<T, C>::value>::do_it();//&HLT::NavigationCore::featureLink2Object<T>;
     
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   typename FeatureLinkMethods<T>::o2fl_1 temp_object2FeatureLink;
   temp_object2FeatureLink = acquire_object2FeatureLink1<T, std::is_same<T, C>::value>::do_it();
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   typename FeatureLinkMethods2<C>::o2fl_2 temp_object2FeatureLink2;
   temp_object2FeatureLink2 = acquire_object2FeatureLink2<C, std::is_same<T, C>::value>::do_it();
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getRecentFeatures)( const TriggerElement*, 
 			  std::vector< const T*>&, const std::string&, 
 			  std::map<const T*, std::string>*  );
   temp_getRecentFeatures = &HLT::NavigationCore::getRecentFeatures<T>;
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getRecentFeature)( const TriggerElement*, 
 						  const T*&, const std::string&, const TriggerElement*&, std::string& );
   temp_getRecentFeature = &HLT::NavigationCore::getRecentFeature<T>;
 
 
-  __attribute__((__unused__))
+  [[maybe_unused]]
     typename acquire_getRecentFeatureConstDV<T, std::is_same<T,C>::value and canTransfer<C>::value >::type temp_getRecentFeatureConstDV;
   temp_getRecentFeatureConstDV = acquire_getRecentFeatureConstDV<T, std::is_same<T,C>::value and canTransfer<C>::value>::do_it();
   
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getRecentFeaturesLinks)( const TriggerElement*,
 							ElementLinkVector<C>&, const std::string&  );  
   temp_getRecentFeaturesLinks = &HLT::NavigationCore::getRecentFeaturesLinks<C,T>;
 
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getRecentFeatureLink)( const TriggerElement*,
 						      ElementLink<C>&, const std::string&, const TriggerElement*&, std::string& );
   temp_getRecentFeatureLink = &HLT::NavigationCore::getRecentFeatureLink<C,T>;
@@ -272,30 +272,30 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
   instantiate_dataelementlink<C,std::is_same<T,C>::value >::do_it();
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getFeaturesInRoI)( const TriggerElement*,  std::vector<const T*>&, 
 						      const std::string&, std::map<const T*, std::string>* );
   temp_getFeaturesInRoI = &HLT::NavigationCore::getFeaturesInRoI<T>;
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::NavigationCore::*temp_getAllFeatures)(ElementLinkVector<C>&, const std::string& );
   temp_getAllFeatures = &HLT::NavigationCore::getAllFeatures<C,T>; 
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   bool (HLT::Navigation::*temp_findOwners)(const T*, std::vector<const TriggerElement*>&, unsigned int);
   temp_findOwners = &HLT::Navigation::findOwners<T>;
 
   //
   typedef const std::string const_string;
-  __attribute__((__unused__))
+  [[maybe_unused]]
   const_string (HLT::Navigation::*temp_getNextKey)( const std::string& );
   temp_getNextKey = &HLT::Navigation::getNextKey<T>;
 
 
   //
-  __attribute__((__unused__))
+  [[maybe_unused]]
   const_string (HLT::Navigation::*temp_getUniqueKey)( const std::string&);
   temp_getUniqueKey = &HLT::Navigation::getUniqueKey<T>;
 

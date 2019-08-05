@@ -32,7 +32,7 @@ def SCT_LastXing():
 
 def SCT_ItemList():
     """Return list of item names needed for SCT output"""
-    return ["InDet::SiClusterContainer#*", "SCT_RDO_Container#*"]
+    return ["InDetSimDataCollection#*", "SCT_RDO_Container#*"]
 
 def SCT_DigitizationCommonCfg(flags, name="SCT_DigitizationToolCommon", **kwargs):
     """Return a ComponentAccumulator with common SCT digitization tool config"""
@@ -234,19 +234,23 @@ def SCT_DigitizationBasicCfg(toolCfg, flags, name="SCT_DigitizationBasic", **kwa
     acc.addEventAlgo(SCT_Digitization(name, **kwargs))
     return acc
 
-def SCT_DigitizationCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
+def SCT_DigitizationOutputCfg(toolCfg, flags, name="SCT_Digitization", **kwargs):
     """Return a ComponentAccumulator with toolCfg type SCT digitization and Output"""
     acc = SCT_DigitizationBasicCfg(toolCfg, flags, name, **kwargs)
     acc.merge(OutputStreamCfg(flags, "RDO", SCT_ItemList()))
     return acc
 
+def SCT_DigitizationCfg(flags, name="SCT_Digitization", **kwargs):
+    """Return a ComponentAccumulator with standard SCT digitization"""
+    return SCT_DigitizationOutputCfg(SCT_DigitizationToolCfg, flags, name, **kwargs)
+
 def SCT_DigitizationHSCfg(flags, name="SCT_DigitizationHS", **kwargs):
-    """Return a ComponentAccumulator with Hard Scatter SCT digitization"""
-    return SCT_DigitizationCfg(SCT_DigitizationToolHSCfg, flags, name, **kwargs)
+    """Return a ComponentAccumulator with Hard Scatter-only SCT digitization"""
+    return SCT_DigitizationOutputCfg(SCT_DigitizationToolHSCfg, flags, name, **kwargs)
 
 def SCT_DigitizationPUCfg(flags, name="SCT_DigitizationPU", **kwargs):
-    """Return a ComponentAccumulator with PileUp SCT digitization"""
-    return SCT_DigitizationCfg(SCT_DigitizationToolPUCfg, flags, name, **kwargs)
+    """Return a ComponentAccumulator with Pile-up-only SCT digitization"""
+    return SCT_DigitizationOutputCfg(SCT_DigitizationToolPUCfg, flags, name, **kwargs)
 
 def SCT_DigitizationOverlayCfg(flags, name="SCT_OverlayDigitization", **kwargs):
     """Return a ComponentAccumulator with Overlay SCT digitization"""

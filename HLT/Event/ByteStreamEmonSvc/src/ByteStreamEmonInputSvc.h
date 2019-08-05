@@ -13,14 +13,14 @@
 */
 
 // Include files.
+
+#include "emon/EventIterator.h"
+
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
-
-// To avoid compiler warning
-#include "emon/EventIterator.h"
 
 #include <vector>
 #include <stdint.h>

@@ -155,7 +155,7 @@ namespace Trk{
 */ 
 //Old logics. Left here for reference to compare with previous releases of VKalVrt
 //
-  void TrkVKalVrtFitter::setCnstType(int TYPE)
+  void TrkVKalVrtFitter::setCnstType(int TYPE, IVKalState& /*istate*/)
   { if(TYPE>0)msg(MSG::DEBUG)<< "ConstraintType is changed at execution stage. New type="<<TYPE<< endmsg;
     if(TYPE<0)TYPE=0;
     if(TYPE>14)TYPE=0;
@@ -194,31 +194,35 @@ namespace Trk{
 // Define finctions for on-the-fly fitter configuration 
 //
 //
-  void TrkVKalVrtFitter::setApproximateVertex(double X,double Y,double Z)
+  void TrkVKalVrtFitter::setApproximateVertex(double X,double Y,double Z,
+                                              IVKalState& /*istate*/)
   {  m_ApproximateVertex.clear(); m_ApproximateVertex.reserve(3);
      m_ApproximateVertex.push_back(X);
      m_ApproximateVertex.push_back(Y);
      m_ApproximateVertex.push_back(Z);
   }
   
-  void TrkVKalVrtFitter::setRobustness(int IROB)
+  void TrkVKalVrtFitter::setRobustness(int IROB, IVKalState& /*istate*/)
   { if(IROB>0)msg(MSG::DEBUG)<< "Robustness is changed at execution stage "<<m_Robustness<<"=>"<<IROB<< endmsg;
     m_Robustness = IROB;
     if(m_Robustness<0)m_Robustness=0;
     if(m_Robustness>7)m_Robustness=0;
   }
 
-  void TrkVKalVrtFitter::setRobustScale(double Scale)
+  void TrkVKalVrtFitter::setRobustScale(double Scale, IVKalState& /*istate*/)
   { if(Scale!=m_RobustScale)msg(MSG::DEBUG)<< "Robust Scale is changed at execution stage "<<m_RobustScale<<"=>"<<Scale<< endmsg;
     m_RobustScale = Scale;
     if(m_RobustScale<0.01) m_RobustScale=1.;
     if(m_RobustScale>100.) m_RobustScale=1.;
   }
 
-  void TrkVKalVrtFitter::setMassForConstraint(double MASS)
+  void TrkVKalVrtFitter::setMassForConstraint(double MASS,
+                                              IVKalState& /*istate*/)
   { m_massForConstraint = MASS;}
 
-  void TrkVKalVrtFitter::setMassForConstraint(double MASS, std::vector<int> TrkIndex)
+  void TrkVKalVrtFitter::setMassForConstraint(double MASS,
+                                              const std::vector<int>& TrkIndex,
+                                              IVKalState& /*istate*/)
   { m_partMassCnst.push_back(MASS);
     m_partMassCnstTrk.push_back(TrkIndex);
   }
@@ -240,7 +244,8 @@ namespace Trk{
     m_IterationPrecision = Prec;
   }
 
-  void TrkVKalVrtFitter::setVertexForConstraint(const xAOD::Vertex & Vrt)
+  void TrkVKalVrtFitter::setVertexForConstraint(const xAOD::Vertex & Vrt,
+                                                IVKalState& /*istate*/)
   {  m_VertexForConstraint.clear();
      m_VertexForConstraint.push_back(Vrt.position().x());
      m_VertexForConstraint.push_back(Vrt.position().y());
@@ -255,7 +260,8 @@ namespace Trk{
      m_CovVrtForConstraint.push_back(Vrt.covariancePosition()(Trk::z,Trk::z));			  
   }
 
-  void TrkVKalVrtFitter::setVertexForConstraint(double X,double Y,double Z)
+  void TrkVKalVrtFitter::setVertexForConstraint(double X,double Y,double Z,
+                                                IVKalState& /*istate*/)
   {  m_VertexForConstraint.clear();
      m_VertexForConstraint.push_back(X);
      m_VertexForConstraint.push_back(Y);
@@ -263,7 +269,8 @@ namespace Trk{
   }
 
   void TrkVKalVrtFitter::setCovVrtForConstraint(double XX,double XY,double YY,
-                                             double XZ,double YZ,double ZZ)
+                                                double XZ,double YZ,double ZZ,
+                                                IVKalState& /*istate*/)
   {  m_CovVrtForConstraint.clear();
      m_CovVrtForConstraint.push_back(XX);			  
      m_CovVrtForConstraint.push_back(XY);			  
@@ -273,7 +280,8 @@ namespace Trk{
      m_CovVrtForConstraint.push_back(ZZ);
   }			  
 
-  void TrkVKalVrtFitter::setMassInputParticles( const std::vector<double>& mass)
+  void TrkVKalVrtFitter::setMassInputParticles( const std::vector<double>& mass,
+                                                IVKalState& /*istate*/)
   { m_MassInputParticles.clear();
     for(int i=0; i<(int)mass.size(); i++) m_MassInputParticles.push_back(fabs(mass[i]));
   }

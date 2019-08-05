@@ -12,9 +12,9 @@ from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
-from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationHSCfg
-from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationHSCfg
-from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationHSCfg
+from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
+from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
+from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
 from MDT_Digitization.MDT_DigitizationConfigNew import MDT_DigitizerCfg
 from TGC_Digitization.TGC_DigitizationConfigNew import TGC_DigitizerCfg
 from RPC_Digitization.RPC_DigitizationConfigNew import RPC_DigitizerCfg
@@ -38,9 +38,9 @@ ConfigFlags.lock()
 acc = MainServicesSerialCfg()
 acc.merge(PoolReadCfg(ConfigFlags))
 acc.merge(BCM_DigitizationCfg(ConfigFlags))
-acc.merge(SCT_DigitizationHSCfg(ConfigFlags))
-acc.merge(TRT_DigitizationHSCfg(ConfigFlags))
-acc.merge(PixelDigitizationHSCfg(ConfigFlags))
+acc.merge(SCT_DigitizationCfg(ConfigFlags))
+acc.merge(TRT_DigitizationCfg(ConfigFlags))
+acc.merge(PixelDigitizationCfg(ConfigFlags))
 acc.merge(MDT_DigitizerCfg(ConfigFlags))
 acc.merge(TGC_DigitizerCfg(ConfigFlags))
 acc.merge(RPC_DigitizerCfg(ConfigFlags))

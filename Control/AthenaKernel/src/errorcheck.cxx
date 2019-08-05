@@ -128,6 +128,26 @@ std::string munge_names (const std::string& str_in)
   return s;
 }
 
+/**
+ * @brief Shorten filename
+ * @param file The full file path
+ * @param pkg The package name (with optional version)
+ *
+ * @return Returns the file path starting from the package name
+ */
+std::string munge_filename (const std::string& file, const std::string& pkg)
+{
+  // Extract package name in case there is a version (MyPackage-00-00-00)
+  const std::string p = pkg.substr(0, pkg.find("-"));
+  if (!p.empty()) {
+    // Find package name in path and remove any leading entries
+    std::string::size_type ipos = file.find("/"+p+"/");
+    if (ipos != std::string::npos) {
+      return file.substr(ipos+1, std::string::npos);
+    }
+  }
+  return file;
+}
 
 
 /**
@@ -136,6 +156,7 @@ std::string munge_names (const std::string& str_in)
  * @param line The source line from which the report is being made.
  * @param file The source file name from which the report is being made.
  * @param func The name of the function from which the report is being made.
+ * @param pkg The name of the package from which the report is being made.
  * @param context The name of the context (algorithm/tool/service/etc.)
  *                from which the report is being made.
  * @param sc The @c StatusCode to include in the error message.
@@ -144,12 +165,13 @@ ReportMessage::ReportMessage (MSG::Level level,
                               int line,
                               const char* file,
                               const char* func,
+                              const char* pkg,
                               const std::string& context,
                               StatusCode sc)
   : MsgStream (Athena::getMessageSvc(), context)
 {
   // The common part.
-  format_common (level, line, file, func);
+  format_common (level, line, file, func, pkg);
 
   // The status code.
   *this << ": code " << sc;
@@ -168,6 +190,7 @@ ReportMessage::ReportMessage (MSG::Level level,
  * @param line The source line from which the report is being made.
  * @param file The source file name from which the report is being made.
  * @param func The name of the function from which the report is being made.
+ * @param pkg The name of the package from which the report is being made.
  * @param context The name of the context (algorithm/tool/service/etc.)
  *                from which the report is being made.
  */
@@ -175,11 +198,12 @@ ReportMessage::ReportMessage (MSG::Level level,
                               int line,
                               const char* file,
                               const char* func,
+                              const char* pkg,
                               const std::string& context)
   : MsgStream (Athena::getMessageSvc(), context)
 {
   // The common part.
-  format_common (level, line, file, func);
+  format_common (level, line, file, func, pkg);
 
   // Remember the end of the header.
   m_pos = stream().str().size();
@@ -192,11 +216,13 @@ ReportMessage::ReportMessage (MSG::Level level,
  * @param line The source line from which the report is being made.
  * @param file The source file name from which the report is being made.
  * @param func The name of the function from which the report is being made.
+ * @param pkg The name of the package from which the report is being made.
  */
 void ReportMessage::format_common (MSG::Level level,
                                    int line,
                                    const char* file,
-                                   const char* func)
+                                   const char* func,
+                                   const char* pkg)
 {
   // Logging level.
   *this << level;
@@ -204,8 +230,12 @@ void ReportMessage::format_common (MSG::Level level,
   // Write the source file/line.
   if (s_hide_error_locus)
     *this << "FILE:LINE";
-  else
-    *this << file << ":" << line;
+  else {
+    if (pkg && pkg[0] != '\0')
+      *this << munge_filename(file, pkg) << ":" << line;
+    else
+      *this << file << ":" << line;
+  }
 
   // Include the function name if available.
   if (s_hide_function_names)

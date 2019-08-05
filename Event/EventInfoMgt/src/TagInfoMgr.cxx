@@ -740,20 +740,12 @@ TagInfoMgr::handle(const Incident& inc) {
         }
         m_log << MSG::DEBUG << "Retrieved tag info " << endmsg;
 
-        // NOTE: registerTagInfoCallback for IOVDbSvc actually causes
-        // the IOVDbSvc to go and fetch the TagInfo, rather than just
-        // setting a callback. This is needed for now because the
-        // IOVDbSvc must be initialized first. RDS 2006/09
-
-        // Request IOVDbSvc to register call back for TagInfo. This needs
-        // to be done here because IOVDbSvc::initialize cannot - it is
-        // called too early from the ProxyProviderSvc.
-        // Get the IOVDbSvc
-        if (m_iovDbSvc->registerTagInfoCallback().isFailure() ) {
-            m_log << MSG::ERROR << "handle: Unable register IOVDbSvc callback" << endmsg;
+	// Process TagInfo by IOVDbSvc
+        if (m_iovDbSvc->processTagInfo().isFailure() ) {
+            m_log << MSG::ERROR << "handle: Unable process TagInfo by IOVDbSvc" << endmsg;
         }
         else {
-            if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "handle: Requested IOVDbSvc to register callback" << endmsg;
+            if (m_log.level() <= MSG::DEBUG) m_log << MSG::DEBUG << "handle: TagInfo successfully processed by IOVDbSvc to register callback" << endmsg;
         }
     }
     else if (inc.type() == IncidentType::BeginRun) {

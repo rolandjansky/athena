@@ -79,7 +79,7 @@ private:
   ServiceHandle<StoreGateSvc> m_storeGateFastCalo;
   PileUpMergeSvc *m_pMergeSvc;
 
-  const DataHandle<ILArfSampl>   m_dd_fSampl;
+  SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
   const TileInfo *m_tileInfo;
   const LArEM_ID *m_larEmID;
   const LArFCAL_ID *m_larFcalID;

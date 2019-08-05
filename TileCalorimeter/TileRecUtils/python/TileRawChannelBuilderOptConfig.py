@@ -26,7 +26,7 @@ def TileRawChannelBuilderOpt2FilterCfg(flags, **kwargs):
     name = 'TileRawChannelBuilder' + method
     kwargs.setdefault('Name', name)
 
-    from TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
+    from TileRecUtils.TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
     acc = TileRawChannelBuilderCfg(flags, **kwargs)
     tileRawChannelBuilderOpt = acc.getPrimary()
 

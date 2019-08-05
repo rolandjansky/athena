@@ -512,7 +512,7 @@ template< typename trigType >
 void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
                                         const Trig::FeatureContainer& featureContainer,
                                         bool onlyPassedFeatures,
-                                        const TrigMatch::DirectAttached* ) {
+                                        const TrigMatch::DirectAttached* ) const {
 
    const std::vector< Trig::Feature< trigType > > trigFeatures =
       featureContainer.get< trigType >( m_featureLabel, 
@@ -539,7 +539,7 @@ template< typename trigType, typename contType >
 void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
                                         const Trig::FeatureContainer& featureContainer,
                                         bool onlyPassedFeatures,
-                                        const contType* ) {
+                                        const contType* ) const {
 
    // collect the container features from the navigation
    std::vector< const contType* > contObjects;
@@ -564,7 +564,7 @@ template< typename trigType >
 void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
                                         const Trig::FeatureContainer& featureContainer,
                                         bool onlyPassedFeatures,
-                                        const TrigMatch::AncestorAttached* ) {
+                                        const TrigMatch::AncestorAttached* ) const {
 
    // first, try to grab them straight from the TDT
    const typename TrigMatch::DirectAttached* directAttached = 0;

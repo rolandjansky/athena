@@ -191,7 +191,7 @@ def PFCfg(inputFlags,**kwargs):
     
     #Setup up tracking geometry
     from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
+    acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
     
     #load folders needed for Run2 ID alignment

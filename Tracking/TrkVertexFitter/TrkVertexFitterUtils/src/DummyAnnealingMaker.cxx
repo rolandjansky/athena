@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -11,37 +11,33 @@
 namespace Trk
 {
   
-  DummyAnnealingMaker::DummyAnnealingMaker(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p)
-  {   
-    declareInterface<IVertexAnnealingMaker>(this);
-  }
-
-  DummyAnnealingMaker::~DummyAnnealingMaker() {}
-
   StatusCode DummyAnnealingMaker::initialize() 
   { 
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
+    ATH_MSG_DEBUG( "Initialize successful"  );
     return StatusCode::SUCCESS;
   }
 
   StatusCode DummyAnnealingMaker::finalize() 
   {
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
+    ATH_MSG_DEBUG( "Initialize successful"  );
     return StatusCode::SUCCESS;
   }
 
-  void DummyAnnealingMaker::reset() {
+  void DummyAnnealingMaker::reset(AnnealingState& state) const {
+    state = 0;
   }
 
-  void DummyAnnealingMaker::anneal() {
+  void DummyAnnealingMaker::anneal(AnnealingState& /*state*/) const {
   }
 
-  double DummyAnnealingMaker::getWeight(double /* chisq */) const {
+  double DummyAnnealingMaker::getWeight(const AnnealingState& /*state*/,
+                                        double /* chisq */) const {
     return 0.5;
   }
 
-  double DummyAnnealingMaker::getWeight(double /* chisq */ ,const std::vector<double>& /* allchisq */) const {
+  double DummyAnnealingMaker::getWeight(const AnnealingState& /*state*/,
+                                        double /* chisq */,
+                                        const std::vector<double>& /* allchisq */) const {
     return 0.5;
   }
 

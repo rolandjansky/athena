@@ -8,7 +8,6 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 
-
 addNamesToSkipIfNotAvailable( "MuonIsolationTool" )
 addTypesOnlyToSkip( "ICaloNoiseTool" )
 

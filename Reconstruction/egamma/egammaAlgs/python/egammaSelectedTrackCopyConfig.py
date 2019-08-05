@@ -19,9 +19,11 @@ def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
     if "egammaCaloClusterSelector" not in kwargs:
         egammaCaloClusterGSFSelector = egammaCaloClusterSelector(name='caloClusterGSFSelector',
                                                                  egammaCheckEnergyDepositTool=egammaCheckEnergyDepositTool(),
-                                                                 EMEtRanges=[1500., 2500.],
-                                                                 EMFCuts=[0.8, 0.0],
-                                                                 LateralCuts=[0.7, 1.0])
+                                                                 EMEtRanges = [2000.],
+                                                                 EMFCuts = [0.7],
+                                                                 RetaCut = [0.65]
+                                                                 )
+
         kwargs["egammaCaloClusterSelector"] = egammaCaloClusterGSFSelector
 
     if "ExtrapolationTool" not in kwargs:

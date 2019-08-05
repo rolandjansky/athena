@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -11,7 +13,10 @@
 #include <memory>
 
 // Gaudi/Athena include(s):
-#include "AthenaKernel/GenericMetadataToolNoAux.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/IMetaDataTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/StoreGateSvc.h"
 
 // EDM include(s):
 #include "xAODEventFormat/EventFormat.h"
@@ -30,7 +35,8 @@ namespace xAODMaker {
    /// $Revision: 651874 $
    /// $Date: 2015-03-05 15:16:19 +0100 (Thu, 05 Mar 2015) $
    ///
-   class EventFormatMetaDataTool : public GenericMetadataToolNoAux <xAOD::EventFormat> {
+   class EventFormatMetaDataTool : public virtual ::IMetaDataTool,
+                                   public ::AthAlgTool {
 
    public:
       /// Regular AlgTool constructor
@@ -40,11 +46,44 @@ namespace xAODMaker {
       /// Function initialising the tool
       virtual StatusCode initialize();
 
-   private:
-      /// Helper class to update a container with information from another one
-      virtual StatusCode updateContainer(xAOD::EventFormat* contToUpdate,
-                                   const xAOD::EventFormat* otherCont );
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode beginInputFile(const SG::SourceID&) {return beginInputFile();}
+
+   /// Function collecting the metadata from a new input file
+   virtual StatusCode endInputFile(const SG::SourceID&) {return endInputFile();}
+
+   /// Function writing the collected metadata to the output
+   virtual StatusCode metaDataStop(const SG::SourceID&) {return metaDataStop();}
+
+      /// Function called when a new input file is opened
+      virtual StatusCode beginInputFile();
   
+      /// Function called when the currently open input file got completely
+      /// processed
+      virtual StatusCode endInputFile();
+  
+      /// Function called when the tool should write out its metadata
+      virtual StatusCode metaDataStop();
+  
+   private:
+      /// Function collecting the event format metadata from the input file
+      StatusCode collectMetaData();
+      /// Function writing out the collected metadata
+      StatusCode writeMetaData();
+
+      /// Connection to the input metadata store
+      ServiceHandle< ::StoreGateSvc > m_inputMetaStore;
+      /// Connection to the output metadata store
+      ServiceHandle< ::StoreGateSvc > m_outputMetaStore;
+
+      /// The key of the trigger menu in the input file
+      std::string m_inputKey;
+      /// The key of the trigger menu for the output file
+      std::string m_outputKey;
+
+      /// The merged event format object
+      std::unique_ptr< xAOD::EventFormat > m_format;
+
    }; // class EventFormatMetaDataTool
 
 } // namespace xAODMaker

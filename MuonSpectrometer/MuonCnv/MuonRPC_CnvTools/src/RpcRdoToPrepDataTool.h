@@ -15,7 +15,7 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
-#include "MuonCondInterface/IRPCConditionsSvc.h"
+#include "MuonCondData/RpcCondDbData.h"
 
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPadContainer.h"
@@ -39,7 +39,7 @@ class RpcPadIdHash;
 class IdentifierHash;
 class RpcPad;
 class RpcPadContainer;
-
+class RpcCondDbData;
 
 namespace Muon {
 
@@ -128,8 +128,8 @@ private:
 //   ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
   ToolHandle<Muon::IRPC_RDO_Decoder>         m_rpcRdoDecoderTool; 
 
-  ServiceHandle<IRPCConditionsSvc> m_rSummarySvc;
-  
+  SG::ReadCondHandleKey<RpcCondDbData> m_readKey{this, "ReadKey", "RpcCondDbData", "Key of RpcCondDbData"};
+ 
   //keepTrackOfFullEventDecoding
   bool m_fullEventDone;
   

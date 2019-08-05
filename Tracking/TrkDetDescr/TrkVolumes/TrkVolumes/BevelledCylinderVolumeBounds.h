@@ -208,9 +208,9 @@ namespace Trk {
     BevelledCylinderVolumeBoundaryAccessors            m_boundaryAccessors;
 
     /** numerical stability */
-    static double s_numericalStable;
+    static const double s_numericalStable;
     
-    mutable Trk::Volume*                  m_subtractedVolume;  
+    mutable Trk::Volume* m_subtractedVolume;  
  };
 
  inline BevelledCylinderVolumeBounds* BevelledCylinderVolumeBounds::clone() const

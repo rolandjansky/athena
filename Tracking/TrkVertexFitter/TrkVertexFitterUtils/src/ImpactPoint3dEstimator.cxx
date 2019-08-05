@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -346,10 +346,10 @@ namespace Trk
     }
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
-      msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endmsg;
+      msg(MSG::WARNING) << " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endmsg;
       return 0;
     }
-    if(!theSurfaceAtIP) msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance and returned 0 "
+    if(!theSurfaceAtIP) msg(MSG::WARNING) << " ImpactPoint3dEstimator failed to find minimum distance and returned 0 "
 << endmsg;
 
 #ifdef ImpactPoint3dAtaPlaneFactory_DEBUG
