@@ -25,7 +25,8 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerUtils
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigT1/TrigT1Result )
+                          Trigger/TrigT1/TrigT1Result 
+                          PhysicsAnalysis/MuonID/MuonSelectorTools/MuonSelectorTools )
 
 # External dependencies:
 find_package( CLHEP )

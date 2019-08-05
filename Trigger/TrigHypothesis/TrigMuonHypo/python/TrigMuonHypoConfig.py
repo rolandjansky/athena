@@ -1782,3 +1782,34 @@ class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
         online     = TrigMuonIDTrackMultiHypoOnlineMonitoring()
 	
         self.AthenaMonTools = [ online ]
+
+
+TrigMuonEFQualityHypo
+
+class TrigMuonEFQualityHypoConfig(TrigMuonEFQualityHypo) :
+
+    __slots__ = []
+
+    def __new__( cls, *args, **kwargs ):
+        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        return super( TrigMuonEFQualityHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMuonEFQualityHypoConfig, self ).__init__( name )
+
+        try:
+            self.AcceptAll = False
+
+            if 'MS' in args[1]:
+                self.RequireCombinedMuon = False
+            else:
+                self.RequireCombinedMuon = True
+
+        except LookupError:
+            if(args[1]=='passthrough') :
+                print 'Setting passthrough'
+                self.AcceptAll = True
+            else:
+                print 'args[1] = ', args[1]
+                raise Exception('TrigMuonEFQuality Hypo Misconfigured')
+
