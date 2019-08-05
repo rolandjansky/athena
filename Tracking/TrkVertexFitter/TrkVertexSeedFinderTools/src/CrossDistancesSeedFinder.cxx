@@ -282,25 +282,5 @@ namespace Trk
 
   }
 
-  void CrossDistancesSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
-    //implemented to satisfy inheritance
-  }
-
-  int CrossDistancesSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /* a */,
-						const std::vector<const Trk::TrackParameters*>  & /* b */) const{
-    //implemented to satisfy inheritance
-    return 0;
-  }
-
-  int CrossDistancesSeedFinder::getModes1d(std::vector<float> &/* a */, std::vector<float> & /* b */, 
-					   std::vector<float> & /* c */, std::vector<float> & /* d */) const{
-   //implemented to satisfy inheritance
-    return 0;
-  }
-
-  void CrossDistancesSeedFinder::getCorrelationDistance( double & /* cXY */, double & /* cZ */ ){
-    //implemented to satisfy inheritance
-  }
-
 
 }

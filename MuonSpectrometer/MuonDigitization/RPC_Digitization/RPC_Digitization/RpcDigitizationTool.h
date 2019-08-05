@@ -49,6 +49,7 @@
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonCondInterface/IRPCConditionsSvc.h"
+#include "MuonCondData/RpcCondDbData.h"
 
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
 #include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
@@ -61,6 +62,7 @@
 #include <map>
 
 class RpcHitIdHelper;
+class RpcCondDbData;
 
 class RpcIdHelper;
 class ITagInfoMgr;
@@ -166,7 +168,7 @@ private:
   RpcHitIdHelper*             m_muonHelper{};
   std::list<RPCSimHitCollection*> m_RPCHitCollList;
   TimedHitCollection<RPCSimHit>* m_thpcRPC{};
-  ServiceHandle<IRPCConditionsSvc> m_rSummarySvc{this, "RPCCondSummarySvc", "RPCCondSummarySvc", ""};
+  SG::ReadCondHandleKey<RpcCondDbData> m_readKey{this, "ReadKey", "RpcCondDbData", "Key of RpcCondDbData"};
   std::map<Identifier,std::vector<MuonSimData::Deposit> > m_sdo_tmp_map;
   Gaudi::Property<int>            m_deadTime{this, "DeadTime", 100. , "dead time"};
   Gaudi::Property<bool> m_patch_for_rpc_time{this, "PatchForRpcTime", false, ""};

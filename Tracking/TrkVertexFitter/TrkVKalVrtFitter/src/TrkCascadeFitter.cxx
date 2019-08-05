@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -74,6 +74,7 @@ namespace Trk {
 
 VertexID TrkVKalVrtFitter::startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                        const  std::vector<double>& particleMass,
+                                       IVKalState& /*istate*/,
 	  			       const  double massConstraint)
 {
     VertexID new_vID=10000;
@@ -143,6 +144,7 @@ int TrkVKalVrtFitter::getCascadeNDoF() const
 //
 VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                       const  std::vector<double>& particleMass,
+                                      IVKalState& /*istate*/,
 	  		              const  double massConstraint)
 {
     int NV = m_cascadeSize++;
@@ -186,9 +188,10 @@ VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackPartic
 VertexID TrkVKalVrtFitter::nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                       const  std::vector<double>& particleMass,
 		                      const  std::vector<VertexID> &precedingVertices,
+                                      IVKalState& istate,
 	  		              const  double massConstraint)
 {
-    VertexID vID=nextVertex( list, particleMass, massConstraint);
+    VertexID vID=nextVertex( list, particleMass, istate, massConstraint);
 //
     int lastC=m_partMassCnstForCascade.size()-1;   // Check if full vertex mass constraint exist
     if( lastC>=0 ){    if(  m_partMassCnstForCascade[lastC].VRT == vID ){ 
@@ -307,7 +310,8 @@ void TrkVKalVrtFitter::printSimpleCascade(std::vector< std::vector<int> > & vrtD
 inline int SymIndex(int it, int i, int j) {  return (3*it+3+i)*(3*it+3+i+1)/2 + (3*it+3+j);}
 #define CLEANCASCADE()  m_vkalFitControl->renewCascadeEvent(nullptr)
 
-VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDecayAtPV )
+VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& /*istate*/,
+                                             const Vertex* primVrt, bool FirstDecayAtPV )
 {
     int iv,it,jt,ic;
     std::vector< Vect3DF >               cVertices;
@@ -752,6 +756,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
 StatusCode  TrkVKalVrtFitter::addMassConstraint(VertexID Vertex,
                                  const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
                                  const std::vector<VertexID> &pseudotracksInConstraint, 
+                                 IVKalState& /*istate*/,
 				 double massConstraint )
 {
     int ivc, it, itc;

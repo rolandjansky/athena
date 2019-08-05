@@ -24,7 +24,7 @@ def TRT_LastXing():
 
 def TRT_ItemList():
     """Return list of item names needed for TRT output"""
-    return ["InDet::TRT_DriftCircleContainer#*", "TRT_RDO_Container#*"]
+    return ["InDetSimDataCollection#*", "TRT_RDO_Container#*"]
 
 def TRT_RangeCfg(flags, name="TRTRange", **kwargs):
     """Return an TRT configured PileUpXingFolder tool"""
@@ -40,8 +40,8 @@ def TRT_DigitizationBasicToolCfg(flags, name="TRT_DigitizationBasicTool", **kwar
     acc.merge(MagneticFieldSvcCfg(flags))
     # included options
     acc.addService(PartPropSvc(InputFile="PDGTABLE.MeV=PDG"))
-    if flags.Detector.Overlay and flags.Input.isMC:
-        acc.merge(addFolders("/TRT/Cond/DigVers", "TRT_OFL"))
+    if flags.Detector.Overlay and not flags.Input.isMC:
+        acc.merge(addFolders(flags, "/TRT/Cond/DigVers", "TRT_OFL", className="CondAttrListCollection"))
     # default arguments
     kwargs.setdefault("PAI_Tool_Xe", TRT_PAI_Process_XeToolCfg(flags))
     kwargs.setdefault("PAI_Tool_Ar", TRT_PAI_Process_ArToolCfg(flags))
@@ -127,19 +127,23 @@ def TRT_DigitizationBasicCfg(toolCfg, flags, name="TRT_DigitizationBasic", **kwa
     acc.addEventAlgo(TRTDigitization(name, **kwargs))
     return acc
 
-def TRT_DigitizationCfg(toolCfg, flags, name="TRT_Digitization", **kwargs):
+def TRT_DigitizationOutputCfg(toolCfg, flags, name="TRT_Digitization", **kwargs):
     """Return a ComponentAccumulator with toolCfg type TRT digitization and Output"""
     acc = TRT_DigitizationBasicCfg(toolCfg, flags, name, **kwargs)
     acc.merge(OutputStreamCfg(flags, "RDO", TRT_ItemList()))
     return acc
 
+def TRT_DigitizationCfg(flags, name="TRT_Digitization", **kwargs):
+    """Return a ComponentAccumulator configured for standard TRT digitization"""
+    return TRT_DigitizationOutputCfg(TRT_DigitizationToolCfg, flags, name, **kwargs)
+
 def TRT_DigitizationHSCfg(flags, name="TRT_DigitizationHS", **kwargs):
-    """Return a ComponentAccumulator configured for Hard Scatter TRT digitization"""
-    return TRT_DigitizationCfg(TRT_DigitizationHSToolCfg, flags, name, **kwargs)
+    """Return a ComponentAccumulator configured for Hard Scatter-only TRT digitization"""
+    return TRT_DigitizationOutputCfg(TRT_DigitizationHSToolCfg, flags, name, **kwargs)
 
 def TRT_DigitizationPUCfg(flags, name="TRT_DigitizationPU", **kwargs):
-    """Return a ComponentAccumulator configured for Pile Up TRT digitization"""
-    return TRT_DigitizationCfg(TRT_DigitizationPUToolCfg, flags, name, **kwargs)
+    """Return a ComponentAccumulator configured for Pile-up-only TRT digitization"""
+    return TRT_DigitizationOutputCfg(TRT_DigitizationPUToolCfg, flags, name, **kwargs)
 
 def TRT_DigitizationOverlayCfg(flags, name="TRT_OverlayDigitization", **kwargs):
     """Return a ComponentAccumulator configured for Overlay TRT digitization"""

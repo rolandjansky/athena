@@ -188,7 +188,7 @@ MuonChainParts = {
     'chainPartName'  : [],
     'multiplicity'   : '',    
     'trigType'       : ['mu'],
-    'etaRange'       : ['0eta2550', ],
+    'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
     'extra'          : ['noL1', 'Comb', 'fast', 'msonly'],
     'IDinfo'         : [],

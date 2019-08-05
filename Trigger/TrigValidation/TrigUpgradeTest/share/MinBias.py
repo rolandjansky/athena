@@ -40,18 +40,14 @@ SpCountHypo = SPCountHypoAlgMT()
 SpCountHypo.OutputLevel= DEBUG
 SpCountHypo.HypoInputDecisions="L1FS"
 makeAndSetHypo( SpCountHypo, SPCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG)
-SpCountHypo.HypoInputDecisions="FSDecisions"
 
 SpCountHypo.HypoOutputDecisions="SPDecisions"
 SpCountHypo.SpacePointsKey="HLT_SpacePointCounts"
 topSequence += SpCountHypo
 
-
-
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.TrackName = "TrigFastTrackFinder_Tracks"
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
-
 
 from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
 TrackCountHypo=TrackCountHypoAlgMT()

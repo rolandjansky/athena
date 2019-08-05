@@ -55,8 +55,9 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("l1_pufit_key", m_lvl1_pufit_key="gXEPUFIT_MET");
   declareProperty("l1_jwoj_key", m_lvl1_jwoj_key="gXEJWOJ_MET");
   declareProperty("l1_noisecut_key", m_lvl1_noisecut_key="gXENOISECUT_MET");
-  declareProperty("l1_jnoisecut_key", m_lvl1_jnoisecut_key="jNOISECUT_MET");
-  declareProperty("hlt_cell_run3_key", m_hlt_cell_run3_met_key="HLT_MET");
+  declareProperty("l1_jnoisecut_key", m_lvl1_jnoisecut_key="jXENOISECUT_MET");
+  declareProperty("hlt_run3_key", m_hlt_cell_run3_met_key="HLT_MET");
+  declareProperty("hlt_cell_run3_key", m_hlt_cell_run3_met_key="HLT_MET_cell");
   declareProperty("hlt_mht_run3_key", m_hlt_mht_run3_met_key="HLT_MET_mht");
   declareProperty("hlt_topocl_run3_key", m_hlt_topocl_run3_met_key="HLT_MET_tc");
   declareProperty("hlt_topocl_PUC_run3_key", m_hlt_topocl_PUC_run3_met_key="HLT_MET_tcPufit");
@@ -243,8 +244,8 @@ StatusCode HLTMETMonTool::book() {
   setCurrentMonGroup(monFolderName);
   addL1BasicHistograms();
   
-  // jNOISECUT L1 histograms
-  monFolderName = monGroupName + "/jNOISECUT";
+  // jXENOISECUT L1 histograms
+  monFolderName = monGroupName + "/jXENOISECUT";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
   addL1BasicHistograms();
@@ -546,7 +547,10 @@ StatusCode HLTMETMonTool::fillMETHist() {
   if (sc.isFailure() || !hlt_cell_met_cont) {
     sc = evtStore()->retrieve(hlt_cell_met_cont, m_hlt_cell_run3_met_key);
     if (sc.isFailure() || !hlt_cell_met_cont) {
-      ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_cell_met_key << " from TDS");
+      sc = evtStore()->retrieve(hlt_cell_met_cont, m_hlt_run3_met_key);
+      if (sc.isFailure() || !hlt_cell_met_cont) {
+	ATH_MSG_WARNING("Could not retrieve TrigMissingETContainer with key " << m_hlt_cell_met_key << " from TDS");
+      }
     }
   }
   else 
@@ -1116,8 +1120,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
     fillL1BasicHistograms(l1_noisecut_mex,l1_noisecut_mex_log,l1_noisecut_mey,l1_noisecut_mey_log,l1_noisecut_met,l1_noisecut_met_log,l1_noisecut_sumet,l1_noisecut_sumet_log,l1_noisecut_phi,saturated_noisecut);
   }
 
-  // L1 gXEJNOISECUT
-  monFolderName = monGroupName + "/gXEJNOISECUT";
+  // L1 jXENOISECUT
+  monFolderName = monGroupName + "/jXENOISECUT";
   setCurrentMonGroup(monFolderName.c_str());
 
   if (l1_jnoisecut_met > epsilon_l1met) {

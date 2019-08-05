@@ -1,17 +1,17 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import re
 re_Bjet = re.compile(r'^HLT_(?P<multiplicity>\d+)?j(?P<threshold>\d+)(?:_gsc(?P<gscThreshold>\d+))?(?:_b(?P<bTag>[^_]+)(?:_(?P<bConfig>split))?(?:_(?P<minEta>\d+)eta(?P<maxEta>\d+))?)?(?:_L1(?P<L1>.*))?$')
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaCommon.Constants import VERBOSE,DEBUG
+
+log = logging.getLogger('TrigBjetEtHypoTool')
 
 ####################################################################################################
 
 def TrigBjetEtHypoToolFromDict_j( chainDict ):
 
-    from AthenaCommon.Constants import DEBUG
     """ set the name of the EtHypoTool (name=chain) and figure out the threshold and selection from conf """
     name    = chainDict['chainName']
     chainPart = chainDict['chainParts'][0]
@@ -35,13 +35,12 @@ def TrigBjetEtHypoToolFromDict_j( chainDict ):
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoTool        
     tool = TrigBjetEtHypoTool( name )
-    tool.OutputLevel = DEBUG
     tool.AcceptAll   = False
     tool.EtThreshold  = float(conf_dict['threshold']) * GeV
     tool.MinEtaThreshold = float(conf_dict['minEta']) / 100
     tool.MaxEtaThreshold = float(conf_dict['maxEta']) / 100
 
-    print "TrigBjetEtHypoToolFromName_j: name = %s, cut_j = %s "%(name,tool.EtThreshold)
+    log.debug("name = %s, cut_j = %s ", name, tool.EtThreshold)
     return tool
 
 def TrigBjetEtHypoToolFromName_j( name, conf ):
@@ -50,12 +49,11 @@ def TrigBjetEtHypoToolFromName_j( name, conf ):
     decoder = DictFromChainName()        
     decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info        
     decodedDict['chainName'] = name # override
-	
+
     return TrigBjetEtHypoToolFromDict_j( decodedDict )
     
 
 def TrigBjetEtHypoToolFromDict_gsc( chainDict ):
-    from AthenaCommon.Constants import DEBUG
     """ set the name of the EtHypoTool (name=chain) and figure out the threshold and selection from conf """
 
     name    = chainDict['chainName']
@@ -81,13 +79,12 @@ def TrigBjetEtHypoToolFromDict_gsc( chainDict ):
 
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoTool        
     tool = TrigBjetEtHypoTool( name )
-    tool.OutputLevel = DEBUG
     tool.AcceptAll   = False
     tool.EtThreshold  = float(conf_dict['gscThreshold']) * GeV
     tool.MinEtaThreshold = float(conf_dict['minEta']) / 100
     tool.MaxEtaThreshold = float(conf_dict['maxEta']) / 100
 
-    print "TrigBjetEtHypoToolFromName_gsc: name = %s, cut_j = %s "%(name,tool.EtThreshold)
+    log.debug("gsc: name = %s, cut_j = %s ", name, tool.EtThreshold)
     return tool
 
 def TrigBjetEtHypoToolFromName_gsc( name, conf ):
@@ -106,17 +103,16 @@ if __name__ == "__main__":
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     TriggerFlags.enableMonitoring=['Validation']
 
-    t = TrigBjetEtHypoToolFromName( "HLT_j35_gsc45_boffperf_split","HLT_j35_gsc45_boffperf_split" )
+    t = TrigBjetEtHypoToolFromName_gsc( "HLT_j35_gsc45_boffperf_split","HLT_j35_gsc45_boffperf_split" )
     assert t, "can't configure gsc boffperf split"
 
-    t = TrigBjetEtHypoToolFromName( "HLT_j35_gsc45_boffperf","HLT_j35_gsc45_boffperf" )
+    t = TrigBjetEtHypoToolFromName_gsc( "HLT_j35_gsc45_boffperf","HLT_j35_gsc45_boffperf" )
     assert t, "can't configure gsc boffperf"
 
-    t = TrigBjetEtHypoToolFromName( "HLT_j35_boffperf_split","HLT_j35_boffperf_split" )
+    t = TrigBjetEtHypoToolFromName_j( "HLT_j35_boffperf_split","HLT_j35_boffperf_split" )
     assert t, "can't configure boffperf split"
 
-    t = TrigBjetEtHypoToolFromName( "HLT_j35_boffperf","HLT_j35_boffperf" )
+    t = TrigBjetEtHypoToolFromName_j( "HLT_j35_boffperf","HLT_j35_boffperf" )
     assert t, "can't configure boffperf"
 
-    print ( "\n\n TrigBjetEtHypoToolFromName ALL OK\n\n" )
-
+    log.info( "\n\n TrigBjetEtHypoToolFromName ALL OK\n\n" )

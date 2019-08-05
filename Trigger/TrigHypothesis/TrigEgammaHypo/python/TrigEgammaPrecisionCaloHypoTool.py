@@ -5,38 +5,26 @@ from AthenaCommon.SystemOfUnits import GeV
 def _IncTool(name, threshold, sel):
 
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoToolInc    
-    #print "configuring threshold " , threshold , " slection " , sel
-    
 
     tool = TrigEgammaPrecisionCaloHypoToolInc( name ) 
-    tool.MonTool = ""
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
 
+    from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+    monTool = GenericMonitoringTool("MonTool_"+name)
+    monTool.Histograms = [ defineHistogram('dEta', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo #Delta#eta_{L2 L1}; #Delta#eta_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
+                           defineHistogram('dPhi', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo #Delta#phi_{L2 L1}; #Delta#phi_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
+                           defineHistogram('Et_em', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo cluster E_{T}^{EM};E_{T}^{EM} [MeV]", xbins=50, xmin=-2000, xmax=100000),
+                           defineHistogram('Eta', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Eta;Eta", xbins=100, xmin=-2.5, xmax=2.5),
+                           defineHistogram('Phi', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2),
+                           defineHistogram('EtaBin', type='TH1I', path='EXPERT', title="PrecisionCalo Hypo entries per Eta bin;Eta bin no.", xbins=11, xmin=-0.5, xmax=10.5)]
 
-    if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-        monTool = GenericMonitoringTool("MonTool_"+name)
-        monTool.Histograms = [ defineHistogram('dEta', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo #Delta#eta_{L2 L1}; #Delta#eta_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
-                               defineHistogram('dPhi', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo #Delta#phi_{L2 L1}; #Delta#phi_{L2 L1}", xbins=80, xmin=-0.01, xmax=0.01),
-                               defineHistogram('Et_em', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo cluster E_{T}^{EM};E_{T}^{EM} [MeV]", xbins=50, xmin=-2000, xmax=100000),
-                               defineHistogram('Eta', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Eta;Eta", xbins=100, xmin=-2.5, xmax=2.5),
-                               defineHistogram('Phi', type='TH1F', path='EXPERT', title="PrecisionCalo Hypo entries per Phi;Phi", xbins=128, xmin=-3.2, xmax=3.2) ]
+    cuts=['Input','#Delta #eta L2-L1', '#Delta #phi L2-L1','eta','E_{T}^{EM}']
 
-        cuts=['Input','#Delta #eta L2-L1', '#Delta #phi L2-L1','eta','E_{T}^{EM}']
+    monTool.Histograms += [ defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="PrecisionCalo Hypo Passed Cuts;Cut",
+                                            xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=cuts) ]
 
-            
-        monTool.Histograms += [ defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="PrecisionCalo Hypo Passed Cuts;Cut",
-                                             xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=cuts) ]
+    monTool.HistPath = 'PrecisionCaloHypo/'+tool.name()
+    tool.MonTool = monTool
 
-        if 'Validation' in TriggerFlags.enableMonitoring():
-            monTool.Histograms += [defineHistogram('EtaBin', type='TH1I', path='EXPERT', title="PrecisionCalo Hypo entries per Eta bin;Eta bin no.", xbins=11, xmin=-0.5, xmax=10.5)]
-            
-        monTool.HistPath = 'PrecisionCaloHypo/'+tool.name()
-        tool.MonTool = monTool
-        tool += monTool
-
-
-        
 
     tool.EtaBins        = [0.0, 0.6, 0.8, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47]
     def same( val ):
@@ -77,7 +65,7 @@ def _MultTool(name):
 
 def TrigEgammaPrecisionCaloHypoToolFromDict( d ):
     """ Use menu decoded chain dictionary to configure the tool """
-    cparts = [i for i in d['chainParts'] if ((i['signature'] is 'Electron') or (i['signature'] is 'Photon'))]
+    cparts = [i for i in d['chainParts'] if ((i['signature']=='Electron') or (i['signature']=='Photon'))]
     
     def __mult(cpart):
         return int( cpart['multiplicity'] )

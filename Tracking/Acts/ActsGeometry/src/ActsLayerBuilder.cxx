@@ -14,16 +14,19 @@
 #include "Acts/Material/ProtoSurfaceMaterial.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Surfaces/DiscSurface.hpp"
-#include "Acts/Layers/GenericApproachDescriptor.hpp"
-#include "Acts/Layers/ApproachDescriptor.hpp"
-#include "Acts/Layers/ProtoLayer.hpp"
-#include "Acts/Tools/LayerCreator.hpp"
+#include "Acts/Geometry/GenericApproachDescriptor.hpp"
+#include "Acts/Geometry/ApproachDescriptor.hpp"
+#include "Acts/Geometry/ProtoLayer.hpp"
+#include "Acts/Geometry/LayerCreator.hpp"
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 using Acts::Surface;
 using Acts::Transform3D;
 using Acts::Translation3D;
+
+using namespace Acts::UnitLiterals;
 
 const Acts::LayerVector
 ActsLayerBuilder::negativeLayers(const Acts::GeometryContext& gctx) const
@@ -165,8 +168,8 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
     if (type == 0) {  // BARREL
       // layers and extent are determined, build actual layer
       Acts::ProtoLayer pl(gctx, layerSurfaces);
-      pl.envR    = {0, 0};
-      pl.envZ    = {20, 20};
+      pl.envR    = {0_mm, 0_mm};
+      pl.envZ    = {20_mm, 20_mm};
         
       double binPosZ   = 0.5 * (pl.minZ + pl.maxZ);
       double envZShift = 0.5 * (-pl.envZ.first + pl.envZ.second);
@@ -230,8 +233,8 @@ ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
       layersOutput.push_back(layer);
     } else {  // ENDCAP
       Acts::ProtoLayer pl(gctx, layerSurfaces);
-      pl.envR    = {0, 0};
-      pl.envZ    = {10, 10};
+      pl.envR    = {0_mm, 0_mm};
+      pl.envZ    = {10_mm, 10_mm};
 
       // copied from layercreator
       double layerZ

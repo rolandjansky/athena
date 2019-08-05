@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,50 +27,50 @@
     
 namespace Trk
 {
-  static const InterfaceID IID_IVertexAnnealingMaker("IVertexAnnealingMaker", 1, 0);
-
   class IVertexAnnealingMaker : virtual public IAlgTool {
 
   public:
+    DeclareInterfaceID (IVertexAnnealingMaker, 1, 0);
+
+    typedef unsigned int AnnealingState;
+
    /** 
     * Virtual destructor 
     */
-    virtual ~IVertexAnnealingMaker(){};
-    
-   /** 
-    * AlgTool interface methods 
-    */
-    static const InterfaceID& interfaceID() { return IID_IVertexAnnealingMaker; };
+    virtual ~IVertexAnnealingMaker() = default;
     
    /**
     * Starts the annealing from scratch
     */
-    virtual void reset()=0;
+    virtual void reset(AnnealingState& state) const =0;
     
    /**
     * Goes one step further in the annealing
     */
-    virtual void anneal()=0;
+    virtual void anneal(AnnealingState& state) const =0;
     
    /**
     * Calculates the weight according to the given chi2
     */ 
-    virtual double getWeight(double chisq,const std::vector<double>& allchisq) const =0;
+    virtual double getWeight(const AnnealingState& state,
+                             double chisq,
+                             const std::vector<double>& allchisq) const =0;
    
    /**
     * Calculates the weight according to the given chi2
     */ 
-    virtual double getWeight(double chisq) const =0;
+    virtual double getWeight(const AnnealingState& state,
+                             double chisq) const =0;
    
    /**
     * Checks whether the equilibrium is reached.
     */ 
-    virtual bool isEquilibrium() const =0;
+    virtual bool isEquilibrium(const AnnealingState& state) const =0;
     
    /** 
     * Gets the actual temperature
     */
-    virtual double actualTemp() const =0;
+    virtual double actualTemp(const AnnealingState& state) const =0;
     
   };
 }

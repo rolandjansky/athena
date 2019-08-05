@@ -63,7 +63,7 @@ void test1 (Trk::Mode3dFromFsmw1dFinder& tool)
   points.emplace_back (Amg::Vector3D(0.8, 2.3, 3.5), 0.7);
   points.emplace_back (Amg::Vector3D(1.3, 2.1, 2.5), 1.8);
 
-  std::unique_ptr<Trk::IMode3dFinder::IMode3dInfo> info;
+  std::unique_ptr<Trk::IMode3dInfo> info;
   const Amg::Vector3D mode = tool.getMode (0.3, 0.2, points, info);
   assertVec3D (mode, {1.13684, 1.91842, 2.74474});
 

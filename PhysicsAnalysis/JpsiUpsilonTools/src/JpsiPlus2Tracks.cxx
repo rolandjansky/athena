@@ -466,8 +466,8 @@ namespace Analysis {
     xAOD::Vertex* JpsiPlus2Tracks::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,
                                        const xAOD::TrackParticleContainer* importedTrackCollection, const xAOD::Vertex* pv, 
                                        const xAOD::TrackParticleContainer* gsfCollection) const {
-        
-        m_VKVFitter->setDefault();
+
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
         
 
 
@@ -480,22 +480,24 @@ namespace Analysis {
 
         if (m_useMassConst) {
             constexpr double jpsiTableMass = 3096.916;
-            m_VKVFitter->setMassInputParticles(m_altMassMuonTracks);
+            m_VKVFitter->setMassInputParticles(m_altMassMuonTracks,*state);
             std::vector<int> indices= {1, 2};
-            if (m_altMassConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices);
-            if (m_altMassConst>0.0) m_VKVFitter->setMassForConstraint(m_altMassConst,indices);
+            if (m_altMassConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices,*state);
+            if (m_altMassConst>0.0) m_VKVFitter->setMassForConstraint(m_altMassConst,indices,*state);
         }
         if (pv) {
-	   m_VKVFitter->setCnstType(8);
+	   m_VKVFitter->setCnstType(8,*state);
 	   m_VKVFitter->setVertexForConstraint(pv->position().x(),
 					       pv->position().y(),
-					       pv->position().z());
+					       pv->position().z(),
+                                               *state);
 	   m_VKVFitter->setCovVrtForConstraint(pv->covariancePosition()(Trk::x,Trk::x),
 					       pv->covariancePosition()(Trk::y,Trk::x),
 					       pv->covariancePosition()(Trk::y,Trk::y),
 					       pv->covariancePosition()(Trk::z,Trk::x),
 					       pv->covariancePosition()(Trk::z,Trk::y),
-					       pv->covariancePosition()(Trk::z,Trk::z) );
+					       pv->covariancePosition()(Trk::z,Trk::z),
+                                               *state);
 	}
 
         // Do the fit itself.......
@@ -506,7 +508,7 @@ namespace Analysis {
         int errorcode = 0;
         Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1,&aPerigee2,sflag,errorcode);
         if (errorcode != 0) {startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
-        xAOD::Vertex* theResult = m_VKVFitter->fit(inputTracks, startingPoint);
+        xAOD::Vertex* theResult = m_VKVFitter->fit(inputTracks, startingPoint, *state);
 
         // Added by ASC
         if(theResult != 0){

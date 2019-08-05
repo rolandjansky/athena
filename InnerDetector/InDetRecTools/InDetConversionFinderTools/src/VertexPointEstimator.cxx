@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -21,17 +21,13 @@ using CLHEP::twopi;
 namespace InDet {
 
   //define some statics
-  double VertexPointEstimator::s_bmagnt = 2.083;
-
-  // ----------------------------------
   static const InterfaceID IID_IVertexPointEstimator("InDet::VertexPointEstimator", 1, 0);
+  const double VertexPointEstimator::s_bmagnt = 2.083;
 
   // ----------------------------------
   VertexPointEstimator::VertexPointEstimator(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
-    m_maxChi2(20.),
-    m_deltaPhi(0.),
-    m_deltaR(0.)
+    m_maxChi2(20.)
   {
     declareInterface<VertexPointEstimator>(this);
     /// Cuts for selecting track pairs
@@ -103,7 +99,48 @@ namespace InDet {
 
   // ----------------------------------
   /** circles intersection point calculation */
-  Amg::Vector3D VertexPointEstimator::getCirclesIntersectionPoint(const Trk::Perigee *per1, const Trk::Perigee *per2, int flag, int& errorcode){
+  Amg::Vector3D
+  VertexPointEstimator::getCirclesIntersectionPoint(const Trk::Perigee *per1,
+                                                    const Trk::Perigee *per2,
+                                                    unsigned int flag,
+                                                    int& errorcode) const
+  {
+    float deltaPhi;
+    float deltaR;
+    return intersectionImpl (per1, per2, flag, errorcode, deltaPhi, deltaR);
+  }
+
+
+  Amg::Vector3D
+  VertexPointEstimator::getCirclesIntersectionPoint(const Trk::Perigee *per1,
+                                                    const Trk::Perigee *per2,
+                                                    unsigned int flag,
+                                                    int& errorcode,
+                                                    Values_t& decors) const
+  {
+    decors.clear();
+    return intersectionImpl (per1, per2, flag, errorcode,
+                             decors["deltaPhiTracks"],
+                             decors["DR1R2"]);
+  }
+
+
+  std::vector<std::string> VertexPointEstimator::decorKeys() const
+  {
+    return {"deltaPhiTracks", "DR1R2"};
+  }
+
+
+  // ----------------------------------
+  /** internal implementation */
+  Amg::Vector3D
+  VertexPointEstimator::intersectionImpl(const Trk::Perigee *per1,
+                                         const Trk::Perigee *per2,
+                                         unsigned int flag,
+                                         int& errorcode,
+                                         float& deltaPhi,
+                                         float& deltaR) const
+  {
     /*
       Calculates the initial approximation to the vertex position. Based on CTVMFT.
       Tries to intersect circles that are (R,Phi) projections of the helical trajectories of the two tracks
@@ -122,38 +159,16 @@ namespace InDet {
     double maxDr(0.);
     double maxHl(0.);
     double maxPhi(0.);
-    if(flag == 0) {
-      DRMAX = m_maxDR[0]; //maximum XY separation, non-intersecting circles
-      DZMAX = m_maxDZ[0]; //maximum allowed track Z separation at the vertex
-      RVMAX = m_maxR[0] ; //maximum allowed vertex radius
-      minArcLength = m_minArcLength[0];
-      maxArcLength = m_maxArcLength[0];
-      minDr = m_minDr[0];
-      maxDr = m_maxDr[0];
-      maxHl = m_maxHl[0];
-      maxPhi= m_maxPhi[0];
-    }
-    if(flag == 1) {
-      DRMAX = m_maxDR[1]; //maximum XY separation, non-intersecting circles
-      DZMAX = m_maxDZ[1]; //maximum allowed track Z separation at the vertex
-      RVMAX = m_maxR[1] ; //maximum allowed vertex radius
-      minArcLength = m_minArcLength[1];
-      maxArcLength = m_maxArcLength[1];
-      minDr = m_minDr[1];
-      maxDr = m_maxDr[1];
-      maxHl = m_maxHl[1];
-      maxPhi= m_maxPhi[1];
-    }
-    if(flag == 2) {
-      DRMAX = m_maxDR[2]; //maximum XY separation, non-intersecting circles
-      DZMAX = m_maxDZ[2]; //maximum allowed track Z separation at the vertex
-      RVMAX = m_maxR[2] ; //maximum allowed vertex radius
-      minArcLength = m_minArcLength[2];
-      maxArcLength = m_maxArcLength[2];
-      minDr = m_minDr[2];
-      maxDr = m_maxDr[2];
-      maxHl = m_maxHl[2];
-      maxPhi= m_maxPhi[2];
+    if (flag <= 2) {
+      DRMAX = m_maxDR[flag]; //maximum XY separation, non-intersecting circles
+      DZMAX = m_maxDZ[flag]; //maximum allowed track Z separation at the vertex
+      RVMAX = m_maxR[flag] ; //maximum allowed vertex radius
+      minArcLength = m_minArcLength[flag];
+      maxArcLength = m_maxArcLength[flag];
+      minDr = m_minDr[flag];
+      maxDr = m_maxDr[flag];
+      maxHl = m_maxHl[flag];
+      maxPhi= m_maxPhi[flag];
     }
     
     double d0[2],z0[2],phi[2],cotTheta[2],qOverPt[2],RC[2],XC[2],YC[2],RA[2],AB[2];
@@ -236,7 +251,7 @@ namespace InDet {
     //  rotate, translate to a system, where the two circle centres lie on the X axis
 
     //New cut from Mauro
-    m_deltaR = U; double PHI = -99999.;
+    deltaR = U; double PHI = -99999.;
     double hl = areaVar(XC[0], YC[0], RA[0], XC[1], YC[1], RA[1], PHI);
     
     double COST = DX/D;
@@ -346,7 +361,7 @@ namespace InDet {
     Z = ZSVI[J];
     intPoint(0)=X;	intPoint(1)=Y;	intPoint(2)=Z;
     
-    if(m_deltaR>maxDr || m_deltaR<minDr){
+    if(deltaR>maxDr || deltaR<minDr){
       ATH_MSG_DEBUG("Unaceptable circle distance");
       errorcode = 6;
     }
@@ -356,18 +371,18 @@ namespace InDet {
       errorcode = 7;
     }
     
-    m_deltaPhi = PHI; // quick fix: cannot get rid of (double) PHI as it is passed by ref and m_deltaPhi is a float
-    if(m_deltaPhi>maxPhi){
+    deltaPhi = PHI; // quick fix: cannot get rid of (double) PHI as it is passed by ref and deltaPhi is a float
+    if(deltaPhi>maxPhi){
       ATH_MSG_DEBUG("Unacceptable difference in phi");
       errorcode = 8;
     }
-    
+
     return intPoint;
   }
   
   // ----------------------------------------------------------------
-  double VertexPointEstimator::areaVar(double xc1, double yc1, double r1, double xc2, double yc2, double r2, double& phi){
-
+  double VertexPointEstimator::areaVar(double xc1, double yc1, double r1, double xc2, double yc2, double r2, double& phi) const
+  {
     double ret = -999999;
     double xi1, yi1, xi2, yi2;
     if (circleIntersection( xc1,  yc1,  r1,  xc2,  yc2,  r2, xi1, yi1, xi2, yi2 ))
@@ -394,8 +409,8 @@ namespace InDet {
   }
   
   // ----------------------------------
-  double VertexPointEstimator::areaVar(double xc1, double yc1, double r1, double xc2, double yc2, double r2, double& h, double& hl, double &ddphi){
-    
+  double VertexPointEstimator::areaVar(double xc1, double yc1, double r1, double xc2, double yc2, double r2, double& h, double& hl, double &ddphi) const
+  {
     double ret = -999999;
     double xi1, yi1, xi2, yi2;
     h     = 0;
@@ -437,8 +452,8 @@ namespace InDet {
   bool VertexPointEstimator::circleIntersection(double xc1, double yc1, double r1, 
 						double xc2, double yc2, double r2, 
 						double& xi1, double& yi1, 
-						double& xi2, double& yi2) {
-    
+						double& xi2, double& yi2) const
+  {
     // Calculate the intersection of the two circles:
     //
     // (x-xc1)^2 + (y-yc1)^2 = R1^2
@@ -483,8 +498,8 @@ namespace InDet {
   }
 
   // ----------------------------------
-  bool VertexPointEstimator::secondDegree(double a, double b, double c, double& y1, double& y2){
-    
+  bool VertexPointEstimator::secondDegree(double a, double b, double c, double& y1, double& y2) const
+  {
     y1 = -999999999;
     y2 = -999999999;
     double discr = b*b - 4*a*c;
@@ -498,18 +513,11 @@ namespace InDet {
   // ----------------------------------
   double VertexPointEstimator::areaTriangle(double a, double b,  // double c,
 					    double d, double e,  // double f,
-					    double g, double h){ // double i){  
+					    double g, double h) const { // double i)
     double c = 1;
     double f = 1;
     double i = 1;
     return fabs(0.5* ( (a*e*i + d*h*c + b*f*g)  - (g*e*c + d*b*i + a*f*h) ) );  
   }
 
-  // -------------------------------------------------------------
-  std::map<std::string, float> VertexPointEstimator::getLastValues()
-  {
-    return {{"deltaPhiTracks", m_deltaPhi},
-            {"DR1R2", m_deltaR} };
-  }
-  
 }

@@ -14,8 +14,8 @@ from egammaCaloTools import egammaCaloToolsConf
 egammaCaloClusterROISelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
                                             name = 'caloClusterROISelector',
                                             egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
-                                            EMEtRanges = [2000.],
-                                            EMFCuts = [0.8],
+                                            EMEtRanges = [2250.],
+                                            EMFCuts = [0.85],
                                             RetaCut = [0.65]
                                             ) 
 #

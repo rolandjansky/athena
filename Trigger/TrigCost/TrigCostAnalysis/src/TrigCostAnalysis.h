@@ -96,7 +96,7 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<float> m_baseEventWeight { this, "BaseEventWeight", true,
       "Base events weight, other weights may be multiplied on top of this one." };
 
-    SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_costDataKey { this, "AlgorithmCostDataKey", "TrigCostContainer",
+    SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_costDataKey { this, "CostReadHandleKey", "HLT_TrigCostContainer",
       "Trigger cost payload container for algorithms" };
 
     ToolHandle<IEnhancedBiasWeighter> m_enhancedBiasTool{this, "EnhancedBiasTool", "",

@@ -263,10 +263,9 @@ StatusCode PixelDistortionsTool::registerCallBack()
   }
 }
 
-StatusCode PixelDistortionsTool::fillDataCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
+StatusCode PixelDistortionsTool::fillDataCallBack(IOVSVC_CALLBACK_ARGS_P(/*I*/,keys))
 { 
   StatusCode sc = StatusCode::SUCCESS;
-  (void) I; // avoid warning about unused parameter 
   if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Callback for PixelDistortions" << endmsg;
   // Do not expect any other keys but check anyway.
   for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {    

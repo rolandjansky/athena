@@ -53,8 +53,11 @@ def trigCaloDataAccessSvcCfg( flags ):
     acc.merge(addFolders(flags, ['/LAR/BadChannels/BadChannels'], 'LAR'))
     acc.merge(addFolders(flags, ['/LAR/BadChannels/MissingFEBs'], 'LAR'))
 
-    from TileConditions.TileConditionsConfig import tileCondCfg
-    acc.merge( tileCondCfg (flags) )
+    from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
+    acc.merge( TileEMScaleCondAlgCfg(flags) )
+
+    from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
+    acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
     from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
     import math

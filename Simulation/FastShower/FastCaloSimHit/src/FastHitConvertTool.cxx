@@ -96,7 +96,7 @@ StatusCode  FastHitConvertTool::initialize()
     throw std::runtime_error("FastHitConvertTool: Invalid Tile ID helper");
 
   // LAr and Tile Sampling Fractions
-  CHECK(detStore()->regHandle(m_dd_fSampl,"LArfSampl"));
+  ATH_CHECK(m_fSamplKey.initialize());
   CHECK(detStore()->retrieve(m_tileInfo, "TileInfo"));
 
   return StatusCode::SUCCESS;
@@ -186,6 +186,9 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
   double eLArFCALConv=0.0;
   double eTileConv=0.0;
 
+  SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
+  const ILArfSampl* fSampl=*fSamplHdl;
+
   CaloCellContainer::const_iterator it1=theCellCont->beginConstCalo(CaloCell_ID::LAREM);
   CaloCellContainer::const_iterator it2=theCellCont->endConstCalo(CaloCell_ID::LAREM);
   for(;it1!=it2;it1++)
@@ -194,7 +197,7 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
 
       cellid=(*it1)->ID();
       energy=(*it1)->energy();
-      SampFrac=m_dd_fSampl->FSAMPL(cellid);
+      SampFrac=fSampl->FSAMPL(cellid);
       energyConv=energy*SampFrac;
 
       eLArEMRead+=energy;
@@ -230,7 +233,7 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
 
       cellid=(*it1)->ID();
       energy=(*it1)->energy();
-      SampFrac=m_dd_fSampl->FSAMPL(cellid);
+      SampFrac=fSampl->FSAMPL(cellid);
       energyConv=energy*SampFrac;
 
       eLArHECRead+=energy;
@@ -257,7 +260,7 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
       ATH_MSG_DEBUG("FastCell LArFCAL"<<countFastCell);
       cellid=(*it1)->ID();
       energy=(*it1)->energy();
-      SampFrac=m_dd_fSampl->FSAMPL(cellid);
+      SampFrac=fSampl->FSAMPL(cellid);
       energyConv=energy*SampFrac;
 
       eLArHECRead+=energy;

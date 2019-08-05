@@ -1,14 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigBtagFexMT
-#from TrigBjetHypo.TrigBtagFexTuning import *
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import mm, GeV
 
 from AthenaCommon.AppMgr import ToolSvc
 from BTagging.BTaggingFlags import BTaggingFlags
 from BTagging.BTaggingConfiguration import getConfiguration
+
 BTagConfig = getConfiguration("Trig")
 BTagConfig.PrefixxAODBaseName(False)
 BTagConfig.PrefixVertexFinderxAODBaseName(False)
@@ -35,8 +34,7 @@ class BtagFex (TrigBtagFexMT):
         
         AllowedInstances = ["EF"]
         AllowedVersions  = ["2012"]
-        AllowedAlgos     = ["EFID"]
-        
+
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
             return None
@@ -52,7 +50,7 @@ class BtagFex (TrigBtagFexMT):
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
         if self.setupOfflineTools :
-            if BTagConfigSetupStatus == None :
+            if BTagConfigSetupStatus is None :
                 self.setupOfflineTools = False
             else :
                 self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
@@ -75,8 +73,7 @@ class BtagFexSplit (TrigBtagFexMT):
         
         AllowedInstances = ["EF", "MuJetChain"]
         AllowedVersions  = ["2012"]
-        AllowedAlgos     = ["EFID"]
-        
+
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
             return None
@@ -98,7 +95,7 @@ class BtagFexSplit (TrigBtagFexMT):
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
         if self.setupOfflineTools :
-            if BTagConfigSetupStatus == None :
+            if BTagConfigSetupStatus is None :
                 self.setupOfflineTools = False
             else :
                 self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")

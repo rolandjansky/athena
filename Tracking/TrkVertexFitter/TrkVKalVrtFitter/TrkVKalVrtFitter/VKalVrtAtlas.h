@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // VKalVrtAtlas.h
@@ -13,12 +13,16 @@
 // External propagator
 #include "TrkVKalVrtCore/Propagator.h"
 #include "TrkExInterfaces/IExtrapolator.h"
+#include  "TrkVKalVrtFitter/ITrkVKalVrtFitter.h"
 
 namespace MagField{
    class IMagFieldSvc;
 }
 
 namespace Trk{
+
+class TrkVKalVrtFitter;
+
 
 //  ATLAS magnetic field access for TrkVKalVrtFitter
 //-----------------------------------------------------

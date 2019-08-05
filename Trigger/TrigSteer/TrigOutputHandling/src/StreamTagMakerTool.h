@@ -39,7 +39,7 @@ public:
   typedef std::tuple<std::string, std::string, bool, bool> StreamTagInfo;
 
 private:
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTSummary",
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTNav_Summary",
     "Container with final chain decisions"  };
 
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_pebDecisionKeys{ this, "PEBDecisionKeys", {},

@@ -20,16 +20,6 @@
 #include "TrkParameters/TrackParameters.h"
 
 
-namespace {
-  inline const Amg::Vector3D operator - ( const Amg::Vector3D & first, const Amg::Vector3D & second) {
-    return Amg::Vector3D( first.x()-second.x(),first.y()-second.y(),first.z()-second.z());
-  }
-  inline double square(const double tosquare) {
-    return std::pow(tosquare,2);
-  }
-}
-
-  
 namespace Trk
 {
     

@@ -93,7 +93,7 @@ streamPhysicsMain = ['Main', 'physics', "True", "True"]
 
 # Tool adding stream tags to HLT result
 stmaker = StreamTagMakerTool()
-stmaker.ChainDecisions = "HLTSummary"
+stmaker.ChainDecisions = "HLTNav_Summary"
 stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions]
 stmaker.ChainToStream = {}
 stmaker.ChainToStream["HLT_MTCalibPeb1"] = streamPhysicsMain
@@ -101,7 +101,7 @@ stmaker.ChainToStream["HLT_MTCalibPeb2"] = streamPhysicsMain
 
 # Tool adding HLT bits to HLT result
 bitsmaker = TriggerBitsMakerTool()
-bitsmaker.ChainDecisions = "HLTSummary"
+bitsmaker.ChainDecisions = "HLTNav_Summary"
 bitsmaker.ChainToBit = {}
 bitsmaker.ChainToBit["HLT_MTCalibPeb1"] = 4
 bitsmaker.ChainToBit["HLT_MTCalibPeb2"] = 32

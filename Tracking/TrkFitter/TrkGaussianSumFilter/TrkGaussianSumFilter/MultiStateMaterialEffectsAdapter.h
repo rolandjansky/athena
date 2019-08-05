@@ -15,30 +15,31 @@ decription           : Converter class for single component material effects to
 #ifndef TrkMultiStateMaterialEffectsAdapter_H
 #define TrkMultiStateMaterialEffectsAdapter_H
 
-#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
 
-//class ISvcLocator;
+// class ISvcLocator;
 
-namespace Trk{
+namespace Trk {
 
 class IMaterialEffectsUpdator;
 
-namespace MultiStateMaterialEffectsAdapter
-{
+namespace MultiStateMaterialEffectsAdapter {
 
-  void compute (
-       IMultiStateMaterialEffects::Cache&,
-       const ToolHandle<IMaterialEffectsUpdator>&,
-       const ComponentParameters&,
-       const MaterialProperties&,
-       double,
-       PropDirection = anyDirection,
-       ParticleHypothesis = nonInteracting );
+void
+compute(IMultiStateMaterialEffects::Cache&,
+        const ToolHandle<IMaterialEffectsUpdator>&,
+        const ComponentParameters&,
+        const MaterialProperties&,
+        double,
+        PropDirection = anyDirection,
+        ParticleHypothesis = nonInteracting);
 
-  double extractDeltaP ( const TrackParameters& updatedParameters, const TrackParameters& originalParameters );
+double
+extractDeltaP(const TrackParameters& updatedParameters, const TrackParameters& originalParameters);
 
-  const AmgSymMatrix(5)* extractDeltaCovariance ( const TrackParameters& updatedParameters, const TrackParameters& originalParameters );
+const AmgSymMatrix(5) *
+  extractDeltaCovariance(const TrackParameters& updatedParameters, const TrackParameters& originalParameters);
 
 } // end namespace MultiStateMaterialEffectsAdapter
 

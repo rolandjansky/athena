@@ -189,7 +189,7 @@ namespace Trk
     double  m_minXYbeam ;
     bool m_broaden ;
 
-    class Mode3dFromFsmw1dInfo : public IMode3dFinder::IMode3dInfo
+    class Mode3dFromFsmw1dInfo : public IMode3dInfo
     {
     public:
       // Passing some middle result to outside world, useless unless to monitor the tool
@@ -204,6 +204,15 @@ namespace Trk
 
       virtual void
       getCorrelationDistance( double &cXY, double &cZ ) const override;
+
+
+      virtual int
+      perigeesAtSeed (std::vector<const Trk::TrackParameters*>& perigees , 
+                      const std::vector<const Trk::TrackParameters*> & perigeeList) const override;
+
+
+      virtual void
+      setTrkidx (std::vector< std::pair <int, int> >&& trkidx) override;
 
 
       void pushIndex (int idx);
@@ -226,6 +235,8 @@ namespace Trk
       std::vector< float > m_radi_stk ;
       std::vector< float > m_z_stk ;
       std::vector< float > m_wght_stk ;
+
+      std::vector< std::pair <int, int> > m_trkidx ;
     };
       
   };

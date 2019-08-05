@@ -51,12 +51,17 @@ atlas_add_component( TrigBjetHypo
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODBase xAODTracking GaudiKernel Particle VxSecVertex TrigInDetEvent TrigInterfacesLib AthContainers GeoPrimitives EventInfo EventPrimitives FourMomUtils xAODBTagging xAODCore xAODJet xAODMuon BTaggingLib JetEvent VxVertex TrigCaloEvent TrigMuonEvent TrigNavigationLib TrigParticle TrigSteeringEvent DecisionHandlingLib AthViews )
-atlas_add_test( TrigBjetHypoTool SCRIPT python -m  	TrigBjetHypo.TrigBjetHypoTool	
-                        PROPERTIES TIMEOUT 300
-			POST_EXEC_SCRIPT nopost.sh )
-
 
 # Install files from the package:
 atlas_install_headers( TrigBjetHypo )
 atlas_install_python_modules( python/*.py )
 
+# Unit tests:
+atlas_add_test( TrigBjetHypoTool SCRIPT python -m TrigBjetHypo.TrigBjetHypoTool
+   PROPERTIES TIMEOUT 300
+   POST_EXEC_SCRIPT nopost.sh )
+
+# Check Python syntax:
+atlas_add_test( flake8
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 --exclude='TrigBjetFexTuningGrade*' ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )

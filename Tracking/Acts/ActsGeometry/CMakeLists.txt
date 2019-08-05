@@ -23,7 +23,7 @@ find_package( CLHEP )
 find_package( Eigen )
 find_package( Boost )
 
-find_package( Acts REQUIRED COMPONENTS Core MaterialMappingPlugin )
+find_package( Acts REQUIRED COMPONENTS Core )
 
 # Component(s) in the package:
 
@@ -39,8 +39,7 @@ atlas_add_library( ActsGeometryLib
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES}
                    AthenaKernel
                    ActsInteropLib
-                   ActsCore
-                   ActsMaterialMappingPlugin)
+                   ActsCore)
 
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
@@ -60,8 +59,7 @@ atlas_add_component( ActsGeometry
                      EventInfo
                      ActsInteropLib 
                      ActsGeometryLib
-                     ActsCore
-                     ActsMaterialMappingPlugin)
+                     ActsCore)
 
 # Install files from the package:
 atlas_install_headers( ActsGeometry )

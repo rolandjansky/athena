@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuHypo
 
@@ -129,7 +129,7 @@ class EFBMuMuHypo_DiMu_DY20 (TrigEFBMuMuHypo):
 class EFBMuMuHypo_DiMu_DY14 (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_DiMu_DY14"):
-        super( TrigEFBMuMuHypo_DiMu_DY14, self ).__init__( name )
+        super( EFBMuMuHypo_DiMu_DY14, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False

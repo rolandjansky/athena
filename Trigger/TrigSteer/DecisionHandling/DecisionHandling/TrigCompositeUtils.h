@@ -221,7 +221,7 @@ namespace TrigCompositeUtils {
   
   /**
    * @brief Search back in time from "start" and locate all linear paths back through Decision objects for a given chain.
-   * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTSummary (regular or rerun).
+   * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTNav_Summary (regular or rerun).
    * @param[out] linkVector Each entry in the outer vector represents a path through the graph. For each path, a vector of ElementLinks describing the path is returned.
    * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
    * @param[in] enforceDecisionOnStartNode If the check of DecisionID should be carried out on the start node.

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ TrigTauRecCosmics """
 
@@ -6,11 +6,6 @@ __author__  = 'S.Xella, O.Igonkina, S.Tsuno'
 __version__=""
 __doc__="Configuration of Cosmics TrigTauRec"
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-
-from TrigTauRec.TrigTauRecConf import TrigTauRecMerged
 from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_Tau
 from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_Tau2012
 

@@ -24,7 +24,7 @@ def _larCablingCfg(configFlags,algo,folder):
             ft=tagsperFolder[folder]
             folderwithtag=folder+"<tag>"+ft+"</tag>"
     else:
-        db='LAR'
+        db='LAR_ONL'
         folderwithtag=folder
 
     result.addCondAlgo(algo(ReadKey=folder),primary=True)
