@@ -1,0 +1,91 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+// ************************************************
+//
+// NAME:     TrigBjetBtagHypoTool.h
+// PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypo
+//
+// AUTHOR:   Carlo Varni
+// EMAIL:    carlo.varni@cern.ch
+// 
+// ************************************************
+
+#ifndef TRIGBJETHYPO_TRIGBJETHYPOTOOL_H
+#define TRIGBJETHYPO_TRIGBJETHYPOTOOL_H 1
+
+// This is in current hypo, not sure if needed
+//#include "TrigInterfaces/HypoAlgo.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTagging.h"
+
+// Are these new?
+#include "DecisionHandling/HLTIdentifier.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
+#include "AthenaBaseComps/AthAlgTool.h" 
+#include "BeamSpotConditionsData/BeamSpotData.h"
+
+static const InterfaceID IID_TrigBjetBtagHypoTool("TrigBjetBtagHypoTool", 1, 0);
+
+
+class TrigBjetBtagHypoTool : virtual public ::AthAlgTool {
+
+ public:
+  struct TrigBjetBtagHypoToolInfo {
+    TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
+    ElementLink< xAOD::BTaggingContainer > btaggingEL;
+    TrigCompositeUtils::Decision* decision;
+  };
+
+
+ public:
+
+  /** @brief Constructor. */
+  TrigBjetBtagHypoTool (const std::string& type,
+		const std::string& name,
+		const IInterface* parent );
+  /** @brief Destructor. */
+  virtual ~TrigBjetBtagHypoTool ();
+
+  StatusCode initialize() override;
+  StatusCode finalize() override;
+
+  static const InterfaceID& interfaceID();
+  TrigCompositeUtils::DecisionID decisionId() const;
+  const HLT::Identifier getId() const;
+
+  StatusCode decide( std::vector< TrigBjetBtagHypoToolInfo >& ) const;
+
+ private:
+  template<typename T> 
+    StatusCode retrieveTool( const std::string&,PublicToolHandle< T >& );
+
+
+ private:
+  HLT::Identifier m_decisionId;
+
+  /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
+  Gaudi::Property< bool > m_acceptAll {this,"AcceptAll",false,"if acceptAll flag is set to true, every event is taken"};
+  /** @brief DeclareProperty: list of likelihood methods to be effectively used to perform the selection. */
+  Gaudi::Property< std::string > m_methodTag {this,"MethodTag","","list of likelihood methods to be effectively used to perform the selection"};
+  /** @brief DeclareProperty: lower bound of the discriminant variable to be selected (if flag acceptAll is set to false) for MV2 tagger. */
+  Gaudi::Property< double > m_bTaggingCut {this,"BTaggingCut",-20,"lower bound of the discriminant variable to be selected for b-tagging"};
+
+  /** @brief DeclareProperty: to monitor method used to perform the cut. */
+  //  float m_monitorMethod;
+  //  ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" }; Temporary commenting this out
+};
+
+inline const InterfaceID& TrigBjetBtagHypoTool::interfaceID()
+{
+   return IID_TrigBjetBtagHypoTool;
+}
+
+#endif // !TRIGBJETHYPO_TRIGBJETHYPOTOOL_H
+
