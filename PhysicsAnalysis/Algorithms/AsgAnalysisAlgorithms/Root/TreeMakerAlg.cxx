@@ -19,7 +19,10 @@ namespace CP {
                        "AutoFlush value for the output tree" );
    }
 
-   StatusCode TreeMakerAlg::initialize() {
+   StatusCode TreeMakerAlg::execute() {
+      if( m_treeConfigured ) {
+         return StatusCode::SUCCESS;
+      }
 
       // Create the output tree.
       ATH_CHECK( book( TTree( m_treeName.c_str(), "xAOD->NTuple tree" ) ) );
@@ -32,17 +35,7 @@ namespace CP {
       mytree->SetAutoFlush( m_treeAutoFlush );
       ATH_MSG_INFO( "Created xAOD->NTuple tree: " << m_treeName );
 
-      // Return gracefully.
-      return StatusCode::SUCCESS;
-   }
-
-   StatusCode TreeMakerAlg::execute() {
-
-      // Return gracefully.
-      return StatusCode::SUCCESS;
-   }
-
-   StatusCode TreeMakerAlg::finalize() {
+      m_treeConfigured = true;
 
       // Return gracefully.
       return StatusCode::SUCCESS;

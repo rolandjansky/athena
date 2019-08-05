@@ -55,14 +55,8 @@ namespace CP {
       /// @name Functions inherited from @c EL::AnaAlgorithm
       /// @{
 
-      /// Function executed as part of the job initialisation
-      StatusCode initialize() override;
-
       /// Function executed once per event
       StatusCode execute() override;
-
-      /// Function executed as part of the job finalisation
-      StatusCode finalize() override;
 
       /// @}
 
