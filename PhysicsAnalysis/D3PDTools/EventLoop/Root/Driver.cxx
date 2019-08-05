@@ -377,12 +377,18 @@ namespace EL
 
     case Detail::JobSubmitStep::submitJob:
       {
-        doSubmit (info);
+        ANA_MSG_INFO ("submitting job in " << info.submitDir);
       }
       break;
 
     case Detail::JobSubmitStep::postSubmit:
       {
+        if (!info.submitted)
+        {
+          ANA_MSG_FATAL ("Driver::submit not implemented in class " << typeid(*this).name());
+          std::abort ();
+        }
+
         // this particular file can be checked to see if a job has
         // been submitted successfully.
         std::ofstream ((info.submitDir + "/submitted").c_str());
@@ -393,18 +399,6 @@ namespace EL
       (void) true; // safe to do nothing
     }
     return ::StatusCode::SUCCESS;
-  }
-
-
-
-  void Driver ::
-  doSubmit (Detail::JobSubmitInfo& /*info*/) const
-  {
-    RCU_READ_INVARIANT (this);
-    using namespace msgEventLoop;
-
-    ANA_MSG_FATAL ("Driver::doSubmit not overridden in class " << typeid(*this).name());
-    std::abort ();
   }
 
 

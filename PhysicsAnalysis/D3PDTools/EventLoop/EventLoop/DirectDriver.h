@@ -55,15 +55,6 @@ namespace EL
     doSubmitStep (Detail::JobSubmitInfo& info,
                   Detail::JobSubmitStep step) const override;
 
-    /// effects: submit the given job with the given output location
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// failures: submission errors
-    /// rationale: the virtual part of EL::Driver::submit
-  private:
-    virtual void
-    doSubmit (Detail::JobSubmitInfo& info) const override;
-
 
 
     //

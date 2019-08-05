@@ -256,14 +256,6 @@ namespace EL
                   Detail::JobSubmitStep step) const;
 
 
-    /// \copydoc submitOnly
-    /// \par Rationale
-    ///   the virtual part of \ref submitOnly
-  private:
-    virtual void
-    doSubmit (Detail::JobSubmitInfo& info) const;
-
-
     /// \copydoc resubmit
     /// \par Rationale
     ///   the virtual part of \ref resubmit

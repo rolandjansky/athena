@@ -22,8 +22,6 @@ namespace EL {
 
     void testInvariant () const;
 
-    virtual void doSubmit(Detail::JobSubmitInfo& info) const override;
-
     virtual bool doRetrieve(const std::string& location) const override;
 
     static void status(const std::string& location);
@@ -31,6 +29,11 @@ namespace EL {
     static void setState(const std::string& location,
 			 const std::string& task,
 			 const std::string& state);
+
+  protected:
+    virtual ::StatusCode
+    doSubmitStep (Detail::JobSubmitInfo& info,
+                  Detail::JobSubmitStep step) const override;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpragmas"
