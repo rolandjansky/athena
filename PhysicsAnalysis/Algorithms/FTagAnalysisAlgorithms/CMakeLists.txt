@@ -42,8 +42,14 @@ if( XAOD_STANDALONE )
       SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test )
    atlas_add_test( testJobFastSim
       SCRIPT FTagAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test )
-else()
-   atlas_add_test( testJob
+elseif( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
+   atlas_add_test( testJobData
       SCRIPT athena.py
-      FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py )
+      FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type data )
+   atlas_add_test( testJobFullSim
+      SCRIPT athena.py
+      FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type mc )
+   atlas_add_test( testJobFastSim
+      SCRIPT athena.py
+      FTagAnalysisAlgorithms/FTagAnalysisAlgorithmsTest_jobOptions.py - --data-type afii )
 endif()
