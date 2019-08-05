@@ -150,6 +150,9 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   m_nJetPtThreshold = m_globalConfig->GetValue("OffsetCorrection.nJetPtThreshold", 20);
   m_nJetContainerName = m_globalConfig->GetValue("OffsetCorrection.nJetContainerName", "HLT_xAOD__JetContainer_a4tcemsubjesISFS");
 
+  // save the pt after area-based correction for jets in the jet container used to calculate nJet
+  m_saveAreaCorrectedScaleMomentum = m_globalConfig->GetValue("SaveAreaCorrectedScaleMomentum",false);
+
   if ( !calibSeq.Contains("Origin") ) m_doOrigin = false;
 
   if ( !calibSeq.Contains("GSC") ) m_doGSC = false;
@@ -404,50 +407,6 @@ int JetCalibrationTool::modifyJet(xAOD::Jet& jet) const {
 // Private/Protected Methods
 ///////////////
 
-/*
-StatusCode JetCalibrationTool::initializeEvent() {
-
-  m_eventObj = 0;
-  m_vertices = 0;
-
-  //ATH_MSG_INFO("  Retrieving event information for the pile up corrections\n");
-  if ( evtStore()->retrieve(m_eventObj,"EventInfo").isFailure() || !m_eventObj ) {
-    ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve event information. Aborting.");
-    return StatusCode::FAILURE;
-  }
-  if ( evtStore()->retrieve(m_vertices,"PrimaryVertices").isFailure() || !m_vertices ) {
-    ATH_MSG_ERROR("   JetCalibrationTool::initializeEvent : Failed to retrieve primary vertices. Aborting.");
-    return StatusCode::FAILURE;
-  }
-  //ATH_MSG_INFO("  Event information successfully retrieved.\n\n");
-
-  //Check if the input jets are coming from data or MC
-  //if ( m_eventObj->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
-  //     m_isData = false; // controls mu scaling in the pile up correction, no scaling for data
-  //}
-
-  int eventNPV = 0;
-  xAOD::VertexContainer::const_iterator vtx_itr = m_vertices->begin();
-  xAOD::VertexContainer::const_iterator vtx_end = m_vertices->end(); 
-  for ( ; vtx_itr != vtx_end; ++vtx_itr ) 
-    if ( (*vtx_itr)->nTrackParticles() >= 2 ) ++eventNPV;
-
-  m_jetEventInfo.NPV = eventNPV;
-  m_jetEventInfo.mu = m_eventObj->averageInteractionsPerCrossing();
-
-  //Test code for EventShape EDM
-  //If xAODEventShape can't be retrieved from evtStore, default to hard-coded value (12GeV)
-  const xAOD::EventShape * eventShape;
-  std::string rhoKey = m_jetScale == EM ? "EMTopoEventShape" : "LCTopoEventShape";
-  if ( evtStore()->retrieve(eventShape, rhoKey).isFailure() || !eventShape )
-    m_jetEventInfo.rho = 12000.;
-  else
-   if ( !eventShape->getDensity( xAOD::EventShape::DensityForJetsR4, m_jetEventInfo.rho ) ) return StatusCode::FAILURE; 
-
-  return StatusCode::SUCCESS;
-}
-*/
-
 StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const {
 
   // Check if the tool was initialized
@@ -487,7 +446,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
   ATH_MSG_VERBOSE("  Rho = " << 0.001*rho << " GeV");
 
   // Necessary retrieval and calculation for use of nJetX instead of NPV
-  if(m_useNjetInResidual) {
+  if(m_useNjetInResidual || m_saveAreaCorrectedScaleMomentum) {
     // retrieve the container
     const xAOD::JetContainer * jets = 0;
     if (evtStore()->contains<xAOD::JetContainer>(m_nJetContainerName) ) {
@@ -504,11 +463,18 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     // count jets above threshold
     int nJets = 0;
     for (auto jet : *jets) {
-      xAOD::JetFourMom_t trigjetconstitP4 = jet->getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum");
+      xAOD::JetFourMom_t trigjetconstitP4 = jet->getAttribute<xAOD::JetFourMom_t>("JetPileupScaleMomentum");
+
+      // At the moment, the Njet-based pile-up residual calibration is only used to calibrate (HLT) trigger jets from data already taken.
+      // Online trigger jets have no pile-up residual calibration applied, so jets at JetPileupScaleMomentum scale have only the area-based pile-up calibration.
+      // The pT at this scale is saved as JetAreaCorrectedPt so it can be used (elsewhere) to calculate Njet even when an offline pile-up residual calibration is applied and hence JetPileupScaleMomentum scale is overwritten
+      jet->auxdecor<float>("JetAreaCorrectedPt") = trigjetconstitP4.Pt();
+
       if(trigjetconstitP4.pt()/m_GeV > m_nJetPtThreshold)
         nJets += 1;
     }
     jetEventInfo.setNjet(nJets);
+
   }
 
   // Retrieve EventInfo object, which now has multiple uses
