@@ -21,9 +21,12 @@ public:
                    FlipTagConfig flip = FlipTagConfig::STANDARD);
   ~BTagJetAugmenter();
   BTagJetAugmenter(BTagJetAugmenter&&);
+  void augmentJfDr(const xAOD::BTagging &btag);
+  void augmentIpRatios(const xAOD::BTagging &btag);
   void augment(const xAOD::Jet &jet);
   void augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrated_jet);
 private:
+  bool jfIsDefaults(const xAOD::BTagging &btag);
   typedef SG::AuxElement AE;
   bool m_use_floats;
   bool m_write_unflippable;

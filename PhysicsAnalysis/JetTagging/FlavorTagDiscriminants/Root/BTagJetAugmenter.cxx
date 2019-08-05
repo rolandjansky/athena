@@ -163,6 +163,25 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrat
   augment(jet);
 }
 
+void BTagJetAugmenter::augmentJfDr(const xAOD::BTagging& btag) {
+  if (jfIsDefaults(btag)) {
+    jf_deltaR(btag) = std::hypot(jf_deltaEta(btag), jf_deltaPhi(btag));
+  } else {
+    jf_deltaR(btag) = NAN;
+  }
+}
+void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
+
+  ip2d_cu(btag) = std::log(ip2d_pc(btag) / ip2d_pu(btag));
+  ip2d_bu(btag) = std::log(ip2d_pb(btag) / ip2d_pu(btag));
+  ip2d_bc(btag) = std::log(ip2d_pb(btag) / ip2d_pc(btag));
+
+  ip3d_cu(btag) = std::log(ip3d_pc(btag) / ip3d_pu(btag));
+  ip3d_bu(btag) = std::log(ip3d_pb(btag) / ip3d_pu(btag));
+  ip3d_bc(btag) = std::log(ip3d_pb(btag) / ip3d_pc(btag));
+
+}
+
 void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   const xAOD::BTagging* btag_ptr = jet.btagging();
   if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
@@ -175,29 +194,17 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   }
   ip2d_nTrks(btag) = ip2d_weightBOfTracks(btag).size();
 
-  ip2d_cu(btag) = std::log(ip2d_pc(btag) / ip2d_pu(btag));
-  ip2d_bu(btag) = std::log(ip2d_pb(btag) / ip2d_pu(btag));
-  ip2d_bc(btag) = std::log(ip2d_pb(btag) / ip2d_pc(btag));
-
   if (ip3d_weightBOfTracks(btag).size() > 0) {
     ip3d_isDefaults(btag) = 0;
   } else {
     ip3d_isDefaults(btag) = 1;
   }
 
-  ip3d_cu(btag) = std::log(ip3d_pc(btag) / ip3d_pu(btag));
-  ip3d_bu(btag) = std::log(ip3d_pb(btag) / ip3d_pu(btag));
-  ip3d_bc(btag) = std::log(ip3d_pb(btag) / ip3d_pc(btag));
   ip3d_nTrks(btag) = ip3d_weightBOfTracks(btag).size();
+  augmentIpRatios(btag);
 
-  if (jf_vertices(btag).size() > 0 && (jf_nVtx(btag) > 0 || jf_nSingleTracks(btag) > 0)) {
-    jf_isDefaults(btag) = 0;
-    jf_deltaR(btag) = std::hypot(jf_deltaEta(btag), jf_deltaPhi(btag));
-  } else {
-    jf_isDefaults(btag) = 1;
-    jf_deltaR(btag) = NAN;
-  }
-
+  jf_isDefaults(btag) = jfIsDefaults(btag);
+  augmentJfDr(btag);
 
   if (sv1_vertices(btag).size() > 0) {
     sv1_isDefaults(btag) = 0;
@@ -367,4 +374,9 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
   }  else {
     rnnip_isDefaults(btag) = 0;
   }
+}
+
+
+bool BTagJetAugmenter::jfIsDefaults(const xAOD::BTagging& btag) {
+  return !(jf_vertices(btag).size() > 0 && (jf_nVtx(btag) > 0 || jf_nSingleTracks(btag) > 0));
 }
