@@ -68,6 +68,9 @@ namespace EL
       /// do the actual job submission
       submitJob,
 
+      /// save the output in the direct driver
+      directSaveOutput,
+
       /// do whatever needs to be done after the submission is done
       postSubmit,
 

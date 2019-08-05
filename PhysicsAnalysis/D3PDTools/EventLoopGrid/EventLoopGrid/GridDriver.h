@@ -25,8 +25,6 @@ namespace EL {
 
     void testInvariant () const;
 
-    virtual void doSubmit(Detail::JobSubmitInfo& info) const override;
-
     virtual bool doRetrieve(const std::string& location) const override;
 
     static void status(const std::string& location);
@@ -83,6 +81,11 @@ namespace EL {
     //They should be considered obsolete and will be removed in a future version.
     void gather(const std::string location) const;
     SH::SampleGrid* createSampleFromDQ2(const std::string& dataset) const;
+
+  protected:
+    virtual ::StatusCode
+    doSubmitStep (Detail::JobSubmitInfo& info,
+                  Detail::JobSubmitStep step) const override;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpragmas"

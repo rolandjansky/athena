@@ -79,29 +79,27 @@ namespace EL
       }
       break;
 
+    case Detail::JobSubmitStep::submitJob:
+      {
+        for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin(),
+               end = info.job->sampleHandler().end(); sample != end; ++ sample)
+        {
+          Worker worker;
+          ANA_CHECK (worker.directExecute (*sample, *info.job, info.submitDir, info.options));
+        }
+        info.submitted = true;
+      }
+      break;
+
+    case Detail::JobSubmitStep::directSaveOutput:
+      {
+        diskOutputSave (info.submitDir, *info.job);
+      }
+      break;
+
     default:
       (void) true; // safe to do nothing
     }
     return ::StatusCode::SUCCESS;
-  }
-
-
-
-
-
-
-  void DirectDriver ::
-  doSubmit (Detail::JobSubmitInfo& info) const
-  {
-    RCU_READ_INVARIANT (this);
-    using namespace msgEventLoop;
-
-    for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin(),
-	   end = info.job->sampleHandler().end(); sample != end; ++ sample)
-    {
-      Worker worker;
-      ANA_CHECK_THROW (worker.directExecute (*sample, *info.job, info.submitDir, info.options));
-    }
-    diskOutputSave (info.submitDir, *info.job);
   }
 }

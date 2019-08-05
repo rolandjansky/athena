@@ -65,10 +65,6 @@ namespace EL
 
   private:
     virtual void
-    doSubmit (Detail::JobSubmitInfo& info) const override;
-
-  private:
-    virtual void
     doResubmit (Detail::JobSubmitInfo& info) const override;
 
   private:

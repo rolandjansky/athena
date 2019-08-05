@@ -397,21 +397,17 @@ namespace EL
       }
       break;
 
+    case Detail::JobSubmitStep::submitJob:
+      {
+        batchSubmit (info);
+        info.submitted = true;
+      }
+      break;
+
     default:
       (void) true; // safe to do nothing
     }
     return ::StatusCode::SUCCESS;
-  }
-
-
-
-  void BatchDriver ::
-  doSubmit (Detail::JobSubmitInfo& info) const
-  {
-    using namespace msgEventLoop;
-    RCU_READ_INVARIANT (this);
-
-    batchSubmit (info);
   }
 
 

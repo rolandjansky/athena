@@ -66,6 +66,10 @@ namespace EL
       /// \brief the user job we are submitting
       Job *job {nullptr};
 
+      /// \brief whether we successfully submitted the job in this
+      /// process
+      bool submitted {false};
+
       /// \brief if we run in batch, the batch job object we are using
       std::unique_ptr<BatchJob> batchJob;
 
