@@ -36,7 +36,7 @@ namespace top {
 
     m_weight_mc(0.),
     m_weight_pileup(0.),
-    
+
     m_weight_fwdElSF(0.),
     m_weight_fwdElSF_FWDEL_SF_ID_UP(0.),
     m_weight_fwdElSF_FWDEL_SF_ID_DOWN(0.),
@@ -374,7 +374,7 @@ namespace top {
     }
 
     if (m_config->useLargeRJets()) {
-    for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) 
+    for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers())
         m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
     }
 
@@ -388,9 +388,9 @@ namespace top {
         //some event weights
         systematicTree->makeOutputVariable(m_weight_pileup, "weight_pileup");
         systematicTree->makeOutputVariable(m_weight_leptonSF , "weight_leptonSF");
-        
+
         if(m_config->useFwdElectrons())
-			systematicTree->makeOutputVariable( m_weight_fwdElSF , "weight_fwdElSF");
+          systematicTree->makeOutputVariable( m_weight_fwdElSF , "weight_fwdElSF");
 
         if (m_config->usePhotons())
           systematicTree->makeOutputVariable(m_weight_photonSF,
@@ -410,6 +410,26 @@ namespace top {
           if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
           m_weight_bTagSF[tagWP] = 0.;
           systematicTree->makeOutputVariable(m_weight_bTagSF[tagWP] , "weight_bTagSF_"+shortBtagWP(tagWP));
+          if (m_config -> storePerJetBtagSFs() && m_config->isMC()) {
+            m_perjet_weight_bTagSF[tagWP] = std::vector<float>();
+            m_perjet_weight_bTagSF_eigen_B_up[tagWP]   = std::vector<std::vector<float> >();
+            m_perjet_weight_bTagSF_eigen_B_down[tagWP] = std::vector<std::vector<float> >();
+            m_perjet_weight_bTagSF_eigen_C_up[tagWP]   = std::vector<std::vector<float> >();
+            m_perjet_weight_bTagSF_eigen_C_down[tagWP] = std::vector<std::vector<float> >();
+            m_perjet_weight_bTagSF_eigen_Light_up[tagWP]   = std::vector<std::vector<float> >();
+            m_perjet_weight_bTagSF_eigen_Light_down[tagWP] = std::vector<std::vector<float> >();
+            systematicTree->makeOutputVariable(m_perjet_weight_bTagSF[tagWP] , "weight_perjet_bTagSF_"+shortBtagWP(tagWP));
+            systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_B_up[tagWP] , "weight_perjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_B_up");
+            systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_B_down[tagWP] , "weight_perjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_B_down");
+            systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_C_up[tagWP] , "weight_perjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_C_up");
+            systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_C_down[tagWP] , "weight_perjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_C_down");
+            systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_Light_up[tagWP] , "weight_perjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_Light_up");
+            systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_eigen_Light_down[tagWP] , "weight_perjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_Light_down");
+            for (const std::string& name : m_config->btagging_namedSysts(tagWP)) {
+              systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_up[tagWP][name], "weight_perjet_bTagSF_"+shortBtagWP(tagWP)+"_"+betterBtagNamedSyst(name)+"_up" );
+              systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_down[tagWP][name], "weight_perjet_bTagSF_"+shortBtagWP(tagWP)+"_"+betterBtagNamedSyst(name)+"_down" );
+            }
+          }
         }
         if( m_config->useTrackJets() ) {
           for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
@@ -417,6 +437,26 @@ namespace top {
             if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
             m_weight_trackjet_bTagSF[tagWP] = 0.;
             systematicTree->makeOutputVariable(m_weight_trackjet_bTagSF[tagWP] , "weight_trackjet_bTagSF_"+shortBtagWP(tagWP));
+            if (m_config -> storePerJetBtagSFs() && m_config->isMC()) {
+              m_perjet_weight_trackjet_bTagSF[tagWP]                  = std::vector<float>();
+              m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP]       = std::vector<std::vector<float> >();
+              m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP]     = std::vector<std::vector<float> >();
+              m_perjet_weight_trackjet_bTagSF_eigen_C_up[tagWP]       = std::vector<std::vector<float> >();
+              m_perjet_weight_trackjet_bTagSF_eigen_C_down[tagWP]     = std::vector<std::vector<float> >();
+              m_perjet_weight_trackjet_bTagSF_eigen_Light_up[tagWP]   = std::vector<std::vector<float> >();
+              m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP] = std::vector<std::vector<float> >();
+              systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF[tagWP] , "weight_perjet_trackjet_bTagSF_"+shortBtagWP(tagWP));
+              systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP] , "weight_perjet_trackjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_B_up");
+              systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP] , "weight_perjet_trackjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_B_down");
+              systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_C_up[tagWP] , "weight_perjet_trackjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_C_up");
+              systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_C_down[tagWP] , "weight_perjet_trackjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_C_down");
+              systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_Light_up[tagWP] , "weight_perjet_trackjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_Light_up");
+              systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP] , "weight_perjet_trackjet_bTagSF_"+shortBtagWP(tagWP)+"_eigenvars_Light_down");
+              for (const std::string& name : m_config->btagging_namedSysts(tagWP)) {
+                systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_up[tagWP][name], "weight_perjet_trackjet_bTagSF_"+shortBtagWP(tagWP)+"_"+betterBtagNamedSyst(name)+"_up" );
+                systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_down[tagWP][name], "weight_perjet_trackjet_bTagSF_"+shortBtagWP(tagWP)+"_"+betterBtagNamedSyst(name)+"_down" );
+              }
+            }
           }
         }
 
@@ -431,12 +471,11 @@ namespace top {
 
           systematicTree->makeOutputVariable(m_weight_pileup_UP   , "weight_pileup_UP");
           systematicTree->makeOutputVariable(m_weight_pileup_DOWN   , "weight_pileup_DOWN");
-          
-          if(m_config->useFwdElectrons())
-          {
-		systematicTree->makeOutputVariable(m_weight_fwdElSF_FWDEL_SF_ID_UP , "weight_fwdElSF_FWDEL_SF_ID_UP");
-		systematicTree->makeOutputVariable(m_weight_fwdElSF_FWDEL_SF_ID_DOWN , "weight_fwdElSF_FWDEL_SF_ID_DOWN");
-	  }
+
+          if(m_config->useFwdElectrons()) {
+            systematicTree->makeOutputVariable(m_weight_fwdElSF_FWDEL_SF_ID_UP , "weight_fwdElSF_FWDEL_SF_ID_UP");
+            systematicTree->makeOutputVariable(m_weight_fwdElSF_FWDEL_SF_ID_DOWN , "weight_fwdElSF_FWDEL_SF_ID_DOWN");
+          }
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Trigger_UP,   "weight_leptonSF_EL_SF_Trigger_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Trigger_DOWN, "weight_leptonSF_EL_SF_Trigger_DOWN");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Reco_UP,      "weight_leptonSF_EL_SF_Reco_UP");
@@ -445,7 +484,7 @@ namespace top {
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_ID_DOWN,      "weight_leptonSF_EL_SF_ID_DOWN");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Isol_UP,      "weight_leptonSF_EL_SF_Isol_UP");
           systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_Isol_DOWN,    "weight_leptonSF_EL_SF_Isol_DOWN");
-          
+
           if(m_config->electronEfficiencySystematicModel()!="TOTAL")
           {
 		systematicTree->makeOutputVariable(m_weight_leptonSF_EL_SF_CorrModel_Reco_UP, "weight_leptonSF_EL_SF_"+m_config->electronEfficiencySystematicModel()+"_Reco_UP");
@@ -697,7 +736,7 @@ namespace top {
           }
         }
       }
-      
+
       ///-- weights for matrix-method fakes estimate by IFF --///
       if (!m_config->isMC() && systematicTree->name() == nominalLooseTTreeName && m_config->doFakesMMWeightsIFF()) {
 	std::vector<CP::AsymptMatrixTool*> fakesMMWeightCalcIFF;
@@ -716,12 +755,12 @@ namespace top {
 	  systematicTree->makeOutputVariable(m_ASMweights_Systname[mmi], ASMweights_Systname_branch_name + "_" + std::to_string(mmi));
 	}
       }
-      
+
       /// Bootstrapping poisson weights
       if (m_config->saveBootstrapWeights()){
         systematicTree->makeOutputVariable(m_weight_poisson, "weight_poisson");
       }
-      
+
       //event info
       systematicTree->makeOutputVariable(m_eventNumber,     "eventNumber");
       systematicTree->makeOutputVariable(m_runNumber,       "runNumber");
@@ -767,19 +806,19 @@ namespace top {
           systematicTree->makeOutputVariable(m_el_true_isChargeFl, "el_true_isChargeFl");
         }
       }
-      
+
       //forward electrons
       if (m_config->useFwdElectrons()) {
-	  systematicTree->makeOutputVariable(m_fwdel_pt,      "fwdel_pt");
-	  systematicTree->makeOutputVariable(m_fwdel_eta,     "fwdel_eta");
-	  systematicTree->makeOutputVariable(m_fwdel_phi,     "fwdel_phi");
-	  systematicTree->makeOutputVariable(m_fwdel_e,       "fwdel_e");
-	  systematicTree->makeOutputVariable(m_fwdel_etcone20,      "fwdel_etcone20");
-	  systematicTree->makeOutputVariable(m_fwdel_etcone30,      "fwdel_etcone30");
-	  systematicTree->makeOutputVariable(m_fwdel_etcone40,      "fwdel_etcone40");
-	  if (systematicTree->name().find("Loose") != std::string::npos) {
-		systematicTree->makeOutputVariable(m_fwdel_isTight, "fwdel_isTight");
-	     }
+        systematicTree->makeOutputVariable(m_fwdel_pt,      "fwdel_pt");
+        systematicTree->makeOutputVariable(m_fwdel_eta,     "fwdel_eta");
+        systematicTree->makeOutputVariable(m_fwdel_phi,     "fwdel_phi");
+        systematicTree->makeOutputVariable(m_fwdel_e,       "fwdel_e");
+        systematicTree->makeOutputVariable(m_fwdel_etcone20,      "fwdel_etcone20");
+        systematicTree->makeOutputVariable(m_fwdel_etcone30,      "fwdel_etcone30");
+        systematicTree->makeOutputVariable(m_fwdel_etcone40,      "fwdel_etcone40");
+        if (systematicTree->name().find("Loose") != std::string::npos) {
+          systematicTree->makeOutputVariable(m_fwdel_isTight, "fwdel_isTight");
+        }
       }//end of fwd electrons branches
 
       //muons
@@ -911,11 +950,11 @@ namespace top {
         systematicTree->makeOutputVariable(m_ljet_e,    "ljet_e");
         systematicTree->makeOutputVariable(m_ljet_m,    "ljet_m");
         systematicTree->makeOutputVariable(m_ljet_sd12, "ljet_sd12");
-	
+
 	for(const std::string& taggerName : m_boostedJetTaggersNames){
 	  systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName],"ljet_isTagged_"+taggerName);
 	}
-	
+
       }
 
       //track jets
@@ -1584,7 +1623,7 @@ namespace top {
     //m_upgradeTreeManager->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
     //m_upgradeTreeManager->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
     if (m_config->HLLHCFakes()) m_upgradeTreeManager->makeOutputVariable(m_el_faketype, "el_faketype"); // 0 true 2 hfake
-    
+
     //forward electrons
     if (m_config->useFwdElectrons())
     {
@@ -1596,7 +1635,7 @@ namespace top {
       m_upgradeTreeManager->makeOutputVariable(m_fwdel_etcone30, "fwdel_etcone30");
       m_upgradeTreeManager->makeOutputVariable(m_fwdel_etcone40, "fwdel_etcone40");
     }
-	
+
     // muons
     m_upgradeTreeManager->makeOutputVariable(m_mu_pt, "mu_pt");
     m_upgradeTreeManager->makeOutputVariable(m_mu_eta, "mu_eta");
@@ -1712,7 +1751,7 @@ namespace top {
       m_weight_leptonSF  = m_sfRetriever->leptonSF(event,top::topSFSyst::nominal);
       if(m_config->useFwdElectrons())
 	    m_weight_fwdElSF  = m_sfRetriever->fwdElectronSF(event,top::topSFSyst::nominal);
-      
+
       if (m_config->useTaus())
         m_weight_tauSF = m_sfRetriever->tauSF(event, top::topSFSyst::nominal);
 
@@ -1744,9 +1783,9 @@ namespace top {
 
       // writing the systematic-shifted SFs only in the nominal (or nominal_Loose) tree
       if (event.m_hashValue == m_config->nominalHashValue()) {
-		
+
 	if(m_config->useFwdElectrons())
-	{  
+	{
 	   m_weight_fwdElSF_FWDEL_SF_ID_UP = m_sfRetriever->fwdElectronSF(event,top::topSFSyst::FWDEL_SF_ID_UP);
 	   m_weight_fwdElSF_FWDEL_SF_ID_DOWN  = m_sfRetriever->fwdElectronSF(event,top::topSFSyst::FWDEL_SF_ID_DOWN);
 	}
@@ -1762,16 +1801,16 @@ namespace top {
         m_weight_leptonSF_EL_SF_ID_DOWN      = m_sfRetriever->leptonSF(event,top::topSFSyst::EL_SF_ID_DOWN);
         m_weight_leptonSF_EL_SF_Isol_UP      = m_sfRetriever->leptonSF(event,top::topSFSyst::EL_SF_Isol_UP);
         m_weight_leptonSF_EL_SF_Isol_DOWN    = m_sfRetriever->leptonSF(event,top::topSFSyst::EL_SF_Isol_DOWN);
-        
+
         if(m_config->electronEfficiencySystematicModel()!="TOTAL")
         {
-		m_weight_leptonSF_EL_SF_CorrModel_Reco_UP= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::RECO,1);
-		m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::RECO,-1);
-		m_weight_leptonSF_EL_SF_CorrModel_ID_UP= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ID,1);
-		m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ID,-1);
-		m_weight_leptonSF_EL_SF_CorrModel_Iso_UP= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ISOLATION,1);
-		m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ISOLATION,-1);
-	}
+          m_weight_leptonSF_EL_SF_CorrModel_Reco_UP= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::RECO,1);
+          m_weight_leptonSF_EL_SF_CorrModel_Reco_DOWN= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::RECO,-1);
+          m_weight_leptonSF_EL_SF_CorrModel_ID_UP= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ID,1);
+          m_weight_leptonSF_EL_SF_CorrModel_ID_DOWN= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ID,-1);
+          m_weight_leptonSF_EL_SF_CorrModel_Iso_UP= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ISOLATION,1);
+          m_weight_leptonSF_EL_SF_CorrModel_Iso_DOWN= m_sfRetriever->electronSFSystVariationVector(event,top::topSFComp::ISOLATION,-1);
+        }
         m_weight_leptonSF_MU_SF_Trigger_STAT_UP   = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_Trigger_STAT_UP);
         m_weight_leptonSF_MU_SF_Trigger_STAT_DOWN = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_Trigger_STAT_DOWN);
         m_weight_leptonSF_MU_SF_Trigger_SYST_UP   = m_sfRetriever->leptonSF(event,top::topSFSyst::MU_SF_Trigger_SYST_UP);
@@ -2004,7 +2043,7 @@ namespace top {
 	}
       }
     }
-    
+
     //event info
     m_eventNumber = event.m_info -> eventNumber();
     m_runNumber   = event.m_info -> runNumber();
@@ -2050,7 +2089,7 @@ namespace top {
     }
 
     ATH_MSG_DEBUG(" mu = "<<m_mu_original<<" -> "<<m_mu);
-    
+
     //forward electrons
     if (m_config->useFwdElectrons()) {
       unsigned int i(0);
@@ -2063,27 +2102,27 @@ namespace top {
       m_fwdel_etcone30.resize(n_electrons);
       m_fwdel_etcone40.resize(n_electrons);
       m_fwdel_isTight.resize(n_electrons);
-      
+
       for (const auto* const elPtr : event.m_fwdElectrons) {
         m_fwdel_pt[i] = elPtr->pt();
         m_fwdel_eta[i] = elPtr->eta();
         m_fwdel_phi[i] = elPtr->phi();
         m_fwdel_e[i] = elPtr->e();
-        
+
         float etcone20 = 0.0; elPtr->isolationValue( etcone20 , xAOD::Iso::topoetcone20 );
-	float etcone30 = 0.0; elPtr->isolationValue( etcone30 , xAOD::Iso::topoetcone30 );
-	float etcone40 = 0.0; elPtr->isolationValue( etcone40 , xAOD::Iso::topoetcone40 );
+        float etcone30 = 0.0; elPtr->isolationValue( etcone30 , xAOD::Iso::topoetcone30 );
+        float etcone40 = 0.0; elPtr->isolationValue( etcone40 , xAOD::Iso::topoetcone40 );
 
         m_fwdel_etcone20[i] =etcone20;
         m_fwdel_etcone30[i] =etcone30;
         m_fwdel_etcone40[i] =etcone40;
-        
+
         if (event.m_isLoose) {
           if (elPtr->isAvailable<char>("passPreORSelection")) {
             m_fwdel_isTight[i] = elPtr->auxdataConst<char>("passPreORSelection");
           }
         }
-           
+
         ++i;
       }//end of loop on fwd electrons
     }//end of fwd electrons filling
@@ -2295,13 +2334,13 @@ namespace top {
 
       // ghost tracks
       if( m_config->useJetGhostTrack() ){
-	m_jet_ghostTrack_pt    .clear();
-	m_jet_ghostTrack_eta   .clear();
-	m_jet_ghostTrack_phi   .clear();
-	m_jet_ghostTrack_e     .clear();
-	m_jet_ghostTrack_d0    .clear();
-	m_jet_ghostTrack_z0    .clear();
-	m_jet_ghostTrack_qOverP.clear();
+        m_jet_ghostTrack_pt    .clear();
+        m_jet_ghostTrack_eta   .clear();
+        m_jet_ghostTrack_phi   .clear();
+        m_jet_ghostTrack_e     .clear();
+        m_jet_ghostTrack_d0    .clear();
+        m_jet_ghostTrack_z0    .clear();
+        m_jet_ghostTrack_qOverP.clear();
 
 
         m_jet_ghostTrack_pt.resize(event.m_jets.size());
@@ -2339,7 +2378,23 @@ namespace top {
         m_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_jets.size());
       }
       for( auto& tagWP : m_config -> bTagWP_available()){
-        if (tagWP.find("Continuous") == std::string::npos) m_jet_isbtagged[tagWP].resize(event.m_jets.size());
+        if (tagWP.find("Continuous") == std::string::npos) {
+          m_jet_isbtagged[tagWP].resize(event.m_jets.size());
+
+          if (m_config->isMC() && m_config->storePerJetBtagSFs()){
+            m_perjet_weight_bTagSF[tagWP]                 .resize(event.m_jets.size());
+            m_perjet_weight_bTagSF_eigen_B_up[tagWP]      .resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
+            m_perjet_weight_bTagSF_eigen_B_down[tagWP]    .resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
+            m_perjet_weight_bTagSF_eigen_C_up[tagWP]      .resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
+            m_perjet_weight_bTagSF_eigen_C_down[tagWP]    .resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
+            m_perjet_weight_bTagSF_eigen_Light_up[tagWP]  .resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
+            m_perjet_weight_bTagSF_eigen_Light_down[tagWP].resize(event.m_jets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
+            for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
+              m_perjet_weight_bTagSF_named_up[tagWP][name]  .resize(event.m_jets.size());
+              m_perjet_weight_bTagSF_named_down[tagWP][name].resize(event.m_jets.size());
+            }
+          }
+        }
         else m_jet_tagWeightBin[tagWP].resize(event.m_jets.size());
       }
       for (const auto* const jetPtr : event.m_jets) {
@@ -2394,9 +2449,9 @@ namespace top {
 
           for (unsigned int iGhost=0; iGhost<nghostTracks; ++iGhost){
 
-	    top::check( ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+            top::check( ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
 
-	    m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
+            m_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
             m_jet_ghostTrack_eta[i][iGhost]=ghostTracks.at(iGhost)->eta();
             m_jet_ghostTrack_phi[i][iGhost]=ghostTracks.at(iGhost)->phi();
             m_jet_ghostTrack_e[i][iGhost]=ghostTracks.at(iGhost)->e();
@@ -2415,6 +2470,25 @@ namespace top {
             m_jet_isbtagged[tagWP][i] = false;
             if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
               m_jet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
+            if (m_config->isMC() && m_config->storePerJetBtagSFs()){
+              m_perjet_weight_bTagSF[tagWP][i] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_nom");
+              for (size_t ivar = 0; ivar < m_config->btagging_num_B_eigenvars(tagWP); ++ivar){
+                m_perjet_weight_bTagSF_eigen_B_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_B_"+std::to_string(ivar)+"__1up");
+                m_perjet_weight_bTagSF_eigen_B_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_B_"+std::to_string(ivar)+"__1down");
+              }
+              for (size_t ivar = 0; ivar < m_config->btagging_num_C_eigenvars(tagWP); ++ivar){
+                m_perjet_weight_bTagSF_eigen_C_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_C_"+std::to_string(ivar)+"__1up");
+                m_perjet_weight_bTagSF_eigen_C_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_C_"+std::to_string(ivar)+"__1down");
+              }
+              for (size_t ivar = 0; ivar < m_config->btagging_num_Light_eigenvars(tagWP); ++ivar){
+                m_perjet_weight_bTagSF_eigen_Light_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_Light_"+std::to_string(ivar)+"__1up");
+                m_perjet_weight_bTagSF_eigen_Light_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_Light_"+std::to_string(ivar)+"__1down");
+              }
+              for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
+                m_perjet_weight_bTagSF_named_up[tagWP][name][i] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_"+name+"__1up");
+                m_perjet_weight_bTagSF_named_down[tagWP][name][i] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_"+name+"__1down");
+              }
+            }
           }
           else {
             m_jet_tagWeightBin[tagWP][i] = -2;// AT default value
@@ -2531,13 +2605,13 @@ namespace top {
       // ghost tracks
       // fail-JVT jet could still have some ghost tracks, so these variables are kept
       if( m_config->useJetGhostTrack() ){
-	m_failJvt_jet_ghostTrack_pt    .clear();
-	m_failJvt_jet_ghostTrack_eta   .clear();
-	m_failJvt_jet_ghostTrack_phi   .clear();
-	m_failJvt_jet_ghostTrack_e     .clear();
-	m_failJvt_jet_ghostTrack_d0    .clear();
-	m_failJvt_jet_ghostTrack_z0    .clear();
-	m_failJvt_jet_ghostTrack_qOverP.clear();
+        m_failJvt_jet_ghostTrack_pt    .clear();
+        m_failJvt_jet_ghostTrack_eta   .clear();
+        m_failJvt_jet_ghostTrack_phi   .clear();
+        m_failJvt_jet_ghostTrack_e     .clear();
+        m_failJvt_jet_ghostTrack_d0    .clear();
+        m_failJvt_jet_ghostTrack_z0    .clear();
+        m_failJvt_jet_ghostTrack_qOverP.clear();
 
         m_failJvt_jet_ghostTrack_pt.resize(event.m_failJvt_jets.size());
         m_failJvt_jet_ghostTrack_eta.resize(event.m_failJvt_jets.size());
@@ -2598,9 +2672,9 @@ namespace top {
 
           for (unsigned int iGhost=0; iGhost<nghostTracks; ++iGhost){
 
-	    top::check( ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
+            top::check( ghostTracks.at(iGhost), "Error in EventSaverFlatNtuple: Found jet with null pointer in ghost track vector.");
 
-	    m_failJvt_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
+            m_failJvt_jet_ghostTrack_pt[i][iGhost]=ghostTracks.at(iGhost)->pt();
             m_failJvt_jet_ghostTrack_eta[i][iGhost]=ghostTracks.at(iGhost)->eta();
             m_failJvt_jet_ghostTrack_phi[i][iGhost]=ghostTracks.at(iGhost)->phi();
             m_failJvt_jet_ghostTrack_e[i][iGhost]=ghostTracks.at(iGhost)->e();
@@ -2634,9 +2708,9 @@ namespace top {
       m_ljet_e.resize(nLargeRJets);
       m_ljet_m.resize(nLargeRJets);
       m_ljet_sd12.resize(nLargeRJets);
-      
+
       for (const std::string& taggerName : m_boostedJetTaggersNames ) m_ljet_isTagged[taggerName].resize(nLargeRJets);
-      
+
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
         m_ljet_eta[i] = jetPtr->eta();
@@ -2648,10 +2722,10 @@ namespace top {
         jetPtr->getAttribute("Split12", Split12);
         m_ljet_sd12[i] = Split12;
 
-	
-	for (const std::string& taggerName : m_boostedJetTaggersNames ) { 
-	  try{ m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName); }catch (...) { }
-	}
+
+      for (const std::string& taggerName : m_boostedJetTaggersNames ) {
+        try{ m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_"+taggerName); }catch (...) { }
+      }
 
         ++i;
       }
@@ -2668,7 +2742,22 @@ namespace top {
       m_tjet_mv2c10.resize(event.m_trackJets.size());
       m_tjet_mv2c20.resize(event.m_trackJets.size());
       for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
-        if (tagWP.find("Continuous") == std::string::npos) m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
+        if (tagWP.find("Continuous") == std::string::npos) {
+          m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
+          if (m_config->isMC() && m_config->storePerJetBtagSFs()){
+            m_perjet_weight_trackjet_bTagSF[tagWP]                 .resize(event.m_trackJets.size());
+            m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP]      .resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP]    .resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_B_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_C_up[tagWP]      .resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_C_down[tagWP]    .resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_C_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_Light_up[tagWP]  .resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
+            m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP].resize(event.m_trackJets.size(), std::vector<float>(m_config->btagging_num_Light_eigenvars(tagWP)));
+            for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
+              m_perjet_weight_trackjet_bTagSF_named_up[tagWP][name]  .resize(event.m_trackJets.size());
+              m_perjet_weight_trackjet_bTagSF_named_down[tagWP][name].resize(event.m_trackJets.size());
+            }
+          }
+        }
         else m_tjet_tagWeightBin[tagWP].resize(event.m_trackJets.size());
       }
       for (const auto* const jetPtr : event.m_trackJets) {
@@ -2693,6 +2782,25 @@ namespace top {
             m_tjet_isbtagged[tagWP][i] = false;
             if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
               m_tjet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
+            if (m_config->isMC() && m_config->storePerJetBtagSFs()){
+              m_perjet_weight_trackjet_bTagSF[tagWP][i] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_nom");
+              for (size_t ivar = 0; ivar < m_config->btagging_num_B_eigenvars(tagWP); ++ivar){
+                m_perjet_weight_trackjet_bTagSF_eigen_B_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_B_"+std::to_string(ivar)+"__1up");
+                m_perjet_weight_trackjet_bTagSF_eigen_B_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_B_"+std::to_string(ivar)+"__1down");
+              }
+              for (size_t ivar = 0; ivar < m_config->btagging_num_C_eigenvars(tagWP); ++ivar){
+                m_perjet_weight_trackjet_bTagSF_eigen_C_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_C_"+std::to_string(ivar)+"__1up");
+                m_perjet_weight_trackjet_bTagSF_eigen_C_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_C_"+std::to_string(ivar)+"__1down");
+              }
+              for (size_t ivar = 0; ivar < m_config->btagging_num_Light_eigenvars(tagWP); ++ivar){
+                m_perjet_weight_trackjet_bTagSF_eigen_Light_up[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_Light_"+std::to_string(ivar)+"__1up");
+                m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP][i][ivar] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_FT_EFF_Eigen_Light_"+std::to_string(ivar)+"__1down");
+              }
+              for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
+                m_perjet_weight_trackjet_bTagSF_named_up[tagWP][name][i] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_"+name+"__1up");
+                m_perjet_weight_trackjet_bTagSF_named_down[tagWP][name][i] = jetPtr->auxdataConst<float>("btag_SF_"+tagWP+"_"+name+"__1down");
+              }
+            }
           }
           else {
             m_tjet_tagWeightBin[tagWP][i] = -2;// AT default value
