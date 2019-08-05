@@ -4,8 +4,8 @@
 
 # Ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
-dataType = "data"
-#dataType = "mc"
+#dataType = "data"
+dataType = "mc"
 #dataType = "afii"
 inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
