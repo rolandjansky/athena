@@ -175,8 +175,6 @@
 
 namespace asg
 {
-  ANA_MSG_HEADER (msgProperty)
-  ANA_MSG_HEADER (msgToolHandle)
   ANA_MSG_HEADER (msgUserCode)
 }
 
