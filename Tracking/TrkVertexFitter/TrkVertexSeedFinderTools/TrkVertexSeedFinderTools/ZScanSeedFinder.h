@@ -52,6 +52,8 @@ namespace Trk
     //destructor
     virtual ~ZScanSeedFinder();
 
+    using IVertexSeedFinder::findSeed;
+
     // Interface for Tracks with starting seed/linearization point
     virtual Amg::Vector3D findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint=0);
     
@@ -63,17 +65,6 @@ namespace Trk
 
     // Interface for finding vector of seeds from track parameters
     virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0);
-
-    //The below four functions are dummy functions so that this compiles. The functions are needed in the interface IMode3dFinder.h for Mode3dFromFsmw1dFinder (the seed finder for the Inclusive Secondary Vertex Finder)
-
-    virtual void setPriVtxPosition( double vx, double vy );
-
-    virtual int perigeesAtSeed( std::vector<const Trk::TrackParameters*> * a,
-                              const std::vector<const Trk::TrackParameters*> & b) const;
-
-    virtual int getModes1d(std::vector<float>& a, std::vector<float>& b, 
-			   std::vector<float>& c, std::vector<float>& d) const;
-    virtual void getCorrelationDistance( double &cXY, double &cZ );
 
 
   private:

@@ -21,13 +21,6 @@
 #include "TrkParticleBase/TrackParticleBase.h"
 
 
-namespace {
-  inline double square(const double tosquare) {
-    return std::pow(tosquare,2);
-  }
-}
-
-  
 namespace Trk
 {
     

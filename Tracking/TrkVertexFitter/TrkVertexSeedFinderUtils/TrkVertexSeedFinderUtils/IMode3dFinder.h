@@ -25,29 +25,33 @@ namespace Trk
 
    */
 
+  /// Auxillary interface for getting back additional data.
+  /// Mostly for debugging/monitoring.
+  class IMode3dInfo
+  {
+  public:
+    virtual ~IMode3dInfo() = default;
+
+    virtual unsigned int Modes1d(std::vector<float> &,
+                                 std::vector<float> &, 
+                                 std::vector<float> &,
+                                 std::vector<float> &) const = 0 ;
+
+    virtual const std::vector<int>& AcceptedCrossingPointsIndices() const = 0;
+
+    virtual void getCorrelationDistance( double &cXY, double &cZ ) const = 0 ;
+
+    virtual int perigeesAtSeed( std::vector<const Trk::TrackParameters*>& perigees , 
+                                const std::vector<const Trk::TrackParameters*>& perigeeList ) const = 0;
+
+    virtual void setTrkidx (std::vector< std::pair <int, int> >&& trkidx) = 0;
+  };
+
+
   class IMode3dFinder : virtual public IAlgTool
   {
   public:
     DeclareInterfaceID( IMode3dFinder, 1, 0);
-
-
-    /// Auxillary interface for getting back additional data.
-    /// Mostly for debugging/monitoring.
-    class IMode3dInfo
-    {
-    public:
-      virtual ~IMode3dInfo() = default;
-
-      virtual unsigned int Modes1d(std::vector<float> &,
-                                   std::vector<float> &, 
-                                   std::vector<float> &,
-                                   std::vector<float> &) const = 0 ;
-
-      virtual const std::vector<int>& AcceptedCrossingPointsIndices() const = 0;
-
-      virtual void getCorrelationDistance( double &cXY, double &cZ ) const = 0 ;
-    };
-
 
     /**
      * @brief Obtain the 3d-mode (position) from a list of positions
