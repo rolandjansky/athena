@@ -8,7 +8,7 @@ makeTrains=True
 formatList = ['PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ4', 'TOPQ5',
               'HIGG1D1', 'HIGG1D2',
-              'HIGG2D1', 'HIGG2D4', 'HIGG2D5',
+              'HIGG2D1', 'HIGG2D4', 'HDBS2',
               'HIGG3D1', 'HIGG3D3',
               'HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5','HIGG4D6',
               'HIGG5D1', 'HIGG5D2', 'HIGG5D3',
@@ -32,7 +32,7 @@ formatList = ['PHYSVAL',
 truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 
 trainList = [ 
-              ["TCAL1","EXOT10","HIGG2D5"],
+              ["TCAL1","EXOT10","HDBS2"],
               ["JETM12","EGAM3","JETM10"],
               ["STDM5","EGAM4","EGAM2","EXOT12","SUSY9","EXOT9"],
               ["MUON2","HIGG4D4","JETM7","BPHY7","EXOT17","BPHY5","EGAM7","HIGG1D2"],
