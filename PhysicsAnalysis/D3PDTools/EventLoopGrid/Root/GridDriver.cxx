@@ -5,8 +5,8 @@
 #include "EventLoopGrid/GridDriver.h"
 #include "EventLoop/Algorithm.h"
 #include "EventLoop/Job.h"
-#include "EventLoop/JobSubmitInfo.h"
-#include "EventLoop/JobSubmitStep.h"
+#include "EventLoop/ManagerData.h"
+#include "EventLoop/ManagerStep.h"
 #include "EventLoop/MessageCheck.h"
 #include "EventLoop/OutputStream.h"
 #include <PathResolver/PathResolver.h>
@@ -171,21 +171,21 @@ namespace EL {
 
 
 ::StatusCode EL::GridDriver ::
-doSubmitStep (Detail::JobSubmitInfo& info,
-              Detail::JobSubmitStep step) const
+doManagerStep (Detail::ManagerData& data,
+              Detail::ManagerStep step) const
 {
-  ANA_CHECK (Driver::doSubmitStep (info, step));
+  ANA_CHECK (Driver::doManagerStep (data, step));
   switch (step)
   {
-  case Detail::JobSubmitStep::submitJob:
+  case Detail::ManagerStep::submitJob:
     {
-      //Parent class ensures info.submitDir is absolute, but if originally specified 
+      //Parent class ensures data.submitDir is absolute, but if originally specified 
       //as a relative path, it may still contain '..' which will cause trouble
       //later as dq2 -H option used by Ganga Tasks requires the canonical path
-      std::string jobDir = info.submitDir;
+      std::string jobDir = data.submitDir;
       {
         Ssiz_t len, pos;
-        TString tsLocation(info.submitDir.c_str());
+        TString tsLocation(data.submitDir.c_str());
         const char *noDir = "/[A-Za-z0-9_\\.-]+/\\.\\.";      
         while ((pos = TRegexp(noDir).Index(tsLocation,&len,0)) != -1) 
           tsLocation.Remove(pos, len);      
@@ -248,23 +248,23 @@ doSubmitStep (Detail::JobSubmitInfo& info,
 
       {//Save the Algorithms and sample MetaObjects to be sent with the jobs 
         TFile f(jobDefFile.c_str(), "RECREATE"); 
-        f.WriteTObject(&info.job->jobConfig(), "jobConfig", "SingleKey");      
+        f.WriteTObject(&data.job->jobConfig(), "jobConfig", "SingleKey");      
 
-        for (EL::Job::outputIter out = info.job->outputBegin(),
-               end = info.job->outputEnd(); out != end; ++out) {
+        for (EL::Job::outputIter out = data.job->outputBegin(),
+               end = data.job->outputEnd(); out != end; ++out) {
           outputs.Add(out->Clone());
         }      
         f.WriteTObject(&outputs, "outputs", "SingleKey");
-        for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin();
-             sample != info.job->sampleHandler().end();  ++sample) {
+        for (SH::SampleHandler::iterator sample = data.job->sampleHandler().begin();
+             sample != data.job->sampleHandler().end();  ++sample) {
           SH::MetaObject meta(*(*sample)->meta());
-          meta.fetchDefaults(info.options);
+          meta.fetchDefaults(data.options);
           f.WriteObject(&meta, (*sample)->name().c_str());
           //f.WriteObject((*sample)->meta(), (*sample)->name().c_str());
         }
         f.Close();      
       }
-      SH::MetaObject meta(info.options);
+      SH::MetaObject meta(data.options);
     
       std::map<std::string, SH::SampleHandler> outMap; // <label,samples>     
       std::list<std::string> outDSs; //Created dq2 datasets for output 
@@ -273,8 +273,8 @@ doSubmitStep (Detail::JobSubmitInfo& info,
 
       std::stringstream gangaCmd;
 
-      for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin();
-           sample != info.job->sampleHandler().end(); ++sample) {
+      for (SH::SampleHandler::iterator sample = data.job->sampleHandler().begin();
+           sample != data.job->sampleHandler().end(); ++sample) {
 
         TString inDS;
         TString outDS;
@@ -350,7 +350,7 @@ doSubmitStep (Detail::JobSubmitInfo& info,
         outDSs.push_back(std::string(outDS.Data()));	
       }
 
-      std::string taskName = info.submitDir;
+      std::string taskName = data.submitDir;
       if (taskName.rfind('/') != std::string::npos)
         taskName = taskName.substr(taskName.rfind('/')+1);
       std::stringstream submitCmd;
@@ -359,7 +359,7 @@ doSubmitStep (Detail::JobSubmitInfo& info,
         << "for EL job " << taskName << "\n"
         << "t = AtlasTask()\n"
         << "t.name = '" << taskName << "'\n" 
-        << "t.comment += 'location:" << info.submitDir << "'\n"
+        << "t.comment += 'location:" << data.submitDir << "'\n"
         << "t.float = 200\n"
         << "app = Athena()\n"
         << "app.athena_compile = True\n"
@@ -400,14 +400,14 @@ doSubmitStep (Detail::JobSubmitInfo& info,
         return ::StatusCode::FAILURE;
       }
 
-      ANA_MSG_INFO ("Done. Call EL::GridDriver::status(\"" << info.submitDir
+      ANA_MSG_INFO ("Done. Call EL::GridDriver::status(\"" << data.submitDir
                     << "\") to follow the progress of your jobs.");
 
       int taskId = -1;
       std::string container = getStrValues(gangaMsg, "TaskContainer: ");
       std::istringstream(getStrValues(gangaMsg, "TaskID: ")) >> taskId;
       RCU_ASSERT(taskId >= 0);
-      writeTaskID(info.submitDir, taskId);
+      writeTaskID(data.submitDir, taskId);
 
       {
         std::ofstream of(dsContFile.c_str());
@@ -422,8 +422,8 @@ doSubmitStep (Detail::JobSubmitInfo& info,
                     << "\"out\": tr.getContainerName()}\n";
       sendGangaCmd(queryOutDsCmd.str(), gangaMsg);
 
-      for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin();
-           sample != info.job->sampleHandler().end(); ++sample) {
+      for (SH::SampleHandler::iterator sample = data.job->sampleHandler().begin();
+           sample != data.job->sampleHandler().end(); ++sample) {
         std::string sampleOutDs = getStrValues(gangaMsg, (*sample)->name() + ": ");
         if (*sampleOutDs.rbegin() == '\n')
           sampleOutDs  = sampleOutDs.substr(0, sampleOutDs.size()-1);
@@ -431,8 +431,8 @@ doSubmitStep (Detail::JobSubmitInfo& info,
           sampleOutDs  = sampleOutDs.substr(0, sampleOutDs.size()-1);
 
         //Create a sample for each output and add it to that output's handler 
-        for (EL::Job::outputIter out=info.job->outputBegin();
-             out != info.job->outputEnd(); ++out) {
+        for (EL::Job::outputIter out=data.job->outputBegin();
+             out != data.job->outputEnd(); ++out) {
           SH::SampleGrid * mysample = new SH::SampleGrid((*sample)->name());
           mysample->meta()->setString("nc_grid", sampleOutDs);
           mysample->meta()->setString("nc_grid_filter", "*" + out->label() + ".root*");
@@ -475,16 +475,16 @@ doSubmitStep (Detail::JobSubmitInfo& info,
       // cout << "(Please note: this service is still under development!)\n";
     
       //Save the output Sample Handlers
-      for (EL::Job::outputIter output=info.job->outputBegin(),
-             end=info.job->outputEnd(); output != end; ++output)
+      for (EL::Job::outputIter output=data.job->outputBegin(),
+             end=data.job->outputEnd(); output != end; ++output)
       {
-        outMap[output->label()].fetch(info.job->sampleHandler());
+        outMap[output->label()].fetch(data.job->sampleHandler());
         outMap[output->label()].save(jobDir + "/output-" + output->label());
       };
-      outMap["hist"].fetch(info.job->sampleHandler());
+      outMap["hist"].fetch(data.job->sampleHandler());
       outMap["hist"].save(jobDir + "/output-hist");
     }
-    info.submitted = true;
+    data.submitted = true;
     break;
 
   default:

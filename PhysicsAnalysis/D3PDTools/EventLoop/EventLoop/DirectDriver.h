@@ -52,8 +52,8 @@ namespace EL
 
   protected:
     virtual ::StatusCode
-    doSubmitStep (Detail::JobSubmitInfo& info,
-                  Detail::JobSubmitStep step) const override;
+    doManagerStep (Detail::ManagerData& data,
+                  Detail::ManagerStep step) const override;
 
 
 

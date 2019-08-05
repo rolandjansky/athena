@@ -5,8 +5,8 @@
 #include <EventLoopGrid/PrunDriver.h>
 #include <EventLoopGrid/GridDriver.h>
 #include <EventLoop/Algorithm.h>
-#include <EventLoop/JobSubmitInfo.h>
-#include <EventLoop/JobSubmitStep.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/ManagerStep.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
@@ -477,16 +477,16 @@ EL::PrunDriver::PrunDriver()
 }
 
 ::StatusCode EL::PrunDriver ::
-doSubmitStep (Detail::JobSubmitInfo& info,
-              Detail::JobSubmitStep step) const
+doManagerStep (Detail::ManagerData& data,
+              Detail::ManagerStep step) const
 {
   using namespace msgEventLoop;
-  ANA_CHECK (Driver::doSubmitStep (info, step));
+  ANA_CHECK (Driver::doManagerStep (data, step));
   switch (step)
   {
-  case Detail::JobSubmitStep::submitJob:
+  case Detail::ManagerStep::submitJob:
     {
-      const std::string jobELGDir = info.submitDir + "/elg";
+      const std::string jobELGDir = data.submitDir + "/elg";
       const std::string runShFile = jobELGDir + "/runjob.sh";
       //const std::string runShOrig = "$ROOTCOREBIN/data/EventLoopGrid/runjob.sh";
       const std::string mergeShFile = jobELGDir + "/elg_merge";
@@ -501,13 +501,13 @@ doSubmitStep (Detail::JobSubmitInfo& info,
       gSystem->Exec(Form("cp %s %s", mergeShOrig.c_str(), mergeShFile.c_str()));
       gSystem->Exec(Form("chmod +x %s", mergeShFile.c_str()));
 
-      const SH::SampleHandler& sh = info.job->sampleHandler();
+      const SH::SampleHandler& sh = data.job->sampleHandler();
 
       for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
         SH::MetaObject& meta = *(*s)->meta();
-        meta.fetchDefaults(info.options);
+        meta.fetchDefaults(data.options);
         meta.fetchDefaults(defaultOpts());
-        meta.setString("nc_outputs", outputFileNames(*info.job));
+        meta.setString("nc_outputs", outputFileNames(*data.job));
         std::string outputSampleName = meta.castString("nc_outputSampleName");
         if (outputSampleName.empty()) {
           outputSampleName = "user.%nickname%.%in:name%";
@@ -522,22 +522,22 @@ doSubmitStep (Detail::JobSubmitInfo& info,
         meta.setString("nc_mergeScript", mergestr);
       }
 
-      saveJobDef(jobDefFile, *info.job, sh);
+      saveJobDef(jobDefFile, *data.job, sh);
   
-      for (EL::Job::outputIter out = info.job->outputBegin();
-           out != info.job->outputEnd(); ++out) {
+      for (EL::Job::outputIter out = data.job->outputBegin();
+           out != data.job->outputEnd(); ++out) {
         SH::SampleHandler shOut = outputSH(sh, out->label());
-        shOut.save(info.submitDir + "/output-" + out->label());
+        shOut.save(data.submitDir + "/output-" + out->label());
       }
       SH::SampleHandler shHist = outputSH(sh, "hist-output");
-      shHist.save(info.submitDir + "/output-hist");
+      shHist.save(data.submitDir + "/output-hist");
  
       TmpCd keepDir(jobELGDir);
 
       processAllInState(sh, JobState::INIT, 0); 
 
-      sh.save(info.submitDir + "/input");
-      info.submitted = true;
+      sh.save(data.submitDir + "/input");
+      data.submitted = true;
     }
     break;
 

@@ -16,7 +16,7 @@
 #include <sstream>
 #include <TSystem.h>
 #include <EventLoop/Job.h>
-#include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/ManagerData.h>
 #include <EventLoop/MessageCheck.h>
 #include <PathResolver/PathResolver.h>
 #include <RootCoreUtils/Assert.h>
@@ -58,17 +58,17 @@ namespace EL
 
 
   void KubernetesDriver ::
-  batchSubmit (Detail::JobSubmitInfo& info) const
+  batchSubmit (Detail::ManagerData& data) const
   {
     using namespace msgEventLoop;
 
     RCU_READ_INVARIANT (this);
 
     const std::string dockerImage {
-      info.options.castString(Job::optDockerImage)};
+      data.options.castString(Job::optDockerImage)};
 
     const std::string dockerOptions {
-      info.options.castString(Job::optDockerOptions)};
+      data.options.castString(Job::optDockerOptions)};
     if (!dockerOptions.empty())
     {
       ANA_MSG_WARNING ("you specified docker options for kubernetes driver");
@@ -78,12 +78,12 @@ namespace EL
 
     /// \brief the setup file we use as a template
     const std::string batchSetupFile {
-      info.options.castString(Job::optBatchSetupFile, "EventLoop/kubernetes_setup.yml")};
+      data.options.castString(Job::optBatchSetupFile, "EventLoop/kubernetes_setup.yml")};
 
 
     /// \brief the config file we use as a template
     const std::string batchConfigFile {
-      info.options.castString(Job::optBatchConfigFile, "EventLoop/kubernetes_job.yml")};
+      data.options.castString(Job::optBatchConfigFile, "EventLoop/kubernetes_job.yml")};
     std::string baseConfig;
     {
       std::ifstream file (PathResolverFindDataFile (batchConfigFile).c_str());
@@ -91,17 +91,17 @@ namespace EL
                                 std::istreambuf_iterator<char>() );
     }
     baseConfig = RCU::substitute (baseConfig, "%%DOCKERIMAGE%%", dockerImage);
-    baseConfig = RCU::substitute (baseConfig, "%%SUBMITDIR%%", info.submitDir);
+    baseConfig = RCU::substitute (baseConfig, "%%SUBMITDIR%%", data.submitDir);
 
     std::ostringstream basedirName;
-    basedirName << info.submitDir << "/tmp";
-    if (!info.resubmit)
+    basedirName << data.submitDir << "/tmp";
+    if (!data.resubmit)
     {
       if (gSystem->MakeDirectory (basedirName.str().c_str()) != 0)
         RCU_THROW_MSG ("failed to create directory " + basedirName.str());
     }
 
-    const std::string jobFilePath {info.submitDir + "/job.yml"};
+    const std::string jobFilePath {data.submitDir + "/job.yml"};
     {
       bool first {true};
       std::ofstream jobFile (jobFilePath.c_str());
@@ -111,12 +111,12 @@ namespace EL
         std::string setupConfig {std::istreambuf_iterator<char>(file),
             std::istreambuf_iterator<char>()};
         setupConfig = RCU::substitute (setupConfig, "%%DOCKERIMAGE%%", dockerImage);
-        setupConfig = RCU::substitute (setupConfig, "%%SUBMITDIR%%", info.submitDir);
+        setupConfig = RCU::substitute (setupConfig, "%%SUBMITDIR%%", data.submitDir);
         jobFile << setupConfig;
         first = false;
       }
 
-      for (std::size_t jobIndex : info.batchJobIndices)
+      for (std::size_t jobIndex : data.batchJobIndices)
       {
         std::ostringstream dirName;
         dirName << basedirName.str() << "/" << jobIndex;
@@ -131,7 +131,7 @@ namespace EL
         std::string myConfig = baseConfig;
         myConfig = RCU::substitute (myConfig, "%%JOBINDEX%%", std::to_string (jobIndex));
         std::ostringstream command;
-        command << info.submitDir << "/submit/run " << jobIndex;
+        command << data.submitDir << "/submit/run " << jobIndex;
         myConfig = RCU::substitute (myConfig, "%%COMMAND%%", command.str());
 
         jobFile << myConfig << "\n";

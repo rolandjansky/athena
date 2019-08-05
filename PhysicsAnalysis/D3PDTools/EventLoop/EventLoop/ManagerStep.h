@@ -6,8 +6,8 @@
 
 
 
-#ifndef EVENT_LOOP__JOB_SUBMIT_STEP_H
-#define EVENT_LOOP__JOB_SUBMIT_STEP_H
+#ifndef EVENT_LOOP__MANAGER_STEP_H
+#define EVENT_LOOP__MANAGER_STEP_H
 
 #include <EventLoop/Global.h>
 
@@ -25,7 +25,7 @@ namespace EL
     /// avoids having a large number of virtual functions inside \ref
     /// Driver, and it makes the order of calls a lot more clear.
 
-    enum class JobSubmitStep
+    enum class ManagerStep
     {
       /// this is just the initial step we do, nothing really happens
       /// here

@@ -13,8 +13,8 @@
 #include <EventLoop/Driver.h>
 
 #include <EventLoop/Job.h>
-#include <EventLoop/JobSubmitInfo.h>
-#include <EventLoop/JobSubmitStep.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/ManagerStep.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/MetricsSvc.h>
 #include <EventLoop/OutputStream.h>
@@ -97,14 +97,14 @@ namespace EL
     using namespace msgEventLoop;
 
     Job myjob = job;
-    Detail::JobSubmitInfo info;
-    info.submitDir = location;
-    info.job = &myjob;
-    for (unsigned stepIter = unsigned (Detail::JobSubmitStep::initial);
-         stepIter != unsigned (Detail::JobSubmitStep::final) + 1;
+    Detail::ManagerData data;
+    data.submitDir = location;
+    data.job = &myjob;
+    for (unsigned stepIter = unsigned (Detail::ManagerStep::initial);
+         stepIter != unsigned (Detail::ManagerStep::final) + 1;
          stepIter += 1)
     {
-      if (doSubmitStep (info, Detail::JobSubmitStep (stepIter)).isFailure())
+      if (doManagerStep (data, Detail::ManagerStep (stepIter)).isFailure())
       {
         ANA_MSG_ERROR ("while performing submission step " << stepIter);
         throw std::runtime_error ("submission error in step " + std::to_string (stepIter));
@@ -122,11 +122,11 @@ namespace EL
     std::unique_ptr<Driver> driver (dynamic_cast<Driver*>(file->Get ("driver")));
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
 
-    Detail::JobSubmitInfo info;
-    info.submitDir = location;
-    info.resubmit = true;
-    info.resubmitOption = option;
-    driver->doResubmit (info);
+    Detail::ManagerData data;
+    data.submitDir = location;
+    data.resubmit = true;
+    data.resubmitOption = option;
+    driver->doResubmit (data);
   }
 
 
@@ -301,89 +301,89 @@ namespace EL
 
 
   ::StatusCode Driver ::
-  doSubmitStep (Detail::JobSubmitInfo& info,
-                Detail::JobSubmitStep step) const
+  doManagerStep (Detail::ManagerData& data,
+                Detail::ManagerStep step) const
   {
     using namespace msgEventLoop;
 
     switch (step)
     {
-    case Detail::JobSubmitStep::updateSubmitDir:
+    case Detail::ManagerStep::updateSubmitDir:
       {
-        if (info.submitDir[0] != '/')
-          info.submitDir = gSystem->WorkingDirectory () + ("/" + info.submitDir);
-        if (info.submitDir.find ("/pnfs/") == 0)
+        if (data.submitDir[0] != '/')
+          data.submitDir = gSystem->WorkingDirectory () + ("/" + data.submitDir);
+        if (data.submitDir.find ("/pnfs/") == 0)
         {
-          ANA_MSG_ERROR ("can not place submit directory on pnfs: " + info.submitDir);
+          ANA_MSG_ERROR ("can not place submit directory on pnfs: " + data.submitDir);
           return ::StatusCode::FAILURE;
         }
       }
       break;
 
-    case Detail::JobSubmitStep::fillOptions:
+    case Detail::ManagerStep::fillOptions:
       {
-        info.options = *info.job->options();
-        info.options.fetchDefaults (*options());
+        data.options = *data.job->options();
+        data.options.fetchDefaults (*options());
       }
       break;
 
-    case Detail::JobSubmitStep::addSystemAlgs:
+    case Detail::ManagerStep::addSystemAlgs:
       {
-        if (info.options.castBool (Job::optDisableMetrics, false))
-          if (!info.job->algsHas (MetricsSvc::name))
-            info.job->algsAdd (new MetricsSvc);
+        if (data.options.castBool (Job::optDisableMetrics, false))
+          if (!data.job->algsHas (MetricsSvc::name))
+            data.job->algsAdd (new MetricsSvc);
       }
       break;
 
-    case Detail::JobSubmitStep::createSubmitDir:
+    case Detail::ManagerStep::createSubmitDir:
       {
-        if (info.options.castBool (Job::optRemoveSubmitDir, false))
-          gSystem->Exec (("rm -rf " + info.submitDir).c_str());
-        if (gSystem->MakeDirectory (info.submitDir.c_str()) != 0)
+        if (data.options.castBool (Job::optRemoveSubmitDir, false))
+          gSystem->Exec (("rm -rf " + data.submitDir).c_str());
+        if (gSystem->MakeDirectory (data.submitDir.c_str()) != 0)
         {
-          ANA_MSG_ERROR ("could not create output directory " + info.submitDir);
+          ANA_MSG_ERROR ("could not create output directory " + data.submitDir);
           return ::StatusCode::FAILURE;
         }
       }
       break;
 
-    case Detail::JobSubmitStep::prepareSubmitDir:
+    case Detail::ManagerStep::prepareSubmitDir:
       {
         {
-          std::unique_ptr<TFile> file (TFile::Open ((info.submitDir + "/driver.root").c_str(), "RECREATE"));
+          std::unique_ptr<TFile> file (TFile::Open ((data.submitDir + "/driver.root").c_str(), "RECREATE"));
           file->WriteObject (this, "driver");
           file->Close ();
         }
-        info.job->sampleHandler().save (info.submitDir + "/input");
+        data.job->sampleHandler().save (data.submitDir + "/input");
         {
-          std::ofstream file ((info.submitDir + "/location").c_str());
-          file << info.submitDir << "\n";
+          std::ofstream file ((data.submitDir + "/location").c_str());
+          file << data.submitDir << "\n";
         }
 
         SH::SampleHandler sh_hist;
-        for (SH::SampleHandler::iterator sample = info.job->sampleHandler().begin(),
-               end = info.job->sampleHandler().end(); sample != end; ++ sample)
+        for (SH::SampleHandler::iterator sample = data.job->sampleHandler().begin(),
+               end = data.job->sampleHandler().end(); sample != end; ++ sample)
         {
           const std::string histfile
-            = info.submitDir + "/hist-" + (*sample)->name() + ".root";
+            = data.submitDir + "/hist-" + (*sample)->name() + ".root";
           std::unique_ptr<SH::SampleHist> hist
             (new SH::SampleHist ((*sample)->name(), histfile));
           hist->meta()->fetch (*(*sample)->meta());
           sh_hist.add (hist.release());
         }
-        sh_hist.save (info.submitDir + "/hist");
+        sh_hist.save (data.submitDir + "/hist");
       }
       break;
 
-    case Detail::JobSubmitStep::submitJob:
+    case Detail::ManagerStep::submitJob:
       {
-        ANA_MSG_INFO ("submitting job in " << info.submitDir);
+        ANA_MSG_INFO ("submitting job in " << data.submitDir);
       }
       break;
 
-    case Detail::JobSubmitStep::postSubmit:
+    case Detail::ManagerStep::postSubmit:
       {
-        if (!info.submitted)
+        if (!data.submitted)
         {
           ANA_MSG_FATAL ("Driver::submit not implemented in class " << typeid(*this).name());
           std::abort ();
@@ -391,7 +391,7 @@ namespace EL
 
         // this particular file can be checked to see if a job has
         // been submitted successfully.
-        std::ofstream ((info.submitDir + "/submitted").c_str());
+        std::ofstream ((data.submitDir + "/submitted").c_str());
       }
       break;
 
@@ -404,7 +404,7 @@ namespace EL
 
 
   void Driver ::
-  doResubmit (Detail::JobSubmitInfo& /*info*/) const
+  doResubmit (Detail::ManagerData& /*info*/) const
   {
     RCU_READ_INVARIANT (this);
     RCU_THROW_MSG ("job resubmission not supported for this driver");

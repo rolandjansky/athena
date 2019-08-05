@@ -10,7 +10,7 @@
 // includes
 //
 
-#include <EventLoop/JobSubmitInfo.h>
+#include <EventLoop/ManagerData.h>
 
 #include <EventLoop/BatchJob.h>
 #include <RootCoreUtils/Assert.h>
@@ -23,14 +23,14 @@ namespace EL
 {
   namespace Detail
   {
-    JobSubmitInfo ::
-    JobSubmitInfo () noexcept
+    ManagerData ::
+    ManagerData () noexcept
     {}
 
 
 
-    JobSubmitInfo ::
-    ~JobSubmitInfo () noexcept
+    ManagerData ::
+    ~ManagerData () noexcept
     {}
   }
 }
