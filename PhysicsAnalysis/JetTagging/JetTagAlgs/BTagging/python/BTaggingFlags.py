@@ -196,7 +196,7 @@ class _BTaggingFlags:
       ]
 
       # master switch for 2019 retraining
-      self.Do2019Retraining = False
+      self.Do2019Retraining = True
 
       # you can force the NN tool off with this flag (avoids loading
       # old jetfitter nns which sometimes crash
