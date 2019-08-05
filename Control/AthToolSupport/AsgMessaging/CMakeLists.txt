@@ -45,8 +45,8 @@ atlas_add_dictionary( AsgMessagingDict
    LINK_LIBRARIES AsgMessagingLib )
 
 if( XAOD_STANDALONE )
-    atlas_add_dictionary( AsgMessagingStandAloneDict
-    AsgMessaging/AsgMessagingStandAloneDict.h AsgMessaging/selection_StandAlone.xml
+    atlas_add_dictionary( AsgMessagingStandaloneDict
+    AsgMessaging/AsgMessagingStandaloneDict.h AsgMessaging/selection_StandAlone.xml
     LINK_LIBRARIES AsgMessagingLib )
 endif()
 
