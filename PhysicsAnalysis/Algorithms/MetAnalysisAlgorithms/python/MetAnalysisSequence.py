@@ -76,6 +76,7 @@ def makeMetAnalysisSequence( dataType, metSuffix, useFJVT = True, postfix = '' )
     addPrivateTool( alg, 'significanceTool', 'met::METSignificance' )
     alg.significanceTool.SoftTermParam = 0
     alg.significanceTool.TreatPUJets = True
+    alg.significanceTool.IsAFII = dataType == "afii"
     seq.append( alg, inputPropName = 'met' )
 
     # Return the sequence:
