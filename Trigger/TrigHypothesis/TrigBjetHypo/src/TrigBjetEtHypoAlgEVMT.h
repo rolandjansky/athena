@@ -32,7 +32,21 @@ class TrigBjetEtHypoAlgEVMT : public TrigBjetEtHypoAlgMT {
                                  const TrigCompositeUtils::DecisionContainer*&,
                                  std::vector< TrigCompositeUtils::Decision* >& ) const;
 
+  virtual StatusCode setTracksLink( const EventContext&,
+				    const SG::ReadHandleKey< xAOD::TrackParticleContainer >&,
+				    const unsigned int,
+				    const TrigCompositeUtils::DecisionContainer*&,
+				    std::vector< TrigCompositeUtils::Decision* >& ) const;
+
   virtual const TrigCompositeUtils::Decision* getPreviousDecision( const TrigCompositeUtils::DecisionContainer*,unsigned int ) const;
+
+  virtual StatusCode attachLinkToDecisions( const EventContext&,
+                                            const TrigCompositeUtils::DecisionContainer*,
+                                            std::vector< TrigCompositeUtils::Decision* >& ) const;
+
+ private:
+  Gaudi::Property< std::string > m_trackLink {this,"TracksLink","Undefined","Link for track particle container in the output decision"};
+  SG::ReadHandleKey< xAOD::TrackParticleContainer > m_inputTracksKey {this,"Tracks","Undefined","Track particle key to be linked to the output decision"};
 }; 
 
 #endif //> !TRIGBJETHYPO_TRIGBJETETHYPOALG_EV__H

@@ -57,7 +57,7 @@ def bJetStep1Sequence():
     prmVtx = EFHistoPrmVtxAllTEMT_Jet( "EFHistoPrmVtxAllTEMT_Jet" ) 
     prmVtx.InputRoIsKey = RoIs
     prmVtx.InputTracksKey = "HLT_xAODTracks_FS"
-    prmVtx.OutputVertexKey = "EFHistoPrmVtx"
+    prmVtx.OutputVertexKey = recordable("HLT_EFHistoPrmVtx")
 
     # Shortlis of jets
     from TrigBjetHypo.TrigBjetHypoConf import TrigJetSplitterMT
@@ -75,9 +75,11 @@ def bJetStep1Sequence():
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1")
+    hypo.RoILink = "step1RoI" # To be used in following step EventView
+    hypo.PrmVtxLink = "xPrimVx"
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
-    hypo.RoILink = "step1RoI" # To be used in following step EventView
+    hypo.PrmVtx = prmVtx.OutputVertexKey
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
@@ -135,9 +137,11 @@ def bJetStep1SequenceALLTE():
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_j
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlgMT_step1_ALLTE")
+    hypo.RoILink = "step1RoI" # To be used in following step EventView
+    hypo.PrmVtxLink = "xPrimVx"
     hypo.Jets = jetSplitter.OutputJets
     hypo.RoIs = jetSplitter.OutputRoi
-    hypo.RoILink = "initialRoI" # To be used in following step EventView
+    hypo.PrmVtx = prmVtx.OutputVertexKey
 
     # Sequence     
     BjetAthSequence = seqAND("BjetAthSequence_step1_ALLTE",eventAlgs + [InputMakerAlg,recoSequence,bJetEtSequence])
@@ -178,7 +182,7 @@ def bJetStep2Sequence():
     theGSC.RoIs = InputMakerAlg.InViewRoIs
     theGSC.JetKey = InputMakerAlg.InViewJets
     theGSC.TrackKey = PTTrackParticles[0]
-    theGSC.PriVtxKey = "EFHistoPrmVtx"
+    theGSC.PriVtxKey = "HLT_EFHistoPrmVtx"
     theGSC.JetOutputKey = recordable("HLT_GSCJet") 
 
     step2Sequence = seqAND("step2Sequence",[theGSC])
@@ -192,9 +196,12 @@ def bJetStep2Sequence():
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgEVMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
     hypo = TrigBjetEtHypoAlgEVMT("TrigBjetEtHypoAlg_step2")
+    # no links this time, only for tracks
+    hypo.TracksLink = "tracks"
     hypo.RoIs = "step1RoI"
     hypo.Jets = theGSC.JetOutputKey
-    hypo.RoILink = InputMakerAlg.RoIsLink # To be used in following step EventView
+    hypo.PrmVtx = theGSC.PriVtxKey
+    hypo.Tracks = PTTrackParticles[0]
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step2",[InputMakerAlg] + PTAlgs + [step2Sequence])
@@ -225,9 +232,12 @@ def bJetStep2SequenceALLTE():
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetEtHypoAlgMT
     from TrigBjetHypo.TrigBjetEtHypoTool import TrigBjetEtHypoToolFromDict_gsc
     hypo = TrigBjetEtHypoAlgMT("TrigBjetEtHypoAlg_step2ALLTE")
+    hypo.RoIs = "step1RoI"
     hypo.Jets = theGSC.JetOutputKey
-    hypo.RoIs = "SplitJets"
-    hypo.RoILink = "initialRoI"
+    hypo.PrmVtx = theGSC.PriVtxKey
+
+    hypo.TracksLink = "tracks__COLL"
+    hypo.Tracks = PTTrackParticles[0] #"InDetTrigPTTrackParticles_bjets"
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step2ALLTE",[InputMakerAlg] + PTAlgs + [theGSC] )
@@ -244,31 +254,31 @@ def bJetStep2SequenceALLTE():
 
 def bJetStep3Sequence():
 
-    bJetSequenceSequence = parOR("bJetSequenceSequence")
-
    # Event View Creator Algorithm
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithJets
     InputMakerAlg = EventViewCreatorAlgorithmWithJets("IMBJet_step3")
-    InputMakerAlg.ViewNodeName = bJetSequenceSequence.name()
-    InputMakerAlg.RoIsLink = "step1RoI"
     InputMakerAlg.ViewFallThrough = True # Access Store Gate for retrieving data
     #InputMakerAlg.ViewPerRoI = True # If True it creates one view per RoI. NOTE: REMOVING AS NOT IMPLEMENTED
-    InputMakerAlg.Views = "BJetViews" # Name of output view
+    InputMakerAlg.Views = "BTagViews" # Name of output view
     # RoIs
     InputMakerAlg.InViewRoIs = "InViewRoIs" # Name RoIs are inserted in the view
-    InputMakerAlg.RoIsLink = "SplitJets" # RoIs linked to previous decision
+    InputMakerAlg.RoIsLink = "step1RoI" # RoIs linked to previous decision
     # Jets
     InputMakerAlg.InViewJets = "InViewJets" # Name Jets are inserted in the view
 
     from TrigBjetHypo.TrigBtagFexMTConfig import getBtagFexSplitInstance
     bTagFex = getBtagFexSplitInstance( "EF","2012","" )
+    bTagFex.JetKey = "InViewJets"
+    bTagFex.PriVtxKey = "HLT_EFHistoPrmVtx"
+    bTagFex.TracksKey = "InDetTrigPTTrackParticles_bjets"
 
-    bTaggingSequence = seqAND("bTaggingSequence",[InputMakerAlg,bJetSequenceSequence,bTagFex] )
+    bTaggingSequence = seqAND("bTaggingSequence",[bTagFex] )
+    InputMakerAlg.ViewNodeName = "bTaggingSequence"
 
     # Hypo
     from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoAlgMT
     from TrigBjetHypo.TrigBjetHypoTool import TrigBjetHypoToolFromDict
-    hypo = TrigBjetBtagHypoAlgMT("TrigBjetHypoAlgMT_step3")
+    hypo = TrigBjetBtagHypoAlgMT("TrigBjetBtagHypoAlg_step3")
 
     # Sequence
     BjetAthSequence = seqAND("BjetAthSequence_step3", [InputMakerAlg,bTaggingSequence] )
