@@ -29,7 +29,7 @@ if( XAOD_STANDALONE )
    set( sources Root/*.cxx )
 else()
    set( sources Root/AsgTool.cxx Root/AsgMetadataTool.cxx
-      Root/ToolStore.cxx Root/AnaToolHandle.cxx src/*.cxx )
+      Root/MessageCheckAsgTools.cxx Root/ToolStore.cxx Root/AnaToolHandle.cxx src/*.cxx )
 endif()
 
 # Component(s) in the package:
