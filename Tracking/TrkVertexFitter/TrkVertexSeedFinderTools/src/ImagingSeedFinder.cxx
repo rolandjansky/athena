@@ -149,25 +149,5 @@ namespace Trk
 
   } // End ImagingSeedFinder find multiseed - based on vector of Trk::ParametersBase
 
-  void ImagingSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
-    //implemented to satisfy inheritance
-  }
-
-  int ImagingSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> */* a */ ,
-					 const std::vector<const Trk::TrackParameters*> & /* b */ ) const{
-    //implemented to satisfy inheritance
-    return 0;
-  }
-
-  int ImagingSeedFinder::getModes1d(std::vector<float> & /* a */, std::vector<float> & /* b */, 
-				    std::vector<float> & /* c */, std::vector<float> & /* d */) const{
-   //implemented to satisfy inheritance
-    return 0;
-  }
-
-  void ImagingSeedFinder::getCorrelationDistance( double &/* cXY */, double &/* cZ */ ){
-    //implemented to satisfy inheritance
-  }
-
 
 } //End Trk namespace
