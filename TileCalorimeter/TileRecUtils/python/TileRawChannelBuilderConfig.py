@@ -6,28 +6,16 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 _runTypes = {'PHY' : 1, 'LAS' : 2, 'BILAS' : 2, 'PED' : 4, 'CIS' : 8, 'MONOCIS' : 8}
 
-def TileRawChannelBuilderCfg(flags, **kwargs):
+def TileRawChannelBuilderCfg(flags, name, TileRawChannelBuilder, **kwargs):
     """Return component accumulator with configured private base Tile raw channel builder tool
 
     Arguments:
         flags  -- Athena configuration flags (ConfigFlags)
-    Keyword arguments:
+        name -- name of Tile raw channel builder
         TileRawChannelbuilder -- concrete Tile raw channel builder tool.
-        Name -- name of Tile raw channel builder tool.
-        CreateContainer - flag ot create output container. Defaults to True.
     """
 
     acc = ComponentAccumulator()
-
-    if 'TileRawChannelBuilder' not in kwargs:
-        raise(Exception("No cocrete Tile raw channel builder is given"))
-
-    TileRawChannelBuilder = kwargs['TileRawChannelBuilder']
-
-    if 'Name' not in kwargs:
-        raise(Exception("No name of Tile raw channel builder is given"))
-
-    name = kwargs['Name']
 
     runType = flags.Tile.RunType
     runType = runType.upper()
@@ -35,15 +23,13 @@ def TileRawChannelBuilderCfg(flags, **kwargs):
     if runType not in _runTypes.keys():
         raise(Exception("Invalid Tile run type: %s" % runType))
 
-    createContainer = kwargs.get('CreateContainer', True)
-
-    tileRawChannelBuilder = TileRawChannelBuilder(name)
+    createContainer = ( kwargs.get('TileRawChannelContainer', "") != "" )
 
     if createContainer:
         from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
         acc.merge( TileDQstatusAlgCfg(flags) )
     else:
-        tileRawChannelBuilder.TileDQstatus = ""
+        kwargs['TileDQstatus'] = ""
 
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     acc.merge( TileInfoLoaderCfg(flags) )
@@ -51,26 +37,27 @@ def TileRawChannelBuilderCfg(flags, **kwargs):
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge( TileCablingSvcCfg(flags) )
 
-    tileRawChannelBuilder.RunType = _runTypes[runType]
-    tileRawChannelBuilder.calibrateEnergy = False
-    tileRawChannelBuilder.AmpMinForAmpCorrection = flags.Tile.AmpMinForAmpCorrection
-    tileRawChannelBuilder.TimeMinForAmpCorrection = flags.Tile.TimeMinForAmpCorrection
-    tileRawChannelBuilder.TimeMaxForAmpCorrection = flags.Tile.TimeMaxForAmpCorrection
+    kwargs['RunType'] = _runTypes[runType]
+    kwargs['calibrateEnergy'] = False
+
+    kwargs.setdefault('AmpMinForAmpCorrection', flags.Tile.AmpMinForAmpCorrection)
+    kwargs.setdefault('TimeMinForAmpCorrection', flags.Tile.TimeMinForAmpCorrection)
+    kwargs.setdefault('TimeMaxForAmpCorrection', flags.Tile.TimeMaxForAmpCorrection)
 
     tileRawChannelContainerDSP = ""
-    if flags.Tile.NoiseFilter == 1 and createContainer:
+    if flags.Tile.NoiseFilter == 1 and createContainer and 'NoiseFilterTools' not in kwargs:
         from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionToolsCfg
         correctionTools = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
-        tileRawChannelBuilder.NoiseFilterTools = correctionTools
+        kwargs['NoiseFilterTools'] = correctionTools
 
         if not (flags.Input.isMC or flags.Overlay.DataOverlay):
             tileRawChannelContainerDSP = 'TileRawChannelCntCorrected'
             from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionAlgCfg
             acc.merge( TileRawChannelCorrectionAlgCfg(flags) )
 
-    tileRawChannelBuilder.DSPContainer = tileRawChannelContainerDSP
+    kwargs.setdefault('DSPContainer', tileRawChannelContainerDSP)
 
-    acc.setPrivateTools( tileRawChannelBuilder )
+    acc.setPrivateTools( TileRawChannelBuilder(name, **kwargs) )
 
     return acc
 
@@ -98,13 +85,13 @@ if __name__ == "__main__":
 
     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
     rchBuilderFitAcc = TileRawChannelBuilderCfg(ConfigFlags,
-                                                Name = 'TileRawChannelBuilderFit',
+                                                name = 'TileRawChannelBuilderFit',
                                                 TileRawChannelBuilder = TileRawChannelBuilderFitFilter)
     print( acc.popToolsAndMerge(rchBuilderFitAcc) )
 
     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
     rchBuilderOpt2Acc = TileRawChannelBuilderCfg(ConfigFlags,
-                                                 Name = 'TileRawChannelBuilderOpt2',
+                                                 name = 'TileRawChannelBuilderOpt2',
                                                  TileRawChannelBuilder = TileRawChannelBuilderOpt2Filter)
     print( acc.popToolsAndMerge(rchBuilderOpt2Acc) )
 

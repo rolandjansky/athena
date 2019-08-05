@@ -11,11 +11,10 @@ def TileRawChannelBuilderMFCfg(flags, **kwargs):
         flags  -- Athena configuration flags (ConfigFlags)
     """
 
-    kwargs.setdefault('Name', 'TileRawChannelBuilderMF')
+    name = kwargs.pop('name', 'TileRawChannelBuilderMF')
     kwargs.setdefault('TileRawChannelContainer', 'TileRawChannelMF')
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderMF
-    kwargs['TileRawChannelBuilder'] = TileRawChannelBuilderMF
+    acc = ComponentAccumulator()
 
     if 'TileCondToolOfcOnFly' not in kwargs:
         from TileConditions.TileOFCConfig import TileCondToolOfcCfg
@@ -47,9 +46,12 @@ def TileRawChannelBuilderMFCfg(flags, **kwargs):
         timingTool = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
         kwargs['TileCondToolTiming'] = timingTool
 
+    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderMF
     from TileRecUtils.TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
-    return TileRawChannelBuilderCfg(flags, **kwargs)
+    rawChanBuilder = acc.popToolsAndMerge( TileRawChannelBuilderCfg(flags, name, TileRawChannelBuilderMF, **kwargs) )
+    acc.setPrivateTools(rawChanBuilder)
 
+    return acc
 
 
 if __name__ == "__main__":
