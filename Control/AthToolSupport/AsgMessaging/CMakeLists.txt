@@ -6,8 +6,8 @@ if( XAOD_STANDALONE )
    set( deps )
    set( libs )
 else()
-   set( deps GaudiKernel )
-   set( libs GaudiKernel )
+   set( deps GaudiKernel Control/AthenaBaseComps )
+   set( libs GaudiKernel AthenaBaseComps )
 endif()
 
 # Declare the package's dependencies:
