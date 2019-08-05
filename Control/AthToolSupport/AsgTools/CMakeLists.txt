@@ -54,10 +54,6 @@ endif()
 
 # Test(s) in the package:
 
-atlas_add_test( ut_asgtools_statuscode
-   SOURCES test/ut_asgtools_statuscode.cxx
-   LINK_LIBRARIES AsgTools )
-
 atlas_add_executable (asg_tools_test_init util/asg_tools_test_init.cxx
                       LINK_LIBRARIES AsgTools )
 
