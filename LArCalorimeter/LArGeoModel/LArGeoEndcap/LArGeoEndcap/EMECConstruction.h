@@ -13,7 +13,10 @@
 #ifndef LARGEOENDCAP_EMECCONSTRUCTION_H
 #define LARGEOENDCAP_EMECCONSTRUCTION_H
 
+#include<vector>
 class GeoFullPhysVol;
+class LArCustomShape;
+class GeoMaterial;
 
 namespace LArGeo {
 
@@ -33,12 +36,27 @@ namespace LArGeo {
     // Set fullGeo flag
     void setFullGeo(bool flag);
 
+    void setInnerVariant(const std::string &v){ m_innerWheelVariant = v; }
+    void setOuterVariant(const std::string &v){ m_outerWheelVariant = v; }
+
   private:
     bool        m_fullGeo;  // true->FULL, false->RECO
 
     bool	    m_isTB;
     bool	    m_hasInnerWheel;
     bool	    m_hasOuterWheel;
+
+    std::string m_innerWheelVariant;
+    std::string m_outerWheelVariant;
+
+    void place_custom_solids(
+        GeoFullPhysVol *fullPV,
+        std::vector<LArCustomShape *> &absorbers,
+        std::vector<LArCustomShape *> &electrodes,
+        int multilayered_absorbers,
+        const GeoMaterial *Absorber, const GeoMaterial *Electrode,
+        const GeoMaterial *Glue, const GeoMaterial *Lead
+    );
 
   };
 
