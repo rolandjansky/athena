@@ -15,10 +15,8 @@ from egammaCaloTools import egammaCaloToolsConf
 
 egammaCaloClusterGSFSelector = ToolFactory( egammaCaloToolsConf.egammaCaloClusterSelector,
                                             name = 'caloClusterGSFSelector',
-                                            egammaCheckEnergyDepositTool = egammaCheckEnergyDepositTool,
-                                            EMEtRanges = [2000.],
-                                            EMFCuts = [0.7],
-                                            RetaCut = [0.65]
+                                            EMEtRanges = [2250.],
+                                            EMFCuts = [0.75]
                                           )  
 
 egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
