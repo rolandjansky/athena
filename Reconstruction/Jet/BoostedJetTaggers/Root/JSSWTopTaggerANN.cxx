@@ -108,14 +108,16 @@ StatusCode JSSWTopTaggerANN::initialize(){
     // get the name of the Keras output node
     m_kerasConfigOutputName = configReader.GetValue("KerasOutput" ,"");
 
-    // get the configured cut values
-    m_strMassCutLow  = configReader.GetValue("MassCutLow" ,"");
-    m_strMassCutHigh = configReader.GetValue("MassCutHigh" ,"");
-    m_strScoreCut    = configReader.GetValue("ScoreCut" ,"");
+    // get min and max jet mass. The unit is GeV now. Need to be consistent with ATLAS convention in the futre
+    m_strMassCutLow  = configReader.GetValue("MassCutLow_in_GeV" ,"");
+    m_strMassCutHigh = configReader.GetValue("MassCutHigh_in_GeV" ,"");
 
-    // get min and max jet pt
-    m_jetPtMin = configReader.GetValue("pTCutLow", 350.0);
-    m_jetPtMax = configReader.GetValue("pTCutHigh", 4000.0);
+    // get min and max jet pt. The unit is GeV now. Need to be consistent with ATLAS convention in the futre
+    m_jetPtMin = configReader.GetValue("pTCutLow_in_GeV", "");
+    m_jetPtMax = configReader.GetValue("pTCutHigh_in_GeV", "");
+
+    // get cut for ANN score
+    m_strScoreCut = configReader.GetValue("ScoreCut" ,"");
 
     // get the decoration name
     m_decorationName = configReader.GetValue("DecorationName" ,"");
@@ -347,13 +349,13 @@ Root::TAccept JSSWTopTaggerANN::tag(const xAOD::Jet& jet) const{
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
     m_accept.setCutResult("ValidEtaRange", false);
   }
-  if (jet.pt()/1.e3 < m_jetPtMin) {
-    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
+  if (jet.pt()/1000.0 < m_jetPtMin) {
+    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1000.0);
     m_accept.setCutResult("ValidPtRangeLow", false);
   }
-  if (jet.pt()/1.e3 > m_jetPtMax) {
-    if(nWarn++ < maxNWarn) ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
-    else ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
+  if (jet.pt()/1000.0 > m_jetPtMax) {
+    if(nWarn++ < maxNWarn) ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1000.0);
+    else ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1000.0);
     m_accept.setCutResult("ValidPtRangeHigh", false);
   }
 
@@ -443,8 +445,8 @@ double JSSWTopTaggerANN::getScore(const xAOD::Jet& jet) const{
 }
 
 double JSSWTopTaggerANN::getWeight(const xAOD::Jet& jet) const {
-    if ( jet.pt()*0.001 < m_jetPtMin ||
-	 jet.pt()*0.001 > m_jetPtMax ||
+    if ( jet.pt()/1000.0 < m_jetPtMin ||
+	 jet.pt()/1000.0 > m_jetPtMax ||
 	 fabs(jet.eta())>m_jetEtaMax ) return 1.0;
 
     std::string truthLabelStr;
@@ -471,7 +473,7 @@ double JSSWTopTaggerANN::getWeight(const xAOD::Jet& jet) const {
 
     double SF=1.0;
     if( m_weightHistograms.count(truthLabelStr.c_str()) ){
-      int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()*0.001, log(jet.m()/jet.pt()));
+      int pt_mPt_bin=(m_weightHistograms.find(truthLabelStr.c_str())->second)->FindBin(jet.pt()/1000.0, log(jet.m()/jet.pt()));
       SF=(m_weightHistograms.find(truthLabelStr.c_str())->second)->GetBinContent(pt_mPt_bin);
     } else {
       ATH_MSG_DEBUG("SF for truth label for "+truthLabelStr+" is not available. Just return 1.0");
