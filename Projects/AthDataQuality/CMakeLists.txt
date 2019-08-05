@@ -32,6 +32,7 @@ find_package( Xrootd )
 find_package( GSL )
 find_package( PNG )
 find_package( TBB )
+find_package( TIFF )
 
 # Make CMake find the project specific code we have here:
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
