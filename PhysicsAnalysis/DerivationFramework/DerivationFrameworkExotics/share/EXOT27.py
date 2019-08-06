@@ -79,7 +79,7 @@ EXOT27ExtraVariables = defaultdict(set)
 EXOT27SmartContainers = [
   "Electrons", "Photons", "AntiKt4EMTopoJets", "TauJets", "Muons",
     "PrimaryVertices", "AntiKt4EMTopoJets_BTagging201810", "BTagging_AntiKt4EMTopo_201810", "MET_Reference_AntiKt4EMTopo",
-    "AntiKt4EMPFlowJets", "AntiKt4EMPFlowJets_BTagging201810", "MET_Reference_AntiKt4EMPFlow",
+    "AntiKt4EMPFlowJets", "AntiKt4EMPFlowJets_BTagging201810","AntiKt4EMPFlowJets_BTagging201903", "MET_Reference_AntiKt4EMPFlow",
   "AntiKt2LCTopoJets","InDetTrackParticles"
   ]
 EXOT27AllVariables = [
