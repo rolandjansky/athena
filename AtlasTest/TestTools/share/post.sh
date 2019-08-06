@@ -66,6 +66,7 @@ s/.[[][?]1034h//
 s/([0-9][0-9]* ms)/(xx ms)/
 s/([0-9][0-9]* ms total)/(xx ms total)/
 s/[[][0-9;]*m//g
+s/INFO set[(][)]/INFO set([])/  #py2 vs py3
 EOF
 
 # ignore diff annotations

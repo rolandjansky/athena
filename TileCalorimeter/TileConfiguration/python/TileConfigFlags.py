@@ -108,7 +108,7 @@ def _correctPedestalDifference(prevFlags):
 def _getRunType(prevFlags):
      # Tile run types: UNDEFINED, PHY, PED, LAS, BILAS, CIS, MONOCIS
      from AthenaConfiguration.AutoConfigFlags import GetFileMD
-     if not prevFlags.Input.isMC and 'calibration_Tile' in GetFileMD(prevFlags.Input.Files).get('Stream', ''):
+     if not prevFlags.Input.isMC and 'calibration_Tile' in GetFileMD(prevFlags.Input.Files).get('triggerStreamOfFile', ''):
           return 'UNDEFINED'
      else:
           return 'PHY'

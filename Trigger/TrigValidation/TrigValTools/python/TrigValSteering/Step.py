@@ -37,7 +37,7 @@ class Step(object):
     def get_log_file_name(self):
         return self.log_file_name or self.name+'.log'
 
-    def configure(self):
+    def configure(self, test=None):
         '''Can be implemented by derived classes'''
         pass
 

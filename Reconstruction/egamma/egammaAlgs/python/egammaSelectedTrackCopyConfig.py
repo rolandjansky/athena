@@ -4,7 +4,7 @@ __doc__ = "Instantiate egammaSelectedTrackCopy with default configuration"
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaCaloTools.egammaCaloToolsConf import egammaCaloClusterSelector, egammaCheckEnergyDepositTool
+from egammaCaloTools.egammaCaloToolsConf import egammaCaloClusterSelector
 from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
 from egammaAlgs.egammaAlgsConf import egammaSelectedTrackCopy
 

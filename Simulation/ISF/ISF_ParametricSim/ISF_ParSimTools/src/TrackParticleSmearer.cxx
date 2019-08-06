@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ StatusCode iParSim::TrackParticleSmearer::initialize()
 }
 
 /** Creates a new ISFParticle from a given ParticleState, universal transport tool */
-ISF::ISFParticle* iParSim::TrackParticleSmearer::process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine *randomEngine) {
+ISF::ISFParticle* iParSim::TrackParticleSmearer::process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine *randomEngine) const {
 
   ATH_MSG_VERBOSE("::: TrackParticleSmearer ::: Processing " << isp << " particle");
 
@@ -73,9 +73,10 @@ ISF::ISFParticle* iParSim::TrackParticleSmearer::process(const ISF::ISFParticle&
     ATH_MSG_DEBUG("ISF Particle is not a muon. Skipping this particle...");
     return nullptr;
   }
-  const iParSim::IChargedSmearer* ics = ( m_chargedSmearerMap.find(ispPdgCode) == m_chargedSmearerMap.end() )
-    ?   m_chargedSmearerMap[0]
-    :   m_chargedSmearerMap[ispPdgCode];
+  auto it = m_chargedSmearerMap.find(ispPdgCode);
+  const iParSim::IChargedSmearer* ics = ( it == m_chargedSmearerMap.end() )
+    ?   m_chargedSmearerMap.find(0)->second
+    :   it->second;
   if (ics->pdg() == 0) ATH_MSG_DEBUG("     No existing smearer for ISF particle. DefaultSmearer will be used.");
 
   // create a new xAOD::TrackParticle and push it into the container

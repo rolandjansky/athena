@@ -246,7 +246,7 @@ namespace Trk
 
 		Amg::Vector3D linPoint ( firstStartingPoint.position() ); // linearization point for track parameters (updated for every iteration)
 
-		xAOD::Vertex * fittedVertex = new xAOD::Vertex;
+		auto fittedVertex = std::make_unique<xAOD::Vertex>();
                 fittedVertex->makePrivateStore(); // xAOD::VertexContainer will take ownership of AuxStore when ActualVertex is added to it
 
 		std::vector<VxTrackAtVertex> tracksAtVertex;
@@ -433,7 +433,7 @@ namespace Trk
 		} // end of iteration
 		fittedVertex->vxTrackAtVertex() = tracksAtVertex;
 		//ATH_MSG_VERBOSE("Final Vertex Fitted: " << fittedVxCandidate->recVertex()); // TODO: can no longer print vertex after converting to xAOD
-		return fittedVertex;
+		return fittedVertex.release();
 	}
 
 	xAOD::Vertex * FastVertexFitter::fit ( const std::vector<const Trk::TrackParameters*>& perigeeList )

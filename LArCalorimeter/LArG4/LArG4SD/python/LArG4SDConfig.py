@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -207,19 +207,51 @@ def getLArInactiveSensitiveDetector(name="LArInactiveSensitiveDetector", **kwarg
         kwargs.setdefault("ECPosInVolumes", ["LArMgr::LAr::EMEC::Pos::InnerWheel::Absorber",
                                              "LArMgr::LAr::EMEC::Pos::InnerWheel::Electrode",
                                              "LArMgr::LAr::EMEC::Pos::InnerWheel::Glue",
-                                             "LArMgr::LAr::EMEC::Pos::InnerWheel::Lead"])
+                                             "LArMgr::LAr::EMEC::Pos::InnerWheel::Lead",
+                                             "LArMgr::LAr::EMEC::Pos::InnerCone::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::InnerCone::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::InnerCone::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::InnerCone::Lead",
+                                             "LArMgr::LAr::EMEC::Pos::InnerSlice*::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::InnerSlice*::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::InnerSlice*::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::InnerSlice*::Lead"])
         kwargs.setdefault("ECPosOutVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel::Lead",
                                              "LArMgr::LAr::EMEC::Pos::OuterWheel::Glue",
                                              "LArMgr::LAr::EMEC::Pos::OuterWheel::Electrode",
-                                             "LArMgr::LAr::EMEC::Pos::OuterWheel::Absorber"])
+                                             "LArMgr::LAr::EMEC::Pos::OuterWheel::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::Outer*Cone::Lead",
+                                             "LArMgr::LAr::EMEC::Pos::Outer*Cone::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::Outer*Cone::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::Outer*Cone::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::OuterSlice*::Lead",
+                                             "LArMgr::LAr::EMEC::Pos::OuterSlice*::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::OuterSlice*::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::OuterSlice*::Absorber"])
         kwargs.setdefault("ECNegInVolumes", ["LArMgr::LAr::EMEC::Neg::InnerWheel::Absorber",
                                              "LArMgr::LAr::EMEC::Neg::InnerWheel::Electrode",
                                              "LArMgr::LAr::EMEC::Neg::InnerWheel::Glue",
-                                             "LArMgr::LAr::EMEC::Neg::InnerWheel::Lead"])
+                                             "LArMgr::LAr::EMEC::Neg::InnerWheel::Lead",
+                                             "LArMgr::LAr::EMEC::Neg::InnerCone::Absorber",
+                                             "LArMgr::LAr::EMEC::Neg::InnerCone::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::InnerCone::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::InnerCone::Lead",
+                                             "LArMgr::LAr::EMEC::Neg::InnerSlice*::Absorber",
+                                             "LArMgr::LAr::EMEC::Neg::InnerSlice*::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::InnerSlice*::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::InnerSlice*::Lead"])
         kwargs.setdefault("ECNegOutVolumes",["LArMgr::LAr::EMEC::Neg::OuterWheel::Lead",
                                              "LArMgr::LAr::EMEC::Neg::OuterWheel::Glue",
                                              "LArMgr::LAr::EMEC::Neg::OuterWheel::Electrode",
-                                             "LArMgr::LAr::EMEC::Neg::OuterWheel::Absorber"])
+                                             "LArMgr::LAr::EMEC::Neg::OuterWheel::Absorber",
+                                             "LArMgr::LAr::EMEC::Neg::Outer*Cone::Lead",
+                                             "LArMgr::LAr::EMEC::Neg::Outer*Cone::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::Outer*Cone::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::Outer*Cone::Absorber",
+                                             "LArMgr::LAr::EMEC::Neg::OuterSlice*::Lead",
+                                             "LArMgr::LAr::EMEC::Neg::OuterSlice*::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::OuterSlice*::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::OuterSlice*::Absorber"])
         #kwargs.setdefault("HECVolumes",["LAr::HEC::Inactive"])
         #kwargs.setdefault("HECLocalVolumes",["LAr::HEC::Local::Inactive"])
         kwargs.setdefault("HECWheelVolumes",["LArMgr::LAr::HEC::Module::Depth::Absorber::TieRod",

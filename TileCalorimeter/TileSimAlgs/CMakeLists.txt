@@ -62,3 +62,8 @@ atlas_add_test( TileHitVecToCntConfig_test
                 SCRIPT python -m TileSimAlgs.TileHitVecToCntConfig
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileHitToTTL1Config_test
+                SCRIPT python -m TileSimAlgs.TileHitToTTL1Config
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
