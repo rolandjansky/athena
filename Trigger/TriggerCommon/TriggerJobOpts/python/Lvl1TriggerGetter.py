@@ -39,11 +39,8 @@ def LVL1MonitoringTools():
 def keyInInputFile(sgKey):
     """check, if the given StoreGate key is in the current input file
     """
-    from RecExConfig.InputFilePeeker import inputFileSummary
-
-    return sgKey in inputFileSummary['eventdata_itemsDic']
-
-
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    return sgKey in convert_itemList(layout='dict')
 
 class Lvl1SimulationGetter (Configured):
 

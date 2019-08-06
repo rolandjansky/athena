@@ -8,15 +8,14 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 log = logging.getLogger( "TriggerConfigCheckMetadata.py" )
 
 if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput())>0 :
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from PyUtils.MetaReaderPeekerFull import metadata
     if not 'DQMonFlags' in dir():
         print "DataQualityMon_RecExCommon_Flags_jobOptions.py: DQMonFlags not yet imported - I import them now"
         from AthenaMonitoring.DQMonFlags import DQMonFlags
-        
-    if inputFileSummary.has_key('metadata'):
-        hasLVL1 = inputFileSummary['metadata'].has_key('/TRIGGER/LVL1/Lvl1ConfigKey')
-        hasHLT  = inputFileSummary['metadata'].has_key('/TRIGGER/HLT/HltConfigKeys')
-        
+
+    if len(metadata) > 0:
+        hasLVL1 = True if '/TRIGGER/LVL1/Lvl1ConfigKey' in metadata else False
+        hasHLT  = True if '/TRIGGER/HLT/HltConfigKeys' in metadata else False
 
         if globalflags.DataSource()=='data':
             if hasLVL1 and not hasHLT:
@@ -76,6 +75,6 @@ if len(athenaCommonFlags.PoolESDInput())>0 or len(athenaCommonFlags.PoolAODInput
                 rec.doTrigger.set_Value_and_Lock(False)
             
     else:
-        log.warning("Either inputFileSummary does not have key 'metadata' or something strange is happening.")
+        log.warning("Either file(s) does not have key 'metadata' or something strange is happening.")
 else:
     log.warning("Wrong flags setting for pool input, try calling TriggerConfigGetter with 'ReadPool' or 'WritePool' as argument.")
