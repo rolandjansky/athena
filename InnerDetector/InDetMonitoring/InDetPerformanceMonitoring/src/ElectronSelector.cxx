@@ -77,7 +77,7 @@ void ElectronSelector::Init()
   //  ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
 
   //if((m_LHTool2015->setProperty("WorkingPoint","MediumLHElectron")).isFailure()) 
-  //if((m_LHTool2015->setProperty("WorkingPoint","TightLHElectron")).isFailure())
+  //if((m_LHTool2015->setProperty("WorkingPoint","TightLHElectron")).isFailure()) {
   if((m_LHTool2015->setProperty("WorkingPoint","LooseLHElectron")).isFailure()) {
     (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool: LooseLHElectron " << endreq;
   } 
@@ -138,6 +138,12 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 {
   // start assuming electron candidate is good 
   bool electronisgood = true;
+
+  // check the electron satisfies the working point
+  if (!m_LHTool2015->accept(thisElec)) {
+    electronisgood = false;
+    (*m_msgStream) << MSG::DEBUG << " -- electron fails workingpoint selection  -- " << endreq;
+  }
 
   //Get the track particle                                                                                                                                                        
   const xAOD::TrackParticle* theTrackParticle = thisElec->trackParticle();

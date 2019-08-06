@@ -95,7 +95,7 @@ if (MC_bool):
     #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ZmumuMC16_AOD.18379878._000123.pool.root.1"]
 
 EvtMax= -1
-EvtMax = 20000
+EvtMax = 40000
 SkipEvents = 0
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -322,8 +322,8 @@ if zmumuval == True:
                                     #loose selection to keep Z and JPsi events in the ntuple
                                     MassWindowLow = 2.,
                                     MassWindowHigh = 2000.,
-                                    PtLeadingMuon = 4., #10 #4 #15.,
-                                    PtSecondMuon =  4., #10 #4 #15.,
+                                    PtLeadingMuon = 5., #10 #4 #15.,
+                                    PtSecondMuon =  5., #10 #4 #15.,
                                     OpeningAngle = 0.01, # in radians. 1 radian ~60 deg
                                     Z0Gap = 5.0, # in mm
                                     OutputLevel = INFO)
