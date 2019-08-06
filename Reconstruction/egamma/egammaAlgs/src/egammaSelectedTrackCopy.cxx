@@ -15,6 +15,7 @@ UPDATE : 25/06/2018
 #include "egammaSelectedTrackCopy.h"
 //
 #include "egammaUtils/CandidateMatchHelpers.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "AthenaKernel/errorcheck.h"
 #include "xAODTracking/TrackParticle.h"
@@ -192,14 +193,14 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   const Trk::Perigee& candidatePerigee = track->perigeeParameters();
 
   //Get Perigee Parameters
-  double  trkPhi = candidatePerigee.parameters()[Trk::phi];
-  double  trkEta = candidatePerigee.eta();
-  double  r_first=candidatePerigee.position().perp();
-  double  z_first=candidatePerigee.position().z();
+  const double  trkPhi = candidatePerigee.parameters()[Trk::phi];
+  const double  trkEta = candidatePerigee.eta();
+  const double  r_first=candidatePerigee.position().perp();
+  const double  z_first=candidatePerigee.position().z();
 
   //Get Cluster parameters
-  double clusterEta=cluster->etaBE(2);
-  bool isEndCap= cluster->inEndcap();
+  const double clusterEta=cluster->etaBE(2);
+  const bool isEndCap= !xAOD::EgammaHelpers::isBarrel(cluster);
   double Et= cluster->e()/cosh(trkEta);
   if(trkTRT){
     Et = cluster->et();
@@ -212,15 +213,15 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
   }
 
   //Calculate corrrected eta and Phi
-  double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
-  double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
-  double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
+  const double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
+  const double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
+  const double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
   //Calcualate deltaPhis 
-  double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
-  double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
-  double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
-  double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
-  double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
+  const double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
+  const double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
+  const double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
+  const double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
+  const double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
 
   /* 
    * First we will see if it fails the quick match 
