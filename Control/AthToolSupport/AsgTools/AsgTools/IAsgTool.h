@@ -10,7 +10,6 @@
 
 // Local include(s):
 #include "AsgTools/AsgToolMacros.h"
-#include "AsgTools/AsgToolsConf.h"
 #include "AsgMessaging/INamedInterface.h"
 
 // Environment specific include(s):
