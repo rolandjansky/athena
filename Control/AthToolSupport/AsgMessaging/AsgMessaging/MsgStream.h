@@ -10,13 +10,12 @@
 #include <sstream>
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgMessaging/MsgLevel.h"
 #include "AsgMessaging/INamedInterface.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/MsgStream.h"
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 /// A replacement of Gaudi's MsgStream class for ROOT analysis
 ///
@@ -119,7 +118,5 @@ declarePropertyFor (T& parent)
 /// Backwards compatibility definition
 #define endreq endmsg
 
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 #endif // ASGMESSAGING_MSGSTREAM_H

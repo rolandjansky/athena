@@ -16,10 +16,9 @@
 #include <string>
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 
 // Pull in the definition from Gaudi in Athena:
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/IMessageSvc.h"
 #endif
 
@@ -28,7 +27,7 @@
 
 namespace MSG {
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
    /// Message level definitions
    enum Level {
@@ -43,7 +42,7 @@ namespace MSG {
       NUM_LEVELS
    }; // enum Level
 
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
    /// Convenience function for translating message levels to strings
    const std::string& name( Level lvl );

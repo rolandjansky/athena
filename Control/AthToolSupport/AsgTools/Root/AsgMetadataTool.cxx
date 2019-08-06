@@ -8,45 +8,45 @@
 // Local include(s):
 #include "AsgTools/AsgMetadataTool.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 // Gaudi/Athena include(s):
 #   include "GaudiKernel/Incident.h"
 #   include "GaudiKernel/IIncidentSvc.h"
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 // xAOD include(s):
 #   include "xAODRootAccessInterfaces/TActiveEvent.h"
 #   include "xAODRootAccess/TEvent.h"
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 namespace IncidentType {
    /// Incident in Athena, emitted when metadata should be written out
    static const std::string MetaDataStop = "MetaDataStop";
 } // namespace IncidentType
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
 namespace asg {
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
    // To be able to refer to xAOD::IncidentType as IncidentType...
    using namespace xAOD;
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
    AsgMetadataTool::AsgMetadataTool( const std::string& name )
       : AsgTool( name ),
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
         m_inputMetaStore( SgTEventMeta::InputStore ),
         m_outputMetaStore( SgTEventMeta::OutputStore ),
-#elif defined(ASGTOOL_ATHENA)
+#else // XAOD_STANDALONE
         m_inputMetaStore( "StoreGateSvc/InputMetaDataStore", name ),
         m_outputMetaStore( "StoreGateSvc/MetaDataStore", name ),
-#endif // Environment selection
+#endif // XAOD_STANDALONE
         m_beginInputFileCalled( false )
    {
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       // Try to access the current active TEvent:
       xAOD::TVirtualEvent* vevent = xAOD::TActiveEvent::event();
       xAOD::TEvent* event = dynamic_cast< xAOD::TEvent* >( vevent );
@@ -59,15 +59,15 @@ namespace asg {
       if( event->addListener( this ).isFailure() ) {
          ATH_MSG_ERROR( "Couldn't register the tool for xAOD callbacks" );
       }
-#elif defined(ASGTOOL_ATHENA)
+#else // XAOD_STANDALONE
       // Declare the interface implemented by this base class:
       declareInterface< IIncidentListener >( this );
-#endif // Environment selection
+#endif // XAOD_STANDALONE
    }
 
    AsgMetadataTool::~AsgMetadataTool() {
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       // Try to access the active TEvent:
       xAOD::TVirtualEvent* vevent = xAOD::TActiveEvent::event();
       xAOD::TEvent* event = dynamic_cast< xAOD::TEvent* >( vevent );
@@ -88,25 +88,25 @@ namespace asg {
 	  incSvc->removeListener( this ); //removes entirely
 	}
       }
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
    }
 
    AsgMetadataTool::MetaStorePtr_t AsgMetadataTool::inputMetaStore() const {
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       return &m_inputMetaStore;
-#elif defined(ASGTOOL_ATHENA)
+#else // XAOD_STANDALONE
       return m_inputMetaStore;
-#endif // Environment selection
+#endif // XAOD_STANDALONE
    }
 
    AsgMetadataTool::MetaStorePtr_t AsgMetadataTool::outputMetaStore() const {
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       return &m_outputMetaStore;
-#elif defined(ASGTOOL_ATHENA)
+#else // XAOD_STANDALONE
       return m_outputMetaStore;
-#endif // Environment selection
+#endif // XAOD_STANDALONE
    }
 
    /// This function is used to set up the callbacks from IncidentSvc in
@@ -115,7 +115,7 @@ namespace asg {
    ///
    StatusCode AsgMetadataTool::sysInitialize() {
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
       // Connect to the IncidentSvc:
       ServiceHandle< IIncidentSvc > incSvc( "IncidentSvc", name() );
@@ -130,7 +130,7 @@ namespace asg {
       // Let the base class do its thing:
       ATH_CHECK( AlgTool::sysInitialize() );
 
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
       // Return gracefully:
       return StatusCode::SUCCESS;

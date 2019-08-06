@@ -5,7 +5,7 @@
 #ifndef ASGTOOLS_ASGMETADATATOOL_ICC
 #define ASGTOOLS_ASGMETADATATOOL_ICC
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
 // Athena EDM include(s):
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
@@ -51,7 +51,7 @@ namespace asg {
 
 } // namespace asg
 
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 namespace asg {
 

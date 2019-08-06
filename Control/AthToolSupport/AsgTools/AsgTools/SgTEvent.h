@@ -10,11 +10,10 @@
 #include <string>
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgMessaging/StatusCode.h"
 
 // Complain if we try using this header in Athena:
-#ifndef ASGTOOL_STANDALONE
+#ifndef XAOD_STANDALONE
 #   error( "This header should only be used for standalone ASG" )
 #endif
 

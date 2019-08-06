@@ -6,13 +6,12 @@
 #define ASGMESSAGING_MSGSTREAMMACROS_H
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgMessaging/MsgLevel.h"
 
 // Pull in the definition from Athena:
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "AthenaBaseComps/AthMsgStreamMacros.h"
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 // Not sure why this is needed...
 #undef ERROR
@@ -65,7 +64,5 @@
 /// Macro printing messages that should always appear
 #define ATH_MSG_ALWAYS( xmsg )   ATH_MSG_LVL_NOCHK( MSG::ALWAYS, xmsg )
 
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 #endif // ASGMESSAGING_MSGSTREAMMACROS_H

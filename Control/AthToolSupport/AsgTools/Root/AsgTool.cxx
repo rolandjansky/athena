@@ -9,7 +9,7 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolStore.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
 
 namespace asg {
@@ -59,42 +59,40 @@ const IInterface* getParent (const std::string& s)
 }
 
 } // anonymous namespace
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
 
 namespace asg {
 
    AsgTool::AsgTool( const std::string& name )
       : AsgToolBase(
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
                     getType(name), getName(name), getParent(name)
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
                     this
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
                     )
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       , m_name( name ), m_ppropmgr( new PropertyMgr() ), m_event()
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
    {
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
      msg().declarePropertyFor (*this);
       
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
       ToolStore::put( this ).ignore(); // Register the tool in the ToolStore
    }
 
    AsgTool::~AsgTool() {
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       
       delete m_ppropmgr;
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
       ToolStore::remove( this ).ignore(); // Remove the tool from the ToolStore
    }
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
    SgTEvent* AsgTool::evtStore() const {
 
@@ -137,7 +135,7 @@ namespace asg {
       return;
    }
 
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
    /// Instead of using this, weirdly named function, user code should get
    /// the string name of the current minimum message level (in case they

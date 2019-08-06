@@ -6,11 +6,11 @@
 #define ASGTOOLS_TOOLHANDLE_H
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
+#include "AsgTools/AsgToolsConf.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/ToolHandle.h"
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 // System include(s):
 #include <string>
@@ -122,7 +122,5 @@ std::ostream& operator<< ( std::ostream& out,
 // Include the implementation of the code:
 #include "AsgTools/ToolHandle.icc"
 
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 #endif // ASGTOOLS_TOOLHANDLE_H

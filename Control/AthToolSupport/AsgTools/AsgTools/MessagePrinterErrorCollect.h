@@ -12,5 +12,6 @@
 // #warning "use of this file is deprecated, please include the header from AsgMessaging instead"
 
 #include <AsgMessaging/MessagePrinterErrorCollect.h>
+#include <AsgTools/AsgToolsConf.h>
 
 #endif

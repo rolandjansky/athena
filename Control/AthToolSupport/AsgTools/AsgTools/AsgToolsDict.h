@@ -19,7 +19,7 @@
 // The following is only needed for standalone usage. In Athena the
 // setProperty(...) function(s) come(s) from the AlgTool base class, with all
 // the necessary dictionaries declared in GaudiKernel.
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
 // Helper macro for declaring the setProperty functions to the dictionary:
 #define SETPROPERTY_INSTAN( TYPE )                                            \
@@ -56,5 +56,5 @@ SETPROPERTY_INSTAN( std::vector< std::string > );
 // Make the compiler forget about this macro now...
 #undef SETPROPERTY_INSTAN
 
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 #endif // not ASGTOOLS_ASGTOOLSDICT_H

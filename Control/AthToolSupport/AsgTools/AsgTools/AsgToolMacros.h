@@ -10,7 +10,7 @@
 //
 // CPP macros that turn ASG tools into Athena tools.
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
 // This is used in the body of the tool interface class declaration, e.g.
 //   class MyToolInterface:
