@@ -6,11 +6,10 @@
 #define ASGTOOLS_PROPERTYMGR_H
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/PropertyMgr.h"
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 // System include(s):
 #include <string>
@@ -93,7 +92,5 @@ private:
 // Include the template implementations:
 #include "AsgTools/PropertyMgr.icc"
 
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 #endif // ASGTOOLS_PROPERTYMGR_H

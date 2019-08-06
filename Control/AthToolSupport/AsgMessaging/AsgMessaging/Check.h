@@ -6,7 +6,6 @@
 #define ASGMESSAGING_CHECK_H
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgMessaging/MsgStreamMacros.h"
 
 /// Helper macro for checking the status code returned by a function call
@@ -77,7 +76,7 @@
    } while( 0 )
 
 /// In standalone mode use the ASG specific macro as a replacement for ATH_CHECK
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 #   define ATH_CHECK ASG_CHECK
 #else
 #   include "AthenaBaseComps/AthCheckMacros.h"

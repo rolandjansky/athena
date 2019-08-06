@@ -6,11 +6,11 @@
 #define ASGTOOLS_TOOLHANDLEARRAY_H
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
+#include "AsgTools/AsgToolsConf.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/ToolHandle.h"
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 // System include(s):
 #include <vector>
@@ -53,5 +53,5 @@ public:
 // Include the implementation of the code:
 #include "AsgTools/ToolHandleArray.icc"
 
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 #endif // ASGTOOLS_TOOLHANDLEARRAY_H

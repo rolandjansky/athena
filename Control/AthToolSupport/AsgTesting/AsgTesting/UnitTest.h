@@ -111,7 +111,7 @@ namespace asg
 
 
 
-#ifndef ASGTOOL_STANDALONE
+#ifndef XAOD_STANDALONE
 
 #define ATLAS_GOOGLE_TEST_MAIN			\
   int main (int argc, char **argv)		\

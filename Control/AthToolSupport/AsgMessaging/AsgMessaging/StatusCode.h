@@ -6,13 +6,12 @@
 #define ASGMESSAGING_STATUSCODE_H
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgMessaging/Check.h"
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 // Pull in the definition from Gaudi:
 #   include "GaudiKernel/StatusCode.h"
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
 
 /// Partial reimplementation of Gaudi's StatusCode for standalone usage
 ///
@@ -73,5 +72,5 @@ private:
 
 }; // class StatusCode
 
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
 #endif // ASGMESSAGING_STATUSCODE_H

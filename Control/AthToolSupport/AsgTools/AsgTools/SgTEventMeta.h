@@ -6,13 +6,12 @@
 #define ASGTOOLS_SGTEVENTMETA_H
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgMessaging/StatusCode.h"
 
 // Complain if we try using this header in Athena:
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   error "This header should not be used in Athena"
-#endif // ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 
 // Forward declaration(s):
 namespace xAOD {

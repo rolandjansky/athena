@@ -6,71 +6,61 @@
 #include "AsgMessaging/AsgMessaging.h"
 
 // Gaudi/Athena include(s):
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/Bootstrap.h"
 #   include "GaudiKernel/ISvcLocator.h"
 #   include "GaudiKernel/IMessageSvc.h"
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
 namespace asg {
 
    AsgMessaging::AsgMessaging( const std::string& name )
       :
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
      AthMessaging( Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc", false ),
                     name )
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
       m_msg( name )
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
    {
 
    }
 
    AsgMessaging::AsgMessaging( const INamedInterface* tool )
       :
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
      AthMessaging( Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc", false ),
                     tool->name() )
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
       m_msg( tool )
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
    {
 
    }
 
    bool AsgMessaging::msgLvl( const MSG::Level lvl ) const {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       return ::AthMessaging::msgLvl( lvl );
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
       return m_msg.msgLevel( lvl );
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
    }
 
    MsgStream& AsgMessaging::msg() const {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       return ::AthMessaging::msg();
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
       return m_msg;
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
    }
 
    MsgStream& AsgMessaging::msg( const MSG::Level lvl ) const {
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       return ::AthMessaging::msg( lvl );
-#elif defined(ASGTOOL_STANDALONE)
+#else // not XAOD_STANDALONE
       m_msg << lvl;
       return m_msg;
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // not XAOD_STANDALONE
    }
 
 } // namespace asg

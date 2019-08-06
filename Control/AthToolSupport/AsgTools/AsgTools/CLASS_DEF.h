@@ -15,7 +15,7 @@
 
 // Set this flag to show calls to CLASS_DEF in stanadlone environments.
 //#define CLASSDEF_SHOWDEFS
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   #undef CLASSDEF_SHOWDEFS
 #endif
 
@@ -27,7 +27,7 @@ int announce(const char* name, int clid) {
 }
 #endif
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   #include "AthenaKernel/CLASS_DEF.h"
 #else
   #ifdef CLASSDEF_SHOWDEFS

@@ -9,18 +9,16 @@
 #include <string>
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgTools/AsgToolMacros.h"
+#include "AsgTools/AsgToolsConf.h"
 #include "AsgMessaging/INamedInterface.h"
 
 // Environment specific include(s):
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "GaudiKernel/IAlgTool.h"
-#elif defined(ASGTOOL_STANDALONE)
-#   include "AsgMessaging/StatusCode.h"
 #else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#   include "AsgMessaging/StatusCode.h"
+#endif
 
 namespace asg {
 
@@ -36,18 +34,18 @@ namespace asg {
    /// $Date: 2017-05-15 22:14:34 +0200 (Mon, 15 May 2017) $
    ///
    class IAsgTool
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       : virtual public ::IAlgTool
 #else
    : virtual public INamedInterface
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
    {
 
    public:
       /// Virtual destructor, to make vtable happy...
       virtual ~IAsgTool() {}
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
       /// @name Functions coming from IAlgTool in Athena
       /// @{
@@ -62,7 +60,7 @@ namespace asg {
 
       /// @}
 
-#endif // not ASGTOOL_ATHENA
+#endif // XAOD_STANDALONE
 
       /// Print the state of the tool
       virtual void print() const = 0;

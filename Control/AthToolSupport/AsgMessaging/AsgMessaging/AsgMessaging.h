@@ -9,14 +9,13 @@
 #include <string>
 
 // Local include(s):
-#include "AsgMessaging/AsgMessagingConf.h"
 #include "AsgMessaging/MsgStream.h"
 #include "AsgMessaging/MsgStreamMacros.h"
 
 // Gaudi/Athena include(s):
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 #   include "AthenaBaseComps/AthMessaging.h"
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
 
 namespace asg {
 
@@ -33,9 +32,9 @@ namespace asg {
    /// $Date: 2014-09-09 16:27:03 +0200 (Tue, 09 Sep 2014) $
    ///
    class AsgMessaging
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
       : public ::AthMessaging
-#endif // ASGTOOL_ATHENA
+#endif // not XAOD_STANDALONE
    {
    public:
       /// Constructor with a name
@@ -69,10 +68,10 @@ namespace asg {
 
       /// @}
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
    private:
       mutable MsgStream m_msg; ///< Message stream to be used by the object
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
    }; // class AsgMessaging
 

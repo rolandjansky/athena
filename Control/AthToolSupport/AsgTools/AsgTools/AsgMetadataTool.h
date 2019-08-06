@@ -7,26 +7,24 @@
 
 // Local include(s):
 #include "AsgTools/AsgTool.h"
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 #   include "AsgTools/SgTEventMeta.h"
 #   include "xAODRootAccess/TVirtualIncidentListener.h"
-#elif defined(ASGTOOL_ATHENA)
+#else // XAOD_STANDALONE
 #   include "GaudiKernel/IIncidentListener.h"
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // XAOD_STANDALONE
 
 // Forward declaration(s):
 class Incident;
 
 namespace asg {
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
    /// Typedef masquerading the standalone code as if it were Gaudi code
    typedef xAOD::TVirtualIncidentListener IIncidentListener;
    /// Typedef masquerading the standalone code as if it were Gaudi code
    typedef xAOD::TIncident Incident;
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 
    /// Base class for dual-use tools that provide file metadata access
    ///
@@ -58,19 +56,17 @@ namespace asg {
       /// @name Definition of the StoreGate-like object's definition
       /// @{
 
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
       /// Type of the metadata store object in standalone mode
       typedef SgTEventMeta  MetaStore_t;
       /// Type of the metadata store pointer in standalone mode
       typedef SgTEventMeta* MetaStorePtr_t;
-#elif defined(ASGTOOL_ATHENA)
+#else // XAOD_STANDALONE
       /// Type of the metadata store object in Athena
       typedef ServiceHandle< StoreGateSvc > MetaStore_t;
       /// Type of the metadata store pointer in standalone mode
       typedef const ServiceHandle< StoreGateSvc >& MetaStorePtr_t;
-#else
-#   error "What environment are we in?!?"
-#endif // Environment selection
+#endif // XAOD_STANDALONE
 
       /// @}
 
