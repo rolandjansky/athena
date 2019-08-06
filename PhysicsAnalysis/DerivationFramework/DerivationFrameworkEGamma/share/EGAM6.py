@@ -389,7 +389,8 @@ EGAM6SlimmingHelper.SmartCollections = [
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"
                                         ]
