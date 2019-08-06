@@ -492,8 +492,7 @@ namespace CP {
 	//return xAOD::Muon::VeryLoose;                                                                                                                                            
 	// ---- require 3 MS stations ----                                                                                                                                         
 	if( innerSmallHits>1  || innerLargeHits>1  ) nprecisionLayers += 1;
-	if( middleSmallHits>2 && outerSmallHits>2  ) nprecisionLayers += 2;
-	if( middleLargeHits>2 && outerLargeHits>2  ) nprecisionLayers += 2;
+	if( (middleSmallHits>2 && outerSmallHits>2) || (middleLargeHits>2 && outerLargeHits>2) ) nprecisionLayers += 2;
 	
 	/*if (!mu.summaryValue(nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers) ) {
 	  ATH_MSG_VERBOSE("getQuality - #precision layers missing in Standalone muon! Aborting.");
@@ -533,9 +532,9 @@ namespace CP {
 	  // if( nGoodPrecLayers <3 ) 
 	  //return xAOD::Muon::VeryLoose;
 	  // ---- require 3 MS stations ----
-          if( innerSmallHits>1  || innerLargeHits>1  ) nprecisionLayers += 1;
-          if( middleSmallHits>2 && outerSmallHits>2  ) nprecisionLayers += 2;
-          if( middleLargeHits>2 && outerLargeHits>2  ) nprecisionLayers += 2;
+
+	  if( innerSmallHits>1  || innerLargeHits>1  ) nprecisionLayers += 1;
+	  if( (middleSmallHits>2 && outerSmallHits>2) || (middleLargeHits>2 && outerLargeHits>2) ) nprecisionLayers += 2;
 
 	  /*if (!mu.summaryValue(nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers) ) {
 	    ATH_MSG_VERBOSE("getQuality - #precision layers missing in SiliconAssociatedForward muon! Aborting.");
