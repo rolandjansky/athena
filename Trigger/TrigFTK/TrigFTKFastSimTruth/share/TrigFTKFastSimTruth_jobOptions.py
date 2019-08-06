@@ -45,7 +45,8 @@ ToolSvc += FTKSGInput
 sectors = []
 ntower = 64
 for i in range(ntower):
-  sectors += glob.glob("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/FitConstants/Run2_x00_y00_Reb64_UseNominalOrigin_v2/sectors_raw_12L_reg"+str(i)+".patt.bz2")
+  sectors += glob.glob("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/FitConstants/ftk.64tower.2016.mc16.v2/sectors_raw_12L_reg"+str(i)+".patt.bz2")
+  #sectors += glob.glob("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/FitConstants/Run2_x00_y00_Reb64_UseNominalOrigin_v2/sectors_raw_12L_reg"+str(i)+".patt.bz2")
     
 
 from TrigFTKFastSimTruth.TrigFTKFastSimTruthConf import  TrigFTKSectorMatchTool

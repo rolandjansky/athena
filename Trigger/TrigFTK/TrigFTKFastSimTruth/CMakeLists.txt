@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTruthData )
 
 # External dependencies:
-find_package( ROOT )
+find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Matrix TreePlayer )
 find_package( HepMC )
 
 # Component(s) in the package:
