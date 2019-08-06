@@ -32,8 +32,9 @@ namespace Muon {
 
     if (m_hasCSC) {
         if ( detStore()->retrieve( m_cscIdHelper ).isFailure() ) {
-            ATH_MSG_ERROR(" Cannot retrieve CscIdHelper ");
-            return StatusCode::FAILURE;
+            ATH_MSG_WARNING(" Cannot retrieve CscIdHelper, please consider setting HasCSC property to false in the future when running a layout without CSC chambers");
+            m_hasCSC = false;
+            m_cscIdHelper = nullptr;
         }
     } else m_cscIdHelper = nullptr;
     if ( detStore()->retrieve( m_rpcIdHelper ).isFailure() ) {
@@ -45,15 +46,17 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
     if (m_hasSTgc) {
-        if ( detStore()->retrieve( m_stgcIdHelper ).isFailure() ) {
-          ATH_MSG_ERROR(" Cannot retrieve sTgcIdHelper ");
-          return StatusCode::FAILURE;
+        if (detStore()->retrieve(m_stgcIdHelper).isFailure()) {
+            ATH_MSG_WARNING(" Cannot retrieve sTgcIdHelper, please consider setting HasSTgc property to false in the future when running a layout without sTGC chambers");
+            m_hasSTgc = false;
+            m_stgcIdHelper = nullptr;
         }
     } else m_stgcIdHelper = nullptr;
     if (m_hasMM) {
         if ( detStore()->retrieve( m_mmIdHelper ).isFailure() ) {
-          ATH_MSG_ERROR(" Cannot retrieve MmIdHelper ");
-          return StatusCode::FAILURE;
+            ATH_MSG_WARNING(" Cannot retrieve MmIdHelper, please consider setting HasMM property to false in the future when running a layout without MicroMegas chambers");
+            m_hasMM = false;
+            m_mmIdHelper = nullptr;
         }
     } else m_mmIdHelper = nullptr;
     
