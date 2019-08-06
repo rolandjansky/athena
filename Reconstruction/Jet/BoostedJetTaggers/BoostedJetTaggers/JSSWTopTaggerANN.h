@@ -40,7 +40,6 @@ class JSSWTopTaggerANN:  public JSSTaggerBase {
   
   // Default - so we can clean up
   ~JSSWTopTaggerANN();
-  JSSWTopTaggerANN& operator=(const JSSWTopTaggerANN& rhs);
   
   // Run once at the start of the job to setup everything
   StatusCode initialize();
