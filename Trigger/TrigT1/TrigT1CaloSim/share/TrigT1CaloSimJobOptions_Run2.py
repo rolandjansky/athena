@@ -29,12 +29,9 @@ addInputRename ( 'xAOD::TriggerTowerContainer', 'xAODTriggerTowers_rerun', 'xAOD
 _bunchSpacing = None
 _doPC = True # do pedestal correction?
 _alg = {25 : Run2TriggerTowerMaker25ns, 50 : Run2TriggerTowerMaker50ns}
-if not 'inputFileSummary' in dir():
-    try:
-        from RecExConfig.InputFilePeeker import inputFileSummary
-    except ImportError:
-        pass
-      
+
+from PyUtils.MetaReaderPeeker import metadata
+
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.isOverlay() is True:
     _doPC = False
@@ -49,17 +46,16 @@ if globalflags.isOverlay() is True:
                                       DoOverlay = True )
 else:
     try:
-        if not 'inputFileSummary' in dir():
+        if not 'metadata' in dir():
             raise RuntimeError('Input file summary not available.')
+        # try:
+        #     digiParam = metadata['/Digitization/Parameters']
+        # except KeyError:
+        #     raise RuntimeError('Collection /Digitization/Parameters not found in file {}.'.format(metadata['file_name']))
 
-        try:
-            digiParam = inputFileSummary['metadata']['/Digitization/Parameters']
-        except KeyError:
-            raise RuntimeError('Collection /Digitization/Parameters not found in file metadata.')
-
-        if 'intraTrainBunchSpacing' not in digiParam or not digiParam['intraTrainBunchSpacing']:
+        if 'intraTrainBunchSpacing' not in metadata or not metadata['intraTrainBunchSpacing']:
             raise RuntimeError('No key "intraTrainBunchSpacing" in /Digitization/Parameters.')
-        _bunchSpacing = digiParam['intraTrainBunchSpacing']
+        _bunchSpacing = int(metadata['intraTrainBunchSpacing'])
     except RuntimeError, re:
         log.warning('Could not determine bunch-spacing from input file: %s' % re)
         log.warning('Configuring for 25ns w/o pedestal correction - a wrong configuration might yield non sensible results!')

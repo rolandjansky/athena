@@ -153,19 +153,19 @@ topSequence = AlgSequence()
 ##################################### GRL Tools ##########################################
 # Good Run List (GRL)
 if doGRL:
-  from RecExConfig.InputFilePeeker import inputFileSummary
-  try:
-    if inputFileSummary['evt_type'][0] == "IS_DATA":
-      from GoodRunsLists.GoodRunsListsConf import *
-      ToolSvc += GoodRunsListSelectorTool()
-      GoodRunsListSelectorTool.GoodRunsListVec = grllist 
-      from GoodRunsListsUser.GoodRunsListsUserConf import *
-      seq = AthSequencer("AthFilterSeq")
-      seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
-      #seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good_25ns']  
-      seq.GRLTriggerAlg1.GoodRunsListArray = [grllist[0].replace('.xml','')]  
-  except:
-    print "GRL not available!"
+    from PyUtils.MetaReaderPeeker import metadata
+    try:
+        if metadata['eventTypes'][0] == 'IS_DATA':
+            from GoodRunsLists.GoodRunsListsConf import *
+            ToolSvc += GoodRunsListSelectorTool()
+            GoodRunsListSelectorTool.GoodRunsListVec = grllist
+            from GoodRunsListsUser.GoodRunsListsUserConf import *
+            seq = AthSequencer("AthFilterSeq")
+            seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
+            #seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good_25ns']
+            seq.GRLTriggerAlg1.GoodRunsListArray = [grllist[0].replace('.xml','')]
+    except:
+        print("GRL not available!")
   
 ##################################### Mon Tools ##########################################
 

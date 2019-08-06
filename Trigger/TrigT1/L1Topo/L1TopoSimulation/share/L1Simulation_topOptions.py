@@ -98,8 +98,8 @@ cfgRecExPers=CfgKeyStore("recexpers")
 if globalflags.InputFormat.is_pool():
     logRecExCommon_topOptions.info("Pool file : storing in objKeyStore the list of input object directly from file")
     try:
-        from RecExConfig.InputFilePeeker import inputFileSummary
-        objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
     except:
         logRecExCommon_topOptions.error("no input file defined in flags. If using RTT please use tag <athenaCommonFlags/>. Now continuing at own riske")
 
