@@ -13,7 +13,7 @@ class Test( unittest.TestCase ):
 
    def test_1D_label( self ):
       s = defineHistogram('var', 'TH1F', 'EXPERT', 'title', '', 10, 0.0, 10.0, labels=['a','b'])
-      self.assertEqual(s, 'EXPERT, TH1F, , , var, title, 10, 0.000000, 10.000000, a:b:')
+      self.assertEqual(s, 'EXPERT, TH1F, , , var, title, 10, 0.000000, 10.000000, a:b')
 
    def test_1D_opt( self ):
       s = defineHistogram('var', 'TH1F', 'EXPERT', 'title', '', 10, 0.0, 10.0, opt='myopt')
@@ -32,6 +32,8 @@ class Test( unittest.TestCase ):
       self.assertEqual(s, 'EXPERT, TProfile2D, , , var1,var2,var3, title, 10, 0.000000, 10.000000, 20, 0.000000, 20.000000, -1.000000, 1.000000')
 
    def test_enforcePath( self ):
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      athenaCommonFlags.isOnline=True
       with self.assertRaises(AssertionError):
          defineHistogram('var', 'TH1F')
 

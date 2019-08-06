@@ -19,9 +19,6 @@ MM_DigitToRDO::MM_DigitToRDO(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode MM_DigitToRDO::initialize()
 {
-  declareProperty("RDOContainerName", m_rdoContainer = "MMRDO");
-  declareProperty("DigitContainerName", m_digitContainer = "MM_DIGITS");
-  
   ATH_MSG_DEBUG( " in initialize()"  );
   ATH_CHECK( m_rdoContainer.initialize() );
   ATH_CHECK( m_digitContainer.initialize() );

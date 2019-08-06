@@ -120,7 +120,7 @@ namespace Trk {
     
     std::vector<std::pair<double,double> > TriangulatePolygonCheck(const std::vector<std::pair<double,double> >& Vertices ) const;
 
-    mutable std::vector<std::pair<double,double> > m_xyVtx; //!< generating xy vertices
+    std::vector<std::pair<double,double> > m_xyVtx;          //!< generating xy vertices
     double m_halfX;                                         //!< halflength in x - to define enclosing rectangle 
     double m_halfY;                                         //!< halflength in y - to define enclosing rectangle
     double m_halfZ;                                         //!< halflength in z
@@ -128,9 +128,9 @@ namespace Trk {
 #undef double
 #endif    
     
-    mutable int m_ordering;                                 //!< -1 not set/ 1 anticlockwise / 0  clockwise 
-    mutable const Trk::Volume* m_combinedVolume;            //!< triangulated polygon   
-    mutable const Trk::Volume* m_envelope;                  //!< simplified envelope
+    mutable int m_ordering;                         //!< -1 not set/ 1 anticlockwise / 0  clockwise 
+    mutable const Trk::Volume* m_combinedVolume;    //!< triangulated polygon   
+    const Trk::Volume* m_envelope;                  //!< simplified envelope
          
    /** There's only one single object Acessor for the moment
        has to be implemented if Cuboids are used more widely */

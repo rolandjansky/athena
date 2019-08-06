@@ -151,7 +151,7 @@ EL::StatusCode JetReclusteringAlgo :: finalize () {
   if(!m_outputXAODName.empty()){
     TFile *file = wk()->getOutputFile(m_outputXAODName);
     if(!m_event->finishWritingTo(file).isSuccess()){
-      Error("finalize()", "Could not finish writing to file... shit.");
+      Error("finalize()", "Could not finish writing to file... oh bother");
       return EL::StatusCode::FAILURE;
     }
   }

@@ -78,7 +78,6 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
      // get RoIs
     auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
     auto roiEL = roiInfo.link;
-    //auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 
@@ -107,9 +106,6 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
       // pussh_back to toolInput
       toolInput.emplace_back( newd, roi, muon, previousDecision );
       newd -> setObjectLink( featureString(), muonEL );
-      // This attaches the same ROI with a different name ("InitialRoI" -> "RoI").
-      // If the ROI will never change, please re-configure your InputMaker to use the "InitialRoI" link
-      newd->setObjectLink( roiString(),     roiEL );
       TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");

@@ -12,7 +12,7 @@
 //**********************************************************************
 
 JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
-  : JetModifierBase(myname),
+  : asg::AsgTool(myname),
     m_constitScale(0),
     m_jetScaleNames({}),
     m_altColls({}),
@@ -20,6 +20,10 @@ JetConstitFourMomTool::JetConstitFourMomTool(std::string myname)
     m_altJetScales({}),
     m_altColls_keys {}  // calls default constructor 
 {
+
+#ifdef ASGTOOL_ATHENA
+  declareInterface<IJetModifier>(this);
+#endif
   // What cluster signal state to use for the jet constituents
   declareProperty("ConstitScale",     m_constitScale     );
   // The names of the jet scale
@@ -80,8 +84,8 @@ StatusCode JetConstitFourMomTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
-int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
-  if(jets.empty()) return 0;
+StatusCode JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
+  if(jets.empty()) return StatusCode::SUCCESS;
 
   const size_t nScales=m_jetScaleNames.size();
   // This only really makes sense for clusters now, as signal states don't exist for other types
@@ -97,13 +101,13 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
         if(!handle.isValid()){
           ATH_MSG_WARNING("Failed to retrieve alt cluster collection " 
                           << m_altColls_keys[iScale].key());
-          return 1;
+          return StatusCode::FAILURE;
         }
 
         altCollections[iScale] = handle.cptr();
       } else {
         ATH_MSG_WARNING("Alt collection " << m_altColls[iScale] << " and jet type " << leadjet.getInputType() << " not supported yet!");
-        return 1;
+        return StatusCode::FAILURE;
       } // check that jet type/alt collection are implemented
     } // have an alt collection for this scale
   }
@@ -161,5 +165,5 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
     } // loop over scales
   } // loop over jets
 
-  return 0;
+  return StatusCode::SUCCESS;
 }

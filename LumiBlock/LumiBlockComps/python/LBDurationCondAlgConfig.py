@@ -11,15 +11,12 @@ from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
-from AthenaCommon.Logging import logging
-
 
 def LBDurationCondAlgCfg (configFlags):
-    log = logging.getLogger ('LBDurationCondAlgCfg')
     name = 'LBDurationCondAlg'
     result = ComponentAccumulator()
 
-    from IOVDbSvc.CondDB import conddb
+    from IOVDbSvc.CondDB import conddb   # noqa: F401
     folder = "/TRIGGER/LUMI/LBLB"
     result.merge (addFolders (configFlags, folder, 'TRIGGER',
                               className = 'AthenaAttributeList'))

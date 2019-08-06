@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ElementProxy_test.cxx 470529 2011-11-24 23:54:22Z ssnyder $
@@ -18,7 +18,6 @@
 // Change assertions failures to exceptions, so we can catch them.
 //
 
-#include "CxxUtils/make_unique.h"
 #include <string>
 #include <stdexcept>
 #include <sstream>
@@ -69,9 +68,6 @@ void throw_test_err (const char* file, int line, const char* what)
 #include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <cassert>
-
-
-using CxxUtils::make_unique;
 
 
 std::vector<int> dtor_log ATLAS_THREAD_SAFE;
@@ -251,12 +247,12 @@ void test2()
   assert (ep1->x == 3);
   check_dtor(2);
 
-  ep1 = make_unique<B> (4);
+  ep1 = std::make_unique<B> (4);
   assert (ep1->x == 4);
   check_dtor(3);
   EP ep3b (v2.begin()+1, &v2);
   EXPECT_EXCEPTION (test_err,
-                    ep3b = make_unique<B> (10));
+                    ep3b = std::make_unique<B> (10));
   check_dtor(10);
 }
 

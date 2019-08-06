@@ -157,7 +157,7 @@ def luminosityCondAlgOnlineCfg (configFlags, name, result):
       
     else: #  Run 2
         if configFlags.IOVDb.DatabaseInstance == 'CONDBR2':
-            log.warning("LuminosityCondAlgOnlineCfg can't resolve DatabaseInstance = %s, assume Run2!" % configFlags.IOVDb.DatabaseInstance)
+            log.warning("LuminosityCondAlgOnlineCfg can't resolve DatabaseInstance = %s, assume Run2!", configFlags.IOVDb.DatabaseInstance)
             log.info("Using Run 2 configuration")
 
         folder  = "/TRIGGER/LUMI/HLTPrefLumi"

@@ -152,11 +152,8 @@ public:
   /// Incident service handle for EndEvent
   virtual void handle( const Incident& incident ) override;
 
-  /// Register callback for TagInfo access
-  virtual StatusCode registerTagInfoCallback() override;
-
-  /// Callback method for TagInfo access
-  StatusCode         processTagInfo(IOVSVC_CALLBACK_ARGS);
+  /// Process TagInfo
+  virtual StatusCode processTagInfo() override;
 
   // return list of SG keys being provided by IOVDbSvc
   virtual std::vector<std::string> getKeyList() override;

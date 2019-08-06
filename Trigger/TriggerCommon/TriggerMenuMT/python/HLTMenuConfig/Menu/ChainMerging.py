@@ -12,7 +12,7 @@ def mergeChainDefs(listOfChainDefs, chainDict, strategy="parallel", offset=-1):
     log.debug("Combine by using %s merging", strategy)
 
     if strategy=="parallel":
-        return mergeParallel(listOfChainDefs, chainDict['L1item'], offset)
+        return mergeParallel(listOfChainDefs,  offset)
     elif strategy=="serial":
         #return mergeSerial(listOfChainDefs,offset)
         log.error("Serial mergin not yet implemented.")
@@ -23,7 +23,7 @@ def mergeChainDefs(listOfChainDefs, chainDict, strategy="parallel", offset=-1):
 
 
 
-def mergeParallel(chainDefList, chainL1Item, offset):
+def mergeParallel(chainDefList, offset):
 
     if offset != -1:
         log.error("Offset for parallel merging not implemented.")
@@ -31,9 +31,8 @@ def mergeParallel(chainDefList, chainL1Item, offset):
     allSteps = []
     nSteps = []
     chainName = ''
-    #l1Seed = ''
-    l1Seed = chainL1Item
-    combChainSteps =[]
+    l1Thresholds = []
+
 
     for cConfig in chainDefList:
         if chainName == '':
@@ -41,18 +40,15 @@ def mergeParallel(chainDefList, chainL1Item, offset):
         elif chainName != cConfig.name:
             log.error("Something is wrong with the combined chain name: cConfig.name = %s while chainName = %s", cConfig.name, chainName)
             
-        if l1Seed == '':
-            l1Seed = cConfig.seed
-        elif l1Seed != cConfig.seed:
-            log.debug("Taking the overall L1 item of the chain (%s) and not the indiv set ones for the chain parts (%s)", l1Seed, cConfig.seed)
-
         allSteps.append(cConfig.steps)
         nSteps.append(len(cConfig.steps))
+        l1Thresholds.extend(cConfig.vseeds)
 
     from itertools import izip_longest
     orderedSteps = list(izip_longest(*allSteps))
     myOrderedSteps = deepcopy(orderedSteps)
 
+    combChainSteps =[]
     for steps in myOrderedSteps:
         mySteps = list(steps)
         combStep = makeChainSteps(mySteps)
@@ -65,7 +61,8 @@ def mergeParallel(chainDefList, chainL1Item, offset):
     else:
         log.debug("Have to deal with uneven number of chain steps, there might be none's appearing in sequence list => to be fixed")
                                   
-    combinedChainDef = Chain(chainName, l1Seed, combChainSteps)
+    combinedChainDef = Chain(chainName, ChainSteps=combChainSteps, L1Thresholds=l1Thresholds)
+
     for step in combinedChainDef.steps:
         log.debug('  Step %s', step)
 

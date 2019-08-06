@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 
 // $Id$
@@ -24,6 +24,7 @@
 #include "../CondAlg2.h"
 #include "../MetaWriterAlg.h"
 #include "../MetaReaderAlg.h"
+#include "../DummyDecisionWriter.h"
 
 DECLARE_COMPONENT( DMTest::xAODTestReadSymlink )
 DECLARE_COMPONENT( DMTest::xAODTestReadDecor )
@@ -37,6 +38,7 @@ DECLARE_COMPONENT( DMTest::CondAlg1 )
 DECLARE_COMPONENT( DMTest::CondAlg2 )
 DECLARE_COMPONENT( DMTest::MetaWriterAlg )
 DECLARE_COMPONENT( DMTest::MetaReaderAlg )
+DECLARE_COMPONENT( DMTest::DummyDecisionWriter )
 
 DECLARE_COMPONENT( DMTest::xAODTestReadSymlinkTool )
 

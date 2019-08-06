@@ -39,7 +39,6 @@ def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **
     kwargs.setdefault("InputEgammaRecContainerName",    flags.Egamma.Keys.Internal.EgammaRecs)
     kwargs.setdefault("SuperElectronRecCollectionName", flags.Egamma.Keys.Internal.ElectronSuperRecs)
     kwargs.setdefault("egammaCheckEnergyDepositTool", egammaCheckEnergyDepositTool())
-    kwargs.setdefault("EtThresholdCut", 1000)
 
     elscAlg = electronSuperClusterBuilder(name, **kwargs)
 

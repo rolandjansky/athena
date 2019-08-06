@@ -3,7 +3,6 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from StoreGate.StoreGateConf import StoreGateSvc
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MDT_Digitization.MDT_DigitizationConf import (
@@ -44,7 +43,8 @@ def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
 
 def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured MdtDigitizationTool"""
-    acc = ComponentAccumulator()
+    from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
+    acc = MdtCondDbAlgCfg(flags)
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)

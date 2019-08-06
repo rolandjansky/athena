@@ -51,10 +51,10 @@ namespace Monitored {
       std::string conv = m_histDef->convention;
       std::string lbString;
       if ( conv.find("run")!=std::string::npos ) {
-        lbString = "/run";
+        lbString = "";
       } else if ( conv.find("lowStat")!=std::string::npos ) {
         const unsigned lbBase = lumiBlock-(lumiBlock%20);
-        lbString = "/lowStat"+std::to_string(lbBase)+"-"+std::to_string(lbBase+20);
+        lbString = "/lowStat_LB"+std::to_string(lbBase+1)+"-"+std::to_string(lbBase+20);
       } else {
         lbString = "/lb_"+std::to_string(lumiBlock);
       }

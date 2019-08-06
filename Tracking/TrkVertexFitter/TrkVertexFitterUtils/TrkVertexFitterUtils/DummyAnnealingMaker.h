@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXADAPIVEFITTERTOOLS_DUMMYANNEALINGMAKER_H
@@ -22,41 +22,37 @@
 namespace Trk
 {
 
-  class DummyAnnealingMaker : public AthAlgTool, virtual public IVertexAnnealingMaker
+  class DummyAnnealingMaker : public extends<AthAlgTool, IVertexAnnealingMaker>
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
    /**
     * Default constructor due to Athena interface
     */
-    DummyAnnealingMaker(const std::string& t, const std::string& n, const IInterface*  p);
+    using base_class::base_class;
     
-   /**
-    * Destructor
-    */
-    virtual ~DummyAnnealingMaker();
-
    /**
     * Meaningless
     */
-    void reset();
+    virtual void reset(AnnealingState& state) const override;
    
    /**
     * Meaningless
     */
-    void anneal();
+    virtual void anneal(AnnealingState& state) const override;
     
    /**
     * Returns 0.5
     */
-    double getWeight(double chisq) const;
+    virtual double getWeight(const AnnealingState& state,
+                             double chisq) const override;
 
    /**
     * Always true
     */
-    bool isEquilibrium() const 
+    virtual bool isEquilibrium(const AnnealingState& /*state*/) const  override
     {
       return true;
     };
@@ -64,7 +60,7 @@ namespace Trk
    /**
     * Returns 0.
     */
-    double actualTemp() const
+    virtual double actualTemp(const AnnealingState& /*state*/) const override
     {
       return 0;
     };
@@ -72,10 +68,9 @@ namespace Trk
    /**
     * Returns 0.5
     */
-    double getWeight(double chisq,const std::vector<double>& allchisq) const;
-    
-   private:
-      
+    virtual double getWeight(const AnnealingState& state,
+                             double chisq,
+                             const std::vector<double>& allchisq) const override;
   };
 }
 #endif

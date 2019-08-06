@@ -21,17 +21,13 @@ StatusCode HLTEDMCreator::initHandles( const HandlesGroup<T>&  handles ) {
   CHECK( handles.out.initialize() );
   CHECK( handles.views.initialize() );
   renounceArray( handles.views );
-  // the case w/o reading from views, both views handles and collection in views shoudl be empty
+  // the case w/o reading from views, both views handles and collection in views should be empty
   if ( handles.views.size() == 0 ) {
     CHECK( handles.in.size() == 0 );
   } else {
-    // the case with views, we want to store from many views into a single output container
-    CHECK( handles.out.size() == 1 ); // one output collection
-    CHECK( handles.in.size() == handles.views.size() ); 
-    for ( size_t i = 0; i < handles.in.size(); ++i ) {
-      CHECK( handles.in.at(i).key() == handles.out.at(i).key() );
-    }
-
+    // the case with views, for every output we expect an input View and an input collection inside that View
+    CHECK( handles.out.size() == handles.in.size() );
+    CHECK( handles.in.size()  == handles.views.size() );
   }
   return StatusCode::SUCCESS;
 }
@@ -59,6 +55,8 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( L2IsoMuonContainer );
   INIT_XAOD( MuonContainer );
   INIT_XAOD( TauJetContainer );
+  INIT_XAOD( JetContainer );
+  INIT_XAOD( VertexContainer )
 
   INIT_XAOD( CaloClusterContainer );
 
@@ -229,8 +227,11 @@ StatusCode HLTEDMCreator::fixLinks() const {
 template<typename T, typename G, typename M>
 StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, G& generator, M merger ) const {
 
-  for ( auto writeHandleKey : handles.out ) {
-    
+  for (size_t i = 0; i < handles.out.size(); ++i) {
+    SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i); 
+
+    // Note: This is correct. We are testing if we can read, and if we cannot then we write.
+    // What we write will either be a dummy (empty) container, or be populated from N in-View collections.
     SG::ReadHandle<T> readHandle( writeHandleKey.key() );
 
     if ( readHandle.isValid() ) {
@@ -240,21 +241,18 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
       generator.create();      
       if ( handles.views.size() != 0 ) {
 
-        ATH_MSG_DEBUG("Will be trying to merge from " << handles.views.size() << " view containers into that output");
-        auto viewCollKeyIter = handles.views.begin();
-        auto inViewCollKeyIter = handles.in.begin();
+        SG::ReadHandleKey<ViewContainer> viewsReadHandleKey = handles.views.at(i);
+        ATH_MSG_DEBUG("Will be trying to merge from the " << viewsReadHandleKey.key() << " view container into that output");
 
-        for ( ; viewCollKeyIter != handles.views.end(); ++viewCollKeyIter, ++inViewCollKeyIter ) {
-          // get the views handle
-
-          auto viewsHandle = SG::makeHandle( *viewCollKeyIter, context );
-          if ( viewsHandle.isValid() ) {
-            ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views " << viewCollKeyIter->key() << " view container using key " << inViewCollKeyIter->key() );
-            CHECK( (this->*merger)( *viewsHandle, *inViewCollKeyIter , context, *generator.data.get() ) );
-          } else {
-            ATH_MSG_DEBUG("Views " << viewCollKeyIter->key() << " are missing");
-          }
+        auto viewsHandle = SG::makeHandle( viewsReadHandleKey, context );
+        if ( viewsHandle.isValid() ) {
+          SG::ReadHandleKey<T> inViewReadHandleKey = handles.in.at(i);
+          ATH_MSG_DEBUG("Will be merging from " << viewsHandle->size() << " views using in-view key " << inViewReadHandleKey.key() );
+          CHECK( (this->*merger)( *viewsHandle, inViewReadHandleKey , context, *generator.data.get() ) );
+        } else {
+          ATH_MSG_DEBUG("Views " << viewsReadHandleKey.key() << " are missing. Will leave " << writeHandleKey.key() << " output collection empty.");
         }
+
       }
       auto writeHandle = SG::makeHandle( writeHandleKey, context );
       CHECK( generator.record( writeHandle ) );
@@ -309,6 +307,10 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
 
   CREATE_XAOD( CaloClusterContainer, CaloClusterTrigAuxContainer ); // NOTE: Difference in interface and aux
   // After view collections are merged, need to update collection links
+
+  CREATE_XAOD( JetContainer, JetAuxContainer );
+  CREATE_XAOD( VertexContainer,VertexAuxContainer )
+
   ATH_CHECK( fixLinks() );
   
 #undef CREATE_XAOD

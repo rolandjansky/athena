@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_VERTEXIMAGE_H
@@ -15,17 +15,29 @@ namespace Trk {
   class VertexImage {
 
   public:
+    typedef void arrayDeleter (void*);
 
     // Construct with pointer to the array, numbers of bins in x,y,z
     // and flag for whether fourier transforms were done in place.
     // in-place filtering has extra padding in the array to fit the complex frequency space histogram
-    VertexImage( float * hist_3d, int nx, int ny, int nz, 
-                 float xrange, float yrange, float zrange, bool inplace=true );
+    VertexImage( float* array,
+                 arrayDeleter* deleter,
+                 int nx, int ny, int nz, 
+                 float xrange, float yrange, float zrange);
 
-    // Default constructor (won't produce useable image), but used to keep image as member setup during init
-    VertexImage();
+
+    ~VertexImage()
+    {
+      // Must be inline, because it may be called from another package,
+      // and this package makes only a component library.
+      m_deleter (m_hist_3d);
+    }
+
+    VertexImage (const VertexImage&) = delete;
+    VertexImage& operator= (const VertexImage&) = delete;
 
     // Direct access to the histogram array
+          float * getHist()       { return m_hist_3d; }
     const float * getHist() const { return m_hist_3d; }
 
     // Get the row major index of an x,y,z bin
@@ -72,7 +84,10 @@ namespace Trk {
   private:
 
     // The actual histogram array
-    const float * m_hist_3d;    
+    float * m_hist_3d;
+
+    // Function to delete the array.
+    arrayDeleter* m_deleter;
 
     // Store number of bins in x,y,z
     int m_nbinsx;
@@ -83,9 +98,6 @@ namespace Trk {
     float m_xrange;
     float m_yrange;
     float m_zrange;
-
-    // Keep track of in-place array
-    bool m_inplace;
 
     // Total number of bins in the 3D histogram
     int m_binstot;

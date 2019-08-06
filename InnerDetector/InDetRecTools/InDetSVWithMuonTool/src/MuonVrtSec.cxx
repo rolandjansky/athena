@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -158,23 +158,24 @@ namespace InDet{
 //
 // Initialisation of fit
 //
-      m_fitSvc->setDefault();
-      m_fitSvc->setMassInputParticles( InpMass );            // Use pions masses
-      m_fitSvc->setMomCovCalc(1);  /* Total momentum and its covariance matrix are calculated*/
-      sc=VKalVrtFitFastBase(ListSecondTracks,FitVertex);          /* Fast crude estimation */
+      std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+      m_fitSvc->setMassInputParticles( InpMass, *state );            // Use pions masses
+      sc=VKalVrtFitFastBase(ListSecondTracks,FitVertex, *state);          /* Fast crude estimation */
       if(sc.isFailure() || FitVertex.perp() > m_Rlayer2*2. ) {    /* No initial estimation */ 
          m_fitSvc->setApproximateVertex(PrimVrt.position().x(),   /* Use as starting point */
                                         PrimVrt.position().y(),
-	  			        PrimVrt.position().z()); 
+	  			        PrimVrt.position().z(),
+                                        *state);
       } else {
-         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); /*Use as starting point*/
+         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z(),*state); /*Use as starting point*/
       }
-      if(m_RobustFit)m_fitSvc->setRobustness(m_RobustFit);
+      if(m_RobustFit)m_fitSvc->setRobustness(m_RobustFit, *state);
 //
 //fit itself
 //
       for (int i=0; i < NTracksVrt-1; i++) {
-         sc=VKalVrtFitBase(ListSecondTracks,FitVertex, Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
+         sc=VKalVrtFitBase(ListSecondTracks,FitVertex, Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,
+                           *state, true);
          if(sc.isFailure() ||  Chi2 > 1000000. ) { return -10000.;}    // No fit
          int Outlier = FindMaxAfterFirst( Chi2PerTrk); 
 	 FitProb=TMath::Prob( Chi2, 2*ListSecondTracks.size()-3);
@@ -187,7 +188,7 @@ namespace InDet{
 	     for(int it=0; it<(int)ListSecondTracks.size(); it++){
                 std::vector<const xAOD::TrackParticle*> tmpList(ListSecondTracks);
                 tmpList.erase(tmpList.begin()+it);
-                sc=VKalVrtFitBase(tmpList,tmpVertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
+                sc=VKalVrtFitBase(tmpList,tmpVertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,*state, true);
                 if(sc.isFailure())continue;
 		if(Momentum.M()<minM  && minM>maxRecMASS){minM=Momentum.M(); minT=it; minChi2=Chi2;}
 		else if(Momentum.M()<maxRecMASS && minM<maxRecMASS && Chi2<minChi2){minChi2=Chi2; minT=it;}
@@ -196,7 +197,7 @@ namespace InDet{
 	   }
 	 }
          RemoveEntryInList(ListSecondTracks,Outlier);
-         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); /*Use as starting point*/
+         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z(),*state); /*Use as starting point*/
       }
 //--
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" SecVrt fit converged="<< ListSecondTracks.size()<<" Mass="<<Momentum.M()<<endmsg;
@@ -261,14 +262,13 @@ namespace InDet{
       ListSecondTracks.reserve(2*NTracks);                 // Reserve memory for sigle vertex
 
       Amg::Vector3D iniVrt(0.,0.,0.);
-      m_fitSvc->setMassInputParticles( InpMass );     // Use pion masses for fit
       TracksForFit[0]=  Muon;
       for (int i=0; i<NTracks; i++) {
              if(TrackSignif[i] < m_TrkSigCut) continue;
-             m_fitSvc->setDefault();                          //Reset VKalVrt settings
-             m_fitSvc->setMomCovCalc(1);                     // Total momentum and its covariance matrix are calculated
+             std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+             //m_fitSvc->setMassInputParticles( InpMass, *state );     // Use pion masses for fit
              TracksForFit[1]=SelectedTracks[i];
-             sc=VKalVrtFitFastBase(TracksForFit,FitVertex);              /* Fast crude estimation*/
+             sc=VKalVrtFitFastBase(TracksForFit,FitVertex,*state);              /* Fast crude estimation*/
              if( sc.isFailure() || FitVertex.perp() > m_Rlayer2*2. ) {   /* No initial estimation */ 
                 iniVrt=PrimVrt.position();
  	     } else {
@@ -277,9 +277,10 @@ namespace InDet{
                 if( MuonVrtDir>0. ) iniVrt=FitVertex;                /* Good initial estimation */ 
                 else                iniVrt=PrimVrt.position();
              }
-             m_fitSvc->setApproximateVertex(iniVrt.x(), iniVrt.y(), iniVrt.z()); 
+             m_fitSvc->setApproximateVertex(iniVrt.x(), iniVrt.y(), iniVrt.z(), *state); 
              sc=VKalVrtFitBase(TracksForFit,FitVertex, Momentum,Charge,
-                               ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
+                               ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,
+                               *state, true);
              if(sc.isFailure())                continue;          /* No fit */ 
              if(Chi2 > m_Sel2VrtChi2Cut)       continue;          /* Bad Chi2 */
              double mass_PiPi =  Momentum.M();  

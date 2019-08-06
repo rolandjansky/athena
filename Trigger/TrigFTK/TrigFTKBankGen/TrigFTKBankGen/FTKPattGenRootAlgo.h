@@ -4,6 +4,7 @@
 #ifndef FTKPattBankGenRootAlgo_h
 #define FTKPattBankGenRootAlgo_h
 
+#include <vector>
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -42,6 +43,7 @@ protected:
 
    int m_curreg = 0; //! Region of interest
    int m_overlap = 2; //! overlap removal: 0=disabled; 1=barrel-only, 2=everywhere
+   bool m_flat_in_cot =false; //! generate patterns flat in eta (0) or flat in cotTheta (1)
    int m_HWMODEID = 0; //! (SS)HWMODEID (0 or 2)
    int m_IBLMode; // flag to change the IBLMode
    bool m_fixEndcapL0;
@@ -51,18 +53,18 @@ protected:
 
    u_int64_t m_trials; //! Number of trials of the trackInvertion function
 
-   // sector parameters
-   double m_phi_min;
-   double m_phi_max;
-   double m_c_min;
-   double m_c_max;
-   double m_d0_min;
-   double m_d0_max;
-   double m_z0_min;
-   double m_z0_max;
-   double m_eta_min;
-   double m_eta_max;
-   double m_d0_alpha;
+   // slice file track parameter ranges
+   // (these really should be stored in the slice file but they are not)
+   // (if empty, hard-coded values in FTKSectorSlice.cxx are used)
+   std::pair<double,double> m_slice_phiRange, m_slice_cRange, m_slice_d0Range,
+      m_slice_z0Range, m_slice_cotRange;
+
+   // parameter ranges to draw tracks from
+   // (if empty, the slice ranges are used)
+   std::pair<double,double> m_track_phiRange,m_track_cRange,m_track_d0Range,
+      m_track_z0Range,m_track_etaRange;
+
+   bool m_usePhiSlice,m_useCSlice,m_useD0Slice,m_useZ0Slice,m_useCotSlice;
 
    // beam spot
    double m_beamspotX,m_beamspotY;

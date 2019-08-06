@@ -6,7 +6,7 @@
 #include "GaudiKernel/IInterface.h"
 
 #include "Acts/Propagator/detail/SteppingLogger.hpp"
-#include "Acts/Detector/TrackingVolume.hpp"
+#include "Acts/Geometry/TrackingVolume.hpp"
 
 
 #include <vector>

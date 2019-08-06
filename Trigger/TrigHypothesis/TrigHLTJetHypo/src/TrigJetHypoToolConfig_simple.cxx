@@ -48,13 +48,26 @@ StatusCode TrigJetHypoToolConfig_simple::initialize() {
 
 
 
-ConditionsMT TrigJetHypoToolConfig_simple::getConditions() const {
-  auto conditions = conditionsFactoryEtaEtMT(m_etaMins,
-                                             m_etaMaxs,
-                                             m_EtThresholds,
-                                             m_asymmetricEtas);
+std::optional<ConditionsMT>
+TrigJetHypoToolConfig_simple::getConditions() const {
 
-  return conditions;
+  return
+    std::make_optional<ConditionsMT>(conditionsFactoryEtaEtMT(m_etaMins,
+							      m_etaMaxs,
+							      m_EtThresholds,
+							      m_asymmetricEtas));
+}
+
+
+std::size_t
+TrigJetHypoToolConfig_simple::requiresNJets() const {
+  std::size_t result{0};
+  auto opt_conds = getConditions();
+  if(!opt_conds.has_value()){return result;}
+
+  for(const auto& c : *opt_conds){result += c->capacity();}
+
+  return result;
 }
 
  
@@ -65,7 +78,14 @@ TrigJetHypoToolConfig_simple::getJetGrouper() const {
 
 std::unique_ptr<IGroupsMatcherMT>
 TrigJetHypoToolConfig_simple::getMatcher () const {
-  return groupsMatcherFactoryMT_MaxBipartite(getConditions());
+
+  auto opt_conds = getConditions();
+
+  if(!opt_conds.has_value()){
+    return std::unique_ptr<IGroupsMatcherMT>(nullptr);
+  }
+  
+  return groupsMatcherFactoryMT_MaxBipartite(std::move(*opt_conds));
 }
 
 StatusCode TrigJetHypoToolConfig_simple::checkVals() const {

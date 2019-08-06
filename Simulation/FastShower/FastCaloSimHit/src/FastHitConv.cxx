@@ -11,7 +11,6 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/TileID.h"
-#include "CxxUtils/make_unique.h"
 #include "EventInfo/PileUpEventInfo.h"
 #include "EventInfo/EventType.h"
 #include "LArSimEvent/LArHitFloat.h"
@@ -83,7 +82,7 @@ StatusCode FastHitConv::initialize()
     throw std::runtime_error("FastHitConv: Invalid Tile ID helper");
 
   // LAr and Tile Sampling Fractions
-  CHECK(detStore()->regHandle(m_dd_fSampl,"LArfSampl"));
+  ATH_CHECK(m_fSamplKey.initialize());
   CHECK(detStore()->retrieve(m_tileInfo, "TileInfo"));
 
   return StatusCode::SUCCESS;
@@ -116,11 +115,11 @@ StatusCode FastHitConv::initEvent()
   //MsgStream log(msgSvc(), name());
   //log << MSG::DEBUG << "initEvent()" << endmsg;
   ATH_MSG_DEBUG("initEvent()");
-  if(!m_embHitContainer.isValid() ) { m_embHitContainer  = CxxUtils::make_unique<LArHitContainer>(m_embHitContainer.name());}
-  if(!m_emecHitContainer.isValid()) { m_emecHitContainer = CxxUtils::make_unique<LArHitContainer>(m_emecHitContainer.name());}
-  if(!m_fcalHitContainer.isValid()) { m_fcalHitContainer = CxxUtils::make_unique<LArHitContainer>(m_fcalHitContainer.name());}
-  if(!m_hecHitContainer.isValid() ) { m_hecHitContainer  = CxxUtils::make_unique<LArHitContainer>(m_hecHitContainer.name());}
-  if(!m_tileHitVector.isValid()        ) { m_tileHitVector         = CxxUtils::make_unique<TileHitVector>(m_tileHitVector.name());}
+  if(!m_embHitContainer.isValid() ) { m_embHitContainer  = std::make_unique<LArHitContainer>(m_embHitContainer.name());}
+  if(!m_emecHitContainer.isValid()) { m_emecHitContainer = std::make_unique<LArHitContainer>(m_emecHitContainer.name());}
+  if(!m_fcalHitContainer.isValid()) { m_fcalHitContainer = std::make_unique<LArHitContainer>(m_fcalHitContainer.name());}
+  if(!m_hecHitContainer.isValid() ) { m_hecHitContainer  = std::make_unique<LArHitContainer>(m_hecHitContainer.name());}
+  if(!m_tileHitVector.isValid()        ) { m_tileHitVector         = std::make_unique<TileHitVector>(m_tileHitVector.name());}
 
   return StatusCode::SUCCESS;
 
@@ -197,6 +196,8 @@ StatusCode FastHitConv::hitConstruction()
   double eLArFCALConv = 0.0;
   double eTileConv    = 0.0;
 
+  SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
+  const ILArfSampl* fSampl=*fSamplHdl;
 
   // First do the LArEM cells
   CaloCellContainer::const_iterator it1 = cellContainer->beginConstCalo(CaloCell_ID::LAREM);
@@ -208,7 +209,7 @@ StatusCode FastHitConv::hitConstruction()
 
       cellid = (*it1)->ID();
       energy = (*it1)->energy();
-      SampFrac = m_dd_fSampl->FSAMPL(cellid);
+      SampFrac = fSampl->FSAMPL(cellid);
       energyConv = energy*SampFrac;
 
       eLArEMRead += energy;
@@ -248,7 +249,7 @@ StatusCode FastHitConv::hitConstruction()
 
       cellid = (*it1)->ID();
       energy = (*it1)->energy();
-      SampFrac = m_dd_fSampl->FSAMPL(cellid);
+      SampFrac = fSampl->FSAMPL(cellid);
       energyConv = energy*SampFrac;
 
       eLArHECRead += energy;
@@ -278,7 +279,7 @@ StatusCode FastHitConv::hitConstruction()
       ATH_MSG_DEBUG("FastCell LArFCAL"<<countFastCell);
       cellid = (*it1)->ID();
       energy = (*it1)->energy();
-      SampFrac = m_dd_fSampl->FSAMPL(cellid);
+      SampFrac = fSampl->FSAMPL(cellid);
       energyConv = energy*SampFrac;
 
       eLArHECRead += energy;

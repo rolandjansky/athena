@@ -2,17 +2,11 @@
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
-from AthenaCommon.Include import include
 from AthenaCommon.GlobalFlags import globalflags
-from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 
-from AthenaCommon.AppMgr import ServiceMgr, ToolSvc, theApp
-from AthenaCommon.Include import include
-
+from AthenaCommon.AppMgr import ServiceMgr
 from RecExConfig.Configured import Configured
 
-from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.RecFlags import rec
 
@@ -27,9 +21,7 @@ def  EDMDecodingVersion():
     TriggerFlags.EDMDecodingVersion = 2
 
     # run the AutoConfiguration
-    from RecExConfig.AutoConfiguration import ConfigureInputType
-    #ConfigureInputType()
-    from RecExConfig.InputFilePeeker import inputFileSummary
+    from RecExConfig.InputFilePeeker import inputFileSummary  # noqa: F401
     
     if globalflags.InputFormat.is_bytestream():
         # BYTESTREAM: decide Run1/Run2 based on Run number
@@ -45,18 +37,18 @@ def  EDMDecodingVersion():
     else:
         #Pool files
         from RecExConfig.ObjKeyStore import cfgKeyStore
-        ItemDic=inputFileSummary.get("eventdata_itemsDic")
-        ItemList=inputFileSummary.get('eventdata_itemsList')
 
+        TriggerFlags.doMergedHLTResult = True
         if cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_EF" ):          
             TriggerFlags.EDMDecodingVersion = 1
             TriggerFlags.doMergedHLTResult = False
             log.info("Decoding version set to 1, because HLTResult_EF found in pool file")
         elif cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_HLT"):          
             TriggerFlags.EDMDecodingVersion = 2
-            TriggerFlags.doMergedHLTResult = True
+        elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTNav_Summary"):
+            TriggerFlags.EDMDecodingVersion = 3
         else:
-            log.warning("No HLTResult found in pool file")
+            log.warning("Cannot recognise HLT EDM format, TriggerFlags.EDMDecodingVersion=%d", TriggerFlags.EDMDecodingVersion())
         pass
     pass
                 
@@ -89,7 +81,7 @@ def  EDMDecodingVersion():
     # ESD/AOD files:
     
 
-    log.info("EDMDecoding set to %s"%TriggerFlags.EDMDecodingVersion )
+    log.info("EDMDecoding set to %s", TriggerFlags.EDMDecodingVersion )
   
     return  True
         
@@ -97,8 +89,7 @@ def  EDMDecodingVersion():
 
 class xAODConversionGetter(Configured):
     def configure(self):
-        log = logging.getLogger('xAODConversionGetter.py')
-        from AthenaCommon.AlgSequence import AlgSequence 
+        from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
 
         #schedule xAOD conversions here
@@ -108,8 +99,8 @@ class xAODConversionGetter(Configured):
         from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
         xaodconverter.Navigation = HLTNavigationOffline()
 
-        from TrigEDMConfig.TriggerEDM import getPreregistrationList,getL2PreregistrationList,getEFPreregistrationList
-        from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList#,getHLTPreregistrationList
+        from TrigEDMConfig.TriggerEDM import getPreregistrationList
+        from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
         xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(TriggerFlags.EDMDecodingVersion())
         ## if TriggerFlags.EDMDecodingVersion() == 2:
         ##     #        if TriggerFlags.doMergedHLTResult():
@@ -145,12 +136,11 @@ class ByteStreamUnpackGetter(Configured):
         topSequence = AlgSequence()
         
         #if TriggerFlags.readBS():
-        log.info( "TriggerFlags.dataTakingConditions: %s" % TriggerFlags.dataTakingConditions() )
+        log.info( "TriggerFlags.dataTakingConditions: %s", TriggerFlags.dataTakingConditions() )
         # in MC this is always FullTrigger
         hasHLT = TriggerFlags.dataTakingConditions()=='HltOnly' or TriggerFlags.dataTakingConditions()=='FullTrigger'
         
         if hasHLT:
-            from AthenaCommon.AppMgr import ServiceMgr
             # Decide based on the run number whether to assume a merged, or a
             # split HLT:
             if not TriggerFlags.doMergedHLTResult():
@@ -251,7 +241,7 @@ class TrigDecisionGetter(Configured):
             log.info("Will write TrigDecision object to storegate")
             
             from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
-            trigDecWriter = WriteTrigDecision()
+            trigDecWriter = WriteTrigDecision()  # noqa: F841
 
 #            from TrigDecisionMaker.TrigDecisionMakerConfig import WritexAODTrigDecision
 #            trigDecWriter = WritexAODTrigDecision()
@@ -289,13 +279,13 @@ class HLTTriggerResultGetter(Configured):
         
         if rec.doESD():
             from RecExConfig.InputFilePeeker import inputFileSummary
-            if inputFileSummary.has_key('bs_metadata') and inputFileSummary['bs_metadata'].has_key('Stream'):
+            if 'bs_metadata' in inputFileSummary and 'Stream' in inputFileSummary['bs_metadata']:
                 stream=inputFileSummary['bs_metadata']['Stream']
                 log.debug("the stream found in 'bs_metadata' is "+stream)
                 if "express" in stream:
                     from TrigEDMConfig.TriggerEDM import getTypeAndKey,EDMDetails
                     type,key=getTypeAndKey("TrigOperationalInfo#HLT_EXPRESS_OPI_HLT")
-                    if EDMDetails[type].has_key('collection'):
+                    if 'collection'in EDMDetails[type]:
                         colltype = EDMDetails[type]['collection']
                         log.info("Adding HLT_EXPRESS_OPI_HLT to ESD for stream "+stream)                        
                         from RecExConfig.ObjKeyStore import objKeyStore
@@ -319,9 +309,9 @@ class HLTTriggerResultGetter(Configured):
             
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        log.info("BS unpacking (TF.readBS): %d" % TriggerFlags.readBS() )
+        log.info("BS unpacking (TF.readBS): %d", TriggerFlags.readBS() )
         if TriggerFlags.readBS():
-            bs = ByteStreamUnpackGetter()
+            bs = ByteStreamUnpackGetter()  # noqa: F841
 
         xAODContainers = {}
 #        if not recAlgs.doTrigger():      #only convert when running on old data
@@ -330,7 +320,7 @@ class HLTTriggerResultGetter(Configured):
             xAODContainers = xaodcnvrt.xaodlist
 
         if recAlgs.doTrigger() or TriggerFlags.doTriggerConfigOnly():
-            tdt = TrigDecisionGetter()
+            tdt = TrigDecisionGetter()  # noqa: F841
 
         # TrigJetRec additions
         if rec.doWriteESD():
@@ -369,7 +359,7 @@ class HLTTriggerResultGetter(Configured):
             # log.warning( "HLTTriggerResultGetter - setting up RoiWriter" )
             topSequence += RoiWriter()
             # write out the RoiDescriptorStores
-            from TrigEDMConfig.TriggerEDM import TriggerRoiList
+            from TrigEDMConfig.TriggerEDMRun2 import TriggerRoiList
             objKeyStore.addManyTypesStreamAOD( TriggerRoiList )
 
         #Are we adding operational info objects in ESD?
@@ -390,7 +380,7 @@ class HLTTriggerResultGetter(Configured):
         else:
             _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
         
-        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d" % (TriggerFlags.ESDEDMSet() ,TriggerFlags.EDMDecodingVersion()) )
+        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d", TriggerFlags.ESDEDMSet() ,TriggerFlags.EDMDecodingVersion())
 
         # AOD objects choice
         _TriggerAODList = {}
@@ -398,7 +388,7 @@ class HLTTriggerResultGetter(Configured):
         #from TrigEDMConfig.TriggerEDM import getAODList    
         _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
 
-        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d" % (TriggerFlags.AODEDMSet(),TriggerFlags.EDMDecodingVersion()) )
+        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", TriggerFlags.AODEDMSet(),TriggerFlags.EDMDecodingVersion())
 
         log.debug("ESD EDM list: %s", _TriggerESDList)
         log.debug("AOD EDM list: %s", _TriggerAODList)
@@ -418,7 +408,7 @@ class HLTTriggerResultGetter(Configured):
         def _addSlimming(stream, thinningSvc, edm):
             from AthenaCommon.AlgSequence import AlgSequence 
             topSequence = AlgSequence()
-            from TrigNavTools.TrigNavToolsConf import HLT__StreamTrigNavSlimming, HLT__TrigNavigationSlimming
+            from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimming
             from TrigNavTools.TrigNavToolsConfig import navigationSlimming
 
             edmlist = list(y.split('-')[0] for x in edm.values() for y in x) #flatten names
@@ -429,17 +419,16 @@ class HLTTriggerResultGetter(Configured):
             tHLT = navigationSlimming({'name':'HLTNav_%s'%stream, 'mode':'cleanup', 
                                                           'ThinningSvc':thinningSvc, 'result':'HLTResult_HLT',
                                                           'features':edmlist})
-            #tHLT.SlimmingTool.OutputLevel=DEBUG
             tHLT.ActInPlace=True
             slimmerHLT.ThinningTool = tHLT
-            print slimmerHLT.ThinningTool
             topSequence += slimmerHLT
             log.info("Configured slimming of HLT")
+            print(slimmerHLT.ThinningTool)  # noqa: ATL901
             del edmlist
 
 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+        from AthenaServices.Configurables import ThinningSvc
         
         if TriggerFlags.doNavigationSlimming() and rec.readRDO() and rec.doWriteAOD():
             if not hasattr(svcMgr, 'ThinningSvc'): # if the default is there it is configured for AODs

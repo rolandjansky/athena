@@ -15,13 +15,11 @@
 #include <TEnv.h>
 #include <TAxis.h>
 
-#include "JetCalibTools/IJetCalibrationTool.h"
 #include "JetCalibTools/JetCalibrationToolBase.h"
 #include "JetCalibTools/CalibrationMethods/NPVBeamspotCorrection.h"
 
 class ResidualOffsetCorrection 
-  : virtual public ::IJetCalibrationTool,
-    virtual public ::JetCalibrationToolBase
+  : virtual public ::JetCalibrationToolBase
 {
 
   ASG_TOOL_CLASS( ResidualOffsetCorrection, IJetCalibrationTool )

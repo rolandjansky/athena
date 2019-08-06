@@ -29,6 +29,7 @@ class opt :
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
+    doESD            = True           # Write out an ESD?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
     doL1Sim          = False          # (re)run L1 simulation
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
@@ -153,7 +154,7 @@ if opt.trigBase is not None:
 setModifiers = ['noLArCalibFolders',
                 'ForceMuonDataType',
                 'useNewRPCCabling',
-                #'enableCostMonitoring', 
+                'enableCostMonitoring',
                 #'enableCoherentPS',
                 'useOracle',
                 'enableHotIDMasking',
@@ -370,12 +371,13 @@ if opt.doL1Sim:
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
-        from TrigUpgradeTest.TestUtils import L1DecoderTest
+        from L1Decoder.L1DecoderConfig import L1Decoder
         topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
-        topSequence += L1DecoderTest()
+        topSequence += L1Decoder("L1Decoder")
+        #topSequence.L1Decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
     elif opt.doL1Sim:
-        from TrigUpgradeTest.TestUtils import L1DecoderTest
-        topSequence += L1DecoderTest()
+        from L1Decoder.L1DecoderConfig import L1Decoder
+        topSequence += L1Decoder("L1Decoder")
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
@@ -437,3 +439,21 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.lock()
 triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
 Configurable.configurableRun3Behavior=False
+
+#-------------------------------------------------------------
+# Non-ComponentAccumulator Cost Monitoring
+#-------------------------------------------------------------
+
+from AthenaCommon.AppMgr import ServiceMgr
+from GaudiSvc.GaudiSvcConf import AuditorSvc
+from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
+
+# This should be temporary, it is doing the same job as TrigCostMonitorMTConfig but without using a ComponentAccumulator
+if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
+    trigCostService = TrigCostMTSvc()
+    trigCostService.MonitorAllEvents = ConfigFlags.Trigger.CostMonitoring.monitorAllEvents
+    trigCostService.SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
+    ServiceMgr += trigCostService
+    #
+    ServiceMgr.AuditorSvc += TrigCostMTAuditor()
+    theApp.AuditAlgorithms=True

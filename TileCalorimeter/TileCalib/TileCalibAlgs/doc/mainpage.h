@@ -72,11 +72,6 @@ package a detailed documentation would not make much sense.
 */
 
 /**
-@page used_TileCalibAlgs Used Packages
-@htmlinclude used_packages.html
-*/
-
-/**
 @page requirements_TileCalibAlgs Requirements
 @include requirements
 */

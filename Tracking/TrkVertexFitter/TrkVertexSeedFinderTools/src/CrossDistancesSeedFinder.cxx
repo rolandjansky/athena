@@ -245,11 +245,11 @@ namespace Trk
 
     if (m_useweights)
     {
-      myresult=m_mode3dfinder->getMode(CrossingPointsAndWeights);
+      myresult=m_mode3dfinder->getMode(0, 0, CrossingPointsAndWeights);
     }
     else
     {
-      myresult=m_mode3dfinder->getMode(CrossingPoints);
+      myresult=m_mode3dfinder->getMode(0, 0, CrossingPoints);
     }
     
 #ifdef CROSSDISTANCESSEEDFINDER_DEBUG
@@ -280,26 +280,6 @@ namespace Trk
     msg(MSG::WARNING) << "Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds" << endmsg;
     return std::vector<Amg::Vector3D>(0);
 
-  }
-
-  void CrossDistancesSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
-    //implemented to satisfy inheritance
-  }
-
-  int CrossDistancesSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /* a */,
-						const std::vector<const Trk::TrackParameters*>  & /* b */) const{
-    //implemented to satisfy inheritance
-    return 0;
-  }
-
-  int CrossDistancesSeedFinder::getModes1d(std::vector<float> &/* a */, std::vector<float> & /* b */, 
-					   std::vector<float> & /* c */, std::vector<float> & /* d */) const{
-   //implemented to satisfy inheritance
-    return 0;
-  }
-
-  void CrossDistancesSeedFinder::getCorrelationDistance( double & /* cXY */, double & /* cZ */ ){
-    //implemented to satisfy inheritance
   }
 
 

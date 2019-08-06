@@ -4,112 +4,67 @@
 #ifndef FTKSectorSlice_h
 #define FTKSectorSlice_h
 
+#include <utility>
 #include <TROOT.h>
+#include <TBits.h>
 #include <TrigFTKSim/FTKTrack.h>
+#include <memory>
+
+class FTKSectorSlice_oneVar {
+ public:
+   // a slice is a table
+   // there is a range in a given variable
+   // the range is binned (number of bins =  TClonesArray size)
+   // for each bin there is bit vector TBits
+   // the bit index is the sector number
+   // it the bit is set, that sector may produce tracks in the given bin
+   FTKSectorSlice_oneVar(TDirectory *dir,std::string slice_file_name,
+                         double xmin,double xmax,bool isPhi);
+   ~FTKSectorSlice_oneVar();
+   std::pair<double,double> const &GetRangeWithSectors(void) const { return m_rangeWithSectors; }
+   TBits const *find(double x);
+ protected:
+   bool m_wrapAround;
+   int m_nbins;
+   double m_step;
+   TClonesArray *m_bits;
+   std::pair<double,double> m_maxRange; // range of this slice 
+   std::pair<double,double> m_rangeWithSectors; // parameter range in which there are non-empty bins
+};
 
 class FTKSectorSlice {
 
  public:
   FTKSectorSlice();
-   ~FTKSectorSlice(){};
+  ~FTKSectorSlice();
 
-  void loadSlices(std::string slice_file_path);
-  double getAutotunePhiMin();
-  double getAutotuneCMin();
-  double getAutotuneDMin();
-  double getAutotuneZ0Min();
-  double getAutotuneCthetaMin();
-  double getAutotuneEtaMin();
-  double getAutotunePhiMax();
-  double getAutotuneCMax();
-  double getAutotuneDMax();
-  double getAutotuneZ0Max();
-  double getAutotuneCthetaMax();
-  double getAutotuneEtaMax();
+  bool loadSlices(std::string slice_file_path,
+                  std::pair<double,double> &phiRange,
+                  std::pair<double,double> &cRange,
+                  std::pair<double,double> &d0Range,
+                  std::pair<double,double> &z0Range,
+                  std::pair<double,double> &cotRange);
 
-  // In case user wants to set ranges manually
-  void setPhiMin(const double &v) { m_phi_min = v; }
-  void setPhiMax(const double &v) { m_phi_max = v; }
-  void setCMin(const double &v) { m_c_min = v; }
-  void setCMax(const double &v) { m_c_max = v; }
-  void setD0Min(const double &v) { m_d0_min = v; }
-  void setD0Max(const double &v) { m_d0_max = v; }
-  void setZ0Min(const double &v) { m_z0_min = v; }
-  void setZ0Max(const double &v) { m_z0_max = v; }
-  void setEtaMin(const double &v) { m_eta_min = v; m_ctheta_min = TMath::SinH(v); }
-  void setEtaMax(const double &v) { m_eta_max = v; m_ctheta_max = TMath::SinH(v); }
-
-  // JW - to be used if the user inputs parameter ranges by hand after loading the slices
-  void resetStepSizes() {
-    m_step_phi = (m_phi_max - m_phi_min)/m_phi_nbins;
-    autotune(m_bits_phi,m_phi_min,m_phi_max,m_autotune_phi_min,m_autotune_phi_max,true,"phi");
-    m_step_c = (m_c_max - m_c_min)/m_c_nbins;
-    autotune(m_bits_c,m_c_min,m_c_max,m_autotune_c_min,m_autotune_c_max,false,"c");
-    m_step_d0 = (m_d0_max - m_d0_min)/m_d0_nbins;
-    autotune(m_bits_d,m_d0_min,m_d0_max,m_autotune_d0_min,m_autotune_d0_max,false,"d0");
-    m_step_z0 = (m_z0_max - m_z0_min)/m_z0_nbins;
-    autotune(m_bits_z0,m_z0_min,m_z0_max,m_autotune_z0_min,m_autotune_z0_max,false,"z0");
-    m_step_ctheta = (m_ctheta_max - m_ctheta_min)/m_ctheta_nbins;
-    autotune(m_bits_ctheta,m_ctheta_min,m_ctheta_max,m_autotune_ctheta_min,m_autotune_ctheta_max,false,"cos(theta)");
-    m_autotune_eta_min=TMath::ASinH(m_autotune_ctheta_min);
-    m_autotune_eta_max=TMath::ASinH(m_autotune_ctheta_max);
-  }
+  void selectSlices(bool usePhi=true,
+                    bool useC=false,
+                    bool useD0=true,
+                    bool useZ0=true,
+                    bool useCot=true);
 
   std::vector<int> *searchSectors(FTKTrack& track);
 
+  void getSliceRanges( std::pair<double,double> &phiRange,
+                       std::pair<double,double> &cRange,
+                       std::pair<double,double> &d0Range,
+                       std::pair<double,double> &z0Range,
+                       std::pair<double,double> &cotRange);
+
  private:
-  TClonesArray *m_bits_phi;
-  TClonesArray *m_bits_c;
-  TClonesArray *m_bits_d;
-  TClonesArray *m_bits_z0;
-  TClonesArray *m_bits_ctheta;
 
-  void autotune(const TClonesArray *array,double_t x0,double_t x1,
-                double &autoMin,double &autoMax,
-                bool isAzimuth,const char *debug);
+  std::unique_ptr<FTKSectorSlice_oneVar>
+     m_slicePhi,m_sliceC,m_sliceD0,m_sliceZ0,m_sliceCot;
 
-  // Min and max parameters found out in the slice file
-  Double_t m_phi_min;
-  Double_t m_phi_max;
-  Double_t m_c_min;
-  Double_t m_c_max;
-  Double_t m_d0_min;
-  Double_t m_d0_max;
-  Double_t m_z0_min;
-  Double_t m_z0_max;
-  Double_t m_ctheta_min;
-  Double_t m_ctheta_max;
-  Double_t m_eta_min;
-  Double_t m_eta_max;
-  
-  double m_autotune_phi_min;
-  double m_autotune_c_min;
-  double m_autotune_d0_min;
-  double m_autotune_z0_min;
-  double m_autotune_ctheta_min;
-  double m_autotune_eta_min;
-  double m_autotune_phi_max;
-  double m_autotune_c_max;
-  double m_autotune_d0_max;
-  double m_autotune_z0_max;
-  double m_autotune_ctheta_max;
-  double m_autotune_eta_max;
-  
-  Int_t m_phi_nbins;
-  Int_t m_c_nbins;
-  Int_t m_d0_nbins;
-  Int_t m_z0_nbins;
-  Int_t m_ctheta_nbins;
-
-  Double_t m_step_phi;
-  Double_t m_step_c;
-  Double_t m_step_d0;
-  Double_t m_step_z0;
-  Double_t m_step_ctheta;
-
-  // Flag to use ITk geometry
-  bool m_ITkMode;
-
-  };
+  bool m_usePhi,m_useC,m_useD0,m_useZ0,m_useCot;
+};
 
 #endif // FTKSectorSlice_h

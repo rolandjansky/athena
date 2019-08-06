@@ -63,11 +63,11 @@ void test1 (Trk::Mode3dFromFsmw1dFinder& tool)
   points.emplace_back (Amg::Vector3D(0.8, 2.3, 3.5), 0.7);
   points.emplace_back (Amg::Vector3D(1.3, 2.1, 2.5), 1.8);
 
-  tool.setPriVtxPosition (0.3, 0.2);
-  const Amg::Vector3D mode = tool.getMode (points);
+  std::unique_ptr<Trk::IMode3dInfo> info;
+  const Amg::Vector3D mode = tool.getMode (0.3, 0.2, points, info);
   assertVec3D (mode, {1.13684, 1.91842, 2.74474});
 
-  std::vector<int> indices = tool.AcceptedCrossingPointsIndices();
+  std::vector<int> indices = info->AcceptedCrossingPointsIndices();
   assert (indices == (std::vector<int> {1, 0, 3}));
 
   std::vector<float> phi;
@@ -75,7 +75,7 @@ void test1 (Trk::Mode3dFromFsmw1dFinder& tool)
   std::vector<float> z;
   std::vector<float> w;
 
-  unsigned int m = tool.Modes1d (phi, radi, z, w);
+  unsigned int m = info->Modes1d (phi, radi, z, w);
   assert (m == 3);
 
   assertFVec (phi,  (std::vector<float> {0.996491, 1.01649, 1.10715}));

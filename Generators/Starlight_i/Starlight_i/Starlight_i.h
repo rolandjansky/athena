@@ -49,7 +49,7 @@ protected:
     int m_events;
 
     starlight*       m_starlight;         // pointer to starlight instance
-    inputParameters* m_inputParameters;   // pointer to parameter instance
+    inputParameters  m_inputParameters;   // parameter instance
 
     upcEvent *m_event;
 

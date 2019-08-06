@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -46,10 +46,10 @@ public:
 
    /// Convert a transient object to its persistent self
    void* convertTP( const std::string& transName, void* trans,
-                    std::string& persName );
+                    std::string& persName ) const;
    /// Convert a persistent object to its transient self
    void* convertPT( const std::string& persName, void* pers,
-                    std::string& transName );
+                    std::string& transName ) const;
 
    /// Get the name of the persistent class belonging to a transient one
    const std::string& persClassName( const std::string& transClassName ) const;

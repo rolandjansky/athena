@@ -146,6 +146,18 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_e5_etcut"] = "L1_EM3";
       dummyChains["HLT_e7_etcut"] = "L1_EM7";
       // for menu test
+      dummyChains["HLT_2j330_a10t_lcw_jes_30smcINF_L1J20"] = "L1_J20";
+      dummyChains["HLT_j420_a10t_lcw_jes_30smcINF_L1J20"] = "L1_J20";
+      dummyChains["HLT_mu26_ivarmedium_L1MU20"] = "L1_MU20";
+      dummyChains["HLT_mu50_L1MU20"] = "L1_MU20";
+      dummyChains["HLT_2mu14_L12MU10"] = "L1_2MU10";
+      dummyChains["HLT_j420_L1J100"] = "L1_J100";
+      dummyChains["HLT_j260_320eta490_L1J75_31ETA49"] = "L1_J75.31ETA49";
+      dummyChains["HLT_j460_a10r_L1J100"] = "L1_J100";
+      dummyChains["HLT_j460_a10_lcw_subjes_L1J100"] = "L1_J100";
+      dummyChains["HLT_j460_a10t_lcw_jes_L1J100"] = "L1_J100";
+      dummyChains["HLT_3j200_L1J100"] = "L1_J100";
+      dummyChains["HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100"] = "L1_TAU100";
       dummyChains["HLT_2mu4_bBmumu_L12MU4"] = "L1_2MU4";
       dummyChains["HLT_2mu4_bDimu_L12MU4"] = "L1_2MU4";
       dummyChains["HLT_2mu4_bJpsimumu_L12MU4"] = "L1_2MU4";
@@ -176,6 +188,24 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_xe30_cell_L1XE10"] = "L1_XE10";
       dummyChains["HLT_xe30_tcpufit_L1XE10"] = "L1_XE10";
       dummyChains["HLT_xe65_cell_L1XE50"] = "L1_XE510";
+      dummyChains["HLT_xe65_cell_L1XE50"] = "L1_XE510";
+      dummyChains["HLT_tau0_perf_ptonly_L1TAU12"] = "L1_TAU12";
+      dummyChains["HLT_tau25_medium1_tracktwo_L1TAU12IM"] = "L1_TAU12IM";
+      dummyChains["HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM"] = "L1_TAU12IM";
+      dummyChains["HLT_j35_gsc45_boffperf_split_L1J20"] = "L1_J20";
+      dummyChains["HLT_j35_gsc45_bmv2c1070_split_L1J20"] = "L1_J20";
+      dummyChains["HLT_xe30_cell_xe30_tcpufit_L1XE10"] = "L1_XE10";
+      dummyChains["HLT_mu60_0eta105_msonly_L1MU20"] = "L1_MU20";
+      dummyChains["HLT_3mu6_L13MU6"] = "L1_3MU6";
+      dummyChains["HLT_3mu6_msonly_L13MU6"] = "L1_3MU6";
+      dummyChains["HLT_4mu4_L14MU4"] = "L1_4MU4";
+      dummyChains["HLT_j175_gsc225_bmv2c1040_split_L1J100"] = "L1_J100";
+      dummyChains["HLT_j225_gsc275_bmv2c1060_split_L1J100"] = "L1_J100";
+      dummyChains["HLT_j225_gsc300_bmv2c1070_split_L1J100"] = "L1_J100";
+      dummyChains["HLT_j225_gsc360_bmv2c1077_split_L1J100"] = "L1_J100";
+      dummyChains["HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100"] = "L1_TAU100";
+      dummyChains["HLT_2mu10_bJpsimumu_L12MU10"] = "L1_2MU10";
+      dummyChains["HLT_2mu10_bUpsimumu_L12MU10"] = "L1_2MU10";
 
       m_HLTFrame.setMergedHLT( m_setMergedHLT );
       for (const auto& mapPair : dummyChains) {

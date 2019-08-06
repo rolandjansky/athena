@@ -291,26 +291,4 @@ namespace Trk
   }
 
 
-  void ZScanSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
-    //implemented to satisfy inheritance
-  }
-
-  int ZScanSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /*a */ ,
-				       const std::vector<const Trk::TrackParameters*>&  /*b */) const{
-      //implemented to satisfy inheritance
-    return 0;
-  }
-
-  int ZScanSeedFinder::getModes1d(std::vector<float>& /* a */, std::vector<float> &  /*b */, 
-				  std::vector<float>& /* c */, std::vector<float>& /* d */) const{
-      //implemented to satisfy inheritance  
-    return 0;
-  }
-
-  void ZScanSeedFinder::getCorrelationDistance( double & /* cXY*/, double & /*cZ */ ){
-      //implemented to satisfy inheritance    
-  }
-
-
-
 }

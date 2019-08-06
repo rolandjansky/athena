@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,10 +14,6 @@
 
 namespace Trk
 {
-
-  //                                                          What does 1,0 mean here???
-  static const InterfaceID IID_IVERTEXCLUSTERFINDER("IVertexClusterFinder", 1, 0);
-
   /**
    @class IVertexClusterFinder
 
@@ -37,19 +33,16 @@ namespace Trk
   class VertexImage;
 
   class IVertexClusterFinder : virtual public IAlgTool {
-
      public:
+       DeclareInterfaceID( IVertexClusterFinder, 1, 0 );
 
        /** Virtual destructor */
-       virtual ~IVertexClusterFinder(){};
-
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IVERTEXCLUSTERFINDER; };
+       virtual ~IVertexClusterFinder() = default;
 
        //Get a vector of vertices based on input histogram, defined by hist_rs;
        //Will return bin coordinates, which can be coverted to coordinates at a 
        //later stage
-       virtual std::vector<Amg::Vector3D> findVertexClusters( const VertexImage & image ) = 0;
+       virtual std::vector<Amg::Vector3D> findVertexClusters( const VertexImage & image ) const = 0;
   };
 }
 

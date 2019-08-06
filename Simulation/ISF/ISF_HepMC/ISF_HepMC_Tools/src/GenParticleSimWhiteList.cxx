@@ -28,7 +28,7 @@ ISF::GenParticleSimWhiteList::GenParticleSimWhiteList( const std::string& t,
   : base_class(t,n,p)
 {
     // different options
-    declareProperty("WhiteList", m_whiteList="G4particle_whitelist.txt");
+    declareProperty("WhiteLists", m_whiteLists={"G4particle_whitelist.txt"});
     declareProperty("QuasiStableSim", m_qs=true);
 }
 
@@ -40,26 +40,28 @@ StatusCode  ISF::GenParticleSimWhiteList::initialize()
     // Initialize the list
     m_pdgId.clear();
 
-    // Get the appropriate file handle
-    std::string resolvedFilename = PathResolver::find_file( m_whiteList , "DATAPATH" );
-    std::ifstream white_list;
-    white_list.open( resolvedFilename );
-    if (!white_list.is_open()){
-      ATH_MSG_ERROR("Could not find white list " << m_whiteList);
-      return StatusCode::FAILURE;
-    }
+    for (auto &whiteList : m_whiteLists) {
+      // Get the appropriate file handle
+      std::string resolvedFilename = PathResolver::find_file( whiteList , "DATAPATH" );
+      std::ifstream white_list;
+      white_list.open( resolvedFilename );
+      if (!white_list.is_open()){
+        ATH_MSG_ERROR("Could not find white list " << whiteList);
+        return StatusCode::FAILURE;
+      }
 
-    // Parse the list into the vector
-    std::string a_line;
-    char * pEnd;
-    while (!white_list.eof()){
-      getline( white_list , a_line );
-      long int pdg = strtol( a_line.c_str() , &pEnd , 10 );
-      m_pdgId.push_back(pdg);
-    }
+      // Parse the list into the vector
+      std::string a_line;
+      char * pEnd;
+      while (!white_list.eof()){
+        getline( white_list , a_line );
+        long int pdg = strtol( a_line.c_str() , &pEnd , 10 );
+        m_pdgId.push_back(pdg);
+      }
 
-    // Sort the list for use later
-    std::sort( m_pdgId.begin() , m_pdgId.end() );
+      // Sort the list for use later
+      std::sort( m_pdgId.begin() , m_pdgId.end() );
+    }
 
     // All done!
     return StatusCode::SUCCESS;

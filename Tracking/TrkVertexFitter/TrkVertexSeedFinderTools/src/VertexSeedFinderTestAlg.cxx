@@ -9,7 +9,9 @@
  */
 
 
+#undef NDEBUG
 #include "VertexSeedFinderTestAlg.h"
+#include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
 #include "StoreGate/WriteHandle.h"
 #include "TestTools/FLOATassert.h"
 #include "TestTools/random.h"
@@ -77,6 +79,39 @@ void assertVec3D (const char* which,
 }
 
 
+void dumpVector (const std::vector<float>& v)
+{
+  std::cerr << "  [";
+  for (float f : v) {
+    std::cerr << f << ", ";
+  }
+  std::cerr << "]\n";
+}
+void failVector (const char* which,
+                 const std::vector<float>& a,
+                 const std::vector<float>& b)
+{
+  std::cerr << "VertexSeedFinderTestAlg::assertVector mismatch " << which
+            << "\n";
+  dumpVector (a);
+  dumpVector (b);
+  std::abort();
+}
+void assertVector (const char* which,
+                   const std::vector<float>& a,
+                   const std::vector<float>& b)
+{
+  if (a.size() != b.size()) {
+    failVector (which, a, b);
+  }
+  for (size_t i=0; i < a.size(); i++) {
+    if (! Athena_test::isEqual (a[i], b[i], 1e-5) ) {
+      failVector (which, a, b);
+    }
+  }
+}
+
+
 } // anonymous namespace
 
 
@@ -102,9 +137,12 @@ StatusCode VertexSeedFinderTestAlg::execute()
   ATH_MSG_VERBOSE ("execute");
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
+  double vx = 0;
+  double vy = 0;
   if (!m_priVert.empty()) {
     if (m_priVert.size() != 2) std::abort();
-    m_finder->setPriVtxPosition (m_priVert[0], m_priVert[1]);
+    vx = m_priVert[0];
+    vy = m_priVert[1];
   }
 
   Amg::Vector3D pos0 { 0, 0, 0 };
@@ -125,11 +163,49 @@ StatusCode VertexSeedFinderTestAlg::execute()
 
   if (!m_expected1.empty()) {
     ATH_MSG_VERBOSE ("testing 1");
-    Amg::Vector3D p = m_finder->findSeed (v1a);
+    Amg::Vector3D p = m_finder->findSeed (vx, vy, v1a);
     assertVec3D ("1a", p,  m_expected1);
 
-    p = m_finder->findSeed (v1b);
+    std::unique_ptr<Trk::IMode3dInfo> info;
+    p = m_finder->findSeed (vx, vy, info, v1b);
     assertVec3D ("1b", p,  m_expected1);
+
+    if (!m_expected1PhiModes.empty()) {
+      std::vector<float> phi;
+      std::vector<float> r;
+      std::vector<float> z;
+      std::vector<float> w;
+      size_t sz = info->Modes1d (phi, r, z, w);
+      assert (sz == phi.size());
+      assert (sz == r.size());
+      assert (sz == z.size());
+      assert (sz == w.size());
+      assertVector ("phiModes", phi, m_expected1PhiModes);
+      assertVector ("rModes",     r, m_expected1RModes);
+      assertVector ("zModes",     z, m_expected1ZModes);
+      assertVector ("weights",    w, m_expected1Weights);
+    }
+
+    if (!m_expected1Indices.empty()) {
+      std::vector<const Trk::TrackParameters*> p;
+      size_t sz = info->perigeesAtSeed (p, v1a);
+      assert (sz == p.size());
+      std::vector<int> ndx;
+      for (const Trk::TrackParameters* pp : p) {
+        auto it = std::find (v1a.begin(), v1a.end(), pp);
+        assert (it != v1a.end());
+        ndx.push_back (it - v1a.begin());
+      }
+      assert (ndx == m_expected1Indices);
+    }
+
+    if (!m_expected1CorrDist.empty()) {
+      double cXY = 0;
+      double cZ = 0;
+      info->getCorrelationDistance (cXY, cZ);
+      assert (Athena_test::isEqual (cXY, m_expected1CorrDist[0], 1e-5));
+      assert (Athena_test::isEqual (cZ, m_expected1CorrDist[1], 1e-5));
+    }
   }
 
   xAOD::Vertex vert1;
@@ -137,10 +213,10 @@ StatusCode VertexSeedFinderTestAlg::execute()
 
   if (!m_expected2.empty()) {
     ATH_MSG_VERBOSE ("testing 2");
-    Amg::Vector3D p = m_finder->findSeed (v1a, &vert1);
+    Amg::Vector3D p = m_finder->findSeed (vx, vy, v1a, &vert1);
     assertVec3D ("2a", p, m_expected2);
 
-    p = m_finder->findSeed (v1b, &vert1);
+    p = m_finder->findSeed (vx, vy, v1b, &vert1);
     assertVec3D ("2b", p, m_expected2);
   }
 
@@ -183,7 +259,7 @@ StatusCode VertexSeedFinderTestAlg::execute()
   if (!m_expected3.empty()) {
     ATH_MSG_VERBOSE ("testing 3");
     if (m_expected3.size() == 3) {
-      Amg::Vector3D p = m_finder->findSeed (pvec);
+      Amg::Vector3D p = m_finder->findSeed (vx, vy, pvec);
       assertVec3D ("3a", p, m_expected3);
     }
     else {

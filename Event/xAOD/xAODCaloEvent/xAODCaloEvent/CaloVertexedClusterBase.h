@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -19,7 +19,6 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODBase/IParticle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "CxxUtils/final.h"
 
 
 namespace xAOD {
@@ -73,25 +72,25 @@ public:
   /// @{
 
   /// The transverse momentum (\f$p_T\f$) of the particle
-  virtual double           pt() const ATH_FINAL { return m_p4.Pt(); }
+  virtual double           pt() const final { return m_p4.Pt(); }
   /// The pseudorapidity (\f$\eta\f$) of the particle
-  virtual double           eta() const ATH_FINAL { return m_eta; }
+  virtual double           eta() const final { return m_eta; }
   /// The azimuthal angle (\f$\phi\f$) of the particle
-  virtual double           phi() const ATH_FINAL { return m_phi; }
+  virtual double           phi() const final { return m_phi; }
   /// The invariant mass of the particle
-  virtual double           m() const ATH_FINAL { return m_p4.M(); }
+  virtual double           m() const final { return m_p4.M(); }
   /// The total energy of the particle
-  virtual double           e() const ATH_FINAL { return m_p4.E(); }
+  virtual double           e() const final { return m_p4.E(); }
   /// The true rapidity (y) of the particle
-  virtual double           rapidity() const ATH_FINAL { return m_p4.Rapidity(); }
+  virtual double           rapidity() const final { return m_p4.Rapidity(); }
 
   /// The full 4-momentum of the particle
-  virtual FourMom_t p4() const ATH_FINAL { return m_p4; }
+  virtual FourMom_t p4() const final { return m_p4; }
 
   /// @}
 
   /// The type of the object as a simple enumeration
-  virtual Type::ObjectType type() const ATH_FINAL { return m_cl->type(); }
+  virtual Type::ObjectType type() const final { return m_cl->type(); }
 
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -23,7 +23,6 @@
 #include "GaudiKernel/IHistogramSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "AIDA/IHistogram1D.h"
 
 // core trigger stuff
 #include "TrigT1Interfaces/RecEmTauRoI.h"

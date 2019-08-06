@@ -21,14 +21,14 @@ def _createCfgFlags():
 
     acf=AthConfigFlags()
 
-    acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # fromer global.InputFiles
+    acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # former global.InputFiles
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
-    acf.addFlag('Input.isMC', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("isMC",None)) # former global.isMC
-    acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("RunNumber",None))) # former global.RunNumber
-    acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Project","data17_13TeV") ) # former global.ProjectName
+    acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
+    acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
+    acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
 
     def _inputCollections(inputFile):
-        rawCollections = GetFileMD(inputFile).get("SGKeys","").split()
+        rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
         collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
         return collections
 
@@ -59,7 +59,7 @@ def _createCfgFlags():
     acf.addFlag('Beam.BunchSpacing', 25) # former global.BunchSpacing
     acf.addFlag('Beam.Type', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_type','collisions') )# former global.BeamType
     acf.addFlag("Beam.NumberOfCollisions", lambda prevFlags : 2. if prevFlags.Beam.Type=='collisions' else 0.) # former global.NumberOfCollisions
-    acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('BeamEnergy',7*TeV)) # former global.BeamEnergy
+    acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_energy',7*TeV)) # former global.BeamEnergy
     acf.addFlag('Beam.estimatedLuminosity', lambda prevFlags : ( 1E33*(prevFlags.Beam.NumberOfCollisions)/2.3 ) *\
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
 
@@ -72,6 +72,12 @@ def _createCfgFlags():
     acf.addFlag('Output.ESDFileName','myESD.pool.root')
     acf.addFlag('Output.AODFileName','myAOD.pool.root')
     acf.addFlag('Output.HISTFileName','myHIST.root')
+    
+    # Might move this elsewhere in the future.
+    # Some flags from https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/TrkDetDescrJobProperties.py
+    # (many, e.g. those that set properties of one tool are not needed)
+    acf.addFlag('TrackingGeometry.MagneticFileMode', 6)
+    acf.addFlag('TrackingGeometry.MaterialSource', 'COOL') # Can be COOL, Input or None
 
 #Detector Flags:
     def __detector():
@@ -99,7 +105,7 @@ def _createCfgFlags():
 
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
-    acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Geometry","ATLAS-R2-2016-01-00-01")) #
+    acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("GeoAtlas",None) or "ATLAS-R2-2016-01-00-01") #
     acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate))
     acf.addFlag("GeoModel.StripGeoType", "GMX") # Based on CommonGeometryFlags.StripGeoType
     acf.addFlag("GeoModel.Run","RUN2") # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
@@ -107,7 +113,7 @@ def _createCfgFlags():
     acf.addFlag("GeoModel.IBLLayout", "UNDEFINED") # IBL layer layout  in {"planar", "3D", "noIBL", "UNDEFINED"}
 
 #IOVDbSvc Flags:
-    acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("ConditionsTag","CONDBR2-BLKPA-2017-05"))
+    acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-2017-05")
     from IOVDbSvc.IOVDbAutoCfgFlags import getDatabaseInstanceDefault
     acf.addFlag("IOVDb.DatabaseInstance",getDatabaseInstanceDefault)
 
@@ -155,7 +161,7 @@ def _createCfgFlags():
     def __pflow():
         from eflowRec.PFConfigFlags import createPFConfigFlags
         return createPFConfigFlags()
-    _addFlagsCategory(acf,"PF",__pflow)
+    _addFlagsCategory(acf,"PF",__pflow, 'eflowRec')
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags

@@ -30,6 +30,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::initialize() {
 
   ATH_CHECK( EventViewCreatorAlgorithm::initialize() );
   ATH_CHECK( m_inViewMuons.initialize() );
+  ATH_CHECK( m_inViewMuonCandidates.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -125,7 +126,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
 					m_viewNodeName,             // CF node to attach views to
 					context,                    // Source context
-					m_scheduler.get() ) );
+					getScheduler() ) );
 
   if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
   return StatusCode::SUCCESS;
@@ -133,15 +134,25 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 
 StatusCode EventViewCreatorAlgorithmWithMuons::placeMuonInView( const xAOD::Muon* theObject, SG::View* view, const EventContext& context ) const {
   // fill the Muon output collection  
-  ATH_MSG_DEBUG( "Adding Muon To View : " << m_inViewMuons.key() );
+  ATH_MSG_DEBUG( "Adding Muon To View : " << m_inViewMuons.key()<<" and "<<m_inViewMuonCandidates.key() );
   auto oneObjectCollection = std::make_unique< ConstDataVector< xAOD::MuonContainer > >();
   oneObjectCollection->clear( SG::VIEW_ELEMENTS ); 
   oneObjectCollection->push_back( theObject );
+
+  auto muonCandidate = std::make_unique< ConstDataVector< MuonCandidateCollection > >();
+  muonCandidate->clear( SG::VIEW_ELEMENTS ); 
+  auto msLink = theObject->muonSpectrometerTrackParticleLink();
+  if(msLink.isValid()) muonCandidate->push_back( new MuonCombined::MuonCandidate(msLink) );
 
   //store in the view 
   auto handle = SG::makeHandle( m_inViewMuons,context );
   ATH_CHECK( handle.setProxyDict( view ) );
   ATH_CHECK( handle.record( std::move( oneObjectCollection ) ) ); 
+
+  auto handleCandidate = SG::makeHandle( m_inViewMuonCandidates,context );
+  ATH_CHECK( handleCandidate.setProxyDict( view ) );
+  ATH_CHECK( handleCandidate.record( std::move( muonCandidate ) ) ); 
+
   return StatusCode::SUCCESS;
 }
 

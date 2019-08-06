@@ -14,6 +14,7 @@ if __name__=='__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
     parser.add_argument('--preExec', help='Code to execute before locking configs')
+    parser.add_argument('--postExec', help='Code to execute after setup')
     parser.add_argument('--dqOffByDefault', action='store_true',
                         help='Set all DQ steering flags to False, user must then switch them on again explicitly')
     parser.add_argument('flags', nargs='*', help='Config flag overrides')
@@ -25,7 +26,7 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import INFO
+    from AthenaCommon.Constants import *
     log.setLevel(INFO)
 
     # Set the Athena configuration flags
@@ -50,15 +51,23 @@ if __name__=='__main__':
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg, MainServicesThreadedCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
-    cfg = MainServicesSerialCfg()
+    if ConfigFlags.Concurrency.NumThreads == 0:
+        cfg = MainServicesSerialCfg()
+    else:
+        cfg = MainServicesThreadedCfg(ConfigFlags)
     cfg.merge(PoolReadCfg(ConfigFlags))
 
     # load DQ
     from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
     dq = AthenaMonitoringCfg(ConfigFlags)
     cfg.merge(dq)
+
+    # any last things to do?
+    if args.postExec:
+        log.info('Executing postExec: %s', args.postExec)
+        exec(args.postExec)
 
     # If you want to turn on more detailed messages ...
     # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG

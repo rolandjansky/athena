@@ -21,7 +21,19 @@ typedef enum {
   InnerGlueWheel,
   OuterGlueWheel,
   InnerLeadWheel,
-  OuterLeadWheel
+  OuterLeadWheel,
+  InnerAbsorberCone,
+  InnerElectrodCone,
+  InnerGlueCone,
+  InnerLeadCone,
+  OuterAbsorberFrontCone,
+  OuterElectrodFrontCone,
+  OuterGlueFrontCone,
+  OuterLeadFrontCone,
+  OuterAbsorberBackCone,
+  OuterElectrodBackCone,
+  OuterGlueBackCone,
+  OuterLeadBackCone,
 } LArWheelSolid_t;
 
 

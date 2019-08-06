@@ -250,10 +250,10 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   Gaudi::Property<bool> m_roundingNoNoise{this, "RoundingNoNoise", true,
       "if true add random number [0:1[ in no noise case before rounding ADC to integer, if false add only 0.5 average"};  // flag used in NoNoise case: if true add random number [0;1[ in ADC count, if false add only average of 0.5
  
-  SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoise","SG Key of ILArNoise object"};
-  SG::ReadCondHandleKey<ILArfSampl>   m_fSamplKey{this,"fSamplKey","LArfSampl","SG Key of LArfSampl object"};
+  SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoiseSym","SG Key of ILArNoise object"};
+  SG::ReadCondHandleKey<ILArfSampl>   m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
   SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
-  SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShape","SG Key of LArShape object"};
+  SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShapeSym","SG Key of LArShape object"};
   SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   const LArOnOffIdMapping* m_cabling{}; //Set in perpareEvent, used also in mergeEvent

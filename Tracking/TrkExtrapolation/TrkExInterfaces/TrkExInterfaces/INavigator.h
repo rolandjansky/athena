@@ -34,8 +34,8 @@ namespace Trk {
   /**useful struct for a single navigation cell*/
   struct NavigationCell {
 
-        mutable const TrackingVolume*      nextVolume;
-        mutable const TrackParameters*     parametersOnBoundary;
+        const TrackingVolume*      nextVolume;
+        const TrackParameters*     parametersOnBoundary;
         BoundarySurfaceFace                exitFace;
         /** Constructor */     
         NavigationCell(const TrackingVolume*  nVol,

@@ -1,19 +1,29 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
-# definition of trigger EDM for the Run 3, mostly similar to Run 2
-# however there are different set of EDM to stream and different functionalities required
+# Definition of trigger EDM for the Run 3, mostly similar to Run 2 (TriggerEDM.py).
+# Some different sets of EDM to stream and some different functionalities are required.
+
+
+# Concept of categories is kept, categories are: 
+#   Bjet, Bphys, Egamma, ID/Tracking (to be concluded if can be merged), 
+#   Jet, L1, MET, MinBias, Muon Steer, Tau, Calo
+
+# Please note: 
+#   Dynamic varialbes/Container slimming: All dyn vars are removed unless explicitly specified to be kept!
+
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerEDMRun3Config')
+
+
 def recordable( name ):
     """
     Verify that the name is in the list of recorded objects and conform to the name convention
 
+    In Run 2 it was a delicate process to configure correctly what got recorded
+    as it had to be set in the algorithm that produced it as well in the TriggerEDM.py in a consistent manner.
 
-    In Run 2 it was a delicate process to configure correctly what get recorded
-    as it had to be set in the produce arlgoirhm as well in here in a consistent manner.
-
-    For Run 3 every alg input/output key can be crosschecked agains the list of objects to record defined here.
+    For Run 3 every alg input/output key can be crosschecked against the list of objects to record which is defined here.
     I.e. in the configuration alg developer would do this:
     from TriggerEDM.TriggerEDMRun3 import recordable
 
@@ -21,7 +31,7 @@ def recordable( name ):
     If the names are correct the outputKey is assigned with SomeKey, if there is a missmatch an exception is thrown.
     """
 
-    if name in ["HLTSummary", "L1DecoderSummary"] or "L1" in name or "RoI" in name:
+    if name in ["HLTNav_Summary", "L1DecoderSummary"] or "L1" in name or "RoI" in name:
         pass
     else: #negative filtering
         if not name.startswith( "HLT_" ):
@@ -29,19 +39,19 @@ def recordable( name ):
         if "Aux" in name and not name[-1] != ".":
             __log.error( "The collection name {0} is Aux but the name does not end with the '.'".format( name ) )
 
-    for entry in TriggerHLTList:
+    for entry in TriggerHLTListRun3:
         if entry[0].split( "#" )[1] == name:
             return name
     msg = "The collection name {0} is not declared to be stored by HLT. Add it to TriggerEDMRun3.py".format( name )
     __log.error("ERROR in recordable() - see following stack trace.")
     raise RuntimeError( msg )
-    return name
 
-TriggerHLTList = [
+
+TriggerHLTListRun3 = [
 
     #framework/steering
-    ('xAOD::TrigCompositeContainer#HLTSummary',              'BS ESD AODFULL AODSLIM', 'Steer'),
-    ('xAOD::TrigCompositeAuxContainer#HLTSummaryAux.',       'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeContainer#HLTNav_Summary',          'BS ESD AODFULL AODSLIM', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLTNav_SummaryAux.',   'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeContainer#L1DecoderSummary',        'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#L1DecoderSummaryAux.', 'BS ESD AODFULL AODSLIM', 'Steer'),
 
@@ -63,6 +73,9 @@ TriggerHLTList = [
     ('xAOD::TrigCompositeContainer#L1J',                     'BS ESD AODFULL AODSLIM', 'Steer'),
     ('xAOD::TrigCompositeAuxContainer#L1JAux.',              'BS ESD AODFULL AODSLIM', 'Steer'),
 
+    ('xAOD::TrigCompositeContainer#HLT_TrigCostContainer',   'BS ESD', 'Steer'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TrigCostContainerAux.alg.store.view.thread.slot.roi.start.stop.', 'BS ESD', 'Steer'),
+
     # Run-2 L1 (temporary)
     ('xAOD::MuonRoIContainer#LVL1MuonRoIs' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.' ,          'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
@@ -75,9 +88,8 @@ TriggerHLTList = [
     ('xAOD::EnergySumRoI#LVL1EnergySumRoI' ,                 'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
     ('xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.',       'ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM', 'L1'),
 
+
     # Egamma
-
-
     ('xAOD::TrigEMClusterContainer#HLT_L2CaloEMClusters',           'BS ESD AODFULL', 'Egamma', 'inViews:EMCaloViews'), # last arg specifies in which view container the fragments are, look into the proprty of View maker alg for it
     ('xAOD::TrigEMClusterAuxContainer#HLT_L2CaloEMClustersAux.',    'BS ESD AODFULL', 'Egamma'),
     ('xAOD::TrigPhotonContainer#HLT_L2Photons',                     'BS ESD AODFULL', 'Egamma', 'inViews:L2PhotonRecoViews'),
@@ -96,7 +108,7 @@ TriggerHLTList = [
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersAux.',  'BS ESD AODFULL', 'Egamma'),
 
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersRoI',          'BS ESD AODFULL', 'Egamma' 'inViews:precisionCaloViews'),
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersRoIAux.', 'BS ESD AODFULL', 'Egamma'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersRoIAux.nCells.', 'BS ESD AODFULL', 'Egamma'),
 
     # Muon
 
@@ -164,9 +176,31 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_xAODTracks_FastTrack',                 'BS ESD AODFULL', 'Tau', 'inViews:TCoreViewRoIs'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_FastTrackAux.',          'BS ESD AODFULL', 'Tau'),
 
+    # Jet
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjesIS',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesISAux.',       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_subjes',                'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_subjesAux.',         'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt4EMTopoJets_nojcalib',              'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt4EMTopoJets_nojcalibAux.',       'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt10LCTopoJets_subjes',               'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoJets_subjesAux.',        'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt10LCTopoJets_nojcalib',             'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoJets_nojcalibAux.',      'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt10JetRCJets_subjesIS',              'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10JetRCJets_subjesISAux.',       'BS ESD AODFULL', 'Jet'),
+
+    ('xAOD::JetContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+    ('xAOD::JetAuxContainer#HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jesAux.', 'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Jet'),
+
     # MET
-    ('xAOD::TrigMissingETContainer#HLT_MET',                               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
-    ('xAOD::TrigMissingETAuxContainer#HLT_METAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETContainer#HLT_MET_cell',                               'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_MET_cellAux.',                        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     ('xAOD::TrigMissingETContainer#HLT_MET_mht',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_mhtAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
@@ -178,7 +212,7 @@ TriggerHLTList = [
     ('xAOD::TrigMissingETAuxContainer#HLT_MET_tcAux.',                     'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersFS',                  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.',       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersFSAux.nCells.','BS ESD AODFULL AODSLIM AODVERYSLIM', 'MET'),
 
     # tau
     ('xAOD::TauJetContainer#HLT_TrigTauRecMerged',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
@@ -188,25 +222,34 @@ TriggerHLTList = [
     ('xAOD::TauJetAuxContainer#HLT_TrigTauRecMerged_MVAAux.',              'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     # tau calo clusters
-    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLC',                'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloRoIs'),
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersLCAux.',     'BS ESD AODFULL', 'Tau'),
+    ('xAOD::CaloClusterContainer#HLT_TopoCaloClustersLC',                  'BS ESD AODFULL', 'Tau', 'inViews:TAUCaloRoIs'),
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TopoCaloClustersLCAux.nCells.','BS ESD AODFULL', 'Tau'),
 
     # tau tracks
     ('xAOD::TauTrackContainer#HLT_tautrack_MVA',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
     ('xAOD::TauTrackAuxContainer#HLT_tautrack_MVAAux.',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau'),
 
     #bjet
-
     ('xAOD::TrackParticleContainer#HLT_xAODTracks_FS',                     'BS ESD AODFULL', 'Bjet'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracks_FSAux.',              'BS ESD AODFULL', 'Bjet'),
 
-    # MinBias
+    #bjet jets
 
+    ('xAOD::JetContainer#HLT_SplitJet',                           'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    ('xAOD::JetAuxContainer#HLT_SplitJetAux.',                       'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+
+    ('xAOD::JetContainer#HLT_GSCJet',                             'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BJetViews'),
+    ('xAOD::JetAuxContainer#HLT_GSCJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+
+    # vertex for b-jets
+    ('xAOD::VertexContainer#HLT_EFHistoPrmVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
+    ('xAOD::VertexAuxContainer#HLT_EFHistoPrmVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),  
+
+    # MinBias
     ('xAOD::TrackParticleContainer#HLT_xAODTracksMinBias',                 'BS ESD AODFULL', 'MinBias'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksMinBiasAux.',          'BS ESD AODFULL', 'MinBias'),
 
     # ID
-
     # Requested by TrigUpgradeTest/IDCalo.py
     ('xAOD::TrackParticleContainer#HLT_xAODTracks',                        'BS ESD AODFULL', 'ID'),
     ('xAOD::TrackParticleAuxContainer#HLT_xAODTracksAux.',                 'BS ESD AODFULL', 'ID'),
@@ -217,6 +260,7 @@ TriggerHLTList = [
     ('xAOD::TrigCompositeContainer#HLT_SpacePointCounts',            'BS ESD AODFULL AODSLIM', 'MinBias'),
     ('xAOD::TrigCompositeAuxContainer#HLT_SpacePointCountsAux.',     'BS ESD AODFULL AODSLIM', 'MinBias'),
 ]
+
 
 EDMDetails = {}
 
@@ -249,3 +293,5 @@ def tpMap():
             continue
         l[tr] = persistent(tr)
     return l
+
+

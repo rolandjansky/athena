@@ -21,11 +21,13 @@ TrigJetHypoToolHelperMT::TrigJetHypoToolHelperMT(const std::string& type,
 
 StatusCode TrigJetHypoToolHelperMT::initialize() {
 
-  auto conditions = m_config->getConditions();
   m_grouper  = std::move(m_config->getJetGrouper());
   m_matcher = std::move(m_config->getMatcher());
-  // m_matcher = std::move(groupsMatcherFactoryMT(conditions));
-
+  if(!m_matcher){
+    ATH_MSG_ERROR("Error setting matcher");
+    return StatusCode::FAILURE;
+  }
+		  
   return StatusCode::SUCCESS;
 }
 
@@ -79,40 +81,43 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
 				 collector);
     
     timer.stop();
-
+    
     collectData(timer.readAndReset(), collector, pass);
-    if(pass.has_value()){
-      if(*pass){return true;}
+
+    if(!pass.has_value()){
+      ATH_MSG_ERROR("Matcher cannot determine result. Config error?");
+      return false;
     }
+    
+    if(*pass){return true;}
     timer.start();
   }
+  
   timer.stop();
   return false;
 }
   
 std::string TrigJetHypoToolHelperMT::toString() const {
 
-  
-
+ 
   std::stringstream ss;
   ss << nodeIDPrinter(name(),
                       m_nodeID,
                       m_parentNodeID);
   
   
-  ss << " Cleaners [" << m_cleaners.size() << "]: \n";
+  ss << "Cleaners:\n No of cleaners: "  << m_cleaners.size() << '\n';
 
   for(auto cleaner : m_cleaners) {
     ss << cleaner->toString() 
        << '\n';
   }
 
-  ss << "\n Grouper: " << m_grouper->toString() << '\n';
+  ss << "\nGrouper:\n " << m_grouper->toString() << '\n';
 
-  /*
-  ss << "\n Matcher: \n";
+  ss << "\nMatcher:\n";
   ss << m_matcher -> toString();
-  */
+
   return ss.str();
 }
 
@@ -122,4 +127,11 @@ TrigJetHypoToolHelperMT::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
   return StatusCode::SUCCESS;
 }
+
+std::size_t TrigJetHypoToolHelperMT::requiresNJets() const {
+  return m_config->requiresNJets();
+}
+
+
+
 

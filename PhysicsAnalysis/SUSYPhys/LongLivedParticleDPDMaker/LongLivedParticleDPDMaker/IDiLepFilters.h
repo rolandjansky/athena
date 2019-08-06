@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -26,19 +26,36 @@ namespace DerivationFramework
     public:
       static const InterfaceID& interfaceID() { return IID_DerivationFramework_IDiLepFilters; }
 
-      virtual bool GetTriggers() = 0;
+      virtual bool GetTriggers(uint32_t& passFlags) const = 0;
 
-      virtual bool PassSiEl(const xAOD::Electron& el) const = 0;
-      virtual bool PassSiPhX(const xAOD::Photon& ph, const xAOD::Electron& el) const = 0;
-      virtual bool PassSiPhX(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const = 0;
-      virtual bool PassSiPhX(const xAOD::Photon& ph, const xAOD::Muon& mu) const = 0;
-      virtual bool PassSiMu(const xAOD::Muon& mu) const = 0;
-      virtual bool PassSiMuBa(const xAOD::Muon& mu) const = 0;
+      virtual bool PassSiEl(const uint32_t passFlags,
+                            const xAOD::Electron& el) const = 0;
+      virtual bool PassSiPhX(const uint32_t passFlags,
+                             const xAOD::Photon& ph,
+                             const xAOD::Electron& el) const = 0;
+      virtual bool PassSiPhX(const uint32_t passFlags,
+                             const xAOD::Photon& ph1,
+                             const xAOD::Photon& ph2) const = 0;
+      virtual bool PassSiPhX(const uint32_t passFlags,
+                             const xAOD::Photon& ph,
+                             const xAOD::Muon& mu) const = 0;
+      virtual bool PassSiMu(const uint32_t passFlags,
+                            const xAOD::Muon& mu) const = 0;
+      virtual bool PassSiMuBa(const uint32_t passFlags,
+                              const xAOD::Muon& mu) const = 0;
 
-      virtual bool PassDiEl(const xAOD::Electron& el1, const xAOD::Electron& el2) const = 0;
-      virtual bool PassDiPh(const xAOD::Photon& ph1, const xAOD::Photon& ph2) const = 0;
-      virtual bool PassDiElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const = 0;
-      virtual bool PassDiLoElPh(const xAOD::Electron& el, const xAOD::Photon& ph) const = 0;
+      virtual bool PassDiEl(const uint32_t passFlags,
+                            const xAOD::Electron& el1,
+                            const xAOD::Electron& el2) const = 0;
+      virtual bool PassDiPh(const uint32_t passFlags,
+                            const xAOD::Photon& ph1,
+                            const xAOD::Photon& ph2) const = 0;
+      virtual bool PassDiElPh(const uint32_t passFlags,
+                              const xAOD::Electron& el,
+                              const xAOD::Photon& ph) const = 0;
+      virtual bool PassDiLoElPh(const uint32_t passFlags,
+                                const xAOD::Electron& el,
+                                const xAOD::Photon& ph) const = 0;
   };
 }
 

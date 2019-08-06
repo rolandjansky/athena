@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __H_FTK_COMPRESSEDSECTORPATTERNLIST
-#define __H_FTK_COMPRESSEDSECTORPATTERNLIST
+#ifndef TRIGFTKSIM_FTK_COMPRESSEDSECTORPATTERNLIST_H
+#define TRIGFTKSIM_FTK_COMPRESSEDSECTORPATTERNLIST_H
 
 #include "TrigFTKSim/FTK_CompressedPatternList.h"
 #include <map>

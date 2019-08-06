@@ -39,7 +39,7 @@ class  JetBTaggerTool:
 
   JetBTaggerTool(const std::string & n);
   virtual ~JetBTaggerTool();
-  virtual int modify(xAOD::JetContainer& jets) const;
+  virtual StatusCode modify(xAOD::JetContainer& jets) const;
 
 
  private:

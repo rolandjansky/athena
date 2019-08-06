@@ -33,7 +33,14 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doTruth', False)
 
     # only enable services for analysis and BS -> ESD processing (we need better name)
-    flags.addFlag('Trigger.doTriggerConfigOnly', False)    
+    flags.addFlag('Trigger.doTriggerConfigOnly', False)
+
+    # Enables collection and export of detailed monitoring data of the HLT execution
+    flags.addFlag('Trigger.CostMonitoring.doCostMonitoring', False)
+    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor')
+    flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
+    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', True) # Defaulting to "True" is temporary
+
 
     # enable Bcm inputs simulation
     flags.addFlag('Trigger.L1.doBcm', True)

@@ -45,16 +45,16 @@ if (doElectron):
 
     egammaChains = [
         # DS+PEB chain (special HLT result and subset of detector data saved)
-        Chain(name='HLT_e3_etcut_dataScoutingElectronTest_pebtestthree',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3, step3_DS, step4_PEB3]  ),
+        Chain(name='HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3',  L1Item="L1_EM3",  ChainSteps=[step1, step2, step3, step3_DS, step4_PEB3]  ),
 
         # Pure DS chain (only special HLT result saved and no detector data saved)
-        Chain(name='HLT_e5_etcut_dataScoutingElectronTest',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3, step3_DS]  ),
+        Chain(name='HLT_e5_etcut_dataScoutingElectronTest_L1EM3',  L1Item="L1_EM3",  ChainSteps=[step1, step2, step3, step3_DS]  ),
 
         # PEB chain (full HLT result and subset of detector data saved)
-        Chain(name='HLT_e7_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3, step3_PEB1]  ),
+        Chain(name='HLT_e7_etcut_pebtestone_L1EM3',  L1Item="L1_EM3",  ChainSteps=[step1, step2, step3, step3_PEB1]  ),
 
         # Standard chain (full HLT result and full detector data saved)
-        Chain(name='HLT_e12_etcut',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3]  )
+        Chain(name='HLT_e12_etcut_L1EM3',  L1Item="L1_EM3",  ChainSteps=[step1, step2, step3]  )
     ]
     testChains += egammaChains
 
@@ -63,7 +63,7 @@ if (doElectron):
 #################################
 
 # this is a temporary hack to include new test chains
-EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
+EnabledChainNamesToCTP = dict([ (c.name, c.L1Item)  for c in testChains])
 topSequence.L1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
 
 
@@ -160,12 +160,12 @@ streamDSPEBElectron = ['DSElectronWithPEB', 'physics', "True", "False"]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
-stmaker.ChainDecisions = "HLTSummary"
+stmaker.ChainDecisions = "HLTNav_Summary"
 stmaker.PEBDecisionKeys = pebDecisionKeys
 stmaker.ChainToStream = dict( [(c.name, streamPhysicsMain) for c in testChains ] )
-stmaker.ChainToStream["HLT_e3_etcut_dataScoutingElectronTest_pebtestthree"] = streamDSPEBElectron
-stmaker.ChainToStream["HLT_e5_etcut_dataScoutingElectronTest"] = streamDataScoutingElectron
-stmaker.ChainToStream["HLT_e7_etcut_pebtestone"] = streamPhysicsPebtestone
+stmaker.ChainToStream["HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3"] = streamDSPEBElectron
+stmaker.ChainToStream["HLT_e5_etcut_dataScoutingElectronTest_L1EM3"] = streamDataScoutingElectron
+stmaker.ChainToStream["HLT_e7_etcut_pebtestone_L1EM3"] = streamPhysicsPebtestone
 # The configuration above means:
 # stream physics_Main is produced when the e12 chain passes and it includes full events
 # stream physics_pebtestone is produced when the e7 chain passes and it includes the main HLT result and some detector ROBs
@@ -175,7 +175,7 @@ stmaker.ChainToStream["HLT_e7_etcut_pebtestone"] = streamPhysicsPebtestone
 ##### Result maker part 3 - HLT bits #####
 
 bitsmaker = TriggerBitsMakerTool()
-bitsmaker.ChainDecisions = "HLTSummary"
+bitsmaker.ChainDecisions = "HLTNav_Summary"
 bitsmaker.ChainToBit = dict( [ (chain.name, 10*num) for num,chain in enumerate(testChains) ] )
 bitsmaker.OutputLevel = DEBUG
 

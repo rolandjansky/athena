@@ -2,7 +2,7 @@
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
-from RngComps.RandomServices import RNG, AthEngines
+from RngComps.RandomServices import RNG
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
 from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg

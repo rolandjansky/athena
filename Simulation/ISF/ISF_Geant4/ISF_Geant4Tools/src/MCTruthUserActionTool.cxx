@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "MCTruthUserActionTool.h"
 
 namespace G4UA
@@ -27,7 +26,7 @@ namespace G4UA
       ATH_MSG_DEBUG("Constructing an MCTruthUserAction");
       if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
       else if(msgLvl(MSG::DEBUG)) { m_config.verboseLevel = 5;  }
-      auto action = CxxUtils::make_unique<MCTruthUserAction>(m_config);
+      auto action = std::make_unique<MCTruthUserAction>(m_config);
       actionList.trackingActions.push_back( action.get() );
       return action;
     }

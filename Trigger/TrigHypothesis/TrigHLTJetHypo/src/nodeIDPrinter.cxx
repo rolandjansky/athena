@@ -11,7 +11,7 @@ std::string nodeIDPrinter(const std::string& name,
                           const std::string& timerStr){
 
   std::stringstream ss;
-  ss << name <<"  node: " << nodeID
+  ss << "name(): " << name <<"  node: " << nodeID
      << " parent: " << parentID
      << " pass: " << std::boolalpha << pass << " " <<timerStr << '\n';
 
@@ -27,7 +27,7 @@ std::string nodeIDPrinter(const std::string& name,
     return nodeIDPrinter(name, nodeID, parentID, *pass, timerStr);
   }
   std::stringstream ss;
-  ss << name <<"  node: " << nodeID
+  ss << "name(): " <<name <<"  node: " << nodeID
      << " parent: " << parentID
      << " pass: " << "ERROR " <<timerStr << '\n';
 
@@ -39,7 +39,7 @@ std::string nodeIDPrinter(const std::string& name,
                           int parentID){
 
   std::stringstream ss;
-  ss << name <<"  node: " << nodeID
+  ss << "name(): " << name <<"  node: " << nodeID
      << " parent: " << parentID
      << '\n';
   

@@ -86,9 +86,9 @@ class ComponentAccumulator(object):
 
     def __del__(self):
          if not getattr(self,'_wasMerged',True) and not self.empty():
-             raise RuntimeError("ComponentAccumulator was not merged!")
-             #log = logging.getLogger("ComponentAccumulator")
-             #log.error("The ComponentAccumulator listed below was never merged!")
+             #can't raise an exception in __del__ method (Python rules) so this is a warning
+             log = logging.getLogger("ComponentAccumulator")
+             log.warning("The ComponentAccumulator listed below was never merged!")
 
          if getattr(self,'_privateTools',None) is not None:
              raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
@@ -385,12 +385,14 @@ class ComponentAccumulator(object):
         if (overwrite or key not in (self._theAppProps)):
             self._theAppProps[key]=value
         else:
-            if isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
+            if self._theAppProps[key] == value:
+                self._msg.debug("ApplicationMgr property '%s' already set to '%s'.", key, value)
+            elif isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
                 value=unifySet(self._theAppProps[key],value)
                 self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
                 self._theAppProps[key]=value
             else:
-                raise DeduplicationFailed("AppMgr property %s set twice: %s and %s",key,(self._theAppProps[key],value))
+                raise DeduplicationFailed("AppMgr property %s set twice: %s and %s" % (key, self._theAppProps[key], value))
 
 
         pass
@@ -516,21 +518,33 @@ class ComponentAccumulator(object):
         Configurable.configurableRun3Behavior=0
         from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theApp
 
+        self._msg.debug("Merging services with global setup")
         for s in self._services:
-            deduplicate(s,ServiceMgr)
+            if s.getFullName() in [fn.getFullName() for fn in ServiceMgr.getChildren()]: 
+                existingS=getattr(ServiceMgr,s.getName())
+                deduplicateComponent(existingS,s)
+            else:
+                ServiceMgr+=s
 
             if s.getJobOptName() in _servicesToCreate \
                     and s.getJobOptName() not in theApp.CreateSvc:
                 theApp.CreateSvc.append(s.getJobOptName())
 
-
-
+        self._msg.debug("Merging AlgTools with global setup")
         for t in self._publicTools:
-            deduplicate(t,ToolSvc)
+            if t.getFullName() in [fn.getFullName() for fn in ToolSvc.getChildren()]:
+                #deduplicate
+                existingT=getattr(ToolSvc,t.getName())
+                deduplicateComponent(existingT,t)
+                pass
+            else:
+                ToolSvc+=t
 
+        self._msg.debug("Merging conditions algorithms with global setup")
         condseq=AthSequencer ("AthCondSeq")
         for c in self._conditionsAlgs:
-            deduplicate(c,condseq)
+            deduplicate(c, condseq.getChildren() )
+
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence )):
             seq=AthSequencer(seqName)
@@ -782,7 +796,7 @@ class ComponentAccumulator(object):
             PyAlg = type(None)
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
-            self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
+            self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
             bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)
@@ -809,6 +823,9 @@ class ComponentAccumulator(object):
         return app
 
     def run(self,maxEvents=None,OutputLevel=3):
+        from AthenaCommon.Debugging import allowPtrace
+        allowPtrace()
+
         app = self.createApp (OutputLevel)
         self.__verifyFinalSequencesStructure()
 

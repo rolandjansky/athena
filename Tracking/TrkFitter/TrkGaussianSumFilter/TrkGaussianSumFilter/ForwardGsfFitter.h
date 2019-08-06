@@ -14,17 +14,16 @@ decription           : Class definition for the forward GSF fitter
 #ifndef TrkForwardGsfFitter_H
 #define TrkForwardGsfFitter_H
 
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
+#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
 
 namespace Trk {
 
@@ -33,15 +32,17 @@ class IMultiStateExtrapolator;
 class IRIO_OnTrackCreator;
 class Surface;
 
-class ForwardGsfFitter : public AthAlgTool, virtual public IForwardGsfFitter {
+class ForwardGsfFitter
+  : public AthAlgTool
+  , virtual public IForwardGsfFitter
+{
 
- public:
-
+public:
   /** Constructor with AlgTool parameters */
   ForwardGsfFitter(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~ForwardGsfFitter() {};
+  virtual ~ForwardGsfFitter(){};
 
   /** AlgTool initialise method */
   virtual StatusCode initialize() override final;
@@ -53,45 +54,51 @@ class ForwardGsfFitter : public AthAlgTool, virtual public IForwardGsfFitter {
       - Configure the extrapolator
       - Configure the measurement updator
       - Configure the RIO_OnTrack creator */
-  virtual StatusCode configureTools ( const ToolHandle<Trk::IMultiStateExtrapolator> &,
-       const ToolHandle<Trk::IMultiStateMeasurementUpdator> &,
-       const ToolHandle<Trk::IRIO_OnTrackCreator> &) override final;
+  virtual StatusCode configureTools(const ToolHandle<Trk::IMultiStateExtrapolator>&,
+                                    const ToolHandle<Trk::IMultiStateMeasurementUpdator>&,
+                                    const ToolHandle<Trk::IRIO_OnTrackCreator>&) override final;
 
   /** Forward GSF fit using PrepRawData */
-  virtual const ForwardTrajectory* fitPRD ( const PrepRawDataSet&,
-               const TrackParameters&,
-               const ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
+  virtual const ForwardTrajectory* fitPRD(
+    const PrepRawDataSet&,
+    const TrackParameters&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
   /** Forward GSF fit using MeasurementSet */
-  virtual const ForwardTrajectory* fitMeasurements ( const MeasurementSet&,
-               const TrackParameters&,
-               const ParticleHypothesis particleHypothesis = nonInteracting ) const override final;
+  virtual const ForwardTrajectory* fitMeasurements(
+    const MeasurementSet&,
+    const TrackParameters&,
+    const ParticleHypothesis particleHypothesis = nonInteracting) const override final;
 
-  /** The interface will later be extended so that the initial state can be additionally a MultiComponentState object! */
+  /** The interface will later be extended so that the initial
+   * state can be additionally a MultiComponentState object! */
 
- private:
-
+private:
   /** Progress one step along the fit */
-  bool stepForwardFit ( ForwardTrajectory*,
-      const PrepRawData*,
-      const MeasurementBase*,
-      const Surface&,
-      const MultiComponentState*&,
-      const ParticleHypothesis particleHypothesis = nonInteracting ) const;
+  bool stepForwardFit(ForwardTrajectory*,
+                      const PrepRawData*,
+                      const MeasurementBase*,
+                      const Surface&,
+                      const MultiComponentState*&,
+                      const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
- private:
-  ToolHandle<IMultiStateExtrapolator>       m_extrapolator;
+private:
+  /**These are passed via the configure tools so not retrieved from this tool*/
+  ToolHandle<IMultiStateExtrapolator> m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
-  ToolHandle<IRIO_OnTrackCreator>           m_rioOnTrackCreator;
-  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
-     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",""};
-  double                                    m_cutChiSquaredPerNumberDOF;
+  ToolHandle<IRIO_OnTrackCreator> m_rioOnTrackCreator;
+  /** MultiComponentStateCombiner tool
+   */
+  ToolHandle<IMultiComponentStateCombiner> m_stateCombiner{ this,
+                                                            "MultiComponentStateCombiner",
+                                                            "Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",
+                                                            "" };
+  double m_cutChiSquaredPerNumberDOF;
 
-  bool                                      m_overideMaterialEffectsSwitch;
-  int                                       m_overideMaterialEffects;
+  bool m_overideMaterialEffectsSwitch;
+  int m_overideMaterialEffects;
 
-  ParticleHypothesis                        m_overideParticleHypothesis;
-  
+  ParticleHypothesis m_overideParticleHypothesis;
 };
 
 } // end Trk namespace

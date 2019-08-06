@@ -152,6 +152,10 @@ public:
    /// Read the next data object
    virtual StatusCode readData() const;
 
+   /// Send abort to SharedWriter clients if the server quits on error
+   /// @param client_n [IN] number of the current client, -1 if no current
+   StatusCode abortSharedWrClients(int client_n);
+
    /// Implementation of IIncidentListener: Handle for EndEvent incidence
    void handle(const Incident& incident);
 

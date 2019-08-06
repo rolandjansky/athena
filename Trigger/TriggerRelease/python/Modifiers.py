@@ -1421,10 +1421,16 @@ class enableCostMonitoring(_modifier):
     """
     def preSetup(self):
         TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['CostExecHLT']
+        # MT
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        flags.Trigger.CostMonitoring.doCostMonitoring = True
 
     def postSetup(self):
-        from TrigCostMonitor.TrigCostMonitorConfig import postSetupOnlineCost
-        postSetupOnlineCost()
+        try:
+          from TrigCostMonitor.TrigCostMonitorConfig import postSetupOnlineCost
+          postSetupOnlineCost()
+        except:
+          print 'enableCostMonitoring (Run 2 style) post setup failed.'
 
 class enableCostForCAF(_modifier):
     """
@@ -1436,6 +1442,9 @@ class enableCostForCAF(_modifier):
             costConfig.preSetupCostForCAF()
         except AttributeError, msg:
             print '    TrigCostMonitor has not CAF preSetup option... OK to continue'
+        # MT
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        flags.Trigger.CostMonitoring.monitorAllEvents = True
             
     def postSetup(self):
         try:

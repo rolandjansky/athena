@@ -221,7 +221,7 @@ namespace TrigCompositeUtils {
   
   /**
    * @brief Search back in time from "start" and locate all linear paths back through Decision objects for a given chain.
-   * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTSummary (regular or rerun).
+   * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTNav_Summary (regular or rerun).
    * @param[out] linkVector Each entry in the outer vector represents a path through the graph. For each path, a vector of ElementLinks describing the path is returned.
    * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
    * @param[in] enforceDecisionOnStartNode If the check of DecisionID should be carried out on the start node.
@@ -292,14 +292,39 @@ namespace TrigCompositeUtils {
     const std::string& featureName = featureString());
 
   /**
-   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively).
+   * For the case of multiple links, this function only returns the first one found. @see findLinks
    * @arg start the TC  from where the link back is to be looked for
    * @arg linkName the name with which the Link was added to the source TC
+   * @arg suppressMultipleLinksWarning findLink will print a warning if more than one link is found, this can be silenced here
    * @return pair of link and TC with which it was associated, 
    */
   template<typename T>
   LinkInfo<T>
-  findLink(const xAOD::TrigComposite* start, const std::string& linkName);
+  findLink(const xAOD::TrigComposite* start, const std::string& linkName, const bool suppressMultipleLinksWarning = false);
+
+  /**
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * Populates provided vector with all located links to T of the corresponding name. 
+   * @arg start the TC  from where the link back is to be looked for
+   * @arg linkName the name with which the Link was added to the source TC
+   * @arg links Reference to vector, this will be populated with the found links. 
+   */
+  template<typename T>
+  void
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links);
+
+  /**
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * This version returns a vector rather than requiring that one be passed to it. 
+   * @arg start the TC  from where the link back is to be looked for
+   * @arg linkName the name with which the Link was added to the source TC
+   * @return Vector with the found links. 
+   */
+  template<typename T>
+  std::vector<LinkInfo<T>>
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName);
+
 
   /**
    * Prints the TC including the linked seeds

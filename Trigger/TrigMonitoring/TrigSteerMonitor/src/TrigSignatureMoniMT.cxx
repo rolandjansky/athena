@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include <algorithm>
 #include "GaudiKernel/Property.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "TrigSignatureMoniMT.h"
 
-
-
 TrigSignatureMoniMT::TrigSignatureMoniMT( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthReentrantAlgorithm( name, pSvcLocator ) 
+  ::AthReentrantAlgorithm( name, pSvcLocator )
 {}
 
 StatusCode TrigSignatureMoniMT::initialize() {
@@ -20,43 +18,53 @@ StatusCode TrigSignatureMoniMT::initialize() {
   ATH_CHECK( m_collectorTools.retrieve() );
   ATH_CHECK( m_histSvc.retrieve() );
       
+  m_timeDivider = std::make_unique<TimeDivider>(m_intervals, m_duration, TimeDivider::seconds);
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TrigSignatureMoniMT::start() {
+  std::string outputName ("Rate" + std::to_string(m_duration) + "s");
+
+  const int x = nBinsX();
+  const int y = nBinsY();
+  ATH_MSG_DEBUG( "Histogram " << x << " x " << y << " bins");
+
+  std::unique_ptr<TH2> h1 = std::make_unique<TH2I>("SignatureAcceptance", "Raw acceptance of signatures in;chain;step", x, 1, x + 1, y, 1, y + 1);
+  std::unique_ptr<TH2> h2 = std::make_unique<TH2I>("DecisionCount", "Positive decisions count per step;chain;step", x, 1, x + 1, y, 1, y + 1);
+  std::unique_ptr<TH2> h3 = std::make_unique<TH2I>("RateCountBuffer", "Rate of positive decisions buffer", x, 1, x + 1, y, 1, y + 1);
+  std::unique_ptr<TH2> ho = std::make_unique<TH2I>(outputName.c_str(), "Rate of positive decisions", x, 1, x + 1, y, 1, y + 1);
+
+  ATH_CHECK( initHist( h1 ) );
+  ATH_CHECK( initHist( h2 ) );
+  ATH_CHECK( initHist( h3 ) );
+
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/SignatureAcceptance", std::move(h1), m_passHistogram));
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/DecisionCount", std::move(h2), m_countHistogram));
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/RateCountBuffer", std::move(h3), m_rateHistogram));
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + '/' + outputName.c_str(), std::move(ho), m_outputHistogram));
   
-  {
-    const int x = nBinsX();
-    const int y = nBinsY();
-    ATH_MSG_DEBUG( "Histogram " << x << " x " << y << " bins");
-    // this type to be replaced by LBN tagged hist available for MT
-    // the new way, (does not work)
-    /*
-    auto hist = std::make_unique<TH2I>( "SignatureAcceptance", "Raw acceptance of signatures in;chain;step",
-					x, -0.5, x -0.5,
-					y, -0.5, y - 0.5 );
-
-    std::string fullName = m_bookingPath + "/SignatureAcceptance";
-
-    m_histSvc->regHist( fullName, std::move( hist ) );
-    m_outputHistogram = m_histSvc.getHist( fullName );
-    */
-
-    std::unique_ptr<TH2> h1 = std::make_unique<TH2I>("SignatureAcceptance", "Raw acceptance of signatures in;chain;step", x, 1, x + 1, y, 1, y + 1);
-    std::unique_ptr<TH2> h2 = std::make_unique<TH2I>("DecisionCount", "Positive decisions count per step;chain;step", x, 1, x + 1, y, 1, y + 1);
-    std::unique_ptr<TH2> h3 = std::make_unique<TH2I>("RateCount", "Rate of positive decisions", x, 1, x + 1, y, 1, y + 1);
-
-    ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/SignatureAcceptance", std::move(h1), m_passHistogram));
-    ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/DecisionCount", std::move(h2), m_countHistogram));
-    ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/RateCount", std::move(h3), m_rateHistogram));
-  
-  }
-  
-  ATH_CHECK( initHist( m_passHistogram ) );
-  ATH_CHECK( initHist( m_countHistogram ) );
-  ATH_CHECK( initHist( m_rateHistogram ) );
+  m_timer = std::make_unique<Athena::AlgorithmTimer>(0, boost::bind(&TrigSignatureMoniMT::callback, this), Athena::AlgorithmTimer::DELIVERYBYTHREAD);
+  m_timer->start(m_duration*50);  
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrigSignatureMoniMT::finalize() {
 
+  //publish final rate histogram
+  if (m_timer) m_timer->stop();
+
+  time_t t = time(0);
+  unsigned int interval;
+  unsigned int duration = m_timeDivider->forcePassed(t, interval);
+  updatePublished(duration); //divide by time that really passed not by interval duration
+
+  /**
+   * This should really be done during stop(). However, at the moment
+   * the EventContext is printed for each message in the stop transition
+   * making the use of the count printout in regtests impossible (!20776).
+   */
   if (m_chainIDToBinMap.empty()) {
     ATH_MSG_INFO( "No chains configured, no counts to print" );
     return StatusCode::SUCCESS;
@@ -66,10 +74,10 @@ StatusCode TrigSignatureMoniMT::finalize() {
     std::string v;
     for ( int ybin = 1; ybin <= hist->GetYaxis()->GetNbins()-endOffset; ++ybin ) {
       if ( ybin > startOfset ) {
-	v += std::to_string( int(hist->GetBinContent( xbin, ybin )) );
-	v += std::string( 10*ybin - v.size(),  ' ' ); // fill with spaces
+        v += std::to_string( int(hist->GetBinContent( xbin, ybin )) );
+        v += std::string( 10*ybin - v.size(),  ' ' ); // fill with spaces
       } else {
-	v += std::string( 10, ' ');
+        v += std::string( 10, ' ');
       }
     }
     
@@ -106,7 +114,6 @@ StatusCode TrigSignatureMoniMT::finalize() {
     }
   }		 
 
-  
   return StatusCode::SUCCESS;
 }
 
@@ -137,8 +144,30 @@ StatusCode TrigSignatureMoniMT::fillRate(const TrigCompositeUtils::DecisionIDCon
   return fillPassEvents(dc, row, m_rateHistogram); 
 }
 
-StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {  
+void TrigSignatureMoniMT::updatePublished(unsigned int duration) const {
 
+  ATH_MSG_DEBUG( "Publishing Rate Histogram and Reset" );
+
+  m_outputHistogram->Reset();
+  m_outputHistogram->Add(m_rateHistogram.get(), 1./duration);
+  m_rateHistogram->Reset();
+}
+
+void TrigSignatureMoniMT::callback() const {
+  //ask time divider if we need to switch to new interval
+  time_t t = time(0);
+  unsigned int newinterval;
+  unsigned int oldinterval;
+ 
+  if ( m_timeDivider->isPassed(t, newinterval, oldinterval) ) {
+    updatePublished(m_duration);
+  }  
+
+  //schedule itself in another 1/20 of the integration period in milliseconds
+  m_timer->start(m_duration*50);
+}
+
+StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {  
   auto l1Decisions = SG::makeHandle( m_l1DecisionsKey, context );
 
   const TrigCompositeUtils::Decision* l1SeededChains = nullptr; // Activated by L1
@@ -206,11 +235,14 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
   return StatusCode::SUCCESS;
 }
 
+int TrigSignatureMoniMT::nBinsX() const {
+  return m_allChains.size()+1;
+}
 int TrigSignatureMoniMT::nBinsY() const {     
   return m_collectorTools.size()+3; // in, after ps, out
 }
 
-StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist) {
+StatusCode TrigSignatureMoniMT::initHist(std::unique_ptr<TH2>& hist) {
 
   TAxis* x = hist->GetXaxis();
   x->SetBinLabel(1, "All");

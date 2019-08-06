@@ -74,17 +74,17 @@ if [ "${ATH_RETURN}" -ne "0" ] && [ -n "${gitlabTargetBranch}" ]; then
 fi
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for errors"
-timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
+timeout 5m check_log.py --config checklogTrigUpgradeTest.conf --errors --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
-timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
+timeout 5m check_log.py --config checklogTrigUpgradeTest.conf --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
 
 ### PERFMON
 
 if [ -f ntuple.pmon.gz ]; then
   echo $(date "+%FT%H:%M %Z")"     Running perfmon"
-  timeout 5m perfmon.py -f 0.90 ntuple.pmon.gz
+  timeout 5m perfmon.py -f 0.90 ntuple.pmon.gz >perfmon.log 2>&1
 fi
 
 ### HISTOGRAM COUNT
@@ -125,9 +125,11 @@ if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
   timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root >rootcompout.log 2>&1
   echo "art-result: ${PIPESTATUS[0]} RootComp"
-else
+elif [ -f expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
   echo "art-result: 999 RootComp"
+else
+  echo $(date "+%FT%H:%M %Z")"     No expert-monitoring.root file and no reference are found - skipping RootComp"
 fi
 
 ### CHAINDUMP
@@ -143,7 +145,7 @@ fi
 
 if [ -f ${ESDTOCHECK} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on ESD"
-  timeout 10m checkFile.py ${ESDTOCHECK} 2>&1 | tee ${ESDTOCHECK}.checkFile
+  timeout 10m checkFile.py ${ESDTOCHECK} >${ESDTOCHECK}.checkFile 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckFileESD"
 else
   echo $(date "+%FT%H:%M %Z")"     No ESD file to check"
@@ -151,10 +153,10 @@ fi
 
 if [ -f ${AODTOCHECK} ]; then
   echo $(date "+%FT%H:%M %Z")"     Running CheckFile on AOD"
-  timeout 10m checkFile.py ${AODTOCHECK} 2>&1 | tee ${AODTOCHECK}.checkFile
+  timeout 10m checkFile.py ${AODTOCHECK} >${AODTOCHECK}.checkFile 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckFileAOD"
   echo $(date "+%FT%H:%M %Z")"     Running CheckxAOD AOD"
-  timeout 10m checkxAOD.py ${AODTOCHECK} 2>&1 | tee ${AODTOCHECK}.checkxAOD
+  timeout 10m checkxAOD.py ${AODTOCHECK} >${AODTOCHECK}.checkxAOD 2>&1
   echo "art-result: ${PIPESTATUS[0]} CheckXAOD"
 else
   echo $(date "+%FT%H:%M %Z")"     No AOD file to check"

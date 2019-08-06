@@ -3,7 +3,6 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from StoreGate.StoreGateConf import StoreGateSvc
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from RPC_Digitization.RPC_DigitizationConf import RpcDigitizationTool, RPC_Digitizer
@@ -32,7 +31,8 @@ def RPC_RangeToolCfg(flags, name="RPC_Range", **kwargs):
 
 def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured RpcDigitizationTool"""
-    acc = ComponentAccumulator()
+    from MuonConfig.MuonCondAlgConfig import RpcCondDbAlgCfg # MT-safe conditions access
+    acc = RpcCondDbAlgCfg(flags)
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", RPC_FirstXing())
         kwargs.setdefault("LastXing", RPC_LastXing())
@@ -42,7 +42,7 @@ def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
     else:
         kwargs.setdefault("OutputSDOName", "RPC_SDO")
     # folder for RPCCondSummarySvc
-    acc.merge(addFolders(flags, "/RPC/DQMF/ELEMENT_STATUS", "RPC_OFL"))
+    #acc.merge(addFolders(flags, "/RPC/DQMF/ELEMENT_STATUS", "RPC_OFL")) ## already in RpcCondDbAlgCfg
     # config
     kwargs.setdefault("DeadTime", 100)
     kwargs.setdefault("PatchForRpcTime", True)	    

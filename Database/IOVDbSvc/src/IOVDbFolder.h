@@ -143,8 +143,17 @@ private:
   // add this IOV to cache, including channel counting if over edge of cache
   void addIOVtoCache(cool::ValidityKey since, cool::ValidityKey until);
   
-  //
+  //override intrinsic (member variable) options from the from a parsed folder description
+  bool overrideOptionsFromParsedDescription(const IOVDbParser & parsedDescription);
   
+  //create transient address, processing symlinks if given
+  std::unique_ptr<SG::TransientAddress>
+  createTransientAddress(const std::vector<std::string> & symlinks);
+  
+  //setup cache length according to whether timestamp==ns of epoch
+  void setCacheLength(const bool timeIs_nsOfEpoch, const unsigned int cacheRun, const unsigned int cacheTime);
+  
+  //update the cache using either a Cool or CoraCool object (templated)
   template<class T>
   unsigned int 
   cacheUpdateImplementation(T & obj, const ServiceHandle<IIOVSvc>& iovSvc){
@@ -199,11 +208,11 @@ private:
   
 
   // cache update for online mode
-  void specialCacheUpdate(CoraCoolObject & obj,
-                          const ServiceHandle<IIOVSvc>& iovSvc);
+  void 
+  specialCacheUpdate(CoraCoolObject & obj,const ServiceHandle<IIOVSvc>& iovSvc);
 
-  void specialCacheUpdate(const cool::IObject& obj,
-                          const ServiceHandle<IIOVSvc>& iovSvc);
+  void 
+  specialCacheUpdate(const cool::IObject& obj,const ServiceHandle<IIOVSvc>& iovSvc);
  
   
   StoreGateSvc*        p_detStore;     // pointer to detector store

@@ -9,13 +9,13 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 
-CTPToChainMapping = {"HLT_e3_etcut": "L1_EM3",
-                     "HLT_e5_etcut":  "L1_EM3",
-                     "HLT_e7_etcut":  "L1_EM7",
-                     "HLT_2e3_etcut": "L1_2EM3",
-                     "HLT_e3_e5_etcut":"L1_2EM3"}
+CTPToChainMapping = {"HLT_e3_etcut_L1EM3": "L1_EM3",
+                     "HLT_e5_etcut_L1EM3":  "L1_EM3",
+                     "HLT_e7_etcut_L1EM7":  "L1_EM7",
+                     "HLT_2e3_etcut_L1EM3": "L1_2EM3",
+                     "HLT_e3_e5_etcut_L1EM3":"L1_2EM3"}
 
-topSequence.L1Decoder.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
+topSequence.L1Decoder.prescaler.Prescales = ["HLT_e3_etcut_L1EM3:2", "HLT_2e3_etcut_L1EM3:2.5"]
 
 # this is a temporary hack to include only new test chains
 testChains =[x for x, y in CTPToChainMapping.items()]
@@ -274,7 +274,7 @@ def addTC(name):
 for tc in decisionsNotPointingtoViews + ["EgammaCaloDecisions", "ElectronL2Decisions"]:
    addTC( tc )
 
-addTC("HLTSummary")
+addTC("HLTNav_Summary")
 
 StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_xAOD__TrigElectronContainer_L2ElectronFex", 
                         "xAOD::TrackParticleContainer#HLT_xAOD_TrackParticleContainer_L2ElectronTracks",
@@ -323,11 +323,11 @@ streamPhysicsMain = ['Main', 'physics', "True", "True"]
 streamPhotonPerf = ['PhotonPerf', 'calibration', "True", "True"] # just made up the name
 
 stmaker = StreamTagMakerTool()
-stmaker.ChainDecisions = "HLTSummary"
+stmaker.ChainDecisions = "HLTNav_Summary"
 stmaker.ChainToStream = dict( [(c, streamPhysicsMain) for c in testChains ] )
 stmaker.ChainToStream["HLT_e5_etcut"] = streamPhotonPerf
 bitsmaker = TriggerBitsMakerTool()
-bitsmaker.ChainDecisions = "HLTSummary"
+bitsmaker.ChainDecisions = "HLTNav_Summary"
 bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
 
 hltResultMakerTool =  HLTResultMTMaker("MKTool")

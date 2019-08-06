@@ -30,7 +30,7 @@ class TriggerConfigGetter(Configured):
     def __init__(self, environment=""):
         log = logging.getLogger( "TriggerConfigGetter.py" )
         if environment:
-            log.info('Initialize (environment "%s")' % environment)
+            log.info('Initialize (environment "%s")', environment)
         else:
             log.info('Initialize (interpreting rec and trigger flags)')
         self._environment = environment
@@ -70,13 +70,13 @@ class TriggerConfigGetter(Configured):
             protectedInclude("TrigTier0/TriggerConfigCheckHLTpsk.py")
 
         log.info("The following flags are set:")
-        log.info("globalflags.InputFormat             : %s" % globalflags.InputFormat())
-        log.info("rec.read.*                          : RDO: %s, ESD: %s, AOD: %s, TAG: %s" % (rec.readRDO(), rec.readESD(), rec.readAOD(), rec.readTAG()) )
-        log.info("rec.doWrite.*                       : ESD: %s, AOD: %s, TAG: %s" % (rec.doWriteESD(), rec.doWriteAOD(), rec.doWriteTAG()) )
-        log.info("globalflags.DataSource              : %s" % globalflags.DataSource())
-        log.info("TriggerFlags.configForStartup       : %s" % TriggerFlags.configForStartup())
-        log.info("TriggerFlags.dataTakingConditions   : %s" % TriggerFlags.dataTakingConditions())
-        log.info("TriggerFlags.configurationSourceList: %s" % TriggerFlags.configurationSourceList())
+        log.info("globalflags.InputFormat             : %s", globalflags.InputFormat())
+        log.info("rec.read.*                          : RDO: %s, ESD: %s, AOD: %s, TAG: %s", rec.readRDO(), rec.readESD(), rec.readAOD(), rec.readTAG())
+        log.info("rec.doWrite.*                       : ESD: %s, AOD: %s, TAG: %s", rec.doWriteESD(), rec.doWriteAOD(), rec.doWriteTAG())
+        log.info("globalflags.DataSource              : %s", globalflags.DataSource())
+        log.info("TriggerFlags.configForStartup       : %s", TriggerFlags.configForStartup())
+        log.info("TriggerFlags.dataTakingConditions   : %s", TriggerFlags.dataTakingConditions())
+        log.info("TriggerFlags.configurationSourceList: %s", TriggerFlags.configurationSourceList())
 
         count = len([1 for x in [rec.readRDO(),rec.readESD(),rec.readAOD()] if x ]) #readTAG is only set with another input
         if count == 0:
@@ -145,12 +145,12 @@ class TriggerConfigGetter(Configured):
             TriggerFlags.doLVL2 = False
             TriggerFlags.doEF = False
             log.info("For simulation jobs the following flags are set:")
-            log.info("globalflags.InputFormat             : %s" % globalflags.InputFormat())
-            log.info("globalflags.DataSource              : %s" % globalflags.DataSource())
-            log.info("TriggerFlags.configForStartup       : %s" % TriggerFlags.configForStartup())
-            log.info("TriggerFlags.dataTakingConditions   : %s" % TriggerFlags.dataTakingConditions())
-            log.info("TriggerFlags.doLVL2                 : %s" % TriggerFlags.doLVL2())
-            log.info("TriggerFlags.doEF                   : %s" % TriggerFlags.doEF())
+            log.info("globalflags.InputFormat             : %s", globalflags.InputFormat())
+            log.info("globalflags.DataSource              : %s", globalflags.DataSource())
+            log.info("TriggerFlags.configForStartup       : %s", TriggerFlags.configForStartup())
+            log.info("TriggerFlags.dataTakingConditions   : %s", TriggerFlags.dataTakingConditions())
+            log.info("TriggerFlags.doLVL2                 : %s", TriggerFlags.doLVL2())
+            log.info("TriggerFlags.doEF                   : %s", TriggerFlags.doEF())
         else:
             if not self.checkInput():
                 log.error("Could not determine job input. Can't setup trigger configuration and will return!")
@@ -223,7 +223,7 @@ class TriggerConfigGetter(Configured):
                                 or (self.isCommisioning and (TriggerFlags.readLVL1configFromXML() and TriggerFlags.readHLTconfigFromXML())) \
                                 or TriggerFlags.readMenuFromTriggerDb() )
 
-        log.info("Need to create temporary cool file? : %r" % self.makeTempCool)
+        log.info("Need to create temporary cool file? : %r", self.makeTempCool)
 
         log.info('Creating the Trigger Configuration Services')
         self.svc = SetupTrigConfigSvc()
@@ -249,22 +249,22 @@ class TriggerConfigGetter(Configured):
         try:
             self.svc.SetStates( self.ConfigSrcList )
         except Exception as ex:
-            log.error( 'Failed to set state of TrigConfigSvc to %r' % self.ConfigSrcList )
+            log.error( 'Failed to set state of TrigConfigSvc to %r', self.ConfigSrcList )
         else:
-            log.info('The following configuration services will be tried: %r' % self.ConfigSrcList )
+            log.info('The following configuration services will be tried: %r', self.ConfigSrcList )
 
 
         try:
             self.svc.InitialiseSvc()
         except Exception as ex:
-            log.error( 'Failed to activate TrigConfigSvc: %r' % ex )
+            log.error( 'Failed to activate TrigConfigSvc: %r', ex )
 
         if self.readTriggerDB:
-            log.info( "Using TriggerDB connection '%s'" % TriggerFlags.triggerDbConnection() )
+            log.info( "Using TriggerDB connection '%s'", TriggerFlags.triggerDbConnection() )
             self.trigDbConnectionParameters = interpretConnection(TriggerFlags.triggerDbConnection(), resolveAlias=False)
             self.setConfigSvcConnParams(self.trigDbConnectionParameters)
 
-        log.info("TriggerFlags.triggerCoolDbConnection is '%s' [default: '']" % TriggerFlags.triggerCoolDbConnection())
+        log.info("TriggerFlags.triggerCoolDbConnection is '%s' [default: '']", TriggerFlags.triggerCoolDbConnection())
         TrigCoolDbConnection = TriggerFlags.triggerCoolDbConnection()
 
         if self.makeTempCool:
@@ -283,7 +283,7 @@ class TriggerConfigGetter(Configured):
                 db = 'TRIGGERDBREPR'
             svcMgr.DSConfigSvc.ConfigSource = 'dblookup'
             svcMgr.DSConfigSvc.DBServer = db
-            log.info("DSConfigSvc trigger database is '%s'" % db)
+            log.info("DSConfigSvc trigger database is '%s'", db)
         
         if self.writeESDAOD:
             self.setupCOOLWriting()
@@ -312,19 +312,19 @@ class TriggerConfigGetter(Configured):
 
             from TrigConfigSvc.TrigConf2COOL import theConfCOOLWriter
             if self.readTriggerDB:
-                log.info("TempCoolSetup: source is db [%s] with keys %s/%s/%s" % (TriggerFlags.triggerDbConnection(),TriggerFlags.triggerDbKeys()[0],TriggerFlags.triggerDbKeys()[1],TriggerFlags.triggerDbKeys()[2]))
+                log.info("TempCoolSetup: source is db [%s] with keys %s/%s/%s", TriggerFlags.triggerDbConnection(),TriggerFlags.triggerDbKeys()[0],TriggerFlags.triggerDbKeys()[1],TriggerFlags.triggerDbKeys()[2])
                 theConfCOOLWriter.smk        = TriggerFlags.triggerDbKeys()[0]
                 theConfCOOLWriter.l1psk      = TriggerFlags.triggerDbKeys()[1]
                 theConfCOOLWriter.hltpsk     = TriggerFlags.triggerDbKeys()[2]
                 theConfCOOLWriter.setTriggerDBConnection(self.trigDbConnectionParameters)
             else:
-                log.info("TempCoolSetup: sources are '%s' and '%s'" % (self.svc.l1XmlFile,self.svc.hltXmlFile) )
+                log.info("TempCoolSetup: sources are '%s' and '%s'", self.svc.l1XmlFile,self.svc.hltXmlFile)
                 theConfCOOLWriter.lvl1menu = self.svc.l1XmlFile
                 theConfCOOLWriter.hltmenu  = self.svc.hltXmlFile
             if TrigCoolDbConnection == "": # nothing specified by the user
                 TrigCoolDbConnection = re.match(".*;schema=(.*);dbname=.*",theConfCOOLWriter.dbConnection).group(1)
                 theConfCOOLWriter.isWritingNeeded = True
-                log.info("TempCoolSetup: Setting TrigCoolDbConnection to %s" % TrigCoolDbConnection )
+                log.info("TempCoolSetup: Setting TrigCoolDbConnection to %s", TrigCoolDbConnection )
                 log.info("TempCoolSetup: Enabling writing and IOV adjustment")
 
         return TrigCoolDbConnection
@@ -397,7 +397,7 @@ class TriggerConfigGetter(Configured):
                 folders += [ "LVL1/Thresholds" ]
 
         for f in folders:
-            log.info("     /TRIGGER/%s" % f)
+            log.info("     /TRIGGER/%s", f)
             conddb.addFolderWithTag(TrigCoolDbConnection, "/TRIGGER/%s" % f, "HEAD")
 
 
@@ -423,7 +423,7 @@ class TriggerConfigGetter(Configured):
 
         log.info("Adding output folders to IOVDbSvc")
         for f in folders:
-            log.info("     /TRIGGER/%s" % f)
+            log.info("     /TRIGGER/%s", f)
             svcMgr.IOVDbSvc.FoldersToMetaData+=["/TRIGGER/%s" % f]
 
 

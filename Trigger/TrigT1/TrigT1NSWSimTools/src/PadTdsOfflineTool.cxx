@@ -39,7 +39,8 @@
 
 namespace NSWL1 {
     
-    struct PadHits {
+    class PadHits {
+    public:
         Identifier      t_id;
         std::shared_ptr<PadOfflineData> t_pad;
         int             t_cache_index;

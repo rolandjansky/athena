@@ -22,6 +22,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
 #include <map>
 #include <vector>
 #include <utility>
@@ -130,10 +131,6 @@ InDetIterativeSecVtxFinderTool::~InDetIterativeSecVtxFinderTool()
 void InDetIterativeSecVtxFinderTool::setPriVtxPosition( double vx, double vy, double vz )
 { 
   m_privtx = Amg::Vector3D( vx, vy, vz ) ; 
- 
-  m_SeedFinder->setPriVtxPosition( vx, vy ) ; 
-
-  return ; 
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVtxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles)
@@ -364,22 +361,25 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
       theconstraint.setFitQuality( m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), 
                                     m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF() );
 
-      seedVertex = m_SeedFinder->findSeed( perigeeList, &theconstraint );
+      seedVertex = m_SeedFinder->findSeed( m_privtx.x(), m_privtx.y(),
+                                           perigeeList, &theconstraint );
 
     } else {
     
       ATH_MSG_DEBUG( " goto seed finder " );
 
-      seedVertex = m_SeedFinder->findSeed(perigeeList);
+      std::unique_ptr<Trk::IMode3dInfo> info;
+      seedVertex = m_SeedFinder->findSeed(m_privtx.x(), m_privtx.y(),
+                                          info, perigeeList);
 
       ATH_MSG_DEBUG( " seedFinder finished " );
 
 #ifdef MONITORTUNES
       std::vector<float> FsmwX, FsmwY, FsmwZ, wght ;
-//      m_leastmodes->push_back( m_SeedFinder->getModes1d( FsmwX , FsmwY, FsmwZ, wght ) ) ;
+//      m_leastmodes->push_back( info->Modes1d( FsmwX , FsmwY, FsmwZ, wght ) ) ;
 
       double cXY = -9.9, cZ = -9.9 ;
-      m_SeedFinder->getCorrelationDistance( cXY, cZ ) ;
+      info->getCorrelationDistance( cXY, cZ ) ;
 
       m_sdFsmwX->push_back( FsmwX ) ;
       m_sdFsmwY->push_back( FsmwY ) ;
@@ -395,7 +395,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 
 /**
       ATH_MSG_DEBUG( " Check perigeesAtSeed " );
-      ncandi = m_SeedFinder->perigeesAtSeed( m_seedperigees, perigeeList ) ;
+      ncandi = info->perigeesAtSeed( *m_seedperigees, perigeeList ) ;
 **/
 
       Amg::MatrixX looseConstraintCovariance(3,3);

@@ -10,8 +10,6 @@
 
 #include <vector>
 
-class ILArMCSymTool;
-
 /** Implementation of the interface ILArfSampl for MC
  *  Derives from LArfSamplComplete, and implements the phi-z symmetry
  *
@@ -37,14 +35,7 @@ class LArfSamplMC: public LArfSamplComplete {
   
   virtual const float& FSAMPL(const Identifier&  CellID) const;
 
-  static float dummy;
-    
- private: 
-  
-  // helper for MC z-phi symmetry 
-//  LArMCSym m_larmc;
-  ToolHandle<ILArMCSymTool> m_larmcsym;
-
+  constexpr static float dummy=LArElecCalib::ERRORCODE; 
 };
 
 #include "AthenaKernel/CondCont.h"

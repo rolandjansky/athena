@@ -71,32 +71,32 @@ StatusCode TestCascadeAlg::execute() {
        for( unsigned int it=0; it<jpsiTrkNum; it++) tracksJpsi.push_back(jpsi->trackParticle(it));
 
        for(auto &v0 : tracksV0) {
-
-          m_iVertexFitter->setDefault();
+ 
+          std::unique_ptr<Trk::IVKalState> state (m_iVertexFitter->makeState());
           // Robustness
           int robustness = 0;
-          m_iVertexFitter->setRobustness(robustness);
+          m_iVertexFitter->setRobustness(robustness, *state);
           // Build up the topology
           // Vertex list
           std::vector<Trk::VertexID> vrtList;
           // V0 vertex
           Trk::VertexID vID;
           if (m_constrV0) {
-            vID = m_iVertexFitter->startVertex(v0,massesV0,mass_v0);
+            vID = m_iVertexFitter->startVertex(v0,massesV0,*state,mass_v0);
           } else {
-            vID = m_iVertexFitter->startVertex(v0,massesV0);
+            vID = m_iVertexFitter->startVertex(v0,massesV0,*state);
           }
           vrtList.push_back(vID);
           // B vertex including Jpsi
-          Trk::VertexID vID2 = m_iVertexFitter->nextVertex(tracksJpsi,massesJpsi,vrtList);
+          Trk::VertexID vID2 = m_iVertexFitter->nextVertex(tracksJpsi,massesJpsi,vrtList,*state);
           if (m_constrJpsi) {
             std::vector<Trk::VertexID> cnstV;
             cnstV.clear();
-            if ( !m_iVertexFitter->addMassConstraint(vID2,tracksJpsi,cnstV,mass_jpsi).isSuccess() ) {
+            if ( !m_iVertexFitter->addMassConstraint(vID2,tracksJpsi,cnstV,*state,mass_jpsi).isSuccess() ) {
               ATH_MSG_WARNING("addMassConstraint failed");
             }
           }
-          std::unique_ptr<Trk::VxCascadeInfo> result(m_iVertexFitter->fitCascade());
+          std::unique_ptr<Trk::VxCascadeInfo> result(m_iVertexFitter->fitCascade(*state));
           if(result) {
           	result->getSVOwnership(true);
           	const std::vector< std::vector<TLorentzVector> > &moms = result->getParticleMoms();

@@ -19,7 +19,6 @@
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "TestTools/leakcheck.h"
@@ -113,7 +112,7 @@ void test1 (const IDHelpers& helpers)
   {
     Identifier wafer_id = helpers.m_pixel_ids[0];
     IdentifierHash wafer_hash = helpers.m_pix_id->wafer_hash (wafer_id);
-    auto coll = CxxUtils::make_unique<iFatras::PlanarClusterCollection> (wafer_hash);
+    auto coll = std::make_unique<iFatras::PlanarClusterCollection> (wafer_hash);
     for (int i=0; i < NELTS; i++) {
       int o = i*10;
 
@@ -136,7 +135,7 @@ void test1 (const IDHelpers& helpers)
         for (int j=0; j < 2; j++)
           cov(i,j) = 100*(i+1)*(j+1) + o;
 
-      auto clus = CxxUtils::make_unique<iFatras::PlanarCluster>
+      auto clus = std::make_unique<iFatras::PlanarCluster>
         (helpers.m_pix_id->pixel_id (wafer_id,
                                      21+o,
                                      31+o),
@@ -155,7 +154,7 @@ void test1 (const IDHelpers& helpers)
   {
     Identifier wafer_id = helpers.m_sct_ids[0];
     IdentifierHash wafer_hash = helpers.m_sct_id->wafer_hash (wafer_id);
-    auto coll = CxxUtils::make_unique<iFatras::PlanarClusterCollection> (wafer_hash);
+    auto coll = std::make_unique<iFatras::PlanarClusterCollection> (wafer_hash);
     for (int i=0; i < NELTS; i++) {
       int o = i*10+5;
 
@@ -172,7 +171,7 @@ void test1 (const IDHelpers& helpers)
         for (int j=0; j < 2; j++)
           cov(i,j) = 100*(i+1)*(j+1) + o;
 
-      auto clus = CxxUtils::make_unique<iFatras::PlanarCluster>
+      auto clus = std::make_unique<iFatras::PlanarCluster>
         (helpers.m_sct_id->strip_id (wafer_id, 41+i),
          locpos,
          rdoList,
@@ -203,7 +202,7 @@ std::unique_ptr<iFatras::PlanarDetElement> makeEle(const Identifier& id,
     xform = Amg::getRotateX3D (0.5+o/100);
   else
     xform = Amg::getRotateY3D (0.5+o/100);
-  return CxxUtils::make_unique<iFatras::PlanarDetElement>
+  return std::make_unique<iFatras::PlanarDetElement>
     (id,
      idhash,
      Amg::Vector3D (10.5+o, 11.5+o, 12.5+o),
@@ -227,9 +226,9 @@ std::unique_ptr<iFatras::PlanarDetElement> makeEle(const Identifier& id,
 
 std::unique_ptr<IDHelpers> make_idhelpers (ISvcLocator* svcLoc)
 {
-  auto helpers = CxxUtils::make_unique<IDHelpers>();
-  auto pix_id = CxxUtils::make_unique<PixelID>();
-  auto sct_id = CxxUtils::make_unique<SCT_ID>();
+  auto helpers = std::make_unique<IDHelpers>();
+  auto pix_id = std::make_unique<PixelID>();
+  auto sct_id = std::make_unique<SCT_ID>();
   helpers->m_pix_id = pix_id.get();
   helpers->m_sct_id = sct_id.get();
 
@@ -245,7 +244,7 @@ std::unique_ptr<IDHelpers> make_idhelpers (ISvcLocator* svcLoc)
   assert ( sg->record (std::move (pix_id), "PixelID") );
   assert ( sg->record (std::move (sct_id), "SCT_ID") );
 
-  auto pixel_map = CxxUtils::make_unique<iFatras::IdHashDetElementCollection>();
+  auto pixel_map = std::make_unique<iFatras::IdHashDetElementCollection>();
   {
     Identifier id = helpers->m_pix_id->wafer_id (0,
                                                  1,
@@ -260,7 +259,7 @@ std::unique_ptr<IDHelpers> make_idhelpers (ISvcLocator* svcLoc)
   }
   assert ( sg->record (std::move (pixel_map), "Pixel_IdHashDetElementMap") );
   
-  auto sct_map = CxxUtils::make_unique<iFatras::IdHashDetElementCollection>();
+  auto sct_map = std::make_unique<iFatras::IdHashDetElementCollection>();
   {
     Identifier id = helpers->m_sct_id->wafer_id (0,
                                                  1,

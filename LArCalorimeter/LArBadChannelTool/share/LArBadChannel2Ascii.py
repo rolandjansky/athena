@@ -4,12 +4,15 @@ if 'OutputFile' not in dir():
 if 'DBInstance' not in dir():
    DBInstance="CONDBR2"
 
+if 'DBString' not in dir():
+   DBString="<db>COOLOFL_LAR/"
+
 if 'sqlite' in dir():
     dbStr="<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db>"
     if not 'tag' in dir():
         tag="LARBadChannelsOflBadChannels-UPD4-00"
 else:
-    dbStr="<db>COOLOFL_LAR/"+DBInstance+"</db>"
+    dbStr=DBString+DBInstance+"</db>"
 
 if 'tag' in dir():
     tagStr="<tag>"+tag+"</tag>"
@@ -22,6 +25,8 @@ if not 'IOVEndRun' in dir():
 if not 'IOVEndLB' in dir():
    IOVEndLB = -1
 
+if not 'folderStr' in dir():
+   folderStr="/LAR/BadChannelsOfl/BadChannels"
 
 if not 'ExecutiveSummaryFile' in dir():
     ExecutiveSummaryFile=""
@@ -32,10 +37,11 @@ import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.GlobalFlags import  globalflags
 globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
-globalflags.DatabaseInstance=DBInstance
+if 'OFLP' not in DBInstance:
+   globalflags.DatabaseInstance=DBInstance
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()

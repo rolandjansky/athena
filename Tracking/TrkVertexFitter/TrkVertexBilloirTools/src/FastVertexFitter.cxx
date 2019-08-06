@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -91,7 +91,6 @@ namespace Trk
 	FastVertexFitter::FastVertexFitter ( const std::string& t, const std::string& n, const IInterface*  p ) : AthAlgTool ( t,n,p ),
 														  m_maxIterations ( 3 ),
 														  m_maxDchi2PerNdf ( 0.000001 ),
-														  m_error (NOTRKS),
 														  m_extrapolator ( "Trk::Extrapolator" ),
 														  m_linFactory ( "Trk::FullLinearizedTrackFactory" )
 														  
@@ -223,7 +222,6 @@ namespace Trk
 	{
 		if ( originalPerigees.empty() )
 		{
-			m_error = NOTRKS;
 			ATH_MSG_VERBOSE("No tracks to fit in this event.");
 			return 0;
 		}
@@ -356,7 +354,6 @@ namespace Trk
 				if ( ( *BTIter ).chi2 < 0 )
 				{
 					std::cout << "VxFastFit::calculate: error in chi2_per_track\n";
-					m_error = NEGTRCHI2;
 					return 0;
 				}
 				chi2New += ( *BTIter ).chi2;

@@ -4,7 +4,10 @@
 
 #include "LArCalibUtils/LArWFParamTool.h" 
 #include "CaloIdentifier/LArEM_ID.h"
+#include "CaloIdentifier/LArEM_SuperCell_ID.h"
+#include "CaloIdentifier/CaloIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "LArCabling/LArOnOffIdMapping.h"
 
 #include <math.h>
@@ -44,6 +47,7 @@ LArWFParamTool::LArWFParamTool ( const std::string& type, const std::string& nam
   declareProperty("NBaseline",        m_NBaseline);
   declareProperty("ShiftToStart",     m_ShiftToStart);
   declareProperty("SubtractBaseline", m_SubtractBaseline);
+  declareProperty("isSC", m_isSC = false);
 
   m_DeltaTtail.resize(3);
   int default_deltattail[3] = { 100, 50, 0 } ;
@@ -149,9 +153,43 @@ StatusCode LArWFParamTool::initialize()
 
   }
 
-  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   
-  ATH_CHECK( detStore()->retrieve(m_emId, "LArEM_ID") );
+  StatusCode sc;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    ATH_CHECK(detStore()->retrieve(ll, "LArOnline_SuperCellID"));
+    m_onlineHelper = (const LArOnlineID_Base*)ll;
+    ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    ATH_CHECK(detStore()->retrieve(ll, "LArOnlineID") );
+    m_onlineHelper = (const LArOnlineID_Base*)ll;
+    ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    
+  }
+  
+  /*sc = detStore()->retrieve(m_emId, "LArEM_ID");
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper" << endmsg;
+    return sc;
+  }*/
+  const CaloIdManager *caloIdMgr=nullptr;
+  ATH_CHECK( detStore()->retrieve(caloIdMgr));
+  if(!caloIdMgr){
+    ATH_MSG_ERROR( "Could not access CaloIdManager" );
+    return StatusCode::FAILURE;
+  }
+  if ( m_isSC ) {
+    m_emId=caloIdMgr->getEM_SuperCell_ID();
+  } else {
+    m_emId=caloIdMgr->getEM_ID();
+  }
+  if (!m_emId) {
+    ATH_MSG_ERROR( "Could not access lar EM ID helper" );
+    return StatusCode::FAILURE;
+  }
+
 
   return StatusCode::SUCCESS;
 }

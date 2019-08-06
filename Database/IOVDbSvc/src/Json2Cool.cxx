@@ -138,7 +138,6 @@ Json2Cool::Json2Cool(std::istream & stream, BasicFolder & b):m_basicFolder(b){
     json::const_iterator it = j.begin();
     for (unsigned int i(0);i!=s;++i){
       auto & f=a[i];
-      const auto & n = f.storageType().name();
       const auto & v = it.value();
       it++;
       try{

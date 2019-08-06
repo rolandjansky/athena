@@ -39,8 +39,9 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
     recoAlg = jetRecoDict["recoAlg"]
     doGrooming = recoAlg.endswith("t") # Maybe other grooming strategies
     doRecluster = recoAlg.endswith("r")
-    jetNamePrefix = "Trig"
+    jetNamePrefix = "HLT_"
 
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
     from JetRecConfig.JetRecConfig import getConstitPJGAlg, getJetAlgorithm
     if doRecluster:
         # Reclustering -- recursively call the basic jet reco and add this to the sequence,
@@ -65,7 +66,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
 
         recoSeq += rcJetRecAlg
 
-        sequenceOut = rcJetsFullName
+        sequenceOut = recordable(rcJetsFullName)
 
     elif doGrooming:
         # Grooming needs to be set up similarly to reclustering
@@ -91,7 +92,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         groomalg = getJetGroomAlg(groomedJetsFullName,groomDef,groomedModList)
         recoSeq += groomalg
 
-        sequenceOut = groomedJetsFullName
+        sequenceOut = recordable(groomedJetsFullName)
     else:
         # Normal jet reconstruction, no reclustering or grooming
 
@@ -117,7 +118,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         
         # chosen jet collection
         jetsFullName = jetNamePrefix+jetDef.basename+"Jets_"+jetRecoDict["jetCalib"]
-        sequenceOut = jetsFullName
+        sequenceOut = recordable(jetsFullName)
 
         from JetRecConfig import JetRecConfig
         # Import the standard jet modifiers as defined for offline
@@ -138,7 +139,7 @@ def jetRecoSequence( dummyFlags, dataSource, RoIs = 'FSJETRoI', **jetRecoDict):
         if "sub" in jetRecoDict["jetCalib"]:
             # Add the event shape alg if needed for area subtraction
             from JetRecConfig.JetRecConfig import getEventShapeAlg
-            eventShapeAlg = getEventShapeAlg( jetDef.inputdef, constitPJKey, "TrigJet" )
+            eventShapeAlg = getEventShapeAlg( jetDef.inputdef, constitPJKey, "HLT_" )
             recoSeq += eventShapeAlg
 
         # Generate a JetAlgorithm to run the jet finding and modifiers

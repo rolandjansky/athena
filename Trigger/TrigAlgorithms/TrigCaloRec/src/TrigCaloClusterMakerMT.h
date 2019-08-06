@@ -27,6 +27,7 @@
 #include "TrigCaloRec/TrigCaloQuality.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 
 
 class IAlgToolEFCalo;
@@ -95,6 +96,11 @@ class TrigCaloClusterMakerMT : public AthAlgorithm {
 
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::CaloClusterContainer> > m_mDecor_ncells { this,
+      "Decor_ncells",                // decorator name
+      "nCells",                      // default value
+      "Decorator containing the number of cells associated to a cluster"};
   
 public:
 

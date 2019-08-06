@@ -555,6 +555,30 @@ class echoExecutor(transformExecutor):
         msg.debug('exeStop time is {0}'.format(self._exeStop))
 
 
+class dummyExecutor(transformExecutor):
+    def __init__(self, name = 'Dummy', trf = None, conf = None, inData = set(), outData = set()):
+
+        # We are only changing the default name here
+        super(dummyExecutor, self).__init__(name=name, trf=trf, conf=conf, inData=inData, outData=outData)
+
+
+    def execute(self):
+        self._exeStart = os.times()
+        msg.debug('exeStart time is {0}'.format(self._exeStart))
+        msg.info('Starting execution of %s' % self._name)
+        for type in self._outData:
+            for k, v in iteritems(self.conf.argdict):
+                if type in k:
+                    msg.info('Creating dummy output file: {0}'.format(self.conf.argdict[k].value[0]))
+                    open(self.conf.argdict[k].value[0], 'a').close()
+        self._hasExecuted = True
+        self._rc = 0
+        self._errMsg = ''
+        msg.info('%s executor returns %d' % (self._name, self._rc))
+        self._exeStop = os.times()
+        msg.debug('exeStop time is {0}'.format(self._exeStop))
+
+
 class scriptExecutor(transformExecutor):
     def __init__(self, name = 'Script', trf = None, conf = None, inData = set(), outData = set(), 
                  exe = None, exeArgs = None, memMonitor = True):
@@ -1219,6 +1243,8 @@ class athenaExecutor(scriptExecutor):
             elif currentSubstep in self.conf.argdict['athenaopts'].value:
                 self._cmd.extend(self.conf.argdict['athenaopts'].value[currentSubstep])
         
+        if currentSubstep is None:
+            currentSubstep = 'all'
         ## Add --drop-and-reload if possible (and allowed!)
         if self._tryDropAndReload:
             if 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
@@ -1226,8 +1252,6 @@ class athenaExecutor(scriptExecutor):
             elif 'athenaopts' in self.conf.argdict:
                 athenaConfigRelatedOpts = ['--config-only','--drop-and-reload','--drop-configuration','--keep-configuration']
                 # Note for athena options we split on '=' so that we properly get the option and not the whole "--option=value" string
-                if currentSubstep is None:
-                    currentSubstep = 'all'
                 if currentSubstep in self.conf.argdict['athenaopts'].value:
                     conflictOpts = set(athenaConfigRelatedOpts).intersection(set([opt.split('=')[0] for opt in self.conf.argdict['athenaopts'].value[currentSubstep]]))
                     if len(conflictOpts) > 0:

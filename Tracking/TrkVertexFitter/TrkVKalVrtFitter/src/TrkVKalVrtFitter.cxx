@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -20,6 +20,8 @@
 #include<iostream>
 
 namespace Trk{
+
+IVKalState tmpVKalState;
 
 //
 //Constructor-------------------------------------------------------------- 
@@ -142,6 +144,14 @@ TrkVKalVrtFitter::~TrkVKalVrtFitter(){
     if(m_vkalFitControl) delete m_vkalFitControl;
 }
 
+
+
+std::unique_ptr<IVKalState> TrkVKalVrtFitter::makeState()
+{
+  setDefault();
+  auto state = std::make_unique<State>();
+  return state;
+}
 
 
 StatusCode TrkVKalVrtFitter::finalize()
@@ -293,7 +303,12 @@ StatusCode TrkVKalVrtFitter::initialize()
 
     return StatusCode::SUCCESS;
 }
- 
+
+
+void TrkVKalVrtFitter::initState (State& /*state*/) const
+{
+}
+
 
 
 
@@ -654,6 +669,14 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
                                      const Amg::Vector3D & startingPoint)
 {
+  State state;
+  initState (state);
+  return fit (xtpListC, startingPoint, state);
+}
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
+                                     const Amg::Vector3D & startingPoint,
+                                     IVKalState& /*istate*/)
+{
     m_globalFirstHit = 0;
     xAOD::Vertex * tmpVertex = 0;
     setApproximateVertex(startingPoint.x(),
@@ -723,6 +746,14 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
      /** the position of the constraint is ALWAYS the starting point */
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
                                      const xAOD::Vertex & constraint)
+{
+  State state;
+  initState (state);
+  return fit (xtpListC, constraint, state);
+}
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
+                                     const xAOD::Vertex & constraint,
+                                     IVKalState& /*istate*/)
 {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
     m_globalFirstHit = 0;
@@ -871,6 +902,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
                                     const std::vector<const  NeutralParameters*> & perigeeListN)
 {
     m_globalFirstHit = 0;
+    m_ApproximateVertex.clear();
     Amg::Vector3D VertexIni(0.,0.,0.);
     StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 
     if( sc.isSuccess()) setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z());

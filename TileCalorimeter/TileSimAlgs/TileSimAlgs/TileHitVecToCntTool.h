@@ -148,7 +148,6 @@ private:
   const TileID* m_tileID{};                     //!< Pointer to TileID helper
   const TileTBID* m_tileTBID{};                 //!< Pointer to TileID helper
   const TileInfo* m_tileInfo{};                 //!< Pointer to TileInfo
-  const TileDetDescrManager* m_tileMgr{};       //!< Pointer to TileDetDescrManager
   float m_nPhotoElectrons[7];                         //!< number of photo electrons per GeV in samplings
 
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};     //!< Random number generator engine to use

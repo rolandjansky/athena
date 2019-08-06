@@ -82,7 +82,7 @@ T HistogramDef::parseToken(const std::string &token, const std::string &errorDes
     try {
       return boost::lexical_cast<T>(token);
     } catch (boost::bad_lexical_cast &) {
-      throw TokenException(errorDescription);
+      throw TokenException(errorDescription+"\nOr, check comma delimieters in defineHistogram().");
     }
 }
 

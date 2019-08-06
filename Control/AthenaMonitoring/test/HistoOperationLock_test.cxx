@@ -4,11 +4,12 @@
 
 #include "AthenaMonitoring/OHLockedHist.h"
 #include "TH1F.h"
-#include <boost/thread/mutex.hpp>
+
+#include <mutex>
 
 void testTemplate()
 {
-  boost::mutex mutex;
+  std::mutex mutex;
   oh_lock_histogram_mutex::set_histogram_mutex(mutex);
 
   TH1F* h = new TH1F("h", "test h", 10, 0, 10);

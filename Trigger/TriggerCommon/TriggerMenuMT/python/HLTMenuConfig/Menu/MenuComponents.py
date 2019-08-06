@@ -1,6 +1,7 @@
+
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-import re, copy
+import copy
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MenuComponents')
 
@@ -225,6 +226,7 @@ class ComboMaker(AlgNode):
         from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
         dictDecoding = DictFromChainName.DictFromChainName()
         allMultis = [int(mult) for mult in dictDecoding.getChainMultFromName(chain)]       
+       
         newdict = {chain : allMultis}
 
         cval = self.Alg.getProperties()[self.prop]  # check necessary to see if chain was added already?
@@ -271,6 +273,7 @@ def isFilterAlg(alg):
 class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
+        assert Maker.name().startswith("IM"), "The input maker {} name needs to start with letter: IM".format(Maker.name())
         self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self._maker       = InputMakerNode( Alg = Maker )
@@ -347,54 +350,29 @@ class MenuSequence(object):
         %(self.name, self.hypo.Alg.name(), self.maker.Alg.name(), self.sequence.Alg.name(), hypotool)
 
 
-#################################################
-#### CONFIGURATION FOR L1DECODER
-#################################################
-## It might be moved somewhere in the cofiguration later one
-# This is amp between the L1 items and the name of teh Decisions in the L1Decoder unpacking tools
-def DoMapSeedToL1Decoder(seed):
-    mapSeedToL1Decoder = {  "EM" : "L1EM",
-                            "MU" : "L1MU",
-                            "J"  : "L1J",
-                            "TAU": "L1TAU",
-                            "XE" : "L1MET",
-                            "XS" : "L1MET",
-                            "TE" : "L1MET"}
 
-    # remove actual threshold value from L1 seed string
-    stripSeed  = filter(lambda x: x.isalpha(), seed)
-    if stripSeed not in mapSeedToL1Decoder:
-        log.error("Seed "+ seed + " not mapped to any Decision objects! Available are: " + str(mapSeedToL1Decoder.values()))
-    return (mapSeedToL1Decoder[stripSeed])
 
 #################################################
+
+#from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getAllThresholdsFromItem, getUniqueThresholdsFromItem
 
 class Chain(object):
     """Basic class to define the trigger menu """
-    def __init__(self, name, Seed, ChainSteps=[]):
+    __slots__='name','steps','vseeds','group_seed'
+    def __init__(self, name, ChainSteps, L1Thresholds):
+        """
+        Construct the Chain from the steps
+        Out of all arguments the ChainSteps & L1Thresholds are most relevant, the chain name is used in debug messages
+        """
         self.name = name
         self.steps=ChainSteps
-        self.seed=Seed
-        self.vseeds=[]
-        vseeds = Seed.strip().split("_")
-        if vseeds[0] == 'L1': 
-            vseeds.pop(0) #remove first L1 string
-        else:
-            log.debug('Threshol(d)s were passed')
-        # split multi seeds
-        for seed in vseeds:
-            split=re.findall(r"(\d+)?([A-Z]+\d+)", seed)
-            mult,single = split[0]
-            if not mult: 
-                mult=1
-            else: 
-                mult=int(mult)
-            for m in range(0,mult):
-                self.vseeds.append(single)
+        self.vseeds=L1Thresholds
 
-        # group_seed is used to se tthe seed type (EM, MU,JET), removing the actual threshold
+     
+        from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
+        # group_seed is used to set the seed type (EM, MU,JET), removing the actual threshold
         # in practice it is the L1Decoder Decision output
-        self.group_seed = [DoMapSeedToL1Decoder(stri) for stri in self.vseeds]
+        self.group_seed = [ mapThresholdToL1DecisionCollection(stri) for stri in self.vseeds]
         self.setSeedsToSequences() # save seed of each menuseq
 
         isCombo=False
@@ -423,9 +401,8 @@ class Chain(object):
                     seq.seed ="L1"+filter(lambda x: x.isalpha(), seed)
                     log.debug( "setSeedsToSequences: Chain %s adding seed %s to sequence %d in step %s", self.name, seq.seed, nseq, step.name )
                     nseq+=1
-
         else:
-            log.error("setSeedsToSequences: found %d sequences in this chain and %d seeds. What to do??", max_seq, tot_seed)
+            log.error("setSeedsToSequences: found %d sequences in the chain %s and %d seeds %s. What to do??", max_seq, self.name, tot_seed, str(self.vseeds))
 
 
             
@@ -455,8 +432,8 @@ class Chain(object):
 
                 
     def __repr__(self):
-        return "--- Chain %s ---\n + Seed: %s \n + Steps: %s \n"%(\
-                    self.name, self.seed, ' '.join(map(str, self.steps)))
+        return "--- Chain %s --- \n + Seeds: %s \n + Steps: \n %s \n"%(\
+                    self.name, ' '.join(map(str, self.vseeds)), '\n '.join(map(str, self.steps)))
 
 
 
@@ -558,7 +535,7 @@ class ChainStep(object):
         self.combo = ComboMaker(CFNaming.comboHypoName(self.name))
         duplicatedHypos = []
         for sequence in Sequences:
-            oldhypo=sequence.hypo.Alg
+            oldhypo=sequence.hypo.Alg            
             duplicatedHypos.append(oldhypo.name())
             ncopy=duplicatedHypos.count(oldhypo.name())
 
@@ -631,7 +608,7 @@ class InViewReco( ComponentAccumulator ):
         if viewMaker:
             self.viewMakerAlg = viewMaker
         else:
-            self.viewMakerAlg = EventViewCreatorAlgorithm(name+'ViewsMaker',
+            self.viewMakerAlg = EventViewCreatorAlgorithm("IM"+name,
                                                           ViewFallThrough = True,
                                                           RoIsLink        = 'initialRoI', # -||-
                                                           InViewRoIs      = name+'RoIs',

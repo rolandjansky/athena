@@ -5,7 +5,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Logging import logging
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
-from LArRecUtils.LArFebConfigCondAlgConfig import LArFEBConfigCondAlgCfg
+from LArRecUtils.LArFebConfigCondAlgConfig import LArFebConfigCondAlgCfg
 from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg
 from LArRecUtils.LArRecUtilsConf import LArMCSymCondAlg
 from LArRecUtils.LArRecUtilsConf import LArAutoCorrNoiseCondAlg
@@ -26,7 +26,7 @@ def LArADC2MeVCondAlgCfg(flags, **kwargs):
         kwargs.setdefault("LArRampKey", "LArRampSym")
         kwargs.setdefault("UseFEBGainTresholds", False)
     else:
-        acc.merge(LArFEBConfigCondAlgCfg(flags))
+        acc.merge(LArFebConfigCondAlgCfg(flags))
     acc.addCondAlgo(LArADC2MeVCondAlg(**kwargs))
     return acc
 

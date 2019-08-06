@@ -66,3 +66,7 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/TriggerConfig*.py share/jobO*.py )
 atlas_install_runtime( share/*.xml )
 
+# Check Python syntax:
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                POST_EXEC_SCRIPT nopost.sh )

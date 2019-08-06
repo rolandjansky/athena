@@ -765,8 +765,11 @@ StatusCode AthenaHiveEventLoopMgr::stopRun() {
 //-----------------------------------------------------------------------------
 StatusCode AthenaHiveEventLoopMgr::stop()
 {
-  // Need to be sure we have a valid EventContext during stop()))).
+  // To enable conditions access during stop we set an invalid EventContext
+  // (no event/slot number) but with valid EventID (and extended EventContext).
+  m_lastEventContext.setValid(false);
   Gaudi::Hive::setCurrentContext( m_lastEventContext );
+
   StatusCode sc = MinimalEventLoopMgr::stop();
 
   // If we exit the event loop early due to an error, some event stores

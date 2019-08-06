@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTINTERSECTGEOMETRY_H
@@ -25,7 +25,8 @@ namespace Muon {
 
   class MdtIntersectGeometry : public MuonIntersectGeometry {
   public:
-    MdtIntersectGeometry( const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, IMDTConditionsSvc* mdtSummarySvc );
+    MdtIntersectGeometry( const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, IMDTConditionsSvc* mdtSummarySvc,
+                          MsgStream* msg);
     MdtIntersectGeometry(const MdtIntersectGeometry &right);
     MdtIntersectGeometry & operator=(const MdtIntersectGeometry &right);
     ~MdtIntersectGeometry();
@@ -39,8 +40,8 @@ namespace Muon {
     const Identifier& chamberId() const { return m_chid; }
   private:
     double tubeLength( int ml, int layer, int tube ) const;
-    void init();
-    void fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl);
+    void init(MsgStream* msg);
+    void fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl, MsgStream* msg);
 
     Identifier                              m_chid;
     Amg::Transform3D                        m_transform;

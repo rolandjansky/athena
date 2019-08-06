@@ -5,16 +5,14 @@ from AthenaCommon import CfgMgr
 def getPixelDetectorTool(name="PixelDetectorTool", **kwargs):
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     if InDetGeometryFlags.isSLHC():
-        kwargs.setdefault("ServiceBuilderTool",    "InDetServMatBuilderToolSLHC");
+        kwargs.setdefault("ServiceBuilderTool",    "InDetServMatBuilderToolSLHC")
     else:
-        kwargs.setdefault("ServiceBuilderTool",    "");
+        kwargs.setdefault("ServiceBuilderTool",    "")
 
     return CfgMgr.PixelDetectorTool(name, **kwargs)
 
 
 ############## ComponentAccumulator
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def PixelGeometryCfg( flags ):

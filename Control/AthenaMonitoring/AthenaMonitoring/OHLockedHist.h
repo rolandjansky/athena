@@ -20,7 +20,7 @@
 
 #include "CxxUtils/checker_macros.h"
 
-#include <boost/thread/mutex.hpp>
+#include <mutex>
 
 /**
  * @brief Helper class to set histogram mutex
@@ -33,7 +33,7 @@ public:
   ~oh_lock_histogram_mutex() = default;
 
   /// Set mutex to be used in oh_lock_histogram
-  static void set_histogram_mutex(boost::mutex& mutex) { m_mutex = &mutex; }
+  static void set_histogram_mutex(std::mutex& mutex) { m_mutex = &mutex; }
 
   /// Reset (disable) histogram mutex
   static void reset_histogram_mutex() { m_mutex = nullptr; }
@@ -43,7 +43,7 @@ public:
   oh_lock_histogram_mutex& operator=(const oh_lock_histogram_mutex&) = delete;
 
 protected:
-  static boost::mutex* m_mutex ATLAS_THREAD_SAFE;
+  static std::mutex* m_mutex ATLAS_THREAD_SAFE;
 };
 
 /**

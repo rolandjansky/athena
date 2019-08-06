@@ -69,9 +69,7 @@ namespace Trk
     double zResult {0.};
     if ( perigeeList.size()>0 ) 
     {
-      m_densityEstimator->reset();
-      m_densityEstimator->addTracks(perigeeList);
-      zResult = m_densityEstimator->globalMaximum();
+      zResult = m_densityEstimator->globalMaximum (perigeeList);
       ATH_MSG_DEBUG("Highest density Z position found: " << zResult);
     }
     else
@@ -105,23 +103,5 @@ namespace Trk
     return std::vector<Amg::Vector3D>(0);
   }
 
-  void TrackDensitySeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
-    //implemented to satisfy inheritance
-  }
 
-  int TrackDensitySeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /* a */,
-					      const std::vector<const Trk::TrackParameters*> & /* b */) const{
-    //implemented to satisfy inheritance
-    return 0;
-  }
-
-  int TrackDensitySeedFinder::getModes1d(std::vector<float> &/* a */, std::vector<float> &/* b */, 
-					 std::vector<float> &/* c */, std::vector<float> &/* d */) const{
-   //implemented to satisfy inheritance
-    return 0;
-  }
-
-  void TrackDensitySeedFinder::getCorrelationDistance( double &/* cXY */, double & /* cZ */){
-    //implemented to satisfy inheritance
-  }
 }

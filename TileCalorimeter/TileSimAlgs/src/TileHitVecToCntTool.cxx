@@ -57,9 +57,7 @@ StatusCode TileHitVecToCntTool::initialize() {
 
   ATH_CHECK(m_rndmSvc.retrieve());
 
-  // retrieve Tile detector manager, TileID helper and TileInfo from det store
-
-  CHECK(detStore()->retrieve(m_tileMgr));
+  // retrieve TileID helper and TileInfo from det store
 
   CHECK(detStore()->retrieve(m_tileID));
 

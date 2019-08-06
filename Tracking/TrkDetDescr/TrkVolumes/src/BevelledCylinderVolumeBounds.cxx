@@ -28,7 +28,7 @@
 #include <iostream>
 #include <math.h>
 
-double Trk::BevelledCylinderVolumeBounds::s_numericalStable = 10e-2 * Gaudi::Units::millimeter;
+const double Trk::BevelledCylinderVolumeBounds::s_numericalStable = 10e-2 * Gaudi::Units::millimeter;
 
 Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds() :
  VolumeBounds(),
@@ -43,48 +43,7 @@ Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds() :
  m_subtractedVolume(0)
 {}
 
-/* // bevelled by theta cut - removed since not needed anymore
 
-Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(double radius, double halez, double thetaMinus, double thetaPlus) :
- VolumeBounds(),
- m_innerRadius(0.),
- m_outerRadius(fabs(radius)),
- m_halfPhiSector(M_PI),
- m_halfZ(fabs(halez)),
- m_thetaMinus(thetaMinus),
- m_thetaPlus(thetaPlus),
- m_type(-1),
- m_boundaryAccessors(),
- m_subtractedVolume(0)
-{}
-
-Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(double rinner, double router, double halez, double thetaMinus, double thetaPlus) :
- VolumeBounds(),
- m_innerRadius(fabs(rinner)),
- m_outerRadius(fabs(router)),
- m_halfPhiSector(M_PI),
- m_halfZ(fabs(halez)),
- m_thetaMinus(thetaMinus),
- m_thetaPlus(thetaPlus),
- m_type(-1),
- m_boundaryAccessors(),
- m_subtractedVolume(0)
-{}
-
-Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(double rinner, double router, double haphi, double halez, double thetaMinus, double thetaPlus) :
- VolumeBounds(),
- m_innerRadius(fabs(rinner)),
- m_outerRadius(fabs(router)),
- m_halfPhiSector(haphi),
- m_halfZ(fabs(halez)),
- m_thetaMinus(thetaMinus),
- m_thetaPlus(thetaPlus),
- m_type(-1),
- m_boundaryAccessors(),
- m_subtractedVolume(0)
-{}
-
-*/
 
 Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(double rinner, double router, double haphi, double halez, int type) :
  VolumeBounds(),

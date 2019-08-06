@@ -6,6 +6,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
+#include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Trk
@@ -32,8 +33,8 @@ namespace Trk
   class IndexedCrossDistancesSeedFinder : public AthAlgTool, virtual public IVertexSeedFinder
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     //default constructor due to Athena interface
     IndexedCrossDistancesSeedFinder(const std::string& t, const std::string& n, const IInterface*  p);
@@ -41,30 +42,34 @@ namespace Trk
     //destructor
     virtual ~IndexedCrossDistancesSeedFinder();
 
-    virtual void setPriVtxPosition( double vx, double vy ) ;
 
     // Interface for Tracks with starting seed/linearization point
-    virtual Amg::Vector3D findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint=0);
+    virtual Amg::Vector3D findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint=0) override;
     
     /** Interface for MeasuredPerigee with starting point */
-    virtual Amg::Vector3D findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint=0);
+    virtual Amg::Vector3D findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint=0) override;
         
+    virtual Amg::Vector3D
+    findSeed(const double vx,
+             const double vy,
+             const std::vector<const Trk::TrackParameters*>& perigeeList,
+             const xAOD::Vertex * constraint=0) override;
+
+    
+    virtual Amg::Vector3D
+    findSeed(const double vx,
+             const double vy,
+             std::unique_ptr<Trk::IMode3dInfo>& info,
+             const std::vector<const Trk::TrackParameters*>& perigeeList,
+             const xAOD::Vertex * constraint=0) override;
+
+
     std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,
-                          const xAOD::Vertex * constraint=0) ;
+                          const xAOD::Vertex * constraint=0) override;
 
     std::vector<Amg::Vector3D> findMultiSeeds(
-        const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0) ;
+        const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0)  override;
 
-
-    // 
-    virtual int getModes1d(   std::vector<float> &, std::vector<float> &, 
-                              std::vector<float> &, std::vector<float> & ) const ;
-    // the tracks really used
-    virtual int perigeesAtSeed( std::vector<const Trk::TrackParameters*> * , 
-                              const std::vector<const Trk::TrackParameters*> & ) const ;
-
-    inline void getCorrelationDistance( double &cXY, double &cZ )
-      { cXY = m_correXY ; cZ = m_correZ ; return ; }
  
   private:
 
@@ -77,13 +82,6 @@ namespace Trk
     ToolHandle<ITrkDistanceFinder> m_distancefinder;
     unsigned int m_maximumTracksNoCut;
     double m_maximumDistanceCut;
-
-//    std::vector< std::pair <int, int> > * m_trkidx ;
-    std::vector< std::pair <int, int> > m_trkidx ;
-
-    mutable double m_correXY ;
-    mutable double m_correZ ;
-
   };
 }
 #endif

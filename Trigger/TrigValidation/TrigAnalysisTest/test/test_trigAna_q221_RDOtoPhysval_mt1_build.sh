@@ -12,7 +12,7 @@ export INPUT="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/vali
 export EVENTS=20
 export THREADS=1
 export JOB_LOG="athena.RDOtoAOD.log"
-export VALIDATIONFLAGS="doExample,doMET,doPFlow,doEgamma,doInDet,doTau,doJet,doBtag,doZee,doMuon,doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet"
+export VALIDATIONFLAGS="doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet"
 
 # run the first transform
 echo "Running RDO->RDO_TRIG->ESD->AOD with Reco_tf command:"
@@ -47,6 +47,7 @@ Reco_tf.py \
 --inputAODFile=AOD.pool.root \
 --outputNTUP_PHYSVALFile=NTUP_PHYSVAL.pool.root \
 --validationFlags="${VALIDATIONFLAGS}" \
+--preExec="TriggerFlags.EDMDecodingVersion.set_Value_and_Lock(3)" \
 >${JOB_LOG} 2>&1
 ) 2>&1
 

@@ -121,8 +121,8 @@ class LumiblockHistogramProviderTestSuite {
 
     void test_shouldCreateNewHistogramWithUpdatedLumiBlock() {
       auto expectedFlow = {
-        make_tuple(100, 100000, "/run_100000/lowStat100-120/"),
-        make_tuple(125, 200000, "/run_200000/lowStat120-140/"),
+        make_tuple(100, 100000, "/run_100000/lowStat_LB101-120/"),
+        make_tuple(125, 200000, "/run_200000/lowStat_LB121-140/"),
       };
 
       TNamed histogram;

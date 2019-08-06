@@ -86,7 +86,7 @@ def TileCellMakerCfg(flags, **kwargs):
         acc.merge( TileRawChannelMakerCfg(flags) )
 
     from CaloRec.CaloRecConf import CaloCellMaker, CaloCellContainerFinalizerTool
-    from TileCellBuilderConfig import TileCellBuilderCfg
+    from TileRecUtils.TileCellBuilderConfig import TileCellBuilderCfg
     tileCellBuilder = acc.popToolsAndMerge( TileCellBuilderCfg(flags, SkipGain = skipGain) )
 
     cellMakerTools = [tileCellBuilder, CaloCellContainerFinalizerTool()]
@@ -104,7 +104,7 @@ def TileCellMakerCfg(flags, **kwargs):
 
     if doCellNoiseFilter == 100:
         msg.info('Use Tile cell noise filter')
-        from TileCellNoiseFilterConfig import TileCellNoiseFilterCfg
+        from TileRecUtils.TileCellNoiseFilterConfig import TileCellNoiseFilterCfg
         cellNoiseFilter = acc.popToolsAndMerge( TileCellNoiseFilterCfg(flags) )
         cellMakerTools += [ cellNoiseFilter ]
 
