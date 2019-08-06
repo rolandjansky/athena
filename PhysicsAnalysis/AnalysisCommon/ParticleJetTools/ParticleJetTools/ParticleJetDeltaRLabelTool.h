@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLEJETDELTARLABELTOOL_H
@@ -17,6 +17,8 @@ public:
 
   /// Constructor
   ParticleJetDeltaRLabelTool(const std::string& name);
+
+  StatusCode initialize();
 
   StatusCode modify(xAOD::JetContainer& jets) const;
 
@@ -38,6 +40,11 @@ protected:
   std::string m_taupartcollection;
   std::string m_bottompartcollection;
   std::string m_charmpartcollection;
+
+  /// Read handles particle collections for labeling
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_tauPartCollectionKey{this,"TauParticleCollection","","ReadHandleKey for tauPartCollection"};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_bottomPartCollectionKey{this,"BParticleCollection","","ReadHandleKey for bottomPartCollection"};
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_charmPartCollectionKey{this,"CParticleCollection","","ReadHandleKey for charmPartCollection"};
 
   /// Minimum pT for particle selection (in MeV)
   double m_partptmin;
