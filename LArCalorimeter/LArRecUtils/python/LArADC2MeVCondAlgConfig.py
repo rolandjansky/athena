@@ -37,6 +37,9 @@ def LArADC2MeVCondAlgCfg(configFlags):
     else: # not MC:
         requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
         from LArRecUtils.LArFebConfigCondAlgConfig import LArFebConfigCondAlgCfg
+        if 'COMP200' in configFlags.IOVDb.DatabaseInstance: # Run1 case
+            theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
+            theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
         result.merge(LArFebConfigCondAlgCfg(configFlags))
 
     result.merge(LArElecCalibDbCfg(configFlags,requiredConditons))

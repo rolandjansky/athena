@@ -90,25 +90,27 @@ def LArElecCalibDBRun2Cfg(ConfigFlags,condObjs):
 
 def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
 
-    _larCondDBFoldersDataR1 = {"Ramp":("/LAR/ElecCalibOnl/Ramp","LAR_ONL","LArRampComplete"),
-                               "DAC2uA":("/LAR/ElecCalibOfl/DAC2uA","LAr_ONL","LArDAC2uAMC"),
-                               "Pedestal":("/LAR/ElecCalibOnl/Pedestal<key>LArPedestal</key>","LAR_ONL""LArPedestalComplete"),
-                               "uA2MeV":("/LAR/ElecCalibOFl/uA2MeV/Symmetry","LAr_OFL", "LAruA2MeVMC"),
-                               "MphysOverMcal":("/LAR/ElecCalibOfl/MphysOverMcal/RTM","LAr_OFL","LArMphysOverMcalComplete"),
-                               "HVScale":("/LAR/ElecCalibOnl/HVScaleCorr","LAR_ONL","LArHVScaleCorrComplete"),
-                               "OFC":("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArOFCComplete"),
-                               "Shape":("/LAR/ElecCalibOfl/Shape/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArShapeComplete"),
+    _larCondDBFoldersDataR1 = {"Ramp":("/LAR/ElecCalibOnl/Ramp","LAR_ONL","LArRampComplete",None),
+                               "DAC2uA":("/LAR/ElecCalibOfl/DAC2uA","LAr_ONL","LArDAC2uAMC",LArDAC2uASymAlg),
+                               "Pedestal":("/LAR/ElecCalibOnl/Pedestal<key>LArPedestal</key>","LAR_ONL""LArPedestalComplete",None),
+                               "uA2MeV":("/LAR/ElecCalibOfl/uA2MeV/Symmetry","LAr_OFL", "LAruA2MeVMC",LAruA2MeVSymAlg),
+                               "MphysOverMcal":("/LAR/ElecCalibOfl/MphysOverMcal/RTM","LAr_OFL","LArMphysOverMcalComplete".None),
+                               "HVScale":("/LAR/ElecCalibOnl/HVScaleCorr","LAR_ONL","LArHVScaleCorrComplete",None),
+                               "OFC":("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArOFCComplete",None),
+                               "Shape":("/LAR/ElecCalibOfl/Shape/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArShapeComplete",None),
                            }
 
 
                                      
     folderlist=[]
     for condData in condObjs:
+        folder,db,obj,calg=condData
         try:
-            folderlist.append(_larCondDBFoldersDataR1[condData])
+            folderlist.append(_larCondDBFoldersDataR1[(folder,db,obj)])
         except KeyError:
             raise ConfigurationError("No conditions data %s found for Run-1 data" % condData)
-                        
+        if (calg):
+            result.addCondAlgo(calg(ReadKey="LAr"+condObj,WriteKey="LAr"+condObj+"Sym"))
     result.merge(addFolderList(ConfigFlags,folderlist))
                      
     return result
