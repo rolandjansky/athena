@@ -218,7 +218,7 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, TString 
   return StatusCode::SUCCESS;
 }
 
-StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, TString metName, float pTcone_cut, bool useEtaBins, bool useRho, bool useNegTowers){
+StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metName, float pTcone_cut, bool useEtaBins, bool useRho, bool useNegTowers){
   
 
   //unsigned int size = towers->size();
@@ -226,7 +226,7 @@ StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, TString metNam
   float rho = 0;
   if(useRho) rho = Rho_bar(towers, useEtaBins, 0, false);  
   else rho = 0;
-  std::vector<float> Et_values = Run_JwoJ(towers, rho, pTcone_cut, useEtaBins, useNegTowers);
+  std::vector<float> Et_values = Run_JwoJ(towers, gBlocks, rho, pTcone_cut, useEtaBins, useNegTowers);
 
   //set fit parameters for calculating MET
   //Look up table for parameters a,b,c depending on scalar sumEt

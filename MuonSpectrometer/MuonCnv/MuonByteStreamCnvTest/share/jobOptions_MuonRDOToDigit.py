@@ -2,7 +2,7 @@ include.block ("MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py")
 
 from AthenaCommon.CfgGetter import getPublicTool
 
-from MuonRecExample.MuonRecFlags import muonRecFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 ## configure the tool
 
@@ -11,9 +11,9 @@ MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (
                          DecodeMdtRDO = True,
                          DecodeRpcRDO = True,
                          DecodeTgcRDO = True,
-                         DecodeCscRDO = muonRecFlags.doCSCs() )
+                         DecodeCscRDO = MuonGeometryFlags.hasCSC() )
 			 
-if muonRecFlags.doCSCs(): MuonRdoToMuonDigitTool.cscCalibTool = getPublicTool("CscCalibTool")
+if MuonGeometryFlags.hasCSC(): MuonRdoToMuonDigitTool.cscCalibTool = getPublicTool("CscCalibTool")
 
 ToolSvc += MuonRdoToMuonDigitTool
 

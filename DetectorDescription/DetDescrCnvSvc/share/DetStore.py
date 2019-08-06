@@ -23,3 +23,9 @@ EventPersistencySvc.CnvServices = [ "DetDescrCnvSvc" ]
 # Specify primary Identifier dictionary to be used
 DetDescrCnvSvc.IdDictName = "IdDictParser/ATLAS_IDS.xml";
 
+# Specify whether CSC/sTgc/MM muon chambers are part of the detector
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+DetDescrCnvSvc.HasCSC = MuonGeometryFlags.hasCSC()
+DetDescrCnvSvc.HasSTgc = (CommonGeometryFlags.Run()=="RUN3")
+DetDescrCnvSvc.HasMM = (CommonGeometryFlags.Run()=="RUN3")

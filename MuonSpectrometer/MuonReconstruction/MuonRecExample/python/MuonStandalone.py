@@ -8,6 +8,8 @@ __doc__ = """Configuration of Muon Spectrometer Standalone muon reconstruction""
 #
 #==============================================================
 from AthenaCommon import CfgMgr
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 from MuonStandaloneFlags import muonStandaloneFlags,MoorelikeStrategy
 from MuonRecFlags import muonRecFlags
@@ -85,7 +87,8 @@ class MuonStandalone(ConfiguredMuonRec):
         if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
             SegmentLocation = "ThirdChainSegments"
 
-        if muonRecFlags.doNSWNewThirdChain():
+        # we assume that RUN3 means that at least one sTgc and one MM chamber are present
+        if (CommonGeometryFlags.Run()=="RUN3"):
             getPublicTool("MuonLayerHoughTool")
             self.addAlg( CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg", PrintSummary = muonStandaloneFlags.printSummary()  ) )
             if not muonStandaloneFlags.patternsOnly():
@@ -100,7 +103,8 @@ class MuonStandalone(ConfiguredMuonRec):
                                                                     MuonPatternSegmentMaker = getPublicTool("MuonPatternSegmentMaker"),
                                                                     MuonTruthSummaryTool = None,
                                                                     PrintSummary = muonStandaloneFlags.printSummary() )
-                if( muonRecFlags.doCSCs() ):
+                # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
+                if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs():
                     getPublicTool("CscSegmentUtilTool")
                     getPublicTool("Csc2dSegmentMaker")
                     getPublicTool("Csc4dSegmentMaker")

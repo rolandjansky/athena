@@ -14,7 +14,8 @@ Objects: Object: template four momentum object holding pt, eta, phi, m for defin
 
 	 Patch: Tower "patch" required for PUfit algorithm. A simpler implementation of Block/TowerGrid for quick use. Called a tower in PUfit algorithm, but renaming as Patch to avoid confusion
  */
-
+#ifndef TRIGT1CALOFEXSIM_OBJECTS_H
+#define TRIGT1CALOFEXSIM_OBJECTS_H
 #include "Math/Vector4D.h"
 #include "TVector2.h"
 #include "math.h"
@@ -45,8 +46,10 @@ namespace TowerObject{
     void phi(float phi) {this->SetPhi(phi);};
     float m() const {return this->M();};
     void m(float m) {this->SetM(m);};
+
     float area() const {return this->M();};
     void area(float a) {m_area = a;};
+
     
     // comparison operators for easy sorting                                                                                    
     friend bool operator <  (const Object &o1, const Object &o2){ return o1.pt() <  o2.pt(); };
@@ -76,6 +79,9 @@ namespace TowerObject{
     int m_numPhi;
     int m_numConstituents = 0;
     
+    float m_sumDeta;
+    float m_sumDphi;
+
   public:
     //Block: Object(){};
   Block(float pt, float eta, float phi, float m): Object(pt, eta, phi, m){};
@@ -90,6 +96,10 @@ namespace TowerObject{
     void numPhi(int n) {m_numPhi = n;};
      int numConstituents() const {return m_numConstituents;};
     void numConstituents(int n) {m_numConstituents = n;};
+    void sumDeta(float sumDeta) {m_sumDeta = sumDeta;};
+    float sumDeta() const {return m_sumDeta;};
+    void sumDphi(float sumDphi) {m_sumDphi = sumDphi;};
+    float sumDphi() const {return m_sumDphi;};
   };
   
   class TowerGrid{
@@ -257,3 +267,5 @@ namespace TowerObject{
     };
   }; 
 }
+
+#endif

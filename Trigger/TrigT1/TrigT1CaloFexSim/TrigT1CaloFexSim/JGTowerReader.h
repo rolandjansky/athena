@@ -28,6 +28,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TrigT1CaloFexSim/Objects.h"
 #include "TrigT1CaloFexSim/JetAlg.h"
 #include "TrigT1CaloFexSim/METAlg.h"
 #include "TrigT1CaloFexSim/JGTower.h"
@@ -37,7 +38,6 @@ class JGTowerReader: public ::AthAlgorithm {
  public: 
   JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~JGTowerReader(); 
-  virtual StatusCode  MET_etaBins(const xAOD::JGTowerContainer* gTs, TString metName, bool usegFEX, bool useRhoSub, bool useJwoJ, bool usePUfit);
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
@@ -45,6 +45,7 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode  ProcessObjects();
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, Double_t xbin_down, Double_t xbin_up, float xvalue, float wei);
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, const Double_t* xbins, float xvalue,float wei);
+  static StatusCode BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, const bool useNegTowers);
  private: 
   bool m_vetoBCID;
   bool m_outputNoise;

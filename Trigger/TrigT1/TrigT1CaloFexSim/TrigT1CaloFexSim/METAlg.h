@@ -30,7 +30,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "TH1.h"
 #include "TH2.h"
-
+#include "Objects.h"
 
 class METAlg{
 
@@ -65,7 +65,7 @@ class METAlg{
   /**
    *@brief Calculates MET with Jets without Jets
    */
-  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, TString metname, float pTcone_cut, bool useEtaBins, bool useRho, bool useNegTowers);
+  static StatusCode JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metname, float pTcone_cut, bool useEtaBins, bool useRho, bool useNegTowers);
   /**
    *@brief Calculates MET using PUfit
    */
