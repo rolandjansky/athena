@@ -123,8 +123,8 @@ StatusCode TrigBjetBtagHypoAlgMT::retrieveBtagging( const EventContext& context,
 }
 
 
-StatusCode TrigBjetBtagHypoAlgMT::attachLinkToDecisions( const EventContext& context,
-							 const TrigCompositeUtils::DecisionContainer* previousDecisions,
-							 std::vector< TrigCompositeUtils::Decision* >& outputDecisions ) const {
+StatusCode TrigBjetBtagHypoAlgMT::attachLinkToDecisions( const EventContext& /*context*/,
+							 const TrigCompositeUtils::DecisionContainer* /*previousDecisions*/,
+							 std::vector< TrigCompositeUtils::Decision* >& /*outputDecisions*/ ) const {
   return StatusCode::SUCCESS;
 }
