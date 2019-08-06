@@ -8,24 +8,13 @@
 
 
 #include "LArByteStream/LArRodBlockStructure.h"
-//#include "LArByteStream/LArRodBlockPhysicsV0.h"
-//#include "LArByteStream/LArRodBlockPhysicsV1.h"
-//#include "LArByteStream/LArRodBlockPhysicsV2.h"
-//#include "LArByteStream/LArRodBlockPhysicsV3.h"
-//#include "LArByteStream/LArRodBlockPhysicsV4.h"
 #include "LArByteStream/LArRodBlockPhysicsV5.h"
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
 
 
 LArRawChannelBSReadAlg::LArRawChannelBSReadAlg(const std::string& name, ISvcLocator* pSvcLocator) :  
-  AthReentrantAlgorithm(name, pSvcLocator) {
-  //Fill vector of LAr ROB ids:
-  for (uint32_t i=0x41;i<=0x48;++i) {
-    //Fixme these are only subdetector ids.
-    m_larROBIds.push_back(i);
-  }
+  AthReentrantAlgorithm(name, pSvcLocator) {}
 
-}
   
 
 StatusCode LArRawChannelBSReadAlg::initialize() {
@@ -44,16 +33,6 @@ StatusCode LArRawChannelBSReadAlg::execute(const EventContext& ctx) const {
   //Write output via write handle
   SG::WriteHandle<LArRawChannelContainer>outputContainer(m_rawChannelKey,ctx);
   ATH_CHECK(outputContainer.record(std::make_unique<LArRawChannelContainer>()));
-
- 
-  //std::vector<const IROBDataProviderSvc::ROBF*> robFrags;
-  //m_robDataProviderSvc->getROBData(ctx,m_larROBIds,robFrags);
-  //if (robFrags.size()==0) {
-  //  ATH_MSG_DEBUG("No LAr data found in this event. Recording empty LArRawChannelContainer");
-  //  return StatusCode::SUCCESS;
-  //} 
-  //for (const IROBDataProviderSvc::ROBF* rob : robFrags) {
-
 
   const RawEvent* fullEvent=m_robDataProviderSvc->getEvent(ctx);
   std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> > rawEventTOC;

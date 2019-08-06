@@ -39,9 +39,6 @@ class LArRawChannelBSReadAlg : public  AthReentrantAlgorithm {
   
   //Identifier helper
   const LArOnlineID* m_onlineId;
-
-  std::vector<uint32_t> m_larROBIds;
-
 };
 
 #endif
