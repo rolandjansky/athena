@@ -2,7 +2,7 @@
 
 """Define method to construct configured Tile hits to TTL1 algorithm"""
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg, TileHitOutputCfg
 
 def TileHitToTTL1Cfg(flags, **kwargs):
     """Return component accumulator with configured Tile hits to TTL1 algorithm
@@ -14,7 +14,7 @@ def TileHitToTTL1Cfg(flags, **kwargs):
     kwargs.setdefault('name', 'TileHitToTTL1')
     kwargs.setdefault('TileHitContainer', 'TileHitCnt')
 
-    acc = ComponentAccumulator()
+    acc = TileHitVecToCntCfg(flags)
 
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     acc.merge( TileInfoLoaderCfg(flags) )
@@ -64,6 +64,30 @@ def TileHitToTTL1CosmicsCfg(flags, **kwargs):
     return TileHitToTTL1Cfg(flags, **kwargs)
 
 
+def TileHitToTTL1OutputCfg(flags, **kwargs):    
+    """Return component accumulator with configured Tile hits to TTL1 algorithm and Output Stream
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+    """
+    acc = TileHitToTTL1Cfg(flags, **kwargs)
+    acc.merge(TileHitOutputCfg(flags))
+
+    return acc
+
+
+def TileHitToTTL1CosmicsOutputCfg(flags, **kwargs):
+    """Return component accumulator with configured Tile hits to TTL1 algorithm for cosmics and Output Stream
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+    """
+    acc = TileHitToTTL1CosmicsCfg(flags, **kwargs)
+    acc.merge(TileHitOutputCfg(flags))
+
+    return acc
+
+
 if __name__ == "__main__":
 
     from AthenaCommon.Configurable import Configurable
@@ -83,11 +107,22 @@ if __name__ == "__main__":
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
-    acc = ComponentAccumulator()
+    # Construct our accumulator to run
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+    acc = MainServicesThreadedCfg(ConfigFlags)
 
-    acc.merge( TileHitToTTL1Cfg(ConfigFlags) )
-    acc.merge( TileHitToTTL1CosmicsCfg(ConfigFlags) )
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    acc.merge(PoolReadCfg(ConfigFlags))
+
+    acc.merge( TileHitToTTL1OutputCfg(ConfigFlags) )
+    acc.merge( TileHitToTTL1CosmicsOutputCfg(ConfigFlags))
     ConfigFlags.dump()
 
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileHitToTTL1.pkl','w') )
+
+    sc = acc.run(maxEvents=3)
+    # Success should be 0
+    import sys
+    sys.exit(not sc.isSuccess())
+

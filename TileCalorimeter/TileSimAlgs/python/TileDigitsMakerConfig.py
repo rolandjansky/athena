@@ -2,7 +2,7 @@
 
 """Define method to construct configured Tile digits maker algorithm"""
 
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg, TileHitOutputCfg
 
 def TileDigitsMakerCfg(flags, **kwargs):
     """Return component accumulator with configured Tile digits maker algorithm
@@ -22,7 +22,7 @@ def TileDigitsMakerCfg(flags, **kwargs):
     kwargs.setdefault('MaskBadChannels', False)
     kwargs.setdefault('RndmEvtOverlay', flags.Detector.OverlayTile)
 
-    acc = ComponentAccumulator()
+    acc = TileHitVecToCntCfg(flags)
 
     from TileConditions.TileInfoLoaderConfig import TileInfoLoaderCfg
     infoLoaderAcc = TileInfoLoaderCfg(flags)
@@ -106,6 +106,23 @@ def TileDigitsMakerCfg(flags, **kwargs):
 
     return acc
 
+def TileDigitsMakerOutputCfg(flags, **kwargs):
+    """Return component accumulator with configured Tile digits maker algorithm and Output Stream
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+    Keyword arguments:
+        name -- name of TileDigitsMaker algorithm. Defaults to TileDigitsMaker.
+        UseCoolPulseShapes -- flag to use pulse shape from database. Defaults to True.
+        RndmEvtOverlay -- flag to add PileUp or noise by overlaying random events.
+                          Defaults to Detector.OverlayTile flag.
+        MaskBadChannels -- flag to mask channels tagged bad. Defaults to False.
+    """
+
+    acc = TileDigitsMakerCfg(flags, **kwargs)
+    acc.merge(TileHitOutputCfg(flags))
+
+    return acc
 
 
 if __name__ == "__main__":
@@ -128,9 +145,20 @@ if __name__ == "__main__":
     ConfigFlags.lock()
     ConfigFlags.dump()
 
-    acc = ComponentAccumulator()
+    # Construct our accumulator to run
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg
+    acc = MainServicesThreadedCfg(ConfigFlags)
 
-    print( acc.popToolsAndMerge( TileDigitsMakerCfg(ConfigFlags) ) )
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    acc.merge(PoolReadCfg(ConfigFlags))
+
+    print( acc.popToolsAndMerge( TileDigitsMakerOutputCfg(ConfigFlags) ) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileDigitsMaker.pkl','w') )
+
+    sc = acc.run(maxEvents=3)
+    # Success should be 0
+    import sys
+    sys.exit(not sc.isSuccess())
+
