@@ -13,7 +13,6 @@
 #include "AsgTools/IAsgTool.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "AsgMessaging/AsgMessaging.h"
 #include "AsgTools/ToolStore.h"
 
 // The following is only needed for standalone usage. In Athena the

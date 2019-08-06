@@ -5,7 +5,6 @@
    <class name="asg::IAsgTool" />
    <class name="asg::AsgTool" />
    <class name="asg::AsgMetadataTool" />
-   <class name="asg::AsgMessaging" />
 
    <!-- Helper types: -->
    <class name="asg::ToolStore" />
