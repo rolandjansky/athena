@@ -78,8 +78,8 @@ EXOT27ExtraVariables = defaultdict(set)
 # their own way of doing this so anything EXOT27Jets is treated differently)
 EXOT27SmartContainers = [
   "Electrons", "Photons", "AntiKt4EMTopoJets", "TauJets", "Muons",
-  "PrimaryVertices", "BTagging_AntiKt4EMTopo", "MET_Reference_AntiKt4EMTopo",
-  "AntiKt4EMPFlowJets", "MET_Reference_AntiKt4EMPFlow",
+    "PrimaryVertices", "AntiKt4EMTopoJets_BTagging201810", "BTagging_AntiKt4EMTopo_201810", "MET_Reference_AntiKt4EMTopo",
+    "AntiKt4EMPFlowJets", "AntiKt4EMPFlowJets_BTagging201810", "MET_Reference_AntiKt4EMPFlow",
   "AntiKt2LCTopoJets","InDetTrackParticles"
   ]
 EXOT27AllVariables = [
@@ -87,7 +87,7 @@ EXOT27AllVariables = [
 # Note which small-r jets are used in this list, will be useful later (doing it
 # here as it is close to the EXOT27SmartContainers declaration which is what
 # ensures that they will be added to the output).
-OutputSmallRJets = ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets"]
+OutputSmallRJets = ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets","AntiKt4EMPFlowJets_BTagging201903","AntiKt4EMPFlowJets_BTagging201810"]
 
 
 if DerivationFrameworkIsMonteCarlo:
@@ -228,7 +228,8 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Schedule for output
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02Track")
 outputContainer("BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag")
-outputContainer("BTagging_AntiKt4EMPFlow")
+outputContainer("BTagging_AntiKt4EMPFlow_201810")
+outputContainer("BTagging_AntiKt4EMPFlow_201903")
 
 # Add in Xbb tagging variables
 HbbCommon.addRecommendedXbbTaggers(EXOT27Seq, ToolSvc, logger=logger)
