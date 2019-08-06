@@ -10,7 +10,7 @@ import time
 import logging
 import os
 
-# escape sequence [?1034h which aprear on several runs due to smm capability (Meta Mode On) for xterm. 
+# escape sequence [?1034h which appear on several runs due to smm capability (Meta Mode On) for xterm.
 if 'TERM' in os.environ:
 	del os.environ['TERM']
 
@@ -158,7 +158,6 @@ def _main():
 	startTime = time.time()
 	msg.info('Imported headers in: {0} miliseconds'.format((time.time() - startTime) * 1e3))
 	msg.info('The output file is: {0}'.format(output))
-
 	metadata = read_metadata(filenames, file_type, mode= mode, meta_key_filter= meta_key_filter, promote=args.promote)
 
 	if output is None:
