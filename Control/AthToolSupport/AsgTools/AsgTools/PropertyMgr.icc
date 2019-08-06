@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: PropertyMgr.icc 689119 2015-08-13 12:38:32Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_PROPERTYMGR_ICC
 #define ASGTOOLS_PROPERTYMGR_ICC
 

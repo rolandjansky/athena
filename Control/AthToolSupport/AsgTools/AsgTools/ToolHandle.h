@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandle.h 804869 2017-05-15 20:14:34Z krumnack $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_TOOLHANDLE_H
 #define ASGTOOLS_TOOLHANDLE_H
 

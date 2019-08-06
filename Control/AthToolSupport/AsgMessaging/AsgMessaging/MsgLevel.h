@@ -1,12 +1,14 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: MsgLevel.h 690850 2015-08-24 08:29:10Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 /// @file AsgMessaging/MsgLevel.h
 /// @author David Adams <dladams@bnl.gov>
 /// @brief Definition of message levels and a helper function
 ///
 /// $Revision: 690850 $
 /// $Date: 2015-08-24 10:29:10 +0200 (Mon, 24 Aug 2015) $
-///
+
 #ifndef ASGMESSAGING_MSGLEVEL_H
 #define ASGMESSAGING_MSGLEVEL_H
 

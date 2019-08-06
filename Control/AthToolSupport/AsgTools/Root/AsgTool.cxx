@@ -1,4 +1,6 @@
-// $Id: AsgTool.cxx 745115 2016-05-05 15:59:29Z ssnyder $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // System include(s):
 #include <iostream>

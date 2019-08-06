@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: PropertyMgr.h 615760 2014-09-09 12:50:01Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_PROPERTYMGR_H
 #define ASGTOOLS_PROPERTYMGR_H
 

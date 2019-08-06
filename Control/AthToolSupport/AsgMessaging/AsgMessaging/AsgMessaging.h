@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: AsgMessaging.h 615778 2014-09-09 14:27:03Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGMESSAGING_ASGMESSAGING_H
 #define ASGMESSAGING_ASGMESSAGING_H
 

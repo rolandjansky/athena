@@ -1,4 +1,6 @@
-// $Id: MsgStream.cxx 803209 2017-04-19 21:18:32Z krumnack $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // System include(s):
 #include <string>

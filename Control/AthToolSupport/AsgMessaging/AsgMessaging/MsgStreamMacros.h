@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: MsgStreamMacros.h 613600 2014-08-27 08:39:48Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGMESSAGING_MSGSTREAMMACROS_H
 #define ASGMESSAGING_MSGSTREAMMACROS_H
 

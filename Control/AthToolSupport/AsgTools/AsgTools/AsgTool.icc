@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: AsgTool.icc 613791 2014-08-28 09:56:34Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_ASGTOOL_ICC
 #define ASGTOOLS_ASGTOOL_ICC
 

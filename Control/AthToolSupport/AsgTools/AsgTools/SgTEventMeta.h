@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: SgTEventMeta.h 611829 2014-08-14 13:53:41Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_SGTEVENTMETA_H
 #define ASGTOOLS_SGTEVENTMETA_H
 
