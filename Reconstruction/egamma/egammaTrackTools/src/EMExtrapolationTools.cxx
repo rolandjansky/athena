@@ -96,8 +96,6 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
    * 1) from the last measurement  track parameters (this is always the case for TRT standalone)  
    * 2) from the perigee track parameters
    * 3) from the perigee with the track momentum rescaled by the cluster energy
-   *
-   * But in principle the possible workFlows are quite constrained 
    */
   ATH_MSG_DEBUG("getMatchAtCalo");
   if(deltaEta.size() < 4  || deltaPhi.size()<4 || eta.size()<4 || phi.size()<4 ){
@@ -105,20 +103,23 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
     return StatusCode::SUCCESS;
   }
   bool didExtension=false;
+  CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
   /* 
    * Rescaled Perigee is "easy"
    * It will never have a cache
    */ 
   double atPerigeePhi(-999);
   double PerigeeTrkParPhi(-999); 
-  CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
-  
   if(fromPerigeeRescaled == extrapFrom){
     std::unique_ptr<const Trk::TrackParameters> trkPar = getRescaledPerigee(trkPB, cluster);    
     if(!trkPar){
       ATH_MSG_ERROR("getMatchAtCalo: Cannot access track parameters"); 
       return StatusCode::FAILURE; 
     }  
+    Amg::Vector3D atPerigee(trkPar->position().x(), trkPar->position().y(), trkPar->position().z()); 
+    atPerigeePhi=atPerigee.phi(); ;
+    PerigeeTrkParPhi=trkPar->momentum().phi();
+    
     std::unique_ptr<Trk::CaloExtension> extension = m_perigeeParticleCaloExtensionTool->caloExtension( *trkPar, 
                                                                                                        direction, 
                                                                                                        Trk::muon);
@@ -200,29 +201,28 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
                  <<" Track Fitter " << trkPB->trackFitter() );
     return StatusCode::FAILURE; 
   }
-  // Should we flip the sign for deltaPhi? 
-  bool flipSign = false; 
-  if(trkPB->charge() > 0) {
-    flipSign = true; 
-  }
+  // Negative tracks bend to the positive direction.
+  // flip sign for positive ones
+  const bool flipSign = trkPB->charge() > 0 ? true :false; 
+
   for( const auto& p : intersections ){    
     int  i(0); 
-    auto sample = std::get<0>(p);
+    CaloSampling::CaloSample sample = std::get<0>(p);
     if (sample == CaloSampling::PreSamplerE || sample == CaloSampling::PreSamplerB  ){
       i = 0;
-    } else if (  sample == CaloSampling::EME1 || sample == CaloSampling::EMB1 ){
+    } else if (sample == CaloSampling::EME1 || sample == CaloSampling::EMB1 ){
       i = 1;
-    } else if ( sample == CaloSampling::EME2 || sample == CaloSampling::EMB2 ){
+    } else if (sample == CaloSampling::EME2 || sample == CaloSampling::EMB2 ){
       i = 2;
-    } else if (  sample == CaloSampling::EME3 || sample == CaloSampling::EMB3) {
+    } else if (sample == CaloSampling::EME3 || sample == CaloSampling::EMB3) {
       i = 3;
     } else {
       continue;
     }
     eta[i]      = std::get<1>(p); 
     phi[i]      = std::get<2>(p); 
-    deltaEta[i] = cluster->etaBE(i) - std::get<1>(p); 
-    deltaPhi[i] = P4Helpers::deltaPhi(cluster->phiBE(i),std::get<2>(p)); 
+    deltaEta[i] = cluster->etaSample(sample) - std::get<1>(p); 
+    deltaPhi[i] = P4Helpers::deltaPhi(cluster->phiSample(sample),std::get<2>(p)); 
     // Should we flip the sign for deltaPhi? 
     if(flipSign)  {
       deltaPhi[i] = -deltaPhi[i];
@@ -237,7 +237,7 @@ EMExtrapolationTools::getMatchAtCalo (const EventContext&           ctx,
          * ((phi of point at sampling 2 - phi of point at track vertex/perigee) - 
          * phi of direction of track at perigee) 
          */  
-        double perToSamp2 = std::get<2>(p)  - atPerigeePhi; 
+        const double perToSamp2 = std::get<2>(p)  - atPerigeePhi; 
         deltaPhi[4] = fabs(P4Helpers::deltaPhi(perToSamp2, PerigeeTrkParPhi)); 
         ATH_MSG_DEBUG("getMatchAtCalo: phi-rot: " << deltaPhi[4]); 
       }
@@ -421,7 +421,6 @@ Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vert
   }
   return momentum;	
 }
-
 /* 
  * Create Rescaled Perigee Parametrs
  */
@@ -451,33 +450,26 @@ EMExtrapolationTools::getRescaledPerigee(const xAOD::TrackParticle* trkPB, const
                                                                                               theta,
                                                                                               qoverp));
 }
-
 /*
- * Helper to get the Eta/Phi per Layer
+ * Helper to get the Eta/Phi intersections per Layer
  */
 CaloExtensionHelpers::EtaPhiPerLayerVector 
-EMExtrapolationTools::getIntersections (const Trk::CaloExtension& extension,const xAOD::CaloCluster* cluster) const
+EMExtrapolationTools::getIntersections (const Trk::CaloExtension& extension,
+                                        const xAOD::CaloCluster* cluster) const
 {
   //Layers to calculate intersections
-  CaloExtensionHelpers::LayersToSelect layersToSelect;  
-  if ( xAOD::EgammaHelpers::isBarrel( cluster )  ) {
-    // Barrel
-    layersToSelect.insert(CaloSampling::PreSamplerB );  
-    layersToSelect.insert(CaloSampling::EMB1 );  
-    layersToSelect.insert(CaloSampling::EMB2 );  
-    layersToSelect.insert(CaloSampling::EMB3 );  
-  } else {
-    // Endcap
-    layersToSelect.insert(CaloSampling::PreSamplerE );  
-    layersToSelect.insert(CaloSampling::EME1 );  
-    layersToSelect.insert(CaloSampling::EME2 );  
-    layersToSelect.insert(CaloSampling::EME3 );        
-  }
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
-  CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &layersToSelect );
+  if ( xAOD::EgammaHelpers::isBarrel( cluster )  ) {
+    CaloExtensionHelpers::LayersToSelect barrelLayers={CaloSampling::PreSamplerB, 
+    CaloSampling::EMB1, CaloSampling::EMB2, CaloSampling::EMB3};
+    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &barrelLayers );
+  } else {
+    CaloExtensionHelpers::LayersToSelect endCapLayers={CaloSampling::PreSamplerE, 
+    CaloSampling::EME1, CaloSampling::EME2, CaloSampling::EME3};
+    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &endCapLayers );
+  }
   return intersections;
 }
-
 /*
  * Helper to identify the TRT section
  */
