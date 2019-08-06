@@ -243,16 +243,16 @@ void PerfMonMTSvc::report2Stdout() {
 }
 
 void PerfMonMTSvc::report2Stdout_Description() const {
-
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc                                  PerfMonMTSvc Report                                   " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc *** Important information is presented below ******************************************" << std::endl;
-  std::cout << "PerfMonMTSvc *** Full output is inside: PerfMonMTSvc_result.json ***********************************" << std::endl;
-  std::cout << "PerfMonMTSvc *** In order to make plots out of results run the following commands:" << std::endl;
-  std::cout << "PerfMonMTSvc *** $ get_files PerfMonMTSvc_plotter.py" << std::endl;
-  std::cout << "PerfMonMTSvc *** $ python PerfMonMTSvc_plotter PerfMonMTSvc_result.json" << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+ 
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("                                 PerfMonMTSvc Report                                   ");
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("*** Important information is presented below ******************************************");
+  ATH_MSG_INFO("*** Full output is inside: PerfMonMTSvc_result.json ***********************************");
+  ATH_MSG_INFO("*** In order to make plots out of results run the following commands:");
+  ATH_MSG_INFO("*** $ get_files PerfMonMTSvc_plotter.py");
+  ATH_MSG_INFO("*** $ python PerfMonMTSvc_plotter PerfMonMTSvc_result.json");
+  ATH_MSG_INFO("=======================================================================================");
 
 }
 
@@ -260,11 +260,11 @@ void PerfMonMTSvc::report2Stdout_Description() const {
 void PerfMonMTSvc::report2Stdout_Serial() { 
 
   using boost::format;
-  
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc                           Serial Component Level Monitoring                            " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc Step             CPU Time [ms]       Wall Time [ms]      Component" << std::endl;
+
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("                          Serial Component Level Monitoring                            ");
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("Step             CPU Time [ms]       Wall Time [ms]      Component");
 
   divideData2Steps_serial(); 
   for(auto vec_itr : m_stdoutVec_serial){
@@ -279,20 +279,22 @@ void PerfMonMTSvc::report2Stdout_Serial() {
     }
     ); 
     for(auto it : pairs){
-      
-      std::cout <<  format("PerfMonMTSvc %|5t|%1% %|30t|%2% %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second->m_delta_cpu % it.second->m_delta_wall % it.first.compName;
+
+      ATH_MSG_INFO(format("%1% %|17t|%2% %|37t|%3% %|57t|%4%") % it.first.stepName % it.second->m_delta_cpu % it.second->m_delta_wall % it.first.compName);      
+
     }
-    std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+    ATH_MSG_INFO("=======================================================================================");
+
   }
   
 }
 void PerfMonMTSvc::report2Stdout_Parallel() {
 
   using boost::format;
-
-  std::cout << "PerfMonMTSvc                           Aggregated Event Loop Monitoring                             " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc Step             CPU Time [ms]       Wall Time [ms]      Component" << std::endl;
+ 
+  ATH_MSG_INFO("                          Aggregated Event Loop Monitoring                             ");
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("Step             CPU Time [ms]       Wall Time [ms]      Component");
 
   parallelDataAggregator();
   divideData2Steps_parallel(); 
@@ -308,10 +310,11 @@ void PerfMonMTSvc::report2Stdout_Parallel() {
     }
     );
     for(auto it : pairs){
-      
-      std::cout << format("PerfMonMTSvc %|5t|%1%  %|30t|%2$.2f  %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second.cpu_time % it.second.wall_time % it.first.compName;
+
+      ATH_MSG_INFO(format("%1%  %|17t|%2$.2f  %|37t|%3% %|57t|%4% ") % it.first.stepName % it.second.cpu_time % it.second.wall_time % it.first.compName);    
     }
-    std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+    ATH_MSG_INFO("=======================================================================================");
+
   }
  
   /* Old Format
@@ -328,47 +331,44 @@ void PerfMonMTSvc::report2Stdout_Parallel() {
 void PerfMonMTSvc::report2Stdout_Summary() const {
 
   using boost::format;
-
-  std::cout << "PerfMonMTSvc                               PerfMonMT Results Summary                                " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-
-
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total CPU time in the Initialization is:" % m_snapshotData[0].m_delta_cpu % "ms";
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total Wall time in the Initialization is:" % m_snapshotData[0].m_delta_wall % "ms";
-
-  std::cout << "PerfMonMTSvc\n"; 
-
-
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total CPU time in the Event Loop is:" % m_snapshotData[1].m_delta_cpu % "ms";
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total Wall time in the Event Loop is:" % m_snapshotData[1].m_delta_wall % "ms";
-
-  std::cout << "PerfMonMTSvc\n";
-
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total CPU time in the Finalize is:" % m_snapshotData[2].m_delta_cpu % "ms";
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total Wall time in the Finalize is:" % m_snapshotData[2].m_delta_wall % "ms";
  
-  std::cout << "PerfMonMTSvc\n";
-  
+  ATH_MSG_INFO("                              PerfMonMT Results Summary                                ");
+  ATH_MSG_INFO("=======================================================================================");
 
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% \n") % "Number of Events processed:" %  m_eventIds.size();
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2$.2f ms \n") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size());
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% \n") % "Events per second:" %  (m_eventIds.size() / m_snapshotData[1].m_delta_wall  );
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Initialization is:" % m_snapshotData[0].m_delta_cpu % "ms");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Initialization is:" % m_snapshotData[0].m_delta_wall % "ms");
 
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Event Loop is:" % m_snapshotData[1].m_delta_cpu % "ms");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Event Loop is:" % m_snapshotData[1].m_delta_wall % "ms");
+
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Finalize is:" % m_snapshotData[2].m_delta_cpu % "ms");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Finalize is:" % m_snapshotData[2].m_delta_wall % "ms");
+
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Number of Events processed:" %  m_eventIds.size());
+  ATH_MSG_INFO(format( "%1% %|55t|%2$.2f ms ") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size()));
+  ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Events per second:" %  (m_eventIds.size() / m_snapshotData[1].m_delta_wall  ));
+
+  ATH_MSG_INFO("=======================================================================================");
 
 }
 
 void PerfMonMTSvc::report2Stdout_CpuInfo() const {
 
   using boost::format;
-  std::cout << "PerfMonMTSvc                                   System Information                                   " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
 
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|59t|%2% \n") % "CPU Model:" % get_cpu_model_info();  
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% \n") % "Number of Logical Cores:" % get_cpu_core_info();
+  ATH_MSG_INFO("                                  System Information                                   ");
+  ATH_MSG_INFO("=======================================================================================");
 
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+  ATH_MSG_INFO(format( "%1% %|54t|%2% ") % "CPU Model:" % get_cpu_model_info());
+  ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Number of Logical Cores:" % get_cpu_core_info());
 
+  ATH_MSG_INFO("=======================================================================================");
 }
 
 
