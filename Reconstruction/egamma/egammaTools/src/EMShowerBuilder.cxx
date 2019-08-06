@@ -221,12 +221,6 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::Cal
     if (m_HadronicLeakageTool.empty()) {
         return StatusCode::SUCCESS;
     }
-
-    // define a new Calo Cell list corresponding to EM Calo
-    // retrieve the corresponding CaloCell_ID
-    CaloCell_ID::SUBCALO theCalo = CaloCell_ID::LAREM; 
-    CaloCellList* EMccl = new CaloCellList(cellcoll,theCalo); 
-
     // define a new Calo Cell list corresponding to HAD Calo
     // retrieve the corresponding CaloCell_ID for LarHec
     CaloCell_ID::SUBCALO theCalo1 = CaloCell_ID::LARHEC;
@@ -244,7 +238,6 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::Cal
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("call to Iso returns failure for execute");
         // delete ccls
-        delete EMccl;
         delete HADccl;
         return sc;
     }
@@ -260,11 +253,9 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::Cal
     value=static_cast<float>(info.ehad1);
     eg->setShowerShapeValue(value, xAOD::EgammaParameters::ehad1);
     // delete ccls
-    delete EMccl;
     delete HADccl;
     return StatusCode::SUCCESS;
 }
-
 
 // ==========================================================================
 StatusCode EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg, const IegammaShowerShape::Info& info) const { 
