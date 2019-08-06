@@ -20,10 +20,6 @@ endif()
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC ${deps} )
 
-# External dependencies:
-find_package( Boost COMPONENTS regex )
-find_package( ROOT COMPONENTS Core )
-
 # Decide which sources to use:
 if( XAOD_STANDALONE )
    set( sources Root/*.cxx )
@@ -36,9 +32,9 @@ endif()
 atlas_add_library( AsgTools
    AsgTools/*.h AsgTools/*.icc ${sources}
    PUBLIC_HEADERS AsgTools
-   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS
    LINK_LIBRARIES ${libs}
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} )
+   PRIVATE_LINK_LIBRARIES )
 
 # Select which xml files to use for dictionary generation
 

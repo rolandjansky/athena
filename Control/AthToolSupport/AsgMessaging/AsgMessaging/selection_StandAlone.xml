@@ -2,5 +2,10 @@
 
    <!-- Primitive types: -->
    <class name="StatusCode" />
+   <class name="MSG::DummyStruct" />
+   <enum name="MSG::Level" />
+   <function name="MSG::name" />
+   <class name="MsgStream" />
+   <class name="INamedInterface" />
 
 </lcgdict>
