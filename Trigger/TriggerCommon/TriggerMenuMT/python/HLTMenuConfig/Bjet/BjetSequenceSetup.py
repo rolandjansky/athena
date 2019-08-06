@@ -51,15 +51,6 @@ def bJetStep1Sequence():
             viewAlg.RoIs = RoIs
         if "roiCollectionName" in viewAlg.properties():
             viewAlg.roiCollectionName = RoIs
-        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-            TrackCollection = viewAlg.TrackName
-
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
-    theFTF_Jet = TrigFastTrackFinder_Jet()
-    theFTF_Jet.isRoI_Seeded = True
-    theFTF_Jet.RoIs = RoIs
-    theFTF_Jet.TracksName=TrackCollection
-    viewAlgs.append( theFTF_Jet )
 
     # Primary Vertex 
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet
@@ -122,15 +113,6 @@ def bJetStep1SequenceALLTE():
             viewAlg.RoIs = RoIs
         if "roiCollectionName" in viewAlg.properties():
             viewAlg.roiCollectionName = RoIs
-        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
-            TrackCollection = viewAlg.TrackName
-
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet    
-    theFTF_Jet = TrigFastTrackFinder_Jet()
-    theFTF_Jet.isRoI_Seeded = True
-    theFTF_Jet.RoIs = RoIs
-    theFTF_Jet.TracksName=TrackCollection
-    viewAlgs.append( theFTF_Jet )
 
     # Primary Vertex 
     from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEMTConfig import EFHistoPrmVtxAllTEMT_Jet

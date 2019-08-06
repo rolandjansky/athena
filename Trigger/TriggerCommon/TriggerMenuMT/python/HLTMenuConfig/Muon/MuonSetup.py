@@ -370,12 +370,6 @@ def muonIDFastTrackingSequence( RoIs ):
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   (viewAlgs, eventAlgs) = makeInDetAlgs("Muon")
 
-
-  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
-  theFTF_Muon = TrigFastTrackFinder_Muon()
-  theFTF_Muon.isRoI_Seeded = True
-  viewAlgs.append(theFTF_Muon)
-
   ### A simple algorithm to confirm that data has been inherited from parent view ###
   ### Required to satisfy data dependencies                                       ###
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
@@ -392,11 +386,10 @@ def muonIDFastTrackingSequence( RoIs ):
           viewAlg.roiCollectionName = RoIs
       if "InDetTrigTrackParticleCreatorAlg" in  viewAlg.name():
           TrackParticlesName = viewAlg.TrackParticlesName
-          TrackCollection = viewAlg.TrackName
+      if "TrigFastTrackFinder" in  viewAlg.name():
+          theFTF_name = viewAlg.getName()
 
-  theFTF_Muon.TracksName=TrackCollection
-
-  return muonIDFastTrackingSequence, eventAlgs, TrackParticlesName, theFTF_Muon.getName()
+  return muonIDFastTrackingSequence, eventAlgs, TrackParticlesName, theFTF_name
 
 def muCombRecoSequence( RoIs ):
 
@@ -619,11 +612,6 @@ def muEFCBRecoSequence( RoIs, name ):
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
     (viewAlgs, eventAlgs) = makeInDetAlgs("MuonFS") 
 
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MuonFS
-    theFTF_Muon = TrigFastTrackFinder_MuonFS()
-    theFTF_Muon.isRoI_Seeded = True
-    viewAlgs.append(theFTF_Muon)
-
      #TrackParticlesName = ""
     for viewAlg in viewAlgs:
       muEFCBRecoSequence += viewAlg
@@ -635,7 +623,6 @@ def muEFCBRecoSequence( RoIs, name ):
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
         TrackCollection = viewAlg.TrackName
 
-    theFTF_Muon.TracksName=TrackCollection
   else:
     TrackCollection="TrigFastTrackFinder_Tracks_Muon" # this is hacking, please FIX IT
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("muonCBIDViewDataVerifier")
@@ -857,11 +844,6 @@ def efmuisoRecoSequence( RoIs, Muons ):
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   (viewAlgs, eventAlgs) = makeInDetAlgs("MuonIso")
 
-  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_MuonIso
-  theFTF_Muon = TrigFastTrackFinder_MuonIso()
-  theFTF_Muon.isRoI_Seeded = True
-  viewAlgs.append(theFTF_Muon)
-
   #TrackParticlesName = ""
   for viewAlg in viewAlgs:
     efmuisoRecoSequence += viewAlg
@@ -873,8 +855,6 @@ def efmuisoRecoSequence( RoIs, Muons ):
         TrackParticlesName = viewAlg.TrackParticlesName  # noqa: F841
         TrackCollection = viewAlg.TrackName
 
-  theFTF_Muon.TracksName=TrackCollection
-  
   #Precision Tracking
   PTAlgs = [] #List of precision tracking algs
   PTTracks = [] #List of TrackCollectionKeys
