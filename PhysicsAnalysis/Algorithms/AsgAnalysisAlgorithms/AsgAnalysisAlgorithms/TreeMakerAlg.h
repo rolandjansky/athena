@@ -34,14 +34,8 @@ namespace CP {
       /// @name Functions inherited from @c EL::AnaAlgorithm
       /// @{
 
-      /// Function executed as part of the job initialisation
-      StatusCode initialize() override;
-
       /// Function executed once per event
       StatusCode execute() override;
-
-      /// Function executed as part of the job finalisation
-      StatusCode finalize() override;
 
       /// @}
 
@@ -56,6 +50,14 @@ namespace CP {
       std::string m_treeName;
       /// Flust setting for the output tree
       int m_treeAutoFlush;
+
+      /// @}
+
+      /// @name Helper variables
+      /// @{
+
+      /// Configured tree status
+      bool m_treeConfigured{false};
 
       /// @}
 

@@ -321,14 +321,6 @@ namespace CP {
          return StatusCode::FAILURE;
       }
 
-      // Create the output tree.
-      m_tree = tree( m_treeName );
-      if( ! m_tree ) {
-         ATH_MSG_ERROR( "Could not find output tree \"" << m_treeName
-                        << "\"" );
-         return StatusCode::FAILURE;
-      }
-
       // Set up the systematics list.
       ATH_CHECK( m_systematicsList.initialize() );
 
@@ -343,6 +335,13 @@ namespace CP {
 
       // Initialise the processor objects on the first event.
       if( ! m_isInitialized ) {
+         // Initialise the output tree.
+         m_tree = tree( m_treeName );
+         if( ! m_tree ) {
+            ATH_MSG_ERROR( "Could not find output tree \"" << m_treeName
+                           << "\"" );
+            return StatusCode::FAILURE;
+         }
          // Call the setup function.
          ATH_CHECK( setupTree() );
          // The processor objects are now set up.
