@@ -41,35 +41,36 @@ public:
       return IID_TrigMatchTool;
    }
 
-   virtual StatusCode initialize();
+   virtual StatusCode initialize() override;
 
 private:
    // for printing warnings
-   virtual void warning( const std::string& w ) {
+   virtual void warning( const std::string& w ) override {
       ATH_MSG_ERROR( w );
       return;
    }
 
    // status functions for determining what information we have
    // access to
-   virtual bool changedDecisionAware() const { return true; };
+   virtual bool changedDecisionAware() const override { return true; };
 
    // handle incidents (end event, begin event, etc.)
-   virtual void handle( const Incident& inc );
+   virtual void handle( const Incident& inc ) override;
 
    // grab the configured chain names via the trig decision tool
-   virtual void assertConfiguredChainNames();
+   virtual std::vector<std::string> getConfiguredChainNames() const override;
 
    // grab the feature containers from the navigation
    // via the trig decision tool
    virtual Trig::FeatureContainer
-   getFeatureContainer( const std::string &chainName, const int condition ) const {
+   getFeatureContainer( const std::string &chainName, const int condition ) const override {
       return m_trigDecisionTool->features( chainName, condition );
    }
 
    // use the tdt to get access the the name of the chain that
    // seeded the current chain
-   std::string lowerChainName( const std::string& chainName );
+   virtual
+   std::string lowerChainName( const std::string& chainName ) override;
     
    // note that we access the trig decision tool normally
    // in athena
