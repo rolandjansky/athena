@@ -25,21 +25,23 @@
 #ifndef JETREC_JETCALOQUALITYTOOL_H
 #define JETREC_JETCALOQUALITYTOOL_H
 
-#include "JetRec/JetModifierBase.h"
-
+#include "AsgTools/AsgTool.h"
+#include "JetInterface/IJetDecorator.h"
 #include "JetUtils/JetCaloCalculations.h"
+#include "StoreGate/WriteDecorHandleKey.h"
 
 #include <vector>
 #include <string>
 
 
-class JetCaloQualityTool: public JetModifierBase {
+class JetCaloQualityTool: public asg::AsgTool,
+                          virtual public IJetDecorator {
   ASG_TOOL_CLASS0(JetCaloQualityTool)
   
 public:
   JetCaloQualityTool(const std::string & name);
 
-  virtual int modifyJet(xAOD::Jet& ) const ;
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const ;
   
   virtual StatusCode initialize();
 
@@ -56,7 +58,12 @@ public:
   // internal pointer to m_jetCalculations (this pointer is also used in the cell-based derived tool)
   jet::JetCaloCalculations * m_calcProcessor;
 
-  
+  /// SG key for the jet container this tool will decorate.
+  std::string m_jetContainerName;
+
+  // internal vector to manage WriteDecorHandleKeys
+  std::vector<SG::WriteDecorHandleKey> m_writeDecorKeys;
+
   bool m_doFracSamplingMax; // internal			     
 };
 #endif 
