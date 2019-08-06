@@ -13,6 +13,7 @@ from __future__ import print_function
 
 from AthenaCommon.DetFlags      import DetFlags
 DetFlags.detdescr.ID_setOn()
+DetFlags.detdescr.TRT_setOff()
 
 RunNumber = 284500
 
