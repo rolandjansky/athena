@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FullModelHadronicProcess.hh"
@@ -10,17 +10,6 @@
 #include "G4HadReentrentException.hh"
 #include "CustomPDGParser.h"
 #include "CustomParticle.h"
-
-
-// Macro to help with overzealous compiler warnings
-#ifdef UNUSED
-#elif defined(__GNUC__)
-# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
-#elif defined(__LCLINT__)
-# define UNUSED(x) /*@unused@*/ x
-#else
-# define UNUSED(x) x
-#endif
 
 
 FullModelHadronicProcess::FullModelHadronicProcess(const G4String& processName) :
@@ -41,7 +30,7 @@ G4bool FullModelHadronicProcess::IsApplicable(const G4ParticleDefinition& aP)
 
 G4double FullModelHadronicProcess::GetMicroscopicCrossSection(const G4DynamicParticle *aParticle,
                                                               const G4Element *anElement,
-                                                              G4double UNUSED(aTemp))
+                                                              G4double /*aTemp*/)
 {
   // Get the cross section for this particle/element combination from the ProcessHelper
   G4double InclXsec = m_theHelper->GetInclusiveCrossSection(aParticle,anElement);
@@ -88,7 +77,7 @@ G4double FullModelHadronicProcess::GetMeanFreePath(const G4Track& aTrack, G4doub
 
 
 G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
-                                                          const G4Step&  UNUSED(aStep))
+                                                          const G4Step&  /*aStep*/)
 {
   // A little setting up
   aParticleChange.Initialize(aTrack);
