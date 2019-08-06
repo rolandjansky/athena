@@ -13,17 +13,9 @@ endif()
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC ${deps} )
 
-# External dependencies:
-find_package( Boost COMPONENTS regex )
-find_package( ROOT COMPONENTS Core )
-
 # Decide which sources to use:
 if( XAOD_STANDALONE )
-   atlas_add_root_dictionary( AsgMessagingLib AsgMessagingCintDict
-          ROOT_HEADERS  AsgMessaging/MsgLevel.h  AsgMessaging/MsgStream.h
-          AsgMessaging/INamedInterface.h Root/LinkDef.h
-          EXTERNAL_PACKAGES ROOT )
-   set( sources Root/*.cxx  ${AsgMessagingCintDict} )
+   set( sources Root/*.cxx )
 else()
    set( sources Root/MsgLevel.cxx
       Root/AsgMessaging.cxx Root/AsgMessagingForward.cxx
@@ -34,9 +26,7 @@ endif()
 atlas_add_library( AsgMessagingLib
    AsgMessaging/*.h AsgMessaging/*.icc ${sources}
    PUBLIC_HEADERS AsgMessaging
-   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${libs}
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} )
+   LINK_LIBRARIES ${libs} )
 
 # Select which xml files to use for dictionary generation
 
