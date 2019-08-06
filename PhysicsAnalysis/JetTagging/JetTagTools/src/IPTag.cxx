@@ -759,11 +759,10 @@ namespace Analysis {
           slices.push_back(slice1);
         }
       }
-      m_likelihoodTool->setLhVariableValue(slices);
       std::vector<double> lkl;
       lkl.reserve(3);
       if(vectD0Signi.size()>0) {
-        lkl = m_likelihoodTool->calculateLikelihood();
+        lkl = m_likelihoodTool->calculateLikelihood(slices);
       } else {
         lkl.push_back(1.);
         lkl.push_back(1.e9);
@@ -854,8 +853,6 @@ namespace Analysis {
 
     IPTracks.clear();
     
-    m_likelihoodTool->clear();
-
     m_tracksInJet.clear();
 
     return StatusCode::SUCCESS;
@@ -901,9 +898,7 @@ namespace Analysis {
       slice1.composites.push_back(compo1);
       slices.push_back(slice1);
     }
-    m_likelihoodTool->setLhVariableValue(slices);
-    std::vector<double> tmp = m_likelihoodTool->calculateLikelihood();
-    m_likelihoodTool->clear();
+    std::vector<double> tmp = m_likelihoodTool->calculateLikelihood(slices);
     twb = tmp[0];
     twu = tmp[1];
     twc = 0.;
