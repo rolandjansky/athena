@@ -110,7 +110,7 @@ StatusCode TrigT1CaloBaseFex::getContainers(CaloCellContainer*& scells, const xA
 	return StatusCode::SUCCESS;
 }
 
-StatusCode TrigT1CaloBaseFex::getContainersAndID(CaloCellContainer*& scells, const TileID*& m_tileIDHelper, const CaloCellContainer*& tileCellCon){
+StatusCode TrigT1CaloBaseFex::getContainersTileCal(CaloCellContainer*& scells, const TileID*& m_tileIDHelper, const CaloCellContainer*& tileCellCon){
 	MsgStream msg(msgSvc(), name());
         const CaloCellContainer* scells_from_sg;
 	if ( evtStore()->retrieve(scells_from_sg, m_inputCellsName).isFailure() ){
@@ -1712,7 +1712,6 @@ std::vector<double> TrigT1CaloBaseFex::EnergyPerTileLayer(std::vector<CaloCell*>
 	for (auto ithSC : inputSCVector){
 	  float ithSCEta = ithSC->eta();
 	  float ithSCPhi = ithSC->phi();
-	  std::cout << "Input SC (eta,phi) = (" << ithSCEta << "," << ithSCPhi << ") \n";  
 	  int matchingCells = 0;
 	  CaloCellContainer::const_iterator fCell = CellCon->beginConstCalo(CaloCell_ID::TILE);
 	  CaloCellContainer::const_iterator lCell = CellCon->endConstCalo(CaloCell_ID::TILE);
@@ -1769,9 +1768,6 @@ std::vector<double> TrigT1CaloBaseFex::EnergyPerTileLayer(std::vector<CaloCell*>
 		    layerEnergy.clear();
 		    return layerEnergy;
 	  }
-	  for (auto cell : tileCellVector){
-		      std::cout << "Tile cell: (eta,phi) = (" << cell->eta() << "," << cell->phi() << ")" << " dR = " << dR(cell->eta(), cell->phi(), ithSCEta, ithSCPhi) << " layer = " << tileIDHelper->sample(cell->ID()) << std::endl;
-		    }
 	}
 	layerEnergy = {ELayer0, ELayer1, ELayer2};
 	return layerEnergy;
@@ -1789,14 +1785,10 @@ double TrigT1CaloBaseFex::RHadTile(CaloCell* centreCell, int etaWidth, int phiWi
 		const int barrel_ec = idHelper->pos_neg(centreCell->ID());
 		bool isOW = false;
 		if (fabs(barrel_ec) == 2) isOW = true;
-		if (isOW) std::cout << "For cell eta = " << centreCell->eta() << " pos_neg = " << barrel_ec << std::endl;
 		std::vector<double> energyPerLayer = EnergyPerTileLayer(L2Cells, tileCellCon, m_tileIDHelper, isOW, tileNoiseThresh);
 		if (energyPerLayer.size() > 0){
-		        int count = 0;
 			for (auto ithLayerEnergy : energyPerLayer){
-			  std::cout << "layer " << count << " energy: " << ithLayerEnergy << std::endl;
 			  HadET += ithLayerEnergy;
-			  count++;
 			}
 		}
 	}

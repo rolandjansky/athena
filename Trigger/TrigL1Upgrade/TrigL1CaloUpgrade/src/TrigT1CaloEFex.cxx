@@ -67,7 +67,6 @@ StatusCode TrigT1CaloEFex::initialize(){
 		m_PhiSElectron = new TH1F("PhiSElectron","Phi of Super Cell based Electron",64,-3.2,3.2);
 		m_EtSElectronEta = new TH2F("EtSElectronEta","Et of Super Cell based Electron versus Eta",50,-5.0,5.0,60,0,60);
 		m_HadEtSElectronEta = new TH2F("HadEtSElectronEta","HadEt of Super Cell based Electron versus Eta",50,-5.0,5.0,60,0,60);
-		m_HadronicIsolation = new TH1F("hadronicIso","",50, 0 , 1);
 	}
 	return StatusCode::SUCCESS;
 }
@@ -96,7 +95,7 @@ StatusCode TrigT1CaloEFex::execute(){
 		}
 	}
 	else {
-		if ( getContainersAndID(scells, m_tileIDHelper, tileCellCon).isFailure() ){
+		if ( getContainersTileCal(scells, m_tileIDHelper, tileCellCon).isFailure() ){
 			msg << MSG::WARNING << "Could not get containers and/or Tile ID" << endreq;
 			return StatusCode::FAILURE;
 		}
@@ -133,7 +132,6 @@ StatusCode TrigT1CaloEFex::execute(){
 				  m_HadEtSElectron->Fill( ithCluster[6] );
 				  m_HadEtSElectronEta->Fill( ithCluster[0], ithCluster[6] );
 			  }
-			  m_HadronicIsolation->Fill(ithCluster[4]);
 		  }
 		  xAOD::TrigEMCluster* cl = new xAOD::TrigEMCluster();
 		  clusters->push_back( cl );

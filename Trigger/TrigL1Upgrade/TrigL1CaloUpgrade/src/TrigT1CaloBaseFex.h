@@ -50,7 +50,7 @@ public :
 protected :
 	/** method to get the containers */
 	StatusCode getContainers(CaloCellContainer*& scells, const xAOD::TriggerTowerContainer*& TTs);
-	StatusCode getContainersAndID(CaloCellContainer*& scells, const TileID*& m_tileIDHelper, const CaloCellContainer*& tileCellCon);
+	StatusCode getContainersTileCal(CaloCellContainer*& scells, const TileID*& m_tileIDHelper, const CaloCellContainer*& tileCellCon);
 	StatusCode getContainers(CaloCellContainer*& scells, const xAOD::TriggerTowerContainer*& TTs, float etThresholdGeV);
 	StatusCode getContainers(const xAOD::TruthParticleContainer*& truthContainer);
 	/** create all supercells list**/
