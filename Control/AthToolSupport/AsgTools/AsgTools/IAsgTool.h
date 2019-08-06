@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: IAsgTool.h 804869 2017-05-15 20:14:34Z krumnack $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_IASGTOOL_H
 #define ASGTOOLS_IASGTOOL_H
 

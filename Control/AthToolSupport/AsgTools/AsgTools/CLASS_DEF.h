@@ -1,4 +1,6 @@
-// CLASS_DEF.h
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // David Adams
 // January 2014

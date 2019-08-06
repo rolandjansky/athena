@@ -1,6 +1,7 @@
-/// Dear emacs, this is -*- c++ -*-
-/// $Id: LinkDef.h 804869 2017-05-15 20:14:34Z krumnack $
-///
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 /// @file LinkDef.h
 /// @brief CINT dictionary description for standalone compilation
 ///

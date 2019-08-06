@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: StatusCode.h 612639 2014-08-20 12:26:10Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGMESSAGING_STATUSCODE_H
 #define ASGMESSAGING_STATUSCODE_H
 

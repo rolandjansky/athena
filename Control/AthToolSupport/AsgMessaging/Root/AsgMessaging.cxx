@@ -1,4 +1,6 @@
-// $Id: AsgMessaging.cxx 784571 2016-11-16 14:27:23Z will $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // Local include(s):
 #include "AsgMessaging/AsgMessaging.h"
