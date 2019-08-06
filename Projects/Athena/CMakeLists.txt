@@ -53,6 +53,7 @@ find_package( Gaudi REQUIRED )
 find_package( Doxygen )
 find_package( PNG )
 find_package( VDT )
+find_package( TIFF )
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
