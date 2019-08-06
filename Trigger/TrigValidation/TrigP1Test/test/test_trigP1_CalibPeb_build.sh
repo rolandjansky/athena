@@ -6,7 +6,7 @@
 
 export NAME=CalibPeb
 # use export ART_FILE_NAME=... to set the INPUT_FILE value 
-export ART_CMD="athenaHLT.py -n 50 -f INPUT_FILE --ros2rob /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/ATLASros2rob2018-r22format.py TrigExPartialEB/MTCalibPeb.py"
+export ART_CMD="athenaHLT.py -n 50 -f INPUT_FILE TrigExPartialEB/MTCalibPeb.py"
 export ART_TIMEOUT="20m"
 
 exec_art_trigp1test.sh
