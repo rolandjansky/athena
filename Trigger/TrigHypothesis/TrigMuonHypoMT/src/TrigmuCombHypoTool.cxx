@@ -212,14 +212,9 @@ StatusCode TrigmuCombHypoTool::decide(std::vector<TrigmuCombHypoTool::CombinedMu
       ATH_MSG_DEBUG("Applying selection of single << " << m_decisionId );
       return inclusiveSelection(toolInput); 
    } else {			// in case of HLT_2mu6 and so on.
-      if ( numTrigger > numMuon ) {	// If RoIs have numTrigger > numMuon(E.g RoI has 2 muons in 3mu6 chain), multipul selection wouldn't run.
-         ATH_MSG_DEBUG("Number of muon event = " << numMuon );
-         ATH_MSG_DEBUG("Not applying selection " << m_decisionId << " because of " << numMuon << " muon" );
-      } else {			// IF RoIs have some muon, multipul selection would run.
-         ATH_MSG_DEBUG("Number of muon event = " << numMuon );
-         ATH_MSG_DEBUG("Applying selection of multiplicity << " << m_decisionId );
-         return multiplicitySelection(toolInput);
-      }
+     ATH_MSG_DEBUG("Number of muon event = " << numMuon );
+     ATH_MSG_DEBUG("Applying selection of multiplicity << " << m_decisionId );
+     return multiplicitySelection(toolInput);
    }
  
    return StatusCode::SUCCESS;
@@ -248,7 +243,7 @@ StatusCode TrigmuCombHypoTool::inclusiveSelection(std::vector<TrigmuCombHypoTool
 
 StatusCode TrigmuCombHypoTool::multiplicitySelection(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input) const
 {
-   HLT::Index2DVec passingSelection( input.size() );
+   HLT::Index2DVec passingSelection( m_ptBins.size() );
 
    for ( size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex ) {
       size_t elementIndex{ 0 };      

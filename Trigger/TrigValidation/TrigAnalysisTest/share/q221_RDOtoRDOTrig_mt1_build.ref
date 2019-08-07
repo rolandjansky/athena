@@ -4,8 +4,8 @@ TrigSignatureMoniMT                                INFO HLT_2mu14_L12MU10       
 TrigSignatureMoniMT                                INFO HLT_2mu14_L12MU10 decisions                       12        4         4         4         0
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6           4         4         4         3         0         0         0         3
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6 decisions                     16        12        0         0         0
-TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6               4         4         4         3         2         2         0         2
-TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6 decisions                         16        12        8         8         0
+TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6               4         4         4         3         3         3         0         3
+TrigSignatureMoniMT                                INFO HLT_2mu6_L12MU6 decisions                         16        12        18        18        0
 TrigSignatureMoniMT                                INFO HLT_3j200_L1J100              4         4         0         0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_3j200_L1J100 decisions                        0         0         0         0         0
 TrigSignatureMoniMT                                INFO HLT_3j200_L1J20               19        19        0         0         0         0         0         0
