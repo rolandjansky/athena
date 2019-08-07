@@ -9,11 +9,14 @@ from MDT_Digitization.MDT_DigitizationConf import (
     MdtDigitizationTool, MDT_Response_DigiTool, RT_Relation_DB_DigiTool, MDT_Digitizer
 )
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from MuonByteStreamCnvTest.MuonByteStreamCnvTestConfigNew import MdtDigitToMdtRDOCfg, MdtOverlayDigitToMdtRDOCfg
+from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the MdtDigitizationTool.
 def MDT_FirstXing():
     return -800
+
 
 def MDT_LastXing():
     # was 800 for large time window
@@ -27,15 +30,18 @@ def MDT_RangeToolCfg(flags, name="MDT_Range", **kwargs):
     kwargs.setdefault("ItemList", ["MDTSimHitCollection#MDT_Hits"])
     return PileUpXingFolder(name, **kwargs)
 
+
 def RT_Relation_DB_DigiToolCfg(flags, name="RT_Relation_DB_DigiTool", **kwargs):
     """Return an RT_Relation_DB_DigiTool"""
     return RT_Relation_DB_DigiTool(name, **kwargs)
+
 
 def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     """Return a configured MDT_Response_DigiTool"""
     QballConfig = (flags.Digitization.SpecialConfiguration.get("MDT_QballConfig") == "True")
     kwargs.setdefault("DoQballGamma", QballConfig)
     return MDT_Response_DigiTool(name, **kwargs)
+
 
 def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
     """Return ComponentAccumulator with configured MdtDigitizationTool"""
@@ -60,6 +66,7 @@ def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
     acc.setPrivateTools(MdtDigitizationTool(name, **kwargs))
     return acc
 
+
 def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**kwargs):
     """Return ComponentAccumulator with MdtDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
@@ -79,6 +86,7 @@ def MDT_DigitizerBasicCfg(toolCfg, flags, name, **kwargs):
     acc.addEventAlgo(MDT_Digitizer(name, **kwargs))
     return acc
 
+
 def MDT_DigitizerOutputCfg(toolCfg, flags, name, **kwargs):
     """Return ComponentAccumulator with toolCfg configured MDT Digitizer algorithm and OutputStream"""
     acc = MDT_DigitizerBasicCfg(toolCfg, flags, name, **kwargs)
@@ -90,7 +98,23 @@ def MDT_DigitizerCfg(flags, name="MDT_Digitizer", **kwargs):
     """Return ComponentAccumulator with configured MDT_Digitizer algorithm and Output"""
     return MDT_DigitizerOutputCfg(MDT_DigitizationToolCfg, flags, name, **kwargs)
 
+
 def MDT_DigitizerOverlayCfg(flags, name="MDT_OverlayDigitizer", **kwargs):
     """Return ComponentAccumulator with Overlay configured MDT_Digitizer algorithm and Output"""
     return MDT_DigitizerOutputCfg(MDT_OverlayDigitizationToolCfg, flags, name, **kwargs)
 
+
+def MDT_DigitizerDigitToRDOCfg(flags):
+    """Return ComponentAccumulator with MDT Digitization and Digit to MDTCSM RDO"""
+    acc = MDT_DigitizerCfg(flags)
+    acc.merge(MDTCablingConfigCfg(flags))
+    acc.merge(MdtDigitToMdtRDOCfg(flags))
+    return acc
+
+
+def MDT_DigitizerOverlayDigitToRDOCfg(flags):
+    """Return ComponentAccumulator with MDT Digitization and Digit to MDTCSM RDO for Overlay"""
+    acc = MDT_DigitizerOverlayCfg(flags)
+    acc.merge(MDTCablingConfigCfg(flags))
+    acc.merge(MdtOverlayDigitToMdtRDOCfg(flags))
+    return acc

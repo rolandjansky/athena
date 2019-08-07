@@ -10,11 +10,14 @@ from CSC_Digitization.CSC_DigitizationConf import (
     CscDigitizationTool, CscDigitBuilder,
 )
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from MuonByteStreamCnvTest.MuonByteStreamCnvTestConfigNew import CscDigitToCscRDOCfg, CscOverlayDigitToCscRDOCfg
+from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the CscDigitizationTool.
 def CSC_FirstXing():
     return -375
+
 
 def CSC_LastXing():
     return 175
@@ -26,6 +29,7 @@ def CSC_RangeToolCfg(flags, name="CSC_Range", **kwargs):
     kwargs.setdefault("CacheRefreshFrequency", 1.0)
     kwargs.setdefault("ItemList", ["CSCSimHitCollection#CSC_Hits"])
     return PileUpXingFolder(name, **kwargs)
+
 
 def CSC_DigitizationToolCfg(flags, name="CSC_DigitizationTool", **kwargs):
     """Return a ComponentAccumulator with configured CscDigitizationTool"""
@@ -50,6 +54,7 @@ def CSC_DigitizationToolCfg(flags, name="CSC_DigitizationTool", **kwargs):
     acc.setPrivateTools(CscDigitizationTool(name, **kwargs))
     return acc
 
+
 def CSC_OverlayDigitizationToolCfg(flags, name="CSC_OverlayDigitizationTool",**kwargs):
     """Return a ComponentAccumulator with CscDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
@@ -70,6 +75,7 @@ def CSC_DigitBuilderBasicCfg(toolCfg, flags, name, **kwargs):
     acc.addEventAlgo(CscDigitBuilder(name, **kwargs))
     return acc
 
+
 def CSC_DigitBuilderOutputCfg(toolCfg, flags, name, **kwargs):
     """Return ComponentAccumulator with toolCfg configured CscDigitBuilder algorithm and OutputStream"""
     acc = CSC_DigitBuilderBasicCfg(toolCfg, flags, name, **kwargs)
@@ -81,7 +87,24 @@ def CSC_DigitBuilderCfg(flags, name="CSC_DigitBuilder", **kwargs):
     """Return ComponentAccumulator with configured CSC_Digitizer algorithm and Output"""
     return CSC_DigitBuilderOutputCfg(CSC_DigitizationToolCfg, flags, name, **kwargs)
 
+
 def CSC_DigitBuilderOverlayCfg(flags, name="CSC_OverlayDigitBuilder", **kwargs):
     """Return DigitBuilderOutputCfg with Overlay configured CSC_Digitizer algorithm and Output"""
     return CSC_DigitBuilderBasicCfg(CSC_OverlayDigitizationToolCfg, flags, name, **kwargs)
+
+
+def CSC_DigitBuilderDigitToRDOCfg(flags):
+    """Return ComponentAccumulator with CSC Digitization and Digit to CSCRDO"""
+    acc = CSC_DigitBuilderCfg(flags)
+    acc.merge(CSCCablingConfigCfg(flags))
+    acc.merge(CscDigitToCscRDOCfg(flags))
+    return acc
+
+
+def CSC_DigitBuilderOverlayDigitToRDOCfg(flags):
+    """Return ComponentAccumulator with CSC Digitization and Digit to CSCRDO for Overlay"""
+    acc = CSC_DigitBuilderOverlayCfg(flags)
+    acc.merge(CSCCablingConfigCfg(flags))
+    acc.merge(CscOverlayDigitToCscRDOCfg(flags))
+    return acc
 
