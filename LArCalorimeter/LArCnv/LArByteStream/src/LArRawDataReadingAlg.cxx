@@ -90,7 +90,7 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
     ATH_MSG_VERBOSE("Decoding ROB fragment 0x" << std::hex << rob.rob_source_id () << " with " << std::dec << rob.rod_fragment_size_word() << "ROB words");
 
     if (rob.rod_fragment_size_word() <3) {
-      ATH_MSG_ERROR("Encountered corrupt ROB fragment, less than 3 words!");
+      ATH_MSG_ERROR("Encountered corrupt ROD fragment, less than 3 words!");
       if (m_failOnCorruption) {
 	return StatusCode::FAILURE;
       }else 
@@ -149,9 +149,11 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
     do {
       HWIdentifier fId(Identifier32(rodBlock->getFEBID()));
       if (!m_onlineId->isValidId(fId)) {
-	ATH_MSG_WARNING("Invalid FEB identifer 0x" << std::hex << fId.get_identifier32().get_compact() 
-			<< ". Skipping");
-	continue;
+	ATH_MSG_ERROR("Invalid FEB identifer 0x" << std::hex << fId.get_identifier32().get_compact()); 
+	if (m_failOnCorruption) 
+	  return StatusCode::FAILURE;
+	else
+	  continue;
       }
       const int NthisFebChannel=m_onlineId->channelInSlotMax(fId);
 
