@@ -380,6 +380,7 @@ public:
       TrigMatchToolCore *m_matchTool;
    }; // class FeatureLabelHolder
 
+
 protected:
    void setTDT( Trig::TrigDecisionToolCore* tdt ) {
       m_trigDecisionToolCore = tdt;
@@ -388,22 +389,14 @@ protected:
    // called on end event if we're able to get access to such information
    virtual void endEvent();
 
-   void buildL1L2Map();
-
-   // cache the map from l1 items to the combined l2
-   // string for access in the tdt
-   std::map< std::string, std::string > m_l1l2Map;
-
 
    // Clear saved chain name -> index mapping and rebuild from current
    // configuration.
    void clearChainIndex();
 
-  
-
 
 private:
-   // Associate from chain name to integer index.
+   // Associate from chain name to integer index, and l1l2map.
    // Methods of this class are thread-safe.
    class ChainNameIndex
    {
@@ -413,6 +406,7 @@ private:
      std::vector<std::string> configuredChainNames();
      std::string chainName (size_t index);
      void clear();
+     std::string propagateChainNames (const std::string& chainName);
     
 
    private:
@@ -435,12 +429,15 @@ private:
      // Map from chain names to indices.
      typedef std::unordered_map<std::string, size_t> chainIndexMap_t ;
      chainIndexMap_t m_chainIndexMap;
+
+     // cache the map from l1 items to the combined l2
+     // string for access in the tdt
+     std::map< std::string, std::string > m_l1l2Map;
    };
-
-
    mutable ChainNameIndex m_chainNameIndex ATLAS_THREAD_SAFE;
 
-   // function for printing warnings - note that this depends on whether
+
+  // function for printing warnings - note that this depends on whether
    // you are in ARA or not
    virtual void warning( const std::string& w ) = 0;
 
@@ -466,15 +463,17 @@ private:
    // determine how to propagate L1 chain names to L2 chain names
    template< typename trait >
    std::string propagateChainNames( const std::string& chainName,
-                                    const trait* ) {
+                                    const trait* ) const
+   {
       return chainName;
    }
    std::string propagateChainNames( const std::string& chainName,
-                                    const TrigMatch::AncestorAttached* ) {
+                                    const TrigMatch::AncestorAttached* ) const
+   {
       return this->propagateChainNames( chainName );
    }
-   virtual std::string propagateChainNames( const std::string& chainName );
-   virtual std::string lowerChainName( const std::string& chainName ) = 0;
+   virtual std::string propagateChainNames( const std::string& chainName ) const;
+   virtual std::string lowerChainName( const std::string& chainName ) const = 0;
 
    // fills objects with the trigger objects from the chain name
    // with only passed features as desired.  Queries cache first
