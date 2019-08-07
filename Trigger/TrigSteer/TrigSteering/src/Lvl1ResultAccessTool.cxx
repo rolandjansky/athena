@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -51,7 +51,7 @@ using namespace TrigConf;
 
 Lvl1ResultAccessTool::Lvl1ResultAccessTool(const std::string& name, const std::string& type,
                                            const IInterface* parent) :
-   AthAlgTool(name, type, parent),
+   base_class(name, type, parent),
    m_jepDecoder { new LVL1::JEPRoIDecoder() },
    m_cpDecoder { new LVL1::CPRoIDecoder() },  
    m_lvl1ConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name)
@@ -60,7 +60,6 @@ Lvl1ResultAccessTool::Lvl1ResultAccessTool(const std::string& name, const std::s
    declareProperty( "ignorePrescales", m_ignorePrescales=false, "Allows to set prescales but ignore them");
    declareProperty( "muonCommissioningStep", m_muonCommissioningStep=0, "Set thresholods creation policty. 0 means default, i.e. thresholds fully inclusive");
 
-   declareInterface<HLT::ILvl1ResultAccessTool>( this );
 }
 
 Lvl1ResultAccessTool::~Lvl1ResultAccessTool() {
@@ -500,7 +499,7 @@ StatusCode Lvl1ResultAccessTool::updateResult(const LVL1CTP::Lvl1Result& result)
 // check for calo calibration bits  
 // get the calibration triggers, 253, 254 and 255 ie, bits 
 // 29, 30 and 31 from word 7				  
-bool Lvl1ResultAccessTool::isCalibrationEvent(const ROIB::RoIBResult& result) {
+bool Lvl1ResultAccessTool::isCalibrationEvent(const ROIB::RoIBResult& result) const {
 
    ///return false; // in the RUN 2 menu there is currently no such restriction and all kinds of items are on these ctp IDs
   int ctpVersion = result.cTPResult().header().formatVersion() & 0xf ;
@@ -528,10 +527,11 @@ bool getBit(const std::vector<ROIB::CTPRoI>& words, unsigned position) {
 // ==============================
 //       create LVL1 items
 // ==============================
-const std::vector< const LVL1CTP::Lvl1Item* >& Lvl1ResultAccessTool::createL1Items( const ROIB::RoIBResult& result,
-                                                                                    bool makeLvl1Result ) {
-
-  m_items.clear();
+std::vector< const LVL1CTP::Lvl1Item* >
+Lvl1ResultAccessTool::createL1Items( const ROIB::RoIBResult& result,
+                                     LVL1CTP::Lvl1Result const** lvl1ResultOut /*= nullptr*/) const
+{
+  std::vector< const LVL1CTP::Lvl1Item* > items;
   std::vector<ROIB::CTPRoI> bitsBP = result.cTPResult().TBP();
   std::vector<ROIB::CTPRoI> bitsAP = result.cTPResult().TAP();
   std::vector<ROIB::CTPRoI> bitsAV = result.cTPResult().TAV();
@@ -557,21 +557,21 @@ const std::vector< const LVL1CTP::Lvl1Item* >& Lvl1ResultAccessTool::createL1Ite
 			       getBit(bitsAP, i), 
 			       getBit(bitsAV, i), 
 			       item->prescaleFactor() );  
-    m_items.push_back(item);
+    items.push_back(item);
     ATH_MSG_DEBUG("Set bits on "<< item->name() <<" PS="<< item->prescaleFactor() <<"  BP=" <<getBit(bitsBP, i)<<" AP="<<getBit(bitsAP, i)<<" AV="<<getBit(bitsAV, i));
   }
 
 
 
   // Fill TBP, TAP in case we're creating the Lvl1Result
-  if (makeLvl1Result) {
-    m_lvl1Result = new LVL1CTP::Lvl1Result(true);
+  if (lvl1ResultOut) {
+    auto lvl1Result = std::make_unique<LVL1CTP::Lvl1Result>(true);
 
     // 1.) TAV
     const std::vector<ROIB::CTPRoI> ctpRoIVecAV = result.cTPResult().TAV();
     for (unsigned int iWord = 0; iWord < ctpRoIVecAV.size(); ++iWord) {
       uint32_t roIWord = ctpRoIVecAV[iWord].roIWord();
-      m_lvl1Result->itemsAfterVeto().push_back(roIWord);
+      lvl1Result->itemsAfterVeto().push_back(roIWord);
 
       ATH_MSG_DEBUG("TAV word #" << iWord << " is 0x" << hex << setw( 8 ) << setfill( '0' ) << roIWord << dec);
 
@@ -581,7 +581,7 @@ const std::vector< const LVL1CTP::Lvl1Item* >& Lvl1ResultAccessTool::createL1Ite
     const std::vector<ROIB::CTPRoI> ctpRoIVecBP = result.cTPResult().TBP();
     for (unsigned int iWord=0; iWord < ctpRoIVecBP.size(); ++iWord) {
       uint32_t roIWord = ctpRoIVecBP[iWord].roIWord();
-      m_lvl1Result->itemsBeforePrescale().push_back(roIWord);
+      lvl1Result->itemsBeforePrescale().push_back(roIWord);
 
       ATH_MSG_DEBUG( "TBP word #" << iWord << " is 0x" << hex
                      << setw( 8 ) << setfill( '0' ) << roIWord << dec);
@@ -592,21 +592,22 @@ const std::vector< const LVL1CTP::Lvl1Item* >& Lvl1ResultAccessTool::createL1Ite
     const std::vector<ROIB::CTPRoI> ctpRoIVecAP = result.cTPResult().TAP();
     for (unsigned int iWord=0; iWord < ctpRoIVecAP.size(); ++iWord) {
       uint32_t roIWord = ctpRoIVecAP[iWord].roIWord();
-      m_lvl1Result->itemsAfterPrescale().push_back(roIWord);
+      lvl1Result->itemsAfterPrescale().push_back(roIWord);
 
       ATH_MSG_DEBUG("TAP word #" << iWord << " is 0x" << hex << setw( 8 ) << setfill( '0' ) << roIWord << dec);
       
     }
     // make sure TBP, TAP, TAV all have 8 entries !
-    while (m_lvl1Result->itemsBeforePrescale().size() < 8) m_lvl1Result->itemsBeforePrescale().push_back(0);
-    while (m_lvl1Result->itemsAfterPrescale().size() < 8) m_lvl1Result->itemsAfterPrescale().push_back(0);
-    while (m_lvl1Result->itemsAfterVeto().size() < 8) m_lvl1Result->itemsAfterVeto().push_back(0);
-    evtStore()->record(m_lvl1Result, "Lvl1Result").ignore();
+    while (lvl1Result->itemsBeforePrescale().size() < 8) lvl1Result->itemsBeforePrescale().push_back(0);
+    while (lvl1Result->itemsAfterPrescale().size() < 8) lvl1Result->itemsAfterPrescale().push_back(0);
+    while (lvl1Result->itemsAfterVeto().size() < 8) lvl1Result->itemsAfterVeto().push_back(0);
+    *lvl1ResultOut = lvl1Result.get();
+    evtStore()->record(std::move(lvl1Result), "Lvl1Result").ignore();
 
   }
 
   
-  return m_items;
+  return items;
 }
 
 // ==============================
@@ -1075,14 +1076,3 @@ bool Lvl1ResultAccessTool::addMetThreshold( HLT::JetEnergyRoI & roi, const Confi
    return true;
 }
 
-StatusCode Lvl1ResultAccessTool::queryInterface( const InterfaceID& riid,
-						 void** ppvIf )
-{
-  if ( riid == ILvl1ResultAccessTool::interfaceID() )  {
-    *ppvIf = (ILvl1ResultAccessTool*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
-}

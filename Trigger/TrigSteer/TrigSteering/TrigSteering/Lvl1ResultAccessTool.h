@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -66,23 +66,19 @@ namespace HLT {
       Full description of the tool is given in Lvl1ResultAccessTool.
 
    */
-   static const InterfaceID IID_Lvl1ResultAccessTool("HLT::ILvl1ResultAccessTool", 1, 0);
-
    class ILvl1ResultAccessTool : public virtual IAlgTool
    {
    public:
+      DeclareInterfaceID (ILvl1ResultAccessTool, 1, 0);
 
       virtual const std::vector<LVL1CTP::Lvl1Item*>& getDecisionItems() = 0;
-      virtual const std::vector<const LVL1CTP::Lvl1Item*>& getItems() = 0;
 
       virtual const std::vector< MuonRoI >& getMuonRoIs() const = 0;
       virtual const std::vector< EMTauRoI >& getEMTauRoIs()  const = 0;
       virtual const std::vector< JetEnergyRoI >& getJetEnergyRoIs() const = 0;
 
-      virtual LVL1CTP::Lvl1Result* getLvl1Result() = 0;
-    
-      virtual bool isCalibrationEvent(const ROIB::RoIBResult& result) = 0;
-      virtual const std::vector< const LVL1CTP::Lvl1Item*>& createL1Items(const ROIB::RoIBResult& result, bool makeL1Result = false) = 0;
+      virtual bool isCalibrationEvent(const ROIB::RoIBResult& result) const = 0;
+      virtual std::vector< const LVL1CTP::Lvl1Item*> createL1Items(const ROIB::RoIBResult& result, LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) const = 0;
 
       virtual const std::vector< MuonRoI >&      createMuonThresholds(const ROIB::RoIBResult& result) = 0;
       virtual const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false) = 0;
@@ -100,8 +96,6 @@ namespace HLT {
                                       bool updateCaloRoIs = false) = 0;
 
       virtual StatusCode updateResult(const LVL1CTP::Lvl1Result& result) = 0;
-
-      static const InterfaceID& interfaceID() { return IID_Lvl1ResultAccessTool; }
    };
 
 
@@ -120,7 +114,7 @@ namespace HLT {
 
       For each new event, one has to explicitly tell @c to update the LVL1 result. This
       is done via the method updateResult(..). Afterwards, one can inspect the results
-      via several getter methods, as getItems() for the LVL1 items or getMuonRoIs() for
+      via several getter methods, as getMuonRoIs() for
       the LVL1 Muon-type RoIs. The returned objects are simple classes which are defined
       for easy usage. See the classes description for more details.
 
@@ -128,27 +122,25 @@ namespace HLT {
       @author Till Eifert     <Till.Eifert@cern.ch>
       @author Nicolas Berger  <Nicolas.Berger@cern.ch>
    */
-   class Lvl1ResultAccessTool : public AthAlgTool, public virtual ILvl1ResultAccessTool
+   class Lvl1ResultAccessTool : public extends<AthAlgTool, ILvl1ResultAccessTool>
    {
    public:
 
       Lvl1ResultAccessTool(const std::string& name, const std::string& type,
                            const IInterface* parent); //!< std Gaudi constructor
 
+      virtual
       ~Lvl1ResultAccessTool(); //!< destructor -> delete Jet converter object
 
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
 
       // Accessors to the unpacked information:
       //_______________________________________
 
       /** @brief Get LVL1 items  ... for TrigDecision
        */
-      const std::vector<LVL1CTP::Lvl1Item*>& getDecisionItems()  { return m_decisionItems; }
-
-      /** @brief Get all LVL1 items that fired in this event
-       */
-      const std::vector<const LVL1CTP::Lvl1Item*>& getItems()          { return m_items; }
+       virtual
+      const std::vector<LVL1CTP::Lvl1Item*>& getDecisionItems() override  { return m_decisionItems; }
 
 
       // LVL1 RoIs and thresholds:
@@ -156,15 +148,18 @@ namespace HLT {
 
       /** @brief get all LVL1 Muon-type RoI objects
        */
-      const std::vector< MuonRoI >&      getMuonRoIs()      const { return m_muonRoIs; }
+      virtual
+      const std::vector< MuonRoI >&      getMuonRoIs()      const override { return m_muonRoIs; }
 
       /** @brief get all LVL1 EMTau-type RoI objects
        */
-      const std::vector< EMTauRoI >&     getEMTauRoIs()     const { return m_emTauRoIs; }
+      virtual
+      const std::vector< EMTauRoI >&     getEMTauRoIs()     const override { return m_emTauRoIs; }
 
       /** @brief get all LVL1 JetEnergy-type RoI objects
        */
-      const std::vector< JetEnergyRoI >& getJetEnergyRoIs() const { return m_jetRoIs; }
+      virtual
+      const std::vector< JetEnergyRoI >& getJetEnergyRoIs() const override { return m_jetRoIs; }
 
 
       /** @brief Function to be called every time the trigger configuration changes,
@@ -173,80 +168,82 @@ namespace HLT {
        *  @param useL1Muon consider LVL1 Muon RoIs ?
        *  @param useL1JetEnergy consider LVL1 JetEnergy RoIs ?
        */
+       virtual
       StatusCode updateConfig(bool useL1Calo = true,
                               bool useL1Muon = true,
-                              bool useL1JetEnergy = true);
+                              bool useL1JetEnergy = true) override;
 
 
       /** @brief update the LVL1 items settings from the (LVL1) trigger configuration.
        *         This method is called from within updateConfig(..), the reason to have it
        *         separate is that TrigDecisionTool only needs the LVL1 items and not the RoIs.
        */
-      StatusCode updateItemsConfigOnly();
+      virtual
+      StatusCode updateItemsConfigOnly() override;
 
       /** @brief checks if we have calibration items fired in this event
        * @return true if calibration items are present in this event
        */
 
-      virtual bool isCalibrationEvent(const ROIB::RoIBResult& result);
+      virtual bool isCalibrationEvent(const ROIB::RoIBResult& result) const override;
 
 
       /** @brief Extract LVL1 items from given RoIBResult and cache them in internally.
        *  @param result reference to RoIBResult object, holding all LVL1 RoIs and items
-       *  @param makeLvl1Result create (in addition) a LVL1 container holding all Lvl1 results.
+       *  @param lvl1ResultOut If non-null, create (in addition) a LVL1 container holding all Lvl1 results,
+       *                       and return through this argument.
        *
-       *  @return reference to vector holding pointers to all LVL1 items
+       *  @return vector holding pointers to all LVL1 items
        */
-      const std::vector< const LVL1CTP::Lvl1Item* >& createL1Items(const ROIB::RoIBResult& result, bool makeLvl1Result = false);
+      virtual
+      std::vector< const LVL1CTP::Lvl1Item* > createL1Items(const ROIB::RoIBResult& result, LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) const override;
 
       /** @brief Extract LVL1 Muon-type RoIs and cache them internally
        *  @param result reference to RoIBResult object, holding all LVL1 RoIs and items
        *
        *  @return reference to vector holding all Muon-RoI objects
        */
-      const std::vector< MuonRoI >&      createMuonThresholds(const ROIB::RoIBResult& result);
+      virtual
+      const std::vector< MuonRoI >&      createMuonThresholds(const ROIB::RoIBResult& result) override;
 
       /** @brief Extract LVL1 EMTau-type RoIs and cache them internally
        *  @param result reference to RoIBResult object, holding all LVL1 RoIs and items
        *
        *  @return reference to vector holding all EMTau-RoI objects
        */
-      const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false);
+      virtual
+      const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false) override;
 
       /** @brief Extract LVL1 JetEnergy-type RoIs and cache them internally
        *  @param result reference to RoIBResul object, holding all LVL1 RoIs and items
        *
        *  @return reference to vector holding all JetEnergy-RoI objects
        */
-      const std::vector< JetEnergyRoI >& createJetEnergyThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false);
+      virtual
+      const std::vector< JetEnergyRoI >& createJetEnergyThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false) override;
 
       /** @brief Check if there was an overflow in the TOB transmission to CMX
        *  @param result reference to RoIBResul object
        *
        *  @return overflow bits for EM, Tau and Jet threshold
-       */     
-      std::bitset<3> lvl1EMTauJetOverflow(const ROIB::RoIBResult& result);
-       
-      /** @brief return pointer to internal LVL1Result result
-       *  Note: (has to be created first via createL1Items(..) or updateResult(..) !
        */
-      LVL1CTP::Lvl1Result* getLvl1Result() { return m_lvl1Result; }
-
+      virtual
+      std::bitset<3> lvl1EMTauJetOverflow(const ROIB::RoIBResult& result) override;
+       
       /** @brief Extract all LVL1 items and all LVL1 items from given RoIBResult
        *  @param result reference to RoIBResult object, holding all LVL1 RoIs and items
        *  @param updateCaloRoIs if true, assume old Calo RoI words which need to be corrected
        */
+      virtual
       StatusCode updateResult(const ROIB::RoIBResult& result,
-                              bool updateCaloRoIs = false);
+                              bool updateCaloRoIs = false) override;
 
       /** @brief Extract all LVL1 items and all LVL1 items from given Lvl1Result
        *  @param result reference to Lvl1Result object, holding all LVL1 RoIs and items
        *  @param updateCaloRoIs if true, assume old Calo RoI words which need to be corrected
        */
-      StatusCode updateResult(const LVL1CTP::Lvl1Result& result);
-
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );               //!< gaudi interface method
-      static const InterfaceID& interfaceID() { return ILvl1ResultAccessTool::interfaceID(); }  //!< gaudi interface method
+      virtual
+      StatusCode updateResult(const LVL1CTP::Lvl1Result& result) override;
 
    private:
 
@@ -260,9 +257,6 @@ namespace HLT {
       // Results cache
       std::vector< LVL1CTP::Lvl1Item* >     m_decisionItems;  //!< vector holding all LVL1 items for TrigDecision
       std::vector<const LVL1CTP::Lvl1Item*> m_itemsBPonly;    //!< vector holding all LVL1 items that were suppressed by prescales
-      std::vector<const LVL1CTP::Lvl1Item*> m_items;          //!< vector holding all LVL1 items
-
-      LVL1CTP::Lvl1Result* m_lvl1Result { nullptr }; //!< internal LVL1 result object
 
       std::vector< MuonRoI> m_muonRoIs;     //!< cached LVL1 Muon-type RoI objects
       std::vector< EMTauRoI> m_emTauRoIs;   //!< cached LVL1 EMTau-type RoI objects
