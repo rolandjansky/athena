@@ -145,7 +145,7 @@
 						\
   MsgStream& msg ()				\
   {						\
-    ASG_TOOLS_MSG_STREAM (result, TITLE);	\
+    ASG_TOOLS_MSG_STREAM (result, std::string ("Package.") + TITLE);	\
   return result;				\
   }						\
 						\

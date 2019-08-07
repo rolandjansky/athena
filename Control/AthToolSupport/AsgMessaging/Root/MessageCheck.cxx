@@ -25,7 +25,7 @@
 
 namespace asg
 {
-  ANA_MSG_SOURCE (msgUserCode, "AsgMessaging_UserCode")
+  ANA_MSG_SOURCE (msgUserCode, "UserCode")
 
   namespace detail
   {
