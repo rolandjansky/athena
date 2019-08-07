@@ -17,6 +17,8 @@
 #   include "AthenaBaseComps/AthMessaging.h"
 #endif // not XAOD_STANDALONE
 
+class INamedInterface;
+
 namespace asg {
 
    /// Class mimicking the AthMessaging class from the offline software
