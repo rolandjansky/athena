@@ -347,7 +347,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         unique_list = list(set(value))
                         meta_dict[filename]['/TagInfo'][key] = unique_list[0] if len(unique_list) == 1 else unique_list
 
-        return meta_dict
+    return meta_dict
 
 
 def _get_pfn(filename):
