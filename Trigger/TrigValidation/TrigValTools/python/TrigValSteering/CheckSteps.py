@@ -100,7 +100,7 @@ class InputDependentStep(Step):
 class LogMergeStep(Step):
     '''Merge several log files into one for post-processing'''
 
-    def __init__(self, name="LogMerge"):
+    def __init__(self, name='LogMerge'):
         super(LogMergeStep, self).__init__(name)
         self.log_files = None
         self.merged_name = 'athena.merged.log'
@@ -133,7 +133,7 @@ class LogMergeStep(Step):
             return 1
 
     def run(self, dry_run=False):
-        self.log.info("Running %s merging logs %s into %s",
+        self.log.info('Running %s merging logs %s into %s',
                       self.name, self.log_files, self.merged_name)
         if dry_run:
             self.result = 0
@@ -145,7 +145,7 @@ class LogMergeStep(Step):
 class ZipStep(Step):
     '''Compress a large log file'''
 
-    def __init__(self, name="Zip"):
+    def __init__(self, name='Zip'):
         super(ZipStep, self).__init__(name)
         self.zip_output = None
         self.zip_input = None
@@ -175,6 +175,8 @@ class CheckLogStep(Step):
                 self.config_file = 'checklogTrigUpgradeTest.conf'
             elif test.package_name == 'TrigP1Test':
                 self.config_file = 'checklogTrigP1Test.conf'
+            elif test.package_name == 'TrigValTools':
+                self.config_file = 'checklogTrigValTools.conf'
             else:
                 self.config_file = 'checklogTriggerTest.conf'
         if self.log_file is None:
@@ -197,7 +199,7 @@ class CheckLogStep(Step):
 class RegTestStep(RefComparisonStep):
     '''Execute RegTest comparing a log file against a reference'''
 
-    def __init__(self, name="RegTest"):
+    def __init__(self, name='RegTest'):
         super(RegTestStep, self).__init__(name)
         self.regex = 'REGTEST'
         self.executable = 'regtest.pl'
@@ -217,7 +219,7 @@ class RegTestStep(RefComparisonStep):
             self.log.error('%s input file %s is missing', self.name, log_file)
             return False
         with open(log_file) as f_in:
-            matches = re.findall("{}.*$".format(self.regex),
+            matches = re.findall('{}.*$'.format(self.regex),
                                  f_in.read(), re.MULTILINE)
             with open(self.input_file, 'w') as f_out:
                 for line in matches:
@@ -252,23 +254,53 @@ class RegTestStep(RefComparisonStep):
         return retcode, cmd
 
 
-class PerfMonStep(Step):
+class RootCompStep(RefComparisonStep):
+    '''Execute RootComp comparing histograms against a reference'''
+
+    def __init__(self, name='RootComp'):
+        super(RootCompStep, self).__init__(name)
+        self.input_file = 'expert-monitoring.root'
+        self.executable = 'rootcomp.py'
+        self.auto_report_result = True
+
+    def configure(self, test):
+        super(RootCompStep, self).configure(test)
+        self.args += ' {} {}'.format(self.reference, self.input_file)
+
+    def run(self, dry_run=False):
+        if self.reference is None:
+            if not os.path.isfile(self.input_file):
+                self.log.debug(
+                    'Skipping %s because both reference and input are missing',
+                    self.name)
+                return 0, '# (internal) {} -> skipped'.format(self.name)
+            else:  # input exists but reference not
+                self.log.error('Missing reference for %s', self.name)
+                self.result = 999
+                if self.auto_report_result:
+                    self.report_result()
+                return self.result, '# (internal) {} -> failed'.format(self.name)
+        retcode, cmd = super(RegTestStep, self).run(dry_run)
+        return retcode, cmd
+
+
+class PerfMonStep(InputDependentStep):
     '''Execute the PerfMon ntuple post-processing'''
 
-    def __init__(self, name="PerfMon"):
+    def __init__(self, name='PerfMon'):
         super(PerfMonStep, self).__init__(name)
-        self.input = 'ntuple.pmon.gz'
+        self.input_file = 'ntuple.pmon.gz'
         self.executable = 'perfmon.py'
         self.args = '-f 0.90'
 
     def configure(self, test):
-        self.args += ' '+self.input
+        self.args += ' '+self.input_file
 
 
 class TailStep(Step):
     '''Copy the last N lines of a log file into a separate file'''
 
-    def __init__(self, name="Tail"):
+    def __init__(self, name='Tail'):
         super(TailStep, self).__init__(name)
         self.log_file = 'athena.log'
         self.output_name = None
@@ -290,7 +322,7 @@ class TailStep(Step):
 class HistCountStep(InputDependentStep):
     '''Execute histSizes.py to count histograms in a ROOT file'''
 
-    def __init__(self, name="HistCount"):
+    def __init__(self, name='HistCount'):
         super(HistCountStep, self).__init__(name)
         self.input_file = 'expert-monitoring.root'
         self.executable = 'histSizes.py'
@@ -298,6 +330,130 @@ class HistCountStep(InputDependentStep):
 
     def configure(self, test):
         self.args += ' '+self.input_file
+
+
+class ChainDumpStep(InputDependentStep):
+    '''
+    Execute chainDump.py to print trigger counts from histograms to text files
+    '''
+
+    def __init__(self, name='ChainDump'):
+        super(ChainDumpStep, self).__init__(name)
+        self.input_file = 'expert-monitoring.root'
+        self.executable = 'chainDump.py'
+        self.args = '-S'
+
+    def configure(self, test):
+        self.args += ' --rootFile='+self.input_file
+
+
+class TrigTestJsonStep(Step):
+    '''Execute trig-test-json.py to create extra-results.json file'''
+
+    def __init__(self, name='TrigTestJson'):
+        super(TrigTestJsonStep, self).__init__(name)
+        self.executable = 'trig-test-json.py'
+
+
+class CheckFileStep(InputDependentStep):
+    '''
+    Execute checkFile and checkxAOD for POOL files.
+    executable and input_file can have multiple comma-separated values
+    '''
+
+    def __init__(self, name='CheckFile'):
+        super(CheckFileStep, self).__init__(name)
+        self.input_file = 'AOD.pool.root,ESD.pool.root,RDO_TRIG.pool.root'
+        self.executable = 'checkFile.py,checkxAOD.py'
+        self.__executables__ = None
+        self.__input_files__ = None
+
+    def configure(self, test):
+        # Skip the check if all test steps are athenaHLT (no POOL files)
+        test_types = [step.type for step in test.exec_steps]
+        num_athenaHLT = sum(1 for tt in test_types if tt == 'athenaHLT')
+        if num_athenaHLT == test_types:
+            self.log.debug('%s will be skipped because all exec steps use athenaHLT')
+            self.__executables__ = None
+            self.__input_files__ = None
+            return
+        self.__executables__ = self.executable.split(',')
+        self.__input_files__ = self.input_file.split(',')
+
+    def run(self, dry_run=False):
+        ret_codes = []
+        commands = []
+        for f in self.__input_files__:
+            for ex in self.__executables__:
+                self.executable = ex
+                self.input_file = f
+                self.args = f
+                ex_base = ex.split('.')[0:-1]
+                self.log_file_name = f + '.' + ''.join(ex_base)
+                ret, cmd = super(CheckFileStep, self).run(dry_run)
+                ret_codes.append(ret)
+                commands.append(cmd)
+
+        # Merge executed commands for logging
+        merged_cmd = ''
+        if len(commands) == 1:
+            merged_cmd = commands[0]
+        else:
+            for cmd in commands:
+                if '(internal)' not in cmd:
+                    merged_cmd += cmd+'; '
+        if len(merged_cmd) == 0:
+            merged_cmd = commands[-1]
+
+        return max(ret_codes), merged_cmd
+
+
+class ZeroCountsStep(Step):
+    '''
+    Check if all counts are zero.
+    input_file can have multiple comma-separated values
+    '''
+
+    def __init__(self, name='ZeroCounts'):
+        super(ZeroCountsStep, self).__init__(name)
+        self.input_file = 'HLTChain.txt,HLTTE.txt,L1AV.txt'
+        self.auto_report_result = True
+        self.__input_files__ = None
+
+    def configure(self, test=None):
+        self.__input_files__ = self.input_file.split(',')
+
+    def check_zero_counts(self, input_file):
+        if not os.path.isfile(input_file):
+            self.log.debug(
+                'Skipping %s for %s because the file does not exist',
+                self.name, input_file)
+            return -1
+        lines_checked = 0
+        with open(input_file) as f_in:
+            for line in f_in.readlines():
+                split_line = line.split()
+                lines_checked += 1
+                if int(split_line[-1]) != 0:
+                    return 0  # at least one non-zero count
+        if lines_checked == 0:
+            self.log.error('Failed to read counts from %s', input_file)
+        return 1  # all counts are zero
+
+    def run(self, dry_run=False):
+        results = []
+        self.log.info('Running %s step', self.name)
+        for input_file in self.__input_files__:
+            results.append(self.check_zero_counts(input_file))
+
+        self.result = max(results)
+        cmd = '# (internal) {} for {}'.format(self.name, self.__input_files__)
+        if self.result < 0:
+            cmd = '# (internal) {} -> skipped'.format(self.name)
+            self.result = 0
+        if self.auto_report_result:
+            self.report_result()
+        return self.result, cmd
 
 
 def default_check_steps(test):
@@ -309,7 +465,7 @@ def default_check_steps(test):
 
     check_steps = []
 
-    # log merging
+    # Log merging
     if len(test.exec_steps) == 1:
         exec_step = test.exec_steps[0]
         if exec_step.type == 'athenaHLT':
@@ -336,7 +492,7 @@ def default_check_steps(test):
     step_types = [step.type for step in test.exec_steps]
     log_to_zip = None
     if 'Reco_tf' in step_types:
-        reco_tf_logmerge = LogMergeStep("LogMerge_Reco_tf")
+        reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
         tf_names = ['HITtoRDO', 'RDOtoRDOTrigger', 'RAWtoESD', 'ESDtoAOD',
                     'PhysicsValidation', 'RAWtoALL', 'BSFTKCreator']
@@ -349,13 +505,13 @@ def default_check_steps(test):
         check_steps.append(reco_tf_logmerge)
 
     # CheckLog for errors
-    checklog = CheckLogStep("CheckLog")
+    checklog = CheckLogStep('CheckLog')
     if log_to_check is not None:
         checklog.log_file = log_to_check
     check_steps.append(checklog)
 
     # CheckLog for warnings
-    checkwarn = CheckLogStep("Warnings")
+    checkwarn = CheckLogStep('Warnings')
     checkwarn.check_errors = False
     checkwarn.check_warnings = True
     if log_to_check is not None:
@@ -377,10 +533,21 @@ def default_check_steps(test):
     # PerfMon
     check_steps.append(PerfMonStep())
 
-    # HistCount
+    # Histogram-based steps
+    check_steps.append(RootCompStep())
+    check_steps.append(ChainDumpStep())
     check_steps.append(HistCountStep())
 
-    # zip the merged log (can be large and duplicates information)
+    # ZeroCounts
+    check_steps.append(ZeroCountsStep())
+
+    # Extra JSON
+    check_steps.append(TrigTestJsonStep())
+
+    # CheckFile
+    check_steps.append(CheckFileStep())
+
+    # Zip the merged log (can be large and duplicates information)
     if log_to_zip is not None:
         zip_step = ZipStep()
         zip_step.zip_input = log_to_zip
