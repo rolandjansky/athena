@@ -7,18 +7,14 @@
 #include "eformat/Version.h"
 #include "eformat/index.h"
 
-
 #include "LArByteStream/LArRodBlockStructure.h"
 #include "LArByteStream/LArRodBlockPhysicsV5.h"
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
 
-
 LArRawDataReadingAlg::LArRawDataReadingAlg(const std::string& name, ISvcLocator* pSvcLocator) :  
   AthReentrantAlgorithm(name, pSvcLocator) {}
 
-  
-
-StatusCode LArRawDataReadingAlg::initialize() {
+  StatusCode LArRawDataReadingAlg::initialize() {
   if (m_rawChannelKey.key().size()>0) {
     ATH_CHECK(m_rawChannelKey.initialize());
   }
@@ -51,12 +47,9 @@ StatusCode LArRawDataReadingAlg::finalize() {
 } 
 
 StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
-
-  //Write output via write handle
   LArRawChannelContainer* rawChannels=nullptr;
   LArDigitContainer* digits=nullptr;
   LArFebHeaderContainer* febHeaders=nullptr;
-
 
   if (m_doRawChannels) {
     SG::WriteHandle<LArRawChannelContainer> rawChannelsHdl(m_rawChannelKey,ctx);
@@ -64,14 +57,19 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
     rawChannels=rawChannelsHdl.ptr();
   }
 
-
-
   if (m_doDigits) {
     SG::WriteHandle<LArDigitContainer> digitsHdl(m_digitKey,ctx);
     ATH_CHECK(digitsHdl.record(std::make_unique<LArDigitContainer>()));
     digits=digitsHdl.ptr();
   }
 
+  if (m_doFebHeaders) {
+    SG::WriteHandle<LArFebHeaderContainer> febHeadersHdl(m_febHeaderKey,ctx);
+    ATH_CHECK(febHeadersHdl.record(std::make_unique<LArFebHeaderContainer>()));
+    febHeaders=febHeadersHdl.ptr();
+  }
+
+  //Get full events and filter out LAr ROBs
   const RawEvent* fullEvent=m_robDataProviderSvc->getEvent(ctx);
   std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> > rawEventTOC;
   eformat::helper::build_toc(*fullEvent, rawEventTOC);
@@ -179,13 +177,11 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	}//end getNextEnergyLoop
       }//end if m_doRawChannels 
 
-
+      //Decode LArDigits (if requested)
       if (m_doDigits) {
-	CaloGain::CaloGain calogain;
 	uint32_t gain;
 	int fcNb;
 	std::vector<short> samples;
-
 	while (rodBlock->getNextRawData(fcNb,samples,gain)) {
 	  if (fcNb>=NthisFebChannel)
 	    continue;
@@ -195,6 +191,51 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 	  samples.clear();
 	}//end getNextRawData loop
       }//end if m_doDigits
+
+      //Decode FebHeaders (if requested)
+      if (m_doFebHeaders) {
+	std::unique_ptr<LArFebHeader> larFebHeader(new LArFebHeader(fId));
+	larFebHeader->SetFormatVersion(rob.rod_version());
+	larFebHeader->SetSourceId(rob.rod_source_id());
+	larFebHeader->SetRunNumber(rob.rod_run_no());
+	larFebHeader->SetELVL1Id(rob.rod_lvl1_id());
+	larFebHeader->SetBCId(rob.rod_bc_id());
+	larFebHeader->SetLVL1TigType(rob.rod_lvl1_trigger_type());
+	larFebHeader->SetDetEventType(rob.rod_detev_type());
+  
+	//set DSP data
+	const unsigned nsample=rodBlock->getNumberOfSamples();
+	larFebHeader->SetRodStatus(rodBlock->getStatus());
+	larFebHeader->SetDspCodeVersion(rodBlock->getDspCodeVersion()); 
+	larFebHeader->SetDspEventCounter(rodBlock->getDspEventCounter()); 
+	larFebHeader->SetRodResults1Size(rodBlock->getResults1Size()); 
+	larFebHeader->SetRodResults2Size(rodBlock->getResults2Size()); 
+	larFebHeader->SetRodRawDataSize(rodBlock->getRawDataSize()); 
+	larFebHeader->SetNbSweetCells1(rodBlock->getNbSweetCells1()); 
+	larFebHeader->SetNbSweetCells2(rodBlock->getNbSweetCells2()); 
+	larFebHeader->SetNbSamples(nsample); 
+	larFebHeader->SetOnlineChecksum(rodBlock->onlineCheckSum());
+	larFebHeader->SetOfflineChecksum(rodBlock->offlineCheckSum());
+
+	if(!rodBlock->hasControlWords()) {
+	  larFebHeader->SetFebELVL1Id(rob.rod_lvl1_id());
+	  larFebHeader->SetFebBCId(rob.rod_bc_id());
+	} else {
+	  const uint16_t evtid = rodBlock->getCtrl1(0) & 0x1f;
+	  const uint16_t bcid  = rodBlock->getCtrl2(0) & 0x1fff;
+	  larFebHeader->SetFebELVL1Id(evtid);
+	  larFebHeader->SetFebBCId(bcid);
+	  for(int iadc=0;iadc<16;iadc++) {
+	    larFebHeader->SetFebCtrl1(rodBlock->getCtrl1(iadc));
+	    larFebHeader->SetFebCtrl2(rodBlock->getCtrl2(iadc));
+	    larFebHeader->SetFebCtrl3(rodBlock->getCtrl3(iadc));
+	  }
+	  for(unsigned int i = 0; i<nsample; i++ ) {
+	    larFebHeader->SetFebSCA(rodBlock->getRadd(0,i) & 0xff);
+	  }
+	}//end else no control words
+	febHeaders->push_back(std::move(larFebHeader));
+      }//end if m_doFebHeaders
 
     }while (rodBlock->nextFEB()); //Get NextFeb
   } //end loop over ROBs
