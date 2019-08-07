@@ -156,11 +156,7 @@ bool egammaCaloClusterSelector::passSelection(const xAOD::CaloCluster* cluster) 
     }
     if(m_doHadLeak){
       // define a new Calo Cell list corresponding to HAD Calo
-      CaloCell_ID::SUBCALO theCalo1 = CaloCell_ID::LARHEC;
-      CaloCell_ID::SUBCALO theCalo2 = CaloCell_ID::TILE;
-      std::vector<CaloCell_ID::SUBCALO> theVecCalo;
-      theVecCalo.push_back(theCalo1);
-      theVecCalo.push_back(theCalo2);
+      static const std::vector<CaloCell_ID::SUBCALO> theVecCalo={CaloCell_ID::LARHEC,CaloCell_ID::TILE};
       std::unique_ptr<CaloCellList> HADccl = std::make_unique<CaloCellList>(cellcoll.ptr(),theVecCalo); 
       // calculate information concerning just the hadronic leakage
       IegammaIso::Info info;
