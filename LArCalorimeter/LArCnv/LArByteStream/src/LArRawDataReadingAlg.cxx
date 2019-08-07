@@ -53,8 +53,24 @@ StatusCode LArRawDataReadingAlg::finalize() {
 StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 
   //Write output via write handle
-  SG::WriteHandle<LArRawChannelContainer>outputContainer(m_rawChannelKey,ctx);
-  ATH_CHECK(outputContainer.record(std::make_unique<LArRawChannelContainer>()));
+  LArRawChannelContainer* rawChannels=nullptr;
+  LArDigitContainer* digits=nullptr;
+  LArFebHeaderContainer* febHeaders=nullptr;
+
+
+  if (m_doRawChannels) {
+    SG::WriteHandle<LArRawChannelContainer> rawChannelsHdl(m_rawChannelKey,ctx);
+    ATH_CHECK(rawChannelsHdl.record(std::make_unique<LArRawChannelContainer>()));
+    rawChannels=rawChannelsHdl.ptr();
+  }
+
+
+
+  if (m_doDigits) {
+    SG::WriteHandle<LArDigitContainer> digitsHdl(m_digitKey,ctx);
+    ATH_CHECK(digitsHdl.record(std::make_unique<LArDigitContainer>()));
+    digits=digitsHdl.ptr();
+  }
 
   const RawEvent* fullEvent=m_robDataProviderSvc->getEvent(ctx);
   std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> > rawEventTOC;
@@ -139,26 +155,47 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 			<< ". Skipping");
 	continue;
       }
-      
       const int NthisFebChannel=m_onlineId->channelInSlotMax(fId);
-      int32_t energy;
-      int32_t time;
-      int32_t quality;
-      uint32_t gain;
-      int fcNb;
-      while (rodBlock->getNextEnergy(fcNb,energy,time,quality,gain)) {
-	if (fcNb>=NthisFebChannel)
-	  continue;
 
-	HWIdentifier cId = m_onlineId->channel_Id(fId,fcNb);
-        uint16_t iquality = 0;
-        uint16_t iprovenance = 0x1000;
-        if (quality>0) {
+      //Decode RawChanels (if requested)
+      if (m_doRawChannels) {
+	int32_t energy;
+	int32_t time;
+	int32_t quality;
+	uint32_t gain;
+	int fcNb;
+	while (rodBlock->getNextEnergy(fcNb,energy,time,quality,gain)) {
+	  if (fcNb>=NthisFebChannel)
+	    continue;
+
+	  HWIdentifier cId = m_onlineId->channel_Id(fId,fcNb);
+	  uint16_t iquality = 0;
+	  uint16_t iprovenance = 0x1000;
+	  if (quality>0) {
             iprovenance |= 0x2000;
             iquality = (quality & 0xFFFF);
-        } 
-	outputContainer->emplace_back(cId, energy, time, iquality, iprovenance, (CaloGain::CaloGain)gain);
-      }//end getNextEnergyLoop
+	  } 
+	rawChannels->emplace_back(cId, energy, time, iquality, iprovenance, (CaloGain::CaloGain)gain);
+	}//end getNextEnergyLoop
+      }//end if m_doRawChannels 
+
+
+      if (m_doDigits) {
+	CaloGain::CaloGain calogain;
+	uint32_t gain;
+	int fcNb;
+	std::vector<short> samples;
+
+	while (rodBlock->getNextRawData(fcNb,samples,gain)) {
+	  if (fcNb>=NthisFebChannel)
+	    continue;
+	  if (samples.size()==0) continue; // Ignore missing cells
+	  HWIdentifier cId = m_onlineId->channel_Id(fId,fcNb);
+	  digits->emplace_back(new LArDigit(cId, (CaloGain::CaloGain)gain, std::move(samples)));
+	  samples.clear();
+	}//end getNextRawData loop
+      }//end if m_doDigits
+
     }while (rodBlock->nextFEB()); //Get NextFeb
   } //end loop over ROBs
   return StatusCode::SUCCESS;
