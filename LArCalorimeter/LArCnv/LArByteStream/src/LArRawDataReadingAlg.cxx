@@ -55,18 +55,21 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
     SG::WriteHandle<LArRawChannelContainer> rawChannelsHdl(m_rawChannelKey,ctx);
     ATH_CHECK(rawChannelsHdl.record(std::make_unique<LArRawChannelContainer>()));
     rawChannels=rawChannelsHdl.ptr();
+    rawChannels->reserve(182468);
   }
 
   if (m_doDigits) {
     SG::WriteHandle<LArDigitContainer> digitsHdl(m_digitKey,ctx);
     ATH_CHECK(digitsHdl.record(std::make_unique<LArDigitContainer>()));
     digits=digitsHdl.ptr();
+    digits->reserve(1000);
   }
 
   if (m_doFebHeaders) {
     SG::WriteHandle<LArFebHeaderContainer> febHeadersHdl(m_febHeaderKey,ctx);
     ATH_CHECK(febHeadersHdl.record(std::make_unique<LArFebHeaderContainer>()));
     febHeaders=febHeadersHdl.ptr();
+    febHeaders->reserve(1524);
   }
 
   //Get full events and filter out LAr ROBs
