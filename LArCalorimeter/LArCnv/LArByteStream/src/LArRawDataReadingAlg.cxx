@@ -1,4 +1,4 @@
-#include "LArRawChannelBSReadAlg.h"
+#include "LArRawDataReadingAlg.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" 
 #include "LArRawEvent/LArRawChannelContainer.h"
@@ -13,12 +13,12 @@
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
 
 
-LArRawChannelBSReadAlg::LArRawChannelBSReadAlg(const std::string& name, ISvcLocator* pSvcLocator) :  
+LArRawDataReadingAlg::LArRawDataReadingAlg(const std::string& name, ISvcLocator* pSvcLocator) :  
   AthReentrantAlgorithm(name, pSvcLocator) {}
 
   
 
-StatusCode LArRawChannelBSReadAlg::initialize() {
+StatusCode LArRawDataReadingAlg::initialize() {
   if (m_rawChannelKey.key().size()>0) {
     ATH_CHECK(m_rawChannelKey.initialize());
   }
@@ -46,11 +46,11 @@ StatusCode LArRawChannelBSReadAlg::initialize() {
   return StatusCode::SUCCESS;
 }     
   
-StatusCode LArRawChannelBSReadAlg::finalize() {
+StatusCode LArRawDataReadingAlg::finalize() {
   return StatusCode::SUCCESS;
 } 
 
-StatusCode LArRawChannelBSReadAlg::execute(const EventContext& ctx) const {
+StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
 
   //Write output via write handle
   SG::WriteHandle<LArRawChannelContainer>outputContainer(m_rawChannelKey,ctx);

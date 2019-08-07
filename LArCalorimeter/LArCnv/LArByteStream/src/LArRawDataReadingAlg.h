@@ -3,8 +3,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARBYSTREAM_LARRAWCHANNELBSREADALG_H
-#define LARBYSTREAM_LARRAWCHANNELBSREADALG_H
+#ifndef LARBYSTREAM_LARRAWDATAREADINDINGALG_H
+#define LARBYSTREAM_LARRAWDATAREADINDINGALG_H
 
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -22,9 +22,9 @@ class LArFebHeaderContainer;
 class LArOnlineID;
 class IROBDataProviderSvc;
 
-class LArRawChannelBSReadAlg : public  AthReentrantAlgorithm {
+class LArRawDataReadingAlg : public  AthReentrantAlgorithm {
  public:
-  LArRawChannelBSReadAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  LArRawDataReadingAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
   StatusCode initialize() override;
   StatusCode execute(const EventContext& ctx) const override;
