@@ -242,9 +242,7 @@ FTAG1SlimmingHelper = SlimmingHelper("FTAG1SlimmingHelper")
 FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "PrimaryVertices",
                                         "InDetTrackParticles",
-                                        "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMTopo",
-                                        "AntiKt4EMPFlowJets",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt8EMPFlowJets",
                                         "AntiKt8EMPFlowExKt2SubJets",
@@ -257,9 +255,7 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "BTagging_AntiKt8EMPFlowExKt3GASub",
                                          ]
 
-FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
-                                    "BTagging_AntiKt4EMPFlow",
-                                    "BTagging_AntiKt4EMPFlowJFVtx",
+FTAG1SlimmingHelper.AllVariables = [
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
@@ -269,9 +265,7 @@ FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt3SubJFVtx",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub",
                                     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJFVtx",
-                                    "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt2Track",
-                                    "BTagging_AntiKt4EMTopoJFVtx",
                                     "BTagging_AntiKt2TrackJFVtx",
                                     "TruthEvents",
                                     "MET_Truth",
@@ -314,7 +308,6 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJetGhostTag.GhostVR30Rmax4Rmin02TrackJetGhostTagPt.GhostVR30Rmax4Rmin02TrackJetGhostTagCount",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
-                                       "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTagSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubSecVtx.-vxTrackAtVertex",
@@ -337,10 +330,24 @@ if BTaggingFlags.Do2019Retraining:
                                              "AntiKt4EMPFlowJets_BTagging201903"]
     FTAG1SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow_201810",
                                          "BTagging_AntiKt4EMPFlow_201903",
+                                         "BTagging_AntiKt4EMPFlow_201810JFVtx",
+                                         "BTagging_AntiKt4EMPFlow_201903JFVtx",
                                          "BTagging_AntiKt4EMTopo_201810",
+                                         "BTagging_AntiKt4EMTopo_201810JFVtx",
                                          "AntiKt4EMTopoJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201903"]
+    FTAG1SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex"]
+else:
+    FTAG1SlimmingHelper.SmartCollections += ["AntiKt4EMTopoJets",
+                                             "AntiKt4EMPFlowJets"]
+    FTAG1SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow",
+                                         "BTagging_AntiKt4EMPFlowJFVtx",
+                                         "BTagging_AntiKt4EMTopo",
+                                         "BTagging_AntiKt4EMTopoJFVtx",
+                                         "AntiKt4EMTopoJets",
+                                         "AntiKt4EMPFlowJets"]
+    FTAG1SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
@@ -355,10 +362,16 @@ FTAG1SlimmingHelper.AppendToDictionary = {
   "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
   "AntiKtVR30Rmax4Rmin02TrackGhostTag"             :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackGhostTagAux"          :   "xAOD::JetAuxContainer" ,
+  "BTagging_AntiKt4EMTopo_201810JFVtx"                   :   "xAOD::BTagVertexContainer",
+  "BTagging_AntiKt4EMTopo_201810JFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer",
   "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
   "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt4EMPFlow_201810JFVtx"                   :   "xAOD::BTagVertexContainer",
+  "BTagging_AntiKt4EMPFlow_201810JFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt4EMPFlow_201903JFVtx"                   :   "xAOD::BTagVertexContainer",
+  "BTagging_AntiKt4EMPFlow_201903JFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag"    :   "xAOD::BTaggingContainer"   ,

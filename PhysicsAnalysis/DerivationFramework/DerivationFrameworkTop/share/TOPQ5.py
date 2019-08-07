@@ -187,8 +187,8 @@ from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
 
 TaggerList = BTaggingFlags.StandardTaggers
-from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
-ReTag(TaggerList,['AntiKt4EMPFlowJets'],TOPQ5Sequence)
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ5Sequence)
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:
