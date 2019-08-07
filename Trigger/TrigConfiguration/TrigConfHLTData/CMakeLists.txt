@@ -21,5 +21,5 @@ atlas_add_library( TrigConfHLTData
    LINK_LIBRARIES ${Boost_LIBRARIES} TrigConfL1Data )
 
 atlas_add_executable( trigconf_string2hash
-   SOURCES util/trigconf_string2hash.cxx
+   util/trigconf_string2hash.cxx
    LINK_LIBRARIES TrigConfHLTData )
