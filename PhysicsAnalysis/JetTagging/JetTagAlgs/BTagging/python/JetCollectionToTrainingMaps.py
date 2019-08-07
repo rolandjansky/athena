@@ -5,15 +5,15 @@
 
 preTagDL2JetToTrainingMap={
     'AntiKt4EMPFlow': [
-        'flavtag/april2019/rnnip/antikt4empflow/network.json',
-        'flavtag/april2019/smt/antikt4empflow/network.json'
+        'BTagging/april2019/rnnip/antikt4empflow/network.json',
+        'BTagging/april2019/smt/antikt4empflow/network.json'
     ]
 }
 postTagDL2JetToTrainingMap={
     'AntiKt4EMPFlow': [
-        'flavtag/april2019/dl1r/antikt4empflow/network.json',
-        'flavtag/april2019/dl1/antikt4empflow/network.json',
-        'flavtag/april2019/dl1rmu/antikt4empflow/network.json'
+        'BTagging/april2019/dl1r/antikt4empflow/network.json',
+        'BTagging/april2019/dl1/antikt4empflow/network.json',
+        'BTagging/april2019/dl1rmu/antikt4empflow/network.json'
     ]
 }
 

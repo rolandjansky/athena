@@ -206,7 +206,7 @@ FTAG2SlimmingHelper = SlimmingHelper("FTAG2SlimmingHelper")
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
-                                        "AntiKt4EMTopoJets","BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMTopoJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMPFlowJets",
                                         "MET_Reference_AntiKt4EMPFlow",
@@ -221,9 +221,6 @@ FTAG2SlimmingHelper.SmartCollections = ["Electrons","Muons",
 FTAG2SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
-                                    "BTagging_AntiKt4EMTopo",
-                                    "BTagging_AntiKt4EMTopoJFVtx",
-                                    "BTagging_AntiKt4EMPFlow",
                                     "BTagging_AntiKt4EMPFlow_201810",
                                     "BTagging_AntiKt4EMPFlow_201903",
                                     "BTagging_AntiKt4EMPFlowJFVtx",
@@ -254,11 +251,8 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        #"MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
                                        #"MuonSpectrometerTrackParticles.vx.vy.vz",
                                        #"InDetForwardTrackParticles.phi.qOverP.theta",
-                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
-                                       "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMPFlow_201810SecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMPFlow_201903SecVtx.-vxTrackAtVertex",
-                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant",
@@ -279,6 +273,9 @@ if BTaggingFlags.Do2019Retraining:
                                          "AntiKt4EMTopoJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201810",
                                          "AntiKt4EMPFlowJets_BTagging201903"]
+else:
+    FTAG2SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow",
+                                         "BTagging_AntiKt4EMTopo"]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
@@ -295,10 +292,10 @@ FTAG2SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt4EMPFlow_201810JFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKt4EMPFlow_201903JFVtx"                   :   "xAOD::BTagVertexContainer",
   "BTagging_AntiKt4EMPFlow_201903JFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKtEMPFlow_201810SecVtx"      :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKtEMPFlow_201810SecVtxAux"   :   "xAOD::VertexAuxContainer",
-  "BTagging_AntiKtEMPFlow_201903SecVtx"      :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKtEMPFlow_201903SecVtxAux"   :   "xAOD::VertexAuxContainer",
+  "BTagging_AntiKt4EMPFlow_201810SecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt4EMPFlow_201810SecVtxAux"   :   "xAOD::VertexAuxContainer",
+  "BTagging_AntiKt4EMPFlow_201903SecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt4EMPFlow_201903SecVtxAux"   :   "xAOD::VertexAuxContainer",
   "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
