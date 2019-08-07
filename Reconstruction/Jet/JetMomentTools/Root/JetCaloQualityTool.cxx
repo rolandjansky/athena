@@ -113,7 +113,7 @@ StatusCode JetCaloQualityTool::initialize() {
       m_doFracSamplingMax = true; // no calculator, as this is a special case.
     }
 
-    if (calcN != "FracSamplingMax") m_writeDecorKeys.push_back(m_jetContainerName + "." + calcN);
+    if (calcN != "FracSamplingMax") m_writeDecorKeys.emplace_back(m_jetContainerName + "." + calcN);
 
   }// end loop over m_calculationNames
 
@@ -129,16 +129,16 @@ StatusCode JetCaloQualityTool::initialize() {
     c->setName(s.str());
     c->timecut = timeCut;
     m_jetCalculations.addCalculator( c );
-    m_writeDecorKeys.push_back(m_jetContainerName + "." + s);
+    m_writeDecorKeys.emplace_back(m_jetContainerName + "." + s.str());
   }
 
   // Add these last so m_jetCalculations and m_writeDecorKeys have corresponding indices
   if (m_doFracSamplingMax){
-    m_writeDecorKeys.push_back(m_jetContainerName + "." + xAOD::JetAttribute::FracSamplingMax);
-    m_writeDecorKeys.push_back(m_jetContainerName + "." + xAOD::JetAttribute::FracSamplingMaxIndex);
+    m_writeDecorKeys.emplace_back(m_jetContainerName + ".FracSamplingMax");
+    m_writeDecorKeys.emplace_back(m_jetContainerName + ".FracSamplingMaxIndex");
   }
 
-  for(SG::WriteDecorHandleKey& key : m_writeDecorKeys) ATH_CHECK(key.initialize());
+  for(SG::WriteDecorHandleKey<xAOD::JetContainer>& key : m_writeDecorKeys) ATH_CHECK(key.initialize());
 
   return StatusCode::SUCCESS;
 }

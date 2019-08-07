@@ -28,7 +28,7 @@
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetDecorator.h"
 #include "JetUtils/JetCaloCalculations.h"
-#include "StoreGate/WriteDecorHandleKey.h"
+#include "StoreGate/WriteDecorHandleKeyArray.h"
 
 #include <vector>
 #include <string>
@@ -62,7 +62,7 @@ public:
   std::string m_jetContainerName;
 
   // internal vector to manage WriteDecorHandleKeys
-  std::vector<SG::WriteDecorHandleKey> m_writeDecorKeys;
+  SG::WriteDecorHandleKeyArray<xAOD::JetContainer> m_writeDecorKeys;
 
   bool m_doFracSamplingMax; // internal			     
 };
