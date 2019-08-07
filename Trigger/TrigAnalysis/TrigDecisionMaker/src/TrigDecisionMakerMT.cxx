@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -196,8 +196,7 @@ StatusCode TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result*& result, 
   ATH_CHECK(m_lvl1Tool->updateItemsConfigOnly());
 
   if (roIBResult && (roIBResult->cTPResult()).isComplete()) {  
-    m_lvl1Tool->createL1Items(*roIBResult, true);
-    result = m_lvl1Tool->getLvl1Result();
+    m_lvl1Tool->createL1Items(*roIBResult, &result);
     ATH_MSG_DEBUG ( "Built LVL1CTP::Lvl1Result from valid CTPResult.");
   }
 
