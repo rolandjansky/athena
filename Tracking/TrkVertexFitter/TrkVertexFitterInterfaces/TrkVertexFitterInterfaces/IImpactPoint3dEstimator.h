@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERINTERFACES_IIMPACTPOINT3DESTIMATOR_H
@@ -43,18 +43,8 @@ namespace Trk
    /**
     * method calculating the surface (returned), distance and point of closest approach
     */
-    virtual PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Amg::Vector3D* theVertex) const = 0;
-    virtual PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Amg::Vector3D* theVertex) const = 0;
-
-    /**
-     * Access to the 3D impact point
-     */
-    virtual Amg::Vector3D* get3dIP() const = 0;
-
-    /**
-     * Access to the IP 3D distance
-     */
-    virtual double getDistance() const = 0;
+    virtual PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Amg::Vector3D* theVertex, double& distance) const = 0;
+    virtual PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Amg::Vector3D* theVertex, double& distance) const = 0;
 
     /**
       * Actual estimate method, changing the state of Trk::VxTrackAtVertex

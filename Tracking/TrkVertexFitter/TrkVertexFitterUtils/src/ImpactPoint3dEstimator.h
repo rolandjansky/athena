@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERUTILS_IMPACTPOINT3DESTIMATOR_H
@@ -53,35 +53,14 @@ namespace Trk
     ~ImpactPoint3dEstimator();
     
    /**
-    * Actual estimate method
-    */
-//    void Estimate3dIP(const ParametersBase* trackPerigee,const Vertex* theVertex);
-    
-   /**
-    * Access to the plane through 3D impact point
-    */  
- //   PlaneSurface* getPlaneThrough3dIP() const;
-   
-   
-   /**
     * New method implementing the features of two above methods at once
     */
-    template<typename T> PlaneSurface* _Estimate3dIPNoCurvature(const T*, const Amg::Vector3D* theVertex) const;
+    template<typename T> PlaneSurface* _Estimate3dIPNoCurvature(const T*, const Amg::Vector3D* theVertex, double& distance) const;
 
-    PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Amg::Vector3D* theVertex) const;
+    PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Amg::Vector3D* theVertex, double& distance) const;
 
-    PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Amg::Vector3D* theVertex) const;
+    PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Amg::Vector3D* theVertex, double& distance) const;
    
-    /**
-     * Access to the 3D impact point
-     */
-    Amg::Vector3D* get3dIP() const;
-
-    /**
-     * Access to the IP 3D distance
-     */
-    double getDistance() const;
- 
     /**
       * Actual estimate method, changing the state of Trk::VxTrackAtVertex
       */
@@ -108,18 +87,8 @@ namespace Trk
     int m_maxiterations;
     double m_precision;
     
-    mutable Amg::Vector3D* m_vertex;
-    
-    mutable double m_distance;
-    
-
   };
 
-
-  inline double ImpactPoint3dEstimator::getDistance() const
-  {
-    return m_distance;
-  }
 }
 
 #endif
