@@ -56,7 +56,7 @@ namespace InDet {
       int                                 m_nsegments        ; // Number segments
       int                                 m_nsegmentsTotal   ; // Number segments
       int                                 m_minNumberDCs     ; // Min. number of DriftCircles
-      double                              m_ClusterE         ; // Min. Et of seed calo cluster
+      double                              m_ClusterEt        ; // Min. Et of seed calo cluster
 
       SG::WriteHandle<Trk::SegmentCollection> m_foundSegments; // Name of segments location
       SG::ReadHandle<CaloClusterROI_Collection> m_calo;        // Calo clusters collection Handle
