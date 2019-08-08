@@ -101,6 +101,10 @@ namespace IOVDbNamespace{
   std::string 
   sanitiseFilename(const std::string & fname);
   
+  ///return valid CREST tag name from folder name
+  std::string 
+  sanitiseCrestTag(const std::string & fname);
+  
   ///replace an uppercase NULL (such as returned by oracle) in string with a lowercase null
   ///(such as used in JSON)
   std::string
@@ -127,8 +131,9 @@ namespace IOVDbNamespace{
 
   bool
   replaceServiceType71(std::string & addrHeader);
-
   
+  std::string
+  unescapeQuotes(const std::string & original);
   //! Parse string of format "A:X::B:C" to "A" , "X::B", "C"
   std::vector<std::string>
   parseLinkNames(const std::string &linktext);

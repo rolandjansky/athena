@@ -22,7 +22,7 @@ from AthenaCommon.AppMgr import ServiceMgr
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
 #--------------------------------------------------------------
-ServiceMgr.MessageSvc.OutputLevel = INFO
+ServiceMgr.MessageSvc.OutputLevel = DEBUG
 ServiceMgr.MessageSvc.infoLimit = 100000
 
 #--------------------------------------------------------------
@@ -38,7 +38,8 @@ ServiceMgr.EventSelector.InitialTimeStamp = 1476741326 # LB 18 of run 310809, 10
 # Load IOVDbSvc
 #--------------------------------------------------------------
 from IOVDbSvc.CondDB import conddb
-ServiceMgr.IOVDbSvc.GlobalTag = "OFLCOND-RUN12-SDR-25"
+ServiceMgr.IOVDbSvc.GlobalTag = "CREST-RUN12-SDR-25-MC"
+ServiceMgr.IOVDbSvc.Source = "CREST"
 ServiceMgr.IOVDbSvc.OutputLevel = DEBUG
 
 #--------------------------------------------------------------

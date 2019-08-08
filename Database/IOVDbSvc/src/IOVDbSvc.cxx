@@ -62,8 +62,7 @@ bool isOpenEnded (const IOVRange& range, bool isTimeStamp)
 {
   if (isTimeStamp) {
     return range.stop().timestamp() >= IOVTime::MAXTIMESTAMP;
-  }
-  else {
+  }else {
     return range.stop().re_time() >= IOVTime::MAXRETIME;
   }
 }
@@ -487,7 +486,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   // check consistency of global tag and database instance, if set
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty()) {
+  if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
     const std::string tagstub=m_globalTag.substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
@@ -505,6 +504,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
 
   // obtain the validity key for this folder (includes overrides)
   cool::ValidityKey vkey=folder->iovTime(m_iovTime);
+  ATH_MSG_DEBUG("Validity key "<<vkey);
   if (!folder->readMeta() && !folder->cacheValid(vkey)) {
     // mark this folder as not-dropped so cache-read will succeed
     folder->setDropped(false);
@@ -557,7 +557,6 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
                                IOpaqueAddress*&   address) {
 
   ATH_MSG_DEBUG( "getRange  clid: " << clid << " key: \""<< dbKey << "\"  t: " << time );
-
   const std::string& key=dbKey;
   FolderMap::const_iterator fitr=m_foldermap.find(key);
   if (fitr==m_foldermap.end()) {
@@ -576,12 +575,10 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
 
   /// FIXME?
   tag = folder->key();
-
-
   // check consistency of global tag and database instance, if set
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty()) {
+  if (!m_par_dbinst.empty() && !m_globalTag.empty() and m_par_source!="CREST") {
     const std::string tagstub=m_globalTag.substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
@@ -611,7 +608,6 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
   }
 
   // data should now be in cache
-  //  IOpaqueAddress* address=0;
   address=0;
   // setup address and range
   {
@@ -1147,8 +1143,7 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn, const IOVTime* time) {
       {
         Gaudi::Guards::AuditorGuard auditor(std::string("FldrCache:")+folder->folderName(), auditorSvc(), "preLoadProxy");
         if (!folder->loadCache(vkey,m_par_cacheAlign,m_globalTag,m_par_onlineMode)) {
-          ATH_MSG_ERROR( "Cache load (prefetch) failed for folder " << 
-            folder->folderName() );
+          ATH_MSG_ERROR( "Cache load (prefetch) failed for folder " << folder->folderName() );
           // remember the failure, but also load other folders on this connection
           // while it is open
           sc=StatusCode::FAILURE;
