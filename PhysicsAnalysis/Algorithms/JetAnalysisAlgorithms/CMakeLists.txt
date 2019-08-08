@@ -51,9 +51,17 @@ if( XAOD_STANDALONE )
    atlas_add_test( testJobFastSim
       SCRIPT JetAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
       PROPERTIES TIMEOUT 300 )
-else()
-   atlas_add_test( testJob
+elseif( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
+   atlas_add_test( testJobData
       SCRIPT athena.py
-      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_jobOptions.py
+      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_jobOptions.py - --data-type data
+      PROPERTIES TIMEOUT 300 )
+   atlas_add_test( testJobFullSim
+      SCRIPT athena.py
+      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_jobOptions.py - --data-type mc
+      PROPERTIES TIMEOUT 300 )
+   atlas_add_test( testJobFastSim
+      SCRIPT athena.py
+      JetAnalysisAlgorithms/JetAnalysisAlgorithmsTest_jobOptions.py - --data-type afii
       PROPERTIES TIMEOUT 300 )
 endif()

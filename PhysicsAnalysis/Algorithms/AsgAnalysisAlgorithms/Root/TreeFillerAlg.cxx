@@ -35,33 +35,23 @@ namespace CP {
                        "Name of the tree to write" );
    }
 
-   StatusCode TreeFillerAlg::initialize() {
+   StatusCode TreeFillerAlg::execute() {
+      // get the output tree for the first time
+      if( ! m_tree ) {
+         m_tree = tree( m_treeName );
+      }
 
-      // get the output tree.
-      m_tree = tree( m_treeName );
       if( ! m_tree ) {
          ATH_MSG_ERROR( "Could not find output tree \"" << m_treeName
                         << "\"" );
          return StatusCode::FAILURE;
       }
 
-      // Return gracefully.
-      return StatusCode::SUCCESS;
-   }
-
-   StatusCode TreeFillerAlg::execute() {
-
       // Fill the tree.
       if( m_tree->Fill() < 0 ) {
          ATH_MSG_ERROR( "Error while filling TTree" );
          return StatusCode::FAILURE;
       }
-
-      // Return gracefully.
-      return StatusCode::SUCCESS;
-   }
-
-   StatusCode TreeFillerAlg::finalize() {
 
       // Return gracefully.
       return StatusCode::SUCCESS;

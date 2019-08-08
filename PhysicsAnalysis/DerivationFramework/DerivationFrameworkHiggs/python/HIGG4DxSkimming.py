@@ -31,7 +31,7 @@ def setup(HIGG4DxName, ToolSvc):
     tauProngs = "abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3)"
     tauTracks = "(TauJets.nTracks == 1 || TauJets.nTracks == 3)"
     
-    tauProngs123 = "( ( abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3) ) || (TauJets.pt > 100.0*GeV && TauJets.nTracks == 2 ) )"
+    tauProngs123 = "( ( abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3) ) || ((TauJets.pt > 100.0*GeV || TauJets.ptFinalCalib > 100.0*GeV) && TauJets.nTracks == 2 ) )"
     tauTracks123 = "(TauJets.nTracks == 1 || TauJets.nTracks == 2 || TauJets.nTracks == 3)"
 
     if HIGG4DxName == 'HIGG4D1':     
@@ -48,16 +48,16 @@ def setup(HIGG4DxName, ToolSvc):
         e22 = '(count( Electrons.pt > 22.0*GeV && '+eleMedium+') >= 1)'
         mu12 = '(count( Muons.pt > 12.0*GeV && abs(Muons.eta) < 2.5 && '+muonQual+' ) >= 1)'
         mu18 = '(count( Muons.pt > 18.0*GeV && abs(Muons.eta) < 2.5 && '+muonQual+' ) >= 1)'
-        tau18 = '(count( TauJets.pt > 18.0*GeV && '+tauProngs123+' ) >= 1)'
-        tau23 = '(count( TauJets.pt > 23.0*GeV && '+tauProngs123+' ) >= 1)'
+        tau18 = '(count((TauJets.pt > 18.0*GeV || TauJets.ptFinalCalib > 18.0*GeV) && '+tauProngs123+' ) >= 1)'
+        tau23 = '(count((TauJets.pt > 23.0*GeV || TauJets.ptFinalCalib > 23.0*GeV) && '+tauProngs123+' ) >= 1)'
         mutau = '('+mu18+' && '+tau18+') || ('+mu12+' && '+tau23+')'
         etau = '('+e22+' && '+tau18+') || ('+e15+' && '+tau23+')'
         skim_expression = '('+mutau+') || ('+etau+')'
 
     elif HIGG4DxName == 'HIGG4D3':
         tauTrks = '( (TauJets.nTracks + TauJets.nTracksIsolation >= 1) && (TauJets.nTracks + TauJets.nTracksIsolation <= 8) )'
-        tauLead = '(TauJets.pt > 33.0*GeV)'
-        tauSubl = '(TauJets.pt > 23.0*GeV)'
+        tauLead = '((TauJets.pt > 33.0*GeV || TauJets.ptFinalCalib > 33.0*GeV))'
+        tauSubl = '((TauJets.pt > 23.0*GeV || TauJets.ptFinalCalib > 23.0*GeV))'
         tauId   = '(HIGG4DxJetBDTSigLoose || HIGG4DxJetRNNSigLoose)'
         tauReq0 = '(count( '+tauSubl+' && '+tauTrks+' ) >= 2)'
         tauReq1 = '(count( '+tauSubl+' && '+tauTrks+' && '+tauId+' ) >= 1)'
@@ -65,10 +65,10 @@ def setup(HIGG4DxName, ToolSvc):
         skim_expression = tauReq0 + '&&' + tauReq1 + '&&' + tauReq2 + '&&'  + lepVeto
 
     elif HIGG4DxName == 'HIGG4D4':
-        ditau = '(count( '+tauProngs123+' && TauJets.pt > 45.0*GeV) >= 2)'
-        tau1 = '(count((TauJets.pt > 100.0*GeV)) >= 1)'
-        tau2 = '(count((TauJets.pt > 45.0*GeV)) >= 2)'
-        tauTrack = '(count('+tauTracks123+' && TauJets.pt > 45.0*GeV) >= 1)'
+        ditau = '(count( '+tauProngs123+' && (TauJets.pt > 45.0*GeV || TauJets.ptFinalCalib > 45.0*GeV)) >= 2)'
+        tau1 = '(count(((TauJets.pt > 100.0*GeV || TauJets.ptFinalCalib > 100.0*GeV))) >= 1)'
+        tau2 = '(count(((TauJets.pt > 45.0*GeV || TauJets.ptFinalCalib > 45.0*GeV))) >= 2)'
+        tauTrack = '(count('+tauTracks123+' && (TauJets.pt > 45.0*GeV || TauJets.ptFinalCalib > 45.0*GeV)) >= 1)'
         trigger = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 || HLT_j360 || HLT_j380 || HLT_j400 || HLT_j420 || HLT_j440 || HLT_j460 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12 || HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM || HLT_tau80_medium1_tracktwo_L1TAU60_tau60_medium1_tracktwo_L1TAU40 || HLT_j450 || HLT_tau160_medium1_tracktwo_L1TAU100 || HLT_tau160_medium1_tracktwoEF_L1TAU100 || HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100)'
         DFisMC = (globalflags.DataSource()=='geant4')
         if not DFisMC:
@@ -78,7 +78,7 @@ def setup(HIGG4DxName, ToolSvc):
         skim_expression = hadhad + "&&" + lepVeto
 
     elif HIGG4DxName == 'HIGG4D5':
-        tau = '(count('+tauTracks123+' && TauJets.pt > 30.0*GeV) >= 1)'
+        tau = '(count('+tauTracks123+' && (TauJets.pt > 30.0*GeV || TauJets.ptFinalCalib > 30.0*GeV)) >= 1)'
         trigger_main = '( HLT_xe70 || HLT_xe70_mht || HLT_xe90_L1XE50 || HLT_xe90_mht_L1XE50 || HLT_xe110_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_j360 || HLT_j380 || HLT_tau80_medium1_tracktwo_L1TAU60 || HLT_tau125_medium1_tracktwo || HLT_tau160_medium1_tracktwo || HLT_noalg_L1J400 || HLT_xe110_pufit_L1XE55 || HLT_j400 || HLT_j420 || HLT_j450 ||  HLT_tau160_medium1_tracktwo_L1TAU100 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_tau35_medium1_tracktwo_xe70_L1XE45 || HLT_mu50 ||  HLT_mu26_ivarmedium || HLT_xe110_pufit_xe65_L1XE50 || HLT_xe110_pufit_xe70_L1XE50 || HLT_xe120_pufit_L1XE50 || HLT_tau35_medium1_tracktwoEF_xe70_L1XE45 || HLT_tau35_mediumRNN_tracktwoMVA_xe70_L1XE45 || HLT_tau160_medium1_tracktwoEF_L1TAU100 || HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100) '
         trigger_aux = '( HLT_j15 || HLT_j25 || HLT_j35 || HLT_j55 || HLT_j60 || HLT_j85 || HLT_j110 || HLT_j150 || HLT_j175 || HLT_j200 || HLT_j260 || HLT_j300 || HLT_j320 )'
         DFisMC = (globalflags.DataSource()=='geant4')
@@ -132,7 +132,7 @@ def setupFatJetSkim(HIGG4DxName, ToolSvc):
     tauProngs13 = "( abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3) )"
     if HIGG4DxName == 'HDBS1':
         ditau = '(count( (DiTauJetsLowPt.pt > 50.0*GeV) && (DiTauJetsLowPt.nSubjets >=2 ) ) >= 1)'
-        twotau = '(count( TauJets.pt > 20.0*GeV && '+tauProngs13+' ) >= 2)'
+        twotau = '(count( (TauJets.pt > 20.0*GeV || TauJets.ptFinalCalib > 20.0*GeV) && '+tauProngs13+' ) >= 2)'
         tauReq = '( '+ditau+' || '+twotau+' )'
         Bjet = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 30.0*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.5 && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1)'
         skim_expression = tauReq + "&&" + Bjet 

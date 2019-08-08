@@ -74,6 +74,22 @@ DerivationFrameworkJob += jetm13Seq
 from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 runTCCReconstruction(jetm13Seq,ToolSvc, outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
+
+# Add the necessary constituents for UFOs
+from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
+addCHSPFlowObjects()
+pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
+
+from JetRec.JetRecConf import JetAlgorithm
+clustSeqAlg = JetAlgorithm("ClusterModifiers", Tools = [pflowCSSKSeq])
+jetm13Seq += clustSeqAlg
+
+# Finally we can run the UFO building taking our unified PFlow container as input
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
+emufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CHS")
+emcsskufoAlg = runUFOReconstruction(jetm13Seq,ToolSvc, PFOPrefix="CSSK")
+
+
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
@@ -114,6 +130,16 @@ JETM13SlimmingHelper.ExtraVariables = [
   "MuonSegments.x.y.z.px.py.pz",
   "AntiKt4LCTopoJets.pt.eta.phi.m",
   ]
+
+
+JETM13SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM13SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM13SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.taste' ]
+
+JETM13SlimmingHelper.AppendToDictionary["CSSKUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM13SlimmingHelper.AppendToDictionary['CSSKUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM13SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.taste' ]
+
 
 for truthc in [
   "TruthMuons",

@@ -2,11 +2,21 @@
 #
 # @author Tadej Novak
 
-# Ideally we'd run over all of them, but we don't have a mechanism to
-# configure per-sample right now
-dataType = "data"
-#dataType = "mc"
-#dataType = "afii"
+# User options, which can be set from command line after a "-" character
+# athena EgammaAlgorithmsTest_jobOptions.py - --myOption ...
+from AthenaCommon.AthArgumentParser import AthArgumentParser
+athArgsParser = AthArgumentParser()
+athArgsParser.add_argument("--data-type", action = "store", dest = "data_type",
+                           default = "data",
+                           help = "Type of input to run over. Valid options are 'data', 'mc', 'afii'")
+athArgs = athArgsParser.parse_args()
+
+dataType = athArgs.data_type
+if not dataType in ["data", "mc", "afii"] :
+    raise Exception ("invalid data type: " + dataType)
+
+print("Running on data type: " + dataType)
+
 inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "mc":   'ASG_TEST_FILE_MC',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
@@ -27,7 +37,7 @@ athAlgSeq += algSeq
 # Set up a histogram output file for the job:
 ServiceMgr += CfgMgr.THistSvc()
 ServiceMgr.THistSvc.Output += [
-    "ANALYSIS DATAFILE='TriggerAlgorithmsTest.root' OPT='RECREATE'"
+    "ANALYSIS DATAFILE='TriggerAlgorithmsTest." + dataType + ".hist.root' OPT='RECREATE'"
     ]
 
 # Reduce the printout from Athena:

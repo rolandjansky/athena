@@ -45,6 +45,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("TDPPath","Path to TopDataPreparation file (accessible via PathResolver)","dev/AnalysisTop/TopDataPreparation/XSection-MC16-13TeV.data");
 
     registerParameter("DumpBtagSystsInSystTrees", "Dump systematics-shifted b-tagging SFs in systematic TTrees, True or False (default: False)","False");
+    registerParameter("StorePerJetBtagSFs", "Store per-jet btag SFs","False");
 
     registerParameter("ElectronID", "Type of electron. Likelihood LooseAndBLayerLH, MediumLH, TightLH","TightLH");
     registerParameter("ElectronIDLoose", "Type of electron for background. Likelihood LooseAndBLayerLH, MediumLH, TightLH","MediumLH");

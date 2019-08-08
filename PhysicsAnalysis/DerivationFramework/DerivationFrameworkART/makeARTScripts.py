@@ -8,7 +8,7 @@ makeTrains=True
 formatList = ['PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ4', 'TOPQ5',
               'HIGG1D1', 'HIGG1D2',
-              'HIGG2D1', 'HIGG2D4', 'HIGG2D5',
+              'HIGG2D1', 'HIGG2D4', 'HDBS2',
               'HIGG3D1', 'HIGG3D3',
               'HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5','HIGG4D6',
               'HIGG5D1', 'HIGG5D2', 'HIGG5D3',
@@ -32,7 +32,7 @@ formatList = ['PHYSVAL',
 truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 
 trainList = [ 
-              ["TCAL1","EXOT10","HIGG2D5"],
+              ["TCAL1","EXOT10","HDBS2"],
               ["JETM12","EGAM3","JETM10"],
               ["STDM5","EGAM4","EGAM2","EXOT12","SUSY9","EXOT9"],
               ["MUON2","HIGG4D4","JETM7","BPHY7","EXOT17","BPHY5","EGAM7","HIGG1D2"],
@@ -69,10 +69,10 @@ dataFileZeroBias = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Derivation
 heavyIonFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.15763788._016518.pool.root.1"
 heavyIon4File = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data15_hi.00287866.physics_UPC.merge.AOD.f984_m2025._lb0257._0001.1"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
-dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-47\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"InDetTrackParticlesFixer\", Containers = [ \"InDetTrackParticlesAux.\" ] )\' "
-dataPreExecHION = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(False); from BTagging.BTaggingFlags import BTaggingFlags; BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-47\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"BTaggingFixer\", Containers=[\"BTagging_AntiKt4HIAux.\"] )\' "
+dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"InDetTrackParticlesFixer\", Containers = [ \"InDetTrackParticlesAux.\" ] )\' "
+dataPreExecHION = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(False); from BTagging.BTaggingFlags import BTaggingFlags; BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"BTaggingFixer\", Containers=[\"BTagging_AntiKt4HIAux.\"] )\' "
 dataMergePreExec = " --preExec \'rec.doHeavyIon.set_Value_and_Lock(False)\' "
-mcPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-47\" \' "
+mcPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-49\" \' "
 
 def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    outputFileName = "test_"+label+formatName+".sh"

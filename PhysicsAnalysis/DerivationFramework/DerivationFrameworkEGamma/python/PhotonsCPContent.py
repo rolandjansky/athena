@@ -10,5 +10,11 @@ PhotonsCPContent = [
 "egammaClusters",
 "egammaClustersAux.calE.calEta.calPhi.e_sampl.eta_sampl.etaCalo.phiCalo.ETACALOFRAME.PHICALOFRAME.clusterSize.altE.calM.constituentClusterLinks",
 "Electrons",
-"ElectronsAux.trackParticleLinks.truthParticleLink.caloClusterLinks"
+"ElectronsAux.trackParticleLinks.truthParticleLink.caloClusterLinks",
+"TopoClusterIsoCentralEventShape",
+"TopoClusterIsoCentralEventShapeAux.Density",
+"TopoClusterIsoForwardEventShape",
+"TopoClusterIsoForwardEventShapeAux.Density",
+"NeutralParticleFlowIsoCentralEventShape",
+"NeutralParticleFlowIsoCentralEventShapeAux.Density"    
 ]

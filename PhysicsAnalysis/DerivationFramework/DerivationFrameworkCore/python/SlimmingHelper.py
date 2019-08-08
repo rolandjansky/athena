@@ -40,6 +40,7 @@ from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansio
 from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
 from DerivationFrameworkCore.AllVariablesDisallowed import AllVariablesDisallowed
 from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
+from DerivationFrameworkCore.PreliminarySmartContainers import PreliminarySmartContainers
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags  import globalflags
 import PyUtils.Logging as L
@@ -140,6 +141,10 @@ class SlimmingHelper:
                         for item in self.AllVariables:
                                 # Block AllVariables for containers with smart slimming lists, for those formats for which it is disallowed
                                 if (formatName in AllVariablesDisallowed) and (item in FullListOfSmartContainers):
+                                    # We have a preliminary list of smart collections as a way to roll out new ones
+                                    if item in PreliminarySmartContainers:
+                                        msg.warning("Using AllVariables for a container with a smart slimming list ("+item+") will soon be disabled for format "+formatName+" - please use smart slimming and/or ExtraVariables, this will be promoted to an exception soon!")
+                                    else:
                                         msg.error("Using AllVariables for a container with a smart slimming list ("+item+") is not permitted for the format "+formatName+" - please use smart slimming and/or ExtraVariables")
                                         raise RuntimeError("AllVariables not permitted for requested DAOD format")
                                 masterItemList.extend(self.GetWholeContentItems(item))
@@ -446,22 +451,19 @@ class SlimmingHelper:
                 elif collectionName=="AntiKt8EMPFlowExKt3SubJets":
                         from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3SubJetsCPContent import AntiKt8EMPFlowExKt3SubJetsCPContent
                         items.extend(AntiKt8EMPFlowExKt3SubJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt2GASubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt2GASubJetsCPContent import AntiKt8EMPFlowExKt2GASubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt2GASubJetsCPContent)
+                elif collectionName=="AntiKt8EMPFlowExKt3GASubJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8EMPFlowExKt3GASubJetsCPContent import AntiKt8EMPFlowExKt3GASubJetsCPContent
+                        items.extend(AntiKt8EMPFlowExKt3GASubJetsCPContent)
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackGhostTagJets":
                         items.append(collectionName)
                 elif collectionName=="AntiKtVR30Rmax4Rmin02TrackJets":
                         items.append(collectionName)
-                elif collectionName=="BTagging_AntiKt4LCTopo":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4LCTopoJets"))
-                elif collectionName=="BTagging_AntiKt4EMTopo":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4EMTopoJets"))
                 elif collectionName=="BTagging_AntiKt4EMTopo_201810":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4EMTopoJets_BTagging201810"))
-                elif collectionName=="BTagging_AntiKt4EMPFlow":
-                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets"))
                 elif collectionName=="BTagging_AntiKt4EMPFlow_201810":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets_BTagging201810"))
@@ -508,6 +510,12 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt8EMPFlowExKt3Sub":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt3SubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt2GASub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt2GASubJets"))
+                elif collectionName=="BTagging_AntiKt8EMPFlowExKt3GASub":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKt8EMPFlowExKt3GASubJets"))
                 elif collectionName=="BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2SubJets"))

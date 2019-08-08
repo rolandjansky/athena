@@ -90,7 +90,9 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         "pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn."
         "ele_match_lhscore."
         "ele_olr_pass."
-        "electronLink"
+        "electronLink."
+        "seedTrackWidthPt500."
+        "seedTrackWidthPt1000"
         ,
         "TauNeutralParticleFlowObjects."
         "pt."

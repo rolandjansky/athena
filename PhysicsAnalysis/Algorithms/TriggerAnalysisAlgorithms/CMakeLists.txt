@@ -45,8 +45,16 @@ if( XAOD_STANDALONE )
      SCRIPT TriggerAlgorithmsTest_eljob.py --data-type afii --unit-test
      PROPERTIES TIMEOUT 300 )
 else()
-   atlas_add_test( TriggerAlgorithmsTestJob
+   atlas_add_test( TriggerAlgorithmsTestJobData
       SCRIPT athena.py
-             TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py
+             TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py - --data-type data
+      PROPERTIES TIMEOUT 300 )
+   atlas_add_test( TriggerAlgorithmsTestJobFullSim
+      SCRIPT athena.py
+             TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py - --data-type mc
+      PROPERTIES TIMEOUT 300 )
+   atlas_add_test( TriggerAlgorithmsTestJobFastSim
+      SCRIPT athena.py
+             TriggerAnalysisAlgorithms/TriggerAlgorithmsTest_jobOptions.py - --data-type afii
       PROPERTIES TIMEOUT 300 )
 endif()

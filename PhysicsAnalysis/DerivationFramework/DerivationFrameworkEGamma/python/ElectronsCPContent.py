@@ -10,5 +10,13 @@ ElectronsCPContent = [
 "PrimaryVertices",
 "PrimaryVerticesAux.trackParticleLinks.vertexType.neutralParticleLinks",
 "egammaClusters",
-"egammaClustersAux.calE.calEta.calPhi.e_sampl.eta_sampl.etaCalo.phiCalo.ETACALOFRAME.PHICALOFRAME.ETA2CALOFRAME.PHI2CALOFRAME.constituentClusterLinks"
+"egammaClustersAux.calE.calEta.calPhi.e_sampl.eta_sampl.etaCalo.phiCalo.ETACALOFRAME.PHICALOFRAME.ETA2CALOFRAME.PHI2CALOFRAME.constituentClusterLinks",
+"TopoClusterIsoCentralEventShape",
+"TopoClusterIsoCentralEventShapeAux.Density",
+"TopoClusterIsoForwardEventShape",
+"TopoClusterIsoForwardEventShapeAux.Density",
+"NeutralParticleFlowIsoCentralEventShape",
+"NeutralParticleFlowIsoCentralEventShapeAux.Density",
+"NeutralParticleFlowIsoForwardEventShape",
+"NeutralParticleFlowIsoForwardEventShapeAux.Density"
 ]

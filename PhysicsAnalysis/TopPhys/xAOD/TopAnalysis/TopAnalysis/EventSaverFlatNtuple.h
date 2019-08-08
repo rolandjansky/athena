@@ -440,6 +440,10 @@ private:
     std::unordered_map<std::string, float> m_weight_bTagSF;
     std::unordered_map<std::string, float> m_weight_trackjet_bTagSF;
 
+    // per-jet nominal btag SF
+    std::unordered_map<std::string, std::vector<float> > m_perjet_weight_bTagSF;
+    std::unordered_map<std::string, std::vector<float> > m_perjet_weight_trackjet_bTagSF;
+
     // JVT (c++11 initialization for fun)
     float m_weight_jvt = 0.0;
     float m_weight_jvt_up = 0.0;
@@ -453,6 +457,11 @@ private:
     std::unordered_map<std::string, std::vector<float>> m_weight_bTagSF_eigen_B_down;
     std::unordered_map<std::string, std::vector<float>> m_weight_trackjet_bTagSF_eigen_B_up;
     std::unordered_map<std::string, std::vector<float>> m_weight_trackjet_bTagSF_eigen_B_down;
+    
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_bTagSF_eigen_B_up;
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_bTagSF_eigen_B_down;
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_trackjet_bTagSF_eigen_B_up;
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_trackjet_bTagSF_eigen_B_down;
 
     // eigen variations affecting c-jets [WP]
     std::unordered_map<std::string, std::vector<float>> m_weight_bTagSF_eigen_C_up;
@@ -460,17 +469,32 @@ private:
     std::unordered_map<std::string, std::vector<float>> m_weight_trackjet_bTagSF_eigen_C_up;
     std::unordered_map<std::string, std::vector<float>> m_weight_trackjet_bTagSF_eigen_C_down;
 
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_bTagSF_eigen_C_up;
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_bTagSF_eigen_C_down;
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_trackjet_bTagSF_eigen_C_up;
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_trackjet_bTagSF_eigen_C_down;
+
     // eigen variations affecting light jets [WP]
     std::unordered_map<std::string, std::vector<float>> m_weight_bTagSF_eigen_Light_up;
     std::unordered_map<std::string, std::vector<float>> m_weight_bTagSF_eigen_Light_down;
     std::unordered_map<std::string, std::vector<float>> m_weight_trackjet_bTagSF_eigen_Light_up;
     std::unordered_map<std::string, std::vector<float>> m_weight_trackjet_bTagSF_eigen_Light_down;
 
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_bTagSF_eigen_Light_up;
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_bTagSF_eigen_Light_down;
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_trackjet_bTagSF_eigen_Light_up;
+    std::unordered_map<std::string, std::vector<std::vector<float>>> m_perjet_weight_trackjet_bTagSF_eigen_Light_down;
+
     // named systematics [WP][name]
     std::unordered_map<std::string, std::unordered_map<std::string, float>> m_weight_bTagSF_named_up;
     std::unordered_map<std::string, std::unordered_map<std::string, float>> m_weight_bTagSF_named_down;
     std::unordered_map<std::string, std::unordered_map<std::string, float>> m_weight_trackjet_bTagSF_named_up;
     std::unordered_map<std::string, std::unordered_map<std::string, float>> m_weight_trackjet_bTagSF_named_down;
+
+    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> m_perjet_weight_bTagSF_named_up;
+    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> m_perjet_weight_bTagSF_named_down;
+    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> m_perjet_weight_trackjet_bTagSF_named_up;
+    std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>> m_perjet_weight_trackjet_bTagSF_named_down;
 
     ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
     /// m_fakesMM_weights[selection][configuration]
@@ -1130,7 +1154,9 @@ protected:
 
   // nominal b-tagging SF [WP]
   const std::unordered_map<std::string, float>& weight_bTagSF() const { return m_weight_bTagSF;}
+  const std::unordered_map<std::string, std::vector<float>>& perjet_weight_bTagSF() const { return m_perjet_weight_bTagSF;}
   const std::unordered_map<std::string, float>& weight_trackjet_bTagSF() const { return m_weight_trackjet_bTagSF;}
+  const std::unordered_map<std::string, std::vector<float>>& perjet_weight_trackjet_bTagSF() const { return m_perjet_weight_trackjet_bTagSF;}
 
   // JVT (c++11 initialization for fun)
   const float& weight_jvt () const { return m_weight_jvt ;}
@@ -1145,21 +1171,37 @@ protected:
   const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_B_down() const { return m_weight_bTagSF_eigen_B_down;}
   const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_B_up() const { return m_weight_trackjet_bTagSF_eigen_B_up;}
   const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_B_down() const { return m_weight_trackjet_bTagSF_eigen_B_down;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_bTagSF_eigen_B_up() const { return m_perjet_weight_bTagSF_eigen_B_up;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_bTagSF_eigen_B_down() const { return m_perjet_weight_bTagSF_eigen_B_down;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_trackjet_bTagSF_eigen_B_up() const { return m_perjet_weight_trackjet_bTagSF_eigen_B_up;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_trackjet_bTagSF_eigen_B_down() const { return m_perjet_weight_trackjet_bTagSF_eigen_B_down;}
   // eigen variations affecting c-jets [WP]
   const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_C_up() const { return m_weight_bTagSF_eigen_C_up;}
   const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_C_down() const { return m_weight_bTagSF_eigen_C_down;}
   const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_C_up() const { return m_weight_trackjet_bTagSF_eigen_C_up;}
   const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_C_down() const { return m_weight_trackjet_bTagSF_eigen_C_down;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_bTagSF_eigen_C_up() const { return m_perjet_weight_bTagSF_eigen_C_up;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_bTagSF_eigen_C_down() const { return m_perjet_weight_bTagSF_eigen_C_down;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_trackjet_bTagSF_eigen_C_up() const { return m_perjet_weight_trackjet_bTagSF_eigen_C_up;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_trackjet_bTagSF_eigen_C_down() const { return m_perjet_weight_trackjet_bTagSF_eigen_C_down;}
   // eigen variations affecting light jets [WP]
   const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_Light_up() const { return m_weight_bTagSF_eigen_Light_up;}
   const std::unordered_map<std::string, std::vector<float>>& weight_bTagSF_eigen_Light_down() const { return m_weight_bTagSF_eigen_Light_down;}
   const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_Light_up() const { return m_weight_trackjet_bTagSF_eigen_Light_up;}
   const std::unordered_map<std::string, std::vector<float>>& weight_trackjet_bTagSF_eigen_Light_down() const { return m_weight_trackjet_bTagSF_eigen_Light_down;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_bTagSF_eigen_Light_up() const { return m_perjet_weight_bTagSF_eigen_C_up;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_bTagSF_eigen_Light_down() const { return m_perjet_weight_bTagSF_eigen_C_down;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_trackjet_bTagSF_eigen_Light_up() const { return m_perjet_weight_trackjet_bTagSF_eigen_Light_up;}
+  const std::unordered_map<std::string, std::vector<std::vector<float>>>& perjet_weight_trackjet_bTagSF_eigen_Light_down() const { return m_perjet_weight_trackjet_bTagSF_eigen_Light_down;}
   // named systematics [WP][name]
   const std::unordered_map<std::string, std::unordered_map<std::string, float>>& weight_bTagSF_named_up() const { return m_weight_bTagSF_named_up;}
   const std::unordered_map<std::string, std::unordered_map<std::string, float>>& weight_bTagSF_named_down() const { return m_weight_bTagSF_named_down;}
   const std::unordered_map<std::string, std::unordered_map<std::string, float>>& weight_trackjet_bTagSF_named_up() const { return m_weight_trackjet_bTagSF_named_up;}
   const std::unordered_map<std::string, std::unordered_map<std::string, float>>& weight_trackjet_bTagSF_named_down() const { return m_weight_trackjet_bTagSF_named_down;}
+  const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_bTagSF_named_up() const { return m_perjet_weight_bTagSF_named_up;}
+  const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_bTagSF_named_down() const { return m_perjet_weight_bTagSF_named_down;}
+  const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_trackjet_bTagSF_named_up() const { return m_perjet_weight_trackjet_bTagSF_named_up;}
+  const std::unordered_map<std::string, std::unordered_map<std::string, std::vector<float>>>& perjet_weight_trackjet_bTagSF_named_down() const { return m_perjet_weight_trackjet_bTagSF_named_down;}
 
   ///-- weights for matrix-method fakes estimate, for each selection and configuration --///
   /// m_fakesMM_weights[selection][configuration]

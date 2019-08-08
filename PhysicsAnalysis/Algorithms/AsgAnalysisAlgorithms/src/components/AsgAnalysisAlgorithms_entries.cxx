@@ -7,9 +7,10 @@
 
 #include <GaudiKernel/DeclareFactoryEntries.h>
 
-#include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
-#include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
+#include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
+#include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>
+#include <AsgAnalysisAlgorithms/AsgEventScaleFactorAlg.h>
 #include <AsgAnalysisAlgorithms/AsgLeptonTrackSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
@@ -25,8 +26,9 @@
 #include <AsgAnalysisAlgorithms/TreeFillerAlg.h>
 #include <AsgAnalysisAlgorithms/TreeMakerAlg.h>
 
-DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgPtEtaSelectionTool)
 DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgFlagSelectionTool)
+DECLARE_NAMESPACE_TOOL_FACTORY (CP, AsgPtEtaSelectionTool)
+DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgCutBookkeeperAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgEventScaleFactorAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgLeptonTrackSelectionAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, AsgSelectionAlg)
@@ -44,8 +46,9 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, TreeFillerAlg)
 DECLARE_NAMESPACE_ALGORITHM_FACTORY (CP, TreeMakerAlg)
 
 DECLARE_FACTORY_ENTRIES(AsgAnalysisAlgorithms) {
-  DECLARE_NAMESPACE_ALGTOOL (CP, AsgPtEtaSelectionTool)
   DECLARE_NAMESPACE_ALGTOOL (CP, AsgFlagSelectionTool)
+  DECLARE_NAMESPACE_ALGTOOL (CP, AsgPtEtaSelectionTool)
+  DECLARE_NAMESPACE_ALGORITHM (CP, AsgCutBookkeeperAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgEventScaleFactorAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgLeptonTrackSelectionAlg)
   DECLARE_NAMESPACE_ALGORITHM (CP, AsgSelectionAlg)

@@ -168,6 +168,8 @@ namespace top{
     // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
     m_dumpBtagSystsInSystTrees(false),
 
+    m_storePerJetBtagSFs(false),
+
     // Electron configuration
     m_egammaSystematicModel("1NP_v1"),
     m_electronEfficiencySystematicModel("TOTAL"),
@@ -755,6 +757,10 @@ namespace top{
     // special: allow to dump the systematics-shifted b-tagging SFs in the systematics trees
     if (settings->value( "DumpBtagSystsInSystTrees" ) == "True")
       this->dumpBtagSystsInSystTrees(true);
+
+    // special: store per-jet btag SFs
+    if (settings->value( "StorePerJetBtagSFs" ) == "True")
+      this->storePerJetBtagSFs(true);
 
     // Electron configuration
     this->egammaSystematicModel( settings->value("EgammaSystematicModel") );
