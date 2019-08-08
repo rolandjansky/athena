@@ -13,10 +13,14 @@
 // STL includes
 #include <ctime>
 #include <chrono>
+#include <fstream>
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
+typedef std::map< std::string, long > memory_map_t; // Component -> Memory Measurement(kB)
+
+inline memory_map_t operator-( memory_map_t& map1,  memory_map_t& map2);
 
 /*
  * Necessary tools
@@ -26,6 +30,10 @@ namespace PMonMT {
   double get_thread_cpu_time();
   double get_process_cpu_time();
   double get_wall_time();
+
+  memory_map_t get_mem_stats();
+
+  
 
   // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
   struct StepComp {
@@ -65,10 +73,12 @@ namespace PMonMT {
     // This map stores the measurements captured in the event loop
     std::map< StepCompEvent, Measurement > meas_map;
 
+    memory_map_t mem_map;
 
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
+      mem_map = get_mem_stats();
     }
 
     // Could we make it argumentless?
@@ -94,6 +104,9 @@ namespace PMonMT {
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
 
+    memory_map_t m_mem_tmp_map;
+    memory_map_t m_mem_delta_map;
+
     // These maps are used to calculate the parallel monitoring
     std::map< StepCompEvent, Measurement > m_tmp_map;
     std::map< StepCompEvent, Measurement > m_delta_map;    
@@ -103,11 +116,16 @@ namespace PMonMT {
 
       m_tmp_cpu = meas.cpu_time;
       m_tmp_wall = meas.wall_time;
+
+      m_mem_tmp_map = meas.mem_map;
     }
-    void addPointStop(const Measurement& meas)  {     
+    // make const
+    void addPointStop(Measurement& meas)  {     
 
       m_delta_cpu = meas.cpu_time - m_tmp_cpu;
       m_delta_wall = meas.wall_time - m_tmp_wall;
+
+      m_mem_delta_map = meas.mem_map - m_mem_tmp_map;   
     }
 
     // Clear -> Make generic + make meas const
@@ -163,6 +181,48 @@ inline double PMonMT::get_wall_time() {
   return static_cast<double>(std::chrono::system_clock::now().time_since_epoch() /
                              std::chrono::milliseconds(1));
 }
+
+inline memory_map_t operator-( memory_map_t& map1,  memory_map_t& map2){
+  memory_map_t result_map;
+  for(auto it : map1){
+    result_map[it.first] = map1[it.first] - map2[it.first];
+  }
+  return result_map;
+}
+
+// Is it ok to define inline?
+inline memory_map_t PMonMT::get_mem_stats(){
+
+  memory_map_t result;
+  std::ifstream smaps_file("/proc/self/smaps");
+ 
+  std::string line;
+  std::string key;
+  std::string value;
+
+  while(getline(smaps_file, line)){
+
+    std::stringstream ss(line);
+    ss >> key >> value;
+
+    if(key == "Size:"){
+      result["vmem"] += stol(value);
+    }
+    if(key == "Rss:"){
+      result["rss"] += stol(value);
+    }
+    if(key == "Pss:"){
+      result["pss"] += stol(value);
+    }
+    if(key == "Swap:"){
+      result["swap"] += stol(value);
+    }
+
+  }
+  //return static_cast<memory_map_t>result;
+  return result; 
+}
+
 
 
 #endif // PERFMONCOMPS_PERFMONMTUTILS_H

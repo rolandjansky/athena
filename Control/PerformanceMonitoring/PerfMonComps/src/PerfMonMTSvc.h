@@ -30,6 +30,7 @@
 // Other Libraries
 #include <algorithm>
 #include <functional>
+#include <sys/stat.h> 
 
 /*
  * In the snapshot level monitoring, currently we monitor 3 steps as a whole:
@@ -95,22 +96,34 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2Stdout();
   
     void report2Stdout_Description() const;
-    void report2Stdout_Serial();
+
+    void report2Stdout_Time_Serial();
+    void report2Stdout_Time_Parallel();
+
+    void report2Stdout_Mem_Serial();
+    void report2Stdout_Mem_Parallel();
+
     void report2Stdout_Parallel();
-    void report2Stdout_Summary() const;
+    void report2Stdout_Summary();  // make it const
     void report2Stdout_CpuInfo() const;
 
     void report2JsonFile() const;
 
     void report2JsonFile_Summary(nlohmann::json& j) const;
-    void report2JsonFile_Serial(nlohmann::json& j) const;
-    void report2JsonFile_Parallel(nlohmann::json& j) const;
+
+    void report2JsonFile_Time_Serial(nlohmann::json& j) const;
+    void report2JsonFile_Time_Parallel(nlohmann::json& j) const;
+
+    void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
+    void report2JsonFile_Mem_Parallel(nlohmann::json& j) const;
+
 
 
     int getEventNumber() const;
     void eventCounter(int eventNumber);
     
     bool isLoop() const; // Returns true if the execution is at the event loop, false o/w.
+    bool isDirectoryExist(const std::string dir) const;
 
     void parallelDataAggregator(); // 
 
