@@ -69,7 +69,7 @@ TrigMatchTool::getConfiguredChainNames() const
   return m_trigDecisionTool->getListOfTriggers();
 }
 
-std::string TrigMatchTool::lowerChainName( const std::string& chainName ) {
+std::string TrigMatchTool::lowerChainName( const std::string& chainName ) const {
 
    // enable expert methods in tdt
    Trig::ExpertMethods *em = m_trigDecisionTool->ExperimentalAndExpertMethods();
@@ -94,8 +94,6 @@ void TrigMatchTool::handle( const Incident &inc ) {
       // Clear and re-build all cached information. (The LVL1->LVL2 mapping
       // is re-built the next time it is needed.)
       clearChainIndex();
-      m_l1l2Map.clear();
-      buildL1L2Map();
    }
 
    return;

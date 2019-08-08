@@ -16,8 +16,6 @@ TrigMatchToolCore::TrigMatchToolCore()
     m_trigDecisionToolCore(0),
     m_nFeatureContainers (100)
 {
-
-   m_l1l2Map.clear();
    m_featureLabel = "";
    m_caches = &m_cacheMap[""];
 }
@@ -32,78 +30,9 @@ TrigMatchToolCore::~TrigMatchToolCore()
 }
 
 std::string
-TrigMatchToolCore::propagateChainNames( const std::string &chainName ) {
-
-   // only applicable for L1 chains
-   if( chainName.find( "L1_" ) == std::string::npos )
-      return chainName;
-
-   // check that the cache is built
-   this->buildL1L2Map();
-
-   // add it to the cache if necessary
-   if( m_l1l2Map.find( chainName ) == m_l1l2Map.end() ) {
-
-      // if its not in the cache, we need to check
-      // if we can build it from the cache.
-      // regex support
-      boost::regex compiled( chainName );
-      boost::cmatch what;
-      std::string chains;
-
-      std::map< std::string, std::string >::const_iterator iter =
-         m_l1l2Map.begin();
-      std::map< std::string, std::string >::const_iterator end =
-         m_l1l2Map.end();
-      for( ; iter != end; ++iter ) {
-         // check if the l1 chain matches the regex supplied by chainName
-         if( boost::regex_match( iter->first.c_str(), what, compiled ) ) {
-            if( chains.empty() ) {
-               chains += iter->second;
-            } else {
-               chains += "|" + iter->second;
-            }
-         }
-      }
-
-      // add it to the cache
-      m_l1l2Map[ chainName ] = chains;
-    }
-
-   // if it wasn't in the cache before, it will be now, so pull it out
-   std::string output = m_l1l2Map[ chainName ];
-   if( output.find( "|" ) != std::string::npos ) {
-      output = "(" + output + ")";
-   }
-
-   return output;
-}
-
-// Build the L1L2 map.  Note that we ignore regex support
-// at this stage - we'll implement regex support by matching
-// to the keys in the cache later on.  Also note that the
-// cached version does not have parentheses around it (so
-// they can easily be combined)
-void TrigMatchToolCore::buildL1L2Map() {
-
-   if( m_l1l2Map.size() ) return;
-
-   for (const std::string& chainName : m_chainNameIndex.configuredChainNames()){
-
-      if( chainName.find("L2_") == std::string::npos ) {
-         continue;
-      }
-
-      const std::string l1 = this->lowerChainName( chainName );
-
-      if( m_l1l2Map.find( l1 ) == m_l1l2Map.end() ) {
-         m_l1l2Map[ l1 ] = chainName;
-      } else {
-         m_l1l2Map[ l1 ] = m_l1l2Map[ l1 ] + "|" + chainName;
-      }
-   }
-
-   return;
+TrigMatchToolCore::propagateChainNames( const std::string &chainName ) const
+{
+   return m_chainNameIndex.propagateChainNames (chainName);
 }
 
 
@@ -201,8 +130,25 @@ TrigMatchToolCore::ChainNameIndex::assertConfiguredChainNames()
     m_chainNames = m_core->getConfiguredChainNames();
     m_nConfiguredChainNames = m_chainNames.size();
     m_chainIndexMap.clear();
-    for (size_t i = 0; i < m_chainNames.size(); i++)
-      m_chainIndexMap[m_chainNames[i]] = i;
+    for (size_t i = 0; i < m_chainNames.size(); i++) {
+      const std::string& chainName = m_chainNames[i];
+      m_chainIndexMap[chainName] = i;
+
+      // Build the L1L2 map.  Note that we ignore regex support
+      // at this stage - we'll implement regex support by matching
+      // to the keys in the cache later on.  Also note that the
+      // cached version does not have parentheses around it (so
+      // they can easily be combined)
+      if (chainName.find("L2_") != std::string::npos) {
+        const std::string l1 = m_core->lowerChainName( chainName );
+
+        if( m_l1l2Map.find( l1 ) == m_l1l2Map.end() ) {
+          m_l1l2Map[ l1 ] = chainName;
+        } else {
+          m_l1l2Map[ l1 ] = m_l1l2Map[ l1 ] + "|" + chainName;
+        }
+      }
+    }
   }
 }
 
@@ -250,6 +196,54 @@ TrigMatchToolCore::ChainNameIndex::clear()
   m_chainNames.clear();
   m_chainIndexMap.clear();
   m_nConfiguredChainNames = 0;
+  m_l1l2Map.clear();
   assertConfiguredChainNames();
 }
 
+
+std::string
+TrigMatchToolCore::ChainNameIndex::propagateChainNames( const std::string &chainName )
+{
+   // only applicable for L1 chains
+   if( chainName.find( "L1_" ) == std::string::npos )
+      return chainName;
+
+  lock_t lock (m_mutex);
+
+  // add it to the cache if necessary
+   if( m_l1l2Map.find( chainName ) == m_l1l2Map.end() ) {
+
+      // if its not in the cache, we need to check
+      // if we can build it from the cache.
+      // regex support
+      boost::regex compiled( chainName );
+      boost::cmatch what;
+      std::string chains;
+
+      std::map< std::string, std::string >::const_iterator iter =
+         m_l1l2Map.begin();
+      std::map< std::string, std::string >::const_iterator end =
+         m_l1l2Map.end();
+      for( ; iter != end; ++iter ) {
+         // check if the l1 chain matches the regex supplied by chainName
+         if( boost::regex_match( iter->first.c_str(), what, compiled ) ) {
+            if( chains.empty() ) {
+               chains += iter->second;
+            } else {
+               chains += "|" + iter->second;
+            }
+         }
+      }
+
+      // add it to the cache
+      m_l1l2Map[ chainName ] = chains;
+    }
+
+   // if it wasn't in the cache before, it will be now, so pull it out
+   std::string output = m_l1l2Map[ chainName ];
+   if( output.find( "|" ) != std::string::npos ) {
+      output = "(" + output + ")";
+   }
+
+   return output;
+}

@@ -70,7 +70,7 @@ private:
    // use the tdt to get access the the name of the chain that
    // seeded the current chain
    virtual
-   std::string lowerChainName( const std::string& chainName ) override;
+   std::string lowerChainName( const std::string& chainName ) const override;
     
    // note that we access the trig decision tool normally
    // in athena
