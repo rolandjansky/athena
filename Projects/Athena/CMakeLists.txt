@@ -117,9 +117,13 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
 string( REPLACE "${TDAQ_VERSION}" "\${TDAQ_VERSION}"
    TDAQ_ATROOT "${TDAQ_ATROOT}" )
 
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PreConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
+install( FILES
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Package up the release using CPack:
