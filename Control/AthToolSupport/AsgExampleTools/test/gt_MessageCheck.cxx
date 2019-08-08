@@ -54,11 +54,11 @@ namespace asg
 
       MessagePrinterMock message_printer;
       MessagePrinterOverlay overlay (&message_printer);
-      EXPECT_CALL (message_printer, print (MSG::ERROR, "AsgToolsMessageTest", MatchesRegex (".*error text")))
+      EXPECT_CALL (message_printer, print (MSG::ERROR, "Package.AsgToolsMessageTest", MatchesRegex (".*error text")))
         .Times (1);
-      EXPECT_CALL (message_printer, print (MSG::INFO, "AsgToolsMessageTest", MatchesRegex (".*info text")))
+      EXPECT_CALL (message_printer, print (MSG::INFO, "Package.AsgToolsMessageTest", MatchesRegex (".*info text")))
         .Times (level<=MSG::INFO);
-      EXPECT_CALL (message_printer, print (MSG::DEBUG, "AsgToolsMessageTest", MatchesRegex (".*debug text")))
+      EXPECT_CALL (message_printer, print (MSG::DEBUG, "Package.AsgToolsMessageTest", MatchesRegex (".*debug text")))
         .Times (level<=MSG::DEBUG);
 
       msgTest::msg().setLevel (level);
