@@ -14,7 +14,7 @@ if numThreads > 0:
   AlgScheduler.ShowDataDependencies( True )
 
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 3
+theApp.EvtMax = 20
 theApp.AuditAlgorithms = True
 
 from AthenaCommon.AppMgr import ServiceMgr
@@ -40,6 +40,7 @@ ServiceMgr.EventSelector.InitialTimeStamp = 1476741326 # LB 18 of run 310809, 10
 from IOVDbSvc.CondDB import conddb
 ServiceMgr.IOVDbSvc.GlobalTag = "OFLCOND-RUN12-SDR-25"
 ServiceMgr.IOVDbSvc.OutputLevel = DEBUG
+ServiceMgr.IOVDbSvc.OutputToFile = True
 
 #--------------------------------------------------------------
 # use auditors
@@ -110,4 +111,5 @@ if numThreads >= 2:
   from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
   sctCondAlgCardinality.set(numThreads)
   topSequence.SCT_TestCablingAlg = numThreads
+  
 
