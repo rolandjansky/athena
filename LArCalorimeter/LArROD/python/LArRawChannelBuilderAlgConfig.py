@@ -13,8 +13,6 @@ def LArRawChannelBuilderAlgCfg(configFlags):
         acc.addEventAlgo(LArRawChannelBuilderAlg())
     else:
         acc.addEventAlgo(LArRawChannelBuilderAlg(LArRawChannelKey="LArRawChannels_fromDigits"))
-        from  ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-        acc.merge(ByteStreamReadCfg(configFlags,typeNames=["LArDigitContainer/FREE",]))
     return acc
 
 
@@ -31,7 +29,11 @@ if __name__=="__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    acc=LArRawChannelBuilderAlgCfg(ConfigFlags)
+    from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
+    from  ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+    acc=ByteStreamReadCfg(ConfigFlags)
+    acc.addEventAlgo(LArRawDataReadingAlg())
+    acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
     
     from LArEventTest.LArEventTestConf import DumpLArRawChannels
     acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_fromDigits",))
