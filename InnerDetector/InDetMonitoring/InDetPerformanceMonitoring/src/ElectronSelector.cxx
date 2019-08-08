@@ -311,7 +311,7 @@ bool ElectronSelector::OrderElectronList()
       goodlist = false;
     }
 
-    if ((m_doDebug) && elecposcount + elecnegcount >= 2 ){ 
+    if (m_doDebug && elecposcount + elecnegcount >= 2 ){ 
       std::cout << " -- ElectronSelector::OrderElectronList -- electron summary list taking " << elecposcount + elecnegcount 
 		<< "  electrons from the input list of " << m_pxElTrackList.size() << " electrons: " << std::endl;
       if (m_elecneg1 >= 0) std::cout << "                                leading e-: " << m_elecneg1 << "   Pt = " << ptMinus1 << std::endl;
