@@ -496,7 +496,12 @@ class TRTConditionsServicesSetup:
 
     if not (conddb.folderRequested('/TRT/Calib/errors') or conddb.folderRequested('/TRT/Onl/Calib/errors')):
       conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className='TRTCond::RtRelationMultChanContainer')
-      # not needed anymore conddb.addOverride('/TRT/Onl/Calib/errors','TrtCalibErrorsOnl-ErrorVal-00-00')
+
+    if not (conddb.folderRequested('/TRT/Calib/errors2d') or conddb.folderRequested('/TRT/Onl/Calib/errors2d')):
+      conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className='TRTCond::RtRelationMultChanContainer')
+
+    if not (conddb.folderRequested('/TRT/Calib/slopes') or conddb.folderRequested('/TRT/Onl/Calib/slopes')):
+      conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
 
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className='CondAttrListCollection')
