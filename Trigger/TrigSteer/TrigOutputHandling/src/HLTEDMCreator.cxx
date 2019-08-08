@@ -56,7 +56,8 @@ StatusCode HLTEDMCreator::initialize()
   INIT_XAOD( MuonContainer );
   INIT_XAOD( TauJetContainer );
   INIT_XAOD( JetContainer );
-  INIT_XAOD( VertexContainer )
+  INIT_XAOD( VertexContainer );
+  INIT_XAOD( TrigBphysContainer );  
 
   INIT_XAOD( CaloClusterContainer );
 
@@ -309,7 +310,8 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   // After view collections are merged, need to update collection links
 
   CREATE_XAOD( JetContainer, JetAuxContainer );
-  CREATE_XAOD( VertexContainer,VertexAuxContainer )
+  CREATE_XAOD( VertexContainer,VertexAuxContainer );
+  CREATE_XAOD( TrigBphysContainer, TrigBphysAuxContainer );
 
   ATH_CHECK( fixLinks() );
   
