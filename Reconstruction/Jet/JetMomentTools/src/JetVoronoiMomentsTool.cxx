@@ -31,19 +31,27 @@ JetVoronoiMomentsTool::JetVoronoiMomentsTool(const std::string& name)
     declareProperty("AreaXmax",m_x_max);
     declareProperty("AreaYmin",m_y_min);
     declareProperty("AreaYmax",m_y_max);
-    declareProperty("VoronoiAreaDecorKey", m_voronoiAreaKey = "");
+    declareProperty("JetContainer", m_jetContainerName);
 
+    m_voronoiAreaKey = m_jetContainerName + ".VoronoiArea";
 }
 
 StatusCode JetVoronoiMomentsTool::initialize() {
+
+  if(m_jetContainerName.empty()){
+    ATH_MSG_ERROR("JetVoronoiMomentsTool needs to have its input jet container name configured!");
+    return StatusCode::FAILURE;
+  }
+
   ATH_CHECK(m_voronoiAreaKey.initialize());
   return StatusCode::SUCCESS;
 }
 
 StatusCode JetVoronoiMomentsTool::decorate(const xAOD::JetContainer& jets) const {
 
-    if(m_voronoiAreaKey.empty()){
-      ATH_MSG_ERROR("JetVoronoiMomentsTool wasn't given a key for its output decoration!");
+    SG::WriteDecorHandle<xAOD::JetContainer, float> outputHandle(m_voronoiAreaKey);
+    if(outputHandle.ptr() != &jets){
+      ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
       return StatusCode::FAILURE;
     }
 
@@ -62,7 +70,7 @@ StatusCode JetVoronoiMomentsTool::decorate(const xAOD::JetContainer& jets) const
     if ( voro.createVoronoiDiagram().isFailure() ) {
         ATH_MSG_WARNING("Could not calculate Voronoi diagram");
     }
-    SG::WriteDecorHandle<xAOD::JetContainer, float> outputHandle(m_voronoiAreaKey);
+    // decorate the jets
     for (const xAOD::Jet *jet : jets ){
       outputHandle(*jet) = voro.getCellArea(jet->eta(), jet->phi());
     }

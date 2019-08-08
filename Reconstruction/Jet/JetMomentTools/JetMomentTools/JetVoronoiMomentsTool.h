@@ -48,9 +48,8 @@ private:
   float m_y_min;
   float m_y_max;
 
+  std::string m_jetContainerName;
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_voronoiAreaKey;
-
-  int modifyJet(xAOD::Jet& jet, const JetVoronoiDiagramHelpers::Diagram & voro) const;
 
 };
 
