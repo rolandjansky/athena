@@ -1,3 +1,7 @@
+/*                                                                                                                                                                                                                                          
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration                                                                                                                                                                   
+*/
+
 #ifndef PFSUBTRACTIONSTATUSSETTER_H
 #define PFSUBTRACTIONSTATUSSETTER_H
 
