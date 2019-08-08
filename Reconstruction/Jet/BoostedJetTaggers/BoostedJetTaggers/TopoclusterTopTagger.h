@@ -58,7 +58,7 @@ class TopoclusterTopTagger :  public JSSTaggerBase {
     StatusCode initialize();
 
     // IJetSelectorTool interface
-    virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+    virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
 
     // Preprocess the jet constituents by applying transformations
     void preprocess(std::map<std::string,double> &clusters, xAOD::Jet jet) const;

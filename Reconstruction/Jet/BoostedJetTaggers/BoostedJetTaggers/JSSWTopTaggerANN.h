@@ -45,7 +45,7 @@ class JSSWTopTaggerANN:  public JSSTaggerBase {
   virtual StatusCode initialize() override final;
   
   // IJSSTagger interface
-  virtual Root::TAccept tag(const xAOD::Jet& jet) const override final;
+  virtual Root::TAccept& tag(const xAOD::Jet& jet) const override final;
   
   // Retrieve score for a given ANN type (top/W)
   double getScore(const xAOD::Jet& jet) const;

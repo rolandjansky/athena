@@ -327,7 +327,7 @@ StatusCode JSSWTopTaggerANN::initialize(){
   return StatusCode::SUCCESS;
 }
 
-Root::TAccept JSSWTopTaggerANN::tag(const xAOD::Jet& jet) const{
+Root::TAccept& JSSWTopTaggerANN::tag(const xAOD::Jet& jet) const{
 
   ATH_MSG_DEBUG( ": Obtaining ANN result" );
 

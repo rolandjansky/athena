@@ -37,7 +37,7 @@ class IJetSelectorLabelTool : public virtual IJetSelectorTool {
    * @fn
    * attach a truth label to the given jet and return the tagging result
    */
-  virtual Root::TAccept tag(const xAOD::Jet& jet) const = 0;
+  virtual Root::TAccept& tag(const xAOD::Jet& jet) const = 0;
   
   /**
    * @fn

@@ -48,7 +48,7 @@ class BoostedXbbTagger : public JSSTaggerBase {
     StatusCode initialize();
     StatusCode finalize();
 
-    virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+    virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
 
     // return a vector of track jets which are btagged by the tool
     std::vector<const xAOD::Jet*> getTrackJets(const xAOD::Jet& jet) const;

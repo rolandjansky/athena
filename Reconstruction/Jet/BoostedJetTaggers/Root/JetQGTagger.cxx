@@ -265,7 +265,7 @@ namespace CP {
   }
 
 
-  Root::TAccept JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv) const {
+  Root::TAccept& JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv) const {
 
     double jetWeight = -1;
     int    jetNTrack = -1;

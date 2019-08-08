@@ -48,7 +48,7 @@ namespace CP {
       virtual StatusCode initialize() override;
 
       // IJetSelectorTool interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet) const override;
+      virtual Root::TAccept& tag(const xAOD::Jet& jet) const override;
 
       // Retrieve BDT score
       float getScore(const xAOD::Jet& jet) const;
