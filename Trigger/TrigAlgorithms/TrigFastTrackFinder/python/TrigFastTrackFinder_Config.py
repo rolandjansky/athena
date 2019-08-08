@@ -410,6 +410,9 @@ class TrigFastTrackFinder_Cosmic_Monitoring(TrigFastTrackFinder_CommonMonitoring
                                              xbins = 100, xmin=-0.5, xmax=99.5)]
 
 remap  = {
+    "FTKRefit" : "FTKRefit",
+    "FTKMon"   : "FTKMon",
+    "FTK"      : "FTK",
     "Muon"     : "muon",
     "MuonFS"   : "muon",
     "MuonCore" : "muonCore",
