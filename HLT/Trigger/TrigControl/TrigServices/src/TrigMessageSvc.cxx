@@ -94,7 +94,7 @@ void TrigMessageSvc::bookHistograms()
   }
 
   // monitoring information root directory
-  const std::string path = "/EXPERT/" + name() + "/";
+  const std::string path = "/EXPERT/HLTFramework/" + name() + "/";
   const int nLevelBins = MSG::NUM_LEVELS - m_publishLevel;
   m_msgCountHist = new TH1I("MessageCount", "Messages while RUNNING;Severity;Count",
                             nLevelBins, 0, nLevelBins);

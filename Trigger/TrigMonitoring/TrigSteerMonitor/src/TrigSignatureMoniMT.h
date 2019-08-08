@@ -44,7 +44,7 @@ class TrigSignatureMoniMT : public ::AthReentrantAlgorithm
   std::map<unsigned int, int> m_chainIDToBinMap;
   
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
-  Gaudi::Property<std::string> m_bookingPath{ this, "HistParh", "/EXPERT/TrigSteer_HLT", "Booking path for the histogram"};
+  Gaudi::Property<std::string> m_bookingPath{ this, "HistPath", "/EXPERT/HLTFramework", "Booking path for the histogram"};
 
   mutable LockedHandle<TH2> m_passHistogram;
   mutable LockedHandle<TH2> m_countHistogram;

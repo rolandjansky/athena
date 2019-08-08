@@ -39,10 +39,10 @@ StatusCode TrigSignatureMoniMT::start() {
   ATH_CHECK( initHist( h2 ) );
   ATH_CHECK( initHist( h3 ) );
 
-  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/SignatureAcceptance", std::move(h1), m_passHistogram));
-  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/DecisionCount", std::move(h2), m_countHistogram));
-  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/RateCountBuffer", std::move(h3), m_rateHistogram));
-  ATH_CHECK( m_histSvc->regShared( m_bookingPath + '/' + outputName.c_str(), std::move(ho), m_outputHistogram));
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/SignatureAcceptance", std::move(h1), m_passHistogram));
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/DecisionCount", std::move(h2), m_countHistogram));
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + "/RateCountBuffer", std::move(h3), m_rateHistogram));
+  ATH_CHECK( m_histSvc->regShared( m_bookingPath + "/" + name() + '/' + outputName.c_str(), std::move(ho), m_outputHistogram));
   
   m_timer = std::make_unique<Athena::AlgorithmTimer>(0, boost::bind(&TrigSignatureMoniMT::callback, this), Athena::AlgorithmTimer::DELIVERYBYTHREAD);
   m_timer->start(m_duration*50);  

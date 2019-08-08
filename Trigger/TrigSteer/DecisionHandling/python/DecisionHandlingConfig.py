@@ -9,7 +9,7 @@ def setupFilterMonitoring( filterAlg ):
     inputKeys = filterAlg.Input
     
     nbins = 2+len(inputKeys)
-    monTool.HistPath="Filters" 
+    monTool.HistPath="HLTFramework/Filters"
     monTool.defineHistogram( 'counts;'+filterAlg.name(),  path='EXPERT', type='TH1I', title='Count of calls and inputs',
                              xbins=nbins, xmin=0, xmax=nbins,
                              labels=['n_execs', 'n_valid'] + inputKeys )
