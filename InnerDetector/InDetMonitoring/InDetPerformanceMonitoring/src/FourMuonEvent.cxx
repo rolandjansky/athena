@@ -165,24 +165,6 @@ bool FourMuonEvent::Reco()
       else {
 	  if (m_doDebug) std::cout << " * FourMuonEvent::Reco * === Event " << m_eventCount << " FAILS the 4-muon event selection " << std::endl;
       }
-
-      /* ---- VELL --- START
-      m_passedFourMuonSelection = true;  // now that we know the event has 4 muons, assume the event satisfies the selection cuts
-    
-      if ( m_passedFourMuonSelection && thisdebug) std::cout << " * FourMuonEvent::Reco * This events has 4 muons. Let's check... " << std::endl;
-      
-      m_passedFourMuonSelection = this->ReconstructKinematics(); // try the event kinematics 
-      
-      if (m_passedFourMuonSelection) {
-	m_passedFourMuonSelection = EventSelection(ID);
-	m_FourMuonInvMass = m_fInvariantMass[ID];
-      }
-      else {
-	if (m_doDebug || thisdebug) std::cout << " * FourMuonEvent::Reco * This events has no 4 good muons :( " << std::endl;
-      }          
-      if (!m_passedFourMuonSelection && thisdebug) std::cout << " * FourMuonEvent::Reco * However the 4 muons are not good for the analysis :( " << std::endl;
-      ---- VELL -- END */
-      
     }  
   } // end of workAsFourMuons
   
