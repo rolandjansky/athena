@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagCalibration/JetTagCalibCondData.h"
@@ -170,7 +170,7 @@ MVAUtils::BDT* JetTagCalibCondData::retrieveBdt(const std::string& tagger, const
   return bdt;
 }
 
-lwt::JSONConfig JetTagCalibCondData::retrieveDL1NN(std::string& tagger, const std::string& channel) const {
+lwt::JSONConfig JetTagCalibCondData::retrieveDL1NN(const std::string& tagger, const std::string& channel) const {
   MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
   lwt::JSONConfig  config;
   std::map< std::string , std::map<std::string, lwt::JSONConfig>>::const_iterator mI;
