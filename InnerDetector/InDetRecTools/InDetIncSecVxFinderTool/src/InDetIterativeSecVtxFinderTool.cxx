@@ -479,7 +479,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
         double distance=0.;
         try
         {
-          Trk::PlaneSurface* mySurface=m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter,&seedVertex);
+          Trk::PlaneSurface* mySurface=m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter,&seedVertex, distance);
           delete mySurface;
           isOK=true;
           ATH_MSG_VERBOSE( " ImpactPoint3dEstimator done " );
@@ -489,9 +489,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
           ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p );
         }
         
-        if (isOK)
+        if (not isOK)
         {
-          distance=m_ImpactPoint3dEstimator->getDistance();
+          distance=0.;
         }
         
         if (distance<0)
@@ -1268,7 +1268,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
             try
             {
               Trk::PlaneSurface* mySurface= 
-                   m_ImpactPoint3dEstimator->Estimate3dIP( (*tracksIter).initialPerigee(), &((*vxIter)->position()) );
+                m_ImpactPoint3dEstimator->Estimate3dIP( (*tracksIter).initialPerigee(), &((*vxIter)->position()), distance);
               delete mySurface;
               isOK=true;
             }
@@ -1277,7 +1277,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
               ATH_MSG_WARNING( " ImpactPoint3dEstimator failed  " << err.p );
             }
         
-            if (isOK) distance=m_ImpactPoint3dEstimator->getDistance();
+            if (not isOK) distance=0.;
 
             double error= 1. ;
 	
