@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -1647,7 +1647,6 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   
   //get tracks
   const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
-  //const DataVector<xAOD::TrackParticle>* trkPs = m_trackSelection->selectTracksParticle(m_tracksName);
 
 
   
