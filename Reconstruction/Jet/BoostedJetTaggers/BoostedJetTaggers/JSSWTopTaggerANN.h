@@ -42,10 +42,10 @@ class JSSWTopTaggerANN:  public JSSTaggerBase {
   ~JSSWTopTaggerANN();
   
   // Run once at the start of the job to setup everything
-  StatusCode initialize();
+  virtual StatusCode initialize() override final;
   
   // IJSSTagger interface
-  virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+  virtual Root::TAccept tag(const xAOD::Jet& jet) const override final;
   
   // Retrieve score for a given ANN type (top/W)
   double getScore(const xAOD::Jet& jet) const;
@@ -54,11 +54,10 @@ class JSSWTopTaggerANN:  public JSSTaggerBase {
   double getWeight(const xAOD::Jet& jet) const;
   
   // Write the decoration to the jet
-  void decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const;
+  void decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const; 
   
   // Update the jet substructure variables for each jet to use in ANN
   std::map<std::string, std::map<std::string,double>> getJetProperties(const xAOD::Jet& jet) const;
-  StatusCode finalize();
   
 private:
   std::string m_name;
