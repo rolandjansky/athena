@@ -26,7 +26,7 @@ namespace FlavorTagDiscriminants {
     BTagMuonAugmenter(std::string muonAssociationName,
                       float muonMinDR = defaults::MUON_MIN_DR,
                       float muonMinpT = defaults::MUON_MIN_PT,
-                      EDMSchema = EDMSchema::WINTER_2018,
+                      EDMSchema = EDMSchema::FEB_2019,
                       FlipTagConfig = FlipTagConfig::STANDARD);
     ~BTagMuonAugmenter();
     BTagMuonAugmenter(BTagMuonAugmenter&&);

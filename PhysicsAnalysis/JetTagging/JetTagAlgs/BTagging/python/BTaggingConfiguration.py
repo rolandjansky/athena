@@ -517,7 +517,7 @@ class Configuration:
 
           options.setdefault("preBtagToolModifiers", [])
           if jetcol in preTagDL2JetToTrainingMap and BTaggingFlags.Do2019Retraining:
-              aug = MuonTool(get_training_name('BTagMuonAugmenterTool'))
+              aug = MuonTool(get_training_name('BTagMuonAugmenterTool'),schema='FEB_2019')
               ToolSvc += aug
               options['preBtagToolModifiers'].append(aug)
               for nn_file in preTagDL2JetToTrainingMap[jetcol]:
