@@ -1,18 +1,16 @@
 #!/bin/bash
 
-# art-description: Trigger MC pp v7 RDO to BS and BS to ESD test
+# art-description: Trigger MC pp v8 RDO to BS and BS to ESD test
 # art-type: build
-# art-include: 21.1/AthenaP1
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-export NAME="mc_pp_v7_rdotobstoesd_build"
+export NAME="mc_pp_v8_rdotobstoesd_build"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
-export MENU="MC_pp_v7"
+export MENU="MC_pp_v8"
 export EVENTS="3"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoBS.py"
 

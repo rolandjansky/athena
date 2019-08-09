@@ -1,9 +1,7 @@
 #!/bin/bash
 
-# art-description: Trigger MC pp v7 RDO to AOD test
+# art-description: Trigger MC pp v8 RDO to AOD test
 # art-type: grid
-# art-include: 21.1/AthenaP1
-# art-include: 21.0/Athena
 # art-include: 21.3/Athena
 # art-include: master/Athena
 # art-output: *.txt
@@ -19,10 +17,10 @@
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
 
-export NAME="mc_pp_v7_rdotoaod_grid"
+export NAME="mc_pp_v8_rdotoaod_grid"
 export COST_MONITORING="False"
 export TEST="TrigAnalysisTest"
-export MENU="MC_pp_v7"
+export MENU="MC_pp_v8"
 export EVENTS="100"
 export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoAOD.py"
 
