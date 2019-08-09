@@ -3,10 +3,10 @@
 */
 
 #include "LArRecConditions/LArCalibLineMapping.h"
-#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnlineID_Base.h"
 
 
-LArCalibLineMapping::LArCalibLineMapping(const LArOnlineID* onlineId) :
+LArCalibLineMapping::LArCalibLineMapping(const LArOnlineID_Base* onlineId) :
   m_onlineId(onlineId)
 
 {}
