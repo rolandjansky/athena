@@ -1,55 +1,17 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: MsgLevel.h 690850 2015-08-24 08:29:10Z krasznaa $
-/// @file AsgTools/MsgLevel.h
-/// @author David Adams <dladams@bnl.gov>
-/// @brief Definition of message levels and a helper function
-///
-/// $Revision: 690850 $
-/// $Date: 2015-08-24 10:29:10 +0200 (Mon, 24 Aug 2015) $
-///
-#ifndef ASGTOOLS_MSGLEVEL_H
-#define ASGTOOLS_MSGLEVEL_H
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
-// System include(s):
-#include <string>
+#ifndef FILE_AsgTools_MsgMevel_h
+#define FILE_AsgTools_MsgMevel_h
 
-// Local include(s):
-#include "AsgTools/AsgToolsConf.h"
+// this file is likely used in a variety of places, so this warning is
+// disabled in 21.2.  once this gets swept to master it may be a good
+// idea to include this warning and remove all the users.
 
-// Pull in the definition from Gaudi in Athena:
-#ifdef ASGTOOL_ATHENA
-#   include "GaudiKernel/IMessageSvc.h"
+// #warning "use of this file is deprecated, please include the header from AsgMessaging instead"
+
+#include <AsgMessaging/MsgLevel.h>
+#include <AsgTools/AsgToolsConf.h>
+
 #endif
-
-// Not sure why this is needed...
-#undef ERROR
-
-namespace MSG {
-
-#ifdef ASGTOOL_STANDALONE
-
-   /// Message level definitions
-   enum Level {
-      NIL = 0,
-      VERBOSE,
-      DEBUG,
-      INFO,
-      WARNING,
-      ERROR,
-      FATAL,
-      ALWAYS,
-      NUM_LEVELS
-   }; // enum Level
-
-#endif // ASGTOOL_STANDALONE
-
-   /// Convenience function for translating message levels to strings
-   const std::string& name( Level lvl );
-
-   /// This struct is here only to make the dictionary generation for types in
-   /// the MSG namespace successful.
-   struct DummyStruct {};
-
-}  // end namespace MSG
-
-#endif // ASGTOOLS_MSGLEVEL_H

@@ -1,4 +1,6 @@
-// CLASS_DEF.h
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // David Adams
 // January 2014
@@ -13,7 +15,7 @@
 
 // Set this flag to show calls to CLASS_DEF in stanadlone environments.
 //#define CLASSDEF_SHOWDEFS
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   #undef CLASSDEF_SHOWDEFS
 #endif
 
@@ -25,7 +27,7 @@ int announce(const char* name, int clid) {
 }
 #endif
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
   #include "SGTools/CLASS_DEF.h"
 #else
   #ifdef CLASSDEF_SHOWDEFS

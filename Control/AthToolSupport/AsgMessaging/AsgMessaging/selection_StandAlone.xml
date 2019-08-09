@@ -1,0 +1,15 @@
+<!--
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ -->
+
+<lcgdict>
+
+   <!-- Primitive types: -->
+   <class name="StatusCode" />
+   <class name="MSG::DummyStruct" />
+   <enum name="MSG::Level" />
+   <function name="MSG::name" />
+   <class name="MsgStream" />
+   <class name="INamedInterface" />
+
+</lcgdict>

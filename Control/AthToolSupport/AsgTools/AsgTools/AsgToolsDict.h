@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: AsgToolsDict.h 743773 2016-04-28 21:21:41Z krumnack $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_ASGTOOLSDICT_H
 #define ASGTOOLS_ASGTOOLSDICT_H
 
@@ -11,13 +13,12 @@
 #include "AsgTools/IAsgTool.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/AsgMetadataTool.h"
-#include "AsgTools/AsgMessaging.h"
 #include "AsgTools/ToolStore.h"
 
 // The following is only needed for standalone usage. In Athena the
 // setProperty(...) function(s) come(s) from the AlgTool base class, with all
 // the necessary dictionaries declared in GaudiKernel.
-#ifdef ASGTOOL_STANDALONE
+#ifdef XAOD_STANDALONE
 
 // Helper macro for declaring the setProperty functions to the dictionary:
 #define SETPROPERTY_INSTAN( TYPE )                                            \
@@ -54,5 +55,5 @@ SETPROPERTY_INSTAN( std::vector< std::string > );
 // Make the compiler forget about this macro now...
 #undef SETPROPERTY_INSTAN
 
-#endif // ASGTOOL_STANDALONE
+#endif // XAOD_STANDALONE
 #endif // not ASGTOOLS_ASGTOOLSDICT_H

@@ -2,26 +2,16 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-/// @author Nils Krumnack
+#ifndef FILE_AsgTools_MessagePrinterMock_h
+#define FILE_AsgTools_MessagePrinterMock_h
 
+// this file is likely used in a variety of places, so this warning is
+// disabled in 21.2.  once this gets swept to master it may be a good
+// idea to include this warning and remove all the users.
 
+// #warning "use of this file is deprecated, please include the header from AsgMessaging instead"
 
-#ifndef ASG_TOOLS__MESSAGE_PRINTER_MOCK_H
-#define ASG_TOOLS__MESSAGE_PRINTER_MOCK_H
-
-#include <AsgTools/IMessagePrinter.h>
-#include <gmock/gmock.h>
-
-#ifdef XAOD_STANDALONE
-
-namespace asg
-{
-  struct MessagePrinterMock : public IMessagePrinter
-  {
-    MOCK_METHOD3 (print, void (MSG::Level, const std::string&, const std::string&));
-  };
-}
-
-#endif
+#include <AsgMessaging/MessagePrinterMock.h>
+#include <AsgTools/AsgToolsConf.h>
 
 #endif

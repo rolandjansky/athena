@@ -3,7 +3,7 @@
 */
 
 // Local include(s):
-#include "AsgTools/AsgMessagingForward.h"
+#include "AsgMessaging/AsgMessagingForward.h"
 
 namespace asg
 {

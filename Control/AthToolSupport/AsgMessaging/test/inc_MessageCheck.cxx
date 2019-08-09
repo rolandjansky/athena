@@ -10,7 +10,7 @@
 // includes
 //
 
-#include <AsgTools/MessageCheck.h>
+#include <AsgMessaging/MessageCheck.h>
 
 using namespace asg;
 

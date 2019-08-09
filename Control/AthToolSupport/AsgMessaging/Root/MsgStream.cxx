@@ -1,4 +1,6 @@
-// $Id: MsgStream.cxx 803209 2017-04-19 21:18:32Z krumnack $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 // System include(s):
 #include <string>
@@ -6,11 +8,11 @@
 #include <iomanip>
 
 // Local include(s):
-#include "AsgTools/MsgStream.h"
-#include "AsgTools/IMessagePrinter.h"
-#include "AsgTools/MessagePrinterOverlay.h"
+#include "AsgMessaging/MsgStream.h"
+#include "AsgMessaging/IMessagePrinter.h"
+#include "AsgMessaging/MessagePrinterOverlay.h"
 
-MsgStream::MsgStream( const asg::IAsgTool* tool )
+MsgStream::MsgStream( const INamedInterface* tool )
    : m_tool( tool ), m_name( "" ),
      m_lvl( MSG::INFO ), m_reqlvl( MSG::NIL ) {
 
