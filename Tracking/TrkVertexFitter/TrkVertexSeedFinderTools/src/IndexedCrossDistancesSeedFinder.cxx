@@ -28,7 +28,7 @@ namespace Trk
 {
 
   IndexedCrossDistancesSeedFinder::IndexedCrossDistancesSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_useweights(true),
     m_trackdistcutoff(0.020),
     m_trackdistexppower(2),
@@ -48,26 +48,18 @@ namespace Trk
     declareProperty("TrkDistanceFinder",     m_distancefinder);
     declareProperty("maximumTracksNoCut",m_maximumTracksNoCut);
     declareProperty("maximumDistanceCut",m_maximumDistanceCut);
-    
-    declareInterface<IVertexSeedFinder>(this);
   }
 
-  IndexedCrossDistancesSeedFinder::~IndexedCrossDistancesSeedFinder() {}
+
+  IndexedCrossDistancesSeedFinder::~IndexedCrossDistancesSeedFinder()
+  {
+  }
+
 
   StatusCode IndexedCrossDistancesSeedFinder::initialize() 
   { 
-    StatusCode s = m_mode3dfinder.retrieve();
-    if (s.isFailure())
-      {
-	ATH_MSG_FATAL( "Could not find mode3dfinder tool." );
-	return StatusCode::FAILURE;
-      }
-    s = m_distancefinder.retrieve();
-    if (s.isFailure())
-      {
-	ATH_MSG_FATAL( "Could not find distance finder tool." );
-	return StatusCode::FAILURE;
-      }
+    ATH_CHECK( m_mode3dfinder.retrieve() );
+    ATH_CHECK( m_distancefinder.retrieve() );
     ATH_MSG_INFO( "Initialize successful" );
     return StatusCode::SUCCESS;
   }
@@ -81,7 +73,7 @@ namespace Trk
 
   Amg::Vector3D
   IndexedCrossDistancesSeedFinder::findSeed(const std::vector<const Trk::Track*> & /*VectorTrk*/,
-                                            const xAOD::Vertex * /*constraint*/)
+                                            const xAOD::Vertex * /*constraint*/) const
   {
     ATH_MSG_ERROR ("Need to supply a primary vertex.");
     return Amg::Vector3D(0.,0.,0.);
@@ -90,7 +82,7 @@ namespace Trk
 
   Amg::Vector3D
   IndexedCrossDistancesSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & /*perigeeList*/,
-                                            const xAOD::Vertex * /*constraint*/)
+                                            const xAOD::Vertex * /*constraint*/) const
   {
     ATH_MSG_ERROR ("Need to supply a primary vertex.");
     return Amg::Vector3D(0.,0.,0.);
@@ -101,7 +93,7 @@ namespace Trk
   IndexedCrossDistancesSeedFinder::findSeed(const double vx,
                                             const double vy,
                                             const std::vector<const Trk::TrackParameters*>& perigeeList,
-                                            const xAOD::Vertex* constraint)
+                                            const xAOD::Vertex* constraint) const
   {
     std::unique_ptr<Trk::IMode3dInfo> info;
     return findSeed (vx, vy, info, perigeeList, constraint);
@@ -113,7 +105,7 @@ namespace Trk
                                             const double vy,
                                             std::unique_ptr<Trk::IMode3dInfo>& info,
                                             const std::vector<const Trk::TrackParameters*>& perigeeList,
-                                            const xAOD::Vertex* constraint)
+                                            const xAOD::Vertex* constraint) const
   {
     ATH_MSG_DEBUG( " Enter IndexedCrossDistancesSeedFinder  " );
 
@@ -272,7 +264,7 @@ namespace Trk
 
 
 std::vector<Amg::Vector3D> IndexedCrossDistancesSeedFinder::findMultiSeeds(
-    const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) 
+    const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) const
 {
 
  //implemented to satisfy inheritance but this algorithm only supports one seed at a time
@@ -281,7 +273,7 @@ std::vector<Amg::Vector3D> IndexedCrossDistancesSeedFinder::findMultiSeeds(
 }
 
 std::vector<Amg::Vector3D> IndexedCrossDistancesSeedFinder::findMultiSeeds( 
-   const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */)
+   const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) const
 {
   
    //implemented to satisfy inheritance but this algorithm only supports one seed at a time

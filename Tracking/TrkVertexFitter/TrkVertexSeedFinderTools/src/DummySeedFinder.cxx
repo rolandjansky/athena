@@ -17,55 +17,64 @@ namespace Trk
 {
 
   DummySeedFinder::DummySeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p)
+    base_class(t,n,p)
   {   
-    declareInterface<IVertexSeedFinder>(this);
   }
   
-  DummySeedFinder::~DummySeedFinder() {}
   
+  DummySeedFinder::~DummySeedFinder()
+  {
+  }
+
+
   StatusCode DummySeedFinder::initialize() 
   { 
-    msg(MSG::INFO) << "Initialize successful" << endmsg;
+    ATH_MSG_INFO( "Initialize successful"  );
     return StatusCode::SUCCESS;
   }
+
 
   StatusCode DummySeedFinder::finalize() 
   {
-    msg(MSG::INFO) << "Finalize successful" << endmsg;
+    ATH_MSG_INFO( "Finalize successful"  );
     return StatusCode::SUCCESS;
   }
 
 
-  Amg::Vector3D DummySeedFinder::findSeed(const std::vector<const Trk::Track*> & /* VectorTrk */,const xAOD::Vertex * /* constraint */) {
-    
+  Amg::Vector3D
+  DummySeedFinder::findSeed(const std::vector<const Trk::Track*> & /* VectorTrk */,
+                            const xAOD::Vertex * /* constraint */) const
+  {
     return Amg::Vector3D(0.,0.,0.);
-    
   }
   
-  Amg::Vector3D DummySeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & /* perigeeList */,const xAOD::Vertex * /* constraint */)
-   {
-    
+
+  Amg::Vector3D
+  DummySeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & /* perigeeList */,
+                            const xAOD::Vertex * /* constraint */) const
+  {
     return Amg::Vector3D(0.,0.,0.);
-    
   }
 
-  std::vector<Amg::Vector3D> DummySeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */)
-  {
 
+  std::vector<Amg::Vector3D>
+  DummySeedFinder::findMultiSeeds (const std::vector<const Trk::Track*>& /* vectorTrk */,
+                                   const xAOD::Vertex * /* constraint */) const
+  {
     std::vector<Amg::Vector3D> retvec;
     retvec.push_back( Amg::Vector3D(0.,0.,0.) );
-
     return retvec;
   }
 
-  std::vector<Amg::Vector3D> DummySeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */)
-  {
 
+  std::vector<Amg::Vector3D>
+  DummySeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* vectorTrk */,
+                                  const xAOD::Vertex * /* constraint */) const
+  {
     std::vector<Amg::Vector3D> retvec;
     retvec.push_back( Amg::Vector3D(0.,0.,0.) );
-
     return retvec;
   }
+
 
 }
