@@ -15,6 +15,8 @@ use TrigInterfaces      	TrigInterfaces-* 		Trigger/TrigSteer
 use TrigMuonBackExtrapolator  	TrigMuonBackExtrapolator*  	Trigger/TrigTools
 use TrigMuonRoITools		TrigMuonRoITools-*	 	Trigger/TrigTools
 
+use MuonSelectorTools           MuonSelectorTools-*   PhysicsAnalysis/MuonID
+
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 

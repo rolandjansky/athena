@@ -16,7 +16,9 @@ class ISvcLocator;
  * the monitored variables.
  */
 TrigMuonEFQualityHypo::TrigMuonEFQualityHypo(const std::string &name, ISvcLocator *pSvcLocator):
-    HLT::HypoAlgo(name, pSvcLocator) {
+    HLT::HypoAlgo(name, pSvcLocator),
+    m_muonSelTool("CP::MuonSelectionTool/MuonSelectionTool")
+ {
 
     declareProperty("AcceptAll", m_acceptAll = true);
 
@@ -44,6 +46,8 @@ HLT::ErrorCode TrigMuonEFQualityHypo::hltInitialize() {
 
     // Retrieve muon selection tool
     //ATH_CHECK(m_muonSelTool.retrieve());
+    //m_muonSelTool=ToolHandle<IMuonSelector>(m_SelectorToolName);
+    if(m_muonSelTool.retrieve().isFailure()) ATH_MSG_INFO("Unable to retrieve " << m_muonSelTool);
 
     if (m_acceptAll) {
         ATH_MSG_INFO("Accepting all the events with no cut!");
@@ -57,6 +61,8 @@ HLT::ErrorCode TrigMuonEFQualityHypo::hltInitialize() {
             return HLT::BAD_JOB_SETUP;
         } */
     }
+
+
 
     ATH_MSG_INFO("Initialization completed successfully");
 
@@ -120,19 +126,22 @@ HLT::ErrorCode TrigMuonEFQualityHypo::hltExecute(const HLT::TriggerElement *outp
         //float mePt = -999999., idPt = -999999.;
 
         float reducedChi2 = -10;
+        int isBadMuon, passIDCuts = 0; 
         if(idtrack && metrack) {
            reducedChi2 = muon->primaryTrackParticle()->chiSquared()/muon->primaryTrackParticle()->numberDoF(); //std::cout << reducedChi2 <<std::endl;
         }
         m_reducedChi2 = reducedChi2;
+        passIDCuts = m_muonSelTool->passedIDCuts(*muon);
+
         
-        if(reducedChi2> 0 && reducedChi2<8 && !m_muonSelTool->isBadMuon(*muon) && m_muonSelTool->passedIDCuts(*muon)) passCut = true;
+        if(reducedChi2> 0 && reducedChi2< -8.0 && !m_muonSelTool->isBadMuon(*muon) && m_muonSelTool->passedIDCuts(*muon)) passCut = true;
 
         ATH_MSG_DEBUG(" REGTEST usealgo / pt / eta / reducedChi2 / Quality flags : "
                       << " / " << mupt / 1000.0
                       << " / " << mueta
                       << " / " << m_reducedChi2
-                      << " / " << m_isBadMuon  
-                      << " / Muon Quality Hypotesis is " << (passCut ? "true" : "false"));
+                      << " / " << passIDCuts  
+                      << " / Muon Quality Hypothesis is " << (passCut ? "true" : "false"));
 
 
         if (passCut) {

@@ -11,10 +11,7 @@
 // include base class
 #include "TrigInterfaces/HypoAlgo.h"
 
-//#include "AthenaBaseComps/AthAlgTool.h"
-//#include "GaudiKernel/ServiceHandle.h"
-//#include "GaudiKernel/ToolHandle.h"
-
+// include Muon SelectionTool for quality criteria
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 
 
@@ -22,10 +19,10 @@ class StoreGateSvc;
 class TriggerElement;
 
 /**
- * \brief Hypothesis class for EF muon calo isolation.
+ * \brief Hypothesis class for EF muon quality criteria.
  * \author 
- * \details This class applies cuts on the variables calculated
- *          by the EF muon calorimeter isolation algorithm.
+ * \details This class applies cuts on quality criteria
+ *          to the EF muons based on the offline muon WP algo.
  *          
  *          
  */
@@ -44,9 +41,8 @@ public:
     /// Finalize the algorithm
     HLT::ErrorCode hltFinalize();
 
-protected:
-   /// Muon selection too
-   ToolHandle<CP::IMuonSelectionTool> m_muonSelTool; 
+    /// Muon selection too
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelTool;
 
 private:
 

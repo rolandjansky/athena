@@ -26,7 +26,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigT1/TrigT1Interfaces
                           Trigger/TrigT1/TrigT1Result 
-                          PhysicsAnalysis/MuonID/MuonSelectorTools/MuonSelectorTools )
+                          PhysicsAnalysis/MuonID
+                          PhysicsAnalysis/MuonID/MuonSelectorTools/MuonSelectorTools
+                          PhysicsAnalysis/MuonID/MuonSelectorTools )
 
 # External dependencies:
 find_package( CLHEP )
@@ -36,7 +38,7 @@ atlas_add_component( TrigMuonHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon MuonIdHelpersLib MuonRecHelperToolsLib TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrigInterfacesLib xAODMuon xAODTracking GaudiKernel MuonSegment MuonSegmentMakerUtils TrigConfHLTData TrigT1Interfaces TrigT1Result )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon MuonIdHelpersLib MuonRecHelperToolsLib TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrigInterfacesLib xAODMuon xAODTracking GaudiKernel MuonSegment MuonSegmentMakerUtils TrigConfHLTData TrigT1Interfaces TrigT1Result MuonSelectorToolsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigMuonHypo )

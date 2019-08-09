@@ -11,6 +11,10 @@ import re
 ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 
+if not hasattr(ToolSvc,"MuonSelectorTool"):    
+    from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
+    ToolSvc += CP__MuonSelectionTool("MuonSelectorTool")
+
 trigMuonEFSAThresholds = {
     '0GeV'             : [ [0,9.9],              [ 0.100 ] ],
     '2GeV'             : [ [0,9.9],              [ 2.000 ] ],
@@ -1783,8 +1787,6 @@ class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
 	
         self.AthenaMonTools = [ online ]
 
-
-TrigMuonEFQualityHypo
 
 class TrigMuonEFQualityHypoConfig(TrigMuonEFQualityHypo) :
 
