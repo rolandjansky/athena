@@ -762,12 +762,8 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // track
   if (m_doTrack) {
-    if (evtStore()->contains<TrackCollection>(m_TracksName.key())) {
-      if (fillTrackMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(4., 2.);
+    if (fillTrackMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(4., 1.);
@@ -775,14 +771,10 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // hits
   if (m_doRDO) {
-    if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName.key())) {
-      if (fillHitsMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) {
-          msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-        }
+    if (fillHitsMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) {
+        msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(1., 2.);
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(1., 1.);
@@ -800,12 +792,8 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // cluster
   if (m_doCluster) {
-    if (evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName.key())) {
-      if (fillClustersMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(3., 2.);
+    if (fillClustersMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(3., 1.);
@@ -813,12 +801,8 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // space point
   if (m_doSpacePoint) {
-    if (evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName.key())) {
-      if (fillSpacePointMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(2., 2.);
+    if (fillSpacePointMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(2., 1.);
