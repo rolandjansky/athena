@@ -47,7 +47,7 @@ class ComponentHelper
         TString TAMassDef;
         TString truthLabelStr;
         TString FatjetTruthLabelStr;
-        TString FatjetTruthLabelForSFstr;
+        TString FatjetTruthLabelsForSFstr;
         TString RegionForSFstr;
 	TString ResultName;
 
@@ -66,7 +66,8 @@ class ComponentHelper
         std::vector<int> truthLabels;
         std::vector<TString> FatjetTruthLabelStrs;
         std::vector<FatjetTruthLabel::TypeEnum> FatjetTruthLabels;
-	CompFlavorLabelVar::TypeEnum FatjetTruthLabelForSF;
+        std::vector<TString> FatjetTruthLabelsForSFstrs;
+	std::vector<CompFlavorLabelVar::TypeEnum> FatjetTruthLabelsForSF;
 	CompTaggerRegionVar::TypeEnum RegionForSF;
 };
 

@@ -130,6 +130,7 @@ namespace CompFlavorLabelVar
         V_qq,       // W/Z->qq
         W_qq,       // W->qq
         Z_qq,       // Z->qq
+	t_other,    // inclusive top but not contain t_qqb
 	q           // background jet
     };
     TString enumToString(const TypeEnum type);
