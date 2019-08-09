@@ -167,4 +167,4 @@ TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4 decis
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6             10        10        5         0         0         0         0         5         
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       9         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             10        10        4         4         0         0         0         4         
-TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       17        16        0         0         0         
+TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       8         7         0         0         0         

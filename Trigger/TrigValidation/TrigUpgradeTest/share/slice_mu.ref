@@ -37,6 +37,8 @@ TriggerSummaryStep4                     6   0     DEBUG  +++ HLT_mu6_ivarmedium_
 TriggerSummaryStep4                     6   0     DEBUG  +++ HLT_mu6_mu4_L12MU4 ID#1713982776
 TriggerSummaryStep4                     6   0     DEBUG  +++ HLT_mu6_L1MU6 ID#2560542253
 TriggerSummaryStep5                     6   0     DEBUG  +++ HLT_mu6_ivarmedium_L1MU6 ID#1012713062
+TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_mu6noL1_L1MU6 ID#1631468602
+TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_mu6noL1_L1MU6 ID#1631468602
 TrigSignatureMoniMT                                INFO HLT_2mu14_L12MU10             10        10        0         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu14_L12MU10 decisions                       0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_2mu6Comb_L12MU6           10        10        1         1         0         0         0         1         
@@ -69,5 +71,5 @@ TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4      
 TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4 decisions                      8         6         6         4         0         
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6             10        10        2         0         0         0         0         2         
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       3         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             10        10        1         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             10        10        3         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       4         0         0         0         0         

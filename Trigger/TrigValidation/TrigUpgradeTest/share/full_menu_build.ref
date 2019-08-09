@@ -232,6 +232,7 @@ TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e5_etcut_L1EM3 
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e3_etcut1step_L1EM3 ID#999988353
+TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_mu6noL1_L1MU6 ID#1631468602
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
 TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_split_L1J20 ID#3815360851
@@ -408,8 +409,8 @@ TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4      
 TrigSignatureMoniMT                                INFO HLT_mu6_mu4_L12MU4 decisions                      7         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6             20        20        3         0         0         0         0         3         
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       3         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             20        20        3         1         0         0         0         1         
-TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       3         1         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             20        20        4         1         0         0         0         1         
+TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       4         1         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10          20        20        12        0         0         0         0         12        
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_L1XE10 decisions                    12        0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_xe30_cell_xe30_tcpufit_L1XE1020        20        12        0         0         0         0         3         
