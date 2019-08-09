@@ -26,7 +26,7 @@ namespace Trk
 {
 
   ZScanSeedFinder::ZScanSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     
     m_mode1dfinder("Trk::FsmwMode1dFinder", this),
     m_IPEstimator("Trk::TrackToVertexIPEstimator", this),
@@ -49,10 +49,13 @@ namespace Trk
     declareProperty("UseLogPt", m_useLogPt);
     declareProperty("MinPt", m_minPt);
     declareProperty("CacheWeights", m_cacheWeights);
-    declareInterface<IVertexSeedFinder>(this);
   }
 
-  ZScanSeedFinder::~ZScanSeedFinder() {}
+
+  ZScanSeedFinder::~ZScanSeedFinder()
+  {
+  }
+
 
   StatusCode ZScanSeedFinder::initialize() 
   { 
@@ -83,7 +86,7 @@ namespace Trk
   }
 
 
-  Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) {
+  Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) const {
     
     //create perigees from track list
     std::vector<const TrackParameters*> perigeeList;
@@ -106,7 +109,7 @@ namespace Trk
     
   }
 
-  Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint) {
+  Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint) const {
 
 
     double ZResult=0.;
@@ -273,7 +276,7 @@ namespace Trk
   }
 
 
-  std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) {
+  std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) const {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
@@ -282,7 +285,7 @@ namespace Trk
   }
 
 
-  std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) {
+  std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) const {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
