@@ -58,9 +58,9 @@ namespace Trk
       * intersecting the track at point of closest approach, with track ortogonal to the plane and center 
       * of the plane defined as the given vertex.
       */
-    virtual Trk::AtaPlane * IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const = 0;
+    virtual const Trk::AtaPlane * IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const = 0;
     //Same for neutrals
-    virtual Trk::NeutralAtaPlane * IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const = 0;
+    virtual const Trk::NeutralAtaPlane * IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const = 0;
 
 
  };//end of class definition
