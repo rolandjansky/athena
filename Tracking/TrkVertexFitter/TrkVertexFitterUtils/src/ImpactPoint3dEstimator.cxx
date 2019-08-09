@@ -279,14 +279,14 @@ namespace Trk
   bool ImpactPoint3dEstimator::addIP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
     if (vtxTrack.initialPerigee()) {
-      AtaPlane* myPlane=IP3dAtaPlane(vtxTrack,vertex);
+      const AtaPlane* myPlane=IP3dAtaPlane(vtxTrack,vertex);
       if (myPlane)
         {
           vtxTrack.setImpactPoint3dAtaPlane(myPlane);
           return true;
         }
     } else { //for neutrals
-      NeutralAtaPlane* myPlane=IP3dNeutralAtaPlane(vtxTrack.initialNeutralPerigee(),vertex);
+      const NeutralAtaPlane* myPlane=IP3dNeutralAtaPlane(vtxTrack.initialNeutralPerigee(),vertex);
       if (myPlane)      {
         ATH_MSG_VERBOSE ("Adding plane: " << myPlane->associatedSurface() );
         vtxTrack.setImpactPoint3dNeutralAtaPlane(myPlane);
@@ -297,7 +297,7 @@ namespace Trk
   }
   
 
-  Trk::AtaPlane * ImpactPoint3dEstimator::IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
+  const Trk::AtaPlane * ImpactPoint3dEstimator::IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
     if (!vtxTrack.initialPerigee() && vtxTrack.initialNeutralPerigee())
       msg(MSG::WARNING) << "Calling ImpactPoint3dEstimator::IP3dAtaPlane cannot return NeutralAtaPlane" << endmsg;
@@ -323,14 +323,14 @@ namespace Trk
     msg(MSG::VERBOSE) << "The resulting surface is: " << *theSurfaceAtIP << endmsg;
 #endif
 
-   Trk::AtaPlane* res = const_cast<Trk::AtaPlane *>(dynamic_cast<const Trk::AtaPlane *>
-                              (m_extrapolator->extrapolate(*(vtxTrack.initialPerigee()),*theSurfaceAtIP)));
+   const Trk::AtaPlane* res = dynamic_cast<const Trk::AtaPlane *>
+                              (m_extrapolator->extrapolate(*(vtxTrack.initialPerigee()),*theSurfaceAtIP));
    delete theSurfaceAtIP;
    return res;
   }
   
 
-  Trk::NeutralAtaPlane * ImpactPoint3dEstimator::IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const
+  const Trk::NeutralAtaPlane * ImpactPoint3dEstimator::IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const
   {
     const PlaneSurface* theSurfaceAtIP(0);
     double distance = 0.;
@@ -352,8 +352,8 @@ namespace Trk
     msg(MSG::VERBOSE) << "The resulting surface is: " << *theSurfaceAtIP << endmsg;
 #endif
 
-    Trk::NeutralAtaPlane* res = const_cast<Trk::NeutralAtaPlane *>(dynamic_cast<const Trk::NeutralAtaPlane *>
-                                                                   (m_extrapolator->extrapolate(*initNeutPerigee,*theSurfaceAtIP)));
+    const Trk::NeutralAtaPlane* res = dynamic_cast<const Trk::NeutralAtaPlane *>
+      (m_extrapolator->extrapolate(*initNeutPerigee,*theSurfaceAtIP));
    delete theSurfaceAtIP;
    return res;
   }
