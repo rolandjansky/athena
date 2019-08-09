@@ -20,24 +20,11 @@ def GeoModelCfg(configFlags):
         ## Protects GeoModelSvc in the simulation from the AlignCallbacks
         gms.AlignCallbacks = False
     result.addService(gms,primary=True)
-    
-    from DetDescrCnvSvc.DetDescrCnvSvcConf import DetDescrCnvSvc
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
 
-    # Specify primary Identifier dictionary to be used
-    detDescrCnvSvc=DetDescrCnvSvc(IdDictName = "IdDictParser/ATLAS_IDS.xml",IdDictFromRDB = True)
-    # this flag is set as it was in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Reconstruction/RecExample/RecExCond/share/AllDet_detDescr.py#0050
-    if configFlags.Detector.Geometry:
-        detDescrCnvSvc.DecodeIdDict = True
-    result.addService(detDescrCnvSvc)
-    result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[detDescrCnvSvc.getName(),])) #No service handle yet???
 
-    from EventInfoMgt.TagInfoMgrConfig import TagInfoMgrCfg
-    tim_ca,tagInfoMgr=TagInfoMgrCfg(configFlags)
-    result.addService(tagInfoMgr)
-    result.merge(tim_ca)
-    #TagInfoMgr used by GeoModelSvc but no ServiceHandle. Relies on string-name
-
+    #Get DetDescrCnvSvc (for identifier dictionaries (identifier helpers)
+    from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
+    result.merge(DetDescrCnvSvcCfg(configFlags)
     return result
 
 
