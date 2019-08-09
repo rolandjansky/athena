@@ -306,7 +306,7 @@ class RootCompStep(RefComparisonStep):
                 if self.auto_report_result:
                     self.report_result()
                 return self.result, '# (internal) {} -> failed'.format(self.name)
-        retcode, cmd = super(RegTestStep, self).run(dry_run)
+        retcode, cmd = super(RootCompStep, self).run(dry_run)
         return retcode, cmd
 
 
