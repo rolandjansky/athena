@@ -383,14 +383,45 @@ def _setupMdtCondDB(flags):
     return result, mdt_folder_name_appendix
 # end of function setupMdtCondDB()
 
-def MdtCalibDbToolCfg(flags,name="MdtCalibDbTool",**kwargs):
-    result=ComponentAccumulator()
+def MdtCalibrationToolCfg(flags, **kwargs):
+    from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationTool    
+    result=MdtCalibrationDbToolCfg(flags, **kwargs)
+    mdt_calibibration_db_tool = result.getPrimary()
     
+    kwargs.setdefault("CalibrationDbTool", mdt_calibibration_db_tool)
+    kwargs.setdefault("DoSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
+    kwargs.setdefault("DoTemperatureCorrection", flags.Muon.Calib.applyRtScaling)
+    kwargs.setdefault("DoWireSagCorrection", flags.Muon.Calib.correctMdtRtWireSag)
+    kwargs.setdefault("DoTofCorrection",  flags.Beam.Type == 'collisions' ) # No TOF correction if not collisions
+    
+    acc = MagneticFieldSvcCfg(flags)
+    mag_field_svc = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("MagFieldSvc",  mag_field_svc )
+    
+    mdt_calibration_tool = MdtCalibrationTool(**kwargs)
+    result.setPrivateTools(mdt_calibration_tool)
+    return result
+
+def MdtCalibrationDbToolCfg(flags, **kwargs):
+    from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbTool    
+    # We need the conditions objects to have been created.
+    result = MdtCalibDbAlgCfg(flags, **kwargs)
+        
+    kwargs.setdefault("CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField)
+    kwargs.setdefault("CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag)
+    kwargs.setdefault("CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
+    
+    mdt_calibration_db_tool = MdtCalibrationDbTool(**kwargs)
+    result.setPrivateTools(mdt_calibration_db_tool)
+    return result
+    
+
+def MdtCalibDbCoolStrToolCfg(flags,name="MdtCalibDbTool",**kwargs):    
     # result.merge( IOVDbSvcCfg(flags) )
     
     # setup COOL folders
-    acc, mdt_folder_name_appendix = _setupMdtCondDB(flags)
-    result.merge(acc)
+    result, mdt_folder_name_appendix = _setupMdtCondDB(flags)
     
     # set some default proper ties
     from IOVDbSvc.CondDB import conddb
@@ -409,17 +440,19 @@ def MdtCalibDbToolCfg(flags,name="MdtCalibDbTool",**kwargs):
     kwargs.setdefault("TimeSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
     kwargs.setdefault("MeanCorrectionVsR", [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ])
     kwargs.setdefault("PropagationSpeedBeta", flags.Muon.Calib.mdtPropagationSpeedBeta)
-    result.addPublicTool(MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs))
+    result.setPrivateTools(MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs))
     return result
 
 def MdtCalibrationDbSvcCfg(flags, **kwargs):
+    
+    result = MdtCalibDbCoolStrToolCfg(flags)
+    db_tool = result.getPrimary()
+    result.addPublicTool(db_tool)
+    
     kwargs.setdefault( "CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField )
     kwargs.setdefault( "CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag )
     kwargs.setdefault( "CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
-    kwargs.setdefault( "DBTool", "MuonCalib::MdtCalibDbCoolStrTool/MdtCalibDbTool")
-    result = MdtCalibDbToolCfg(flags)
-
-    # kwargs.setdefault( "DBTool", mdt_calib_db_tool )
+    kwargs.setdefault( "DBTool", db_tool)
     
     mdt_calib_db_svc = MdtCalibrationDbSvc(**kwargs)
     result.addService(mdt_calib_db_svc,primary=True)
