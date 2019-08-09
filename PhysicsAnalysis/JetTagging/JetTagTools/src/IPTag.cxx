@@ -447,8 +447,6 @@ namespace Analysis {
 
     /** extract the TrackParticles from the jet and apply track selection: */
     int nbTrak = 0;
-    m_trackSelectorTool->primaryVertex(m_priVtx->position());
-    m_trackSelectorTool->prepare();
     std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = 
       BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
     double sumTrkpT = 0; unsigned ntrk=0;
@@ -473,13 +471,17 @@ namespace Analysis {
 	  }
 	}
 
-	if (m_trackSelectorTool->selectTrack(aTemp)) sumTrkpT += aTemp->pt();	
+	if (m_trackSelectorTool->selectTrack(m_priVtx->position(),
+                                             aTemp))
+        {
+          sumTrkpT += aTemp->pt();
+        }
       }
       
       for( trkIter = associationLinks.begin(); trkIter != associationLinks.end() ; ++trkIter ) {
         const xAOD::TrackParticle* aTemp = **trkIter;
         nbTrak++;
-        if( m_trackSelectorTool->selectTrack(aTemp, sumTrkpT) ) {
+        if( m_trackSelectorTool->selectTrack(m_priVtx->position(), aTemp, sumTrkpT) ) {
           TrackGrade* theGrade = m_trackGradeFactory->getGrade(*aTemp, jetToTag->p4() );
           ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= " << theGrade->gradeString() );
 	  bool tobeUsed = false;
