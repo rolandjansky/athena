@@ -134,8 +134,9 @@ StatusCode LArCalibDigitMaker::execute() {
      const std::vector<short>& samples=(*it)->samples();
      CaloGain::CaloGain gain=(*it)->gain();
      const std::vector<HWIdentifier>& calibChannelIDs=clcabling->calibSlotLine(chid);
-     if (calibChannelIDs.size()==0) 
+     if (calibChannelIDs.size()==0) {
        continue; //Disconnected channel
+     }
      //For the time beeing, I assume we are in H8 and have only one calib channel per FEB channel
      std::vector<HWIdentifier>::const_iterator csl_it=calibChannelIDs.begin();
      //Now the CalibBoard settings:
@@ -144,13 +145,12 @@ StatusCode LArCalibDigitMaker::execute() {
      uint16_t delay=calibParams->Delay(eventNb,*csl_it);
      bool ispulsed=calibParams->isPulsed(eventNb,*csl_it);
      //build LArCalibDigit:
-     // std::cout << "Event:" << eventNb 
-     //        << "Building a LArCalibDigit with DAC=" << dac << ", Delay=" << delay << ", isPulsed=" << ispulsed << std::endl;
+     
      LArCalibDigit* calibDigit=new LArCalibDigit(chid,gain, samples, dac, delay, ispulsed);
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits
    ATH_CHECK( evtStore()->record(calibDigitContainer,*key_it) );
-   //log << MSG::DEBUG << "LArCalibDigitContainer recorded to StoreGate. key=" << m_key << endmsg;
+   ATH_MSG_DEBUG ("LArCalibDigitContainer recorded to StoreGate. key=" << *key_it );
  } //End loop key list
  return StatusCode::SUCCESS;
 }

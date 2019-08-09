@@ -7,6 +7,8 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+#include "CaloIdentifier/CaloIdManager.h"
 
 LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL),  
@@ -62,17 +64,37 @@ StatusCode LArCond2NtupleBase::initialize() {
 
   m_detStore= &(*detStore()); //for backward compatiblity 
 
-  const CaloCell_ID* idHelper = nullptr;
+  const CaloIdManager* calo_id_manager;
+  ATH_CHECK(detStore()->retrieve(calo_id_manager,"CaloIdManager"));
+
+  StatusCode sc;
   if ( m_isSC ){
-    ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_SuperCell_ID") );
-  }
-  else {
-    ATH_CHECK( detStore()->retrieve (idHelper, "CaloCell_ID") );
-    ATH_CHECK( detStore()->retrieve (m_caloId, "CaloCell_ID") );
-  }
-  m_emId=idHelper->em_idHelper();
-  m_fcalId=idHelper->fcal_idHelper();
-  m_hecId=idHelper->hec_idHelper();
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+      return StatusCode::FAILURE;
+    } else {
+      m_onlineId = ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+    m_caloId = calo_id_manager->getCaloCell_SuperCell_ID();
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    } else {
+      m_onlineId = ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
+    m_caloId = calo_id_manager->getCaloCell_ID();
+  } // end of m_isSC if
+
+  m_emId=m_caloId->em_idHelper();
+  m_fcalId=m_caloId->fcal_idHelper();
+  m_hecId=m_caloId->hec_idHelper();
 
   if (!m_emId) {
     ATH_MSG_ERROR( "Could not access lar EM ID helper" );
@@ -88,31 +110,6 @@ StatusCode LArCond2NtupleBase::initialize() {
   }
 
 
-  StatusCode sc;
-  if ( m_isSC ){
-  const LArOnline_SuperCellID* ll;
-  sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
-    return StatusCode::FAILURE;
-  }
-    else {
-      m_onlineId = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG("Found the LArOnlineID helper");
-    }
-
-  } else { // m_isSC
-    const LArOnlineID* ll;
-    sc = detStore()->retrieve(ll, "LArOnlineID");
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      m_onlineId = (const LArOnlineID_Base*)ll;
-      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
-    }
-
-  } // end of m_isSC if
 
   if (m_addFEBTemp) {
     sc = m_FEBTempTool.retrieve();
@@ -125,7 +122,6 @@ StatusCode LArCond2NtupleBase::initialize() {
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_calibMapKey.initialize() );
-  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
 
   //Online-identifier variables
   sc=nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000);
@@ -173,13 +169,12 @@ StatusCode LArCond2NtupleBase::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if ( !m_isSC) {
-    sc=nt->addItem("calibLine",m_calibLine,0,127);
-    if (sc!=StatusCode::SUCCESS) {
-      ATH_MSG_ERROR( "addItem 'calibLine' failed" );
-      return StatusCode::FAILURE;
-    }
+  sc=nt->addItem("calibLine",m_calibLine,0,127);
+  if (sc!=StatusCode::SUCCESS) {
+    ATH_MSG_ERROR( "addItem 'calibLine' failed" );
+    return StatusCode::FAILURE;
   }
+  
 
   sc=nt->addItem("isConnected",m_isConnected,0,1);
   if (sc!=StatusCode::SUCCESS) {
@@ -277,14 +272,8 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
      ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
      return false;
  }
- const LArOnOffIdMapping* cabling=nullptr;
- if(!m_isSC) {
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-    cabling = *cablingHdl;
- } else {
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdlSC{m_cablingKeySC};
-    cabling = *cablingHdlSC;
- }
+ SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+ const LArOnOffIdMapping* cabling=*cablingHdl;
  if(!cabling) {
      ATH_MSG_WARNING( "Do not have cabling !" );
      return false;
@@ -303,11 +292,10 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
    m_febHash=m_onlineId->feb_Hash(m_onlineId->feb_Id(hwid));
  }
 
- if ( !m_isSC) {
  m_calibLine=NOT_VALID;
  const std::vector<HWIdentifier>& calibLineV=clCont->calibSlotLine(hwid);
  if(calibLineV.size()) m_calibLine = m_onlineId->channel(calibLineV[0]);
- }
+ 
 
  m_detector=NOT_VALID; 
  m_region=NOT_VALID;
