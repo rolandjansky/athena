@@ -29,15 +29,21 @@ if __name__=="__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
-    from  ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-    acc=ByteStreamReadCfg(ConfigFlags)
-    acc.addEventAlgo(LArRawDataReadingAlg())
+
+    from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
+    from LArByteStream.LArRawDataReadingConfig import LArRawDataReadingCfg    
+
+    acc=MainServicesSerialCfg()
+    acc.merge(LArRawDataReadingCfg(ConfigFlags))
     acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
     
-    from LArEventTest.LArEventTestConf import DumpLArRawChannels
-    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_fromDigits",))
+    #from LArEventTest.LArEventTestConf import DumpLArRawChannels
+    #acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_fromDigits",),sequenceName="AthAlgSeq")
 
-    f=open("LArRawChannelBuilderAlg.pkl","w")
-    acc.store(f)
-    f.close()
+    #f=open("LArRawChannelBuilderAlg.pkl","w")
+    #acc.store(f)
+    #f.close() 
+    from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
+    acc.addService(MessageSvc(OutputLevel=DEBUG))
+
+    acc.run(10)
