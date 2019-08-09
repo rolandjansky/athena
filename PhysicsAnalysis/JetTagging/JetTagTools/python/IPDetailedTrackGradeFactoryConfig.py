@@ -26,9 +26,9 @@ def IPDetailedTrackGradeFactoryCfg( name = 'IPDetailedTrackGradeFactory', useBTa
     if useBTagFlagsDefaults:
         defaults = { 'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-                     'useRun2TrackGrading'    : (btagrun1 == False),
-                     'useInnerLayers0HitInfo' : (btagrun1 == False),
-                     'useDetailSplitHitInfo'  : (btagrun1 == False),
+                     'useRun2TrackGrading'    : (btagrun1 is False),
+                     'useInnerLayers0HitInfo' : (btagrun1 is False),
+                     'useDetailSplitHitInfo'  : (btagrun1 is False),
                      'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])
