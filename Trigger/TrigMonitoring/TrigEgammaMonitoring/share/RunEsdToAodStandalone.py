@@ -53,7 +53,6 @@ if DQMonFlags.monManEnvironment == 'tier0ESD':
   HLTMonFlags.doMinBias  = False
   HLTMonFlags.doDump     = False
   HLTMonFlags.doOfflineTauTTP = False
-  HLTMonFlags.doIDJpsiMon = False
 else :
   print 'HLTMonitoring_topOptions.py: environment is not tier0ESD'
   print 'HLTMonitoring_topOptions.py: switching all tools off...'

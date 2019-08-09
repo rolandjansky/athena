@@ -61,6 +61,32 @@ def TileRawChannelMakerCfg(flags, **kwargs):
     return acc
 
 
+def TileRawChannelMakerOutputCfg(flags, streamName = 'ESD', **kwargs):
+    """Return component accumulator with configured Tile raw channel maker algorithm and Output stream
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+        streamName -- name of output stream. Defaults to ESD.
+    """
+
+    acc = TileRawChannelMakerCfg(flags, **kwargs)
+    rawChannelMaker = acc.getPrimary()
+
+    outputItemList = []
+    outputExtraInputs = []
+    rawChannelbuilders = rawChannelMaker.TileRawChannelBuilder
+
+    for rawChannelBuilder in rawChannelbuilders:
+        rawChannelContainer = rawChannelBuilder.TileRawChannelContainer
+        outputItemList += ['TileRawChannelContainer#' + rawChannelContainer]
+        outputExtraInputs += [('TileRawChannelContainer', 'StoreGateSvc+' + rawChannelContainer)]
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc.merge( OutputStreamCfg(flags, streamName, ItemList = outputItemList) )
+    acc.getEventAlgo('OutputStream' + streamName).ExtraInputs = outputExtraInputs
+
+    return acc
+
 
 if __name__ == "__main__":
 
@@ -93,7 +119,7 @@ if __name__ == "__main__":
     acc.merge( TrigBSReadCfg(ConfigFlags) )
     acc.getService('ByteStreamAddressProviderSvc').TypeNames += ['TileDigitsContainer/TileDigitsCnt']
 
-    acc.merge( TileRawChannelMakerCfg(ConfigFlags) )
+    acc.merge( TileRawChannelMakerOutputCfg(ConfigFlags) )
 
     ConfigFlags.dump()
     acc.printConfig(withDetails = True, summariseProps = True)

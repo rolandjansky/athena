@@ -11,6 +11,7 @@
 #include <iostream>
 #include <exception>
 #include <regex>
+#include "IOVDbStringFunctions.h"
 
 namespace IOVDbNamespace{
   const std::string
@@ -23,11 +24,12 @@ namespace IOVDbNamespace{
     std::string hash{};
     try{
       std::string signature="payloadHash\":\"";
-      auto signaturePosition=jsonReply.find(signature);
+      auto signaturePosition=jsonReply.rfind(signature);
       if (signaturePosition == std::string::npos) throw std::runtime_error("signature "+signature+" not found");
       auto startOfHash=signaturePosition + signature.size();
-      auto endOfHash=jsonReply.find("\"",startOfHash);
+      auto endOfHash=jsonReply.rfind("\"");
       auto len=endOfHash-startOfHash;
+      if (startOfHash > jsonReply.size()) throw std::runtime_error("Hash start is beyond end of string");
       hash=jsonReply.substr(startOfHash, len);
     } catch (std::exception & e){
       std::cout<<__FILE__<<":"<<__LINE__<< ": "<<e.what()<<" while trying to find the hash in "<<jsonReply<<std::endl;
@@ -77,7 +79,25 @@ namespace IOVDbNamespace{
     } catch (std::exception & e){
       std::cout<<__FILE__<<":"<<__LINE__<< ": "<<e.what()<<" while trying to find the description in "<<jsonReply<<std::endl;
     }
-    return description;
+    
+    return unescapeQuotes(description);
+  }
+  
+  std::string 
+  extractSpecificationFromJson(const std::string & jsonReply){
+    std::string spec{};
+    try{
+      const std::string signature="folder_payloadspec\": \"";
+      const auto signaturePosition = jsonReply.find(signature);
+      if (signaturePosition == std::string::npos) throw std::runtime_error("signature "+signature+" not found");
+      const auto startOfSpec= signaturePosition + signature.size();
+      const auto endOfSpec=jsonReply.find_last_of("\"");
+      const auto len=endOfSpec-startOfSpec;
+      spec=jsonReply.substr(startOfSpec, len);
+    } catch (std::exception & e){
+      std::cout<<__FILE__<<":"<<__LINE__<< ": "<<e.what()<<" while trying to find the payload spec in "<<jsonReply<<std::endl;
+    }
+    return spec;
   }
   
   std::vector<cool::ChannelId> 
@@ -111,9 +131,17 @@ namespace IOVDbNamespace{
     if (not testing){
       jsonReply= getPayloadForHash(getIovsForTag(descriptionTag));
     }
-
-
     return extractDescriptionFromJson(jsonReply);
+  }
+  
+  std::string 
+  payloadSpecificationForTag(const std::string & tag, const bool testing){
+    const auto specTag=tag+"-payloadSpec";
+    std::string jsonReply{R"delim({"folder_payloadspec": "PoolRef: String4k"})delim"};
+    if (not testing){
+      jsonReply= getPayloadForHash(getIovsForTag(specTag));
+    }
+    return extractSpecificationFromJson(jsonReply);
   }
   
   std::vector<cool::ChannelId> 

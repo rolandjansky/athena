@@ -19,8 +19,10 @@ def LuminosityCondAlgCfg (configFlags):
     name = 'LuminosityCondAlg'
     result = ComponentAccumulator()
 
+    suffix = ''
     if configFlags.Common.useOnlineLumi:
         kwargs = luminosityCondAlgOnlineCfg (configFlags, name, result)
+        suffix = 'Online'
 
     elif configFlags.Input.isMC:
          log.info ("LuminosityCondAlgCfg called for MC!")
@@ -39,7 +41,7 @@ def LuminosityCondAlgCfg (configFlags):
     from LumiBlockComps.LumiBlockCompsConf import \
         LuminosityCondAlg
     alg = LuminosityCondAlg (name,
-                             LuminosityOutputKey = 'LuminosityCondData',
+                             LuminosityOutputKey = 'LuminosityCondData' + suffix,
                              **kwargs)
 
     result.addCondAlgo (alg)
@@ -156,7 +158,7 @@ def luminosityCondAlgOnlineCfg (configFlags, name, result):
                                   className = 'CondAttrListCollection'))
       
     else: #  Run 2
-        if configFlags.IOVDb.DatabaseInstance == 'CONDBR2':
+        if configFlags.IOVDb.DatabaseInstance != 'CONDBR2':
             log.warning("LuminosityCondAlgOnlineCfg can't resolve DatabaseInstance = %s, assume Run2!", configFlags.IOVDb.DatabaseInstance)
             log.info("Using Run 2 configuration")
 

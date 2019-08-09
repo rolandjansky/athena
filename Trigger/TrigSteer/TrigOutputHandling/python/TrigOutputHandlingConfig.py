@@ -33,7 +33,7 @@ def HLTResultMTMakerCfg(name="HLTResultMTMaker"):
    addROBs(m.ExtraEnabledROBs, SubDetector.TDAQ_CALO_TOPO_PROC,        [0x81, 0x91, 0x82, 0x92])
 
    # Configure HLT result monitoring histograms
-   m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTResultMTMaker')
+   m.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/HLTResultMTMaker')
    m.MonTool.Histograms = [ defineHistogram( 'TIME_build', path='EXPERT', type='TH1F', title='Time of result construction in;[micro seccond]',
                                              xbins=100, xmin=0, xmax=1000 ),
                             defineHistogram( 'nstreams', path='EXPERT', type='TH1F', title='number of streams',

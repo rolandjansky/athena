@@ -142,6 +142,32 @@ class LogMergeStep(Step):
         return self.result, '# (internal) {} in={} out={}'.format(self.name, self.log_files, self.merged_name)
 
 
+class RootMergeStep(Step):
+    '''
+    Merge root files with hadd. Parameters are:
+    input_file - file(s) to be merged
+    merged_file - output file name
+    rename_suffix - if merged_file exists, it is renamed by adding this suffix
+    '''
+
+    def __init__(self, name='RootMerge'):
+        super(RootMergeStep, self).__init__(name)
+        self.input_file = None
+        self.merged_file = None
+        self.rename_suffix = None
+        self.executable = 'hadd'
+
+    def configure(self, test=None):
+        self.args += ' ' + self.merged_file + ' ' + self.input_file
+
+    def run(self, dry_run=False):
+        if os.path.isfile(self.merged_file) and self.rename_suffix:
+            old_name = os.path.splitext(self.merged_file)
+            new_name = old_name[0] + self.rename_suffix + old_name[1]
+            self.executable = 'mv {} {}; {}'.format(self.merged_file, new_name, self.executable)
+        return super(RootMergeStep, self).run(dry_run)
+
+
 class ZipStep(Step):
     '''Compress a large log file'''
 
@@ -503,6 +529,15 @@ def default_check_steps(test):
             reco_tf_logmerge.log_files.append(log_to_check)
             log_to_check = reco_tf_logmerge.merged_name
         check_steps.append(reco_tf_logmerge)
+
+    # Histogram merging for athenaHLT forks
+    num_athenaHLT_steps = sum([1 for step in test.exec_steps if step.type == 'athenaHLT'])
+    if num_athenaHLT_steps > 0:
+        histmerge = RootMergeStep('HistMerge')
+        histmerge.merged_file = 'expert-monitoring.root'
+        histmerge.input_file = 'athenaHLT_workers/*/expert-monitoring.root expert-monitoring-mother.root'
+        histmerge.rename_suffix = '-mother'
+        check_steps.append(histmerge)
 
     # CheckLog for errors
     checklog = CheckLogStep('CheckLog')

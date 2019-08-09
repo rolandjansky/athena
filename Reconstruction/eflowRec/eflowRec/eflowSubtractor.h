@@ -38,10 +38,10 @@ public:
 
   ~Subtractor() { }
 
-  static void subtractTracksFromClusters(eflowRecTrack* efRecTrack, std::vector<xAOD::CaloCluster*> clusterSubtractionList);
-  static void annihilateClusters(std::vector<xAOD::CaloCluster*>& clusters);
+  static void subtractTracksFromClusters(eflowRecTrack* efRecTrack, std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterSubtractionList);
+  static void annihilateClusters(std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters);
   static void annihilateCluster(xAOD::CaloCluster* cluster);
-  static void makeOrderedCellList(const eflowTrackCaloPoints& trackCalo, const std::vector<xAOD::CaloCluster*>& clusters, eflowCellList & orderedCells);
+  static void makeOrderedCellList(const eflowTrackCaloPoints& trackCalo, const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters, eflowCellList & orderedCells);
 
 };
 

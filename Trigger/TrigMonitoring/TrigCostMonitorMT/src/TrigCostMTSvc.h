@@ -6,6 +6,7 @@
 #define TRIGCOSTMONITORMT_TRIGCOSTMTSVC_H
 
 #include <atomic>
+#include <shared_mutex>
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -107,6 +108,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
 
   std::unique_ptr< std::atomic<bool>[] >  m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored.
+  std::unique_ptr< std::shared_mutex[] >  m_slotMutex; //!< Used to control and protect whole-table operations.
 
   TrigCostDataStore<AlgorithmPayload> m_algStartInfo; //!< Thread-safe store of algorithm start payload.
   TrigCostDataStore<TrigTimeStamp> m_algStopTime; //!< Thread-safe store of algorithm stop times.

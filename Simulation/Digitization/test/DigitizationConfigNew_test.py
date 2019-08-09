@@ -31,7 +31,6 @@ ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
-ConfigFlags.GeoModel.Type = "BrlIncl4.0_ref"
 ConfigFlags.Beam.NumberOfCollisions = 0.
 ConfigFlags.lock()
 # Construct our accumulator to run

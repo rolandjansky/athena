@@ -13,7 +13,6 @@ ex.type = 'athenaHLT'
 ex.job_options = 'TrigExPartialEB/MTCalibPeb.py'
 ex.input = 'data'
 ex.args = '--ros2rob /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/ATLASros2rob2018-r22format.py'
-ex.args += ' --oh-monitoring' # temporary to avoid THistSvc crash
 ex.perfmon = False # perfmon with athenaHLT doesn't work at the moment
 
 ros2json = CheckSteps.InputDependentStep("RosRateToJson")

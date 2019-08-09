@@ -313,8 +313,6 @@ namespace Analysis {
 
     /** extract the TrackParticles from the jet and apply track selection: */
     int nbTrak = 0;
-    m_trackSelectorTool->primaryVertex(m_priVtx->position());
-    m_trackSelectorTool->prepare();
 
     const auto& associationLinks = BTag->auxdata<TrackLinks>(
       m_trackAssociationName);
@@ -329,14 +327,17 @@ namespace Analysis {
       // the second time a possibly tighter pt cut may be applied
       for(const auto& trk: associationLinks) {
         const xAOD::TrackParticle* aTemp = *trk;
-        if (m_trackSelectorTool->selectTrack(aTemp)) sumTrkpT += aTemp->pt();
+        if (m_trackSelectorTool->selectTrack(m_priVtx->position(), aTemp))
+        {
+          sumTrkpT += aTemp->pt();
+        }
       }
       // m_trackSelectorTool->setSumTrkPt(sumTrkpT);
 
       for(const auto& trk: associationLinks) {
         const xAOD::TrackParticle* aTemp = *trk;
         nbTrak++;
-        if( m_trackSelectorTool->selectTrack(aTemp, sumTrkpT) ) {
+        if( m_trackSelectorTool->selectTrack(m_priVtx->position(), aTemp, sumTrkpT) ) {
           TrackGrade* theGrade = m_trackGradeFactory->getGrade(
             *aTemp, jetToTag->p4() );
           ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= "

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -112,12 +112,12 @@ public:
   ServiceHandle<ISF::ISimulationSvc>* simulator() { return nullptr; };
   bool isDynamic() { return false; };
   ISF::SimSvcID simSvcID() { return 0; };
-  virtual ISF::SimulationFlavor simFlavor() { return ISF::Fatras; }
+  virtual ISF::SimulationFlavor simFlavor() const { return ISF::Fatras; }
   void initializeSelector() { };
   void beginEvent() { };
   void endEvent() { };
   void update(const ISF::ISFParticle& ) { };
-  bool selfSelect(const ISF::ISFParticle& particle) { return passSelectorCuts(particle); };
+  bool selfSelect(const ISF::ISFParticle& particle) const { return passSelectorCuts(particle); };
 
 }; // MockSimulationSelector class
 

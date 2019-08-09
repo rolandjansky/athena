@@ -420,6 +420,14 @@ DelayOFCLog.info( " ======================================================== " )
 
 
 include ("LArConditionsCommon/LArMinimalSetup.py")
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+if SuperCells:
+  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+  LArOnOffIdMappingSC()
+  LArCalibIdMappingSC()
+from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
+LArBadChannelAccess()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -529,28 +537,28 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+#include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayOFCLog.info( "Read Bad Channels from Oracle DB")
 else :   
    DelayOFCLog. info( "Read Bad Channels from SQLite file") 
 
-if 'BadChannelsLArCalibFolderTag' in dir() :
+if 'BadChannelsFolder' in dir():
+ if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
    conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-else :
+ else :
    conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 
-if 'MissingFEBsLArCalibFolderTag' in dir() :
+if 'MissingFEBsFolder' in dir():
+ if 'MissingFEBsLArCalibFolderTag' in dir() :
    MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
    conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-else :
+ else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
    
-if SuperCells:
-   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
-
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
 try:
@@ -672,6 +680,9 @@ if StripsXtalkCorr:
    LArCaliWaveBuilder.ADCsaturation = 0
 else:
    LArCaliWaveBuilder.ADCsaturation = ADCsaturation
+
+if SuperCells:
+   LArCaliWaveBuilder.CablingKey="LArOnOffIdMapSC"
    
 topSequence+=LArCaliWaveBuilder
 
@@ -844,6 +855,8 @@ if (WriteNtuple):
    LArCaliWaves2Ntuple.SaveJitter = SaveJitter
    LArCaliWaves2Ntuple.KeyList     = [ KeyOutput ]
    LArCaliWaves2Ntuple.isSC = SuperCells
+   if SuperCells:
+      LArCaliWaves2Ntuple.CalibMapKey = "LArCalibIdMapSC"
    
    topSequence+=LArCaliWaves2Ntuple
    

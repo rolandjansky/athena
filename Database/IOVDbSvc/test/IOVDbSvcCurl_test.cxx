@@ -19,6 +19,7 @@
 //
 
 #include "../src/IOVDbSvcCurl.h"
+#include <unistd.h>
 
 using namespace IOVDbNamespace;
 
@@ -37,10 +38,15 @@ BOOST_AUTO_TEST_SUITE(IOVDbSvcCurlTest)
     BOOST_CHECK_THROW(myCurlObject.get(), CurlException);
   }
   BOOST_AUTO_TEST_CASE(getCrestPage){
-    IOVDbSvcCurl myCurlObject("http://crest-undertow.web.cern.ch/crestapi/iovs?tagname=Indet_Align-channelList");
-    const auto crestObj=myCurlObject.get();
-    BOOST_CHECK(crestObj != "");
-    BOOST_TEST_MESSAGE(crestObj);
+    // crest-undertow doesn't return any data to connections from outside cern.
+    char domain[HOST_NAME_MAX] = {0};
+    getdomainname (domain, sizeof(domain));
+    if (strstr (domain, "cern.ch") != nullptr) {
+      IOVDbSvcCurl myCurlObject("http://crest-undertow.web.cern.ch/crestapi/iovs?tagname=Indet_Align-channelList");
+      const auto crestObj=myCurlObject.get();
+      BOOST_CHECK(crestObj != "");
+      BOOST_TEST_MESSAGE(crestObj);
+    }
   }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -15,7 +15,6 @@ atlas_depends_on_subdirs(
    Control/AthenaPython
    TestPolicy
    PRIVATE
-   Control/CxxUtils
    Control/AthContainers
    Control/AthLinks
    Control/AthenaExamples/ToyConversion

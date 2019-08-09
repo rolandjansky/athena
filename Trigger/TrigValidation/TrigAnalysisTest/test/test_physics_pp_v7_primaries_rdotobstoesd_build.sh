@@ -21,8 +21,8 @@ timeout 5m check_log.pl --config checklogTriggerTest.conf --showexcludestats ${J
 echo "art-result: ${PIPESTATUS[0]} CheckLog BS"
 
 export JOB_LOG="athena_ESD.log"
-
-athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data']" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}.${JOB_LOG#*.}
+#the ConditionsTag should match what was used in the RDOtoBS step
+athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data'];from AthenaCommon.GlobalFlags import globalflags;globalflags.ConditionsTag.set_Value_and_Lock('OFLCOND-MC16-SDR-25')" TrigAnalysisTest/testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}.${JOB_LOG#*.}
 echo "art-result: ${PIPESTATUS[0]} ${JOB_LOG%%.*}"
 
 

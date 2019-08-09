@@ -8,6 +8,8 @@
 
 #include "TrigCostMTSvc.h"
 
+#include <mutex>  // For std::unique_lock
+
 /////////////////////////////////////////////////////////////////////////////
 
 TrigCostMTSvc::TrigCostMTSvc(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -42,6 +44,8 @@ StatusCode TrigCostMTSvc::initialize() {
 
   // We cannot have a vector here as atomics are not movable nor copyable. Unique heap arrays are supported by C++
   m_eventMonitored = std::make_unique< std::atomic<bool>[] >( m_eventSlots );
+  m_slotMutex = std::make_unique< std::shared_mutex[] >( m_eventSlots );
+
   ATH_CHECK(m_algStartInfo.initialize(m_eventSlots));
   ATH_CHECK(m_algStopTime.initialize(m_eventSlots));
 
@@ -61,12 +65,15 @@ StatusCode TrigCostMTSvc::finalize() {
 StatusCode TrigCostMTSvc::startEvent(const EventContext& context, const bool enableMonitoring) {
   const bool monitoredEvent = (enableMonitoring || m_monitorAllEvents);
   ATH_CHECK(checkSlot(context));
-  m_eventMonitored[ context.slot() ] = monitoredEvent; 
+  // "clear" is a whole table operation, we need it all to ourselves
+  std::unique_lock lockUnique( m_slotMutex[ context.slot() ] );
   if (monitoredEvent) {
     // Empty transient thread-safe stores in preparation for recording this event's cost data
     ATH_CHECK(m_algStartInfo.clear(context, msg()));
     ATH_CHECK(m_algStopTime.clear(context, msg()));
   }
+  // Now allow processAlg to start populating the 
+  m_eventMonitored[ context.slot() ] = monitoredEvent;
   return StatusCode::SUCCESS;
 }
 
@@ -75,6 +82,9 @@ StatusCode TrigCostMTSvc::startEvent(const EventContext& context, const bool ena
 StatusCode TrigCostMTSvc::processAlg(const EventContext& context, const std::string& caller, const AuditType type) {
   ATH_CHECK(checkSlot(context));
   if (!isMonitoredEvent(context)) return StatusCode::SUCCESS;
+
+  // Multiple simultaneous calls allowed here, adding their data to the concurrent map.
+  std::shared_lock lockShared( m_slotMutex[ context.slot() ] );
 
   AlgorithmIdentifier ai = AlgorithmIdentifierMaker::make(context, caller, msg());
   ATH_CHECK( ai.isValid() );
@@ -113,7 +123,12 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
   m_eventMonitored[ context.slot() ] = false;
   // Now that this atomic is set to FALSE, additional algs in this event which trigger this service will return on the 
   // second line of TrigCostMTSvc::processAlg. 
-  // Hence we can now perform whole-map inspection of this event's TrigCostDataStores
+
+  // ... but processAlg might already be running in other threads... 
+  // Wait to obtain an exclusive lock.
+  std::unique_lock lockUnique( m_slotMutex[ context.slot() ] );
+  
+  // we can now perform whole-map inspection of this event's TrigCostDataStores without the danger that it will be changed further
 
   // Read payloads. Write to persistent format
   tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator beginIt;

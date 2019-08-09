@@ -14,7 +14,7 @@ if numThreads > 0:
   AlgScheduler.ShowDataDependencies( True )
 
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 20
+theApp.EvtMax = 3
 theApp.AuditAlgorithms = True
 
 from AthenaCommon.AppMgr import ServiceMgr

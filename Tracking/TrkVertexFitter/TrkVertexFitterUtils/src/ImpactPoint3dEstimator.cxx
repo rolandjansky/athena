@@ -29,10 +29,7 @@ namespace Trk
     m_extrapolator("Trk::Extrapolator"),
     m_magFieldSvc("AtlasFieldSvc", n),
     m_maxiterations(20),
-    m_precision(1e-10),//DeltaPhi
-//    m_planeSurface(0),
-    m_vertex(0),
-    m_distance(0.)
+    m_precision(1e-10)//DeltaPhi
   {   
     declareProperty("Extrapolator",m_extrapolator);
     declareProperty("MagFieldSvc",     m_magFieldSvc);
@@ -42,8 +39,6 @@ namespace Trk
   }
   
   ImpactPoint3dEstimator::~ImpactPoint3dEstimator() {
-//    if (m_planeSurface!=0) delete m_planeSurface;
-    if (m_vertex!=0) delete m_vertex;
   }
   
   StatusCode ImpactPoint3dEstimator::initialize() 
@@ -69,7 +64,7 @@ namespace Trk
   }
 
 
-  template<typename T> PlaneSurface* ImpactPoint3dEstimator::_Estimate3dIPNoCurvature(const T* thePerigee,const Amg::Vector3D* theVertex) const  {
+  template<typename T> PlaneSurface* ImpactPoint3dEstimator::_Estimate3dIPNoCurvature(const T* thePerigee,const Amg::Vector3D* theVertex, double& distance) const  {
 
       const Amg::Vector3D  momentumUnit = thePerigee->momentum().unit();
       double pathLength  =  ( *theVertex  - thePerigee->position() ).dot( momentumUnit )
@@ -79,7 +74,7 @@ namespace Trk
 
       Amg::Vector3D POCA   =  thePerigee->position()  + pathLength * momentumUnit;// Position of closest approach
       Amg::Vector3D DeltaR =  *theVertex  - POCA;
-      m_distance=DeltaR.mag();
+      distance=DeltaR.mag();
       DeltaR=DeltaR.unit();
 
 
@@ -95,12 +90,7 @@ namespace Trk
 
       Amg::Vector3D YDir=momentumUnit.cross(DeltaRcorrected);
 
-      //store the impact 3d point
-      m_vertex=new Amg::Vector3D( POCA );
-
-      ATH_MSG_VERBOSE( "final minimal distance is: " << m_distance);
-
-      ATH_MSG_DEBUG( "POCA in 3D is: " << *m_vertex );
+      ATH_MSG_VERBOSE( "final minimal distance is: " << distance);
 
       //store the plane...
       ATH_MSG_VERBOSE( "plane to which to extrapolate X " << DeltaRcorrected << " Y " << YDir << " Z " << momentumUnit);
@@ -115,30 +105,18 @@ namespace Trk
 
   }
 
-  PlaneSurface* ImpactPoint3dEstimator::Estimate3dIP(const NeutralParameters* neutralPerigee,const Amg::Vector3D* theVertex) const {
-    // clean up before any sanity checks so a return 0 corresponds to internal members reset too
-    if (m_vertex!=0) {
-      delete m_vertex;
-      m_vertex=0;
-    }
-
+  PlaneSurface* ImpactPoint3dEstimator::Estimate3dIP(const NeutralParameters* neutralPerigee,const Amg::Vector3D* theVertex, double& distance) const {
     ATH_MSG_DEBUG("Neutral particle --  propagate like a straight line");
-    return _Estimate3dIPNoCurvature(neutralPerigee, theVertex);
+    return _Estimate3dIPNoCurvature(neutralPerigee, theVertex, distance);
   }
 
   PlaneSurface* 
-  ImpactPoint3dEstimator::Estimate3dIP(const TrackParameters* trackPerigee,const Amg::Vector3D* theVertex) const{
-    // clean up before any sanity checks so a return 0 corresponds to internal members reset too
-    if (m_vertex!=0) {
-      delete m_vertex;
-      m_vertex=0;
-    }
-
+  ImpactPoint3dEstimator::Estimate3dIP(const TrackParameters* trackPerigee,const Amg::Vector3D* theVertex, double& distance) const{
     double magnFieldVect[3];
     m_magFieldSvc->getField(trackPerigee->associatedSurface().center().data(),magnFieldVect);
     if(magnFieldVect[2] == 0 ){
       ATH_MSG_DEBUG("Magnetic field in the Z direction is 0 --  propagate like a straight line");
-      return _Estimate3dIPNoCurvature(trackPerigee, theVertex);
+      return _Estimate3dIPNoCurvature(trackPerigee, theVertex, distance);
     }
 
 
@@ -256,8 +234,8 @@ namespace Trk
     //first vector at 3d impact point
     Amg::Vector3D MomentumDir(std::cos(phiactual)*std::sin(theta),std::sin(phiactual)*std::sin(theta),std::cos(theta));
     Amg::Vector3D DeltaR(x0-xc+Rt*cosphiactual,y0-yc+Rt*sinphiactual,z0-zc-Rt*cottheta*phiactual);
-    m_distance=DeltaR.mag();
-    if (m_distance==0.){
+    distance=DeltaR.mag();
+    if (distance==0.){
       ATH_MSG_WARNING("DeltaR is zero in ImpactPoint3dEstimator::Estimate3dIP, returning nullptr");
       return nullptr;
     }
@@ -276,9 +254,6 @@ namespace Trk
 
     Amg::Vector3D YDir=MomentumDir.cross(DeltaRcorrected);
 
-    //store the impact 3d point
-    m_vertex=new Amg::Vector3D(x0+Rt*cosphiactual,y0+Rt*sinphiactual,z0-Rt*cottheta*phiactual);
-
     if(msgLvl(MSG::VERBOSE))
     {
 
@@ -286,12 +261,6 @@ namespace Trk
                                                                      std::pow(y0-yc+Rt*sinphiactual,2)+
                                                                      std::pow(z0-zc-Rt*cottheta*phiactual,2)) << endmsg;
     }
-
-    if(msgLvl(MSG::DEBUG))
-    {
-      msg(MSG::DEBUG) << "POCA in 3D is: " << *m_vertex << endmsg;
-    }
-
 
     //store the plane...
     if (msgLvl(MSG::VERBOSE))
@@ -306,11 +275,6 @@ namespace Trk
    return new PlaneSurface(thePlane);
 
   }//end of estimate 3dIP method
-
-  Amg::Vector3D* ImpactPoint3dEstimator::get3dIP() const
-  {
-    return m_vertex;
-  }
 
   bool ImpactPoint3dEstimator::addIP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
@@ -340,9 +304,11 @@ namespace Trk
 
     const PlaneSurface* theSurfaceAtIP(0);
 
+    double distance = 0.;
+
     try
     {
-      theSurfaceAtIP = Estimate3dIP(vtxTrack.initialPerigee(),&vertex);
+      theSurfaceAtIP = Estimate3dIP(vtxTrack.initialPerigee(),&vertex, distance);
     }
     catch (error::ImpactPoint3dEstimatorProblem err)
     {
@@ -367,10 +333,11 @@ namespace Trk
   Trk::NeutralAtaPlane * ImpactPoint3dEstimator::IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const
   {
     const PlaneSurface* theSurfaceAtIP(0);
+    double distance = 0.;
 
     try
     {
-        theSurfaceAtIP = Estimate3dIP(initNeutPerigee,&vertex);
+      theSurfaceAtIP = Estimate3dIP(initNeutPerigee,&vertex, distance);
     }
     catch (error::ImpactPoint3dEstimatorProblem err)
     {

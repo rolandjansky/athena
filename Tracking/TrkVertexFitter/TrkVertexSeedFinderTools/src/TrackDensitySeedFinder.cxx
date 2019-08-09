@@ -23,12 +23,15 @@ namespace Trk
 {
 
   TrackDensitySeedFinder::TrackDensitySeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-  AthAlgTool(t,n,p)
+    base_class(t,n,p)
   {   
-    declareInterface<IVertexSeedFinder>(this);
   }
 
-  TrackDensitySeedFinder::~TrackDensitySeedFinder() {}
+
+  TrackDensitySeedFinder::~TrackDensitySeedFinder()
+  {
+  }
+
 
   StatusCode TrackDensitySeedFinder::initialize() 
   { 
@@ -44,7 +47,7 @@ namespace Trk
   }
 
   Amg::Vector3D TrackDensitySeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,
-						 const xAOD::Vertex * constraint) 
+						 const xAOD::Vertex * constraint) const
   {
     
     //create perigees from track list
@@ -64,7 +67,7 @@ namespace Trk
   }
 
   Amg::Vector3D TrackDensitySeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,
-						 const xAOD::Vertex * constraint)
+						 const xAOD::Vertex * constraint) const
   {
     double zResult {0.};
     if ( perigeeList.size()>0 ) 
@@ -88,7 +91,7 @@ namespace Trk
   }
 
   std::vector<Amg::Vector3D> TrackDensitySeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,
-								    const xAOD::Vertex * /* constraint */) 
+								    const xAOD::Vertex * /* constraint */)  const
   {
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
@@ -96,7 +99,7 @@ namespace Trk
   }
 
   std::vector<Amg::Vector3D> TrackDensitySeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,
-								    const xAOD::Vertex * /* constraint */) 
+								    const xAOD::Vertex * /* constraint */) const
   {
      //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");

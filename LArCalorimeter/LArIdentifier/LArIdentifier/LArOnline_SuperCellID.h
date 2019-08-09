@@ -41,8 +41,6 @@ private:
 
 };
 
-static const int s_slar_online_field_value = 4 ;
-
 CLASS_DEF( LArOnline_SuperCellID , 115600394 , 1 )
 
 #endif // LARONLINE_ID_H
