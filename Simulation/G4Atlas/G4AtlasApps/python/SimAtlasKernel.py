@@ -177,6 +177,7 @@ class AtlasSimSkeleton(SimSkeleton):
             if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
                 ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
                 AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
+            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
             if CommonGeometryFlags.Run()=="RUN3" :
                 if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
                     ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
