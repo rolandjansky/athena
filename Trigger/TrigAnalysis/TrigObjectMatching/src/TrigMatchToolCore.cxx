@@ -13,20 +13,12 @@
 
 TrigMatchToolCore::TrigMatchToolCore()
   : m_chainNameIndex (this),
-    m_trigDecisionToolCore(0),
-    m_nFeatureContainers (100)
+    m_trigDecisionToolCore(0)
 {
-   m_featureLabel = "";
-   m_caches = &m_cacheMap[""];
 }
 
 TrigMatchToolCore::~TrigMatchToolCore()
 {
-  BOOST_FOREACH (const cacheMap_t::value_type& p, m_cacheMap) {
-    BOOST_FOREACH (TrigFeatureCacheBase* cache, p.second) {
-      delete cache;
-    }
-  }
 }
 
 std::string
@@ -36,17 +28,10 @@ TrigMatchToolCore::propagateChainNames( const std::string &chainName ) const
 }
 
 
-void TrigMatchToolCore::endEvent() {
-
-   BOOST_FOREACH (const cacheMap_t::value_type& p, m_cacheMap) {
-     BOOST_FOREACH (TrigFeatureCacheBase* cache, p.second) {
-       cache->clear();
-     }
-   }
-
-   std::vector<Trig::FeatureContainer>().swap (m_featureContainers);
-   std::vector<bool>().swap (m_featureContainersValid);
-   
+void TrigMatchToolCore::endEvent()
+{
+   m_slotCache->clear();
+  
    return;
 }
 
@@ -60,21 +45,17 @@ void TrigMatchToolCore::clearChainIndex()
 
 
 TrigMatchToolCore::TrigFeatureCacheBase*&
-TrigMatchToolCore::getCache1 (const std::type_info* tid, int& type_key)
+TrigMatchToolCore::getCache1 (const std::type_info* tid, int type_key,
+                              SlotCache& slotCache,
+                              const SlotCache::lock_t& /*lock*/) const
 {
   if (type_key < 0) {
-    typeMap_t::const_iterator it = m_typeMap.find (tid);
-    if (it != m_typeMap.end())
-      type_key = it->second;
-    else {
-      type_key = m_typeMap.size();
-      m_typeMap[tid] = type_key;
-    }
+    m_typeMap.key (tid);
   }
 
-  if (static_cast<int> (m_caches->size()) <= type_key)
-    m_caches->resize (type_key + 1);
-  return (*m_caches)[type_key];
+  if (static_cast<int> (slotCache.m_caches->size()) <= type_key)
+    slotCache.m_caches->resize (type_key + 1);
+  return (*slotCache.m_caches)[type_key];
 }
 
 
@@ -86,31 +67,33 @@ TrigMatchToolCore::chainNameToIndex (const std::string& chainName) const
 
 
 const Trig::FeatureContainer&
-TrigMatchToolCore::getCachedFeatureContainer (size_t chainIndex)
+TrigMatchToolCore::getCachedFeatureContainer (size_t chainIndex,
+                                              SlotCache& slotCache,
+                                              const SlotCache::lock_t& /*lock*/) const
 {
-  if (chainIndex >= m_featureContainers.size()) {
-    if (chainIndex >= m_nFeatureContainers)
-      m_nFeatureContainers = chainIndex + 1;
-    m_featureContainers.resize (m_nFeatureContainers);
-    m_featureContainersValid.resize (m_nFeatureContainers);
+  if (chainIndex >= slotCache.m_featureContainers.size()) {
+    if (chainIndex >= slotCache.m_nFeatureContainers)
+      slotCache.m_nFeatureContainers = chainIndex + 1;
+    slotCache.m_featureContainers.resize (slotCache.m_nFeatureContainers);
+    slotCache.m_featureContainersValid.resize (slotCache.m_nFeatureContainers);
   }
 
-  if (!m_featureContainersValid[chainIndex]) {
+  if (!slotCache.m_featureContainersValid[chainIndex]) {
 #if 0
     // Use this once FeatureContainer::swap is available to avoid copies.
     Trig::FeatureContainer fc = 
       this->getFeatureContainer (m_chainNameIndex.chainName(chainIndex),
                                  TrigDefs::alsoDeactivateTEs);
-    m_featureContainers[chainIndex].swap (fc);
+    slotCache.m_featureContainers[chainIndex].swap (fc);
 #else
-    m_featureContainers[chainIndex] = 
+    slotCache.m_featureContainers[chainIndex] = 
       this->getFeatureContainer (m_chainNameIndex.chainName(chainIndex),
                                  TrigDefs::alsoDeactivateTEs);
 #endif
-    m_featureContainersValid[chainIndex] = true;
+    slotCache.m_featureContainersValid[chainIndex] = true;
   }
 
-  return m_featureContainers[chainIndex];
+  return slotCache.m_featureContainers[chainIndex];
 }
 
 
@@ -246,4 +229,18 @@ TrigMatchToolCore::ChainNameIndex::propagateChainNames( const std::string &chain
    }
 
    return output;
+}
+
+
+int TrigMatchToolCore::TypeMap::key (const std::type_info* tid)
+{
+  lock_t lock (m_mutex);
+  typeMap_t::const_iterator it = m_typeMap.find (tid);
+  if (it != m_typeMap.end()) {
+    return it->second;
+  }
+
+  int type_key = m_typeMap.size();
+  m_typeMap[tid] = type_key;
+  return type_key;
 }
