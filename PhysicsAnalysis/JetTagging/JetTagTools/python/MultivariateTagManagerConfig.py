@@ -3,6 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from BTagging.BTaggingFlags import BTaggingFlags
 from JetTagTools.DL1TagConfig import DL1TagCfg
+from JetTagTools.MV2TagConfig import MV2TagCfg
 
 # import the MultivariateTagManager configurable
 from JetTagTools.JetTagToolsConf import Analysis__MultivariateTagManager
@@ -27,60 +28,36 @@ def MultivariateTagManagerCfg(name = 'MultivariateTagManager', TaggerList = ['DL
     mvtm_active_taggers = list(set(mvtm_taggers) & set(TaggerList))
 
     if 'DL1' in mvtm_active_taggers:
-        from JetTagTools.DL1TagConfig import DL1TagCfg
-        accDL1 = DL1TagCfg('DL1')
-        dl1 = accDL1.popPrivateTools()
-        acc.merge(accDL1)
+        dl1 = acc.popToolsAndMerge(DL1TagCfg('DL1'))
         BTaggingFlags.MVTagToolList.append(dl1)
 
     if 'DL1mu' in mvtm_active_taggers:
-        from JetTagTools.DL1TagConfig import DL1TagCfg
-        accDL1 = DL1TagCfg('DL1mu')
-        dl1 = accDL1.popPrivateTools()
-        acc.merge(accDL1)
+        dl1 = acc.popToolsAndMerge(DL1TagCfg('DL1mu'))
         BTaggingFlags.MVTagToolList.append(dl1)
 
     if 'DL1rnn' in mvtm_active_taggers:
-        from JetTagTools.DL1TagConfig import DL1TagCfg
-        accDL1 = DL1TagCfg('DL1rnn')
-        dl1 = accDL1.popPrivateTools()
-        acc.merge(accDL1)
+        dl1 = acc.popToolsAndMerge(DL1TagCfg('DL1rnn'))
         BTaggingFlags.MVTagToolList.append(dl1)
 
     if 'MV2c10' in mvtm_active_taggers:
-        from JetTagTools.MV2TagConfig import MV2TagCfg
-        accMV2 = MV2TagCfg('MV2c10')
-        mv2 = accMV2.popPrivateTools()
-        acc.merge(accMV2)
+        mv2 = acc.popToolsAndMerge(MV2TagCfg('MV2c10'))
         BTaggingFlags.MVTagToolList.append(mv2)
 
     if 'MV2c10mu' in mvtm_active_taggers:
-        from JetTagTools.MV2TagConfig import MV2TagCfg
-        accMV2 = MV2TagCfg('MV2c10mu')
-        mv2 = accMV2.popPrivateTools()
-        acc.merge(accMV2)
+        mv2 = acc.popToolsAndMerge(MV2TagCfg('MV2c10mu'))
         BTaggingFlags.MVTagToolList.append(mv2)
 
     if 'MV2c10rnn' in mvtm_active_taggers:
-        from JetTagTools.MV2TagConfig import MV2TagCfg
-        accMV2 = MV2TagCfg('MV2c10rnn')
-        mv2 = accMV2.popPrivateTools()
-        acc.merge(accMV2)
+        mv2 = acc.popToolsAndMerge(MV2TagCfg('MV2c10rnn'))
         BTaggingFlags.MVTagToolList.append(mv2)
 
     if 'MV2c100' in mvtm_active_taggers:
-        from JetTagTools.MV2TagConfig import MV2TagCfg
-        accMV2 = MV2TagCfg('MV2c100')
-        mv2 = accMV2.popPrivateTools()
-        acc.merge(accMV2)
+        mv2 = acc.popToolsAndMerge(MV2TagCfg('MV2c100'))
         BTaggingFlags.MVTagToolList.append(mv2)
 
 
     if 'MV2cl100' in mvtm_active_taggers:
-        from JetTagTools.MV2TagConfig import MV2TagCfg
-        accMV2 = MV2TagCfg('MV2cl100')
-        mv2 = accMV2.popPrivateTools()
-        acc.merge(accMV2)
+        mv2 = acc.popToolsAndMerge(MV2TagCfg('MV2cl100'))
         BTaggingFlags.MVTagToolList.append(mv2)
 
     #Check if input has been scheduled
