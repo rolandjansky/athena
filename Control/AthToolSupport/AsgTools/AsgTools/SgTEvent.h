@@ -1,5 +1,7 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: SgTEvent.h 669898 2015-05-26 13:49:13Z krasznaa $
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef ASGTOOLS_SGTEVENT_H
 #define ASGTOOLS_SGTEVENT_H
 
@@ -8,11 +10,10 @@
 #include <string>
 
 // Local include(s):
-#include "AsgTools/AsgToolsConf.h"
-#include "AsgTools/StatusCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 // Complain if we try using this header in Athena:
-#ifndef ASGTOOL_STANDALONE
+#ifndef XAOD_STANDALONE
 #   error( "This header should only be used for standalone ASG" )
 #endif
 

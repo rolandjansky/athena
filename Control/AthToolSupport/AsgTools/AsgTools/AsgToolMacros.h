@@ -1,4 +1,6 @@
-// AsgToolMacros.h
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef AsgToolMacros_H
 #define AsgToolMacros_H
@@ -8,7 +10,7 @@
 //
 // CPP macros that turn ASG tools into Athena tools.
 
-#ifdef ASGTOOL_ATHENA
+#ifndef XAOD_STANDALONE
 
 // This is used in the body of the tool interface class declaration, e.g.
 //   class MyToolInterface:

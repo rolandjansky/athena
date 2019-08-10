@@ -10,7 +10,7 @@
 // includes
 //
 
-#include <AsgTools/MessagePrinterErrorCollect.h>
+#include <AsgMessaging/MessagePrinterErrorCollect.h>
 
 #include <regex>
 

@@ -287,10 +287,12 @@ HIGG2D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "MET_Reference_AntiKt4EMPFlow",
-                                          "AntiKt4EMTopoJets",
-                                          "AntiKt4EMPFlowJets",
-                                          "BTagging_AntiKt4EMTopo",
-                                          "BTagging_AntiKt4EMPFlow",
+                                          "AntiKt4EMTopoJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201903",
+                                          "BTagging_AntiKt4EMTopo_201810",
+                                          "BTagging_AntiKt4EMPFlow_201810",
+                                          "BTagging_AntiKt4EMPFlow_201903",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 if DerivationFrameworkIsMonteCarlo:
@@ -304,8 +306,6 @@ from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 HIGG2D1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
 HIGG2D1SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
 HIGG2D1SlimmingHelper.AllVariables = HIGG2D1ExtraContainers
-HIGG2D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
-                                            'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
 if DerivationFrameworkIsMonteCarlo:
     HIGG2D1SlimmingHelper.ExtraVariables += HIGG2D1ExtraContentTruth
     HIGG2D1SlimmingHelper.AllVariables += HIGG2D1ExtraContainersTruth

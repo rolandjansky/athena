@@ -10,7 +10,7 @@
 #define ASG_TOOLS__I_UNIT_TEST_TOOL1_H
 
 #include <AsgTools/IAsgTool.h>
-#include <AsgTools/MsgLevel.h>
+#include <AsgMessaging/MsgLevel.h>
 
 namespace asg
 {

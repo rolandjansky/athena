@@ -100,19 +100,18 @@ TOPQ6Sequence = CfgMgr.AthSequencer("TOPQ6Sequence")
 # First skim on leptons
 TOPQ6Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ6SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
-#====================================================================
-# Special jets
-#====================================================================
-# Create TCC objects (see JETM1.py)
-from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
-# Set up geometry and BField
-import AthenaCommon.AtlasUnixStandardJob
-include("RecExCond/AllDet_detDescr.py")
-runTCCReconstruction(TOPQ6Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
+# Before any custom jet reconstruction, it's good to set up the output list
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+OutputJets["TOPQ6"] = []
 
-# add fat/trimmed jets
-from DerivationFrameworkTop.TOPQCommonJets import addNonLargeRJetsForTop
-addNonLargeRJetsForTop(TOPQ6Sequence,'TOPQ6')
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+# Only include those ones that you use. The order in the list is not significant
+reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                  "AntiKt4PV0TrackJets"]
+replaceAODReducedJets(reducedJetList, TOPQ6Sequence, "TOPQ6")
 
 # apply jet calibration
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
