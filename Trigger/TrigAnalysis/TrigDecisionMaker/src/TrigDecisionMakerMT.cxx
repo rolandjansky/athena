@@ -193,10 +193,10 @@ StatusCode TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result*& result, 
 {
   const ROIB::RoIBResult* roIBResult = SG::get(m_ROIBResultKeyIn, context);
 
-  ATH_CHECK(m_lvl1Tool->updateItemsConfigOnly());
+  std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > itemConfig = m_lvl1Tool->makeLvl1ItemConfig();
 
   if (roIBResult && (roIBResult->cTPResult()).isComplete()) {  
-    m_lvl1Tool->createL1Items(*roIBResult, &result);
+    m_lvl1Tool->createL1Items(itemConfig, *roIBResult, &result);
     ATH_MSG_DEBUG ( "Built LVL1CTP::Lvl1Result from valid CTPResult.");
   }
 
