@@ -303,10 +303,16 @@ def muFastRecoSequence( RoIs ):
   ToolSvc += RPCRodDecoder
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
-  MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name        = "RPC_RawDataProviderToolMT_L2SA",
-                                                               RdoLocation = "RPCPAD_L2SA",
-                                                               RPCSec      = "RPC_SECTORLOGIC_L2SA",
-                                                               Decoder     = RPCRodDecoder)
+  if globalflags.DataSource()=='data': # for data
+      MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name        = "RPC_RawDataProviderToolMT_L2SA",
+                                                                   RdoLocation = "RPCPAD_L2SA",
+                                                                   RPCSec      = "RPC_SECTORLOGIC_L2SA",
+                                                                   Decoder     = RPCRodDecoder)
+  else: # for mc
+      MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name        = "RPC_RawDataProviderToolMT_L2SA",
+                                                                   RdoLocation = "RPCPAD",
+                                                                   RPCSec      = "RPC_SECTORLOGIC_L2SA",
+                                                                   Decoder     = RPCRodDecoder)
   ToolSvc += MuonRpcRawDataProviderTool
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
