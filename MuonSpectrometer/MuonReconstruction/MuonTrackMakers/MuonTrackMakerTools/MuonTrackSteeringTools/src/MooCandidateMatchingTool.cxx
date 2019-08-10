@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooCandidateMatchingTool.h"
@@ -113,15 +113,9 @@ namespace Muon {
       m_otherSideOfPerigeeTrk(0),
       m_segmentTrackMatches(0),
       m_segmentTrackMatchesTight(0),
-      m_reasonsForMatchOk(TrackSegmentMatchResult::NumberOfReasons),
-      m_reasonsForMatchNotOk(TrackSegmentMatchResult::NumberOfReasons)
+      m_reasonsForMatchOk(TrackSegmentMatchResult::NumberOfReasons, 0),
+      m_reasonsForMatchNotOk(TrackSegmentMatchResult::NumberOfReasons, 0)
   {
-    for ( int i = 0; i < int(TrackSegmentMatchResult::NumberOfReasons); ++i ) {
-      m_reasonsForMatchOk[i]    = 0;
-      m_reasonsForMatchNotOk[i] = 0;
-    }
-
-
     declareInterface<MooCandidateMatchingTool>(this);
     declareInterface<IMuonTrackSegmentMatchingTool>(this);
     declareProperty("SLExtrapolator",           m_slExtrapolator );
@@ -203,6 +197,7 @@ namespace Muon {
       if ( w > width ) width = w;
     }
     // print it
+    std::lock_guard<std::mutex> lock(m_mutex);
     msg(MSG::INFO) << " Reasons for match failures:" << endmsg;
     for ( unsigned int i = 0; i < nReasons ; ++i ) {
       int cnt = m_reasonsForMatchNotOk[i];
@@ -366,7 +361,7 @@ namespace Muon {
       if ( !haveMatch ) {
         ATH_MSG_VERBOSE("track-segment match: -> Failed in comparing segments on track");
         
-        
+        std::lock_guard<std::mutex> lock(m_mutex);
         ++m_reasonsForMatchNotOk[TrackSegmentMatchResult::SegmentMatch];
         return false;
       }
@@ -378,6 +373,7 @@ namespace Muon {
       TrackSegmentMatchCuts cuts = getMatchingCuts( entry1, entry2, useTightCuts );
       haveMatch = applyTrackSegmentCuts( info, cuts );
       // update counters
+      std::lock_guard<std::mutex> lock(m_mutex);
       if (haveMatch) {
         ++m_reasonsForMatchOk[info.reason];
       } else {
