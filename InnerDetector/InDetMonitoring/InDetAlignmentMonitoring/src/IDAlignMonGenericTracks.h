@@ -393,12 +393,10 @@ protected:
 
  private:
  
-  bool fillVertexInformation() const;
+  bool fillVertexInformation(std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP) const;
   const Trk::Track*        getTrkTrack(const Trk::VxTrackAtVertex*)const;
-  const xAOD::Vertex*      findAssociatedVertexTP(const xAOD::TrackParticle *) const;
+  const xAOD::Vertex* findAssociatedVertexTP(const std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP, const xAOD::TrackParticle *) const;
 
-  mutable std::map<const xAOD::TrackParticle*, const xAOD::Vertex* > m_trackVertexMapTP;
-  
   const AtlasDetectorID*                m_idHelper;
   const PixelID*                        m_pixelID;
   const SCT_ID*                         m_sctID; 
