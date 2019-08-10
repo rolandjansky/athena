@@ -162,6 +162,14 @@ TaggerList = BTaggingFlags.StandardTaggers
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ1Sequence)
 
+# Quark-gluon tagging
+truthjetalg='AntiKt4TruthJets'
+if not DFisMC:
+  truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
+
 # Then apply truth tools in the form of aumentation
 if DFisMC:
   from DerivationFrameworkTop.TOPQCommonTruthTools import *
