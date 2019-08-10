@@ -123,7 +123,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void eventCounter(int eventNumber);
     
     bool isLoop() const; // Returns true if the execution is at the event loop, false o/w.
-    bool isDirectoryExist(const std::string dir) const;
 
     void parallelDataAggregator(); // 
 

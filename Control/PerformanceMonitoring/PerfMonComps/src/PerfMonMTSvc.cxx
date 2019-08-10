@@ -237,7 +237,12 @@ void PerfMonMTSvc::report2Stdout() {
   if(m_isEventLoopMonitoring)
     report2Stdout_Time_Parallel();
 
-  report2Stdout_Mem_Serial();
+  if(isDirectoryExist("/proc"))
+    report2Stdout_Mem_Serial();
+  else
+    ATH_MSG_INFO("There is no /proc/ directory in this machine, therefore memory monitoring is failed!");
+
+
 
   report2Stdout_Summary();
   report2Stdout_CpuInfo();
@@ -436,7 +441,9 @@ void PerfMonMTSvc::report2JsonFile() const {
 
   report2JsonFile_Summary(j);
   report2JsonFile_Time_Serial(j);
-  report2JsonFile_Mem_Serial(j);
+
+  if(isDirectoryExist("/proc"))
+    report2JsonFile_Mem_Serial(j);
 
   if(m_isEventLoopMonitoring)
     report2JsonFile_Time_Parallel(j);
@@ -677,7 +684,4 @@ void PerfMonMTSvc::eventCounter(int eventNumber) {
   m_eventIds.insert(eventNumber);
 }
 
-bool PerfMonMTSvc::isDirectoryExist(const std::string dir) const{
-  struct stat buffer;
-  return (stat (dir.c_str(), &buffer) == 0);
-}
+

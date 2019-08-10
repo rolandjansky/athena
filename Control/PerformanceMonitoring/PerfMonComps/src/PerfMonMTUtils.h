@@ -18,9 +18,12 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
+ #include <sys/stat.h> 
+
 typedef std::map< std::string, long > memory_map_t; // Component -> Memory Measurement(kB)
 
 inline memory_map_t operator-( memory_map_t& map1,  memory_map_t& map2);
+inline bool isDirectoryExist(const std::string dir);
 
 /*
  * Necessary tools
@@ -78,7 +81,9 @@ namespace PMonMT {
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
-      mem_map = get_mem_stats();
+
+      if(isDirectoryExist("/proc"))
+        mem_map = get_mem_stats();
     }
 
     // Could we make it argumentless?
@@ -116,8 +121,9 @@ namespace PMonMT {
 
       m_tmp_cpu = meas.cpu_time;
       m_tmp_wall = meas.wall_time;
-
-      m_mem_tmp_map = meas.mem_map;
+      
+      if(isDirectoryExist("/proc"))
+        m_mem_tmp_map = meas.mem_map;
     }
     // make const
     void addPointStop(Measurement& meas)  {     
@@ -125,7 +131,8 @@ namespace PMonMT {
       m_delta_cpu = meas.cpu_time - m_tmp_cpu;
       m_delta_wall = meas.wall_time - m_tmp_wall;
 
-      m_mem_delta_map = meas.mem_map - m_mem_tmp_map;   
+      if(isDirectoryExist("/proc"))
+        m_mem_delta_map = meas.mem_map - m_mem_tmp_map;   
     }
 
     // Clear -> Make generic + make meas const
@@ -219,10 +226,13 @@ inline memory_map_t PMonMT::get_mem_stats(){
     }
 
   }
-  //return static_cast<memory_map_t>result;
   return result; 
 }
 
+inline bool isDirectoryExist(const std::string dir){
+  struct stat buffer;
+  return (stat (dir.c_str(), &buffer) == 0);
+}
 
 
 #endif // PERFMONCOMPS_PERFMONMTUTILS_H
