@@ -232,7 +232,8 @@ STDM2SlimmingHelper.ExtraVariables += [
   "ParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
   "ParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma"]
 STDM2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
-STDM2SlimmingHelper.AllVariables = ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
+STDM2SlimmingHelper.AllVariables = [ "AFPSiHitContainer", "AFPToFHitContainer"]
+STDM2SlimmingHelper.AllVariables += ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
 
 # add photon shower shape variables
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
