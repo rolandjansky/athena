@@ -19,7 +19,7 @@
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
 
-export NAME="mc_pp_v7_nops_aod_ftk_grid"
+export NAME="mc_pp_v7_ftk_grid"
 export MENU="MC_pp_v7_no_prescale"
 export INPUT="ftk"
 export EXTRA="from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.doFTK=True;from RecExConfig.RecFlags import rec;rec.doFTK.set_Value_and_Lock(True);"
