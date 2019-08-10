@@ -110,22 +110,22 @@ namespace Trk {
       float dEdX() const;
 
       /** Material averaging */
-      void addMaterial(const Material& mp, float dInX0) const; 
+      void addMaterial(const Material& mp, float dInX0); 
       
       /** Set Material */
-      void setMaterial(const Material& mp, float thickness=1.) const;
+      void setMaterial(const Material& mp, float thickness=1.);
                                                                                   
     protected:
       friend class ::MaterialPropertiesCnv_p1;
 
       /** Set dEdX       - important for material calibarion */
-      virtual void setDeDx(float dEdX) const;        
+      virtual void setDeDx(float dEdX);        
       
-      mutable Material   m_material;
+      Material   m_material;
       
-      mutable float      m_dInX0;      //!< thickness in units of radiation length
-      mutable float      m_dInL0;      //!< thickness in units of nuclear interaction length
-      mutable float      m_zOaTrTd;    //!< @f$ \frac{Z}{A}\cdot\rho\cdot d @f$ - in ATLAS units
+      float      m_dInX0;      //!< thickness in units of radiation length
+      float      m_dInL0;      //!< thickness in units of nuclear interaction length
+      float      m_zOaTrTd;    //!< @f$ \frac{Z}{A}\cdot\rho\cdot d @f$ - in ATLAS units
 
   };
 
