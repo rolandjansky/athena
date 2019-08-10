@@ -5,11 +5,6 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
-# import flags
-from RecExConfig.RecFlags  import rec
-rec.doESD=True
-rec.doWriteESD=True
-
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.triggerMenuSetup = "LS2_v1"
 
@@ -42,7 +37,10 @@ from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
 dumpSequence(topSequence)
 
 
-if opt.doESD:
+if opt.doWriteESD:
+  from RecExConfig.RecFlags  import rec
+  rec.doESD=True
+  rec.doWriteESD=True
   import DecisionHandling
   for a in AthSequencer("HLTAllSteps").getChildren():
       if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
