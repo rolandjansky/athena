@@ -234,6 +234,7 @@ void PerfMonMTSvc::report2Stdout() {
 
   report2Stdout_Time_Serial();
   
+  // If Event Loop Monitoring option is ON
   if(m_isEventLoopMonitoring)
     report2Stdout_Time_Parallel();
 
@@ -354,18 +355,18 @@ void PerfMonMTSvc::report2Stdout_Mem_Serial() {
 
     sort(pairs.begin(), pairs.end(), [=](std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& a, std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& b)
     {
-      return a.second->m_mem_delta_map["vmem"] + a.second->m_mem_delta_map["rss"] + a.second->m_mem_delta_map["pss"] + a.second->m_mem_delta_map["swap"] > \
-             b.second->m_mem_delta_map["vmem"] + b.second->m_mem_delta_map["rss"] + b.second->m_mem_delta_map["pss"] + b.second->m_mem_delta_map["swap"];
+      return a.second->m_memMon_delta_map["vmem"] + a.second->m_memMon_delta_map["rss"] + a.second->m_memMon_delta_map["pss"] + a.second->m_memMon_delta_map["swap"] > \
+             b.second->m_memMon_delta_map["vmem"] + b.second->m_memMon_delta_map["rss"] + b.second->m_memMon_delta_map["pss"] + b.second->m_memMon_delta_map["swap"];
     }
     ); 
     for(auto it : pairs){
 
       ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3% %|35t|%4% %|45t|%5% %|55t|%6%") % it.first.stepName \
-                                                               % it.second->m_mem_delta_map["vmem"]    \
-                                                               % it.second->m_mem_delta_map["rss"]     \
-                                                               % it.second->m_mem_delta_map["pss"]     \
-                                                               % it.second->m_mem_delta_map["swap"]    \
-                                                               % it.first.compName);      
+                                                                                   % it.second->m_memMon_delta_map["vmem"]    \
+                                                                                   % it.second->m_memMon_delta_map["rss"]     \
+                                                                                   % it.second->m_memMon_delta_map["pss"]     \
+                                                                                   % it.second->m_memMon_delta_map["swap"]    \
+                                                                                   % it.first.compName);      
 
     }
     ATH_MSG_INFO("=======================================================================================");
@@ -387,29 +388,29 @@ void PerfMonMTSvc::report2Stdout_Summary() {
 
   ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Initialization is:" % m_snapshotData[0].m_delta_cpu % "ms");
   ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Initialization is:" % m_snapshotData[0].m_delta_wall % "ms");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Initialization is:" % m_snapshotData[0].m_mem_delta_map["vmem"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Initialization is:" % m_snapshotData[0].m_mem_delta_map["rss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Initialization is:" % m_snapshotData[0].m_mem_delta_map["pss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Initialization is:" % m_snapshotData[0].m_mem_delta_map["swap"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["vmem"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["rss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["pss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["swap"] % "kB");
 
 
   ATH_MSG_INFO("");
 
   ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Event Loop is:" % m_snapshotData[1].m_delta_cpu % "ms");
   ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Event Loop is:" % m_snapshotData[1].m_delta_wall % "ms");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Event Loop is:" % m_snapshotData[1].m_mem_delta_map["vmem"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Event Loop is:" % m_snapshotData[1].m_mem_delta_map["rss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Event Loop is:" % m_snapshotData[1].m_mem_delta_map["pss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Event Loop is:" % m_snapshotData[1].m_mem_delta_map["swap"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["vmem"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["rss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["pss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["swap"] % "kB");
 
   ATH_MSG_INFO("");
 
   ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Finalize is:" % m_snapshotData[2].m_delta_cpu % "ms");
   ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Finalize is:" % m_snapshotData[2].m_delta_wall % "ms");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Finalize is:" % m_snapshotData[2].m_mem_delta_map["vmem"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Finalize is:" % m_snapshotData[2].m_mem_delta_map["rss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Finalize is:" % m_snapshotData[2].m_mem_delta_map["pss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Finalize is:" % m_snapshotData[2].m_mem_delta_map["swap"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["vmem"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["rss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["pss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["swap"] % "kB");
 
   ATH_MSG_INFO("");
 
@@ -470,7 +471,7 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
 }
 void PerfMonMTSvc::report2JsonFile_Time_Serial(nlohmann::json& j) const {
 
-  // Report component level results
+  // Report component level time measurements in serial steps
   for(auto& it : m_compLevelDataMap){
 
     std::string stepName = it.first.stepName;
@@ -487,6 +488,7 @@ void PerfMonMTSvc::report2JsonFile_Time_Serial(nlohmann::json& j) const {
 
 void PerfMonMTSvc::report2JsonFile_Time_Parallel(nlohmann::json& j) const {
 
+  // Report component level time measurements in parallel steps
   for(auto& it : m_aggParallelCompLevelDataMap){
 
     std::string stepName = it.first.stepName;
@@ -501,16 +503,17 @@ void PerfMonMTSvc::report2JsonFile_Time_Parallel(nlohmann::json& j) const {
 }
 
 void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const{
-  // Report component level results
+  
+  // Report component level memory measurements in serial steps
   for(auto& it : m_compLevelDataMap){
 
     std::string stepName = it.first.stepName;
     std::string compName = it.first.compName;
     
-    long vmem = it.second->m_mem_delta_map["vmem"];
-    long rss = it.second->m_mem_delta_map["rss"];
-    long pss = it.second->m_mem_delta_map["pss"];
-    long swap = it.second->m_mem_delta_map["swap"];
+    long vmem = it.second->m_memMon_delta_map["vmem"];
+    long rss = it.second->m_memMon_delta_map["rss"];
+    long pss = it.second->m_memMon_delta_map["pss"];
+    long swap = it.second->m_memMon_delta_map["swap"];
     
     // nlohmann::json syntax
     j["MemMon_Serial"][stepName][compName] =  { {"vmem", vmem}, {"rss", rss}, {"pss", pss}, {"swap", swap} } ; 
@@ -519,11 +522,6 @@ void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const{
     delete it.second;
   }
 }
-void PerfMonMTSvc::report2JsonFile_Mem_Parallel(nlohmann::json& j) const{
-  // to implement...
-  return;
-}
-
 
 bool PerfMonMTSvc::isLoop() const {
   int eventNumber = getEventNumber();
@@ -561,7 +559,7 @@ void PerfMonMTSvc::parallelDataAggregator(){
 
   std::map< PMonMT::StepComp, PMonMT::Measurement >::iterator sc_itr;
 
-  for(auto& sce_itr : m_parallelCompLevelData.m_delta_map ){
+  for(auto& sce_itr : m_parallelCompLevelData.m_timeMon_delta_map ){
 
     PMonMT::StepComp currentState = generate_serial_state (sce_itr.first.stepName, sce_itr.first.compName);
  
@@ -586,8 +584,6 @@ void PerfMonMTSvc::divideData2Steps_serial(){
       m_compLevelDataMap_ini[it.first] = it.second;
     if(it.first.stepName == "Start")
       m_compLevelDataMap_start[it.first] = it.second;
-    //if(it.first.stepName == "Execute")
-      //m_compLevelDataMap_evt[it.first] = it.second;
     if(it.first.stepName == "Stop")
       m_compLevelDataMap_stop[it.first] = it.second;
     if(it.first.stepName == "Finalize")
@@ -600,7 +596,6 @@ void PerfMonMTSvc::divideData2Steps_serial(){
   }
   m_stdoutVec_serial.push_back(m_compLevelDataMap_ini);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_start);
-  //m_stdoutVec_serial.push_back(m_compLevelDataMap_evt);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_stop);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_fin);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_plp);

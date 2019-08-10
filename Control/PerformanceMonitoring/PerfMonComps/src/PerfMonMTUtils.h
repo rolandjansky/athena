@@ -15,13 +15,13 @@
 #include <chrono>
 #include <fstream>
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include <sys/stat.h>  // to check whether /proc/* exists in the machine
 
- #include <sys/stat.h> 
+typedef std::map< std::string, long > memory_map_t; // Component : Memory Measurement(kB)
 
-typedef std::map< std::string, long > memory_map_t; // Component -> Memory Measurement(kB)
-
+/*
+ * Inline function prototypes
+*/
 inline memory_map_t operator-( memory_map_t& map1,  memory_map_t& map2);
 inline bool isDirectoryExist(const std::string dir);
 
@@ -33,9 +33,7 @@ namespace PMonMT {
   double get_thread_cpu_time();
   double get_process_cpu_time();
   double get_wall_time();
-
   memory_map_t get_mem_stats();
-
   
 
   // Step name and Component name pairs. Ex: Initialize - StoreGateSvc
@@ -58,7 +56,6 @@ namespace PMonMT {
     std::string compName;
     int eventNumber;
   
-
     //Overload < operator, because we are using a custom key(StepCompEvent)  for std::map
     bool operator<(const StepCompEvent& sce) const {
       return std::make_pair( this->eventNumber, this->compName ) < std::make_pair( sce.eventNumber, sce.compName );
@@ -74,29 +71,29 @@ namespace PMonMT {
     double wall_time;
     
     // This map stores the measurements captured in the event loop
-    std::map< StepCompEvent, Measurement > meas_map;
+    std::map< StepCompEvent, Measurement > timeMon_meas_map;
 
-    memory_map_t mem_map;
+    memory_map_t memMon_meas_map;
 
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
 
       if(isDirectoryExist("/proc"))
-        mem_map = get_mem_stats();
+        memMon_meas_map = get_mem_stats();
     }
 
     // Could we make it argumentless?
     void capture_MT ( StepCompEvent sce ) {
            
       cpu_time = get_thread_cpu_time();
-      wall_time = get_wall_time(); // Does it really needed?
+      wall_time = get_wall_time(); 
 
       Measurement meas;
       meas.cpu_time = cpu_time;
       meas.wall_time = wall_time;
 
-      meas_map[sce] = meas;
+      timeMon_meas_map[sce] = meas;
     }
 
     Measurement() : cpu_time{0.}, wall_time{0.} { }
@@ -109,12 +106,12 @@ namespace PMonMT {
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
 
-    memory_map_t m_mem_tmp_map;
-    memory_map_t m_mem_delta_map;
+    memory_map_t m_memMon_tmp_map;
+    memory_map_t m_memMon_delta_map;
 
     // These maps are used to calculate the parallel monitoring
-    std::map< StepCompEvent, Measurement > m_tmp_map;
-    std::map< StepCompEvent, Measurement > m_delta_map;    
+    std::map< StepCompEvent, Measurement > m_timeMon_tmp_map;
+    std::map< StepCompEvent, Measurement > m_timeMon_delta_map;    
 
     
     void addPointStart(const Measurement& meas) {          
@@ -123,7 +120,7 @@ namespace PMonMT {
       m_tmp_wall = meas.wall_time;
       
       if(isDirectoryExist("/proc"))
-        m_mem_tmp_map = meas.mem_map;
+        m_memMon_tmp_map = meas.memMon_meas_map;
     }
     // make const
     void addPointStop(Measurement& meas)  {     
@@ -132,19 +129,19 @@ namespace PMonMT {
       m_delta_wall = meas.wall_time - m_tmp_wall;
 
       if(isDirectoryExist("/proc"))
-        m_mem_delta_map = meas.mem_map - m_mem_tmp_map;   
+        m_memMon_delta_map = meas.memMon_meas_map - m_memMon_tmp_map;   
     }
 
     // Clear -> Make generic + make meas const
     void addPointStart_MT(Measurement& meas, StepCompEvent sce ){
 
-      m_tmp_map[sce] = meas.meas_map[sce];
+      m_timeMon_tmp_map[sce] = meas.timeMon_meas_map[sce];
     }
 
     void addPointStop_MT (Measurement& meas, StepCompEvent sce  ){
 
-      m_delta_map[sce].cpu_time = meas.meas_map[sce].cpu_time - m_tmp_map[sce].cpu_time;
-      m_delta_map[sce].wall_time = meas.meas_map[sce].wall_time - m_tmp_map[sce].wall_time;
+      m_timeMon_delta_map[sce].cpu_time = meas.timeMon_meas_map[sce].cpu_time - m_timeMon_tmp_map[sce].cpu_time;
+      m_timeMon_delta_map[sce].wall_time = meas.timeMon_meas_map[sce].wall_time - m_timeMon_tmp_map[sce].wall_time;
     }
 
     
@@ -189,15 +186,9 @@ inline double PMonMT::get_wall_time() {
                              std::chrono::milliseconds(1));
 }
 
-inline memory_map_t operator-( memory_map_t& map1,  memory_map_t& map2){
-  memory_map_t result_map;
-  for(auto it : map1){
-    result_map[it.first] = map1[it.first] - map2[it.first];
-  }
-  return result_map;
-}
-
-// Is it ok to define inline?
+/*
+ * Memory statistics for serial steps
+ */
 inline memory_map_t PMonMT::get_mem_stats(){
 
   memory_map_t result;
@@ -227,6 +218,14 @@ inline memory_map_t PMonMT::get_mem_stats(){
 
   }
   return result; 
+}
+
+inline memory_map_t operator-( memory_map_t& map1,  memory_map_t& map2){
+  memory_map_t result_map;
+  for(auto it : map1){
+    result_map[it.first] = map1[it.first] - map2[it.first];
+  }
+  return result_map;
 }
 
 inline bool isDirectoryExist(const std::string dir){

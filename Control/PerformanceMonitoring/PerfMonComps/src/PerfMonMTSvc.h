@@ -30,7 +30,7 @@
 // Other Libraries
 #include <algorithm>
 #include <functional>
-#include <sys/stat.h> 
+
 
 /*
  * In the snapshot level monitoring, currently we monitor 3 steps as a whole:
@@ -115,7 +115,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2JsonFile_Time_Parallel(nlohmann::json& j) const;
 
     void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
-    void report2JsonFile_Mem_Parallel(nlohmann::json& j) const;
 
 
 
@@ -172,7 +171,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // There should be a more clever way!
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_ini;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_start;
-    //std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_evt;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_stop;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_fin;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_plp; // preLoadProxy
