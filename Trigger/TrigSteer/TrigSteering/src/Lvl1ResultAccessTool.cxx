@@ -63,7 +63,6 @@ Lvl1ResultAccessTool::Lvl1ResultAccessTool(const std::string& name, const std::s
 }
 
 Lvl1ResultAccessTool::~Lvl1ResultAccessTool() {
-   clearLvl1Items();
    clearDecisionItems();
    delete m_jepDecoder;
    delete m_cpDecoder;
@@ -75,13 +74,6 @@ void Lvl1ResultAccessTool::clearDecisionItems() {
       delete item;
    m_decisionItems.clear();
 }
-
-void Lvl1ResultAccessTool::clearLvl1Items() {
-   for( LVL1CTP::Lvl1Item* item : m_lvl1ItemConfig)
-      delete item;
-   m_lvl1ItemConfig.clear();
-}
-
 
 StatusCode Lvl1ResultAccessTool::initialize() {
 
@@ -105,8 +97,9 @@ StatusCode Lvl1ResultAccessTool::initialize() {
 }
 
 
-StatusCode Lvl1ResultAccessTool::updateItemsConfigOnly() {
-
+std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> >
+Lvl1ResultAccessTool::makeLvl1ItemConfig() const
+{
    // Get CTP and Threshold configurations from the LVL1ConfigSvc
    const TrigConf::CTPConfig* ctpConfig = m_lvl1ConfigSvc->ctpConfig();
 
@@ -117,7 +110,7 @@ StatusCode Lvl1ResultAccessTool::updateItemsConfigOnly() {
    // =============================================================
 
 
-   clearLvl1Items();
+   std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > lvl1ItemConfig; //!< vector holding all configured LVL1 items
 
    const vector<float> & prescales = ctpConfig->prescaleSet().prescales_float();
 
@@ -126,22 +119,37 @@ StatusCode Lvl1ResultAccessTool::updateItemsConfigOnly() {
       unsigned int pos = item->ctpId();
 
       // make sure, vector is big enough
-      //    while(m_lvl1ItemConfig.size() <= pos) m_lvl1ItemConfig.push_back(0);
-      if ( m_lvl1ItemConfig.size() <= pos )
-         m_lvl1ItemConfig.resize(pos+1);
+      //    while(lvl1ItemConfig.size() <= pos) lvl1ItemConfig.push_back(0);
+      if ( lvl1ItemConfig.size() <= pos )
+         lvl1ItemConfig.resize(pos+1);
 
-      if (m_lvl1ItemConfig[pos] != 0 && item->name() != m_lvl1ItemConfig[pos]->name()  ) {
+      if (lvl1ItemConfig[pos] != 0 && item->name() != lvl1ItemConfig[pos]->name()  ) {
          ATH_MSG_ERROR( "LVL1 item: " << item->name() << " uses a CTP id: "
                         << pos << " that is already used!! --> ignore this LVL1 item! ");
       } else {
-         m_lvl1ItemConfig[pos] =  new LVL1CTP::Lvl1Item( item->name(),
-                                                         TrigConf::HLTUtils::string2hash(item->name()),
-                                                         0, 0, 0, prescales[pos]);
+         lvl1ItemConfig[pos] =  std::make_unique<LVL1CTP::Lvl1Item>( item->name(),
+                                                                     TrigConf::HLTUtils::string2hash(item->name()),
+                                                                     0, 0, 0, prescales[pos]);
       }
    }
 
    // some debug output
    ATH_MSG_DEBUG("CTP -> Configured LVL1 items:");
+
+   return lvl1ItemConfig;
+}
+
+
+StatusCode Lvl1ResultAccessTool::updateItemsConfigOnly() {
+
+   // =============================================================
+   // Prepare LVL1 items, i.e. name -> hashID, put everything into
+   // a vector where the position corresponds to the LVL1 item
+   // position in the CTP result!
+   // =============================================================
+
+
+   m_lvl1ItemConfig = makeLvl1ItemConfig();
 
    int xtra = m_decisionItems.size() - m_lvl1ItemConfig.size();
 
@@ -529,6 +537,14 @@ bool getBit(const std::vector<ROIB::CTPRoI>& words, unsigned position) {
 // ==============================
 std::vector< const LVL1CTP::Lvl1Item* >
 Lvl1ResultAccessTool::createL1Items( const ROIB::RoIBResult& result,
+                                     LVL1CTP::Lvl1Result const** lvl1ResultOut /*= nullptr*/)
+{
+  // Not const because it modifies the pointed-to objects in m_lvl1ItemConfig.
+  return createL1Items (m_lvl1ItemConfig, result, lvl1ResultOut);
+}
+std::vector< const LVL1CTP::Lvl1Item* >
+Lvl1ResultAccessTool::createL1Items( const std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> >& lvl1ItemConfig,
+                                     const ROIB::RoIBResult& result,
                                      LVL1CTP::Lvl1Result const** lvl1ResultOut /*= nullptr*/) const
 {
   std::vector< const LVL1CTP::Lvl1Item* > items;
@@ -546,10 +562,10 @@ Lvl1ResultAccessTool::createL1Items( const ROIB::RoIBResult& result,
  
   unsigned first_item = calib_flag ? v.getMaxTrigItems()-3 : 0; // last three items are calib items, only those should be activated
 
-  for ( unsigned i = first_item; i < m_lvl1ItemConfig.size(); i++ ) {
-    if ( !m_lvl1ItemConfig[ i ] ) continue; // empty slot
+  for ( unsigned i = first_item; i < lvl1ItemConfig.size(); i++ ) {
+    if ( !lvl1ItemConfig[ i ] ) continue; // empty slot
 
-    LVL1CTP::Lvl1Item* item =  m_lvl1ItemConfig[ i ];
+    LVL1CTP::Lvl1Item* item =  lvl1ItemConfig[ i ].get();
 
 
     *item = LVL1CTP::Lvl1Item( item->name(), item->hashId(), 

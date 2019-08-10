@@ -279,11 +279,10 @@ TrigDecisionMaker::ResultStatus TrigDecisionMaker::getL1Result(const LVL1CTP::Lv
 
   ATH_MSG_DEBUG ( "Got ROIBResult from StoreGate with key " << m_l1ResultKey ) ;
 
-  sc = m_lvl1Tool->updateItemsConfigOnly();
-  if (sc.isFailure()) return ProcError;
+  std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > itemConfig = m_lvl1Tool->makeLvl1ItemConfig();
 
   if ((roIBResult->cTPResult()).isComplete()) {  
-    m_lvl1Tool->createL1Items(*roIBResult,&result);
+    m_lvl1Tool->createL1Items(itemConfig, *roIBResult,&result);
     ATH_MSG_DEBUG ( "Build LVL1CTP::Lvl1Result from valid CTPResult.") ;
   } else {
     ATH_MSG_DEBUG ( "No LVL1CTP::Lvl1Result build since no valid CTPResult is available.") ;

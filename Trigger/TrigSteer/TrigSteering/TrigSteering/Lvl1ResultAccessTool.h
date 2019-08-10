@@ -78,7 +78,13 @@ namespace HLT {
       virtual const std::vector< JetEnergyRoI >& getJetEnergyRoIs() const = 0;
 
       virtual bool isCalibrationEvent(const ROIB::RoIBResult& result) const = 0;
-      virtual std::vector< const LVL1CTP::Lvl1Item*> createL1Items(const ROIB::RoIBResult& result, LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) const = 0;
+      virtual std::vector< const LVL1CTP::Lvl1Item*>
+      createL1Items(const ROIB::RoIBResult& result,
+                    LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) = 0;
+      virtual std::vector< const LVL1CTP::Lvl1Item*>
+      createL1Items(const std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> >& lvl1ItemConfig,
+                    const ROIB::RoIBResult& result,
+                    LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) const = 0;
 
       virtual const std::vector< MuonRoI >&      createMuonThresholds(const ROIB::RoIBResult& result) = 0;
       virtual const std::vector< EMTauRoI >&     createEMTauThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs=false) = 0;
@@ -90,6 +96,7 @@ namespace HLT {
                                       bool useL1Muon = true,
                                       bool useL1JetEnergy = true) = 0;
 
+      virtual std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > makeLvl1ItemConfig() const = 0;
       virtual StatusCode updateItemsConfigOnly() = 0;
 
       virtual StatusCode updateResult(const ROIB::RoIBResult& result,
@@ -173,7 +180,9 @@ namespace HLT {
                               bool useL1Muon = true,
                               bool useL1JetEnergy = true) override;
 
-
+      virtual
+      std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > makeLvl1ItemConfig() const override;
+ 
       /** @brief update the LVL1 items settings from the (LVL1) trigger configuration.
        *         This method is called from within updateConfig(..), the reason to have it
        *         separate is that TrigDecisionTool only needs the LVL1 items and not the RoIs.
@@ -196,7 +205,17 @@ namespace HLT {
        *  @return vector holding pointers to all LVL1 items
        */
       virtual
-      std::vector< const LVL1CTP::Lvl1Item* > createL1Items(const ROIB::RoIBResult& result, LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) const override;
+      std::vector< const LVL1CTP::Lvl1Item* >
+      createL1Items(const ROIB::RoIBResult& result,
+                    LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) override;
+
+      /// Alternate version with configuration passed in explicitly.
+      /// Can be used when the tool is const.
+      virtual
+      std::vector< const LVL1CTP::Lvl1Item* >
+      createL1Items(const std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> >& lvl1ItemConfig,
+                    const ROIB::RoIBResult& result,
+                    LVL1CTP::Lvl1Result const** lvl1ResultOut = nullptr) const override;
 
       /** @brief Extract LVL1 Muon-type RoIs and cache them internally
        *  @param result reference to RoIBResult object, holding all LVL1 RoIs and items
@@ -248,7 +267,6 @@ namespace HLT {
    private:
 
       void clearDecisionItems(); //!< delete all LVL1 decisio items
-      void clearLvl1Items();     //!< delete all LVL1 items
 
       // L1 decoders
       LVL1::JEPRoIDecoder* m_jepDecoder { nullptr };
@@ -267,7 +285,7 @@ namespace HLT {
       unsigned int m_muonCommissioningStep;            //!< change thresholds creation inclusivness depending on the comissioning stage 
       bool m_ignorePrescales; //!< Set to true to ignore prescales
 
-      std::vector< LVL1CTP::Lvl1Item* > m_lvl1ItemConfig; //!< vector holding all configured LVL1 items
+      std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > m_lvl1ItemConfig; //!< vector holding all configured LVL1 items
       std::vector< ConfigThreshold > m_muonCfg;           //!< vector holding all configured LVL1 muon thresholds
       std::vector< ConfigThreshold > m_emCfg;             //!< vector holding all configured LVL1 EM thresholds
       std::vector< ConfigThreshold > m_tauCfg;            //!< vector holding all configured LVL1 TAU thresholds
