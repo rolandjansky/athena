@@ -529,19 +529,18 @@ class TRTConditionsServicesSetup:
     if not conddb.folderRequested('/TRT/Cond/StatusHT'):
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
-    # Straw status tool
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
-    InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
-                                                            isGEANT4 = self._isMC)
+    # Straw status tool (now private, cannot be passed by name)
+    from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
+    
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
-                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
+                                      TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
                                       isGEANT4 = self._isMC)
     # Active Fraction algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
     TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",
-                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
+                                      TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
 
 
     # HT probability algorithm
