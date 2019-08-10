@@ -18,12 +18,12 @@ from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCo
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
 from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
+from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
 
 InDetTrigTrackSummaryHelperToolCosmics = \
     InDet__InDetTrackSummaryHelperTool(name = "InDetTrigSummaryHelperCosmics",
                                        HoleSearch   = InDetTrigHoleSearchTool,
-                                       TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
+                                       TRTStrawSummarySvc=InDetTrigTRTStrawStatusSummaryTool,
                                        DoSharedHits = False)
 ToolSvc += InDetTrigTrackSummaryHelperToolCosmics
 
