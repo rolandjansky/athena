@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
 from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg

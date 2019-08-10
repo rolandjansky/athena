@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "LArRawDataReadingAlg.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" 
@@ -42,10 +46,6 @@ LArRawDataReadingAlg::LArRawDataReadingAlg(const std::string& name, ISvcLocator*
   return StatusCode::SUCCESS;
 }     
   
-StatusCode LArRawDataReadingAlg::finalize() {
-  return StatusCode::SUCCESS;
-} 
-
 StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
   LArRawChannelContainer* rawChannels=nullptr;
   LArDigitContainer* digits=nullptr;
@@ -55,21 +55,21 @@ StatusCode LArRawDataReadingAlg::execute(const EventContext& ctx) const {
     SG::WriteHandle<LArRawChannelContainer> rawChannelsHdl(m_rawChannelKey,ctx);
     ATH_CHECK(rawChannelsHdl.record(std::make_unique<LArRawChannelContainer>()));
     rawChannels=rawChannelsHdl.ptr();
-    rawChannels->reserve(182468);
+    rawChannels->reserve(182468); //Total number of LAr readout channels
   }
 
   if (m_doDigits) {
     SG::WriteHandle<LArDigitContainer> digitsHdl(m_digitKey,ctx);
     ATH_CHECK(digitsHdl.record(std::make_unique<LArDigitContainer>()));
     digits=digitsHdl.ptr();
-    digits->reserve(1000);
+    digits->reserve(1000); //Approximate number of Digits above threshold
   }
 
   if (m_doFebHeaders) {
     SG::WriteHandle<LArFebHeaderContainer> febHeadersHdl(m_febHeaderKey,ctx);
     ATH_CHECK(febHeadersHdl.record(std::make_unique<LArFebHeaderContainer>()));
     febHeaders=febHeadersHdl.ptr();
-    febHeaders->reserve(1524);
+    febHeaders->reserve(1524); //Total number of LAr Front End Boards
   }
 
   //Get full events and filter out LAr ROBs

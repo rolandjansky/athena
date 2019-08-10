@@ -26,7 +26,6 @@ class LArRawDataReadingAlg : public  AthReentrantAlgorithm {
 
   StatusCode initialize() override;
   StatusCode execute(const EventContext& ctx) const override;
-  StatusCode finalize() override;
 
  private:
   //Event output:
