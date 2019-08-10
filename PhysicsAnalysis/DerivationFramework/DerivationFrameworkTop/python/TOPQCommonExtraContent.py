@@ -695,6 +695,8 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
                                                                + "L4"
                                                                + "L5"]
 
+TOPQExtraVariables_AntiKt10TrackCaloClusterJets = ["AntiKt10TrackCaloClusterJets."
+                                                   + "NumTrkPt500"]
 
 #TOPQExtraVariables_AntiKt2PV0TrackJets = ["AntiKt2PV0TrackJets."
 #                                          + "pt."
