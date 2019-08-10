@@ -8,19 +8,19 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
-
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
+#include "MuonTrackFindingEvent/MuonTrackSegmentMatchResult.h"
 
 #include <atomic>
+#include <mutex>
 #include <string>
 #include <set>
-
-#include "MuonTrackFindingEvent/MuonTrackSegmentMatchResult.h"
-#include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 class MsgStream;
 
@@ -193,8 +193,9 @@ namespace Muon {
     mutable std::atomic_uint m_otherSideOfPerigeeTrk;
     mutable std::atomic_uint m_segmentTrackMatches;
     mutable std::atomic_uint m_segmentTrackMatchesTight;
-    mutable std::vector<unsigned int> m_reasonsForMatchOk;
-    mutable std::vector<unsigned int> m_reasonsForMatchNotOk;
+    mutable std::vector<unsigned int> m_reasonsForMatchOk ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    mutable std::vector<unsigned int> m_reasonsForMatchNotOk ATLAS_THREAD_SAFE; // Guarded by m_mutex
+    mutable std::mutex m_mutex;
 
     double m_caloMatchZ; //!< Z position of calo end-cap disks. Used to determine if segments are on same side of Calo
 
