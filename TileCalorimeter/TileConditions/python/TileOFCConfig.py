@@ -51,7 +51,7 @@ def TileOFCCondAlgCfg(flags, **kwargs):
         if flags.IOVDb.DatabaseInstance  == 'CONDBR2' and runType == 'PHY' and runNumber > runSplitOnline:
             ofcFolder = folders.addSplitOnline('/TILE/ONL01/FILTER/' + ofcType, '/TILE/OFL02/FILTER/' + ofcType)
         else:
-            ofcFolder = folders.addSplitMC('/TILE/ONL01/FILTER/' + ofcType, '/TILE/OFL02/FILTER/' + ofcType)
+            ofcFolder = folders.addSplitMC('/TILE/ONL01/FILTER/' + ofcType, '/TILE/ONL01/FILTER/' + ofcType)
 
         from TileConditions.TileConditionsConf import TileCondProxyCool_TileCalibDrawerOfc_ as TileCondProxyCoolOfc
         ofcProxy = TileCondProxyCoolOfc('TileCondProxyCool_Ofc', Source = ofcFolder)
