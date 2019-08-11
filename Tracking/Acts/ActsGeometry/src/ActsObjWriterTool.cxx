@@ -13,7 +13,7 @@
 
 #include "ActsGeometry/ActsGeometryContext.h"
 // ACTS
-#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 
 // PRIVATE
 #include "util/ObjSurfaceWriter.h"

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  *   */
 
 
@@ -10,7 +10,6 @@
 #include "AsgTools/AsgTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
-#include "LumiBlockComps/ILuminosityTool.h"
 #include "AthContainers/AuxElement.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
 #include <bitset>
@@ -63,7 +62,6 @@ namespace Trig{
       float dR(const float, const float, const float, const float );
 
       float getOnlAverageMu();
-      float getAverageMu();
  
       //******************************************************************
       template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
@@ -72,7 +70,6 @@ namespace Trig{
       
      
       ToolHandle<ILumiBlockMuTool>     m_lumiBlockMuTool; // This would retrieve the online <mu>
-      ToolHandle<ILuminosityTool>      m_lumiTool; // This would retrieve the offline <mu>
       StoreGateSvc                    *m_storeGate;
       Trig::TrigDecisionTool          *m_trigdec;
       const HLT::TriggerElement       *m_te;

@@ -52,10 +52,10 @@ class DetElementSurface : public Surface
     bool                        globalToLocal(const Amg::Vector3D&, const Amg::Vector3D&, Amg::Vector2D&) const {return false;}
     std::string                 name() const { return "Trk::DetElementSurface";}
 // A dummy method required for consistency of the package and 
-    virtual const ParametersBase<5, Trk::Charged>* createTrackParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return 0;}
-    virtual const ParametersBase<5, Trk::Charged>* createTrackParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return 0;}     
-    virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return 0;}
-    virtual const ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return 0;}
+    virtual ParametersBase<5, Trk::Charged>* createTrackParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return nullptr;}
+    virtual ParametersBase<5, Trk::Charged>* createTrackParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return nullptr;}     
+    virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(double, double, double, double, double, AmgSymMatrix(5)*) const {return nullptr;}
+    virtual ParametersBase<5, Trk::Neutral>* createNeutralParameters(const Amg::Vector3D&, const Amg::Vector3D&, double, AmgSymMatrix(5)*) const {return nullptr;}
 
 
     virtual Intersection straightLineIntersection(const Amg::Vector3D&, 

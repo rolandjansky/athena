@@ -16,7 +16,7 @@
 // ACTS
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Surfaces/BoundaryCheck.hpp"
-#include "Acts/Extrapolator/Navigator.hpp"
+#include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 

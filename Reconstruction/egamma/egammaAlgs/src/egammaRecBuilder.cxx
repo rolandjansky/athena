@@ -79,7 +79,7 @@ StatusCode egammaRecBuilder::RetrieveEMTrackMatchBuilder(){
 
   return StatusCode::SUCCESS;
 }
-// ====================================================================
+
 StatusCode egammaRecBuilder::RetrieveEMConversionBuilder(){
   //
   // retrieve EMConversionBuilder tool
@@ -101,13 +101,11 @@ StatusCode egammaRecBuilder::RetrieveEMConversionBuilder(){
   return StatusCode::SUCCESS;
 }
 
-// ====================================================================
 StatusCode egammaRecBuilder::finalize(){
   // finalize method
   return StatusCode::SUCCESS;
 }
 
-// ======================================================================
 StatusCode egammaRecBuilder::execute(){
   // athena execute method
 
@@ -137,16 +135,10 @@ StatusCode egammaRecBuilder::execute(){
     egRec->setCaloClusters( ClusterLink );
     egammaRecs->push_back( std::move(egRec) );
   }
-  
   ///Append track Matching information
   if (m_doTrackMatching){
     smallChrono timer(*m_timingProfile, this->name()+"_"+m_trackMatchBuilder->name()+"_AllClusters", m_doChrono);
-    for (auto egRec : *egammaRecs) {
-      if (m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
-	ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-	return StatusCode::FAILURE;
-      }
-    }
+    ATH_CHECK(m_trackMatchBuilder->executeRec(Gaudi::Hive::currentContext(),egammaRecs.ptr()));
   }
   //Do the conversion matching
   if (m_doConversions){
@@ -154,11 +146,10 @@ StatusCode egammaRecBuilder::execute(){
     smallChrono timer(*m_timingProfile, this->name()+"_"+m_conversionBuilder->name()+"_AllClusters", m_doChrono);
     for (auto egRec : *egammaRecs) {
       if (m_conversionBuilder->executeRec(Gaudi::Hive::currentContext(),egRec).isFailure()){
-	ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
-	return StatusCode::FAILURE;  
+        ATH_MSG_ERROR("Problem executing " << m_conversionBuilder);
+        return StatusCode::FAILURE;  
       }
     }
   }
   return StatusCode::SUCCESS;
 }
-//-----------------------------------------------------------------

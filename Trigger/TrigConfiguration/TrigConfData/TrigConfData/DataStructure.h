@@ -62,6 +62,25 @@ namespace TrigConf {
       /** Access to the underlying data, if needed */ 
       const ptree & data() const { return m_data; }
 
+      /** Check for attribute
+       * @return true if the structure is just a value
+       */
+      bool isValue() const;
+
+      /** Access to simple content
+       * @return string that is the content of the structure
+       *
+       * For instance when the json structure contains an array of values (ptree only works with strings) which
+       * one retrieved via @c getList, then the values in the vector<@c DataStructure> can be accessed using getValue
+       */
+      std::string getValue() const;
+
+      /** Check for attribute
+       * @param key The path to the attribute name, relative to the current one in form "path.to.child"
+       * @return true if key exists
+       */
+      bool hasAttribute(const std::string & key) const;
+
       /** Access to simple attribute
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
        */

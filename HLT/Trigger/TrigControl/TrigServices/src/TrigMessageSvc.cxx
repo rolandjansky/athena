@@ -8,7 +8,7 @@
 #include "GaudiKernel/Message.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/System.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 
 #include "ers/ers.h"
 
@@ -94,7 +94,7 @@ void TrigMessageSvc::bookHistograms()
   }
 
   // monitoring information root directory
-  const std::string path = "/EXPERT/" + name() + "/";
+  const std::string path = "/EXPERT/HLTFramework/" + name() + "/";
   const int nLevelBins = MSG::NUM_LEVELS - m_publishLevel;
   m_msgCountHist = new TH1I("MessageCount", "Messages while RUNNING;Severity;Count",
                             nLevelBins, 0, nLevelBins);
@@ -245,7 +245,7 @@ void TrigMessageSvc::i_reportMessage(const Message& msg, int outputLevel)
   if ( m_doPublish && key>=static_cast<int>(m_publishLevel) ) {
     m_msgCountHist->Fill(key-m_publishLevel, 1);
     { // Adding bins on the fly needs to be protected by mutex
-      scoped_lock_histogram lock;
+      oh_scoped_lock_histogram lock;
       m_msgCountSrcHist->Fill(key-m_publishLevel, msg.getSource().c_str(), 1);
       m_msgCountSrcHist->LabelsDeflate("Y");
     }

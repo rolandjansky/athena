@@ -1,25 +1,12 @@
-// -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMONTHISTSVC_THISTSVC_H
 #define TRIGMONTHISTSVC_THISTSVC_H
 
-
-/**
- * @file TrigMonTHistSvc.h
- * @author Tomasz Bold
- * @date 2005-09-27
- * @brief The HLT histogramming service 
- * It forwards histograms to the monitoring infrastructure.
- */
-
-
-#include "GaudiKernel/Service.h"
-#include "THistSvcHLT.h"
-#include "AthenaBaseComps/AthMessaging.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "AthenaBaseComps/AthService.h"
 
 class TObject;
 class TH1;
@@ -30,95 +17,127 @@ class TTree;
 
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 #include <boost/regex.hpp>
 
-class TrigMonTHistSvc: public THistSvcHLT
+// Helper to mark unsupported interfaces
+#define NOSUPPORT(lvl, what) \
+  do {                                                                  \
+    ATH_MSG_LVL(MSG::lvl, what << "is not supported by this implementation"); \
+    return {};                                                          \
+  } while (0)
+
+
+/**
+ * HLT online histogram service
+ *
+ * The main difference to the offline THistSvc are:
+ *  - register histograms with online monitoring service
+ *  - do not write any output ROOT files
+ *  - support start/stop
+ *  - only supports one histogram instance per name
+ */
+class TrigMonTHistSvc: public extends<AthService, ITHistSvc>
 { 
 public:
-  
   TrigMonTHistSvc(const std::string& name, ISvcLocator *svc );
-  virtual ~TrigMonTHistSvc();
 
-  virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface );
+  virtual StatusCode initialize() override;
+  virtual StatusCode stop() override;
+  virtual StatusCode finalize() override;
   
-  // implemenataion of the interface from TrigNetTHistSvc
-  virtual StatusCode initialize();
-  virtual StatusCode reinitialize();
-  virtual StatusCode finalize();
-  
-  virtual StatusCode regHist(const std::string& name);
-  virtual StatusCode regHist(const std::string& name, std::unique_ptr<TH1> hist);
-  virtual StatusCode regHist(const std::string& name, std::unique_ptr<TH1> hist, TH1* hist_ptr);
-  virtual StatusCode regHist(const std::string& name, TH1*);
+  virtual StatusCode regHist(const std::string& name) override;
+  virtual StatusCode regHist(const std::string& name, std::unique_ptr<TH1> hist) override;
+  virtual StatusCode regHist(const std::string& name, std::unique_ptr<TH1> hist, TH1* hist_ptr) override;
+  virtual StatusCode regHist(const std::string& name, TH1*) override;
+  virtual StatusCode getHist(const std::string& id, TH1*& hist, size_t ind) const override;
+  virtual StatusCode getHist(const std::string& id, TH2*& hist, size_t ind) const override;
+  virtual StatusCode getHist(const std::string& id, TH3*& hist, size_t ind) const override;
 
-  virtual StatusCode regTree(const std::string& name);
-  virtual StatusCode regTree(const std::string& name, std::unique_ptr<TTree>);
-  virtual StatusCode regTree(const std::string& name, TTree*);
-  virtual StatusCode getTree(const std::string& name, TTree*&) const;
+  virtual StatusCode deReg(TObject* obj) override;            //<! very slow
+  virtual StatusCode deReg(const std::string& name) override; //<! use this instead
 
-  virtual StatusCode deReg(TObject* obj);            //<! very slow
-  virtual StatusCode deReg(const std::string& name); //<! use this instead
+  virtual std::vector<std::string> getHists() const override;
 
-  virtual std::vector<std::string> getHists() const;
-  virtual std::vector<std::string> getTrees() const;
+  virtual StatusCode regShared( const std::string&, std::unique_ptr<TH1>, LockedHandle<TH1>& ) override;
+  virtual StatusCode regShared( const std::string&, std::unique_ptr<TH2>, LockedHandle<TH2>& ) override;
+  virtual StatusCode regShared( const std::string&, std::unique_ptr<TH3>, LockedHandle<TH3>& ) override;
+  virtual StatusCode getShared( const std::string&, LockedHandle<TH1>& ) const override;
+  virtual StatusCode getShared( const std::string&, LockedHandle<TH2>& ) const override;
+  virtual StatusCode getShared( const std::string&, LockedHandle<TH3>& ) const override;
 
-  virtual StatusCode getTHists(TDirectory *td, TList &) const;
-  virtual StatusCode getTHists(const std::string& name, TList &) const;
+  virtual StatusCode getTHists(TDirectory *td, TList &, bool recurse=false) const override;
+  virtual StatusCode getTHists(const std::string& name, TList &, bool recurse=false) const override;
+  virtual StatusCode getTHists(TDirectory *td, TList &tl, bool recurse=false, bool reg=false) override;
+  virtual StatusCode getTHists(const std::string& name, TList &tl, bool recurse=false, bool reg=false) override;
 
-  virtual StatusCode getTTrees(TDirectory *td, TList &) const;
-  virtual StatusCode getTTrees(const std::string& name, TList &) const;
+  virtual bool exists( const std::string& name ) const override;
 
-  virtual StatusCode regGraph(const std::string& name);
-  virtual StatusCode regGraph(const std::string& name, std::unique_ptr<TGraph>);
-  virtual StatusCode regGraph(const std::string& name, TGraph*);
-  virtual StatusCode getGraph(const std::string& name, TGraph*&) const;
+  /* Unsupported interfaces */
+  virtual StatusCode regTree(const std::string&) override { NOSUPPORT(WARNING, "TTree"); }
+  virtual StatusCode regTree(const std::string&, std::unique_ptr<TTree>) override { NOSUPPORT(WARNING, "TTree"); }
+  virtual StatusCode regTree(const std::string&, TTree*) override { NOSUPPORT(WARNING, "TTree"); }
+  virtual StatusCode getTree(const std::string&, TTree*&) const override { NOSUPPORT(WARNING, "TTree"); }
 
-  virtual StatusCode regShared( const std::string&, std::unique_ptr<TH1>, LockedHandle<TH1>& ) { return notSupported(); }
-  virtual StatusCode regShared( const std::string&, std::unique_ptr<TH2>, LockedHandle<TH2>& ) { return notSupported(); }
-  virtual StatusCode regShared( const std::string&, std::unique_ptr<TH3>, LockedHandle<TH3>& ) { return notSupported(); }
-  virtual StatusCode regShared( const std::string&, std::unique_ptr<TGraph>, LockedHandle<TGraph>& )  { return notSupported(); }
-  virtual StatusCode getShared( const std::string&, LockedHandle<TH1>& ) const { return notSupported(); }
-  virtual StatusCode getShared( const std::string&, LockedHandle<TH2>& ) const { return notSupported(); }
-  virtual StatusCode getShared( const std::string&, LockedHandle<TH3>& ) const { return notSupported(); }
-  virtual StatusCode getShared( const std::string&, LockedHandle<TGraph>& ) const { return notSupported(); }
+  virtual std::vector<std::string> getTrees() const override { NOSUPPORT(DEBUG, "TTree"); }
+  virtual StatusCode getTTrees(TDirectory*, TList&, bool) const override { NOSUPPORT(DEBUG, "TTree"); }
+  virtual StatusCode getTTrees(const std::string&, TList&, bool) const override { NOSUPPORT(DEBUG, "TTree"); }
+  virtual StatusCode getTTrees(TDirectory*, TList&, bool, bool) override { NOSUPPORT(DEBUG, "TTree"); }
+  virtual StatusCode getTTrees(const std::string&, TList&, bool, bool) override { NOSUPPORT(DEBUG, "TTree"); }
 
-  virtual StatusCode getTHists(TDirectory *td, TList &,
-                               bool recurse=false) const;
-  virtual StatusCode getTHists(const std::string& name, TList &,
-                               bool recurse=false) const;
-  virtual StatusCode getTHists(TDirectory *td, TList &tl,
-                               bool recurse=false, bool reg=false);
-  virtual StatusCode getTHists(const std::string& name, TList &tl,
-                               bool recurse=false, bool reg=false);
+  virtual StatusCode regGraph(const std::string&) override { NOSUPPORT(WARNING, "TGraph"); }
+  virtual StatusCode regGraph(const std::string&, std::unique_ptr<TGraph>) override { NOSUPPORT(WARNING, "TGraph"); }
+  virtual StatusCode regGraph(const std::string&, TGraph*) override { NOSUPPORT(WARNING, "TGraph"); }
+  virtual std::vector<std::string> getGraphs() const override { NOSUPPORT(DEBUG, "TGraph"); }
+  virtual StatusCode getGraph(const std::string&, TGraph*&) const override { NOSUPPORT(DEBUG, "TGraph"); }
 
-  virtual StatusCode getTTrees(TDirectory *td, TList &,
-                               bool recurse=false) const;
-  virtual StatusCode getTTrees(const std::string& name, TList &,
-                               bool recurse=false) const;
-  virtual StatusCode getTTrees(TDirectory *td, TList & tl,
-                               bool recurse=false, bool reg=false);
-  virtual StatusCode getTTrees(const std::string& name, TList & tl,
-                               bool recurse=false, bool reg=false);
+  virtual StatusCode regShared( const std::string&, std::unique_ptr<TGraph>, LockedHandle<TGraph>& ) override { NOSUPPORT(WARNING, "TGraph"); }
+  virtual StatusCode getShared( const std::string&, LockedHandle<TGraph>& ) const override { NOSUPPORT(WARNING, "TGraph"); }
 
-  virtual bool exists(const std::string& name) const;
-
-protected:
-  StatusCode isObjectAllowed(std::string path, const TObject *o);
-
-  StatusCode getTHists_i(const std::string& name, TList &) const;
-  
+  virtual StatusCode merge( const std::string& ) override  { NOSUPPORT(WARNING, "merge"); }
+  virtual StatusCode merge( TObject* ) override  { NOSUPPORT(WARNING, "merge"); }
 
 private:
-  template <typename T>
-  StatusCode regHist_i(std::unique_ptr<T> hist, const std::string& name, bool shared);
-  StatusCode notSupported() const;
+  /// Helper struct that bundles the histogram, name and mutex
+  struct THistID {
+    THistID(const std::string s, TObject* o) : id(s), obj(o) {};
+    ~THistID() { delete mutex; }
+    std::string id;
+    TObject* obj{nullptr};
+    std::mutex* mutex{nullptr};
+  };
 
-  std::string m_excludeType;
-  std::string m_includeType;
-  std::string m_excludeName;
-  std::string m_includeName;
+  /// Registered histograms
+  std::unordered_map<std::string, THistID> m_hists;
+
+  /// Does the histogram follow the naming rules ?
+  bool isObjectAllowed(const std::string& path, const TObject *o);
+
+  /// Get TList of registered histograms
+  StatusCode getTHists_i(const std::string& name, TList &) const;
+
+  // Templated methods implementing the virtual interface methods
+  template <typename T> StatusCode regHist_i(std::unique_ptr<T> hist, const std::string& name, bool shared, THistID*& phid);
+  template <typename T> T* getHist_i(const std::string& id, const size_t& ind, bool quiet = false) const;
+  template <typename T> LockedHandle<T> regShared_i( const std::string& id, std::unique_ptr<T> hist);
+  template <typename T> LockedHandle<T> getShared_i( const std::string& id ) const;
+
+  // Properties
+  Gaudi::Property<std::string> m_excludeType{this, "ExcludeType", "()"};
+  Gaudi::Property<std::string> m_includeType{this, "IncludeType", ".+"};
+  Gaudi::Property<std::string> m_excludeName{this, "ExcludeName", ".*\\..*"};
+  Gaudi::Property<std::string> m_includeName{this, "IncludeName",
+                                             "^/((run_[0-9]+/lb_[0-9]+/LB)|(SHIFT)|(EXPERT)|(DEBUG)|(EXPRESS)|(RUNSTAT))/.+/.+"};
+
+  // Dummy properties for compatibility with THistSvc
+  Gaudi::Property<int> m_autoSave{this, "AutoSave", 0, "Not supported by TrigMonTHistSvc"};
+  Gaudi::Property<int> m_autoFlush{this, "AutoFlush", 0, "Not supported by TrigMonTHistSvc"};
+  Gaudi::Property<bool> m_print{this, "PrintAll", false, "Not supported by TrigMonTHistSvc"};
+  Gaudi::Property<int>  m_maxFileSize{this, "MaxFileSize", 10240, "Not supported by TrigMonTHistSvc"};
+  Gaudi::Property<std::vector<std::string>> m_outputfile{this, "Output", {}, "Not supported by TrigMonTHistSvc"};
+  Gaudi::Property<std::vector<std::string>> m_inputfile{this, "Input", {}, "Not supported by TrigMonTHistSvc"};
+
   // compiled regexes
   boost::regex m_excludeTypeRegex;
   boost::regex m_includeTypeRegex;

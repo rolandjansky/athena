@@ -19,14 +19,14 @@
 
    instead of the CaloCell_ID (enum) a simple int is taken,
    so, implicit conversion is needed.
-   
+
    pos/neg endcap are distinguished by +/-
-   
+
 */
 
 namespace Trk {
 
- typedef std::map<Trk::LayerIndex,int> LayerIndexSampleMap;
+typedef std::map<Trk::LayerIndex, int> LayerIndexSampleMap;
 
 }
 
@@ -36,5 +36,3 @@ namespace Trk {
 CLASS_DEF(Trk::LayerIndexSampleMap, 267485628, 1)
 
 #endif
-
-

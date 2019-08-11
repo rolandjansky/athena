@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <sstream>
 
-MultijetFlowNetworkBuilder::MultijetFlowNetworkBuilder(const ConditionsMT& conditions):
-FlowNetworkBuilderBase(conditions){
+MultijetFlowNetworkBuilder::MultijetFlowNetworkBuilder(ConditionsMT conditions):
+  FlowNetworkBuilderBase(std::move(conditions)){
 }
 
 std::optional<std::vector<std::shared_ptr<FlowEdge>>>
@@ -29,13 +29,12 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   auto icond{0};
   const auto jg_offset = m_conditions.size() + 1;
   
-  std::vector<std::shared_ptr<FlowEdge>> edges(m_initialEdges.begin(),
-                                               m_initialEdges.end());
+  auto edges = getSourceToConditionsEdges();
   
   // matches: std::optional<std::vector<std::vector<int>>>
   for(const auto& jg_nodes : *matches){
     // icond is m_conditons index
-    double cap = m_conditions[icond].capacity();
+    double cap = m_conditions[icond]->capacity();
 
     auto  dest  = std::back_inserter(edges);
     std::transform(jg_nodes.begin(),
@@ -85,7 +84,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   }
 
   auto sourceCapacity = 0.;
-  for(const auto& c : m_conditions){sourceCapacity += c.capacity();}
+  for(const auto& c : m_conditions){sourceCapacity += c->capacity();}
   sinkCapacity = jets.size();
   if(sinkCapacity < sourceCapacity){
     
@@ -103,7 +102,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   if(collector){
     std::stringstream ss;
     ss << " No of matched jets in matched groups: " << jets.size() << " " 
-       << static_cast<int>(jets.size())+ "\n";
+       << static_cast<int>(jets.size()) << "\n";
 						      
 	 
 	  collector->collect("MultijetFlowNetworkBuilder", ss.str());

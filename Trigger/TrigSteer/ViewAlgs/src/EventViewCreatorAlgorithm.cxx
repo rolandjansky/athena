@@ -21,7 +21,6 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
   ATH_MSG_DEBUG("Will produce views=" << m_viewsKey << " roIs=" << m_inViewRoIs );
   ATH_CHECK( m_viewsKey.initialize() );
   ATH_CHECK( m_inViewRoIs.initialize() );
-  ATH_CHECK( m_scheduler.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -110,7 +109,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
           m_viewNodeName,             // CF node to attach views to
           context,                    // Source context
-          m_scheduler.get() ) );
+          getScheduler() ) );
   
   // report number of views, stored already when container was created
   // auto viewsHandle = SG::makeHandle( m_viewsKey );
@@ -124,22 +123,23 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
 
 
 StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils::Decision* inputDecision, SG::View* newView ) const {
-  // see if there is a view linked to the decision object, if so link it to the view that is just made
-  TrigCompositeUtils::LinkInfo<ViewContainer> parentViewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(inputDecision, "view" );
-  if ( parentViewLinkInfo.isValid() ) {
-    ATH_CHECK( parentViewLinkInfo.link.isValid() );
-    auto parentView = *parentViewLinkInfo.link;
-    newView->linkParent( parentView );
-    ATH_MSG_DEBUG( "Parent view linked" );
-  } else {
-    if ( m_requireParentView ) {
+  if ( m_requireParentView ) {
+    // see if there is a view linked to the decision object, if so link it to the view that is just made
+    TrigCompositeUtils::LinkInfo<ViewContainer> parentViewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(inputDecision, "view" );
+    if ( parentViewLinkInfo.isValid() ) {
+      ATH_CHECK( parentViewLinkInfo.link.isValid() );
+      auto parentView = *parentViewLinkInfo.link;
+      newView->linkParent( parentView );
+      ATH_MSG_DEBUG( "Parent view linked" );
+    } else {
       ATH_MSG_ERROR( "Parent view not linked because it could not be found" );
-      ATH_MSG_ERROR( TrigCompositeUtils::dump( inputDecision, [](const xAOD::TrigComposite* tc){ 
+      ATH_MSG_ERROR( TrigCompositeUtils::dump( inputDecision, [](const xAOD::TrigComposite* tc){
         return "TC " + tc->name() + ( tc->hasObjectLink("view") ? " has view " : " has no view " );
       } ) );
       return StatusCode::FAILURE;
     }
-    
+  } else {
+    ATH_MSG_DEBUG( "Parent view linking not required" );
   }
   return StatusCode::SUCCESS;
 }

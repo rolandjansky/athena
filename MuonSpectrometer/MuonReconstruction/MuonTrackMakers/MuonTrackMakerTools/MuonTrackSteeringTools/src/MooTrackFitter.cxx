@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackFitter.h"
@@ -219,10 +219,11 @@ namespace Muon {
     if( track ){
       // clean and evaluate track
       std::set<Identifier> excludedChambers;
-      Trk::Track* cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
-      if( cleanTrack && cleanTrack != track ){
+      std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
+      if( cleanTrack && !(*cleanTrack->perigeeParameters() == *track->perigeeParameters()) ){
         delete track;
-        track = cleanTrack;
+	//using release until the entire code can be migrated to use smart pointers
+        track = cleanTrack.release();
       }
     }else{
       ATH_MSG_DEBUG(" Fit failed " );
@@ -253,13 +254,14 @@ namespace Muon {
      
       // clean and evaluate track
       std::set<Identifier> excludedChambers;
-      Trk::Track* cleanTrack = cleanAndEvaluateTrack( *newTrack, excludedChambers );
+      std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack( *newTrack, excludedChambers );
 
       if( cleanTrack ){
         // check whether cleaner returned same track, if not delete old track
-        if( cleanTrack != newTrack ){
+        if( !(*cleanTrack->perigeeParameters() == *newTrack->perigeeParameters()) ){
           delete newTrack;
-          newTrack = cleanTrack;
+	  //using release until the entire code can be migrated to use smart pointers
+          newTrack = cleanTrack.release();
         }
       }else{
         ATH_MSG_DEBUG(" Refit failed, rejected by cleaner " );
@@ -429,11 +431,12 @@ namespace Muon {
       if( !excludedChambers.empty() ){
         ATH_MSG_DEBUG(" Using exclusion list for cleaning" );
       }
-      Trk::Track* cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
+      std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
       if( cleanTrack ) {
-        if( cleanTrack != track ){
+        if( !(*cleanTrack->perigeeParameters() == *track->perigeeParameters()) ){
           delete track;
-          track = cleanTrack;
+	  //using release until the entire code can be migrated to use smart pointers
+          track = cleanTrack.release();
           
         }
       }else {
@@ -2197,7 +2200,7 @@ namespace Muon {
   }
 
 
-  Trk::Track* MooTrackFitter::cleanAndEvaluateTrack( Trk::Track& track, const std::set<Identifier>& excludedChambers ) const {
+  std::unique_ptr<Trk::Track> MooTrackFitter::cleanAndEvaluateTrack( Trk::Track& track, const std::set<Identifier>& excludedChambers ) const {
     // preselection to get ride of really bad tracks
     if( !m_helperTool->goodTrack( track, m_preCleanChi2Cut ) ){
       ATH_MSG_DEBUG(" Track rejected due to large chi2" << std::endl
@@ -2206,7 +2209,7 @@ namespace Muon {
     }
 
     // perform cleaning of track
-    Trk::Track* cleanTrack = 0;
+    std::unique_ptr<Trk::Track> cleanTrack;
     if( excludedChambers.empty() ) cleanTrack = m_cleaner->clean(track);
     else{
       ATH_MSG_DEBUG(" Cleaning with exclusion list " << excludedChambers.size() );
@@ -2222,7 +2225,6 @@ namespace Muon {
     if( !m_helperTool->goodTrack( *cleanTrack, m_chi2Cut ) ){
       ATH_MSG_DEBUG(" Track rejected after cleaning " << std::endl
                            << m_printer->print(*cleanTrack) );
-      if( cleanTrack != &track ) delete cleanTrack;
       return 0;
     }
 
@@ -2324,13 +2326,15 @@ namespace Muon {
     TrkDriftCircleMath::LocPos segPos(lpos.y(),lpos.z());
     TrkDriftCircleMath::Line segPars(segPos,angleYZ);
     
-    m_fitter.fit(segPars,dcs);
-    TrkDriftCircleMath::Segment segment = m_fitter.result();
+    TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+    m_fitter.fit(segment, segPars, dcs);
     segment.hitsOnTrack(dcs.size());
     ATH_MSG_DEBUG(" segment after fit " << segment.chi2() << " ndof " << segment.ndof() << " local parameters "
                          << segment.line().x0() << " " << segment.line().y0() << "  phi " << segment.line().phi() );
 
-    bool success = m_finder.dropHits(segment);
+    bool hasDroppedHit = false;
+    unsigned int dropDepth = 0;
+    bool success = m_finder.dropHits(segment, hasDroppedHit, dropDepth);
     if( !success ) {
       ATH_MSG_DEBUG(" drop hits failed " );
       return;

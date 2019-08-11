@@ -18,6 +18,7 @@
 #include "./ITrigJetHypoInfoCollector.h"
 #include <map>
 #include <optional>
+#include <string>
 
 class IFlowNetworkBuilder{
 
@@ -25,12 +26,14 @@ class IFlowNetworkBuilder{
 
 public:
   IFlowNetworkBuilder(){};
-  ~IFlowNetworkBuilder(){};
+  virtual ~IFlowNetworkBuilder() = default;
   virtual std::optional<std::unique_ptr<FlowNetwork>>
     create(const HypoJetGroupCIter&,
            const HypoJetGroupCIter&,
            const std::unique_ptr<ITrigJetHypoInfoCollector>&,
            std::map<int, pHypoJet>& nodeToJet) const = 0;
+
+  virtual std::string toString() const = 0;
 };
 
 #endif

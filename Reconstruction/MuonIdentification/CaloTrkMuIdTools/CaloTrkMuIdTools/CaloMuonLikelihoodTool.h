@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRKMUIDTOOLS_CALOMUONLIKELIHOODTOOL_H
@@ -43,7 +43,7 @@ private:
   const TH1F*       m_TH1F_bkg[9][11];
   std::string       m_TH1F_key[9][11];
   int               m_numKeys[9];
-  mutable int       m_cnt_warn{};
+  mutable std::atomic_int m_cnt_warn{0};
 
   ToolHandle<ITrackEnergyInCaloTool>  m_trkEnergyInCalo;
   std::vector<std::string>  m_fileNames;

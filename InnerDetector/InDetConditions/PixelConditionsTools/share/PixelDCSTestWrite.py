@@ -66,7 +66,7 @@ from AthenaCommon.AppMgr import ToolSvc
 #include("AthenaPoolCnvSvc/AthenaPool_jobOptions.py")
 import AthenaPoolCnvSvc.AthenaPool
 
-from AthenaSealSvc.AthenaSealSvcConf import AthenaSealSvc
+from AthenaServices.AthenaServicesConf import AthenaSealSvc
 ServiceMgr += AthenaSealSvc(CheckDictionary = TRUE)
 
 

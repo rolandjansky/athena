@@ -30,11 +30,12 @@
 // Tile includes
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileDQstatus.h"
 #include "TileConditions/TileCondToolPulseShape.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileEvent/TileDQstatus.h"
+#include "TileConditions/TileCablingSvc.h"
 #include "TileRecUtils/ITileDQstatusTool.h"
 
 // Atlas includes
@@ -153,6 +154,12 @@ class TileDigitsMaker: public AthAlgorithm {
     int m_binTime0Lo;                   //!< Index of time=0 bin for low gain pulse shape
     double m_timeStepLo;                //!< Time step in low gain pulse shape: 25.0 / nBinsPerXLo
 
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
+
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service to use
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
@@ -172,6 +179,7 @@ class TileDigitsMaker: public AthAlgorithm {
 
     SG::WriteHandleKey<TileDQstatus> m_DQstatusKey {this,
         "TileDQstatus", "TileDQstatus", "Output TileDQstatus key" };
+
 };
 
 #endif // TILESIMALGS_TILEDIGITSMAKER_H

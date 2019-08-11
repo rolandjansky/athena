@@ -103,7 +103,8 @@ namespace xAOD {
     return ( *acc )( *this );
   }
 
-  bool Electron_v1::setTrackCaloMatchValue( float value, const EgammaParameters::TrackCaloMatchType information ) {
+  bool Electron_v1::setTrackCaloMatchValue( const float value, 
+                                            const EgammaParameters::TrackCaloMatchType information ) {
 
     const xAOD::Electron_v1::Accessor< float >* acc = trackCaloMatchAccessorV1( information );
      if( !acc ) return false;

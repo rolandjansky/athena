@@ -105,13 +105,13 @@ namespace Trk {
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #define double float
 #endif    
-    mutable std::vector<std::pair<double,double> > m_xyVtx; //!< generating xy vertices
+    std::vector<std::pair<double,double> > m_xyVtx; //!< generating xy vertices
     double m_halfZ;                                         //!< halflength in z
 #ifdef TRKDETDESCR_USEFLOATPRECISON
 #undef double
 #endif    
-    mutable Trk::TriangleBounds* m_baseBounds;              //!< base xy bounds
-    mutable int m_ordering;                                 //!< cache vertex ordering 
+    Trk::TriangleBounds*   m_baseBounds;              //!< base xy bounds
+    mutable int m_ordering;                         //!< cache vertex ordering 
         
    /** There's only one single object Acessor for the moment
        has to be implemented if Cuboids are used more widely */

@@ -97,10 +97,10 @@ namespace NSWL1 {
     bool        m_doNtuple;                                 //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     bool        m_doMM;                                     //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink 
     bool        m_dosTGC;                                   //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
-    bool        m_doPadTrigger;                             //!< property, see @link NSWL1Simulation::NSWL1Simulation @endlink
     
     
     protected:
+    SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
     
 
   };  // end of NSWL1Simulation class

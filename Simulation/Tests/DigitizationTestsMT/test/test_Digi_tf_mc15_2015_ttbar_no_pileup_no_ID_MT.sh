@@ -2,15 +2,16 @@
 #
 # art-description: Run digitization of an MC15 ttbar sample with 2015 geometry and conditions, without pile-up using two threads
 # art-type: grid
-# art-athena-mt: 2
+# art-athena-mt: 8
 # art-include: master/Athena
 # the name below is needed because of the environment variable (marks storing in tar file).
 # art-output: mc15_2015_ttbar_no_pileup.RDO.pool.root
 # art-output: log.*
 
-unset ATHENA_PROC_NUMBER
+export ATHENA_CORE_NUMBER=8
 
 Digi_tf.py \
+--multithreaded \
 --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/HITS.04919495._001041.pool.root.1 \
 --conditionsTag default:OFLCOND-RUN12-SDR-25 \
 --digiSeedOffset1 170 \
@@ -21,13 +22,17 @@ Digi_tf.py \
 --preInclude 'HITtoRDO:Digitization/ForceUseOfAlgorithms.py,SimulationJobOptions/preInclude.IDOffDigitConfig.py' \
 --postInclude 'Digitization/FixDataDependenciesForMT.py' \
 --skipEvents 0  \
---maxEvents 10 \
---athenaopts '--threads 2'
+--maxEvents 10
 
-echo  "art-result: $? Digi_tf.py"
+rc=$?
+echo  "art-result: $rc Digi_tf.py"
 
-#ArtPackage=$1
-#ArtJobName=$2
-#
-#art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-#echo  "art-result: $? art-compare"
+rc2=-9999
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary --order-trees
+    rc2=$?
+fi
+echo  "art-result: $rc2 regression"

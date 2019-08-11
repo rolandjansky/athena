@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -14,8 +14,23 @@
 #include "InDetConversionFinderTools/ConversionFinderUtils.h"
 #include "TrkVertexSeedFinderUtils/ITrkDistanceFinder.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
 #include "xAODTracking/TrackParticle.h"
+
+
+// Would be nice to use something like Amg::distance instead.
+// But that rounds slightly differently.
+// Do it like this so that results are identical with the pre-MT version.
+namespace {
+  inline double square(const double tosquare) {
+    return std::pow(tosquare,2);
+  }
+  double dist(const std::pair<Amg::Vector3D,Amg::Vector3D>& pairofpos) {
+    Amg::Vector3D diff(pairofpos.first-pairofpos.second);
+    return std::sqrt(square(diff.x())+square(diff.y())+square(diff.z()));
+  }
+}
 
 
 namespace InDet {
@@ -201,10 +216,13 @@ namespace InDet {
       maxDist = m_maxDist[2];
     }
 
-    bool gotDistance = false; m_distance = 1000000.;
-    gotDistance = m_distanceTool->CalculateMinimumDistance(trkPneg->perigeeParameters(),trkPpos->perigeeParameters() );
-    if (gotDistance) m_distance = m_distanceTool->GetDistance();
-    if (!gotDistance || (m_distance>maxDist)) return false;
+    m_distance = 1000000.;
+    std::optional<Trk::ITrkDistanceFinder::TwoPoints> result
+      = m_distanceTool->CalculateMinimumDistance(trkPneg->perigeeParameters(),
+                                                 trkPpos->perigeeParameters() );
+    if (!result) return false;
+    m_distance = dist (result.value());
+    if (m_distance>maxDist) return false;
     
     //3D angle cut in the case of V0s, not used in the case of conversions
     double d_beta = (perPos->momentum().dot(perNeg->momentum()))/(perPos->momentum().mag()*perNeg->momentum().mag());
@@ -268,10 +286,17 @@ namespace InDet {
     } else if(sCase == 2) {
       maxDist = m_maxDist[2];
     }
-    bool gotDistance = false; double newDistance = 1000000.;
-    gotDistance = m_distanceTool->CalculateMinimumDistance(*trkpos,*trkneg);
-    if (gotDistance) newDistance = m_distanceTool->GetDistance();
-    if (!gotDistance || (newDistance>maxDist)) pass = false;
+
+    double newDistance = 1000000.;
+    std::optional<Trk::ITrkDistanceFinder::TwoPoints> result
+      = m_distanceTool->CalculateMinimumDistance(*trkpos, *trkneg);
+    if (!result) {
+      pass = false;
+    }
+    else {
+      newDistance = dist (result.value());
+      if (newDistance>maxDist) pass = false;
+    }
     
     //3D angle cut in the case of V0s, not used in the case of conversions
     double  d_beta = (perPos->momentum().dot(perNeg->momentum()))/(perPos->momentum().mag()*perNeg->momentum().mag());

@@ -58,6 +58,12 @@ InDetTrigTRT_DriftFunctionTool.ToTCorrectionsEndcapAr = [0., 5.514777, 3.342712,
 
 ToolSvc += InDetTrigTRT_DriftFunctionTool
 
+  
+# Straw status DB Tool
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+InDetTrigTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "InDetTrigTRTStrawStatusSummaryTool",
+                                                                  isGEANT4 = (globalflags.DataSource == 'geant4'))
+
 
 # TRT_RodDecoder
 from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder

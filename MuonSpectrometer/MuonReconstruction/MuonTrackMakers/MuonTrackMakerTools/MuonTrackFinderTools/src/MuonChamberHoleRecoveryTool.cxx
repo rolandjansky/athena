@@ -1044,7 +1044,7 @@ namespace Muon {
 	}
 	
 	// calibrate Mdt PRD
-	const MdtDriftCircleOnTrack* mdtROT = m_mdtRotCreator->createRIO_OnTrack(mdtPrd, exPars->position(), &(exPars->momentum()));
+        MdtDriftCircleOnTrack* mdtROT = m_mdtRotCreator->createRIO_OnTrack(mdtPrd, exPars->position(), &(exPars->momentum()));
 	// sanity check
 	if ( !mdtROT ) {
 	  ATH_MSG_DEBUG(" failed to calibrate MdtPrepData " << m_idHelperTool->toString(id) );
@@ -1065,16 +1065,8 @@ namespace Muon {
 	    // calculate side
 	    Trk::DriftCircleSide side = locPos[Trk::driftRadius] < 0 ? Trk::LEFT : Trk::RIGHT;
 	    
-	    // cast away constness
-	    MdtDriftCircleOnTrack* changeMdtROT = const_cast<MdtDriftCircleOnTrack*>(mdtROT);
-	    // sanity check
-	    // if( !changeMdtROT ){
-	    // ATH_MSG_WARNING(" failed to cast away constness of mdtROt " << m_idHelperTool->toString(id) );
-	    // continue;
-	    // }
-	    
 	    // update sign
-	    m_mdtRotCreator->updateSign( *changeMdtROT, side );
+	    m_mdtRotCreator->updateSign( *mdtROT, side );
 	  }
 	}
 	

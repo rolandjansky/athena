@@ -161,10 +161,9 @@ StatusCode TileRawChannelBuilder::initialize() {
 
   if (m_dataPoollSize < 0) m_dataPoollSize = m_tileHWID->channel_hash_max();
 
-  ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
-  ATH_CHECK( cablingSvc.retrieve());
+  ATH_CHECK( m_cablingSvc.retrieve());
     
-  const TileCablingService* cabling = cablingSvc->cablingService();
+  const TileCablingService* cabling = m_cablingSvc->cablingService();
   if (!cabling) {
     ATH_MSG_ERROR( "Unable to retrieve TileCablingService" );
     return StatusCode::FAILURE;
@@ -190,8 +189,8 @@ StatusCode TileRawChannelBuilder::initialize() {
     m_tileIdTransforms.disable();
   }
 
-  ATH_CHECK( m_rawChannelContainerKey.initialize() );
-  ATH_CHECK( m_DQstatusKey.initialize() );
+  ATH_CHECK( m_rawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_DQstatusKey.initialize(SG::AllowEmpty) );
 
   if (m_useDSP && !m_DSPContainerKey.key().empty()) {
     ATH_CHECK( m_DSPContainerKey.initialize() );

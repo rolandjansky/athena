@@ -17,10 +17,12 @@
 #include "TTree.h"
 #include "TROOT.h"
 #include "TFile.h"
+#include "TEfficiency.h"
 #include "LWHists/LWHist.h"
 #include "LWHists/LWHistControls.h"
 #include "LWHistAthMonWrapper.h"
 #include "AthMonBench.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -256,6 +258,14 @@ getHist( TH2*& h, const std::string& hName )
 }
 
 
+StatusCode ManagedMonitorToolBase::MonGroup::regEfficiency( TEfficiency* e ) {
+    if( m_tool != 0 ) {
+        return m_tool->regEfficiency( e, *this );
+    }
+    return StatusCode::FAILURE;
+}
+
+
 StatusCode
 ManagedMonitorToolBase::MonGroup::
 regGraph( TGraph* g )
@@ -394,9 +404,6 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    , m_environment(AthenaMonManager::user)
    , m_streamNameFcn(0)
    , m_THistSvc("THistSvc",name)
-   , m_trigDecTool("")
-   , m_trigTranslator("")
-   , m_DQFilterTools(this)
    , m_procNEventsProp(0)
    , m_path("")
    , m_preScaleProp(0)
@@ -412,13 +419,9 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    , m_nEventsIgnoreTrigger(1)
    , m_nLumiBlocks(1)
    , m_haveClearedLastEventBlock(true)
-   , m_lumiTool("LuminosityTool")
-   , m_liveTool("TrigLivefractionTool")
-   , m_hasRetrievedLumiTool(false)
    , m_bookHistogramsInitial(false)
    , m_useLumi(false)
    , m_defaultLBDuration(60.)
-    //, m_cycleNum(0)
    , m_d(new Imp(this))
 {
 //   ManagedMonitorToolBase_resetHistStatistics(this);
@@ -433,15 +436,6 @@ ManagedMonitorToolBase( const std::string & type, const std::string & name,
    // be referenced by it, the manager name can be set explicitly.  Otherwise,
    // it is set automatically.
    declareProperty( "ManagerName", m_managerNameProp );
-
-   // The TrigDecisionTool, clients normally should not have to set this
-   declareProperty( "TrigDecisionTool", m_trigDecTool );
-   
-   // The TriggerTranslator
-   declareProperty( "TriggerTranslatorTool", m_trigTranslator );
-
-   // The filter tools, to be specified in jobOptions
-   declareProperty( "FilterTools", m_DQFilterTools );
 
    // Enable luminosity tool?
    declareProperty( "EnableLumi", m_useLumi );
@@ -775,26 +769,9 @@ initialize()
    m_dataType = AthenaMonManager::dataTypeStringToEnum( m_dataTypeStr );
    m_environment = AthenaMonManager::envStringToEnum( m_environmentStr );
 
-   if (m_useLumi) {
-     if (m_dataType == AthenaMonManager::monteCarlo) {
-       ATH_MSG_WARNING("Lumi use in monitoring enabled but tool configured for MC; disabling lumi tool use");
-     } else {
-       // Get the luminosity tool
-       //CHECK(m_lumiTool.retrieve());
-       StatusCode sc_lumiTool = m_lumiTool.retrieve();
-       
-       // Get the livefration tool
-       //CHECK(m_liveTool.retrieve());
-       StatusCode sc_liveTool = m_liveTool.retrieve();
-
-       // Set m_hasRetrievedLumiTool to true when both tools are retrieved successfully
-       if ( sc_lumiTool.isSuccess() && sc_liveTool.isSuccess() )
-           m_hasRetrievedLumiTool = true;
-     }
-   } else {
-       ATH_MSG_DEBUG("!! Luminosity tool is disabled !!");
-   }
-
+   ATH_CHECK( m_lumiDataKey.initialize (m_useLumi && m_dataType != AthenaMonManager::monteCarlo) );
+   ATH_CHECK( m_lbDurationDataKey.initialize (m_useLumi && m_dataType != AthenaMonManager::monteCarlo) );
+   ATH_CHECK( m_trigLiveFractionDataKey.initialize (m_useLumi && m_dataType != AthenaMonManager::monteCarlo) );
 
    delete m_streamNameFcn;
    m_streamNameFcn = getNewStreamNameFcn();
@@ -941,7 +918,6 @@ fillHists()
       }
       for (const auto& interval: std::vector<Interval_t>{ eventsBlock, lumiBlock, lowStat, run }) {
 	for (const auto& it: m_templateHistograms[interval]) {
-	  //ATH_MSG_WARNING("Oi, considering " << it.m_templateHist->GetName() << it.m_group.histo_mgmt());
 	  // is histogram too small in x axis for LB range?
 	  if (it.m_group.histo_mgmt() == ATTRIB_X_VS_LB) {
 	    //ATH_MSG_WARNING("We are rebinning for " << it.m_templateHist->GetName());
@@ -950,6 +926,25 @@ fillHists()
 	    }
 	  }
 	}
+        for (auto& it: m_templateEfficiencies[interval]) {
+	  if (it.m_group.histo_mgmt() == ATTRIB_X_VS_LB) {
+	    // get the underlying passed and total TH1's from the TEfficiency
+	    TH1* passedHist = it.m_templateHist->GetCopyPassedHisto();
+	    TH1* totalHist = it.m_templateHist->GetCopyTotalHisto();
+	    // inflate them until they exceed the lumi-block number
+	    while (passedHist->GetXaxis()->GetXmax() <= AthenaMonManager::lumiBlockNumber() ) {
+	      passedHist->LabelsInflate("X");
+	      totalHist->LabelsInflate("X");
+              }
+	    // Replace them in the TEfficiency. First one has force ("f") option, since the 
+	    // histograms will not be consistent. This is corrected in the next line, so we
+	    // do check for consistency then.
+	    it.m_templateHist->SetPassedHistogram(*passedHist, "f");
+	    it.m_templateHist->SetTotalHistogram(*totalHist, " ");
+	    delete passedHist; // not owned by THistSvc, so need to be deleted.
+	    delete totalHist;
+	  }
+        }
       }
 
       if (auto streamname = dynamic_cast<OfflineStream*>(streamNameFunction())) {
@@ -1214,6 +1209,65 @@ regManagedGraphs(std::vector< MgmtParams<TGraph> >& templateGraphs)
       
       return StatusCode::SUCCESS;
 }
+
+StatusCode ManagedMonitorToolBase::regManagedEfficiencies(std::vector< MgmtParams<TEfficiency> >& templateEfficiencies) {
+    bool allIsOk = true;
+    for( auto& it : templateEfficiencies ) {
+        // get components of MgmtParams and copy efficiency
+        MonGroup group = it.m_group;
+        TEfficiency* theEfficiency = it.m_templateHist;
+        TEfficiency* e = static_cast<TEfficiency*>(theEfficiency->Clone());
+        int nbins = theEfficiency->GetTotalHistogram()->GetNbinsX();
+        int xlow = theEfficiency->GetTotalHistogram()->GetXaxis()->GetXmin();
+        int xhigh = theEfficiency->GetTotalHistogram()->GetXaxis()->GetXmax();
+        e->SetBins(nbins,xlow,xhigh); // reset histogram
+        std::string name = e->GetName();
+
+        // make TGraph casts of TEfficiencies
+        TGraph* theGraph = reinterpret_cast<TGraph*>(theEfficiency);
+        TGraph* g = reinterpret_cast<TGraph*>(e);
+
+        // Get the streamName for the previous interval
+        std::string streamName = streamNameFunction()->getStreamName( this, group, name, true );
+
+        // RE-REGISTER 
+        // 1) De-register the original graph with the THistSvc
+        StatusCode sc1 = m_THistSvc->deReg( theGraph );
+        if (sc1 == StatusCode::FAILURE) allIsOk = false;
+        // 2) Fix THistSvc->deReg for TGraphs
+        bool doneCleaning = false;
+        std::string directoryName = streamNameFunction()->getDirectoryName( this, group, name, true );
+        TSeqCollection *filelist=gROOT->GetListOfFiles();
+        for (int i=0; i<filelist->GetEntries(); i++) {
+            ATH_MSG_DEBUG( "List of files: " << filelist->At(i)->GetName());
+            TFile* file = static_cast<TFile*>(filelist->At(i));
+            StatusCode sc2 = THistSvc_deReg_fixTGraph(file, theGraph, directoryName);
+            if (sc2 == StatusCode::SUCCESS) doneCleaning = true;
+        }
+        // 3) Check if TGraph fix has been applied successfully
+        if (!doneCleaning) { 
+            ATH_MSG_ERROR("THistSvc_deReg_fixTGraph: failed to apply TGraph fix for the THist Svc!");
+            allIsOk = false;
+        }
+        // 4) Register cloned histogram under previous interval streamName
+        StatusCode sc3 = m_THistSvc->regGraph( streamName, g );
+        if (sc3 == StatusCode::FAILURE) 
+            allIsOk = false;
+
+        // get streamname for interval
+        streamName = streamNameFunction()->getStreamName( this, group, name, false );
+        // store metadata
+        StatusCode smd = registerMetadata(streamName, name, group);
+        if (smd != StatusCode::SUCCESS) allIsOk = false;
+        // Re-register the original graph
+        StatusCode sc4 = m_THistSvc->regGraph( streamName, theGraph );
+        if (sc4 == StatusCode::FAILURE) allIsOk = false;
+    }
+
+    if (!allIsOk) return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
+}
+
 
 StatusCode 
 ManagedMonitorToolBase::
@@ -1609,6 +1663,50 @@ getHist( TH2*& h, const std::string& hName, const MonGroup& group )
 }
 
 
+StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup& group ) {
+    if (!e)
+        return StatusCode::FAILURE;
+
+    TGraph* g = reinterpret_cast<TGraph*>(e);
+    std::string name = e->GetName();
+
+    // MANAGED
+    if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
+        // warn about not using merge algorithms
+        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+            ATH_MSG_WARNING("HEY! Attempting to register "<<name<<" as a per-LB histogram, but not setting the merge algorithm! Use \"merge\", at least.");
+        }
+        // add the efficiency to rebooking vector
+        if (m_supportedIntervalsForRebooking.count(group.interval())) {
+            m_templateEfficiencies[group.interval()].push_back( MgmtParams<TEfficiency>(e, group) );
+        } else {
+            ATH_MSG_ERROR("Attempt to book managed graph " << name << " with invalid interval type " << intervalEnumToString(group.interval()));
+            return StatusCode::FAILURE;
+        }
+
+        MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
+        std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
+        StatusCode smd = registerMetadata(streamName, name, group);
+        smd.setChecked();
+        return m_THistSvc->regGraph( streamName, g );
+    } else {
+    // UNMANAGED
+        if( m_manager != 0 ) {
+            std::string genericName = NoOutputStream().getStreamName( this, group, name );
+            m_manager->writeAndDelete( genericName );
+            m_manager->passOwnership( e, genericName );
+        }
+
+        std::string streamName = streamNameFunction()->getStreamName( this, group, name, false );
+        StatusCode smd = registerMetadata(streamName, name, group);
+        if (smd != StatusCode::SUCCESS) 
+            return StatusCode::FAILURE;
+
+        return m_THistSvc->regGraph( streamName, g );
+    }
+}
+
+
 StatusCode
 ManagedMonitorToolBase::
 regGraph( TGraph* g, const std::string& system,
@@ -1844,10 +1942,11 @@ preSelector()
 // Average mu, i.e. <mu>
 float
 ManagedMonitorToolBase::
-lbAverageInteractionsPerCrossing()
+lbAverageInteractionsPerCrossing (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbAverageInteractionsPerCrossing();
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        return lumi->lbAverageInteractionsPerCrossing();
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageInteractionsPerCrossing() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbAverageInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1859,15 +1958,15 @@ lbAverageInteractionsPerCrossing()
 // Instantaneous number of interactions, i.e. mu
 float
 ManagedMonitorToolBase::
-lbInteractionsPerCrossing()
+lbInteractionsPerCrossing (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        float instmu = 0.;
-
-        if (m_lumiTool->muToLumi() > 0.)
-            instmu = m_lumiTool->lbLuminosityPerBCID()/m_lumiTool->muToLumi();
-
-        return instmu;
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        float muToLumi = lumi->muToLumi();
+        if (muToLumi > 0) {
+          return lumi->lbLuminosityPerBCIDVector().at (ctx.eventID().bunch_crossing_id()) / muToLumi;
+        }
+        return 0;
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbInteractionsPerCrossing() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbInteractionsPerCrossing() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1879,10 +1978,11 @@ lbInteractionsPerCrossing()
 // Average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1)
 float
 ManagedMonitorToolBase::
-lbAverageLuminosity()
+lbAverageLuminosity (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbAverageLuminosity();
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        return lumi->lbAverageLuminosity();
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLuminosity() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbAverageLuminosity() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1894,10 +1994,11 @@ lbAverageLuminosity()
 // Instantaneous luminosity
 float
 ManagedMonitorToolBase::
-lbLuminosityPerBCID()
+lbLuminosityPerBCID (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbLuminosityPerBCID();
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        return lumi->lbLuminosityPerBCIDVector().at (ctx.eventID().bunch_crossing_id());
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLuminosityPerBCID() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbLuminosityPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1910,16 +2011,17 @@ lbLuminosityPerBCID()
 // Average luminosity livefraction
 float
 ManagedMonitorToolBase::
-lbAverageLivefraction()
+lbAverageLivefraction (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
     if (m_environment == AthenaMonManager::online)
         return 1.0;
 
-    if ( m_hasRetrievedLumiTool ) {
-        return m_liveTool->lbAverageLivefraction();
+    if (!m_trigLiveFractionDataKey.empty()) {
+        SG::ReadCondHandle<TrigLiveFractionCondData> live (m_trigLiveFractionDataKey, ctx);
+        return live->lbAverageLiveFraction();
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbAverageLivefraction() can't work properly! ");
-        ATH_MSG_DEBUG("Warning: lbAverageLivefraction() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        ATH_MSG_DEBUG("Warning: lbAverageLivefraction() - luminosity not availble (i.e. EnableLumi = False)");
         return -1.0;
     }
     // not reached
@@ -1928,16 +2030,17 @@ lbAverageLivefraction()
 // Live Fraction per Bunch Crossing ID
 float
 ManagedMonitorToolBase::
-livefractionPerBCID()
+livefractionPerBCID (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
     if (m_environment == AthenaMonManager::online)
         return 1.0;
 
-    if ( m_hasRetrievedLumiTool ) {
-        return m_liveTool->livefractionPerBCID();
+    if (!m_trigLiveFractionDataKey.empty()) {
+        SG::ReadCondHandle<TrigLiveFractionCondData> live (m_trigLiveFractionDataKey, ctx);
+        return live->l1LiveFractionVector().at (ctx.eventID().bunch_crossing_id());
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! livefractionPerBCID() can't work properly! ");
-        ATH_MSG_DEBUG("Warning: livefractionPerBCID() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
+        ATH_MSG_DEBUG("Warning: livefractionPerBCID() - luminosity retrieved available (i.e. EnableLumi = False)");
         return -1.0;
     }
     // not reached
@@ -1946,10 +2049,10 @@ livefractionPerBCID()
 // Average Integrated Luminosity Live Fraction
 double
 ManagedMonitorToolBase::
-lbLumiWeight()
+lbLumiWeight (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
-    if ( m_hasRetrievedLumiTool ) {
-        return (lbAverageLuminosity()*lbDuration())*lbAverageLivefraction();
+    if (!m_lumiDataKey.empty()) {
+        return (lbAverageLuminosity(ctx)*lbDuration(ctx))*lbAverageLivefraction(ctx);
     } else{
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbLumiWeight() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbLumiWeight() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");
@@ -1962,13 +2065,14 @@ lbLumiWeight()
 // Luminosity block time (in seconds)
 double
 ManagedMonitorToolBase::
-lbDuration()
+lbDuration (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
 {
     if ( m_environment == AthenaMonManager::online ) {
         return m_defaultLBDuration;
     }
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbDuration();
+    if (!m_lbDurationDataKey.empty()) {
+        SG::ReadCondHandle<LBDurationCondData> dur (m_lbDurationDataKey, ctx);
+        return dur->lbDuration();
     } else {
         //ATH_MSG_FATAL("! Luminosity tool has been disabled ! lbDuration() can't work properly! ");
         ATH_MSG_DEBUG("Warning: lbDuration() - luminosity tools are not retrieved or turned on (i.e. EnableLumi = False)");

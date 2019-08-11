@@ -13,6 +13,7 @@
 #include "PerfMonMTSvc.h"
 #include "PerfMonUtils.h" // borrow from existing code
 
+
 using json = nlohmann::json; // for convenience
 
 /*
@@ -329,7 +330,7 @@ void PerfMonMTSvc::report2Stdout_Time_Parallel() {
   for(auto& it : m_aggParallelCompLevelDataMap){
 
     std::cout <<  format("PerfMonMTSvc %|5t|%1% %|30t|%2% %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second.cpu_time % it.second.wall_time % it.first.compName;
-    
+
   }
   */
 

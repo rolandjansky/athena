@@ -21,7 +21,6 @@ theRampValidationAlg.UseCorrChannels=False
 
 theLArRampPatcher.OutputLevel = INFO
 theLArRCBMasker.OutputLevel = INFO
-theLArBadChannelTool.OutputLevel = INFO
 
 svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.defaultLimit = 9999999  # all messages

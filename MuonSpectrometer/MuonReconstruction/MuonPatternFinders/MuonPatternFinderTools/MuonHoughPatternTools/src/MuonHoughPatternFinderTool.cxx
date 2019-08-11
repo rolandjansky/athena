@@ -8,15 +8,6 @@
 
 #include "MuonHoughPatternEvent/MuonHoughHitContainer.h"
 
-#include <map>
-#include <set>
-#include <vector>
-
-#include "TH1F.h"
-#include "TFile.h"
-
-#include "GaudiKernel/IToolSvc.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "TrkSurfaces/Surface.h"
@@ -47,6 +38,15 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
+#include "GaudiKernel/IToolSvc.h"
+
+#include "TH1F.h"
+#include "TFile.h"
+
+#include <map>
+#include <set>
+#include <vector>
+
 using namespace TrkDriftCircleMath;
 
 namespace Muon {
@@ -61,7 +61,6 @@ namespace Muon {
     m_mdt_adc_cut(true), 
     m_mdt_adc_min(50), 
     m_mdt_tdc_cut(true), 
-    m_count(0), 
     m_use_rpc(true),
     m_use_tgc(true),
     m_use_csc(true),
@@ -157,18 +156,19 @@ namespace Muon {
     return StatusCode::SUCCESS; 
   }
 
-  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-								      const std::vector<const CscPrepDataCollection*>& cscCols,  
-								      const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-								      const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-								      const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
+std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muon::HoughDataPerSectorVec>>
+  MuonHoughPatternFinderTool::find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+                                    const std::vector<const CscPrepDataCollection*>& cscCols,  
+                                    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+                                    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+                                    const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
     // read event_data:
     const MuonHoughHitContainer* hitcontainer = getAllHits( mdtCols, cscCols, tgcCols, rpcCols, cscSegmentCombis );
 
     // analyse data
-    MuonPatternCombinationCollection* patCombiCol = 0;
+    std::unique_ptr<MuonPatternCombinationCollection> patCombiCol;
     if( hitcontainer ) {
-      patCombiCol = analyse( *hitcontainer );
+      patCombiCol.reset(analyse( *hitcontainer ));
     }else{
       ATH_MSG_INFO (" No hit container created! ");
     }
@@ -179,7 +179,7 @@ namespace Muon {
     // ensure we always output a collection
     if( !patCombiCol ){
       ATH_MSG_DEBUG (" NO pattern combinations found, creating empty collection ");
-      patCombiCol = new MuonPatternCombinationCollection();
+      patCombiCol.reset(new MuonPatternCombinationCollection());
     }
 
     // summary
@@ -191,12 +191,11 @@ namespace Muon {
 
     // clean up tool for next call
     cleanUp();
-    m_count++;
   
     ATH_MSG_VERBOSE ("execute(end) ");
 
     // return result
-    return patCombiCol;
+    return {std::move(patCombiCol), nullptr};
   } 
 
   void MuonHoughPatternFinderTool::cleanUp() const {
@@ -1624,7 +1623,7 @@ namespace Muon {
 	    double norm = std::sqrt(hitx*hitx + hity*hity);
 	    double cphi = hitx/norm;
 	    double sphi = hity/norm; 
-	    TrkDriftCircleMath::TangentToCircles::LineVec& lines = tanCreator.tangentLines( *iti, *itj );
+	    TrkDriftCircleMath::TangentToCircles::LineVec lines = tanCreator.tangentLines( *iti, *itj );
 	    for( TrkDriftCircleMath::TangentToCircles::LineVec::const_iterator lit = lines.begin(); lit!=lines.end(); ++lit ){
 	      double coshit = std::cos((*lit).phi());
 	      double sinhit = std::sin((*lit).phi());

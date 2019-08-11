@@ -16,7 +16,7 @@ if "FORCELOG" in environ:
     init_logger(2)
    
 def iov_ranges(iovs):
-	return [(i.since, i.until) for i in iovs]
+    return [(i.since, i.until) for i in iovs]
 
 teardown_db = None
 def create_database():
@@ -357,7 +357,7 @@ def test_virtual_defects_deep():
     
     ddb = DefectsDB(TEST_DATABASE)
     
-    iovs = ddb.retrieve()
+    ddb.retrieve()
     
 @with_setup(create_database, teardown_database)
 def test_virtual_defects_stress():
@@ -365,12 +365,9 @@ def test_virtual_defects_stress():
     
     STRESS_COUNT = 20
     
-    from time import time
-    start = time()
     for i in xrange(STRESS_COUNT):
         create_defect_type(ddb, i)
         
-    start = time()
     with ddb.storage_buffer:
         for i in xrange(STRESS_COUNT):
             ddb.insert("DQD_TEST_DEFECT_%i" % i, i, i+1, "Test", "DQDefects.tests")
@@ -378,7 +375,6 @@ def test_virtual_defects_stress():
     ALL_DEFECTS = " ".join("DQD_TEST_DEFECT_%i" % i for i in xrange(STRESS_COUNT))
     ddb.new_virtual_defect("DQD_TEST_VIRTUAL_DEFECT", "", ALL_DEFECTS)
     
-    start = time()
     iovs = ddb.retrieve(channels=["DQD_TEST_VIRTUAL_DEFECT"])
     
     assert len(iovs) == STRESS_COUNT - 1
@@ -697,9 +693,9 @@ def test_iov_tag_defects():
     ddb.insert("DQD_TEST_DEFECT_1", 100, 200, "", "")
     ddb.insert("DQD_TEST_DEFECT_2", 200, 300, "comment2", "user2", recoverable=True)
     
-    defects_tag = ddb.new_defects_tag("dqd-test", "New iov tag",
-                                      iovranges=[(0, 51),
-                                                 ((0,210), (0,306))])
+    ddb.new_defects_tag("dqd-test", "New iov tag",
+                        iovranges=[(0, 51),
+                                   ((0,210), (0,306))])
     ddb2 = DefectsDB(TEST_DATABASE, tag='DetStatusDEFECTS-dqd-test')
     iovs = ddb2.retrieve(nonpresent=True)
     assert len(iovs) == 2

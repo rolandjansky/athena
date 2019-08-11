@@ -14,9 +14,9 @@ decription           : Abstract interface for the GSF smoother
 #ifndef TrkIGsfSmoother_H
 #define TrkIGsfSmoother_H
 
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -30,24 +30,26 @@ class CaloCluster_OnTrack;
 
 static const InterfaceID InterfaceID_GsfSmoother("GsfSmoother", 1, 0);
 
-class IGsfSmoother : virtual public IAlgTool {
+class IGsfSmoother : virtual public IAlgTool
+{
 
- public:
-
+public:
   /** AlgTool interface method */
   static const InterfaceID& interfaceID() { return InterfaceID_GsfSmoother; };
 
   /** Virtual destructor */
-  virtual ~IGsfSmoother() {};
+  virtual ~IGsfSmoother(){};
 
   /** Configure the GSF smoother
       - Configure the extrapolator
       - Configure the measurement updator */
-  virtual StatusCode configureTools ( const ToolHandle<IMultiStateExtrapolator> &, const ToolHandle<IMultiStateMeasurementUpdator> &) = 0;
+  virtual StatusCode configureTools(const ToolHandle<IMultiStateExtrapolator>&,
+                                    const ToolHandle<IMultiStateMeasurementUpdator>&) = 0;
 
   /** Gsf smoother method */
-  virtual SmoothedTrajectory* fit (const ForwardTrajectory&, const ParticleHypothesis particleHypothesis = nonInteracting, const CaloCluster_OnTrack* ccot = 0  ) const = 0;
-
+  virtual SmoothedTrajectory* fit(const ForwardTrajectory&,
+                                  const ParticleHypothesis particleHypothesis = nonInteracting,
+                                  const CaloCluster_OnTrack* ccot = 0) const = 0;
 };
 
 } // end Trk namespace

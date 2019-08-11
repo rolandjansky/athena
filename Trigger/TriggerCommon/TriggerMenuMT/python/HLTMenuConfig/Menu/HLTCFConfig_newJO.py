@@ -85,10 +85,13 @@ def generateDecisionTree(chains):
             stepsAcc = ComponentAccumulator()
 
             CFSequenceAdded = False
+            filter_output =[]
+            for i in filter_input: 
+                filter_output.append( CFNaming.filterOutName(filterName, i))
 
             for chain in chainsInCell:
                 step = chain.steps[nstep]
-                CFSeq = CFSequence(step, sfilter)
+                CFSeq = CFSequence(step, sfilter, connections=filter_output)
                 if not CFSequenceAdded:
                     CFSequences.append(CFSeq)
                     CFSequenceAdded = True
@@ -97,7 +100,8 @@ def generateDecisionTree(chains):
                         raise ValueError('ComponentAccumulator missing in sequence {} in chain {}'.format(seq.name, chain.name))
                     stepsAcc.merge( seq.ca )
                 if step.isCombo:
-                    stepsAcc.addEventAlgo(step.combo.Alg, sequenceName = stepView.getName())
+                    if step.combo is not None:
+                        stepsAcc.addEventAlgo(step.combo.Alg, sequenceName = stepView.getName())
                 sfilter.setChains(chain.name)
 
             recoAcc.merge(stepsAcc, sequenceName = viewWithFilter.getName())

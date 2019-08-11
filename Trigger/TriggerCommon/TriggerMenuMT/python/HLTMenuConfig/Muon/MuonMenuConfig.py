@@ -15,7 +15,8 @@ def generateMuonsCfg( flags ):
 
     # Set Hypo alg of muFast step
     from TrigMuonHypoMT.TrigMuonHypoMTConf import TrigMufastHypoAlg
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromName
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
+
     muFastHypo = TrigMufastHypoAlg("TrigL2MuFastHypo")
     muFastHypo.MuonL2SAInfoFromMuFastAlg = muFastInfo
 
@@ -28,7 +29,7 @@ def generateMuonsCfg( flags ):
     muFastSeq = MenuSequence( Sequence    = l2MuFastReco.sequence(),
                               Maker       = l2MuFastReco.inputMaker(),
                               Hypo        = muFastHypo,
-                              HypoToolGen = TrigMufastHypoToolFromName )
+                              HypoToolGen = TrigMufastHypoToolFromDict )
 
     muFastStep = ChainStep("Muon_muFastStep1", [muFastSeq])
 

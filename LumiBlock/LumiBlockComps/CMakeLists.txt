@@ -92,3 +92,18 @@ atlas_add_test( LuminosityCondAlg_test
    SOURCES test/LuminosityCondAlg_test.cxx
    LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
 
+atlas_add_test( TrigLiveFractionCondAlg_test
+   SOURCES test/TrigLiveFractionCondAlg_test.cxx
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+
+atlas_add_test( LuminosityCondAlgConfig_test
+                SCRIPT python -m LumiBlockComps.LuminosityCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( LBDurationCondAlgConfig_test
+                SCRIPT python -m LumiBlockComps.LBDurationCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( TrigLiveFractionCondAlgConfig_test
+                SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )

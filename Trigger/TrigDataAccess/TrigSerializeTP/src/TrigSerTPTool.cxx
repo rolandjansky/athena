@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -68,8 +68,8 @@ StatusCode TrigSerTPTool::initialize(){
 }
 
 void* TrigSerTPTool::convertTP( const std::string &clname, void *ptr,
-                                std::string &persName ) {
-
+                                std::string &persName ) const
+{
    ATH_MSG_DEBUG( "TrigSerTPTool::convertTP" );
 
    //pers and persName set only after successful conversion
@@ -139,8 +139,8 @@ void* TrigSerTPTool::convertTP( const std::string &clname, void *ptr,
 }
 
 void* TrigSerTPTool::convertPT( const std::string &persName, void *pers,
-                                std::string& transName ) {
-
+                                std::string& transName ) const
+{
    // First look for a trigger specific converter:
    ITPCnvBase* cnvtr =
       m_tpcnvsvc->p2t_cnv( persName, Athena::TPCnvType::Trigger );

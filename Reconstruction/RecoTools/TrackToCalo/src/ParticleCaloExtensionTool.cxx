@@ -18,7 +18,9 @@
 #include "xAODEgamma/Electron.h"
 namespace Trk
 {
-ParticleCaloExtensionTool::ParticleCaloExtensionTool(const std::string& t, const std::string& n, const IInterface*  p )
+ParticleCaloExtensionTool::ParticleCaloExtensionTool(const std::string& t, 
+                                                     const std::string& n, 
+                                                     const IInterface*  p )
   : AthAlgTool(t,n,p),
   m_detID(nullptr),
   m_particleType(muon){
@@ -104,32 +106,24 @@ StatusCode ParticleCaloExtensionTool::caloExtensionCollection( const xAOD::IPart
     ATH_MSG_ERROR("mask does not have the same size as in input collection");
     return StatusCode::FAILURE;
   }
-
+  caloextensions.reserve(numparticles);
   /* Either create a proper CaloExtension or otherwise a dummy one
    * i.e one with no intersections
    */
   for (size_t i=0 ; i<numparticles; ++i){
     if (mask[i]==true){
       std::unique_ptr<Trk::CaloExtension> extension=caloExtension(*(particles[i]));
-      if(extension!=nullptr){
-        caloextensions.push_back(std::move(extension));
-      }
-      else {
-        std::vector<const CurvilinearParameters*> dummyPar{};
-        std::unique_ptr<Trk::CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,nullptr,std::move(dummyPar));
-        caloextensions.push_back(std::move (dummyExt));
-      }
+      caloextensions.push_back(std::move(extension));
     }
     else{
-      std::vector<const CurvilinearParameters*> dummyPar{};
-      std::unique_ptr<CaloExtension> dummyExt=std::make_unique<Trk::CaloExtension>(nullptr,nullptr,std::move(dummyPar));
-      caloextensions.push_back(std::move (dummyExt));
+      caloextensions.push_back(nullptr);
     }
   }
   return StatusCode::SUCCESS;
 }
 
-std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const xAOD::TruthParticle& particle ) const {
+std::unique_ptr<Trk::CaloExtension> 
+ParticleCaloExtensionTool::caloExtension( const xAOD::TruthParticle& particle ) const {
 
   ParticleHypothesis particleType = muon;  
   if( abs(particle.pdgId()) == 11 )      {particleType = muon;} 
@@ -153,7 +147,8 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   return caloExtension( startPars, alongMomentum, particleType );
 }
 
-std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const xAOD::NeutralParticle& particle ) const {
+std::unique_ptr<Trk::CaloExtension> 
+ParticleCaloExtensionTool::caloExtension( const xAOD::NeutralParticle& particle ) const {
 
   // create start parameters
   const Trk::NeutralPerigee& perigee = particle.perigeeParameters();
@@ -168,45 +163,25 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   return caloExtension( startPars, alongMomentum, muon );
 }
 
-std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) const {
-
+std::unique_ptr<Trk::CaloExtension> 
+ParticleCaloExtensionTool::caloExtension( const xAOD::TrackParticle& particle ) const {
 
   /* 
-   * The electrons are done separately here.
-   *
-   * Here we have also the Gaussian Sum Filter having out back
-   * as a main case to consider
-   *
    * In principle we will extrapolate either from the perigee or 
-   * from the last measurement of the trackParticle
-   * The extrapolation will be done as a muon since this
+   * from the last measurement of the trackParticle.
+   *
+   * For electrons the extrapolation will be done as a muon since this
    * is the closest to non-interacting in the calorimeter
    * while still providing intersections.
    */
 
+  ParticleHypothesis particleType = m_particleType;
+  
   if(m_particleType == electron || 
      particle.particleHypothesis() ==  xAOD::electron ){  
-    ATH_MSG_DEBUG("Fitting using electron hypothesis");
-    ParticleHypothesis particleTypeForElectron = muon;//nonInteracting;
-    if(!m_startFromPerigee){
-      unsigned int index(0);
-      if(particle.indexOfParameterAtPosition(index, xAOD::LastMeasurement)){    
-        return caloExtension(particle.curvilinearParameters(index),alongMomentum,particleTypeForElectron);
-      } else {
-        ATH_MSG_INFO("No last measurement:"
-                     <<" Perhaps you try to run the extrapolator after slimming."
-                     <<" Falling back to perigee");
-      }
-    }
-    return caloExtension(particle.perigeeParameters(),alongMomentum,particleTypeForElectron);
+    ATH_MSG_DEBUG("Extrapolating electrons with muon hypothesis");
+    particleType = muon;//closest to nonInteracting;
   }
-
-  /* 
-   * This is the case for muons of pions
-   * Extra logic for the muon spectrometer entry and exit
-   */
-  ParticleHypothesis particleType = m_particleType;
-
 
   if(m_startFromPerigee || !particle.track()){
     bool idExit = true;
@@ -218,14 +193,19 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   }
 
   const Track& track = *particle.track();
-  // look-up the parameters closest to the calorimeter in ID and muon system
+  /*
+   * Look-up the parameters closest to the calorimeter in 
+   * ID and muon system
+   */
   ATH_MSG_DEBUG("trying to add calo layers" );
   const TrackParameters* idExitParamers = 0;
   const TrackParameters* muonEntryParamers = 0;
   DataVector<const TrackStateOnSurface>::const_iterator itTSoS = track.trackStateOnSurfaces()->begin();
   for ( ; itTSoS != track.trackStateOnSurfaces()->end(); ++itTSoS) {
     // select state with track parameters on a measurement
-    if ( !(**itTSoS).trackParameters() || !(**itTSoS).type(TrackStateOnSurface::Measurement) || (**itTSoS).type(TrackStateOnSurface::Outlier) ) continue;
+    if ( !(**itTSoS).trackParameters() || !(**itTSoS).type(TrackStateOnSurface::Measurement) 
+         || (**itTSoS).type(TrackStateOnSurface::Outlier) ) {continue;}
+    
     const Identifier& id = (**itTSoS).trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
     if( m_detID->is_indet(id) ) idExitParamers = (**itTSoS).trackParameters();
     if( m_detID->is_muon(id) && !muonEntryParamers ) muonEntryParamers = (**itTSoS).trackParameters();
@@ -236,6 +216,7 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   }
   // pick start parameters, start in ID if possible
   const TrackParameters* startPars = idExitParamers ? idExitParamers : muonEntryParamers;
+ 
   if( !startPars ){
     ATH_MSG_WARNING("Failed to find  start parameters");
     return nullptr;
@@ -246,9 +227,10 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
 }
 
 
-std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( const TrackParameters& startPars, 
-                                                                              PropDirection propDir, 
-                                                                              ParticleHypothesis particleType ) const {
+std::unique_ptr<Trk::CaloExtension> 
+ParticleCaloExtensionTool::caloExtension( const TrackParameters& startPars, 
+                                          PropDirection propDir, 
+                                          ParticleHypothesis particleType ) const {
 
   ATH_MSG_DEBUG("looking up calo states: r " << startPars.position().perp() << " z " << startPars.position().z()
                 << " momentum " << startPars.momentum().mag() );
@@ -259,15 +241,13 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
   if( material ) {
     ATH_MSG_DEBUG("Got material " << material->size() );
     for( auto& m : *material ) {
-      if( msgLvl(MSG::DEBUG) ){
-        msg(MSG::DEBUG) << " layer ";
-        const TrackParameters* param = m->trackParameters();
-        if( param ) msg(MSG::DEBUG) << " param " << param << " pos: r " << param->position().perp() << " z " << param->position().z() 
-          << " pt " << param->momentum().perp();
-        const Trk::MaterialEffectsBase* mat = m->materialEffectsOnTrack();
-        if( mat ) msg(MSG::DEBUG) << " mat: " <<  mat->thicknessInX0();
-        msg(MSG::DEBUG) << endmsg;
-      }
+      ATH_MSG_DEBUG(
+        " layer "  <<  " param " << m->trackParameters() << 
+        " pos: r " << (m->trackParameters()? m->trackParameters()->position().perp(): -999) << 
+        " z "      << (m->trackParameters()? m->trackParameters()->position().z(): -999) << 
+        " pt "     << (m->trackParameters()? m->trackParameters()->momentum().perp(): -999) <<
+        " mat "    << (m->materialEffectsOnTrack()? m->materialEffectsOnTrack()->thicknessInX0():-999)
+        );
       delete m;
     }
     delete material;
@@ -310,7 +290,9 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
        */
       if( p.first->type() != Trk::Curvilinear ){
         const CurvilinearParameters* cpars = new CurvilinearParameters(p.first->position(),
-                                                                       p.first->momentum(),p.first->charge(),nullptr,id); 
+                                                                       p.first->momentum(),
+                                                                       p.first->charge(),
+                                                                       nullptr,id); 
         caloLayers.push_back( cpars );
         delete p.first;
       }else{ 
@@ -320,8 +302,10 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
         }
         /*Note that the curvilinear parameters (cpars) now own the covariance
          * it will be deleted by the ParameterT dtor*/
-        const CurvilinearParameters* cpars = new CurvilinearParameters(p.first->position(),p.first->momentum(),
-                                                                       p.first->charge(),covariance,id);
+        const CurvilinearParameters* cpars = new CurvilinearParameters(p.first->position(),
+                                                                       p.first->momentum(),
+                                                                       p.first->charge(),
+                                                                       covariance,id);
         caloLayers.push_back( cpars );
         delete p.first;
       }
@@ -333,13 +317,6 @@ std::unique_ptr<Trk::CaloExtension> ParticleCaloExtensionTool::caloExtension( co
     // muonEntry is right at the startPars position
     muonEntry = startPars.clone();
   } 
-
-  if( muonEntry  &&  muonEntry->covariance() ) { 
-    ATH_MSG_VERBOSE (" p at MuonEntry " << muonEntry->momentum().mag() 
-                     << " cov 00 " << (*(muonEntry->covariance()))(0,0) 
-                     << " cov 11 " << (*(muonEntry->covariance()))(1,1));
-  }
-
   delete caloParameters;
 
   return std::make_unique<Trk::CaloExtension>(caloEntry,muonEntry,std::move(caloLayers));

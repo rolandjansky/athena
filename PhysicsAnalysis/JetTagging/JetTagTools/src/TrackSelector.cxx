@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagTools/TrackSelector.h"
@@ -25,7 +25,6 @@ namespace Analysis {
   TrackSelector::TrackSelector(const std::string& type, 
 			       const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
-    m_primaryVertex(Amg::Vector3D()),
     m_ntri(0),
     m_ntrf(0),
     m_trackToVertexTool("Reco::TrackToVertex", this) {
@@ -152,23 +151,31 @@ namespace Analysis {
   }
 
 
-  bool TrackSelector::selectTrack(const xAOD::TrackParticle* track, double refPt) {
+bool TrackSelector::selectTrack(const Amg::Vector3D& pv,
+                                const xAOD::TrackParticle* track,
+                                double refPt) const
+{
+  std::bitset<17> failedCuts;
+  return selectTrack (pv, track, failedCuts, refPt);
+}
 
-    /** for debugging purposes: */
-    std::bitset<numCuts> failedCuts;
-    
+bool TrackSelector::selectTrack(const Amg::Vector3D& pv,
+                                const xAOD::TrackParticle* track,
+                                std::bitset<17>& failedCuts,
+                                double refPt) const
+{
     double trackD0;
     double trackZ0;
     double tracksigD0;
     double tracksigZ0;
     if(m_usePerigeeParameters) {
       trackD0 = track->d0();
-      trackZ0 = track->z0() - m_primaryVertex.z();
+      trackZ0 = track->z0() - pv.z();
       tracksigD0 = TMath::Sqrt(track->definingParametersCovMatrix()(0,0));
       tracksigZ0 = TMath::Sqrt(track->definingParametersCovMatrix()(1,1));
     } else {
       // extrapolate with the TrackToVertex tool:
-      const Trk::Perigee* perigee = m_trackToVertexTool->perigeeAtVertex(*track, m_primaryVertex);
+      const Trk::Perigee* perigee = m_trackToVertexTool->perigeeAtVertex(*track, pv);
       if (perigee==0) {
         ATH_MSG_WARNING("#BTAG#  Extrapolation failed. Rejecting track... ");
         return false;
@@ -352,7 +359,6 @@ namespace Analysis {
       msg(MSG::VERBOSE) << endmsg;
     }
 
-    m_passedCuts = ~failedCuts;
     return pass;
   }
 

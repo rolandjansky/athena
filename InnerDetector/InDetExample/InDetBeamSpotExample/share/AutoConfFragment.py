@@ -18,7 +18,7 @@ if not 'inputfiles' in jobConfig:                    jobConfig['inputfiles'] = [
 
 # Utility function to translate job parameter names to names used in file metadata
 def metaDataName(p):
-    transTable = { 'DetDescrVersion': 'geometry',
+    transTable = { 'DetDescrVersion': 'GeoAtlas',
                    'GlobalTag': 'conditions_tag'
                   }
     if p in transTable:
@@ -37,9 +37,9 @@ for p in [ w.strip() for w in jobConfig['autoconfparams'].split(',') ]:
 # Extract parameters
 if autoconfparams:
     print "InDetBeamSpotExample INFO Automatically configuring parameters: ", autoconfparams
-    import PyUtils.AthFile
+    from PyUtils.MetaReader import read_metadata
     try:
-        athFile = PyUtils.AthFile.fopen(jobConfig['inputfiles'][0])
+        metadata = read_metadata(jobConfig['inputfiles'][0])
     except:
         if len(jobConfig['inputfiles'])>0:
             print "InDetBeamSpotExample ERROR Unable to autoconfigure from input file",jobConfig['inputfiles'][0]
@@ -49,7 +49,7 @@ if autoconfparams:
         for p in autoconfparams:
             try:
                 # Below, we might also take this out of athFile.fileinfos['tag_info'] (w/different names)
-                jobConfig[p] = athFile.fileinfos[metaDataName(p)]
+                jobConfig[p] = metadata[metaDataName(p)]
                 print "InDetBeamSpotExample INFO %s --> %s" % (p,jobConfig[p])
             except:
                 print "InDetBeamSpotExample ERROR Unable to determine", p

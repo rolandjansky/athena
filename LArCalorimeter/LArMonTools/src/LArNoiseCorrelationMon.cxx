@@ -129,6 +129,8 @@ LArNoiseCorrelationMon::finalize()
 	    }
 	}
     }
+
+  delete m_strHelper;
   return StatusCode::SUCCESS;
  
 }

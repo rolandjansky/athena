@@ -29,7 +29,7 @@ class  IJetBTaggerTool: virtual public IAlgTool {
         static const InterfaceID& interfaceID() { return IID_IJetBTaggerTool; };
   
         virtual StatusCode initialize() = 0;
-        virtual int modify(xAOD::JetContainer& jets) const = 0;
+        virtual StatusCode modify(xAOD::JetContainer& jets) const = 0;
 
 
 };

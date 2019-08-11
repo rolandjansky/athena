@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -219,8 +219,11 @@ namespace InDet
       for (iter_neg = negSelectedTracks.begin(); iter_neg != negSelectedTracks.end(); ++iter_neg) {
         ineg++;
         int flag = 0;
-  
-        if (!passPreSelection( *iter_pos , *iter_neg, positionList, initPos, flag)){ 
+
+        std::map<std::string, float> intersectionDecors;
+        if (!passPreSelection( *iter_pos , *iter_neg, positionList, initPos, flag,
+                               intersectionDecors))
+        { 
           positionList.clear(); 
           continue;
         }
@@ -267,11 +270,11 @@ namespace InDet
 	    if(myVertex){
 	      if (m_decorateVertices){
 		  ATH_MSG_DEBUG("Decorating vertex with values used in track pair selector");
-		  for (auto kv : m_trackPairsSelector->getLastValues()){
+		  for (const auto& kv : m_trackPairsSelector->getLastValues()){
 		    myVertex->auxdata<float>(kv.first) = kv.second;
 		  }
 		  ATH_MSG_DEBUG("Decorating vertex with values used in vertex point estimator");
-		  for (auto kv : m_vertexEstimator->getLastValues()){
+		  for (const auto& kv : intersectionDecors){
 		    myVertex->auxdata<float>(kv.first) = kv.second;
 		  }
 	      }	      
@@ -328,12 +331,12 @@ namespace InDet
             if (m_decorateVertices)
             {
               ATH_MSG_DEBUG("Decorating single track vertex with dummy values used in track pair selector");
-              for (auto kv : m_trackPairsSelector->getLastValues())
+              for (const auto& kv : m_trackPairsSelector->getLastValues())
                 sConver->auxdata<float>(kv.first) = 0.;
 
               ATH_MSG_DEBUG("Decorating single track vertex with dummy values used in vertex point estimator");
-              for (auto kv : m_vertexEstimator->getLastValues())
-                sConver->auxdata<float>(kv.first) = 0.;
+              for (const std::string& k : m_vertexEstimator->decorKeys())
+                sConver->auxdata<float>(k) = 0.;
               
               ATH_MSG_DEBUG("Decorating single track vertex with dummy values used in post selector");
               m_postSelector->decorateVertex(*sConver, 0., 0., 0., 0., 0.);
@@ -349,7 +352,8 @@ namespace InDet
     return std::make_pair(InDetConversionContainer,InDetConversionContainerAux); 
   } 
 
-  bool InDetConversionFinderTools::passPreSelection(const xAOD::TrackParticle* track_pos, const xAOD::TrackParticle* track_neg, std::vector<Amg::Vector3D>&  trackList, Amg::Vector3D& initPos,  int& flag )
+  bool InDetConversionFinderTools::passPreSelection(const xAOD::TrackParticle* track_pos, const xAOD::TrackParticle* track_neg, std::vector<Amg::Vector3D>&  trackList, Amg::Vector3D& initPos,  int& flag,
+                                                    std::map<std::string, float>& intersectionDecors)
   {
     //Track summary information
   
@@ -381,7 +385,7 @@ namespace InDet
       const Trk::Perigee& perPos = track_pos->perigeeParameters();
       const Trk::Perigee& perNeg = track_neg->perigeeParameters();
       int errorcode = 0;
-      Amg::Vector3D startingPoint(m_vertexEstimator->getCirclesIntersectionPoint(&perPos,&perNeg,flag,errorcode));
+      Amg::Vector3D startingPoint(m_vertexEstimator->getCirclesIntersectionPoint(&perPos,&perNeg,flag,errorcode,intersectionDecors));
       if(m_isConversion && errorcode != 0) return false;
       if(!m_isConversion){ 
         Amg::Vector3D v_direction = perPos.momentum() + perNeg.momentum();

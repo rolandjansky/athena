@@ -2,6 +2,13 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaCommon.Include import include
+include.block("InDetTrigRecExample/EFInDetConfig.py")
+include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
+
+from AthenaCommon.Logging import logging 
+log = logging.getLogger("InDetSetup")
+
 # this is copy paste from Trigger/TrigValidation/TrigUpgradeTest/python/InDetConfig.py
 # once the cunction below is moved to the destination pkg, will eliminate this duplication
 class InDetCacheNames(object):
@@ -227,6 +234,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
 
   from AthenaCommon.DetFlags import DetFlags
   from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
+  from SiSpacePointFormation.InDetOnlineMonitor import InDetMonitoringTool
   InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder" + signature,
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                     PixelsClustersName     = "PixelTrigClusters",
@@ -238,7 +246,8 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
                                                                     SpacePointCacheSCT = InDetCacheNames.SpacePointCacheSCT,
-                                                                    SpacePointCachePix = InDetCacheNames.SpacePointCachePix,)
+                                                                    SpacePointCachePix = InDetCacheNames.SpacePointCachePix,
+                                                                    monTool            = InDetMonitoringTool())
 
   viewAlgs.append(InDetSiTrackerSpacePointFinder)
 
@@ -251,12 +260,19 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
       from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
       condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
+  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
+  theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
+  theFTF.TracksName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator
+  viewAlgs.append(theFTF)
+
+
+
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
   from TrigEDMConfig.TriggerEDMRun3 import recordable
   from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
   theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + separateTrackParticleCreator,
                                                             doIBLresidual = False,
-                                                            TrackName = "TrigFastTrackFinder_Tracks",
+                                                            TrackName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator,
                                                             TrackParticlesName = recordable("HLT_xAODTracks" + separateTrackParticleCreator),
                                                             ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
   theTrackParticleCreatorAlg.roiCollectionName = "EMViewRoIs"

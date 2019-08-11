@@ -29,6 +29,7 @@ class opt :
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
+    doWriteESD       = True           # Write out an ESD?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
     doL1Sim          = False          # (re)run L1 simulation
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
@@ -48,7 +49,6 @@ class opt :
 #
 ################################################################################
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-
 from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from AthenaCommon.Logging import logging
 log = logging.getLogger('testHLT_MT.py')
@@ -80,7 +80,6 @@ if opt.doEmptyMenu == True:
 else:
     for s in slices:
         setattr(opt, s, True)
-    opt.doBjetSlice=False #Wait for ATR-19439
     opt.doTauSlice =False #Wait for ATR-17399
 
 # Setting the TriggerFlags.XXXSlice to use in TriggerMenuMT
@@ -121,9 +120,18 @@ if len(athenaCommonFlags.FilesInput())>0:
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
-    if '_run_number' in dir():
-        TriggerRelease.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
-        del _run_number
+    if not '_run_number' in dir():
+        import PyUtils.AthFile as athFile
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
+        _run_number = af.run_number[0]
+
+    TriggerRelease.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
+
+    from RecExConfig.RecFlags import rec
+    rec.RunNumber =_run_number
+    del _run_number
+
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
@@ -155,7 +163,7 @@ if opt.trigBase is not None:
 setModifiers = ['noLArCalibFolders',
                 'ForceMuonDataType',
                 'useNewRPCCabling',
-                #'enableCostMonitoring', 
+                'enableCostMonitoring',
                 #'enableCoherentPS',
                 'useOracle',
                 'enableHotIDMasking',
@@ -292,17 +300,14 @@ if jobproperties.ConcurrencyFlags.NumThreads() > 0:
 #--------------------------------------------------------------
 # Event Info setup
 #--------------------------------------------------------------
-# If no xAOD::EventInfo is found in a POOL file or we are reading BS, schedule conversion from old EventInfo
+# If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
 if globalflags.InputFormat.is_pool():
     from RecExConfig.ObjKeyStore import objKeyStore
     from PyUtils.MetaReaderPeeker import convert_itemList
     objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
     if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
-        from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-        topSequence += xAODMaker__EventInfoCnvAlg()
-else:
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence += xAODMaker__EventInfoCnvAlg()
+        from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+        xAODEventInfoCnvAlgDefault(sequence=topSequence)
 
 # ----------------------------------------------------------------
 # Detector geometry 
@@ -375,15 +380,25 @@ if opt.doL1Sim:
 if opt.doL1Unpacking:
     if globalflags.InputFormat.is_bytestream():
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import RoIBResultByteStreamDecoderAlg
-        from TrigUpgradeTest.TestUtils import L1DecoderTest
+        from L1Decoder.L1DecoderConfig import L1Decoder
         topSequence += RoIBResultByteStreamDecoderAlg() # creates RoIBResult (input for L1Decoder) from ByteStream
-        topSequence += L1DecoderTest()
+        topSequence += L1Decoder("L1Decoder")
+        #topSequence.L1Decoder.ChainToCTPMapping = MenuTest.CTPToChainMapping
     elif opt.doL1Sim:
-        from TrigUpgradeTest.TestUtils import L1DecoderTest
-        topSequence += L1DecoderTest()
+        from L1Decoder.L1DecoderConfig import L1Decoder
+        topSequence += L1Decoder("L1Decoder")
     else:
         from TrigUpgradeTest.TestUtils import L1EmulationTest
         topSequence += L1EmulationTest()
+
+
+if TriggerFlags.doID:
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPixelClusterSplitting = False
+  
+    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
+    from AthenaCommon.Include import include
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 
 # ---------------------------------------------------------------
@@ -433,3 +448,21 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.lock()
 triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
 Configurable.configurableRun3Behavior=False
+
+#-------------------------------------------------------------
+# Non-ComponentAccumulator Cost Monitoring
+#-------------------------------------------------------------
+
+from AthenaCommon.AppMgr import ServiceMgr
+from GaudiSvc.GaudiSvcConf import AuditorSvc
+from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
+
+# This should be temporary, it is doing the same job as TrigCostMonitorMTConfig but without using a ComponentAccumulator
+if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
+    trigCostService = TrigCostMTSvc()
+    trigCostService.MonitorAllEvents = ConfigFlags.Trigger.CostMonitoring.monitorAllEvents
+    trigCostService.SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
+    ServiceMgr += trigCostService
+    #
+    ServiceMgr.AuditorSvc += TrigCostMTAuditor()
+    theApp.AuditAlgorithms=True

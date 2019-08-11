@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -535,7 +535,7 @@ int main() {
   }
 
   IdDictParser parser;
-  TileCablingSvc::init_idhelpers (parser);
+  TileCablingSvcMock::init_idhelpers (parser);
 
   ServiceHandle<StoreGateSvc> conditionStore("ConditionStore", "");
   assert(conditionStore.retrieve().isSuccess());

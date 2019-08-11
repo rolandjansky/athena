@@ -25,6 +25,7 @@
 #include "xAODJet/JetContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "JetCalibTools/IJetCalibrationTool.h"
 
 class TCCPlots;
 class IJetCalibrationTool;

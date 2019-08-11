@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHENAPOOLCNVSVC_H
-#define ATHENAPOOLCNVSVC_H
+#ifndef ATHENAPOOLCNVSVC_ATHENAPOOLCNVSVC_H
+#define ATHENAPOOLCNVSVC_ATHENAPOOLCNVSVC_H
 
 /** @file AthenaPoolCnvSvc.h
  *  @brief This file contains the class definition for the AthenaPoolCnvSvc class.
@@ -152,6 +152,10 @@ public:
    /// Read the next data object
    virtual StatusCode readData() const;
 
+   /// Send abort to SharedWriter clients if the server quits on error
+   /// @param client_n [IN] number of the current client, -1 if no current
+   StatusCode abortSharedWrClients(int client_n);
+
    /// Implementation of IIncidentListener: Handle for EndEvent incidence
    void handle(const Incident& incident);
 
@@ -192,6 +196,7 @@ private: // data
    ToolHandle<IAthenaIPCTool>    m_inputStreamingTool;
    ToolHandleArray<IAthenaIPCTool>    m_outputStreamingTool;
    std::size_t     m_streamServer;
+   int m_metadataClient;
 
 private: // properties
    /// UseDetailChronoStat, enable detailed output for time and size statistics for AthenaPOOL:

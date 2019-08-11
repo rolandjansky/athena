@@ -20,7 +20,7 @@ These are dual-use tools so that reconstruction can be run in either Athena or R
   - IJetGroomer : Interface for grooming a jet.
   - IJetFromPseudojet : Interface for constructing a jet from a pseudojet.
   - IJetModifier : Interface for modifying a jet collection.
-  - ISingleJetModifier : Interface for modfying a single jet.
+  - IJetDecorator : Interface for decorating a (const) jet collection.
   - IPseudoJetGetter : Interface for retriving a vector of pseudojets.
   - IFastJetInterfaceTool: Interface to fastjet wrapper.
 

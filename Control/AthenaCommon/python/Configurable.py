@@ -149,7 +149,7 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
                       # times, but we shouldn't be in this loop too often anyway
                         confinit = getattr( confklass, '__init__' )
                         if n in six.get_function_code(confinit).co_varnames:
-                           log.debug( 'accepting keyword "%s" as an argument for %s.__init__' % (n,confklass.__name__) )
+                           log.debug( 'accepting keyword "%s" as an argument for %s.__init__', n, confklass.__name__ )
                            acceptableKeyWord = True
                            break
                      except AttributeError:
@@ -160,14 +160,6 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
                   if not acceptableKeyWord:
                      raise originalAttributeError
             return conf
-         except KeyError:
-            pass
-
-       # the following is purely for debugging support and should realistically bomb
-         try:
-            conf = cls.allConfigurables[ name ]
-            raise TypeError( 'attempt to redefine type of "%s" (was: %s, new: %s)' %
-                             (name,conf.__class__.__name__,cls.__name__) )
          except KeyError:
             pass
       else:
@@ -190,7 +182,9 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
          cls.configurables[ name ] = conf
 
     # update generics super-cache
-      if cls.configurableRun3Behavior==0:
+         if name in cls.allConfigurables  and conf.getType() != cls.allConfigurables[ name ].getType():
+            raise TypeError( 'attempt to redefine type of "%s" (was: %s, new: %s)' %
+                             (name,cls.allConfigurables[ name ].getType(), conf.getType()) )
          cls.allConfigurables[ name ] = conf
 
       return conf
@@ -319,7 +313,7 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
          ccjo = cc.getJobOptName()
          for c in self.__children:
             if c.getJobOptName() == ccjo:
-               log.error( 'attempt to add a duplicate (%s.%s) ... dupe ignored' % (joname or self.name(),ccjo) )
+               log.error( 'attempt to add a duplicate (%s.%s) ... dupe ignored', joname or self.name(), ccjo )
                break
          else:
             if index is None:

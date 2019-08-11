@@ -19,7 +19,7 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"

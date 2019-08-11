@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: CaloClusterTopoEMGetters.py,v 1.9 2008/05/22 15:58:15 laplace Exp $
 #
 # File: CaloRec/python/CaloClusterTopoEMGetters.py
 # Created: Mar 2007, sss
@@ -15,10 +14,7 @@ from CaloRec.CaloRecMakers import \
      make_CaloTopoClusterSplitter, make_CaloTopoClusterMaker
 from CaloClusterCorrection.CaloTopoEMCorrections \
      import make_CaloTopoEMCorrections
-from AthenaCommon.SystemOfUnits import GeV, MeV
-
-from CaloRec.CaloRecMakers import _makeconf
-from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter
+from AthenaCommon.SystemOfUnits import GeV
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
@@ -123,7 +119,7 @@ def make_CaloClusterTopoEMGetter (name,
                                   outputKey = None,
                                   towrite = False):
 
-    if keystr == None:
+    if keystr is None:
         keystr = "%d%d%d" % (int(seedThreshold),
                              int(neighborThreshold),
                              int(cellThreshold))
@@ -141,7 +137,7 @@ def make_CaloClusterTopoEMGetter (name,
         keystr = ''
     cls._name = name
 
-    if outputKey == None:
+    if outputKey is None:
         outputKey = 'EMTopoCluster' + keystr + suffix
     cls._outputKey = outputKey
 

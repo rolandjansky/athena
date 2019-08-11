@@ -247,6 +247,7 @@ public:
 
     // 8/1/2015  M. Corradi: Pad parameters
     BooleanProperty m_ApplyFeetPadThresholds;
+    BooleanProperty m_ForceFeetPadThresholdsFromJO;
     std::vector<unsigned short int> m_FeetPadThresholds;
 
     // list of RPCPadParameters

@@ -36,7 +36,7 @@ from AthenaCommon.JobProperties import jobproperties
 
 class EvtMax(JobProperty):
     """Number of events to process or generate"""
-    statusOn     = True
+    statusOn     = False
     allowedTypes = ['int']
     StoredValue  = 5
 
@@ -44,7 +44,7 @@ class SkipEvents(JobProperty):
     """Number of events to skip when reading an input POOL file. This should
     be given to the EventSelector service.
     """
-    statusOn     = True
+    statusOn     = False
     allowedTypes = ['int']
     StoredValue  = 0
 

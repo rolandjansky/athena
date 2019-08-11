@@ -126,7 +126,6 @@ class AthPoolFile(object):
 
             print >>jo, os.linesep.join(("FNAME=['{filename}']",
                                         "import os",
-                                        "os.environ['ATHENA_PROC_NUMBER'] = '0'",
                                         "os.environ.pop('PYTHONINSPECT', None)",
                                         "include('AthenaPython/athfile_peeker.py')",
                                         "from AthenaCommon.AlgSequence import AlgSequence",
@@ -145,7 +144,6 @@ class AthPoolFile(object):
         out = open(self._logFile, 'wb')
         try:
             athenv = os.environ.copy()
-            athenv["ATHENA_PROC_NUMBER"] = "0"   # Suppress AthenaMP running
             subprocess.check_call(['athena.py', self._jobOptionsFile], stdout=out, stderr=out, env=athenv)
         except subprocess.CalledProcessError:
             # Don't delete log files if errors occured

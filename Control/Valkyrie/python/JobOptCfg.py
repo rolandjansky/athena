@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: JobOptCfg.py
 # @purpose: a customized Configurable class for the ValgrindSvc
@@ -28,7 +28,7 @@ class ValgrindSvc( _ValgrindSvc):
        # make sure the application manager explicitly creates the service
        #if hasattr(handle, "getFullJobOptName") :
        handleName = self.getFullJobOptName()
-       if not handleName in theApp.CreateSvc:
+       if handleName not in theApp.CreateSvc:
           theApp.CreateSvc += [ handleName ]
 
        return

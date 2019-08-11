@@ -8,6 +8,7 @@ atlas_subdir( TRT_ElectronPidTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           GaudiKernel
                           InnerDetector/InDetConditions/TRT_ConditionsServices
@@ -37,7 +38,7 @@ atlas_add_component( TRT_ElectronPidTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GaudiKernel TRT_ConditionsServicesLib InDetPrepRawData TrkEventPrimitives TrkToolInterfaces Identifier InDetIdentifier InDetRawData InDetRIO_OnTrack TrkSurfaces TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkTrack TRT_ConditionsData)
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel AthenaBaseComps AthenaPoolUtilities GaudiKernel TRT_ConditionsServicesLib InDetPrepRawData TrkEventPrimitives TrkToolInterfaces Identifier InDetIdentifier InDetRawData InDetRIO_OnTrack TrkSurfaces TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkTrack TRT_ConditionsData)
 
 # Install files from the package:
 atlas_install_headers( TRT_ElectronPidTools )

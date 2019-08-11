@@ -15,13 +15,11 @@
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 
 class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
 
  public:
-
   //Constructor/destructor.
   electronSuperClusterBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
@@ -32,17 +30,17 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
 
  private:
 
-  bool matchSameTrack(const egammaRec *seed,
-		      const egammaRec *sec) const;
+  bool matchSameTrack(const xAOD::TrackParticle& seedTrack,
+                      const egammaRec& sec) const;
 
   const std::vector<std::size_t> searchForSecondaryClusters(const size_t i,
-							    const EgammaRecContainer*,
-							    std::vector<bool>& isUsed);
+                                                            const EgammaRecContainer*,
+                                                            const double emFrac,
+                                                            std::vector<bool>& isUsed);
   
-  bool passesSimpleBremSearch(const xAOD::CaloCluster *seed,
-			      const xAOD::CaloCluster *sec,
-			      float perigeeExtrapEta,
-			      float perigeeExtrapPhi) const;
+  bool passesSimpleBremSearch(const xAOD::CaloCluster& sec,
+                              float perigeeExtrapEta,
+                              float perigeeExtrapPhi) const;
   
   
   /////////////////////////////////////////////////////////////////////
@@ -51,31 +49,25 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder {
   Gaudi::Property<int> m_maxDelEtaCells {this, 
       "MaxWindowDelEtaCells", 5,
       "Size of maximum search window in eta"};
+   /** @brief Size of maximum search window in phi */
+  Gaudi::Property<int> m_maxDelPhiCells {this,
+      "MaxWindowDelPhiCells", 12,
+      "Size of maximum search window in phi"};
+  
   float m_maxDelEta;
-
+  float m_maxDelPhi;
+  
   Gaudi::Property<float> m_bremExtrapMatchDelEta {this,
       "BremExtrapDelEtaCut",  0.05,
       "maximum DelEta for brem search"};
 
   Gaudi::Property<float> m_secEOverPCut {this,
       "BremSearchEOverPCut",  1.5,
-      "E/p requirement when doing brem search"};
+      "Maximum E/P seed requirement for doing brem search"};
  
-  /** @brief Size of maximum search window in phi */
-  Gaudi::Property<int> m_maxDelPhiCells {this,
-      "MaxWindowDelPhiCells", 12,
-      "Size of maximum search window in phi"};
-  float m_maxDelPhi;
-
   Gaudi::Property<float> m_bremExtrapMatchDelPhi {this,
-      "BremExtrapDelPhiCut",  0.1,
+      "BremExtrapDelPhiCut", 0.075,
       "maximum DelPhi for brem search"};
-
-  //Keep track of # of 3x5 and brem point
-  //clusters added to seed clusters.
-  int m_nWindowClusters;
-  int m_nSameTrackClusters;
-  int m_nSimpleBremSearchClusters;
 
   Gaudi::Property<std::size_t> m_numberOfSiHits {this, 
       "NumberOfReqSiHits", 4, "Number of required silicon hits for electrons"};

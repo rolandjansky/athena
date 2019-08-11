@@ -50,6 +50,7 @@ StatusCode DiTauBuilder::initialize() {
     }
 
     // list allocated tools 
+    ATH_CHECK( m_tools.retrieve() );
     ToolHandleArray<DiTauToolBase> ::iterator itT = m_tools.begin();
     ToolHandleArray<DiTauToolBase> ::iterator itTE = m_tools.end();
     ATH_MSG_INFO("List of tools in execution sequence:");

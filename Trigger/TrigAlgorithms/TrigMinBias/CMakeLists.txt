@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkEvent/TrkTrack
                           Trigger/TrigEvent/TrigInDetEvent
                           Trigger/TrigSteer/TrigInterfaces
+                          Trigger/TrigSteer/DecisionHandling
                           Control/StoreGate
                           GaudiKernel
                           Tracking/TrkEvent/TrkParameters
@@ -20,8 +21,7 @@ atlas_depends_on_subdirs( PRIVATE
 # Component(s) in the package:
 atlas_add_component( TrigMinBias
                      src/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES xAODTracking xAODTrigMinBias TrkTrack TrigInDetEvent TrigInterfacesLib StoreGateLib GaudiKernel TrkParameters TrigTimeAlgsLib )
+                     LINK_LIBRARIES DecisionHandlingLib xAODTracking xAODTrigMinBias TrkTrack TrigInDetEvent TrigInterfacesLib StoreGateLib GaudiKernel TrkParameters TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-

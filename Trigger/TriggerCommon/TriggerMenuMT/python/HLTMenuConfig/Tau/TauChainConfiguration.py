@@ -12,15 +12,16 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCoreTrackSequence, tauPrecisionSequence
-
-from TrigUpgradeTest.InDetSetup import inDetSetup
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauCoreTrackSequence, tauPrecisionSequence
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
 #--------------------------------------------------------
 def getTauCaloCfg(flags):
     return tauCaloMenuSequence("Tau")
+
+def getTauCaloMVACfg(flags):
+    return tauCaloMVAMenuSequence("Tau")
 
 def getTauCoreTrackCfg(flags):
     return tauCoreTrackSequence()
@@ -44,16 +45,13 @@ class TauChainConfiguration(ChainConfigurationBase):
         chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
 
-        # Calling inDetSetup here 
-        inDetSetup()
-
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
             "ptonly":[self.getCaloSeq(), self.getTrackCore()],
             "tracktwo":[self.getCaloSeq(), self.getTrackCore()],
-            "tracktwoMVA":[self.getCaloSeq(), self.getPrecision()],
+            "tracktwoMVA":[self.getCaloMVASeq(), self.getPrecision()],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -71,6 +69,13 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepName = 'Step1_tau'
         log.debug("Configuring step " + stepName)
         tauSeq = RecoFragmentsPool.retrieve( getTauCaloCfg, None)
+        return ChainStep(stepName, [tauSeq])
+
+    # --------------------
+    def getCaloMVASeq(self):
+        stepName = 'Step1MVA_tau'
+        log.debug("Configuring step " + stepName)
+        tauSeq = RecoFragmentsPool.retrieve( getTauCaloMVACfg, None)
         return ChainStep(stepName, [tauSeq])
         
     # --------------------

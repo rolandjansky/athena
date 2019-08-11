@@ -598,7 +598,6 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 	ATH_CHECK( m_comTimeObjectKey.initialize() );
 	ATH_CHECK( m_trigDecisionKey.initialize() );
 
-	ATH_CHECK( m_lumiTool.retrieve() );
 	ATH_MSG_INFO("My TRT_DAQ_ConditionsSvc is " << m_DAQSvc);
 
 	return StatusCode::SUCCESS;
@@ -632,15 +631,6 @@ StatusCode TRT_Monitoring_Tool::bookHistogramsRecurrent() {
 			                m_trackCollectionKey.key() << " in StoreGate. Skipping TRT Track Monitoring.");
 			m_doTracksMon = false;
 		}
-	}
-
-	// NOTE: This is already retrieved during initialization
-	// Is this needed here?
-	if (m_lumiTool.retrieve().isFailure()) {
-		ATH_MSG_ERROR("Unable to retrieve Luminosity Tool");
-		return StatusCode::FAILURE;
-	} else {
-		ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
 	}
 
 	//Book_TRT_RDOs registers all raw data histograms
@@ -3854,8 +3844,8 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 	int runNumber;
 	runNumber = eventInfo.runNumber();
 	// get Online Luminosity
-	double intLum = (m_lumiTool->lbDuration() * m_lumiTool->lbAverageLuminosity());
-	double timeStampAverage = (maxtimestamp - 0.5 * m_lumiTool->lbDuration());
+	double intLum = (this->lbDuration() * this->lbAverageLuminosity());
+	double timeStampAverage = (maxtimestamp - 0.5 * this->lbDuration());
 	m_IntLum->SetBinContent(1, intLum);
 	m_LBvsLum->SetBinContent(lumiBlockNumber, intLum);
 	m_LBvsTime->SetBinContent(lumiBlockNumber, timeStampAverage);

@@ -124,7 +124,7 @@ private:
   TH1D* m_h_FTK_RawTrack_phi;
   TH1D* m_h_FTK_RawTrack_d0;
   TH1D* m_h_FTK_RawTrack_z0;
-  TH1D* m_h_FTK_RawTrack_invPt;
+  TH1D* m_h_FTK_RawTrack_Pt;
   TH1D* m_h_FTK_RawTrack_cot;
   TH1D* m_h_FTK_RawTrack_eta;
   TH1D* m_h_FTK_RawTrack_nPix;
@@ -134,7 +134,7 @@ private:
   TH1D* m_h_Track_phi;
   TH1D* m_h_Track_d0;
   TH1D* m_h_Track_z0;
-  TH1D* m_h_Track_invPt;
+  TH1D* m_h_Track_Pt;
   TH1D* m_h_Track_cot;
   TH1D* m_h_Track_eta;
   TH1D* m_h_Track_nPix;
@@ -144,7 +144,7 @@ private:
   TH1D* m_h_refitTrack_phi;
   TH1D* m_h_refitTrack_d0;
   TH1D* m_h_refitTrack_z0;
-  TH1D* m_h_refitTrack_invPt;
+  TH1D* m_h_refitTrack_Pt;
   TH1D* m_h_refitTrack_cot;
   TH1D* m_h_refitTrack_eta;
   TH1D* m_h_refitTrack_nPix;

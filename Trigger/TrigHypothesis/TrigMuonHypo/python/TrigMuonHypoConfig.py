@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigMuonHypo.TrigMuonHypoConf import *
 from TrigMuonHypo.TrigMuonHypoMonitoring import *
@@ -853,6 +853,9 @@ class TrigMuonEFCombinerHypoConfig(TrigMuonEFCombinerHypo) :
 
         validation = TrigMuonEFCombinerHypoValidationMonitoring()
         online     = TrigMuonEFCombinerHypoOnlineMonitoring()
+
+        from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
+        LuminosityCondAlgDefault()
 	
         self.AthenaMonTools = [ validation, online ]
 

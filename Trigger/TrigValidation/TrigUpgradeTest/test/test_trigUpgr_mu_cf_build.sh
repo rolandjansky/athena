@@ -2,17 +2,15 @@
 # art-description: athenaMT trigger test using mu.withViews.py job options
 # art-type: build
 # art-include: master/Athena
-# art-output: *.log
-# art-output: *.new
-# art-output: *.txt
-# art-output: *.root
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export SKIPEVENTS=50
 export EVENTS=10
 export THREADS=1
 export SLOTS=1
-export JOBOPTION="TrigUpgradeTest/mu.withViews.py"
-export EXTRA="doL2ISO=False"
+export JOBOPTION="TrigUpgradeTest/full_menu_cf.py"
+export EXTRA="doEmptyMenu=True;doMuonSlice=True"
 
 # This test doesn't produce any output useful for RegTest, so do a dummy reference comparison
 export REGTESTEXP="leaving with code"

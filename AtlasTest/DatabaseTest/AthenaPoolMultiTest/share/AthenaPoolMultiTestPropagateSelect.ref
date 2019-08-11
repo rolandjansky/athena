@@ -1,6 +1,5 @@
 ReadData             INFO in initialize()
 EventSelector.S...  DEBUG Property update for OutputLevel : new value = 2
-EventSelector        INFO reinitialization...
 EventSelector.S...  DEBUG ... postInitialize
 EventSelector        INFO EventSelection with query 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector

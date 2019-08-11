@@ -26,10 +26,13 @@ bool EtaEtConditionMT::isSatisfied(const pHypoJet& ip,
     m_etaMax > abseta and
     m_threshold <= et;
   if(collector){
-    collector->collect("EtaEtConditionMT",
+    auto result_str = result ? "pass" : "fail";
+    std::stringstream ss;
+    ss << "EtaEtConditionMT " << this;
+    collector->collect(ss.str(),
 		       std::to_string(abseta) + " " +
 		       std::to_string(et) + " " +
-		       std::to_string(result) + '\n');
+		       result_str + '\n');
   }
   return result;
 }
@@ -45,7 +48,7 @@ EtaEtConditionMT::isSatisfied(const HypoJetVector& ips,
 
 std::string EtaEtConditionMT::toString() const noexcept {
   std::stringstream ss;
-  ss << "EtaEtConditionMT: etaMin "
+  ss << "EtaEtConditionMT (" << this << ") etaMin "
      <<  m_etaMin 
      << " etaMax " 
      << m_etaMax 

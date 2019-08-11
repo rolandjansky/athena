@@ -30,7 +30,7 @@ include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
 AthenaSealSvc = Service( "AthenaSealSvc" )
 
 # Set up service
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 AthenaSealSvc.DictNames += [ "HelloSerializerWorldDictDict" ]
 theApp.CreateSvc += [ "AthenaSealSvc" ]
 AthenaSealSvc.CheckDictAtInit = TRUE

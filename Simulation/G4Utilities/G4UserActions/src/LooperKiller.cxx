@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4UserActions/LooperKiller.h"
+#include "LooperKiller.h"
 #include <iostream>
 #include "G4RunManagerKernel.hh"
 #include "G4TransportationManager.hh"

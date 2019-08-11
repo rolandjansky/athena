@@ -54,6 +54,12 @@ atlas_add_test( G4PhysicsRegionConfig_test
                 SCRIPT test/G4PhysicsRegionConfig_test.py
                 PROPERTIES TIMEOUT 300 )
 
+
+atlas_add_test( G4FieldConfig_test
+                SCRIPT test/G4FieldConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 

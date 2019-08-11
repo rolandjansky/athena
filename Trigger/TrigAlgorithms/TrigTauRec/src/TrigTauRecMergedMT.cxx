@@ -193,6 +193,11 @@ StatusCode TrigTauRecMergedMT::execute()
 
   // Get RoiDescriptor
   SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roIInputKey, ctx );
+  if ( not roisHandle.isValid() ) {
+    calo_errors.push_back(NoROIDescr);
+    return StatusCode::SUCCESS;
+  }
+
   if(roisHandle->size() == 0){
     ATH_MSG_DEBUG("RoIHandle size = Zero");
     return StatusCode::SUCCESS;

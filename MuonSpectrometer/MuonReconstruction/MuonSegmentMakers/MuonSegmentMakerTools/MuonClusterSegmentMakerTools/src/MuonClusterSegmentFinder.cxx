@@ -313,10 +313,11 @@ return (fabs(i.z()) < fabs(j.z()));}
     if(segtrack) {
       ATH_MSG_DEBUG( "segment fit succeeded");
 	
-      Trk::Track* cleanedTrack = m_trackCleaner->clean(*segtrack);
-      if( cleanedTrack && cleanedTrack != segtrack ){
+      std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*segtrack);
+      if( cleanedTrack && !(*cleanedTrack->perigeeParameters() == *segtrack->perigeeParameters()) ){
         delete segtrack;
-        segtrack = cleanedTrack;
+	//using release until the entire code can be migrated to use smart pointers
+        segtrack = cleanedTrack.release();
       }else{ ATH_MSG_DEBUG("track remains unchanged");}
 	
 	

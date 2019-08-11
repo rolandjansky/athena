@@ -25,12 +25,14 @@
 #include "AthenaMonitoring/ITriggerTranslatorTool.h"
 #include "AthenaMonitoring/Monitored.h"
 
-#include "LumiBlockComps/ILuminosityTool.h"
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
-#include "LumiBlockComps/ITrigLivefractionTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "LumiBlockData/LuminosityCondData.h"
+#include "LumiBlockData/LBDurationCondData.h"
+#include "LumiBlockData/TrigLiveFractionCondData.h"
 
 class AthMonitorAlgorithm : public AthReentrantAlgorithm {
 public:
@@ -227,42 +229,42 @@ public:
     /**
      * Calculate the average mu, i.e. <mu>.
      */
-    virtual float lbAverageInteractionsPerCrossing() const;
+    virtual float lbAverageInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
     /**
      * Calculate instantaneous number of interactions, i.e. mu.
      */
-    virtual float lbInteractionsPerCrossing() const;
+    virtual float lbInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
     /**
      * Calculate average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1).
      */
-    virtual float lbAverageLuminosity() const;
+    virtual float lbAverageLuminosity (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
     /**
      * Calculate the instantaneous luminosity per bunch crossing.
      */
-    virtual float lbLuminosityPerBCID() const;
+    virtual float lbLuminosityPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
     /**
      *  Calculate the duration of the luminosity block (in seconds)
      */
-    virtual double lbDuration() const;
+    virtual double lbDuration (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
     /**
      * Calculate the average luminosity livefraction
      */
-    virtual float lbAverageLivefraction() const;
+    virtual float lbAverageLivefraction (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
     /**
      * Calculate the live fraction per bunch crossing ID.
      */
-    virtual float livefractionPerBCID() const;
+    virtual float livefractionPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
     /**
      * Calculate the average integrated luminosity multiplied by the live fraction.
      */
-    virtual double lbLumiWeight() const;
+    virtual double lbLumiWeight (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
     /** @} */ // end of lumi group
 
@@ -299,8 +301,12 @@ protected:
     ToolHandle<ITriggerTranslatorTool> m_trigTranslator {this,"TriggerTranslatorTool",""}; ///< Tool to unpack trigger categories into a trigger list
     ToolHandleArray<IDQFilterTool> m_DQFilterTools {this,"FilterTools",{}}; ///< Array of Data Quality filter tools
 
-    ToolHandle<ILuminosityTool> m_lumiTool {this,"lumiTool","LuminosityTool"}; ///< Tool for calculating various luminosity quantities
-    ToolHandle<ITrigLivefractionTool> m_liveTool {this,"liveTool","TrigLivefractionTool"}; ///< Tool for calculating various live luminosity quantities
+    SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey
+    {this,"LuminosityCondDataKey","LuminosityCondData","SG Key of LuminosityCondData object"};
+    SG::ReadCondHandleKey<LBDurationCondData> m_lbDurationDataKey
+    {this,"LBDurationCondDataKey","LBDurationCondData","SG Key of LBDurationCondData object"};
+    SG::ReadCondHandleKey<TrigLiveFractionCondData> m_trigLiveFractionDataKey
+    {this,"TrigLiveFractionCondDataKey","TrigLiveFractionCondData", "SG Key of TrigLiveFractionCondData object"};
 
     AthMonitorAlgorithm::Environment_t m_environment; ///< Instance of the Environment_t enum
     AthMonitorAlgorithm::DataType_t m_dataType; ///< Instance of the DataType_t enum
@@ -311,11 +317,13 @@ protected:
     std::vector<std::string> m_vTrigChainNames; ///< Vector of trigger chain names parsed from trigger chain string
 
     Gaudi::Property<std::string> m_fileKey {this,"FileKey",""}; ///< Internal Athena name for file
-    bool m_hasRetrievedLumiTool; ///< Allows use of various luminosity functions
     Gaudi::Property<bool> m_useLumi {this,"EnableLumi",false}; ///< Allows use of various luminosity functions
     Gaudi::Property<float> m_defaultLBDuration {this,"DefaultLBDuration",60.}; ///< Default duration of one lumi block
     Gaudi::Property<int> m_detailLevel {this,"DetailLevel",0}; ///< Sets the level of detail used in the monitoring
     SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey {this,"EventInfoKey","EventInfo"}; ///< Key for retrieving EventInfo from StoreGate
+
+private:
+    std::string m_name;
 };
 
 #endif

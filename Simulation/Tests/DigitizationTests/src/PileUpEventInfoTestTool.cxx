@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -42,7 +42,7 @@ StatusCode PileUpEventInfoTestTool::processEvent() {
 
   ATH_MSG_DEBUG ( "Pileup Info Retrieved Successfully as 'PileUpEventInfo' Object " );
   //+++ Get sub-event info object
-  EventID *eventid = pevt->event_ID();
+  const EventID *eventid = pevt->event_ID();
   ATH_MSG_DEBUG ( "Main Event Info: " );
   ATH_MSG_INFO ( "RunNumber = " << eventid->run_number() );
   ATH_MSG_INFO ( "Event Number = " << eventid->event_number() );

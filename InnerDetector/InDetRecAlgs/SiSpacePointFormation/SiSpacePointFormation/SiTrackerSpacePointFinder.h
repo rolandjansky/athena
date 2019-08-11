@@ -49,7 +49,7 @@
 #define SiSpacePointFormation_SI_POINT_FINDER_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 #include "AthContainers/DataVector.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
@@ -172,6 +172,7 @@ namespace InDet {
     SG::UpdateHandleKey<SpacePointCache> m_SpacePointCache_SCTKey;
     SG::UpdateHandleKey<SpacePointCache> m_SpacePointCache_PixKey;
     ToolHandle< SiSpacePointMakerTool > m_SiSpacePointMakerTool;
+    ToolHandle<GenericMonitoringTool> m_monTool{this, "monTool", "", "Monitoring tool"};
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     SG::ReadCondHandleKey<InDet::SiElementPropertiesTable> m_SCTPropertiesKey{this, "SCTPropertiesKey", "SCT_ElementPropertiesTable", "Key of input SiElementPropertiesTable for SCT"};

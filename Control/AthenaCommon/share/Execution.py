@@ -85,6 +85,17 @@ else:
       import AthenaMP.PyComps as _amppy
       svcMgr += _amppy.MpEvtLoopMgr(NWorkers=opts.nprocs)
 
+   #if EvtMax and SkipEvents are set, use them
+   from AthenaCommon.AthenaCommonFlags import jobproperties as jps
+   if jps.AthenaCommonFlags.EvtMax.statusOn:
+      theApp.EvtMax = jps.AthenaCommonFlags.EvtMax()
+   if jps.AthenaCommonFlags.SkipEvents.statusOn:
+      if hasattr(svcMgr,"EventSelector"):
+         svcMgr.EventSelector.SkipEvents = jps.AthenaCommonFlags.SkipEvents()
+      else:
+         _msg.warning('No EventSelector in svcMgr, not skipping events')
+
+
  ## in batch, run as many events as requested, otherwise explain
    if opts.run_batch:
       ## enable or not athena-mp

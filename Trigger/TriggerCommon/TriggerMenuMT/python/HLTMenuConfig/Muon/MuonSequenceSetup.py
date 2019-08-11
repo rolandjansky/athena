@@ -3,8 +3,9 @@
 # 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-from AthenaCommon.CFElements import parOR, seqAND
+from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 
 #-----------------------------------------------------#
 ### Used the algorithms as Step1 "muFast step" ###
@@ -22,14 +23,16 @@ muonCombinedRecFlags.printSummary = False
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
-
+#muon container names (for RoI based sequences)
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muonNames
+muNames = muonNames().getNames('RoI')
 #-----------------------------------------------------#
 ### ************* Step1  ************* ###
 #-----------------------------------------------------#
 def muFastAlgSequence(ConfigFlags):
 
     ### set the EVCreator ###
-    l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker")
+    l2MuViewsMaker = EventViewCreatorAlgorithm("IMl2Mu")
     l2MuViewsMaker.ViewFallThrough = True
     l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
     l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
@@ -67,40 +70,35 @@ def muFastSequence():
 def muCombAlgSequence(ConfigFlags):
 
     ### set the EVCreator ###
-    l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker")
+    l2muCombViewsMaker = EventViewCreatorAlgorithm("IMl2muComb")
     l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
-    l2muCombViewsMaker.RoIsLink = "roi" # -||- this NEEDS to be set. probably should be roi for anything not immediately after L1
+    l2muCombViewsMaker.RoIsLink = "initialRoI" # setting to initial RoI, since RoIs are not updated in HLT processing
     l2muCombViewsMaker.InViewRoIs = "EMIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
     l2muCombViewsMaker.Views = "EMCombViewRoIs" #output of the views maker (key in "storegate")
+    l2muCombViewsMaker.RequireParentView = True
     
-    ### get muComb reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence
-    muCombRecoSequence, eventAlgs, sequenceOut, TrackParticlesName = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
+    ### get ID tracking and muComb reco sequences ###    
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
+    muFastIDRecoSequence, eventAlgs = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs )
+    muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
  
-    l2muCombViewsMaker.ViewNodeName = muCombRecoSequence.name()
-       
-    l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, muCombRecoSequence] )
+    #Filter algorithm to run muComb only if non-Bphysics muon chains are active
+    from TrigMuonEF.TrigMuonEFConfig import MuonChainFilterAlg
+    muonChainFilter = MuonChainFilterAlg("FilterBphysChains")
+    bphysChains =getBphysChainNames()
+    muonChainFilter.ChainsToFilter=bphysChains
+    muonChainFilter.InputDecisions = l2muCombViewsMaker.InputMakerOutputDecisions
+    muonChainFilter.L2MuCombContainer = sequenceOut
+
+    muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])
+    muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence])
+
+    l2muCombViewsMaker.ViewNodeName = muCombIDSequence.name()
+
+    l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, muCombIDSequence] )
 
     return (l2muCombSequence, l2muCombViewsMaker, sequenceOut)
 
-def muNotCombAlgSequence(ConfigFlags):
-
-    ### set the EVCreator ###
-    l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker")
-    l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
-    l2muCombViewsMaker.RoIsLink = "roi" # -||- this NEEDS to be set. probably should be roi for anything not immediately after L1
-    l2muCombViewsMaker.InViewRoIs = "EMIDRoIs" #name of the RoIS inside of the view, because in principle we can have more than one RoI/view
-    l2muCombViewsMaker.Views = "EMCombViewRoIs" #output of the views maker (key in "storegate")
-    
-    ### get muComb reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muonIDFastTrackingSequence
-    muNotCombRecoSequence, eventAlgs, TrackParticlesName, _ = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs )
- 
-    l2muCombViewsMaker.ViewNodeName = muNotCombRecoSequence.name()
-       
-    l2muNotCombSequence = seqAND("l2muNotCombSequence", eventAlgs + [l2muCombViewsMaker, muNotCombRecoSequence] )
-
-    return (l2muNotCombSequence, l2muCombViewsMaker)
 
 
 def muCombSequence():
@@ -127,11 +125,12 @@ def muCombSequence():
 ######################
 def muEFSAAlgSequence(ConfigFlags):
 
-    efsaViewsMaker = EventViewCreatorAlgorithm("efsaViewsMaker")
+    efsaViewsMaker = EventViewCreatorAlgorithm("IMefsa")
     efsaViewsMaker.ViewFallThrough = True
-    efsaViewsMaker.RoIsLink = "roi" # -||-
+    efsaViewsMaker.RoIsLink = "initialRoI" # -||-
     efsaViewsMaker.InViewRoIs = "MUEFSARoIs" # contract with the consumer
     efsaViewsMaker.Views = "MUEFSAViewRoIs"
+    efsaViewsMaker.RequireParentView = True
    
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFSARecoSequence
@@ -182,24 +181,48 @@ def muEFMSSequence():
 ###  EFCB seq ###
 ######################
 def muEFCBAlgSequence(ConfigFlags):
-    efcbViewNode = parOR("efcbViewNode")
+
+    #By default the EFCB sequence will run both outside-in and 
+    #(if zero muons are found) inside-out reconstruction
+    from TrigMuonEF.TrigMuonEFConfig import MuonFilterAlg, MergeEFMuonsAlg
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence, muEFInsideOutRecoSequence
     
-    efcbViewsMaker = EventViewCreatorAlgorithm("efcbViewsMaker")
+    efcbViewsMaker = EventViewCreatorAlgorithm("IMefcbtotal")
     efcbViewsMaker.ViewFallThrough = True
-    efcbViewsMaker.RoIsLink = "roi" # -||-
+    efcbViewsMaker.RoIsLink = "initialRoI" # -||-
     efcbViewsMaker.InViewRoIs = "MUEFCBRoIs" # contract with the consumer
     efcbViewsMaker.Views = "MUEFCBViewRoIs"
-    efcbViewsMaker.ViewNodeName = efcbViewNode.name()
-   
+    efcbViewsMaker.RequireParentView = True
 
-    ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
-    muEFCBRecoSequence, eventAlgs, sequenceOut = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "RoI" )
+    #outside-in reco sequence
+    muEFCBRecoSequence, eventAlgs, sequenceOutCB = muEFCBRecoSequence( efcbViewsMaker.InViewRoIs, "RoI" )
+
+    #Algorithm to filter events with no muons
+    muonFilter = MuonFilterAlg("FilterZeroMuons")
+    muonFilter.MuonContainerLocation = sequenceOutCB
  
-    efcbViewsMaker.ViewNodeName = muEFCBRecoSequence.name()    
-    muonEFCBSequence = seqAND( "muonEFCBSequence", [efcbViewsMaker, muEFCBRecoSequence] )
+    #inside-out reco sequence - runs only if filter is passed
+    muonEFInsideOutRecoSequence, sequenceOutInsideOut = muEFInsideOutRecoSequence( efcbViewsMaker.InViewRoIs, "RoI")
+    muonInsideOutSequence = seqAND("muonEFInsideOutSequence", [muonFilter,muonEFInsideOutRecoSequence])
 
-    return (muonEFCBSequence, efcbViewsMaker, sequenceOut)
+    #combine outside-in and inside-out sequences
+    muonRecoSequence = parOR("muonEFCBandInsideOutRecoSequence", [muEFCBRecoSequence, muonInsideOutSequence])
+
+    #Merge muon containers from outside-in and inside-out reco
+    muonMerger = MergeEFMuonsAlg("MergeEFMuons")
+    muonMerger.MuonCBContainerLocation = sequenceOutCB
+    muonMerger.MuonInsideOutContainerLocation = sequenceOutInsideOut
+    muonMerger.MuonOutputLocation = muNames.EFCBName
+    sequenceOut = muonMerger.MuonOutputLocation
+
+    #Add merging alg in sequence with reco sequences
+    mergeSequence = seqOR("muonCBInsideOutMergingSequence", [muonRecoSequence, muonMerger])
+
+    #Final sequence running in view
+    efcbViewsMaker.ViewNodeName = mergeSequence.name()    
+    muonSequence = seqAND("muonEFCBandInsideOutSequence", [efcbViewsMaker, mergeSequence])
+
+    return (muonSequence, efcbViewsMaker, sequenceOut)
 
 def muEFCBSequence():
 
@@ -217,54 +240,18 @@ def muEFCBSequence():
                          Hypo        = trigMuonEFCBHypo,
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
-######################
-###  EFCB InsideOut seq ###
-######################
-def muEFInsideOutAlgSequence(ConfigFlags):
-    efViewNode = parOR("efInsideOutViewNode")
-    
-    efViewsMaker = EventViewCreatorAlgorithm("efInsideOutViewsMaker")
-    efViewsMaker.ViewFallThrough = True
-    efViewsMaker.RoIsLink = "roi" # -||-
-    efViewsMaker.InViewRoIs = "MUEFInsideOutRoIs" # contract with the consumer
-    efViewsMaker.Views = "MUEFInsideOutViewRoIs"
-    efViewsMaker.ViewNodeName = efViewNode.name()
-   
 
-    ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFInsideOutRecoSequence
-    muEFInsideOutRecoSequence, sequenceOut = muEFInsideOutRecoSequence( efViewsMaker.InViewRoIs)
- 
-    efViewsMaker.ViewNodeName = muEFInsideOutRecoSequence.name()    
-    muonEFInsideOutSequence = seqAND( "muonEFInsideOutSequence", [efViewsMaker, muEFInsideOutRecoSequence] )
-
-    return (muonEFInsideOutSequence, efViewsMaker, sequenceOut)
-
-def muEFInsideOutSequence():
-
-    (muonEFInsideOutSequence, efViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFInsideOutAlgSequence, ConfigFlags)
-
-    # setup EFCB hypo
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg
-    trigMuonEFHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFInsideOutHypoAlg" )
-    trigMuonEFHypo.MuonDecisions = sequenceOut
-    
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
-
-    return MenuSequence( Sequence    = muonEFInsideOutSequence,
-                         Maker       = efViewsMaker,
-                         Hypo        = trigMuonEFHypo,
-                         HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
 ######################
 ### EF SA full scan ###
 ######################
 def muEFSAFSAlgSequence(ConfigFlags):
 
-    efsafsInputMaker = EventViewCreatorAlgorithm("MuonFSInputMaker", RoIsLink="initialRoI")
+    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
+    efsafsInputMaker = EventViewCreatorAlgorithmWithMuons("IMMuonFS", RoIsLink="initialRoI")
     efsafsInputMaker.InViewRoIs = "MUFSRoIs"
     efsafsInputMaker.Views = "MUFSViewRoI"
-    efsafsInputMaker.ViewPerRoI=True
+    efsafsInputMaker.CreateFSRoI=True
     efsafsInputMaker.ViewFallThrough=True
 
     ### get EF reco sequence ###    
@@ -298,14 +285,16 @@ def muEFSAFSSequence():
 ######################
 def muEFCBFSAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("EFCBFSInputMaker")
+    efcbfsInputMaker = EventViewCreatorAlgorithmWithMuons("IMEFCBFS") #can we call it EFCBFSEventViewCreator?
     efcbfsInputMaker.ViewFallThrough = True
-    efcbfsInputMaker.ViewPerRoI = True
+    efcbfsInputMaker.mergeOutputs = False
     efcbfsInputMaker.Views = "MUCBFSViews"
     efcbfsInputMaker.InViewRoIs = "MUCBFSRoIs"
-    efcbfsInputMaker.RoIsLink = "roi"
+    efcbfsInputMaker.RoIsLink = "initialRoI"
     efcbfsInputMaker.InViewMuons = "InViewMuons"
     efcbfsInputMaker.MuonsLink = "feature"
+    efcbfsInputMaker.RequireParentView = True
+    efcbfsInputMaker.InViewMuonCandidates = "MuonCandidates_FS"
 
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muEFCBRecoSequence
     muEFCBFSRecoSequence, eventAlgs, sequenceOut = muEFCBRecoSequence( efcbfsInputMaker.InViewRoIs, "FS" )
@@ -338,11 +327,12 @@ def muEFCBFSSequence():
 ######################
 def muIsoAlgSequence(ConfigFlags):
 
-    l2muIsoViewsMaker = EventViewCreatorAlgorithm("l2muIsoViewsMaker")
+    l2muIsoViewsMaker = EventViewCreatorAlgorithm("IMl2muIso")
     l2muIsoViewsMaker.ViewFallThrough = True
-    l2muIsoViewsMaker.RoIsLink = "roi" # -||-
+    l2muIsoViewsMaker.RoIsLink = "initialRoI" # -||-
     l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs" # contract with the consumer
     l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
+    l2muIsoViewsMaker.RequireParentView = True
 
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import l2muisoRecoSequence
@@ -378,10 +368,9 @@ def muIsoSequence():
 ######################
 def muEFIsoAlgSequence(ConfigFlags):
     from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    efmuIsoViewsMaker = EventViewCreatorAlgorithmWithMuons("efmuIsoViewsMaker")
+    efmuIsoViewsMaker = EventViewCreatorAlgorithmWithMuons("IMefmuIso")
     efmuIsoViewsMaker.ViewFallThrough = True
-    efmuIsoViewsMaker.ViewPerRoI = True
-    efmuIsoViewsMaker.RoIsLink = "roi" # -||-
+    efmuIsoViewsMaker.RoIsLink = "initialRoI" # -||-
     efmuIsoViewsMaker.InViewRoIs = "MUEFIsoRoIs" # contract with the consumer
     efmuIsoViewsMaker.Views = "MUEFIsoViewRoIs"
     efmuIsoViewsMaker.InViewMuons = "IsoViewMuons"
@@ -389,7 +378,7 @@ def muEFIsoAlgSequence(ConfigFlags):
     efmuIsoViewsMaker.RoIEtaWidth=0.15
     efmuIsoViewsMaker.RoIPhiWidth=0.15
     efmuIsoViewsMaker.LinkToParent=False
-
+    efmuIsoViewsMaker.mergeOutputs = False
 
     ### get EF reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import efmuisoRecoSequence
@@ -426,3 +415,19 @@ def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     kwargs.setdefault("UseCaloEnergyMeasurement", False)
     return Trk__TrkMaterialProviderTool(name,**kwargs)
+
+##############################
+### Get Bphysics triggers to # 
+### filter chains where we   #
+### don't want to run muComb #
+##############################
+
+def getBphysChainNames():
+
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    bphysSlice = TriggerFlags.BphysicsSlice.signatures()
+    chains =[]
+    if bphysSlice:
+        for chain in bphysSlice:
+            chains.append(chain.name)
+    return chains

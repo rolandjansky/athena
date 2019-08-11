@@ -1,3 +1,4 @@
+from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
@@ -26,6 +27,9 @@ def GeoModelCfg(configFlags):
 
     # Specify primary Identifier dictionary to be used
     detDescrCnvSvc=DetDescrCnvSvc(IdDictName = "IdDictParser/ATLAS_IDS.xml",IdDictFromRDB = True)
+    # this flag is set as it was in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Reconstruction/RecExample/RecExCond/share/AllDet_detDescr.py#0050
+    if configFlags.Detector.Geometry:
+        detDescrCnvSvc.DecodeIdDict = True
     result.addService(detDescrCnvSvc)
     result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[detDescrCnvSvc.getName(),])) #No service handle yet???
 
@@ -40,7 +44,6 @@ def GeoModelCfg(configFlags):
 
 
 if __name__ == "__main__":
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
@@ -49,4 +52,4 @@ if __name__ == "__main__":
 
     acc = GeoModelCfg( ConfigFlags )
     acc.store( file( "test.pkl", "w" ) )
-    print "All OK"
+    print("All OK")

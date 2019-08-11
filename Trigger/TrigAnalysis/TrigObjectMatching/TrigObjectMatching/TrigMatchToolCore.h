@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,6 +13,7 @@
 // STL include(s):
 #include <vector>
 #include <unordered_map>
+#include <mutex>
 
 // includes for trigger matching framework
 #include "TrigObjectMatching/ObjectMatching.h"
@@ -22,6 +23,8 @@
 
 // includes for navigation access
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
+
+#include "CxxUtils/checker_macros.h"
 
 namespace Trig {
    class FeatureContainer;
@@ -377,6 +380,7 @@ public:
       TrigMatchToolCore *m_matchTool;
    }; // class FeatureLabelHolder
 
+
 protected:
    void setTDT( Trig::TrigDecisionToolCore* tdt ) {
       m_trigDecisionToolCore = tdt;
@@ -385,29 +389,55 @@ protected:
    // called on end event if we're able to get access to such information
    virtual void endEvent();
 
-   void buildL1L2Map();
 
-   // List of chain names.
-   // The first m_nConfiguredChainNames are those that come from
-   // the configuration.  The remainder are those added for user
-   // queries (they could be regexps).
-   std::vector< std::string > m_chainNames;
-   size_t m_nConfiguredChainNames;
-
-   // cache the map from l1 items to the combined l2
-   // string for access in the tdt
-   std::map< std::string, std::string > m_l1l2Map;
-
-   // Rebuild map from chain names to indices.
-   void buildChainIndexMap();
+   // Clear saved chain name -> index mapping and rebuild from current
+   // configuration.
+   void clearChainIndex();
 
 
 private:
-   // Map from chain names to indices.
-   typedef std::unordered_map<std::string, size_t> chainIndexMap_t ;
-   chainIndexMap_t m_chainIndexMap;
+   // Associate from chain name to integer index, and l1l2map.
+   // Methods of this class are thread-safe.
+   class ChainNameIndex
+   {
+   public:
+     ChainNameIndex (TrigMatchToolCore* core);
+     size_t chainNameToIndex (const std::string& chainName);
+     std::vector<std::string> configuredChainNames();
+     std::string chainName (size_t index);
+     void clear();
+     std::string propagateChainNames (const std::string& chainName);
+    
 
-   // function for printing warnings - note that this depends on whether
+   private:
+     void assertConfiguredChainNames();
+
+     typedef std::mutex mutex_t;
+     typedef std::lock_guard<mutex_t> lock_t;
+
+     mutex_t m_mutex;
+    
+     TrigMatchToolCore* m_core;
+
+     // List of chain names.
+     // The first m_nConfiguredChainNames are those that come from
+     // the configuration.  The remainder are those added for user
+     // queries (they could be regexps).
+     std::vector< std::string > m_chainNames;
+     size_t m_nConfiguredChainNames = 0;
+
+     // Map from chain names to indices.
+     typedef std::unordered_map<std::string, size_t> chainIndexMap_t ;
+     chainIndexMap_t m_chainIndexMap;
+
+     // cache the map from l1 items to the combined l2
+     // string for access in the tdt
+     std::map< std::string, std::string > m_l1l2Map;
+   };
+   mutable ChainNameIndex m_chainNameIndex ATLAS_THREAD_SAFE;
+
+
+  // function for printing warnings - note that this depends on whether
    // you are in ARA or not
    virtual void warning( const std::string& w ) = 0;
 
@@ -416,11 +446,11 @@ private:
    // not the tool is running in athena.  In athena, we can register with
    // store gate to get call backs when the trig decision changes, but
    // we cannot get this info in ARA.
-   virtual bool changedDecisionAware() { return false; };
+   virtual bool changedDecisionAware() const { return false; };
 
-   // ensure that configured chain names is good to go.  Note that 
+   // return configured chain names.  Note that 
    // this is different for ARA and athena versions of the tool.
-   virtual void assertConfiguredChainNames() = 0;
+   virtual std::vector<std::string> getConfiguredChainNames() const = 0;
 
    // Functionality for loading the trigger objects from the navigation
 
@@ -428,20 +458,22 @@ private:
    // an abstract function, as the exact method is different for
    // ARA and Athena.
    virtual Trig::FeatureContainer
-   getFeatureContainer( const std::string &chainName, const int condition ) = 0;
+   getFeatureContainer( const std::string &chainName, const int condition ) const = 0;
 
    // determine how to propagate L1 chain names to L2 chain names
    template< typename trait >
    std::string propagateChainNames( const std::string& chainName,
-                                    const trait* ) {
+                                    const trait* ) const
+   {
       return chainName;
    }
    std::string propagateChainNames( const std::string& chainName,
-                                    const TrigMatch::AncestorAttached* ) {
+                                    const TrigMatch::AncestorAttached* ) const
+   {
       return this->propagateChainNames( chainName );
    }
-   virtual std::string propagateChainNames( const std::string& chainName );
-   virtual std::string lowerChainName( const std::string& chainName ) = 0;
+   virtual std::string propagateChainNames( const std::string& chainName ) const;
+   virtual std::string lowerChainName( const std::string& chainName ) const = 0;
 
    // fills objects with the trigger objects from the chain name
    // with only passed features as desired.  Queries cache first
@@ -462,7 +494,7 @@ private:
    void collectObjects( std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer &featureContainer,
                         bool onlyPassedFeatures,
-                        const TrigMatch::DirectAttached* );
+                        const TrigMatch::DirectAttached* ) const;
 
    // function for loading objects that are attached as
    // containers to the navigation
@@ -470,16 +502,16 @@ private:
    void collectObjects( std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer& featureContainer,
                         bool onlyPassedFeatures,
-                        const contType* );
+                        const contType* ) const;
 
    // function for loading l1 objects from the navigation
    template<typename trigType>
    void collectObjects( std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer& featureContainer,
                         bool onlyPassedFeatures,
-                        const TrigMatch::AncestorAttached* );
+                        const TrigMatch::AncestorAttached* ) const;
 
-   size_t chainNameToIndex (const std::string& chainName);
+   size_t chainNameToIndex (const std::string& chainName) const;
 
    /**
     * @brief Alternate version of @c getTriggerObjects taking a chain index.

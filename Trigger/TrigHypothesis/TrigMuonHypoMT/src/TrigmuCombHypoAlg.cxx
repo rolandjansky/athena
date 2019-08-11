@@ -121,7 +121,7 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
     ATH_CHECK( tool->decide( toolInput ) );
   }
 
-  ATH_CHECK(printDebugInformation(outputHandle));
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute success");
   return StatusCode::SUCCESS;

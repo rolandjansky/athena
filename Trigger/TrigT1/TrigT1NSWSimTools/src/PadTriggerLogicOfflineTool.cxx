@@ -59,8 +59,6 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
     AthAlgTool(type,name,parent),
     m_incidentSvc("IncidentSvc",name),
     m_detManager(0),
-    m_pad_cache_runNumber(-1),
-    m_pad_cache_eventNumber(-1),
     m_rndmEngineName(""),
     m_sTgcDigitContainer(""),
     m_sTgcSdoContainer(""),
@@ -89,41 +87,21 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
     std::string algo_name = pnamed->name();
 
     if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-        if(TTree *tree = get_tree_from_histsvc()){
-            m_validation_tree.init_tree(tree);
-        } else {
-            ATH_MSG_ERROR("cannot book requested output tree");
-            return StatusCode::FAILURE;;
-        }
+        TTree *tree=nullptr;
+        ATH_CHECK(get_tree_from_histsvc(tree));
+        m_validation_tree.init_tree(tree);
     }
     // retrieve the Incident Service
-    if( m_incidentSvc.retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-        return StatusCode::FAILURE;
-    } else {
-        ATH_MSG_INFO("Incident Service successfully rertieved");
-    }
+    ATH_CHECK(m_incidentSvc.retrieve());
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
-
-
-
-    //  retrieve the MuonDetectormanager
-    if( detStore()->retrieve( m_detManager ).isFailure() ) {
-        ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-        return StatusCode::FAILURE;
-    } 
-    else {
-        ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
-    }
+    ATH_CHECK( detStore()->retrieve( m_detManager ));
     
     return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------
 void PadTriggerLogicOfflineTool::handle(const Incident& inc) {
     if( inc.type()==IncidentType::BeginEvent ) {
-        // this->clear_cache();
         m_validation_tree.reset_ntuple_variables();
-        // m_pad_cache_status = CLEARED;
     }
 }
 
@@ -279,21 +257,15 @@ StatusCode PadTriggerLogicOfflineTool::compute_pad_triggers(const std::vector<st
     return StatusCode::SUCCESS;
 }
 //------------------------------------------------------------------------------
-TTree* PadTriggerLogicOfflineTool::get_tree_from_histsvc()
+StatusCode PadTriggerLogicOfflineTool::get_tree_from_histsvc( TTree*&tree)
 {
-    TTree *tree = nullptr;
-    ITHistSvc* tHistSvc=NULL;
+    ITHistSvc* tHistSvc=nullptr;
     m_validation_tree.clear_ntuple_variables();
-    if(service("THistSvc", tHistSvc).isFailure()) {
-        //--ATH_MSG_FATAL("Unable to retrieve THistSvc");
-    } else {
-        std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
-        std::string treename = PadTriggerValidationTree::treename_from_algoname(algoname);
-        if(tHistSvc->getTree(treename, tree).isFailure()) {
-            ATH_MSG_FATAL(("Could not retrieve the analysis ntuple "+treename+" from the THistSvc").c_str());
-        }
-    }
-    return tree;
+    ATH_CHECK(service("THistSvc", tHistSvc));
+    std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
+    std::string treename = PadTriggerValidationTree::treename_from_algoname(algoname);  
+    ATH_CHECK(tHistSvc->getTree(treename, tree));
+    return StatusCode::SUCCESS;
 }
 
 

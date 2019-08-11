@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-*-c++-*-
@@ -23,10 +23,11 @@ public:
   ~NetworkToHistoTool() {};
 
   std::map<std::string,TH1*> histsFromNetwork(const TTrainedNetwork*) const;
-  TTrainedNetwork* networkFromHists(std::map<std::string,TH1*>&) const;
+  TTrainedNetwork* networkFromHists(const std::map<std::string,const TH1*>&) const;
 
   std::vector<TH1*> fromTrainedNetworkToHisto(const TTrainedNetwork*) const;
-  TTrainedNetwork* fromHistoToTrainedNetwork(std::vector<TH1*>&) const; 
+  TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<TH1*>&) const; 
+  TTrainedNetwork* fromHistoToTrainedNetwork(const std::vector<const TH1*>&) const; 
 
 private:
   

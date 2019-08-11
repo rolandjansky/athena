@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ public:
 
   /** Main propagation mehtod NeutralParameters */
 
- virtual const NeutralParameters* propagate
+ virtual NeutralParameters* propagate
     (const NeutralParameters        &,
      const Surface                  &,
      PropDirection                   ,
@@ -134,7 +134,7 @@ public:
 
   /** Main propagation mehtod without transport jacobian production*/
 
-  virtual const TrackParameters*           propagate
+  virtual  TrackParameters*           propagate
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
@@ -146,7 +146,7 @@ public:
 
   /** Main propagation mehtod with transport jacobian production*/
 
-  virtual const TrackParameters*           propagate
+  virtual  TrackParameters*           propagate
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
@@ -160,7 +160,7 @@ public:
 
   /** The propagation method finds the closest surface */
 
-  virtual const TrackParameters*           propagate
+  virtual TrackParameters*           propagate
     (const TrackParameters         &,
      std::vector<DestSurf>         &,
      PropDirection                  ,
@@ -174,7 +174,7 @@ public:
 
   /** Main propagation mehtod for parameters only without transport jacobian productio*/
 
-  virtual const TrackParameters*           propagateParameters
+  virtual  TrackParameters*           propagateParameters
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
@@ -187,7 +187,7 @@ public:
 
   /** Main propagation mehtod for parameters only with transport jacobian productio*/
 
-  virtual const TrackParameters*           propagateParameters
+  virtual  TrackParameters*           propagateParameters
     (const TrackParameters          &,
      const Surface                  &,
      const PropDirection             ,
@@ -299,7 +299,7 @@ private:
   struct Cache{
     double  m_direction                                ;
     double  m_step                                     ;
-    double  m_maxPath                                  ;
+    double  m_maxPath                            =10000;
     double  m_field[3]                                 ;
     bool    m_maxPathLimit                       =false;
     bool    m_mcondition                         =false;
@@ -322,7 +322,7 @@ private:
  
   /** Internal RungeKutta propagation method for charge track parameters*/   
 
-  const TrackParameters*      propagateRungeKutta
+    TrackParameters*      propagateRungeKutta
     (Cache& cache                  ,
      bool                          ,
      const TrackParameters        &,
@@ -335,7 +335,7 @@ private:
 
   /** Internal RungeKutta propagation method for neutral track parameters*/   
 
-  const NeutralParameters*    propagateStraightLine
+   NeutralParameters*    propagateStraightLine
     (Cache& cache                  ,
      bool                          ,
      const NeutralParameters      &,
@@ -407,10 +407,10 @@ private:
 
   /** Build new track parameters without propagation */
 
-  const TrackParameters*  buildTrackParametersWithoutPropagation
+  TrackParameters*  buildTrackParametersWithoutPropagation
     (const TrackParameters &,double*) const;
 
-  const NeutralParameters*  buildTrackParametersWithoutPropagation
+  NeutralParameters*  buildTrackParametersWithoutPropagation
     (const NeutralParameters&,double*) const;
 
   void globalOneSidePositions
@@ -431,7 +431,7 @@ private:
      double                          ,
      ParticleHypothesis particle=pion) const;
 
-  const Trk::TrackParameters* crossPoint
+  Trk::TrackParameters* crossPoint
     (const TrackParameters    &,
      std::vector<DestSurf>    &,
      std::vector<unsigned int>&,
@@ -442,11 +442,13 @@ private:
   void getFieldGradient(Cache& cache, double*,double*,double*) const;
 
   //placeholder for compatibility with new interface
+  virtual
   const TrackSurfaceIntersection* intersectSurface(const Surface&,
                                                    const TrackSurfaceIntersection*,
                                                    const double,
                                                    const MagneticFieldProperties&,
-                                                   ParticleHypothesis) const {return 0;}
+                                                   ParticleHypothesis) const override
+  {return 0;}
 
   /////////////////////////////////////////////////////////////////////////////////
   // Private data members: 

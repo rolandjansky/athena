@@ -31,12 +31,14 @@ StatusCode PFLeptonSelector::execute(){
     }
 
   /* Select electrons */
-  StatusCode sc = this->selectElectrons(selectedElectronsWriteHandle,leptonCaloCellsWriteHandle);
-  //if fail to select electrons issue warning, but carry on processing event
-  if (sc.isFailure()) ATH_MSG_WARNING(" Problem selecting electrons");
+  if (m_selectElectrons) {
+    StatusCode sc = this->selectElectrons(selectedElectronsWriteHandle,leptonCaloCellsWriteHandle);
+    //if fail to select electrons issue warning, but carry on processing event
+    if (sc.isFailure()) ATH_MSG_WARNING(" Problem selecting electrons");
+  }
 
   /* Select  muons */
-  sc = this->selectMuons(selectedMuonsWriteHandle,leptonCaloCellsWriteHandle);
+  StatusCode sc = this->selectMuons(selectedMuonsWriteHandle,leptonCaloCellsWriteHandle);
    //if fail to select muons issue warning, but carry on processing event
   if (sc.isFailure()) ATH_MSG_WARNING("Problem selecting muons ");
 
@@ -58,13 +60,13 @@ StatusCode PFLeptonSelector::selectElectrons(SG::WriteHandle<ConstDataVector<xAO
     
     if (theElectron){
       if (theElectron->pt() > 10000){
-        bool val_med = false;
-	bool gotID = theElectron->passSelection(val_med, "LHMedium");
+	bool passElectronID = false;
+	bool gotID = theElectron->passSelection(passElectronID, m_electronID);
 	if (!gotID) {
 	  ATH_MSG_WARNING("Could not get Electron ID");
 	  continue;
 	}
-	if (true == val_med){
+	if (true == passElectronID){
 	  if (selectedElectronsWriteHandle.isValid()) selectedElectronsWriteHandle->push_back(theElectron);
 	  else ATH_MSG_WARNING("Do not have valid WriteHandle for ElectronContainer with name: " << selectedElectronsWriteHandle.key());
 	  if (true == m_storeLeptonCells) this->storeElectronCells(*theElectron,leptonCaloCellsWriteHandle);

@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 #from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
 from CaloRec.CaloRecConf import CaloCellMaker, CaloCellContainerFinalizerTool     
 from LArCellRec.LArCellBuilderConfig import LArCellBuilderCfg,LArCellCorrectorCfg
-from TileRecUtils.TileRecUtilsConf import TileCellBuilder
+#from TileRecUtils.TileRecUtilsConf import TileCellBuilder
 
 def CaloCellMakerCfg(configFlags):
     result=ComponentAccumulator()
@@ -21,10 +21,10 @@ def CaloCellMakerCfg(configFlags):
     
     larCellCorrectors=LArCellCorrectorCfg(configFlags)
 
-    theTileCellBuilder = TileCellBuilder()
+    #theTileCellBuilder = TileCellBuilder()
 
     cellAlgo=CaloCellMaker(CaloCellMakerToolNames=[larCellBuilder.popPrivateTools(),CaloCellContainerFinalizerTool()]+larCellCorrectors.popPrivateTools(),
-                            CaloCellsOutputName="AllCalo")
+                           CaloCellsOutputName="AllCalo")
     result.merge(larCellBuilder)
     result.merge(larCellCorrectors)
     return result,cellAlgo

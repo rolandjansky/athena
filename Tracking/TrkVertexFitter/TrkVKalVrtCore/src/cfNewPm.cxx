@@ -21,7 +21,7 @@ extern void vkgrkuta_(double *, double *, double *, double *, const VKalVrtContr
 void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, double *parn, double *closePoint, const VKalVrtControlBase * CONTROL)
 {
     double d__1, d__2,dist_left;
-    double vect[7], stmg, vout[7], dpar0[5];
+    double vect[7], stmg, vout[7]={0.}, dpar0[5];
     double perig[3], dstep, xyzst[3], charge;
     double posold, poscur, totway, dp;
     double dX, dY, dZ;

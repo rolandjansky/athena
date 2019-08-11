@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+
 monitoring_bphys = [
                     'HLT_mu11_mu6_bDimu', 
                     'HLT_mu11_mu6_bBmumuxv2', 
@@ -26,7 +28,6 @@ monitoring_bphys = [
                     'HLT_2mu4_bBmumuxv2_Ftk',
                     ]
 
-
 primary_bphys = [ 
                  'HLT_mu11_mu6_bDimu', 
                  'HLT_mu11_mu6_bBmumuxv2', 
@@ -39,6 +40,15 @@ primary_bphys = [
                  'HLT_mu11_mu6_bDimu_novtx_noos', 
                  'HLT_2mu4_bBmumuxv2_Ftk',
                  ]
+
+if TriggerFlags.EDMDecodingVersion == 3 :
+  monitoring_bphys = [
+                      'HLT_2mu4_bDimu_L12MU4',
+                      'HLT_2mu6_bJpsimumu_L12MU6',
+                     ]
+  primary_bphys = [
+                    'HLT_2mu4_bDimu_L12MU4',
+                  ]
 
 primary_bphys_pp = primary_bphys
 

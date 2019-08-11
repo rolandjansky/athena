@@ -40,7 +40,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "CaloInterface/ICaloLumiBCIDTool.h"
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -424,6 +423,8 @@ StatusCode TrigDataAccess::finalize(){
 	}
 	m_zdcDigitCollection.clear();
 	m_zdcCol.clear();
+	delete m_fullCellContainer;
+	m_fullCellContainer=nullptr;
 	return StatusCode::SUCCESS;
 
 } // End of finalize

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,64 +29,83 @@ namespace Trk
 {
   class Track;
 
-  static const InterfaceID IID_IVertexTrackDensityEstimator("IVertexTrackDensityEstimator", 1, 0);
+  class IVertexTrackDensityEstimator : virtual public IAlgTool
+  {
+  public:
+    DeclareInterfaceID (IVertexTrackDensityEstimator, 1, 0);
 
-  class IVertexTrackDensityEstimator : virtual public IAlgTool {
 
-     public:
-       /**
-        *  Virtual destructor 
-	*/
-       virtual ~IVertexTrackDensityEstimator() {};
+    /**
+     * @brief Helper to hold density results.
+     */
+    class ITrackDensity
+    {
+    public:
+      virtual ~ITrackDensity() = default;
 
-       /** 
-        * AlgTool interface methods 
-	*/
-       static const InterfaceID& interfaceID() { return IID_IVertexTrackDensityEstimator; };
 
-       /**
-        *   Adds a list of tracks, whose impact parameters will contribute to the density function.
-        */
-       virtual void addTracks(const std::vector<const Trk::Track*>& vectorTrk) = 0;
+      /**
+       *  Evaluate the density function at the specified coordinate
+       *  along the beamline.
+       */
+      virtual double trackDensity (double z) const = 0;
 
-       /**
-	*  Adds a list of track perigee parameters, whose impact parameters will contribute to 
-        *  the density function.
-        */
-       virtual void addTracks(const std::vector<const Trk::TrackParameters*>& perigeeList) = 0;
 
-       /**
-        *  Removes a list of tracks, which will no longer contribute to the density function.
-        */
-       virtual void removeTracks(const std::vector<const Trk::Track*>& vectorTrk) = 0;
+      /**
+       *  Evaluate the density and its first two derivatives
+       *  at the specified coordinate.
+       */
+      virtual void trackDensity (double z,
+                                 double& density,
+                                 double& firstDerivative,
+                                 double& secondDerivative) const = 0;
+    };
 
-       /**
-        *  Removes a list of track perigee parameters, which will no longer contribute to 
-        *  the density function.
-        */
-       virtual void removeTracks(const std::vector<const Trk::TrackParameters*>& perigeeList) = 0;
 
-       /**
-        *  Evaluate the density function at the specified coordinate along the beam-line.
-        */
-       virtual double trackDensity(double z) const = 0;
+    /**
+     *  Virtual destructor 
+     */
+    virtual ~IVertexTrackDensityEstimator() = default;
 
-       /*
-        *  Evaluate the density function and its first two derivatives at the specified coordinate.
-        */
-       virtual void trackDensity(double z, double& density, double& firstDerivative, double& secondDerivative) const = 0;
 
-       /*
-	*  Find position of global maximum for density function
-	*/
-       virtual double globalMaximum() const = 0;
+    /**
+     * @brief Find position of global maximum for density function.
+     * @param vectorTrk List of input tracks.
+     */
+    virtual double
+    globalMaximum (const std::vector<const Track*>& vectorTrk) const = 0;
 
-       /**
-        *  Resets the internal state of the tool, forgetting all tracks previously added.
-        */
-       virtual void reset() = 0;
 
+    /**
+     * @brief Find position of global maximum for density function.
+     * @param vectorTrk List of input tracks.
+     * @param density[out] Helper to hold density results.
+     */
+    virtual double
+    globalMaximum (const std::vector<const Track*>& vectorTrk,
+                   std::unique_ptr<ITrackDensity>& density) const = 0;
+
+
+    /**
+     * @brief Find position of global maximum for density function.
+     * @param perigeeList List of input tracks.
+     */
+    virtual double
+    globalMaximum (const std::vector<const TrackParameters*>& perigeeList) const = 0;
+
+
+    /**
+     * @brief Find position of global maximum for density function.
+     * @param perigeeList List of input tracks.
+     * @param density[out] Helper to hold density results.
+     */
+    virtual double
+    globalMaximum (const std::vector<const TrackParameters*>& perigeeList,
+                   std::unique_ptr<ITrackDensity>& density) const = 0;
   };
-}
+
+
+} // namespace Trk
+
 
 #endif

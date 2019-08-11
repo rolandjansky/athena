@@ -55,7 +55,7 @@ def TileIntegratorCondAlgCfg(flags, **kwargs):
     return acc
 
 
-def TileCondToolIntegrator(flags, **kwargs):
+def TileCondToolIntegratorCfg(flags, **kwargs):
     """Return component accumulator with configured private Tile integrator tool
     Arguments:
         flags  -- Athena configuration flags (ConfigFlags)
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
     acc = ComponentAccumulator()
 
-    integratorTool =  acc.popToolsAndMerge( TileCondToolIntegrator(ConfigFlags) )
+    integratorTool = acc.popToolsAndMerge( TileCondToolIntegratorCfg(ConfigFlags) )
     print(integratorTool)
 
     acc.printConfig(withDetails = True, summariseProps = True)

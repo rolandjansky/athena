@@ -59,7 +59,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   const EventContext& ctx1 = Gaudi::Hive::currentContext();
   std::cout << "Current context: " << ctx1 << std::endl;
 
-  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("MyDecisionContainer");
+  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("HLTNav_MyDecisionContainer");
   SG::WriteHandleKey<xAOD::ElectronContainer> electronContainerKey("MyElectronContainer");
   SG::WriteHandleKey<xAOD::MuonContainer> muonContainerKey("MyMuonContainer");
 
@@ -376,11 +376,11 @@ int main ATLAS_NOT_THREAD_SAFE () {
   std::vector<ElementLinkVector<DecisionContainer>> paths_HLT_em_chain;
   std::vector<ElementLinkVector<DecisionContainer>> paths_HLT_all;
 
-  recursiveGetDecisions(END, paths_HLT_mufast_chain, HLT_mufast_chain);
-  recursiveGetDecisions(END, paths_HLT_mu_chain, HLT_mu_chain);
-  recursiveGetDecisions(END, paths_HLT_mu_em_chain, HLT_mu_em_chain);
-  recursiveGetDecisions(END, paths_HLT_em_chain, HLT_em_chain);
-  recursiveGetDecisions(END, paths_HLT_all);
+  recursiveGetDecisions(END, paths_HLT_mufast_chain, HLT_mufast_chain, true);
+  recursiveGetDecisions(END, paths_HLT_mu_chain, HLT_mu_chain, true);
+  recursiveGetDecisions(END, paths_HLT_mu_em_chain, HLT_mu_em_chain, true);
+  recursiveGetDecisions(END, paths_HLT_em_chain, HLT_em_chain, true);
+  recursiveGetDecisions(END, paths_HLT_all, 0, true);
 
   printPaths(paths_HLT_mufast_chain, "HLT_mufast_chain");
   printPaths(paths_HLT_mu_chain, "HLT_mu_chain");
@@ -388,29 +388,86 @@ int main ATLAS_NOT_THREAD_SAFE () {
   printPaths(paths_HLT_em_chain, "HLT_em_chain");
   printPaths(paths_HLT_all, "All");
 
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_all_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_all_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_all_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_all_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, false);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_all_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_all_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, false);
 
-  printFeatures(features_all_HLT_mufast_chain, "[All features] HLT_mufast_chain");
-  printFeatures(features_all_HLT_mu_chain, "[All features] HLT_mu_chain");
-  printFeatures(features_all_HLT_mu_em_chain, "[All features] HLT_mu_em_chain");
-  printFeatures(features_all_HLT_em_chain, "[All features] HLT_em_chain");
-  printFeatures(features_all_HLT_all, "[All features] All chains");
+  printFeatures(features_pass_all_HLT_mufast_chain, "[All passing features] HLT_mufast_chain");
+  printFeatures(features_pass_all_HLT_mu_chain, "[All passing features] HLT_mu_chain");
+  printFeatures(features_pass_all_HLT_mu_em_chain, "[All passing features] HLT_mu_em_chain");
+  printFeatures(features_pass_all_HLT_em_chain, "[All passing features] HLT_em_chain");
+  printFeatures(features_pass_all_HLT_all, "[All passing features] All chains");
 
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_final_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_final_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_final_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_final_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, true);
-  std::vector< LinkInfo<xAOD::IParticleContainer> > features_final_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_pass_final_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, true);
 
-  printFeatures(features_final_HLT_mufast_chain, "[Final feature] HLT_mufast_chain");
-  printFeatures(features_final_HLT_mu_chain, "[Final feature] HLT_mu_chain");
-  printFeatures(features_final_HLT_mu_em_chain, "[Final feature] HLT_mu_em_chain");
-  printFeatures(features_final_HLT_em_chain, "[Final feature] HLT_em_chain");
-  printFeatures(features_final_HLT_all, "[Final feature] All chains");  
+  printFeatures(features_pass_final_HLT_mufast_chain, "[Final passing feature] HLT_mufast_chain");
+  printFeatures(features_pass_final_HLT_mu_chain, "[Final passing feature] HLT_mu_chain");
+  printFeatures(features_pass_final_HLT_mu_em_chain, "[Final passing feature] HLT_mu_em_chain");
+  printFeatures(features_pass_final_HLT_em_chain, "[Final passing feature] HLT_em_chain");
+  printFeatures(features_pass_final_HLT_all, "[Final passing feature] All chains");  
+
+  std::cout << " ---------- Now Include Failing Features " << std::endl;
+
+  std::vector<const Decision*> extraStart_HLT_mufast_chain = getRejectedDecisionNodes(pSG, HLT_mufast_chain);
+  std::vector<const Decision*> extraStart_HLT_mu_chain = getRejectedDecisionNodes(pSG, HLT_mu_chain);
+  std::vector<const Decision*> extraStart_HLT_mu_em_chain = getRejectedDecisionNodes(pSG, HLT_mu_em_chain);
+  std::vector<const Decision*> extraStart_HLT_em_chain = getRejectedDecisionNodes(pSG, HLT_em_chain);
+  std::vector<const Decision*> extraStart_HLT_all = getRejectedDecisionNodes(pSG, 0);
+
+  for (const Decision* d : extraStart_HLT_mufast_chain) {
+    recursiveGetDecisions(d, paths_HLT_mufast_chain, HLT_mufast_chain, false);
+  }
+  for (const Decision* d : extraStart_HLT_mu_chain) {
+    recursiveGetDecisions(d, paths_HLT_mu_chain, HLT_mu_chain, false);
+  }
+  for (const Decision* d : extraStart_HLT_mu_em_chain) {
+    recursiveGetDecisions(d, paths_HLT_mu_em_chain, HLT_mu_em_chain, false);
+  }
+  for (const Decision* d : extraStart_HLT_em_chain) {
+    recursiveGetDecisions(d, paths_HLT_em_chain, HLT_em_chain, false);
+  }
+  for (const Decision* d : extraStart_HLT_all) {
+    recursiveGetDecisions(d, paths_HLT_all, 0, false);
+  }
+
+  printPaths(paths_HLT_mufast_chain, "HLT_mufast_chain");
+  printPaths(paths_HLT_mu_chain, "HLT_mu_chain");
+  printPaths(paths_HLT_mu_em_chain, "HLT_mu_em_chain");
+  printPaths(paths_HLT_em_chain, "HLT_em_chain");
+  printPaths(paths_HLT_all, "All");
+
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, false);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_all_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, false);
+
+  printFeatures(features_passfail_all_HLT_mufast_chain, "[All passing/failing features] HLT_mufast_chain");
+  printFeatures(features_passfail_all_HLT_mu_chain, "[All passing/failing features] HLT_mu_chain");
+  printFeatures(features_passfail_all_HLT_mu_em_chain, "[All passing/failing features] HLT_mu_em_chain");
+  printFeatures(features_passfail_all_HLT_em_chain, "[All passing/failing features] HLT_em_chain");
+  printFeatures(features_passfail_all_HLT_all, "[All passing/failing features] All chains");
+
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_mufast_chain = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mufast_chain, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_mu_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_chain, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_mu_em_chain  = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_mu_em_chain, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_em_chain     = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_em_chain, true);
+  std::vector< LinkInfo<xAOD::IParticleContainer> > features_passfail_final_HLT_all          = getFeaturesOfType<xAOD::IParticleContainer>(paths_HLT_all, true);
+
+  printFeatures(features_passfail_final_HLT_mufast_chain, "[Final passing/failing feature] HLT_mufast_chain");
+  printFeatures(features_passfail_final_HLT_mu_chain, "[Final passing/failing feature] HLT_mu_chain");
+  printFeatures(features_passfail_final_HLT_mu_em_chain, "[Final passing/failing feature] HLT_mu_em_chain");
+  printFeatures(features_passfail_final_HLT_em_chain, "[Final passing/failing feature] HLT_em_chain");
+  printFeatures(features_passfail_final_HLT_all, "[Final passing/failing feature] All chains");  
+
+
+  std::cout << " ---------- Check Explicit Type " << std::endl;
 
   // Check typed retrieval too
   std::vector< LinkInfo<xAOD::MuonContainer> >     features_final_mu  = getFeaturesOfType<xAOD::MuonContainer>(paths_HLT_mu_em_chain);

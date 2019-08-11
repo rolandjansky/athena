@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -30,7 +30,9 @@ namespace Trk{
 
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const Track*>& InpTrk,
-                                              Amg::Vector3D& Vertex) {
+                                              Amg::Vector3D& Vertex,
+                                              IVKalState& /*istate*/)
+  {
 //
 //--- Magnetic field
 //
@@ -97,7 +99,9 @@ namespace Trk{
 
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const xAOD::TrackParticle*>& InpTrk,
-                                              Amg::Vector3D& Vertex) {
+                                              Amg::Vector3D& Vertex,
+                                              IVKalState& /*istate*/)
+  {
 //
 //--- Magnetic field
 //
@@ -164,7 +168,9 @@ namespace Trk{
 
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const TrackParticleBase*>& InpTrk,
-                                              Amg::Vector3D& Vertex) {
+                                              Amg::Vector3D& Vertex,
+                                              IVKalState& /*istate*/)
+  {
 //
 //--- Magnetic field
 //
@@ -231,7 +237,9 @@ namespace Trk{
 
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const TrackParameters*>& InpTrk,
-                                              Amg::Vector3D& Vertex) {
+                                              Amg::Vector3D& Vertex,
+                                              IVKalState& /*istate*/)
+  {
 //
 //--- Magnetic field
 //

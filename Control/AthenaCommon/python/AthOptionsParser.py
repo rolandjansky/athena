@@ -433,15 +433,6 @@ def parse(chk_tcmalloc=True):
     # This behavior can be controlled by a flag, if needed
     os.environ['LIBC_FATAL_STDERR_']='1'
 
-    # overwrite nprovs if ATHENA_PROC_NUMBER is set
-    envNProcs = os.getenv('ATHENA_PROC_NUMBER')
-    if envNProcs :
-        envNProcs = int(envNProcs)
-        print ("ATHENA_PROC_NUMBER set to ", envNProcs, " will run by default with --nprocs=", envNProcs)
-        opts.nprocs = envNProcs      # enable AthenaMP if >= 1 or == -1
-        from AthenaCommon.ConcurrencyFlags import jobproperties as jps
-        jps.ConcurrencyFlags.NumProcs = envNProcs
-    
     # for the benefit of PyROOT
     if not opts.display and '-b' not in sys.argv:
         sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]

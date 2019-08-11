@@ -200,11 +200,8 @@ StatusCode JetRecTool::initialize() {
                << " jet modifiers.");
   m_modclocks.resize(m_modifiers.size());
   ATH_CHECK(m_modifiers.retrieve());
-  size_t iclk = 0;
-  for ( auto & mod : m_modifiers) {
-    m_modclocks[iclk++].Reset();
-    mod->inputContainerNames(m_incolls);
-    mod->setPseudojetRetriever(m_ppjr);
+  for (size_t iclk = 0; iclk < m_modifiers.size(); iclk++) {
+    m_modclocks[iclk].Reset();
   }
   // Fetch the jet consumers.
   ATH_MSG_INFO(prefix << "JetRecTool " << name() << " has " << m_consumers.size()
@@ -345,7 +342,8 @@ const JetContainer* JetRecTool::build() const {
         m_modclocks[iclk].Start(false);
         ATH_MSG_DEBUG("  Executing modifier " << imod->name());
         ATH_MSG_VERBOSE("    @ " << *imod);
-        (*imod)->modify(*pjets) ;
+        if((*imod)->modify(*pjets).isFailure())
+          ATH_MSG_DEBUG("    Modifier returned FAILURE!");
         m_modclocks[iclk++].Stop();
       }
     }

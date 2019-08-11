@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -1626,22 +1626,22 @@ namespace TrigCostRootAnalysis {
     Float_t uniqueRate = counter->getDecoration(kDecUniqueRate);
     Float_t uniqueFraction = counter->getDecoration(kDecUniqueFraction); // Was in percent, change back to 0-1
 
+    [[maybe_unused]]
     Bool_t isL1 = kFALSE;
 
     if (counter->getStrDecoration(kDecType) == "L1") isL1 = kTRUE;
-    UNUSED(isL1);
 
     // TODO - THIS IS WRONG FOR WEIGHTED EVENTS
-    Float_t eff = 0., effErr = 0., psEff = 0., psEffErr = 0.;
+    Float_t eff = 0.;
+    Float_t psEff = 0.;
+    [[maybe_unused]] Float_t effErr = 0.;
+    [[maybe_unused]] Float_t psEffErr = 0.;
     if (evRun) {
       eff = evPassNoPS / evRun;
       effErr = (1. / evRun) * TMath::Sqrt(evPassNoPS * (1. - eff)); // Binomal
       psEff = evPassWeight / evRun;
       psEffErr = (1. / evRun) * TMath::Sqrt(evPassWeight * (1. - psEff)); // Binomal
     }
-
-    UNUSED(effErr);
-    UNUSED(psEffErr);
 
     xml.addNode(fout, "signature");
     xml.addNode(fout, "sig_name", counter->getName());

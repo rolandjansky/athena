@@ -3,8 +3,8 @@
 */
 
 /*********************************************************************************
-			IPosteriorWeightsCalculator.h  -  description
-			---------------------------------------------
+                        IPosteriorWeightsCalculator.h  -  description
+                        ---------------------------------------------
 created              : Thursday 8th January 2009
 author               : amorley
 email                : Anthony.Morley@cern.ch
@@ -24,18 +24,17 @@ class MeasurementBase;
 
 static const InterfaceID IID_PosteriorWeightsCalculator("PosteriorWeightsCalculator", 1, 0);
 
-class IPosteriorWeightsCalculator : virtual public IAlgTool {
- public:
-  
+class IPosteriorWeightsCalculator : virtual public IAlgTool
+{
+public:
   /** Virtual destructor */
-  virtual ~IPosteriorWeightsCalculator () {};
+  virtual ~IPosteriorWeightsCalculator(){};
 
   /** AlgTool interface methods */
-  static const InterfaceID& interfaceID () { return IID_PosteriorWeightsCalculator; };
+  static const InterfaceID& interfaceID() { return IID_PosteriorWeightsCalculator; };
 
   /** Method to compute the state weights after measurement update */
-  virtual const MultiComponentState* weights( const MultiComponentState&, const MeasurementBase& ) const = 0;
- 
+  virtual const MultiComponentState* weights(const MultiComponentState&, const MeasurementBase&) const = 0;
 };
 
 } // end Trk namespace

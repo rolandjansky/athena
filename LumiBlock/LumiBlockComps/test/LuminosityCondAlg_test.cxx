@@ -16,6 +16,7 @@
 #include "CoolLumiUtilities/BunchGroupCondData.h"
 #include "CoolLumiUtilities/FillParamsCondData.h"
 #include "CoolLumiUtilities/OnlineLumiCalibrationCondData.h"
+#include "AthenaKernel/DummyRCUSvc.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "PersistentDataModel/AthenaAttributeList.h"
 #include "TestTools/initGaudi.h"
@@ -46,24 +47,6 @@ const std::pair<unsigned int, float> lumiCalibData[] =
    { 30, 0.239085 },
    { 40, 0.277113 },
    { 55, 0.361620 },
-};
-
-
-class TestRCUSvc
-  : public Athena::IRCUSvc
-{
-public:
-  virtual StatusCode remove (Athena::IRCUObject* /*obj*/) override
-  {
-    return StatusCode::SUCCESS;
-  }
-  virtual size_t getNumSlots() const override { return 1; }
-  virtual void add (Athena::IRCUObject* /*obj*/) override
-  { }
-
-  virtual unsigned long addRef() override { std::abort(); }
-  virtual unsigned long release() override { std::abort(); }
-  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override { std::abort(); }
 };
 
 
@@ -146,8 +129,6 @@ std::unique_ptr<CondAttrListCollection> make_run1_attrlist()
   al["LBAvInstLumi"].setValue (1.5f);
   al["LBAvEvtsPerBX"].setValue (10.5f);
   unsigned int valid = (42) << 22;
-  // Round up to next 100.
-  valid = ((valid+99)/100) * 100;
   al["Valid"].setValue (valid);
   attrs->add (0, al);
   return attrs;
@@ -243,7 +224,7 @@ void test1 (ISvcLocator* svcloc)
   alg.addRef();
   assert( alg.sysInitialize().isSuccess() );
 
-  TestRCUSvc rcu;
+  Athena_test::DummyRCUSvc rcu;
   
   DataObjID id1 ("testLumi");
   auto cc1 = std::make_unique<CondCont<CondAttrListCollection> > (rcu, id1);
@@ -301,7 +282,7 @@ void test2 (ISvcLocator* svcloc)
   alg.addRef();
   assert( alg.sysInitialize().isSuccess() );
 
-  TestRCUSvc rcu;
+  Athena_test::DummyRCUSvc rcu;
   
   DataObjID id1 ("testLumiRun1");
   auto cc1 = std::make_unique<CondCont<CondAttrListCollection> > (rcu, id1);
@@ -348,7 +329,7 @@ void test2 (ISvcLocator* svcloc)
   assert( data->lbAverageLuminosity() == 1.5 );
   assert( data->lbAverageInteractionsPerCrossing() == 10.5 );
   assert( (data->lbAverageValid() >> 22) == 42 );
-  assert( (data->lbAverageValid() % 100) == 0 );
+  assert( ((data->lbAverageValid()&0x3ff) % 100) == 0 );
   assert( data->muToLumi() == 2.5 );
 
   std::vector<float> vec = data->lbLuminosityPerBCIDVector();

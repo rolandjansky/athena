@@ -61,7 +61,6 @@ namespace InDet
 
     private:
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
-      mutable int                    m_overflowIBLToT;                                                                                          
       StatusCode update( IOVSVC_CALLBACK_ARGS );  
       dEdxID *m_mydedx;
       std::string m_filename;

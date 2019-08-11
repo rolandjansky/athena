@@ -23,7 +23,8 @@
 
 namespace InDet {
 
-  struct SiSpacePointsSeedMakerEventData {
+  class SiSpacePointsSeedMakerEventData {
+  public:
     enum ToolType {
       ATLxk,
       BeamGas,

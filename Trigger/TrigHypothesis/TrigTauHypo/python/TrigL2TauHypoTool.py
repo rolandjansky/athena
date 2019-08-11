@@ -6,10 +6,8 @@ def TrigL2TauHypoToolFromDict( chainDict ):
     chainPart = chainDict['chainParts'][0]
 
     part='calo'
-    threshold='25' # chainPart['threshold'] else not quite testing anything, leaving to experts
-    criteria= 'medium1' # likely chainPart['selection']
-    strategy='tracktwo' # do not know which chain property maps here, experts need to look
-    print "TrigL2TauHypoTool: name = ", name
+    threshold=chainPart['threshold']
+    strategy=chainPart['preselection']
 
     # Simple implementation of 2015 pre-selection
     #currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
@@ -25,7 +23,7 @@ def TrigL2TauHypoToolFromDict( chainDict ):
        theDetails  = [int(-1)]
        theFormulas = ['y > '+myThreshold]
 
-       if strategy =='calo' or strategy == 'caloonly' or strategy == 'tracktwocalo' or strategy == 'trackcalo':
+       if strategy in [ 'calo', 'ptonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'FTK', 'FTKRefit', 'FTKNoPrec' , 'tracktwoEFmvaTES' ]:
           # centFrac cut (detail #24: 2nd order fit, turn-off at ~ 55 GeV, 95% efficiency)
           theDetails += [24]
           theFormulas += ['x > (0.945 - (1.26e-05*TMath::Min(y, 50000.)) + (1.05e-10*TMath::Min(y, 50000.)*TMath::Min(y, 50000.)))']
@@ -36,9 +34,7 @@ def TrigL2TauHypoToolFromDict( chainDict ):
 
     return currentHypo
 
-
 def TrigTauHypoProvider( name, conf ):
-    from AthenaCommon.Constants import DEBUG
     """ Configure a b-jet hypo tool from chain name. """
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName

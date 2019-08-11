@@ -126,7 +126,7 @@ StatusCode SensorSimPlanarTool::initialize() {
   else if(m_fluence==1){
     ATH_MSG_INFO("Use benchmark point 1!");
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl0em10.root") );  //IBL  PL - Barrel
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );    //B-Layer - Barrel                                                                                                  
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl7e13.root") );    //B-Layer - Barrel                                                                                                  
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl3e13.root") );    //Layer-1 - Barrel
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl2e13.root") );    //Layer-2 - Barrel
 
@@ -136,7 +136,7 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_fluence_layers.push_back(2e13);
 
     m_voltage_layers.push_back(80);
-    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(250);
     m_voltage_layers.push_back(150);
     m_voltage_layers.push_back(150);
   }
@@ -144,8 +144,8 @@ StatusCode SensorSimPlanarTool::initialize() {
     ATH_MSG_INFO("Use benchmark point 2!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl1e14.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1.2e14.root") );                                                                                                            
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl5e13.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl1_2e14.root") );                                                                                                            
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_200V_fl0_5e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl3e13.root") );
 
     m_fluence_layers.push_back(1e14);
@@ -154,14 +154,14 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_fluence_layers.push_back(3e13);
 
     m_voltage_layers.push_back(80);
-    m_voltage_layers.push_back(150);
-    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(350);
+    m_voltage_layers.push_back(200);
     m_voltage_layers.push_back(150);
   }else if(m_fluence==3){
     ATH_MSG_INFO("Use benchmark point 3!");
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl2e14.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1.7e14.root") );                                                                                                            
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl7e13.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl1_7e14.root") );                                                                                                            
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_200V_fl0_7e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl4e13.root") );
 
     m_fluence_layers.push_back(2e14);
@@ -170,15 +170,15 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_fluence_layers.push_back(4e13);
 
     m_voltage_layers.push_back(80);
-    m_voltage_layers.push_back(150);
-    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(350);
+    m_voltage_layers.push_back(200);
     m_voltage_layers.push_back(150);
   }else if(m_fluence==4){
     ATH_MSG_INFO("Use benchmark point 4!");
 
     mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_150V_fl2e14.root") );
-    mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl1.7e14.root") );                                                                                                            
-    mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl7e13.root") );
+    mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl1_7e14.root") );                                                                                                            
+    mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_200V_fl0_7e14.root") );
     mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl4e13.root") );
 
     m_fluence_layers.push_back(2e14);
@@ -188,14 +188,14 @@ StatusCode SensorSimPlanarTool::initialize() {
 
     m_voltage_layers.push_back(150);
     m_voltage_layers.push_back(350);
-    m_voltage_layers.push_back(250);
+    m_voltage_layers.push_back(200);
     m_voltage_layers.push_back(150);
   }else if(m_fluence==5){
     ATH_MSG_INFO("Use benchmark point 5!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_350V_fl5e14.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl3.1e14.root") );                                                                                                            
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl1.3e14.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl3_1e14.root") );                                                                                                            
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_200V_fl1_3e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl8e13.root") );
 
     m_fluence_layers.push_back(5e14);
@@ -205,16 +205,15 @@ StatusCode SensorSimPlanarTool::initialize() {
 
     m_voltage_layers.push_back(350);
     m_voltage_layers.push_back(350);
-    m_voltage_layers.push_back(250);
+    m_voltage_layers.push_back(200);
     m_voltage_layers.push_back(150);
   }else if(m_fluence==6){
     ATH_MSG_INFO("Use benchmark point 6!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_400V_fl8_7e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_400V_fl4_6e14.root") );
-    
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl2_1e14.root") );
-    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_150V_fl1_3e14.root") );
+    mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl1_3e14.root") );
 
     m_fluence_layers.push_back(8.7e14);
     m_fluence_layers.push_back(4.6e14);
@@ -224,13 +223,12 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_voltage_layers.push_back(400);
     m_voltage_layers.push_back(400);
     m_voltage_layers.push_back(250);
-    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(250);
   }else if(m_fluence==7){
     ATH_MSG_INFO("Use benchmark point 7!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_endLHC.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_blayer_endLHC.root") );
-
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_L1_endLHC.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_L2_endLHC.root") );
 
@@ -239,10 +237,10 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_fluence_layers.push_back(2*2.1e14);
     m_fluence_layers.push_back(2*1.3e14);
 
-    m_voltage_layers.push_back(350);
-    m_voltage_layers.push_back(350);
+    m_voltage_layers.push_back(400);
+    m_voltage_layers.push_back(400);
     m_voltage_layers.push_back(250);
-    m_voltage_layers.push_back(150);
+    m_voltage_layers.push_back(250);
   }
  
     if(mapsPath_list.size()==0 ){

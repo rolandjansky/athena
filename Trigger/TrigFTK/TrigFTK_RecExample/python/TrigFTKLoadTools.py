@@ -6,13 +6,20 @@ jiri.masik@manchester.ac.uk
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
-# SiLorentzAngleTool for SCT
-from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
-sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
+from FTK_RecExample.FTKJobProperties import FTKFlags
 
-from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
-theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc",
-                                                 SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
-svcMgr += theFTK_DataProviderSvc
+if FTKFlags.doSmearing:
+    print " FTKFlags.doSmearing=True => Creating FTKFastDataProviderSvc as TrigFTK_DataProviderSvc"
+    from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTKFastDataProviderSvc
+    theFTK_DataProviderSvc = TrigFTKFastDataProviderSvc("TrigFTK_DataProviderSvc")
+    svcMgr += theFTK_DataProviderSvc
+else:
+    # SiLorentzAngleTool for SCT
+    from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
+    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 
-
+    print " Creating TrigFTK_DataProviderSvc"
+    from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
+    theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc",
+                                                     SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool)
+    svcMgr += theFTK_DataProviderSvc

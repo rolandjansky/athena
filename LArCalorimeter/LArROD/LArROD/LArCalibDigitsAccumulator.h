@@ -23,7 +23,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
-#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnlineID_Base.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArRawConditions/LArCalibParams.h"
  #include "LArRecConditions/LArCalibLineMapping.h"
@@ -54,7 +54,7 @@ public:
 private:
 
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibCablingKey","LArCalibLineMap","SG Key of LArCalibLineMapping object"};
-  const LArOnlineID* m_onlineHelper;
+  const LArOnlineID_Base* m_onlineHelper;
 
   typedef std::vector<LArAccumulatedCalibDigit*> ACCUMDIGIT_VEC;
   ACCUMDIGIT_VEC m_my_vec;
@@ -88,6 +88,11 @@ private:
    * @brief Tells you wether you keep only pulsed cells or all cells
    * */
   bool m_keepPulsed;
+
+ /** 
+   * @brief Tells you wether you run on SuperCells or Cells
+   * */
+  bool m_isSC;
 
  /** 
    * @brief Vector (index=hash ID) of accumulation quantities

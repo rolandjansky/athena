@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigTools/TrigMuonRoITools
                           PRIVATE
                           Control/AthenaKernel
+                          Control/AthenaMonitoring
                           DetectorDescription/IRegionSelector
                           Event/ByteStreamCnvSvcBase
                           GaudiKernel

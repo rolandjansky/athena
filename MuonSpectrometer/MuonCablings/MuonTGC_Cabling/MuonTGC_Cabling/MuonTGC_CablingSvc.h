@@ -334,8 +334,6 @@ class MuonTGC_CablingSvc : public ITGCcablingSvc
 					    int & pos, 
 					    bool middle=false) const;
 
-  virtual 
-    StatusCode updateCableASDToPP(IOVSVC_CALLBACK_ARGS_P(I, keys));
 
   /////////////////////////////////////////////////////////////
   // channel connection

@@ -42,7 +42,9 @@ def LArADC2MeVCondAlgDefault():
     else: # not MC:
         from LArRecUtils.LArFebConfigCondAlgDefault import LArFebConfigCondAlgDefault
         LArFebConfigCondAlgDefault()
-
-
+        if 'COMP200' in conddb.GetInstance(): # Run1 case
+            theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
+            theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
+        
     condSeq+=theADC2MeVCondAlg
     return theADC2MeVCondAlg

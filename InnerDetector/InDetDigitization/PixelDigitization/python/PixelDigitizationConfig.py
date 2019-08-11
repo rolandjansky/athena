@@ -57,23 +57,27 @@ def SensorSimTool(name="SensorSimTool", **kwargs):
 
 def FrontEndSimTool(name="FrontEndSimTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault("PixelConditionsSummaryTool", ToolSvc.PixelConditionsSummaryTool)
+    kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup.getTool())
     return CfgMgr.FrontEndSimTool(name, **kwargs)
 
 def BarrelRD53SimTool(name="BarrelRD53SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 0)
+    kwargs.setdefault("DoNoise", digitizationFlags.doInDetNoise.get_Value())
     return CfgMgr.RD53SimTool(name, **kwargs)
 
 def EndcapRD53SimTool(name="EndcapRD53SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 2)
+    kwargs.setdefault("DoNoise", digitizationFlags.doInDetNoise.get_Value())
     return CfgMgr.RD53SimTool(name, **kwargs)
 
 def BarrelFEI4SimTool(name="BarrelFEI4SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 0)
+    kwargs.setdefault("DoNoise", digitizationFlags.doInDetNoise.get_Value())
     return CfgMgr.FEI4SimTool(name, **kwargs)
 
 def DBMFEI4SimTool(name="DBMFEI4SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 4)
+    kwargs.setdefault("DoNoise", digitizationFlags.doInDetNoise.get_Value())
     return CfgMgr.FEI4SimTool(name, **kwargs)
 
 def BarrelFEI3SimTool(name="BarrelFEI3SimTool", **kwargs):

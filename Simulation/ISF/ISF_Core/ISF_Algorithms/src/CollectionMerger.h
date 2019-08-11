@@ -17,7 +17,6 @@
 #include "StoreGate/WriteHandleKey.h"
 
 // ATLAS C++
-#include "CxxUtils/make_unique.h"
 
 // SimHit EDM includes
 //    InnerDetector

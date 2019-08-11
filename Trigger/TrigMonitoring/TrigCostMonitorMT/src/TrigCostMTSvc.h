@@ -6,6 +6,7 @@
 #define TRIGCOSTMONITORMT_TRIGCOSTMTSVC_H
 
 #include <atomic>
+#include <shared_mutex>
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -80,10 +81,10 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
   private: 
 
-  Gaudi::Property<bool>      m_monitorAll{this, "MonitorAll", false, "Monitor every HLT event, e.g. for offline validation."};
-  Gaudi::Property<bool>      m_printTimes{this, "PrintTimes", false, "Sends per-algorithm timing to MSG::INFO."};
+  Gaudi::Property<bool>      m_monitorAllEvents{this, "MonitorAllEvents", false, "Monitor every HLT event, e.g. for offline validation."};
   Gaudi::Property<bool>      m_saveHashes{this, "SaveHashes", false, "Store a copy of the hash dictionary for easier debugging"};
-  Gaudi::Property<unsigned>  m_eventSlots{this, "EventSlots", 0,     "Number of concurrent processing slots."};
+  
+  size_t  m_eventSlots; //!< Number of concurrent processing slots. Cached from Gaudi
 
   /**
    * @return If the event is flagged as being monitored. Allows for a quick return if not
@@ -107,6 +108,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
 
   std::unique_ptr< std::atomic<bool>[] >  m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored.
+  std::unique_ptr< std::shared_mutex[] >  m_slotMutex; //!< Used to control and protect whole-table operations.
 
   TrigCostDataStore<AlgorithmPayload> m_algStartInfo; //!< Thread-safe store of algorithm start payload.
   TrigCostDataStore<TrigTimeStamp> m_algStopTime; //!< Thread-safe store of algorithm stop times.

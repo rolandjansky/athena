@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
-#include "ISF_Geant4UserActions/FastCaloSimParamActionTool.h"
+#include "FastCaloSimParamActionTool.h"
 #include "LArG4Code/ILArCalculatorSvc.h"
 #include "TileG4Interfaces/ITileCalculator.h"
 
@@ -101,7 +100,7 @@ namespace G4UA
   FastCaloSimParamActionTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a FastCaloSimParamAction");
-    auto action = CxxUtils::make_unique<FastCaloSimParamAction>(m_config);
+    auto action = std::make_unique<FastCaloSimParamAction>(m_config);
     actionList.runActions.push_back( action.get() );
     actionList.eventActions.push_back( action.get() );
     actionList.steppingActions.push_back( action.get() );

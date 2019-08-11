@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 """Run tests on G4PhysicsRegionConfig configuration
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
@@ -73,7 +74,4 @@ if __name__ == '__main__':
   cfg.store(f) 
   f.close()
 
-
-
-  print cfg._publicTools
   print "-----------------finished----------------------"

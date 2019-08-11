@@ -124,9 +124,6 @@ if DetFlags.detdescr.Calo_on():
 
 AOD_ItemList+=CaloClusterItemList
 
-if DetFlags.detdescr.Calo_on():
-   AOD_ItemList+=["MuonCaloEnergyContainer#MuonCaloEnergyCollection"]
-
 AOD_ItemList+=["CaloClusterContainer#Tau1P3PPi0ClusterContainer"]
 
 # TileCell

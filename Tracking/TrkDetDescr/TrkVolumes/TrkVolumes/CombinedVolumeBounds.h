@@ -17,6 +17,8 @@
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 
+
+
 class MsgStream;
 
 namespace Trk {
@@ -63,7 +65,7 @@ namespace Trk {
     virtual bool inside(const Amg::Vector3D&, double tol=0.) const override;
          
     /** Method to decompose the Bounds into boundarySurfaces */
-    virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces(const Amg::Transform3D& transform) const override;
+    virtual const std::vector<const Trk::Surface*>* decomposeToSurfaces (const Amg::Transform3D& transform) const override;
     
     /** Provide accessor for BoundarySurfaces */
     virtual

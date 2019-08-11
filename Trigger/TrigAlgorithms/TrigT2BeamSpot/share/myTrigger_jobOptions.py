@@ -100,7 +100,6 @@ doAtlfast  = False
 # Trigger Setup
 #-----------------
 doTrigger           = True
-TriggerModernConfig = True
 
 #-----------------------------------------------------------
 include("RecExCommon/RecExCommon_flags.py")

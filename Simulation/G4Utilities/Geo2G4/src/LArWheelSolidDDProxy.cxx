@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArWheelSolidDDProxy
@@ -10,56 +10,58 @@
 #include "LArWheelSolid.h"
 #include<iostream>
 
-LArWheelSolidDDProxy::LArWheelSolidDDProxy(LArWheelSolid* plws) :
-	m_plws(plws)
-	{}
+LArWheelSolidDDProxy::LArWheelSolidDDProxy(G4VSolid* plws) :
+    m_plws(plws)
+    {}
 
 LArWheelSolidDDProxy::~LArWheelSolidDDProxy() {}
 
 int LArWheelSolidDDProxy::Inside(const CLHEP::Hep3Vector& p) const {
-	return m_plws->Inside(p);
+    return m_plws->Inside(p);
 }
 
 double LArWheelSolidDDProxy::DistanceToIn(const CLHEP::Hep3Vector& p, const CLHEP::Hep3Vector& v) const {
-	return m_plws->DistanceToIn(p, v);
+    return m_plws->DistanceToIn(p, v);
 }
 
 double LArWheelSolidDDProxy::DistanceToIn(const CLHEP::Hep3Vector& p) const {
-	return m_plws->DistanceToIn(p);
+    return m_plws->DistanceToIn(p);
 }
 
 double LArWheelSolidDDProxy::DistanceToOut(const CLHEP::Hep3Vector& p, const CLHEP::Hep3Vector& v) const {
-	return m_plws->DistanceToOut(p, v);
+    return m_plws->DistanceToOut(p, v);
 }
 
 double LArWheelSolidDDProxy::DistanceToOut(const CLHEP::Hep3Vector& p) const {
-	return m_plws->DistanceToOut(p);
+    return m_plws->DistanceToOut(p);
 }
 
 CLHEP::Hep3Vector LArWheelSolidDDProxy::SurfaceNormal(const CLHEP::Hep3Vector& p) const {
-	return m_plws->SurfaceNormal(p);
+    return m_plws->SurfaceNormal(p);
 }
 
 CLHEP::Hep3Vector LArWheelSolidDDProxy::GetPointOnSurface() const {
-	return m_plws->GetPointOnSurface();
+    return m_plws->GetPointOnSurface();
 }
 
 double LArWheelSolidDDProxy::GetCubicVolume() {
-	return m_plws->GetCubicVolume();
+    return m_plws->GetCubicVolume();
 }
 
 double LArWheelSolidDDProxy::GetSurfaceArea() {
-	return m_plws->GetSurfaceArea();
+    return m_plws->GetSurfaceArea();
 }
 
 #ifdef DEBUG_LARWHEELSOLID
+
 void LArWheelSolidDDProxy::SetVerbose(int v) const
 {
-	m_plws->SetVerbose(v);
+    LArWheelSolid* s = dynamic_cast<LArWheelSolid*>(m_plws);
+    if(nullptr != s) s->SetVerbose(v);
 }
 #else
 void LArWheelSolidDDProxy::SetVerbose(int) const
 {
-	std::cerr << "DEBUG_LARWHEELSOLID is off" << std::endl;
+    std::cerr << "DEBUG_LARWHEELSOLID is off" << std::endl;
 }
 #endif

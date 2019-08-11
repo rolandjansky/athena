@@ -4,7 +4,7 @@ from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, Tri
 
 
 class L1TopoSimulationMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="L1TopoSimulation"):
+    def __init__ (self, name="L1TopoSimulationMonitoring"):
         super(L1TopoSimulationMonitoring, self).__init__(name)
 
         """ define monitoring histograms for L1Topo simulation"""

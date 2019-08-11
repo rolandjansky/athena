@@ -1336,9 +1336,11 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if( tp ) return tp;
     const Muon* muon = dynamic_cast<const Muon*>(&particle);
     if( muon ) {
+      ATH_MSG_DEBUG("muon with author "<<muon->author()<<" and pT "<<muon->pt());
       const TrackParticle* tp = 0;
-      if(muon->inDetTrackParticleLink().isValid()) tp = *muon->inDetTrackParticleLink();
-      if( !tp ) tp = muon->primaryTrackParticle();
+      //note: if STACO, the track particle has no Trk::Track associated, so use the ID track
+      if(muon->primaryTrackParticleLink().isValid() && muon->author()!=2) tp = *muon->primaryTrackParticleLink();
+      if( !tp) tp = *muon->inDetTrackParticleLink();
       if( !tp ) {
         ATH_MSG_WARNING(" No TrackParticle found for muon " );
         return 0;

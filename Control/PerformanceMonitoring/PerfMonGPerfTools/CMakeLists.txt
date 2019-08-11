@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel )
 
 # External dependencies:
-find_package( gperftools COMPONENTS tcmalloc profiler )
+find_package( gperftools COMPONENTS profiler )
 
 # tag use_gpt_profiler was not recognized in automatic conversion in cmt2cmake
 

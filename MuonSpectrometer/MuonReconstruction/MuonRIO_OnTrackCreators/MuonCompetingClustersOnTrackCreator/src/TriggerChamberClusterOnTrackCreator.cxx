@@ -78,8 +78,8 @@ TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Tr
     const Trk::TrkDetElementBase* detectorElement = (**prds.begin()).detectorElement();
     Identifier channelId	= (**prds.begin()).identify();
     const MuonIdHelper*	helper	= m_rpcIdHelper;
-    m_isRpc			= helper->is_rpc(channelId);
-    if (! m_isRpc)
+    bool isRpc			= helper->is_rpc(channelId);
+    if (! isRpc)
     {
 	if (m_tgcIdHelper->is_tgc(channelId))
 	{
@@ -92,15 +92,15 @@ TriggerChamberClusterOnTrackCreator::createBroadCluster(const std::list<const Tr
 	}
     }
 
-    bool measuresPhi = m_isRpc && m_rpcIdHelper->measuresPhi(channelId);
-    if (! m_isRpc) measuresPhi = m_tgcIdHelper->isStrip(channelId);
+    bool measuresPhi = isRpc && m_rpcIdHelper->measuresPhi(channelId);
+    if (! isRpc) measuresPhi = m_tgcIdHelper->isStrip(channelId);
     for (std::list<const Trk::PrepRawData*>::const_iterator p = prds.begin();
 	 p != prds.end();
 	 ++p)
     {
 	channelId = (**p).identify();
-	if ((m_isRpc		&& m_rpcIdHelper->measuresPhi(channelId)	!= measuresPhi)
-	    || (! m_isRpc	&& m_tgcIdHelper->isStrip(channelId)		!= measuresPhi))
+	if ((isRpc      && m_rpcIdHelper->measuresPhi(channelId)	!= measuresPhi)
+	    || (! isRpc	&& m_tgcIdHelper->isStrip(channelId)		!= measuresPhi))
 	{
 	    ATH_MSG_WARNING("fails: PRDs must measure same coordinate ");
 	    return 0;
@@ -227,8 +227,10 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
 	usedPrd.push_back(*p);
 	int channel	= 0;
 	int gasGap	= 0;
+        const MuonIdHelper* helper = m_rpcIdHelper;
 	Identifier channelId = (**p).identify();
-	if (m_isRpc)
+        bool isRpc = helper->is_rpc(channelId);
+	if (isRpc)
 	{
 	    gasGap	= m_rpcIdHelper->gasGap(channelId);
 	    channel	= m_rpcIdHelper->strip(channelId);
@@ -250,10 +252,10 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
 	     ++q, ++s)
 	{
 	    channelId = (**q).identify();
-	    if ((     m_isRpc && m_rpcIdHelper->gasGap(channelId)	!= gasGap)
-		|| (! m_isRpc && m_tgcIdHelper->gasGap(channelId)	!= gasGap)) continue;
+	    if ((     isRpc && m_rpcIdHelper->gasGap(channelId)	!= gasGap)
+		|| (! isRpc && m_tgcIdHelper->gasGap(channelId)	!= gasGap)) continue;
 	    usedPrd.push_back(*q);
-	    if (m_isRpc)
+	    if (isRpc)
 	    {
 		channel	= m_rpcIdHelper->strip(channelId);
 	    }
@@ -282,6 +284,7 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
     // debug
     if ( msgLvl(MSG::VERBOSE) )
     {
+        const MuonIdHelper* helper = m_rpcIdHelper;        
 	std::list<int>::const_iterator l = limitingChannels.begin();
 	std::list<int>::const_iterator m = limitingChannels.begin();
 	int number	= 0;
@@ -291,7 +294,8 @@ TriggerChamberClusterOnTrackCreator::makeClustersBySurface(
 	     ++q, --size)
 	{
 	    Identifier channelId = (**q).identify();
-	    if (m_isRpc)
+            bool isRpc = helper->is_rpc(channelId);
+	    if (isRpc)
 	    {
 		int stationIndex	= m_rpcIdHelper->stationName(channelId);
 		ATH_MSG_VERBOSE(" rpc "  
@@ -348,6 +352,9 @@ TriggerChamberClusterOnTrackCreator::makeOverallParameters(
     Amg::Vector3D centre		= (**r).associatedSurface().center();
     Amg::MatrixX covariance	= (**r).localCovariance();
     parameters				= new Trk::LocalParameters((**r).localParameters());
+    const MuonIdHelper* helper = m_rpcIdHelper;
+    Identifier channelId = (**r).identify();
+    bool isRpc = helper->is_rpc(channelId);
     
     int pair = 1;
     for (++r;
@@ -366,7 +373,7 @@ TriggerChamberClusterOnTrackCreator::makeOverallParameters(
     if (limitingRots.size() > 2)
     {
 	int offset	= abs(*(++l) - firstChannel);
-	if (! m_isRpc && offset < 2)
+	if (! isRpc && offset < 2)
 	{
 	    width *= 0.5;
 	}

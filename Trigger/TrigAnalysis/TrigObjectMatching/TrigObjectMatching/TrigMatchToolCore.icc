@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -332,18 +332,16 @@ TrigMatchToolCore::chainsPassedByObject( const baseType* baseObject,
                                          float maxDistance,
                                          const DistanceFunctor< trigType, baseType >* metric) {
 
-   // make sure configuredChainNames is up to date
-   this->assertConfiguredChainNames();
-
    // loop through all chains and check if there are any features
    // matching the passed object
    std::vector< std::string > passedChains;
 
-   for (size_t i = 0; i < m_nConfiguredChainNames; i++) {
+   std::vector< std::string > configuredChains = m_chainNameIndex.configuredChainNames();
+   for (size_t i = 0; i < configuredChains.size(); i++) {
       if( this->chainPassedByObject< trigType, baseType >( baseObject,
                                                            i,
                                                            maxDistance, metric ) ) {
-         passedChains.push_back( m_chainNames[i] );
+         passedChains.push_back( configuredChains[i] );
       }
    }
 
@@ -407,15 +405,11 @@ TrigMatchToolCore::matchToAllTriggerObjects( const baseType* baseObject,
                                              bool onlyPassedFeatures,
                                              const DistanceFunctor< trigType, baseType >* metric ) {
 
-   // make sure configuredChainNames is up to date
-   this->assertConfiguredChainNames();
-
    // build map for storing matching trigger objects
    std::map< const trigType*, std::vector< std::string > > matchMap;
 
    // loop through all configured chains
-   for (size_t i = 0; i < m_nConfiguredChainNames; i++) {
-      const std::string& chainName = m_chainNames[i];
+   for (const std::string& chainName : m_chainNameIndex.configuredChainNames()){
       // grab the matching objects from this chain
       std::vector< const trigType* > matchedObjects = 
          this->matchToTriggerObjects< trigType, baseType >(
@@ -473,8 +467,6 @@ void TrigMatchToolCore::getObjects( std::vector< const trigType* >& objects,
          // its not in the cache, so build it normally and add it to the cache
          const typename TrigMatch::ClassTraits<trigType>::type* traits = 0;
 
-         this->assertConfiguredChainNames();
-
          // try it directly first
          const Trig::FeatureContainer& trigContainer =
            this->getCachedFeatureContainer( chainIndex );
@@ -482,7 +474,7 @@ void TrigMatchToolCore::getObjects( std::vector< const trigType* >& objects,
 
          // if the chain is propagatable, and nothing has been found, try that
          if( objects.size() == 0 ) {
-            const std::string& chainName = m_chainNames[chainIndex];
+            std::string chainName = m_chainNameIndex.chainName(chainIndex);
             const std::string propagatedName = this->propagateChainNames( chainName, traits );
             if( propagatedName != chainName ) {
                size_t propagatedIndex = this->chainNameToIndex (propagatedName);
@@ -497,8 +489,7 @@ void TrigMatchToolCore::getObjects( std::vector< const trigType* >& objects,
    }
 
    // can't use the cache, so just run it normally
-   this->assertConfiguredChainNames();
-   const std::string& chainName = m_chainNames[chainIndex];
+   std::string chainName = m_chainNameIndex.chainName(chainIndex);
 
    const typename TrigMatch::ClassTraits<trigType>::type* traits = 0;
    const Trig::FeatureContainer trigContainer =
@@ -512,7 +503,7 @@ template< typename trigType >
 void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
                                         const Trig::FeatureContainer& featureContainer,
                                         bool onlyPassedFeatures,
-                                        const TrigMatch::DirectAttached* ) {
+                                        const TrigMatch::DirectAttached* ) const {
 
    const std::vector< Trig::Feature< trigType > > trigFeatures =
       featureContainer.get< trigType >( m_featureLabel, 
@@ -539,7 +530,7 @@ template< typename trigType, typename contType >
 void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
                                         const Trig::FeatureContainer& featureContainer,
                                         bool onlyPassedFeatures,
-                                        const contType* ) {
+                                        const contType* ) const {
 
    // collect the container features from the navigation
    std::vector< const contType* > contObjects;
@@ -564,7 +555,7 @@ template< typename trigType >
 void TrigMatchToolCore::collectObjects( std::vector< const trigType* >& objects,
                                         const Trig::FeatureContainer& featureContainer,
                                         bool onlyPassedFeatures,
-                                        const TrigMatch::AncestorAttached* ) {
+                                        const TrigMatch::AncestorAttached* ) const {
 
    // first, try to grab them straight from the TDT
    const typename TrigMatch::DirectAttached* directAttached = 0;

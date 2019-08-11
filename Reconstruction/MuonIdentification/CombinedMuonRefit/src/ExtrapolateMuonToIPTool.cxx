@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@ ExtrapolateMuonToIPTool::ExtrapolateMuonToIPTool(const std::string& t, const std
   m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   m_nextrapolations(0),
-  //m_ngoodExtrapolations(0),
   m_failedClosestPars(0),
   m_failedExtrapolationLowMom(0),
   m_failedExtrapolationHighMom(0),

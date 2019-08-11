@@ -173,6 +173,7 @@ else:
         # AutoConfiguration enabled
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         athenaCommonFlags.FilesInput=vp1InputFiles
+        
         from RecExConfig.RecFlags import rec
         rec.AutoConfiguration=['everything']
         rec.doAOD.set_Value_and_Lock(False)
@@ -183,8 +184,8 @@ else:
             from AthenaCommon.GlobalFlags import globalflags
             globalflags.DetDescrVersion.set_Value_and_Lock(DetDescrVersion)
 
+        athenaCommonFlags.EvtMax=-1
         include('RecExCond/RecExCommon_flags.py')
-        theApp.EvtMax = -1
 
         # Override global conditions tag from command line
         if('vp1GlobCond' in dir()):

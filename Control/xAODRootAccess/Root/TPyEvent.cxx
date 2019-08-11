@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TPyEvent.cxx 649835 2015-02-26 08:19:01Z krasznaa $
@@ -82,7 +82,10 @@ namespace xAOD {
    /// @param splitLevel The split level of the branch created
    /// @returns The usual xAOD::TReturnCode types
    ///
-   TReturnCode TPyEvent::record( void* obj, const std::string& key,
+   /// The dum argument is to ensure that the calling signature for this method
+   /// is distinct from TEvent::record.  Otherwise, pyroot may call the wrong one.
+   ///
+   TReturnCode TPyEvent::record( int /*dum*/, void* obj, const std::string& key,
                                  const std::string& type,
                                  ::Int_t basketSize, ::Int_t splitLevel ) {
 

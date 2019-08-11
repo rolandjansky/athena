@@ -3,6 +3,8 @@
 */
 
 #include "LArROD/LArCalibDigitsAccumulator.h"
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <math.h>
@@ -12,18 +14,14 @@ using CLHEP::ns;
 
 LArCalibDigitsAccumulator::LArCalibDigitsAccumulator (const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
-  m_onlineHelper(0),
-  m_calibAccuDigitContainerName("LArAccumulatedCalibDigits"),
-  m_nStepTrigger(1),
-  m_delayScale(1*ns),
-  m_keepPulsed(false)
+  m_onlineHelper(0)
 {
-  declareProperty("LArAccuCalibDigitContainerName",m_calibAccuDigitContainerName);
+  declareProperty("LArAccuCalibDigitContainerName",m_calibAccuDigitContainerName, "LArAccumulatedCalibDigits");
   declareProperty("KeyList",m_keylist);
-  declareProperty("StepOfTriggers",m_nStepTrigger);
-  declareProperty("DelayScale",m_delayScale);
-  declareProperty("KeepOnlyPulsed",m_keepPulsed);
-
+  declareProperty("StepOfTriggers",m_nStepTrigger=1);
+  declareProperty("DelayScale",m_delayScale=1*ns);
+  declareProperty("KeepOnlyPulsed",m_keepPulsed=false);
+  declareProperty("isSC",m_isSC=false);
   m_delay=-1;
   m_event_counter=0;
 }
@@ -32,7 +30,28 @@ LArCalibDigitsAccumulator::LArCalibDigitsAccumulator (const std::string& name, I
 StatusCode LArCalibDigitsAccumulator::initialize(){
   
   // retrieve online ID helper
-  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  StatusCode sc;
+  if(m_isSC){
+     const LArOnline_SuperCellID *scid;
+     sc = detStore()->retrieve(scid, "LArOnline_SuperCellID");
+     if (sc.isFailure()) {
+        ATH_MSG_ERROR( "Could not get LArOnline_SuperCellID helper !" );
+        return sc;
+     } else {
+        m_onlineHelper = (const LArOnlineID_Base*)scid;
+        ATH_MSG_DEBUG("Found the LArOnlineID helper");
+     }
+  } else { 
+     const LArOnlineID* ll;
+     sc = detStore()->retrieve(ll, "LArOnlineID");
+     if (sc.isFailure()) {
+        ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+        return sc;
+     } else {
+        m_onlineHelper = (const LArOnlineID_Base*)ll;
+        ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+     }
+  } //m_isSC
 
   ATH_CHECK( m_calibMapKey.initialize() );
 

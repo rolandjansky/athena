@@ -6,7 +6,7 @@
 atlas_subdir( AthenaConfiguration )
 
 # External dependencies:
-
+find_package( six )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/iconfTool )
@@ -48,3 +48,10 @@ endif()
 atlas_add_test( flake8
    SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
    POST_EXEC_SCRIPT nopost.sh )
+
+
+# Test AppendToGlobal
+atlas_add_test( appendToGlobalTest
+		SCRIPT athena.py testAppendToGlobals.py
+		ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share::$ENV{JOBOPTSEARCHPATH}"
+		POST_EXEC_SCRIPT nopost.sh )

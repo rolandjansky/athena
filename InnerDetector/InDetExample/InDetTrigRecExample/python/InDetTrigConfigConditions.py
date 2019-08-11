@@ -136,7 +136,6 @@ class PixelConditionsServicesSetup:
       TrigPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON' ]
       TrigPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING' ]
 
-    ToolSvc += TrigPixelConditionsSummaryTool
     self.summaryTool = TrigPixelConditionsSummaryTool
 
     if self._print: print TrigPixelConditionsSummaryTool
@@ -497,7 +496,12 @@ class TRTConditionsServicesSetup:
 
     if not (conddb.folderRequested('/TRT/Calib/errors') or conddb.folderRequested('/TRT/Onl/Calib/errors')):
       conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors",className='TRTCond::RtRelationMultChanContainer')
-      # not needed anymore conddb.addOverride('/TRT/Onl/Calib/errors','TrtCalibErrorsOnl-ErrorVal-00-00')
+
+    if not (conddb.folderRequested('/TRT/Calib/errors2d') or conddb.folderRequested('/TRT/Onl/Calib/errors2d')):
+      conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d",className='TRTCond::RtRelationMultChanContainer')
+
+    if not (conddb.folderRequested('/TRT/Calib/slopes') or conddb.folderRequested('/TRT/Onl/Calib/slopes')):
+      conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes",className='TRTCond::RtRelationMultChanContainer')
 
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className='CondAttrListCollection')
@@ -525,19 +529,18 @@ class TRTConditionsServicesSetup:
     if not conddb.folderRequested('/TRT/Cond/StatusHT'):
       conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
-    # Straw status tool
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
-    InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
-                                                            isGEANT4 = self._isMC)
+    # Straw status tool (now private, cannot be passed by name)
+    from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
+    
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
-                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool,
+                                      TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
                                       isGEANT4 = self._isMC)
     # Active Fraction algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTActiveCondAlg
     TRTActiveCondAlg = TRTActiveCondAlg(name = "TRTActiveCondAlg",
-                                      TRTStrawStatusSummaryTool = InDetTRTStrawStatusSummaryTool)
+                                      TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
 
 
     # HT probability algorithm

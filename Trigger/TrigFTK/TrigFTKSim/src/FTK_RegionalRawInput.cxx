@@ -7,7 +7,6 @@
 #include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTKRoadFileInput.h"
 #include "TrigFTKSim/FTK_RegionalRawInput.h"
-#include "TrigFTKSim/atlClustering.h"
 #include "TrigFTKSim/MultiTruth.h"
 #include "TrigFTKSim/PatternBank.h"
 
@@ -32,7 +31,7 @@ using namespace std;
 FTK_RegionalRawInput::FTK_RegionalRawInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused,bool readTruthTracks) :
   FTKDataInput(pmap,pmap_unused),
   m_curfile(0x0),
-  m_hittree(0), m_hittree_branch(0), m_evtnum(0), m_evtnumE(0), m_evtinfo(0), m_trackstree(0), 
+  m_hittree(0), m_hittree_branch(0), m_evtnum(0), m_evtnumE(0), m_evtinfo(0), m_trackstree(0),
   m_glob_event(0), m_ntruth_tracks(0),m_readTruthTracks(readTruthTracks),m_truthTracksTree(0)
 {
   m_regional = true;
@@ -40,17 +39,17 @@ FTK_RegionalRawInput::FTK_RegionalRawInput(const FTKPlaneMap *pmap, const FTKPla
 
 FTK_RegionalRawInput::FTK_RegionalRawInput(const FTK_RegionalRawInput& v) :
   FTKDataInput(v),
-  m_curfile(v.m_curfile), 
-  m_hittree(0), m_hittree_branch(0), m_evtnum(0), m_evtnumE(0), m_evtinfo(0), m_trackstree(0), 
+  m_curfile(v.m_curfile),
+  m_hittree(0), m_hittree_branch(0), m_evtnum(0), m_evtnumE(0), m_evtinfo(0), m_trackstree(0),
   m_glob_event(v.m_glob_event), m_ntruth_tracks(0),m_readTruthTracks(v.m_readTruthTracks),m_truthTracksTree(0)
-{ 
+{
   m_regional = true;
 }
 
 FTK_RegionalRawInput::~FTK_RegionalRawInput()
 {
   if(m_trackinput) {
-    for(int i=0;i<m_nregions;i++) 
+    for(int i=0;i<m_nregions;i++)
       {
 	if (i!=m_region) continue;
 	delete m_trackinput[i];
@@ -58,7 +57,7 @@ FTK_RegionalRawInput::~FTK_RegionalRawInput()
     delete[] m_trackinput;
   }
   if(m_roadinput) {
-    for(int i=0;i<m_nregions;i++) 
+    for(int i=0;i<m_nregions;i++)
       {
 	if (i!=m_region) continue;
 	delete m_roadinput[i];
@@ -95,7 +94,7 @@ int FTK_RegionalRawInput::addFilesList(const char *listpath)
       // comment, skip tis line
       continue;
     }
-    else if (line.size()==0) { 
+    else if (line.size()==0) {
       // empty line, skip
       continue;
     }
@@ -124,7 +123,7 @@ int FTK_RegionalRawInput::addTrackFile(int bank, const char *path) {
 */
 int FTK_RegionalRawInput::addTrackFilesList(int bank, const char *listpath) {
   cout << "in addFilesList_trk" << endl;
-  if(!m_trackinput || !m_trackinput[bank]) 
+  if(!m_trackinput || !m_trackinput[bank])
     {
       return -1;
     }
@@ -146,7 +145,7 @@ int FTK_RegionalRawInput::addRoadFile(int bank, const char *path) {
   int res = access(path,R_OK);
   if(res) return -1;
   if(!m_roadinput || !m_roadinput[bank]) return -1;
-  return m_roadinput[bank]->addFile(path);  
+  return m_roadinput[bank]->addFile(path);
 }
 
 /**
@@ -154,7 +153,7 @@ int FTK_RegionalRawInput::addRoadFile(int bank, const char *path) {
 */
 int FTK_RegionalRawInput::addRoadFilesList(int bank, const char *listpath) {
   cout << "in addFilesList_rd" << endl;
-  if(!m_roadinput || !m_roadinput[bank]) 
+  if(!m_roadinput || !m_roadinput[bank])
     {
       return -1;
     }
@@ -170,13 +169,13 @@ const char* FTK_RegionalRawInput::getCurrentRoadFileName(int bank) {
 }
 
 
-/** this method move to the next file in the list and 
+/** this method move to the next file in the list and
     reset the related flag */
 int FTK_RegionalRawInput::nextFile()
 {
    if (m_read_FTKhits_directly) FTKSetup::PrintMessageFmt(ftk::info,"Reading hits in directly as FTKHits, skipping FTKRawHits.\n");
 
-   if (!m_init) { 
+   if (!m_init) {
     m_current_path = m_files_path.begin();
     m_init = true;
    }
@@ -239,7 +238,7 @@ int FTK_RegionalRawInput::nextFile()
        return 0;
     }
   }
-  
+
   FTKSetup::PrintMessage(ftk::warn,"End of files list reached\n");
   return -1;
 }
@@ -247,7 +246,7 @@ int FTK_RegionalRawInput::nextFile()
 /** initilize the input */
 int FTK_RegionalRawInput::init(bool *goodRegions)
 {
-  // setup clustering 
+  // setup clustering
   initClustering();
 
   // set the region to read and the ones to be skipped
@@ -255,7 +254,7 @@ int FTK_RegionalRawInput::init(bool *goodRegions)
   for (int ireg=0;ireg!=m_nregions;++ireg) {
     m_goodRegions[ireg] = goodRegions[ireg];
   }
-  
+
   // prepare the objects read the file
   m_hittree_branch = new TBranch*[m_nregions];
   m_original_reghits = new vector<FTKRawHit>*[m_nregions];
@@ -322,7 +321,7 @@ int FTK_RegionalRawInput::readData() {
   int res(0);
 
   do {
-     if (m_evtnum==m_evtnumE) { 
+     if (m_evtnum==m_evtnumE) {
         // reached last event go to the next file
         if (nextFile()==-1) {
            // read failed, attempt to use the next file
@@ -330,7 +329,7 @@ int FTK_RegionalRawInput::readData() {
         }
         res = 1;
      }
-     
+
      for (int ireg=0;ireg!=m_nregions;++ireg) {
         if (!m_goodRegions[ireg]) continue;
         // read the hits related to this tower

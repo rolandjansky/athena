@@ -18,11 +18,8 @@ TrigEFTauMVHypoAlgMT::~TrigEFTauMVHypoAlgMT() {}
 
 StatusCode TrigEFTauMVHypoAlgMT::initialize() {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
-
   ATH_CHECK( m_hypoTools.retrieve() );
-  std::cout << "After m_hypoTools.retrieve() " << std::endl;
   ATH_CHECK( m_tauJetKey.initialize() );
-  std::cout << "After m_clusterKey.initialize() " << std::endl;
   renounce( m_tauJetKey );// tau candidates are made in views, so they are not in the EvtStore: hide them
 
   return StatusCode::SUCCESS;
@@ -40,7 +37,7 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
     return StatusCode::SUCCESS;      
   }
   
-  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
 
   // new decisions
 
@@ -52,8 +49,9 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
   std::vector<ITrigEFTauMVHypoTool::TauJetInfo> toolInput;
 
   // loop over previous decisions
-  size_t counter=0;
+  int counter=-1;
   for ( auto previousDecision: *previousDecisionsHandle ) {
+    counter++;
     //get RoI
     auto roiELInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI");
     ATH_CHECK( roiELInfo.isValid() );
@@ -62,46 +60,42 @@ StatusCode TrigEFTauMVHypoAlgMT::execute( const EventContext& context ) const {
     // get View
     auto viewELInfo = TrigCompositeUtils::findLink< ViewContainer >( previousDecision, "view" );
     ATH_CHECK( viewELInfo.isValid() );
-    auto clusterHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_tauJetKey, context);
-    ATH_CHECK( clusterHandle.isValid() );
-    ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
+    auto tauJetHandle = ViewHelper::makeHandle( *(viewELInfo.link), m_tauJetKey, context);
+    
+    if( not tauJetHandle.isValid() ) {
+      ATH_MSG_WARNING("Something is wrong, missing tau jets, continuing anyways skipping view");
+      continue;      
+    }
+    ATH_MSG_DEBUG ( "TauJet handle size: " << tauJetHandle->size() << "..." );
 
-    auto el = ViewHelper::makeLink( *(viewELInfo.link), clusterHandle, 0 );
-    ATH_MSG_DEBUG( name() << " running with store " << context.getExtension<Atlas::ExtendedEventContext>().proxy()->name() );
+    if( tauJetHandle->size() != 1 ) {
+      ATH_MSG_WARNING("Something is wrong, unexpectd number of tau jets " << tauJetHandle->size() << " is found (expected 1), continuing anyways skipping view");
+      continue;
+    }
 
-    ATH_MSG_DEBUG("Event store dump: " << evtStore()->dump() );
-    ATH_CHECK( el.isValid() );
     // create new decision
     auto d = newDecisionIn( decisions, name() );
-    d->setObjectLink( "feature",  el );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
     d->setObjectLink( "roi", roiELInfo.link );
-    toolInput.emplace_back( d, roi, clusterHandle.cptr(), previousDecision );
 
-     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
-     counter++;
+    auto el = ViewHelper::makeLink( *(viewELInfo.link), tauJetHandle, 0 );
+    ATH_CHECK( el.isValid() );
+    d->setObjectLink( "feature",  el );
+
+    toolInput.emplace_back( d, roi, tauJetHandle.cptr(), previousDecision );
+
+    ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
 
   }
 
-  ATH_MSG_DEBUG( "Found "<<toolInput.size()<<" inputs to tools");
+  ATH_MSG_DEBUG( "Found " << toolInput.size() << " inputs to tools");
 
    
   for ( auto& tool: m_hypoTools ) {
     ATH_CHECK( tool->decide( toolInput ) );
   }
  
-  {// make output handle and debug
-    ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {
-      for ( auto decisionObject: *outputHandle )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-    }
-  }
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
   return StatusCode::SUCCESS;
 }

@@ -18,6 +18,7 @@ def createLArConfigFlags():
 
     lcf.addFlag("LAr.doCellNoiseMasking",True)
     lcf.addFlag("LAr.doCellSporadicNoiseMasking",True)
+    
     # Include MC shape folder
     lcf.addFlag("LAr.UseMCShape", True)
     # Include Mphys pulse calibration folder
@@ -28,7 +29,7 @@ def createLArConfigFlags():
     lcf.addFlag("LAr.ElecCalibSqlite", "")
     # Load Electronic Calibration constants
     lcf.addFlag("LAr.LoadElecCalib", True)
-    # Folder name for Optimal Filtering coefficients
+    # Folder name for Optimal Filtering coefficients (empty means default)
     lcf.addFlag("LAr.OFCShapeFolder", "")
     # Load conditions with this `run-number' string
     lcf.addFlag("LAr.ForceIOVRunNumber", "")

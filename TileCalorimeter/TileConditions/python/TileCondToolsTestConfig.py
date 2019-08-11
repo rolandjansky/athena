@@ -24,6 +24,64 @@ def TileCondToolsTestCfg(flags):
     badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
     msg.info(badChanTool)
 
+    from TileMuIDConfig import TileCondToolMuIDCfg
+    muIDTool = acc.popToolsAndMerge( TileCondToolMuIDCfg(flags) )
+    msg.info(muIDTool)
+
+    from TileIntegratorConfig import TileCondToolIntegratorCfg
+    integratorTool = acc.popToolsAndMerge( TileCondToolIntegratorCfg(flags) )
+    msg.info(integratorTool)
+
+    from TileTimingConfig import TileCondToolTimingCfg
+    timingTool = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
+    msg.info(timingTool)
+
+    from TileTimingConfig import TileCondToolOnlineTimingCfg
+    onlineTimingTool = acc.popToolsAndMerge( TileCondToolOnlineTimingCfg(flags) )
+    msg.info(onlineTimingTool)
+
+    from TileOFCConfig import TileCondToolOfcCoolCfg
+    ofcCoolTool = acc.popToolsAndMerge( TileCondToolOfcCoolCfg(flags) )
+    msg.info(ofcCoolTool)
+
+    from TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
+    if flags.Common.isOnline:
+        accSampleNoise = TileCondToolNoiseSampleCfg(flags)
+    else:
+        accSampleNoise = TileCondToolNoiseSampleCfg(flags, 
+                                                    TileSampleNoise = 'TileSampleNoise',
+                                                    TileOnlineSampleNoise = 'TileOnlineSampleNoise')
+
+    sampleNoiseTool = acc.popToolsAndMerge( accSampleNoise )
+    msg.info(sampleNoiseTool)
+
+    if flags.IOVDb.DatabaseInstance  == 'CONDBR2':
+        from TileTMDBConfig import TileCondToolTMDBCfg
+        tmdbTool = acc.popToolsAndMerge( TileCondToolTMDBCfg(flags) )
+        msg.info(tmdbTool)
+
+        from TileDSPThresholdConfig import TileCondToolDspThresholdCfg
+        dspThrTool = acc.popToolsAndMerge( TileCondToolDspThresholdCfg(flags) )
+        msg.info(dspThrTool)
+
+    if not (flags.IOVDb.DatabaseInstance  == 'CONDBR2' and flags.Common.isOnline):
+        from TilePulseShapeConfig import TileCondToolPulseShapeCfg
+        pulseShapeTool = acc.popToolsAndMerge( TileCondToolPulseShapeCfg(flags) )
+        msg.info(pulseShapeTool)
+
+        from TilePulseShapeConfig import TileCondToolMuRcvPulseShapeCfg
+        muRcvPulseShapeTool = acc.popToolsAndMerge( TileCondToolMuRcvPulseShapeCfg(flags) )
+        msg.info(muRcvPulseShapeTool)
+
+        from TileAutoCorrelationConfig import TileCondToolAutoCrCfg
+        autoCorrelationTool = acc.popToolsAndMerge( TileCondToolAutoCrCfg(flags) )
+        msg.info(autoCorrelationTool)
+
+        from TileOFCConfig import TileCondToolOfcCfg
+        ofcTool = acc.popToolsAndMerge( TileCondToolOfcCfg(flags) )
+        msg.info(ofcTool)
+
+
     if not (flags.Input.isMC or flags.Common.isOnline):
         from TileConditions.TileDCSConfig import TileDCSToolCfg
         dcsTool = acc.popToolsAndMerge( TileDCSToolCfg(flags) )

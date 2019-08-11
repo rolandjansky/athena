@@ -128,63 +128,63 @@ public:
   virtual SurfaceType type() const override { return Surface::Plane; }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
-  virtual const ParametersT<5, Charged, PlaneSurface>* createTrackParameters(double l1,
-                                                                             double l2,
-                                                                             double phi,
-                                                                             double theta,
-                                                                             double qop,
-                                                                             AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Charged, PlaneSurface>* createTrackParameters(double l1,
+                                                                       double l2,
+                                                                       double phi,
+                                                                       double theta,
+                                                                       double qop,
+                                                                       AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Charged, PlaneSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - charged*/
-  virtual const ParametersT<5, Charged, PlaneSurface>* createTrackParameters(const Amg::Vector3D& position,
-                                                                             const Amg::Vector3D& momentum,
-                                                                             double charge,
-                                                                             AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Charged, PlaneSurface>* createTrackParameters(const Amg::Vector3D& position,
+                                                                       const Amg::Vector3D& momentum,
+                                                                       double charge,
+                                                                       AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Charged, PlaneSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters - neutral */
-  virtual const ParametersT<5, Neutral, PlaneSurface>* createNeutralParameters(double l1,
-                                                                               double l2,
-                                                                               double phi,
-                                                                               double theta,
-                                                                               double oop,
-                                                                               AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Neutral, PlaneSurface>* createNeutralParameters(double l1,
+                                                                         double l2,
+                                                                         double phi,
+                                                                         double theta,
+                                                                         double oop,
+                                                                         AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Neutral, PlaneSurface>(l1, l2, phi, theta, oop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
-  virtual const ParametersT<5, Neutral, PlaneSurface>* createNeutralParameters(const Amg::Vector3D& position,
-                                                                               const Amg::Vector3D& momentum,
-                                                                               double charge = 0.,
-                                                                               AmgSymMatrix(5) * cov = 0) const override
+  virtual ParametersT<5, Neutral, PlaneSurface>* createNeutralParameters(const Amg::Vector3D& position,
+                                                                         const Amg::Vector3D& momentum,
+                                                                         double charge = 0.,
+                                                                         AmgSymMatrix(5) * cov = 0) const override
   {
     return new ParametersT<5, Neutral, PlaneSurface>(position, momentum, charge, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from local parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, PlaneSurface>* createParameters(double l1,
-                                                            double l2,
-                                                            double phi,
-                                                            double theta,
-                                                            double qop,
-                                                            AmgSymMatrix(DIM) * cov = 0) const
+  ParametersT<DIM, T, PlaneSurface>* createParameters(double l1,
+                                                      double l2,
+                                                      double phi,
+                                                      double theta,
+                                                      double qop,
+                                                      AmgSymMatrix(DIM) * cov = 0) const
   {
     return new ParametersT<DIM, T, PlaneSurface>(l1, l2, phi, theta, qop, *this, cov);
   }
 
   /** Use the Surface as a ParametersBase constructor, from global parameters */
   template<int DIM, class T>
-  const ParametersT<DIM, T, PlaneSurface>* createParameters(const Amg::Vector3D& position,
-                                                            const Amg::Vector3D& momentum,
-                                                            double charge,
-                                                            AmgSymMatrix(DIM) * cov = 0) const
+  ParametersT<DIM, T, PlaneSurface>* createParameters(const Amg::Vector3D& position,
+                                                      const Amg::Vector3D& momentum,
+                                                      double charge,
+                                                      AmgSymMatrix(DIM) * cov = 0) const
   {
     return new ParametersT<DIM, T, PlaneSurface>(position, momentum, charge, *this, cov);
   }

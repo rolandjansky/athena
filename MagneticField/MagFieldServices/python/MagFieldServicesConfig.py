@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # JobOption fragment to set up the AtlasFieldSvc
 # Valerio Ippolito - Harvard University
@@ -36,7 +36,7 @@ def GetFieldSvc(name="AtlasFieldSvc",**kwargs):
     return AtlasFieldSvc(name, **kwargs)
     
 # The magneticfields is going to need a big update for MT, so this is all temporary. Ed
-def MagneticFieldSvcCfg(flags):
+def MagneticFieldSvcCfg(flags, **kwargs):
     result=ComponentAccumulator()
     
     # initialise required conditions DB folders
@@ -56,8 +56,6 @@ def MagneticFieldSvcCfg(flags):
     if not flags.Common.isOnline:
         result.merge(addFolders(flags, ['/EXT/DCS/MAGNETS/SENSORDATA'], detDb='DCS_OFL', className="CondAttrListCollection") )
             
-    kwargs={}
-        
     if flags.Common.isOnline:
       kwargs.setdefault( "UseDCS", False )
       kwargs.setdefault( "UseSoleCurrent", 7730 )

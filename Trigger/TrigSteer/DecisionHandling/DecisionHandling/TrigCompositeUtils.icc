@@ -1,9 +1,9 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-/*
- *
- */
+
+#include "AthenaKernel/getMessageSvc.h"
+
 namespace TrigCompositeUtils {
 
   /**
@@ -41,49 +41,110 @@ namespace TrigCompositeUtils {
   }
 
   template<typename T>
-  LinkInfo<T>
-  findLink(const xAOD::TrigComposite* start, const std::string& linkName) {
-    auto source = find(start, HasObject(linkName) );
-    //
-    if ( not source ){
-      auto seeds = getLinkToPrevious(start);
-      for (auto seed: seeds){
-        const xAOD::TrigComposite* dec = *seed;//deference
-        LinkInfo<T> link= findLink<T>( dec, linkName );
-        // return the first found
-        if (link.isValid()) return link;
-      }
-      return LinkInfo<T>(); // invalid link
+  void
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links) {
+    ElementLinkVector<T> featureLinks;
+    if (start->hasObjectCollectionLinks(linkName, ClassID_traits<T>::ID())) {
+      featureLinks = start->objectCollectionLinks<T>(linkName);
     }
+    if (start->hasObjectLink(linkName, ClassID_traits<T>::ID())) {
+      featureLinks.push_back(start->objectLink<T>(linkName));
+    }
+    for (const ElementLink<T>& featureLink : featureLinks) {
+      // Check for duplicates
+      if (std::none_of(links.begin(), links.end(), [&](const auto& li) { return (li.link == featureLink); } ))
+      {
+        links.emplace_back(start, featureLink);
+      }
+    }
+    // Recursive
+    for (const auto& seed : getLinkToPrevious(start)) {
+      findLinks<T>(*seed, linkName, links);
+    }
+  }
 
-    return LinkInfo<T>( source, source->objectLink<T>( linkName ) );
+  template<typename T>
+  std::vector<LinkInfo<T>>
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName) {
+    std::vector<LinkInfo<T>> links;
+    findLinks(start, linkName, links);
+    return links;
+  }
+
+  template<typename T>
+  LinkInfo<T>
+  findLink(const xAOD::TrigComposite* start, const std::string& linkName, const bool suppressMultipleLinksWarning) {
+    std::vector<LinkInfo<T>> links = findLinks<T>(start, linkName);
+    if (links.size() > 1 && !suppressMultipleLinksWarning) {
+      MsgStream(Athena::getMessageSvc(), "TrigCompositeUtils::findLink") << MSG::WARNING
+        << links.size() << " links found for " << linkName
+        << " returning the first link, consider using findLinks." << endmsg;
+    }
+    if (links.size() > 0) {
+      return links.at(0);
+    }
+    return LinkInfo<T>(); // invalid link
   }
 
   template<class CONTAINER>
-  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType(const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, const bool oneFeaturePerLeg) {
+  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType(
+    const std::vector<ElementLinkVector<DecisionContainer>>& linkVector,
+    const bool oneFeaturePerLeg,
+    const std::string& featureName) {
+
     std::vector< LinkInfo<CONTAINER> > features;
     // For each unique path through the navigation for a given chain
     for (const ElementLinkVector<DecisionContainer>& decisionPath : linkVector) {
       // For each step along this path, starting at the terminus and working back towards L1
       for (const ElementLink<DecisionContainer>& decisionLink : decisionPath) {
         const Decision* decision = (*decisionLink);
-        if (decision->hasObjectLink(featureString(), ClassID_traits< CONTAINER >::ID())) {
+        ElementLinkVector<CONTAINER> featureLinks;
 
-          // This try block protects against ExcCLIDMismatch throws from 
+        std::vector<std::string> availableLinkNames;
+        if (featureName == "") { // Look up what named links are available
+          const std::vector<std::string> getSingleLinkNames = decision->getObjectNames<CONTAINER>();
+          const std::vector<std::string> getCollectionLinkNames = decision->getObjectCollectionNames<CONTAINER>();
+          std::copy(getSingleLinkNames.begin(), getSingleLinkNames.end(), std::back_inserter(availableLinkNames));
+          std::copy(getCollectionLinkNames.begin(), getCollectionLinkNames.end(), std::back_inserter(availableLinkNames));
+        } else { // Just looking for an explicitly named feature
+          availableLinkNames.push_back( featureName );
+        }
+
+        for (const std::string& featureNameToGet : availableLinkNames) {
+          // This try block protects against ExcCLIDMismatch throws from
           // features which do not derive from IParticle, when an IParticle interface is requested.
           try {
-            const ElementLink<CONTAINER> featureLink = decision->objectLink<CONTAINER>( featureString() );
-            features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
-            if (oneFeaturePerLeg) {
-              break;
+            // Slices may have added link collections
+            if (decision->hasObjectCollectionLinks(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
+              ElementLinkVector<CONTAINER> collectionLinks = decision->objectCollectionLinks<CONTAINER>( featureNameToGet );
+              std::copy(collectionLinks.begin(), collectionLinks.end(), std::back_inserter(featureLinks));
             }
           } catch (SG::ExcCLIDMismatch&) {
-            // Carry on
+            // This is in place to catch the exception caused by non-IParticle features when an IParticle interface is requested.
+            // We're fine to catch this silently and cary on looking at the next Decision object in the graph
           }
-
+          try {
+            // Framework specified "feature" is always a single link
+            if (decision->hasObjectLink(featureNameToGet, ClassID_traits< CONTAINER >::ID())) {
+              featureLinks.push_back( decision->objectLink<CONTAINER>( featureNameToGet ) );
+            }
+          } catch (SG::ExcCLIDMismatch&) {
+            // As above
+          }
         }
-      }
-    }
+
+        for (const ElementLink<CONTAINER>& featureLink : featureLinks) {
+          if (std::none_of(features.begin(), features.end(), [&](const auto& li) { return li.link == featureLink; } )) {
+            // Don't duplicate up returned features (may have entries from many chains in the linkVector)
+            features.push_back( LinkInfo<CONTAINER>(decision, featureLink) );
+          }
+        }
+        if (featureLinks.size() && oneFeaturePerLeg) {
+          break;
+        }
+
+      } // for (decisionLink : decisionPath)
+    } // for (decisionPath : linkVector)
     return features;
   }
 

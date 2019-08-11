@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -9,8 +9,7 @@
 #@author Felix Friedrich <felix.friedrich@cern.ch>
 ################################################################################
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
+from AthenaCommon.SystemOfUnits import mm, MeV, GeV
 
 cached_instances = {}
 
@@ -118,7 +117,7 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', ca
 
 ##    calibFileName = "TES2015_LC_online.root"
     calibFileName = "TES2016_LC_online.root"
-    if caloOnly == True :
+    if caloOnly:
 ##        calibFileName = "TES2015_LC_online.root"
         calibFileName = "TES2016_LC_online_inc.root"
     
@@ -356,8 +355,6 @@ def getTauVertexVariables():
     
     if _name in cached_instances:
         return cached_instances[_name]
-
-    from tauRec.tauRecFlags import jobproperties
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
@@ -788,13 +785,13 @@ def getTauTrackClassifier():
 
     ToolSvc += EFtrackBDT
 
-    classifier = TauTrackClassifier(
+    trackclassifier = TauTrackClassifier(
         name=_name, 
         Classifiers=[EFtrackBDT]
     )
 
-    cached_instances[_name] = classifier
-    return classifier
+    cached_instances[_name] = trackclassifier
+    return trackclassifier
 
 ########################################################################
 # TauIDVarCalculator

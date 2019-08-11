@@ -21,7 +21,6 @@ class PixelID;
 class TH2D;
 class TH2C;
 class TH1D;
-class ISpecialPixelMapSvc;
 
 namespace InDetDD{ 
   class PixelDetectorManager;
@@ -68,7 +67,6 @@ class NoiseMapBuilder: public AthAlgorithm{
   ServiceHandle <ITHistSvc> m_tHistSvc;
   ServiceHandle <IInDetConditionsSvc> m_pixelConditionsSummarySvc;
   ServiceHandle <IPixelByteStreamErrorsSvc> m_BSErrorsSvc;
-  ServiceHandle <ISpecialPixelMapSvc> m_specialPixelMapSvc; 
 
   const InDetDD::PixelDetectorManager *m_pixman; 
   const PixelID *m_pixelID;

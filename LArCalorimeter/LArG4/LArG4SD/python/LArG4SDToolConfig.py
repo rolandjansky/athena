@@ -19,17 +19,18 @@ def LArActiveSensitiveDetectorToolCfg(ConfigFlags, name="LArActiveSensitiveDetec
         kwargs.setdefault("PresamplerVolumes",["LArMgr::LAr::Barrel::Presampler::Module"])
         kwargs.setdefault("NegIWVolumes",["LArMgr::LAr::EMEC::Neg::InnerWheel"])
         kwargs.setdefault("NegOWVolumes",["LArMgr::LAr::EMEC::Neg::OuterWheel"])
-        kwargs.setdefault("BOBarretteVolumes",["LArMgr::LAr::EMEC::BackOuterBarrette::Module::Phidiv"])
+        kwargs.setdefault("NegBOBarretteVolumes",["LArMgr::LAr::EMEC::Neg::BackOuterBarrette::Module::Phidiv"])
         kwargs.setdefault("MiniVolumes",["LArMgr::MiniFCAL::Wafer"])
     if ConfigFlags.GeoModel.AtlasVersion!="tb_LArH6_2003":
         kwargs.setdefault("PosIWVolumes",["LArMgr::LAr::EMEC::Pos::InnerWheel"])
         kwargs.setdefault("PosOWVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel"])
+        kwargs.setdefault("PosBOBarretteVolumes",["LArMgr::LAr::EMEC::Pos::BackOuterBarrette::Module::Phidiv"])
         kwargs.setdefault("PresVolumes", ["LArMgr::LAr::Endcap::Presampler::LiquidArgon"])
         kwargs.setdefault("SliceVolumes",["LArMgr::LAr::HEC::Module::Depth::Slice"])
     if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2002"]:
         kwargs.setdefault("FCAL1Volumes",["LArMgr::LAr::FCAL::Module1::Gap"])
         kwargs.setdefault("FCAL2Volumes",["LArMgr::LAr::FCAL::Module2::Gap"])
-        kwargs.setdefault("FCAL3Volumes",["LArMgr::LAr::FCAL::Module3::Gap"])    
+        kwargs.setdefault("FCAL3Volumes",["LArMgr::LAr::FCAL::Module3::Gap"])
     # Running PID calibration hits?
     kwargs.setdefault("ParticleID",ConfigFlags.Sim.ParticleID)
     # No effect currently
@@ -120,7 +121,7 @@ def LArDeadSensitiveDetectorToolCfg(ConfigFlags, name="LArDeadSensitiveDetector"
     kwargs.setdefault("ParticleID", ConfigFlags.Sim.ParticleID)
     kwargs.setdefault("doEscapedEnergy",ConfigFlags.Sim.CalibrationRun  !='DeadLAr')
     # No effect currently
-    outputCollectionName = "LArCalibrationHitDeadMaterial"  
+    outputCollectionName = "LArCalibrationHitDeadMaterial"
     if ConfigFlags.Sim.CalibrationRun in ['LAr', 'LAr+Tile']:
         outputCollectionName = "LArCalibrationHitDeadMaterial_DEAD"
     kwargs.setdefault("HitCollectionName", outputCollectionName)
@@ -157,17 +158,18 @@ def LArEMECSensitiveDetectorCfg(ConfigFlags, name="LArEMECSensitiveDetector", **
     acc, hits_collection_name = CollectionMergerCfg(ConfigFlags, bare_collection_name,
                                                               mergeable_collection_suffix,
                                                               merger_input_property)
-    
+
     if ConfigFlags.GeoModel.AtlasVersion not in ["tb_LArH6_2002","tb_LArH6EC_2002"]:
         kwargs.setdefault("NegIWVolumes",["LArMgr::LAr::EMEC::Neg::InnerWheel"])
         kwargs.setdefault("NegOWVolumes",["LArMgr::LAr::EMEC::Neg::OuterWheel"])
-        kwargs.setdefault("BOBarretteVolumes",["LArMgr::LAr::EMEC::BackOuterBarrette::Module::Phidiv"])
+        kwargs.setdefault("NegBOBarretteVolumes",["LArMgr::LAr::EMEC::Neg::BackOuterBarrette::Module::Phidiv"])
     if ConfigFlags.GeoModel.AtlasVersion !="tb_LArH6EC_2002":
         kwargs.setdefault("PosIWVolumes",["LArMgr::LAr::EMEC::Pos::InnerWheel"])
         kwargs.setdefault("PosOWVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel"])
+        kwargs.setdefault("PosBOBarretteVolumes",["LArMgr::LAr::EMEC::Pos::BackOuterBarrette::Module::Phidiv"])
     kwargs.setdefault("PresVolumes", ["LArMgr::LAr::Endcap::Presampler::LiquidArgon"])
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
-    
+
     # Hook for fast simulation
     #kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
 
@@ -189,7 +191,7 @@ def LArFCALSensitiveDetectorCfg(ConfigFlags, name="LArFCALSensitiveDetector", **
     kwargs.setdefault("FCAL3Volumes",["LArMgr::LAr::FCAL::Module3::Gap"])
     # No effect currently
     kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
-    
+
     # Hook for fast simulation
     #from G4AtlasApps.SimFlags import simFlags
     #kwargs.setdefault("UseFrozenShowers", simFlags.LArParameterization()>0)
@@ -230,19 +232,51 @@ def LArInactiveSensitiveDetectorToolCfg(ConfigFlags, name="LArInactiveSensitiveD
         kwargs.setdefault("ECPosInVolumes", ["LArMgr::LAr::EMEC::Pos::InnerWheel::Absorber",
                                              "LArMgr::LAr::EMEC::Pos::InnerWheel::Electrode",
                                              "LArMgr::LAr::EMEC::Pos::InnerWheel::Glue",
-                                             "LArMgr::LAr::EMEC::Pos::InnerWheel::Lead"])
+                                             "LArMgr::LAr::EMEC::Pos::InnerWheel::Lead",
+                                             "LArMgr::LAr::EMEC::Pos::InnerCone::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::InnerCone::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::InnerCone::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::InnerCone::Lead",
+                                             "LArMgr::LAr::EMEC::Pos::InnerSlice*::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::InnerSlice*::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::InnerSlice*::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::InnerSlice*::Lead"])
         kwargs.setdefault("ECPosOutVolumes",["LArMgr::LAr::EMEC::Pos::OuterWheel::Lead",
                                              "LArMgr::LAr::EMEC::Pos::OuterWheel::Glue",
                                              "LArMgr::LAr::EMEC::Pos::OuterWheel::Electrode",
-                                             "LArMgr::LAr::EMEC::Pos::OuterWheel::Absorber"])
+                                             "LArMgr::LAr::EMEC::Pos::OuterWheel::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::Outer*Cone::Lead",
+                                             "LArMgr::LAr::EMEC::Pos::Outer*Cone::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::Outer*Cone::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::Outer*Cone::Absorber",
+                                             "LArMgr::LAr::EMEC::Pos::OuterSlice*::Lead",
+                                             "LArMgr::LAr::EMEC::Pos::OuterSlice*::Glue",
+                                             "LArMgr::LAr::EMEC::Pos::OuterSlice*::Electrode",
+                                             "LArMgr::LAr::EMEC::Pos::OuterSlice*::Absorber"])
         kwargs.setdefault("ECNegInVolumes", ["LArMgr::LAr::EMEC::Neg::InnerWheel::Absorber",
                                              "LArMgr::LAr::EMEC::Neg::InnerWheel::Electrode",
                                              "LArMgr::LAr::EMEC::Neg::InnerWheel::Glue",
-                                             "LArMgr::LAr::EMEC::Neg::InnerWheel::Lead"])
+                                             "LArMgr::LAr::EMEC::Neg::InnerWheel::Lead",
+                                             "LArMgr::LAr::EMEC::Neg::InnerCone::Absorber",
+                                             "LArMgr::LAr::EMEC::Neg::InnerCone::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::InnerCone::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::InnerCone::Lead",
+                                             "LArMgr::LAr::EMEC::Neg::InnerSlice*::Absorber",
+                                             "LArMgr::LAr::EMEC::Neg::InnerSlice*::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::InnerSlice*::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::InnerSlice*::Lead"])
         kwargs.setdefault("ECNegOutVolumes",["LArMgr::LAr::EMEC::Neg::OuterWheel::Lead",
                                              "LArMgr::LAr::EMEC::Neg::OuterWheel::Glue",
                                              "LArMgr::LAr::EMEC::Neg::OuterWheel::Electrode",
-                                             "LArMgr::LAr::EMEC::Neg::OuterWheel::Absorber"])
+                                             "LArMgr::LAr::EMEC::Neg::OuterWheel::Absorber",
+                                             "LArMgr::LAr::EMEC::Neg::Outer*Cone::Lead",
+                                             "LArMgr::LAr::EMEC::Neg::Outer*Cone::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::Outer*Cone::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::Outer*Cone::Absorber",
+                                             "LArMgr::LAr::EMEC::Neg::OuterSlice*::Lead",
+                                             "LArMgr::LAr::EMEC::Neg::OuterSlice*::Glue",
+                                             "LArMgr::LAr::EMEC::Neg::OuterSlice*::Electrode",
+                                             "LArMgr::LAr::EMEC::Neg::OuterSlice*::Absorber"])
         #kwargs.setdefault("HECVolumes",["LAr::HEC::Inactive"])
         #kwargs.setdefault("HECLocalVolumes",["LAr::HEC::Local::Inactive"])
         kwargs.setdefault("HECWheelVolumes",["LArMgr::LAr::HEC::Module::Depth::Absorber::TieRod",

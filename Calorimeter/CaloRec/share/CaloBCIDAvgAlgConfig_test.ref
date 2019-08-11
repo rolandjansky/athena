@@ -1,0 +1,118 @@
+--- data
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO set([])
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO    \__ CaloBCIDAvgAlg (alg)
+Py:ComponentAccumulator    INFO        * BunchCrossingTool: BunchCrossingTool
+Py:ComponentAccumulator    INFO        * LuminosityCondDataKey: LuminosityCondData
+Py:ComponentAccumulator    INFO        * ShapeKey: LArShape32Sym
+Py:ComponentAccumulator    INFO        * isMC: False
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TRIGGER/OFLLUMI/OflPrefLumi'), ('CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS')]
+Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
+Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * BunchGroupInputKey: 
+Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
+Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
+Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO  \__ LArPileUpAvgSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArPileupAverage
+Py:ComponentAccumulator    INFO      * WriteKey: LArPileupAverageSym
+Py:ComponentAccumulator    INFO  \__ LArPileUpShapeSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArShape32
+Py:ComponentAccumulator    INFO      * WriteKey: LArShape32Sym
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProviderSvc', 'DBReplicaSvc', 'AthenaPoolCnvSvc', 'EventPersistencySvc']
+Py:ComponentAccumulator    INFO Outputs
+Py:ComponentAccumulator    INFO {}
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+--- mc
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO set([])
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO    \__ CaloBCIDAvgAlg (alg)
+Py:ComponentAccumulator    INFO        * BunchCrossingTool: Trig::MCBunchCrossingTool/BunchCrossingTool
+Py:ComponentAccumulator    INFO        * ShapeKey: LArShapeSym
+Py:ComponentAccumulator    INFO        * isMC: True
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/LAR/Identifier/OnOffIdMap')]
+Py:ComponentAccumulator    INFO  \__ LArOnOffMappingAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: /LAR/Identifier/OnOffIdMap
+Py:ComponentAccumulator    INFO  \__ LArADC2MeVCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * LArDAC2uAKey: LArDAC2uASym
+Py:ComponentAccumulator    INFO      * LArMphysOverMcalKey: LArMphysOverMcalSym
+Py:ComponentAccumulator    INFO      * LArRampKey: LArRampSym
+Py:ComponentAccumulator    INFO      * LAruA2MeVKey: LAruA2MeVSym
+Py:ComponentAccumulator    INFO      * UseFEBGainTresholds: False
+Py:ComponentAccumulator    INFO  \__ LArOFCCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * UseDelta: 0
+Py:ComponentAccumulator    INFO      * firstSample: 0
+Py:ComponentAccumulator    INFO      * isMC: True
+Py:ComponentAccumulator    INFO      * useHighestGainAutoCorr: False
+Py:ComponentAccumulator    INFO  \__ LArAutoCorrTotalCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * Nsamples: 5
+Py:ComponentAccumulator    INFO  \__ LArPileUpAvgSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArPileupAverage
+Py:ComponentAccumulator    INFO      * WriteKey: LArPileupAverageSym
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProviderSvc', 'AthenaPoolCnvSvc', 'EventPersistencySvc']
+Py:ComponentAccumulator    INFO Outputs
+Py:ComponentAccumulator    INFO {}
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+--- online
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO set([])
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO Top sequence 0
+Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
+Py:ComponentAccumulator    INFO    \__ CaloBCIDAvgAlg (alg)
+Py:ComponentAccumulator    INFO        * BunchCrossingTool: BunchCrossingTool
+Py:ComponentAccumulator    INFO        * LuminosityCondDataKey: LuminosityCondData
+Py:ComponentAccumulator    INFO        * ShapeKey: LArShape32Sym
+Py:ComponentAccumulator    INFO        * isMC: False
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO  \__ LArMCSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArOnOffIdMap
+Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
+Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TRIGGER/OFLLUMI/OflPrefLumi'), ('CondAttrListCollection', '/TDAQ/OLC/CALIBRATIONS')]
+Py:ComponentAccumulator    INFO  \__ OnlineLumiCalibrationCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * CalibrationFolderInputKey: /TDAQ/OLC/CALIBRATIONS
+Py:ComponentAccumulator    INFO      * LumiCalibOutputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * BunchGroupInputKey: 
+Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
+Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
+Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/OFLLUMI/OflPrefLumi
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
+Py:ComponentAccumulator    INFO  \__ LArPileUpAvgSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArPileupAverage
+Py:ComponentAccumulator    INFO      * WriteKey: LArPileupAverageSym
+Py:ComponentAccumulator    INFO  \__ LArPileUpShapeSymCondAlg (cond alg)
+Py:ComponentAccumulator    INFO      * ReadKey: LArShape32
+Py:ComponentAccumulator    INFO      * WriteKey: LArShape32Sym
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProviderSvc', 'DBReplicaSvc', 'AthenaPoolCnvSvc', 'EventPersistencySvc']
+Py:ComponentAccumulator    INFO Outputs
+Py:ComponentAccumulator    INFO {}
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]

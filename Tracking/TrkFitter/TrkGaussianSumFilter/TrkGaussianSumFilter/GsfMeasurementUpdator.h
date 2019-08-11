@@ -15,34 +15,40 @@ decription           : Class for performing updates on multi-component states fo
 #ifndef TrkGsfMeasurementUpdator_H
 #define TrkGsfMeasurementUpdator_H
 
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
-#include "TrkGaussianSumFilter/IPosteriorWeightsCalculator.h"
-#include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
+#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
+#include "TrkGaussianSumFilter/IPosteriorWeightsCalculator.h"
 
 #include "TrkToolInterfaces/IUpdator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IChronoStatSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
-namespace Trk{
+namespace Trk {
 
 class LocalParameters;
 
-class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasurementUpdator {
+class GsfMeasurementUpdator
+  : public AthAlgTool
+  , virtual public IMultiStateMeasurementUpdator
+{
 
- private:
+private:
   /** Private typedef for calling the correct updator member function depending of direction of fitting */
-  typedef const Trk::TrackParameters* (Trk::IUpdator::*Updator)( const Trk::TrackParameters&, const LocalParameters&, const Amg::MatrixX&, FitQualityOnSurface*& ) const;
+  typedef const Trk::TrackParameters* (Trk::IUpdator::*Updator)(const Trk::TrackParameters&,
+                                                                const LocalParameters&,
+                                                                const Amg::MatrixX&,
+                                                                FitQualityOnSurface*&)const;
 
- public:
+public:
   /** Constructor with parameters to be passed to AlgTool */
   GsfMeasurementUpdator(const std::string, const std::string, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GsfMeasurementUpdator() {};
+  virtual ~GsfMeasurementUpdator(){};
 
   /** AlgTool initialise method */
   StatusCode initialize();
@@ -51,47 +57,48 @@ class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasu
   StatusCode finalize();
 
   /** Method for updating the multi-state with a new measurement */
-  virtual const MultiComponentState* update (const MultiComponentState&, const MeasurementBase&) const;
-  
-  /** Method for updating the multi-state with a new measurement and calculate the fit qaulity at the same time*/
-  virtual const MultiComponentState* update (const Trk::MultiComponentState&, 
-                                             const Trk::MeasurementBase&,
-                                             std::unique_ptr<FitQualityOnSurface>& fitQoS ) const;
+  virtual const MultiComponentState* update(const MultiComponentState&, const MeasurementBase&) const;
 
+  /** Method for updating the multi-state with a new measurement and calculate the fit qaulity at the same time*/
+  virtual const MultiComponentState* update(const Trk::MultiComponentState&,
+                                            const Trk::MeasurementBase&,
+                                            std::unique_ptr<FitQualityOnSurface>& fitQoS) const;
 
   /** Method for GSF smoother to calculate unbiased parameters of the multi-component state */
-  virtual const MultiComponentState* getUnbiasedTrackParameters (const MultiComponentState&, const MeasurementBase&) const;
+  virtual const MultiComponentState* getUnbiasedTrackParameters(const MultiComponentState&,
+                                                                const MeasurementBase&) const;
 
   /** Method for determining the chi2 of the multi-component state and the number of degrees of freedom */
-  virtual const FitQualityOnSurface* fitQuality (const MultiComponentState&, const MeasurementBase&) const;
+  virtual const FitQualityOnSurface* fitQuality(const MultiComponentState&, const MeasurementBase&) const;
 
- private:
-  const MultiComponentState* calculateFilterStep( const MultiComponentState&, 
-                                                  const MeasurementBase&, 
-                                                  const Updator) const;
-                                                  
-  const MultiComponentState* calculateFilterStep( const MultiComponentState&, 
-                                                  const MeasurementBase&, 
-                                                  std::unique_ptr<FitQualityOnSurface>& fitQoS ) const;
-                                                  
-  bool invalidComponent(const Trk::TrackParameters* trackParameters ) const;
-  
-  Trk::MultiComponentState*  rebuildState(const Trk::MultiComponentState& stateBeforeUpdate) const;
-                                                  
+private:
+  const MultiComponentState* calculateFilterStep(const MultiComponentState&,
+                                                 const MeasurementBase&,
+                                                 const Updator) const;
 
- private:
-  int                                      m_outputlevel;                      //!< to cache current output level
-  ToolHandle<IUpdator>                     m_updator;                          //!< Linear (Kalman) updator
-  ToolHandle<IPosteriorWeightsCalculator>  m_posteriorWeightsCalculator
-     {this,"PosteriorWeightsCalculator","Trk::PosteriorWeightsCalculator/PosteriorWeightsCalculator",""};       //!< GSF Weights updator
+  const MultiComponentState* calculateFilterStep(const MultiComponentState&,
+                                                 const MeasurementBase&,
+                                                 std::unique_ptr<FitQualityOnSurface>& fitQoS) const;
 
-  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler
-     {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/GsfMeasurementStateAssembler",""};                   //!< State assembler
+  bool invalidComponent(const Trk::TrackParameters* trackParameters) const;
 
-  ServiceHandle<IChronoStatSvc>            m_chronoSvc;                        //!< Timing: The Gaudi time auditing service
+  Trk::MultiComponentState* rebuildState(const Trk::MultiComponentState& stateBeforeUpdate) const;
 
+private:
+  ToolHandle<IUpdator> m_updator{ this, "Updator", "Trk::KalmanUpdator/KalmanUpdator", "" };
+  ToolHandle<IPosteriorWeightsCalculator> m_posteriorWeightsCalculator{
+    this,
+    "PosteriorWeightsCalculator",
+    "Trk::PosteriorWeightsCalculator/PosteriorWeightsCalculator",
+    ""
+  };
+  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler{
+    this,
+    "MultiComponentStateAssembler",
+    "Trk::MultiComponentStateAssembler/GsfMeasurementStateAssembler",
+    ""
+  };
 };
-
 }
 
 #endif

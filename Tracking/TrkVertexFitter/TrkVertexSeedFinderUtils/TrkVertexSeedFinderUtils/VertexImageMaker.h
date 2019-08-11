@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILIS_SIMPLEVERTEXCLUSTERFINDER_H
@@ -33,16 +33,18 @@ namespace Trk
    */
 
 
-  class VertexImageMaker : public AthAlgTool, IVertexImageMaker {
+  class VertexImageMaker : public extends<AthAlgTool, IVertexImageMaker> {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
-
     VertexImageMaker(const std::string& t, const std::string& n, const IInterface*  p);
 
-    virtual ~VertexImageMaker() {}
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-    virtual VertexImage makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint );
+
+    virtual std::unique_ptr<VertexImage>
+    makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,
+                     const xAOD::Vertex * constraint ) const override;
+
 
   private:
     //------------
@@ -70,14 +72,6 @@ namespace Trk
 
     //Other members:
 
-    //The one copy of the image -- used for each event to avoid reallocation and passed back to caller
-    VertexImage m_image;
-
-    //Histogram ranges
-    float m_x_min, m_x_max;
-    float m_y_min, m_y_max; 
-    float m_z_min, m_z_max; 
-
     //Widths of histogram bins
     float m_wx;        
     float m_wy;          
@@ -85,13 +79,6 @@ namespace Trk
 
     //Total number of filter bins 
     int m_filttot;
-
-    //Pointers to the actual histogram data arrays; for in-place transforms which is usaul they point to the same
-    // memory location, but would be different for out-of-place transforms
-    //The 'real' space histogram. Used as input and output to filtering algorithm
-    float       *m_histRS;
-    //The frequency space histogram.
-    fftwf_complex *m_histFS;
 
     //The frequency space filter
     std::vector<float> m_histFSFilter;
@@ -101,10 +88,12 @@ namespace Trk
     fftwf_plan m_plan_c2r;
 
     //Method implementing the backprojection into the real space histogram
-    void fillHist( std::vector<const Trk::TrackParameters*> parametersList );
+    void fillHist( VertexImage& image,
+                   const std::vector<const Trk::TrackParameters*>& parametersList,
+                   const xAOD::Vertex * constraint) const;
 
     // Filtering methods   
-    void filterFSHist(); 
+    void filterFSHist (VertexImage& image) const;
     void initFSFilter();
   };
 }

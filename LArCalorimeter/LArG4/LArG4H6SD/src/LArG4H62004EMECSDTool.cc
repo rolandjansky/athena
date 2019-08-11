@@ -5,8 +5,6 @@
 #include "LArG4H62004EMECSDTool.h"
 #include "LArG4H62004SD.h"
 
-#include "LArG4Code/LArG4Hit.h"
-
 #include "CxxUtils/make_unique.h"
 
 LArG4H62004EMECSDTool::LArG4H62004EMECSDTool(const std::string& type, const std::string& name, const IInterface *parent)

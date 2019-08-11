@@ -75,7 +75,6 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     // get RoIs
     auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString()  );
     auto roiEL = roiInfo.link;
-    //    auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>("roi");
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor *roi = *roiEL;
 
@@ -102,9 +101,6 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     toolInput.emplace_back( newd, roi, muon, previousDecision );
 
     newd -> setObjectLink( featureString(), muonEL );
-    // This attaches the same ROI with a different name ("InitialRoI" -> "RoI").
-    // If the ROI will never change, please re-configure your InputMaker to use the "InitialRoI" link
-    newd->setObjectLink( roiString(),     roiEL );
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
 
@@ -128,7 +124,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     }
   } // End of tool algorithm
 
-  ATH_CHECK(printDebugInformation(outputHandle));
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   return StatusCode::SUCCESS;
 }

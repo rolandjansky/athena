@@ -63,7 +63,7 @@ namespace MuonCombined {
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
     m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
-    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
+    m_recoValidationTool(""),
     m_trackAmbibuityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
@@ -128,7 +128,7 @@ namespace MuonCombined {
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_segmentMakerT0Fit.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
-    ATH_CHECK(m_recoValidationTool.retrieve());
+    if(!m_recoValidationTool.empty()) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackAmbibuityResolver.retrieve());
     ATH_CHECK(m_hitTimingTool.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
@@ -140,6 +140,7 @@ namespace MuonCombined {
     ATH_CHECK(m_insideOutRecoTool.retrieve());
     ATH_CHECK(m_updator.retrieve());
     ATH_CHECK(m_calibrationDbTool.retrieve());
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
     
     if( m_doTruth ){
       // add pdgs from jobO to set
@@ -613,7 +614,7 @@ namespace MuonCombined {
     // get RPC timing per chamber
     RpcClPerChMap::const_iterator chit = rpcPrdsPerChamber.begin();
     RpcClPerChMap::const_iterator chit_end = rpcPrdsPerChamber.end();
-    ATH_MSG_VERBOSE("RPCs per chamber " + rpcPrdsPerChamber.size() );
+    ATH_MSG_VERBOSE("RPCs per chamber " << rpcPrdsPerChamber.size() );
      
     for( ;chit!=chit_end;++chit ){
       const Trk::TrackParameters* pars = std::get<0>(chit->second);
@@ -707,19 +708,22 @@ namespace MuonCombined {
       for( unsigned int i=0;i<dcs.size();++i){
         TrkDriftCircleMath::DCSLFitter::HitSelection selection(dcs.size(),0);
         selection[i] = 1;
-        if( !mdtFitter.fit(seedLine,dcs,selection) ){
+        TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+        if( !mdtFitter.fit(result, seedLine,dcs,selection) ){
           ATH_MSG_DEBUG("Fit failed ");
           continue;
         }
-        TrkDriftCircleMath::Segment segment = mdtFitter.result();
+        TrkDriftCircleMath::Segment segment = result;
         unsigned int ndofFit = segment.ndof();
         double chi2NdofSegmentFit = segment.chi2()/(double)(ndofFit);
-        if( !segmentFinder.dropHits(segment) ){
+        bool hasDropHit = false;
+        unsigned int dropDepth = 0;
+        if( !segmentFinder.dropHits(segment, hasDropHit, dropDepth) ){
           ATH_MSG_DEBUG("DropHits failed, fit chi2/ndof " << chi2NdofSegmentFit);
           if( msgLvl(MSG::VERBOSE) ){
             segmentFinder.debugLevel(20);
-            segment = mdtFitter.result();
-            segmentFinder.dropHits(segment);
+            segment = result;
+            segmentFinder.dropHits(segment, hasDropHit, dropDepth);
             segmentFinder.debugLevel(0);
           }
           continue;
@@ -1463,15 +1467,22 @@ namespace MuonCombined {
     Muon::MuonStationIndex::DetectorRegionIndex regionIndex = intersection.layerSurface.regionIndex;
     Muon::MuonStationIndex::LayerIndex  layerIndex  = intersection.layerSurface.layerIndex;
 
+    // get hough data
+    SG::ReadHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> houghDataPerSectorVec {m_houghDataPerSectorVecKey};
+    if (!houghDataPerSectorVec.isValid()) {
+      ATH_MSG_ERROR("Hough data per sector vector not found");
+      return;
+    }
+
     // sanity check
-    if( static_cast<int>(m_layerHoughTool->houghData().size()) <= sector-1 ){
-      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << m_layerHoughTool->houghData().size() );
+    if( static_cast<int>(houghDataPerSectorVec->size()) <= sector-1 ){
+      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << houghDataPerSectorVec->size() );
       return;
     }
 
     // get hough maxima in the layer
     unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex,layerIndex );
-    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = m_layerHoughTool->houghData()[sector-1];
+    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = (*houghDataPerSectorVec)[sector-1];
 
     // sanity check
     if( houghDataPerSector.maxVec.size() <= sectorLayerHash ){

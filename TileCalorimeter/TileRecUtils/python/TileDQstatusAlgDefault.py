@@ -16,7 +16,8 @@ def _updateProp (dq, name, val):
     if val == '':
         return
     oval = getattr (dq, name)
-    if oval == val: return
+    if oval == val:
+        return
     if oval.find ('ServiceHandle') >= 0 or oval.find ('ToolHandle') >= 0:
         setattr (dq, name, val)
         return

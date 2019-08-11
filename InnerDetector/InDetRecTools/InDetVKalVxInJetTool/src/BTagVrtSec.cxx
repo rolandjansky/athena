@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -579,25 +579,25 @@ namespace InDet{
 //
 // Start of fit
 //
-      m_fitSvc->setDefault();
-      m_fitSvc->setMassInputParticles( InpMass );            // Use pions masses
-      m_fitSvc->setMomCovCalc(1);  /* Total momentum and its covariance matrix are calculated*/
-      sc=VKalVrtFitFastBase(ListSecondTracks,FitVertex);          /* Fast crude estimation */
+      std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+      m_fitSvc->setMassInputParticles( InpMass, *state );            // Use pions masses
+      sc=VKalVrtFitFastBase(ListSecondTracks,FitVertex,*state);          /* Fast crude estimation */
       if(sc.isFailure() || FitVertex.perp() > m_rLayer2*2. ) {    /* No initial estimation */ 
-         m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z()); /* Use as starting point */
+         m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z(),*state); /* Use as starting point */
       } else {
-         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); /*Use as starting point*/
+         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z(),*state); /*Use as starting point*/
       }
 //fit itself
       int NTracksVrt = ListSecondTracks.size(); double FitProb=0.;
       std::vector<double> trkFitWgt(0);
       for (i=0; i < NTracksVrt-1; i++) {
-         if(m_RobustFit)m_fitSvc->setRobustness(m_RobustFit);
-         else m_fitSvc->setRobustness(0);
+         if(m_RobustFit)m_fitSvc->setRobustness(m_RobustFit, *state);
+         else m_fitSvc->setRobustness(0, *state);
          sc=VKalVrtFitBase(ListSecondTracks,FitVertex,Momentum,Charge,
-                                 ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
+                           ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,
+                           *state, true);
          if(sc.isFailure() ||  Chi2 > 1000000. ) { return -10000.;}    // No fit
-         sc=GetTrkFitWeights(trkFitWgt);
+         sc=GetTrkFitWeights(trkFitWgt, *state);
          if(sc.isFailure()){ return -10000.;}    // No weights
 	 Outlier=std::min_element(trkFitWgt.begin(),trkFitWgt.end())-trkFitWgt.begin();
          //////Outlier = FindMax( Chi2PerTrk, trkRank ); 
@@ -610,14 +610,14 @@ namespace InDet{
 	   for(int it=0; it<(int)ListSecondTracks.size(); it++){
               std::vector<const Track*> tmpList(ListSecondTracks);
               tmpList.erase(tmpList.begin()+it);
-              sc=VKalVrtFitBase(tmpList,tmpVertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
+              sc=VKalVrtFitBase(tmpList,tmpVertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,*state,true);
               if(sc.isFailure())continue;
               Signif3Dproj=VrtVrtDist( PrimVrt, tmpVertex, ErrorMatrix, JetDir);
 	      if(Signif3Dproj>maxDst  && maxDst<10. ){maxDst=Signif3Dproj; maxT=it; minChi2=Chi2;}
 	      else if(Signif3Dproj>0. && maxDst>10. && Chi2<minChi2) {minChi2=Chi2; maxT=it;}
 	   }
 	   if(maxT>=0){ Outlier=maxT;   RemoveEntryInList(ListSecondTracks,trkRank,Outlier);
-                        m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z());
+                        m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z(),*state);
                         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Remove negative outlier="<< maxT<<" from "
                             <<ListSecondTracks.size()+1<<" tracks"<<endmsg;
 			continue;}
@@ -634,7 +634,7 @@ namespace InDet{
 	     for(int it=0; it<(int)ListSecondTracks.size(); it++){
                 std::vector<const Track*> tmpList(ListSecondTracks);
                 tmpList.erase(tmpList.begin()+it);
-                sc=VKalVrtFitBase(tmpList,tmpVertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2);
+                sc=VKalVrtFitBase(tmpList,tmpVertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2,*state,true);
                 if(sc.isFailure())continue;
 		if(ProjSV_PV(tmpVertex,PrimVrt,JetDir)<0.)continue; // Drop negative direction 
 	        Chi2 += trkRank[it];                                // Remove preferably non-HF-tracks
@@ -647,7 +647,7 @@ namespace InDet{
 	 }
          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"SecVrt remove trk="<<Outlier<<" from "<< ListSecondTracks.size()<<" tracks"<<endmsg;
          RemoveEntryInList(ListSecondTracks,trkRank,Outlier);
-         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); /*Use as starting point*/
+         m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z(),*state); /*Use as starting point*/
       }
 //--
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" SecVrt fit converged. Ntr="<< ListSecondTracks.size()<<" Chi2="<<Chi2
@@ -668,8 +668,8 @@ namespace InDet{
 //-- Test creation of Trk::Track
 //      if( ListSecondTracks.size()==2 && Charge==0 ) {      
 //        std::vector<double> VKPerigee,CovPerigee;
-//        sc=m_fitSvc->VKalVrtCvtTool(FitVertex,Momentum,ErrorMatrix,0,VKPerigee,CovPerigee);
-//        if(sc.isSuccess())const Trk::Track* TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee); 
+//        sc=m_fitSvc->VKalVrtCvtTool(FitVertex,Momentum,ErrorMatrix,0,VKPerigee,CovPerigee,*state);
+//        if(sc.isSuccess())const Trk::Track* TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee,*state);
 //      }
 //      if( ListSecondTracks.size()==2  && (Dist2D > 20.) ) {    // Protection against fake vertices    
 //         std::vector<double> Impact,ImpactError;double ImpactSignif;
@@ -775,9 +775,6 @@ namespace InDet{
 
 
       Amg::Vector3D iniVrt(0.,0.,0.);
-      m_fitSvc->setDefault();
-      m_fitSvc->setMassInputParticles( InpMass );     // Use pion masses for fit
-      m_fitSvc->setMomCovCalc(1);                     // Total momentum and its covariance matrix are calculated
       for (i=0; i<NTracks-1; i++) {
          for (j=i+1; j<NTracks; j++) {
              if(trkScore[i][0]==0.)continue;
@@ -795,11 +792,11 @@ namespace InDet{
 	     }
 	     int BadTracks = 0;                                       //Bad tracks identification 
              TracksForFit.resize(2);
-             m_fitSvc->setDefault();                          //Reset VKalVrt settings
-             m_fitSvc->setMomCovCalc(1);                     // Total momentum and its covariance matrix are calculated
+             std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+             m_fitSvc->setMassInputParticles( InpMass, *state );     // Use pion masses for fit
              TracksForFit[0]=SelectedTracks[i];
              TracksForFit[1]=SelectedTracks[j];
-             sc=VKalVrtFitFastBase(TracksForFit,tmpVrt.FitVertex);              /* Fast crude estimation*/
+             sc=VKalVrtFitFastBase(TracksForFit,tmpVrt.FitVertex,*state);              /* Fast crude estimation*/
              if( sc.isFailure() || tmpVrt.FitVertex.perp() > m_rLayer2*2. ) {   /* No initial estimation */ 
                 iniVrt=PrimVrt.position();
                 if( m_multiWithPrimary ) iniVrt.setZero(); 
@@ -809,10 +806,11 @@ namespace InDet{
                 if( JetVrtDir>0. ) iniVrt=tmpVrt.FitVertex;                /* Good initial estimation */ 
                 else               iniVrt=PrimVrt.position();
              }
-             m_fitSvc->setApproximateVertex(iniVrt.x(), iniVrt.y(), iniVrt.z()); 
+             m_fitSvc->setApproximateVertex(iniVrt.x(), iniVrt.y(), iniVrt.z(),*state);
              tmpVrt.i=i; tmpVrt.j=j;
              sc=VKalVrtFitBase(TracksForFit,tmpVrt.FitVertex, tmpVrt.Momentum, Charge,
-                               tmpVrt.ErrorMatrix, tmpVrt.Chi2PerTrk, tmpVrt.TrkAtVrt, tmpVrt.Chi2);
+                               tmpVrt.ErrorMatrix, tmpVrt.Chi2PerTrk, tmpVrt.TrkAtVrt, tmpVrt.Chi2,
+                               *state, true);
              if(sc.isFailure())                       continue;          /* No fit */ 
              if(tmpVrt.Chi2 > m_sel2VrtChi2Cut)       continue;          /* Bad Chi2 */
 	     if(fabs(tmpVrt.FitVertex.z())> 650.)     continue;  // definitely outside of Pixel detector
@@ -866,41 +864,42 @@ namespace InDet{
 //
 	       if(BadTracks){
 	          std::vector<double> InpMassV0;
-                  m_fitSvc->setDefault();                     //Reset VKalVrt settings
-                  m_fitSvc->setMomCovCalc(1);                 //Total momentum and its covariance 
+                  //Reset VKalVrt settings
+                  state = m_fitSvc->makeState();
 		                                              //matrix are calculated
 		  if( BadTracks == 1 ) {  // K0 case
 		    InpMassV0.push_back(m_massPi);InpMassV0.push_back(m_massPi);
-                    m_fitSvc->setMassInputParticles( InpMassV0 );
-                    m_fitSvc->setMassForConstraint(m_massK0);
-                    m_fitSvc->setCnstType(1);       // Set mass  constraint
+                    m_fitSvc->setMassInputParticles( InpMassV0, *state );
+                    m_fitSvc->setMassForConstraint(m_massK0, *state);
+                    m_fitSvc->setCnstType(1, *state);       // Set mass  constraint
                   }
 		  if( BadTracks == 2 ) {  // Lambda case
 	            if( fabs(1./tmpVrt.TrkAtVrt[0][2]) > fabs(1./tmpVrt.TrkAtVrt[1][2]) ) {
 		            InpMassV0.push_back(m_massP);InpMassV0.push_back(m_massPi);
 	            }else{  InpMassV0.push_back(m_massPi);InpMassV0.push_back(m_massP); }
-                    m_fitSvc->setMassInputParticles( InpMassV0 );
-                    m_fitSvc->setMassForConstraint(m_massLam);
-                    m_fitSvc->setCnstType(1);       // Set mass  constraint
+                    m_fitSvc->setMassInputParticles( InpMassV0, *state );
+                    m_fitSvc->setMassForConstraint(m_massLam, *state);
+                    m_fitSvc->setCnstType(1, *state);       // Set mass  constraint
                   }
 		  if( BadTracks == 3 ) {  // Gamma case
 		    InpMassV0.push_back(m_massE);InpMassV0.push_back(m_massE);
-                    m_fitSvc->setMassInputParticles( InpMassV0 );
-                    m_fitSvc->setCnstType(12);       // Set 3d angular constraint
+                    m_fitSvc->setMassInputParticles( InpMassV0, *state );
+                    m_fitSvc->setCnstType(12, *state);       // Set 3d angular constraint
                   }
-                  m_fitSvc->setApproximateVertex(tmpVrt.FitVertex.x(),tmpVrt.FitVertex.y(),tmpVrt.FitVertex.z()); 
+                  m_fitSvc->setApproximateVertex(tmpVrt.FitVertex.x(),tmpVrt.FitVertex.y(),tmpVrt.FitVertex.z(),*state);
                   TLorentzVector MomentumV0;
                   Amg::Vector3D  FitVertexV0;
                   std::vector< std::vector<double> > TrkAtVrtV0; 
                   std::vector<double> ErrorMatrixV0;
 		  double Chi2V0;
                   sc=VKalVrtFitBase(TracksForFit, FitVertexV0, MomentumV0, Charge,
-                                    ErrorMatrixV0,Chi2PerTrk,TrkAtVrtV0,Chi2V0);
+                                    ErrorMatrixV0,Chi2PerTrk,TrkAtVrtV0,Chi2V0,
+                                    *state, true);
                   if(sc.isSuccess()) {
-                    sc=m_fitSvc->VKalVrtCvtTool(FitVertexV0,MomentumV0,ErrorMatrixV0,0,VKPerigee,CovPerigee);
+                    sc=m_fitSvc->VKalVrtCvtTool(FitVertexV0,MomentumV0,ErrorMatrixV0,0,VKPerigee,CovPerigee,*state);
                     if(sc.isSuccess()) {
-                      const Trk::Track* TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee); 
-                      double ImpactSignifV0=m_fitSvc->VKalGetImpact(TT, PrimVrt.position(), 0, Impact, ImpactError);
+                      const Trk::Track* TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee,*state); 
+                      double ImpactSignifV0=m_fitSvc->VKalGetImpact(TT, PrimVrt.position(), 0, Impact, ImpactError, *state);
                       if(m_fillHist){m_hb_impV0->Fill( ImpactSignifV0, m_w_1);}
 	              if(ImpactSignifV0>3.0 ) BadTracks=0;
 		      delete TT;

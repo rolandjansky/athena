@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////
@@ -574,12 +574,13 @@ namespace Muon {
 		++m_trackSLFits;
 		ATH_MSG_VERBOSE("Track fit of truth trajectory successful, track created. " << std::endl 
 				<< m_printer->print(*track) << std::endl << m_printer->printStations(*track) );
-		Trk::Track* cleanedTrack = m_trackCleaner->clean(*track);
-		if( cleanedTrack && cleanedTrack != track ){
+		std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*track);
+		if( cleanedTrack && !(cleanedTrack->perigeeParameters() == track->perigeeParameters()) ){
 		  ATH_MSG_DEBUG("SL Before cleaner " << m_printer->print(*track) << std::endl 
 				<< " After cleaner " << m_printer->print(*cleanedTrack) );
 		  delete track;
-		  track = cleanedTrack;
+		  //using release until the entire code can be migrated to use smart pointers
+		  track = cleanedTrack.release();
 		  ++m_trackCleanedSL;
 		}else if( !cleanedTrack ) {
 		  ++m_failedTrackCleaningSL;
@@ -603,12 +604,13 @@ namespace Muon {
 			    << m_printer->print(*track) << std::endl << m_printer->printStations(*track) );
 	    ++m_trackFits;
 
-	    Trk::Track* cleanedTrack = m_trackCleaner->clean(*track);
-	    if( cleanedTrack && cleanedTrack != track ){
+	    std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*track);
+	    if( cleanedTrack && !(cleanedTrack->perigeeParameters() == track->perigeeParameters()) ){
 	      ATH_MSG_DEBUG("Before cleaner " << m_printer->print(*track) << std::endl 
 			    << " After cleaner " << m_printer->print(*cleanedTrack) );
 	      delete track;
-	      track = cleanedTrack;
+	      //using release until the entire code can be migrated to use smart pointers
+	      track = cleanedTrack.release();
 	      ++m_trackCleaned;
 	    }else{
 	      ++m_failedTrackCleaning;
@@ -696,12 +698,13 @@ namespace Muon {
 	ATH_MSG_WARNING("Segment fit of truth trajectory NOT successful, NO segment created. ");
       }else{
 
-	Trk::Track* cleanedTrack = m_trackCleaner->clean(*track);
-	if( cleanedTrack && cleanedTrack != track ){
+	std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*track);
+	if( cleanedTrack && !(cleanedTrack->perigeeParameters() == track->perigeeParameters()) ){
 	  ATH_MSG_DEBUG("Segment Before cleaner " << m_printer->print(*track) << std::endl 
 			<< " After cleaner " << m_printer->print(*cleanedTrack) );
 	  delete track;
-	  track = cleanedTrack;
+	  //using release until the entire code can be migrated to use smart pointers
+	  track = cleanedTrack.release();
 	  ++m_nsegmentCleaned[layer.stIndex];
 	}else if( !cleanedTrack ) {
 	  ATH_MSG_WARNING("Segment cleaning failed, NO segment created. ");

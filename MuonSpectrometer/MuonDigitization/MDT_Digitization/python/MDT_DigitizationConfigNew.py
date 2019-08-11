@@ -3,7 +3,6 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from StoreGate.StoreGateConf import StoreGateSvc
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from MDT_Digitization.MDT_DigitizationConf import (
@@ -19,10 +18,6 @@ def MDT_FirstXing():
 def MDT_LastXing():
     # was 800 for large time window
     return 150
-
-def MDT_ItemList():
-    """Return list of item names needed for MDT output"""
-    return ["MuonSimDataCollection#*", "MdtCsmContainer#*"]
 
 def MDT_RangeToolCfg(flags, name="MDT_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for MDT"""
@@ -43,8 +38,9 @@ def MDT_Response_DigiToolCfg(flags, name="MDT_Response_DigiTool",**kwargs):
     return MDT_Response_DigiTool(name, **kwargs)
 
 def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
-    """Return a ComponentAccumulator with configured MdtDigitizationTool"""
-    acc = ComponentAccumulator()
+    """Return ComponentAccumulator with configured MdtDigitizationTool"""
+    from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
+    acc = MdtCondDbAlgCfg(flags)
     kwargs.setdefault("MaskedStations", [])
     kwargs.setdefault("UseDeadChamberSvc", True)
     kwargs.setdefault("DiscardEarlyHits", True)
@@ -64,17 +60,8 @@ def MDT_DigitizationToolCfg(flags, name="MDT_DigitizationTool", **kwargs):
     acc.setPrivateTools(MdtDigitizationTool(name, **kwargs))
     return acc
 
-def MDT_DigitizerCfg(flags, name="MDT_Digitizer", **kwargs):
-    """Return a ComponentAccumulator with configured MDT_Digitizer algorithm"""
-    acc = MuonGeoModelCfg(flags)
-    tool = acc.popToolsAndMerge(MDT_DigitizationToolCfg(flags))
-    kwargs.setdefault("DigitizationTool", tool)
-    acc.addEventAlgo(MDT_Digitizer(name, **kwargs))
-    acc.merge(OutputStreamCfg(flags, "RDO", MDT_ItemList()))
-    return acc
-
 def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**kwargs):
-    """Return a ComponentAccumulator with MdtDigitizationTool configured for Overlay"""
+    """Return ComponentAccumulator with MdtDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "MDT_DIGITS")
@@ -83,11 +70,27 @@ def MDT_OverlayDigitizationToolCfg(flags, name="MDT_OverlayDigitizationTool",**k
         kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "MDT_SDO")
     return acc
 
-def MDT_OverlayDigitizerCfg(flags, name="MDT_OverlayDigitizer", **kwargs):
-    """Return a ComponentAccumulator with MDT_Digitizer algorithm configured for Overlay"""
+
+def MDT_DigitizerBasicCfg(toolCfg, flags, name, **kwargs):
+    """Return ComponentAccumulator with toolCfg configured MDT_Digitizer algorithm"""
     acc = MuonGeoModelCfg(flags)
-    tool = acc.popToolsAndMerge(MDT_OverlayDigitizationToolCfg(flags))
+    tool = acc.popToolsAndMerge(toolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
     acc.addEventAlgo(MDT_Digitizer(name, **kwargs))
     return acc
+
+def MDT_DigitizerOutputCfg(toolCfg, flags, name, **kwargs):
+    """Return ComponentAccumulator with toolCfg configured MDT Digitizer algorithm and OutputStream"""
+    acc = MDT_DigitizerBasicCfg(toolCfg, flags, name, **kwargs)
+    acc.merge(OutputStreamCfg(flags, "RDO", ["MuonSimDataCollection#*", "MdtCsmContainer#*"]))
+    return acc
+
+
+def MDT_DigitizerCfg(flags, name="MDT_Digitizer", **kwargs):
+    """Return ComponentAccumulator with configured MDT_Digitizer algorithm and Output"""
+    return MDT_DigitizerOutputCfg(MDT_DigitizationToolCfg, flags, name, **kwargs)
+
+def MDT_DigitizerOverlayCfg(flags, name="MDT_OverlayDigitizer", **kwargs):
+    """Return ComponentAccumulator with Overlay configured MDT_Digitizer algorithm and Output"""
+    return MDT_DigitizerOutputCfg(MDT_OverlayDigitizationToolCfg, flags, name, **kwargs)
 

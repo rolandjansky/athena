@@ -19,20 +19,20 @@ if DQMonFlags.doMonitoring():
 
    # don't set up lumi access if in MC or enableLumiAccess == False
    if globalflags.DataSource.get_Value() != 'geant4' and DQMonFlags.enableLumiAccess():
-      if not hasattr(ToolSvc,"LuminosityTool"):
-         if athenaCommonFlags.isOnline:
-            local_logger.debug("luminosity tool not found, importing online version")
-            from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-            ToolSvc+=LuminosityToolOnline()
-         else:
-            local_logger.debug("luminosity tool not found, importing offline version")
-            from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault 
-            ToolSvc+=LuminosityToolDefault()
+      if athenaCommonFlags.isOnline:
+         local_logger.debug("luminosity tool not found, importing online version")
+         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+         LuminosityCondAlgOnlineDefault()
+      else:
+         local_logger.debug("luminosity tool not found, importing offline version")
+         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault 
+         LuminosityCondAlgDefault()
 
-      if not hasattr(ToolSvc,"TrigLivefractionTool"):
-         local_logger.debug("live fraction tool not found, importing")
-         from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault 
-         ToolSvc+=TrigLivefractionToolDefault()
+      from LumiBlockComps.LBDurationCondAlgDefault import LBDurationCondAlgDefault 
+      LBDurationCondAlgDefault()
+
+      from LumiBlockComps.TrigLiveFractionCondAlgDefault import TrigLiveFractionCondAlgDefault 
+      TrigLiveFractionCondAlgDefault()
 
    from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
    from AthenaMonitoring.FilledBunchFilterTool import GetFilledBunchFilterTool
@@ -247,7 +247,11 @@ if DQMonFlags.doMonitoring():
    #--------------------------#
    # Post-setup configuration #
    #--------------------------#
+   if rec.triggerStream()=='express':
+      include("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
    local_logger.debug('DQ Post-Setup Configuration')
+   import re
+   from AthenaMonitoring.EventFlagFilterTool import GetEventFlagFilterTool
 
    # now the DQ tools are private, extract them from the set of monitoring algorithms
    toolset = set()
@@ -271,6 +275,25 @@ if DQMonFlags.doMonitoring():
          if rec.triggerStream()=='express':
             local_logger.info('Stream is express and we will add ready tool for %s', tool)
             tool.FilterTools += [GetAtlasReadyFilterTool()]
+         # if requested: configure a generic event cleaning tool
+         if not athenaCommonFlags.isOnline() and any(re.match(_, tool.name()) for _ in DQMonFlags.includeInCleaning()):
+            if tool.name() in DQMonFlags.specialCleaningConfiguration():
+               config_ = DQMonFlags.specialCleaningConfiguration()[tool.name()].copy()
+               for _ in config_:
+                  try:
+                     config_[_] = bool(config_[_])
+                  except:
+                     local_logger.error('Unable to enact special event cleaning configuration for tool %s; cannot cast %s=%s to bool', tool.name(), _, config_[_])
+               config_['name'] = 'DQEventFlagFilterTool_%s' % tool.name()
+               tool.FilterTools += [GetEventFlagFilterTool(**config_)]
+               del config_
+               local_logger.info('Configurating special event cleaning for tool %s', tool)
+            else:
+               local_logger.info('Configuring generic event cleaning for tool %s', tool)
+               tool.FilterTools += [GetEventFlagFilterTool('DQEventFlagFilterTool')]
+         else:
+            local_logger.info('NOT configuring event cleaning for tool %s', tool)
+
          # give all the tools the trigger translator
          if DQMonFlags.useTrigger():
             tool.TrigDecisionTool = monTrigDecTool
@@ -281,5 +304,23 @@ if DQMonFlags.doMonitoring():
             local_logger.debug('Applying postexec transform to  ===> %s', tool)
             postprocfunc(tool)
             del postprocfunc
+
+   # # set up new-style monitoring with new-style configuration
+   # # only enable this when we understand details better...
+   # local_logger.info('Setting up new-style DQ monitoring')
+   # from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
+   # from AthenaCommon.Configurable import Configurable
+
+   # _ = Configurable.configurableRun3Behavior
+   # Configurable.configurableRun3Behavior = 1
+   # from AthenaConfiguration.AllConfigFlags import ConfigFlags
+   # ConfigFlags.Input.Files = jobproperties.AthenaCommonFlags.FilesInput()
+   # ConfigFlags.Output.HISTFileName = DQMonFlags.histogramFile()
+   # ConfigFlags.DQ.isReallyOldStyle = True
+   # _2 = AthenaMonitoringCfg(ConfigFlags)
+   # Configurable.configurableRun3Behavior = _
+   # _2.printConfig()
+   # _2.appendToGlobals()
+   # del _, _2
 
 del local_logger

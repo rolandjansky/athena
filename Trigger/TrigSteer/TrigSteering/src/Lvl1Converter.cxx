@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -203,7 +203,8 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
    // =============================================================
 
    if(m_doTiming) m_lvl1ItemsTime->start();
-   const std::vector<const LVL1CTP::Lvl1Item*>& items = m_lvl1Tool->createL1Items(*result, true);
+   const LVL1CTP::Lvl1Result* lvl1Result = nullptr;
+   std::vector<const LVL1CTP::Lvl1Item*> items = m_lvl1Tool->createL1Items(*result, &lvl1Result);
 
    ATH_MSG_DEBUG("Lvl1 provides: " <<  items.size()  << " items");
    if  ( items.size() == 0 ) {

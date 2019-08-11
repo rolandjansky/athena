@@ -24,6 +24,9 @@ using __gnu_cxx::hash_map;
 #define PRINT_ROADS_SECTOR -1
 #define PRINT_ROADS_NUM 100
 
+#define PRINT_ROADS_SECTOR -1
+#define PRINT_ROADS_NUM 100
+
 FTKTSPBank::FTKTSPBank(int bankid, int subid) :
     FTK_AMBank(bankid, subid),
     m_TSPProcessor(0x0),

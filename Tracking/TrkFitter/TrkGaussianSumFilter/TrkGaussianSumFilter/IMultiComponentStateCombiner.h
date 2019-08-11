@@ -14,29 +14,32 @@ decription           : Abstract interface for the Multi Component State Combiner
 #ifndef IMultiComponentStateCombiner_H
 #define IMultiComponentStateCombiner_H
 
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "GaudiKernel/IAlgTool.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 namespace Trk {
 
 static const InterfaceID IID_MultiComponentStateCombiner("MultiComponentStateCombiner", 1, 0);
 
-class IMultiComponentStateCombiner : virtual public IAlgTool {
+class IMultiComponentStateCombiner : virtual public IAlgTool
+{
 
-  public:
-
+public:
   /** Virtual destructor */
-  virtual ~IMultiComponentStateCombiner () {};
+  virtual ~IMultiComponentStateCombiner(){};
 
   /** AlgTool interface methods */
-  static const InterfaceID& interfaceID () { return IID_MultiComponentStateCombiner; };
+  static const InterfaceID& interfaceID() { return IID_MultiComponentStateCombiner; };
 
   /** Calculate combined state of many components */
-  virtual const TrackParameters* combine( const MultiComponentState&, bool useModeTemp = false) const = 0;
+  virtual const TrackParameters* combine(const MultiComponentState&, bool useModeTemp = false) const = 0;
 
   /** Calculate combined state and weight of many components */
-  virtual const ComponentParameters* combineWithWeight( const MultiComponentState&, bool useModeTemp = false ) const = 0;
+  virtual void combineWithWeight(std::pair<std::unique_ptr<Trk::TrackParameters>, double>& mergeTo,
+                                 const std::pair<std::unique_ptr<Trk::TrackParameters>, double>& addThis) const = 0;
 
+  /** Calculate combined state and weight of many components */
+  virtual const ComponentParameters* combineWithWeight(const MultiComponentState&, bool useModeTemp = false) const = 0;
 };
 
 } // end Trk namespace

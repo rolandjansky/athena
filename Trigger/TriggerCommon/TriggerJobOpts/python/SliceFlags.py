@@ -1,5 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# flake8: noqa
 import TriggerMenu.egamma.EgammaSliceFlags
 import TriggerMenu.jet.JetSliceFlags
 import TriggerMenu.bjet.BjetSliceFlags
@@ -17,5 +17,3 @@ import TriggerMenu.calibcosmicmon.MonitorSliceFlags
 import TriggerMenu.calibcosmicmon.BeamspotSliceFlags
 import TriggerMenu.calibcosmicmon.EnhancedBiasSliceFlags
 import TriggerMenu.test.TestSliceFlags
-
-

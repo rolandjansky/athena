@@ -13,9 +13,6 @@
 #include "SGTools/DataProxy.h"
 
 #include "PersistentDataModel/Guid.h"
-namespace pool {
-   typedef ::Guid Guid;
-}
 #include "PersistentDataModel/Placement.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/TokenAddress.h"
@@ -53,7 +50,6 @@ long AthenaPoolConverter::repSvcType() const {
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-   std::lock_guard<CallMutex> lock(m_conv_mut);
    TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
    bool ownTokAddr = false;
    if (tokAddr == nullptr || tokAddr->getToken() == nullptr) {
@@ -63,6 +59,7 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
       GenericAddress* genAddr = dynamic_cast<GenericAddress*>(pAddr);
       tokAddr = new TokenAddress(*genAddr, token);
    }
+   std::lock_guard<CallMutex> lock(m_conv_mut);
    m_i_poolToken = tokAddr->getToken();
    try {
       if (!PoolToDataObject(pObj, tokAddr->getToken()).isSuccess()) {
@@ -87,7 +84,6 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
-   std::lock_guard<CallMutex> lock(m_conv_mut);
    const SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(pObj->registry());
    if (proxy == nullptr) {
       ATH_MSG_ERROR("AthenaPoolConverter CreateRep failed to cast DataProxy, key = "
@@ -95,6 +91,7 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAd
       return(StatusCode::FAILURE);
    }
    try {
+      std::lock_guard<CallMutex> lock(m_conv_mut);
       if (!DataObjectToPers(pObj, pObj->registry()->name()).isSuccess()) {
          ATH_MSG_ERROR("CreateRep failed, key = " << pObj->registry()->name());
          return(StatusCode::FAILURE);

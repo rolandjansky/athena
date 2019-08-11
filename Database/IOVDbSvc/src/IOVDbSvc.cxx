@@ -23,8 +23,8 @@
 #include "EventInfo/TagInfo.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 
-
 #include "IOVDbParser.h"
+
 #include "IOVDbFolder.h"
 #include "IOVDbSvc.h"
 
@@ -62,8 +62,7 @@ bool isOpenEnded (const IOVRange& range, bool isTimeStamp)
 {
   if (isTimeStamp) {
     return range.stop().timestamp() >= IOVTime::MAXTIMESTAMP;
-  }
-  else {
+  }else {
     return range.stop().re_time() >= IOVTime::MAXRETIME;
   }
 }
@@ -88,6 +87,8 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
     m_par_cacheAlign(0),
     m_par_onlineMode(false),
     m_par_checklock(false),
+    m_par_source("COOL_DATABASE"),
+    m_par_format(""), //default format for the source is empty
     m_h_IOVSvc     ("IOVSvc", name),
     m_h_sgSvc      ("StoreGateSvc", name),
     m_h_detStore   ("DetectorStore", name),
@@ -97,14 +98,12 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
     m_h_poolSvc    ("PoolSvc", name),
     m_h_metaDataTool("IOVDbMetaDataTool"),
     m_h_tagInfoMgr("TagInfoMgr", name),
-    //m_log(0),
     m_poolPayloadRequested(false),
     m_poolSvcContext(0),
     m_state (INITIALIZATION),
     m_globalTag(""),
     m_iovslop(),
-    m_abort(false)//,
-    //m_msg("IOVDbSvc")
+    m_abort(false)
 {
   // declare all properties
   declareProperty("dbConnection",          m_par_defaultConnection);
@@ -126,6 +125,9 @@ IOVDbSvc::IOVDbSvc( const std::string& name, ISvcLocator* svc )
   declareProperty("CacheAlign",            m_par_cacheAlign);
   declareProperty("OnlineMode",            m_par_onlineMode);
   declareProperty("CheckLock",             m_par_checklock);
+  declareProperty("Source",                m_par_source);
+  declareProperty("Format",                m_par_format);
+  declareProperty("OutputToFile",          m_outputToFile);
 }
 
 IOVDbSvc::~IOVDbSvc() {}
@@ -146,8 +148,6 @@ IOVDbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
 
 StatusCode IOVDbSvc::initialize() {
   if (StatusCode::SUCCESS!=AthService::initialize()) return StatusCode::FAILURE;
-  // initialise message stream after service init to get correct print level
-  //m_log=new MsgStream(msgSvc(),name());
   // subscribe to events
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
   if (StatusCode::SUCCESS!=incSvc.retrieve()) {
@@ -234,6 +234,7 @@ StatusCode IOVDbSvc::initialize() {
   m_state=IOVDbSvc::INITIALIZATION;
   ATH_MSG_INFO( "Initialised with " << m_connections.size() << 
     " connections and " << m_foldermap.size() << " folders" );
+  if (m_outputToFile) ATH_MSG_INFO("Db dump to file activated");
   ATH_MSG_INFO( "Service IOVDbSvc initialised successfully" );
   return StatusCode::SUCCESS;
 }
@@ -316,8 +317,6 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
         if (fitr->second->folderName()==fname && !(fitr->second->tagOverride())) {
           ATH_MSG_INFO( "Folder " << fname << " will be taken from file metadata" );
           fitr->second->setMetaCon(cont.cptr());
-          // print metadata if in debug mode
-          //ATH_MSG_DEBUG( printMetaDataContainer(cont.cptr()));
           ++nused;
           break;
         }
@@ -487,7 +486,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   // check consistency of global tag and database instance, if set
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty()) {
+  if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
     const std::string tagstub=m_globalTag.substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
@@ -505,6 +504,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
 
   // obtain the validity key for this folder (includes overrides)
   cool::ValidityKey vkey=folder->iovTime(m_iovTime);
+  ATH_MSG_DEBUG("Validity key "<<vkey);
   if (!folder->readMeta() && !folder->cacheValid(vkey)) {
     // mark this folder as not-dropped so cache-read will succeed
     folder->setDropped(false);
@@ -557,7 +557,6 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
                                IOpaqueAddress*&   address) {
 
   ATH_MSG_DEBUG( "getRange  clid: " << clid << " key: \""<< dbKey << "\"  t: " << time );
-
   const std::string& key=dbKey;
   FolderMap::const_iterator fitr=m_foldermap.find(key);
   if (fitr==m_foldermap.end()) {
@@ -576,12 +575,10 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
 
   /// FIXME?
   tag = folder->key();
-
-
   // check consistency of global tag and database instance, if set
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty()) {
+  if (!m_par_dbinst.empty() && !m_globalTag.empty() and m_par_source!="CREST") {
     const std::string tagstub=m_globalTag.substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
@@ -611,7 +608,6 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
   }
 
   // data should now be in cache
-  //  IOpaqueAddress* address=0;
   address=0;
   // setup address and range
   {
@@ -768,23 +764,8 @@ void IOVDbSvc::handle( const Incident& inc) {
   }
 }
 
-StatusCode IOVDbSvc::registerTagInfoCallback() {
-  // register callback for taginfo handling
-  // for the moment, this calls processTagInfo directly, rather than going
-  // via a call back (following RDS 08/2006)
-  ATH_MSG_DEBUG( "registerTagInfoCallback called" );
-  std::list<std::string> alist;
-  int a=0;
-  if (StatusCode::SUCCESS!=processTagInfo(a,alist)) {
-    ATH_MSG_ERROR( "Cannot process TagInfo" );
-    return StatusCode::FAILURE;
-  } else {
-    return StatusCode::SUCCESS;
-  }
-}
-
-StatusCode IOVDbSvc::processTagInfo(IOVSVC_CALLBACK_ARGS) {
-  // Processing of taginfo callback
+StatusCode IOVDbSvc::processTagInfo() {
+  // Processing of taginfo
   // Set GlobalTag and any folder-specific overrides if given
   const TagInfo* tagInfo=0;
   if (StatusCode::SUCCESS!=m_h_detStore->retrieve(tagInfo)) {
@@ -1062,7 +1043,7 @@ StatusCode IOVDbSvc::setupFolders() {
     // create the new folder, but only if a folder for this SG key has not
     // already been requested
     IOVDbFolder* folder=new IOVDbFolder(conn,folderdata,msg(),&(*m_h_clidSvc),
-                                        m_par_checklock);
+                                        m_par_checklock, m_outputToFile, m_par_source);
     const std::string& key=folder->key();
     if (m_foldermap.find(key)==m_foldermap.end()) {  //This check is too weak. For POOL-based folders, the SG key is in the folder description (not known at this point).
       m_foldermap[key]=folder;
@@ -1162,8 +1143,7 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn, const IOVTime* time) {
       {
         Gaudi::Guards::AuditorGuard auditor(std::string("FldrCache:")+folder->folderName(), auditorSvc(), "preLoadProxy");
         if (!folder->loadCache(vkey,m_par_cacheAlign,m_globalTag,m_par_onlineMode)) {
-          ATH_MSG_ERROR( "Cache load (prefetch) failed for folder " << 
-            folder->folderName() );
+          ATH_MSG_ERROR( "Cache load (prefetch) failed for folder " << folder->folderName() );
           // remember the failure, but also load other folders on this connection
           // while it is open
           sc=StatusCode::FAILURE;

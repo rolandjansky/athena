@@ -178,22 +178,14 @@ if TileUseCOOL:
 ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
 ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ] 
 
-topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
 
 from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
 TileDQstatusAlgDefault()
 
 if not athenaCommonFlags.isOnline():
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
-    lumiTool = LuminosityToolDefault()
-    lumiTool.OutputLevel = DEBUG
-    toolSvc += lumiTool
+    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
+    LuminosityCondAlgDefault()
 
-if not athenaCommonFlags.isOnline() and False:
-    from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
-    liveTool = TrigLivefractionToolDefault()
-    liveTool.OutputLevel = DEBUG
-    toolSvc += liveTool
 
 TileRunType = 2 # laser run
 doTileFit = True

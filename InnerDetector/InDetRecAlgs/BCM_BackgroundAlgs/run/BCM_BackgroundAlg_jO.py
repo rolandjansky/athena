@@ -46,27 +46,19 @@ theApp.EvtMax = nEvents
 from RecExConfig.RecFlags import rec
 rec.AutoConfiguration=['everything']
 
-from RecExConfig.InputFilePeeker import inputFileSummary
+
+from PyUtils.MetaReaderPeeker import metadata
 from AthenaCommon.GlobalFlags import globalflags
+globalflags.DataSource = 'data' if metadata['eventTypes'][0] == 'IS_DATA' else 'geant4'
+globalflags.DetDescrVersion = metadata['GeoAtlas']
 
-iKeys = inputFileSummary.keys()
-
-print 'content of inputFileSummary'
-for k in iKeys:
-    if 0:
-        print k,':',inputFileSummary[k]
-    
-if inputFileSummary['evt_type'][0] == 'IS_DATA' :
-    globalflags.DataSource  = 'data'
-if inputFileSummary['evt_type'][0] == 'IS_SIMULATION' :
-    globalflags.DataSource  = 'geant4'
-
-globalflags.DetDescrVersion = inputFileSummary['geometry']
 #--------------------------------------------------------------
-# build rootfile name 
-runnumber = str(inputFileSummary['run_number'][0])
-streamName = inputFileSummary['stream_tags'][0]['stream_type'] + '_' + inputFileSummary['stream_tags'][0]['stream_name']
-    
+# build rootfile name
+
+runnumber = str(metadata['runNumbers'][0])
+streamName = None
+if '/TRIGGER/HLT/Menu' in metadata and 'StreamInfo' in metadata['/TRIGGER/HLT/Menu']:
+    streamName = '{}_{}'.format(metadata['/TRIGGER/HLT/Menu']['StreamInfo'][0], metadata['/TRIGGER/HLT/Menu']['StreamInfo'][1])
 rootfilename = 'bcm_bkgword' 
 
 #--------------------------------------------------------------

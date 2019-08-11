@@ -68,7 +68,7 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   , m_rndmEngineName("LArTTL1Maker")
   , m_rndmEngine(0)
   , m_ttSvc("CaloTriggerTowerService")
-  , m_fSamplKey("LArfSampl")
+  , m_fSamplKey("LArfSamplSym")
   , m_EmTTL1ContainerName{"LArTTL1EM"}
   , m_HadTTL1ContainerName{"LArTTL1HAD"}
   , m_xxxHitContainerName{{std::string("LArHitEMB"),std::string("LArHitEMEC"), std::string("LArHitHEC"),std::string("LArHitFCAL")}}

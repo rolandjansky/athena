@@ -36,35 +36,6 @@ JetCalibrationToolBase::~JetCalibrationToolBase()
 
 double JetCalibrationToolBase::m_GeV(1000);
 
-// Public Methods
-/////////////////
-
-StatusCode JetCalibrationToolBase::applyCalibration(xAOD::Jet&) const { return StatusCode::FAILURE; }
-
-/*
-StatusCode JetCalibrationToolBase::calibratedCopy(const xAOD::Jet& inputJet, xAOD::Jet*& outputJet) {
-
-  // Create a temporary new jet to hold the calibration:
-  //std::auto_ptr< xAOD::Jet > tmpJet( new xAOD::Jet() );
-  xAOD::Jet * tmpJet = new xAOD::Jet();
-
-  //make a deep copy of the input jet
-  tmpJet->makePrivateStore( inputJet );
-
-  //apply the calibration
-  StatusCode result = applyCalibration(*tmpJet);
-
-  //Put the calibrated information in the output jet, if the calibration succeeded
-  if ( result != StatusCode::FAILURE)
-    outputJet = tmpJet;
-    //outputJet = tmpJet.release();
-
-  //tmpJet.reset();
-  delete tmpJet;
-  return result;
-}
-*/
-
 // Protected Methods
 /////////////////////
 

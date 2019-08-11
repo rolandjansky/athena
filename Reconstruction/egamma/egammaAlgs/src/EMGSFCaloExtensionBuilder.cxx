@@ -77,7 +77,6 @@ StatusCode EMGSFCaloExtensionBuilder::execute()
   ATH_CHECK(m_perigeeParticleCaloExtensionTool->caloExtensionCollection(*ptrTracks,mask,*ptrPerigee)); 
   ATH_CHECK(m_lastParticleCaloExtensionTool->caloExtensionCollection(*ptrTracks,mask,*ptrLast));
 
-
   return StatusCode::SUCCESS;
 }
 

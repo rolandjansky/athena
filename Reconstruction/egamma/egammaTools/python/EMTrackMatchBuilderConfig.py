@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "ToolFactory to instantiate EMTrackMatchBuilder with default configuration"
+__doc__ = "Instantiate EMTrackMatchBuilder with default configuration"
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -16,14 +16,13 @@ def EMTrackMatchBuilderCfg(flags, name='EMTrackMatchBuilder', **kwargs):
     acc = ComponentAccumulator()
 
     if "ExtrapolationTool" not in kwargs:
-        extrapcacheAcc = EMExtrapolationToolsCacheCfg(flags)
-        kwargs["ExtrapolationTool"] = extrapcacheAcc.popPrivateTools()
-        acc.merge(extrapcacheAcc)
+        extrapcache = EMExtrapolationToolsCacheCfg(flags)
+        kwargs["ExtrapolationTool"] = extrapcache.popPrivateTools()
+        acc.merge(extrapcache)
 
     kwargs.setdefault("TrackParticlesName", flags.Egamma.Keys.Output.GSFTrackParticles)
     kwargs.setdefault("broadDeltaEta",      0.1)    # candidate match is done in 2 times this  so +- 0.2
     kwargs.setdefault("broadDeltaPhi",      0.15)   # candidate match is done in 2 times this  so +- 0.3
-    kwargs.setdefault("useLastMeasurement", False)  # important for GSF!!!
     kwargs.setdefault("useCandidateMatch",  True)
     kwargs.setdefault("useScoring",         True)
     kwargs.setdefault("SecondPassRescale",  True)

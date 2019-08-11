@@ -12,7 +12,7 @@
 
 // Include files.
 #include "TrigROBDataProviderSvc.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -776,7 +776,7 @@ void TrigROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
       const uint32_t* it_status;
       it_robf->status(it_status);
       if ((*it_status) != 0) {
-	scoped_lock_histogram lock;
+	oh_scoped_lock_histogram lock;
 	m_hist_genericStatusForROB->Fill(eformat::helper::SourceIdentifier(it_robf->source_id()).human_detector().c_str(),
 					 m_map_GenericStatus[eformat::helper::Status(*it_status).generic()].c_str(),1.);
       }
@@ -787,7 +787,7 @@ void TrigROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
       const uint32_t* it_status;
       it_robf->status(it_status);
       if ((*it_status) != 0) {
-	scoped_lock_histogram lock;
+	oh_scoped_lock_histogram lock;
 	std::bitset<16> specificBits(eformat::helper::Status(*it_status).specific());
 	for (unsigned int index=0; index < 16; ++index) { 
 	  if (specificBits[index]) m_hist_specificStatusForROB->Fill(eformat::helper::SourceIdentifier(it_robf->source_id()).human_detector().c_str(),
@@ -1166,13 +1166,13 @@ int TrigROBDataProviderSvc::collectCompleteEventData(const std::string_view call
 
     //* timing histogram
     if (m_hist_timeROBretrieval) {
-      scoped_lock_histogram lock;
+      oh_scoped_lock_histogram lock;
       m_hist_timeROBretrieval->Fill(mtime);
       m_hist_timeROBretrieval->LabelsDeflate("X");
     }
     //* number of received ROBs
     if ( m_hist_receivedROBsPerCall ) {
-      scoped_lock_histogram lock;
+      oh_scoped_lock_histogram lock;
       m_hist_receivedROBsPerCall->Fill(retrievedRobIds.size());
       m_hist_receivedROBsPerCall->LabelsDeflate("X");
     }
@@ -1511,7 +1511,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
 	
     //* timing histogram
     if (m_hist_timeROBretrieval) {
-      scoped_lock_histogram lock;
+      oh_scoped_lock_histogram lock;
       m_hist_timeROBretrieval->Fill(mtime);
       m_hist_timeROBretrieval->LabelsDeflate("X");
     }
@@ -1525,19 +1525,19 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
 
   //* histograms for number of requested/received ROBs
   if ( m_hist_requestedROBsPerCall ) {
-    scoped_lock_histogram lock;
+    oh_scoped_lock_histogram lock;
     m_hist_requestedROBsPerCall->Fill(robIdsForRetrieval.size());
     m_hist_requestedROBsPerCall->LabelsDeflate("X");
   }
   if ( m_hist_receivedROBsPerCall ) {
-    scoped_lock_histogram lock;
+    oh_scoped_lock_histogram lock;
     m_hist_receivedROBsPerCall->Fill(vRobFragments.size());
     m_hist_receivedROBsPerCall->LabelsDeflate("X");
   }
 
     //* fill monitoring histogram for ROB requests
     if ( m_hist_retrievedROBsPerAlgo )  {     
-      scoped_lock_histogram lock;
+      oh_scoped_lock_histogram lock;
       m_hist_retrievedROBsPerAlgo->Fill(m_callerName.c_str(), vRobFragments.size());
       m_hist_retrievedROBsPerAlgo->LabelsDeflate("X");
     }
@@ -1588,7 +1588,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
       const uint32_t* it_status;
       (*it_robf)->status(it_status);
       if ((*it_status) != 0) {
-	scoped_lock_histogram lock;
+	oh_scoped_lock_histogram lock;
 	m_hist_genericStatusForROB->Fill(eformat::helper::SourceIdentifier((*it_robf)->source_id()).human_detector().c_str(),
 					 m_map_GenericStatus[eformat::helper::Status(*it_status).generic()].c_str(),1.);
       }
@@ -1601,7 +1601,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
       const uint32_t* it_status;
       (*it_robf)->status(it_status);
       if ((*it_status) != 0) {
-	scoped_lock_histogram lock;
+	oh_scoped_lock_histogram lock;
 	std::bitset<16> specificBits(eformat::helper::Status(*it_status).specific());
 	for (unsigned int index=0; index < 16; ++index) { 
 	  if (specificBits[index]) m_hist_specificStatusForROB->Fill(eformat::helper::SourceIdentifier((*it_robf)->source_id()).human_detector().c_str(),
@@ -1630,7 +1630,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
       uint32_t ROSid=(*it).second;
       if (find(ROSRequest.begin(), ROSRequest.end(),ROSid) == ROSRequest.end()){// new ROS id
 	if(m_hist_ROSRequest){
-	  scoped_lock_histogram lock;
+	  oh_scoped_lock_histogram lock;
 	  m_hist_ROSRequest->Fill( m_callerName.c_str(), eformat::helper::SourceIdentifier((*it_robf)->source_id()).human_detector().c_str(),1.);
 	  m_hist_ROSRequest->LabelsDeflate("X");
 	  logStream() << MSG::INFO << " ---> addROBDataToCache for "<<m_callerName<<": request to ROS 0x"<<std::hex<<ROSid<<std::dec <<" " <<eformat::helper::SourceIdentifier((*it_robf)->source_id()).human_detector().c_str()<< std::endl;

@@ -112,13 +112,16 @@ public:
     //@{
 
     ///the unique identification of the event.
-    EventID*            event_ID        () const;
+          EventID*            event_ID        ();
+    const EventID*            event_ID        () const;
 
     ///the type of the event, e.g. simulation, testbeam, etc
-    EventType*          event_type      () const;
+          EventType*          event_type      ();
+    const EventType*          event_type      () const;
 
     /// trigger information (ptr may be NULL)
-    TriggerInfo*        trigger_info    () const;
+          TriggerInfo*        trigger_info    ();
+    const TriggerInfo*        trigger_info    () const;
 
   //private:
     /// event flags for a particular sub-detector
@@ -203,22 +206,38 @@ private:
 };
 
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 inline EventID*
+EventInfo::event_ID     ()
+{
+    return (m_event_ID);
+}
+
+inline const EventID*
 EventInfo::event_ID     () const
 {
     return (m_event_ID);
 }
 
 inline EventType*
+EventInfo::event_type   () 
+{
+    return (m_event_type);
+}
+
+inline const EventType*
 EventInfo::event_type   () const
 {
     return (m_event_type);
 }
 
 inline TriggerInfo*   
+EventInfo::trigger_info    ()
+{
+    return (m_trigger_info);
+}
+
+inline const TriggerInfo*   
 EventInfo::trigger_info    () const
 {
     return (m_trigger_info);

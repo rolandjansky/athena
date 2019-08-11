@@ -1,10 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigBtagFex
-#from TrigBjetHypo.TrigBtagFexTuning import *
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import mm, GeV
 
 from AthenaCommon.AppMgr import ToolSvc
 from BTagging.BTaggingFlags import BTaggingFlags
@@ -60,7 +58,7 @@ class BtagFex (TrigBtagFex):
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
         if self.setupOfflineTools :
-            if BTagConfigSetupStatus == None :
+            if BTagConfigSetupStatus is None :
                 self.setupOfflineTools = False
             else :
                 self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
@@ -118,7 +116,7 @@ class BtagFexSplit (TrigBtagFex):
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True
         if self.setupOfflineTools :
-            if BTagConfigSetupStatus == None :
+            if BTagConfigSetupStatus is None :
                 self.setupOfflineTools = False
             else :
                 self.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")

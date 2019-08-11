@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Control/AthenaBaseComps
                           Control/CxxUtils
+			  Reconstruction/MuonIdentification/MuonCombinedEvent
                           Trigger/TrigConfiguration/TrigConfHLTData
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/DecisionHandling )
@@ -29,7 +30,7 @@ atlas_add_library( ViewAlgsLib
                    src/*.cxx
                    PUBLIC_HEADERS ViewAlgs
                    LINK_LIBRARIES xAODTrigger GaudiKernel AthViews xAODTrigCalo xAODTrigEgamma xAODJet xAODMuon
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils TrigConfHLTData TrigSteeringEvent DecisionHandlingLib )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps CxxUtils MuonCombinedEvent TrigConfHLTData TrigSteeringEvent DecisionHandlingLib )
 
 atlas_add_component( ViewAlgs
                      src/components/*.cxx

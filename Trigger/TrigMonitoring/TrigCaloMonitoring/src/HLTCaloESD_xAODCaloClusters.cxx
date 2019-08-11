@@ -12,7 +12,9 @@
 HLTCaloESD_xAODCaloClusters::HLTCaloESD_xAODCaloClusters(const std::string & type, const std::string & name, const IInterface* parent): 
   IHLTMonTool(type, name, parent) 
 {
-  declareProperty("HLTContainer", m_HLT_cont_name = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker");
+  declareProperty("RunMonitoring", m_runMonitoring = true);
+  declareProperty("HLTContainerRun2", m_HLT_cont_name_run2);
+  declareProperty("HLTContainerRun3", m_HLT_cont_name_run3);
   declareProperty("OFFContainer", m_OFF_cont_name = "CaloCalTopoClusters");
   declareProperty("MonGroupName", m_mongroup_name = "");
 
@@ -53,7 +55,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::init()
   for(unsigned int n=0; n<m_HLT_types.size(); n++)
     ATH_MSG_INFO("selected HLT cluster type: = " << m_HLT_types[n]);
   }
-  
+
   return StatusCode::SUCCESS;
   }
 
@@ -61,6 +63,14 @@ StatusCode HLTCaloESD_xAODCaloClusters::init()
 StatusCode HLTCaloESD_xAODCaloClusters::book() 
 {
   ATH_MSG_DEBUG("book()");
+  
+  // Set the HLT cluster collection
+  m_HLT_cont_name = m_HLT_cont_name_run2;
+  if (evtStore()->contains<xAOD::CaloClusterContainer>(m_HLT_cont_name_run3)) m_HLT_cont_name = m_HLT_cont_name_run3;
+
+  // Exit if no HLT container is provided
+  if (m_HLT_cont_name == "") m_runMonitoring = false;
+  if (!m_runMonitoring) return StatusCode::SUCCESS;
   
   // prepare folder structure
   if(m_mongroup_name.empty()) m_mongroup_name = m_HLT_cont_name;
@@ -70,9 +80,9 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addMonGroup(new MonGroup(this, m_mongroup_name, run));
   
   setCurrentMonGroup(m_mongroup_name);
-  
+
   // HLT clusters
-  addHistogram(new TH1F     ("HLT_num",     "Number of HLT Clusters; Num Clusters; Entries", 101,  -0.5, 100.5));
+  addHistogram(new TH1F     ("HLT_num",     "Number of HLT Clusters; Num Clusters; Entries", 201,  -5.0, 2005.0));
   addHistogram(new TH2F     ("HLT_num_map", "Number of HLT Clusters; #eta;         #phi;",    50,  -5.0,   5.0, 64, -M_PI, M_PI));
   addHistogram(new TH1F     ("HLT_et",      "HLT Cluster E_{T};      E_{T} [GeV];  Entries", 100,   0.0, 100.0));
   addHistogram(new TH1F     ("HLT_eta",     "HLT Cluster #eta;       #eta;         Entries",  50,  -5.0,   5.0));
@@ -81,7 +91,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addHistogram(new TH1F     ("HLT_size",    "HLT Cluster Size;       Num Cells;    Entries", 101,  -0.5, 200.5));
   
   // OFF clusters
-  addHistogram(new TH1F     ("OFF_num",     "Number of OFF Clusters; Num Clusters; Entries", 101,  -0.5, 100.5));
+  addHistogram(new TH1F     ("OFF_num",     "Number of OFF Clusters; Num Clusters; Entries", 201,  -5.0, 2005.0));
   addHistogram(new TH2F     ("OFF_num_map", "Number of OFF Clusters; #eta;         #phi",     50,  -5.0,   5.0, 64, -M_PI, M_PI));
   addHistogram(new TH1F     ("OFF_et",      "OFF Cluster E_{T};      E_{T} [GeV];  Entries", 100,   0.0, 100.0));
   addHistogram(new TH1F     ("OFF_eta",     "OFF Cluster #eta;       #eta;         Entries",  50,  -5.0,   5.0));
@@ -90,7 +100,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addHistogram(new TH1F     ("OFF_size",    "OFF Cluster Size;       Num Cells;    Entries", 101,  -0.5, 200.5));
 
   // OFF clusters (no HLT matches)
-  addHistogram(new TH1F     ("OFF_no_HLT_matches_num",     "Number of OFF Clusters (No HLT Matches); Num Clusters; Entries", 101,  -0.5, 100.5));
+  addHistogram(new TH1F     ("OFF_no_HLT_matches_num",     "Number of OFF Clusters (No HLT Matches); Num Clusters; Entries", 201,  -5.0, 2005.0));
   addHistogram(new TH2F     ("OFF_no_HLT_matches_num_map", "Number of OFF Clusters (No HLT Matches); #eta;         #phi",     50,  -5.0,   5.0, 64, -M_PI, M_PI));
   addHistogram(new TH1F     ("OFF_no_HLT_matches_et",      "OFF Cluster (No HLT Matches) E_{T};      E_{T} [GeV];  Entries", 100,   0.0, 100.0));
   addHistogram(new TH1F     ("OFF_no_HLT_matches_eta",     "OFF Cluster (No HLT Matches) #eta;       #eta;         Entries",  50,  -5.0,   5.0));
@@ -99,7 +109,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addHistogram(new TH1F     ("OFF_no_HLT_matches_size",    "OFF Cluster (No HLT Matches) Size;       Num Cells;    Entries", 101,  -0.5, 200.5));
 
   // OFF clusters (with HLT match)
-  addHistogram(new TH1F     ("OFF_with_HLT_match_num",     "Number of OFF Clusters (With HLT Match); Num Clusters; Entries", 101,  -0.5, 100.5));
+  addHistogram(new TH1F     ("OFF_with_HLT_match_num",     "Number of OFF Clusters (With HLT Match); Num Clusters; Entries", 201,  -5.0, 2005.0));
   addHistogram(new TH2F     ("OFF_with_HLT_match_num_map", "Number of OFF Clusters (With HLT Match); #eta;         #phi",     50,  -5.0,   5.0, 64, -M_PI, M_PI));
   addHistogram(new TH1F     ("OFF_with_HLT_match_et",      "OFF Cluster (With HLT Match) E_{T};      E_{T} [GeV];  Entries", 100,   0.0, 100.0));
   addHistogram(new TH1F     ("OFF_with_HLT_match_eta",     "OFF Cluster (With HLT Match) #eta;       #eta;         Entries",  50,  -5.0,   5.0));
@@ -125,6 +135,12 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
 StatusCode HLTCaloESD_xAODCaloClusters::fill() 
 {
   ATH_MSG_DEBUG("fill()");
+
+  // If runMonitoring flag is not set, we leave again
+  if (!m_runMonitoring) {
+        ATH_MSG_DEBUG("xAOD::CaloClusters monitoring is disabled. Returning...");
+        return StatusCode::SUCCESS;
+  }
   
   // retrieve HLT clusters 
   const xAOD::CaloClusterContainer* HLT_cont = 0;
