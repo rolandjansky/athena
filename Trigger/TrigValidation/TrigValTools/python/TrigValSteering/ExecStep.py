@@ -64,10 +64,7 @@ class ExecStep(Step):
         self.configure_job_options()
         self.configure_args(test)
 
-        # Print configuration
-        self.log.debug(
-            'Step configuration complete:\n-- %s',
-            '\n-- '.join(['{}: {}'.format(k, v) for k, v in self.__dict__.items()]))
+        super(ExecStep, self).configure(test)
 
     def configure_type(self):
         # Check if type or executable is specified

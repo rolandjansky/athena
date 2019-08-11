@@ -6,10 +6,12 @@
 Base classes for steps in Trigger ART tests
 '''
 
+import os
 import sys
+import signal
 import subprocess
 from enum import Enum
-
+from threading import Timer
 from TrigValTools.TrigValSteering.Common import get_logger, art_result
 
 
@@ -33,13 +35,19 @@ class Step(object):
         self.result = None
         self.auto_report_result = False
         self.required = False
+        self.timeout = None
 
     def get_log_file_name(self):
         return self.log_file_name or self.name+'.log'
 
     def configure(self, test=None):
-        '''Can be implemented by derived classes'''
-        pass
+        '''
+        Can be implemented by derived classes.
+        Base class implementation only prints the configuration to debug log.
+        '''
+        self.log.debug(
+            'Step configuration:\n-- %s\n',
+            '\n-- '.join(['{}: {}'.format(k, v) for k, v in self.__dict__.items()]))
 
     def report_result(self, result=None, name=None):
         if result is None:
@@ -58,6 +66,34 @@ class Step(object):
 
         art_result(result, name)
 
+    def __execute_with_timeout(self, cmd, timeout_sec):
+        '''
+        Execute a shell process and kill it if it doesn't finish
+        before timeout_sec seconds pass. The implementation is based on
+        https://stackoverflow.com/a/10012262 and https://stackoverflow.com/a/4791612
+        '''
+        proc = subprocess.Popen(cmd, shell=True, preexec_fn=os.setsid)
+        timer = Timer(timeout_sec, os.killpg,
+                      [os.getpgid(proc.pid), signal.SIGKILL])
+        try:
+            timer.start()
+            proc.communicate()
+        finally:
+            timer.cancel()
+
+        if proc.returncode == -signal.SIGKILL:
+            self.log.error('%s killed on timeout of %s seconds',
+                           self.name, self.timeout)
+            if (self.output_stream == self.OutputStream.FILE_ONLY or
+                    self.output_stream == self.OutputStream.FILE_AND_STDOUT):
+                with open(self.get_log_file_name(), 'a') as log_file:
+                    log_file.write(
+                        'ERROR process killed on timeout '
+                        'of {} seconds\n'.format(self.timeout))
+            return signal.SIGKILL  # return 9 instead of -9
+
+        return proc.returncode
+
     def run(self, dry_run=False):
         cmd = '{} {}'.format(self.executable, self.args)
         if self.output_stream == self.OutputStream.NO_PRINT:
@@ -73,7 +109,10 @@ class Step(object):
         if dry_run:
             self.result = 0
         else:
-            self.result = subprocess.call(cmd, shell=True)
+            if self.timeout:
+                self.result = self.__execute_with_timeout(cmd, self.timeout)
+            else:
+                self.result = subprocess.call(cmd, shell=True)
         if self.auto_report_result:
             self.report_result()
         return self.result, cmd
