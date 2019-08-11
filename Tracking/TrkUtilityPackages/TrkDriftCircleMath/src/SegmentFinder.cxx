@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkDriftCircleMath/SegmentFinder.h"
@@ -11,7 +11,6 @@
 #include "TrkDriftCircleMath/DriftCircle.h"
 #include "TrkDriftCircleMath/SortSegBySizeAndChi2.h"
 #include "TrkDriftCircleMath/ResidualWithSegment.h"
-
 
 #include <iostream>
 #include <algorithm>
@@ -25,7 +24,7 @@ namespace TrkDriftCircleMath {
     m_phiRoad(acos(0.)), m_roadDir(0.,0.), m_phiChamber(acos(0.)), m_chamberDir(0.,0.), m_phiDifCut(0.5), 
     m_ratioEmptyTubesCut(1.), m_chi2Cut(10.),m_tgcPullCut(5.),m_rpcPullCut(5.),
     m_resCutT0(1.),m_deltaCutT0(5.),
-    m_useSegmentQuality(false),m_recoverMdtHits(true),m_dropDepth(0),m_hasDroppedHit(false),
+    m_useSegmentQuality(false),m_recoverMdtHits(true),
     m_removeSingleOutliers(true),m_fullScan(false), m_singleMultiLayerScan(true), m_seedCleaning(false), 
     m_doDrop(true), m_dropDepthMax(4), m_doAllHitSort(false),m_doCurvedSegmentFinder(false), 
     m_useChamberPhi(true),m_useRoadPhi(true),m_mdtGeometry(0),m_dropDepthAcceptCounts(m_dropDepthMax+2,0),m_dropDepthRejectCounts(m_dropDepthMax+1,0)
@@ -33,7 +32,6 @@ namespace TrkDriftCircleMath {
     m_ownsFitter = true;
     m_fitter = new DCSLFitter();
     m_debugLevel = 0;
-    m_dropDepth = 0;
     
     // update the cached directions
     updateDirections();
@@ -44,7 +42,6 @@ namespace TrkDriftCircleMath {
     m_phiRoad(acos(0.)), m_roadDir(0.,0.), m_phiChamber(acos(0.)), m_chamberDir(0.,0.), m_phiDifCut(0.5), 
     m_ratioEmptyTubesCut(1.), m_chi2Cut(10.),m_tgcPullCut(5.),m_rpcPullCut(5.),
     m_resCutT0(1.),m_deltaCutT0(5.),m_useSegmentQuality(false),m_recoverMdtHits(true),
-    m_dropDepth(0),m_hasDroppedHit(false),
     m_removeSingleOutliers(true),m_fullScan(fullScan), m_singleMultiLayerScan(true), m_seedCleaning(false), 
     m_doDrop(true), m_dropDepthMax(4), m_doAllHitSort(false), m_doCurvedSegmentFinder(false),
     m_useChamberPhi(true), m_useRoadPhi(true), m_mdtGeometry(0),m_dropDepthAcceptCounts(m_dropDepthMax+1,0),m_dropDepthRejectCounts(m_dropDepthMax+1,0)
@@ -52,7 +49,6 @@ namespace TrkDriftCircleMath {
     m_ownsFitter = true;
     m_fitter = new DCSLFitter();
     m_debugLevel = 0; 
-    m_dropDepth = 0;
 
     // update the cached directions
     updateDirections();
@@ -63,27 +59,21 @@ namespace TrkDriftCircleMath {
     if( m_ownsFitter ) delete m_fitter;
 
     if( m_debugLevel > 0 ){
+      std::lock_guard<std::mutex> lock(m_mutex);
       std::cout << " drop summary " << std::endl;
       for( unsigned int i=0;i<m_dropDepthMax+1;++i ){
-	      std::cout << " Accepted " << m_dropDepthAcceptCounts[i] << std::endl;
+        std::cout << " Accepted " << m_dropDepthAcceptCounts[i] << std::endl;
       }
       for( unsigned int i=0;i<m_dropDepthMax;++i ){
-	      std::cout << " Rejected " << m_dropDepthRejectCounts[i] << std::endl;
+        std::cout << " Rejected " << m_dropDepthRejectCounts[i] << std::endl;
       }
     }
-  }
-
-  const std::vector<int>& SegmentFinder::dropAcceptStatistics() const{
-    return m_dropDepthAcceptCounts;
-  }
-
-  const std::vector<int>& SegmentFinder::dropRejectStatistics() const {
-    return m_dropDepthRejectCounts;
   }
 
 
   void SegmentFinder::setMaxDropDepth( int max ) {
     m_dropDepthMax = max;
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_dropDepthAcceptCounts.clear();
     m_dropDepthAcceptCounts.resize(max+1,0);
     m_dropDepthRejectCounts.clear();
@@ -222,7 +212,8 @@ namespace TrkDriftCircleMath {
     std::cout << std::endl;
   }
 
-  void SegmentFinder::handleHits(  const DCVec& dcsIn, const CLVec& clsIn ) const {
+  void SegmentFinder::handleHits( const DCVec& dcsIn, const CLVec& clsIn, 
+                                  ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>>& segments ) const {
 
     DCVec dcs = dcsIn;
 
@@ -255,28 +246,28 @@ namespace TrkDriftCircleMath {
       }
 
       // search for segments crossing both multilayers
-      twoMultiLayerScan( seedsMl1, seedsMl2, dcs, clsIn );
+      twoMultiLayerScan( seedsMl1, seedsMl2, dcs, clsIn, segments);
 
       if(m_debugLevel >= 1){
 	std::cout << " two layer scan " << std::endl;
-	for( SegCit it = m_segments.data().begin(); it!= m_segments.data().end(); ++it ){
+	for( SegCit it = segments.data().begin(); it!= segments.data().end(); ++it ){
 	  std::cout << "  " << *it << std::endl;
 	}
       }
 
-      // reset m_segments so it contains only the cleaned segments
-      cleanSegments( m_segments.data() ).swap( preSelSegs );
-      m_segments.set( preSelSegs );
+      // reset segments so it contains only the cleaned segments
+      cleanSegments( segments.data() ).swap( preSelSegs );
+      segments.set( preSelSegs );
 
       if(m_debugLevel >= 1) {
 	std::cout << " after cleaning " << std::endl;
-	for( SegCit it = m_segments.data().begin(); it!= m_segments.data().end(); ++it ){
+	for( SegCit it = segments.data().begin(); it!= segments.data().end(); ++it ){
 	  std::cout << "  " << *it << std::endl;
 	}
       }
 
       unsigned int usedHits(0);
-      for( SegCit it = m_segments.data().begin(); it!= m_segments.data().end(); ++it ){
+      for( SegCit it = segments.data().begin(); it!= segments.data().end(); ++it ){
 	usedHits += it->hitsOnTrack();
       }
 
@@ -289,21 +280,21 @@ namespace TrkDriftCircleMath {
       }else{
 
 	// full combinatorics in single ml
-	fullScan(seedsMl1, dcsPerMl.first, clsIn);
+	fullScan(seedsMl1, dcsPerMl.first, clsIn, segments);
 
 
 	if(m_debugLevel >= 1) {
 	  std::cout << " segments after scan multilayer 1 " << std::endl;
-	  for( SegCit it = m_segments.data().begin(); it!= m_segments.data().end(); ++it ){
+	  for( SegCit it = segments.data().begin(); it!= segments.data().end(); ++it ){
 	    std::cout << "  " << *it << std::endl;
 	  }
 	}
 
-	fullScan(seedsMl2, dcsPerMl.second, clsIn);
+	fullScan(seedsMl2, dcsPerMl.second, clsIn, segments);
 
 	if(m_debugLevel >= 1) {
 	  std::cout << " segments after scan multilayer 2 " << std::endl;
-	  for( SegCit it = m_segments.data().begin(); it!= m_segments.data().end(); ++it ){
+	  for( SegCit it = segments.data().begin(); it!= segments.data().end(); ++it ){
 	    std::cout << "  " << *it << std::endl;
 	  }
 	}
@@ -313,7 +304,7 @@ namespace TrkDriftCircleMath {
 
       // remove triples or larger ranges per layer
       DCVec seeds = selectSeeds( dcs, 3 );
-      fullScan(seeds, dcs, clsIn);
+      fullScan(seeds, dcs, clsIn, segments);
 
     }
   }
@@ -322,16 +313,16 @@ namespace TrkDriftCircleMath {
   SegVec SegmentFinder::findSegments( const DCVec& dcsIn, const CLVec& clsIn  ) const
   {
 
-    // reset segment collection
-    m_segments.clear();
+    // prepare segment collection
+    ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>> segments;
 
     // find segments
-    handleHits(dcsIn,clsIn);
+    handleHits(dcsIn, clsIn, segments);
    
     //Curved Segment finder
     if(m_mdtGeometry != 0 && m_doCurvedSegmentFinder) {   
       CurvedSegmentFinder CurvedSegFinder(m_debugLevel);
-      CurvedSegFinder.curvedSegments(*m_mdtGeometry,m_segments.data());
+      CurvedSegFinder.curvedSegments(*m_mdtGeometry,segments.data());
     }
     else if(m_debugLevel >= 5 && m_doCurvedSegmentFinder) std::cout << "CurvedSegmentFinder was passed a NULL pointer to the ChamberGeometry" << std::endl;
 
@@ -339,7 +330,7 @@ namespace TrkDriftCircleMath {
     SegVec selectedSegments;
 
     // final cleaning of segments
-    cleanSegments( m_segments.data() ).swap(selectedSegments);
+    cleanSegments( segments.data() ).swap(selectedSegments);
 
     // redo cluster association with final tracks
     associateClusters( selectedSegments, clsIn );
@@ -419,9 +410,10 @@ namespace TrkDriftCircleMath {
   SegVec SegmentFinder::refitSegments( const SegVec& segs ) const
   {
 
-
     // no segments found return empty segment vector
     if( segs.empty() ) return segs;
+
+    MatchDCWithLine matchWithLine;
 
     SegVec segments;
     segments.reserve( segs.size() );
@@ -443,20 +435,21 @@ namespace TrkDriftCircleMath {
 
       // drop hits is switched on
       bool goodSeg = true;
-      m_hasDroppedHit = false;
-      if( m_doDrop ) goodSeg = dropHits( segment );
+      bool hasDroppedHit = false;
+      unsigned int dropDepth = 0;
+      if( m_doDrop ) goodSeg = dropHits( segment, hasDroppedHit, dropDepth );
 
       if( goodSeg ){
 
-	if( !m_hasDroppedHit && !m_removeSingleOutliers ){
+	if( !hasDroppedHit && !m_removeSingleOutliers ){
 	  // if the segment was accepted without dropping we still have to refit it 
      
 	  // find all hits within cut-off
-	  m_matchWithLine.set( it->line(), m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
+	  matchWithLine.set( it->line(), m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
 	  bool usePrecise = segment.hasT0Shift();
-	  const DCOnTrackVec& hitsOnLine = m_matchWithLine.match( it->dcs(), 0, m_recoverMdtHits, usePrecise );
+	  const DCOnTrackVec& hitsOnLine = matchWithLine.match( it->dcs(), 0, m_recoverMdtHits, usePrecise );
 	  
-	  if( m_matchWithLine.matchDifference() > 0 ){
+	  if( matchWithLine.matchDifference() > 0 ){
 
 	    if(m_debugLevel >= 4) {
 	      std::cout << " -- " << *it;
@@ -471,30 +464,31 @@ namespace TrkDriftCircleMath {
 	    
 	    
 	    // reject segment if less then 3 hits remain
-	    if( m_matchWithLine.hitsOnTrack() <= 2 ){
+	    if( matchWithLine.hitsOnTrack() <= 2 ){
 	      continue;
 	    }
 
 	    // refit segment
+            Segment result( Line(0.,0.,0.), DCOnTrackVec() );
 	    if( it->hasT0Shift() ){
-	      if( !m_fitter->fit( it->line(), hitsOnLine, m_hitSelector.selectHitsOnTrack( hitsOnLine ), it->t0Shift() ) ) {
+	      if( !m_fitter->fit( result, it->line(), hitsOnLine, m_hitSelector.selectHitsOnTrack( hitsOnLine ), it->t0Shift() ) ) {
 		if( m_debugLevel >= 4 ) std::cout << " failed fit " << std::endl;
 		continue;
 	      }
 	    }else{
-	      if( !m_fitter->fit( it->line(), hitsOnLine, m_hitSelector.selectHitsOnTrack( hitsOnLine ) ) ) {
+	      if( !m_fitter->fit( result, it->line(), hitsOnLine, m_hitSelector.selectHitsOnTrack( hitsOnLine ) ) ) {
 		if( m_debugLevel >= 4 ) std::cout << " failed fit " << std::endl;
 		continue;
 	      }
 	    }
 	    if(m_debugLevel >= 4) {
 	      std::cout << " after fit " << std::endl;
-	      std::cout << m_fitter->result() << std::endl;
+	      std::cout << result << std::endl;
 	    }
-	    segment = m_fitter->result();
+	    segment = result;
 
 	    // update match parameters
-	    updateMatch( segment, m_matchWithLine );
+	    updateMatch( segment, matchWithLine );
 
 	    // keep close hits from initial road as information is not available anymore and shouldn't change to much
 	    segment.showerHits( it->showerHits() ); // copy showerHits of initial road
@@ -509,7 +503,7 @@ namespace TrkDriftCircleMath {
 	    if( !goodHitRatio( segment ) ) continue;
 	    
 	    // once more do dropping
-	    if( m_doDrop ) goodSeg = dropHits( segment );
+	    if( m_doDrop ) goodSeg = dropHits( segment, hasDroppedHit, dropDepth );
 	    
 	    if( !goodSeg ) {
 	      if(m_debugLevel >= 2) {
@@ -537,12 +531,12 @@ namespace TrkDriftCircleMath {
     return segments;
   }
 
-  bool SegmentFinder::dropHits( Segment& segment ) const 
+  bool SegmentFinder::dropHits( Segment& segment, bool& hasDroppedHit, unsigned int& dropDepth ) const
   {
-    if( m_dropDepth > m_dropDepthMax ){
+    if( dropDepth > m_dropDepthMax ){
       if( m_debugLevel >= 5 ){
 	std::cout << " dropDepth too large keeping segment " << segment << std::endl;
-	std::cout << " dropDepth " << m_dropDepth << std::endl; 
+	std::cout << " dropDepth " << dropDepth << std::endl;
 	DCOnTrackCit hit = segment.dcs().begin();
 	DCOnTrackCit hit_end = segment.dcs().end();
 	for( ;hit!=hit_end;++hit ){
@@ -553,17 +547,23 @@ namespace TrkDriftCircleMath {
 	  }
 	}
       }
-      if( m_debugLevel > 0 ) ++m_dropDepthAcceptCounts[m_dropDepth];
+      if( m_debugLevel > 0 ) {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        ++m_dropDepthAcceptCounts[dropDepth];
+      }
       return true;
     }
-    ++m_dropDepth;
+    ++dropDepth;
 
-    if( m_debugLevel >= 5 )  std::cout << " dropDepth " << m_dropDepth << " " << segment << std::endl;
+    if( m_debugLevel >= 5 )  std::cout << " dropDepth " << dropDepth << " " << segment << std::endl;
 
     // discard all segments with less then 3 hits 
     if(segment.ndof() <= 0) {
-      --m_dropDepth;
-      if( m_debugLevel > 0 ) ++m_dropDepthRejectCounts[m_dropDepth];
+      --dropDepth;
+      if( m_debugLevel > 0 ) {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        ++m_dropDepthRejectCounts[dropDepth];
+      }
       return false;
     }
 
@@ -597,8 +597,11 @@ namespace TrkDriftCircleMath {
       
       if( !hasBadHit ){
 	if( m_debugLevel >= 5 )  std::cout << " keeping candidate  " << segment << std::endl;
-	--m_dropDepth;
-	if( m_debugLevel > 0 ) ++m_dropDepthAcceptCounts[m_dropDepth];
+	--dropDepth;
+	if( m_debugLevel > 0 ) {
+          std::lock_guard<std::mutex> lock(m_mutex);
+          ++m_dropDepthAcceptCounts[dropDepth];
+        }
 	return true;
       }
     }
@@ -607,8 +610,11 @@ namespace TrkDriftCircleMath {
 
     // if segment has 3 hots and fails cut discard segment
     if( segment.hitsOnTrack() <= 3 ) {
-      --m_dropDepth;
-      if( m_debugLevel > 0 ) ++m_dropDepthRejectCounts[m_dropDepth];
+      --dropDepth;
+      if( m_debugLevel > 0 ) {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        ++m_dropDepthRejectCounts[dropDepth];
+      }
       return false;
     }    
 
@@ -622,6 +628,8 @@ namespace TrkDriftCircleMath {
     double bestChi2(1e9);
     int indexBest(-1);
 
+    MatchDCWithLine matchWithLine;
+
     // loop over selection and refit without hit
     for( unsigned int i=0;i<selection.size();++i ){
 
@@ -632,22 +640,23 @@ namespace TrkDriftCircleMath {
 	selection[i] = 1;
 
 	// refit segment
-	if( !m_fitter->fit( segment.line(), segment.dcs(), selection ) ){
+        Segment result( Line(0.,0.,0.), DCOnTrackVec() );
+	if( !m_fitter->fit( result, segment.line(), segment.dcs(), selection ) ){
 	  if( m_debugLevel >= 5 ) std::cout << " failed fit (dropHits) " << std::endl;
 	}else{
 	  if( m_debugLevel >= 5 ) std::cout << " dropping hit " << i << "  " << segment.dcs()[i] << std::endl;
 
 	  // add segment to vector
- 	  segs.push_back( m_fitter->result() );
+ 	  segs.push_back( result );
 	  Segment& newSegment = segs.back();
 
 	  // find all hits within cut-off
-	  m_matchWithLine.set( newSegment.line(), 0.7*m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
+	  matchWithLine.set( newSegment.line(), 0.7*m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
 	  bool usePrecise = newSegment.hasT0Shift();
-	  DCOnTrackVec hitsOnLine = m_matchWithLine.match( newSegment.dcs(), &selection, m_recoverMdtHits, usePrecise );
+	  DCOnTrackVec hitsOnLine = matchWithLine.match( newSegment.dcs(), &selection, m_recoverMdtHits, usePrecise );
 
 	  // if less then three hits left drop segment
-	  if( m_matchWithLine.hitsOnTrack() <= 2 ){
+	  if( matchWithLine.hitsOnTrack() <= 2 ){
 	    // reset flag
 	    selection[i] = 0;
 	    segs.pop_back(); // remove segment from vector
@@ -658,23 +667,23 @@ namespace TrkDriftCircleMath {
 	  newSegment.dcs(hitsOnLine);
 
 	  // check if number of hits used in fit equal to number of hits within 5 sigma of fit result
-	  if( m_matchWithLine.matchDifference() > 0  ){
+	  if( matchWithLine.matchDifference() > 0  ){
 	    if( m_debugLevel >= 5 ) {
-	      std::cout << " Hits on track content changed after match, redoing fit " << m_matchWithLine.hitsOnTrack() << std::endl;
+	      std::cout << " Hits on track content changed after match, redoing fit " << matchWithLine.hitsOnTrack() << std::endl;
 	      std::cout << " fit result " << newSegment << std::endl;
 	    }
 	    // redo refit using new prediction
-	    if( !m_fitter->fit( newSegment.line(), newSegment.dcs(), m_hitSelector.selectHitsOnTrack( newSegment.dcs() ) ) ){
+	    if( !m_fitter->fit( result, newSegment.line(), newSegment.dcs(), m_hitSelector.selectHitsOnTrack( newSegment.dcs() ) ) ){
 	      if( m_debugLevel >= 5 ) std::cout << " failed fit (dropHits2) " << std::endl;
 	      // reset flag
 	      selection[i] = 0;
 	      segs.pop_back(); // remove segment from vector
 	      continue;
 	    }else{
-	      m_matchWithLine.set( m_fitter->result().line(), 0.7*m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
-	      usePrecise = m_fitter->result().hasT0Shift();
-	      hitsOnLine = m_matchWithLine.match( m_fitter->result().dcs(), &selection, m_recoverMdtHits, usePrecise );
-	      newSegment = m_fitter->result();
+	      matchWithLine.set( result.line(), 0.7*m_deltaCut, MatchDCWithLine::Pull, tubeRadius() );
+	      usePrecise = result.hasT0Shift();
+	      hitsOnLine = matchWithLine.match( result.dcs(), &selection, m_recoverMdtHits, usePrecise );
+	      newSegment = result;
 	      // reset DCOnTracks
 	      newSegment.dcs(hitsOnLine);
 	      if( m_debugLevel >= 5 ) std::cout << " redid refit " << newSegment << std::endl;
@@ -683,7 +692,7 @@ namespace TrkDriftCircleMath {
 
 
 	  // update match parameters
-	  updateMatch( segs.back(), m_matchWithLine );
+	  updateMatch( segs.back(), matchWithLine );
 
 	  // keep close hits from initial road as information is not available anymore and shouldn't change to much
 	  segs.back().showerHits( segment.showerHits() ); // copy showerHits of initial road
@@ -720,20 +729,23 @@ namespace TrkDriftCircleMath {
     }
     
     // if we get here we performed hit dropping
-    m_hasDroppedHit = true;
+    hasDroppedHit = true;
 
     if( indexBest == -1 ){
       if( m_debugLevel >= 5 ) std::cout << " not good candidate found " << std::endl;
-      --m_dropDepth;
-      if( m_debugLevel > 0 ) ++m_dropDepthRejectCounts[m_dropDepth];
+      --dropDepth;
+      if( m_debugLevel > 0 ) {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        ++m_dropDepthRejectCounts[dropDepth];
+      }
       return false;
     }
 
     segment = segs[indexBest];
     if( m_debugLevel >= 5 ) std::cout << " best candidate " << segment << std::endl;
 
-    bool drop = dropHits( segment );
-    --m_dropDepth;
+    bool drop = dropHits( segment, hasDroppedHit, dropDepth );
+    --dropDepth;
     return drop;
   }
 
@@ -867,10 +879,11 @@ namespace TrkDriftCircleMath {
   }
 
   void SegmentFinder::handleSeedPair( const DriftCircle& seed1, const DriftCircle& seed2, 
-				      const DCVec& dcs, const CLVec& cls ) const {
+				      const DCVec& dcs, const CLVec& cls, MatchDCWithLine& matchWithLine,
+                                      ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>>& segments ) const {
 
     // create tangent lines
-    TangentToCircles::LineVec& lines = m_tanCreator.tangentLines( seed1, seed2 );
+    TangentToCircles::LineVec lines = m_tanCreator.tangentLines( seed1, seed2 );
 
 
     // loop over tangent lines match dcs with line
@@ -885,44 +898,45 @@ namespace TrkDriftCircleMath {
 	}
 	continue;
       }
-      m_matchWithLine.set( *lit, m_roadWidth, MatchDCWithLine::Road, tubeRadius() );
-      const DCOnTrackVec& hitsOnLine = m_matchWithLine.match( dcs );
+      matchWithLine.set( *lit, m_roadWidth, MatchDCWithLine::Road, tubeRadius() );
+      const DCOnTrackVec& hitsOnLine = matchWithLine.match( dcs );
 
-      if( m_matchWithLine.hitsOnTrack() <= 2 ) {
+      if( matchWithLine.hitsOnTrack() <= 2 ) {
 	if( m_debugLevel >= 19 ) {
-	  std::cout << " too few hits associated " << m_matchWithLine.hitsOnTrack() << std::endl;
+	  std::cout << " too few hits associated " << matchWithLine.hitsOnTrack() << std::endl;
 	}	
 	continue;
       }
-      if( m_matchWithLine.hitsOutOfTime() + m_matchWithLine.deltas() >= m_matchWithLine.hitsOnTrack() ){
+      if( matchWithLine.hitsOutOfTime() + matchWithLine.deltas() >= matchWithLine.hitsOnTrack() ){
 	if( m_debugLevel >= 19 ) {
-	  std::cout << " too many outliers: hoo " << m_matchWithLine.hitsOutOfTime() 
-		    << " delta " << m_matchWithLine.deltas() << " hot " << m_matchWithLine.hitsOnTrack() << std::endl;
+	  std::cout << " too many outliers: hoo " << matchWithLine.hitsOutOfTime() 
+		    << " delta " << matchWithLine.deltas() << " hot " << matchWithLine.hitsOnTrack() << std::endl;
 	}	
 	continue;
       }
 
-      if( !m_fitter->fit( *lit, hitsOnLine, m_hitSelector.selectHitsOnTrack( hitsOnLine ) ) ) {
+      Segment result( Line(0.,0.,0.), DCOnTrackVec() );
+      if( !m_fitter->fit( result, *lit, hitsOnLine, m_hitSelector.selectHitsOnTrack( hitsOnLine ) ) ) {
 	if( m_debugLevel >= 3 ) std::cout << " failed fit " << std::endl;
 	continue;
       }
 
       // also apply direction cuts on output
-      if( !directionCheck(m_fitter->result().line().direction()) ) {
+      if( !directionCheck(result.line().direction()) ) {
 	if( m_debugLevel >= 19 ) {
-	  std::cout << " failed direction cut (2) " << m_fitter->result().line().direction()*m_roadDir 
-		    << " line: " << m_fitter->result().line().phi() << " road " << atan2(m_roadDir.y(),m_roadDir.x())
+	  std::cout << " failed direction cut (2) " << result.line().direction()*m_roadDir 
+		    << " line: " << result.line().phi() << " road " << atan2(m_roadDir.y(),m_roadDir.x())
 		    << " chamber " << atan2(m_chamberDir.y(),m_chamberDir.x()) << std::endl;
 	}
 	continue;
       }
-      Segment seg = m_fitter->result();
+      Segment seg = result;
 
       // update match parameters
-      updateMatch( seg, m_matchWithLine );
+      updateMatch( seg, matchWithLine );
 
       // add shower hits
-      seg.showerHits( m_matchWithLine.showerHits() );
+      seg.showerHits( matchWithLine.showerHits() );
 
       // associate clusters with segment
 
@@ -944,7 +958,7 @@ namespace TrkDriftCircleMath {
       }
 
       // add segment to collection 
-      m_segments.insert( seg );
+      segments.insert( seg );
 
     }
   }
@@ -977,7 +991,7 @@ namespace TrkDriftCircleMath {
 //       }
 
 
-      const MatchResult& result = m_matchCrossed( seg.dcs(), ct );
+      const MatchResult result = m_matchCrossed( seg.dcs(), ct );
 
       //       std::cout << " match result " << std::endl;
       unsigned int tubesMl1 = 0;
@@ -1041,7 +1055,9 @@ namespace TrkDriftCircleMath {
   }
 
   void SegmentFinder::twoMultiLayerScan( const DCVec& seeds_ml1, const DCVec& seeds_ml2, 
-					 const DCVec& dcs, const CLVec& cls ) const {
+					 const DCVec& dcs, const CLVec& cls,
+                                         ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>>& segments ) const {
+    MatchDCWithLine matchWithLine;
 
     // hack for bug #45261, should be properly fixed!
     if (seeds_ml1.size()*seeds_ml2.size() > 2500) return;
@@ -1052,19 +1068,17 @@ namespace TrkDriftCircleMath {
       for( DCVec::const_reverse_iterator it2=seeds_ml2.rbegin(); it2!=seeds_ml2.rend(); ++it2 ){
 
 	// find segments using the two seeds
-	handleSeedPair( *it1, *it2, dcs, cls );
+	handleSeedPair( *it1, *it2, dcs, cls, matchWithLine, segments );
 
       }
     }
-
-    //     std::cout << " twoMultiLayerScan ------ selected segments " << m_segments.data().size() << std::endl;
-    //     for( SegCit it = m_segments.data().begin(); it!=m_segments.data().end(); ++it )
-    //       std::cout << *it;
-
   }
 
 
-  void SegmentFinder::fullScan( const DCVec& seeds, const DCVec& dcs, const CLVec& cls ) const {
+  void SegmentFinder::fullScan( const DCVec& seeds, const DCVec& dcs, const CLVec& cls,
+                                ResolvedCollection<Segment, IsSubsetSegment<SortDcsByY>>& segments ) const {
+    MatchDCWithLine matchWithLine;
+
     // use all combinations of segments as seed 
     
     // hack for bug #45261, should be properly fixed!
@@ -1081,13 +1095,10 @@ namespace TrkDriftCircleMath {
 	if( std::abs( it->position().y() - rit->position().y() ) < 1. ) break;
 
 	// find segments using the two seeds
-	handleSeedPair( *it, *rit, dcs, cls );
+	handleSeedPair( *it, *rit, dcs, cls, matchWithLine, segments );
 
       }
     }   
-    //     std::cout << " fullScan ------ selected segments " << m_segments.data().size() << std::endl;
-    //     for( SegCit it = m_segments.data().begin(); it!=m_segments.data().end(); ++it )
-    //       std::cout << *it;
   }    
 
   DCVec SegmentFinder::removeDCOnSegments( const DCVec& dcs, const SegVec& segs ) const

@@ -2326,13 +2326,15 @@ namespace Muon {
     TrkDriftCircleMath::LocPos segPos(lpos.y(),lpos.z());
     TrkDriftCircleMath::Line segPars(segPos,angleYZ);
     
-    m_fitter.fit(segPars,dcs);
-    TrkDriftCircleMath::Segment segment = m_fitter.result();
+    TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+    m_fitter.fit(segment, segPars, dcs);
     segment.hitsOnTrack(dcs.size());
     ATH_MSG_DEBUG(" segment after fit " << segment.chi2() << " ndof " << segment.ndof() << " local parameters "
                          << segment.line().x0() << " " << segment.line().y0() << "  phi " << segment.line().phi() );
 
-    bool success = m_finder.dropHits(segment);
+    bool hasDroppedHit = false;
+    unsigned int dropDepth = 0;
+    bool success = m_finder.dropHits(segment, hasDroppedHit, dropDepth);
     if( !success ) {
       ATH_MSG_DEBUG(" drop hits failed " );
       return;
