@@ -438,9 +438,6 @@ namespace CP {
 			    "This is a bug fixed starting with xAODMuon-00-17-07, which should be present in this release. "<<
 			    "Please report this to the Muon CP group!");
 	    }
-	    // xAOD::Muon& mymu = const_cast<xAOD::Muon&>(mu);
-	    // fixing the muon 4-vector to return the desired quantities
-	    // mymu.setP4( metrack->pt(), cbtrack->eta(), cbtrack->phi() );
 	    return xAOD::Muon::Medium;
 	  }
 	}
