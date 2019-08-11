@@ -708,19 +708,22 @@ namespace MuonCombined {
       for( unsigned int i=0;i<dcs.size();++i){
         TrkDriftCircleMath::DCSLFitter::HitSelection selection(dcs.size(),0);
         selection[i] = 1;
-        if( !mdtFitter.fit(seedLine,dcs,selection) ){
+        TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+        if( !mdtFitter.fit(result, seedLine,dcs,selection) ){
           ATH_MSG_DEBUG("Fit failed ");
           continue;
         }
-        TrkDriftCircleMath::Segment segment = mdtFitter.result();
+        TrkDriftCircleMath::Segment segment = result;
         unsigned int ndofFit = segment.ndof();
         double chi2NdofSegmentFit = segment.chi2()/(double)(ndofFit);
-        if( !segmentFinder.dropHits(segment) ){
+        bool hasDropHit = false;
+        unsigned int dropDepth = 0;
+        if( !segmentFinder.dropHits(segment, hasDropHit, dropDepth) ){
           ATH_MSG_DEBUG("DropHits failed, fit chi2/ndof " << chi2NdofSegmentFit);
           if( msgLvl(MSG::VERBOSE) ){
             segmentFinder.debugLevel(20);
-            segment = mdtFitter.result();
-            segmentFinder.dropHits(segment);
+            segment = result;
+            segmentFinder.dropHits(segment, hasDropHit, dropDepth);
             segmentFinder.debugLevel(0);
           }
           continue;

@@ -677,16 +677,17 @@ namespace Muon {
 
       // refit segment after recalibration
       TrkDriftCircleMath::DCSLFitter  defaultFitter;
-      bool goodFit = defaultFitter.fit( line, segment.dcs(), hitSelector.selectHitsOnTrack(segment.dcs()) );
+      TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+      bool goodFit = defaultFitter.fit( result, line, segment.dcs(), hitSelector.selectHitsOnTrack(segment.dcs()) );
       if( goodFit ){
-	if( fabs(segment.line().phi() - defaultFitter.result().line().phi()) > 0.01 || 
-	    fabs(segment.line().x0() - defaultFitter.result().line().x0()) > 0.01 || 
-	    fabs(segment.line().y0() - defaultFitter.result().line().y0()) > 0.01 ) {
+	if( fabs(segment.line().phi() - result.line().phi()) > 0.01 || 
+	    fabs(segment.line().x0() - result.line().x0()) > 0.01 || 
+	    fabs(segment.line().y0() - result.line().y0()) > 0.01 ) {
 	
 	  // update local position and global
-	  linephi = defaultFitter.result().line().phi();
-	  lpos[1] =  defaultFitter.result().line().position().x() ;
-	  lpos[2] =  defaultFitter.result().line().position().y() ;
+	  linephi = result.line().phi();
+	  lpos[1] =  result.line().position().x() ;
+	  lpos[2] =  result.line().position().y() ;
 	  gpos = sInfo.amdbTrans*lpos;
 	
 	  // recreate  surface 
@@ -829,13 +830,13 @@ namespace Muon {
     MuonSegmentQuality* quality = new MuonSegmentQuality( segment.chi2(), segment.ndof(), holeVec );
 
     const TrkDriftCircleMath::DCSLFitter* dcslFitter = m_dcslFitProvider->getFitter();
-
+    TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
     if( dcslFitter && !segment.hasT0Shift() && m_outputFittedT0 ){
-      if( !dcslFitter->fit( segment.line(), segment.dcs(), hitSelector.selectHitsOnTrack( segment.dcs() ) ) ) {
+      if( !dcslFitter->fit( result, segment.line(), segment.dcs(), hitSelector.selectHitsOnTrack( segment.dcs() ) ) ) {
 	ATH_MSG_DEBUG( " T0 refit failed ");
       }else{
 	if( msgLvl(MSG::DEBUG) ) {
-	  if( dcslFitter->result().hasT0Shift() ) ATH_MSG_DEBUG(" Fitted T0 " << dcslFitter->result().t0Shift());
+	  if( result.hasT0Shift() ) ATH_MSG_DEBUG(" Fitted T0 " << result.t0Shift());
 	  else                                      ATH_MSG_DEBUG(" No fitted T0 ");
 	}
       }
@@ -843,14 +844,14 @@ namespace Muon {
     bool hasFittedT0 = false;
     double fittedT0  = 0;
     double errorFittedT0  = 1.;
-    if( m_outputFittedT0 && ( segment.hasT0Shift() || ( dcslFitter && dcslFitter->result().hasT0Shift() ) ) ){
+    if( m_outputFittedT0 && ( segment.hasT0Shift() || ( dcslFitter && result.hasT0Shift() ) ) ){
       hasFittedT0 = true;
       if( segment.hasT0Shift() ){
 	fittedT0 = segment.t0Shift();
 	errorFittedT0 = segment.t0Error();
-      }else if( dcslFitter && dcslFitter->result().hasT0Shift() ) {
-	fittedT0 = dcslFitter->result().t0Shift();
-	errorFittedT0 = dcslFitter->result().t0Error();
+      }else if( dcslFitter && result.hasT0Shift() ) {
+	fittedT0 = result.t0Shift();
+	errorFittedT0 = result.t0Error();
       }else{
 	ATH_MSG_WARNING(" Failed to access fitted t0 ");
 	hasFittedT0 = false;

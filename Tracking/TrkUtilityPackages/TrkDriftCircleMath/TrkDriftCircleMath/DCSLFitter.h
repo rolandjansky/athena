@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATH_DCSLFITTER_H
@@ -29,25 +29,20 @@ namespace TrkDriftCircleMath {
     DCSLFitter();
 
     virtual ~DCSLFitter() {}
-    virtual bool fit( const Line& line, const DCOnTrackVec& dcs, double t0Seed = -99999. ) const;
-    virtual bool fit( const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed = -99999. ) const;
+    virtual bool fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, double t0Seed = -99999. ) const;
+    virtual bool fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed = -99999. ) const;
 
     void debug(bool debug) { m_debug = debug; }
 
-    const Segment&    result() const { return m_result; }
-
   protected:
-    mutable Segment    m_result;
     bool m_debug;  
-    
-    mutable std::vector<FitData> m_data;
   };
 
   inline
-    bool DCSLFitter::fit( const Line& line, const DCOnTrackVec& dcs, double ) const 
+    bool DCSLFitter::fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, double ) const 
   { 
     HitSelection selection(dcs.size(),0);
-    return fit( line, dcs, selection ); 
+    return fit( result, line, dcs, selection ); 
   }
 }
 

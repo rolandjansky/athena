@@ -8,15 +8,6 @@
 
 #include "MuonHoughPatternEvent/MuonHoughHitContainer.h"
 
-#include <map>
-#include <set>
-#include <vector>
-
-#include "TH1F.h"
-#include "TFile.h"
-
-#include "GaudiKernel/IToolSvc.h"
-
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "TrkSurfaces/Surface.h"
@@ -46,6 +37,15 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include "StoreGate/StoreGateSvc.h"
+
+#include "GaudiKernel/IToolSvc.h"
+
+#include "TH1F.h"
+#include "TFile.h"
+
+#include <map>
+#include <set>
+#include <vector>
 
 using namespace TrkDriftCircleMath;
 
@@ -1623,7 +1623,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
 	    double norm = std::sqrt(hitx*hitx + hity*hity);
 	    double cphi = hitx/norm;
 	    double sphi = hity/norm; 
-	    TrkDriftCircleMath::TangentToCircles::LineVec& lines = tanCreator.tangentLines( *iti, *itj );
+	    TrkDriftCircleMath::TangentToCircles::LineVec lines = tanCreator.tangentLines( *iti, *itj );
 	    for( TrkDriftCircleMath::TangentToCircles::LineVec::const_iterator lit = lines.begin(); lit!=lines.end(); ++lit ){
 	      double coshit = std::cos((*lit).phi());
 	      double sinhit = std::sin((*lit).phi());
