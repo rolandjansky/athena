@@ -14,7 +14,7 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY15Stream.StreamName
@@ -436,9 +436,13 @@ SUSY15SlimmingHelper.SmartCollections = [
                                          "MET_Reference_AntiKt4EMTopo",
                                          "MET_Reference_AntiKt4EMPFlow",
                                          "AntiKt4EMTopoJets",
+                                         "AntiKt4EMTopoJets_BTagging201810",
                                          "AntiKt4EMPFlowJets",
-                                         "BTagging_AntiKt4EMTopo",
-                                         "BTagging_AntiKt4EMPFlow",
+                                         "AntiKt4EMPFlowJets_BTagging201810",
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+                                         "BTagging_AntiKt4EMTopo_201810",
+                                         "BTagging_AntiKt4EMPFlow_201810",
+                                         "BTagging_AntiKt4EMPFlow_201903",
                                          "InDetTrackParticles",
                                          ]
 
@@ -454,7 +458,7 @@ SUSY15SlimmingHelper.AllVariables = [
                                      "VrtSecInclusive_All2TrksVertices", # only filled for debug, by default off
                                      ]
 
-SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant.BTagTrackToJetAssociator",
+SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant.BTagTrackToJetAssociator",
                                         "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag.msInnerMatchChi2.msInnerMatchDOF.EnergyLossSigma.MeasEnergyLoss.MeasEnergyLossSigma.ParamEnergyLoss.ParamEnergyLossSigma.ParamEnergyLossSigmaMinus.ParamEnergyLossSigmaPlus",
 					"AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.Timing.DFCommonJets_jetClean_VeryLooseBadLLP",
 					"GSFTrackParticles.chiSquared.hitPattern.patternRecoInfo.numberDoF.numberOfPixelHoles.numberOfPixelSharedHits.numberOfSCTSharedHits.vx.vy.vz.z0.d0.definingParametersCovMatrix.truthOrigin.truthType.beamlineTiltX.beamlineTiltY",
@@ -473,7 +477,10 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant
                                         "MET_LocHadTopo.source.name.mpx.mpy.sumet",
                                         "MET_Track.source.name.mpx.mpy.sumet",
                                         "MuonSegments.x.y.z.chamberIndex.sector.etaIndex.nPhiLayers.nTrigEtaLayers.nPrecisionHits.t0.clusterTime",
+                                        "Electrons.Reta.Rphi.Rhad1.Rhad.weta2.Eratio.f3.deltaEta1.deltaPhiRescaled2.wtots1",
 ]
+SUSY15SlimmingHelper.ExtraVariables += GSFTracksCPDetailedContent
+
 SUSY15SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True
 SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True
