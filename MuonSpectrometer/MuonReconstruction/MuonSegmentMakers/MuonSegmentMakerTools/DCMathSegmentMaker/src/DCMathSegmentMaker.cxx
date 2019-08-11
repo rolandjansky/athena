@@ -1768,45 +1768,44 @@ namespace Muon {
       // calculate side
       Trk::DriftCircleSide side = locPos[Trk::driftRadius] < 0 ? Trk::LEFT : Trk::RIGHT;
 	  
-      const MdtDriftCircleOnTrack* constDC = 0;
+      MdtDriftCircleOnTrack* nonconstDC = 0;
       bool hasT0 = segment.hasT0Shift();
       if( !hasT0 ){
 	//ATH_MSG_VERBOSE(" recalibrate MDT hit");
-	constDC = m_mdtCreator->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir);
+	nonconstDC = m_mdtCreator->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir);
       }else{
 	ATH_MSG_VERBOSE(" recalibrate MDT hit with shift " << segment.t0Shift());
-	constDC = m_mdtCreatorT0->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir,segment.t0Shift());
+	nonconstDC = m_mdtCreatorT0->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir,segment.t0Shift());
       }
       
-      if( !constDC ){
+      if( !nonconstDC ){
 	dcit->state( TrkDriftCircleMath::DCOnTrack::OutOfTime );
 	continue;
       }
 
       // update the drift radius after recalibration, keep error
-      MdtDriftCircleOnTrack *new_drift_circle=new MdtDriftCircleOnTrack(*constDC);
+      MdtDriftCircleOnTrack *new_drift_circle=new MdtDriftCircleOnTrack(*nonconstDC);
       measurementsToBeDeleted.push_back(new_drift_circle);
-      TrkDriftCircleMath::DriftCircle new_dc(dcit->position(), fabs(constDC->driftRadius()), dcit->dr(), dcit->drPrecise(), 
+      TrkDriftCircleMath::DriftCircle new_dc(dcit->position(), fabs(nonconstDC->driftRadius()), dcit->dr(), dcit->drPrecise(), 
 					     static_cast<TrkDriftCircleMath::DriftCircle *>(&(*dcit))->state()
 					     , dcit->id(), dcit->index(),new_drift_circle);
       TrkDriftCircleMath::DCOnTrack new_dc_on_track(new_dc, dcit->residual(), dcit->errorTrack());
       (*dcit)=new_dc_on_track;
 
-      MdtDriftCircleOnTrack* dcOn = const_cast<MdtDriftCircleOnTrack*>(constDC);
       if( hasT0 ) {
 	if( msgLvl(MSG::VERBOSE) ){
-	  double shift = riodc->driftTime() - dcOn->driftTime();
+	  double shift = riodc->driftTime() - nonconstDC->driftTime();
 	  ATH_MSG_VERBOSE(" t0 shift " << segment.t0Shift() << " from hit " << shift 
-			  << " recal " << dcOn->driftRadius() << " t " << dcOn->driftTime() << "  from fit " << dcit->r() 
+			  << " recal " << nonconstDC->driftRadius() << " t " << nonconstDC->driftTime() << "  from fit " << dcit->r() 
 			  << " old " << riodc->driftRadius() << " t " << riodc->driftTime());
-	  if( fabs( fabs(dcOn->driftRadius()) - fabs(dcit->r()) ) > 0.1 && dcOn->driftRadius() < 19. && dcOn->driftRadius() > 1. ) {
+	  if( fabs( fabs(nonconstDC->driftRadius()) - fabs(dcit->r()) ) > 0.1 && nonconstDC->driftRadius() < 19. && nonconstDC->driftRadius() > 1. ) {
 	    ATH_MSG_WARNING("Detected invalid recalibration after T0 shift");
 	  }
 	}
       }
-      m_mdtCreator->updateSign( *dcOn, side );
+      m_mdtCreator->updateSign( *nonconstDC, side );
       double dist = pointOnHit.x();
-      rioDistVec.push_back( std::make_pair(dist,dcOn) );
+      rioDistVec.push_back( std::make_pair(dist,nonconstDC) );
     }
     return measurementsToBeDeleted;
   }
