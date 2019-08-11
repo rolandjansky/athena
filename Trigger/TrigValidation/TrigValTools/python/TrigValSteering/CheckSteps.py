@@ -72,6 +72,8 @@ class RefComparisonStep(Step):
                              art_input_eos, art_input_cvmfs)
             self.reference = None
 
+        super(RefComparisonStep, self).configure(test)
+
 
 class InputDependentStep(Step):
     '''Base class for steps executed only if the input file exists'''
@@ -111,6 +113,7 @@ class LogMergeStep(Step):
             self.log_files = []
             for step in test.exec_steps:
                 self.log_files.append(step.name)
+        super(LogMergeStep, self).configure(test)
 
     def merge_logs(self):
         try:
@@ -159,6 +162,7 @@ class RootMergeStep(Step):
 
     def configure(self, test=None):
         self.args += ' ' + self.merged_file + ' ' + self.input_file
+        super(RootMergeStep, self).configure(test)
 
     def run(self, dry_run=False):
         if os.path.isfile(self.merged_file) and self.rename_suffix:
@@ -179,8 +183,9 @@ class ZipStep(Step):
         self.args = '-czf'
         self.output_stream = Step.OutputStream.STDOUT_ONLY
 
-    def configure(self, test):
+    def configure(self, test=None):
         self.args += ' '+self.zip_output+' '+self.zip_input
+        super(ZipStep, self).configure(test)
 
 
 class CheckLogStep(Step):
@@ -221,6 +226,8 @@ class CheckLogStep(Step):
 
         self.args += ' --config {} {}'.format(self.config_file, self.log_file)
 
+        super(CheckLogStep, self).configure(test)
+
 
 class RegTestStep(RefComparisonStep):
     '''Execute RegTest comparing a log file against a reference'''
@@ -236,8 +243,9 @@ class RegTestStep(RefComparisonStep):
 
     def configure(self, test):
         self.input_file = self.input_base_name+'.regtest'
-        super(RegTestStep, self).configure(test)
+        RefComparisonStep.configure(self, test)
         self.args += ' --inputfile {} --reffile {}'.format(self.input_file, self.reference)
+        Step.configure(self, test)
 
     def prepare_inputs(self):
         log_file = self.input_base_name+'.log'
@@ -290,8 +298,9 @@ class RootCompStep(RefComparisonStep):
         self.auto_report_result = True
 
     def configure(self, test):
-        super(RootCompStep, self).configure(test)
+        RefComparisonStep.configure(self, test)
         self.args += ' {} {}'.format(self.reference, self.input_file)
+        Step.configure(self, test)
 
     def run(self, dry_run=False):
         if self.reference is None:
@@ -321,6 +330,7 @@ class PerfMonStep(InputDependentStep):
 
     def configure(self, test):
         self.args += ' '+self.input_file
+        super(PerfMonStep, self).configure(test)
 
 
 class TailStep(Step):
@@ -343,6 +353,7 @@ class TailStep(Step):
         self.args += ' -n {:d}'.format(self.num_lines)
         self.args += ' '+self.log_file
         self.args += ' >'+self.output_name
+        super(TailStep, self).configure(test)
 
 
 class HistCountStep(InputDependentStep):
@@ -356,6 +367,7 @@ class HistCountStep(InputDependentStep):
 
     def configure(self, test):
         self.args += ' '+self.input_file
+        super(HistCountStep, self).configure(test)
 
 
 class ChainDumpStep(InputDependentStep):
@@ -371,6 +383,7 @@ class ChainDumpStep(InputDependentStep):
 
     def configure(self, test):
         self.args += ' --rootFile='+self.input_file
+        super(ChainDumpStep, self).configure(test)
 
 
 class TrigTestJsonStep(Step):
@@ -405,6 +418,7 @@ class CheckFileStep(InputDependentStep):
             return
         self.__executables__ = self.executable.split(',')
         self.__input_files__ = self.input_file.split(',')
+        super(CheckFileStep, self).configure(test)
 
     def run(self, dry_run=False):
         ret_codes = []
@@ -468,7 +482,6 @@ class ZeroCountsStep(Step):
 
     def run(self, dry_run=False):
         results = []
-        self.log.info('Running %s step', self.name)
         for input_file in self.__input_files__:
             results.append(self.check_zero_counts(input_file))
 
@@ -477,6 +490,8 @@ class ZeroCountsStep(Step):
         if self.result < 0:
             cmd = '# (internal) {} -> skipped'.format(self.name)
             self.result = 0
+            return self.result, cmd
+        self.log.info('Running %s step', self.name)
         if self.auto_report_result:
             self.report_result()
         return self.result, cmd
