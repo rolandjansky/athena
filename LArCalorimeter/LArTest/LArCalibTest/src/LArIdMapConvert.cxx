@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArConditionsTest/LArIdMapConvert.h"
+#include "LArCalibTest/LArIdMapConvert.h"
           
 //#include "LArTools/LArCablingBlob.h"
 //#include "LArTools/LArOnOffIdMap.h"

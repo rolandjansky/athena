@@ -7,8 +7,8 @@
 // LArShapeToSCShape.cxx 
 /////////////////////////////////////////////////////////////////// 
 
-// LArConditionsTest includes
-#include "LArConditionsTest/LArShapeToSCShape.h"
+// LArCalibTest includes
+#include "LArCalibTest/LArShapeToSCShape.h"
 #include "CaloDetDescr/ICaloSuperCellIDTool.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArCOOLConditions/LArShapeSC.h"

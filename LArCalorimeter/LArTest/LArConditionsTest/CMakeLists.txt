@@ -34,15 +34,9 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 atlas_add_component( LArConditionsTest
                      src/LArConditionsTest_entries.cxx
                      src/TestLArConditionsTools.cxx
-                     src/FixLArElecCalib.cxx
                      src/LArCondDataTest.cxx
                      src/LArConditionsTestAlg.cxx
-                     src/LArFecLvTempDcsTest.cxx
                      src/LArCablingTest.cxx
-                     src/LArIdMapConvert.cxx
-                     src/LArShapeToSCShape.cxx
-                     src/LArOFCtoOFC.cxx
-                     src/LArFebRodMapConvert.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawUtilsLib LArToolsLib CaloDetDescrLib CaloEvent CaloIdentifier AthenaKernel AthenaPoolUtilities LArCOOLConditions )
 
