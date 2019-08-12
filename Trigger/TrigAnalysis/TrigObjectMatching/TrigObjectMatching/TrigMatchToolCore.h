@@ -24,6 +24,7 @@
 // includes for navigation access
 #include "TrigDecisionTool/TrigDecisionToolCore.h"
 
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "CxxUtils/checker_macros.h"
 
 namespace Trig {
@@ -37,6 +38,10 @@ namespace Trig {
  */
 
 class TrigMatchToolCore : public ObjectMatching {
+
+private:
+  struct SlotCache;
+
 
 public:
    // Default constructor and destructor
@@ -335,21 +340,11 @@ public:
     */
    TrigMatchToolCore::FeatureLabelHolder
    setFeatureLabel( const std::string& label ) {
-      m_featureLabel = label;
-      m_caches = &m_cacheMap[label];
-      return FeatureLabelHolder( this );
-   }
-
-   /**
-    * @brief resetFeatureLabel is used to reset the label to be used
-    *        when extracting features from the navigation.  It should not
-    *        be necessary for users to call this function - it will be
-    *        reset automatically.
-    */
-   void resetFeatureLabel()
-   {
-     m_featureLabel = "";
-     m_caches = &m_cacheMap[""];
+      SlotCache& slotCache = *m_slotCache;
+      std::unique_lock<SlotCache::mutex_t> lock (slotCache.m_mutex);
+      slotCache.m_featureLabel = label;
+      slotCache.m_caches = &slotCache.m_cacheMap[label];
+      return FeatureLabelHolder( this, slotCache, std::move(lock) );
    }
 
    // This class does two things for us
@@ -361,11 +356,16 @@ public:
    class FeatureLabelHolder {
 
    public:
-      FeatureLabelHolder( TrigMatchToolCore* matchTool )
-         : m_matchTool( matchTool ) {}
+      FeatureLabelHolder( TrigMatchToolCore* matchTool,
+                          SlotCache& slotCache,
+                          std::unique_lock<std::recursive_mutex>&& lock)
+         : m_matchTool( matchTool ),
+           m_slotCache( slotCache ),
+           m_lock( std::move (lock) )
+      {}
 
       ~FeatureLabelHolder() {
-         m_matchTool->resetFeatureLabel();
+         m_slotCache.resetFeatureLabel();
       }
 
       TrigMatchToolCore* operator->() const {
@@ -378,6 +378,8 @@ public:
 
    private:
       TrigMatchToolCore *m_matchTool;
+      SlotCache& m_slotCache;
+      std::unique_lock<std::recursive_mutex> m_lock;
    }; // class FeatureLabelHolder
 
 
@@ -491,7 +493,8 @@ private:
    // function for loading objects that are attached directly
    // to the navigation
    template< typename trigType >
-   void collectObjects( std::vector< const trigType* >& objects,
+   void collectObjects( const std::string& featureLabel,
+                        std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer &featureContainer,
                         bool onlyPassedFeatures,
                         const TrigMatch::DirectAttached* ) const;
@@ -499,14 +502,16 @@ private:
    // function for loading objects that are attached as
    // containers to the navigation
    template< typename trigType, typename contType >
-   void collectObjects( std::vector< const trigType* >& objects,
+   void collectObjects( const std::string& featureLabel,
+                        std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer& featureContainer,
                         bool onlyPassedFeatures,
                         const contType* ) const;
 
    // function for loading l1 objects from the navigation
    template<typename trigType>
-   void collectObjects( std::vector< const trigType* >& objects,
+   void collectObjects( const std::string& featureLabel,
+                        std::vector< const trigType* >& objects,
                         const Trig::FeatureContainer& featureContainer,
                         bool onlyPassedFeatures,
                         const TrigMatch::AncestorAttached* ) const;
@@ -607,34 +612,99 @@ private:
       size_t m_size[2];
    }; // class TrigFeatureCache
 
-   template <typename trigType>
-   TrigFeatureCache<trigType>& getCache (int& type_key);
-
-   TrigFeatureCacheBase*& getCache1 (const std::type_info* tid, int& type_key);
-
    // TDT access
    Trig::TrigDecisionToolCore* m_trigDecisionToolCore;
 
-   // Feature labels
-   std::string     m_featureLabel;
 
-   typedef std::unordered_map<const std::type_info*, int> typeMap_t;
-   typeMap_t m_typeMap;
+   class TypeMap
+   {
+   public:
+     int key (const std::type_info* tid);
 
-   typedef std::vector<TrigFeatureCacheBase*> cacheVec_t;
+   private:
+     typedef std::mutex mutex_t;
+     typedef std::lock_guard<mutex_t> lock_t;
+
+     typedef std::unordered_map<const std::type_info*, int> typeMap_t;
+     typeMap_t m_typeMap;
+     mutex_t m_mutex;
+   };
+   mutable TypeMap m_typeMap ATLAS_THREAD_SAFE;
+
+
+   struct SlotCache
+   {
+     SlotCache()
+     {
+       m_caches = &m_cacheMap[""];
+     }
+
+     ~SlotCache()
+     {
+       for (const cacheMap_t::value_type& p : m_cacheMap) {
+         for (TrigFeatureCacheBase* cache : p.second) {
+           delete cache;
+         }
+       }
+     }
+
+     void clear()
+     {
+       lock_t lock (m_mutex);
+       for (const cacheMap_t::value_type& p : m_cacheMap) {
+         for (TrigFeatureCacheBase* cache : p.second) {
+           cache->clear();
+         }
+       }
+       std::vector<Trig::FeatureContainer>().swap (m_featureContainers);
+       std::vector<bool>().swap (m_featureContainersValid);
+     }
+     
+     /**
+      * @brief resetFeatureLabel is used to reset the label to be used
+      *        when extracting features from the navigation.  It should not
+      *        be necessary for users to call this function - it will be
+      *        reset automatically.
+      */
+     void resetFeatureLabel()
+     {
+       m_featureLabel = "";
+       m_caches = &m_cacheMap[""];
+     }
+
+     std::string m_featureLabel;
+
+     typedef std::vector<TrigFeatureCacheBase*> cacheVec_t;
    
-   // Current cache vector.
-   cacheVec_t* m_caches;
+     // Current cache vector.
+     cacheVec_t* m_caches;
 
-   typedef std::unordered_map<std::string, cacheVec_t> cacheMap_t;
-   cacheMap_t m_cacheMap;
+     typedef std::unordered_map<std::string, cacheVec_t> cacheMap_t;
+     cacheMap_t m_cacheMap;
+ 
+     std::vector<Trig::FeatureContainer> m_featureContainers;
+     std::vector<bool> m_featureContainersValid;
+     size_t m_nFeatureContainers = 100;
+
+    typedef std::recursive_mutex mutex_t;
+     typedef std::lock_guard<mutex_t> lock_t;
+     mutex_t m_mutex;
+   };
+   mutable SG::SlotSpecificObj<SlotCache> m_slotCache ATLAS_THREAD_SAFE;
+
+   template <typename trigType>
+   TrigFeatureCache<trigType>& getCache (int type_key,
+                                         SlotCache& slotCache,
+                                         const SlotCache::lock_t& lock) const;
+
+   TrigFeatureCacheBase*& getCache1 (const std::type_info* tid, int type_key,
+                                     SlotCache& slotCache,
+                                     const SlotCache::lock_t& lock) const;
 
    const Trig::FeatureContainer&
-   getCachedFeatureContainer (size_t chainIndex);
-
-   std::vector<Trig::FeatureContainer> m_featureContainers;
-   std::vector<bool> m_featureContainersValid;
-   size_t m_nFeatureContainers;
+   getCachedFeatureContainer (size_t chainIndex,
+                              SlotCache& cache,
+                              const SlotCache::lock_t& lock) const;
 
 }; // end TrigMatchToolCore declaration
 
