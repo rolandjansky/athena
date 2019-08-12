@@ -82,7 +82,7 @@ StatusCode Trk::KalmanUpdator_xk::finalize()
 // Add local position together with erro matrix  without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
     
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E) const
@@ -120,7 +120,7 @@ bool                        Trk::KalmanUpdator_xk::addToStateOneDimension
 // Remove local position together with erro matrix  without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E) const
@@ -146,7 +146,7 @@ bool                        Trk::KalmanUpdator_xk::removeFromState
 // Add local parameters together with error matrix  without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E) const
@@ -172,7 +172,7 @@ bool                        Trk::KalmanUpdator_xk::addToState
 // Remove local parameters together with error matrix  without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E) const
@@ -198,7 +198,7 @@ bool                       Trk::KalmanUpdator_xk::removeFromState
 // Add local position together with error matrix  with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E,
@@ -239,7 +239,7 @@ bool                        Trk::KalmanUpdator_xk::addToStateOneDimension
 // Remove local position together with error matrix  with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E,
@@ -265,7 +265,7 @@ bool                        Trk::KalmanUpdator_xk::removeFromState
 // Add local parameters together with error matrix  with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::addToState 
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E,
@@ -369,7 +369,7 @@ bool                        Trk::KalmanUpdator_xk::addToState
 // Remove local parameters together with error matrix  with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::removeFromState 
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E,
@@ -395,7 +395,7 @@ bool                        Trk::KalmanUpdator_xk::removeFromState
 // Combine two state without Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::combineStates   
+Trk::TrackParameters* Trk::KalmanUpdator_xk::combineStates   
 (const Trk::TrackParameters& T1, const Trk::TrackParameters& T2) const
 {
   double M[5],MV[15]; if(!trackParametersToUpdator(T1,M,MV)) return 0;
@@ -444,7 +444,7 @@ bool                        Trk::KalmanUpdator_xk::combineStates
 // Combine two state with Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::combineStates   
+Trk::TrackParameters* Trk::KalmanUpdator_xk::combineStates   
 (const TrackParameters& T1, const TrackParameters& T2,
  FitQualityOnSurface*& Q) const
 {
@@ -804,7 +804,7 @@ const std::vector<double> Trk::KalmanUpdator_xk::initialErrors() const
 // with or witout Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::update 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::update 
 (const Trk::TrackParameters& T,
  const Amg::Vector2D       & P,
  const Amg::MatrixX        & E,
@@ -970,7 +970,7 @@ bool Trk::KalmanUpdator_xk::updateOneDimension
 // with or witout Xi2 calculation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::update 
+Trk::TrackParameters* Trk::KalmanUpdator_xk::update 
 (const Trk::TrackParameters& T,
  const Trk::LocalParameters& P,
  const Amg::MatrixX        & E,
@@ -1852,7 +1852,7 @@ bool  Trk::KalmanUpdator_xk::localParametersToUpdator
 // Track parameters production from updator presentation
 ///////////////////////////////////////////////////////////////////
 
-const Trk::TrackParameters* Trk::KalmanUpdator_xk::updatorToTrackParameters
+Trk::TrackParameters* Trk::KalmanUpdator_xk::updatorToTrackParameters
 (const Trk::TrackParameters& T,double* P,double* V) const
 {  
   AmgSymMatrix(5)* e = new AmgSymMatrix(5);
