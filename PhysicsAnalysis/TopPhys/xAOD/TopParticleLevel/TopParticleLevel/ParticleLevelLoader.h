@@ -80,7 +80,7 @@ namespace top {
 	 */
 	bool active() const { return m_active; }
  
-    protected:
+  protected:
     bool loadDressedLeptons(const xAOD::TruthParticleContainer & input,
             std::unique_ptr<xAOD::TruthParticleContainer> & store,
             std::unique_ptr<xAOD::ShallowAuxContainer> & storeAux) const;
@@ -96,44 +96,47 @@ namespace top {
 	// The tools used for electron, muon, and jet object selection. The
 	// basic idea is to allow exchanging these tools for custom ones,
 	// however, this is not implemented (yet).
-	std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Electron;
-	std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Muon;
-        std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Photon;
-	std::unique_ptr<ObjectSelectorBase<xAOD::Jet> > m_objectSelector_Jet;
-	std::unique_ptr<ObjectSelectorBase<xAOD::Jet> > m_objectSelector_LargeRJet;
-	std::unique_ptr<ParticleLevelRCJetObjectLoader> m_particleLevelRCJetObjectLoader;
-	std::map<std::string,std::unique_ptr<ParticleLevelRCJetObjectLoader> > m_particleLevelVarRCJetObjectLoader;
-	std::vector<std::string> m_VarRCJetRho;
-	std::vector<std::string> m_VarRCJetMassScale;
+  std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Electron;
+  std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Muon;
+  std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Photon;
+  std::unique_ptr<ObjectSelectorBase<xAOD::Jet> > m_objectSelector_Jet;
+  std::unique_ptr<ObjectSelectorBase<xAOD::Jet> > m_objectSelector_LargeRJet;
+  std::unique_ptr<ObjectSelectorBase<xAOD::TruthParticle> > m_objectSelector_Tau;
+  std::unique_ptr<ParticleLevelRCJetObjectLoader> m_particleLevelRCJetObjectLoader;
+  std::map<std::string,std::unique_ptr<ParticleLevelRCJetObjectLoader> > m_particleLevelVarRCJetObjectLoader;
+  std::vector<std::string> m_VarRCJetRho;
+  std::vector<std::string> m_VarRCJetMassScale;
 	
     private:
 	// The dressed leptons (shallow copies of the input containers)
-	std::unique_ptr<xAOD::TruthParticleContainer> m_electronsDressed;
-	std::unique_ptr<xAOD::ShallowAuxContainer> m_electronsDressedAux;
-
-	std::unique_ptr<xAOD::TruthParticleContainer> m_muonsDressed;
-	std::unique_ptr<xAOD::ShallowAuxContainer> m_muonsDressedAux;
-
-	std::unique_ptr<xAOD::TruthParticleContainer> m_goodElectrons;
-	std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodElectronsAux;
-
-	std::unique_ptr<xAOD::TruthParticleContainer> m_goodMuons;
-	std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodMuonsAux;
-
-        std::unique_ptr<xAOD::TruthParticleContainer> m_goodPhotons;
-        std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodPhotonsAux;
-
-
-	std::unique_ptr<xAOD::JetContainer> m_goodJets;
-	std::unique_ptr<xAOD::JetAuxContainer> m_goodJetsAux;
-
-	std::unique_ptr<xAOD::JetContainer> m_goodLargeRJets;
-	std::unique_ptr<xAOD::JetAuxContainer> m_goodLargeRJetsAux;
-
-	// Flag denoting whether the loader tool is active. Will be set by the
-	// constructor and remains unchanged afterwards.
-	const bool m_active;
-    };
+  std::unique_ptr<xAOD::TruthParticleContainer> m_electronsDressed;
+  std::unique_ptr<xAOD::ShallowAuxContainer> m_electronsDressedAux;
+  
+  std::unique_ptr<xAOD::TruthParticleContainer> m_muonsDressed;
+  std::unique_ptr<xAOD::ShallowAuxContainer> m_muonsDressedAux;
+  
+  std::unique_ptr<xAOD::TruthParticleContainer> m_goodElectrons;
+  std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodElectronsAux;
+  
+  std::unique_ptr<xAOD::TruthParticleContainer> m_goodMuons;
+  std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodMuonsAux;
+  
+  std::unique_ptr<xAOD::TruthParticleContainer> m_goodPhotons;
+  std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodPhotonsAux;
+  
+  std::unique_ptr<xAOD::JetContainer> m_goodJets;
+  std::unique_ptr<xAOD::JetAuxContainer> m_goodJetsAux;
+  
+  std::unique_ptr<xAOD::JetContainer> m_goodLargeRJets;
+  std::unique_ptr<xAOD::JetAuxContainer> m_goodLargeRJetsAux;
+  
+  std::unique_ptr<xAOD::TruthParticleContainer> m_goodTaus;
+  std::unique_ptr<xAOD::TruthParticleAuxContainer> m_goodTausAux;
+  
+  // Flag denoting whether the loader tool is active. Will be set by the
+  // constructor and remains unchanged afterwards.
+  const bool m_active;
+  };
 
 }
 
