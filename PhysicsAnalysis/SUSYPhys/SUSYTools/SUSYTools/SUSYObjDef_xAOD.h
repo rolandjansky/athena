@@ -424,7 +424,7 @@ namespace ST {
   protected:
 
     // autoconfiguration of pileup-reweighting tool
-    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/PileupReweighting/share/", bool usePathResolver = true, bool RPVLLmode = false, bool Combinedmode = false, const std::string & HFFilter = "");
+    StatusCode autoconfigurePileupRWTool(const std::string& PRWfilesDir = "dev/PileupReweighting/share/", const std::string& PRWfileName = "", bool usePathResolver = true, bool RPVLLmode = false, bool Combinedmode = false, const std::string& HFFilter = "");
 
     StatusCode readConfig() override final;
     StatusCode validConfig(bool strict = false) const;
@@ -516,6 +516,7 @@ namespace ST {
 
     bool m_autoconfigPRW;
     std::string m_autoconfigPRWPath;
+    std::string m_autoconfigPRWFile;
     bool m_autoconfigPRWCombinedmode;
     bool m_autoconfigPRWRPVmode;
     std::string m_autoconfigPRWHFFilter;

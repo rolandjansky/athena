@@ -132,6 +132,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_doPhiReso(true),
     m_autoconfigPRW(false),
     m_autoconfigPRWPath(""),
+    m_autoconfigPRWFile(""),
     m_autoconfigPRWCombinedmode(false),
     m_autoconfigPRWRPVmode(false),
     m_autoconfigPRWHFFilter(""),
@@ -537,7 +538,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //--- Tools configuration
   //PRW
   declareProperty( "AutoconfigurePRWTool", m_autoconfigPRW );
-  declareProperty( "AutoconfigurePRWToolPath", m_autoconfigPRWPath );
+  declareProperty( "AutoconfigurePRWToolPath", m_autoconfigPRWPath ); // e.g. dev/PileupReweighting/share/ 
+  declareProperty( "AutoconfigurePRWToolFile", m_autoconfigPRWFile ); // e.g. DSID407xxx/pileup_mc16a_dsid407352_FS.root
   declareProperty( "AutoconfigurePRWToolCombinedmode", m_autoconfigPRWCombinedmode );
   declareProperty( "AutoconfigurePRWToolRPVmode", m_autoconfigPRWRPVmode );
   declareProperty( "AutoconfigurePRWToolHFFilter", m_autoconfigPRWHFFilter );
@@ -838,10 +840,10 @@ StatusCode SUSYObjDef_xAOD::initialize() {
 
   // autoconfigure PRW tool if m_autoconfigPRW==true
   if (m_autoconfigPRWPath == "dev/PileupReweighting/share/")
-    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, true, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
+    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, m_autoconfigPRWFile, true, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
   else
     // need to set a full path if you don't use the one in CVMFS
-    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, false, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
+    ATH_CHECK( autoconfigurePileupRWTool(m_autoconfigPRWPath, m_autoconfigPRWFile, false, m_autoconfigPRWRPVmode, m_autoconfigPRWCombinedmode, m_autoconfigPRWHFFilter) );
 
   ATH_CHECK( this->SUSYToolsInit() );
 
@@ -853,7 +855,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfilesDir, bool usePathResolver, bool RPVLLmode, bool Combinedmode, const std::string & HFFilter) {
+StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfilesDir, const std::string& PRWfileName, bool usePathResolver, bool RPVLLmode, bool Combinedmode, const std::string& HFFilter ) {
 
   std::string prwConfigFile("");
 
@@ -926,6 +928,13 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool(const std::string& PRWfile
     int DSID_INT = (int) dsid;
     prwConfigFile += "DSID" + std::to_string(DSID_INT/1000) + "xxx/pileup_" + mcCampaignMD + "_dsid" + std::to_string(DSID_INT) + "_" + simType + ".root";
     if (RPVLLmode) prwConfigFile = TString(prwConfigFile).ReplaceAll(".root","_rpvll.root").Data();
+
+    // PRW file specified by user 
+    // e.g. DSID407xxx/pileup_mc16a_dsid407352_FS.root
+    if (!PRWfileName.empty()) {
+      prwConfigFile = PRWfilesDir + PRWfileName;   
+      ATH_MSG_INFO( "autoconfigurePileupRWTool(): PRW file was specifed by user: " << prwConfigFile.data() );
+    }
 
     // Patch for MC16 Znunu metadata bug  (updated 2019.05.30)
     if (!HFFilter.empty() && dsid>=366001 && dsid<= 366008) {
@@ -1394,6 +1403,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_prwDataSF_DW, "PRW.DataSF_DW", rEnv, 1./1.07); // mc16 uncertainty? defaulting to the value in PRWtool
   configFromFile(m_runDepPrescaleWeightPRW, "PRW.UseRunDependentPrescaleWeight", rEnv, false); // If set to true, the prescale weight is the luminosity-average prescale over the lumiblocks in the unprescaled lumicalc file in the PRW tool.
   configFromFile(m_autoconfigPRWPath, "PRW.autoconfigPRWPath", rEnv, "dev/PileupReweighting/share/");
+  configFromFile(m_autoconfigPRWFile, "PRW.autoconfigPRWFile", rEnv, "None");
   configFromFile(m_autoconfigPRWCombinedmode, "PRW.autoconfigPRWCombinedmode", rEnv, false);
   configFromFile(m_autoconfigPRWRPVmode, "PRW.autoconfigPRWRPVmode", rEnv, false);
   configFromFile(m_autoconfigPRWHFFilter, "PRW.autoconfigPRWHFFilter", rEnv, "None");
