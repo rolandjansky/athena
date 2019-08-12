@@ -8,16 +8,16 @@
 
 #include "TrkExUtils/ExtrapolationCell.h"
 
-std::vector<std::string> Trk::ExtrapolationCode::s_ecodeNames = { "Unset",                  
-                                                                  "InProgress",
-                                                                  "SuccessDestination",     
-                                                                  "SuccessBoundaryReached", 
-                                                                  "SuccessPathLimit", 
-                                                                  "SuccessMaterialLimit",  
-                                                                  "Recovered",             
-                                                                  "FailureDestination",     
-                                                                  "FailureLoop",     
-                                                                  "FailureNavigation",      
-                                                                  "FailureUpdateKill",      
-                                                                  "FailureConfiguration",
-                                                                  "LeftKnownWorld" };
+const std::vector<std::string> Trk::ExtrapolationCode::s_ecodeNames = { "Unset",                  
+                                                                        "InProgress",
+                                                                        "SuccessDestination",     
+                                                                        "SuccessBoundaryReached", 
+                                                                        "SuccessPathLimit", 
+                                                                        "SuccessMaterialLimit",  
+                                                                        "Recovered",             
+                                                                        "FailureDestination",     
+                                                                        "FailureLoop",     
+                                                                        "FailureNavigation",      
+                                                                        "FailureUpdateKill",      
+                                                                        "FailureConfiguration",
+                                                                        "LeftKnownWorld" };
