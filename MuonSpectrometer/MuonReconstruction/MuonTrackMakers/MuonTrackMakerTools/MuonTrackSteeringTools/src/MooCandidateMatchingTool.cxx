@@ -112,12 +112,11 @@ namespace Muon {
       m_sameSideOfPerigeeTrk(0),
       m_otherSideOfPerigeeTrk(0),
       m_segmentTrackMatches(0),
-      m_segmentTrackMatchesTight(0),
-      m_reasonsForMatchOk(TrackSegmentMatchResult::NumberOfReasons, 0),
-      m_reasonsForMatchNotOk(TrackSegmentMatchResult::NumberOfReasons, 0)
+      m_segmentTrackMatchesTight(0)
   {
     declareInterface<MooCandidateMatchingTool>(this);
     declareInterface<IMuonTrackSegmentMatchingTool>(this);
+
     declareProperty("SLExtrapolator",           m_slExtrapolator );
     declareProperty("Extrapolator",             m_atlasExtrapolator );
     declareProperty("MagFieldSvc",    m_magFieldSvc );
@@ -141,6 +140,11 @@ namespace Muon {
     declareProperty("SegmentMatchingToolTight", m_segmentMatchingToolTight);
     declareProperty("DoTrackSegmentMatching",   m_doTrackSegmentMatching = false, "Apply dedicated track-segment matching");
     declareProperty("TrackSegmentPreMatching",  m_trackSegmentPreMatchingStrategy = 0, "0=no segments match,1=any segment match,2=all segment match");
+
+    for (unsigned int i=0; i<TrackSegmentMatchResult::NumberOfReasons; i++) {
+      m_reasonsForMatchOk[i].store(0, std::memory_order_relaxed);
+      m_reasonsForMatchNotOk[i].store(0, std::memory_order_relaxed);
+    }
   }
 
   MooCandidateMatchingTool::~MooCandidateMatchingTool() { }
@@ -197,7 +201,6 @@ namespace Muon {
       if ( w > width ) width = w;
     }
     // print it
-    std::lock_guard<std::mutex> lock(m_mutex);
     msg(MSG::INFO) << " Reasons for match failures:" << endmsg;
     for ( unsigned int i = 0; i < nReasons ; ++i ) {
       int cnt = m_reasonsForMatchNotOk[i];
@@ -361,7 +364,6 @@ namespace Muon {
       if ( !haveMatch ) {
         ATH_MSG_VERBOSE("track-segment match: -> Failed in comparing segments on track");
         
-        std::lock_guard<std::mutex> lock(m_mutex);
         ++m_reasonsForMatchNotOk[TrackSegmentMatchResult::SegmentMatch];
         return false;
       }
@@ -373,7 +375,6 @@ namespace Muon {
       TrackSegmentMatchCuts cuts = getMatchingCuts( entry1, entry2, useTightCuts );
       haveMatch = applyTrackSegmentCuts( info, cuts );
       // update counters
-      std::lock_guard<std::mutex> lock(m_mutex);
       if (haveMatch) {
         ++m_reasonsForMatchOk[info.reason];
       } else {

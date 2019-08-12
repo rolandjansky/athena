@@ -17,8 +17,8 @@
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
 #include "MuonTrackFindingEvent/MuonTrackSegmentMatchResult.h"
 
+#include <array>
 #include <atomic>
-#include <mutex>
 #include <string>
 #include <set>
 
@@ -193,9 +193,8 @@ namespace Muon {
     mutable std::atomic_uint m_otherSideOfPerigeeTrk;
     mutable std::atomic_uint m_segmentTrackMatches;
     mutable std::atomic_uint m_segmentTrackMatchesTight;
-    mutable std::vector<unsigned int> m_reasonsForMatchOk ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable std::vector<unsigned int> m_reasonsForMatchNotOk ATLAS_THREAD_SAFE; // Guarded by m_mutex
-    mutable std::mutex m_mutex;
+    mutable std::array<std::atomic_uint, TrackSegmentMatchResult::NumberOfReasons> m_reasonsForMatchOk ATLAS_THREAD_SAFE; // Guarded by atomicity
+    mutable std::array<std::atomic_uint, TrackSegmentMatchResult::NumberOfReasons> m_reasonsForMatchNotOk ATLAS_THREAD_SAFE; // Guarded by atomicity
 
     double m_caloMatchZ; //!< Z position of calo end-cap disks. Used to determine if segments are on same side of Calo
 
