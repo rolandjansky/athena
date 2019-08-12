@@ -16,6 +16,10 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 
+#include <sstream>
+#include <fstream>
+#include <string>
+
 ///////////////////////////////////////////////////////////////////
 // Constructor
 ///////////////////////////////////////////////////////////////////
@@ -157,6 +161,7 @@ StatusCode InDet::SiSPSeededTrackFinderRoI::execute()
   // Find reference point of the event and create z boundary region
   //
   m_listRoIs =  m_ZWindowRoISeedTool->getRoIs();
+
   double ZBoundary[2];
   //if no RoI found; no need to go further
   if (m_listRoIs.size() == 0) {
