@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/CxxUtils
                           Control/StoreGate
                           Event/EventInfo
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
@@ -23,7 +24,7 @@ atlas_add_component( CscCalibTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps StoreGateLib SGtests EventInfo MuonCondData MuonCondInterface )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps CxxUtils StoreGateLib SGtests EventInfo MuonCondData MuonCondInterface )
 
 # Install files from the package:
 atlas_install_headers( CscCalibTools )
