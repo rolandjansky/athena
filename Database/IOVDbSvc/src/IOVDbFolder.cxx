@@ -913,7 +913,7 @@ IOVDbFolder::createTransientAddress(const std::vector<std::string> & symlinks){
       }
     }
   }
-  return std::move(tad);
+  return tad;
 }
 
 std::unique_ptr<SG::TransientAddress>
