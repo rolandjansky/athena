@@ -445,6 +445,8 @@ namespace CP {
         }
     }
 
+    // check if jet contains at least one NTracks variables
+    // prefer to use DFCommonJets* version
     int ntrk = -1;
     if(recosyst){
 	      static SG::AuxElement::Accessor<int> acc_NumTrkPt500PV("NumTrkPt500PV");
