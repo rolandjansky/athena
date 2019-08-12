@@ -56,7 +56,11 @@ StatusCode  ISF::GenParticleSimWhiteList::initialize()
       while (!white_list.eof()){
         getline( white_list , a_line );
         long int pdg = strtol( a_line.c_str() , &pEnd , 10 );
-        m_pdgId.push_back(pdg);
+        if (std::find(m_pdgId.begin(), m_pdgId.end(), pdg) == m_pdgId.end()) {
+          m_pdgId.push_back(pdg);
+        } else {
+          ATH_MSG_DEBUG("pdgId " << pdg << " already in whitelist. Will not add it again.");
+        }
       }
 
       // Sort the list for use later

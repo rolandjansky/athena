@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF
@@ -24,6 +24,11 @@ def getParticleFinalStateFilter(name="ISF_ParticleFinalStateFilter", **kwargs):
 
 def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
     # GenParticleSimWhiteList
+    return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
+
+def getParticleSimWhiteList_ExtraParticles(name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
+    # GenParticleSimWhiteList_LongLived
+    kwargs.setdefault('WhiteLists' , ['G4particle_whitelist.txt', 'G4particle_whitelist_ExtraParticles.txt'] )
     return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
 
 def getParticleSimWhiteList_LongLived(name="ISF_ParticleSimWhiteList_LongLived", **kwargs):
