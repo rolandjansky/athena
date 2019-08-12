@@ -258,7 +258,15 @@ IdDictDetDescrCnv::parseXMLDescription()
             << (boolProperty2.value() ? "True" : "False")
             << endmsg;
     }
-        
+
+    std::cout << "GeoModelSvc status=" << serviceLocator()->existsService("GeoModelSvc") << std::endl;
+    if (m_idDictFromRDB && !serviceLocator()->existsService("GeoModelSvc")) {
+      log << MSG::WARNING << "GeoModelSvc not part of this job. Falling back to files name from job options" << endmsg;
+      m_idDictFromRDB=false;
+      m_doNeighbours=false;
+    }
+
+
     if (m_idDictFromRDB) {
         log << MSG::DEBUG << "Dictonary file name from DD database" 
             << endmsg;
