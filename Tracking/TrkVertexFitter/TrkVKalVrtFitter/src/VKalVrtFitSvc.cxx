@@ -39,9 +39,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
 	dvect& Chi2PerTrk, 
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
-        IVKalState& /*istate*/,
+        IVKalState& istate,
         bool ifCovV0 /*= false*/)
 {
+    State& state = dynamic_cast<State&> (istate);
     if (ifCovV0)
       m_ifcovv0 = ifCovV0;
 //
@@ -55,7 +56,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
     if(sc.isFailure())return StatusCode::FAILURE;
 
     int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+                            Chi2PerTrk, TrkAtVrt,Chi2, state, ifCovV0 ) ;
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
 }
@@ -71,9 +72,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 	dvect& Chi2PerTrk, 
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
-        IVKalState& /*istate*/,
+        IVKalState& istate,
         bool ifCovV0 /*= false*/)
 {
+    State& state = dynamic_cast<State&> (istate);
     if (ifCovV0)
       m_ifcovv0 = ifCovV0;
     //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
@@ -113,19 +115,19 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 	      }
             }
           }
-          sc=CvtTrackParameters(tmpInputC,ntrk);
+          sc=CvtTrackParameters(tmpInputC,ntrk,state);
           if(sc.isFailure()){
             for(unsigned int i=0; i<tmpInputC.size(); i++) delete tmpInputC[i]; 
             return StatusCode::FAILURE;
           }
        }
     }else{
-       if(InpTrkC.size()) sc=CvtTrackParticle(InpTrkC,ntrk);
+       if(InpTrkC.size()) sc=CvtTrackParticle(InpTrkC,ntrk,state);
     }
     if(sc.isFailure())return StatusCode::FAILURE;
-    if(InpTrkN.size()){sc=CvtNeutralParticle(InpTrkN,ntrk); if(sc.isFailure())return StatusCode::FAILURE;}
+    if(InpTrkN.size()){sc=CvtNeutralParticle(InpTrkN,ntrk,state); if(sc.isFailure())return StatusCode::FAILURE;}
 //--
-    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2 ) ;
+    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, ifCovV0 ) ;
 //
 //-- Check vertex position with respect to first measured hit and refit with plane constraint if needed
     m_planeCnstNDOF = 0;
@@ -151,10 +153,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
           m_ApproximateVertex[0]=cnstRefPoint.x();
           m_ApproximateVertex[1]=cnstRefPoint.y();
           m_ApproximateVertex[2]=cnstRefPoint.z();
-          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2 );
+          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, ifCovV0 );
           m_vkalFitControl->setUsePlaneCnst(0.,0.,0.,0.);
           if (ierr)  {                                                                             // refit without plane cnst
-	     ierr = VKalVrtFit3(ntrk,Vertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2); // if fit with it failed
+             ierr = VKalVrtFit3(ntrk,Vertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2, state, ifCovV0); // if fit with it failed
              m_planeCnstNDOF = 0;
           }
 	  m_ApproximateVertex.swap(saveApproxV); 
@@ -176,9 +178,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
 	dvect& Chi2PerTrk, 
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
-        IVKalState& /*istate*/,
+        IVKalState& istate,
         bool ifCovV0 /*= false*/)
 {
+    State& state = dynamic_cast<State&> (istate);
     if (ifCovV0)
       m_ifcovv0 = ifCovV0;
     //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
@@ -192,15 +195,15 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
     if(m_firstMeasuredPoint){               //First measured point strategy
        std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
        for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) baseInpTrk.push_back(GetFirstPoint(*i_ntrk));
-       sc=CvtTrackParameters(baseInpTrk,ntrk);
-       if(sc.isFailure()){ntrk=0; sc=CvtTrackParticle(InpTrk,ntrk);}
+       sc=CvtTrackParameters(baseInpTrk,ntrk,state);
+       if(sc.isFailure()){ntrk=0; sc=CvtTrackParticle(InpTrk,ntrk,state);}
     }else{
-       sc=CvtTrackParticle(InpTrk,ntrk);
+       sc=CvtTrackParticle(InpTrk,ntrk,state);
     }
     if(sc.isFailure())return StatusCode::FAILURE;
 
     int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
-                                 Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+                            Chi2PerTrk, TrkAtVrt,Chi2, state, ifCovV0 ) ;
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
 }
@@ -216,9 +219,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
 	dvect& Chi2PerTrk, 
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
-        IVKalState& /*istate*/,
+        IVKalState& istate,
         bool ifCovV0 /*= false*/)
 {
+    State& state = dynamic_cast<State&> (istate);
     if (ifCovV0)
       m_ifcovv0 = ifCovV0;
     //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
@@ -229,11 +233,11 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
     int ntrk=0;
     StatusCode sc; sc.setChecked();
     if(InpTrkC.size()>0){
-      sc=CvtTrackParameters(InpTrkC,ntrk);
+      sc=CvtTrackParameters(InpTrkC,ntrk,state);
       if(sc.isFailure())return StatusCode::FAILURE;
     }
     if(InpTrkN.size()>0){
-      sc=CvtNeutralParameters(InpTrkN,ntrk);
+      sc=CvtNeutralParameters(InpTrkN,ntrk,state);
       if(sc.isFailure())return StatusCode::FAILURE;
     }
     
@@ -243,7 +247,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
         m_ApproximateVertex.push_back(m_globalFirstHit->position().y());
         m_ApproximateVertex.push_back(m_globalFirstHit->position().z());
     }
-    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+    int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2, state, ifCovV0 ) ;
     if (ierr) return StatusCode::FAILURE;
 //
 //-- Check vertex position with respect to first measured hit and refit with plane constraint if needed
@@ -261,10 +265,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
           m_ApproximateVertex[0]=m_globalFirstHit->position().x();
           m_ApproximateVertex[1]=m_globalFirstHit->position().y();
           m_ApproximateVertex[2]=m_globalFirstHit->position().z();
-          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2 ) ;
+          ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt,Chi2, state, ifCovV0 ) ;
           m_vkalFitControl->setUsePlaneCnst(0.,0.,0.,0.);
           if (ierr)  {                                                                                   // refit without plane cnst
-	     ierr = VKalVrtFit3(ntrk,Vertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2 ) ;     // if fit with it failed
+	     ierr = VKalVrtFit3(ntrk,Vertex,Momentum,Charge,ErrorMatrix,Chi2PerTrk,TrkAtVrt,Chi2, state, ifCovV0 ) ;     // if fit with it failed
              m_planeCnstNDOF = 0;
           }
 	  m_ApproximateVertex.swap(saveApproxV); 
@@ -289,7 +293,10 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 	dvect& ErrorMatrix, 
 	dvect& Chi2PerTrk, 
         std::vector< std::vector<double> >& TrkAtVrt,
-	double& Chi2 ) {
+	double& Chi2,
+        State& state,
+        bool /*ifCovV0*/)
+{
 //
 //-----  Timing
 //
@@ -310,7 +317,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 //
 //------  Fit option setting
 //
-    VKalVrtConfigureFitterCore(ntrk);
+    VKalVrtConfigureFitterCore(ntrk, state);
 //
 //------  Fit itself
 //
@@ -612,7 +619,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 
  
   StatusCode TrkVKalVrtFitter::VKalGetFullCov( long int NTrk, dvect& CovVrtTrk,
-                                               IVKalState& /*istate*/,
+                                               const IVKalState& /*istate*/,
                                                bool useMom)
   {
     if(!m_FitStatus)       return StatusCode::FAILURE;

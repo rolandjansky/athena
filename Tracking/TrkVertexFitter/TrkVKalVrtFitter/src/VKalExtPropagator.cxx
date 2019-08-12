@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 // The VKalExtPropagator object is created if ATHENA propagator exists 
@@ -47,7 +47,8 @@ namespace Trk {
 
 //Protection against exit outside ID volume
 //
-  double VKalExtPropagator::Protection(double *RefEnd) const
+  double VKalExtPropagator::Protection(double *RefEnd,
+                                       const IVKalState& /*istate*/) const
   {   
       double Xend=RefEnd[0] + m_vkalFitSvc->m_refFrameX;
       double Yend=RefEnd[1] + m_vkalFitSvc->m_refFrameY;
@@ -61,10 +62,11 @@ namespace Trk {
       return Scale;
   }
 
-  bool VKalExtPropagator::checkTarget( double *RefEnd) const
+  bool VKalExtPropagator::checkTarget( double *RefEnd,
+                                       const IVKalState& istate) const
   {
       //double targV[3]={ RefEnd[0], RefEnd[1], RefEnd[2]};
-      if( Protection(RefEnd) >1. ) return false;
+      if( Protection(RefEnd, istate) >1. ) return false;
       return true;
   }
 /*----------------------------------------------------------------------------------*/
@@ -80,8 +82,11 @@ namespace Trk {
 /*------------------------------------------------------------------------------------*/
   void VKalExtPropagator::Propagate( long int trkID, long int Charge, 
                                      double *ParOld, double *CovOld, double *RefStart, 
-                                     double *RefEnd, double *ParNew, double *CovNew) const
+                                     double *RefEnd, double *ParNew, double *CovNew,
+                                     const IVKalState& istate) const
   {
+      const TrkVKalVrtFitter::State& state = static_cast<const TrkVKalVrtFitter::State&> (istate);
+
       int trkID_loc=trkID; if(trkID_loc<0)trkID_loc=0;
 //std::cout<<__func__<<" Ext.Propagator TrkID="<<trkID<<"to (local!!!)="<<RefEnd[0]<<", "<<RefEnd[1]<<", "<<RefEnd[2]<<'\n';
 //-----------
@@ -102,7 +107,7 @@ namespace Trk {
       }        
       //--- This creates Perigee in GLOBAL frame from input in realtive coordinates
       const Perigee* inpPer = 
-          m_vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni);
+          m_vkalFitSvc->CreatePerigee( RefStart[0], RefStart[1], RefStart[2], PerigeeIni, CovPerigeeIni, state);
       const TrackParameters * inpPar= (const TrackParameters*) inpPer;
 //
 // ----- Magnetic field is taken at target point (GLOBAL calculated from relative frame input)
@@ -114,9 +119,9 @@ namespace Trk {
 //
       const Trk::TrackParameters* endPer = 0;
       if(trkID<0){
-            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPointG);
+            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPointG, state);
       }else{
-            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPointG);
+            endPer = myExtrapWithMatUpdate( trkID, inpPar, &endPointG, state);
       }
 //-----------------------------------
       if( endPer == 0 ) {   // No extrapolation done!!!
@@ -193,7 +198,8 @@ namespace Trk {
 /*--------------------------------------------------------------------------------------*/
   const TrackParameters* VKalExtPropagator::myExtrapWithMatUpdate(long int TrkID, 
                                                                   const TrackParameters *inpPer,
-                                                                  Amg::Vector3D * endPoint) const
+                                                                  Amg::Vector3D * endPoint,
+                                                                  const IVKalState& /*istate*/) const
   {   
       const Trk::TrackParameters* endPer=0;
       const Trk::TrackParameters* tmpPer=0;
@@ -306,7 +312,8 @@ namespace Trk {
   const TrackParameters* VKalExtPropagator::myExtrapToLine(long int TrkID, 
                                                            const TrackParameters *inpPer,
                                                            Amg::Vector3D * endPoint,
-                                                           StraightLineSurface  &lineTarget) const
+                                                           StraightLineSurface  &lineTarget,
+                                                           const IVKalState& /*istate*/) const
   {   
       const Trk::TrackParameters* endPer=0;
       ParticleHypothesis prtType = muon;

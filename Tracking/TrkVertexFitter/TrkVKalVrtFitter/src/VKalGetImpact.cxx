@@ -25,6 +25,13 @@ namespace Trk {
 namespace Trk{
 
   double TrkVKalVrtFitter::VKalGetImpact(const Trk::Track* InpTrk,const Amg::Vector3D& Vertex, const long int Charge,
+                                  std::vector<double>& Impact, std::vector<double>& ImpactError)
+  {
+    State state;
+    initState (state);
+    return VKalGetImpact (InpTrk, Vertex, Charge, Impact, ImpactError, state);
+  }
+  double TrkVKalVrtFitter::VKalGetImpact(const Trk::Track* InpTrk,const Amg::Vector3D& Vertex, const long int Charge,
                                   std::vector<double>& Impact, std::vector<double>& ImpactError,
                                          IVKalState& /*istate*/)
   {
@@ -68,9 +75,17 @@ namespace Trk{
 
 //
   double TrkVKalVrtFitter::VKalGetImpact(const TrackParticleBase* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError,
-                                         IVKalState& /*istate*/)
+                                  std::vector<double>& Impact, std::vector<double>& ImpactError)
   {
+    State state;
+    initState (state);
+    return VKalGetImpact (InpTrk, Vertex, Charge, Impact, ImpactError, state);
+  }
+  double TrkVKalVrtFitter::VKalGetImpact(const TrackParticleBase* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
+                                  std::vector<double>& Impact, std::vector<double>& ImpactError,
+                                         IVKalState& istate)
+  {
+    State& state = dynamic_cast<State&> (istate);
 //
 //------ Variables and arrays needed for fitting kernel
 //
@@ -85,7 +100,7 @@ namespace Trk{
 //------  extract information about selected tracks
 //
     int ntrk=0; 
-    StatusCode sc = CvtTrackParticle(InpTrkList,ntrk);
+    StatusCode sc = CvtTrackParticle(InpTrkList,ntrk,state);
     if(sc.isFailure() || ntrk != 1) {    //Something is wrong in conversion
         Impact.assign(5,1.e10);
         ImpactError.assign(3,1.e20);
@@ -109,9 +124,17 @@ namespace Trk{
   }
 
   double TrkVKalVrtFitter::VKalGetImpact(const xAOD::TrackParticle* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError,
-                                         IVKalState& /*istate*/)
+                                  std::vector<double>& Impact, std::vector<double>& ImpactError)
   {
+    State state;
+    initState (state);
+    return VKalGetImpact (InpTrk, Vertex, Charge, Impact, ImpactError, state);
+  }
+  double TrkVKalVrtFitter::VKalGetImpact(const xAOD::TrackParticle* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
+                                  std::vector<double>& Impact, std::vector<double>& ImpactError,
+                                         IVKalState& istate)
+  {
+    State& state = dynamic_cast<State&> (istate);
 //
 //------ Variables and arrays needed for fitting kernel
 //
@@ -126,7 +149,7 @@ namespace Trk{
 //------  extract information about selected tracks
 //
     int ntrk=0; 
-    StatusCode sc = CvtTrackParticle(InpTrkList,ntrk);
+    StatusCode sc = CvtTrackParticle(InpTrkList,ntrk,state);
     if(sc.isFailure() ||  ntrk != 1   )  {       //Something is wrong in conversion
         Impact.assign(5,1.e10);
         ImpactError.assign(3,1.e20);

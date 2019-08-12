@@ -13,7 +13,6 @@
 #ifndef TRKVKALVRTFITTER_IVKALSTATE_H
 #define TRKVKALVRTFITTER_IVKALSTATE_H
 
-#include "CxxUtils/checker_macros.h"
 
 namespace Trk {
 
@@ -23,7 +22,6 @@ class IVKalState
 public:
   virtual ~IVKalState() = default;
 };
-extern IVKalState tmpVKalState ATLAS_THREAD_SAFE;
 
 
 } // namespace Trk
