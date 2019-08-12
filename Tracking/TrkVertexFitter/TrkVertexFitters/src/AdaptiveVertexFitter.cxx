@@ -143,7 +143,7 @@ namespace Trk
 					    const xAOD::Vertex& constraint,//initialized to xAOD::Vertex()
 					    const Amg::Vector3D & startingPoint,//initialized to Amg::Vector3D()
 					    bool IsConstraint,//initialized to false
-					    bool IsStartingPoint)//initialized to false
+					    bool IsStartingPoint) const//initialized to false
   {
 
     //check the number of tracks
@@ -285,7 +285,7 @@ namespace Trk
                                             const xAOD::Vertex& constraint,//initialized to xAOD::Vertex()
                                             const Amg::Vector3D & startingPoint,//initialized to Amg::Vector3D()
                                             bool IsConstraint,//initialized to false
-                                            bool IsStartingPoint) {//initialized to false
+                                            bool IsStartingPoint) const {//initialized to false
 
     ATH_MSG_DEBUG("Called Adaptive vertex with Trk::Track. N. Tracks = " << VectorTrk.size());
 
@@ -346,7 +346,7 @@ namespace Trk
                                             const xAOD::Vertex& constraint,//initialized to xAOD::Vertex()
                                             const Amg::Vector3D & startingPoint,//initialized to Amg::Vector3D()
                                             bool IsConstraint,//initialized to false
-                                            bool IsStartingPoint) {//initialized to false
+                                            bool IsStartingPoint) const {//initialized to false
 
     std::vector<const Trk::TrackParameters*> perigeeList;
     for (std::vector<const Trk::TrackParticleBase*>::const_iterator iter=VectorTrk.begin();
@@ -406,7 +406,7 @@ namespace Trk
 
 
 
-  xAOD::Vertex * AdaptiveVertexFitter::dothefit(const xAOD::Vertex & ConstraintVertex, const Amg::Vector3D & SeedVertex, std::vector<Trk::VxTrackAtVertex> & myLinTracks)
+  xAOD::Vertex * AdaptiveVertexFitter::dothefit(const xAOD::Vertex & ConstraintVertex, const Amg::Vector3D & SeedVertex, std::vector<Trk::VxTrackAtVertex> & myLinTracks) const
   {
   
     //now reset the annealing maker
@@ -689,7 +689,7 @@ namespace Trk
 		                            const xAOD::Vertex& constraint,
 					    const Amg::Vector3D & startingPoint,
 					    bool IsConstraint,
-					    bool IsStartingPoint) {
+					    bool IsStartingPoint) const {
     const std::vector<const Trk::NeutralParameters*> neutralPerigeeList;
     return _fit(perigeeList, neutralPerigeeList, constraint, startingPoint, IsConstraint, IsStartingPoint);
   }
