@@ -38,10 +38,10 @@ class GsfMeasurementUpdator
 
 private:
   /** Private typedef for calling the correct updator member function depending of direction of fitting */
-  typedef const Trk::TrackParameters* (Trk::IUpdator::*Updator)(const Trk::TrackParameters&,
-                                                                const LocalParameters&,
-                                                                const Amg::MatrixX&,
-                                                                FitQualityOnSurface*&)const;
+  typedef Trk::TrackParameters* (Trk::IUpdator::*Updator)(const Trk::TrackParameters&,
+                                                          const LocalParameters&,
+                                                          const Amg::MatrixX&,
+                                                          FitQualityOnSurface*&)const;
 
 public:
   /** Constructor with parameters to be passed to AlgTool */
