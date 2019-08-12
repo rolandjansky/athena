@@ -699,7 +699,6 @@ def setupMenu():
         ['e14_lhvloose_nod0_mu6_nomucomb_L1LFV-EM12I-MU6',        'L1_LFV-EM12I-MU6',  ['L1_EM12', 'L1_MU6'],   [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['parallel',-1,[] ]],
         ['e24_lhmedium_nod0_mu8noL1', 'L1_EM20VH', ['L1_EM20VH', ''], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['e24_lhmedium_nod0','mu8noL1'] ]],
 
-        #['tau50_mediumRNN_tracktwoMVA_xe80_pufit_xe50_L1XE50', 'L1_TAU20IM_2J20_XE50',['L1_TAU20IM','',''], [PhysicsStream], ['RATE:TauMET', 'BW:Tau'], -1,['serial',-1,["tau50_mediumRNN_tracktwoMVA","xe80_pufit","xe50_L1XE50"]]], # it should be reordered in athenaMT
         ['tau50_mediumRNN_tracktwoMVA_xe80_pufit_xe50_L1TAU20IM_2J20_XE50', 'L1_TAU20IM_2J20_XE50',['L1_TAU20IM','',''], [PhysicsStream], ['RATE:TauMET', 'BW:Tau'], -1,['serial',-1,["tau50_mediumRNN_tracktwoMVA","xe80_pufit","xe50_L1TAU20IM_2J20_XE50"]]], # it should be reordered in athenaMT
         ['g90_loose_xe90noL1',           'L1_EM22VHI',  ['L1_EM22VHI',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g90_loose","xe90noL1"]]],
         ['mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt',      'L1_MU10_TAU12IM_J25_2J12',['L1_MU10','L1_TAU12IM'], [PhysicsStream], ['RATE:MuonTau', 'BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu14_ivarloose","tau25_mediumRNN_tracktwoMVA"]]],
