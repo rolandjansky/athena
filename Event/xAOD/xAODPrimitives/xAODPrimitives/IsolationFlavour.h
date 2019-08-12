@@ -38,7 +38,15 @@ namespace xAOD {
        ptcone_TightTTVA_pt500 = 7,
        ptcone_TightTTVA_pt1000 = 8,
 
-       numIsolationFlavours=9
+       ptvarcone_TightTTVALooseCone_pt500 = 9,
+       ptvarcone_TightTTVALooseCone_pt1000 = 10,
+
+       ///ptcone for high mu
+       ptcone_TightTTVALooseCone_pt500 = 11,
+       ptcone_TightTTVALooseCone_pt1000 = 12,
+
+
+       numIsolationFlavours=13
 
      }; // enum IsolationFlavour
 
@@ -53,6 +61,10 @@ namespace xAOD {
        case ptvarcone_TightTTVA_pt1000:  return "ptvarcone_TightTTVA_pt1000";
        case ptcone_TightTTVA_pt500:  return "ptcone_TightTTVA_pt500";
        case ptcone_TightTTVA_pt1000:  return "ptcone_TightTTVA_pt1000";
+       case ptvarcone_TightTTVALooseCone_pt500:  return "ptvarcone_TightTTVALooseCone_pt500";
+       case ptvarcone_TightTTVALooseCone_pt1000:  return "ptvarcone_TightTTVALooseCone_pt1000";
+       case ptcone_TightTTVALooseCone_pt500:  return "ptcone_TightTTVALooseCone_pt500";
+       case ptcone_TightTTVALooseCone_pt1000:  return "ptcone_TightTTVALooseCone_pt1000";
        default:         return "[Unknown IsolationFlavour]";	
        }
      }
