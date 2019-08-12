@@ -615,7 +615,7 @@ namespace top{
           std::cout << "AodMetaData :: AMITag " << AMITagName << std::endl;
           this->setAMITag(AMITagName);
         }
-        catch(std::logic_error aodMetaDataError){
+        catch(const std::logic_error& aodMetaDataError){
           std::cout << "An error was encountered handling AodMetaData : " << aodMetaDataError.what() << std::endl;
           std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
           this->ReadIsAFII(settings);
