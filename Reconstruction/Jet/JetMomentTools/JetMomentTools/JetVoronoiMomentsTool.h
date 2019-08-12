@@ -49,6 +49,7 @@ private:
   float m_y_max;
 
   std::string m_jetContainerName;
+  std::string m_decorationName;
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_voronoiAreaKey;
 
 };

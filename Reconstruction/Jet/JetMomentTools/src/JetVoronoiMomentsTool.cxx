@@ -32,8 +32,9 @@ JetVoronoiMomentsTool::JetVoronoiMomentsTool(const std::string& name)
     declareProperty("AreaYmin",m_y_min);
     declareProperty("AreaYmax",m_y_max);
     declareProperty("JetContainer", m_jetContainerName);
+    declareProperty("DecorationName", m_decorationName = "VoronoiArea");
 
-    m_voronoiAreaKey = m_jetContainerName + ".VoronoiArea";
+    m_voronoiAreaKey = m_jetContainerName + "." + m_decorationName;
 }
 
 StatusCode JetVoronoiMomentsTool::initialize() {
