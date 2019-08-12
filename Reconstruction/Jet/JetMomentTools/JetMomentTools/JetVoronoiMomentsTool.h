@@ -26,7 +26,7 @@ namespace JetVoronoiDiagramHelpers{
 }
 
 class JetVoronoiMomentsTool : public asg::AsgTool,
-                              public IJetDecorator {
+                              virtual public IJetDecorator {
 ASG_TOOL_CLASS(JetVoronoiMomentsTool,IJetDecorator)
 
 public:
