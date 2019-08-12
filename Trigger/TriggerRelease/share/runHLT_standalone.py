@@ -332,7 +332,7 @@ TriggerFlags.triggerMenuSetup=setMenu
 
 def stripPrescales(menu):
     import re
-    m = re.match('(.*v\d).*', menu)
+    m = re.match('(.*v\d(?:_primaries)?).*', menu)
     return m.groups()[0] if m else menu
 
 # L1 Topo
