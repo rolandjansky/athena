@@ -11,24 +11,28 @@
 #include <algorithm>
 
 namespace CP {
-    IsolationConditionFormula::IsolationConditionFormula(std::string name, xAOD::Iso::IsolationType isoType, const std::string& cutFunction) :
+    IsolationConditionFormula::IsolationConditionFormula(std::string name, xAOD::Iso::IsolationType isoType, const std::string& cutFunction, bool invertCut) :
                 IsolationCondition(name, isoType) {
         m_cutFunction = std::shared_ptr < TF1 > (new TF1(cutFunction.c_str(), cutFunction.c_str()));
+        m_invertCut = invertCut;
     }
-    IsolationConditionFormula::IsolationConditionFormula(std::string name, std::string isoType, const std::string& cutFunction) :
+    IsolationConditionFormula::IsolationConditionFormula(std::string name, std::string isoType, const std::string& cutFunction, bool invertCut) :
                 IsolationCondition(name, isoType) {
         m_cutFunction = std::shared_ptr < TF1 > (new TF1(cutFunction.c_str(), cutFunction.c_str()));
+        m_invertCut = invertCut;
     }
    bool IsolationConditionFormula::accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* c) {
         getCutValue(x.pt());
         if (c) (*c)[type()] = m_cutValue;
-        return (*accessor())(x) <= m_cutValue;
+        if (!m_invertCut) return (*accessor())(x) <= m_cutValue;
+        return (*accessor())(x) > m_cutValue;
     }
 
     bool IsolationConditionFormula::accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* c) {
         getCutValue(x.pt);
         if (c) (*c)[type()] = m_cutValue;
-        return x.isolationValues[type()] <= m_cutValue;
+        if (!m_invertCut) return x.isolationValues[type()] <= m_cutValue;
+        return x.isolationValues[type()] > m_cutValue;
     }
 
     void IsolationConditionFormula::getCutValue(const float pt) {
