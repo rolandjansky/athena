@@ -17,23 +17,28 @@
 #ifndef JETMOMENTTOOLS_JETLARHVTOOL_H
 #define JETMOMENTTOOLS_JETLARHVTOOL_H
 
-#include "JetRec/JetModifierBase.h"
 #include "AsgTools/ToolHandle.h"
+#include "AsgTools/AsgTool.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+#include "JetInterface/IJetDecorator.h"
 
 
-class JetLArHVTool: public JetModifierBase {
+class JetLArHVTool: public asg::AsgTool,
+                    virtual public IJetDecorator{
   ASG_TOOL_CLASS0(JetLArHVTool)
 
 public:
   JetLArHVTool(const std::string & name);
 
-  virtual int modifyJet(xAOD::Jet& ) const ;
-  
+  virtual StatusCode decorate(const xAOD::JetContainer& jets) const;
+
   virtual StatusCode initialize();
 
  private:
 
-
+  std::string m_jetContainerName;
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_fracKey;
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_nCellKey;
 };
 
 #endif
