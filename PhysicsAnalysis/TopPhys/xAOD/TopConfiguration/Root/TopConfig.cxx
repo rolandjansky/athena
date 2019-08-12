@@ -1009,7 +1009,7 @@ namespace top{
     this->truth_jet_largeR_PtCut( std::stof( settings->value( "TruthLargeRJetPt" ) ) );
     this->truth_jet_largeR_EtaCut( std::stof( settings->value( "TruthLargeRJetEta" ) ) );
 
-    this->truth_tau_PtCut( std::stof( settings->value( "TrutTauPt" ) ) );
+    this->truth_tau_PtCut( std::stof( settings->value( "TruthTauPt" ) ) );
     this->truth_tau_EtaCut( std::stof( settings->value( "TruthTauEta" ) ) );
 
     // -----------------------------------------------]]]
