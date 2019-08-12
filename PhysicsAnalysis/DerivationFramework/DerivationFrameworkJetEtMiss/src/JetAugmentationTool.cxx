@@ -31,6 +31,8 @@ namespace DerivationFramework {
     m_jvtTool(""),
     m_jetJvtEfficiencyTool(""),
     m_dojvt(false),
+    m_MVfJvtTool(""),                 
+    m_doMVfJvt(false),                
     m_dobtag(false),
     m_jetTrackSumMomentsTool(""),
     m_decoratetracksum(false),
@@ -61,6 +63,10 @@ namespace DerivationFramework {
     declareProperty("JvtMomentKey",   m_jvtMomentKey = "Jvt");
     declareProperty("JetJvtTool",     m_jvtTool);
     declareProperty("JetJvtEffTool",  m_jetJvtEfficiencyTool);
+
+    declareProperty("MVfJvtMomentKey", m_MVfJvtMomentKey = "MVfJVT");
+    declareProperty("JetForwardJvtToolBDT", m_MVfJvtTool);
+
     declareProperty("JetBtagTools",   m_btagSelTools);
     declareProperty("JetBtagWPs",     m_btagWP);
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
@@ -91,6 +97,22 @@ namespace DerivationFramework {
         dec_jvt  = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_jvtMomentKey);
         dec_passJvt  = new SG::AuxElement::Decorator<char>(m_momentPrefix+"pass"+m_jvtMomentKey);
 
+      if(!m_MVfJvtTool.empty()) {
+        CHECK(m_MVfJvtTool.retrieve());
+        ATH_MSG_INFO("Augmenting jets with MV-fJVT value \"" << m_momentPrefix+m_MVfJvtMomentKey << "\"");
+        m_doMVfJvt = true;
+
+        dec_MVfJvt                    = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey);
+      	/* MVfJvt inputs. The tagger also requires jet timing and width that are in (resp.) jet & MET cp smartslimming lists
+	  Last needed variable is fjvt that is recomputed in analyses in case the moment below are required */
+	dec_MVfJvt_Sumcle             = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_Sumcle");
+	dec_MVfJvt_SumclIso           = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_SumclIso");
+	dec_MVfJvt_SumclEMprob        = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_SumclEMprob");
+	dec_MVfJvt_LeadclWidth        = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_LeadclWidth");
+	dec_MVfJvt_LeadclSecondLambda = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_MVfJvtMomentKey+"_LeadclSecondLambda");
+      }
+
+      
         if(!m_btagSelTools.empty()) {
           size_t ibtag(0);
           for(const auto& tool : m_btagSelTools) {
@@ -261,28 +283,56 @@ namespace DerivationFramework {
       }
     }
 
+    // JVT has to be updated here to get correct (calibrated) values of (MV)fJVT
+    if(m_docalib && m_dojvt && m_doMVfJvt){
+      for(const xAOD::Jet *jet : *jets_copy) { 
+	(*dec_jvt)(*jet) = m_jvtTool->updateJvt(*jet);
+      }
+      if(m_MVfJvtTool->modify(*jets_copy))
+	{
+	  ATH_MSG_WARNING("Problem with MVfJvtTool modify function");
+	}
+    }   
+      
 
     // loop over the copies
-    for(const auto& jet : *jets_copy) {
+    for(const xAOD::Jet *jet : *jets_copy) {
       // get the original jet so we can decorate it
       const xAOD::Jet& jet_orig( *(*jets)[jet->index()] );
-
+      
       if(m_docalib) {
         // generate static decorators to avoid multiple lookups
         (*dec_calibpt)(jet_orig)  = jet->pt();
         (*dec_calibeta)(jet_orig) = jet->eta();
         (*dec_calibphi)(jet_orig) = jet->phi();
         (*dec_calibm)(jet_orig)   = jet->m();
-
+	
         ATH_MSG_VERBOSE("Calibrated jet pt: " << (*dec_calibpt)(jet_orig) );
-
+	
         if(m_dojvt) {
-          (*dec_jvt)(jet_orig) = m_jvtTool->updateJvt(*jet);
+          if(!m_doMVfJvt)(*dec_jvt)(jet_orig) = m_jvtTool->updateJvt(*jet);
+	  else (*dec_jvt)(jet_orig) = (*dec_jvt)(*jet);
           ATH_MSG_VERBOSE("Calibrated JVT: " << (*dec_jvt)(jet_orig) );
           bool passJVT = m_jetJvtEfficiencyTool->passesJvtCut(jet_orig);
-                (*dec_passJvt)(jet_orig) = passJVT;
-
-          if(m_dobtag) {
+	  (*dec_passJvt)(jet_orig) = passJVT;
+	  
+	  if(m_doMVfJvt) {   
+	    (*dec_MVfJvt)(jet_orig)                    = jet->auxdata<float>("MVfJVT");
+            (*dec_MVfJvt_Sumcle)(jet_orig)             = jet->auxdata<float>("Sumcle");
+	    (*dec_MVfJvt_SumclIso)(jet_orig)           = jet->auxdata<float>("SumclIso");
+	    (*dec_MVfJvt_SumclEMprob)(jet_orig)        = jet->auxdata<float>("SumclEMprob");
+	    (*dec_MVfJvt_LeadclWidth)(jet_orig)        = jet->auxdata<float>("LeadclWidth");
+	    (*dec_MVfJvt_LeadclSecondLambda)(jet_orig) = jet->auxdata<float>("LeadclSecondLambda");
+	    ATH_MSG_VERBOSE("What goes in decoration:  m_cle = " << jet->auxdata<float>("Sumcle")		    
+			    << " || m_cliso = "                  << jet->auxdata<float>("SumclIso")	    
+			    << " || m_clemprob = "               << jet->auxdata<float>("SumclEMprob")	    
+			    << " || m_cletawidth = "             << jet->auxdata<float>("LeadclWidth")	     
+			    << " || m_cllambda2 = "              << jet->auxdata<float>("LeadclSecondLambda")  );
+	    
+	  }
+	  
+	  
+	  if(m_dobtag) {
             size_t ibtag(0);
             for(const auto& tool : m_btagSelTools) {
               (*dec_btag[ibtag])(jet_orig) = jet->pt()>20e3 && fabs(jet->eta())<2.5 && passJVT && tool->accept(*jet);
