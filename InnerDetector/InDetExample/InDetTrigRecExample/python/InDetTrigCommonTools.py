@@ -9,7 +9,6 @@ ___author___ = "Jiri Masik"
 ___version___ = "$Id: $"
 
 
-from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
@@ -72,11 +71,6 @@ InDetTrigTRTRodDecoder = TRT_RodDecoder(name = "InDetTrigTRTRodDecoder",
                                         LoadCompressTableDB = (globalflags.DataSource() != 'geant4'))
 ToolSvc += InDetTrigTRTRodDecoder
 
-# Straw status DB Tool
-from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
-InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
-                                           isGEANT4=(globalflags.DataSource == 'geant4'))
-
 # TRT_DriftCircleTool
 from TRT_DriftCircleTool.TRT_DriftCircleToolConf import InDet__TRT_DriftCircleTool
 #these settings offline keeps for MC
@@ -97,7 +91,7 @@ if  globalflags.DataSource != 'data':
   
 InDetTrigTRT_DriftCircleTool = InDet__TRT_DriftCircleTool( name = "InDetTrigTRT_DriftCircleTool",
                                                            TRTDriftFunctionTool = InDetTrigTRT_DriftFunctionTool,
-                                                           ConditionsSummaryTool           = InDetTRTStrawStatusSummaryTool,
+                                                           ConditionsSummaryTool           = InDetTrigTRTStrawStatusSummaryTool,
                                                            UseConditionsStatus  = True,
                                                            UseConditionsHTStatus  = True,
                                                            SimpleOutOfTimePileupSupression = True,

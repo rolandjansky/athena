@@ -7,6 +7,8 @@ if not ('conddb' in dir()):
   IOVDbSvc = Service("IOVDbSvc")
   from IOVDbSvc.CondDB import conddb
 
+from AthenaCommon.DetFlags import DetFlags
+
 #
 # --- Pixel cabling
 #
