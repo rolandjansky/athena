@@ -48,12 +48,12 @@ namespace top {
         } else if ( params.compare( pos, 4, "tau " ) == 0 ){
           m_type = tau;
           return params.substr( pos + 4 );
+        } else {
+          throw std::invalid_argument{"Cannot parse the type from the parameter string (case \"H\")"};
         }
       }
       default: {
-        std::cout << "Could not parse the type from the parameter string\n";
-        std::cout << "   '" << params << "'\n";
-        std::exit(1);
+        throw std::invalid_argument{"Cannot parse the type from the parameter string"};
       }
     }
   }
