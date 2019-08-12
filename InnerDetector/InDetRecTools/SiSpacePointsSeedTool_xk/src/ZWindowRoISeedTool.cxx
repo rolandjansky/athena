@@ -13,6 +13,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "SiSpacePointsSeedTool_xk/ZWindowRoISeedTool.h"
+#include "ITrackToVertex/ITrackToVertex.h"
 #include "TVector2.h"
 #include <map>
 
@@ -24,6 +25,7 @@
 InDet::ZWindowRoISeedTool::ZWindowRoISeedTool
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
+    m_trackToVertex       ("Reco::TrackToVertex/TrackToVertex"),
     m_input_tracks_collection("Tracks")
 {
 
@@ -32,12 +34,13 @@ InDet::ZWindowRoISeedTool::ZWindowRoISeedTool
 
   //
   declareProperty("InputTracksCollection", m_input_tracks_collection );  
-  declareProperty("LeadingMinTrackPt", m_trk_leading_pt = 27000.); 
-  declareProperty("SubleadingMinTrackPt", m_trk_subleading_pt = 20000.); 
+  declareProperty("LeadingMinTrackPt", m_trk_leading_pt = 18000.); 
+  declareProperty("SubleadingMinTrackPt", m_trk_subleading_pt = 12500.); 
   declareProperty("TracksMaxEta", m_trk_eta_max = 2.5);
   declareProperty("TracksMaxD0", m_trk_d0_max = 9999.);
   declareProperty("MaxDeltaZTracksPair", m_max_delta_z = 2.0);
   declareProperty("TrackZ0Window", m_z0_window = 1.0);
+  declareProperty("TrackToVertex",            m_trackToVertex );
 
 }
 
@@ -56,6 +59,14 @@ InDet::ZWindowRoISeedTool::~ZWindowRoISeedTool()
 StatusCode InDet::ZWindowRoISeedTool::initialize()
 {
   StatusCode sc = AlgTool::initialize();   
+  
+    if ( m_trackToVertex.retrieve().isFailure() ) { 
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackToVertex );
+    return StatusCode::FAILURE; 
+  } else { 
+    ATH_MSG_DEBUG( "Retrieved tool " << m_trackToVertex ); 
+    } 
+
   return sc;
 }
 
@@ -75,11 +86,21 @@ StatusCode InDet::ZWindowRoISeedTool::finalize()
 
 std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getRoIs()
 {
-
+  
   // prepare output
   std::vector<InDet::IZWindowRoISeedTool::ZWindow> listRoIs;
   InDet::IZWindowRoISeedTool::ZWindow RoI;
   listRoIs.clear();
+  /*
+  ToolHandle< Reco::ITrackToVertex > m_trackToVertex ("ITrackToVertex::TrackToVertex/TrackToVertex");
+  
+  if ( m_trackToVertex.retrieve().isFailure() ) { 
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackToVertex );
+    //return StatusCode::FAILURE; 
+  } else { 
+    ATH_MSG_DEBUG( "Retrieved tool " << m_trackToVertex ); 
+    } */
+  
 
   //select tracks, then order by pT
   const TrackCollection* tracks = 0;
@@ -132,17 +153,62 @@ std::vector<InDet::IZWindowRoISeedTool::ZWindow> InDet::ZWindowRoISeedTool::getR
       float z0 = trk->perigeeParameters()->parameters()[Trk::z0];
       ATH_MSG_VERBOSE("- z0_leading = " << z0_leading << " mm");
       ATH_MSG_VERBOSE("- z0_sublead = " << z0 << " mm");
-      if ( fabs(z0_leading - z0) > m_max_delta_z ) continue;
+
+      const Trk::Perigee* lead_atbeam = m_trackToVertex->perigeeAtBeamline(*trk_leading);
+      const Trk::Perigee* sublead_atbeam = m_trackToVertex->perigeeAtBeamline(*trk);
+      float z0_leading_beam = lead_atbeam->parameters()[Trk::z0];
+      float z0_beam = sublead_atbeam->parameters()[Trk::z0];
+
+      //std::cout<<"- z0_leading = " << z0_leading << " mm"<<std::endl;
+      //std::cout<<"- z0_sublead = " << z0 << " mm"<<std::endl;
+      //std::cout<<"- z0_leading_beam = " << z0_leading_beam << " mm"<<std::endl;
+      //std::cout<<"- z0_sublead_beam = " << z0_beam << " mm"<<std::endl;
+
+      if ( fabs(z0_leading_beam - z0_beam) > m_max_delta_z ) continue;
       //create the pair in global coordinates 
-      float z0_trk_reference = trk->perigeeParameters()->associatedSurface().center().z();
-      float z0_trk_leading_reference = trk_leading->perigeeParameters()->associatedSurface().center().z();
-      RoI.z_reference = (z0 + z0_trk_reference + z0_leading + z0_trk_leading_reference) / 2;
+      //float z0_trk_reference = trk->perigeeParameters()->associatedSurface().center().z();
+      //float z0_trk_leading_reference = trk_leading->perigeeParameters()->associatedSurface().center().z();
+      float z0_trk_reference = sublead_atbeam->associatedSurface().center().z();
+      float z0_trk_leading_reference = lead_atbeam->associatedSurface().center().z();
+      RoI.z_reference = (z0_beam + z0_trk_reference + z0_leading_beam + z0_trk_leading_reference) / 2;
       RoI.z_window[0] = RoI.z_reference - m_z0_window; 
       RoI.z_window[1] = RoI.z_reference + m_z0_window; 
-      RoI.z_perigee_pos[0] = z0_leading; 
-      RoI.z_perigee_pos[1] = z0; 
-      ATH_MSG_INFO("New RoI created [mm]: " << RoI.z_window[0] << " - " << RoI.z_window[1] << " (z-ref: " << RoI.z_reference << ")");
+      RoI.z_perigee_pos[0] = z0_leading_beam; 
+      RoI.z_perigee_pos[1] = z0_beam; 
+      ATH_MSG_DEBUG("New RoI created [mm]: " << RoI.z_window[0] << " - " << RoI.z_window[1] << " (z-ref: " << RoI.z_reference << ")");
       listRoIs.push_back(RoI);
+    }
+  }
+
+
+  if( listRoIs.size() == 0 ){
+    typedef std::vector<Trk::Track*>::iterator iterator_tracks2;
+    for ( iterator_tracks2 trk_itr_leading2 = selectedTracks.begin(); trk_itr_leading2 != selectedTracks.end(); ++trk_itr_leading2 ) {
+      Trk::Track *trk_leading = *trk_itr_leading2;
+      //kinematic requirements
+      float theta_leading = trk_leading->perigeeParameters()->parameters()[Trk::theta];
+      float ptinv_leading = fabs(trk_leading->perigeeParameters()->parameters()[Trk::qOverP]) / sin(theta_leading);
+      ATH_MSG_VERBOSE("Examining selected track pairs");
+      if (ptinv_leading != 0) {
+	float pt = 1. / ptinv_leading;
+	ATH_MSG_VERBOSE("- pT_leading = " << pt << " MeV");
+	if ( pt < m_trk_leading_pt ) break; //tracks ordered by pT
+	
+	const Trk::Perigee* lead_atbeam = m_trackToVertex->perigeeAtBeamline(*trk_leading);
+	float z0_leading_beam = lead_atbeam->parameters()[Trk::z0];
+	
+	//create the pair in global coordinates 
+	float z0_trk_leading_reference = lead_atbeam->associatedSurface().center().z();
+	RoI.z_reference = z0_leading_beam + z0_trk_leading_reference;
+	RoI.z_window[0] = RoI.z_reference - m_z0_window; 
+	RoI.z_window[1] = RoI.z_reference + m_z0_window; 
+	RoI.z_perigee_pos[0] = z0_leading_beam; 
+	ATH_MSG_DEBUG("New RoI created [mm]: " << RoI.z_window[0] << " - " << RoI.z_window[1] << " (z-ref: " << RoI.z_reference << ")");
+	listRoIs.push_back(RoI);
+	
+      }
+      
+
     }
   }
 

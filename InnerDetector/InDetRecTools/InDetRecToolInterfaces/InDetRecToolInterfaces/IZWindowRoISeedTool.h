@@ -50,7 +50,7 @@ namespace InDet
     /*
       Compute RoI z-window(s)
     */
-      virtual std::vector<ZWindow> getRoIs() = 0;
+    virtual std::vector<ZWindow> getRoIs() = 0;
 
   public:
     ///////////////////////////////////////////////////////////////////
