@@ -252,7 +252,6 @@ fatJetCollections = [
 FTAG5SlimmingHelper.SmartCollections = [
     "Muons",
     "InDetTrackParticles",
-    "BTagging_AntiKt2Track",
     "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
     "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag_expert",
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExKt2Sub_expert",
