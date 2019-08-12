@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //  Convert TrackParticle parameters to internal VKalVrt parameters
@@ -26,7 +26,11 @@ namespace Trk {
 //  Extract xAOD::TrackParticles
 //
 
- StatusCode TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& InpTrk, int& ntrk) {
+ StatusCode
+ TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& InpTrk,
+                                    int& ntrk,
+                                    State& /*state*/)
+ {
 
     std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
@@ -129,8 +133,11 @@ namespace Trk {
 //  Extract xAOD::NeutralParticles
 //
 
- StatusCode TrkVKalVrtFitter::CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& InpTrk, int& ntrk) {
-
+ StatusCode
+ TrkVKalVrtFitter::CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& InpTrk,
+                                      int& ntrk,
+                                      State& /*state*/)
+ {
     std::vector<const xAOD::NeutralParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
     const  NeutralPerigee*        mPer=0;
@@ -233,7 +240,11 @@ namespace Trk {
 //  Extract Trk::TrackParticlesBase
 //
 
- StatusCode TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const TrackParticleBase*>& InpTrk, int& ntrk) {
+ StatusCode
+ TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const TrackParticleBase*>& InpTrk,
+                                    int& ntrk,
+                                    State& /*state*/)
+ {
 
     std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
