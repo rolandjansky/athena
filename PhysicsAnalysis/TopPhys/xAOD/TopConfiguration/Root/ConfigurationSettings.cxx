@@ -36,6 +36,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("TruthMETCollectionName", "Name of the Truth MET container", "MET_Truth");
     registerParameter("TruthJetCollectionName", "Name of the Truth Jet container");
     registerParameter("TruthLargeRJetCollectionName", "Name of the Truth Large R Jet container", "None");
+    registerParameter("TruthTauCollectionName", "Name of the Truth tau container", "None");
 
     registerParameter("applyTTVACut", "Decide if to apply lepton z0/d0 cuts", "True");
 
@@ -279,6 +280,9 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("TruthLargeRJetPt", "Large R Jet pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.", "25000");
     registerParameter("TruthLargeRJetEta", "Absolute Large R Jet eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5" );
+
+    registerParameter("TruthTauPt", "Tau pT cut for [Particle Level / Truth] object selection (in MeV). Default 25 GeV.", "25000");
+    registerParameter("TruthTauEta", "Tau eta cut for [Particle Level / Truth] object selection. Default 2.5.", "2.5" );
 
     registerParameter("LHAPDFSets", "List of PDF sets to calculate weights for, seperated by spaces, use LHAPDF names e.g CT10nlo NNPDF30_nlo_as_0118 MMHT2014nlo68cl", " " );
     registerParameter("LHAPDFEventWeights", "Save per event weights for all PDF sets/members: True (lots of info in truth tree!), Nominal (save to the nominal tree if passes selection) or False (nothing, default).", "False" );

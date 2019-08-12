@@ -90,6 +90,7 @@ class TopConfig final {
   inline bool useTruthPhotons()  const {return m_useTruthPhotons; }
   inline bool useTruthJets()  const {return m_useTruthJets; }
   inline bool useTruthLargeRJets()  const {return m_useTruthLargeRJets; }
+  inline bool useTruthTaus()  const {return m_useTruthTaus; }
   inline bool useTruthMET()  const {return m_useTruthMET; }
 
   inline bool applyTTVACut() const {return m_applyTTVACut; }
@@ -366,6 +367,7 @@ class TopConfig final {
   virtual void sgKeyTruthMET        ( const std::string& s );
   virtual void sgKeyTruthJets       ( const std::string& s );
   virtual void sgKeyTruthLargeRJets       ( const std::string& s );
+  virtual void sgKeyTruthTaus       ( const std::string& s );
 
   inline virtual void sgKeyMissingEt  ( const std::string& s ){if(!m_configFixed){m_sgKeyMissingEt = s; }}
   inline virtual void sgKeyMissingEtLoose  ( const std::string& s ){if(!m_configFixed){m_sgKeyMissingEtLoose = s; }}
@@ -785,6 +787,12 @@ class TopConfig final {
   inline virtual float truth_jet_largeR_PtCut() const { return m_truth_largeRJet.PtCut; }
   inline virtual float truth_jet_largeR_EtaCut() const { return m_truth_largeRJet.EtaCut; }
 
+  inline virtual void truth_tau_PtCut( const float pt ) { if ( ! m_configFixed ){ m_truth_tau.PtCut = pt; } }
+  inline virtual void truth_tau_EtaCut( const float eta ) { if ( ! m_configFixed ){ m_truth_tau.EtaCut = eta; } }
+
+  inline virtual float truth_tau_PtCut() const { return m_truth_tau.PtCut; }
+  inline virtual float truth_tau_EtaCut() const { return m_truth_tau.EtaCut; }
+
   // -----------------------------------------------]]]
 
   /// HL LHC studies
@@ -1049,6 +1057,7 @@ class TopConfig final {
   bool m_useTruthPhotons;
   bool m_useTruthJets;
   bool m_useTruthLargeRJets;
+  bool m_useTruthTaus;
   bool m_useTruthMET;
 
   // define if d0/z0 cut should be used at all
@@ -1373,6 +1382,15 @@ class TopConfig final {
     std::string Isolation; // [ParticleLevel / Truth] Photon Object
     // Selection truth isolation configuration.
   } m_truth_photon;
+
+  // muons
+  struct {
+    float PtCut;           // [ParticleLevel / Truth] Muon Object
+    // Selection minimum pT Cut (Standard ATLAS
+    // units, [MeV]).
+    float EtaCut;          // [ParticleLevel / Truth] Muon Object
+    // Selection maximum absolute eta Cut.
+  } m_truth_tau;
 
   // normal / large R jets
   struct {
