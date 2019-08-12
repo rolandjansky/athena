@@ -59,6 +59,18 @@ namespace DerivationFramework {
     std::string m_jvtMomentKey;
     bool m_dojvt;
 
+      
+    // MV-fJVT     @author: louis.portales@cern.ch
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_Sumcle;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_SumclIso;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_SumclEMprob;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_LeadclWidth;
+    std::unique_ptr< SG::AuxElement::Decorator<float> > dec_MVfJvt_LeadclSecondLambda;
+    ToolHandle<IJetModifier> m_MVfJvtTool;
+    std::string m_MVfJvtMomentKey;
+    bool m_doMVfJvt;
+
     // b-tagging       @author tripiana@cern.ch
     std::vector<SG::AuxElement::Decorator<float>*> dec_btag;
     std::vector<std::string> m_btagWP;

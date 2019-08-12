@@ -11,13 +11,13 @@
 /// \author David Adams
 /// \date June 2015
 ///
-/// Class interface for a toool that updates JVT.
+/// Class interface for a tool that updates JVT.
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODJet/JetContainer.h"
 
 class IJetUpdateJvt : virtual public asg::IAsgTool {
-ASG_TOOL_INTERFACE(IJetUpdateJvt)
+  ASG_TOOL_INTERFACE(IJetUpdateJvt)
 
 public:
 
@@ -27,7 +27,6 @@ public:
   ///   scale - name of the jet scale holding the original pT
   /// The new value for JVT is returned.
   virtual float updateJvt(const xAOD::Jet& jet) const =0;
-
 };
 
 #endif
