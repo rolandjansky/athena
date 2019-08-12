@@ -247,11 +247,9 @@ def muEFCBSequence():
 ######################
 def muEFSAFSAlgSequence(ConfigFlags):
 
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    efsafsInputMaker = EventViewCreatorAlgorithmWithMuons("IMMuonFS", RoIsLink="initialRoI")
+    efsafsInputMaker = EventViewCreatorAlgorithm("IMMuonFS", RoIsLink="initialRoI")
     efsafsInputMaker.InViewRoIs = "MUFSRoIs"
     efsafsInputMaker.Views = "MUFSViewRoI"
-    efsafsInputMaker.CreateFSRoI=True
     efsafsInputMaker.ViewFallThrough=True
 
     ### get EF reco sequence ###    
@@ -377,7 +375,6 @@ def muEFIsoAlgSequence(ConfigFlags):
     efmuIsoViewsMaker.MuonsLink = "feature"
     efmuIsoViewsMaker.RoIEtaWidth=0.15
     efmuIsoViewsMaker.RoIPhiWidth=0.15
-    efmuIsoViewsMaker.LinkToParent=False
     efmuIsoViewsMaker.mergeOutputs = False
 
     ### get EF reco sequence ###    
