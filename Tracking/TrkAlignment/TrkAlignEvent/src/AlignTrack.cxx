@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/Track.h"
@@ -33,7 +33,7 @@ namespace Trk {
     , m_chi2(0.)
     , m_chi2dof(0.)
     , m_trackAlignParamQuality(new double[6])
-    , m_trackWithoutScattering(0)
+    , m_trackWithoutScattering()
   {
     for (int i=0;i<6;i++) m_trackAlignParamQuality[i]=0.;
     m_vtx=0;
@@ -64,7 +64,7 @@ namespace Trk {
     , m_chi2(0.)
     , m_chi2dof(0.)
     , m_trackAlignParamQuality(new double[6])
-    , m_trackWithoutScattering(0)
+    , m_trackWithoutScattering()
   {
     for (int i=0;i<6;i++) m_trackAlignParamQuality[i]=0.;
     setAlignTSOSCollection(alignTSOSCollection);
@@ -105,9 +105,12 @@ namespace Trk {
     , m_chi2(atrack.m_chi2)
     , m_chi2dof(atrack.m_chi2dof)
     , m_trackAlignParamQuality(new double[6])
-    , m_trackWithoutScattering(atrack.m_trackWithoutScattering ?
-  new Trk::Track(*(atrack.m_trackWithoutScattering)) : 0)
+    , m_trackWithoutScattering()
   {
+    if (atrack.m_trackWithoutScattering) {
+      m_trackWithoutScattering.set(std::make_unique<Trk::Track>(*(atrack.m_trackWithoutScattering)));
+    }
+
     for (int i=0;i<6;i++)
       m_trackAlignParamQuality[i] = atrack.m_trackAlignParamQuality[i];
 
@@ -234,8 +237,6 @@ namespace Trk {
     delete m_derivativeMatrix;        m_derivativeMatrix=0;
 
     delete [] m_trackAlignParamQuality;
-
-    delete m_trackWithoutScattering;
   }
 
   //________________________________________________________________________
@@ -426,7 +427,7 @@ namespace Trk {
   //________________________________________________________________________
   const Trk::Track* AlignTrack::trackWithoutScattering() const
   {
-    if (!m_trackWithoutScattering) {
+    if (not m_trackWithoutScattering) {
 
       const DataVector<const Trk::TrackStateOnSurface>* states = this->trackStateOnSurfaces();
       if (!states) return 0;
@@ -470,11 +471,11 @@ namespace Trk {
         newTrackStateOnSurfaces->push_back(newTsos);
       }
       
-      m_trackWithoutScattering = new Trk::Track( this->info(), newTrackStateOnSurfaces, 
-                                                 this->fitQuality() ? 
-                                                 this->fitQuality()->clone():0 );
+      m_trackWithoutScattering.set(std::make_unique<Trk::Track>( this->info(), newTrackStateOnSurfaces, 
+                                                                 this->fitQuality() ? 
+                                                                 this->fitQuality()->clone() : nullptr ));
     }
-    return m_trackWithoutScattering;
+    return m_trackWithoutScattering.get();
   }
   
 } // end namespace
