@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <functional>
 
+
 /*
  * In the snapshot level monitoring, currently we monitor 3 steps as a whole:
  * Initialize, Event Loop and Finalize
@@ -95,16 +96,26 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2Stdout();
   
     void report2Stdout_Description() const;
-    void report2Stdout_Serial();
+
+    void report2Stdout_Time_Serial();
+    void report2Stdout_Time_Parallel();
+
+    void report2Stdout_Mem_Serial();
+    void report2Stdout_Mem_Parallel();
+
     void report2Stdout_Parallel();
-    void report2Stdout_Summary() const;
+    void report2Stdout_Summary();  // make it const
     void report2Stdout_CpuInfo() const;
 
     void report2JsonFile() const;
 
     void report2JsonFile_Summary(nlohmann::json& j) const;
-    void report2JsonFile_Serial(nlohmann::json& j) const;
-    void report2JsonFile_Parallel(nlohmann::json& j) const;
+
+    void report2JsonFile_Time_Serial(nlohmann::json& j) const;
+    void report2JsonFile_Time_Parallel(nlohmann::json& j) const;
+
+    void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
+
 
 
     int getEventNumber() const;
@@ -160,7 +171,6 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     // There should be a more clever way!
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_ini;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_start;
-    //std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_evt;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_stop;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_fin;
     std::map < PMonMT::StepComp , PMonMT::MeasurementData* > m_compLevelDataMap_plp; // preLoadProxy

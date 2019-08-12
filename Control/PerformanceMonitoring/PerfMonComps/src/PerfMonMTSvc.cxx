@@ -13,8 +13,7 @@
 #include "PerfMonMTSvc.h"
 #include "PerfMonUtils.h" // borrow from existing code
 
-//using json = nlohmann::json; // for convenience
-//dusing boost::format;
+
 using json = nlohmann::json; // for convenience
 
 /*
@@ -232,39 +231,48 @@ void PerfMonMTSvc::report() {
 
 void PerfMonMTSvc::report2Stdout() { 
 
-  report2Stdout_Description(); 
-  report2Stdout_Serial();
+  report2Stdout_Description();
 
+  report2Stdout_Time_Serial();
+  
+  // If Event Loop Monitoring option is ON
   if(m_isEventLoopMonitoring)
-    report2Stdout_Parallel();
+    report2Stdout_Time_Parallel();
+
+  if(isDirectoryExist("/proc"))
+    report2Stdout_Mem_Serial();
+  else
+    ATH_MSG_INFO("There is no /proc/ directory in this machine, therefore memory monitoring is failed!");
+
+
 
   report2Stdout_Summary();
   report2Stdout_CpuInfo();
 }
 
 void PerfMonMTSvc::report2Stdout_Description() const {
-
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc                                  PerfMonMTSvc Report                                   " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc *** Important information is presented below ******************************************" << std::endl;
-  std::cout << "PerfMonMTSvc *** Full output is inside: PerfMonMTSvc_result.json ***********************************" << std::endl;
-  std::cout << "PerfMonMTSvc *** In order to make plots out of results run the following commands:" << std::endl;
-  std::cout << "PerfMonMTSvc *** $ get_files PerfMonMTSvc_plotter.py" << std::endl;
-  std::cout << "PerfMonMTSvc *** $ python PerfMonMTSvc_plotter PerfMonMTSvc_result.json" << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+ 
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("                                 PerfMonMTSvc Report                                   ");
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("*** Important information is presented below ******************************************");
+  ATH_MSG_INFO("*** Full output is inside: PerfMonMTSvc_result.json ***********************************");
+  ATH_MSG_INFO("*** In order to make plots out of results run the following commands:");
+  ATH_MSG_INFO("*** $ get_files PerfMonMTSvc_plotter.py");
+  ATH_MSG_INFO("*** $ python PerfMonMTSvc_plotter PerfMonMTSvc_result.json");
+  ATH_MSG_INFO("=======================================================================================");
 
 }
 
-
-void PerfMonMTSvc::report2Stdout_Serial() { 
+void PerfMonMTSvc::report2Stdout_Time_Serial() { 
 
   using boost::format;
-  
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc                           Serial Component Level Monitoring                            " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc Step             CPU Time [ms]       Wall Time [ms]      Component" << std::endl;
+
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("                             CPU & Wall Time Monitoring                                ");
+  ATH_MSG_INFO("                                   (Serial Steps)                                      ");
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("Step             CPU Time [ms]       Wall Time [ms]      Component");
 
   divideData2Steps_serial(); 
   for(auto vec_itr : m_stdoutVec_serial){
@@ -279,20 +287,23 @@ void PerfMonMTSvc::report2Stdout_Serial() {
     }
     ); 
     for(auto it : pairs){
-      
-      std::cout <<  format("PerfMonMTSvc %|5t|%1% %|30t|%2% %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second->m_delta_cpu % it.second->m_delta_wall % it.first.compName;
+
+      ATH_MSG_INFO(format("%1% %|17t|%2% %|37t|%3% %|57t|%4%") % it.first.stepName % it.second->m_delta_cpu % it.second->m_delta_wall % it.first.compName);      
+
     }
-    std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+    ATH_MSG_INFO("=======================================================================================");
+
   }
   
 }
-void PerfMonMTSvc::report2Stdout_Parallel() {
+void PerfMonMTSvc::report2Stdout_Time_Parallel() {
 
   using boost::format;
-
-  std::cout << "PerfMonMTSvc                           Aggregated Event Loop Monitoring                             " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
-  std::cout << "PerfMonMTSvc Step             CPU Time [ms]       Wall Time [ms]      Component" << std::endl;
+ 
+  ATH_MSG_INFO("                             CPU & Wall Time Monitoring                                ");
+  ATH_MSG_INFO("                                    (Event Loop)                                       ");
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("Step             CPU Time [ms]       Wall Time [ms]      Component");
 
   parallelDataAggregator();
   divideData2Steps_parallel(); 
@@ -308,67 +319,121 @@ void PerfMonMTSvc::report2Stdout_Parallel() {
     }
     );
     for(auto it : pairs){
-      
-      std::cout << format("PerfMonMTSvc %|5t|%1%  %|30t|%2$.2f  %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second.cpu_time % it.second.wall_time % it.first.compName;
+
+      ATH_MSG_INFO(format("%1%  %|17t|%2$.2f  %|37t|%3% %|57t|%4% ") % it.first.stepName % it.second.cpu_time % it.second.wall_time % it.first.compName);    
     }
-    std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+    ATH_MSG_INFO("=======================================================================================");
+
   }
  
   /* Old Format
   for(auto& it : m_aggParallelCompLevelDataMap){
 
     std::cout <<  format("PerfMonMTSvc %|5t|%1% %|30t|%2% %|50t|%3% %|70t|%4% \n") % it.first.stepName % it.second.cpu_time % it.second.wall_time % it.first.compName;
-    
+
   }
   */
 
-
 }
-
-void PerfMonMTSvc::report2Stdout_Summary() const {
+void PerfMonMTSvc::report2Stdout_Mem_Serial() { 
 
   using boost::format;
 
-  std::cout << "PerfMonMTSvc                               PerfMonMT Results Summary                                " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("                                  Memory Monitoring                                    ");
+  ATH_MSG_INFO("                                   (Serial Steps)                                      ");
+  ATH_MSG_INFO("                                     Units: kB                                         ");
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("Step           Vmem      Rss       Pss       Swap      Component");
+                //Initialize     6144      6184      6184      0         AthDictLoaderSvc 
 
-
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total CPU time in the Initialization is:" % m_snapshotData[0].m_delta_cpu % "ms";
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total Wall time in the Initialization is:" % m_snapshotData[0].m_delta_wall % "ms";
-
-  std::cout << "PerfMonMTSvc\n"; 
-
-
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total CPU time in the Event Loop is:" % m_snapshotData[1].m_delta_cpu % "ms";
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total Wall time in the Event Loop is:" % m_snapshotData[1].m_delta_wall % "ms";
-
-  std::cout << "PerfMonMTSvc\n";
-
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total CPU time in the Finalize is:" % m_snapshotData[2].m_delta_cpu % "ms";
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% %|65t|%3% \n") % "Total Wall time in the Finalize is:" % m_snapshotData[2].m_delta_wall % "ms";
- 
-  std::cout << "PerfMonMTSvc\n";
   
+  for(auto vec_itr : m_stdoutVec_serial){
+    // Sort the results
+    std::vector<std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>> pairs;
+    for (auto itr = vec_itr.begin(); itr != vec_itr.end(); ++itr)
+      pairs.push_back(*itr);
 
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% \n") % "Number of Events processed:" %  m_eventIds.size();
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2$.2f ms \n") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size());
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% \n") % "Events per second:" %  (m_eventIds.size() / m_snapshotData[1].m_delta_wall  );
+    sort(pairs.begin(), pairs.end(), [=](std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& a, std::pair<PMonMT::StepComp , PMonMT::MeasurementData*>& b)
+    {
+      return a.second->m_memMon_delta_map["vmem"] + a.second->m_memMon_delta_map["rss"] + a.second->m_memMon_delta_map["pss"] + a.second->m_memMon_delta_map["swap"] > \
+             b.second->m_memMon_delta_map["vmem"] + b.second->m_memMon_delta_map["rss"] + b.second->m_memMon_delta_map["pss"] + b.second->m_memMon_delta_map["swap"];
+    }
+    ); 
+    for(auto it : pairs){
 
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+      ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3% %|35t|%4% %|45t|%5% %|55t|%6%") % it.first.stepName \
+                                                                                   % it.second->m_memMon_delta_map["vmem"]    \
+                                                                                   % it.second->m_memMon_delta_map["rss"]     \
+                                                                                   % it.second->m_memMon_delta_map["pss"]     \
+                                                                                   % it.second->m_memMon_delta_map["swap"]    \
+                                                                                   % it.first.compName);      
+
+    }
+    ATH_MSG_INFO("=======================================================================================");
+
+  }  
+}
+
+void report2Stdout_Mem_Parallel(){
+  // to implement ...
+  return;  
+}
+
+void PerfMonMTSvc::report2Stdout_Summary() {
+
+  using boost::format;
+ 
+  ATH_MSG_INFO("                              PerfMonMT Results Summary                                ");
+  ATH_MSG_INFO("=======================================================================================");
+
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Initialization is:" % m_snapshotData[0].m_delta_cpu % "ms");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Initialization is:" % m_snapshotData[0].m_delta_wall % "ms");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["vmem"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["rss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["pss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["swap"] % "kB");
+
+
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Event Loop is:" % m_snapshotData[1].m_delta_cpu % "ms");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Event Loop is:" % m_snapshotData[1].m_delta_wall % "ms");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["vmem"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["rss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["pss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["swap"] % "kB");
+
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Finalize is:" % m_snapshotData[2].m_delta_cpu % "ms");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Finalize is:" % m_snapshotData[2].m_delta_wall % "ms");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["vmem"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["rss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["pss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["swap"] % "kB");
+
+  ATH_MSG_INFO("");
+
+  ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Number of Events processed:" %  m_eventIds.size());
+  ATH_MSG_INFO(format( "%1% %|55t|%2$.2f ms ") % "CPU Usage per Event:" %  (m_snapshotData[1].m_delta_cpu / m_eventIds.size()));
+  ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Events per second:" %  (m_eventIds.size() / m_snapshotData[1].m_delta_wall  ));
+
+  ATH_MSG_INFO("=======================================================================================");
 
 }
 
 void PerfMonMTSvc::report2Stdout_CpuInfo() const {
 
   using boost::format;
-  std::cout << "PerfMonMTSvc                                   System Information                                   " << std::endl;
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
 
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|59t|%2% \n") % "CPU Model:" % get_cpu_model_info();  
-  std::cout << format( "PerfMonMTSvc %|5t|%1% %|60t|%2% \n") % "Number of Logical Cores:" % get_cpu_core_info();
+  ATH_MSG_INFO("                                  System Information                                   ");
+  ATH_MSG_INFO("=======================================================================================");
 
-  std::cout << "PerfMonMTSvc =======================================================================================" << std::endl;
+  ATH_MSG_INFO(format( "%1% %|54t|%2% ") % "CPU Model:" % get_cpu_model_info());
+  ATH_MSG_INFO(format( "%1% %|55t|%2% ") % "Number of Logical Cores:" % get_cpu_core_info());
 
+  ATH_MSG_INFO("=======================================================================================");
 }
 
 
@@ -377,10 +442,13 @@ void PerfMonMTSvc::report2JsonFile() const {
   json j;
 
   report2JsonFile_Summary(j);
-  report2JsonFile_Serial(j);
+  report2JsonFile_Time_Serial(j);
+
+  if(isDirectoryExist("/proc"))
+    report2JsonFile_Mem_Serial(j);
 
   if(m_isEventLoopMonitoring)
-    report2JsonFile_Parallel(j);
+    report2JsonFile_Time_Parallel(j);
  
 
   std::ofstream o("PerfMonMTSvc_result.json");
@@ -402,9 +470,9 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
   }
 
 }
-void PerfMonMTSvc::report2JsonFile_Serial(nlohmann::json& j) const {
+void PerfMonMTSvc::report2JsonFile_Time_Serial(nlohmann::json& j) const {
 
-  // Report component level results
+  // Report component level time measurements in serial steps
   for(auto& it : m_compLevelDataMap){
 
     std::string stepName = it.first.stepName;
@@ -414,15 +482,14 @@ void PerfMonMTSvc::report2JsonFile_Serial(nlohmann::json& j) const {
     double cpu_time = it.second->m_delta_cpu;
     
     // nlohmann::json syntax
-    j["Serial_Component_level"][stepName][compName] =  { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
+    j["TimeMon_Serial"][stepName][compName] =  { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
 
-    // Free the dynamically allocated space
-    delete it.second;
   }
 }
 
-void PerfMonMTSvc::report2JsonFile_Parallel(nlohmann::json& j) const {
+void PerfMonMTSvc::report2JsonFile_Time_Parallel(nlohmann::json& j) const {
 
+  // Report component level time measurements in parallel steps
   for(auto& it : m_aggParallelCompLevelDataMap){
 
     std::string stepName = it.first.stepName;
@@ -431,11 +498,31 @@ void PerfMonMTSvc::report2JsonFile_Parallel(nlohmann::json& j) const {
     double wall_time = it.second.wall_time;
     double cpu_time = it.second.cpu_time;
 
-    j["Parallel_Component_level"][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
+    j["TimeMon_Parallel"][stepName][compName] = { {"cpu_time", cpu_time}, {"wall_time", wall_time} } ; 
 
   }
 }
 
+void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const{
+  
+  // Report component level memory measurements in serial steps
+  for(auto& it : m_compLevelDataMap){
+
+    std::string stepName = it.first.stepName;
+    std::string compName = it.first.compName;
+    
+    long vmem = it.second->m_memMon_delta_map["vmem"];
+    long rss = it.second->m_memMon_delta_map["rss"];
+    long pss = it.second->m_memMon_delta_map["pss"];
+    long swap = it.second->m_memMon_delta_map["swap"];
+    
+    // nlohmann::json syntax
+    j["MemMon_Serial"][stepName][compName] =  { {"vmem", vmem}, {"rss", rss}, {"pss", pss}, {"swap", swap} } ; 
+
+    // Free the dynamically allocated space
+    delete it.second;
+  }
+}
 
 bool PerfMonMTSvc::isLoop() const {
   int eventNumber = getEventNumber();
@@ -473,7 +560,7 @@ void PerfMonMTSvc::parallelDataAggregator(){
 
   std::map< PMonMT::StepComp, PMonMT::Measurement >::iterator sc_itr;
 
-  for(auto& sce_itr : m_parallelCompLevelData.m_delta_map ){
+  for(auto& sce_itr : m_parallelCompLevelData.m_timeMon_delta_map ){
 
     PMonMT::StepComp currentState = generate_serial_state (sce_itr.first.stepName, sce_itr.first.compName);
  
@@ -498,8 +585,6 @@ void PerfMonMTSvc::divideData2Steps_serial(){
       m_compLevelDataMap_ini[it.first] = it.second;
     if(it.first.stepName == "Start")
       m_compLevelDataMap_start[it.first] = it.second;
-    //if(it.first.stepName == "Execute")
-      //m_compLevelDataMap_evt[it.first] = it.second;
     if(it.first.stepName == "Stop")
       m_compLevelDataMap_stop[it.first] = it.second;
     if(it.first.stepName == "Finalize")
@@ -512,7 +597,6 @@ void PerfMonMTSvc::divideData2Steps_serial(){
   }
   m_stdoutVec_serial.push_back(m_compLevelDataMap_ini);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_start);
-  //m_stdoutVec_serial.push_back(m_compLevelDataMap_evt);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_stop);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_fin);
   m_stdoutVec_serial.push_back(m_compLevelDataMap_plp);
@@ -595,3 +679,5 @@ int PerfMonMTSvc::get_cpu_core_info() const  {
 void PerfMonMTSvc::eventCounter(int eventNumber) {
   m_eventIds.insert(eventNumber);
 }
+
+
