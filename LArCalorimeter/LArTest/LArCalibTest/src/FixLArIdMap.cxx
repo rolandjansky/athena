@@ -177,7 +177,7 @@ quadrant:
 **/ 
 
 
-#include "LArConditionsTest/FixLArIdMap.h"
+#include "LArCalibTest/FixLArIdMap.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"

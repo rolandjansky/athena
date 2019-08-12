@@ -58,7 +58,7 @@
 **/ 
 
 
-#include "LArConditionsTest/FixLArElecCalib.h"
+#include "LArCalibTest/FixLArElecCalib.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/IToolSvc.h"
 

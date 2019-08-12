@@ -15,7 +15,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/AlgTool.h"
 
-#include "LArConditionsTest/LArFecLvTempDcsTest.h" 
+#include "LArCalibTest/LArFecLvTempDcsTest.h" 
 #include "LArRawConditions/LArFecLvTempDcs.h" 
 #include "LArIdentifier/LArOnlineID.h"
 

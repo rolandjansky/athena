@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "LArConditionsTest/LArOFCtoOFC.h"
+#include "LArCalibTest/LArOFCtoOFC.h"
 #include "LArRawConditions/LArOFCComplete.h"
 #include "LArRawConditions/LArShapeComplete.h"
 #include "CaloIdentifier/CaloGain.h"
