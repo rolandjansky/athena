@@ -30,31 +30,24 @@ namespace top {
     std::size_t pos{ 0 };
     while ( pos < params.length() - 1 && std::isspace( params[pos] ) ) { ++pos; }
 
-    // Check, Use a switch statement hoping that the compiler may use this
-    // as a hint to optimise this bit using a jump table.
-    switch ( params[pos] ){
-      // The easy cases
-      case 'c':
-      case 'C':
-      case 'b':
-      case 'B':
-      case 't':
-      case 'W':
-      case 'Z':
-      case 'H': {
-        if ( pos + 1 < params.length() && std::isspace( params[ pos + 1 ] ) ){
-          m_type = static_cast<Type>( params[ pos ] );
-          return params.substr( pos + 2 );
-        } else if ( params.compare( pos, 4, "tau " ) == 0 ){
-          m_type = tau;
-          return params.substr( pos + 4 );
-        } else {
-          throw std::invalid_argument{"Cannot parse the type from the parameter string (case \"H\")"};
-        }
+    // list of allowed chars
+    static const std::vector<char> allowedChar = {'c','C','b','B','t','W','Z','H'};
+
+    // check if the char is allowed
+    if (std::find(allowedChar.begin(), allowedChar.end(), params[pos]) != allowedChar.end()){
+
+      // process the char
+      if ( pos + 1 < params.length() && std::isspace( params[ pos + 1 ] ) ){
+        m_type = static_cast<Type>( params[ pos ] );
+        return params.substr( pos + 2 );
+      } else if ( params.compare( pos, 4, "tau " ) == 0 ){
+        m_type = tau;
+        return params.substr( pos + 4 );
+      } else {
+        throw std::invalid_argument{"Cannot parse the type from the parameter string for the common configuration"};
       }
-      default: {
-        throw std::invalid_argument{"Cannot parse the type from the parameter string"};
-      }
+    } else {
+      throw std::invalid_argument{"Cannot parse the type from the parameter string"};
     }
   }
 
