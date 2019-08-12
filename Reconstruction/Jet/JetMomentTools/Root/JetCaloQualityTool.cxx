@@ -164,7 +164,7 @@ StatusCode JetCaloQualityTool::initialize() {
     m_writeDecorKeys.emplace_back(m_jetContainerName + ".FracSamplingMaxIndex");
   }
 
-  for(SG::WriteDecorHandleKey<xAOD::JetContainer>& key : m_writeDecorKeys) ATH_CHECK(key.initialize());
+  ATH_CHECK(m_writeDecorKeys.initialize());
 
   return StatusCode::SUCCESS;
 }
