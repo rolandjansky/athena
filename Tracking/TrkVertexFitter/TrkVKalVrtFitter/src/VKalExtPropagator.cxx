@@ -48,16 +48,18 @@ namespace Trk {
 //Protection against exit outside ID volume
 //
   double VKalExtPropagator::Protection(double *RefEnd,
-                                       const IVKalState& /*istate*/) const
+                                       const IVKalState& istate) const
   {   
-      double Xend=RefEnd[0] + m_vkalFitSvc->m_refFrameX;
-      double Yend=RefEnd[1] + m_vkalFitSvc->m_refFrameY;
-      double Zend=RefEnd[2] + m_vkalFitSvc->m_refFrameZ;
+      const TrkVKalVrtFitter::State& state = static_cast<const TrkVKalVrtFitter::State&> (istate);
+
+      double Xend=RefEnd[0] + state.m_refFrameX;
+      double Yend=RefEnd[1] + state.m_refFrameY;
+      double Zend=RefEnd[2] + state.m_refFrameZ;
       double Rlim=sqrt(Xend*Xend+Yend*Yend) / m_vkalFitSvc->m_IDsizeR;
       double Zlim=fabs(Zend)                / m_vkalFitSvc->m_IDsizeZ;
       double Scale = Rlim; if(Zlim>Rlim) Scale=Zlim;
 //std::cout<<"relative TARG="<<RefEnd[0]<<","<<RefEnd[1]<<","<<RefEnd[2]
-//<<" global ref.="<<m_vkalFitSvc->m_refFrameX<<","<<m_vkalFitSvc->m_refFrameY<<","<<m_vkalFitSvc->m_refFrameZ
+//<<" global ref.="<<m_vkalFitSvc->state.m_refFrameX<<","<<m_vkalFitSvc->state.m_refFrameY<<","<<m_vkalFitSvc->state.m_refFrameZ
 //<<" Limits="<<m_vkalFitSvc->m_IDsizeR<<","<<m_vkalFitSvc->m_IDsizeZ<<" scale="<<Scale<<'\n';
       return Scale;
   }
@@ -77,7 +79,7 @@ namespace Trk {
 //    it always use this point as starting point, 
 //     so ParOld,CovOld,RefStart are irrelevant
 //
-//  VKalVrtCore works in relative coordinates wrt (m_refFrameX,m_refFrameY,m_refFrameZ)
+//  VKalVrtCore works in relative coordinates wrt (state.m_refFrameX,state.m_refFrameY,state.m_refFrameZ)
 //  For ATLAS propagator the Core coordinates must be moved back to global ref.frame
 /*------------------------------------------------------------------------------------*/
   void VKalExtPropagator::Propagate( long int trkID, long int Charge, 
@@ -92,7 +94,7 @@ namespace Trk {
 //-----------
       double vX=RefEnd[0]; double vY=RefEnd[1]; double vZ=RefEnd[2]; //relative coords
       // Propagation target in GLOBAL frame
-      Amg::Vector3D endPointG( vX + m_vkalFitSvc->m_refFrameX, vY + m_vkalFitSvc->m_refFrameY, vZ + m_vkalFitSvc->m_refFrameZ);
+      Amg::Vector3D endPointG( vX + state.m_refFrameX, vY + state.m_refFrameY, vZ + state.m_refFrameZ);
 //
 // ---- Make MeasuredPerigee from input. Mag.field at start point is used here
 //
@@ -113,7 +115,7 @@ namespace Trk {
 // ----- Magnetic field is taken at target point (GLOBAL calculated from relative frame input)
 //
       double fx,fy,BMAG_FIXED;
-      m_vkalFitSvc->m_fitField->getMagFld(vX,vY,vZ,fx,fy,BMAG_FIXED);
+      state.m_fitField.getMagFld(vX,vY,vZ,fx,fy,BMAG_FIXED);
 //
 //-------------------- Extrapolation itself
 //
@@ -199,8 +201,10 @@ namespace Trk {
   const TrackParameters* VKalExtPropagator::myExtrapWithMatUpdate(long int TrkID, 
                                                                   const TrackParameters *inpPer,
                                                                   Amg::Vector3D * endPoint,
-                                                                  const IVKalState& /*istate*/) const
+                                                                  const IVKalState& istate) const
   {   
+      const TrkVKalVrtFitter::State& state = static_cast<const TrkVKalVrtFitter::State&> (istate);
+
       const Trk::TrackParameters* endPer=0;
       const Trk::TrackParameters* tmpPer=0;
       ParticleHypothesis prtType = pion;
@@ -213,11 +217,11 @@ namespace Trk {
       Amg::Vector3D pmom=inpPer->momentum();
 //Track reference point ( some point on track provided initially, global frame )
       Amg::Vector3D refPoint(0.,0.,0.);
-      if(TrkID>=0)refPoint = m_vkalFitSvc->m_trkControl.at(TrkID).trkRefGlobPos;
+      if(TrkID>=0)refPoint = state.m_trkControl.at(TrkID).trkRefGlobPos;
 //
       Amg::Vector3D step  = (*endPoint) - iniPoint;
 //
-      int Strategy = 0; if(TrkID>=0) Strategy = m_vkalFitSvc->m_trkControl[TrkID].extrapolationType;
+      int Strategy = 0; if(TrkID>=0) Strategy = state.m_trkControl[TrkID].extrapolationType;
 //
 // Extrapolation for new track - no material at all
 //
@@ -231,9 +235,9 @@ namespace Trk {
         }
         return endPer;
       }else{
-        pntOnTrk=dynamic_cast<const TrackParameters*> (m_vkalFitSvc->m_trkControl.at(TrkID).TrkPnt);
+        pntOnTrk=dynamic_cast<const TrackParameters*> (state.m_trkControl.at(TrkID).TrkPnt);
         if(pntOnTrk==0)return endPer;
-        //double inpMass=m_vkalFitSvc->m_trkControl[TrkID].prtMass;
+        //double inpMass=state.m_trkControl[TrkID].prtMass;
         //if(     inpMass >  0. && inpMass< 20.) {  prtType=electron; }  //VK  Disabled according to users request
         //else if(inpMass > 20. && inpMass<120.) {  prtType=muon; }      //    May be activated in future
         //else if(inpMass >120. && inpMass<200.) {  prtType=pion; }
@@ -313,15 +317,17 @@ namespace Trk {
                                                            const TrackParameters *inpPer,
                                                            Amg::Vector3D * endPoint,
                                                            StraightLineSurface  &lineTarget,
-                                                           const IVKalState& /*istate*/) const
+                                                           const IVKalState& istate) const
   {   
+      const TrkVKalVrtFitter::State& state = static_cast<const TrkVKalVrtFitter::State&> (istate);
+
       const Trk::TrackParameters* endPer=0;
       ParticleHypothesis prtType = muon;
 //Initial point
       Amg::Vector3D iniPoint =  inpPer->position();
       Amg::Vector3D step  = (*endPoint) - iniPoint;
 //
-      int Strategy = 0; if(TrkID>=0) Strategy = m_vkalFitSvc->m_trkControl[TrkID].extrapolationType;
+      int Strategy = 0; if(TrkID>=0) Strategy = state.m_trkControl[TrkID].extrapolationType;
 //
 // Extrapolation for new track - no material at all
 //
@@ -329,9 +335,9 @@ namespace Trk {
       if(TrkID<0){  
         return endPer;
       }else{
-        pntOnTrk=dynamic_cast<const TrackParameters*> (m_vkalFitSvc->m_trkControl.at(TrkID).TrkPnt);
+        pntOnTrk=dynamic_cast<const TrackParameters*> (state.m_trkControl.at(TrkID).TrkPnt);
         if(!pntOnTrk) return endPer;
-        //double inpMass=m_vkalFitSvc->m_trkControl[TrkID].prtMass;
+        //double inpMass=state.m_trkControl[TrkID].prtMass;
         //if(     inpMass >  0. && inpMass< 20.) {  prtType=electron; }  //VK  Disabled according to users request
         //else if(inpMass > 20. && inpMass<120.) {  prtType=muon; }      //    May be activated in future
         //else if(inpMass >120. && inpMass<200.) {  prtType=pion; }
@@ -414,11 +420,11 @@ namespace Trk {
 //  Setting interface to setup VKalVrt InDet extrapolator
   void TrkVKalVrtFitter::setAthenaPropagator(const Trk::IExtrapolator*  Pnt)
   {
-// Save external propagator in VKalExtPropagator object and send it to TrkVKalVrtCore
+     // Save external propagator in VKalExtPropagator object and send it to TrkVKalVrtCore
 //
      if(m_fitPropagator != 0) delete m_fitPropagator;
      m_fitPropagator = new VKalExtPropagator( this );
-     m_fitPropagator->setPropagator(Pnt); 
+     m_fitPropagator->setPropagator(Pnt);
      m_InDetExtrapolator = Pnt;  // Pointer to InDet extrapolator
   }
 
