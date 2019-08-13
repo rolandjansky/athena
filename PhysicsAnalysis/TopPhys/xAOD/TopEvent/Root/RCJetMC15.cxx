@@ -459,7 +459,7 @@ bool RCJetMC15::isUniqueSyst( const std::string syst_name ){
     */
     m_unique_syst = (syst_name.find(m_egamma)   == 0 ||
                      syst_name.find(m_muonsyst) == 0 ||
-                     syst_name.find(m_jetsyst)  == 0 || 
+                     ( (syst_name.find(m_jetsyst) != std::string::npos) && (syst_name.find("_R10_") == std::string::npos) ) ||
                      syst_name.find(m_tracksyst) == 0 ||
                      syst_name.compare("nominal")==0);
 
