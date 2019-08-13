@@ -30,6 +30,11 @@ muonRecFlags.setDefaults()
 
 topSequence = AlgSequence()
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False
+if muonRecFlags.dosTGCs() and (CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]): muonRecFlags.dosTGCs = False
+if muonRecFlags.doMicromegas() and not (CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]): muonRecFlags.doMicromegas = False
+
 # ESDtoAOD and AODtoTAG need a configured MuonIdHelperTool (e.g. for the RPC_ResidualPullCalculator)
 # Since it is not automatically created by the job configuration (as for RDOtoESD),
 # do it here manually (hope this will be fixed with the movement to the new configuration for release 22)
