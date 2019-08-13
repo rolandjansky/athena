@@ -198,7 +198,7 @@ class  ConfiguredNewTrackingSiPattern:
             elif InDetFlags.LowPtRoIStrategy() == 3:
                from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__FileRoISeedTool
                ZWindowRoISeedTool = InDet__FileRoISeedTool (name = "InDetZWindowRoISeedTool",
-                                                               InputFileName = "/global/projecta/projectdirs/atlas/wmccorma/TrkExclusiveWW/low-pt-tracking/roi_test.txt",
+                                                               InputFileName = InDetFlags.LowPtRoIFile(),
                                                                TrackZ0Window             = 2.0 )
             ToolSvc += ZWindowRoISeedTool
             #ZWindowRoISeedTool.OutputLevel = VERBOSE

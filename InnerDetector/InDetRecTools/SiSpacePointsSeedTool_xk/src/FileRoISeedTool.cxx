@@ -25,7 +25,7 @@
 InDet::FileRoISeedTool::FileRoISeedTool
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_filename("/global/projecta/projectdirs/atlas/wmccorma/TrkExclusiveWW/low-pt-tracking/roi_test.txt")
+    m_filename("INPUT MUST BE SPECIFIED BY JOB OPTION")
 {
 
   //
@@ -51,12 +51,15 @@ InDet::FileRoISeedTool::~FileRoISeedTool()
 
 StatusCode InDet::FileRoISeedTool::initialize()
 {
-  StatusCode sc = AlgTool::initialize();   
+  StatusCode sc = AlgTool::initialize();
 
-  //const xAOD::EventInfo* eventIn;
-  //CHECK(evtStore()->retrieve( eventIn, "EventInfo"));
-  //m_evtN = eventIn->eventNumber();
-  //m_runN = eventIn->runNumber();
+  if (FILE *file = fopen(m_filename.c_str(), "r")) {
+    fclose(file);
+    ATH_MSG_DEBUG( "RoI File Exists!");
+  } else {
+    ATH_MSG_DEBUG( "RoI File DOES NOT Exist!");
+    return StatusCode::FAILURE;
+  }
 
   return sc;
 }
