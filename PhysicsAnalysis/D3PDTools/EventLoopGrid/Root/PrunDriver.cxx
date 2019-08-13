@@ -477,12 +477,11 @@ EL::PrunDriver::PrunDriver()
 }
 
 ::StatusCode EL::PrunDriver ::
-doManagerStep (Detail::ManagerData& data,
-              Detail::ManagerStep step) const
+doManagerStep (Detail::ManagerData& data) const
 {
   using namespace msgEventLoop;
-  ANA_CHECK (Driver::doManagerStep (data, step));
-  switch (step)
+  ANA_CHECK (Driver::doManagerStep (data));
+  switch (data.step)
   {
   case Detail::ManagerStep::submitJob:
     {

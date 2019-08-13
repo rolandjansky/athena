@@ -84,8 +84,7 @@ namespace EL {
 
   protected:
     virtual ::StatusCode
-    doManagerStep (Detail::ManagerData& data,
-                  Detail::ManagerStep step) const override;
+    doManagerStep (Detail::ManagerData& data) const override;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpragmas"

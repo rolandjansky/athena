@@ -310,12 +310,11 @@ namespace EL
 
 
   ::StatusCode BatchDriver ::
-  doManagerStep (Detail::ManagerData& data,
-                Detail::ManagerStep step) const
+  doManagerStep (Detail::ManagerData& data) const
   {
     using namespace msgEventLoop;
-    ANA_CHECK (Driver::doManagerStep (data, step));
-    switch (step)
+    ANA_CHECK (Driver::doManagerStep (data));
+    switch (data.step)
     {
     case Detail::ManagerStep::updateOutputLocation:
       {

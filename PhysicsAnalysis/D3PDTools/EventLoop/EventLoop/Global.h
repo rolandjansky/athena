@@ -37,7 +37,10 @@ namespace EL
   namespace Detail
   {
     struct AlgorithmData;
+    class DriverManager;
+    class Manager;
     struct ManagerData;
+    enum class ManagerOrder;
     enum class ManagerStep;
     class Module;
     struct ModuleData;
