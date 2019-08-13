@@ -54,6 +54,11 @@ StatusCode ExampleMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
     auto tool = getGroup("ExampleMonitor");
     fill(tool,run);
+
+    // Fill with a vector; useful in some circumstances.
+    std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> varVec = {lumiPerBCID,pT};
+    fill("ExampleMonitor",varVec);
+    fill(tool,varVec);
     
     return StatusCode::SUCCESS;
 }
