@@ -5,7 +5,7 @@
 // JetWidthTool.cxx
 
 #include "JetMomentTools/JetWidthTool.h"
-
+#include "StoreGate/WriteDecorHandle.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "JetUtils/JetDistances.h"
 #include "PFlowUtils/IWeightPFOTool.h"
@@ -13,50 +13,50 @@
 //**********************************************************************
 
 JetWidthTool::JetWidthTool(std::string myname)
-  : JetModifierBase(myname)
+  : asg::AsgTool(myname)
 {
+  declareInterface<IJetDecorator>(this);
+  declareProperty("JetContainer", m_jetContainerName);
+
+  m_widthKey = m_jetContainerName + ".Width";
+  m_widthPhiKey = m_jetContainerName + ".WidthPhi";
 }
 
 //**********************************************************************
 
-int JetWidthTool::modifyJet(xAOD::Jet& jet) const {
+StatusCode JetWidthTool::initialize(){
 
-  double widthEta = 0, widthPhi = 0;
-  //jet.setAttribute("Width", width(jet));
-  jet.setAttribute("Width", width(jet,widthEta,widthPhi));
-  //jet.setAttribute("WidthEta",widthEta);
-  jet.setAttribute("WidthPhi",widthPhi);
-  return 0;
+  if(m_jetContainerName.empty()){
+    ATH_MSG_ERROR("JetWidthTool needs to have its input jet container name configured!");
+    return StatusCode::FAILURE;
+  }
+
+  ATH_CHECK(m_widthKey.initialize());
+  ATH_CHECK(m_widthPhiKey.initialize());
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
 
-//double JetWidthTool::width(const xAOD::Jet& jet) const {
-//
-//  // Get the constituents of the jet
-//  const xAOD::JetConstituentVector constituents = jet.getConstituents();
-//  xAOD::JetConstituentVector::iterator iter = constituents.begin();
-//  xAOD::JetConstituentVector::iterator iEnd = constituents.end();
-//
-//  // TODO: Switch to using helper function once JetUtils has been updated
-//  // Set the width
-//  // jetWidth = JetKinematics::ptWeightedWidth(iter,iEnd,&jet);
-//    
-//  // Calculate the pt weighted width
-//  const double jetEta = jet.eta();
-//  const double jetPhi = jet.phi();
-//  double weightedWidth = 0;
-//  double ptSum = 0;
-//
-//  for ( ; iter != iEnd; ++iter) {
-//    const double dR = jet::JetDistances::deltaR(jetEta, jetPhi, iter->eta(),  iter->phi() );
-//    const double pt = iter->pt();
-//    weightedWidth += dR * pt;
-//    ptSum += pt;
-//  }
-//
-//  return ptSum > 0 ? weightedWidth/ptSum : -1;
-//}
+StatusCode JetWidthTool::decorate(const xAOD::JetContainer& jets) const {
+
+  SG::WriteDecorHandle<xAOD::JetContainer, double> widthHandle(m_widthKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, double> widthPhiHandle(m_widthPhiKey);
+
+  if(widthHandle.ptr() != &jets){
+    ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
+    return StatusCode::FAILURE;
+  }
+
+  for(const xAOD::Jet* jet : jets){
+    double widthEta = 0, widthPhi = 0;
+    widthHandle(*jet) = width(*jet,widthEta,widthPhi);
+    widthPhiHandle(*jet) = widthPhi;
+  }
+  return StatusCode::SUCCESS;
+}
+
+//**********************************************************************
 
 double JetWidthTool::width(const xAOD::Jet& jet, double& widthEta, double& widthPhi) const {
 
@@ -92,5 +92,3 @@ double JetWidthTool::width(const xAOD::Jet& jet, double& widthEta, double& width
 
   return ptSum > 0 ? weightedWidth/ptSum : -1;
 }
-
-//**********************************************************************
