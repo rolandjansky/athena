@@ -534,6 +534,7 @@ namespace top{
       this->sgKeyTruthMET( settings->value("TruthMETCollectionName") );
       this->sgKeyTruthJets( settings->value("TruthJetCollectionName") );
       this->sgKeyTruthLargeRJets( settings->value("TruthLargeRJetCollectionName") );
+      this->sgKeyTruthTaus( settings->value("TruthTauCollectionName") );
 
       // Dump truth block
       if (settings->value("TruthBlockInfo") == "True")
@@ -1007,6 +1008,9 @@ namespace top{
 
     this->truth_jet_largeR_PtCut( std::stof( settings->value( "TruthLargeRJetPt" ) ) );
     this->truth_jet_largeR_EtaCut( std::stof( settings->value( "TruthLargeRJetEta" ) ) );
+
+    this->truth_tau_PtCut( std::stof( settings->value( "TruthTauPt" ) ) );
+    this->truth_tau_EtaCut( std::stof( settings->value( "TruthTauEta" ) ) );
 
     // -----------------------------------------------]]]
 
@@ -1544,6 +1548,17 @@ namespace top{
               m_useTruthLargeRJets = true;
 
           m_sgKeyTruthLargeRJets = s;
+      }
+  }
+
+  void TopConfig::sgKeyTruthTaus(const std::string& s)
+  {
+      if(!m_configFixed){
+          m_useTruthTaus = false;
+          if (s != "None")
+              m_useTruthTaus = true;
+
+          m_sgKeyTruthTaus = s;
       }
   }
 
