@@ -18,13 +18,13 @@ def LArADC2MeVCondAlgCfg(configFlags):
     
     if isMC:
         requiredConditons=["Ramp","DAC2uA","uA2MeV"]
-        if not configFlags.LAr.hasMphys():
+        if not configFlags.LAr.HasMphys:
             theADC2MeVCondAlg.LArMphysOverMcalKey="" #No MphysOVerMcal
         else:
             theADC2MeVCondAlg.LArMphysOverMcalKey="LArMphysOverMcalSym"
             requiredConditons+=["MphysOverMcal",]
 
-        if not larCondFlags.hasHVCorr():
+        if not configFlags.LAr.HasHVCorr:
             theADC2MeVCondAlg.LArHVScaleCorrKey=""
         else:
             requiredConditons+=["HVScale",]

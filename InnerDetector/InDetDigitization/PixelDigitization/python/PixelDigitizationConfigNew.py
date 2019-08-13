@@ -63,7 +63,7 @@ def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
     """Return ComponentAccumulator with configured SensorSim3DTool"""
     acc = PixelSiPropertiesCfg(flags)
     SiTool = acc.popPrivateTools()
-    LorentzTool = acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
+    acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     acc.setPrivateTools(SensorSim3DTool(name, **kwargs))
     return acc

@@ -2,7 +2,6 @@
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from LArCabling.LArCablingConfig import LArIdMapCfg
 from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg, LArBadFebCfg

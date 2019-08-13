@@ -1,4 +1,3 @@
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
@@ -33,7 +32,6 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = LArGMCfg(ConfigFlags)
     f=open('LArGMCfg.pkl','w')
     acc.store(f)
