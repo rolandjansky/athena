@@ -10,7 +10,7 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 
@@ -93,7 +93,6 @@ namespace Muon {
   MooCandidateMatchingTool::MooCandidateMatchingTool(const std::string& t, const std::string& n, const IInterface* p)    
     : AthAlgTool(t,n,p),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_slExtrapolator("Trk::Extrapolator/MuonStraightLineExtrapolator"),
       m_atlasExtrapolator("Trk::Extrapolator/AtlasExtrapolator"), 
@@ -154,7 +153,7 @@ namespace Muon {
     ATH_CHECK( m_slExtrapolator.retrieve() );
     ATH_CHECK( m_atlasExtrapolator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_magFieldSvc.retrieve() );
     ATH_CHECK( m_segmentMatchingTool.retrieve() );
@@ -790,7 +789,7 @@ namespace Muon {
       // do not want to start from non-MS measurements
       Identifier id;
       if (meas) {
-        id = m_helperTool->getIdentifier(*meas);
+        id = m_edmHelperSvc->getIdentifier(*meas);
         if ( id.is_valid() ) {
           if ( !m_idHelperTool->isMuon(id) ) continue;
           if ( m_idHelperTool->isMdt(id) && m_idHelperTool->sector(id) != sector2 ) hasStereoAngle=true;

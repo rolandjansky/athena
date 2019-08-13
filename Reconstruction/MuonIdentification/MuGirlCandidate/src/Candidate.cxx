@@ -42,7 +42,7 @@
 #include "MuGirlInterfaces/CandidateSummary.h"
 #include "MuGirlInterfaces/SegmentManager.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
 
 #define dbg std::cout <<"sofia::"<<__FILE__<<" "<<__LINE__<< std::endl;

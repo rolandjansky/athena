@@ -235,15 +235,14 @@ def MuonStraightLineExtrapolator(name="MuonStraightLineExtrapolator",**kwargs):
     kwargs.setdefault("STEP_Propagator","Trk::STEP_Propagator/MuonStraightLinePropagator")
     return MuonExtrapolator(name,**kwargs)
 
-def MuonEDMHelperTool(name='MuonEDMHelperTool',**kwargs):
+def MuonEDMHelperSvc(name='MuonEDMHelperSvc',**kwargs):
     # configure some tools that are used but are not declared as properties (they should be!)
     getPublicTool("MuonIdHelperTool")
-    getPublicTool("MuonExtrapolator")
     getPublicTool("AtlasExtrapolator")
 
-    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperTool
-    return Muon__MuonEDMHelperTool(name,**kwargs)
-# end of factory function MuonEDMHelperTool
+    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
+    return Muon__MuonEDMHelperSvc(name,**kwargs)
+# end of factory function MuonEDMHelperSvc
 
 from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMPrinterTool
 class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
@@ -253,7 +252,7 @@ class MuonEDMPrinterTool(Muon__MuonEDMPrinterTool,ConfiguredBase):
         self.applyUserDefaults(kwargs,name)
         super(MuonEDMPrinterTool,self).__init__(name,**kwargs)
         getPublicTool("MuonIdHelperTool")
-        getPublicTool("MuonEDMHelperTool")
+        getService("MuonEDMHelperSvc")
 # end of class MuonEDMPrinterTool
 
 

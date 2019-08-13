@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* **********************************************************************
@@ -30,7 +30,7 @@
 
 // // Muon Helpers
 // #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-// #include "MuonRecHelperTools/MuonEDMHelperTool.h"
+// #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 // #include "MuonIdHelpers/MuonIdHelperTool.h" 
 // #include "MuonIdHelpers/MuonStationIndex.h"
 
@@ -60,7 +60,7 @@
 //     p_muonMgr(0),
 //     p_mdtIdHelper(0),
 //     p_cscIdHelper(0),
-//     p_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
+//     m_edmHelperSvc("Muon::IMuonEDMHelperSvc/IMuonEDMHelperSvc"),
 //     p_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
 //     m_thistSvc(0)
 // {
@@ -162,12 +162,12 @@
 
  
 //   /** Helper tool */
-//   sc = p_helperTool.retrieve();
+//   sc = m_edmHelperSvc.retrieve();
 //   if (sc.isFailure()){
-//     ATH_MSG_FATAL("Fatal to retrieve - Could not get " << p_helperTool ); 
+//     ATH_MSG_FATAL("Fatal to retrieve - Could not get " << m_edmHelperSvc ); 
 //     return sc;
 //   } else {
-//     ATH_MSG_DEBUG( "Retrieved tool" << p_helperTool );
+//     ATH_MSG_DEBUG( "Retrieved tool" << m_edmHelperSvc );
 //   } 
 
 //   /** Id helpers tools */
@@ -500,7 +500,7 @@
 //     Muon::MuonSegment* mSeg               = dynamic_cast<Muon::MuonSegment*> (*s);
 //     if(!mSeg) continue;
 //     // Get the identifier (chamber ID)
-//     Identifier id1                        = p_helperTool->chamberId( *mSeg );
+//     Identifier id1                        = m_edmHelperSvc->chamberId( *mSeg );
 
 //     if ( !id1.is_valid() ) {
 //       ATH_MSG_WARNING("MuonAlignValidation: Bad identifier: " << id1 );
@@ -574,7 +574,7 @@
 //     if ( hasShoweredInn[i] > 0 ) continue;
 
 //     // Get the identifier (chamber ID)
-//     Identifier id1                        = p_helperTool->chamberId( *mSeg );
+//     Identifier id1                        = m_edmHelperSvc->chamberId( *mSeg );
 
 //     // Get information on chamber type, etc
 //     bool isMDT1                           = p_idHelperTool->isMdt( id1 );
@@ -613,7 +613,7 @@
 //       if ( hasShoweredOut[j] > 0 ) continue;
 
 //       // Get the identifier (chamber ID)
-//       Identifier id2                          = p_helperTool->chamberId( *mSeg2 );
+//       Identifier id2                          = m_edmHelperSvc->chamberId( *mSeg2 );
 //       bool isEndcap2                          = p_idHelperTool->isEndcap( id2 );
 //       bool isSmall2                           = p_idHelperTool->isSmallChamber( id2 );
 
@@ -651,7 +651,7 @@
 //         if ( hasShoweredMid[k] > 0 ) continue;
 
 //         // Get the identifier (chamber ID)
-//         Identifier id3                        = p_helperTool->chamberId( *mSeg3 );
+//         Identifier id3                        = m_edmHelperSvc->chamberId( *mSeg3 );
 //         bool isEndcap3                        = p_idHelperTool->isEndcap( id3 );
 //         bool isSmall3                         = p_idHelperTool->isSmallChamber( id3 );
 
@@ -962,7 +962,7 @@
 //     Muon::MuonSegment* mSeg = muonSegs[i];
 
 //     // Get the identifier (chamber ID)
-//     Identifier id1                        = p_helperTool->chamberId( *mSeg );
+//     Identifier id1                        = m_edmHelperSvc->chamberId( *mSeg );
 
 //     // Get segment measurements
 //     const Amg::Vector3D& globalPos  = mSeg->globalPosition();
@@ -985,7 +985,7 @@
 //       Muon::MuonSegment* mSeg2 = muonSegs[j];
 
 //       // Get the identifier (chamber ID)
-//       Identifier id2                          = p_helperTool->chamberId( *mSeg2 );
+//       Identifier id2                          = m_edmHelperSvc->chamberId( *mSeg2 );
 
 //       if ( id2 != id1 ) continue;
 

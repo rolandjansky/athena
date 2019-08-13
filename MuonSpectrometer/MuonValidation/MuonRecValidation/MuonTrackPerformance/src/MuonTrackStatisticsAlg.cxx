@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -135,7 +135,7 @@ MuonTrackStatisticsAlg::storeTruthTracks(void)
     const Trk::TrackParameters* genPerigee = m_truthToTrack->makePerigeeParameters(*particle);
     if( !genPerigee ) continue;
 
-    const Trk::TrackParameters* genEntry = m_helperTool->extrapolateToMuonEntryRecord(*genPerigee,Trk::muon);
+    const Trk::TrackParameters* genEntry = m_edmHelperSvc->extrapolateToMuonEntryRecord(*genPerigee,Trk::muon);
     if( !genEntry ){
     delete genPerigee;
     continue;

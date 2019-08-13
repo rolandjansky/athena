@@ -1,16 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONCHAMBERHOLERECOVERYTOOL_H
 #define MUON_MUONCHAMBERHOLERECOVERYTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
@@ -44,7 +45,6 @@ namespace Muon {
   class IMdtDriftCircleOnTrackCreator;
   class IMuonClusterOnTrackCreator;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
 }
 
@@ -190,7 +190,9 @@ namespace Muon {
 
     ToolHandle<Trk::IResidualPullCalculator>         m_pullCalculator;     //!< residual pull calculator
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;       //!< IdHelper tool
-    ToolHandle<Muon::MuonEDMHelperTool>              m_helperTool;         //!< EDM Helper tool
+    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;            //!< EDM printer tool
 
     const MuonGM::MuonDetectorManager*  m_detMgr;

@@ -44,7 +44,7 @@ from MuonConfig.MuonCalibConfig import MdtCalibrationDbSvcCfg
 def MuonTrackSummaryHelperToolCfg(flags, **kwargs):
     # m_muonTgTool("MuonHolesOnTrack"),
     #   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    #   m_edmHelperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
+    #   m_edmHelperTool("Muon::MuonEDMHelperSvc/MuonEDMHelperSvc"),
     #   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     #   m_slExtrapolator("Trk::Extrapolator/MuonStraightLineExtrapolator"),
     
@@ -308,7 +308,7 @@ def TriggerChamberClusterOnTrackCreatorCfg(flags, **kwargs):
 
 def MuonTrackCleanerCfg(flags, **kwargs):
     # declareProperty("IdHelper",m_idHelper);
-    # declareProperty("Helper",m_helper);
+    # declareProperty("Helper",m_edmHelperSvc);
     # declareProperty("Printer",m_printer);
     # declareProperty("MdtRotCreator",  m_mdtRotCreator );
     # declareProperty("CompRotCreator", m_compRotCreator );
@@ -401,7 +401,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     # ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator;   //<! competing clusters rio ontrack creator
     # ToolHandle<MuonIdHelperTool>              m_idHelperTool;    //<! Id helper tool
     # ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! printer helper tool
-    # ToolHandle<MuonEDMHelperTool>             m_helper;          //<! printer helper tool
+    # ServiceHandle<IMuonEDMHelperSvc>          m_edmHelperSvc;          //<! printer helper tool
     # ToolHandle<IMdtSegmentFinder>             m_segmentFinder;   //<! segment finder tool MdtSegmentFinder
     # ToolHandle<IMuonSegmentFittingTool>       m_segmentFitter;   //<! segment fitting tool
     # ToolHandle<IMuonSegmentSelectionTool>     m_segmentSelectionTool; //<! segment selection tool
@@ -749,7 +749,7 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     #m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
     #m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     #m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    #m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
+    #m_edmHelperSvc("Muon::MuonEDMHelperSvc/MuonEDMHelperSvc"),
     #m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner") {
     #declareProperty("SLFitter",            m_slTrackFitter);
     #declareProperty("SegmentAmbiguityTool",m_ambiTool);
@@ -889,9 +889,9 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
 
     # This is a temporary fix! Should be private!
-    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperTool
-    muon_edm_helper_tool = Muon__MuonEDMHelperTool("MuonEDMHelperTool", MuonExtrapolator=None) # Don't bring in this dependency yet!
-    cfg.addPublicTool( muon_edm_helper_tool )
+    from MuonRecHelperTools.MuonRecHelperToolsConf import Muon__MuonEDMHelperSvc
+    muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
+    cfg.addService( muon_edm_helper_svc )
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))

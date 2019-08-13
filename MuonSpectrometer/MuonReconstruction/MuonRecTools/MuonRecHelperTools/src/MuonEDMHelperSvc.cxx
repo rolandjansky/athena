@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/MuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "TrkMeasurementBase/MeasurementBase.h"
@@ -22,45 +22,38 @@
 
 namespace Muon {
 
-  MuonEDMHelperTool::MuonEDMHelperTool(const std::string& t, const std::string& n, const IInterface* p) 
-    : AthAlgTool(t,n,p),
-      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_extrapolator("Trk::Extrapolator/MuonExtrapolator")  
+  MuonEDMHelperSvc::MuonEDMHelperSvc(const std::string& name, ISvcLocator* svc) 
+    : base_class(name, svc),
+      m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
-    declareInterface<MuonEDMHelperTool>(this);
-    declareProperty( "MuonExtrapolator",    m_extrapolator);
     declareProperty( "MuonIdHelperTool",    m_idHelper);
   }
     
-  MuonEDMHelperTool::~MuonEDMHelperTool() {
+  MuonEDMHelperSvc::~MuonEDMHelperSvc() {
     
   }
     
-  StatusCode MuonEDMHelperTool::initialize() {
+  StatusCode MuonEDMHelperSvc::initialize() {
 
-    if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
+    if( AthService::initialize().isFailure() ) return StatusCode::FAILURE;
     
     if( !m_idHelper.empty() && m_idHelper.retrieve().isFailure()){
       ATH_MSG_ERROR("Could not get " << m_idHelper);
       return StatusCode::FAILURE;
     }
 
-    if( !m_extrapolator.empty() && m_extrapolator.retrieve().isFailure() ){
-      ATH_MSG_ERROR("Could not get " << m_extrapolator); 
-      return StatusCode::FAILURE;
-    }
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonEDMHelperTool::finalize() {
+  StatusCode MuonEDMHelperSvc::finalize() {
 
-    if (AthAlgTool::finalize().isFailure()) return StatusCode::RECOVERABLE;
+    if (AthService::finalize().isFailure()) return StatusCode::RECOVERABLE;
 
     return StatusCode::SUCCESS;
   }
 
 
-  Identifier MuonEDMHelperTool::getIdentifier( const Trk::MeasurementBase& meas ) const {
+  Identifier MuonEDMHelperSvc::getIdentifier( const Trk::MeasurementBase& meas ) const {
     const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(&meas);
     if( rot ) return rot->identify();
     const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(&meas);
@@ -80,7 +73,7 @@ namespace Muon {
   }
 
 
-  Identifier MuonEDMHelperTool::chamberId( const MuonSegment& seg ) const {
+  Identifier MuonEDMHelperSvc::chamberId( const MuonSegment& seg ) const {
     Identifier chid;
     std::vector<const Trk::MeasurementBase*>::const_iterator mit = seg.containedMeasurements().begin();
     std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = seg.containedMeasurements().end();
@@ -104,7 +97,7 @@ namespace Muon {
     return chid;
   }
 
-  std::set<Identifier> MuonEDMHelperTool::chamberIds( const MuonSegment& seg ) const {
+  std::set<Identifier> MuonEDMHelperSvc::chamberIds( const MuonSegment& seg ) const {
 
     std::set<Identifier> chIds;
     Identifier chid;
@@ -134,11 +127,11 @@ namespace Muon {
     return chIds;
   }
 
-  bool MuonEDMHelperTool::isEndcap( const MuonSegment& seg ) const {
+  bool MuonEDMHelperSvc::isEndcap( const MuonSegment& seg ) const {
     return m_idHelper->isEndcap( chamberId(seg) );
   }
 
-  bool MuonEDMHelperTool::isEndcap( const Trk::Track& track ) const {
+  bool MuonEDMHelperSvc::isEndcap( const Trk::Track& track ) const {
     
     const DataVector<const Trk::MeasurementBase>* measurements = track.measurementsOnTrack();
     if( !measurements ) return true;
@@ -156,7 +149,7 @@ namespace Muon {
   }
 
 
-  const Trk::AtaPlane* MuonEDMHelperTool::createTrackParameters( const MuonSegment& seg, double momentum, double charge ) const {
+  const Trk::AtaPlane* MuonEDMHelperSvc::createTrackParameters( const MuonSegment& seg, double momentum, double charge ) const {
 
     // we need a none zero momentum
     if( momentum == 0. ) {
@@ -170,7 +163,7 @@ namespace Muon {
   }
 
 
-  bool MuonEDMHelperTool::goodTrack( const Trk::Track& track, double chi2Cut ) const {
+  bool MuonEDMHelperSvc::goodTrack( const Trk::Track& track, double chi2Cut ) const {
 
     // get reduced chi2
     const Trk::FitQuality* fq = track.fitQuality();
@@ -186,7 +179,7 @@ namespace Muon {
     return true;
   }
 
-  bool MuonEDMHelperTool::isSLTrack( const Trk::Track& track ) const {
+  bool MuonEDMHelperSvc::isSLTrack( const Trk::Track& track ) const {
 
     // use track info if set properly
     if( track.info().trackProperties(Trk::TrackInfo::StraightTrack) ) return true;
@@ -206,23 +199,4 @@ namespace Muon {
     }
     return false;
   }
-
-  const Trk::Perigee* MuonEDMHelperTool::createPerigee( const Trk::TrackParameters& pars ) const {
-    
-    if( m_extrapolator.empty() ) return 0;
-
-    Trk::PerigeeSurface persurf(pars.position());
-    
-    const Trk::TrackParameters* exPars = m_extrapolator->extrapolateDirectly(pars,persurf);
-    
-    const Trk::Perigee* pp = dynamic_cast<const Trk::Perigee*>(exPars);
-    if( !pp ) {
-      
-      ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");
-      delete exPars;
-      return 0;
-    }
-    return pp;
-  }
-
 } //end of namespace

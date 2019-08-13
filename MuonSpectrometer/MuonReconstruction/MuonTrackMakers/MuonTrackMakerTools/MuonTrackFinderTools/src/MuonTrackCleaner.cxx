@@ -2,12 +2,13 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonTrackCleaner.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkToolInterfaces/IUpdator.h"
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
@@ -65,7 +66,6 @@ namespace Muon {
       m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
       m_compRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator", this),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-      m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_magFieldSvc("AtlasFieldSvc",na),
@@ -74,7 +74,6 @@ namespace Muon {
     declareInterface<IMuonTrackCleaner>(this);
 
     declareProperty("IdHelper",m_idHelper);
-    declareProperty("Helper",m_helper);
     declareProperty("Printer",m_printer);
     declareProperty("MdtRotCreator",  m_mdtRotCreator );
     declareProperty("CompRotCreator", m_compRotCreator );
@@ -110,7 +109,7 @@ namespace Muon {
     ATH_CHECK( m_trackFitter.retrieve() );
     ATH_CHECK( m_slTrackFitter.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
@@ -944,7 +943,7 @@ namespace Muon {
     state.nIdHits = 0;
     state.nPseudoMeasurements = 0;
     state.nPhiConstraints = 0;
-    state.slFit =  !m_magFieldSvc->toroidOn() || m_helper->isSLTrack( track );
+    state.slFit =  !m_magFieldSvc->toroidOn() || m_edmHelperSvc->isSLTrack( track );
 
     // loop over track and calculate residuals
     const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
@@ -998,7 +997,7 @@ namespace Muon {
 	continue;
       }
 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       bool pseudo = !id.is_valid();
       if( pseudo ) ++state.nPseudoMeasurements;
 

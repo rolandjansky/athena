@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@
 #include "IRegionSelector/IRegSelSvc.h"
 //#include "GaudiKernel/INTupleSvc.h"
 #include "xAODTracking/TrackParticle.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h"
@@ -78,7 +78,6 @@ CandidateTool::CandidateTool(const std::string& t,
         m_pIntersector("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
         m_pCaloEnergyTool("Rec::MuidCaloEnergyTool/MuidCaloEnergyTool"),
         //        m_pNtupleSvc("NtupleSvc", name()),
-        m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
         m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
         m_segmentSelectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
         m_pMuonLayerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
@@ -205,7 +204,7 @@ StatusCode CandidateTool::initialize()
         return StatusCode::RECOVERABLE;
     //    if (retrieve(m_pNtupleSvc).isFailure())
     //        return StatusCode::RECOVERABLE;
-    if (retrieve(m_helperTool).isFailure())
+    if (retrieve(m_edmHelperSvc).isFailure())
         msg(MSG::WARNING) << "Could not retrieve EDMHelperTool " << endmsg;
     if (retrieve(m_idHelperTool).isFailure()) {
         msg(MSG::WARNING) << "Could not retrieve the IdHelperTool " << endmsg;

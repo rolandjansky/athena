@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatCandidateTool.h"
@@ -11,7 +11,7 @@
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
@@ -54,7 +54,6 @@ namespace Muon {
       m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator", this),
       m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_hitHandler("Muon::MuPatHitTool/MuPatHitTool"),
       m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
@@ -81,7 +80,7 @@ namespace Muon {
     ATH_CHECK( m_compClusterCreator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_hitHandler.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_incidentSvc.retrieve() );
 
@@ -102,7 +101,7 @@ namespace Muon {
 
   MuPatSegment* MuPatCandidateTool::createSegInfo( const MuonSegment& segment ) const
   {
-    Identifier chid = m_helperTool->chamberId(segment);
+    Identifier chid = m_edmHelperSvc->chamberId(segment);
     if( m_idHelperTool->isTrigger(chid) ){
       ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperTool->toStringChamber(chid) );
       return 0;
@@ -111,7 +110,7 @@ namespace Muon {
     info->segment = &segment;
     info->chid = chid;
     info->chIndex = m_idHelperTool->chamberIndex(info->chid);
-    std::set<Identifier> chIds = m_helperTool->chamberIds(segment);
+    std::set<Identifier> chIds = m_edmHelperSvc->chamberIds(segment);
     std::set<Identifier>::iterator chit = chIds.begin();
     std::set<Identifier>::iterator chit_end = chIds.end();
     for( ;chit!=chit_end;++chit ){
@@ -132,7 +131,7 @@ namespace Muon {
     info->quality = m_segmentSelector->quality( segment );
     info->segQuality = dynamic_cast<const MuonSegmentQuality*>(segment.fitQuality());
 
-    info->segPars = m_helperTool->createTrackParameters( segment, 5000., 0. );    
+    info->segPars = m_edmHelperSvc->createTrackParameters( segment, 5000., 0. );    
     if( !info->segPars ) {
       ATH_MSG_WARNING(" failed to create track parameter for segment " );
     }
@@ -285,7 +284,7 @@ namespace Muon {
 
       const Trk::MeasurementBase* meas = *sit;
       
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() ) {
 	fakePhiHits.push_back(meas);
 	continue;
@@ -428,7 +427,7 @@ namespace Muon {
       if( compclus ){
 	rots.insert(rots.end(),compclus->containedROTs().begin(),compclus->containedROTs().end());
       }else{
-	Identifier id = m_helperTool->getIdentifier(meas);
+	Identifier id = m_edmHelperSvc->getIdentifier(meas);
 	ATH_MSG_WARNING(" Trigger Measurement is not a MuonClusterOnTrack or CompetingMuonClustersOnTrack!!  " 
 	       << m_idHelperTool->toString(id) );	    
       }
@@ -531,7 +530,7 @@ namespace Muon {
       if( !meas ) continue;
 
       // get chamber index
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() || !m_idHelperTool->isMuon(id) ) continue;
       
       // don't include trigger hits

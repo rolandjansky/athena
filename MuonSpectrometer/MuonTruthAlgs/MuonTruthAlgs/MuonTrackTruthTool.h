@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackTruthTool.h"
 
 #include "Identifier/Identifier.h"
@@ -29,7 +30,6 @@ namespace MuonGM {
 }
 
 namespace Muon {
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonIdHelperTool;
   class MuonSegment;

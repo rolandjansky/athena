@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCSegmValidation_H
@@ -54,7 +54,7 @@
 
 /* namespace Muon { */
 /*   class MuonEDMPrinterTool; */
-/*   class MuonEDMHelperTool; */
+/*   class IMuonEDMHelperSvc; */
 /*   class MuonIdHelperTool; */
 /* } */
 
@@ -178,7 +178,7 @@
 
 /*   // Tool handles */
 /*   ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;     //<! tool to calculate residuals and pulls */
-/*   ToolHandle<Muon::MuonEDMHelperTool> m_helperTool; */
+/*   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc; */
 /*   ToolHandle<Muon::MuonEDMPrinterTool> m_printer; */
 /*   ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool; */
 /*   ToolHandle<Trk::IPropagator> m_propagator; */

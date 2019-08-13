@@ -7,7 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+//#include "MuonIdHelpers/MuonStationIndex.h"
+//#include "GeoPrimitives/GeoPrimitives.h"
 #include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -33,7 +37,6 @@ namespace Trk {
 
 namespace Muon {
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuPatCandidateTool;
   class MuonSegment;
@@ -169,7 +172,9 @@ namespace Muon {
     double m_matchChiSquaredCutTight;
     
     ToolHandle<MuonIdHelperTool>          m_idHelperTool;       //<! tool to assist with Identifiers
-    ToolHandle<MuonEDMHelperTool>         m_helperTool;         //<! multipurpose helper tool
+    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>        m_printer;            //<! tool to print EDM objects
     ToolHandle<Trk::IExtrapolator>        m_slExtrapolator;     //<! straight line extrapolator
     ToolHandle<Trk::IExtrapolator>        m_atlasExtrapolator;  //<! curved extrapolator
