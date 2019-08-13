@@ -11,12 +11,16 @@
 
 #include <EventLoop/Driver.h>
 
+#include <EventLoop/BaseManager.h>
+#include <EventLoop/DriverManager.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/ManagerData.h>
+#include <EventLoop/ManagerOrder.h>
 #include <EventLoop/ManagerStep.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/MetricsSvc.h>
 #include <EventLoop/OutputStream.h>
+#include <EventLoop/SubmitManager.h>
 #include <RootCoreUtils/RootUtils.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/DiskListLocal.h>
@@ -31,6 +35,8 @@
 #include <iostream>
 #include <memory>
 #include <signal.h>
+
+using namespace EL::msgEventLoop;
 
 //
 // method implementations
@@ -93,22 +99,18 @@ namespace EL
   submitOnly (const Job& job, const std::string& location) const
   {
     RCU_READ_INVARIANT (this);
-    using namespace msgEventLoop;
+
+    Detail::ManagerData data;
+    data.addManager (std::make_unique<Detail::BaseManager> ());
+    data.addManager (std::make_unique<Detail::DriverManager> ());
+    data.addManager (std::make_unique<Detail::SubmitManager> ());
 
     Job myjob = job;
-    Detail::ManagerData data;
+    data.driver = this;
     data.submitDir = location;
     data.job = &myjob;
-    for (unsigned stepIter = unsigned (Detail::ManagerStep::initial);
-         stepIter != unsigned (Detail::ManagerStep::final) + 1;
-         stepIter += 1)
-    {
-      if (doManagerStep (data, Detail::ManagerStep (stepIter)).isFailure())
-      {
-        ANA_MSG_ERROR ("while performing submission step " << stepIter);
-        throw std::runtime_error ("submission error in step " + std::to_string (stepIter));
-      }
-    }
+    if (data.run().isFailure())
+      throw std::runtime_error ("failed to submit job");
   }
 
 
@@ -117,12 +119,17 @@ namespace EL
   resubmit (const std::string& location,
             const std::string& option)
   {
+    Detail::ManagerData data;
+    data.addManager (std::make_unique<Detail::BaseManager> ());
+    data.addManager (std::make_unique<Detail::DriverManager> ());
+    data.addManager (std::make_unique<Detail::SubmitManager> ());
+    data.submitDir = location;
+
     std::unique_ptr<TFile> file (TFile::Open ((location + "/driver.root").c_str(), "READ"));
     std::unique_ptr<Driver> driver (dynamic_cast<Driver*>(file->Get ("driver")));
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
+    data.driver = driver.get();
 
-    Detail::ManagerData data;
-    data.submitDir = location;
     data.resubmit = true;
     data.resubmitOption = option;
     driver->doResubmit (data);
@@ -134,6 +141,8 @@ namespace EL
   retrieve (const std::string& location)
   {
     std::unique_ptr<TFile> file (TFile::Open ((location + "/driver.root").c_str(), "READ"));
+    if (!file || file->IsZombie())
+      throw std::runtime_error ("failed to open driver file");
     std::unique_ptr<Driver> driver (dynamic_cast<Driver*>(file->Get ("driver")));
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
 
@@ -145,8 +154,6 @@ namespace EL
   bool Driver ::
   wait (const std::string& location, unsigned time)
   {
-    using namespace msgEventLoop;
-
     // no invariant used
 
     struct SigTrap {
@@ -300,103 +307,8 @@ namespace EL
 
 
   ::StatusCode Driver ::
-  doManagerStep (Detail::ManagerData& data,
-                Detail::ManagerStep step) const
+  doManagerStep (Detail::ManagerData& data) const
   {
-    using namespace msgEventLoop;
-
-    switch (step)
-    {
-    case Detail::ManagerStep::updateSubmitDir:
-      {
-        if (data.submitDir[0] != '/')
-          data.submitDir = gSystem->WorkingDirectory () + ("/" + data.submitDir);
-        if (data.submitDir.find ("/pnfs/") == 0)
-        {
-          ANA_MSG_ERROR ("can not place submit directory on pnfs: " + data.submitDir);
-          return ::StatusCode::FAILURE;
-        }
-      }
-      break;
-
-    case Detail::ManagerStep::fillOptions:
-      {
-        data.options = *data.job->options();
-        data.options.fetchDefaults (*options());
-      }
-      break;
-
-    case Detail::ManagerStep::addSystemAlgs:
-      {
-        if (data.options.castBool (Job::optDisableMetrics, false))
-          if (!data.job->algsHas (MetricsSvc::name))
-            data.job->algsAdd (new MetricsSvc);
-      }
-      break;
-
-    case Detail::ManagerStep::createSubmitDir:
-      {
-        if (data.options.castBool (Job::optRemoveSubmitDir, false))
-          gSystem->Exec (("rm -rf " + data.submitDir).c_str());
-        if (gSystem->MakeDirectory (data.submitDir.c_str()) != 0)
-        {
-          ANA_MSG_ERROR ("could not create output directory " + data.submitDir);
-          return ::StatusCode::FAILURE;
-        }
-      }
-      break;
-
-    case Detail::ManagerStep::prepareSubmitDir:
-      {
-        {
-          std::unique_ptr<TFile> file (TFile::Open ((data.submitDir + "/driver.root").c_str(), "RECREATE"));
-          file->WriteObject (this, "driver");
-          file->Close ();
-        }
-        data.job->sampleHandler().save (data.submitDir + "/input");
-        {
-          std::ofstream file ((data.submitDir + "/location").c_str());
-          file << data.submitDir << "\n";
-        }
-
-        SH::SampleHandler sh_hist;
-        for (SH::SampleHandler::iterator sample = data.job->sampleHandler().begin(),
-               end = data.job->sampleHandler().end(); sample != end; ++ sample)
-        {
-          const std::string histfile
-            = data.submitDir + "/hist-" + (*sample)->name() + ".root";
-          std::unique_ptr<SH::SampleHist> hist
-            (new SH::SampleHist ((*sample)->name(), histfile));
-          hist->meta()->fetch (*(*sample)->meta());
-          sh_hist.add (hist.release());
-        }
-        sh_hist.save (data.submitDir + "/hist");
-      }
-      break;
-
-    case Detail::ManagerStep::submitJob:
-      {
-        ANA_MSG_INFO ("submitting job in " << data.submitDir);
-      }
-      break;
-
-    case Detail::ManagerStep::postSubmit:
-      {
-        if (!data.submitted)
-        {
-          ANA_MSG_FATAL ("Driver::submit not implemented in class " << typeid(*this).name());
-          std::abort ();
-        }
-
-        // this particular file can be checked to see if a job has
-        // been submitted successfully.
-        std::ofstream ((data.submitDir + "/submitted").c_str());
-      }
-      break;
-
-    default:
-      (void) true; // safe to do nothing
-    }
     return ::StatusCode::SUCCESS;
   }
 

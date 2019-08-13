@@ -242,17 +242,9 @@ namespace EL
     // virtual interface
     //
 
-    /// \brief do whatever needs to be done for the given submission step
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   job configuration errors\n
-    ///   driver errors\n
-    ///   job submission errors
   protected:
     virtual ::StatusCode
-    doManagerStep (Detail::ManagerData& data,
-                  Detail::ManagerStep step) const;
+    doManagerStep (Detail::ManagerData& data) const;
 
 
     /// \copydoc resubmit
@@ -276,11 +268,18 @@ namespace EL
     // private interface
     //
 
+    friend class Detail::DriverManager;
+
     /// \brief members directly corresponding to accessors
   private:
     SH::MetaObject m_options;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
     ClassDef(Driver, 1);
+#pragma GCC diagnostic pop
   };
 }
 

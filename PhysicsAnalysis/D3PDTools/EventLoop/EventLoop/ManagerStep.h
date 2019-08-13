@@ -74,7 +74,7 @@ namespace EL
       /// do whatever needs to be done after the submission is done
       postSubmit,
 
-      final = postSubmit
+      final
     };
   }
 }
