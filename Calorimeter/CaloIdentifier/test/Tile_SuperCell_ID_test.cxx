@@ -14,7 +14,6 @@
 
 #include "CaloIdentifier/Tile_SuperCell_ID.h"
 #include "Identifier/IdentifierHash.h"
-#include "CxxUtils/make_unique.h"
 #include <iostream>
 
 

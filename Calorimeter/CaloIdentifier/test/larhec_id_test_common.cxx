@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
  */
 
 
-#include "boost/foreach.hpp"
 #include "hash_test.h"
 #include "make_idhelper_common.cxx"
 
@@ -97,7 +96,7 @@ void test_connected (const LArHEC_Base_ID& idhelper, bool supercell)
   HASH_TEST1(region,reg,HASH_TEST_EXTRA(region));
 
   CellCounter counts;
-  TEST_LOOP (Identifier id, idhelper.hec_range()) {
+  for (Identifier id : idhelper.hec_range()) {
     assert (idhelper.is_lar_hec (id));
     IdentifierHash hashId = idhelper.channel_hash (id);
     assert (hashId == idhelper.channel_hash_binary_search (id));
@@ -134,7 +133,7 @@ void test_connected (const LArHEC_Base_ID& idhelper, bool supercell)
   }
   counts.report();
 
-  TEST_LOOP (Identifier id, idhelper.reg_range()) {
+  for (Identifier id : idhelper.reg_range()) {
     assert (idhelper.is_supercell(id) == supercell);
     IdentifierHash hashId = idhelper.region_hash (id);
 
