@@ -25,7 +25,7 @@
 InDet::FileRoISeedTool::FileRoISeedTool
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p),
-    m_filename("/global/projecta/projectdirs/atlas/wmccorma/TrkExclusiveWW/low-pt-tracking/roi_test.txt")
+    m_filename("INPUT MUST BE SPECIFIED BY JOB OPTION")
 {
 
   //
