@@ -82,8 +82,10 @@ def generateMenu( flags ):
     useReworked = True
 
     if useReworked:
+        menuAcc.wasMerged()
         menuAcc = generateDecisionTree(menuChains)
     else:
+        menuAcc.wasMerged()
         menuAcc = ComponentAccumulator()
         mainSequenceName = 'HLTAllSteps'
         menuAcc.addSequence( seqAND(mainSequenceName) )
