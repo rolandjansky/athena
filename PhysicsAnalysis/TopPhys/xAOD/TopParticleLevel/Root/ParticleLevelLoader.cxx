@@ -626,7 +626,7 @@ namespace top {
             try {
                 truthProxy = particle->auxdata<ElementLink<xAOD::TruthParticleContainer> >("originalTruthParticle");
                 tp_isValid = truthProxy.isValid();
-            } catch (SG::ExcBadAuxVar) {
+            } catch (const SG::ExcBadAuxVar&) {
               // ExcBadAuxVar can be thrown before checking if proxy is valid
               tp_isValid = false;
             }

@@ -3876,7 +3876,7 @@ namespace top {
         try {
           m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
           m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
-        } catch (SG::ExcBadAuxVar e) {
+        } catch (const SG::ExcBadAuxVar& e) {
           //didn't find any ghost b-hadron info, have to assume it's a light jet
           ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
           m_jet_Ghosts_BHadron_Final_Count[i] = 0;
@@ -3906,7 +3906,7 @@ namespace top {
         try {
           m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
           m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
-        } catch (SG::ExcBadAuxVar e) {
+        } catch (const SG::ExcBadAuxVar& e) {
           //didn't find any ghost b-hadron info, have to assume it's a light jet
           ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
           m_ljet_Ghosts_BHadron_Final_Count[i] = 0;
@@ -4130,7 +4130,7 @@ namespace top {
           try {
             m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostBHadronsFinalCount" ));
             m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostCHadronsFinalCount" ));
-          } catch (SG::ExcBadAuxVar e) {
+          } catch (const SG::ExcBadAuxVar& e) {
             //didn't find any ghost b-hadron info, have to assume it's a light jet
             ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
             m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(0);
@@ -4615,7 +4615,7 @@ namespace top {
         try {
           m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
           m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
-        } catch (SG::ExcBadAuxVar e) {
+        } catch (const SG::ExcBadAuxVar& e) {
           //didn't find any ghost b-hadron info, have to assume it's a light jet
           ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
           m_jet_Ghosts_BHadron_Final_Count[i] = 0;

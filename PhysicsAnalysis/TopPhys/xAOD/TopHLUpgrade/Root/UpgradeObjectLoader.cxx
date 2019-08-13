@@ -424,7 +424,7 @@ ParticleLevelEvent UpgradeObjectLoader::load() {
       try {
         if(jet->auxdata<int>("GhostBHadronsFinalCount") > 0) type = 'B';
         else if(jet->auxdata<int>("GhostCHadronsFinalCount") > 0) type = 'C';
-      } catch (SG::ExcBadAuxVar e) {
+      } catch (const SG::ExcBadAuxVar& e) {
         //didn't find any ghost b-hadron info, have to assume it's a light jet
         ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
       }
