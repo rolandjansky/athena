@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FATRASSIMTOOL_h
@@ -26,7 +26,7 @@ namespace ISF {
 
     virtual StatusCode initialize() override;
 
-    virtual StatusCode simulate( const ISFParticle& isp, ISFParticleContainer&, McEventCollection* ) override;
+    virtual StatusCode simulate( const ISFParticle& isp, ISFParticleContainer&, McEventCollection* ) const override;
 
     virtual StatusCode setupEvent() override { return StatusCode::SUCCESS; };
 

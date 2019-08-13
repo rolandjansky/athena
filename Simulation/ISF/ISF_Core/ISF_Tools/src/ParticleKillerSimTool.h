@@ -27,10 +27,10 @@ public:
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode simulate( const ISFParticle& isp, ISFParticleContainer&, McEventCollection* ) override;
+  virtual StatusCode simulate( const ISFParticle& isp, ISFParticleContainer&, McEventCollection* ) const override;
 
   /** */
-  virtual StatusCode simulateVector(const ConstISFParticleVector& particles, ISFParticleContainer&, McEventCollection* ) override;
+  virtual StatusCode simulateVector(const ConstISFParticleVector& particles, ISFParticleContainer&, McEventCollection* ) const override;
 
   virtual StatusCode setupEvent() override { return StatusCode::SUCCESS; };
 

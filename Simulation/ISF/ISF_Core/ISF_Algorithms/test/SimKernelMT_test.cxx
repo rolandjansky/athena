@@ -139,8 +139,8 @@ public:
 
   MOCK_METHOD0(finalize, StatusCode());
   MOCK_METHOD0(setupEvent, StatusCode());
-  MOCK_METHOD3(simulate, StatusCode(const ISF::ISFParticle&, ISF::ISFParticleContainer&, McEventCollection*));
-  MOCK_METHOD3(simulateVector, StatusCode(const ISF::ConstISFParticleVector&, ISF::ISFParticleContainer&, McEventCollection*));
+  MOCK_CONST_METHOD3(simulate, StatusCode(const ISF::ISFParticle&, ISF::ISFParticleContainer&, McEventCollection*));
+  MOCK_CONST_METHOD3(simulateVector, StatusCode(const ISF::ConstISFParticleVector&, ISF::ISFParticleContainer&, McEventCollection*));
   MOCK_METHOD0(releaseEvent, StatusCode());
   MOCK_CONST_METHOD1(bid, int(const ISF::ISFParticle&));
 
