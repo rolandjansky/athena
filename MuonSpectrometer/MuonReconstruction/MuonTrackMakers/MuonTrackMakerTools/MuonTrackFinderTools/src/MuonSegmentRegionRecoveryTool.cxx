@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentRegionRecoveryTool.h"
@@ -16,7 +16,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
@@ -87,7 +87,6 @@ MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& 
     m_fitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
     m_intersectSvc("MuonStationIntersectSvc", name()),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_hitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
     m_regionSelector("RegSelSvc", name())
@@ -100,7 +99,6 @@ MuonSegmentRegionRecoveryTool::MuonSegmentRegionRecoveryTool(const std::string& 
   declareProperty("Fitter",                  m_fitter );
   declareProperty("MuonStationIntersectSvc", m_intersectSvc);
   declareProperty("IdHelper",                m_idHelperTool);
-  declareProperty("EDMHelper",               m_helperTool);
   declareProperty("EDMPrinter",              m_printer);
   declareProperty("HitSummaryTool",          m_hitSummaryTool);
   declareProperty("RegionSelector",          m_regionSelector);
@@ -119,7 +117,7 @@ StatusCode MuonSegmentRegionRecoveryTool::initialize()
 {
 
   ATH_CHECK( detStore()->retrieve( m_detMgr ) );
-  ATH_CHECK( m_helperTool.retrieve() );
+  ATH_CHECK( m_edmHelperSvc.retrieve() );
   ATH_CHECK( m_intersectSvc.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
   ATH_CHECK( m_seededSegmentFinder.retrieve() );
@@ -179,7 +177,7 @@ Trk::Track* MuonSegmentRegionRecoveryTool::recoverImp( const Trk::Track& track )
   // only run this on single station EM tracks
   if ( m_onlyEO ) {
     // should be a sl track
-    if ( !m_helperTool->isSLTrack(*chRecTrack) ) return const_cast<Trk::Track*>(chRecTrack);
+    if ( !m_edmHelperSvc->isSLTrack(*chRecTrack) ) return const_cast<Trk::Track*>(chRecTrack);
 
     // get hit summary
     IMuonHitSummaryTool::CompactSummary hitSummary = m_hitSummaryTool->summary(*chRecTrack);
@@ -335,7 +333,7 @@ void MuonSegmentRegionRecoveryTool::collectCrossedChambers( const Trk::Track& tr
     const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
     if ( !meas ) continue;
 
-    Identifier id = m_helperTool->getIdentifier(*meas);
+    Identifier id = m_edmHelperSvc->getIdentifier(*meas);
     bool pseudo = !id.is_valid();
 
     if ( pseudo || !m_idHelperTool->mdtIdHelper().is_muon(id) ) continue;
@@ -828,7 +826,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
     //for( ;sit1!=sit1_end;++sit1 ) trackStateOnSurfaces->push_back( *sit1 );
     for ( ; sit1 != sit1_end; ++sit1 ) toBeSorted.push_back( *sit1 );
 
-    std::stable_sort(toBeSorted.begin(), toBeSorted.end(), SortTSOSs(&*m_helperTool, &*m_idHelperTool));
+    std::stable_sort(toBeSorted.begin(), toBeSorted.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperTool));
 
     trackStateOnSurfaces->insert(trackStateOnSurfaces->begin(), toBeSorted.begin(), toBeSorted.end());
     Trk::Track* trackWithHoles = new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone() : 0 );
@@ -1105,7 +1103,7 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::addMissingChambers( const Trk::
       // add states. If nit->first is true we have a new state. If it is false the state is from the old track and has to be cloned
       newStates.push_back( nit->first ? nit->second : nit->second->clone() );
     }
-    std::stable_sort(newStates.begin(), newStates.end(), SortTSOSs(&*m_helperTool, &*m_idHelperTool));
+    std::stable_sort(newStates.begin(), newStates.end(), SortTSOSs(&*m_edmHelperSvc, &*m_idHelperTool));
 
     ATH_MSG_DEBUG("Filling DataVector with TSOSs " << newStates.size());
     DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTSOVERLAPRESOLVINGTOOL_H
@@ -9,9 +9,11 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <vector>
 #include <string>
@@ -28,7 +30,6 @@ namespace Trk {
 
 namespace Muon {
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
 }
 
@@ -90,7 +91,9 @@ namespace Muon {
     Amg::Vector3D estimateSegmentDirection( const MuonSegment& seg1, const MuonSegment& seg2, double& phi, double& stereoangle ) const;
 
     ToolHandle<MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
-    ToolHandle<MuonEDMHelperTool>              m_helperTool;       //!< EDM Helper tool
+    ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
     ToolHandle<MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
     ToolHandle<Trk::IPropagator>               m_propagator;
     Trk::MagneticFieldProperties               m_magFieldProperties; //!< magnetic field properties

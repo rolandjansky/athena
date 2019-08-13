@@ -17,6 +17,8 @@
 #include "MuonSegmentTaggerToolInterfaces/IMuTagIMOTool.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
 #include "xAODMuon/MuonSegmentContainer.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+
 
 #include <array>
 #include <atomic>
@@ -30,7 +32,6 @@ namespace Muon {
   class MuonSegment;
   class MuonEDMPrinterTool;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class IMuonSegmentSelectionTool;
 }
 
@@ -83,7 +84,9 @@ namespace MuonCombined {
     ToolHandle< IMuTagAmbiguitySolverTool> p_MuTagAmbiguitySolverTool ;  //!< Pointer to MuTagAmbiguitySolverTool
     ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
     ToolHandle< Muon::MuonIdHelperTool   > m_idHelper    ;  //!< Pointer to IPropagator
-    ToolHandle< Muon::MuonEDMHelperTool  > m_edmHelper    ;  //!< Pointer to IPropagator
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };  //!< Pointer to IPropagator
     ToolHandle< Muon::IMuonSegmentSelectionTool> m_segmentSelector; 
     ToolHandle<Muon::IMuonSegmentHitSummaryTool> m_hitSummaryTool;
 

@@ -69,8 +69,8 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if( m_edmHelperTool.retrieve().isFailure() ){
-    ATH_MSG_ERROR("Could not get " << m_edmHelperTool);      
+  if( m_edmHelperSvc.retrieve().isFailure() ){
+    ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);      
     return StatusCode::FAILURE;
   }
 

@@ -5,7 +5,7 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/MuonEDMHelperSvc.h"
 
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
@@ -47,13 +47,11 @@ namespace Muon {
   MuonEDMPrinterTool::MuonEDMPrinterTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa), 
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_summaryHelper("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
   {
     declareInterface<MuonEDMPrinterTool>(this);
     declareProperty( "MuonIdHelperTool",    m_idHelper);
-    declareProperty( "MuonEDMHelperTool",   m_helper);
     declareProperty( "MuonTrackSummaryHelperTool", m_summaryHelper);
   }
 
@@ -71,8 +69,8 @@ namespace Muon {
     }
 
     
-    if (m_helper.retrieve().isFailure()){
-      ATH_MSG_WARNING("Could not get " << m_helper); 
+    if (m_edmHelperSvc.retrieve().isFailure()){
+      ATH_MSG_WARNING("Could not get " << m_edmHelperSvc); 
       return StatusCode::FAILURE;
     }
 
@@ -205,7 +203,7 @@ namespace Muon {
             for (; it2 != it2_end; ++it2 ) {
                 m = (*it2)->measurementOnTrack();
                 if (m) {
-                    Identifier id = m_helper->getIdentifier(*m);
+                    Identifier id = m_edmHelperSvc->getIdentifier(*m);
                     if ( ( id.is_valid() && (std::find(identifiers.begin(), identifiers.end(), id)!=identifiers.end() ) ) 
                        ||  (aeot->effectsLastFromNowOn() && it2>it) ) {
                         // Either this measurement is explicitly listed, OR it is in a TSOS after an AEOT whose effects last from now on. 
@@ -322,7 +320,7 @@ namespace Muon {
     std::ostringstream sout;
     
     // get first none-trigger id 
-    Identifier chid = m_helper->chamberId(segment);
+    Identifier chid = m_edmHelperSvc->chamberId(segment);
     int nphi = 0;
     int ntrigEta = 0;
     int neta    = 0;
@@ -550,7 +548,7 @@ namespace Muon {
       if( !stationSegs || stationSegs->empty() ) continue;
   
       // get chamber identifier, chamber index and station index
-      //Identifier chid = m_helper->chamberId( *stationSegs->front() );
+      //Identifier chid = m_edmHelperSvc->chamberId( *stationSegs->front() );
       sout << print(*stationSegs);
       if( i != nstations-1 ) sout << std::endl;
     }
@@ -916,7 +914,7 @@ namespace Muon {
 
   std::string MuonEDMPrinterTool::printId( const Trk::MeasurementBase& measurement ) const {
     std::string idStr;
-    Identifier id = m_helper->getIdentifier( measurement );
+    Identifier id = m_edmHelperSvc->getIdentifier( measurement );
     if( !id.is_valid() ) {
       const Trk::PseudoMeasurementOnTrack* pseudo = dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(&measurement);
       if( pseudo ) idStr = "pseudo measurement";

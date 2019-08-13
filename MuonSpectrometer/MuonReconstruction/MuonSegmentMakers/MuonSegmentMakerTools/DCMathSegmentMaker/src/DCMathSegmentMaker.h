@@ -19,6 +19,7 @@
 #include "TrkDriftCircleMath/DriftCircle.h"
 
 #include "TrkSurfaces/Surface.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentTriggerHitAssociator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -56,7 +57,6 @@ namespace Muon {
   class IMdtSegmentFinder;
   class IMuonTrackCleaner;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class IMuonSegmentFittingTool;
   class IMuonSegmentSelectionTool;
@@ -402,7 +402,9 @@ class MdtDriftCircleOnTrack;
     ToolHandle<IMuonCompetingClustersOnTrackCreator> m_compClusterCreator;   //<! competing clusters rio ontrack creator
     ToolHandle<MuonIdHelperTool>              m_idHelperTool;    //<! Id helper tool
     ToolHandle<MuonEDMPrinterTool>            m_printer;         //<! printer helper tool
-    ToolHandle<MuonEDMHelperTool>             m_helper;          //<! printer helper tool
+    ServiceHandle<IMuonEDMHelperSvc>          m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };  //<! edm helper tool
     ToolHandle<IMdtSegmentFinder>             m_segmentFinder;   //<! segment finder tool
     ToolHandle<IMuonSegmentFittingTool>       m_segmentFitter;   //<! segment fitting tool
     ToolHandle<IMuonSegmentSelectionTool>     m_segmentSelectionTool; //<! segment selection tool

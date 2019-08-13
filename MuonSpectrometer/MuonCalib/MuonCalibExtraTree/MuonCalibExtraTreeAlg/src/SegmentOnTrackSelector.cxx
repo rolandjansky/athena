@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibExtraTreeAlg/SegmentOnTrackSelector.h"
@@ -10,7 +10,7 @@
 //MuonCalibITools
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 //MuonRecHelperTools
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
@@ -21,7 +21,6 @@ SegmentOnTrackSelector::SegmentOnTrackSelector(const std::string &type,const std
   m_pattern_location(""),
   m_min_hits_on_track(3),
   m_max_hits_not_on_track(1),
-  m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
   m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
   m_muonIdHelperTool("Muon::MuonIdHelperTool") 
 {
@@ -29,7 +28,6 @@ SegmentOnTrackSelector::SegmentOnTrackSelector(const std::string &type,const std
   declareProperty("PattternLocation", m_pattern_location);
   declareProperty("MinHitsOnTrack", m_min_hits_on_track);
   declareProperty("MaxHitsNotOnTrack", m_max_hits_not_on_track);
-  declareProperty("MuonEDMHelperTool", m_helperTool);
   declareProperty("IdToFixedIdTool", m_idToFixedIdTool);
   declareProperty("MuonIdHelperTool", m_muonIdHelperTool);
 }
@@ -39,7 +37,7 @@ StatusCode SegmentOnTrackSelector::initialize() {
     ATH_MSG_FATAL("Cannot run without patterns!");
     return StatusCode::FAILURE;
   }
-  if(!m_helperTool.retrieve().isSuccess()) {
+  if(!m_edmHelperSvc.retrieve().isSuccess()) {
     ATH_MSG_FATAL("Cannot retrieve muon EDM helper!");
     return StatusCode::FAILURE;
   }
@@ -129,7 +127,7 @@ inline void SegmentOnTrackSelector::getIdentifiers(const Trk::Track &tk, std::se
     if( !(*tsit)->type(Trk::TrackStateOnSurface::Measurement) )
       continue;
     const Trk::MeasurementBase* measurement = (*tsit)->measurementOnTrack();
-    Identifier id = m_helperTool->getIdentifier(*measurement);
+    Identifier id = m_edmHelperSvc->getIdentifier(*measurement);
     if(!m_muonIdHelperTool->isMuon(id)) continue;
     if(!m_muonIdHelperTool->isMdt(id) && !m_muonIdHelperTool->isCsc(id)) continue;
     ids.insert(m_idToFixedIdTool->idToFixedId(id));

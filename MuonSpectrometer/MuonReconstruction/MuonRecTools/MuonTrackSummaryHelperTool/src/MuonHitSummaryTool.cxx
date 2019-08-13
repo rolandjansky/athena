@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHitSummaryTool.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegment/MuonSegment.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
@@ -20,7 +20,6 @@ namespace Muon {
   MuonHitSummaryTool::MuonHitSummaryTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_summaryHelperTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
   {
@@ -50,8 +49,8 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
-    if( m_helper.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("could no initialize " << m_helper);
+    if( m_edmHelperSvc.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("could no initialize " << m_edmHelperSvc);
       return StatusCode::FAILURE;
     }
 
@@ -235,7 +234,7 @@ namespace Muon {
     std::vector<const Trk::MeasurementBase*>::const_iterator it = rioVec.begin();
     std::vector<const Trk::MeasurementBase*>::const_iterator it_end = rioVec.end();
     for( ;it!=it_end; ++it ){
-      Identifier id = m_helper->getIdentifier(**it);
+      Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
 
       bool isMdt = m_idHelper->isMdt(id);

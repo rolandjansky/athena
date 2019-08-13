@@ -31,7 +31,6 @@ BeamBackgroundFiller::BeamBackgroundFiller(const std::string& name,
   m_numClusterShape(0),
   m_numJet(0),
   m_direction(0),
-  m_helperTool("Muon::MuonEDMHelperTool"),
   m_idHelperTool("Muon::MuonIdHelperTool"),
   m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 {
@@ -72,7 +71,7 @@ BeamBackgroundFiller::~BeamBackgroundFiller()
 
 //------------------------------------------------------------------------------
 StatusCode BeamBackgroundFiller::initialize() {
-  CHECK( m_helperTool.retrieve() );
+  CHECK( m_edmHelperSvc.retrieve() );
   CHECK( m_idHelperTool.retrieve() );
   CHECK( m_idToFixedIdTool.retrieve() );
 
@@ -144,7 +143,7 @@ void BeamBackgroundFiller::FillMatchMatrix()
       
       if (!seg) std::abort();
       
-      Identifier id = m_helperTool->chamberId(*seg);
+      Identifier id = m_edmHelperSvc->chamberId(*seg);
       if ( !id.is_valid() ) continue;
       if ( !m_idHelperTool->isMuon(id) ) continue;
       
@@ -180,7 +179,7 @@ void BeamBackgroundFiller::FillMatchMatrix()
       const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*>(thisMDTSegment);
       if (!seg) std::abort();
       
-      Identifier id = m_helperTool->chamberId(*seg);
+      Identifier id = m_edmHelperSvc->chamberId(*seg);
       if ( !id.is_valid() ) continue;  
       if ( !m_idHelperTool->isMuon(id) ) continue;
       
@@ -271,7 +270,7 @@ void BeamBackgroundFiller::FillMatchMatrix()
 	const Muon::MuonSegment* seg = dynamic_cast<const Muon::MuonSegment*> (*m_indexSeg[j]);
 	if (!seg) std::abort();
 
-	Identifier id = m_helperTool->chamberId(*seg);
+	Identifier id = m_edmHelperSvc->chamberId(*seg);
 	bool isCsc = m_idHelperTool->isCsc(id);
 
 	const Amg::Vector3D& globalPos = seg->globalPosition();
@@ -346,7 +345,7 @@ void BeamBackgroundFiller::SegmentMethod()
 /*
     // also take the CSC segments that fall outside of the time readout window on the early side
     // CscTimeStatus::CscTimeEarly could be used here
-    Identifier id = m_helperTool->chamberId(*seg);
+    Identifier id = m_edmHelperSvc->chamberId(*seg);
     MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
     int stationName = fid.stationName();
     if( tSeg < early && (stationName==33 || stationName==34) ) timeStatus = 2;
@@ -390,7 +389,7 @@ void BeamBackgroundFiller::SegmentMethod()
 /*
       // also take the CSC segments that fall outside of the time readout window on the early side
       // CscTimeStatus::CscTimeEarly could be used here
-      Identifier id = m_helperTool->chamberId(*seg);
+      Identifier id = m_edmHelperSvc->chamberId(*seg);
       MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
       int stationName = fid.stationName();
       if( tSegC < early && (stationName==33 || stationName==34) ) timeStatus = 2;
@@ -478,7 +477,7 @@ void BeamBackgroundFiller::OneSidedMethod()
 /*
       // also take the CSC segments that fall outside of the time readout window on the early side
       // CscTimeStatus::CscTimeEarly could be used here
-      Identifier id = m_helperTool->chamberId(*seg);
+      Identifier id = m_edmHelperSvc->chamberId(*seg);
       MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
       int stationName = fid.stationName();
       if( tSeg < early && (stationName==33 || stationName==34) ) timeStatus = 2;
@@ -581,7 +580,7 @@ void BeamBackgroundFiller::TwoSidedMethod()
 /*
       // also take the CSC segments that fall outside of the time readout window on the early side
       // CscTimeStatus::CscTimeEarly could be used here
-      Identifier id = m_helperTool->chamberId(*seg);
+      Identifier id = m_edmHelperSvc->chamberId(*seg);
       MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
       int stationName = fid.stationName();
       if( tSegA < early && (stationName==33 || stationName==34) ) timeStatusA = 2;
@@ -611,7 +610,7 @@ void BeamBackgroundFiller::TwoSidedMethod()
 /*
         // also take the CSC segments that fall outside of the time readout window on the early side
         // CscTimeStatus::CscTimeEarly could be used here
-        Identifier id = m_helperTool->chamberId(*seg);
+        Identifier id = m_edmHelperSvc->chamberId(*seg);
         MuonCalib::MuonFixedId fid = m_idToFixedIdTool->idToFixedId( id ) ;
         int stationName = fid.stationName();
         if( tSegC < early && (stationName==33 || stationName==34) ) timeStatusC = 2;

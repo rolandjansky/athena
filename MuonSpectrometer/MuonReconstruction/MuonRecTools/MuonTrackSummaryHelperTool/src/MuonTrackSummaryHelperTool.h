@@ -16,9 +16,10 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
@@ -84,7 +85,9 @@ private:
     ToolHandle<MuonIdHelperTool> m_idHelperTool{"Muon::MuonIdHelperTool/MuonIdHelperTool"};
 
     /* used to work out if track has momentum */
-    ToolHandle<MuonEDMHelperTool> m_edmHelperTool{"Muon::MuonEDMHelperTool/MuonEDMHelperTool"};
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
 
     /* used to do hits-in-road search for straight tracks */
     ToolHandle<Trk::IExtrapolator> m_slExtrapolator{"Trk::Extrapolator/MuonStraightLineExtrapolator"};

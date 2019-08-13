@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,11 +13,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuonTrackQuery.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 namespace Muon
 {
     class IMdtDriftCircleOnTrackCreator;
-    class MuonEDMHelperTool;
     class MuonIdHelperTool;
 }
 namespace Trk
@@ -118,7 +118,9 @@ namespace Rec
 
 	// tools and services
 	ToolHandle<Trk::ITrackFitter>       		m_fitter;
-	ToolHandle<Muon::MuonEDMHelperTool>		m_helper; 
+	ServiceHandle<Muon::IMuonEDMHelperSvc>		m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" }; 
 	ToolHandle<Muon::MuonIdHelperTool>		m_idHelper;
 	ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>	m_mdtRotCreator;
         ServiceHandle<Trk::ITrackingGeometrySvc>        m_trackingGeometrySvc;

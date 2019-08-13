@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,7 +15,7 @@
 
 // #include "MuonSegmMonitoring/MuonSegmValidation.h"
 // #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-// #include "MuonRecHelperTools/MuonEDMHelperTool.h"
+// #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 // #include "MuonIdHelpers/MuonIdHelperTool.h"  
 // #include "MuonDQAUtils/MuonChamberNameConverter.h"
 // #include "MuonDQAUtils/MuonDQAFitFunc.h"
@@ -78,7 +78,7 @@
 //    b_status(false)
 // {
 //   m_pullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
-//   m_helperTool     = ToolHandle<Muon::MuonEDMHelperTool>("Muon::MuonEDMHelperTool/MuonEDMHelperTool");
+//   m_edmHelperSvc   = ServiceHandle<Muon::IMuonEDMHelperSvc>("Muon::IMuonEDMHelperSvc/IMuonEDMHelperSvc");
 //   m_printer        = ToolHandle<Muon::MuonEDMPrinterTool>("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool");
 //   m_idHelperTool   = ToolHandle<Muon::MuonIdHelperTool>("Muon::MuonIdHelperTool/MuonIdHelperTool");
 //   m_propagator     = ToolHandle<Trk::IPropagator>("Trk::StraightLinePropagator/MuonStraightLinePropagator");
@@ -184,12 +184,12 @@
 //   if (m_debuglevel) ATH_MSG_FATAL(" Found the " << m_pullCalculator );
 
 //   // Retrieve helper tools
-//   sc = m_helperTool.retrieve();
+//   sc = m_edmHelperSvc.retrieve();
 //   if (sc.isFailure()){
-//     ATH_MSG_FATAL("Could not get " << m_helperTool ); 
+//     ATH_MSG_FATAL("Could not get " << m_edmHelperSvc ); 
 //     return sc;
 //   }
-//   if (m_debuglevel) ATH_MSG_DEBUG( "Retrieved " << m_helperTool );
+//   if (m_debuglevel) ATH_MSG_DEBUG( "Retrieved " << m_edmHelperSvc );
 
 //   sc = m_idHelperTool.retrieve();
 //   if (sc.isFailure()){
@@ -977,7 +977,7 @@
 
 // 	// Get segm parameters
 // 	const std::vector<const Trk::MeasurementBase*> meas = segm->containedMeasurements();
-// 	const Trk::AtaPlane* segPars = m_helperTool->createTrackParameters(*segm,10000.,0.); // segm,momentum,charge    
+// 	const Trk::AtaPlane* segPars = m_edmHelperSvc->createTrackParameters(*segm,10000.,0.); // segm,momentum,charge    
 // 	if( !segPars ) return false;
 // 	const Trk::FitQuality* fq = segm->fitQuality();
 // 	ATH_MSG_DEBUG(  "MuonSegment chi2, ndof " << (float)segm->fitQuality()->chiSquared() 
@@ -996,7 +996,7 @@
 // 	if (meas.size()>0)
 // 	  {
 // 	    const Trk::MeasurementBase* rio = meas[0];
-// 	    Identifier id = m_helperTool->getIdentifier(*rio);
+// 	    Identifier id = m_edmHelperSvc->getIdentifier(*rio);
 // 	    std::string name;
 // 	    if (m_idHelperTool->isMdt(id))
 // 	      {
@@ -1093,7 +1093,7 @@
 	
 // 	for (unsigned int i=0; i<meas.size(); ++i) {
 // 	  const Trk::MeasurementBase* rio = meas[i];
-// 	  Identifier id = m_helperTool->getIdentifier(*rio);
+// 	  Identifier id = m_edmHelperSvc->getIdentifier(*rio);
 
 // 	  if (m_idHelperTool->isMdt(id))
 // 	    {

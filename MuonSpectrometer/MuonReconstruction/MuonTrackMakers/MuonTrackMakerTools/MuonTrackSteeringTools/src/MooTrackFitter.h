@@ -6,6 +6,7 @@
 #define MUON_MOOTRACKFITTER_H
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrkParameters/TrackParameters.h"
@@ -22,6 +23,7 @@
 #include "TrkDriftCircleMath/DCSLFitter.h"
 #include "Identifier/Identifier.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <set>
 
@@ -50,7 +52,6 @@ namespace Trk {
 
 namespace Muon {
   class MuonSegment;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonIdHelperTool;
   class IMuonTrackCleaner;
@@ -307,7 +308,9 @@ namespace Muon {
     Trk::ParticleHypothesis               m_ParticleHypothesis; //!< nomen est omen 
     Trk::MagneticFieldProperties          m_magFieldProperties; //!< magnetic field properties
     ToolHandle<MuonIdHelperTool>          m_idHelperTool;       //!< id helper tool
-    ToolHandle<MuonEDMHelperTool>         m_helperTool;         //!< multi purpose helper tool
+    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //!< multi purpose helper tool
     ToolHandle<MuonEDMPrinterTool>        m_printer;            //!< tool to print out EDM objects
     ToolHandle<MuPatCandidateTool>        m_entryHandler;       //!< tool to manipulate MuPatSegment's and MuPatTracks
     ToolHandle<IMuonTrackToSegmentTool>   m_trackToSegmentTool; //!< helper tool to convert tracks into segments

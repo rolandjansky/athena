@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatHitTool.h"
 #include "SortMuPatHits.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
@@ -45,7 +45,6 @@ namespace Muon {
       m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_incidentSvc("IncidentSvc",n),
       m_magFieldProperties(Trk::NoField)
@@ -63,7 +62,7 @@ namespace Muon {
     if ( ! m_cscRotCreator.empty() ) ATH_CHECK( m_cscRotCreator.retrieve() );
     ATH_CHECK( m_compClusterCreator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
     ATH_CHECK( m_propagator.retrieve() );
@@ -110,7 +109,7 @@ namespace Muon {
     // create parameters with very large momentum and no charge
     double momentum = 1e8; 
     double charge   = 0.;    
-    const Trk::TrackParameters* pars = m_helperTool->createTrackParameters( seg, momentum, charge ); 
+    const Trk::TrackParameters* pars = m_edmHelperSvc->createTrackParameters( seg, momentum, charge ); 
     if( !pars ) {
       ATH_MSG_WARNING(" could not create track parameters for segment " );
       return false;
@@ -408,7 +407,7 @@ namespace Muon {
 
   void MuPatHitTool::getHitInfo( const Trk::MeasurementBase& meas, MuPatHit::Info& hitInfo ) const {
 
-    hitInfo.id    = m_helperTool->getIdentifier(meas);
+    hitInfo.id    = m_edmHelperSvc->getIdentifier(meas);
     // for clusters store layer id instead of channel id
     hitInfo.measuresPhi = true; // assume that all PseudoMeasurements measure phi!!
     hitInfo.type = MuPatHit::Pseudo;
@@ -580,7 +579,7 @@ namespace Muon {
     DataVector<const Trk::MeasurementBase>::const_iterator mit = measurements->begin();
     DataVector<const Trk::MeasurementBase>::const_iterator mit_end = measurements->end();
     for( ;mit!=mit_end;++mit ){
-      Identifier id = m_helperTool->getIdentifier(**mit);
+      Identifier id = m_edmHelperSvc->getIdentifier(**mit);
       if( !id.is_valid() ) continue;
       
       if( !m_idHelperTool->isMdt(id) ) id = m_idHelperTool->layerId(id);
@@ -620,7 +619,7 @@ namespace Muon {
     
     if( itNext != it_end ) ++itNext;
     for( ; it!=it_end; ++it,++itNext ){
-      Identifier id = m_helperTool->getIdentifier( (*it)->measurement() );
+      Identifier id = m_edmHelperSvc->getIdentifier( (*it)->measurement() );
       std::string idStr = id.is_valid() ? m_idHelperTool->toString( id ) : "pseudo-measurement";
       idStrings.push_back(idStr);
       if (idStr.length() > idWidth) idWidth = idStr.length();
@@ -667,7 +666,7 @@ namespace Muon {
 
   std::string MuPatHitTool::printId( const Trk::MeasurementBase& measurement ) const {
     std::string idStr;
-    Identifier id = m_helperTool->getIdentifier( measurement );
+    Identifier id = m_edmHelperSvc->getIdentifier( measurement );
     if( !id.is_valid() ) {
       const Trk::PseudoMeasurementOnTrack* pseudo = dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(&measurement);
       if( pseudo ) idStr = "pseudo measurement";

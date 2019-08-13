@@ -40,7 +40,7 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
@@ -86,7 +86,6 @@ namespace Muon {
     m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator", this),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_segmentFinder("Muon::MdtMathSegmentFinder/MdtMathSegmentFinder", this),
     m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool", this),
     m_segmentSelectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", this),
@@ -105,7 +104,7 @@ namespace Muon {
     declareProperty("MuonCompetingClustersCreator",     m_compClusterCreator);
     declareProperty("IdHelper", m_idHelperTool);
     declareProperty("EDMPrinter", m_printer);
-    declareProperty("EDMHelper", m_helper);    
+    declareProperty("EDMHelper", m_edmHelperSvc);    
     declareProperty("MdtSegmentFinder",     m_segmentFinder);
     declareProperty("SegmentFitter", m_segmentFitter);
     declareProperty("SegmentSelector", m_segmentSelectionTool);
@@ -156,7 +155,7 @@ namespace Muon {
     ATH_CHECK( m_compClusterCreator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_segmentFinder.retrieve() );
     ATH_CHECK( m_segmentSelectionTool.retrieve() );
     
@@ -2573,7 +2572,7 @@ namespace Muon {
 
     for( std::vector<const Trk::MeasurementBase*>::const_iterator it = rots.begin();it!=rots.end();++it ){
 
-      Identifier id = m_helper->getIdentifier(**it);
+      Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( !id.is_valid() ) continue;
       Amg::Vector3D lpos;
       double lxmin(0),lxmax(0),phimin(0.),phimax(0.);

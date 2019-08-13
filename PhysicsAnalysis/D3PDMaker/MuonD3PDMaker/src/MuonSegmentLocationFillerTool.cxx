@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////
@@ -22,7 +22,6 @@ MuonSegmentLocationFillerTool::MuonSegmentLocationFillerTool (const std::string&
                                             const std::string& name,
                                             const IInterface* parent)
   : BlockFillerTool<Trk::Segment> (type, name, parent),
-    m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
     m_slPropagator("Trk::StraightLinePropagator/MuonStraightLinePropagator"),
@@ -35,7 +34,7 @@ MuonSegmentLocationFillerTool::MuonSegmentLocationFillerTool (const std::string&
 StatusCode MuonSegmentLocationFillerTool::initialize()
 {
   CHECK( BlockFillerTool<Trk::Segment>::initialize() );
-  CHECK( m_helperTool.retrieve() );
+  CHECK( m_edmHelperSvc.retrieve() );
   CHECK( m_idHelperTool.retrieve() );
   CHECK( m_idToFixedIdTool.retrieve() );
   CHECK( m_slPropagator.retrieve() );
@@ -116,7 +115,7 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
   *m_thetaXZ_IP = (float) localIPDir.angleXZ();
   *m_thetaYZ_IP = (float) localIPDir.angleYZ();
 
-  Identifier chid = m_helperTool->chamberId(mSeg);
+  Identifier chid = m_edmHelperSvc->chamberId(mSeg);
   if( !(m_idHelperTool->isMuon(chid)) ) { // bad chid
     *m_stationName = -1;
     *m_sector = -1;
@@ -133,7 +132,7 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
     *m_isEndcap = m_idHelperTool->isEndcap(chid);
   }
 
-  const Trk::AtaPlane* pars = m_helperTool->createTrackParameters( mSeg );
+  const Trk::AtaPlane* pars = m_edmHelperSvc->createTrackParameters( mSeg );
   if( !pars ) return StatusCode::SUCCESS;
   
   int nphiHits = 0;
@@ -145,7 +144,7 @@ StatusCode MuonSegmentLocationFillerTool::fill (const Trk::Segment& ts) {
   const std::vector<const Trk::MeasurementBase*>& measurements = mSeg.containedMeasurements(); 
   for( std::vector<const Trk::MeasurementBase*>::const_iterator it = measurements.begin();it!=measurements.end();++it ){
     const Trk::MeasurementBase& meas = **it;
-    Identifier id = m_helperTool->getIdentifier(meas);
+    Identifier id = m_edmHelperSvc->getIdentifier(meas);
     m_id->push_back(m_idToFixedIdTool->idToFixedId(id).getIdInt());
     int type = 6;
     if( id.is_valid() ){

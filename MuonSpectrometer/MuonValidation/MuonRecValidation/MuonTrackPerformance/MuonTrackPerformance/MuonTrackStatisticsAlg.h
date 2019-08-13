@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKSTATISTICSALG_MUONTRACKSTATISTICSALG_H
@@ -30,7 +30,7 @@ class MuonTrackStatisticsAlg : public AthAlgorithm
   
  private:
 
-    //ToolHandle<Muon::MuonEDMHelperTool>   m_helperTool;
+    //ServiceHandle<Muon::IMuonEDMHelperSvc>   m_edmHelperSvc;
     ToolHandle <MuonTrackStatisticsTool>    m_statisticsTool;
     
     /** name of external file to write statistics */

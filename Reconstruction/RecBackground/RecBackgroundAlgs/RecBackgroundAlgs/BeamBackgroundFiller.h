@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: BeamBackgroundFiller.h 693115 2015-09-04 07:22:39Z salekd $
@@ -8,9 +8,10 @@
 
 #include "RecBackgroundEvent/BeamBackgroundData.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonSegment/MuonSegment.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
@@ -131,7 +132,9 @@ private:
 
 
   // tools
-  ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
+  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+    "Handle to the service providing the IMuonEDMHelperSvc interface" };
   ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
   ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
 };

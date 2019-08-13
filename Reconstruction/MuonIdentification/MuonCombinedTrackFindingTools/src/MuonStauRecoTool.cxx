@@ -5,7 +5,7 @@
 #include "MuonStauRecoTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
@@ -59,7 +59,6 @@ namespace MuonCombined {
     AthAlgTool(type,name,parent),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
     m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
@@ -79,8 +78,7 @@ namespace MuonCombined {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
 
     declareProperty("MuonIdHelperTool",m_idHelper );    
-    declareProperty("MuonEDMPrinterTool",m_printer );    
-    declareProperty("MuonEDMHelperTool",m_edmHelper );    
+    declareProperty("MuonEDMPrinterTool",m_printer );
     declareProperty("MuonSegmentMaker",m_segmentMaker );    
     declareProperty("MuonSegmentMakerT0Fit",m_segmentMakerT0Fit );    
     declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
@@ -124,7 +122,7 @@ namespace MuonCombined {
 
     ATH_CHECK(m_idHelper.retrieve());    
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_edmHelper.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_segmentMakerT0Fit.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
@@ -446,7 +444,7 @@ namespace MuonCombined {
       if( !meas || (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
       
       // get Identifier and skip pseudo measurements, ID hits and all but MDT/RPC hits
-      Identifier id = m_edmHelper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
 
       // extract time measurements for RPCs
@@ -1230,7 +1228,7 @@ namespace MuonCombined {
         if( !seg->hasFittedT0() ) continue;
         float time = seg->time();
         float error = seg->errorTime();
-        Identifier id = m_edmHelper->chamberId(*seg);
+        Identifier id = m_edmHelperSvc->chamberId(*seg);
         segmentTimeCalibration(id,time,error);
         addHit(seg->globalPosition().mag(),time,error,m_segmentBetaAssociationCut);
       }

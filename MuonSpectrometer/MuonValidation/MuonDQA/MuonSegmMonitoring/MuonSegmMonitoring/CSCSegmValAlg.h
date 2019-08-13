@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* **********************************************************************
@@ -55,7 +55,7 @@
 /* class TgcIdHelper; */
 
 /* namespace Muon { */
-/*   class MuonEDMHelperTool; */
+/*   class IMuonEDMHelperSvc; */
 /*   class MuonIdHelperTool; */
 /* } */
 
@@ -209,7 +209,7 @@
 /*   *\/ */
 
 /*   // Tool handles */
-/*   ToolHandle<Muon::MuonEDMHelperTool> m_helperTool; */
+/*   ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc; */
 /*   ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool; */
 /* }; */
 /*  */

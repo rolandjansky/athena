@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONALIGNSEGMENT_H
@@ -54,7 +54,7 @@
 /* namespace Muon { */
 /*   class MuonSegment; */
 /*   class MuonSegmentCombination; */
-/*   class MuonEDMHelperTool; */
+/*   class IMuonEDMHelperSvc; */
 /*   class MuonIdHelperTool; */
 /* } */
 
@@ -113,7 +113,7 @@
 
 /*   /\** class member version of retrieving MsgStream *\/ */
 /*   ToolHandle<Muon::MuonDQAHistTool>            m_histoTool; */
-/*   ToolHandle<Muon::MuonEDMHelperTool>          p_helperTool; */
+/*   ServiceHandle<Muon::IMuonEDMHelperSvc>       m_edmHelperSvc; */
 /*   ToolHandle<Muon::MuonIdHelperTool>           p_idHelperTool; */
 
 /*   /\** a handle on the Hist/TTree registration service *\/ */
