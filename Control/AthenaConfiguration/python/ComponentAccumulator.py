@@ -77,7 +77,18 @@ class ComponentAccumulator(object):
         #To check if this accumulator was merged:
         self._wasMerged=False
         self._isMergable=True
+        self._lastAddedComponent="Unknown" 
 
+
+    def _inspect(self): #Create a string some basic info about this CA, useful for debugging
+        summary="This CA contains {0} service, {1} conditions algorithms, {2} event algorithms and {3} public tools\n"\
+            .format(len(self._services),len(self._conditionsAlgs),len(self._algorithms),len(self._publicTools))
+        if (self._privateTools): 
+            summary+="  Private AlgTool: "+ self._privateTools[-1].getFullName()+"\n" 
+        if (self._primaryComp): 
+            summary+="  Primary Component: " + self._primaryComp.getFullName()+"\n" 
+        summary+="  Last component added: "+self._lastAddedComponent+"\n" 
+        return summary
 
 
     def empty(self):
@@ -88,8 +99,8 @@ class ComponentAccumulator(object):
          if not getattr(self,'_wasMerged',True) and not self.empty():
              #can't raise an exception in __del__ method (Python rules) so this is a warning
              log = logging.getLogger("ComponentAccumulator")
-             log.warning("The ComponentAccumulator listed below was never merged!")
-
+             log.error("This ComponentAccumulator was never merged!")
+             log.error(self._inspect())
          if getattr(self,'_privateTools',None) is not None:
              raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
         #pass
@@ -270,6 +281,7 @@ class ComponentAccumulator(object):
                                   self._primaryComp.getType(), self._primaryComp.getName(), algorithms[0].getType(), algorithms[0].getName())
             #keep a ref of the algorithm as primary component
             self._primaryComp=algorithms[0]
+        self._lastAddedComponent=algorithms[-1].getFullName()
         return None
 
     def getEventAlgo(self,name=None):
@@ -294,7 +306,8 @@ class ComponentAccumulator(object):
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
                                   self._primaryComp.getType(),self._primaryComp.getName(),algo.getType(),algo.getName())
             #keep a ref of the de-duplicated conditions algorithm as primary component
-            self._primaryComp=self.__getOne( self._conditionsAlgs, algo.getName(), "ConditionsAlgos") 
+            self._primaryComp=self.__getOne( self._conditionsAlgs, algo.getName(), "ConditionsAlgos")
+        self._lastAddedComponent=algo.getFullName()
         return algo
 
 
@@ -315,6 +328,7 @@ class ComponentAccumulator(object):
                                   self._primaryComp.getType(),self._primaryComp.getName(),newSvc.getType(),newSvc.getName())
             #keep a ref of the de-duplicated public tool as primary component
             self._primaryComp=self.__getOne( self._services, newSvc.getName(), "Services") 
+        self._lastAddedComponent=newSvc.getFullName()
         return 
 
 
@@ -330,14 +344,20 @@ class ComponentAccumulator(object):
                                   self._primaryComp.getType(),self._primaryComp.getName(),newTool.getType(),newTool.getName())
             #keep a ref of the de-duplicated service as primary component
             self._primaryComp=self.__getOne( self._publicTools, newTool.getName(), "Public Tool") 
+        self._lastAddedComponent=newTool.getFullName()
         return
 
 
     def getPrimary(self):
         if self._primaryComp:
             return self._primaryComp
-        else:
+        elif self._privateTools:
             return self.popPrivateTools()
+        else:
+            raise ConfigurationError("Called getPrimary() but no primary component nor private AlgTool is known.\n"\
+                                     +self._inspect())
+
+
 
     def __call__(self):
         return self.getPrimary()
