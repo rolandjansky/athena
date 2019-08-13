@@ -48,7 +48,7 @@ namespace Analysis
       //GP: calculate the 3d significance on the fly
       double get3DSignificance(const xAOD::Vertex* priVertex,
                                std::vector<const xAOD::Vertex*>& secVertex,
-                               const Amg::Vector3D jetDirection);
+                               const Amg::Vector3D jetDirection) const;
       // double get3DSignificance(const Trk::RecVertex & priVertex,
       //                          std::vector<const Trk::RecVertex*> & secVertex,
       //                          const Amg::Vector3D jetDirection);
@@ -78,9 +78,9 @@ namespace Analysis
       void printParameterSettings();
 
       // for debugging:
-      int m_nbjet;
-      int m_ncjet;
-      int m_nljet;
+      mutable std::atomic<int> m_nbjet;
+      mutable std::atomic<int> m_ncjet;
+      mutable std::atomic<int> m_nljet;
 
       bool m_useCHypo;
       bool m_usePtSV2;

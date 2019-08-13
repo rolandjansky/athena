@@ -13,6 +13,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CxxUtils/checker_macros.h"
 #include "JetTagTools/ITagTool.h"
 #include "JetTagCalibration/JetTagCalibCondData.h"
 
@@ -22,6 +23,7 @@
 #include <functional>
 #include <memory>
 #include <sstream>
+#include <mutex>
 
 namespace Reco { class ITrackToVertex; }
 namespace Trk  { class ITrackToVertexIPEstimator; }
@@ -80,7 +82,7 @@ namespace Analysis {
       const std::vector<const xAOD::TrackParticle*>& v0_tracks) const;
 
     void add_tags(xAOD::BTagging& tag, const std::string& author,
-                  std::vector<IPxDInfo>& tracks);
+                  std::vector<IPxDInfo>& tracks) const;
 
     /** base name string for persistification in xaod */
     std::string m_xAODBaseName;
@@ -138,14 +140,16 @@ namespace Analysis {
 
     // Each network list is grouped with its sort function.
     typedef std::vector<std::pair<TrackSorter, Networks> > SortGroups;
-    std::map<std::string, SortGroups > m_networks;
+    mutable std::map<std::string, SortGroups > m_networks ATLAS_THREAD_SAFE;
+    // Serialize access to m_networks.
+    mutable std::mutex m_networksMutex ATLAS_THREAD_SAFE;
 
     // load the calibration file from the COOL db
-    void update_networks_for(const std::string& author);
+    const SortGroups& get_networks_for(const std::string& author) const;
     //void register_hist(const std::string& name = "/rnnip");
     std::string get_calib_string(
       const std::string& author,
-      const std::string& name = "/rnnip");
+      const std::string& name = "/rnnip") const;
     std::string m_calibrationDirectory;
 
     /** names of fools for getting the secondary vertex information */
