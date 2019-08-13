@@ -92,17 +92,17 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     
     StatusCode vertexFit(xAOD::TrigBphys * result,
                          const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
-                         const std::vector<double>& inputMasses);
+                         const std::vector<double>& inputMasses) const;
 
     StatusCode vertexFit(xAOD::TrigBphys * result,
                          const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
                          const std::vector<double>& inputMasses,
-                         Trk::IVKalState& istate);
+                         Trk::IVKalState& istate) const;
 
 
     StatusCode vertexFit(xAOD::TrigBphys * result,
 		       const std::vector<const xAOD::TrackParticle*> &trks,
-		       const std::vector<double>& inputMasses);
+		       const std::vector<double>& inputMasses) const;
 
     // simplify this using templates perhaps? 
     double invariantMass(const xAOD::IParticle *p1, const xAOD::IParticle* p2, double m1, double m2) const;
