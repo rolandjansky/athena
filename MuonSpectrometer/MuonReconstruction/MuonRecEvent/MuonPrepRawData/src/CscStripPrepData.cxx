@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ namespace Muon
                       ):
     PrepRawData(RDOId, locpos, locErrMat), //call base class constructor
     m_collectionHash(collectionHash),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_detEl(detEl),
     m_sampleCharges(sampleCharges),
     m_timeOfFirstSample(timeOfFirstSample),
@@ -44,14 +44,13 @@ namespace Muon
   // Destructor:
   CscStripPrepData::~CscStripPrepData()
   {
-      delete m_globalPosition;
   }
 
   // Default constructor:
   CscStripPrepData::CscStripPrepData():
     PrepRawData(),
     m_collectionHash(),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_detEl(0),
     m_sampleCharges(),
     m_timeOfFirstSample(0),
@@ -63,7 +62,7 @@ namespace Muon
   CscStripPrepData::CscStripPrepData(const CscStripPrepData& RIO):
     PrepRawData(RIO),
     m_collectionHash( RIO.m_collectionHash ),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_detEl( RIO.m_detEl ),
     m_sampleCharges( RIO.m_sampleCharges ),
     m_timeOfFirstSample ( RIO.m_timeOfFirstSample ),
@@ -76,8 +75,7 @@ namespace Muon
   {
     if (&RIO !=this)
       {
-	delete m_globalPosition;
-	m_globalPosition=0;
+	if (m_globalPosition) delete m_globalPosition.release().get();
         PrepRawData::operator=(RIO);
         m_collectionHash   = RIO.m_collectionHash;
         m_detEl  = RIO.m_detEl ;

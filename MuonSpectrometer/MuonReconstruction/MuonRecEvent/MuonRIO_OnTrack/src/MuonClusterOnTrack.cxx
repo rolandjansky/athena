@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,16 +21,17 @@ namespace Muon {
 // Default constructor:
 MuonClusterOnTrack::MuonClusterOnTrack():
     Trk::RIO_OnTrack(),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_positionAlongStrip(0)
 { }
 
 // copy constructor:
   MuonClusterOnTrack::MuonClusterOnTrack( const MuonClusterOnTrack& rot) :
-  Trk::RIO_OnTrack(rot)
+    Trk::RIO_OnTrack(rot),
+    m_globalPosition()
 { 
   m_positionAlongStrip = rot.m_positionAlongStrip;
-  m_globalPosition = (rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition) : 0);
+  if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
 }
 
 
@@ -44,7 +45,7 @@ MuonClusterOnTrack::MuonClusterOnTrack
     )
    : 
     RIO_OnTrack( locpos, locerr, id), //call base class constructor
-    m_globalPosition(0),
+    m_globalPosition(),
     m_positionAlongStrip(positionAlongStrip)
 {
 }
@@ -52,16 +53,15 @@ MuonClusterOnTrack::MuonClusterOnTrack
 // Destructor:
 MuonClusterOnTrack::~MuonClusterOnTrack()
 { 
-  delete m_globalPosition;
 }
 
 // assignment operator:
 MuonClusterOnTrack& MuonClusterOnTrack::operator=( const MuonClusterOnTrack& rot){
   if ( &rot != this) {
-   Trk::RIO_OnTrack::operator=(rot);//base class ass. op.
-    delete m_globalPosition;
+    Trk::RIO_OnTrack::operator=(rot);//base class ass. op.
+    if (m_globalPosition) delete m_globalPosition.release().get();
     m_positionAlongStrip = rot.m_positionAlongStrip;
-    m_globalPosition = rot.m_globalPosition ? new Amg::Vector3D(*rot.m_globalPosition) : 0;
+    if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
   }
   return *this;
 }
@@ -101,20 +101,20 @@ std::ostream& MuonClusterOnTrack::dump( std::ostream&    stream) const
 const Amg::Vector3D& MuonClusterOnTrack::globalPosition() const {
   if (detectorElement()==0){
     // Not much we can do here - no detelement, so just return 0,0,0
-    m_globalPosition = new Amg::Vector3D(0.0,0.0,0.0);
+    m_globalPosition.set(std::make_unique<const Amg::Vector3D>(0.0,0.0,0.0));
   }
 
-  if (0==m_globalPosition ) {
+  if (not m_globalPosition) {
     // calculate global position from the position of the strip and the position along the strip
     Amg::Vector2D lpos;
     if( localParameters().contains( Trk::locX ) )
       lpos = Amg::Vector2D( localParameters().get(Trk::locX), m_positionAlongStrip );
     else
       lpos = Amg::Vector2D( m_positionAlongStrip, localParameters().get(Trk::locY) );
-    Amg::Vector3D* gpos = new Amg::Vector3D(0.,0.,0.);
-    detectorElement()->surface( identify() ).localToGlobal(lpos, *gpos,*gpos);
+    Amg::Vector3D gpos(0.,0.,0.);
+    detectorElement()->surface( identify() ).localToGlobal(lpos, gpos, gpos);
 
-    m_globalPosition = gpos;
+    m_globalPosition.set(std::make_unique<const Amg::Vector3D>(gpos));
   }
   
   return *m_globalPosition;
