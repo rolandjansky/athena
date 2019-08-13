@@ -100,6 +100,7 @@ AllowedTopos_jet = ['muvtx',
                     'invm900',
                     'invm1000',
                     'invm1000j50',
+                    'invm1000j70',
                     'invm1100j50',
                     'invm1100j70',
                     'invm1200j50'
