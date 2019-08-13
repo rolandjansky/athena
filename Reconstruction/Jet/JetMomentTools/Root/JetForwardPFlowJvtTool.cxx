@@ -15,6 +15,9 @@
 // Jet EDM
 #include "xAODJet/JetAttributes.h"
 
+//
+#include "JetRec/JetRecTool.h"
+#include "JetRec/JetFinder.h"
 // Shallow copy
 //#include "xAODCore/ShallowCopy.h"
 
@@ -67,6 +70,18 @@
     Dec_out = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabel);
     Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
     Dec_outTiming = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelTiming);
+
+    JetFinder *jfd = new JetFinder("Jfd");
+    ATH_CHECK(jfd->setProperty("JetAlgorithm","AntiKt"));
+    ATH_CHECK(jfd->setProperty("JetRadius",0.4));
+    //ATH_CHECK(jfd->setProperty("",""));
+    //ATH_CHECK(jfd->setProperty("",""));
+    ATH_CHECK(jfd->initialize());
+
+
+    JetRecTool *jrc = new JetRecTool("Jrc");
+    ATH_CHECK(jrc->setProperty("JetFinder",jfd));
+    ATH_CHECK(jrc->initialize());
     return StatusCode::SUCCESS;
   }
 

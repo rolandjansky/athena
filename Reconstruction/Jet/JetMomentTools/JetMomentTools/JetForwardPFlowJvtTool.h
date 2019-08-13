@@ -8,8 +8,8 @@
 // Header file for class JetForwardPFlowJvtTool
 // Author: Matt Klein<matthew.henry.klein@cern.ch>
 ///////////////////////////////////////////////////////////////////
-#ifndef FORWARDJVTTOOL_JVT_FORWARDJVTTOOL_H
-#define FORWARDJVTTOOL_JVT_FORWARDJVTTOOL_H 1
+#ifndef FORWARDPFLOWJVTTOOL_JVT_FORWARDPFLOWJVTTOOL_H
+#define FORWARDPFLOWJVTTOOL_JVT_FORWARDPFLOWJVTTOOL_H 1
 
 // STL includes
 #include <string>
