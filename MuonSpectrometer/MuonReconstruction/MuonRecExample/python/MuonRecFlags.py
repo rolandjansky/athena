@@ -250,7 +250,7 @@ class doTGCs(JobProperty):
 class dosTGCs(JobProperty):
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False # Off by default until it can be autoconfigured
+    StoredValue=True
 
     def _do_action(self):
         muonRecFlags.sync_DetFlags("sTGC")
@@ -262,7 +262,7 @@ class dosTGCs(JobProperty):
 class doMicromegas(JobProperty):
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False # Off by default until it can be autoconfigured
+    StoredValue=True
 
     def _do_action(self):
         muonRecFlags.sync_DetFlags("Micromegas")
@@ -399,6 +399,8 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.doRPCs,True)
         setDefault(self.doTGCs,True)
         setDefault(self.doCSCs,True)
+        setDefault(self.dosTGCs,True)
+        setDefault(self.doMicromegas,True)
         setDefault(self.doMSVertex,True)
         setDefault(self.useWireSagCorrections,False)
         setDefault(self.enableErrorTuning,True)
@@ -460,7 +462,7 @@ class MuonRec(JobPropertyContainer):
     ## @brief Synchronise Muon DetFlags with MuonRecFlags and RecFlags
     ##
     ## @arg @c technologies is string with comma separated list of technologies to include in the update. Default="MDT,RPC,CSC,TGC"
-    def sync_DetFlags(self,technologies="MDT,RPC,CSC,TGC"):
+    def sync_DetFlags(self,technologies="MDT,RPC,CSC,TGC,sTGC,Micromegas"):
         self.setDefaults()
         global rec
         from AthenaCommon.DetFlags import DetFlags
@@ -545,6 +547,8 @@ class MuonRec(JobPropertyContainer):
         RPC_on = self.doRPCs()
         CSC_on = self.doCSCs()
         TGC_on = self.doTGCs()
+        sTGC_on = self.dosTGCs()
+        Micromegas_on = self.doMicromegas()
         techList = technologies.split(',')
         for f in flagsOn:
             for tech in techList:
