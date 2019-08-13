@@ -111,7 +111,7 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	   (m_label==CompFlavorLabelVar::V_qq && (jetFlavorLabel==FatjetTruthLabel::Wqq || jetFlavorLabel==FatjetTruthLabel::Zqq || jetFlavorLabel==FatjetTruthLabel::Wqq_From_t)) ||
 	   (m_label==CompFlavorLabelVar::W_qq && (jetFlavorLabel==FatjetTruthLabel::Wqq || jetFlavorLabel==FatjetTruthLabel::Wqq_From_t)) ||
 	   (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel==FatjetTruthLabel::Zqq) ||
-	   (m_label==CompFlavorLabelVar::q && (jetFlavorLabel==FatjetTruthLabel::notruth && jetFlavorLabel==FatjetTruthLabel::qcd)) ) {
+	   (m_label==CompFlavorLabelVar::q && (jetFlavorLabel==FatjetTruthLabel::notruth || jetFlavorLabel==FatjetTruthLabel::qcd)) ) {
 	isValidLabel=true;
       }
     }
