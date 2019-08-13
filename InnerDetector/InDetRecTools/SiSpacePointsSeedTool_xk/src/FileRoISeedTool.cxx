@@ -51,12 +51,15 @@ InDet::FileRoISeedTool::~FileRoISeedTool()
 
 StatusCode InDet::FileRoISeedTool::initialize()
 {
-  StatusCode sc = AlgTool::initialize();   
+  StatusCode sc = AlgTool::initialize();
 
-  //const xAOD::EventInfo* eventIn;
-  //CHECK(evtStore()->retrieve( eventIn, "EventInfo"));
-  //m_evtN = eventIn->eventNumber();
-  //m_runN = eventIn->runNumber();
+  if (FILE *file = fopen(m_filename.c_str(), "r")) {
+    fclose(file);
+    ATH_MSG_DEBUG( "RoI File Exists!");
+  } else {
+    ATH_MSG_DEBUG( "RoI File DOES NOT Exist!");
+    return StatusCode::FAILURE;
+  }
 
   return sc;
 }
