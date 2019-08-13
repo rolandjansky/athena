@@ -40,8 +40,8 @@ StatusCode JetWidthTool::initialize(){
 
 StatusCode JetWidthTool::decorate(const xAOD::JetContainer& jets) const {
 
-  SG::WriteDecorHandle<xAOD::JetContainer, double> widthHandle(m_widthKey);
-  SG::WriteDecorHandle<xAOD::JetContainer, double> widthPhiHandle(m_widthPhiKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> widthHandle(m_widthKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> widthPhiHandle(m_widthPhiKey);
 
   if(widthHandle.ptr() != &jets){
     ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
@@ -49,7 +49,7 @@ StatusCode JetWidthTool::decorate(const xAOD::JetContainer& jets) const {
   }
 
   for(const xAOD::Jet* jet : jets){
-    double widthEta = 0, widthPhi = 0;
+    float widthEta = 0, widthPhi = 0;
     widthHandle(*jet) = width(*jet,widthEta,widthPhi);
     widthPhiHandle(*jet) = widthPhi;
   }
@@ -58,7 +58,7 @@ StatusCode JetWidthTool::decorate(const xAOD::JetContainer& jets) const {
 
 //**********************************************************************
 
-double JetWidthTool::width(const xAOD::Jet& jet, double& widthEta, double& widthPhi) const {
+float JetWidthTool::width(const xAOD::Jet& jet, float& widthEta, float& widthPhi) const {
 
   // Get the constituents of the jet
   // TODO: Switch to using helper function once JetUtils has been updated
@@ -66,19 +66,19 @@ double JetWidthTool::width(const xAOD::Jet& jet, double& widthEta, double& width
   // jetWidth = JetKinematics::ptWeightedWidth(iter,iEnd,&jet);
     
   // Calculate the pt weighted width
-  const double jetEta = jet.eta();
-  const double jetPhi = jet.phi();
-  double weightedWidth = 0;
-  double weightedWidthEta = 0;
-  double weightedWidthPhi = 0;
-  double ptSum = 0;
+  const float jetEta = jet.eta();
+  const float jetPhi = jet.phi();
+  float weightedWidth = 0;
+  float weightedWidthEta = 0;
+  float weightedWidthPhi = 0;
+  float ptSum = 0;
 
   const xAOD::JetConstituentVector constituents = jet.getConstituents();
   for (const auto& constituent : constituents) {
-    const double dR   = jet::JetDistances::deltaR(jetEta, jetPhi, constituent->eta(),  constituent->phi() );
-    const double dEta = fabs(jet::JetDistances::deltaEta(jetEta, constituent->eta() ));
-    const double dPhi = fabs(jet::JetDistances::deltaPhi(jetPhi, constituent->phi() ));
-    const double pt   = constituent->pt();
+    const float dR   = jet::JetDistances::deltaR(jetEta, jetPhi, constituent->eta(),  constituent->phi() );
+    const float dEta = fabs(jet::JetDistances::deltaEta(jetEta, constituent->eta() ));
+    const float dPhi = fabs(jet::JetDistances::deltaPhi(jetPhi, constituent->phi() ));
+    const float pt   = constituent->pt();
 
     weightedWidth += dR * pt;
     weightedWidthEta += dEta * pt;
