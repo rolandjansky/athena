@@ -148,6 +148,9 @@ class MuonIdHelper : public AtlasDetectorID
 
   void print(const Identifier& id) const;
 
+  // Check whether helper is fully initialized  
+  bool isInitialized() const;
+
   ///////////// compact identifier stuff begins /////////////////////////////////
 
  public:
@@ -344,7 +347,7 @@ class MuonIdHelper : public AtlasDetectorID
  protected:
   mutable MsgStream *m_Log;
   inline virtual void create_mlog() const;
-
+  bool m_init;
 };
 
 // For backwards compatibility
@@ -631,6 +634,11 @@ inline const std::string& MuonIdHelper::technologyString(const int& index) const
 inline int MuonIdHelper::nStationNames() const
 {
   return (int)m_isSmall.size();
+}
+/*******************************************************************************/
+inline bool MuonIdHelper::isInitialized() const
+{
+  return m_init;
 }
 /*******************************************************************************/
 #endif // DETECTORDESCRIPTION_MUONIDHELPER_H
