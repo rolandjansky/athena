@@ -66,11 +66,15 @@ dataFileRPVLL = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFra
 dataFileDelayed = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11270451._000007.pool.root.1"
 dataFileBLS = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00337491.physics_BphysLS.merge.AOD.f873_m1885._lb0100._0001.1"
 dataFileZeroBias = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00339070.physics_ZeroBias.merge.AOD.f887_m1892._lb0998-lb1007._0001.1"
-heavyIonFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.15763788._016518.pool.root.1"
-heavyIon4File = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data15_hi.00287866.physics_UPC.merge.AOD.f984_m2025._lb0257._0001.1"
+heavyIonFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.17356768._000726.pool.root.1"#AOD.15763788._016518.pool.root.1"
+heavyIon4File = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data18_hi.00365602.physics_UPC.merge.AOD.f1022_m2037._lb0203._0001.1"#data15_hi.00287866.physics_UPC.merge.AOD.f984_m2025._lb0257._0001.1"
+heavyIonHPFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data18_hi.00365602.physics_HardProbes.merge.AOD.f1021_m2037._lb0203._0001.1"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
-dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"InDetTrackParticlesFixer\", Containers = [ \"InDetTrackParticlesAux.\" ] )\' "
-dataPreExecHION = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(False); from BTagging.BTaggingFlags import BTaggingFlags; BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"BTaggingFixer\", Containers=[\"BTagging_AntiKt4HIAux.\"] )\' "
+dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True); from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"InDetTrackParticlesFixer\", Containers = [ \"InDetTrackParticlesAux.\" ] )\' "
+dataPreExecHION = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True); from BTagging.BTaggingFlags import BTaggingFlags; BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"BTaggingFixer\", Containers=[\"BTagging_AntiKt4HIAux.\"] ); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"InDetTrackParticlesFixer\", Containers = [ \"InDetTrackParticlesAux.\" ] )\' "
+dataPreExecHION4 = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True); from BTagging.BTaggingFlags import BTaggingFlags; BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"BTaggingFixer\", Containers=[\"BTagging_AntiKt4HIAux.\", \"BTagging_AntiKt4EMTopoAux.\"] )\' "
+dataPreExecHION5 = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True); from HIRecExample.HIRecExampleFlags import jobproperties; jobproperties.HIRecExampleFlags.doHIAODFix.set_Value_and_Lock(True); from BTagging.BTaggingFlags import BTaggingFlags; BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"BTaggingFixer\", Containers=[\"BTagging_AntiKt4HIAux.\"] )\' "
+dataPreExecHION7 = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True); from HIRecExample.HIRecExampleFlags import jobproperties; jobproperties.HIRecExampleFlags.doHIAODFix.set_Value_and_Lock(True); from BTagging.BTaggingFlags import BTaggingFlags; BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-49\"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( \"BTaggingFixer\", Containers=[\"BTagging_AntiKt4HIAux.\"] ); from HIJetRec.HIJetRecFlags import HIJetFlags; HIJetFlags.DoHIBTagging.set_Value_and_Lock(True)\' "
 dataMergePreExec = " --preExec \'rec.doHeavyIon.set_Value_and_Lock(False)\' "
 mcPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-49\" \' "
 
@@ -89,8 +93,15 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    outputFile.write("set -e"+"\n")
    outputFile.write("\n")
    if ((isTruth==False) and (isMC==False) ): 
-      if formatName[0:4] == "HION" and not formatName == "HION3":
-         outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+dataPreExecHION+"\n")
+      if formatName[0:4] == "HION":# and not formatName == "HION3":
+         if formatName == "HION4":
+            outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+dataPreExecHION4+"\n")
+         elif formatName in ["HION5"]:
+            outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+dataPreExecHION5+"\n")
+         elif formatName in ["HION7","HION8"]:
+            outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+dataPreExecHION7+"\n")
+         else:
+            outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+dataPreExecHION+"\n")
       else:
          outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+dataPreExec+"\n")
    if ((isTruth==False) and (isMC==True) ): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+mcPreExec+"\n")
@@ -170,6 +181,8 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,dataLabel,dataFileZeroBias,False,False,"-1")
          elif formatName=='HION4':
             generateText(formatName,dataLabel,heavyIon4File,False,False,"-1")
+         elif formatName in ['HION5','HION7','HION8']:
+            generateText(formatName,dataLabel,heavyIonHPFile,False,False,"-1")
          elif formatName[0:4]=='HION':
             generateText(formatName,dataLabel,heavyIonFile,False,False,"-1")
          else: generateText(formatName,dataLabel,dataFile,False,False,"-1")
