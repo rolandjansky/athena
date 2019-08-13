@@ -18,12 +18,14 @@
 
 // Athena headers
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "G4AtlasInterfaces/IG4AtlasSvc.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
+#include "CxxUtils/checker_macros.h"
 
 // ISF includes
 #include "ISF_Interfaces/BaseSimulatorTool.h"
@@ -77,9 +79,9 @@ namespace iGeant4
     /// This is done (for now) because we get multiple tool instances in hive.
     void finalizeOnce();
 
-    virtual StatusCode simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection ) override;
+    virtual StatusCode simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection ) const override;
 
-    virtual StatusCode simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection ) override;
+    virtual StatusCode simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection ) const override;
 
     virtual StatusCode setupEvent() override;
 
@@ -110,7 +112,14 @@ namespace iGeant4
     G4Timer* m_eventTimer{nullptr};
 
     // store secondary particles that have been pushed back
-    std::unordered_map< ISF::ISFParticle const*, ISF::ISFParticleContainer > m_secondariesMap;
+    struct Slot
+    {
+      std::unordered_map< ISF::ISFParticle const*, ISF::ISFParticleContainer > m_secondariesMap;
+      typedef std::mutex mutex_t;
+      typedef std::lock_guard<mutex_t> lock_t;
+      mutex_t m_mutex;
+    };
+    mutable SG::SlotSpecificObj<Slot> m_slots ATLAS_THREAD_SAFE;
     std::string m_mcEventCollectionName{"TruthEvent"};
     /// Helper Tool to provide G4RunManager
     PublicToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper{this, "G4RunManagerHelper", "iGeant4::G4RunManagerHelper/G4RunManagerHelper", ""};
