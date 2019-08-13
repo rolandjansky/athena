@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack(
   :
   RIO_OnTrack( locPos, errDriftRadius, RIO->identify() ), //call base class constructor
   m_status(status),
-  m_globalPosition(0),
+  m_globalPosition(),
   m_saggedSurface(surface),
   m_detEl( RIO->detectorElement() ),
   m_localAngle(0.0), 
@@ -49,7 +49,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack(
 
   const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>(&(m_detEl->surface(RIO->identify())));
  
-  if(slsf) m_globalPosition = slsf->localToGlobal(locPos, predictedTrackDirection, positionAlongWire);
+  if(slsf) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(slsf->localToGlobal(locPos, predictedTrackDirection, positionAlongWire)));
   Amg::Vector3D loc_gDirection = predictedTrackDirection; 
    
   //scaling the direction with drift radius   
@@ -76,7 +76,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack(
     :
     RIO_OnTrack( locPos, errDriftRadius, RIO->identify() ), //call base class constructor
     m_status(status),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_saggedSurface(surface),
     m_detEl( RIO->detectorElement() ),
     m_localAngle(99.0), // TODO - Remove dummy value,
@@ -105,7 +105,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack(
     RIO_OnTrack( locPos, errDriftRadius, id ), //call base class constructor
     m_status(status),
     m_rio(RIO),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_saggedSurface(surface),
     m_detEl( detEl ),
     m_localAngle(localAngle),
@@ -120,7 +120,6 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack(
     {
     // m_rio is owned by SG and so is not deleted.
     // m_detEl is owned by MuonGeoModel and so is not deleted.
-        delete m_globalPosition;
         delete m_saggedSurface;
     }
 
@@ -130,7 +129,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack()
     RIO_OnTrack(),
     m_status(Trk::UNDECIDED),
     m_rio(),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_saggedSurface(0),
     m_detEl(0),
     m_localAngle(0.0), 
@@ -146,7 +145,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack( const Muon::MdtDriftCircleOn
     RIO_OnTrack(rot),
     m_status(rot.m_status),
     m_rio(rot.m_rio),
-    m_globalPosition(0),
+    m_globalPosition(),
     m_saggedSurface(0),
     m_detEl(rot.m_detEl),
     m_localAngle(rot.m_localAngle), 
@@ -154,7 +153,7 @@ Muon::MdtDriftCircleOnTrack::MdtDriftCircleOnTrack( const Muon::MdtDriftCircleOn
     m_driftTime(rot.m_driftTime),
     m_errorStrategy(rot.m_errorStrategy)
 {
-    if ( rot.m_globalPosition!=0 ) m_globalPosition = new Amg::Vector3D( *(rot.m_globalPosition) );
+    if ( rot.m_globalPosition ) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
     if ( rot.m_saggedSurface!=0 ) m_saggedSurface= new Trk::StraightLineSurface( *(rot.m_saggedSurface) );
 }
 
@@ -164,9 +163,8 @@ Muon::MdtDriftCircleOnTrack& Muon::MdtDriftCircleOnTrack::operator=( const Muon:
     if ( &rot != this)
     {
         Trk::RIO_OnTrack::operator=(rot);//base class ass. op.
-        delete m_globalPosition;
-        if ( rot.m_globalPosition!=0) m_globalPosition=new Amg::Vector3D( *(rot.m_globalPosition) );
-        else m_globalPosition=0;
+        if (m_globalPosition) delete m_globalPosition.release().get();
+        if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
         delete m_saggedSurface;
         if( rot.m_saggedSurface!=0 )
             m_saggedSurface= new Trk::StraightLineSurface( *(rot.m_saggedSurface) );
@@ -188,9 +186,8 @@ Muon::MdtDriftCircleOnTrack& Muon::MdtDriftCircleOnTrack::operator=( Muon::MdtDr
     if ( &rot != this)
     {
         Trk::RIO_OnTrack::operator=(std::move(rot));//base class ass. op.
-        delete m_globalPosition;
-        m_globalPosition = rot.m_globalPosition;
-        rot.m_globalPosition = nullptr;
+        if (m_globalPosition) delete m_globalPosition.release().get();
+        m_globalPosition = std::move(rot.m_globalPosition);
 
         delete m_saggedSurface;
         m_saggedSurface = rot.m_saggedSurface;
@@ -209,7 +206,7 @@ Muon::MdtDriftCircleOnTrack& Muon::MdtDriftCircleOnTrack::operator=( Muon::MdtDr
     
 const Amg::Vector3D& Muon::MdtDriftCircleOnTrack::globalPosition() const
 {
-    if (!m_globalPosition){
+    if (not m_globalPosition){
         if (side()==Trk::NONE) {
             // side not defined, so we cannot determine the global position better than the position along the wire
             HepGeom::Point3D<double> loc3Dframe(0., 0., m_positionAlongWire);
@@ -225,17 +222,17 @@ const Amg::Vector3D& Muon::MdtDriftCircleOnTrack::globalPosition() const
     return *m_globalPosition;
 }
 
-void Muon::MdtDriftCircleOnTrack::setGlobalPosition(HepGeom::Point3D<double>& loc3Dframe)  const
+void Muon::MdtDriftCircleOnTrack::setGlobalPosition(HepGeom::Point3D<double>& loc3Dframe) const
 {
     if (0!=m_saggedSurface){
         Amg::Vector3D tempFrame(loc3Dframe.x(), loc3Dframe.y(), loc3Dframe.z());
-        m_globalPosition = new Amg::Vector3D(m_saggedSurface->transform() * tempFrame);
+        m_globalPosition.set(std::make_unique<const Amg::Vector3D>(m_saggedSurface->transform() * tempFrame));
     } else {
         // hack because  MdtReadoutElement only returns generic pointer.
         const Trk::StraightLineSurface* slsf = dynamic_cast<const Trk::StraightLineSurface*>( &(associatedSurface()) );
         if (slsf) {
             Amg::Vector3D tempFrame(loc3Dframe.x(), loc3Dframe.y(), loc3Dframe.z());
-            m_globalPosition = new Amg::Vector3D(slsf->transform() * tempFrame);
+            m_globalPosition.set(std::make_unique<const Amg::Vector3D>(slsf->transform() * tempFrame));
         }else{
             throw GaudiException(   "Dynamic_cast to StraightLineSurface failed!",
                 "MdtDriftCircleOnTrack::setGlobalPosition()",

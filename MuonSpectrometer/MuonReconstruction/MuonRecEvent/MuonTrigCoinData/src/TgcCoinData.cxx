@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -67,8 +67,8 @@ namespace Muon
     m_sub(sub),
     m_inner(inner),
     m_isPositiveDeltaR(isPositiveDeltaR),
-    m_globalposIn(0),
-    m_globalposOut(0)
+    m_globalposIn(),
+    m_globalposOut()
 { }
 
   //for TYPE_TRACKLET_EIFI
@@ -109,8 +109,8 @@ namespace Muon
     m_sub(sub),
     m_inner(0),
     m_isPositiveDeltaR(false),
-    m_globalposIn(0),
-    m_globalposOut(0)
+    m_globalposIn(),
+    m_globalposOut()
 { }
 
   //for SL
@@ -155,8 +155,8 @@ namespace Muon
     m_sub(0),
     m_inner(0),
     m_isPositiveDeltaR(isPositiveDeltaR),
-    m_globalposIn(0),
-    m_globalposOut(0)
+    m_globalposIn(),
+    m_globalposOut()
 { }
 
 // Destructor:
@@ -165,8 +165,6 @@ TgcCoinData::~TgcCoinData()
   if(m_posIn) { delete m_posIn; m_posIn=0;}
   if(m_posOut) { delete m_posOut; m_posOut=0;}
   if(m_errMat) { delete m_errMat; m_errMat=0;}
-  if(m_globalposIn) { delete m_globalposIn; m_globalposIn=0;}
-  if(m_globalposOut) { delete m_globalposOut; m_globalposOut=0;}
  }
 
 // Default constructor:
@@ -197,8 +195,8 @@ TgcCoinData::TgcCoinData():
     m_sub(0),
     m_inner(0),
     m_isPositiveDeltaR(false),
-    m_globalposIn(0),
-    m_globalposOut(0)
+    m_globalposIn(),
+    m_globalposOut()
 { }
 
 //copy constructor:
@@ -225,13 +223,15 @@ TgcCoinData::TgcCoinData(const TgcCoinData& RIO):
     m_veto(RIO.m_veto),
     m_sub(RIO.m_sub),
     m_inner(RIO.m_inner),
-    m_isPositiveDeltaR(RIO.m_isPositiveDeltaR)
+    m_isPositiveDeltaR(RIO.m_isPositiveDeltaR),
+    m_globalposIn(),
+    m_globalposOut()
 {
   m_posIn = ((RIO.m_posIn) ? new Amg::Vector2D(*RIO.m_posIn) : 0 );
   m_posOut = ((RIO.m_posOut) ? new Amg::Vector2D(*RIO.m_posOut) : 0 );
   m_errMat = ((RIO.m_errMat) ? new Amg::MatrixX(*RIO.m_errMat) : 0 );
-  m_globalposIn = ((RIO.m_globalposIn) ? new Amg::Vector3D(*RIO.m_globalposIn) : 0 );
-  m_globalposOut = ((RIO.m_globalposOut) ? new Amg::Vector3D(*RIO.m_globalposOut) : 0 );
+  if (RIO.m_globalposIn) m_globalposIn.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposIn));
+  if (RIO.m_globalposOut) m_globalposOut.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposOut));
 }
 
 //assignment operator
@@ -270,10 +270,10 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
       m_inner = RIO.m_inner;
       m_sub = RIO.m_sub;
       m_isPositiveDeltaR = RIO.m_isPositiveDeltaR;
-      delete m_globalposIn;
-      m_globalposIn = ((RIO.m_globalposIn) ? new Amg::Vector3D(*RIO.m_globalposIn) : 0 );
-      delete m_globalposOut;
-      m_globalposOut = ((RIO.m_globalposOut) ? new Amg::Vector3D(*RIO.m_globalposOut) : 0 );
+      if (m_globalposIn) delete m_globalposIn.release().get();
+      if (RIO.m_globalposIn) m_globalposIn.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposIn));
+      if (m_globalposOut) delete m_globalposOut.release().get();
+      if (RIO.m_globalposOut) m_globalposOut.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposOut));
     }
   return *this;
 }

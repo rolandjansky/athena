@@ -34,7 +34,7 @@ MdtPrepData::MdtPrepData(
     m_tdc(tdc), 
     m_adc(adc), 
     m_status(status),
-    m_globalPosition(0)
+    m_globalPosition()
 {
 //    assert(rdoList.size()==1); 
 //    assert( rdoList[0]==id);
@@ -60,7 +60,7 @@ MdtPrepData::MdtPrepData(
     m_tdc(tdc), 
     m_adc(adc), 
     m_status(status),
-    m_globalPosition(0)
+    m_globalPosition()
 {
 //    assert(rdoList.size()==1); 
 //    assert( rdoList[0]==id);
@@ -70,7 +70,6 @@ MdtPrepData::MdtPrepData(
     // Destructor:
     MdtPrepData::~MdtPrepData()
 {
-    //delete m_globalPosition; // never actually NEW GP. Just store pointer, so must NOT delete it here!
 }
 
 
@@ -82,7 +81,7 @@ MdtPrepData::MdtPrepData()
     m_tdc( 0 ),
     m_adc( 0 ),
     m_status( MdtStatusUnDefined ),
-    m_globalPosition(0)
+    m_globalPosition()
 {}
 
 //Copy constructor:
@@ -93,7 +92,7 @@ MdtPrepData::MdtPrepData(const MdtPrepData & RIO)
     m_tdc(RIO.m_tdc),
     m_adc(RIO.m_adc),
     m_status(RIO.m_status),
-    m_globalPosition(0)
+    m_globalPosition()
 {}
 
 //Move constructor:
@@ -104,7 +103,7 @@ MdtPrepData::MdtPrepData(MdtPrepData && RIO)
     m_tdc(RIO.m_tdc),
     m_adc(RIO.m_adc),
     m_status(RIO.m_status),
-    m_globalPosition(0)
+    m_globalPosition()
 {}
 
 //assignment operator
@@ -117,7 +116,7 @@ MdtPrepData& MdtPrepData::operator=(const MdtPrepData& RIO)
         m_tdc             = RIO.m_tdc;
         m_adc             = RIO.m_adc;
         m_status          = RIO.m_status;
-        m_globalPosition  = 0;
+        if (m_globalPosition) delete m_globalPosition.release().get();
     }
     return *this;
 }
@@ -132,7 +131,7 @@ MdtPrepData& MdtPrepData::operator=(MdtPrepData&& RIO)
         m_tdc             = RIO.m_tdc;
         m_adc             = RIO.m_adc;
         m_status          = RIO.m_status;
-        m_globalPosition  = 0;
+        if (m_globalPosition) delete m_globalPosition.release().get();
     }
     return *this;
 }
