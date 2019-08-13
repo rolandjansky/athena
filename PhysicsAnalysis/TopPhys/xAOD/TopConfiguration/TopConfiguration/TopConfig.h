@@ -1383,12 +1383,12 @@ class TopConfig final {
     // Selection truth isolation configuration.
   } m_truth_photon;
 
-  // muons
+  // taus
   struct {
-    float PtCut;           // [ParticleLevel / Truth] Muon Object
+    float PtCut;           // [ParticleLevel / Truth] Tau Object
     // Selection minimum pT Cut (Standard ATLAS
     // units, [MeV]).
-    float EtaCut;          // [ParticleLevel / Truth] Muon Object
+    float EtaCut;          // [ParticleLevel / Truth] Tau Object
     // Selection maximum absolute eta Cut.
   } m_truth_tau;
 

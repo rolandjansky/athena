@@ -1425,6 +1425,7 @@ namespace top {
       m_particleLevelTreeManager->makeOutputVariable(m_tau_phi, "tau_phi");
       m_particleLevelTreeManager->makeOutputVariable(m_tau_e, "tau_e");
       m_particleLevelTreeManager->makeOutputVariable(m_tau_charge, "tau_charge");
+      m_particleLevelTreeManager->makeOutputVariable(m_tau_isHadronic, "tau_isHadronic");
     }
 
     // RC branches
@@ -3935,6 +3936,7 @@ namespace top {
       m_tau_phi.resize(plEvent.m_taus->size());
       m_tau_e.resize(plEvent.m_taus->size());
       m_tau_charge.resize(plEvent.m_taus->size());
+      m_tau_isHadronic.resize(plEvent.m_taus->size());
 
       for (const auto & tauPtr : * plEvent.m_taus) {
         m_tau_pt[i] = tauPtr->pt();
@@ -3942,6 +3944,9 @@ namespace top {
         m_tau_phi[i] = tauPtr->phi();
         m_tau_e[i] = tauPtr->e();
         m_tau_charge[i] = tauPtr->charge();
+        if(tauPtr->isAvailable<char>("IsHadronicTau")){
+          m_tau_isHadronic[i] = tauPtr->auxdata<char>("IsHadronicTau");
+        }
 
         ++i;
       }
