@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -20,34 +20,26 @@
 namespace Trk
 {
 
-  Chi2TrackCompatibilityEstimator::Chi2TrackCompatibilityEstimator(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p)
-  { 
-    declareInterface<IVertexTrackCompatibilityEstimator>(this);
-  }
-
-  Chi2TrackCompatibilityEstimator::~Chi2TrackCompatibilityEstimator() {}
-
   StatusCode Chi2TrackCompatibilityEstimator::initialize() 
   { 
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
+    ATH_MSG_DEBUG( "Initialize successful"  );
     return StatusCode::SUCCESS;
   }
 
   StatusCode Chi2TrackCompatibilityEstimator::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
+    ATH_MSG_DEBUG( "Finalize successful"  );
     return StatusCode::SUCCESS;
   }
 
   
-  void Chi2TrackCompatibilityEstimator::estimate(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex)
+  void Chi2TrackCompatibilityEstimator::estimate(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
     vtxTrack.setVtxCompatibility(compatibility(vtxTrack,vertex));
   }
  
   
-  template <class T> float Chi2TrackCompatibilityEstimator::_compatibility(T & myAtaPlane,const Amg::Vector3D & vertex) {
+  template <class T> float Chi2TrackCompatibilityEstimator::_compatibility(T & myAtaPlane,const Amg::Vector3D & vertex) const {
 
     ATH_MSG_VERBOSE ("Given plane: " << myAtaPlane->associatedSurface() );
 
@@ -118,7 +110,7 @@ namespace Trk
   }
 
 
-  float Chi2TrackCompatibilityEstimator::compatibility(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex)
+  float Chi2TrackCompatibilityEstimator::compatibility(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const
   {
     const Trk::AtaPlane * myAtaPlane=vtxTrack.ImpactPoint3dAtaPlane();
 
@@ -130,7 +122,7 @@ namespace Trk
         return _compatibility(myNeutralAtaPlane, vertex);
     }
 
-    msg(MSG::WARNING) << " No compatibility plane attached to the VxTrackAtVertex. Compatibility couldn't be found... 0 compatibility returned." << endmsg;
+    ATH_MSG_WARNING( " No compatibility plane attached to the VxTrackAtVertex. Compatibility couldn't be found... 0 compatibility returned."  );
     return 100;
   }
 }

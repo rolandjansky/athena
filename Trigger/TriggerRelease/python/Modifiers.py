@@ -11,8 +11,8 @@
 #  Permanent fixes that are only applied online should be
 #  put into Trigger_topOptions_standalone.py
 ###############################################################
+from __future__ import print_function
 
-from AthenaCommon.Constants import *
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -29,8 +29,8 @@ class _modifier:
         return self.__class__.__name__
     
     def __init__(self):
-        print 'WARNING: using modifier:',self.name()
-        print self.__doc__
+        print('WARNING: using modifier: %s',self.name())
+        print(self.__doc__)
     
     def preSetup(self):
         pass #default is no action
@@ -128,8 +128,6 @@ class disableTRTActiveFraction(_modifier):
            delattr(svcMgr,'InDetTRTActiveFractionSvc')
            ToolSvc.InDetTrigTRTDriftCircleCut.UseActiveFractionSvc=False
            ToolSvc.InDetTrigTRTDriftCircleCut.TrtConditionsSvc=""
-           #print 'jmasik', svcMgr.getAllChildren()
-           #print ToolSvc.InDetTrigTRTDriftCircleCut
 
 
 class TrackingInStandBy(_modifier):
@@ -150,25 +148,25 @@ class setRecCommissioning(_modifier):
     Use commissioning setup
     """
     def preSetup(self):
-         from RecExConfig.RecFlags import rec
-         rec.Commissioning=True 
+        from RecExConfig.RecFlags import rec
+        rec.Commissioning=True
 
 class noLArCalibFolders(_modifier):
     """
     We should not use LAr electronics calibration data
     """
     def preSetup(self):
-         from LArConditionsCommon.LArCondFlags import larCondFlags
-         larCondFlags.LoadElecCalib=False
+        from LArConditionsCommon.LArCondFlags import larCondFlags
+        larCondFlags.LoadElecCalib=False
 
 class reducedLArCalibFolders(_modifier):
     """
     Load minimum amount of LAr electronics calibration data to run on transparent data
     """
     def preSetup(self):
-         from LArConditionsCommon.LArCondFlags import larCondFlags
-         larCondFlags.SingleVersion=True
-         larCondFlags.OFCShapeFolder=""
+        from LArConditionsCommon.LArCondFlags import larCondFlags
+        larCondFlags.SingleVersion=True
+        larCondFlags.OFCShapeFolder=""
 
 
 class shiftMBTSTiming(_modifier):
@@ -190,7 +188,7 @@ class useHLTMuonAlign(_modifier):
     """
     def postSetup(self):
         if TriggerFlags.doHLT() and TriggerFlags.doMuon():
-            from MuonRecExample import MuonAlignConfig
+            from MuonRecExample import MuonAlignConfig  # noqa: F401
             #temporary hack to workaround DB problem - should not be needed any more
             folders=svcMgr.IOVDbSvc.Folders
             newFolders=[]
@@ -208,7 +206,7 @@ class useRecentHLTMuonAlign(_modifier):
     """
     def postSetup(self):
         if TriggerFlags.doHLT() and TriggerFlags.doMuon():
-            from MuonRecExample import MuonAlignConfig
+            from MuonRecExample import MuonAlignConfig  # noqa: F401
             folders=svcMgr.IOVDbSvc.Folders
             newFolders=[]
             for f in folders:
@@ -417,13 +415,12 @@ class forceTileRODMap(_modifier):
     Configure Tile ROD map based on run-number (ATR-16290)
     """
     def postSetup(self):
-        from AthenaCommon.AppMgr import ToolSvc
         if not hasattr(svcMgr.ToolSvc,"TileROD_Decoder"):
            from TileByteStream.TileByteStreamConf import TileROD_Decoder
            svcMgr.ToolSvc+=TileROD_Decoder()
         # Get run number from input file if running in athena
         global _run_number
-        if _run_number==None:
+        if _run_number is None:
             import PyUtils.AthFile as athFile
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
@@ -444,7 +441,6 @@ class useOnlineLumi(_modifier):
     Use online LuminosityTool
     """
     def preSetup(self):
-        from AthenaCommon.AppMgr import ToolSvc
         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
         LuminosityCondAlgOnlineDefault()
 
@@ -575,7 +571,8 @@ class disableIBLInTracking(_modifier):
     """
 
     def postSetup(self):
-        svcMgr.SpecialPixelMapSvc.MaskLayers = True; svcMgr.SpecialPixelMapSvc.LayersToMask = [0]
+        svcMgr.SpecialPixelMapSvc.MaskLayers = True
+        svcMgr.SpecialPixelMapSvc.LayersToMask = [0]
 
 
 class detailedErrorStreams(_modifier):
@@ -673,9 +670,6 @@ class forceMuonDataPrep(_modifier):
     """
     def preSetup(self):
         pass  # the actual modifier is implemented in share/Trigger_topOptions_standalone.py
-        
-        if hasattr(topSequence,"TrigSteer_HLT"):
-            topSequence.TrigSteer_HLT.LvlConverterTool.useL1Calo=True
 
 class FakeLVL1(_modifier):
     """
@@ -693,7 +687,7 @@ class FakeLVL1(_modifier):
         if hasattr(topSequence,"TrigSteer_HLT"):
             topSequence.TrigSteer_HLT.LvlConverterTool =  fake
             if (TriggerFlags.CosmicSlice.forceLVL2Accept()):
-                HltEventLoopMgr.ForceLvl2Accept =  True
+                svcMgr.HltEventLoopMgr.ForceLvl2Accept =  True
             if (TriggerFlags.CosmicSlice.filterEmptyROB()):
                 svcMgr.ROBDataProviderSvc.filterEmptyROB=True
 
@@ -705,7 +699,7 @@ class rerunLVL1(_modifier):
     def preSetup(self):
 
         # Do nothing for EF only running
-        if TriggerFlags.doLVL2()==False and TriggerFlags.doEF()==True: return
+        if not TriggerFlags.doLVL2() and TriggerFlags.doEF(): return
          
         from AthenaCommon.Include import include
         from AthenaCommon.AlgSequence import AlgSequence
@@ -760,7 +754,7 @@ class rerunLVL1(_modifier):
                 topSequence.L1TopoSimulation.MuonInputProvider.MuonEncoding = 1
         else:
             log.info( "not adding L1TopoSimulation() to topSequence as it is already there" )
-        log.debug( "topSequence: %s" % topSequenceAlgNames )
+        log.debug( "topSequence: %s", topSequenceAlgNames )
 
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
         ctpSimulation = CTPSimulationOnData("CTPSimulation")
@@ -780,14 +774,14 @@ class rerunLVL1(_modifier):
 
         # Get run number from input file if running in athena
         global _run_number
-        if _run_number==None:
+        if _run_number is None:
             import PyUtils.AthFile as athFile
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
             _run_number = af.run_number[0]
              
         # On run-1 data, need to re-create the L1 menu with correct L1Calo energy scale (ATR-10174)
-        if _run_number!=None and _run_number<222222:
+        if _run_number is None and _run_number<222222:
             TriggerFlags.useRun1CaloEnergyScale = True
             TriggerFlags.outputLVL1configFile = 'LVL1config_'+TriggerFlags.triggerMenuSetup()+'_Run1CaloEnergyScale.xml'
             TriggerFlags.readLVL1configFromXML = False
@@ -807,7 +801,7 @@ class rerunDMLVL1(_modifier):
     def preSetup(self):
 
          # Do nothing for EF only running
-         if TriggerFlags.doLVL2()==False and TriggerFlags.doEF()==True: return
+         if not TriggerFlags.doLVL2() and TriggerFlags.doEF(): return
          
          from AthenaCommon.Include import include
          from AthenaCommon.AlgSequence import AlgSequence
@@ -923,7 +917,7 @@ class UseBeamSpotFlagForBjet(_modifier):
         if hasattr(topSequence,"TrigSteer_HLT"):
             for inst in topSequence.TrigSteer_HLT.getAllChildren():
                 if inst.getType() in ['TrigBjetFex','TrigBtagFex','TrigSecVtxFinder','InDet::TrigVxSecondary','InDet::TrigVxSecondaryCombo','TrigBjetHypo']:
-                    log.debug('Setting %s.UseBeamSpotFlag = True' % inst.getName())
+                    log.debug('Setting %s.UseBeamSpotFlag = True', inst.getName())
                     inst.UseBeamSpotFlag=True
                     
 class UseRPCTimeDelayFromDataForMufast(_modifier):
@@ -939,7 +933,7 @@ class UseRPCTimeDelayFromDataForMufast(_modifier):
                     delay=-40
                     if inst.name() == 'muFast_MuonEcut4Empty':
                         delay=-15
-                    print 'UseRPCTimeDelayFromDataForMufast: modifying RpcTimeDelay to ',delay,' for ',inst.name()
+                    log.info('UseRPCTimeDelayFromDataForMufast: modifying RpcTimeDelay to %s for %s', delay,inst.name())
                     inst.RpcTimeDelay=delay
 
 class UseLUTFromDataForMufast(_modifier):
@@ -959,7 +953,7 @@ class UseLUTFromDataForMufast(_modifier):
                     inst.UseLUTForMC=False
                 elif inst.getType()=='MuFastSteering':
                     inst.UseLUTForMC=False
-                    print 'UseLUTFromDataForMufast: set backExtrapolator to MuonBackExtrapolatorForData()'
+                    log.info('UseLUTFromDataForMufast: set backExtrapolator to MuonBackExtrapolatorForData()')
                     inst.BackExtrapolator = MuonBackExtrapolatorForData()
 
 class DisableMdtT0Fit(_modifier):
@@ -984,7 +978,7 @@ class UseBackExtrapolatorDataForMuIso(_modifier):
        if hasattr(topSequence,"TrigSteer_HLT"):
            for inst in topSequence.TrigSteer_HLT.getAllChildren():
                if inst.getType()=='muIso':
-                   print 'UseBackExtrapolatorDataForMuComb: set backExtrapolatorLUT to MuonBackExtrapolatorForData()'
+                   log.info('UseBackExtrapolatorDataForMuComb: set backExtrapolatorLUT to MuonBackExtrapolatorForData()')
                    inst.BackExtrapolatorLUT = MuonBackExtrapolatorForData()
 
 ###############################################################
@@ -999,8 +993,7 @@ class doCosmics(_modifier):
     def preSetup(self):
        from AthenaCommon.BeamFlags import jobproperties
        jobproperties.Beam.beamType.set_Value_and_Lock('cosmics')
-       print "jobproperties.Beam.beamType",jobproperties.Beam.beamType
-            
+
    
 class CRCcheck(_modifier):
     """
@@ -1012,7 +1005,7 @@ class CRCcheck(_modifier):
             try:
                 include("TrigOnlineMonitor/TrigROBMonitor.py")
             except IncludeError:
-                print '  No ROB monitoring available.'
+                log.error('No ROB monitoring available.')
             
 class CRCstream(_modifier):
     """
@@ -1027,8 +1020,7 @@ class CRCstream(_modifier):
                 topSequence = AlgSequence()
                 topSequence.ROBMonitor.SetDebugStream = True
             except IncludeError:
-                print '  No ROB monitoring available.'
-
+                log.error('No ROB monitoring available.')
 
 class L1TopoCheck(_modifier):
     """
@@ -1039,7 +1031,7 @@ class L1TopoCheck(_modifier):
         try:
             include("TrigOnlineMonitor/TrigL1TopoWriteValData.py")
         except IncludeError:
-            print '  No L1Topo WriteValData available.'        
+            log.error('No L1Topo WriteValData available.')
 
 class muCTPicheck(_modifier):
     """
@@ -1050,7 +1042,7 @@ class muCTPicheck(_modifier):
         try:
             include("TrigOnlineMonitor/TrigMuCTPiROBMonitor.py")
         except IncludeError:
-            print '  No muCTPi ROB monitoring available.'
+            log.error('No muCTPi ROB monitoring available.')
 
 class muCTPistream(_modifier):
     """
@@ -1065,7 +1057,7 @@ class muCTPistream(_modifier):
                 topSequence = AlgSequence()
                 topSequence.MuCTPiROBMonitor.SetDebugStream = True
             except IncludeError:
-                print '  No muCTPi ROB monitoring available.'
+                log.error('No muCTPi ROB monitoring available.')
 
 class enableALFAMon(_modifier):
     """
@@ -1076,7 +1068,7 @@ class enableALFAMon(_modifier):
         try:
             include("TrigOnlineMonitor/TrigALFAROBMonitor.py")
         except IncludeError:
-            print '  No ALFA ROB monitoring available.'
+            log.error('No ALFA ROB monitoring available.')
 
 
 
@@ -1149,7 +1141,7 @@ class libAuditor(_modifier):
     """
     def postSetup(self):
         from AthenaServices.AthDsoLogger import DsoLogger
-        dso = DsoLogger()
+        dso = DsoLogger()  # noqa: F841
 
 
 class nameAuditors(_modifier):
@@ -1233,8 +1225,9 @@ class memMon(_modifier):
         topSequence = AlgSequence()
         if TriggerFlags.doHLT():
             try:
+                from AthenaCommon.Constants import VERBOSE
                 topSequence.TrigSteer_HLT.MonTools['TrigMemMonitor'].OutputLevel = VERBOSE
-            except:
+            except Exception:
                 log.warning("memMon=True but TrigMemMonitor not present in the HLTMonTools")
                     
 class chainOrderedUp(_modifier):
@@ -1313,11 +1306,8 @@ class TriggerRateTool(_modifier):
     Make trigger rate tuple - only for running in athena
     """
     def postSetup(self):
-        from AthenaCommon.Include import include
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
-        trigDecWriter = WriteTrigDecision()
         from TriggerRateTools.TriggerRateToolsConf import TriggerRateTools
         triggerRateTools = TriggerRateTools()
         triggerRateTools.doTextOutput         = False
@@ -1387,10 +1377,8 @@ class enableCostD3PD(_modifier):
             imp.find_module('TrigCostD3PDMaker')
             from AthenaCommon.Include import include
             include("TrigCostD3PDMaker/TrigCostD3PDMaker_prodJobOFragment.py")
-        except:
-            print 'TrigCostD3PDMaker packages not available, will not produce CostMonitoring D3PD.'
-            #import sys, traceback # <-- For debug
-            #traceback.print_exc(file=sys.stdout) # <-- For debug
+        except Exception:
+            log.error('TrigCostD3PDMaker packages not available, will not produce CostMonitoring D3PD.')
 
 class enableRateD3PD(_modifier):
     """
@@ -1404,8 +1392,8 @@ class enableRateD3PD(_modifier):
             imp.find_module('TrigCostD3PDMaker')
             from AthenaCommon.Include import include
             include("TrigCostD3PDMaker/TrigRateD3PDMaker_prodJobOFragment.py")
-        except:
-            print 'TrigCostD3PDMaker packages not available, will not produce RateMonitoring D3PD.' 
+        except Exception:
+            log.warning('TrigCostD3PDMaker packages not available, will not produce RateMonitoring D3PD.')
 
 class enableCostDebug(_modifier):
     """
@@ -1429,8 +1417,8 @@ class enableCostMonitoring(_modifier):
         try:
           from TrigCostMonitor.TrigCostMonitorConfig import postSetupOnlineCost
           postSetupOnlineCost()
-        except:
-          print 'enableCostMonitoring (Run 2 style) post setup failed.'
+        except Exception:
+          log.error('enableCostMonitoring (Run 2 style) post setup failed.')
 
 class enableCostForCAF(_modifier):
     """
@@ -1440,8 +1428,8 @@ class enableCostForCAF(_modifier):
         try:
             import TrigCostMonitor.TrigCostMonitorConfig as costConfig
             costConfig.preSetupCostForCAF()
-        except AttributeError, msg:
-            print '    TrigCostMonitor has not CAF preSetup option... OK to continue'
+        except AttributeError:
+            log.info('TrigCostMonitor has not CAF preSetup option... OK to continue')
         # MT
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         flags.Trigger.CostMonitoring.monitorAllEvents = True
@@ -1450,8 +1438,8 @@ class enableCostForCAF(_modifier):
         try:
             import TrigCostMonitor.TrigCostMonitorConfig as costConfig
             costConfig.postSetupCostForCAF()
-        except AttributeError, msg:
-            print '    TrigCostMonitor has not CAF postSetup option... OK to continue'
+        except AttributeError:
+            log.info('TrigCostMonitor has not CAF postSetup option... OK to continue')
 
 class doEnhancedBiasWeights(_modifier):
     """
@@ -1461,16 +1449,16 @@ class doEnhancedBiasWeights(_modifier):
         try:
             import TrigCostMonitor.TrigCostMonitorConfig as costConfig
             costConfig.postSetupEBWeighting()
-        except AttributeError, msg:
-            print 'TrigCostMonitor has no EnhancedBias postSetup option...'
+        except AttributeError:
+            log.warning('TrigCostMonitor has no EnhancedBias postSetup option...')
         # Try to put this in D3PD (will only work offline), still goes in the BS anyway
         import imp
         try:
             imp.find_module('TrigCostD3PDMaker')
             from AthenaCommon.Include import include
             include("TrigCostD3PDMaker/TrigEBWeightD3PDMaker_prodJobOFragment.py")
-        except:
-            print 'TrigCostD3PDMaker packages not available, will not produce Enhanced Bias weighting D3PD.' 
+        except Exception:
+            log.warning('TrigCostD3PDMaker packages not available, will not produce Enhanced Bias weighting D3PD.')
         
 class BeamspotFromSqlite(_modifier):
     """
@@ -1519,7 +1507,7 @@ class useDynamicAlignFolders(_modifier):
     enable the new (2016-) alignment scheme
     """
     def preSetup(self):
-        from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags;
+        from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
         InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
 
@@ -1541,7 +1529,7 @@ class PixelOnlyZFinder(_modifier):
             zf.MaxLayer = 3
             zf.MinVtxSignificance = 10
             zf.Percentile = 0.95
-        except:
+        except Exception:
             log.error("PixelOnlyZFinder set but no public instance of TrigZFinder")
 
 class tightenElectronTrackingCuts(_modifier):
@@ -1553,7 +1541,7 @@ class tightenElectronTrackingCuts(_modifier):
         topSequence = AlgSequence()
         try:
             topSequence.TrigSteer_HLT.TrigFastTrackFinder_Electron_IDTrig.doCloneRemoval=True
-        except:
+        except Exception:
             log.error("Cannot modify doCloneRemoval setting")
 
 ###############################################################

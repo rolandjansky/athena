@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 // INCLUDE HEADER FILES:
@@ -221,31 +221,16 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::Cal
     if (m_HadronicLeakageTool.empty()) {
         return StatusCode::SUCCESS;
     }
-
-    // define a new Calo Cell list corresponding to EM Calo
-    // retrieve the corresponding CaloCell_ID
-    CaloCell_ID::SUBCALO theCalo = CaloCell_ID::LAREM; 
-    CaloCellList* EMccl = new CaloCellList(cellcoll,theCalo); 
-
     // define a new Calo Cell list corresponding to HAD Calo
-    // retrieve the corresponding CaloCell_ID for LarHec
-    CaloCell_ID::SUBCALO theCalo1 = CaloCell_ID::LARHEC;
-    // retrieve the corresponding CaloCell_ID for TILE
-    CaloCell_ID::SUBCALO theCalo2 = CaloCell_ID::TILE;
-    std::vector<CaloCell_ID::SUBCALO> theVecCalo;
-    theVecCalo.push_back(theCalo1);
-    theVecCalo.push_back(theCalo2);
-    // define a new Calo Cell list
-    CaloCellList* HADccl = new CaloCellList(cellcoll,theVecCalo); 
-
+    // retrieve the corresponding CaloCell_ID for LarHec and TILE
+    static const std::vector<CaloCell_ID::SUBCALO> theVecCalo={CaloCell_ID::LARHEC,CaloCell_ID::TILE};
+   // define a new Calo Cell list
+    std::unique_ptr<CaloCellList> HADccl = std::make_unique<CaloCellList>(cellcoll,theVecCalo);
     // calculate information concerning just the hadronic leakage
     IegammaIso::Info info;
     StatusCode sc =  m_HadronicLeakageTool->execute(*clus,*HADccl,info);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("call to Iso returns failure for execute");
-        // delete ccls
-        delete EMccl;
-        delete HADccl;
         return sc;
     }
     float value=0;
@@ -259,25 +244,17 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::Cal
     eg->setShowerShapeValue( et != 0. ? value/et : 0., xAOD::EgammaParameters::Rhad);
     value=static_cast<float>(info.ehad1);
     eg->setShowerShapeValue(value, xAOD::EgammaParameters::ehad1);
-    // delete ccls
-    delete EMccl;
-    delete HADccl;
     return StatusCode::SUCCESS;
 }
 
-
-// ==========================================================================
 StatusCode EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg, const IegammaShowerShape::Info& info) const { 
-    //
-    // retrieve information from shower shape calculation at ESD level
-    //
-    // protection in case Tool does not exist
+    
+  // protection in case Tool does not exist
     if (m_ShowerShapeTool.empty()) {
         return StatusCode::SUCCESS;
     }
-    //
     // information in the presampler
-    //
+    
     // E in 1x1 cells in pre sampler
     float value=0;
     // E in 1x1 cells in pre sampler

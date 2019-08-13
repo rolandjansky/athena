@@ -16,10 +16,6 @@ def BCM_FirstXing():
 def BCM_LastXing():
     return 0
 
-def BCM_ItemList():
-    """Return list of item names needed for BCM output"""
-    return ["InDetSimDataCollection#*", "BCM_RDO_Container#*"]
-
 def BCM_RangeCfg(flags, name="BCM_Range", **kwargs):
     """Return a BCM configured PileUpXingFolder tool"""
     kwargs.setdefault("FirstXing", BCM_FirstXing())
@@ -60,27 +56,33 @@ def BCM_DigitizationToolCfg(flags, name="BCM_DigitizationTool", **kwargs):
     acc.setPrivateTools(BCM_DigitizationTool(name, **kwargs))
     return acc
 
-def BCM_DigitizationCfg(flags, name="BCM_Digitization", **kwargs):
-    """Return a ComponentAccumulator with configured BCM_Digitization algorithm"""
-    acc = PixelGeometryCfg(flags)
-    if "DigitizationTool" not in kwargs:
-        tool = acc.popToolsAndMerge(BCM_DigitizationToolCfg(flags, **kwargs))
-        kwargs["DigitizationTool"] = tool
-    acc.addEventAlgo(BCM_Digitization(name, **kwargs))
-    acc.merge(OutputStreamCfg(flags, "RDO", BCM_ItemList()))
-    return acc
-
-def BCM_OverlayDigitizationToolCfg(flags, name="BCM_OverlayDigitizationTool", **kwargs):
+def BCM_OverlayDigitizationToolCfg(flags, name, **kwargs):
     """Return ComponentAccumulator with BCM_DigitizationTool configured for Overlay"""
     kwargs.setdefault("EvtStore", flags.Overlay.Legacy.EventStore)
     return BCM_DigitizationToolCfg(flags, name, **kwargs)
 
-def BCM_OverlayDigitizationCfg(flags, name="BCM_OverlayDigitization", **kwargs):
-    """Return a ComponentAccumulator with BCM_Digitization algorithm configured for Overlay"""
+
+def BCM_DigitizationBasicCfg(toolCfg, flags, name, **kwargs):
+    """Return ComponentAccumulator with toolCfg configured BCM_Digitization algorithm"""
     acc = PixelGeometryCfg(flags)
-    tool = acc.popToolsAndMerge(BCM_OverlayDigitizationToolCfg(flags, **kwargs))
-    kwargs.setdefault("DigitizationTool", tool)
+    if "DigitizationTool" not in kwargs:
+        tool = acc.popToolsAndMerge(toolCfg(flags, **kwargs))
+        kwargs["DigitizationTool"] = tool
     acc.addEventAlgo(BCM_Digitization(name, **kwargs))
-    acc.merge(OutputStreamCfg(flags, "RDO", BCM_ItemList()))
     return acc
+
+def BCM_DigitizationOutputCfg(toolCfg, flags, name="BCM_Digitization", **kwargs):
+    """Return ComponentAccumulator with toolCfg configured BCM_Digitization algorithm and OutputStream"""
+    acc = BCM_DigitizationBasicCfg(toolCfg, flags, name, **kwargs)
+    acc.merge(OutputStreamCfg(flags, "RDO", ["InDetSimDataCollection#*", "BCM_RDO_Container#*"]))
+    return acc
+
+
+def BCM_DigitizationCfg(flags, name="BCM_Digitization", **kwargs):
+    """Return ComponentAccumulator with standard BCM_Digitization and Output"""
+    return BCM_DigitizationOutputCfg(BCM_DigitizationToolCfg, flags, **kwargs)
+
+def BCM_OverlayDigitizationCfg(flags, name="BCM_OverlayDigitization", **kwargs):
+    """Return ComponentAccumulator with Overlay confgured BCM_Digitization and Output"""
+    return BCM_DigitizationOutputCfg(BCM_OverlayDigitizationToolCfg, flags, **kwargs)
 

@@ -36,7 +36,7 @@ mesons.update({
         'spin' : 1,
         'parity' : -1,
         'PDG' : 413,
-        'lifetime' : 7.892-12 * ns,
+        'lifetime' : 7.892e-12 * ns,
     },
     'D0_star(2300)0' : {
         'mass' : 2300 * MeV,
@@ -45,7 +45,7 @@ mesons.update({
         'spin' : 0,
         'parity' : +1,
         'PDG' : 10421,
-        'lifetime' : 2.402-15 * ns,
+        'lifetime' : 2.402e-15 * ns,
     },
     'D1(2420)0' : {
         'mass' : 2420.8 * MeV,
@@ -54,7 +54,7 @@ mesons.update({
         'spin' : 1,
         'parity' : +1,
         'PDG' : 10423,
-        'lifetime' : 2.076-14 * ns,
+        'lifetime' : 2.076e-14 * ns,
     },
     'D2_star(2460)0' : {
         'mass' : 2460.7 * MeV,
@@ -63,7 +63,7 @@ mesons.update({
         'spin' : 2,
         'parity' : +1,
         'PDG' : 425,
-        'lifetime' : 1.386-14 * ns,
+        'lifetime' : 1.386e-14 * ns,
     },
     'D2_star(2460)+' : {
         'mass' : 2465.4 * MeV,
@@ -72,7 +72,7 @@ mesons.update({
         'spin' : 2,
         'parity' : +1,
         'PDG' : 415,
-        'lifetime' : 1.409-14 * ns,
+        'lifetime' : 1.409e-14 * ns,
     },
 })
 
@@ -88,7 +88,7 @@ mesons.update({
         'spin' : 1,
         'parity' : -1,
         'PDG' : 513,
-        'lifetime' : 1.463-14 * ns,
+        'lifetime' : 1.463e-14 * ns,
     },
     'B1(5721)+' : {
         'mass' : 5725.9 * MeV,
@@ -106,7 +106,7 @@ mesons.update({
         'spin' : 1,
         'parity' : +1,
         'PDG' : 10513,
-        'lifetime' : 2.393-14 * ns,
+        'lifetime' : 2.393e-14 * ns,
     },
     'B2_star(5747)+' : {
         'mass' : 5737.2 * MeV,
@@ -115,7 +115,7 @@ mesons.update({
         'spin' : 2,
         'parity' : +1,
         'PDG' : 525,
-        'lifetime' : 3.291-14 * ns,
+        'lifetime' : 3.291e-14 * ns,
     },
     'B2_star(5747)0' : {
         'mass' : 5739.5 * MeV,
@@ -124,7 +124,7 @@ mesons.update({
         'spin' : 2,
         'parity' : +1,
         'PDG' : 515,
-        'lifetime' : 2.72-14 * ns,
+        'lifetime' : 2.72e-14 * ns,
     },
 })
 
@@ -158,6 +158,10 @@ def createMesonsList():
     mesonsList = {}
     for meson in mesons:
         mesonProperties = mesons[meson]
+
+        # sanity check
+        verifyProperties(meson)
+
         # meson
         mesonsList[meson] = (
             mesonProperties['mass'],
@@ -185,5 +189,13 @@ def createMesonsList():
         )
     return mesonsList
 
-
-
+def verifyProperties(meson):
+    mesonProperties = mesons[meson]
+    if (mesonProperties['lifetime'] <= 0):
+        raise ValueError('Lifetime of %s is not positive' % meson)
+    if (mesonProperties['mass'] <= 0):
+        raise ValueError('Mass of %s is not positive' % meson)
+    if (mesonProperties['width'] <= 0):
+        raise ValueError('Width of %s is not positive' % meson)
+    if (mesonProperties['spin'] < 0):
+        raise ValueError('Spin of %s is negative' % meson)

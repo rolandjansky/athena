@@ -376,7 +376,7 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*  cluster,
   ATH_MSG_DEBUG("EMTrackMatch builder , broad window");
  
   //Tracking
-  const Trk::Perigee candidatePerigee =track->perigeeParameters();
+  const Trk::Perigee& candidatePerigee =track->perigeeParameters();
   //Decide whether to try the opposite direction (cosmics)
   const double trkPhi = (!flip) ? candidatePerigee.parameters()[Trk::phi] : -candidatePerigee.parameters()[Trk::phi];
   const double trkEta = (!flip) ? candidatePerigee.eta() : -candidatePerigee.eta();
@@ -385,7 +385,7 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster*  cluster,
   
   //Cluster variables
   const double clusterEta=cluster->etaBE(2);
-  const bool isEndCap= cluster->inEndcap();
+  const bool isEndCap= !xAOD::EgammaHelpers::isBarrel(cluster);
   const double Et= cluster->e()/cosh(trkEta);
   const double clusterPhi=cluster->phiBE(2);
 

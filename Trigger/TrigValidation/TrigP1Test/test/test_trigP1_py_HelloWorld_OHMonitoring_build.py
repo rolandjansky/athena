@@ -21,8 +21,8 @@ test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
 # Overwrite default histogram file name for checks
-histcount = test.get_step("HistCount")
-histcount.input_file='r0000327265_athenaHLT_HLT-Histogramming.root'
+for step in [test.get_step(name) for name in ['HistCount', 'RootComp', 'ChainDump']]:
+  step.input_file = 'r0000327265_athenaHLT_HLT-Histogramming.root'
 
 import sys
 sys.exit(test.run())

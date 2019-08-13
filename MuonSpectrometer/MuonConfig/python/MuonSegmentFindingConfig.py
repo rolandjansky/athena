@@ -88,11 +88,11 @@ def MuonTrackScoringToolCfg(flags, **kwargs):
     # m_trkSummaryTool("Trk::TrackSummaryTool"),    
     # m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     result = ComponentAccumulator()
-    acc = MuonTrackSummaryHelperToolCfg(flags)
-    track_summary_helper = acc.getPrimary( )
-    acc.addPublicTool(track_summary_helper)
+    acc = MuonTrackSummaryToolCfg(flags)
+    track_summary = acc.getPrimary( )
+    acc.addPublicTool(track_summary)
     result.merge(acc)
-    kwargs.setdefault('SumHelpTool', track_summary_helper)
+    kwargs.setdefault('SumHelpTool', track_summary)
     result.setPrivateTools(Muon__MuonTrackScoringTool(**kwargs))
     return result
 
@@ -121,7 +121,7 @@ def MuonStationIntersectSvcCfg(flags, **kwargs):
     result.merge(acc)
     kwargs.setdefault("MDTCondSummarySvc", mdt_cond_summary_svc)
     muon_station_intersect_svc = MuonStationIntersectSvc(**kwargs)
-    result.addService(muon_station_intersect_svc)
+    result.addService(muon_station_intersect_svc, primary=True)
     return result
 
 # default muon navigator
@@ -389,7 +389,7 @@ def MuonSegmentFittingToolCfg(flags, **kwargs):
     acc.addPublicTool(cleaner)
     result.merge(acc)
     kwargs.setdefault("TrackCleaner", cleaner)
-    result.addPublicTool(Muon__MuonSegmentFittingTool(**kwargs))
+    result.setPrivateTools(Muon__MuonSegmentFittingTool(**kwargs))    
     return result
 
 def DCMathSegmentMakerCfg(flags, **kwargs):    
@@ -463,7 +463,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     muon_station_intersect_svc = acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("MuonStationIntersectSvc", muon_station_intersect_svc)
-    
+
     acc=MuonConfig.MuonRIO_OnTrackCreatorConfig.MdtDriftCircleOnTrackCreatorCfg(flags)
     kwargs.setdefault("MdtCreator", acc.getPrimary())
     result.merge(acc)
@@ -479,7 +479,7 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
 
     acc =  MuonSegmentFittingToolCfg(flags, name="NewMuonSegmentFittingTool")
     segment_fitter=acc.getPrimary()
-    print segment_fitter
+    result.addPublicTool(segment_fitter)
     
     result.merge(acc)    
     kwargs.setdefault("SegmentFitter", segment_fitter)
@@ -526,7 +526,7 @@ def MuonPatternSegmentMakerCfg(flags, **kwargs):
     # Other dependencies:
     # EDM printer tool, MuonIdHelperTool
 
-    acc = DCMathSegmentMakerCfg(flags,name="NewDCMathSegmentMaker")
+    acc = DCMathSegmentMakerCfg(flags,name="DCMathSegmentMaker")
     segment_maker = acc.getPrimary()
     acc.addPublicTool(segment_maker)
     kwargs.setdefault('SegmentMaker', segment_maker)
@@ -787,7 +787,7 @@ def MuonClusterSegmentFinderCfg(flags, **kwargs):
     result=ComponentAccumulator()
     # FIXME - rest of the tools.
 
-    acc = DCMathSegmentMakerCfg(flags,name="NewDCMathSegmentMaker")
+    acc = DCMathSegmentMakerCfg(flags,name="DCMathSegmentMaker")
     segment_maker = acc.getPrimary()      
     
     acc.addPublicTool(segment_maker)
@@ -834,6 +834,12 @@ def MuonSegmentFindingCfg(flags, **kwargs):
     acc = MuonClusterSegmentFinderCfg(flags)
     muon_cluster_segment_finder=acc.getPrimary()
     result.merge(acc)
+    
+    # When reading ESDs, where prior/next BC TGCs are merged, just retrieve that.
+    # FIXME - this really shouldn't be set here! 
+    tgc_meas_key = 'TGC_Measurements'
+    if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC:
+      tgc_meas_key = 'TGC_MeasurementsAllBCs'
 
     moo_segment_finder_alg = MooSegmentFinderAlg( "MuonSegmentMaker",
                  SegmentFinder = segment_finder_tool,
@@ -843,6 +849,7 @@ def MuonSegmentFindingCfg(flags, **kwargs):
                  UseMDT = flags.Muon.doMDTs,
                  UseRPC = flags.Muon.doRPCs,
                  UseTGC = flags.Muon.doTGCs,
+                 TgcPrepDataContainer = tgc_meas_key,
                  UseTGCPriorBC = flags.Muon.doTGCs and flags.Muon.useTGCPriorNextBC,
                  UseTGCNextBC  = flags.Muon.doTGCs and flags.Muon.useTGCPriorNextBC,
                  doTGCClust = flags.Muon.doTGCClusterSegmentFinding,
@@ -860,8 +867,9 @@ if __name__=="__main__":
     Configurable.configurableRun3Behavior=1
 
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+    ConfigFlags.Concurrency.NumThreads = 1
    
     ConfigFlags.Detector.GeometryMDT   = True 
     ConfigFlags.Detector.GeometryTGC   = True
@@ -870,8 +878,8 @@ if __name__=="__main__":
     
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
-    log.setLevel(DEBUG)
-    from AthenaCommon.Logging import log
+    # from AthenaCommon.Constants import DEBUG
+    #log.setLevel(DEBUG)
     log.debug('About to set up Segment Finding.')
     
     ConfigFlags.Input.isMC = True

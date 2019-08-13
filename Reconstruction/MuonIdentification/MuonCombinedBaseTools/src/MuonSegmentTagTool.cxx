@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -102,8 +102,6 @@ namespace MuonCombined {
     declareProperty("TriggerHitCut"                   , m_triggerHitCut = true );
     declareProperty("MakeMuons"                       , m_makeMuons = false );
     declareProperty("IgnoreSiAssociatedCandidates"    , m_ignoreSiAssocated = true );
-    m_extrapolated.resize(15,0);
-    m_goodExtrapolated.resize(15,0);
 
   }
 

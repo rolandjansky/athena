@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _TrkVKalVrtCore_VKalVrtCore_H
-#define _TrkVKalVrtCore_VKalVrtCore_H
+#ifndef TRKVKALVRTCORE_VKALVRTCORE_H
+#define TRKVKALVRTCORE_VKALVRTCORE_H
 
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
@@ -20,18 +20,24 @@ namespace Trk {
 //--------------------------------------------------------------------
 
    class CascadeEvent;
+   class IVKalState;
 
    class VKalVrtControlBase
    {
      public:
-       VKalVrtControlBase(const baseMagFld*, const addrMagHandler, const basePropagator*, const addrPropagator);
-       VKalVrtControlBase(const VKalVrtControlBase & src);              //copy
-      ~VKalVrtControlBase();
+       VKalVrtControlBase(const baseMagFld*,
+                          const addrMagHandler,
+                          const basePropagator*,
+                          const addrPropagator,
+                          const IVKalState* istate = nullptr);
+      VKalVrtControlBase(const VKalVrtControlBase & src) = default;
+      ~VKalVrtControlBase() = default;
 
        const baseMagFld*      vk_objMagFld;
        const addrMagHandler   vk_funcMagFld;
        const basePropagator*  vk_objProp;
        const addrPropagator   vk_funcProp;
+       const IVKalState*      vk_istate;
    };
 
    class VKalVrtControl : public VKalVrtControlBase
@@ -48,7 +54,7 @@ namespace Trk {
        void setRobustScale(double Scale);
        void setRobustness(int Rob);
        void setMassCnstData(int Ntrk, double Mass);
-       void setMassCnstData(int Ntrk, std::vector<int> &Index, double Mass);
+       void setMassCnstData(int Ntrk, const std::vector<int> &Index, double Mass);
 
        void setUseMassCnst();
        void setUsePhiCnst();
@@ -68,8 +74,8 @@ namespace Trk {
        double * getFullCovariance () { return m_fullCovariance.get(); }
        void setVertexMass(double mass) { m_vrtMassTot=mass;}
        void setVrtMassError(double error) { m_vrtMassError=error;}
-       double getVertexMass() { return m_vrtMassTot;}
-       double getVrtMassError() {return m_vrtMassError;}
+       double getVertexMass() const { return m_vrtMassTot;}
+       double getVrtMassError() const {return m_vrtMassError;}
 
 
 

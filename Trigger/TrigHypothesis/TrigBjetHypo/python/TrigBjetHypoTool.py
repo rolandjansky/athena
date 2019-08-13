@@ -84,18 +84,16 @@ def decodeThreshold( threshold_btag ):
 
 def getBjetHypoConfiguration( name,conf_dict ):
     # Common for both split and non-split configurations
-    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetHypoTool
-
-    tool = TrigBjetHypoTool( name )
-    tool.AcceptAll       = False
-    tool.UseBeamSpotFlag = False
+    from TrigBjetHypo.TrigBjetHypoConf import TrigBjetBtagHypoTool
+    tool = TrigBjetBtagHypoTool( name )
+#    tool.OutputLevel     = DEBUG
+    tool.AcceptAll       = True # TMP
 
     # b-tagging
     [tagger,tb] = decodeThreshold( conf_dict['bTag'] )
 
     if conf_dict['bTag'] == "offperf" :
         tool.AcceptAll             = True
-        tool.OverrideBeamSpotValid = True
 
     tool.MethodTag = tagger
     tool.BTaggingCut = tb

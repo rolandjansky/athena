@@ -1669,8 +1669,8 @@ namespace Muon {
     m_finder.setPhiRoad(track_angleYZ,chamber_angleYZ,0.14);
 
     if( msgLvl(MSG::VERBOSE) ){
-      if(m_fitter.fit(segPars,dcsOnTrack)){
-	TrkDriftCircleMath::Segment segment = m_fitter.result();
+      TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+      if(m_fitter.fit(segment, segPars, dcsOnTrack)){
 	segment.hitsOnTrack(dcsOnTrack.size());
 	ATH_MSG_DEBUG(" segment after fit " << segment.chi2() << " ndof " << segment.ndof() << " local parameters "
 		      << segment.line().x0() << " " << segment.line().y0() << "  phi " << segment.line().phi() );

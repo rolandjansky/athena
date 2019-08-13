@@ -2,8 +2,8 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-
-
+from AthenaCommon.Logging import logging
+log = logging.getLogger('L1DecoderConfig')
 
 def mapThresholdToL1DecisionCollection(threshold):
     """
@@ -84,7 +84,7 @@ class L1Decoder(L1Decoder) :
         super(L1Decoder, self).__init__(name, *args, **kwargs)
 
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
+        from L1Decoder.L1DecoderConf import CTPUnpackingTool
 
         # CTP unpacker
 
@@ -118,7 +118,7 @@ def L1DecoderCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
     from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool
-    from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
+    from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring
 
     acc = ComponentAccumulator()
     decoderAlg = L1Decoder()

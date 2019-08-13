@@ -36,8 +36,8 @@ BOOST_AUTO_TEST_SUITE(CrestFunctionsTest)
   }
   
   BOOST_AUTO_TEST_CASE(extractHashFromJson_test){
-    const std::string sampleJson{"{\"payloadHash\":\"12345a\"}"};
-    BOOST_TEST(extractHashFromJson(sampleJson) == "12345a");
+    const std::string sampleJson{R"delim([{"tagName":"Indet_Align-description","since":0,"insertionTime":"2019-07-08T15:03:15.742+0000","payloadHash":"dd7a656e41d7b6426164fc411aa7ff51aa4bc047ab885a6e00b976b62291c18b"}])delim"};
+    BOOST_TEST(extractHashFromJson(sampleJson) == "dd7a656e41d7b6426164fc411aa7ff51aa4bc047ab885a6e00b976b62291c18b");
     const std::string nonsense{"blubbyPinkBox333"};
     BOOST_TEST(extractHashFromJson(nonsense) == "");
   }
@@ -74,13 +74,13 @@ BOOST_AUTO_TEST_SUITE(CrestFunctionsTest)
   
   BOOST_AUTO_TEST_CASE(extractDescriptionFromJson_test){
     const std::string jsonDescr{R"delim({"node_description": "<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1170039409\" /></addrHeader><typeName>AlignableTransformContainer</typeName>"})delim"};
-    const std::string expectedAnswer{R"delim(<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1170039409\" /></addrHeader><typeName>AlignableTransformContainer</typeName>)delim"};
+    const std::string expectedAnswer{R"delim(<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type="71" clid="1170039409" /></addrHeader><typeName>AlignableTransformContainer</typeName>)delim"};
     BOOST_TEST(extractDescriptionFromJson(jsonDescr) == expectedAnswer);
   }
   
   BOOST_AUTO_TEST_CASE(folderDescriptionForTag_test){
     const std::string folderTag{"Indet_Align"};
-    const std::string expectedReply{R"delim(<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1170039409\" /></addrHeader><typeName>AlignableTransformContainer</typeName>)delim"};
+    const std::string expectedReply{R"delim(<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type="71" clid="1170039409" /></addrHeader><typeName>AlignableTransformContainer</typeName>)delim"};
     BOOST_TEST(folderDescriptionForTag(folderTag, dontUseRealDatabase) == expectedReply);
   }
   

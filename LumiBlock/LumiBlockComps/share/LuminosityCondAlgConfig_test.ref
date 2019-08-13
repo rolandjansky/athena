@@ -1,6 +1,7 @@
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [WorkDir-22.0.3] [x86_64-centos7-gcc8-opt] [Unknown/36ebca0a266] -- built on [2019-08-06T1843]
 --- run2
-Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:MetaReader        INFO Current mode used: peeker
 Py:LuminosityCondAlg    INFO luminosityCondAlgRun2Config requested /TRIGGER/OFLLUMI/OflPrefLumi
 Py:LuminosityCondAlg    INFO Created Run2 LuminosityCondAlg using folder /TRIGGER/OFLLUMI/OflPrefLumi
 Py:ComponentAccumulator    INFO Condition Algorithms
@@ -87,7 +88,8 @@ Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
 IOVDbSvc: ['/TRIGGER/LUMI/LBLESTONL<db>COOLONL_TRIGGER/COMP200</db>', '/TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag><db>COOLONL_TDAQ/COMP200</db>', '/TDAQ/OLC/BUNCHLUMIS<db>COOLONL_TDAQ/COMP200</db>', '/TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag><db>COOLONL_TRIGGER/COMP200</db>', '/TDAQ/OLC/CALIBRATIONS<db>COOLONL_TDAQ/COMP200</db>']
 --- mc
-Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecExRecoTest/mc16_13TeV.361022.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ2W.recon.ESD.e3668_s3170_r10572_homeMade.pool.root
+Py:MetaReader        INFO Current mode used: peeker
 Py:LuminosityCondAlgCfg    INFO LuminosityCondAlgCfg called for MC!
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ LuminosityCondAlg (cond alg)
@@ -98,8 +100,6 @@ Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey:
 Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: 
 --- online
-Py:LuminosityCondAlg WARNING LuminosityCondAlgOnlineCfg can't resolve DatabaseInstance = CONDBR2, assume Run2!
-Py:LuminosityCondAlg    INFO Using Run 2 configuration
 Py:LuminosityCondAlg    INFO Created online LuminosityCondAlg using folder /TRIGGER/LUMI/HLTPrefLumi
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
@@ -112,6 +112,6 @@ Py:ComponentAccumulator    INFO      * BunchGroupInputKey:
 Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
 Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
 Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/LUMI/HLTPrefLumi
-Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondDataOnline
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
 Py:ComponentAccumulator    INFO      * SkipInvalid: False

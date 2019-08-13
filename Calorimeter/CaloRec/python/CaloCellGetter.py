@@ -49,8 +49,6 @@ class CaloCellGetter (Configured)  :
             from LArROD.LArRODFlags import larRODFlags
             from AthenaCommon.GlobalFlags import globalflags
             if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
-                if "LArRawChannelContainer/LArRawChannels" not in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                    svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
                 from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
                 LArRawChannelBuilderDefault()
           

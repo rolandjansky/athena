@@ -6,6 +6,13 @@
 # Set the minimum required CMake version:
 cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
 
+# Temporarily configure flake8 here, will be moved to Projects/Athena:
+set( ATLAS_FLAKE8 "flake8_atlas --select ATL,F,E7,E9,W6 --extend-ignore E701,E702,E741"
+   CACHE STRING "Default flake8 command" )
+
+set( ATLAS_PYTHON_CHECKER "${ATLAS_FLAKE8} --filterFiles AthenaConfiguration"
+   CACHE STRING "Python checker command to run during Python module compilation" )
+
 # Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
 # Remember that it's not a problem if AtlasCMake is not found, that's why
 # we use the QUIET keyword.

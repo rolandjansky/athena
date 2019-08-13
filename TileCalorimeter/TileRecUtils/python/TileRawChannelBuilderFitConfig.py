@@ -9,46 +9,37 @@ def TileRawChannelBuilderFitFilterCfg(flags, **kwargs):
 
     Arguments:
         flags  -- Athena configuration flags (ConfigFlags)
-    Keyword arguments:
-        CreateContainer - flag to create output container. Defaults to True.
     """
 
-    kwargs.setdefault('CreateContainer', True)
-    createContainer = kwargs['CreateContainer']
+    name = kwargs.pop('name', 'TileRawChannelBuilderFitFilter')
+    kwargs.setdefault('TileRawChannelContainer', 'TileRawChannelFit')
+    kwargs.setdefault('correctTime', flags.Tile.correctTime)
+    kwargs.setdefault('FrameLength', 7)
 
-    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
-    kwargs['TileRawChannelBuilder'] = TileRawChannelBuilderFitFilter
+    acc = ComponentAccumulator()
 
-    kwargs.setdefault('Name', 'TileRawChannelBuilderFitFilter')
+    if 'TileCondToolNoiseSample' not in kwargs:
+        from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
+        sampleNoiseTool = acc.popToolsAndMerge( TileCondToolNoiseSampleCfg(flags) )
+        kwargs['TileCondToolNoiseSample'] = sampleNoiseTool
 
-    from TileRecUtils.TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
-    acc = TileRawChannelBuilderCfg(flags, **kwargs)
-    tileRawChannelBuilderFit = acc.getPrimary()
-
-    from TileConditions.TileSampleNoiseConfig import TileCondToolNoiseSampleCfg
-    sampleNoiseTool = acc.popToolsAndMerge( TileCondToolNoiseSampleCfg(flags) )
-    tileRawChannelBuilderFit.TileCondToolNoiseSample = sampleNoiseTool
-
-    tileRawChannelBuilderFit.correctTime = flags.Tile.correctTime
-    tileRawChannelBuilderFit.FrameLength = 7
-
-    outputContainer = 'TileRawChannelFit' if createContainer else ""
-    tileRawChannelBuilderFit.TileRawChannelContainer = outputContainer
-
-    if flags.Tile.correctTime:
+    if flags.Tile.correctTime and 'TileCondToolTiming' not in kwargs:
         from TileConditions.TileTimingConfig import TileCondToolTimingCfg
         timingTool = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
-        tileRawChannelBuilderFit.TileCondToolTiming = timingTool
+        kwargs['TileCondToolTiming'] = timingTool
 
-    acc.setPrivateTools( tileRawChannelBuilderFit )
+    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
+    from TileRecUtils.TileRawChannelBuilderConfig import TileRawChannelBuilderCfg
+    rawChanBuilder = acc.popToolsAndMerge(TileRawChannelBuilderCfg(flags, name, TileRawChannelBuilderFitFilter, **kwargs))
+    acc.setPrivateTools(rawChanBuilder)
 
     return acc
 
 
 def TileRawChannelBuilderFitOverflowCfg(flags, **kwargs):
     return TileRawChannelBuilderFitFilterCfg(flags,
-                                             Name = 'TileRawChannelBuilderFitOverflow',
-                                             CreateContainer = False)
+                                             name = 'TileRawChannelBuilderFitOverflow',
+                                             TileRawChannelContainer = "")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -596,7 +596,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
                    +(vk->refV[2]-targetVertex[2])*(vk->refV[2]-targetVertex[2]) );
 //std::cout<<"target="<<targetVertex[0]<<", "<<targetVertex[1]<<", "<<targetVertex[2]<<" vsht="<<vShift<<'\n';
      bool insideGoodVolume=false;
-     if(vk->vk_fitterControl && vk->vk_fitterControl->vk_objProp) { insideGoodVolume = vk->vk_fitterControl->vk_objProp->checkTarget(targetVertex);}
+     if(vk->vk_fitterControl && vk->vk_fitterControl->vk_objProp) { insideGoodVolume = vk->vk_fitterControl->vk_objProp->checkTarget(targetVertex, *vk->vk_fitterControl->vk_istate);}
      else                                                      { insideGoodVolume = myPropagator.checkTarget(targetVertex); }
      if(!insideGoodVolume) { return -16; }       //Vertex is definitely outside working volume
      for(it=0; it<NTRK; it++){

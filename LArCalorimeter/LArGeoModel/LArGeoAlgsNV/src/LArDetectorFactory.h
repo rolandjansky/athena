@@ -6,7 +6,7 @@
  * @file LArDetectorFactory.h
  *
  * @class LArGeo::LArDetectorFactory
- * 
+ *
  * @brief LArDetectorFactory builds GeoModel description of LAr calorimeter by calling
  * relevant 'Construction' classes (Barrel, Endcap). It also builds readout geometry
  * description using LArReadoutGeometry objects.
@@ -26,19 +26,19 @@ namespace LArGeo {
   class LArDetectorFactory : public GeoVDetectorFactory  {
 
   public:
-  
+
     // Constructor:
     LArDetectorFactory(int testbeam, bool fullGeo, const LArHVManager* hvManager);
-  
+
     // Destructor:
     virtual ~LArDetectorFactory();
-  
+
     // Creation of geometry:
     virtual void create(GeoPhysVol* world);
-  
+
     // Access to the results:
     virtual const LArDetectorManager* getDetectorManager() const;
-  
+
 
     // Set parameters:
 
@@ -47,14 +47,18 @@ namespace LArGeo {
     void setFCALVisLimit(int maxCell)       {m_fcalVisLimit   = maxCell;}
     void setBuildBarrel(bool flag)          {m_buildBarrel = flag;}
     void setBuildEndcap(bool flag)          {m_buildEndcap = flag;}
+    void setEMECVariant(const std::string &inner, const std::string &outer)
+    {
+        m_EMECVariantInner = inner;
+        m_EMECVariantOuter = outer;
+    }
 
+  private:
 
-  private:  
-  
     // Illegal operations:
     const LArDetectorFactory & operator=(const LArDetectorFactory &right);
     LArDetectorFactory(const LArDetectorFactory &right);
-  
+
     // The manager:
     LArDetectorManager*       m_detectorManager;
     const LArHVManager*       m_hvManager;
@@ -68,9 +72,11 @@ namespace LArGeo {
     int                       m_testbeam;
 
     bool                       m_fullGeo;  // true->FULL, false->RECO
+    std::string               m_EMECVariantInner;
+    std::string               m_EMECVariantOuter;
   };
 
 } // namespace LArGeo
 
-#endif 
+#endif
 

@@ -14,7 +14,7 @@ namespace Trk{
 // Option setting for VKalVrt core via m_vkalFitControl object
 //
 
-  void TrkVKalVrtFitter::VKalVrtConfigureFitterCore(int NTRK)
+  void TrkVKalVrtFitter::VKalVrtConfigureFitterCore(int NTRK, State& /*state*/)
   {
     m_FitStatus = 0;     // Drop all previous fit results
     m_vkalFitControl->vk_forcft = ForCFT();
@@ -289,14 +289,15 @@ namespace Trk{
   void TrkVKalVrtFitter::setZeroCharge(int Track) { m_TrackCharge.push_back(Track);}
 
 
-  void TrkVKalVrtFitter::setDefault()
+  void TrkVKalVrtFitter::setDefault(IVKalState& istate)
   {
-   setApproximateVertex(0.,0.,0.);
-   setRobustness(0);
+   State& state = dynamic_cast<State&> (istate);
+   setApproximateVertex(0.,0.,0.,state);
+   setRobustness(0,state);
    setCascadeCnstPrec(1.e-4);
-   setMassForConstraint(-1.);
-   setVertexForConstraint(0.,0.,0.);
-   setCovVrtForConstraint(1.e6,0.,1.e6,0.,0.,1.e6);
+   setMassForConstraint(-1.,state);
+   setVertexForConstraint(0.,0.,0.,state);
+   setCovVrtForConstraint(1.e6,0.,1.e6,0.,0.,1.e6,state);
    m_MassInputParticles.clear();
    setMomCovCalc(0);
    m_TrackCharge.clear();

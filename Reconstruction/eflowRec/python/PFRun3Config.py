@@ -220,7 +220,7 @@ def PFCfg(inputFlags,**kwargs):
 
     #Configure topocluster algorithmsm, and associated conditions
     from CaloRec.CaloTopoClusterConfig import CaloTopoClusterCfg
-    result.merge(CaloTopoClusterCfg(inputFlags))
+    result.merge(CaloTopoClusterCfg(inputFlags,doLCCalib=True))
     
     from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
     result.merge(caloTopoCoolFolderCfg(inputFlags))

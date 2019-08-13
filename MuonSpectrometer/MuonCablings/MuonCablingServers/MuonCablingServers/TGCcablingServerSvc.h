@@ -14,7 +14,7 @@ class TGCcablingServerSvc : public AthService,
                             virtual public ITGCcablingServerSvc
 {
    private:
-    mutable BooleanProperty m_atlas;
+    BooleanProperty m_atlas;
 
     bool m_forcedUse;
     bool m_useMuonTGC_CablingSvc;

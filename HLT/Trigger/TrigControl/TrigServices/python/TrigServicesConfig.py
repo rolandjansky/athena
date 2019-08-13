@@ -12,7 +12,7 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
       super(TrigCOOLUpdateHelper, self).__init__(name)
 
       from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
-      self.MonTool = GenericMonitoringTool('MonTool')
+      self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.defineHistogram('TIME_CoolFolderUpdate', path='EXPERT', type='TH1F',
                                    title='Time for conditions update;time [ms]',
                                    xbins=100, xmin=0, xmax=200)
@@ -84,7 +84,7 @@ class HltROBDataProviderSvc(_HltROBDataProviderSvc):
    def __init__(self, name='ROBDataProviderSvc'):
       super(HltROBDataProviderSvc, self).__init__(name)
       from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
-      self.MonTool = GenericMonitoringTool('MonTool')
+      self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.Histograms = [ 
          defineHistogram('TIME_ROBReserveData', path='EXPERT', type='TH1F',
                          title='Time to reserve ROBs for later retrieval;time [mu s]',

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ namespace ISF {
 
        /** Creates a new ISFParticle from a given ParticleState, 
           universal transport tool */
-       virtual ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine *randomEngine = nullptr) = 0;
+       virtual ISF::ISFParticle* process(const ISF::ISFParticle& isp, CLHEP::HepRandomEngine *randomEngine = nullptr) const = 0;
   };
 
 } // end of namespace

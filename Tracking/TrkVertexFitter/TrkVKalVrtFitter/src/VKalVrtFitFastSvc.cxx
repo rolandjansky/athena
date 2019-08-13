@@ -31,7 +31,7 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const Track*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& /*istate*/)
+                                              IVKalState& istate)
   {
 //
 //--- Magnetic field
@@ -42,6 +42,7 @@ namespace Trk{
 //  Convert particles and setup reference frame
 //
     int ntrk=0; 
+    m_vkalFitControl->vk_istate = &istate;
     StatusCode sc = CvtTrkTrack(InpTrk,ntrk);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
@@ -100,8 +101,9 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const xAOD::TrackParticle*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& /*istate*/)
+                                              IVKalState& istate)
   {
+    State& state = dynamic_cast<State&> (istate);
 //
 //--- Magnetic field
 //
@@ -111,7 +113,7 @@ namespace Trk{
 //  Convert particles and setup reference frame
 //
     int ntrk=0; 
-    StatusCode sc = CvtTrackParticle(InpTrk,ntrk);
+    StatusCode sc = CvtTrackParticle(InpTrk,ntrk,state);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
     m_fitField->getMagFld(0.,0.,0.,fx,fy,BMAG_CUR);
@@ -169,8 +171,9 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const TrackParticleBase*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& /*istate*/)
+                                              IVKalState& istate)
   {
+    State& state = dynamic_cast<State&> (istate);
 //
 //--- Magnetic field
 //
@@ -180,7 +183,7 @@ namespace Trk{
 //  Convert particles and setup reference frame
 //
     int ntrk=0; 
-    StatusCode sc = CvtTrackParticle(InpTrk,ntrk);
+    StatusCode sc = CvtTrackParticle(InpTrk,ntrk,state);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
     m_fitField->getMagFld(0.,0.,0.,fx,fy,BMAG_CUR);
@@ -238,8 +241,9 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const TrackParameters*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& /*istate*/)
+                                              IVKalState& istate)
   {
+    State& state = dynamic_cast<State&> (istate);
 //
 //--- Magnetic field
 //
@@ -249,7 +253,7 @@ namespace Trk{
 //  Convert particles and setup reference frame
 //
     int ntrk=0; 
-    StatusCode sc = CvtTrackParameters(InpTrk,ntrk);
+    StatusCode sc = CvtTrackParameters(InpTrk,ntrk,state);
     if(sc.isFailure() || ntrk<1 ) return StatusCode::FAILURE; 
     double fx,fy,BMAG_CUR;
     m_fitField->getMagFld(0.,0.,0.,fx,fy,BMAG_CUR);

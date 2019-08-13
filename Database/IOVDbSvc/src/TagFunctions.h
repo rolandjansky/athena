@@ -15,11 +15,14 @@ class StoreGateSvc;
 namespace IOVDbNamespace{
   ///Retrieve the TagInfo
   std::string getTagInfo(const std::string &tag, const StoreGateSvc* detStore);
+  
   ///Get the GeoAtlas version directly from GeoModelSvc
   std::string getGeoAtlasVersion();
+  
   ///Check whether a tag is locked on a folder, if possible
   std::optional<bool>
   checkTagLock(const cool::IFolderPtr fptr, const std::string & tag);
+  
+  
 }
-
 #endif

@@ -92,6 +92,13 @@ StatusCode GeoModelSvc::initialize()
   ATH_CHECK( conversionSvc.retrieve() );
   // --- Sebastien
 
+  // Working around Gaudi Issue https://gitlab.cern.ch/gaudi/Gaudi/issues/82
+  Service* convSvc=dynamic_cast<Service*>(conversionSvc.get());
+  if (convSvc->FSMState() < Gaudi::StateMachine::INITIALIZED) {
+    ATH_MSG_INFO("Explicitly initializing DetDescrCnvSvc");
+    convSvc->sysInitialize();
+  } 
+
   ATH_CHECK( m_detectorTools.retrieve() );
 
   ToolHandleArray< IGeoModelTool >::iterator itPriv = m_detectorTools.begin(),

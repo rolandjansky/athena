@@ -15,7 +15,7 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerTest/testCommonSliceAthenaTrigRDO.py'
 ex.input = 'ttbar_rel21'
-ex.args = '-c \'menu="Physics_pp_v7_primaries";\''
+ex.args = '-c \'menu="Physics_pp_v7_primaries";enableCostMonitoring=False;RunningRTT=True;\''
 
 test = Test.Test()
 test.art_type = 'build'

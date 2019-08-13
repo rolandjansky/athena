@@ -118,7 +118,7 @@ namespace Trk {
         std::vector< std::vector< std::map<unsigned int, double> > > m_run_elements;
 
         //!< the final material properties                  
-        mutable MaterialPropertiesMatrix                             m_associatedLayerMaterial;
+        MaterialPropertiesMatrix                             m_associatedLayerMaterial;
                                                                      
         //!< clear the material -> calls delete
         void clearMaterial();

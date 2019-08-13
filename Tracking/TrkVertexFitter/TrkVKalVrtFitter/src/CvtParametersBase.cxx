@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //   TEMPORARY until track EDM is finalised!!!!
@@ -23,7 +23,11 @@ namespace Trk {
 //  Extract TrackParameters
 //
 
- StatusCode TrkVKalVrtFitter::CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk, int& ntrk) {
+ StatusCode
+ TrkVKalVrtFitter::CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,
+                                      int& ntrk,
+                                      State& state)
+ {
 
     //MsgStream log(msgSvc(), name());
     std::vector<const TrackParameters*>::const_iterator   i_pbase;
@@ -88,7 +92,7 @@ namespace Trk {
        long int TrkID=ntrk;
        const TrackParameters* trkparO = (*i_pbase);
        if( trkparO ){
-         const Trk::TrackParameters* trkparN = m_fitPropagator->myExtrapWithMatUpdate( TrkID, trkparO, &m_refGVertex );
+         const Trk::TrackParameters* trkparN = m_fitPropagator->myExtrapWithMatUpdate( TrkID, trkparO, &m_refGVertex, state );
          if(trkparN == 0) return StatusCode::FAILURE;
          mPer = dynamic_cast<const Trk::Perigee*>(trkparN); 
          if( mPer == 0) {   delete trkparN;  return StatusCode::FAILURE; }
@@ -129,7 +133,11 @@ namespace Trk {
  }
 
 
- StatusCode TrkVKalVrtFitter::CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk, int& ntrk) {
+ StatusCode
+ TrkVKalVrtFitter::CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,
+                                        int& ntrk,
+                                        State& /*state*/)
+ {
 
     //MsgStream log(msgSvc(), name());
     std::vector<const NeutralParameters*>::const_iterator   i_pbase;

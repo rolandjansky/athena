@@ -619,7 +619,7 @@ namespace InDet
     bool isOK = false;
     double distance = 0.;
     try {
-      Trk::PlaneSurface* mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(params, vertex);
+      Trk::PlaneSurface* mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(params, vertex, distance);
       delete mySurface;
       isOK = true;
     }
@@ -628,8 +628,8 @@ namespace InDet
       err.p << endmsg;
     }
 
-    if (isOK) {
-      distance = m_ImpactPoint3dEstimator->getDistance();
+    if (not isOK) {
+      distance = 0.;
     }
     if (distance < 0) {
       msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endmsg;

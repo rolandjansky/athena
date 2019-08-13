@@ -29,7 +29,7 @@ class opt :
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
-    doESD            = True           # Write out an ESD?
+    doWriteESD       = True           # Write out an ESD?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
     doL1Sim          = False          # (re)run L1 simulation
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
@@ -120,9 +120,18 @@ if len(athenaCommonFlags.FilesInput())>0:
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
-    if '_run_number' in dir():
-        TriggerRelease.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
-        del _run_number
+    if not '_run_number' in dir():
+        import PyUtils.AthFile as athFile
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
+        _run_number = af.run_number[0]
+
+    TriggerRelease.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
+
+    from RecExConfig.RecFlags import rec
+    rec.RunNumber =_run_number
+    del _run_number
+
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()

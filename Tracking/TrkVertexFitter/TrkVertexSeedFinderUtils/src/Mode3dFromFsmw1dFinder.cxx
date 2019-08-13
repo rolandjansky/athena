@@ -1222,10 +1222,46 @@ Mode3dFromFsmw1dFinder::Mode3dFromFsmw1dInfo::getCorrelationDistance
 }
 
 
+int
+Mode3dFromFsmw1dFinder::Mode3dFromFsmw1dInfo::perigeesAtSeed
+ (std::vector<const Trk::TrackParameters*>& perigees , 
+  const std::vector<const Trk::TrackParameters*> & perigeeList) const
+{
+  perigees.clear() ;
+  std::vector<int> trklist(0) ;
+
+  for (int ndx : m_UsedCrossingPointsIndices) {
+    std::pair<int,int> trk = m_trkidx.at( ndx ) ;
+
+    if ( std::find( trklist.begin(), trklist.end(), trk.first ) ==  trklist.end() ) 
+      trklist.push_back( trk.first ) ;
+    if ( std::find( trklist.begin(), trklist.end(), trk.second ) ==  trklist.end() )
+      trklist.push_back( trk.second ) ;
+  }
+
+  std::sort( trklist.begin(), trklist.end() ) ;
+
+  for ( unsigned int t = 0 ; t < trklist.size() ; t++ )
+  {
+    perigees.push_back( perigeeList[trklist[t]] ) ;
+  }
+
+  return perigees.size() ;
+}
+
+
 void
 Mode3dFromFsmw1dFinder::Mode3dFromFsmw1dInfo::pushIndex (int idx)
 {
   m_UsedCrossingPointsIndices.push_back( idx ) ;
+}
+
+
+void
+Mode3dFromFsmw1dFinder::Mode3dFromFsmw1dInfo::setTrkidx
+  (std::vector< std::pair <int, int> >&& trkidx)
+{
+  m_trkidx = std::move (trkidx);
 }
 
 

@@ -44,7 +44,7 @@ namespace Trk
 {
 
   MCTrueSeedFinder::MCTrueSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_partPropSvc( "PartPropSvc", n ),
     m_removeInTimePileUp(false),
     m_removeHardScattering(false)
@@ -52,11 +52,14 @@ namespace Trk
     declareProperty("RemoveHardScattering", m_removeHardScattering, "Do not consider hard-scattering");
     declareProperty("RemoveInTimePileUp", m_removeInTimePileUp, "Do not consider in-time pile-up");
     declareProperty( "PartPropSvc", m_partPropSvc, "Handle to the particle property service" );
-    declareInterface<IVertexSeedFinder>(this);
   }
   
-  MCTrueSeedFinder::~MCTrueSeedFinder() {}
   
+  MCTrueSeedFinder::~MCTrueSeedFinder()
+  {
+  }
+
+
   StatusCode MCTrueSeedFinder::initialize() 
   { 
     ATH_CHECK( m_mcEventCollectionKey.initialize() );
@@ -73,7 +76,7 @@ namespace Trk
 
   Amg::Vector3D
   MCTrueSeedFinder::findSeed(const std::vector<const Trk::Track*>& perigeeList,
-                             const xAOD::Vertex* constraint)
+                             const xAOD::Vertex* constraint) const
   {
     std::vector<Amg::Vector3D> seeds = findMultiSeeds (perigeeList, constraint);
     if (seeds.empty()) {
@@ -85,7 +88,7 @@ namespace Trk
 
   Amg::Vector3D
   MCTrueSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*>& vectorTrk,
-                             const xAOD::Vertex* constraint)
+                             const xAOD::Vertex* constraint) const
   {
     std::vector<Amg::Vector3D> seeds = findMultiSeeds (vectorTrk, constraint);
     if (seeds.empty()) {
@@ -95,7 +98,7 @@ namespace Trk
   }
 
 
-  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */)
+  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) const
   {
     std::vector<Amg::Vector3D> seeds;
     if( retrieveInteractionsInfo (seeds).isFailure() ) {
@@ -106,7 +109,7 @@ namespace Trk
   }
 
 
-  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */)
+  std::vector<Amg::Vector3D> MCTrueSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) const
   {
     std::vector<Amg::Vector3D> seeds;
     if( retrieveInteractionsInfo (seeds).isFailure() ) {
@@ -252,24 +255,5 @@ namespace Trk
     return true;
   }
 
-  void MCTrueSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
-     //implemented to satisfy inheritance
-  }
-
-  int MCTrueSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /* a */ ,
-					const std::vector<const Trk::TrackParameters*> & /* b */) const{
-    //implemented to satisfy inheritance
-    return 0;
-  }
-
-  int MCTrueSeedFinder::getModes1d(std::vector<float> &/* a */, std::vector<float> & /* b */, 
-				   std::vector<float> & /* c */, std::vector<float> &/* d */) const{
-    //implemented to satisfy inheritance
-    return 0;
-  }
-
-  void MCTrueSeedFinder::getCorrelationDistance( double & /* cXY */, double & /* cZ */ ){
-     //implemented to satisfy inheritance
-  }
 
 }

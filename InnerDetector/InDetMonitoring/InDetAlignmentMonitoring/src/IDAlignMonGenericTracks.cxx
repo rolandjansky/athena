@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -1647,7 +1647,6 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   
   //get tracks
   const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
-  //const DataVector<xAOD::TrackParticle>* trkPs = m_trackSelection->selectTracksParticle(m_tracksName);
 
 
   
@@ -1694,7 +1693,8 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   double hweight = 1.;
   // NB the weight is a "per track" weight, so histograms such as BS info are never weighted
  
-  if (m_doIP) fillVertexInformation();
+  std::map<const xAOD::TrackParticle*, const xAOD::Vertex*> trackVertexMapTP;
+  if (m_doIP) fillVertexInformation(trackVertexMapTP);
 
   float beamSpotX = 0.;
   float beamSpotY = 0.;
@@ -2536,12 +2536,12 @@ void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F_LW* h_neg, TH1F_LW* h_p
 }
 
 
-const xAOD::Vertex* IDAlignMonGenericTracks::findAssociatedVertexTP(const xAOD::TrackParticle *track) const
+const xAOD::Vertex* IDAlignMonGenericTracks::findAssociatedVertexTP(const std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP, const xAOD::TrackParticle *track) const
 {
 
-  std::map<const xAOD::TrackParticle*, const xAOD::Vertex* >::iterator tpVx =  m_trackVertexMapTP.find( track);
+  std::map<const xAOD::TrackParticle*, const xAOD::Vertex* >::const_iterator tpVx = trackVertexMapTP.find( track);
 
-  if (tpVx == m_trackVertexMapTP.end() ){
+  if (tpVx == trackVertexMapTP.end() ){
     ATH_MSG_VERBOSE("Did not find the vertex. Returning 0");
     return 0;
   } 
@@ -2549,18 +2549,6 @@ const xAOD::Vertex* IDAlignMonGenericTracks::findAssociatedVertexTP(const xAOD::
 
 }
 
-
-//const Trk::VxCandidate* IDAlignMonGenericTracks::findAssociatedVertex(const Trk::Track *track) const
-//{
-
-//std::map<const Trk::Track*, const Trk::VxCandidate* >::iterator tpVx =  m_trackVertexMap.find( track);
-
-//if (tpVx == m_trackVertexMap.end() ){
-//  return 0;
-//} 
-//return (*tpVx).second;
-
-//}
 
 const Trk::Track* IDAlignMonGenericTracks::getTrkTrack(const Trk::VxTrackAtVertex *trkAtVx)const
 {
@@ -2588,10 +2576,10 @@ const Trk::Track* IDAlignMonGenericTracks::getTrkTrack(const Trk::VxTrackAtVerte
 
 
 
-bool IDAlignMonGenericTracks::fillVertexInformation() const
+bool IDAlignMonGenericTracks::fillVertexInformation(std::map<const xAOD::TrackParticle*, const xAOD::Vertex*>& trackVertexMapTP) const
 {
   ATH_MSG_DEBUG("Generic Tracks: fillVertexInformation(): Checking ");
-  m_trackVertexMapTP.clear();
+  trackVertexMapTP.clear();
   const xAOD::VertexContainer* vxContainer(0);
   StatusCode sc = evtStore()->retrieve(vxContainer, m_VxPrimContainerName);
   if (sc.isFailure()) {
@@ -2618,7 +2606,7 @@ bool IDAlignMonGenericTracks::fillVertexInformation() const
 	for(auto link: tpLinks) {
 	  const xAOD::TrackParticle *TP = *link;
           if(TP) {
-            m_trackVertexMapTP.insert( std::make_pair( TP, *vxI )  );
+            trackVertexMapTP.insert( std::make_pair( TP, *vxI )  );
           }
         }
       }

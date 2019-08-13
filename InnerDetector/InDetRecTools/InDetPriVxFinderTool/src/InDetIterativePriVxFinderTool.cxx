@@ -430,7 +430,7 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
           double distance = 0.;
           try
           {
-            Trk::PlaneSurface* mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter, &actualVertex);
+            Trk::PlaneSurface* mySurface = m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter, &actualVertex, distance);
             delete mySurface;
             isOK = true;
           }
@@ -442,8 +442,8 @@ InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection
           }
 
 
-          if (isOK) {
-            distance = m_ImpactPoint3dEstimator->getDistance();
+          if (not isOK) {
+            distance = 0.;
           }
 
           if (distance < 0) {

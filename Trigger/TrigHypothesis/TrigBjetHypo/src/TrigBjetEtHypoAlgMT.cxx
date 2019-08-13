@@ -18,6 +18,7 @@ StatusCode TrigBjetEtHypoAlgMT::initialize() {
 
   ATH_MSG_DEBUG(  "declareProperty review:"    );
   ATH_MSG_DEBUG(  "   " << m_roiLink           );
+  ATH_MSG_DEBUG(  "   " << m_prmVtxLink        );
 
   ATH_MSG_DEBUG( "Initializing Tools" );
   ATH_CHECK( m_hypoTools.retrieve()   );
@@ -25,6 +26,7 @@ StatusCode TrigBjetEtHypoAlgMT::initialize() {
   ATH_MSG_DEBUG( "Initializing HandleKeys" );
   CHECK( m_inputJetsKey.initialize()       );
   CHECK( m_inputRoIKey.initialize()        );
+  CHECK( m_inputPrmVtx.initialize()        );
 
   return StatusCode::SUCCESS;
 }
@@ -53,7 +55,8 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
 
   // Retrieve RoI (to be linked to the output decision)
   const TrigRoiDescriptorCollection *roiContainer = nullptr;
-  CHECK( retrieveRoIs( context,roiContainer,m_inputRoIKey ) );
+  if ( m_roiLink.value() != "Undefined" )
+    CHECK( retrieveRoIs( context,roiContainer,m_inputRoIKey ) );
 
   // ========================================================================================================================== 
   //    ** Prepare Outputs
@@ -81,19 +84,7 @@ StatusCode TrigBjetEtHypoAlgMT::execute( const EventContext& context ) const {
   }
 
   // Adding Links
-  for ( unsigned int index(0); index<nDecisions; index++ ) {
-    // We want multiple output decision (one per RoI/Jet)    
-
-    // A little bit tricky here, we may need to revise this in the future
-    // In case what we want to link lives inside a view we have to do a few additional things 
-    // in order to be able to link it to the output decision
-    if ( roiContainer != nullptr )
-      newDecisions.at( index )->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
-
-    CHECK( setJetLink( context,m_inputJetsKey,index,prevDecisionContainer,newDecisions ) );
-
-  }
-  ATH_MSG_DEBUG("   ** Added object links to output decision");
+  CHECK( attachLinkToDecisions( context,prevDecisionContainer,newDecisions) );
 
   // ==========================================================================================================================
   //    ** Prepare input to Hypo Tools
@@ -139,7 +130,7 @@ StatusCode TrigBjetEtHypoAlgMT::retrieveJets( const EventContext& context,
 					      const SG::ReadHandleKey< xAOD::JetContainer >& inputJetsKey,
 					      const TrigCompositeUtils::DecisionContainer* prevDecisionContainer ) const {
   
-  CHECK( retrieveJetsFromStoreGate( context,jetELs,inputJetsKey,prevDecisionContainer ) );
+  CHECK( retrieveObjectFromStoreGate( context,jetELs,inputJetsKey,prevDecisionContainer ) );
   return StatusCode::SUCCESS;
 }
 
@@ -173,3 +164,27 @@ const TrigCompositeUtils::Decision* TrigBjetEtHypoAlgMT::getPreviousDecision( co
   return decisionContainer->at(0);
 }
 
+StatusCode TrigBjetEtHypoAlgMT::attachLinkToDecisions( const EventContext& context,
+						       const TrigCompositeUtils::DecisionContainer* prevDecisionContainer,
+						       std::vector< TrigCompositeUtils::Decision* >& newDecisions ) const {
+  const unsigned int nDecisions = newDecisions.size();
+
+  for ( unsigned int index(0); index<nDecisions; index++ ) {
+    // We want multiple output decision (one per RoI/Jet)    
+
+    // A little bit tricky here, we may need to revise this in the future
+    // In case what we want to link lives inside a view we have to do a few additional things 
+    // in order to be able to link it to the output decision
+    if ( m_roiLink.value() != "Undefined" && m_inputRoIKey.key() != "Undefined" )
+      newDecisions.at( index )->setObjectLink( m_roiLink.value(),ElementLink< TrigRoiDescriptorCollection >( m_inputRoIKey.key(),index ) );
+    
+    if ( m_prmVtxLink.value() != "Undefined" && m_inputPrmVtx.key() != "Undefined")
+      newDecisions.at( index )->setObjectLink( m_prmVtxLink.value(),ElementLink< xAOD::VertexContainer >( m_inputPrmVtx.key(),0 ) );
+    
+    CHECK( setJetLink( context,m_inputJetsKey,index,prevDecisionContainer,newDecisions ) );
+  }
+
+  ATH_MSG_DEBUG("   ** Added object links to output decision");
+
+  return StatusCode::SUCCESS;
+}

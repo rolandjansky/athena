@@ -19,6 +19,7 @@
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
+#include "eflowRec/PFSubtractionStatusSetter.h"
 
 #include "CaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
@@ -210,6 +211,9 @@ int PFRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
 }
 
 void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCaloObject) {
+
+  PFSubtractionStatusSetter pfSubtractionStatusSetter;
+
   for (unsigned iTrack = 0; iTrack < thisEflowCaloObject->nTracks(); ++iTrack) {
     eflowRecTrack* thisEfRecTrack = thisEflowCaloObject->efRecTrack(iTrack);
     /* Get matched cluster via Links */
@@ -219,21 +223,30 @@ void PFRecoverSplitShowersTool::performSubtraction(eflowCaloObject* thisEflowCal
     for ( auto thisEFlowTrackClusterLink : links) matchedClusters.push_back(thisEFlowTrackClusterLink->getCluster());
 
     /* Do subtraction */
-    std::vector<xAOD::CaloCluster*> clusterSubtractionList;
+    std::vector<std::pair<xAOD::CaloCluster*, bool> > clusterSubtractionList;
     clusterSubtractionList.reserve(matchedClusters.size());
-    for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(thisEFlowRecCluster->getCluster());
-
+    for (auto thisEFlowRecCluster : matchedClusters) clusterSubtractionList.push_back(std::pair(thisEFlowRecCluster->getCluster(),false));
+    
     if (getSumEnergy(clusterSubtractionList) - thisEfRecTrack->getEExpect() < m_subtractionSigmaCut
         * sqrt(thisEfRecTrack->getVarEExpect())) {
       /* Check if we can annihilate right away */
       Subtractor::annihilateClusters(clusterSubtractionList);
+      //Now we should mark all of these clusters as being subtracted
+      //Now need to mark which clusters were modified in the subtraction procedure
+      pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
+
     } else {
       /* Subtract the track from all matched clusters */
       Subtractor::subtractTracksFromClusters(thisEfRecTrack, clusterSubtractionList);
+      //Now need to mark which clusters were modified in the subtraction procedure
+      pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
+      
       /* Annihilate the cluster(s) if the remnant is small (i.e. below k*sigma) */
       if (getSumEnergy(clusterSubtractionList) < m_subtractionSigmaCut
           * sqrt(thisEfRecTrack->getVarEExpect())) {
         Subtractor::annihilateClusters(clusterSubtractionList);
+	//Now we should mark all of these clusters as being subtracted
+	pfSubtractionStatusSetter.markSubtractionStatus(clusterSubtractionList, *thisEflowCaloObject);
       }
     }
     /* Flag tracks as subtracted */
@@ -250,8 +263,8 @@ void PFRecoverSplitShowersTool::performRecovery(int const nOriginalObj) {
 
 }
 
-double PFRecoverSplitShowersTool::getSumEnergy(const std::vector<xAOD::CaloCluster*>& clusters) {
+double PFRecoverSplitShowersTool::getSumEnergy(const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters) {
   double result = 0.0;
-  for (auto thisCluster : clusters) result += thisCluster->e();
+  for (auto thisPair : clusters) result += (thisPair.first)->e();
   return result;
 }

@@ -310,9 +310,11 @@ void TrkVKalVrtFitter::printSimpleCascade(std::vector< std::vector<int> > & vrtD
 inline int SymIndex(int it, int i, int j) {  return (3*it+3+i)*(3*it+3+i+1)/2 + (3*it+3+j);}
 #define CLEANCASCADE()  m_vkalFitControl->renewCascadeEvent(nullptr)
 
-VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& /*istate*/,
+VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& istate,
                                              const Vertex* primVrt, bool FirstDecayAtPV )
 {
+    State& state = dynamic_cast<State&> (istate);
+
     int iv,it,jt,ic;
     std::vector< Vect3DF >               cVertices;
     std::vector< std::vector<double> >   covVertices;
@@ -337,14 +339,14 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(IVKalState& /*istate*/,
             { CLEANCASCADE();  return 0; }
           }	      
        }
-       sc=CvtTrackParameters(baseInpTrk,ntrk);
-       if(sc.isFailure()){ntrk=0; sc=CvtTrackParticle(m_partListForCascade,ntrk);}
+       sc=CvtTrackParameters(baseInpTrk,ntrk,state);
+       if(sc.isFailure()){ntrk=0; sc=CvtTrackParticle(m_partListForCascade,ntrk,state);}
     }else{
-       sc=CvtTrackParticle(m_partListForCascade,ntrk);
+       sc=CvtTrackParticle(m_partListForCascade,ntrk,state);
     }
     if(sc.isFailure()){ CLEANCASCADE(); return 0; }
 
-    VKalVrtConfigureFitterCore(ntrk);
+    VKalVrtConfigureFitterCore(ntrk, state);
 
     makeSimpleCascade(m_vertexDefinition, m_cascadeDefinition);
 

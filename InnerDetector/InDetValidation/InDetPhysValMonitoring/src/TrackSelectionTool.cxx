@@ -166,6 +166,7 @@ TrackSelectionTool::initialize() {
   }
 
   // Initialise counters.
+  std::lock_guard<std::mutex> lock(m_mutex);
   m_numPassedCuts.resize(m_accept.getNCuts(), 0);
 
   return StatusCode::SUCCESS;
@@ -372,10 +373,13 @@ TrackSelectionTool::accept(const xAOD::TrackParticle* p) const {
   // if (m_maxEta>-1) acceptData.setCutResult("eta", (p->pt()>1e-7 ? (fabs(p->eta()) < m_maxEta) : false) );
 
   // Book keep cuts
-  for (const auto& cut : m_cuts) {
-    unsigned int pos = acceptData.getCutPosition(cut.first);
-    if (acceptData.getCutResult(pos)) {
-      m_numPassedCuts[pos]++;
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    for (const auto& cut : m_cuts) {
+      unsigned int pos = acceptData.getCutPosition(cut.first);
+      if (acceptData.getCutResult(pos)) {
+        m_numPassedCuts[pos]++;
+      }
     }
   }
 
@@ -397,10 +401,11 @@ TrackSelectionTool::finalize() {
   }
   ATH_MSG_INFO(m_numPassed << " / " << m_numProcessed << " = "
                            << m_numPassed * 100. / m_numProcessed << "% passed all cuts.");
+  std::lock_guard<std::mutex> lock(m_mutex);
   for (const auto& cut : m_cuts) {
     ULong64_t numPassed = m_numPassedCuts.at(m_accept.getCutPosition(cut.first));
     ATH_MSG_INFO(numPassed << " = " << numPassed * 100. / m_numProcessed << "% passed "
-                           << cut.first << " cut.");
+                 << cut.first << " cut.");
   }
 
   return StatusCode::SUCCESS;

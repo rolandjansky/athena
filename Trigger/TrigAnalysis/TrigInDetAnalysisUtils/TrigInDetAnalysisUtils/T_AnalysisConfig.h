@@ -303,7 +303,15 @@ protected:
 
     //    std::cout << "try " << key << "\t" << m_provider->evtStore()->template transientContains<Collection>(key) << std::endl;
 
-    std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
+    std::string key_collection = key;
+    std::string key_tename     = "";
+    size_t pos = key_collection.find("/");
+    if ( pos!=std::string::npos ) {
+      key_collection = key.substr( pos+1, key.size()-pos );
+      key_tename     = key.substr( 0, pos );
+    }
+
+    std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key_collection, TrigDefs::alsoDeactivateTEs, key_tename );
     if ( !trackcollections.empty() ) {
       // NB!! a combination should never have more than one entry for a track collection from a single algorithm, for single object triggers
       for ( unsigned ifeat=0 ; ifeat<trackcollections.size() ; ifeat++ ) {

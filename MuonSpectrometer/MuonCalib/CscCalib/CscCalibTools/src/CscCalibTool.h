@@ -22,14 +22,16 @@
 #include "MuonCondData/CscCondDataContainer.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
 #include "CscCalibTools/ICscCalibTool.h"
+#include "CxxUtils/checker_macros.h"
 
-#include <atomic>
-#include <inttypes.h>
-#include <vector>
 #include "TMath.h"
 #include "TF1.h"
 #include "TH1.h"
 
+#include <atomic>
+#include <inttypes.h>
+#include <mutex>
+#include <vector>
 
 class CscCalibTool : public extends<AthAlgTool, ICscCalibTool> {
 
@@ -167,8 +169,9 @@ protected:
   float m_latencyInDigitization; // new in 12/2010 for New Digitization package...
 
   unsigned int m_nSamples;
-  mutable TF1* m_addedfunc;
-  mutable TF1* m_bipolarFunc;
+  mutable TF1* m_addedfunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable TF1* m_bipolarFunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::mutex m_mutex;
 
   bool m_onlineHLT;
   bool m_use2Samples; // for the use of only 2 samples for strip charge

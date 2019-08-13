@@ -137,10 +137,10 @@ namespace Trk{
 //
   Track* TrkVKalVrtFitter::CreateTrkTrack( const std::vector<double>& VKPerigee,
                                            const std::vector<double>& VKCov,
-                                           IVKalState& /*istate*/)
+                                           IVKalState& istate)
   {
-
-    const Trk::Perigee*	perigee = CreatePerigee(0., 0., 0., VKPerigee, VKCov);
+    const State& state = dynamic_cast<const State&> (istate);
+    const Trk::Perigee*	perigee = CreatePerigee(0., 0., 0., VKPerigee, VKCov, state);
 				      
     const Trk::FitQuality* fitQuality = new Trk::FitQuality(10.,1);
     DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces 
@@ -163,7 +163,8 @@ namespace Trk{
 //----------------------------------------------------------------------------------------------
   Perigee * TrkVKalVrtFitter::CreatePerigee(double vX, double vY, double vZ,
      			  	            const std::vector<double>& VKPerigee,
-                                            const std::vector<double>& VKCov)
+                                            const std::vector<double>& VKCov,
+                                            const State& /*state*/)
   {
 //
 // ------  Magnetic field access

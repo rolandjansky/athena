@@ -447,8 +447,6 @@ namespace Analysis {
 
     /** extract the TrackParticles from the jet and apply track selection: */
     int nbTrak = 0;
-    m_trackSelectorTool->primaryVertex(m_priVtx->position());
-    m_trackSelectorTool->prepare();
     std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = 
       BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
     double sumTrkpT = 0; unsigned ntrk=0;
@@ -473,13 +471,17 @@ namespace Analysis {
 	  }
 	}
 
-	if (m_trackSelectorTool->selectTrack(aTemp)) sumTrkpT += aTemp->pt();	
+	if (m_trackSelectorTool->selectTrack(m_priVtx->position(),
+                                             aTemp))
+        {
+          sumTrkpT += aTemp->pt();
+        }
       }
       
       for( trkIter = associationLinks.begin(); trkIter != associationLinks.end() ; ++trkIter ) {
         const xAOD::TrackParticle* aTemp = **trkIter;
         nbTrak++;
-        if( m_trackSelectorTool->selectTrack(aTemp, sumTrkpT) ) {
+        if( m_trackSelectorTool->selectTrack(m_priVtx->position(), aTemp, sumTrkpT) ) {
           TrackGrade* theGrade = m_trackGradeFactory->getGrade(*aTemp, jetToTag->p4() );
           ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= " << theGrade->gradeString() );
 	  bool tobeUsed = false;
@@ -759,11 +761,10 @@ namespace Analysis {
           slices.push_back(slice1);
         }
       }
-      m_likelihoodTool->setLhVariableValue(slices);
       std::vector<double> lkl;
       lkl.reserve(3);
       if(vectD0Signi.size()>0) {
-        lkl = m_likelihoodTool->calculateLikelihood();
+        lkl = m_likelihoodTool->calculateLikelihood(slices);
       } else {
         lkl.push_back(1.);
         lkl.push_back(1.e9);
@@ -854,8 +855,6 @@ namespace Analysis {
 
     IPTracks.clear();
     
-    m_likelihoodTool->clear();
-
     m_tracksInJet.clear();
 
     return StatusCode::SUCCESS;
@@ -901,9 +900,7 @@ namespace Analysis {
       slice1.composites.push_back(compo1);
       slices.push_back(slice1);
     }
-    m_likelihoodTool->setLhVariableValue(slices);
-    std::vector<double> tmp = m_likelihoodTool->calculateLikelihood();
-    m_likelihoodTool->clear();
+    std::vector<double> tmp = m_likelihoodTool->calculateLikelihood(slices);
     twb = tmp[0];
     twu = tmp[1];
     twc = 0.;

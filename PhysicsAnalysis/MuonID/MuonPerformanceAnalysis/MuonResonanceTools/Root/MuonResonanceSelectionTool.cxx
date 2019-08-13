@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonResonanceSelectionTool.cxx
@@ -84,7 +84,7 @@ StatusCode MuonResonanceSelectionTool::initialize()
 
 //**********************************************************************
 
-std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonResonanceSelectionTool::selectMuons(const xAOD::MuonContainer* tags, bool isMC, CP::SystematicSet sys) const{
+std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonResonanceSelectionTool::selectMuons(const xAOD::MuonContainer* tags, bool isMC, CP::SystematicSet sys) {
 
   ATH_MSG_DEBUG("Number of found Muons :"<< tags->size() ); 
   std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > goodMuons = std::make_pair(std::vector<const xAOD::Muon*>(), std::vector<const xAOD::Muon*>());
@@ -473,7 +473,7 @@ bool MuonResonanceSelectionTool::isTriggered (void) const{
 }
 
 // trigger matching
-void MuonResonanceSelectionTool::applyTriggerMatch(xAOD::Muon& mu) const{
+void MuonResonanceSelectionTool::applyTriggerMatch(xAOD::Muon& mu) {
 
   if(m_triggerList.size() == 0 || m_trigTool->getListOfTriggers().size() == 0 ){ 
     mu.auxdata< bool >("isTriggered") = true;

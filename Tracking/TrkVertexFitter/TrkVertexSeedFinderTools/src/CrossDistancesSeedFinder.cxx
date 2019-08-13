@@ -43,7 +43,7 @@ namespace Trk
 {
 
   CrossDistancesSeedFinder::CrossDistancesSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_useweights(true),
     m_trackdistcutoff(0.020),
     m_trackdistexppower(2),
@@ -63,38 +63,30 @@ namespace Trk
     declareProperty("TrkDistanceFinder",     m_distancefinder);
     declareProperty("maximumTracksNoCut",m_maximumTracksNoCut);
     declareProperty("maximumDistanceCut",m_maximumDistanceCut);
-    
-    declareInterface<IVertexSeedFinder>(this);
   }
 
-  CrossDistancesSeedFinder::~CrossDistancesSeedFinder() {}
+
+  CrossDistancesSeedFinder::~CrossDistancesSeedFinder()
+  {
+  }
+
 
   StatusCode CrossDistancesSeedFinder::initialize() 
   { 
-    StatusCode s = m_mode3dfinder.retrieve();
-    if (s.isFailure())
-      {
-	msg(MSG::FATAL)<<"Could not find mode3dfinder tool." << endmsg;
-	return StatusCode::FAILURE;
-      }
-    s = m_distancefinder.retrieve();
-    if (s.isFailure())
-      {
-	msg(MSG::FATAL)<<"Could not find distance finder tool." << endmsg;
-	return StatusCode::FAILURE;
-      }
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
+    ATH_CHECK( m_mode3dfinder.retrieve() );
+    ATH_CHECK( m_distancefinder.retrieve() );
+    ATH_MSG_INFO( "Initialize successful"  );
     return StatusCode::SUCCESS;
   }
 
   StatusCode CrossDistancesSeedFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
+    ATH_MSG_INFO( "Finalize successful"  );
     return StatusCode::SUCCESS;
   }
 
 
-  Amg::Vector3D CrossDistancesSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) {
+  Amg::Vector3D CrossDistancesSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) const {
     
 
     //create perigees from track list
@@ -117,7 +109,7 @@ namespace Trk
     
   }
 
-  Amg::Vector3D CrossDistancesSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint) {
+  Amg::Vector3D CrossDistancesSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint) const {
 
     bool useCutOnDistance=false;
     if (perigeeList.size()>m_maximumTracksNoCut)
@@ -147,7 +139,7 @@ namespace Trk
       
       const Trk::Perigee* MyI=dynamic_cast<const Trk::Perigee*>(*i);
       if (MyI==0) {
-	msg(MSG::WARNING) << "Neutrals not supported for seeding. Rejecting this track..." << endmsg;
+	ATH_MSG_WARNING( "Neutrals not supported for seeding. Rejecting this track..."  );
 	continue;
       }	
       
@@ -155,34 +147,34 @@ namespace Trk
 
       const Trk::Perigee* MyJ=dynamic_cast<const Trk::Perigee*>(*j);
       if (MyJ==0) {
-	msg(MSG::WARNING) << "Neutrals not supported for seeding. Rejecting this track..." << endmsg;
+	ATH_MSG_WARNING( "Neutrals not supported for seeding. Rejecting this track..."  );
 	continue;
       }		
 
 #ifdef CROSSDISTANCESSEEDFINDER_DEBUG
 	
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Track 1 d0: " << MyI->parameters()[Trk::d0] << " Track2 d0: " << MyJ->parameters()[Trk::d0] << endmsg;
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Track 1 z0: " << MyI->parameters()[Trk::z0] << "Track2 z0: " << MyJ->parameters()[Trk::z0] << endmsg;
+      ATH_MSG_DEBUG( "Track 1 d0: " << MyI->parameters()[Trk::d0] << " Track2 d0: " << MyJ->parameters()[Trk::d0]  );
+      ATH_MSG_DEBUG( "Track 1 z0: " << MyI->parameters()[Trk::z0] << "Track2 z0: " << MyJ->parameters()[Trk::z0]  );
 #endif
 	
 	try {
 
           std::optional<ITrkDistanceFinder::TwoPoints> result
             = m_distancefinder->CalculateMinimumDistance(*MyI,*MyJ);
-	  if (!result) { if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Problem with distance finder: THIS POINT WILL BE SKIPPED!" << endmsg; 
+	  if (!result) { ATH_MSG_DEBUG( "Problem with distance finder: THIS POINT WILL BE SKIPPED!"  );
           } 
           else 
           {
 	    //Get the points which connect the minimum distance between the two tracks
             double distance = dist (result.value());
 #ifdef CROSSDISTANCESSEEDFINDER_DEBUG
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Point 1 x: " << result->first.x() << 
-	      " y: " << result->first.y() << 
-	      " z: " << result->first.z() << endmsg;
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "Point 2 x: " << result->second.x() << 
-	      " y: " << result->second.y() << 
-	      " z: " << result->second.z() << endmsg;
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "distance is: " << distance << endmsg;
+	    ATH_MSG_DEBUG( "Point 1 x: " << result->first.x() << 
+                           " y: " << result->first.y() << 
+                           " z: " << result->first.z()  );
+	    ATH_MSG_DEBUG( "Point 2 x: " << result->second.x() << 
+                           " y: " << result->second.y() << 
+                           " z: " << result->second.z()  );
+	    ATH_MSG_DEBUG( "distance is: " << distance  );
 #endif
 	    
 	    Amg::Vector3D thepoint((result->first+result->second)/2.);
@@ -192,13 +184,13 @@ namespace Trk
               PositionAndWeight thispoint(thepoint,
                                           1./pow(m_trackdistcutoff+distance,m_trackdistexppower));
               
-              if(msgLvl(MSG::VERBOSE)) msg(MSG::DEBUG) << "distance weight: " << 1./pow(m_trackdistcutoff+distance,m_trackdistexppower) << endmsg;
+              ATH_MSG_DEBUG( "distance weight: " << 1./pow(m_trackdistcutoff+distance,m_trackdistexppower)  );
               
               if (constraint!=0) {
                 
 		Amg::Vector3D DeltaP(thepoint-constraint->position());
 		Amg::Vector3D DeltaPConv;
-                if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "position x: " << DeltaP.x() << "position y: " << DeltaP.y() << "position z: " << DeltaP.z() << endmsg;
+                ATH_MSG_DEBUG( "position x: " << DeltaP.x() << "position y: " << DeltaP.y() << "position z: " << DeltaP.z()  );
                 DeltaPConv[0]=DeltaP.x();
                 DeltaPConv[1]=DeltaP.y();
                 DeltaPConv[2]=DeltaP.z();
@@ -206,8 +198,8 @@ namespace Trk
 
                 double chi2=DeltaPConv.transpose()*weightMatrixPositionConstraint*DeltaPConv;
 
-                if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< " chi: " << chi2 
-                                                      << " beam weight " << 1./(1.+exp((chi2-m_constraintcutoff)/m_constrainttemp)) << endmsg;
+                ATH_MSG_DEBUG( " chi: " << chi2 
+                               << " beam weight " << 1./(1.+exp((chi2-m_constraintcutoff)/m_constrainttemp))  );
                 
                 thispoint.second=thispoint.second*1./(1.+exp((chi2-m_constraintcutoff)/m_constrainttemp));
                 
@@ -227,7 +219,7 @@ namespace Trk
             }
           }
         } catch (...) {
-          msg(MSG::ERROR) << "Something wrong in distance calculation: please report..." << endmsg;
+          ATH_MSG_ERROR( "Something wrong in distance calculation: please report..."  );
         }
       }
       //to be understood...
@@ -253,9 +245,9 @@ namespace Trk
     }
     
 #ifdef CROSSDISTANCESSEEDFINDER_DEBUG
-    msg(MSG::INFO) << "Resulting mean POINT FOUND:  x: " << myresult.x() << 
-      " y: " << myresult.y() << 
-      " z: " << myresult.z() << endmsg;
+    ATH_MSG_INFO( "Resulting mean POINT FOUND:  x: " << myresult.x() << 
+                  " y: " << myresult.y() << 
+                  " z: " << myresult.z()  );
 #endif
     
     
@@ -266,40 +258,20 @@ namespace Trk
     
   }
 
-  std::vector<Amg::Vector3D> CrossDistancesSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) {
+  std::vector<Amg::Vector3D> CrossDistancesSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) const {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
-    msg(MSG::WARNING) << "Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds" << endmsg;
+    ATH_MSG_WARNING( "Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds"  );
     return std::vector<Amg::Vector3D>(0);
 
   }
 
-  std::vector<Amg::Vector3D> CrossDistancesSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) {
+  std::vector<Amg::Vector3D> CrossDistancesSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) const {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
-    msg(MSG::WARNING) << "Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds" << endmsg;
+    ATH_MSG_WARNING( "Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds"  );
     return std::vector<Amg::Vector3D>(0);
 
-  }
-
-  void CrossDistancesSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
-    //implemented to satisfy inheritance
-  }
-
-  int CrossDistancesSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /* a */,
-						const std::vector<const Trk::TrackParameters*>  & /* b */) const{
-    //implemented to satisfy inheritance
-    return 0;
-  }
-
-  int CrossDistancesSeedFinder::getModes1d(std::vector<float> &/* a */, std::vector<float> & /* b */, 
-					   std::vector<float> & /* c */, std::vector<float> & /* d */) const{
-   //implemented to satisfy inheritance
-    return 0;
-  }
-
-  void CrossDistancesSeedFinder::getCorrelationDistance( double & /* cXY */, double & /* cZ */ ){
-    //implemented to satisfy inheritance
   }
 
 

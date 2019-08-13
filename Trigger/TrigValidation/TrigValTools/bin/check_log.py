@@ -14,7 +14,7 @@ If no config file is provided, all errors will be shown.'
 
 errorRegex = ["^ERROR | ERROR | FATAL |CRITICAL |ABORT_CHAIN",
 "^Exception\:|^Caught signal|^Core dump|Traceback|Shortened traceback|stack trace|^Algorithm stack\:|inconsistent use of tabs and spaces in indentation\
-|glibc detected|tcmalloc\: allocation failed|athenaHLT.py\: error|There was a crash|illegal instruction"]
+|glibc detected|tcmalloc\: allocation failed|athenaHLT.py\: error|HLTMPPU.*Child Issue|There was a crash|illegal instruction|failure loading library|Cannot allocate memory"]
 
 #Get list of all builtin Python errors 
 builtins = dir(locals()['__builtins__'])

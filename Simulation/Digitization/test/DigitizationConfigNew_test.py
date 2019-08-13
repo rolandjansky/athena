@@ -20,7 +20,7 @@ from TGC_Digitization.TGC_DigitizationConfigNew import TGC_DigitizerCfg
 from RPC_Digitization.RPC_DigitizationConfigNew import RPC_DigitizerCfg
 from CSC_Digitization.CSC_DigitizationConfigNew import CSC_DigitBuilderCfg
 from LArDigitization.LArDigitizationConfigNew import LArDigitMakerCfg
-
+from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -31,7 +31,6 @@ ConfigFlags.Output.RDOFileName = "myRDO.pool.root"
 ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
 ConfigFlags.GeoModel.Align.Dynamic = False
 ConfigFlags.Concurrency.NumThreads = 1
-ConfigFlags.GeoModel.Type = "BrlIncl4.0_ref"
 ConfigFlags.Beam.NumberOfCollisions = 0.
 ConfigFlags.lock()
 # Construct our accumulator to run
@@ -46,6 +45,7 @@ acc.merge(TGC_DigitizerCfg(ConfigFlags))
 acc.merge(RPC_DigitizerCfg(ConfigFlags))
 acc.merge(CSC_DigitBuilderCfg(ConfigFlags))
 acc.merge(LArDigitMakerCfg(ConfigFlags))
+acc.merge(TileDigitizationCfg(ConfigFlags))
 # Dump config
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True

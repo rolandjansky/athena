@@ -5,7 +5,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def ByteStreamReadCfg( inputFlags ):
+def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     """
     Creates accumulator for BS reading
     """
@@ -43,7 +43,7 @@ def ByteStreamReadCfg( inputFlags ):
     acc.addService( robDPSvc ) 
 
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-    bsAddressProviderSvc = ByteStreamAddressProviderSvc()
+    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=typeNames)
     acc.addService( bsAddressProviderSvc )
 
     from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
@@ -80,6 +80,7 @@ def ByteStreamReadCfg( inputFlags ):
     return acc
 
 def TrigBSReadCfg(inputFlags):
+
     acc=ByteStreamReadCfg( inputFlags )
 
     bsCnvSvc=acc.getService("ByteStreamCnvSvc")

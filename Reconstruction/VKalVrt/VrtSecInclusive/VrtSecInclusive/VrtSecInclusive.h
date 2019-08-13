@@ -306,6 +306,8 @@ namespace VKalVrtAthena {
     const Trk::Perigee* GetPerigee( const xAOD::TrackParticle* i_ntrk);
     
     StatusCode RefitVertex( WrkVrt& WrkVrt, const xAOD::TrackParticleContainer* );
+    StatusCode RefitVertex( WrkVrt& WrkVrt, const xAOD::TrackParticleContainer*,
+                            Trk::IVKalState& istate);
     
     void  FillCovMatrix(int iTrk, std::vector<double> & Matrix, AmgSymMatrix(5)& );
     

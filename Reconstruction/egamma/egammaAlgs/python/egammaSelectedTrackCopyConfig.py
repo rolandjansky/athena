@@ -4,7 +4,7 @@ __doc__ = "Instantiate egammaSelectedTrackCopy with default configuration"
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaCaloTools.egammaCaloToolsConf import egammaCaloClusterSelector, egammaCheckEnergyDepositTool
+from egammaCaloTools.egammaCaloToolsConf import egammaCaloClusterSelector
 from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
 from egammaAlgs.egammaAlgsConf import egammaSelectedTrackCopy
 
@@ -18,10 +18,8 @@ def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
 
     if "egammaCaloClusterSelector" not in kwargs:
         egammaCaloClusterGSFSelector = egammaCaloClusterSelector(name='caloClusterGSFSelector',
-                                                                 egammaCheckEnergyDepositTool=egammaCheckEnergyDepositTool(),
-                                                                 EMEtRanges = [2000.],
-                                                                 EMFCuts = [0.7],
-                                                                 RetaCut = [0.65]
+                                                                 EMEtRanges = [2500.],
+                                                                 EMFCuts = [0.7]
                                                                  )
 
         kwargs["egammaCaloClusterSelector"] = egammaCaloClusterGSFSelector

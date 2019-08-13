@@ -3,6 +3,7 @@
 """Define method to construct configured private Tile hit vector to container tool"""
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
 def getTileFirstXing():
     """Return the earliest bunch crossing time for which interactions will be sent to the TileHitVecToCntTool"""
@@ -100,6 +101,33 @@ def TileHitVecToCntCfg(flags, **kwargs):
     return acc
 
 
+def TileHitOutputCfg(flags, **kwargs):
+    """Return component accumulator with Output Stream configuration for Tile hits
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+    """
+
+    acc = OutputStreamCfg(flags, 'RDO', ['TileHitContainer#*'])
+    acc.getEventAlgo('OutputStreamRDO').ExtraInputs = [('TileHitContainer', 'StoreGateSvc+TileHitCnt')]
+
+    return acc
+
+
+def TileHitVecToCntOutputCfg(flags, **kwargs):
+    """Return component accumulator with configured Tile hit vector to container algorithm and Output Stream
+
+    Arguments:
+        flags  -- Athena configuration flags (ConfigFlags)
+    """
+    
+    acc = TileHitVecToCntCfg(flags, **kwargs)
+    acc.merge(TileHitOutputCfg(flags))
+
+    return acc
+
+
+
 if __name__ == "__main__":
 
     from AthenaCommon.Configurable import Configurable
@@ -116,7 +144,6 @@ if __name__ == "__main__":
     ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
     ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
     ConfigFlags.Digitization.Pileup = False
-    ConfigFlags.Digitization.Pileup = False
 
     ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
@@ -128,11 +155,7 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))
 
-    print( acc.merge( TileHitVecToCntCfg(ConfigFlags) ) )
-
-    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
-    acc.merge(OutputStreamCfg(ConfigFlags, 'RDO', ['TileHitContainer#*']))
-    acc.getEventAlgo('OutputStreamRDO').ExtraInputs = [('TileHitContainer', 'StoreGateSvc+TileHitCnt')]
+    acc.merge(TileHitVecToCntOutputCfg(ConfigFlags))
 
     acc.getService('StoreGateSvc').Dump = True
     acc.printConfig(withDetails = True, summariseProps = True)

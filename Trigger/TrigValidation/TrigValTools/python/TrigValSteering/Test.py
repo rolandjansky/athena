@@ -31,6 +31,9 @@ class Test(object):
         self.configure_name()
         self.log.info("Configuring test %s", self.name)
 
+        # Configure timeout for all steps
+        self.configure_timeout()
+
         # Configure steps
         for step in self.exec_steps:
             step.configure(self)
@@ -106,6 +109,17 @@ class Test(object):
                 exit_code = step.result
         self.log.info('Test %s finished with code %s', self.name, exit_code)
         return exit_code
+
+    def configure_timeout(self):
+        '''Set default timeout values for steps which don't have it set'''
+        for exec_step in self.exec_steps:
+            if exec_step.timeout is None:
+                # 3h for grid tests, 1h for build tests
+                exec_step.timeout = 3*3600 if self.art_type == 'grid' else 3600
+        for check_step in self.check_steps:
+            if check_step.timeout is None:
+                # 5 min for all check steps
+                check_step.timeout = 5*60
 
     def configure_name(self):
         filename = os.path.basename(sys.argv[0])

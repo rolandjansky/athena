@@ -35,21 +35,21 @@ namespace Trk{
 
     virtual VertexID startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                    const  std::vector<double>& particleMass,
-                                   IVKalState& istate = tmpVKalState,
+                                   IVKalState& istate,
 				   double massConstraint = 0.) = 0;
  
       virtual VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                    const  std::vector<double>& particleMass,
-                                   IVKalState& istate = tmpVKalState,
+                                   IVKalState& istate,
 				   double massConstraint = 0.) = 0;
  
       virtual VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                                    const  std::vector<double>& particleMass,
 		                   const  std::vector<VertexID> &precedingVertices,
-                                   IVKalState& istate = tmpVKalState,
+                                   IVKalState& istate,
 				   double massConstraint = 0.) = 0;
 
-      virtual VxCascadeInfo * fitCascade(IVKalState& istate = tmpVKalState,
+      virtual VxCascadeInfo * fitCascade(IVKalState& istate,
                                          const Vertex * primVertex = 0, bool FirstDecayAtPV = false ) = 0;
 
       virtual StatusCode  addMassConstraint(VertexID Vertex,

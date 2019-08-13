@@ -232,8 +232,9 @@ if larCondFlags.LoadElecCalib():
       print "In SuperCell case... so far will not initialise folders."   
 
   else: #Run 1 case, no COOL-inline electronic calibration
-
    if not SuperCells: 
+      from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault
+      LArMCSymCondAlgDefault()
       #For run 1 we read some electronic calibration constants from the offline DB:
       if not larCondFlags.ua2MeVFolder.is_locked():
           larCondFlags.ua2MeVFolder="uA2MeV/Symmetry"
@@ -253,9 +254,16 @@ if larCondFlags.LoadElecCalib():
       else:
           #Load from offline database
           addLArFolder ('LAR_OFL', larCondFlags.ua2MeVFolder(), 'LAruA2MeVMC')
+
+      #Schedule Sym-Cond algo for uA2MeV
+      from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LAruA2MeVMC_LAruA2MeVSym_ as LAruA2MeVSymAlg
+      condSeq+=LAruA2MeVSymAlg(ReadKey="LAruA2MeV",WriteKey="LAruA2MeVSym")
       
       #2. DAC2uA
       addLArFolder ('LAR_ONL', 'DAC2uA', 'LArDAC2uAMC')
+      #Schedule Sym-Cond algo for DACuA
+      from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArDAC2uAMC_LArDAC2uASym_ as LArDAC2uASymAlg
+      condSeq+=LArDAC2uASymAlg(ReadKey="LArDAC2uA",WriteKey="LArDAC2uASym")
 
       #3. Pedestal
       addLArFolder ('LAR_ONL', 'Pedestal', 'LArPedestalComplete',

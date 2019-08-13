@@ -41,7 +41,7 @@ class BjetChainConfiguration(ChainConfigurationBase):
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "": [self.getBjetSequence_j(), self.getBjetSequence_gsc()]#, self.getBjetSequence_btag()]
+            "": [self.getBjetSequence_j(), self.getBjetSequence_gsc(), self.getBjetSequence_btag()]
         }
         
         ## This needs to be configured by the Bjet Developer!!

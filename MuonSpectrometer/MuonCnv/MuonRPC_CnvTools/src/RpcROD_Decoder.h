@@ -5,9 +5,6 @@
 #ifndef MUONBYTESTREAM_RPCROD_DECODER_H
 #define MUONBYTESTREAM_RPCROD_DECODER_H
 
-#include <stdint.h>
-#include <cassert>
-
 #include "TrigT1RPChardware/RPCRODDecode.h"
 #include "TrigT1RPChardware/RPCRXRODDecode.h"
 #include "TrigT1RPChardware/RPCRODStructure.h"
@@ -32,6 +29,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/GaudiException.h"
+
+#include <atomic>
+#include <cassert>
+#include <stdint.h>
 
 // start preparing for BS errors 
 //#include "MuonByteStreamErrors/RpcByteStreamErrorContainer.h"
@@ -125,9 +126,9 @@ namespace Muon
     
     //====LBTAG==== Added 02112008 for buffer format check
     mutable int m_previous;
-    mutable int m_printerror;
+    int m_printerror;
     mutable bool m_RPCcheckform[13];
-    mutable int  m_RPCcheckfail[13];
+    mutable std::atomic_int  m_RPCcheckfail[13];
     IntegerProperty m_maxprinterror;
     
     //====LBTAG==== Added 02112008 for buffer format check
@@ -145,7 +146,6 @@ namespace Muon
     IntegerProperty m_specialROBNumber;
     // flag to read old sector 13 data
     BooleanProperty m_sector13Data;
-    // mutable MiniBenchInternals::Bench m_bench;
 
     //RpcByteStreamErrorContainer *m_bsErrCont;
     //std::string m_bsErrContainerName; 

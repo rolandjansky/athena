@@ -77,13 +77,25 @@ def muCombAlgSequence(ConfigFlags):
     l2muCombViewsMaker.Views = "EMCombViewRoIs" #output of the views maker (key in "storegate")
     l2muCombViewsMaker.RequireParentView = True
     
-    ### get muComb reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence
-    muCombRecoSequence, eventAlgs, sequenceOut, TrackParticlesName = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
+    ### get ID tracking and muComb reco sequences ###    
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
+    muFastIDRecoSequence, eventAlgs = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs )
+    muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs )
  
-    l2muCombViewsMaker.ViewNodeName = muCombRecoSequence.name()
-       
-    l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, muCombRecoSequence] )
+    #Filter algorithm to run muComb only if non-Bphysics muon chains are active
+    from TrigMuonEF.TrigMuonEFConfig import MuonChainFilterAlg
+    muonChainFilter = MuonChainFilterAlg("FilterBphysChains")
+    bphysChains =getBphysChainNames()
+    muonChainFilter.ChainsToFilter=bphysChains
+    muonChainFilter.InputDecisions = l2muCombViewsMaker.InputMakerOutputDecisions
+    muonChainFilter.L2MuCombContainer = sequenceOut
+
+    muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])
+    muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence])
+
+    l2muCombViewsMaker.ViewNodeName = muCombIDSequence.name()
+
+    l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, muCombIDSequence] )
 
     return (l2muCombSequence, l2muCombViewsMaker, sequenceOut)
 
@@ -235,11 +247,9 @@ def muEFCBSequence():
 ######################
 def muEFSAFSAlgSequence(ConfigFlags):
 
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithmWithMuons
-    efsafsInputMaker = EventViewCreatorAlgorithmWithMuons("IMMuonFS", RoIsLink="initialRoI")
+    efsafsInputMaker = EventViewCreatorAlgorithm("IMMuonFS", RoIsLink="initialRoI")
     efsafsInputMaker.InViewRoIs = "MUFSRoIs"
     efsafsInputMaker.Views = "MUFSViewRoI"
-    efsafsInputMaker.CreateFSRoI=True
     efsafsInputMaker.ViewFallThrough=True
 
     ### get EF reco sequence ###    
@@ -365,7 +375,6 @@ def muEFIsoAlgSequence(ConfigFlags):
     efmuIsoViewsMaker.MuonsLink = "feature"
     efmuIsoViewsMaker.RoIEtaWidth=0.15
     efmuIsoViewsMaker.RoIPhiWidth=0.15
-    efmuIsoViewsMaker.LinkToParent=False
     efmuIsoViewsMaker.mergeOutputs = False
 
     ### get EF reco sequence ###    
@@ -403,3 +412,19 @@ def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     kwargs.setdefault("UseCaloEnergyMeasurement", False)
     return Trk__TrkMaterialProviderTool(name,**kwargs)
+
+##############################
+### Get Bphysics triggers to # 
+### filter chains where we   #
+### don't want to run muComb #
+##############################
+
+def getBphysChainNames():
+
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    bphysSlice = TriggerFlags.BphysicsSlice.signatures()
+    chains =[]
+    if bphysSlice:
+        for chain in bphysSlice:
+            chains.append(chain.name)
+    return chains
