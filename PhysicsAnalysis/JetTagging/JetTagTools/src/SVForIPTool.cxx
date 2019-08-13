@@ -34,7 +34,7 @@ namespace Analysis {
                                                         bool & canUseSvxDirection,
                                                         xAOD::BTagging* BTag,
                                                         const std::string & secVxFinderName,
-                                                        const xAOD::Vertex & priVtx)
+                                                        const xAOD::Vertex & priVtx) const
   {
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
     BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(secVxFinderName, "vertices", myVertices);
@@ -60,7 +60,7 @@ namespace Analysis {
     
   void SVForIPTool::getTrkFromV0FromSecondaryVertexInfo(std::vector<const xAOD::TrackParticle*> & TrkFromV0,
 							xAOD::BTagging* BTag,
-                                                        const std::string & secVxFinderName)
+                                                        const std::string & secVxFinderName) const
   {
     std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkFromV0_ELs;
       

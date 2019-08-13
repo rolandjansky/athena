@@ -480,7 +480,7 @@ namespace Analysis
 
   double SVTag::get3DSignificance(const xAOD::Vertex* priVertex,
 				  std::vector<const xAOD::Vertex*>& secVertex,
-				  const Amg::Vector3D jetDirection) {
+				  const Amg::Vector3D jetDirection) const {
   // double SVTag::get3DSignificance(const Trk::RecVertex & priVertex,
   //                                 std::vector<const Trk::RecVertex* > & secVertex,
   //                                 const Amg::Vector3D jetDirection) {

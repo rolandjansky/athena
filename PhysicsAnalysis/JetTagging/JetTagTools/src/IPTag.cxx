@@ -428,7 +428,7 @@ namespace Analysis {
       }
     }
     
-    m_tracksInJet.clear();
+    std::vector<GradedTrack> tracksInJet;
     int nbPart = m_trackGradePartitionsDefinition.size();
 
     std::vector<const xAOD::TrackParticle*> TrkFromV0;
@@ -498,7 +498,7 @@ namespace Analysis {
             if (m_RejectBadTracks) tobeUsed = false;
           }
           // check required IP sign:
-          if (tobeUsed) m_tracksInJet.push_back(GradedTrack(*trkIter, *theGrade));
+          if (tobeUsed) tracksInJet.push_back(GradedTrack(*trkIter, *theGrade));
           delete theGrade;
           theGrade=0;
         }
@@ -554,8 +554,8 @@ namespace Analysis {
     vectWeightC.reserve(nbTrackMean);
     vectObj.reserve(nbTrackMean);
 
-    for (std::vector<GradedTrack>::iterator trkItr = m_tracksInJet.begin(); 
-         trkItr != m_tracksInJet.end(); ++trkItr) {
+    for (std::vector<GradedTrack>::iterator trkItr = tracksInJet.begin(); 
+         trkItr != tracksInJet.end(); ++trkItr) {
 
       const xAOD::TrackParticle* trk = *(trkItr->track);
       bool isFromV0 = (std::find(TrkFromV0.begin(),TrkFromV0.end(),trk) != TrkFromV0.end());
@@ -855,14 +855,12 @@ namespace Analysis {
 
     IPTracks.clear();
     
-    m_tracksInJet.clear();
-
     return StatusCode::SUCCESS;
   }
 
   /** compute individual track contribution to the likelihoods: */
   void IPTag::trackWeight(std::string author, TrackGrade grade, double sa0, double sz0, 
-     double & twb, double & twu, double & twc) { // output parameters
+     double & twb, double & twu, double & twc) const { // output parameters
     /** define and compute likelihood: */
     std::vector<Slice> slices;
     if(m_impactParameterView=="3D") {

@@ -400,13 +400,10 @@ namespace Analysis {
   // ___________________________________________________________
   // apply tags loop
   void RNNIPTag::add_tags(xAOD::BTagging& tag, const std::string& author,
-                          std::vector<IPxDInfo>& track_info) {
-
-    // check the calibraiton database for networks
-    update_networks_for(author);
+                          std::vector<IPxDInfo>& track_info) const {
 
     // first loop is over the different sorting functions
-    for (const auto& sort_group: m_networks.at(author)) {
+    for (const auto& sort_group: get_networks_for(author)) {
       const auto& sort_func = sort_group.first;
       const auto& networks = sort_group.second;
       // This doesn't compile with clang 3.8 and gcc 6.1
@@ -460,7 +457,7 @@ namespace Analysis {
   }
 
   std::string RNNIPTag::get_calib_string(const std::string& author,
-                                         const std::string& name)
+                                         const std::string& name) const
   {
     // if we have an override we ignore the author and just read from
     // a text file
@@ -495,17 +492,24 @@ namespace Analysis {
 
 
 
-  void RNNIPTag::update_networks_for(const std::string& author) {
+  const RNNIPTag::SortGroups&
+  RNNIPTag::get_networks_for(const std::string& author) const {
     using std::map;
     using std::string;
     using std::pair;
     using std::vector;
     using namespace lwt;
 
+    std::lock_guard<std::mutex> lock (m_networksMutex);
+
     // TODO: delete networks if they've gone out of the IOV, needs
     // some calibration broker code. On the other hand, we've never
     // had an IOV end within a job. Will we?
-    if (m_networks.count(author)) return;
+    auto it = m_networks.find(author);
+    if (it != m_networks.end()) {
+      return it->second;
+    }
+    SortGroups& groups = m_networks[author];
 
     // order the networks we need to build by the sort function
     typedef map<string, vector<pair<string, JSONConfig > > > NWBySort;
@@ -531,16 +535,15 @@ namespace Analysis {
     }
 
     // build the groups for this author
-    m_networks[author] = SortGroups();
     for (const auto& sf_nw: nw_by_sort_func) {
       // TODO: add more sort func
       TrackSorter sort = get_sort_function(sf_nw.first);
-      m_networks.at(author).emplace_back(sort, Networks());
+      groups.emplace_back(sort, Networks());
       for (const auto& name_and_network_conf: sf_nw.second) {
         const auto& nw_config = name_and_network_conf.second;
         const auto& nw_name = name_and_network_conf.first;
         ATH_MSG_DEBUG(nw_name + ": " << nw_config.layers.size() << " layers");
-        auto& nw_group = m_networks.at(author).back().second;
+        auto& nw_group = groups.back().second;
         try {
           nw_group.emplace_back(nw_name, nw_config);
         } catch (lwt::NNConfigurationException& e) {
@@ -548,6 +551,8 @@ namespace Analysis {
         }
       }
     }
+
+    return groups;
   }
 
   // ____________________________________________________________
