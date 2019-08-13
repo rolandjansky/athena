@@ -7,7 +7,6 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from RPC_Digitization.RPC_DigitizationConf import RpcDigitizationTool, RPC_Digitizer
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
-from IOVDbSvc.IOVDbSvcConfig import addFolders
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the RpcDigitizationTool.
@@ -37,8 +36,6 @@ def RPC_DigitizationToolCfg(flags, name="RPC_DigitizationTool", **kwargs):
         kwargs.setdefault("OutputSDOName", flags.Overlay.BkgPrefix + "RPC_SDO")
     else:
         kwargs.setdefault("OutputSDOName", "RPC_SDO")
-    # folder for RPCCondSummarySvc
-    #acc.merge(addFolders(flags, "/RPC/DQMF/ELEMENT_STATUS", "RPC_OFL")) ## already in RpcCondDbAlgCfg
     # config
     kwargs.setdefault("DeadTime", 100)
     kwargs.setdefault("PatchForRpcTime", True)	    
