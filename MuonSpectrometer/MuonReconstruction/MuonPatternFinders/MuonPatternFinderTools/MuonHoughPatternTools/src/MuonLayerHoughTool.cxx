@@ -273,7 +273,7 @@ namespace Muon {
       Identifier id = col->identify();
       int sector = m_idHelper->sector(id);
       auto hashes = getHashes(id);
-      fill(state,*col,(*state.houghDataPerSectorVec)[sector-1].hitVec[hashes.second]);
+      fill(state.truthHits,*col,(*state.houghDataPerSectorVec)[sector-1].hitVec[hashes.second]);
     }
 
     for( auto col : rpcCols ){
@@ -281,7 +281,7 @@ namespace Muon {
       Identifier id = col->identify();
       int sector = m_idHelper->sector(id);
       auto hashes = getHashes(id);
-      fill(state,*col,(*state.houghDataPerSectorVec)[sector-1].hitVec[hashes.second],(*state.houghDataPerSectorVec)[sector-1].phiHitVec[hashes.first]);
+      fill(state.truthHits,*col,(*state.houghDataPerSectorVec)[sector-1].hitVec[hashes.second],(*state.houghDataPerSectorVec)[sector-1].phiHitVec[hashes.first]);
     }
 
     auto hashInSector = [this]( IdentifierHash hash, int sector, unsigned int sectorLayerHash ) {
@@ -295,18 +295,18 @@ namespace Muon {
       int sector = m_idHelper->sector(id);
       auto hashes = getHashes(id);
       // fill current sector
-      fill(state, *col,(*state.houghDataPerSectorVec)[sector-1].hitVec[hashes.second],
+      fill(state.truthHits, state.tgcClusteringObjs, *col,(*state.houghDataPerSectorVec)[sector-1].hitVec[hashes.second],
           (*state.houghDataPerSectorVec)[sector-1].phiHitVec[hashes.first],sector);
 
       // fill neighbours if in overlap
       int neighbourSectorDown = sector == 1 ? 16 : sector-1;
       if( hashInSector(col->identifyHash(),neighbourSectorDown,hashes.second) ) 
-        fill(state, *col,(*state.houghDataPerSectorVec)[neighbourSectorDown-1].hitVec[hashes.second],
+        fill(state.truthHits, state.tgcClusteringObjs, *col,(*state.houghDataPerSectorVec)[neighbourSectorDown-1].hitVec[hashes.second],
              (*state.houghDataPerSectorVec)[neighbourSectorDown-1].phiHitVec[hashes.first],neighbourSectorDown);
 
       int neighbourSectorUp   = sector == 16 ? 1 : sector+1;
       if( hashInSector(col->identifyHash(),neighbourSectorUp,hashes.second) ) 
-        fill(state, *col,(*state.houghDataPerSectorVec)[neighbourSectorUp-1].hitVec[hashes.second],
+        fill(state.truthHits, state.tgcClusteringObjs, *col,(*state.houghDataPerSectorVec)[neighbourSectorUp-1].hitVec[hashes.second],
              (*state.houghDataPerSectorVec)[neighbourSectorUp-1].phiHitVec[hashes.first],neighbourSectorUp);
       
     }
@@ -340,7 +340,7 @@ namespace Muon {
       houghData.sector = sit->sector;
 
       // fill hits for this sector -> hitsVec and PhiHitsVec are known now
-      fillHitsPerSector( state, *sit, mdtCont,cscCont,tgcCont,rpcCont,stgcCont,mmCont,houghData);
+      fillHitsPerSector( state.truthHits, state.tgcClusteringObjs, *sit, mdtCont,cscCont,tgcCont,rpcCont,stgcCont,mmCont,houghData);
 
     }
     return analyse(state);
@@ -379,7 +379,8 @@ namespace Muon {
                       << " etaHits: "  << hits.size() );
 
         // look for maxima using hough in eta per layer
-        if( !findMaxima(state, hough,hits,houghData.maxVec[layerHash]) || houghData.maxVec[layerHash].empty() ) continue;
+        if( !findMaxima(state.truthHits, state.foundTruthHits, state.seedMaxima, hough,hits,
+          houghData.maxVec[layerHash]) || houghData.maxVec[layerHash].empty() ) continue;
 
         ++houghData.nlayersWithMaxima[region];
         houghData.nmaxHitsInRegion[region] += houghData.maxVec[layerHash].front()->max;
@@ -395,7 +396,8 @@ namespace Muon {
 
     if( m_useSeeds ){
       std::vector<Road> roads;
-      buildRoads(state, roads);
+      buildRoads(state.seedMaxima, state.detectorHoughTransforms, state.truthHits, state.foundTruthHits, 
+        state.houghDataPerSectorVec, roads);
       
       // create association map
       ATH_MSG_DEBUG("analyse: Building pattern combinations using roads " << roads.size() );
@@ -418,7 +420,7 @@ namespace Muon {
             phiEtaAssMap[&max] = road.maxima;
           }
         }
-        createPatternCombinations(state,phiEtaAssMap,*patternCombis);
+        createPatternCombinations(state.truthHits,state.outputTruthHits,phiEtaAssMap,*patternCombis);
         createPatternCombinations(unassociatedEtaMaxima,*patternCombis);
       }
 
@@ -459,7 +461,7 @@ namespace Muon {
           associateMaximaToPhiMaxima( region, houghData,  phiEtaAssociations, unassociatedEtaMaxima );
 
           // create pattern combinations for combined patterns 
-          createPatternCombinations(state, phiEtaAssociations, *patternCombis );
+          createPatternCombinations(state.truthHits, state.outputTruthHits, phiEtaAssociations, *patternCombis );
   
           // create pattern combinations for unassociated patterns 
           createPatternCombinations(unassociatedEtaMaxima,*patternCombis);
@@ -484,13 +486,15 @@ namespace Muon {
     return {std::move(patternCombis), std::move(state.houghDataPerSectorVec)};
   }
 
-  void MuonLayerHoughTool::buildRoads(State& state, std::vector<MuonLayerHoughTool::Road>& roads ) const {
+  void MuonLayerHoughTool::buildRoads(MaximumVec& seedMaxima, MuonHough::MuonDetectorHough& detectorHoughTransforms,
+      std::set<Identifier>& truthHits, std::set<Identifier>& foundTruthHits, 
+      std::unique_ptr<HoughDataPerSectorVec>& houghDataPerSectorVec, std::vector<MuonLayerHoughTool::Road>& roads ) const {
     // sort maxima according to hits
-    std::stable_sort( state.seedMaxima.begin(),state.seedMaxima.end(), [](const MuonHough::MuonLayerHough::Maximum* m1,
+    std::stable_sort( seedMaxima.begin(),seedMaxima.end(), [](const MuonHough::MuonLayerHough::Maximum* m1,
                                                                   const MuonHough::MuonLayerHough::Maximum* m2 ){ return m1->max > m2->max; } );
     // loop over seed maxima (which are maxima) that pass certain thresholds detailed in cut_values
     std::set<const MuonHough::MuonLayerHough::Maximum*> associatedMaxima;
-    for( auto maxit = state.seedMaxima.begin();maxit!=state.seedMaxima.end(); ++maxit ){
+    for( auto maxit = seedMaxima.begin();maxit!=seedMaxima.end(); ++maxit ){
       // if this maximum is already in the set of associated maxima, do not do anything
       if( associatedMaxima.count(*maxit) ) continue;
 
@@ -513,7 +517,7 @@ namespace Muon {
       bool isNSW=m_idHelper->issTgc(seed.hits[0]->prd->identify()) || m_idHelper->isMM(seed.hits[0]->prd->identify());
       // extend seed within the current sector
       // sector indices have an offset of -1 because the numbering of the sectors are from 1 to 16 but the indices in the vertices are of course 0 to 15
-      extendSeed( state, road, (*state.houghDataPerSectorVec)[sector-1] );
+      extendSeed( detectorHoughTransforms, truthHits, foundTruthHits, road, (*houghDataPerSectorVec)[sector-1] );
 
       // look for maxima in the overlap regions of sectors
       int sectorN            = sector-1;
@@ -522,28 +526,28 @@ namespace Muon {
       if(sectorP>16) sectorP = 1;
 
       // associate the road with phi maxima
-      associatePhiMaxima( road, (*state.houghDataPerSectorVec)[sector-1].phiMaxVec[region] );
+      associatePhiMaxima( road, (*houghDataPerSectorVec)[sector-1].phiMaxVec[region] );
       //
       if(m_addSectors && isNSW) {
-        extendSeed(state, road, (*state.houghDataPerSectorVec)[sectorN-1] );
-        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[sectorN-1].phiMaxVec[region] );
-        extendSeed(state, road, (*state.houghDataPerSectorVec)[sectorP-1] );
-        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[sectorP-1].phiMaxVec[region] );
+        extendSeed(detectorHoughTransforms, truthHits, foundTruthHits, road, (*houghDataPerSectorVec)[sectorN-1] );
+        associatePhiMaxima( road, (*houghDataPerSectorVec)[sectorN-1].phiMaxVec[region] );
+        extendSeed(detectorHoughTransforms, truthHits, foundTruthHits, road, (*houghDataPerSectorVec)[sectorP-1] );
+        associatePhiMaxima( road, (*houghDataPerSectorVec)[sectorP-1].phiMaxVec[region] );
       }
 
       if( road.neighbouringRegion != MuonStationIndex::DetectorRegionUnknown ) {
-        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[sector-1].phiMaxVec[road.neighbouringRegion] );
+        associatePhiMaxima( road, (*houghDataPerSectorVec)[sector-1].phiMaxVec[road.neighbouringRegion] );
       }
       // if close to a sector boundary, try adding maxima in that sector as well
       if( road.neighbouringSector != -1 ) {
         ATH_MSG_DEBUG("  Adding neighbouring sector " << road.neighbouringSector );
-        extendSeed(state, road, (*state.houghDataPerSectorVec)[road.neighbouringSector-1] );
-        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[road.neighbouringSector-1].phiMaxVec[region] );
+        extendSeed(detectorHoughTransforms, truthHits, foundTruthHits, road, (*houghDataPerSectorVec)[road.neighbouringSector-1] );
+        associatePhiMaxima( road, (*houghDataPerSectorVec)[road.neighbouringSector-1].phiMaxVec[region] );
       }
 
       // finally deal with the case that we have both neighbouring region and sector
       if( road.neighbouringRegion != MuonStationIndex::DetectorRegionUnknown && road.neighbouringSector != -1) {
-        associatePhiMaxima( road, (*state.houghDataPerSectorVec)[ road.neighbouringSector-1].phiMaxVec[road.neighbouringRegion] );
+        associatePhiMaxima( road, (*houghDataPerSectorVec)[ road.neighbouringSector-1].phiMaxVec[road.neighbouringRegion] );
       }
 
       // merge phi maxima
@@ -684,7 +688,9 @@ namespace Muon {
   // roads are combinations of maxima
   
   
-  void MuonLayerHoughTool::extendSeed(State& state, MuonLayerHoughTool::Road& road, MuonLayerHoughTool::HoughDataPerSector& sectorData ) const { //const {
+  void MuonLayerHoughTool::extendSeed(MuonHough::MuonDetectorHough& detectorHoughTransforms, 
+      std::set<Identifier>& truthHits, std::set<Identifier>& foundTruthHits, 
+      MuonLayerHoughTool::Road& road, MuonLayerHoughTool::HoughDataPerSector& sectorData ) const { //const {
     if( !road.seed ) return;
     
     RegionMaximumVec& maxVec = sectorData.maxVec;
@@ -803,7 +809,7 @@ namespace Muon {
       }
     }
       
-    MuonHough::MuonPhiLayerHough& phiHough = state.detectorHoughTransforms.phiHough( region ); // get phi transform in the same region as the seed
+    MuonHough::MuonPhiLayerHough& phiHough = detectorHoughTransforms.phiHough( region ); // get phi transform in the same region as the seed
             
     // gather phiHits in sector that match the etaHits of the maximum
     PhiHitVec phiHitsInMaximum;
@@ -824,7 +830,8 @@ namespace Muon {
                                << " phiHitsInMaxima " << phiHitsInMaximum.size()
                                << " phi hits:  "      << phiHits.size() );
 
-    if( !findMaxima(state, phiHough,phiHitsInMaximum,sectorData.phiMaxVec[region], sectorData.sector) || sectorData.phiMaxVec[region].empty() ) {
+    if( !findMaxima(truthHits, foundTruthHits, phiHough,phiHitsInMaximum,
+        sectorData.phiMaxVec[region], sectorData.sector) || sectorData.phiMaxVec[region].empty() ) {
       ATH_MSG_DEBUG("extendSeed: No phi maxima found in  s" << sectorData.sector << " " << MuonStationIndex::regionName(region) );
       return;
     }
@@ -1412,7 +1419,8 @@ namespace Muon {
     patternCombis.push_back(combi);
   }
 
-  void MuonLayerHoughTool::createPatternCombinations(State& state, std::map< MuonHough::MuonPhiLayerHough::Maximum*, MuonLayerHoughTool::MaximumVec >& phiEtaAssociations,
+  void MuonLayerHoughTool::createPatternCombinations(std::set<Identifier>& truthHits, std::set<Identifier>& outputTruthHits, 
+                  std::map< MuonHough::MuonPhiLayerHough::Maximum*, MuonLayerHoughTool::MaximumVec >& phiEtaAssociations,
                   MuonPatternCombinationCollection& patternCombis ) const {
     
     ATH_MSG_DEBUG("Creating pattern combinations from eta/phi combinations " << phiEtaAssociations.size() );
@@ -1580,7 +1588,7 @@ namespace Muon {
   
   if( m_doTruth ){
     for( std::vector<const Trk::PrepRawData*>::iterator it=prds.begin();it!=prds.end();++it ){
-      if( state.truthHits.count((*it)->identify()) ) state.outputTruthHits.insert((*it)->identify());
+      if( truthHits.count((*it)->identify()) ) outputTruthHits.insert((*it)->identify());
       if( !m_truthSummaryTool.empty() ) m_truthSummaryTool->add((*it)->identify(),2);
     }
   }
@@ -1597,7 +1605,9 @@ namespace Muon {
     }
   }
 
-  bool MuonLayerHoughTool::findMaxima( State& state,
+  bool MuonLayerHoughTool::findMaxima( std::set<Identifier>& truthHits,
+                                       std::set<Identifier>& foundTruthHits,
+                                       MaximumVec& seedMaxima,
                                        MuonHough::MuonLayerHough& hough,
                                        MuonLayerHoughTool::HitVec& hits, 
                                        MuonLayerHoughTool::MaximumVec& maxima ) const {
@@ -1653,7 +1663,7 @@ namespace Muon {
 
           if( m_doTruth ){
             if( !m_truthSummaryTool.empty() ) m_truthSummaryTool->add(id,1);
-            if( state.truthHits.count(id) )       state.foundTruthHits.insert(id);
+            if( truthHits.count(id) )       foundTruthHits.insert(id);
           }
 
           ATH_MSG_VERBOSE("findMaxima: hit " << hit.layer << "  " << m_idHelper->toString(id) << " hits " << nhits );
@@ -1663,7 +1673,7 @@ namespace Muon {
         if( nmdt > 0 || (nmm + nstgc) > 0) {
           maxima.push_back( new MuonHough::MuonLayerHough::Maximum(maximum) );
           // add to seed list if 
-          if( maximum.max > m_selectors[hough.m_descriptor.chIndex].getCutValue(maximum.pos) ) state.seedMaxima.push_back(maxima.back());        
+          if( maximum.max > m_selectors[hough.m_descriptor.chIndex].getCutValue(maximum.pos) ) seedMaxima.push_back(maxima.back());        
           ++nmaxima;
         }
         hough.fillLayer2(maximum.hits,true);
@@ -1679,7 +1689,8 @@ namespace Muon {
     return true;
   }
 
-  bool MuonLayerHoughTool::findMaxima( State& state,
+  bool MuonLayerHoughTool::findMaxima( std::set<Identifier>& truthHits,
+                                       std::set<Identifier>& foundTruthHits,
                                        MuonHough::MuonPhiLayerHough& hough,
                                        MuonLayerHoughTool::PhiHitVec& hits, 
                                        MuonLayerHoughTool::PhiMaximumVec& maxima,
@@ -1714,7 +1725,7 @@ namespace Muon {
         
           if( m_doTruth ){
             if( !m_truthSummaryTool.empty() ) m_truthSummaryTool->add(id,1);
-            if( state.truthHits.count(id) )       state.foundTruthHits.insert(id);
+            if( truthHits.count(id) )       foundTruthHits.insert(id);
           }
           
           int nhits = hit.tgc ? hit.tgc->phiCluster.hitList.size() : 1;
@@ -1768,7 +1779,8 @@ namespace Muon {
     return true;
   }
 
-  void MuonLayerHoughTool::fillHitsPerSector(  State& state,
+  void MuonLayerHoughTool::fillHitsPerSector(  std::set<Identifier>& truthHits,
+                                               std::vector<TgcHitClusteringObj*>& tgcClusteringObjs,
                                                const MuonLayerHoughTool::CollectionsPerSector& collectionsPerSector,
                                                const MdtPrepDataContainer*  mdtCont,  
                                                const CscPrepDataContainer*  /*cscCont*/,  
@@ -1791,23 +1803,23 @@ namespace Muon {
           // !?! else if made by Felix
           if( mdtCont && mdtCont->size()>0 && tech == MuonStationIndex::MDT ) {
             MdtPrepDataContainer::const_iterator pos = mdtCont->indexFind(*iit);
-            if( pos != mdtCont->end() ) fill(state,**pos,houghData.hitVec[layerHash]);
+            if( pos != mdtCont->end() ) fill(truthHits,**pos,houghData.hitVec[layerHash]);
           }
           else if( rpcCont && rpcCont->size()>0 && tech == MuonStationIndex::RPC ) {
             RpcPrepDataContainer::const_iterator pos = rpcCont->indexFind(*iit);
-            if( pos != rpcCont->end() ) fill(state,**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first]);
+            if( pos != rpcCont->end() ) fill(truthHits,**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first]);
           }
           else if( tgcCont && tgcCont->size()>0 && tech == MuonStationIndex::TGC ) {
             TgcPrepDataContainer::const_iterator pos = tgcCont->indexFind(*iit);
-            if( pos != tgcCont->end() ) fill(state,**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
+            if( pos != tgcCont->end() ) fill(truthHits, tgcClusteringObjs, **pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
           else if( stgcCont && stgcCont->size()>0 && tech == MuonStationIndex::STGC ) {
             sTgcPrepDataContainer::const_iterator pos = stgcCont->indexFind(*iit);
-            if( pos != stgcCont->end() ) fill(state,**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
+            if( pos != stgcCont->end() ) fill(truthHits,**pos,houghData.hitVec[layerHash],houghData.phiHitVec[regionLayer.first],collectionsPerSector.sector);
           }
           else if( mmCont && mmCont->size()>0 && tech == MuonStationIndex::MM ) {
             MMPrepDataContainer::const_iterator pos = mmCont->indexFind(*iit);
-            if( pos != mmCont->end() ) fill(state,**pos,houghData.hitVec[layerHash]);
+            if( pos != mmCont->end() ) fill(truthHits,**pos,houghData.hitVec[layerHash]);
           }
         }
       }
@@ -1845,7 +1857,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::matchTruth(State& state, const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const {
+  void MuonLayerHoughTool::matchTruth(std::set<Identifier>& truthHits, const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const {
     typedef PRD_MultiTruthCollection::const_iterator iprdt;
     std::pair<iprdt, iprdt> range = truthCol.equal_range(id);
     
@@ -1858,13 +1870,14 @@ namespace Muon {
         if( link.cptr() && abs(link.cptr()->pdg_id()) == 13 ){
           debug.barcode = link.barcode();
           debug.pdgId = link.cptr()->pdg_id();
-          state.truthHits.insert(id);
+          truthHits.insert(id);
         }
       }
     }
   }
 
-  void MuonLayerHoughTool::fill( State& state, const MdtPrepDataCollection& mdts, MuonLayerHoughTool::HitVec& hits ) const {
+  void MuonLayerHoughTool::fill( std::set<Identifier>& truthHits, const MdtPrepDataCollection& mdts, 
+      MuonLayerHoughTool::HitVec& hits ) const {
     
     if( mdts.empty() ) return;
     auto truthCollections = m_truthNames.makeHandles();
@@ -1898,7 +1911,7 @@ namespace Muon {
       debug->time = prd.tdc();
       debug->r = prd.localPosition()[Trk::locR];
       
-      if( technology < truthCollections.size() ) matchTruth(state, *truthCollections[technology],id,*debug);
+      if( technology < truthCollections.size() ) matchTruth(truthHits, *truthCollections[technology],id,*debug);
       MuonHough::Hit* hit = new MuonHough::Hit(sublayer,x,ymin,ymax,1.,debug,&prd);
       hits.push_back(hit);
     }
@@ -1911,7 +1924,8 @@ namespace Muon {
 
   }
 
-  void MuonLayerHoughTool::fill( State& state, const RpcPrepDataCollection& rpcs, MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits ) const {
+  void MuonLayerHoughTool::fill( std::set<Identifier>& truthHits, const RpcPrepDataCollection& rpcs, 
+      MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits ) const {
     
     if( rpcs.empty() ) return;
     auto truthCollections = m_truthNames.makeHandles();
@@ -1945,7 +1959,7 @@ namespace Muon {
       debug->isEtaPhi = (neta && nphi);
       debug->trigConfirm = 1;
       debug->time = prd.time();
-      if( technology < truthCollections.size() ) matchTruth(state, *truthCollections[technology],id,*debug);
+      if( technology < truthCollections.size() ) matchTruth(truthHits, *truthCollections[technology],id,*debug);
 
       float weight = (neta && nphi) ? 2 : 1;
       if( m_idHelper->rpcIdHelper().measuresPhi(id) ) {
@@ -1969,7 +1983,8 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::fill( State& state, const MMPrepDataCollection& mms, MuonLayerHoughTool::HitVec& hits ) const {
+  void MuonLayerHoughTool::fill( std::set<Identifier>& truthHits, const MMPrepDataCollection& mms, 
+      MuonLayerHoughTool::HitVec& hits ) const {
     
     if( mms.empty() ) return;
     auto truthCollections = m_truthNames.makeHandles();
@@ -1995,14 +2010,15 @@ namespace Muon {
       float ymax = y + stripCor;
       MuonHough::HitDebugInfo* debug = new MuonHough::HitDebugInfo(technology,sector,region,layer,sublayer);
       debug->r = stripCor;
-      if( technology < truthCollections.size() ) matchTruth(state, *truthCollections[technology],id,*debug);
+      if( technology < truthCollections.size() ) matchTruth(truthHits, *truthCollections[technology],id,*debug);
 
       MuonHough::Hit* hit = new MuonHough::Hit(sublayer,x,ymin,ymax,1.,debug,&prd);
       hits.push_back(hit);
     }
   }
 
-  void MuonLayerHoughTool::fill( State& state, const sTgcPrepDataCollection& stgcs, MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits, int selectedSector ) const {
+  void MuonLayerHoughTool::fill( std::set<Identifier>& truthHits, const sTgcPrepDataCollection& stgcs, 
+      MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits, int selectedSector ) const {
     
     if( stgcs.empty() ) return;
     auto truthCollections = m_truthNames.makeHandles();
@@ -2032,7 +2048,7 @@ namespace Muon {
       debug->isEtaPhi = 1;
       debug->trigConfirm = (prd.getBcBitMap() & sTgcPrepData::BCBIT_CURRENT) == sTgcPrepData::BCBIT_CURRENT;
       debug->time = prd.getBcBitMap();
-      if( technology < truthCollections.size() ) matchTruth(state, *truthCollections[technology],id,*debug);
+      if( technology < truthCollections.size() ) matchTruth(truthHits, *truthCollections[technology],id,*debug);
 
       if( m_idHelper->stgcIdHelper().channelType(id) == 1 ) {
         // eta strips
@@ -2120,12 +2136,13 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::fill( State& state, const TgcPrepDataCollection& tgcs, MuonLayerHoughTool::HitVec& hits,
-         MuonLayerHoughTool::PhiHitVec& phiHits, int sector ) const {
+  void MuonLayerHoughTool::fill( std::set<Identifier>& truthHits, std::vector<TgcHitClusteringObj*> tgcClusteringObjs, 
+      const TgcPrepDataCollection& tgcs, MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits, 
+      int sector ) const {
     
     if( tgcs.empty() ) return;
-    state.tgcClusteringObjs.push_back( new TgcHitClusteringObj(m_idHelper->tgcIdHelper()) );
-    TgcHitClusteringObj& clustering = *state.tgcClusteringObjs.back();
+    tgcClusteringObjs.push_back( new TgcHitClusteringObj(m_idHelper->tgcIdHelper()) );
+    TgcHitClusteringObj& clustering = *tgcClusteringObjs.back();
     std::vector<const TgcPrepData*> prds;
     prds.insert(prds.begin(),tgcs.begin(),tgcs.end());
     clustering.cluster(prds);
@@ -2195,7 +2212,7 @@ namespace Muon {
   debug->clusterLayers = cl.etaCluster.layers();
   debug->isEtaPhi = cl.phiCluster.layers();
   debug->time = cl.etaCluster.hitList.front()->getBcBitMap();
-        if( technology < truthCollections.size() ) matchTruth(state, *truthCollections[technology],id,*debug);
+        if( technology < truthCollections.size() ) matchTruth(truthHits, *truthCollections[technology],id,*debug);
 
   MuonHough::HitDebugInfo* phiDebug = new MuonHough::HitDebugInfo(*debug);
   phiDebug->clusterSize = cl.phiCluster.hitList.size();
