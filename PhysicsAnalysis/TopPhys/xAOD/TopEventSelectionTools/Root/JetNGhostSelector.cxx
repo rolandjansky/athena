@@ -34,20 +34,19 @@ namespace top {
     static const std::vector<char> allowedChar = {'c','C','b','B','t','W','Z','H'};
 
     // check if the char is allowed
-    if (std::find(allowedChar.begin(), allowedChar.end(), params[pos]) != allowedChar.end()){
-
-      // process the char
-      if ( pos + 1 < params.length() && std::isspace( params[ pos + 1 ] ) ){
-        m_type = static_cast<Type>( params[ pos ] );
-        return params.substr( pos + 2 );
-      } else if ( params.compare( pos, 4, "tau " ) == 0 ){
-        m_type = tau;
-        return params.substr( pos + 4 );
-      } else {
-        throw std::invalid_argument{"Cannot parse the type from the parameter string for the common configuration"};
-      }
-    } else {
+    if (std::find(allowedChar.begin(), allowedChar.end(), params[pos]) == allowedChar.end()){
       throw std::invalid_argument{"Cannot parse the type from the parameter string"};
+    }
+
+    // process the char
+    if ( pos + 1 < params.length() && std::isspace( params[ pos + 1 ] ) ){
+      m_type = static_cast<Type>( params[ pos ] );
+      return params.substr( pos + 2 );
+    } else if ( params.compare( pos, 4, "tau " ) == 0 ){
+      m_type = tau;
+      return params.substr( pos + 4 );
+    } else {
+      throw std::invalid_argument{"Cannot parse the type from the parameter string for the common configuration"};
     }
   }
 
