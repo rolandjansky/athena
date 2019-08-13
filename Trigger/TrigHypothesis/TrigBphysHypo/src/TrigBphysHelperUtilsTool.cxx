@@ -374,7 +374,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
 
 StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
                                                const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
-                                               const std::vector<double>& inputMasses)
+                                               const std::vector<double>& inputMasses) const
 {
   std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
   return vertexFit (result, particles, inputMasses, *state);
@@ -382,7 +382,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
 StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
                                                const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
                                                const std::vector<double>& inputMasses,
-                                               Trk::IVKalState& istate)
+                                               Trk::IVKalState& istate) const
 {
     ATH_MSG_DEBUG("In vertexFit" );
     if (!result) {
@@ -473,7 +473,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
 
 StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
                                                const std::vector<const xAOD::TrackParticle*> &trks,
-                                               const std::vector<double>& inputMasses) {
+                                               const std::vector<double>& inputMasses) const {
     ATH_MSG_DEBUG("In vertexFit" );
     if (!result) {
         ATH_MSG_DEBUG("Need to provide valid TrigBphys object" );
