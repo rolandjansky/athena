@@ -110,17 +110,20 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=DerivationFrameworkJob,algname=
 
 
 
-#updateJVT_xAODColl("AntiKt4EMTopo")
-#addAntiKt4LowPtJets(DerivationFrameworkJob,"PHYS")
 
 #====================================================================
 # FLAVOUR TAGGING   
 #====================================================================
-# alias for VR
-#BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
 addVRJets(DerivationFrameworkJob)
+#addVRJetsTCC(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
+#             VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
+#             ghostArea = 0 , ptmin = 2000, ptminFilter = 2000,
+#             variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+# add xbb taggers
+from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
+addRecommendedXbbTaggers(DerivationFrameworkJob, ToolSvc)
+
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
 
 #====================================================================
@@ -143,15 +146,15 @@ PHYSSlimmingHelper.SmartCollections = ["Electrons",
                                        "InDetTrackParticles",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
-                                       "BTagging_AntiKt4EMTopo",
-                                       "BTagging_AntiKt4EMPFlow",
+                                       "BTagging_AntiKt4EMTopo_201810",
+                                       "BTagging_AntiKt4EMPFlow_201810",
+                                       "BTagging_AntiKt4EMPFlow_201903",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",      
                                        "AntiKt4TruthWZJets",
-                                       "AntiKt4TruthJets",
-                                       "BTagging_AntiKt2Track"
+                                       "AntiKt4TruthJets"
                                       ]
 
 
