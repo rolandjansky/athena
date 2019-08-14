@@ -193,7 +193,6 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
   unsigned int newSize = oldTSOT->size() + 1;
   trackStateOnSurfaces->reserve( newSize );
 	   
-  bool perigeeWasInserted = false;
   Amg::Vector3D perDir = ipPerigee->momentum().unit();
 	
   // if we didn't start from a parameter in the muon system add perigee to the front
@@ -208,21 +207,22 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
 	   
     const Trk::TrackParameters* pars = (*tsit)->trackParameters();
     if( !pars ) continue;
-	
-    double distanceOfPerigeeToCurrent = perDir.dot(pars->position() - ipPerigee->position());
+
+    if (ipPerigee) {
+      double distanceOfPerigeeToCurrent = perDir.dot(pars->position() - ipPerigee->position());
 	     
-    if( !perigeeWasInserted && distanceOfPerigeeToCurrent > 0. ){
-      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-      typePattern.set(Trk::TrackStateOnSurface::Perigee);
-      trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee.release(),0,0,typePattern) );
-      perigeeWasInserted = true;
+      if( distanceOfPerigeeToCurrent > 0. ){
+        std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+        typePattern.set(Trk::TrackStateOnSurface::Perigee);
+        trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee.release(),0,0,typePattern) );
+      }
     }
 	
     // copy remainging TSOS
     trackStateOnSurfaces->push_back( (*tsit)->clone() );
   }
 	
-  if( !perigeeWasInserted ) {
+  if( ipPerigee ) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Perigee);
     trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee.release(),0,0,typePattern) );
