@@ -142,7 +142,7 @@ StatusCode ISF::SimKernelMT::execute() {
   // loop until there are no more particles to simulate
   while (simParticles.size() ) {
     ISF::ConstISFParticleVector particles{};
-    ISimulatorTool* lastSimulator{};
+    const ISimulatorTool* lastSimulator{};
     while ( simParticles.size() ) {
       auto particlePtr =  simParticles.front();
       ISFParticle& curParticle(*particlePtr);
@@ -151,7 +151,7 @@ StatusCode ISF::SimKernelMT::execute() {
       // Get the geo ID for the particle (should happen in inputConverter really)
       /*AtlasDetDescr::AtlasRegion geoID =*/ m_geoIDSvc->identifyAndRegNextGeoID(curParticle);
 
-      auto& simTool = identifySimulator(curParticle);
+      const auto& simTool = identifySimulator(curParticle);
       if (&simTool==lastSimulator){ particles.push_back(particlePtr); }
       else {
         if (not particles.empty()) {
@@ -211,7 +211,7 @@ StatusCode ISF::SimKernelMT::finalize() {
 
 
 /// Returns the simulator to use for the given particle
-ISF::ISimulatorTool& ISF::SimKernelMT::identifySimulator(const ISF::ISFParticle& particle) const {
+const ISF::ISimulatorTool& ISF::SimKernelMT::identifySimulator(const ISF::ISFParticle& particle) const {
   AtlasDetDescr::AtlasRegion geoID = particle.nextGeoID();
 
   auto& localSelectors = m_simSelectors[geoID];

@@ -302,7 +302,7 @@ protected:
     //     CollectionMerger class
     //
     template<typename ...Args>
-    ISF::ISimulatorTool& identifySimulator(Args&... args) {
+    const ISF::ISimulatorTool& identifySimulator(Args&... args) const {
       return m_alg->identifySimulator(std::forward<Args>(args)...);
     }
 
