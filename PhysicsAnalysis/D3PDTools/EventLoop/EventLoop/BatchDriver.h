@@ -116,16 +116,6 @@ namespace EL
     virtual std::string batchReleaseSetup (bool sharedFileSystem) const;
 
 
-    /// effects: perform the actual batch submission with njob jobs
-    /// guarantee: strong
-    /// failures: submission errors
-    /// rationale: the virtual part of batch submission
-  private:
-    virtual void
-    batchSubmit (Detail::ManagerData& data)
-      const = 0;
-
-
 
     //
     // private interface

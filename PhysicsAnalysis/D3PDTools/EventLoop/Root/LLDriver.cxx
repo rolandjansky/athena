@@ -18,8 +18,10 @@
 
 #include <EventLoop/LLDriver.h>
 
-#include <EventLoop/ManagerData.h>
+#include <AsgTools/StatusCode.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
 #include <sstream>
@@ -84,25 +86,39 @@ namespace EL
 
 
 
-  void LLDriver ::
-  batchSubmit (Detail::ManagerData& data) const
+  ::StatusCode LLDriver ::
+  doManagerStep (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
-
-    // safely ignoring: resubmit
-
-    // Submit n jobs with loadleveler
-    for (std::size_t iter : data.batchJobIndices)
+    using namespace msgEventLoop;
+    ANA_CHECK (BatchDriver::doManagerStep (data));
+    switch (data.step)
     {
-      // Submit!
+    case Detail::ManagerStep::submitJob:
+    case Detail::ManagerStep::doResubmit:
+      {
+        // safely ignoring: resubmit
 
-      std::ostringstream cmd;
-      cmd << "cd " << data.submitDir << "/submit && llsubmit "
-          << data.options.castString (Job::optSubmitFlags)
-          << " run"<<iter<<".cmd";
+        // Submit n jobs with loadleveler
+        for (std::size_t iter : data.batchJobIndices)
+        {
+          // Submit!
 
-      if (gSystem->Exec (cmd.str().c_str()) != 0)
-        RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
-    }    
+          std::ostringstream cmd;
+          cmd << "cd " << data.submitDir << "/submit && llsubmit "
+              << data.options.castString (Job::optSubmitFlags)
+              << " run"<<iter<<".cmd";
+
+          if (gSystem->Exec (cmd.str().c_str()) != 0)
+            RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+        }    
+        data.submitted = true;
+      }
+      break;
+
+    default:
+      break;
+    }
+    return ::StatusCode::SUCCESS;
   }
 }

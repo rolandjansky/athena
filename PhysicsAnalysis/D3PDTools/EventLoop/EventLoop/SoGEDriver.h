@@ -52,6 +52,10 @@ namespace EL
     // interface inherited from BatchDriver
     //
 
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
+
     /// returns: the code needed for setting EL_JOBID
     /// guarantee: strong
     /// failures: out of memory II
@@ -62,15 +66,6 @@ namespace EL
     ///   scripts from the job
   private:
     virtual std::string batchJobId () const override;
-
-
-    /// effects: perform the actual torque submission with njob jobs
-    /// guarantee: strong
-    /// failures: submission errors
-    /// rationale: the virtual part of batch submission
-  private:
-    virtual void
-    batchSubmit (Detail::ManagerData& data) const override;
 
 
 

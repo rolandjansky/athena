@@ -459,14 +459,6 @@ namespace EL
       }
       break;
 
-    case Detail::ManagerStep::submitJob:
-    case Detail::ManagerStep::doResubmit:
-      {
-        batchSubmit (data);
-        data.submitted = true;
-      }
-      break;
-
     default:
       (void) true; // safe to do nothing
     }

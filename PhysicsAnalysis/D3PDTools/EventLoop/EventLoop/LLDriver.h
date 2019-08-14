@@ -57,6 +57,10 @@ namespace EL
     // interface inherited from BatchDriver
     //
 
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
+
     /// returns: the name of the submission script to use.  if this
     ///   contains {JOBID} it will create one script for each job id
     /// guarantee: strong
@@ -77,15 +81,6 @@ namespace EL
     ///   formatted option lines or just some special commands
   private:
     virtual std::string batchInit () const override;
-
-
-    /// effects: perform the actual torque submission with njob jobs
-    /// guarantee: strong
-    /// failures: submission errors
-    /// rationale: the virtual part of batch submission
-  private:
-    virtual void
-    batchSubmit (Detail::ManagerData& data) const override;
 
 
 

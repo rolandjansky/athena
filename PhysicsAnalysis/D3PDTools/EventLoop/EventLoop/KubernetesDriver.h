@@ -40,16 +40,12 @@ namespace EL
     // interface inherited from BatchDriver
     //
 
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
+
   private:
     virtual std::string batchReleaseSetup (bool sharedFileSystem) const override;
-
-    /// effects: perform the actual local submission with njob jobs
-    /// guarantee: strong
-    /// failures: submission errors
-    /// rationale: the virtual part of batch submission
-  private:
-    virtual void
-    batchSubmit (Detail::ManagerData& data) const override;
 
 
 
