@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,7 +9,7 @@
 
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 
-#include "CxxUtils/make_unique.h"
+#include <memory>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -97,7 +97,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
 
 StatusCode InDet::TRT_TrackSegmentsFinder::execute() 
 {
-  StatusCode s = m_foundSegments.record( CxxUtils::make_unique<Trk::SegmentCollection>());
+  StatusCode s = m_foundSegments.record( std::make_unique<Trk::SegmentCollection>());
   
   if (s.isFailure() || !m_foundSegments.isValid() ) {
     msg(MSG::ERROR)<<"Could not save TRT segments" <<endmsg;
