@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef TRKTRACKSUMMARYTOOL_H
 #define TRKTRACKSUMMARYTOOL_H
@@ -12,12 +11,11 @@
 #include "AthContainers/DataVector.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParameters/TrackParameters.h" 
+#include "CxxUtils/checker_macros.h"
+#include <vector>
 
 class AtlasDetectorID;
 class Identifier;
-
-#include <vector>
-
 class ITRT_ToT_dEdx;
 
 namespace Trk {
@@ -51,29 +49,39 @@ namespace Trk {
       virtual StatusCode initialize() override;
       virtual StatusCode finalize  () override;
 
-  /** create a summary object from passed Track. The summary object belongs to
+      /** create a summary object from passed Track. The summary object belongs to
       you, the user, and so you must take care of deletion of it.
-      @param onlyUpdateTrack If false (default) then the summary is cloned and added to the track, and a separate summary returned. If true, only update track and return 0*/
-      virtual const TrackSummary* createSummary( const Track& track, bool onlyUpdateTrack=false ) const override;
+      @param onlyUpdateTrack If false (default) then the summary is cloned and added to the track, 
+      and a separate summary returned. If true, only update track and return 0*/
+      virtual const Trk::TrackSummary* createSummary ATLAS_NOT_THREAD_SAFE ( const Track& track, 
+                                                                             bool onlyUpdateTrack=false ) const override final;
 
-  /** create a summary object of passed track without doing the tedious hole search.
+      /** create a summary object of passed track without doing the tedious hole search.
       Same comments as for createSummary apply here, of course, too. */	   
-      virtual const Trk::TrackSummary* createSummaryNoHoleSearch( const Track& track ) const override;
+      virtual const Trk::TrackSummary* createSummaryNoHoleSearch ATLAS_NOT_THREAD_SAFE ( const Track& track ) const override final;
+      
+      /** create a summary object from passed Track.*/
+      virtual std::unique_ptr<Trk::TrackSummary> summary( const Track& track ) const override final;
 
-  /** use this method to update a track. this means a tracksummary is created for
+      /** create a summary object of passed track without doing the tedious hole search. */	   
+      virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch( const Track& track ) const override final;
+  
+      /** use this method to update a track. this means a tracksummary is created for
       this track but not returned. the summary can then be obtained from the track.
       Because it is taken from the track the ownership stays with the track */
-      virtual void updateTrack(Track& track) const override;
+      virtual void updateTrack(Track& track) const override final;
       
       /** method to update the shared hit content only, this is optimised for track collection merging. */
-      virtual void updateSharedHitCount(Track& track) const override;
+      virtual void updateSharedHitCount(Track& track) const override final;
       
       /** method to update additional information (PID,shared hits, dEdX), this is optimised for track collection merging. */
-      virtual void updateAdditionalInfo(Track& track) const override;
+      virtual void updateAdditionalInfo(Track& track) const override final;
 
     private:
       
-      const TrackSummary* createSummary( const Track& track, bool onlyUpdateTrack, bool doHolesInDet, bool doHolesMuon ) const;
+      std::unique_ptr<Trk::TrackSummary> createSummary( const Track& track, 
+                                                        bool doHolesInDet, 
+                                                        bool doHolesMuon ) const;
 
       /** Return the correct tool, matching the passed Identifier*/
       ITrackSummaryHelperTool*  getTool(const Identifier& id);
@@ -132,17 +140,17 @@ namespace Trk {
   /**loops over TrackStatesOnSurface and uses this to produce the summary information
       Fills 'information', 'eProbability', and 'hitPattern'*/
       void processTrackStates(const Track& track,
-			      const DataVector<const TrackStateOnSurface>* tsos,
-			      std::vector<int>& information,
-			      std::bitset<numberOfDetectorTypes>& hitPattern,
+                              const DataVector<const TrackStateOnSurface>* tsos,
+                              std::vector<int>& information,
+                              std::bitset<numberOfDetectorTypes>& hitPattern,
                               bool doHolesInDet,
                               bool doHolesMuon) const;
         
       void processMeasurement(const Track& track,
-			      const Trk::MeasurementBase* meas,
-			      const Trk::TrackStateOnSurface* tsos,
-			      std::vector<int>& information,
-			      std::bitset<numberOfDetectorTypes>& hitPattern) const;
+                              const Trk::MeasurementBase* meas,
+                              const Trk::TrackStateOnSurface* tsos,
+                              std::vector<int>& information,
+                              std::bitset<numberOfDetectorTypes>& hitPattern) const;
 
   /** Extrapolation is performed from one hit to the next, it is checked if surfaces in between
       the extrapolation are left out. The trackParameters of the destination hit (instead of the
@@ -156,5 +164,5 @@ namespace Trk {
     };
 
 
-  }
+}
 #endif 
