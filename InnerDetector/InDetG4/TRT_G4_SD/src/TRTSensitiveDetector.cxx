@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,7 +7,6 @@
 #include "TRTSensitiveDetector.h"
 
 // Athena includes
-#include "CxxUtils/make_unique.h" // For make unique
 #include "TRT_G4Utilities/TRTParameters.hh"
 #include "TRT_G4Utilities/TRTOutputFile.hh"
 #include "TRTParametersForBarrelHits.h"
@@ -35,6 +34,7 @@
 
 //stl includes
 #include <cmath>
+#include <memory> // For make unique
 #include <utility>
 
 TRTSensitiveDetector::TRTSensitiveDetector(const std::string& name, const std::string& hitCollectionName, int setVerboseLevel)
@@ -193,7 +193,7 @@ void TRTSensitiveDetector::Initialize(G4HCofThisEvent* /*pHCofThisEvent*/)
       }
   }
 
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<TRTUncompressedHitCollection>();
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<TRTUncompressedHitCollection>();
 
   if(verboseLevel>4)
     {

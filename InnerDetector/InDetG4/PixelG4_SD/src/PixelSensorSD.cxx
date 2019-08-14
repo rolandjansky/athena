@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -26,7 +26,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // For make unique
-#include "CxxUtils/make_unique.h"
+#include <memory>
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -40,7 +40,7 @@ PixelSensorSD::PixelSensorSD(const std::string& name, const std::string& hitColl
 // Initialize from G4 - necessary to new the write handle for now
 void PixelSensorSD::Initialize(G4HCofThisEvent *)
 {
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<SiHitCollection>();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

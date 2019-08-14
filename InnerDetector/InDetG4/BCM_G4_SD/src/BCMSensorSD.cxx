@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //###############################################
@@ -14,7 +14,6 @@
 #include "BCMExtra.h"
 
 // Athena headers
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 
 // Geant4 headers
@@ -27,6 +26,8 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
+#include <memory> // For make unique
+
 BCMSensorSD::BCMSensorSD(const std::string& name, const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
   , m_HitColl( hitCollectionName )
@@ -37,7 +38,7 @@ BCMSensorSD::BCMSensorSD(const std::string& name, const std::string& hitCollecti
 // Initialize from G4 - necessary to new the write handle for now
 void BCMSensorSD::Initialize(G4HCofThisEvent *)
 {
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<SiHitCollection>();
 }
 
 G4bool BCMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
