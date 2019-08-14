@@ -27,7 +27,7 @@
 class IIncidentSvc;
 
 namespace Trk {
-  class HitInfo;
+  struct HitInfo;
 }
 
 namespace ISF {
