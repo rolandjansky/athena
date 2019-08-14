@@ -14,6 +14,7 @@
 #include "AthenaMonitoring/OHLockedHist.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
+#include "ByteStreamData/ByteStreamMetadataContainer.h"
 #include "EventInfoUtils/EventInfoFromxAOD.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigSteeringEvent/HLTExtraData.h"
@@ -844,7 +845,8 @@ void HltEventLoopMgr::updateMetadataStore(const coral::AttributeList & sor_attrl
   // most significant part is "fst" in sor but "snd" for ByteStreamMetadata
   auto bs_dm_snd = sor_attrlist["DetectorMaskFst"].data<unsigned long long>();
 
-  auto metadata = new ByteStreamMetadata(
+  auto metadatacont = std::make_unique<ByteStreamMetadataContainer>();
+  metadatacont->push_back(std::make_unique<ByteStreamMetadata>(
     sor_attrlist["RunNumber"].data<unsigned int>(),
     0,
     0,
@@ -858,12 +860,11 @@ void HltEventLoopMgr::updateMetadataStore(const coral::AttributeList & sor_attrl
     "",
     "",
     0,
-    std::vector<std::string>());
-
-  // Record ByteStreamMetadata in MetaData Store
-  if(m_inputMetaDataStore->record(metadata,"ByteStreamMetadata").isFailure()) {
+    std::vector<std::string>()
+  ));
+  // Record ByteStreamMetadataContainer in MetaData Store
+  if(m_inputMetaDataStore->record(std::move(metadatacont),"ByteStreamMetadata").isFailure()) {
     ATH_REPORT_MESSAGE(MSG::WARNING) << "Unable to record MetaData in InputMetaDataStore";
-    delete metadata;
   }
   else {
     ATH_MSG_DEBUG("Recorded MetaData in InputMetaDataStore");
