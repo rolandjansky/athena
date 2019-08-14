@@ -329,6 +329,10 @@ if not hasattr(MUON1Seq,"Muons_decoratePromptLepton"):
 
 from DerivationFrameworkMuons import ConstituentPileupIso
 ConstituentPileupIso.ConstituentPileupIso(MUON1Seq)
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=MUON1Seq)
+
+
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
