@@ -50,6 +50,17 @@ std::ostream& operator<<(std::ostream& os, const top::ParticleLevelEvent& plEven
     os << "ParticleLevelEvent: Cannot find large R jets truth collection. Did you set the truth collection correctly?\n";
   }
 
+  if (plEvent.m_taus) {
+    os << "Number of taus: " << plEvent.m_taus->size() << "\n";
+    for (const auto& tauPtr : *plEvent.m_taus) {
+      if (tauPtr) {
+        os << " " << *tauPtr << "\n";
+      }
+    }
+  } else {
+    os << "ParticleLevelEvent: Cannot find tau truth collection. Did you set the truth collection correctly?\n";
+  }
+
   if (plEvent.m_photons) {
     os << "Number of photons: " << plEvent.m_photons->size() << "\n";
     for (const auto& phPtr : *plEvent.m_photons) {

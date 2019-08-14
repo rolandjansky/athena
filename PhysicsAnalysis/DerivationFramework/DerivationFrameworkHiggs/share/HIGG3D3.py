@@ -616,10 +616,14 @@ HIGG3D3SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Muons",
                                            "Photons",
                                            "AntiKt4EMTopoJets",
+                                           "AntiKt4EMTopoJets_BTagging201810",
                                            "AntiKt4EMPFlowJets",
+                                           "AntiKt4EMPFlowJets_BTagging201810",
+                                           "AntiKt4EMPFlowJets_BTagging201903",
                                            "InDetTrackParticles",
-                                           "BTagging_AntiKt4EMTopo",
-                                           "BTagging_AntiKt4EMPFlow",
+                                           "BTagging_AntiKt4EMTopo_201810",
+                                           "BTagging_AntiKt4EMPFlow_201810",
+                                           "BTagging_AntiKt4EMPFlow_201903",
                                            "PrimaryVertices",
                                            "MET_Reference_AntiKt4EMTopo" ]
 
@@ -627,9 +631,6 @@ HIGG3D3SlimmingHelper.ExtraVariables = list(HIGG3D3ExtraVariables)
 HIGG3D3SlimmingHelper.AllVariables = list(HIGG3D3ExtraContainers)
 
 HIGG3D3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
-HIGG3D3SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
-                                            'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'
-                                           }
 
 if globalflags.DataSource()=='geant4':
     HIGG3D3SlimmingHelper.SmartCollections += ["AntiKt4TruthJets", "AntiKt4TruthDressedWZJets"]
@@ -640,20 +641,20 @@ if globalflags.DataSource()=='geant4':
     addWbosonsAndDownstreamParticles()
     addBSMAndDownstreamParticles()
 
-    HIGG3D3SlimmingHelper.AppendToDictionary = {
-                                                'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
-                                                'TruthBSMWithDecayParticles':'xAOD::TruthParticleContainer','TruthBSMWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
-                                                'TruthBSMWithDecayVertices':'xAOD::TruthVertexContainer','TruthBSMWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
-                                               }
+    HIGG3D3SlimmingHelper.AppendToDictionary.update({
+                                                     'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthTaus':'xAOD::TruthParticleContainer','TruthTausAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthNeutrinos':'xAOD::TruthParticleContainer','TruthNeutrinosAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthWbosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthWbosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthWbosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthWbosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                                     'TruthBSMWithDecayParticles':'xAOD::TruthParticleContainer','TruthBSMWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+                                                     'TruthBSMWithDecayVertices':'xAOD::TruthVertexContainer','TruthBSMWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+                                                    })
     HIGG3D3SlimmingHelper.AllVariables += list(HIGG3D3ExtraTruthContainers)
     HIGG3D3SlimmingHelper.ExtraVariables += list(HIGG3D3ExtraTruthVariables)
     HIGG3D3SlimmingHelper.ExtraVariables += list(HIGG3D3TruthDecoratorVariables)

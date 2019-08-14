@@ -13,12 +13,16 @@ bool DerivationFramework::passTruthFilter(const xAOD::TruthEventContainer* xTrut
 
    // load the electrona and taus if requested
    if(xTruthEventContainer){
+     static SG::AuxElement::Accessor<unsigned int> acc_classifierParticleOrigin("classifierParticleOrigin");
      xAOD::TruthEventContainer::const_iterator itr;
      for (itr = xTruthEventContainer->begin(); itr!=xTruthEventContainer->end(); ++itr) {
        unsigned nPart = (*itr)->nTruthParticles();
        for(unsigned iPart=0; iPart<nPart;++iPart){
 	 const xAOD::TruthParticle* particle = (*itr)->truthParticle(iPart);
-	 if(particle && particle->status()==1 && (fabs(particle->pdgId())==11 || fabs(particle->pdgId())==15) && particle->pt()>20.0e3 && fabs(particle->eta())<5.0)
+	 if(particle && 
+	    ((particle->status()==1 && fabs(particle->pdgId())==11) || fabs(particle->pdgId())==15) && // require status 1 for the electrons. taus do NOT require status
+	    particle->pt()>20.0e3 && fabs(particle->eta())<5.0 &&
+	    (acc_classifierParticleOrigin(*particle)==12 || acc_classifierParticleOrigin(*particle)==13)) // from a truth W or Z
 	   ele_taus.push_back(particle->p4());
        }
      }

@@ -76,15 +76,10 @@ StatusCode IsolationCPTools::setupIsolation() {
   // Electron Isolation WPs include all of those defined for
   // muons + FixedCutHighPtCaloOnly
   std::set<std::string> electron_isolations{{
-      "LooseTrackOnly",
-      "Loose",
       "Gradient",
       "GradientLoose",
-      "FixedCutTight",
       "FixedCutTightTrackOnly",
-      "FixedCutHighPtCaloOnly",
       "FCHighPtCaloOnly",
-      "FixedCutLoose",
       "FCTight",
       "FCLoose",
     }};

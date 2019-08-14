@@ -72,9 +72,24 @@ TOPQ3Sequence = CfgMgr.AthSequencer("TOPQ3Sequence")
 # First skim on leptons
 TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
-# add fat/trimmed jets
-from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-addStandardJetsForTop(TOPQ3Sequence,'TOPQ3')
+# Before any custom jet reconstruction, it's good to set up the output list
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+OutputJets["TOPQ3"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+# Only include those ones that you use. The order in the list is not significant
+reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10LCTopoJets"]
+replaceAODReducedJets(reducedJetList, TOPQ3Sequence, "TOPQ3")
+
+# If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled
+# *AFTER* the other collections are replaced
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(TOPQ3Sequence, "TOPQ3")
 
 # apply jet calibration
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration

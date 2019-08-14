@@ -27,6 +27,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/PFlow/PFlowUtils
                           Tools/PathResolver 
 			  InnerDetector/InDetRecTools/InDetTrackSelectionTool # QGTaggerTool for nTracks ###
+			  Reconstruction/Jet/JetMomentTools
 			  )
 
 # External dependencies:
@@ -38,7 +39,7 @@ atlas_add_library( DerivationFrameworkJetEtMissLib
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface FTagAnalysisInterfacesLib JetJvtEfficiency JetAnalysisInterfacesLib PathResolver PFlowUtils AssociationUtilsLib 
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface FTagAnalysisInterfacesLib JetJvtEfficiency JetAnalysisInterfacesLib PathResolver PFlowUtils AssociationUtilsLib JetMomentToolsLib
 InDetTrackSelectionToolLib # QGTaggerTool for nTracks ### 
 			   )
 

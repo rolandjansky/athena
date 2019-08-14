@@ -61,6 +61,10 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMTopo
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 
+  # For TCC W/Z taggers, see TOPQDERIV-80
+  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ4':
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10TrackCaloClusterJets
+
   # see TOPQDERIV70
   if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ4':
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKtVR30Rmax4Rmin02TrackJets
@@ -200,6 +204,7 @@ def setup(TOPQname, stream):
                 ["AntiKt3PV0TrackJets",
                  "AntiKt4PV0TrackJets",
                  "AntiKt4LCTopoJets",
+                 "AntiKt10TrackCaloClusterJets",
                  "AntiKt10LCTopoJets",
                  "AntiKt10LCTopoCSSKJets",
                  "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",

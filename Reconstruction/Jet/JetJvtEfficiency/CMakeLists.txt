@@ -14,6 +14,7 @@ atlas_depends_on_subdirs(
     Control/AthToolSupport/AsgTools
     Event/xAOD/xAODJet
     PhysicsAnalysis/AnalysisCommon/PATInterfaces
+    Event/xAOD/xAODEventInfo
     PRIVATE
     Tools/PathResolver
     ${extra_deps} )
@@ -26,7 +27,7 @@ atlas_add_library( JetJvtEfficiencyLib
    JetJvtEfficiency/*.h Root/*.cxx
    PUBLIC_HEADERS JetJvtEfficiency
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet JetAnalysisInterfacesLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODJet JetAnalysisInterfacesLib xAODEventInfo
    PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )

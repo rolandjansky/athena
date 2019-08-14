@@ -1417,6 +1417,16 @@ namespace top {
       m_particleLevelTreeManager->makeOutputVariable(m_ljet_Ghosts_BHadron_Final_Count, "ljet_nGhosts_bHadron");
       m_particleLevelTreeManager->makeOutputVariable(m_ljet_Ghosts_CHadron_Final_Count, "ljet_nGhosts_cHadron");
     }
+    
+    //taus
+    if ( m_config->useTruthTaus() ){
+      m_particleLevelTreeManager->makeOutputVariable(m_tau_pt, "tau_pt");
+      m_particleLevelTreeManager->makeOutputVariable(m_tau_eta, "tau_eta");
+      m_particleLevelTreeManager->makeOutputVariable(m_tau_phi, "tau_phi");
+      m_particleLevelTreeManager->makeOutputVariable(m_tau_e, "tau_e");
+      m_particleLevelTreeManager->makeOutputVariable(m_tau_charge, "tau_charge");
+      m_particleLevelTreeManager->makeOutputVariable(m_tau_isHadronic, "tau_isHadronic");
+    }
 
     // RC branches
     if (m_makeRCJets){
@@ -3876,7 +3886,7 @@ namespace top {
         try {
           m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
           m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
-        } catch (SG::ExcBadAuxVar e) {
+        } catch (const SG::ExcBadAuxVar& e) {
           //didn't find any ghost b-hadron info, have to assume it's a light jet
           ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
           m_jet_Ghosts_BHadron_Final_Count[i] = 0;
@@ -3906,11 +3916,36 @@ namespace top {
         try {
           m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
           m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
-        } catch (SG::ExcBadAuxVar e) {
+        } catch (const SG::ExcBadAuxVar& e) {
           //didn't find any ghost b-hadron info, have to assume it's a light jet
           ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
           m_ljet_Ghosts_BHadron_Final_Count[i] = 0;
           m_ljet_Ghosts_CHadron_Final_Count[i] = 0;
+        }
+
+        ++i;
+      }
+    }
+
+    //Taus
+    if ( m_config->useTruthTaus() ){
+      unsigned int i = 0;
+
+      m_tau_pt.resize(plEvent.m_taus->size());
+      m_tau_eta.resize(plEvent.m_taus->size());
+      m_tau_phi.resize(plEvent.m_taus->size());
+      m_tau_e.resize(plEvent.m_taus->size());
+      m_tau_charge.resize(plEvent.m_taus->size());
+      m_tau_isHadronic.resize(plEvent.m_taus->size());
+
+      for (const auto & tauPtr : * plEvent.m_taus) {
+        m_tau_pt[i] = tauPtr->pt();
+        m_tau_eta[i] = tauPtr->eta();
+        m_tau_phi[i] = tauPtr->phi();
+        m_tau_e[i] = tauPtr->e();
+        m_tau_charge[i] = tauPtr->charge();
+        if(tauPtr->isAvailable<char>("IsHadronicTau")){
+          m_tau_isHadronic[i] = tauPtr->auxdata<char>("IsHadronicTau");
         }
 
         ++i;
@@ -4130,7 +4165,7 @@ namespace top {
           try {
             m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostBHadronsFinalCount" ));
             m_rcjetsub_Ghosts_CHadron_Final_Count[i].push_back(subjet->auxdata<int>( "GhostCHadronsFinalCount" ));
-          } catch (SG::ExcBadAuxVar e) {
+          } catch (const SG::ExcBadAuxVar& e) {
             //didn't find any ghost b-hadron info, have to assume it's a light jet
             ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
             m_rcjetsub_Ghosts_BHadron_Final_Count[i].push_back(0);
@@ -4615,7 +4650,7 @@ namespace top {
         try {
           m_jet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
           m_jet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
-        } catch (SG::ExcBadAuxVar e) {
+        } catch (const SG::ExcBadAuxVar& e) {
           //didn't find any ghost b-hadron info, have to assume it's a light jet
           ATH_MSG_DEBUG("Found a jet with no GhostXHadronFinalCount auxdata");
           m_jet_Ghosts_BHadron_Final_Count[i] = 0;
