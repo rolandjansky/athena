@@ -25,7 +25,7 @@ atlas_depends_on_subdirs(
 find_package( nlohmann_json )
 
 atlas_add_component( DumpEventDataToJSON
-  src/*.cxx
+   src/*.cxx
    src/components/*.cxx
    LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib xAODEventInfo xAODJet xAODMuon xAODTracking GaudiKernel nlohmann_json::nlohmann_json TrkGeometry)
 
