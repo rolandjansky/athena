@@ -172,6 +172,12 @@ public:
    //   each partition comes with a maximum number of patterns
    int readSectorOrderedBank(const char *name,const char *partitionListName,
                              int nSub,int numSectorMax,int nlamb);
+   // read root file (sector ordered)
+   // for each sector,determine the maximum number of DC patterns
+   // (when packing according to the DC packing algorithm)
+   /// returns: list of sectors with maximum number of patterns
+   MAP<int,int> countSectorOrderedPatterns(const char *name);
+
    // this method reads patterns as defined in the partition list
    // a given partition implements two limits
    //   maximum number of sectors
@@ -325,6 +331,7 @@ protected:
   // holds all pattern data
   PatternBank m_bank;
   MAP<int,bool> m_tooFew;
+  MAP<int,int> m_maxPatterns;
 
   //
   // types to hold hit-mask for a pattern

@@ -193,6 +193,7 @@ runArgsFromTrfOptional = {'curreg': 32,
 
                           'OutputFile': "patterns.root",  # output file (should end with .root)
                           'ModuleGeometryFile': "none",
+                          'badModuleFile': "",
                           'sectorSelection' : 1
 			  }
 skipArgs = []
