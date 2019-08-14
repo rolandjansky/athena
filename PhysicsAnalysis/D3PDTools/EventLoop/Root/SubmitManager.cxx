@@ -49,6 +49,15 @@ namespace EL
     {
       switch (data.step)
       {
+      case Detail::ManagerStep::initial:
+        {
+          if (data.resubmit)
+            data.nextStep = Detail::ManagerStep::initialResubmit;
+          else
+            data.nextStep = Detail::ManagerStep::initialSubmit;
+        }
+        break;
+
       case Detail::ManagerStep::fillOptions:
         {
           data.options = *data.job->options();
@@ -122,6 +131,24 @@ namespace EL
           // this particular file can be checked to see if a job has
           // been submitted successfully.
           std::ofstream ((data.submitDir + "/submitted").c_str());
+        }
+        break;
+
+      case Detail::ManagerStep::finalSubmit:
+        {
+          data.nextStep = Detail::ManagerStep::final;
+        }
+        break;
+
+      case Detail::ManagerStep::finalResubmit:
+        {
+          if (!data.submitted)
+          {
+            ANA_MSG_FATAL ("Driver::resubmit not implemented in class " << typeid(*data.driver).name());
+            std::abort ();
+          }
+
+          data.nextStep = Detail::ManagerStep::final;
         }
         break;
 

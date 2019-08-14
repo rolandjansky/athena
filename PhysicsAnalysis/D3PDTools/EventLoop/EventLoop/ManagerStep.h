@@ -31,8 +31,11 @@ namespace EL
       /// here
       initial,
 
-      /// \brief update the submitDir variable to be an absolute path
-      updateSubmitDir = initial,
+      /// the initial submit step
+      initialSubmit,
+
+      /// update the submitDir variable to be an absolute path
+      updateSubmitDir,
 
       /// in this step we fill the options structure, combining the
       /// different locations from which we can pull configuration
@@ -73,6 +76,21 @@ namespace EL
 
       /// do whatever needs to be done after the submission is done
       postSubmit,
+
+      /// the final submit step
+      finalSubmit,
+
+      /// the initial resubmit step
+      initialResubmit,
+
+      /// do everything the batch driver needs to do before the resubmit
+      batchPreResubmit,
+
+      /// call the actual doResubmit method
+      doResubmit,
+
+      /// the final resubmit step
+      finalResubmit,
 
       final
     };

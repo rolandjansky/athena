@@ -396,7 +396,71 @@ namespace EL
       }
       break;
 
+    case Detail::ManagerStep::batchPreResubmit:
+      {
+        bool all_missing = false;
+        if (data.resubmitOption == "ALL_MISSING")
+        {
+          all_missing = true;
+        } else if (!data.resubmitOption.empty())
+        {
+          ANA_MSG_ERROR ("unknown resubmit option " + data.resubmitOption);
+          return ::StatusCode::FAILURE;
+        }
+
+        std::unique_ptr<TFile> file
+          (TFile::Open ((data.submitDir + "/submit/config.root").c_str(), "READ"));
+        if (file == nullptr || file->IsZombie())
+        {
+          ANA_MSG_ERROR ("failed to read config.root");
+          return ::StatusCode::FAILURE;
+        }
+        std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
+        if (config == nullptr)
+        {
+          ANA_MSG_ERROR ("failed to get job object from config.root");
+          return ::StatusCode::FAILURE;
+        }
+
+        for (std::size_t segment = 0; segment != config->segments.size(); ++ segment)
+        {
+          if (all_missing)
+          {
+            std::ostringstream completed_file;
+            completed_file << data.submitDir << "/status/completed-" << segment;
+            if (gSystem->AccessPathName (completed_file.str().c_str()) != 0)
+              data.batchJobIndices.push_back (segment);
+          } else
+          {
+            std::ostringstream fail_file;
+            fail_file << data.submitDir << "/status/fail-" << segment;
+            if (gSystem->AccessPathName (fail_file.str().c_str()) == 0)
+              data.batchJobIndices.push_back (segment);
+          }
+        }
+
+        if (data.batchJobIndices.empty())
+        {
+          ANA_MSG_INFO ("found no jobs to resubmit");
+          data.nextStep = Detail::ManagerStep::final;
+          return ::StatusCode::SUCCESS;
+        }
+
+        for (std::size_t segment : data.batchJobIndices)
+        {
+          std::ostringstream command;
+          command << "rm -rf";
+          command << " " << data.submitDir << "/status/completed-" << segment;
+          command << " " << data.submitDir << "/status/fail-" << segment;
+          command << " " << data.submitDir << "/status/done-" << segment;
+          RCU::Shell::exec (command.str());
+        }
+        data.options = *config->job.options();
+      }
+      break;
+
     case Detail::ManagerStep::submitJob:
+    case Detail::ManagerStep::doResubmit:
       {
         batchSubmit (data);
         data.submitted = true;
@@ -407,64 +471,6 @@ namespace EL
       (void) true; // safe to do nothing
     }
     return ::StatusCode::SUCCESS;
-  }
-
-
-
-  void BatchDriver ::
-  doResubmit (Detail::ManagerData& data) const
-  {
-    RCU_READ_INVARIANT (this);
-
-    bool all_missing = false;
-    if (data.resubmitOption == "ALL_MISSING")
-    {
-      all_missing = true;
-    } else
-    {
-      RCU_THROW_MSG ("unknown resubmit option " + data.resubmitOption);
-    }
-
-    std::unique_ptr<TFile> file
-      (TFile::Open ((data.submitDir + "/submit/config.root").c_str(), "READ"));
-    RCU_ASSERT_SOFT (file.get() != 0);
-    std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
-    RCU_ASSERT_SOFT (config.get() != 0);
-
-    for (std::size_t segment = 0; segment != config->segments.size(); ++ segment)
-    {
-      if (all_missing)
-      {
-        std::ostringstream completed_file;
-        completed_file << data.submitDir << "/status/completed-" << segment;
-        if (gSystem->AccessPathName (completed_file.str().c_str()) != 0)
-          data.batchJobIndices.push_back (segment);
-      } else
-      {
-        std::ostringstream fail_file;
-        fail_file << data.submitDir << "/status/fail-" << segment;
-        if (gSystem->AccessPathName (fail_file.str().c_str()) == 0)
-          data.batchJobIndices.push_back (segment);
-      }
-    }
-
-    if (data.batchJobIndices.empty())
-    {
-      RCU_PRINT_MSG ("found no jobs to resubmit");
-      return;
-    }
-
-    for (std::size_t segment : data.batchJobIndices)
-    {
-      std::ostringstream command;
-      command << "rm -rf";
-      command << " " << data.submitDir << "/status/completed-" << segment;
-      command << " " << data.submitDir << "/status/fail-" << segment;
-      command << " " << data.submitDir << "/status/done-" << segment;
-      RCU::Shell::exec (command.str());
-    }
-    data.options = *config->job.options();
-    batchSubmit (data);
   }
 
 

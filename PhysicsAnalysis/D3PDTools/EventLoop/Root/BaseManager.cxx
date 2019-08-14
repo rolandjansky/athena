@@ -42,6 +42,14 @@ namespace EL
     {
       switch (data.step)
       {
+      case Detail::ManagerStep::initial:
+        // normally this should get overriden by the operation
+        // manager, but this is a safety fallback in case the
+        // operation doesn't do that, leaving us with nothing
+        // happening
+        data.nextStep = ManagerStep::final;
+        break;
+
       case Detail::ManagerStep::updateSubmitDir:
         {
           if (data.submitDir[0] != '/')
