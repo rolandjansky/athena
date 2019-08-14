@@ -699,7 +699,7 @@ egammaSuperClusterBuilder::findCentralPosition(const std::vector<const xAOD::Cal
       if (thisEmax > cp.emaxEC) {
 	cp.emaxEC = thisEmax;
 	cp.etaEC = cluster->etamax(CaloSampling::EME2);
-	cp.etaEC = cluster->phimax(CaloSampling::EME2);
+	cp.phiEC = cluster->phimax(CaloSampling::EME2);
       }
     }
   }
