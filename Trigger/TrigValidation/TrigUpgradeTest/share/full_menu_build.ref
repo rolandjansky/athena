@@ -303,6 +303,7 @@ TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_xe30_cell_L1XE1
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j35_gsc45_boffperf_split_L1J20 ID#2603162203
 TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j35_gsc45_bmv2c1070_split_L1J20 ID#3815360851
+TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 ID#4034799151
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
@@ -351,8 +352,8 @@ TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3      
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      36        154       25        0         0         
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            20        20        17        17        17        0         0         17        
 TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      50        50        58        0         0         
-TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        0         0         0         0         0         0         
-TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        1         0         0         0         0         1         
+TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    2         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j175_gsc225_bmv2c1040_split_L1J10020        20        0         0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j175_gsc225_bmv2c1040_split_L1J100 decisions                    0         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_j225_gsc275_bmv2c1060_split_L1J10020        20        0         0         0         0         0         0         

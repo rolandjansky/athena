@@ -69,7 +69,7 @@ std::string CombinationsGroupsToHelpersMatcherMT::toString() const noexcept {
   std::stringstream ss;
 
   ss << "CombinationsGroupsToHelpersMatcherMT. "
-     << "Passes each hypojet vector to all helpers in turn."
+     << "Passes the same hypojet vector to all child helpers."
      << "\n No of helpers: "
      << m_helpers.size() << "\n\n";
 
