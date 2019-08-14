@@ -544,8 +544,8 @@ StatusCode JetAlg::BuildgBlocksJets(const xAOD::JGTowerContainer* gBs, TString j
   for(unsigned int b = 0; b < gBs->size(); b++){
     const xAOD::JGTower* block = gBs->at(b);
 
-    float eta = block->eta();
-    float pt = block->pt();
+    const float eta = block->eta();
+    const float pt = block->pt();
 
     // fpga_a
     if(eta > -2.5 && eta < -1.25){

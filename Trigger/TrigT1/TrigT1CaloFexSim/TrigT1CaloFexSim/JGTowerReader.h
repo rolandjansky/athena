@@ -55,6 +55,7 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_dumpSeedsEtaPhi;
 
   bool  m_makeSquareJets;
+  bool  m_buildgBlockJets;
   float m_jJet_thr;
   float m_jJet_seed_size;
   float m_jJet_max_r;

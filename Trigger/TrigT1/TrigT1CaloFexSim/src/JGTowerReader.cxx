@@ -92,6 +92,7 @@ histSvc("THistSvc",name){
   declareProperty("plotSeeds", m_plotSeeds = false);
   declareProperty("saveSeeds", m_saveSeeds = false);
 
+  declareProperty("buildgBlockJets", m_buildgBlockJets=false);
   declareProperty("gJet_seed_size", m_gJet_seed_size=0.2);
   declareProperty("gJet_max_r", m_gJet_max_r=1.0);  //gFEX constructs large radius jets
   declareProperty("gJet_r", m_gJet_r=1.0);
@@ -215,8 +216,8 @@ StatusCode JGTowerReader::execute() {
   CHECK( evtStore()->retrieve( eventInfo, "EventInfo" ) );
 
   ToolHandle<Trig::IBunchCrossingTool> m_bcTool("Trig::MCBunchCrossingTool/BunchCrossingTool");
-  int distFrontBunchTrain = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
-  CHECK(HistBookFill("distFrontBunchTrain",100,0,100, distFrontBunchTrain, 1.));
+  //int distFrontBunchTrain = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
+  //CHECK(HistBookFill("distFrontBunchTrain",100,0,100, distFrontBunchTrain, 1.));
 
   const CaloCellContainer* scells = 0;
   CHECK( evtStore()->retrieve( scells, m_scType) );
@@ -593,15 +594,16 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
     int seedTowerIndex = gBlocks[b].seedIndex();
     const int sampling = gCaloTowers->at(seedTowerIndex)->sampling();
 
-    xAOD::JGTower* m_block = new xAOD::JGTower();
+    xAOD::JGTower* new_block = new xAOD::JGTower();
     const int b_ = b; 
-    gBs->push_back(m_block);
-    m_block->initialize(b_, eta, phi);
-    m_block->setdEta(deta);                                                 
-    m_block->setdPhi(dphi);                                                                   
-    m_block->setSCIndex(index);  // Not sure what these are supposed to be?
-    m_block->setTileIndex(index);// Not sure what these are supposed to be?
-    m_block->setSampling(sampling);
+    gBs->push_back(new_block);
+    new_block->initialize(b_, eta, phi);
+    new_block->setdEta(deta);                                                 
+    new_block->setdPhi(dphi);                                                                   
+    new_block->setEt(pt);
+    new_block->setSCIndex(index);  // Not sure what these are supposed to be?
+    new_block->setTileIndex(index);// Not sure what these are supposed to be?
+    new_block->setSampling(sampling);
   }  
 
   // jet algorithms
@@ -614,7 +616,7 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   //CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr)); //default gFex jets are cone jets wih radius of 1.0
   
   CHECK(JetAlg::BuildFatJet(*gCaloTowers, "gL1Jets", m_gJet_r, gT_noise, m_gJet_jet_tower_noise_multiplier, m_gJet_jet_total_noise_multiplier, m_gJet_jet_min_ET_MeV, rho_barrel));
-  CHECK(JetAlg::BuildgBlocksJets(gBs, "gBlockJets",rho_barrel));
+  if(m_buildgBlockJets) CHECK(JetAlg::BuildgBlocksJets(gBs, "gBlockJets",rho_barrel));
   //gFEX MET algorithms
   std::vector<float> noNoise; 
   if(m_developerMET){
@@ -651,10 +653,8 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(evtStore()->record(gCaloTowersAux, "gCaloTowersAux."));
   CHECK(evtStore()->record(pu_sub, "pu_subTowers"));
   CHECK(evtStore()->record(pu_subAux, "pu_subTowersAux."));
-
-  delete fpga_a;
-  delete fpga_b;
-  delete fpga_c;
+  CHECK(evtStore()->record(gBs, "gBlocks"));
+  CHECK(evtStore()->record(gBAux, "gBlocksAux."));
 
   delete h_fpga_a;
   delete h_fpga_b;
