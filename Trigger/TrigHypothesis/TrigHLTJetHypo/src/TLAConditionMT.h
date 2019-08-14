@@ -23,11 +23,12 @@ class ITrigJetHypoInfoCollector;
 class TLAConditionMT: public IConditionMT{
  public:
   TLAConditionMT(const std::vector<double>& etaMins,
-               const std::vector<double>& etaMaxs,
-               const std::vector<double>& ystarMins,
-               const std::vector<double>& ystarMaxs,
-               const std::vector<double>& massMins,
-               const std::vector<double>& massMaxs);
+		 const std::vector<double>& etaMaxs,
+		 const std::vector<double>& ystarMins,
+		 const std::vector<double>& ystarMaxs,
+		 const std::vector<double>& massMins,
+		 const std::vector<double>& massMaxs,
+		 unsigned int conditionID=0);
 
   TLAConditionMT(double etaMin,
                double etaMax,
@@ -42,6 +43,7 @@ class TLAConditionMT: public IConditionMT{
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
   std::string toString() const noexcept override;
 
+  virtual unsigned int conditionID() const override{return m_conditionID;}
   virtual unsigned int capacity() const override {return s_capacity;}
 
  private:
@@ -52,6 +54,7 @@ class TLAConditionMT: public IConditionMT{
   double m_massMin;
   double m_massMax;
 
+  unsigned int m_conditionID{0}; 
   const static unsigned int s_capacity{1};
 
 };

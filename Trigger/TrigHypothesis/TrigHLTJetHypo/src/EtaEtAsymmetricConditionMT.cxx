@@ -13,9 +13,11 @@
 
 EtaEtAsymmetricConditionMT::EtaEtAsymmetricConditionMT(double etaMin, 
                                                        double etaMax, 
-                                                       double threshold):
+                                                       double threshold,
+						       unsigned int conditionID):
 
-  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold){
+  m_etaMin(etaMin), m_etaMax(etaMax), m_threshold(threshold),
+  m_conditionID(conditionID){
 }
 
 

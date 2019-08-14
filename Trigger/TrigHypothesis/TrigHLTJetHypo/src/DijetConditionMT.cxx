@@ -15,13 +15,15 @@ DijetConditionMT::DijetConditionMT(double massMin,
                                    double detaMin,
                                    double detaMax,
                                    double dphiMin,
-                                   double dphiMax) :
+                                   double dphiMax,
+				   unsigned int conditionID) :
   m_massMin(massMin),
   m_massMax(massMax),
   m_detaMin(detaMin),
   m_detaMax(detaMax),
   m_dphiMin(dphiMin),
-  m_dphiMax(dphiMax){
+  m_dphiMax(dphiMax),
+  m_conditionID(conditionID){
 }
   
 

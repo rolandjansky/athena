@@ -31,7 +31,8 @@ class DijetConditionMT: public IConditionMT{
                    double detaMin,
                    double detaMax,
                    double dphiMin,
-                   double dphiMax);
+                   double dphiMax,
+		   unsigned int conditionID=0);
 
   ~DijetConditionMT() override {}
 
@@ -41,6 +42,7 @@ class DijetConditionMT: public IConditionMT{
   std::string toString() const noexcept override;
 
   virtual unsigned int capacity() const override{return s_capacity;}
+  virtual unsigned int conditionID() const override{return m_conditionID;}
 
  private:
 
@@ -58,6 +60,7 @@ class DijetConditionMT: public IConditionMT{
   double m_dphiMin;
   double m_dphiMax;
 
+  unsigned int m_conditionID{0}; 
   const static unsigned int s_capacity{2};
 
 };

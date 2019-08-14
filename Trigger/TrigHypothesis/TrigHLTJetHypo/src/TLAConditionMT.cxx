@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./TLAConditionMT.h"
@@ -11,11 +11,13 @@
 #include <limits>
 
 TLAConditionMT::TLAConditionMT(const std::vector<double>& etaMins,
-                           const std::vector<double>& etaMaxs,
-                           const std::vector<double>& ystarMins,
-                           const std::vector<double>& ystarMaxs,
-                           const std::vector<double>& massMins,
-                           const std::vector<double>& massMaxs){
+			       const std::vector<double>& etaMaxs,
+			       const std::vector<double>& ystarMins,
+			       const std::vector<double>& ystarMaxs,
+			       const std::vector<double>& massMins,
+			       const std::vector<double>& massMaxs,
+			       unsigned int conditionID) :
+  m_conditionID(conditionID){
 
   m_etaMin = etaMins[0];
   m_etaMax = etaMaxs[0];

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./HTConditionMT.h"
@@ -11,7 +11,9 @@
 #include <algorithm>
 #include <numeric>
 
-HTConditionMT::HTConditionMT(double htMin): m_htMin(htMin){
+HTConditionMT::HTConditionMT(double htMin,
+			     unsigned int conditionID):
+  m_htMin(htMin), m_conditionID(conditionID){
 }
 
 
