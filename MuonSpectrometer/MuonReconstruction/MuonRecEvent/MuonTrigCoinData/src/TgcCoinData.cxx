@@ -270,10 +270,10 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
       m_inner = RIO.m_inner;
       m_sub = RIO.m_sub;
       m_isPositiveDeltaR = RIO.m_isPositiveDeltaR;
-      if (m_globalposIn) delete m_globalposIn.release().get();
       if (RIO.m_globalposIn) m_globalposIn.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposIn));
-      if (m_globalposOut) delete m_globalposOut.release().get();
+      else if (m_globalposIn) m_globalposIn.release().reset();
       if (RIO.m_globalposOut) m_globalposOut.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalposOut));
+      else if (m_globalposOut) m_globalposOut.release().reset();
     }
   return *this;
 }

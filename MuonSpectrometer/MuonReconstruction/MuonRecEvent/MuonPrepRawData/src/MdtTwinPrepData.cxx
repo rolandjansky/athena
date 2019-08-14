@@ -67,7 +67,7 @@ namespace Muon
   MdtTwinPrepData& MdtTwinPrepData::operator=(const MdtTwinPrepData& RIO)
   {
     if(this!=&RIO){    
-      if (m_globalPosition) delete m_globalPosition.release().get();
+      if (m_globalPosition) m_globalPosition.release().reset();
       MdtPrepData::operator=(RIO);
       copy(RIO);
     }

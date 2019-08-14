@@ -93,9 +93,10 @@ SiCluster& SiCluster::operator=(const SiCluster& RIO){
        if (&RIO !=this) {
                 Trk::PrepRawData::operator= (RIO);
 		m_width = RIO.m_width;
-		if (m_globalPosition) delete m_globalPosition.release().get();
 		if (RIO.m_globalPosition) {
                         m_globalPosition.set(std::make_unique<Amg::Vector3D>(*RIO.m_globalPosition));
+                } else if (m_globalPosition) {
+                        m_globalPosition.release().reset();
                 }
 		m_gangedPixel = RIO.m_gangedPixel;
 		m_detEl =  RIO.m_detEl ;
@@ -108,7 +109,6 @@ SiCluster& SiCluster::operator=(SiCluster&& RIO){
       if (&RIO !=this) {
                 Trk::PrepRawData::operator= (std::move(RIO));
                 m_width = RIO.m_width;
-                if (m_globalPosition) delete m_globalPosition.release().get();
                 m_globalPosition = std::move(RIO.m_globalPosition);
                 m_gangedPixel = RIO.m_gangedPixel;
                 m_detEl =  RIO.m_detEl ;

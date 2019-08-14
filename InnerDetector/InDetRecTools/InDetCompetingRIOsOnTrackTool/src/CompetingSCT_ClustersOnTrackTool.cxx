@@ -387,7 +387,7 @@ void InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROT(
     compROT->m_indexMaxAssignProb = maximumAssignProbIndex;
     // delete global position (will be recreated by the competingROT itself)
     if (compROT->m_globalPosition) {
-        delete compROT->m_globalPosition.release().get();
+        compROT->m_globalPosition.release().reset();
     }
     // delete localParameters
     compROT->setLocalParametersAndErrorMatrix();
@@ -541,7 +541,7 @@ StatusCode InDet::CompetingSCT_ClustersOnTrackTool::updateCompetingROTprobs(
     compROT->m_assignProb = assgnProbVector; 
     // delete global position (will be recreated by the competingROT itself) 
     if (compROT->m_globalPosition) {
-        delete compROT->m_globalPosition.release().get(); 
+        compROT->m_globalPosition.release().reset(); 
     }
     // recalc localParameters 
     compROT->setLocalParametersAndErrorMatrix();

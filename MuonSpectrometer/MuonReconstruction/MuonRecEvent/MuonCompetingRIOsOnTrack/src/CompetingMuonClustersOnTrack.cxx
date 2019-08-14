@@ -99,7 +99,6 @@ namespace Muon {
       // clear rots
           clearChildRotVector();
           delete m_containedChildRots;
-          if (m_globalPosition) delete m_globalPosition.release().get();
           m_containedChildRots = new std::vector<const MuonClusterOnTrack*>;
           std::vector<const MuonClusterOnTrack*>::const_iterator rotIter = compROT.m_containedChildRots->begin();
           for (; rotIter!=compROT.m_containedChildRots->end(); ++rotIter) {
@@ -108,6 +107,7 @@ namespace Muon {
               if( mrot ) m_containedChildRots->push_back( mrot );
           }
           if (compROT.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*compROT.m_globalPosition));
+          else if (m_globalPosition) m_globalPosition.release().reset();
 
           delete m_associatedSurface;
 
@@ -131,7 +131,6 @@ namespace Muon {
         m_containedChildRots = compROT.m_containedChildRots;
         compROT.m_containedChildRots = nullptr;
 
-        if (m_globalPosition) delete m_globalPosition.release().get();
         m_globalPosition = std::move(compROT.m_globalPosition);
 
         delete m_associatedSurface;
