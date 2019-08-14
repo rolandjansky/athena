@@ -1101,7 +1101,7 @@ namespace Muon {
 	}
 	if( !isNoise && flipSign ){
 	  if( mdtRot ){
-	    mdtRotFlipped = std::make_unique<MdtDriftCircleOnTrack>(*(mdtRot->clone()));
+	    mdtRotFlipped = std::make_unique<MdtDriftCircleOnTrack>(*mdtRot);
 	    Trk::DriftCircleSide side = rDrift < 0. ? Trk::RIGHT : Trk::LEFT;
 	    m_mdtRotCreator->updateSign(*mdtRotFlipped,side);
 	    double rDriftFlip = mdtRotFlipped->localParameters()[Trk::locR];
@@ -1214,7 +1214,9 @@ namespace Muon {
 	      if( prdList.empty() ){
 		ATH_MSG_WARNING("No clusters selected during comprot cleaning, keeping old cluster" );
 	      }else{
-		updatedCompRot = std::make_unique<CompetingMuonClustersOnTrack>(*m_compRotCreator->createBroadCluster(prdList,0.));
+		//TODO: createBroadCluster returns a const object so a workaround is needed to get a unique pointer, this should be fixed in some fashion 
+		CompetingMuonClustersOnTrack tempCompRot=*m_compRotCreator->createBroadCluster(prdList,0.);
+		updatedCompRot = std::make_unique<CompetingMuonClustersOnTrack>(tempCompRot);
 		++state.numberOfCleanedCompROTs;
 	      }
 	    }
@@ -1670,7 +1672,7 @@ namespace Muon {
       return nullptr;
     }
     else{
-      return std::make_unique<Trk::Track>(*newTrack);
+      return std::unique_ptr<Trk::Track>(newTrack);
     }
   }
 }
