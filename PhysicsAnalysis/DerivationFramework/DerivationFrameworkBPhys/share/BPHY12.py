@@ -5,6 +5,12 @@
 # It requires the reductionConf flag BPHY12 in Reco_tf.py   
 #====================================================================
 
+#====================================================================
+# FLAGS TO PERSONALIZE THE DERIVATION
+#====================================================================
+
+skimTruth = False
+
 # Set up common services and job object. 
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
@@ -13,7 +19,7 @@ isSimulation = False
 if globalflags.DataSource()=='geant4':
     isSimulation = True
 
-print isSimulation
+print 'is this simulation? ', isSimulation
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -22,22 +28,73 @@ print isSimulation
 include("DerivationFrameworkBPhys/configureVertexing.py")
 BPHY12_VertexTools = BPHYVertexTools("BPHY12")
 
+print '********************** VERTEX TOOLS ***********************'
+print BPHY12_VertexTools
+print BPHY12_VertexTools.TrkV0Fitter
+print '********************** END VERTEX TOOLS ***********************'
+
+#====================================================================
+# TriggerCounting for Kernel1 #Added by Matteo
+#====================================================================
+#List of trigggers to be counted (high Sig-eff*Lumi ones are in)
+triggersToMetadata= [
+"HLT_mu11_mu6_bBmumuxv2",
+"HLT_2mu10_bBmumuxv2",
+"HLT_2mu6_bBmumuxv2_L1LFV-MU6",
+"HLT_mu11_mu6_bBmumux_BpmumuKp",
+"HLT_2mu6_bBmumux_BpmumuKp_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
+
+"HLT_mu11_mu6_bDimu",
+"HLT_4mu4_bDimu6000"
+              ]
+
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__TriggerCountToMetadata
+BPHY12TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata(name = "BPHY12TriggerCount",
+                                                                          TriggerList = triggersToMetadata,
+                                                                          FolderName = "BPHY12")
+
+ToolSvc += BPHY12TriggerCountToMetadata
+
+#====================================================================
+# PRESELECTION for Kernel1 #Added by Matteo
+#====================================================================
+## 1/ Setup the skimming based on triggers
+##     
+
+triggerList = [
+"HLT_mu11_mu6_bBmumuxv2",
+"HLT_2mu10_bBmumuxv2",
+"HLT_2mu6_bBmumuxv2_L1LFV-MU6",
+"HLT_mu11_mu6_bBmumux_BpmumuKp",
+"HLT_2mu6_bBmumux_BpmumuKp_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
+"HLT_mu11_mu6_bDimu",
+"HLT_4mu4_bDimu6000"
+              ]
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+BPHY12TriggerSkim = DerivationFramework__TriggerSkimmingTool(name = "BPHY12TriggerSkim",
+                                                            TriggerListOR = triggerList,
+                                                            TriggerListAND = [] )
+
+ToolSvc += BPHY12TriggerSkim
+
 #--------------------------------------------------------------------
 ## 2/ Setup the vertex fitter tools (e.g. JpsiFinder, JpsiPlus1Track, etc).
 ##    These are general tools independent of DerivationFramework that do the 
 ##    actual vertex fitting and some pre-selection.
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
-BPHY12JpsiFinder = Analysis__JpsiFinder(
-    name                        = "BPHY12JpsiFinder",
+BPHY12DiMuonFinder = Analysis__JpsiFinder(
+    name                        = "BPHY12DiMuonFinder",
     OutputLevel                 = INFO,
     muAndMu                     = True,
     muAndTrack                  = False,
     TrackAndTrack               = False,
     assumeDiMuons               = True,    # If true, will assume dimu hypothesis and use PDG value for mu mass
-  invMassUpper                = 100000.0,
+    invMassUpper                = 100000.0,
     invMassLower                = 0.0,
     Chi2Cut                     = 200.,
-    oppChargesOnly	            = True,
+    oppChargesOnly	        = True,
     atLeastOneComb              = True,
     useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
     muonCollectionKey           = "Muons",
@@ -50,8 +107,8 @@ BPHY12JpsiFinder = Analysis__JpsiFinder(
     VertexPointEstimator        = BPHY12_VertexTools.VtxPointEstimator,
     useMCPCuts                  = False )
 
-ToolSvc += BPHY12JpsiFinder
-print      BPHY12JpsiFinder
+ToolSvc += BPHY12DiMuonFinder
+print      BPHY12DiMuonFinder
 
 #--------------------------------------------------------------------
 ## 3/ setup the vertex reconstruction "call" tool(s). They are part of the derivation framework.
@@ -61,18 +118,18 @@ print      BPHY12JpsiFinder
 ##    Reco tool is the JpsiFinder mass window is wide enough.
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
-BPHY12_Reco_mumu = DerivationFramework__Reco_mumu(
-  name                   = "BPHY12_Reco_mumu",
-  JpsiFinder             = BPHY12JpsiFinder,
-  OutputVtxContainerName = "BPHY12OniaCandidates",
+BPHY12_Reco_DiMuon = DerivationFramework__Reco_mumu(
+  name                   = "BPHY12_Reco_DiMuon",
+  JpsiFinder             = BPHY12DiMuonFinder,
+  OutputVtxContainerName = "BPHY12DiMuonCandidates",
   PVContainerName        = "PrimaryVertices",
   RefPVContainerName     = "BPHY12RefittedPrimaryVertices",
   RefitPV                = True,
   MaxPVrefit             = 100000,
   DoVertexType           = 7)
   
-ToolSvc += BPHY12_Reco_mumu
-print BPHY12_Reco_mumu
+ToolSvc += BPHY12_Reco_DiMuon
+print BPHY12_Reco_DiMuon
 
 #--------------------------------------------------------------------
 ## 4/ setup the vertex selection and augmentation tool(s). These tools decorate the vertices with
@@ -87,18 +144,95 @@ print BPHY12_Reco_mumu
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
 
 ## a/ augment and select Jpsi->mumu candidates
-BPHY12_Select_B2mumu = DerivationFramework__Select_onia2mumu(
-  name                  = "BPHY12_Select_B2mumu",
-  HypothesisName        = "Bmumu",
-  InputVtxContainerName = "BPHY12OniaCandidates",
-  VtxMassHypo           = 5366.79,
-  MassMin               = 4000.0,
+BPHY12_Select_DiMuons = DerivationFramework__Select_onia2mumu(
+  name                  = "BPHY12_Select_DiMuons",
+  HypothesisName        = "Jpsi",
+  InputVtxContainerName = "BPHY12DiMuonCandidates",
+  VtxMassHypo           = 3096.916,
+  MassMin               = 1.0,
   MassMax               = 7000.0,
-  Chi2Max               = 200,
+  Chi2Max               = 200.,
   DoVertexType          = 7)
   
-ToolSvc += BPHY12_Select_B2mumu
-print BPHY12_Select_B2mumu
+ToolSvc += BPHY12_Select_DiMuons
+print BPHY12_Select_DiMuons
+
+## 4/ setup a new vertexing tool (necessary due to use of mass constraint)
+from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+BmumuKstVertexFit = Trk__TrkVKalVrtFitter(
+    name                = "BmumuKstVertexFit",
+    Extrapolator        = BPHY12_VertexTools.InDetExtrapolator,
+    FirstMeasuredPoint  = True,
+    MakeExtendedVertex  = True)
+
+ToolSvc += BmumuKstVertexFit
+print      BmumuKstVertexFit
+
+## 5/ setup the Jpsi+2 track finder
+from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus2Tracks
+BPHY12BmumuKstFinder = Analysis__JpsiPlus2Tracks(
+    name                    = "BPHY12BmumuKstFinder",
+    OutputLevel             = INFO, #can also be DEBUG, WARNING, VERBOSE
+    kaonkaonHypothesis      = False,
+    pionpionHypothesis      = False,
+    kaonpionHypothesis      = True,
+    trkThresholdPt          = 500.0, #minimum track pT in MeV
+    trkMaxEta               = 3.0, 
+    BThresholdPt            = 1000.,
+    BMassLower              = 3000.0, #OI makes no sense below Jpsi mass #same values as BPHY18 (original) - Bs->JpsiKK
+    BMassUpper              = 6500.0,
+    JpsiContainerKey        = "BPHY12DiMuonCandidates",
+    TrackParticleCollection = "InDetTrackParticles",
+    #MuonsUsedInJpsi         = "Muons", #Don't remove all muons, just those in J/psi candidate (see the following cut)
+    ExcludeCrossJpsiTracks  = False,   #setting this to False rejects the muons from J/psi candidate
+    TrkVertexFitterTool     = BmumuKstVertexFit,
+    TrackSelectorTool       = BPHY12_VertexTools.InDetTrackSelectorTool,
+    UseMassConstraint       = False, #Set to True, according to Bs->JpsiKK DAOD
+    DiTrackMassUpper        = 1110., #OI was 1500. Can eventually set these to be the K* mass?
+    DiTrackMassLower        = 690.,  #OI was 500
+    Chi2Cut                 = 15., #THIS IS CHI2/NDOF, checked the code!!!
+    DiTrackPt               = 500.,
+    TrkQuadrupletMassLower  = 1000.0, #Two electrons + two tracks (one K, one pi)
+    TrkQuadrupletMassUpper  = 100000.0, # same as BPHY18, original
+    #FinalDiTrackMassUpper   = 1000.,
+    #FinalDiTrackMassLower   = 800.,
+    #TrkDeltaZ               = 20., #Normally, this cut should not be used since it is lifetime-dependent
+    FinalDiTrackPt          = 500.,
+#OI    DoElectrons = True,
+    #UseGSFTrackIndices      = [0,1]
+    )
+
+ToolSvc += BPHY12BmumuKstFinder
+print      BPHY12BmumuKstFinder   
+## 6/ setup the combined augmentation/skimming tool for the BeeKst
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrkTrk  
+BPHY12_Reco_BmumuKst  = DerivationFramework__Reco_dimuTrkTrk(
+    name                   = "BPHY12_Reco_BmumuKst",
+    Jpsi2PlusTrackName     = BPHY12BmumuKstFinder,
+    OutputVtxContainerName = "BPHY12BmumuKstCandidates",
+    PVContainerName        = "PrimaryVertices",
+    RefPVContainerName     = "BPHY12RefittedPrimaryVertices",
+    RefitPV                = True,
+    MaxPVrefit             = 10000,
+    DoVertexType = 7)
+
+ToolSvc += BPHY12_Reco_BmumuKst 
+print      BPHY12_Reco_BmumuKst
+
+## b/ augment and select B->eeKst candidates
+#  set mass hypothesis (K pi)
+BPHY12_Select_BmumuKst = DerivationFramework__Select_onia2mumu(
+    name                       = "BPHY12_Select_BmumuKst",
+    HypothesisName             = "Bd", #creates output variable pass_Bd
+    InputVtxContainerName      = "BPHY12BmumuKstCandidates",
+    TrkMasses                  = [105.658, 105.658, 493.677, 139.570],
+    VtxMassHypo                = 5279.6, #mass of B
+    MassMin                    = 1.0,      #no mass cuts here
+    MassMax                    = 10000.0,   #no mass cuts here
+    Chi2Max                    = 30.0) #THIS IS CHI2! NOT CHI2/NDOF! Careful!
+
+ToolSvc += BPHY12_Select_BmumuKst
+print      BPHY12_Select_BmumuKst
 
 #--------------------------------------------------------------------
 ## 5/ select the event. We only want to keep events that contain certain vertices which passed certain selection.
@@ -109,12 +243,23 @@ print BPHY12_Select_B2mumu
 ##    where "ContainerName" is output container form some Reco_* tool, "HypoName" is the hypothesis name setup in some "Select_*"
 ##    tool and "count" is the number of candidates passing the selection you want to keep. 
 
-expression = "count(BPHY12OniaCandidates.passed_Bmumu) > 0"
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-BPHY12_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY12_SelectEvent",
+if skimTruth or not isSimulation: #Only Skim Data
+    expression = "count(BPHY12BmumuKstCandidates.passed_Bd) > 0"
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+    BPHY12_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY12_SelectEvent",
                                                                 expression = expression)
-ToolSvc += BPHY12_SelectEvent
-print BPHY12_SelectEvent
+    ToolSvc += BPHY12_SelectEvent
+    print BPHY12_SelectEvent
+
+    #====================================================================
+    # Make event selection based on an OR of the input skimming tools (though it seems we only have one here!)
+    #====================================================================
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+    BPHY12SkimmingOR = CfgMgr.DerivationFramework__FilterCombinationOR(
+        name       = "BPHY12SkimmingOR",
+        FilterList = [BPHY12_SelectEvent, BPHY12TriggerSkim]) #OR of all your different filters
+    ToolSvc += BPHY12SkimmingOR
+    print      BPHY12SkimmingOR
 
 #--------------------------------------------------------------------
 ## 6/ track and vertex thinning. We want to remove all reconstructed secondary vertices
@@ -134,8 +279,8 @@ BPHY12Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
   name                       = "BPHY12Thin_vtxTrk",
   ThinningService            = "BPHY12ThinningSvc",
   TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["BPHY12OniaCandidates"],
-  PassFlags                  = ["passed_Bmumu"] )
+  VertexContainerNames       = ["BPHY12BmumuKstCandidates"],
+  PassFlags                  = ["passed_Bd"] )
 
 ToolSvc += BPHY12Thin_vtxTrk
 
@@ -175,8 +320,9 @@ if globalflags.DataSource()=='geant4':
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   "BPHY12Kernel",
-   AugmentationTools = [BPHY12_Reco_mumu, BPHY12_Select_B2mumu],
-   SkimmingTools     = [BPHY12_SelectEvent],
+   AugmentationTools = [BPHY12_Reco_DiMuon, BPHY12_Select_DiMuons,
+                        BPHY12_Reco_BmumuKst, BPHY12_Select_BmumuKst],
+   SkimmingTools     = [BPHY12SkimmingOR] if skimTruth or not isSimulation else [],
    ThinningTools     = BPHY12ThinningTools
    )
 
@@ -227,10 +373,15 @@ AllVariables += ["ExtrapolatedMuonTrackParticles"]
 AllVariables += ["Muons"]
 
 ## Jpsi candidates 
-StaticContent += ["xAOD::VertexContainer#%s"        % BPHY12_Reco_mumu.OutputVtxContainerName]
-StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY12_Reco_mumu.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexContainer#%s"        % BPHY12_Reco_DiMuon.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY12_Reco_DiMuon.OutputVtxContainerName]
 ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY12_Reco_mumu.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY12_Reco_DiMuon.OutputVtxContainerName]
+
+StaticContent += ["xAOD::VertexContainer#%s"        % BPHY12_Reco_BmumuKst.OutputVtxContainerName]
+StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY12_Reco_BmumuKst.OutputVtxContainerName]
+## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY12_Reco_BmumuKst.OutputVtxContainerName]
 
 # Added by ASC
 # Truth information for MC only
