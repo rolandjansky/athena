@@ -263,7 +263,7 @@ namespace Muon {
 
   std::unique_ptr<Trk::Track> MuonTrackCleaner::cleanCompROTs( std::unique_ptr<Trk::Track> track, CleaningState& state ) const {
     
-    if( !m_cleanCompROTs || state.numberOfCleanedCompROTs == 0 ) return std::move(track);
+    if( !m_cleanCompROTs || state.numberOfCleanedCompROTs == 0 ) return track;
 
     const Trk::Perigee* perigee = track->perigeeParameters();
     if( !perigee ){
@@ -333,7 +333,7 @@ namespace Muon {
 
   std::unique_ptr<Trk::Track> MuonTrackCleaner::recoverFlippedMdt( std::unique_ptr<Trk::Track> track, CleaningState& state ) const {
     
-    if( !m_flipMdtDriftRadii || state.numberOfFlippedMdts == 0 ) return std::move(track);
+    if( !m_flipMdtDriftRadii || state.numberOfFlippedMdts == 0 ) return track;
 
     const Trk::Perigee* perigee = track->perigeeParameters();
     if( !perigee ){
@@ -402,7 +402,7 @@ namespace Muon {
 
   std::unique_ptr<Trk::Track> MuonTrackCleaner::hitCleaning( std::unique_ptr<Trk::Track> track, CleaningState& state ) const {
 
-    if( state.largePullMeasurements.empty() ) return std::move(track);
+    if( state.largePullMeasurements.empty() ) return track;
     ATH_MSG_DEBUG(" trying outlier removal " );
 
     const Trk::Perigee* perigee = track->perigeeParameters();
@@ -575,7 +575,7 @@ namespace Muon {
 
     ATH_MSG_DEBUG("run chamber cleaning on track "<<m_printer->print(*track));
 
-    if( state.chambersToBeRemoved.empty() && state.chambersToBeRemovedPhi.empty() ) return std::move(track);
+    if( state.chambersToBeRemoved.empty() && state.chambersToBeRemovedPhi.empty() ) return track;
 
     if( state.pullSumPerChamber.size() == 2 ) {
       
