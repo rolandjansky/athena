@@ -74,11 +74,12 @@ InDet::SiClusterOnTrack::SiClusterOnTrack( const SiClusterOnTrack& rot)
 // assignment operator:
 InDet::SiClusterOnTrack& InDet::SiClusterOnTrack::operator=( const SiClusterOnTrack& rot){
     if ( &rot != this) {
-       delete m_globalPosition.release().get();
        Trk::RIO_OnTrack::operator=(rot);
        m_idDE           = rot.m_idDE;
        if (rot.m_globalPosition) {
          m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
+       } else if (m_globalPosition) {
+         m_globalPosition.release().reset();
        }
        m_isbroad        = rot.m_isbroad;
     }

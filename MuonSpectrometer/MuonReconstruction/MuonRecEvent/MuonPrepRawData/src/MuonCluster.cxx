@@ -63,8 +63,8 @@ namespace Muon
     if (&RIO !=this)
     {
       Trk::PrepRawData::operator=(RIO);
-      if (m_globalPosition) delete m_globalPosition.release().get();
       if (RIO.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
+      else if (m_globalPosition) m_globalPosition.release().reset();
     }
     return *this;
   }
@@ -74,7 +74,6 @@ namespace Muon
     if (&RIO !=this)
     {
       Trk::PrepRawData::operator=(std::move(RIO));
-      if (m_globalPosition) delete m_globalPosition.release().get();
       m_globalPosition = std::move(RIO.m_globalPosition);
     }
     return *this;

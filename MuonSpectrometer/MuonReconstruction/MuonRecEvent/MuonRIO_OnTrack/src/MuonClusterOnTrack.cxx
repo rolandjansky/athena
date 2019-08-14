@@ -59,9 +59,9 @@ MuonClusterOnTrack::~MuonClusterOnTrack()
 MuonClusterOnTrack& MuonClusterOnTrack::operator=( const MuonClusterOnTrack& rot){
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator=(rot);//base class ass. op.
-    if (m_globalPosition) delete m_globalPosition.release().get();
     m_positionAlongStrip = rot.m_positionAlongStrip;
     if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
+    else if (m_globalPosition) m_globalPosition.release().reset();
   }
   return *this;
 }

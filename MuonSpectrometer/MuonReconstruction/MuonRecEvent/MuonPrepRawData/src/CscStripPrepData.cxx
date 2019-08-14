@@ -75,7 +75,7 @@ namespace Muon
   {
     if (&RIO !=this)
       {
-	if (m_globalPosition) delete m_globalPosition.release().get();
+	if (m_globalPosition) m_globalPosition.release().reset();
         PrepRawData::operator=(RIO);
         m_collectionHash   = RIO.m_collectionHash;
         m_detEl  = RIO.m_detEl ;

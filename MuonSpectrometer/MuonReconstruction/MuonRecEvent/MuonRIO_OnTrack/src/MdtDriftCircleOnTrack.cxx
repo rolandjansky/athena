@@ -163,8 +163,8 @@ Muon::MdtDriftCircleOnTrack& Muon::MdtDriftCircleOnTrack::operator=( const Muon:
     if ( &rot != this)
     {
         Trk::RIO_OnTrack::operator=(rot);//base class ass. op.
-        if (m_globalPosition) delete m_globalPosition.release().get();
         if (rot.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*rot.m_globalPosition));
+        else if (m_globalPosition) m_globalPosition.release().reset();
         delete m_saggedSurface;
         if( rot.m_saggedSurface!=0 )
             m_saggedSurface= new Trk::StraightLineSurface( *(rot.m_saggedSurface) );
@@ -186,7 +186,6 @@ Muon::MdtDriftCircleOnTrack& Muon::MdtDriftCircleOnTrack::operator=( Muon::MdtDr
     if ( &rot != this)
     {
         Trk::RIO_OnTrack::operator=(std::move(rot));//base class ass. op.
-        if (m_globalPosition) delete m_globalPosition.release().get();
         m_globalPosition = std::move(rot.m_globalPosition);
 
         delete m_saggedSurface;

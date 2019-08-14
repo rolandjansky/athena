@@ -116,7 +116,7 @@ MdtPrepData& MdtPrepData::operator=(const MdtPrepData& RIO)
         m_tdc             = RIO.m_tdc;
         m_adc             = RIO.m_adc;
         m_status          = RIO.m_status;
-        if (m_globalPosition) delete m_globalPosition.release().get();
+        if (m_globalPosition) m_globalPosition.release().reset();
     }
     return *this;
 }
@@ -131,7 +131,7 @@ MdtPrepData& MdtPrepData::operator=(MdtPrepData&& RIO)
         m_tdc             = RIO.m_tdc;
         m_adc             = RIO.m_adc;
         m_status          = RIO.m_status;
-        if (m_globalPosition) delete m_globalPosition.release().get();
+        if (m_globalPosition) m_globalPosition.release().reset();
     }
     return *this;
 }
