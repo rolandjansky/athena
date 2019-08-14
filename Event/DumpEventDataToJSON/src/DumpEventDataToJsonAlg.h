@@ -11,6 +11,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkExInterfaces/IExtrapolationEngine.h"
 #include <nlohmann/json.hpp>
@@ -58,6 +59,9 @@ class DumpEventDataToJsonAlg : public AthAlgorithm
 
    SG::ReadHandleKeyArray<xAOD::MuonContainer>             m_muonKeys
    { this, "MuonContainerKeys", {"Muons"}, "Keys for Muon Containers" };
+   
+   SG::ReadHandleKeyArray<xAOD::CaloClusterContainer>      m_caloClustersKeys
+   { this, "CaloClusterContainerKeys", {"CaloCalTopoClusters"}, "Keys for CaloClusters Containers" };
    
    std::string                                            m_outputJSON_Name   {"EventData.json"};
    nlohmann::json                                         m_eventData; 
