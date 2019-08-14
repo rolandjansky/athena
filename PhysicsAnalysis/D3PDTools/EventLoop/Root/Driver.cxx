@@ -132,7 +132,7 @@ namespace EL
 
     data.resubmit = true;
     data.resubmitOption = option;
-    driver->doResubmit (data);
+    data.run ();
   }
 
 
@@ -310,15 +310,6 @@ namespace EL
   doManagerStep (Detail::ManagerData& data) const
   {
     return ::StatusCode::SUCCESS;
-  }
-
-
-
-  void Driver ::
-  doResubmit (Detail::ManagerData& /*info*/) const
-  {
-    RCU_READ_INVARIANT (this);
-    RCU_THROW_MSG ("job resubmission not supported for this driver");
   }
 
 

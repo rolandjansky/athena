@@ -247,14 +247,6 @@ namespace EL
     doManagerStep (Detail::ManagerData& data) const;
 
 
-    /// \copydoc resubmit
-    /// \par Rationale
-    ///   the virtual part of \ref resubmit
-  private:
-    virtual void
-    doResubmit (Detail::ManagerData& data) const;
-
-
     /// \copydoc retrieve
     /// \par Rationale
     ///   the virtual part of \ref retrieve

@@ -63,10 +63,6 @@ namespace EL
     doManagerStep (Detail::ManagerData& data) const override;
 
   private:
-    virtual void
-    doResubmit (Detail::ManagerData& data) const override;
-
-  private:
     virtual bool
     doRetrieve (const std::string& location) const override;
 
