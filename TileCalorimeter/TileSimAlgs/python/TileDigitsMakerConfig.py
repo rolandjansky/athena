@@ -2,7 +2,7 @@
 
 """Define method to construct configured Tile digits maker algorithm"""
 
-from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg, TileHitOutputCfg
+from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 
 def TileDigitsMakerCfg(flags, **kwargs):
     """Return component accumulator with configured Tile digits maker algorithm
@@ -120,7 +120,24 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
     """
 
     acc = TileDigitsMakerCfg(flags, **kwargs)
-    acc.merge(TileHitOutputCfg(flags))
+    tileDigitsMaker = acc.getPrimary()
+
+    if flags.Digitization.PileUpPremixing:
+        if hasattr(tileDigitsMaker, 'TileDigitsContainer'):
+            tileDigitsContainer = tileDigitsMaker.TileDigitsContainer
+        else:
+            tileDigitsContainer = tileDigitsMaker.getDefaultProperty('TileDigitsContainer')
+    else:
+        if hasattr(tileDigitsMaker, 'TileFilteredContainer'):
+            tileDigitsContainer = tileDigitsMaker.TileFilteredContainer
+        else:
+            tileDigitsContainer = tileDigitsMaker.getDefaultProperty('TileFilteredContainer')
+
+    tileDigitsContainer = tileDigitsContainer.split('+').pop()
+    outputItemList = ['TileDigitsContainer#' + tileDigitsContainer]
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc.merge(  OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList) )
 
     return acc
 
@@ -139,6 +156,9 @@ if __name__ == "__main__":
 
     ConfigFlags.Input.Files = defaultTestFiles.HITS
     ConfigFlags.Tile.RunType = 'PHY'
+    ConfigFlags.Output.RDOFileName = 'myRDO.pool.root'
+    ConfigFlags.IOVDb.GlobalTag = 'OFLCOND-MC16-SDR-16'
+    ConfigFlags.Digitization.Pileup = False
 
     ConfigFlags.fillFromArgs()
 
@@ -152,7 +172,7 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     acc.merge(PoolReadCfg(ConfigFlags))
 
-    print( acc.popToolsAndMerge( TileDigitsMakerOutputCfg(ConfigFlags) ) )
+    acc.merge( TileDigitsMakerOutputCfg(ConfigFlags) )
 
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileDigitsMaker.pkl','w') )

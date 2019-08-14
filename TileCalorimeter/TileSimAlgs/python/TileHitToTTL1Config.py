@@ -2,7 +2,7 @@
 
 """Define method to construct configured Tile hits to TTL1 algorithm"""
 
-from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg, TileHitOutputCfg
+from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 
 def TileHitToTTL1Cfg(flags, **kwargs):
     """Return component accumulator with configured Tile hits to TTL1 algorithm
@@ -44,7 +44,7 @@ def TileHitToTTL1Cfg(flags, **kwargs):
         kwargs.setdefault('TileMBTSTTL1Container', 'TileTTL1MBTS')
 
     from TileSimAlgs.TileSimAlgsConf import TileHitToTTL1
-    acc.addEventAlgo(TileHitToTTL1(**kwargs))
+    acc.addEventAlgo(TileHitToTTL1(**kwargs), primary = True)
 
     return acc
 
@@ -64,14 +64,37 @@ def TileHitToTTL1CosmicsCfg(flags, **kwargs):
     return TileHitToTTL1Cfg(flags, **kwargs)
 
 
+def TileTTL1OutputCfg(flags, TileHitToTTL1):
+
+    if hasattr(TileHitToTTL1, 'TileTTL1Container'):
+        tileTTL1Container = TileHitToTTL1.TileTTL1Container
+    else:
+        tileTTL1Container = TileHitToTTL1.getDefaultProperty('TileTTL1Container')
+    tileTTL1Container = tileTTL1Container.split('+').pop()
+    outputItemList = ['TileTTL1Container#' + tileTTL1Container]
+
+    if hasattr(TileHitToTTL1, 'TileMBTSTTL1Container'):
+        mbtsTTL1Container = TileHitToTTL1.TileMBTSTTL1Container
+    else:
+        mbtsTTL1Container = TileHitToTTL1.getDefaultProperty('TileMBTSTTL1Container')
+    mbtsTTL1Container = mbtsTTL1Container.split('+').pop()
+    outputItemList += ['TileTTL1Container#' + mbtsTTL1Container]
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    acc = OutputStreamCfg(flags, streamName = 'RDO', ItemList = outputItemList)
+
+    return acc
+
+
 def TileHitToTTL1OutputCfg(flags, **kwargs):    
     """Return component accumulator with configured Tile hits to TTL1 algorithm and Output Stream
 
     Arguments:
         flags  -- Athena configuration flags (ConfigFlags)
     """
+
     acc = TileHitToTTL1Cfg(flags, **kwargs)
-    acc.merge(TileHitOutputCfg(flags))
+    acc.merge( TileTTL1OutputCfg(flags, acc.getPrimary()) )
 
     return acc
 
@@ -82,8 +105,9 @@ def TileHitToTTL1CosmicsOutputCfg(flags, **kwargs):
     Arguments:
         flags  -- Athena configuration flags (ConfigFlags)
     """
+
     acc = TileHitToTTL1CosmicsCfg(flags, **kwargs)
-    acc.merge(TileHitOutputCfg(flags))
+    acc.merge( TileTTL1OutputCfg(flags, acc.getPrimary()) )
 
     return acc
 
@@ -115,7 +139,6 @@ if __name__ == "__main__":
     acc.merge(PoolReadCfg(ConfigFlags))
 
     acc.merge( TileHitToTTL1OutputCfg(ConfigFlags) )
-    acc.merge( TileHitToTTL1CosmicsOutputCfg(ConfigFlags))
     ConfigFlags.dump()
 
     acc.printConfig(withDetails = True, summariseProps = True)
