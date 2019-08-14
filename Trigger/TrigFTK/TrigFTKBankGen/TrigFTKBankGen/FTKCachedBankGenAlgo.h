@@ -63,7 +63,7 @@ protected:
 
    std::string m_badmap_path;
    std::string m_badmap_path2;
-
+   std::string m_maxPerSectorPath;
 private:
 
 };

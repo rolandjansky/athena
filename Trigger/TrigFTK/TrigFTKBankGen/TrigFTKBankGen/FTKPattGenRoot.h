@@ -76,6 +76,7 @@ public:
    bool GoodTrack(const FTKTrack& track, int sector, FTKPatternWithSector* tmp_curpatt,int *missingPlanesPtr,double *distancePtr);
    void SetModuleGeometryCheck(const std::string &fileName,
                                FTKPattGenRoot::SectorSelection select); //! set sector selection algorithm and module geometry
+   void SetBadModules(std::istream &badlist);
    void SetRootOutput(const std::string& outfilename);		                                //! Set filename to write patterns to root file  
    void SetFlatInCot(bool flatInCot) { m_flat_in_cot = flatInCot;}                                  //! Set algorithm for polar angle: flat in eta=0 or cot(theta)=1
    void SetOverlapRemoval(int overlap) { m_overlap = overlap;}                                  //! Set algorithm for overlap removal: 0=disabled; 1=barrel-only, 2=everywhere
@@ -133,6 +134,7 @@ protected:
    } RZminmax_t;
 
    std::map<int,RZminmax_t > m_moduleBoundsPixel,m_moduleBoundsSCT;
+   std::set<int> m_moduleBadPixel,m_moduleBadSCT;
 
 private:
    double getRandom();
