@@ -102,7 +102,7 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
 
   // Clear the stream tag buffer - we need to keep the serialised StreamTag data cached because
   // its lifetime has to be at least as long as the lifetime of RawEventWrite which points to the StreamTag data
-  delete[] m_streamTagData.release();
+  m_streamTagData.reset();
 
   // Read the stream tags to check for debug stream tag and decide which HLT ROBFragments to write out
   std::set<eformat::helper::SourceIdentifier> resultIdsToWrite;
