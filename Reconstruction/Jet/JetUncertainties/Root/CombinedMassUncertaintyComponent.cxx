@@ -450,7 +450,9 @@ double CombinedMassUncertaintyComponent::readHistoFromParam(const xAOD::JetFourM
 
 double CombinedMassUncertaintyComponent::getWeightFactorCalo(const xAOD::Jet& jet, const double massShiftFactor) const
 {
-    return m_caloMassWeight ? readHistoFromParam(m_caloMassScale_weights(jet),*m_caloMassWeight,m_weightParam,massShiftFactor) : 0;
+    if(m_caloMassScale_weights(jet).M() < 0.0) return 0;
+    if(!m_caloMassWeight) return 0;
+    return readHistoFromParam(m_caloMassScale_weights(jet),*m_caloMassWeight,m_weightParam,massShiftFactor);
 }
 
 double CombinedMassUncertaintyComponent::getWeightFactorTA(const xAOD::Jet& jet, const double massShiftFactor) const
