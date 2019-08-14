@@ -27,7 +27,7 @@ class SimpleHypoJetVectorGenerator: public extends<AthAlgTool,
  private:
 
   Gaudi::Property<std::vector<double>>
-    m_ets{this, "ets", {}, "jet et values"};
+    m_es{this, "ets", {}, "jet E values"};
 
   Gaudi::Property<std::vector<double>>
     m_etas{this, "etas", {}, "jet eta  values"};
@@ -42,6 +42,10 @@ class SimpleHypoJetVectorGenerator: public extends<AthAlgTool,
   
   Gaudi::Property<double>
     m_bkgd_etamax{this, "bkgd_etamax", 5., "Lower limit Eta range background "};
+
+  Gaudi::Property<bool>
+    m_useEtaEtNotEtaE{this, "useEtaEtNotEtaE", true, "e values or et values "};
+
 };
 
 #endif
