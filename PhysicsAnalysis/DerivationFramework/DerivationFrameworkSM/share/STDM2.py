@@ -216,9 +216,13 @@ STDM2SlimmingHelper = SlimmingHelper("STDM2SlimmingHelper")
 STDM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "AntiKt4EMTopoJets_BTagging201810",
                                         "AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMPFlowJets_BTagging201810", 
+                                        "AntiKt4EMPFlowJets_BTagging201903",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
