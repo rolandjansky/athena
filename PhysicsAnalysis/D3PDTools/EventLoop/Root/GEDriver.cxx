@@ -17,8 +17,10 @@
 
 #include <EventLoop/GEDriver.h>
 
+#include <AsgTools/StatusCode.h>
 #include <EventLoop/Job.h>
 #include <EventLoop/ManagerData.h>
+#include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <TSystem.h>
 #include <sstream>
@@ -47,23 +49,37 @@ namespace EL
 
 
 
-  void GEDriver ::
-  batchSubmit (Detail::ManagerData& data) const
+  ::StatusCode GEDriver ::
+  doManagerStep (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
-
-    // safely ignoring: resubmit
-
-    std::ostringstream cmd;
-    cmd << "cd " << data.submitDir << "/submit";
-    for (std::size_t iter : data.batchJobIndices)
+    using namespace msgEventLoop;
+    ANA_CHECK (BatchDriver::doManagerStep (data));
+    switch (data.step)
     {
-      cmd << " && qsub " << data.options.castString (Job::optSubmitFlags)
-          << " -o " << data.submitDir << "/submit/log-" << iter << ".out"
-          << " -e " << data.submitDir << "/submit/log-" << iter << ".err"
-          << " run " << iter;
+    case Detail::ManagerStep::submitJob:
+    case Detail::ManagerStep::doResubmit:
+      {
+        // safely ignoring: resubmit
+
+        std::ostringstream cmd;
+        cmd << "cd " << data.submitDir << "/submit";
+        for (std::size_t iter : data.batchJobIndices)
+        {
+          cmd << " && qsub " << data.options.castString (Job::optSubmitFlags)
+              << " -o " << data.submitDir << "/submit/log-" << iter << ".out"
+              << " -e " << data.submitDir << "/submit/log-" << iter << ".err"
+              << " run " << iter;
+        }
+        if (gSystem->Exec (cmd.str().c_str()) != 0)
+          RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+        data.submitted = true;
+      }
+      break;
+
+    default:
+      break;
     }
-    if (gSystem->Exec (cmd.str().c_str()) != 0)
-      RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+    return ::StatusCode::SUCCESS;
   }
 }

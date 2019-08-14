@@ -59,13 +59,9 @@ namespace EL
     // interface inherited from BatchDriver
     //
 
-    /// effects: perform the actual slurm submission with njob jobs
-    /// guarantee: strong
-    /// failures: submission errors
-    /// rationale: the virtual part of batch submission
-  private:
-    virtual void
-    batchSubmit (Detail::ManagerData& data) const override;
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
 
     /// effects: special initialization for slurm scripts: export PATH
     /// guarantee: strong

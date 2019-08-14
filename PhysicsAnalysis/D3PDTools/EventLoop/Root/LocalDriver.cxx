@@ -19,8 +19,10 @@
 
 #include <sstream>
 #include <TSystem.h>
-#include <EventLoop/ManagerData.h>
+#include <AsgTools/StatusCode.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/ShellExec.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -58,38 +60,52 @@ namespace EL
 
 
 
-  void LocalDriver ::
-  batchSubmit (Detail::ManagerData& data) const
+  ::StatusCode LocalDriver ::
+  doManagerStep (Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
-
-    // safely ignoring: resubmit
-
-    const std::string dockerImage {
-      data.options.castString(Job::optDockerImage)};
-    const std::string dockerOptions {
-      data.options.castString(Job::optDockerOptions)};
-
-    std::ostringstream basedirName;
-    basedirName << data.submitDir << "/tmp";
-    if (!data.resubmit)
+    using namespace msgEventLoop;
+    ANA_CHECK (BatchDriver::doManagerStep (data));
+    switch (data.step)
     {
-      if (gSystem->MakeDirectory (basedirName.str().c_str()) != 0)
-        RCU_THROW_MSG ("failed to create directory " + basedirName.str());
-    }
-    for (std::size_t index : data.batchJobIndices)
-    {
-      std::ostringstream dirName;
-      dirName << basedirName.str() << "/" << index;
-      if (gSystem->MakeDirectory (dirName.str().c_str()) != 0)
-	RCU_THROW_MSG ("failed to create directory " + dirName.str());
+    case Detail::ManagerStep::submitJob:
+    case Detail::ManagerStep::doResubmit:
+      {
+        // safely ignoring: resubmit
 
-      std::ostringstream cmd;
-      cmd << "cd " << dirName.str() << " && ";
-      if (!dockerImage.empty())
-        cmd << "docker run --rm -v " << RCU::Shell::quote (data.submitDir) << ":" << RCU::Shell::quote (data.submitDir) << " " << dockerOptions << " " << dockerImage << " ";
-      cmd << RCU::Shell::quote (data.submitDir) << "/submit/run " << index;
-      RCU::Shell::exec (cmd.str());
+        const std::string dockerImage {
+          data.options.castString(Job::optDockerImage)};
+        const std::string dockerOptions {
+          data.options.castString(Job::optDockerOptions)};
+
+        std::ostringstream basedirName;
+        basedirName << data.submitDir << "/tmp";
+        if (!data.resubmit)
+        {
+          if (gSystem->MakeDirectory (basedirName.str().c_str()) != 0)
+            RCU_THROW_MSG ("failed to create directory " + basedirName.str());
+        }
+        for (std::size_t index : data.batchJobIndices)
+        {
+          std::ostringstream dirName;
+          dirName << basedirName.str() << "/" << index;
+          if (gSystem->MakeDirectory (dirName.str().c_str()) != 0)
+            RCU_THROW_MSG ("failed to create directory " + dirName.str());
+
+          std::ostringstream cmd;
+          cmd << "cd " << dirName.str() << " && ";
+          if (!dockerImage.empty())
+            cmd << "docker run --rm -v " << RCU::Shell::quote (data.submitDir) << ":" << RCU::Shell::quote (data.submitDir) << " " << dockerOptions << " " << dockerImage << " ";
+          cmd << RCU::Shell::quote (data.submitDir) << "/submit/run " << index;
+          RCU::Shell::exec (cmd.str());
+        }
+        data.submitted = true;
+      }
+      break;
+
+    default:
+      break;
     }
+    return ::StatusCode::SUCCESS;
   }
 }
