@@ -48,6 +48,11 @@ atlas_add_test( flake8
                 SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/test/*.py
                 POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( TileMuonReceiverConfig_test
+                SCRIPT python -m TileSimAlgs.TileMuonReceiverConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
+
 atlas_add_test( TileMuonReceiverDecisionConfig_test
                 SCRIPT python -m TileSimAlgs.TileMuonReceiverDecisionConfig
                 PROPERTIES TIMEOUT 300
