@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///============================================================
@@ -26,7 +26,6 @@
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloTopoTowerAlg.h"
-#include "CxxUtils/make_unique.h"
 #include <string>
 
 ///==============================================
