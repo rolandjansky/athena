@@ -108,35 +108,34 @@ namespace Trk{
       virtual Track* CreateTrkTrack(const std::vector<double>& VKPerigee, const std::vector<double>& VKCov, IVKalState& istate) =0;
 
       virtual StatusCode VKalGetTrkWeights(std::vector<double>& Weights,
-                                           IVKalState& istate) =0;
-      virtual StatusCode VKalGetTrkCov(long int, long int, std::vector<double>& CovMtx) =0;
+                                           const IVKalState& istate) const =0;
       virtual StatusCode VKalGetFullCov(long int, std::vector<double>& CovMtx,
-                                        const IVKalState& istate, bool = false) =0;
+                                        const IVKalState& istate, bool = false) const =0;
       virtual StatusCode VKalGetMassError(double& Mass, double& MassError,
-                                          IVKalState& istate) =0;
-      virtual int VKalGetNDOF() =0;
+                                          const IVKalState& istate) const =0;
+      virtual int VKalGetNDOF(const IVKalState&) const = 0;
 
       virtual void setApproximateVertex(double,double,double,
-                                        IVKalState& istate)=0;
+                                        IVKalState& istate) const =0;
       virtual void setMassForConstraint(double,
-                                        IVKalState& istate) =0;
+                                        IVKalState& istate) const =0;
       virtual void setMassForConstraint(double, const std::vector<int>&,
-                                        IVKalState& istate) =0;
-      virtual void setRobustness(int, IVKalState& istate) =0;
-      virtual void setRobustScale(double, IVKalState& istate) =0;
+                                        IVKalState& istate) const =0;
+      virtual void setRobustness(int, IVKalState& istate) const =0;
+      virtual void setRobustScale(double, IVKalState& istate) const =0;
       virtual void setCascadeCnstPrec(double)=0;
-      virtual void setCnstType(int, IVKalState& istate) =0;
+      virtual void setCnstType(int, IVKalState& istate) const =0;
       virtual void setMomCovCalc(int)=0;
       virtual void setIterations(int, double)=0;
       virtual void setVertexForConstraint(const xAOD::Vertex &,
-                                          IVKalState& istate)=0;
+                                          IVKalState& istate) const =0;
       virtual void setVertexForConstraint(double,double,double,
-                                          IVKalState& istate)=0;
+                                          IVKalState& istate) const =0;
       virtual void setCovVrtForConstraint(double,double,double,
                                           double,double,double,
-                                          IVKalState& istate)=0;
+                                          IVKalState& istate) const =0;
       virtual void setMassInputParticles( const std::vector<double>&,
-                                          IVKalState& istate)=0;
+                                          IVKalState& istate) const =0;
       virtual void setDefault(IVKalState& istate) =0;
       virtual void setZeroCharge(int)=0;
 //
