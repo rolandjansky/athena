@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 from LArROD.LArRODConf import LArRawChannelBuilderAlg
-from LArRecUtils.LArADC2MeVCondAlgConfig import LArADC2MeVCondAlgCfg
+from LArRecUtils.LArRecUtilsConfig import LArADC2MeVCondAlgCfg
 from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 
 def LArRawChannelBuilderAlgCfg(configFlags):
