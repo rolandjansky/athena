@@ -674,7 +674,8 @@ if isSimulation:
 
 #The sequence object. Is in principle just a wrapper which allows to run two kernels in sequence
 BPHY20_Sequence = CfgMgr.AthSequencer("BPHY20_Sequence")
-
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=BPHY20_Sequence)
 
 #onlyAugmentations implementation
 if onlyAugmentations:
@@ -709,11 +710,12 @@ AllVariables  = []
 StaticContent = []
 
 
+
 SmartCollections = [
                     "Photons", 
                     "TauJets", 
-                    "AntiKt4EMTopoJets", 
-                    "BTagging_AntiKt4EMTopo", 
+                    "AntiKt4EMTopoJets_BTagging201810", 
+                    "BTagging_AntiKt4EMTopo_201810", 
                     "PrimaryVertices", 
                     "Muons", 
                     "InDetTrackParticles", 
@@ -737,9 +739,9 @@ AllVariables += ["CombinedMuonTrackParticles",
 
 ExtraVariables = ["Photons.pt.eta.phi.m",
                   "Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink",
-                  "AntiKt4EMTopoJets.JetPileupScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_m", 
-                  "AntiKt4EMTopoJets.JvtJvfcorr.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF", 
-                  "AntiKt4EMTopoJets.JetEtaJESScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_m"]
+                  "AntiKt4EMTopoJets_BTagging201810.JetPileupScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_m", 
+                  "AntiKt4EMTopoJets_BTagging201810.JvtJvfcorr.HECFrac.LArQuality.HECQuality.NegativeE.AverageLArQF", 
+                  "AntiKt4EMTopoJets_BTagging201810.JetEtaJESScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_m"]
 
 ExtraVariables += ["Muons.etaLayer1Hits.etaLayer2Hits.etaLayer3Hits.etaLayer4Hits.phiLayer1Hits.phiLayer2Hits.phiLayer3Hits.phiLayer4Hits",
                    "Muons.numberOfTriggerEtaLayers.numberOfPhiLayers",
