@@ -45,7 +45,7 @@ public:
 
 private:
    // for printing warnings
-   virtual void warning( const std::string& w ) override {
+   virtual void warning( const std::string& w ) const override {
       ATH_MSG_ERROR( w );
       return;
    }
