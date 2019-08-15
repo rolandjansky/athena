@@ -96,6 +96,13 @@ namespace EL
       }
       break;
 
+    case Detail::ManagerStep::doRetrieve:
+      {
+        data.retrieved = true;
+        data.completed = true;
+      }
+      break;
+
     default:
       (void) true; // safe to do nothing
     }

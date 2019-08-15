@@ -483,34 +483,30 @@ namespace EL
       }
       break;
 
+    case Detail::ManagerStep::doRetrieve:
+      {
+        ANA_MSG_DEBUG ("retrieving batch job in location " << data.submitDir);
+
+        std::unique_ptr<TFile> file
+          (TFile::Open ((data.submitDir + "/submit/config.root").c_str(), "READ"));
+        RCU_ASSERT_SOFT (file.get() != 0);
+        std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
+        RCU_ASSERT_SOFT (config.get() != 0);
+
+        bool merged = mergeHists (data.submitDir, *config);
+        if (merged)
+        {
+          diskOutputSave (data.submitDir, config->job);
+        }
+        data.retrieved = true;
+        data.completed = merged;
+      }
+      break;
+
     default:
       (void) true; // safe to do nothing
     }
     return ::StatusCode::SUCCESS;
-  }
-
-
-
-  bool BatchDriver ::
-  doRetrieve (const std::string& location) const
-  {
-    using namespace msgEventLoop;
-    RCU_READ_INVARIANT (this);
-
-    ANA_MSG_DEBUG ("retrieving batch job in location " << location);
-
-    std::unique_ptr<TFile> file
-      (TFile::Open ((location + "/submit/config.root").c_str(), "READ"));
-    RCU_ASSERT_SOFT (file.get() != 0);
-    std::unique_ptr<BatchJob> config (dynamic_cast<BatchJob*>(file->Get ("job")));
-    RCU_ASSERT_SOFT (config.get() != 0);
-
-    bool merged = mergeHists (location, *config);
-    if (merged)
-    {
-      diskOutputSave (location, config->job);
-    }
-    return merged;
   }
 
 

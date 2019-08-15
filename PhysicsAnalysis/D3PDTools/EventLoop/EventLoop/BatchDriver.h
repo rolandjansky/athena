@@ -62,10 +62,6 @@ namespace EL
     virtual ::StatusCode
     doManagerStep (Detail::ManagerData& data) const override;
 
-  private:
-    virtual bool
-    doRetrieve (const std::string& location) const override;
-
 
 
     //
