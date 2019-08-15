@@ -35,7 +35,7 @@ namespace Trk {
     virtual ~ITrkObserverTool() = default;
 
     virtual void saveTracksToxAOD() const =0;
-    virtual void storeInputTracks(const TrackCollection& trackCollection) = 0;
+    virtual void storeInputTrack(const Trk::Track& track) = 0;
     virtual void dumpTrackMap() const = 0;
 
     virtual void updateTrackMap(const Trk::Track& track, double score, int rejectPlace) = 0;

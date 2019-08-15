@@ -73,7 +73,7 @@ namespace Trk {
     virtual void rejectTrack(const Trk::Track& track, int rejectPlace) const override;
 
     virtual void addSubTrack(const Trk::Track& track, const Trk::Track& parentTrack) override;
-    virtual void storeInputTracks(const TrackCollection& trackCollection) override;
+    virtual void storeInputTrack(const Trk::Track& track) override;
     virtual void reset() override;
 
     /////////////////////////////////////////////////////////////////// 
@@ -86,11 +86,9 @@ namespace Trk {
     StringProperty m_observedTrksXaodName{this, "ObservedTracksXaodName", "ObservedTracks", "name of the observed tracks in xaod"};
     PublicToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator{this, "TrackParticleCreator", "Trk::TrackParticleCreatorTool/TrackParticleCreatorTool", "paricle creator, for creating TrackParticle from Tracks"};
 
-    ObservedTracksMap* m_observedTrkMap{nullptr}; // Maps with the all observed tracks and information
-    TrackCollection* m_savedTracks{nullptr};  // collection with all the Tracks whcih are/should be saved
+    std::unique_ptr<ObservedTracksMap> m_observedTrkMap; // Maps with the all observed tracks and information
 
-    inline xAOD::TrackParticle* createParticle( xAOD::TrackParticleContainer& xaod, const TrackCollection& container, const Trk::Track& tp) const; // method for particle creation from tracks
-
+    std::vector<const Track*> m_savedTracks;  //  all the Tracks which are/should be saved for xaod, no ownership
   }; 
 }
 

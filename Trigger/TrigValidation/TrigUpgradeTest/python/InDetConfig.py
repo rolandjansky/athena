@@ -298,7 +298,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
                                                   MaximalSplitSize        = 49,
                                                   MinimalSplitProbability = 0,
                                                   DoIBLSplitting = True,
-                                                  SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
+                                                  )
   acc.addPublicTool(InDetMergedPixelsTool)
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder

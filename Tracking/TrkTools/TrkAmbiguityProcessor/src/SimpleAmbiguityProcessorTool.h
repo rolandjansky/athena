@@ -94,20 +94,22 @@ namespace Trk {
 	 The tracks will be refitted if no fitQuality is given at input.
 	 @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
 	 (i.e. client handles deletion)*/
-      virtual TrackCollection*  process(const TrackCollection* tracks);
-    
+      virtual TrackCollection*  process(const TrackCollection*);
+      virtual TrackCollection*  process(std::multimap<const Track*, float >* trackScoreTrackMap);
+
       /** statistics output */
       virtual void statistics();
 
     private:
-      
+      TrackCollection*  process_vector(std::vector<const Track*> &tracks);
+
       void reset();
     
       /**Add passed TrackCollection, and Trk::PrepRawData from tracks to caches
 	 @param tracks the TrackCollection is looped over, 
 	 and each Trk::Track is added to the various caches. 
 	 The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
-      void addNewTracks(const TrackCollection* tracks);
+      void addNewTracks(std::vector<const Track*>* tracks);
 
       void addTrack(const Track* track, const bool fitted);
 
