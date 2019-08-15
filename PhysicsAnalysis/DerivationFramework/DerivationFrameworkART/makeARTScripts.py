@@ -7,6 +7,7 @@ makeTrains=True
 
 formatList = ['PHYSVAL',
               'TOPQ1', 'TOPQ2', 'TOPQ4', 'TOPQ5',
+              'HDBS1',
               'HIGG1D1', 'HIGG1D2',
               'HIGG2D1', 'HIGG2D4', 'HDBS2',
               'HIGG3D1', 'HIGG3D3',
