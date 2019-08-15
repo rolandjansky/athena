@@ -88,8 +88,7 @@ namespace Muon {
     typedef HoughDataPerSec                       HoughDataPerSector;
 
     typedef Muon::HoughDataPerSectorVec HoughDataPerSectorVec;
-    typedef HoughDataPerSectorVec::const_iterator HoughDataPerSectorCit;
-
+    
     
     
     class Road {
@@ -165,7 +164,7 @@ namespace Muon {
     struct State {
       MaximumVec seedMaxima; // Does not own the contained objects, they're just references to objects stored in houghDataPerSectorVec.
       std::unique_ptr<HoughDataPerSectorVec> houghDataPerSectorVec { std::make_unique<HoughDataPerSectorVec>() };
-      MuonHough::MuonDetectorHough& detectorHoughTransforms { houghDataPerSectorVec->detectorHoughTransforms };
+      //MuonHough::MuonDetectorHough& detectorHoughTransforms { houghDataPerSectorVec->detectorHoughTransforms };
       std::set<Identifier> truthHits;
       std::set<Identifier> foundTruthHits;
       std::set<Identifier> outputTruthHits;

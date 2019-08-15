@@ -78,8 +78,9 @@ namespace Muon {
     }
   };
 
-  struct HoughDataPerSectorVec : public std::vector<HoughDataPerSec>
+  struct HoughDataPerSectorVec
   {
+    std::vector<HoughDataPerSec> vec;
     MuonHough::MuonDetectorHough detectorHoughTransforms;
   };
 }
