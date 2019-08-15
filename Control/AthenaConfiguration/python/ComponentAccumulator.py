@@ -64,8 +64,6 @@ class ComponentAccumulator(object):
         self._algorithms = {}            #Flat algorithms list, useful for merging
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
-        self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
-        self._outputPerStream={}         #Dictionary of {streamName,set(items)}, all as strings
         self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
         self._primaryComp=None           #A placeholder to designate the primary service 
 
@@ -93,7 +91,7 @@ class ComponentAccumulator(object):
 
     def empty(self):
         return len(self._sequence)+len(self._conditionsAlgs)+len(self._services)+\
-            len(self._publicTools)+len(self._outputPerStream)+len(self._theAppProps) == 0
+            len(self._publicTools)+len(self._theAppProps) == 0
 
     def __del__(self):
          if not getattr(self,'_wasMerged',True) and not self.empty():
@@ -118,7 +116,6 @@ class ComponentAccumulator(object):
 
     def printConfig(self, withDetails=False, summariseProps=False):
         self._msg.info( "Event Inputs" )
-        self._msg.info( self._eventInputs )
         self._msg.info( "Event Algorithm Sequences" )
 
 
@@ -149,8 +146,6 @@ class ComponentAccumulator(object):
         self.printCondAlgs (summariseProps = summariseProps)
         self._msg.info( "Services" )
         self._msg.info( [ s.getName() for s in self._services ] )
-        self._msg.info( "Outputs" )
-        self._msg.info( self._outputPerStream )
         self._msg.info( "Public Tools" )
         self._msg.info( "[" )
         for t in self._publicTools:
@@ -385,21 +380,6 @@ class ComponentAccumulator(object):
         else:
             return self.__getOne( self._services, name, "Services")
     
-    def addEventInput(self,condObj):
-        #That's a string, should do some sanity checks on formatting
-        self._eventInput.add(condObj)
-        pass
-
-
-
-    def addOutputToStream(self,streamName,outputs):
-        if streamName in self._outputsPerStream:
-            self._outputsPerStream[streamName].update(set(outputs))
-        else:
-            self._outputsPerStream[streamName]=set(outputs)
-
-        pass
-
 
     def setAppProperty(self,key,value,overwrite=False):
         if (overwrite or key not in (self._theAppProps)):
@@ -515,12 +495,6 @@ class ComponentAccumulator(object):
 
         for pt in other._publicTools:
             self.addPublicTool(pt) #Profit from deduplicaton here
-
-        for k in other._outputPerStream.keys():
-            if k in self._outputPerStream:
-                self._outputPerStream[k].update(other._outputPerStream[k])
-            else: #New stream type
-                self._outputPerStream[k]=other._outputPerStream[k]
 
         #Merge AppMgr properties:
         for (k,v) in six.iteritems(other._theAppProps):
