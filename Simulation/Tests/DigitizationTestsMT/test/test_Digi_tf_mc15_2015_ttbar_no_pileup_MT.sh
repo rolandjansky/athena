@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-# art-description: Run digitization of an MC15 ttbar sample with 2015 geometry and conditions, without pile-up using two threads
+# art-description: Run digitization of an MC15 ttbar sample with 2015 geometry and conditions, without pile-up using AthenaMT
 # art-type: grid
 # art-athena-mt: 8
 # art-include: master/Athena
 # the name below is needed because of the environment variable (marks storing in tar file).
-# art-output: mc15_2015_ttbar_no_pileup.RDO.pool.root
+# art-output: mc15_2015_ttbar.RDO.pool.root
 # art-output: log.*
 
 export ATHENA_CORE_NUMBER=8
@@ -20,7 +20,7 @@ Digi_tf.py \
 --DataRunNumber 222525 \
 --outputRDOFile mc15_2015_ttbar.RDO.pool.root \
 --preInclude 'HITtoRDO:Digitization/ForceUseOfAlgorithms.py' \
---postInclude 'Digitization/FixDataDependenciesForMT.py' \
+--postInclude 'PyJobTransforms/UseFrontier.py' \
 --skipEvents 0  \
 --maxEvents 10
 
