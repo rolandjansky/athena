@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKADAPTIVEFITTERTOOLS_ADAPTIVEVERTEXFITTER_H
@@ -223,12 +223,12 @@ namespace Trk
 		       const xAOD::Vertex& constraint=xAOD::Vertex(),
 		       const Amg::Vector3D & startingPoint=Amg::Vector3D(),
 		       bool IsConstraint=false,
-	               bool IsStartingPoint=false);
+	               bool IsStartingPoint=false) const;
     xAOD::Vertex * _fit(const std::vector<const Trk::TrackParameters*> & perigeeList,
 		       const xAOD::Vertex& constraint=xAOD::Vertex(),
 		       const Amg::Vector3D & startingPoint=Amg::Vector3D(),
 		       bool IsConstraint=false,
-		       bool IsStartingPoint=false);
+		       bool IsStartingPoint=false) const;
 
     /**
      * Internal method for fitting a list of Tracks, with or without constraint and 
@@ -239,7 +239,7 @@ namespace Trk
                        const xAOD::Vertex& constraint=xAOD::Vertex(),
                        const Amg::Vector3D & startingPoint=Amg::Vector3D(),
                        bool IsConstraint=false,
-                       bool IsStartingPoint=false);
+                       bool IsStartingPoint=false) const;
  
     /**
      * Internal method for fitting a list of Tracks, with or without constraint and 
@@ -250,7 +250,7 @@ namespace Trk
                        const xAOD::Vertex& constraint=xAOD::Vertex(),
                        const Amg::Vector3D & startingPoint=Amg::Vector3D(),
                        bool IsConstraint=false,
-                       bool IsStartingPoint=false);
+                       bool IsStartingPoint=false) const;
 
     /**
      * Internal method, called by the two _fit internal functions, in order to perform the fit, 
@@ -259,7 +259,7 @@ namespace Trk
 
     xAOD::Vertex * dothefit(const xAOD::Vertex & ConstraintVertex,
 		            const Amg::Vector3D & SeedVertex,
-			    std::vector<VxTrackAtVertex> & myLinTracks);
+			    std::vector<VxTrackAtVertex> & myLinTracks) const;
 
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
     ToolHandle< Trk::IVertexLinearizedTrackFactory > m_LinearizedTrackFactory;
