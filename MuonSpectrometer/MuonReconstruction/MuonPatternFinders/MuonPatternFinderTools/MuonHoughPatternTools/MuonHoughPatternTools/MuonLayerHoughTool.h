@@ -163,13 +163,20 @@ namespace Muon {
   private:
 
     struct State {
-      MaximumVec seedMaxima;
+      MaximumVec seedMaxima; // Does not own the contained objects, they're just references to objects stored in houghDataPerSectorVec.
       std::unique_ptr<HoughDataPerSectorVec> houghDataPerSectorVec { std::make_unique<HoughDataPerSectorVec>() };
       MuonHough::MuonDetectorHough& detectorHoughTransforms { houghDataPerSectorVec->detectorHoughTransforms };
       std::set<Identifier> truthHits;
       std::set<Identifier> foundTruthHits;
       std::set<Identifier> outputTruthHits;
-      std::vector<TgcHitClusteringObj*> tgcClusteringObjs;
+      std::vector<TgcHitClusteringObj*> tgcClusteringObjs; // Owns the contained objects
+
+      ~State() {
+        for (auto& t : tgcClusteringObjs) {
+          delete t;
+        }
+        tgcClusteringObjs.clear();
+      }
     };
   
     std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> analyse(State& state) const;

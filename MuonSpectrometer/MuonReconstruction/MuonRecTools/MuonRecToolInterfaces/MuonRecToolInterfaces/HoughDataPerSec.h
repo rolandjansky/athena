@@ -61,10 +61,10 @@ namespace Muon {
     }
 
     int                   sector;
-    RegionHitVec          hitVec;
-    RegionPhiHitVec       phiHitVec;
-    RegionMaximumVec      maxVec;
-    RegionPhiMaximumVec   phiMaxVec;
+    RegionHitVec          hitVec; // Owns the contained objects
+    RegionPhiHitVec       phiHitVec; // Owns the contained objects
+    RegionMaximumVec      maxVec; // Owns the contained objects
+    RegionPhiMaximumVec   phiMaxVec; // Owns the contained objects
     std::vector<int>      nlayersWithMaxima;
     std::vector<int>      nphilayersWithMaxima;
     std::vector<int>      nmaxHitsInRegion;
