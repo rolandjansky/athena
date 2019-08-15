@@ -17,7 +17,7 @@ namespace jet
 PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent(const std::string& name)
     : UncertaintyComponent(ComponentHelper(name))
     , m_massDef(CompMassDef::UNKNOWN)
-    , m_label()
+    , m_labels()
     , m_region()
     , m_result_name()
 {
@@ -27,7 +27,7 @@ PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent
 PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent(const ComponentHelper& component)
     : UncertaintyComponent(component)
     , m_massDef(component.massDef)
-    , m_label(component.FatjetTruthLabelForSF)
+    , m_labels(component.FatjetTruthLabelsForSF)
     , m_region(component.RegionForSF)
     , m_result_name(component.ResultName)
 {
@@ -37,7 +37,7 @@ PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent
 PtLogPtMassForTagSFUncertaintyComponent::PtLogPtMassForTagSFUncertaintyComponent(const PtLogPtMassForTagSFUncertaintyComponent& toCopy)
     : UncertaintyComponent(toCopy)
     , m_massDef(toCopy.m_massDef)
-    , m_label(toCopy.m_label)
+    , m_labels(toCopy.m_labels)
     , m_region(toCopy.m_region)
     , m_result_name(toCopy.m_result_name)
 {
@@ -102,16 +102,20 @@ double PtLogPtMassForTagSFUncertaintyComponent::getUncertaintyImpl(const xAOD::J
 	}
       }
     }
-    if ( (m_label==CompFlavorLabelVar::t_qqb && jetFlavorLabel!=FatjetTruthLabel::tqqb) ||
-	 (m_label==CompFlavorLabelVar::t && jetFlavorLabel!=FatjetTruthLabel::tqqb && jetFlavorLabel!=FatjetTruthLabel::other_From_t) ||
-	 (m_label==CompFlavorLabelVar::V_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq && jetFlavorLabel!=FatjetTruthLabel::Zqq && jetFlavorLabel!=FatjetTruthLabel::Wqq_From_t) ||
-	 (m_label==CompFlavorLabelVar::W_qq && jetFlavorLabel!=FatjetTruthLabel::Wqq && jetFlavorLabel!=FatjetTruthLabel::Wqq_From_t) ||
-	 (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel!=FatjetTruthLabel::Zqq) ||
-	 (m_label==CompFlavorLabelVar::q && jetFlavorLabel!=FatjetTruthLabel::notruth && jetFlavorLabel!=FatjetTruthLabel::qcd) ) {
-      // if the type of uncertainty is not match to the jet truth label, return 0% uncertainty
-      return 0.0;
+
+    bool isValidLabel=false;
+    for ( CompFlavorLabelVar::TypeEnum m_label : m_labels ) {
+      if ( (m_label==CompFlavorLabelVar::t_qqb && jetFlavorLabel==FatjetTruthLabel::tqqb) ||
+	   (m_label==CompFlavorLabelVar::t && (jetFlavorLabel==FatjetTruthLabel::tqqb || jetFlavorLabel==FatjetTruthLabel::other_From_t)) ||
+	   (m_label==CompFlavorLabelVar::t_other && (jetFlavorLabel==FatjetTruthLabel::Wqq_From_t || jetFlavorLabel==FatjetTruthLabel::other_From_t)) ||
+	   (m_label==CompFlavorLabelVar::V_qq && (jetFlavorLabel==FatjetTruthLabel::Wqq || jetFlavorLabel==FatjetTruthLabel::Zqq || jetFlavorLabel==FatjetTruthLabel::Wqq_From_t)) ||
+	   (m_label==CompFlavorLabelVar::W_qq && (jetFlavorLabel==FatjetTruthLabel::Wqq || jetFlavorLabel==FatjetTruthLabel::Wqq_From_t)) ||
+	   (m_label==CompFlavorLabelVar::Z_qq && jetFlavorLabel==FatjetTruthLabel::Zqq) ||
+	   (m_label==CompFlavorLabelVar::q && (jetFlavorLabel==FatjetTruthLabel::notruth || jetFlavorLabel==FatjetTruthLabel::qcd || jetFlavorLabel==FatjetTruthLabel::other_From_V)) ) {
+	isValidLabel=true;
+      }
     }
-    
+    if (!isValidLabel) return 0.0;// if the type of uncertainty is not match to the jet truth label, return 0% uncertainty
     return m_uncHist->getValue(jet.pt()*m_energyScale,log(mOverPt));
 }
 

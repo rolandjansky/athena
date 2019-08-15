@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -57,7 +57,7 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
     TAMassDef   = settings.GetValue(compPrefix+"TAMassDef","");
     truthLabelStr = settings.GetValue(compPrefix+"TruthLabels","");
     FatjetTruthLabelStr = settings.GetValue(compPrefix+"FatjetTruthLabels","");
-    FatjetTruthLabelForSFstr = settings.GetValue(compPrefix+"FatjetTruthLabelForSF","");
+    FatjetTruthLabelsForSFstr = settings.GetValue(compPrefix+"FatjetTruthLabelForSF","");
     RegionForSFstr = settings.GetValue(compPrefix+"RegionForSF","");
     ResultName = settings.GetValue(compPrefix+"ResultName","");
 
@@ -87,7 +87,16 @@ ComponentHelper::ComponentHelper(TEnv& settings, const TString& compPrefix, cons
         else
             FatjetTruthLabels.push_back(FatjetTruthLabel::stringToEnum(aVal));
     }
-    FatjetTruthLabelForSF = CompFlavorLabelVar::stringToEnum(FatjetTruthLabelForSFstr);
+    FatjetTruthLabelsForSFstrs = utils::vectorize<TString>(FatjetTruthLabelsForSFstr, ",");
+    for (const TString& aVal : FatjetTruthLabelsForSFstrs)
+    {
+        if (CompFlavorLabelVar::stringToEnum(aVal) == CompFlavorLabelVar::UNKNOWN)
+        {
+	    throw std::runtime_error(Form("ERROR: Unable to convert specified FatjetTruthLabelForSF to a recognized enum value, please check the configuration file for mistakes: %s",aVal.Data()));
+        }
+        else
+	    FatjetTruthLabelsForSF.push_back(CompFlavorLabelVar::stringToEnum(aVal));
+    }
     RegionForSF     = CompTaggerRegionVar::stringToEnum(RegionForSFstr);
 }
 
