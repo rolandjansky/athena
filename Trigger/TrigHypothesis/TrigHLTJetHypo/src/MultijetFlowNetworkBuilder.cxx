@@ -147,7 +147,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
       }
 
       // fill the node to jet map - to be used to identify jets
-      // contirbuting to hypo success.
+      // contributing to hypo success.
       //
       // NB: relies on the having no duplicates  in the values
       nodeToJet[j.second] = j.first;

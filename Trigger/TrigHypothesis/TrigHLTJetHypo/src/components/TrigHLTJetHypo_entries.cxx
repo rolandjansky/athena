@@ -18,6 +18,8 @@
 #include "../TrigJetHypoToolConfig_dijet.h"
 #include "../TrigJetHypoToolConfig_combgen.h"
 #include "../TrigJetHypoToolConfig_partgen.h"
+#include "../TrigJetConditionConfig_etaet.h"
+#include "../TrigJetConditionConfig_dijet.h"
 #include "../NotHelperTool.h"
 #include "../AndHelperTool.h"
 #include "../OrHelperTool.h"
@@ -51,6 +53,10 @@ DECLARE_COMPONENT( TrigHLTJetHypo_SMC )
 DECLARE_COMPONENT( TrigHLTJetHypo_HT )
 DECLARE_COMPONENT( TrigHLTJetHypo_TLA )
 DECLARE_COMPONENT( TrigHLTJetHypo_EtaEt )
+
+
+DECLARE_COMPONENT( TrigJetConditionConfig_etaet )
+DECLARE_COMPONENT( TrigJetConditionConfig_dijet )
 
 DECLARE_COMPONENT( TrigJetHypoAlgMT )
 DECLARE_COMPONENT( TrigJetHypoToolMT )
