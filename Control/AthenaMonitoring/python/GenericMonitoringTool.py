@@ -50,7 +50,7 @@ def defineHistogram(varname, type='TH1F', path=None,
         if path is None:
             path = ''
     assert path is not None, "path is required"
-    assert labels is None or isinstance(labels, list), "labels must be of type list"
+    assert labels is None or isinstance(labels, (list, tuple) ), "labels must be of type list or tuple"
     # assert labels is None or !isinstance(labels, list), \
            # "Mixed use of variable bin widths and bin labels."
 
@@ -64,17 +64,17 @@ def defineHistogram(varname, type='TH1F', path=None,
 
     coded = "%s, %s, %s, %s, %s, %s, " % (path, type, weight, convention, varname, title)
 
-    if not isinstance(xbins,list):
+    if not isinstance(xbins, (list, tuple)):
         coded += '%d, %f, %f' % (xbins, xmin, xmax)
     else:
         # List of :-separated bins, plus two empty spaces for xmin and xmax
-        coded += ':'.join([str(xbin) for xbin in xbins])
+        coded += ':'.join(str(xbin) for xbin in xbins)
 
     if ybins is not None:
-        if not isinstance(ybins,list):
+        if not isinstance(ybins, (list, tuple)):
             coded += ", %d, %f, %f" % (ybins, ymin, ymax)
         else:
-            coded += ', ' + ':'.join([str(ybin) for ybin in ybins])
+            coded += ', ' + ':'.join(str(ybin) for ybin in ybins)
         if zmin is not None:
             coded += ", %f, %f" % (zmin, zmax)
 
