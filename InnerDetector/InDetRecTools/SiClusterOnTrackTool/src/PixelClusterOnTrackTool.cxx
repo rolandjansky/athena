@@ -82,7 +82,7 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_doNotRecalibrateNN(false),
   m_noNNandBroadErrors(false),
   m_usingTIDE_Ambi(false),
-  m_splitClusterHandle("SplitClusterAmbiguityMap") {
+  m_splitClusterMapKey("") {
   declareInterface<IRIO_OnTrackCreator>(this);
 
   declareProperty("PixelDistortionsTool", m_pixDistoTool, "Tool to retrieve pixel distortions");
@@ -93,7 +93,7 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("NNIBLcorrection", m_NNIBLcorrection);
   declareProperty("EventStore", m_storeGate);
   declareProperty("NnClusterizationFactory", m_NnClusterizationFactory);
-  declareProperty("SplitClusterAmbiguityMap", m_splitClusterHandle);//Remove Later
+  declareProperty("SplitClusterAmbiguityMap", m_splitClusterMapKey);//Remove Later
   declareProperty("dRMapName", m_dRMapName);  //This is a string to prevent the scheduler seeing trkAmbSolver as both creating and requiring the map
   declareProperty("doNotRecalibrateNN", m_doNotRecalibrateNN);
   declareProperty("m_noNNandBroadErrors", m_noNNandBroadErrors);
@@ -138,15 +138,6 @@ InDet::PixelClusterOnTrackTool::initialize() {
   }
 
 
-  // the NN corrections
-  if (m_applyNNcorrection){
-    ATH_CHECK(m_NnClusterizationFactory.retrieve());
-  }
-  else {
-    m_NnClusterizationFactory.disable();
-  }
-
-
   // get the module distortions tool
   if (!m_disableDistortions) {
     if (!m_pixDistoTool.empty()) {
@@ -167,12 +158,10 @@ InDet::PixelClusterOnTrackTool::initialize() {
   m_dRMap = SG::ReadHandleKey<InDet::DRMap>(m_dRMapName);
   ATH_CHECK( m_dRMap.initialize() );
 
-  if (!m_splitClusterHandle.key().empty()){
-    ATH_CHECK( m_splitClusterHandle.initialize() );
-  } else {
-    ATH_MSG_INFO("SplitClusterAmbiguityMap disabled by an empty DataHandle");
-  }
-
+  m_applyNNcorrection = !m_splitClusterMapKey.key().empty();
+  ATH_CHECK(m_splitClusterMapKey.initialize(m_applyNNcorrection));
+  ATH_CHECK(m_NnClusterizationFactory.retrieve( DisableTool{!m_applyNNcorrection} ));
+  
   // Include IBL calibration constants
   //Moved to initialize to remove statics and prevent repitition
   
@@ -275,16 +264,6 @@ const InDet::PixelClusterOnTrack *
 InDet::PixelClusterOnTrackTool::correct
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
 
-#ifdef __clustermap
-  bool clusterMapExists = m_applyNNcorrection ? m_storeGate->contains<InDet::PixelGangedClusterAmbiguities>(
-    m_splitClusterHandle.key()) : false; //Preserve compatability for now
- 
-  if (!clusterMapExists && m_applyNNcorrection) {
-    ATH_MSG_INFO("No PixelCluster splitting information available, switchng NN recalibration off (was: on).");
-    ATH_MSG_INFO(" -> This is expected if you read ESD data prior to release 17.0.2.8");
-    m_applyNNcorrection = false;
-  }
-#endif
   auto element= dynamic_cast<const InDetDD::SiDetectorElement *>(rio.detectorElement());
   if ((not m_applyNNcorrection) or (element and element->isBlayer() and (not m_NNIBLcorrection) and (not m_IBLAbsent))){
         return correctDefault(rio, trackPar);
@@ -810,33 +789,31 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
                                                      Amg::MatrixX &finalerrormatrix) const {
   std::vector<Amg::Vector2D> vectorOfPositions;
   int numberOfSubclusters = 1;
-
   vectorOfPositions.push_back(pixelPrepCluster->localPosition());
-  #ifdef __clustermap
 
-  SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterHandle);
-  InDet::PixelGangedClusterAmbiguities::const_iterator mapBegin = splitClusterMap->begin();
-  InDet::PixelGangedClusterAmbiguities::const_iterator mapEnd = splitClusterMap->end();
- 
-  for (InDet::PixelGangedClusterAmbiguities::const_iterator mapIter = mapBegin; mapIter != mapEnd; ++mapIter) {
-    const SiCluster *first = (*mapIter).first;
-    const SiCluster *second = (*mapIter).second;
-    if (first == pixelPrepCluster && second != pixelPrepCluster) {
-      ATH_MSG_DEBUG("Found additional split cluster in ambiguity map (+=1).");
-      numberOfSubclusters += 1;
-      const SiCluster *otherOne = second;
-      const InDet::PixelCluster *pixelAddCluster = dynamic_cast<const InDet::PixelCluster *>(otherOne);
-      if (pixelAddCluster == 0) {
-        ATH_MSG_WARNING("Pixel ambiguity map has empty pixel cluster. Please DEBUG!");
-        continue;
-      }
-      vectorOfPositions.push_back(pixelAddCluster->localPosition());
- 
-      ATH_MSG_DEBUG( "Found one more pixel cluster. Position x: "
-                        << pixelAddCluster->localPosition()[0] << "y: " << pixelAddCluster->localPosition()[1]);
-    }// find relevant element of map
-  }// iterate over map
-#endif
+  if (m_applyNNcorrection){
+    SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterMapKey);
+    InDet::PixelGangedClusterAmbiguities::const_iterator mapBegin = splitClusterMap->begin();
+    InDet::PixelGangedClusterAmbiguities::const_iterator mapEnd = splitClusterMap->end(); 
+    for (InDet::PixelGangedClusterAmbiguities::const_iterator mapIter = mapBegin; mapIter != mapEnd; ++mapIter) {
+      const SiCluster *first = (*mapIter).first;
+      const SiCluster *second = (*mapIter).second;
+      if (first == pixelPrepCluster && second != pixelPrepCluster) {
+        ATH_MSG_DEBUG("Found additional split cluster in ambiguity map (+=1).");
+        numberOfSubclusters += 1;
+        const SiCluster *otherOne = second;
+        const InDet::PixelCluster *pixelAddCluster = dynamic_cast<const InDet::PixelCluster *>(otherOne);
+        if (pixelAddCluster == 0) {
+          ATH_MSG_WARNING("Pixel ambiguity map has empty pixel cluster. Please DEBUG!");
+          continue;
+        }
+        vectorOfPositions.push_back(pixelAddCluster->localPosition());
+        
+        ATH_MSG_DEBUG( "Found one more pixel cluster. Position x: "
+                       << pixelAddCluster->localPosition()[0] << "y: " << pixelAddCluster->localPosition()[1]);
+      }// find relevant element of map
+    }// iterate over map
+  }
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
@@ -956,20 +933,19 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
                                                    Amg::Vector2D &finalposition,
                                                    Amg::MatrixX &finalerrormatrix) const {
   std::vector<Amg::Vector2D> vectorOfPositions;
-#ifdef __clustermap
-  SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterHandle);
-  int numberOfSubclusters = 1 + splitClusterMap->count(pixelPrepCluster);
- 
-  if (splitClusterMap->count(pixelPrepCluster) == 0 && pixelPrepCluster->isSplit()) {
-    numberOfSubclusters = 2;
-  }
-  if (splitClusterMap->count(pixelPrepCluster) != 0 && !pixelPrepCluster->isSplit()) {
-    numberOfSubclusters = 1;
-  }
-#else
   int numberOfSubclusters = 1;
+  if(m_applyNNcorrection){
+    SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterMapKey);
+    numberOfSubclusters = 1 + splitClusterMap->count(pixelPrepCluster);
+ 
+    if (splitClusterMap->count(pixelPrepCluster) == 0 && pixelPrepCluster->isSplit()) {
+      numberOfSubclusters = 2;
+    }
+    if (splitClusterMap->count(pixelPrepCluster) != 0 && !pixelPrepCluster->isSplit()) {
+      numberOfSubclusters = 1;
+    }
+  }
 
-#endif
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
   const Trk::AtaPlane *parameters = dynamic_cast<const Trk::AtaPlane *>(&trackPar);

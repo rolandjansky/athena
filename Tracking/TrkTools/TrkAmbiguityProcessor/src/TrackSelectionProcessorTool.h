@@ -56,8 +56,8 @@ namespace Trk {
 	 @return new collections of tracks, with ambiguities resolved. 
 	  The returned track collection is a SG::VIEW_ELEMENTS container, meaning that it should NOT be written to disk. 
 	  Ownership of the collection is passed on (i.e. client handles deletion)*/
-      virtual TrackCollection*  process(const TrackCollection* tracks);
-    
+      TrackCollection*  process(const TrackCollection* tracksCol) override;
+
     private:
       
       void reset();
@@ -66,7 +66,7 @@ namespace Trk {
 	 @param tracks the TrackCollection is looped over, 
 	 and each Trk::Track is added to the various caches. 
 	 The Trk::PrepRawData from each Trk::Track are added to the IPRD_AssociationTool*/
-      void addNewTracks(const TrackCollection* tracks );
+      void addNewTracks(std::vector<const Track*>* tracks );
 
 
       void solveTracks();
