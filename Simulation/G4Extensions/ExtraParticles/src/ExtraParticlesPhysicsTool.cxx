@@ -17,9 +17,6 @@
 #include "G4hIonisation.hh"
 #include "G4hMultipleScattering.hh"
 
-// CLHEP headers
-#include "CLHEP/Units/SystemOfUnits.h"
-
 //-----------------------------------------------------------------------------
 // Implementation file for class : ExtraParticlesPhysicsTool
 //
