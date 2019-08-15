@@ -51,15 +51,6 @@ namespace EL
 
 
 
-  std::string LocalDriver ::
-  batchReleaseSetup (bool /*sharedFileSystem*/) const
-  {
-    RCU_READ_INVARIANT (this);
-    return "";
-  }
-
-
-
   ::StatusCode LocalDriver ::
   doManagerStep (Detail::ManagerData& data) const
   {
@@ -68,6 +59,12 @@ namespace EL
     ANA_CHECK (BatchDriver::doManagerStep (data));
     switch (data.step)
     {
+    case Detail::ManagerStep::batchScriptVar:
+      {
+        data.batchSkipReleaseSetup = true;
+      }
+      break;
+
     case Detail::ManagerStep::submitJob:
     case Detail::ManagerStep::doResubmit:
       {

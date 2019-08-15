@@ -56,12 +56,6 @@ namespace EL
     virtual ::StatusCode
     doManagerStep (Detail::ManagerData& data) const override;
 
-    /// effects: special initialization for condor scripts: export PATH
-    /// guarantee: strong
-    /// failures: none
-    /// rationale: condor jobs do not export PATH, needed by RootCore setup scripts
-  private:
-    virtual std::string batchInit () const override;
 
 
     //

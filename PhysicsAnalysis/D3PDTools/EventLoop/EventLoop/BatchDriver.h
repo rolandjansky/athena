@@ -72,39 +72,11 @@ namespace EL
     // virtual interface
     //
 
-    /// returns: the name of the submission script to use.  if this
-    ///   contains {JOBID} it will create one script for each job id
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: some batch systems are picky about names.  others
-    ///   don't allow passing arguments into submission scripts
-  private:
-    virtual std::string batchName () const;
 
 
-    /// returns: any additional code we need for setting up the batch
-    ///   job.  if multiple files are used, {JOBID} will be replaced
-    ///   with the index of the current file.
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: some batch systems need extra lines when making
-    ///   there submission scripts, which can either be specially
-    ///   formatted option lines or just some special commands
-  private:
-    virtual std::string batchInit () const;
-
-
-    /// returns: the code needed for setting EL_JOBID
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: normally one can just pass the index of the job as
-    ///   the first argument to the execution script, but some systems
-    ///   instead use environment variables
-    /// rationale: this is not used if we have separate execution
-    ///   scripts from the job
-  private:
-    virtual std::string batchJobId () const;
-
+    //
+    // private interface
+    //
 
     /// \brief the code for setting up the release
     /// \par Guarantee
@@ -113,13 +85,7 @@ namespace EL
     ///   out of memory II\n
     ///   failed to read environment variables
   private:
-    virtual std::string batchReleaseSetup (bool sharedFileSystem) const;
-
-
-
-    //
-    // private interface
-    //
+    std::string defaultReleaseSetup (const Detail::ManagerData& data) const;
 
     /// effects: create the run script to be used
     /// guarantee: basic, may create a partial script
@@ -127,7 +93,7 @@ namespace EL
     /// failures: i/o errors
   private:
     void makeScript (Detail::ManagerData& data,
-                     std::size_t njobs, bool sharedFileSystem) const;
+                     std::size_t njobs) const;
 
 
     /// effects: merge the fetched histograms
@@ -137,18 +103,6 @@ namespace EL
     /// failures: i/o errors
   private:
     static bool mergeHists (const std::string& location, const BatchJob& config);
-
-    /// effects: determine location for writing output
-    /// returns: path to directory for writing
-    /// guarantee: strong
-  private:
-    std::string getWriteLocation(const Detail::ManagerData& data) const;
-
-    /// effects: determine location with input configuration
-    /// returns: path to directory with input configuration
-    /// guarantee: strong
-  private:
-    const std::string getSubmitLocation(const std::string& location) const;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpragmas"

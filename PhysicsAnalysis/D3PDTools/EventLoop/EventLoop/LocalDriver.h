@@ -56,9 +56,6 @@ namespace EL
     virtual ::StatusCode
     doManagerStep (Detail::ManagerData& data) const override;
 
-  private:
-    virtual std::string batchReleaseSetup (bool sharedFileSystem) const override;
-
 
 
     //

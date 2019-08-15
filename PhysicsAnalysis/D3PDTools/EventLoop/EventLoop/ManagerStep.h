@@ -62,6 +62,9 @@ namespace EL
       /// create the batch-driver job object
       batchCreateJob,
 
+      /// create the variables needed for the batch-run script
+      batchScriptVar,
+
       /// create the batch-run script
       batchMakeScript,
 

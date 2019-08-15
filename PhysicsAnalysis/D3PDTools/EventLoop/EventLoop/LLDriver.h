@@ -61,27 +61,6 @@ namespace EL
     virtual ::StatusCode
     doManagerStep (Detail::ManagerData& data) const override;
 
-    /// returns: the name of the submission script to use.  if this
-    ///   contains {JOBID} it will create one script for each job id
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: some batch systems are picky about names.  others
-    ///   don't allow passing arguments into submission scripts
-  private:
-    virtual std::string batchName () const override;
-
-
-    /// returns: any additional code we need for setting up the batch
-    ///   job.  if multiple files are used, {JOBID} will be replaced
-    ///   with the index of the current file.
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: some batch systems need extra lines when making
-    ///   there submission scripts, which can either be specially
-    ///   formatted option lines or just some special commands
-  private:
-    virtual std::string batchInit () const override;
-
 
 
     //

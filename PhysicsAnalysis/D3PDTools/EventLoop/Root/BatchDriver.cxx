@@ -316,9 +316,26 @@ namespace EL
     ANA_CHECK (Driver::doManagerStep (data));
     switch (data.step)
     {
+    case Detail::ManagerStep::fillOptions:
+      {
+        data.sharedFileSystem
+          = data.options.castBool (Job::optBatchSharedFileSystem, true);
+
+        if (data.sharedFileSystem) // Shared file-system, write to output
+          data.batchWriteLocation = data.submitDir;
+        else
+          data.batchWriteLocation = ".";
+
+        if (data.sharedFileSystem) // Shared file-system, use local path
+          data.batchSubmitLocation = data.submitDir+"/submit";
+        else
+          data.batchSubmitLocation = ".";
+      }
+      break;
+
     case Detail::ManagerStep::updateOutputLocation:
       {
-        const std::string writeLocation=getWriteLocation(data);
+        const std::string writeLocation=data.batchWriteLocation;
         for (Job::outputMIter out = data.job->outputBegin(),
                end = data.job->outputEnd(); out != end; ++ out)
         {
@@ -365,7 +382,7 @@ namespace EL
       {
         data.batchJob = std::make_unique<BatchJob> ();
         fillFullJob (*data.batchJob, *data.job, data.submitDir, data.options);
-        data.batchJob->location=getWriteLocation(data);
+        data.batchJob->location=data.batchWriteLocation;
         {
           std::string path = data.submitDir + "/submit/config.root";
           std::unique_ptr<TFile> file (TFile::Open (path.c_str(), "RECREATE"));
@@ -382,10 +399,17 @@ namespace EL
       }
       break;
 
+    case Detail::ManagerStep::batchScriptVar:
+      {
+        data.batchName = "run";
+        data.batchInit = "";
+        data.batchJobId = "EL_JOBID=$1\n";
+      }
+      break;
+
     case Detail::ManagerStep::batchMakeScript:
       {
-        makeScript (data, data.batchJob->segments.size(),
-                    data.options.castBool(Job::optBatchSharedFileSystem,true));
+        makeScript (data, data.batchJob->segments.size());
       }
       break;
 
@@ -492,34 +516,7 @@ namespace EL
 
 
   std::string BatchDriver ::
-  batchName () const
-  {
-    RCU_READ_INVARIANT (this);
-    return "run";
-  }
-
-
-
-  std::string BatchDriver ::
-  batchInit () const
-  {
-    RCU_READ_INVARIANT (this);
-    return "";
-  }
-
-
-
-  std::string BatchDriver ::
-  batchJobId () const
-  {
-    RCU_READ_INVARIANT (this);
-    return "EL_JOBID=$1\n";
-  }
-
-
-
-  std::string BatchDriver ::
-  batchReleaseSetup (bool sharedFileSystem) const
+  defaultReleaseSetup (const Detail::ManagerData& data) const
   {
     RCU_READ_INVARIANT (this);
 
@@ -533,7 +530,7 @@ namespace EL
     if (WORKDIR_DIR == nullptr)
       RCU_THROW_MSG ("could not find environment variable $WorkDir_DIR");
 
-    if(!sharedFileSystem)
+    if(!data.sharedFileSystem)
     {
       file << "mkdir -p build && tar -C build/ -xf " << tarballName << " || abortJob\n";
       file << "\n";
@@ -573,11 +570,11 @@ namespace EL
     }
 
     file << options()->castString(Job::optBatchSetupCommand, defaultSetupCommand.str()) << " || abortJob\n";
-    if(sharedFileSystem) file << "source " << WORKDIR_DIR << "/setup.sh || abortJob\n";
+    if(data.sharedFileSystem) file << "source " << WORKDIR_DIR << "/setup.sh || abortJob\n";
     else                 file << "source build/setup.sh || abortJob\n";
     file << "\n";
 
-    if(!sharedFileSystem)
+    if(!data.sharedFileSystem)
     {
       std::ostringstream cmd;
       cmd << "tar --dereference -C " << WORKDIR_DIR << " -czf " << tarballName << " .";
@@ -594,14 +591,11 @@ namespace EL
 
   void BatchDriver ::
   makeScript (Detail::ManagerData& data,
-              std::size_t njobs, bool sharedFileSystem) const
+              std::size_t njobs) const
   {
     RCU_READ_INVARIANT (this);
 
-    const std::string writeLocation=getWriteLocation(data);
-    const std::string submitLocation=getSubmitLocation(data.submitDir);
-
-    std::string name = batchName ();
+    std::string name = data.batchName;
     bool multiFile = (name.find ("{JOBID}") != std::string::npos);
     for (std::size_t index = 0, end = multiFile ? njobs : 1; index != end; ++ index)
     {
@@ -613,35 +607,35 @@ namespace EL
         std::ofstream file (fileName.c_str());
         file << "#!/bin/bash\n";
         file << "echo starting batch job initialization\n";
-        file << RCU::substitute (batchInit(), "{JOBID}", str.str()) << "\n";
+        file << RCU::substitute (data.batchInit, "{JOBID}", str.str()) << "\n";
         file << "echo batch job user initialization finished\n";
         if (multiFile) file << "EL_JOBID=" << index << "\n\n";
-        else           file << batchJobId() << "\n";
+        else           file << data.batchJobId << "\n";
 
         file << "function abortJob {\n";
         file << "  echo \"abort EL_JOBID=${EL_JOBID}\"\n";
-        file << "  touch \"" << writeLocation << "/status/fail-$EL_JOBID\"\n";
-        file << "  touch \"" << writeLocation << "/status/done-$EL_JOBID\"\n";
+        file << "  touch \"" << data.batchWriteLocation << "/status/fail-$EL_JOBID\"\n";
+        file << "  touch \"" << data.batchWriteLocation << "/status/done-$EL_JOBID\"\n";
         file << "  exit 1\n";
         file << "}\n\n";
 
         file << "test \"$TMPDIR\" == \"\" && TMPDIR=/tmp\n";
 
-        file << "EL_JOBSEG=`grep \"^$EL_JOBID \" \"" << submitLocation << "/segments\" | awk ' { print $2 }'`\n";
+        file << "EL_JOBSEG=`grep \"^$EL_JOBID \" \"" << data.batchSubmitLocation << "/segments\" | awk ' { print $2 }'`\n";
         file << "test \"$EL_JOBSEG\" != \"\" || abortJob\n";
         file << "hostname\n";
         file << "pwd\n";
         file << "whoami\n";
         file << shellInit << "\n";
 
-        if(!sharedFileSystem)
+        if(!data.sharedFileSystem)
         { // Create output transfer directories
           file << "mkdir \"${TMPDIR}/fetch\" || abortJob\n";
           file << "mkdir \"${TMPDIR}/status\" || abortJob\n";
           file << "\n";
         }
 
-        if(sharedFileSystem)
+        if(data.sharedFileSystem)
         {
           file << "RUNDIR=${TMPDIR}/EventLoop-Worker-$EL_JOBSEG-`date +%s`-$$\n";
           file << "mkdir \"$RUNDIR\" || abortJob\n";
@@ -651,14 +645,15 @@ namespace EL
         }
         file << "cd \"$RUNDIR\" || abortJob\n";
 
-        file << batchReleaseSetup(sharedFileSystem);
+        if (!data.batchSkipReleaseSetup)
+          file << defaultReleaseSetup (data);
 
-        file << "eventloop_batch_worker $EL_JOBID '" << submitLocation << "/config.root' || abortJob\n";
+        file << "eventloop_batch_worker $EL_JOBID '" << data.batchSubmitLocation << "/config.root' || abortJob\n";
 
-        file << "test -f \"" << writeLocation << "/status/completed-$EL_JOBID\" || "
-             << "touch \"" << writeLocation << "/status/fail-$EL_JOBID\"\n";
-        file << "touch \"" << writeLocation << "/status/done-$EL_JOBID\"\n";
-        if(sharedFileSystem) file << "cd .. && rm -rf \"$RUNDIR\"\n";
+        file << "test -f \"" << data.batchWriteLocation << "/status/completed-$EL_JOBID\" || "
+             << "touch \"" << data.batchWriteLocation << "/status/fail-$EL_JOBID\"\n";
+        file << "touch \"" << data.batchWriteLocation << "/status/done-$EL_JOBID\"\n";
+        if(data.sharedFileSystem) file << "cd .. && rm -rf \"$RUNDIR\"\n";
       }
 
       {
@@ -790,25 +785,4 @@ namespace EL
     }
     return result;
   }
-
-  std::string BatchDriver ::
-  getWriteLocation (const Detail::ManagerData& data) const
-  {
-    RCU_READ_INVARIANT (this);
-    if(data.options.castBool(Job::optBatchSharedFileSystem,true)) // Shared file-system, write to output
-      return data.submitDir;
-    else
-      return ".";
-  }
-
-  const std::string BatchDriver ::
-  getSubmitLocation (const std::string& location) const
-  {
-    RCU_READ_INVARIANT (this);
-    if(options()->castBool(Job::optBatchSharedFileSystem,true)) // Shared file-system, use local path
-      return location+"/submit";
-    else
-      return ".";
-  }
-
 }
