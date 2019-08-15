@@ -111,6 +111,8 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 if TriggerFlags.doMT():
     
     log.info("configuring MT Trigger")
+    TriggerFlags.triggerMenuSetup = "LS2_v1"
+
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -145,7 +147,6 @@ if TriggerFlags.doMT():
 
     include ("InDetRecExample/InDetRecCabling.py")
 
-    TriggerFlags.triggerMenuSetup = "LS2_v1"
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
     def signaturesToGenerate():
