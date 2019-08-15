@@ -123,9 +123,15 @@ namespace IOVDbNamespace{
   bool
   tagIsMagic(const std::string & candidateTag);
   
+  ///Takes a tag of form TagInfo{Major|Minor}/<tag> or TagInfo{Major|Minor}/<prefix>/<tag>
+  ///and resolve it to a string vector{"Major|Minor", <prefix>, <tag>}
+  ///returns an empty vector if a match is not found
   std::vector<std::string>
   parseMagicTag(const std::string & candidateTag);
   
+  ///Takes a vector<string> containing {"<fulltag>", "Major|Minor", "<prefix>", "<tag>"}
+  ///and returns a pair of {"<prefix>", "<tag>"}. Note "<prefix>" is optional in the input
+  ///and if missing will be an empty string on output.
   std::pair<std::string, std::string>
   tag2PrefixTarget(const std::vector<std::string>& parseResult);
 
