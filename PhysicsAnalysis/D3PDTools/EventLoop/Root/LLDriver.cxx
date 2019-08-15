@@ -58,34 +58,6 @@ namespace EL
 
 
 
-  std::string LLDriver ::
-  batchName () const
-  {
-    RCU_READ_INVARIANT (this);
-    return "run{JOBID}.cmd";
-  }
-
-
-
-  std::string LLDriver ::
-  batchInit () const
-  {
-    RCU_READ_INVARIANT (this);
-    std::ostringstream result;
-    result << "#\n";
-    result << "# @ job_name       = EventLoopAnalysis{JOBID}\n";
-    result << "# @ job_type       = serial\n";
-    result << "# @ error          = $(Cluster).err\n";
-    result << "# @ output         = $(Cluster).out\n";
-    result << "# @ class          = " << queue << "\n";
-    result << "# @ resources = ConsumableCpus(1) ConsumableMemory(4gb)\n";
-    result << "# @ wall_clock_limit = 00:20:00\n";
-    result << "# @ queue\n";
-    return result.str();
-  }
-
-
-
   ::StatusCode LLDriver ::
   doManagerStep (Detail::ManagerData& data) const
   {
@@ -94,6 +66,22 @@ namespace EL
     ANA_CHECK (BatchDriver::doManagerStep (data));
     switch (data.step)
     {
+    case Detail::ManagerStep::batchScriptVar:
+      {
+        data.batchName = "run{JOBID}.cmd";
+        data.batchInit =
+          "#\n"
+          "# @ job_name       = EventLoopAnalysis{JOBID}\n"
+          "# @ job_type       = serial\n"
+          "# @ error          = $(Cluster).err\n"
+          "# @ output         = $(Cluster).out\n"
+          "# @ class          = " + queue + "\n"
+          "# @ resources = ConsumableCpus(1) ConsumableMemory(4gb)\n"
+          "# @ wall_clock_limit = 00:20:00\n"
+          "# @ queue\n";
+      }
+      break;
+
     case Detail::ManagerStep::submitJob:
     case Detail::ManagerStep::doResubmit:
       {

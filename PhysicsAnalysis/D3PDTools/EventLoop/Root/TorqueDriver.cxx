@@ -49,15 +49,6 @@ namespace EL
 
 
 
-  std::string TorqueDriver ::
-  batchJobId () const
-  {
-    RCU_READ_INVARIANT (this);
-    return "EL_JOBID=$PBS_ARRAYID\n";
-  }
-
-
-
   ::StatusCode TorqueDriver ::
   doManagerStep (Detail::ManagerData& data) const
   {
@@ -66,6 +57,13 @@ namespace EL
     ANA_CHECK (BatchDriver::doManagerStep (data));
     switch (data.step)
     {
+    case Detail::ManagerStep::batchScriptVar:
+      {
+        data.batchJobId = "EL_JOBID=$PBS_ARRAYID\n";
+      }
+      break;
+
+
     case Detail::ManagerStep::submitJob:
     case Detail::ManagerStep::doResubmit:
       {

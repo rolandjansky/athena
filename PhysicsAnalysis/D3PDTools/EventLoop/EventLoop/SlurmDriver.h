@@ -55,21 +55,6 @@ namespace EL
     void SetMemory(std::string memory);
     void SetConstrain(std::string constraint);
 
-    //
-    // interface inherited from BatchDriver
-    //
-
-  protected:
-    virtual ::StatusCode
-    doManagerStep (Detail::ManagerData& data) const override;
-
-    /// effects: special initialization for slurm scripts: export PATH
-    /// guarantee: strong
-    /// failures: none
-    /// rationale: slurm jobs do not export PATH, needed by RootCore setup scripts
-  private:
-    virtual std::string batchInit () const override;
-
 
     std::string m_job_name;
     std::string m_account;
@@ -81,6 +66,16 @@ namespace EL
     bool m_b_job_name;
     bool m_b_account;
     bool m_b_run_time;
+
+
+
+    //
+    // interface inherited from BatchDriver
+    //
+
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
 
     //
     // private interface

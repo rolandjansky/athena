@@ -50,15 +50,6 @@ namespace EL
 
 
 
-  std::string SoGEDriver ::
-  batchJobId () const
-  {
-    RCU_READ_INVARIANT (this);
-    return "EL_JOBID=$(($SGE_TASK_ID-1))\n";
-  }
-
-
-
   ::StatusCode SoGEDriver ::
   doManagerStep (Detail::ManagerData& data) const
   {
@@ -67,6 +58,12 @@ namespace EL
     ANA_CHECK (BatchDriver::doManagerStep (data));
     switch (data.step)
     {
+    case Detail::ManagerStep::batchScriptVar:
+      {
+        data.batchJobId = "EL_JOBID=$(($SGE_TASK_ID-1))\n";
+      }
+      break;
+
     case Detail::ManagerStep::submitJob:
     case Detail::ManagerStep::doResubmit:
       {

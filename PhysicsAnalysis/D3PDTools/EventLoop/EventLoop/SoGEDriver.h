@@ -56,17 +56,6 @@ namespace EL
     virtual ::StatusCode
     doManagerStep (Detail::ManagerData& data) const override;
 
-    /// returns: the code needed for setting EL_JOBID
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: normally one can just pass the index of the job as
-    ///   the first argument to the execution script, but some systems
-    ///   instead use environment variables
-    /// rationale: this is not used if we have separate execution
-    ///   scripts from the job
-  private:
-    virtual std::string batchJobId () const override;
-
 
 
     //

@@ -52,12 +52,6 @@ namespace EL
   }
 
 
-  std::string CondorDriver ::
-  batchInit () const
-  {
-    RCU_READ_INVARIANT (this);
-    return "export PATH LD_LIBRARY_PATH PYTHONPATH";
-  }
 
   ::StatusCode CondorDriver ::
   doManagerStep (Detail::ManagerData& data) const
@@ -67,6 +61,12 @@ namespace EL
     ANA_CHECK (BatchDriver::doManagerStep (data));
     switch (data.step)
     {
+    case Detail::ManagerStep::batchScriptVar:
+      {
+        data.batchInit = "export PATH LD_LIBRARY_PATH PYTHONPATH";
+      }
+      break;
+
     case Detail::ManagerStep::submitJob:
     case Detail::ManagerStep::doResubmit:
       {

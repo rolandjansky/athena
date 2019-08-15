@@ -85,6 +85,62 @@ namespace EL
       /// to run
       std::vector<std::size_t> batchJobIndices;
 
+
+      /// \brief the name of the submission script to use.  if this
+      /// contains {JOBID} it will create one script for each job id
+      ///
+      /// Some batch systems are picky about names.  Others don't
+      /// allow passing arguments into submission scripts.  So this
+      /// allows being flexible.
+    public:
+      std::string batchName;
+
+      /// \brief any additional code we need for setting up the batch
+      /// job.  if multiple files are used, {JOBID} will be replaced
+      /// with the index of the current file.
+      ///
+      /// Some batch systems need extra lines when making there
+      /// submission scripts, which can either be specially formatted
+      /// option lines or just some special commands.
+    public:
+      std::string batchInit;
+
+      /// \brief the code needed for setting EL_JOBID
+      ///
+      /// Normally one can just pass the index of the job as the first
+      /// argument to the execution script, but some systems instead
+      /// use environment variables rationale.
+      ///
+      /// This is not used if we have separate execution scripts from
+      /// the job.
+    public:
+      std::string batchJobId;
+
+      /// \brief whether to skip the release setup
+      ///
+      /// Some batch drivers will setup the release in their own way,
+      /// or will not need a release setup.  Setting this to true will
+      /// skip the standard release setup.
+      ///
+      /// Besides avoiding to create the release setup commands, this
+      /// will also suppress errors when the cmake-work-directory can
+      /// not be located.
+    public:
+      bool batchSkipReleaseSetup {false};
+
+      /// \brief the directory location for writing batch output
+    public:
+      std::string batchWriteLocation;
+
+      /// \brief the directory location with batch input configuration
+    public:
+      std::string batchSubmitLocation;
+
+      /// \brief whether we have/use a shared file system
+    public:
+      bool sharedFileSystem {true};
+
+
       /// \brief the current \ref ManagerStep
       ManagerStep step {ManagerStep::initial};
 
