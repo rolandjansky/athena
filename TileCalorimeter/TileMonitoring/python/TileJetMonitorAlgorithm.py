@@ -248,7 +248,6 @@ if __name__=='__main__':
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Output.HISTFileName = 'TileJetMonitorOutput.root'
-    ConfigFlags.Trigger.triggerMenuSetup = 'Physics_pp_v7_primaries'
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
