@@ -14,7 +14,7 @@ namespace Trk{
 // Option setting for VKalVrt core via state.m_vkalFitControl object
 //
 
-  void TrkVKalVrtFitter::VKalVrtConfigureFitterCore(int NTRK, State& state)
+  void TrkVKalVrtFitter::VKalVrtConfigureFitterCore(int NTRK, State& state) const
   {
     state.m_FitStatus = 0;     // Drop all previous fit results
     state.m_vkalFitControl.vk_forcft = ForCFT();

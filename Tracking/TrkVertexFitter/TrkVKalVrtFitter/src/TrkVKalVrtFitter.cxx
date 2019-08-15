@@ -50,7 +50,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_useZPointingCnst(false),
     m_usePassNear(false),
     m_usePassWithTrkErr(false),
-    m_cascadeSize(0),
     m_timingProfile(nullptr)
    {
     declareInterface<IVertexFitter>(this);

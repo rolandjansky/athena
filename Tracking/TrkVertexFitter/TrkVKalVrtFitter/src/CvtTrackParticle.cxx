@@ -29,7 +29,7 @@ namespace Trk {
  StatusCode
  TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& InpTrk,
                                     int& ntrk,
-                                    State& state)
+                                    State& state) const
  {
 
     std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
@@ -136,7 +136,7 @@ namespace Trk {
  StatusCode
  TrkVKalVrtFitter::CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& InpTrk,
                                       int& ntrk,
-                                      State& state)
+                                      State& state) const
  {
     std::vector<const xAOD::NeutralParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
@@ -243,7 +243,7 @@ namespace Trk {
  StatusCode
  TrkVKalVrtFitter::CvtTrackParticle(const std::vector<const TrackParticleBase*>& InpTrk,
                                     int& ntrk,
-                                    State& state)
+                                    State& state) const
  {
 
     std::vector<const TrackParticleBase*>::const_iterator   i_ntrk;
@@ -352,7 +352,7 @@ namespace Trk {
 //-- (Measured)Perigee in Trk::TrackParticleBase. Trk::Track has ->perigeeParameters() member function.
 //
 
-  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParticleBase* i_ntrk) 
+  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParticleBase* i_ntrk)  const
   {
        const Perigee* mPer = 0;
        if(   i_ntrk->definingParameters().associatedSurface().type() == Surface::Perigee
@@ -378,7 +378,7 @@ namespace Trk {
 
 //----------------------------------------------------------------------------------------------------------
 
-  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk) 
+  const Perigee* TrkVKalVrtFitter::GetPerigee( const TrackParameters* i_ntrk) const
   {
        const Perigee* mPer = 0;
        if(i_ntrk->associatedSurface().type()==Surface::Perigee && i_ntrk->covariance()!= 0 ) 

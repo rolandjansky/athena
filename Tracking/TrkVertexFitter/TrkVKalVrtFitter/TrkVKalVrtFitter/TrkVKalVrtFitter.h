@@ -143,26 +143,26 @@ namespace Trk{
         VertexID startVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
                                     IVKalState& istate,
-				    double massConstraint = 0.) override;
+				    double massConstraint = 0.) const override;
  
         VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
                                    IVKalState& istate,
-				   double massConstraint = 0.) override;
+				   double massConstraint = 0.) const override;
  
         VertexID  nextVertex(const  std::vector<const xAOD::TrackParticle*> & list,
                              const  std::vector<double>& particleMass,
 		             const  std::vector<VertexID> &precedingVertices,
                                    IVKalState& istate,
-				   double massConstraint = 0.) override;
+				   double massConstraint = 0.) const override;
         VxCascadeInfo * fitCascade(IVKalState& istate,
-                                   const Vertex * primVertex = 0, bool FirstDecayAtPV = false ) override;
+                                   const Vertex * primVertex = 0, bool FirstDecayAtPV = false ) const override;
 
         StatusCode  addMassConstraint(VertexID Vertex,
                                       const std::vector<const xAOD::TrackParticle*> & tracksInConstraint,
                                       const std::vector<VertexID> &verticesInConstraint, 
                                       IVKalState& istate,
-				      double massConstraint ) override;
+				      double massConstraint ) const override;
 
 //------ Personal VKalVrt staff
 
@@ -341,6 +341,19 @@ namespace Trk{
        };
 
 
+      class CascadeState
+      {
+      public:
+        int m_cascadeSize = 0;
+        std::vector<const xAOD::TrackParticle*> m_partListForCascade;
+
+        std::vector<double>  m_partMassForCascade;
+        std::vector<PartialMassConstraint> m_partMassCnstForCascade;
+        //
+        std::vector<cascadeV>    m_cascadeVList;               // list of cascade vertex objects
+      };
+
+
       class State
         : public IVKalState
       {
@@ -396,6 +409,8 @@ namespace Trk{
         double m_RobustScale = 1;
         std::vector<double>    m_MassInputParticles;
 
+        std::unique_ptr<CascadeState> m_cascadeState;
+
         State()
           : m_vkalFitControl (VKalVrtControlBase(&m_fitField,nullptr,nullptr,nullptr,this)) {
           m_ApproximateVertex.reserve(3);
@@ -409,20 +424,14 @@ namespace Trk{
 //-----------------------------------------------------------------
 //  Cascade related stuff
 //
-      int m_cascadeSize;
-      std::vector<const xAOD::TrackParticle*> m_partListForCascade;
-      std::vector< std::vector<int> >    m_vertexDefinition;             // track indices for vertex;
-      std::vector< std::vector<int> >     m_cascadeDefinition;           // cascade structure
-      std::vector<double>  m_partMassForCascade;
-      std::vector<PartialMassConstraint> m_partMassCnstForCascade;
-//
-      std::vector<cascadeV>    m_cascadeVList;               // list of cascade vertex objects
-      void makeSimpleCascade(std::vector< std::vector<int> > &, std::vector< std::vector<int> > &);
-      void printSimpleCascade(std::vector< std::vector<int> > &, std::vector< std::vector<int> > &);
-      int findPositions(const std::vector<int> &,const std::vector<int> &, std::vector<int> &);
-      int getSimpleVIndex( const VertexID &);
-      int indexInV( const VertexID &);
-      int getCascadeNDoF() const;
+      void makeSimpleCascade(std::vector< std::vector<int> > &, std::vector< std::vector<int> > &,
+                             CascadeState& cstate) const;
+      void printSimpleCascade(std::vector< std::vector<int> > &, std::vector< std::vector<int> > &,
+                              const CascadeState& cstate) const;
+      int findPositions(const std::vector<int> &,const std::vector<int> &, std::vector<int> &) const;
+      int getSimpleVIndex( const VertexID &, const CascadeState& cstate) const;
+      int indexInV( const VertexID &, const CascadeState& cstate) const;
+      int getCascadeNDoF (const CascadeState& cstate) const;
 //----------------------
 //  Timing measurements
 //    
@@ -475,14 +484,14 @@ namespace Trk{
                                        const dvect&, const dvect&, const std::vector< dvect >&, double,
                                        const State& state);
 
-        StatusCode          CvtTrkTrack(const std::vector<const Track*>& list,                int& ntrk, State& state);
-        StatusCode     CvtTrackParticle(const std::vector<const TrackParticleBase*>& list,    int& ntrk, State& state);
-        StatusCode     CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& list,  int& ntrk, State& state);
-        StatusCode   CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& list,int& ntrk, State& state);
-        StatusCode   CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,    int& ntrk, State& state);
-        StatusCode CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,  int& ntrk, State& state);
+        StatusCode          CvtTrkTrack(const std::vector<const Track*>& list,                int& ntrk, State& state) const;
+        StatusCode     CvtTrackParticle(const std::vector<const TrackParticleBase*>& list,    int& ntrk, State& state) const;
+        StatusCode     CvtTrackParticle(const std::vector<const xAOD::TrackParticle*>& list,  int& ntrk, State& state) const;
+        StatusCode   CvtNeutralParticle(const std::vector<const xAOD::NeutralParticle*>& list,int& ntrk, State& state) const;
+        StatusCode   CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,    int& ntrk, State& state) const;
+        StatusCode CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,  int& ntrk, State& state) const;
 
-        void VKalVrtConfigureFitterCore(int NTRK, State& state);
+        void VKalVrtConfigureFitterCore(int NTRK, State& state) const;
         void VKalToTrkTrack( double, double  , double  , double , double& , double& , double& );
 
         //This is safe as long as the tool is not called from multiple threads or reentrantly
@@ -499,8 +508,8 @@ namespace Trk{
 
 //
 //
-        const Perigee* GetPerigee( const TrackParticleBase* i_ntrk); 
-        const Perigee* GetPerigee( const TrackParameters*   i_ntrk); 
+        const Perigee* GetPerigee( const TrackParticleBase* i_ntrk) const;
+        const Perigee* GetPerigee( const TrackParameters*   i_ntrk) const;
         const TrackParameters*  GetFirstPoint(const Trk::TrackParticleBase* i_ntrk);
       /*const TrackParameters*  GetFirstPoint(const xAOD::TrackParticle* i_ntrk);  //VK Cannot be implemented. xAOD::TrackParticle
                                                                                    //returns local copy(!!!) of first point  */
