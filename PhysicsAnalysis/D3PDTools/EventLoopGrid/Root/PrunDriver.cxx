@@ -540,18 +540,24 @@ doManagerStep (Detail::ManagerData& data) const
     }
     break;
 
+  case Detail::ManagerStep::doRetrieve:
+    {
+      ANA_CHECK (doRetrieve (data));
+    }
+    break;
+
   default:
     (void) true; // safe to do nothing
   }
   return ::StatusCode::SUCCESS;
 }
 
-bool EL::PrunDriver::doRetrieve(const std::string& location) const 
+::StatusCode EL::PrunDriver::doRetrieve (Detail::ManagerData& data) const 
 {
   RCU_READ_INVARIANT(this);
   RCU_REQUIRE(not location.empty());  
 
-  TmpCd tmpDir(location);
+  TmpCd tmpDir(data.submitDir);
 
   SH::SampleHandler sh;
   sh.load("input");
@@ -596,7 +602,8 @@ bool EL::PrunDriver::doRetrieve(const std::string& location) const
 
   std::cout << std::endl;
   
-  return (allDone);
+  data.retrieved = true;
+  data.completed = allDone;
 }
  
 void EL::PrunDriver::status(const std::string& location)

@@ -247,14 +247,6 @@ namespace EL
     doManagerStep (Detail::ManagerData& data) const;
 
 
-    /// \copydoc retrieve
-    /// \par Rationale
-    ///   the virtual part of \ref retrieve
-  private:
-    virtual bool
-    doRetrieve (const std::string& location) const;
-
-
 
     //
     // private interface

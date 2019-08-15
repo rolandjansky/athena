@@ -22,8 +22,6 @@ namespace EL {
 
     void testInvariant () const;
 
-    virtual bool doRetrieve(const std::string& location) const override;
-
     static void status(const std::string& location);
 
     static void setState(const std::string& location,
@@ -33,6 +31,9 @@ namespace EL {
   protected:
     virtual ::StatusCode
     doManagerStep (Detail::ManagerData& data) const override;
+
+  private:
+    ::StatusCode doRetrieve (Detail::ManagerData& data) const;
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpragmas"

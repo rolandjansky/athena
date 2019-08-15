@@ -20,6 +20,7 @@
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/MetricsSvc.h>
 #include <EventLoop/OutputStream.h>
+#include <EventLoop/RetrieveManager.h>
 #include <EventLoop/SubmitManager.h>
 #include <RootCoreUtils/RootUtils.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -140,13 +141,21 @@ namespace EL
   bool Driver ::
   retrieve (const std::string& location)
   {
+    Detail::ManagerData data;
+    data.addManager (std::make_unique<Detail::BaseManager> ());
+    data.addManager (std::make_unique<Detail::DriverManager> ());
+    data.addManager (std::make_unique<Detail::RetrieveManager> ());
+    data.submitDir = location;
+
     std::unique_ptr<TFile> file (TFile::Open ((location + "/driver.root").c_str(), "READ"));
     if (!file || file->IsZombie())
       throw std::runtime_error ("failed to open driver file");
     std::unique_ptr<Driver> driver (dynamic_cast<Driver*>(file->Get ("driver")));
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
+    data.driver = driver.get();
 
-    return driver->doRetrieve (location);
+    data.run ();
+    return data.completed;
   }
 
 
@@ -310,17 +319,5 @@ namespace EL
   doManagerStep (Detail::ManagerData& data) const
   {
     return ::StatusCode::SUCCESS;
-  }
-
-
-
-  bool Driver ::
-  doRetrieve (const std::string& location) const
-  {
-    RCU_READ_INVARIANT (this);
-
-    if (gSystem->AccessPathName ((location + "/submitted").c_str()) != 0)
-      RCU_THROW_MSG ("job submission was unsuccessful");
-    return true;
   }
 }

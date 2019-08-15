@@ -486,6 +486,12 @@ doManagerStep (Detail::ManagerData& data) const
     data.submitted = true;
     break;
 
+  case Detail::ManagerStep::doRetrieve:
+    {
+      ANA_CHECK (doRetrieve (data));
+    }
+    break;
+
   default:
     (void) true; // safe to do nothing
   }
@@ -493,12 +499,12 @@ doManagerStep (Detail::ManagerData& data) const
 }
 
  
-bool EL::GridDriver::doRetrieve(const std::string& location) const {
+::StatusCode EL::GridDriver::doRetrieve(Detail::ManagerData& data) const {
   RCU_READ_INVARIANT(this);
 
-  const std::string hist_sh_dir    = location + "/output-hist";
-  const std::string jobDownloadDir = location + "/elg/download";
-  const std::string dsContFile     = location + "/elg/outputDQ2container";
+  const std::string hist_sh_dir    = data.submitDir + "/output-hist";
+  const std::string jobDownloadDir = data.submitDir + "/elg/download";
+  const std::string dsContFile     = data.submitDir + "/elg/outputDQ2container";
 
   EnvReqs env;
   env.needGanga = true; 
@@ -511,7 +517,7 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
   SH::SampleHandler sh;
   sh.load(hist_sh_dir);
 
-  int taskId = readTaskID(location); 
+  int taskId = readTaskID(data.submitDir); 
   if (taskId == dummyIdCompleted) {
     ANA_MSG_INFO ("Job has already been completed and output downloaded");
     return true;
@@ -555,7 +561,7 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
        sample != sh.end(); ++sample) {      
 
     const std::string mergedHistFile 
-      = location + "/hist-" + (*sample)->name() + ".root";
+      = data.submitDir + "/hist-" + (*sample)->name() + ".root";
 
     bool transformCompleted = true;
     std::string filesToMerge;
@@ -632,7 +638,7 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
   std::stringstream removeCmd;
   removeCmd << "tasks(" << taskId << ").remove(remove_jobs=True)";
   if (sendGangaCmd(removeCmd.str())) {
-    writeTaskID(location, isFailed ? dummyIdFailed : dummyIdCompleted);
+    writeTaskID(data.submitDir, isFailed ? dummyIdFailed : dummyIdCompleted);
   } else {
     std::cerr << "Warning: The job has stopped running but could not be removed ";
     std::cerr << "from ganga. Please try calling retrieve() again later to ";
@@ -651,8 +657,10 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
 		   container.substr(0,container.length()-1) +
 		   ".*/\"").c_str());
   }  
-  
-  return true;
+
+  data.retrieved = true;
+  data.completed = true;
+  return ::StatusCode::SUCCESS;
 }
 
 void EL::GridDriver::status(const std::string& location) {
@@ -1207,7 +1215,7 @@ void EL::GridDriver::gather(const std::string location) const {
   std::cerr << "GridDriver::gather(): This function is obsolete and ";
   std::cerr << "will be removed in a future version. ";
   std::cerr << "Please use retrieve() or wait() instead." << std::endl;
-  doRetrieve(location); 
+  retrieve(location); 
 }
 
 SH::SampleGrid* EL::GridDriver::createSampleFromDQ2(const std::string& dataset)

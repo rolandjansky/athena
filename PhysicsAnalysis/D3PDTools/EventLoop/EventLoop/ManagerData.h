@@ -78,6 +78,13 @@ namespace EL
       /// process
       bool submitted {false};
 
+      /// \brief whether we successfully retrieved the job in this
+      /// process
+      bool retrieved {false};
+
+      /// \brief whether the job completed
+      bool completed {false};
+
       /// \brief if we run in batch, the batch job object we are using
       std::unique_ptr<BatchJob> batchJob;
 

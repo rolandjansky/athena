@@ -95,6 +95,15 @@ namespace EL
       /// the final resubmit step
       finalResubmit,
 
+      /// the initial retrieve step
+      initialRetrieve,
+
+      /// call the actual doRetrieve method
+      doRetrieve,
+
+      /// the final retrieve step
+      finalRetrieve,
+
       final
     };
   }
