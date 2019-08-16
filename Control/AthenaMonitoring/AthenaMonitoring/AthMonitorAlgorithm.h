@@ -209,6 +209,7 @@ public:
      */
     ToolHandle<GenericMonitoringTool> getGroup( const std::string& name ) const;
 
+
     /** 
      * Get the trigger decision tool member.
      * 
@@ -218,7 +219,6 @@ public:
      * @return m_trigDecTool
      */
     const ToolHandle<Trig::ITrigDecisionTool>& getTrigDecisionTool() const;
-
 
     /** 
      * Check whether triggers are passed
@@ -238,7 +238,7 @@ public:
      * @param ctx EventContext for the event
      * @return a SG::ReadHandle<xAOD::EventInfo>
      */
-    SG::ReadHandle<xAOD::EventInfo> GetEventInfo(const EventContext&) const;
+    SG::ReadHandle<xAOD::EventInfo> GetEventInfo( const EventContext& ) const;
 
     /** @defgroup lumi Luminosity Functions
      *  A group of functions which all deal with calculating luminosity.
@@ -248,42 +248,42 @@ public:
     /**
      * Calculate the average mu, i.e. <mu>.
      */
-    virtual float lbAverageInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbAverageInteractionsPerCrossing( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate instantaneous number of interactions, i.e. mu.
      */
-    virtual float lbInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbInteractionsPerCrossing( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1).
      */
-    virtual float lbAverageLuminosity (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbAverageLuminosity( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the instantaneous luminosity per bunch crossing.
      */
-    virtual float lbLuminosityPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbLuminosityPerBCID( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      *  Calculate the duration of the luminosity block (in seconds)
      */
-    virtual double lbDuration (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual double lbDuration( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the average luminosity livefraction
      */
-    virtual float lbAverageLivefraction (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbAverageLivefraction( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the live fraction per bunch crossing ID.
      */
-    virtual float livefractionPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float livefractionPerBCID( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the average integrated luminosity multiplied by the live fraction.
      */
-    virtual double lbLumiWeight (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual double lbLumiWeight( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /** @} */ // end of lumi group
 
@@ -340,6 +340,7 @@ protected:
     Gaudi::Property<float> m_defaultLBDuration {this,"DefaultLBDuration",60.}; ///< Default duration of one lumi block
     Gaudi::Property<int> m_detailLevel {this,"DetailLevel",0}; ///< Sets the level of detail used in the monitoring
     SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey {this,"EventInfoKey","EventInfo"}; ///< Key for retrieving EventInfo from StoreGate
+
 
 private:
     typedef std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> MonVarVec_t;

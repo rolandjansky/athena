@@ -27,6 +27,62 @@ class GenericMonitoringTool(_GenericMonitoringTool):
                 kwargs['convention'] = self.convention + ':' + self.defaultDuration
         self.Histograms.append(defineHistogram(*args, **kwargs))
 
+class GenericMonitoringArray:
+    '''Array of configurables of GenericMonitoringTool objects'''
+    def __init__(self, name, dimensions, **kwargs):
+        self.Tools = {}
+        for postfix in GenericMonitoringArray._postfixes(dimensions):
+            self.Tools[postfix] = GenericMonitoringTool(name+postfix,**kwargs)
+
+    def __getitem__(self,index):
+        '''Forward operator[] on class to the list of tools'''
+        return self.toolList()[index]
+
+    def toolList(self):
+        return list(self.Tools.values())
+
+    def broadcast(self, member, value):
+        '''Allows one to set attributes of every tool simultaneously
+
+        Arguments:
+        member -- string which contains the name of the attribute to be set
+        value -- value of the attribute to be set
+        '''
+        for tool in self.toolList():
+            setattr(tool,member,value)
+
+    def defineHistogram(self, varname, **kwargs):
+        '''Propogate defineHistogram to each tool, adding a unique tag.'''
+        unAliased = varname.split(';')[0]
+        aliasBase = varname.split(';')[1] if ';' in varname else varname.replace(',','')
+        for postfix,tool in self.Tools.items():
+            aliased = unAliased+';'+aliasBase+postfix
+            tool.defineHistogram(aliased,**kwargs)
+
+    @staticmethod
+    def _postfixes(dimensions, previous=''):
+        '''Generates a list of subscripts to add to the name of each tool.
+
+        Arguments:
+        dimensions -- List containing the lengths of each side of the array off tools
+        previous -- Strings appended from the other dimensions of the array
+        '''
+        assert isinstance(dimensions,list) and len(dimensions)>0
+        if dimensions==[1]:
+            return ['']
+        postList = []
+        first = dimensions[0]
+        if isinstance(first,list):
+            iterable = first
+        elif isinstance(first,int):
+            iterable = range(first)
+        for i in iterable:
+            if len(dimensions)==1:
+                 postList.append(previous+'_'+str(i))
+            else:
+                postList.extend(GenericMonitoringArray._postfixes(dimensions[1:],previous+'_'+str(i)))
+        return postList
+
 ## Generate histogram definition string for the `GenericMonitoringTool.Histograms` property
 #
 #  For full details see the GenericMonitoringTool documentation.
