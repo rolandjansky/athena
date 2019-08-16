@@ -346,6 +346,9 @@ namespace Trk {
       /** add Material */
       void addMaterial( const Material& mat, float fact=1. ) const;
 
+      /** remove content */
+      void clear();
+
       /** dump to screen */
       void screenDump(MsgStream& msg) const;
 

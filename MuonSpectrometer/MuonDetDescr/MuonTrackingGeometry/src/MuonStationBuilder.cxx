@@ -806,23 +806,37 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
             if (name.substr(0,2)=="CS" || name.substr(0,1)=="T") {
               if (m_muonStationTypeBuilder) {
                 if (name.substr(0,2)=="CS") { 
-                  const Trk::TrackingVolume* csc_station = m_muonStationTypeBuilder->processCscStation(cv, name);   
-		  // create layer representation
-		  std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> layerRepr =
-		    m_muonStationTypeBuilder->createLayerRepresentation(csc_station);
-		  // create prototype as detached tracking volume
-		  const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,csc_station,layerRepr.first,layerRepr.second);
-                  if (!m_resolveActiveLayers) typeStat->trackingVolume()->clear();
-		  stations.push_back(typeStat); 
+                  Trk::TrackingVolume* csc_station = m_muonStationTypeBuilder->processCscStation(cv, name);   
+                  // create layer representation
+                  std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> layerRepr =
+                    m_muonStationTypeBuilder->createLayerRepresentation(csc_station);
+                  // create prototype as detached tracking volume
+                  Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,csc_station,layerRepr.first,layerRepr.second);
+                  if (!m_resolveActiveLayers) {
+                    /* 
+                     * This options seems to NOT be used and needs care as we clear a const object
+                     * consider removing
+                     */
+                    Trk::TrackingVolume* mutVolume =const_cast<Trk::TrackingVolume*> (typeStat->trackingVolume());
+                    mutVolume->clear();
+                  }
+                  stations.push_back(typeStat); 
                 } else {
                   std::vector<const Trk::TrackingVolume*> tgc_stations = m_muonStationTypeBuilder->processTgcStation(cv);   
                   for (unsigned int i=0;i<tgc_stations.size();i++) {
-		    // create layer representation
-		    std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> layerRepr =
-		      m_muonStationTypeBuilder->createLayerRepresentation(tgc_stations[i]);
-		    // create prototype as detached tracking volume
-		    const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,tgc_stations[i],layerRepr.first,layerRepr.second);
-		    if (!m_resolveActiveLayers) typeStat->trackingVolume()->clear();
+                    // create layer representation
+                    std::pair<const Trk::Layer*,const std::vector<const Trk::Layer*>*> layerRepr =
+                      m_muonStationTypeBuilder->createLayerRepresentation(tgc_stations[i]);
+                    // create prototype as detached tracking volume
+                    Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,tgc_stations[i],layerRepr.first,layerRepr.second);
+                    if (!m_resolveActiveLayers) {
+                      /* 
+                       * This options seems to NOT be used and needs care as we clear a const object
+                       * consider removing
+                       */
+                      Trk::TrackingVolume* mutVolume = const_cast<Trk::TrackingVolume*> (typeStat->trackingVolume());
+                      mutVolume->clear();
+                    }
                     stations.push_back(typeStat); 
                   }
                 }
@@ -921,9 +935,16 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		  // create prototype as detached tracking volume
 		  const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,newType,layerRepr.first,layerRepr.second);
 		
-		  if (!m_resolveActiveLayers) typeStat->trackingVolume()->clear();
+		  if (!m_resolveActiveLayers) {
+        /* 
+         * This options seems to NOT be used and needs care as we clear a const object
+         * consider removing
+         */
+        Trk::TrackingVolume* mutVolume = const_cast<Trk::TrackingVolume*> (typeStat->trackingVolume());
+        mutVolume->clear();
+      } 
 		  stations.push_back(typeStat);
-		} 
+                } 
 	      }
 	    }
 	  } // end new station type 
