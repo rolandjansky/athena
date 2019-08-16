@@ -8,6 +8,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -108,6 +109,63 @@ namespace Monitored {
       }
     }
   }
+
+  // Sub-namespace for internal-use functions
+  namespace detail {
+    /** Finds the index of an element in a tool handle array by its string name */
+    template <typename T = int>
+    int findToolIndex( const ToolHandleArray<GenericMonitoringTool>& toolArray, const std::string& name ) {
+      auto it = std::find_if(toolArray.begin(),toolArray.end(),[&](const auto& r) {return r.name()==name;});
+      return it!=toolArray.end()
+        ? std::distance(toolArray.begin(),it)
+        : throw std::runtime_error("The tool "+name+" could not be found in the tool array.");
+    }
+  }
+
+  /** Builds an array of indices (base case) */
+  template<typename V,typename std::enable_if_t<std::is_integral_v<V>>* =nullptr>
+  std::vector<V> buildToolMap(ToolHandleArray<GenericMonitoringTool> tools, const std::string& baseName, int nHist) {
+    std::vector<int> indexArray;
+    for ( int iHist=0; iHist<nHist; iHist++ ) {
+      std::string groupName = baseName + "_" + std::to_string(iHist);
+      indexArray.push_back(detail::findToolIndex(tools,groupName));
+    }
+    return indexArray;
+  }
+
+  /** Builds an N-dimensional array of indices (recursive) */
+  template<typename V,typename std::enable_if_t<!std::is_integral_v<V>>* =nullptr,typename...T>
+  std::vector<V> buildToolMap(ToolHandleArray<GenericMonitoringTool> tools, const std::string& baseName, int nHist, T... dimensions) {
+    std::vector<V> indexArray;
+    for ( int iHist=0; iHist<nHist; iHist++ ) {
+      std::string groupName = baseName + "_" + std::to_string(iHist);
+      indexArray.push_back(buildToolMap<typename V::value_type>(tools,groupName,dimensions...));
+    }
+    return indexArray;
+  }
+
+  /** Builds a map of indices (base case) */
+  template<typename V,typename std::enable_if_t<std::is_integral_v<V>>* =nullptr>
+  std::map<std::string,int> buildToolMap(ToolHandleArray<GenericMonitoringTool> tools, const std::string& baseName, std::vector<std::string> labels) {
+    std::map<std::string,int> indexMap;
+    for ( auto label : labels ) {
+      std::string groupName = baseName + "_" + label;
+      indexMap[label] = detail::findToolIndex(tools,groupName);
+    }
+    return indexMap;
+  }
+
+  /** Builds an N-dimensional map of indices (recursive) */
+  template<typename V,typename std::enable_if_t<!std::is_integral_v<V>>* =nullptr,typename...T>
+  std::map<std::string,V> buildToolMap(ToolHandleArray<GenericMonitoringTool> tools, const std::string& baseName, std::vector<std::string> labels, T... dimensions) {
+    std::map<std::string,V> indexMap;
+    for ( auto label : labels ) {
+      std::string groupName = baseName + "_" + label;
+      indexMap[label] = buildToolMap<typename V::mapped_type>(tools,groupName,dimensions...);
+    }
+    return indexMap;
+  }
+
 } // namespace Monitored
 
 #endif /* AthenaMonitoring_MonitoredGroup_h */
