@@ -31,6 +31,8 @@ def setupMenu():
     SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
     #MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
     BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
+    MinBiasGroup = ['RATE:MinBias', 'BW:MinBias']
+    EgammaStreamersGroup = ['RATE:SeededStreamers', 'BW:Egamma']
 
     TriggerFlags.Slices_all_setOff()
 
@@ -169,7 +171,10 @@ def setupMenu():
     TriggerFlags.MinBiasSlice.signatures   = []    
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
-    TriggerFlags.StreamingSlice.signatures = [] 
+    TriggerFlags.StreamingSlice.signatures = [
+        ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream], groups=MinBiasGroup),
+        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
+    ]
     TriggerFlags.MonitorSlice.signatures   = []
 
     # Random Seeded EB chains which select at the HLT based on L1 TBP bits
