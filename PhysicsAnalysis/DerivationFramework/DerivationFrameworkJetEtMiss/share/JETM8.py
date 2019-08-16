@@ -9,6 +9,8 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 #
 if DerivationFrameworkIsMonteCarlo:
@@ -210,8 +212,13 @@ clustCSSKSeq = ctm.buildConstitModifSequence( 'ConstitOrigCSSKSeq',
 
 correctedClusters = [ "OrigTopoClusters", "OrigSKTopoClusters", "OrigCSTopoClusters", "OrigCSSKTopoClusters", "OrigVorSuppSKTopoClusters", "OrigVorTopoClusters", "OrigVorSuppTopoClusters" ]
 
+# Add PFlow constituents
+from JetRecTools.ConstModHelpers import getConstModSeq, xAOD
+addCHSPFlowObjects()
+pflowCSSKSeq = getConstModSeq(["CS","SK"], "EMPFlow")
+
 from JetRec.JetRecConf import JetAlgorithm
-clustSeqAlg = JetAlgorithm("ClusterModifiers", Tools = [clustOrigSeq, clustSKSeq, clustCSSeq, clustCSSKSeq, clustVorSeq, clustVorSuppSeq, clustVorSKSeq])
+clustSeqAlg = JetAlgorithm("ClusterModifiers", Tools = [clustOrigSeq, clustSKSeq, clustCSSeq, clustCSSKSeq, clustVorSeq, clustVorSuppSeq, clustVorSKSeq,pflowCSSKSeq])
 jetm8Seq += clustSeqAlg
 
 if jetFlags.useTruth:
@@ -224,13 +231,15 @@ addStandardJets("CamKt", 1.5, "LCTopo", mods="lctopo_ungroomed", calibOpt="none"
 # AntiKt10Track
 addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 
-# PFlow fat jets
-addCHSPFlowObjects()
+# PFlow large-R jets
 #addTrimmedJets("AntiKt", 1.0, "EMCPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 addTrimmedJets("AntiKt", 1.0, "EMPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm8Seq,"JETM8")
+
+# Add VR track jets for b-tagging
+addVRJets(jetm8Seq)
 
 # AntiKt2LCTopo
 if DerivationFrameworkIsMonteCarlo:
@@ -250,6 +259,42 @@ addAntiKt4PV0TrackJets(jetm8Seq, "JETM8")
 if DerivationFrameworkIsMonteCarlo:
      addAntiKt4TruthJets(jetm8Seq, "JETM8")
      addAntiKt10TruthJets(jetm8Seq, "JETM8")
+
+#====================================================================
+# Add TCC objects and jets
+#====================================================================
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(jetm8Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles", outputTCCName="TrackCaloClustersCombinedAndNeutral")
+addTCCTrimmedJets(jetm8Seq,"JETM8")
+
+#====================================================================
+# Add UFO objects and jets
+#====================================================================
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runUFOReconstruction
+emufoAlg = runUFOReconstruction(jetm8Seq, ToolSvc, PFOPrefix="CHS")
+emcsskufoAlg = runUFOReconstruction(jetm8Seq, ToolSvc, PFOPrefix="CSSK")
+
+from JetRec.JetRecConf import PseudoJetGetter
+ufopjgetter     = PseudoJetGetter("ufoPJGetter", InputContainer="CHSUFO", OutputContainer="CHSUFOPJ", Label="TrackCaloCluster", SkipNegativeEnergy=True)
+csskufopjgetter = PseudoJetGetter("csskufoPJGetter", InputContainer="CSSKUFO", OutputContainer="CSSKUFOPJ", Label="TrackCaloCluster", SkipNegativeEnergy=True)
+
+jtm+=ufopjgetter
+jtm+=csskufopjgetter
+
+addStandardJets("AntiKt", 1.0, "UFO", ptmin=40000, algseq=jetm8Seq, outputGroup="JETM8", customGetters = [ufopjgetter], namesuffix = "CHS")
+addStandardJets("AntiKt", 1.0, "UFO", ptmin=40000, algseq=jetm8Seq, outputGroup="JETM8", customGetters = [csskufopjgetter], namesuffix = "CSSK")
+
+#====================================================================
+# Set up b-tagging
+#====================================================================
+# use alias for VR jets
+from BTagging.BTaggingFlags import BTaggingFlags
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+
+#tag pFlow jets
+FlavorTagInit(scheduleFlipped = False, JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = jetm8Seq)
 
 #====================================================================
 # SET UP STREAM   
@@ -275,11 +320,22 @@ JETM8SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt2LCTopoJets",
-                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt4EMTopoJets",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "AntiKt4LCTopoJets",
+                                        "AntiKt4EMPFlowJets",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                        "BTagging_AntiKt4EMTopo", "BTagging_AntiKt2Track",
+                                        "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                         ] #+ correctedClusters
-JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters", 
+JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
+                                    "LCOriginTopoClusters",
+                                    "TrackCaloClustersCombinedAndNeutral",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
                                     "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects",
@@ -288,6 +344,14 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
 #JETM8SlimmingHelper.AppendToDictionary.update({"LCOriginTopoClusters":"xAOD::CaloClusterContainer",
 #                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer"})
 #JETM8SlimmingHelper.ExtraVariables =['LCOriginTopoClusters.calE.calEta.calM.calPhi']
+
+JETM8SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM8SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM8SlimmingHelper.ExtraVariables += [ 'CHSUFO.pt.eta.phi.taste' ]
+
+JETM8SlimmingHelper.AppendToDictionary["CSSKUFO"] = 'xAOD::TrackCaloClusterContainer'
+JETM8SlimmingHelper.AppendToDictionary['CSSKUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
+JETM8SlimmingHelper.ExtraVariables += [ 'CSSKUFO.pt.eta.phi.taste' ]
 
 addOriginCorrectedClusters(JETM8SlimmingHelper,writeLC=True,writeEM=False)
 
@@ -323,7 +387,8 @@ JETM8SlimmingHelper.IncludeJetTriggerContent = True
 # Add the jet containers to the stream
 addJetOutputs(JETM8SlimmingHelper,["SmallR",
                                    "LargeR",
-                                   "JETM8","AntiKt10EMPFlowJets"])
+                                   "JETM8",
+                                   "AntiKt10EMPFlowJets"])
 # Add the MET containers to the stream
 addMETOutputs(JETM8SlimmingHelper,["Diagnostic","AntiKt4LCTopo","AntiKt4EMPFlow","Track"])
 
