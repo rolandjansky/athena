@@ -51,7 +51,7 @@ class TriggerConfigL1Topo:
     @staticmethod
     def getMenuBaseName(menuName):
         import re 
-        pattern = re.compile('_v\d+|DC14')
+        pattern = re.compile('_v\d+(_primaries)?|DC14')
         patternPos = pattern.search(menuName)
         if patternPos:
             menuName=menuName[:patternPos.end()]
@@ -129,7 +129,7 @@ class TriggerConfigL1Topo:
 
         menuName = TriggerConfigL1Topo.getMenuBaseName(menuName)
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        menumodule = __import__('l1topomenu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('l1topomenu.Menu_%s' % menuName.replace("_primaries",""), globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log.info("%s menu contains %i algos." % ( menuName, len(L1TopoFlags.algos()) )) 
         
