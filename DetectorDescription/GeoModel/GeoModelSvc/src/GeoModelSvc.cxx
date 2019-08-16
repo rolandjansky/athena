@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelKernel/GeoBox.h"
@@ -15,7 +15,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "CxxUtils/make_unique.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -333,7 +332,7 @@ StatusCode GeoModelSvc::geoInit()
   int mem,cpu;
   std::unique_ptr<std::ofstream> geoModelStats;
   if(m_statisticsToFile) {
-    geoModelStats = CxxUtils::make_unique<std::ofstream>("GeoModelStatistics");
+    geoModelStats = std::make_unique<std::ofstream>("GeoModelStatistics");
     *geoModelStats << "Detector Configuration flag = " << m_AtlasVersion << std::endl; 
   }
     
