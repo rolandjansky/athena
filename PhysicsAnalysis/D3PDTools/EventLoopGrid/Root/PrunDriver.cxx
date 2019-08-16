@@ -609,6 +609,7 @@ doManagerStep (Detail::ManagerData& data) const
   
   data.retrieved = true;
   data.completed = allDone;
+  return ::StatusCode::SUCCESS;
 }
  
 void EL::PrunDriver::status(const std::string& location)
