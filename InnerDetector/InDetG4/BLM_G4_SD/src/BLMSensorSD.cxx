@@ -50,7 +50,7 @@ G4bool BLMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     }
 
   //Get the Touchable History:
-  G4TouchableHistory*  myTouch = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
+  const G4TouchableHistory *myTouch = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
 
   int BEcopyNo =  myTouch->GetVolume()->GetCopyNo();
 
