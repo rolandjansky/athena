@@ -477,9 +477,9 @@ namespace xAOD {
                                           derefMap_t& derefMap) const
   {
     /// get it from decoration
-    static SG::AuxElement::ConstAccessor< char > Decorated("caloExt_Decorated");
-    static SG::AuxElement::ConstAccessor< float > Eta("caloExt_eta");
-    static SG::AuxElement::ConstAccessor< float > Phi("caloExt_phi");
+    static const SG::AuxElement::ConstAccessor< char > Decorated("caloExt_Decorated");
+    static const SG::AuxElement::ConstAccessor< float > Eta("caloExt_eta");
+    static const SG::AuxElement::ConstAccessor< float > Phi("caloExt_phi");
     if(Decorated.isAvailable(*tp) && Decorated(*tp)){
       eta = Eta(*tp);
       phi = Phi(*tp);
@@ -1398,12 +1398,11 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     return true;
   }
 #endif // XAOD_ANALYSIS
-
   // FIXME! This should be updated to use the standard caching of extrapolation to calo
   void CaloIsolationTool::decorateTrackCaloPosition(const IParticle& p, float eta, float phi) const{
-    static SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
-    static SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
-    static SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
+    static const SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
+    static const SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
+    static const SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
 
     if(!dec_Decorated.isAvailable(p) || dec_Decorated.isAvailableWritable(p)){
       dec_Decorated(p) = 1;

@@ -143,7 +143,7 @@ if InDetFlags.loadRotCreator():
                                                                         DisableDistortions = True,
                                                                         applyNNcorrection = False,
                                                                         NNIBLcorrection = False,
-                                                                        SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                        SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + InDetNewTrackingCuts.extension(),
                                                                         RunningTIDE_Ambi = False,
                                                                         ErrorStrategy = 0,
                                                                         PositionStrategy = 0
@@ -156,7 +156,7 @@ if InDetFlags.loadRotCreator():
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                  NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
-                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + InDetNewTrackingCuts.extension(),
                                                                  RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
                                                                  )
         if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
@@ -169,6 +169,23 @@ if InDetFlags.loadRotCreator():
           PixelClusterOnTrackTool.PositionStrategy = 0 
 
         ToolSvc += PixelClusterOnTrackTool
+
+        PixelClusterOnTrackToolPattern = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolPattern",
+                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                 applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
+                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
+                                                                 NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
+                                                                                       InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
+                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                 RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
+                                                                 )
+        if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
+            PixelClusterOnTrackToolPattern.NnClusterizationFactory  = NnClusterizationFactory
+            if InDetFlags.doTIDE_RescalePixelCovariances() :
+                PixelClusterOnTrackToolPattern.applydRcorrection = True
+
+        ToolSvc += PixelClusterOnTrackToolPattern
+
         if (InDetFlags.doPrintConfigurables()):
             print  PixelClusterOnTrackTool
             if InDetFlags.doDBM():
@@ -181,7 +198,7 @@ if InDetFlags.loadRotCreator():
                                                                             DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
                                                                             applyNNcorrection = False,
                                                                             NNIBLcorrection = False,
-                                                                            SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                            SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + InDetNewTrackingCuts.extension(),
                                                                             RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                                                                             ErrorStrategy = 2,
                                                                             PositionStrategy = 1 
@@ -190,10 +207,14 @@ if InDetFlags.loadRotCreator():
             ToolSvc += PixelClusterOnTrackToolDigital
 
         else :
-          PixelClusterOnTrackToolDigital = None
+            PixelClusterOnTrackToolDigital = PixelClusterOnTrackTool.clone("InDetPixelClusterOnTrackToolDigital")
+            # PixelClusterOnTrackToolDigital.SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + InDetNewTrackingCuts.extension() + "cloned"
+            PixelClusterOnTrackToolDigital.SplitClusterAmbiguityMap = ""
+            ToolSvc += PixelClusterOnTrackToolDigital
     else:
         PixelClusterOnTrackTool = None
         PixelClusterOnTrackToolDigital = None
+        PixelClusterOnTrackToolPattern = None
 
     if DetFlags.haveRIO.SCT_on():
         # SiLorentzAngleTool
@@ -218,6 +239,12 @@ if InDetFlags.loadRotCreator():
                                               ToolPixelCluster = PixelClusterOnTrackTool,
                                               ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
                                               Mode             = 'indet')
+
+    InDetRotCreatorPattern = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorPattern',
+                                              ToolPixelCluster = PixelClusterOnTrackToolPattern,
+                                              ToolSCT_Cluster  = SCT_ClusterOnTrackTool,
+                                              Mode             = 'indet')
+
     if InDetFlags.doDBM():
         if InDetFlags.loadRotCreator() and DetFlags.haveRIO.pixel_on(): 
             InDetRotCreatorDBM = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDBM',
@@ -234,6 +261,7 @@ if InDetFlags.loadRotCreator():
 
 
     ToolSvc += InDetRotCreator
+    ToolSvc += InDetRotCreatorPattern
 
     if PixelClusterOnTrackToolDigital != None :
         InDetRotCreatorDigital = Trk__RIO_OnTrackCreator(name             = 'InDetRotCreatorDigital',
@@ -244,8 +272,7 @@ if InDetFlags.loadRotCreator():
 
     else:
         
-        InDetRotCreatorDigital=InDetRotCreator
-
+        InDetRotCreatorDigital=InDetRotCreatorPattern
 
     #
     # --- configure broad cluster ROT creator
@@ -1177,21 +1204,31 @@ if InDetFlags.doPattern():
     InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder',
                                                                  PropagatorTool        = InDetPatternPropagator,
                                                                  UpdatorTool           = InDetPatternUpdator,
-                                                                 RIOonTrackTool        = InDetRotCreatorDigital,
+                                                                 RIOonTrackTool        = InDetRotCreatorDigital,##NS HERE
                                                                  AssosiationTool       = InDetPrdAssociationTool,
                                                                  usePixel              = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT                = DetFlags.haveRIO.SCT_on(),
-                                                                 PixManagerLocation    = InDetKeys.PixelManager(),
-                                                                 SCTManagerLocation    = InDetKeys.SCT_Manager(),
                                                                  PixelClusterContainer = InDetKeys.PixelClusters(),
                                                                  SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
+    if DetFlags.haveRIO.pixel_on():
+        # Condition algorithm for SiCombinatorialTrackFinder_xk
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+            from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+            condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                  ReadKey = "PixelDetectorElementCollection",
+                                                                  WriteKey = "PixelDetElementBoundaryLinks_xk",
+                                                                  UsePixelDetectorManager = True)
     if DetFlags.haveRIO.SCT_on():
         # Condition algorithm for SiCombinatorialTrackFinder_xk
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
-        if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+        if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
             from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-            condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
+            condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                  ReadKey = "SCT_DetectorElementCollection",
+                                                                  WriteKey = "SCT_DetElementBoundaryLinks_xk")
 
     if InDetFlags.doDBM():
         InDetSiComTrackFinderDBM = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinderDBM',
@@ -1201,8 +1238,6 @@ if InDetFlags.doPattern():
                                                                         AssosiationTool       = InDetPrdAssociationTool,
                                                                         usePixel              = True,
                                                                         useSCT                = False,
-                                                                        PixManagerLocation    = InDetKeys.PixelManager(),
-                                                                        SCTManagerLocation    = InDetKeys.SCT_Manager(),
                                                                         PixelClusterContainer = InDetKeys.PixelClusters(),
                                                                         SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
                                                                         MagneticFieldMode     = "NoField",

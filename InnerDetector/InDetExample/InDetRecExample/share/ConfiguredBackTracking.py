@@ -295,14 +295,23 @@ class ConfiguredBackTracking:
          if (InDetFlags.doPrintConfigurables()):
             print InDetTRT_SeededAmbiguityProcessor
 
+
          #
          # --- load the algorithm
          #
+
+         from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+         InDetAmbiguityScore = Trk__TrkAmbiguityScore(name               = 'InDetTRT_SeededAmbiguityScore',
+                                                      TrackInput         = [ self.__TRTSeededTracks ],
+                                                      TrackOutput        = 'ScoredMap'+'InDetTRT_SeededAmbiguityScore')
+         topSequence += InDetAmbiguityScore
+
+
          self.__ResolvedTRTSeededTracks = InDetKeys.ResolvedTRTSeededTracks() 
          #
          from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
          InDetTRT_SeededAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = 'InDetTRT_SeededAmbiguitySolver',
-                                                                  TrackInput         = [ self.__TRTSeededTracks ],
+                                                                  TrackInput         = 'ScoredMap'+'InDetTRT_SeededAmbiguityScore',
                                                                   TrackOutput        = self.__ResolvedTRTSeededTracks,
                                                                   AmbiguityProcessor = InDetTRT_SeededAmbiguityProcessor)
          topSequence += InDetTRT_SeededAmbiguitySolver

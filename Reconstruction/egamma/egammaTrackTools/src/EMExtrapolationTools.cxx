@@ -27,6 +27,14 @@
 //
 #include <tuple>
 
+namespace{
+const CaloExtensionHelpers::LayersToSelect barrelLayers={CaloSampling::PreSamplerB, 
+    CaloSampling::EMB1, CaloSampling::EMB2, CaloSampling::EMB3};
+
+const CaloExtensionHelpers::LayersToSelect endCapLayers={CaloSampling::PreSamplerE, 
+      CaloSampling::EME1, CaloSampling::EME2, CaloSampling::EME3}; 
+}
+
 EMExtrapolationTools::EMExtrapolationTools(const std::string& type, 
                                            const std::string& name,
                                            const IInterface* parent) :
@@ -460,13 +468,9 @@ EMExtrapolationTools::getIntersections (const Trk::CaloExtension& extension,
   //Layers to calculate intersections
   CaloExtensionHelpers::EtaPhiPerLayerVector intersections;
   if ( xAOD::EgammaHelpers::isBarrel( cluster )  ) {
-    CaloExtensionHelpers::LayersToSelect barrelLayers={CaloSampling::PreSamplerB, 
-    CaloSampling::EMB1, CaloSampling::EMB2, CaloSampling::EMB3};
     CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &barrelLayers );
   } else {
-    CaloExtensionHelpers::LayersToSelect endCapLayers={CaloSampling::PreSamplerE, 
-    CaloSampling::EME1, CaloSampling::EME2, CaloSampling::EME3};
-    CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &endCapLayers );
+   CaloExtensionHelpers::midPointEtaPhiPerLayerVector(extension, intersections, &endCapLayers );
   }
   return intersections;
 }

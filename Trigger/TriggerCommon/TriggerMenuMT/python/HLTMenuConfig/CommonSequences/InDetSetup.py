@@ -154,7 +154,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                   MaximalSplitSize        = 49,
                                                   MinimalSplitProbability = 0,
                                                   DoIBLSplitting = True,
-                                                  SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
+  )
   ToolSvc += InDetMergedPixelsTool
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder

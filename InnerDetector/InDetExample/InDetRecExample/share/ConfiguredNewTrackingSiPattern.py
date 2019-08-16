@@ -459,6 +459,7 @@ class  ConfiguredNewTrackingSiPattern:
          useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC"
 
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
+            # DenseEnvironmentsAmbiguityProcessorTool
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityProcessorTool as ProcessorTool
            use_low_pt_fitter =  True if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()) else False
            fitter_list=[( InDetTrackFitter if not use_low_pt_fitter else InDetTrackFitterLowPt )]
@@ -477,9 +478,14 @@ class  ConfiguredNewTrackingSiPattern:
 	                                                 pTminBrem          = NewTrackingCuts.minPTBrem(),
 	                                                 RefitPrds          = True, 
                                                      doHadCaloSeed      = InDetFlags.doCaloSeededRefit(),
-                                                     InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet",
-	                                                 RejectTracksWithInvalidCov=InDetFlags.doRejectInvalidCov())
-           #We hadded doHadCaloSeed and InputHadClusterContainerName
+                                                     InputHadClusterContainerName = InDetKeys.HadCaloClusterROIContainer()+"Bjet")
+
+            # DenseEnvironmentsAmbiguityScoreProcessorTool
+           from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
+           InDetAmbiguityScoreProcessor = ScoreProcessorTool(name               = 'InDetAmbiguityScoreProcessor'+NewTrackingCuts.extension(),
+                                                             ScoringTool        = InDetAmbiScoringTool,
+                                                             SelectionTool      = InDetAmbiTrackSelectionTool)
+           hasScoreProcessorTool = True
          else:
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool as ProcessorTool
            InDetAmbiguityProcessor = ProcessorTool(name               = 'InDetAmbiguityProcessor'+NewTrackingCuts.extension(),
@@ -491,12 +497,18 @@ class  ConfiguredNewTrackingSiPattern:
                                                  caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                  pTminBrem          = NewTrackingCuts.minPTBrem(),
                                                  RefitPrds          = True)
+           InDetAmbiguityScoreProcessor = None
 	
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM")  and globals().has_key('NnPixelClusterSplitProbTool'):
-           InDetAmbiguityProcessor.SplitProbTool             = NnPixelClusterSplitProbTool
-           InDetAmbiguityProcessor.sharedProbCut             = prob1
-           InDetAmbiguityProcessor.sharedProbCut2            = prob2
-           InDetAmbiguityProcessor.SplitClusterAmbiguityMap  = InDetKeys.SplitClusterAmbiguityMap()
+           if InDetAmbiguityScoreProcessor : 
+              InDetAmbiguityScoreProcessor.SplitProbTool             = NnPixelClusterSplitProbTool
+              InDetAmbiguityScoreProcessor.sharedProbCut             = prob1
+              InDetAmbiguityScoreProcessor.sharedProbCut2            = prob2
+              if NewTrackingCuts.extension() == "":
+                 InDetAmbiguityScoreProcessor.SplitClusterMap_old  = "";
+              elif NewTrackingCuts.extension() == "PixelPrdAssociation":
+                 InDetAmbiguityScoreProcessor.SplitClusterMap_old  = InDetKeys.SplitClusterAmbiguityMap();
+              InDetAmbiguityScoreProcessor.SplitClusterMap_new  = InDetKeys.SplitClusterAmbiguityMap()+NewTrackingCuts.extension()
            if InDetFlags.doTIDE_RescalePixelCovariances() :
             InDetAmbiguityProcessor.applydRcorrection = True
 
@@ -523,11 +535,32 @@ class  ConfiguredNewTrackingSiPattern:
          ToolSvc += InDetAmbiguityProcessor
          if (InDetFlags.doPrintConfigurables()):
             print InDetAmbiguityProcessor
+
+         # add InDetAmbiguityScoreProcessor
+         if InDetAmbiguityScoreProcessor :
+            ToolSvc += InDetAmbiguityScoreProcessor
+
          #
          # --- set input and output collection
          #
          InputTrackCollection     = self.__SiTrackCollection
          self.__SiTrackCollection = ResolvedTrackCollectionKey
+
+         #
+         # --- configure Ambiguity (score) solver
+         #
+         from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+         # from RecExConfig.hideInput import hideInput
+         # hideInput ('TrackCollection', self.__SiTrackCollection)
+         InDetAmbiguityScore = Trk__TrkAmbiguityScore(name               = 'InDetAmbiguityScore'+NewTrackingCuts.extension(),
+                                                        TrackInput         = [ InputTrackCollection ],
+                                                        TrackOutput        = 'ScoredMap'+'InDetAmbiguityScore'+NewTrackingCuts.extension(),
+                                                        AmbiguityScoreProcessor =  InDetAmbiguityScoreProcessor ) ## TODO: check the case when it is None object
+         topSequence += InDetAmbiguityScore
+         if (InDetFlags.doPrintConfigurables()):
+            print InDetAmbiguityScore
+
+
          #
          # --- configure Ambiguity solver
          #
@@ -535,7 +568,7 @@ class  ConfiguredNewTrackingSiPattern:
          from RecExConfig.hideInput import hideInput
          hideInput ('TrackCollection', self.__SiTrackCollection)
          InDetAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = 'InDetAmbiguitySolver'+NewTrackingCuts.extension(),
-                                                        TrackInput         = [ InputTrackCollection ],
+                                                        TrackInput         = 'ScoredMap'+'InDetAmbiguityScore'+NewTrackingCuts.extension(),
                                                         TrackOutput        = self.__SiTrackCollection,
                                                         AmbiguityProcessor = InDetAmbiguityProcessor)
          topSequence += InDetAmbiguitySolver
