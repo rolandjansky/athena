@@ -7,7 +7,7 @@
 
 // ********************************************************************
 //
-// NAME:     UnifiedFlowNetworkMatcherMT.h
+// NAME:     UnifiedFlowNetworkMatcher.h
 // PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
 //
 // AUTHOR:  P Sherwood
@@ -18,14 +18,21 @@
 #include "./FlowNetworkBase.h"
 #include "./ConditionsDefsMT.h"
 
-class UnifiedFlowNetworkMatcherMT:
+class UnifiedFlowNetworkMatcher:
 virtual public FlowNetworkBase {
 
   /* An initialiser for FlowNetwork base */
 
 public:
-  UnifiedFlowNetworkMatcherMT(ConditionsMT&& cs);
-  ~MaximumBipartiteGroupsMatcherMT(){}
+  UnifiedFlowNetworkMatcher(ConditionsMT&& cs,
+			    const std::vector<std::size_t>& treeVec);
+  
+  ~UnifiedFlowNetworkMatcher(){}
+
+ private:
+  
+  //tree stucture:  parent nodes according to position.
+  std::vector<std::size_t> m_treeVec; 
 };
 
 #endif

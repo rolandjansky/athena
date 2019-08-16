@@ -90,7 +90,8 @@ TrigJetHypoToolConfig_flownetwork::getMatcher () const {
     return std::unique_ptr<IGroupsMatcherMT>(nullptr);
   }
   
-  return groupsMatcherFactoryMT_MaxBipartite(std::move(*opt_conds));
+  return groupsMatcherFactoryMT_Unified(std::move(*opt_conds),
+					m_treeVec);
 }
 
 StatusCode TrigJetHypoToolConfig_flownetwork::checkVals() const {

@@ -17,7 +17,7 @@ using TreeVec = std::vector<std::size_t>;
 class UnifiedFlowNetworkBuilder: 
 virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
  public:
-  UnifiedFlowNetworkBuilder(ConditionsMT, const TreeVec&);
+  UnifiedFlowNetworkBuilder(ConditionsMT, const Tree&);
  protected:
   virtual std::optional<std::vector<std::shared_ptr<FlowEdge>>>
     make_flowEdges(const HypoJetGroupCIter& groups_b,

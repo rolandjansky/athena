@@ -48,7 +48,7 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
  private:
   ToolHandleArray<ITrigJetConditionConfig> m_conditionMakers;
- 
+  Gaudi::Property<std::vector<std::size_t>> m_treeVec; 
  
 };
 #endif

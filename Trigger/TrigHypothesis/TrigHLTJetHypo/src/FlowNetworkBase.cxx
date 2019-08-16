@@ -35,13 +35,22 @@ FlowNetworkBase::match(const HypoJetGroupCIter& groups_b,
 				       xAODJetCollector& jetCollector,
                                        const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
                                        bool) const {
-  /* setup a FlowNetwork. 
-     if group size == 1:
-     nodes include source, conditions, jets groups, sink
-     otherwise:
-     nodes include source, conditions, jets groups, jets, sink
-     
-     Then solve the network (FordFulkerson)
+  /* setup a FlowNetwork. This consists of a sink, a source, and alternating
+     layers of nodes representing conditions and job groups. Nodes in the same
+     layer are at the same distance from the source.
+     leaf nodes are the last nodes before the sink. The job group layer
+     above them consists of "external products" of the job groups
+     satisfying the conditions layer below them. The exxternal product is
+     sound by asking the parent node (above the currenrt job group layer)
+     which children it is connected to. The job groups from the children
+     are collected. All combinations of job groups, taking one per child,
+     are merged into a single job group, and then passed to the parent,
+     which decides whether or not it ia a satisfying job group. If there
+     is satisfaction edges of the approoriate capacity  are established 
+     between the parent and its children. The job group satisfiying the parent
+     is noted. The process is iterated until the "first generation" 
+     conditions are reached. If these are satisfied, they are connected to 
+     the sink.
   */
   
   if(!m_nConditions){

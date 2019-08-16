@@ -10,8 +10,8 @@
 
 
 UnifiedFlowNetworkBuilder::UnifiedFlowNetworkBuilder(ConditionsMT conditions,
-						     const TreeVec& treeVec):
-  FlowNetworkBuilderBase(std::move(conditions)), m_tree(treeVec){
+						     const Tree& tree):
+  FlowNetworkBuilderBase(std::move(conditions)), m_tree(tree){
 }
 
 std::optional<std::vector<std::shared_ptr<FlowEdge>>>

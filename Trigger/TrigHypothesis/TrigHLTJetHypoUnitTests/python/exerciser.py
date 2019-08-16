@@ -146,7 +146,7 @@ class FlowNetworkVsPartitionsTests(CombinationsTests) :
                  n_bkgd=4,
                  bkgd_etmax=50000.,  # MeV
     ):
-        useEtaEtNotEtaE = false 
+        # useEtaEtNotEtaE = False 
         CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
         self.chain_name = 'HLT_FNvsPartition'
 
@@ -253,7 +253,7 @@ class FlowNetworkVsCombinationsTests(CombinationsTests) :
             generator.ets = ets[:3]
             generator.etas = etas[:3]
         else:
-            msg = self.__class__.__name__ + " n_sgnl =" + n_sgnl
+            msg = self.__class__.__name__ + " n_sgnl =" + str(self.n_sgnl)
             msg += " legal values = 3, 4"
             raise RuntimeError(msg)
 
