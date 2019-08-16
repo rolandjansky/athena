@@ -8,14 +8,12 @@ include ( "IOVDbSvc/IOVDbSvc_jobOptions.py" )
 
 
 #include converters
-include ( "InDetConditionsAthenaPool/InDetConditionsAthenaPool_joboptions.py" )
 include ( "DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
 include ( "InDetRecExample/InDetPoolConvertors.py" )
 
 
 #load relevant libraries
 theApp.Dlls    += [ "TRT_ConditionsAlgs" ]
-theApp.Dlls    += [ "InDetConditionsAthenaPoolPoolCnv" ]
 theApp.Dlls    += [ "DetDescrCondAthenaPoolPoolCnv" ]
 #top algorithm
 theApp.TopAlg += [ "TRT_TestWrite" ]

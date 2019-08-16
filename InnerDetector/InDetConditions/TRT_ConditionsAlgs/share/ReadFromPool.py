@@ -6,7 +6,6 @@
 if not "TRT_ConditionsAlgs" in theApp.Dlls:
     theApp.Dlls += [ "TRT_ConditionsAlgs" ]
 # include the converters
-include ( "InDetConditionsAthenaPool/InDetConditionsAthenaPool_joboptions.py" )
 include ( "DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
 
 #--------------------------------------------------------------
