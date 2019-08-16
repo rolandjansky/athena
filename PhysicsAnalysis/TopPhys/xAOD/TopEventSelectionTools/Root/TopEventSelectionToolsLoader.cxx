@@ -82,7 +82,9 @@ namespace top {
     if (toolname == "JET_N")
         return new top::NJetSelector(param);
     else if (toolname == "JET_N_BTAG")
-        return new top::NJetBtagSelector(param,config);
+        return new top::NJetBtagSelector(param, config, false);
+    else if (toolname == "TJET_N_BTAG")
+        return new top::NJetBtagSelector(param, config, true);
     else if (toolname == "LJET_N")
         return new top::NLargeJetSelector(param);
     else if (toolname == "RCJET_N")

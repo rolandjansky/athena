@@ -15,11 +15,13 @@ namespace top {
  */
 class NJetBtagSelector : public SignValueSelector {
 public:
-    explicit NJetBtagSelector(const std::string& params,std::shared_ptr<top::TopConfig> config);
+    explicit NJetBtagSelector(const std::string& params, std::shared_ptr<top::TopConfig> config, bool doTrackJets);
 
     bool apply(const top::Event& event) const override;
 
     const std::string getFullCutName(){return SignValueSelector::valueStringDelimReplace(); };
+private:
+    bool m_doTrackJets;
 };
 
 }
