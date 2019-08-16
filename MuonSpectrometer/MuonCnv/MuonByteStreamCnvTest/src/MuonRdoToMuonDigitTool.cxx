@@ -108,8 +108,11 @@ MuonRdoToMuonDigitTool::MuonRdoToMuonDigitTool(const std::string& type,const std
   declareProperty("DecodeCscRDO", m_decodeCscRDO = true);
   declareProperty("DecodeRpcRDO", m_decodeRpcRDO = true);
   declareProperty("DecodeTgcRDO", m_decodeTgcRDO = true);
-  declareProperty("DecodeSTGC_RDO", m_decodesTgcRDO = true);
-  declareProperty("DecodeMM_RDO", m_decodeMmRDO = true);
+  // Keep the NSW decoders off as they will cause issues with tests
+  // or are simply not needed in 21.3 currently
+  // Alexandre.laurier@cern.ch - August 2019
+  declareProperty("DecodeSTGC_RDO", m_decodesTgcRDO = false);
+  declareProperty("DecodeMM_RDO", m_decodeMmRDO = false);
   
   declareProperty("cscCalibTool",  m_cscCalibTool);
   declareProperty("mdtRdoDecoderTool",  m_mdtRdoDecoderTool);
