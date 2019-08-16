@@ -61,7 +61,7 @@ G4bool PixelSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   //
   // Get the Touchable History:
   //
-  G4TouchableHistory*  myTouch = (G4TouchableHistory*)(aStep->GetPreStepPoint()->GetTouchable());
+  const G4TouchableHistory *myTouch = dynamic_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
 
   if(verboseLevel>5){
     for (int i=0;i<myTouch->GetHistoryDepth();i++){
