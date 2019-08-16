@@ -101,34 +101,28 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
 
   for (; component != multiComponentState.end(); ++component) {
 
-    const Trk::MultiComponentState* updatedState =
+    std::unique_ptr<Trk::SimpleMultiComponentState> updatedState =
       m_updator->updateState(*component, layer, direction, particleHypothesis);
 
-    if (!updatedState) {
-      // msg(MSG::WARNING) << "Material effects update failed... returning 0" << endmsg;
+    if(!updatedState)
       continue;
-    }
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState);
-
-    // New memory allocated in the combiner so it is ok to delete the original state
-    delete updatedState;
+    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState.get());
 
     if (!componentAdded) {
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
     }
   }
 
-  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
+  Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
 
   if (!assembledState) {
     return nullptr;
   }
   // Renormalise state
-  const Trk::MultiComponentState* renormalisedState = assembledState->clonedRenormalisedState();
-  // Clean up memory
-  delete assembledState;
-  return renormalisedState;
+  assembledState->renormaliseState();
+
+  return assembledState;
 }
 
 /* ==========================================
@@ -170,33 +164,29 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
 
   for (; component != multiComponentState.end(); ++component) {
 
-    const Trk::MultiComponentState* updatedState =
+    std::unique_ptr<Trk::SimpleMultiComponentState> updatedState =
       m_updator->preUpdateState(*component, layer, direction, particleHypothesis);
 
-    if (!updatedState) {
-      // msg(MSG::WARNING) << "Material effects update failed... returning 0" << endmsg;
+    if(!updatedState)
       continue;
-    }
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState);
-    // New memory allocated in the combiner so it is ok to delete the original state
-    delete updatedState;
+    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState.get());
+
     if (!componentAdded)
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
   }
 
-  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
+  Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
 
   if (!assembledState) {
     return nullptr;
   }
 
   // Renormalise state
-  const Trk::MultiComponentState* renormalisedState = assembledState->clonedRenormalisedState();
+  assembledState->renormaliseState();
 
   // Clean up memory
-  delete assembledState;
-  return renormalisedState;
+  return assembledState;
 }
 
 /* ==========================================
@@ -240,36 +230,28 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
 
   for (; component != multiComponentState.end(); ++component) {
 
-    const Trk::MultiComponentState* updatedState =
+    std::unique_ptr<Trk::SimpleMultiComponentState> updatedState =
       m_updator->postUpdateState(*component, layer, direction, particleHypothesis);
 
-    if (!updatedState) {
-      // msg(MSG::WARNING) << "Material effects update failed... returning 0" << endmsg;
+    if(!updatedState)
       continue;
-    }
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState);
-
-    // New memory allocated in the combiner so it is ok to delete the original state
-    delete updatedState;
+    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState.get());
 
     if (!componentAdded) {
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
     }
   }
 
-  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
+  Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
 
   if (!assembledState) {
     return nullptr;
   }
 
-  // Renormalise state
-  const Trk::MultiComponentState* renormalisedState = assembledState->clonedRenormalisedState();
+  assembledState->renormaliseState();
 
-  // Clean up memory
-  delete assembledState;
-  return renormalisedState;
+  return assembledState;
 }
 
 /* ==========================================
@@ -338,26 +320,30 @@ Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiCompo
   Trk::MultiComponentState::const_iterator component = multiComponentState.begin();
 
   for (; component != multiComponentState.end(); ++component) {
-    const Trk::MultiComponentState* updatedState =
+    std::unique_ptr<Trk::SimpleMultiComponentState> updatedState =
       m_updator->updateState(*component, *materialProperties, pathLength, direction, particleHypothesis);
 
-    bool componentAdded = false;
-    if (updatedState) {
-      componentAdded = m_stateAssembler->addMultiState(cache, *updatedState);
-    }
+    if(!updatedState)
+      continue;
+
+    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState.get());
+
     if (!componentAdded) {
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
     }
-    // Clean up memory allocated in the material effects updator
-    delete updatedState;
 
   } // end loop over components
 
-  const Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
+  Trk::MultiComponentState* assembledState = m_stateAssembler->assembledState(cache);
   // Renormalise the state
-  const Trk::MultiComponentState* renormalisedState = assembledState->clonedRenormalisedState();
+  if(!assembledState)
+  {
+    delete materialProperties;
+    return nullptr;
+  }
+
+  assembledState->renormaliseState();
+
   // Clean up memory
-  delete assembledState;
-  delete materialProperties;
-  return renormalisedState;
+  return assembledState;
 }

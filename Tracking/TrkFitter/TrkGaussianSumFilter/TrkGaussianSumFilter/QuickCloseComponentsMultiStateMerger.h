@@ -49,7 +49,7 @@ public:
   /** AlgTool finalise method */
   StatusCode finalize() override final;
 
-  virtual const MultiComponentState* merge(const MultiComponentState&) const override final;
+  virtual MultiComponentState* merge(const MultiComponentState&) const override final;
 
 private:
   Gaudi::Property<unsigned int> m_maximumNumberOfComponents{ this,
@@ -73,7 +73,7 @@ private:
 
   ServiceHandle<IChronoStatSvc> m_chronoSvc; //!< Timing: The Gaudi time auditing service
 
-  const MultiComponentState* mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
+  MultiComponentState* mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
                                                 const MultiComponentState&) const;
 
   // Recalculate the distances for a row of pairs and return the index of the minimum pair

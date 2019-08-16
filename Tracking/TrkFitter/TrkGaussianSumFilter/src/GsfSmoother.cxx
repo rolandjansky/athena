@@ -390,14 +390,13 @@ Trk::GsfSmoother::combine(const Trk::MultiComponentState& forwardsMultiState,
   }
 
   // Component reduction on the combined state
-  std::unique_ptr<const Trk::MultiComponentState> mergedState(m_merger->merge(*combinedMultiState));
+  std::unique_ptr<Trk::MultiComponentState> mergedState(m_merger->merge(*combinedMultiState));
   assert(mergedState.get() != combinedMultiState.get());
 
   // Before return the weights of the states need to be renormalised to one.
-  const Trk::MultiComponentState* renormalisedMergedState = mergedState->clonedRenormalisedState();
-  assert(renormalisedMergedState != mergedState.get());
+  mergedState->renormaliseState();
 
-  return renormalisedMergedState;
+  return mergedState.release();
 }
 
 const Trk::MultiComponentState*

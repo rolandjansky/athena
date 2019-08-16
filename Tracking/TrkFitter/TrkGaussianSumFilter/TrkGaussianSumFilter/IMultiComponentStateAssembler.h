@@ -21,9 +21,6 @@ decription           : Abstract interface for Multi Component State Assembler
 
 namespace Trk {
 
-typedef std::pair<std::unique_ptr<Trk::TrackParameters>, double> SimpleComponentParameters;
-typedef std::vector<SimpleComponentParameters> SimpleMultiComponentState;
-
 class SortByLargerSimpleComponentWeight
 {
 public:
@@ -73,15 +70,19 @@ public:
   /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
   virtual bool addMultiState(Cache& cache, const MultiComponentState&) const = 0;
 
+  /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
+  virtual bool addMultiState(Cache& cache, SimpleMultiComponentState&) const = 0;
+
+
   /** Method to include the weights of states that are invalid */
   virtual bool addInvalidComponentWeight(Cache& cache, const double) const = 0;
 
   /** Method to return the cashed state object - it performs a reweighting before returning the object based on the
    * valid and invaid weights */
-  virtual const MultiComponentState* assembledState(Cache& cache) const = 0;
+  virtual MultiComponentState* assembledState(Cache& cache) const = 0;
 
   /** Method to return the cashed state object - it performs a reweighting based on the input parameter  */
-  virtual const MultiComponentState* assembledState(Cache& cache, const double) const = 0;
+  virtual MultiComponentState* assembledState(Cache& cache, const double) const = 0;
 };
 } // End Trk namepace
 
