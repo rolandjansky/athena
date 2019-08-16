@@ -144,7 +144,7 @@ def _createCfgFlags():
 
 #CaloCell flags
     acf.addFlag("Calo.Cell.doLArHVCorr",False) # Disable for now as it is broken...
-
+    acf.addFlag("Calo.Cell.doPileupOffsetBCIDCorr", True)
 #TopoCluster Flags:
     acf.addFlag("Calo.TopoCluster.doTwoGaussianNoise",True)
     acf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)
