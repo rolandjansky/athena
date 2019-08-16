@@ -1,8 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//-*- mode: c++ -*-
+/// @author Alexander Madsen
+/// @author Nils Krumnack
+
+
+
 #ifndef EVENT_LOOP_PRUN_DRIVER_H
 #define EVENT_LOOP_PRUN_DRIVER_H
 
@@ -13,6 +17,8 @@ namespace SH {
 }
 
 namespace EL {
+
+  /// \brief a \ref Driver to submit jobs via prun
 
   class PrunDriver final : public Driver {
 

@@ -25,19 +25,20 @@ namespace EL
   namespace Detail
   {
     /// \brief an internal data structure for passing data between
-    /// different job routines
+    /// different manager objects anbd step
     ///
-    /// \warn This is an **internal** data structure that users should
-    /// not directly interface with.  It is not guaranteed to stay
-    /// around and can change or even disappear from one EventLoop
-    /// version to the next.
+    /// Essentially \ref Manager objects don't talk to each other
+    /// directly and don't cache any information between steps.  So
+    /// any data that needs to get stored and passed around instead
+    /// gets added to this structure.  Among other things this means
+    /// that managers are only fairly loosely coupled and don't really
+    /// need to know about each other.
     ///
-    /// The main reason for this design is that I have a fair amount
-    /// of information that I need to prepare a job for
-    /// submission/execution, and the process involves a number of
-    /// steps.  By centralizing all that information I can more easily
-    /// restructure the submission process and factor out utility
-    /// functions.
+    /// Generally only some of the information in this structure will
+    /// be used for any given operation.  That is considered
+    /// acceptable, as the cost of extra members in this data
+    /// structure are very low.  Though it does make for a rather
+    /// large data structure.
 
     struct ManagerData final
     {

@@ -5,7 +5,6 @@
 /// @author Nils Krumnack
 
 
-
 //
 // includes
 //

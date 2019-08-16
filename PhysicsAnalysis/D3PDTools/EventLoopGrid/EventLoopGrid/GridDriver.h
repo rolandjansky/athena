@@ -1,8 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//-*- mode: c++ -*-
+/// @author Alexander Madsen
+/// @author Nils Krumnack
+
+
+
 #ifndef EVENT_LOOP_GRID_DRIVER_H
 #define EVENT_LOOP_GRID_DRIVER_H
 
@@ -16,6 +20,8 @@ namespace SH {
 namespace EL {
 
   std::string getRootCoreConfig ();
+
+  /// \brief a \ref Driver to submit jobs via ganga
 
   class GridDriver final : public Driver {
 

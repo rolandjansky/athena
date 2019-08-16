@@ -16,6 +16,12 @@ namespace EL
   namespace Detail
   {
     /// \brief an enum to establish an order in which to apply managers
+    ///
+    /// While there should be very little inter-dependency between
+    /// managers, it can matter which order they get applied in,
+    /// e.g. the basic manager may set the default value of some
+    /// property only to be overridden by a more specialized manager
+    /// downstream.
 
     enum class ManagerOrder
     {

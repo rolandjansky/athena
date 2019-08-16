@@ -1,25 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+/// @author Morten Dam Joergensen <mdj@nbi.dk> 2012
+
 
 #ifndef EVENT_LOOP_LL_DRIVER_HH
 #define EVENT_LOOP_LL_DRIVER_HH
-
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-/// This module defines a driver class for running on IBM LL batch
-/// systems.  The interface provided in this class is intended for
-/// experts only.  The module is considered to be in the pre-alpha
-/// stage.
-
-// LoadLeveler Driver contributed by Morten Dam Joergensen <mdj@nbi.dk> 2012
 
 #include <EventLoop/Global.h>
 
@@ -28,6 +16,13 @@
 
 namespace EL
 {
+  /// \brief a \ref Driver for running on IBM Load Leveler batch
+  /// systems
+  ///
+  /// Please note that Load Leveler is the name of the batch system
+  /// infrastructure, this is not a generic mechanism for load
+  /// leveling.
+
   class LLDriver final : public BatchDriver
   {
     //
