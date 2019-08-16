@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,12 +24,24 @@ namespace Trk
     class ITrackSlimmingTool : virtual public IAlgTool {
     public:
         static const InterfaceID& interfaceID( ) ;
-
-      /**This method 'skims' interesting information from the passed track, and creates a new one with cloned copies of this information
-        @param track A reference to the track to be skimmed. It will not be modified in any way.
-        @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is configured*/
+        /**This method 'skims' interesting information from the passed track, and creates a 
+         * new one with cloned copies of this information
+         * When m_setPersistificationHints = False
+         @param track A const reference to the track to be skimmed. It will not be modified in any way.
+         @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is configured
+         * When m_setPersistificationHints = True
+         @param track A reference to the track to be skimmed.It gets modified by setting persistification hints
+         @return nullptr
+         The later behaviour can be not thread-safe , look method slimCopy below 
+         */
         virtual Trk::Track* slim(const Trk::Track& track) const = 0;
 
+        /**This method always creates a std::unique_ptr<Trk::Track*> with information removed
+         * based on the tool configuration (m_setPersistificationHints is not used)
+          @param track A const reference to the track to be skimmed. It will not be modified in any way.
+          @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is configured
+          */
+        virtual std::unique_ptr<Trk::Track> slimCopy(const Trk::Track& track) const=0;
     };
 
 inline const InterfaceID& Trk::ITrackSlimmingTool::interfaceID()
