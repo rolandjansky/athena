@@ -145,13 +145,13 @@ public:
   MOCK_CONST_METHOD1(bid, int(const ISF::ISFParticle&));
 
   // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
-  virtual StatusCode initialize() override {
+  virtual StatusCode initialize() {
     ATH_MSG_INFO ("initializing MockSimulatorTool: " << name());
     return StatusCode::SUCCESS;
   };
-  virtual StatusCode setupEventST() override { return StatusCode::FAILURE; };
-  virtual StatusCode releaseEventST() override { return StatusCode::FAILURE; };
-  virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Fatras; };
+  virtual StatusCode setupEventST() { return StatusCode::FAILURE; };
+  virtual StatusCode releaseEventST() { return StatusCode::FAILURE; };
+  virtual ISF::SimulationFlavor simFlavor() const { return ISF::Fatras; };
 
 }; // MockSimulatorTool
 
