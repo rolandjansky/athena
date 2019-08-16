@@ -15,7 +15,6 @@
 
 #include "EventInfo/TagInfo.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
@@ -102,38 +101,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
   } else {
     m_sctCondSummaryTool.disable();
   }
-
-  // get the key -- from StoreGate (DetectorStore)
-  //
-  std::vector< std::string > tagInfoKeys = detStore()->keys<TagInfo>();
-  std::string tagInfoKey = "";
-
-  if (tagInfoKeys.size()==0) {
-    ATH_MSG_WARNING(" No TagInfo keys in DetectorStore ");
-  } else {
-    if (tagInfoKeys.size() > 1) {
-      ATH_MSG_WARNING("More than one TagInfo key in the DetectorStore, using the first one ");
-    }
-    tagInfoKey = tagInfoKeys[0];
-  }
-
-  m_callbackString = tagInfoKey;
-
-  const DataHandle<TagInfo> tagInfoH;
   
-  // register the Callback
-  //
-  if (m_usePIX) {
-    StatusCode sc = detStore()->regFcn(&InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction,
-                                       this, tagInfoH, m_callbackString);
-    if (sc==StatusCode::SUCCESS) {
-      ATH_MSG_INFO("Registered callback for geometry " << name());
-    } else {
-      ATH_MSG_ERROR("Could not book callback for geometry " << name ());
-      return StatusCode::FAILURE;
-    }
-  }
-
   if ( !m_fieldServiceHandle.retrieve() ) {
     ATH_MSG_FATAL("Failed to retrieve " << m_fieldServiceHandle );
     return StatusCode::FAILURE;
@@ -150,6 +118,7 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize ATLAS_NOT_THREAD_SAF
 
   if (m_usePIX) {
     ATH_CHECK( m_pixcontainerkey.initialize() );
+    ATH_CHECK( m_boundaryPixelKey.initialize() );
   }
   if (m_useSCT) {
     ATH_CHECK( m_sctcontainerkey.initialize() );
@@ -688,78 +657,6 @@ void InDet::SiCombinatorialTrackFinder_xk::magneticFieldInit()
 }
 
 ///////////////////////////////////////////////////////////////////
-// Map of detector elements production
-///////////////////////////////////////////////////////////////////
-
-StatusCode InDet::SiCombinatorialTrackFinder_xk::mapDetectorElementsProduction 
-(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
-{
-  // Get  Pixel Detector Manager
-  //
-  const InDetDD::PixelDetectorManager* pixmgr = nullptr;
-  StatusCode sc = detStore()->retrieve(pixmgr, m_pixm);
-  if (sc.isFailure() || !pixmgr) {
-    ATH_MSG_FATAL("Could not get PixelDetectorManager  !");
-      return StatusCode::FAILURE;
-  }
-
-  // check if the string is ESD for guaranteeing that misalignment has been introduced already
-  //
-  bool needsUpdate = false;
-
-  for (const std::string k: keys) {
-    if (k == m_callbackString) {
-      needsUpdate = true;
-      break;
-    }
-  } 
-  if (!needsUpdate) return StatusCode::SUCCESS;
-
-  m_boundaryPIX.erase(m_boundaryPIX.begin(), m_boundaryPIX.end());
-  
-  const PixelID* IDp = nullptr;
-
-  if (detStore()->retrieve(IDp, "PixelID").isFailure()) {
-    ATH_MSG_FATAL("Could not get Pixel ID helper");
-    return StatusCode::FAILURE;
-  }
-  
-  if (!IDp) return StatusCode::FAILURE;
-
-  InDetDD::SiDetectorElementCollection::const_iterator s,se;
-
-  unsigned int npix = 0, minpixid = 1000000, maxpixid = 0;
-
-  if (IDp) {
-    std::map<IdentifierHash, const InDetDD::SiDetectorElement*> idd;
-
-    // Loop over each wafer of pixels
-    //
-    s  =  pixmgr->getDetectorElementBegin();
-    se =  pixmgr->getDetectorElementEnd  ();
-
-    for (; s!=se; ++s) {
-     
-      IdentifierHash id = (*s)->identifyHash();
-      ++npix;
-      if (id > maxpixid) maxpixid = id;
-      if (id < minpixid) minpixid = id;
-      idd.insert(std::make_pair(id,(*s)));
-    }
-    if (idd.size()!= maxpixid+1 || minpixid!=0) return StatusCode::FAILURE;
-    
-    m_boundaryPIX.reserve(idd.size());
-    std::map<IdentifierHash, const InDetDD::SiDetectorElement*>::iterator i;
-    for (i = idd.begin(); i!=idd.end(); ++i) {
-      InDet::SiDetElementBoundaryLink_xk dl((*i).second);
-      m_boundaryPIX.push_back(dl);
-    }
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-///////////////////////////////////////////////////////////////////
 // Convert space points to clusters
 ///////////////////////////////////////////////////////////////////
 
@@ -803,7 +700,15 @@ void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 (std::list<const InDetDD::SiDetectorElement*>        & DE,
  std::list<const InDet::SiDetElementBoundaryLink_xk*>& DEL) const
 {
+  const InDet::SiDetElementBoundaryLinks_xk* boundaryPixel{nullptr};
   const InDet::SiDetElementBoundaryLinks_xk* boundarySCT{nullptr};
+  if (m_usePIX) {
+    SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundaryPixelHandle(m_boundaryPixelKey);
+    boundaryPixel = *boundaryPixelHandle;
+    if (boundaryPixel==nullptr) {
+      ATH_MSG_FATAL(m_boundaryPixelKey.fullKey() << " returns null pointer");
+    }
+  }
   if (m_useSCT) {
     SG::ReadCondHandle<InDet::SiDetElementBoundaryLinks_xk> boundarySCTHandle(m_boundarySCTKey);
     boundarySCT = *boundarySCTHandle;
@@ -814,7 +719,7 @@ void InDet::SiCombinatorialTrackFinder_xk::detectorElementLinks
 
   for (const InDetDD::SiDetectorElement* d: DE) {
     IdentifierHash id = d->identifyHash();
-    if (d->isPixel() && id < m_boundaryPIX.size()) DEL.push_back(&m_boundaryPIX[id]);
+    if (d->isPixel() && boundaryPixel && id < boundaryPixel->size()) DEL.push_back(&(*boundaryPixel)[id]);
     else if (d->isSCT() && boundarySCT && id < boundarySCT->size()) DEL.push_back(&(*boundarySCT)[id]);
   }
 }
