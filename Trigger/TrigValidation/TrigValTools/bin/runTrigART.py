@@ -29,8 +29,8 @@ def package_prefix(package):
     from TrigValTools.TrigValSteering.Common import package_prefix_dict
     if package=='ALL':
         return '({})'.format('|'.join(package_prefix_dict.values()))
-    elif package in package_prefix_dict:
-        return dict[package]
+    elif package in package_prefix_dict.keys():
+        return package_prefix_dict[package]
     else:
         return None
 

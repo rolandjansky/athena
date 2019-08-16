@@ -89,7 +89,8 @@ class Step(object):
                 with open(self.get_log_file_name(), 'a') as log_file:
                     log_file.write(
                         'ERROR process killed on timeout '
-                        'of {} seconds\n'.format(self.timeout))
+                        'of {} seconds, command was {}\n'.format(
+                            self.timeout, cmd))
             return signal.SIGKILL  # return 9 instead of -9
 
         return proc.returncode

@@ -105,6 +105,7 @@ class LogMergeStep(Step):
     def __init__(self, name='LogMerge'):
         super(LogMergeStep, self).__init__(name)
         self.log_files = None
+        self.extra_log_regex = None
         self.merged_name = 'athena.merged.log'
         self.warn_if_missing = True
 
@@ -114,6 +115,14 @@ class LogMergeStep(Step):
             for step in test.exec_steps:
                 self.log_files.append(step.name)
         super(LogMergeStep, self).configure(test)
+
+    def process_extra_regex(self):
+        if self.extra_log_regex:
+            files = os.listdir('.')
+            r = re.compile(self.extra_log_regex)
+            match_files = filter(r.match, files)
+            for f in match_files:
+                self.log_files.append(f)
 
     def merge_logs(self):
         try:
@@ -136,6 +145,7 @@ class LogMergeStep(Step):
             return 1
 
     def run(self, dry_run=False):
+        self.process_extra_regex()
         self.log.info('Running %s merging logs %s into %s',
                       self.name, self.log_files, self.merged_name)
         if dry_run:
