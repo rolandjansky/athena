@@ -133,7 +133,8 @@ namespace EL
 
     data.resubmit = true;
     data.resubmitOption = option;
-    data.run ();
+    if (data.run().isFailure())
+      throw std::runtime_error ("failed to resubmit job");
   }
 
 
@@ -154,7 +155,8 @@ namespace EL
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
     data.driver = driver.get();
 
-    data.run ();
+    if (data.run().isFailure())
+      throw std::runtime_error ("failed to retrieve job");
     return data.completed;
   }
 
@@ -316,7 +318,7 @@ namespace EL
 
 
   ::StatusCode Driver ::
-  doManagerStep (Detail::ManagerData& data) const
+  doManagerStep (Detail::ManagerData& /*data*/) const
   {
     return ::StatusCode::SUCCESS;
   }
