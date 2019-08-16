@@ -44,6 +44,7 @@ class opt :
     doTauSlice        = True
     doCombinedSlice   = True
     doBphysicsSlice   = True
+    doStreamingSlice  = True
     enabledSignatures = []
     disabledSignatures = []
 #

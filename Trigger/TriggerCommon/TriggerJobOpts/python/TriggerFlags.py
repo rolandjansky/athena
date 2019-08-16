@@ -775,7 +775,7 @@ class readHLTconfigFromXML(JobProperty):
                             slice_prop.set_Off()
                         else:
                             slice_prop.set_On()
-        ## in addition set inputLVL1configFile to be the same as outputLVL1configFile
+        ## in addition set inputHLTconfigFile to be the same as outputHLTconfigFile
         if self.get_Value() is False:
             TriggerFlags.inputHLTconfigFile = TriggerFlags.outputHLTconfigFile()
         else:
