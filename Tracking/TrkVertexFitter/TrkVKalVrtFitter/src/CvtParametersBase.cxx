@@ -26,7 +26,7 @@ namespace Trk {
  StatusCode
  TrkVKalVrtFitter::CvtTrackParameters(const std::vector<const TrackParameters*>& InpTrk,
                                       int& ntrk,
-                                      State& state)
+                                      State& state) const
  {
 
     //MsgStream log(msgSvc(), name());
@@ -136,7 +136,7 @@ namespace Trk {
  StatusCode
  TrkVKalVrtFitter::CvtNeutralParameters(const std::vector<const NeutralParameters*>& InpTrk,
                                         int& ntrk,
-                                        State& state)
+                                        State& state) const
  {
 
     //MsgStream log(msgSvc(), name());

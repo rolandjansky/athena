@@ -32,7 +32,7 @@ namespace Trk{
  StatusCode
  TrkVKalVrtFitter::CvtTrkTrack(const std::vector<const Trk::Track*>& InpTrk,
                                int& ntrk,
-                               State& state)
+                               State& state) const
  {
     std::vector<const Track*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0;
