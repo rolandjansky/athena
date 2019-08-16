@@ -347,14 +347,22 @@ bool EventSelection::apply(const top::Event& event) const {
     bool passEvent(false);
     std::string btag_string  = "";
     std::string nBtagCutName = "JET_N_BTAG";
+    std::string nBtagCutName_tjet = "TJET_N_BTAG";
 
-    // Find if this cutflow uses JET_N_BTAG to identify appropriate b-tagging WP SF (if available)
+    // Find if this cutflow uses JET_N_BTAG or TJET_N_BTAG to identify appropriate b-tagging WP SF (if available)
     // Implicitly assumes you only apply one n-btag condition (and is only for cutflow use)
     auto foundBtagSelection = std::find_if(m_allCuts.begin(), m_allCuts.end(),
 					   [&nBtagCutName](const auto& thisCut){
-					     return (thisCut->name().find(nBtagCutName) != std::string::npos);
+					     return (thisCut->name() == nBtagCutName);
 					   });
-    if(foundBtagSelection != m_allCuts.end()){
+    auto foundBtagSelection_tjet = std::find_if(m_allCuts.begin(), m_allCuts.end(),
+					   [&nBtagCutName_tjet](const auto& thisCut){
+					     return (thisCut->name() == nBtagCutName_tjet);
+					   });
+    if (foundBtagSelection_tjet != m_allCuts.end()) {
+      NJetBtagSelector* nJetBtagSelection = dynamic_cast<NJetBtagSelector*>((*foundBtagSelection_tjet).get());
+      btag_string = nJetBtagSelection->getFullCutName();
+    } else if (foundBtagSelection != m_allCuts.end()) {
       NJetBtagSelector* nJetBtagSelection = dynamic_cast<NJetBtagSelector*>((*foundBtagSelection).get());
       btag_string = nJetBtagSelection->getFullCutName();
     }
