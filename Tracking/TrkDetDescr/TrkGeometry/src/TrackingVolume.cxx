@@ -505,24 +505,6 @@ Trk::TrackingVolume::~TrackingVolume()
    delete m_layerAttemptsCalculator;
 }
 
-void Trk::TrackingVolume::clear() const
-{
-  if (m_confinedVolumes) { delete m_confinedVolumes; m_confinedVolumes=0; }
-  if (m_confinedLayers)  { delete m_confinedLayers; m_confinedLayers=0; }
-  if (m_confinedDenseVolumes) {
-    for (size_t i =0; i < m_confinedDenseVolumes->size(); i++)
-      delete (*m_confinedDenseVolumes)[i];
-    delete m_confinedDenseVolumes;
-    m_confinedDenseVolumes = 0;
-  }
-  if (m_confinedArbitraryLayers) {
-    for (size_t i =0; i < m_confinedArbitraryLayers->size(); i++)
-      delete (*m_confinedArbitraryLayers)[i];
-    delete m_confinedArbitraryLayers;
-    m_confinedArbitraryLayers = 0; 
-  }
-}
-
 const Trk::Layer*   Trk::TrackingVolume::associatedLayer(const Amg::Vector3D& gp) const
 {  
   // confined layers
