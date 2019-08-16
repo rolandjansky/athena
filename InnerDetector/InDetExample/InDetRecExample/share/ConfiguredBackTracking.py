@@ -109,17 +109,7 @@ class ConfiguredBackTracking:
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
                from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
-               # Copied from InDetAlignFolders.py
-               useDynamicAlignFolders = False
-               try:
-                  from InDetRecExample.InDetJobProperties import InDetFlags
-                  from IOVDbSvc.CondDB import conddb
-                  if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-                     useDynamicAlignFolders = True
-               except ImportError:
-                  pass
-               condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                             UseDynamicAlignFolders = useDynamicAlignFolders)
+               condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
       
          ToolSvc += InDetTRT_SeededSiRoadMaker
          if (InDetFlags.doPrintConfigurables()):

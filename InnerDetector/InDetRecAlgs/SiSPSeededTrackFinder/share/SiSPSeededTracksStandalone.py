@@ -465,10 +465,8 @@ ToolSvc += InDetPatternPropagator
 # Set up InDet__SiDetElementsRoadMaker_xk (private)
 # Taken from InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
 if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
     condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                  UseDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders(),
                                                   usePixel = doPixel,
                                                   useSCT = doSCT)
 from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadMaker_xk

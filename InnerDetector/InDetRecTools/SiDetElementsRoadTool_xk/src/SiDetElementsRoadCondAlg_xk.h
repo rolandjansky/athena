@@ -10,8 +10,6 @@
 #ifndef SiDetElementsRoadCondAlg_xk_H
 #define SiDetElementsRoadCondAlg_xk_H
 
-#include <vector>
-#include "GaudiKernel/ICondSvc.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
@@ -20,6 +18,10 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/CylinderBounds.h"
+
+#include "GaudiKernel/ICondSvc.h"
+
+#include <vector>
 
 class PixelID;
 class SCT_ID;
@@ -61,13 +63,11 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     BooleanProperty m_usePIX{this, "usePixel", true, "Flag to use Pixel"};
     BooleanProperty m_useSCT{this, "useSCT",   true, "Flag to use SCT"};
-    BooleanProperty m_useDynamicAlignFolders{this, "UseDynamicAlignFolders", false, "Flag to use dynamic alignment folders"};
-    SG::ReadCondHandleKey<CondAttrListCollection> m_IBLDistFolderKey{this, "IBLDistFolderKey", "/Indet/IBLDist", "Key of /Indet/IBLDist folder"};
-    SG::ReadCondHandleKey<CondAttrListCollection> m_pixelL2FolderKey{this, "PixelL2FolderKey", "/Indet/AlignL2/PIX", "Key of /Indet/AlignL2/PIX folder"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_PixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     SG::WriteCondHandleKey<SiDetElementsLayerVectors_xk> m_writeKey{this, "WriteKey", "SiDetElementsLayerVectors_xk", "Key of SiDetElementsLayerVectors_xk"};
     StringProperty m_pix{this, "PixManagerLocation", "Pixel", "PIX manager location"};
-    StringProperty m_sct{this, "SCTManagerLocation", "SCT", "SCT manager location"};
+    BooleanProperty m_usePixelDetectorManager{this, "UsePixelDetectorManager", false, "Use PixelDetectorManager as the source of SiDetectorElementCollection"};
     const InDetDD::PixelDetectorManager* m_pixmgr;
     ServiceHandle<ICondSvc> m_condSvc;
 
