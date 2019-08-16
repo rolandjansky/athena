@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,ConfigurationError
-from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolderList,addFolders
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolderList
 
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArDAC2uAMC_LArDAC2uASym_ as LArDAC2uASymAlg
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
@@ -13,7 +13,6 @@ from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LAruA2MeVMC_LAruA2Me
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArAutoCorrMC_LArAutoCorrSym_ as LArAutoCorrSymAlg
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMphysOverMcalMC_LArMphysOverMcalSym_ as LArMPhysOverMcalSymAlg
-from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 
 
 from LArRecUtils.LArRecUtilsConf import LArFlatConditionsAlg_LArHVScaleCorrFlat_ as LArHVScaleCorrCondFlatAlg
@@ -101,7 +100,8 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
                            }
 
 
-                                     
+
+    result=ComponentAccumulator()
     folderlist=[]
     for condData in condObjs:
         folder,db,obj,calg=condData
@@ -110,7 +110,7 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
         except KeyError:
             raise ConfigurationError("No conditions data %s found for Run-1 data" % condData)
         if (calg):
-            result.addCondAlgo(calg(ReadKey="LAr"+condObj,WriteKey="LAr"+condObj+"Sym"))
+            result.addCondAlgo(calg(ReadKey="LAr"+obj,WriteKey="LAr"+obj+"Sym"))
     result.merge(addFolderList(ConfigFlags,folderlist))
                      
     return result
@@ -163,7 +163,6 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc  = LArElecCalibDbCfg(ConfigFlags,("Ramp",))#,"OFC","uA2MeV","MphysOverMcal"))
 
     f=open('test.pkl','w')
