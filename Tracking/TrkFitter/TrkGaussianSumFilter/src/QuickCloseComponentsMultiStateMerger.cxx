@@ -84,7 +84,7 @@ Trk::QuickCloseComponentsMultiStateMerger::finalize()
   return StatusCode::SUCCESS;
 }
 
-const Trk::MultiComponentState*
+Trk::MultiComponentState*
 Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState& unmergedState) const
 {
 
@@ -136,7 +136,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const Trk::MultiComponentState*
+Trk::MultiComponentState*
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
                                                               const Trk::MultiComponentState& mcs) const
 {
@@ -296,7 +296,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
     cache.multiComponentState.push_back(SimpleComponentParameters(state.first.release(), state.second));
     cache.validWeightSum += state.second;
   }
-  const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
+  Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
   ATH_MSG_DEBUG("Number of components in merged state: " << mergedState->size());
 
   // Clear the state vector

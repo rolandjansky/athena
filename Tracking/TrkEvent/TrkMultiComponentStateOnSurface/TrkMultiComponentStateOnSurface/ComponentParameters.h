@@ -15,17 +15,21 @@ decription           : Definition of component parameters for use in a mixture
 
 #ifndef TrkComponentParameters
 #define TrkComponentParameters
-#include "TrkParameters/TrackParameters.h" 
+#include "TrkParameters/TrackParameters.h"
 
 
-/* 
+/*
  * Note that this class does not own/delete the Trk::TrackParameters ptr.
  * Deletion happens only if you push it in a MultiComponentState. In which
  * case it takes ownership
- * This needs some care and can be target of furhter refactoring .... 
+ * This needs some care and can be target of furhter refactoring ....
  */
 
 namespace Trk{
+
+typedef std::pair<std::unique_ptr<Trk::TrackParameters>, double> SimpleComponentParameters;
+typedef std::vector<SimpleComponentParameters> SimpleMultiComponentState;
+
 class ComponentParameters : public std::pair<const TrackParameters*, double>{
 public:
 
@@ -54,5 +58,3 @@ public:
 } // end Trk namespace
 
 #endif
-
-

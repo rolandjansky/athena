@@ -146,7 +146,6 @@ Trk::GsfCombinedMaterialEffects::compute(IMultiStateMaterialEffects::Cache& cach
     cache_energyLoss.deltaPs.push_back(0.);
     std::unique_ptr<AmgSymMatrix(5)> newCov = std::make_unique<AmgSymMatrix(5)>();
     newCov->setZero();
-    newCov->setZero();
     cache_energyLoss.deltaCovariances.push_back(std::move(newCov));
   }
 

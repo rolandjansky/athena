@@ -248,18 +248,17 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
 
   delete stateWithNewWeights;
 
-  const Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState(cache);
+  Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState(cache);
 
   if (!assembledUpdatedState) {
     return 0;
   }
 
   // Renormalise state
-  const Trk::MultiComponentState* renormalisedUpdatedState = assembledUpdatedState->clonedRenormalisedState();
+  assembledUpdatedState->renormaliseState();
 
   // Clean up memory
-  delete assembledUpdatedState;
-  return renormalisedUpdatedState;
+  return assembledUpdatedState;
 }
 
 const Trk::MultiComponentState*
@@ -405,7 +404,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
 
   delete stateWithNewWeights;
 
-  const Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState(cache);
+  Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState(cache);
 
   if (!assembledUpdatedState)
     return 0;
@@ -413,11 +412,10 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
   fitQoS = CxxUtils::make_unique<FitQualityOnSurface>(chiSquared, degreesOfFreedom);
 
   // Renormalise state
-  const Trk::MultiComponentState* renormalisedUpdatedState = assembledUpdatedState->clonedRenormalisedState();
-  // Clean up memory
-  delete assembledUpdatedState;
-  ATH_MSG_VERBOSE("Successful calculation of filter step: " << renormalisedUpdatedState->size());
-  return renormalisedUpdatedState;
+  assembledUpdatedState->renormaliseState();
+
+  ATH_MSG_VERBOSE("Successful calculation of filter step: " << assembledUpdatedState->size());
+  return assembledUpdatedState;
 }
 
 bool

@@ -65,9 +65,9 @@ public:
 
   //!< Retain for now redundant simplified material effects
   virtual const MultiComponentState* simpliedMaterialUpdate(
-    const MultiComponentState& multiComponentState,
-    PropDirection direction = anyDirection,
-    ParticleHypothesis particleHypothesis = nonInteracting) const;
+                                                const MultiComponentState& multiComponentState,
+                                                PropDirection direction = anyDirection,
+                                                ParticleHypothesis particleHypothesis = nonInteracting) const;
 
 private:
   ToolHandle<IMultiStateMaterialEffectsUpdator> m_updator{ this,

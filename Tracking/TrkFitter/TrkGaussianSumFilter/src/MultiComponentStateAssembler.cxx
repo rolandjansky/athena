@@ -102,6 +102,19 @@ Trk::MultiComponentStateAssembler::addMultiState(Cache& cache, const MultiCompon
 }
 
 bool
+Trk::MultiComponentStateAssembler::addMultiState(Cache& cache, SimpleMultiComponentState& multiComponentState) const
+{
+
+  if (cache.assemblyDone) {
+    ATH_MSG_WARNING("Trying to add state after assembly... returning false \n");
+    return false;
+  }
+
+  this->addComponentsList(cache, multiComponentState);
+  return true;
+}
+
+bool
 Trk::MultiComponentStateAssembler::addInvalidComponentWeight(Cache& cache, const double invalidComponentWeight) const
 {
 
@@ -122,7 +135,7 @@ Trk::MultiComponentStateAssembler::addComponentsList(Cache& cache, SimpleMultiCo
     cache.multiComponentState.push_back(SimpleComponentParameters(component.first.release(), component.second));
     sumW += component.second;
   }
-
+  multiComponentState.clear();
   cache.validWeightSum += sumW;
 }
 
@@ -184,7 +197,7 @@ Trk::MultiComponentStateAssembler::prepareStateForAssembly(Cache& cache) const
   return true;
 }
 
-const Trk::MultiComponentState*
+Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::assembledState(Cache& cache) const
 {
 
@@ -195,14 +208,14 @@ Trk::MultiComponentStateAssembler::assembledState(Cache& cache) const
   }
   if (cache.invalidWeightSum > 0. || cache.validWeightSum <= 0.) {
     double totalWeight = cache.validWeightSum + cache.invalidWeightSum;
-    const Trk::MultiComponentState* stateAssembly = doStateAssembly(cache, totalWeight);
+    Trk::MultiComponentState* stateAssembly = doStateAssembly(cache, totalWeight);
     return stateAssembly;
   }
   return doStateAssembly(cache, cache.validWeightSum);
   ;
 }
 
-const Trk::MultiComponentState*
+Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::assembledState(Cache& cache, const double newWeight) const
 {
 
@@ -212,11 +225,11 @@ Trk::MultiComponentStateAssembler::assembledState(Cache& cache, const double new
     ATH_MSG_DEBUG("Unable to prepare state for assembly... returing nullptr \n");
     return nullptr;
   }
-  const Trk::MultiComponentState* stateAssembly = doStateAssembly(cache, newWeight);
+  Trk::MultiComponentState* stateAssembly = doStateAssembly(cache, newWeight);
   return stateAssembly;
 }
 
-const Trk::MultiComponentState*
+Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double newWeight) const
 {
 

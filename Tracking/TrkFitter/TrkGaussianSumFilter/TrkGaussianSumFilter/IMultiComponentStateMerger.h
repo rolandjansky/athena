@@ -33,7 +33,7 @@ public:
   virtual ~IMultiComponentStateMerger(){};
 
   /** Method for merging components based on some criteria of selection */
-  virtual const MultiComponentState* merge(const MultiComponentState&) const = 0;
+  virtual MultiComponentState* merge(const MultiComponentState&) const = 0;
 };
 
 } // end Trk namespace

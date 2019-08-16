@@ -62,22 +62,25 @@ public:
   /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
   virtual bool addMultiState(Cache& cache, const MultiComponentState&) const override;
 
+  /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
+  virtual bool addMultiState(Cache& cache, SimpleMultiComponentState&) const override;
+
   /** Method to include the weights of states that are invalid */
   virtual bool addInvalidComponentWeight(Cache& cache, const double) const override;
 
   /** Method to return the cashed state object - it performs a reweighting before returning the object based on the
    * valid and invaid weights */
-  virtual const MultiComponentState* assembledState(Cache& cache) const override;
+  virtual MultiComponentState* assembledState(Cache& cache) const override;
 
   /** Method to return the cashed state object - it performs a reweighting based on the input parameter  */
-  virtual const MultiComponentState* assembledState(Cache& cache, const double) const override;
+  virtual MultiComponentState* assembledState(Cache& cache, const double) const override;
 
 private:
   /** Method to Check component entries before full assembly */
   bool prepareStateForAssembly(Cache& cache) const;
 
   /** Method to assemble state with correct weightings */
-  const MultiComponentState* doStateAssembly(Cache& cache, const double) const;
+  MultiComponentState* doStateAssembly(Cache& cache, const double) const;
 
   /** Method to check the validity of of the cashed state */
   bool isStateValid(Cache& cache) const;
