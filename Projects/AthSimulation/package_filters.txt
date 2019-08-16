@@ -164,7 +164,6 @@
 + InnerDetector/InDetConditions/BeamSpotConditionsData
 + InnerDetector/InDetConditions/InDetCondFolders
 + InnerDetector/InDetConditions/InDetCondTools
-+ InnerDetector/InDetConditions/InDetConditionsAthenaPool
 + InnerDetector/InDetConditions/InDetConditionsSummaryService
 + InnerDetector/InDetConditions/InDetCoolCoralClientUtils
 + InnerDetector/InDetConditions/PixelConditionsData

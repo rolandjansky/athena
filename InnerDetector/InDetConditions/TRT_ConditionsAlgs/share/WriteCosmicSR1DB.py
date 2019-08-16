@@ -60,7 +60,6 @@ include ("AtlasGeoModel/GeoModelInit.py")
 
 #load relevant libraries
 theApp.Dlls    += [ "TRT_ConditionsAlgs" ]
-theApp.Dlls    += [ "InDetConditionsAthenaPoolPoolCnv" ]
 theApp.Dlls    += [ "DetDescrCondAthenaPoolPoolCnv" ]
 #top algorithm
 theApp.TopAlg += [ "TRT_TestWrite" ]

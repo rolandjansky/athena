@@ -16,8 +16,6 @@ ProxyProviderSvc.ProviderNames += [ "IOVDbSvc" ]
 
 #AlgolibTRT_ConditionsAlgs.so
 theApp.Dlls += [ "TRT_ConditionsAlgs" ]
-#converters
-include( "InDetConditionsAthenaPool/InDetConditionsAthenaPool_joboptions.py" )
 
 theApp.TopAlg = [ "TRTStrawStatusWrite" ]
 
