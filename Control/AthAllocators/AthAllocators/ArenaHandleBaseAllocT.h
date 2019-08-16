@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ArenaHandleBaseAllocT.h 470529 2011-11-24 23:54:22Z ssnyder $
@@ -23,7 +23,6 @@
 #include "AthAllocators/ArenaHandleBase.h"
 #include "AthAllocators/ArenaAllocatorCreator.h"
 #include "AthAllocators/ArenaAllocatorRegistry.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/System.h"
 #include <string>
 
