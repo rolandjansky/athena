@@ -100,7 +100,7 @@ class ComponentAccumulator(object):
              log.error("This ComponentAccumulator was never merged!")
              log.error(self._inspect())
          if getattr(self,'_privateTools',None) is not None:
-             raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
+             raise RuntimeError("Deleting a ComponentAccumulator with dangling private tool(s)")
         #pass
 
 
@@ -763,10 +763,10 @@ class ComponentAccumulator(object):
             for k, v in comp.getValuedProperties().items():
                 if isinstance(v,Configurable):
                     self._msg.debug("Adding "+name+"."+k+" = "+v.getFullName())
-                    bsh.addPropertyToCatalogue(jos,name,k,v.getFullName())
+                    bsh.addPropertyToCatalogue(jos,name.encode(),k.encode(),v.getFullName().encode())
                     addCompToJos(v)
                 elif isinstance(v,GaudiHandles.GaudiHandleArray):
-                    bsh.addPropertyToCatalogue(jos,name,k,str([ v1.getFullName() for v1 in v ]))
+                    bsh.addPropertyToCatalogue(jos,name.encode(),k.encode(),str([ v1.getFullName() for v1 in v ]).encode())
                 else:
                     if not isSequence(comp) and k!="Members": #This property his handled separatly
                         self._msg.debug("Adding "+name+"."+k+" = "+str(v))
@@ -803,7 +803,7 @@ class ComponentAccumulator(object):
         for alg in self._conditionsAlgs:
             addCompToJos(alg)
             condalgseq.append(alg.getFullName())
-            bsh.addPropertyToCatalogue(jos,"AthCondSeq","Members",str(condalgseq))
+            bsh.addPropertyToCatalogue(jos,b"AthCondSeq",b"Members",str(condalgseq).encode())
             if isinstance (alg, PyAlg):
                 alg.setup()
             pass
