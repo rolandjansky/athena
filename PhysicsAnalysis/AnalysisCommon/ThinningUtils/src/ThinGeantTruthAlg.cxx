@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinGeantTruthAlg.cxx
@@ -22,13 +22,7 @@
 
 // EventUtils includes
 #include "ThinGeantTruthAlg.h"
-#include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTruth/xAODTruthHelpers.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/PhotonContainer.h"
-#include "xAODEgamma/EgammaTruthxAODHelpers.h"
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 // STL includes
 #include <algorithm> 
@@ -53,48 +47,21 @@ m_thinningSvc( "ThinningSvc/ThinningSvc", name ),
 m_doThinning(true),
 m_geantOffset(200000),
 m_longlived{310,3122,3222,3112,3322,3312},
-m_truthParticlesKey("TruthParticles"),
-m_truthVerticesKey("TruthVertices"),
-m_muonsKey("Muons"),
-m_electronsKey("Electrons"),
-m_photonsKey("Photons"),
-m_egammaTruthKey("egammaTruthParticles"),
-m_nEventsProcessed(0),
-m_nParticlesProcessed(0),
-m_nVerticesProcessed(0),
-m_nParticlesThinned(0),
-m_nVerticesThinned(0)
+m_nEventsProcessed{0},
+m_nParticlesProcessed{0},
+m_nVerticesProcessed{0},
+m_nParticlesThinned{0},
+m_nVerticesThinned{0}
 {
    
     declareProperty("ThinningSvc", m_thinningSvc,
                     "The ThinningSvc instance for a particular output stream" );
-    
     declareProperty("ThinGeantTruth", m_doThinning,
                     "Should the Geant truth thinning be run?");
-   
     declareProperty("GeantBarcodeOffset", m_geantOffset,
                     "Barcode offset for Geant particles");
- 
     declareProperty("LongLivedParticleList", m_longlived,
                     "List of long lifetime particles which are likely to be decayed by Geant but whose children must be kept");
-
-    declareProperty("TruthParticlesKey", m_truthParticlesKey,
-                    "StoreGate key for TruthParticle container");
-    
-    declareProperty("TruthVerticesKey", m_truthVerticesKey,
-                    "StoreGate key for TruthVertices container");
-    
-    declareProperty("MuonsKey", m_truthVerticesKey,
-                    "StoreGate key for muons container");
-
-    declareProperty("ElectronsKey", m_truthVerticesKey,
-                    "StoreGate key for electrons container");
-
-    declareProperty("PhotonsKey", m_photonsKey,
-                    "StoreGate key for photons container");
-
-    declareProperty("EGammaTruthKey", m_egammaTruthKey,
-                    "StoreGate key for e-gamma truth container");
 
 }
 
@@ -119,29 +86,28 @@ StatusCode ThinGeantTruthAlg::initialize()
         ATH_MSG_INFO("Geant truth will be thinned");
     }
 
+    ATH_CHECK(m_truthParticlesKey.initialize(m_doThinning));
+    ATH_CHECK(m_truthVerticesKey.initialize(m_doThinning));
+    ATH_CHECK(m_electronsKey.initialize(m_doThinning));
+    ATH_CHECK(m_photonsKey.initialize(m_doThinning));
+    ATH_CHECK(m_muonsKey.initialize(m_doThinning));
+    ATH_CHECK(m_egammaTruthKey.initialize(m_doThinning));
+ 
     // Initialize the counters to zero
-    m_nEventsProcessed = 0;
-    m_nParticlesProcessed = 0;
-    m_nVerticesProcessed = 0;
-    m_nParticlesThinned = 0;
-    m_nVerticesThinned = 0;
-    
-    ATH_MSG_DEBUG ( "==> done with initialize " << name() << "..." );
-    
+   ATH_MSG_DEBUG ( "==> done with initialize " << name() << "..." );
     return StatusCode::SUCCESS;
 }
-
 
 
 StatusCode ThinGeantTruthAlg::finalize()
 {
     ATH_MSG_DEBUG ("Finalizing " << name() << "...");
-    ATH_MSG_INFO("Processed " << m_nEventsProcessed << " events containing " << m_nParticlesProcessed << " truth particles and " << m_nVerticesProcessed << " truth vertices ");     
-    ATH_MSG_INFO("Removed " << m_nParticlesThinned << " Geant truth particles and " << m_nVerticesThinned << " corresponding truth vertices ");
+    ATH_MSG_INFO("Processed " << m_nEventsProcessed << " events containing " << m_nParticlesProcessed 
+                 << " truth particles and " << m_nVerticesProcessed << " truth vertices ");     
+    ATH_MSG_INFO("Removed " << m_nParticlesThinned << " Geant truth particles and " 
+                 << m_nVerticesThinned << " corresponding truth vertices ");
     return StatusCode::SUCCESS;
 }
-
-
 
 StatusCode ThinGeantTruthAlg::execute()
 {
@@ -154,101 +120,78 @@ StatusCode ThinGeantTruthAlg::execute()
     } 
    
     // Retrieve truth and vertex containers
-    const xAOD::TruthParticleContainer* truthParticles(0);
-    const xAOD::TruthVertexContainer* truthVertices(0);
-    if (evtStore()->contains<xAOD::TruthParticleContainer>(m_truthParticlesKey)) {
-        CHECK( evtStore()->retrieve( truthParticles , m_truthParticlesKey ) );
-    } else {
-        ATH_MSG_FATAL("No TruthParticleContainer with key "+m_truthParticlesKey+" found.");
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthParticles(m_truthParticlesKey);
+    SG::ReadHandle<xAOD::TruthVertexContainer> truthVertices(m_truthVerticesKey);
+    if(!truthParticles.isValid()){
+        ATH_MSG_FATAL("No TruthParticleContainer with key "+m_truthParticlesKey.key()+" found.");
         return StatusCode::FAILURE;
     }
-    if (evtStore()->contains<xAOD::TruthVertexContainer>(m_truthVerticesKey)) {
-        CHECK( evtStore()->retrieve( truthVertices , m_truthVerticesKey ) );
-    } else {
-        ATH_MSG_FATAL("No TruthVertexContainer with key "+m_truthVerticesKey+" found.");
+    if(!truthVertices.isValid()){
+        ATH_MSG_FATAL("No TruthVertexContainer with key "+m_truthVerticesKey.key()+" found.");
         return StatusCode::FAILURE;
     }
 
+    SG::ReadHandle<xAOD::MuonContainer> muons(m_muonsKey);
     // Retrieve muons, electrons and photons
-    const xAOD::MuonContainer* muons(0);
-    if (evtStore()->contains<xAOD::MuonContainer>(m_muonsKey)) {
-        CHECK( evtStore()->retrieve( muons , m_muonsKey ) );
-    } else {
-        ATH_MSG_WARNING("No muon container with key "+m_muonsKey+" found.");
+    if(!muons.isValid()){
+        ATH_MSG_WARNING("No muon container with key "+m_muonsKey.key()+" found.");
     }
-    const xAOD::ElectronContainer* electrons(0);
-    if (evtStore()->contains<xAOD::ElectronContainer>(m_electronsKey)) {
-        CHECK( evtStore()->retrieve( electrons , m_electronsKey ) );
-    } else {
-        ATH_MSG_WARNING("No electron container with key "+m_electronsKey+" found.");
+    SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronsKey);   
+    if(!electrons.isValid()){
+        ATH_MSG_WARNING("No electron container with key "+m_electronsKey.key()+" found.");
     }
-    const xAOD::PhotonContainer* photons(0);
-    if (evtStore()->contains<xAOD::PhotonContainer>(m_photonsKey)) {
-        CHECK( evtStore()->retrieve( photons , m_photonsKey ) );
-    } else {
-        ATH_MSG_WARNING("No photon container with key "+m_photonsKey+" found.");
+    SG::ReadHandle<xAOD::PhotonContainer> photons(m_photonsKey);   
+    if(!photons.isValid()){
+        ATH_MSG_WARNING("No photon container with key "+m_photonsKey.key()+" found.");
     }
    
     // Loop over photons, electrons and muons and get the associated truth particles
     // Retain the associated index number
     std::vector<int> recoParticleTruthIndices;
-    if (muons!=nullptr) {
-        for (auto muon : *muons) {
-            const xAOD::TruthParticle* truthMuon = xAOD::TruthHelpers::getTruthParticle(*muon); 
-            if (truthMuon) recoParticleTruthIndices.push_back(truthMuon->index());
-        }
+    for (const xAOD::Muon* muon : *muons) {
+      const xAOD::TruthParticle* truthMuon = xAOD::TruthHelpers::getTruthParticle(*muon); 
+      if (truthMuon) {recoParticleTruthIndices.push_back(truthMuon->index());}
     }
-    if (electrons!=nullptr) {
-        for (auto electron : *electrons) {
-            const xAOD::TruthParticle* truthElectron = xAOD::TruthHelpers::getTruthParticle(*electron);
-            if (truthElectron) recoParticleTruthIndices.push_back(truthElectron->index());
-        }
+    for (const xAOD::Electron* electron : *electrons) {
+      const xAOD::TruthParticle* truthElectron = xAOD::TruthHelpers::getTruthParticle(*electron);
+      if (truthElectron) {recoParticleTruthIndices.push_back(truthElectron->index());}
     }
-    if (photons!=nullptr) {
-        for (auto photon : *photons) {
-            const xAOD::TruthParticle* truthPhoton = xAOD::TruthHelpers::getTruthParticle(*photon);
-            if (truthPhoton) recoParticleTruthIndices.push_back(truthPhoton->index());
-        } 
-    }
+    for (const xAOD::Photon* photon : *photons) {
+      const xAOD::TruthParticle* truthPhoton = xAOD::TruthHelpers::getTruthParticle(*photon);
+      if (truthPhoton) {recoParticleTruthIndices.push_back(truthPhoton->index());}
+    } 
 
     //Set up the indices for the egamma Truth Particles to keep
-    const xAOD::TruthParticleContainer* egammaTruthParticles(0);
-    if (evtStore()->contains<xAOD::TruthParticleContainer>(m_egammaTruthKey)) {
-      CHECK( evtStore()->retrieve( egammaTruthParticles , m_egammaTruthKey ) );
-    } else {
-      ATH_MSG_WARNING("No e-gamma truth container with key "+m_egammaTruthKey+" found.");
+    SG::ReadHandle<xAOD::TruthParticleContainer> egammaTruthParticles(m_egammaTruthKey);   
+    if(!egammaTruthParticles.isValid()){
+      ATH_MSG_WARNING("No e-gamma truth container with key "+m_egammaTruthKey.key()+" found.");
     }
 
     std::vector<int> egammaTruthIndices{};
-    if (egammaTruthParticles!=nullptr) {
+    for (const xAOD::TruthParticle* egTruthParticle : *egammaTruthParticles) {
 
-      for (auto egTruthParticle : *egammaTruthParticles) {
+      static const SG::AuxElement::ConstAccessor<int> accType("truthType");
 
-	static const SG::AuxElement::ConstAccessor<int> accType("truthType");
+      if(!accType.isAvailable(*egTruthParticle) || 
+         accType(*egTruthParticle)!=MCTruthPartClassifier::IsoElectron || 
+         std::abs(egTruthParticle->eta()) > 2.525){
+        continue;
+        }
+      //Only central isolated true electrons	
+      typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
+      static SG::AuxElement::ConstAccessor<TruthLink_t> linkToTruth("truthParticleLink");
+      if (!linkToTruth.isAvailable(*egTruthParticle)) {
+        continue;
+      }
 
-	if(!accType.isAvailable(*egTruthParticle) || 
-	   accType(*egTruthParticle)!=MCTruthPartClassifier::IsoElectron || 
-	   std::abs(egTruthParticle->eta()) > 2.525){
-	  continue;
-	}
-
-
-	//Only central isolated true electrons	
-	typedef ElementLink<xAOD::TruthParticleContainer> TruthLink_t;
-	static SG::AuxElement::ConstAccessor<TruthLink_t> linkToTruth("truthParticleLink");
-	if (!linkToTruth.isAvailable(*egTruthParticle)) {
-	  continue;
-	}
-
-	const TruthLink_t& truthegamma = linkToTruth(*egTruthParticle);
-	if (!truthegamma.isValid()) {
-	  continue;
-	} 
-
-	egammaTruthIndices.push_back( (*truthegamma)->index());
-	}
-    }     
+      const TruthLink_t& truthegamma = linkToTruth(*egTruthParticle);
+      if (!truthegamma.isValid()) {
+        continue;
+      } 
+      egammaTruthIndices.push_back( (*truthegamma)->index());
+    }
     // Set up masks
+    
     std::vector<bool> particleMask, vertexMask;
     int nTruthParticles = truthParticles->size();
     int nTruthVertices = truthVertices->size();
@@ -302,8 +245,8 @@ StatusCode ThinGeantTruthAlg::execute()
 
         // Retain particles and their descendants  associated with the egamma Truth Particles
         if ( std::find(egammaTruthIndices.begin(), egammaTruthIndices.end(), i) != egammaTruthIndices.end() ) { 
-	  descendants(particle,particleMask,encounteredBarcodes);
-	  encounteredBarcodes.clear();
+          descendants(particle,particleMask,encounteredBarcodes);
+          encounteredBarcodes.clear();
         }
 
         if (abs(particle->barcode()) < m_geantOffset) {
@@ -334,7 +277,6 @@ StatusCode ThinGeantTruthAlg::execute()
             vertexMask[i] = true;
         } else {++m_nVerticesThinned;}
     }
-    
     // Apply masks to thinning service
     if (m_thinningSvc->filter(*truthParticles, particleMask, IThinningSvc::Operator::Or).isFailure()) {
         ATH_MSG_ERROR("Application of thinning service failed for truth particles! ");
@@ -410,7 +352,6 @@ void ThinGeantTruthAlg::descendants(const xAOD::TruthParticle* pHead,
  
     return;
 }
-
 
 // ==============================
 // isStatus1BSMParticle 
