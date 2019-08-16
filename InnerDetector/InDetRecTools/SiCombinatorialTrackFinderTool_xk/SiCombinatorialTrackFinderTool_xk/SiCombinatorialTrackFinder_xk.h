@@ -138,6 +138,8 @@ namespace InDet {
           "PixelClusters"};
       SG::ReadHandleKey<InDet::SCT_ClusterContainer> m_sctcontainerkey{this, "SCT_ClusterContainer",
           "SCT_Clusters"};
+      SG::ReadCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_boundaryPixelKey{this, "PixelDetElementBoundaryLinks_xk",
+          "PixelDetElementBoundaryLinks_xk", "Key of InDet::SiDetElementBoundaryLinks_xk for Pixel"};
       SG::ReadCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_boundarySCTKey{this, "SCT_DetElementBoundaryLinks_xk",
           "SCT_DetElementBoundaryLinks_xk", "Key of InDet::SiDetElementBoundaryLinks_xk for SCT"};
       // For P->T converter of SCT_Clusters
@@ -147,17 +149,11 @@ namespace InDet {
       BooleanProperty m_usePIX{this, "usePixel", true};
       BooleanProperty m_useSCT{this, "useSCT", true};
       StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
-      StringProperty m_pixm{this, "PixManagerLocation", "Pixel", "PIX manager location"};
-      StringProperty m_sctm{this, "SCTManagerLocation", "SCT", "SCT manager location"}; // NOT USED
       DoubleProperty m_qualityCut{this, "TrackQualityCut", 9.3, "Simple track quality cut"};
 
       // Updated in only initialize
       int m_outputlevel{0};
       Trk::MagneticFieldProperties m_fieldprop; // Magnetic field properties
-      std::string m_callbackString;
-
-      // Updated in only mapDetectorElementsProduction
-      InDet::SiDetElementBoundaryLinks_xk m_boundaryPIX;
 
       ///////////////////////////////////////////////////////////////////
       // Methods 
@@ -177,8 +173,6 @@ namespace InDet {
       Trk::Track* convertToNextTrack(SiCombinatorialTrackFinderData_xk& data) const;
  
       void magneticFieldInit();
-
-      StatusCode mapDetectorElementsProduction(IOVSVC_CALLBACK_ARGS);
 
       bool spacePointsToClusters
 	(const std::list<const Trk::SpacePoint*>&,

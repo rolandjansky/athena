@@ -205,6 +205,14 @@ if doPixel:
     from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
     createAndAddCondAlg( getPixelClusterNnCondAlg,         "PixelClusterNnCondAlg",          GetInputsInfo = do_runI)
     createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,"PixelClusterNnWithTrackCondAlg", GetInputsInfo = do_runI)
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+        from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+        condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                              ReadKey = "PixelDetectorElementCollection",
+                                                              WriteKey = "PixelDetElementBoundaryLinks_xk",
+                                                              UsePixelDetectorManager = True)
+    if numThreads >= 2:
+        condSeq.InDetSiDetElementBoundaryLinksPixelCondAlg.Cardinality = numThreads
 
 # Set up SCT conditions
 SCT_ConditionsSummaryTool = None
@@ -254,9 +262,11 @@ if doSCT:
         from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
         condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
     # Taken from InDetRecExample/share/InDetRecLoadTools.py
-    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
         from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-        condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
+        condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                              ReadKey = "SCT_DetectorElementCollection",
+                                                              WriteKey = "SCT_DetElementBoundaryLinks_xk")
 
 if doPixel or doSCT:
     # This is for both Pixel and SCT.
@@ -523,7 +533,6 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
                                                              AssosiationTool       = InDetPrdAssociationTool,
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on(),
-                                                             PixManagerLocation    = InDetKeys.PixelManager(),
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
                                                              SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
 
