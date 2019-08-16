@@ -16,6 +16,8 @@
 
 namespace EL
 {
+  /// \brief a \ref Driver to run on Kubernetes
+
   class KubernetesDriver final : public BatchDriver
   {
     //

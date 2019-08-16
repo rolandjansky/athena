@@ -17,13 +17,26 @@ namespace EL
   {
     /// \brief the individual steps of preparing a job for submission
     ///
-    /// The basic idea is that this allows individual drivers to
-    /// augment specific steps in the process in a fairly transparent
-    /// fashion.  In principle this could be done as a series of
-    /// virtual functions inside \ref Driver, but for now it feels
-    /// better to use an enum to cycle through the callbacks.  This
-    /// avoids having a large number of virtual functions inside \ref
-    /// Driver, and it makes the order of calls a lot more clear.
+    /// Essentially the \ref Driver and \ref Manager objects are giant
+    /// state machines, and this denotes the current overall state
+    /// (with extra information in \ref ManagerData).
+    ///
+    /// It should be noted that not every step will be used on every
+    /// operation (e.g. submit or retrieve), but instead there is a
+    /// separate sequence of steps for each of them.
+    ///
+    /// The alternative to this enum would be to have a separate
+    /// callback in the \ref Manager class for each step, which would
+    /// have the advantage that there isn't one function with a very
+    /// large `switch` statement, but this approach has other
+    /// advantages:
+    /// * This makes it clear and obvious in which order steps get
+    ///   executed.
+    /// * The effort for adding/removing individual steps is a lot
+    ///   lower with an enum than with virtual functions.
+    /// * It is very easy to bind the same action to multiple steps,
+    ///   which comes into play if that action needs to be performed
+    ///   for multiple operations.
 
     enum class ManagerStep
     {

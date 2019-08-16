@@ -1,24 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+
+
 
 #ifndef EVENT_LOOP_DIRECT_DRIVER_HH
 #define EVENT_LOOP_DIRECT_DRIVER_HH
-
-//          Copyright Nils Krumnack 2011.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-/// This module defines a driver for running directly in the job.  The
-/// interface provided in this class is intended for experts only.
-/// The module is considered to be in the pre-alpha stage.
-
-
 
 #include <EventLoop/Global.h>
 
@@ -26,6 +15,13 @@
 
 namespace EL
 {
+  /// \brief a \ref Driver that runs directly inside the submission
+  /// job itself
+  ///
+  /// This is both to allow for small and quick jobs that don't need
+  /// distributed running, and to allow for testing/debugging for
+  /// which you may need to run in the debugger.
+
   class DirectDriver final : public Driver
   {
     //

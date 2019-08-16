@@ -17,6 +17,33 @@ namespace EL
 {
   namespace Detail
   {
+    /// \brief an interface for classes that handle job management for
+    /// the \ref Driver
+    ///
+    /// The idea of this class is similar to \ref Module, but for work
+    /// being done on the submission node, instead of the worker node.
+    /// Even though it is essentially a pluggable infrastructure, but
+    /// it is meant for expert use only, not as something that the
+    /// user would directly instantiate or configure himself.
+    ///
+    /// The general way this works is that at the beginning of each
+    /// task/operation a series of managers get loaded based on the
+    /// task at hand.  Then we go through a series of steps (\ref
+    /// ManagerStep) and at each step each manager gets the option to
+    /// do what it needs to do at that step.  That way the different
+    /// managers can operate more or less independently and have their
+    /// code interleave while avoiding a fair amount of spaghetti
+    /// code.  Any data that needs to be communicated between
+    /// different managers or steps gets placed into the \ref
+    /// ManagerData structure, meaning individual managers don't need
+    /// to know about each other directly.
+    ///
+    /// So far (16 Aug 19) there are only very few managers defined,
+    /// and most code still tries to address to many things in a
+    /// single manager/driver.  However, this should (hopefully) serve
+    /// as the infrastructure for making such changes a lot easier in
+    /// the future.
+
     class Manager
     {
       /// \brief standard (virtual) destructor
