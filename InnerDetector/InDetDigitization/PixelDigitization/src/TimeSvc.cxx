@@ -325,7 +325,7 @@ int TimeSvc::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, 
   double timeWalk = 0.0;
   if (rnd<prob) { timeWalk = 25.0; }
 
-  int BCID = static_cast<int>(floor((G4Time+m_timeZero+timeWalk)/m_timePerBCO));
+  int BCID = static_cast<int>(floor((G4Time+m_timeZero+timeWalk-m_comTime)/m_timePerBCO));
 
   return BCID;
 }
