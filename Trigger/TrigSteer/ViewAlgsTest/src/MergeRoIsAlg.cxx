@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,7 +9,6 @@
 
 #include <sstream>
 #include <sstream>
-#include "CxxUtils/make_unique.h"
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
@@ -48,7 +47,7 @@ StatusCode MergeRoIsAlg::execute() {
   // prepare output, no Aux for it, just interface container as this going
   // to be a view container
   //  m_outputRoIsContainer->clear(SG::VIEW_ELEMENTS);
-  m_outputRoIContainer = CxxUtils::make_unique< TrigRoiDescriptorCollection >();  
+  m_outputRoIContainer = std::make_unique< TrigRoiDescriptorCollection >();  
 
 
   std::vector<SG::ReadHandle<TrigRoiDescriptorCollection>> input = m_inputRoIContainerKeys.makeHandles();
@@ -59,7 +58,7 @@ StatusCode MergeRoIsAlg::execute() {
 
 
 
-  //  std::unique_ptr<TrigRoiDescriptor> superRoi = CxxUtils::make_unique<TrigRoiDescriptor>();
+  //  std::unique_ptr<TrigRoiDescriptor> superRoi = std::make_unique<TrigRoiDescriptor>();
   if(m_useSuperRoI){
     auto superRoI = new TrigRoiDescriptor();
     superRoI->setComposite(true);

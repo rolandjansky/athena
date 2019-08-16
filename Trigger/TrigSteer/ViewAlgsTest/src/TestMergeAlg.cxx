@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,7 +9,6 @@
 
 #include <sstream>
 #include <sstream>
-#include "CxxUtils/make_unique.h"
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "ViewAlgs/TrigCompositeTraversal.h"
@@ -95,9 +94,9 @@ StatusCode TestMergeAlg::execute() {
   std::vector<SG::ReadHandle<xAOD::TrigCompositeContainer>> input = m_inputVectorProxyColl.makeHandles();
   CHECK( validCollections(input) );
 
-  m_outputRoisContainer = CxxUtils::make_unique< TrigRoiDescriptorCollection >();  
-  m_outputProxyContainer = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
-  m_outputProxyAuxContainer = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();  
+  m_outputRoisContainer = std::make_unique< TrigRoiDescriptorCollection >();  
+  m_outputProxyContainer = std::make_unique< xAOD::TrigCompositeContainer >();
+  m_outputProxyAuxContainer = std::make_unique< xAOD::TrigCompositeAuxContainer>();  
   m_outputProxyContainer->setStore(m_outputProxyAuxContainer.ptr());
 
   int full_size = 0;
