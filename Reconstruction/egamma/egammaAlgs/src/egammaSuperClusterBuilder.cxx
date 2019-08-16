@@ -742,7 +742,7 @@ egammaSuperClusterBuilder::findPhiSize(const egammaSuperClusterBuilder::CentralP
 	}
       }
     } else if (CaloCell_ID::EME2 == dde->getSampling()) {
-      const float phi0 = cp0.phiB;
+      const float phi0 = cp0.phiEC;
       double cell_phi = proxim(cell->caloDDE()->phi_raw(), phi0);
       if (cell_phi > phi0) {
 	auto diff = cell_phi - phi0;
