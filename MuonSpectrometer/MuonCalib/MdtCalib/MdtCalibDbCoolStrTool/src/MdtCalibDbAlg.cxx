@@ -1027,7 +1027,7 @@ inline bool MdtCalibDbAlg::uncompressInMyBuffer(const coral::Blob &blob) {
   }
   //append 0 to terminate string, increase buffer if it is not big enough
   if (actual_length >= m_buffer_length)	{
-    std::unique_ptr<Bytef> old_buffer(std::move(m_decompression_buffer));
+    std::unique_ptr<Bytef[]> old_buffer(std::move(m_decompression_buffer));
     size_t old_length=m_buffer_length;
     m_buffer_length*=2;
     m_decompression_buffer.reset(new Bytef[m_buffer_length]);
