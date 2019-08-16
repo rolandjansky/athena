@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -1021,14 +1021,11 @@ void Trk::TrackingVolume::moveVolume( Amg::Transform3D& shift ) const
 {
   if (m_transform) {
     Amg::Transform3D transf = shift * (*m_transform);
-    delete m_transform;
-    m_transform = new Amg::Transform3D(transf);
+    const_cast<Trk::TrackingVolume*>(this)->m_transform = std::make_unique<Amg::Transform3D>(transf);
   } else {
-    m_transform = new Amg::Transform3D(shift);
+    const_cast<Trk::TrackingVolume*>(this)->m_transform = std::make_unique<Amg::Transform3D>(shift);
   }
-
-  delete m_center;
-  m_center = new Amg::Vector3D(m_transform->translation()); 
+  const_cast<Trk::TrackingVolume*>(this)->m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation())); 
 }
 
 
