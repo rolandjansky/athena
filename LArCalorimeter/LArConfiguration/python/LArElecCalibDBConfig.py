@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator,ConfigurationError
-from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolderList
+from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg,addFolderList,addFolders
 
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArDAC2uAMC_LArDAC2uASym_ as LArDAC2uASymAlg
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMinBiasAverageMC_LArMinBiasAverageSym_ as LArMinBiasAverageSymAlg
@@ -11,6 +11,8 @@ from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArRampMC_LArRampSym
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArfSamplMC_LArfSamplSym_ as LArfSamplSymAlg
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LAruA2MeVMC_LAruA2MeVSym_ as LAruA2MeVSymAlg
 from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArAutoCorrMC_LArAutoCorrSym_ as LArAutoCorrSymAlg
+from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArShape32MC_LArShape32Sym_ as LArShapeSymAlg
+from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMphysOverMcalMC_LArMphysOverMcalSym_ as LArMPhysOverMcalSymAlg
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 
 
@@ -32,7 +34,7 @@ def LArElecCalibDbCfg(ConfigFlags,condObjs):
         return LArElecCalibDBMCCfg(ConfigFlags,condObjs)
     
     #Check run 1 case:
-    if ConfigFlags.IOVDb.DatabaseInstance == "COMP200":
+    if "COMP200" in ConfigFlags.IOVDb.DatabaseInstance:
         return LArElecCalibDBRun1Cfg(ConfigFlags,condObjs)
 
     #Everything else, eg run 2 (and 3?) data
@@ -98,7 +100,7 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
                                "Shape":("/LAR/ElecCalibOfl/Shape/RTM/"+ ConfigFlags.LAr.OFCShapeFolder if len(ConfigFlags.LAr.OFCShapeFolder)>0 else "5samples1phase","LAr_OFL","LArShapeComplete",None),
                            }
 
-    result=ComponentAccumulator()
+
                                      
     folderlist=[]
     for condData in condObjs:
@@ -108,7 +110,7 @@ def LArElecCalibDBRun1Cfg(ConfigFlags,condObjs):
         except KeyError:
             raise ConfigurationError("No conditions data %s found for Run-1 data" % condData)
         if (calg):
-            result.addCondAlgo(calg(ReadKey="LAr"+obj,WriteKey="LAr"+obj+"Sym"))
+            result.addCondAlgo(calg(ReadKey="LAr"+condObj,WriteKey="LAr"+condObj+"Sym"))
     result.merge(addFolderList(ConfigFlags,folderlist))
                      
     return result
@@ -123,12 +125,16 @@ def LArElecCalibDBMCCfg(ConfigFlags,folders):
                            "fSampl":("LArfSamplMC","/LAR/ElecCalibMC/fSampl","LArfSampl",LArfSamplSymAlg),
                            "uA2MeV":("LAruA2MeVMC","/LAR/ElecCalibMC/uA2MeV","LAruA2MeV", LAruA2MeVSymAlg),
                            "MinBias":("LArMinBiasMC","/LAR/ElecCalibMC/MinBias","LArMinBias",LArMinBiasSymAlg),
-                           "MinBiasAvc":("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg)
+                           "Shape":("LArShape32MC","/LAR/ElecCalibMC/Shape","LArShape",LArShapeSymAlg),
+                           "MinBiasAvc":("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg),
+                           "MphysOverMcal":("LArMphysOverMcalMC","/LAR/ElecCalibMC/MphysOverMcal","LArMphysOverMcal",LArMPhysOverMcalSymAlg),
+                           "HVScale" : ("LArHVScaleCorrComplete", '/LAR/ElecCalibMC/HVScaleCorr',"LArHVScaleCorr",None) 
                        }
 
 
     result=ComponentAccumulator()
     #Add cabling
+    from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
     result.merge(LArOnOffIdMappingCfg(ConfigFlags))
     from LArRecUtils.LArRecUtilsConf import LArMCSymCondAlg
     result.addCondAlgo(LArMCSymCondAlg(ReadKey="LArOnOffIdMap"))
@@ -141,9 +147,9 @@ def LArElecCalibDBMCCfg(ConfigFlags,folders):
 
         folderlist+=[(fldr,"LAR_OFL",classname),]
         if calg is not None:
-            result.addCondAlg(calg(ReadKey=key,WriteKey=key+"Sym"))
+            result.addCondAlgo(calg(ReadKey=key,WriteKey=key+"Sym"))
 
-        result.addFolderList(ConfigFlags,folderlist)
+        result.merge(addFolderList(ConfigFlags,folderlist))
     return result
         
 
@@ -157,6 +163,7 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc  = LArElecCalibDbCfg(ConfigFlags,("Ramp",))#,"OFC","uA2MeV","MphysOverMcal"))
 
     f=open('test.pkl','w')
