@@ -45,3 +45,7 @@ if WriteIOV:
     #OutputConditionsAlg.LB2=999999
 
 topSequence+=TRTCondWrite
+
+# specify POOL converter package containing the converters
+include ( "InDetConditionsAthenaPool/InDetConditionsAthenaPool_joboptions.py" )
+
