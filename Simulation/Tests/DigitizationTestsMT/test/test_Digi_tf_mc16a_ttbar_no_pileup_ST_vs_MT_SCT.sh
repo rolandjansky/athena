@@ -4,7 +4,8 @@
 # art-type: grid
 # art-athena-mt: 8
 # art-include: master/Athena
-# art-output: mc16a_ttbar.RDO.pool.root
+# art-output: mc16a_ttbar.ST.RDO.pool.root
+# art-output: mc16a_ttbar.MT.RDO.pool.root
 # art-output: log.*
 
 export ATHENA_CORE_NUMBER=8
@@ -17,15 +18,16 @@ Digi_tf.py \
 --digiSeedOffset2 170 \
 --geometryVersion default:ATLAS-R2-2016-01-00-01 \
 --DataRunNumber 284500 \
---outputRDOFile mc16a_ttbar.RDO.pool.root \
+--outputRDOFile mc16a_ttbar.MT.RDO.pool.root \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' \
---preInclude 'HITtoRDO:Digitization/ForceUseOfAlgorithms.py,SimulationJobOptions/preInclude.SCTOnlyConfig.py' \
+--preInclude 'HITtoRDO:Digitization/ForceUseOfAlgorithms.py,SimulationJobOptions/preInclude.SCTOnlyConfig.py,SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
 --skipEvents 0 \
 --maxEvents 10
 
 rc=$?
 echo  "art-result: $rc MTdigi"
+mv log.HITtoRDO log.HITtoRDO_MT
 
 rc2=-9999
 if [ $rc -eq 0 ]
@@ -37,10 +39,10 @@ then
     --digiSeedOffset2 170 \
     --geometryVersion default:ATLAS-R2-2016-01-00-01 \
     --DataRunNumber 284500 \
-    --outputRDOFile mc16a_ttbar.RDO.pool.root \
+    --outputRDOFile mc16a_ttbar.ST.RDO.pool.root \
     --postInclude 'default:PyJobTransforms/UseFrontier.py' \
     --preExec 'all:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' \
-    --preInclude 'HITtoRDO:Digitization/ForceUseOfAlgorithms.pySimulationJobOptions/share/subdetectors/preInclude.SCTOnlyConfig.py' \
+    --preInclude 'HITtoRDO:Digitization/ForceUseOfAlgorithms.py,SimulationJobOptions/preInclude.SCTOnlyConfig.py,SimulationJobOptions/preInclude.TruthOnlyConfig.py' \
     --skipEvents 0 \
     --maxEvents 10
     rc2=$?
@@ -50,7 +52,7 @@ echo  "art-result: $rc2 STdigi"
 rc3=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root --order-trees --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings index_ref
+    acmd.py diff-root mc16a_ttbar.ST.RDO.pool.root mc16a_ttbar.MT.RDO.pool.root --order-trees --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings index_ref
     rc3=$?
 fi
 echo  "art-result: $rc3 comparison"
