@@ -511,13 +511,12 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
     
   // compute covariance on of residual R = +/- covRIO + H * covTrk * H.T()
   Amg::MatrixX R = (sign * covRio) + projection(covTrk,(nLocCoord==1 ? 1 : 3) ); // .similarity(H);
-  Amg::MatrixX R_inv = R.inverse();
   // compute Kalman gain matrix
-  Amg::MatrixX K   = covTrk * H.transpose() * R_inv;
+  Amg::MatrixX K   = covTrk * H.transpose() * R.inverse();
   AmgSymMatrix(5) I;  // 5x5 unit matrix
   I.setIdentity();
   AmgSymMatrix(5) M = I - K * H;
-  if (m_outputlevel<0) logGainForm (nLocCoord,r,R_inv,K,M);
+  if (m_outputlevel<0) {logGainForm (nLocCoord,r,R.inverse(),K,M);}
 
   // compute local filtered state
   Amg::VectorX par = parTrk + K * r;
@@ -619,13 +618,12 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
   if (!diffThetaPhiWithinRange(r,rioPar.parameterKey()) )
     correctThetaPhiRange(r,R,true,rioPar.parameterKey());
   
-  Amg::MatrixX R_inv = R.inverse();
   // compute Kalman gain matrix
-  Amg::MatrixX K   = covTrk * H.transpose() * R_inv;
+  Amg::MatrixX K   = covTrk * H.transpose() * R.inverse();
   AmgSymMatrix(5) I;  // 5x5 unit matrix
   I.setIdentity();
   AmgSymMatrix(5) M  = I - K * H;
-  if (m_outputlevel<0) logGainForm (nLocCoord,r,R_inv,K,M);
+  if (m_outputlevel<0) {logGainForm (nLocCoord,r,R.inverse(),K,M);}
   // compute local filtered state
   Amg::VectorX par = parTrk + K * r;
         
