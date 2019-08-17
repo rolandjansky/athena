@@ -85,11 +85,10 @@ else
     echo "XMLDumperFromAthena: $menu FAILED | Exit code: $athena_exit | Log: $dest/$logfile"
 fi
 
-menunoprimaries=`echo $menu | sed s/_primaries//`
 if [[ -e outputLVL1config.xml ]]; then
-    cp outputLVL1config.xml ${dest}/LVL1config_${menunoprimaries}_${release}.xml
+    cp outputLVL1config.xml ${dest}/LVL1config_${menu}_${release}.xml
     cp outputHLTconfig.xml ${dest}/HLTconfig_${menu}_${release}.xml
-    cp outputLVL1config.xml ${dest}/LVL1config_${menunoprimaries}.xml
+    cp outputLVL1config.xml ${dest}/LVL1config_${menu}.xml
 fi
 
 #this gives some more sensitivity to hidden problems

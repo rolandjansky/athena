@@ -851,7 +851,7 @@ class outputL1TopoConfigFile(JobProperty):
             # removed.
             import re
             menuSetup = TriggerFlags.triggerMenuSetup()
-            m = re.match(r'(.*v\d).*', menuSetup)
+            m = re.match(r'(.*v\d(?:_primaries)?).*', menuSetup)
             if m:
                 menuSetup = m.groups()[0]
             return "L1Topoconfig_" + menuSetup + "_" + TriggerFlags.menuVersion() + ".xml"
