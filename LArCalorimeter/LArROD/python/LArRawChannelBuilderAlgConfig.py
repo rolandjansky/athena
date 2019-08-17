@@ -37,13 +37,7 @@ if __name__=="__main__":
     acc.merge(LArRawDataReadingCfg(ConfigFlags))
     acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
     
-    #from LArEventTest.LArEventTestConf import DumpLArRawChannels
-    #acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_fromDigits",),sequenceName="AthAlgSeq")
+    from LArEventTest.LArEventTestConf import DumpLArRawChannels
+    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_fromDigits",),sequenceName="AthAlgSeq")
 
-    #f=open("LArRawChannelBuilderAlg.pkl","w")
-    #acc.store(f)
-    #f.close() 
-    from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
-    acc.addService(MessageSvc(OutputLevel=DEBUG))
-
-    acc.run(10)
+    acc.run(3)
