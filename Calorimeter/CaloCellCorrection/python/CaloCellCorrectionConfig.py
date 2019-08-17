@@ -14,18 +14,18 @@ def CaloCellPedestalCorrCfg(configFlags):
    theCaloCellPedestalCorr=CaloCellPedestalCorr()
 
    if not isMC:
+      theCaloCellPedestalCorr.isMC=False
       if configFlags.Common.isOnline:
-      
          folder  = '/CALO/Pedestal/CellPedestal'
          result.merge(addFolders(configFlags,folder,'CALO_ONL',className="CondAttrListCollection"))
-         theCaloCellPedestalCorr.isMC=False
       else:
          #regular offline case
          folder= '/CALO/Ofl/Pedestal/CellPedestal'
-         theCaloCellPedestalCorr.isMC=True
          result.merge(addFolders(configFlags,folder,'CALO_OFL',className="CondAttrListCollection"))
    
       theCaloCellPedestalCorr.PedestalShiftFolder = folder
+   else:
+      theCaloCellPedestalCorr.isMC=True
 
 
    if not configFlags.Common.isOnline:
