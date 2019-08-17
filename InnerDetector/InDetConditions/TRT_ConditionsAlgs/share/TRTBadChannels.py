@@ -1,6 +1,7 @@
 #this is for reading TRTStrawStatusTool bad channels!
 #include it from the alg where you need to read the info, eg clusterization
 ###############################################################
+include("InDetConditionsAthenaPool/InDetConditionsAthenaPool_joboptions.py")
 theApp.Dlls += [ "TRT_ConditionsAlgs" ]
 ToolSvc = Service( "ToolSvc" )
 ToolSvc.TRTStrawStatusTool.Readjob = True
