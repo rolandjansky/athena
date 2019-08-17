@@ -195,7 +195,7 @@ StatusCode RpcDigitizationTool::initialize() {
       //m_Efficiency_fromCOOL   = false # use common average values in python conf.
       //m_ClusterSize_fromCOOL  = false # use common average values in python conf.
       m_BOG_BOF_DoubletR2_OFF = false;
-      if (configVal=="RUN2") {// MC15c setup
+      if (configVal=="RUN2" || configVal=="RUN3") {// MC15c setup
         m_Efficiency_fromCOOL   = true;
         m_ClusterSize_fromCOOL  = true;
         m_RPCInfoFromDb         = true;
