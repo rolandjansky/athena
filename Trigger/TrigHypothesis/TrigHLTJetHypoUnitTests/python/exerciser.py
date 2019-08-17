@@ -212,6 +212,57 @@ class FlowNetworkVsPartitionsTestsDijets(CombinationsTests) :
 
         return generator
 
+class FlowNetworkVsPartitionsTestsDijetsExtended(CombinationsTests) :
+    """ Use TrigJetHypoToolConfig_flownetwork in order to handle 
+    flow networks with nesting
+    """
+    def __init__(self,
+                 n_sgnl=4,
+                 n_bkgd=4,
+                 bkgd_etmax=20000.,  # MeV
+    ):
+        CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
+        self.chain_name = 'HLT_FNvsPartitionDijets'
+
+    def make_helper_tool(self):
+        chain_label = """agree([]
+                         dijet([(130mass)(131mass)])
+                         partgen([] 
+                            and([]
+                                dijet([(130mass)]) simple([(10et)])
+                            )
+                           
+                            and([]
+                                dijet([(131mass)]) simple([(11et)])
+                            )
+                         )
+        )"""
+
+      
+        return trigJetHypoToolHelperFromDict_(chain_label,
+                                              self.chain_name)
+
+
+    def logfile_name(self, chain_name):
+        return chain_name +  '_s' + str(self.n_sgnl) + '_b' + str(self.n_bkgd)+'.log'
+
+    def make_event_generator(self):
+        generator = SimpleHypoJetVectorGenerator()
+
+        generator.ets = [80000. + 1000.*i for i in range(self.n_sgnl)]
+        generator.etas = [0.5] * self.n_sgnl
+
+        # alternate eta signs to get high mass
+        factor = 1
+        for i in range(len(generator.etas)):
+            generator.etas[i] *= factor
+            factor *= -1
+
+        generator.n_bkgd = self.n_bkgd
+        generator.bkgd_etmax = self.bkgd_etmax
+
+        return generator
+
 
 class FlowNetworkVsCombinationsTests(CombinationsTests) :
 

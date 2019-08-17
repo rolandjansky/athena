@@ -15,6 +15,7 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 #include "./CombinationsGroupsToHelpersMatcherMT.h"
+#include "./svec2dvec.h"
 
 TrigJetHypoToolConfig_combgen::TrigJetHypoToolConfig_combgen(const std::string& type,
                                                  const std::string& name,
@@ -54,9 +55,13 @@ StatusCode TrigJetHypoToolConfig_combgen::initialize() {
 std::optional<ConditionsMT>
 TrigJetHypoToolConfig_combgen::getConditions() const {
 
-  auto conditions = conditionsFactoryEtaEtMT(m_etaMins,
-                                             m_etaMaxs,
-                                             m_EtThresholds,
+  std::vector<double> etaMins = svec2dvec(m_etaMins);
+  std::vector<double> etaMaxs = svec2dvec(m_etaMaxs);
+  std::vector<double>  EtThresholds = svec2dvec(m_EtThresholds);
+
+  auto conditions = conditionsFactoryEtaEtMT(etaMins,
+                                             etaMaxs,
+                                             EtThresholds,
                                              m_asymmetricEtas);
   if(conditions.empty()){
      return std::make_optional<ConditionsMT>(std::move(conditions));

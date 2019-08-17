@@ -10,19 +10,19 @@ Tree::Tree(const std::vector<std::size_t>& parents) :
   m_children(m_parents.size(),std::vector<std::size_t>()){
   auto nParents = parents.size();
 
-  for(auto i = 0; i < nParents; ++i){
+  for(auto i = 0u; i < nParents; ++i){
     m_children[m_parents[i]].push_back(i);
   }
 
   auto nChildren = m_children.size();
 
-  for(auto i = 0; i < nChildren; ++i){
+  for(auto i = 0u; i < nChildren; ++i){
     if(m_children[i].empty()){
       m_leaves.push_back(i);
     }
   }
 
-  for(auto i = 0; i < nParents; ++i){
+  for(auto i = 0u; i < nParents; ++i){
     if (i == 0){continue;}
     if(parents[i] == 0){m_firstGeneration.push_back(i);}
   }

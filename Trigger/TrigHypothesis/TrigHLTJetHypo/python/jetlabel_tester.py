@@ -64,4 +64,18 @@ if __name__ == '__main__':
         )
       )
     )"""
-    compile_(label)
+
+
+    label =  """agree([]
+                         flownetwork([(130mass)(131mass)(10et)(11et)(12et)(13et)(0001122tree)])
+                         partgen([] 
+                            and([]
+                                dijet([(130mass)]) simple([(10et)(11et)])
+                            )
+                           
+                            and([]
+                                dijet([(131mass)]) simple([(12et)(13et)])
+                            )
+                         )
+        )"""
+    compile(label, expand=True)

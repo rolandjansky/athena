@@ -6,6 +6,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "./conditionsFactoryMT.h"
+#include "./svec2dvec.h"
 
 TrigJetConditionConfig_etaet::TrigJetConditionConfig_etaet(const std::string& type,
                                                  const std::string& name,
@@ -30,9 +31,9 @@ std::optional<ConditionsMT>
 TrigJetConditionConfig_etaet::getConditions() const {
 
   return
-    std::make_optional<ConditionsMT>(conditionsFactoryEtaEtMT(m_etaMins,
-							      m_etaMaxs,
-							      m_EtThresholds,
+    std::make_optional<ConditionsMT>(conditionsFactoryEtaEtMT(svec2dvec(m_etaMins),
+							      svec2dvec(m_etaMaxs),
+							      svec2dvec(m_EtThresholds),
 							      m_asymmetricEtas));
 }
 

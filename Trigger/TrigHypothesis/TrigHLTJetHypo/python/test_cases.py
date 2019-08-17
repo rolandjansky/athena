@@ -11,46 +11,6 @@ test_strings = [
     'or([] not([] simple([(40et, 0eta320)])) not([] simple([(100et, 0eta320)])))',
     'or([] and([] simple([(40et, 0eta320)]) simple([(40et, 0eta320)])) not([] simple([(100et, 0eta320)])))',
 
-
-"""
-partition     
-(
-  [(4,2)]   # partition 6 input jets to 4, 2 
-  splitter  # send the 4s to first 2 children, 2 to third.
-    assert len(o) == 1
-  (
-    [(1,1)(2)]
-    sum # mass cut on sum of input jets (ord.=4)
-    (
-      [(800m900)]
-    )
-    partition        #  partition 4 jets into non-overlapping
-                     #  sets ord 2, 2
-    (
-      [(2,2)]
-      pair           # sum inputs, apply deta cut to the 2 sums
-      (
-        [(40deta)]
-        sum          # child gets two lists, applys mass cuts
-        ( 
-          [(75m85)(80m90)]
-          partition  # passes on 2 sum to regroup to single jets
-          (
-            [() (1)]
-
-            simple     # apply overlapping mod, et cuts
-            (
-              [(30width50, 30et) (35width45, 40et)]
-            )
-          )
-        )
-      )
-    )
-  )
-               
-  simple([(p320etap500, 100et) (n500etan320)]),
-)""",
-
     'and([] simple([(50et)(70et)]) dijet([(900mass, 26dphi)]))',
     'and([]simple([(50et)(70et)])combgen([(2)]dijet([(900mass,26dphi)]) simple([(10et)(20et)])))',
     'and([]simple([(81et)(81et)])combgen([(2)(50et)(70et)]dijet([(34mass,26dphi)])))',

@@ -8,7 +8,7 @@
 #include "TrigJetConditionConfig_dijet.h"
 #include "GaudiKernel/StatusCode.h"
 #include "./conditionsFactoryMT.h"
-#include "ArgStrToDouble.h"
+#include "svec2dvec.h"
 #include <algorithm>
 
 TrigJetConditionConfig_dijet::TrigJetConditionConfig_dijet(const std::string& type,
@@ -25,46 +25,6 @@ TrigJetConditionConfig_dijet::~TrigJetConditionConfig_dijet(){
 StatusCode TrigJetConditionConfig_dijet::initialize() {
   CHECK(checkVals());
 
-  ArgStrToDouble a2d;
-  
-  std::transform(m_massMins_str.begin(),
-                 m_massMins_str.end(),
-                 std::back_inserter(m_massMins),
-                 a2d
-                 );
-
-    
-  std::transform(m_massMaxs_str.begin(),
-                 m_massMaxs_str.end(),
-                 std::back_inserter(m_massMaxs),
-                 a2d
-                 );
-
-    
-  std::transform(m_dEtaMins_str.begin(),
-                 m_dEtaMins_str.end(),
-                 std::back_inserter(m_dEtaMins),
-                 a2d
-                 );
-  
-  std::transform(m_dEtaMaxs_str.begin(),
-                 m_dEtaMaxs_str.end(),
-                 std::back_inserter(m_dEtaMaxs),
-                 a2d
-                 );
-
-  std::transform(m_dPhiMins_str.begin(),
-                 m_dPhiMins_str.end(),
-                 std::back_inserter(m_dPhiMins),
-                 a2d
-                 );
-  
-  std::transform(m_dPhiMaxs_str.begin(),
-                 m_dPhiMaxs_str.end(),
-                 std::back_inserter(m_dPhiMaxs),
-                 a2d
-                 );
-
   return StatusCode::SUCCESS;
 }
 
@@ -74,12 +34,12 @@ StatusCode TrigJetConditionConfig_dijet::initialize() {
 std::optional<ConditionsMT>
 TrigJetConditionConfig_dijet::getConditions() const {
   return
-    std::make_optional<ConditionsMT>(conditionsFactoryDijetMT(m_massMins,
-							      m_massMaxs,
-							      m_dEtaMins,
-							      m_dEtaMaxs,
-							      m_dPhiMins,
-							      m_dPhiMaxs));
+    std::make_optional<ConditionsMT>(conditionsFactoryDijetMT(svec2dvec(m_massMins),
+							      svec2dvec(m_massMaxs),
+							      svec2dvec(m_dEtaMins),
+							      svec2dvec(m_dEtaMaxs),
+							      svec2dvec(m_dPhiMins),
+							      svec2dvec(m_dPhiMaxs)));
 }
 
  
