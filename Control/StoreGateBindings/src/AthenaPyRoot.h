@@ -1,13 +1,14 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATEBINDINGS_ATHENAPYROOT_H
 #define STOREGATEBINDINGS_ATHENAPYROOT_H 1
 
 #include "Python.h"
+#include "RootUtils/PyGetString.h"
 
 // PyROOT includes
 #include <TPython.h>
