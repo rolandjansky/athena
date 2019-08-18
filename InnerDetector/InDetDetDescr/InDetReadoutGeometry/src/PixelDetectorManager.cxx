@@ -220,7 +220,7 @@ namespace InDetDD {
 
       } else if (frame == InDetDD::local) {
 
-        const SiDetectorElement * element =  m_elementCollection[idHash];
+        SiDetectorElement * element =  m_elementCollection[idHash];
         if (!element) return false;
 
         // Its a local transform
