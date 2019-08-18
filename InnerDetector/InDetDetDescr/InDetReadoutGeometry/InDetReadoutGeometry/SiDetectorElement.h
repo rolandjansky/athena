@@ -751,15 +751,15 @@ namespace InDetDD {
     
     inline double SiDetectorElement::hitPhiDirection() const
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
-      if (!m_cacheValid) updateCache();                                                                               
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       return (m_phiDirection) ? 1. : -1.;
     }
     
     inline double SiDetectorElement::hitEtaDirection() const
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
-      if (!m_cacheValid) updateCache();                                                                               
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       return (m_etaDirection) ? 1. : -1.;
     }
     
@@ -785,8 +785,8 @@ namespace InDetDD {
 
     inline void SiDetectorElement::updateAllCaches() const
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
-      if (!m_cacheValid) updateCache();                                                                               
+      std::lock_guard<std::recursive_mutex> lock(m_mutex);
+      if (!m_cacheValid) updateCache();
       if (not m_surface) surface();
     }
     
