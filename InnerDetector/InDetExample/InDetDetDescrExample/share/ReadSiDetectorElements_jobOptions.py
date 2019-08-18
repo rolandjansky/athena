@@ -15,17 +15,20 @@ DetFlags.detdescr.pixel_setOn()
 DetFlags.detdescr.SCT_setOn()
 
 # MC or data - affects which conditions database instance is used
-globalflags.DataSource='geant4'
-#globalflags.DataSource='data'
+#globalflags.DataSource='geant4'
+globalflags.DataSource='data'
 
 isData = (globalflags.DataSource == 'data')
 
 # Select the geometry version. 
-globalflags.DetDescrVersion='ATLAS-R1-2012-03-01-00'
+globalflags.DetDescrVersion='ATLAS-R2-2016-01-00-01'
 
 # For misalignments
 from IOVDbSvc.CondDB import conddb
-conddb.setGlobalTag('OFLCOND-CSC-00-01-00')
+conddb.setGlobalTag('CONDBR2-BLKPA-2018-03')
+
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+InDetGeometryFlags.useDynamicAlignFolders = True
 
 # Initialize geometry
 from AtlasGeoModel import GeoModelInit
@@ -70,8 +73,6 @@ pixelLorentzAngleTool = pixelLorentzAngleToolSetup.PixelLorentzAngleTool
 
 ReadPixelElements.UseConditionsTools = True
 ReadPixelElements.SiLorentzAngleTool = pixelLorentzAngleTool
-ReadPixelElements.SiPropertiesTool   = pixelSiPropertiesTool
-ReadPixelElements.SiConditionsTool   = pixelDCSConditionsTool
 ReadPixelElements.DetEleCollKey = "PixelDetectorElementCollection"
 
 #
@@ -92,18 +93,14 @@ sctSiPropertiesTool = sct_SiPropertiesToolSetup.getTool()
 
 ReadSCTElements.UseConditionsTools = True
 ReadSCTElements.SiLorentzAngleTool = sctLorentzAngleTool
-ReadSCTElements.SiPropertiesTool = sctSiPropertiesTool
-ReadSCTElements.SiConditionsTool = sctSiliconConditionsTool
 ReadSCTElements.DetEleCollKey = "SCT_DetectorElementCollection"
 
 print ReadPixelElements
 print pixelLorentzAngleTool
-print pixelDCSConditionsTool
 print pixelSiPropertiesTool
 
 print ReadSCTElements
 print sctLorentzAngleTool
-print sctSiliconConditionsTool
 print sctSiPropertiesTool
 
 
@@ -122,8 +119,8 @@ theApp.EvtMax = 1
 # MC run number and timestamp for conditions data
 # Simulation/RunDependentSim/RunDependentSimComps/python/RunDMCFlags.py
 import AthenaCommon.AtlasUnixGeneratorJob
-ServiceMgr.EventSelector.RunNumber = 195847 # MC12a run number
-ServiceMgr.EventSelector.InitialTimeStamp  = 1328040250 # MC12a timestamp
+ServiceMgr.EventSelector.RunNumber = 330470
+ServiceMgr.EventSelector.InitialTimeStamp  = 1500835236 # LB310 of Run330470
 ServiceMgr.EventSelector.TimeStampInterval = 0
 
 # ReadSiDetectorElement properties
