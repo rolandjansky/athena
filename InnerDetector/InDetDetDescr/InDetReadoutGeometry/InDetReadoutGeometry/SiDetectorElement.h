@@ -498,7 +498,6 @@ namespace InDetDD {
      
       /// Signal that cached values are no longer valid.
       /// Invalidate general cache
-      void invalidate ATLAS_NOT_THREAD_SAFE () const;
       void invalidate();
     
       /// Recalculate all cached values. 
@@ -764,12 +763,7 @@ namespace InDetDD {
     {
       return m_design->gangedCell(cellId);
     }
-    
-    inline void SiDetectorElement::invalidate() const
-    {
-      m_cacheValid = false;
-    }
-    
+       
     inline void SiDetectorElement::invalidate()
     {
       m_cacheValid = false;
