@@ -47,6 +47,8 @@ TrigMissingETMuon::TrigMissingETMuon(const std::string& name, ISvcLocator* pSvcL
   declareProperty("METLabel", m_featureLabel = "T2MissingET", "label for the MET feature in the HLT Navigation");
   declareProperty("MuonPtCut", m_muonptcut = 5.0, "Muon Pt threshold");
 
+  declareProperty("DoCaching", m_doCaching=false, "Whether to enable the (buggy) caching");
+
   declareMonitoredVariable("Muon_Ex",     m_mu_ex);
   declareMonitoredVariable("Muon_Ey",     m_mu_ey);
   declareMonitoredVariable("Muon_SumEt",    m_mu_set);
@@ -492,13 +494,15 @@ HLT::ErrorCode TrigMissingETMuon::makeOutputTE(std::vector<std::vector<HLT::Trig
 	  << endreq;
   }
 
-  // CACHING
-  // if we got here, everything was okay. so, we cache the feature for further execution of this instance in e.g. other MET Sequences:
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Updated feature copied to output TE." << endreq;
+  if (m_doCaching) {
+    // CACHING
+    // if we got here, everything was okay. so, we cache the feature for further execution of this instance in e.g. other MET Sequences:
+    if (msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG << "Updated feature copied to output TE." << endreq;
+    }
+    m_useCachedResult = true;
+    m_cachedTE = outputTE;
   }
-  m_useCachedResult = true;
-  m_cachedTE = outputTE;
 
   return HLT::OK;
 }
