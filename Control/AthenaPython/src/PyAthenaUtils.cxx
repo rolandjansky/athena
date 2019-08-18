@@ -16,6 +16,7 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaGILStateEnsure.h"
+#include "RootUtils/PyGetString.h"
 
 // Framework includes
 #include "GaudiKernel/IInterface.h"
@@ -107,13 +108,12 @@ PyAthena::repr( PyObject* o )
   // PyObject_Repr returns a new ref.
   PyGILStateEnsure ensure;
   PyObject* py_repr = PyObject_Repr( o );
-  if ( !py_repr || !PyString_Check(py_repr) ) {
-    Py_XDECREF( py_repr );
+
+  auto [cpp_repr, flag] = RootUtils::PyGetString (py_repr);
+  Py_DECREF( py_repr );
+  if (!flag) {
     PyAthena::throw_py_exception();
   }
-  
-  std::string cpp_repr = PyString_AsString(py_repr);
-  Py_DECREF( py_repr );
   return cpp_repr;
 }
 
@@ -123,13 +123,11 @@ PyAthena::str( PyObject* o )
   // PyObject_Str returns a new ref.
   PyGILStateEnsure ensure;
   PyObject* py_str = PyObject_Str( o );
-  if ( !py_str || !PyString_Check(py_str) ) {
-    Py_XDECREF( py_str );
+  auto [cpp_str, flag] = RootUtils::PyGetString (py_str);
+  Py_DECREF( py_str );
+  if ( !flag ) {
     PyAthena::throw_py_exception();
   }
-  
-  std::string cpp_str = PyString_AsString(py_str);
-  Py_DECREF( py_str );
   return cpp_str;
 }
 
@@ -174,7 +172,7 @@ PyAthena::callPyMethod ATLAS_NOT_THREAD_SAFE ( PyObject* self,
     throw_py_exception();
   }
   
-  if ( PyInt_Check( r ) ) {
+  if ( PyInt_Check( r ) || PyLong_Check(r) ) {
     StatusCode sc(PyInt_AS_LONG( r ));
     Py_DECREF( r );
     return sc;
@@ -286,14 +284,13 @@ StatusCode PyAthena::queryInterface ATLAS_NOT_THREAD_SAFE
     PyObject* pyname = 0;
     pyname = PyObject_GetAttrString( base,
 				     const_cast<char*>("__name__") );
-    if ( !pyname || !PyString_Check(pyname) ) {
-      Py_XDECREF( pyname );
+    auto [cppBaseName, flag] = RootUtils::PyGetString (pyname);
+    Py_DECREF(pyname);
+    if ( !flag ) {
       Py_DECREF ( base   );
       continue;
     }
-    const std::string cppBaseName = PyString_AS_STRING(pyname);
-    Py_DECREF(pyname);
-    
+
     const std::string cppName = ((MyObjProxy*)self)->m_class->GetName();
 
     std::cout << "::: would like to do: *ppvInterface = static_cast<"
