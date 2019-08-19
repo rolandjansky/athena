@@ -1,6 +1,4 @@
 
-import os, sys
-import ROOT
 from ROOT import TMath
 
 #Lumi block ranges
@@ -207,15 +205,15 @@ print len(currange)
 
 if __name__ =="__main__":
 
-    print "########## N bins in Phi"
-    print Cell_Variables["phiNbin"]
-    print "########## Phi range"
-    print Cell_Variables["phiRange"]
+    print("########## N bins in Phi")
+    print(Cell_Variables["phiNbin"])
+    print("########## Phi range")
+    print(Cell_Variables["phiRange"])
 
-    print "########## N bins in eta"
-    print Cell_Variables["etaNbin"]
-    print "########## Eta range"
-    print Cell_Variables["etaRange"]
+    print("########## N bins in eta")
+    print(Cell_Variables["etaNbin"])
+    print("########## Eta range")
+    print(Cell_Variables["etaRange"])
 
     nbinA=len(Cell_Variables["etaRange"]["EMB"]["A"]["1"])
     nbinC=len(Cell_Variables["etaRange"]["EMB"]["C"]["1"])
