@@ -319,11 +319,11 @@ def LArMiniFCALSensitiveDetectorToolCfg(ConfigFlags, name="LArMiniFCALSensitiveD
 
     return LArG4__MiniFCALSDTool(name, **kwargs)
 
-def getCalibrationDefaultCalculator(name="CalibrationDefaultCalculator", **kwargs):
-    return CfgMgr.LArG4__CalibrationDefaultCalculator(name, **kwargs)
+#def getCalibrationDefaultCalculator(name="CalibrationDefaultCalculator", **kwargs):
+#    return CfgMgr.LArG4__CalibrationDefaultCalculator(name, **kwargs)
 
-def getDeadMaterialCalibrationHitMerger(name="DeadMaterialCalibrationHitMerger", **kwargs):
-    kwargs.setdefault("InputHits",["LArCalibrationHitDeadMaterial_DEAD","LArCalibrationHitActive_DEAD","LArCalibrationHitInactive_DEAD"])
-    kwargs.setdefault("OutputHits","LArCalibrationHitDeadMaterial")
-    return CfgMgr.LArG4__CalibrationHitMerger(name, **kwargs)
+#def getDeadMaterialCalibrationHitMerger(name="DeadMaterialCalibrationHitMerger", **kwargs):
+#    kwargs.setdefault("InputHits",["LArCalibrationHitDeadMaterial_DEAD","LArCalibrationHitActive_DEAD","LArCalibrationHitInactive_DEAD"])
+#    kwargs.setdefault("OutputHits","LArCalibrationHitDeadMaterial")
+#    return CfgMgr.LArG4__CalibrationHitMerger(name, **kwargs)
 
