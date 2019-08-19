@@ -28,10 +28,6 @@ JetCaloQualityTool::JetCaloQualityTool(const std::string& name)
   // This is only a property so it can communicate dependencies to the
   // scheduler. User should not configure it.
   declareProperty("OutputDecorKeys", m_writeDecorKeys);
-  if(!m_writeDecorKeys.empty()){
-    ATH_MSG_WARNING("OutputDecorKeys should not be configured manually! Ignoring.");
-    m_writeDecorKeys.clear();
-  }
 } 
 
 
@@ -101,6 +97,10 @@ StatusCode JetCaloQualityTool::decorate(const xAOD::JetContainer& jets) const
 StatusCode JetCaloQualityTool::initialize() {
   ATH_MSG_DEBUG( "Inside initialize() method" );
 
+  if(!m_writeDecorKeys.empty()){
+    ATH_MSG_ERROR("OutputDecorKeys should not be configured manually!");
+    return StatusCode::FAILURE;
+  }
   if(m_jetContainerName.empty()){
     ATH_MSG_ERROR("JetCaloQualityTool needs to have its input jet container name configured!");
     return StatusCode::FAILURE;
