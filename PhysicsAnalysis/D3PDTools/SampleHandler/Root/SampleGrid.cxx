@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -85,7 +85,7 @@ namespace SH
   {
     RCU_READ_INVARIANT (this);
 
-    std::auto_ptr<SampleLocal> result (new SampleLocal (name()));
+    std::unique_ptr<SampleLocal> result (new SampleLocal (name()));
     for (auto& file : makeFileList ())
       result->add (file.c_str());
     return SamplePtr (result.release());

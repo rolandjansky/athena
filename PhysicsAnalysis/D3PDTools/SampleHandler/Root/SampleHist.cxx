@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -120,7 +120,7 @@ namespace SH
   {
     RCU_READ_INVARIANT (this);
 
-    std::auto_ptr<TFile> file (TFile::Open (m_file.c_str(), "READ"));
+    std::unique_ptr<TFile> file (TFile::Open (m_file.c_str(), "READ"));
     if (file.get() == 0)
       RCU_THROW_MSG ("could not open file " + m_file);
     TObject *object = file->Get (name.c_str());
