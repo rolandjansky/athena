@@ -14,9 +14,10 @@ from G4AtlasTools.G4AtlasToolsConf import CylindricalEnvelope, PolyconicalEnvelo
 from AthenaCommon.SystemOfUnits import mm, cm, m
 
 #ToDo - finish migrating this (dnoel)
+#Todo - just return component accumulator
+#to still migrate: getCavernWorld, getCavernInfraGeoDetectorTool
 #from ForwardRegionProperties.ForwardRegionPropertiesToolConfig import ForwardRegionPropertiesCfg
 
-#tool cfg or just cfg?
 def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
     #set up geometry
     result=BeamPipeGeometryCfg(ConfigFlags)
@@ -97,16 +98,18 @@ def MuonGeoDetectorToolCfg(ConfigFlags, name='Muon', **kwargs):
     kwargs.setdefault("DetectorName", "Muon")
     return result, GeoDetectorTool(name, **kwargs)
 
+#todo - set this up
 def getCavernInfraGeoDetectorTool(name='CavernInfra', **kwargs):
     kwargs.setdefault("DetectorName", "CavernInfra")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return GeoDetectorTool(name, **kwargs)
 
 def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
     result = ComponentAccumulator()
 
     isUpgrade = ConfigFlags.GeoModel.Run =="RUN4" 
     isRUN2 = ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]
-    isRUN1 = not (isRUN2 or isUpgrade)
+
+    #isRUN1 = not (isRUN2 or isUpgrade) #not used, remove?
 
     kwargs.setdefault("DetectorName", "IDET")
     innerRadius = 37.*mm # RUN1 default
@@ -268,7 +271,7 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    AtlasOuterR3 =  1501.
+    #AtlasOuterR3 =  1501. #not used, remove?
     if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.SimulateMuon and not \
        (ConfigFlags.Sim.CavernBG != 'Signal'):
         AtlasOuterR1 = 4251.
@@ -325,39 +328,6 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     result.merge(accSubDetectors)
 
     return result, PolyconicalEnvelope(name, **kwargs)
-
-def getCavernWorld(name="Cavern", **kwargs):
-    kwargs.setdefault("DetectorName", "World")
-    bedrockDX = 302700
-    bedrockDZ = 301000
-    from G4AtlasApps.SimFlags import simFlags
-    if not (hasattr(simFlags,'CavernBG') and simFlags.CavernBG.statusOn ):
-        ## Be ready to resize bedrock if the cosmic generator needs more space
-        if simFlags.ISFRun:
-            # for ISF cosmics simulation, set world volume to biggest possible case
-            bedrockDX = 1000.*3000 # 3 km
-            bedrockDZ = 1000.*3000 # 3 km
-        else:
-            from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator
-            theCavernProperties = CavernPropertyCalculator()
-            if theCavernProperties.BedrockDX() > bedrockDX:
-                bedrockDX = theCavernProperties.BedrockDX()
-            if theCavernProperties.BedrockDZ() > bedrockDZ:
-                bedrockDZ = theCavernProperties.BedrockDZ()
-    kwargs.setdefault("dX", bedrockDX) #FIXME Units?
-    kwargs.setdefault("dY", 57300 + 41000 + 1000) # 1 extra metre to help voxelization... #FIXME Units?
-    kwargs.setdefault("dZ", bedrockDZ) #FIXME Units?
-    # Subtraction Solid - has to be a better way to do this!!
-    kwargs.setdefault("NumberOfHoles", 1)
-    kwargs.setdefault("HoleNames", ['BelowCavern'])
-    kwargs.setdefault("Hole_dX",   [bedrockDX]);
-    kwargs.setdefault("Hole_dY",   [41000]);
-    kwargs.setdefault("Hole_dZ",   [bedrockDZ]);
-    kwargs.setdefault("HolePosX",  [0]);
-    kwargs.setdefault("HolePosY",  [-58300]);
-    kwargs.setdefault("HolePosZ",  [0]);
-    kwargs.setdefault("SubDetectors", ['CavernInfra', 'Atlas'])
-    return CfgMgr.BoxEnvelope(name, **kwargs)
 
 def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstructionTool", **kwargs):
     return G4AtlasDetectorConstructionTool(name, **kwargs)
