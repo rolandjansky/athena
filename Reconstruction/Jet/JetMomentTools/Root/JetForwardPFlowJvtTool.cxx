@@ -23,18 +23,6 @@
 // Jet
 #include "xAODJet/JetAuxContainer.h"
 
-
-// PFlow
-//#include "JetRecTools/PFlowPseudoJetGetter.h"
-
-// #include "JetRec/JetRecTool.h"
-// #include "JetRec/JetFinder.h"
-// #include "JetRec/JetByVertexFinder.h"
-#include "JetRec/JetFromPseudojet.h"
-// #include "JetInterface/IJetFromPseudojet.h"
-// #include "fastjet/PseudoJet.hh"
-// #include "xAODJet/JetContainer.h"
-
 // Shallow copy
 //#include "xAODCore/ShallowCopy.h"
 
@@ -96,38 +84,6 @@
     m_wpfotool = new CP::WeightPFOTool("WPFOTool");
     m_wpfotool->initialize();
     
-    // m_pjetget= new PseudoJetGetter("Pjetgetter");
-    // m_pjetget->setProperty("m_label","EMPFlow");
-
-
-    // JetFromPseudojet *jjj = new JetFromPseudojet("JetFromPseudo");
-    // jjj->initialize();
-
-    // JetFinder *jfd = new JetFinder("Jfd");
-    // jfd->setProperty("JetAlgorithm","AntiKt");
-    // jfd->setProperty("JetRadius",0.4);
-    // jfd->setProperty("JetBuilder",jjj);
-    // //ATH_CHECK(jfd->setProperty("",""));
-    // //ATH_CHECK(jfd->setProperty("",""));
-    // jfd->initialize();
-
-    // JetByVertexFinder *jvx = new JetByVertexFinder("Jvx");
-    // jvx->setProperty("JetFinder",jfd);
-    // jvx->setProperty("Vertex",-1);
-    // jvx->initialize();
-
-    // PseudoJetGetter *psj = new PseudoJetGetter("Psj");
-    // ATH_CHECK(psj->setProperty("InputContainer",xAOD::PFOContainer* pfos));
-    // ATH_CHECK(psj->setProperty("OutputContainer",xAOD::PseudoJetContainer* output_jets));
-    // ATH_CHECK(psj->setProperty("Label","PFlow"));
-    // //ATH_CHECK(psj->setProperty("",""));
-    // ATH_CHECK(psj->initialize());
-
-    // JetRecTool *jrc = new JetRecTool("Jrc");
-    // ATH_CHECK(jrc->setProperty("JetFinder",jfd));
-    // //ATH_CHECK(jrc->setProperty("",""));
-    // ATH_CHECK(jrc->initialize());
-
     JetFromPseudojet *jetFromPseudo = new JetFromPseudojet("jetFromPseudo");
     ATH_CHECK(jetFromPseudo->initialize());
     return StatusCode::SUCCESS;
@@ -252,12 +208,9 @@
 
     for (size_t i = 0; i < inclusive_jets.size(); i++) {
       xAOD::Jet* jet = new xAOD::Jet();
-      //cxAOD::Jet* jet = JetFromPseudojet->add(inclusive_jets[i],);
       xAOD::JetFourMom_t tempjetp4(inclusive_jets[i].pt(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
       vertjets->push_back(jet);
       jet->setJetP4(tempjetp4);
-      jet->setJetP4(xAOD::JetFourMom_t(inclusive_jets[i].perp(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0));
-      jet->setJetP4(xAOD::JetFourMom_t(inclusive_jets[i].perp(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0));
       std::vector<fastjet::PseudoJet> constituents = inclusive_jets[i].constituents();
       float chargedpart = 0;
       for (size_t j = 0; j < constituents.size(); j++) {
