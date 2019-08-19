@@ -22,6 +22,8 @@
 #include "LArDigitization/LArHitEMap.h"
 #include "LArElecCalib/ILArfSampl.h"
 
+#include "AthenaKernel/IAthRNGSvc.h"
+
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
@@ -29,7 +31,6 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "LArRawEvent/LArTTL1Container.h"
 class PileUpMergeSvc;
-class IAtRndmGenSvc;
 class ITriggerTime;
 class CaloTriggerTowerService;
 class CaloLVL1_ID;
@@ -37,11 +38,6 @@ class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
 class LArHitEMap;
-
-namespace CLHEP
-{
-  class HepRandomEngine;
-}
 
 /**
    @brief The aim of this algorithm is the simulation of the LAr analogue trigger tower sums. 
@@ -112,9 +108,7 @@ class LArTTL1Maker : public AthAlgorithm,
 
   IChronoStatSvc*              m_chronSvc;
   PileUpMergeSvc*              m_mergeSvc;
-  ServiceHandle<IAtRndmGenSvc> m_atRndmGenSvc;
-  std::string                  m_rndmEngineName;
-  CLHEP::HepRandomEngine*      m_rndmEngine;
+  ServiceHandle<IAthRNGSvc> m_RandomSvc{this, "RndmSvc", "AthRNGSvc", ""};
 
   /** Alorithm property: use trigger time or not*/
   bool m_useTriggerTime;
