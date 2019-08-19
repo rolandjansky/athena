@@ -333,7 +333,7 @@ namespace EL
         for (Job::outputMIter out = data.job->outputBegin(),
                end = data.job->outputEnd(); out != end; ++ out)
         {
-          if (out->output() == 0)
+          if (out->output() == nullptr)
           {
             out->output (new SH::DiskOutputLocal
                          (writeLocation + "/fetch/data-" + out->label() + "/"));
