@@ -127,6 +127,9 @@ public:
 
   void set_ptmin( double d=0 ) { m_ptmin=d; }
 
+  size_t get_jets( Trig::FeatureContainer::combination_const_iterator citr, 
+		   std::vector<TrackTrigObject>& objects, const std::string& key="" );
+
 protected:
 
   virtual void loop();

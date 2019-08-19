@@ -3,14 +3,15 @@
 # Based on : https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibConfig.py
 
 from MuonCondSvc.MuonCondSvcConf import MuonCalib__CscCoolStrSvc
-from CscCalibTools.CscCalibToolsConf import CscCalibTool
 from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbSvc, MdtCalibrationSvc
 from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MuonCalib__MdtCalibDbCoolStrTool
-from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber, mdtCalibWindowName, specialAddFolderSplitOnline # TODO should maybe shift this elsewhere?
+from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders, addFoldersSplitOnline
+from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
         
+from AthenaCommon.Logging import logging
+log = logging.getLogger('MuonCalibConfig')
 
 ################################################################################
 # CSC calibration
@@ -62,7 +63,7 @@ def _setupCscCondDB( flags, name, key, dataType, cat, default, folder, database,
     elif database=='CSC_OFL':
         acc.merge( addFolders( flags, oflFolderString, database ) )
     else:
-        print "Failed to recognize database: " + database + " for parameter " + name
+        log.error("Failed to recognize database: " + database + " for parameter " + name)
         return acc 
 
     if override:
@@ -70,7 +71,7 @@ def _setupCscCondDB( flags, name, key, dataType, cat, default, folder, database,
             #assume when local, the folder will be in offline location. 
             #Maybe add more options in future
             overfolder = oflFolderString.split()[0] #Get folder without suffix
-        elif datebase=='CSC':
+        elif database=='CSC':
             if flags.Common.isOnline:
                 overfolder = onlFolderString.split()[0] #Get folder without suffix
             else:
@@ -78,9 +79,9 @@ def _setupCscCondDB( flags, name, key, dataType, cat, default, folder, database,
         elif database=='CSC_OFL':
             overfolder = oflFolderString.split()[0] #Get folder without suffix
         else:
-            print "Failed to recognize database: " + database + " for parameter " + name
+            log.error("Failed to recognize database: " + database + " for parameter " + name)
             return acc
-        print "Overriding folder for " + name + "(" + overfolder + ") to " + override 
+        log.info("Overriding folder for " + name + "(" + overfolder + ") to " + override)
         #acc.merge( addOverride( flags, overfolder, override ) )
 
     return acc
@@ -100,13 +101,13 @@ def CscCoolStrSvcCfg( flags ):
     t0phaseFolder   = "T0PHASE"
 
     # unused folders
-    gainFolder      = "GAIN"
-    runSlopeFolder  = "RSLOPE"
-    tholdFolder     = "THOLD"
-    peaktFolder     = "PEAKT"
-    widthFolder     = "WIDTH"
-    sat1Folder      = "SAT1"
-    sat2Folder      = "SAT2"
+    #gainFolder      = "GAIN"
+    #runSlopeFolder  = "RSLOPE"
+    #tholdFolder     = "THOLD"
+    #peaktFolder     = "PEAKT"
+    #widthFolder     = "WIDTH"
+    #sat1Folder      = "SAT1"
+    #sat2Folder      = "SAT2"
 
     # Set CscCoolStr Svc to prepare condDB for pedestal, noise and so on
     CscCoolStrSvc = MuonCalib__CscCoolStrSvc()
@@ -362,7 +363,6 @@ def CscCoolStrSvcCfg( flags ):
 def _setupMdtCondDB(flags):
     result=ComponentAccumulator()
     
-    # print '_setupMdtCondDB flags.Muon.Calib.readMDTCalibFromBlob:',flags.Muon.Calib.readMDTCalibFromBlob
     if flags.Muon.Calib.readMDTCalibFromBlob:
         mdt_folder_name_appendix = "BLOB" 
     else:
@@ -377,21 +377,51 @@ def _setupMdtCondDB(flags):
     else:
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["MDTCalibrationSource", flags.Muon.Calib.mdtCalibrationSource()] # TODO Check this.
-        addMCString=None
         result.merge(addFoldersSplitOnline(flags, flags.Muon.Calib.mdtCalibrationSource, online_folders, offline_folders,
                                            className = 'CondAttrListCollection' ) )
         
     return result, mdt_folder_name_appendix
 # end of function setupMdtCondDB()
 
-def MdtCalibDbToolCfg(flags,name="MdtCalibDbTool",**kwargs):
-    result=ComponentAccumulator()
+def MdtCalibrationToolCfg(flags, **kwargs):
+    from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationTool    
+    result=MdtCalibrationDbToolCfg(flags, **kwargs)
+    mdt_calibibration_db_tool = result.getPrimary()
     
+    kwargs.setdefault("CalibrationDbTool", mdt_calibibration_db_tool)
+    kwargs.setdefault("DoSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
+    kwargs.setdefault("DoTemperatureCorrection", flags.Muon.Calib.applyRtScaling)
+    kwargs.setdefault("DoWireSagCorrection", flags.Muon.Calib.correctMdtRtWireSag)
+    kwargs.setdefault("DoTofCorrection",  flags.Beam.Type == 'collisions' ) # No TOF correction if not collisions
+    
+    acc = MagneticFieldSvcCfg(flags)
+    mag_field_svc = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("MagFieldSvc",  mag_field_svc )
+    
+    mdt_calibration_tool = MdtCalibrationTool(**kwargs)
+    result.setPrivateTools(mdt_calibration_tool)
+    return result
+
+def MdtCalibrationDbToolCfg(flags, **kwargs):
+    from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbTool    
+    # We need the conditions objects to have been created.
+    result = MdtCalibDbAlgCfg(flags, **kwargs)
+        
+    kwargs.setdefault("CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField)
+    kwargs.setdefault("CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag)
+    kwargs.setdefault("CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
+    
+    mdt_calibration_db_tool = MdtCalibrationDbTool(**kwargs)
+    result.setPrivateTools(mdt_calibration_db_tool)
+    return result
+    
+
+def MdtCalibDbCoolStrToolCfg(flags,name="MdtCalibDbTool",**kwargs):    
     # result.merge( IOVDbSvcCfg(flags) )
     
     # setup COOL folders
-    acc, mdt_folder_name_appendix = _setupMdtCondDB(flags)
-    result.merge(acc)
+    result, mdt_folder_name_appendix = _setupMdtCondDB(flags)
     
     # set some default proper ties
     from IOVDbSvc.CondDB import conddb
@@ -402,7 +432,7 @@ def MdtCalibDbToolCfg(flags,name="MdtCalibDbTool",**kwargs):
        kwargs.setdefault("TubeFolder", "/MDT/T0"+ mdt_folder_name_appendix)
        kwargs.setdefault("RtFolder",  "/MDT/RT"+ mdt_folder_name_appendix)
     kwargs.setdefault("RT_InputFiles" , ["Muon_RT_default.data"])
-    if flags.Input.isMC == False: # Should be " if flags.Input.isMC=='data' " ?
+    if flags.Input.isMC is False: # Should be " if flags.Input.isMC=='data' " ?
         kwargs.setdefault("defaultT0", 40)
     else:
         kwargs.setdefault("defaultT0", 799)
@@ -410,17 +440,19 @@ def MdtCalibDbToolCfg(flags,name="MdtCalibDbTool",**kwargs):
     kwargs.setdefault("TimeSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
     kwargs.setdefault("MeanCorrectionVsR", [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ])
     kwargs.setdefault("PropagationSpeedBeta", flags.Muon.Calib.mdtPropagationSpeedBeta)
-    result.addPublicTool(MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs))
+    result.setPrivateTools(MuonCalib__MdtCalibDbCoolStrTool(name,**kwargs))
     return result
 
 def MdtCalibrationDbSvcCfg(flags, **kwargs):
+    
+    result = MdtCalibDbCoolStrToolCfg(flags)
+    db_tool = result.getPrimary()
+    result.addPublicTool(db_tool)
+    
     kwargs.setdefault( "CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField )
     kwargs.setdefault( "CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag )
     kwargs.setdefault( "CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
-    kwargs.setdefault( "DBTool", "MuonCalib::MdtCalibDbCoolStrTool/MdtCalibDbTool")
-    result = MdtCalibDbToolCfg(flags)
-
-    # kwargs.setdefault( "DBTool", mdt_calib_db_tool )
+    kwargs.setdefault( "DBTool", db_tool)
     
     mdt_calib_db_svc = MdtCalibrationDbSvc(**kwargs)
     result.addService(mdt_calib_db_svc,primary=True)
@@ -475,7 +507,7 @@ def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
     kwargs.setdefault("ReadKeyTube", kwargs["TubeFolder"])
     kwargs.setdefault("ReadKeyRt",   kwargs["RtFolder"])
     kwargs.setdefault("RT_InputFiles" , ["Muon_RT_default.data"])
-    if flags.Input.isMC == False: # Should be " if flags.Input.isMC=='data' " ?
+    if flags.Input.isMC is False: # Should be " if flags.Input.isMC=='data' " ?
         kwargs.setdefault("defaultT0", 40)
     else:
         kwargs.setdefault("defaultT0", 799)

@@ -1,3 +1,10 @@
+from future.utils import iteritems
+from future.utils import itervalues
+
+
+from builtins import int
+from builtins import object
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfGraph
@@ -57,7 +64,7 @@ class executorGraph(object):
             # Single executor - in this case inData/outData is not mandatory, so we set them to the 
             # input/output data of the transform
             executor = list(executorSet)[0]
-            if len(executor._inData) is 0 and len(executor._outData) is 0:
+            if len(executor._inData) == 0 and len(executor._outData) == 0:
                 executor.inData = inputData
                 executor.outData = outputData
         
@@ -80,7 +87,7 @@ class executorGraph(object):
         # nodes for any intermediate data end nodes as well
         pseudoNodes = dict()
         pseudoNodes['_start'] = graphNode(name='_start', inData=[], outData=self._inputData, weight = 0)
-        for node in self._nodeDict.itervalues():
+        for node in itervalues(self._nodeDict):
             for dataType in node.outputDataTypes:
                 endNodeName = '_end_{0}'.format(dataType)
                 pseudoNodes[endNodeName] = graphNode(name=endNodeName, inData=[dataType], outData=[], weight = 0)
@@ -147,16 +154,16 @@ class executorGraph(object):
     
     
     def _resetConnections(self):
-        for node in self._nodeDict.itervalues():
+        for node in itervalues(self._nodeDict):
             node.resetConnections()
     
     ## @brief Look at executor nodes and work out how they are connected
     #  @note Anything better than n^2? Should be ok for our low numbers of nodes, but could be optimised
     def findConnections(self):
         self._resetConnections()
-        for nodeNameA, nodeA in self._nodeDict.iteritems():
-            for nodeNameB, nodeB in self._nodeDict.iteritems():
-                if nodeNameA is nodeNameB:
+        for nodeNameA, nodeA in iteritems(self._nodeDict):
+            for nodeNameB, nodeB in iteritems(self._nodeDict):
+                if nodeNameA == nodeNameB:
                     continue
                 dataIntersection = list(set(nodeA.outputDataTypes) & set(nodeB.inputDataTypes))
                 msg.debug('Data connections between {0} and {1}: {2}'.format(nodeNameA, nodeNameB, dataIntersection))
@@ -174,11 +181,11 @@ class executorGraph(object):
         graphCopy = copy.deepcopy(self._nodeDict)
         # Find all valid start nodes in this graph - ones with no data dependencies themselves
         startNodeNames = []
-        for nodeName, node in graphCopy.iteritems():
+        for nodeName, node in iteritems(graphCopy):
             if len(node.connections['in']) == 0:
                 startNodeNames.append(nodeName)
 
-        if len(startNodeNames) is 0:
+        if len(startNodeNames) == 0:
             raise trfExceptions.TransformGraphException(trfExit.nameToCode('TRF_GRAPH_ERROR'), 
                                                         'There are no starting nodes in this graph - non-DAG graphs are not supported')
 
@@ -203,7 +210,7 @@ class executorGraph(object):
         # If there are nodes left then the graph has cycles, which means it's not a DAG        
         if len(graphCopy) > 0:
             raise trfExceptions.TransformGraphException(trfExit.nameToCode('TRF_GRAPH_ERROR'), 
-                                                        'Graph topological sort had no more start nodes, but nodes were left {0} - non-DAG graphs are not supported'.format(graphCopy.keys()))
+                                                        'Graph topological sort had no more start nodes, but nodes were left {0} - non-DAG graphs are not supported'.format(list(graphCopy)))
             
         msg.debug('Topologically sorted node order: {0}'.format(self._toposort))
         
@@ -228,7 +235,7 @@ class executorGraph(object):
     def findExecutionPath(self):        
         # Switch off all nodes, except if we have a single node which is not data driven...
         self._execution = {}
-        for nodeName, node in self._nodeDict.iteritems():
+        for nodeName, node in iteritems(self._nodeDict):
             if len(self._nodeDict) == 1 and node.inputDataTypes == set() and node.inputDataTypes == set():
                 self._execution[nodeName] = {'enabled' : True, 'input' : set(), 'output' : set()}
             else:
@@ -273,13 +280,13 @@ class executorGraph(object):
                     if nextNodeName in bestPath.extraData:
                         self._execution[nextNodeName]['input'].update(bestPath.extraData[nodeName])
                 # Add any extra data we need (from multi-exit nodes) to the data to produce list
-                for extraNodeData in bestPath.extraData.itervalues():
+                for extraNodeData in itervalues(bestPath.extraData):
                     for extra in extraNodeData:
                         if extra not in dataAvailable:
                             dataToProduce.update([extra])
                             
         # Now remove the fake data objects from activated nodes
-        for node, props in self._execution.iteritems():
+        for node, props in iteritems(self._execution):
             msg.debug('Removing fake data from node {0}'.format(node))
             props['input'] -= set(['inNULL', 'outNULL'])
             props['output'] -= set(['inNULL', 'outNULL'])
@@ -314,41 +321,41 @@ class executorGraph(object):
         msg.debug('Started path finding with seed path {0}'.format(pathSet[0]))
         
         # Halting condition - only one path and its first element is startNodeName
-        while len(pathSet) > 1 or pathSet[0].path[0] is not startNodeName:
+        while len(pathSet) > 1 or pathSet[0].path[0] != startNodeName:
             msg.debug('Starting best path iteration with {0} paths in {1}'.format(len(pathSet), pathSet))
             # Copy the pathSet to do this, as we will update it
             for path in pathSet[:]:
                 msg.debug('Continuing path finding with path {0}'.format(path))
                 currentNodeName = path.path[0]
-                if currentNodeName is startNodeName:
+                if currentNodeName == startNodeName:
                     msg.debug('Path {0} has reached the start node - finished'.format(path))
                     continue
                 # If there are no paths out of this node then it's a dead end - kill it
-                if len(self._nodeDict[currentNodeName].connections['in']) is 0:
+                if len(self._nodeDict[currentNodeName].connections['in']) == 0:
                     msg.debug('Path {0} is a dead end - removing'.format(path))
                     pathSet.remove(path)
                     continue
                 # If there is only one path out of this node, we extend it
-                if len(self._nodeDict[currentNodeName].connections['in']) is 1:
-                    msg.debug('Single exit from path {0} - adding connection to {1}'.format(path, self._nodeDict[currentNodeName].connections['in'].keys()[0]))
-                    self._extendPath(path, currentNodeName, self._nodeDict[currentNodeName].connections['in'].keys()[0])
+                if len(self._nodeDict[currentNodeName].connections['in']) == 1:
+                    msg.debug('Single exit from path {0} - adding connection to {1}'.format(path, list(self._nodeDict[currentNodeName].connections['in'])[0]))
+                    self._extendPath(path, currentNodeName, list(self._nodeDict[currentNodeName].connections['in'])[0])
                     continue
                 # Else we need to clone the path for each possible exit
                 msg.debug('Multiple exits from path {0} - will clone for each extra exit'.format([path]))
-                for nextNodeName in self._nodeDict[currentNodeName].connections['in'].keys()[1:]:
+                for nextNodeName in list(self._nodeDict[currentNodeName].connections['in'])[1:]:
                     newPath = copy.deepcopy(path)
                     msg.debug('Cloned exit from path {0} to {1}'.format(newPath, nextNodeName))             
                     self._extendPath(newPath, currentNodeName, nextNodeName)
                     pathSet.append(newPath)
                 # Finally, use the original path to extend along the first node exit
-                msg.debug('Adding exit from original path {0} to {1}'.format(path, self._nodeDict[currentNodeName].connections['in'].keys()[0]))             
-                self._extendPath(path, currentNodeName, self._nodeDict[currentNodeName].connections['in'].keys()[0])
+                msg.debug('Adding exit from original path {0} to {1}'.format(path, list(self._nodeDict[currentNodeName].connections['in'])[0]))
+                self._extendPath(path, currentNodeName, list(self._nodeDict[currentNodeName].connections['in'])[0])
 
             # Now compare paths which made it to the end - only keep the shortest
             lowestCostPath = None
             for path in pathSet[:]:
                 currentNodeName = path.path[0]
-                if currentNodeName is startNodeName:
+                if currentNodeName == startNodeName:
                     if lowestCostPath is None:
                         lowestCostPath = path
                         continue
@@ -405,7 +412,7 @@ class executorGraph(object):
         if len(self._toposort) > 0:
             nodeNames = self._toposort
         else:
-            nodeNames = self._nodeDict.keys()
+            nodeNames = list(self._nodeDict)
             nodeNames.sort()
         for nodeName in nodeNames:
             if not nodeName.startswith('_'): 
@@ -419,7 +426,7 @@ class executorGraph(object):
         if len(self._toposort) > 0:
             nodeNames = self._toposort
         else:
-            nodeNames = self._nodeDict.keys()
+            nodeNames = list(self._nodeDict)
             nodeNames.sort()
         for nodeName in nodeNames:
             nodeStrList.append(repr(self._nodeDict[nodeName]))

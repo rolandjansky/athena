@@ -3,12 +3,14 @@
 import pickle
 import subprocess
 import unittest
+import os
 
 
 class TestFullG4(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ["TRF_ECHO"] = "1"
         config_picklefilename = 'FullG4_config.pkl'
         command = [
             'Sim_tf.py',

@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOBCIDAVGALG_H
@@ -16,8 +16,7 @@
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArMinBiasAverage.h"
 #include "LArCabling/LArOnOffIdMapping.h"
-
-#include "LumiBlockComps/ILuminosityTool.h"
+#include "LumiBlockData/LuminosityCondData.h"
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 class CaloBCIDAvgAlg : public AthReentrantAlgorithm {
@@ -41,13 +40,13 @@ private:
   //ConditionsInput
   SG::ReadCondHandleKey<ILArOFC> m_ofcKey{this,"OFCKey","LArOFC","SG Key of OFC conditions object"};
   SG::ReadCondHandleKey<ILArShape> m_shapeKey{this,"ShapeKey","LArShape32","SG Key of Shape conditions object"};
-  SG::ReadCondHandleKey<ILArMinBiasAverage> m_minBiasAvgKey{this,"MinBiasAvgKey","LArPileupAverage","SGKey of LArMinBiasAverage object"};
+  SG::ReadCondHandleKey<ILArMinBiasAverage> m_minBiasAvgKey{this,"MinBiasAvgKey","LArPileupAverageSym","SGKey of LArMinBiasAverage object"};
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArMCSym> m_mcSym{this,"MCSym","LArMCSym","SG Key of LArMCSym object"};
+  SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey{this,"LuminosityCondDataKey","LuminosityCondData","SG Key of LuminosityCondData object"};
 
 
   //Tool Handles:
-  ToolHandle<ILuminosityTool> m_lumiTool;
   ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
   //Other Properties
@@ -64,7 +63,9 @@ private:
   const unsigned m_bcidMax=3564;
 
   //private methods: 
-  std::vector<float> accumulateLumi(const unsigned int bcid, const float xlumiMC) const;
+  std::vector<float> accumulateLumi(const std::vector<float>& luminosity,
+                                    const unsigned int bcid,
+                                    const float xlumiMC) const;
 
 };
 

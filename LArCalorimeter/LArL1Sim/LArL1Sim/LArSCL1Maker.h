@@ -32,9 +32,7 @@ class PileUpMergeSvc;
 class IAtRndmGenSvc;
 class ITriggerTime;
 class CaloCell_SuperCell_ID;
-class LArEM_ID;
-class LArHEC_ID;
-class LArFCAL_ID;
+class CaloCell_ID;
 class LArOnline_SuperCellID;
 class ILArShape;
 class ILArfSampl;
@@ -113,7 +111,7 @@ class LArSCL1Maker : public AthAlgorithm,
   /** Method for converting Hits from samples (simplified version
  * of the same method in LarPileUpTool) */
  void ConvertHits2Samples(const HWIdentifier & hwSC, CaloGain::CaloGain igain,
-       const std::vector<std::pair<float,float> >  *TimeE,
+       const std::vector<std::pair<float,float> >& TimeE,
 	std::vector<float>& samples);
 
 //
@@ -137,6 +135,8 @@ class LArSCL1Maker : public AthAlgorithm,
   ToolHandle<ICaloSuperCellIDTool>           m_scidtool;
   /** pointer to the offline TT helper */
   const CaloCell_SuperCell_ID*     m_scHelper;
+  /** pointer to the offline id helper  */
+  const CaloCell_ID*               m_OflHelper;
   /** pointer to the online LAr helper */
   const LArOnline_SuperCellID*   m_OnlSCHelper;
   
@@ -160,7 +160,9 @@ class LArSCL1Maker : public AthAlgorithm,
   std::vector< std::vector<float> > m_autoCorrHec ;
 
   /** hit map */
-  LArHitEMap* m_hitmap; // map of hits in cell 
+  SG::ReadHandleKey<LArHitEMap> m_hitMapKey{this,"LArHitEMapKey","LArHitEMap"};
+
+
   /** list of hit containers */
   std::vector <std::string> m_HitContainer;
 

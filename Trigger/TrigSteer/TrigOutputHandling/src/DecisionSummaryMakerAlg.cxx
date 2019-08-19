@@ -22,7 +22,7 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
     ATH_MSG_DEBUG( "Final decision of the chain " << conf.chain << " will be read from " << conf.collection );
   }
 
-  if (m_enableCostMonitoring) {
+  if (m_doCostMonitoring) {
     CHECK( m_trigCostSvcHandle.retrieve() );
     CHECK( m_costWriteHandleKey.initialize() );
   }
@@ -76,15 +76,16 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
         continue;
       }
 
-      // Copy decisions set into passRawOutput's persistent vector
-      decisionIDs(passRawOutput).insert( decisionIDs(passRawOutput).end(),
-        passingFinalIDs.begin(), passingFinalIDs.end() ); 
-
-      if (msgLvl(MSG::DEBUG)) {
-        allPassingFinalIDs.insert( passingFinalIDs.begin(), passingFinalIDs.end() );
-      }
+      // Accumulate and de-duplicate passed IDs for which this hypo was the Chain's final step
+      allPassingFinalIDs.insert( passingFinalIDs.begin(), passingFinalIDs.end() );
+      // Create seed links for the navigation to follow
+      linkToPrevious(passRawOutput, decisionObject, context);
     }
   }
+
+  // Copy decisions set into passRawOutput's persistent vector
+  decisionIDs(passRawOutput).insert( decisionIDs(passRawOutput).end(),
+    allPassingFinalIDs.begin(), allPassingFinalIDs.end() );
 
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG( "Number of positive decisions " <<  allPassingFinalIDs.size() << " passing chains");
@@ -138,7 +139,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
         rerunIDs.begin(), rerunIDs.end() );
 
   // Do cost monitoring
-  if (m_enableCostMonitoring) {
+  if (m_doCostMonitoring) {
     SG::WriteHandle<xAOD::TrigCompositeContainer> costMonOutput = createAndStore(m_costWriteHandleKey, context);
     // Populate collection (assuming monitored event, otherwise collection will remain empty)
     ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput));

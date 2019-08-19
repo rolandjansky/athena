@@ -61,10 +61,10 @@ SCT_ModuleVetoTool::initialize() {
       ATH_MSG_FATAL("Failed to fill data");
       return StatusCode::FAILURE;
     }
-  } else {
-    // Read Cond Handle
-    CHECK(m_condKey.initialize());
   }
+
+  // Read Cond Handle
+  CHECK(m_condKey.initialize(m_useDatabase));
 
   const std::string databaseUseString{m_useDatabase ? "" : "not "};
   ATH_MSG_INFO("Initialized veto service with data, "

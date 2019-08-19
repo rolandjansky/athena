@@ -354,7 +354,8 @@ namespace Analysis
     std::vector<float*>  inputPointers; inputPointers.clear();
     unsigned nConfgVar=0; bool badVariableFound=false;
 
-    SetVariableRefs(inputVars,nConfgVar,badVariableFound,inputPointers);
+    Vars vars;
+    vars.SetVariableRefs(msg(),inputVars,nConfgVar,badVariableFound,inputPointers);
     ATH_MSG_DEBUG("#BTAG# nConfgVar"<<nConfgVar
 		    <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
@@ -541,36 +542,32 @@ namespace Analysis
     BTag->auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link")=theLink; 
 
     // #2: Set necessary MVA-input variables
-    m_pt     = jetToTag->pt();
-    m_absEta = fabs(jetToTag->eta());
+    vars.m_pt     = jetToTag->pt();
+    vars.m_absEta = fabs(jetToTag->eta());
 
     /*** Retrieving soft muon variables ***/
-    m_sm_dR=jet_mu_dRmin_dR;
-    m_sm_pTrel=jet_mu_dRmin_pTrel;
-    m_sm_qOverPratio=jet_mu_dRmin_qOverPratio;  
-    m_sm_mombalsignif=jet_mu_dRmin_mombalsignif;
-    m_sm_scatneighsignif=jet_mu_dRmin_scatneighsignif;
-    m_sm_mu_d0=jet_mu_dRmin_d0;
+    vars.m_sm_dR=jet_mu_dRmin_dR;
+    vars.m_sm_pTrel=jet_mu_dRmin_pTrel;
+    vars.m_sm_qOverPratio=jet_mu_dRmin_qOverPratio;  
+    vars.m_sm_mombalsignif=jet_mu_dRmin_mombalsignif;
+    vars.m_sm_scatneighsignif=jet_mu_dRmin_scatneighsignif;
+    vars.m_sm_mu_d0=jet_mu_dRmin_d0;
     //SVMT
-    m_sm_mu_sv_mass=jet_mu_sv_mass;
-    m_sm_mu_sv_efrc=jet_mu_sv_efrc;
-    m_sm_mu_sv_VtxnormDist=jet_mu_sv_VtxnormDist;
-    m_sm_mu_sv_Lxy=jet_mu_sv_Lxy;
-    m_sm_mu_sv_L3d=jet_mu_sv_L3d;
-    m_sm_mu_sv_dR=jet_mu_sv_dR;
-    m_sm_mu_sv_dmaxPt=jet_mu_sv_dmaxPt;
-    m_sm_mu_sv_ntrk=jet_mu_sv_ntrk;
-    m_sm_mu_sv_ntrkVtx=jet_mu_sv_ntrkVtx;
+    vars.m_sm_mu_sv_mass=jet_mu_sv_mass;
+    vars.m_sm_mu_sv_efrc=jet_mu_sv_efrc;
+    vars.m_sm_mu_sv_VtxnormDist=jet_mu_sv_VtxnormDist;
+    vars.m_sm_mu_sv_Lxy=jet_mu_sv_Lxy;
+    vars.m_sm_mu_sv_L3d=jet_mu_sv_L3d;
+    vars.m_sm_mu_sv_dR=jet_mu_sv_dR;
+    vars.m_sm_mu_sv_dmaxPt=jet_mu_sv_dmaxPt;
+    vars.m_sm_mu_sv_ntrk=jet_mu_sv_ntrk;
+    vars.m_sm_mu_sv_ntrkVtx=jet_mu_sv_ntrkVtx;
 
     //////////////////////////////////
     // End of SMT inputs retrieving //
     //////////////////////////////////
 
-    if(m_sm_dR==10.){
-      m_my_smt=-1.1;
-      ATH_MSG_DEBUG("#BTAG# Found no muons, assigning default value to SMT: "<< m_my_smt);
-    } 
-    PrintInputs(); 
+    PrintInputs(vars); 
 
     // #3: Computation of MVA output variable(s)
     /* compute SMT: */
@@ -578,7 +575,7 @@ namespace Analysis
 
     smt = GetClassResponse(bdt);//this gives back double
 
-    if (m_sm_dR==10.) smt=-1.1;
+    if (vars.m_sm_dR==10.) smt=-1.1;
     ATH_MSG_DEBUG("#BTAG# SMT weight: " << smt <<", "<<alias<<", "<<author);
 
     // #4: Fill MVA output variable(s) into xAOD
@@ -631,12 +628,12 @@ namespace Analysis
     }
   }
   
-  /* ANDREA */
-  void SoftMuonTag::ClearInputs() {
-    m_sm_pTrel=0.;
-  }
-
-  void SoftMuonTag::SetVariableRefs(const std::vector<std::string> inputVars, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
+  void SoftMuonTag::Vars::SetVariableRefs(MsgStream& msg,
+                                          const std::vector<std::string>& inputVars,
+                                          unsigned &nConfgVar,
+                                          bool &badVariableFound,
+                                          std::vector<float*> &inputPointers)
+  {
     for (unsigned ivar=0; ivar<inputVars.size(); ivar++) {
       if      (inputVars.at(ivar)=="pt"         	     ) { inputPointers.push_back(&m_pt   ) ; nConfgVar++; }
       else if (inputVars.at(ivar)=="abs(eta)"   	     ) { inputPointers.push_back(&m_absEta   ) ; nConfgVar++; }
@@ -656,25 +653,25 @@ namespace Analysis
       else if (inputVars.at(ivar)=="j_m_s_L3d" 	     ) { inputPointers.push_back(&m_sm_mu_sv_L3d ) ; nConfgVar++; }
       else if (inputVars.at(ivar)=="j_m_s_dR"  	     ) { inputPointers.push_back(&m_sm_mu_sv_dR ) ; nConfgVar++; }
       else {
-	ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in SMT... CHECK PLEASE!!!");
+	msg << MSG::WARNING << "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in SMT... CHECK PLEASE!!!" << endmsg;
 	badVariableFound=true;
       } 
     }
   }//void SoftMuonTag::SetVariableRefs
 
-  void SoftMuonTag::PrintInputs() {
+  void SoftMuonTag::PrintInputs(const Vars& vars) const {
     ATH_MSG_DEBUG("#BTAG# SMT jet info: " <<
-                  "  jet pt= "     << m_pt  <<
-                  ", jet eta= "    << m_absEta <<
-		  ", dR= "         << m_sm_dR <<
-		  ", pTrel= "      << m_sm_pTrel <<
-		  ", q/p="         << m_sm_qOverPratio <<
-                  ", momb="        << m_sm_mombalsignif <<
-		  ", scat="        << m_sm_scatneighsignif <<
-		  ", d0 ="         << m_sm_mu_d0);
+                  "  jet pt= "     << vars.m_pt  <<
+                  ", jet eta= "    << vars.m_absEta <<
+		  ", dR= "         << vars.m_sm_dR <<
+		  ", pTrel= "      << vars.m_sm_pTrel <<
+		  ", q/p="         << vars.m_sm_qOverPratio <<
+                  ", momb="        << vars.m_sm_mombalsignif <<
+		  ", scat="        << vars.m_sm_scatneighsignif <<
+		  ", d0 ="         << vars.m_sm_mu_d0);
   }
 
-  float SoftMuonTag:: deltaR(float eta1, float eta2, float phi1, float phi2) {
+  float SoftMuonTag:: deltaR(float eta1, float eta2, float phi1, float phi2) const {
     float DEta = fabs(eta1 - eta2);
     float DPhi = acos(cos(fabs(phi1 - phi2)));
     return sqrt(pow(DEta, 2) + pow(DPhi, 2));

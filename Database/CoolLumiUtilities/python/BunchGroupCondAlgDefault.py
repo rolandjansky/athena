@@ -26,9 +26,8 @@ def BunchGroupCondAlgDefault():
 
         # Mistakenly created as multi-version folder, must specify HEAD 
         from IOVDbSvc.CondDB import conddb
-        if not conddb.folderRequested( folder ):
-            conddb.addFolderWithTag('TRIGGER', folder, 'HEAD',
-                                    className = 'AthenaAttributeList')
+        conddb.addFolderWithTag('TRIGGER', folder, 'HEAD',
+                                className = 'AthenaAttributeList')
 
     from CoolLumiUtilities.CoolLumiUtilitiesConf import \
          BunchGroupCondAlg

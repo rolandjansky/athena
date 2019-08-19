@@ -43,10 +43,6 @@ else :
   HLTMonFlags.doMonTier0 = False
   HLTMonFlags.doMaM = False
 
-# remove flag for IDJpsi monitoring in anticipation of the code 
-# being removed
-# HLTMonFlags.doIDJpsiMon = False
-
 log.info("HLTMonFlags are:")
 print HLTMonFlags
 

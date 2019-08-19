@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
+                          DetectorDescription/GeoModel/GeoModelUtilities
                           DetectorDescription/Identifier
                           Event/ByteStreamCnvSvcBase
                           MuonSpectrometer/MuonCablings/MuonMDT_Cabling
@@ -35,8 +36,14 @@ atlas_add_component( MuonMDT_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonMDT_CablingLib MdtCalibSvcLib MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonCablingData )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonMDT_CablingLib MdtCalibSvcLib MuonCalibEvent MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MuonCablingData GeoModelUtilities )
 
 # Install files from the package:
 atlas_install_headers( MuonMDT_CnvTools )
+atlas_install_python_modules( python/*.py )
 
+
+atlas_add_test( MdtRdoToPrepDataTool_test
+  SCRIPT python -m MuonMDT_CnvTools.MdtRdoToPrepDataTool_test
+  PROPERTIES TIMEOUT 600
+  EXTRA_PATTERNS "-s dead tube" )

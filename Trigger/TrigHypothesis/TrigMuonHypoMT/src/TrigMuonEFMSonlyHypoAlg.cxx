@@ -76,14 +76,13 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
   // loop over previous decisions
   for (const auto previousDecision: *previousDecisionsHandle ) {
      // get RoIs
-    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, "initialRoI"  );
+    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
     auto roiEL = roiInfo.link;
-    //auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
     ATH_CHECK( roiEL.isValid() );
     const TrigRoiDescriptor* roi = *roiEL;
 
     // get View
-    auto viewEL = previousDecision->objectLink<ViewContainer>( "view" );
+    auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
     ATH_CHECK( viewEL.isValid() );
 
     // get muons
@@ -106,10 +105,8 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
 
       // pussh_back to toolInput
       toolInput.emplace_back( newd, roi, muon, previousDecision );
-      newd -> setObjectLink( "feature", muonEL );
-      newd -> setObjectLink( "roi",     roiEL  );
-      newd -> setObjectLink( "view",    viewEL );
-      TrigCompositeUtils::linkToPrevious( newd, previousDecision );
+      newd -> setObjectLink( featureString(), muonEL );
+      TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
@@ -133,19 +130,7 @@ StatusCode TrigMuonEFMSonlyHypoAlg::execute( const EventContext& context ) const
     }
   } // End of tool algorithms */	
 
-  { // make output handle and debug, in the base class
-    ATH_MSG_DEBUG ( "Exit with " << outputHandle->size() << " decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {
-      for ( auto decisionObject: *outputHandle )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-      
-    } else ATH_MSG_WARNING( "Output decisions are NOT valid with key : " << decisionOutput().key() );
-  }
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   ATH_MSG_DEBUG("StatusCode TrigMuonEFMSonlyHypoAlg::execute success");
   return StatusCode::SUCCESS;

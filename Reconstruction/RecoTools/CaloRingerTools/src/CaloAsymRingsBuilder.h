@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloAsymRingsBuilder.h 768540 2016-08-17 20:29:37Z ssnyder $
@@ -37,11 +37,11 @@ class CaloAsymRingsBuilder : public CaloRingsBuilder
     /** 
      * @brief initialize method 
      **/
-    virtual StatusCode initialize() ATH_OVERRIDE;
+    virtual StatusCode initialize() override;
     /** 
      * @brief finalize method 
      **/
-    virtual StatusCode finalize() ATH_OVERRIDE;
+    virtual StatusCode finalize() override;
     /// @}
  
   protected:

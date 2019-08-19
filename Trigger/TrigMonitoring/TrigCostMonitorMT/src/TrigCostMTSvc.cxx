@@ -8,6 +8,8 @@
 
 #include "TrigCostMTSvc.h"
 
+#include <mutex>  // For std::unique_lock
+
 /////////////////////////////////////////////////////////////////////////////
 
 TrigCostMTSvc::TrigCostMTSvc(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -31,9 +33,18 @@ TrigCostMTSvc::~TrigCostMTSvc() {
 
 StatusCode TrigCostMTSvc::initialize() {
   ATH_MSG_DEBUG("TrigCostMTSvc initialize()");
+  m_eventSlots = Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents();
+  // TODO Remove this when the configuration is correctly propagated in config-then-run jobs
+  if (!m_eventSlots) {
+    ATH_MSG_WARNING("numConcurrentEvents() == 0. This is a misconfiguration, probably coming from running from pickle. "
+      "Setting local m_eventSlots to a 'large' number until this is fixed to allow the job to proceed.");
+    m_eventSlots = 100;
+  }
   ATH_MSG_INFO("Initializing TrigCostMTSvc with " << m_eventSlots << " event slots");
+
   // We cannot have a vector here as atomics are not movable nor copyable. Unique heap arrays are supported by C++
   m_eventMonitored = std::make_unique< std::atomic<bool>[] >( m_eventSlots );
+  m_slotMutex = std::make_unique< std::shared_mutex[] >( m_eventSlots );
 
   ATH_CHECK(m_algStartInfo.initialize(m_eventSlots));
   ATH_CHECK(m_algStopTime.initialize(m_eventSlots));
@@ -52,14 +63,17 @@ StatusCode TrigCostMTSvc::finalize() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 StatusCode TrigCostMTSvc::startEvent(const EventContext& context, const bool enableMonitoring) {
-  const bool monitoredEvent = (enableMonitoring || m_monitorAll);
+  const bool monitoredEvent = (enableMonitoring || m_monitorAllEvents);
   ATH_CHECK(checkSlot(context));
-  m_eventMonitored[ context.slot() ] = monitoredEvent; 
+  // "clear" is a whole table operation, we need it all to ourselves
+  std::unique_lock lockUnique( m_slotMutex[ context.slot() ] );
   if (monitoredEvent) {
     // Empty transient thread-safe stores in preparation for recording this event's cost data
     ATH_CHECK(m_algStartInfo.clear(context, msg()));
     ATH_CHECK(m_algStopTime.clear(context, msg()));
   }
+  // Now allow processAlg to start populating the 
+  m_eventMonitored[ context.slot() ] = monitoredEvent;
   return StatusCode::SUCCESS;
 }
 
@@ -69,12 +83,21 @@ StatusCode TrigCostMTSvc::processAlg(const EventContext& context, const std::str
   ATH_CHECK(checkSlot(context));
   if (!isMonitoredEvent(context)) return StatusCode::SUCCESS;
 
+  // Multiple simultaneous calls allowed here, adding their data to the concurrent map.
+  std::shared_lock lockShared( m_slotMutex[ context.slot() ] );
+
   AlgorithmIdentifier ai = AlgorithmIdentifierMaker::make(context, caller, msg());
   ATH_CHECK( ai.isValid() );
 
   if (type == AuditType::Before) {
 
-    AlgorithmPayload ap{TrigTimeStamp(), std::this_thread::get_id(), getROIID(context)};
+    AlgorithmPayload ap {
+      TrigTimeStamp(),
+      std::this_thread::get_id(),
+      getROIID(context),
+      static_cast<uint32_t>(context.slot())
+    };
+
     ATH_CHECK( m_algStartInfo.insert(ai, ap) );
 
     ATH_MSG_DEBUG("Caller '" << caller << "', '" << ai.m_store << "', began");
@@ -93,14 +116,19 @@ StatusCode TrigCostMTSvc::processAlg(const EventContext& context, const std::str
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<xAOD::TrigCompositeContainer>& outputHandle) { 
+  ATH_CHECK(checkSlot(context));
   if (!isMonitoredEvent(context)) return StatusCode::SUCCESS;
 
   // Reset eventMonitored flag
-  ATH_CHECK(checkSlot(context));
   m_eventMonitored[ context.slot() ] = false;
   // Now that this atomic is set to FALSE, additional algs in this event which trigger this service will return on the 
   // second line of TrigCostMTSvc::processAlg. 
-  // Hence we can now perform whole-map inspection of this event's TrigCostDataStores
+
+  // ... but processAlg might already be running in other threads... 
+  // Wait to obtain an exclusive lock.
+  std::unique_lock lockUnique( m_slotMutex[ context.slot() ] );
+  
+  // we can now perform whole-map inspection of this event's TrigCostDataStores without the danger that it will be changed further
 
   // Read payloads. Write to persistent format
   tbb::concurrent_hash_map< AlgorithmIdentifier, AlgorithmPayload, AlgorithmIdentifierHashCompare>::const_iterator beginIt;
@@ -129,22 +157,24 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     result &= tc->setDetail("store", ai.storeHash());
     result &= tc->setDetail("view", ai.m_viewID);
     result &= tc->setDetail("thread", static_cast<uint32_t>( std::hash< std::thread::id >()(ap.m_algThreadID) ));
+    result &= tc->setDetail("slot", ap.m_slot);
     result &= tc->setDetail("roi", ap.m_algROIID);
     result &= tc->setDetail("start", ap.m_algStartTime.microsecondsSinceEpoch());
     result &= tc->setDetail("stop", stopTime.microsecondsSinceEpoch());
     if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost TC");
   }
 
-  if (m_printTimes && msg().level() <= MSG::INFO) {
+  if (msg().level() <= MSG::VERBOSE) {
     ATH_MSG_INFO("--- Trig Cost Event Summary ---");
     for ( const xAOD::TrigComposite* tc : *outputHandle ) {
-      ATH_MSG_INFO("Algorithm:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("alg"), "ALG") << "'");
-      ATH_MSG_INFO("  Store:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("store"), "STORE") << "'");
-      ATH_MSG_INFO("  View ID:" << tc->getDetail<int16_t>("view"));
-      ATH_MSG_INFO("  Thread ID Hash:" << tc->getDetail<uint32_t>("thread") );
-      ATH_MSG_INFO("  RoI ID Hash:" << tc->getDetail<int32_t>("roi") );
-      ATH_MSG_INFO("  Start Time:" << tc->getDetail<uint64_t>("start") << " mu s");
-      ATH_MSG_INFO("  Stop Time:" << tc->getDetail<uint64_t>("stop") << " mu s");
+      ATH_MSG_VERBOSE("Algorithm:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("alg"), "ALG") << "'");
+      ATH_MSG_VERBOSE("  Store:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("store"), "STORE") << "'");
+      ATH_MSG_VERBOSE("  View ID:" << tc->getDetail<int16_t>("view"));
+      ATH_MSG_VERBOSE("  Thread ID Hash:" << tc->getDetail<uint32_t>("thread") );
+      ATH_MSG_VERBOSE("  Slot:" << tc->getDetail<uint32_t>("slot") );
+      ATH_MSG_VERBOSE("  RoI ID Hash:" << tc->getDetail<int32_t>("roi") );
+      ATH_MSG_VERBOSE("  Start Time:" << tc->getDetail<uint64_t>("start") << " mu s");
+      ATH_MSG_VERBOSE("  Stop Time:" << tc->getDetail<uint64_t>("stop") << " mu s");
     }
   }
   
@@ -155,7 +185,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
 
 StatusCode TrigCostMTSvc::checkSlot(const EventContext& context) const {
   if (context.slot() >= m_eventSlots) {
-    ATH_MSG_FATAL("Job is using more event slots (" << context.slot() << ") than we configured for, m_eventSlots = " << m_eventSlots);
+    ATH_MSG_FATAL("Job is using event slot #" << context.slot() << ", but we only reserved space for: " << m_eventSlots);
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;

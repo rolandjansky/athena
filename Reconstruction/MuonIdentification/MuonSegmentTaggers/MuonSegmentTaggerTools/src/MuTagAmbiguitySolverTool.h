@@ -1,17 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuTagAmbiguitySolverTool_H
 #define MuTagAmbiguitySolverTool_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <string>
 #include "TrkSegment/SegmentCollection.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
 #include "MuonSegmentTaggerToolInterfaces/IMuTagAmbiguitySolverTool.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 class StoreGateSvc;
 class MdtIdHelper;
@@ -29,7 +31,6 @@ class TgcIdHelper;
 namespace Muon {
   class MuonSegment;
   class MuonEDMPrinterTool;
-  class MuonEDMHelperTool;
   class MuonIdHelperTool;
   class IMuonSegmentMatchingTool;
 }
@@ -51,7 +52,9 @@ class MuTagAmbiguitySolverTool : virtual public IMuTagAmbiguitySolverTool, publi
   int     ambiguousSegment( const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2 ) const;
   double  Rseg( unsigned int nseg ) const ;
 
-  ToolHandle< Muon::MuonEDMHelperTool >  p_muonHelper ; //!< Pointer on MuonEDMHelperTool
+  ServiceHandle<Muon::IMuonEDMHelperSvc>  m_edmHelperSvc  {this, "edmHelper", 
+    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+    "Handle to the service providing the IMuonEDMHelperSvc interface" }; //!< Pointer on IMuonEDMHelperSvc
   ToolHandle< Muon::MuonEDMPrinterTool > p_muonPrinter ; //!< Pointer on MuonEDMPrinterTool
   ToolHandle< Muon::MuonIdHelperTool >   p_muonIdHelper ; //!< Pointer on MuonIdHelperTool
   ToolHandle< Muon::IMuonSegmentMatchingTool> p_segmentMatchingTool ; //!< Pointer on MuonSegmentMatchingTool

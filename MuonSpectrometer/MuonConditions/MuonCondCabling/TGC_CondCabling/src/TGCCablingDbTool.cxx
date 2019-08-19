@@ -30,8 +30,8 @@ TGCCablingDbTool::TGCCablingDbTool(const std::string& type,
   declareProperty("Folder", m_Folder="/TGC/CABLING/MAP_SCHEMA");
 
   // ASD2PP_diff_12.db is the text database for the TGCcabling12 package
-  declareProperty("filename_ASD2PP_DIFF_12", m_filename="ASD2PP_diff_12.db");
-  declareProperty("readASD2PP_DIFF_12FromText", m_readASD2PP_DIFF_12FromText=false);
+  declareProperty("filename_ASD2PP_DIFF_12", m_filename="ASD2PP_diff_12_ONL.db");
+  declareProperty("readASD2PP_DIFF_12FromText", m_readASD2PP_DIFF_12FromText=true);
 }
 
 
@@ -207,7 +207,7 @@ StatusCode TGCCablingDbTool::readASD2PP_DIFF_12FromText() {
   // Copy database into m_ASD2PP_DIFF_12
   while(getline(inASDToPP, buf)){ 
     m_ASD2PP_DIFF_12->push_back(buf);
-    ATH_MSG_INFO(m_filename.c_str() << " L" << ++nLines << ": " << buf.c_str());
+    ATH_MSG_DEBUG(m_filename.c_str() << " L" << ++nLines << ": " << buf.c_str());
   }
 
   inASDToPP.close(); 

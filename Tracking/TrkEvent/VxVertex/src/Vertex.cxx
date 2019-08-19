@@ -18,7 +18,7 @@
 
 namespace Trk {
 
-  unsigned int Vertex::s_numberOfInstantiations=0;
+std::atomic<unsigned int> Vertex::s_numberOfInstantiations=0;
 
   Vertex::Vertex() : m_position(0.,0.,0.){
 #ifndef NDEBUG

@@ -6,6 +6,7 @@
 #define G4ATLASALG_G4ATLASUSERWORKERTHREADINITIALIZATION_H
 
 // Hide multi-threading classes from builds without G4MT
+#include "G4Types.hh"
 #ifdef G4MULTITHREADED
 
 #include "G4UserWorkerThreadInitialization.hh"

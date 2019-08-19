@@ -1,4 +1,4 @@
-#include "ISF_Geant4UserActions/FastCaloSimParamActionTool.h"
+#include "../FastCaloSimParamActionTool.h"
 #include "../TestBoundariesUserActionTool.h"
 
 DECLARE_COMPONENT( G4UA::FastCaloSimParamActionTool )

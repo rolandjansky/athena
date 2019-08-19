@@ -2,6 +2,8 @@
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
+#todo? add in the explanatory text from previous implementation
+
 def createSimConfigFlags():
     scf=AthConfigFlags()
 
@@ -15,13 +17,26 @@ def createSimConfigFlags():
     scf.addFlag("Sim.WorldRRange", 12500) #int or float
     scf.addFlag("Sim.WorldZRange", 22031) #int or float
 
+    # the G4 offset. It was never changed, so no need to peek in file
+    scf.addFlag("Sim.SimBarcodeOffset", 200000)
+
     #for forward region
-    scf.addFlag("Sim.TwissFileBeam1",False)
-    scf.addFlag("Sim.TwissFileBeam2",False)
-    scf.addFlag("Sim.TwissEnergy",8000000.)
-    scf.addFlag("Sim.TwissFileBeta",550.)
-    scf.addFlag("Sim.TwissFileNomReal",False) #"nominal","real" #default to one of these?!
-    scf.addFlag("Sim.TwissFileVersion","v01")
+    scf.addFlag('Sim.TwissFileBeam1',False)
+    scf.addFlag('Sim.TwissFileBeam2',False)
+    scf.addFlag('Sim.TwissEnergy',8000000.)
+    scf.addFlag('Sim.TwissFileBeta',550.)
+    scf.addFlag('Sim.TwissFileNomReal',False) #'nominal','real' #default to one of these?!
+    scf.addFlag('Sim.TwissFileVersion','v01')
+
+    #for G4AtlasAlg
+    #in simflags
+    scf.addFlag('Sim.ReleaseGeoModel',True)
+    scf.addFlag('Sim.RecordFlux',False)
+    scf.addFlag('Sim.TruthStrategy','MC12') #todo - needs to have some extra functionality!
+    scf.addFlag('Sim.G4Commands',['/run/verbose 2'])
+    #in atlasflags
+    scf.addFlag('Sim.FlagAbortedEvents',False)
+    scf.addFlag('Sim.KillAbortedEvents',True)
 
     # Do full simulation + digitisation + reconstruction chain
     scf.addFlag("Sim.DoFullChain", False)

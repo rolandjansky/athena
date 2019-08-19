@@ -16,6 +16,7 @@ topSequence += viewSeq
 
   
 # View maker alg
+from AthenaCommon import CfgMgr
 viewNodeName = "allViewAlgorithms"
 viewMaker = CfgMgr.AthViews__RoiCollectionToViews("viewMaker")
 viewMaker.ViewBaseName = "testView"
@@ -30,25 +31,18 @@ allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, S
 
 
 if TriggerFlags.doID:
-  from TrigUpgradeTest.InDetSetup import inDetSetup
-  inDetSetup()
+
   from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
   
-  (viewAlgs, eventAlgs) = makeInDetAlgs()
-
-  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
-
-  theTrigFastTrackFinder_eGamma = TrigFastTrackFinder_eGamma()
-  theTrigFastTrackFinder_eGamma.isRoI_Seeded = True
-  theTrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
-  viewAlgs.append(theTrigFastTrackFinder_eGamma)
+  (viewAlgs, eventAlgs) = makeInDetAlgs("FS")
 
   for eventAlg in eventAlgs:
     viewSeq += eventAlg
 
   for viewAlg in viewAlgs:
     allViewAlgorithms += viewAlg
-
+    if "RoIs" in viewAlg.properties():
+        viewAlg.RoIs = "EMViewRoIs"
 
    #
    # --- Ambiguity solver algorithm
@@ -81,7 +75,7 @@ if TriggerFlags.doID:
 
   from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
   InDetTrigMTAmbiguitySolver = Trk__TrkAmbiguitySolver(name         = 'InDetTrigMTAmbiguitySolver',
-                                                 TrackInput         =['TrigFastTrackFinder_Tracks'], #FTF default
+                                                 TrackInput         =['TrigFastTrackFinder_Tracks_FS'], #FTF default
                                                  TrackOutput        = 'AmbiSolver_Tracks' , #Change
                                                  AmbiguityProcessor = InDetTrigMTAmbiguityProcessor)
 
@@ -134,8 +128,6 @@ if TriggerFlags.doID:
 
 
 if TriggerFlags.doCalo:
-  svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
-
   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
   algo=T2CaloEgamma_ReFastAlgo("testFastAlgo")
 

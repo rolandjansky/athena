@@ -23,6 +23,7 @@
         <UID>DataSource-is-DCM</UID>
         <compressionLevel>2</compressionLevel>
         <loopOverFiles>False</loopOverFiles>
+        <hltresultSizeBytes>10485760</hltresultSizeBytes>
         <skipEvents>0</skipEvents>
         <compressionFormat>ZLIB</compressionFormat>
         <rosHitStatFileName>ros_hitstats</rosHitStatFileName>

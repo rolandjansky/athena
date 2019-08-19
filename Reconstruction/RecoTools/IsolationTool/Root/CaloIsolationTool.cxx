@@ -477,9 +477,9 @@ namespace xAOD {
                                           derefMap_t& derefMap) const
   {
     /// get it from decoration
-    static SG::AuxElement::ConstAccessor< char > Decorated("caloExt_Decorated");
-    static SG::AuxElement::ConstAccessor< float > Eta("caloExt_eta");
-    static SG::AuxElement::ConstAccessor< float > Phi("caloExt_phi");
+    static const SG::AuxElement::ConstAccessor< char > Decorated("caloExt_Decorated");
+    static const SG::AuxElement::ConstAccessor< float > Eta("caloExt_eta");
+    static const SG::AuxElement::ConstAccessor< float > Phi("caloExt_phi");
     if(Decorated.isAvailable(*tp) && Decorated(*tp)){
       eta = Eta(*tp);
       phi = Phi(*tp);
@@ -1336,9 +1336,11 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if( tp ) return tp;
     const Muon* muon = dynamic_cast<const Muon*>(&particle);
     if( muon ) {
+      ATH_MSG_DEBUG("muon with author "<<muon->author()<<" and pT "<<muon->pt());
       const TrackParticle* tp = 0;
-      if(muon->inDetTrackParticleLink().isValid()) tp = *muon->inDetTrackParticleLink();
-      if( !tp ) tp = muon->primaryTrackParticle();
+      //note: if STACO, the track particle has no Trk::Track associated, so use the ID track
+      if(muon->primaryTrackParticleLink().isValid() && muon->author()!=2) tp = *muon->primaryTrackParticleLink();
+      if( !tp) tp = *muon->inDetTrackParticleLink();
       if( !tp ) {
         ATH_MSG_WARNING(" No TrackParticle found for muon " );
         return 0;
@@ -1396,12 +1398,11 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     return true;
   }
 #endif // XAOD_ANALYSIS
-
   // FIXME! This should be updated to use the standard caching of extrapolation to calo
   void CaloIsolationTool::decorateTrackCaloPosition(const IParticle& p, float eta, float phi) const{
-    static SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
-    static SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
-    static SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
+    static const SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
+    static const SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
+    static const SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
 
     if(!dec_Decorated.isAvailable(p) || dec_Decorated.isAvailableWritable(p)){
       dec_Decorated(p) = 1;

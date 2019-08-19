@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKMONITORING_RECOMUONTRACKPLOTS_H
@@ -22,7 +22,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 
@@ -50,7 +50,7 @@ class RecoMuonTrackPlots:public PlotBase {
 
       //ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;
       //ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
-      //ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
+      //ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc;
 
       //fill methods
       void fill(const xAOD::Muon& mu, int component);

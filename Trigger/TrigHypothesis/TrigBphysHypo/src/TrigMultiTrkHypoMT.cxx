@@ -226,6 +226,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
     ATH_MSG_DEBUG("Passed NTrack and track pT cuts: " << mon_accepted_highptNTrk << " tracks sent to vertexing");
     
     const auto nTracks = good_tracks.size();
+    std::unique_ptr<Trk::IVKalState> state = m_bphysHelperTool->makeVKalState();
     for (unsigned int it0 = 0; it0 != nTracks; ++it0) {
     
       //dereference element link to get the track
@@ -266,7 +267,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
           trigBphys->initialise(0, 0., 0. ,0., xAOD::TrigBphys::MULTIMU, totalMass, xAOD::TrigBphys::L2);  
 
           std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks = {good_tracks.at(it0), good_tracks.at(it1)};
-          if (m_bphysHelperTool->vertexFit(trigBphys,thisIterationTracks,m_trkMasses).isFailure()) {
+          if (m_bphysHelperTool->vertexFit(trigBphys,thisIterationTracks,m_trkMasses,*state).isFailure()) {
               ATH_MSG_DEBUG("Problems with vertex fit in TrigMultiTrkHypoMT");
               delete trigBphys; trigBphys = nullptr;
               continue;
@@ -315,7 +316,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
         	// If you needed to re-map the previous decision(s), then call decisionIDs once
         	// for each previous decision
         	// if the same previous decision is called twice, that's fine - internally takes care of that
-        	linkToPrevious( newDecision, previousDecision );
+        	linkToPrevious( newDecision, previousDecision, context );
         	if(itrk == 0 ){
         		decisionIDs(previousDecision, previousDecisionIDs0);
 			}else{
@@ -338,6 +339,7 @@ StatusCode TrigMultiTrkHypoMT::execute( const EventContext& context) const
       ATH_CHECK( tool->decide(hypoToolInput) );
     }
     
+    ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
     ATH_MSG_DEBUG("StatusCode TrigMultiTrkHypoMT::execute_r success");
     return StatusCode::SUCCESS;
 }

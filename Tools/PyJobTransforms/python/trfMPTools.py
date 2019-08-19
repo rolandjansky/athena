@@ -1,3 +1,5 @@
+from future.utils import iteritems
+from builtins import zip
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfMPTools
@@ -30,24 +32,28 @@ def detectAthenaMPProcs(argdict = {}):
     
     # Try and detect if any AthenaMP has been enabled 
     try:
-        if 'ATHENA_PROC_NUMBER' in os.environ:
-            athenaMPProcs = int(os.environ['ATHENA_PROC_NUMBER'])
-            if athenaMPProcs < 0:
-                raise ValueError("ATHENA_PROC_NUMBER value was less than zero")
-            msg.info('AthenaMP detected from ATHENA_PROC_NUMBER with {0} workers'.format(athenaMPProcs))
-        elif 'athenaopts' in argdict:
+        if 'athenaopts' in argdict:
             for substep in argdict['athenaopts'].value:
                 procArg = [opt.replace("--nprocs=", "") for opt in argdict['athenaopts'].value[substep] if '--nprocs' in opt]
                 if len(procArg) == 0:
                     athenaMPProcs = 0
                 elif len(procArg) == 1:
+                    if 'multiprocess' in argdict:
+                        raise ValueError("Detected conflicting methods to configure AthenaMP: --multiprocess and --nprocs=N (via athenaopts). Only one method must be used")
                     athenaMPProcs = int(procArg[0])
-                    if athenaMPProcs < 0:
-                        raise ValueError("--nprocs was set to a value less than zero")
+                    if athenaMPProcs < -1:
+                        raise ValueError("--nprocs was set to a value less than -1")
                 else:
                     raise ValueError("--nprocs was set more than once in 'athenaopts'")
                 msg.info('AthenaMP detected from "nprocs" setting with {0} workers for substep {1}'.format(athenaMPProcs,substep))
-    except ValueError, errMsg:
+        if (athenaMPProcs == 0 and
+            'ATHENA_CORE_NUMBER' in os.environ and
+            'multiprocess' in argdict):
+            athenaMPProcs = int(os.environ['ATHENA_CORE_NUMBER'])
+            if athenaMPProcs < -1:
+                raise ValueError("ATHENA_CORE_NUMBER value was less than -1")
+            msg.info('AthenaMP detected from ATHENA_CORE_NUMBER with {0} workers'.format(athenaMPProcs))
+    except ValueError as errMsg:
         myError = 'Problem discovering AthenaMP setup: {0}'.format(errMsg)
         raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), myError)
 
@@ -62,8 +68,8 @@ def detectAthenaMPProcs(argdict = {}):
 #  @param skipFileChecks Switches off checks on output files
 #  @return @c None; side effect is the update of the @c dataDictionary
 def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictionary, athenaMPworkers, skipFileChecks = False, argdict = {}):
-    msg.debug("MP output handler called for report {0} and workers in {1}, data types {2}".format(athenaMPFileReport, athenaMPWorkerTopDir, dataDictionary.keys()))
-    outputHasBeenHandled = dict([ (dataType, False) for dataType in dataDictionary.keys() if dataDictionary[dataType] ])
+    msg.debug("MP output handler called for report {0} and workers in {1}, data types {2}".format(athenaMPFileReport, athenaMPWorkerTopDir, list(dataDictionary)))
+    outputHasBeenHandled = dict([ (dataType, False) for dataType in dataDictionary if dataDictionary[dataType] ])
 
     # if sharedWriter mode is active ignore athenaMPFileReport
     sharedWriter=False
@@ -82,7 +88,7 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
             msg.debug('Examining element {0} with attributes {1}'.format(filesElement, filesElement.attrib))
             originalArg = None 
             startName = filesElement.attrib['OriginalName']
-            for dataType, fileArg in dataDictionary.iteritems():
+            for dataType, fileArg in iteritems(dataDictionary):
                 if fileArg.value[0] == startName:
                     originalArg = fileArg
                     outputHasBeenHandled[dataType] = True
@@ -104,10 +110,10 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
         # OK, we have something we need to search for; cache the dirwalk here
         MPdirWalk = [ dirEntry for dirEntry in os.walk(athenaMPWorkerTopDir) ]
 
-        for dataType, fileArg in dataDictionary.iteritems():
+        for dataType, fileArg in iteritems(dataDictionary):
             if outputHasBeenHandled[dataType]:
                 continue
-            if fileArg.io is "input":
+            if fileArg.io == "input":
                 continue
             msg.info("Searching MP worker directories for {0}".format(dataType))
             startName = fileArg.value[0]
@@ -160,14 +166,14 @@ def athenaMPoutputsLinkAndUpdate(newFullFilenames, fileArg):
                 try:
                     os.rename(fname,fileArg.originalName)
                     newFilenameValue[0]=fileArg.originalName
-                except OSError, e:
+                except OSError as e:
                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Failed to move {0} to {1}: {2}".format(fname, linkname, e))
             else:
                  try:
                      if path.lexists(linkname):
                          os.unlink(linkname)
                      os.symlink(fname, linkname)
-                 except OSError, e:  
+                 except OSError as e:  
                      raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Failed to link {0} to {1}: {2}".format(fname, linkname, e))
 
     fileArg.multipleOK = True

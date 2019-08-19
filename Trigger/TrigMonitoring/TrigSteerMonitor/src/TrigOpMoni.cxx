@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,10 +19,10 @@
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IOVRange.h"
 #include "EventInfo/EventInfo.h"
-#include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/StoreGate.h"
 #include "eformat/DetectorMask.h"
-#include "TrigMonitorBase/TrigLockedHist.h"
+#include "AthenaMonitoring/OHLockedHist.h"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -45,7 +45,6 @@ TrigOpMoni::TrigOpMoni(const std::string& type,
                        const IInterface* parent) :
    TrigMonitorToolBase(type, name, parent),
    m_JobOptionsSvc("JobOptionsSvc", name),
-   m_lumiTool("LuminosityTool"),
    m_monGroup(this, boost::algorithm::replace_all_copy(name,".","/"), TrigMonitorToolBase::expert)
 {
    declareProperty("JobOptionsSvc",   m_JobOptionsSvc, "JobOptionsSvc");
@@ -53,7 +52,6 @@ TrigOpMoni::TrigOpMoni(const std::string& type,
                    "Path to ReleaseData file (relative to LD_LIBRARY_PATH entries");
    declareProperty("DetailedFolderHists", m_detailedHists = true,
                    "Detailed histograms for COOL folder updates during run");
-   declareProperty("LuminosityTool", m_lumiTool, "Luminosity tool");
    declareProperty("MaxLumiblocks", m_maxLB = 3000, "Number of lumiblocks for histograms");
 }
 
@@ -68,7 +66,7 @@ StatusCode TrigOpMoni::initialize()
   // Register incident handlers 
   ServiceHandle<IIncidentSvc> IncidSvc("IncidentSvc",name());  
   ATH_CHECK(IncidSvc.retrieve());
-  ATH_CHECK(m_lumiTool.retrieve());
+  ATH_CHECK(m_luminosityCondDataKey.initialize());
   IncidSvc->addListener(this, "EndOfBeginRun", 0);
                 
   return StatusCode::SUCCESS;
@@ -272,7 +270,7 @@ void TrigOpMoni::FillIOVDbHist()
   
   // final configuration of histograms
   {
-    scoped_lock_histogram lock;
+    oh_scoped_lock_histogram lock;
     IOVDbRunHist->LabelsDeflate("X");
     IOVDbRunHist->LabelsDeflate("Y");
     IOVDbRunHist->GetYaxis()->LabelsOption("a");
@@ -352,7 +350,7 @@ void TrigOpMoni::FillIOVDbChangeHist()
 
       if ( m_iovChangeHist ) {
         // Perform a locked fill and remove any empty bins to allow correct gathering
-        scoped_lock_histogram lock;
+        oh_scoped_lock_histogram lock;
         m_iovChangeHist->Fill(boost::lexical_cast<string>(m_pEvent->event_ID()->lumi_block()).c_str(), folder.c_str(), 1);
         m_iovChangeHist->LabelsDeflate("X");
         m_iovChangeHist->LabelsDeflate("Y");
@@ -391,8 +389,9 @@ void TrigOpMoni::FillIOVDbChangeHist()
 
 void TrigOpMoni::FillLumiHist()
 {
-  m_lumiHist->Fill(m_pEvent->event_ID()->lumi_block(), m_lumiTool->lbAverageLuminosity());
-  m_muHist->Fill(m_pEvent->event_ID()->lumi_block(), m_lumiTool->lbAverageInteractionsPerCrossing());
+  SG::ReadCondHandle<LuminosityCondData> lumiData (m_luminosityCondDataKey);
+  m_lumiHist->Fill(m_pEvent->event_ID()->lumi_block(), lumiData->lbAverageLuminosity());
+  m_muHist->Fill(m_pEvent->event_ID()->lumi_block(), lumiData->lbAverageInteractionsPerCrossing());
 }
 
 void TrigOpMoni::FillSubDetHist()
@@ -516,7 +515,7 @@ void TrigOpMoni::FillSubDetHist()
 
       // final configuration of histogram
       {
-        scoped_lock_histogram lock;
+        oh_scoped_lock_histogram lock;
         SubDetHist->LabelsDeflate("X");
         SubDetHist->LabelsDeflate("Y");
         SubDetHist->GetYaxis()->LabelsOption("a");

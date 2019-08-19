@@ -31,6 +31,8 @@
 #include <vector>
 #include <map>
 
+//For marking not thread safety
+#include "CxxUtils/checker_macros.h"
 class MsgStream;
 
 namespace Trk {
@@ -95,7 +97,7 @@ namespace Trk {
       - bool that indicated the deletion of the TrackParameters
    */
   
-  struct ParamsNextVolume {
+  struct ATLAS_NOT_THREAD_SAFE  ParamsNextVolume {
     //!< the members
     mutable const TrackingVolume*    nextVolume;
     mutable const TrackParameters*   nextParameters;
@@ -146,7 +148,7 @@ namespace Trk {
     @author sarka.todorova@cern.ch
    */
           
-  class TimedExtrapolator : public AthAlgTool,
+  class  ATLAS_NOT_THREAD_SAFE  TimedExtrapolator : public AthAlgTool,
                        virtual public ITimedExtrapolator {
      public:
        /**Constructor */

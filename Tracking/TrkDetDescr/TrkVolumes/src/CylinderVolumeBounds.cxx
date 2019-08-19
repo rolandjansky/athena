@@ -24,7 +24,7 @@
 #include <iostream>
 #include <math.h>
 
-double Trk::CylinderVolumeBounds::s_numericalStable = 10e-2 * Gaudi::Units::mm;
+const double Trk::CylinderVolumeBounds::s_numericalStable = 10e-2 * Gaudi::Units::mm;
 
 Trk::CylinderVolumeBounds::CylinderVolumeBounds() :
  VolumeBounds(),

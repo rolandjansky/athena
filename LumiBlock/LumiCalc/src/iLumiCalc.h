@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "cmdline.h"
@@ -11,6 +11,7 @@
 #include "GoodRunsLists/TGRLCollection.h"
 #include "GoodRunsLists/TMsgLogger.h"
 #include "DBDataModel/CollectionMetadata.h"
+#include "CxxUtils/checker_macros.h"
 #include <iomanip>
 #include <TROOT.h>
 #include <TStopwatch.h>
@@ -184,7 +185,7 @@ bool FileExists(std::string strFilename) {
 }
 
 //______________________________________________________________
-void print_usage(){
+void print_usage ATLAS_NOT_THREAD_SAFE (){
 
   std::cout << std::endl;
   std::cout << " --->>> i L U M I C A L C . E X E <<<---"<< std::endl;
@@ -203,7 +204,7 @@ void print_usage(){
 
 
 //______________________________________________________________
-void print_credits(){
+void print_credits ATLAS_NOT_THREAD_SAFE (){
   std::cout << "ATLAS - A Toroidal LHC Aparatus" << std::endl;
   exit(-1);
 }

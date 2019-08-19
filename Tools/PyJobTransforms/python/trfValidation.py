@@ -1,3 +1,12 @@
+from future.utils import iteritems
+from future.utils import listitems
+
+from past.builtins import basestring
+from builtins import zip
+from builtins import object
+from builtins import range
+from builtins import int
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfValidation
@@ -150,7 +159,7 @@ class ignorePatterns(object):
                         except ValueError:
                             msg.warning('Could not parse this line as a valid error pattern: {0}'.format(line))
                             continue
-                        except re.error, e:
+                        except re.error as e:
                             msg.warning('Could not parse valid regexp from {0}: {1}'.format(message, e))
                             continue
 
@@ -158,7 +167,8 @@ class ignorePatterns(object):
 
                         self._structuredPatterns.append({'service': reWho, 'level': level, 'message': reMessage})
 
-            except (IOError, OSError) as (errno, errMsg):
+            except (IOError, OSError) as xxx_todo_changeme:
+                (errno, errMsg) = xxx_todo_changeme.args
                 msg.warning('Failed to open error pattern file {0}: {1} ({2})'.format(fullName, errMsg, errno))
 
 
@@ -167,7 +177,7 @@ class ignorePatterns(object):
             try:
                 self._searchPatterns.append(re.compile(string))
                 msg.debug('Successfully parsed additional logfile search string: {0}'.format(string))
-            except re.error, e:
+            except re.error as e:
                 msg.warning('Could not parse valid regexp from {0}: {1}'.format(string, e))
 
 
@@ -179,7 +189,7 @@ class logFileReport(object):
     def __init__(self, logfile=None, msgLimit=10, msgDetailLevel=stdLogLevels['ERROR']):
 
         # We can have one logfile or a set
-        if isinstance(logfile, str):
+        if isinstance(logfile, basestring):
             self._logfile = [logfile, ]
         else:
             self._logfile = logfile
@@ -242,7 +252,7 @@ class athenaLogFileReport(logFileReport):
     @property
     def python(self):
         errorDict = {'countSummary': {}, 'details': {}}
-        for level, count in self._levelCounter.iteritems():
+        for level, count in iteritems(self._levelCounter):
             errorDict['countSummary'][level] = count
             if self._levelCounter[level] > 0 and len(self._errorDetails[level]) > 0:
                 errorDict['details'][level] = []
@@ -252,11 +262,11 @@ class athenaLogFileReport(logFileReport):
 
     def resetReport(self):
         self._levelCounter = {}
-        for level in stdLogLevels.keys() + ['UNKNOWN', 'IGNORED']:
+        for level in list(stdLogLevels) + ['UNKNOWN', 'IGNORED']:
             self._levelCounter[level] = 0
 
         self._errorDetails = {}
-        for level in self._levelCounter.keys():
+        for level in self._levelCounter:
             self._errorDetails[level] = []
             # Format:
             # List of dicts {'message': errMsg, 'firstLine': lineNo, 'count': N}
@@ -272,7 +282,7 @@ class athenaLogFileReport(logFileReport):
             # N.B. Use the generator so that lines can be grabbed by subroutines, e.g., core dump svc reporter
             try:
                 myGen = trfUtils.lineByLine(log, substepName=self._substepName)
-            except IOError, e:
+            except IOError as e:
                 msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
                 # Return this as a small report
                 self._levelCounter['ERROR'] = 1
@@ -285,7 +295,7 @@ class athenaLogFileReport(logFileReport):
                     self._metaData[key] = value
 
                 m = self._regExp.match(line)
-                if m == None:
+                if m is None:
                     # We didn't manage to get a recognised standard line from the file
                     # But we can check for certain other interesting things, like core dumps
                     if 'Core dump from CoreDumpSvc' in line > -1:
@@ -362,7 +372,7 @@ class athenaLogFileReport(logFileReport):
 
                 # Record some error details
                 # N.B. We record 'IGNORED' errors as these really should be flagged for fixing
-                if fields['level'] is 'IGNORED' or stdLogLevels[fields['level']] >= self._msgDetails:
+                if fields['level'] == 'IGNORED' or stdLogLevels[fields['level']] >= self._msgDetails:
                     if self._levelCounter[fields['level']] <= self._msgLimit: 
                         detailsHandled = False
                         for seenError in self._errorDetails[fields['level']]:
@@ -370,7 +380,7 @@ class athenaLogFileReport(logFileReport):
                                 seenError['count'] += 1
                                 detailsHandled = True
                                 break
-                        if detailsHandled == False:
+                        if detailsHandled is False:
                             self._errorDetails[fields['level']].append({'message': line, 'firstLine': lineCounter, 'count': 1})
                     elif self._levelCounter[fields['level']] == self._msgLimit + 1:
                         msg.warning("Found message number {0} at level {1} - this and further messages will be supressed from the report".format(self._levelCounter[fields['level']], fields['level']))
@@ -392,7 +402,7 @@ class athenaLogFileReport(logFileReport):
     def worstError(self):
         worst = stdLogLevels['DEBUG']
         worstName = 'DEBUG'
-        for lvl, count in self._levelCounter.iteritems():
+        for lvl, count in iteritems(self._levelCounter):
             if count > 0 and stdLogLevels.get(lvl, 0) > worst:
                 worstName = lvl
                 worst = stdLogLevels[lvl]
@@ -409,9 +419,9 @@ class athenaLogFileReport(logFileReport):
         firstLine = firstError = None
         firstLevel = stdLogLevels[floor]
         firstName = floor
-        for lvl, count in self._levelCounter.iteritems():
+        for lvl, count in iteritems(self._levelCounter):
             if (count > 0 and stdLogLevels.get(lvl, 0) >= stdLogLevels[floor] and
-                (firstError == None or self._errorDetails[lvl][0]['firstLine'] < firstLine)):
+                (firstError is None or self._errorDetails[lvl][0]['firstLine'] < firstLine)):
                 firstLine = self._errorDetails[lvl][0]['firstLine']
                 firstLevel = stdLogLevels[lvl]
                 firstName = lvl
@@ -428,7 +438,7 @@ class athenaLogFileReport(logFileReport):
         coreDumpReport = 'Core dump from CoreDumpSvc'
         for line, linecounter in lineGenerator:
             m = self._regExp.match(line)
-            if m == None:
+            if m is None:
                 if 'Caught signal 11(Segmentation fault)' in line:
                     coreDumpReport = 'Segmentation fault'
                 if 'Event counter' in line:
@@ -572,11 +582,11 @@ class scriptLogFileReport(logFileReport):
 
     def resetReport(self):
         self._levelCounter.clear()
-        for level in stdLogLevels.keys() + ['UNKNOWN', 'IGNORED']:
+        for level in list(stdLogLevels) + ['UNKNOWN', 'IGNORED']:
             self._levelCounter[level] = 0
 
         self._errorDetails.clear()
-        for level in self._levelCounter.keys():  # List of dicts {'message': errMsg, 'firstLine': lineNo, 'count': N}
+        for level in self._levelCounter:  # List of dicts {'message': errMsg, 'firstLine': lineNo, 'count': N}
             self._errorDetails[level] = []
 
     def scanLogFile(self, resetReport=False):
@@ -587,7 +597,7 @@ class scriptLogFileReport(logFileReport):
             msg.info('Scanning logfile {0}'.format(log))
             try:
                 myGen = trfUtils.lineByLine(log)
-            except IOError, e:
+            except IOError as e:
                 msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
                 # Return this as a small report
                 self._levelCounter['ERROR'] = 1
@@ -606,7 +616,7 @@ class scriptLogFileReport(logFileReport):
     def worstError(self):
         worstlevelName = 'DEBUG'
         worstLevel = stdLogLevels[worstlevelName]
-        for levelName, count in self._levelCounter.iteritems():
+        for levelName, count in iteritems(self._levelCounter):
             if count > 0 and stdLogLevels.get(levelName, 0) > worstLevel:
                 worstlevelName = levelName
                 worstLevel = stdLogLevels[levelName]
@@ -643,9 +653,9 @@ def returnIntegrityOfFile(file, functionName):
 #  @ detail This method performs standard file validation in either serial or
 #  @ parallel and updates file integrity metadata.
 def performStandardFileValidation(dictionary, io, parallelMode = False):
-    if parallelMode == False:
+    if parallelMode is False:
         msg.info('Starting legacy (serial) file validation')
-        for (key, arg) in dictionary.items():
+        for (key, arg) in iteritems(dictionary):
             if not isinstance(arg, argFile):
                 continue
             if not arg.io == io:
@@ -692,7 +702,7 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
                 else:
                     msg.info('Guid is %s' % arg.getSingleMetadata(fname, 'file_guid'))
         msg.info('Stopping legacy (serial) file validation')
-    if parallelMode == True:
+    if parallelMode is True:
         msg.info('Starting parallel file validation')
         # Create lists of files and args. These lists are to be used with zip in
         # order to check and update file integrity metadata as appropriate.
@@ -703,7 +713,7 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
         # Create a list for collation of file validation jobs for submission to
         # the parallel job processor.
         jobs = []
-        for (key, arg) in dictionary.items():
+        for (key, arg) in iteritems(dictionary):
             if not isinstance(arg, argFile):
                 continue
             if not arg.io == io:
@@ -764,7 +774,7 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
             # If the first (Boolean) element of the result tuple for the current
             # file is True, update the integrity metadata. If it is False, raise
             # an exception.
-            if currentResult[0] == True:
+            if currentResult[0] is True:
                 msg.info('Updating integrity metadata for file {fileName}'.format(fileName = str(currentFile)))
                 currentArg._setMetadata(files=[currentFile,], metadataKeys={'integrity': currentResult[0]})
             else:
@@ -841,7 +851,7 @@ class eventMatch(object):
 
 
         if eventCountConf:
-            if eventCountConfOverwrite == True:
+            if eventCountConfOverwrite is True:
                 self._eventCountConf = eventCountConf
             else:
                 self._eventCountConf.update(eventCountConf)
@@ -889,13 +899,13 @@ class eventMatch(object):
                     msg.warning('Found no dataDictionary entry for output data type {0}'.format(dataTypeName))
 
             # Find if we have a skipEvents applied
-            if self._executor.conf.argdict.has_key("skipEvents"):
+            if "skipEvents" in self._executor.conf.argdict:
                 self._skipEvents = self._executor.conf.argdict['skipEvents'].returnMyValue(exe=self._executor)
             else:
                 self._skipEvents = None
 
             # Find if we have a maxEvents applied
-            if self._executor.conf.argdict.has_key("maxEvents"):
+            if "maxEvents" in self._executor.conf.argdict:
                 self._maxEvents = self._executor.conf.argdict['maxEvents'].returnMyValue(exe=self._executor)
                 if self._maxEvents == -1:
                     self._maxEvents = None
@@ -903,9 +913,9 @@ class eventMatch(object):
                 self._maxEvents = None
 
             # Global eventAcceptanceEfficiency set?
-            if self._executor.conf.argdict.has_key("eventAcceptanceEfficiency"):
+            if "eventAcceptanceEfficiency" in self._executor.conf.argdict:
                 self._evAccEff = self._executor.conf.argdict['eventAcceptanceEfficiency'].returnMyValue(exe=self._executor)
-                if (self._evAccEff == None):
+                if (self._evAccEff is None):
                     self._evAccEff = 0.99
             else:
                 self._evAccEff = 0.99
@@ -918,8 +928,8 @@ class eventMatch(object):
     def decide(self):
         # We have all that we need to proceed: input and output data, skip and max events plus any efficiency factor
         # So loop over the input and output data and make our checks
-        for inData, neventsInData in self._inEventDict.iteritems():
-            if type(neventsInData) not in (int, long):
+        for inData, neventsInData in iteritems(self._inEventDict):
+            if not isinstance(neventsInData, int):
                 msg.warning('File size metadata for {inData} was not countable, found {neventsInData}. No event checks possible for this input data.'.format(inData=inData, neventsInData=neventsInData))
                 continue
             if inData in self._eventCountConf:
@@ -927,13 +937,13 @@ class eventMatch(object):
             else:
                 # OK, try a glob match in this case (YMMV)
                 matchedInData = False
-                for inDataKey in self._eventCountConf.keys():
+                for inDataKey in self._eventCountConf:
                     if fnmatch.fnmatch(inData, inDataKey):
                         msg.info("Matched input data type {inData} to {inDataKey} by globbing".format(inData=inData, inDataKey=inDataKey))
                         matchedInData = True
                         break
                 if not matchedInData:
-                    msg.warning('No defined event count match for {inData} -> {outData}, so no check(s) possible in this case.'.format(inData=inData, outData=self._outEventDict.keys()))
+                    msg.warning('No defined event count match for {inData} -> {outData}, so no check(s) possible in this case.'.format(inData=inData, outData=list(self._outEventDict)))
                     continue
 
             # Now calculate the expected number of processed events for this input
@@ -954,8 +964,8 @@ class eventMatch(object):
             msg.debug('Expected number of processed events for {0} is {1}'.format(inData, expectedEvents))
 
             # Loop over output data - first find event count configuration
-            for outData, neventsOutData in self._outEventDict.iteritems():
-                if type(neventsOutData) not in (int, long):
+            for outData, neventsOutData in iteritems(self._outEventDict):
+                if not isinstance(neventsOutData, int):
                     msg.warning('File size metadata for {outData} was not countable, found "{neventsOutData}". No event checks possible for this output data.'.format(outData=outData, neventsOutData=neventsOutData))
                     continue
                 if outData in self._eventCountConf[inDataKey]:
@@ -964,7 +974,7 @@ class eventMatch(object):
                 else:
                     # Look for glob matches
                     checkConf = None
-                    for outDataKey, outDataConf in self._eventCountConf[inDataKey].iteritems():
+                    for outDataKey, outDataConf in iteritems(self._eventCountConf[inDataKey]):
                         if fnmatch.fnmatch(outData, outDataKey):
                             msg.info('Matched output data type {outData} to {outDatakey} by globbing'.format(outData=outData, outDatakey=outDataKey))
                             outDataKey = outData
@@ -976,27 +986,27 @@ class eventMatch(object):
                 msg.debug('Event count check for {inData} to {outData} is {checkConf}'.format(inData=inData, outData=outData, checkConf=checkConf))
 
                 # Do the check for thsi input/output combination
-                if checkConf is 'match':
+                if checkConf == 'match':
                     # We need an exact match
                     if neventsOutData == expectedEvents:
                         msg.info("Event count check for {inData} to {outData} passed: all processed events found ({neventsOutData} output events)".format(inData=inData, outData=outData, neventsOutData=neventsOutData))
                     else:
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_EVENTCOUNT'),
                                                                          'Event count check for {inData} to {outData} failed: found {neventsOutData} events, expected {expectedEvents}'.format(inData=inData, outData=outData, neventsOutData=neventsOutData, expectedEvents=expectedEvents))
-                elif checkConf is 'filter':
+                elif checkConf == 'filter':
                     if neventsOutData <= expectedEvents and neventsOutData >= 0:
                         msg.info("Event count check for {inData} to {outData} passed: found ({neventsOutData} output events selected from {expectedEvents} processed events)".format(inData=inData, outData=outData, neventsOutData=neventsOutData, expectedEvents=expectedEvents))
                     else:
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_EVENTCOUNT'),
                                                                          'Event count check for {inData} to {outData} failed: found {neventsOutData} events, expected from 0 to {expectedEvents}'.format(inData=inData, outData=outData, neventsOutData=neventsOutData, expectedEvents=expectedEvents))
-                elif checkConf is 'minEff':
+                elif checkConf == 'minEff':
                     if neventsOutData >= int(expectedEvents * self._evAccEff) and neventsOutData <= expectedEvents:
                         msg.info("Event count check for {inData} to {outData} passed: found ({neventsOutData} output events selected from {expectedEvents} processed events)".format(inData=inData, outData=outData, neventsOutData=neventsOutData, expectedEvents=expectedEvents))
                     else:
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_EVENTCOUNT'),
                                                                          'Event count check for {inData} to {outData} failed: found {neventsOutData} events, expected from {minEvents} to {expectedEvents}'.format(inData=inData, outData=outData, neventsOutData=neventsOutData,
                                                                                                                                                                  minEvents=int(expectedEvents * self._evAccEff), expectedEvents=expectedEvents))
-                elif isinstance(checkConf, (float, int, long)):
+                elif isinstance(checkConf, (float, int)):
                     checkConf = float(checkConf)
                     if checkConf < 0.0 or checkConf > 1.0:
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_EVENTCOUNT'),

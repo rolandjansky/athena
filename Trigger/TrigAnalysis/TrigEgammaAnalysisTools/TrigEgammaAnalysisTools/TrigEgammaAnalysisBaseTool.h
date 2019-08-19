@@ -16,7 +16,7 @@
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
-#include "LumiBlockComps/ILuminosityTool.h"
+#include "LumiBlockData/LuminosityCondData.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
@@ -40,6 +40,7 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
@@ -219,8 +220,9 @@ protected:
 
   // ToolHandles
   ToolHandleArray<ITrigEgammaAnalysisBaseTool> m_tools;
-  /*! Offline Lumi tool */
-  ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
+  /*! Luminosity data */
+  SG::ReadCondHandleKey<LuminosityCondData> m_luminosityCondDataKey;
+  //{ (AthAlgTool*)this, "LuminosityCondDataKey", "LuminosityCondData", "", "" };
   /*! Online Lumi tool */
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
   

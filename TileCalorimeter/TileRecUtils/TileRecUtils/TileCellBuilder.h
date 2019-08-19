@@ -31,8 +31,9 @@
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolTiming.h"
-#include "TileRecUtils/ITileRawChannelTool.h"
+#include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/ITileDCSTool.h"
+#include "TileRecUtils/ITileRawChannelTool.h"
 
 // Calo includes
 #include "CaloInterface/ICaloCellMakerTool.h"
@@ -207,7 +208,13 @@ private:
     ToolHandleArray<ITileRawChannelTool> m_noiseFilterTools{this,
         "NoiseFilterTools", {}, "Tile noise filter tools"};
 
-    ToolHandle<ITileDCSTool> m_tileDCS;
+    ToolHandle<ITileDCSTool> m_tileDCS{this, "TileDCSTool", "TileDCSTool", "Tile DCS tool"};
+
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
     const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager
     const MbtsDetDescrManager* m_mbtsMgr; //!< Pointer to MbtsDetDescrManager

@@ -1,3 +1,14 @@
+from __future__ import print_function
+from future.utils import iteritems
+
+from past.builtins import basestring
+
+from builtins import zip
+from builtins import next
+from builtins import object
+from builtins import range
+from builtins import int
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfExe
@@ -30,7 +41,7 @@ from PyJobTransforms.trfUtils import bind_port
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
-
+from PyJobTransforms.trfMTTools import detectAthenaMTThreads
 
 import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfValidation as trfValidation
@@ -159,6 +170,7 @@ class transformExecutor(object):
         self._memStats = {}
         self._eventCount = None
         self._athenaMP = None
+        self._athenaMT = None
         self._dbMonitor = None
         
         # Holder for execution information about any merges done by this executor in MP mode
@@ -533,8 +545,32 @@ class echoExecutor(transformExecutor):
         msg.debug('exeStart time is {0}'.format(self._exeStart))
         msg.info('Starting execution of %s' % self._name)        
         msg.info('Transform argument dictionary now follows:')
-        for k, v in self.conf.argdict.iteritems():
-            print "%s = %s" % (k, v)
+        for k, v in iteritems(self.conf.argdict):
+            print("%s = %s" % (k, v))
+        self._hasExecuted = True
+        self._rc = 0
+        self._errMsg = ''
+        msg.info('%s executor returns %d' % (self._name, self._rc))
+        self._exeStop = os.times()
+        msg.debug('exeStop time is {0}'.format(self._exeStop))
+
+
+class dummyExecutor(transformExecutor):
+    def __init__(self, name = 'Dummy', trf = None, conf = None, inData = set(), outData = set()):
+
+        # We are only changing the default name here
+        super(dummyExecutor, self).__init__(name=name, trf=trf, conf=conf, inData=inData, outData=outData)
+
+
+    def execute(self):
+        self._exeStart = os.times()
+        msg.debug('exeStart time is {0}'.format(self._exeStart))
+        msg.info('Starting execution of %s' % self._name)
+        for type in self._outData:
+            for k, v in iteritems(self.conf.argdict):
+                if type in k:
+                    msg.info('Creating dummy output file: {0}'.format(self.conf.argdict[k].value[0]))
+                    open(self.conf.argdict[k].value[0], 'a').close()
         self._hasExecuted = True
         self._rc = 0
         self._errMsg = ''
@@ -612,7 +648,7 @@ class scriptExecutor(transformExecutor):
         elif 'TZHOME' in os.environ:
             msg.info('Tier-0 environment detected - enabling command echoing to stdout')
             self._echoOutput = True
-        if self._echoOutput == False:
+        if self._echoOutput is False:
             msg.info('Batch/grid running - command outputs will not be echoed. Logs for {0} are in {1}'.format(self._name, self._logFileName))
 
         # Now setup special loggers for logging execution messages to stdout and file
@@ -652,7 +688,7 @@ class scriptExecutor(transformExecutor):
         
         self._exeStart = os.times()
         msg.debug('exeStart time is {0}'.format(self._exeStart))
-        if ('execOnly' in self.conf.argdict and self.conf.argdict['execOnly'] == True):
+        if ('execOnly' in self.conf.argdict and self.conf.argdict['execOnly'] is True):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
 
@@ -665,7 +701,7 @@ class scriptExecutor(transformExecutor):
                                          '--json-summary', self._memSummaryFile, '--interval', '30']
                     mem_proc = subprocess.Popen(memMonitorCommand, shell = False, close_fds=True)
                     # TODO - link mem.full.current to mem.full.SUBSTEP
-                except Exception, e:
+                except Exception as e:
                     msg.warning('Failed to spawn memory monitor for {0}: {1}'.format(self._name, e))
                     self._memMonitor = False
             
@@ -693,7 +729,7 @@ class scriptExecutor(transformExecutor):
                     while (not mem_proc.poll()) and countWait < 10:
                         time.sleep(0.1)
                         countWait += 1
-                except OSError, UnboundLocalError:
+                except OSError as UnboundLocalError:
                     pass
         
         
@@ -704,7 +740,7 @@ class scriptExecutor(transformExecutor):
             try:
                 memFile = open(self._memSummaryFile)
                 self._memStats = json.load(memFile)
-            except Exception, e:
+            except Exception as e:
                 msg.warning('Failed to load JSON memory summmary file {0}: {1}'.format(self._memSummaryFile, e))
                 self._memMonitor = False
                 self._memStats = {}
@@ -737,7 +773,7 @@ class scriptExecutor(transformExecutor):
 
         ## Check event counts (always do this by default)
         #  Do this here so that all script executors have this by default (covers most use cases with events)
-        if 'checkEventCount' in self.conf.argdict.keys() and self.conf.argdict['checkEventCount'].returnMyValue(exe=self) is False:
+        if 'checkEventCount' in self.conf.argdict and self.conf.argdict['checkEventCount'].returnMyValue(exe=self) is False:
             msg.info('Event counting for substep {0} is skipped'.format(self.name))
         else:
             checkcount=trfValidation.eventMatch(self)
@@ -780,8 +816,7 @@ class athenaExecutor(scriptExecutor):
     #  executor to the workflow graph, run the executor manually with these data parameters (useful for 
     #  post-facto executors, e.g., for AthenaMP merging)
     #  @param memMonitor Enable subprocess memory monitoring
-    #  @param disableMP Ensure that AthenaMP is not used (i.e., also unset 
-    #  @c ATHENA_PROC_NUMBER before execution)
+    #  @param disableMP Ensure that AthenaMP is not used
     #  @note The difference between @c extraRunargs, @c runtimeRunargs and @c literalRunargs is that: @c extraRunargs 
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
@@ -808,7 +843,7 @@ class athenaExecutor(scriptExecutor):
             msg.warning("Resource monitoring from PerfMon is now deprecated")
         
         # SkeletonFile can be None (disable) or a string or a list of strings - normalise it here
-        if type(skeletonFile) is str:
+        if isinstance(skeletonFile, basestring):
             self._skeleton = [skeletonFile]
         else:
             self._skeleton = skeletonFile
@@ -892,12 +927,34 @@ class athenaExecutor(scriptExecutor):
             msg.info('input event count is UNDEFINED, setting expectedEvents to 0')
             expectedEvents = 0
         
+        # Check the consistency of parallel configuration: CLI flags + evnironment
+        # 1. Both --multithreaded and --multiprocess flags have been set
+        if ('multithreaded' in self.conf._argdict and
+            'multiprocess' in self.conf._argdict):
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
+                                                            'both --multithreaded and --multiprocess command line options provided. Please use only one of them')
+
+        # 2. One of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
+        if (('multithreaded' in self.conf._argdict or 'multiprocess' in self.conf._argdict) and
+            (not 'ATHENA_CORE_NUMBER' in os.environ)):
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
+                                                            'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
+
+        # Try to detect AthenaMT mode and number of threads
+        self._athenaMT = detectAthenaMTThreads(self.conf.argdict)
+
         # Try to detect AthenaMP mode and number of workers
+        self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
+
+        # Another constistency check: make sure we don't have a configuration like follows:
+        # ... --multithreaded --athenaopts=--nprocs=N
+        if (self._athenaMT != 0 and self._athenaMP != 0):
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
+                                                            'transform configured to run Athena in both MT and MP modes. Only one parallel mode at a time must be used')
+
         if self._disableMP:
             self._athenaMP = 0
         else:
-            self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
-
             # Small hack to detect cases where there are so few events that it's not worthwhile running in MP mode
             # which also avoids issues with zero sized files
             if expectedEvents < self._athenaMP:
@@ -930,7 +987,7 @@ class athenaExecutor(scriptExecutor):
                     else:
                         # Use a globbing strategy
                         matchedViaGlob = False
-                        for mtsType, mtsSize in self.conf.argdict['athenaMPMergeTargetSize'].value.iteritems():
+                        for mtsType, mtsSize in iteritems(self.conf.argdict['athenaMPMergeTargetSize'].value):
                             if fnmatch(dataType, mtsType):
                                 self.conf._dataDictionary[dataType].mergeTargetSize = mtsSize * 1000000 # Convert from MB to B
                                 msg.info('Set target merge size for {0} to {1} from "{2}" glob'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize, mtsType))
@@ -945,7 +1002,7 @@ class athenaExecutor(scriptExecutor):
             # as soft linking can lead to problems in the PoolFileCatalog (see ATLASJT-317)
             for dataType in output:
                 self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
-                if 'eventService' not in self.conf.argdict or 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value==False:
+                if 'eventService' not in self.conf.argdict or 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value is False:
                     self.conf._dataDictionary[dataType].value[0] += "_000"
                     msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
         else:
@@ -962,7 +1019,7 @@ class athenaExecutor(scriptExecutor):
                 outputFiles[dataType] = self.conf.dataDictionary[dataType]
                 
             # See if we have any 'extra' file arguments
-            for dataType, dataArg in self.conf.dataDictionary.iteritems():
+            for dataType, dataArg in iteritems(self.conf.dataDictionary):
                 if dataArg.io == 'input' and self._name in dataArg.executor:
                     inputFiles[dataArg.subtype] = dataArg
                 
@@ -1056,7 +1113,7 @@ class athenaExecutor(scriptExecutor):
         ## Our parent will check the RC for us
         try:
             super(athenaExecutor, self).validate()
-        except trfExceptions.TransformValidationException, e:
+        except trfExceptions.TransformValidationException as e:
             # In this case we hold this exception until the logfile has been scanned
             msg.error('Validation of return code failed: {0!s}'.format(e))
             deferredException = e
@@ -1165,7 +1222,7 @@ class athenaExecutor(scriptExecutor):
                                 msg.info('Updating athena --preloadlib option for substep {1} with: {0}'.format(self._envUpdate.value('LD_PRELOAD'), self.name))
                                 newPreloads = ":".join(set(v.split(":")) | set(self._envUpdate.value('LD_PRELOAD').split(":")))
                                 self.conf.argdict['athenaopts']._value[currentSubstep][i] = '--preloadlib={0}'.format(newPreloads)
-                            except Exception, e:
+                            except Exception as e:
                                 msg.warning('Failed to interpret athena option: {0} ({1})'.format(athArg, e))
                             preLoadUpdated[currentSubstep] = True
                         break
@@ -1186,6 +1243,8 @@ class athenaExecutor(scriptExecutor):
             elif currentSubstep in self.conf.argdict['athenaopts'].value:
                 self._cmd.extend(self.conf.argdict['athenaopts'].value[currentSubstep])
         
+        if currentSubstep is None:
+            currentSubstep = 'all'
         ## Add --drop-and-reload if possible (and allowed!)
         if self._tryDropAndReload:
             if 'valgrind' in self.conf._argdict and self.conf._argdict['valgrind'].value is True:
@@ -1193,8 +1252,6 @@ class athenaExecutor(scriptExecutor):
             elif 'athenaopts' in self.conf.argdict:
                 athenaConfigRelatedOpts = ['--config-only','--drop-and-reload','--drop-configuration','--keep-configuration']
                 # Note for athena options we split on '=' so that we properly get the option and not the whole "--option=value" string
-                if currentSubstep is None:
-                    currentSubstep = 'all'
                 if currentSubstep in self.conf.argdict['athenaopts'].value:
                     conflictOpts = set(athenaConfigRelatedOpts).intersection(set([opt.split('=')[0] for opt in self.conf.argdict['athenaopts'].value[currentSubstep]]))
                     if len(conflictOpts) > 0:
@@ -1212,6 +1269,18 @@ class athenaExecutor(scriptExecutor):
         else:
             msg.info('Skipping test for "--drop-and-reload" in this executor')
             
+        # For AthenaMT apply --threads=N if threads have been configured via ATHENA_CORE_NUMBER + multithreaded
+        if self._athenaMT != 0 :
+            if not ('athenaopts' in self.conf.argdict and
+                any('--threads' in opt for opt in self.conf.argdict['athenaopts'].value[currentSubstep])):
+                self._cmd.append('--threads=%s' % str(self._athenaMT))
+
+        # For AthenaMP apply --threads=N if threads have been configured via ATHENA_CORE_NUMBER + multiprocess
+        if (self._athenaMP !=0 and not self._disableMP):
+            if not ('athenaopts' in self.conf.argdict and
+                any('--nprocs' in opt for opt in self.conf.argdict['athenaopts'].value[currentSubstep])):
+                self._cmd.append('--nprocs=%s' % str(self._athenaMP))
+
         # Add topoptions
         if self._skeleton is not None:
             self._cmd += self._topOptionsFiles
@@ -1238,36 +1307,35 @@ class athenaExecutor(scriptExecutor):
         )
         try:
             with open(self._wrapperFile, 'w') as wrapper:
-                print >>wrapper, '#! /bin/sh'
+                print('#! /bin/sh', file=wrapper)
                 if asetup:
-                    print >>wrapper, "# asetup"
-                    print >>wrapper, 'echo Sourcing {AtlasSetupDirectory}/scripts/asetup.sh {asetupStatus}'.format(
+                    print("# asetup", file=wrapper)
+                    print('echo Sourcing {AtlasSetupDirectory}/scripts/asetup.sh {asetupStatus}'.format(
                         AtlasSetupDirectory = os.environ['AtlasSetup'],
                         asetupStatus        = asetup
-                    )
-                    print >>wrapper, 'source {AtlasSetupDirectory}/scripts/asetup.sh {asetupStatus}'.format(
+                    ), file=wrapper)
+                    print('source {AtlasSetupDirectory}/scripts/asetup.sh {asetupStatus}'.format(
                         AtlasSetupDirectory = os.environ['AtlasSetup'],
                         asetupStatus        = asetup
-                    )
-                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi'
+                    ), file=wrapper)
+                    print('if [ ${?} != "0" ]; then exit 255; fi', file=wrapper)
                 if dbsetup:
                     dbroot = path.dirname(dbsetup)
                     dbversion = path.basename(dbroot)
-                    print >>wrapper, "# DBRelease setup"
-                    print >>wrapper, 'echo Setting up DBRelease {dbroot} environment'.format(dbroot = dbroot)
-                    print >>wrapper, 'export DBRELEASE={dbversion}'.format(dbversion = dbversion)
-                    print >>wrapper, 'export CORAL_AUTH_PATH={directory}'.format(directory = path.join(dbroot, 'XMLConfig'))
-                    print >>wrapper, 'export CORAL_DBLOOKUP_PATH={directory}'.format(directory = path.join(dbroot, 'XMLConfig'))
-                    print >>wrapper, 'export TNS_ADMIN={directory}'.format(directory = path.join(dbroot, 'oracle-admin'))
-                    print >>wrapper, 'DATAPATH={dbroot}:$DATAPATH'.format(dbroot = dbroot)
+                    print("# DBRelease setup", file=wrapper)
+                    print('echo Setting up DBRelease {dbroot} environment'.format(dbroot = dbroot), file=wrapper)
+                    print('export DBRELEASE={dbversion}'.format(dbversion = dbversion), file=wrapper)
+                    print('export CORAL_AUTH_PATH={directory}'.format(directory = path.join(dbroot, 'XMLConfig')), file=wrapper)
+                    print('export CORAL_DBLOOKUP_PATH={directory}'.format(directory = path.join(dbroot, 'XMLConfig')), file=wrapper)
+                    print('export TNS_ADMIN={directory}'.format(directory = path.join(dbroot, 'oracle-admin')), file=wrapper)
+                    print('DATAPATH={dbroot}:$DATAPATH'.format(dbroot = dbroot), file=wrapper)
                 if self._disableMP:
-                    print >>wrapper, "# AthenaMP explicitly disabled for this executor"
-                    print >>wrapper, "export ATHENA_PROC_NUMBER=0"
+                    print("# AthenaMP explicitly disabled for this executor", file=wrapper)
                 if self._envUpdate.len > 0:
-                    print >>wrapper, "# Customised environment"
+                    print("# Customised environment", file=wrapper)
                     for envSetting in  self._envUpdate.values:
                         if not envSetting.startswith('LD_PRELOAD'):
-                            print >>wrapper, "export", envSetting
+                            print("export", envSetting, file=wrapper)
                 # If Valgrind is engaged, a serialised Athena configuration file
                 # is generated for use with a subsequent run of Athena with
                 # Valgrind.
@@ -1279,8 +1347,8 @@ class athenaExecutor(scriptExecutor):
                         name = self._name
                     )
                     # Run Athena for generation of its serialised configuration.
-                    print >>wrapper, ' '.join(self._cmd), "--config-only={0}".format(AthenaSerialisedConfigurationFile)
-                    print >>wrapper, 'if [ $? != "0" ]; then exit 255; fi'
+                    print(' '.join(self._cmd), "--config-only={0}".format(AthenaSerialisedConfigurationFile), file=wrapper)
+                    print('if [ $? != "0" ]; then exit 255; fi', file=wrapper)
                     # Generate a Valgrind command, suppressing or ussing default
                     # options as requested and extra options as requested.
                     if 'valgrindDefaultOpts' in self.conf._argdict:
@@ -1300,12 +1368,12 @@ class athenaExecutor(scriptExecutor):
                             AthenaSerialisedConfigurationFile
                     )
                     msg.debug("Valgrind command: {command}".format(command = command))
-                    print >>wrapper, command
+                    print(command, file=wrapper)
                 else:
                     msg.info('Valgrind not engaged')
                     # run Athena command
-                    print >>wrapper, ' '.join(self._cmd)
-            os.chmod(self._wrapperFile, 0755)
+                    print(' '.join(self._cmd), file=wrapper)
+            os.chmod(self._wrapperFile, 0o755)
         except (IOError, OSError) as e:
             errMsg = 'error writing athena wrapper {fileName}: {error}'.format(
                 fileName = self._wrapperFile,
@@ -1336,7 +1404,7 @@ class athenaExecutor(scriptExecutor):
         currentMergeSize = 0
         for fname in fileArg.value:
             size = fileArg.getSingleMetadata(fname, 'file_size')
-            if type(size) not in (int, long):
+            if not isinstance(size, int):
                 msg.warning('File size metadata for {0} was not correct, found type {1}. Aborting merge attempts.'.format(fileArg, type(size)))
                 return
             # if there is no file in the job, then we must add it
@@ -1376,7 +1444,7 @@ class athenaExecutor(scriptExecutor):
                 mergeNames.append(mergeName)
                 counter += 1
         # Now actually do the merges
-        for targetName, mergeGroup, counter in zip(mergeNames, mergeCandidates, range(len(mergeNames))):
+        for targetName, mergeGroup, counter in zip(mergeNames, mergeCandidates, list(range(len(mergeNames)))):
             msg.info('Want to merge files {0} to {1}'.format(mergeGroup, targetName))
             if len(mergeGroup) <= 1:
                 msg.info('Skip merging for single file')
@@ -1415,7 +1483,7 @@ class optionalAthenaExecutor(athenaExecutor):
         self.setValStart()
         try:
             super(optionalAthenaExecutor, self).validate()
-        except trfExceptions.TransformValidationException, e:
+        except trfExceptions.TransformValidationException as e:
             # In this case we hold this exception until the logfile has been scanned
             msg.warning('Validation failed for {0}: {1}'.format(self._name, e))
             self._isValidated = False
@@ -1636,7 +1704,7 @@ class DQMergeExecutor(scriptExecutor):
             for dataType in input:
                 for fname in self.conf.dataDictionary[dataType].value:
                     self.conf.dataDictionary[dataType]._getNumberOfEvents([fname])
-                    print >>DQMergeFile, fname
+                    print(fname, file=DQMergeFile)
             
         self._cmd.append(self._histMergeList)
         
@@ -1753,7 +1821,7 @@ class bsMergeExecutor(scriptExecutor):
             with open(self._mergeBSFileList, 'w') as BSFileList:
                 for fname in self.conf.dataDictionary[self._inputBS].value:
                     if fname not in self._maskedFiles:
-                        print >>BSFileList, fname
+                        print(fname, file=BSFileList)
         except (IOError, OSError) as e:
             errMsg = 'Got an error when writing list of BS files to {0}: {1}'.format(self._mergeBSFileList, e)
             msg.error(errMsg)
@@ -1764,7 +1832,7 @@ class bsMergeExecutor(scriptExecutor):
         if self._outputFilename.endswith('._0001.data'):
             self._doRename = False
             self._outputFilename = self._outputFilename.split('._0001.data')[0]    
-        elif self.conf.argdict['allowRename'].value == True:
+        elif self.conf.argdict['allowRename'].value is True:
             # OK, non-fatal, we go for a renaming
             msg.info('Output filename does not end in "._0001.data" will proceed, but be aware that the internal filename metadata will be wrong')
             self._doRename = True
@@ -1802,7 +1870,7 @@ class bsMergeExecutor(scriptExecutor):
             msg.info('Renaming {0} to {1}'.format(self._expectedOutput, self.conf.dataDictionary[self._outputBS].value[0]))
             try:
                 os.rename(self._outputFilename + '._0001.data', self.conf.dataDictionary[self._outputBS].value[0])
-            except OSError, e:
+            except OSError as e:
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'), 
                                                                 'Exception raised when renaming {0} to {1}: {2}'.format(self._outputFilename, self.conf.dataDictionary[self._outputBS].value[0], e))
         super(bsMergeExecutor, self).postExecute()
@@ -1867,39 +1935,39 @@ class archiveExecutor(scriptExecutor):
             self._cmd = ['python']
             try:
                 with open('zip_wrapper.py', 'w') as zip_wrapper:
-                    print >> zip_wrapper, "import zipfile, os, shutil"
+                    print("import zipfile, os, shutil", file=zip_wrapper)
                     if os.path.exists(self.conf.argdict['outputArchFile'].value[0]):
                         #appending input file(s) to existing archive
-                        print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='a', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
+                        print("zf = zipfile.ZipFile('{}', mode='a', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0]), file=zip_wrapper)
                     else:
                         #creating new archive
-                        print >> zip_wrapper, "zf = zipfile.ZipFile('{}', mode='w', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0])
-                    print >> zip_wrapper, "for f in {}:".format(self.conf.argdict['inputDataFile'].value)
+                        print("zf = zipfile.ZipFile('{}', mode='w', allowZip64=True)".format(self.conf.argdict['outputArchFile'].value[0]), file=zip_wrapper)
+                    print("for f in {}:".format(self.conf.argdict['inputDataFile'].value), file=zip_wrapper)
                     #This module gives false positives (as of python 3.7.0). Will also check the name for ".zip"
                     #print >> zip_wrapper, "    if zipfile.is_zipfile(f):"
-                    print >> zip_wrapper, "    if zipfile.is_zipfile(f) and '.zip' in f:"
-                    print >> zip_wrapper, "        archive = zipfile.ZipFile(f, mode='r')"
-                    print >> zip_wrapper, "        print 'Extracting input zip file {0} to temporary directory {1}'.format(f,'tmp')"
-                    print >> zip_wrapper, "        archive.extractall('tmp')"
-                    print >> zip_wrapper, "        archive.close()"
+                    print("    if zipfile.is_zipfile(f) and '.zip' in f:", file=zip_wrapper)
+                    print("        archive = zipfile.ZipFile(f, mode='r')", file=zip_wrapper)
+                    print("        print 'Extracting input zip file {0} to temporary directory {1}'.format(f,'tmp')", file=zip_wrapper)
+                    print("        archive.extractall('tmp')", file=zip_wrapper)
+                    print("        archive.close()", file=zip_wrapper)
                     # remove stuff as soon as it is saved to output in order to save disk space at worker node
-                    print >> zip_wrapper, "        if os.access(f, os.F_OK):"
-                    print >> zip_wrapper, "            print 'Removing input zip file {}'.format(f)"
-                    print >> zip_wrapper, "            os.unlink(f)"
-                    print >> zip_wrapper, "        if os.path.isdir('tmp'):"
-                    print >> zip_wrapper, "            for root, dirs, files in os.walk('tmp'):"
-                    print >> zip_wrapper, "                for name in files:"
-                    print >> zip_wrapper, "                    print 'Zipping {}'.format(name)"
-                    print >> zip_wrapper, "                    zf.write(os.path.join(root, name), name, compress_type=zipfile.ZIP_STORED)"
-                    print >> zip_wrapper, "            shutil.rmtree('tmp')"
-                    print >> zip_wrapper, "    else:"
-                    print >> zip_wrapper, "        print 'Zipping {}'.format(os.path.basename(f))"
-                    print >> zip_wrapper, "        zf.write(f, arcname=os.path.basename(f), compress_type=zipfile.ZIP_STORED)"
-                    print >> zip_wrapper, "        if os.access(f, os.F_OK):"
-                    print >> zip_wrapper, "            print 'Removing input file {}'.format(f)"
-                    print >> zip_wrapper, "            os.unlink(f)"
-                    print >> zip_wrapper, "zf.close()"
-                os.chmod('zip_wrapper.py', 0755)
+                    print("        if os.access(f, os.F_OK):", file=zip_wrapper)
+                    print("            print 'Removing input zip file {}'.format(f)", file=zip_wrapper)
+                    print("            os.unlink(f)", file=zip_wrapper)
+                    print("        if os.path.isdir('tmp'):", file=zip_wrapper)
+                    print("            for root, dirs, files in os.walk('tmp'):", file=zip_wrapper)
+                    print("                for name in files:", file=zip_wrapper)
+                    print("                    print 'Zipping {}'.format(name)", file=zip_wrapper)
+                    print("                    zf.write(os.path.join(root, name), name, compress_type=zipfile.ZIP_STORED)", file=zip_wrapper)
+                    print("            shutil.rmtree('tmp')", file=zip_wrapper)
+                    print("    else:", file=zip_wrapper)
+                    print("        print 'Zipping {}'.format(os.path.basename(f))", file=zip_wrapper)
+                    print("        zf.write(f, arcname=os.path.basename(f), compress_type=zipfile.ZIP_STORED)", file=zip_wrapper)
+                    print("        if os.access(f, os.F_OK):", file=zip_wrapper)
+                    print("            print 'Removing input file {}'.format(f)", file=zip_wrapper)
+                    print("            os.unlink(f)", file=zip_wrapper)
+                    print("zf.close()", file=zip_wrapper)
+                os.chmod('zip_wrapper.py', 0o755)
             except (IOError, OSError) as e:
                 errMsg = 'error writing zip wrapper {fileName}: {error}'.format(fileName = 'zip_wrapper.py',
                     error = e
@@ -1920,14 +1988,14 @@ class archiveExecutor(scriptExecutor):
             self._cmd = ['python']
             try:
                 with open('unarchive_wrapper.py', 'w') as unarchive_wrapper:
-                    print >> unarchive_wrapper, "import zipfile"
-                    print >> unarchive_wrapper, "for f in {}:".format(self.conf.argdict['inputArchFile'].value)
-                    print >> unarchive_wrapper, "     archive = zipfile.ZipFile(f, mode='r')"
-                    print >> unarchive_wrapper, "     path = '{}'".format(self.conf.argdict['path'])
-                    print >> unarchive_wrapper, "     print 'Extracting archive {0} to {1}'.format(f,path)"
-                    print >> unarchive_wrapper, "     archive.extractall(path)"
-                    print >> unarchive_wrapper, "     archive.close()"
-                os.chmod('unarchive_wrapper.py', 0755)
+                    print("import zipfile", file=unarchive_wrapper)
+                    print("for f in {}:".format(self.conf.argdict['inputArchFile'].value), file=unarchive_wrapper)
+                    print("     archive = zipfile.ZipFile(f, mode='r')", file=unarchive_wrapper)
+                    print("     path = '{}'".format(self.conf.argdict['path']), file=unarchive_wrapper)
+                    print("     print 'Extracting archive {0} to {1}'.format(f,path)", file=unarchive_wrapper)
+                    print("     archive.extractall(path)", file=unarchive_wrapper)
+                    print("     archive.close()", file=unarchive_wrapper)
+                os.chmod('unarchive_wrapper.py', 0o755)
             except (IOError, OSError) as e:
                 errMsg = 'error writing unarchive wrapper {fileName}: {error}'.format(fileName = 'unarchive_wrapper.py',
                     error = e

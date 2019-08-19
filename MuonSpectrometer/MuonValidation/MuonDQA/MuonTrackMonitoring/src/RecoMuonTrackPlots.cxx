@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackMonitoring/RecoMuonTrackPlots.h"
@@ -83,7 +83,7 @@ void RecoMuonTrackPlots::fill(const xAOD::TrackParticle& muTP){
   //   const Trk::MeasurementBase* meas = stateOnSurface->measurementOnTrack();
   //   if (!meas) continue;
 
-  //   Identifier id = m_helperTool->getIdentifier(*meas);
+  //   Identifier id = m_edmHelperSvc->getIdentifier(*meas);
   //   if (!id.is_valid()) continue;
 
   //   const Trk::TrackParameters* trackParameters = stateOnSurface->trackParameters();

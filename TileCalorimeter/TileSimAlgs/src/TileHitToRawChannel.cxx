@@ -51,11 +51,11 @@ TileHitToRawChannel::TileHitToRawChannel(std::string name, ISvcLocator* pSvcLoca
   : AthAlgorithm(name, pSvcLocator)
   , m_rChUnit(TileRawChannelUnit::ADCcounts)
   , m_rChType(TileFragHash::Default)
-  , m_tileID(0)
-  , m_tileTBID(0)
-  , m_tileHWID(0)
-  , m_tileInfo(0)
-  , m_cabling(0)
+  , m_tileID(nullptr)
+  , m_tileTBID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_tileInfo(nullptr)
+  , m_cabling(nullptr)
   , m_tileNoise(false)
   , m_tileThresh(false)
   , m_threshHi(0.0)
@@ -105,7 +105,8 @@ StatusCode TileHitToRawChannel::initialize() {
     ATH_CHECK(m_atRndmGenSvc.retrieve());
   }
 
-  m_cabling = TileCablingService::getInstance();
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  m_cabling = m_cablingSvc->cablingService();
 
   // Get needed parameters from TileInfo
   m_ampMaxHi = m_tileInfo->ADCmax();

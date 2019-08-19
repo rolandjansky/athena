@@ -21,7 +21,7 @@ def InputMakerForFeatureAlg(name):
 #generalize
 
 def makeSequence(ConfigFlags, name,step, signature):
-    IM= InputMakerForFeatureAlg(name=signature+"InputMaker"+name+"Step"+step)
+    IM= InputMakerForFeatureAlg(name="IM"+signature+name+"Step"+step)
     IM.Output=name+signature+"IM"+step+"_out"
     if "el" in signature:
         Alg = CaloClustering(name="CaloClustering"+name+"Step"+step, FileName="emclusters.dat")

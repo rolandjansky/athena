@@ -26,12 +26,11 @@ def remember_cwd():
 
 def package_prefix(package):
     '''Returns a prefix included in names of all tests from the given package'''
-    dict = {'TriggerTest':      'trig_',
-            'TrigP1Test':       'trigP1_',
-            'TrigAnalysisTest': 'trigAna_',
-            'TrigUpgradeTest':  'trigUpgr_'}
-    if package in dict:
-        return dict[package]
+    from TrigValTools.TrigValSteering.Common import package_prefix_dict
+    if package=='ALL':
+        return '({})'.format('|'.join(package_prefix_dict.values()))
+    elif package in package_prefix_dict.keys():
+        return package_prefix_dict[package]
     else:
         return None
 
@@ -39,14 +38,14 @@ def package_prefix(package):
 def minimal_pattern(package):
     dict = {'TriggerTest':      None,
             'TrigP1Test':       None,
-            'TrigAnalysisTest': None,
-            'TrigUpgradeTest':  '(trigUpgr_full_menu_build|trigUpgr_newJO_build)'}
-    if package in dict and dict[package] is not None:
+            'TrigAnalysisTest': 'trigAna_q221_RDOtoRDOTrig_mt1_build',
+            'TrigUpgradeTest':  '(trigUpgr_full_menu_build|trigUpgr_newJO_build|trigUpgr_full_menu_cf_configOnly_build)'}
+    if package=='ALL':
+        return '({})'.format('|'.join([v for v in dict.values() if v]))
+    elif package in dict and dict[package] is not None:
         return dict[package]
     else:
-        logging.error(
-            "Minimal set of tests for %s is not defined.",
-            "Please select specific tests using the name patter (option -n).")
+        logging.error("Minimal set of tests for %s is not defined.", package)
         exit(1)
 
 def duplicate_filename(list, filename):
@@ -60,7 +59,7 @@ def find_scripts(patterns):
     for path in os.environ['PATH'].split(':'):
         try:
             files = os.listdir(path)
-        except:
+        except OSError:
             continue
         for filename in files:
             matched = True
@@ -75,11 +74,15 @@ def find_scripts(patterns):
 
 
 def get_parser():
-    parser = argparse.ArgumentParser(usage='%(prog)s [options] PackageName')
+    packages=['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest', 'ALL']
+    parser = argparse.ArgumentParser(usage='%(prog)s [options] [PackageName]')
     parser.add_argument('package',
                         metavar='PackageName',
-                        help='Name of the package from which to run ART tests. Options are: %(choices)s',
-                        choices=['TriggerTest', 'TrigAnalysisTest', 'TrigP1Test', 'TrigUpgradeTest'])
+                        default='ALL',
+                        nargs='?',
+                        help='Name of the package from which to run ART tests. Options are: %(choices)s.'
+                             ' If no name is provided, %(default)s is used.',
+                        choices=packages)
     parser.add_argument('-m', '--minimal',
                         action='store_true',
                         help='Run a small pre-defined set of tests for basic verification')
@@ -99,6 +102,10 @@ def get_parser():
     parser.add_argument('-v', '--verbose',
                         action='store_true',
                         help='Increase output verbosity')
+    parser.add_argument('-d', '--dryRun',
+                        action='store_true',
+                        help='List tests which would be executed, but don\'t execute them')
+
     return parser
 
 
@@ -166,6 +173,21 @@ def print_summary(all_test_results, failed_tests, failed_rootcomp):
         logging.info("All %d executed tests succeeded", len(all_test_results))
         logging.info("==================================================")
 
+def prep_dirs(topdir, scripts):
+    """ Creates test result structure if missing, if present clears the area only for the tests to be run"""
+    import errno
+    try:
+        os.mkdir(topdir)
+    except OSError as e:
+        if e.errno != errno.EEXIST:
+            raise e
+    shutil.rmtree(topdir+'/test', ignore_errors=True)
+    os.mkdir(topdir+'/test')
+
+    # clear results dir
+    for script in scripts:
+        toerase=topdir+'/result/'+os.path.basename(script).replace('.sh', '')
+        shutil.rmtree(toerase, ignore_errors=True)
 
 def main():
     args = get_parser().parse_args()
@@ -173,18 +195,28 @@ def main():
                         format='%(levelname)-8s %(message)s',
                         level=logging.DEBUG if args.verbose else logging.INFO)
 
+
     scripts = find_scripts(get_patterns(args))
     logging.info("The following %d tests will be executed: ", len(scripts))
     for filename in scripts:
         logging.info("    %s", os.path.basename(filename))
 
+    if len(scripts) > 5*args.maxJobs:
+        if args.maxJobs==1:
+            logging.warning("You are running %d tests in sequence. This may take "
+                            "a long time, consider using -j N option.", len(scripts))
+        else:
+            logging.warning("You are running %d tests with %d parallel jobs. "
+                            "This may take a long time.", len(scripts), args.maxJobs)
+
+    if args.dryRun:
+        return 0
+
     topdir = 'runTrigART'
     success = True
     with remember_cwd():
-        shutil.rmtree(topdir, ignore_errors=True)
-        os.mkdir(topdir)
+        prep_dirs(topdir, scripts)
         os.chdir(topdir)
-        os.mkdir('test')
         for script_path in scripts:
             target = 'test/' + os.path.basename(script_path)
             os.symlink(script_path, target)

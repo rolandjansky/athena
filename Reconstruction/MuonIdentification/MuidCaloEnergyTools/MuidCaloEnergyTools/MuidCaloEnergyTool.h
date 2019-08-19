@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuidCaloEnergy.h"
+
+#include <atomic>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -104,9 +106,9 @@ private:
     double					m_minMuonPt;      // minimum pt of the muon
 
     // counters (for finalize)
-    mutable int 				m_countMean;        //number of tracks using mean
-    mutable int					m_countMeasurement; //number of tracks using measurement
-    mutable int 				m_countMop;         //number of tracks using mop
+    mutable std::atomic_int			m_countMean;        //number of tracks using mean
+    mutable std::atomic_int			m_countMeasurement; //number of tracks using measurement
+    mutable std::atomic_int 			m_countMop;         //number of tracks using mop
 };
 
 }	// end of namespace

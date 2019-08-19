@@ -10,6 +10,7 @@
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // Forward declaration(s):
 namespace xAOD {
@@ -43,7 +44,8 @@ namespace xAODMaker {
       virtual StatusCode convert( const EventInfo* aod,
                                   xAOD::EventInfo* xaod,
                                   bool pileUpInfo = false,
-                                  bool copyPileUpLinks = true ) const = 0;
+                                  bool copyPileUpLinks = true,
+                                  const EventContext& ctx = Gaudi::Hive::currentContext()) const = 0;
 
       /// Gaudi interface definition
       static const InterfaceID& interfaceID() {

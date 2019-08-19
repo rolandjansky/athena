@@ -51,20 +51,32 @@ private:
   double ***m_maj_kk; //!
   double ***m_maj_invkk; //!
   
+  std::pair<int,int> **m_temp; //!
   // alternative constant vectors to be used when performing fits with integer precision
   // to match firmware specs -- these are not yet initialized anywhere!
   signed long long ***m_kernel_aux; //[m_nsectors][m_nconstr][m_ncoords] covariance matrix
   signed long long ***m_kernel_hw;  //[m_nsectors][m_nconstr][m_ncoords] covariance matrix
   signed long long **m_kaverage_aux; //[m_nsectors][m_nconstr] 
   signed long long ***m_maj_invkk_aux; //!
-  signed long long ***m_maj_invkk_hw; //!
+  int ***m_maj_invkk_hw; //!
   short int ***m_maj_invkk_pow; //!
-  short int ***m_maj_invkk_pow_hw; //!
+  int ***m_maj_invkk_pow_hw; //!
 
   double m_dTIBL; // dT (in K) for IBL compared to reference. For use in correcting for IBL bowing in x(phi) direction
 
   // function to model behavior of arithmetic shift register, used in firmware tests
   signed long long aux_asr(signed long long input, int shift, int width, bool &overflow) const;
+  signed int UnsignedToSigned(unsigned x) const;
+
+  // Bitcast a float to an uint32_t without breaking aliasing rules.
+  static inline uint32_t float_bits(float f)
+  {
+    static_assert(sizeof(float) == sizeof(uint32_t), "float size != uint32_t size");
+    uint32_t ret;
+    std::memcpy(&ret, &f, sizeof(float));
+    return ret;
+  }
+
 
 public:
   FTKConstantBank();
@@ -85,18 +97,19 @@ public:
   float getKernel( int isec , int iconstr , int icoord ) { return m_kernel[isec][iconstr][icoord]; }
   float *getKaverage(int sectid) const { return m_kaverage[sectid]; }
   float **getKernel(int sectid) const { return m_kernel[sectid]; }
+  std::pair<int, int> getFloating(double input); //Rui's change to match fw
 
   void setdTIBL(double t) {m_dTIBL = t;}
   double getdTIBL() {return m_dTIBL;}
 
   void doAuxFW(bool a);
 
-  static const int KAVE_SHIFT = 6; // 6
+  static const int KAVE_SHIFT = 4; // 6 //Rui's change to match fw
 
   static const int KERN_SHIFT = KAVE_SHIFT + 7;
   static const int EFF_SHIFT  = KERN_SHIFT + 3; // aux coordinates 8x larger
 
-  static const int KERN_SHIFT_HW = KAVE_SHIFT + 7;
+  static const int KERN_SHIFT_HW = KAVE_SHIFT + 8;//6; //Rui
   static const int EFF_SHIFT_HW  = KERN_SHIFT_HW + 3;
 
   static const int FIT_PREC   = 18; // 18
@@ -104,7 +117,8 @@ public:
 
   const int   const_plane_map[11] = {0, 0, 1, 1, 2, 2, 3, 4, 5, 6, 7};
   const int   const_coord_map[11] = {0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0};
-  const float const_scale_map[11] = {1, 8/16.88, 1, 8/16.88, 1, 8/16.88, 4, 4, 4, 4, 4};
+  const float const_scale_map[11] = {1, 16/16.88, 1, 16/16.88, 1, 16/16.88, 1, 1, 1, 1, 1}; //Rui's change to match fw
+  const float const_scale_map1[11] = {2, 1, 2, 1, 2, 1, 8, 8, 8, 8, 8}; //Rui's change to match fw
   // const float const_scale_map[11] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
 
   //   const double zIBL[20] = {-322.8975,301.7925,280.6875,259.5825,228.2775,186.7725,145.2675,103.7625,62.2575,20.7525,

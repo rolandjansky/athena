@@ -1,0 +1,69 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef MUONRPCRAWDATAPROVIDERTOOLCORE_H
+#define MUONRPCRAWDATAPROVIDERTOOLCORE_H
+
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonRDO/RpcPadContainer.h"
+#include "MuonRDO/RpcSectorLogicContainer.h"
+#include "RPCcablingInterface/IRPCcablingServerSvc.h"
+#include "RPCcablingInterface/CablingRPCBase.h"
+#include "MuonRPC_CnvTools/IRpcROD_Decoder.h"
+#include "ByteStreamData/RawEvent.h"
+
+class IROBDataProviderSvc;
+
+namespace Muon
+{
+    class IRpcROD_Decoder;
+
+    /**
+     * Base class for tools to decode RPC raw data.
+     * 
+     * This contains all the logic to decode a vector of ROB fragments into the relevent containers.
+     * The derived classes should do the management of the containers and then call the convertIntoContainers
+     * from the convert functions required by the interface.
+     */
+    class RPC_RawDataProviderToolCore : public AthAlgTool {
+      
+    public:
+      RPC_RawDataProviderToolCore(const std::string& t, 
+                                  const std::string& n, 
+                                  const IInterface* p);
+      
+      virtual ~RPC_RawDataProviderToolCore();
+      
+      virtual StatusCode initialize();
+     
+    protected:
+
+      // This function does all the actual work of decoding the data
+      StatusCode convertIntoContainers(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,  const std::vector<IdentifierHash>& collections,
+                                       RpcPadContainer* pad, RpcSectorLogicContainer* logic) const;
+      
+      std::vector<IdentifierHash> to_be_converted(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                                  const std::vector<IdentifierHash>& coll) const;
+
+      /// RPC cabling Svc
+      const IRPCcablingSvc *m_rpcCabling;
+
+      // Rob Data Provider handle 
+      ServiceHandle<IROBDataProviderSvc>          m_robDataProvider;
+
+      // ROD decoding tool
+      ToolHandle<IRpcROD_Decoder>         m_decoder;
+      
+      // WriteHandleKey for RPC PAD container
+      SG::WriteHandleKey<RpcPadContainer>            m_containerKey {
+	this, "RdoLocation", "RPCPAD", "Name of the RPCPAD produced by RawDataProvider"};
+      // WriteHandleKey for RPC sector logic container
+      SG::WriteHandleKey<RpcSectorLogicContainer>    m_sec{
+	this, "RPCSec", "RPC_SECTORLOGIC", "Name of the RPC_SECTORLOGIC produced by RawDataProvider"};
+      
+    };//class RPC_RawDataProviderToolCore
+}//namespace Muon
+
+#endif //MUONRPCRAWDATAPROVIDERTOOLCORE_H

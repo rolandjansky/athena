@@ -8,6 +8,8 @@
 #include "LArRawConditions/LArOFCBinComplete.h"
 #include "CaloIdentifier/CaloGain.h"
 
+#include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 LArOFPhasePicker::LArOFPhasePicker(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -25,6 +27,7 @@ LArOFPhasePicker::LArOFPhasePicker(const std::string& name, ISvcLocator* pSvcLoc
   declareProperty("DefaultPhase",m_defaultPhase=4);
   declareProperty("doOFC",m_doOFC=true);  
   declareProperty("doShape",m_doShape=true);  
+  declareProperty("isSC",m_isSC=false);
 }
 
 LArOFPhasePicker::~LArOFPhasePicker()
@@ -50,8 +53,30 @@ StatusCode LArOFPhasePicker::initialize()
      return StatusCode::FAILURE ;
   }
 
-
-  ATH_CHECK(detStore()->retrieve(m_onlineID));
+  StatusCode sc;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineID = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineID = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
+  }
 
   return StatusCode::SUCCESS;
 }

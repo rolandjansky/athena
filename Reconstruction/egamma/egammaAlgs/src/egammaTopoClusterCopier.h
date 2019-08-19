@@ -44,11 +44,12 @@ class egammaTopoClusterCopier : public AthReentrantAlgorithm {
       "View container of selected topoclusters"};
 
   Gaudi::Property<float> m_etaCut {this, "EtaCut", 2.6, "maximum |eta| of selected clusters"};
-  Gaudi::Property<float> m_ECut {this, "ECut", 400, "minimum energy of selected clusters"};
-  Gaudi::Property<float> m_EMFracCut {this, "EMFracCut", 0.5, "mimimum EM fraction"};
-  Gaudi::Property<float> m_EMCrackEtCut {this, "EMCrackEtCut", 1.0E3, 
-      "minimum Et of crack clusters"};
-  
+  Gaudi::Property<float> m_ECut {this, "ECut", 500, "minimum energy of selected clusters"};
+  Gaudi::Property<float> m_EMFracCut {this, "EMFracCut", 0.55, "mimimum EM fraction"};
+ 
+  mutable Gaudi::Accumulators::Counter<long int>                     m_AllClusters;            
+  mutable Gaudi::Accumulators::Counter<long int>                     m_PassPreSelection;
+  mutable Gaudi::Accumulators::Counter<long int>                     m_PassSelection; 
 };
 
 #endif // EGAMMATOOLS_EMCLUSTERTOOL_H

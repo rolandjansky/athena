@@ -18,6 +18,7 @@
 #include "xAODTracking/TrackParticleContainerFwd.h"
 
 #include <vector>
+#include <atomic>
 
 namespace Reco { class ITrackToVertex; }
 namespace Trk  { class ITrackToVertexIPEstimator; }
@@ -59,7 +60,7 @@ namespace Analysis {
 
     /** calculate individual track contribution to the three likelihoods: */
     void trackWeight(std::string jetAuthor, TrackGrade grade, double sa0, double sz0,
-                     double & twb, double & twu, double & twc);
+                     double & twb, double & twu, double & twc) const;
     
     void finalizeHistos() {};
     
@@ -140,8 +141,6 @@ namespace Analysis {
     /** track classification. */
     std::vector<std::string>          m_trackGradePartitionsDefinition;
     std::vector<TrackGradePartition*> m_trackGradePartitions;
-    /** The jet of TrackParticles to be tagged. */
-    std::vector<GradedTrack> m_tracksInJet;
     /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
     // this pointer does not need to be deleted in the destructor (because it points to something in storegate)
     const xAOD::Vertex* m_priVtx = 0;
@@ -172,9 +171,9 @@ namespace Analysis {
       
 
     // VD: for debugging
-    int m_nbjet;
-    int m_ncjet;
-    int m_nljet;
+    mutable std::atomic<int> m_nbjet;
+    mutable std::atomic<int> m_ncjet;
+    mutable std::atomic<int> m_nljet;
   
   }; // End class
 

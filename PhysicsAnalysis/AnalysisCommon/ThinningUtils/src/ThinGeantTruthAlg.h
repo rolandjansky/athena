@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,6 +22,12 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthVertexContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#
 
 class ThinGeantTruthAlg
   : public ::AthAlgorithm
@@ -66,15 +72,39 @@ private:
  
     /// Geant-decayed longer lived particles
     std::vector<int> m_longlived;
+    
+    SG::ReadHandleKey<xAOD::TruthParticleContainer>  m_truthParticlesKey {this, 
+        "TruthParticlesKey", 
+        "TruthParticles", 
+        "Name of the input Truth Particle container"};
 
-    /// Names of the containers to thin
-    std::string m_truthParticlesKey;
-    std::string m_truthVerticesKey;
-    std::string m_muonsKey;
-    std::string m_electronsKey;
-    std::string m_photonsKey;   
-    std::string m_egammaTruthKey;
- 
+
+    SG::ReadHandleKey<xAOD::TruthVertexContainer> m_truthVerticesKey{this, 
+        "TruthVerticesKey", 
+        "TruthVertices", 
+        "Name of the input Truth Vertices container"};
+
+
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsKey {this, 
+        "ElectronsKey", 
+        "Electrons", 
+        "Name of the input electron container"};
+
+    SG::ReadHandleKey<xAOD::PhotonContainer> m_photonsKey {this, 
+        "PhotonsKey", 
+        "Photons", 
+        "Name of the input photon container"};
+
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonsKey {this, 
+        "MuonsKey", 
+        "Muons", 
+        "Name of the input muon container"};
+
+    SG::ReadHandleKey<xAOD::TruthParticleContainer> m_egammaTruthKey {this, 
+        "EGammaTruthKey", 
+        "egammaTruthParticles", 
+        "Name of the input egammaTruth container"};
+    
     /// Counters
     unsigned long m_nEventsProcessed;
     unsigned long m_nParticlesProcessed;

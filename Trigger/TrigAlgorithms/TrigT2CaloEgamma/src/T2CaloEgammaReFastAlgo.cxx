@@ -34,6 +34,7 @@ StatusCode T2CaloEgammaReFastAlgo::initialize()
   ATH_CHECK(m_regionSelector.retrieve());
   ATH_CHECK(m_clusterContainerKey.initialize());
   ATH_CHECK(m_roiCollectionKey.initialize());
+  ATH_CHECK( m_bcidAvgKey.initialize() );
   return StatusCode::SUCCESS;
 }
 

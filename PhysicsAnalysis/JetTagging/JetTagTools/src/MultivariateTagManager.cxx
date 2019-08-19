@@ -156,7 +156,7 @@ namespace Analysis {
     float sm_ID_qOverP       = NAN;
 
     BTag->variable<float>(m_softmuon_infosource, "mu_pt"           , sm_mu_pt          );
-    if(sm_mu_pt>0){
+    if(!isnan(sm_mu_pt) && sm_mu_pt>0){
         BTag->variable<float>(m_softmuon_infosource, "dR"              , sm_dR             );
         BTag->variable<float>(m_softmuon_infosource, "qOverPratio"     , sm_qOverPratio    );
         BTag->variable<float>(m_softmuon_infosource, "mombalsignif"    , sm_mombalsignif   );

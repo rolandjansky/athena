@@ -7,7 +7,7 @@
 #include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTKRoadFileInput.h"
 #include "TrigFTKSim/FTK_RawInput.h"
-#include "TrigFTKSim/atlClustering.h"
+#include "TrigFTKSim/FTKClusteringEngine.h"
 #include "TrigFTKSim/MultiTruth.h"
 #include "TrigFTKSim/PatternBank.h"
 

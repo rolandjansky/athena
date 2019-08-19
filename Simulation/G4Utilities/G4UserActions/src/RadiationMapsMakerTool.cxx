@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "TH2D.h"
 #include "TH3D.h"
 #include "TFile.h"
-#include "G4UserActions/RadiationMapsMakerTool.h"
+#include "RadiationMapsMakerTool.h"
 
 namespace G4UA{ 
 
@@ -17,39 +17,44 @@ namespace G4UA{
     /// Output Filename for the Radiation Maps
     declareProperty("RadMapsFileName", m_radMapsFileName);
     /// Name of the material to make radiation maps for (take all if empty) 
-    declareProperty("Material"  , m_config.material);
+    declareProperty("Material"       , m_config.material);
     /// map granularities 
     /// number of bins in r and z for all 2D maps
-    declareProperty("NBinsR"    , m_config.nBinsr);
-    declareProperty("NBinsZ"    , m_config.nBinsz);
+    declareProperty("NBinsR"         , m_config.nBinsr);
+    declareProperty("NBinsZ"         , m_config.nBinsz);
     /// number of bins in logE for energy spectra of neutrons in 2D grids
-    declareProperty("NBinsLogEn", m_config.nBinslogEn);
+    declareProperty("NBinsLogEn"     , m_config.nBinslogEn);
     /// number of bins in logE for energy spectra of other particles in 2D grids
-    declareProperty("NBinsLogEo", m_config.nBinslogEo);
+    declareProperty("NBinsLogEo"     , m_config.nBinslogEo);
     /// number of bins in r, z and phi for all 3D maps
-    declareProperty("NBinsR3D"  , m_config.nBinsr3d);
-    declareProperty("NBinsZ3D"  , m_config.nBinsz3d);
-    declareProperty("NBinsPhi3D", m_config.nBinsphi3d);
+    declareProperty("NBinsR3D"       , m_config.nBinsr3d);
+    declareProperty("NBinsZ3D"       , m_config.nBinsz3d);
+    declareProperty("NBinsPhi3D"     , m_config.nBinsphi3d);
+    /// number of bins in logTimeCut for time dependent TID 2D maps
+    declareProperty("NBinsLogTimeCut", m_config.nBinslogT);
     /// map ranges
     /// for Zoomed area in 2D and 3D
-    declareProperty("RMinZoom"  , m_config.rMinZoom);
-    declareProperty("RMaxZoom"  , m_config.rMaxZoom);
-    declareProperty("ZMinZoom"  , m_config.zMinZoom);
-    declareProperty("ZMaxZoom"  , m_config.zMaxZoom);
+    declareProperty("RMinZoom"       , m_config.rMinZoom);
+    declareProperty("RMaxZoom"       , m_config.rMaxZoom);
+    declareProperty("ZMinZoom"       , m_config.zMinZoom);
+    declareProperty("ZMaxZoom"       , m_config.zMaxZoom);
     /// for Full detector in 2D
-    declareProperty("RMinFull"  , m_config.rMinFull);
-    declareProperty("RMaxFull"  , m_config.rMaxFull);
-    declareProperty("ZMinFull"  , m_config.zMinFull);
-    declareProperty("ZMaxFull"  , m_config.zMaxFull);
+    declareProperty("RMinFull"       , m_config.rMinFull);
+    declareProperty("RMaxFull"       , m_config.rMaxFull);
+    declareProperty("ZMinFull"       , m_config.zMinFull);
+    declareProperty("ZMaxFull"       , m_config.zMaxFull);
     /// for Zoomed area in 3D 
-    declareProperty("PhiMinZoom", m_config.phiMinZoom);
-    declareProperty("PhiMaxZoom", m_config.phiMaxZoom);
+    declareProperty("PhiMinZoom"     , m_config.phiMinZoom);
+    declareProperty("PhiMaxZoom"     , m_config.phiMaxZoom);
     /// for logE of neutrons in 2D spectra
-    declareProperty("LogEMinn"  , m_config.logEMinn);
-    declareProperty("LogEMaxn"  , m_config.logEMaxn);
+    declareProperty("LogEMinn"       , m_config.logEMinn);
+    declareProperty("LogEMaxn"       , m_config.logEMaxn);
     /// for logE of other particles in 2D spectra
-    declareProperty("LogEMino"  , m_config.logEMino);
-    declareProperty("LogEMaxo"  , m_config.logEMaxo);
+    declareProperty("LogEMino"       , m_config.logEMino);
+    declareProperty("LogEMaxo"       , m_config.logEMaxo);
+    /// for logT in time-dependent TID 2D maps
+    declareProperty("LogTMin"        , m_config.logTMin);
+    declareProperty("LogTMax"        , m_config.logTMax);
   }
 
   //---------------------------------------------------------------------------
@@ -57,25 +62,27 @@ namespace G4UA{
   //---------------------------------------------------------------------------
   StatusCode RadiationMapsMakerTool::initialize()
   {
-    ATH_MSG_INFO( "Initializing     " << name() << "\n" <<
-                  "OutputFile:      " << m_radMapsFileName   << "\n"                 << 
-                  "Material:        " << m_config.material   << "\n"                 << 
-                  "2D Maps:         " << m_config.nBinsz     << " |z|-bins, "        << 
-		                         m_config.nBinsr     << " r-bins"            << "\n"                << 
-		  "Zoom:            " << m_config.zMinZoom   << " < |z|/cm < "       << m_config.zMaxZoom   << ", " << 
-                                         m_config.rMinZoom   << " < r/cm < "         << m_config.rMaxZoom   << "\n" << 
-                  "Full:            " << m_config.zMinFull   << " < |z|/cm < "       << m_config.zMaxFull   << ", " << 
-                                         m_config.rMinFull   << " < r/cm < "         << m_config.rMaxFull   << "\n" << 
-                  "Neutron Spectra: " << m_config.nBinslogEn << " log10E-bins"       << ", "                <<
-                                         m_config.logEMinn   << " < log10(E/MeV) < " << m_config.logEMaxn   << "\n" << 
-                  "Other Spectra:   " << m_config.nBinslogEo << " log10E-bins"       << ", "                <<
-                                         m_config.logEMino   << " < log10(E/MeV) < " << m_config.logEMaxo   << "\n" << 
-                  "3D Maps:         " << m_config.nBinsz3d   << " |z|-bins, "       << 
-                                         m_config.nBinsr3d   << " r-bins, "         << 
-                                         m_config.nBinsphi3d << " phi-bins"         << "\n"                << 
-                  "Zoom:            " << m_config.zMinZoom   << " < |z|/cm < "      << m_config.zMaxZoom   << ", " << 
-                                         m_config.rMinZoom   << " < r/cm < "        << m_config.rMaxZoom   << ", " <<
-                                         m_config.phiMinZoom << " < phi/degrees < " << m_config.phiMaxZoom );
+    ATH_MSG_INFO( "Initializing     " << name()              << "\n"                                              <<
+                  "OutputFile:      " << m_radMapsFileName   << "\n"                                              << 
+                  "Material:        " << m_config.material   << "\n"                                              << 
+                  "2D Maps:         " << m_config.nBinsz     << (m_config.zMinFull<0?" z-bins, ":" |z|-bins, ")   << 
+		                         m_config.nBinsr     << " r-bins"                                         << "\n"                << 
+		  "Zoom:            " << m_config.zMinZoom   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ") << m_config.zMaxZoom   << ", " << 
+                                         m_config.rMinZoom   << " < r/cm < "                                      << m_config.rMaxZoom   << "\n" << 
+                  "Full:            " << m_config.zMinFull   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ") << m_config.zMaxFull   << ", " << 
+                                         m_config.rMinFull   << " < r/cm < "                                      << m_config.rMaxFull   << "\n" << 
+                  "Neutron Spectra: " << m_config.nBinslogEn << " log10E-bins"                                    << ", "                <<
+                                         m_config.logEMinn   << " < log10(E/MeV) < "                              << m_config.logEMaxn   << "\n" << 
+                  "Other Spectra:   " << m_config.nBinslogEo << " log10E-bins"                                    << ", "                <<
+                                         m_config.logEMino   << " < log10(E/MeV) < "                              << m_config.logEMaxo   << "\n" << 
+                  "3D Maps:         " << m_config.nBinsz3d   << (m_config.zMinFull<0?" z-bins, ":" |z|-bins, ")   << 
+                                         m_config.nBinsr3d   << " r-bins, "                                       << 
+                                         m_config.nBinsphi3d << " phi-bins"                                       << "\n"                << 
+                  "Zoom:            " << m_config.zMinZoom   << (m_config.zMinFull<0?" < z/cm < ":" < |z|/cm < ") << m_config.zMaxZoom   << ", " << 
+                                         m_config.rMinZoom   << " < r/cm < "                                      << m_config.rMaxZoom   << ", " <<
+                                         m_config.phiMinZoom << " < phi/degrees < "                               << m_config.phiMaxZoom << "\n" <<
+                  "Time TID Maps:   " << m_config.nBinslogT  << " Time-cut bins, "                                <<
+		                         m_config.logTMin    << " < log10(t_cut/s) < "                            << m_config.logTMax );
       
     return StatusCode::SUCCESS;
   }
@@ -127,6 +134,9 @@ namespace G4UA{
     maps.m_rz_rest_spec     .resize(0);
     maps.m_full_rz_rest_spec.resize(0);
 
+    maps.m_rz_tid_time      .resize(0);
+    maps.m_full_rz_tid_time .resize(0);
+
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
       // 2d zoom
@@ -177,6 +187,10 @@ namespace G4UA{
     maps.m_full_rz_prot_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
     maps.m_rz_rest_spec     .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
     maps.m_full_rz_rest_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+
+    maps.m_rz_tid_time      .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+    maps.m_full_rz_tid_time .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
       // 2d zoom
@@ -204,12 +218,14 @@ namespace G4UA{
     TH2D * h_rz_neut = new TH2D("rz_neut","rz_neut",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
     TH2D * h_rz_chad = new TH2D("rz_chad","rz_chad",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
 
-    h_rz_tid  ->SetXTitle("|z| [cm]");
-    h_rz_eion ->SetXTitle("|z| [cm]");
-    h_rz_niel ->SetXTitle("|z| [cm]");
-    h_rz_h20  ->SetXTitle("|z| [cm]");
-    h_rz_neut ->SetXTitle("|z| [cm]");
-    h_rz_chad ->SetXTitle("|z| [cm]");
+    const char * xtitle =  (m_config.zMinFull<0?"z [cm]":"|z| [cm]");
+
+    h_rz_tid  ->SetXTitle(xtitle);
+    h_rz_eion ->SetXTitle(xtitle);
+    h_rz_niel ->SetXTitle(xtitle);
+    h_rz_h20  ->SetXTitle(xtitle);
+    h_rz_neut ->SetXTitle(xtitle);
+    h_rz_chad ->SetXTitle(xtitle);
 
     h_rz_tid  ->SetYTitle("r [cm]");
     h_rz_eion ->SetYTitle("r [cm]");
@@ -232,12 +248,12 @@ namespace G4UA{
     TH2D *h_full_rz_neut = new TH2D("full_rz_neut","full_rz_neut",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
     TH2D *h_full_rz_chad = new TH2D("full_rz_chad","full_rz_chad",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
 
-    h_full_rz_tid  ->SetXTitle("|z| [cm]");
-    h_full_rz_eion ->SetXTitle("|z| [cm]");
-    h_full_rz_niel ->SetXTitle("|z| [cm]");
-    h_full_rz_h20  ->SetXTitle("|z| [cm]");
-    h_full_rz_neut ->SetXTitle("|z| [cm]");
-    h_full_rz_chad ->SetXTitle("|z| [cm]");
+    h_full_rz_tid  ->SetXTitle(xtitle);
+    h_full_rz_eion ->SetXTitle(xtitle);
+    h_full_rz_niel ->SetXTitle(xtitle);
+    h_full_rz_h20  ->SetXTitle(xtitle);
+    h_full_rz_neut ->SetXTitle(xtitle);
+    h_full_rz_chad ->SetXTitle(xtitle);
 
     h_full_rz_tid  ->SetYTitle("r [cm]");
     h_full_rz_eion ->SetYTitle("r [cm]");
@@ -260,12 +276,12 @@ namespace G4UA{
     TH3D * h_3d_neut = new TH3D("h3d_neut","h3d_neut",m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
     TH3D * h_3d_chad = new TH3D("h3d_chad","h3d_chad",m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
 
-    h_3d_tid  ->SetXTitle("|z| [cm]");
-    h_3d_eion ->SetXTitle("|z| [cm]");
-    h_3d_niel ->SetXTitle("|z| [cm]");
-    h_3d_h20  ->SetXTitle("|z| [cm]");
-    h_3d_neut ->SetXTitle("|z| [cm]");
-    h_3d_chad ->SetXTitle("|z| [cm]");
+    h_3d_tid  ->SetXTitle(xtitle);
+    h_3d_eion ->SetXTitle(xtitle);
+    h_3d_niel ->SetXTitle(xtitle);
+    h_3d_h20  ->SetXTitle(xtitle);
+    h_3d_neut ->SetXTitle(xtitle);
+    h_3d_chad ->SetXTitle(xtitle);
 
     h_3d_tid  ->SetYTitle("r [cm]");
     h_3d_eion ->SetYTitle("r [cm]");
@@ -292,12 +308,12 @@ namespace G4UA{
     TH3D *h_full_rz_neut_spec = new TH3D("full_rz_neut_spec","full_rz_neut_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEn,m_config.logEMinn,m_config.logEMaxn);
     TH3D *h_rz_neut_spec      = new TH3D("rz_neut_spec","rz_neut_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEn,m_config.logEMinn,m_config.logEMaxn);
 
-    h_rz_neut_spec      ->SetXTitle("|z| [cm]");
+    h_rz_neut_spec      ->SetXTitle(xtitle);
     h_rz_neut_spec      ->SetYTitle("r [cm]");
     h_rz_neut_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_neut_spec      ->SetTitle("FLUX [n(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_neut_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_neut_spec ->SetXTitle(xtitle);
     h_full_rz_neut_spec ->SetYTitle("r [cm]");
     h_full_rz_neut_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_neut_spec ->SetTitle("FLUX [n(log_{10}(E/MeV))/cm^{2}]");
@@ -306,12 +322,12 @@ namespace G4UA{
     TH3D *h_full_rz_gamm_spec = new TH3D("full_rz_gamm_spec","full_rz_gamm_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_gamm_spec      = new TH3D("rz_gamm_spec","rz_gamm_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_gamm_spec      ->SetXTitle("|z| [cm]");
+    h_rz_gamm_spec      ->SetXTitle(xtitle);
     h_rz_gamm_spec      ->SetYTitle("r [cm]");
     h_rz_gamm_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_gamm_spec      ->SetTitle("FLUX [#gamma(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_gamm_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_gamm_spec ->SetXTitle(xtitle);
     h_full_rz_gamm_spec ->SetYTitle("r [cm]");
     h_full_rz_gamm_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_gamm_spec ->SetTitle("FLUX [#gamma(log_{10}(E/MeV))/cm^{2}]");
@@ -320,12 +336,12 @@ namespace G4UA{
     TH3D *h_full_rz_elec_spec = new TH3D("full_rz_elec_spec","full_rz_elec_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_elec_spec      = new TH3D("rz_elec_spec","rz_elec_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_elec_spec      ->SetXTitle("|z| [cm]");
+    h_rz_elec_spec      ->SetXTitle(xtitle);
     h_rz_elec_spec      ->SetYTitle("r [cm]");
     h_rz_elec_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_elec_spec      ->SetTitle("FLUX [e^{#pm}(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_elec_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_elec_spec ->SetXTitle(xtitle);
     h_full_rz_elec_spec ->SetYTitle("r [cm]");
     h_full_rz_elec_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_elec_spec ->SetTitle("FLUX [e^{#pm}(log_{10}(E/MeV))/cm^{2}]");
@@ -334,12 +350,12 @@ namespace G4UA{
     TH3D *h_full_rz_muon_spec = new TH3D("full_rz_muon_spec","full_rz_muon_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_muon_spec      = new TH3D("rz_muon_spec","rz_muon_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_muon_spec      ->SetXTitle("|z| [cm]");
+    h_rz_muon_spec      ->SetXTitle(xtitle);
     h_rz_muon_spec      ->SetYTitle("r [cm]");
     h_rz_muon_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_muon_spec      ->SetTitle("FLUX [#mu^{#pm}(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_muon_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_muon_spec ->SetXTitle(xtitle);
     h_full_rz_muon_spec ->SetYTitle("r [cm]");
     h_full_rz_muon_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_muon_spec ->SetTitle("FLUX [#mu^{#pm}(log_{10}(E/MeV))/cm^{2}]");
@@ -348,12 +364,12 @@ namespace G4UA{
     TH3D *h_full_rz_pion_spec = new TH3D("full_rz_pion_spec","full_rz_pion_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_pion_spec      = new TH3D("rz_pion_spec","rz_pion_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_pion_spec      ->SetXTitle("|z| [cm]");
+    h_rz_pion_spec      ->SetXTitle(xtitle);
     h_rz_pion_spec      ->SetYTitle("r [cm]");
     h_rz_pion_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_pion_spec      ->SetTitle("FLUX [#pi^{#pm}(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_pion_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_pion_spec ->SetXTitle(xtitle);
     h_full_rz_pion_spec ->SetYTitle("r [cm]");
     h_full_rz_pion_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_pion_spec ->SetTitle("FLUX [#pi^{#pm}(log_{10}(E/MeV))/cm^{2}]");
@@ -362,12 +378,12 @@ namespace G4UA{
     TH3D *h_full_rz_prot_spec = new TH3D("full_rz_prot_spec","full_rz_prot_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_prot_spec      = new TH3D("rz_prot_spec","rz_prot_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_prot_spec      ->SetXTitle("|z| [cm]");
+    h_rz_prot_spec      ->SetXTitle(xtitle);
     h_rz_prot_spec      ->SetYTitle("r [cm]");
     h_rz_prot_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_prot_spec      ->SetTitle("FLUX [p(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_prot_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_prot_spec ->SetXTitle(xtitle);
     h_full_rz_prot_spec ->SetYTitle("r [cm]");
     h_full_rz_prot_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_prot_spec ->SetTitle("FLUX [p(log_{10}(E/MeV))/cm^{2}]");
@@ -376,15 +392,25 @@ namespace G4UA{
     TH3D *h_full_rz_rest_spec = new TH3D("full_rz_rest_spec","full_rz_rest_spec",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
     TH3D *h_rz_rest_spec      = new TH3D("rz_rest_spec","rz_rest_spec",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogEo,m_config.logEMino,m_config.logEMaxo);
 
-    h_rz_rest_spec      ->SetXTitle("|z| [cm]");
+    h_rz_rest_spec      ->SetXTitle(xtitle);
     h_rz_rest_spec      ->SetYTitle("r [cm]");
     h_rz_rest_spec      ->SetZTitle("log_{10}(E/MeV)");
     h_rz_rest_spec      ->SetTitle("FLUX [rest(log_{10}(E/MeV))/cm^{2}]");
 
-    h_full_rz_rest_spec ->SetXTitle("|z| [cm]");
+    h_full_rz_rest_spec ->SetXTitle(xtitle);
     h_full_rz_rest_spec ->SetYTitle("r [cm]");
     h_full_rz_rest_spec ->SetZTitle("log_{10}(E/MeV)");
     h_full_rz_rest_spec ->SetTitle("FLUX [rest(log_{10}(E/MeV))/cm^{2}]");
+
+    // time dependent TID maps
+    TH3D * h_rz_tid_time       = new TH3D("rz_tid_time" ,"rz_tid_time"           ,m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinslogT,m_config.logTMin,m_config.logTMax);
+    TH3D * h_full_rz_tid_time  = new TH3D("full_rz_tid_time" ,"full_rz_tid_time" ,m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull,m_config.nBinslogT,m_config.logTMin,m_config.logTMax);
+    h_rz_tid_time     ->SetXTitle(xtitle);
+    h_full_rz_tid_time->SetXTitle(xtitle);
+    h_rz_tid_time     ->SetYTitle("r [cm]");
+    h_full_rz_tid_time->SetYTitle("r [cm]");
+    h_rz_tid_time     ->SetZTitle("log_{10}(t_{cut}/s)");
+    h_full_rz_tid_time->SetZTitle("log_{10}(t_{cut}/s)");
 
     TH2D * h_rz_vol  = 0;
     TH2D * h_rz_norm = 0;
@@ -407,8 +433,8 @@ namespace G4UA{
       h_3d_vol  = new TH3D("h3d_vol" ,"h3d_vol" ,m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
       h_3d_norm = new TH3D("h3d_norm","h3d_norm",m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
 
-      h_rz_vol  ->SetXTitle("|z| [cm]");
-      h_rz_norm ->SetXTitle("|z| [cm]");
+      h_rz_vol  ->SetXTitle(xtitle);
+      h_rz_norm ->SetXTitle(xtitle);
       h_rz_vol  ->SetYTitle("r [cm]");
       h_rz_norm ->SetYTitle("r [cm]");
       std::string hname("Volume fraction of ");
@@ -416,15 +442,15 @@ namespace G4UA{
       h_rz_vol  ->SetZTitle(hname.data());
       h_rz_norm ->SetZTitle("Volume norm");
 
-      h_full_rz_vol  ->SetXTitle("|z| [cm]");
-      h_full_rz_norm ->SetXTitle("|z| [cm]");
+      h_full_rz_vol  ->SetXTitle(xtitle);
+      h_full_rz_norm ->SetXTitle(xtitle);
       h_full_rz_vol  ->SetYTitle("r [cm]");
       h_full_rz_norm ->SetYTitle("r [cm]");
       h_full_rz_vol  ->SetZTitle(hname.data());
       h_full_rz_norm ->SetZTitle("Volume norm");
 
-      h_3d_vol  ->SetXTitle("|z| [cm]");
-      h_3d_norm ->SetXTitle("|z| [cm]");
+      h_3d_vol  ->SetXTitle(xtitle);
+      h_3d_norm ->SetXTitle(xtitle);
       h_3d_vol  ->SetYTitle("r [cm]");
       h_3d_norm ->SetYTitle("r [cm]");
       h_3d_vol  ->SetZTitle("#phi [#circ]");
@@ -432,7 +458,6 @@ namespace G4UA{
       h_3d_vol  ->SetTitle(hname.data());
       h_3d_norm ->SetTitle("Volume norm");
     }
-
 
     // normalize to volume element per bin
     for(int i=0;i<h_rz_tid->GetNbinsX();i++) { 
@@ -443,7 +468,9 @@ namespace G4UA{
 	double r1=h_rz_tid->GetYaxis()->GetBinUpEdge(j+1);
 	double z0=h_rz_tid->GetXaxis()->GetBinLowEdge(i+1);
 	double z1=h_rz_tid->GetXaxis()->GetBinUpEdge(i+1); 
-	double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0); 
+	double vol=(z1-z0)*M_PI*(r1*r1-r0*r0);
+	// if |z| instead of z double the volume
+	if ( m_config.zMinFull >= 0 ) vol *= 2; 
 	double val;
 	// TID
 	val =maps.m_rz_tid[vBin];
@@ -487,6 +514,13 @@ namespace G4UA{
 	  val =maps.m_rz_rest_spec[vBinE];
 	  h_rz_rest_spec->SetBinContent(kBin,val/vol);
 	}
+	// Time dependent TID maps
+	for(int k=0;k<h_rz_tid_time->GetNbinsZ();k++) { 
+	  int kBin = h_rz_tid_time->GetBin(i+1,j+1,k+1); 
+	  int vBinT = m_config.nBinsr*m_config.nBinslogT*i+j*m_config.nBinslogT+k;
+	  val =maps.m_rz_tid_time[vBinT];
+	  h_rz_tid_time->SetBinContent(kBin,val/vol);
+	}
 	if (!m_config.material.empty()) {
 	  // need volume fraction only if particular material is selected
 	  // VOL
@@ -511,6 +545,7 @@ namespace G4UA{
     h_rz_pion_spec->Write();
     h_rz_prot_spec->Write();
     h_rz_rest_spec->Write();
+    h_rz_tid_time->Write();
     
     // normalize to volume element per bin
     for(int i=0;i<h_full_rz_tid->GetNbinsX();i++) { 
@@ -521,7 +556,9 @@ namespace G4UA{
 	double r1=h_full_rz_tid->GetYaxis()->GetBinUpEdge(j+1);
 	double z0=h_full_rz_tid->GetXaxis()->GetBinLowEdge(i+1);
 	double z1=h_full_rz_tid->GetXaxis()->GetBinUpEdge(i+1); 
-	double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0); 
+	double vol=(z1-z0)*M_PI*(r1*r1-r0*r0); 
+	// if |z| instead of z double the volume
+	if ( m_config.zMinFull >= 0 ) vol *= 2; 
 	double val;
 	// TID
 	val =maps.m_full_rz_tid[vBin];
@@ -565,6 +602,13 @@ namespace G4UA{
 	  val =maps.m_full_rz_rest_spec[vBinE];
 	  h_full_rz_rest_spec->SetBinContent(kBin,val/vol);
 	}
+	// Time dependent TID maps
+	for(int k=0;k<h_full_rz_tid_time->GetNbinsZ();k++) { 
+	  int kBin = h_full_rz_tid_time->GetBin(i+1,j+1,k+1); 
+	  int vBinT = m_config.nBinsr*m_config.nBinslogT*i+j*m_config.nBinslogT+k;
+	  val =maps.m_full_rz_tid_time[vBinT];
+	  h_full_rz_tid_time->SetBinContent(kBin,val/vol);
+	}
 	if (!m_config.material.empty()) {
 	  // need volume fraction only if particular material is selected
 	  // VOL
@@ -589,6 +633,7 @@ namespace G4UA{
     h_full_rz_pion_spec->Write();
     h_full_rz_prot_spec->Write();
     h_full_rz_rest_spec->Write();
+    h_full_rz_tid_time->Write();
 
     // normalize to volume element per bin
     for(int i=0;i<h_3d_tid->GetNbinsX();i++) { /* |z| */
@@ -602,7 +647,9 @@ namespace G4UA{
 	  double r1=h_3d_tid->GetYaxis()->GetBinUpEdge(j+1);
 	  double z0=h_3d_tid->GetXaxis()->GetBinLowEdge(i+1);
 	  double z1=h_3d_tid->GetXaxis()->GetBinUpEdge(i+1); 
-	  double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0)*(phi1-phi0)/360.; 
+	  double vol=(z1-z0)*M_PI*(r1*r1-r0*r0)*(phi1-phi0)/360.; 
+	  // if |z| instead of z double the volume
+	  if ( m_config.zMinFull >= 0 ) vol *= 2; 
 	  // assume that phi-range corresponds to full 360 degrees in case 
 	  // lower phi boundary is 0 - i.e. all phi-segments mapped to first
 	  if ( m_config.phiMinZoom == 0 ) {

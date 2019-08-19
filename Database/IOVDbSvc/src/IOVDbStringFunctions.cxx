@@ -75,12 +75,17 @@ namespace IOVDbNamespace{
     return result;
   }
   
-  
-  
   std::string
   quote(const std::string & sentence){
     const std::string q("\"");
     return q+sentence+q;
+  }
+  
+  std::string
+  unescapeQuotes(const std::string & original){
+  const std::string regex=R"delim(\\")delim";
+  std::regex re(regex);
+  return std::regex_replace(original, re,"\"");
   }
   
   std::string 
@@ -88,6 +93,12 @@ namespace IOVDbNamespace{
     std::string newName{fname};
     std::replace(newName.begin(), newName.end(), '/', '_');
     return newName;
+  }
+  
+  std::string 
+  sanitiseCrestTag(const std::string & fname){
+    const std::string newName{sanitiseFilename(fname)};
+    return newName.substr(1, std::string::npos);
   }
   
   std::string
@@ -107,11 +118,8 @@ namespace IOVDbNamespace{
     result.reserve(bufsize);
     for(size_t pos = 0; pos != strSize; ++pos) {
       switch(pseudoXmlString[pos]) {
-        //case '&':  result.append("&amp;");       break;
         case '\"': result.append("\\\"");      break;
-        //case '\'': result.append("&apos;");      break;
-        //case '<':  result.append("&lt;");        break;
-        //case '>':  result.append("&gt;");        break;
+
         default:   result.append(&pseudoXmlString[pos], 1); break;
       }
     }

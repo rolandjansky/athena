@@ -8,6 +8,7 @@
 #include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
@@ -19,7 +20,7 @@
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include <utility>
 #include <vector>
@@ -52,7 +53,9 @@ namespace Muon {
     ToolHandle<IMuonTrackToSegmentTool>           m_trackToSegmentTool; //<! track to segment converter
     ToolHandle<MuonIdHelperTool>                  m_idHelperTool;   //<! Id helper tool
     ToolHandle<MuonEDMPrinterTool>                m_printer;   //<! Id helper tool
-    ToolHandle<MuonEDMHelperTool>                 m_helper;   //<! Id helper tool
+    ServiceHandle<IMuonEDMHelperSvc>              m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };  //<! Id helper tool
     ToolHandle<IMuonTrackCleaner>                 m_trackCleaner;
     bool                                          m_ipConstraint; // use a ip perigee(0,0) constraint in the segment fit
     double                                        m_maxClustDist;

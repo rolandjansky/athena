@@ -50,15 +50,8 @@ class LArRawChannelGetter ( Configured )  :
 
                 from AthenaCommon.GlobalFlags import globalflags
                 if globalflags.InputFormat() == 'bytestream':
-                    if not "LArDigitContainer/FREE" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                        svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
                     if not larRODFlags.keepDSPRaw():
-                        if "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                            svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("LArRawChannelContainer/LArRawChannels")
-                    else:
-                        if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                            svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
-
+                        topSequence.LArRawDataReaderAlg.LArRawChannelKey=""
 
                 if globalflags.DetGeo() == 'ctbh6' or globalflags.DetGeo() == 'ctbh8':        
                     from LArROD.LArRODConf import LArRawChannelBuilder

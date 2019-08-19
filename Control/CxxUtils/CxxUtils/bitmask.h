@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -17,7 +17,7 @@
    enum class Mask { Bit0 = 1, Bit1 = 2, Bit2 = 4 };
    Mask m = Mask::Bit1 | Mask::Bit2;
  @endcode
- * doesn't compile because the enumerators are not convertable to integers.
+ * doesn't compile because the enumerators are not convertible to integers.
  * One can cast back and forth between the enum and integers, but that's
  * awkward to do everywhere.
  *

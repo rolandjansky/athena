@@ -261,6 +261,7 @@ class TileFragHash:
     FitFilter = 6
     FitFilterCool = 7
     FlatFilter = 8
+    WienerFilterOffline = 9
 
 
 from AthenaPython.PyAthenaComps import Alg, StatusCode

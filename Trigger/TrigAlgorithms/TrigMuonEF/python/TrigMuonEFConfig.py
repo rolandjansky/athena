@@ -191,7 +191,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
     #kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum())
     kwargs.setdefault("LowMomentum", 10.*GeV)
     kwargs.setdefault("MinEnergy", 0.3*GeV)
-    kwargs.setdefault("PerigeeAtSpectrometerEntrance", True)
+    kwargs.setdefault("PerigeeAtSpectrometerEntrance", False)
     kwargs.setdefault("ReallocateMaterial", False)
     kwargs.setdefault("Vertex2DSigmaRPhi", 100.*mm)
     kwargs.setdefault("Vertex3DSigmaRPhi", 6.*mm)
@@ -213,6 +213,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
 
     kwargs.setdefault("UseCaloTG", True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
+    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     if muonRecFlags.enableErrorTuning():
         kwargs.setdefault("MuonErrorOptimizer", CfgGetter.getPublicToolClone("TMEF_MuidErrorOptimisationTool",
                                                                              "MuonErrorOptimisationTool",
@@ -346,6 +347,7 @@ def TMEF_OutwardsCombinedMuonTrackBuilder(name='TMEF_OutwardsCombinedMuonTrackBu
     kwargs.setdefault('TrackSummaryTool', 'TMEF_TrackSummaryTool')#gpt
     kwargs.setdefault('MuonHoleRecovery', 'MuonSegmentRegionRecoveryTool')#gpt
     kwargs.setdefault('AllowCleanerVeto', False)
+    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     from MuidTrackBuilder.MuidTrackBuilderConf import Rec__OutwardsCombinedMuonTrackBuilder
     return Rec__OutwardsCombinedMuonTrackBuilder(name, **kwargs)
 
@@ -376,6 +378,7 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
     kwargs.setdefault("FillTimingInformation",False)
     kwargs.setdefault("MuonSelectionTool", "")
+    kwargs.setdefault("TrackQuery", "TMEF_MuonTrackQuery")
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 def TMEF_MuonCandidateTrackBuilderTool(name="TMEF_MuonCandidateTrackBuilderTool",**kwargs):
@@ -386,14 +389,18 @@ def TMEF_MuonPRDSelectionTool(name="TMEF_MuonPRDSelectionTool",**kwargs):
     kwargs.setdefault('MuonRecoValidationTool','')
     return CfgMgr.Muon__MuonPRDSelectionTool(name,**kwargs)
 
-def TMEF_MuonClusterSegmentFinderTool(name="TMEF_MuonClusterSegmentFinderTool",**kwargs):
+def TMEF_MuonClusterSegmentFinder(name="TMEF_MuonClusterSegmentFinder", **kwargs):
     kwargs.setdefault('MuonPRDSelectionTool', 'TMEF_MuonPRDSelectionTool')
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
+
+def TMEF_MuonClusterSegmentFinderTool(name="TMEF_MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):   
+    return CfgMgr.Muon__MuonClusterSegmentFinderTool(name,**kwargs)
 
 def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwargs):
     kwargs.setdefault('MuonRecoValidationTool','')
     kwargs.setdefault('MuonPRDSelectionTool','TMEF_MuonPRDSelectionTool')
-    kwargs.setdefault('MuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
+    kwargs.setdefault('MuonClusterSegmentFinder','TMEF_MuonClusterSegmentFinder')
+    kwargs.setdefault('NSWMuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
 
 def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):

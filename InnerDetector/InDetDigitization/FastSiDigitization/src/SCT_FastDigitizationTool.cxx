@@ -10,7 +10,6 @@
 // Hit class includes
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "Identifier/Identifier.h"
-#include "CxxUtils/make_unique.h"
 
 // Det Descr includes
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -45,6 +44,7 @@
 #include "CLHEP/Random/RandLandau.h"
 
 #include <algorithm>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -205,7 +205,7 @@ StatusCode SCT_FastDigitizationTool::createOutputContainers()
 {
   if (!m_sctClusterContainer.isValid())
     {
-      m_sctClusterContainer = CxxUtils::make_unique<InDet::SCT_ClusterContainer>(m_sct_ID->wafer_hash_max());
+      m_sctClusterContainer = std::make_unique<InDet::SCT_ClusterContainer>(m_sct_ID->wafer_hash_max());
       if(!m_sctClusterContainer.isValid())
         {
           ATH_MSG_FATAL( "[ --- ] Could not create SCT_ClusterContainer");
@@ -224,7 +224,7 @@ StatusCode SCT_FastDigitizationTool::createOutputContainers()
   // truth info
   if (!m_sctPrdTruth.isValid())
     {
-      m_sctPrdTruth = CxxUtils::make_unique<PRD_MultiTruthCollection>();
+      m_sctPrdTruth = std::make_unique<PRD_MultiTruthCollection>();
       if (!m_sctPrdTruth.isValid())
         {
           ATH_MSG_FATAL("Could not record collection " << m_sctPrdTruth.name());

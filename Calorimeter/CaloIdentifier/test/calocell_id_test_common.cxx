@@ -14,8 +14,6 @@
 
 
 #include "IdDictParser/IdDictParser.h"
-#include "CxxUtils/make_unique.h"
-#include "boost/foreach.hpp"
 #include <map>
 #include <string>
 
@@ -218,11 +216,11 @@ std::unique_ptr<CALOCELL_ID_T> make_calo_id_t (IdDictParser& parser,
 
   std::unique_ptr<TILE_ID_T> tile_id = make_helper<TILE_ID_T> (parser, do_neighbours);
 
-  auto calo_id = CxxUtils::make_unique<CALOCELL_ID_T> (em_id.release(),
-                                                       hec_id.release(),
-                                                       fcal_id.release(),
-                                                       minifcal_id.release(),
-                                                       tile_id.release());
+  auto calo_id = std::make_unique<CALOCELL_ID_T> (em_id.release(),
+                                                  hec_id.release(),
+                                                  fcal_id.release(),
+                                                  minifcal_id.release(),
+                                                  tile_id.release());
   assert (calo_id->initialize_from_dictionary (idd) == 0);
 
   //assert (calo_id->em_idHelper() == em_id);
@@ -471,11 +469,7 @@ void test_cells (const CaloCell_Base_ID& calo_id, bool supercell = false)
     assert (chanId4 == chId);
   }
 
-#if __cplusplus > 201100
   for (Identifier ch_id : calo_id.cell_range()) {
-#else
-  BOOST_FOREACH (Identifier ch_id, calo_id.cell_range()) {
-#endif
     hashsum -= calo_id.calo_cell_hash (ch_id);
   }
   assert (hashsum == 0);
@@ -600,11 +594,7 @@ void test_subcalo (const CaloCell_Base_ID& calo_id)
     assert (nSubCalo == (int)(max-min));
 
     nSubCalo = 0;
-#if __cplusplus > 201100
     for (Identifier ch_id : calo_id.cell_range(subCalo)) {
-#else
-    BOOST_FOREACH (Identifier ch_id, calo_id.cell_range(subCalo)) {
-#endif
       hashsum -= calo_id.calo_cell_hash(ch_id);
     }
     assert (hashsum == 0);
@@ -691,11 +681,7 @@ void test_regions (const CaloCell_Base_ID& calo_id)
 
     if (subcalo != last_subcalo) {
       if (last_subcalo != -1) {
-#if __cplusplus > 201100
         for (Identifier reg_id : calo_id.reg_range (last_subcalo)) {
-#else
-        BOOST_FOREACH (Identifier reg_id, calo_id.reg_range (last_subcalo)) {
-#endif
           subhashsum -= calo_id.calo_region_hash (reg_id);
         }
         assert (subhashsum == 0);
@@ -711,11 +697,7 @@ void test_regions (const CaloCell_Base_ID& calo_id)
     ++itReg;
   }
 
-#if __cplusplus > 201100
   for (Identifier reg_id : calo_id.reg_range()) {
-#else
-  BOOST_FOREACH (Identifier reg_id, calo_id.reg_range()) {
-#endif
     hashsum -= calo_id.calo_region_hash (reg_id);
   }
   assert (hashsum == 0);

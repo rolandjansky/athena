@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentPairMatchingTool.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
@@ -41,7 +41,6 @@ namespace Muon {
   MuonSegmentPairMatchingTool::MuonSegmentPairMatchingTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonSegmentPairMatchingTool>(this);
@@ -59,8 +58,8 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
     
-    if (m_helperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_helperTool); 
+    if (m_edmHelperSvc.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc); 
       return StatusCode::FAILURE;
     }
 
@@ -88,10 +87,10 @@ namespace Muon {
 
     // get identifiers
     // and the detector region from identifier
-    Identifier chid1 = m_helperTool->chamberId(seg1);
+    Identifier chid1 = m_edmHelperSvc->chamberId(seg1);
     MuonStationIndex::StIndex  station1    = m_idHelper->stationIndex( chid1 );
 
-    Identifier chid2 = m_helperTool->chamberId(seg2);
+    Identifier chid2 = m_edmHelperSvc->chamberId(seg2);
     MuonStationIndex::StIndex  station2    = m_idHelper->stationIndex( chid2 );
 
     // Don't deal with overlap/merge of segments here
@@ -128,8 +127,8 @@ namespace Muon {
     const MuonSegment& seg_a(*pSeg_a);
     const MuonSegment& seg_b(*pSeg_b);
 
-    Identifier chid_a = m_helperTool->chamberId(seg_a);
-    Identifier chid_b = m_helperTool->chamberId(seg_b);
+    Identifier chid_a = m_edmHelperSvc->chamberId(seg_a);
+    Identifier chid_b = m_edmHelperSvc->chamberId(seg_b);
 
     int phiSector_a = m_idHelper->sector( chid_a );
     int phiSector_b = m_idHelper->sector( chid_b );

@@ -146,7 +146,6 @@ if data_type == 'pool':
         HLTMonFlags.doTau     = True
         HLTMonFlags.doMuon    = True
         HLTMonFlags.doIDtrk   = True
-        HLTMonFlags.doIDJpsiMon = True
         HLTMonFlags.doCalo    = True
         HLTMonFlags.doBphys   = False
         HLTMonFlags.doMinBias = False

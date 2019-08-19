@@ -16,7 +16,7 @@ void test1() {
   std::cout << "test1\n";
 
   IdDictParser parser;
-  TileCablingSvc::init_idhelpers (parser);
+  TileCablingSvcMock::init_idhelpers (parser);
 
   TileCablingService* cabling = TileCablingService::getInstance();
 

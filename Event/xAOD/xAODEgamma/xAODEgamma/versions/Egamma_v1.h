@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: Egamma_v1.h 788131 2016-12-05 16:24:11Z christos $
@@ -30,9 +30,6 @@
 //Eigen/Amg includes , prefer to do it via EventPrimitives for now
 #include "EventPrimitives/EventPrimitives.h"
 
-//CxxUtils for override final
-#include "CxxUtils/final.h"
-#include "CxxUtils/override.h"
 //std Include
 #include <stdint.h>
 
@@ -86,31 +83,31 @@ namespace xAOD {
     /// @{
     
     /// @brief The transverse momentum (\f$p_T\f$) of the particle
-    virtual double           pt() const  ATH_FINAL;
+    virtual double           pt() const  final;
 
     /// @brief The pseudorapidity (\f$\eta\f$) of the particle
-    virtual double           eta() const ATH_FINAL;
+    virtual double           eta() const final;
 
     /// @brief The azimuthal angle (\f$\phi\f$) of the particle
-    virtual double           phi() const ATH_FINAL;
+    virtual double           phi() const final;
 
     /// @brief The invariant mass of the particle
-    virtual double           m() const ATH_FINAL;
+    virtual double           m() const final;
 
     /// The total energy of the particle
-    virtual double           e() const  ATH_FINAL;
+    virtual double           e() const  final;
 
     /// @brief The true rapidity (y) of the particle
-    virtual double           rapidity() const ATH_FINAL;
+    virtual double           rapidity() const final;
     
     /// @brief Definition of the 4-momentum type
     typedef IParticle::FourMom_t FourMom_t;
 
     /// @brief The full 4-momentum of the particle as a TLoretzVector
-    virtual FourMom_t         p4() const ATH_FINAL;
+    virtual FourMom_t         p4() const final;
 
     /// @brief The type of the object as a simple enumeration, remains pure virtual in e/gamma.
-    virtual Type::ObjectType type() const ATH_OVERRIDE =0 ; 
+    virtual Type::ObjectType type() const override =0 ; 
     
     /// @}
 

@@ -2,12 +2,17 @@
 
 __doc__ = "Tool configuration to instantiate all egammaCaloTools with default configuration"
 
+from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
 from egammaTrackTools.egammaTrackToolsConf import EMExtrapolationTools
 
 def EMExtrapolationToolsCfg(flags, **kwargs):
+
+    mlog = logging.getLogger('EMExtrapolationTools')
+    mlog.debug('Start configuration')
+
     acc=ComponentAccumulator()
 
     if "Extrapolator" not in kwargs:
@@ -72,6 +77,6 @@ if __name__ == "__main__":
     acc.popPrivateTools()
     cfg.merge(acc)
 
-    f = open("egmvatools.pkl", "w")
+    f = open("egtracktools.pkl", "w")
     cfg.store(f)
     f.close()

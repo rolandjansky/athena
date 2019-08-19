@@ -58,7 +58,9 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     std::vector<SiHitCollection*> m_hitCollPtrs;
 
-    SG::ReadHandleKey<SiHitCollection>         m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
+    Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+    SG::ReadHandleKey<SiHitCollection>         m_hitsContainerKey{this, "InputObjectName", "", "Input HITS collection name"};
+    std::string                                m_inputObjectName{""};
     SG::WriteHandleKey<PixelRDO_Container>     m_rdoContainerKey{this, "RDOCollName", "PixelRDOs", "RDO collection name"};
     SG::WriteHandle<PixelRDO_Container>        m_rdoContainer{};
     SG::WriteHandleKey<InDetSimDataCollection> m_simDataCollKey{this, "SDOCollName", "PixelSDO_Map",  "SDO collection name"};
@@ -82,7 +84,6 @@ class PixelDigitizationTool : public PileUpToolBase {
     ServiceHandle <PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
 
     const InDetDD::PixelDetectorManager *m_detManager{};
-    Gaudi::Property<std::string>   m_inputObjectName{this, "InputObjectName",  "", "Input Object name"};
     Gaudi::Property<bool>          m_createNoiseSDO{this, "CreateNoiseSDO",   false,  "Set create noise SDO flag"};
 
 };

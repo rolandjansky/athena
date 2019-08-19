@@ -102,6 +102,11 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
 
     kwargs.setdefault('RndmEvtOverlay', isOverlay() )
 
+    if useLArFloat():
+        kwargs.setdefault("LArHitContainers",[])
+    else:
+        kwargs.setdefault("LArHitFloatContainers",[])
+
     if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault('DigitContainer', overlayFlags.bkgPrefix() + 'LArDigitContainer_MC')

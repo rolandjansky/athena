@@ -20,7 +20,7 @@
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
@@ -51,7 +51,6 @@ namespace Muon {
     m_candidateHandler("Muon::MuPatCandidateTool/MuPatCandidateTool"),
     m_candidateMatchingTool("Muon::MooCandidateMatchingTool/MooCandidateMatchingTool"),
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_seededSegmentFinder("Muon::MuonSeededSegmentFinder/MuonSeededSegmentFinder"),
@@ -84,7 +83,6 @@ namespace Muon {
     declareProperty("MagFieldSvc",    m_magFieldSvc );
     declareProperty("IdHelper",m_idHelper);
     declareProperty("HitRecoveryTool",m_hitRecoverTool);
-    declareProperty("Helper",m_helper);
     declareProperty("Printer",m_printer);
     declareProperty("CandidateTool",m_candidateHandler);
     declareProperty("CandidateMatchingTool",m_candidateMatchingTool);
@@ -113,7 +111,7 @@ namespace Muon {
     ATH_CHECK( m_muonChamberHoleRecoverTool.retrieve() );
     ATH_CHECK( m_trackExtrapolationTool.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_trackToSegmentTool.retrieve() );
     ATH_CHECK( m_seededSegmentFinder.retrieve() );
@@ -136,7 +134,7 @@ namespace Muon {
 
   Trk::Track* MooTrackBuilder::refit( const Trk::Track& track ) const {
 
-    if( m_helper->isSLTrack(track) || !m_magFieldSvc->toroidOn() ) return m_slFitter->refit(track);
+    if( m_edmHelperSvc->isSLTrack(track) || !m_magFieldSvc->toroidOn() ) return m_slFitter->refit(track);
     
     // if not refit tool specified do a pure refit 
     if( m_errorOptimisationTool.empty() ) return m_fitter->refit(track);
@@ -456,7 +454,7 @@ namespace Muon {
 
   Trk::TrackParameters* MooTrackBuilder::findClosestParameters( const Trk::Track& track, const Amg::Vector3D& pos ) const {
     // are we in the endcap?
-    bool isEndcap = m_helper->isEndcap(track);
+    bool isEndcap = m_edmHelperSvc->isEndcap(track);
 
     // position of segment
     double posSeg = isEndcap ? pos.z() : pos.perp();
@@ -560,7 +558,7 @@ namespace Muon {
     const MuonSegment& seg  = *segInfo.segment;
 
     // get chamber Id of segment
-    std::set<Identifier> chIds = m_helper->chamberIds(seg);
+    std::set<Identifier> chIds = m_edmHelperSvc->chamberIds(seg);
     
     if( chIds.empty() ) return 0;
 
@@ -815,7 +813,7 @@ namespace Muon {
         continue;
       }
 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if( !id.is_valid() || !m_idHelper->isMuon(id) ){
@@ -887,7 +885,7 @@ namespace Muon {
       //        continue;
       //       }
 
-      //       Identifier id = m_helper->getIdentifier(*meas);
+      //       Identifier id = m_edmHelperSvc->getIdentifier(*meas);
     }
     Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
     
@@ -940,7 +938,7 @@ namespace Muon {
       }
 
       // get identifier, keep state if it has no identifier.
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() ) {
         newStates.push_back( std::make_pair(false,*tsit) );
         continue;
@@ -1082,7 +1080,7 @@ namespace Muon {
   }
 
   std::pair<Trk::Track*,Trk::Track*> MooTrackBuilder::splitTrack( const Trk::Track& track ) const {
-    return m_helper->isSLTrack(track) || !m_magFieldSvc->toroidOn() ?  m_slFitter->splitTrack(track) : m_fitter->splitTrack(track);    
+    return m_edmHelperSvc->isSLTrack(track) || !m_magFieldSvc->toroidOn() ?  m_slFitter->splitTrack(track) : m_fitter->splitTrack(track);    
   }
 
   std::vector<MuPatTrack*>* MooTrackBuilder::find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segVec ) const {
@@ -1157,7 +1155,7 @@ namespace Muon {
           
           const Trk::MeasurementBase* meas = *mit;
           
-          Identifier id = m_helper->getIdentifier(*meas);
+          Identifier id = m_edmHelperSvc->getIdentifier(*meas);
           if( !id.is_valid() || m_idHelper->isTrigger(id) ) {
             continue;
           }
@@ -1348,8 +1346,8 @@ namespace Muon {
     const Trk::Track* otherTrack = 0;
 
     // first check whether the tracks have a momentum measurement
-    bool isSL1 = m_helper->isSLTrack(track1);
-    bool isSL2 = m_helper->isSLTrack(track2);
+    bool isSL1 = m_edmHelperSvc->isSLTrack(track1);
+    bool isSL2 = m_edmHelperSvc->isSLTrack(track2);
     
     // now decide which track to use as reference
     if( isSL1 && !isSL2 ) {
@@ -1441,7 +1439,7 @@ namespace Muon {
         const Trk::MeasurementBase* meas = (*otherTSOS)->measurementOnTrack();
         if( meas && (*otherTSOS)->type(Trk::TrackStateOnSurface::Measurement) ){        
           
-          Identifier id = m_helper->getIdentifier(*meas);
+          Identifier id = m_edmHelperSvc->getIdentifier(*meas);
           // skip pseudo measurements
           if( !id.is_valid() ) {
             prevDist = dist;
@@ -1476,7 +1474,7 @@ namespace Muon {
               if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "  lpos (" << locPos[Trk::locX] << "," << locPos[Trk::locY] << ")";
               double tol1 = 50.;
               double tol2 = tol1;
-              Identifier id = m_helper->getIdentifier(*meas);
+              Identifier id = m_edmHelperSvc->getIdentifier(*meas);
               if( msgLvl(MSG::VERBOSE) && m_idHelper->isMdt(id) ) {
                 const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
                 if( mdt ){

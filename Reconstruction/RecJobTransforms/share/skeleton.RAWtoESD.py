@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for RAW->ESD
@@ -19,7 +20,7 @@ try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
     listOfFlags.append(primDPD)
 except ImportError:
-    print "WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
     
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
@@ -128,7 +129,7 @@ if hasattr(runArgs, "outputTXT_FTKIPFile"):
     rec.UserAlgs=["FastTrackSimWrap/FastTrackSimWrap_jobOptions.py"]
     
 # Trigger already run in this RDO?
-if hasattr(runArgs, "doRDOTrigger") and runArgs.doRDOTrigger == True:
+if hasattr(runArgs, "doRDOTrigger") and runArgs.doRDOTrigger is True:
     TriggerFlags.doTriggerConfigOnly=True
 
 # Event display tarballs    

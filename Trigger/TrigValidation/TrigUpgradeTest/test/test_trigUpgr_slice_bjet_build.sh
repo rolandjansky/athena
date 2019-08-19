@@ -1,11 +1,9 @@
 #!/bin/bash
-# art-description: athenaMT trigger test using the bjet menu from TrigUpgradeTest job options
+# art-description: athenaMT trigger test using the LS2_v1 bjet menu from TriggerMenuMT 
 # art-type: build
 # art-include: master/Athena
-# art-output: *.log
-# art-output: *.new
-# art-output: *.txt
-# art-output: *.root
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export SKIPEVENTS=0
 export EVENTS=100
@@ -13,7 +11,7 @@ export THREADS=1
 export SLOTS=1
 export JOBOPTION="TrigUpgradeTest/full_menu.py"
 export REGTESTEXP="TrigSignatureMoniMT.*HLT_.*"
-export EXTRA="doEmptyMenu=True;doBJetSlice=True"
+export EXTRA="doEmptyMenu=True;doBjetSlice=True"
 
 # Find the regtest reference installed with the release
 export REGTESTREF=`find_data.py TrigUpgradeTest/slice_bjet.ref`

@@ -1383,11 +1383,6 @@ StatusCode LVL1TGCTrigger::getCabling()
     return StatusCode::FAILURE;
   }
   
-  if(!TgcCabGet->isConfigured()) {
-      m_log << MSG::DEBUG << "TGCcablingServer not yet configured!" << endmsg;
-      return StatusCode::FAILURE;
-  }
-  
   // get Cabling Service
   sc = TgcCabGet->giveCabling(m_cabling);
   if (sc.isFailure()){

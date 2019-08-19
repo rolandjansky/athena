@@ -98,8 +98,8 @@ cfgRecExPers=CfgKeyStore("recexpers")
 if globalflags.InputFormat.is_pool():
     logRecExCommon_topOptions.info("Pool file : storing in objKeyStore the list of input object directly from file")
     try:
-        from RecExConfig.InputFilePeeker import inputFileSummary
-        objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
     except:
         logRecExCommon_topOptions.error("no input file defined in flags. If using RTT please use tag <athenaCommonFlags/>. Now continuing at own riske")
 
@@ -123,11 +123,14 @@ if rec.doTruth():
         from TruthExamples.TruthExamplesConf import DumpMC
         topSequence+=DumpMC()
 
-if( ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and \
-    ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
-    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-    topSequence+=xAODMaker__EventInfoCnvAlg()
-
+# If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
+if globalflags.InputFormat.is_pool():
+    from RecExConfig.ObjKeyStore import objKeyStore
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+    if ( not objKeyStore.isInInput("xAOD::EventInfo") ) and ( not hasattr(topSequence, "xAODMaker::EventInfoCnvAlg") ):
+        from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+        xAODEventInfoCnvAlgDefault(sequence=topSequence)
 
 if rec.doTrigger:
     try:

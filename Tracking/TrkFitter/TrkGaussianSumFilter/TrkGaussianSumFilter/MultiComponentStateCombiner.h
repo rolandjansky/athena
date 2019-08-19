@@ -25,15 +25,17 @@ description          : This class takes a multi-component state and collapses
 
 namespace Trk {
 
-class MultiComponentStateCombiner : public AthAlgTool, virtual public IMultiComponentStateCombiner {
+class MultiComponentStateCombiner
+  : public AthAlgTool
+  , virtual public IMultiComponentStateCombiner
+{
 
-  public:
-
+public:
   /** Constructor with AlgTool parameters */
-  MultiComponentStateCombiner (const std::string&, const std::string&, const IInterface*);
+  MultiComponentStateCombiner(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~MultiComponentStateCombiner () {};
+  virtual ~MultiComponentStateCombiner(){};
 
   /** AlgTool initialise method */
   StatusCode initialize();
@@ -42,21 +44,23 @@ class MultiComponentStateCombiner : public AthAlgTool, virtual public IMultiComp
   StatusCode finalize();
 
   /** Calculate combined state of many components */
-  virtual const TrackParameters* combine( const MultiComponentState&, bool useModeTemp = false) const;
+  virtual const TrackParameters* combine(const MultiComponentState&, bool useModeTemp = false) const;
+
+  virtual void combineWithWeight(std::pair<std::unique_ptr<Trk::TrackParameters>, double>& mergeTo,
+                                 const std::pair<std::unique_ptr<Trk::TrackParameters>, double>& addThis) const;
 
   /** Calculate combined state and weight of many components */
-  virtual const ComponentParameters* combineWithWeight( const MultiComponentState&, bool useModeTemp = false ) const;
+  virtual const ComponentParameters* combineWithWeight(const MultiComponentState&, bool useModeTemp = false) const;
 
- private:
+private:
+  const ComponentParameters* compute(const MultiComponentState*, bool useModeTemp = false) const;
 
-  const ComponentParameters* compute( const MultiComponentState*, bool useModeTemp = false ) const;
-
-  bool  m_useMode;
-  bool  m_useModeD0;
-  bool  m_useModeZ0;
-  bool  m_useModePhi;
-  bool  m_useModeTheta;
-  bool  m_useModeqOverP;
+  bool m_useMode;
+  bool m_useModeD0;
+  bool m_useModeZ0;
+  bool m_useModePhi;
+  bool m_useModeTheta;
+  bool m_useModeqOverP;
   float m_fractionPDFused;
 };
 

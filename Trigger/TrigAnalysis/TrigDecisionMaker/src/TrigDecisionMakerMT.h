@@ -125,7 +125,7 @@ namespace TrigDec {
     Gaudi::Property<std::string> m_lvl1ToolLocation{this, "Lvl1ToolLocation", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "L1 tool to fetch"};
 
     // Input keys configuration
-    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTSummary", "HLT summary container Key"};
+    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_HLTSummaryKeyIn {this, "HLTSummary", "HLTNav_Summary", "HLT summary container Key"};
     SG::ReadHandleKey<LVL1CTP::Lvl1Result> m_L1ResultKeyIn {this, "Lvl1Result", "Lvl1Result", "Lvl1 Result Object Key"};
     SG::ReadHandleKey<ROIB::RoIBResult> m_ROIBResultKeyIn {this, "RoIBResult", "RoIBResult", "RoIB Result Object Key"};
     SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKeyIn {this, "EventInfo", "EventInfo", "Event Info Object Key"};

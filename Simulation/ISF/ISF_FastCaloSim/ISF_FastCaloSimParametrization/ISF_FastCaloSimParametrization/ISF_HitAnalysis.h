@@ -11,6 +11,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArElecCalib/ILArfSampl.h"
@@ -96,7 +97,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
    const LArHEC_ID *m_larHecID;
    const TileID * m_tileID;
    const TileDetDescrManager * m_tileMgr;
-   const DataHandle<ILArfSampl>   m_dd_fSampl;
+   SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
 
    /** Simple variables by Ketevi */
    std::vector<float>* m_hit_x;
@@ -191,6 +192,16 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<float>* m_newTTC_IDCaloBoundary_z;
    std::vector<float>* m_newTTC_Angle3D;
    std::vector<float>* m_newTTC_AngleEta;
+
+
+   std::vector<float>* m_MuonEntryLayer_E;
+   std::vector<float>* m_MuonEntryLayer_px;
+   std::vector<float>* m_MuonEntryLayer_py;
+   std::vector<float>* m_MuonEntryLayer_pz;
+   std::vector<float>* m_MuonEntryLayer_x;
+   std::vector<float>* m_MuonEntryLayer_y;
+   std::vector<float>* m_MuonEntryLayer_z;
+   std::vector<int>* m_MuonEntryLayer_pdg;
 
    /** The new Extrapolator setup */
    ToolHandle<Trk::ITimedExtrapolator>  m_extrapolator;

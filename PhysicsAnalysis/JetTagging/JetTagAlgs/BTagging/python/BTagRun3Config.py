@@ -52,7 +52,7 @@ def BTagCfg(inputFlags,**kwargs):
     result=ComponentAccumulator()
 
     from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
+    acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -64,7 +64,7 @@ def BTagCfg(inputFlags,**kwargs):
     from AthenaCommon import CfgGetter
     result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline,IOVDbSvcCfg
+    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
     result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
     #result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_ONL'))
     #result.merge(addFolders(inputFlags,['/GLOBAL/TrackingGeo/LayerMaterialV2'],'GLOBAL_ONL'))

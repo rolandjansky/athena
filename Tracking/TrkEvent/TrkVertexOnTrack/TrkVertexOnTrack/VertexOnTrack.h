@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -82,9 +82,9 @@ namespace Trk{
 
 
       /**returns the some information about this VertexOnTrack. */
-      virtual MsgStream&    dump( MsgStream& out ) const;
+      virtual MsgStream&    dump( MsgStream& out ) const override;
       /**returns the some information about this VertexOnTrack. */
-      virtual std::ostream& dump( std::ostream& out ) const;
+      virtual std::ostream& dump( std::ostream& out ) const override;
 
      // perhaps return Vertex Object
 

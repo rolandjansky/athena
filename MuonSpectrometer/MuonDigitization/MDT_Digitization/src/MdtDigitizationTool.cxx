@@ -73,7 +73,6 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
   ATH_MSG_INFO ( "DigitizationTool       " << m_digiTool            );
   ATH_MSG_INFO ( "MdtCalibrationDbTool    " << m_calibrationDbTool  );
-  ATH_MSG_INFO ( "MDTCondSummarySvc      " << m_pSummarySvc         );
   ATH_MSG_INFO ( "UseDeadChamberSvc      " << m_UseDeadChamberSvc   );
   if (!m_UseDeadChamberSvc) ATH_MSG_INFO ( "MaskedStations         " << m_maskedStations      );
   ATH_MSG_INFO ( "GetT0FromDB            " << m_t0_from_DB          );
@@ -123,11 +122,15 @@ StatusCode MdtDigitizationTool::initialize() {
   ATH_CHECK(m_mergeSvc.retrieve());
 
   // check the input object name
-  if (m_inputObjectName=="") {
-    ATH_MSG_FATAL ( "Property InputObjectName not set !" );
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
     return StatusCode::FAILURE;
   }
-  ATH_MSG_DEBUG ( "Input objects: '" << m_inputObjectName << "'" );
+  if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputObjectKey.initialize());
@@ -163,10 +166,7 @@ StatusCode MdtDigitizationTool::initialize() {
 
   //Retrieve the Conditions service
   if (m_UseDeadChamberSvc==true) {
-    ATH_MSG_DEBUG("Using Database DCS MDT Conditions for masking dead/missing chambers");
-    if (StatusCode::SUCCESS != m_pSummarySvc.retrieve()) {
-      ATH_MSG_ERROR("Could not retrieve the summary service");
-    }
+    ATH_CHECK(m_readKey.initialize());
   }
   else {
     ATH_MSG_DEBUG("Using JobOptions for masking dead/missing chambers");
@@ -246,6 +246,22 @@ StatusCode MdtDigitizationTool::getNextEvent()
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<MDTSimHitCollection>::type TimedHitCollList;
   
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<MDTSimHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get MDTSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcMDT = new TimedHitCollection<MDTSimHit>{1};
+    m_thpcMDT->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("MDTSimHitCollection found with " << hitCollection->size() << " hits");
+
+    return StatusCode::SUCCESS;
+  }
+
   //this is a list<info<time_t, DataLink<MDTSimHitCollection> > >
   TimedHitCollList hitCollList;
   
@@ -351,15 +367,18 @@ StatusCode MdtDigitizationTool::doDigitization(MdtDigitContainer* digitContainer
   CLHEP::HepRandomEngine *twinRndmEngine = getRandomEngine("Twin");
   CLHEP::HepRandomEngine *toolRndmEngine = getRandomEngine(m_digiTool->name());
 
+
   //Get the list of dead/missing chambers and cache it
   if ( m_UseDeadChamberSvc ) { 
+    SG::ReadCondHandle<MdtCondDbData> readHandle{m_readKey};
+    const MdtCondDbData* readCdo{*readHandle};
     m_IdentifiersToMask.clear();
-    int size_id = m_pSummarySvc->deadStationsId().size();
+    int size_id = readCdo->getDeadStationsId().size();
     ATH_MSG_DEBUG ( "Number of dead/missing stations retrieved from CondService= "<< size_id );	
     
     for(int k=0;k<size_id;k++) {
-      Identifier Id = m_pSummarySvc->deadStationsId()[k];
-      m_IdentifiersToMask.push_back( m_pSummarySvc->deadStationsId()[k] );
+      Identifier Id = readCdo->getDeadStationsId()[k];
+      m_IdentifiersToMask.push_back( readCdo->getDeadStationsId()[k] );
       ATH_MSG_VERBOSE ( "Dead/missing chambers id from CondDB: " << m_idHelper->show_to_string(Id) );
     }  
   }
@@ -968,7 +987,7 @@ double MdtDigitizationTool::minimumTof(Identifier DigitId) const {
 
 bool MdtDigitizationTool::insideMatchingWindow(double time) const {
   if( m_useTimeWindow )
-    if(time < m_bunchCountOffset || time > m_bunchCountOffset+m_matchingWindow) {
+    if(time < m_bunchCountOffset || time > static_cast<double>(m_bunchCountOffset)+m_matchingWindow) {
       ATH_MSG_VERBOSE( "hit outside MatchingWindow " << time );
       return false;
     }
@@ -977,7 +996,7 @@ bool MdtDigitizationTool::insideMatchingWindow(double time) const {
 
 bool MdtDigitizationTool::insideMaskWindow(double time) const {
   if( m_useTimeWindow )
-    if(time < m_bunchCountOffset-m_maskWindow || time > m_bunchCountOffset){
+    if(time < static_cast<double>(m_bunchCountOffset)-m_maskWindow || time > m_bunchCountOffset){
       ATH_MSG_VERBOSE( "hit outside MaskWindow " << time );
       return false;
     }

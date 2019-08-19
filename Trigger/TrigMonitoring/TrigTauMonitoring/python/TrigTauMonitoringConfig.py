@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 def TrigTauMonitoringTool():
 	full_tau = [
@@ -77,10 +77,8 @@ def TrigTauMonitoringTool():
 	ToolSvc += Level1Emulator
 
 	from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, ERROR
-	from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-	LumiToolOnline = LuminosityToolOnline("OnlLuminosityTool")
-	#LumiToolOnline.OutputLevel = DEBUG
-	ToolSvc += LumiToolOnline
+	from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+        LuminosityCondAlgOnlineDefault (suffix = 'Online')
 
 	# get the HLT emulation tool from the emulation python config
 #	from TrigTauEmulation.TrigTauEmulationConfig import get_hlt_emulator

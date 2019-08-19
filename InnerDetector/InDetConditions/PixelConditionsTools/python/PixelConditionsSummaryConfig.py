@@ -10,7 +10,7 @@ from PixelConditionsTools.PixelDCSConditionsConfig import PixelDCSConditionsCfg
 from PixelConditionsAlgorithms.PixelConditionsConfig import PixelConfigCondAlgCfg
 
 def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummary", **kwargs):
-    """Return configured ComponentAccumulator and tool for PixelDCSConditions"""
+    """Return configured ComponentAccumulator with tool for Pixel Conditions"""
     acc = ComponentAccumulator()
     kwargs.setdefault("UseDCSState", False)
     kwargs.setdefault("UseByteStream", False)
@@ -18,7 +18,7 @@ def PixelConditionsSummaryCfg(flags, name="PixelConditionsSummary", **kwargs):
     kwargs.setdefault("UseDeadMap", True)
     PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
     if kwargs["UseDCSState"]:
-        acc.merge(PixelDCSConditionsCfg(flags, DCSConditionsTool=DCSTool))
+        acc.merge(PixelDCSConditionsCfg(flags))
     if kwargs["UseTDAQ"]:
         PixelTDAQFolder = "/TDAQ/Resources/ATLAS/PIXEL/Modules"
         acc.merge(addFolders(flags, PixelTDAQFolder, "TDAQ_ONL", "CondAttrListCollection"))

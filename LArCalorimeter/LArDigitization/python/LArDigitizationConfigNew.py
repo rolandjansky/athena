@@ -5,11 +5,10 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg
-from LArDetDescr.LArDetDescrConfig import LArDetDescrCfg
+from LArBadChannelTool.LArBadChannelConfig import LArBadChannelMaskerCfg, LArBadFebCfg
 from LArRecUtils.LArRecUtilsConfig import LArAutoCorrNoiseCondAlgCfg
 from LArRecUtils.LArRecUtilsConfig import LArADC2MeVCondAlgCfg
-from LArRawConditions.LArRawConditionsConfig import LArRawConditionsMCCfg
+from LArConfiguration.LArElecCalibDBConfig import LArElecCalibDbCfg
 from LArDigitization.LArDigitizationConf import LArPileUpTool, LArDigitMaker
 from CommissionUtils.CommissionUtilsConf import CosmicTriggerTimeTool
 from SGComps.SGCompsConf import AddressRemappingSvc, ProxyProviderSvc
@@ -76,13 +75,14 @@ def LArRangeFCALCfg(flags, name="LArRangeFCAL", **kwargs):
 def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     """Return a ComponentAccumulator with configured LArPileUpTool"""
     acc = LArGMCfg(flags)
-    # the LAr and Calo detector description package
-    if not flags.Detector.OverlayLAr:
-        acc.merge(LArDetDescrCfg(flags))
-        # This is conditionally merged in LArDetDescrCfg
-        acc.merge(LArRawConditionsMCCfg(flags))
-    # other merges
+
+    #The LArPileupTool needs: Noise, fSampl, Pedestal,Shape ADC2MeV 
+    # AutoCorrNoise, the list of bad FEBs and the cabling
     acc.merge(LArADC2MeVCondAlgCfg(flags))
+    acc.merge(LArBadFebCfg(flags))
+    requiredConditons=["Noise","fSampl","Pedestal","Shape"]
+    acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
+
     if not flags.Detector.OverlayLAr:
         acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
     if "MaskingTool" not in kwargs:
@@ -106,8 +106,8 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     # if doing MC+MC overlay
     if flags.Input.isMC and flags.Detector.OverlayLAr:
           kwargs.setdefault("isMcOverlay", True)
-    kwargs.setdefault("Nsamples", flags.LAr.RODnSamples)
-    kwargs.setdefault("firstSample", flags.LAr.RODFirstSample)
+    kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
+    kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
     if flags.Detector.OverlayLAr:
         kwargs.setdefault("RandomDigitContainer", "LArDigitContainer_MC")
     # cosmics digitization
@@ -127,7 +127,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
             "LArHitContainer#LArHitFCAL->LArHitFloatContainer#LArHitFCAL"
         ]
         acc.addService(AddressRemappingSvc(TypeKeyOverwriteMaps=maps, ProxyDict="ActiveStoreSvc"))
-        acc.addService(ProxyProviderSvc(ProviderNames=["AddressRemappingSvc"]))
+        acc.addService(ProxyProviderSvc(ProviderNames=["AddressRemappingSvc"]))    
     acc.setPrivateTools(LArPileUpTool(name, **kwargs))
     return acc
 
@@ -137,6 +137,8 @@ def LArDigitMakerCfg(flags, name="LArDigitMaker", **kwargs):
     if "LArPileUpTool" not in kwargs:
         tool = acc.popToolsAndMerge(LArPileUpToolCfg(flags))
         kwargs["LArPileUpTool"] = tool
+
+    
     acc.addEventAlgo(LArDigitMaker(name, **kwargs))
     acc.merge(OutputStreamCfg(flags, "RDO", LArItemList()))
     return acc

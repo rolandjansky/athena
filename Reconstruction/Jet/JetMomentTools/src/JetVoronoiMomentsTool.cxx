@@ -36,7 +36,7 @@ JetVoronoiMomentsTool::JetVoronoiMomentsTool(const std::string& name)
 
 }
 
-int JetVoronoiMomentsTool::modify(xAOD::JetContainer& jets) const {
+StatusCode JetVoronoiMomentsTool::modify(xAOD::JetContainer& jets) const {
     // setup diagram class
     Diagram voro ("VoronoiDiagram");
     voro.m_x_min = m_x_min;
@@ -53,7 +53,7 @@ int JetVoronoiMomentsTool::modify(xAOD::JetContainer& jets) const {
         ATH_MSG_WARNING("Could not calculate Voronoi diagram");
     }
     for ( xAOD::Jet *jet : jets ) modifyJet(*jet,voro);
-    return 0;
+    return StatusCode::SUCCESS;
 }
 
 int JetVoronoiMomentsTool::modifyJet(xAOD::Jet&) const {

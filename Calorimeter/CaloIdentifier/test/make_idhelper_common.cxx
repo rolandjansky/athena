@@ -14,7 +14,6 @@
 
 
 #include "IdDictParser/IdDictParser.h"
-#include "CxxUtils/make_unique.h"
 #include <memory>
 
 
@@ -36,7 +35,7 @@ std::unique_ptr<T> make_helper (const IdDictParser& parser,
                                 bool do_neighbours = false,
                                 bool do_checks = true)
 {
-  auto idhelper = CxxUtils::make_unique<T>();
+  auto idhelper = std::make_unique<T>();
   idhelper->set_do_neighbours (do_neighbours);
   assert (idhelper->initialize_from_dictionary (parser.m_idd) == 0);
 

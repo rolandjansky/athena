@@ -115,7 +115,7 @@ def decodeBlack(mask, defects=False):
     return sorted(rv)
 
 def getRunMask(run):
-    from PyCool import cool, coral
+    from PyCool import cool
     dbSvc = cool.DatabaseSvcFactory.databaseService()
     # Necessary to work around COOL database lookup stupidity
     db = dbSvc.openDatabase('oracle://ATLAS_COOLPROD;dbname=CONDBR2;schema=ATLAS_COOLONL_TDAQ', True)

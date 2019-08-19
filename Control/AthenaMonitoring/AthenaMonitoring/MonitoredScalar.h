@@ -30,7 +30,12 @@ namespace Monitored {
   public:
     static_assert(std::is_convertible<T, double>::value, "Value must be convertable to double");
 
-    Scalar(std::string name, const T& defaultValue = {}, std::function<double(const T&)> valueTransform = {}) :
+    Scalar(std::string name, const T& defaultValue = {}) :
+        IMonitoredVariable(std::move(name)),
+        m_value(defaultValue),
+        m_valueTransform()
+    {}
+    Scalar(std::string name, const T& defaultValue, std::function<double(const T&)> valueTransform) :
         IMonitoredVariable(std::move(name)),
         m_value(defaultValue),
         m_valueTransform(valueTransform)

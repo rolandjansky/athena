@@ -78,14 +78,14 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
   for ( const auto previousDecision: *previousDecisionsHandle )  {
     // get L2MuonSA Feature
     TrigCompositeUtils::LinkInfo<xAOD::L2StandAloneMuonContainer> linkInfo = 
-       TrigCompositeUtils::findLink<xAOD::L2StandAloneMuonContainer>(previousDecision, "feature");
+       TrigCompositeUtils::findLink<xAOD::L2StandAloneMuonContainer>(previousDecision, featureString());
     ElementLink<xAOD::L2StandAloneMuonContainer> muFastLink = linkInfo.link;
     ATH_CHECK( muFastLink.isValid() );        
     const xAOD::L2StandAloneMuon* muFast = *muFastLink;
 
     // get View
-    ATH_CHECK( previousDecision->hasObjectLink("view") );
-    auto viewEL = previousDecision->objectLink<ViewContainer>("view");
+    ATH_CHECK( previousDecision->hasObjectLink(viewString()) );
+    auto viewEL = previousDecision->objectLink<ViewContainer>(viewString());
     ATH_CHECK( viewEL.isValid() );
 
     // get info
@@ -103,8 +103,8 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
     toolInput.emplace_back( TrigmuCombHypoTool::CombinedMuonInfo{ newd, muComb, muFast, previousDecision} );
 
     // set objectLink
-    newd->setObjectLink( "feature", muCombEL );
-    TrigCompositeUtils::linkToPrevious( newd, previousDecision);
+    newd->setObjectLink( featureString(), muCombEL );
+    TrigCompositeUtils::linkToPrevious( newd, previousDecision, context);
 
     // DEBUG
     auto muFastInfo = (*muCombEL)->muSATrack(); 
@@ -120,18 +120,8 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
     ATH_MSG_DEBUG("Go to " << tool);
     ATH_CHECK( tool->decide( toolInput ) );
   }
-  {// debug printout
-    ATH_MSG_DEBUG( "Exit with " << outputHandle->size() << " decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {
-      for ( auto decisionObject: *outputHandle ) {
-        TrigCompositeUtils::decisionIDs ( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id: allPassingIDs ) {
-        ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-    }
-  }
+
+  ATH_CHECK(hypoBaseOutputProcessing(outputHandle));
 
   ATH_MSG_DEBUG("StatusCode TrigmuCombHypoAlg::execute success");
   return StatusCode::SUCCESS;

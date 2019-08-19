@@ -17,7 +17,6 @@
 // Boost
 #include <boost/lexical_cast.hpp>
 // ATLAS cxx utils
-#include "CxxUtils/make_unique.h"
 #include "PmbCxxUtils/CustomBenchmark.h"
 // ROOT includes
 #include "TTree.h"
@@ -501,7 +500,7 @@ StatusCode ISF::SimKernel::prepareInput(SG::ReadHandle<McEventCollection>& input
   }
 
   // create copy
-  outputTruth = CxxUtils::make_unique<McEventCollection>(*inputTruth);
+  outputTruth = std::make_unique<McEventCollection>(*inputTruth);
 
   // Apply QS patch if required
   if(!m_qspatcher.empty()) {

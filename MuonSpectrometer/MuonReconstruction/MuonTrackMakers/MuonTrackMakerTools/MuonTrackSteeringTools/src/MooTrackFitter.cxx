@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooTrackFitter.h"
@@ -21,7 +21,7 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -76,7 +76,6 @@ namespace Muon {
     m_momentumEstimator("MuonSegmentMomentum/MuonSegmentMomentum"),
     m_magFieldProperties(Trk::NoField),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_entryHandler("Muon::MuPatCandidateTool/MuPatCandidateTool"),
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
@@ -98,7 +97,6 @@ namespace Muon {
     declareProperty("SegmentMomentum",     m_momentumEstimator);
     declareProperty("HitTool",m_hitHandler);
     declareProperty("IdHelper",m_idHelperTool);
-    declareProperty("MuonHelperTool",m_helperTool);
     declareProperty("MuonPrinterTool",m_printer);
     declareProperty("CandidateTool",m_entryHandler);
     declareProperty("TrackToSegmentTool",m_trackToSegmentTool);
@@ -140,7 +138,7 @@ namespace Muon {
     ATH_CHECK( m_trackFitterPrefit.retrieve() );
     ATH_CHECK( m_momentumEstimator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_hitHandler.retrieve() );
     ATH_CHECK( m_entryHandler.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
@@ -219,10 +217,11 @@ namespace Muon {
     if( track ){
       // clean and evaluate track
       std::set<Identifier> excludedChambers;
-      Trk::Track* cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
-      if( cleanTrack && cleanTrack != track ){
+      std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
+      if( cleanTrack && !(*cleanTrack->perigeeParameters() == *track->perigeeParameters()) ){
         delete track;
-        track = cleanTrack;
+	//using release until the entire code can be migrated to use smart pointers
+        track = cleanTrack.release();
       }
     }else{
       ATH_MSG_DEBUG(" Fit failed " );
@@ -253,13 +252,14 @@ namespace Muon {
      
       // clean and evaluate track
       std::set<Identifier> excludedChambers;
-      Trk::Track* cleanTrack = cleanAndEvaluateTrack( *newTrack, excludedChambers );
+      std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack( *newTrack, excludedChambers );
 
       if( cleanTrack ){
         // check whether cleaner returned same track, if not delete old track
-        if( cleanTrack != newTrack ){
+        if( !(*cleanTrack->perigeeParameters() == *newTrack->perigeeParameters()) ){
           delete newTrack;
-          newTrack = cleanTrack;
+	  //using release until the entire code can be migrated to use smart pointers
+          newTrack = cleanTrack.release();
         }
       }else{
         ATH_MSG_DEBUG(" Refit failed, rejected by cleaner " );
@@ -429,11 +429,12 @@ namespace Muon {
       if( !excludedChambers.empty() ){
         ATH_MSG_DEBUG(" Using exclusion list for cleaning" );
       }
-      Trk::Track* cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
+      std::unique_ptr<Trk::Track> cleanTrack = cleanAndEvaluateTrack( *track, excludedChambers );
       if( cleanTrack ) {
-        if( cleanTrack != track ){
+        if( !(*cleanTrack->perigeeParameters() == *track->perigeeParameters()) ){
           delete track;
-          track = cleanTrack;
+	  //using release until the entire code can be migrated to use smart pointers
+          track = cleanTrack.release();
           
         }
       }else {
@@ -728,7 +729,7 @@ namespace Muon {
         delete overlapPos;overlapPos=0;
 
         // only perform SL overlap fit for MDT segments
-        Identifier chId = m_helperTool->chamberId(*segInfo1->segment);
+        Identifier chId = m_edmHelperSvc->chamberId(*segInfo1->segment);
         if( !m_idHelperTool->isMdt(chId) ) return false;
 
         ATH_MSG_VERBOSE(" Special treatment for tracks with one station, a SL overlap and no phi hits " );
@@ -812,7 +813,7 @@ namespace Muon {
          return false;
         }
         
-        Identifier firstId = m_helperTool->getIdentifier(*fitterData.measurements.front());
+        Identifier firstId = m_edmHelperSvc->getIdentifier(*fitterData.measurements.front());
         if( !firstId.is_valid() ) {
          ATH_MSG_WARNING(" unexpected condition, first measurement has no identifier " );
 	 delete phiPos; phiPos=0;
@@ -965,7 +966,7 @@ namespace Muon {
     
     
     // check whether measuring phi
-    Identifier id = m_helperTool->getIdentifier( meas );
+    Identifier id = m_edmHelperSvc->getIdentifier( meas );
     if( id == Identifier () ) {
       ATH_MSG_WARNING(" Cannot create fake phi hit from a measurement without Identifier " );
       return 0;
@@ -1587,7 +1588,7 @@ namespace Muon {
       if( segInfo1 && segInfo2 && fitterData.stations.size() == 1 && fitterData.numberOfSLOverlaps()==1 ){
 
         // only perform SL overlap fit for MDT segments
-        Identifier chId = m_helperTool->chamberId(*segInfo1->segment);
+        Identifier chId = m_edmHelperSvc->chamberId(*segInfo1->segment);
         if( m_idHelperTool->isMdt(chId) ) {
         
           IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result = m_overlapResolver->matchResult(*segInfo1->segment,*segInfo2->segment);
@@ -2137,7 +2138,7 @@ namespace Muon {
 
       m_measurementsToBeDeleted.push_back(*mit);
 
-      const Identifier& id = m_helperTool->getIdentifier(**mit);
+      const Identifier& id = m_edmHelperSvc->getIdentifier(**mit);
       
       if( !id.is_valid() ) {
         ATH_MSG_WARNING(" Phi measurement without valid Identifier! " );        
@@ -2197,16 +2198,16 @@ namespace Muon {
   }
 
 
-  Trk::Track* MooTrackFitter::cleanAndEvaluateTrack( Trk::Track& track, const std::set<Identifier>& excludedChambers ) const {
+  std::unique_ptr<Trk::Track> MooTrackFitter::cleanAndEvaluateTrack( Trk::Track& track, const std::set<Identifier>& excludedChambers ) const {
     // preselection to get ride of really bad tracks
-    if( !m_helperTool->goodTrack( track, m_preCleanChi2Cut ) ){
+    if( !m_edmHelperSvc->goodTrack( track, m_preCleanChi2Cut ) ){
       ATH_MSG_DEBUG(" Track rejected due to large chi2" << std::endl
                            << m_printer->print(track) );
       return 0;
     }
 
     // perform cleaning of track
-    Trk::Track* cleanTrack = 0;
+    std::unique_ptr<Trk::Track> cleanTrack;
     if( excludedChambers.empty() ) cleanTrack = m_cleaner->clean(track);
     else{
       ATH_MSG_DEBUG(" Cleaning with exclusion list " << excludedChambers.size() );
@@ -2219,10 +2220,9 @@ namespace Muon {
     }
 
     // selection to get ride of bad tracks after cleaning
-    if( !m_helperTool->goodTrack( *cleanTrack, m_chi2Cut ) ){
+    if( !m_edmHelperSvc->goodTrack( *cleanTrack, m_chi2Cut ) ){
       ATH_MSG_DEBUG(" Track rejected after cleaning " << std::endl
                            << m_printer->print(*cleanTrack) );
-      if( cleanTrack != &track ) delete cleanTrack;
       return 0;
     }
 
@@ -2324,13 +2324,15 @@ namespace Muon {
     TrkDriftCircleMath::LocPos segPos(lpos.y(),lpos.z());
     TrkDriftCircleMath::Line segPars(segPos,angleYZ);
     
-    m_fitter.fit(segPars,dcs);
-    TrkDriftCircleMath::Segment segment = m_fitter.result();
+    TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+    m_fitter.fit(segment, segPars, dcs);
     segment.hitsOnTrack(dcs.size());
     ATH_MSG_DEBUG(" segment after fit " << segment.chi2() << " ndof " << segment.ndof() << " local parameters "
                          << segment.line().x0() << " " << segment.line().y0() << "  phi " << segment.line().phi() );
 
-    bool success = m_finder.dropHits(segment);
+    bool hasDroppedHit = false;
+    unsigned int dropDepth = 0;
+    bool success = m_finder.dropHits(segment, hasDroppedHit, dropDepth);
     if( !success ) {
       ATH_MSG_DEBUG(" drop hits failed " );
       return;
@@ -2486,7 +2488,7 @@ namespace Muon {
       }
 
       // get identifier, if it has no identifier or is not a muon hit continue
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) {
         ATH_MSG_VERBOSE(" adding state with measurement without valid identifier " << m_printer->print(*pars) );
         currentTrack->tsos.push_back(*tit);
@@ -2595,7 +2597,7 @@ namespace Muon {
         const Trk::MeasurementBase* meas = (*tit)->measurementOnTrack();
         if( !meas ) continue;
         
-        Identifier id = m_helperTool->getIdentifier(*meas);
+        Identifier id = m_edmHelperSvc->getIdentifier(*meas);
         if( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) continue;
 
         if( m_idHelperTool->isMdt(id) ){

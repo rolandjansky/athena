@@ -1,6 +1,6 @@
 #!/usr/bin/env pyroot.py 
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------
 #
@@ -145,7 +145,7 @@ print "Read", streamer_n, 'streamers for', len(streamerChecksums), 'types'
 print
 
 if doEDM:
-  from TriggerJobOpts.TriggerEDM import EDMDetails
+  from TrigEDMConfig.TriggerEDM import EDMDetails
   for item in EDMDetails.keys():
     pers = EDMDetails[item]['persistent']
     objects.append(pers)

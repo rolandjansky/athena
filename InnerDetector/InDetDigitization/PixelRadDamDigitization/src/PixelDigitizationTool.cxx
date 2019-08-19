@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -20,9 +20,9 @@
 
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
-#include "CxxUtils/make_unique.h"
 
 #include <limits>
+#include <memory>
 #include <cstdint>
 
 using namespace RadDam;
@@ -356,7 +356,7 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
 
   // Prepare event
   if (!m_rdoContainer.isValid()) {
-    if (!(m_rdoContainer=CxxUtils::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())).isValid()) {
+    if (!(m_rdoContainer=std::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())).isValid()) {
       ATH_MSG_FATAL("Could not create PixelRDO_Container");
       return StatusCode::FAILURE;
     }
@@ -364,7 +364,7 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   ATH_MSG_DEBUG("PixelRDO_Container " << m_rdoContainer.name() << " registered in StoreGate");
 
   if (!m_simDataColl.isValid()) {
-    if (!(m_simDataColl = CxxUtils::make_unique<InDetSimDataCollection>()).isValid()) {
+    if (!(m_simDataColl = std::make_unique<InDetSimDataCollection>()).isValid()) {
       ATH_MSG_FATAL("Could not create InDetSimDataCollection");
       return StatusCode::FAILURE;
     }

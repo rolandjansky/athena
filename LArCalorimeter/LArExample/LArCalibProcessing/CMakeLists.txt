@@ -16,5 +16,5 @@ find_package( cx_Oracle )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/LArCalibProcessing_TestConfiguration.xml )
-atlas_install_scripts( share/LAr_updateHVcalib_online.sh )
+atlas_install_scripts( share/LAr_updateHVcalib_online.sh share/LAr_updateHVcalibNoise.sh )
 

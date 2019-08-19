@@ -71,7 +71,7 @@ svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
 from IOVDbSvc.CondDB import conddb
 conddb.blockFolder("/LAR/LArCellPositionShift")
-conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>"+Folder+"<tag>"+FolderTag+"</tag>")
+conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>"+Folder+"<tag>"+FolderTag+"</tag>",True)
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------

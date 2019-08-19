@@ -62,6 +62,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "CondInputLoader.Load":unifySet,
                "IOVDbSvc.Folders":unifySet,
                "IOVDbSvc.FoldersToMetaData":unifySet,
+               "IOVDbSvc.overrideTags":unifySet,
                "EvtPersistencySvc.CnvServices":unifySet,
                "PoolSvc.ReadCatalog":unifySet,
                "ProxyProviderSvc.ProviderNames":unifySet,
@@ -77,6 +78,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "*.InputMakerInputDecisions": unifySet,
                "*.InputMakerOutputDecisions": unifySet,
                "AddressRemappingSvc.TypeKeyRenameMaps": unifySet,
+               "AuditorSvc.Auditors": unifySet,
                }
 
 def setUnificationFunction(key, function):

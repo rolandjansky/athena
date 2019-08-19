@@ -105,11 +105,8 @@ StatusCode TrigMuonEFMSonlyHypoTool::decide(std::vector<MuonEFInfo>& toolInput) 
     return inclusiveSelection(toolInput);
   }
   else{
-    if(numMuon <=1) ATH_MSG_DEBUG("Not applying selection "<<m_decisionId<< " because the number of muons is "<<numMuon);
-    else{
-      ATH_MSG_DEBUG("Applying selection of multiplicity "<< m_decisionId);
+    ATH_MSG_DEBUG("Applying selection of multiplicity "<< m_decisionId<<" with nMuons "<<numMuon);
       return multiplicitySelection(toolInput);
-    }
   }
   return StatusCode::SUCCESS;
 }
@@ -126,7 +123,7 @@ StatusCode TrigMuonEFMSonlyHypoTool::inclusiveSelection(std::vector<MuonEFInfo>&
   return StatusCode::SUCCESS;
 }
 StatusCode TrigMuonEFMSonlyHypoTool::multiplicitySelection(std::vector<MuonEFInfo>& toolInput) const{
-  HLT::Index2DVec passingSelection(toolInput.size());
+  HLT::Index2DVec passingSelection(m_ptBins.size());
   for(size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex) {
     size_t elementIndex{0};
     for(auto& i : toolInput){

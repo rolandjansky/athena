@@ -21,7 +21,7 @@ from AthenaConfiguration.UnifyProperties import unifySet
 class ConfigurationError(RuntimeError):
     pass
 
-_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader'))
+_servicesToCreate=frozenset(('GeoModelSvc','TileInfoLoader','DetDescrCnvSvc'))
 
 def printProperties(msg, c, nestLevel = 0):
     # Iterate in sorted order.
@@ -64,8 +64,6 @@ class ComponentAccumulator(object):
         self._algorithms = {}            #Flat algorithms list, useful for merging
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
         self._services=[]                #List of service, not yet sure if the order matters here in the MT age
-        self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
-        self._outputPerStream={}         #Dictionary of {streamName,set(items)}, all as strings
         self._privateTools=None          #A placeholder to carry a private tool(s) not yet attached to its parent
         self._primaryComp=None           #A placeholder to designate the primary service 
 
@@ -77,21 +75,32 @@ class ComponentAccumulator(object):
         #To check if this accumulator was merged:
         self._wasMerged=False
         self._isMergable=True
+        self._lastAddedComponent="Unknown" 
 
+
+    def _inspect(self): #Create a string some basic info about this CA, useful for debugging
+        summary="This CA contains {0} service, {1} conditions algorithms, {2} event algorithms and {3} public tools\n"\
+            .format(len(self._services),len(self._conditionsAlgs),len(self._algorithms),len(self._publicTools))
+        if (self._privateTools): 
+            summary+="  Private AlgTool: "+ self._privateTools[-1].getFullName()+"\n" 
+        if (self._primaryComp): 
+            summary+="  Primary Component: " + self._primaryComp.getFullName()+"\n" 
+        summary+="  Last component added: "+self._lastAddedComponent+"\n" 
+        return summary
 
 
     def empty(self):
         return len(self._sequence)+len(self._conditionsAlgs)+len(self._services)+\
-            len(self._publicTools)+len(self._outputPerStream)+len(self._theAppProps) == 0
+            len(self._publicTools)+len(self._theAppProps) == 0
 
     def __del__(self):
          if not getattr(self,'_wasMerged',True) and not self.empty():
-             raise RuntimeError("ComponentAccumulator was not merged!")
-             #log = logging.getLogger("ComponentAccumulator")
-             #log.error("The ComponentAccumulator listed below was never merged!")
-
+             #can't raise an exception in __del__ method (Python rules) so this is a warning
+             log = logging.getLogger("ComponentAccumulator")
+             log.error("This ComponentAccumulator was never merged!")
+             log.error(self._inspect())
          if getattr(self,'_privateTools',None) is not None:
-             raise RuntimeError("Deleting a ComponentAccumulator with and dangling private tool(s)")
+             raise RuntimeError("Deleting a ComponentAccumulator with dangling private tool(s)")
         #pass
 
 
@@ -107,7 +116,6 @@ class ComponentAccumulator(object):
 
     def printConfig(self, withDetails=False, summariseProps=False):
         self._msg.info( "Event Inputs" )
-        self._msg.info( self._eventInputs )
         self._msg.info( "Event Algorithm Sequences" )
 
 
@@ -138,8 +146,6 @@ class ComponentAccumulator(object):
         self.printCondAlgs (summariseProps = summariseProps)
         self._msg.info( "Services" )
         self._msg.info( [ s.getName() for s in self._services ] )
-        self._msg.info( "Outputs" )
-        self._msg.info( self._outputPerStream )
         self._msg.info( "Public Tools" )
         self._msg.info( "[" )
         for t in self._publicTools:
@@ -270,6 +276,7 @@ class ComponentAccumulator(object):
                                   self._primaryComp.getType(), self._primaryComp.getName(), algorithms[0].getType(), algorithms[0].getName())
             #keep a ref of the algorithm as primary component
             self._primaryComp=algorithms[0]
+        self._lastAddedComponent=algorithms[-1].getFullName()
         return None
 
     def getEventAlgo(self,name=None):
@@ -294,7 +301,8 @@ class ComponentAccumulator(object):
                 self._msg.warning("Overwriting primary component of this CA. Was %s/%s, now %s/%s",
                                   self._primaryComp.getType(),self._primaryComp.getName(),algo.getType(),algo.getName())
             #keep a ref of the de-duplicated conditions algorithm as primary component
-            self._primaryComp=self.__getOne( self._conditionsAlgs, algo.getName(), "ConditionsAlgos") 
+            self._primaryComp=self.__getOne( self._conditionsAlgs, algo.getName(), "ConditionsAlgos")
+        self._lastAddedComponent=algo.getFullName()
         return algo
 
 
@@ -315,6 +323,7 @@ class ComponentAccumulator(object):
                                   self._primaryComp.getType(),self._primaryComp.getName(),newSvc.getType(),newSvc.getName())
             #keep a ref of the de-duplicated public tool as primary component
             self._primaryComp=self.__getOne( self._services, newSvc.getName(), "Services") 
+        self._lastAddedComponent=newSvc.getFullName()
         return 
 
 
@@ -330,14 +339,20 @@ class ComponentAccumulator(object):
                                   self._primaryComp.getType(),self._primaryComp.getName(),newTool.getType(),newTool.getName())
             #keep a ref of the de-duplicated service as primary component
             self._primaryComp=self.__getOne( self._publicTools, newTool.getName(), "Public Tool") 
+        self._lastAddedComponent=newTool.getFullName()
         return
 
 
     def getPrimary(self):
         if self._primaryComp:
             return self._primaryComp
-        else:
+        elif self._privateTools:
             return self.popPrivateTools()
+        else:
+            raise ConfigurationError("Called getPrimary() but no primary component nor private AlgTool is known.\n"\
+                                     +self._inspect())
+
+
 
     def __call__(self):
         return self.getPrimary()
@@ -365,32 +380,19 @@ class ComponentAccumulator(object):
         else:
             return self.__getOne( self._services, name, "Services")
     
-    def addEventInput(self,condObj):
-        #That's a string, should do some sanity checks on formatting
-        self._eventInput.add(condObj)
-        pass
-
-
-
-    def addOutputToStream(self,streamName,outputs):
-        if streamName in self._outputsPerStream:
-            self._outputsPerStream[streamName].update(set(outputs))
-        else:
-            self._outputsPerStream[streamName]=set(outputs)
-
-        pass
-
 
     def setAppProperty(self,key,value,overwrite=False):
         if (overwrite or key not in (self._theAppProps)):
             self._theAppProps[key]=value
         else:
-            if isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
+            if self._theAppProps[key] == value:
+                self._msg.debug("ApplicationMgr property '%s' already set to '%s'.", key, value)
+            elif isinstance(self._theAppProps[key],collections.Sequence) and not isinstance(self._theAppProps[key],str):
                 value=unifySet(self._theAppProps[key],value)
                 self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
                 self._theAppProps[key]=value
             else:
-                raise DeduplicationFailed("AppMgr property %s set twice: %s and %s",key,(self._theAppProps[key],value))
+                raise DeduplicationFailed("AppMgr property %s set twice: %s and %s" % (key, self._theAppProps[key], value))
 
 
         pass
@@ -494,12 +496,6 @@ class ComponentAccumulator(object):
         for pt in other._publicTools:
             self.addPublicTool(pt) #Profit from deduplicaton here
 
-        for k in other._outputPerStream.keys():
-            if k in self._outputPerStream:
-                self._outputPerStream[k].update(other._outputPerStream[k])
-            else: #New stream type
-                self._outputPerStream[k]=other._outputPerStream[k]
-
         #Merge AppMgr properties:
         for (k,v) in six.iteritems(other._theAppProps):
             self.setAppProperty(k,v)  #Will warn about overrides
@@ -516,21 +512,33 @@ class ComponentAccumulator(object):
         Configurable.configurableRun3Behavior=0
         from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theApp
 
+        self._msg.debug("Merging services with global setup")
         for s in self._services:
-            deduplicate(s,ServiceMgr)
+            if s.getFullName() in [fn.getFullName() for fn in ServiceMgr.getChildren()]: 
+                existingS=getattr(ServiceMgr,s.getName())
+                deduplicateComponent(existingS,s)
+            else:
+                ServiceMgr+=s
 
             if s.getJobOptName() in _servicesToCreate \
                     and s.getJobOptName() not in theApp.CreateSvc:
                 theApp.CreateSvc.append(s.getJobOptName())
 
-
-
+        self._msg.debug("Merging AlgTools with global setup")
         for t in self._publicTools:
-            deduplicate(t,ToolSvc)
+            if t.getFullName() in [fn.getFullName() for fn in ToolSvc.getChildren()]:
+                #deduplicate
+                existingT=getattr(ToolSvc,t.getName())
+                deduplicateComponent(existingT,t)
+                pass
+            else:
+                ToolSvc+=t
 
+        self._msg.debug("Merging conditions algorithms with global setup")
         condseq=AthSequencer ("AthCondSeq")
         for c in self._conditionsAlgs:
-            deduplicate(c,condseq)
+            deduplicate(c, condseq.getChildren() )
+
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence )):
             seq=AthSequencer(seqName)
@@ -755,10 +763,10 @@ class ComponentAccumulator(object):
             for k, v in comp.getValuedProperties().items():
                 if isinstance(v,Configurable):
                     self._msg.debug("Adding "+name+"."+k+" = "+v.getFullName())
-                    bsh.addPropertyToCatalogue(jos,name,k,v.getFullName())
+                    bsh.addPropertyToCatalogue(jos,name.encode(),k.encode(),v.getFullName().encode())
                     addCompToJos(v)
                 elif isinstance(v,GaudiHandles.GaudiHandleArray):
-                    bsh.addPropertyToCatalogue(jos,name,k,str([ v1.getFullName() for v1 in v ]))
+                    bsh.addPropertyToCatalogue(jos,name.encode(),k.encode(),str([ v1.getFullName() for v1 in v ]).encode())
                 else:
                     if not isSequence(comp) and k!="Members": #This property his handled separatly
                         self._msg.debug("Adding "+name+"."+k+" = "+str(v))
@@ -775,12 +783,19 @@ class ComponentAccumulator(object):
             pass
 
         #Add tree of algorithm sequences:
+        try:
+            from AthenaPython import PyAthenaComps
+            PyAlg = PyAthenaComps.Alg
+        except ImportError:
+            PyAlg = type(None)
+
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
-            self._msg.debug("Members of %s : %s" % (seqName,str([alg.getFullName() for alg in algoList])))
+            self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
             bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)
-                pass
+                if isinstance (alg, PyAlg):
+                    alg.setup()
             pass
 
 
@@ -788,7 +803,9 @@ class ComponentAccumulator(object):
         for alg in self._conditionsAlgs:
             addCompToJos(alg)
             condalgseq.append(alg.getFullName())
-            bsh.addPropertyToCatalogue(jos,"AthCondSeq","Members",str(condalgseq))
+            bsh.addPropertyToCatalogue(jos,b"AthCondSeq",b"Members",str(condalgseq).encode())
+            if isinstance (alg, PyAlg):
+                alg.setup()
             pass
 
 
@@ -800,6 +817,9 @@ class ComponentAccumulator(object):
         return app
 
     def run(self,maxEvents=None,OutputLevel=3):
+        from AthenaCommon.Debugging import allowPtrace
+        allowPtrace()
+
         app = self.createApp (OutputLevel)
         self.__verifyFinalSequencesStructure()
 

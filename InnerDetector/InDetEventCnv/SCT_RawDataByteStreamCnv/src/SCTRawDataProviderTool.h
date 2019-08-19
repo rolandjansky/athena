@@ -10,6 +10,7 @@
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "AthenaKernel/SlotSpecificObj.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "ByteStreamData/RawEvent.h"
 
@@ -17,7 +18,7 @@
 
 #include <atomic>
 #include <mutex>
-#include <set>
+#include <unordered_set>
 
 class ISCT_RodDecoder;
 
@@ -80,9 +81,11 @@ class SCTRawDataProviderTool : public extends<AthAlgTool, ISCTRawDataProviderToo
   ToolHandle<ISCT_RodDecoder> m_decoder{this, "Decoder", "SCT_RodDecoder", "Decoder"};
   
   /** For bookkeeping of decoded ROBs */
-  mutable std::vector<std::set<uint32_t>> m_robIDSet ATLAS_THREAD_SAFE {};
-  /** Cache to store events for slots */
-  mutable std::vector<EventContext::ContextEvt_t> m_cache ATLAS_THREAD_SAFE {};
+  struct CacheEntry {
+    EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
+    std::unordered_set<uint32_t> m_robIDSet;
+  };
+  mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
   /** Number of decode errors encountered in decoding. 
       Turning off error message after 100 errors are counted */

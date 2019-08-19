@@ -37,7 +37,7 @@ information VKalVrt is able to provide:
 #include "xAODBase/IParticleContainer.h"
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include <vector>
-
+#include "CxxUtils/checker_macros.h"
 
 
 namespace Trk {
@@ -87,8 +87,16 @@ namespace Trk {
 
     /* get minimal distance to any material layer */
     double dstToMatLay() const;
+
     /* set minimal distance to any material layer  */
-    void setDstToMatLay(double) const;
+    void setDstToMatLay(double Value) {
+      m_dstToMatLayer=Value;
+    }
+
+    /* set minimal distance to any material layer.  const setter is not MT safe  !!!*/
+    void setDstToMatLay ATLAS_NOT_THREAD_SAFE (double Value) const {
+      const_cast<double&> (m_dstToMatLayer)=Value; /* marked ATLAS_NOT_THREAD_SAFE*/
+    }
 
     /* get number of 2track vertices */
     int n2trackvertices() const;
@@ -117,7 +125,7 @@ namespace Trk {
     double m_mass;
     double m_energyFraction;
     double m_energyTrkInJet;
-    mutable double m_dstToMatLayer;
+    double m_dstToMatLayer;
     int m_n2trackvertices;
     int m_nBigImpTracks;
     std::vector<ElementLink<Trk::TrackParticleBaseCollection> > m_badTracksTP;
@@ -144,10 +152,6 @@ namespace Trk {
     return m_dstToMatLayer;
   }
 
-  inline void VxSecVKalVertexInfo::setDstToMatLay(double Value) const {
-    m_dstToMatLayer=Value;
-  }
-  
   inline int VxSecVKalVertexInfo::n2trackvertices() const {
     return m_n2trackvertices;
   }

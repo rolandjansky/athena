@@ -27,8 +27,10 @@ class HLTCaloESD_xAODTrigEMClusters: public IHLTMonTool {
   
  private:
   
-  std::string m_HLT_cont_name; // xAOD::TrigEMClusterContainer
-  std::string m_OFF_cont_name; //   xAOD::CaloClusterContainer
+  std::string m_HLT_cont_name;      // xAOD::TrigEMClusterContainer
+  std::string m_HLT_cont_name_run2; // xAOD::TrigEMClusterContainer
+  std::string m_HLT_cont_name_run3; // xAOD::TrigEMClusterContainer
+  std::string m_OFF_cont_name;      // xAOD::CaloClusterContainer
 
   std::string m_mongroup_name;
   

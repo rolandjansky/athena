@@ -139,10 +139,15 @@ StatusCode AthMpEvtLoopMgr::nextEvent(int maxevt)
   return m_evtProcessor->nextEvent(maxevt);
 }
 
-StatusCode AthMpEvtLoopMgr::executeEvent(void* par)
+EventContext AthMpEvtLoopMgr::createEventContext() {
+  // return an invalid context - method should not be called
+  return EventContext{};
+}
+
+StatusCode AthMpEvtLoopMgr::executeEvent(EventContext&& ctx)
 {
   // Perhaps there we should return StatusCode::FAILURE as this method shoud not be called directly
-  return m_evtProcessor->executeEvent(par);
+  return m_evtProcessor->executeEvent(std::move(ctx));
 }
 
 StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)

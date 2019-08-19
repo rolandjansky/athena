@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERUTILS_POINTONTRACK_H
@@ -16,6 +16,7 @@ namespace Trk {
     PointOnTrack(const Perigee & first,double second);
     PointOnTrack(const PointOnTrack & same);
     PointOnTrack(const Perigee & perigee);
+    PointOnTrack& operator= (const PointOnTrack&) = default;
     ~PointOnTrack() {};
     const Perigee & getPerigee() const;
     double getPhiPoint() const;

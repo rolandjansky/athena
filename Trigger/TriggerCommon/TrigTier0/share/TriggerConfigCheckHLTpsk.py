@@ -6,9 +6,9 @@ mlog = logging.getLogger( 'TriggerConfigCheckHLTpsk' ) ## get the logger
 runNumbers=[]
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if len(athenaCommonFlags.BSRDOInput()) > 0 :
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if inputFileSummary.has_key('run_number'): # online monitoring does not provide a run_number in the inputFileSummary (hence the rest of this program will be skipped)
-        runNumbers=inputFileSummary['run_number']
+    from PyUtils.MetaReaderPeeker import metadata
+    if 'runNumbers' in metadata: # online monitoring does not provide a run_number in the file metadata (hence the rest of this program will be skipped)
+        runNumbers = metadata['runNumbers']
 
 if len(runNumbers)>0:
 

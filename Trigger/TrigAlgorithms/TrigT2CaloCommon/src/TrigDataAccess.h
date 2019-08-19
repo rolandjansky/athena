@@ -72,7 +72,6 @@ class LArRoI_Map;
 class IROBDataProviderSvc;
 class StoreGateSvc;
 class T2CaloConfig;
-class ICaloLumiBCIDTool;
 
 /** Class that provides access to data for
     Calorimeter LVL2 Algorithms */
@@ -88,9 +87,7 @@ public:
     m_lardecoder("LArRodDecoder/LArRodDecoder"),
     m_tiledecoder("TileROD_Decoder/TileROD_Decoder"),
     m_zdcdecoder("ZdcByteStreamReadV1V2Tool/ZdcByteStreamTool"),
-    m_zdcrectool("ZdcRecChannelTool/ZdcByteChannelTool"), 
-    m_applyOffsetCorrection(true),
-    m_caloLumiBCIDTool("ICaloLumiBCIDTool/CaloLumiBCIDToolDefault")
+    m_zdcrectool("ZdcRecChannelTool/ZdcByteChannelTool") 
     //m_lumiTool("LuminosityTool")
     //		 m_present_etamin(-10.0),
     //		 m_present_etamax(10.0),
@@ -105,9 +102,6 @@ public:
     declareProperty("TileROD_Decoder",m_tiledecoder,"TileROD_Decoder Tool for ByteStream Conversion");
     declareProperty("ZdcByteStreamReadV1V2Tool",m_zdcdecoder,"ZdcByteStreamReadV1V2Tool for ByteStream Conversion");
     declareProperty("ZdcRecTool",m_zdcrectool,"ZdcRecTool for RawChannel rec");
-    declareProperty("ApplyOffsetCorrection",m_applyOffsetCorrection,"Apply offset correction or not (false by default)"); 
-    declareProperty("CaloLumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction"); 
-    //declareProperty("LuminosityTool",m_lumiTool,"Luminosity Tool"); 
     // New property for MET slice
     declareProperty("loadFullCollections",  m_usefullcoll=false);
     // Load all samplings in robDataProviderSvc
@@ -316,7 +310,7 @@ protected:
   /** TileCellCont pointer - has collections of TileCells */
   TileCellCont* m_tilecell;
   /** Full Container */
-  CaloCellContainer* m_fullCellContainer;
+  CaloCellContainer* m_fullCellContainer=nullptr;
   /** Input DataBlock to pre-allocate memory space for
       ROBFragment to be decoded */
   //std::vector<uint32_t> m_datablock;
@@ -388,10 +382,6 @@ private:
   /** Pointer to the Zdc Rec Tool. This will perform
       the real ByteStream Conversion for Zdc data. */
   ToolHandle<ZdcRecChannelTool> m_zdcrectool;
-  /** CaloLumiCorrection */
-  bool m_applyOffsetCorrection;
-  ToolHandle<ICaloLumiBCIDTool> m_caloLumiBCIDTool;
-  //ToolHandle<ILuminosityTool> m_lumiTool;
   /** robFragments pointers */
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> m_robFrags;
   /** space for Tile Calorimeter Identifier */

@@ -26,6 +26,7 @@ class ATLAS_CHECK_THREAD_SAFETY TileCablingService {
   friend class TileDetectorFactory;
   friend class TileTBFactory;
   friend class TileCablingSvc;
+  friend class TileCablingSvcMock;
   friend class TileROD_Decoder;
   
 public:

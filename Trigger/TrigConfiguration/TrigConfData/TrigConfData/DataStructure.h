@@ -62,8 +62,35 @@ namespace TrigConf {
       /** Access to the underlying data, if needed */ 
       const ptree & data() const { return m_data; }
 
-      /** Access to simple attribute */ 
+      /** Check for attribute
+       * @return true if the structure is just a value
+       */
+      bool isValue() const;
+
+      /** Access to simple content
+       * @return string that is the content of the structure
+       *
+       * For instance when the json structure contains an array of values (ptree only works with strings) which
+       * one retrieved via @c getList, then the values in the vector<@c DataStructure> can be accessed using getValue
+       */
+      std::string getValue() const;
+
+      /** Check for attribute
+       * @param key The path to the attribute name, relative to the current one in form "path.to.child"
+       * @return true if key exists
+       */
+      bool hasAttribute(const std::string & key) const;
+
+      /** Access to simple attribute
+       * @param key The path to the attribute name, relative to the current one in form "path.to.child"
+       */
       std::string operator[](const std::string & key) const;
+
+      /** Access to simple attribute
+       * @param key The path to the attribute name, relative to the current one in form "path.to.child"
+       * @param ignoreIfMissing Controls the behavior in case of missing configuration child
+       */
+      std::string getAttribute(const std::string & key, bool ignoreIfMissing = false) const;
 
       /** Access to array structure
        * @param pathToChild The path to the configuration child, relative to the current one in form "path.to.child"
@@ -91,6 +118,7 @@ namespace TrigConf {
 
       /** Access to initialized state */
       explicit operator bool() const { return m_initialized; }
+      bool isValid() const { return m_initialized; }
 
       /** Check if children exist */
       bool empty() const { return m_data.empty(); }
@@ -113,13 +141,19 @@ namespace TrigConf {
 
    protected:
 
-      bool m_initialized { false }; //!< if initialized, the underlying ptree is valid (can be empty)
+      bool m_initialized { false }; //!< if initialized, the underlying ptree is has been assigned to (can be empty)
 
       ptree m_data; //!< object holding the configuration data
    
    };
 
 }
+
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF( TrigConf::DataStructure , 98904516 , 1 )
+
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( TrigConf::DataStructure , 265887802 );
 
 
 #endif

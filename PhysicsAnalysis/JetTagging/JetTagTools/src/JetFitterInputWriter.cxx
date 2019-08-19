@@ -32,32 +32,14 @@
 namespace Analysis {
 
 
-  JetFitterInputWriter::JetFitterInputWriter(const std::string& name,
-                                   const std::string& n, const IInterface* p):
-    AthAlgTool(name, n,p),
-    m_useCombinedIPNN(true)
+  StatusCode JetFitterInputWriter::initialize()
   {
-    declareProperty("useCombinedIPNN",m_useCombinedIPNN);
-    declareProperty("usePtCorrectedMass",m_usePtCorrectedMass = false);
-    declareInterface<IJetFitterClassifierTool>(this);
-  }
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// Destructor - check up memory allocation
-/// delete any memory allocation on the heap
-
-  JetFitterInputWriter::~JetFitterInputWriter() {
-
-  }
-
-  StatusCode JetFitterInputWriter::initialize() {
-
-    ATH_MSG_INFO(" Initialization of JetFitterInputWriter succesfull");
+    ATH_MSG_DEBUG(" Initialization of JetFitterInputWriter succesfull");
     return StatusCode::SUCCESS;
   }
 
   StatusCode JetFitterInputWriter::finalize() {
-    ATH_MSG_INFO(" Finalization of JetFitterInputWriter succesfull");
+    ATH_MSG_DEBUG(" Finalization of JetFitterInputWriter succesfull");
     return StatusCode::SUCCESS;
   }
 
@@ -71,8 +53,8 @@ namespace Analysis {
     const std::string& /*outputbasename*/,
     double /*jetpT*/,
     double /*jeteta*/,
-    double /*IP3dlike*/) {
-
+    double /*IP3dlike*/) const
+  {
     if (jetauthor=="") {
       ATH_MSG_WARNING(" Hypothesis or jetauthor is empty. No likelihood value given back. ");
     }

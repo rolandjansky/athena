@@ -19,7 +19,6 @@
 #include "StoreGate/WriteDecorHandle.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 
 
 #define CHECK_OPTION(ret)                       \
@@ -71,8 +70,8 @@ StatusCode xAODTestWriteCVec::execute (const EventContext& ctx) const
 {
   unsigned int count = ctx.eventID().event_number() + 1;
 
-  auto coll = CxxUtils::make_unique<DMTest::CVec>();
-  auto store = CxxUtils::make_unique<DMTest::CAuxContainer>();
+  auto coll = std::make_unique<DMTest::CVec>();
+  auto store = std::make_unique<DMTest::CAuxContainer>();
   coll->setStore (store.get());
 
   const static C::Accessor<int> anInt2 ("anInt2");

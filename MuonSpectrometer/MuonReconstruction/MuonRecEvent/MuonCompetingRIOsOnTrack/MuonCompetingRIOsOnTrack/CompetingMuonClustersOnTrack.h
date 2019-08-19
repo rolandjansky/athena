@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,9 +16,12 @@
 // Identifier
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include <ostream>
 // Muon
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
+
+#include "CxxUtils/CachedUniquePtr.h"
+
+#include <ostream>
 
 class MsgStream;
 
@@ -131,7 +134,7 @@ namespace Muon {
     void                    clearChildRotVector();
 
     /** The global Position */
-    mutable const Amg::Vector3D*        m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 
     /** The vector of contained Muon::MuonClusterOnTrack objects */
     std::vector<const MuonClusterOnTrack*>*   m_containedChildRots;
@@ -174,9 +177,7 @@ namespace Muon {
   }
 
   inline const Amg::Vector3D& CompetingMuonClustersOnTrack::globalPosition() const {
-    if (m_globalPosition)
-      return (*m_globalPosition);
-    m_globalPosition = associatedSurface().localToGlobal(localParameters());
+    if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
     return (*m_globalPosition);
   }
 }

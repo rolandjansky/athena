@@ -27,16 +27,16 @@ MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator*
   AthAlgorithm(name,pSvcLocator),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  m_patternCalibration("Muon::MuonPatternCalibration/MuonPatternCalibration"),
-  m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker"),
-  m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-  m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder"),
-  m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool"),
-  m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-  m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool"),
-  m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
-  m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker"),
-  m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker")
+  m_patternCalibration("Muon::MuonPatternCalibration/MuonPatternCalibration", this),
+  m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker", this),
+  m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker", this),
+  m_clusterSegMaker("Muon::MuonClusterSegmentFinder/MuonClusterSegmentFinder", this),
+  m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this),
+  m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this),
+  m_clusterSegMakerNSW("Muon::MuonClusterSegmentFinderTool/MuonClusterSegmentFinderTool", this),
+  m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool", this),
+  m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker", this),
+  m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker", this)
 {  
   //tools
   declareProperty("EDMPrinter", m_printer);

@@ -31,6 +31,11 @@ def addAuxContainer(outputList, cType, cKey, auxOptionAll='',auxOptionAOD=''):
 # All egammaKeys.outputs but EgammaRec and TopoSeededCellLink
 AOD_outputs = [i for i,j in egammaKeysDict.outputs.items() 
                if i not in ('EgammaRec','PhotonSuperRec','ElectronSuperRec',
+                            'TopoSeededCellLink','FwdClusterCellLink',
+                            'EgammaLargeClusters', 'EgammaLargeClustersCellLink')]
+
+ESD_outputs = [i for i,j in egammaKeysDict.outputs.items() 
+               if i not in ('EgammaRec','PhotonSuperRec','ElectronSuperRec',
                             'TopoSeededCellLink','FwdClusterCellLink')]
 
 # Define egammaAODList in the proper format (<type>#<key><option>),
@@ -49,12 +54,29 @@ for i in AOD_outputs:
     continue
   
   addContainer(egammaAODList, cType, cKey)
-  addContainer(egammaESDList, cType, cKey)
 
   # Add aux containers for xAOD containers
   if 'xAOD::' in cType:
     addAuxContainer(egammaAODList, cType, cKey, auxOptionAll, auxOptionAOD)
+
+for i in ESD_outputs:
+  cType, cKey, auxOptionAll, auxOptionAOD = egammaKeysDict.outputs[i]
+
+  # Skip truth if doTruth = False
+  if not rec.doTruth() and 'Truth' in cKey:
+    continue
+
+  # Skip Trk::Tracks in xAOD
+  if egammaKeys.outputTrackType() in cType:
+    continue
+  
+  addContainer(egammaESDList, cType, cKey)
+
+  # Add aux containers for xAOD containers
+  if 'xAOD::' in cType:
     addAuxContainer(egammaESDList, cType, cKey, auxOptionAll)
+
+
 
 # Add the non xAOD kind of  collection in the ESD 
 egammaESDList.append( getItem(egammaKeys.outputTrackType(), egammaKeys.outputTrackKey()) )

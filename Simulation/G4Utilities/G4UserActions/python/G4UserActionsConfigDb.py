@@ -1,8 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.CfgGetter import addTool
 
 # New tools for multi-threading
+addTool("G4UserActions.G4UserActionsConfig.getAthenaTrackingActionTool", "G4UA::AthenaTrackingActionTool")
+addTool("G4UserActions.G4UserActionsConfig.getAthenaStackingActionTool", "G4UA::AthenaStackingActionTool")
+
 addTool("G4UserActions.G4UserActionsConf.G4UA__G4SimTimerTool", "G4UA::G4SimTimerTool")
 addTool("G4UserActions.G4UserActionsConf.G4UA__CosmicPerigeeActionTool", "G4UA::CosmicPerigeeActionTool")
 addTool("G4UserActions.G4UserActionsConf.G4UA__G4TrackCounterTool", "G4UA::G4TrackCounterTool")

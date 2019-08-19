@@ -113,6 +113,14 @@ if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.read
         from IOVDbSvc.CondDB import conddb
         conddb.addFolderSplitMC('TGC','/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA')
 
+    from TGC_CondCabling.TGC_CondCablingConf import TGCCablingDbTool
+    TGCCablingDbTool = TGCCablingDbTool()
+    if globalflags.DataSource() == 'geant4':
+        TGCCablingDbTool.filename_ASD2PP_DIFF_12='ASD2PP_diff_12_OFL.db'
+    else:
+        TGCCablingDbTool.filename_ASD2PP_DIFF_12='ASD2PP_diff_12_ONL.db'
+    ToolSvc+=TGCCablingDbTool
+
     #if globalflags.DataSource() == 'geant4' and not DetFlags.digitize.TGC_on():
         #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_EIFI")
         #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_BW")

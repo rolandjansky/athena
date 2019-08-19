@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -37,20 +37,25 @@ HLTCaloCellMaker::~HLTCaloCellMaker()
 
 StatusCode HLTCaloCellMaker::initialize() {
   ATH_CHECK( m_roiCollectionKey.initialize() );
-  if ( m_roiMode ) 
+  if ( m_roiMode )
     ATH_CHECK( m_cellContainerKey.initialize() );
   else
     ATH_CHECK( m_cellContainerVKey.initialize() );
   ATH_CHECK( m_tileEMScaleKey.initialize() );
+  ATH_CHECK( m_bcidAvgKey.initialize() );
   CHECK( m_dataAccessSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 
 StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
-
   auto roisHandle = SG::makeHandle( m_roiCollectionKey, context );
+  if ( not roisHandle.isValid() ) {
+    ATH_MSG_ERROR("Cell maker did not get a valid RoIs collection");
+    return StatusCode::FAILURE;
+  }
   const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
+  ATH_MSG_DEBUG("Operating on " << roiCollection->size() <<"RoI(s)");
 
   // datahandle 
   if ( m_roiMode ) {
@@ -58,7 +63,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
       ATH_MSG_INFO ( "roiMode but multiple rois found, will only use the first one");
 
     SG::WriteHandle<CaloConstCellContainer > cellContainer = SG::WriteHandle< CaloConstCellContainer > ( m_cellContainerKey, context );
-    auto cdv = CxxUtils::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
+    auto cdv = std::make_unique<CaloConstCellContainer>(SG::VIEW_ELEMENTS);
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       ATH_MSG_INFO ( "Running on RoI " << *roiDescriptor<< " FS="<<roiDescriptor->isFullscan());
       if ( roiDescriptor->isFullscan() ) {
@@ -116,7 +121,7 @@ StatusCode HLTCaloCellMaker::execute( const EventContext& context ) const {
 
   } else {
     SG::WriteHandle<ConstDataVector<CaloCellContainerVector> > cellContainerV( m_cellContainerVKey, context );
-    auto cdv = CxxUtils::make_unique<ConstDataVector<CaloCellContainerVector> >();
+    auto cdv = std::make_unique<ConstDataVector<CaloCellContainerVector> >();
     ATH_CHECK( cellContainerV.record( std::move(cdv) ) );
     for( const TrigRoiDescriptor* roiDescriptor : *roiCollection) {
       if ( roiDescriptor->isFullscan() ) {

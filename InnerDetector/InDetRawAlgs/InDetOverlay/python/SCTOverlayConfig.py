@@ -10,11 +10,11 @@ def SCTOverlayAlgCfg(flags, name = "SCTOverlay", **kwargs):
     """Return a ComponentAccumulator for SCTOverlay algorithm"""
     acc = ComponentAccumulator()
 
-    kwargs.setdefault("BkgInputKey", "StoreGateSvc+" + flags.Overlay.BkgPrefix + "SCT_RDOs")
-    kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + flags.Overlay.SigPrefix + "SCT_RDOs")
+    kwargs.setdefault("BkgInputKey", flags.Overlay.BkgPrefix + "SCT_RDOs")
+    kwargs.setdefault("SignalInputKey", flags.Overlay.SigPrefix + "SCT_RDOs")
     kwargs.setdefault("OutputKey", "SCT_RDOs")
 
-    kwargs.setdefault("includeBkg", True);
+    kwargs.setdefault("includeBkg", True)
 
     # Do SCT overlay
     from InDetOverlay.InDetOverlayConf import SCTOverlay
@@ -35,10 +35,10 @@ def SCTTruthOverlayCfg(flags, name = "SCTSDOOverlay", **kwargs):
     acc = ComponentAccumulator()
 
     # We do not need background SCT SDOs
-    kwargs.setdefault("BkgInputKey", "");
+    kwargs.setdefault("BkgInputKey", "")
 
-    kwargs.setdefault("SignalInputKey", flags.Overlay.BkgPrefix + "SCT_SDO_Map");
-    kwargs.setdefault("OutputKey", "SCT_SDO_Map");
+    kwargs.setdefault("SignalInputKey", flags.Overlay.BkgPrefix + "SCT_SDO_Map")
+    kwargs.setdefault("OutputKey", "SCT_SDO_Map")
 
     # Do SCT truth overlay
     from InDetOverlay.InDetOverlayConf import InDetSDOOverlay

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -499,7 +499,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
 
     if(m_fillHist){  m_tuple->Fill(); };
-    m_fitSvc->clearMemory();
     m_compatibilityGraph->clear();
     std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
     std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
@@ -558,7 +557,6 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     if(Results.size()>8)res->setDstToMatLay(Results[7]);
 
     if(m_fillHist){  m_tuple->Fill(); };
-    m_fitSvc->clearMemory();
     m_compatibilityGraph->clear();
     std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
     std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 

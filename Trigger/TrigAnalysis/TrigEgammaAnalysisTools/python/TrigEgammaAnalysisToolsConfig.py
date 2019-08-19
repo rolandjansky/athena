@@ -58,16 +58,8 @@ ToolSvc+=VeryLooseLHSelector
 # ToolSvc+=MediumLHHISelector
 
 
-#from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-#lumiTool = LuminosityToolOnline()
-#ToolSvc += lumiTool 
-#from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
-#lumiTool = LuminosityToolDefault()
-#ToolSvc += lumiTool
-from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-lumiOnlineTool = LuminosityToolOnline("OnlLuminosityTool")
-if not hasattr(ToolSvc,lumiOnlineTool.getName()):
-    ToolSvc += lumiOnlineTool
+from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+LuminosityCondAlgOnlineDefault (suffix = 'Online')
 
 IneffLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation","No Track","No Cluster","No Object"]
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@
 #ifndef TRT_DRIFTCIRCLECOLLECTION_H
 #define TRT_DRIFTCIRCLECOLLECTION_H
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrkPrepRawData/PrepRawDataCollection.h"
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 

@@ -16,7 +16,7 @@
 #include <iomanip>
 
 // initialize static serial number
-unsigned long long	Trk::TrackSurfaceIntersection::s_serialNumber = 0;
+std::atomic<unsigned long long>	Trk::TrackSurfaceIntersection::s_serialNumber{0};
 
 // constructor
 Trk::TrackSurfaceIntersection::TrackSurfaceIntersection(const Amg::Vector3D&	pos,

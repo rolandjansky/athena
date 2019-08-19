@@ -36,9 +36,9 @@ public:
   /// Constructor from tool name.
   JetOriginCorrectionTool(const std::string& myname);
 
-  /// Inherited method to modify a jet. Compute the origin-corrected
-  /// momentum and put it in the jet
-  int modify(xAOD::JetContainer& jet) const override;
+  /// Inherited method to modify a jet container. Compute the origin-corrected
+  /// momentum and put it in the jets
+  StatusCode modify(xAOD::JetContainer& jet) const override;
   StatusCode initialize() override;
 
  protected:

@@ -1,4 +1,3 @@
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
@@ -10,6 +9,8 @@ def LArGMCfg(configFlags):
     
     from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
     result.getPrimary().DetectorTools += [ LArDetectorToolNV(ApplyAlignments=doAlignment) ]
+    if not configFlags.Detector.SimulateCalo:
+        result.getPrimary().DetectorTools["LArDetectorToolNV"].GeometryConfig = "RECO"
 
     if doAlignment:
         if configFlags.Input.isMC:
@@ -31,7 +32,6 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = LArGMCfg(ConfigFlags)
     f=open('LArGMCfg.pkl','w')
     acc.store(f)

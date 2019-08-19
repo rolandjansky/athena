@@ -61,9 +61,9 @@ namespace Trk {
 
     private:
          
-        mutable const TrackingVolume*                                      m_alignedTV;
+        const TrackingVolume*                                              m_alignedTV;
         int                                                                m_sampleID;
-	mutable Amg::Transform3D*                                          m_alignment;  
+	      Amg::Transform3D*                                                  m_alignment;  
         const BinnedMaterial*                                              m_binnedMaterial;        
   };
 

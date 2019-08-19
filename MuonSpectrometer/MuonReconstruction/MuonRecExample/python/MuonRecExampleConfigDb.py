@@ -8,7 +8,6 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 
-
 addNamesToSkipIfNotAvailable( "MuonIsolationTool" )
 addTypesOnlyToSkip( "ICaloNoiseTool" )
 
@@ -67,7 +66,7 @@ addTool("Muon::MuonTrackTruthTool", "MuonTrackTruthTool")
 
 addTool("Muon::MuonTrackToSegmentTool", "MuonTrackToSegmentTool")
 
-addTool("MuonRecExample.MuonRecTools.MuonEDMHelperTool", "MuonEDMHelperTool")
+addService("MuonRecExample.MuonRecTools.MuonEDMHelperSvc", "MuonEDMHelperSvc")
 
 addTool("MuonRecExample.MuonRecTools.MuonEDMPrinterTool", "MuonEDMPrinterTool")
 
@@ -98,7 +97,9 @@ addTool( "MuonRecExample.MuonRecTools.MdtMathT0FitSegmentFinder", "MdtMathT0FitS
 addTool( "MuonRecExample.MuonRecTools.DCMathSegmentMaker", "DCMathSegmentMaker" )
 addTool( "MuonRecExample.MuonRecTools.DCMathT0FitSegmentMaker", "DCMathT0FitSegmentMaker" )
 
+addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinder", "MuonClusterSegmentFinder") 
 addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinderTool", "MuonClusterSegmentFinderTool" )
+#N.B. Both of these are tools. They do slightly different things, but the naming is unfortunate.
 
 addTool( "MuonRecExample.MuonRecTools.MuonLayerHoughTool","MuonLayerHoughTool" )
 
@@ -252,6 +253,7 @@ addTool("Muon::MuonSegmentCombinationCleanerTool","MuonSegmentCombinationCleaner
 ################################################################################
 
 addTool( "MuonRecExample.MuonStandalone.MuonTrackSteering", "MuonTrackSteering" )
+addTool("MuonRecExample.MuonRecTools.MuonSegmentFittingTool", "MuonSegmentFittingTool")
 
 ################################################################################
 # MS vertex

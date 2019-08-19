@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for RAW->ESD
@@ -22,7 +23,7 @@ try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
     listOfFlags.append(primDPD)
 except ImportError:
-    print "WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project."
+    print("WARNING PrimaryDPDFlags not available. Only OK if you're using job transforms without the AtlasAnalysis project.")
     
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
@@ -65,21 +66,39 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     DQMonFlags.useTrigger = False
     DQMonFlags.doLVL1CaloMon = False
     from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
-    _TriggerESDList = {}
-    _TriggerAODList = {}
-    from TrigEDMConfig.TriggerEDM import getTriggerEDMList 
-    _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
-    _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) ) 
+    from RecExConfig.ObjKeyStore import objKeyStore
+    if TriggerFlags.doMT():
+        # Note this mirrors skeleton.RDOtoRDOTrigger_tf and skeleton.ESDtoAOD_tf. It should migrate to a getTriggerEDMList style function
+        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+        for item in TriggerHLTListRun3:
+            if "ESD" in item[1]:
+                objKeyStore.addManyTypesStreamESD( [item[0]] )
+            if "AOD" in item[1]:
+                objKeyStore.addManyTypesStreamAOD( [item[0]] )
+        # We also want to propagate the navigation to ESD and AOD. For now, unconditionally
+        # Note: Not every TrigComposite collection is navigation, there are other use cases too.
+        # So in future we should filter more heavily than this too.
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        rawCollections = convert_itemList(layout='#join')
+        for item in rawCollections:
+            if item.startswith("xAOD::TrigComposite"):
+                objKeyStore.addManyTypesStreamESD( [item] )
+                objKeyStore.addManyTypesStreamAOD( [item] )
+    else: # not TriggerFlags.doMT()
+        _TriggerESDList = {}
+        _TriggerAODList = {}
+        from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+        _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
+        _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
+        objKeyStore.addManyTypesStreamESD( _TriggerESDList )
+        objKeyStore.addManyTypesStreamAOD( _TriggerAODList )
     from TrigEDMConfig.TriggerEDM import getLvl1ESDList
     from TrigEDMConfig.TriggerEDM import getLvl1AODList
-    from RecExConfig.ObjKeyStore import objKeyStore
     from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
     objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
     objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
     objKeyStore.addManyTypesStreamESD(getLvl1ESDList())
     objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
-    objKeyStore.addManyTypesStreamESD( _TriggerESDList )  
-    objKeyStore.addManyTypesStreamAOD( _TriggerAODList )
     if rec.doFileMetaData():
        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
                         "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
@@ -121,7 +140,7 @@ if hasattr(runArgs,"outputDRAW_WMUNUFile"):
 
 if hasattr(runArgs,"trigFilterList"):
     rec.doTriggerFilter.set_Value_and_Lock(True)
-    rec.triggerFilterList = "|".join(runArgs.trigFilterList)
+    rec.triggerFilterList = "||".join(runArgs.trigFilterList)
 
 if hasattr(runArgs,"outputESDFile"):
     rec.doESD.set_Value_and_Lock( True )

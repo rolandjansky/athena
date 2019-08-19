@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCAST_MUONCALIBRATIONANDMEARINGTOOL_H
@@ -65,49 +65,73 @@ public:
   //::: Destructor
   virtual ~MuonCalibrationAndSmearingTool();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //::: Apply the correction on a modifyable object
-  virtual CorrectionCode applyCorrection( xAOD::Muon& mu );
+  virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const override;
+  virtual CorrectionCode applyCorrection( xAOD::Muon& mu,
+                                          std::unique_ptr<IVars>& vars) const override;
   //::: Create a corrected copy from a constant muon
-  virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output );
+  virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const override;
 
   //::: Is the tool affected by a specific systematic?
-  virtual bool isAffectedBySystematic( const SystematicVariation& systematic ) const;
+  virtual bool isAffectedBySystematic( const SystematicVariation& systematic ) const override;
   //::: Which systematics have an effect on the tool's behaviour?
-  virtual SystematicSet affectingSystematics() const;
+  virtual SystematicSet affectingSystematics() const override;
   //::: Systematics to be used for physics analysis
-  virtual SystematicSet recommendedSystematics() const;
+  virtual SystematicSet recommendedSystematics() const override;
   //::: Use specific systematic
-  virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
-  // Set seed for the random number generator
-  void setRandomSeed( unsigned seed = 0 ) { m_random3.SetSeed( seed ); m_useExternalSeed = true;}
-  virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
-  virtual double expectedResolution( const int DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
+  virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig ) override;
+  virtual double expectedResolution( const IVars& vars, const std::string& DetType, const xAOD::Muon& mu, const bool mc = false ) const override; //!< Expected resolution in data (or unsmeard MC if second argument is true)
+  virtual double expectedResolution( const IVars& vars, const int DetType, const xAOD::Muon& mu, const bool mc = false ) const override; //!< Expected resolution in data (or unsmeard MC if second argument is true)
 
 
-  double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
-  double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
+  double ExpectedResolution( const IVars& ivars,
+                             const std::string& DetType, const xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
+  double ExpectedResolution( const IVars& ivars,
+                             const int DetType, const xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
 
  
-  virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle, 
-                                               const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
-					       int charge,
-                                               AmgVector(5)& parsCB,
-                                               AmgSymMatrix(5)& covCB,
-                                               double& chi2);
-  virtual CorrectionCode applyStatCombination( xAOD::Muon& mu );  
-
-  virtual void setUseStatCombination(bool flag); 
+  virtual void setUseStatCombination(bool flag) override;
   
-  virtual CorrectionCode applySagittaBiasCorrectionAuto(const int DetType,xAOD::Muon& mu,bool isMC=false,const unsigned int SytCase=0);
+
+private:
+  struct Vars : public IVars
+  {
+    double m_ptms = 0;
+    double m_ptid = 0;
+    double m_ptcb = 0;
+    double m_weightID = 0;
+    double m_weightMS = 0;
+    double m_charge = 0;
+    double m_eta = 0;
+    double m_smearDeltaMS = 0;
+    double m_smearDeltaID = 0;
+    double m_smearDeltaCB = 0;
+    int m_detRegion = -1;
+    double m_g0 = 0;
+    double m_g1 = 0;
+    double m_g2 = 0;
+    double m_g3 = 0;
+    double m_g4 = 0;
+  };
+
+  CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle, 
+                                       const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
+                                       int charge,
+                                       AmgVector(5)& parsCB,
+                                       AmgSymMatrix(5)& covCB,
+                                       double& chi2) const;
+  CorrectionCode applyStatCombination( xAOD::Muon& mu ) const;
+
+  CorrectionCode applySagittaBiasCorrectionAuto(Vars& vars,
+                                                const int DetType,const xAOD::Muon& mu,bool isMC=false,const unsigned int SytCase=0) const;
  
-  virtual  CorrectionCode CorrectForCharge(double p2,double& pt,int q=0, bool isMC=false);
-  virtual  CorrectionCode applyiSagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu,unsigned int iter=0,bool stop=false,bool isMC=false);
+   CorrectionCode CorrectForCharge(double p2,double& pt,int q=0, bool isMC=false) const;
+  CorrectionCode applyiSagittaBiasCorrection(Vars& vars,
+                                             const unsigned int SgCorrType, const xAOD::Muon& mu,unsigned int iter=0,bool stop=false,bool isMC=false) const;
  
 
-
-protected:
   //::: Regions helpers 
   StatusCode   Regions( std::string inRegionFile, int doMacroRegionsFlag = 0 );
   void         PrintRegions() const;
@@ -116,14 +140,16 @@ protected:
   float        GetRegionInnerEta( const int r_i ) const; //Return Eta closer to the origin
   std::string  GetRegionName( const int r_i ) const;
   std::string  GetRegionName( const double eta, const double phi ) const;
-  double GetSmearing( int, xAOD::Muon& );
-  double GetSystVariation( int DetType, double var );
-  int GetScaleRegion( xAOD::Muon& );
-  void CalcCBWeights( xAOD::Muon& );
-  double CalculatePt( const int DetType, const double inSmearID = DEFAULT_INIT_VAL, const double inSmearMS = DEFAULT_INIT_VAL, const double scaleVar = 0. ) const;
+  double GetSmearing( const Vars& vars, int, const xAOD::Muon& ) const;
+  double GetSystVariation( const Vars& vars, int DetType, double var ) const;
+  int GetScaleRegion( const xAOD::Muon& ) const;
+  void CalcCBWeights( Vars& vars, const xAOD::Muon& ) const;
+  double CalculatePt( const Vars& vars,
+                      const int DetType, const double inSmearID, const double inSmearMS, const double scaleVar ) const;
   StatusCode FillValues();
   void Clean();
-  double ScaleApply( const double pt, double S = 1.0, const double S_EnLoss = 0. ) const;
+  double ScaleApply( const int detRegion,
+                     const double pt, double S = 1.0, const double S_EnLoss = 0. ) const;
   //double ScaleApply( const double pt, const double S1, const double S2, double S = 1.0, const double S_EnLoss = 0. ) const;
   void CleanScales();
   void CollectMacroRegionsSL();//Small and large regions are collected together
@@ -131,20 +157,21 @@ protected:
   void CollectMacroRegionsSL_SplitBAR();//Large,Small sectors split plus Feet(12+14) and 11+15 sector split in Barrel
   void CollectSectors();
 
-  StatusCode SetData( std::string );
-  StatusCode SetAlgorithm( std::string );
-  StatusCode SetRelease( std::string );
-  StatusCode SetType( std::string );
+  StatusCode SetData( const std::string& );
+  StatusCode SetAlgorithm( const std::string& );
+  StatusCode SetRelease( const std::string& );
+  StatusCode SetType( const std::string& );
   
-  virtual unsigned int setSagittaHistogramsSingle(TProfile2D *pCB=NULL,unsigned int track=0);
-  virtual  double  sagitta(TProfile2D* corrM, TLorentzVector &lv);
+  unsigned int setSagittaHistogramsSingle(TProfile2D *pCB=NULL,unsigned int track=0);
+  double  sagitta(TProfile2D* corrM, TLorentzVector &lv) const;
   
-  virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
-  virtual TProfile2D* GetHist(const std::string &fname="", const std::string &hname="inclusive",double GlobalScale=MZPDG);
+  void ConvertToSagittaBias(TH2F *h,float mean=1) const;
+  TProfile2D* GetHist(const std::string &fname="", const std::string &hname="inclusive",double GlobalScale=MZPDG) const;
 
   //private:
   //::: fake assignment operator missing actual implementation
-  MuonCalibrationAndSmearingTool& operator=(const MuonCalibrationAndSmearingTool& );
+  MuonCalibrationAndSmearingTool& operator=(const MuonCalibrationAndSmearingTool& )= delete;
+
   struct ParameterSet { 
     double SmearTypeID; 
     double SmearTypeMS; 
@@ -152,9 +179,6 @@ protected:
     double SagittaRho;
     double SagittaBias;
   };
-  mutable TRandom3   m_random3;
-  bool               m_useExternalSeed;
-  double m_smearDeltaMS, m_smearDeltaID, m_smearDeltaCB;
   std::string m_year, m_algo, m_type, m_release;
   std::string m_FilesPath;
   bool m_toroidOff;
@@ -163,9 +187,7 @@ protected:
   int m_Tdata;
   int m_Trel;
   int m_Talgo;
-  int m_detRegion;
   double m_useNsigmaForICombine;
-  double m_ptms, m_ptid, m_ptcb, m_eta, m_phi;
   std::vector<double> m_scale_ID, m_enLoss_MS, m_scale_MS, m_scale_CB;
   //sys variations (stat error added in quadrature), one if it's simmetrized, 2 if Up != Dw.
   std::vector<double> m_scaleSyst_ID, m_enLossSyst_MS, m_scaleSyst_MS, m_scaleSyst_CB;
@@ -182,8 +204,6 @@ protected:
   std::vector<double> m_SUp_p1_ID, m_SUp_p2_ID, m_SUp_p2_ID_TAN, m_SUp_p0_MS, m_SUp_p1_MS, m_SUp_p2_MS;
   std::vector<double> m_SDw_p1_ID, m_SDw_p2_ID, m_SDw_p2_ID_TAN, m_SDw_p0_MS, m_SDw_p1_MS, m_SDw_p2_MS;
   std::vector<double> m_MC_p1_ID, m_MC_p2_ID, m_MC_p2_ID_TAN, m_MC_p0_MS, m_MC_p1_MS, m_MC_p2_MS;
-  double m_weightMS, m_weightID;
-  double m_g0, m_g1, m_g2, m_g3, m_g4, m_charge;
 
   std::vector<std::string> m_names;
   bool m_loadNames;
@@ -194,8 +214,6 @@ protected:
   std::map< int, int > m_MacroRegionIdxMap;
   std::vector< std::string > m_MacroRegionName;
   std::vector< double > m_MacroRegionInnerEta;
-
-  int m_scaleRegion;
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"}; 
   

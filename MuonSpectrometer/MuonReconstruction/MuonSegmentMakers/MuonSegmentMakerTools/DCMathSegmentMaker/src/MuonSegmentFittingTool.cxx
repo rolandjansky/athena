@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentFittingTool.h"
@@ -30,11 +30,11 @@ namespace Muon {
 
   MuonSegmentFittingTool::MuonSegmentFittingTool( const std::string& t, const std::string& n, const IInterface*  p ) :
     AthAlgTool(t,n,p),
-    m_slPropagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
+    m_slPropagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator", this),
     m_magFieldProperties(Trk::NoField),
-    m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter"),
-    m_curvedTrackFitter("Trk::GlobalChi2Fitter/MCTBFitter"),
-    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner"),
+    m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter", this),
+    m_curvedTrackFitter("Trk::GlobalChi2Fitter/MCTBFitter", this),
+    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {
     declareInterface<IMuonSegmentFittingTool>(this);
@@ -131,16 +131,17 @@ namespace Muon {
       return 0;
     }
 
-    Trk::Track* cleanTrack = m_trackCleaner->clean(*newtrack);
+    std::unique_ptr<Trk::Track> cleanTrack = m_trackCleaner->clean(*newtrack);
     if( !cleanTrack && !isCurvedSegment ) {
       ATH_MSG_VERBOSE("     lost in cleaner ");
       delete newtrack;
       return 0;
     }
 
-    if( cleanTrack != newtrack && !isCurvedSegment ) {
+    if( !(*cleanTrack->perigeeParameters() == *newtrack->perigeeParameters()) && !isCurvedSegment ) {
       delete newtrack;
-      newtrack = cleanTrack;
+      //using release until the entire code can be migrated to use smart pointers
+      newtrack = cleanTrack.release();
     }
     
     const Trk::FitQuality* fq = newtrack->fitQuality();

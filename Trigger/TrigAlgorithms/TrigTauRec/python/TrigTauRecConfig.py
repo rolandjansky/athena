@@ -7,14 +7,8 @@ __author__  = 'S.Xella, O.Igonkina, F.Friedrich'
 __version__ =""
 __doc__     ="Configuration of TrigTauRec"
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-
 from TrigTauRec.TrigTauRecConf import TrigTauRecMerged
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from AthenaCommon.AppMgr import ToolSvc
 
 class TrigTauRecMerged_Tau (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
@@ -129,15 +123,6 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             super( TrigTauRecMerged_TauPreselection , self ).__init__( name )
             self._mytools = []
             
-            # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
-            from TrigTauRec.TrigTauRecMonitoring import TrigTauRecValidationMonitoring, TrigTauRecOnlineMonitoring 
-            validation = TrigTauRecValidationMonitoring()        
-            online     = TrigTauRecOnlineMonitoring()
-                
-            from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-            time = TrigTimeHistToolConfig("Time")
-            self.AthenaMonTools = [ time, validation, online ]
-
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 

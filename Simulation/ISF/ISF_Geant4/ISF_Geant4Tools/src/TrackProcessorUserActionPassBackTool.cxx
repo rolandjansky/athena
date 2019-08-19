@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "TrackProcessorUserActionPassBackTool.h"
 #include "ISF_Interfaces/IParticleBroker.h"
 
@@ -36,7 +35,7 @@ namespace G4UA
       ATH_MSG_DEBUG("Constructing a TrackProcessorUserActionPassBack");
       if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
       else if(msgLvl(MSG::DEBUG)) { m_config.verboseLevel = 5;  }
-      auto action = CxxUtils::make_unique<TrackProcessorUserActionPassBack>(m_config);
+      auto action = std::make_unique<TrackProcessorUserActionPassBack>(m_config);
       actionList.eventActions.push_back( action.get() );
       actionList.trackingActions.push_back( action.get() );
       actionList.steppingActions.push_back( action.get() );

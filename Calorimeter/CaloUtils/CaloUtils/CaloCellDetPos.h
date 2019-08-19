@@ -56,7 +56,7 @@ class CaloCellDetPos
 
   private:
 
-   static CaloPhiRange s_range;
+   static const CaloPhiRange s_range;
 
 };
 #endif

@@ -46,6 +46,7 @@
 #define MONOPOLE_G4mplEquationSetup_H
 
 #include <thread>
+#include "G4Types.hh"
 #ifdef G4MULTITHREADED
 #  include "tbb/concurrent_unordered_map.h"
 #endif

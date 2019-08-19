@@ -8,12 +8,17 @@ Exposes quick_retrieve and GIL releasing functions
 """
 
 import cppyy
-cppyy.loadDictionary("DQUtilsDict")
 
 import PyCool
+
+cppyy.loadDictionary("DQUtilsDict")
 
 quick_retrieve = cppyy.gbl.quick_retrieve
 browse_coracool = cppyy.gbl.browse_coracool
 get_coracool_payload_spec = cppyy.gbl.get_coracool_payload_spec
 make_fieldselection = cppyy.gbl.make_fieldselection
 make_selection_vector = cppyy.gbl.make_selection_vector
+
+__all__ = ['PyCool', 'quick_retrieve', 'browse_coracool',
+           'get_coracool_payload_spec', 'make_fieldselection',
+           'make_selection_vector']

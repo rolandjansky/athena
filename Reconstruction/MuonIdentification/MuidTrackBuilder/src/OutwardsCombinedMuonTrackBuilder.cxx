@@ -404,7 +404,7 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... " );
-        Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
+	std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
 	if (! cleanTrack)
 	{
 	    ATH_MSG_DEBUG( " cleaner veto " );
@@ -415,12 +415,13 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 		fittedTrack = 0;
 	    }
 	}
-        else if (cleanTrack != fittedTrack)
+        else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters()))
         {
 	    ATH_MSG_VERBOSE( " found and removed spectrometer outlier(s) " );
 
             delete fittedTrack;
-            fittedTrack = cleanTrack;
+	    //this will probably never be fixed as the outwards combined builder is deprecated
+            fittedTrack = cleanTrack.release();
         }
 
 	//FIXME: provide indet cleaner
@@ -482,7 +483,7 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
         }
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... " );
-        Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
+	std::unique_ptr<Trk::Track> cleanTrack = m_cleaner->clean(*fittedTrack);
 	if (! cleanTrack)
 	{
 	    ATH_MSG_DEBUG( " cleaner veto " );
@@ -493,12 +494,13 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
 		fittedTrack = 0;
 	    }
 	}
-        else if (cleanTrack != fittedTrack)
+        else if (!(*cleanTrack->perigeeParameters() == *fittedTrack->perigeeParameters()))
         {
 	    ATH_MSG_VERBOSE( "  found and removed spectrometer outlier(s) " );
 
             delete fittedTrack;
-            fittedTrack = cleanTrack;
+	    //this will probably never be fixed as the outwards builder is deprecated
+            fittedTrack = cleanTrack.release();
         }
 
 	ATH_MSG_VERBOSE( " finished cleaning" );

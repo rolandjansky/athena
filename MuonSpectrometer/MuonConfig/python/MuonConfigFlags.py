@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
+import re
 
 # Some comments from Ed about existing flags
 # MuonCnvExample
@@ -16,6 +17,17 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandaloneFlags.py
 # - MuonRecFlags.py - necessary, but needs cleaning up.
 # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecFlags.py
+
+def _muonAlignMode(flags):
+    # Small function that determines if the alignment flags should be true or false
+    # follows the logic in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonAlignFlags.py
+    problematic_tags = ['COMCOND-HLT[A-C]-00[01]-00', 'COMCOND-ES1C-00[01]-00', 'COMCOND-REPC-001', 'COMCOND-SIM-01-00']
+    if any(re.match(tag,flags.IOVDb.DatabaseInstance) for tag in problematic_tags):
+        return False
+    elif flags.Input.isMC:
+        return False
+    else:
+        return True
 
 def createMuonConfigFlags(): 
     mcf=AthConfigFlags()
@@ -75,10 +87,10 @@ def createMuonConfigFlags():
     
     # CalibFlags
     mcf.addFlag("Muon.Calib.readMDTCalibFromBlob", True)  # Read mdt tube calibration from blob-folders
-    mcf.addFlag("Muon.Calib.correctMdtRtForBField", False) # Apply B-field correction to drift times
-    mcf.addFlag("Muon.Calib.correctMdtRtForTimeSlewing", False) # Apply time slewing correction to drift time
+    mcf.addFlag("Muon.Calib.correctMdtRtForBField", lambda prevFlags : (prevFlags.Input.isMC is False and prevFlags.Beam.Type=="collisions")) # Apply B-field correction to drift times only for collision data (as done in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0028)
+    mcf.addFlag("Muon.Calib.correctMdtRtForTimeSlewing", lambda prevFlags : prevFlags.Input.isMC is False) # Apply time slewing correction to drift time only for data (as done in https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0028)
     mcf.addFlag("Muon.Calib.useMLRt", True) # use ML-RT functions from COOL
-    mcf.addFlag("Muon.Calib.applyRtScaling", True) # TODO - apparently not needed, but currently used in MuonCalibConfig.
+    mcf.addFlag("Muon.Calib.applyRtScaling", False) # TODO - apparently not needed, but currently used in MuonCalibConfig. Set false to match https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/MuonSpectrometer/MuonCnv/MuonCnvExample/python/MuonCalibFlags.py#0072
     mcf.addFlag("Muon.Calib.correctMdtRtWireSag", False) # Apply RT wiresag correction
     mcf.addFlag("Muon.Calib.mdtCalibrationSource", "MDT") # Source for MDT t0s and rts
     mcf.addFlag("Muon.Calib.mdtPropagationSpeedBeta", 0.85) #
@@ -106,10 +118,10 @@ def createMuonConfigFlags():
     
     # Muon Align flags
 
-    mcf.addFlag("Muon.Align.UseALines", False)
-    mcf.addFlag("Muon.Align.UseBLines", 'none') # Can be ['none','all','barrel','endcaps']
-    mcf.addFlag("Muon.Align.UseILines", False)
-    mcf.addFlag("Muon.Align.UseAsBuilt", False)
+    mcf.addFlag("Muon.Align.UseALines", lambda prevFlags: (_muonAlignMode(prevFlags)))
+    mcf.addFlag("Muon.Align.UseBLines", lambda prevFlags: 'all' if _muonAlignMode(prevFlags) else 'none') # Can be ['none','all','barrel','endcaps']
+    mcf.addFlag("Muon.Align.UseILines", lambda prevFlags: (_muonAlignMode(prevFlags)))
+    mcf.addFlag("Muon.Align.UseAsBuilt", lambda prevFlags: (_muonAlignMode(prevFlags)))
 
     # TODO - add configuration for above    
         

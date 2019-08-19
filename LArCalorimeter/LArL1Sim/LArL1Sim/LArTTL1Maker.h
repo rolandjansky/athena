@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARL1SIM_LARTTL1MAKER_H
@@ -36,6 +36,7 @@ class CaloLVL1_ID;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
+class LArHitEMap;
 
 namespace CLHEP
 {
@@ -89,7 +90,7 @@ class LArTTL1Maker : public AthAlgorithm,
   /** initialize hit map 
    */
 
-  virtual StatusCode initHitMap();
+  //virtual StatusCode initHitMap();
 
   std::vector<float> computeSignal(const Identifier towerId, const int Ieta, const int specialCase,
 				   std::vector<float> visEnergy, const int refTime) const;
@@ -98,7 +99,7 @@ class LArTTL1Maker : public AthAlgorithm,
 				  std::vector<float>& inputV) ;
 
   /** method called at the begining of execute() to fill the hit map */
-  StatusCode fillEMap(int& totHit) ;
+  //StatusCode fillEMap(int& totHit) ;
 
   /** method called at initialization to read auxiliary data from ascii files */
   StatusCode readAuxiliary();
@@ -120,9 +121,6 @@ class LArTTL1Maker : public AthAlgorithm,
   /** Alorithm property: name of the TriggerTimeTool*/
   ToolHandle<ITriggerTime> m_triggerTimeTool;
 
-  /** use HitEmap from detector store or no */   
-  bool m_useMapfromStore;
-
   int m_BeginRunPriority;
 
   ToolHandle<CaloTriggerTowerService>  m_ttSvc;
@@ -134,6 +132,8 @@ class LArTTL1Maker : public AthAlgorithm,
   const LArHEC_ID*             m_hecHelper;
   /** pointer to the offline FCAL helper */
   const LArFCAL_ID*            m_fcalHelper;
+ /** pointer to the offline id helper  */
+  const CaloCell_ID*           m_OflHelper;
   /** Sampling fractions retrieved from DB */
   //const DataHandle<ILArfSampl>    m_dd_fSampl;
   SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey;
@@ -212,7 +212,7 @@ class LArTTL1Maker : public AthAlgorithm,
   std::vector<float> m_autoCorrFcal ;
 
   /** hit map */
-  LArHitEMap* m_hitmap; // map of hits in cell 
+  SG::ReadHandleKey<LArHitEMap> m_hitMapKey{this,"LArHitEMapKey","LArHitEMap"};
 
 /** algorithm property: container name for the EM TTL1s */
   SG::WriteHandleKey<LArTTL1Container> m_EmTTL1ContainerName;   

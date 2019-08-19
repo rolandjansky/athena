@@ -15,9 +15,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "JetTagTools/ITagTool.h"
+#include "CxxUtils/checker_macros.h"
 #include <string>
 #include <map>
 #include <list>
+#include <mutex>
 #include "TMVA/MethodBase.h"
 #include "TMVA/IMethod.h"
 
@@ -57,9 +59,6 @@ namespace Analysis {
     std::string m_taggerName;
     std::string m_taggerNameBase; // unique name for regular and flip versions
 
-    /** pointer to calibration in COOL: */
-    ToolHandle<CalibrationBroker> m_calibrationTool;
-
     /** This switch is needed to indicate what to do. The algorithm can be run to produce
 	reference histograms from the given MC files (m_runModus=0) or to work in analysis mode
 	(m_runModus=1) where already made reference histograms are read.*/ 
@@ -70,14 +69,20 @@ namespace Analysis {
     // points to something in storegate)
     const xAOD::Vertex* m_priVtx = 0;
 
+    /** pointer to calibration in COOL: */
+    // FIXME: I don't think CalibrationBroker is thread-safe.
+    mutable ToolHandle<CalibrationBroker> m_calibrationTool;
+
     /** reader to define the TMVA algorithms */
-    float m_ip3;
-    float m_sv1;
-    float m_jfc;
-    float m_cat;
-    std::map<std::string, TMVA::Reader*> m_tmvaReaders;
-    std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
-    std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
+    mutable float m_ip3 ATLAS_THREAD_SAFE;
+    mutable float m_sv1 ATLAS_THREAD_SAFE;
+    mutable float m_jfc ATLAS_THREAD_SAFE;
+    mutable float m_cat ATLAS_THREAD_SAFE;
+    mutable std::map<std::string, TMVA::Reader*> m_tmvaReaders ATLAS_THREAD_SAFE;
+    mutable std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; ATLAS_THREAD_SAFE 
+    mutable std::list<std::string> m_undefinedReaders ATLAS_THREAD_SAFE; // keep track of undefined readers to prevent too many warnings.
+    /// Serialize access to the mutable members.
+    mutable std::mutex m_mutex;
 
     /** to define the input weights */
     std::string m_inputIP3DWeightName;

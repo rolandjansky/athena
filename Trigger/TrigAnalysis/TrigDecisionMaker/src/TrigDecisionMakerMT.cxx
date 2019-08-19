@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -193,11 +193,10 @@ StatusCode TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result*& result, 
 {
   const ROIB::RoIBResult* roIBResult = SG::get(m_ROIBResultKeyIn, context);
 
-  ATH_CHECK(m_lvl1Tool->updateItemsConfigOnly());
+  std::vector< std::unique_ptr<LVL1CTP::Lvl1Item> > itemConfig = m_lvl1Tool->makeLvl1ItemConfig();
 
   if (roIBResult && (roIBResult->cTPResult()).isComplete()) {  
-    m_lvl1Tool->createL1Items(*roIBResult, true);
-    result = m_lvl1Tool->getLvl1Result();
+    m_lvl1Tool->createL1Items(itemConfig, *roIBResult, &result);
     ATH_MSG_DEBUG ( "Built LVL1CTP::Lvl1Result from valid CTPResult.");
   }
 
@@ -251,8 +250,10 @@ size_t TrigDecisionMakerMT::makeBitMap(
 void TrigDecisionMakerMT::resizeVectors(const size_t bit, const std::set< std::vector<uint32_t>* >& vectors) const {
   const size_t block = bit / std::numeric_limits<uint32_t>::digits;
   const size_t requiredSize = block + 1;
-  for (std::vector<uint32_t>* vecPtr : vectors) {
-    vecPtr->resize(requiredSize, 0);
+  if (vectors.size() && requiredSize > (*vectors.begin())->size()) {
+    for (std::vector<uint32_t>* vecPtr : vectors) {
+      vecPtr->resize(requiredSize, 0); // Resize can shrink, here we only ever want to expand
+    }
   }
   return;
 }

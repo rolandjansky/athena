@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonToTrackConverterAlg.h"
@@ -9,7 +9,7 @@
 
 #include "MuonSegment/MuonSegment.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkTrack/Track.h"
@@ -33,7 +33,6 @@ MuonToTrackConverterAlg::MuonToTrackConverterAlg(const std::string& name,
   m_useMuonHitsOnly(false), 
   m_storeGate("StoreGateSvc", name),
   m_edmPrinter("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
   m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
   m_muonHoleRecoverTool("")
 {
@@ -55,8 +54,8 @@ MuonToTrackConverterAlg::~MuonToTrackConverterAlg() {}
 
 StatusCode MuonToTrackConverterAlg::initialize() {
 
-  if (m_edmHelper.retrieve().isFailure()){
-    ATH_MSG_ERROR("Could not get " << m_edmHelper); 
+  if (m_edmHelperSvc.retrieve().isFailure()){
+    ATH_MSG_ERROR("Could not get " << m_edmHelperSvc); 
     return StatusCode::FAILURE;
   }
 
@@ -66,8 +65,8 @@ StatusCode MuonToTrackConverterAlg::initialize() {
       return StatusCode::FAILURE;
     }
     
-    if (m_edmHelper.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_edmHelper); 
+    if (m_edmHelperSvc.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc); 
       return StatusCode::FAILURE;
     }
   }
@@ -212,7 +211,7 @@ Trk::Track* MuonToTrackConverterAlg::createTaggedMuonTrack( const Analysis::Muon
     // create pars for muon and loop over hits
     double momentum = 1e8;
     double charge   = 0.;
-    const Trk::TrackParameters* pars = m_edmHelper->createTrackParameters( *seg, momentum, charge );
+    const Trk::TrackParameters* pars = m_edmHelperSvc->createTrackParameters( *seg, momentum, charge );
     std::vector<const Trk::MeasurementBase*>::const_iterator mit = seg->containedMeasurements().begin();
     std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = seg->containedMeasurements().end();
     for( ;mit!=mit_end;++mit ){

@@ -13,7 +13,6 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TTreeCloner.h"
-#include "Compression.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -193,7 +192,6 @@ class DbDatabaseMerger {
   size_t             m_paramsMin;
   TTree*             m_paramTree;
   TBranch*           m_paramBranch;
-  std::string        m_compressionAlg;
 
 public:
   /// Standard constructor
@@ -206,7 +204,6 @@ public:
   bool exists(const std::string& fid, bool dbg=true) const;
   /// Create new output file
   DbStatus create(const std::string& fid);
-  void setCompression(const std::string& c);
   /// Attach to existing output file for further merging
   DbStatus attach(const std::string& fid);
   DbStatus addBranches(TObjArray *from, TObjArray *to, Long64_t fromSize);
@@ -343,16 +340,6 @@ DbStatus DbDatabaseMerger::create(const string& fid) {
     return ERROR;
   }
   m_output = TFile::Open(fid.c_str(),"RECREATE");
-  if (m_compressionAlg=="LZ4") {
-    m_output->SetCompressionAlgorithm(ROOT::ECompressionAlgorithm::kLZ4);
-    m_output->SetCompressionLevel(4);
-  } else if (m_compressionAlg=="ZLIB") {
-    m_output->SetCompressionAlgorithm(ROOT::ECompressionAlgorithm::kZLIB);
-    m_output->SetCompressionLevel(5);
-  } else if (m_compressionAlg=="LZMA") {
-    m_output->SetCompressionAlgorithm(ROOT::ECompressionAlgorithm::kLZMA);
-    m_output->SetCompressionLevel(1);
-  }
   if ( m_output && !m_output->IsZombie() )     {
     m_sectionTree   = new TTree("##Sections","##Sections");
     m_sectionBranch = m_sectionTree->Branch("db_string",0,"db_string/C");
@@ -363,11 +350,6 @@ DbStatus DbDatabaseMerger::create(const string& fid) {
   }
   cout << "+++ Failed to open new output file " << fid << "." << endl;
   return ERROR;
-}
-
-/// Close output file
-void DbDatabaseMerger::setCompression(const std::string& c) {
-  m_compressionAlg = c;
 }
 
 /// Close output file
@@ -563,10 +545,9 @@ DbStatus DbDatabaseMerger::merge(const string& fid,
                                     << " branches" << endl;
                } else {
                   m_output->GetObject(key->GetName(),out_tree);
+                  s.start = static_cast<int>(out_tree->GetEntries());
                   if (name == "##Params") {
                      if ( s_dbg ) cout << "+++ Slow merge for " << name << endl;
-                     Long64_t out_entries = out_tree->GetEntries();
-                     s.start = static_cast<int>(out_entries);
                      out_tree->CopyAddresses(src_tree);
                      for (Long64_t i=0; i<src_entries; i++) {
                         src_tree->GetEntry(i);
@@ -574,9 +555,8 @@ DbStatus DbDatabaseMerger::merge(const string& fid,
                      }
                      src_tree->ResetBranchAddresses();
                   } else {
-                     TTree* recompress = src_tree->CloneTree();
                      try{
-                        mergeTrees( recompress, out_tree );
+                        mergeTrees( src_tree, out_tree );
                         if ( s_dbg ) cout << "+++ Merged tree: " << out_tree->GetName() << endl;
                      } catch( MergingError& err ) {
                         cout << "+++ Got a tree where fast cloning is not possible -- operation failed." << endl
@@ -630,7 +610,7 @@ DbStatus DbDatabaseMerger::merge(const string& fid,
 static int usage() {
   cout << "POOL merge facility for ROOT tree based files.\n"
     " Usage: \n"
-    "mergePool -o <output-file> -i <input-file 1> [ -i <input-file 2> ...] [-e <exclude-tree 1>] -C LZ4/LZMA/ZLIB -B branchfile\n\n"
+    "mergePool -o <output-file> -i <input-file 1> [ -i <input-file 2> ...] [-e <exclude-tree 1>] -B branchfile\n\n"
     "input- and output files may consist of any legal file name.\n" 
     " -debug       Switch debug flag on.\n"
     " branchfile   text file with single branchname per line"
@@ -641,7 +621,6 @@ static int usage() {
 int main(int argc, char** argv) {
   bool dbg = false;
   string output;
-  string compalg("Input");
   string branchfile("");
   vector<string> input;
   set<string> exclTrees;
@@ -667,18 +646,6 @@ int main(int argc, char** argv) {
 	if ( i+1 < argc ) exclTrees.insert(argv[i+1]);
 	++i;
 	break;
-
-      case 'C':
-        if ( i+1 < argc ) compalg = argv[i+1];
-        if (compalg!="LZ4"&&
-            compalg!="LZMA"&&
-            compalg!="ZLIB"&&
-            compalg!="Input") { 
-          cout << "Unrecognized compression, defaulting to Input" << endl; 
-          compalg="Input";
-        }
-        ++i;
-        break;
 
       case 'B':
         if ( i+1 < argc ) branchfile = std::string(argv[i+1]);
@@ -714,7 +681,6 @@ int main(int argc, char** argv) {
   s_dbg = dbg;
   gROOT->SetBatch(kTRUE);
   DbDatabaseMerger m;
-  m.setCompression(compalg);
   for (size_t i=0; i<input.size();++i)  {
     const string& in = input[i];
     bool fixup = ((i+1)==input.size());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMDTDRIFTCIRCLEONTRACKCREATOR_H 
@@ -36,7 +36,7 @@ namespace Muon {
             @param strategy optional drift circle error strategy to override the default
             @return Fully calibrated MdtDriftCircleOnTrack (the user must delete this object when it is no longer needed).
         */ 
-        virtual const MdtDriftCircleOnTrack* createRIO_OnTrack( const MdtPrepData& DC, 
+        virtual MdtDriftCircleOnTrack* createRIO_OnTrack( const MdtPrepData& DC, 
                                                                 const Amg::Vector3D& GP,
                                                                 const Amg::Vector3D* GD = 0,
 								float t0Shift = 0,
@@ -55,7 +55,7 @@ namespace Muon {
         @param strategy optional drift circle error strategy to override the default
         @return New ROT with updated error. (the user must delete this object when it is no longer needed).
         */ 
-        virtual const MdtDriftCircleOnTrack* updateError( const MdtDriftCircleOnTrack& DCT, 
+        virtual MdtDriftCircleOnTrack* updateError( const MdtDriftCircleOnTrack& DCT, 
                                                           const Trk::TrackParameters* pars = 0,
                                                           const MuonDriftCircleErrorStrategy* strategy = 0 ) const = 0;
 
@@ -65,7 +65,7 @@ namespace Muon {
         @param errorlist holds the identifier of the chamber/det element and the error to be applied on the DCTs inside
         @return New ROT with updated error. (the user must delete this object when it is no longer needed).
         */ 
-        virtual const MdtDriftCircleOnTrack* updateErrorExternal( const MdtDriftCircleOnTrack& DCT,
+        virtual MdtDriftCircleOnTrack* updateErrorExternal( const MdtDriftCircleOnTrack& DCT,
                                                                   const Trk::TrackParameters* pars = 0,
                                                                   const std::map<Identifier,double>* errorlist = 0 ) const = 0;
 
@@ -75,12 +75,12 @@ namespace Muon {
         @param tp Reference to the extrapolated/predicted TrackParameters at this MdtPrepData
         @return calibrated MdtDriftCircleOnTrack. Memory management is passed to user.
         */
-        virtual const MdtDriftCircleOnTrack* correct( const Trk::PrepRawData& prd, 
+        virtual MdtDriftCircleOnTrack* correct( const Trk::PrepRawData& prd, 
                                                       const Trk::TrackParameters& tp, 
                                                       const MuonDriftCircleErrorStrategy* strategy ) const = 0;
 
         /** @brief Keep base class version of correct for use with default error strategy object */
-        virtual const MdtDriftCircleOnTrack* correct( const Trk::PrepRawData& prd,
+        virtual MdtDriftCircleOnTrack* correct( const Trk::PrepRawData& prd,
                                                       const Trk::TrackParameters& tp ) const = 0;
 
 

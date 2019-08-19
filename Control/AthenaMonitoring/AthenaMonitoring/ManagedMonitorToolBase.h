@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ManagedMonitorToolBase_H
@@ -21,10 +21,12 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 #include "AthenaMonitoring/ITriggerTranslatorTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "LumiBlockComps/ILuminosityTool.h"
-#include "LumiBlockComps/ITrigLivefractionTool.h"
+#include "LumiBlockData/LuminosityCondData.h"
+#include "LumiBlockData/LBDurationCondData.h"
+#include "LumiBlockData/TrigLiveFractionCondData.h"
 
 #include "TrigDecisionInterface/ITrigDecisionTool.h"
 
@@ -36,6 +38,10 @@ class TH1;
 class TH2;
 class TTree;
 class ITHistSvc;
+class TEfficiency;
+namespace Trig {
+   class ITrigDecisionTool;
+}
 class IDQFilterTool;
 
 #include <cctype>
@@ -46,6 +52,7 @@ class IDQFilterTool;
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
+#include "TEfficiency.h"
 //#include "../src/AthMonBench.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
@@ -180,6 +187,13 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
             StatusCode getHist( TH2*& h, const std::string& hName );
 
 
+            /**
+             * Registers a TEfficiency to be included in the output stream.
+             */
+
+            StatusCode regEfficiency( TEfficiency* e );
+
+	    
             /**
              * Registers a TGraph to be included in the output stream
              * using logical parameters that describe the histogram.  The optional 'dqmAlgorithm'
@@ -533,6 +547,14 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
 
       /**
+       * Registers a TEfficiency to be included in the output stream
+       * using logical parameters that describe the plot.
+       */
+      virtual StatusCode regEfficiency( TEfficiency* e, const MonGroup& group );
+
+
+
+      /**
        * Registers a TGraph to be included in the output stream
        * using logical parameters that describe the graph.
        */
@@ -655,49 +677,49 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
        * Average mu, i.e. \<mu\>
        *
        */
-       virtual float lbAverageInteractionsPerCrossing();
+       virtual float lbAverageInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Instantaneous number of interactions, i.e. mu
        *
        */
-       virtual float lbInteractionsPerCrossing();
+       virtual float lbInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1)
        *
        */
-       virtual float lbAverageLuminosity();
+       virtual float lbAverageLuminosity (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Instantaneous luminosity
        *
        */
-       virtual float lbLuminosityPerBCID();
+       virtual float lbLuminosityPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        *  Luminosity block time (in seconds)
        *
        */
-       virtual double lbDuration();
+       virtual double lbDuration (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Average luminosity livefraction
        *
        */
-       virtual float lbAverageLivefraction();
+       virtual float lbAverageLivefraction (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Livefraction per bunch crossing ID
        *
        */
-       virtual float livefractionPerBCID();
+       virtual float livefractionPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
       /**
        * Average Integrated Luminosity Live Fraction
        *
        */
-       virtual double lbLumiWeight();
+       virtual double lbLumiWeight (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
 
 
    protected:
@@ -716,6 +738,10 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
       std::map< Interval_t, std::vector< MgmtParams<LWHist> > > m_templateLWHistograms;
       // Runs over the vector of managed histograms and register them (just a helper method).
       StatusCode regManagedLWHistograms(std::vector< MgmtParams<LWHist> >& templateLWHistograms);
+
+      std::map< Interval_t, std::vector< MgmtParams<TEfficiency> > > m_templateEfficiencies;
+      // Runs over the vector of managed graphs, register clonned graph and saves it to a file.
+      StatusCode regManagedEfficiencies(std::vector< MgmtParams<TEfficiency> >& templateEfficiencies);
 
       std::vector<std::string> m_vTrigChainNames, m_vTrigGroupNames;
       StatusCode parseList(const std::string&, std::vector<std::string>&);
@@ -880,9 +906,12 @@ protected:
       StreamNameFcn*  m_streamNameFcn;
 
       ServiceHandle<ITHistSvc>         m_THistSvc;
-      ToolHandle<Trig::ITrigDecisionTool>    m_trigDecTool;
-      ToolHandle<ITriggerTranslatorTool> m_trigTranslator;
-      ToolHandleArray<IDQFilterTool> m_DQFilterTools;
+      // The TrigDecisionTool, clients normally should not have to set this
+      PublicToolHandle<Trig::ITrigDecisionTool>    m_trigDecTool {this, "TrigDecisionTool",""};
+      // The TriggerTranslator
+      PublicToolHandle<ITriggerTranslatorTool> m_trigTranslator {this,"TriggerTranslatorTool",""};
+      // The filter tools, to be specified in jobOptions
+      ToolHandleArray<IDQFilterTool> m_DQFilterTools {this,"FilterTools",{}};
 
       long         m_procNEventsProp;
       std::string  m_path;
@@ -919,13 +948,16 @@ protected:
       //bool findStream(const std::string& id, std::string& stream, std::string& rem) const;
       //std::string dirname(std::string& dir) const;
 
-      ToolHandle<ILuminosityTool> m_lumiTool;
-      ToolHandle<ITrigLivefractionTool> m_liveTool;
-      bool m_hasRetrievedLumiTool;
+      SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey
+      {this,"LuminosityCondDataKey","LuminosityCondData","SG Key of LuminosityCondData object"};
+      SG::ReadCondHandleKey<LBDurationCondData> m_lbDurationDataKey
+      {this,"LBDurationCondDataKey","LBDurationCondData","SG Key of LBDurationCondData object"};
+      SG::ReadCondHandleKey<TrigLiveFractionCondData> m_trigLiveFractionDataKey
+      {this,"TrigLiveFractionCondDataKey","TrigLiveFractionCondData","SG Key of TrigLiveFractionCondData object"};
+
       bool m_bookHistogramsInitial;
       bool m_useLumi;
       float m_defaultLBDuration;
-      //int m_cycleNum;
       std::set<Interval_t> m_supportedIntervalsForRebooking;
 
       // Use private implementation idiom for more flexible development.

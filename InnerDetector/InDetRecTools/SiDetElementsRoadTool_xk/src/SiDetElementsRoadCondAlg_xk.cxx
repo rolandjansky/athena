@@ -4,12 +4,14 @@
 
 #include "SiDetElementsRoadCondAlg_xk.h"
 
-#include <utility>
-#include <memory>
+#include "SiDetElementsRoadUtils_xk.h"
+
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsLayer_xk.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "SiDetElementsRoadUtils_xk.h"
+
+#include <memory>
+#include <utility>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -34,18 +36,13 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::initialize()
   }
 
   // Get Pixel Detector Manager and Pixel ID helper
-  if (m_usePIX) {
+  if (m_usePIX and m_usePixelDetectorManager) {
     ATH_CHECK(detStore()->retrieve(m_pixmgr, m_pix));
-    ATH_CHECK(m_IBLDistFolderKey.initialize());
-    if (m_useDynamicAlignFolders) {
-      ATH_CHECK(m_pixelL2FolderKey.initialize());
-    }
   }
+  ATH_CHECK(m_PixelDetEleCollKey.initialize(m_usePIX));
   
   // Get  SCT Detector Manager and SCT ID helper
-  if (m_useSCT) {
-    ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  }
+  ATH_CHECK(m_SCTDetEleCollKey.initialize(m_useSCT));
 
   ATH_CHECK(m_writeKey.initialize());
   ATH_CHECK(m_condSvc.retrieve());
@@ -88,35 +85,24 @@ StatusCode InDet::SiDetElementsRoadCondAlg_xk::execute(const EventContext& ctx) 
   EventIDRange rangePixel;
   if (m_usePIX) {
     // Loop over each wafer of pixels
-    InDetDD::SiDetectorElementCollection::const_iterator s  =  m_pixmgr->getDetectorElementBegin();
-    InDetDD::SiDetectorElementCollection::const_iterator se =  m_pixmgr->getDetectorElementEnd  ();
-    for (; s!=se; ++s) {
-      if      ((*s)->isBarrel()       ) pW[1].push_back((*s)); // Barrel
-      else if ((*s)->center().z() > 0.) pW[2].push_back((*s)); // Right endcap
-      else                              pW[0].push_back((*s)); // Left  endcap
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_PixelDetEleCollKey, ctx);
+    const InDetDD::SiDetectorElementCollection* pixelDetEle{*pixelDetEleHandle};
+    if (not pixelDetEleHandle.isValid() or pixelDetEle==nullptr) {
+      ATH_MSG_FATAL(m_PixelDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::FAILURE;
+    }
+    if (m_usePixelDetectorManager) {
+      pixelDetEle = m_pixmgr->getDetectorElementCollection();
+    }
+    for (const InDetDD::SiDetectorElement* s: *pixelDetEle) {
+      if      (s->isBarrel()       ) pW[1].push_back(s); // Barrel
+      else if (s->center().z() > 0.) pW[2].push_back(s); // Right endcap
+      else                           pW[0].push_back(s); // Left  endcap
     }
 
-    SG::ReadCondHandle<CondAttrListCollection> iblDistFolder(m_IBLDistFolderKey, ctx);
-    if (not iblDistFolder.isValid()) {
-      ATH_MSG_FATAL(m_IBLDistFolderKey.fullKey() << " is not available.");
+    if (not pixelDetEleHandle.range(rangePixel)) {
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << pixelDetEleHandle.key());
       return StatusCode::FAILURE;
-    }
-    if (not iblDistFolder.range(rangePixel)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << iblDistFolder.key());
-      return StatusCode::FAILURE;
-    }
-    if (m_useDynamicAlignFolders) {
-      SG::ReadCondHandle<CondAttrListCollection> pixelL2Folder(m_pixelL2FolderKey, ctx);
-      if (not pixelL2Folder.isValid()) {
-        ATH_MSG_FATAL(pixelL2Folder.fullKey() << " is not available.");
-        return StatusCode::FAILURE;
-      }
-      EventIDRange rangePixelL2;
-      if (not pixelL2Folder.range(rangePixelL2)) {
-        ATH_MSG_FATAL("Failed to retrieve validity range for " << pixelL2Folder.key());
-        return StatusCode::FAILURE;
-      }
-      rangePixel = EventIDRange::intersect(rangePixel, rangePixelL2);
     }
   }
 

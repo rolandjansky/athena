@@ -416,8 +416,9 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        super(T2CaloEgamma_ReFastAlgo, self).__init__(name)
        # here put your customizations
        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-       from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
-       svcMgr += TrigCaloDataAccessSvc()
+       if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
+         from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
+         svcMgr += TrigCaloDataAccessSvc()
        samp2 = EgammaReSamp2FexConfig(name="ReFaAlgoSamp2FexConfig",
                                       trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
                                       ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])

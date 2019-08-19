@@ -2,14 +2,42 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
+from AthenaCommon.Constants import VERBOSE, DEBUG
+
+## Small class to hold the names for cache containers, should help to avoid copy / paste errors
+class MuonPrdCacheNames(object):
+    MdtCache  = "MdtPrdCache"
+    CscCache  = "CscPrdCache"
+    RpcCache  = "RpcPrdCache"
+    TgcCache  = "TgcPrdCache"
+    sTgcCache = "sTgcPrdCache"
+    MmCache   = "MmPrdCache"  
+
+## This configuration function creates the IdentifiableCaches for PRD
+#
+# The function returns a ComponentAccumulator which should be loaded first
+# If a configuration wants to use the cache, they need to use the same names as defined here
+def MuonPrdCacheCfg():
+    acc = ComponentAccumulator()
+
+    from MuonRdoToPrepData.MuonRdoToPrepDataConf import MuonPRDCacheCreator
+    cacheCreator = MuonPRDCacheCreator(MdtCacheKey  = MuonPrdCacheNames.MdtCache,
+                                       CscCacheKey  = MuonPrdCacheNames.CscCache,
+                                       RpcCacheKey  = MuonPrdCacheNames.RpcCache,
+                                       TgcCacheKey  = MuonPrdCacheNames.TgcCache,
+                                       sTgcCacheKey = MuonPrdCacheNames.sTgcCache,
+                                       MmCacheKey   = MuonPrdCacheNames.MmCache)
+    acc.addEventAlgo( cacheCreator, primary=True )
+    return acc
+
 
 ## This configuration function sets up everything for decoding RPC RDO to PRD conversion
 #
 # The forTrigger paramater is used to put the algorithm in RoI mode
 # The function returns a ComponentAccumulator and the data-converting algorithm, which should be added to the right sequence by the user
 def RpcRDODecodeCfg(flags, forTrigger=False):
-    acc = ComponentAccumulator()
+    from MuonConfig.MuonCondAlgConfig import RpcCondDbAlgCfg # MT-safe conditions access
+    acc = RpcCondDbAlgCfg(flags)
 
     # We need the RPC cabling to be setup
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
@@ -22,6 +50,8 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     # Get the RDO -> PRD tool
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "RpcRdoToRpcPrepDataTool")
+    if flags.Common.isOnline: 
+        RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
     acc.addPublicTool( RpcRdoToRpcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm
@@ -147,7 +177,7 @@ def CscClusterBuildCfg(flags, forTrigger=False):
     if not forTrigger:
         from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilder
         CscClusterBuilder = CscThresholdClusterBuilder(name            = "CscThesholdClusterBuilder",
-                                                   cluster_builder = CscClusterBuilderTool ) 
+                                                       cluster_builder = CscClusterBuilderTool )
         acc.addEventAlgo(CscClusterBuilder)
 
     return acc

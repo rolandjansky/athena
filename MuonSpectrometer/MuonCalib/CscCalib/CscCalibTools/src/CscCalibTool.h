@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALIBTOOLBASE_H
@@ -22,13 +22,16 @@
 #include "MuonCondData/CscCondDataContainer.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
 #include "CscCalibTools/ICscCalibTool.h"
+#include "CxxUtils/checker_macros.h"
 
-#include <inttypes.h>
-#include <vector>
 #include "TMath.h"
 #include "TF1.h"
 #include "TH1.h"
 
+#include <atomic>
+#include <inttypes.h>
+#include <mutex>
+#include <vector>
 
 class CscCalibTool : public extends<AthAlgTool, ICscCalibTool> {
 
@@ -126,8 +129,8 @@ public:
   virtual double getLatency() const override final;
 
 
-  mutable int m_messageCnt_t0base;
-  mutable int m_messageCnt_t0phase;
+  mutable std::atomic_int m_messageCnt_t0base;
+  mutable std::atomic_int m_messageCnt_t0phase;
   //private:
   //  ../src/CscCalibTool.cxx: In member function 'virtual bool CscCalibTool::stripT0phase(uint32_t) const':
   //  ../src/CscCalibTool.cxx:351: error: increment of data-member 'CscCalibTool::m_messageCnt_t0phase' in read-only structure
@@ -166,8 +169,9 @@ protected:
   float m_latencyInDigitization; // new in 12/2010 for New Digitization package...
 
   unsigned int m_nSamples;
-  mutable TF1* m_addedfunc;
-  mutable TF1* m_bipolarFunc;
+  mutable TF1* m_addedfunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable TF1* m_bipolarFunc ATLAS_THREAD_SAFE; // Guarded by m_mutex
+  mutable std::mutex m_mutex;
 
   bool m_onlineHLT;
   bool m_use2Samples; // for the use of only 2 samples for strip charge

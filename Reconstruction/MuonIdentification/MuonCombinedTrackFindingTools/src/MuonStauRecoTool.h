@@ -25,7 +25,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-
+#include "GaudiKernel/ServiceHandle.h"
 
 namespace Muon {
 
@@ -231,11 +231,16 @@ namespace MuonCombined {
     void rpcTimeCalibration( const Identifier& id, float& time, float& error ) const;
     void segmentTimeCalibration( const Identifier& id, float& time, float& error ) const;
 
+    /** storegate */
+    SG::ReadHandleKey<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> m_houghDataPerSectorVecKey {this, 
+        "Key_MuonLayerHoughToolHoughDataPerSectorVec", "HoughDataPerSectorVec", "HoughDataPerSectorVec key"};
 
     /** tool handles */
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelper; 
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer; 
-    ToolHandle<Muon::MuonEDMHelperTool>              m_edmHelper; 
+    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::IMuonSegmentMaker>              m_segmentMaker;
     ToolHandle<Muon::IMuonSegmentMaker>              m_segmentMakerT0Fit;
     ToolHandle<Muon::IMuonLayerSegmentMatchingTool>  m_segmentMatchingTool;

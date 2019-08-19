@@ -49,6 +49,8 @@ private:
 
    /// Key, the StoreGate key for the xAOD::EventInfo object.
    StringProperty m_eventInfoKey;
+   /// Key, the StoreGate key for the old EventInfo object, ix there is no xAOD::EventInfo.
+   StringProperty m_oEventInfoKey;
 
    /// Pointer to the data stores
    ServiceHandle<StoreGateSvc> m_metaDataStore;

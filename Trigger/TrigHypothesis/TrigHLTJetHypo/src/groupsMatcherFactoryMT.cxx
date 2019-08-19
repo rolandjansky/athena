@@ -4,22 +4,30 @@
 
 #include "./groupsMatcherFactoryMT.h"
 #include "./MaximumBipartiteGroupsMatcherMT.h"
+#include "./PartitionsGroupsMatcherMT.h"
 #include "./SingleConditionMatcherMT.h"
 
 
 std::unique_ptr<IGroupsMatcherMT> 
-groupsMatcherFactoryMT(const ConditionsMT& conditions){
-  
-  auto matcher = std::unique_ptr<IGroupsMatcherMT> (nullptr);
+groupsMatcherFactoryMT_MaxBipartite (ConditionsMT&& conditions){
   
   if (conditions.size() == 1) {
-    matcher.reset(new SingleConditionMatcherMT(conditions[0]));
+    return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
   } else {
-    matcher.reset(new MaximumBipartiteGroupsMatcherMT(conditions));
+    return std::make_unique<MaximumBipartiteGroupsMatcherMT>(std::move(conditions));
   }
+  
+}
 
-  // matcher.reset(new MaximumBipartiteGroupsMatcher(conditions));
-  return matcher;
+
+std::unique_ptr<IGroupsMatcherMT> 
+groupsMatcherFactoryMT_Partitions (ConditionsMT&& conditions){
+  
+  if (conditions.size() == 1) {
+    return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
+  } else {
+    return std::make_unique<PartitionsGroupsMatcherMT>(std::move(conditions));
+  }
 }
 
 

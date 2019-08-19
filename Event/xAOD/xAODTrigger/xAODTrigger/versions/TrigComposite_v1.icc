@@ -119,9 +119,16 @@ namespace xAOD {
       for( size_t i = 0; i < names.size(); ++i ) {
          if( names[ i ] != name ) continue;
          checkTypes< CONTAINER >(linkColClids()[ i ], name);
-         // Construct the link:
-         return ElementLink< CONTAINER >( linkColKeys()[ i ],
-                                          linkColIndices()[ i ] );
+         // Construct the link. Try to remap, if remap collections are available:
+         ElementLink< CONTAINER > linkTryRemap( linkColKeys()[ i ],
+                                                linkColIndices()[ i ] );
+         if (linkTryRemap.isValid()) {
+            return linkTryRemap;
+         }
+
+         // Try again, without remapping
+         return ElementLink< CONTAINER >( linkColKeysNoRemap()[ i ],
+                                          linkColIndicesNoRemap()[ i ] );
       }
 
       // We didn't find the link. :-(
@@ -145,13 +152,19 @@ namespace xAOD {
          // Check that it is of the right type:
          checkTypes< DataVector< OBJECT > >(linkColClids()[ i ], name);
          // Create a temporary ElementLink:
-         ElementLink< DataVector< OBJECT > > link( linkColKeys()[ i ],
-                                                   linkColIndices()[ i ] );
-         if( ! link.isValid() ) {
-            return 0;
+         ElementLink< DataVector< OBJECT > > linkTryRemap( linkColKeys()[ i ],
+                                                           linkColIndices()[ i ] );
+         if( linkTryRemap.isValid() ) {
+            return *linkTryRemap;
          }
-         // Get the pointer:
-         return *link;
+
+         // This time forbid remapping
+         ElementLink< DataVector< OBJECT > > link( linkColKeysNoRemap()[ i ],
+                                                   linkColIndicesNoRemap()[ i ] );
+
+         if( link.isValid() ) {
+            return *link;
+         }
       }
 
       // There was an internal error. :-(
@@ -207,6 +220,59 @@ namespace xAOD {
      }
      return links;
   }
+
+   template< class CONTAINER >
+   std::vector<std::string> TrigComposite_v1::getObjectNames() const {
+
+      std::vector< std::string > returnVec;
+      const std::vector< std::string >& names = linkColNames();
+      const std::vector< uint32_t >& clids = linkColClids();
+
+      for( size_t i = 0; i < names.size(); ++i ) {
+         if (names[i].find(s_collectionSuffix) != std::string::npos) { //Note: !=
+            continue; // ARE *NOT* interested in collection links here
+         }
+         bool clidMatch = false;
+         if (ClassID_traits< CONTAINER >::ID() == ClassID_traits< xAOD::IParticleContainer >::ID()) {
+            clidMatch = derivesFromIParticle(clids[i]);
+         } else if (ClassID_traits< CONTAINER >::ID() == clids[i]) {
+            clidMatch = true;
+         }
+         if (clidMatch) {
+            returnVec.push_back( names[i] );
+         }
+      }
+      return returnVec;
+   }
+
+   template< class CONTAINER >
+   std::vector<std::string> TrigComposite_v1::getObjectCollectionNames() const {
+
+      std::vector< std::string > returnVec;
+      const std::vector< std::string >& names = linkColNames();
+      const std::vector< uint32_t >& clids = linkColClids();
+
+      for( size_t i = 0; i < names.size(); ++i ) {
+         if (names[i].find(s_collectionSuffix) == std::string::npos) { // Note: ==
+            continue; // ARE interested in collection links here
+         }
+         bool clidMatch = false;
+         if (ClassID_traits< CONTAINER >::ID() == ClassID_traits< xAOD::IParticleContainer >::ID()) {
+            clidMatch = derivesFromIParticle(clids[i]);
+         } else if (ClassID_traits< CONTAINER >::ID() == clids[i]) {
+            clidMatch = true;
+         }
+         if (clidMatch) {
+            // Unlike with single links, we expect to find multiple links here. Only add the name once. 
+            // Name is mangled in storage, need to un-mangle it before returning it to the user. 
+            const std::string unmangledName = names[i].substr(0, names[i].size() - s_collectionSuffix.size());
+            if ( std::none_of(returnVec.begin(), returnVec.end(), [&](const auto& s) {return unmangledName == s;}) ) {
+               returnVec.push_back( unmangledName );
+            }
+         }
+      }
+      return returnVec;
+   }
 
    template<class CONTAINER>
    void TrigComposite_v1::checkTypes(const uint32_t storedCLID, const std::string& name) const {

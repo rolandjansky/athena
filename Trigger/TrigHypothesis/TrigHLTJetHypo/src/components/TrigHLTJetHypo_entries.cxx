@@ -13,10 +13,11 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypo_TLA.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypo_SMC.h"
 #include "../TrigJetHypoAlgMT.h"
-#include "../TrigJetHypoToolConfig_EtaEt.h"
 #include "../TrigJetHypoToolConfig_simple.h"
+#include "../TrigJetHypoToolConfig_simple_partition.h"
 #include "../TrigJetHypoToolConfig_dijet.h"
 #include "../TrigJetHypoToolConfig_combgen.h"
+#include "../TrigJetHypoToolConfig_partgen.h"
 #include "../NotHelperTool.h"
 #include "../AndHelperTool.h"
 #include "../OrHelperTool.h"
@@ -38,10 +39,11 @@ DECLARE_COMPONENT( TrigEFDPhiMetJetAllTE )
 DECLARE_COMPONENT( TrigHLTJetHypo_Dijet )
 DECLARE_COMPONENT( TrigHLTJetHypo_DijetMassDEta )
 DECLARE_COMPONENT( TrigHLTJetHypo_DijetMassDEtaDPhi )
-DECLARE_COMPONENT( TrigJetHypoToolConfig_EtaEt )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_simple )
+DECLARE_COMPONENT( TrigJetHypoToolConfig_simple_partition )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_dijet )
 DECLARE_COMPONENT( TrigJetHypoToolConfig_combgen )
+DECLARE_COMPONENT( TrigJetHypoToolConfig_partgen )
 DECLARE_COMPONENT( NotHelperTool)
 DECLARE_COMPONENT( AndHelperTool)
  DECLARE_COMPONENT( OrHelperTool)
@@ -53,7 +55,6 @@ DECLARE_COMPONENT( TrigHLTJetHypo_EtaEt )
 DECLARE_COMPONENT( TrigJetHypoAlgMT )
 DECLARE_COMPONENT( TrigJetHypoToolMT )
 DECLARE_COMPONENT( TrigJetHypoToolHelperMT )
-DECLARE_COMPONENT( TrigJetHypoToolConfig_EtaEt )
 DECLARE_COMPONENT( CombinationsHelperTool )
 
 DECLARE_COMPONENT(BasicCleanerTool)

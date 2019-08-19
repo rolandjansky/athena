@@ -95,16 +95,23 @@ rec.projectName = 'IS_SIMULATION'
 #----------------------------
 OverlayLog.info("================ DetFlags ================ ")
 if 'DetFlags' in dir():
-    overlaylog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
+    OverlayLog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
 else:
     from AthenaCommon.DetFlags import DetFlags
-
-    DetFlags.SCT_setOn() 
-
-    DetFlags.Truth_setOn()
+    DetFlags.all_setOn()
+    DetFlags.bpipe_setOff()
+    DetFlags.FTK_setOff()
 
 # TODO: need to do it better
+#DetFlags.makeRIO.all_setOff() ## Currently has to be on otherwise InDetTRTStrawStatusSummarySvc is not created
 DetFlags.pileup.all_setOff()
+DetFlags.readRDOBS.all_setOff()
+DetFlags.readRDOPool.all_setOff()
+DetFlags.readRIOBS.all_setOff()
+DetFlags.readRIOPool.all_setOff()
+DetFlags.simulate.all_setOff()
+DetFlags.writeBS.all_setOff()
+DetFlags.writeRIOPool.all_setOff()
 
 DetFlags.Print()
 
@@ -113,11 +120,12 @@ DetFlags.Print()
 # Read Simulation MetaData (unless override flag set to True)
 # ------------------------------------------------------------
 if 'ALL' in digitizationFlags.overrideMetadata.get_Value():
-    overlaylog.info("Skipping input file MetaData check.")
+    OverlayLog.info("Skipping input file MetaData check.")
 else:
     from EventOverlayJobTransforms.OverlayReadMetaData import readInputFileMetadata
     readInputFileMetadata()
 
+DetFlags.Print()
 
 #-------------------------
 # Conditions

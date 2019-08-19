@@ -146,7 +146,7 @@ typeLUT = {
     'MuonChi2SLTrackFitter'                                                                  :'Trk::GlobalChi2Fitter',
     'MuonCombiTrackMaker'                                                                    :'Muon::MuonCombiTrackMaker',
     'MuonCscRawDataProviderTool'                                                             :'Muon::CSC_RawDataProviderTool',
-    'MuonEDMHelperTool'                                                                      :'Muon::MuonEDMHelperTool',
+    'MuonEDMHelperSvc'                                                                       :'Muon::MuonEDMHelperSvc',
     'MuonIdHelper'                                                                           :'Rec::MuonIdentificationHelper',
     'MuonInertMaterialBuilder'                                                               :'Muon::MuonInertMaterialBuilder',
     'MuonKalmanTrackFitter'                                                                  :'Trk::KalmanFitter',

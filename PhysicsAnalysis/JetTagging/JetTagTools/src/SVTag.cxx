@@ -427,8 +427,7 @@ namespace Analysis
             }
 	    nslices.push_back(slice1);
 	  }
-	  m_likelihoodTool->setLhVariableValue(nslices);
-	  probi = m_likelihoodTool->calculateLikelihood();
+	  probi = m_likelihoodTool->calculateLikelihood(nslices);
 	  ATH_MSG_DEBUG( "#BTAG#  WEIGHT: pb, pu, pc= " 
 			 << probi[0] << " " << probi[1] << " " << probi[2]);
 	  if (probi.size() >= 2) {
@@ -454,7 +453,6 @@ namespace Analysis
 	BTag->setVariable<double>(m_xAODBaseName, "pu", probi[1]);
 	if (m_useCHypo) BTag->setVariable<double>(m_xAODBaseName, "pc", probi[2]);
 	
-        m_likelihoodTool->clear();
       }
 
       /* For SV0, put the signed 3D Lxy significance: */
@@ -482,7 +480,7 @@ namespace Analysis
 
   double SVTag::get3DSignificance(const xAOD::Vertex* priVertex,
 				  std::vector<const xAOD::Vertex*>& secVertex,
-				  const Amg::Vector3D jetDirection) {
+				  const Amg::Vector3D jetDirection) const {
   // double SVTag::get3DSignificance(const Trk::RecVertex & priVertex,
   //                                 std::vector<const Trk::RecVertex* > & secVertex,
   //                                 const Amg::Vector3D jetDirection) {

@@ -1,20 +1,22 @@
-TrigSignatureMoniMT                                INFO HLT_3j200                     20        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_3j200 decisions                               0         
-TrigSignatureMoniMT                                INFO HLT_5j70_0eta240              20        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_5j70_0eta240 decisions                        0         
-TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet20        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet decisions                    0         
-TrigSignatureMoniMT                                INFO HLT_j225_gsc420_boffperf_split20        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_j225_gsc420_boffperf_split decisions                    0         
-TrigSignatureMoniMT                                INFO HLT_j260_320eta490            20        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_j260_320eta490 decisions                      0         
-TrigSignatureMoniMT                                INFO HLT_j420                      20        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_j420 decisions                                0         
-TrigSignatureMoniMT                                INFO HLT_j45                       20        20        5         5         
-TrigSignatureMoniMT                                INFO HLT_j45 decisions                                 5         
-TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes       20        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes decisions                    0         
-TrigSignatureMoniMT                                INFO HLT_j460_a10r                 20        20        0         0         
-TrigSignatureMoniMT                                INFO HLT_j460_a10r decisions                           0         
-TrigSignatureMoniMT                                INFO HLT_j85                       20        20        1         1         
-TrigSignatureMoniMT                                INFO HLT_j85 decisions                                 1         
+TrigSignatureMoniMT                                INFO HLT_2j330_a10t_lcw_jes_30smcINF_L1J2020        20        0         0         
+TrigSignatureMoniMT                                INFO HLT_2j330_a10t_lcw_jes_30smcINF_L1J20 decisions                    0         
+TrigSignatureMoniMT                                INFO HLT_3j200_L1J20               20        20        0         0         
+TrigSignatureMoniMT                                INFO HLT_3j200_L1J20 decisions                         0         
+TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L1J20        20        20        0         0         
+TrigSignatureMoniMT                                INFO HLT_5j70_0eta240_L1J20 decisions                    0         
+TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J2020        20        1         1         
+TrigSignatureMoniMT                                INFO HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20 decisions                    2         
+TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20      20        20        0         0         
+TrigSignatureMoniMT                                INFO HLT_j260_320eta490_L1J20 decisions                    0         
+TrigSignatureMoniMT                                INFO HLT_j420_L1J20                20        20        0         0         
+TrigSignatureMoniMT                                INFO HLT_j420_L1J20 decisions                          0         
+TrigSignatureMoniMT                                INFO HLT_j420_a10t_lcw_jes_30smcINF_L1J2020        20        0         0         
+TrigSignatureMoniMT                                INFO HLT_j420_a10t_lcw_jes_30smcINF_L1J20 decisions                    0         
+TrigSignatureMoniMT                                INFO HLT_j45_L1J20                 20        20        5         5         
+TrigSignatureMoniMT                                INFO HLT_j45_L1J20 decisions                           5         
+TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J20 20        20        0         0         
+TrigSignatureMoniMT                                INFO HLT_j460_a10_lcw_subjes_L1J20 decisions                    0         
+TrigSignatureMoniMT                                INFO HLT_j460_a10r_L1J20           20        20        0         0         
+TrigSignatureMoniMT                                INFO HLT_j460_a10r_L1J20 decisions                     0         
+TrigSignatureMoniMT                                INFO HLT_j85_L1J20                 20        20        1         1         
+TrigSignatureMoniMT                                INFO HLT_j85_L1J20 decisions                           1         

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/ReadSiDetectorElements.h"
@@ -116,22 +116,25 @@ StatusCode ReadSiDetectorElements::execute() {
     m_first = false;
     printAllElements(false);
     printRandomAccess(false);
+    printDifference();
   }
   return StatusCode::SUCCESS;
 }
 
 void ReadSiDetectorElements::printAllElements(const bool accessDuringInitialization) {
-  const bool useConditionStore = (m_managerName == "SCT" and (not accessDuringInitialization));
+  const bool useConditionStore = not accessDuringInitialization;
   const SiDetectorElementCollection* elements = nullptr;
   if (useConditionStore) {
     // Get SiDetectorElementCollection from ConditionStore
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> detEle(m_detEleCollKey);
     elements = detEle.retrieve();
+    ATH_MSG_INFO("Going to read from Conditions Store using handle: " << m_detEleCollKey.key());
     if (elements==nullptr) {
       ATH_MSG_FATAL(m_detEleCollKey.fullKey() << " could not be retrieved");
       return;
     }
   } else {
+    ATH_MSG_INFO("Going to read from detector manager: " << m_managerName);
     elements = m_manager->getDetectorElementCollection();
   }
 
@@ -490,6 +493,39 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
   } // if manager = Pixel,SCT
 } 
 
+void
+ReadSiDetectorElements::printDifference() const {
+  // Get SiDetectorElementCollection from ConditionStore
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> detEle(m_detEleCollKey);
+  const SiDetectorElementCollection* elementsC = detEle.retrieve();
+  ATH_MSG_INFO("Going to read from Conditions Store using handle: " << m_detEleCollKey.key());
+  if (elementsC==nullptr) {
+    ATH_MSG_FATAL(m_detEleCollKey.fullKey() << " could not be retrieved");
+    return;
+  }
+
+  // Get SiDetectorElementCollection from detector manager
+  const SiDetectorElementCollection* elementsM = m_manager->getDetectorElementCollection();
+
+  if (elementsC->size()!=elementsM->size()) {
+    ATH_MSG_FATAL("Sizes of SiDetectorElementCollections are different");
+  }
+
+  SiDetectorElementCollection::const_iterator elementC = elementsC->begin();
+  SiDetectorElementCollection::const_iterator elementM = elementsM->begin();
+  SiDetectorElementCollection::const_iterator elementMe = elementsM->end();
+  for (; elementM!=elementMe; elementC++, elementM++) {
+    auto diff = (*elementC)->center()-(*elementM)->center();
+    if (diff[0]!=0. or diff[1]!=0. or diff[2]!=0.) {
+      ATH_MSG_ALWAYS("----------------------------------------------");
+      ATH_MSG_ALWAYS("hash: " << (*elementC)->identifyHash());
+      ATH_MSG_ALWAYS("center (store) " << (*elementC)->center());
+      ATH_MSG_ALWAYS("center (manager) " << (*elementM)->center());
+      ATH_MSG_ALWAYS("diff (store-manager) " << diff);
+      ATH_MSG_ALWAYS("----------------------------------------------");
+    }
+  }
+}
 
 void
 ReadSiDetectorElements::testElement(const Identifier & id, 

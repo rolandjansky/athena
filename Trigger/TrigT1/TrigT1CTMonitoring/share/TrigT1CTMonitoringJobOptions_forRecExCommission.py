@@ -179,17 +179,18 @@ if not isOnline:
     cfg = TriggerConfigGetter()
 
     ## add pre algorithms for rerunning CTP simulation
-    if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
+    from PyUtils.MetaReaderPeeker import metadata
+    if 'IS_SIMULATION' not in metadata['eventTypes']:
         #svcMgr.DSConfigSvc.readLVL1Thr=True
         #svcMgr.DSConfigSvc.readLVL1BG=True
-        
+
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_Data
         topSequence += L1Muctpi_on_Data()
 
         from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__DeriveSimulationInputs as DeriveSimulationInputs
         topSequence += DeriveSimulationInputs(do_MuCTPI_input=True,
                                               do_L1Calo_sim=False)
-        
+
         from TrigT1CTP.TrigT1CTPConfig import CTPSimulationOnData
         topSequence += CTPSimulationOnData("CTPSimulation")
 
@@ -216,11 +217,11 @@ if not isOnline:
    
     theApp.Dlls += [ "TrigT1CTMonitoring" ]
     
-    
-    # check if global muons are on
+    from PyUtils.MetaReaderPeeker import metadata
 
+    # check if global muons are on
     if not rec.doMuon:
-        if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
+        if 'IS_SIMULATION' not in metadata['eventTypes']:
             CTBSMonTool = BSMon( ProcessCTPData = True,
                                  ProcessRoIBResult = False,
                                  InclusiveTriggerThresholds = False,
@@ -228,8 +229,7 @@ if not isOnline:
                                  ProcessMuctpiDataRIO = False,
                                  CompareRerun = True,
                                  FillStateCoolFolderName=UsedFillStateCoolFolderName)
-        
-        if 'IS_SIMULATION' in inputFileSummary['evt_type']:
+        else:
             CTBSMonTool = BSMon( ProcessCTPData = True,
                                  ProcessRoIBResult = False,
                                  InclusiveTriggerThresholds = False,
@@ -238,16 +238,14 @@ if not isOnline:
                                  RunOnESD = True,
                                  CompareRerun = False,
                                  FillStateCoolFolderName=UsedFillStateCoolFolderName)
-        
-    if rec.doMuon:
-        if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
+    else:
+        if 'IS_SIMULATION' not in metadata['eventTypes']:
             CTBSMonTool = BSMon( ProcessCTPData = True,
                                  ProcessRoIBResult = True,
                                  ProcessMuctpiData = True,
                                  ProcessMuctpiDataRIO = True,
                                  CompareRerun = True)
-
-        if 'IS_SIMULATION' in inputFileSummary['evt_type']:
+        else:
             CTBSMonTool = BSMon( ProcessCTPData = True,
                                  ProcessRoIBResult = True,
                                  ProcessMuctpiData = True,
@@ -261,8 +259,8 @@ if not isOnline:
 
     processByteStream = True
 
-    from RecExConfig.InputFilePeeker import inputFileSummary
-    if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
+
+    if 'IS_SIMULATION' not in metadata['eventTypes']:
         from IOVDbSvc.CondDB import conddb
         conddb.addFolder('TRIGGER', '/TRIGGER/LUMI/LBLB') 
         #conddb.addFolder('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent") # already added by some other alg

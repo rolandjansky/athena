@@ -13,7 +13,6 @@
 
 #include "TrigBjetHypo/TrigBjetHypoAllTE.h"
 
-
 #include "xAODBTagging/BTagging.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"

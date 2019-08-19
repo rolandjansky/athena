@@ -40,8 +40,15 @@ __all__ = ["xAOD", "JetRecCfg", "resolveDependencies"]
 # Receives the jet definition and input flags, mainly for input file
 # peeking such that we don't attempt to reproduce stuff that's already
 # in the input file
-def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix=""):
-    jetsfullname = jetnameprefix+jetdef.basename+jetnamesuffix+"Jets"
+def JetRecCfg(jetdef, configFlags, jetnameprefix="",jetnamesuffix="", jetnameoverride=None):
+    # Ordinarily we want to have jet collection names be descriptive and derived from
+    # the configured reconstruction.
+    # Nevertheless, we allow an explicit specification when necessary
+    # e.g. to ensure that the correct name is used in grooming operations
+    if jetnameoverride:
+        jetsfullname = jetnameoverride
+    else:
+        jetsfullname = jetnameprefix+jetdef.basename+jetnamesuffix+"Jets"
     jetlog.info("Setting up to find {0}".format(jetsfullname))
 
     sequencename = jetsfullname
@@ -205,6 +212,25 @@ def expandPrereqs(reqtype,prereqs):
 
 
 ########################################################################
+# Function producing an EventShapeAlg to calculate
+# medaian energy density for pileup correction
+#
+def getEventShapeAlg( constit, constitpjkey, nameprefix="" ):
+
+    rhokey = "Kt4"+constit.label+"EventShape"
+    rhotoolname = "EventDensity_Kt4"+constit.label
+    
+    from EventShapeTools import EventShapeToolsConf
+    rhotool = EventShapeToolsConf.EventDensityTool(rhotoolname)
+    rhotool.InputContainer = constitpjkey
+    rhotool.OutputContainer = rhokey
+    
+    eventshapealg = EventShapeToolsConf.EventDensityAthAlg("{0}{1}Alg".format(nameprefix,rhotoolname))
+    eventshapealg.EventDensityTool = rhotool
+
+    return eventshapealg
+
+########################################################################
 # Function for setting up inputs to jet finding
 #
 # This includes constituent modifications, track selection, copying of
@@ -213,18 +239,12 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
     jetlog.info("Setting up jet inputs.")
     components = ComponentAccumulator(sequenceName)
 
-    jetlog.info("Inspecting first input file")
-    # Get the list of SG keys for the first input file
-    # I consider it silly to run on a set of mixed file types
-    firstinput = configFlags.Input.Files[0]
-    import os, pickle
-    from AthenaConfiguration.AutoConfigFlags import GetFileMD
-    # PeekFiles returns a dict for each input file
-    filecontents = GetFileMD([firstinput])["SGKeys"].split(' ')
+    jetlog.info("Inspecting input file contents")
+    filecontents = configFlags.Input.Collections
     
     constit = inputdeps[0]
     # Truth and track particle inputs are handled later
-    if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle]:
+    if constit.basetype not in [xAODType.TruthParticle, xAODType.TrackParticle] and constit.inputname!=constit.rawname:
         # Protection against reproduction of existing containers
         if constit.inputname in filecontents:
             jetlog.debug("Input container {0} for label {1} already in input file.".format(constit.inputname, constit.label))
@@ -302,17 +322,7 @@ def JetInputCfg(inputdeps, configFlags, sequenceName):
             if rhokey in filecontents:
                 jetlog.debug("Event density {0} for label {1} already in input file.".format(rhokey, constit.label))
             else:
-                rhotoolname = "EventDensity_Kt4"+constit.label
-
-                jetlog.debug("Setting up event density calculation Kt4{0}".format(constit.label))
-                from EventShapeTools import EventShapeToolsConf
-                rhotool = EventShapeToolsConf.EventDensityTool(rhotoolname)
-                rhotool.InputContainer = constitpjkey
-                rhotool.OutputContainer = rhokey
-
-                eventshapealg = EventShapeToolsConf.EventDensityAthAlg("{0}Alg".format(rhotoolname))
-                eventshapealg.EventDensityTool = rhotool
-                components.addEventAlgo(eventshapealg)
+                components.addEventAlgo( getEventShapeAlg(constit,constitpjkey) )
 
     return components
 
@@ -458,3 +468,35 @@ def getJetRecTool(jetname, finder, pjs, mods):
         JetModifiers = mods
     )
     return jetrec
+
+
+if __name__=="__main__":
+
+    # Setting needed for the ComponentAccumulator to do its thing
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=True
+    
+    # Config flags steer the job at various levels
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ASG/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1"]
+    ConfigFlags.Concurrency.NumThreads = 1
+    ConfigFlags.Concurrency.NumConcurrentEvents = 1
+    ConfigFlags.lock()
+
+    # Get a ComponentAccumulator setting up the fundamental Athena job
+    from AthenaConfiguration.MainServicesConfig import MainServicesThreadedCfg 
+    cfg=MainServicesThreadedCfg(ConfigFlags) 
+
+    # Add the components for reading in pool files
+    from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
+    cfg.merge(PoolReadCfg(ConfigFlags))
+
+    # Add the components from our jet reconstruction job
+    from StandardJetDefs import AntiKt4EMTopo
+    AntiKt4EMTopo.ptminfilter = 15e3
+    AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Sort"] + ["JVT"] + ["PartonTruthLabel"]
+    cfg.merge(JetRecCfg(AntiKt4EMTopo,ConfigFlags,jetnameprefix="New"))
+
+    cfg.printConfig(withDetails=False,summariseProps=True)
+
+    cfg.run(maxEvents=10)

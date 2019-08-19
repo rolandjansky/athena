@@ -14,7 +14,6 @@
 #include "TestTools/initGaudi.h"
 
 // ATLAS C++
-#include "CxxUtils/make_unique.h"
 
 // Google Test
 #include "gtest/gtest.h"

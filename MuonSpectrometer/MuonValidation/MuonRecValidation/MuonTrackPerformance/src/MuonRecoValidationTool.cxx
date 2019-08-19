@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRecoValidationTool.h"
@@ -8,7 +8,7 @@
 
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonSegmentTaggerToolInterfaces/IMuTagMatchingTool.h"
 #include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
@@ -44,7 +44,6 @@ namespace Muon {
   MuonRecoValidationTool::MuonRecoValidationTool(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_segmentHitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool"),
       m_hitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
       m_truthSummaryTool("Muon::MuonTruthSummaryTool/MuonTruthSummaryTool"),
@@ -56,7 +55,6 @@ namespace Muon {
   {
     declareInterface<IMuonRecoValidationTool>(this);
     declareProperty("MuonIdHelperTool",m_idHelper );    
-    declareProperty("MuonEDMHelperTool",m_edmHelper );    
     declareProperty("MuonSegmentHitSummaryTool",m_segmentHitSummaryTool );    
     declareProperty("MuonHitSummaryTool",m_hitSummaryTool );    
     declareProperty("MuonTruthSummaryTool",m_truthSummaryTool );    
@@ -74,7 +72,7 @@ namespace Muon {
   StatusCode MuonRecoValidationTool::initialize() {
 
     ATH_CHECK(m_idHelper.retrieve());
-    ATH_CHECK(m_edmHelper.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_segmentHitSummaryTool.retrieve());
     ATH_CHECK(m_hitSummaryTool.retrieve());
     if(m_isMC){
@@ -263,7 +261,7 @@ namespace Muon {
 
       m_ntuple.timeBlock.track.fill(getIndex(intersection));
     
-      Identifier id = m_edmHelper->chamberId(*seg);
+      Identifier id = m_edmHelperSvc->chamberId(*seg);
       m_ntuple.timeBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
 
       // position information
@@ -338,7 +336,7 @@ namespace Muon {
 
     m_ntuple.segmentBlock.stage->push_back(stage);
 
-    Identifier id = m_edmHelper->chamberId(segment);
+    Identifier id = m_edmHelperSvc->chamberId(segment);
     m_ntuple.segmentBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
     
     // position information
@@ -485,7 +483,7 @@ namespace Muon {
     for( ;mit!=mit_end;++mit ){
  
       // get Identifier and remove MDT hits
-      Identifier id = m_edmHelper->getIdentifier(**mit);
+      Identifier id = m_edmHelperSvc->getIdentifier(**mit);
       if( !id.is_valid() ) continue;
       ids.insert(id);
       if( !m_idHelper->isTrigger(id) ) continue;

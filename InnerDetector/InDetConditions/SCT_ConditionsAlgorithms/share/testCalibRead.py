@@ -1,6 +1,11 @@
 ################################################################################
-# Job options file to test the ReadCalibDataSvc
+# Job options file to test the ReadCalibDataTool
 ################################################################################
+
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("testCalibRead")
+msg.setLevel(logging.INFO)
 
 #--------------------------------------------------------------
 # Thread-specific setup
@@ -54,7 +59,7 @@ globalflags.DetDescrVersion="ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
-print globalflags
+msg.info(globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup

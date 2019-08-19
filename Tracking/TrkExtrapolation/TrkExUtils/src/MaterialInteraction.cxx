@@ -8,4 +8,5 @@
 #include "TrkExUtils/MaterialInteraction.h"
 
 //static particle masses
-Trk::ParticleMasses Trk::MaterialInteraction::s_particleMasses;
+const Trk::ParticleMasses Trk::MaterialInteraction::s_particleMasses;
+

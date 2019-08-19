@@ -56,7 +56,7 @@ namespace Trk {
      private:
         mutable std::map<BoundarySurfaceFace, std::vector<const TrackingVolume*> > m_glueVolumes;
         mutable std::vector<BoundarySurfaceFace>                                   m_glueFaces;
-        static  std::vector<const TrackingVolume*>                                 s_emptyVector;
+        static  const std::vector<const TrackingVolume*>                           s_emptyVector;
    };
 
   inline const std::vector<BoundarySurfaceFace>& GlueVolumesDescriptor::glueFaces() const

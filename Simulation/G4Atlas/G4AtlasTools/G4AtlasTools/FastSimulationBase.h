@@ -11,6 +11,7 @@
 #include "G4VFastSimulationModel.hh"
 
 // Members
+#include "G4Types.hh"
 #include "G4VFastSimulationModel.hh"
 #ifdef G4MULTITHREADED
 #  include "tbb/concurrent_unordered_map.h"

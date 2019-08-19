@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -151,9 +151,9 @@ namespace VKalVrtAthena {
       
       // Fit the new vertex
       ATH_MSG_VERBOSE(" >> DisassembleVertex(): > Fast Fit" );
-      
-      m_fitSvc->setDefault();
-      ATH_CHECK( m_fitSvc->VKalVrtFitFast( ListBaseTracks, newvrt.vertex ) );
+
+      std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+      ATH_CHECK( m_fitSvc->VKalVrtFitFast( ListBaseTracks, newvrt.vertex, *state ) );
       
       ATH_MSG_VERBOSE( " >> DisassembleVertex(): > ApproxVertex: r = " << sqrt(newvrt.vertex[0]*newvrt.vertex[0] + newvrt.vertex[1]*newvrt.vertex[1]) << ", z = " << newvrt.vertex[2] );
       
@@ -161,11 +161,11 @@ namespace VKalVrtAthena {
           (wrkvrt.vertex[1]-newvrt.vertex[1])*(wrkvrt.vertex[1]-newvrt.vertex[1]) + 
           (wrkvrt.vertex[2]-newvrt.vertex[2])*(wrkvrt.vertex[2]-newvrt.vertex[2])   > 100. )
         {
-          m_fitSvc->setApproximateVertex( wrkvrt.vertex[0], wrkvrt.vertex[1], wrkvrt.vertex[2] );
+          m_fitSvc->setApproximateVertex( wrkvrt.vertex[0], wrkvrt.vertex[1], wrkvrt.vertex[2], *state );
         }
       else
         {
-          m_fitSvc->setApproximateVertex( newvrt.vertex[0], newvrt.vertex[1], newvrt.vertex[2] );
+          m_fitSvc->setApproximateVertex( newvrt.vertex[0], newvrt.vertex[1], newvrt.vertex[2], *state );
         }
       
       ATH_MSG_VERBOSE(" >> DisassembleVertex(): > Fit the new vertex" );
@@ -177,7 +177,8 @@ namespace VKalVrtAthena {
                                            newvrt.vertexCov,
                                            newvrt.Chi2PerTrk, 
                                            newvrt.TrkAtVrt,
-                                           newvrt.Chi2          );
+                                           newvrt.Chi2,
+                                           *state);
       
       if( sc.isFailure() ) continue;
       
@@ -371,6 +372,13 @@ namespace VKalVrtAthena {
   StatusCode VrtSecInclusive::RefitVertex( WrkVrt& WrkVrt,
 					   const xAOD::TrackParticleContainer* selectedTracks)
   {
+    std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+    return RefitVertex (WrkVrt, selectedTracks, *state);
+  }
+  StatusCode VrtSecInclusive::RefitVertex( WrkVrt& WrkVrt,
+					   const xAOD::TrackParticleContainer* selectedTracks,
+                                           Trk::IVKalState& istate)
+  {
     //
     int i,j;
     vector<const xAOD::NeutralParticle*> dummyNeutrals;
@@ -391,21 +399,24 @@ namespace VKalVrtAthena {
       ATH_MSG_DEBUG(" >>> RefitVertex: WrkVrt.SelTrk[" << i << "] = " << j );
       ListBaseTracks.emplace_back( selectedTracks->at(j) );
     }
+#if 0
+    // Had no effect since it was followed by setDefault().
     m_fitSvc->setApproximateVertex(WrkVrt.vertex[0],
 				   WrkVrt.vertex[1],
-				   WrkVrt.vertex[2]);
+				   WrkVrt.vertex[2],
+                                   istate);
+#endif
     
     ATH_MSG_DEBUG( " >>> RefitVertex: ListBaseTracks.size = " << ListBaseTracks.size() );
     for( auto *trk : ListBaseTracks ) {
       ATH_MSG_DEBUG( " >>> RefitVertex: ListBaseTracks = " << trk->index() );
     }
-    
-    m_fitSvc->setDefault();
+
     ATH_MSG_DEBUG( " >>> RefitVertex: m_fitSvc is reset." );
     
     Amg::Vector3D IniVertex;
     
-    StatusCode sc = m_fitSvc->VKalVrtFitFast( ListBaseTracks, IniVertex );/* Fast crude estimation */
+    StatusCode sc = m_fitSvc->VKalVrtFitFast( ListBaseTracks, IniVertex, istate );/* Fast crude estimation */
     if(sc.isFailure()) ATH_MSG_DEBUG(" >>> RefitVertex: fast crude estimation failed.");
     ATH_MSG_DEBUG( " >>> RefitVertex: Fast VKalVrtFit succeeded. vertex = (" << IniVertex.x() << ", " << IniVertex.y() << ", " << IniVertex.z() << ")" );
     
@@ -415,11 +426,11 @@ namespace VKalVrtAthena {
          (IniVertex.y()-OrigVertex.y())*(IniVertex.y()-OrigVertex.y()) +
          (IniVertex.z()-OrigVertex.z())*(IniVertex.z()-OrigVertex.z())  > 100. ) {
       
-      m_fitSvc->setApproximateVertex( OrigVertex.x(), OrigVertex.y(), OrigVertex.z() );
+      m_fitSvc->setApproximateVertex( OrigVertex.x(), OrigVertex.y(), OrigVertex.z(), istate );
       
     } else {
       
-      m_fitSvc->setApproximateVertex( IniVertex.x(), IniVertex.y(), IniVertex.z() );
+      m_fitSvc->setApproximateVertex( IniVertex.x(), IniVertex.y(), IniVertex.z(), istate );
       
     }
     
@@ -432,7 +443,8 @@ namespace VKalVrtAthena {
 				       WrkVrt.vertexCov,
 				       WrkVrt.Chi2PerTrk, 
 				       WrkVrt.TrkAtVrt,
-				       WrkVrt.Chi2); 
+				       WrkVrt.Chi2,
+                                       istate);
 
     if(SC.isFailure()) ATH_MSG_DEBUG(" >>> RefitVertex: SC in RefitVertex returned failure "); 
     ATH_MSG_VERBOSE(" >>> RefitVertex "<<SC<<", "<<ListBaseTracks.size()<<","<<WrkVrt.Chi2PerTrk.size());

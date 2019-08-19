@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTRACKSTEERING_H
@@ -11,12 +11,14 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/StatEntity.h"
 
 #include "Identifier/Identifier.h"
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackCollection.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <vector>
 #include <set>
@@ -35,7 +37,6 @@ namespace Trk {
 
 namespace Muon {
   class MuPatSegment;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonTrackSteeringStrategy;
   class MuPatCandidateTool;
@@ -145,7 +146,9 @@ namespace Muon {
 
   private:
 
-    ToolHandle<MuonEDMHelperTool>  m_helper;    //!< Tool for general EDM manipulation
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };    //!< Tool for general EDM manipulation
     ToolHandle<MuonEDMPrinterTool>  m_printer;    //!< Tool to print EDM objects
     ToolHandle<MuPatCandidateTool> m_candidateTool; //!< Tool for manipulation of candidates
     ToolHandle<IMuonTrackBuilder>    m_trackBTool;    //<! Tool for helping in track building

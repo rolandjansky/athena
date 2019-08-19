@@ -53,9 +53,8 @@ public:
    bool Open(std::string const &fileName);
    // return the directory selected in the last call to Open
    TDirectory *GetDirectory(void) const;
-   //virtual TDirectory *OpenRootFileReadonly(char const *fileName);
-   TDirectory *OpenRootFileReadonly(char const *fileName);
 protected:
+   TDirectory *OpenRootFileReadonly(char const *fileName);
    int m_maxOpenFiles;
    std::vector<std::string> m_fileNames;
    std::map<std::string,TDirectory *> m_openDirectories;

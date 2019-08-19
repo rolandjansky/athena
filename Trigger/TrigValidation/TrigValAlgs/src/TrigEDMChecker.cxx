@@ -55,8 +55,6 @@
 #include "tauEvent/TauJetContainer.h"
 #include "tauEvent/TauJet.h"
 
-#include "xAODEventInfo/EventInfo.h"
-
 #include "xAODMuon/MuonContainer.h"
 #include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
 
@@ -98,6 +96,8 @@
 #include "xAODTrigger/RoiDescriptorStore.h"
 
 #include "TrigT1Interfaces/RecEmTauRoI.h"
+
+
 
 #include "AthViews/ViewHelper.h"
 #include "AthViews/View.h"
@@ -246,6 +246,7 @@ StatusCode TrigEDMChecker::initialize() {
   if (m_doTDTCheck) {
     ATH_CHECK( m_trigDec.retrieve() );
     m_trigDec->ExperimentalAndExpertMethods()->enable();
+    ATH_MSG_INFO("TDT Executing with navigation format: " << m_trigDec->getNavigationFormat());
   }
 
 	return StatusCode::SUCCESS;
@@ -559,12 +560,8 @@ StatusCode TrigEDMChecker::execute() {
   if (m_doDumpAll || m_doDumpTrigCompsiteNavigation) {
     std::string trigCompositeSteering;
     ATH_CHECK(TrigCompositeNavigationToDot(trigCompositeSteering));
-    const xAOD::EventInfo* evtInfo = nullptr;
-    if (evtStore()->contains<xAOD::EventInfo>("EventInfo")) {
-      ATH_CHECK( evtStore()->retrieve(evtInfo) );
-    }
-    static int eventStatic = 0; // Might not always have EventInfo (early testing of Run-3 software)
-    const std::string evtNumber = (evtInfo == nullptr ? std::to_string(eventStatic++) : std::to_string(evtInfo->eventNumber()));
+    const EventContext& context = Gaudi::Hive::currentContext();
+    const std::string evtNumber = std::to_string(context.eventID().event_number());
     std::ofstream ofile(std::string("NavigationGraph_" + evtNumber + ".dot").c_str());
     ofile << trigCompositeSteering;
   }
@@ -4015,17 +4012,37 @@ StatusCode TrigEDMChecker::dumpxAODVertex() {
 }
 
 StatusCode TrigEDMChecker::dumpTDT() {
+  using namespace TrigCompositeUtils; // LinkInfo
   ATH_MSG_INFO( "REGTEST ==========START of TDT DUMP===========" );
   // Note: This minimal TDT dumper is for use during run-3 dev
   std::vector<std::string> confChains = m_trigDec->getListOfTriggers("HLT_.*");
   for (const auto& item : confChains) {
     bool passed = m_trigDec->isPassed(item, TrigDefs::requireDecision);
-    ATH_MSG_INFO("  HLT Item " << item << " passed raw? " << passed);
-    // TODO Enable this section after !22102 is merged 
-    // if (passed) {
-    //   ElementLinkVector<IParticleContainer> features = m_trigDec->features<IParticleContainer>(item);
-    //   ATH_MSG_INFO("    " << item << " features size: " << features.size());
-    // }
+    ATH_MSG_INFO("  HLT Item " << item << " (numeric ID " << TrigConf::HLTUtils::string2hash(item, "Identifier") << ") passed raw? " << passed);
+    if (passed) {
+      if (m_trigDec->getNavigationFormat() == "TriggerElement") {
+        ATH_MSG_INFO("    Skipping Run 2 features in this dumper");
+        continue;
+      }
+      std::vector< LinkInfo<xAOD::IParticleContainer> > passFeatures = m_trigDec->features<xAOD::IParticleContainer>(item);
+      ATH_MSG_INFO("    " << item << " Passed IParticle features size: " << passFeatures.size());
+      for (const LinkInfo<xAOD::IParticleContainer>& li : passFeatures) {
+        if (!li.isValid()) {
+          ATH_MSG_WARNING("      Unable to access feature - link invalid.");
+        } else {
+          ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+        }
+      }
+      std::vector< LinkInfo<xAOD::IParticleContainer> > allFeatures = m_trigDec->features<xAOD::IParticleContainer>(item, TrigDefs::includeFailedDecisions);
+      ATH_MSG_INFO("    " << item << " Passed+Failed IParticle features size: " << allFeatures.size());
+      for (const LinkInfo<xAOD::IParticleContainer>& li : allFeatures) {
+        if (!li.isValid()) {
+          ATH_MSG_WARNING("      Unable to access feature - link invalid.");
+        } else {
+          ATH_MSG_INFO("      IParticle Feature from " << li.link.dataID() << " pt:" << (*li.link)->pt() << " eta:" << (*li.link)->eta() << " phi:" << (*li.link)->phi());
+        }
+      }
+    }
   }
   ATH_MSG_INFO( "REGTEST ==========END of TDT DUMP===========" );
   return StatusCode::SUCCESS;
@@ -4099,6 +4116,31 @@ StatusCode TrigEDMChecker::checkTrigCompositeElementLink(const xAOD::TrigComposi
     if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to View, link name:'" << name << "'");
     else ATH_MSG_DEBUG("  Dereferenced link '" << name << "' to View:'" << *elementLink);
 
+   } else if (name == "feature") {
+
+    if (clid == ClassID_traits< xAOD::TrigEMClusterContainer >::ID()) {
+
+      const ElementLink<xAOD::TrigEMClusterContainer> elementLink = tc->objectLink<xAOD::TrigEMClusterContainer>(name);
+      if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to xAOD::TrigEMClusterContainer 'feature'");
+      else ATH_MSG_DEBUG("  Dereferenced xAOD::TrigEMClusterContainer link 'feature', Energy:" << (*elementLink)->energy());
+
+    } else if (clid == ClassID_traits< xAOD::TrigMissingETContainer >::ID()) {
+
+      const ElementLink<xAOD::TrigMissingETContainer> elementLink = tc->objectLink<xAOD::TrigMissingETContainer>(name);
+      if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to xAOD::TrigMissingETContainer 'feature'");
+      else ATH_MSG_DEBUG("  Dereferenced xAOD::TrigMissingETContainer link 'feature', ex:" << (*elementLink)->ex() << " ey:" << (*elementLink)->ey());
+
+    } else {
+
+      try {
+        const ElementLink<xAOD::IParticleContainer> elementLink = tc->objectLink<xAOD::IParticleContainer>(name);
+        if (!elementLink.isValid()) ATH_MSG_WARNING("  Invalid element link to 'feature'");
+        else ATH_MSG_DEBUG("  Dereferenced IParticle link 'feature', pt:" << (*elementLink)->pt() << " eta:" << (*elementLink)->eta() << " phi:" <<  (*elementLink)->phi());
+      } catch(std::runtime_error& e) {
+        ATH_MSG_WARNING("  Cannot dereference 'feature' as IParticle: '" << e.what() << "'");
+      }
+
+    }
 
   } else {
     ATH_MSG_DEBUG("  Ignoring link to '" << name << "' with link CLID " << clid);
@@ -4136,7 +4178,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
   ss << "  rankdir = BT" << std::endl;
 
   const std::vector<std::string> vetoList = { // Patterns to ignore when dumping all
-    "TrigCostContainer",
+    "HLT_TrigCostContainer",
     "L1DecoderSummary"
     };
 
@@ -4162,7 +4204,7 @@ StatusCode TrigEDMChecker::TrigCompositeNavigationToDot(std::string& returnValue
       const uint32_t selfIndex = selfEL.index();
       ss << "    \"" << selfKey << "_" << selfIndex << "\" [label=\"Container=" << typeNameTC; 
       if (tc->name() != "") ss << "\\nName=" << tc->name();
-      ss << "\\nKey=" << key << "\\nIndex=" << selfIndex;
+      ss << "\\nKey=" << key << "\\nIndex=" << selfIndex << " linksRemapped=" << (tc->isRemapped() ? "Y" : "N");
       const std::vector<DecisionID> decisions = tc->decisions();
       if (decisions.size() > 0) {
         ss << "\\nPass=";

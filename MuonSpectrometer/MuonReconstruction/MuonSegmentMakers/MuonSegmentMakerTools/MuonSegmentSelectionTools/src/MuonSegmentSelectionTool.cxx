@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentSelectionTool.h"
  
 #include "GaudiKernel/MsgStream.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentHitSummaryTool.h"
 
@@ -22,9 +22,8 @@ namespace Muon {
   MuonSegmentSelectionTool::MuonSegmentSelectionTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-      m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool")
+      m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool", this)
   {
     declareInterface<IMuonSegmentSelectionTool>(this);
 
@@ -44,8 +43,8 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
-    if(m_helperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_helperTool);
+    if(m_edmHelperSvc.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);
       return StatusCode::FAILURE;
     }
 
@@ -74,7 +73,7 @@ namespace Muon {
   }
 
   int MuonSegmentSelectionTool::quality( const MuonSegment& seg, bool ignoreHoles, bool useEta, bool usePhi ) const {
-    Identifier chid = m_helperTool->chamberId(seg);
+    Identifier chid = m_edmHelperSvc->chamberId(seg);
     if( !chid.is_valid() ) {
       ATH_MSG_WARNING("Got invalid segment identifier");
       return -1;

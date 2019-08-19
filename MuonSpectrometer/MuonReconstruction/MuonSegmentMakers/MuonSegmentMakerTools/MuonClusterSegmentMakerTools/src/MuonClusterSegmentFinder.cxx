@@ -22,7 +22,7 @@
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
@@ -38,17 +38,16 @@ namespace Muon {
     AthAlgTool(type,name,parent),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_layerHashProvider("Muon::MuonLayerHashProviderTool/MuonLayerHashProviderTool"),
-    m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
-    m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-    m_clusterTool("Muon::MuonClusterizationTool/MuonClusterizationTool"),
-    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-    m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
-    m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter"),
+    m_layerHashProvider("Muon::MuonLayerHashProviderTool/MuonLayerHashProviderTool", this),
+    m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool", this),
+    m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker", this),
+    m_clusterTool("Muon::MuonClusterizationTool/MuonClusterizationTool", this),
+    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this),
+    m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool", this),
+    m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter", this),
     m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner"),
-    m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool")
+    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this),
+    m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this)
  {
 
     declareInterface<IMuonClusterSegmentFinder>(this);
@@ -94,7 +93,7 @@ namespace Muon {
     ATH_CHECK(m_trackToSegmentTool.retrieve());
     ATH_CHECK(m_slTrackFitter.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
-    ATH_CHECK(m_helper.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_trackCleaner.retrieve());
     ATH_CHECK(m_segmentOverlapRemovalTool.retrieve());
 
@@ -313,14 +312,15 @@ return (fabs(i.z()) < fabs(j.z()));}
     if(segtrack) {
       ATH_MSG_DEBUG( "segment fit succeeded");
 	
-      Trk::Track* cleanedTrack = m_trackCleaner->clean(*segtrack);
-      if( cleanedTrack && cleanedTrack != segtrack ){
+      std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*segtrack);
+      if( cleanedTrack && !(*cleanedTrack->perigeeParameters() == *segtrack->perigeeParameters()) ){
         delete segtrack;
-        segtrack = cleanedTrack;
+	//using release until the entire code can be migrated to use smart pointers
+        segtrack = cleanedTrack.release();
       }else{ ATH_MSG_DEBUG("track remains unchanged");}
 	
 	
-      if( !m_helper->goodTrack(*segtrack,30) && vec2.size() > 4) {
+      if( !m_edmHelperSvc->goodTrack(*segtrack,30) && vec2.size() > 4) {
         if(msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << "bad segment fit:" ;
           if (segtrack->fitQuality()) msg(MSG::DEBUG) << "with chi^2/nDoF = " << segtrack->fitQuality()->chiSquared() << "/" << segtrack->fitQuality()->numberDoF() ;

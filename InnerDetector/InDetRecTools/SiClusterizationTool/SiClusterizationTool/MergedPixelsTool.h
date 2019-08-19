@@ -163,7 +163,6 @@ namespace InDet {
     ToolHandle<InDet::IPixelClusterSplitProbTool> m_splitProbTool{this, "SplitProbTool", "", "ToolHandle for the split probability tool"};
     ToolHandle<InDet::IPixelClusterSplitter> m_clusterSplitter{this, "ClusterSplitter", "", "ToolHandle for the split probability tool"};
     BooleanProperty m_doIBLSplitting{this, "DoIBLSplitting", false};
-    StringProperty m_splitClusterMapName{this, "SplitClusterAmbiguityMap", "SplitClusterAmbiguityMap", "No longer used Remove later //!< split cluster ambiguity map"};
     BooleanProperty m_doMergeBrokenClusters{this, "DoMergeBrokenClusters", false, "ITk: switch to turn ON/OFF merging of broken clusters"};
     BooleanProperty m_doRemoveClustersWithToTequalSize{this, "DoRemoveClustersWithToTequalSize", false, "ITk: switch to remove clusters with ToT=size"};
     BooleanProperty m_doCheckSizeBeforeMerging{this, "DoCheckSizeBeforeMerging", false, "ITk: switch to check size of to-be-merged clusters"};

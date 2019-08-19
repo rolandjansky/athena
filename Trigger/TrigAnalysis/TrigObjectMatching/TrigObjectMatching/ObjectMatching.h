@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OBJECT_MATCHING_H
@@ -32,14 +32,14 @@ class ObjectMatching {
       float distance(
           const T *t, 
           const U *u,
-          const DistanceFunctor<T, U> *metric);
+          const DistanceFunctor<T, U> *metric) const;
 
     // default metric version - uses deltaR matching and so no metric
     // need be supplied
     template <typename T, typename U>
       float distance(
           const T *t, 
-          const U *u);
+          const U *u) const;
     /**
      *
      * @brief matchToObjects returns the objects of type T from the supplied
@@ -51,7 +51,7 @@ class ObjectMatching {
           const U* matchObject,
           const std::vector<const T*> &targetObjects,
           float maxDistance,
-          const DistanceFunctor<T, U> *metric);
+          const DistanceFunctor<T, U> *metric) const;
 
     // default metric version - uses deltaR matching and so no metric
     // need be supplied
@@ -59,7 +59,7 @@ class ObjectMatching {
       std::vector<const T*> matchToObjects(
           const U* matchObject,
           const std::vector<const T*> &targetObjects,
-          float maxDistance = 0.1);
+          float maxDistance = 0.1) const;
 
     // similar matching functions for data vectors instead of std vectors
     template <typename T, typename U>
@@ -67,26 +67,26 @@ class ObjectMatching {
           const U* matchObject,
           const DataVector<T> &targetObjects,
           float maxDistance,
-          const DistanceFunctor<T, U> *metric);
+          const DistanceFunctor<T, U> *metric) const;
 
     template <typename T, typename U>
       std::vector<const T*> matchToObjects(
           const U* matchObject,
           const DataVector<T> &targetObjects,
-          float maxDistance = 0.1);
+          float maxDistance = 0.1) const;
 
     template <typename T, typename U>
       bool anyMatch(
           const U* matchObject,
           const std::vector<const T*> &targetObjects,
           float maxDistance,
-          const DistanceFunctor<T, U> *metric);
+          const DistanceFunctor<T, U> *metric) const;
 
     template <typename T, typename U>
       bool anyMatch(
           const U* matchObject,
           const std::vector<const T*> &targetObjects,
-          float maxDistance);
+          float maxDistance) const;
 
     /**
      *
@@ -100,7 +100,7 @@ class ObjectMatching {
           const U *matchObject,
           const std::vector<const T*> &targetObjects,
           float maxDistance,
-          const DistanceFunctor<T, U> *metric);
+          const DistanceFunctor<T, U> *metric) const;
 
     // default metric version - uses deltaR matching and so no metric
     // need be supplied
@@ -108,7 +108,7 @@ class ObjectMatching {
       const T* matchToObject(
           const U *matchObject,
           const std::vector<const T*> &targetObjects,
-          float maxDistance = 0.1);
+          float maxDistance = 0.1) const;
 
     // similar functions for data vectors rather than std::vectors
     template <typename T, typename U>
@@ -116,19 +116,19 @@ class ObjectMatching {
           const U *matchObject,
           const DataVector<T> &targetObjects,
           float maxDistance,
-          const DistanceFunctor<T, U> *metric);
+          const DistanceFunctor<T, U> *metric) const;
 
     template <typename T, typename U>
       const T* matchToObject(
           const U *matchObject,
           const DataVector<T> &targetObjects,
-          float maxDistance = 0.1);
+          float maxDistance = 0.1) const;
 
   protected:
 
     // returns factory held default metric (deltaR)
     template <typename T, typename U>
-      const DistanceFunctor<T,U> *prepareMetric();
+      const DistanceFunctor<T,U> *prepareMetric() const;
 
   private:
 

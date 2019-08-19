@@ -58,6 +58,9 @@
  * - ROOT histogram settings group:
  *    - `kCanRebin` enables ROOT's internal functionality of autobinning the histogram
  *    - `Sumw2` activate the storage of the sum of squares of errors
+ * - ROOT histogram extensions group:
+ *    - `kAddBinsDynamically` enable adding new bins on the fly, when new data doesn't fit into current \n
+ *      range of the histogram's values 
  * - Lumiblock awareness group:
  *    - `kLBNHistoryDepth=value` makes the histogram lumiblock aware and groups incoming data based on lumiblock number,\n
  *      'value' should be defined as positive integer
@@ -78,6 +81,8 @@ public:
   GenericMonitoringTool(const std::string & type, const std::string & name, const IInterface* parent);
   virtual ~GenericMonitoringTool() override;
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
+  virtual StatusCode stop() override;
 
   /// Retrieve the histogram fillers
   std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) const;
@@ -87,6 +92,7 @@ public:
   void setPath( const std::string& newPath ) { m_histoPath = newPath; }
 
   virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
+  virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
 private:
   /// THistSvc (do NOT fix the service type (only the name) to allow for a different implementation online

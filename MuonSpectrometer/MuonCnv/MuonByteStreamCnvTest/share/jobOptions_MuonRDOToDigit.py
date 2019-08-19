@@ -9,7 +9,9 @@ MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (
                          DecodeMdtRDO = True,
                          DecodeRpcRDO = True,
                          DecodeTgcRDO = True,
-                         DecodeCscRDO = True ) 
+                         DecodeCscRDO = True,
+                         DecodeSTGC_RDO = False,
+                         DecodeMM_RDO = False ) 
 			 
 MuonRdoToMuonDigitTool.cscCalibTool = getPublicTool("CscCalibTool")
 

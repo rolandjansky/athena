@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloBCIDAvgAlg.h" 
@@ -9,22 +9,18 @@
 CaloBCIDAvgAlg::CaloBCIDAvgAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm(name,pSvcLocator),
   m_bunchCrossingTool("BunchCrossingTool") {
-  declareProperty("LumiTool",m_lumiTool,"Tool handle for Luminosity");
   declareProperty("BunchCrossingTool",m_bunchCrossingTool,"Tool handle for bunch crossing tool");
 }
                                                                                 
 StatusCode CaloBCIDAvgAlg::initialize() {
   ATH_MSG_INFO( " initialize "  );
 
-// get LumiTool
+// get BunchCrossingTool
   if (m_isMC) {
     ATH_CHECK( m_bunchCrossingTool.retrieve() );
     ATH_MSG_DEBUG(" -- bunch crossing Tool retrieved");
-    m_lumiTool.disable();
   
   } else {
-    ATH_CHECK( m_lumiTool.retrieve() );
-    ATH_MSG_DEBUG(" -- Lumi Tool retrieved");
     m_bunchCrossingTool.disable();
   }
 
@@ -35,6 +31,7 @@ StatusCode CaloBCIDAvgAlg::initialize() {
   ATH_CHECK(m_minBiasAvgKey.initialize());
   ATH_CHECK(m_cablingKey.initialize());
   ATH_CHECK(m_mcSym.initialize());
+  ATH_CHECK(m_lumiDataKey.initialize(!m_isMC));
 
   ATH_CHECK(detStore()->retrieve(m_lar_on_id,"LArOnlineID"));
   return StatusCode::SUCCESS;
@@ -63,6 +60,12 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
   SG::ReadCondHandle<LArMCSym> mcSymHdl(m_mcSym,ctx);
   const LArMCSym* mcSym=*mcSymHdl;
 
+  std::vector<float> luminosityPerBCID;
+  if (!m_isMC) {
+    SG::ReadCondHandle<LuminosityCondData> lumiData(m_lumiDataKey,ctx);
+    luminosityPerBCID = lumiData->lbLuminosityPerBCIDVector();
+  }
+
   std::unordered_map<unsigned,float> avgEshift;
 
   const uint32_t bcid = ei->bcid();
@@ -72,7 +75,8 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
   const float xlumiMC = m_isMC ? ei->averageInteractionsPerCrossing()*0.158478605 : 0.0;  
 
   // Calculate Luminosity values ONLY around the places Luminosity will be needed
-  const std::vector<float> lumiVec=accumulateLumi(bcid,xlumiMC);
+  const std::vector<float> lumiVec=accumulateLumi(luminosityPerBCID,
+                                                  bcid,xlumiMC);
 
 
   //std::cout << " start loop over cells  bcid= " << bcid << std::endl;
@@ -188,8 +192,11 @@ StatusCode CaloBCIDAvgAlg::execute(const EventContext& ctx) const {
   return StatusCode::SUCCESS;
 }
 
-std::vector<float> CaloBCIDAvgAlg::accumulateLumi(const unsigned int bcid, const float xlumiMC) const {
-
+std::vector<float>
+CaloBCIDAvgAlg::accumulateLumi(const std::vector<float>& luminosity,
+                               const unsigned int bcid,
+                               const float xlumiMC) const
+{
   std::vector<float> lumiVec(m_bcidMax,0.0);
 
   unsigned int keep_samples=32;
@@ -201,7 +208,7 @@ std::vector<float> CaloBCIDAvgAlg::accumulateLumi(const unsigned int bcid, const
     for(unsigned int i=a;i<b;i++){
       float lumi=0.0;
       if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
-      else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units
+      else lumi = luminosity.at(i);  // luminosity in 10**30 units
       lumiVec[i]=(lumi);
     }
   } 
@@ -213,21 +220,21 @@ std::vector<float> CaloBCIDAvgAlg::accumulateLumi(const unsigned int bcid, const
     for(unsigned int i=(unsigned int)a;i<b;i++){
       float lumi=0.0;
       if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
-      else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units
+      else lumi = luminosity.at(i);  // luminosity in 10**30 units
       lumiVec[i]=(lumi);
     }
 
     for(unsigned int i=0;i<keep_ofcsamples+4;i++){
       float lumi=0.0;
       if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
-      else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units
+      else lumi = luminosity.at(i);  // luminosity in 10**30 units
       lumiVec[i]=(lumi);
     }
 
     for(unsigned int i=m_bcidMax-keep_samples-5;i<m_bcidMax;i++){
       float lumi=0.0;
       if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(i)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
-      else lumi = m_lumiTool->lbLuminosityPerBCID(i);  // luminosity in 10**30 units
+      else lumi = luminosity.at(i);  // luminosity in 10**30 units
       lumiVec[i]=(lumi);
     }
 

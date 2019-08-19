@@ -33,8 +33,8 @@
 
 #include "tbb/blocked_range.h"
 
-class LArOnlineID; 
-class CaloDetDescrManager; 
+class LArOnlineID_Base; 
+class CaloDetDescrManager_Base; 
 class LArDSPConfig;
 
 #include "GaudiKernel/ToolHandle.h"
@@ -126,8 +126,8 @@ private:
   ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoder;
   ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoderV2;
 
-  const LArOnlineID*       m_onlineID; 
-  const CaloDetDescrManager* m_calo_dd_man;
+  const CaloDetDescrManager_Base* m_calo_dd_man;
+  const LArOnlineID_Base*  m_onlineID; 
   const LArOFCBinComplete* m_larPhysWaveBin;
 
   double m_errAmpl;
@@ -182,7 +182,9 @@ private:
     const LArOnOffIdMapping* m_cabling;
     const LArOFCAlg* m_ofcAlg;
   };
-
+  
+  // Running on cells or supercells?
+  bool m_isSC;
 };
 
 

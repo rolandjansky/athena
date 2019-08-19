@@ -14,7 +14,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
 #include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
@@ -85,7 +85,6 @@ namespace MuonCombined {
     m_haveAddedCaloInformation(false),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
     m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
     m_particleCreator("Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"),
@@ -107,7 +106,6 @@ namespace MuonCombined {
     declareProperty("MuonIdHelperTool",m_idHelper );
     declareProperty("Printer",m_printer );
     declareProperty("ParticleCaloExtensionTool", m_caloExtTool);      
-    declareProperty("Helper",m_edmHelper );
     declareProperty("MuonPrinter",m_muonPrinter );
     declareProperty("TrackParticleCreator",m_particleCreator );
     declareProperty("AmbiguityProcessor",m_ambiguityProcessor );
@@ -116,7 +114,8 @@ namespace MuonCombined {
     declareProperty("MomentumBalanceTool",m_momentumBalanceTool);
     declareProperty("ScatteringAngleTool",m_scatteringAngleTool);
     declareProperty("MuonSelectionTool", m_selectorTool);
-    declareProperty("MeanMDTdADCTool",m_meanMDTdADCTool);	
+    declareProperty("MeanMDTdADCTool",m_meanMDTdADCTool);
+    declareProperty("TrackSegmentAssociationTool",m_trackSegmentAssociationTool);
     declareProperty("BuildStauContainer",m_buildStauContainer=false);
     declareProperty("FillEnergyLossFromTrack",m_fillEnergyLossFromTrack=true);
     declareProperty("FillAlignmentEffectsOnTrack",m_fillAlignmentEffectsOnTrack=true);
@@ -132,6 +131,7 @@ namespace MuonCombined {
     declareProperty("UseCaloCells",m_useCaloCells = true);
     declareProperty("MakeSAMuons", m_doSA=false);
     //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
+    declareProperty("TrackQuery", m_trackQuery);
      
   }
 
@@ -147,9 +147,8 @@ namespace MuonCombined {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPrinter.retrieve());
-    if(m_useCaloCells) ATH_CHECK(m_caloExtTool.retrieve());
-    else m_caloExtTool.disable();
-    ATH_CHECK(m_edmHelper.retrieve());
+    ATH_CHECK(m_caloExtTool.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_particleCreator.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
     ATH_CHECK(m_muonDressingTool.retrieve());
@@ -684,7 +683,7 @@ namespace MuonCombined {
 
     // Add inner match chi^2
     muon.setParameter(static_cast<int>(tag->matchDoF()),     xAOD::Muon::msInnerMatchDOF);
-    muon.setParameter(static_cast<float>(tag->matchChi2()),  xAOD::Muon::msInnerMatchChi2);    
+    muon.setParameter(static_cast<float>(tag->matchChi2()),  xAOD::Muon::msInnerMatchChi2);
 
     ATH_MSG_DEBUG("Done adding Combined Fit Muon  " << tag->author() << " type " << tag->type());
 
@@ -1276,7 +1275,7 @@ namespace MuonCombined {
       // create pars for muon and loop over hits
       double momentum = 1e8;
       double charge   = 0.;
-      const Trk::TrackParameters* pars = m_edmHelper->createTrackParameters( *seg, momentum, charge );
+      const Trk::TrackParameters* pars = m_edmHelperSvc->createTrackParameters( *seg, momentum, charge );
       std::vector<const Trk::MeasurementBase*>::const_iterator mit = seg->containedMeasurements().begin();
       std::vector<const Trk::MeasurementBase*>::const_iterator mit_end = seg->containedMeasurements().end();
       for( ;mit!=mit_end;++mit ){
@@ -1431,7 +1430,7 @@ namespace MuonCombined {
       if( !meas || !pars ) continue;
       
       // only consider RPC hits
-      Identifier mid = m_edmHelper->getIdentifier(*meas);
+      Identifier mid = m_edmHelperSvc->getIdentifier(*meas);
       if( !m_idHelper->isMuon(mid) || !m_idHelper->isRpc(mid) ) continue;
       
       // lambda to add a hit

@@ -32,8 +32,9 @@ namespace Analysis {
 
   MV1Tag::MV1Tag(const std::string& t, const std::string& n, const IInterface* p)
     : AthAlgTool(t,n,p),
-      m_calibrationTool("BTagCalibrationBroker"),
-      m_runModus("analysis") {
+      m_runModus("analysis"),
+      m_calibrationTool("BTagCalibrationBroker")
+  {
     declareInterface<ITagTool>(this);
     // access to XML configuration files for TMVA from COOL:
     declareProperty("calibrationTool", m_calibrationTool);
@@ -81,6 +82,8 @@ namespace Analysis {
 
 
   StatusCode MV1Tag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
+
+    std::lock_guard<std::mutex> lock (m_mutex);
 
     /* jet author: */
     std::string author = JetTagUtils::getJetAuthor(jetToTag);

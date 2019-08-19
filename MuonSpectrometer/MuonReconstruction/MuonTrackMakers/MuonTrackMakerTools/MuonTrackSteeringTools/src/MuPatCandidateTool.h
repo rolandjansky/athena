@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATCANDIDATETOOL_H
@@ -10,6 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkParameters/TrackParameters.h"
 #include <vector>
 #include <set>
@@ -40,7 +41,6 @@ namespace Muon {
   class IMuonSegmentSelectionTool;
   class IMuonSegmentInfoExtender;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonSegment;
   class MuPatTrack;
@@ -173,7 +173,9 @@ namespace Muon {
     ToolHandle<IMuonClusterOnTrackCreator>            m_cscRotCreator;      //<! tool to calibrate CSC hits
     ToolHandle<IMuonCompetingClustersOnTrackCreator>  m_compClusterCreator; //<! tool to create competing clusters on track
     ToolHandle<MuonIdHelperTool>                      m_idHelperTool;       //<! tool to assist with Identifiers
-    ToolHandle<MuonEDMHelperTool>                     m_helperTool;         //<! multipurpose helper tool
+    ServiceHandle<IMuonEDMHelperSvc>                  m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>                    m_printer;            //<! tool to print EDM objects
     ToolHandle<MuPatHitTool>                          m_hitHandler;         //<! tool to manipulate hit lists
     ToolHandle<Muon::IMuonSegmentSelectionTool>       m_segmentSelector;    //<! tool to resolve track ambiguities

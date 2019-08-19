@@ -107,7 +107,8 @@ namespace xAOD {
     return ( *acc )( *this );
   }
 
-  bool Photon_v1::setVertexCaloMatchValue( float& value, const EgammaParameters::VertexCaloMatchType information ) {
+  bool Photon_v1::setVertexCaloMatchValue( const float value, 
+                                           const EgammaParameters::VertexCaloMatchType information ) {
 
     const xAOD::Photon_v1::Accessor< float >* acc =  vertexCaloMatchAccessorV1( information );
     if( ! acc ) return false;

@@ -19,7 +19,7 @@
 
 namespace Trk {
 
-  static double s_oneOverUcharMax = 1./double(UCHAR_MAX);
+  static const double s_oneOverUcharMax = 1./double(UCHAR_MAX);
 
   /** @class ElementFraction */
   class ElementFraction : public std::pair<unsigned char, unsigned char> {

@@ -47,10 +47,8 @@ namespace Analysis {
   */
 
   MV2Tag::MV2Tag(const std::string& name, const std::string& n, const IInterface* p):
-    AthAlgTool(name, n,p),
+    base_class(name, n,p),
     m_runModus("analysis") {
-
-    declareInterface<IMultivariateJetTagger>(this);
 
     // force MV2 to always use a calibration derived from MV2CalibAlias jet collection
     declareProperty("forceMV2CalibrationAlias", m_forceMV2CalibrationAlias = true);
@@ -68,7 +66,7 @@ namespace Analysis {
     declareProperty("decTagName", m_decTagName = "MV2_inputs");
 
     declareProperty("defaultvals", m_defaultvals );
-    declareProperty("MVTMvariableNames", m_MVTM_name_tranlations );
+    declareProperty("MVTMvariableNames", m_MVTM_name_translations );
 
 
   }
@@ -90,6 +88,10 @@ namespace Analysis {
     // prepare readKey for calibration data:
     ATH_CHECK(m_readKey.initialize());
 
+    for (const auto& p : m_MVTM_name_translations) {
+      m_MVTM_name_backtrans[p.second] = p.first;
+    }
+
     //m_egammaBDTs.clear();
     return StatusCode::SUCCESS;
   }
@@ -97,16 +99,13 @@ namespace Analysis {
 
   StatusCode MV2Tag::finalize() {
     ATH_MSG_DEBUG("#BTAG# Finalizing MV2.");
-    for (auto& iter: m_local_inputvals) {
-        delete iter.second;
-    }
     return StatusCode::SUCCESS;
   }
 
   void MV2Tag::assignProbability(xAOD::BTagging *BTag,
          const std::map<std::string, double> &inputs,
-         const std::string& assigned_jet_author){
-
+         const std::string& assigned_jet_author) const
+  {
      /*
      * #index for this function
      * #1: Preparation of MVA instance using MVAUtils BDT
@@ -170,33 +169,23 @@ namespace Analysis {
     ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
     for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
 
-    CreateLocalVariables( inputs );
+    std::vector<float> vars = CreateVariables (inputs, inputVars);
+    ATH_MSG_DEBUG("#BTAG# nConfigVar"<<vars.size());
 
-    std::vector<float*>  inputPointers; inputPointers.clear();
-    unsigned nConfgVar=0; bool badVariableFound=false;
-    SetVariableRefs(inputVars,nConfgVar,badVariableFound,inputPointers);
-    ATH_MSG_DEBUG("#BTAG# nConfgVar"<<nConfgVar
-		    <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
-
-    if ( inputVars.size()!=nConfgVar or badVariableFound ) {
-      ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
+    if ( inputVars.size()!=vars.size() ) {
+      ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< vars.size() << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
       m_disableAlgo=true;
       return;
     }
-    bdt->SetPointers(inputPointers);
 
-    // #2 fill inputs
-    //replace NAN default values and, assign the values from the MVTM input map to the relevant variables
-    //currently default values are hard coded in the definition of ReplaceNaN_andAssign()
-    ReplaceNaN_andAssign(inputs);
 
     // #3: Calculation of MVA output variable(s)
     /* compute MV2: */
     double mv2 = -10.;  double mv2m_pb=-10., mv2m_pu=-10., mv2m_pc=-10.;
 
-    if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(bdt);//this gives back double
+    if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(vars, bdt);//this gives back double
       else { //if it is MV2m
-        std::vector<float> outputs= GetMulticlassResponse(bdt);//this gives back float
+        std::vector<float> outputs= GetMulticlassResponse(vars, bdt);//this gives back float
       	//vector size is checked in the function above
       	mv2m_pb=outputs[0]; mv2m_pu=outputs[1]; mv2m_pc=outputs[2] ;
       }
@@ -221,7 +210,7 @@ namespace Analysis {
 
   }//end assign probability
 
-  float MV2Tag::d0sgn_wrtJet(const TLorentzVector& jet, const TLorentzVector& trk, float d0sig) {
+  float MV2Tag::d0sgn_wrtJet(const TLorentzVector& jet, const TLorentzVector& trk, float d0sig) const {
     const double dPhi = jet.DeltaPhi(trk);
     const float d0_sign = sin(dPhi) * d0sig;
 
@@ -232,69 +221,38 @@ namespace Analysis {
     return res;
   }
 
-  float MV2Tag::z0sgn_wrtJet(float trackTheta, float trackZ0, float jetEta) {
+  float MV2Tag::z0sgn_wrtJet(float trackTheta, float trackZ0, float jetEta) const {
     const float trackEta = -std::log(std::tan(trackTheta/2.));
     const float zs = (jetEta - trackEta)*trackZ0;
     return (zs>=0. ? 1. : -1.);
   }
 
 
-void MV2Tag::CreateLocalVariables(std::map<std::string, double> var_map){
+  std::vector<float>
+  MV2Tag::CreateVariables (const std::map<std::string, double> &inputs,
+                           const std::vector<std::string> inputVars) const
+  {
+    std::vector<float> vals;
+    vals.reserve (inputVars.size());
 
-
-
-  for(std::map<std::string, double >::iterator iterator = var_map.begin(); iterator != var_map.end(); iterator++) {
-
-      std::string MVTM_var_name = iterator->first;
-
-      if (!(m_MVTM_name_tranlations.find(MVTM_var_name) == m_MVTM_name_tranlations.end()) ){
-      // translate to calibration file naming convention
-      std::string var_name = m_MVTM_name_tranlations.at(MVTM_var_name);
-      m_local_inputvals[var_name] = new float;
+    for (const std::string& varName : inputVars) {
+      std::string inputName = varName;
+      auto it = m_MVTM_name_backtrans.find (varName);
+      if (it != m_MVTM_name_backtrans.end()) inputName = it->second;
+      auto it2 = inputs.find (inputName);
+      if (it2 == inputs.end()) {
       }
+      else {
+        double val = it2->second;
+        if (std::isnan (val)) {
+          val = m_defaultvals.at (varName);
+        }
+        vals.push_back (val);
+      }
+    }
+    return vals;
   }
 
-}
-
-void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
-    //replace nan values provided by MultivariateTagManager
-
-
-    for(std::map<std::string, double >::iterator iterator = var_map.begin(); iterator != var_map.end(); iterator++) {
-
-
-      std::string MVTM_var_name = iterator->first;
-
-       if (!(m_MVTM_name_tranlations.find(MVTM_var_name) == m_MVTM_name_tranlations.end()) ){
-      // translate to calibration file naming convention
-      std::string var_name = m_MVTM_name_tranlations.at(MVTM_var_name);
-      *m_local_inputvals.at(var_name) =  !std::isnan(iterator->second) ? iterator->second : m_defaultvals.at(var_name);
-      }
-
-    }
-
-  }
-
-
-  void MV2Tag::SetVariableRefs(const std::vector<std::string> inputVars, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
-
-
-    for (unsigned ivar=0; ivar<inputVars.size(); ivar++) {
-      //pt and abs(eta)
-
-
-      if ( m_local_inputvals.find(inputVars.at(ivar)) == m_local_inputvals.end() ){
-        //if variable is not found
-        ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in MV2... the algorithm will be 'disabled'.");
-        badVariableFound=true;
-      }else{
-        inputPointers.push_back(m_local_inputvals.at(inputVars.at(ivar)) );
-        nConfgVar++;
-      }
-
-    }
-
-  } //end MV2Tag::SetVariableRefs
 
 
 }//end namespace Analysis

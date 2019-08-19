@@ -26,8 +26,7 @@
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CLHEP/Random/RandomEngine.h"
-
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 //c - c++
 #include "zlib.h"
@@ -40,7 +39,6 @@ class Identifier;
 class MdtIdHelper;
 class IIOVDbSvc;
 class MsgStream;
-class IAtRndmGenSvc;
 
 namespace MuonGM{
   class MuonDetectorManager;
@@ -111,15 +109,16 @@ class MdtCalibDbAlg: public AthAlgorithm {
   double m_rtShift;
   double m_rtScale;
   double m_prop_beta;
-  ServiceHandle<IAtRndmGenSvc> m_AtRndmGenSvc;
-  //TODO: This is the old, non thread-safe implementation of the random numbers service. It might be useful to use the new one (IAthRNGSvc).
-  CLHEP::HepRandomEngine *m_engine;
+
+  ServiceHandle<IAthRNGSvc> m_AthRNGSvc;
+  std::string m_randomStream;
+  ATHRNG::RNGWrapper* m_RNGWrapper;
 
   StringArrayProperty m_RTfileNames; //temporary!!!
 
   //decompression buffer and length of buffer
   uLongf m_buffer_length;
-  std::unique_ptr<Bytef> m_decompression_buffer;
+  std::unique_ptr<Bytef[]> m_decompression_buffer;
   
   //wrapper function for the zlib uncompress, 
   //that automatically creates or increases the buffer if needed.    
@@ -132,6 +131,8 @@ class MdtCalibDbAlg: public AthAlgorithm {
   SG::WriteCondHandleKey<MdtRtRelationCollection> m_writeKeyRt{this,"MdtRtRelationCollection","MdtRtRelationCollection","MDT RT relations"};
   SG::WriteCondHandleKey<MdtTubeCalibContainerCollection> m_writeKeyTube{this,"MdtTubeCalibContainerCollection","MdtTubeCalibContainerCollection","MDT tube calib"};
   SG::WriteCondHandleKey<MdtCorFuncSetCollection> m_writeKeyCor{this,"MdtCorFuncSetCollection","MdtCorFuncSetCollection","MDT cor Funcs"};
+
+  unsigned int m_regionIdThreshold;
    
 };
 

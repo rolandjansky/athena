@@ -5,7 +5,7 @@
 #include "MuonSegmentOverlapRemovalTool.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
 #include "MuonSegment/MuonSegment.h"
@@ -21,7 +21,6 @@ namespace Muon {
   MuonSegmentOverlapRemovalTool::MuonSegmentOverlapRemovalTool(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_idHelperTool("Muon::MuonIdHelpers/MuonIdHelperTool"),
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonSegmentOverlapRemovalTool>(this);
@@ -41,11 +40,11 @@ namespace Muon {
       return sc;
     }
 
-    sc = m_helperTool.retrieve();
+    sc = m_edmHelperSvc.retrieve();
     if (sc.isSuccess()){
-      ATH_MSG_INFO("Retrieved " << m_helperTool );
+      ATH_MSG_INFO("Retrieved " << m_edmHelperSvc );
     }else{
-      ATH_MSG_FATAL("Could not get " << m_helperTool ); 
+      ATH_MSG_FATAL("Could not get " << m_edmHelperSvc ); 
       return sc;
     }
 
@@ -99,7 +98,7 @@ namespace Muon {
 	continue;
       }
       MuonSegmentKey sk(*seg);
-      Identifier chId = m_helperTool->chamberId(*seg);
+      Identifier chId = m_edmHelperSvc->chamberId(*seg);
       bool isCsc = m_idHelperTool->isCsc(chId);
 
       // should this segment be inserted?
@@ -327,7 +326,7 @@ namespace Muon {
       // create segment key object
       MuonSegment* seg=(*sit).get();
       MuonSegmentKey sk(*seg);
-      Identifier chId = m_helperTool->chamberId(*seg);
+      Identifier chId = m_edmHelperSvc->chamberId(*seg);
       bool isCsc = m_idHelperTool->isCsc(chId);
 
       // should this segment be inserted?

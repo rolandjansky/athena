@@ -5,6 +5,7 @@
 #include "LArCalibUtils/LArCaliWaveBuilder.h"
 
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
@@ -41,6 +42,7 @@ LArCaliWaveBuilder::LArCaliWaveBuilder(const std::string& name, ISvcLocator* pSv
  declareProperty("RecAllCells",            m_recAll=false);
  declareProperty("UsePattern",             m_usePatt=-1);
  declareProperty("NumPattern",             m_numPatt=16); // fix me - is it possible to get from outside ?
+ declareProperty("isSC",                   m_isSC=false);
 
 
  //m_dt=25*ns/m_NStep;
@@ -92,11 +94,24 @@ StatusCode LArCaliWaveBuilder::initialize()
       return sc;
     }
   }
+  
   //Get Online helper from DetStore
-  sc=detStore()->retrieve(m_onlineID);
+  /*sc=detStore()->retrieve(m_onlineID);
   if (sc.isFailure()) {
       ATH_MSG_ERROR( "Failed to retrieve LArOnlineID!" );
       return sc;
+  }*/
+
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    ATH_CHECK( detStore()->retrieve(ll, "LArOnline_SuperCellID") );
+    m_onlineID = (const LArOnlineID_Base*)ll;
+    ATH_MSG_DEBUG(" Found the LArOnline_SuperCellID helper. ");
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    ATH_CHECK( detStore()->retrieve(ll, "LArOnlineID") );
+    m_onlineID = (const LArOnlineID_Base*)ll;
+    ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
   }
 
   ATH_CHECK(m_cablingKey.initialize());

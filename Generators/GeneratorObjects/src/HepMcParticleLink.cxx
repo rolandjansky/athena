@@ -170,7 +170,7 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const
   const IProxyDict* sg = nullptr;
   const HepMC::GenParticle* p = m_ptrs.get (sg);
   if (!p) {
-    if (0 == barcode()) {
+    if (0 == barcode() || 0x7fffffff == barcode()) {
 #if 0
       MsgStream log (Athena::getMessageSvc(), "HepMcParticleLink");
       log << MSG::DEBUG

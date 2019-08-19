@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EGAMMAALGS_EMBREMCOLLECTIONBUILDER_H
@@ -23,19 +23,10 @@
 
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
-
+#include "TrkTrack/Track.h"      
+#include <memory>
 class EMBremCollectionBuilder : public AthAlgorithm 
 {
-  /*Helper struct, 
-   * added here mainly for
-   * scoping
-   */
-
-  struct localCounter{
-    unsigned int failedFitTracks{0}; 
-    unsigned int refittedTracks{0};
-    unsigned int failedSiliconRequirFit{0};
-  };
 
 public:
   /** @brief Default constructor*/
@@ -45,12 +36,40 @@ public:
   virtual StatusCode finalize() override final;
   virtual StatusCode execute() override final;
 
+  struct TrackWithIndex{
+
+    TrackWithIndex(std::unique_ptr<Trk::Track>intrack,
+                   size_t index):track(std::move(intrack)), origIndex(index){}
+    
+    TrackWithIndex(const TrackWithIndex&) = default;
+    TrackWithIndex(TrackWithIndex&&) = default;
+    TrackWithIndex& operator=(const TrackWithIndex&) = delete;
+    TrackWithIndex& operator=(TrackWithIndex&&) = default;
+    ~TrackWithIndex() = default;
+
+    std::unique_ptr<Trk::Track> track;
+    size_t origIndex;
+  };
+
 private:
-  /** @brief Refit of track */
-  StatusCode refitTrack(const xAOD::TrackParticle* tmpTrkPart , 
-                        TrackCollection* finalTracks, 
-                        xAOD::TrackParticleContainer* finalTrkPartContainer,
-                        localCounter& counter) const;
+
+  StatusCode refitTracks(const EventContext& ctx,
+                         const std::vector<const xAOD::TrackParticle*>& input,                           
+                         std::vector<TrackWithIndex>& refitted,                                  
+                         std::vector<TrackWithIndex>& failedfit)const;
+
+  StatusCode createCollections(const std::vector<TrackWithIndex>& refitted,                            
+                               const std::vector<TrackWithIndex>& failedfit,                           
+                               const std::vector<TrackWithIndex>& trtAlone,                            
+                               TrackCollection* finalTracks,                                     
+                               xAOD::TrackParticleContainer* finalTrkPartContainer,              
+                               const xAOD::TrackParticleContainer* AllTracks)const;                     
+
+  StatusCode createNew(const TrackWithIndex& Info,                                               
+                       bool isSilicon,                                                           
+                       TrackCollection* finalTracks,                                             
+                       xAOD::TrackParticleContainer* finalTrkPartContainer,                      
+                       const xAOD::TrackParticleContainer* AllTracks) const;
 
   /** @brief The track refitter */
   ToolHandle<IegammaTrkRefitterTool>  m_trkRefitTool {this,

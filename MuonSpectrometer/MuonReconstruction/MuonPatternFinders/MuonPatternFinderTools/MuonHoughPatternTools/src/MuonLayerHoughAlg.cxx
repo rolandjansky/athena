@@ -54,6 +54,7 @@ StatusCode MuonLayerHoughAlg::initialize()
   ATH_CHECK( m_keysTgc.initialize());
   ATH_CHECK( m_keyMM.initialize()  );
   ATH_CHECK( m_combis.initialize() );
+  ATH_CHECK( m_houghDataPerSectorVecKey.initialize() );
 
   return StatusCode::SUCCESS; 
 }
@@ -69,10 +70,10 @@ StatusCode MuonLayerHoughAlg::execute()
   const Muon::MMPrepDataContainer* mmPrds =GetObject(m_keyMM);
 
   ATH_MSG_VERBOSE("calling layer tool ");
-  std::unique_ptr<MuonPatternCombinationCollection> combis(m_layerTool->analyse(mdtPrds,cscPrds,tgcPrds,rpcPrds,stgcPrds,mmPrds));
-  if( combis ){
+  auto [combis, houghDataPerSectorVec] = m_layerTool->analyse(mdtPrds,cscPrds,tgcPrds,rpcPrds,stgcPrds,mmPrds);
 
-    SG::WriteHandle<MuonPatternCombinationCollection> Handle(m_combis);
+  SG::WriteHandle<MuonPatternCombinationCollection> Handle(m_combis);
+  if( combis ){
     if (Handle.record(std::move(combis)).isFailure()) {
       ATH_MSG_WARNING("Failed to record MuonPatternCombinationCollection at MuonLayerHoughCombis");
     }else{
@@ -81,6 +82,20 @@ StatusCode MuonLayerHoughAlg::execute()
         msg() << msg().level() << "Number of MuonPatternCombinations  " << Handle->size() << std::endl << m_printer->print(*Handle) << endmsg;
       }
     }
+  }
+  else{
+    ATH_MSG_VERBOSE("CombinationCollection "<<m_combis<<" is empty, recording");
+    ATH_CHECK(Handle.record(std::make_unique<MuonPatternCombinationCollection>()));
+  }
+
+  // write hough data to SG
+  SG::WriteHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
+  if (houghDataPerSectorVec) {
+    ATH_CHECK(handle.record(std::move(houghDataPerSectorVec)));
+  }
+  else{
+    ATH_MSG_VERBOSE("HoughDataPerSectorVec "<<m_houghDataPerSectorVecKey<<" is empty, recording");
+    ATH_CHECK(handle.record(std::make_unique<Muon::MuonLayerHoughTool::HoughDataPerSectorVec>()));
   }
 
   return StatusCode::SUCCESS;

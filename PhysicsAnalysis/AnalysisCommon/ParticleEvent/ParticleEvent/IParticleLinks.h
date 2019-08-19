@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -19,7 +19,7 @@
 #include "NavFourMom/IParticleContainer.h"
 #include "NavFourMom/IParticleLink.h"
 #include "ParticleEvent/ParticleLinks.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 
 /// Wrapper for a vector of links to @c IParticle, to be put in SG.

@@ -78,8 +78,6 @@ blocked_folders = [
     '/TRT/Calib/PID_RToTver_New',
     '/TRT/Calib/PIDver_New',
     '/TRT/Calib/ToTCalib',
-    '/TRT/Cond/Status',
-    '/TRT/Cond/StatusPermanent',
     '/CALO/H1Weights/H1WeightsKt4Topo',
     '/Indet/PixelDist',
     ]

@@ -199,37 +199,19 @@ StatusCode JetRecTool::initialize() {
   ATH_MSG_INFO(prefix << "JetRecTool " << name() << " has " << m_modifiers.size()
                << " jet modifiers.");
   m_modclocks.resize(m_modifiers.size());
-
-  size_t iclk = 0;
-  for ( ModifierArray::const_iterator imod=m_modifiers.begin();
-        imod!=m_modifiers.end(); ++imod ) {
-    ToolHandle<IJetModifier> hmod = *imod;
-    if ( hmod.retrieve().isSuccess() ) {
-      ATH_MSG_INFO(prefix << "Retrieved " << hmod->name());
-    } else {
-      ATH_MSG_ERROR(prefix << "Unable to retrieve IJetModifier");
-      rstat = StatusCode::FAILURE;
-    }
-    m_modclocks[iclk++].Reset();
-    hmod->inputContainerNames(m_incolls);
-    hmod->setPseudojetRetriever(m_ppjr);
+  ATH_CHECK(m_modifiers.retrieve());
+  for (size_t iclk = 0; iclk < m_modifiers.size(); iclk++) {
+    m_modclocks[iclk].Reset();
   }
   // Fetch the jet consumers.
   ATH_MSG_INFO(prefix << "JetRecTool " << name() << " has " << m_consumers.size()
                << " jet consumers.");
+  ATH_CHECK(m_consumers.retrieve());
   m_conclocks.resize(m_consumers.size());
-  iclk = 0;
-  for ( ConsumerArray::const_iterator icon=m_consumers.begin();
-        icon!=m_consumers.end(); ++icon ) {
-    ToolHandle<IJetConsumer> hcon = *icon;
-    if ( hcon.retrieve().isSuccess() ) {
-      ATH_MSG_INFO(prefix << "Retrieved " << hcon->name());
-    } else {
-      ATH_MSG_ERROR(prefix << "Unable to retrieve IJetConsumer");
-      rstat = StatusCode::FAILURE;
-    }
-    m_conclocks[iclk++].Reset();
+  for ( auto& clk : m_conclocks) {
+    clk.Reset();
   }
+  
   ATH_MSG_INFO(prefix << "Input collection names:");
   for (const auto& name : m_incolls) ATH_MSG_INFO(prefix << "  " << name);
   ATH_MSG_INFO(prefix << "Output collection names:");
@@ -360,7 +342,8 @@ const JetContainer* JetRecTool::build() const {
         m_modclocks[iclk].Start(false);
         ATH_MSG_DEBUG("  Executing modifier " << imod->name());
         ATH_MSG_VERBOSE("    @ " << *imod);
-        (*imod)->modify(*pjets) ;
+        if((*imod)->modify(*pjets).isFailure())
+          ATH_MSG_DEBUG("    Modifier returned FAILURE!");
         m_modclocks[iclk++].Stop();
       }
     }

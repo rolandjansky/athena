@@ -57,7 +57,7 @@ class AthMonitorCfgHelper(object):
             algObj = algClassOrObj(name, *args, **kwargs)
         else:
             algObj = algClassOrObj
-        
+
         # configure these properties; users really should have no reason to override them
         algObj.Environment = self.inputFlags.DQ.Environment
         algObj.DataType = self.inputFlags.DQ.DataType
@@ -65,36 +65,79 @@ class AthMonitorCfgHelper(object):
             algObj.TrigDecisionTool = self.resobj.getPublicTool("TrigDecisionTool")
             algObj.TriggerTranslatorTool = self.resobj.popToolsAndMerge(getTriggerTranslatorToolSimple(self.inputFlags))
 
+        if not self.inputFlags.Input.isMC and self.inputFlags.DQ.enableLumiAccess:
+            algObj.EnableLumi = True
+            from LumiBlockComps.LuminosityCondAlgConfig import LuminosityCondAlgCfg
+            from LumiBlockComps.LBDurationCondAlgConfig import LBDurationCondAlgCfg
+            from LumiBlockComps.TrigLiveFractionCondAlgConfig import TrigLiveFractionCondAlgCfg
+            self.resobj.merge (LuminosityCondAlgCfg (self.inputFlags))
+            self.resobj.merge (LBDurationCondAlgCfg (self.inputFlags))
+            self.resobj.merge (TrigLiveFractionCondAlgCfg (self.inputFlags))
+        else:
+            algObj.EnableLumi = False
+
         self.monSeq += algObj
         return algObj
 
-    def addGroup(self, alg, name, topPath=''):
-        '''
-        Add a "group" (technically, a GenericMonitoringTool instance) to an algorithm. The name given
-        here can be used to retrieve the group from within the algorithm when calling the fill()
-        function.  (Note this is *not* the same thing as the Monitored::Group class.)
+    def addGroup(self, alg, name, topPath='', defaultDuration='run'):
+        '''Add a group to an algorithm
+
+        Technically, adding a GenericMonitoringTool instance. The name given here can be
+        used to retrieve the group from within the algorithm when calling the fill()
+        function. Note this is *not* the same thing as the Monitored::Group class. To
+        avoid replication of code, this calls the more general case, getArray with an 1D
+        array of length 1.
 
         Arguments:
         alg -- algorithm Configurable object (e.g. one returned from addAlgorithm)
         name -- name of the group
-        topPath -- directory name in the output ROOT file under which histograms will be produced
+        topPath -- directory name in the output ROOT file under which histograms will be
+                   produced
+        defaultDuration -- default time between histogram reset for all histograms in
+                           group; can be overridden for each specific histogram
 
         Returns:
-        tool -- a GenericMonitoringTool Configurable object. This can be used to define histograms
-                associated with that group (using defineHistogram).
+        tool -- a GenericMonitoringTool Configurable object. This can be used to define
+                histograms associated with that group (using defineHistogram).
         '''
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
-        tool = GenericMonitoringTool(name)
-        acc, histsvc = getDQTHistSvc(self.inputFlags)
-        self.resobj.merge(acc)
-        tool.THistSvc = histsvc
-        tool.HistPath = self.inputFlags.DQ.FileKey + ('/%s' % topPath if topPath else '')
-        alg.GMTools += [tool]
-        return tool
+        array = self.addArray([1],alg,name,topPath=topPath,defaultDuration=defaultDuration)
+        return array[0]
+
+    def addArray(self, dimensions, alg, baseName, topPath='', defaultDuration='run'):
+        '''Add many groups to an algorithm
+
+        Arguments:
+        alg -- algorithm Configurable object
+        baseName -- base name of the group. postfixes are added by GMT Array initialize
+        topPath -- directory name in the output ROOT file under which histograms will be
+                   produced
+        duration -- default time between histogram reset for all histograms in group
+
+        Returns:
+        tool -- a GenericMonitoringToolArray object. This is used to define histograms
+                associated with each group in the array.
+        '''
+        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringArray
+        array = GenericMonitoringArray(baseName,dimensions)
+
+        if self.inputFlags.DQ.isReallyOldStyle:
+            from AthenaCommon.AppMgr import ServiceMgr
+            array.broadcast('THistSvc',ServiceMgr.THistSvc)
+        else:
+            acc = getDQTHistSvc(self.inputFlags)
+            self.resobj.merge(acc)
+
+        pathToSet = self.inputFlags.DQ.FileKey+('/%s' % topPath if topPath else '')
+        array.broadcast('HistPath',pathToSet)
+        # in the future, autodetect if we are online or not
+        array.broadcast('convention','OFFLINE')
+        array.broadcast('defaultDuration',defaultDuration)
+        alg.GMTools += array.toolList()
+        return array
 
     def result(self):
         '''
-        This function should be called to finalize the creation of the set of monitoring algorithms.
+        Finalize the creation of the set of monitoring algorithms.
 
         Returns:
         (resobj, monSeq) -- a tuple with a ComponentAccumulator and an AthSequencer
@@ -120,7 +163,7 @@ class AthMonitorCfgHelperOld(object):
         self.monName = monName
         self.monSeq = AthSequencer('AthMonSeq_' + monName)
 
-    def addAlgorithm(self,algClassOrObj, *args, **kwargs):
+    def addAlgorithm(self,algClassOrObj, name = None, *args, **kwargs):
         '''
         Instantiate/add a monitoring algorithm
 
@@ -139,6 +182,8 @@ class AthMonitorCfgHelperOld(object):
         '''
         from AthenaCommon.Configurable import Configurable
         if issubclass(algClassOrObj, Configurable):
+            if name is None:
+                raise TypeError('addAlgorithm with a class argument requires a name for the algorithm')
             algObj = algClassOrObj(*args, **kwargs)
         else:
             algObj = algClassOrObj
@@ -146,11 +191,26 @@ class AthMonitorCfgHelperOld(object):
         # configure these properties; users really should have no reason to override them
         algObj.Environment = self.dqflags.monManEnvironment()
         algObj.DataType = self.dqflags.monManDataType()
+        if self.dqflags.useTrigger():
+            from AthenaCommon.AppMgr import ToolSvc
+            if not hasattr(ToolSvc, self.dqflags.nameTrigDecTool()):
+                # very bad, bomb out (in any case the top-level steering ought to set this up)
+                import logging
+                local_logger = logging.getLogger(__name__)
+                local_logger.warning("Unable to find TrigDecisionTool %s in ToolSvc, will not set up trigger in monitoring", self.dqflags.nameTrigDecTool())
+            else:
+                algObj.TrigDecisionTool = getattr(ToolSvc, self.dqflags.nameTrigDecTool())
+                algObj.TriggerTranslatorTool = getattr(ToolSvc, self.dqflags.nameTrigTransTool())
+        from AthenaCommon.GlobalFlags import globalflags
+        if globalflags.DataSource() != 'geant4' and self.dqflags.enableLumiAccess():
+            algObj.EnableLumi = True
+        else:
+            algObj.EnableLumi = False
 
         self.monSeq += algObj
         return algObj
 
-    def addGroup(self, alg, name, topPath=''):
+    def addGroup(self, alg, name, topPath='', defaultDuration='run'):
         '''
         Add a "group" (technically, a GenericMonitoringTool instance) to an algorithm. The name given
         here can be used to retrieve the group from within the algorithm when calling the fill()
@@ -173,6 +233,9 @@ class AthMonitorCfgHelperOld(object):
             svcMgr += THistSvc()
         tool.THistSvc = svcMgr.THistSvc
         tool.HistPath = self.dqflags.monManFileKey() + ('/%s' % topPath if topPath else '')
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        tool.convention = 'OFFLINE' if not athenaCommonFlags.isOnline() else 'ONLINE'
+        tool.defaultDuration = defaultDuration
         alg.GMTools += [tool]
         return tool
 
@@ -196,11 +259,17 @@ def getDQTHistSvc(inputFlags):
     from GaudiSvc.GaudiSvcConf import THistSvc
 
     result = ComponentAccumulator()
+
+    if inputFlags.DQ.isReallyOldStyle:
+        from AthenaCommon.AppMgr import ServiceMgr
+        result.addService(ServiceMgr.THistSvc)
+        return result
+
     histsvc = THistSvc()
     histsvc.Output += ["%s DATAFILE='%s' OPT='RECREATE'" % (inputFlags.DQ.FileKey, 
                                                             inputFlags.Output.HISTFileName)]
     result.addService(histsvc)
-    return result, histsvc
+    return result
 
 def getTriggerTranslatorToolSimple(inputFlags):
     ''' Set up the Trigger Translator Tool; no reason for this to be called
@@ -218,17 +287,17 @@ def getTriggerTranslatorToolSimple(inputFlags):
             continue
         # work around possibly buggy category items
         if isinstance(tdt_menu_item, basestring):
-            tdt_local_logger.debug('String, not list: %s' % tdt_menu)
+            tdt_local_logger.debug('String, not list: %s', tdt_menu)
             tdt_menu_item = [tdt_menu_item]
             if len([_ for _ in tdt_menu_item if not (_.startswith('HLT_') or _.startswith('L1'))]) != 0:
-                tdt_local_logger.debug('Bad formatting: %s' % tdt_menu)
+                tdt_local_logger.debug('Bad formatting: %s', tdt_menu)
         tdt_menu_item = [_ if (_.startswith('HLT_') or _.startswith('L1_')) else 'HLT_' + _
                          for _ in tdt_menu_item]
         tdt_mapping[tdt_menu] = ','.join(tdt_menu_item)
 
     if not getTriggerTranslatorToolSimple.printed:
         for k, v in tdt_mapping.items():
-            tdt_local_logger.info('Category %s resolves to %s' % (k, v))
+            tdt_local_logger.info('Category %s resolves to %s', k, v)
         getTriggerTranslatorToolSimple.printed = True
 
     monTrigTransTool = TriggerTranslatorToolSimple(

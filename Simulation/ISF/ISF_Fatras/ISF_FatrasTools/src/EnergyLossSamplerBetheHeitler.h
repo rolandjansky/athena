@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,20 +42,22 @@ namespace iFatras{
     EnergyLossSamplerBetheHeitler( const std::string&, const std::string&, const IInterface* );
     
     /** Destructor */
-    ~EnergyLossSamplerBetheHeitler();
+    virtual ~EnergyLossSamplerBetheHeitler();
     
     /** AlgTool initialise method */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /** AlgTool finalise method */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
     
     /** IEnergyLossSampler public method to compute dEdX */
+    virtual
     double dEdX( const Trk::MaterialProperties& materialProperties,
 		 double momentum,
 		 Trk::ParticleHypothesis particleHypothesis = Trk::pion ) const override;
     
     /** IEnergyLossSampler public method to compute the mean and variance of the energy loss */
+    virtual
     Trk::EnergyLoss* energyLoss( const Trk::MaterialProperties& materialProperties,
                                  double momentum,
                                  double pathCorrection,

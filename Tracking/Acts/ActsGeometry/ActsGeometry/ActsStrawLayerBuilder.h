@@ -11,9 +11,9 @@
 // PACKAGE
 
 // ACTS
-#include "Acts/Tools/ILayerBuilder.hpp"
+#include "Acts/Geometry/ILayerBuilder.hpp"
 #include "Acts/Utilities/Logger.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 class TRT_ID;
 class ActsTrackingGeometrySvc;

@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTracking
                           Event/FourMomUtils
                           GaudiKernel
-                          InnerDetector/InDetConditions/InDetBeamSpotService
+			  InnerDetector/InDetConditions/BeamSpotConditionsData
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           Reconstruction/RecoTools/RecoToolInterfaces
                           Reconstruction/egamma/egammaInterfaces
@@ -41,7 +41,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkEvent/TrkRIO_OnTrack
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkVertexOnTrack
-                          Tracking/TrkEvent/VxVertex
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkFitter/TrkFitterInterfaces
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
@@ -53,12 +52,16 @@ atlas_add_component( egammaTrackTools
                      src/components/*.cxx
                      INCLUDE_DIRS 
                      LINK_LIBRARIES CaloDetDescrLib CaloEvent CaloIdentifier CaloUtilsLib CaloGeoHelpers AthenaBaseComps AthContainers 
-		     AtlasDetDescr IdDictDetDescr EventPrimitives xAODCaloEvent xAODEgamma xAODTracking FourMomUtils GaudiKernel InDetIdentifier 
+		     AtlasDetDescr IdDictDetDescr EventPrimitives xAODCaloEvent xAODEgamma xAODTracking FourMomUtils GaudiKernel BeamSpotConditionsData InDetIdentifier 
 		     RecoToolInterfaces TrkSurfaces TrkCaloCluster_OnTrack TrkCaloExtension TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase 
 		     TrkNeutralParameters TrkParameters TrkParametersIdentificationHelpers TrkParticleBase TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack 
-		     TrkVertexOnTrack VxVertex TrkExInterfaces TrkFitterInterfaces TrkVertexFitterInterfaces )
+		     TrkVertexOnTrack TrkExInterfaces TrkFitterInterfaces TrkVertexFitterInterfaces )
 
 # Install files from the package:
 atlas_install_headers( egammaTrackTools )
 atlas_install_python_modules( python/*.py )
 
+# Check python syntax on Config files
+atlas_add_test( flake8
+                SCRIPT flake8 --select=F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python/*Config.py
+                POST_EXEC_SCRIPT nopost.sh )

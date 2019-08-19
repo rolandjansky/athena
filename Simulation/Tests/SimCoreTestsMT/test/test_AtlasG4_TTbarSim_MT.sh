@@ -4,17 +4,16 @@
 # art-include: master/Athena
 
 # art-type: grid
-# art-athena-mt: 4
-# art-output: ordered.HITS.pool.root
+# art-athena-mt: 8
 # art-output: log.*
-# art-output: tree-orderer.log
+# art-output: test.HITS.pool.root
 
-unset ATHENA_PROC_NUMBER
+export ATHENA_CORE_NUMBER=8
 
 AtlasG4_tf.py \
---athenaopts '--threads 4' \
+--multithreaded \
 --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root' \
---outputHITSFile 'unordered.HITS.pool.root' \
+--outputHITSFile 'test.HITS.pool.root' \
 --maxEvents '20' \
 --skipEvents '0' \
 --randomSeed '10' \
@@ -31,17 +30,9 @@ echo  "art-result: $rc simulation"
 rc2=-9999
 if [ $rc -eq 0 ]
 then
-    tree-orderer.py -i unordered.HITS.pool.root -o ordered.HITS.pool.root
-    rc2=$?
-    rm unordered.HITS.pool.root
-fi
-echo  "art-result: $rc2 reordering"
-rc3=-9999
-if [ $rc2 -eq 0 ]
-then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
-    rc3=$?
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary --order-trees
+    rc2=$?
 fi
-echo  "art-result: $rc3 regression"
+echo  "art-result: $rc2 regression"

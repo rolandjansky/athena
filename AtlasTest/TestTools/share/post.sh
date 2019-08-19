@@ -31,7 +31,7 @@ test=$1
 # Concatenate them here so the same code works also from the command line.
 pat="$2 $3"
 if [[ "$pat" = "-s "* ]]; then
-    selectpatterns=`echo "$pat" | sed 's/-s\s*//'`
+    selectpatterns=`echo "$pat" | sed 's/-s\s*//' | sed 's/ $//'`
 else
     extrapatterns="$2"
 fi
@@ -66,6 +66,7 @@ s/.[[][?]1034h//
 s/([0-9][0-9]* ms)/(xx ms)/
 s/([0-9][0-9]* ms total)/(xx ms total)/
 s/[[][0-9;]*m//g
+s/INFO set[(][)]/INFO set([])/  #py2 vs py3
 EOF
 
 # ignore diff annotations
@@ -184,7 +185,7 @@ PP="$PP"'|DEBUG input handles:|DEBUG output handles:|DEBUG Data Deps for|DEBUG P
 PP="$PP"'|^(StoreGateSvc|[^ ]+Store) +(INFO|VERBOSE) (Stop|stop|Start)'
 
 # Transient frontier warnings.
-PP="$PP"'|^warn  .fn-'
+PP="$PP"'|^warn  .fn-|^warn  .frontier.c'
 
 # ubsan
 PP="$PP"'|bits/regex.h:11'

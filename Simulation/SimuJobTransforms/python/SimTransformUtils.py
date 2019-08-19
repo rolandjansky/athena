@@ -1,3 +1,5 @@
+from __future__ import division
+from builtins import range
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @brief Module with Digitization transform options and substep
