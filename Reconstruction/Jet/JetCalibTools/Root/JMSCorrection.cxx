@@ -1035,7 +1035,9 @@ if(!m_onlyCombination){
 	  const double Weight = ( relTA*relTA - rho *relCalo*relTA ) / ( relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA );
 
 	  // Zero should be only returned by resolution functions if jet mass is negative
-	  if(relCalo == 0)
+	  if(relCalo == 0 && relTA == 0)
+	    Mass_comb = 0;
+	  else if(relCalo == 0)
 	    Mass_comb = mass_ta;
 	  else if(relTA == 0)
 	    Mass_comb = mass_calo;
