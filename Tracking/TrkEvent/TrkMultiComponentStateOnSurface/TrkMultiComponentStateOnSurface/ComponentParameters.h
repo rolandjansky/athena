@@ -19,9 +19,9 @@ decription           : Definition of component parameters for use in a mixture
 
 
 /*
- * Note that this class does not own/delete the Trk::TrackParameters ptr.
- * Deletion happens only if you push it in a MultiComponentState. In which
- * case it takes ownership
+ * Note that the CompomentParameters class  does not own/delete 
+ * the Trk::TrackParameters ptr. Deletion happens only if you push it 
+ * in a MultiComponentState. In which case it takes ownership
  * This needs some care and can be target of furhter refactoring ....
  */
 
@@ -39,16 +39,16 @@ public:
   ComponentParameters(const Trk::TrackParameters* trackParameters, double weight):
       std::pair<const Trk::TrackParameters*, double>(trackParameters, weight)
   {}
-  /** Default constructor */
+  /** Default copy constructor */
   ComponentParameters(const Trk::ComponentParameters& componentParameters) = default;
-  /** Default assignment **/
+  /** Default assignment operator **/
   ComponentParameters & operator=(const ComponentParameters&) = default;
 
-  /** Destructor */
+  /** Default destructor */
   ~ComponentParameters() = default;
 
   /** Clone method */
-  const Trk::ComponentParameters clone() const
+  Trk::ComponentParameters clone() const
   {
     return ComponentParameters( (this->first)->clone(), this->second );
   }
