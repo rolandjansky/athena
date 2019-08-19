@@ -14,7 +14,7 @@ if numThreads > 0:
   AlgScheduler.ShowDataDependencies( True )
 
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 3
+theApp.EvtMax = 1
 theApp.AuditAlgorithms = True
 
 from AthenaCommon.AppMgr import ServiceMgr
@@ -29,16 +29,24 @@ ServiceMgr.MessageSvc.infoLimit = 100000
 # Event selector settings. Use McEventSelector
 #--------------------------------------------------------------
 import AthenaCommon.AtlasUnixGeneratorJob
-ServiceMgr.EventSelector.RunNumber = 310809
-# initial time stamp - this is number of seconds since 1st Jan 1970 GMT
-# run 310809 Recording start/end 2016-Oct-17 21:39:18 / 2016-Oct-18 16:45:23 UTC
-ServiceMgr.EventSelector.InitialTimeStamp = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
+# ServiceMgr.EventSelector.RunNumber = 310809
+ServiceMgr.EventSelector.InitialTimeStamp = 1565613360
+
+#--------------------------------------------------------------
+# Load Geometry
+#--------------------------------------------------------------
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetDescrVersion = "ATLAS-R2-2016-01-00-01"
+globalflags.DetGeo="atlas"
+globalflags.InputFormat="pool"
+globalflags.DataSource="data"
 
 #--------------------------------------------------------------
 # Load IOVDbSvc
 #--------------------------------------------------------------
 from IOVDbSvc.CondDB import conddb
-ServiceMgr.IOVDbSvc.GlobalTag = "OFLCOND-RUN12-SDR-25"
+conddb.dbdata = "CONDBR2"
+ServiceMgr.IOVDbSvc.GlobalTag = "CONDBR2-BLKPA-2018-15"
 ServiceMgr.IOVDbSvc.OutputLevel = DEBUG
 
 #--------------------------------------------------------------
@@ -48,15 +56,6 @@ from GaudiSvc.GaudiSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 ServiceMgr.AuditorSvc.Auditors += [ "ChronoAuditor"]
 ServiceMgr.AuditorSvc.Auditors += [ "MemStatAuditor" ]
-
-#--------------------------------------------------------------
-# Load Geometry
-#--------------------------------------------------------------
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
-globalflags.DetGeo="atlas"
-globalflags.InputFormat="pool"
-globalflags.DataSource="geant4"
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -104,7 +103,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 from SCT_Cabling.SCT_CablingConf import SCT_TestCablingAlg
 topSequence += SCT_TestCablingAlg(SCT_CablingTool=SCT_CablingTool,
-                                  OutputLevel = INFO)
+                                  OutputLevel = INFO,
+                                  POSIXtime = ServiceMgr.EventSelector.InitialTimeStamp)
 
 if numThreads >= 2:
   from SCT_ConditionsAlgorithms.SCTCondAlgCardinality import sctCondAlgCardinality
