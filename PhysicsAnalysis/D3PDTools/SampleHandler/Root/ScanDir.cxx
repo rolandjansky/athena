@@ -196,7 +196,7 @@ namespace SH
     ANA_MSG_DEBUG ("scanning directory: " << list.dirname());
     while (list.next())
     {
-      std::auto_ptr<DiskList> sublist (list.openDir());
+      std::unique_ptr<DiskList> sublist (list.openDir());
 
       if (sublist.get() != 0)
       {

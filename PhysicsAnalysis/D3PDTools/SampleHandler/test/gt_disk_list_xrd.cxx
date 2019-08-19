@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -36,11 +36,11 @@ TEST (DiskListTest, DISABLED_all)
   bool valid = true;
   while ((valid = list1.next()) && list1.fileName() != "EventLoop-UnitTest") {};
   ASSERT_TRUE (valid);
-  std::auto_ptr<DiskList> list2 (list1.openDir());
+  std::unique_ptr<DiskList> list2 (list1.openDir());
   ASSERT_TRUE (list2.get() != 0);
   if (!list2->next())
     ADD_FAILURE() << "empty dir";
-  std::auto_ptr<TFile> file
+  std::unique_ptr<TFile> file
     (TFile::Open (list2->path().c_str(), "READ"));
   ASSERT_NE (nullptr, file.get());
   while (list1.next()) {};
