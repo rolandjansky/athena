@@ -17,9 +17,11 @@
 //
 #include <math.h>
 #include <fstream>
+
+#include "AthenaKernel/RNGWrapper.h"
+
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "LArRawEvent/LArTTL1.h"
@@ -64,9 +66,6 @@ const double crossingRate = 1. / crossingTime;
 
 LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
-  , m_atRndmGenSvc("AtRndmGenSvc",name)
-  , m_rndmEngineName("LArTTL1Maker")
-  , m_rndmEngine(0)
   , m_ttSvc("CaloTriggerTowerService")
   , m_fSamplKey("LArfSamplSym")
   , m_EmTTL1ContainerName{"LArTTL1EM"}
@@ -129,8 +128,6 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   //
   // ........ declare the private data as properties
   //
-
-  declareProperty("RndmSvc", m_atRndmGenSvc);
 
   declareProperty("EmBarrelHitContainerName", m_xxxHitContainerName[0]);
   declareProperty("EmEndCapHitContainerName",m_xxxHitContainerName[1]);
@@ -311,12 +308,7 @@ StatusCode LArTTL1Maker::initialize()
   incSvc->addListener(this, "BeginRun",  m_BeginRunPriority);
 
 
-  ATH_CHECK( m_atRndmGenSvc.retrieve() );
-  m_rndmEngine = m_atRndmGenSvc->GetEngine(m_rndmEngineName);
-  if(!m_rndmEngine) {
-    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE ;
-  }
+  ATH_CHECK( m_RandomSvc.retrieve() );
 
   ATH_CHECK(m_fSamplKey.initialize());
 
@@ -1261,9 +1253,11 @@ std::vector<float> LArTTL1Maker::computeNoise(const Identifier towerId, const in
   const float c75 = (c31*c11-c51*c71-c52*c72-c53*c73-c54*c74) * inv_c55;
   const float c76 = (c21*c11-c61*c71-c62*c72-c63*c73-c64*c74-c65*c75)/c66;
   const float c77 = sqrt(c11*c11-c71*c71-c72*c72-c73*c73-c74*c74-c75*c75-c76*c76);
-  
+
+  ATHRNG::RNGWrapper* rngWrapper = m_RandomSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
   double rndm[s_NBSAMPLES];
-  RandGaussZiggurat::shootArray(m_rndmEngine,(int)s_NBSAMPLES,rndm,0.,1.);
+  RandGaussZiggurat::shootArray(*rngWrapper,static_cast<int>(s_NBSAMPLES),rndm,0.,1.);
   outputV[0] = inputV[0] + c11*rndm[0];
   outputV[1] = inputV[1] + c21*rndm[0] + c22*rndm[1];
   outputV[2] = inputV[2] + c31*rndm[0] + c32*rndm[1] + c33*rndm[2];
