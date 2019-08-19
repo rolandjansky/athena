@@ -22,6 +22,7 @@
 
 // Jet
 #include "xAODJet/JetAuxContainer.h"
+#include "JetRec/JetFromPseudojet.h"
 
 // Shallow copy
 //#include "xAODCore/ShallowCopy.h"
