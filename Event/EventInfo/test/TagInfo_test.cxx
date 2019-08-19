@@ -129,4 +129,29 @@ BOOST_AUTO_TEST_SUITE(TagInfoTest)
     std::sort(allInsertedTags.begin(), allInsertedTags.end());//note: I did not have to define a comparison operator
     BOOST_TEST(returnMultipleTagPairs == allInsertedTags,"The returned input tags match the inserted input tags");
   }
+  BOOST_AUTO_TEST_CASE(ExtendedInterface2019Tests){
+    //Start to fill the TagInfo object with tags and input tags
+    TagInfo t;
+    //set overall tag
+    t.setTagInfoTag("extendedInterfaceTest");
+    //add tags, deliberately disordered
+    TagInfo::NameTagPairVec tagPairs{{"tag0","3reference0"},{"tag1", "2reference1"},{"atag","1areference"}};
+    TagInfo::NameTagPairVec inputTagPairs{{"itag0","3reference0i"},{"itag1", "2reference1i"},{"iatag","1areferencei"}};
+    std::for_each(tagPairs.begin(), tagPairs.end(),[&t](auto &x){t.addTag(x);});
+    std::for_each(inputTagPairs.begin(), inputTagPairs.end(),[&t](auto &x){t.addInputTag(x);});
+    BOOST_TEST(t.findTag("tag1") == "2reference1");
+    BOOST_TEST(t.findInputTag("iatag") == "1areferencei");
+    std::sort(tagPairs.begin(),tagPairs.end());
+    std::sort(inputTagPairs.begin(),inputTagPairs.end());
+    BOOST_TEST(t.getTags() == tagPairs);
+    BOOST_TEST(t.getInputTags() == inputTagPairs);
+    std::string stringRep="TagInfo tag: extendedInterfaceTest\nCurrent tags: \n";
+    auto tagPairFormat=[](std::string & s, const TagInfo::NameTagPair & p)->std::string{return s + "    "+p.first+" "+p.second+"\n";};
+    stringRep=std::accumulate(tagPairs.begin(),tagPairs.end(),stringRep,tagPairFormat);
+    stringRep+="Input tags: \n";
+    stringRep=std::accumulate(inputTagPairs.begin(),inputTagPairs.end(),stringRep,tagPairFormat);
+    BOOST_TEST_MESSAGE(stringRep);
+    BOOST_TEST(t.str() == stringRep);
+  }
 BOOST_AUTO_TEST_SUITE_END()
+
