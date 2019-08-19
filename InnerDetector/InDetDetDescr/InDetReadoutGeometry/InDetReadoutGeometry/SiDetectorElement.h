@@ -505,7 +505,7 @@ namespace InDetDD {
       void setCache(){
         updateCache();
       } 
-     ///Set/calculate cache values 
+     ///Set/calculate all cache values including  surfaces.  
       void setAllCaches(){
         updateAllCaches();
       } 
