@@ -297,7 +297,7 @@ private:
     K = trkCov * H.transpose() * R;
     // screen output
     M = m_unitMatrix - K*H;
-    if (msgLvl(MSG::VERBOSE)) logGainForm (r, R, K);
+    if (msgLvl(MSG::VERBOSE)) {logGainForm (r, R, K);}
     // --- compute local filtered state
     AmgVector(5) newPar = trkPar + K * r;
     // --- compute filtered covariance matrix
@@ -345,7 +345,7 @@ private:
     K = trkCov * H.transpose() * R;
     // screen output
     M = m_unitMatrix - K*H;
-    if (msgLvl(MSG::VERBOSE)) logGainForm (r, R, K);
+    if (msgLvl(MSG::VERBOSE)) {logGainForm (r, R, K);}
     // --- compute local filtered state
     AmgVector(5) newPar = trkPar + K * r;
     // --- compute filtered covariance matrix
@@ -408,16 +408,13 @@ private:
    // calcualte the chi2 value
    double chiSquared = 0.0;
    if (R.determinant()==0.0) { 
-     msg(MSG::DEBUG) << "matrix inversion not possible, set chi2 to zero" << endmsg;
+     ATH_MSG_DEBUG("matrix inversion not possible, set chi2 to zero");
    } else {
-     R = R.inverse();
-     chiSquared = r.transpose()*R*r;
+     chiSquared = r.transpose()*R.inverse()*r;
    }
    return new FitQualityOnSurface(chiSquared, DIM);
  }
- 
- 
- 
+  
  inline bool KalmanUpdatorAmg::thetaPhiWithinRange_5D (const AmgVector(5)& V, const KalmanUpdatorAmg::RangeCheckDef rcd) const {
    static const AmgVector(2) thetaMin(0.0,-M_PI);
    return ( (fabs(V(Trk::phi)) <= M_PI) && 
