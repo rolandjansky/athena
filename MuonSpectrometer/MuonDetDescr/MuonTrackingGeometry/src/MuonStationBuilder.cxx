@@ -97,8 +97,7 @@ Muon::MuonStationBuilder::MuonStationBuilder(const std::string& t, const std::st
   m_buildBarrel(true),
   m_buildEndcap(true),
   m_buildCsc(true),
-  m_buildTgc(true),
-  m_resolveActiveLayers(true)
+  m_buildTgc(true)
 {
   declareInterface<Trk::IDetachedTrackingVolumeBuilder>(this);
   declareProperty("StationTypeBuilder",               m_muonStationTypeBuilder);
@@ -107,7 +106,6 @@ Muon::MuonStationBuilder::MuonStationBuilder(const std::string& t, const std::st
   declareProperty("BuildEndcapStations",              m_buildEndcap);
   declareProperty("BuildCSCStations",                 m_buildCsc);
   declareProperty("BuildTGCStations",                 m_buildTgc);
-  declareProperty("ResolveActiveLayers",              m_resolveActiveLayers);
 }
 
 // destructor
@@ -699,19 +697,17 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
               }
               if (!(stId.get_compact())) ATH_MSG_WARNING( "identifier of the station not found:"<<vname <<","<<eta<<","<<phi );
               unsigned int iD = stId.get_identifier32().get_compact();
-	      // clone station from prototype
-	      const Trk::DetachedTrackingVolume* newStat = msTV->clone(vname,transf);
+              // clone station from prototype
+              const Trk::DetachedTrackingVolume* newStat = msTV->clone(vname,transf);
               // identify layer representation
               newStat->layerRepresentation()->setLayerType(iD);
               // resolved stations only:
-              if (m_resolveActiveLayers) {
-		// glue components
-		glueComponents(newStat);
-		// identify layers
-		identifyLayers(newStat,eta,phi); 
-	      } 
-	      mStations.push_back(newStat);
-            }
+              // glue components
+              glueComponents(newStat);
+              // identify layers
+              identifyLayers(newStat,eta,phi); 
+              mStations.push_back(newStat);
+      }
 	  }
 	}  
 	if (!msTV)  ATH_MSG_DEBUG( name() <<" this station has no prototype: " << vname );    
@@ -812,14 +808,6 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
                     m_muonStationTypeBuilder->createLayerRepresentation(csc_station);
                   // create prototype as detached tracking volume
                   Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,csc_station,layerRepr.first,layerRepr.second);
-                  if (!m_resolveActiveLayers) {
-                    /* 
-                     * This options seems to NOT be used and needs care as we clear a const object
-                     * consider removing
-                     */
-                    Trk::TrackingVolume* mutVolume =const_cast<Trk::TrackingVolume*> (typeStat->trackingVolume());
-                    mutVolume->clear();
-                  }
                   stations.push_back(typeStat); 
                 } else {
                   std::vector<const Trk::TrackingVolume*> tgc_stations = m_muonStationTypeBuilder->processTgcStation(cv);   
@@ -829,14 +817,6 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
                       m_muonStationTypeBuilder->createLayerRepresentation(tgc_stations[i]);
                     // create prototype as detached tracking volume
                     Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,tgc_stations[i],layerRepr.first,layerRepr.second);
-                    if (!m_resolveActiveLayers) {
-                      /* 
-                       * This options seems to NOT be used and needs care as we clear a const object
-                       * consider removing
-                       */
-                      Trk::TrackingVolume* mutVolume = const_cast<Trk::TrackingVolume*> (typeStat->trackingVolume());
-                      mutVolume->clear();
-                    }
                     stations.push_back(typeStat); 
                   }
                 }
@@ -925,7 +905,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		  delete envelope; 
 		
 		  // identify prototype
-		  if (m_resolveActiveLayers && ( name.substr(0,1)=="B" || name.substr(0,1)=="E") ) 
+		  if (( name.substr(0,1)=="B" || name.substr(0,1)=="E") ) 
 		    identifyPrototype(newType,eta,phi,Amg::CLHEPTransformToEigen(gmStation->getTransform()));
 		  
 		  // create layer representation
@@ -935,14 +915,6 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 		  // create prototype as detached tracking volume
 		  const Trk::DetachedTrackingVolume* typeStat = new Trk::DetachedTrackingVolume(name,newType,layerRepr.first,layerRepr.second);
 		
-		  if (!m_resolveActiveLayers) {
-        /* 
-         * This options seems to NOT be used and needs care as we clear a const object
-         * consider removing
-         */
-        Trk::TrackingVolume* mutVolume = const_cast<Trk::TrackingVolume*> (typeStat->trackingVolume());
-        mutVolume->clear();
-      } 
 		  stations.push_back(typeStat);
                 } 
 	      }
