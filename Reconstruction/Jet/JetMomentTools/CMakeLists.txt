@@ -23,6 +23,8 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
       Reconstruction/Jet/JetUtils
+      #Reconstruction/Jet/JetRecTools
+      Reconstruction/PFlow/PFlowUtils
       PRIVATE
       Calorimeter/CaloGeoHelpers
       Event/xAOD/xAODEventInfo
@@ -44,7 +46,9 @@ else()
       Reconstruction/Jet/JetEDM
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
+      #Reconstruction/Jet/JetRecTools
       Reconstruction/Jet/JetRecCalo
+      Reconstruction/PFlow/PFlowUtils
       Reconstruction/Jet/JetUtils
       PRIVATE
       Calorimeter/CaloDetDescr
@@ -69,7 +73,7 @@ atlas_add_library( JetMomentToolsLib
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES}
    AsgTools xAODCaloEvent xAODJet xAODMissingET xAODTracking JetEDM JetInterface
-   JetRecLib JetUtils
+   JetRecLib JetUtils PFlowUtilsLib
    xAODMetaData
    PRIVATE_LINK_LIBRARIES CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver )
 
@@ -82,7 +86,7 @@ if( NOT XAOD_STANDALONE )
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCaloEvent xAODJet xAODMetaData
-      GaudiKernel JetRecLib JetUtils PathResolver JetMomentToolsLib
+      GaudiKernel JetRecLib JetUtils PathResolver JetMomentToolsLib PFlowUtilsLib
       ${extra_libs} )
 endif()
 

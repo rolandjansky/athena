@@ -15,9 +15,26 @@
 // Jet EDM
 #include "xAODJet/JetAttributes.h"
 
-//
-#include "JetRec/JetRecTool.h"
-#include "JetRec/JetFinder.h"
+// FastJet
+#include "fastjet/ClusterSequence.hh"
+#include "fastjet/ClusterSequenceArea.hh"
+#include <fastjet/AreaDefinition.hh>
+
+// Jet
+#include "xAODJet/JetAuxContainer.h"
+
+
+// PFlow
+//#include "JetRecTools/PFlowPseudoJetGetter.h"
+
+// #include "JetRec/JetRecTool.h"
+// #include "JetRec/JetFinder.h"
+// #include "JetRec/JetByVertexFinder.h"
+#include "JetRec/JetFromPseudojet.h"
+// #include "JetInterface/IJetFromPseudojet.h"
+// #include "fastjet/PseudoJet.hh"
+// #include "xAODJet/JetContainer.h"
+
 // Shallow copy
 //#include "xAODCore/ShallowCopy.h"
 
@@ -36,7 +53,6 @@
     m_fjvtThresh(15e3)
   {
     declareProperty("OverlapDec",         m_orLabel          = ""               );
-    declareProperty("OutputDec",          m_outLabel         = "passFJVT"       );
     declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"   );
     declareProperty("OutputDecTiming",    m_outLabelTiming   = "passOnlyTiming" );
     declareProperty("VertexContainer",    m_verticesName     = "PrimaryVertices");
@@ -52,6 +68,11 @@
     declareProperty("CentralMaxStochPt",  m_maxStochPt       = 35e3             );
     declareProperty("JetScaleFactor",     m_jetScaleFactor   = 0.4              );
     declareProperty("UseTightOP",         m_tightOP          = false            );//Tight or Loose
+    declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJets_test");
+    declareProperty( "PVIndexHS",         m_pvind            = -1               );
+    declareProperty("RptCutValue",        m_RptCut          = 0.1);
+    declareProperty("JetChargedpt", m_jetchargedpt= "JetChargedScaleMomentum_test");
+    declareProperty("JetsFromVertices", m_vertices= 10);
   }
 
   // Destructor
@@ -67,21 +88,48 @@
     if (m_tightOP) m_fjvtThresh = 0.4;
     else m_fjvtThresh = 0.5;
     if (m_orLabel!="")  Dec_OR = std::make_unique<SG::AuxElement::Decorator<char> >(m_orLabel);
-    Dec_out = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabel);
     Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
-    Dec_outTiming = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelTiming);
-
-    JetFinder *jfd = new JetFinder("Jfd");
-    ATH_CHECK(jfd->setProperty("JetAlgorithm","AntiKt"));
-    ATH_CHECK(jfd->setProperty("JetRadius",0.4));
-    //ATH_CHECK(jfd->setProperty("",""));
-    //ATH_CHECK(jfd->setProperty("",""));
-    ATH_CHECK(jfd->initialize());
 
 
-    JetRecTool *jrc = new JetRecTool("Jrc");
-    ATH_CHECK(jrc->setProperty("JetFinder",jfd));
-    ATH_CHECK(jrc->initialize());
+    m_pfotool = new CP::RetrievePFOTool("PFOTool");
+    m_pfotool->initialize();
+    m_wpfotool = new CP::WeightPFOTool("WPFOTool");
+    m_wpfotool->initialize();
+    
+    // m_pjetget= new PseudoJetGetter("Pjetgetter");
+    // m_pjetget->setProperty("m_label","EMPFlow");
+
+
+    // JetFromPseudojet *jjj = new JetFromPseudojet("JetFromPseudo");
+    // jjj->initialize();
+
+    // JetFinder *jfd = new JetFinder("Jfd");
+    // jfd->setProperty("JetAlgorithm","AntiKt");
+    // jfd->setProperty("JetRadius",0.4);
+    // jfd->setProperty("JetBuilder",jjj);
+    // //ATH_CHECK(jfd->setProperty("",""));
+    // //ATH_CHECK(jfd->setProperty("",""));
+    // jfd->initialize();
+
+    // JetByVertexFinder *jvx = new JetByVertexFinder("Jvx");
+    // jvx->setProperty("JetFinder",jfd);
+    // jvx->setProperty("Vertex",-1);
+    // jvx->initialize();
+
+    // PseudoJetGetter *psj = new PseudoJetGetter("Psj");
+    // ATH_CHECK(psj->setProperty("InputContainer",xAOD::PFOContainer* pfos));
+    // ATH_CHECK(psj->setProperty("OutputContainer",xAOD::PseudoJetContainer* output_jets));
+    // ATH_CHECK(psj->setProperty("Label","PFlow"));
+    // //ATH_CHECK(psj->setProperty("",""));
+    // ATH_CHECK(psj->initialize());
+
+    // JetRecTool *jrc = new JetRecTool("Jrc");
+    // ATH_CHECK(jrc->setProperty("JetFinder",jfd));
+    // //ATH_CHECK(jrc->setProperty("",""));
+    // ATH_CHECK(jrc->initialize());
+
+    JetFromPseudojet *jetFromPseudo = new JetFromPseudojet("jetFromPseudo");
+    ATH_CHECK(jetFromPseudo->initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -92,19 +140,15 @@
   }
 
   int JetForwardPFlowJvtTool::modify(xAOD::JetContainer& jetCont) const {
-    getPV();
+
     m_pileupMomenta.clear();
     for(const auto& jetF : jetCont) {
-      (*Dec_out)(*jetF) = 1;
       (*Dec_outFjvt)(*jetF) = 1;
-      (*Dec_outTiming)(*jetF) = 1;
       fjvt_dec(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
-      if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont);
+      if (m_pileupMomenta.size()==0) calculateVertexMomenta(&jetCont,m_pvind, m_vertices);
       double fjvt = getFJVT(jetF)/jetF->pt();
       if (fjvt>m_fjvtThresh) (*Dec_outFjvt)(*jetF) = 0;
-      if (fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_outTiming)(*jetF) = 0;
-      if (fjvt>m_fjvtThresh || fabs(jetF->auxdata<float>("Timing"))>m_timingCut) (*Dec_out)(*jetF) = 0;
       fjvt_dec(*jetF) = fjvt;
     }
     return 0;
@@ -114,7 +158,7 @@
     TVector2 fjet(-jet->pt()*cos(jet->phi()),-jet->pt()*sin(jet->phi()));
     double fjvt = 0;
     for (size_t pui = 0; pui < m_pileupMomenta.size(); pui++) {
-      if (pui==m_pvind) continue;
+      //if (pui==pvind) continue;
       double projection = m_pileupMomenta[pui]*fjet/fjet.Mod();
       if (projection>fjvt) fjvt = projection;
     }
@@ -122,27 +166,131 @@
     return fjvt;
   }
 
-  void JetForwardPFlowJvtTool::calculateVertexMomenta(const xAOD::JetContainer *jets) const {
+  void JetForwardPFlowJvtTool::calculateVertexMomenta(const xAOD::JetContainer *pjets, int m_pvind, int m_vertices) const {
     m_pileupMomenta.clear();
-    const xAOD::MissingETContainer* trkMet  = nullptr;
-    if( evtStore()->retrieve(trkMet, "MET_Track").isFailure()) {
-      ATH_MSG_WARNING("Unable to retrieve MET_Track container");
-    }
+
+    // -- Retrieve PV index if not provided by user
+    int pvind = (m_pvind==-1) ? getPV() : m_pvind;
+
     const xAOD::VertexContainer *vxCont = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve primary vertex container");
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container \"" << m_verticesName << "\"");
     }
-    for(const auto& vx : *vxCont) {
+    const xAOD::PFOContainer *pfos = m_pfotool->retrievePFO(CP::EM,CP::all);
+    if(pfos == NULL ){
+      ATH_MSG_ERROR("PFO container is empty!");    
+    } else {
+      ATH_MSG_DEBUG("Successfully retrieved PFO objects");
+    }
+
+    for(const xAOD::Vertex* vx: *vxCont) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
-      TString vname = "PVTrack_vx";
-      vname += vx->index();
-      m_pileupMomenta.push_back((vx->index()==m_pvind?0:-(1./m_jetScaleFactor))*TVector2(0.5*(*trkMet)[vname.Data()]->mpx(),0.5*(*trkMet)[vname.Data()]->mpy()));
+      if(vx->index()==pvind) continue;
+      // Build and retrieve PU jets
+      buildPFlowPUjets(*vx,*pfos);
+      TString jname = m_jetsName;
+      jname += vx->index();
+      const xAOD::JetContainer* vertex_jets  = nullptr;
+      evtStore()->retrieve(vertex_jets,jname.Data());
+
+      //Calculate vertex momentum 
+      TVector2 vertex_met;
+      for (const auto& jet : *vertex_jets) {
+
+        // Remove hard-scatter jets 
+        bool hasCloseByHSjet = false;
+        for (const auto& pjet : *pjets) {
+          if (pjet->p4().DeltaR(jet->p4())<0.3 && pjet->auxdata<float>("Jvt")>0.2 && centralJet(pjet) ){hasCloseByHSjet = true; }
+        }
+        if (hasCloseByHSjet) continue;
+
+        // Calculate vertex missing momentum
+        if (centralJet(jet) && jet->jetP4(m_jetchargedpt).Pt()> m_RptCut*jet->pt())
+        {
+          vertex_met += TVector2(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()) ) ;
+        } else{
+          vertex_met += TVector2(jet->jetP4(m_jetchargedpt).Pt()*cos(jet->jetP4(m_jetchargedpt).Phi()), jet->jetP4(m_jetchargedpt).Pt()*sin(jet->jetP4(m_jetchargedpt).Phi()) );
+        }
+      }
+      m_pileupMomenta.push_back(-1*vertex_met);
+      if(m_vertices!=-1 && vx->index()==m_vertices) break;
     }
-    for (const auto& jet : *jets) {
-      if (!centralJet(jet)) continue;
-      int jetvert = getJetVertex(jet);
-      if (jetvert>=0) m_pileupMomenta[jetvert] += TVector2(0.5*jet->pt()*cos(jet->phi()),0.5*jet->pt()*sin(jet->phi())); 
+
+  }
+
+
+  void JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
+
+    std::vector<fastjet::PseudoJet> input_pfo;
+    std::set<int> charged_pfo;
+    for(const xAOD::PFO* pfo : pfos){ 
+      if (pfo->charge()!=0) { 
+        if (vx.index()==0 && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>2.) continue;
+        if (vx.index()!=0 && &vx!=pfo->track(0)->vertex()) continue;
+        float pweight = 0;
+        m_wpfotool->fillWeight(*pfo,pweight);
+        input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
+        charged_pfo.insert(pfo->index());
+      } 
+      else if (fabs(pfo->eta())<2.5 && pfo->charge()==0 && pfo->eEM()>0)
+      { 
+        input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
+      }
     }
+    xAOD::JetContainer* vertjets = new xAOD::JetContainer();
+    xAOD::JetAuxContainer* vertjetsAux = new xAOD::JetAuxContainer();
+    vertjets->setStore(vertjetsAux);
+    TString newname = m_jetsName;
+    newname += vx.index();
+    evtStore()->record(vertjets,newname.Data());
+    evtStore()->record(vertjetsAux,(newname+"Aux.").Data());
+
+    fastjet::JetDefinition jet_def(fastjet::antikt_algorithm,0.4);
+    fastjet::AreaDefinition area_def(fastjet::active_area_explicit_ghosts,fastjet::GhostedAreaSpec(fastjet::SelectorAbsRapMax(2.5)));
+    fastjet::ClusterSequenceArea clust_pfo(input_pfo,jet_def,area_def);
+    std::vector<fastjet::PseudoJet> inclusive_jets = sorted_by_pt(clust_pfo.inclusive_jets(0));
+
+    for (size_t i = 0; i < inclusive_jets.size(); i++) {
+      xAOD::Jet* jet = new xAOD::Jet();
+      //cxAOD::Jet* jet = JetFromPseudojet->add(inclusive_jets[i],);
+      xAOD::JetFourMom_t tempjetp4(inclusive_jets[i].pt(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
+      vertjets->push_back(jet);
+      jet->setJetP4(tempjetp4);
+      jet->setJetP4(xAOD::JetFourMom_t(inclusive_jets[i].perp(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0));
+      jet->setJetP4(xAOD::JetFourMom_t(inclusive_jets[i].perp(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0));
+      std::vector<fastjet::PseudoJet> constituents = inclusive_jets[i].constituents();
+      float chargedpart = 0;
+      for (size_t j = 0; j < constituents.size(); j++) {
+        if (charged_pfo.count(constituents[j].user_index())>=1) {
+          chargedpart += constituents[j].perp(); 
+        }
+      }
+      xAOD::JetFourMom_t chargejetp4(1.*chargedpart,inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
+      jet->setJetP4(m_jetchargedpt,chargejetp4);
+    }
+
+    // need to add jet calibration 
+  }
+
+  fastjet::PseudoJet JetForwardPFlowJvtTool::pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const {
+    if ( pfo == 0 ) {
+      ATH_MSG_WARNING("Have NULL pointer to PFO");
+    }
+
+    TLorentzVector pfo_p4;
+    if (CP::charged == theCharge){
+      // Create a PSeudojet with the momentum of the selected IParticle
+      pfo_p4= pfo->p4();
+    } else if (CP::neutral == theCharge){ 
+      pfo_p4= pfo->GetVertexCorrectedEMFourVec(*vx);
+    }
+
+    fastjet::PseudoJet psj(pfo_p4);
+
+    // user index is used to identify the xAOD object used for the PSeudoJet
+    psj.set_user_index(pfo->index());
+
+    return psj;
   }
 
   float JetForwardPFlowJvtTool::getCombinedWidth(const xAOD::Jet *jet) const {
@@ -171,11 +319,6 @@
   bool JetForwardPFlowJvtTool::centralJet(const xAOD::Jet *jet) const {
     if (fabs(jet->eta())>m_etaThresh) return false;
     if (jet->pt()<m_centerMinPt || (m_centerMaxPt>0 && jet->pt()>m_centerMaxPt)) return false;
-    if (Dec_OR && !(*Dec_OR)(*jet)) return false;
-    float jvt = 0;
-    jet->getAttribute<float>(m_jvtMomentName,jvt);
-    if (jvt>m_centerJvtThresh) return false;
-    if (jet->pt()<m_maxStochPt && getDrpt(jet)<m_centerDrptThresh) return false;
     return true;
   }
 
@@ -205,20 +348,22 @@
     return (max-median)/jet->pt();
   }
 
-  void JetForwardPFlowJvtTool::getPV() const {
+  int JetForwardPFlowJvtTool::getPV() const{
+
     const xAOD::VertexContainer *vxCont = 0;
-    m_pvind = 0;
     if( evtStore()->retrieve(vxCont, m_verticesName).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve primary vertex container");
+      ATH_MSG_ERROR("Unable to retrieve primary vertex container");
+      return StatusCode::FAILURE;
     } else if(vxCont->empty()) {
-      ATH_MSG_WARNING("Event has no primary vertices!");
+      ATH_MSG_INFO("Event has no primary vertices!");
     } else {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
-      for(const auto& vx : *vxCont) {
-        if(vx->vertexType()==xAOD::VxType::PriVtx)
-          {m_pvind = vx->index(); break;}
+      for(const xAOD::Vertex *vx : *vxCont) {
+        if(vx->vertexType()==xAOD::VxType::PriVtx) return vx->index();
       }
     }
+    ATH_MSG_ERROR("Couldn't identify the hard-scatter primary vertex (no vertex with \"vx->vertexType()==xAOD::VxType::PriVtx\" in the container)!");
+    return StatusCode::FAILURE;
   }
 
   StatusCode JetForwardPFlowJvtTool::tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets) {
