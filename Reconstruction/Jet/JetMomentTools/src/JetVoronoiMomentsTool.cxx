@@ -32,14 +32,14 @@ JetVoronoiMomentsTool::JetVoronoiMomentsTool(const std::string& name)
     declareProperty("AreaYmin",m_y_min);
     declareProperty("AreaYmax",m_y_max);
     declareProperty("JetContainer", m_jetContainerName);
-    declareProperty("DecorationName", m_decorationName = "VoronoiArea");
 
-    m_voronoiAreaKey = m_jetContainerName + "." + m_decorationName;
+    // Generally shouldn't be configured by the user, unless they know what they're doing
+    declareProperty("VoronoiAreaDecorKey", m_voronoiAreaKey = m_jetContainerName + ".VoronoiArea");
 }
 
 StatusCode JetVoronoiMomentsTool::initialize() {
 
-  if(m_jetContainerName.empty()){
+  if(m_voronoiAreaKey.key().at(0) == '.'){
     ATH_MSG_ERROR("JetVoronoiMomentsTool needs to have its input jet container name configured!");
     return StatusCode::FAILURE;
   }

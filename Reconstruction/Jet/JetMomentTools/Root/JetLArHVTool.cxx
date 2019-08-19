@@ -14,14 +14,16 @@ JetLArHVTool::JetLArHVTool(const std::string& name)
   declareInterface<IJetDecorator>(this);
   declareProperty("JetContainer", m_jetContainerName);
 
-  m_fracKey = m_jetContainerName + ".LArBadHVEnergyFrac";
-  m_nCellKey = m_jetContainerName + ".LArBadHVNCell";
+  // These generally shouldn't be configured by the user, unless they really
+  // know what they're doing.
+  declareProperty("EnergyFracDecorKey", m_fracKey = m_jetContainerName + ".LArBadHVEnergyFrac");
+  declareProperty("NCellDecorKey", m_nCellKey = m_jetContainerName + ".LArBadHVNCell");
 }
 
 
 StatusCode JetLArHVTool::initialize()
 {
-  if(m_jetContainerName.empty()){
+  if(m_fracKey.key().at(0) == '.' || m_nCellKey.key().at(0) == '.'){
     ATH_MSG_ERROR("JetLArHVTool needs to have its input jet container name configured!");
     return StatusCode::FAILURE;
   }

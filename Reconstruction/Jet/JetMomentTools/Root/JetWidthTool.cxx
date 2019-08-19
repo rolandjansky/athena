@@ -18,15 +18,17 @@ JetWidthTool::JetWidthTool(std::string myname)
   declareInterface<IJetDecorator>(this);
   declareProperty("JetContainer", m_jetContainerName);
 
-  m_widthKey = m_jetContainerName + ".Width";
-  m_widthPhiKey = m_jetContainerName + ".WidthPhi";
+  // These generally shouldn't be configured by the user, unless they really
+  // know what they're doing.
+  declareProperty("WidthDecorKey", m_widthKey = m_jetContainerName + ".Width");
+  declareProperty("WidthPhiDecorKey", m_widthPhiKey = m_jetContainerName + ".WidthPhi");
 }
 
 //**********************************************************************
 
 StatusCode JetWidthTool::initialize(){
 
-  if(m_jetContainerName.empty()){
+  if(m_widthKey.key().at(0) == '.' || m_widthPhiKey.key().at(0) == '.'){
     ATH_MSG_ERROR("JetWidthTool needs to have its input jet container name configured!");
     return StatusCode::FAILURE;
   }

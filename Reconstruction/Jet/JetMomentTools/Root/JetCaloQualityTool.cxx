@@ -24,6 +24,14 @@ JetCaloQualityTool::JetCaloQualityTool(const std::string& name)
   declareProperty("TimingCuts", m_timingTimeCuts);
   declareProperty("Calculations", m_calculationNames);
   declareProperty("JetContainer", m_jetContainerName);
+
+  // This is only a property so it can communicate dependencies to the
+  // scheduler. User should not configure it.
+  declareProperty("OutputDecorKeys", m_writeDecorKeys);
+  if(!m_writeDecorKeys.empty()){
+    ATH_MSG_WARNING("OutputDecorKeys should not be configured manually! Ignoring.");
+    m_writeDecorKeys.clear();
+  }
 } 
 
 
