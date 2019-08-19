@@ -536,6 +536,7 @@ namespace Analysis {
           hFullName+="/"; hFullName+=channel; 
           hFullName+="/"; hFullName+=hname;
           ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
+          ATH_MSG_WARNING( "#BTAG#     histo name in physical file= " << hFullName );
           TObject* hPointer = nullptr;
           if (getTObject(hFullName, pfile, hPointer)) {
             if(hPointer) {
@@ -755,6 +756,7 @@ namespace Analysis {
      std::unique_ptr<TObject> hist_raw(pfile->Get(histname.c_str()));
      if (hist_raw.get() == nullptr) {
        ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
+       ATH_MSG_WARNING("#BTAG# Could not load TObject " << histname);
        return StatusCode::FAILURE;
      }
      else {
@@ -763,10 +765,14 @@ namespace Analysis {
        // only for histogram objects, others do not get associated
        // TTrees have special treatment 
        TH1* ihist=dynamic_cast<TH1*>(hist);
-       if (ihist!=nullptr) ihist->SetDirectory(0);
+       if (ihist!=nullptr) {
+         ihist->SetDirectory(nullptr);
+         ATH_MSG_WARNING("#BTAG# TObject is a TH1" << histname);
+       }
        // if it is a TDirectory, also need special treatment to unassociate parent
        TDirectory* idir=dynamic_cast<TDirectory*>(hist);
        if (idir!=nullptr) {
+         ATH_MSG_WARNING("#BTAG# TObject is a TDirectory" << histname);
          TDirectory* mdir=idir->GetMotherDir();
          if (mdir!=nullptr) {
            ATH_MSG_DEBUG("Disconnecting TDirectory "+histname+" from parent");
@@ -776,6 +782,13 @@ namespace Analysis {
            ATH_MSG_WARNING("Could not get MotherDir for TDirectory "+histname);
          }
        }
+       TObjArray* iobj = dynamic_cast<TObjArray*>(hist);
+       if (iobj!=nullptr) {
+         ATH_MSG_WARNING("#BTAG# TObject is a TObjArray" << histname);
+         iobj->SetOwner(kTRUE);
+       }
+       TTree * tree = dynamic_cast<TTree*>(hist);
+       if (tree !=nullptr) ATH_MSG_WARNING("#BTAG# TObject is a TTree" << histname);
      }
 
      return StatusCode::SUCCESS;
