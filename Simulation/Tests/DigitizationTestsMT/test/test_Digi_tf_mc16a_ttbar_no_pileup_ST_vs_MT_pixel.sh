@@ -52,7 +52,7 @@ echo  "art-result: $rc2 STdigi"
 rc3=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root mc16a_ttbar.ST.RDO.pool.root mc16a_ttbar.MT.RDO.pool.root --order-trees --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings index_ref
+    acmd.py diff-root mc16a_ttbar.ST.RDO.pool.root mc16a_ttbar.MT.RDO.pool.root --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_HITStoRDO_timings index_ref
     rc3=$?
 fi
 echo  "art-result: $rc3 comparison"
