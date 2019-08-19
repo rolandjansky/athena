@@ -22,7 +22,7 @@ def CaloCellContainerCheckerToolCfg(flags):
     from TileGeoModel.TileGMConfig import TileGMCfg
     acc.merge(TileGMCfg(flags))
 
-    from CaloCellCorrection.CaloCellCorrectionConf import CaloCellContainerCheckerTool
+    from CaloRec.CaloRecConf import CaloCellContainerCheckerTool
     acc.setPrivateTools( CaloCellContainerCheckerTool() )
 
     return acc
@@ -93,7 +93,7 @@ def TileCellMakerCfg(flags, **kwargs):
         cellMakerTools += [caloCellNeighborsAverageCorrection]
 
 
-    caloCellContainerChecker = acc.popToolsAndMerge( CaloCellNeighborsAverageCorrCfg(flags) )
+    caloCellContainerChecker = acc.popToolsAndMerge( CaloCellContainerCheckerToolCfg(flags) )
     cellMakerTools += [caloCellContainerChecker]
 
     cellMakerAlg = CaloCellMaker(name = name, CaloCellMakerToolNames = cellMakerTools,

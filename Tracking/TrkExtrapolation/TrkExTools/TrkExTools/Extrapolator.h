@@ -50,7 +50,6 @@ class Layer;
 class Volume;                  
 class DetachedTrackingVolume;
 class TrackingGeometry;
-class TrackParticleBase;
 class IPropagator;
 class IDynamicLayerCreator;
 class INavigator;
@@ -161,19 +160,6 @@ class Extrapolator : public AthAlgTool,
                                                BoundaryCheck bcheck = true,
                                                ParticleHypothesis particle=pion,
                                                MaterialUpdateMode matupmode=addNoise) const override final;
-
-
-    /** [TrackParticleBase] ---------------------------------------------------------------- */
-
-    /** P 0) <b>Base class extrapolation method</b> 
-      - returns a ParametersBase object as well, 0 if the extrapolation did not succeed 
-      */
-    virtual const TrackParameters* extrapolate(const TrackParticleBase& particleBase,
-                                               const Surface& sf,
-                                               PropDirection dir=anyDirection,
-                                               BoundaryCheck bcheck = true,
-                                               ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const final;
 
 
     /** [NeutralParameters] ------------------------------------------------------------- */

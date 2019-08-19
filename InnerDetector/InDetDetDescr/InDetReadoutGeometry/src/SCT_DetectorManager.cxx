@@ -192,7 +192,7 @@ namespace InDetDD {
 
       } else if (frame == InDetDD::local) { // local shift
 
-        const SiDetectorElement * element =  m_elementCollection[idHash];
+        SiDetectorElement * element =  m_elementCollection[idHash];
         if (!element) return false;
 
 
