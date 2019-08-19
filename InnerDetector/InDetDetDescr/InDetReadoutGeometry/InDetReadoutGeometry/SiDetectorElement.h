@@ -670,8 +670,10 @@ namespace InDetDD {
     
     inline Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector2D &localPos) const
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        if (!m_cacheValid) updateCache();
+      }
       return m_center + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
     }
 
@@ -682,8 +684,10 @@ namespace InDetDD {
     
      inline HepGeom::Point3D<double> SiDetectorElement::globalPositionCLHEP(const Amg::Vector2D &localPos) const
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        if (!m_cacheValid) updateCache();
+      }
       return m_centerCLHEP + localPos[Trk::distEta] * m_etaAxisCLHEP + localPos[Trk::distPhi] * m_phiAxisCLHEP;
     }
      //here
@@ -699,16 +703,20 @@ namespace InDetDD {
     
     inline Amg::Vector2D SiDetectorElement::localPosition(const HepGeom::Point3D<double> & globalPosition) const
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        if (!m_cacheValid) updateCache();
+      }
       HepGeom::Vector3D<double> relativePos = globalPosition - m_centerCLHEP;
       return Amg::Vector2D(relativePos.dot(m_phiAxisCLHEP), relativePos.dot(m_etaAxisCLHEP));
     }
 
     inline Amg::Vector2D SiDetectorElement::localPosition(const Amg::Vector3D & globalPosition) const
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
+        if (!m_cacheValid) updateCache();
+      }
       Amg::Vector3D relativePos = globalPosition - m_center;
       return Amg::Vector2D(relativePos.dot(m_phiAxis), relativePos.dot(m_etaAxis));
     }
@@ -765,7 +773,7 @@ namespace InDetDD {
       return m_design->gangedCell(cellId);
     }
     
-    inline void SiDetectorElement::invalidate() const
+    inline void SiDetectorElement::invalidate() const//Not thread safe 
     {
       m_cacheValid = false;
     }
@@ -782,46 +790,57 @@ namespace InDetDD {
       if (not m_surface) surface();
     }
     
-    
     inline double SiDetectorElement::rMin() const 
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){                                                                                               
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+        if (!m_cacheValid) updateCache();                                                                               
+      }   
       return m_minR;
     }
     
     inline double SiDetectorElement::rMax() const 
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){                                                                                               
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+        if (!m_cacheValid) updateCache();                                                                               
+      }   
       return m_maxR;
     }
     
     inline double SiDetectorElement::zMin() const 
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){                                                                                               
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+        if (!m_cacheValid) updateCache();                                                                               
+      }  
       return m_minZ;
     }
     
     inline double SiDetectorElement::zMax() const 
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){                                                                                               
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+        if (!m_cacheValid) updateCache();                                                                               
+      }  
       return m_maxZ;
     }
     
     inline double SiDetectorElement::phiMin() const 
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){                                                                                               
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+        if (!m_cacheValid) updateCache();                                                                               
+      }  
       return m_minPhi;
     }
     
     inline double SiDetectorElement::phiMax() const 
     {
-      std::lock_guard<std::recursive_mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
+      if (!m_cacheValid){                                                                                               
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+        if (!m_cacheValid) updateCache();                                                                               
+      }  
       return m_maxPhi;
     }
     
