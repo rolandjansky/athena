@@ -14,6 +14,7 @@
 #include "PerfMonUtils.h" // borrow from existing code
 
 
+
 using json = nlohmann::json; // for convenience
 
 /*
@@ -198,6 +199,9 @@ void PerfMonMTSvc::startCompAud_MT(const std::string& stepName,
 
   std::lock_guard<std::mutex> lock( m_mutex_capture );
    
+  //ATH_MSG_INFO("Thread_Id: " << pthread_self());
+  //ATH_MSG_INFO("Thread_Id: " << gettid());
+
   int eventNumber = getEventNumber();
   eventCounter(eventNumber);
 
@@ -239,11 +243,14 @@ void PerfMonMTSvc::report2Stdout() {
   if(m_isEventLoopMonitoring)
     report2Stdout_Time_Parallel();
 
-  if(isDirectoryExist("/proc"))
+  if(isDirectoryExist("/proc")){
     report2Stdout_Mem_Serial();
-  else
+    if(m_isEventLoopMonitoring)
+      report2Stdout_Mem_Parallel();
+  }    
+  else{
     ATH_MSG_INFO("There is no /proc/ directory in this machine, therefore memory monitoring is failed!");
-
+  }
 
 
   report2Stdout_Summary();
@@ -375,8 +382,40 @@ void PerfMonMTSvc::report2Stdout_Mem_Serial() {
   }  
 }
 
-void report2Stdout_Mem_Parallel(){
-  // to implement ...
+void PerfMonMTSvc::report2Stdout_Mem_Parallel(){
+  
+  using boost::format;
+ 
+  ATH_MSG_INFO("                                  Memory Monitoring                                    ");
+  ATH_MSG_INFO("                                    (Event Loop)                                       ");
+  ATH_MSG_INFO("=======================================================================================");
+  ATH_MSG_INFO("Step           Vmem      Rss       Pss       Swap      Component");
+
+
+  for(auto vec_itr : m_stdoutVec_parallel){
+    std::vector<std::pair<PMonMT::StepComp , PMonMT::Measurement>> pairs;
+    for (auto itr = vec_itr.begin(); itr != vec_itr.end(); ++itr)
+      pairs.push_back(*itr);
+
+    sort(pairs.begin(), pairs.end(), [=](std::pair<PMonMT::StepComp , PMonMT::Measurement>& a, std::pair<PMonMT::StepComp , PMonMT::Measurement>& b)
+    {
+      return a.second.mem_stats["vmem"] + a.second.mem_stats["rss"] + a.second.mem_stats["pss"] + a.second.mem_stats["swap"] > \
+             b.second.mem_stats["vmem"] + b.second.mem_stats["rss"] + b.second.mem_stats["pss"] + b.second.mem_stats["swap"]; // sort by sum
+    }
+    );
+    for(auto it : pairs){
+
+      ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3% %|35t|%4% %|45t|%5% %|55t|%6%") % it.first.stepName \
+                                                                                   % it.second.mem_stats["vmem"]    \
+                                                                                   % it.second.mem_stats["rss"]     \
+                                                                                   % it.second.mem_stats["pss"]     \
+                                                                                   % it.second.mem_stats["swap"]    \
+                                                                                   % it.first.compName);    
+    }
+    ATH_MSG_INFO("=======================================================================================");
+
+  }
+
   return;  
 }
 
@@ -437,16 +476,19 @@ void PerfMonMTSvc::report2Stdout_CpuInfo() const {
 }
 
 
-void PerfMonMTSvc::report2JsonFile() const {
+void PerfMonMTSvc::report2JsonFile() {
 
   json j;
 
   report2JsonFile_Summary(j);
   report2JsonFile_Time_Serial(j);
 
-  if(isDirectoryExist("/proc"))
+  if(isDirectoryExist("/proc")){
     report2JsonFile_Mem_Serial(j);
-
+    if(m_isEventLoopMonitoring)
+      report2JsonFile_Mem_Parallel(j);
+  }
+  
   if(m_isEventLoopMonitoring)
     report2JsonFile_Time_Parallel(j);
  
@@ -524,6 +566,24 @@ void PerfMonMTSvc::report2JsonFile_Mem_Serial(nlohmann::json& j) const{
   }
 }
 
+void PerfMonMTSvc::report2JsonFile_Mem_Parallel(nlohmann::json& j){
+  
+  // Report component level memory measurements in parallel steps
+  for(auto& it : m_aggParallelCompLevelDataMap){
+
+    std::string stepName = it.first.stepName;
+    std::string compName = it.first.compName;
+
+    long vmem = it.second.mem_stats["vmem"];
+    long rss = it.second.mem_stats["rss"];
+    long pss = it.second.mem_stats["pss"];
+    long swap = it.second.mem_stats["swap"];
+
+    j["MemMon_Parallel"][stepName][compName] = { {"vmem", vmem}, {"rss", rss}, {"pss", pss}, {"swap", swap} } ; 
+
+  }
+}
+
 bool PerfMonMTSvc::isLoop() const {
   int eventNumber = getEventNumber();
   return (eventNumber >= 0) ? true : false;
@@ -560,7 +620,7 @@ void PerfMonMTSvc::parallelDataAggregator(){
 
   std::map< PMonMT::StepComp, PMonMT::Measurement >::iterator sc_itr;
 
-  for(auto& sce_itr : m_parallelCompLevelData.m_timeMon_delta_map ){
+  for(auto& sce_itr : m_parallelCompLevelData.m_parallel_delta_map ){
 
     PMonMT::StepComp currentState = generate_serial_state (sce_itr.first.stepName, sce_itr.first.compName);
  
@@ -569,6 +629,11 @@ void PerfMonMTSvc::parallelDataAggregator(){
     if(sc_itr != m_aggParallelCompLevelDataMap.end()){
       m_aggParallelCompLevelDataMap[currentState].cpu_time += sce_itr.second.cpu_time;
       m_aggParallelCompLevelDataMap[currentState].wall_time += sce_itr.second.wall_time;
+
+      m_aggParallelCompLevelDataMap[currentState].mem_stats["vmem"] += sce_itr.second.mem_stats["vmem"];
+      m_aggParallelCompLevelDataMap[currentState].mem_stats["rss"] += sce_itr.second.mem_stats["rss"];
+      m_aggParallelCompLevelDataMap[currentState].mem_stats["pss"] += sce_itr.second.mem_stats["pss"];
+      m_aggParallelCompLevelDataMap[currentState].mem_stats["swap"] += sce_itr.second.mem_stats["swap"];
     }
     else{
       m_aggParallelCompLevelDataMap[currentState] = sce_itr.second;      

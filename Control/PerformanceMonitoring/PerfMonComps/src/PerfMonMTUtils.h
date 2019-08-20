@@ -17,7 +17,12 @@
 
 #include <sys/stat.h>  // to check whether /proc/* exists in the machine
 
-typedef std::map< std::string, long > memory_map_t; // Component : Memory Measurement(kB)
+// Following includes enables the usage of gettid() system call
+#include <unistd.h>
+#include <sys/syscall.h>
+#define gettid() syscall(SYS_gettid)
+
+typedef std::map< std::string, long > memory_map_t; // e.g. Vmem : 1200(kB)
 
 /*
  * Inline function prototypes
@@ -49,7 +54,7 @@ namespace PMonMT {
   
   };
                                    
-  // Step Name, Component name and event number triple. e.g. Execute - StoreGateSvc - 3    Clear!
+  // Step Name, Component name and event number triple. e.g. Execute - StoreGateSvc - 3 
   struct StepCompEvent {
   
     std::string stepName;
@@ -69,31 +74,37 @@ namespace PMonMT {
     // These two variables stores the measurements captured outside the event loop
     double cpu_time;
     double wall_time;
+
+    memory_map_t mem_stats; // Vmem, Rss, Pss, Swap
     
     // This map stores the measurements captured in the event loop
-    std::map< StepCompEvent, Measurement > timeMon_meas_map;
+    std::map< StepCompEvent, Measurement > parallel_meas_map;
 
-    memory_map_t memMon_meas_map;
 
     void capture() {
       cpu_time = get_process_cpu_time();
       wall_time = get_wall_time();
 
       if(isDirectoryExist("/proc"))
-        memMon_meas_map = get_mem_stats();
+        mem_stats = get_mem_stats();
     }
 
-    // Could we make it argumentless?
     void capture_MT ( StepCompEvent sce ) {
            
       cpu_time = get_thread_cpu_time();
       wall_time = get_wall_time(); 
 
       Measurement meas;
+
+      if(isDirectoryExist("/proc")){
+        mem_stats = get_mem_stats();
+        meas.mem_stats = mem_stats;
+      }
+      
       meas.cpu_time = cpu_time;
       meas.wall_time = wall_time;
 
-      timeMon_meas_map[sce] = meas;
+      parallel_meas_map[sce] = meas;
     }
 
     Measurement() : cpu_time{0.}, wall_time{0.} { }
@@ -105,14 +116,13 @@ namespace PMonMT {
     // These variables are used to calculate the serial monitoring
     double m_tmp_cpu, m_delta_cpu;
     double m_tmp_wall, m_delta_wall;
-
+    
     memory_map_t m_memMon_tmp_map;
     memory_map_t m_memMon_delta_map;
 
     // These maps are used to calculate the parallel monitoring
-    std::map< StepCompEvent, Measurement > m_timeMon_tmp_map;
-    std::map< StepCompEvent, Measurement > m_timeMon_delta_map;    
-
+    std::map< StepCompEvent, Measurement > m_parallel_tmp_map;
+    std::map< StepCompEvent, Measurement > m_parallel_delta_map;    
     
     void addPointStart(const Measurement& meas) {          
 
@@ -120,7 +130,7 @@ namespace PMonMT {
       m_tmp_wall = meas.wall_time;
       
       if(isDirectoryExist("/proc"))
-        m_memMon_tmp_map = meas.memMon_meas_map;
+        m_memMon_tmp_map = meas.mem_stats;
     }
     // make const
     void addPointStop(Measurement& meas)  {     
@@ -129,19 +139,26 @@ namespace PMonMT {
       m_delta_wall = meas.wall_time - m_tmp_wall;
 
       if(isDirectoryExist("/proc"))
-        m_memMon_delta_map = meas.memMon_meas_map - m_memMon_tmp_map;   
+        m_memMon_delta_map = meas.mem_stats - m_memMon_tmp_map;   
     }
 
     // Clear -> Make generic + make meas const
     void addPointStart_MT(Measurement& meas, StepCompEvent sce ){
 
-      m_timeMon_tmp_map[sce] = meas.timeMon_meas_map[sce];
+      m_parallel_tmp_map[sce] = meas.parallel_meas_map[sce];
     }
 
     void addPointStop_MT (Measurement& meas, StepCompEvent sce  ){
 
-      m_timeMon_delta_map[sce].cpu_time = meas.timeMon_meas_map[sce].cpu_time - m_timeMon_tmp_map[sce].cpu_time;
-      m_timeMon_delta_map[sce].wall_time = meas.timeMon_meas_map[sce].wall_time - m_timeMon_tmp_map[sce].wall_time;
+      m_parallel_delta_map[sce].cpu_time = meas.parallel_meas_map[sce].cpu_time - m_parallel_tmp_map[sce].cpu_time;
+      m_parallel_delta_map[sce].wall_time = meas.parallel_meas_map[sce].wall_time - m_parallel_tmp_map[sce].wall_time;
+
+      if(isDirectoryExist("/proc")){
+        m_parallel_delta_map[sce].mem_stats["vmem"] = meas.parallel_meas_map[sce].mem_stats["vmem"] - m_parallel_tmp_map[sce].mem_stats["vmem"];
+        m_parallel_delta_map[sce].mem_stats["rss"] = meas.parallel_meas_map[sce].mem_stats["rss"] - m_parallel_tmp_map[sce].mem_stats["rss"];
+        m_parallel_delta_map[sce].mem_stats["pss"] = meas.parallel_meas_map[sce].mem_stats["pss"] - m_parallel_tmp_map[sce].mem_stats["pss"];
+        m_parallel_delta_map[sce].mem_stats["swap"] = meas.parallel_meas_map[sce].mem_stats["swap"] - m_parallel_tmp_map[sce].mem_stats["swap"];
+      }
     }
 
     
@@ -192,7 +209,9 @@ inline double PMonMT::get_wall_time() {
 inline memory_map_t PMonMT::get_mem_stats(){
 
   memory_map_t result;
-  std::ifstream smaps_file("/proc/self/smaps");
+  pid_t tid = gettid(); // get kernel thread id
+  std::string fileName = "/proc/self/task/" + std::to_string(tid) + "/smaps";
+  std::ifstream smaps_file(fileName); 
  
   std::string line;
   std::string key;
@@ -227,6 +246,7 @@ inline memory_map_t operator-( memory_map_t& map1,  memory_map_t& map2){
   }
   return result_map;
 }
+
 
 inline bool isDirectoryExist(const std::string dir){
   struct stat buffer;

@@ -107,7 +107,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2Stdout_Summary();  // make it const
     void report2Stdout_CpuInfo() const;
 
-    void report2JsonFile() const;
+    void report2JsonFile();
 
     void report2JsonFile_Summary(nlohmann::json& j) const;
 
@@ -115,6 +115,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc,
     void report2JsonFile_Time_Parallel(nlohmann::json& j) const;
 
     void report2JsonFile_Mem_Serial(nlohmann::json& j) const;
+    void report2JsonFile_Mem_Parallel(nlohmann::json& j);
 
 
 
