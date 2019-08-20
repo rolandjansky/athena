@@ -1,5 +1,4 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-#from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from G4AtlasTools.G4AtlasToolsConf import RegionCreator
 
 # Beampipe Regions

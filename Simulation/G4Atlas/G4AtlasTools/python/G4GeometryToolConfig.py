@@ -271,7 +271,6 @@ def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    #AtlasOuterR3 =  1501. #not used, remove?
     if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.SimulateMuon and not \
        (ConfigFlags.Sim.CavernBG != 'Signal'):
         AtlasOuterR1 = 4251.

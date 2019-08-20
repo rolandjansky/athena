@@ -20,8 +20,6 @@ def getATLAS_RegionCreatorList(ConfigFlags):
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
 
     from G4AtlasApps.SimFlags import simFlags
-    #from AthenaCommon.DetFlags import DetFlags
-    #from AthenaCommon.BeamFlags import jobproperties
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
@@ -134,7 +132,6 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
 
-    #from AthenaCommon.DetFlags import DetFlags
     if ConfigFlags.Detector.SimulateBpipe:
         acc = BeamPipeFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)

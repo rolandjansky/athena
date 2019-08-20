@@ -1,6 +1,4 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-#from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-#from AthenaCommon import CfgMgr
 from G4AtlasServices.G4AtlasServicesConfigNew import DetectorGeometrySvcCfg
 from ISF_Services.ISF_ServicesConfigNew import MC15aPlusTruthServiceCfg, GeoIDSvcCfg, InputConverterCfg
 
