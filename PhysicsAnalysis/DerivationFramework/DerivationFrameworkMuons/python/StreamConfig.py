@@ -55,7 +55,7 @@ class MuonsDxAODStreamConfigurer:
 
 #     if globalflags.DataSource()=='geant4':
     if DerivationFrameworkIsMonteCarlo:
-        MUON1OnlyAllVar += ['AntiKt4TruthJets']
+        MUON1OnlyAllVar += ['AntiKt4TruthJets',"TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth"]
 
 #     useSmartSlimmingIfSupported(getMUON0TriggerContainers(), MUON0OnlyAllVar, MUON0OnlyItems)
     allVarContainer = {'MUON0':MUON0OnlyAllVar, 'MUON1':MUON1OnlyAllVar, 'MUON2':[], 'MUON3':MUON3OnlyAllVar}
