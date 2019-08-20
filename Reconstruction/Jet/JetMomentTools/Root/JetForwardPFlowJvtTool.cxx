@@ -42,10 +42,10 @@
     m_fjvtThresh(15e3)
   {
     declareProperty("OverlapDec",         m_orLabel          = ""                        );
-    declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJets"        );
+    declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJetsTest"        );
     declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"            );
     declareProperty("VertexContainer",    m_verticesName     = "PrimaryVertices"         );
-    declareProperty("JetChargedpt",       m_jetchargedpt     = "JetChargedScaleMomentum" );
+    declareProperty("JetChargedpt",       m_jetchargedpt     = "JetChargedScaleMomentumTest" );
     declareProperty("EtaThresh",          m_etaThresh        = 2.5                       );
     declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3                      );
     declareProperty("ForwardMaxPt",       m_forwardMaxPt     = 60e3                      );
@@ -220,8 +220,13 @@
     for (size_t i = 0; i < inclusive_jets.size(); i++) {
       xAOD::Jet* jet = new xAOD::Jet();
       xAOD::JetFourMom_t tempjetp4(inclusive_jets[i].pt(),inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
+      xAOD::JetFourMom_t newArea(inclusive_jets[i].area_4vector().perp(),inclusive_jets[i].area_4vector().rap(),inclusive_jets[i].area_4vector().phi(),0);
       vertjets->push_back(jet);
       jet->setJetP4(tempjetp4);
+      jet->setJetP4("JetConstitScaleMomentum",tempjetp4);
+      jet->setJetP4("JetPileupScaleMomentum",tempjetp4);
+      jet->setAttribute("ActiveArea4vec",newArea);
+      jet->setAttribute("DetectorEta",jet->eta());
       std::vector<fastjet::PseudoJet> constituents = inclusive_jets[i].constituents();
       float chargedpart = 0;
       for (size_t j = 0; j < constituents.size(); j++) {
