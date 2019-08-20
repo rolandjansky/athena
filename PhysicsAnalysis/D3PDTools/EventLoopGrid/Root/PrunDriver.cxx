@@ -138,14 +138,10 @@ static SH::MetaObject defaultOpts()
   o.setString("nc_nGBPerJob", "MAX");
   o.setString("nc_mergeOutput", "true");
   o.setString("nc_rootVer", gROOT->GetVersion());
-#ifdef USE_CMAKE
   o.setString("nc_cmtConfig", gSystem->ExpandPathName("$AnalysisBase_PLATFORM"));
   o.setString("nc_useAthenaPackages", "true");
-#endif
-#ifndef USE_CMAKE
-  o.setString("nc_cmtConfig", EL::getRootCoreConfig());
-  o.setString("nc_useRootCore", "true");
-#endif
+  const std::string mergestr = "elg_merge jobdef.root %OUT %IN";
+  o.setString("nc_mergeScript", mergestr);
   return o;
 } 
 
@@ -522,8 +518,6 @@ doManagerStep (Detail::ManagerData& data) const
         meta.setString("nc_match", meta.castString("nc_grid_filter"));
         const std::string execstr = "runjob.sh " + (*s)->name();
         meta.setString("nc_exec", execstr);
-        const std::string mergestr = "elg_merge jobdef.root %OUT %IN"; 
-        meta.setString("nc_mergeScript", mergestr);
       }
 
       saveJobDef(jobDefFile, *data.job, sh);
