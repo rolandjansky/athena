@@ -17,8 +17,10 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from AthenaCommon.CfgGetter import getAlgorithm
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 
-if muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on() and (DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on()):
+if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on() and (DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on()):
     topSequence += getAlgorithm("CscRdoToCscPrepData")
 
 if muonRecFlags.doMDTs() and DetFlags.makeRIO.MDT_on() and (DetFlags.haveRDO.MDT_on() or DetFlags.digitize.MDT_on()):
@@ -30,15 +32,16 @@ if muonRecFlags.doRPCs() and DetFlags.makeRIO.RPC_on() and (DetFlags.haveRDO.RPC
 if muonRecFlags.doTGCs() and DetFlags.makeRIO.TGC_on() and (DetFlags.haveRDO.TGC_on() or DetFlags.digitize.TGC_on()):
     topSequence += getAlgorithm("TgcRdoToTgcPrepData", tryDefaultConfigurable=True)
 
-from MuonRecExample.NSWTools import SimpleMMClusterBuilderTool
-from MuonRecExample.NSWTools import SimpleSTgcClusterBuilderTool
+if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+    from MuonRecExample.NSWTools import SimpleMMClusterBuilderTool
+    from MuonRecExample.NSWTools import SimpleSTgcClusterBuilderTool
 
-if not muonRecFlags.doFastDigitization():
-  if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
-    topSequence += getAlgorithm("StgcRdoToStgcPrepData", tryDefaultConfigurable=True)
+    if not muonRecFlags.doFastDigitization():
+        if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
+            topSequence += getAlgorithm("StgcRdoToStgcPrepData", tryDefaultConfigurable=True)
 
-  if muonRecFlags.doMicromegas() and DetFlags.makeRIO.Micromegas_on() and (DetFlags.haveRDO.Micromegas_on() or DetFlags.digitize.Micromegas_on()):
-    topSequence += getAlgorithm("MM_RdoToMM_PrepData", tryDefaultConfigurable=True)
+        if muonRecFlags.doMicromegas() and DetFlags.makeRIO.Micromegas_on() and (DetFlags.haveRDO.Micromegas_on() or DetFlags.digitize.Micromegas_on()):
+            topSequence += getAlgorithm("MM_RdoToMM_PrepData", tryDefaultConfigurable=True)
 
 
 #
@@ -47,7 +50,7 @@ if not muonRecFlags.doFastDigitization():
 if muonRecFlags.doPrdSelect():
     include("MuonPrdSelector/MuonPrdSelector_jobOptions.py")
 
-if muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on():
+if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on():
     topSequence += getAlgorithm("CscThresholdClusterBuilder")
 
 

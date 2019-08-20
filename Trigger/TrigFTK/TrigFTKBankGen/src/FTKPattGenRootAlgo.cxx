@@ -118,6 +118,7 @@ FTKPattGenRootAlgo::FTKPattGenRootAlgo(const std::string& name, ISvcLocator* pSv
    declareProperty("rndStreamName",m_rndStreamName);
 
    declareProperty("ModuleGeometryFile",m_ModuleGeometryFile);
+   declareProperty("badModuleFile",m_badModuleFile);
 
 #ifdef DEBUG_BEAMSPOT
   m_propagator = new ToolHandle<Trk::IPropagator>
@@ -288,6 +289,10 @@ StatusCode FTKPattGenRootAlgo::initialize() {
      <<" module position file: \""<<m_ModuleGeometryFile<<"\""<<endmsg;
   m_pattgen->SetModuleGeometryCheck
      (m_ModuleGeometryFile,(FTKPattGenRoot::SectorSelection)m_sectorSelection);
+  if(!m_badModuleFile.empty()) {
+     std::ifstream bmFile(m_badModuleFile.c_str());
+     m_pattgen->SetBadModules(bmFile);
+  }
 
   // open output file
   log<<MSG::INFO <<"Output file: "<<m_OutputFile<<endmsg;

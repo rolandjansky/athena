@@ -26,19 +26,26 @@ namespace G4UA
     AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"FastIDKiller"),
     m_config(config),
     m_report(),
-    m_init(false),
-    m_energyCut(100000000.)
+    m_init(false)
   {
   }
 
   //---------------------------------------------------------------------------
   void FastIDKiller::BeginOfRunAction(const G4Run*)
   {
-    ATH_MSG_INFO( "Including the Fast Inner Detector Killer." << std::endl
-                  << "\t This piece of code will kill all particles leaving the" << std::endl
-                  << "\t inner detector region (which should be defined in your" << std::endl
-                  << "\t job options) except those satisfying certain criteria." << std::endl
-                  << "\t (e/gamma will not be killed above " << m_energyCut/1000. << " GeV." );
+    if (m_config.isDalek==false){
+      ATH_MSG_INFO( "Including the Fast Inner Detector Killer." << std::endl
+                    << "\t This piece of code will kill all particles leaving the" << std::endl
+                    << "\t inner detector region (which should be defined in your" << std::endl
+                    << "\t job options) except those satisfying certain criteria." << std::endl
+                    << "\t (e/gamma will not be killed above " << m_config.energyCut/1000. << " GeV)" );
+    }
+    else{
+      ATH_MSG_INFO( "Including Fast Inner Detector Killer as DALEK (Domain Actuated" << std::endl
+                    << "\t Low Energy Killer). It will exterminate all particles with kin." << std::endl
+                    << "\t energy below " << m_config.energyCut << " MeV leaving the inner detector" << std::endl
+                    << "\t region (which should be defined in your job options)." );
+    }
 
 
     // @todo need a nice way of getting the maximum size of the ID envelope in R and Z.
@@ -85,9 +92,10 @@ namespace G4UA
       ATH_MSG_DEBUG( " ===================================================== " );
     }
 
-    // First ignore muons
-    if (G4MuonPlus::MuonPlusDefinition() == aStep->GetTrack()->GetDefinition() ||
-        G4MuonMinus::MuonMinusDefinition() == aStep->GetTrack()->GetDefinition() ) return;
+    // Outside DALEK mode: first ignore muons
+    if ( m_config.isDalek==false &&
+         ( G4MuonPlus::MuonPlusDefinition() == aStep->GetTrack()->GetDefinition() ||
+           G4MuonMinus::MuonMinusDefinition() == aStep->GetTrack()->GetDefinition() ) ) return;
 
     // Now we check if the particle is outside the Z or R edges of the inner detector envelope
     if (msgLvl(MSG::VERBOSE)){
@@ -134,12 +142,16 @@ namespace G4UA
                        << " Z: " << aStep->GetPostStepPoint()->GetPosition().z()
                        << " Phi: " << aStep->GetPostStepPoint()->GetPosition().phi() );
 
-    // Ignore electrons above a certain energy
+    // Outside DALEK mode: ignore electrons above a certain energy
     //  at some point it might be interesting to see what effect this has on other particles (eg pi0)
-    if ( ( G4Electron::ElectronDefinition() == aStep->GetTrack()->GetDefinition() ||
+    if ( m_config.isDalek==false &&
+         ( G4Electron::ElectronDefinition() == aStep->GetTrack()->GetDefinition() ||
            G4Positron::PositronDefinition() == aStep->GetTrack()->GetDefinition() ||
            G4Gamma::GammaDefinition() == aStep->GetTrack()->GetDefinition() ) &&
-         m_energyCut < aStep->GetTrack()->GetTotalEnergy() ) return;
+         m_config.energyCut < aStep->GetTrack()->GetTotalEnergy() ) return;
+
+    // In DALEK mode: kill particles below threshold regardless of particle type
+    if ( m_config.isDalek && m_config.energyCut < aStep->GetTrack()->GetKineticEnergy() ) return;
 
     if (msgLvl(MSG::DEBUG)){
       std::string name = aStep->GetTrack()->GetDefinition()->GetParticleName();

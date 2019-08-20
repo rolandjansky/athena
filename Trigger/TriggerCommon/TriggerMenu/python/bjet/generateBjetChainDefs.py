@@ -190,7 +190,7 @@ def generateChainDefs(chainDict):
             log.debug("----------------- End of final individual chainDefs for b-jet chains printout -----------------")
             
         if len(theListOfChainDefs)>1:
-            theFinalChainDef = mergeChainDefs(theListOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=True,noMergeBJet=True)
+            theFinalChainDef = mergeChainDefs(theListOfChainDefs,strategy="parallel",removeDuplicateTEs=True,noMergeBJet=True)
         else:
             theFinalChainDef = theListOfChainDefs[0]
     

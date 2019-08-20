@@ -165,8 +165,7 @@ def generateSubDetectorList():
     SubDetectorList=[]
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType() == 'cosmics' or \
-            (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    if simFlags.SimulateCavern.get_Value():
         if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, "ReadTR"):
             SubDetectorList += ['CosmicShortCut']
     from AthenaCommon.DetFlags import DetFlags
@@ -206,8 +205,7 @@ def getATLAS(name="Atlas", **kwargs):
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
     AtlasOuterR3 =  1501.
-    if jobproperties.Beam.beamType() != 'cosmics' and not DetFlags.Muon_on() and not \
-       (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    if not DetFlags.Muon_on() and not simFlags.SimulateCavern.get_Value():
         AtlasOuterR1 = 4251.
         AtlasOuterR2 = 4251.
         if not DetFlags.Calo_on():

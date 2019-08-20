@@ -19,12 +19,8 @@ TFCSLateralShapeParametrizationHitNumberFromE::TFCSLateralShapeParametrizationHi
   set_match_all_pdgid();
 }
 
-int TFCSLateralShapeParametrizationHitNumberFromE::get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
+double TFCSLateralShapeParametrizationHitNumberFromE::get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
-  if (!simulstate.randomEngine()) {
-    return -1;
-  }
-
   int cs=calosample();
   double energy=simulstate.E(cs);
 
@@ -38,7 +34,21 @@ int TFCSLateralShapeParametrizationHitNumberFromE::get_number_of_hits(TFCSSimula
   }
   
   double sigma_stochastic=m_stochastic/sqrt(energy/1000.0);
-  int hits = CLHEP::RandPoisson::shoot(simulstate.randomEngine(), 1.0 / (sigma_stochastic*sigma_stochastic + m_constant*m_constant));
+  double sigma2 = sigma_stochastic*sigma_stochastic + m_constant*m_constant;
+
+  ATH_MSG_DEBUG("sigma^2 fluctuation="<<sigma2);
+
+  return sigma2;
+}
+
+int TFCSLateralShapeParametrizationHitNumberFromE::get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
+{
+  if (!simulstate.randomEngine()) {
+    return -1;
+  }
+
+  double sigma2=get_sigma2_fluctuation(simulstate,truth,extrapol);
+  int hits = CLHEP::RandPoisson::shoot(simulstate.randomEngine(), 1.0 / sigma2);
 
   ATH_MSG_DEBUG("#hits="<<hits);
   

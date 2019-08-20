@@ -567,6 +567,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
       unsigned int wildcard;
       //unsigned lowestSSID;
       int sector,firstPattern,lastPattern,isub,lamb,allPatternsUsed;
+      int maxNumPatterns;
       auxtree->Branch("nplanes",&nplanes,"nplanes/I");
       auxtree->Branch("ndc",ndc,"ndc[nplanes]/I");
       auxtree->Branch("sector",&sector,"sector/I");
@@ -576,6 +577,10 @@ int FTK_CompressedAMBank::writePCachedBankFile
       auxtree->Branch("isub",&isub,"isub/I");
       auxtree->Branch("wildcard",&wildcard,"wildcard/I");
       auxtree->Branch("allPatternsUsed",&allPatternsUsed,"allPatternsUsed/I");
+      if(m_maxPatterns.size()) {
+         // store maximum number of patterns if it was calculated
+         auxtree->Branch("maxNumPatterns",&maxNumPatterns,"maxNumPatterns/I");
+      }
       //auxtree->Branch("lowestSSID",&lowestSSID,"lowestSSID/I");
       // set number of DC bits per plane (constant)
       for(int i=0;i<getNPlanes();i++) {
@@ -593,6 +598,11 @@ int FTK_CompressedAMBank::writePCachedBankFile
          allPatternsUsed=-1;
          if(tooFew!=m_tooFew.end()) {
             allPatternsUsed=(*tooFew).second ? 1 : 0;
+         }
+         MAP<int,int>::const_iterator maxPattPtr=m_maxPatterns.find(sector);
+         maxNumPatterns=-1;
+         if(maxPattPtr!=m_maxPatterns.end()) {
+            maxNumPatterns=(*maxPattPtr).second;
          }
          auxtree->Fill();
       }
@@ -3189,10 +3199,8 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
              iPartition=partitionList.begin();iPartition!=partitionList.end();
           iPartition++) {
          // the FTKPatternBySectorBlockReader is reading the patterns
-         // sector-by-sector, in a pre-defined coverage range
-         //
-         // if the number of subregions is specified, it will ignore all
-         // sectors which do not belong to the active subregion
+         // sector-by-sector, in a pre-defined coverage range and
+         // for a given selection of sectors (a single partition)
          FTKPatternBySectorReader *TSPreader=FTKPatternBySectorReader::Factory
             (*TSPfile,&(*iPartition).fSectorSet);
          if(TSPreader->GetNLayers()<=0) {
@@ -3378,6 +3386,74 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
       error++;
    }
    return error;
+}
+
+/**
+   countSectorOrderedPatterns()
+
+   read sector-ordered bank, convert to DC patterns to count maximum
+   in each sector
+
+*/
+MAP<int,int> FTK_CompressedAMBank::countSectorOrderedPatterns(const char *name) {
+   // read bad modules
+   readWildcards();
+
+   m_maxPatterns.clear();
+
+   FTKRootFileChain chain;
+   chain.AddFile(name);
+   FTKPatternBySectorReader *TSPreader=
+      FTKPatternBySectorReader::Factory(chain);
+   if(TSPreader->GetNLayers()<=0) {
+      Fatal("countSectorOrderedPatterns")
+         <<"number of layers (reader) "<<TSPreader->GetNLayers()<<"\n";
+   }
+   TSPreader->CheckConsistency(getSSMapTSP(),getBankID(),getHWModeSS_tsp());
+   if(!getNPlanes()) {
+      setNPlanes(TSPreader->GetNLayers());
+   }
+   std::map<int,int> coverageMap;
+   TSPreader->GetNPatternsByCoverage(coverageMap);
+      uint32_t totalPatterns=0;
+      uint64_t totalPatternsCoverage=0;
+      for(std::map<int,int>::const_iterator j=coverageMap.begin();
+          j!=coverageMap.end();j++) {
+         totalPatterns += (*j).second;
+         totalPatternsCoverage += (*j).first*(uint64_t)(*j).second;
+      }
+   Info("countSectorOrderedPatterns")
+      <<"number of coverages "<<coverageMap.size()
+      <<" total patterns "<<totalPatterns
+      <<" patterns*coverage "<<totalPatternsCoverage
+      <<"\n";
+   for(int sector=TSPreader->GetFirstSector();sector>=0;
+       sector=TSPreader->GetNextSector(sector)) {
+      // temporarily store patterns here
+      int nDC=0;
+      int nTSP=0;
+      int maxpatts=0;
+      VECTOR<HitPatternMap_t> dcPatterns(sector+1);
+      // determine total number of patterns , patterns*coverage, <coverage>
+      maxpatts=totalPatterns;
+      // read all patterns
+      FTKPatternOneSector *patterns=TSPreader->Read(sector,0);
+      if(patterns) {
+         insertPatterns(sector,patterns,maxpatts,dcPatterns,nDC,nTSP);
+         delete patterns;
+      }
+      m_maxPatterns[sector]=nDC;
+      if((sector<10)||
+         ((sector<100)&&(sector%10==0))||
+         ((sector<1000)&&(sector%100==0))) {
+         Info("countSectorOrderedPatterns")
+            <<"sector "<<sector<<" nTSP "<<nTSP<<" nDC "<<nDC<<"\n";
+      }
+      
+   }
+   delete TSPreader;
+
+   return m_maxPatterns;
 }
 
 /**

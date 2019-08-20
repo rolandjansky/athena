@@ -372,12 +372,14 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                   <<"Selector="<<m_select<<" only implemented for HDMODEID==2\n";
             }
             // for each candidate, calculate a weight 0<w<1
+            // also, count ne number of bad modules
             vector<double> weight(found_patterns.size());
             unsigned nFound=0;
             vector<unsigned> exactMatch;
             static double const B_FACTOR=-0.3*2.083;// conversion factor 1/Mev -> 1/mm
             double rho=B_FACTOR*track.getHalfInvPt() *(2.0);
             for(unsigned ipatt=0;ipatt<found_patterns.size();ipatt++) {
+               int numBad=0;
                double w=1.0;
                bool found=true;
                int isector=found_patterns[ipatt].GetSectorID();
@@ -385,14 +387,18 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                for (int p=0; p<pmap()->getNPlanes(); ++p) {
                   int id=m_sectorbank[isector].GetHit(p);
                   map<int,RZminmax_t>::const_iterator irz;
+                  bool isBad=false;
                   if(pmap()->getDim(p,1)!=-1) {
                      // lookup geometry by module ID
                      irz=m_moduleBoundsPixel.find(id);
                      found = (irz!=m_moduleBoundsPixel.end());
+                     isBad=(m_moduleBadPixel.find(id)!=m_moduleBadPixel.end());
                   } else {
                      irz=m_moduleBoundsSCT.find(id);
                      found = (irz!=m_moduleBoundsSCT.end());
+                     isBad=(m_moduleBadSCT.find(id)!=m_moduleBadSCT.end());
                   }
+                  if(isBad) numBad++;
                   if(found) {
                      RZminmax_t const &rz=(*irz).second;
                      // rMin,rMax and zMin,zMax are the 
@@ -449,6 +455,10 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                if(found) {
                   nFound++;
                }
+               // down-weight sectors with missing modules
+               if(numBad>2)      w/=100000.;
+               else if(numBad>1) w/=  1000.;
+               else if(numBad>0) w/=    10.;
                weight[ipatt]=w;
                if(w>=1.0) exactMatch.push_back(ipatt);
             }
@@ -1057,3 +1067,57 @@ void  FTKPattGenRoot::SetModuleGeometryCheck(const std::string &fileName,
       }
    }
 }
+
+void FTKPattGenRoot::SetBadModules(std::istream &badlist) {
+   // read list of bad sectors (cf FTK_CompressedAMBank::importBadModuleASCII)
+   std::string line;
+   while( getline(badlist,line) ) {
+      std::istringstream lineRead(line);
+      int tmpisPixel,tmpBEC,tmpSector,tmpPlane,tmpEtaModule,tmpPhiModule,tmpSection,tmpidhash;
+      lineRead >>tmpisPixel >>tmpBEC >>tmpSector >>tmpPlane >>tmpEtaModule
+               >>tmpPhiModule >>tmpSection;
+      if(lineRead.fail()) {
+         Error("SetBadModules")
+            <<"problem to read wildcard data from \""<<line<<"\"\n";
+         continue;
+      }
+      lineRead>>tmpidhash;
+      int hwMode=FTKSetup::getFTKSetup().getHWModeSS();
+      if(lineRead.fail() && (hwMode==2)) {
+         Error("SetBadModules")
+            <<"HWMODEID==2 but module hash code missing \""<<line<<"\"\n";
+         continue;
+      }
+      int id=-1;
+      if(hwMode==0) {
+         static FTKHit hit;
+         hit.setSector(tmpSector);
+         int phimod=hit.getPhiModule();
+         int section=hit.getSection();
+         int etacode;
+         if((tmpisPixel)&& !hit.getIsBarrel()) {
+            etacode=14+3*(hit.getASide() ? 1 : 0)+section;
+         } else {
+            etacode=hit.getEtaCode();
+         }
+         if(tmpisPixel==2) {
+            id=m_ssmap->getSSxy(tmpPlane,section,phimod,etacode,0,0);
+         } else {
+            id=m_ssmap->getSSx(tmpPlane,section,phimod,etacode,0);
+         }
+      } else {
+         id=m_ssmap->getRegionMap()
+            ->getLocalId(m_curreg,tmpPlane,tmpidhash);
+      }
+      if(id!=-1) {
+         if(tmpisPixel) {
+            Info("SetBadModules")<<"bad pixel module "<<id<<" plane="<<tmpPlane<<"\n";
+            m_moduleBadPixel.insert(id);
+         } else {
+            Info("SetBadModules")<<"bad SCT module "<<id<<" plane="<<tmpPlane<<"\n";
+            m_moduleBadSCT.insert(id);
+         }
+      }
+   }
+}
+

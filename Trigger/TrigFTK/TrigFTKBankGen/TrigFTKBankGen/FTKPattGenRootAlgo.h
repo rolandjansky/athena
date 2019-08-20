@@ -85,6 +85,7 @@ protected:
    uint64_t m_totalThrown;
 
    std::string m_ModuleGeometryFile;
+   std::string m_badModuleFile;
 
 private:
 

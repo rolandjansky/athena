@@ -101,6 +101,9 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("doNSWMatchingAlg",   m_doNSWMatching=true);
   declareProperty("doNSWMatchingMuonOnly",  m_doNSWMatchingMuon=false);
   declareProperty("setMaxStripDistance",  m_maxStripDiff=3);
+
+  // this property is temporarely added to be able to deactivate the "No match found!" warning when running on the grid
+  declareProperty("suppressNoMatchWarning",  m_noMatchWarning=false);
 }
 
 StatusCode NSWPRDValAlg::initialize() {
@@ -443,8 +446,16 @@ StatusCode NSWPRDValAlg::NSWMatchingAlg (EDM_object data0, EDM_object data1) {
            }
         }
         ATH_MSG_VERBOSE("Total Number of matches found: " << nMatch << " " << data1.getName() << " for a single " << data0.getName() );
+        static bool warningPrinted = false;
         if (nMatch == 0) {
-          ATH_MSG_WARNING("No match found!");
+          if (m_noMatchWarning) {
+            if(!warningPrinted) {
+              ATH_MSG_WARNING("No match found! Will now disable this kind of WARNING but please be aware that you are running with suppressNoMatchWarning set to true!");
+              warningPrinted = true;
+            }
+          } else {
+            ATH_MSG_WARNING("No match found!");
+          }
         }
      }
     if (msgLevel() <= MSG::DEBUG) { 

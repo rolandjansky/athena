@@ -61,6 +61,8 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareProperty("ComponentCalib0", m_calib0, "(vector) additive calibration constants");
   declareProperty("ComponentCalib1", m_calib1, "(vector) multiplicative calib. constants");
 
+  declareProperty("DoCaching", m_doCaching = false, "Enable the (buggy) caching");
+
   declareMonitoredVariable("EF_MEx_log",   m_mex_log);
   declareMonitoredVariable("EF_MEy_log",   m_mey_log);
   declareMonitoredVariable("EF_MEz_log",   m_mez_log);
@@ -1028,10 +1030,12 @@ HLT::ErrorCode EFMissingET::makeOutputTE(std::vector<std::vector<HLT::TriggerEle
   // Some debug output:
   ATH_MSG_DEBUG( "We assume success, set TE with label active to signal positive result." );
 
-  // CACHING
-  // if we got here, everything was okay. so, we cache the feature for further execution of this instance in e.g. other MET Sequences:
-  m_useCachedResult = true;
-  m_cachedTE = outputTE;
+  if (m_doCaching) {
+    // CACHING
+    // if we got here, everything was okay. so, we cache the feature for further execution of this instance in e.g. other MET Sequences:
+    m_useCachedResult = true;
+    m_cachedTE = outputTE;
+  }
 
   return HLT::OK;
 }

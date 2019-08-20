@@ -26,6 +26,9 @@ public:
   ///    constant=0.035;
   TFCSLateralShapeParametrizationHitNumberFromE(const char* name=nullptr, const char* title=nullptr,double stochastic=0.1,double constant=0);
 
+  ///Give the effective size sigma^2 of the fluctuations from the stochastic and constant term
+  double get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
+
   int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   void Print(Option_t *option = "") const override;

@@ -100,6 +100,8 @@ AllowedTopos_jet = ['muvtx',
                     'invm900',
                     'invm1000',
                     'invm1000j50',
+                    'invm1000j70',
+                    'invm1100j50',
                     'invm1100j70',
                     'invm1200j50'
                     ]
@@ -151,7 +153,7 @@ JetChainParts = {
     'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     'jetattrs'     : ['subj360Iktdr2I3width6IIsubj300Iwidth','subj360Iktdr3IIsubj300Iwidth2','subj360Iktdr3Iwidth2','subj360Iktdr','subj360I0ktdr5','subj360Iwidth','subj360I0width5','subj360IktdrI9width'],
     'jvt'          : ['jvt011et15','jvt011et25','jvt011et35','jvt011et45','jvt015et15','jvt015et25','jvt015et35','jvt015et45','jvt059et15','jvt059et25','jvt059et35','jvt059et45','jvt091et15','jvt091et25','jvt091et35','jvt091et45','2jvt011et25','2jvt015et25','2jvt059et25','2jvt015et15','2jvt011et45','2jvt015et45','2jvt059et45','4jvt011et15','4jvt011et25','4jvt011et35','4jvt011et45','4jvt015et15','4jvt015et25','4jvt015et35','4jvt015et45','4jvt059et15','4jvt059et25','4jvt059et35','4jvt059et45','5jvt011et15','5jvt011et25','5jvt011et35','5jvt011et45','5jvt015et15','5jvt015et25','5jvt015et35','5jvt015et45','5jvt059et15','5jvt059et25','5jvt059et35','5jvt059et45','6jvt011et15','6jvt011et25','6jvt011et35','6jvt011et45','6jvt015et15','6jvt015et25','6jvt015et35','6jvt015et45','6jvt059et15','6jvt059et25','6jvt059et35','6jvt059et45','7jvt011et15','7jvt011et25','7jvt011et35','7jvt011et45','7jvt015et15','7jvt015et25','7jvt015et35','7jvt015et45','7jvt059et15','7jvt059et25','7jvt059et35','7jvt059et45'],
-    'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
+    'trkopt'       : ['notrk', 'ftk', 'ftkrefit', 'ftf'],
     # Et cut by the jet build tool (ptmin)
     'recoCutUncalib': ['rcuDefault', 'rcu0', 'rcu4' ,'rcu5'],
     
@@ -236,7 +238,7 @@ MuonChainParts = {
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','20invm60', '10invm60', '0invm60', '20invm80', '10invm80', 'pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','tstight','tsloose'],
+    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','20invm60', '10invm60', '10invm70', '0invm60', '20invm80', '10invm80', 'pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','tstight','tsloose'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : ['hf'],

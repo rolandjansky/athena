@@ -2288,26 +2288,30 @@ namespace Muon {
     }
 
     // loop over all available MM collection identifiers and order them per sector
-    it = m_idHelper->mmIdHelper().detectorElement_begin();
-    it_end = m_idHelper->mmIdHelper().detectorElement_end();
-    for( ;it!=it_end; ++it ){
-      IdentifierHash hash;
-      m_idHelper->mmIdHelper().get_module_hash(*it,hash);
-      insertHash(hash,*it);
+    if (&(m_idHelper->mmIdHelper())) {
+        it = m_idHelper->mmIdHelper().detectorElement_begin();
+        it_end = m_idHelper->mmIdHelper().detectorElement_end();
+        for( ;it!=it_end; ++it ){
+            IdentifierHash hash;
+            m_idHelper->mmIdHelper().get_module_hash(*it,hash);
+            insertHash(hash,*it);
+        }
     }
 
     // loop over all available STGC collection identifiers and order them per sector
-    it = m_idHelper->stgcIdHelper().detectorElement_begin();
-    it_end = m_idHelper->stgcIdHelper().detectorElement_end();
-    for( ;it!=it_end; ++it ){
-      IdentifierHash hash;
-      m_idHelper->stgcIdHelper().get_module_hash(*it,hash);
-      int sector = m_idHelper->sector(*it);
-      insertHash(sector,hash,*it);
-      int sectorU = sector != 1 ? sector-1 : 16;
-      int sectorD = sector != 16 ? sector+1 : 1;
-      insertHash(sectorU,hash,*it);
-      insertHash(sectorD,hash,*it);
+    if (&(m_idHelper->stgcIdHelper())) {
+        it = m_idHelper->stgcIdHelper().detectorElement_begin();
+        it_end = m_idHelper->stgcIdHelper().detectorElement_end();
+        for( ;it!=it_end; ++it ){
+            IdentifierHash hash;
+            m_idHelper->stgcIdHelper().get_module_hash(*it,hash);
+            int sector = m_idHelper->sector(*it);
+            insertHash(sector,hash,*it);
+            int sectorU = sector != 1 ? sector-1 : 16;
+            int sectorD = sector != 16 ? sector+1 : 1;
+            insertHash(sectorU,hash,*it);
+            insertHash(sectorD,hash,*it);
+        }
     }
 
     // loop over all available TGC collection identifiers and order them per sector

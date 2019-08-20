@@ -28,8 +28,10 @@
 #include "Identifier/IdentifierHash.h"
 #include "TH1.h"
 #include "TH2.h"
+#include "TrigT1CaloFexSim/Objects.h"
 #include "TrigT1CaloFexSim/JetAlg.h"
 #include "TrigT1CaloFexSim/METAlg.h"
+#include "TrigT1CaloFexSim/JGTower.h"
 #include "string.h"
 std::vector<std::string> splitString(std::string parentString, std::string sep, bool stripEmpty=false);
 class JGTowerReader: public ::AthAlgorithm { 
@@ -43,6 +45,7 @@ class JGTowerReader: public ::AthAlgorithm {
   virtual StatusCode  ProcessObjects();
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, Double_t xbin_down, Double_t xbin_up, float xvalue, float wei);
   virtual StatusCode  HistBookFill(const TString name, Int_t nbinsx, const Double_t* xbins, float xvalue,float wei);
+  static StatusCode BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, const bool useNegTowers);
  private: 
   bool m_vetoBCID;
   bool m_outputNoise;
@@ -52,6 +55,7 @@ class JGTowerReader: public ::AthAlgorithm {
   bool m_dumpSeedsEtaPhi;
 
   bool  m_makeSquareJets;
+  bool  m_buildgBlockJets;
   float m_jJet_thr;
   float m_jJet_seed_size;
   float m_jJet_max_r;
@@ -173,6 +177,8 @@ class JGTowerReader: public ::AthAlgorithm {
   std::map<TString, TH2*> m_h2Name;
   int m_jTowerHashMax;
   int m_gTowerHashMax;
+  std::shared_ptr<TowerHelper> jT_helper;
+  std::shared_ptr<TowerHelper> gT_helper;
 
   unsigned int m_eventCount = 0;
   SG::AuxElement::Accessor<float>* acc_rho = new SG::AuxElement::Accessor<float>("Rho_avg");

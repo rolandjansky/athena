@@ -79,7 +79,7 @@ namespace NSWL1 {
             
     private:
         /// get the output tree from the athena histogram service
-        TTree* get_tree_from_histsvc();
+        StatusCode get_tree_from_histsvc(TTree*&);
 
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
         const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager

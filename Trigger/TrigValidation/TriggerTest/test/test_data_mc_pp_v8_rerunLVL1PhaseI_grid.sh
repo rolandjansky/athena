@@ -3,19 +3,18 @@
 # art-description: MC v8 TriggerTest on data with rerunLVL1PhaseI=True
 # art-type: grid
 # art-include: 21.3/Athena
-# art-output: HLTChain.txt
-# art-output: HLTTE.txt
-# art-output: L1AV.txt
-# art-output: HLTconfig_*.xml
+# art-output: *.txt
+# art-output: *.log
+# art-output: log.*
+# art-output: *.new
+# art-output: *.json
+# art-output: *.root
+# art-output: *.pmon.gz
+# art-output: *perfmon*
+# art-output: costMonitoring_*
+# art-output: HLTconfig*.xml
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
-# art-output: *.log
-# art-output: costMonitoring_*
-# art-output: *.root
-# art-output: ntuple.pmon.gz
-# art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
-# art-output: *.regtest.new
 
 export NAME="data_mc_pp_v8_rerunLVL1PhaseI_grid"
 export MENU="MC_pp_v8"

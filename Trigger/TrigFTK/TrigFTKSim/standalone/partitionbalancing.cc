@@ -223,10 +223,10 @@ int main(int argc, char const *argv[]) {
             break;
          }
          if(maximum<=0) {
-            logging.Error("maximumFromFile")<<"max maximum="<<maximum<<" in sector="<<sector<<" region="<<ireg<<" at line="<<line<<"\n";
-            break;
+            logging.Warning("maximumFromFile")<<"max maximum="<<maximum<<" in sector="<<sector<<" region="<<ireg<<" at line="<<line<<"\n";
+         } else {
+            knownMax[ireg][sector]=maximum;
          }
-         knownMax[ireg][sector]=maximum;
          line++;
       }
    }

@@ -12,6 +12,7 @@
 
 #include <sstream>
 #include <vector>
+#include <TString.h> // for Form
 #include <algorithm>//for transform
 #include <cctype> //for toupper
 #include <inttypes.h> 
@@ -58,8 +59,6 @@ namespace MuonCalib {
     m_t0PhaseCondData(nullptr),
     m_t0BaseCondData(nullptr),
     m_statusCondData(nullptr),
-    m_debug(false),
-    m_verbose(false),
     m_numFailedRequests(0),
     m_maxChamberCoolChannel(32),
     m_maxLayerHash(255),
@@ -87,7 +86,9 @@ namespace MuonCalib {
     declareProperty("DoMerge", m_doMerge = true);
     declareProperty("DoCaching", m_doCaching = true);
     declareProperty("OnlineOfflineConvertPhiFlip", m_onlineOfflinePhiFlip = true);
-    declareProperty("PhiSwapVersion1Strings", m_phiSwapVersion1Strings = true);
+
+    declareProperty("ReadPSlopeFromDatabase", m_pslopeFromDB = false);
+    declareProperty("PSlope", m_pslope = DEFAULT_PSLOPE);
 
   }
 
@@ -116,17 +117,13 @@ namespace MuonCalib {
   //-------------------------------------------------------------------
   StatusCode CscCoolStrSvc::initialize()
   {
-    // service initialisation 
-    m_log.setLevel(outputLevel());    //individual outputlevel not known before inialize
-    m_debug = (m_log.level() <= MSG::DEBUG);
-    m_verbose = (m_log.level() <= MSG::VERBOSE);
 
-    m_log << MSG::INFO << "Initializing CscCoolStrSvc" <<endmsg;
+    ATH_MSG_INFO("Initializing CscCoolStrSvc");
 
     // get detector store, linked to cool database by other algorithms in your
     // jobOptions file.
     if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-      m_log << MSG::FATAL << "Detector store not found" << endmsg; 
+      ATH_MSG_FATAL("Detector store not found"); 
       return StatusCode::FAILURE;
     }
 
@@ -139,13 +136,13 @@ namespace MuonCalib {
       sc = detStore->retrieve(m_cscId,"CSCIDHELPER");
       if(sc.isFailure())
       {
-        m_log << MSG::FATAL << "Cannot retrieve CscIdHelper from detector store" << endmsg;
+        ATH_MSG_FATAL("Cannot retrieve CscIdHelper from detector store");
         return sc;
       }
     }
     else
     {
-      m_log << MSG::FATAL << "DetectorStore service not found " << endmsg;
+      ATH_MSG_FATAL("DetectorStore service not found ");
       return StatusCode::FAILURE;
     } 
 
@@ -186,7 +183,7 @@ namespace MuonCalib {
                   );
               unsigned int onlineId;
               if(!offlineToOnlineId(id, onlineId).isSuccess()) {
-                m_log << MSG::ERROR << "Failed at geting online id!" << endmsg; 
+                ATH_MSG_ERROR("Failed at geting online id!"); 
                 return StatusCode::RECOVERABLE;
               }
               m_onlineChannelIdsFromLayerHash.push_back(onlineId);
@@ -222,7 +219,7 @@ namespace MuonCalib {
                   );
               unsigned int onlineId;
               if(!offlineToOnlineId(id, onlineId).isSuccess()) {
-                m_log << MSG::ERROR << "Failed at geting online id!" << endmsg; 
+                ATH_MSG_ERROR("Failed at geting online id!"); 
                 return StatusCode::RECOVERABLE;
               }
 
@@ -235,61 +232,15 @@ namespace MuonCalib {
     //*(const_cast<unsigned int*>(&m_maxChamberHash)) = m_cscId->module_hash_max() - 1;
     *(const_cast<unsigned int*>(&m_maxChanHash)) = m_cscId->channel_hash_max() - 1;
 
-    if(m_debug) m_log << MSG::DEBUG << "Maximum Chamber hash is " << m_maxChamberHash 
-      << endmsg;
-    if(m_debug) m_log << MSG::DEBUG << "Maximum Chamber COOL Channel is " 
-      << m_maxChamberCoolChannel << endmsg;
-    if(m_debug) m_log << MSG::DEBUG << "Maximum Layer hash is " << m_maxLayerHash 
-      << endmsg;
-    if(m_debug) m_log << MSG::DEBUG << "Maximum Channel hash is " << m_maxChanHash 
-      << endmsg;
+    ATH_MSG_DEBUG("Maximum Chamber hash is " << m_maxChamberHash);
+    ATH_MSG_DEBUG("Maximum Chamber COOL Channel is " << m_maxChamberCoolChannel);
+    ATH_MSG_DEBUG("Maximum Layer hash is " << m_maxLayerHash);
+    ATH_MSG_DEBUG("Maximum Channel hash is " << m_maxChanHash);
 
 
     ////////////
     // Loop over csc detector elements and add in the hash ids
     std::vector<Identifier> modules = m_cscId->idVector();
-
-    //typedef std::vector<Identifier>::const_iterator csc_id;
-
-    /*
-       print out all strip hashes
-    csc_id firstId = modules.begin();
-    csc_id lastId  = modules.end();
-
-    IdentifierHash moduleHashId;
-    IdentifierHash channelHashId;
-
-    for(; firstId != lastId; ++firstId) {
-      Identifier id = *firstId;
-      if (m_cscId->validElement(id)) {
-        if(!m_cscId->get_hash(id, moduleHashId, &m_moduleContext)) {
-          std::cout << "The CSC Chamber hash id is " << moduleHashId
-            << " for " << m_cscId->show_to_string(id,&m_moduleContext) << std::endl;
-          std::cout << "*****The strips in this Chamber ********************" << std::endl;
-          std::vector<Identifier> vect;
-          m_cscId->idChannels(id, vect);
-          for (unsigned int i=0; i<vect.size(); ++i) {
-            if(!m_cscId->get_hash(vect[i], channelHashId, &m_channelContext)) {
-              std::cout << "The CSC strip hash id is " << channelHashId
-                << " for " << m_cscId->show_to_string(vect[i],&m_channelContext) << std::endl;
-            }
-          } 
-        }
-        else {
-          m_log << MSG::ERROR << "Unable to set csc hash id for det elem " 
-            << "context begin_index = " << m_moduleContext.begin_index()
-            << " context end_index  = " << m_moduleContext.end_index()
-            << " the idenitifier is "
-            << endmsg;
-          id.show();
-        }
-      } else {
-        m_log << MSG::ERROR << "Invalid CSC id " << endmsg;
-        id.show();
-      }
-    }  
-    */
-    /////////
 
     //Prepare local cache.
     m_dbCache = new CscCondDataContainer();
@@ -297,7 +248,7 @@ namespace MuonCalib {
 
     unsigned int numPars = m_parNameVec.size(); 
     if(numPars == 0) {
-      m_log << MSG::WARNING << "No parameters requested for CscCoolStrSvc. No COOL CSC data will be available from this service." << endmsg;
+      ATH_MSG_WARNING("No parameters requested for CscCoolStrSvc. No COOL CSC data will be available from this service.");
     }
 
     //Ensure all vectors have exactly numPars
@@ -307,15 +258,28 @@ namespace MuonCalib {
         || m_parCatVec.size() != numPars 
         || m_parDefaultVec.size() != numPars
       ) {
-      m_log << MSG::FATAL << "Need identical number of entries in each parameter definition vector!"
+      ATH_MSG_FATAL("Need identical number of entries in each parameter definition vector!"
         << "\nParNames:\t" << m_parNameVec.size() 
         << "\nParSGKeys:\t" << m_parSGKeyVec.size()
         << "\nParFolders:\t" << m_parFolderVec.size()
         << "\nParDataTypes:\t" << m_parDataTypeVec.size()
         << "\nParCats:\t" << m_parCatVec.size()
-        << "\nParDefault:\t" << m_parDefaultVec.size()
-        << endmsg;
+        << "\nParDefault:\t" << m_parDefaultVec.size());
       return StatusCode::FAILURE;
+    }
+
+    if (m_pslopeFromDB) {
+      ATH_MSG_WARNING("You have activated the retrieval of the pslope per CSC channel from the COOL database. "
+            << "Please make sure that a correct PSLOPE database is in place which uses geometrical CSC hashes in hex format "
+            << "as keys and different values of the pslopes for the different CSC channels as values, otherwise please run "
+            << "with the ReadPSlopeFromDatabase property set to false");
+    } else {
+      if (!(m_pslope>0 && m_pslope<1)) {
+        ATH_MSG_FATAL("The Pslope cannot be set to a value <=0 or >=1");
+        return StatusCode::FAILURE;
+      } else if (m_pslope != DEFAULT_PSLOPE) {
+        ATH_MSG_WARNING("You have manually set the Pslope property (to " << m_pslope << "). Please check if this is really intended.");
+      }
     }
 
     //bool noneFailed = true;
@@ -331,26 +295,29 @@ namespace MuonCalib {
       std::string category = m_parCatVec[parItr]; 
       std::string defaultVal = m_parDefaultVec[parItr] ;
 
+      if (!m_pslopeFromDB) {
+        // in this case, we do not need to read the pslopes from the database, thus, we do not need a CscCondDataCollection
+        if (sgKey=="CSC_PSLOPE") continue;
+      }
 
-      if(m_debug) m_log << MSG::DEBUG << "Entering new parameter." 
+      ATH_MSG_DEBUG("Entering new parameter." 
         << "\nName:\t" << name
           << "\nStoreGateKey:\t" << sgKey
           << "\nDataType:\t" << dataType
           << "\nCategory:\t" << category
           << "\nDefaultVal:\t" << defaultVal
           << "\nSgKey:\t" << sgKey 
-          << "\nFolder:\t" << folder
-          << endmsg;
+          << "\nFolder:\t" << folder);
 
       if(m_parNameMap.count(name)) {
-        m_log << MSG::WARNING << "Multiple parameters with name " << name
-          << ". This isn't allowed! Skipping extra entries." << endmsg;
+        ATH_MSG_WARNING("Multiple parameters with name " << name
+          << ". This isn't allowed! Skipping extra entries.");
         continue;
       }
 
       if(m_parSGKeyMap.count(sgKey)) {
-        m_log << MSG::WARNING << "Multiple parameters with storegate key " << sgKey 
-          << ". This isn't allowed! Skipping extra entries." << endmsg;
+        ATH_MSG_WARNING("Multiple parameters with storegate key " << sgKey 
+          << ". This isn't allowed! Skipping extra entries.");
         continue;
       }
 
@@ -383,8 +350,7 @@ namespace MuonCalib {
         coll = new CscCondDataCollection<bool>();
       }
       else {
-        m_log << MSG::WARNING << "Don't recognize requested data type " 
-          << dataType << endmsg;
+        ATH_MSG_WARNING("Don't recognize requested data type " << dataType);
       }
 
       //Store details of parameter for easy lookup later
@@ -398,7 +364,7 @@ namespace MuonCalib {
       StatusCode extractStatus= initCscCondDataCollection(coll);
       if(!extractStatus.isSuccess()) {
         //noneFailed = false;
-        m_log << MSG::WARNING << "Failed to register " << name << ". Continuing without..." << endmsg;
+        ATH_MSG_WARNING("Failed to register " << name << ". Continuing without...");
         continue;
       }
 
@@ -413,7 +379,7 @@ namespace MuonCalib {
       m_parSGKeyMap[sgKey] = coll;
       
       if( name == "rms" ) m_rmsCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
-      else if( name == "pslope" ) m_slopeCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
+      else if( m_pslopeFromDB && name == "pslope" ) m_slopeCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
       else if( name == "noise" ) m_noiseCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
       else if( name == "f001" ) m_f001CondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
       else if( name == "ped" ) m_pedestalCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
@@ -421,20 +387,20 @@ namespace MuonCalib {
       else if( name == "t0base" ) m_t0BaseCondData = dynamic_cast<CscCondDataCollection<float>*>(coll);
       else if( name == m_defaultChanStatusName ) {
         m_statusCondData = dynamic_cast<CscCondDataCollection<uint32_t>*>(coll);
-        if( !m_statusCondData ) m_log << MSG::WARNING << "Wrong data type for status bit " << dataType << endmsg;
-      }else  m_log << MSG::WARNING << "Data type not cached, a direct access should be provided " << name << endmsg;
+        if( !m_statusCondData ) ATH_MSG_WARNING("Wrong data type for status bit " << dataType);
+      }else ATH_MSG_WARNING("Data type not cached, a direct access should be provided " << name);
       
       const DataHandle<CondAttrListCollection> & dataHandle = coll->atrcHandle();
 
       //Registering callback function. The callback funciton will now be called
       //whenever the parameter in question is altered. i.e. whenever it goes
       //into a new interval of validity.
-      if(m_debug) m_log << MSG::DEBUG << "Registering " << name << " with storegate key " << sgKey << endmsg;
+      ATH_MSG_DEBUG("Registering " << name << " with storegate key " << sgKey);
 
       if(m_doCaching)
         if(StatusCode::SUCCESS != p_detstore->regFcn(&CscCoolStrSvc::callback,this,
               dataHandle, sgKey, true)) {
-          m_log << MSG::ERROR << "Failed to register parameter " << name << " with storeGate Key " << sgKey << endmsg;
+          ATH_MSG_ERROR("Failed to register parameter " << name << " with storeGate Key " << sgKey);
         }
 
       //Precaching. We shouldn't need to do this, but some rare cases it seems the callbacks are not called in time for the begining of the run.
@@ -452,7 +418,7 @@ namespace MuonCalib {
   //-------------------------------------------------------------------
   StatusCode CscCoolStrSvc::finalize()
   {
-    if(m_debug) m_log << MSG::DEBUG << "in finalize()" << endmsg;
+    ATH_MSG_DEBUG("in finalize()");
     return StatusCode::SUCCESS;
   }//end finalize()
 
@@ -537,7 +503,7 @@ namespace MuonCalib {
     //Don't recognize category... 
     else
     {
-      m_log << MSG::WARNING << "Don't recognize category " << cat << " as a parameter category. " << endmsg;
+      ATH_MSG_WARNING("Don't recognize category " << cat << " as a parameter category. ");
     }
 
     coll->reset(); //clears collection
@@ -570,7 +536,7 @@ namespace MuonCalib {
   bool CscCoolStrSvc::getVal( float& val, const CscCondDataCollection<float>& coll, unsigned int index) const {
     const CscCondData<float>* condData = coll[index];
     if( !condData ){
-      m_log << MSG::WARNING << " No data available for hash " << index << endmsg;
+      ATH_MSG_WARNING(" No data available for hash " << index);
       return false;
     }
     val = condData->getValue();
@@ -579,7 +545,7 @@ namespace MuonCalib {
   bool CscCoolStrSvc::getVal( bool& val, const CscCondDataCollection<bool>& coll, unsigned int index) const {
     const CscCondData<bool>* condData = coll[index];
     if( !condData ){
-      m_log << MSG::WARNING << " No data available for hash " << index << endmsg;
+      ATH_MSG_WARNING(" No data available for hash " << index);
       return false;
     }
     val = condData->getValue();
@@ -589,7 +555,7 @@ namespace MuonCalib {
   bool CscCoolStrSvc::getVal(uint32_t& val, const CscCondDataCollection<uint32_t>& coll, unsigned int index) const {
     const CscCondData<uint32_t>* condData = coll[index];
     if( !condData ){
-      m_log << MSG::WARNING << " No data available for hash " << index << endmsg;
+      ATH_MSG_WARNING(" No data available for hash " << index);
       return false;
     }
     val = condData->getValue();
@@ -598,49 +564,52 @@ namespace MuonCalib {
 
   bool CscCoolStrSvc::getRMS( float& val, const unsigned int & index) const {
     if( !m_rmsCondData ) {
-      m_log << MSG::WARNING << " No RMS data available" << endmsg;
+      ATH_MSG_WARNING(" No RMS data available");
       return false;
     }
     return getVal(val,*m_rmsCondData,index);
   }
   bool CscCoolStrSvc::getSlope( float& val, const unsigned int & index) const {
-    if( !m_slopeCondData ) {
-      m_log << MSG::WARNING << " No slope data available" << endmsg;
+    if (!m_pslopeFromDB) {
+      val = m_pslope;
+      return true;
+    } else if( !m_slopeCondData ) {
+      ATH_MSG_WARNING(" No slope data available");
       return false;
     }
     return getVal(val,*m_slopeCondData,index);
   }
   bool CscCoolStrSvc::getF001( float& val, const unsigned int & index) const {
     if( !m_f001CondData ) {
-      m_log << MSG::WARNING << " No f001 data available" << endmsg;
+      ATH_MSG_WARNING(" No f001 data available");
       return false;
     }
     return getVal(val,*m_f001CondData,index);
   }
   bool CscCoolStrSvc::getPedestal( float& val, const unsigned int & index) const {
     if( !m_pedestalCondData ) {
-      m_log << MSG::WARNING << " No pedestal data available" << endmsg;
+      ATH_MSG_WARNING(" No pedestal data available");
       return false;
     }
     return getVal(val,*m_pedestalCondData,index);
   }
   bool CscCoolStrSvc::getT0Base( float& val, const unsigned int & index) const {
     if( !m_t0BaseCondData ) {
-      m_log << MSG::WARNING << " No t0base data available" << endmsg;
+      ATH_MSG_WARNING(" No t0base data available");
       return false;
     }
     return getVal(val,*m_t0BaseCondData,index);
   }
   bool CscCoolStrSvc::getT0Phase( bool& val, const unsigned int & index) const {
     if( !m_t0PhaseCondData ) {
-      m_log << MSG::WARNING << " No t0phase data available" << endmsg;
+      ATH_MSG_WARNING(" No t0phase data available");
       return false;
     }
     return getVal(val,*m_t0PhaseCondData,index);
   }
   bool CscCoolStrSvc::getNoise( float& val, const unsigned int & index) const {
     if( !m_noiseCondData ) {
-      m_log << MSG::WARNING << " No noise data available" << endmsg;
+      ATH_MSG_WARNING(" No noise data available");
       return false;
     }
     return getVal(val,*m_noiseCondData,index);
@@ -649,7 +618,7 @@ namespace MuonCalib {
   //Returns the status. This is only here for backwards compatibility
   bool CscCoolStrSvc::getStatus(uint32_t &val, const unsigned int &index) const  {
     if( !m_statusCondData ) {
-      m_log << MSG::WARNING << " No status data available" << endmsg;
+      ATH_MSG_WARNING(" No status data available");
       return false;
     }
     return getVal(val,*m_statusCondData,index);
@@ -664,8 +633,7 @@ namespace MuonCalib {
     sc =  getParameterTemplated(data, parName,index);
     retData = data;
     
-     m_log << MSG::WARNING << " The use of this function is very expensive, please use the direct call instead: parName " 
-           << parName << endmsg;
+    ATH_MSG_WARNING(" The use of this function is very expensive, please use the direct call instead: parName " << parName);
     return sc;
   }
 
@@ -676,88 +644,82 @@ namespace MuonCalib {
     StatusCode sc;
     sc =  getParameterTemplated(data, parName,index);
     retData = data;
-     m_log << MSG::WARNING << " The use of this function is very expensive, please use the direct call instead: parName " 
-           << parName << endmsg;
+    ATH_MSG_WARNING(" The use of this function is very expensive, please use the direct call instead: parName " << parName);
     return sc;
   }
 
   StatusCode CscCoolStrSvc::getParameter(uint32_t &retData, const std::string &name, const unsigned int & index) const 
   {
     //We only have uint8_t parameters, so they probably meant that...
-     // m_log << MSG::WARNING << " The use of this function is very expensive, please use the direct call instead: parName " 
-     //       << parName << endmsg;
      StatusCode sc = getParameterTemplated(retData, name, index);
      if( name == m_defaultChanStatusName ) {
        uint32_t val;
        if( !getStatus( val, index) ) {
-         m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
+         ATH_MSG_WARNING(" Failed to retrieve data " << name);
        }
        if( val != retData ){
-         m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
+         ATH_MSG_WARNING(" Bad conversion of rms " << retData << " --> " << val << " " << name);
        }
-     }else  m_log << MSG::WARNING << "Data type not cached, a direct access should be provided " << name << endmsg;
+     }else ATH_MSG_WARNING("Data type not cached, a direct access should be provided " << name);
      return sc;
   }
 
   StatusCode CscCoolStrSvc::getParameter(int &retData, const std::string &parName, const unsigned int & index) const 
   {
-     m_log << MSG::WARNING << " The use of this function is very expensive, please use the direct call instead: parName " 
-           << parName << endmsg;
+    ATH_MSG_WARNING(" The use of this function is very expensive, please use the direct call instead: parName " << parName);
     return getParameterTemplated(retData, parName, index);
   }
 
   StatusCode CscCoolStrSvc::getParameter(float &retData, const std::string &name, const unsigned int & index) const 
   {
-     // m_log << MSG::WARNING << " The use of this function is very expensive, please use the direct call instead: parName " 
-     //       << parName << endmsg;
      StatusCode sc = getParameterTemplated(retData, name, index);
      if( name == "rms" ){
        float val;
        if( !getRMS( val, index) ) {
-         m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
+         ATH_MSG_WARNING(" Failed to retrieve data " << name);
        }
        if( val != retData ){
-         m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
+         ATH_MSG_WARNING(" Bad conversion of rms " << retData << " --> " << val << " " << name);
        }
      }else if( name == "pslope" ){
        float val;
        if( !getSlope( val, index) ) {
-                  m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
+                  ATH_MSG_WARNING(" Failed to retrieve data " << name);
        }
        if( val != retData ){
-         m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
+         ATH_MSG_WARNING(" Bad conversion of rms " << retData << " --> " << val << " " << name);
        }       
      }else if( name == "noise" ){
        float val;
        if( !getNoise( val, index) ) {
-                  m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
+                  ATH_MSG_WARNING(" Failed to retrieve data " << name);
        }
        if( val != retData ){
-         m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
+         ATH_MSG_WARNING(" Bad conversion of rms " << retData << " --> " << val << " " << name);
        }       
      }else if( name == "f001" ) {
        float val;
        if( !getF001( val, index) ) {
-                  m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
+                  ATH_MSG_WARNING(" Failed to retrieve data " << name);
        }
        if( val != retData ){
-         m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
+         ATH_MSG_WARNING(" Bad conversion of rms " << retData << " --> " << val << " " << name);
        }       
      }else if( name == "ped" ) {
        float val;
        if( !getPedestal( val, index) ) {
-                  m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
+                  ATH_MSG_WARNING(" Failed to retrieve data " << name);
        }
        if( val != retData ){
-         m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
+         ATH_MSG_WARNING(" Bad conversion of rms " << retData << " --> " << val << " " << name);
        }       
      }else if( name == "t0base" ){
        float val;
        if( !getT0Base( val, index) ) {
-                  m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
+                  ATH_MSG_WARNING(" Failed to retrieve data " << name);
        }
        if( val != retData ){
-         m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
+         ATH_MSG_WARNING(" Bad conversion of rms " << retData << " --> " << val << " " << name);
        }       
      }
      return sc;
@@ -765,15 +727,13 @@ namespace MuonCalib {
   
   StatusCode CscCoolStrSvc::getParameter(bool &retData, const std::string &name, const unsigned int & index) const 
   {
-    // m_log << MSG::WARNING << " The use of this function is very expensive, please use the direct call instead: parName " 
-    //       << parName << endmsg;
     if( name == "t0phase" ) {
       bool val;
       if( !getT0Phase( val, index) ) {
-        m_log << MSG::WARNING << " Failed to retrieve data " << name << endmsg;
+        ATH_MSG_WARNING(" Failed to retrieve data " << name);
       }
       if( val != retData ){
-        m_log << MSG::WARNING << " Bad conversion of rms " << retData << " --> " << val << " " << name << endmsg;
+        ATH_MSG_WARNING(" Bad conversion of rms " << retData << " --> " << val << " " << name);
       }
     }
     return getParameterTemplated(retData, name, index);
@@ -788,8 +748,6 @@ namespace MuonCalib {
     StatusCode sc;
     sc = getParameter(theStatus, m_defaultChanStatusName, stripID);
     status = static_cast<uint8_t>(theStatus);
-    // m_log << MSG::WARNING << " The use of this function is very expensive, please use the direct call instead " 
-    //       << endmsg;
     return sc;
   }
 
@@ -806,8 +764,8 @@ namespace MuonCalib {
       data=atr["Data"].data<std::string>();
     }
     else {
-      m_log << MSG::DEBUG << "Couldn't find a requested COOL channel number." 
-        << coolChannel << endmsg;
+      ATH_MSG_DEBUG("Couldn't find a requested COOL channel number." 
+        << coolChannel);
       return StatusCode::RECOVERABLE;
     }
     return StatusCode::SUCCESS;
@@ -818,17 +776,14 @@ namespace MuonCalib {
   /** Merge and then write to cool database*/ 
   StatusCode CscCoolStrSvc::mergeAndSubmitCondDataContainer(const CscCondDataContainer * newCont) {
 
-    m_log <<MSG::INFO 
-      << "Merging provided csc conditions data into the COOL data string for writing to database." 
-      << endmsg;
+    ATH_MSG_INFO("Merging provided csc conditions data into the COOL data string for writing to database.");
     //CscCondDataContainer mergedContainer
     CscCondDataContainer::const_iterator newItr = newCont->begin();
     CscCondDataContainer::const_iterator endItr = newCont->end();
     for(; newItr != endItr ; newItr++) {
       if(!(*newItr))
       {
-        m_log << MSG::ERROR << "Empty element in container with new data. Can't merge" 
-          << endmsg;
+        ATH_MSG_ERROR("Empty element in container with new data. Can't merge");
         return StatusCode::RECOVERABLE;
       }
 
@@ -839,7 +794,7 @@ namespace MuonCalib {
         m_parNameMap.find(parName);
       if(refItr == m_parNameMap.end())
       {
-        m_log << MSG::ERROR << "Parameter " << parName << " not loaded. Can't merge. Check your JobOptions." << endmsg;
+        ATH_MSG_ERROR("Parameter " << parName << " not loaded. Can't merge. Check your JobOptions.");
       }
       const CscCondDataCollectionBase *refColl = refItr->second;
 
@@ -848,35 +803,34 @@ namespace MuonCalib {
 
       if(dataType != newColl->getParDataType())
       {
-        m_log << MSG::ERROR << "When merging parameter " << refColl->getParName()
+        ATH_MSG_ERROR("When merging parameter " << refColl->getParName()
           << " found that new data has type " << newColl->getParDataType() 
-          << " and reference has type " << dataType << ". quiting merging..."
-          << endmsg;
+          << " and reference has type " << dataType << ". quiting merging...");
         return StatusCode::RECOVERABLE;
       }
 
       //now merge them 
       if(dataType == "uint32_t") {
         if(!mergeCollections<uint32_t>(newColl, refColl).isSuccess()){
-          m_log << MSG::ERROR << "Failed merging " << parName << endmsg;
+          ATH_MSG_ERROR("Failed merging " << parName);
           return StatusCode::RECOVERABLE;
         }
       }
       if(dataType == "int") {
         if(!mergeCollections<int>(newColl, refColl).isSuccess()){
-          m_log << MSG::ERROR << "Failed merging " << parName << endmsg;
+          ATH_MSG_ERROR("Failed merging " << parName);
           return StatusCode::RECOVERABLE;
         }
       }
       if(dataType == "float") {
         if(!mergeCollections<float>(newColl, refColl).isSuccess()){
-          m_log << MSG::ERROR << "Failed merging " << parName << endmsg;
+          ATH_MSG_ERROR("Failed merging " << parName);
           return StatusCode::RECOVERABLE;
         }
       }
       if(dataType == "bool") {
         if(!mergeCollections<bool>(newColl, refColl).isSuccess()){
-          m_log << MSG::ERROR << "Failed merging " << parName << endmsg;
+          ATH_MSG_ERROR("Failed merging " << parName);
           return StatusCode::RECOVERABLE;
         }
       }
@@ -893,7 +847,7 @@ namespace MuonCalib {
     list<string>::const_iterator keyEnd = keys.end();
     for(; keyItr != keyEnd; keyItr++) {
       if(!cacheParameter(*keyItr).isSuccess()) {
-        m_log << MSG::WARNING << "Failed at caching key " << (*keyItr) << endmsg;
+        ATH_MSG_WARNING("Failed at caching key " << (*keyItr));
       }
     } 
     return StatusCode::SUCCESS;
@@ -904,14 +858,13 @@ namespace MuonCalib {
   //Extracts parameter from database, reads it into the database mirror;
   StatusCode CscCoolStrSvc::cacheParameter(const std::string & parKey)
   {
-    if(m_debug) m_log << MSG::DEBUG << "Caching parameter " << parKey << endmsg;
+    ATH_MSG_DEBUG("Caching parameter " << parKey);
     ///*****//
     std::map<std::string, CscCondDataCollectionBase*>::iterator collItr = m_parSGKeyMap.find(parKey);
 
     if(collItr == m_parSGKeyMap.end())
     {
-      m_log << MSG::ERROR << "Failed caching " << parKey 
-        << ". It doens't seem to be registered." << endmsg;
+      ATH_MSG_ERROR("Failed caching " << parKey << ". It doens't seem to be registered.");
       return StatusCode::RECOVERABLE;
     }
 
@@ -932,158 +885,57 @@ namespace MuonCalib {
 
     for(unsigned int coolItr=1; coolItr <= numCoolChannels;  coolItr++)
     {
-      if(m_debug) m_log << MSG::DEBUG << "Attempting to retrieve cool channel " 
-        << coolItr << " with key " << parKey <<  endmsg;
+      ATH_MSG_DEBUG("Attempting to retrieve cool channel " 
+        << coolItr << " with key " << parKey);
       //retrieve datastring from db			
       string dataStr;
       if (StatusCode::SUCCESS != getCoolChannelString(atrc, coolItr, dataStr))
       {
-        if(m_debug) m_log << MSG::DEBUG << "Couldn't find cool channel " << coolItr << endmsg;
+        ATH_MSG_DEBUG("Couldn't find cool channel " << coolItr);
         continue;
       }
 
       numCoolChannelsFound = numCoolChannelsFound + 1;
 
 
-      if(m_debug) m_log << MSG::VERBOSE  << "For cool channel " << coolItr << ", String is \n[" << dataStr << "]" << endmsg;
+      ATH_MSG_VERBOSE("For cool channel " << coolItr << ", String is \n[" << dataStr << "]");
       //now decode string into numeric parameters.
       istringstream ss(dataStr);
 
       if(!ss.good()) 
       {
-        m_log << MSG::WARNING << "Failed forming stringstream during caching of " << coll->getParName() << endmsg;
+        ATH_MSG_WARNING("Failed forming stringstream during caching of " << coll->getParName());
         continue;
       }
 
-
       string version;
-
       ss >>  version;
+      if(version == "02-00") {
+        if(!cache(ss,coll).isSuccess()) {
+          ATH_MSG_FATAL( "Failed caching from COOL string.");
+          return StatusCode::FAILURE;
+        }
+      } else {
+        ATH_MSG_FATAL( "Did not recognize CSC COOL string version. Currently, only version 02-00 is supported. The keys of the database have to be geometrical CSC hashes in hex format.");
+        return StatusCode::FAILURE;
+      }
 
-      if(version == "1" or atoi(version.c_str()) == 1)
-      {
-        if(!cacheVersion1(ss,coll).isSuccess()) {
-          m_log << MSG::FATAL <<  "Failed caching from COOL string." << endmsg;
-          return StatusCode::FAILURE;
-        }
-      }
-      else if(version == "02-00") {
-        if(!cacheVersion2(ss,coll).isSuccess()) {
-          m_log << MSG::FATAL <<  "Failed caching from COOL string." << endmsg;
-          return StatusCode::FAILURE;
-        }
-      }
-      else 
-      {
-        //Old version was treated as an actual number rather than string. It was always
-        //set to 1 or sometimes 1.00000, so we convert to integer here and check
-        m_log << MSG::WARNING << "Don't recognize CSC COOL string version " << version <<
-          " for parameter " << coll->getParName() << ". Will treat as default version " << m_defaultDatabaseReadVersion << endmsg;
-        if(m_defaultDatabaseReadVersion == "1"){
-          if(!cacheVersion1(ss,coll).isSuccess()) {
-            m_log << MSG::FATAL <<  "Failed caching from COOL." << endmsg;
-            return StatusCode::FAILURE;
-          }
-        }
-        else if(m_defaultDatabaseReadVersion == "02-00")
-          if(!cacheVersion1(ss,coll).isSuccess()) {
-            m_log << MSG::FATAL <<  "Failed caching from COOL." << endmsg;
-            return StatusCode::FAILURE;
-          }
-      }
     }//end cool channel loop
     if(!numCoolChannelsFound) {
-      m_log << MSG::ERROR << "Found no COOL channels!" << endmsg;
+      ATH_MSG_ERROR("Found no COOL channels!");
       return StatusCode::RECOVERABLE;
     }
     if(numCoolChannelsFound < numCoolChannels) {
-      m_log << MSG::WARNING << "Only could retrieve " << numCoolChannelsFound << " out of " << numCoolChannels << " cool channels. This should never happen for a normal dataset, and could be a serious problem." << endmsg;
+      ATH_MSG_WARNING("Only could retrieve " << numCoolChannelsFound << " out of " << numCoolChannels << " cool channels. This should never happen for a normal dataset, and could be a serious problem.");
     }
 
     return StatusCode::SUCCESS;
   }//end cache parameter
 
-
   //-------------------------------------------------------------------
-  StatusCode CscCoolStrSvc::cacheVersion1(istringstream & ss, CscCondDataCollectionBase * const coll) {
+  StatusCode CscCoolStrSvc::cache(istringstream & ss, CscCondDataCollectionBase * const coll) {
 
-    if(m_debug) m_log << MSG::DEBUG << "Caching " << coll->getParName()
-      << " (category " << coll->getParCat() << "). Database string is version 1" 
-        << endmsg;
-    if(coll->getParCat() != "CHANNEL")
-    {
-      m_log << MSG::ERROR << coll->getParCat()
-        << " is not a valid parameter category for version 1!" << endmsg;
-      return StatusCode::RECOVERABLE;
-    }
-
-    unsigned int numUpdated = 0;
-    string indexStr,valueStr;
-
-    const int & numEntries = coll->getSize();
-    //Loop over strips in chamber. We don't usually expect i to reach maxIndex
-    //We just have this upper limit to prevent a bug causing an endless loop.
-    for(int cnt = 0; cnt < numEntries; cnt++)  
-    {	
-      ss >> indexStr;
-
-      //If we read END for the next value, we have reached end of database
-      //string. This is the expected way we'll exit this loop
-      if(indexStr == "END")
-        break; //reached end of database string
-
-      int index = atoi(indexStr.c_str());
-
-      if(m_phiSwapVersion1Strings){
-        Identifier chanId;
-        m_cscId->get_id((IdentifierHash)index, chanId, &m_channelContext);
-        int stationEta = m_cscId->stationEta(chanId);          // +1 Wheel A   -1 Wheel C
-        int measuresPhi = m_cscId->measuresPhi(chanId); // 0 eta 1 phi
-        if(stationEta > 0 && measuresPhi ==1){
-          int stationName = m_cscId->stationName(chanId);  // CSL or CSS
-          int stationPhi = m_cscId->stationPhi(chanId); // PhiSector from 1-8
-          int chamberLayer = m_cscId->chamberLayer(chanId); // Either 1 or 2 (but always 2)
-          //if( chamberLayer == 1 ) chamberLayer = 2 ;//m_log << MSG::WARNING << "Bad chamberLayer " << endmsg;
-          int wireLayer = m_cscId->wireLayer(chanId);  // layer in chamber 1-4
-          int strip = 49 - m_cscId->strip(chanId);
-
-          Identifier newId = m_cscId->channelID(stationName,stationEta,stationPhi,chamberLayer, wireLayer,measuresPhi,strip);
-          IdentifierHash hash ;
-          m_cscId->get_channel_hash(newId, hash);
-
-          if(m_verbose) 
-            m_log << MSG::VERBOSE <<  "Swapped phi strip "  
-            << m_cscId->show_to_string(chanId) << " (" << index 
-            << ") to " << m_cscId->show_to_string(newId) << " (" << hash << ")" << endmsg;
-
-          index = hash;
-        }
-        else if (m_verbose) m_log << MSG::VERBOSE << "Not swapping " << m_cscId->show_to_string(chanId) << endmsg;
-      }
-
-      if(m_verbose) m_log << MSG::VERBOSE << "[cache version 1] Recording index " << index << " for paramter " << coll->getParName() << endmsg;
-
-      //Put next word in string into collection as a data entry at [index]
-      if(!coll->recordFromSS(ss, index).isSuccess())
-      {
-        m_log << MSG::WARNING << "Failed caching to index " << index << " for parameter "  << coll->getParName() << " (data string version 1). Likely tried to recache to same index twice." << endmsg;
-      }
-
-      if(m_debug) numUpdated++;
-    }//end index loop
-
-    if(m_debug) m_log << MSG::DEBUG << "Number chans updated for this channel is " << numUpdated << endmsg;
-
-    return(StatusCode::SUCCESS);
-  }//end cache version 1
-
-
-  //-------------------------------------------------------------------
-  StatusCode CscCoolStrSvc::cacheVersion2(istringstream & ss, CscCondDataCollectionBase * const coll) {
-
-    if(m_debug) m_log << MSG::DEBUG << "Caching " << coll->getParName()
-                      << " (category " << coll->getParCat() << "). Database string is version 2" 
-                      << endmsg;
+    ATH_MSG_DEBUG("Caching " << coll->getParName() << " (category " << coll->getParCat() << "). Database string is version 2");
     unsigned int numUpdated = 0;
     string indexStr,valueStr;
 
@@ -1095,14 +947,14 @@ namespace MuonCalib {
     }
 
     const string & cat = coll->getParCat();
-    const int & numEntries = coll->getSize();
+    const unsigned int & numEntries = coll->getSize();
     string str = "";
 
     if ( cat!="ASM" )
     {
       //Loop over strips in chamber. We don't usually expect cnt to reach numEntries
       //We just have this upper limit to prevent a bug causing an endless loop.
-      for(int cnt = 0; cnt < numEntries; cnt++) {
+      for(unsigned int cnt = 0; cnt < numEntries; cnt++) {
         ss >> str;  
 
         //See if at end of data string 
@@ -1115,28 +967,29 @@ namespace MuonCalib {
         unsigned int index = 0;
         if(cat != "CSC") {
           if(!stringIdToIndex(str, cat, index).isSuccess()) {
-            m_log << MSG::ERROR << "Failed converting string Id to index in cacheVersion2"
-                  << endmsg;
+            ATH_MSG_ERROR("Failed converting string Id to index");
             return StatusCode::RECOVERABLE;
           }
           ss >> str;
         }
 
-        if(m_verbose) m_log << MSG::VERBOSE << "[cache version 2 (CHANNEL) ] Recording " 
-          << str << " at index " << index << endmsg;
+        ATH_MSG_VERBOSE("[cache version 2 (CHANNEL) ] Recording " << str << " at index " << index);
 
+        if (index==UINT_MAX) continue;
+        if (index>=numEntries) {
+          continue;
+        }
         //Now str has a value in it. We pass it to the collection.
         istringstream valueSS(str);
         if(!coll->recordFromSS(valueSS, index).isSuccess()) {
-          m_log << MSG::WARNING << "Failed caching to index " << index << " for parameter" 
+          ATH_MSG_WARNING("Failed caching to index " << index << " for parameter" 
             << coll->getParName()
             << " (data string version 2). Likely tried to recache to same index twice."
-            << " Likely a bug when the data was orginally put in COOL." << endmsg;
+            << " Likely a bug when the data was orginally put in COOL.");
         }
-        if(m_debug) numUpdated++;
+        ++numUpdated;
         if (cnt==(numEntries-1)) {
-          m_log << MSG::ERROR << "Something wrong with <END_DATA>"
-                << " in COOL tag in cacheVersion2" << endmsg;
+          ATH_MSG_ERROR("Something wrong with <END_DATA> in COOL tag");
           return StatusCode::RECOVERABLE;
         }
       }  // for cnt
@@ -1163,11 +1016,11 @@ namespace MuonCalib {
       unsigned int index = 0;
       IdentifierHash hashIdentifier;
 
-      for ( int cnt = 0; cnt < numEntries; cnt++ )  //  Only works for chamberLayer=2
+      for (unsigned int cnt = 0; cnt < numEntries; cnt++ )  //  Only works for chamberLayer=2
       {	ss >> asmIDstr;  /*  asm cool tag id string which is
           ASM[#:1-5]_[StationEtaString:AorC][stationPhi:1-8]_[stationName:50-51]
           xxx   3   x                  5                6   x             x9      */
-        if(m_verbose) m_log << MSG::VERBOSE << "ASM ID String: " << asmIDstr << endmsg;
+        ATH_MSG_VERBOSE("ASM ID String: " << asmIDstr);
         if  ( asmIDstr == "<END_DATA>" )  break;
 
         asmNum = atoi(asmIDstr.substr(3,1).c_str());
@@ -1175,7 +1028,7 @@ namespace MuonCalib {
         if  ( asmIDstr[5] == 'A' )  stationEta =  1;
         else if( asmIDstr[5] == 'C')   stationEta = -1;   
         else{
-          m_log << MSG::FATAL << "Bad ASMID String in CSC COOL database \"" << asmIDstr << "\" (wheel " << asmIDstr[5] << " doesn't exist" << endmsg;
+          ATH_MSG_FATAL("Bad ASMID String in CSC COOL database \"" << asmIDstr << "\" (wheel " << asmIDstr[5] << " doesn't exist");
           return StatusCode::FAILURE;
         }
          
@@ -1184,28 +1037,43 @@ namespace MuonCalib {
         stationName = atoi(asmIDstr.substr(8,2).c_str());
         
         if(stationPhi < 1 || stationPhi > 8 || stationName <50 || stationName > 51){
-          m_log << MSG::FATAL << "Bad ASMID String in CSC COOL database: \"" << asmIDstr << "\""<< endmsg;
-
-          m_log << MSG::FATAL << "Read station phi: " << stationPhi << ", stationName " << stationName << endmsg;
+          ATH_MSG_FATAL("Bad ASMID String in CSC COOL database: \"" << asmIDstr << "\"");
+          ATH_MSG_FATAL("Read station phi: " << stationPhi << ", stationName " << stationName);
           return StatusCode::FAILURE;
         }
 
         if ( !getAsmScope(asmNum, measuresPhi, layerSince, layerUntil, stripSince, stripUntil) )
-        { m_log << MSG::FATAL << "Failure of getAsmScope in cacheVersion2." << endmsg;
+        { ATH_MSG_FATAL("Failure of getAsmScope");
           return StatusCode::FAILURE;
         }
 
         ss >> valueStr;  // get value to put in parameter vector
         //std::stringstream valueSS(ss);
-
+        //
         //  Now for given asmID, loop over strip and layer
         for ( int iStrip = stripSince; iStrip < stripUntil; iStrip++ )
         { for ( int iLayer = layerSince; iLayer < layerUntil; iLayer++ )
-          { chanId = m_cscId->channelID(stationName, stationEta, stationPhi, chamberLayer,
-              iLayer, measuresPhi, iStrip);
-          m_cscId->get_channel_hash(chanId, hashIdentifier);
+          {
+          // The following call of channelID with check=true ensures that the identifier is checked to be physically valid.
+          // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
+          // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
+          bool isValid = true;
+          chanId = m_cscId->channelID(stationName, stationEta, stationPhi, chamberLayer, iLayer, measuresPhi, iStrip, true, &isValid);
+          static bool conversionFailPrinted = false;
+          if (!isValid) {
+            if (!conversionFailPrinted) {
+              ATH_MSG_WARNING("Failed to retrieve offline identifier from ASM cool string " << asmIDstr
+                                    << ". This is likely due to the fact that the CSCCool database contains more entries than "
+                                    << "the detector layout.");
+              conversionFailPrinted = true;
+            }
+            continue;
+          }
+          if (m_cscId->get_channel_hash(chanId, hashIdentifier)) {
+            ATH_MSG_WARNING("Failed to retrieve channel hash for identifier " << chanId.get_compact());
+          }
           index = (int)hashIdentifier;
-          if ( m_verbose ) m_log << MSG::VERBOSE << "[cache version 2 (ASM)] Recording " 
+          ATH_MSG_VERBOSE("[cache version 2 (ASM)] Recording " 
             << valueStr << " at index " << index 
               << "\nstationName " << stationName
               <<"\nstationEta " << stationEta
@@ -1214,26 +1082,29 @@ namespace MuonCalib {
               << "\niLayer " << iLayer
               << "\nmeasuresPhi " << measuresPhi
               << "\niStrip " << iStrip 
-              << endmsg;
+             );
+          if (index==UINT_MAX) continue;
+          if (index>=numEntries) {
+            continue;
+          }
           //Now valueStr has a value in it. We pass it to the collection.
           istringstream valueSS(valueStr);
           if ( !coll->recordFromSS(valueSS, index).isSuccess() )
-          { m_log << MSG::WARNING << "Failed caching to index " << index 
+          { ATH_MSG_WARNING("Failed caching to index " << index 
             << " for parameter " << coll->getParName()
               << " (data string version 2)."
               << " Likely tried to recache to same index twice."
-              << " Likely a bug when the data was orginally put in COOL." << endmsg;
+              << " Likely a bug when the data was orginally put in COOL.");
           }
-          if ( m_debug ) numUpdated++;
+          ++numUpdated;
           if ( cnt==(numEntries-1) )
-          { m_log << MSG::ERROR << "Something wrong with <END_DATA> in"
-            << " COOL tag in cacheVersion2" << endmsg;
+          { ATH_MSG_ERROR("Something wrong with <END_DATA> in COOL tag");
             return StatusCode::RECOVERABLE;
           } } } } }  //  cat=="ASM"
 
-          if ( m_debug ) m_log << MSG::DEBUG << "Number updated is " << numUpdated << endmsg;
+          ATH_MSG_DEBUG("Number updated is " << numUpdated);
           return StatusCode::SUCCESS;
-  }  //  end cacheVersion2
+  }  //  end cache
 
 
   //-------------------------------------------------------------------
@@ -1250,8 +1121,8 @@ namespace MuonCalib {
         chamberLayer, wireLayer, measuresPhi, strip);
     IdentifierHash hash;
     m_cscId->get_channel_hash(newId, hash);
-    m_log << MSG::INFO << "swap chamber layer " << m_cscId->show_to_string(id) 
-          << " to " << m_cscId->show_to_string(newId) << " (" << hash << ")" << endmsg;
+    ATH_MSG_INFO("swap chamber layer " << m_cscId->show_to_string(id) 
+          << " to " << m_cscId->show_to_string(newId) << " (" << hash << ")");
     return (int)hash;
   }
 
@@ -1266,28 +1137,26 @@ namespace MuonCalib {
     StatusCode sc = serviceLocator()->service("DetectorStore",detStore);
     if(sc.isFailure())
     {
-      m_log << MSG::WARNING << "Failed to retrieve detector store in ignoreBadMultilayer()" << endmsg;
+      ATH_MSG_WARNING("Failed to retrieve detector store in ignoreBadMultilayer()");
       return false;
     }
 
     if(!haveChecked)
     {
-      if(m_debug) m_log << "First time running ignoreBadMultilayer(). Checking geo tag."
-        << endmsg;
+      ATH_MSG_DEBUG("First time running ignoreBadMultilayer(). Checking geo tag.");
       haveChecked = true;
       //All geometries before the "ATLAS-GEO-xx-xx-xx" series had a bug where the
       //wrong multilayer was set. As long as we are in ATLAS-GEO range, we should print
       //a warning message if someone tries to request info from the wrong multilayer
       const DataHandle<TagInfo> tagInfo;
       if(detStore->retrieve(tagInfo).isFailure()) {
-        m_log << MSG::WARNING << "Could not retrieve tag info from TDS in ignore bad multilayer..." 
-          << endmsg;;
+        ATH_MSG_WARNING("Could not retrieve tag info from TDS in ignore bad multilayer...");
         return false;
       }
 
       std::string detdescr = "";
       tagInfo->findTag("GeoAtlas", detdescr);
-      if(m_debug) m_log << MSG::DEBUG << "DetDescr tag = " << detdescr << endmsg;
+      ATH_MSG_DEBUG("DetDescr tag = " << detdescr);
       if ( detdescr.find ("ATLAS-") != std::string::npos )
       {
         //Will print warning messages when bad multilayer requested in getParameter()
@@ -1361,13 +1230,6 @@ namespace MuonCalib {
       if (wireLayer<=2)  iASM=3;
       else  iASM=4;
     }
-    /* Never gonna reach this code
-    else
-    { 
-      m_log << MSG::ERROR << "Could not assign iASM in CscCoolStrSvc::offlineToAsmId" << endmsg;
-      return StatusCode::RECOVERABLE;
-    }
-    */
 
     std::stringstream ss;
     ss << "ASM" << iASM << "_" << stationEtaString << stationPhi << "_" << stationName;
@@ -1422,7 +1284,21 @@ namespace MuonCalib {
     }
 
     elementId = m_cscId->elementID(stationName,eta,phi);
-    channelId = m_cscId->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
+    // The following call of channelID with check=true ensures that the identifier is checked to be physically valid.
+    // This is currently required to be checked when running with layouts which do not contain all CSCs anymore, since the
+    // CSCCool database contains still all CSCs. A clean fix would be to have a dedicated database for every layout.
+    bool isValid = true;
+    channelId = m_cscId->channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip,true,&isValid);
+    static bool conversionFailPrinted = false;
+    if (!isValid) {
+      if (!conversionFailPrinted) {
+        ATH_MSG_WARNING("Failed to retrieve offline identifier from online identifier " << onlineId
+                              << ". This is likely due to the fact that the CSCCool database contains more entries than "
+                              << "the detector layout.");
+        conversionFailPrinted = true;
+      }
+      return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -1472,8 +1348,8 @@ namespace MuonCalib {
     unsigned int stationName = m_cscId->stationName(id);
     if(m_cscId->stationName(id) >= 50 ) stationName = stationName - 50;
     else {
-      m_log <<MSG::ERROR << "stationName: " << stationName << " is not CSC - emergency stop." << endmsg;
-      throw;
+      ATH_MSG_ERROR("stationName: " << stationName << " is not CSC - emergency stop.");
+      throw std::runtime_error(Form("File: %s, Line: %d\nCscCoolStrSvc::getLayerHash() - given identifier is no CSC identifier", __FILE__, __LINE__));
     }
     unsigned int stationEta = (m_cscId->stationEta(id) == 1 ? 1 :0);
     unsigned int stationPhi = m_cscId->stationPhi(id) -1; 
@@ -1496,11 +1372,11 @@ namespace MuonCalib {
         || phi > 7
         || eta > 1
       ) {
-      m_log <<MSG::ERROR << "when creating chamber cool channel, inputs were:\nstationName: " 
+      ATH_MSG_ERROR("when creating chamber cool channel, inputs were:\nstationName: " 
         << stationName 
         << "\nPhi: " << phi
         << "\neta: " << eta
-        << endmsg;
+       );
       return 1;
     }
 
@@ -1536,8 +1412,8 @@ namespace MuonCalib {
   StatusCode CscCoolStrSvc::layerHashToOnlineId(const unsigned int & layerHash, unsigned int & onlineId) const {
     if(layerHash > m_onlineChannelIdsFromLayerHash.size())
     {
-      m_log << MSG::ERROR << "Tried to lookup online id from layer hash " 
-        << layerHash <<". Max is " << m_onlineChannelIdsFromLayerHash.size()<<  endmsg;
+      ATH_MSG_ERROR("Tried to lookup online id from layer hash " 
+        << layerHash <<". Max is " << m_onlineChannelIdsFromLayerHash.size());
       return StatusCode::SUCCESS;
     }
     onlineId = m_onlineChannelIdsFromLayerHash[layerHash];
@@ -1553,24 +1429,9 @@ namespace MuonCalib {
     unsigned int phi =              ((onlineId >> 13)&0x7);
     unsigned int eta =              (((onlineId >> 12)&0x1));
 
-    /* According to coverity 105392, this never becomes true
-    if(stationName > 1
-        || phi > 7
-        || eta > 1
-      ) {
-      m_log <<MSG::ERROR << "when creating chamber cool channel, inputs were:\nstationName: " 
-        << stationName 
-        << "\nPhi: " << phi
-        << "\neta: " << eta
-        << endmsg;
-      return StatusCode::RECOVERABLE;
-    }
-    */
-
     chamCoolChan = m_chamberCoolChannels[stationName][eta][phi];
     if(chamCoolChan < 1 || chamCoolChan > 32) {
-      m_log << MSG::ERROR << "created chamber cool channel is " 
-        << chamCoolChan << endmsg;
+      ATH_MSG_ERROR("created chamber cool channel is " << chamCoolChan);
       return StatusCode::RECOVERABLE;
     }
     return StatusCode::SUCCESS;
@@ -1587,13 +1448,6 @@ namespace MuonCalib {
     onlineId = m_onlineChannelIdsFromChamberCoolChannel[chamCoolChan-1];
     return StatusCode::SUCCESS;
   }
-  /*
-     indexToCoolChan(const unsigned int & index, std::string & cat,  unsigned int & coolChan) {
-
-
-     }
-   */
-
 
   //-----------------------------------------------------------------------------------
   StatusCode CscCoolStrSvc::getParCat(const std::string & parName, std::string & val) const{
@@ -1656,8 +1510,7 @@ namespace MuonCalib {
         index = 0;
       else
       {
-        m_log << MSG::ERROR << "Unknown idString of " << idString 
-          << " asked for ENDCAP cateogry." << endmsg;
+        ATH_MSG_ERROR("Unknown idString of " << idString << " asked for ENDCAP cateogry.");
         return StatusCode::RECOVERABLE;
       }
 
@@ -1672,13 +1525,14 @@ namespace MuonCalib {
     Identifier chamberId;
     Identifier channelId;
     if(!onlineToOfflineIds(chanAddress, chamberId, channelId).isSuccess()){
-      m_log << MSG::ERROR << "Cannon get offline Ids from online Id" << hex << chanAddress << dec << endmsg; 
+      index = UINT_MAX;
+      return StatusCode::SUCCESS;
     }
 
     if(cat == "CHAMBER")
     {
       IdentifierHash chamberHash;
-      m_cscId->get_module_hash(chamberId,chamberHash);
+      m_cscId->get_geo_module_hash(chamberId,chamberHash);
       index = (unsigned int)chamberHash; 
     } 
     else if(cat == "LAYER")
@@ -1710,8 +1564,8 @@ namespace MuonCalib {
       if(index == 1)
         idString = "1";
       else {
-        m_log << MSG::ERROR << "Requested index " << index 
-          << " can't be converted to a string Id for the category " << cat << endmsg;
+        ATH_MSG_ERROR("Requested index " << index 
+          << " can't be converted to a string Id for the category " << cat);
         return StatusCode::RECOVERABLE;
       }
     }
@@ -1725,9 +1579,7 @@ namespace MuonCalib {
       Identifier chamberId;
       m_cscId->get_id(IdentifierHash(index), chamberId, &m_moduleContext);
       if(!offlineElementToOnlineId(chamberId, onlineId).isSuccess()) {
-        m_log << MSG::ERROR 
-          << "Failed converting chamber identifier to online id during stringId gen. " 
-          << endmsg;
+        ATH_MSG_WARNING("Failed converting chamber identifier to online id during stringId gen. ");
         return StatusCode::RECOVERABLE;
       }
     } 
@@ -1735,9 +1587,7 @@ namespace MuonCalib {
     {
       unsigned int onlineId;
       if(!layerHashToOnlineId(index, onlineId)){
-        m_log <<MSG::ERROR
-          << "Failed at getting online id from layer hash during stringId gen" 
-          << endmsg;
+        ATH_MSG_ERROR("Failed at getting online id from layer hash during stringId gen");
       }
     }
     else if(cat == "CHANNEL")
@@ -1745,9 +1595,7 @@ namespace MuonCalib {
       Identifier channelId;
       m_cscId->get_id(IdentifierHash(index), channelId, &m_channelContext);
       if(!offlineToOnlineId(channelId, onlineId).isSuccess()) {
-        m_log << MSG::ERROR
-          << "Failed converting chamber identifier to online id during stringId gen. "
-          << endmsg;
+        ATH_MSG_WARNING("Failed converting chamber identifier to online id during stringId gen. ");
         return StatusCode::RECOVERABLE;
       }
     }
@@ -1805,7 +1653,7 @@ namespace MuonCalib {
       measuresPhi = 1;
     }
     else{
-      m_log << MSG::FATAL << "ASM  number  \"" << asmNum << "\" is invalid. It needs to end in a number from 1-5." << endmsg;
+      ATH_MSG_FATAL("ASM  number  \"" << asmNum << "\" is invalid. It needs to end in a number from 1-5.");
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;

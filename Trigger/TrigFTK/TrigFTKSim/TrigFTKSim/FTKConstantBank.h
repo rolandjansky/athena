@@ -68,6 +68,16 @@ private:
   signed long long aux_asr(signed long long input, int shift, int width, bool &overflow) const;
   signed int UnsignedToSigned(unsigned x) const;
 
+  // Bitcast a float to an uint32_t without breaking aliasing rules.
+  static inline uint32_t float_bits(float f)
+  {
+    static_assert(sizeof(float) == sizeof(uint32_t), "float size != uint32_t size");
+    uint32_t ret;
+    std::memcpy(&ret, &f, sizeof(float));
+    return ret;
+  }
+
+
 public:
   FTKConstantBank();
   FTKConstantBank(int,const char*);

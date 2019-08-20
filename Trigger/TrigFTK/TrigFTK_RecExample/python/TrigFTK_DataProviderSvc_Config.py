@@ -1,7 +1,36 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from FTK_DataProviderSvc.FTK_DataProviderSvcConf import FTK_DataProviderSvc, FTK_UncertaintyTool
+from FTK_DataProviderSvc.FTK_DataProviderSvcConf import FTK_DataProviderSvc, FTK_UncertaintyTool, FTKFastDataProviderSvc
 
+
+class TrigFTKFastDataProviderSvc(FTKFastDataProviderSvc):
+    def __init__(self, name = "TrigFTK_DataProviderSvc"):
+        print "In FTK_DataProviderSvc_Config.py"  
+        FTKFastDataProviderSvc.__init__(self, name) 
+
+        from AthenaCommon.AppMgr import ToolSvc
+
+
+        from TrigInDetConf.TrigInDetRecToolsFTK import TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK
+
+        self.TrackCollectionName= "FTK_TrackCollection"
+        self.TrackParticleContainerName= "FTK_TrackParticleContainer"
+        self.VxContainerName="notused"
+        self.VertexContainerName="FTK_VertexContainer"	  
+        self.TrackParticleCreatorTool=InDetTrigTrackParticleCreatorToolFTK
+        self.RawVertexFinderTool=TrigFTK_RawVertexFinderTool
+
+        from AthenaCommon.BeamFlags import jobproperties
+
+        if (jobproperties.Beam.beamType() != 'cosmics'):
+            from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
+            from TrigInDetConf.TrigInDetRecToolsFTK import TrigFTK_VertexCollectionSortingTool
+            self.DoVertexing=True
+            self.VertexFinderTool=InDetTrigPriVxFinderTool
+            self.VertexCollectionSortingTool=TrigFTK_VertexCollectionSortingTool
+        else:
+            self.DoVertexing=False
+            
 
 class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
 

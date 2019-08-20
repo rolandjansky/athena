@@ -60,7 +60,6 @@ muonRecFlags.doTrackPerformance    = True
 muonRecFlags.TrackPerfSummaryLevel = 2
 muonRecFlags.TrackPerfDebugLevel   = 5
 muonRecFlags.doCSCs                = True
-muonRecFlags.doNSWNewThirdChain    = True
 
 # flags to tweak standalone muon reconstruction
 if doMig5:
