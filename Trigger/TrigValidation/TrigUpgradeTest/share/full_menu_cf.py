@@ -305,7 +305,8 @@ dumpSequence(topSequence)
 
 
 import DecisionHandling
-for a in AthSequencer("HLTAllSteps").getChildren():
+from AthenaCommon.CFElements import findAlgorithm,findSubSequence
+for a in findSubSequence(topSequence, "HLTAllSteps").getChildren():
     if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
         a.OutputLevel = DEBUG
 
@@ -313,11 +314,10 @@ for a in AthSequencer("HLTAllSteps").getChildren():
 # this part uses parts from the NewJO configuration, it is very hacky for the moment
 
 from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
-hypos = collectHypos(AthSequencer("HLTAllSteps"))
-filters = collectFilters(AthSequencer("HLTAllSteps"))
+hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
+filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
 # try to find L1Decoder
-from AthenaCommon.CFElements import findAlgorithm,findSubSequence
 l1decoder = findAlgorithm(topSequence,'L1Decoder')
 if not l1decoder:
     l1decoder = findAlgorithm(topSequence,'L1EmulationTest')

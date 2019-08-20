@@ -250,8 +250,8 @@ for i in outSequence.getAllChildren():
                 StreamRDO.ItemList += [item[0]]
 
         from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects
-        hypos = collectHypos( AthSequencer("HLTAllSteps") )
-        filters = collectFilters( AthSequencer("HLTAllSteps") )
+        hypos = collectHypos( findSubSequence(topSequence, "HLTAllSteps") )
+        filters = collectFilters( findSubSequence(topSequence, "HLTAllSteps") )
         decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
         StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
         StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
