@@ -68,6 +68,7 @@
     void calculateVertexMomenta(const xAOD::JetContainer *jets,int m_pvind, int m_vertices) const;
     void buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const;
     bool hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const;
+    double getRpt(const xAOD::Jet *jet) const;
     fastjet::PseudoJet pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const;
 
   private:

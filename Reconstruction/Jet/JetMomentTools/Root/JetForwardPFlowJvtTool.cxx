@@ -168,7 +168,7 @@
         if (hasCloseByHSjet(jet,pjets)) continue;
 
         // Calculate vertex missing momentum
-        if (centralJet(jet) && jet->jetP4(m_jetchargedp4).Pt()> m_rptCut*jet->pt())
+        if (centralJet(jet) && getRpt(jet)> m_rptCut)
         {
           vertex_met += TVector2(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()) ) ;
         } else{
@@ -273,6 +273,12 @@
     if (fabs(jet->eta())>m_etaThresh) return false;
     if (jet->pt()<m_centerMinPt || (m_centerMaxPt>0 && jet->pt()>m_centerMaxPt)) return false;
     return true;
+  }
+
+  double JetForwardPFlowJvtTool::getRpt(const xAOD::Jet *jet) const {
+    double Rpt;
+    Rpt= jet->jetP4(m_jetchargedp4).Pt()/ jet->pt();
+    return Rpt;
   }
 
   int JetForwardPFlowJvtTool::getPV() const{
