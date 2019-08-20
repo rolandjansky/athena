@@ -203,52 +203,50 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
   if( lock.alreadyPresent() ) {
     ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
+    return;
   }
   else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
     rawCollection = std::make_unique<CscRawDataCollection>(idColl);
   }
 
+  /** set the ROD id and the subDector id */
+  rawCollection->setSubDetectorId(subDetectorId);
+  rawCollection->setRodId(onlineRodId);
+  rawCollection->setOnlineId(idColl);
+
+  /** the detector event type */
+  rawCollection->set_eventType( detev_type );
+
+  /** is sparsified data */
+  bool isSparsified = rawCollection->sparsified();
+
+  /** is neutron rejection ON */
+  bool ne = rawCollection->neutron();
+
+  /** calibration enabled */
+  bool cal = rawCollection->calEnabled();
+
+  /** lentency */
+  uint16_t latency = rawCollection->latency();
+
+  /** calibration layer */
+  uint16_t calLayer = rawCollection->calLayer();
+
+  /** calibration amplitude */
+  uint16_t calAmplitude = rawCollection->calAmplitude(); 
+
+  /** the samplint time */
+  uint16_t samplingTime = rawCollection->rate();
+
   /** number of samples */
   uint16_t numSamples = detev_type & 0xFF;
+
   ATH_MSG_DEBUG ( "Event Type: " << MSG::hex << detev_type << MSG::dec );
-
-  if(rawCollection){
-    /** set the ROD id and the subDector id */
-    rawCollection->setSubDetectorId(subDetectorId);
-    rawCollection->setRodId(onlineRodId);
-    rawCollection->setOnlineId(idColl);
-
-    /** the detector event type */
-    rawCollection->set_eventType( detev_type );
-
-    /** is sparsified data */
-    bool isSparsified = rawCollection->sparsified();
-
-    /** is neutron rejection ON */
-    bool ne = rawCollection->neutron();
-
-    /** calibration enabled */
-    bool cal = rawCollection->calEnabled();
-
-    /** lentency */
-    uint16_t latency = rawCollection->latency();
-
-    /** calibration layer */
-    uint16_t calLayer = rawCollection->calLayer();
-
-    /** calibration amplitude */
-    uint16_t calAmplitude = rawCollection->calAmplitude(); 
-
-    /** the samplint time */
-    uint16_t samplingTime = rawCollection->rate();
-
-
-    ATH_MSG_DEBUG ( "Sampling Time: " << samplingTime << "  Number of Samples: " << numSamples );
-    ATH_MSG_DEBUG ( "Is Calibration Enabled?: " << cal << "  Calibration Amplitude: " << calAmplitude );
-    ATH_MSG_DEBUG ( "Calibration Layer: " << calLayer << "  Latency: " << latency );
-    ATH_MSG_DEBUG ( "Is neutron rejection ON?: " << ne << "  Is sparsified data?: "  << isSparsified );
-  }
+  ATH_MSG_DEBUG ( "Sampling Time: " << samplingTime << "  Number of Samples: " << numSamples );
+  ATH_MSG_DEBUG ( "Is Calibration Enabled?: " << cal << "  Calibration Amplitude: " << calAmplitude );
+  ATH_MSG_DEBUG ( "Calibration Layer: " << calLayer << "  Latency: " << latency );
+  ATH_MSG_DEBUG ( "Is neutron rejection ON?: " << ne << "  Is sparsified data?: "  << isSparsified );
 
   /** number of RPU in the ROD */ // Two RPU per one ROD
   uint16_t numberRPU = 0;
@@ -290,11 +288,11 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
     
     ATH_MSG_DEBUG ( "RPU ID Updated = " << rpuID );
 
-    if(rawCollection) rawCollection->addRPU ( rpuID );
+    rawCollection->addRPU ( rpuID );
 
     /** Data Type */ 
     uint16_t dataType = (header >> 16) & 0xFF;
-    if(rawCollection) rawCollection->addDataType ( dataType );
+    rawCollection->addDataType ( dataType );
 
     /** Size in word of this RPU */
     uint32_t rSize = header & 0xFFFF;
@@ -329,7 +327,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
       /** This should be the SCA address */
       uint32_t scaAddress = vint[counter];
       ATH_MSG_DEBUG ( "SCA Address = " << scaAddress );
-      if(rawCollection) rawCollection->set_scaAddress( scaAddress );
+      rawCollection->set_scaAddress( scaAddress );
       counter +=1;
 
       /** read the cluster counts for precision layers */
@@ -345,7 +343,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
         if ( rpuID == 5) index = k;
         else if ( rpuID == 11 ) index = k+5;
         else ATH_MSG_ERROR ( "RPU ID out of range " << rpuID );
-	if(rawCollection) rawCollection->set_spuCount(index, counts);
+        rawCollection->set_spuCount(index, counts);
       }
       counter += 1;
            
@@ -358,8 +356,8 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
       uint16_t nonPrecisionClusterCounts = (secondClusterWord >> 24) & 0xFF;
       ATH_MSG_DEBUG ( "Summed Number of Clusters for non-precision layers "
            << nonPrecisionClusterCounts ); 
-      if (rpuID == 5 && rawCollection)  rawCollection->set_spuCount(4, nonPrecisionClusterCounts);
-      if (rpuID == 11 && rawCollection) rawCollection->set_spuCount(9, nonPrecisionClusterCounts); // all the counts are in position 5/10 for non-precision strips
+      if (rpuID == 5)  rawCollection->set_spuCount(4, nonPrecisionClusterCounts);
+      if (rpuID == 11) rawCollection->set_spuCount(9, nonPrecisionClusterCounts); // all the counts are in position 5/10 for non-precision strips
 
       /** decode the Trigger Type */
       bool triggerType = (secondClusterWord >> 21 ) & 0x1;
@@ -367,11 +365,11 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
 
       /** decode the sampling phase */
       bool samplingPhase = (secondClusterWord >> 20) & 0x1;
-      if ( samplingPhase && rawCollection ) rawCollection->set_samplingPhase();
+      if ( samplingPhase ) rawCollection->set_samplingPhase();
 
       /** decode the first bit summary */
       uint8_t firstBitSummary = (secondClusterWord >> 16 ) & 0xF;
-      if(rawCollection) rawCollection->set_firstBitSummary( firstBitSummary );
+      rawCollection->set_firstBitSummary( firstBitSummary );
 
       /** decode the number of data words of all clusters in this RPU - should not be used */
       uint16_t clusterDataWords = secondClusterWord & 0xFFFF;
@@ -447,7 +445,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
         CscRawData * rawData = new CscRawData(amplitude, address, idColl, time, spuID, width, hashId);
 	if ( isTimeComputed ) rawData->set_isTimeComputed();
 
-        if(rawCollection) rawCollection->push_back(rawData);
+        rawCollection->push_back(rawData);
         ATH_MSG_DEBUG ( "    idColl clusHashid spuID stationId :: "
                         << idColl << " " << hashId << "  " << spuID << "  " << stationId << " :: measphi"
                         << orientation << " L" << currentLayer << " strId " << stripId << " nStr " << width
@@ -465,8 +463,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
                        << " has word Counter =" << counter << " must not exceed summed RPU sizes ="
                        << rpuSize << " Discarded!!");
 
-        if(rawCollection) rawCollection->erase(rawCollection->begin(), rawCollection->end()); 
-
+        rawCollection->erase(rawCollection->begin(), rawCollection->end());
         return;
       } 
 
@@ -481,12 +478,12 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   // To reject unhealthy rob
   if (isHeaderWordNull) {
     ATH_MSG_INFO ( " ROB Fragment with ID " << std::hex<<robFrag.rod_source_id()<<std::dec << " has null rpuID. Discarded!!" );
-    if(rawCollection) rawCollection->erase(rawCollection->begin(), rawCollection->end());
+    rawCollection->erase(rawCollection->begin(), rawCollection->end());
   }
   if (isClusterWordsUnrealistic) {
     ATH_MSG_INFO ( " ROB Fragment with ID 0x" << std::hex<<robFrag.rod_source_id() << std::dec
                    << " has too many cluster words. Discarded!!" );
-    if(rawCollection) rawCollection->erase(rawCollection->begin(), rawCollection->end());
+    rawCollection->erase(rawCollection->begin(), rawCollection->end());
   }
 
   if(rawCollection) {
@@ -524,7 +521,7 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
   std::unique_ptr<CscRawDataCollection> rawCollection(nullptr);
   CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
   if( lock.alreadyPresent() ) {
-    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
+    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " collection filling is skipped!");
   }
   else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
