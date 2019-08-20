@@ -291,6 +291,39 @@ MUON1Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
 ToolSvc += MUON1Thin_vtxTrk
 MUON1ThinningTools.append(MUON1Thin_vtxTrk)
 
+if DerivationFrameworkIsMonteCarlo:
+
+  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
+  MUON1TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "MUON1TruthThinningTool",
+                                                       ThinningService              = MUON1ThinningHelper.ThinningSvc(),
+                                                       WritePartons                 = False,
+                                                       WriteHadrons                 = False,
+                                                       WriteBHadrons                = True,
+                                                       WriteGeant                   = False,
+                                                       WriteTauHad                  = False,
+                                                       PartonPtThresh               = -1.0,
+                                                       WriteBSM                     = True,
+                                                       WriteBosons                  = True,
+                                                       WriteBosonProducts           = True,
+                                                       WriteBSMProducts             = True,
+                                                       WriteTopAndDecays            = True,
+                                                       WriteEverything              = False,
+                                                       WriteAllLeptons              = True,
+                                                       WriteLeptonsNotFromHadrons   = False,
+                                                       WriteStatus3                 = False,
+                                                       WriteFirstN                  = -1,
+                                                       PreserveAncestors            = False,
+                                                       PreserveGeneratorDescendants = False,
+                                                       SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
+  ToolSvc += MUON1TruthThinningTool
+  MUON1ThinningTools.append(MUON1TruthThinningTool)
+
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthClassifierFallback
+  from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
+  MUON1MuonTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "MUON1MuonTruthClassifierFallback",MCTruthClassifierTool = MCTruthClassifier )
+  ToolSvc += MUON1MuonTruthClassifierFallback
+  MUON1AugmentTools.append(MUON1MuonTruthClassifierFallback)
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================
