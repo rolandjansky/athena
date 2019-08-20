@@ -61,8 +61,8 @@ namespace Muon {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPRDSelectionTool.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
-    ATH_CHECK(m_csc2dSegmentFinder.retrieve());
-    ATH_CHECK(m_csc4dSegmentFinder.retrieve());
+    if (m_idHelper->hasCSC() && !m_csc2dSegmentFinder.empty()) ATH_CHECK(m_csc2dSegmentFinder.retrieve());
+    if (m_idHelper->hasCSC() && !m_csc4dSegmentFinder.empty()) ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
