@@ -45,7 +45,7 @@
     declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJets"        );
     declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"            );
     declareProperty("VertexContainer",    m_verticesName     = "PrimaryVertices"         );
-    declareProperty("JetChargedpt",       m_jetchargedp4     = "JetChargedScaleMomentum" );
+    declareProperty("JetChargedp4",       m_jetchargedp4     = "JetChargedScaleMomentum" );
     declareProperty("EtaThresh",          m_etaThresh        = 2.5                       );
     declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3                      );
     declareProperty("ForwardMaxPt",       m_forwardMaxPt     = 60e3                      );
@@ -164,19 +164,15 @@
       TVector2 vertex_met;
       for (const auto& jet : *vertex_jets) {
 
-        // Remove hard-scatter jets 
-        bool hasCloseByHSjet = false;
-        for (const auto& pjet : *pjets) {
-          if (pjet->p4().DeltaR(jet->p4())<0.3 && pjet->auxdata<float>("Jvt")>m_jvtCut && centralJet(pjet) ){hasCloseByHSjet = true; }
-        }
-        if (hasCloseByHSjet) continue;
+        // Remove jets which are close to hs
+        if (hasCloseByHSjet(jet,pjets)) continue;
 
         // Calculate vertex missing momentum
-        if (centralJet(jet) && jet->jetP4(m_jetchargedpt).Pt()> m_rptCut*jet->pt())
+        if (centralJet(jet) && jet->jetP4(m_jetchargedp4).Pt()> m_rptCut*jet->pt())
         {
           vertex_met += TVector2(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()) ) ;
         } else{
-          vertex_met += TVector2(jet->jetP4(m_jetchargedpt).Pt()*cos(jet->jetP4(m_jetchargedpt).Phi()), jet->jetP4(m_jetchargedpt).Pt()*sin(jet->jetP4(m_jetchargedpt).Phi()) );
+          vertex_met += TVector2(jet->jetP4(m_jetchargedp4).Pt()*cos(jet->jetP4(m_jetchargedp4).Phi()), jet->jetP4(m_jetchargedp4).Pt()*sin(jet->jetP4(m_jetchargedp4).Phi()) );
         }
       }
       m_pileupMomenta.push_back(-1*vertex_met);
@@ -185,6 +181,12 @@
 
   }
 
+  bool JetForwardPFlowJvtTool::hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const {
+    for (const auto& pjet : *pjets) {
+     if (pjet->p4().DeltaR(jet->p4())<0.3 && pjet->auxdata<float>("Jvt")>m_jvtCut && centralJet(pjet) ) return true;
+    }
+    return false;
+  }
 
   void JetForwardPFlowJvtTool::buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const {
 
