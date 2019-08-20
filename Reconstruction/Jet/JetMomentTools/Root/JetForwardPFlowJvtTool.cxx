@@ -41,27 +41,33 @@
     AsgTool(name),
     m_fjvtThresh(15e3)
   {
-    declareProperty("OverlapDec",         m_orLabel          = ""               );
-    declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"   );
-    declareProperty("OutputDecTiming",    m_outLabelTiming   = "passOnlyTiming" );
-    declareProperty("VertexContainer",    m_verticesName     = "PrimaryVertices");
-    declareProperty("EtaThresh",          m_etaThresh        = 2.5              );
-    declareProperty("TimingCut",          m_timingCut        = 10.              );
-    declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3             );
-    declareProperty("ForwardMaxPt",       m_forwardMaxPt     = 60e3             );
-    declareProperty("CentralMinPt",       m_centerMinPt      = 20e3             );
-    declareProperty("CentralMaxPt",       m_centerMaxPt      = -1               );
-    declareProperty("CentralJvtThresh",   m_centerJvtThresh  = 0.11             );
-    declareProperty("JvtMomentName",      m_jvtMomentName    = "Jvt"            );
-    declareProperty("CentralDrptThresh",  m_centerDrptThresh = 0.2              );
-    declareProperty("CentralMaxStochPt",  m_maxStochPt       = 35e3             );
-    declareProperty("JetScaleFactor",     m_jetScaleFactor   = 0.4              );
-    declareProperty("UseTightOP",         m_tightOP          = false            );//Tight or Loose
-    declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJets_test");
-    declareProperty( "PVIndexHS",         m_pvind            = -1               );
-    declareProperty("RptCutValue",        m_RptCut          = 0.1);
-    declareProperty("JetChargedpt", m_jetchargedpt= "JetChargedScaleMomentum_test");
-    declareProperty("JetsFromVertices", m_vertices= 10);
+    declareProperty("OverlapDec",         m_orLabel          = ""                        );
+    declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJets"        );
+    declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"            );
+    declareProperty("VertexContainer",    m_verticesName     = "PrimaryVertices"         );
+    declareProperty("JetChargedpt",       m_jetchargedpt     = "JetChargedScaleMomentum" );
+    declareProperty("EtaThresh",          m_etaThresh        = 2.5                       );
+    declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3                      );
+    declareProperty("ForwardMaxPt",       m_forwardMaxPt     = 60e3                      );
+    declareProperty("CentralMinPt",       m_centerMinPt      = 20e3                      );
+    declareProperty("CentralMaxPt",       m_centerMaxPt      = -1                        );
+    declareProperty("CentralJvtThresh",   m_centerJvtThresh  = 0.2                       );
+    declareProperty("UseTightOP",         m_tightOP          = false                     );//Tight or Loose
+    declareProperty("PVIndexHS",          m_pvind            = -1                        );
+    declareProperty("RptThresValue",      m_rptCut           = 0.1                       );
+    declareProperty("JVTThresValue",      m_jvtCut           = 0.2                       );
+    declareProperty("DzThresValue",       m_dzCut            = 2.                        );
+    declareProperty("JetsFromVertices",   m_vertices         = 10                        );
+    declareProperty("JetBuildingMaxRap",  m_maxRap           = 2.5                       );
+    declareProperty("NeutralMaxRap",      m_neutMaxRap       = 2.5                       );
+    declareProperty("PFOToolName",        m_pfoToolName      = "PFOTool"                 );
+    declareProperty("PFOWeightToolName",  m_wpfoToolName     = "WPFOTool"                );
+    declareProperty("JetCalibToolName",   m_pfoJESName       = "pfoJES"                  );
+    declareProperty("JetCalibCollection", m_jetAlgo          = "AntiKt4EMPFlow"          );
+    declareProperty("JetCalibConfigFile", m_caliconfig       = ""                        );
+    declareProperty("JetCalibSequence",   m_calibSeq         = "JetArea_Residual_EtaJES" );
+    declareProperty("JetCalibArea",       m_calibArea        = "00-04-82"                );
+    declareProperty("JetCalibIsData",     m_isdata           = false                     );
   }
 
   // Destructor
@@ -79,14 +85,19 @@
     if (m_orLabel!="")  Dec_OR = std::make_unique<SG::AuxElement::Decorator<char> >(m_orLabel);
     Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
 
-
-    m_pfotool = new CP::RetrievePFOTool("PFOTool");
+    m_pfotool = new CP::RetrievePFOTool(m_pfoToolName);
     m_pfotool->initialize();
-    m_wpfotool = new CP::WeightPFOTool("WPFOTool");
+    m_wpfotool = new CP::WeightPFOTool(m_wpfoToolName);
     m_wpfotool->initialize();
+
+    m_pfoJES = new JetCalibrationTool(m_pfoJESName);
+    m_pfoJES->setProperty("JetCollection",m_jetAlgo);
+    m_pfoJES->setProperty("ConfigFile",m_caliconfig);
+    m_pfoJES->setProperty("CalibSequence",m_calibSeq);
+    m_pfoJES->setProperty("CalibArea",m_calibArea);
+    m_pfoJES->setProperty("IsData",m_isdata);
+    m_pfoJES->initializeTool(m_pfoJESName);
     
-    JetFromPseudojet *jetFromPseudo = new JetFromPseudojet("jetFromPseudo");
-    ATH_CHECK(jetFromPseudo->initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -150,19 +161,18 @@
       const xAOD::JetContainer* vertex_jets  = nullptr;
       evtStore()->retrieve(vertex_jets,jname.Data());
 
-      //Calculate vertex momentum 
       TVector2 vertex_met;
       for (const auto& jet : *vertex_jets) {
 
         // Remove hard-scatter jets 
         bool hasCloseByHSjet = false;
         for (const auto& pjet : *pjets) {
-          if (pjet->p4().DeltaR(jet->p4())<0.3 && pjet->auxdata<float>("Jvt")>0.2 && centralJet(pjet) ){hasCloseByHSjet = true; }
+          if (pjet->p4().DeltaR(jet->p4())<0.3 && pjet->auxdata<float>("Jvt")>m_jvtCut && centralJet(pjet) ){hasCloseByHSjet = true; }
         }
         if (hasCloseByHSjet) continue;
 
         // Calculate vertex missing momentum
-        if (centralJet(jet) && jet->jetP4(m_jetchargedpt).Pt()> m_RptCut*jet->pt())
+        if (centralJet(jet) && jet->jetP4(m_jetchargedpt).Pt()> m_rptCut*jet->pt())
         {
           vertex_met += TVector2(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()) ) ;
         } else{
@@ -182,14 +192,14 @@
     std::set<int> charged_pfo;
     for(const xAOD::PFO* pfo : pfos){ 
       if (pfo->charge()!=0) { 
-        if (vx.index()==0 && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>2.) continue;
+        if (vx.index()==0 && fabs((vx.z()-pfo->track(0)->z0())*sin(pfo->track(0)->theta()))>m_dzCut) continue;
         if (vx.index()!=0 && &vx!=pfo->track(0)->vertex()) continue;
         float pweight = 0;
         m_wpfotool->fillWeight(*pfo,pweight);
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::charged, &vx) );
         charged_pfo.insert(pfo->index());
       } 
-      else if (fabs(pfo->eta())<2.5 && pfo->charge()==0 && pfo->eEM()>0)
+      else if (fabs(pfo->eta())<m_neutMaxRap && pfo->charge()==0 && pfo->eEM()>0)
       { 
         input_pfo.push_back(pfoToPseudoJet(pfo, CP::neutral, &vx) );
       }
@@ -203,7 +213,7 @@
     evtStore()->record(vertjetsAux,(newname+"Aux.").Data());
 
     fastjet::JetDefinition jet_def(fastjet::antikt_algorithm,0.4);
-    fastjet::AreaDefinition area_def(fastjet::active_area_explicit_ghosts,fastjet::GhostedAreaSpec(fastjet::SelectorAbsRapMax(2.5)));
+    fastjet::AreaDefinition area_def(fastjet::active_area_explicit_ghosts,fastjet::GhostedAreaSpec(fastjet::SelectorAbsRapMax(m_maxRap)));
     fastjet::ClusterSequenceArea clust_pfo(input_pfo,jet_def,area_def);
     std::vector<fastjet::PseudoJet> inclusive_jets = sorted_by_pt(clust_pfo.inclusive_jets(0));
 
@@ -221,9 +231,8 @@
       }
       xAOD::JetFourMom_t chargejetp4(1.*chargedpart,inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
       jet->setJetP4(m_jetchargedpt,chargejetp4);
-    }
-
-    // need to add jet calibration 
+    }   
+    m_pfoJES->modify(*vertjets);
   }
 
   fastjet::PseudoJet JetForwardPFlowJvtTool::pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const {
@@ -247,23 +256,6 @@
     return psj;
   }
 
-  float JetForwardPFlowJvtTool::getCombinedWidth(const xAOD::Jet *jet) const {
-    float Width = 0;
-    float CWidth = 0;
-    float ptsum = 0;
-    jet->getAttribute(xAOD::JetAttribute::Width,Width);
-    xAOD::JetConstituentVector constvec = jet->getConstituents();
-    for (xAOD::JetConstituentVector::iterator it = constvec.begin(); it != constvec.end(); it++) {
-      const xAOD::CaloCluster *cl = static_cast<const xAOD::CaloCluster*>((*it)->rawConstituent());
-      float secondR = cl->getMomentValue(xAOD::CaloCluster::MomentType::SECOND_R);
-      float centermag = cl->getMomentValue(xAOD::CaloCluster::MomentType::CENTER_MAG);
-      CWidth+=fabs(cl->pt()*atan(sqrt(secondR)/centermag)*cosh(cl->eta()));
-      ptsum += cl->pt();
-    }
-    CWidth /= ptsum;
-    return (CWidth + Width);
-  }
-
   bool JetForwardPFlowJvtTool::forwardJet(const xAOD::Jet *jet) const {
     if (fabs(jet->eta())<m_etaThresh) return false;
     if (jet->pt()<m_forwardMinPt || jet->pt()>m_forwardMaxPt) return false;
@@ -274,32 +266,6 @@
     if (fabs(jet->eta())>m_etaThresh) return false;
     if (jet->pt()<m_centerMinPt || (m_centerMaxPt>0 && jet->pt()>m_centerMaxPt)) return false;
     return true;
-  }
-
-  int JetForwardPFlowJvtTool::getJetVertex(const xAOD::Jet *jet) const {
-    std::vector<float> sumpts;
-    jet->getAttribute<std::vector<float> >("SumPtTrkPt500",sumpts);
-    double firstVal = 0;
-    int bestMatch = -1;
-    for (size_t i = 0; i < sumpts.size(); i++) {
-      if (sumpts[i]>firstVal) {
-        bestMatch = i;
-        firstVal = sumpts[i];
-      }
-    }
-    return bestMatch;
-  }
-
-  float JetForwardPFlowJvtTool::getDrpt(const xAOD::Jet *jet) const {
-    std::vector<float> sumpts;
-    jet->getAttribute<std::vector<float> >("SumPtTrkPt500",sumpts);
-    if (sumpts.size()<2) return 0;
-
-    std::nth_element(sumpts.begin(),sumpts.begin()+sumpts.size()/2,sumpts.end(),std::greater<int>());
-    double median = sumpts[sumpts.size()/2];
-    std::nth_element(sumpts.begin(),sumpts.begin(),sumpts.end(),std::greater<int>());
-    double max = sumpts[0];
-    return (max-median)/jet->pt();
   }
 
   int JetForwardPFlowJvtTool::getPV() const{

@@ -29,7 +29,7 @@
 // Pflow tools
 #include "PFlowUtils/RetrievePFOTool.h"
 #include "PFlowUtils/WeightPFOTool.h"
-#include "JetRec/PseudoJetGetter.h"
+#include "JetCalibTools/JetCalibrationTool.h"
 
 //ASG_TOOL_INTERFACE(IJetUpdateJvt)
 
@@ -63,49 +63,51 @@
     float getFJVT(const xAOD::Jet *jet) const;
     bool forwardJet(const xAOD::Jet *jet) const;
     bool centralJet(const xAOD::Jet *jet) const;
-    float getDrpt(const xAOD::Jet *jet) const;
-    int getJetVertex(const xAOD::Jet *jet) const;
 
     static StatusCode tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets);
     void calculateVertexMomenta(const xAOD::JetContainer *jets,int m_pvind, int m_vertices) const;
     void buildPFlowPUjets(const xAOD::Vertex &vx, const xAOD::PFOContainer &pfos) const;
     fastjet::PseudoJet pfoToPseudoJet(const xAOD::PFO* pfo, const CP::PFO_JetMETConfig_charge& theCharge, const xAOD::Vertex *vx) const;
-    float getCombinedWidth(const xAOD::Jet *jet) const;
-
 
   private:
 
     std::string m_orLabel;
     std::string m_outLabel;
     std::string m_outLabelFjvt;
-    std::string m_outLabelTiming;
     std::string m_verticesName;
     std::string m_jetsName;
     std::string m_jetchargedpt;
+    std::string m_pfoToolName;
+    std::string m_wpfoToolName;
+    std::string m_pfoJESName;   
+    std::string m_jetAlgo;
+    std::string m_caliconfig;
+    std::string m_calibSeq;
+    std::string m_calibArea;
+    bool m_isdata;
     int m_pvind;
     int m_vertices;
     double m_etaThresh;
-    double m_timingCut;
     double m_forwardMinPt;
     double m_forwardMaxPt;
     double m_centerMinPt;
     double m_centerMaxPt;
     double m_centerJvtThresh;
     std::string m_jvtMomentName;
-    double m_centerDrptThresh;
-    double m_maxStochPt;
-    double m_jetScaleFactor;
     double m_fjvtThresh;
-    double m_RptCut;
+    double m_rptCut;
+    double m_jvtCut;
+    double m_dzCut;
+    double m_maxRap;
+    double m_neutMaxRap;
     bool m_tightOP;
     mutable std::vector<TVector2> m_pileupMomenta;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
-    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_out;
+    //std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_out;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outFjvt;
-    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outTiming;
     CP::RetrievePFOTool *m_pfotool;
     CP::WeightPFOTool *m_wpfotool;
-    PseudoJetGetter *m_pjetget;
+    JetCalibrationTool *m_pfoJES;
 
     int getPV() const;
     /// Default constructor:
