@@ -1,34 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+
+
 
 #ifndef EVENT_LOOP_DRIVER_HH
 #define EVENT_LOOP_DRIVER_HH
-
-//          Copyright Nils Krumnack 2011.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-/// This module defines a base class for classes that implement a
-/// driver for running on a particular architecture.  While these
-/// classes are meant to be instantiated by the user, the interface
-/// provided in this class is intended for experts only.  The module
-/// is considered to be in the pre-alpha stage.
-
-
 
 #include <EventLoop/Global.h>
 
 #include <TObject.h>
 #include <SampleHandler/MetaObject.h>
 
+class StatusCode;
+
 namespace EL
 {
+  /// \brief the base class for the various EventLoop drivers that
+  /// allow to run jobs on different backends
+  ///
+  /// The interface here is intended for users to interact with
+  /// directly, but it is considered an expert level task to define
+  /// new implementations of this class.
+
   class Driver : public TObject
   {
     //
@@ -247,40 +243,9 @@ namespace EL
     // virtual interface
     //
 
-    /// \brief update the job before it is submitted
-    /// \par Guarantee
-    ///   basic
-    /// \par Failures
-    ///   out of memory II\n
-    ///   job specifications unfulfillable
-  private:
-    virtual void
-    doUpdateJob (Job& job, const std::string& location) const;
-
-
-    /// \copydoc submitOnly
-    /// \par Rationale
-    ///   the virtual part of \ref submitOnly
-  private:
-    virtual void
-    doSubmit (const Job& job, const std::string& location) const;
-
-
-    /// \copydoc resubmit
-    /// \par Rationale
-    ///   the virtual part of \ref resubmit
-  private:
-    virtual void
-    doResubmit (const std::string& location,
-                const std::string& option) const;
-
-
-    /// \copydoc retrieve
-    /// \par Rationale
-    ///   the virtual part of \ref retrieve
-  private:
-    virtual bool
-    doRetrieve (const std::string& location) const;
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const;
 
 
 
@@ -288,11 +253,18 @@ namespace EL
     // private interface
     //
 
+    friend class Detail::DriverManager;
+
     /// \brief members directly corresponding to accessors
   private:
     SH::MetaObject m_options;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
     ClassDef(Driver, 1);
+#pragma GCC diagnostic pop
   };
 }
 

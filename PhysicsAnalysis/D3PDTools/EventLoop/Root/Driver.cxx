@@ -2,13 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//          Copyright Nils Krumnack 2011.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
+/// @author Nils Krumnack
 
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
 
 
 //
@@ -17,10 +12,17 @@
 
 #include <EventLoop/Driver.h>
 
+#include <EventLoop/BaseManager.h>
+#include <EventLoop/DriverManager.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/ManagerOrder.h>
+#include <EventLoop/ManagerStep.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/MetricsSvc.h>
 #include <EventLoop/OutputStream.h>
+#include <EventLoop/RetrieveManager.h>
+#include <EventLoop/SubmitManager.h>
 #include <RootCoreUtils/RootUtils.h>
 #include <RootCoreUtils/ThrowMsg.h>
 #include <SampleHandler/DiskListLocal.h>
@@ -30,10 +32,13 @@
 #include <TFile.h>
 #include <TObjString.h>
 #include <TSystem.h>
+#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <memory>
 #include <signal.h>
+
+using namespace EL::msgEventLoop;
 
 //
 // method implementations
@@ -97,52 +102,17 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
 
-    std::string mylocation = location;
-    if (location[0] != '/')
-      mylocation = gSystem->WorkingDirectory () + ("/" + location);
-    if (location.find ("/pnfs/") == 0)
-      RCU_THROW_MSG ("can not place submit directory on pnfs: " + mylocation);
-    if (job.options()->castBool (Job::optRemoveSubmitDir, false))
-      gSystem->Exec (("rm -rf " + mylocation).c_str());
-    if (gSystem->MakeDirectory (mylocation.c_str()) != 0)
-      RCU_THROW_MSG ("could not create output directory " + mylocation);
+    Detail::ManagerData data;
+    data.addManager (std::make_unique<Detail::BaseManager> ());
+    data.addManager (std::make_unique<Detail::DriverManager> ());
+    data.addManager (std::make_unique<Detail::SubmitManager> ());
 
     Job myjob = job;
-    doUpdateJob (myjob, mylocation);
-
-    if (job.options()->castBool (Job::optDisableMetrics, false))
-      if (!myjob.algsHas (MetricsSvc::name))
-     	myjob.algsAdd (new MetricsSvc);
-
-    {
-      std::unique_ptr<TFile> file (TFile::Open ((mylocation + "/driver.root").c_str(), "RECREATE"));
-      file->WriteObject (this, "driver");
-      file->Close ();
-    }
-    myjob.sampleHandler().save (mylocation + "/input");
-    {
-      std::ofstream file ((mylocation + "/location").c_str());
-      file << mylocation << "\n";
-    }
-
-    SH::SampleHandler sh_hist;
-    for (SH::SampleHandler::iterator sample = myjob.sampleHandler().begin(),
-	   end = myjob.sampleHandler().end(); sample != end; ++ sample)
-    {
-      const std::string histfile
-	= mylocation + "/hist-" + (*sample)->name() + ".root";
-      std::unique_ptr<SH::SampleHist> hist
-	(new SH::SampleHist ((*sample)->name(), histfile));
-      hist->meta()->fetch (*(*sample)->meta());
-      sh_hist.add (hist.release());
-    }
-    sh_hist.save (mylocation + "/hist");
-
-    doSubmit (myjob, mylocation);
-
-    // rationale: this particular file can be checked to see if a job
-    //   has been submitted successfully.
-    std::ofstream ((mylocation + "/submitted").c_str());
+    data.driver = this;
+    data.submitDir = location;
+    data.job = &myjob;
+    if (data.run().isFailure())
+      throw std::runtime_error ("failed to submit job");
   }
 
 
@@ -151,11 +121,21 @@ namespace EL
   resubmit (const std::string& location,
             const std::string& option)
   {
+    Detail::ManagerData data;
+    data.addManager (std::make_unique<Detail::BaseManager> ());
+    data.addManager (std::make_unique<Detail::DriverManager> ());
+    data.addManager (std::make_unique<Detail::SubmitManager> ());
+    data.submitDir = location;
+
     std::unique_ptr<TFile> file (TFile::Open ((location + "/driver.root").c_str(), "READ"));
     std::unique_ptr<Driver> driver (dynamic_cast<Driver*>(file->Get ("driver")));
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
+    data.driver = driver.get();
 
-    driver->doResubmit (location, option);
+    data.resubmit = true;
+    data.resubmitOption = option;
+    if (data.run().isFailure())
+      throw std::runtime_error ("failed to resubmit job");
   }
 
 
@@ -163,11 +143,22 @@ namespace EL
   bool Driver ::
   retrieve (const std::string& location)
   {
+    Detail::ManagerData data;
+    data.addManager (std::make_unique<Detail::BaseManager> ());
+    data.addManager (std::make_unique<Detail::DriverManager> ());
+    data.addManager (std::make_unique<Detail::RetrieveManager> ());
+    data.submitDir = location;
+
     std::unique_ptr<TFile> file (TFile::Open ((location + "/driver.root").c_str(), "READ"));
+    if (!file || file->IsZombie())
+      throw std::runtime_error ("failed to open driver file");
     std::unique_ptr<Driver> driver (dynamic_cast<Driver*>(file->Get ("driver")));
     RCU_ASSERT2_SOFT (driver.get() != 0, "failed to read driver");
+    data.driver = driver.get();
 
-    return driver->doRetrieve (location);
+    if (data.run().isFailure())
+      throw std::runtime_error ("failed to retrieve job");
+    return data.completed;
   }
 
 
@@ -175,8 +166,6 @@ namespace EL
   bool Driver ::
   wait (const std::string& location, unsigned time)
   {
-    using namespace msgEventLoop;
-
     // no invariant used
 
     struct SigTrap {
@@ -329,41 +318,9 @@ namespace EL
 
 
 
-  void Driver ::
-  doUpdateJob (Job& /*job*/, const std::string& /*location*/) const
+  ::StatusCode Driver ::
+  doManagerStep (Detail::ManagerData& /*data*/) const
   {
-    RCU_READ_INVARIANT (this);
-  }
-
-
-
-  void Driver ::
-  doSubmit (const Job& /*job*/, const std::string& /*location*/) const
-  {
-    RCU_READ_INVARIANT (this);
-
-    RCU_THROW_MSG (std::string ("Driver::doSubmit not overridden in class ") + typeid(*this).name());
-  }
-
-
-
-  void Driver ::
-  doResubmit (const std::string& /*location*/,
-              const std::string& /*option*/) const
-  {
-    RCU_READ_INVARIANT (this);
-    RCU_THROW_MSG ("job resubmission not supported for this driver");
-  }
-
-
-
-  bool Driver ::
-  doRetrieve (const std::string& location) const
-  {
-    RCU_READ_INVARIANT (this);
-
-    if (gSystem->AccessPathName ((location + "/submitted").c_str()) != 0)
-      RCU_THROW_MSG ("job submission was unsuccessful");
-    return true;
+    return ::StatusCode::SUCCESS;
   }
 }

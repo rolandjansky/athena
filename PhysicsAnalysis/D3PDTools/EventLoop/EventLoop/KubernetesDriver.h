@@ -16,7 +16,9 @@
 
 namespace EL
 {
-  class KubernetesDriver : public BatchDriver
+  /// \brief a \ref Driver to run on Kubernetes
+
+  class KubernetesDriver final : public BatchDriver
   {
     //
     // public interface
@@ -40,18 +42,9 @@ namespace EL
     // interface inherited from BatchDriver
     //
 
-  private:
-    virtual std::string batchReleaseSetup (bool sharedFileSystem) const override;
-
-    /// effects: perform the actual local submission with njob jobs
-    /// guarantee: strong
-    /// failures: submission errors
-    /// rationale: the virtual part of batch submission
-  private:
-    virtual void
-    batchSubmit (const std::string& location, const SH::MetaObject& options,
- 		 const std::vector<std::size_t>& jobIndices, bool resubmit)
-      const override;
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
 
 
 
