@@ -157,6 +157,11 @@ StatusCode
 
 const Trk::TrackSummary* Trk::TrackSummaryTool::createSummaryNoHoleSearch( const Track& track )  const
 {
+
+  //Delete old as we will update
+  if (track.m_trackSummary!=nullptr) {
+    delete track.m_trackSummary;
+  } 
   Trk::TrackSummary* ts= createSummary(track,false,false ).release();
   Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
   nonConstTrack.m_trackSummary = new Trk::TrackSummary(*ts);
@@ -167,7 +172,13 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
                                                                bool onlyUpdateTrack ) const
 {
   Trk::TrackSummary* ts= createSummary(track,m_doHolesInDet, m_doHolesMuon ).release();
+  //Delete old as we will update
+  if (track.m_trackSummary!=nullptr) {
+    delete track.m_trackSummary;
+  } 
+ 
   Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
+
   if (onlyUpdateTrack) {
     // not returning summary. Add it directly the track
     nonConstTrack.m_trackSummary = ts;
