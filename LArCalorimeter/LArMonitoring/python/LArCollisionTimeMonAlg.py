@@ -15,8 +15,8 @@ def LArCollisionTimeMonConfig(inputFlags):
     ### STEP 1 ###
     # Define one top-level monitoring algorithm. The new configuration 
     # framework uses a component accumulator.
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
+    #from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    #result = ComponentAccumulator()
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -149,14 +149,14 @@ def LArCollisionTimeMonConfig(inputFlags):
     
     #in train monitoring, only done offline
 
-    if not 'isOnline' in dir(): #DO WE NEED THIS IF HERE?
+    if 'isOnline' not in dir(): #DO WE NEED THIS IF HERE?
         isOnline=False
         pass
 
     if isOnline:
 
         collTimeGroupName_intrain=collTimeGroupName+"_intrain"
-        collTimeGroup_intrain = helper_collTime.addGroup( 
+        collTimeGroup_intrain = helper.collTime.addGroup( 
             larCollTimeMonAlg,
             collTimeGroupName_intrain,
             "/LAr/"
@@ -258,7 +258,7 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
+    from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
 
     # Set the Athena configuration flags
