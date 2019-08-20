@@ -6,5 +6,7 @@
 
    <!-- The basic tool types: -->
    <class name="asg::AsgMessaging" />
+   <function name="asg::printAllPackageMsgLevels" />
+   <function name="asg::setPackageMsgLevel" />
 
 </lcgdict>

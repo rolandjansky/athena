@@ -115,15 +115,6 @@
   bool msgLvl (MSG::Level lvl);			\
   void setMsgLevel (MSG::Level level); }
 
-
-#ifdef XAOD_STANDALONE
-#define ASG_TOOLS_MSG_STREAM(NAME,TITLE)	\
-  static MsgStream NAME (TITLE);
-#else
-#define ASG_TOOLS_MSG_STREAM(NAME,TITLE)			\
-  static MsgStream NAME (::asg::detail::getMessageSvcAthena(), TITLE);
-#endif
-
 /// \brief the source code part of \ref ANA_MSG_SOURCE
 ///
 /// For every message category that you introduce via \ref
@@ -131,48 +122,68 @@
 /// to add the source code needed for its function implementations
 #define ANA_MSG_SOURCE(NAME,TITLE)		\
   namespace NAME				\
-  {						\
-  namespace					\
-    {						\
-  MSG::Level& msgLevel ()			\
-    {						\
-  static MSG::Level level = MSG::INFO;		\
-  return level;					\
+  {	 					\
+    MsgStream& msg ()				\
+    {                                           \
+      static MsgStream& result {::asg::packageMsgStream (TITLE)}; \
+      return result;				\
     }						\
-  }						\
 						\
+    MsgStream& msg (MSG::Level level)		\
+    {						\
+      return msg() << level;			\
+    }						\
+                                                \
+    bool msgLvl (MSG::Level lvl)                \
+    {						\
+      if (msg().level() <= lvl)                 \
+      {                                         \
+        msg() << lvl;                           \
+        return true;                            \
+      } else                                    \
+      {                                         \
+        return false;                           \
+      }                                         \
+    }						\
 						\
-						\
-  MsgStream& msg ()				\
-  {						\
-    ASG_TOOLS_MSG_STREAM (result, std::string ("Package.") + TITLE);	\
-  return result;				\
-  }						\
-						\
-						\
-  MsgStream& msg (MSG::Level level)		\
-  {						\
-    return msg() << level;			\
-  }						\
-						\
-						\
-						\
-  bool msgLvl (MSG::Level lvl)			\
-  {						\
-    return msgLevel() <= lvl;			\
-  }						\
-						\
-						\
-						\
-  void setMsgLevel (MSG::Level level)		\
-  {						\
-    msgLevel() = level;				\
-  }						\
+    void setMsgLevel (MSG::Level level)		\
+    {						\
+      msg().setLevel (level);                   \
+    }						\
   }
 
 namespace asg
 {
   ANA_MSG_HEADER (msgUserCode)
+}
+
+namespace asg
+{
+  /// \brief the message stream for the given package identifier
+  ///
+  /// This is for package-level streaming, which in itself is
+  /// discouraged, but sometimes it is just not practical to wrap code
+  /// that wants to write out a message into a tool or algorithm.
+  /// Maybe if we have dual-use services some day, this may become
+  /// less relevant.
+  ///
+  /// Normally users shouldn't access this directly, but rely on the
+  /// wrappers defined above.
+  MsgStream& packageMsgStream (const std::string& package);
+
+  /// \brief set the package message level for the given name
+  ///
+  /// This is mostly to have a single, stable function that can be
+  /// called from python-configuration, without having to rely on any
+  /// of the details of the implementation above.
+  void setPackageMsgLevel (const std::string& package, MSG::Level level);
+
+  /// \brief print all package message levels
+  ///
+  /// This is mostly to have a single, stable function that can be
+  /// called from python-configuration, without having to rely on any
+  /// of the details of the implementation above.
+  void printAllPackageMsgLevels ();
 }
 
 namespace asg
@@ -240,12 +251,6 @@ namespace asg
 
   namespace detail
   {
-#ifndef XAOD_STANDALONE
-    /// Get the Athena message service
-    /// TODO: Look into using AthenaKernel/MsgStreamMember.h
-    IMessageSvc* getMessageSvcAthena();
-#endif
-
     /// \brief throw an error for a failed check
     ///
     /// the main reason to have a separate function for this is to cut
