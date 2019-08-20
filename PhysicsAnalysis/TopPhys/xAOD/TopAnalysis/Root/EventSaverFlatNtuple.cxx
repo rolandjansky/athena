@@ -1751,8 +1751,7 @@ namespace top {
     //some event weights
     m_weight_mc = 0.;
     if (m_config->isMC())
-      //             m_weight_mc = event.m_info->mcEventWeight();
-      m_weight_mc = event.m_truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+      m_weight_mc = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     if (m_config->isMC()) {
 
@@ -3635,8 +3634,7 @@ namespace top {
     unsigned int truthEventSize = truthEvent->size();
     top::check( truthEventSize==1 , "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)" );
 
-    //         m_weight_mc       = eventInfo -> mcEventWeight();
-    m_weight_mc = truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+    m_weight_mc       = eventInfo -> auxdataConst<float>("AnalysisTop_eventWeight");
     m_eventNumber     = eventInfo -> eventNumber();
     m_runNumber       = eventInfo -> runNumber();
     m_mcChannelNumber = eventInfo -> mcChannelNumber();
@@ -3769,8 +3767,7 @@ namespace top {
     unsigned int truthEventSize = truthEvent->size();
     top::check( truthEventSize==1 , "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)" );
 
-    //         m_weight_mc = plEvent.m_info->mcEventWeight();
-    m_weight_mc = truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+    m_weight_mc = plEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     m_eventNumber = plEvent.m_info->eventNumber();
     m_runNumber = plEvent.m_info->runNumber();
@@ -4446,8 +4443,7 @@ namespace top {
     unsigned int truthEventSize = truthEvent->size();
     top::check( truthEventSize==1 , "Failed to retrieve truth PDF info - truth event container size is different from 1 (strange)" );
 
-    //         m_weight_mc = plEvent.m_info->mcEventWeight();
-    m_weight_mc = truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+    m_weight_mc = upgradeEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     m_eventNumber = upgradeEvent.m_info->eventNumber();
     m_runNumber = upgradeEvent.m_info->runNumber();

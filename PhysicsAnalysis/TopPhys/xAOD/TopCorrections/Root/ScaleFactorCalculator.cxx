@@ -122,8 +122,7 @@ StatusCode ScaleFactorCalculator::execute() {
     // a m_PMG_SF class, as with other corrections
     if (m_config->isSherpa22Vjets()) {
       const xAOD::EventInfo* eventInfo(nullptr);
-      top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),
-                 "Failed to retrieve EventInfo");
+      top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),"Failed to retrieve EventInfo");
       double sherpa_weight = m_sherpa_22_reweight_tool->getWeight();
       eventInfo->auxdecor<double>("Sherpa22VJetsWeight") = sherpa_weight;
     }
@@ -161,6 +160,9 @@ float ScaleFactorCalculator::mcEventWeight() const {
   if (!m_config->isMC()) {
     return sf;
   } 
+  // Decorate the updated nominal weight if appropriate - note this is called early in top-xaod
+  const xAOD::EventInfo* eventInfo(nullptr);
+  top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),"Failed to retrieve EventInfo");    
 
   ///-- Start using the PMG tool to get the nominal event weights --///
   ///-- But nominal weight name seems to vary so we try to test   --///
@@ -171,6 +173,7 @@ float ScaleFactorCalculator::mcEventWeight() const {
     if(m_pmg_truth_weight_tool->hasWeight(weight_name)){
       sf = m_pmg_truth_weight_tool->getWeight( weight_name );
       ///-- Return from here if we find it --///
+      eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
       return sf;
     } 
   }
@@ -186,6 +189,7 @@ float ScaleFactorCalculator::mcEventWeight() const {
   
   // Temporary bug fix due to the above problem
   sf = truthEventContainer->at(0)->weights()[0];
+  eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
 
   return sf;
 }
