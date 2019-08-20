@@ -76,7 +76,7 @@
     std::string m_outLabelFjvt;
     std::string m_verticesName;
     std::string m_jetsName;
-    std::string m_jetchargedpt;
+    std::string m_jetchargedp4;
     std::string m_pfoToolName;
     std::string m_wpfoToolName;
     std::string m_pfoJESName;   

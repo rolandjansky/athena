@@ -42,10 +42,10 @@
     m_fjvtThresh(15e3)
   {
     declareProperty("OverlapDec",         m_orLabel          = ""                        );
-    declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJetsTest"        );
+    declareProperty("JetContainerName",   m_jetsName         = "AntiKt4PFlowJets"        );
     declareProperty("OutputDecFjvt",      m_outLabelFjvt     = "passOnlyFJVT"            );
     declareProperty("VertexContainer",    m_verticesName     = "PrimaryVertices"         );
-    declareProperty("JetChargedpt",       m_jetchargedpt     = "JetChargedScaleMomentumTest" );
+    declareProperty("JetChargedpt",       m_jetchargedp4     = "JetChargedScaleMomentum" );
     declareProperty("EtaThresh",          m_etaThresh        = 2.5                       );
     declareProperty("ForwardMinPt",       m_forwardMinPt     = 20e3                      );
     declareProperty("ForwardMaxPt",       m_forwardMaxPt     = 60e3                      );
@@ -235,7 +235,7 @@
         }
       }
       xAOD::JetFourMom_t chargejetp4(1.*chargedpart,inclusive_jets[i].rap(),inclusive_jets[i].phi(),0);
-      jet->setJetP4(m_jetchargedpt,chargejetp4);
+      jet->setJetP4(m_jetchargedp4,chargejetp4);
     }   
     m_pfoJES->modify(*vertjets);
   }
