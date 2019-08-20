@@ -8,7 +8,7 @@
       <library>TrigPSC</library>
     </HLTImplementationLibraries>
     <UID>HLTMPPy</UID>
-    <HardTimeout>60000</HardTimeout>
+    <HardTimeout>3600000</HardTimeout>
     <finalizeTimeout>120</finalizeTimeout>
     <numberOfEventSlots>1</numberOfEventSlots>
     <DataSourceLibrary>DFDcmEmuBackend</DataSourceLibrary>
