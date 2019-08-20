@@ -163,6 +163,10 @@ float ScaleFactorCalculator::mcEventWeight() const {
   // Decorate the updated nominal weight if appropriate - note this is called early in top-xaod
   const xAOD::EventInfo* eventInfo(nullptr);
   top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),"Failed to retrieve EventInfo");    
+  
+  // Check if the decoration is already present, and return it if so
+  if(eventInfo->isAvailable<float>("AnalysisTop_eventWeight")) 
+    return eventInfo->auxdataConst<float>("AnalysisTop_eventWeight");
 
   ///-- Start using the PMG tool to get the nominal event weights --///
   ///-- But nominal weight name seems to vary so we try to test   --///
@@ -172,7 +176,7 @@ float ScaleFactorCalculator::mcEventWeight() const {
     ///-- Check whether this weight name does exist --///
     if(m_pmg_truth_weight_tool->hasWeight(weight_name)){
       sf = m_pmg_truth_weight_tool->getWeight( weight_name );
-      ///-- Return from here if we find it --///
+      ///-- Decorate the event info with this weight and return --///
       eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
       return sf;
     } 
@@ -189,6 +193,7 @@ float ScaleFactorCalculator::mcEventWeight() const {
   
   // Temporary bug fix due to the above problem
   sf = truthEventContainer->at(0)->weights()[0];
+  // Decorate the event info with this weight
   eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
 
   return sf;
