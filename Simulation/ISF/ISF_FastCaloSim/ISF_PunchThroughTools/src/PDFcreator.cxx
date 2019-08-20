@@ -50,6 +50,7 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, bool discre
 
     // get the center of the closest bin to the input inputParameter
     double closestCenter = curaxis->GetBinCenter(bin);
+
     // get the bins edge closest to the current value
     // and find out if the next closest bin has id bin+1 or bin-1
     double closestEdge = (curvalue <= closestCenter) ? curaxis->GetBinLowEdge(bin) : curaxis->GetBinUpEdge(bin);
@@ -79,8 +80,9 @@ double ISF::PDFcreator::getRand(std::vector<double> inputParameters, bool discre
   // of them)
   Int_t bin = 0;
   if (numInputPar == 1)             bin = m_par[0]->GetBin( chosenBin[0] );
-  else if (numInputPar ==2 )        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], 1 ); //Hack here to choose z axis bin 1
-  else if (numInputPar == 3)        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], chosenBin[2] ); //Select Z bin as 1 to choose pions for now
+  else if (numInputPar ==2 )        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], 1 ); // z = 1 for Pion, 2 for photon, 3 for electron
+  else if (numInputPar == 3)        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], 1 ); //Select Z bin as 1 to choose pions for now
+  //else if (numInputPar == 3)        bin = m_par[0]->GetBin( chosenBin[0], chosenBin[1], chosenBin[2] );
   // TODO: implement case of >3 input parameters
 
 

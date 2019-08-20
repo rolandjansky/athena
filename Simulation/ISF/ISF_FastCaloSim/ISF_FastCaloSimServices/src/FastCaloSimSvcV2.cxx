@@ -168,16 +168,12 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   if (m_doPunchThrough) {
      // call punch-through simulation
      const ISF::ISFParticleContainer* isfpVec = m_punchThroughTool->computePunchThroughParticles(isfp);
+
+     // add punch-through particles to the ISF particle broker
      if (isfpVec) {
        ISF::ISFParticleContainer::const_iterator partIt    = isfpVec->begin();
        ISF::ISFParticleContainer::const_iterator partItEnd = isfpVec->end();
        for ( ; partIt!=partItEnd; ++partIt) {
-<<<<<<< HEAD
-=======
-         //std::cout << "pdg: " << partIt.pdgCode() << " momentum: " << partIt.momentum().x() << " " << partIt.momentum().y() << " " << partIt.momentum().z()<< std::endl;
-
-
->>>>>>> add broker check to SVC, param working
          m_particleBroker->push( *partIt, &isfp);
        }
      }
