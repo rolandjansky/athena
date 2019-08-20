@@ -60,9 +60,6 @@ public:
   virtual bool addComponent(Cache& cache, const ComponentParameters&) const override;
 
   /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
-  virtual bool addMultiState(Cache& cache, const MultiComponentState&) const override;
-
-  /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
   virtual bool addMultiState(Cache& cache, SimpleMultiComponentState&) const override;
 
   /** Method to include the weights of states that are invalid */

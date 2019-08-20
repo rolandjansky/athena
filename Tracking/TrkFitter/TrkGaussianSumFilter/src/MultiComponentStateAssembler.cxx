@@ -77,39 +77,18 @@ Trk::MultiComponentStateAssembler::addComponent(Cache& cache, const ComponentPar
     return false;
   }
   SimpleMultiComponentState tempMultiState;
-  tempMultiState.push_back(SimpleComponentParameters(componentParameters.first->clone(), componentParameters.second));
+  tempMultiState.emplace_back(componentParameters.first->clone(), componentParameters.second);
   this->addComponentsList(cache, tempMultiState);
-  return true;
-}
-
-bool
-Trk::MultiComponentStateAssembler::addMultiState(Cache& cache, const MultiComponentState& multiComponentState) const
-{
-
-  if (cache.assemblyDone) {
-    ATH_MSG_WARNING("Trying to add state after assembly... returning false \n");
-    return false;
-  }
-
-  SimpleMultiComponentState clonedMultiComponentState;
-  clonedMultiComponentState.reserve(multiComponentState.size());
-  for (auto& component : multiComponentState) {
-    clonedMultiComponentState.push_back(SimpleComponentParameters(component.first->clone(), component.second));
-  }
-
-  this->addComponentsList(cache, clonedMultiComponentState);
   return true;
 }
 
 bool
 Trk::MultiComponentStateAssembler::addMultiState(Cache& cache, SimpleMultiComponentState& multiComponentState) const
 {
-
   if (cache.assemblyDone) {
     ATH_MSG_WARNING("Trying to add state after assembly... returning false \n");
     return false;
   }
-
   this->addComponentsList(cache, multiComponentState);
   return true;
 }
@@ -125,14 +104,9 @@ Trk::MultiComponentStateAssembler::addInvalidComponentWeight(Cache& cache, const
 void
 Trk::MultiComponentStateAssembler::addComponentsList(Cache& cache, SimpleMultiComponentState& multiComponentState) const
 {
-
-  if (cache.assemblyDone) {
-    ATH_MSG_WARNING("Trying to add state after assembly \n");
-    return;
-  }
   double sumW(0.);
   for (auto& component : multiComponentState) {
-    cache.multiComponentState.push_back(SimpleComponentParameters(component.first.release(), component.second));
+    cache.multiComponentState.emplace_back(component.first.release(), component.second);
     sumW += component.second;
   }
   multiComponentState.clear();

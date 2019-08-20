@@ -67,12 +67,8 @@ public:
    * construction */
   virtual bool addComponent(Cache& cache, const ComponentParameters&) const = 0;
 
-  /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
-  virtual bool addMultiState(Cache& cache, const MultiComponentState&) const = 0;
-
-  /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
+  /** Method to add a new SimpleMultiComponentState to the cashed Trk::MultiComponentState onject under construction */
   virtual bool addMultiState(Cache& cache, SimpleMultiComponentState&) const = 0;
-
 
   /** Method to include the weights of states that are invalid */
   virtual bool addInvalidComponentWeight(Cache& cache, const double) const = 0;
