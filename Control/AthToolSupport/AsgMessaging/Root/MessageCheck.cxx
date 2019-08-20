@@ -13,6 +13,8 @@
 #include <AsgMessaging/MessageCheck.h>
 #include <AsgMessaging/MessageCheckLocal.h>
 
+#include <cassert>
+#include <mutex>
 #include <stdexcept>
 #include <unordered_map>
 
