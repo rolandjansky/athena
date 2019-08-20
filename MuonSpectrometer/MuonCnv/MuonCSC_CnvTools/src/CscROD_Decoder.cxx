@@ -202,7 +202,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   std::unique_ptr<CscRawDataCollection> rawCollection(nullptr);
   CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
   if( lock.alreadyPresent() ) {
-    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
+    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " collection filling is skipped!");
     return;
   }
   else{
@@ -521,7 +521,7 @@ void Muon::CscROD_Decoder::rodVersion1(const ROBFragment& robFrag,  CscRawDataCo
   std::unique_ptr<CscRawDataCollection> rawCollection(nullptr);
   CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
   if( lock.alreadyPresent() ) {
-    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " collection filling is skipped!");
+    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
   }
   else{
     ATH_MSG_DEBUG ( "CSC RDO collection does not exist - creating a new one with hash = " << idColl );
