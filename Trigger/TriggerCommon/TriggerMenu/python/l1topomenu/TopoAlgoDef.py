@@ -2118,6 +2118,24 @@ class TopoAlgoDef:
             alg.addvariable('DeltaRMin', 0)
             alg.addvariable('DeltaRMax', 15*15)
             tm.registerAlgo(alg)
+
+        #ATR-20174, L1BPH-8M15-2MU4-BO
+        if usev8:
+            toponame = "8INVM15-2CMU4ab"
+            log.info("Define %s" % toponame)
+   
+            inputList = ['CMUab']
+
+            alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinMSqr', 2*2)
+            alg.addvariable('MaxMSqr', 9*9)
+            alg.addvariable('MinET1', 4)
+            alg.addvariable('MinET2', 4)
+            
+            tm.registerAlgo(alg)
             
         if usev8:
           for x in [50,60]:

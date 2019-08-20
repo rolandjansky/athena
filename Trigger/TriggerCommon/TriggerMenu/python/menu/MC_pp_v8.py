@@ -644,6 +644,7 @@ def setupMenu():
 
         ['3mu4_bTau_L1BPH-0M10-3MU4',               'L1_BPH-0M10-3MU4', ['L1_3MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1], #ATR-19355
 
+        ['2mu4_bUpsimumu_L1BPH-8M15-2MU4-BO',       'L1_BPH-8M15-2MU4-BO', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1], #ATR-20174
         ]
 
     if TriggerFlags.doFTK():

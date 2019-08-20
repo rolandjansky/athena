@@ -1466,7 +1466,10 @@ def defineMenu():
         #ATR-17320
         'L1_CEP-CJ60' : 203,
         'L1_CEP-CJ50' : 210,
-        'L1_CEP-CJ50.ETA21': 211
+        'L1_CEP-CJ50.ETA21': 211,
+
+        #ATR-20174
+        'L1_BPH-8M15-2MU4-BO' : 71
 
 }
 
