@@ -101,6 +101,9 @@ class RpcDataPreparator: public AthAlgTool
       bool m_use_RoIBasedDataAccess;
       bool m_isFakeRoi;
 
+      // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
+      Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };
+
       // Flag to decide whether or not to run BS decoding
       Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
       Gaudi::Property< bool > m_emulateNoRpcHit { this, "EmulateNoRpcHit", false, "Flag for emulation of no RPC hit events" };
