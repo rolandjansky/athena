@@ -10,7 +10,6 @@
 #include "TrkEventUtils/IdentifierExtractor.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 
 //================ Constructor =================================================
 
