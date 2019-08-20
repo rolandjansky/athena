@@ -2,13 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
 
 
 //
@@ -45,21 +39,21 @@ namespace sh = RCU::Shell;
 using namespace SH;
 using namespace asg::msgUserCode;
 
-TEST (GridToolsTest, MANUAL_faxListFiles)
+TEST (GridToolsTest, faxListFiles)
 {
   const auto files = faxListFilesGlob
     ("user.ivukotic:user.ilijav.HCtest.1", "*.root*");
   ASSERT_EQ (5u, files.size());
 }
 
-TEST (GridToolsTest, MANUAL_rucioDirectAccessGlob)
+TEST (GridToolsTest, rucioDirectAccessGlob)
 {
   const auto files = rucioDirectAccessGlob
     ("user.ivukotic:user.ilijav.HCtest.1", "*.root*");
   ASSERT_EQ (5u, files.size());
 }
 
-TEST (GridToolsTest, MANUAL_rucioListDids)
+TEST (GridToolsTest, rucioListDids)
 {
   const auto entries = rucioListDids
     ("user.ivukotic:user.ilijav.HCtest.1");
@@ -81,7 +75,7 @@ TEST (GridToolsTest, MANUAL_rucioListDids)
   EXPECT_EQ (1u, types.find ("DATASET")->second);
 }
 
-TEST (GridToolsTest, MANUAL_rucioListFileReplicas)
+TEST (GridToolsTest, rucioListFileReplicas)
 {
   const auto entries = rucioListFileReplicas
     ("user.ivukotic:user.ilijav.HCtest.1");
@@ -97,7 +91,7 @@ TEST (GridToolsTest, MANUAL_rucioListFileReplicas)
   EXPECT_TRUE (scopes.find ("user.ivukotic") != scopes.end());
 }
 
-TEST (GridToolsTest, MANUAL_rucioGetMetadata)
+TEST (GridToolsTest, rucioGetMetadata)
 {
   std::set<std::string> datasets
     ({"user.ivukotic:user.ilijav.HCtest.1", "user.ivukotic:Details.log.2"});
@@ -110,7 +104,7 @@ TEST (GridToolsTest, MANUAL_rucioGetMetadata)
   }
 }
 
-TEST (GridToolsTest, MANUAL_scanRucio)
+TEST (GridToolsTest, scanRucio)
 {
   SH::SampleHandler sh;
   scanRucio (sh, "user.ivukotic:user.*.HCtest.1");
@@ -118,13 +112,13 @@ TEST (GridToolsTest, MANUAL_scanRucio)
   ASSERT_TRUE (sh.get ("user.ivukotic:user.ilijav.HCtest.1"));
 }
 
-TEST (GridToolsTest, MANUAL_scanRucio_fail)
+TEST (GridToolsTest, scanRucio_fail)
 {
   SH::SampleHandler sh;
   EXPECT_THROW_REGEX (scanRucio (sh, "user.ivukotic:user.NONEXISTENT.HCtest.1*"), "failed to find any datasets matching pattern: user.ivukotic:user.NONEXISTENT.HCtest.1*");
 }
 
-TEST (GridToolsTest, MANUAL_scanRucio_simple)
+TEST (GridToolsTest, scanRucio_simple)
 {
   SH::SampleHandler sh;
   scanRucio (sh, "user.ivukotic:user.NONEXISTENT.HCtest.1");
@@ -132,13 +126,13 @@ TEST (GridToolsTest, MANUAL_scanRucio_simple)
   ASSERT_TRUE (sh.get ("user.ivukotic:user.NONEXISTENT.HCtest.1"));
 }
 
-TEST (GridToolsTest, MANUAL_scanRucio_simple_fail)
+TEST (GridToolsTest, scanRucio_simple_fail)
 {
   SH::SampleHandler sh;
   EXPECT_THROW_REGEX (scanRucio (sh, "user.ivukotic:user.NONEXISTENT.HCtest.1", true), ".*user.NONEXISTENT.HCtest.1.*");
 }
 
-TEST (GridToolsTest, MANUAL_download)
+TEST (GridToolsTest, download)
 {
   // can't use my current directory, it may easily overflow
   std::ostringstream location;
