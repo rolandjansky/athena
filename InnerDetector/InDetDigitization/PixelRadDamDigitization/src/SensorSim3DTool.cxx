@@ -93,53 +93,53 @@
     } else if (m_fluence == 1) {
 
     //Beginning of Run 2 (measured fluence)
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_0.0e+00_20V_270K.root")); 
+        mapsPath = PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_0.0e+00_20V_270K.root"); 
 
         fluence = 1e-10;
 
     } else if (m_fluence == 2) {
 
     //Half-way through 2016 (measured fluence)
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5.0e+13_20V_283K.root"));
+        mapsPath = PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5.0e+13_20V_283K.root");
 
-        fluence_layers.push_back(5e13);
+        fluence = 5e13;
 
     } else if (m_fluence == 3) {
 
     //End of 2016 (measured fluence)
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1.0e+14_20V_283K.root"));
+        mapsPath = PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1.0e+14_20V_283K.root");
 
-        fluence_layers.push_back(1e14);
+        fluence = 1e14;
 
     } else if (m_fluence == 4) {
 
     //End of 2017 (measured fluence)
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_2.5e+14_40V_261K.root")); 
+        mapsPath = PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_2.5e+14_40V_261K.root"); 
 
-        fluence_layers.push_back(2.5e14);
+        fluence = 2.5e14;
 
     } else if (m_fluence == 5) {
 
     //End of Run 2 (end of 2018) (measured fluence)
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5.0e+14_40V_261K.root"));
+        mapsPath = PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5.0e+14_40V_261K.root");
 
-        fluence_layers.push_back(5e14); 
+        fluence = 5e14; 
 
     } else if (m_fluence == 6) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root"));
+        mapsPath = PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root");
 
         fluence = 5e15;
 
     } else if (m_fluence == 7) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_6e15_190V_new.root"));       
+        mapsPath = PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_6e15_190V_new.root");       
 
         fluence = 6e15;
 
     } else if (m_fluence == 8) {
 
-        mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e16_260V_new.root"));
+        mapsPath = PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e16_260V_new.root");
 
         fluence = 1e16;
     }
