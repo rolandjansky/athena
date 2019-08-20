@@ -19,7 +19,7 @@ if( XAOD_STANDALONE )
 else()
    set( sources Root/MsgLevel.cxx
       Root/AsgMessaging.cxx Root/AsgMessagingForward.cxx
-      Root/MessageCheck.cxx Root/UnitTest.cxx src/*.cxx )
+      Root/MessageCheck.cxx Root/MessageCheckLocal.cxx Root/UnitTest.cxx src/*.cxx )
 endif()
 
 # Component(s) in the package:
