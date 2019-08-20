@@ -20,9 +20,11 @@ decription           : Definition of component parameters for use in a mixture
 
 /*
  * Note that the CompomentParameters class  does not own/delete 
- * the Trk::TrackParameters ptr. Deletion happens only if you push it 
- * in a MultiComponentState. In which case it takes ownership
- * This needs some care and can be target of furhter refactoring ....
+ * the Trk::TrackParameters ptr. 
+ * Deletion happens only if you push it 
+ * in a MultiComponentState. which takes ownership
+ *
+ * The idea is to refactor the clients  using the typedefs
  */
 
 namespace Trk{
