@@ -19,7 +19,7 @@ class IJetSelectorTool :  virtual public asg::IAsgTool {
 
   public:
 
-  virtual Root::TAccept tag(const xAOD::Jet& jet) const = 0;
+  virtual Root::TAccept& tag(const xAOD::Jet& jet) const = 0;
 
 
 };

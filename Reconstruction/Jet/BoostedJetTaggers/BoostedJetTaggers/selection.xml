@@ -5,6 +5,7 @@
   <class name="SmoothedTopTagger" />
   <class name="JSSWTopTaggerBDT" />
   <class name="JSSWTopTaggerDNN" />
+  <class name="JSSWTopTaggerANN" />
   <class name="TopoclusterTopTagger" />
   <class name="JetQGTagger" />
   <class name="CP::JetQGTaggerBDT" />

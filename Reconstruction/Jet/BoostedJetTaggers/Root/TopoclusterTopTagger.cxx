@@ -210,7 +210,7 @@ StatusCode TopoclusterTopTagger::initialize(){
     return StatusCode::SUCCESS;
 }
 
-Root::TAccept TopoclusterTopTagger::tag(const xAOD::Jet& jet) const{
+Root::TAccept& TopoclusterTopTagger::tag(const xAOD::Jet& jet) const{
 
   ATH_MSG_DEBUG( ": Obtaining DNN result" );
 

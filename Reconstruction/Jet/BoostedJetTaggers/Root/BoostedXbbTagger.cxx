@@ -257,7 +257,7 @@ StatusCode BoostedXbbTagger::finalize(){
     return StatusCode::SUCCESS;
 }
 
-Root::TAccept BoostedXbbTagger::tag(const xAOD::Jet& jet) const
+Root::TAccept& BoostedXbbTagger::tag(const xAOD::Jet& jet) const
 {
   ATH_MSG_DEBUG( ": Obtaining Standard Xbb tagger result" );
 

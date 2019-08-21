@@ -59,6 +59,7 @@ atlas_add_library( BoostedJetTaggersLib
   Root/JSSWTopTaggerBDT.cxx
   Root/JetQGTaggerBDT.cxx
   Root/JSSWTopTaggerDNN.cxx
+  Root/JSSWTopTaggerANN.cxx
   Root/SmoothedTopTagger.cxx
   Root/SmoothedWZTagger.cxx
   Root/TopoclusterTopTagger.cxx
@@ -132,6 +133,13 @@ if( XAOD_STANDALONE )
    )
    atlas_add_executable( test_JSSWTopTaggerDNN
       util/test_JSSWTopTaggerDNN.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+      xAODEventInfo xAODJet xAODTruth xAODCore PATInterfaces xAODCore AsgTools
+      BoostedJetTaggersLib
+   )
+   atlas_add_executable( test_JSSWTopTaggerANN
+      util/test_JSSWTopTaggerANN.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
       xAODEventInfo xAODJet xAODTruth xAODCore PATInterfaces xAODCore AsgTools

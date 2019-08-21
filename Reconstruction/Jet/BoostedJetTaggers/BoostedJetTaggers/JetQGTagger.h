@@ -52,8 +52,8 @@ namespace CP {
       virtual StatusCode initialize() override;
 
       // Implement IJetSelectorTool interface
-      virtual Root::TAccept tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const override;
-      virtual Root::TAccept tag(const xAOD::Jet& jet) const override { return tag(jet, nullptr); }
+      virtual Root::TAccept& tag(const xAOD::Jet& jet, const xAOD::Vertex *pv) const override;
+      virtual Root::TAccept& tag(const xAOD::Jet& jet) const override { return tag(jet, nullptr); }
 
       // functions for systematic variations
       virtual bool isAffectedBySystematic(const SystematicVariation& var) const override {return SystematicsTool::isAffectedBySystematic(var);}

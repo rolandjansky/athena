@@ -34,7 +34,7 @@ class SmoothedWZTagger : public  JSSTaggerBase {
   StatusCode finalize();
   
   // Implement IJSSTagger interface
-  virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+  virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
   
   // get scale factor
   double getWeight(const xAOD::Jet& jet) const;

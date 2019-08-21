@@ -1,17 +1,21 @@
 // for editors : this file is -*- C++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef JSSWTOPTAGGERDNN_H_
-#define JSSWTOPTAGGERDNN_H_
+#ifndef JSSWTOPTAGGERANN_H_
+#define JSSWTOPTAGGERANN_H_
 
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "AsgTools/AsgTool.h"
 
-#include "lwtnn/LightweightNeuralNetwork.hh"
+#include "lwtnn/LightweightGraph.hh"
 #include "lwtnn/parse_json.hh"
+#include "lwtnn/Exceptions.hh"
+#include "lwtnn/lightweight_nn_streamers.hh"
+#include "lwtnn/NanReplacer.hh"
+
 
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
@@ -26,36 +30,34 @@
 #include <fstream>
 #include <vector>
 
-class JSSWTopTaggerDNN:  public JSSTaggerBase {
-  ASG_TOOL_CLASS0(JSSWTopTaggerDNN)
+class JSSWTopTaggerANN:  public JSSTaggerBase {
+  ASG_TOOL_CLASS0(JSSWTopTaggerANN)
   
   public:
   
   //Default - so root can load based on a name
-  JSSWTopTaggerDNN(const std::string& name);
+  JSSWTopTaggerANN(const std::string& name);
   
   // Default - so we can clean up
-  ~JSSWTopTaggerDNN();
-  JSSWTopTaggerDNN& operator=(const JSSWTopTaggerDNN& rhs);
+  ~JSSWTopTaggerANN();
   
   // Run once at the start of the job to setup everything
-  StatusCode initialize();
+  virtual StatusCode initialize() override final;
   
   // IJSSTagger interface
-  virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
+  virtual Root::TAccept& tag(const xAOD::Jet& jet) const override final;
   
-  // Retrieve score for a given DNN type (top/W)
+  // Retrieve score for a given ANN type (top/W)
   double getScore(const xAOD::Jet& jet) const;
   
   // Get scale factor
   double getWeight(const xAOD::Jet& jet) const;
   
   // Write the decoration to the jet
-  void decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const;
+  void decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue, float weightValue) const; 
   
-  // Update the jet substructure variables for each jet to use in DNN
-  std::map<std::string,double> getJetProperties(const xAOD::Jet& jet) const;
-  StatusCode finalize();
+  // Update the jet substructure variables for each jet to use in ANN
+  std::map<std::string, std::map<std::string,double>> getJetProperties(const xAOD::Jet& jet) const;
   
 private:
   std::string m_name;
@@ -64,9 +66,9 @@ private:
   // for the tagging type
     enum TAGCLASS{Unknown, WBoson, TopQuark};
 
-    // DNN tools
-    std::unique_ptr<lwt::LightweightNeuralNetwork> m_lwnn;
-    std::map<std::string, double> m_DNN_inputValues;   // variables for DNN
+    // ANN tools
+    std::unique_ptr<lwt::LightweightGraph> m_lwnn;
+    std::map<std::string, std::map<std::string,double>> m_ANN_inputValues;   // variables for ANN
 
     // inclusive config file
     std::string m_configFile;
@@ -97,8 +99,11 @@ private:
     // histograms for scale factors
     std::unique_ptr<TFile> m_weightConfig;
     std::map<std::string, std::unique_ptr<TH2D>> m_weightHistograms;
-  
-    // string for decorating jets with DNN output
+ 
+    // internal stuff to keep track of the output node for the NN
+    std::vector<std::string> m_out_names;
+       
+    // string for decorating jets with ANN output
     std::string m_decorationName;
 
     // string for scale factors

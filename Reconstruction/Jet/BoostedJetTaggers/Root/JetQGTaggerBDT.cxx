@@ -141,7 +141,7 @@ namespace CP {
   }
 
 
-  Root::TAccept JetQGTaggerBDT::tag(const xAOD::Jet& jet) const {
+  Root::TAccept& JetQGTaggerBDT::tag(const xAOD::Jet& jet) const {
     // helpful execute message
     ATH_MSG_DEBUG("Obtaining BDT result" );
 
