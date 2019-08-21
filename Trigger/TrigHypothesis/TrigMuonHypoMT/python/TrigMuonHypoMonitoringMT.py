@@ -25,6 +25,32 @@ class TrigMufastHypoMonitoring(GenericMonitoringTool):
         self.defineHistogram('XatBe', type='TH1F', path='EXPERT', title="DCA along X; X (cm)",
                              xbins=100, xmin=-1000, xmax=1000)
 
+class TrigL2MuonOverlapRemoverMonitoringMufast(GenericMonitoringTool):
+    def __init__ (self, name):
+        super(TrigL2MuonOverlapRemoverMonitoringMufast, self).__init__(name)
+
+        self.defineHistogram('MufastError',  type='TH1F', path='EXPERT', title="error in #muFast based overlap removal; error code",
+                             xbins=10, xmin=0, xmax=10)
+        self.defineHistogram('DR',  type='TH1F', path='EXPERT', title="#muFast objects dR; dR",
+                             xbins=108, xmin=-0.1, xmax=3.5)
+        self.defineHistogram('Mass',type='TH1F', path='EXPERT', title="#muFast objects invMass; Mass (GeV)",
+                             xbins=202, xmin=-1, xmax=100)
+        self.defineHistogram('DRLog10',  type='TH1F', path='EXPERT', title="#muFast objects Log10(dR); Log10(dR)",
+                             xbins=102, xmin=-4.1, xmax=1.0)
+        self.defineHistogram('MassLog10',type='TH1F', path='EXPERT', title="#muFast objects Log10(invMass); Log10(Mass (GeV))",
+                             xbins=142, xmin=-4.1, xmax=3.0)
+        self.defineHistogram('Mass , DR', type='TH2F', path='EXPERT', title="#muFast objects Mass vs DR; Mass; dR",
+                             xbins=54, xmin=-0.1, xmax=3.5, ybins=101, ymin=-1, ymax=100)
+        self.defineHistogram('NrAllEVs',type='TH1F', path='EXPERT', title="nr of all EVs received for #muFast removal; nr",
+                             xbins=10, xmin=0, xmax=10)
+        self.defineHistogram('NrActiveEVs',type='TH1F', path='EXPERT', title="nr of active EVs after #muFast removal ; nr",
+                             xbins=10, xmin=0, xmax=10)
+        self.defineHistogram('NrOverlapped',type='TH1F', path='EXPERT', title="nr of #muFast overlapped; nr",
+                             xbins=10, xmin=0, xmax=10)
+        self.defineHistogram('OverlappedEta , OverlappedPhi', type='TH2F', path='EXPERT', title="#muFast overlapped Eta vs Phi; Eta; Phi",
+                             xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15)
+        self.defineHistogram('OverlappedPt', type='TH1F', path='EXPERT', title="#muFast overlapped P_{T}; P_{T} (GeV)",
+                             xbins=200, xmin=-100, xmax=100)
 
 class TrigmuCombHypoMonitoring(GenericMonitoringTool):
     def __init__ (self, name):
@@ -44,6 +70,34 @@ class TrigmuCombHypoMonitoring(GenericMonitoringTool):
                              xbins=100, xmin=-200, xmax=200)
         self.defineHistogram('A0', type='TH1F', path='EXPERT', title="PCA along x-y from ID track from #muComb; PCA(A0) (mm)",
                              xbins=100, xmin=-0.6, xmax=0.6)
+
+class TrigL2MuonOverlapRemoverMonitoringMucomb(GenericMonitoringTool):
+    def __init__ (self, name):
+        super(TrigL2MuonOverlapRemoverMonitoringMucomb, self).__init__(name)
+
+        self.defineHistogram('MucombError',  type='TH1F', path='EXPERT', title="error in #muComb based overlap removal; error code",
+                             xbins=10, xmin=0, xmax=10)
+        self.defineHistogram('DR',  type='TH1F', path='EXPERT', title="#muComb objects dR; dR",
+                             xbins=108, xmin=-0.1, xmax=3.5)
+        self.defineHistogram('Mass',type='TH1F', path='EXPERT', title="#muComb objects invMass; Mass (GeV)",
+                             xbins=202, xmin=-1, xmax=100)
+        self.defineHistogram('DRLog10',  type='TH1F', path='EXPERT', title="#muFast objects Log10(dR); Log10(dR)",
+                             xbins=102, xmin=-4.1, xmax=1.0)
+        self.defineHistogram('MassLog10',type='TH1F', path='EXPERT', title="#muFast objects Log10(invMass); Log10(Mass (GeV))",
+                             xbins=142, xmin=-4.1, xmax=3.0)
+        self.defineHistogram('Mass , DR', type='TH2F', path='EXPERT', title="#muComb objects Mass vs DR; Mass; dR",
+                             xbins=54, xmin=-0.1, xmax=3.5, ybins=101, ymin=-1, ymax=100)
+        self.defineHistogram('NrAllEVs',type='TH1F', path='EXPERT', title="nr of all EVs received for #muComb removal; nr",
+                             xbins=10, xmin=0, xmax=10)
+        self.defineHistogram('NrActiveEVs',type='TH1F', path='EXPERT', title="nr of active EVs after #muComb removal ; nr",
+                             xbins=10, xmin=0, xmax=10)
+        self.defineHistogram('NrOverlapped',type='TH1F', path='EXPERT', title="nr of #muComb overlapped; nr",
+                             xbins=10, xmin=0, xmax=10)
+        self.defineHistogram('OverlappedEta , OverlappedPhi', type='TH2F', path='EXPERT', title="#muComb overlapped Eta vs Phi; Eta; Phi",
+                             xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15)
+        self.defineHistogram('OverlappedPt', type='TH1F', path='EXPERT', title="#muComb overlapped P_{T}; P_{T} (GeV)",
+                             xbins=200, xmin=-100, xmax=100)
+
 
 class TrigMuisoHypoMonitoring(GenericMonitoringTool):
 

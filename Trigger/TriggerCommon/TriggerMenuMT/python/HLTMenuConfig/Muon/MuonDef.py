@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muCombSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence
 
 
 
@@ -21,8 +21,14 @@ from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, m
 def muFastSequenceCfg(flags):
     return muFastSequence()
 
+def muFastOvlpRmSequenceCfg(flags):
+    return muFastOvlpRmSequence()
+
 def muCombSequenceCfg(flags):
     return muCombSequence()
+
+def muCombOvlpRmSequenceCfg(flags):
+    return muCombOvlpRmSequence()
 
 def muEFMSSequenceCfg(flags):
     return muEFMSSequence()
@@ -54,6 +60,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
+
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
@@ -101,11 +108,37 @@ class MuonChainConfiguration(ChainConfigurationBase):
         
     # --------------------
     def getmuFast(self):
-        return self.getStep(1,"mufast", [muFastSequenceCfg] )
+        doOvlpRm = False
+        if "bTau" in self.chainName or "bJpsi" in self.chainName or "bUpsi" in self.chainName or "bDimu" in self.chainName or "bBmu" in self.chainName:
+           doOvlpRm = False
+        elif self.mult>1:
+           doOvlpRm = True
+        elif len( self.dict['signatures'] )>1 and not self.chainPart['extra']:
+           doOvlpRm = True
+        else:
+           doOvlpRm = False
+
+        if doOvlpRm:
+           return self.getStep(1,"mufast", [muFastOvlpRmSequenceCfg] )
+        else:
+           return self.getStep(1,"mufast", [muFastSequenceCfg] )
          
     # --------------------
     def getmuComb(self):
-        return self.getStep(2, 'muComb', [muCombSequenceCfg] )
+        doOvlpRm = False
+        if "bTau" in self.chainName or "bJpsi" in self.chainName or "bUpsi" in self.chainName or "bDimu" in self.chainName or "bBmu" in self.chainName:
+           doOvlpRm = False
+        elif self.mult>1:
+           doOvlpRm = True
+        elif len( self.dict['signatures'] )>1 and not self.chainPart['extra']:
+           doOvlpRm = True
+        else:
+           doOvlpRm = False
+
+        if doOvlpRm:
+           return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg] )
+        else:
+           return self.getStep(2, 'muComb', [muCombSequenceCfg] )
 
     # --------------------
     def getmuEFSA(self):

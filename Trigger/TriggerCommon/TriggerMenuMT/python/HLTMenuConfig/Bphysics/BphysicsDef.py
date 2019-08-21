@@ -35,7 +35,7 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-        
+       
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------

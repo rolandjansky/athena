@@ -183,7 +183,6 @@ class HypoAlgNode(AlgNode):
                                                                                  ' '.join(map(str, self.tools)))
 
 
-
 class SequenceFilterNode(AlgNode):
     """Node for any kind of sequence filter"""
     def __init__(self, Alg, inputProp, outputProp):
@@ -274,26 +273,48 @@ class MenuSequence(object):
     """ Class to group reco sequences with the Hypo"""
     def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA=None ):
         assert Maker.name().startswith("IM"), "The input maker {} name needs to start with letter: IM".format(Maker.name())
-        self.name = CFNaming.menuSequenceName(Hypo.name())
         self.sequence     = Node( Alg=Sequence)
         self._maker       = InputMakerNode( Alg = Maker )
-        self.hypoToolConf = HypoToolConf( HypoToolGen )
-        self._hypo        = HypoAlgNode( Alg = Hypo )
         self.inputs=[]
         self.outputs=[]
         self.seed=''
         self.reuse = False # flag to draw dot diagrmas
         self.ca = CA
 
+        if type(Hypo) is list:
+           self.name=[]
+           self.hypoToolConf=[]
+           self._hypo=[]
+           for hp, hptool in zip(Hypo, HypoToolGen):
+              self.name.append( CFNaming.menuSequenceName(hp.name()) )
+              self.hypoToolConf.append( HypoToolConf( hptool ) )
+              self._hypo.append( HypoAlgNode( Alg = hp ) )
+        else:
+           self.name = CFNaming.menuSequenceName(Hypo.name())
+           self.hypoToolConf = HypoToolConf( HypoToolGen )
+           self._hypo = HypoAlgNode( Alg = Hypo )
+
 
 
     def replaceHypoForCombo(self, HypoAlg):
-        log.debug("set new Hypo %s for combo sequence %s ", HypoAlg.name(), self.name)
-        self._hypo = HypoAlgNode( Alg=HypoAlg )
+        if type(HypoAlg) is list and type(self.name) is list:
+           self._hypo=[]
+           for hp, Name in zip(HypoAlg, self.name): 
+              log.debug("set new Hypo %s for combo sequence %s ", hp.name(), Name)
+              self._hypo.append( HypoAlgNode( Alg=hp ) )
+        else:
+           log.debug("set new Hypo %s for combo sequence %s ", HypoAlg.name(), self.name)
+           self._hypo = HypoAlgNode( Alg=HypoAlg )
 
     def replaceHypoForDuplication(self, HypoAlg):
-        log.debug("set new Hypo %s for duplicated sequence %s, resetting decisions ", HypoAlg.name(), self.name)        
-        self._hypo = HypoAlgNode( Alg=HypoAlg )
+        if type(HypoAlg) is list:
+           self._hypo = []
+           for hp, Name in zip(HypoAlg, self.name):
+              log.debug("set new Hypo %s for duplicated sequence %s, resetting decisions ", hp.name(), Name)        
+              self._hypo.append( HypoAlgNode( Alg=hp ) )
+        else:
+           log.debug("set new Hypo %s for duplicated sequence %s, resetting decisions ", HypoAlg.name(), self.name)        
+           self._hypo = HypoAlgNode( Alg=HypoAlg )
         # do we need this?
         #       self._hypo.resetInput()
         #       self._hypo.resetOutput()
@@ -327,27 +348,58 @@ class MenuSequence(object):
         self.maker.addOutput(input_maker_output)
 
         #### Add input/output Decision to Hypo
-        self.hypo.setPreviousDecision( input_maker_output)
-        hypo_output = CFNaming.hypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
-        if len(self.hypo.getOutputList()):
-            log.error("Hypo " + self.hypo.name() +" has already an output configured: you may want to duplicate the Hypo!")
-        self.hypo.addOutput(hypo_output)
+        if type(self._hypo) is list:
+           hypo_input_total=[]
+           hypo_output_total=[]
+           hypo_input = input_maker_output
+           for hp in self._hypo:
+              hypo_input_total.append(hypo_input)
+              hp.setPreviousDecision(hypo_input)
+              hypo_output = CFNaming.hypoAlgOutName(hp.Alg.name(), hypo_input)
+              if len(hp.getOutputList()):
+                  log.error("Hypo " + hp.name() +" has already an output configured: you may want to duplicate the Hypo!")
+              hp.addOutput(hypo_output)
+              hypo_output_total.append(hypo_output)
+              hypo_input = hypo_output
+        else:
+           self.hypo.setPreviousDecision( input_maker_output)
+           hypo_output = CFNaming.hypoAlgOutName(self.hypo.Alg.name(), input_maker_output)
+           if len(self.hypo.getOutputList()):
+               log.error("Hypo " + self.hypo.name() +" has already an output configured: you may want to duplicate the Hypo!")
+           self.hypo.addOutput(hypo_output)
 
         # needed for drawing
         self.inputs.append(outfilter)
         self.outputs.append(hypo_output)
 
+        log.debug("MenuSequence.connectToFilter: connecting InputMaker and HypoAlg and OverlapRemoverAlg, adding: \n\
+        InputMaker::%s.output=%s",\
+                        self.maker.Alg.name(), input_maker_output)
+        if type(self._hypo) is list:
+           for hp, hp_in, hp_out in zip( self._hypo, hypo_input_total, hypo_output_total):
+              log.debug("HypoAlg::%s.previousDecision=%s, \n\
+                         HypoAlg::%s.output=%s",\
+                              hp.Alg.name(), hp_in, hp.Alg.name(), hp_out)
+        else:
+           log.debug("HypoAlg::%s.previousDecision=%s, \n\
+                      HypoAlg::%s.output=%s",\
+                           self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(), hypo_output)
 
-        log.debug("MenuSequence.connectToFilter: connecting InputMaker and HypoAlg, adding: \n\
-        InputMaker::%s.output=%s, \n\
-        HypoAlg::%s.previousDecision=%s, \n\
-        HypoAlg::%s.output=%s",\
-                self.maker.Alg.name(), input_maker_output, self.hypo.Alg.name(), input_maker_output, self.hypo.Alg.name(), hypo_output )
 
     def __repr__(self):
-        hypotool = self.hypoToolConf.name 
-        return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s\n"\
-        %(self.name, self.hypo.Alg.name(), self.maker.Alg.name(), self.sequence.Alg.name(), hypotool)
+        if type(self._hypo) is list:
+           hyponame=[]
+           hypotool=[]
+           for hp, hptool in zip(self._hypo, self.hypoToolConf):
+              hyponame.append( hp.Alg.name() )
+              hypotool.append( hptool.name )
+           return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s"\
+           %(self.name, hyponame, self.maker.Alg.name(), self.sequence.Alg.name(), hypotool)
+        else:
+           hyponame = self._hypo.Alg.name()
+           hypotool = self.hypoToolConf.name 
+           return "MenuSequence::%s \n Hypo::%s \n Maker::%s \n Sequence::%s \n HypoTool::%s\n"\
+           %(self.name, hyponame, self.maker.Alg.name(), self.sequence.Alg.name(), hypotool)
 
 
 
@@ -427,8 +479,13 @@ class Chain(object):
                 onePartChainDict = copy.deepcopy( chainDict )
                 onePartChainDict['chainParts'] = [ chainDictPart ]
 
-                seq.hypoToolConf.setConf( onePartChainDict )
-                seq.hypo.addHypoTool(seq.hypoToolConf) #this creates the HypoTools
+                if type(seq.hypoToolConf) is list:
+                   for hp, hptoolConf in zip( seq.hypo, seq.hypoToolConf ):
+                      hptoolConf.setConf( onePartChainDict )
+                      hp.addHypoTool(hptoolConf) #this creates tge HypoTools
+                else:
+                   seq.hypoToolConf.setConf( onePartChainDict )
+                   seq.hypo.addHypoTool(seq.hypoToolConf) #this creates the HypoTools
 
                 
     def __repr__(self):
@@ -496,7 +553,10 @@ class CFSequence(object):
             seq.outputs=[]
 
         for seq in self.step.sequences:
-            combo_input=seq.hypo.getOutputList()[0]
+            if type(seq.hypo) is list:
+               combo_input=seq.hypo[1].getOutputList()[0]
+            else:
+               combo_input=seq.hypo.getOutputList()[0]
             self.step.combo.addInput(combo_input)
             log.debug("Adding inputs %s to combo %s", combo_input, self.step.combo.Alg.name())
             # inputs are the output decisions of the hypos of the sequences
@@ -535,17 +595,35 @@ class ChainStep(object):
         self.combo = ComboMaker(CFNaming.comboHypoName(self.name))
         duplicatedHypos = []
         for sequence in Sequences:
-            oldhypo=sequence.hypo.Alg            
-            duplicatedHypos.append(oldhypo.name())
-            ncopy=duplicatedHypos.count(oldhypo.name())
+            if type(sequence.hypo) is list:
+               new_hypoAlg = []
+               NewHypoAlgName = []
+               for hp in sequence.hypo:
+                  oldhypo=hp.Alg
+                  duplicatedHypos.append(oldhypo.name())
+                  ncopy=duplicatedHypos.count(oldhypo.name())
+   
+                  new_sequence=copy.deepcopy(sequence)
+                  new_sequence.name = CFNaming.comboSequenceCopyName(sequence.name,ncopy, self.name)
+ 
+                  newHypoAlgName = CFNaming.comboHypoCopyName(oldhypo.name(),ncopy, self.name)
+                  new_hypoAlg.append( oldhypo.clone(newHypoAlgName) ) # need to reset decisions?
+                  NewHypoAlgName.append( newHypoAlgName )
+               new_sequence.replaceHypoForCombo(new_hypoAlg)
+               self.sequences.append(new_sequence)
 
-            new_sequence=copy.deepcopy(sequence)
-            new_sequence.name = CFNaming.comboSequenceCopyName(sequence.name,ncopy, self.name)
+            else:
+               oldhypo=sequence.hypo.Alg
+               duplicatedHypos.append(oldhypo.name())
+               ncopy=duplicatedHypos.count(oldhypo.name())
 
-            newHypoAlgName = CFNaming.comboHypoCopyName(oldhypo.name(),ncopy, self.name)
-            new_hypoAlg=oldhypo.clone(newHypoAlgName) # need to reset decisions?
-            new_sequence.replaceHypoForCombo(new_hypoAlg)
-            self.sequences.append(new_sequence)
+               new_sequence=copy.deepcopy(sequence)
+               new_sequence.name = CFNaming.comboSequenceCopyName(sequence.name,ncopy, self.name)
+
+               newHypoAlgName = CFNaming.comboHypoCopyName(oldhypo.name(),ncopy, self.name)
+               new_hypoAlg=oldhypo.clone(newHypoAlgName) # need to reset decisions?
+               new_sequence.replaceHypoForCombo(new_hypoAlg)
+               self.sequences.append(new_sequence)
 
     def __repr__(self):
         return "--- ChainStep %s ---\n + isCombo: %d, multiplicity= %d \n +  %s \n "%(self.name, self.isCombo,self.multiplicity, ' '.join(map(str, self.sequences) ))
