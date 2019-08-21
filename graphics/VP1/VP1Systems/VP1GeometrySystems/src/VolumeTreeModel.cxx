@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1GeometrySystems/VolumeTreeModel.h"
@@ -111,30 +111,37 @@ VolumeTreeModel::VolumeTreeModel( QObject * parent )
   }
   if (Imp::subsysflag2section.empty()) {
     Imp::defineSubSystem(VP1GeoFlags::None,"None",Imp::UNKNOWN);
+    // Inner Detector
     Imp::defineSubSystem(VP1GeoFlags::Pixel,"Pixel",Imp::INDET);
     Imp::defineSubSystem(VP1GeoFlags::SCT,"SCT",Imp::INDET);
     Imp::defineSubSystem(VP1GeoFlags::TRT,"TRT",Imp::INDET);
     Imp::defineSubSystem(VP1GeoFlags::InDetServMat,"Services",Imp::INDET);
+    // Calorimeters
     Imp::defineSubSystem(VP1GeoFlags::LAr,"LAr",Imp::CALO);
     Imp::defineSubSystem(VP1GeoFlags::Tile,"Tile",Imp::CALO);
     //Toroids
     Imp::defineSubSystem(VP1GeoFlags::BarrelToroid,"Toroid Barrel",Imp::MUON);
     Imp::defineSubSystem(VP1GeoFlags::ToroidECA,"Toroid EndCap side A",Imp::MUON);
     Imp::defineSubSystem(VP1GeoFlags::ToroidECC,"Toroid EndCap side C",Imp::MUON);
+    // Structure
     Imp::defineSubSystem(VP1GeoFlags::MuonFeet,"Feets",Imp::MUON);
     Imp::defineSubSystem(VP1GeoFlags::MuonShielding,"Shields, etc.",Imp::MUON);
-    Imp::defineSubSystem(VP1GeoFlags::MuonNSW,"Muon NSW",Imp::MUON);
     Imp::defineSubSystem(VP1GeoFlags::MuonToroidsEtc,"Muon etc.",Imp::MUON);
+    // Muon chambers
     Imp::defineSubSystem(VP1GeoFlags::MuonBarrelStationInner,"Inner Barrel Stations",Imp::MUON);
     Imp::defineSubSystem(VP1GeoFlags::MuonBarrelStationMiddle,"Middle Barrel Stations",Imp::MUON);
     Imp::defineSubSystem(VP1GeoFlags::MuonBarrelStationOuter,"Outer Barrel Stations",Imp::MUON);
     Imp::defineSubSystem(VP1GeoFlags::MuonEndcapStationCSC,"Endcap CSC",Imp::MUON);
     Imp::defineSubSystem(VP1GeoFlags::MuonEndcapStationTGC,"Endcap TGC",Imp::MUON);
     Imp::defineSubSystem(VP1GeoFlags::MuonEndcapStationMDT,"Endcap MDT",Imp::MUON);
+    Imp::defineSubSystem(VP1GeoFlags::MuonEndcapStationNSW,"Endcap NSW",Imp::MUON);
+    // Beam Pipe
     Imp::defineSubSystem(VP1GeoFlags::BeamPipe,"Beam Pipe",Imp::MISC);
+    // FWD detectors
     Imp::defineSubSystem(VP1GeoFlags::LUCID,"LUCID",Imp::MISC);
     Imp::defineSubSystem(VP1GeoFlags::ZDC,"ZDC",Imp::MISC);
     Imp::defineSubSystem(VP1GeoFlags::ForwardRegion,"ForwardRegion",Imp::MISC);
+    // Cavern
     Imp::defineSubSystem(VP1GeoFlags::CavernInfra,"Cavern Infrastructure",Imp::MISC);
   }
 }

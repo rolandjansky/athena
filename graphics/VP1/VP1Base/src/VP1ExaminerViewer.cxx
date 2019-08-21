@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,7 @@
 //  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
 //  Initial version: March 2008                               //
 //                                                            //
-//  Updates:                                                  //
+//  Major updates:                                            //
 //  Sep 2013, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
 //  Sep 2017, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
 //                                                            //
