@@ -18,7 +18,7 @@ jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock(True)
 #Turn of TAG
 rec.doWriteTAG.set_Value_and_Lock(False)
 
-athenaCommonFlags.EvtMax=1
+athenaCommonFlags.EvtMax=10
 #Run pflopw jet finding - this cannot be enabled via reconstruction flags currently! (without enabling other things we don't want)
 UserAlgs = ["eflowRec/jetAlgs.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
