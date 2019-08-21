@@ -7,7 +7,6 @@ NAME:     egammaSelectedTrackCopy
 PACKAGE:  offline/Reconstruction/egamma/egammaAlgs/egammaSelectedTrackCopy
 AUTHORS:  Anastopoulos
 CREATED:  25/06/2018
-
 PURPOSE: Select track to be refitted later on with GSF
 UPDATE : 25/06/2018
 */
