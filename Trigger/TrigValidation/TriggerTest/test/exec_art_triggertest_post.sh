@@ -58,7 +58,7 @@ timeout 5m histSizes.py -t expert-monitoring.root >histSizes.log 2>&1
 ### CHAINDUMP
 
 echo $(date "+%FT%H:%M %Z")"     Running chainDump"
-timeout 5m chainDump.py -S --rootFile=expert-monitoring.root
+timeout 5m chainDump.py -f expert-monitoring.root --json >ChainDump.log 2>&1
 
 ### MAKE LOG TAIL FILE
 

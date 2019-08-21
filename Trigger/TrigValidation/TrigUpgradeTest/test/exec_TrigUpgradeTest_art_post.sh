@@ -137,8 +137,8 @@ fi
 
 # Using temporary workaround to dump HLTChain.txt
 if [ -f expert-monitoring.root ] && [ $[SKIP_CHAIN_DUMP] != 1 ]; then
-  echo "Running chainDumpWorkaround.sh"
-  chainDumpWorkaround.sh expert-monitoring.root
+  echo "Running chainDump"
+  timeout 5m chainDump.py -f expert-monitoring.root --json >ChainDump.log 2>&1
 fi
 
 ### CHECKFILE
