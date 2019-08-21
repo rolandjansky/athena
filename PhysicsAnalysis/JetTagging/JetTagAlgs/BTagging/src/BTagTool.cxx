@@ -138,8 +138,7 @@ namespace Analysis {
     ToolHandleArray< ITagTool >::iterator itTagTools = m_bTagToolHandleArray.begin();
     ToolHandleArray< ITagTool >::iterator itTagToolsEnd = m_bTagToolHandleArray.end();
     for (  ; itTagTools != itTagToolsEnd; ++itTagTools ) {
-      (*itTagTools)->setOrigin(primaryVertex);
-      sc = (*itTagTools)->tagJet(jetToTag, BTag);
+      sc = (*itTagTools)->tagJet(*primaryVertex, *jetToTag, *BTag);
       if (sc.isFailure()) {
         ATH_MSG_WARNING("#BTAG# failed tagger: " << (*itTagTools).typeAndName() );
       }
@@ -210,8 +209,7 @@ namespace Analysis {
       ToolHandleArray< ITagTool >::iterator itTagTools = m_bTagToolHandleArray.begin();
       ToolHandleArray< ITagTool >::iterator itTagToolsEnd = m_bTagToolHandleArray.end();
       for (  ; itTagTools != itTagToolsEnd; ++itTagTools ) {
-        (*itTagTools)->setOrigin(primaryVertex);
-        StatusCode sc = (*itTagTools)->tagJet(*jetIter, *btagIter);
+        StatusCode sc = (*itTagTools)->tagJet(*primaryVertex, **jetIter, **btagIter);
         if (sc.isFailure()) {
           ATH_MSG_WARNING("#BTAG# failed tagger: " << (*itTagTools).typeAndName() );
         }

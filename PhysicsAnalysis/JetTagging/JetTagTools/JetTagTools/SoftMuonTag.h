@@ -43,7 +43,7 @@ namespace Analysis
   class NewLikelihoodTool;
   class HistoHelperRoot;
 
-  class SoftMuonTag : public AthAlgTool, virtual public ITagTool
+  class SoftMuonTag : public extends<AthAlgTool, ITagTool>
   {
   public:
     SoftMuonTag(const std::string&,const std::string&,const IInterface*);
@@ -52,17 +52,16 @@ namespace Analysis
        Implementations of the methods defined in the abstract base class
     */
     virtual ~SoftMuonTag();
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
       
-    /** Set the primary vertex. TODO: This is temporary ! The primary vertex should
-	be part of the JetTag IParticle interface implementation. The trouble with
-	ElementLink and persistency has to be solved for that. Revisit ... */
-    void setOrigin(const xAOD::Vertex* priVtx);
+
+    virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag) const override;
       
-    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag);  
-      
-    void finalizeHistos();
+
+    virtual void finalizeHistos() override;
       
   private:
     /** ANDREA **/
@@ -160,11 +159,6 @@ namespace Analysis
     
     SG::ReadHandleKey<xAOD::TrackParticleContainer > m_TrackParticles {this, "TrackParticlesName", "InDetTrackParticles", "Input track particle container to find SV with a muon"};
 
-    /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
-    // this pointer does not need to be deleted in the destructor (because it
-    // points to something in storegate)
-    const xAOD::Vertex* m_priVtx = 0;
-
     /** just print some info at the beginning */
     void printParameterSettings();
 
@@ -190,7 +184,6 @@ namespace Analysis
    
   }; // End class
  
-  inline void SoftMuonTag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 } // End namespace
 
 #endif

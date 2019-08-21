@@ -25,17 +25,19 @@
 namespace Analysis
 {  
   
-  class MultiSVTag : public AthAlgTool , virtual public ITagTool
+  class MultiSVTag : public extends<AthAlgTool, ITagTool>
     {
     public:
       MultiSVTag(const std::string&,const std::string&,const IInterface*);
       virtual ~MultiSVTag();
-      StatusCode initialize();
-      StatusCode finalize();      
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
 
-      StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag);
-      void setOrigin(const xAOD::Vertex* priVtx);
-      void finalizeHistos();
+      virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                                const xAOD::Jet& jetToTag,
+                                xAOD::BTagging& BTag) const override;
+
+      virtual void finalizeHistos() override;
       
     private:      
       std::string m_taggerName; 
@@ -50,7 +52,6 @@ namespace Analysis
       //
       std::string m_runModus; 
       std::string m_refType;
-      const xAOD::Vertex* m_priVtx = 0;
    
       int  m_warnCounter;
     
@@ -103,8 +104,6 @@ namespace Analysis
       double GetClassResponse (MVAUtils::BDT* bdt) const { return (bdt->GetPointers().size() ? bdt->GetGradBoostMVA(bdt->GetPointers()) : -9.); }
     }; // End class
 
-
-  inline void MultiSVTag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 
 } // End namespace 
 

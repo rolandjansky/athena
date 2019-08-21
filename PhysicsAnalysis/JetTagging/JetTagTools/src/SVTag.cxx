@@ -28,13 +28,12 @@ namespace Analysis
 {
 
   SVTag::SVTag(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_likelihoodTool("Analysis::NewLikelihoodTool", this),
       m_histoHelper(0),
       m_secVxFinderName("SV1"),
       m_isFlipped(false)
   {
-    declareInterface<ITagTool>(this);
     declareProperty("Runmodus",       m_runModus= "reference");
     declareProperty("referenceType",  m_refType = "ALL");
     declareProperty("jetPtMinRef",    m_pTjetmin = 15.*Gaudi::Units::GeV);
@@ -164,15 +163,18 @@ namespace Analysis
     return StatusCode::SUCCESS;
   }
 
-  StatusCode SVTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
+  StatusCode SVTag::tagJet(const xAOD::Vertex& priVtx,
+                           const xAOD::Jet& jetToTag,
+                           xAOD::BTagging& BTag) const
+  {
 
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
     /* The jet */
-    double jeteta = jetToTag->eta(), jetphi = jetToTag->phi(), jetpt = jetToTag->pt();
+    double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
     ATH_MSG_VERBOSE("#BTAG# Jet properties : eta = " << jeteta
 		    << " phi = " << jetphi << " pT  = " <<jetpt/m_c_mom);
 
@@ -194,15 +196,15 @@ namespace Analysis
     bool status = true;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
     // don't check the following status
-    BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", myVertices);
-      // BTag->auxdata<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName+"_vertices");
+    BTag.variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", myVertices);
+      // BTag.auxdata<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName+"_vertices");
         
     if (myVertices.size()>0) {
 
-      status &= BTag->variable<float>(m_secVxFinderName, "masssvx", ambtot);// mass in MeV
+      status &= BTag.variable<float>(m_secVxFinderName, "masssvx", ambtot);// mass in MeV
       ambtot/=m_c_mom;
-      status &= BTag->variable<float>(m_secVxFinderName, "efracsvx", xratio);
-      status &= BTag->variable<int>(m_secVxFinderName, "N2Tpair", NSVPair);
+      status &= BTag.variable<float>(m_secVxFinderName, "efracsvx", xratio);
+      status &= BTag.variable<int>(m_secVxFinderName, "N2Tpair", NSVPair);
 
       if (!status) {
         ATH_MSG_WARNING("Error retrieving variables for SV finder name " << m_secVxFinderName << ", result will be incorrect!");
@@ -215,8 +217,8 @@ namespace Analysis
 	const xAOD::Vertex* firstVertex = *(myVertices[0]);
 	
 	//FIXME ugly hack to get a Amg::Vector3D out of a CLHEP::HepLorentzVector
-	Amg::Vector3D jetDir(jetToTag->p4().Px(),jetToTag->p4().Py(),jetToTag->p4().Pz());
-	const Amg::Vector3D PVposition = m_priVtx->position();
+	Amg::Vector3D jetDir(jetToTag.p4().Px(),jetToTag.p4().Py(),jetToTag.p4().Pz());
+	const Amg::Vector3D PVposition = priVtx.position();
 	const Amg::Vector3D position = firstVertex->position();
 	Amg::Vector3D PvSvDir( position.x() - PVposition.x(),
 			       position.y() - PVposition.y(),
@@ -247,13 +249,8 @@ namespace Analysis
       
       if (myVertices[0].isValid()) {
 	const xAOD::Vertex* myVert  = *myVertices[0];
-	if (m_priVtx) {
-	  distnrm=get3DSignificance(m_priVtx, vecVertices,
-				    Amg::Vector3D(jetToTag->p4().Px(),jetToTag->p4().Py(),jetToTag->p4().Pz()));
-	} else {
-	  ATH_MSG_WARNING("#BTAG# Tagging requested, but no primary vertex supplied.");
-	  distnrm=0.;
-	}
+        distnrm=get3DSignificance(priVtx, vecVertices,
+                                  Amg::Vector3D(jetToTag.p4().Px(),jetToTag.p4().Py(),jetToTag.p4().Pz()));
 	ATH_MSG_VERBOSE("#BTAG# SVX x = " << myVert->position().x() << " y = " << myVert->position().y() << " z = " << myVert->position().z());
       } else {
 	ATH_MSG_VERBOSE("#BTAG# No vertex. Cannot calculate normalized distance.");
@@ -286,24 +283,24 @@ namespace Analysis
 
       if (m_xAODBaseName == "SV0") // just to be clear, specify enum explicitely
 	{
-	  BTag->setTaggerInfo(distnrm, xAOD::BTagInfo::SV0_normdist);
-	  BTag->setSV0_significance3D(distnrm);
+	  BTag.setTaggerInfo(distnrm, xAOD::BTagInfo::SV0_normdist);
+	  BTag.setSV0_significance3D(distnrm);
 	}
       else if (m_xAODBaseName == "SV1")
 	{
-	  BTag->setTaggerInfo(distnrm, xAOD::BTagInfo::SV1_normdist);
-	  BTag->setVariable<float>(m_xAODBaseName, "significance3d", distnrm);
-	  BTag->setVariable<float>(m_xAODBaseName, "deltaR", drJPVSV);
-	  BTag->setVariable<float>(m_xAODBaseName, "Lxy", Lxy);
-	  BTag->setVariable<float>(m_xAODBaseName, "L3d", L3d);
+	  BTag.setTaggerInfo(distnrm, xAOD::BTagInfo::SV1_normdist);
+	  BTag.setVariable<float>(m_xAODBaseName, "significance3d", distnrm);
+	  BTag.setVariable<float>(m_xAODBaseName, "deltaR", drJPVSV);
+	  BTag.setVariable<float>(m_xAODBaseName, "Lxy", Lxy);
+	  BTag.setVariable<float>(m_xAODBaseName, "L3d", L3d);
 	}
       else{
-	BTag->setVariable<float>(m_xAODBaseName, "normdist", distnrm);
+	BTag.setVariable<float>(m_xAODBaseName, "normdist", distnrm);
 	if (m_xAODBaseName.find("SV1")!=std::string::npos) {
-	  BTag->setVariable<float>(m_xAODBaseName, "significance3d", distnrm);
-	  BTag->setVariable<float>(m_xAODBaseName, "deltaR", drJPVSV);
-	  BTag->setVariable<float>(m_xAODBaseName, "Lxy", Lxy);
-	  BTag->setVariable<float>(m_xAODBaseName, "L3d", L3d);
+	  BTag.setVariable<float>(m_xAODBaseName, "significance3d", distnrm);
+	  BTag.setVariable<float>(m_xAODBaseName, "deltaR", drJPVSV);
+	  BTag.setVariable<float>(m_xAODBaseName, "Lxy", Lxy);
+	  BTag.setVariable<float>(m_xAODBaseName, "L3d", L3d);
 	}
       }
 
@@ -316,17 +313,17 @@ namespace Analysis
     if (m_SVmode != "SV0" ) {
       float ambtotp = ambtot > 0. ? ambtot/(1.+ambtot): 0.;
       float xratiop = xratio > 0. ? (float)pow(xratio,m_expos) : 0.;
-      float trfJetPt=log(jetToTag->pt()/20000.); if(trfJetPt<0.)trfJetPt=0.01; if(trfJetPt>4.8)trfJetPt=4.79;
+      float trfJetPt=log(jetToTag.pt()/20000.); if(trfJetPt<0.)trfJetPt=0.01; if(trfJetPt>4.8)trfJetPt=4.79;
       std::string pref = "";
       if (m_runModus=="reference") {
 	if (jetpt >= m_pTjetmin && fabs(jeteta) <= 2.5) {
-	  int label = xAOD::jetFlavourLabel(jetToTag);
+	  int label = xAOD::jetFlavourLabel(&jetToTag);
 	  double deltaRtoClosestB = 999.;//, deltaRtoClosestC = 999.;
-	  if (jetToTag->getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
+	  if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
 	    ATH_MSG_VERBOSE("#BTAG# label found : " << label);
 	    // for purification: require no b or c quark closer than dR=m_purificationDeltaR
 	    double deltaRtoClosestC;
-	    jetToTag->getAttribute("TruthLabelDeltaR_C", deltaRtoClosestC);//mcTrueInfo->deltaRMinTo("C");
+	    jetToTag.getAttribute("TruthLabelDeltaR_C", deltaRtoClosestC);//mcTrueInfo->deltaRMinTo("C");
 	    double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
 
 	    if ( (    "B"==m_refType &&   5==label ) ||  // b-jets    
@@ -449,18 +446,18 @@ namespace Analysis
 	  }
 	}
 
-	BTag->setVariable<double>(m_xAODBaseName, "pb", probi[0]);
-	BTag->setVariable<double>(m_xAODBaseName, "pu", probi[1]);
-	if (m_useCHypo) BTag->setVariable<double>(m_xAODBaseName, "pc", probi[2]);
+	BTag.setVariable<double>(m_xAODBaseName, "pb", probi[0]);
+	BTag.setVariable<double>(m_xAODBaseName, "pu", probi[1]);
+	if (m_useCHypo) BTag.setVariable<double>(m_xAODBaseName, "pc", probi[2]);
 	
       }
 
       /* For SV0, put the signed 3D Lxy significance: */
     } else {
       ATH_MSG_VERBOSE("#BTAG# SV0 Lxy3D significance = " << distnrm);
-      BTag->setVariable<double>(m_xAODBaseName, "pb", exp(distnrm));
-      BTag->setVariable<double>(m_xAODBaseName, "pu", 1);
-      if (m_useCHypo) BTag->setVariable<double>(m_xAODBaseName, "pc", 1);
+      BTag.setVariable<double>(m_xAODBaseName, "pb", exp(distnrm));
+      BTag.setVariable<double>(m_xAODBaseName, "pu", 1);
+      if (m_useCHypo) BTag.setVariable<double>(m_xAODBaseName, "pc", 1);
     }
 
     ATH_MSG_VERBOSE("#BTAG# SVTag Finalizing... ");
@@ -478,7 +475,7 @@ namespace Analysis
     if (m_runModus == "reference") ATH_MSG_INFO("#BTAG# Preparing "<< m_refType<< "-jet probability density functions...");
   }
 
-  double SVTag::get3DSignificance(const xAOD::Vertex* priVertex,
+  double SVTag::get3DSignificance(const xAOD::Vertex& priVertex,
 				  std::vector<const xAOD::Vertex*>& secVertex,
 				  const Amg::Vector3D jetDirection) const {
   // double SVTag::get3DSignificance(const Trk::RecVertex & priVertex,
@@ -543,15 +540,15 @@ namespace Analysis
 
     // add the mean covariance matrix of the secondary vertices to that of the primary vertex
     // this is the covariance matrix for the decay length
-    AmgSymMatrix(3) covariance = meanCovariance + priVertex->covariancePosition();
+    AmgSymMatrix(3) covariance = meanCovariance + priVertex.covariancePosition();
     
     // ********
     // Calculate the signed decay length significance
     // ********
 
-    double Lx = meanPosition[0]-priVertex->position().x();
-    double Ly = meanPosition[1]-priVertex->position().y();
-    double Lz = meanPosition[2]-priVertex->position().z();
+    double Lx = meanPosition[0]-priVertex.position().x();
+    double Ly = meanPosition[1]-priVertex.position().y();
+    double Lz = meanPosition[2]-priVertex.position().z();
     
     const double decaylength = sqrt(Lx*Lx + Ly*Ly + Lz*Lz);
     const double inv_decaylength = 1. / decaylength;
