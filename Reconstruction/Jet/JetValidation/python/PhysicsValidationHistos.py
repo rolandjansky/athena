@@ -4,14 +4,14 @@ from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from PyUtils import AthFile
+from PyUtils.MetaReader import read_metadata
 
 
-af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0]) #opens the first file from the InputCollections list
-af.fileinfos #this is a dict of dicts, take a look at what's available! Below are some examples:
-isMC = 'IS_SIMULATION' in af.fileinfos['evt_type']
-beam_energy = af.fileinfos['beam_energy']
-conditions_tag = af.fileinfos['conditions_tag'] #useful for figuring out which mc production this is
+metadata = read_metadata(svcMgr.EventSelector.InputCollections[0]) #opens the first file from the InputCollections list
+# this is a dict of dicts, take a look at what's available! Below are some examples:
+isMC = 'IS_SIMULATION' in metadata['eventTypes']
+beam_energy = metadata['beam_energy']
+conditions_tag = metadata['IOVDbGlobalTag'] #useful for figuring out which mc production this is
 print "PhysicsValidationHistos: isMC=",isMC, " beam=",beam_energy," conditions_tag=",conditions_tag
 
 def commonPhysValTool(container, refcontainer="", onlyKinematics = False, globalSelection= ""):
