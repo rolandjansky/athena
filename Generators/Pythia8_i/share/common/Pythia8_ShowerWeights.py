@@ -13,7 +13,7 @@ if "PYTHIA8VER" in os.environ:
   verph8 = int(verph8str)
   print("verph8 ", verph8)
 else:
-  print("PYTHIA8VER not available !!! assuming version 2.40)
+  print("PYTHIA8VER not available !!! assuming version 2.40")
   verph8 = 240
 
 if (verph8 >= 226):
