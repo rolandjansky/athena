@@ -284,7 +284,7 @@ bool JetFtagEffPlots::apply(const top::Event& event) const {
     }
     float lepton_sf = m_sfRetriever->leptonSF(event,nominal);
 
-    if (m_doNominal) eventWeightNominal     = event.m_info->mcEventWeight()*jvt_sf*pu_weight*lepton_sf;
+    if (m_doNominal) eventWeightNominal     = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight")*jvt_sf*pu_weight*lepton_sf;
     if (m_doMuRup) eventWeightMuRup         = muRup*jvt_sf*pu_weight*lepton_sf;
     if (m_doMuRdown) eventWeightMuRdown     = muRdown*jvt_sf*pu_weight*lepton_sf;
     if (m_doMuFup) eventWeightMuFup         = muFup*jvt_sf*pu_weight*lepton_sf;

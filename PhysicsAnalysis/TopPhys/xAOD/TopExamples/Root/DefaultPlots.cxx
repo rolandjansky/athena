@@ -91,8 +91,8 @@ void fillPlots(const top::Event& topEvent, top::PlotManager& manager, double eve
     manager.hist("mu")->Fill(topEvent.m_info->averageInteractionsPerCrossing(), eventWeight);
 
     if (top::isSimulation(topEvent)) {
-//         manager.hist("mc_weight")->Fill(topEvent.m_info->mcEventWeight(), eventWeight);
-        manager.hist("mc_weight")->Fill(topEvent.m_truthEvent->at(0)->weights()[0], eventWeight);// FIXME temporary bugfix
+
+        manager.hist("mc_weight")->Fill(topEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight"));
 
         if (top::ScaleFactorRetriever::hasPileupSF(topEvent))
             manager.hist("pileup_weight")->Fill(top::ScaleFactorRetriever::pileupSF(topEvent), eventWeight);

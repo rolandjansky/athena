@@ -54,8 +54,7 @@ void LJetsAnalysis::event(const top::Event& topEvent) {
     double eventWeight = 1.;
     if (top::isSimulation(topEvent)) {
         m_mcChannelNumber = topEvent.m_info->mcChannelNumber();
-//         eventWeight = topEvent.m_info->mcEventWeight();
-        eventWeight = topEvent.m_truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+        eventWeight = topEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
     }
 
     //std::cout << topEvent << std::endl;
