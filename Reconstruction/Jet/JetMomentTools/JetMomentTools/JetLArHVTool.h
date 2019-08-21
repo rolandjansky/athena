@@ -36,9 +36,13 @@ public:
 
  private:
 
-  std::string m_jetContainerName;
-  SG::WriteDecorHandleKey<xAOD::JetContainer> m_fracKey;
-  SG::WriteDecorHandleKey<xAOD::JetContainer> m_nCellKey;
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "",
+      "SG key for the input jet container"};
+
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_fracKey{this, "EnergyFracDecorKey", "LArBadHVEnergyFrac",
+      "SG key for energy fraction decoration (not including jet container name)"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_nCellKey{this, "NCellDecorKey", "LArBadHVNCell",
+      "SG key for nCell decoration (not including jet container name)"};
 };
 
 #endif

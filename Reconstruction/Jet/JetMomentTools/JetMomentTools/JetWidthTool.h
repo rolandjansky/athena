@@ -39,9 +39,13 @@ public:
 
 private:
 
-  std::string m_jetContainerName;
-  SG::WriteDecorHandleKey<xAOD::JetContainer> m_widthKey;
-  SG::WriteDecorHandleKey<xAOD::JetContainer> m_widthPhiKey;
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "",
+      "SG key for the input jet container"};
+
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_widthKey{this, "WidthKey", "Width",
+      "SG key for width decoration (not including jet container name)"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_widthPhiKey{this, "WidthPhiKey", "WidthPhi",
+      "SG key for width phi decoration (not including jet container name)"};
 };
 
 #endif

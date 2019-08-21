@@ -12,12 +12,10 @@ JetLArHVTool::JetLArHVTool(const std::string& name)
   : asg::AsgTool(name)
 {
   declareInterface<IJetDecorator>(this);
-  declareProperty("JetContainer", m_jetContainerName);
 
-  // These generally shouldn't be configured by the user, unless they really
-  // know what they're doing.
-  declareProperty("EnergyFracDecorKey", m_fracKey = m_jetContainerName + ".LArBadHVEnergyFrac");
-  declareProperty("NCellDecorKey", m_nCellKey = m_jetContainerName + ".LArBadHVNCell");
+  // Prepend jet container name
+  m_fracKey = m_jetContainerName + "." + m_fracKey.key();
+  m_nCellKey = m_jetContainerName + "." + m_nCellKey.key();
 }
 
 

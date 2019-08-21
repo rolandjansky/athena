@@ -46,23 +46,22 @@ public:
   virtual StatusCode initialize();
 
  protected:
-  /// Names of calo quantities to compute and to add as attributes
-  std::vector<std::string> m_calculationNames;  
 
-  /// Time cuts for Out-of-time calo quantities.
-  std::vector <double> m_timingTimeCuts;
+  Gaudi::Property<std::vector<std::string> > m_calculationNames{this, "Calculations", {},
+      "Name of calo quantities to compute and add as decorations"};
+  Gaudi::Property<std::vector<double> > m_timingTimeCuts{this, "TimingCuts", {},
+      "Time cuts for out-of-time calo quantities"};
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "",
+      "SG key of input jet container"};
+
+  SG::WriteDecorHandleKeyArray<xAOD::JetContainer> m_writeDecorKeys{this, "OutputDecorKeys", {},
+      "SG keys for output decorations (not to be configured manually!)"};
 
   /// This objects holds a list of cluster-based calculators  
   jet::JetCaloCalculations m_jetCalculations;
 
   // internal pointer to m_jetCalculations (this pointer is also used in the cell-based derived tool)
   jet::JetCaloCalculations * m_calcProcessor;
-
-  /// SG key for the jet container this tool will decorate.
-  std::string m_jetContainerName;
-
-  // internal vector to manage WriteDecorHandleKeys
-  SG::WriteDecorHandleKeyArray<xAOD::JetContainer> m_writeDecorKeys;
 
   bool m_doFracSamplingMax; // internal			     
 };

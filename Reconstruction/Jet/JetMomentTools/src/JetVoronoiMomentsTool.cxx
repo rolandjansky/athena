@@ -21,25 +21,16 @@ using JetVoronoiDiagramHelpers::Diagram;
 
 JetVoronoiMomentsTool::JetVoronoiMomentsTool(const std::string& name)
     : asg::AsgTool(name)
-    , m_x_min(-10.)
-    , m_x_max( 10.)
-    , m_y_min(-4. )
-    , m_y_max( 4. )
 {
     declareInterface<IJetDecorator>(this);
-    declareProperty("AreaXmin",m_x_min);
-    declareProperty("AreaXmax",m_x_max);
-    declareProperty("AreaYmin",m_y_min);
-    declareProperty("AreaYmax",m_y_max);
-    declareProperty("JetContainer", m_jetContainerName);
 
-    // Generally shouldn't be configured by the user, unless they know what they're doing
-    declareProperty("VoronoiAreaDecorKey", m_voronoiAreaKey = m_jetContainerName + ".VoronoiArea");
+    // Prepend jet collection name
+    m_voronoiAreaKey = m_jetContainerName + "." + m_voronoiAreaKey.key();
 }
 
 StatusCode JetVoronoiMomentsTool::initialize() {
 
-  if(m_voronoiAreaKey.key().at(0) == '.'){
+  if(m_jetContainerName.empty()){
     ATH_MSG_ERROR("JetVoronoiMomentsTool needs to have its input jet container name configured!");
     return StatusCode::FAILURE;
   }

@@ -43,14 +43,19 @@ public:
 private:
 
   // parameters
-  float m_x_min;
-  float m_x_max;
-  float m_y_min;
-  float m_y_max;
+  Gaudi::Property<float> m_x_min{this, "AreaXmin", -10,
+      "Minimum x-value for Voronoi diagram"};
+  Gaudi::Property<float> m_x_max{this, "AreaXmax", 10,
+      "Maximum x-value for Voronoi diagram"};
+  Gaudi::Property<float> m_y_min{this, "AreaYmin", -4,
+      "Minimum y-value for Voronoi diagram"};
+  Gaudi::Property<float> m_y_max{this, "AreaYmax", 4,
+      "Maximum y-value for Voronoi diagram"};
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "",
+      "SG key for the input jet container"};
 
-  std::string m_jetContainerName;
-  SG::WriteDecorHandleKey<xAOD::JetContainer> m_voronoiAreaKey;
-
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_voronoiAreaKey{this, "VoronoiAreaKey", "VoronoiArea",
+      "SG key for Voronoi area decoration (not including jet container name)"};
 };
 
 #endif

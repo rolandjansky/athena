@@ -20,14 +20,6 @@ JetCaloQualityTool::JetCaloQualityTool(const std::string& name)
   : asg::AsgTool(name)
 {
   declareInterface<IJetDecorator>(this);
-
-  declareProperty("TimingCuts", m_timingTimeCuts);
-  declareProperty("Calculations", m_calculationNames);
-  declareProperty("JetContainer", m_jetContainerName);
-
-  // This is only a property so it can communicate dependencies to the
-  // scheduler. User should not configure it.
-  declareProperty("OutputDecorKeys", m_writeDecorKeys);
 } 
 
 
