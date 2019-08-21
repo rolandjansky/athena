@@ -41,7 +41,7 @@ namespace Analysis {
 
 //  class ParticleToJetAssociator;  
 
-  class JetVertexCharge : public AthAlgTool, virtual public ITagTool
+  class JetVertexCharge : public extends<AthAlgTool, ITagTool>
   {
 
     public:
@@ -51,14 +51,15 @@ namespace Analysis {
 
     virtual ~JetVertexCharge();  
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
-    void setOrigin( const xAOD::Vertex*); 
-    void finalizeHistos(); 
-    
+    virtual void finalizeHistos() override;
 
-    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag); 
+
+    virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag) const override;
 
 
   private:
@@ -71,7 +72,6 @@ namespace Analysis {
    SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
    ToolHandle<CP::IMuonSelectionTool> m_muonSelectorTool;
    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCorrectionTool;
-   const xAOD::Vertex *m_primVtx = 0; 
 
 
    enum MVAcat {
@@ -167,7 +167,8 @@ namespace Analysis {
 //      methods
 //------------------------------------------------------------------------
 
-   bool passTrackCuts( const xAOD::TrackParticle &track ) const; 
+   bool passTrackCuts( const xAOD::Vertex& priVtx,
+                       const xAOD::TrackParticle &track ) const; 
 
    float logLikelihoodRatio( int cat , float w, std::string author) const;
 
@@ -195,7 +196,6 @@ namespace Analysis {
 
 };//end class declaration
 
-  inline void JetVertexCharge::setOrigin(const xAOD::Vertex* vtx) { m_primVtx = vtx; }
   inline void JetVertexCharge::finalizeHistos( ) {  return; }
 
 

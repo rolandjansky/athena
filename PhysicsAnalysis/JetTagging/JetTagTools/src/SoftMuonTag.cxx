@@ -64,14 +64,13 @@ namespace Analysis
 {
 
   SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_trackToVertexIPEstimator(this),
       m_muonSelectorTool("JVC_MuonSelectorTool", this),
       m_likelihoodTool("Analysis::NewLikelihoodTool", this),
       m_SVmuonFinder("InDet::InDetSVWithMuonTool/findSVwithMuon", this),
       m_histoHelper(0)
   {
-    declareInterface<ITagTool>(this);
     /** ANDREA **/
     // which calibration folder to use
     declareProperty("taggerNameBase", m_taggerNameBase = "SMT");
@@ -277,17 +276,19 @@ namespace Analysis
   }
 
 
-  StatusCode SoftMuonTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
-
+  StatusCode SoftMuonTag::tagJet(const xAOD::Vertex& priVtx,
+                                 const xAOD::Jet& jetToTag,
+                                 xAOD::BTagging& BTag) const
+  {
     ATH_MSG_DEBUG( "#BTAG# Starting tagJet");
 
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
     /* The jet */
-    double jeteta = jetToTag->eta(), jetphi = jetToTag->phi(), jetpt = jetToTag->pt();
+    double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
     ATH_MSG_DEBUG( "#BTAG# Jet properties : eta = "<<jeteta
 		   <<" phi = "<<jetphi
 		   <<" pT  = "<<jetpt/1.e3 
@@ -382,7 +383,7 @@ namespace Analysis
     }
 
     std::vector<ElementLink<xAOD::MuonContainer> > assocMuons;
-    assocMuons= BTag->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_muonAssociationName);
+    assocMuons= BTag.auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_muonAssociationName);
     if ( assocMuons.size()==0 ) {
       ATH_MSG_DEBUG( "#BTAG# Found no associated muons to the jet");
       ///return StatusCode::SUCCESS; /// need to go untill the end to decorate
@@ -417,7 +418,7 @@ namespace Analysis
     
 
       // muon selection here:
-      float dR = jetToTag->p4().DeltaR(tmpMuon->p4());
+      float dR = jetToTag.p4().DeltaR(tmpMuon->p4());
       if(dR>=0.4) continue;
     
 
@@ -444,13 +445,13 @@ namespace Analysis
       tmpMuon->parameter(scatNeighSignif, xAOD::Muon::scatteringNeighbourSignificance);
       ATH_MSG_DEBUG("#BTAG# scatNeighSignif= "<< scatNeighSignif );
       TLorentzVector myjet, mymu;
-      myjet.SetPtEtaPhiM(jetToTag->pt(),jetToTag->eta(),jetToTag->phi(),0);
+      myjet.SetPtEtaPhiM(jetToTag.pt(),jetToTag.eta(),jetToTag.phi(),0);
       mymu.SetPtEtaPhiM(tmpMuon->pt(),tmpMuon->eta(),tmpMuon->phi(),0);
       float pTrel      =myjet.Vect().Perp(mymu.Vect()); // VD: everything MUST be in MeV
       float qOverPratio=(*pMuIDTrack)->qOverP()/(*pMuMSTrack)->qOverP();
     
       float d0 = tmpMuon->primaryTrackParticle()->d0();
-      float z0 = tmpMuon->primaryTrackParticle()->z0()+(tmpMuon->primaryTrackParticle()->vz())-(m_priVtx->z()) ;
+      float z0 = tmpMuon->primaryTrackParticle()->z0()+(tmpMuon->primaryTrackParticle()->vz())-(priVtx.z()) ;
 
       //Finding SV with a muon
       SG::ReadHandle<xAOD::TrackParticleContainer> h_TrackParticles (m_TrackParticles);
@@ -467,7 +468,7 @@ namespace Analysis
 	const xAOD::TrackParticle* trackParticle = ( *trackItr );
 	my_trkparticles.push_back(trackParticle);
       }
-      const xAOD::Vertex *SVtx = m_SVmuonFinder->findSVwithMuon(*m_priVtx,tmpMuon->primaryTrackParticle(),my_trkparticles);
+      const xAOD::Vertex *SVtx = m_SVmuonFinder->findSVwithMuon(priVtx,tmpMuon->primaryTrackParticle(),my_trkparticles);
       if(SVtx!=NULL) {
 	ATH_MSG_DEBUG("**********ANDREA: Found SV with muon!!!");
 	jet_mu_sv_mass        = xAOD::SecVtxHelper::VertexMass     (SVtx);
@@ -475,14 +476,14 @@ namespace Analysis
 	jet_mu_sv_ntrk        = xAOD::SecVtxHelper::VtxNtrk        (SVtx);
 	jet_mu_sv_VtxnormDist = xAOD::SecVtxHelper::VtxnormDist    (SVtx);
 	jet_mu_sv_ntrkVtx = SVtx->nTrackParticles();
-	const Amg::Vector3D PVposition = m_priVtx->position();
+	const Amg::Vector3D PVposition = priVtx.position();
 	const Amg::Vector3D position   = SVtx    ->position();
 	Amg::Vector3D PvSvDir( position.x() - PVposition.x(),
 			       position.y() - PVposition.y(),
 			       position.z() - PVposition.z() );
 	jet_mu_sv_Lxy=sqrt(pow(PvSvDir(0,0),2)+pow(PvSvDir(1,0),2));
 	jet_mu_sv_L3d=sqrt(pow(PvSvDir(0,0),2)+pow(PvSvDir(1,0),2)+pow(PvSvDir(2,0),2));
-	TVector3 jetDir;  jetDir .SetPtEtaPhi(jetToTag->pt(),jetToTag->eta(),jetToTag->phi());
+	TVector3 jetDir;  jetDir .SetPtEtaPhi(jetToTag.pt(),jetToTag.eta(),jetToTag.phi());
 	TVector3 PvSvDIR; PvSvDIR.SetXYZ(position.x() - PVposition.x(),position.y() - PVposition.y(),position.z() - PVposition.z());
 	jet_mu_sv_dR=deltaR(jetDir.Eta(),PvSvDIR.Eta(),jetDir.Phi(),PvSvDIR.Phi());
 	TLorentzVector tlv;
@@ -526,24 +527,24 @@ namespace Analysis
 
     // now decorate the b-tagging object
     std::string xAODBaseName="SMT";
-    BTag->setVariable<float>(xAODBaseName, "mu_pt"           , jet_mu_dRmin_pt);
-    BTag->setVariable<float>(xAODBaseName, "dR"              , jet_mu_dRmin_dR);
-    BTag->setVariable<float>(xAODBaseName, "qOverPratio"     , jet_mu_dRmin_qOverPratio);
-    BTag->setVariable<float>(xAODBaseName, "mombalsignif"    , jet_mu_dRmin_mombalsignif);
-    BTag->setVariable<float>(xAODBaseName, "scatneighsignif" , jet_mu_dRmin_scatneighsignif);
-    BTag->setVariable<float>(xAODBaseName, "pTrel"           , jet_mu_dRmin_pTrel);
-    BTag->setVariable<float>(xAODBaseName, "mu_d0"           , jet_mu_dRmin_d0);
-    BTag->setVariable<float>(xAODBaseName, "mu_z0"           , jet_mu_dRmin_z0);
-    BTag->setVariable<float>(xAODBaseName, "ID_qOverP"       , jet_mu_dRmin_ID_qOverP_var);
+    BTag.setVariable<float>(xAODBaseName, "mu_pt"           , jet_mu_dRmin_pt);
+    BTag.setVariable<float>(xAODBaseName, "dR"              , jet_mu_dRmin_dR);
+    BTag.setVariable<float>(xAODBaseName, "qOverPratio"     , jet_mu_dRmin_qOverPratio);
+    BTag.setVariable<float>(xAODBaseName, "mombalsignif"    , jet_mu_dRmin_mombalsignif);
+    BTag.setVariable<float>(xAODBaseName, "scatneighsignif" , jet_mu_dRmin_scatneighsignif);
+    BTag.setVariable<float>(xAODBaseName, "pTrel"           , jet_mu_dRmin_pTrel);
+    BTag.setVariable<float>(xAODBaseName, "mu_d0"           , jet_mu_dRmin_d0);
+    BTag.setVariable<float>(xAODBaseName, "mu_z0"           , jet_mu_dRmin_z0);
+    BTag.setVariable<float>(xAODBaseName, "ID_qOverP"       , jet_mu_dRmin_ID_qOverP_var);
   
     ElementLink<xAOD::MuonContainer> theLink; 
     if (muonIndex!=-1) theLink=assocMuons.at(muonIndex);
   
-    BTag->auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link")=theLink; 
+    BTag.auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link")=theLink; 
 
     // #2: Set necessary MVA-input variables
-    vars.m_pt     = jetToTag->pt();
-    vars.m_absEta = fabs(jetToTag->eta());
+    vars.m_pt     = jetToTag.pt();
+    vars.m_absEta = fabs(jetToTag.eta());
 
     /*** Retrieving soft muon variables ***/
     vars.m_sm_dR=jet_mu_dRmin_dR;
@@ -581,10 +582,10 @@ namespace Analysis
     // #4: Fill MVA output variable(s) into xAOD
     /** give information to the info class. */
     // Can be uncommented if SVMT evaluation wants to be checked (rather than SMT)
-    //if(inputVars.size()<10) BTag->setVariable<double>(xAODBaseName, "discriminant", smt);
-    //else            	  BTag->setVariable<double>("SVMT", "discriminant", smt);
-    BTag->setVariable<double>(xAODBaseName, "discriminant", smt);
-    BTag->setVariable<char>(xAODBaseName, "discriminantIsValid", true);
+    //if(inputVars.size()<10) BTag.setVariable<double>(xAODBaseName, "discriminant", smt);
+    //else            	  BTag.setVariable<double>("SVMT", "discriminant", smt);
+    BTag.setVariable<double>(xAODBaseName, "discriminant", smt);
+    BTag.setVariable<char>(xAODBaseName, "discriminantIsValid", true);
 
     /** ANDREA **/
 
