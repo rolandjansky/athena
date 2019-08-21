@@ -639,7 +639,7 @@ namespace CP {
       weight = m_hquark->GetBinContent(ptbin,ntrkbin);
     }//quarks
     else{
-      ATH_MSG_INFO("Neither quark nor gluon jet: setting weight to 1");
+      ATH_MSG_DEBUG("Neither quark nor gluon jet: setting weight to 1");
     }
 
     return StatusCode::SUCCESS;
