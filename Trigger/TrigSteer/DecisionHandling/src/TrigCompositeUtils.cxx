@@ -178,7 +178,10 @@ namespace TrigCompositeUtils {
     for (const std::string& key : keys) {
       // Get and check this container
       if ( key.find("HLTNav") != 0 ) {
-	continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNAV
+        continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
+      }
+      if ( key == "HLTNav_Summary" ) {
+        continue; //  This is where accepted paths start. We are looking for rejected ones
       }
       const DecisionContainer* container = nullptr;
       if ( eventStore->retrieve( container, key ).isFailure() ) {
@@ -187,10 +190,17 @@ namespace TrigCompositeUtils {
       for (const Decision* d : *container) {
         if (!d->hasObjectLink(featureString())) {
           // TODO add logic for ComboHypo where this is expected
-          continue;
+          continue; // Only want Decision objects created by HypoAlgs
         }
         const ElementLinkVector<DecisionContainer> mySeeds = d->objectCollectionLinks<DecisionContainer>(seedString());
         if (mySeeds.size() == 0) {
+          continue;
+        }
+        const bool allSeedsValid = std::all_of(mySeeds.begin(), mySeeds.end(), [](const ElementLink<DecisionContainer>& s) { return s.isValid(); });
+        if (!allSeedsValid) {
+          MsgStream(Athena::getMessageSvc(), "TrigCompositeUtils::getRejectedDecisionNodes") << MSG::WARNING
+            << "A Decision object in " << key << " has invalid seeds. "
+            << "The trigger navigation information is incomplete. Skipping this Decision object." << endmsg;
           continue;
         }
         DecisionIDContainer activeChainsIntoThisDecision;
