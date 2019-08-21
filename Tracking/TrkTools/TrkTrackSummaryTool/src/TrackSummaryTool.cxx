@@ -157,6 +157,13 @@ StatusCode
 
 const Trk::TrackSummary* Trk::TrackSummaryTool::createSummaryNoHoleSearch( const Track& track )  const
 {
+  // first check if track has summary already and then return a clone
+  // (remember the TrackSummaryTool is a factory!)
+  if (track.trackSummary()!=nullptr) {
+    ATH_MSG_DEBUG ("Return cached summary for author : "<<track.info().dumpInfo());
+    return new Trk::TrackSummary(*(track.trackSummary()));
+  }
+ 
   Trk::TrackSummary* ts= createSummary(track,false,false ).release();
   Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
   nonConstTrack.m_trackSummary = new Trk::TrackSummary(*ts);
@@ -166,6 +173,13 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummaryNoHoleSearch( const
 const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& track, 
                                                                bool onlyUpdateTrack ) const
 {
+  // first check if track has summary already and then return a clone
+  // (remember the TrackSummaryTool is a factory!)
+  if (track.trackSummary()!=nullptr) {
+    ATH_MSG_DEBUG ("Return cached summary for author : "<<track.info().dumpInfo());
+    return new Trk::TrackSummary(*(track.trackSummary()));
+  }
+ 
   Trk::TrackSummary* ts= createSummary(track,m_doHolesInDet, m_doHolesMuon ).release();
   Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
   if (onlyUpdateTrack) {
