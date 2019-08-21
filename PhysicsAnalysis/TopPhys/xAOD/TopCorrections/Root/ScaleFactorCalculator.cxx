@@ -183,8 +183,6 @@ float ScaleFactorCalculator::mcEventWeight() const {
   }
   ///-- If we reach here, no name was found, so use the old method --///
   ///-- If not, we can default to retrieving the nominal weight assuming it is in the 0th position --///
-  const xAOD::EventInfo* eventInfo(nullptr);
-  top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
   const xAOD::TruthEventContainer* truthEventContainer(nullptr);
   top::check( evtStore()->retrieve(truthEventContainer, m_config->sgKeyTruthEvent()) , "Failed to retrieve truth PDF info" );
     
