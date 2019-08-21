@@ -58,6 +58,7 @@ EventIDBase TrigSORFromPtreeHelper::eventID(const ptree& rparams) const
   auto t = OWLTime{(rparams.get_child("timeSOR").data()).c_str()};
 
   eid.set_run_number( rparams.get<unsigned int>("run_number") );
+  eid.set_lumi_block(0);  // our best guess as this is not part of RunParams
   eid.set_time_stamp( static_cast<EventIDBase::number_type>(t.c_time()) );
   eid.set_time_stamp_ns_offset( t.mksec()*1000 );
 
