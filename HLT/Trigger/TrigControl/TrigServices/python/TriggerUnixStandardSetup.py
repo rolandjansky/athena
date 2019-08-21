@@ -159,7 +159,7 @@ def setupCommonServicesEnd():
     if _Conf.useOnlineTHistSvc:
         svcMgr.THistSvc.Output = []
         if len(svcMgr.THistSvc.Input)>0:
-            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.' % svcMgr.THistSvc.Input)
+            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.', svcMgr.THistSvc.Input)
             svcMgr.THistSvc.Input = []
 
     # For offline running make sure at least the EXPERT stream is defined
