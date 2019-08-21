@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -437,7 +437,6 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulusPC
   int firstStrip = sct_ID->strip(firstStripId);
   int firstStripRow = sct_ID->row(firstStripId);
   int lastStrip = sct_ID->strip(lastStripId);
-  int lastStripRow = sct_ID->row(lastStripId);
   
   int clusterSizeFromId = lastStrip - firstStrip + 1;
 
@@ -459,7 +458,6 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulusPC
   bool isbroad=(m_option_errorStrategy==0) ? true : false;
 
   const InDet::SiWidth width = SC->width();
-  const Amg::Vector2D& colRow = width.colRow();
 
   InDetDD::SiCellId clusterStartLp = design->strip1Dim(firstStrip, firstStripRow);
 
@@ -482,7 +480,6 @@ const InDet::SCT_ClusterOnTrack* InDet::SCT_ClusterOnTrackTool::correctAnnulusPC
   
   // use track parameters' surface for loc to glob
   // that is the disc surface
-  const Trk::Surface* srf = &trackPar.associatedSurface();
   const Amg::Vector3D* glob_ptr = trackPar.associatedSurface().localToGlobal(locposPC);
 
   Amg::Vector3D glob = *glob_ptr;
