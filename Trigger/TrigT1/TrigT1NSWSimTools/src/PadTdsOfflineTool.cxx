@@ -123,28 +123,16 @@ namespace NSWL1 {
         std::string algo_name = pnamed->name();
 
         if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-            if(TTree *tree = get_tree_from_histsvc()){
-                m_validation_tree.init_tree(tree);
-            } else {
-                return STATUSCODE(StatusCode::FAILURE, IssueSeverity::FATAL, "cannot book requested output tree");
-            }
+         TTree *tree=nullptr;
+         ATH_CHECK( get_tree_from_histsvc(tree));
+          m_validation_tree.init_tree(tree);
         }           
         // retrieve the Incident Service
-        if( m_incidentSvc.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Incident Service successfully rertieved");
-        }
+        ATH_CHECK( m_incidentSvc.retrieve() );
         m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
         // retrieve the Random Service
-        if( m_rndmSvc.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Random Number Service successfully retrieved");
-        }
+        ATH_CHECK( m_rndmSvc.retrieve() );
 
         // retrieve the random engine
         m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
@@ -154,21 +142,9 @@ namespace NSWL1 {
         }
 
         //  retrieve the MuonDetectormanager
-        if( detStore()->retrieve( m_detManager ).isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
-        }
-
+        ATH_CHECK( detStore()->retrieve( m_detManager) );
         //  retrieve the sTGC offline Id helper
-        if( detStore()->retrieve( m_sTgcIdHelper ).isFailure() ){
-            ATH_MSG_FATAL("Failed to retrieve sTgcIdHelper");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
-        }
-
+        ATH_CHECK( detStore()->retrieve( m_sTgcIdHelper ));
         bool testGeometryAccess=false; // for now this is just an example DG-2014-07-11
         if(testGeometryAccess)
             printStgcGeometryFromAgdd();
@@ -254,9 +230,10 @@ namespace NSWL1 {
             return StatusCode::FAILURE;
         }
         // retrieve the current run number and event number
-        const EventInfo* pevt = 0;
-        StatusCode sc = evtStore()->retrieve(pevt);
-        if ( !sc.isSuccess() ) {
+        const DataHandle<EventInfo> pevt; 
+        StatusCode sc =evtStore()->retrieve(pevt) ;
+        
+        if ( ! (StatusCode::SUCCESS==evtStore()->retrieve(pevt) ) ) {
             ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current PAD cache" );
             m_pad_cache_runNumber   = -1;
             m_pad_cache_eventNumber = -1;
@@ -264,6 +241,10 @@ namespace NSWL1 {
             m_pad_cache_runNumber = pevt->event_ID()->run_number();
             m_pad_cache_eventNumber = pevt->event_ID()->event_number();
         }
+
+        m_pad_cache_runNumber = pevt->event_ID()->run_number();
+        m_pad_cache_eventNumber = pevt->event_ID()->event_number();
+
         if (m_pad_cache_status==CLEARED) {
             // renew the PAD cache if this is the next event
             m_pad_cache_status = fill_pad_cache();
@@ -349,6 +330,7 @@ namespace NSWL1 {
 
         store_pads(pad_hits);
         print_pad_cache();
+        //The other tools should have separated Ntuple filling from the actual trigger stuff at least like this here      
         if(m_doNtuple) this->fill_pad_validation_id();
         ATH_MSG_DEBUG( "fill_pad_cache: end of processing" );
         return OK;
@@ -438,21 +420,16 @@ namespace NSWL1 {
         return (stationEta>0)? trigger_sector + 16 : trigger_sector;
     }
     //------------------------------------------------------------------------------
-    TTree* PadTdsOfflineTool::get_tree_from_histsvc()
+    StatusCode PadTdsOfflineTool::get_tree_from_histsvc(TTree*& tree)
     {
-        TTree *tree=NULL;
-        ITHistSvc* tHistSvc=NULL;
+        ITHistSvc* tHistSvc=nullptr;
         m_validation_tree.clear_ntuple_variables();
-        if(service("THistSvc", tHistSvc).isFailure()) {
-            ATH_MSG_FATAL("Unable to retrieve THistSvc");
-        } else {         
-            std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
-            std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
-            if(tHistSvc->getTree(treename, tree).isFailure()) {            
-                ATH_MSG_FATAL(("Could not retrieve the analysis ntuple "+treename+" from the THistSvc").c_str());
-            }
-        }
-        return tree;
+        ATH_CHECK(service("THistSvc", tHistSvc));
+        std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
+        std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
+        ATH_CHECK(tHistSvc->getTree(treename, tree));
+
+        return StatusCode::SUCCESS;
     }
     //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::determine_delay_and_bc(const sTgcDigit* digit, const int &pad_hit_number,

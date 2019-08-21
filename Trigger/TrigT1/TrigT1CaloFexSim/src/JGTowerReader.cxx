@@ -1,11 +1,11 @@
-/*
- *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+/* *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigT1CaloFexSim includes
 #include "TrigT1CaloFexSim/JGTowerReader.h"
 #include "TrigT1CaloFexSim/JGTower.h"
 #include "TrigT1CaloFexSim/JetAlg.h"
+#include "TrigT1CaloFexSim/Objects.h"
 #include "TSystem.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TTree.h"
@@ -33,6 +33,11 @@
 #include "xAODTrigger/EnergySumRoIAuxInfo.h"
 #include "TFile.h"
 #include "PathResolver/PathResolver.h"
+#include "AthContainers/DataVector.h"
+#include "AthContainers/ConstDataVector.h"
+
+#include "CaloTriggerTool/GTowerSCMap.h"
+#include "CaloTriggerTool/JTowerSCMap.h"
 
 
 JGTowerReader::JGTowerReader( const std::string& name, ISvcLocator* pSvcLocator ) : 
@@ -87,6 +92,7 @@ histSvc("THistSvc",name){
   declareProperty("plotSeeds", m_plotSeeds = false);
   declareProperty("saveSeeds", m_saveSeeds = false);
 
+  declareProperty("buildgBlockJets", m_buildgBlockJets=false);
   declareProperty("gJet_seed_size", m_gJet_seed_size=0.2);
   declareProperty("gJet_max_r", m_gJet_max_r=1.0);  //gFEX constructs large radius jets
   declareProperty("gJet_r", m_gJet_r=1.0);
@@ -110,11 +116,14 @@ JGTowerReader::~JGTowerReader() {
   delete jJetSeeds;
   delete gSeeds;
   delete acc_rho;
+  delete acc_mht;
+  delete acc_mst;
 
   METAlg::m_METMap.clear();
   jL1Jets.clear();
   jJet_L1Jets.clear();
   gL1Jets.clear();
+  
 }
 
 
@@ -145,9 +154,39 @@ StatusCode JGTowerReader::initialize() {
   if(m_makeJetsFromMap) {
     CHECK( ReadTowerMap() );
   }
+
   acc_rho = new SG::AuxElement::Accessor<float>("Rho");
   acc_mht = new SG::AuxElement::Accessor<float>("MHT");
   acc_mst = new SG::AuxElement::Accessor<float>("MST");
+
+  //Here is to set up the tower helper which returns the tower eta/phi indices
+  //Define the histograms for each region
+  std::vector<TH2F*> hs_jT;
+  TH2F* j_h1=new TH2F("j_h1","j_h1",1,-3.2,-3.1,32,-TMath::Pi(),TMath::Pi());
+  TH2F* j_h2=new TH2F("j_h2","j_h2",3,-3.1,-2.5,32,-TMath::Pi(),TMath::Pi());
+  TH2F* j_h3=new TH2F("j_h3","j_h3",50,-2.5, 2.5,64,-TMath::Pi(),TMath::Pi());
+  TH2F* j_h4=new TH2F("j_h4","j_h4",3,2.5,3.1,32,-TMath::Pi(),TMath::Pi());
+  TH2F* j_h5=new TH2F("j_h5","j_h5",1,3.1,3.2,32,-TMath::Pi(),TMath::Pi());
+  hs_jT.push_back(j_h1);
+  hs_jT.push_back(j_h2);
+  hs_jT.push_back(j_h3);
+  hs_jT.push_back(j_h4);
+  hs_jT.push_back(j_h5);
+  jT_helper = std::make_shared<TowerHelper>(hs_jT);
+
+
+  std::vector<TH2F*> hs_gT;
+  double fgT_Eta_p[5] = {3.2, 3.5, 4.0, 4.45,4.9};
+  double fgT_Eta_n[5] = {-4.9, -4.45, -4.0, -3.5,-3.2};
+  double gT_barrel[35]={-3.2,-3.1,-2.9,-2.7,-2.5,-2.4,-2.2,-2.0,-1.8,-1.6,-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.0,
+                  0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.5,2.7,2.9,3.1,3.2};
+  TH2F* g_h1=new TH2F("g_h1","g_h1",4 , fgT_Eta_p,17,-TMath::Pi(),TMath::Pi());  
+  TH2F* g_h2=new TH2F("g_h2","g_h2",34, gT_barrel,32,-TMath::Pi(),TMath::Pi());
+  TH2F* g_h3=new TH2F("g_h3","g_h3",4 , fgT_Eta_n,17,-TMath::Pi(),TMath::Pi());
+  hs_gT.push_back(g_h1);
+  hs_gT.push_back(g_h2);
+  hs_gT.push_back(g_h3);
+  gT_helper = std::make_shared<TowerHelper>(hs_gT);
 
   return StatusCode::SUCCESS;
 }
@@ -160,7 +199,15 @@ StatusCode JGTowerReader::finalize() {
 
 StatusCode JGTowerReader::execute() {  
   
-  ATH_MSG_DEBUG ("Executing " << name() << " on event " << m_eventCount);
+  if(m_eventCount % 100 == 0){
+    ATH_MSG_INFO ("Executing " << name() << " on event " << m_eventCount);
+  }
+  else if(m_eventCount % 10 == 0){
+    ATH_MSG_INFO ("    Executing " << name() << " on event " << m_eventCount);
+  }
+  else {
+    ATH_MSG_DEBUG ("Executing " << name() << " on event " << m_eventCount);
+  }
   m_eventCount += 1;
 
   setFilterPassed(false); //optional: start with algorithm not passed
@@ -169,8 +216,8 @@ StatusCode JGTowerReader::execute() {
   CHECK( evtStore()->retrieve( eventInfo, "EventInfo" ) );
 
   ToolHandle<Trig::IBunchCrossingTool> m_bcTool("Trig::MCBunchCrossingTool/BunchCrossingTool");
-  int distFrontBunchTrain = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
-  CHECK(HistBookFill("distFrontBunchTrain",100,0,100, distFrontBunchTrain, 1.));
+  //int distFrontBunchTrain = m_bcTool->distanceFromFront(eventInfo->bcid(), Trig::IBunchCrossingTool::BunchCrossings);
+  //CHECK(HistBookFill("distFrontBunchTrain",100,0,100, distFrontBunchTrain, 1.));
 
   const CaloCellContainer* scells = 0;
   CHECK( evtStore()->retrieve( scells, m_scType) );
@@ -181,7 +228,7 @@ StatusCode JGTowerReader::execute() {
   if(jT_noise.size()==0){
     ATH_MSG_INFO (" Failed to find noise file, setting jTower noise manually ");
     for( const auto &jT : *jTowers){
-       if(jT->sampling()==0) jT_noise.push_back(450);
+       if(jT->sampling()==0) jT_noise.push_back(430);
        else if(jT->sampling()==1) jT_noise.push_back(2400);
        else jT_noise.push_back(2000);
     }
@@ -189,11 +236,12 @@ StatusCode JGTowerReader::execute() {
 
   const xAOD::JGTowerContainer* gTowers =0;
   CHECK( evtStore()->retrieve( gTowers,"GTower"));
+
   //when noise file is not available, set the noise as constant for EM, Had, and FCal respectively
   if(gT_noise.size()==0){
     ATH_MSG_INFO (" Failed to find noise file, setting gTower noise manually ");
-     for(unsigned int i = 0; i < gTowers->size(); i++) {
-       gT_noise.push_back(1500);
+    for(unsigned int i = 0; i < gTowers->size(); i++) {
+      gT_noise.push_back(1500);
     }
   }
 
@@ -208,6 +256,48 @@ StatusCode JGTowerReader::execute() {
     CHECK( CheckTowerMap(jTowers) );
   }
 
+  if(m_outputNoise){
+
+    for(const auto &jT : *jTowers){
+       //===============Test Block================
+       int ieta = jT_helper->iEta(jT->eta());
+       int iphi = jT_helper->iPhi(jT->eta(), jT->phi());
+       ATH_MSG_DEBUG(jT->eta()<<"("<<ieta<<")"<<" "<<jT->phi()<<"("<<iphi<<")");
+       if(fabs(jT->et())<0.1) continue;
+       CHECK(HistBookFill(Form("jTNoise/jT%d",jT->Id()), 5000, -1500, 3500, jT->et(),1));
+       if(jT->sampling()==0){
+         if(fabs(jT->eta())<2.5)  CHECK(HistBookFill("jTNoise_regions/region0_em", 5000, -1500, 3500, jT->et(),1));
+         else if(fabs(jT->eta())<3.1)  CHECK(HistBookFill("jTNoise_regions/region1_em", 5000, -1500, 3500, jT->et(),1));
+         else if(fabs(jT->eta())<3.2)  CHECK(HistBookFill("jTNoise_regions/region2_em", 5000, -1500, 3500, jT->et(),1));
+       }
+       else if(jT->sampling()==1){
+         if(fabs(jT->eta())<2.5)  CHECK(HistBookFill("jTNoise_regions/region0_had", 5000, -1500, 3500, jT->et(),1));
+         else if(fabs(jT->eta())<3.1)  CHECK(HistBookFill("jTNoise_regions/region1_had", 5000, -1500, 3500, jT->et(),1));
+         else if(fabs(jT->eta())<3.2)  CHECK(HistBookFill("jTNoise_regions/region2_had", 5000, -1500, 3500, jT->et(),1));
+       }
+
+       else CHECK(HistBookFill("jTNoise_regions/region3", 5000, -1500, 3500, jT->et(),1));
+    }
+
+    for(const auto &gT : *gTowers){
+       if(fabs(gT->et())<0.1) continue;
+       CHECK(HistBookFill(Form("gTNoise/gT%d",gT->Id()), 7000, -1500, 5500, gT->et(),1));
+       if(gT->sampling()==0){
+         if(fabs(gT->eta())<2.4)  CHECK(HistBookFill("gTNoise_regions/region0_em", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<2.5)  CHECK(HistBookFill("gTNoise_regions/region1_em", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<3.1)  CHECK(HistBookFill("gTNoise_regions/region2_em", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<3.2)  CHECK(HistBookFill("gTNoise_regions/region3_em", 7000, -1500, 5500, gT->et(),1));
+       }
+       else if(gT->sampling()==1){
+         if(fabs(gT->eta())<2.4)  CHECK(HistBookFill("gTNoise_regions/region0_had", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<2.5)  CHECK(HistBookFill("gTNoise_regions/region1_had", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<3.1)  CHECK(HistBookFill("gTNoise_regions/region2_had", 7000, -1500, 5500, gT->et(),1));
+         else if(fabs(gT->eta())<3.2)  CHECK(HistBookFill("gTNoise_regions/region3_had", 7000, -1500, 5500, gT->et(),1));
+       }
+       else CHECK(HistBookFill("gTNoise_regions/region4", 7000, -1500, 5500, gT->et(),1));
+    }
+
+  }
   ATH_MSG_DEBUG ("About to call JFexAlg");
   CHECK(JFexAlg(jTowers)); // all the functions for JFex shall be executed here
   ATH_MSG_DEBUG ("About to call GFexAlg");
@@ -238,6 +328,50 @@ StatusCode JGTowerReader::beginInputFile() {
   //std::vector<float> bunchPattern; CHECK( retrieveMetadata("/Digitiation/Parameters","BeamIntensityPattern",bunchPattern) );
 
 
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode JGTowerReader::BuildBlocksFromTowers(std::vector<TowerObject::Block>& blocks, const xAOD::JGTowerContainer towers, const int blockRows, const int blockCols, const bool useNegTowers){
+
+  blocks.clear();
+  TowerObject::TowerGrid grid = TowerObject::TowerGrid(towers);
+
+  for(const xAOD::JGTower* seed: towers){
+    int seedIndex = std::find(towers.begin(), towers.end(), seed) - towers.begin();
+
+    std::vector<int> neighbors = grid.neighbors(*seed, blockRows, blockCols);
+    float seed_Et = seed->et();
+    if(!useNegTowers) seed_Et = TMath::Abs(seed_Et);
+    double block_area(0.0);
+    double sum_deta(0.0);
+    double sum_dphi(0.0);
+    double block_pt(seed_Et);
+    double neighbor_pt = 0;
+
+    for(const int& neighborIndex: neighbors){
+      const xAOD::JGTower* neighbor = towers.at(neighborIndex);
+      block_area += neighbor->deta()*neighbor->dphi();
+      sum_deta += neighbor->deta();
+      sum_dphi += neighbor->dphi();
+      neighbor_pt = neighbor->et();
+      if(!useNegTowers) neighbor_pt = TMath::Abs(neighbor_pt);
+      block_pt += neighbor_pt;
+    }
+
+    TowerObject::Block block(block_pt, seed->eta(), seed->phi(), 0.0);
+    block.seedIndex(seedIndex);
+    block.numEta(blockCols);
+    block.numPhi(blockRows);
+    block.area(block_area);
+    block.sumDeta(sum_deta);
+    block.sumDphi(sum_dphi);
+    block.numConstituents(neighbors.size());
+
+    blocks.push_back(block);
+  }
+
+  std::sort(blocks.rbegin(), blocks.rend());
 
   return StatusCode::SUCCESS;
 }
@@ -314,7 +448,164 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
       gT_noise.push_back(1000);
     }
   }
+
+  //build gCaloTowers
+  xAOD::JGTowerAuxContainer* gCaloTowersAux = new xAOD::JGTowerAuxContainer();
+  xAOD::JGTowerContainer* gCaloTowers = new xAOD::JGTowerContainer();
+  gCaloTowers->setStore(gCaloTowersAux);
+
+  for(unsigned int t = 0; t < gTs->size(); t++){
+    const xAOD::JGTower* gt_em = gTs->at(t);
+    const float eta = gt_em->eta();
+    const float phi = gt_em->phi();
+    const float deta = gt_em->deta();
+    const float dphi = gt_em->dphi();
+    float totalEt = 0;
+
+    if(fabs(eta) < 3.15 && gt_em->sampling() == 0){
+      const xAOD::JGTower* gt_had = gTs->at(t+544);
+      totalEt = gt_em->et() + gt_had->et();
+    }
+    //if(t > 544) totalEt = 0;
+    const float tEt = totalEt; 
+
+    const std::vector<int> index(2, 0);
+    xAOD::JGTower* new_tower = new xAOD::JGTower();
+    gCaloTowers->push_back(new_tower);
+    const int t_ = t; 
+    new_tower->initialize(t_, eta, phi);
+    new_tower->setdEta(deta);                                                                     
+    new_tower->setdPhi(dphi);                                                                     
+    new_tower->setEt(tEt);                                                                
+    new_tower->setSCIndex(index);                                                                    
+    new_tower->setTileIndex(index);
+    const int sampling = gt_em->sampling(); 
+    new_tower->setSampling(sampling);
+
+  }
+
+  //split towers per fpga for rho subtraction
+  ConstDataVector<xAOD::JGTowerContainer> temp_a(SG::VIEW_ELEMENTS);
+  ConstDataVector<xAOD::JGTowerContainer> temp_b(SG::VIEW_ELEMENTS);
+  ConstDataVector<xAOD::JGTowerContainer> temp_c(SG::VIEW_ELEMENTS);
+
+  TH1F* h_fpga_a = new TH1F();
+  TH1F* h_fpga_b = new TH1F();
+  TH1F* h_fpga_c = new TH1F();
+
+  for(unsigned int t = 0; t < gCaloTowers->size(); t++){
+    const xAOD::JGTower* tower = gCaloTowers->at(t);
+    float eta = tower->eta();
+
+    if(eta > -2.5 && eta < 0){
+      temp_a.push_back(tower);
+      h_fpga_a->Fill(tower->et());
+    }
+    if(eta > 0 && eta < 2.5){
+      temp_b.push_back(tower);
+      h_fpga_b->Fill(tower->et());
+    }
+    if(fabs(eta) >= 2.5){
+      temp_c.push_back(tower);
+      h_fpga_c->Fill(tower->et());
+    }
+  }
+  const xAOD::JGTowerContainer* fpga_a = temp_a.asDataVector();
+  const xAOD::JGTowerContainer* fpga_b = temp_b.asDataVector();
+  const xAOD::JGTowerContainer* fpga_c = temp_c.asDataVector();
+
+  float thresh_a = 3*h_fpga_a->GetRMS();
+  float thresh_b = 3*h_fpga_b->GetRMS();
+  float thresh_c = 3*h_fpga_c->GetRMS();
+
+  //build pileup subtracted towers
+  xAOD::JGTowerAuxContainer* pu_subAux = new xAOD::JGTowerAuxContainer();
+  xAOD::JGTowerContainer* pu_sub = new xAOD::JGTowerContainer();
+  pu_sub->setStore(pu_subAux);
+
+  float rhoA = METAlg::Rho_avg_etaRings(fpga_a, 1, false);
+  float rhoB = METAlg::Rho_avg_etaRings(fpga_b, 2, false);
+  float rhoC = METAlg::Rho_avg_etaRings(fpga_c, 3, false);
   
+  float rho_barrel = METAlg::Rho_avg(gCaloTowers, false);
+
+  for(unsigned int t = 0; t < gCaloTowers->size(); t++){
+    const xAOD::JGTower* tower = gCaloTowers->at(t);
+    const float eta = tower->eta();
+    const float phi = tower->phi();
+    const float deta = tower->deta();
+    const float dphi = tower->dphi();
+    float Et_sub = tower->et();
+
+    if(eta < 0 && eta >= -2.5){
+      if(eta > -2.4) Et_sub -= rhoA;
+      else Et_sub -= 0.5*rhoA;
+
+      if(Et_sub < thresh_a) Et_sub = 0;
+    }
+    if(eta > 0 && eta <= 2.5){
+      if(eta < 2.4) Et_sub -= rhoB;
+      else Et_sub -= 0.5*rhoB;
+
+      if(Et_sub < thresh_b) Et_sub = 0;
+    }
+    if(fabs(eta) > 2.5){
+      if(fabs(eta) < 3.2) Et_sub -= rhoC;
+      else Et_sub -= 4*rhoC;
+
+      if(Et_sub < thresh_c) Et_sub = 0;
+    }
+ 
+    const std::vector<int> index(2,0);
+    const int sampling = tower->sampling();
+    xAOD::JGTower* new_tower = new xAOD::JGTower();
+    pu_sub->push_back(new_tower);
+    new_tower->initialize(t, eta, phi);
+    new_tower->setdEta(deta);
+    new_tower->setdPhi(dphi);
+    new_tower->setEt(Et_sub);
+    new_tower->setSCIndex(index);
+    new_tower->setTileIndex(index);
+    new_tower->setSampling(sampling);
+  }
+
+  //build gBlocks
+  std::vector<TowerObject::Block> temp_gBlocks;
+  std::vector<TowerObject::Block> temp_puSub_gBlocks;
+
+  CHECK(BuildBlocksFromTowers(temp_gBlocks, *gCaloTowers, 3, 3, m_useNegTowers));
+  CHECK(BuildBlocksFromTowers(temp_puSub_gBlocks, *pu_sub, 3, 3, m_useNegTowers));
+
+  const std::vector<TowerObject::Block> gBlocks = temp_gBlocks;
+  const std::vector<TowerObject::Block> puSub_gBlocks = temp_puSub_gBlocks;
+
+  xAOD::JGTowerAuxContainer* gBAux = new xAOD::JGTowerAuxContainer();
+  xAOD::JGTowerContainer* gBs = new xAOD::JGTowerContainer();
+  gBs->setStore(gBAux);
+
+  const std::vector<int> index(2, 0);
+  
+  for(unsigned int b = 0; b < gBlocks.size(); b++){
+    float phi = gBlocks[b].Phi();
+    float eta = gBlocks[b].Eta();
+    float deta = gBlocks[b].sumDeta(); //sum of delta eta between seed tower to all others? 
+    float dphi = gBlocks[b].sumDphi(); //sum of delta phi between seed tower and all others? 
+    float pt = gBlocks[b].pt();
+    int seedTowerIndex = gBlocks[b].seedIndex();
+    const int sampling = gCaloTowers->at(seedTowerIndex)->sampling();
+
+    xAOD::JGTower* new_block = new xAOD::JGTower();
+    const int b_ = b; 
+    gBs->push_back(new_block);
+    new_block->initialize(b_, eta, phi);
+    new_block->setdEta(deta);                                                 
+    new_block->setdPhi(dphi);                                                                   
+    new_block->setEt(pt);
+    new_block->setSCIndex(index);  // Not sure what these are supposed to be?
+    new_block->setTileIndex(index);// Not sure what these are supposed to be?
+    new_block->setSampling(sampling);
+  }  
+
   // jet algorithms
   if(JetAlg::m_SeedMap.find("gSeeds") == JetAlg::m_SeedMap.end())
      CHECK(JetAlg::SeedGrid(gTs,"gSeeds",m_dumpSeedsEtaPhi));
@@ -324,40 +615,53 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
                                                                          // Careful to ensure the range set to be no tower double counted
   //CHECK(JetAlg::BuildJet(gTs,gSeeds,gL1Jets,m_gJet_r,gJet_thr)); //default gFex jets are cone jets wih radius of 1.0
   
-  CHECK(JetAlg::BuildFatJet(*gTs, "gL1Jets", m_gJet_r, gT_noise, m_gJet_jet_tower_noise_multiplier, m_gJet_jet_total_noise_multiplier, m_gJet_jet_min_ET_MeV));
+  CHECK(JetAlg::BuildFatJet(*gCaloTowers, "gL1Jets", m_gJet_r, gT_noise, m_gJet_jet_tower_noise_multiplier, m_gJet_jet_total_noise_multiplier, m_gJet_jet_min_ET_MeV, rho_barrel));
+  if(m_buildgBlockJets) CHECK(JetAlg::BuildgBlocksJets(gBs, "gBlockJets",rho_barrel));
   //gFEX MET algorithms
+  std::vector<float> noNoise; 
   if(m_developerMET){
-    std::vector<float> noNoise; 
     for(int i=0; i<=1; i++){
       bool NegTowers=false;
       if(i==1)NegTowers=true;
-      CHECK(METAlg::Baseline_MET(gTs,Form("gNoCutsNeg%d",NegTowers),noNoise, NegTowers) );//basic MET, no threshold, pass no noise thresholds, and use negative towers 
-      CHECK(METAlg::Baseline_MET(gTs,Form("gBaselineNeg%d",NegTowers),gT_noise, NegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
-      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%d",NegTowers),m_useRMS,m_useMedian,NegTowers)); //pileup subtracted MET, can apply dynamic noise cut and use either median or avg rho
+      CHECK(METAlg::Baseline_MET(gCaloTowers,Form("gNoCutsNeg%d",NegTowers),noNoise, NegTowers) );//basic MET, no threshold, pass no noise thresholds, and use negative towers 
+      CHECK(METAlg::Baseline_MET(gCaloTowers,Form("gBaselineNeg%d",NegTowers),gT_noise, NegTowers)); //basic MET reconstruction with a 4 sigma noise cut applied
     //No RMS 
-      CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMedian",NegTowers),0,1,NegTowers));//Median
-      CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMean",NegTowers),0,0,NegTowers));//Mean
+      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMedian",NegTowers),0,1,NegTowers));//Median
+      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMean",NegTowers),0,0,NegTowers));//Mean
       //Apply 3 sigma RMS 
-      CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMedianRMS",NegTowers),1,1,NegTowers));
-      CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMeanRMS",NegTowers),1,0,NegTowers));
+      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMedianRMS",NegTowers), 1, 1,NegTowers));
+      //CHECK(METAlg::SubtractRho_MET(gTs,Form("RhoSubNeg%dMeanRMS",NegTowers), 1, 0,NegTowers));
 
-      CHECK(METAlg::Softkiller_MET(gTs, Form("SKNeg%d",NegTowers), NegTowers) ); //pileup subtracted SoftKiller (with avg rho)
-      CHECK(METAlg::JwoJ_MET(gTs,Form("JwoJNeg%d",NegTowers),m_pTcone_cut, NegTowers) ); //Jets without Jets
-      CHECK(METAlg::Pufit_MET(gTs,Form("PUfitNeg%d",NegTowers), NegTowers) ); //L1 version of PUfit, using gTowers
+      CHECK(METAlg::Softkiller_MET(pu_sub, Form("SKNeg%d",NegTowers), NegTowers) ); //pileup subtracted SoftKiller (with avg rho)
+      CHECK(METAlg::JwoJ_MET(pu_sub, gBlocks,Form("JwoJNeg%d",NegTowers),m_pTcone_cut, false, false, NegTowers) ); //Jets without Jets
+      //CHECK(METAlg::Pufit_MET(gTs,Form("PUfitNeg%d",NegTowers), NegTowers) ); //L1 version of PUfit, using gTowers
     }
 
   }//developer met
   else{
-    CHECK(METAlg::Baseline_MET(gTs,"gXENOISECUT",gT_noise, m_useNegTowers));
-    CHECK(METAlg::JwoJ_MET(gTs,"gXEJWOJ",m_pTcone_cut,m_useNegTowers));
-    CHECK(METAlg::SubtractRho_MET(gTs,"gXERHO",m_useRMS,m_useMedian,m_useNegTowers)); 
-    CHECK(METAlg::Pufit_MET(gTs,"gXEPUFIT", m_useNegTowers) ); 
-    CHECK(METAlg::MET_etaBins(gTs, "RhoSubEtaBins",true, true, false)); //simulating the 3 fpgas in the gFEX for rho subtraction
+    CHECK(METAlg::Baseline_MET(pu_sub, "gXERHO", noNoise, m_useNegTowers));
+    CHECK(METAlg::Baseline_MET(gCaloTowers,"gXENOISECUT",gT_noise, m_useNegTowers));
+    CHECK(METAlg::JwoJ_MET(pu_sub, puSub_gBlocks,"gXEJWOJRHO",m_pTcone_cut,false, false, m_useNegTowers));
+    CHECK(METAlg::JwoJ_MET(gTs, gBlocks, "gXEJWOJ",m_pTcone_cut,false, true, m_useNegTowers));
+    CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_useNegTowers) ); 
+
+
   }//main definitions for simplicity
+
+  //manage conatiners that have been created: save gCaloTowers and pu_sub to SG
+  CHECK(evtStore()->record(gCaloTowers, "gCaloTowers"));
+  CHECK(evtStore()->record(gCaloTowersAux, "gCaloTowersAux."));
+  CHECK(evtStore()->record(pu_sub, "pu_subTowers"));
+  CHECK(evtStore()->record(pu_subAux, "pu_subTowersAux."));
+  CHECK(evtStore()->record(gBs, "gBlocks"));
+  CHECK(evtStore()->record(gBAux, "gBlocksAux."));
+
+  delete h_fpga_a;
+  delete h_fpga_b;
+  delete h_fpga_c;
 
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode JGTowerReader::ProcessObjects(){
   
@@ -434,9 +738,20 @@ StatusCode JGTowerReader::ProcessObjects(){
 StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, const Double_t* xbins, float xvalue,float wei){
 
   if(std::find(hists.begin(),hists.end(),name)==hists.end()) {
-    TH1F*h = new TH1F( name, name, nbinsx, xbins);
-    h->Sumw2();
-    CHECK( histSvc->regHist(Form("/EXPERT/%s/%s", this->name().c_str(), name.Data()),h));
+    TH1F*h;
+    const std::string name_str(name.Data());
+    if(name_str.find("/")!=std::string::npos){
+      TString name1= name_str.substr(0, name_str.find("/"));
+      TString name2= name_str.substr(name_str.find("/")+1,name_str.length()-1);
+      h = new TH1F( name2, name2, nbinsx, xbins);
+      h->Sumw2();
+      CHECK( histSvc->regHist(Form("/EXPERT/%s/%s/%s", this->name().c_str(),name1.Data(), name2.Data()),h));
+    }
+    else{
+      h = new TH1F( name, name, nbinsx, xbins);
+      h->Sumw2();
+      CHECK( histSvc->regHist(Form("/EXPERT/%s/%s", this->name().c_str(), name.Data()),h));
+    }
     m_hName[name]=h;
     m_hName[name]->Fill(xvalue,wei);
     hists.push_back(name);
@@ -448,9 +763,21 @@ StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, const D
 StatusCode JGTowerReader::HistBookFill(const TString name, Int_t nbinsx, Double_t xbin_down, Double_t xbin_up, float xvalue,float wei){
 
   if(std::find(hists.begin(),hists.end(),name)==hists.end()) {
-    TH1F*h=new TH1F( name, name, nbinsx, xbin_down,xbin_up);
-    h->Sumw2();
-    CHECK( histSvc->regHist(Form("/EXPERT/%s/%s",this->name().c_str(), name.Data()),h));
+    TH1F*h;
+    const std::string name_str(name.Data());
+    if(name_str.find("/")!=std::string::npos){
+      TString name1= name_str.substr(0, name_str.find("/"));
+      TString name2= name_str.substr(name_str.find("/")+1,name_str.length()-1);
+      h = new TH1F( name2, name2, nbinsx, xbin_down, xbin_up);
+      h->Sumw2();
+      CHECK( histSvc->regHist(Form("/EXPERT/%s/%s/%s", this->name().c_str(),name1.Data(), name2.Data()),h));
+    }
+    else{
+      h = new TH1F( name, name, nbinsx, xbin_down, xbin_up);
+      h->Sumw2();
+      CHECK( histSvc->regHist(Form("/EXPERT/%s/%s", this->name().c_str(), name.Data()),h));
+    }
+
     m_hName[name]=h;
     m_hName[name]->Fill(xvalue,wei);
     hists.push_back(name);

@@ -25,7 +25,11 @@ if DetFlags.detdescr.any_on():
             protectedInclude( "TileConditions/TileConditions_jobOptions.py" )
 
         if DetFlags.detdescr.Muon_on():
-             protectedInclude ("AmdcAth/AmdcAth_jobOptions.py")
+            protectedInclude ("AmdcAth/AmdcAth_jobOptions.py")
+
+    from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+    if not MuonGeometryFlags.hasCSC():
+        DetFlags.CSC_setOff()
 
     # MagneticField Service
     if DetFlags.detdescr.BField_on():

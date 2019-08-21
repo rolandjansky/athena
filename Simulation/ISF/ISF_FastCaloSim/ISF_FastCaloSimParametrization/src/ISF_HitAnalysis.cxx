@@ -26,6 +26,9 @@
 #include "TileSimEvent/TileHit.h"
 #include "TileSimEvent/TileHitVector.h"
 
+//Track Record
+#include "TrackRecord/TrackRecordCollection.h"
+
 //CaloCell
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -162,6 +165,15 @@ ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocat
    , m_newTTC_IDCaloBoundary_z(0)
    , m_newTTC_Angle3D(0)
    , m_newTTC_AngleEta(0)
+
+   , m_MuonEntryLayer_E(0)
+   , m_MuonEntryLayer_px(0)
+   , m_MuonEntryLayer_py(0)
+   , m_MuonEntryLayer_pz(0)
+   , m_MuonEntryLayer_x(0)
+   , m_MuonEntryLayer_y(0)
+   , m_MuonEntryLayer_z(0)
+   , m_MuonEntryLayer_pdg(0)
 
    , m_caloEntrance(0)
    , m_calo_tb_coord(0)
@@ -546,6 +558,16 @@ StatusCode ISF_HitAnalysis::initialize()
   m_newTTC_Angle3D = new std::vector<float>;
   m_newTTC_AngleEta = new std::vector<float>;
 
+  m_MuonEntryLayer_E = new std::vector<float>;
+  m_MuonEntryLayer_px = new std::vector<float>;
+  m_MuonEntryLayer_py = new std::vector<float>;
+  m_MuonEntryLayer_pz = new std::vector<float>;
+  m_MuonEntryLayer_x = new std::vector<float>;
+  m_MuonEntryLayer_y = new std::vector<float>;
+  m_MuonEntryLayer_z = new std::vector<float>;
+  m_MuonEntryLayer_pdg = new std::vector<int>;
+
+
   // Optional branches
   if(m_saveAllBranches){
     m_tree->Branch("HitX",                 &m_hit_x);
@@ -636,6 +658,18 @@ StatusCode ISF_HitAnalysis::initialize()
   m_tree->Branch("newTTC_IDCaloBoundary_z",&m_newTTC_IDCaloBoundary_z);
   m_tree->Branch("newTTC_Angle3D",&m_newTTC_Angle3D);
   m_tree->Branch("newTTC_AngleEta",&m_newTTC_AngleEta);
+
+
+
+  m_tree->Branch("MuonEntryLayer_E",&m_MuonEntryLayer_E);
+  m_tree->Branch("MuonEntryLayer_px",&m_MuonEntryLayer_px);
+  m_tree->Branch("MuonEntryLayer_py",&m_MuonEntryLayer_py);
+  m_tree->Branch("MuonEntryLayer_pz",&m_MuonEntryLayer_pz);
+  m_tree->Branch("MuonEntryLayer_x",&m_MuonEntryLayer_x);
+  m_tree->Branch("MuonEntryLayer_y",&m_MuonEntryLayer_y);
+  m_tree->Branch("MuonEntryLayer_z",&m_MuonEntryLayer_z);
+  m_tree->Branch("MuonEntryLayer_pdg",&m_MuonEntryLayer_pdg);
+
 
  }
  dummyFile->Close();
@@ -833,6 +867,16 @@ StatusCode ISF_HitAnalysis::execute()
  m_newTTC_IDCaloBoundary_z->clear();
  m_newTTC_Angle3D->clear();
  m_newTTC_AngleEta->clear();
+
+
+ m_MuonEntryLayer_E->clear();
+ m_MuonEntryLayer_x->clear();
+ m_MuonEntryLayer_y->clear();
+ m_MuonEntryLayer_z->clear();
+ m_MuonEntryLayer_px->clear();
+ m_MuonEntryLayer_py->clear();
+ m_MuonEntryLayer_pz->clear();
+
  //##########################
 
  //Get the FastCaloSim step info collection from store
@@ -1082,6 +1126,30 @@ StatusCode ISF_HitAnalysis::execute()
      } //mcevent size
    } //mcEvent
  }//truth event
+
+
+
+ //Retrieve and save MuonEntryLayer information 
+ const TrackRecordCollection *MuonEntry = nullptr;
+ ATH_CHECK(evtStore()->retrieve(MuonEntry, "MuonEntryLayer"));
+ if (sc.isFailure())
+ {
+ ATH_MSG_WARNING( "Couldn't read MuonEntry from StoreGate");
+ //return NULL;
+ }
+ else{
+  for ( const TrackRecord &record : *MuonEntry){
+    m_MuonEntryLayer_E->push_back((record).GetEnergy());
+    m_MuonEntryLayer_px->push_back((record).GetMomentum().getX());
+    m_MuonEntryLayer_py->push_back((record).GetMomentum().getY());
+    m_MuonEntryLayer_pz->push_back((record).GetMomentum().getZ());
+    m_MuonEntryLayer_x->push_back((record).GetPosition().getX());
+    m_MuonEntryLayer_y->push_back((record).GetPosition().getY());
+    m_MuonEntryLayer_z->push_back((record).GetPosition().getZ());
+    m_MuonEntryLayer_pdg->push_back((record).GetPDGCode());
+  }
+ }
+
 
  //Get reco cells if available
  const CaloCellContainer *cellColl = 0;

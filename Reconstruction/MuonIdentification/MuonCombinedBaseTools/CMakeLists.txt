@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/EventPrimitives
                           Event/FourMomUtils
                           Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMuon
                           Event/xAOD/xAODMuonCnv
                           Event/xAOD/xAODTracking
@@ -55,7 +54,8 @@ atlas_depends_on_subdirs( PRIVATE
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary
                           Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces )
+                          Tracking/TrkTools/TrkToolInterfaces 
+			  InnerDetector/InDetConditions/InDetBeamSpotService)
 
 # External dependencies:
 find_package( CLHEP )
@@ -67,5 +67,5 @@ atlas_add_component( MuonCombinedBaseTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloEvent AthLinks AthenaBaseComps Identifier EventPrimitives FourMomUtils xAODCaloEvent xAODEventInfo xAODMuon xAODTracking xAODTruth GaudiKernel MagFieldInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonSegmentMakerUtils MuonSelectorToolsLib ICaloTrkMuIdTools MuGirlInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces muonEvent MuidEvent ParticleTruth RecoToolInterfaces TrackToCaloLib TrkGeometry TrkSurfaces TrkCaloExtension TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkParameters TrkParametersIdentificationHelpers TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloEvent AthLinks AthenaBaseComps Identifier EventPrimitives FourMomUtils xAODCaloEvent xAODEventInfo xAODMuon xAODTracking xAODTruth GaudiKernel MagFieldInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonCompetingRIOsOnTrack MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib MuonRecToolInterfaces MuonSegmentMakerUtils MuonSelectorToolsLib ICaloTrkMuIdTools MuGirlInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces muonEvent MuidEvent ParticleTruth RecoToolInterfaces TrackToCaloLib TrkGeometry TrkSurfaces TrkCaloExtension TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkParameters TrkParametersIdentificationHelpers TrkSegment TrkTrack TrkTrackSummary TrkExInterfaces TrkToolInterfaces InDetBeamSpotServiceLib )
 

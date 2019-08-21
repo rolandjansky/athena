@@ -113,12 +113,12 @@ class FtkHltEfficiencyMonitoring(TrigGenericMonitoringToolConfig):
         'numb_HLT_trks',
         type='TH1F',
         title='number of HLT tracks (effic Denominator);#tracks;#events',
-        xbins=50, xmin=0, xmax=500)]
+        xbins=100, xmin=0, xmax=1000)]
     self.Histograms += [ defineHistogram(
         'numb_FTK_trks',
         type='TH1F',
         title='number of FTK tracks (effic numerator);#tracks;#events',
-        xbins=50, xmin=0, xmax=500)]
+        xbins=100, xmin=0, xmax=1000)]
 
 
     nBins += 50*3

@@ -41,11 +41,12 @@ def getHITSStreamItemList():
     if DetFlags.Muon_on():
         hitsItemList += ["RPCSimHitCollection#*",
                          "TGCSimHitCollection#*",
-                         "CSCSimHitCollection#*",
                          "MDTSimHitCollection#*",
                          "TrackRecordCollection#MuonExitLayer"]
+        from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+        if MuonGeometryFlags.hasCSC(): hitsItemList += ["CSCSimHitCollection#*"]
         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
-        if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+        if CommonGeometryFlags.Run()=="RUN3":
             hitsItemList += ["sTGCSimHitCollection#*"]
             hitsItemList += ["MMSimHitCollection#*"]
             hitsItemList += ["GenericMuonSimHitCollection#*"]

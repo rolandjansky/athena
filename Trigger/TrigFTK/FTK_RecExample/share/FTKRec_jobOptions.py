@@ -5,17 +5,25 @@ FTKFlags.init()
 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.BeamFlags import jobproperties
- 
+
+from FTK_RecExample.FTKJobProperties import FTKFlags
+FTKFlags.init()
+
 if rec.doFTK() and (globalflags.InputFormat() == 'bytestream' or rec.readRDO):
     from AthenaCommon.GlobalFlags import GlobalFlags
     if rec.doFTK() and globalflags.InputFormat() == 'bytestream':
         ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc")
         ByteStreamAddressProviderSvc.TypeNames += [ "FTK_RawTrackContainer/FTK_RDO_Tracks"]
 
-    from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
-    theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc")
-    ServiceMgr += theFTK_DataProviderSvc
+    from TrigFTK_RecExample.TrigFTKLoadTools import theFTK_DataProviderSvc
 
+    from FTK_RecExample.FTKJobProperties import FTKFlags
+    if FTKFlags.doSmearing:
+        theFTKrandomSvc = AtRanluxGenSvc("FTKFastSim_Smearing")
+        theFTKrandomSvc.EventReseeding = True
+        theFTKrandomSvc.UseOldBrokenSeeding = False
+        ServiceMgr += theFTKrandomSvc
+    
     from TrigFTK_RawDataAlgs.TrigFTK_RawDataAlgsConf import FTK_RDO_ReaderAlgo
 
     FTK_RDO_Reader = FTK_RDO_ReaderAlgo( "FTK_RDO_ReaderAlgo")

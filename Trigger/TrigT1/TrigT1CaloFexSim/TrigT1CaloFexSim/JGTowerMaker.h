@@ -55,6 +55,7 @@ class JGTowerMaker: public ::AthAlgorithm {
   const CaloCell_ID* m_ccIdHelper;
   bool  m_useSCQuality;
   bool  m_useAllCalo;
+  bool  m_useAllRun2TT;
   bool  m_TileMapped;
   std::string m_scType;
   uint16_t m_scQuality;

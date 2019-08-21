@@ -7,7 +7,8 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
      addTypesOnlyToSkip
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from MuonRecExample.MuonRecFlags import muonRecFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 addNamesToSkipIfNotAvailable( "MuonIsolationTool" )
 addTypesOnlyToSkip( "ICaloNoiseTool" )
@@ -61,7 +62,7 @@ addTool("MuonRecExample.MuonRecTools.MuonExtrapolator", "MuonStraightLineExtrapo
 
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
-addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool")
+addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run()=="RUN3"), HasMM=(CommonGeometryFlags.Run()=="RUN3"))
 
 addTool("Muon::MuonTrackTruthTool", "MuonTrackTruthTool")
 
@@ -83,7 +84,7 @@ addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2TrackFitter
 addTool( "MuonRecExample.MuonRecTools.MuonChi2TrackFitter", "MuonChi2SLTrackFitter", StraightLine=True )
 
 addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentum", "MuonSegmentMomentum" )
-addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentumFromField", "MuonSegmentMomentumFromField",UseCSC=muonRecFlags.doCSCs())
+addTool( "MuonRecExample.MuonRecTools.MuonSegmentMomentumFromField", "MuonSegmentMomentumFromField", HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=(CommonGeometryFlags.Run()=="RUN3"))
     
 addTool( "MuonRecExample.MuonRecTools.MuonPhiHitSelector", "MuonPhiHitSelector" )
 
@@ -117,11 +118,11 @@ addTool("Trk::ResidualPullCalculator","ResidualPullCalculator",
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.RpcPrepDataProviderTool", "RpcPrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.MdtPrepDataProviderTool", "MdtPrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.TgcPrepDataProviderTool", "TgcPrepDataProviderTool" )
-if muonRecFlags.doCSCs(): addTool( "MuonRecExample.MuonPrdProviderToolsConfig.CscPrepDataProviderTool", "CscPrepDataProviderTool" )
+if MuonGeometryFlags.hasCSC(): addTool( "MuonRecExample.MuonPrdProviderToolsConfig.CscPrepDataProviderTool", "CscPrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.MM_PrepDataProviderTool", "MM_PrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.STGC_PrepDataProviderTool", "STGC_PrepDataProviderTool" )
 
-if muonRecFlags.doCSCs(): addAlgorithm("MuonRecExample.MuonPrdProviderToolsConfig.CscRdoToCscPrepData", "CscRdoToCscPrepData")
+if MuonGeometryFlags.hasCSC(): addAlgorithm("MuonRecExample.MuonPrdProviderToolsConfig.CscRdoToCscPrepData", "CscRdoToCscPrepData")
 
 
 ################################################################################
@@ -149,7 +150,7 @@ addToolClone("MdtMathSegmentFinder", "MCTBMdtMathSegmentFinder", UseChamberTheta
 addTool("MuonRecExample.MooreTools.MuonSeededSegmentFinder", "MuonSeededSegmentFinder")
 
 
-addTool( "MuonRecExample.MooreTools.MuonRefitTool", "MuonRefitTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if muonRecFlags.doCSCs() else ""))
+addTool( "MuonRecExample.MooreTools.MuonRefitTool", "MuonRefitTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""))
 
 addTool("MuonRecExample.MooreTools.MuonErrorOptimisationTool","MuonErrorOptimisationTool")
 
@@ -158,11 +159,11 @@ addTool( "MuonRecExample.MooreTools.MuonTrackCleaner", "MuonTrackCleaner" )
 addToolClone( "MuonClusterOnTrackCreator", "FixedErrorMuonClusterOnTrackCreator",
               DoFixedErrorCscEta = True, FixedErrorCscEta = .5 )
 
-if muonRecFlags.doCSCs():
+if MuonGeometryFlags.hasCSC():
     addTool( "MuonRecExample.MuonRecTools.CscClusterOnTrackCreator", "CscClusterOnTrackCreator"  )
     addTool( "MuonRecExample.MuonRecTools.CscBroadClusterOnTrackCreator", "CscBroadClusterOnTrackCreator" )
 
-addTool( "MuonRecExample.MooreTools.MuonChamberHoleRecoveryTool", "MuonChamberHoleRecoveryTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if muonRecFlags.doCSCs() else ""), CscPrepDataContainer=("CSC_Clusters" if muonRecFlags.doCSCs() else ""))
+addTool( "MuonRecExample.MooreTools.MuonChamberHoleRecoveryTool", "MuonChamberHoleRecoveryTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""), CscPrepDataContainer=("CSC_Clusters" if MuonGeometryFlags.hasCSC() else ""))
 
 addTool( "MuonRecExample.MooreTools.MuonSegmentRegionRecoveryTool", "MuonSegmentRegionRecoveryTool" )
 
@@ -204,7 +205,7 @@ addTool( "MuonRecExample.MooreTools.MooTrackFitter", "MooSLTrackFitter",
 
 addTool( "MuonRecExample.MooreTools.MooTrackBuilder", "MooTrackBuilderTemplate")
 
-if muonRecFlags.doCSCs():
+if MuonGeometryFlags.hasCSC():
     addTool("MuonRecExample.CscTools.CscAlignmentTool","CscAlignmentTool")
     addTool("MuonRecExample.CscTools.CscClusterUtilTool","CscClusterUtilTool")
     addTool("MuonRecExample.CscTools.QratCscClusterFitter","QratCscClusterFitter")
@@ -231,9 +232,9 @@ addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcCluste
 # Tools from MuonRecExample.MuPatTools
 ################################################################################
 
-addTool( "MuonRecExample.MuPatTools.MuPatCandidateTool","MuPatCandidateTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if muonRecFlags.doCSCs() else ""))
+addTool( "MuonRecExample.MuPatTools.MuPatCandidateTool","MuPatCandidateTool", CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""))
 
-addTool( "MuonRecExample.MuPatTools.MuPatHitTool", "MuPatHitTool" , CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if muonRecFlags.doCSCs() else ""))
+addTool( "MuonRecExample.MuPatTools.MuPatHitTool", "MuPatHitTool" , CscRotCreator=("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator" if MuonGeometryFlags.hasCSC() else ""))
 
 
 ################################################################################

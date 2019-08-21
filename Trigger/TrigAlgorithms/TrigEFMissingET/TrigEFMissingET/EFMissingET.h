@@ -233,6 +233,8 @@ class EFMissingET : public HLT::AllTEAlgo {
     float m_tool_time_LoadCol; //!< Monitoring: total LoadCollections time [ms]
     float m_tool_time_Loop;    //!< Monitoring: total algorithmic time [ms]
 
+    bool m_doCaching;
+
   protected:
     TrigTimer*  m_totTime;
     TrigTimer*  m_algTime;

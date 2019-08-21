@@ -51,6 +51,9 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
 
   // Met keys
   declareProperty("l1_key", m_lvl1_roi_key="LVL1EnergySumRoI");
+  declareProperty("l1_rho_key", m_lvl1_rho_key="gXERHO_MET");
+  declareProperty("l1_pufit_key", m_lvl1_pufit_key="gXEPUFIT_MET");
+  declareProperty("l1_jwoj_key", m_lvl1_jwoj_key="gXEJWOJ_MET");
   declareProperty("hlt_cell_key", m_hlt_cell_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET");
   declareProperty("hlt_mht_key", m_hlt_mht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht");
   declareProperty("hlt_mhtem_key", m_hlt_mhtem_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht_em");
@@ -206,6 +209,24 @@ StatusCode HLTMETMonTool::book() {
 
   // Basic L1 histograms
   monFolderName = monGroupName + "/Primary";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1BasicHistograms();
+
+  // gEXRHO L1 histograms
+  monFolderName = monGroupName + "/gXERHO";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1BasicHistograms();
+
+  // gEXPUFIT L1 histograms
+  monFolderName = monGroupName + "/gXEPUFIT";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1BasicHistograms();
+
+  // gEXJWOJ L1 histograms
+  monFolderName = monGroupName + "/gXEJWOJ";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
   addL1BasicHistograms();
@@ -465,6 +486,27 @@ StatusCode HLTMETMonTool::fillMETHist() {
     ATH_MSG_WARNING("Could not retrieve LVL1_RoIs with key \"" << m_lvl1_roi_key << "\" from TDS"  );
   }
 
+  // retrieve xAOD L1 RHO 
+  const xAOD::EnergySumRoI *m_l1_rho_cont = 0;
+  sc = evtStore()->retrieve(m_l1_rho_cont, m_lvl1_rho_key);
+  if(sc.isFailure() || !m_l1_rho_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_RHOs with key \"" << m_lvl1_rho_key << "\" from TDS"  );
+  }
+
+  // retrieve xAOD L1 PUFIT 
+  const xAOD::EnergySumRoI *m_l1_pufit_cont = 0;
+  sc = evtStore()->retrieve(m_l1_pufit_cont, m_lvl1_pufit_key);
+  if(sc.isFailure() || !m_l1_rho_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_PUFITs with key \"" << m_lvl1_pufit_key << "\" from TDS"  );
+  }
+
+  // retrieve xAOD L1 JWOJ 
+  const xAOD::EnergySumRoI *m_l1_jwoj_cont = 0;
+  sc = evtStore()->retrieve(m_l1_jwoj_cont, m_lvl1_jwoj_key);
+  if(sc.isFailure() || !m_l1_jwoj_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_JWOJs with key \"" << m_lvl1_jwoj_key << "\" from TDS"  );
+  }
+
   // retrieve HLT containers
   // Get HLT (CELL) container
   const xAOD::TrigMissingETContainer *m_hlt_cell_met_cont = 0;
@@ -701,9 +743,101 @@ StatusCode HLTMETMonTool::fillMETHist() {
       l1_sumet_log = signed_log(l1_sumet, epsilon);
       saturated = (fabs(l1_mex)>16383 || fabs(l1_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better. 
     } else {
-      ATH_MSG_WARNING("L1 POI enegy too large");
+      ATH_MSG_WARNING("L1 ROI enegy too large");
     }
   }
+  
+  // L1 RHO
+  float l1_rho_mex = -9e9;
+  float l1_rho_mey = -9e9;
+  float l1_rho_met = -9e9;
+  float l1_rho_sumet = -9e9;
+  float l1_rho_phi = -9e9;
+  float l1_rho_mex_log = -9e9;
+  float l1_rho_mey_log = -9e9;
+  float l1_rho_met_log = -9e9;
+  float l1_rho_sumet_log = -9e9;
+  float saturated_rho = false; 
+
+  if (m_l1_rho_cont) {
+    if ((m_l1_rho_cont->energyX())>-9e12 && (m_l1_rho_cont->energyX())<9e12 && (m_l1_rho_cont->energyY())>-9e12 && (m_l1_rho_cont->energyY())<9e12) { 
+      l1_rho_mex = - (m_l1_rho_cont->energyX())/CLHEP::GeV;
+      l1_rho_mey = - (m_l1_rho_cont->energyY())/CLHEP::GeV;
+      l1_rho_met = sqrt(l1_rho_mex*l1_rho_mex + l1_rho_mey*l1_rho_mey);
+      l1_rho_phi = atan2f(l1_rho_mey,l1_rho_mex);
+      l1_rho_sumet = (m_l1_rho_cont->energyT())/CLHEP::GeV; 
+      
+      l1_rho_mex_log = signed_log(l1_rho_mex, epsilon);
+      l1_rho_mey_log = signed_log(l1_rho_mey, epsilon);
+      l1_rho_met_log = signed_log(l1_rho_met, epsilon);
+      l1_rho_sumet_log = signed_log(l1_rho_sumet, epsilon);
+      saturated_rho = (fabs(l1_rho_mex)>16383 || fabs(l1_rho_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better. 
+    } else {
+      ATH_MSG_WARNING("L1 RHO enegy too large");
+    }
+  }
+  
+  // L1 PUFIT
+  float l1_pufit_mex = -9e9;
+  float l1_pufit_mey = -9e9;
+  float l1_pufit_met = -9e9;
+  float l1_pufit_sumet = -9e9;
+  float l1_pufit_phi = -9e9;
+  float l1_pufit_mex_log = -9e9;
+  float l1_pufit_mey_log = -9e9;
+  float l1_pufit_met_log = -9e9;
+  float l1_pufit_sumet_log = -9e9;
+  float saturated_pufit = false; 
+
+  if (m_l1_pufit_cont) {
+    if ((m_l1_pufit_cont->energyX())>-9e12 && (m_l1_pufit_cont->energyX())<9e12 && (m_l1_pufit_cont->energyY())>-9e12 && (m_l1_pufit_cont->energyY())<9e12) { 
+      l1_pufit_mex = - (m_l1_pufit_cont->energyX())/CLHEP::GeV;
+      l1_pufit_mey = - (m_l1_pufit_cont->energyY())/CLHEP::GeV;
+      l1_pufit_met = sqrt(l1_pufit_mex*l1_pufit_mex + l1_pufit_mey*l1_pufit_mey);
+      l1_pufit_phi = atan2f(l1_pufit_mey,l1_pufit_mex);
+      l1_pufit_sumet = (m_l1_pufit_cont->energyT())/CLHEP::GeV; 
+      
+      l1_pufit_mex_log = signed_log(l1_pufit_mex, epsilon);
+      l1_pufit_mey_log = signed_log(l1_pufit_mey, epsilon);
+      l1_pufit_met_log = signed_log(l1_pufit_met, epsilon);
+      l1_pufit_sumet_log = signed_log(l1_pufit_sumet, epsilon);
+      saturated_pufit = (fabs(l1_pufit_mex)>16383 || fabs(l1_pufit_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better. 
+    } else {
+      ATH_MSG_WARNING("L1 PUFIT enegy too large");
+    }
+  }
+  
+  // L1 JWOJ
+  float l1_jwoj_mex = -9e9;
+  float l1_jwoj_mey = -9e9;
+  float l1_jwoj_met = -9e9;
+  float l1_jwoj_sumet = -9e9;
+  float l1_jwoj_phi = -9e9;
+  float l1_jwoj_mex_log = -9e9;
+  float l1_jwoj_mey_log = -9e9;
+  float l1_jwoj_met_log = -9e9;
+  float l1_jwoj_sumet_log = -9e9;
+  float saturated_jwoj = false; 
+
+  if (m_l1_jwoj_cont) {
+    if ((m_l1_jwoj_cont->energyX())>-9e12 && (m_l1_jwoj_cont->energyX())<9e12 && (m_l1_jwoj_cont->energyY())>-9e12 && (m_l1_jwoj_cont->energyY())<9e12) { 
+      l1_jwoj_mex = - (m_l1_jwoj_cont->energyX())/CLHEP::GeV;
+      l1_jwoj_mey = - (m_l1_jwoj_cont->energyY())/CLHEP::GeV;
+      l1_jwoj_met = sqrt(l1_jwoj_mex*l1_jwoj_mex + l1_jwoj_mey*l1_jwoj_mey);
+      l1_jwoj_phi = atan2f(l1_jwoj_mey,l1_jwoj_mex);
+      l1_jwoj_sumet = (m_l1_jwoj_cont->energyT())/CLHEP::GeV; 
+      
+      l1_jwoj_mex_log = signed_log(l1_jwoj_mex, epsilon);
+      l1_jwoj_mey_log = signed_log(l1_jwoj_mey, epsilon);
+      l1_jwoj_met_log = signed_log(l1_jwoj_met, epsilon);
+      l1_jwoj_sumet_log = signed_log(l1_jwoj_sumet, epsilon);
+      saturated_jwoj = (fabs(l1_jwoj_mex)>16383 || fabs(l1_jwoj_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better. 
+    } else {
+      ATH_MSG_WARNING("L1 JWOJ enegy too large");
+    }
+  }
+
+
 
   //**************
   /// HLT MET
@@ -844,6 +978,30 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   if (l1_met > epsilon_l1met) {
     fillL1BasicHistograms(l1_mex,l1_mex_log,l1_mey,l1_mey_log,l1_met,l1_met_log,l1_sumet,l1_sumet_log,l1_phi,saturated);
+  }
+
+  // L1 gXERHO
+  monFolderName = monGroupName + "/gXERHO";
+  setCurrentMonGroup(monFolderName.c_str());
+
+  if (l1_rho_met > epsilon_l1met) {
+    fillL1BasicHistograms(l1_rho_mex,l1_rho_mex_log,l1_rho_mey,l1_rho_mey_log,l1_rho_met,l1_rho_met_log,l1_rho_sumet,l1_rho_sumet_log,l1_rho_phi,saturated_rho);
+  }
+
+  // L1 gXEPUFIT
+  monFolderName = monGroupName + "/gXEPUFIT";
+  setCurrentMonGroup(monFolderName.c_str());
+
+  if (l1_pufit_met > epsilon_l1met) {
+    fillL1BasicHistograms(l1_pufit_mex,l1_pufit_mex_log,l1_pufit_mey,l1_pufit_mey_log,l1_pufit_met,l1_pufit_met_log,l1_pufit_sumet,l1_pufit_sumet_log,l1_pufit_phi,saturated_pufit);
+  }
+
+  // L1 gXEJWOJ
+  monFolderName = monGroupName + "/gXEJWOJ";
+  setCurrentMonGroup(monFolderName.c_str());
+
+  if (l1_jwoj_met > epsilon_l1met) {
+    fillL1BasicHistograms(l1_jwoj_mex,l1_jwoj_mex_log,l1_jwoj_mey,l1_jwoj_mey_log,l1_jwoj_met,l1_jwoj_met_log,l1_jwoj_sumet,l1_jwoj_sumet_log,l1_jwoj_phi,saturated_jwoj);
   }
   
 

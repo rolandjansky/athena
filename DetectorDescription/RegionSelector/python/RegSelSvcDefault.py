@@ -8,6 +8,9 @@ from AthenaCommon.SystemOfUnits import *  # loads MeV etc...
 # import the base class
 from RegionSelector.RegionSelectorConf import RegSelSvc
 
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
 class RegSelSvcDefault ( RegSelSvc )  :
 
     def __init__(self, name="RegSelSvcDefault"):
@@ -120,21 +123,21 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 ToolSvc += tgcTable
                 mlog.debug(tgcTable)
 
-            if DetFlags.detdescr.CSC_on():
+            if MuonGeometryFlags.hasCSC() and DetFlags.detdescr.CSC_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import CSC_RegionSelectorTable
                 cscTable = CSC_RegionSelectorTable(name = "CSC_RegionSelectorTable")
 
                 ToolSvc += cscTable
                 mlog.debug(cscTable)
 
-            if DetFlags.detdescr.Micromegas_on():
+            if (CommonGeometryFlags.Run()=="RUN3") and DetFlags.detdescr.Micromegas_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import MM_RegionSelectorTable
                 mmTable = MM_RegionSelectorTable(name = "MM_RegionSelectorTable")
 
                 ToolSvc += mmTable
                 mlog.debug(mmTable)
 
-            if DetFlags.detdescr.sTGC_on():
+            if (CommonGeometryFlags.Run()=="RUN3") and DetFlags.detdescr.sTGC_on():
                 from MuonRegionSelector.MuonRegionSelectorConf import sTGC_RegionSelectorTable
                 stgcTable = sTGC_RegionSelectorTable(name = "sTGC_RegionSelectorTable")
 
@@ -214,15 +217,15 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 self.enableTGC = True
             else:
                 self.enableTGC = False
-            if DetFlags.detdescr.CSC_on():
+            if MuonGeometryFlags.hasCSC() and DetFlags.detdescr.CSC_on():
                 self.enableCSC = True
             else:
                 self.enableCSC = False
-            if DetFlags.detdescr.sTGC_on():
+            if (CommonGeometryFlags.Run()=="RUN3") and DetFlags.detdescr.sTGC_on():
                 self.enablesTGC = True
             else:
                 self.enablesTGC = False
-            if DetFlags.detdescr.Micromegas_on():
+            if (CommonGeometryFlags.Run()=="RUN3") and DetFlags.detdescr.Micromegas_on():
                 self.enableMM = True
             else:
                 self.enableMM = False

@@ -130,13 +130,11 @@ namespace Muon {
                   << " technologies " << m_ntechnologies << " sectorLayers " << MuonStationIndex::sectorLayerHashMax() );
 
     // add technologies
-    insertTechnology(m_idHelper->mdtIdHelper());
-    insertTechnology(m_idHelper->rpcIdHelper());
+    if (&(m_idHelper->mdtIdHelper())) insertTechnology(m_idHelper->mdtIdHelper());
+    if (&(m_idHelper->rpcIdHelper())) insertTechnology(m_idHelper->rpcIdHelper());
     if (&(m_idHelper->cscIdHelper())) insertTechnology(m_idHelper->cscIdHelper());
-    if( m_ntechnologies > 4 ){
-      insertTechnology(m_idHelper->mmIdHelper());
-      insertTechnology(m_idHelper->stgcIdHelper());
-    }
+    if (&(m_idHelper->mmIdHelper())) insertTechnology(m_idHelper->mmIdHelper());
+    if (&(m_idHelper->stgcIdHelper())) insertTechnology(m_idHelper->stgcIdHelper());
 
     if( !insertTgcs() ) return false;
 

@@ -124,6 +124,48 @@ void remove_duplicates(std::vector<T>& vec) {
 }
 
 
+/// retrieve the jets  from the Roi
+
+size_t AnalysisConfig_Ntuple::get_jets( Trig::FeatureContainer::combination_const_iterator citr, 
+				      std::vector<TrackTrigObject>& objects, const std::string& key ) {
+
+  objects.clear();
+
+  const std::vector< Trig::Feature<xAOD::JetContainer> >  jetfeatures = citr->get<xAOD::JetContainer>( key, TrigDefs::alsoDeactivateTEs );
+  
+  if ( jetfeatures.empty() ) return 0; 
+
+  for ( size_t ifeature=0 ; ifeature<jetfeatures.size() ; ifeature++ ) { 
+    Trig::Feature<xAOD::JetContainer> jetfeature = jetfeatures.at(ifeature);
+
+    if ( jetfeature.empty() ) continue;
+
+    const xAOD::JetContainer* jets = jetfeature.cptr();
+    
+    if ( jets == 0 ) continue;
+
+    xAOD::JetContainer::const_iterator jitr = jets->begin();
+
+    for ( int j=0 ; jitr!=jets->end() ; jitr++, j++ ) { 
+      
+      const xAOD::Jet* ajet = (*jitr);
+
+      long unsigned jetid  = (unsigned long)ajet;
+
+      TrackTrigObject jet = TrackTrigObject( ajet->eta(), ajet->phi(), ajet->pt(), 0, ajet->type(), jetid );
+
+      objects.push_back( jet );
+ 
+    } 
+  }
+  
+  return objects.size();
+
+}
+
+
+
+
 void AnalysisConfig_Ntuple::loop() {
 
   m_provider->msg(MSG::INFO) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName 
@@ -935,25 +977,30 @@ void AnalysisConfig_Ntuple::loop() {
 
 	  bool found = false;
 	  
-	  if (m_provider->evtStore()->contains<Rec::TrackParticleContainer>(collectionname)) {
+	  std::string collection_test = collectionname;
+	  size_t pos = collectionname.find("/");
+	  if ( pos!=std::string::npos ) collection_test = collectionname.substr( pos+1, collectionname.size()-pos );
+
+	  if (m_provider->evtStore()->contains<Rec::TrackParticleContainer>(collection_test)) {
 	    found = selectTracks<Rec::TrackParticleContainer>( &selectorTest, collectionname );
 	  }
-	  else if (m_provider->evtStore()->contains<TrigInDetTrackCollection>(collectionname)) {
-	    found = selectTracks<TrigInDetTrackCollection>( &selectorTest, collectionname );
-	  }
-	  else if (m_provider->evtStore()->contains<TrackCollection>(collectionname)) {
-	    found = selectTracks<TrackCollection>( &selectorTest, collectionname );
-	  }
 #ifdef XAODTRACKING_TRACKPARTICLE_H
-	  else if (m_provider->evtStore()->contains<xAOD::TrackParticleContainer>(collectionname)) {
+	  else if (m_provider->evtStore()->contains<xAOD::TrackParticleContainer>(collection_test)) {
 	    found = selectTracks<xAOD::TrackParticleContainer>( &selectorTest, collectionname );
 	  }
 #endif
+	  else if (m_provider->evtStore()->contains<TrigInDetTrackCollection>(collection_test)) {
+	    found = selectTracks<TrigInDetTrackCollection>( &selectorTest, collectionname );
+	  }
+	  else if (m_provider->evtStore()->contains<TrackCollection>(collection_test)) {
+	    found = selectTracks<TrackCollection>( &selectorTest, collectionname );
+	  }
 	  else { 
 	    m_provider->msg(MSG::WARNING) << "\tcollection " << collectionname << " not found" << endmsg;
 	  }
 	  
 	  if ( found ) { 
+	    
 	    m_event->addChain( collectionname );
 	    m_event->back().addRoi(TIDARoiDescriptor(true));
 	    m_event->back().back().addTracks(selectorTest.tracks());
@@ -1276,8 +1323,8 @@ void AnalysisConfig_Ntuple::loop() {
 			//   now add rois to this ntuple chain
 
 			// Get seeding RoI
-			// std::vector< Trig::Feature<TrigRoiDescriptor> > _rois = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
-			// std::vector< Trig::Feature<TrigRoiDescriptor> > _rois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
+			// std::vector< Trig::Feature<TrigRoiDescriptor> > roist = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
+			// std::vector< Trig::Feature<TrigRoiDescriptor> > roist = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
 
 #if 0
 			/// check bjet roidescriptors ...
@@ -1298,54 +1345,63 @@ void AnalysisConfig_Ntuple::loop() {
 			std::string roi_name = m_chainNames[ichain].roi();
 			std::string vtx_name = m_chainNames[ichain].vtx();
 
-			std::vector< Trig::Feature<TrigRoiDescriptor> > _rois;
+			std::vector< Trig::Feature<TrigRoiDescriptor> > roist;
 			
 			//			std::cout << "chain " << chainName << "\troi_name " << roi_name << std::endl;
 
 			if ( roi_name!="" ) { 
 
-			  _rois = comb->get<TrigRoiDescriptor>(roi_name);
+			  std::string roi_name_tmp = roi_name;
+			  std::string roi_tename   = "";
+
+			  if ( roi_name.find("/")!=std::string::npos ) { 
+			    roi_name_tmp = roi_name.substr( roi_name.find("/")+1, roi_name.size()-roi_name.find("/") );
+			    roi_tename   = roi_name.substr( 0, roi_name.find("/") );
+			  }
+
+			  roist = comb->get<TrigRoiDescriptor>( roi_name_tmp, _decisiontype, roi_tename );
 
 			  //			  std::cout << "roi_name " << roi_name << std::endl;
 
-			  if ( _rois.size()>0 ) { 
-			    for ( unsigned ir=0 ; ir<_rois.size() ; ir++ ) m_provider->msg(MSG::INFO) << "\t\tRetrieved roi  " << roi_name << "\t" << *_rois[ir].cptr() << endmsg; 
+			  if ( roist.size()>0 ) { 
+			    for ( unsigned ir=0 ; ir<roist.size() ; ir++ ) m_provider->msg(MSG::INFO) << "\t\tRetrieved roi  " << roi_name << "\t" << *roist[ir].cptr() << endmsg; 
 			  }
 			  else { 
 			    m_provider->msg(MSG::WARNING) << "\t\tRequested roi  " << roi_name << " not found" << endmsg; 
 			  }
+
 			}
 			else { 
-			  _rois = comb->get<TrigRoiDescriptor>("forID1"); 
-			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>("forID"); 
-			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>(""); 
-			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>("initialRoI"); 
+			  roist = comb->get<TrigRoiDescriptor>("forID1"); 
+			  if ( roist.empty() ) roist = comb->get<TrigRoiDescriptor>("forID"); 
+			  if ( roist.empty() ) roist = comb->get<TrigRoiDescriptor>(""); 
+			  if ( roist.empty() ) roist = comb->get<TrigRoiDescriptor>("initialRoI"); 
 			}			  
 
-			if ( _rois.empty() ) continue;
+			if ( roist.empty() ) continue;
 
 			if ( iroiptr==0 ) { 
-			  iroiptr = _rois[0].cptr();
+			  iroiptr = roist[0].cptr();
 			}
 			else { 
-			  if ( iroiptr == _rois[0].cptr() ) { 
-			    // std::cout << "found RoI before " << *_rois[0].cptr() << std::endl;
+			  if ( iroiptr == roist[0].cptr() ) { 
+			    // std::cout << "found RoI before " << *roist[0].cptr() << std::endl;
 			    continue;
 			  }
 			}
 			
 			// notify if have multiple RoIs (get this for FS chains)
-			if( _rois.size()>1) {
+			if( roist.size()>1) {
 			  m_provider->msg(MSG::INFO) << "\tMore than one RoI found for seeded chain " << chainName << ": not yet supported" << endmsg;
 			  //continue; 
 			}
 
 			TIDARoiDescriptor* roiInfo = 0;
-			if( !_rois.empty() ) {
+			if( !roist.empty() ) {
 		
-			  for (  unsigned itmp=0  ;  itmp<_rois.size()  ;  itmp++ ) {
+			  for (  unsigned itmp=0  ;  itmp<roist.size()  ;  itmp++ ) {
 			    
-			    const TrigRoiDescriptor* roid = _rois[itmp].cptr();
+			    const TrigRoiDescriptor* roid = roist[itmp].cptr();
    
 			    m_provider->msg(MSG::INFO) << "\tchain " << chainName << " RoI descriptor " << itmp << " " << *roid << endmsg;
 			    
@@ -1364,6 +1420,7 @@ void AnalysisConfig_Ntuple::loop() {
 			      //		if( chainName.find("_FS")!=std::string::npos && roiInfo->eta()==0 && roiInfo->phi()==0 ) {
 			      //		roiInfo->phiHalfWidth(M_PI);
 			      //		roiInfo->etaHalfWidth(3);
+
 			    }
 			  }
  
@@ -1508,6 +1565,15 @@ void AnalysisConfig_Ntuple::loop() {
 #endif
   
  
+
+			// now get the jets if they are present
+
+			std::vector<TrackTrigObject> jets; 
+
+			if ( chainName.find("HLT_j")!=std::string::npos ) { 
+			  if ( get_jets( comb, jets ) == 0 ) m_provider->msg(MSG::WARNING) << "\tjets could not be retrieved " << endmsg; 
+			}			  
+
 			const std::vector<TIDA::Track*>& testTracks = selectorTest.tracks();
 			m_provider->msg(MSG::DEBUG) << "\ttest tracks.size() " << testTracks.size() << endmsg; 
 			for (unsigned int ii=0; ii < testTracks.size(); ii++) {
@@ -1535,6 +1601,7 @@ void AnalysisConfig_Ntuple::loop() {
 			chain.back().addTracks(testTracks);
 			chain.back().addVertices(tidavertices);
 			chain.back().addUserData(beamline_online);
+			if ( chainName.find("HLT_j")!=std::string::npos ) chain.back().addObjects( jets );
 			if ( selectorTest.getBeamX()!=0 || selectorTest.getBeamY()!=0 || selectorTest.getBeamZ()!=0 ) { 
 			  std::vector<double> _beamline;
 			  _beamline.push_back( selectorTest.getBeamX() );

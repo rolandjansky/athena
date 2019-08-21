@@ -11,7 +11,7 @@
 
 #include <numeric>
 
-#include "TH2F.h"
+#include "TH2D.h"
 #include "TMath.h"
 #include "TF1.h"
 #include "TGraphErrors.h"
@@ -22,7 +22,7 @@ namespace MuonGM
   class MuonDetectorManager;
 }
 
-//
+// 
 // Simple clusterization tool for MicroMegas
 //
 namespace Muon
@@ -35,13 +35,13 @@ namespace Muon
     UTPCMMClusterBuilderTool(const std::string&, const std::string&, const IInterface*);
      
     /** Default destructor */
-    virtual ~UTPCMMClusterBuilderTool();
+    virtual ~UTPCMMClusterBuilderTool() = default;
 
     /** standard initialize method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /** standard finalize method */
-    virtual StatusCode finalize();
+    //virtual StatusCode finalize();
 
     StatusCode getClusters(std::vector<Muon::MMPrepData>& MMprds, 
 			   std::vector<Muon::MMPrepData*>& clustersVec);
@@ -54,24 +54,24 @@ namespace Muon
 
 
     // params for the hough trafo
-    float m_alphaMin,m_alphaMax,m_alphaResolution;
-    float m_dMin,m_dMax,m_dResolution;
+    double m_alphaMin,m_alphaMax,m_alphaResolution;
+    double m_dMin,m_dMax,m_dResolution;
     int m_houghMinCounts;
 
-    float m_timeOffset,m_dHalf,m_vDrift;
+    double m_timeOffset,m_dHalf,m_vDrift;
 
-    float m_toRad=TMath::Pi()/180.;
-    //float m_toRad;
+    double m_toRad=TMath::Pi()/180.;
 
 
     StatusCode runHoughTrafo(std::vector<int>& flag,std::vector<float>& xpos, std::vector<float>& time,std::vector<int>& idx_selected);
-    StatusCode fillHoughTrafo(TH2F* cummulator,std::vector<int>& flag, std::vector<float>& xpos, std::vector<float>& time, float meanX);
-    StatusCode houghInitCummulator(TH2F*& cummulator,TH1F*& fineCummulator,float xmax,float xmin,float xmean);
-    StatusCode doFineScan(TH1F* fineCummulator,std::vector<int>& flag, std::vector<float>& xpos, std::vector<float>& time,float amean,float meanX,float& dmean, float& dRMS);
-    StatusCode transformParameters(float alpha, float d, float dRMS, float& slope,float& intercept, float& interceptRMS);
-    StatusCode findMaxAlpha(TH2F* h_hough,float& amean);
-    StatusCode selectPoints(std::vector<int>& flag,std::vector<float>& xpos, std::vector<float>& time, float& slope, float& intercept, float& interceptRMS,float& xmean, std::vector<int>& idxSelected );
-    StatusCode finalFit(std::vector<float>& xpos, std::vector<float>& time, std::vector<int>& idxSelected,float& x0);
+    StatusCode fillHoughTrafo(std::unique_ptr<TH2D>& cummulator,std::vector<int>& flag, std::vector<float>& xpos, std::vector<float>& time, float meanX);
+    StatusCode houghInitCummulator(std::unique_ptr<TH2D>& cummulator,float xmax,float xmin,float xmean);
+
+    StatusCode findAlphaMax(std::unique_ptr<TH2D>& h_hough, std::vector<std::tuple<double,double>> &maxPos);
+    StatusCode selectTrack(std::vector<std::tuple<double,double>> &tracks,std::vector<float>& xpos, std::vector<float>& time,float meanX,std::vector<int>& flag,std::vector<int>& idx_selected);
+
+    StatusCode transformParameters(double alpha, double d, double dRMS, double& slope,double& intercept, double& interceptRMS);
+    StatusCode finalFit(std::vector<float>& xpos, std::vector<float>& time, std::vector<int>& idxSelected,float& x0,float &fitAngle, float &chiSqProb);
 };
 
 

@@ -23,7 +23,6 @@
 #include "TrigT1NSWSimTools/IStripSegmentTool.h"
 #include "TrigT1NSWSimTools/PadTrigger.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
-
 //forward declarations
 class IIncidentSvc;
 class TTree;
@@ -56,7 +55,7 @@ namespace NSWL1 {
     virtual ~StripSegmentTool();
     virtual StatusCode initialize();
     virtual void handle (const Incident& inc);
-    StatusCode find_segments(std::vector< std::unique_ptr<StripClusterData> >& clusters);
+    StatusCode find_segments( std::vector< std::unique_ptr<StripClusterData> >& ,const std::unique_ptr<Muon::NSW_TrigRawDataContainer>& );
 
     
   private:
@@ -68,7 +67,6 @@ namespace NSWL1 {
         
         // needed Services, Tools and Helpers
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
-
         // analysis ntuple
         TTree* m_tree;                                          //!< ntuple for analysis
         BooleanProperty  m_doNtuple;                            //!< property, see @link StripTdsOfflineTool::StripTdsOfflineTool @endlink                         
@@ -109,11 +107,7 @@ namespace NSWL1 {
         float m_dtheta_max;          
         
     protected:
-        SG::WriteHandleKey<Muon::NSW_TrigRawDataContainer> m_trigRdoContainer;
-        ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;
-            
-         
-     
+        ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;     
     
   };  // end of StripSegmentTool class
     

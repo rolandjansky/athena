@@ -10,7 +10,7 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonDigitContainer/MmDigit.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
 
 #include "AthenaKernel/MsgStreamMember.h"
 

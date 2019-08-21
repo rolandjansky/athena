@@ -970,8 +970,13 @@ TriggerLvl1List=[
     ( 'xAOD::EnergySumRoIAuxInfo#gXEJWOJ_METAux.',             'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoI#gXEPUFIT_MET',                       'ESD AODFULL', 'L1'),
     ( 'xAOD::EnergySumRoIAuxInfo#gXEPUFIT_METAux.',            'ESD AODFULL', 'L1'),
-    ( 'xAOD::EnergySumRoI#gXERHO_MET',                         'ESD AODFULL', 'L1'),
-    ( 'xAOD::EnergySumRoIAuxInfo#gXERHO_METAux.',              'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoI#gXERHO_MET',                       'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#gXERHO_METAux.',                       'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoI#gXENOISECUT_MET',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#gXENOISECUT_METAux.',              'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoI#jNOISECUT_MET',                         'ESD AODFULL', 'L1'),
+    ( 'xAOD::EnergySumRoIAuxInfo#jNOISECUT_METAux.',              'ESD AODFULL', 'L1'),
+
     # eFEX electrons
     ("xAOD::TrigEMClusterContainer#SClusterCl" ,               'ESD AODFULL', 'L1'),
     ("xAOD::TrigEMClusterAuxContainer#SClusterClAux." ,        'ESD AODFULL', 'L1'),

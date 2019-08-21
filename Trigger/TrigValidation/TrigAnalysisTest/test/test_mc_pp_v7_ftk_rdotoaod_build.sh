@@ -2,27 +2,12 @@
 
 # art-description: Trigger MC pp v7 RDO to AOD test FTK
 # art-type: build
+# art-include: 21.1/AthenaP1
 # art-include: 21.0/Athena
 # art-include: 21.3/Athena
-# art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
-# art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
-# art-output: *check*
-# art-output: HLTChain.txt
-# art-output: HLTTE.txt
-# art-output: L1AV.txt
-# art-output: HLTconfig*.xml
-# art-output: L1Topoconfig*.xml
-# art-output: LVL1config*.xml
-# art-output: *.log
-# art-output: *.root
-# art-output: ntuple.pmon.gz
-# art-output: *perfmon*
-# art-output: TotalEventsProcessed.txt
-# art-output: AOD.pool.root.checkFile0
-# art-output: AOD.pool.root.checkFiletrigSize.txt
-# art-output: *.regtest.new
+# Skipping art-output which has no effect for build tests.
+# If you create a grid version, check art-output in existing grid tests.
 
 export NAME="mc_pp_v7_ftk_rdotoaod_build"
 export INPUT="ftk"

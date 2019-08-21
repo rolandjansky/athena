@@ -287,6 +287,11 @@ def addFTKPattGenArgs(parser):
                         help='sector selection algorithm (0:loose .. 3:tight)', 
                         group='FTKPattGenRoot')
     
+    parser.add_argument('--badModuleFile', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                        help='list of bad modules', 
+                        group='FTKPattGenRoot')
+
 #    parser.add_argument('--pattgenalgo', 
 #                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
 #                        help='Algorithm type: 1=random sector selection; 2=weighted random sector selection; 3=all patterns of all sectors; 4=random pattern selection; 5=weighted random pattern selection', 

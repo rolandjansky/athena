@@ -20,13 +20,28 @@ from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon import CfgMgr
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
+from MuonRecExample.MuonRecTools import MuonIdHelperTool
 
 muonRecFlags.setDefaults()
 
 topSequence = AlgSequence()
+
+from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False
+Run3NSW = CommonGeometryFlags.Run() in ["RUN3"]
+Run4NSW = CommonGeometryFlags.Run() in ["RUN4"] and not MuonGeometryFlags.hasCSC() # assumes RUN4 layouts will be symmetric
+if muonRecFlags.dosTGCs() and not (Run3NSW or Run4NSW): muonRecFlags.dosTGCs = False
+if muonRecFlags.doMicromegas() and not (Run3NSW or Run4NSW): muonRecFlags.doMicromegas = False
+
+# ESDtoAOD and AODtoTAG need a configured MuonIdHelperTool (e.g. for the RPC_ResidualPullCalculator)
+# Since it is not automatically created by the job configuration (as for RDOtoESD),
+# do it here manually (hope this will be fixed with the movement to the new configuration for release 22)
+if rec.readESD() or rec.readAOD():
+    MuonIdHelperTool()
 
 if muonRecFlags.doDigitization():
     include("MuonRecExample/MuonDigitization_jobOptions.py")
@@ -131,7 +146,7 @@ if muonRecFlags.doStandalone():
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackParticleTruthAlg
         col =  "MuonSpectrometerTracks" 
-        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], UseCSC=muonRecFlags.doCSCs())
+        topSequence += MuonDetailedTrackTruthMaker(name="MuonStandaloneDetailedTrackTruthMaker", TrackCollectionNames = [col], HasCSC=MuonGeometryFlags.hasCSC())
         topSequence += TrackTruthSelector(name= col + "Selector", 
                                           DetailedTrackTruthName = col + "Truth",
                                           OutputName             = col + "Truth") 

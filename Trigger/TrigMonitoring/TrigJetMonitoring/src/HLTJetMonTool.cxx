@@ -1771,7 +1771,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
   double count=0;
   
   ATH_MSG_DEBUG("fillBasicHLTforChain CHAIN: " << Form("HLT_%s",theChain.c_str()) << " passed TDT: " << getTDT()->isPassed(Form("HLT_%s",theChain.c_str())));
-  
+
   if (getTDT()->isPassed(Form("HLT_%s",theChain.c_str()))) {
 
     if((h  = hist("HLTSigma_vs_LB"))){
@@ -1796,7 +1796,6 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 
 	 ATH_MSG_DEBUG("jet et = "<<et);
 
-
 	 if(et < epsilon) et = 0;
 	 bool hlt_thr_pass = ( et > thrHLT );
 	 if(hlt_thr_pass) {
@@ -1805,8 +1804,8 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   double  emfrac  =1;
 	   double  hecfrac =1;
 	   if (m_isPP || m_isCosmic || m_isMC){
-	      emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
-	      hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
+	      if(j->isAvailable<float>("EMFrac"))  emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac);
+	      if(j->isAvailable<float>("HECFrac")) hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac);
 	    }
 
 	   double jvt  = -0.1;
@@ -1819,7 +1818,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   v_thisjet.SetPtEtaPhiE(j->pt()/CLHEP::GeV,j->eta(), j->phi(),j->e()/CLHEP::GeV);
 	   m_v_HLTjet.push_back(v_thisjet);
            m_n_index++;
-		   
+
 	   if((h  = hist("HLTJet_Et")))            h->Fill(et,      m_lumi_weight);
 	   if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
 	   if((h  = hist("HLTJet_eta")))           h->Fill(eta,     m_lumi_weight);
