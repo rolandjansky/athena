@@ -28,7 +28,6 @@ namespace EL
   class LocalDriver;
   class OutputStream;
   class SlurmDriver;
-  class StatusCode;
   class TorqueDriver;
   class IWorker;
   class Worker;
