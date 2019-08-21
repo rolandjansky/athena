@@ -26,9 +26,6 @@ svcMgr.TrigCaloDataAccessSvc.MonTool = mon
 from L1Decoder.L1DecoderConf import CreateFullScanRoI
 topSequence += CreateFullScanRoI()
 
-from TrigT2CaloCommon.CaloDef import clusterFSInputMaker
-topSequence += clusterFSInputMaker()
-
 from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetRecoSequence
 from TrigUpgradeTest.jetMenuHelper import jetDictFromString
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool
