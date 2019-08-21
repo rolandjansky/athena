@@ -10,9 +10,17 @@
 // includes
 //
 
-#include <AsgMessaging/MessageCheck.h>
+#include <AsgMessaging/MsgHelpers.h>
+#include <AsgMessaging/MessageCheckLocal.h>
 
-#include <stdexcept>
+#include <cassert>
+#include <mutex>
+#include <unordered_map>
+
+#ifndef XAOD_STANDALONE
+#include <GaudiKernel/Bootstrap.h>
+#include <GaudiKernel/ISvcLocator.h>
+#endif
 
 //
 // method implementations
@@ -54,7 +62,7 @@ namespace asg
     /// TODO: Look into using AthenaKernel/MsgStreamMember.h
     IMessageSvc* getMessageSvcAthena()
     {
-      static IMessageSvc* const msgSvc
+      static IMessageSvc* msgSvc
 	= Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc");
       return msgSvc;
     }
@@ -63,7 +71,8 @@ namespace asg
 
 
 
-  MsgStream& packageMsgStream (const std::string& package)
+  MsgStream& MsgHelpers ::
+  pkgMsgStream (const std::string& package)
   {
     std::lock_guard<std::recursive_mutex> lock {packageMsgMutex};
     auto iter = packageMsgStreamMap.find (package);
@@ -84,14 +93,16 @@ namespace asg
 
 
 
-  void setPackageMsgLevel (const std::string& package, MSG::Level level)
+  void MsgHelpers ::
+  setPkgMsgLevel (const std::string& package, MSG::Level level)
   {
-    packageMsgStream (package).setLevel (level);
+    pkgMsgStream (package).setLevel (level);
   }
 
 
 
-  void printAllPackageMsgLevels ()
+  void MsgHelpers ::
+  printAllPkgMsgLevels ()
   {
     using namespace msgAsgMessaging;
     std::lock_guard<std::recursive_mutex> lock {packageMsgMutex};
@@ -99,18 +110,6 @@ namespace asg
     for (auto& msgStream : packageMsgStreamMap)
     {
       ANA_MSG_INFO ("  package=" << msgStream.first << " level=" << name (msgStream.second.level()) << "(" << unsigned (msgStream.second.level()) << ")");
-    }
-  }
-
-
-
-  ANA_MSG_SOURCE (msgUserCode, "UserCode")
-
-  namespace detail
-  {
-    void throw_check_fail (const std::string& str)
-    {
-      throw std::runtime_error (str);
     }
   }
 }
