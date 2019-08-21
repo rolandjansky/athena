@@ -727,6 +727,11 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
       // Get the event
       analysisTopTools.xaodEvent->getEntry(entry);
 
+      // Need to run mcEventWeight recalculation before processing non-reco events
+      // otherwise AnalysisTop_eventWeight is not available in EventInfo
+      if (topConfig->isMC()){
+        analysisTopTools.topScaleFactorCalculator->mcEventWeight(); // Do not need the returned value
+      }
       // Need to run pileup calculation first as required inside truth event
       if (topConfig->doPileupReweighting() && !topConfig->isTruthDxAOD()) {
         top::check(analysisTopTools.topScaleFactorCalculator->executePileup(), "Failed to execute pileup reweighting");

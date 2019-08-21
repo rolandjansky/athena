@@ -52,8 +52,7 @@ namespace top {
     const xAOD::TruthEventContainer* truthEventContainer(nullptr);
     top::check( evtStore()->retrieve(truthEventContainer, m_config->sgKeyTruthEvent()) , "Failed to retrieve truth PDF info" );
 
-//     float mc_weight = event_info->mcEventWeight();
-    float mc_weight = truthEventContainer->at(0)->weights()[0];// FIXME temporary bugfix
+    float mc_weight = event_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     // try this...
     top::check( ( truthEventContainer->size() == 1 ), "More than one truth event, not sure how to cope with PDF info" );

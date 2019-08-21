@@ -122,8 +122,7 @@ StatusCode ScaleFactorCalculator::execute() {
     // a m_PMG_SF class, as with other corrections
     if (m_config->isSherpa22Vjets()) {
       const xAOD::EventInfo* eventInfo(nullptr);
-      top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),
-                 "Failed to retrieve EventInfo");
+      top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),"Failed to retrieve EventInfo");
       double sherpa_weight = m_sherpa_22_reweight_tool->getWeight();
       eventInfo->auxdecor<double>("Sherpa22VJetsWeight") = sherpa_weight;
     }
@@ -161,6 +160,13 @@ float ScaleFactorCalculator::mcEventWeight() const {
   if (!m_config->isMC()) {
     return sf;
   } 
+  // Decorate the updated nominal weight if appropriate - note this is called early in top-xaod
+  const xAOD::EventInfo* eventInfo(nullptr);
+  top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()),"Failed to retrieve EventInfo");    
+  
+  // Check if the decoration is already present, and return it if so
+  if(eventInfo->isAvailable<float>("AnalysisTop_eventWeight")) 
+    return eventInfo->auxdataConst<float>("AnalysisTop_eventWeight");
 
   ///-- Start using the PMG tool to get the nominal event weights --///
   ///-- But nominal weight name seems to vary so we try to test   --///
@@ -170,14 +176,13 @@ float ScaleFactorCalculator::mcEventWeight() const {
     ///-- Check whether this weight name does exist --///
     if(m_pmg_truth_weight_tool->hasWeight(weight_name)){
       sf = m_pmg_truth_weight_tool->getWeight( weight_name );
-      ///-- Return from here if we find it --///
+      ///-- Decorate the event info with this weight and return --///
+      eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
       return sf;
     } 
   }
   ///-- If we reach here, no name was found, so use the old method --///
   ///-- If not, we can default to retrieving the nominal weight assuming it is in the 0th position --///
-  const xAOD::EventInfo* eventInfo(nullptr);
-  top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
   const xAOD::TruthEventContainer* truthEventContainer(nullptr);
   top::check( evtStore()->retrieve(truthEventContainer, m_config->sgKeyTruthEvent()) , "Failed to retrieve truth PDF info" );
     
@@ -186,6 +191,8 @@ float ScaleFactorCalculator::mcEventWeight() const {
   
   // Temporary bug fix due to the above problem
   sf = truthEventContainer->at(0)->weights()[0];
+  // Decorate the event info with this weight
+  eventInfo->auxdecor<float>("AnalysisTop_eventWeight") = sf;
 
   return sf;
 }

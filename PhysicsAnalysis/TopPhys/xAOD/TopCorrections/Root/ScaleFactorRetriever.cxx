@@ -1344,7 +1344,7 @@ namespace top {
   */
   void ScaleFactorRetriever::print(const top::Event& event) {
     ATH_MSG_INFO("ScaleFactors");
-    ATH_MSG_INFO("    MCEventWeight      : " << std::to_string( event.m_info->mcEventWeight() ) );
+    ATH_MSG_INFO("    MCEventWeight      : " << std::to_string( event.m_info->auxdataConst<float>("AnalysisTop_eventWeight") ) );
     ATH_MSG_INFO("    Pileup             : " << std::to_string( pileupSF(event) ) );
     ATH_MSG_INFO("    LeptonEventWeight  : " << std::to_string( leptonSF(event, top::topSFSyst::nominal) ) );
     ATH_MSG_INFO("    B-TagEventWeight   : " << std::to_string( btagSF(event, top::topSFSyst::nominal) ) );
