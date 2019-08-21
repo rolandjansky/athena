@@ -85,7 +85,7 @@ namespace asg
     auto result = packageMsgStreamMap.emplace
       (std::piecewise_construct,
        std::forward_as_tuple (package),
-       std::forward_as_tuple (::asg::detail::getMessageSvcAthena(), fullName));
+       std::forward_as_tuple (getMessageSvcAthena(), fullName));
 #endif
     assert (result.second);
     return result.first->second;
