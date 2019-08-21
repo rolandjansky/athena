@@ -20,7 +20,7 @@ from TGC_Digitization.TGC_DigitizationConfigNew import TGC_DigitizerCfg
 from RPC_Digitization.RPC_DigitizationConfigNew import RPC_DigitizerCfg
 from CSC_Digitization.CSC_DigitizationConfigNew import CSC_DigitBuilderCfg
 from LArDigitization.LArDigitizationConfigNew import LArDigitMakerCfg
-from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg
+from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -46,6 +46,7 @@ acc.merge(RPC_DigitizerCfg(ConfigFlags))
 acc.merge(CSC_DigitBuilderCfg(ConfigFlags))
 acc.merge(LArDigitMakerCfg(ConfigFlags))
 acc.merge(TileDigitizationCfg(ConfigFlags))
+acc.merge(TileTriggerDigitizationCfg(ConfigFlags))
 # Dump config
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True
