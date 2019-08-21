@@ -1,14 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-//          Copyright Nils Krumnack 2016.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (nils.erik.krumnack@iastate.edu) for
-// bug reports, feature suggestions, praise and complaints.
 
 
 //
@@ -180,7 +172,7 @@ namespace SH
     /// \brief the command for setting up rucio
     std::string rucioSetupCommand ()
     {
-      return "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force 'rucio -w'";
+      return "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh -q && lsetup --force 'rucio -w'";
     }
   }
 
@@ -226,7 +218,7 @@ namespace SH
     std::vector<std::string> result;
 
     ANA_MSG_INFO ("querying FAX for dataset " << name);
-    std::string output = sh::exec_read ("source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh && lsetup --force fax && echo " + separator + " && fax-get-gLFNs " + sh::quote (name));
+    std::string output = sh::exec_read ("source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh -q && lsetup --force fax && echo " + separator + " && fax-get-gLFNs " + sh::quote (name));
     auto split = output.rfind (separator + "\n");
     if (split == std::string::npos)
       RCU_THROW_MSG ("couldn't find separator in: " + output);
@@ -291,16 +283,19 @@ namespace SH
     // vector
     std::map<std::string,std::string> resultMap;
 
+    boost::regex urlPattern ("^root://.*");
     boost::regex pattern (filter);
     std::string line;
     while (std::getline (str, line))
     {
-      if (!line.empty() &&
-          line != "Warning: missing 32-bit kerberos externals dir")
+      if (line.empty())
       {
-	if (line.find ("root:") != 0)
-	  RCU_THROW_MSG ("couldn't parse line: " + line);
-
+        // no-op
+      } else if (!RCU::match_expr (urlPattern, line))
+      {
+        ANA_MSG_INFO ("couldn't handle line: " << line);
+      } else
+      {
 	std::string::size_type split = line.rfind ("/");
 	if (split != std::string::npos)
 	{
@@ -423,7 +418,7 @@ namespace SH
       RCU_THROW_MSG ("couldn't find separator in: " + output);
 
     std::istringstream str (output.substr (split + separator.size() + 1));
-    boost::regex pattern ("^([^:]+): (.+)$");
+    boost::regex pattern ("^([^:]+): *(.+)$");
     std::string line;
     std::unique_ptr<MetaObject> meta (new MetaObject);
 
@@ -438,13 +433,14 @@ namespace SH
     while (std::getline (str, line))
     {
       boost::smatch what;
-      if (boost::regex_match (line, what, pattern))
+      if (line == "------")
+      {
+        addMeta ();
+        meta.reset (new MetaObject);
+      } else  if (boost::regex_match (line, what, pattern))
       {
 	if (meta->get (what[1]))
-	{
-	  addMeta ();
-	  meta.reset (new MetaObject);
-	}
+          throw std::runtime_error ("duplicate entry: " + what[1]);
 	meta->setString (what[1], what[2]);
       } else if (!line.empty())
       {
@@ -453,15 +449,15 @@ namespace SH
     }
     addMeta ();
 
-    for (auto& dataset : datasets)
-    {
-      if (result.find (dataset) == result.end())
-	RCU_THROW_MSG ("received result for dataset not requested: " + dataset);
-    }
     for (auto& subresult : result)
     {
       if (datasets.find (subresult.first) == datasets.end())
 	RCU_THROW_MSG ("received result for dataset not requested: " + subresult.first);
+    }
+    for (auto& dataset : datasets)
+    {
+      if (result.find (dataset) == result.end())
+	RCU_THROW_MSG ("received no result for dataset: " + dataset);
     }
 
     return result;
