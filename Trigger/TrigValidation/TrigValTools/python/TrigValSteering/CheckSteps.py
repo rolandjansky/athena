@@ -389,10 +389,10 @@ class ChainDumpStep(InputDependentStep):
         super(ChainDumpStep, self).__init__(name)
         self.input_file = 'expert-monitoring.root'
         self.executable = 'chainDump.py'
-        self.args = '-S'
+        self.args = '--json'
 
     def configure(self, test):
-        self.args += ' --rootFile='+self.input_file
+        self.args += ' -f '+self.input_file
         super(ChainDumpStep, self).configure(test)
 
 
