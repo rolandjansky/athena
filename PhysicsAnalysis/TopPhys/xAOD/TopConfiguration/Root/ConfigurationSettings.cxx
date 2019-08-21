@@ -164,11 +164,11 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 		      "Default None.",
 		      "Medium");
     registerParameter("TauEleBDTWP",
-                      "Tau electron BDT WP (None, Loose, Medium, Tight)."
+                      "Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
                       "Default Loose.",
                       "Loose");
     registerParameter("TauEleBDTWPLoose",
-                      "Loose Tau electron BDT WP (None, Loose, Medium, Tight)."
+                      "Loose Tau electron BDT WP (None, Loose, Medium, Tight, OldLoose, OldMedium)."
                       "Default Loose.",
                       "Loose");
     registerParameter("TauEleOLR",

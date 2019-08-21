@@ -103,6 +103,8 @@ StatusCode TauCPTools::setupCalibration() {
     if (s == "Loose") return TauAnalysisTools::ELEIDBDTLOOSE;
     if (s == "Medium") return TauAnalysisTools::ELEIDBDTMEDIUM;
     if (s == "Tight") return TauAnalysisTools::ELEIDBDTTIGHT;
+    if (s == "OldLoose") return TauAnalysisTools::ELEIDBDTOLDLOOSE;
+    if (s == "OldMedium") return TauAnalysisTools::ELEIDBDTOLDMEDIUM;
 
     // If we haven't found the correct WP, then return -1
     return TauAnalysisTools::ELEIDNONEUNCONFIGURED;
