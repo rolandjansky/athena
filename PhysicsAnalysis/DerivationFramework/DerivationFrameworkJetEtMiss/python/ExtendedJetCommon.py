@@ -513,8 +513,7 @@ def eventCleanLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramew
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
     jetcleaningtoolname = "EventCleaningTool_LooseLLP"
     prefix = "DFCommonJets_"
-    #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
-    ecToolLooseLLP = EventCleaningTool('EventCleaningTool_LooseLLP',CleaningLevel='LooseBadLLP', DoDecorations=False)
+    ecToolLooseLLP = EventCleaningTool('EventCleaningTool_LooseLLP',CleaningLevel='LooseBadLLP')
     ecToolLooseLLP.JetCleanPrefix = prefix
     ecToolLooseLLP.JetCleaningTool = getJetCleaningTool("LooseBadLLP")
     algCleanLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_LooseLLP',
@@ -650,6 +649,7 @@ applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
+eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")
 
