@@ -32,7 +32,9 @@ if muonRecFlags.doRPCs() and DetFlags.makeRIO.RPC_on() and (DetFlags.haveRDO.RPC
 if muonRecFlags.doTGCs() and DetFlags.makeRIO.TGC_on() and (DetFlags.haveRDO.TGC_on() or DetFlags.digitize.TGC_on()):
     topSequence += getAlgorithm("TgcRdoToTgcPrepData", tryDefaultConfigurable=True)
 
-if (CommonGeometryFlags.Run() in ["RUN3", "RUN4"]):
+Run3NSW = CommonGeometryFlags.Run() in ["RUN3"]
+Run4NSW = CommonGeometryFlags.Run() in ["RUN4"] and not MuonGeometryFlags.hasCSC() # assumes RUN4 layouts will be symmetric
+if Run3NSW or Run4NSW:
     from MuonRecExample.NSWTools import SimpleMMClusterBuilderTool
     from MuonRecExample.NSWTools import SimpleSTgcClusterBuilderTool
 

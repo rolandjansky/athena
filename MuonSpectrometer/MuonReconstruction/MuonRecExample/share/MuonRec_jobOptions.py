@@ -32,8 +32,10 @@ topSequence = AlgSequence()
 
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 if muonRecFlags.doCSCs() and not MuonGeometryFlags.hasCSC(): muonRecFlags.doCSCs = False
-if muonRecFlags.dosTGCs() and (CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]): muonRecFlags.dosTGCs = False
-if muonRecFlags.doMicromegas() and not (CommonGeometryFlags.Run() not in ["RUN3", "RUN4"]): muonRecFlags.doMicromegas = False
+Run3NSW = CommonGeometryFlags.Run() in ["RUN3"]
+Run4NSW = CommonGeometryFlags.Run() in ["RUN4"] and not MuonGeometryFlags.hasCSC() # assumes RUN4 layouts will be symmetric
+if muonRecFlags.dosTGCs() and not (Run3NSW or Run4NSW): muonRecFlags.dosTGCs = False
+if muonRecFlags.doMicromegas() and not (Run3NSW or Run4NSW): muonRecFlags.doMicromegas = False
 
 # ESDtoAOD and AODtoTAG need a configured MuonIdHelperTool (e.g. for the RPC_ResidualPullCalculator)
 # Since it is not automatically created by the job configuration (as for RDOtoESD),
