@@ -18,7 +18,7 @@ if( XAOD_STANDALONE )
    set( sources Root/*.cxx )
 else()
    set( sources Root/MsgLevel.cxx
-      Root/AsgMessaging.cxx Root/AsgMessagingForward.cxx
+      Root/AsgMessaging.cxx Root/AsgMessagingForward.cxx Root/MsgHelpers.cxx
       Root/MessageCheck.cxx Root/MessageCheckLocal.cxx Root/UnitTest.cxx src/*.cxx )
 endif()
 

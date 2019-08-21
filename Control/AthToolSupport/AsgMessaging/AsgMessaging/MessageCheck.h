@@ -76,12 +76,8 @@
 
 #include <type_traits>
 
+#include <AsgMessaging/MsgHelpers.h>
 #include <AsgMessaging/StatusCode.h>
-#ifdef XAOD_STANDALONE
-#include <AsgMessaging/MsgStream.h>
-#else
-#include "AthenaBaseComps/AthMessaging.h"
-#endif
 
 /// \brief for standalone code this creates a new message category
 ///
@@ -125,7 +121,7 @@
   {	 					\
     MsgStream& msg ()				\
     {                                           \
-      static MsgStream& result {::asg::packageMsgStream (TITLE)}; \
+      static MsgStream& result {::asg::MsgHelpers::pkgMsgStream (TITLE)}; \
       return result;				\
     }						\
 						\
@@ -155,35 +151,6 @@
 namespace asg
 {
   ANA_MSG_HEADER (msgUserCode)
-}
-
-namespace asg
-{
-  /// \brief the message stream for the given package identifier
-  ///
-  /// This is for package-level streaming, which in itself is
-  /// discouraged, but sometimes it is just not practical to wrap code
-  /// that wants to write out a message into a tool or algorithm.
-  /// Maybe if we have dual-use services some day, this may become
-  /// less relevant.
-  ///
-  /// Normally users shouldn't access this directly, but rely on the
-  /// wrappers defined above.
-  MsgStream& packageMsgStream (const std::string& package);
-
-  /// \brief set the package message level for the given name
-  ///
-  /// This is mostly to have a single, stable function that can be
-  /// called from python-configuration, without having to rely on any
-  /// of the details of the implementation above.
-  void setPackageMsgLevel (const std::string& package, MSG::Level level);
-
-  /// \brief print all package message levels
-  ///
-  /// This is mostly to have a single, stable function that can be
-  /// called from python-configuration, without having to rely on any
-  /// of the details of the implementation above.
-  void printAllPackageMsgLevels ();
 }
 
 namespace asg
