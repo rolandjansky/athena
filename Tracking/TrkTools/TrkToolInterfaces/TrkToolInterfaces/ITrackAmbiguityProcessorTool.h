@@ -15,6 +15,9 @@ static const InterfaceID IID_ITrackAmbiguityProcessorTool("Trk::ITrackAmbiguityP
 
 namespace Trk {
 
+  typedef std::vector<std::pair<const Track*, float>> TracksScores;
+
+
 /** @brief Interface for resolving hit assoication ambiguities in a given track collection.
 
 The TrkAmbiguityProcessor is responsible for resolving ambiguities in the passed TrackCollection. To do this, it attempts to improve the 'score' of an event, where the score of an event is the summed scores of all the tracks it contains. 
@@ -31,7 +34,7 @@ class ITrackAmbiguityProcessorTool : virtual public IAlgTool
 	@return new collections of tracks, with ambiguities resolved. Ownership is passed on 
 	(i.e. client handles deletion)*/
         virtual TrackCollection*  process(const TrackCollection*) {return nullptr;}; 
-        virtual TrackCollection*  process(std::multimap<const Track*, float>*) {return nullptr;};
+        virtual TrackCollection*  process(TracksScores*) {return nullptr;};
 
         /** statistics */
         virtual void statistics() {};
@@ -40,10 +43,8 @@ class ITrackAmbiguityProcessorTool : virtual public IAlgTool
 
 inline const InterfaceID& Trk::ITrackAmbiguityProcessorTool::interfaceID()
 {
-	return IID_ITrackAmbiguityProcessorTool;
+  return IID_ITrackAmbiguityProcessorTool;
 }
-
-typedef std::multimap<const Trk::Track*, float> TracksScores;
 
 } //end ns
 

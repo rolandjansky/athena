@@ -91,7 +91,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::statistics()
     and then returns the tracks which have been selected*/
 
 void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(std::vector<const Track*>* tracks,
-                                                                std::multimap<const Track*, float>* trackScoreTrackMap)
+                                                                Trk::TracksScores* trackScoreTrackMap)
 {
   InDet::PixelGangedClusterAmbiguities *splitClusterMap = nullptr;
   if(!m_splitClusterMapKey.key().empty()){
@@ -124,7 +124,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::process(std::vector<cons
 
 //==================================================================================================
 void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector<const Track*>* tracks,
-                                                                     std::multimap<const Track* ,float>* trackScoreTrackMap)
+                                                                     Trk::TracksScores* trackScoreTrackMap)
 {
   m_selectionTool->reset();
 
@@ -163,7 +163,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
       // add track to map, map is sorted small to big ! set if fitted
 
       ATH_MSG_VERBOSE ("Track ("<< *trackIt <<" --> "<< **trackIt << ") has score "<<score);
-      trackScoreTrackMap->insert( std::make_pair(new Trk::Track(**trackIt), -score));
+      trackScoreTrackMap->push_back( std::make_pair(new Trk::Track(**trackIt), -score));
     }
   }
   
@@ -212,7 +212,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::updatePixelSplitInformat
 }
 
 //==================================================================================================
-void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(std::multimap<const Track*,  float >* trackScoreTrackMap,
+void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(TracksScores* scoredTracks,
                                                                           InDet::PixelGangedClusterAmbiguities *splitClusterMap)
 {
   // Function currnetly does nothing useful expect for printout debug information
@@ -227,14 +227,14 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(std::m
 
   // Fill pixel cluster into the above map
   // Fill all PRD infromation into the association tool
-  for( auto trackScoreMapItem : *trackScoreTrackMap )
+  for( auto& scoredTracksItem : *scoredTracks )
   {
     // clean it out to make sure not to many shared hits
-    ATH_MSG_VERBOSE ("--- Adding next track "<<trackScoreMapItem.first<<"\t with score "<<-trackScoreMapItem.second << " to PRD map");
+    ATH_MSG_VERBOSE ("--- Adding next track "<<scoredTracksItem.first<<"\t with score "<<-scoredTracksItem.second << " to PRD map");
     
     //  This should only be done in region defined by Jets 
     //  ..... for now let do the whole detector coudl be slow
-    if(m_assoTool->addPRDs( *trackScoreMapItem.first ).isSuccess()){
+    if(m_assoTool->addPRDs( *scoredTracksItem.first ).isSuccess()){
       ATH_MSG_VERBOSE("--- Added hits to the association tool");
     } else {
       ATH_MSG_VERBOSE("--- Failed to add hits to the association tool");
@@ -242,7 +242,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(std::m
     }  
   
     // get all prds on 'track'
-    const DataVector<const TrackStateOnSurface>* tsosVec = trackScoreMapItem.first->trackStateOnSurfaces();  
+    const DataVector<const TrackStateOnSurface>* tsosVec = scoredTracksItem.first->trackStateOnSurfaces();  
     if(!tsosVec){
       ATH_MSG_WARNING("TSOS vector does not exist");
       continue;   
@@ -273,7 +273,7 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(std::m
           updatePixelSplitInformationForCluster( *(ret.first), splitClusterMap);
         }
         
-        setOfPixelClustersToTrackAssoc.insert( std::make_pair( pixel, trackScoreMapItem.first ) );
+        setOfPixelClustersToTrackAssoc.insert( std::make_pair( pixel, scoredTracksItem.first ) );
         continue;
       }
     
