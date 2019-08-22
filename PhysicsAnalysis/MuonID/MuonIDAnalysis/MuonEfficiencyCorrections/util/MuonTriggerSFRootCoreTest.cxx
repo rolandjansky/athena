@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 // Script for testing MuonTriggerScaleFactors. For example run with following command: MuonTriggerSFRootCoreTest -x AOD.11499205._000007.pool.root.1 -y 2015 -mc mc15a -t HLT_mu24 -r 278727
@@ -362,7 +362,7 @@ int main(int argc, char* argv[]) {
     RETURN_CHECK(APP_NAME, xAOD::Init(APP_NAME));
 
     Info(APP_NAME, "Opening file: %s", xAODFileName);
-    std::auto_ptr<TFile> ifile(TFile::Open(xAODFileName, "READ"));
+    std::unique_ptr<TFile> ifile(TFile::Open(xAODFileName, "READ"));
     if (!ifile.get()) {
         Error(APP_NAME, " Unable to load xAOD input file");
         return 1;
