@@ -42,7 +42,11 @@ namespace asg
     /// name of the message streams they want to configure, and that
     /// there is no error if they have a typo in the names they
     /// configure, but it is better than nothing.
-    std::unordered_map<std::string,MsgStream> packageMsgStreamMap;
+    std::unordered_map<std::string,MsgStream>& packageMsgStreamMap ()
+    {
+      static std::unordered_map<std::string,MsgStream> result;
+      return result;
+    }
 
     /// \brief the mutex for \ref packageMsgStreamMap
     ///
@@ -53,7 +57,11 @@ namespace asg
     /// Note that the locking shouldn't happen very often, most users
     /// will store a reference to the message stream in a static
     /// variable.
-    std::recursive_mutex packageMsgMutex;
+    std::recursive_mutex& packageMsgMutex ()
+    {
+      static std::recursive_mutex result;
+      return result;
+    }
 
 
 
@@ -74,15 +82,15 @@ namespace asg
   MsgStream& MsgHelpers ::
   pkgMsgStream (const std::string& package)
   {
-    std::lock_guard<std::recursive_mutex> lock {packageMsgMutex};
-    auto iter = packageMsgStreamMap.find (package);
-    if (iter != packageMsgStreamMap.end())
+    std::lock_guard<std::recursive_mutex> lock {packageMsgMutex()};
+    auto iter = packageMsgStreamMap().find (package);
+    if (iter != packageMsgStreamMap().end())
       return iter->second;
     const std::string fullName {"Package." + package};
 #ifdef XAOD_STANDALONE
-    auto result = packageMsgStreamMap.emplace (package, fullName);
+    auto result = packageMsgStreamMap().emplace (package, fullName);
 #else
-    auto result = packageMsgStreamMap.emplace
+    auto result = packageMsgStreamMap().emplace
       (std::piecewise_construct,
        std::forward_as_tuple (package),
        std::forward_as_tuple (getMessageSvcAthena(), fullName));
@@ -105,9 +113,9 @@ namespace asg
   printAllPkgMsgLevels ()
   {
     using namespace msgAsgMessaging;
-    std::lock_guard<std::recursive_mutex> lock {packageMsgMutex};
+    std::lock_guard<std::recursive_mutex> lock {packageMsgMutex()};
     ANA_MSG_INFO ("package message levels:");
-    for (auto& msgStream : packageMsgStreamMap)
+    for (auto& msgStream : packageMsgStreamMap())
     {
       ANA_MSG_INFO ("  package=" << msgStream.first << " level=" << name (msgStream.second.level()) << "(" << unsigned (msgStream.second.level()) << ")");
     }
