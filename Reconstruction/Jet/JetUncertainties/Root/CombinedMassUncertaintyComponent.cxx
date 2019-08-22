@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/CombinedMassUncertaintyComponent.h"
@@ -450,7 +450,9 @@ double CombinedMassUncertaintyComponent::readHistoFromParam(const xAOD::JetFourM
 
 double CombinedMassUncertaintyComponent::getWeightFactorCalo(const xAOD::Jet& jet, const double massShiftFactor) const
 {
-    return m_caloMassWeight ? readHistoFromParam(m_caloMassScale_weights(jet),*m_caloMassWeight,m_weightParam,massShiftFactor) : 0;
+    if(m_caloMassScale_weights(jet).M() < 0.0) return 0;
+    if(!m_caloMassWeight) return 0;
+    return readHistoFromParam(m_caloMassScale_weights(jet),*m_caloMassWeight,m_weightParam,massShiftFactor);
 }
 
 double CombinedMassUncertaintyComponent::getWeightFactorTA(const xAOD::Jet& jet, const double massShiftFactor) const

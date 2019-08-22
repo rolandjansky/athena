@@ -247,7 +247,7 @@ StatusCode SmoothedWZTagger::initialize(){
 
 
 
-Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
+Root::TAccept& SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 
   ATH_MSG_DEBUG( ": Obtaining Smooth WZ result" );
 

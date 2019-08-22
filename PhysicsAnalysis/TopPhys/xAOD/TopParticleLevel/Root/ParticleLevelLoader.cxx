@@ -21,6 +21,7 @@
 #include "TopParticleLevel/ParticleLevelMuonObjectSelector.h"
 #include "TopParticleLevel/ParticleLevelPhotonObjectSelector.h"
 #include "TopParticleLevel/ParticleLevelJetObjectSelector.h"
+#include "TopParticleLevel/ParticleLevelTauObjectSelector.h"
 
 #include "TopConfiguration/TopConfig.h"
 
@@ -39,6 +40,7 @@ namespace top {
           m_objectSelector_Photon( nullptr ),
           m_objectSelector_Jet( nullptr ),
           m_objectSelector_LargeRJet( nullptr ),
+          m_objectSelector_Tau( nullptr ),
           // Tool is inactive on non-MC data and whenever particle level is not requested
           m_active( m_config->doTopParticleLevel() &&
                     m_config->isMC() &&
@@ -47,6 +49,7 @@ namespace top {
                       m_config->useTruthPhotons() ||
                       m_config->useTruthJets() ||
                       m_config->useTruthLargeRJets() ||
+                      m_config->useTruthTaus() ||
                       m_config->useTruthMET() ) ) {
 
         // Configure and create electron object selector
@@ -95,6 +98,14 @@ namespace top {
         };
 
         m_objectSelector_LargeRJet.reset( new ParticleLevelJetObjectSelector( optLargeRJet ) );
+
+        // Configure and create muon object selector
+        auto optTau = ParticleLevelTauObjectSelector::Options{
+            m_config->truth_tau_PtCut(),
+            m_config->truth_tau_EtaCut()
+        };
+
+        m_objectSelector_Tau.reset( new ParticleLevelTauObjectSelector( optTau ) );
 
 
         if ( m_active ){
@@ -145,6 +156,14 @@ namespace top {
             } else {
                 std::cout << '\n';
             }
+            std::cout << "   " << std::setw( 20 ) << "UseTaus? " << std::setw( 5 ) << std::boolalpha << m_config->useTruthTaus();
+            if ( m_config->useTruthTaus() ){
+                std::cout << " [" << m_config->sgKeyTruthTaus() << "]" << '\n'
+                          << "     --- Pt           > " << m_config->truth_tau_PtCut() << '\n'
+                          << "     --- |eta|        < " << m_config->truth_tau_EtaCut() << '\n';
+            } else {
+                std::cout << '\n';
+            }
             std::cout << "   " << std::setw( 20 ) << "UseMET? " << std::setw( 5 ) << std::boolalpha << m_config->useTruthMET();
             if ( m_config->useTruthMET() ){
                 std::cout << " [" << m_config->sgKeyTruthMET() << "]" << '\n';
@@ -156,28 +175,28 @@ namespace top {
             std::cout << "   " << std::setw( 20 ) << "DoOverlapRemoval Jet-Photon? " << std::setw( 5 ) << std::boolalpha << m_config->doParticleLevelOverlapRemovalJetPhoton() << '\n';
 	    
 	    
-	    if ( m_config->useRCJets()){
-	      m_particleLevelRCJetObjectLoader = std::unique_ptr<ParticleLevelRCJetObjectLoader> ( new ParticleLevelRCJetObjectLoader( m_config ) );
-	      top::check(m_particleLevelRCJetObjectLoader->initialize(),"Failed to initialize ParticleLevelRCJetObjectLoader");
+      if ( m_config->useRCJets()){
+        m_particleLevelRCJetObjectLoader = std::unique_ptr<ParticleLevelRCJetObjectLoader> ( new ParticleLevelRCJetObjectLoader( m_config ) );
+        top::check(m_particleLevelRCJetObjectLoader->initialize(),"Failed to initialize ParticleLevelRCJetObjectLoader");
 	  
-	    }
+      }
 	    
-	    if (m_config->useVarRCJets() == true){
+      if (m_config->useVarRCJets() == true){
 	      boost::split(m_VarRCJetRho, m_config->VarRCJetRho(), boost::is_any_of(","));
 	      boost::split(m_VarRCJetMassScale, m_config->VarRCJetMassScale(), boost::is_any_of(","));
 	
-	      for (auto& rho : m_VarRCJetRho){
-		for (auto& mass_scale : m_VarRCJetMassScale){
-		  std::replace( rho.begin(), rho.end(), '.', '_');
-		  std::string name = rho+mass_scale;
-		  m_particleLevelVarRCJetObjectLoader[name] = std::unique_ptr<ParticleLevelRCJetObjectLoader> ( new ParticleLevelRCJetObjectLoader( m_config ) );
-		  top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty( "VarRCjets", true ) , "Failed to set VarRCjets property of VarRCJetMC15");
-		  top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty( "VarRCjets_rho",  rho ) , "Failed to set VarRCjets rho property of VarRCJetMC15");
-		  top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty( "VarRCjets_mass_scale", mass_scale ) , "Failed to set VarRCjets mass scale property of VarRCJetMC15");
-		  top::check(m_particleLevelVarRCJetObjectLoader[name]->initialize(),"Failed to initialize VarRCJetMC15");
-		} // end loop over mass scale parameters (e.g., top mass, w mass, etc.)
-	      } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
-	    }
+        for (auto& rho : m_VarRCJetRho){
+          for (auto& mass_scale : m_VarRCJetMassScale){
+            std::replace( rho.begin(), rho.end(), '.', '_');
+            std::string name = rho+mass_scale;
+            m_particleLevelVarRCJetObjectLoader[name] = std::unique_ptr<ParticleLevelRCJetObjectLoader> ( new ParticleLevelRCJetObjectLoader( m_config ) );
+            top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty( "VarRCjets", true ) , "Failed to set VarRCjets property of VarRCJetMC15");
+            top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty( "VarRCjets_rho",  rho ) , "Failed to set VarRCjets rho property of VarRCJetMC15");
+            top::check(m_particleLevelVarRCJetObjectLoader[name]->setProperty( "VarRCjets_mass_scale", mass_scale ) , "Failed to set VarRCjets mass scale property of VarRCJetMC15");
+            top::check(m_particleLevelVarRCJetObjectLoader[name]->initialize(),"Failed to initialize VarRCJetMC15");
+          } // end loop over mass scale parameters (e.g., top mass, w mass, etc.)
+        } // end loop over mass scale multiplies (e.g., 1.,2.,etc.)
+      }
 	    
 	    
 	    
@@ -207,6 +226,7 @@ namespace top {
         const xAOD::TruthParticleContainer * photons{ nullptr };
         const xAOD::JetContainer * jets{ nullptr };
         const xAOD::JetContainer * largeRJets{ nullptr };
+        const xAOD::TruthParticleContainer * taus{ nullptr };
         const xAOD::MissingETContainer * mets{ nullptr };
 
         if ( m_config->useTruthElectrons() ){
@@ -232,6 +252,11 @@ namespace top {
         if ( m_config->useTruthLargeRJets() ){
             top::check( evtStore()->retrieve( largeRJets, m_config->sgKeyTruthLargeRJets() ),
                         "xAOD::TEvent::retrieve failed for Truth Jets Large R" );
+        }
+
+        if ( m_config->useTruthTaus() ){
+            top::check( evtStore()->retrieve( taus, m_config->sgKeyTruthTaus() ),
+                        "xAOD::TEvent::retrieve failed for Truth Taus" );
         }
 
         if ( m_config->useTruthMET() ){
@@ -273,6 +298,7 @@ namespace top {
         std::list<std::size_t> idx_photons;       // -> relative to `photons`
         std::list<std::size_t> idx_jets;          // -> relative to `jets`
         std::list<std::size_t> idx_largeRJets;    // -> relative to `largeRJets`
+        std::list<std::size_t> idx_taus;          // -> relative to `taus`
 
         // Electrons
         if ( m_config->useTruthElectrons() ) {
@@ -354,6 +380,15 @@ namespace top {
             for ( std::size_t i = 0; i < largeRJets->size(); ++i ){
                 if ( m_objectSelector_LargeRJet->apply( * largeRJets->at( i ) ) ){
                     idx_largeRJets.push_back( i );
+                }
+            }
+        }
+
+        // Taus
+        if ( m_config->useTruthTaus() ){
+            for ( std::size_t i = 0; i < taus->size(); ++i ){
+                if ( m_objectSelector_Tau->apply( * taus->at( i ) ) ){
+                    idx_taus.push_back( i );
                 }
             }
         }
@@ -524,6 +559,23 @@ namespace top {
                 m_goodLargeRJets->push_back( jet );
             }
         }
+        
+        if ( m_config->useTruthTaus() ){
+            xAOD::TruthParticleContainer * goodTaus = new xAOD::TruthParticleContainer();
+            xAOD::TruthParticleAuxContainer * goodTausAux = new xAOD::TruthParticleAuxContainer();
+            goodTaus->setStore( goodTausAux ); //< Connect the two
+
+            m_goodTaus.reset( goodTaus );
+            m_goodTausAux.reset( goodTausAux );
+
+            for ( auto t : idx_taus ){
+                const auto & tauPtr = taus->at( t );
+                xAOD::TruthParticle * tau = new xAOD::TruthParticle();
+                tau->makePrivateStore( * tauPtr );
+                m_goodTaus->push_back( tau );
+            }
+        }
+
 
         // ======================================================================
         //                         INSERTION INTO STORAGE
@@ -533,6 +585,7 @@ namespace top {
         plEvent.m_photons = m_config->useTruthPhotons() ? m_goodPhotons.get() : nullptr;
         plEvent.m_jets = m_config->useTruthJets() ? m_goodJets.get() : nullptr;
         plEvent.m_largeRJets = m_config->useTruthLargeRJets() ? m_goodLargeRJets.get() : nullptr;
+        plEvent.m_taus = m_config->useTruthTaus() ? m_goodTaus.get() : nullptr;
         plEvent.m_met = m_config->useTruthMET() ? (* mets)[ "NonInt" ] : nullptr;
 
 	// Reclustered jets
@@ -626,7 +679,7 @@ namespace top {
             try {
                 truthProxy = particle->auxdata<ElementLink<xAOD::TruthParticleContainer> >("originalTruthParticle");
                 tp_isValid = truthProxy.isValid();
-            } catch (SG::ExcBadAuxVar) {
+            } catch (const SG::ExcBadAuxVar&) {
               // ExcBadAuxVar can be thrown before checking if proxy is valid
               tp_isValid = false;
             }

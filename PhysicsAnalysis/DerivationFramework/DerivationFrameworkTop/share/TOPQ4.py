@@ -69,12 +69,42 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 # Create the private sequence
 TOPQ4Sequence = CfgMgr.AthSequencer("TOPQ4Sequence")
 
+#====================================================================
+# Special jets
+#====================================================================
+# Create TCC objects (see JETM1.py)
+from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
+# Set up geometry and BField
+import AthenaCommon.AtlasUnixStandardJob
+include("RecExCond/AllDet_detDescr.py")
+runTCCReconstruction(TOPQ4Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
+
 # First skim on leptons
 TOPQ4Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ4SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
-# add fat/trimmed jets
-from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-addStandardJetsForTop(TOPQ4Sequence,'TOPQ4')
+# Before any custom jet reconstruction, it's good to set up the output list
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+OutputJets["TOPQ4"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+# Only include those ones that you use. The order in the list is not significant
+reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10LCTopoJets",
+                  "AntiKt10TrackCaloClusterJets"]
+replaceAODReducedJets(reducedJetList, TOPQ4Sequence, "TOPQ4")
+
+# If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled
+# *AFTER* the other collections are replaced
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(TOPQ4Sequence, "TOPQ4")
+
+# add TTC jets
+from DerivationFrameworkTop.TOPQCommonJets import addTCCTrimmedJetsForTop
+addTCCTrimmedJetsForTop(TOPQ4Sequence, "TOPQ4")
 
 # add VR jets
 from DerivationFrameworkTop.TOPQCommonJets import addVRJetsForTop
@@ -101,6 +131,14 @@ BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4EMPFlow->AntiKt4EMTopo" ]
 TaggerList = BTaggingFlags.StandardTaggers
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ4Sequence)
+
+# Quark-gluon tagging
+truthjetalg='AntiKt4TruthJets'
+if not DFisMC:
+  truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=TOPQ4Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=TOPQ4Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:

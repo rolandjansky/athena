@@ -728,7 +728,6 @@ namespace EL
     RCU_CHANGE_INVARIANT (this);
 
     SH::MetaObject meta (*sample->meta());
-    meta.fetchDefaults (*job.options());
     meta.fetchDefaults (options);
 
     setMetaData (&meta);

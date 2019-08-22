@@ -457,9 +457,17 @@ bool RCJetMC15::isUniqueSyst( const std::string syst_name ){
        Keep this in one function so it easier to update than having multiple checks everywhere.
        Only need jet containers for EGamma, Muon, Jet and Nominal systematics
     */
+
+    bool isSmallRJetSys = (syst_name.find(m_jetsyst) != std::string::npos);
+    // Systematic branches for small-R and large-R jets both contain "JET_" string. We want to recluster only if they correspond to small-R jets.
+    if( (syst_name.find("_R10_")!=std::string::npos) ||
+        (syst_name.find("_CombMass_")!=std::string::npos) ||
+        (syst_name.find("_LargeR_")!=std::string::npos) ||
+        (syst_name.find("_MassRes_")!=std::string::npos) ) isSmallRJetSys=false;
+
     m_unique_syst = (syst_name.find(m_egamma)   == 0 ||
                      syst_name.find(m_muonsyst) == 0 ||
-                     syst_name.find(m_jetsyst)  == 0 || 
+                     isSmallRJetSys ||
                      syst_name.find(m_tracksyst) == 0 ||
                      syst_name.compare("nominal")==0);
 

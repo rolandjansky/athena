@@ -1,25 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+/// @author Morten Dam Joergensen <mdj@nbi.dk> 2012
+
+
 
 #ifndef EVENT_LOOP_LL_DRIVER_HH
 #define EVENT_LOOP_LL_DRIVER_HH
-
-//          Copyright Nils Krumnack 2012.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-/// This module defines a driver class for running on IBM LL batch
-/// systems.  The interface provided in this class is intended for
-/// experts only.  The module is considered to be in the pre-alpha
-/// stage.
-
-// LoadLeveler Driver contributed by Morten Dam Joergensen <mdj@nbi.dk> 2012
 
 #include <EventLoop/Global.h>
 
@@ -28,7 +17,14 @@
 
 namespace EL
 {
-  class LLDriver : public BatchDriver
+  /// \brief a \ref Driver for running on IBM Load Leveler batch
+  /// systems
+  ///
+  /// Please note that Load Leveler is the name of the batch system
+  /// infrastructure, this is not a generic mechanism for load
+  /// leveling.
+
+  class LLDriver final : public BatchDriver
   {
     //
     // public interface
@@ -57,37 +53,9 @@ namespace EL
     // interface inherited from BatchDriver
     //
 
-    /// returns: the name of the submission script to use.  if this
-    ///   contains {JOBID} it will create one script for each job id
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: some batch systems are picky about names.  others
-    ///   don't allow passing arguments into submission scripts
-  private:
-    virtual std::string batchName () const override;
-
-
-    /// returns: any additional code we need for setting up the batch
-    ///   job.  if multiple files are used, {JOBID} will be replaced
-    ///   with the index of the current file.
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// rationale: some batch systems need extra lines when making
-    ///   there submission scripts, which can either be specially
-    ///   formatted option lines or just some special commands
-  private:
-    virtual std::string batchInit () const override;
-
-
-    /// effects: perform the actual torque submission with njob jobs
-    /// guarantee: strong
-    /// failures: submission errors
-    /// rationale: the virtual part of batch submission
-  private:
-    virtual void
-    batchSubmit (const std::string& location, const SH::MetaObject& options,
- 		 const std::vector<std::size_t>& jobIndices, bool resubmit)
-      const override;
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
 
 
 

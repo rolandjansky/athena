@@ -216,9 +216,13 @@ STDM2SlimmingHelper = SlimmingHelper("STDM2SlimmingHelper")
 STDM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "AntiKt4EMTopoJets_BTagging201810",
                                         "AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMPFlowJets_BTagging201810", 
+                                        "AntiKt4EMPFlowJets_BTagging201903",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -232,7 +236,8 @@ STDM2SlimmingHelper.ExtraVariables += [
   "ParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
   "ParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma"]
 STDM2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
-STDM2SlimmingHelper.AllVariables = ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
+STDM2SlimmingHelper.AllVariables = [ "AFPSiHitContainer", "AFPToFHitContainer"]
+STDM2SlimmingHelper.AllVariables += ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
 
 # add photon shower shape variables
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *

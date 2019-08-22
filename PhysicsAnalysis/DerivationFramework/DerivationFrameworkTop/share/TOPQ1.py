@@ -109,9 +109,25 @@ import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(TOPQ1Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
 
-# add fat/trimmed jets
-from DerivationFrameworkTop.TOPQCommonJets import addStandardJetsForTop
-addStandardJetsForTop(TOPQ1Sequence,'TOPQ1')
+# Before any custom jet reconstruction, it's good to set up the output list
+from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+OutputJets["TOPQ1"] = []
+
+#=======================================
+# RESTORE AOD-REDUCED JET COLLECTIONS
+#=======================================
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
+# Only include those ones that you use. The order in the list is not significant
+reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                  "AntiKt4PV0TrackJets",
+                  "AntiKt10LCTopoJets",
+                  "AntiKt10TrackCaloClusterJets"]
+replaceAODReducedJets(reducedJetList, TOPQ1Sequence, "TOPQ1")
+
+# If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled
+# *AFTER* the other collections are replaced
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(TOPQ1Sequence, "TOPQ1")
 
 # add SoftDrop jets
 from DerivationFrameworkTop.TOPQCommonJets import addSoftDropJetsForTop
@@ -145,6 +161,14 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 TaggerList = BTaggingFlags.StandardTaggers
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets'], Sequencer = TOPQ1Sequence)
+
+# Quark-gluon tagging
+truthjetalg='AntiKt4TruthJets'
+if not DFisMC:
+  truthjetalg=None
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addQGTaggerTool
+addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
+addQGTaggerTool(jetalg="AntiKt4EMPFlow", sequence=TOPQ1Sequence, algname="QGTaggerToolAlg", truthjetalg=truthjetalg)
 
 # Then apply truth tools in the form of aumentation
 if DFisMC:

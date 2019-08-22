@@ -592,7 +592,9 @@ private:
     std::vector<float> m_tau_pt;
     std::vector<float> m_tau_eta;
     std::vector<float> m_tau_phi;
+    std::vector<float> m_tau_e;
     std::vector<float> m_tau_charge;
+    std::vector<char> m_tau_isHadronic;
 
     //jets
     std::vector<float> m_jet_pt;

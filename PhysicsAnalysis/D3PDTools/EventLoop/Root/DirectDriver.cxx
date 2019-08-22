@@ -1,14 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//          Copyright Nils Krumnack 2011.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
+/// @author Nils Krumnack
 
 
 //
@@ -21,6 +15,8 @@
 #include <memory>
 #include <TSystem.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/ManagerData.h>
+#include <EventLoop/ManagerStep.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/Worker.h>
 #include <EventLoop/OutputStream.h>
@@ -55,36 +51,55 @@ namespace EL
 
 
 
-  void DirectDriver ::
-  doUpdateJob (Job& job, const std::string& location) const
+  ::StatusCode DirectDriver ::
+  doManagerStep (Detail::ManagerData& data) const
   {
-    RCU_READ_INVARIANT (this);
-
-    for (Job::outputMIter out = job.outputBegin(),
-	   end = job.outputEnd(); out != end; ++ out)
-    {
-      if (out->output() == 0)
-      {
-	out->output (new SH::DiskOutputLocal
-		     (location + "/data-" + out->label() + "/"));
-      }
-    }
-  }
-
-
-
-  void DirectDriver ::
-  doSubmit (const Job& job, const std::string& location) const
-  {
-    RCU_READ_INVARIANT (this);
     using namespace msgEventLoop;
-
-    for (SH::SampleHandler::iterator sample = job.sampleHandler().begin(),
-	   end = job.sampleHandler().end(); sample != end; ++ sample)
+    ANA_CHECK (Driver::doManagerStep (data));
+    switch (data.step)
     {
-      Worker worker;
-      ANA_CHECK_THROW (worker.directExecute (*sample, job, location, *options()));
+    case Detail::ManagerStep::updateOutputLocation:
+      {
+        for (Job::outputMIter out = data.job->outputBegin(),
+               end = data.job->outputEnd(); out != end; ++ out)
+        {
+          if (out->output() == 0)
+          {
+            out->output (new SH::DiskOutputLocal
+                         (data.submitDir + "/data-" + out->label() + "/"));
+          }
+        }
+      }
+      break;
+
+    case Detail::ManagerStep::submitJob:
+      {
+        for (SH::SampleHandler::iterator sample = data.job->sampleHandler().begin(),
+               end = data.job->sampleHandler().end(); sample != end; ++ sample)
+        {
+          Worker worker;
+          ANA_CHECK (worker.directExecute (*sample, *data.job, data.submitDir, data.options));
+        }
+        data.submitted = true;
+      }
+      break;
+
+    case Detail::ManagerStep::directSaveOutput:
+      {
+        diskOutputSave (data.submitDir, *data.job);
+      }
+      break;
+
+    case Detail::ManagerStep::doRetrieve:
+      {
+        data.retrieved = true;
+        data.completed = true;
+      }
+      break;
+
+    default:
+      (void) true; // safe to do nothing
     }
-    diskOutputSave (location, job);
+    return ::StatusCode::SUCCESS;
   }
 }

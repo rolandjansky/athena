@@ -1,25 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+/// @author Nils Krumnack
+
+
 
 #ifndef EVENT_LOOP_CONDOR_DRIVER_HH
 #define EVENT_LOOP_CONDOR_DRIVER_HH
-
-//          Copyright Nils Krumnack 2012.
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
-
-/// This module defines a driver class for running on condor batch
-/// systems.  The interface provided in this class is intended for
-/// experts only.  The module is considered to be in the pre-alpha
-/// stage.
-
-
 
 #include <EventLoop/Global.h>
 
@@ -28,7 +16,9 @@
 
 namespace EL
 {
-  class CondorDriver : public BatchDriver
+  /// \brief a \ref Driver to run on Condor batch systems
+
+  class CondorDriver final : public BatchDriver
   {
     //
     // public interface
@@ -52,22 +42,10 @@ namespace EL
     // interface inherited from BatchDriver
     //
 
-    /// effects: perform the actual condor submission with njob jobs
-    /// guarantee: strong
-    /// failures: submission errors
-    /// rationale: the virtual part of batch submission
-  private:
-    virtual void
-    batchSubmit (const std::string& location, const SH::MetaObject& options,
- 		 const std::vector<std::size_t>& jobIndices, bool resubmit)
-      const override;
+  protected:
+    virtual ::StatusCode
+    doManagerStep (Detail::ManagerData& data) const override;
 
-    /// effects: special initialization for condor scripts: export PATH
-    /// guarantee: strong
-    /// failures: none
-    /// rationale: condor jobs do not export PATH, needed by RootCore setup scripts
-  private:
-    virtual std::string batchInit () const override;
 
 
     //

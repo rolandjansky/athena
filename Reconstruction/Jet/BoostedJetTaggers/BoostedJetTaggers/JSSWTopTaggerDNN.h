@@ -42,7 +42,7 @@ class JSSWTopTaggerDNN:  public JSSTaggerBase {
   StatusCode initialize();
   
   // IJSSTagger interface
-  virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+  virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
   
   // Retrieve score for a given DNN type (top/W)
   double getScore(const xAOD::Jet& jet) const;

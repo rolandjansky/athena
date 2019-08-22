@@ -29,7 +29,7 @@ class PtLogPtMassForTagSFUncertaintyComponent : public UncertaintyComponent
     private:
         PtLogPtMassForTagSFUncertaintyComponent(const std::string& name = "");
         const CompMassDef::TypeEnum m_massDef;
-	const CompFlavorLabelVar::TypeEnum m_label;
+	std::vector<CompFlavorLabelVar::TypeEnum> m_labels;
 	const CompTaggerRegionVar::TypeEnum m_region;
 	const TString m_result_name;
 };

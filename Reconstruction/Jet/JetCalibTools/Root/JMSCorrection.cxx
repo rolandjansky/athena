@@ -1033,7 +1033,16 @@ if(!m_onlyCombination){
             return StatusCode::FAILURE;
           }
 	  const double Weight = ( relTA*relTA - rho *relCalo*relTA ) / ( relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA );
-  	  Mass_comb =  ( mass_calo * Weight ) + ( mass_ta * ( 1 - Weight) );
+
+	  // Zero should be only returned by resolution functions if jet mass is negative
+	  if(relCalo == 0 && relTA == 0)
+	    Mass_comb = 0;
+	  else if(relCalo == 0)
+	    Mass_comb = mass_ta;
+	  else if(relTA == 0)
+	    Mass_comb = mass_calo;
+	  else
+	    Mass_comb =  ( mass_calo * Weight ) + ( mass_ta * ( 1 - Weight) );
 	  // Protection
 	  if(Mass_comb>jetStartP4.e()) Mass_comb = mass_calo;
 	  else if(!m_pTfixed) pT_calo = sqrt(jetStartP4.e()*jetStartP4.e()-mass_calo*mass_calo)/cosh( jetStartP4.eta() );

@@ -204,7 +204,7 @@ StatusCode SmoothedTopTagger::initialize(){
 
 
 
-Root::TAccept SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
+Root::TAccept& SmoothedTopTagger::tag(const xAOD::Jet& jet) const {
 
   ATH_MSG_DEBUG( ": Obtaining Smooth top result" );
 

@@ -315,7 +315,7 @@ StatusCode JSSWTopTaggerDNN::initialize(){
   return StatusCode::SUCCESS;
 }
 
-Root::TAccept JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
+Root::TAccept& JSSWTopTaggerDNN::tag(const xAOD::Jet& jet) const{
 
   ATH_MSG_DEBUG( ": Obtaining DNN result" );
 

@@ -42,7 +42,7 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     StatusCode initialize();
 
     // IJetSelectorTool interface
-    virtual Root::TAccept tag(const xAOD::Jet& jet) const;
+    virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
 
     // Retrieve BDT score
     float getScore(const xAOD::Jet& jet) const;

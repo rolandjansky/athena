@@ -103,8 +103,8 @@ MuonIsolationLoose None
 TauPt 25000
 TauJetIDWP Medium
 TauJetIDWPLoose Medium
-TauEleBDTWP Loose
-TauEleBDTWPLoose Loose
+TauEleBDTWP OldLoose
+TauEleBDTWPLoose OldLoose
 TauEleOLR False
 TauEleOLRLoose False
 

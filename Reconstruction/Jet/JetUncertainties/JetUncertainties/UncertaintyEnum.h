@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_UNCERTAINTYENUM_H
@@ -130,6 +130,7 @@ namespace CompFlavorLabelVar
         V_qq,       // W/Z->qq
         W_qq,       // W->qq
         Z_qq,       // Z->qq
+	t_other,    // inclusive top but not contain t_qqb
 	q           // background jet
     };
     TString enumToString(const TypeEnum type);

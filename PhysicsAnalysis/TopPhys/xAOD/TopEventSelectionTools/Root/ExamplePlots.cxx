@@ -167,8 +167,7 @@ bool ExamplePlots::apply(const top::Event& event) const {
 
     double eventWeight = 1.;
     if (top::isSimulation(event))
-//         eventWeight = event.m_info->mcEventWeight();
-        eventWeight = event.m_truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+        eventWeight = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
 
     if (m_config->isMC()) {
       m_hists.hist("mc_weight")->Fill(eventWeight, eventWeight);

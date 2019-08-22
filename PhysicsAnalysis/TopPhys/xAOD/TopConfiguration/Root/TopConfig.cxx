@@ -534,6 +534,7 @@ namespace top{
       this->sgKeyTruthMET( settings->value("TruthMETCollectionName") );
       this->sgKeyTruthJets( settings->value("TruthJetCollectionName") );
       this->sgKeyTruthLargeRJets( settings->value("TruthLargeRJetCollectionName") );
+      this->sgKeyTruthTaus( settings->value("TruthTauCollectionName") );
 
       // Dump truth block
       if (settings->value("TruthBlockInfo") == "True")
@@ -615,7 +616,7 @@ namespace top{
           std::cout << "AodMetaData :: AMITag " << AMITagName << std::endl;
           this->setAMITag(AMITagName);
         }
-        catch(std::logic_error aodMetaDataError){
+        catch(const std::logic_error& aodMetaDataError){
           std::cout << "An error was encountered handling AodMetaData : " << aodMetaDataError.what() << std::endl;
           std::cout << "We will attempt to read the IsAFII flag from your config." << std::endl;
           this->ReadIsAFII(settings);
@@ -1007,6 +1008,9 @@ namespace top{
 
     this->truth_jet_largeR_PtCut( std::stof( settings->value( "TruthLargeRJetPt" ) ) );
     this->truth_jet_largeR_EtaCut( std::stof( settings->value( "TruthLargeRJetEta" ) ) );
+
+    this->truth_tau_PtCut( std::stof( settings->value( "TruthTauPt" ) ) );
+    this->truth_tau_EtaCut( std::stof( settings->value( "TruthTauEta" ) ) );
 
     // -----------------------------------------------]]]
 
@@ -1544,6 +1548,17 @@ namespace top{
               m_useTruthLargeRJets = true;
 
           m_sgKeyTruthLargeRJets = s;
+      }
+  }
+
+  void TopConfig::sgKeyTruthTaus(const std::string& s)
+  {
+      if(!m_configFixed){
+          m_useTruthTaus = false;
+          if (s != "None")
+              m_useTruthTaus = true;
+
+          m_sgKeyTruthTaus = s;
       }
   }
 

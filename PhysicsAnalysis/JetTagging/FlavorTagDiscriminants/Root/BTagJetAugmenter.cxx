@@ -165,9 +165,9 @@ void BTagJetAugmenter::augment(const xAOD::Jet &jet, const xAOD::Jet &uncalibrat
 
 void BTagJetAugmenter::augmentJfDr(const xAOD::BTagging& btag) {
   if (jfIsDefaults(btag)) {
-    jf_deltaR(btag) = std::hypot(jf_deltaEta(btag), jf_deltaPhi(btag));
-  } else {
     jf_deltaR(btag) = NAN;
+  } else {
+    jf_deltaR(btag) = std::hypot(jf_deltaEta(btag), jf_deltaPhi(btag));
   }
 }
 void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {

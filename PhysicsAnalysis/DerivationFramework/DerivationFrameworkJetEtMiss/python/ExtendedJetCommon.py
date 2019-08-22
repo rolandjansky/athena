@@ -250,13 +250,13 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
         if not fatjetconfig in ['comb','calo','TA']:
             extjetlog.warning('*** Wrong value for fatjetconfig!  Only \'comb\' (default), \'calo\' or \'TA\' can be used. ***')
 
-        configdict = {'AntiKt4EMTopo':('JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config',
-                                       'JetArea_Residual_EtaJES_GSC'),
+        configdict = {'AntiKt4EMTopo':('JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config',
+                                       'JetArea_Residual_EtaJES_GSC_Smear'),
                       'AntiKt4LCTopo':('JES_MC16Recommendation_28Nov2017.config',
                                        'JetArea_Residual_EtaJES_GSC'),
-                      'AntiKt4EMPFlow':('JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config',
-                                        'JetArea_Residual_EtaJES_GSC'),
-                      'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config',
+                      'AntiKt4EMPFlow':('JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config',
+                                        'JetArea_Residual_EtaJES_GSC_Smear'),
+                      'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config',
                                                               'EtaJES_JMS'),
                       'AntiKt2LCTopo':('JES_2015_2016_data_Rscan2LC_18Dec2018_R21.config',
                                        'JetArea_Residual_EtaJES_GSC'),
@@ -281,7 +281,7 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
 
         if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow']:
             isdata=True
-            if not jetalg=='AntiKt4LCTopo': calibseq+='_Insitu'
+            if not jetalg=='AntiKt4LCTopo': calibseq = calibseq[:-6]+'_Insitu'
 
         calibtool = CfgMgr.JetCalibrationTool(
             calibtoolname,
@@ -370,6 +370,34 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
 
     extjetlog.info('ExtendedJetCommon: Adding JetPtAssociationTool for jet collection: '+jetalg+'Jets')
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+def applyMVfJvtAugmentation(jetalg,sequence,algname):
+    supportedJets = ['AntiKt4EMTopo']
+    if not jetalg in supportedJets:
+        extjetlog.warning('*** MVfJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        return
+    else:
+        jetaugtool =  getJetAugmentationTool(jetalg)
+        
+        if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
+            extjetlog.warning('*** MVfJvt called but required augmentation tool does not exist! ***')
+            extjetlog.warning('*** You must apply jet calibration and JVT! ***')
+        
+        mvfjvttoolname = 'DFJetMVfJvt_'+jetalg    
+        
+        from AthenaCommon.AppMgr import ToolSvc
+
+        if hasattr(ToolSvc,mvfjvttoolname):
+            jetaugtool.JetForwardJvtToolBDT = getattr(ToolSvc,mvfjvttoolname)
+        else:
+            mvfjvttool = CfgMgr.JetForwardJvtToolBDT(mvfjvttoolname)
+            ToolSvc += mvfjvttool
+            jetaugtool.JetForwardJvtToolBDT = mvfjvttool
+            
+        extjetlog.info('ExtendedJetCommon:  Applying MVfJVT augmentation to jet collection: '+jetalg+'Jets')
+        applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+#<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):
     if algname == 'default':
@@ -485,8 +513,7 @@ def eventCleanLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramew
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
     jetcleaningtoolname = "EventCleaningTool_LooseLLP"
     prefix = "DFCommonJets_"
-    #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
-    ecToolLooseLLP = EventCleaningTool('EventCleaningTool_LooseLLP',CleaningLevel='LooseBadLLP', DoDecorations=False)
+    ecToolLooseLLP = EventCleaningTool('EventCleaningTool_LooseLLP',CleaningLevel='LooseBadLLP')
     ecToolLooseLLP.JetCleanPrefix = prefix
     ecToolLooseLLP.JetCleaningTool = getJetCleaningTool("LooseBadLLP")
     algCleanLooseLLP = EventCleaningTestAlg('EventCleaningTestAlg_LooseLLP',
@@ -622,6 +649,7 @@ applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
+eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")
 

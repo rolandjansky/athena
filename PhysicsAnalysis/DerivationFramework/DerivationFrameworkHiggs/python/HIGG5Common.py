@@ -4,12 +4,34 @@
 # commont content for Hbb DAODs
 # will impact content of HIGG5D1, HIGG5D2, HIGG5D3, HIGG2D4
 
+def getJetEMPFlowName() :
+    from BTagging.BTaggingFlags import BTaggingFlags
+    if BTaggingFlags.Do2019Retraining:
+        return 'AntiKt4EMPFlowJets_BTagging201810'
+    else:
+        return 'AntiKt4EMPFlowJets'
+
+def getBTagEMTopoName() :
+    from BTagging.BTaggingFlags import BTaggingFlags
+    if BTaggingFlags.Do2019Retraining:
+        return 'BTagging_AntiKt4EMTopo_201810'
+    else:
+        return 'BTagging_AntiKt4EMTopo'
+
+def getJetEMTopoName() :
+    from BTagging.BTaggingFlags import BTaggingFlags
+    if BTaggingFlags.Do2019Retraining:
+        return 'AntiKt4EMTopoJets_BTagging201810'
+    else:
+        return 'AntiKt4EMTopoJets'
+
 def getHIGG5Common() :
-    return [
+    from BTagging.BTaggingFlags import BTaggingFlags
+    Common = [
         "egammaClusters.rawE.phi_sampl.calM",
         "Muons.clusterLink.EnergyLoss.energyLossType",
         "TauJets.IsTruthMatched.truthJetLink.truthParticleLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis",
-        ("AntiKt4EMTopoJets.TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt"
+        (getJetEMTopoName()+".TrackWidthPt500.GhostTrackCount.Jvt.JvtJvfcorr.JvtRpt"
            ".JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.DetectorEta"
            ".DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_Calib_m"),
         # ("AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m"
@@ -31,8 +53,12 @@ def getHIGG5Common() :
          ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthPt500"),
         # "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2cl100_discriminant",
         # "BTagging_AntiKtVR30Rmax4Rmin02Track.DL1_pu.DL1_pc.DL1_pb.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pc.DL1rnn_pb",
-        "BTagging_AntiKt4EMTopo.MV2cl100_discriminant",
-        "BTagging_AntiKt4EMPFlow.MV2cl100_discriminant",
+        getBTagEMTopoName()+".MV2cl100_discriminant"]
+    if BTaggingFlags.Do2019Retraining:
+        Common += ["BTagging_AntiKt4EMPFlow_201810.MV2cl100_discriminant", "BTagging_AntiKt4EMPFlow_201903.MV2cl100_discriminant"]
+    else:
+        Common += ["BTagging_AntiKt4EMPFlow.MV2cl100_discriminant"]
+    Common += [
         "BTagging_AntiKt4PV0Track.MV2cl100_discriminant",
         "CaloCalTopoClusters.CENTER_MAG.calE.calEta.calM.calPhi.calPt.e_sampl.etaCalo.eta_sampl.phiCalo.phi_sampl.rawE.rawEta.rawM.rawPhi",
         "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity",
@@ -44,14 +70,15 @@ def getHIGG5Common() :
              ".GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt"),
         "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub.MV2c10_discriminant.MV2c100_discriminant",
         ]
+    return Common
 
 def getHIGG5CommonTruthContainers() :
     return ["TruthPrimaryVertices","HardScatterParticles","HardScatterVertices","TruthBosonWithDecayParticles","TruthBosonWithDecayVertices","TruthTopQuarkWithDecayParticles","TruthTopQuarkWithDecayVertices","TruthElectrons","TruthMuons","TruthTaus","TruthTausWithDecayParticles","TruthTausWithDecayVertices","TruthTaus","TruthNeutrinos","TruthBSM","TruthHFWithDecayParticles","TruthHFWithDecayVertices"]
 
 def getHIGG5CommonTruth() :
     return [
-        "AntiKt4EMTopoJets.ConeTruthLabelID",
-        "AntiKt4EMPFlowJets.ConeTruthLabelID",
+        getJetEMTopoName()+".ConeTruthLabelID",
+        getJetEMPFlowName()+".ConeTruthLabelID",
         "TruthEvents.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.weights.crossSection.crossSectionError.truthParticleLinks",
         #"TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
         "TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome.dressedPhoton.polarizationTheta.polarizationPhi",
@@ -100,8 +127,6 @@ def getHIGG5CommonDictionExtionson(add_truth_if_mc=True) :
       "AntiKtVR30Rmax4Rmin02TrackJetsAux"                                 : "xAOD::JetAuxContainer"     ,
       "BTagging_AntiKtVR30Rmax4Rmin02Track"                               : "xAOD::BTaggingContainer"   ,
       "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"                            : "xAOD::BTaggingAuxContainer",
-      "BTagging_AntiKt4EMPFlow"                                           : "xAOD::BTaggingContainer"   ,
-      "BTagging_AntiKt4EMPFlowAux"                                        : "xAOD::BTaggingAuxContainer",
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"                 : "xAOD::JetContainer"        ,
       "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              : "xAOD::JetAuxContainer"     ,
       "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            : "xAOD::BTaggingContainer"   ,
@@ -113,19 +138,28 @@ def getHIGG5CommonDictionExtionson(add_truth_if_mc=True) :
   return common_dict
 
 def getHIGG5CommonSmartCollections(add_truth_if_mc=True) :
+    from BTagging.BTaggingFlags import BTaggingFlags
     common_smart_collections= ["Electrons",
                                "Photons",
                                "Muons",
                                "TauJets",
                                "MET_Reference_AntiKt4EMTopo",
                                "MET_Reference_AntiKt4EMPFlow",
-                               "AntiKt4EMTopoJets",
-                               "AntiKt4EMPFlowJets",
+                               getJetEMTopoName()]
+    if BTaggingFlags.Do2019Retraining:
+        common_smart_collections+=["AntiKt4EMPFlowJets_BTagging201810", "AntiKt4EMPFlowJets_BTagging201903"]
+    else:
+        common_smart_collections+=["AntiKt4EMPFlowJets"]
+    common_smart_collections+= [
                                "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                # "AntiKtVR30Rmax4Rmin02Track",
-                               "BTagging_AntiKt4EMTopo",
-                               "BTagging_AntiKt4EMPFlow",
-                               "BTagging_AntiKt2Track",
+                               getBTagEMTopoName()]
+    if BTaggingFlags.Do2019Retraining:
+        common_smart_collections+=["BTagging_AntiKt4EMPFlow_201810", "BTagging_AntiKt4EMPFlow_201903"]
+    else:
+        common_smart_collections+=["BTagging_AntiKt4EMPFlow"]
+    common_smart_collections+= [
+                               #"BTagging_AntiKt2Track",
                                #  "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                "InDetTrackParticles",
@@ -284,7 +318,7 @@ def getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
     kwargs.setdefault( 'name',                  tool_prefix + "JetTPThinningTool")
     kwargs.setdefault( 'ThinningService',       thinning_helper.ThinningSvc())
-    kwargs.setdefault( 'JetKey',                'AntiKt4EMTopoJets')
+    kwargs.setdefault( 'JetKey',                getJetEMTopoName())
     kwargs.setdefault( 'InDetTrackParticlesKey','InDetTrackParticles')
 
     thinning_tool = DerivationFramework__JetTrackParticleThinning(name  = kwargs.pop('name'),
@@ -295,14 +329,14 @@ def getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
 
 def getAntiKt4EMTopoTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault( 'name',tool_prefix + 'AntiKt4EMTopoJetTPThinningTool')
-    kwargs.setdefault( 'JetKey','AntiKt4EMTopoJets')
-    kwargs.setdefault( 'SelectionString','(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV)')
+    kwargs.setdefault( 'JetKey',getJetEMTopoName())
+    kwargs.setdefault( 'SelectionString','('+getJetEMTopoName()+'.DFCommonJets_Calib_pt > 15*GeV)')
     return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
 
 def getAntiKt4EMPFlowTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault( 'name',tool_prefix + 'AntiKt4EMPFlowJetTPThinningTool')
-    kwargs.setdefault( 'JetKey','AntiKt4EMPFlowJets')
-    kwargs.setdefault( 'SelectionString','(AntiKt4EMPFlowJets.pt > 15*GeV)')
+    kwargs.setdefault( 'JetKey',getJetEMPFlowName())
+    kwargs.setdefault( 'SelectionString','('+getJetEMPFlowName()+'.pt > 15*GeV)')
     return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
 
 def getAntiKt10LCTopoTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :

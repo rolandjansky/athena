@@ -265,7 +265,7 @@ namespace CP {
   }
 
 
-  Root::TAccept JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv) const {
+  Root::TAccept& JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv) const {
 
     double jetWeight = -1;
     int    jetNTrack = -1;
@@ -445,8 +445,15 @@ namespace CP {
         }
     }
 
+    // check if jet contains at least one NTracks variables
+    // prefer to use DFCommonJets* version
+    int ntrk = -1;
     if(recosyst){
-        int ntrk = jet->getAttribute<int>("NumTrkPt500PV");
+	      static const SG::AuxElement::Accessor<int> acc_NumTrkPt500PV("NumTrkPt500PV");
+	      static const SG::AuxElement::Accessor<int> acc_NTracks("DFCommonJets_QGTagger_NTracks");
+	      if(acc_NTracks.isAvailable(*jet)) ntrk = acc_NTracks(*jet);
+	      else if(acc_NumTrkPt500PV.isAvailable(*jet)) ntrk = acc_NumTrkPt500PV(*jet);
+	      else ATH_MSG_ERROR("Neither NumTrkPt500PV nor DFCommonJets_QGTagger_NTracks is available for your jet. Please add it before running mode 1 JetQGTagger.");
         //float rjetpt = jet->getAttribute<float>("truthjet_pt")*0.001;
         float rjetpt = jet->pt()*1e-3;
         float rjeteta = jet->eta();
@@ -632,7 +639,7 @@ namespace CP {
       weight = m_hquark->GetBinContent(ptbin,ntrkbin);
     }//quarks
     else{
-      ATH_MSG_INFO("Neither quark nor gluon jet: setting weight to 1");
+      ATH_MSG_DEBUG("Neither quark nor gluon jet: setting weight to 1");
     }
 
     return StatusCode::SUCCESS;
