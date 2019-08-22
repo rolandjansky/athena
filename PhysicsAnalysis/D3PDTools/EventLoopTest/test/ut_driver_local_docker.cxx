@@ -35,6 +35,6 @@ int main ()
   driver.options()->setString (Job::optDockerOptions, "-v $HOME/cache/local:$HOME/cache/local");
   UnitTest ut ("local_docker");
   ut.cleanup = false;
-  ut.location = "$HOME/unit-test.$$";
+  ut.location = "$HOME/DockerDriverTest";
   return ut.run (driver);
 }

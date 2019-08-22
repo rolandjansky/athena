@@ -50,18 +50,6 @@ namespace EL
         data.nextStep = ManagerStep::final;
         break;
 
-      case Detail::ManagerStep::updateSubmitDir:
-        {
-          if (data.submitDir[0] != '/')
-            data.submitDir = gSystem->WorkingDirectory () + ("/" + data.submitDir);
-          if (data.submitDir.find ("/pnfs/") == 0)
-          {
-            ANA_MSG_ERROR ("can not place submit directory on pnfs: " + data.submitDir);
-            return ::StatusCode::FAILURE;
-          }
-        }
-        break;
-
       case Detail::ManagerStep::final:
         ANA_MSG_INFO ("done");
         break;

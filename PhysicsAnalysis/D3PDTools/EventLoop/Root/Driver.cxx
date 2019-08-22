@@ -22,6 +22,7 @@
 #include <EventLoop/MetricsSvc.h>
 #include <EventLoop/OutputStream.h>
 #include <EventLoop/RetrieveManager.h>
+#include <EventLoop/SubmitDirManager.h>
 #include <EventLoop/SubmitManager.h>
 #include <RootCoreUtils/RootUtils.h>
 #include <RootCoreUtils/ThrowMsg.h>
@@ -91,8 +92,21 @@ namespace EL
   {
     // no invariant used
 
-    submitOnly (job, location);
-    wait (location);
+    std::string actualLocation;
+    submit (job, location, actualLocation);
+  }
+
+
+
+  void Driver ::
+  submit (const Job& job, const std::string& location,
+          std::string& actualLocation) const
+  {
+    // no invariant used
+
+    submitOnly (job, location, actualLocation);
+    ANA_MSG_DEBUG ("wait on: " << actualLocation);
+    wait (actualLocation);
   }
 
 
@@ -100,10 +114,23 @@ namespace EL
   void Driver ::
   submitOnly (const Job& job, const std::string& location) const
   {
+    // no invariant used
+
+    std::string actualLocation;
+    submitOnly (job, location, actualLocation);
+  }
+
+
+
+  void Driver ::
+  submitOnly (const Job& job, const std::string& location,
+              std::string& actualLocation) const
+  {
     RCU_READ_INVARIANT (this);
 
     Detail::ManagerData data;
     data.addManager (std::make_unique<Detail::BaseManager> ());
+    data.addManager (std::make_unique<Detail::SubmitDirManager> ());
     data.addManager (std::make_unique<Detail::DriverManager> ());
     data.addManager (std::make_unique<Detail::SubmitManager> ());
 
@@ -113,6 +140,7 @@ namespace EL
     data.job = &myjob;
     if (data.run().isFailure())
       throw std::runtime_error ("failed to submit job");
+    actualLocation = data.submitDir;
   }
 
 
@@ -123,6 +151,7 @@ namespace EL
   {
     Detail::ManagerData data;
     data.addManager (std::make_unique<Detail::BaseManager> ());
+    data.addManager (std::make_unique<Detail::SubmitDirManager> ());
     data.addManager (std::make_unique<Detail::DriverManager> ());
     data.addManager (std::make_unique<Detail::SubmitManager> ());
     data.submitDir = location;
@@ -145,6 +174,7 @@ namespace EL
   {
     Detail::ManagerData data;
     data.addManager (std::make_unique<Detail::BaseManager> ());
+    data.addManager (std::make_unique<Detail::SubmitDirManager> ());
     data.addManager (std::make_unique<Detail::DriverManager> ());
     data.addManager (std::make_unique<Detail::RetrieveManager> ());
     data.submitDir = location;

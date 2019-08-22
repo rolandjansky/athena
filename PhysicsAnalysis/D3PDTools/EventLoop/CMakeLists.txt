@@ -53,6 +53,11 @@ atlas_add_test (EventLoop_gt_OutputStreamData
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop AsgTestingLib )
 
+atlas_add_test (EventLoop_gt_SubmitDirManager
+      SOURCES test/gt_SubmitDirManager.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop AsgTestingLib )
+
 # Install files from the package:
 atlas_install_scripts( scripts/el_retrieve scripts/el_resubmit scripts/el_wait scripts/el_build_docker )
 atlas_install_data( data/*.root data/Dockerfile data/docker_analysis_setup.sh data/*.yml )
