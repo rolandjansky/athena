@@ -101,9 +101,19 @@ StatusCode HLTResultMTByteStreamDecoderTool::decodeHeader(const RawEvent* rawEve
     ATH_MSG_ERROR("Unknown exception caught when reading HLT bits");
     return StatusCode::FAILURE;
   }
-  resultToFill.setHltBits( {hltBitWords.begin(), hltBitWords.end()} );
+  if (hltBitWords.size() % 3 != 0) {
+    ATH_MSG_ERROR("Size of hltBitWords=" << hltBitWords.size() << " must be divisible by three. Expecting {raw, prescaled, rerun} bits.");
+    return StatusCode::FAILURE;
+  }
+  const size_t sizeOfBlock = hltBitWords.size() / 3;
+  auto beginPrescaledIt = hltBitWords.begin();
+  std::advance(beginPrescaledIt, sizeOfBlock);
+  auto beginRerunIt = hltBitWords.begin();
+  std::advance(beginRerunIt, 2 * sizeOfBlock);
+  resultToFill.setHltPassRawBits( {hltBitWords.begin(), beginPrescaledIt} );
+  resultToFill.setHltPrescaledBits( {beginPrescaledIt, beginRerunIt} );
+  resultToFill.setHltRerunBits( {beginRerunIt, hltBitWords.end()} );
   ATH_MSG_DEBUG("Successfully read " << hltBitWords.size() << " HLT bit words");
-
   return StatusCode::SUCCESS;
 }
 

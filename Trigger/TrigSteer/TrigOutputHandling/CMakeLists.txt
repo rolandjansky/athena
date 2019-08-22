@@ -21,15 +21,17 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigDataAccess/TrigSerializeResult
                           Event/xAOD/xAODTrigMuon
                           Event/xAOD/xAODMuon
-			  Event/xAOD/xAODTrigMissingET
-			  Event/xAOD/xAODTau
-			  Event/xAOD/xAODTrigBphys
+                          Event/xAOD/xAODTrigMissingET
+                          Event/xAOD/xAODTau
+                          Event/xAOD/xAODTrigBphys
                           Trigger/TrigSteer/DecisionHandling
                           Control/AthenaMonitoring
                           Trigger/TrigMonitoring/TrigCostMonitorMT
                           Trigger/TrigAlgorithms/TrigPartialEventBuilding
-			  Trigger/TrigDataAccess/TrigSerializeTP
-			  Control/AthContainersRoot
+                          Trigger/TrigDataAccess/TrigSerializeTP
+                          Trigger/TrigConfiguration/TrigConfData
+                          Trigger/TrigConfiguration/TrigConfIO
+                          Control/AthContainersRoot
                           )
 find_package( tdaq-common COMPONENTS eformat )
 find_package( Boost )
@@ -39,7 +41,7 @@ atlas_add_library( TrigOutputHandlingLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigOutputHandling
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent TrigSerializeResultLib
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES}  GaudiKernel AthViews AthenaBaseComps TrigSteeringEvent TrigSerializeResultLib TrigConfData TrigConfIOLib
                    xAODTrigCalo xAODTrigEgamma xAODTrigger xAODTracking xAODTrigMuon xAODMuon xAODTau xAODTrigBphys xAODTrigMissingET DecisionHandlingLib AthenaMonitoringLib TrigPartialEventBuildingLib TrigSerializeTPLib AthContainersRoot )
 
 atlas_add_component( TrigOutputHandling

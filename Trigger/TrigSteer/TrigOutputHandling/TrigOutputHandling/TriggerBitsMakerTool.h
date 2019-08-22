@@ -26,14 +26,18 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTNav_Summary", "Container with final chain decisions"  }; 
+  enum BitCategory{ HLTPassRawCategory, HLTPrescaledCategory, HLTRerunCategory };
 
-  Gaudi::Property<std::map<std::string, int>> m_chainToStreamProperty { this, "ChainToBit", {}, "Mapping from the chain name to bit position in trigger bits array"};
+  StatusCode setBit(const TrigCompositeUtils::DecisionID chain, const BitCategory category, HLT::HLTResultMT& resultToFill) const;
 
-  typedef std::map< TrigCompositeUtils::DecisionID, int> ChainToBitMap;
-  ChainToBitMap m_mapping;
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTNav_Summary", "Container with final chain decisions"  };
 
+  Gaudi::Property<std::string> m_menuJSON {this, "HLTmenuFile", "UNSET", "Filename of just-generated HLT Menu JSON used to configure the TriggerBitsMakerTool"};
 
+  typedef std::map< TrigCompositeUtils::DecisionID, uint32_t> ChainToBitMap;
+  ChainToBitMap m_mapping; //!< Mapping of each chain's hash ID to its chain counter
+
+  uint32_t m_largestBit; //!< Largest chain counter hence largest bit needed to be stored in result bitmap
 };
 
 #endif // TRIGOUTPUTHANDLING_TRIGGERBITSMAKERTOOL_H

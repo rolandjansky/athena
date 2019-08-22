@@ -149,7 +149,9 @@ StatusCode HLTResultMTMaker::makeResult(const EventContext& eventContext) const 
 
   // Fill monitoring histograms
   auto nstreams = Monitored::Scalar("nstreams", hltResult->getStreamTags().size());
-  auto bitWords = Monitored::Scalar("bitWords", hltResult->getHltBits().size());
+  auto bitWords = Monitored::Scalar("bitWords", hltResult->getHltPassRawBits().size() 
+    + hltResult->getHltPrescaledBits().size()
+    + hltResult->getHltRerunBits().size() );
   auto nfrags   = Monitored::Scalar("nfrags",   hltResult->getSerialisedData().size());
   auto sizeMain = Monitored::Scalar("sizeMain", -1.);
   auto iter = hltResult->getSerialisedData().find(0); // this is the main fragment of the HLT result

@@ -29,6 +29,8 @@
 
 #include "GaudiKernel/Incident.h"
 
+#include <boost/dynamic_bitset.hpp>
+
 using namespace TrigDec;
 
 TrigDecisionMakerMT::TrigDecisionMakerMT(const std::string &name, ISvcLocator *pSvcLocator)
@@ -41,7 +43,7 @@ TrigDecisionMakerMT::~TrigDecisionMakerMT() {}
 
 StatusCode TrigDecisionMakerMT::initialize()
 {
-  ATH_CHECK( m_HLTSummaryKeyIn.initialize() );
+  ATH_CHECK( m_hltResultKeyIn.initialize() );
   ATH_CHECK( m_ROIBResultKeyIn.initialize() );
   ATH_CHECK( m_EventInfoKeyIn.initialize() );
 
@@ -86,7 +88,7 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
     }
   }
 
-  const DecisionContainer* hltResult = nullptr;
+  const HLT::HLTResultMT* hltResult = nullptr;
   if (m_doHLT) {
     ATH_CHECK(getHLTResult(hltResult, context));
   }
@@ -103,72 +105,32 @@ StatusCode TrigDecisionMakerMT::execute(const EventContext& context) const
     trigDec->setTBP(l1Result->itemsBeforePrescale());
   }
 
-  // Output bitsets (stored in a vector<uint32_t>)
-  std::vector<uint32_t> hltPassBits;
-  std::vector<uint32_t> hltPrescaledBits;
-  std::vector<uint32_t> hltRerunBits;
-
-  std::set< std::vector<uint32_t>* > outputVectors;
-  outputVectors.insert( &hltPassBits );
-  outputVectors.insert( &hltPrescaledBits );
-  outputVectors.insert( &hltRerunBits );
-
   if (hltResult) {
-    ATH_MSG_DEBUG("Got a DecisionContainer '" << m_HLTSummaryKeyIn.key() << "' of size " << hltResult->size());
-    const Decision* HLTPassRaw = nullptr;
-    const Decision* HLTPrescaled = nullptr;
-    const Decision* HLTRerun = nullptr;
 
-    DecisionIDContainer passRawInput; //!< The chains which returned a positive decision
-    DecisionIDContainer prescaledInput; //!< The chains which did not run due to being prescaled out
-    DecisionIDContainer rerunInput; //!< The chains which were activate only in the rerun (not physics decisions)
+    std::vector<uint32_t> hltPassRawBits;
+    std::vector<uint32_t> hltPrescaledBits;
+    std::vector<uint32_t> hltRerunBits;
 
-    // Read the sets of chain IDs
-    for (const Decision* decisionObject : *hltResult) {
-      // Collect all decisions (IDs of passed/prescaled/rerun chains) from named decisionObjects
-      if (decisionObject->name() == "HLTPassRaw") {
-        HLTPassRaw = decisionObject;
-      } else if (decisionObject->name() == "HLTPrescaled") {
-        HLTPrescaled = decisionObject;
-      } else if (decisionObject->name() == "HLTRerun") {
-        HLTRerun = decisionObject;
-      }
-      if (HLTPassRaw && HLTPrescaled && HLTRerun) {
-        break;
-      }
-    }
+    hltPassRawBits.resize(hltResult->getHltPassRawBits().num_blocks());
+    hltPrescaledBits.resize(hltResult->getHltPrescaledBits().num_blocks());
+    hltRerunBits.resize(hltResult->getHltRerunBits().num_blocks());
 
-    ATH_CHECK(HLTPassRaw != nullptr);
-    ATH_CHECK(HLTPrescaled != nullptr);
-    ATH_CHECK(HLTRerun != nullptr);
+    boost::to_block_range(hltResult->getHltPassRawBits(),hltPassRawBits.begin());
+    boost::to_block_range(hltResult->getHltPrescaledBits(),hltPrescaledBits.begin());
+    boost::to_block_range(hltResult->getHltRerunBits(),hltRerunBits.begin());
 
-    // Get all passed IDs.
-    decisionIDs(HLTPassRaw, passRawInput);
+    ATH_MSG_DEBUG ("Number of HLT chains passed raw: " << hltResult->getHltPassRawBits().count());
+    ATH_MSG_DEBUG ("Number of HLT chains prescaled out: " << hltResult->getHltPrescaledBits().count());
+    ATH_MSG_DEBUG ("Number of HLT chains in rerun / second pass / resurrection : " << hltResult->getHltRerunBits().count());
 
-    // Simpler structure for prescaled. 
-    decisionIDs(HLTPrescaled, prescaledInput);
+    trigDec->setEFPassedRaw(hltPassRawBits);
+    trigDec->setEFPrescaled(hltPrescaledBits);
+    trigDec->setEFResurrected(hltRerunBits);
 
-    // Get all passed IDs. 
-    decisionIDs(HLTRerun, rerunInput);   
-
-    if (passRawInput.size()) {
+    if (hltResult->getHltPassRawBits().any()) {
       ++m_hltPassed;
     }
-  
-    // Make bitmap for passed raw
-    size_t countHltPass = makeBitMap(passRawInput, hltPassBits, outputVectors);
-    ATH_MSG_DEBUG ("Number of HLT chains passed raw: " << countHltPass);
-    trigDec->setEFPassedRaw(hltPassBits);
 
-    // Make bitmap for prescaled
-    size_t countHltPrescaled = makeBitMap(prescaledInput, hltPrescaledBits, outputVectors);
-    ATH_MSG_DEBUG ("Number of HLT chains prescaled out: " << countHltPrescaled);
-    trigDec->setEFPrescaled(hltPrescaledBits);
-
-    // Make bitmap for rerun a.k.a. resurrection
-    size_t countHLTRerun = makeBitMap(rerunInput, hltRerunBits, outputVectors);
-    ATH_MSG_DEBUG ("Number of HLT chains in rerun / second pass / resurrection : " << countHLTRerun);
-    trigDec->setEFResurrected(hltRerunBits);
   }
 
   // get the bunch crossing id
@@ -209,9 +171,9 @@ StatusCode TrigDecisionMakerMT::getL1Result(const LVL1CTP::Lvl1Result*& result, 
 }
 
 
-StatusCode TrigDecisionMakerMT::getHLTResult(const TrigCompositeUtils::DecisionContainer*& result, const EventContext& context) const
+StatusCode TrigDecisionMakerMT::getHLTResult(const HLT::HLTResultMT*& result, const EventContext& context) const
 {
-  result = SG::get(m_HLTSummaryKeyIn, context);
+  result = SG::get(m_hltResultKeyIn, context);
   return StatusCode::SUCCESS;
 }
 
@@ -227,56 +189,4 @@ char TrigDecisionMakerMT::getBGByte(int BCId) const {
     return 0;
   }
   return bgs->bgPattern()[BCId];  
-}
-
-
-size_t TrigDecisionMakerMT::makeBitMap(
-  const TrigCompositeUtils::DecisionIDContainer& passedIDs,
-  std::vector<uint32_t>& bitsVector,
-  std::set< std::vector<uint32_t>* >& allOutputVectors) const
-{
-  size_t count = 0;
-  for (const TrigCompositeUtils::DecisionID id : passedIDs) {
-    const int32_t chainCounter = getChainCounter(id);
-    if (chainCounter == -1) continue; // Could not decode, prints error
-    resizeVectors(chainCounter, allOutputVectors); // Make sure we have enough room to be able to set the required bit
-    setBit(chainCounter, bitsVector);
-    ++count;
-  }
-  return count;
-}
-
-
-void TrigDecisionMakerMT::resizeVectors(const size_t bit, const std::set< std::vector<uint32_t>* >& vectors) const {
-  const size_t block = bit / std::numeric_limits<uint32_t>::digits;
-  const size_t requiredSize = block + 1;
-  if (vectors.size() && requiredSize > (*vectors.begin())->size()) {
-    for (std::vector<uint32_t>* vecPtr : vectors) {
-      vecPtr->resize(requiredSize, 0); // Resize can shrink, here we only ever want to expand
-    }
-  }
-  return;
-}
-
-
-void TrigDecisionMakerMT::setBit(const size_t bit, std::vector<uint32_t>& bits) const {
-  const size_t block = bit / std::numeric_limits<uint32_t>::digits; // = 32
-  const size_t offset = bit % std::numeric_limits<uint32_t>::digits;
-  bits.at(block) |= static_cast<uint32_t>(1) << offset;
-}
-
-
-int32_t TrigDecisionMakerMT::getChainCounter(const TrigCompositeUtils::DecisionID chainID) const {
-  // Need to go from hash-ID to chain-counter. HLTChain counter currently does not give this a category
-  const std::string chainName = TrigConf::HLTUtils::hash2string(chainID);
-  if (chainName == "UNKNOWN HASH ID" || chainName == "UNKNOWN CATEGORY") {
-    ATH_MSG_ERROR("Unable to locate chain with hashID:" << chainID << " in the TrigConf, the error reported was: " << chainName);
-    return -1;
-  }
-  const TrigConf::HLTChain* chain = m_trigConfigSvc->chains().chain(chainName);
-  if (chain == nullptr) {
-    ATH_MSG_ERROR("Unable to fetch HLTChain object for chain with hashID:" << chainID << " and name:'" << chainName << "' (number of chains:" << m_trigConfigSvc->chains().size() << ")");
-    return -1;        
-  }
-  return chain->chain_counter();
 }

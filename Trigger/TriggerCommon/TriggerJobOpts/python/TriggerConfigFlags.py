@@ -97,9 +97,13 @@ def createTriggerFlags():
     # generate or not the HLT configuration
     flags.addFlag('Trigger.generateHLTConfig', False)
     
-    # HLT XML file name 
+    # HLT XML file name (R2 Legacy)
     flags.addFlag('Trigger.HLTConfigFile',
                 lambda prevFlags: 'HLTconfig_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+
+    # HLT JSON file name (R3)
+    flags.addFlag('Trigger.HLTMenuJsonFile',
+                lambda prevFlags: 'HLTmenu_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.json')
 
     # generate or not the L1 configuration
     flags.addFlag('Trigger.generateLVL1Config', False)

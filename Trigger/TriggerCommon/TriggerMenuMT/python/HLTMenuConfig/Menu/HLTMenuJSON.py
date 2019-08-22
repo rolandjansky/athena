@@ -5,7 +5,7 @@ from AthenaCommon.Logging import logging
 __log = logging.getLogger( 'HLTMenuJSON.py' )
 
 
-def __generateJSON( chainDicts, sequences, menuName ):
+def __generateJSON( chainDicts, sequences, menuName, fileName ):
     """ Generates JSON given the ChainProps and sequences
     """
     menuDict = { "name":menuName ,  "chains":[] }
@@ -28,9 +28,6 @@ def __generateJSON( chainDicts, sequences, menuName ):
         menuDict["chains"].append( chainDict )
         counter += 1
 
-    from AthenaCommon.AppMgr import release_metadata
-    fileName = "HLTmenu_%s_%s.json" % (menuName, release_metadata()['release'])
-
     __log.info( "Writing trigger menu to %s", fileName )
     with open( fileName, 'w' ) as fp:
         json.dump( menuDict, fp, indent=4, sort_keys=True )
@@ -41,7 +38,7 @@ def generateJSON( allStepsSequence ):
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     triggerConfigHLT = TriggerConfigHLT.currentTriggerConfig()
 
-    return __generateJSON( triggerConfigHLT.allChainDicts, None, TriggerFlags.triggerMenuSetup() )
+    return __generateJSON( triggerConfigHLT.allChainDicts, None, TriggerFlags.triggerMenuSetup(), TriggerFlags.outputHLTmenuJsonFile() )
     
 def generateJSON_newJO( allStepsSequence ):
     __log.info("Generating HLT JSON config in the new JO")
@@ -57,4 +54,4 @@ def generateJSON_newJO( allStepsSequence ):
             for chain in ConfigFlags._get( name ):
                 chainDicts.append( decoder.getChainDict( chain ) )
                                     
-    return __generateJSON( chainDicts, None, ConfigFlags.Trigger.triggerMenuSetup )
+    return __generateJSON( chainDicts, None, ConfigFlags.Trigger.triggerMenuSetup, ConfigFlags.Trigger.HLTMenuJsonFile )

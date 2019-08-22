@@ -34,7 +34,9 @@ namespace HLT {
   public:
     /// Standard constructor
     HLTResultMT(std::vector<eformat::helper::StreamTag> streamTags = {},
-                boost::dynamic_bitset<uint32_t> hltBits = boost::dynamic_bitset<uint32_t>(),
+                boost::dynamic_bitset<uint32_t> hltPassRawBits = boost::dynamic_bitset<uint32_t>(),
+                boost::dynamic_bitset<uint32_t> hltPrescaledBits = boost::dynamic_bitset<uint32_t>(),
+                boost::dynamic_bitset<uint32_t> hltRerunBits = boost::dynamic_bitset<uint32_t>(),
                 std::unordered_map<uint16_t, std::vector<uint32_t> > data = {},
                 std::vector<uint32_t> status = {0});
 
@@ -64,25 +66,70 @@ namespace HLT {
 
     // ------------------------- HLT bits getters/setters ----------------------
 
-    /// Const-getter for HLT bits
-    const boost::dynamic_bitset<uint32_t>& getHltBits() const;
+    /// Const-getter for HLT pass raw bits
+    const boost::dynamic_bitset<uint32_t>& getHltPassRawBits() const;
 
-    /// Const-getter for HLT bits as uint32_t array
+    /// Const-getter for HLT prescaled bits
+    const boost::dynamic_bitset<uint32_t>& getHltPrescaledBits() const;
+
+    /// Const-getter for HLT rerun bits
+    const boost::dynamic_bitset<uint32_t>& getHltRerunBits() const;
+
+    /// Const-getter for HLT bits as uint32_t array. Ordering: PassRaw, Prescaled, Rerun.
     const std::vector<uint32_t>& getHltBitsAsWords();
 
-    /// Replace HLT bits with the given bitset
-    void setHltBits(const boost::dynamic_bitset<uint32_t>& bitset);
+    /** @brief Reserve space for HLT bits
+     *  @param numberOfChains Number of chains configured in the menu
+     *  @return FAILURE on memory allocation error
+     **/
+    StatusCode reserveHltBits(size_t numberOfChains);
+
+    /// Replace HLT pass raw bits with the given bitset
+    void setHltPassRawBits(const boost::dynamic_bitset<uint32_t>& bitset);
+
+    /// Replace HLT prescaled bits with the given bitset
+    void setHltPrescaledBits(const boost::dynamic_bitset<uint32_t>& bitset);
+
+    /// Replace HLT rerun raw bits with the given bitset
+    void setHltRerunBits(const boost::dynamic_bitset<uint32_t>& bitset);
 
     /** @brief Sets bit at the given index to true
-     *  @return FAILURE on memory allocation error
+     *  @return FAILURE on memory error
      **/
-    StatusCode addHltBit(size_t index);
+    StatusCode addHltPassRawBit(size_t index);
+
+    /** @brief Sets bit at the given index to true
+     *  @return FAILURE on memory error
+     **/
+    StatusCode addHltPrescaledBit(size_t index);
+
+    /** @brief Sets bit at the given index to true
+     *  @return FAILURE on memory error
+     **/
+    StatusCode addHltRerunBit(size_t index);
 
     /** @brief Sets bits at the given indices to true
-     *  @return FAILURE on memory allocation error
+     *  @return FAILURE on memory error
      **/
-    StatusCode addHltBits(const std::vector<size_t>& indices);
+    StatusCode addHltPassRawBits(const std::vector<size_t>& indices);
 
+    /** @brief Sets bits at the given indices to true
+     *  @return FAILURE on memory error
+     **/
+    StatusCode addHltPrescaledBits(const std::vector<size_t>& indices);
+
+    /** @brief Sets bits at the given indices to true
+     *  @return FAILURE on memory error
+     **/
+    StatusCode addHltRerunBits(const std::vector<size_t>& indices);
+
+
+    /** @brief Intnernally sets bit at the given indices to true
+     *  @return FAILURE on memory error
+     **/
+  private:
+    StatusCode addHltBitInternal(size_t index, boost::dynamic_bitset<uint32_t>& bitset);
+  public:
 
     // ------------------------- Serialised data getters/setters ---------------
 
@@ -152,12 +199,14 @@ namespace HLT {
     std::vector<eformat::helper::StreamTag> m_streamTags;
 
     /// HLT bits (flagging which chains passed)
-    boost::dynamic_bitset<uint32_t> m_hltBits;
+    boost::dynamic_bitset<uint32_t> m_hltPassRawBits;
+    boost::dynamic_bitset<uint32_t> m_hltPrescaledBits;
+    boost::dynamic_bitset<uint32_t> m_hltRerunBits;
 
     /** @brief Vector storing m_hltBits converted to 4-byte words
      *
      *  HLTResultMT needs to own this vector because its lifetime has to be ensured until the serialisation is finished.
-     *  This vector is updated internally from m_hltBits and does not have a setter method.
+     *  This vector is updated internally from m_hltPassRawBits, m_hltPrescaledBits, m_hltRerunBits and does not have a setter method.
      **/
     std::vector<uint32_t> m_hltBitWords;
 
