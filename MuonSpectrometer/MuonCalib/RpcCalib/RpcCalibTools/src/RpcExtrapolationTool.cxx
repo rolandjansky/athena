@@ -107,7 +107,7 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 	  
 	  if(m_idHelperTool->isRpc(idEl)){
 	    
-	    if (m_rpcIdHelper->stationName(idEl)==3){
+	    if (m_idHelperTool->rpcIdHelper().stationName(idEl)==3){
 
 	      // from hole parameters get associated TG layer:
 	      const Trk::Layer* lay =m_extrapolator->trackingGeometry()->associatedLayer(par->position());
@@ -117,13 +117,13 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 
 	      // get the nearest channel identifier using MuonTGMeasurementTool
 	      double pitch=0.;
-	      Identifier id = m_measTool->nearestDetEl(lay,layPar,m_rpcIdHelper->measuresPhi(idEl),pitch);
+	      Identifier id = m_measTool->nearestDetEl(lay,layPar,m_idHelperTool->rpcIdHelper().measuresPhi(idEl),pitch);
 
 	      idEl=id;
 
 	    }
 
-	    Identifier panelID=m_rpcIdHelper->panelID(idEl);
+	    Identifier panelID=m_idHelperTool->rpcIdHelper().panelID(idEl);
 	    
 	    std::map<Identifier,RpcExtrapolationResults>::iterator it=panels.find(panelID);
 	    
@@ -161,8 +161,8 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 	      const Identifier  id_phi = m_measTool->nearestDetEl(layer,(*iter)->trackParameters() , true, pitch) ;
 	      const Identifier  id_eta = m_measTool->nearestDetEl(layer,(*iter)->trackParameters() , false, pitch) ;
 	      
-	      Identifier panelEtaID=m_rpcIdHelper->panelID(id_eta);
-	      Identifier panelPhiID=m_rpcIdHelper->panelID(id_phi);
+	      Identifier panelEtaID=m_idHelperTool->rpcIdHelper().panelID(id_eta);
+	      Identifier panelPhiID=m_idHelperTool->rpcIdHelper().panelID(id_phi);
 
 	      // start with eta panel:
 	      std::map<Identifier,RpcExtrapolationResults>::iterator it=panels.find(panelEtaID);
@@ -245,7 +245,7 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 	  	  
 	  if(m_idHelperTool->isRpc(idHit)){
 	     
-	    Identifier panelID=m_rpcIdHelper->panelID(idHit);
+	    Identifier panelID=m_idHelperTool->rpcIdHelper().panelID(idHit);
 	    
 	    std::map<Identifier,RpcExtrapolationResults>::iterator it=panels.find(panelID);
 	    
