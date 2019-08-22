@@ -53,7 +53,7 @@ Trk::TrkAmbiguitySolver::execute()
   SG::ReadHandle<std::multimap<const Track*, float>> scoredTracksHandle(m_scoredTracksKey);
   if ( !scoredTracksHandle.isValid() )  ATH_MSG_ERROR("Could not read scoredTracks.");
 
-  std::unique_ptr<TrackCollection> resolvedTracks(new TrackCollection);
+  std::unique_ptr<TrackCollection> resolvedTracks = std::make_unique<TrackCollection>();
   if (m_applySolve){
     std::multimap<const Track*, float> scoredTracks;
     for(auto &e: *scoredTracksHandle)
