@@ -184,6 +184,7 @@ namespace Muon {
       delete m_ntuple;
       gDirectory = cdir;
     }
+    m_incidentSvc->removeListener( this, IncidentType::EndEvent )
     return StatusCode::SUCCESS;
   }
 
