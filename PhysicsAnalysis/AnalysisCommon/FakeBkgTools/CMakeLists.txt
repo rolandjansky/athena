@@ -35,6 +35,7 @@ atlas_add_root_dictionary( FakeBkgToolsLib FakeBkgToolsDictSource
 atlas_add_library( FakeBkgToolsLib
   FakeBkgTools/*.h Root/*.h Root/*.cxx  ${FakeBkgToolsDictSource}
   PUBLIC_HEADERS FakeBkgTools
+  DEFINITIONS FAKEBKGTOOLS_ATLAS_ENVIRONMENT
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES AsgAnalysisInterfaces AsgTools xAODBase PATInterfaces
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils xAODEgamma xAODMuon PathResolver SelectionHelpersLib
