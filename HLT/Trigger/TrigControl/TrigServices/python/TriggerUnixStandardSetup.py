@@ -56,6 +56,10 @@ def setupCommonServices():
     topSequence = AlgSequence()
     topSequence += SGInputLoader(FailIfNoProxy = False)  # change to True eventually
 
+    # Basic operational monitoring
+    from TrigOnlineMonitor.TrigOnlineMonitorConf import TrigOpMonitor
+    topSequence += TrigOpMonitor()
+
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.ShowDataDependencies(False)
     AlgScheduler.ShowControlFlow(False)
