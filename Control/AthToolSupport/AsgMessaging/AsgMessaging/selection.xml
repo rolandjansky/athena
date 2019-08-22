@@ -6,5 +6,6 @@
 
    <!-- The basic tool types: -->
    <class name="asg::AsgMessaging" />
+   <class name="asg::MsgHelpers" />
 
 </lcgdict>

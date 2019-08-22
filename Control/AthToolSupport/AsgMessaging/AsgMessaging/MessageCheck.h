@@ -76,12 +76,8 @@
 
 #include <type_traits>
 
+#include <AsgMessaging/MsgHelpers.h>
 #include <AsgMessaging/StatusCode.h>
-#ifdef XAOD_STANDALONE
-#include <AsgMessaging/MsgStream.h>
-#else
-#include "AthenaBaseComps/AthMessaging.h"
-#endif
 
 /// \brief for standalone code this creates a new message category
 ///
@@ -115,15 +111,6 @@
   bool msgLvl (MSG::Level lvl);			\
   void setMsgLevel (MSG::Level level); }
 
-
-#ifdef XAOD_STANDALONE
-#define ASG_TOOLS_MSG_STREAM(NAME,TITLE)	\
-  static MsgStream NAME (TITLE);
-#else
-#define ASG_TOOLS_MSG_STREAM(NAME,TITLE)			\
-  static MsgStream NAME (::asg::detail::getMessageSvcAthena(), TITLE);
-#endif
-
 /// \brief the source code part of \ref ANA_MSG_SOURCE
 ///
 /// For every message category that you introduce via \ref
@@ -131,43 +118,34 @@
 /// to add the source code needed for its function implementations
 #define ANA_MSG_SOURCE(NAME,TITLE)		\
   namespace NAME				\
-  {						\
-  namespace					\
-    {						\
-  MSG::Level& msgLevel ()			\
-    {						\
-  static MSG::Level level = MSG::INFO;		\
-  return level;					\
+  {	 					\
+    MsgStream& msg ()				\
+    {                                           \
+      static MsgStream& result {::asg::MsgHelpers::pkgMsgStream (TITLE)}; \
+      return result;				\
     }						\
-  }						\
 						\
+    MsgStream& msg (MSG::Level level)		\
+    {						\
+      return msg() << level;			\
+    }						\
+                                                \
+    bool msgLvl (MSG::Level lvl)                \
+    {						\
+      if (msg().level() <= lvl)                 \
+      {                                         \
+        msg() << lvl;                           \
+        return true;                            \
+      } else                                    \
+      {                                         \
+        return false;                           \
+      }                                         \
+    }						\
 						\
-						\
-  MsgStream& msg ()				\
-  {						\
-    ASG_TOOLS_MSG_STREAM (result, std::string ("Package.") + TITLE);	\
-  return result;				\
-  }						\
-						\
-						\
-  MsgStream& msg (MSG::Level level)		\
-  {						\
-    return msg() << level;			\
-  }						\
-						\
-						\
-						\
-  bool msgLvl (MSG::Level lvl)			\
-  {						\
-    return msgLevel() <= lvl;			\
-  }						\
-						\
-						\
-						\
-  void setMsgLevel (MSG::Level level)		\
-  {						\
-    msgLevel() = level;				\
-  }						\
+    void setMsgLevel (MSG::Level level)		\
+    {						\
+      msg().setLevel (level);                   \
+    }						\
   }
 
 namespace asg
@@ -240,12 +218,6 @@ namespace asg
 
   namespace detail
   {
-#ifndef XAOD_STANDALONE
-    /// Get the Athena message service
-    /// TODO: Look into using AthenaKernel/MsgStreamMember.h
-    IMessageSvc* getMessageSvcAthena();
-#endif
-
     /// \brief throw an error for a failed check
     ///
     /// the main reason to have a separate function for this is to cut
