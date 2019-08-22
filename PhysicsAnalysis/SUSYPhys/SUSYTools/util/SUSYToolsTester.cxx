@@ -201,7 +201,7 @@ int main( int argc, char* argv[] ) {
 est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   }
   Info( APP_NAME, "Opening file: %s", fileName.Data() );
-  std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
+  std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   ANA_CHECK( ifile.get() );
 
   // Create a TEvent object:
@@ -225,7 +225,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
   // Open up an output file.  Not needed for this example.  If you wish to enable
   // this, please don't forget to add the call to fill towards the end of the code!
-  //std::auto_ptr< TFile > ofile( TFile::Open( "out.root", "RECREATE" ) );
+  //std::unique_ptr< TFile > ofile( TFile::Open( "out.root", "RECREATE" ) );
   //ANA_CHECK( event.writeTo( ofile.get() ) );
 
   // If we haven't set the number of events, then run over the whole tree
