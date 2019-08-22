@@ -164,24 +164,16 @@ namespace Muon {
     struct State {
       MaximumVec seedMaxima; // Does not own the contained objects, they're just references to objects stored in houghDataPerSectorVec.
       std::unique_ptr<HoughDataPerSectorVec> houghDataPerSectorVec { std::make_unique<HoughDataPerSectorVec>() };
-      //MuonHough::MuonDetectorHough& detectorHoughTransforms { houghDataPerSectorVec->detectorHoughTransforms };
       std::set<Identifier> truthHits;
       std::set<Identifier> foundTruthHits;
       std::set<Identifier> outputTruthHits;
-      std::vector<TgcHitClusteringObj*> tgcClusteringObjs; // Owns the contained objects
-
-      ~State() {
-        for (auto& t : tgcClusteringObjs) {
-          delete t;
-        }
-        tgcClusteringObjs.clear();
-      }
+      std::vector<std::unique_ptr<TgcHitClusteringObj>> tgcClusteringObjs;
     };
   
     std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> analyse(State& state) const;
 
     void fillHitsPerSector( std::set<Identifier>& truthHits, 
-           std::vector<TgcHitClusteringObj*>& tgcClusteringObjs,
+           std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs,
            const CollectionsPerSector& hashes,
 			     const MdtPrepDataContainer*  mdtCont,  
 			     const CscPrepDataContainer*  /*cscCont*/,  
@@ -192,7 +184,7 @@ namespace Muon {
 			     HoughDataPerSector& houghData ) const;
 
     void fill( std::set<Identifier>& truthHits, const MdtPrepDataCollection& mdts, HitVec& hits ) const;
-    void fill( std::set<Identifier>& truthHits, std::vector<TgcHitClusteringObj*> tgcClusteringObjs,
+    void fill( std::set<Identifier>& truthHits, std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs,
       const TgcPrepDataCollection& tgcs, HitVec& hits, PhiHitVec& phiHits, int sector ) const;
     void fill( std::set<Identifier>& truthHits, const RpcPrepDataCollection& rpcs, HitVec& hits, PhiHitVec& phiHits ) const;
     void fill( std::set<Identifier>& truthHits, const MMPrepDataCollection& mdts, HitVec& hits ) const;

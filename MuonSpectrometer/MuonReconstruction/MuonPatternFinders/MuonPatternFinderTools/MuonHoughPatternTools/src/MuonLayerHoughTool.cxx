@@ -1780,7 +1780,7 @@ namespace Muon {
   }
 
   void MuonLayerHoughTool::fillHitsPerSector(  std::set<Identifier>& truthHits,
-                                               std::vector<TgcHitClusteringObj*>& tgcClusteringObjs,
+                                               std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs,
                                                const MuonLayerHoughTool::CollectionsPerSector& collectionsPerSector,
                                                const MdtPrepDataContainer*  mdtCont,  
                                                const CscPrepDataContainer*  /*cscCont*/,  
@@ -2136,12 +2136,12 @@ namespace Muon {
     }
   }
 
-  void MuonLayerHoughTool::fill( std::set<Identifier>& truthHits, std::vector<TgcHitClusteringObj*> tgcClusteringObjs, 
+  void MuonLayerHoughTool::fill( std::set<Identifier>& truthHits, std::vector<std::unique_ptr<TgcHitClusteringObj>>& tgcClusteringObjs, 
       const TgcPrepDataCollection& tgcs, MuonLayerHoughTool::HitVec& hits, MuonLayerHoughTool::PhiHitVec& phiHits, 
       int sector ) const {
     
     if( tgcs.empty() ) return;
-    tgcClusteringObjs.push_back( new TgcHitClusteringObj(m_idHelper->tgcIdHelper()) );
+    tgcClusteringObjs.push_back( std::make_unique<TgcHitClusteringObj>(m_idHelper->tgcIdHelper()) );
     TgcHitClusteringObj& clustering = *tgcClusteringObjs.back();
     std::vector<const TgcPrepData*> prds;
     prds.insert(prds.begin(),tgcs.begin(),tgcs.end());
