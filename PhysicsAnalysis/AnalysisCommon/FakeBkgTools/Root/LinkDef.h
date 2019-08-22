@@ -11,4 +11,4 @@
 
 #pragma link C++ class TMinuit_LHMM;
 
-#endif
+#endif // __CINT__
