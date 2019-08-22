@@ -29,7 +29,6 @@ Trk::MultiComponentStateAssembler::~MultiComponentStateAssembler() {}
 StatusCode
 Trk::MultiComponentStateAssembler::initialize()
 {
-
   ATH_MSG_DEBUG("Initialisation of " << name() << " successful \n");
   return StatusCode::SUCCESS;
 }
@@ -37,7 +36,6 @@ Trk::MultiComponentStateAssembler::initialize()
 StatusCode
 Trk::MultiComponentStateAssembler::finalize()
 {
-
   ATH_MSG_DEBUG("Finalisation of " << name() << " successful \n");
   return StatusCode::SUCCESS;
 }
@@ -45,7 +43,6 @@ Trk::MultiComponentStateAssembler::finalize()
 bool
 Trk::MultiComponentStateAssembler::reset(Cache& cache) const
 {
-
   ATH_MSG_VERBOSE("Resetting the MultiComponentStateAssembler: " << name() << "\n");
   cache.assemblyDone = false;
   if (!cache.multiComponentState.empty()) {
@@ -69,54 +66,44 @@ Trk::MultiComponentStateAssembler::status(const Cache& cache) const
 }
 
 bool
-Trk::MultiComponentStateAssembler::addComponent(Cache& cache, const ComponentParameters& componentParameters) const
+Trk::MultiComponentStateAssembler::addComponent(Cache& cache, SimpleComponentParameters&& componentParameters) const
 {
-
   if (cache.assemblyDone) {
     ATH_MSG_WARNING("Trying to add state after assembly... returning false \n");
     return false;
   }
-  SimpleMultiComponentState tempMultiState;
-  tempMultiState.emplace_back(componentParameters.first->clone(), componentParameters.second);
-  this->addComponentsList(cache, tempMultiState);
+  cache.validWeightSum += componentParameters.second; 
+  cache.multiComponentState.emplace_back(componentParameters.first.release(),componentParameters.second);
   return true;
 }
 
 bool
-Trk::MultiComponentStateAssembler::addMultiState(Cache& cache, SimpleMultiComponentState& multiComponentState) const
+Trk::MultiComponentStateAssembler::addMultiState(Cache& cache, SimpleMultiComponentState&& multiComponentState) const
 {
   if (cache.assemblyDone) {
     ATH_MSG_WARNING("Trying to add state after assembly... returning false \n");
     return false;
   }
-  this->addComponentsList(cache, multiComponentState);
+  double sumW(0.);
+  for (auto& component : multiComponentState) {
+    sumW += component.second;
+    cache.multiComponentState.emplace_back(component.first.release(),component.second);
+  }
+  multiComponentState.clear();
+  cache.validWeightSum += sumW;
   return true;
 }
 
 bool
 Trk::MultiComponentStateAssembler::addInvalidComponentWeight(Cache& cache, const double invalidComponentWeight) const
 {
-
   cache.invalidWeightSum += invalidComponentWeight;
   return true;
-}
-
-void
-Trk::MultiComponentStateAssembler::addComponentsList(Cache& cache, SimpleMultiComponentState& multiComponentState) const
-{
-  double sumW(0.);
-  for (auto& component : multiComponentState) {
-    cache.multiComponentState.emplace_back(component.first.release(), component.second);
-    sumW += component.second;
-  }
-  multiComponentState.clear();
-  cache.validWeightSum += sumW;
 }
 
 bool
 Trk::MultiComponentStateAssembler::prepareStateForAssembly(Cache& cache) const
 {
-
   // Protect against empty state
   if (!isStateValid(cache)) {
     ATH_MSG_DEBUG("State is not valid... returning false \n");
@@ -144,7 +131,8 @@ Trk::MultiComponentStateAssembler::prepareStateForAssembly(Cache& cache) const
   double totalWeight(cache.validWeightSum + cache.invalidWeightSum);
   if (totalWeight != 0.) {
     /*
-     * All elements where !comp->!(value>element) ->(element>=value) is true
+     * All elements where 
+     * !comp,!(value>element),element>=value is true
      * are before the value (i.e ordered descending).
      * return the 1st element where (element<value)
      */
@@ -154,7 +142,7 @@ Trk::MultiComponentStateAssembler::prepareStateForAssembly(Cache& cache) const
                                        dummySmallestWeight,
                                        SortByLargerSimpleComponentWeight());
     /*
-     * reverse iterate , so as to delete remove always the last
+     * reverse iterate , so as to delete removing the last
      */
     auto lower_than_reverse = std::make_reverse_iterator(lower_than);
     for (auto itr = cache.multiComponentState.rbegin(); itr != lower_than_reverse; ++itr) {
@@ -186,7 +174,6 @@ Trk::MultiComponentStateAssembler::assembledState(Cache& cache) const
     return stateAssembly;
   }
   return doStateAssembly(cache, cache.validWeightSum);
-  ;
 }
 
 Trk::MultiComponentState*
@@ -217,8 +204,6 @@ Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double ne
     if (!cache.multiComponentState.empty()) {
       double fixedWeights = 1. / (double)cache.multiComponentState.size();
       for (auto& component : cache.multiComponentState) {
-        ATH_MSG_VERBOSE("Componant old weight " << component.second);
-
         component.second = fixedWeights;
       }
     }

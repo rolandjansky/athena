@@ -107,7 +107,7 @@ Trk::GsfMaterialMixtureConvolution::update(const Trk::MultiComponentState& multi
     if(!updatedState)
       continue;
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState.get());
+    bool componentAdded = m_stateAssembler->addMultiState(cache, std::move(*updatedState));
 
     if (!componentAdded) {
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
@@ -170,7 +170,7 @@ Trk::GsfMaterialMixtureConvolution::preUpdate(const Trk::MultiComponentState& mu
     if(!updatedState)
       continue;
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState.get());
+    bool componentAdded = m_stateAssembler->addMultiState(cache, std::move(*updatedState));
 
     if (!componentAdded)
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
@@ -236,7 +236,7 @@ Trk::GsfMaterialMixtureConvolution::postUpdate(const Trk::MultiComponentState& m
     if(!updatedState)
       continue;
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState.get());
+    bool componentAdded = m_stateAssembler->addMultiState(cache, std::move(*updatedState));
 
     if (!componentAdded) {
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
@@ -326,7 +326,7 @@ Trk::GsfMaterialMixtureConvolution::simpliedMaterialUpdate(const Trk::MultiCompo
     if(!updatedState)
       continue;
 
-    bool componentAdded = m_stateAssembler->addMultiState(cache, *updatedState.get());
+    bool componentAdded = m_stateAssembler->addMultiState(cache, std::move(*updatedState));
 
     if (!componentAdded) {
       ATH_MSG_WARNING("Component could not be added to the state in the assembler");
