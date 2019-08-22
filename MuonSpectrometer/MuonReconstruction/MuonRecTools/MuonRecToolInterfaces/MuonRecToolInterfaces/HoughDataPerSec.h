@@ -9,9 +9,11 @@
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonLayerHough/MuonPhiLayerHough.h"
 #include "MuonLayerHough/MuonRegionHough.h"
+#include "MuonClusterization/TgcHitClustering.h"
 #include <map>
 #include <set>
 #include <vector>
+#include <memory>
 
 
 namespace Muon {
@@ -81,7 +83,8 @@ namespace Muon {
   struct HoughDataPerSectorVec
   {
     std::vector<HoughDataPerSec> vec;
-    MuonHough::MuonDetectorHough detectorHoughTransforms;
+    MuonHough::MuonDetectorHough detectorHoughTransforms; // Kept with the vec because it has references to these objects
+    std::vector<std::unique_ptr<TgcHitClusteringObj>> tgcClusteringObjs; // Kept with the vec because it has references to these objects
   };
 }
 
