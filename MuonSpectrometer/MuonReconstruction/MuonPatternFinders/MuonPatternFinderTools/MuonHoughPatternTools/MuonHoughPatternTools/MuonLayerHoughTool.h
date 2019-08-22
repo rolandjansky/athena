@@ -167,7 +167,6 @@ namespace Muon {
       std::set<Identifier> truthHits;
       std::set<Identifier> foundTruthHits;
       std::set<Identifier> outputTruthHits;
-      std::vector<std::unique_ptr<TgcHitClusteringObj>> tgcClusteringObjs;
     };
   
     std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> analyse(State& state) const;

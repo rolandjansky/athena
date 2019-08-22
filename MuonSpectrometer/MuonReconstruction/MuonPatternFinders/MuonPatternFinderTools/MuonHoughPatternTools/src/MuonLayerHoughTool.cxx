@@ -184,7 +184,7 @@ namespace Muon {
       delete m_ntuple;
       gDirectory = cdir;
     }
-    m_incidentSvc->removeListener( this, IncidentType::EndEvent )
+    m_incidentSvc->removeListener( this, IncidentType::EndEvent );
     return StatusCode::SUCCESS;
   }
 
@@ -296,18 +296,18 @@ namespace Muon {
       int sector = m_idHelper->sector(id);
       auto hashes = getHashes(id);
       // fill current sector
-      fill(state.truthHits, state.tgcClusteringObjs, *col,state.houghDataPerSectorVec->vec[sector-1].hitVec[hashes.second],
+      fill(state.truthHits, state.houghDataPerSectorVec->tgcClusteringObjs, *col,state.houghDataPerSectorVec->vec[sector-1].hitVec[hashes.second],
           state.houghDataPerSectorVec->vec[sector-1].phiHitVec[hashes.first],sector);
 
       // fill neighbours if in overlap
       int neighbourSectorDown = sector == 1 ? 16 : sector-1;
       if( hashInSector(col->identifyHash(),neighbourSectorDown,hashes.second) ) 
-        fill(state.truthHits, state.tgcClusteringObjs, *col,state.houghDataPerSectorVec->vec[neighbourSectorDown-1].hitVec[hashes.second],
+        fill(state.truthHits, state.houghDataPerSectorVec->tgcClusteringObjs, *col,state.houghDataPerSectorVec->vec[neighbourSectorDown-1].hitVec[hashes.second],
              state.houghDataPerSectorVec->vec[neighbourSectorDown-1].phiHitVec[hashes.first],neighbourSectorDown);
 
       int neighbourSectorUp   = sector == 16 ? 1 : sector+1;
       if( hashInSector(col->identifyHash(),neighbourSectorUp,hashes.second) ) 
-        fill(state.truthHits, state.tgcClusteringObjs, *col,state.houghDataPerSectorVec->vec[neighbourSectorUp-1].hitVec[hashes.second],
+        fill(state.truthHits, state.houghDataPerSectorVec->tgcClusteringObjs, *col,state.houghDataPerSectorVec->vec[neighbourSectorUp-1].hitVec[hashes.second],
              state.houghDataPerSectorVec->vec[neighbourSectorUp-1].phiHitVec[hashes.first],neighbourSectorUp);
       
     }
@@ -341,7 +341,7 @@ namespace Muon {
       houghData.sector = sit->sector;
 
       // fill hits for this sector -> hitsVec and PhiHitsVec are known now
-      fillHitsPerSector( state.truthHits, state.tgcClusteringObjs, *sit, mdtCont,cscCont,tgcCont,rpcCont,stgcCont,mmCont,houghData);
+      fillHitsPerSector( state.truthHits, state.houghDataPerSectorVec->tgcClusteringObjs, *sit, mdtCont,cscCont,tgcCont,rpcCont,stgcCont,mmCont,houghData);
 
     }
     return analyse(state);
