@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TFile.h>
@@ -34,7 +34,7 @@ int main() {
 #endif
 
   ANA_MSG_INFO("ASG_TEST_FILE_MC = " << std::getenv("ASG_TEST_FILE_MC"));
-  std::auto_ptr<TFile> ifile(TFile::Open(std::getenv("ASG_TEST_FILE_MC"), "READ"));
+  std::unique_ptr<TFile> ifile(TFile::Open(std::getenv("ASG_TEST_FILE_MC"), "READ"));
   ANA_CHECK(ifile.get());
 
   ANA_CHECK(evt.readFrom(ifile.get()));
