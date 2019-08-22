@@ -790,9 +790,18 @@ else:
     # --- Ambi solve the extended (Si + TRT) and TRT standalone tracks if both run
     if InDetFlags.doCosmics() and InDetFlags.doNewTracking() and len(InputCombinedInDetTracks) > 1:
       InputCosmicsCombinedAmbiSolver = list(InputCombinedInDetTracks)
+      
+      from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+      InDetAmbiguityScore_combinedCosmics = Trk__TrkAmbiguityScore(name = 'InDetCombinedCosmicsAmbiguityScore',
+                                                                   TrackInput = InputCosmicsCombinedAmbiSolver,
+                                                                   TrackOutput = 'ScoredMapCosmics')#,
+                                                                   #AmbiguityScoreProcessor =  InDetAmbiguityScoreProcessor )
+                                                                  
+      topSequence += InDetAmbiguityScore_combinedCosmics
+
       from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
       InDetAmbiguitySolver_combinedCosmics = Trk__TrkAmbiguitySolver(name               = 'InDetCombinedCosmicsAmbiSolver',
-                                                                     TrackInput         = InputCosmicsCombinedAmbiSolver,
+                                                                     TrackInput         = 'ScoredMapCosmics',
                                                                      TrackOutput        = "CombinedCosmicTracks",
                                                                      AmbiguityProcessor = InDetAmbiguityProcessorCosmics)
       topSequence += InDetAmbiguitySolver_combinedCosmics
