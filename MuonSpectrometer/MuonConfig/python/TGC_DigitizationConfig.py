@@ -7,7 +7,7 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from TGC_Digitization.TGC_DigitizationConf import TgcDigitizationTool, TGCDigitizer
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
-from MuonByteStreamCnvTest.MuonByteStreamCnvTestConfigNew import TgcDigitToTgcRDOCfg, TgcOverlayDigitToTgcRDOCfg
+from MuonConfig.MuonByteStreamCnvTestConfig import TgcDigitToTgcRDOCfg, TgcOverlayDigitToTgcRDOCfg
 from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
 
 # The earliest and last bunch crossing times for which interactions will be sent

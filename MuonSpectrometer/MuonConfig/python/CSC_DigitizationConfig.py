@@ -10,7 +10,7 @@ from CSC_Digitization.CSC_DigitizationConf import (
     CscDigitizationTool, CscDigitBuilder,
 )
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
-from MuonByteStreamCnvTest.MuonByteStreamCnvTestConfigNew import CscDigitToCscRDOCfg, CscOverlayDigitToCscRDOCfg
+from MuonConfig.MuonByteStreamCnvTestConfig import CscDigitToCscRDOCfg, CscOverlayDigitToCscRDOCfg
 from MuonConfig.MuonCablingConfig import CSCCablingConfigCfg
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -21,6 +21,7 @@ def CSC_FirstXing():
 
 def CSC_LastXing():
     return 175
+
 
 def CSC_RangeToolCfg(flags, name="CSC_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for CSC"""
