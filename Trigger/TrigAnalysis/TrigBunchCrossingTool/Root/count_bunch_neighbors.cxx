@@ -26,7 +26,7 @@ namespace Trig {
       const int neighbors =
          std::count_if( m_bunches.begin(), m_bunches.end(),
                         [ maxBunchSpacing, bunch ]( int b ) {
-                           return ( Trig::distance( bunch, b ) <
+                           return ( Trig::distance( bunch, b ) <=
                                     maxBunchSpacing );
                         } );
 

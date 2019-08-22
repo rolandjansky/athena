@@ -935,7 +935,7 @@ namespace Trig {
          const int neighbours =
             std::count_if( bunches.begin(), bunches.end(),
                            [ maxBCSpacing, &b_itr ]( int bunch ) {
-                              return ( Trig::distance( bunch, *b_itr ) <
+                              return ( Trig::distance( bunch, *b_itr ) <=
                                        maxBCSpacing );
                            } );
 
