@@ -157,7 +157,6 @@ StatusCode IOVDbSvc::initialize() {
   long int pri=100;
   incSvc->addListener( this, "BeginEvent", pri );
   incSvc->addListener( this, "StoreCleared", pri );
-  incSvc->addListener( this, "EndOfBeginRun", pri );
 
   // Get context for POOL conditions files, and created an initial connection
   if (m_par_managePoolConnections) {
@@ -727,7 +726,7 @@ void IOVDbSvc::signalEndProxyPreload() {
 void IOVDbSvc::handle( const Incident& inc) {
   // Handle incidents:
   // BeginEvent to set IOVDbSvc state to EVENT_LOOP
-  // StoreCleared or EndOfBeginRun to close any open POOL files
+  // StoreCleared to close any open POOL files
   ATH_MSG_VERBOSE( "entering handle(), incident type " << inc.type()
            << " from " << inc.source() );
   if (inc.type()=="BeginEvent") {
@@ -735,8 +734,7 @@ void IOVDbSvc::handle( const Incident& inc) {
   } else {
     const StoreClearedIncident* sinc= 
       dynamic_cast<const StoreClearedIncident*>(&inc);
-    if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)
-        || inc.type()=="EndOfBeginRun") {
+    if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)) {
       if (inc.type()=="StoreCleared") {
         m_state=IOVDbSvc::FINALIZE_ALG;
         if (m_par_dumpkeys) {
