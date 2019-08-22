@@ -55,6 +55,13 @@ namespace EL
       /// options.
       fillOptions,
 
+      /// extract any options into ManagerData for which it is
+      /// appropriate
+      extractOptions,
+
+      /// create the submission directory
+      createSubmitDir,
+
       /// in this step we update the output location of streams that
       /// don't yet have one defined
       updateOutputLocation,
@@ -62,9 +69,6 @@ namespace EL
       /// add any system algorithms to the job that may need to get
       /// added
       addSystemAlgs,
-
-      /// create the submission directory
-      createSubmitDir,
 
       /// prepare files in our submission directory
       prepareSubmitDir,

@@ -183,22 +183,9 @@ doManagerStep (Detail::ManagerData& data) const
   {
   case Detail::ManagerStep::submitJob:
     {
-      //Parent class ensures data.submitDir is absolute, but if originally specified 
-      //as a relative path, it may still contain '..' which will cause trouble
-      //later as dq2 -H option used by Ganga Tasks requires the canonical path
-      std::string jobDir = data.submitDir;
-      {
-        Ssiz_t len, pos;
-        TString tsLocation(data.submitDir.c_str());
-        const char *noDir = "/[A-Za-z0-9_\\.-]+/\\.\\.";      
-        while ((pos = TRegexp(noDir).Index(tsLocation,&len,0)) != -1) 
-          tsLocation.Remove(pos, len);      
-        jobDir = tsLocation.Data();
-      }
-
       //Create input sandbox dir with ELG files
       //TODO: some error checks here 
-      const std::string jobELGDir   = jobDir + "/elg";
+      const std::string jobELGDir   = data.submitDir + "/elg";
       const std::string taskIdFile  = jobELGDir + "/taskID";
       const std::string dsContFile  = jobELGDir + "/outputDQ2container";
       const std::string sandboxDir  = jobELGDir + "/inputsandbox";
@@ -483,10 +470,10 @@ doManagerStep (Detail::ManagerData& data) const
              end=data.job->outputEnd(); output != end; ++output)
       {
         outMap[output->label()].fetch(data.job->sampleHandler());
-        outMap[output->label()].save(jobDir + "/output-" + output->label());
+        outMap[output->label()].save(data.submitDir + "/output-" + output->label());
       };
       outMap["hist"].fetch(data.job->sampleHandler());
-      outMap["hist"].save(jobDir + "/output-hist");
+      outMap["hist"].save(data.submitDir + "/output-hist");
     }
     data.submitted = true;
     break;

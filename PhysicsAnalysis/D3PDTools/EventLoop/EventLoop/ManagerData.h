@@ -12,6 +12,7 @@
 #include <EventLoop/Global.h>
 
 #include <EventLoop/ManagerStep.h>
+#include <EventLoop/SubmitDirMode.h>
 #include <SampleHandler/MetaObject.h>
 #include <map>
 #include <memory>
@@ -62,6 +63,10 @@ namespace EL
 
       /// \brief the path to the submission directory
       std::string submitDir;
+
+      /// \brief the mode with which we handle the submission
+      /// directory
+      SubmitDirMode submitDirMode {SubmitDirMode::NO_CLOBBER};
 
       /// \brief whether we are merely resubmitting this job
       bool resubmit {false};

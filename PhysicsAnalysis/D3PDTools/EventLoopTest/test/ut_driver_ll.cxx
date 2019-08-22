@@ -39,6 +39,6 @@ int main ()
   driver.queue = "tier3";
   UnitTest ut ("ll");
   ut.cleanup = false;
-  ut.location = "$HOME/unit-test.$$";
+  ut.location = "$HOME/unit-test";
   return ut.run (driver);
 }

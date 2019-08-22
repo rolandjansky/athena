@@ -68,8 +68,12 @@ namespace EL
     /// \par Failures
     ///   can't create directory at location\n
     ///   submission errors
+    /// \{
   public:
     void submit (const Job& job, const std::string& location) const;
+    void submit (const Job& job, const std::string& location,
+                 std::string& actualLocation) const;
+    /// \}
 
 
     /// \brief submit the given job with the given output location
@@ -88,8 +92,12 @@ namespace EL
     ///   work in the submit function.
     /// \warn you normally need to call wait() or retrieve() before
     ///   you can use the output.
+    /// \{
   public:
     void submitOnly (const Job& job, const std::string& location) const;
+    void submitOnly (const Job& job, const std::string& location,
+                     std::string& actualLocation) const;
+    /// \}
 
 
     /// \brief resubmit all failed sub-jobs for the job in the given

@@ -28,6 +28,9 @@ namespace EL
       /// \brief the most basic operations, common for all tasks
       BASE,
 
+      /// \brief the basic operations for the submission directory
+      SUBMIT_DIR,
+
       /// \brief the base-operation performed (e.g. submit, retrieve)
       OPERATION,
 

@@ -13,6 +13,7 @@
 
 #include <EventLoop/Driver.h>
 #include <EventLoop/Job.h>
+#include <EventLoop/MessageCheck.h>
 #include <EventLoop/OutputStream.h>
 #include <EventLoopTest/UnitTestAlg.h>
 #include <RootCoreUtils/Assert.h>
@@ -30,6 +31,8 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+
+using namespace EL::msgEventLoop;
 
 //
 // method implementations
@@ -120,17 +123,12 @@ namespace EL
     if (scanNEvents)
       SH::scanNEvents (samples);
 
-    TString output = "/tmp";
+    TString submitDir;
     if (location.empty())
     {
-      {
-	const char *tmpdir = getenv ("TMPDIR");
-	if (tmpdir)
-	  output = tmpdir;
-      }
-      output += "/EventLoop-" + name + ".$$";
-    } else output = location;
-    gSystem->ExpandPathName (output);
+      submitDir = "EventLoopTest-" + name;
+    } else submitDir = location;
+    gSystem->ExpandPathName (submitDir);
 
     try
     {
@@ -161,9 +159,10 @@ namespace EL
       }
 
       if (!cleanup)
-	RCU_PRINT_MSG ("placing temporary files in: " + output);
-      gSystem->Exec (("rm -rf " + output).Data());
-      driver.submit (job, output.Data());
+	ANA_MSG_INFO ("placing temporary files in: " << submitDir);
+      job.options()->setString (Job::optSubmitDirMode, "unique");
+      std::string output;
+      driver.submit (job, submitDir.Data(), output);
 
       for (std::size_t iter = 0, end = samples.size(); iter != end; ++ iter)
       {
@@ -171,7 +170,7 @@ namespace EL
 	if (ref_hist != 0)
 	{
 	  SH::SampleHandler sh;
-	  sh.load ((output + "/hist").Data());
+	  sh.load ((output + "/hist").c_str());
 	  SH::SamplePtr sample = sh.get (samples[iter]->name());
 	  if (sample.empty())
 	    RCU_THROW_MSG ("could not find histogram sample " + samples[iter]->name());
@@ -215,7 +214,7 @@ namespace EL
 	if (testOutput && samples[iter]->getNumEntries() > 0)
 	{
 	  SH::SampleHandler sh;
-	  sh.load ((output + "/output-out").Data());
+	  sh.load ((output + "/output-out").c_str());
 	  SH::Sample *const sample = sh.get (samples[iter]->name());
 	  if (!sample)
 	    RCU_THROW_MSG ("output dataset not found for " + samples[iter]->name());
@@ -230,25 +229,19 @@ namespace EL
 	}
       }
       if (cleanup)
-	gSystem->Exec (("rm -rf " + output).Data());
+	gSystem->Exec (("rm -rf " + output).c_str());
       return EXIT_SUCCESS;
     } catch (std::exception& e)
     {
       std::cout << "exception caught in unit test: " << e.what() << std::endl;
-      if (cleanup)
-	gSystem->Exec (("rm -rf " + output).Data());
       return EXIT_FAILURE;
     } catch (std::string& e)
     {
       std::cout << "exception caught in unit test: " << e << std::endl;
-      if (cleanup)
-	gSystem->Exec (("rm -rf " + output).Data());
       return EXIT_FAILURE;
     } catch (...)
     {
       std::cout << "unknown exception caught in unit test" << std::endl;
-      if (cleanup)
-	gSystem->Exec (("rm -rf " + output).Data());
       return EXIT_FAILURE;
     }
   }

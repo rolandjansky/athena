@@ -73,18 +73,6 @@ namespace EL
         }
         break;
 
-      case Detail::ManagerStep::createSubmitDir:
-        {
-          if (data.options.castBool (Job::optRemoveSubmitDir, false))
-            gSystem->Exec (("rm -rf " + data.submitDir).c_str());
-          if (gSystem->MakeDirectory (data.submitDir.c_str()) != 0)
-          {
-            ANA_MSG_ERROR ("could not create output directory " + data.submitDir);
-            return ::StatusCode::FAILURE;
-          }
-        }
-        break;
-
       case Detail::ManagerStep::prepareSubmitDir:
         {
           {
