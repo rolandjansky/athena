@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          - 2012.
@@ -114,7 +114,7 @@ namespace MD
     m_tree = 0;
 
     m_tree = tree;
-    std::auto_ptr<TTreeFormula> myform
+    std::unique_ptr<TTreeFormula> myform
       (m_form = new TTreeFormula (m_name.c_str(), m_formula.c_str(), tree));
 
     m_form->SetQuickLoad (kTRUE);

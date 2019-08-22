@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -47,7 +47,7 @@ int main ()
     DirectDriver driver;
     SH::SampleHandler sh;
 
-    std::auto_ptr<SH::SampleLocal> mysample;
+    std::unique_ptr<SH::SampleLocal> mysample;
     mysample.reset (new SH::SampleLocal ("dataset"));
     for (unsigned iter = 0, end = 3; iter != end; ++ iter)
     {
@@ -63,10 +63,10 @@ int main ()
     EL::Job job;
     job.sampleHandler (sh);
     job.outputAdd (OutputStream ("output"));
-    std::auto_ptr<NTupleSvc> skim (new NTupleSvc ("output"));
+    std::unique_ptr<NTupleSvc> skim (new NTupleSvc ("output"));
     skim->copyBranch (".*");
     job.algsAdd (skim.release());
-    std::auto_ptr<AlgSelect> select (new AlgSelect ("output"));
+    std::unique_ptr<AlgSelect> select (new AlgSelect ("output"));
     select->addCut ("el_n%2==0");
     select->histName ("cut_flow");
     job.algsAdd (select.release());

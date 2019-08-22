@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          
@@ -99,7 +99,7 @@ namespace MD
 	  const std::string& val_value3)
     : m_hist (0), m_type (-1), m_valnum (1), m_cut (false), m_hist2 (0)
   {
-    std::auto_ptr<TH1> hist (val_hist_swallow);
+    std::unique_ptr<TH1> hist (val_hist_swallow);
 
     RCU_REQUIRE_SOFT (val_hist_swallow != 0);
     RCU_REQUIRE_SOFT (!val_value0.empty());

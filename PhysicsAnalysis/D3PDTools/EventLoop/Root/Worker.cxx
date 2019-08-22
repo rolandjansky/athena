@@ -83,7 +83,7 @@ namespace EL
   void Worker ::
   addOutput (TObject *output_swallow)
   {
-    std::auto_ptr<TObject> output (output_swallow);
+    std::unique_ptr<TObject> output (output_swallow);
 
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (output_swallow != 0);
@@ -97,13 +97,13 @@ namespace EL
   void Worker ::
   addOutputList (const std::string& name, TObject *output_swallow)
   {
-    std::auto_ptr<TObject> output (output_swallow);
+    std::unique_ptr<TObject> output (output_swallow);
 
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (output_swallow != 0);
 
     RCU::SetDirectory (output_swallow, 0);
-    std::auto_ptr<TList> list (new TList);
+    std::unique_ptr<TList> list (new TList);
     list->SetName (name.c_str());
     list->Add (output.release());
     addOutput (list.release());
