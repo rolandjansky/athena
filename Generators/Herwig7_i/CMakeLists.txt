@@ -37,6 +37,7 @@ ${HERWIG7_LIBRARIES} ${THEPEG_LIBRARIES} ${GSL_LIBRARIES}
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/common/*.py )
+atlas_install_runtime( share/file/*.pdt share/file/*.dat )
 
 set( Herwig7Environment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
    CACHE PATH "Location of HerwigppEnvironment.cmake" )
