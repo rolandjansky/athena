@@ -711,11 +711,11 @@ StatusCode MuGirlRecoTool::processHoughData() {
       ATH_MSG_ERROR("Hough data per sector vector not found");
       return StatusCode::FAILURE;
     }
-    ATH_MSG_DEBUG(data->size() << " sector are present in the HoughData");
-    for (unsigned int sector = 0; sector < data->size(); sector++) {
+    ATH_MSG_DEBUG(data->vec.size() << " sector are present in the HoughData");
+    for (unsigned int sector = 0; sector < data->vec.size(); sector++) {
       int sector_id = -99;
       bool hits_in_same_sector = true;
-      Muon::MuonLayerHoughTool::HoughDataPerSector sector_data = data->at(sector);
+      Muon::MuonLayerHoughTool::HoughDataPerSector sector_data = data->vec.at(sector);
       ATH_MSG_DEBUG("----------------------------- Sector " << sector
                                                             << " -----------------------------");
       for (unsigned int region = 0; region < sector_data.maxVec.size(); region++) {

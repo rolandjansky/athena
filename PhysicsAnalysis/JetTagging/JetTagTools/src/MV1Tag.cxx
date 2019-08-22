@@ -31,11 +31,10 @@ namespace Analysis {
   */
 
   MV1Tag::MV1Tag(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_runModus("analysis"),
       m_calibrationTool("BTagCalibrationBroker")
   {
-    declareInterface<ITagTool>(this);
     // access to XML configuration files for TMVA from COOL:
     declareProperty("calibrationTool", m_calibrationTool);
     // global configuration:
@@ -81,12 +80,14 @@ namespace Analysis {
   }
 
 
-  StatusCode MV1Tag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
-
+  StatusCode MV1Tag::tagJet(const xAOD::Vertex& /*priVtx*/,
+                            const xAOD::Jet& jetToTag,
+                            xAOD::BTagging& BTag) const
+  {
     std::lock_guard<std::mutex> lock (m_mutex);
 
     /* jet author: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
     std::string alias = m_calibrationTool->channelAlias(author);
 
     ATH_MSG_DEBUG("#BTAG# Jet author: " << author << ", alias: " << alias );
@@ -156,16 +157,16 @@ namespace Analysis {
     }
 
     /* retrieveing weights: */
-    double jpt = jetToTag->pt();
-    double eta = jetToTag->eta();
+    double jpt = jetToTag.pt();
+    double eta = jetToTag.eta();
     double ip3=-9999, sv1=-9999, jfc=-9999;
-    if( !BTag->loglikelihoodratio(m_inputIP3DWeightName, ip3) ){
+    if( !BTag.loglikelihoodratio(m_inputIP3DWeightName, ip3) ){
         ATH_MSG_WARNING("#BTAG# tagger weight not found for  " << m_inputIP3DWeightName);
     }
-    if( !BTag->loglikelihoodratio(m_inputSV1WeightName, sv1) ){
+    if( !BTag.loglikelihoodratio(m_inputSV1WeightName, sv1) ){
       ATH_MSG_WARNING("#BTAG# tagger weight not found for  " << m_inputSV1WeightName);
     }
-    if( !BTag->loglikelihoodratio(m_inputJetFitterWeightName, jfc) ){
+    if( !BTag.loglikelihoodratio(m_inputJetFitterWeightName, jfc) ){
       ATH_MSG_WARNING("#BTAG# tagger weight not found for  " << m_inputJetFitterWeightName);
     }
 
@@ -199,10 +200,10 @@ namespace Analysis {
     if(m_runModus=="analysis") {
       if (m_xAODBaseName == "MV1") // just to be clear, specify enum explicitely
 	{
-	  BTag->setMV1_discriminant(mv1);
+	  BTag.setMV1_discriminant(mv1);
 	}
       else{
-	BTag->setVariable<double>(m_xAODBaseName, "discriminant", mv1);
+	BTag.setVariable<double>(m_xAODBaseName, "discriminant", mv1);
       }
 
     }

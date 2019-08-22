@@ -407,8 +407,8 @@ class ComponentAccumulator(object):
 
         if (other._privateTools is not None):
             if isinstance(other._privateTools,ConfigurableAlgTool):
-                raise RuntimeError("merge called with a ComponentAccumulator a dangling private tool %s/%s",
-                                   other._privateTools.getType(),other._privateTools.getName())
+                raise RuntimeError("merge called with a ComponentAccumulator a dangling private tool %s/%s" %
+                                   (other._privateTools.getType(),other._privateTools.getName()))
             else:
                 raise RuntimeError("merge called with a ComponentAccumulator a dangling (array of) private tools")
         

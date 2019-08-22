@@ -51,7 +51,9 @@ public:
       , invalidWeightSum{ 0 }
       , multiComponentState{}
       , assemblyDone{ false }
-    {}
+    {
+      multiComponentState.reserve(72);
+    }
     double validWeightSum;
     double invalidWeightSum;
     SimpleMultiComponentState multiComponentState;
@@ -64,15 +66,11 @@ public:
   virtual void status(const Cache& cache) const = 0;
 
   /** Method to add a single set of Trk::ComponentParameters to the cashed Trk::MultiComponentState object under
-   * construction */
-  virtual bool addComponent(Cache& cache, const ComponentParameters&) const = 0;
+   * construction*/
+  virtual bool addComponent(Cache& cache, SimpleComponentParameters&&) const = 0;
 
-  /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
-  virtual bool addMultiState(Cache& cache, const MultiComponentState&) const = 0;
-
-  /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
-  virtual bool addMultiState(Cache& cache, SimpleMultiComponentState&) const = 0;
-
+  /** Method to add a new SimpleMultiComponentState to the cashed Trk::MultiComponentState onject under construction */
+  virtual bool addMultiState(Cache& cache, SimpleMultiComponentState&&) const = 0;
 
   /** Method to include the weights of states that are invalid */
   virtual bool addInvalidComponentWeight(Cache& cache, const double) const = 0;

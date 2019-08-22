@@ -1473,14 +1473,14 @@ namespace MuonCombined {
     }
 
     // sanity check
-    if( static_cast<int>(houghDataPerSectorVec->size()) <= sector-1 ){
-      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << houghDataPerSectorVec->size() );
+    if( static_cast<int>(houghDataPerSectorVec->vec.size()) <= sector-1 ){
+      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << houghDataPerSectorVec->vec.size() );
       return;
     }
 
     // get hough maxima in the layer
     unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex,layerIndex );
-    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = (*houghDataPerSectorVec)[sector-1];
+    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = houghDataPerSectorVec->vec[sector-1];
 
     // sanity check
     if( houghDataPerSector.maxVec.size() <= sectorLayerHash ){

@@ -50,6 +50,7 @@ private:
   ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
 
   bool m_useNSW;
+  bool m_hasCSC;
 
 };
 

@@ -15,8 +15,8 @@ def LArAffectedRegionsConfig(inputFlags):
     ### STEP 1 ###
     # Define one top-level monitoring algorithm. The new configuration 
     # framework uses a component accumulator.
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
+    #from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    #result = ComponentAccumulator()
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -387,7 +387,7 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
+    from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
 
     # Set the Athena configuration flags

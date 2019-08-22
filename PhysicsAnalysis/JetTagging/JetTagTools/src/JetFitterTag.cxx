@@ -39,7 +39,7 @@
 namespace Analysis {
 
   JetFitterTag::JetFitterTag(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_runModus("analysis"),
       m_doForcedCalib(false), 
       m_ForcedCalibName("Cone4H1Tower"), 
@@ -51,16 +51,12 @@ namespace Analysis {
       // m_variablesFactory("Analysis::JetFitterVariablesFactory"),
       m_classifier("Analysis::JetFitterNNTool", this)
   {
-    
-
-    
     /** number of hypotheses = 2 : b | u */
     m_hypothese.push_back("bottom");
     m_hypothese.push_back("light");
     m_hypothese.push_back("charm");
 
     
-    declareInterface<ITagTool>(this);
     // global configuration:
     declareProperty("Runmodus", m_runModus);
     declareProperty("ListHypotheses",m_hypothese);
@@ -153,34 +149,37 @@ namespace Analysis {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode JetFitterTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
 
+  StatusCode JetFitterTag::tagJet(const xAOD::Vertex& /*priVtx*/,
+                                  const xAOD::Jet& jetToTag,
+                                  xAOD::BTagging& BTag) const
+  {
     /** author to know which jet algorithm: */
-    std::string jetauthor = JetTagUtils::getJetAuthor(jetToTag);
+    std::string jetauthor = JetTagUtils::getJetAuthor(&jetToTag);
 
     if (m_doForcedCalib) {
       jetauthor = m_ForcedCalibName;
     } 
 
-    double jetpT = jetToTag->pt();
-    double jeteta = jetToTag->eta();
+    double jetpT = jetToTag.pt();
+    double jeteta = jetToTag.eta();
 
     /** for the reference mode we need the true label: */
     std::string pref  = "";
     if (m_runModus == "reference" ) {
       // here we require a jet selection:
-      if (jetToTag->pt()>m_jetPtMinRef && fabs(jetToTag->eta())<2.5 ) {
+      if (jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
         // and also a truth match:
-	int label = xAOD::jetFlavourLabel(jetToTag);
+	int label = xAOD::jetFlavourLabel(&jetToTag);
 	double deltaRtoClosestB = 999., deltaRtoClosestC = 999.;
-	if (jetToTag->getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
+	if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
 	  // for purification: require no b or c quark closer
 	  // than dR=m_purificationDeltaR
-	  jetToTag->getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
+	  jetToTag.getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
 	  double deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
           //JBdV 04/05/2006 purify also w.r.t tau
           double deltaRtoClosestT;
-	  jetToTag->getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
+	  jetToTag.getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
           deltaRmin = deltaRtoClosestT < deltaRmin ? 
 	    deltaRtoClosestT : deltaRmin;
         } else {
@@ -215,7 +214,7 @@ namespace Analysis {
     // ELG: Disable reference mode running for now
     if( m_runModus == "reference" ) {
       //  m_ntupleWriter->fillNtuple(pref, jetauthor,
-      //				 *theVariables,jetToTag);
+      //				 *theVariables,&jetToTag);
     }
 
     /** give information to the info class. */
@@ -224,15 +223,15 @@ namespace Analysis {
       double IP3Dlike = -1e7;
       if("" != m_ipinfo_tagger_name){
 	if ("IP3D"==m_ipinfo_tagger_name) {
-	  IP3Dlike = BTag->IP3D_loglikelihoodratio();
+	  IP3Dlike = BTag.IP3D_loglikelihoodratio();
 	} else {
-	  if( ! BTag->loglikelihoodratio(m_ipinfo_tagger_name, IP3Dlike) ) {
+	  if( ! BTag.loglikelihoodratio(m_ipinfo_tagger_name, IP3Dlike) ) {
 	    ATH_MSG_WARNING("JetFitter can not access " << m_ipinfo_tagger_name <<" LLR result");
 	  }
 	}
       }
 
-      StatusCode sc = m_classifier->fillLikelihoodValues(BTag,
+      StatusCode sc = m_classifier->fillLikelihoodValues(&BTag,
 							 jetauthor,
 							 m_secVxFinderName,
 							 m_xAODBaseName,

@@ -31,6 +31,10 @@ def TileDigitizationCfg(flags):
         from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerOutputCfg
         acc.merge( TileRawChannelMakerOutputCfg(flags, streamName = 'RDO') )
 
+        if flags.Digitization.DoDigiTruth:
+            from TileRecUtils.TileRawChannelMakerConfig import TileRawChannelMakerDigiHSTruthOutputCfg
+            acc.merge( TileRawChannelMakerDigiHSTruthOutputCfg(flags, streamName = 'RDO') )
+
     return acc
 
 

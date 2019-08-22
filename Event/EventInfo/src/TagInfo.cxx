@@ -14,61 +14,123 @@
 #include "GaudiKernel/MsgStream.h"
 #include <algorithm>
 
-TagInfo::TagInfo()
-{}
 
-TagInfo::~TagInfo()
-{}
-
-
-
-/**
-**  @class NameTagPairComp
-**
-**  @brief This is a comparison class used internally in TagInfo.cxx
-**  to sort a NameTagPair stl vector
-**
-**/
-class NameTagPairComp{
-public:
-  /// comparison operator
-  bool operator () (const TagInfo::NameTagPair& x,
-                    const TagInfo::NameTagPair& y) const {
-    return(x.first < y.first);
+namespace{
+  /// Return an iterator for a tag found
+  TagInfo::NameTagPairVec::iterator 
+  findTagIt(const std::string& name,TagInfo::NameTagPairVec& tags){
+    // Use lower_bound to find tag
+    TagInfo::NameTagPair pair;
+    pair.first = name;
+    TagInfo::NameTagPairVec::iterator it = std::lower_bound(tags.begin(),tags.end(),pair);
+    // We are now just below the tag, check whether we have found it
+    if (it != tags.end()) {
+      if (it->first == name) {
+        return(it);
+      }
+    }
+    return(tags.end());
   }
-};
+  
+  
+  /// Return an iterator for a tag found
+  TagInfo::NameTagPairVec::const_iterator 
+  findTagIt(const std::string& name,const TagInfo::NameTagPairVec& tags){
+     // Use lower_bound to find tag
+    TagInfo::NameTagPair pair;
+    pair.first = name;
+    TagInfo::NameTagPairVec::const_iterator it = std::lower_bound(tags.begin(),tags.end(),pair);
+    // We are now just below the tag, check whether we have found it
+    if (it != tags.end()) {
+      if (it->first == name) {
+        return(it);
+      }
+    }
+    return(tags.end());
+  }
+
+  std::string
+  findTagImpl(const std::string & name, const TagInfo::NameTagPairVec & thisVec){
+    std::string result{};
+    const auto & it = findTagIt(name, thisVec);
+    if (it != thisVec.end()) result = it->second;
+    return result;
+  }
+  
+  bool
+  addTagImpl(const TagInfo::NameTagPair& pair, TagInfo::NameTagPairVec & thisVec, const bool override = false){
+    /// Return success if tag name not found, or override is set
+    TagInfo::NameTagPairVec::iterator it = findTagIt(pair.first, thisVec);
+    if (it != thisVec.end()) {
+      // Tag name exists - check override
+      if (override) {
+        // Over ride the existing tag value
+        it->second = pair.second;
+        return true;
+      } else {
+        return false;
+      }
+    }
+    // New tag - add to vector and sort
+    thisVec.push_back(pair);
+    std::sort(thisVec.begin(), thisVec.end());
+    return true;
+  }
+  std::string
+  formatTagPair(const TagInfo::NameTagPair& pair){
+    return std::string("    ") + pair.first + " " + pair.second;
+  }
+
+
+}
+
+TagInfo::TagInfo(){}
+
+TagInfo::~TagInfo(){}
+
 
 
 // Access to DetDescr tags
 void
 TagInfo::findTag(const std::string& name, std::string& tag) const {
-  NameTagPairVec::const_iterator it = findTag(name, m_tags);
-  if (it != m_tags.end()) {
-    tag = (*it).second;
-  } else {
-    tag = "";
-  }
+  tag = findTag(name);
+}
+
+std::string
+TagInfo::findTag(const std::string& name) const {
+  return findTagImpl(name, m_tags);
 }
 
 // Access to DetDescr tags
 void
 TagInfo::findInputTag(const std::string& name, std::string& tag) const {
-  NameTagPairVec::const_iterator it = findTag(name, m_inputTags);
-  if (it != m_inputTags.end()) {
-    tag = (*it).second;
-  } else {
-    tag = "";
-  }
+   tag = findInputTag(name);
 }
+
+std::string
+TagInfo::findInputTag(const std::string& name) const {
+  return findTagImpl(name, m_inputTags);;
+}
+
 
 void
 TagInfo::getTags(NameTagPairVec& pairs) const {
   pairs = m_tags;
 }
 
+TagInfo::NameTagPairVec
+TagInfo::getTags() const {
+  return m_tags;
+}
+
 void
 TagInfo::getInputTags(NameTagPairVec& pairs) const {
   pairs = m_inputTags;
+}
+
+TagInfo::NameTagPairVec
+TagInfo::getInputTags() const {
+  return m_inputTags;
 }
 
 std::string
@@ -112,47 +174,13 @@ TagInfo::operator < (const TagInfo& rhs) const {
 StatusCode
 TagInfo::addTag(const NameTagPair& pair, bool override) {
   /// Return success if tag name not found, or override is set
-
-  NameTagPairVec::iterator it = findTag(pair.first, m_tags);
-  if (it != m_tags.end()) {
-    // Tag name exists - check override
-    if (override) {
-      // Over ride the existing tag value
-      (*it).second = pair.second;
-      return(StatusCode::SUCCESS);
-    } else {
-      return(StatusCode::FAILURE);
-    }
-  }
-
-  // New tag - add to vector and sort
-  m_tags.push_back(pair);
-  NameTagPairComp comp;
-  std::sort(m_tags.begin(), m_tags.end(), comp);
-  return(StatusCode::SUCCESS);
+  return addTagImpl(pair,m_tags,override)? (StatusCode::SUCCESS): (StatusCode::FAILURE);
 }
 
 StatusCode
 TagInfo::addInputTag(const NameTagPair& pair, bool override) {
   /// Return success if tag name not found, or override is set
-
-  NameTagPairVec::iterator it = findTag(pair.first, m_inputTags);
-  if (it != m_inputTags.end()) {
-    // Tag name exists - check override
-    if (override) {
-      // Over ride the existing tag value
-      (*it).second = pair.second;
-      return(StatusCode::SUCCESS);
-    } else {
-      return(StatusCode::FAILURE);
-    }
-  }
-
-  // New tag - add to vector and sort
-  m_inputTags.push_back(pair);
-  NameTagPairComp comp;
-  std::sort(m_inputTags.begin(), m_inputTags.end(), comp);
-  return(StatusCode::SUCCESS);
+  return addTagImpl(pair,m_inputTags,override)? (StatusCode::SUCCESS): (StatusCode::FAILURE);
 }
 
 void
@@ -165,56 +193,28 @@ TagInfo::printTags(MsgStream& log) const {
   if (log.level() <= MSG::DEBUG) {
     log << MSG::DEBUG << "TagInfo tag: " << m_myTag << endmsg;
     log << MSG::DEBUG << "Current tags: " << endmsg;
-    for (unsigned int i = 0; i < m_tags.size(); ++i) {
-      log << MSG::DEBUG << "    " << m_tags[i].first << " " << m_tags[i].second << endmsg;
+    for (const auto &thisPair : m_tags) {
+      log << MSG::DEBUG << formatTagPair(thisPair) << endmsg;
     }
     log << MSG::DEBUG << "Input tags: " << endmsg;
-    for (unsigned int i = 0; i < m_inputTags.size(); ++i) {
-      log << MSG::DEBUG << "    " << m_inputTags[i].first << " " << m_inputTags[i].second << endmsg;
+    for (const auto &thisPair : m_inputTags) {
+      log << MSG::DEBUG << formatTagPair(thisPair) << endmsg;
     }
   }
 }
 
-TagInfo::NameTagPairVec::iterator
-TagInfo::findTag(const std::string& name,
-                 NameTagPairVec& tags) {
-  // Use lower_bound to find tag
-  NameTagPairComp comp;
-  NameTagPair pair;
-
-  pair.first = name;
-
-  NameTagPairVec::iterator it = std::lower_bound(tags.begin(),
-                                                 tags.end(),
-                                                 pair,
-                                                 comp);
-
-  // We are now just below the tag, check whether we have found it
-  if (it != tags.end()) {
-    if ((*it).first == name) {
-      return(it);
-    }
+std::string
+TagInfo::str() const {
+  std::string m{};
+  m+="TagInfo tag: " + m_myTag + "\n";
+  m+="Current tags: \n";
+  for (const auto &thisPair : m_tags) {
+    m+= formatTagPair(thisPair) + "\n";
   }
-  return(tags.end());
+  m+= "Input tags: \n";
+  for (const auto &thisPair : m_inputTags) {
+    m += formatTagPair(thisPair) + "\n";
+  }
+  return m;
 }
 
-TagInfo::NameTagPairVec::const_iterator
-TagInfo::findTag(const std::string& name,
-                 const NameTagPairVec& tags) const {
-  // Use lower_bound to find tag
-  NameTagPairComp comp;
-  NameTagPair pair;
-
-  pair.first = name;
-  NameTagPairVec::const_iterator it = std::lower_bound(tags.begin(),
-                                                       tags.end(),
-                                                       pair,
-                                                       comp);
-  // We are now just below the tag, check whether we have found it
-  if (it != tags.end()) {
-    if ((*it).first == name) {
-      return(it);
-    }
-  }
-  return(tags.end());
-}

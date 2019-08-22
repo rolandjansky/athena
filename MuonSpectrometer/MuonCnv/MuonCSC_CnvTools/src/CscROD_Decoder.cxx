@@ -200,7 +200,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   std::unique_ptr<CscRawDataCollection> rawCollection(nullptr);
   CscRawDataContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idColl );
   if( lock.alreadyPresent() ) {
-    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " converting is skipped!");
+    ATH_MSG_DEBUG ( "CSC RDO collection already exist with collection hash = " << idColl << " collection filling is skipped!");
     return;
   }
   else{
@@ -461,12 +461,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
                        << " has word Counter =" << counter << " must not exceed summed RPU sizes ="
                        << rpuSize << " Discarded!!");
 
-        rawCollection->erase(rawCollection->begin(), rawCollection->end()); // identical to the following lines (duplecate)
-        //        for ( CscRawDataCollection::const_iterator idig=rawCollection->begin(); idig!=rawCollection->end(); ++idig ) {
-        //          delete *idig;
-        //        }
-        // DONOT delete rawCollection because you added it..
-        // delete rawCollection;  
+        rawCollection->erase(rawCollection->begin(), rawCollection->end());
         return;
       } 
 
@@ -482,23 +477,11 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   if (isHeaderWordNull) {
     ATH_MSG_INFO ( " ROB Fragment with ID " << std::hex<<robFrag.rod_source_id()<<std::dec << " has null rpuID. Discarded!!" );
     rawCollection->erase(rawCollection->begin(), rawCollection->end());
-    //    for ( CscRawDataCollection::const_iterator idig=rawCollection->begin(); idig!=rawCollection->end(); ++idig ) {
-    //      delete *idig;
-    //    }
-    // DONOT delete rawCollection because you added it..
-    //    delete rawCollection;
-    //    return;
   }
   if (isClusterWordsUnrealistic) {
     ATH_MSG_INFO ( " ROB Fragment with ID 0x" << std::hex<<robFrag.rod_source_id() << std::dec
                    << " has too many cluster words. Discarded!!" );
     rawCollection->erase(rawCollection->begin(), rawCollection->end());
-    //    for ( CscRawDataCollection::const_iterator idig=rawCollection->begin(); idig!=rawCollection->end(); ++idig ) {
-    //      delete *idig;
-    //    }
-    // DONOT delete rawCollection because you added it..
-    //    delete rawCollection;
-    //    return;
   }
 
   if(rawCollection) {

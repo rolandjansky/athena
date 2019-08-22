@@ -29,7 +29,6 @@
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/MuonIdHelper.h"
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "MuonSegment/MuonSegment.h"
 
@@ -48,7 +47,6 @@
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
-#include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "GaudiKernel/MsgStream.h"
 
 //root includes
@@ -81,7 +79,6 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
 :ManagedMonitorToolBase( type, name, parent ),
  m_mg(0),
  m_masked_tubes(NULL),
- m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
  m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
  m_DQFilterTools(this),
  m_atlas_ready(0),
@@ -266,14 +263,6 @@ StatusCode MdtRawDataValAlg::initialize()
   else {
     ATH_MSG_DEBUG(" Found the MdtIdHelper. " );
   }
-
-
-  if (m_idHelper.retrieve().isFailure()){
-    ATH_MSG_WARNING("Could not get " << m_idHelper); 
-    return StatusCode::FAILURE;
-  }  else {
-    ATH_MSG_DEBUG(" Found the MuonIdHelper. " );
-  }  
   
   sc = m_DQFilterTools.retrieve();
   if( !sc ) {
@@ -541,7 +530,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
 	    if(!rot_from_track) continue;
 	    //              rot_from_track->dump(msg());
 	    Identifier rotId = rot_from_track->identify();
-	    if(!m_idHelper->isMdt(rotId)) continue;
+	    if(!m_mdtIdHelper->is_mdt(rotId)) continue;
 	    IdentifierHash mdt_idHash;
 	    MDTChamber* mdt_chamber = 0;
 	    m_mdtIdHelper->get_module_hash( rotId, mdt_idHash );

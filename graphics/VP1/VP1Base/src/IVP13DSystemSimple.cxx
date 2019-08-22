@@ -119,9 +119,8 @@ void IVP13DSystemSimple::Imp::made_selection( void * userdata, SoPath * path )
   if (!selectedNode)
     return;
 
-//  std::cout << "calling system->userPickedNode()..." << std::endl;
   system->userPickedNode(selectedNode, path);
-//  std::cout << "called system->userPickedNode()." << std::endl;
+  std::cout << "selected nodes: " << system->m_d->root->getNumSelected() << ", " << system->m_d->root->getPath(0) << std::endl;
 }
 
 //___________________________________________________________

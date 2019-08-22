@@ -300,7 +300,7 @@ def main():
    g.add_argument('--stdcmath', action='store_true', help='use stdcmath library')
    g.add_argument('--imf', action='store_true', default=True, help='use Intel math library')
    g.add_argument('--show-includes', '-s', action='store_true', help='show printout of included files')
-   g.add_argument('--timeout', metavar='MSEC', default=60*1000, help='timeout in milliseconds')
+   g.add_argument('--timeout', metavar='MSEC', default=60*60*1000, help='timeout in milliseconds')
 
    ## Database
    g = parser.add_argument_group('Database')

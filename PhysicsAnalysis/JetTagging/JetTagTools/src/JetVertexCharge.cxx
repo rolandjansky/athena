@@ -45,7 +45,7 @@ namespace Analysis {
 
 
   JetVertexCharge::JetVertexCharge(const std::string& t, const std::string& n, const IInterface*  p) :
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_muonSelectorTool("JVC_MuonSelectorTool", this),
     m_muonCorrectionTool( "JVC_MuonCorrectionTool", this),
     m_runModus("analysis")
@@ -81,7 +81,6 @@ namespace Analysis {
 
     declareProperty("MuonQuality",		m_muonQualityCut = xAOD::Muon::Medium ); 
 
-    declareInterface< ITagTool >(this);
   }
   
 ///////////
@@ -136,27 +135,28 @@ namespace Analysis {
 
 
 //////////////////////////////////////////////////////////////////  
-StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* BTag) {
-
-
+StatusCode JetVertexCharge::tagJet( const xAOD::Vertex& priVtx,
+                                    const xAOD::Jet& jetToTag,
+                                    xAOD::BTagging& BTag) const
+{
     //Retrieval of Calibration Condition Data objects
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
 
 
     /** author to know which jet algorithm: */ 
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
     if (m_doForcedCalib) author = m_ForcedCalibName;
     std::string alias = readCdo->getChannelAlias(author);
 
     Vars vars;
 
-    vars[Vars::JET_UNCALIBRATED_PT] = jetToTag->pt();
+    vars[Vars::JET_UNCALIBRATED_PT] = jetToTag.pt();
 
     //          computing the JetCharge (JC) 
     //==============================================================
 
     std::vector<ElementLink< xAOD::TrackParticleContainer > > tracksInJet;        
-    tracksInJet = BTag->auxdata< std::vector<ElementLink< xAOD::TrackParticleContainer > > >(m_trackAssociationName);
+    tracksInJet = BTag.auxdata< std::vector<ElementLink< xAOD::TrackParticleContainer > > >(m_trackAssociationName);
     if( tracksInJet.size() == 0 ) {
       ATH_MSG_DEBUG("#BTAG#  Could not find tracks associated with name " << m_trackAssociationName);
     } else {
@@ -173,7 +173,7 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
          charge_all += ( tp->charge()) * std::pow( tp->pt(), m_kappa ); 
          denom_all += pow( tp->pt(), m_kappa);
           
-         if( !passTrackCuts(*tp)) continue; 
+         if( !passTrackCuts(priVtx, *tp)) continue; 
          if( tp->pt() >  minpt)  { 
             vars[Vars::TRACK_GOOD_PT] = tp->pt();
             minpt = tp->pt();
@@ -185,8 +185,8 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
 
       if(denom != 0) vars[Vars::JC] = charge / denom;
       if(denom_all != 0) vars[Vars::JC_ALL]= charge_all / denom_all;
-      vars[Vars::JC_JETPT] = charge/jetToTag->pt();
-      vars[Vars::JC_ALL_JETPT] = charge_all/jetToTag->pt();
+      vars[Vars::JC_JETPT] = charge/jetToTag.pt();
+      vars[Vars::JC_ALL_JETPT] = charge_all/jetToTag.pt();
 
 
     }
@@ -202,7 +202,7 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
 
 
    std::vector<ElementLink<xAOD::BTagVertexContainer> >  JFVerticesLinks; 
-   bool ret = BTag->variable<std::vector<ElementLink<xAOD::BTagVertexContainer>>>("JetFitter", "JFvertices", JFVerticesLinks );
+   bool ret = BTag.variable<std::vector<ElementLink<xAOD::BTagVertexContainer>>>("JetFitter", "JFvertices", JFVerticesLinks );
    if(ret) {
       if( JFVerticesLinks.size() ==0) { 
 	ATH_MSG_DEBUG("#BTAG# No JF vertices ");  
@@ -212,8 +212,8 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
 
         std::vector<float> fittedPosition;
         std::vector< float > fittedCov; 
-        BTag->variable<std::vector< float > >("JetFitter", "fittedPosition", fittedPosition);
-        BTag->variable<std::vector< float > >("JetFitter", "fittedCov", fittedCov);
+        BTag.variable<std::vector< float > >("JetFitter", "fittedPosition", fittedPosition);
+        BTag.variable<std::vector< float > >("JetFitter", "fittedCov", fittedCov);
           
 
 
@@ -292,7 +292,7 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
          denom += pow( tp->pt(), m_kappa_SV);
       }
       if(denom != 0)  vars[Vars::SVC] = charge/denom;
-      vars[Vars::SVC_JETPT] = charge/jetToTag->pt();
+      vars[Vars::SVC_JETPT] = charge/jetToTag.pt();
 
       vars[Vars::DISTSV] =  svx.pos;
       vars[Vars::ERRSV] =  svx.err;
@@ -328,7 +328,7 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
      if(denom != 0) vars[Vars::TVC] = charge/denom;
      vars[Vars::DISTTV] =  tvx.pos;
      vars[Vars::ERRTV] =  tvx.err;
-     vars[Vars::TVC_JETPT] = charge/jetToTag->pt();
+     vars[Vars::TVC_JETPT] = charge/jetToTag.pt();
 
 
 
@@ -352,7 +352,7 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
    std::unique_ptr< xAOD::Muon> myMuon;
 
    std::vector<ElementLink< xAOD::MuonContainer > > muonsInJet;       
-   muonsInJet = BTag->auxdata< std::vector<ElementLink< xAOD::MuonContainer > > >(m_muonAssociationName); 
+   muonsInJet = BTag.auxdata< std::vector<ElementLink< xAOD::MuonContainer > > >(m_muonAssociationName); 
 
    if( muonsInJet.size() == 0 ) {
      ATH_MSG_DEBUG("#BTAG#  Could not find muons associated with name " << m_muonAssociationName);
@@ -384,7 +384,7 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
          if( p_corrMu->eta() > 2.7 ) continue;
  
          TLorentzVector muon = p_corrMu->p4();      
-         TLorentzVector jet = jetToTag->p4();      
+         TLorentzVector jet = jetToTag.p4();      
          if( muon.DeltaR( jet ) > 0.3 ) continue;
 
          float chi2=-1; 
@@ -413,7 +413,7 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
      }
 
      TLorentzVector muon = myMuon->p4();      
-     TLorentzVector jet = jetToTag->p4();      
+     TLorentzVector jet = jetToTag.p4();      
      vars[Vars::MU_PTREL] =  muon.P()*sin( muon.Angle(jet.Vect() + muon.Vect()))/1000.; 
      vars[Vars::MU_PTLONG] = muon.P()*cos( muon.Angle( jet.Vect() + muon.Vect() ) )/1000.;
      vars[Vars::MU_JET_DR]  = muon.DeltaR( jet );
@@ -504,40 +504,40 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
    
    if( m_runModus == "reference") {
 
-      BTag->setVariable<float>(m_taggerNameBase, "jet_uncalibrated_pt", vars[Vars::JET_UNCALIBRATED_PT] );
-      BTag->setVariable<float>(m_taggerNameBase, "JC_jetPt", vars[Vars::JC_JETPT]);
-      BTag->setVariable<float>(m_taggerNameBase, "JC_all_jetPt", vars[Vars::JC_ALL_JETPT]);
-      BTag->setVariable<float>(m_taggerNameBase, "SVC_jetPt", vars[Vars::SVC_JETPT]);
-      BTag->setVariable<float>(m_taggerNameBase, "TVC_jetPt", vars[Vars::TVC_JETPT]);
+      BTag.setVariable<float>(m_taggerNameBase, "jet_uncalibrated_pt", vars[Vars::JET_UNCALIBRATED_PT] );
+      BTag.setVariable<float>(m_taggerNameBase, "JC_jetPt", vars[Vars::JC_JETPT]);
+      BTag.setVariable<float>(m_taggerNameBase, "JC_all_jetPt", vars[Vars::JC_ALL_JETPT]);
+      BTag.setVariable<float>(m_taggerNameBase, "SVC_jetPt", vars[Vars::SVC_JETPT]);
+      BTag.setVariable<float>(m_taggerNameBase, "TVC_jetPt", vars[Vars::TVC_JETPT]);
 
-      BTag->setVariable<float>(m_taggerNameBase, "JC_all", vars[Vars::JC_ALL] );
-      BTag->setVariable<float>(m_taggerNameBase, "firstGoodTrkPt", vars[Vars::TRACK_GOOD_PT] );
-      BTag->setVariable<float>(m_taggerNameBase, "firstTrkPt_SV", vars[Vars::TRACK_SV_PT]);
-      BTag->setVariable<float>(m_taggerNameBase, "massSV_pions", vars[Vars::MASSSV_PIONS]);
-      BTag->setVariable<float>(m_taggerNameBase, "massTV_kaons", vars[Vars::MASSTV_KAONS]);
+      BTag.setVariable<float>(m_taggerNameBase, "JC_all", vars[Vars::JC_ALL] );
+      BTag.setVariable<float>(m_taggerNameBase, "firstGoodTrkPt", vars[Vars::TRACK_GOOD_PT] );
+      BTag.setVariable<float>(m_taggerNameBase, "firstTrkPt_SV", vars[Vars::TRACK_SV_PT]);
+      BTag.setVariable<float>(m_taggerNameBase, "massSV_pions", vars[Vars::MASSSV_PIONS]);
+      BTag.setVariable<float>(m_taggerNameBase, "massTV_kaons", vars[Vars::MASSTV_KAONS]);
 
-      BTag->setVariable<float>(m_taggerNameBase, "JetCharge", vars[Vars::JC]);
-      BTag->setVariable<float>(m_taggerNameBase, "nJCtracks", vars[Vars::NGOODTRK]);
+      BTag.setVariable<float>(m_taggerNameBase, "JetCharge", vars[Vars::JC]);
+      BTag.setVariable<float>(m_taggerNameBase, "nJCtracks", vars[Vars::NGOODTRK]);
      
-      BTag->setVariable<float>(m_taggerNameBase, "SVC", vars[Vars::SVC]);
-      BTag->setVariable<float>(m_taggerNameBase, "ntrk_sv", vars[Vars::NTRK0]);
-      BTag->setVariable<float>(m_taggerNameBase, "dist_SV", vars[Vars::DISTSV]);
-      BTag->setVariable<float>(m_taggerNameBase, "err_SV", vars[Vars::ERRSV]);
+      BTag.setVariable<float>(m_taggerNameBase, "SVC", vars[Vars::SVC]);
+      BTag.setVariable<float>(m_taggerNameBase, "ntrk_sv", vars[Vars::NTRK0]);
+      BTag.setVariable<float>(m_taggerNameBase, "dist_SV", vars[Vars::DISTSV]);
+      BTag.setVariable<float>(m_taggerNameBase, "err_SV", vars[Vars::ERRSV]);
     
-      BTag->setVariable<float>(m_taggerNameBase, "TVC", vars[Vars::TVC]);
-      BTag->setVariable<float>(m_taggerNameBase, "ntrk_tv_used", vars[Vars::NTRK1_USED]);
-      BTag->setVariable<float>(m_taggerNameBase, "dist_TV", vars[Vars::DISTTV]);
-      BTag->setVariable<float>(m_taggerNameBase, "err_TV", vars[Vars::ERRTV]);
+      BTag.setVariable<float>(m_taggerNameBase, "TVC", vars[Vars::TVC]);
+      BTag.setVariable<float>(m_taggerNameBase, "ntrk_tv_used", vars[Vars::NTRK1_USED]);
+      BTag.setVariable<float>(m_taggerNameBase, "dist_TV", vars[Vars::DISTTV]);
+      BTag.setVariable<float>(m_taggerNameBase, "err_TV", vars[Vars::ERRTV]);
     
-      BTag->setVariable<float>(m_taggerNameBase, "mu_charge", vars[Vars::MU_CHARGE]);
-      BTag->setVariable<float>(m_taggerNameBase, "mu_ptRel", vars[Vars::MU_PTREL]);
-      BTag->setVariable<float>(m_taggerNameBase, "mu_ptLong", vars[Vars::MU_PTLONG]);
-      BTag->setVariable<float>(m_taggerNameBase, "mu_iso_ptvar40", vars[Vars::MU_ISO_PTVAR40]);
-      BTag->setVariable<float>(m_taggerNameBase, "mu_jet_dR", vars[Vars::MU_JET_DR]);
-      BTag->setVariable<float>(m_taggerNameBase, "mu_vtx", vars[Vars::MU_VTX]);
+      BTag.setVariable<float>(m_taggerNameBase, "mu_charge", vars[Vars::MU_CHARGE]);
+      BTag.setVariable<float>(m_taggerNameBase, "mu_ptRel", vars[Vars::MU_PTREL]);
+      BTag.setVariable<float>(m_taggerNameBase, "mu_ptLong", vars[Vars::MU_PTLONG]);
+      BTag.setVariable<float>(m_taggerNameBase, "mu_iso_ptvar40", vars[Vars::MU_ISO_PTVAR40]);
+      BTag.setVariable<float>(m_taggerNameBase, "mu_jet_dR", vars[Vars::MU_JET_DR]);
+      BTag.setVariable<float>(m_taggerNameBase, "mu_vtx", vars[Vars::MU_VTX]);
 
-      BTag->setVariable<int>(m_taggerNameBase, "category", mvaCat );
-      BTag->setVariable<double>(m_taggerNameBase, "discriminant", -7. ); 
+      BTag.setVariable<int>(m_taggerNameBase, "category", mvaCat );
+      BTag.setVariable<double>(m_taggerNameBase, "discriminant", -7. ); 
 
     } 
     else if( m_runModus == "analysis") {   
@@ -545,21 +545,21 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
       double llr;
       if(mvaCat == JC_noMu ) { 
         llr = logLikelihoodRatio( JC_noMu, vars[Vars::JC] , author);  
-        BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
+        BTag.setVariable<double>(m_taggerNameBase, "discriminant", llr );
         return StatusCode::SUCCESS;
       } 
       else if(mvaCat == JC_all ) { 
         llr = logLikelihoodRatio( JC_all, vars[Vars::JC_ALL] , author); 
-        BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
+        BTag.setVariable<double>(m_taggerNameBase, "discriminant", llr );
         return StatusCode::SUCCESS;
       }  
       else if(mvaCat == SVC ) { 
         llr = logLikelihoodRatio( SVC, vars[Vars::SVC] , author); 
-        BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
+        BTag.setVariable<double>(m_taggerNameBase, "discriminant", llr );
         return StatusCode::SUCCESS;
       } 
       else if(mvaCat < 0 ) {   //NULL cat
-        BTag->setVariable<double>(m_taggerNameBase, "discriminant", -7. );
+        BTag.setVariable<double>(m_taggerNameBase, "discriminant", -7. );
         return StatusCode::SUCCESS;
       } 
 
@@ -579,7 +579,7 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
 
       //Now I compute the log-likelihood ratio
       llr = logLikelihoodRatio( mvaCat, mvaWeight , author); 
-      BTag->setVariable<double>(m_taggerNameBase, "discriminant", llr );
+      BTag.setVariable<double>(m_taggerNameBase, "discriminant", llr );
 
 
     }  //if runmodus Analysis
@@ -593,7 +593,8 @@ StatusCode JetVertexCharge::tagJet( const xAOD::Jet * jetToTag, xAOD::BTagging* 
 //                   Helper functions 
 //===============================================================
 
-bool JetVertexCharge::passTrackCuts( const xAOD::TrackParticle &track) const {
+bool JetVertexCharge::passTrackCuts( const xAOD::Vertex& priVtx,
+                                     const xAOD::TrackParticle &track) const {
 
 
    double d0 = track.d0();
@@ -601,7 +602,7 @@ bool JetVertexCharge::passTrackCuts( const xAOD::TrackParticle &track) const {
    double theta = track.theta();
    if (track.numberDoF() == 0) return false;
    double chi2 = track.chiSquared() / track.numberDoF();
-   double deltaZ0 = fabs( z0 - m_primVtx->z() + track.vz() );
+   double deltaZ0 = fabs( z0 - priVtx.z() + track.vz() );
 
 
    if( fabs(d0) > m_Trkd0Cut)  return false;

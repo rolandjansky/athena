@@ -31,10 +31,6 @@ def ParticleFinalStateFilterCfg(ConfigFlags, name="ISF_ParticleFinalStateFilter"
     result.setPrivateTools(ISF__GenParticleFinalStateFilter(name, **kwargs))
     return result
 
-def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
-    # GenParticleSimWhiteList
-    return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
-
 def ParticlePositionFilterCfg(ConfigFlags, name="ISF_ParticlePositionFilter", **kwargs):
     result = ComponentAccumulator()
     # ParticlePositionFilter
@@ -151,17 +147,6 @@ def TruthStrategyGroupID_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGroupID_M
     result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
     return result
 
-
-def getTruthStrategyGroupID(name="ISF_MCTruthStrategyGroupID", **kwargs):
-    kwargs.setdefault('ParentMinPt'         , 100.*MeV)
-    kwargs.setdefault('ChildMinPt'          , 100.*MeV)
-    kwargs.setdefault('VertexTypes'         , [ 3, 14, 15, 4, 5, 6, 7, 2, 12, 13 ])
-    kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
-    kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
-    kwargs.setdefault('Regions', [1,2])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
-
-
 def TruthStrategyGroupIDHadInt_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGroupIDHadInt_MC15", **kwargs):
     result = ComponentAccumulator()
     kwargs.setdefault('ParentMinPt'                       , 100.*MeV)
@@ -171,24 +156,6 @@ def TruthStrategyGroupIDHadInt_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGro
     kwargs.setdefault('Regions', [1])
     result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
     return result
-
-
-def getTruthStrategyGroupIDHadInt(name="ISF_MCTruthStrategyGroupIDHadInt", **kwargs):
-    kwargs.setdefault('ParentMinPt'                       , 100.*MeV)
-    kwargs.setdefault('ChildMinPt'                        , 100.*MeV)
-    kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
-    kwargs.setdefault('AllowChildrenOrParentPassKineticCuts' , True)
-    kwargs.setdefault('Regions', [1])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
-
-
-def getTruthStrategyGroupCaloMuBrem_MC15(name="ISF_MCTruthStrategyGroupCaloMuBrem_MC15", **kwargs):
-    kwargs.setdefault('ParentMinEkin'       , 500.*MeV)
-    kwargs.setdefault('ChildMinEkin'        , 300.*MeV)
-    kwargs.setdefault('VertexTypes'         , [ 3 ])
-    kwargs.setdefault('ParentPDGCodes'      , [ 13, -13 ])
-    kwargs.setdefault('Regions', [3])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
 
 def TruthStrategyGroupCaloMuBremCfg(ConfigFlags, name="ISF_MCTruthStrategyGroupCaloMuBrem", **kwargs):
     result = ComponentAccumulator()
@@ -210,26 +177,3 @@ def TruthStrategyGroupCaloDecay_MC15Cfg(ConfigFlags, name="ISF_MCTruthStrategyGr
     kwargs.setdefault('Regions', [3])
     result.setPrivateTools(ISF__GenericTruthStrategy(name, **kwargs))
     return result
-
-def getTruthStrategyGroupCaloDecay(name="ISF_MCTruthStrategyGroupCaloDecay", **kwargs):
-    kwargs.setdefault('ParentMinPt'         , 1000.*MeV)
-    kwargs.setdefault('ChildMinPt'          , 500.*MeV)
-    kwargs.setdefault('VertexTypes'         , [ 5, 6, 7 ])
-    kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
-    kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
-    kwargs.setdefault('Regions', [3])
-    return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
-
-def getValidationTruthStrategy(name="ISF_ValidationTruthStrategy", **kwargs):
-    kwargs.setdefault('ParentMinP'          , 50.*MeV)
-    kwargs.setdefault('Regions', [1,3])
-    return CfgMgr.ISF__ValidationTruthStrategy(name, **kwargs);
-
-def getLLPTruthStrategy(name="ISF_LLPTruthStrategy", **kwargs):
-    kwargs.setdefault('PassProcessCodeRangeLow',  200 )
-    kwargs.setdefault('PassProcessCodeRangeHigh', 299 )
-    # ProcessCategory==9 corresponds to the 'fUserDefined' G4ProcessType:
-    #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
-    kwargs.setdefault('PassProcessCategory',      9   ) # ==
-    kwargs.setdefault('Regions', [1,2,3,4])
-    return CfgMgr.ISF__LLPTruthStrategy(name, **kwargs);

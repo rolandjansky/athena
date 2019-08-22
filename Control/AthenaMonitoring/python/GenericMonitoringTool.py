@@ -3,6 +3,7 @@
 #
 
 from AthenaCommon.Logging import logging
+from AthenaCommon.Configurable import Configurable
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaMonitoring.AthenaMonitoringConf import GenericMonitoringTool as _GenericMonitoringTool
 
@@ -11,9 +12,22 @@ log = logging.getLogger(__name__)
 class GenericMonitoringTool(_GenericMonitoringTool):
     """Configurable of a GenericMonitoringTool"""
 
-    def __init__(self, name, **kwargs):
-        super(GenericMonitoringTool, self).__init__(name, **kwargs)
-        self.convention=''
+    def __init__(self, name=Configurable.DefaultName, *args, **kwargs):
+        super(GenericMonitoringTool, self).__init__(name, *args, **kwargs)
+        self.convention = ''
+
+    def __new__( cls, *args, **kwargs ):
+        # GenericMonitoringTool is always private. To avoid the user having
+        # to ensure a unique instance name, always create a new instance.
+
+        b = Configurable.configurableRun3Behavior
+        Configurable.configurableRun3Behavior = 1
+        try:
+            conf = Configurable.__new__( cls, *args, **kwargs )
+        finally:
+            Configurable.configurableRun3Behavior = b
+
+        return conf
 
     def defineHistogram(self, *args, **kwargs):
         if 'convention' in kwargs:
@@ -107,8 +121,6 @@ def defineHistogram(varname, type='TH1F', path=None,
             path = ''
     assert path is not None, "path is required"
     assert labels is None or isinstance(labels, (list, tuple) ), "labels must be of type list or tuple"
-    # assert labels is None or !isinstance(labels, list), \
-           # "Mixed use of variable bin widths and bin labels."
 
     if title is None:
         title = varname
