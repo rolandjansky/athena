@@ -109,11 +109,24 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   ATH_CHECK( m_acSvc.retrieve() );
 
   // initialize the identifier helpers
-
   ATH_CHECK( detStore()->retrieve(m_mdtHelper, "MDTIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_cscHelper, "CSCIDHELPER") );
   ATH_CHECK( detStore()->retrieve(m_rpcHelper, "RPCIDHELPER") );
   ATH_CHECK( detStore()->retrieve(m_tgcHelper, "TGCIDHELPER") );
+  // Withouth this check, the CscIdHelper crashes if there is no CSC container in the input
+  // For consistency, we load all the Csc tools if CSC input is found
+  // Alexandre.laurier@cern.ch 2019-08-23 
+  if (m_decodeCscRDO) { // Begin Csc definitions
+    ATH_CHECK( detStore()->retrieve(m_cscHelper, "CSCIDHELPER") );
+    ATH_CHECK( m_cscCalibTool.retrieve() );
+    try{
+      m_cscContainer = new CscDigitContainer(m_cscHelper->module_hash_max());
+    } catch(std::bad_alloc){
+      ATH_MSG_FATAL( "Could not create a new CscDigitContainer!" );
+      return StatusCode::FAILURE;
+    }
+    m_cscContainer->addRef();
+    ATH_CHECK( m_cscRdoDecoderTool.retrieve() );
+  }// End Csc definitions
 
   // get MDT cablingSvc
   //  status = service("MDTcablingSvc", m_mdtCabling);
@@ -132,9 +145,6 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   ATH_CHECK( RpcCabGet.retrieve() );
   ATH_CHECK( RpcCabGet->giveCabling(m_rpcCabling) );
 
-  /** CSC calibratin tool for the Condtiions Data base access */
-  ATH_CHECK( m_cscCalibTool.retrieve() );
-
   // create empty digit containers ready for filling
 
   try{
@@ -144,14 +154,6 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
     return StatusCode::FAILURE;
   }
   m_mdtContainer->addRef();
-
-  try{
-    m_cscContainer = new CscDigitContainer(m_cscHelper->module_hash_max());
-  } catch(std::bad_alloc){
-    ATH_MSG_FATAL( "Could not create a new CscDigitContainer!" );
-    return StatusCode::FAILURE;
-  }
-  m_cscContainer->addRef();
 
   try{
     m_rpcContainer = new RpcDigitContainer(m_rpcHelper->module_hash_max());
@@ -170,7 +172,6 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
   m_tgcContainer->addRef();
 
   ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
-  ATH_CHECK( m_cscRdoDecoderTool.retrieve() );
   ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );
   ATH_CHECK( m_tgcRdoDecoderTool.retrieve() );
 
