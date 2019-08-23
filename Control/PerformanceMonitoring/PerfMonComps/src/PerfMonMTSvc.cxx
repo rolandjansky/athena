@@ -426,31 +426,31 @@ void PerfMonMTSvc::report2Stdout_Summary() {
   ATH_MSG_INFO("                              PerfMonMT Results Summary                                ");
   ATH_MSG_INFO("=======================================================================================");
 
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Initialization is:" % m_snapshotData[0].m_delta_cpu % "ms");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Initialization is:" % m_snapshotData[0].m_delta_wall % "ms");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["vmem"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["rss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["pss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Initialization is:" % m_snapshotData[0].m_memMon_delta_map["swap"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "CPU time" % "@Initialize:" % m_snapshotData[0].m_delta_cpu % "ms");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Wall time" % "@Initialize:" % m_snapshotData[0].m_delta_wall % "ms");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Virtual Memory Size" % "@Initialize:" % m_snapshotData[0].m_memMon_delta_map["vmem"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Resident Set Size(Rss)" % "@Initialize:" % m_snapshotData[0].m_memMon_delta_map["rss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Proportional Set Size(Pss)" % "@Initialize:" % m_snapshotData[0].m_memMon_delta_map["pss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Swap Size" % "@Initialize:" % m_snapshotData[0].m_memMon_delta_map["swap"] % "kB");
 
 
   ATH_MSG_INFO("");
 
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Event Loop is:" % m_snapshotData[1].m_delta_cpu % "ms");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Event Loop is:" % m_snapshotData[1].m_delta_wall % "ms");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["vmem"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["rss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["pss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Event Loop is:" % m_snapshotData[1].m_memMon_delta_map["swap"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "CPU time" % "@Event Loop:" % m_snapshotData[1].m_delta_cpu % "ms");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Wall time" % "@Event Loop:" % m_snapshotData[1].m_delta_wall % "ms");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Virtual Memory Size" % "@Event Loop:" % m_snapshotData[1].m_memMon_delta_map["vmem"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Resident Set Size(Rss)" % "@Event Loop:" % m_snapshotData[1].m_memMon_delta_map["rss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Proportional Set Size(Pss)" % "@Event Loop:" % m_snapshotData[1].m_memMon_delta_map["pss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Swap Size" % "@Event Loop:" % m_snapshotData[1].m_memMon_delta_map["swap"] % "kB");
 
   ATH_MSG_INFO("");
 
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total CPU time in the Finalize is:" % m_snapshotData[2].m_delta_cpu % "ms");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Total Wall time in the Finalize is:" % m_snapshotData[2].m_delta_wall % "ms");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Virtual Memory Size in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["vmem"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Resident Set Size(Rss) in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["rss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Proportional Set Size(Pss) in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["pss"] % "kB");
-  ATH_MSG_INFO(format( "%1% %|55t|%2% %|60t|%3% ") % "Swap Size in the Finalize is:" % m_snapshotData[2].m_memMon_delta_map["swap"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "CPU time" % "@Finalize:" % m_snapshotData[2].m_delta_cpu % "ms");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Wall time" % "@Finalize:" % m_snapshotData[2].m_delta_wall % "ms");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Virtual Memory Size" % "@Finalize:" % m_snapshotData[2].m_memMon_delta_map["vmem"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Resident Set Size(Rss)" % "@Finalize:" % m_snapshotData[2].m_memMon_delta_map["rss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Proportional Set Size(Pss)" % "@Finalize:" % m_snapshotData[2].m_memMon_delta_map["pss"] % "kB");
+  ATH_MSG_INFO(format( "%1% %|30t|%2% %|55t|%3% %|60t|%4% ") % "Swap Size" % "@Finalize:" % m_snapshotData[2].m_memMon_delta_map["swap"] % "kB");
 
   ATH_MSG_INFO("");
 
@@ -744,5 +744,4 @@ int PerfMonMTSvc::get_cpu_core_info() const  {
 void PerfMonMTSvc::eventCounter(int eventNumber) {
   m_eventIds.insert(eventNumber);
 }
-
 
