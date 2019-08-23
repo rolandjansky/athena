@@ -3,6 +3,7 @@
 # reductionConf flag TAUP4 in Reco_tf.py   
 # **************************************************************************************************************************
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 # ==========================================================================================================================
 # Set up stream
@@ -64,12 +65,15 @@ TAUP4TruthThinningTools = DerivationFrameworkTau.TAUPThinningHelper.setup("TAUP4
 # Kernel algorithm
 # ==========================================================================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob                          += CfgMgr.DerivationFramework__DerivationKernel(
+TAUP4seq = CfgMgr.DerivationFramework__DerivationKernel(
                                                      "TAUP4Kernel",
                                                      SkimmingTools             = [TAUP4TriggerSkimmingTool,
                                                                                   TAUP4StringSkimmingTool],
                                                      ThinningTools             = TAUP4TruthThinningTools,
                                                      )
+
+DerivationFrameworkJob                          += TAUP4seq
+
 
 # ==========================================================================================================================
 # Add the containers to the output stream (slimming done here)
@@ -82,9 +86,12 @@ TAUP4SlimmingHelper.SmartCollections             = ["Electrons",
                                                     "Photons",
                                                     "Muons",
                                                     # "TauJets",
-                                                    "MET_Reference_AntiKt4EMTopo",
-                                                    "AntiKt4EMTopoJets",
-                                                    "BTagging_AntiKt4EMTopo",
+                                                    "MET_Reference_AntiKt4EMPFlow",
+                                                    "AntiKt4EMPFlowJets",
+                                                    "AntiKt4EMPFlowJets_BTagging201810",
+                                                    "AntiKt4EMPFlowJets_BTagging201903",
+                                                    "BTagging_AntiKt4EMPFlow_201810",
+                                                    "BTagging_AntiKt4EMPFlow_201903",         
                                                     "InDetTrackParticles",
                                                     "PrimaryVertices"]
 

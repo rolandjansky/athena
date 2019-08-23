@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
@@ -31,6 +32,10 @@ TAUP3seq += JetTagConfig.GetDecoratePromptTauAlgs()
 
 # Add private sequence to the DerivationFrameworkJob
 DerivationFrameworkJob += TAUP3seq
+
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = TAUP3seq)
 
 # =============================================
 # Set up stream
@@ -178,12 +183,14 @@ TAUP3SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "Muons",
                                         "TauJets",
-                                        "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4LCTopo",
-                                        "AntiKt4EMTopoJets",
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4LCTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt4LCTopo",
+                                        "AntiKt4EMPFlowJets",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
 
