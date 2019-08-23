@@ -471,10 +471,10 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
     log = logging.getLogger('TrigMuonEFMSonlyHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+    def ConfigurationHypoTool( self, toolName, thresholds ):
 
         log = logging.getLogger(self.__class__.__name__)
-        tool = TrigMuonEFMSonlyHypoTool( thresholdHLT )  
+        tool = TrigMuonEFMSonlyHypoTool( toolName )  
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
@@ -482,7 +482,8 @@ class TrigMuonEFMSonlyHypoConfig(object):
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
 
- 
+        if '3layersEC' in toolName:
+            tool.RequireThreeStations=True
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
