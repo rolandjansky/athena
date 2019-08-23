@@ -429,7 +429,10 @@ def defineMenu():
         #ATR-17320
         'CEP-CJ60s6',
         'CEP-CJ50s6',
-        'CEP-CJ50s6ETA21'
+        'CEP-CJ50s6ETA21',
+
+        #ATR-20174
+        '8INVM15-2CMU4ab'
         ]
 
     
@@ -942,7 +945,10 @@ def defineMenu():
         #ATR-17320
         'L1_CEP-CJ60',
         'L1_CEP-CJ50' ,
-        'L1_CEP-CJ50.ETA21'
+        'L1_CEP-CJ50.ETA21',
+
+        #ATR-20174
+        'L1_BPH-8M15-2MU4-BO'
 
         ]
     
@@ -1466,7 +1472,10 @@ def defineMenu():
         #ATR-17320
         'L1_CEP-CJ60' : 203,
         'L1_CEP-CJ50' : 210,
-        'L1_CEP-CJ50.ETA21': 211
+        'L1_CEP-CJ50.ETA21': 211,
+
+        #ATR-20174
+        'L1_BPH-8M15-2MU4-BO' : 71
 
 }
 
