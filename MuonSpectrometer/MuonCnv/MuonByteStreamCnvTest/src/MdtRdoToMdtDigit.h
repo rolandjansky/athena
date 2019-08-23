@@ -6,21 +6,21 @@
 #define MUONBYTESTREAMCNVTEST_MDTRDOTOMDTDIGIT_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonDigitContainer/MdtDigitContainer.h"
 
 class MdtIdHelper;
 
-class MdtRdoToMdtDigit : public AthAlgorithm {
+class MdtRdoToMdtDigit : public AthReentrantAlgorithm {
 
  public:
 
   MdtRdoToMdtDigit(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~MdtRdoToMdtDigit() = default;
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
 

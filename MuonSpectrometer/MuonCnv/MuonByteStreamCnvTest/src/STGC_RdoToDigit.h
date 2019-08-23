@@ -6,21 +6,21 @@
 #define MUONBYTESTREAMCNVTEST_STGCRDOTOSTGCDIGIT_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "MuonSTGC_CnvTools/ISTGC_RDO_Decoder.h"
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 
 class sTgcIdHelper;
 
-class STGC_RdoToDigit : public AthAlgorithm {
+class STGC_RdoToDigit : public AthReentrantAlgorithm {
 
  public:
 
   STGC_RdoToDigit(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~STGC_RdoToDigit() = default;
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
 

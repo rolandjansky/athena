@@ -6,7 +6,7 @@
 #define MUONBYTESTREAMCNVTEST_CSCRDOTOCSCDIGIT_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CscCalibTools/ICscCalibTool.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
 #include "MuonRDO/CscRawDataContainer.h"
@@ -19,7 +19,7 @@ class CscIdHelper;
 //   class ICSC_RDO_Decoder;
 // }
 
-class CscRdoToCscDigit : public AthAlgorithm {
+class CscRdoToCscDigit : public AthReentrantAlgorithm {
 
  public:
 
@@ -27,7 +27,7 @@ class CscRdoToCscDigit : public AthAlgorithm {
   virtual ~CscRdoToCscDigit() = default;
 
   virtual StatusCode initialize() override final;
-  virtual StatusCode execute() override final;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
 
