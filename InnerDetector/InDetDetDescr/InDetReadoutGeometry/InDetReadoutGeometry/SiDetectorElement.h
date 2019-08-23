@@ -499,13 +499,16 @@ namespace InDetDD {
       /// Signal that cached values are no longer valid.
       /// Invalidate general cache
       void invalidate();
-    
-      /// Recalculate all cached values. 
-      void updateCache() const;
-    
-      /// Update all caches including surfaces.
-      void updateAllCaches() const;
-    
+   
+      ///Set/calculate cache values 
+      void setCache(){
+        updateCache();
+      } 
+     ///Set/calculate all cache values including  surfaces.  
+      void setAllCaches(){
+        updateAllCaches();
+      } 
+   
       //@}
     
       ///////////////////////////////////////////////////////////////////
@@ -523,9 +526,6 @@ namespace InDetDD {
     
       //////////////////////////////////////////////////////////////////////////////////////
       //////////////////////////////////////////////////////////////////////////////////////
-    
-    public:
-    
     
       ///////////////////////////////////////////////////////////////////
       /// @name Non-const methods:
@@ -549,6 +549,11 @@ namespace InDetDD {
       ///////////////////////////////////////////////////////////////////
     
     private:
+       /// Recalculate  cached values. 
+      void updateCache() const;
+   
+      /// Update all caches including surfaces.
+      void updateAllCaches() const;
     
       // Common code for constructors.
       void commonConstructor();
@@ -577,11 +582,6 @@ namespace InDetDD {
       //Declaring the Method providing Verbosity Level
       bool msgLvl (MSG::Level lvl) const { return m_commonItems->msgLvl(lvl);}
     
-    
-      ///////////////////////////////////////////////////////////////////
-      // Private methods:
-      ///////////////////////////////////////////////////////////////////
-    private:
       // Don't allow copying.
       SiDetectorElement();
       SiDetectorElement(const SiDetectorElement&);
