@@ -54,3 +54,18 @@ def getTgcTruthOverlay(name="TgcTruthOverlay", **kwargs):
     kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "/TGC_SDO");
 
     return CfgMgr.MuonSimDataOverlay(name, **kwargs)
+
+
+def getSTGC_TruthOverlay(name="STGC)TruthOverlay", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+    if overlayFlags.isDataOverlay():
+        kwargs.setdefault("BkgInputKey", "")
+    else:
+        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "/sTGC_SDO");
+    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "/sTGC_SDO");
+    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "/sTGC_SDO");
+    
+    kwargs.setdefault("OutputLevel", 1)
+
+    return CfgMgr.MuonSimDataOverlay(name, **kwargs)

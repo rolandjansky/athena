@@ -44,3 +44,8 @@ def getSTGCRange(name="sTgcRange", **kwargs):
     kwargs.setdefault('CacheRefreshFrequency', 1.0 ) #default 0 no dataproxy reset 
     kwargs.setdefault('ItemList', ["sTGCSimHitCollection#sTGCSensitiveDetector"] ) 
     return CfgMgr.PileUpXingFolder(name, **kwargs)
+
+def STGC_OverlayDigitizationTool(name="STGC_OverlayDigitizationTool",**kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    return sTgcDigitizationTool(name,**kwargs)

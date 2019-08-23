@@ -9,7 +9,7 @@ from AthenaCommon import CfgGetter
 
 from RecExConfig.RecFlags import rec as recFlags
 
-if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
+if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on():
    
     include( "MuonEventAthenaPool/MuonEventAthenaPool_joboptions.py" )
  
@@ -102,5 +102,16 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
 
            # StoreGateSvc.OutputLevel=DEBUG
         job += CfgGetter.getAlgorithm("TgcTruthOverlay")
+        
+    if DetFlags.overlay.sTGC_on():
+        job += CfgGetter.getAlgorithm("STGC_Overlay")
+        from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import STGC_DigitToRDO
+        job += STGC_DigitToRDO()
+        job.STGC_DigitToRDO.EvtStore = job.STGC_Overlay.OutputStore
 
-            
+        # This is unested as of 2019-08-23
+        if readBS:
+           ToolSvc.STGC_RawDataProviderTool.EvtStore = "OriginalEvent_SG"
+           job.STGC_Overlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
+
+        job += CfgGetter.getAlgorithm("STGC_TruthOverlay")
