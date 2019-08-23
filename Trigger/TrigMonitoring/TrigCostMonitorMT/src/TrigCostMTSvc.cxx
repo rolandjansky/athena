@@ -18,7 +18,8 @@ m_eventSlots(),
 m_eventMonitored(),
 m_slotMutex(),
 m_algStartInfo(),
-m_algStopTime()
+m_algStopTime(),
+m_threadToAlgMap()
 {
   ATH_MSG_DEBUG("TrigCostMTSvc regular constructor");
 }
@@ -72,16 +73,22 @@ StatusCode TrigCostMTSvc::startEvent(const EventContext& context, const bool ena
 
   m_eventMonitored[ context.slot() ] = false;
 
-  // "clear" is a whole table operation, we need it all to ourselves
-  std::unique_lock lockUnique( m_slotMutex[ context.slot() ] );
-  if (monitoredEvent) {
-    // Empty transient thread-safe stores in preparation for recording this event's cost data
-    ATH_CHECK(m_algStartInfo.clear(context, msg()));
-    ATH_CHECK(m_algStopTime.clear(context, msg()));
+  {
+    // "clear" is a whole table operation, we need it all to ourselves
+    std::unique_lock lockUnique( m_slotMutex[ context.slot() ] );
+    if (monitoredEvent) {
+      // Empty transient thread-safe stores in preparation for recording this event's cost data
+      ATH_CHECK(m_algStartInfo.clear(context, msg()));
+      ATH_CHECK(m_algStopTime.clear(context, msg()));
+    }
+
+    // Enable collection of data in this slot for monitoredEvents
+    m_eventMonitored[ context.slot() ] = monitoredEvent;
   }
 
-  // Enable collection of data in this slot for monitoredEvents
-  m_eventMonitored[ context.slot() ] = monitoredEvent;
+  // As we missed the AuditType::Before of the L1Decoder (which is calling this TrigCostMTSvc::startEvent), let's add it now.
+  // This will be our canonical initial timestamps for measuring this event. Similar will be done for DecisionSummaryMakerAlg at the end
+  ATH_CHECK(processAlg(context, m_l1DecoderName, AuditType::Before));
 
   return StatusCode::SUCCESS;
 }
@@ -121,7 +128,6 @@ StatusCode TrigCostMTSvc::processAlg(const EventContext& context, const std::str
   return StatusCode::SUCCESS;
 }
 
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 StatusCode TrigCostMTSvc::monitor(const EventContext& context, const AlgorithmIdentifier& ai, const TrigTimeStamp& now, const AuditType type) {
@@ -135,6 +141,11 @@ StatusCode TrigCostMTSvc::monitor(const EventContext& context, const AlgorithmId
       static_cast<uint32_t>(context.slot())
     };
     ATH_CHECK( m_algStartInfo.insert(ai, ap) );
+
+    // Cache the AlgorithmIdentifier which has just started executing on this thread
+    tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare>::accessor acc;
+    m_threadToAlgMap.insert(acc, ap.m_algThreadID);
+    acc->second = ai;
 
   } else if (type == AuditType::After) {
 
@@ -186,16 +197,16 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     const AlgorithmPayload& ap = it->second;
 
     // Can we find the end time for this alg?
-    uint64_t stopTime = 0;;
+    uint64_t stopTime = 0;
     {
       tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
       if (m_algStopTime.retrieve(ai, stopTimeAcessor).isFailure()) {
-        if (ai.m_caller == "DecisionSummaryMakerAlg") {
+        if (ai.m_caller == m_decisionSummaryMakerAlgName) {
           // TrigCostMTSvc::endEvent is called by the DecisionSummaryMakerAlg. So we don't expect to find an end time for this alg.
           // But also, "right now" is an appropriate stop time for this alg. So we keep gotStopTime=true and use the TrigTimeStamp initialised to "now".
           TrigTimeStamp now;
           stopTime = now.microsecondsSinceEpoch();
-          ATH_MSG_DEBUG("Setting stop time of 'DecisionSummaryMakerAlg' to 'now' (" << stopTime << ")");
+          ATH_MSG_DEBUG("Setting stop time of '" << m_decisionSummaryMakerAlgName << "' to 'now' (" << stopTime << ")");
         } else {
           ATH_MSG_DEBUG("No end time for '" << ai.m_caller << "', '" << ai.m_store << "'");
         }
@@ -261,3 +272,25 @@ int32_t TrigCostMTSvc::getROIID(const EventContext& context) {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+bool TrigCostMTSvc::isMonitoredEvent(const EventContext& context) const {
+  if (m_eventMonitored[ context.slot() ]) {
+    return true;
+  }
+  if (m_enableMultiSlot) {
+    return m_eventMonitored[ m_masterSlot ];
+  }
+  return false;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+size_t TrigCostMTSvc::ThreadHashCompare::hash(const std::thread::id& thread) {
+  return static_cast<size_t>( std::hash< std::thread::id >()(thread) );
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+bool TrigCostMTSvc::ThreadHashCompare::equal(const std::thread::id& x, const std::thread::id& y) {
+  return (x == y);
+}
