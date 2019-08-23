@@ -71,6 +71,7 @@ void JetTagCalibCondData::clear() {
 void JetTagCalibCondData::addHisto(const unsigned int indexTagger, const std::string& name, TObject * obj) {
   MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
   m_histos[indexTagger].insert(std::make_pair(name, obj));
+  log << MSG::DEBUG << "#BTAG# histo added " << name << " with pointer " << obj << endmsg;
   log << MSG::DEBUG << "#BTAG# m_histos size " << m_histos.size() << endmsg;
 }
 
@@ -79,6 +80,13 @@ void JetTagCalibCondData::addBdt(const std::string&tagger, const std::string& ch
   log << MSG::DEBUG << "#BTAG# Adding BDT of " << tagger << " in cond data for channel " << channel << endmsg;
   m_bdts[tagger].insert(std::make_pair(channel, bdt));
   log << MSG::DEBUG << "#BTAG# m_bdts size " << m_bdts.size() << endmsg;
+}
+
+void JetTagCalibCondData::addInputVars(const std::string&tagger, const std::string& name, const std::vector<std::string> &input) {
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  log << MSG::DEBUG << "#BTAG# Adding input variables of the BDT for " << tagger << " in cond data for " << name << endmsg;
+  m_inputVars[tagger].insert(std::make_pair(name, input));
+  log << MSG::DEBUG << "#BTAG# m_inputVars size " << m_inputVars.size() << endmsg;
 }
 
 void JetTagCalibCondData::addDL1NN(const std::string&tagger, const std::string& channel, const lwt::JSONConfig& obj) {
@@ -116,7 +124,6 @@ void JetTagCalibCondData::printAliasesStatus() const {
   log << endmsg;
 }
 
-
 void JetTagCalibCondData::printHistosStatus() const {
   MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
   log << MSG::DEBUG << "#BTAG# histograms retrieved from DB" << endmsg;
@@ -124,7 +131,7 @@ void JetTagCalibCondData::printHistosStatus() const {
   for(unsigned int i=0;i<m_histos.size();i++) {
     iter_hist = m_histos[i].begin();
     for(;iter_hist!=m_histos[i].end();++iter_hist) {
-      log << MSG::DEBUG << "#BTAG# histogram name: "<< iter_hist->first << endmsg;
+      log << MSG::DEBUG << "#BTAG# histogram name: "<< iter_hist->first << " with pointer " << iter_hist->second << endmsg;
     }
   }
 }
@@ -141,6 +148,9 @@ void JetTagCalibCondData::printBdtsStatus() const {
 }
 
 TH1* JetTagCalibCondData::retrieveHistogram(const std::string& folder, const std::string& channel, const std::string& hname) const {
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  log << MSG::DEBUG << "#BTAG# retrieving Histo for folder " << folder
+	   << " channel " << channel << " and hname " << hname << endmsg;
   return this->retrieveTObject<TH1>(folder,channel,hname);
 }
 
@@ -168,6 +178,33 @@ MVAUtils::BDT* JetTagCalibCondData::retrieveBdt(const std::string& tagger, const
   }
 
   return bdt;
+}
+
+std::vector<std::string> JetTagCalibCondData::retrieveInputVars(const std::string& tagger, const std::string& channel, const std::string& hname) const {
+  std::vector<std::string> inputVars;
+  std::string channelAlias = this->getChannelAlias(channel);
+  std::string fname = this->fullHistoName(channelAlias,hname);
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  log << MSG::DEBUG << "#BTAG# retrieving input variables of BDT for " << tagger
+	   << " channel " << channel << " and hname " << fname << endmsg;
+  std::map< std::string , std::map<std::string, std::vector<std::string>>>::const_iterator mI;
+  mI = m_inputVars.find(tagger);
+  if (mI != m_inputVars.end()) {
+    log << MSG::DEBUG << "#BTAG# " << tagger << " BDT config found"<< endmsg;
+    std::map<std::string, std::vector<std::string>>::const_iterator mJ = mI->second.find(fname);
+    if (mJ != mI->second.end()) {
+      log << MSG::DEBUG << "#BTAG# "<< tagger << " BDT config found for jet collection " << channel << endmsg;
+      inputVars = mJ->second;
+    }
+    else {
+      log << MSG::DEBUG << "#BTAG# "<< tagger << " BDT config not found for jet collection " << channel << endmsg;
+    }
+  }
+  else {
+    log << MSG::DEBUG << "#BTAG# " << tagger << " BDT config not found"<< endmsg;
+  }
+
+  return inputVars;
 }
 
 lwt::JSONConfig JetTagCalibCondData::retrieveDL1NN(const std::string& tagger, const std::string& channel) const {

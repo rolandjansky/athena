@@ -102,39 +102,18 @@ namespace Analysis
       return StatusCode::SUCCESS;
     }
 
-    /* check if calibration (neural net structure or weights) has to be updated: */
-    TObject* calib=readCdo->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
-
-    if(!calib) {
-      ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for "<< m_taggerNameBase );
-      return StatusCode::SUCCESS;
-    }
-
+    //Retrieve input variables for BDT in cond store
     std::vector<float*>  inputPointers; inputPointers.clear();
-    std::vector<std::string> inputVars; inputVars.clear();
-    unsigned nConfgVar=0,calibNvars=0; bool badVariableFound=false;
-
-    TObjArray* toa= readCdo->retrieveTObject<TObjArray>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
-    std::string commaSepVars="";
-    if (toa) {
-      TObjString *tos= nullptr;
-      if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
-	  commaSepVars=tos->GetString().Data();
-    }
-
-    while (commaSepVars.find(",")!=std::string::npos) {
-      inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(","))); calibNvars++;
-      commaSepVars.erase(0,commaSepVars.find(",")+1);
-    }
-    inputVars.push_back(commaSepVars.substr(0,-1)); calibNvars++;
+    std::vector<std::string> inputVars = readCdo->retrieveInputVars(m_taggerNameBase,author, m_taggerNameBase+"Calib/"+m_varStrName);
+    unsigned nConfgVar=0; bool badVariableFound=false;
 
     Vars vars;
     vars.SetVariableRefs(msg(),inputVars,nConfgVar,badVariableFound,inputPointers);
     ATH_MSG_DEBUG("#BTAG# nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
-    if ( calibNvars!=nConfgVar or badVariableFound ) {
-	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << calibNvars << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
+    if ( inputVars.size()!=nConfgVar or badVariableFound ) {
+      ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
       return StatusCode::SUCCESS;
     }
 

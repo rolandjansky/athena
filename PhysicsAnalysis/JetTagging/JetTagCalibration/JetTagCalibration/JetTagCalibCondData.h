@@ -52,10 +52,12 @@ public:
   void deleteBdts();
   void addDL1NN(const std::string& tagger, const std::string& channel, const lwt::JSONConfig& );
   void addBdt(const std::string& tagger, const std::string& name, MVAUtils::BDT *);
+  void addInputVars(const std::string& tagger, const std::string& name, const std::vector<std::string> &input);
   void addChannelAlias(const std::string& channel, const std::string& alias);
   TH1* retrieveHistogram(const std::string& folder, const std::string& channel, const std::string& hname) const; 
   lwt::JSONConfig retrieveDL1NN(const std::string& tagger, const std::string& channel) const;
   MVAUtils::BDT* retrieveBdt(const std::string& tagger, const std::string& channel) const;
+  std::vector<std::string> retrieveInputVars(const std::string& tagger, const std::string& channel, const std::string& hname) const;
   template <class T> T* retrieveTObject(const std::string& folder, const std::string& channel, const std::string& hname) const;
   
   std::string channelName(const std::string& fullHistoName) const;
@@ -67,10 +69,12 @@ private:
   std::map< std::string, std::string > m_channelAliasesMap;
   std::vector< std::string> m_taggers;
 
-  //MV2 and SoftMuon BDT
+  //MV2, MultiSV and SoftMuon BDTs
   std::map< std::string, std::map<std::string, MVAUtils::BDT*> > m_bdts;
+  //MV2, MultiSV and SoftMuon input var
+  std::map< std::string, std::map<std::string, std::vector<std::string>>> m_inputVars;
   //DL1 NN Json config
-  std::map< std::string, std::map< std::string, lwt::JSONConfig >> m_DL1_NNConfig;
+  std::map< std::string, std::map<std::string, lwt::JSONConfig >> m_DL1_NNConfig;
 };
 }
 CLASS_DEF(Analysis::JetTagCalibCondData, 232300155, 1)

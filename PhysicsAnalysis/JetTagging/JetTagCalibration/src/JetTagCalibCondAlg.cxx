@@ -125,6 +125,13 @@ namespace Analysis {
 
     m_directoryMap.clear();
 
+    //IP taggers
+    if (std::find(m_taggers.begin(), m_taggers.end(), "IP2D") != m_taggers.end() or
+      std::find(m_taggers.begin(), m_taggers.end(), "IP3D") != m_taggers.end() or
+      std::find(m_taggers.begin(), m_taggers.end(), "SV1") != m_taggers.end()) {
+        initializeIPTag();
+    }
+
     //IP2D tagger
     if (std::find(m_taggers.begin(), m_taggers.end(), "IP2D") != m_taggers.end()) {
       initializeIP2D();
@@ -225,10 +232,6 @@ namespace Analysis {
   void JetTagCalibCondAlg::initializeIP2D() {
     ATH_MSG_DEBUG("initialize IP2D paths of the calibration file");
 
-    this->initializeIPTag();
-
-    //check that grades are defined
-       
     //check that hypotheses for likelihood tool are defined
     std::string hName;
     for(unsigned int i=0;i<m_IP2D_trackGradePartitions.size();i++) {
@@ -243,9 +246,6 @@ namespace Analysis {
   void JetTagCalibCondAlg::initializeIP3D() {
     ATH_MSG_DEBUG("initialize IP3D paths of the calibration file");
 
-    this->initializeIPTag();
-
-    
     //check that hypotheses for likelihood tool are defined
     std::string hName;
     for(unsigned int i=0;i<m_IP2D_trackGradePartitions.size();i++) {
@@ -270,8 +270,6 @@ namespace Analysis {
   
   void JetTagCalibCondAlg::initializeSV1() {
     ATH_MSG_DEBUG("initialize SV1 paths of the calibration file");
-
-    this->initializeIPTag();
 
     std::string hName;
     for(unsigned int ih=0;ih<m_IPTag_hypotheses.size();ih++) {
@@ -536,7 +534,6 @@ namespace Analysis {
           hFullName+="/"; hFullName+=channel; 
           hFullName+="/"; hFullName+=hname;
           ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
-          ATH_MSG_WARNING( "#BTAG#     histo name in physical file= " << hFullName );
           TObject* hPointer = nullptr;
           if (getTObject(hFullName, pfile, hPointer)) {
             if(hPointer) {
@@ -547,6 +544,7 @@ namespace Analysis {
                 std::istringstream nn_config_sstream(cal_string->GetString().Data());
                 lwt::JSONConfig nn_config = lwt::parse_json(nn_config_sstream);
                 ATH_MSG_DEBUG("#BTAG# Layers size << " << nn_config.layers.size());
+                delete cal_string;
 
                 writeCdo->addDL1NN(tagger, channel, nn_config);
               }
@@ -559,8 +557,23 @@ namespace Analysis {
                     MVAUtils::BDT* bdt = new MVAUtils::BDT(tree);
                     writeCdo->addBdt(tagger,channel,bdt);
                   }
-                  else {
-                    writeCdo->addHisto(i,fname,hPointer);
+                  TObjArray * toa = dynamic_cast<TObjArray*>(hPointer);
+                  if (toa) {
+                    ATH_MSG_DEBUG("#BTAG# The TObjArray to build the input variables of BDT for " << tagger<< " is valid");
+                    std::vector<std::string> inputVars; inputVars.clear();
+                    std::string commaSepVars="";
+                    TObjString *tos= nullptr;
+                    if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
+                    commaSepVars=tos->GetString().Data();
+                    while (commaSepVars.find(",")!=std::string::npos) {
+                      inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
+                      commaSepVars.erase(0,commaSepVars.find(",")+1);
+                    }
+                    inputVars.push_back(commaSepVars.substr(0,-1));
+                    ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
+                    for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
+                    delete toa;
+                    writeCdo->addInputVars(tagger,fname,inputVars);
                   }
                 }
                 else {
@@ -571,13 +584,6 @@ namespace Analysis {
                   writeCdo->addHisto(i,fname,hPointer);
                 }
               }
-
-              const TString rootClassName=hPointer->ClassName();
-              if (rootClassName=="TTree") {
-                ((TTree*)hPointer)->LoadBaskets();
-                ((TTree*)hPointer)->SetDirectory(0);
-              } 
-            
             } else {
               ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " << fname );
             }
@@ -648,7 +654,6 @@ namespace Analysis {
 	bool foundalias=false;
 
 	for(unsigned int k=0; k<aliaslist.size(); ++k){
-
 	  std::string aliasentry = aliaslist[k];
 	  if("none" == aliasentry){
 	    ATH_MSG_DEBUG("#BTAG# first alias entry is none - replace with original channel" 
@@ -753,21 +758,19 @@ namespace Analysis {
   StatusCode JetTagCalibCondAlg::getTObject(const std::string& histname, TFile * pfile, TObject*& hist) const {
      // now read the histogram into memor
      ATH_MSG_DEBUG("Getting object "+histname+" from file");
-     std::unique_ptr<TObject> hist_raw(pfile->Get(histname.c_str()));
-     if (hist_raw.get() == nullptr) {
+     //std::unique_ptr<TObject> hist_raw(pfile->Get(histname.c_str()));
+     TObject* hist_raw(pfile->Get(histname.c_str()));
+     //if (hist_raw.get() == nullptr) {
+     if (hist_raw == nullptr) {
        ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
        ATH_MSG_WARNING("#BTAG# Could not load TObject " << histname);
        return StatusCode::FAILURE;
      }
      else {
-       hist = dynamic_cast<TObject *>(hist_raw.release());
-       // make this histogram unassociated with the TFile, so file can be closed
-       // only for histogram objects, others do not get associated
-       // TTrees have special treatment 
+       hist = dynamic_cast<TObject *>(hist_raw);
        TH1* ihist=dynamic_cast<TH1*>(hist);
        if (ihist!=nullptr) {
          ihist->SetDirectory(nullptr);
-         ATH_MSG_WARNING("#BTAG# TObject is a TH1" << histname);
        }
        // if it is a TDirectory, also need special treatment to unassociate parent
        TDirectory* idir=dynamic_cast<TDirectory*>(hist);
@@ -787,8 +790,22 @@ namespace Analysis {
          ATH_MSG_WARNING("#BTAG# TObject is a TObjArray" << histname);
          iobj->SetOwner(kTRUE);
        }
+
        TTree * tree = dynamic_cast<TTree*>(hist);
-       if (tree !=nullptr) ATH_MSG_WARNING("#BTAG# TObject is a TTree" << histname);
+       if (tree !=nullptr) {
+         ATH_MSG_WARNING("#BTAG# TObject is a TTree" << histname);
+         ((TTree*)hist)->LoadBaskets();
+         ((TTree*)hist)->SetDirectory(0);
+       }
+       TObjString * objS = dynamic_cast<TObjString*>(hist);
+       if (objS !=nullptr) {
+         ATH_MSG_WARNING("#BTAG# TObject is a TObjString" << histname);
+       }
+       TList * list = dynamic_cast<TList*>(hist);
+       if (list !=nullptr) {
+         ATH_MSG_WARNING("#BTAG# TObject is a TList" << histname);
+       }
+
      }
 
      return StatusCode::SUCCESS;

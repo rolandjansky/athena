@@ -145,30 +145,9 @@ namespace Analysis {
       m_disableAlgo=true;
       return;
     }
-
-    TObjArray* toa=readCdo->retrieveTObject<TObjArray>(m_taggerNameBase,author, m_taggerNameBase+"Calib/"+m_varStrName);
-    std::string commaSepVars="";
-    if (toa) {
-      TObjString *tos= nullptr;
-      if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
-      commaSepVars=tos->GetString().Data();
-    } else {
-      ATH_MSG_WARNING("#BTAG# calibVariables has no elements! PLEASE CHECK OUT!");
-      m_disableAlgo=true;
-      return;
-    }
-
-    //prepare inputVars
-    std::vector<std::string> inputVars; inputVars.clear();
-    while (commaSepVars.find(",")!=std::string::npos) {
-      inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
-      commaSepVars.erase(0,commaSepVars.find(",")+1);
-    }
-    inputVars.push_back(commaSepVars.substr(0,-1));
-
-    ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
-    for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
-
+ 
+    //Retrieve input variables of BDT from cond object
+    std::vector<std::string> inputVars = readCdo->retrieveInputVars(m_taggerNameBase,author, m_taggerNameBase+"Calib/"+m_varStrName);
     std::vector<float> vars = CreateVariables (inputs, inputVars);
     ATH_MSG_DEBUG("#BTAG# nConfigVar"<<vars.size());
 
