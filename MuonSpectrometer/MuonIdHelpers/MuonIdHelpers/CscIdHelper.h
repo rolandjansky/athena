@@ -72,10 +72,11 @@ class CscIdHelper : public MuonIdHelper
   /// Initialization from the identifier dictionary
   int         initialize_from_dictionary(const IdDictMgr& dict_mgr) override;
 
-  // need to overwrite get_module_hash for Run2 geometries (since they contain both CSC chamberLayer 1 and 2
-  // although only chamberLayer 2 is actually built into ATLAS
+  // need to overwrite get_module_hash and get_detectorElement_hash for Run2 geometries (since they contain both 
+  // CSC chamberLayer 1 and 2 although only chamberLayer 2 is actually built into ATLAS)
   // function checks whether chamberLayer 1 identifiers are around and in this case returns the correct module hash
   int get_module_hash          (const Identifier& id, IdentifierHash& hash_id ) const override;
+  int get_detectorElement_hash (const Identifier& id, IdentifierHash& hash_id) const override;
 
   // in some parts of athena (still) hashes which encode geometrical information for the CSCs are around,
   // therefore, need those additional hash functions here (feel free to fix it in the future)
