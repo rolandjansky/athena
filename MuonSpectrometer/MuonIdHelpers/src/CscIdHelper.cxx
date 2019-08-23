@@ -377,6 +377,14 @@ int CscIdHelper::get_module_hash(const Identifier& id, IdentifierHash& hash_id) 
     return MuonIdHelper::get_module_hash(id, hash_id);
 }
 
+int CscIdHelper::get_detectorElement_hash(const Identifier& id, IdentifierHash& hash_id) const {
+    // if the current layout contains Identifiers for CSC chamberLayer 1, need to call the
+    // get_detectorElement_hash function with an Identifier which is actually from chamberLayer 1
+    if (m_hasChamLay1) return MuonIdHelper::get_detectorElement_hash(parentID(id), hash_id);
+    // otherwise just use the default implementation
+    return MuonIdHelper::get_detectorElement_hash(id, hash_id);
+}
+
 int CscIdHelper::get_geo_module_hash(const Identifier& id,
                                  IdentifierHash& hash_id) const {
   //Identifier moduleId = elementID(id);
