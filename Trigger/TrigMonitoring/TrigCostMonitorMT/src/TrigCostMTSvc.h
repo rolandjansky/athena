@@ -81,21 +81,20 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
 
   private: 
 
-  Gaudi::Property<bool>      m_monitorAllEvents{this, "MonitorAllEvents", false, "Monitor every HLT event, e.g. for offline validation."};
-  Gaudi::Property<bool>      m_saveHashes{this, "SaveHashes", false, "Store a copy of the hash dictionary for easier debugging"};
-  
-  size_t  m_eventSlots; //!< Number of concurrent processing slots. Cached from Gaudi
-
   /**
-   * @return If the event is flagged as being monitored. Allows for a quick return if not
+   * Internal call to save monitoring data for a given AlgorithmIdentifier
    * @param[in] context The event context
+   * @param[in] ai The AlgorithmIdentifier key to store
+   * @param[in] now The timestamp to store (amoung other values)
+   * @param[in] type The type of the audit event to store
+   * @return Success if the data are saved
    */
-  bool isMonitoredEvent(const EventContext& context) const;
+  StatusCode monitor(const EventContext& context, const AlgorithmIdentifier& ai, const TrigTimeStamp& now, const AuditType type);
 
   /**
    * Sanity check that the job is respecting the number of slots which were declared at config time
-   * @return Success if the m_eventMonitored array is range, Failure if access request would overflow
    * @param[in] context The event context
+   * @return Success if the m_eventMonitored array is range, Failure if access request would overflow
    */
   StatusCode checkSlot(const EventContext& context) const;
 
@@ -106,12 +105,16 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
    */
   int32_t getROIID(const EventContext& context);
 
-
-  std::unique_ptr< std::atomic<bool>[] >  m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored.
-  std::unique_ptr< std::shared_mutex[] >  m_slotMutex; //!< Used to control and protect whole-table operations.
-
+  size_t  m_eventSlots; //!< Number of concurrent processing slots. Cached from Gaudi
+  std::unique_ptr< std::atomic<bool>[] > m_eventMonitored; //!< Used to cache if the event in a given slot is being monitored.
+  std::unique_ptr< std::shared_mutex[] > m_slotMutex; //!< Used to control and protect whole-table operations.
   TrigCostDataStore<AlgorithmPayload> m_algStartInfo; //!< Thread-safe store of algorithm start payload.
   TrigCostDataStore<TrigTimeStamp> m_algStopTime; //!< Thread-safe store of algorithm stop times.
+
+  Gaudi::Property<bool>      m_monitorAllEvents{this, "MonitorAllEvents", false, "Monitor every HLT event, e.g. for offline validation."};
+  Gaudi::Property<bool>      m_enableMultiSlot{this, "EnableMultiSlot", true, "Monitored events in the MasterSlot collect data from events running in other slots."};
+  Gaudi::Property<bool>      m_saveHashes{this, "SaveHashes", false, "Store a copy of the hash dictionary for easier debugging"};
+  Gaudi::Property<size_t>    m_masterSlot{this, "MasterSlot", 0, "The slot responsible for saving MultiSlot data"};
 
 };
 
