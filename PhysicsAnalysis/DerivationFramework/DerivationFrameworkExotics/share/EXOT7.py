@@ -332,7 +332,10 @@ for i in listJets:
   EXOT7SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::JetAuxContainer'
 
 ##Adding b-tagging to dictionary
-listBtag = ['BTagging_AntiKtVR30Rmax4Rmin02Track','BTagging_AntiKt4EMPFlow','BTagging_AntiKt4EMTopo','BTagging_AntiKt2Track']
+listBtag = ['BTagging_AntiKtVR30Rmax4Rmin02Track',
+            'BTagging_AntiKt4EMTopo_201810',
+            'BTagging_AntiKt4EMPFlow_201810',
+            'BTagging_AntiKt4EMPFlow_201903']
 for i in listBtag:
   EXOT7SlimmingHelper.AppendToDictionary[i] = 'xAOD::BTaggingContainer'
   EXOT7SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::BTaggingAuxContainer'

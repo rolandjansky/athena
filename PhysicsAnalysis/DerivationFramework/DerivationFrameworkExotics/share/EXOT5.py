@@ -586,10 +586,14 @@ EXOT5SlimmingHelper.SmartCollections = [
     'PrimaryVertices',
     'MET_Reference_AntiKt4EMTopo',
     'MET_Reference_AntiKt4EMPFlow',
-    'BTagging_AntiKt4EMTopo',
-    'BTagging_AntiKt4EMPFlow',
+    'BTagging_AntiKt4EMTopo_201810',
+    'BTagging_AntiKt4EMPFlow_201810',
+    'BTagging_AntiKt4EMPFlow_201903',
     'AntiKt4EMTopoJets',
+    'AntiKt4EMTopoJets_BTagging201810',
     'AntiKt4EMPFlowJets',
+    'AntiKt4EMPFlowJets_BTagging201810',
+    'AntiKt4EMPFlowJets_BTagging201903',
     ]
 
 EXOT5SlimmingHelper.ExtraVariables = [

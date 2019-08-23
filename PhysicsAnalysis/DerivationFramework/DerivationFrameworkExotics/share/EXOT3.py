@@ -333,7 +333,7 @@ runTCCReconstruction(exot3Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParti
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT3"] = []
 reducedJetList = [
-    "AntiKt2PV0TrackJets", #flavour-tagged automatically
+    "AntiKt2PV0TrackJets",
     "AntiKt4PV0TrackJets",
     "AntiKt4TruthJets",
     "AntiKt10TruthJets",
