@@ -186,18 +186,25 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     const AlgorithmPayload& ap = it->second;
 
     // Can we find the end time for this alg?
-    TrigTimeStamp stopTime;
-    bool gotStopTime = true;
-    if (m_algStopTime.retrieve(ai, stopTime).isFailure()) {
-      if (ai.m_caller == "DecisionSummaryMakerAlg") {
-        // TrigCostMTSvc::endEvent is called by the DecisionSummaryMakerAlg. So we don't expect to find an end time for this alg.
-        // But also, "right now" is an appropriate stop time for this alg. So we keep gotStopTime=true and use the TrigTimeStamp initialised to "now".
-        ATH_MSG_DEBUG("Setting stop time of 'DecisionSummaryMakerAlg' to 'now'");
-      } else {
-        ATH_MSG_DEBUG("No end time for '" << ai.m_caller << "', '" << ai.m_store << "'");
-        gotStopTime = false;
+    uint64_t stopTime = 0;;
+    {
+      tbb::concurrent_hash_map<AlgorithmIdentifier, TrigTimeStamp, AlgorithmIdentifierHashCompare>::const_accessor stopTimeAcessor;
+      if (m_algStopTime.retrieve(ai, stopTimeAcessor).isFailure()) {
+        if (ai.m_caller == "DecisionSummaryMakerAlg") {
+          // TrigCostMTSvc::endEvent is called by the DecisionSummaryMakerAlg. So we don't expect to find an end time for this alg.
+          // But also, "right now" is an appropriate stop time for this alg. So we keep gotStopTime=true and use the TrigTimeStamp initialised to "now".
+          TrigTimeStamp now;
+          stopTime = now.microsecondsSinceEpoch();
+          ATH_MSG_DEBUG("Setting stop time of 'DecisionSummaryMakerAlg' to 'now' (" << stopTime << ")");
+        } else {
+          ATH_MSG_DEBUG("No end time for '" << ai.m_caller << "', '" << ai.m_store << "'");
+        }
+      } else { // retrieve was a success
+        stopTime = stopTimeAcessor->second.microsecondsSinceEpoch();
       }
+      // stopTimeAcessor goes out of scope - lock released
     }
+
 
     // Make a new TrigComposite to persist monitoring payload for this alg
     xAOD::TrigComposite* tc = new xAOD::TrigComposite();
@@ -212,7 +219,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     result &= tc->setDetail("slot", ap.m_slot);
     result &= tc->setDetail("roi", ap.m_algROIID);
     result &= tc->setDetail("start", ap.m_algStartTime.microsecondsSinceEpoch());
-    result &= tc->setDetail("stop", (gotStopTime ? stopTime.microsecondsSinceEpoch() : 0));
+    result &= tc->setDetail("stop", stopTime);
     if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost TC");
   }
 
