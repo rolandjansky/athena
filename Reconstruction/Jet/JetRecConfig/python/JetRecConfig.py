@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -13,7 +13,7 @@ jetlog = Logging.logging.getLogger('JetRecConfig')
 import cppyy
 try:
     cppyy.loadDictionary('xAODBaseObjectTypeDict')
-except:
+except Exception:
     pass
 from ROOT import xAODType
 xAODType.ObjectType
@@ -25,7 +25,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 # So, import package conf modules rather than a dozen individual classes
 from JetRec import JetRecConf
 
-__all__ = ["xAOD", "JetRecCfg", "resolveDependencies"]
+__all__ = ["JetRecCfg", "resolveDependencies"]
 
 ########################################################################
 # Top-level function for running jet finding
@@ -184,7 +184,7 @@ def classifyPrereqs(prereqs):
     for req in prereqs:
         key,val = req.split(":",1)
         jetlog.verbose( "Interpreted prereqs: {0} --> {1}".format(key,val) )
-        if not key in prereqdict.keys():
+        if key not in prereqdict.keys():
             prereqdict[key] = set()
         prereqdict[key].add(val)
             
