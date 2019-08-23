@@ -59,7 +59,7 @@ def ParticlePositionFilterCaloCfg(ConfigFlags, name="ISF_ParticlePositionFilterC
                                             AtlasRegion.fAtlasCalo ] )
     return ParticlePositionFilterCfg(ConfigFlags, name, **kwargs)
 
-def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
+def ParticlePositionFilterMSCfg(name="ISF_ParticlePositionFilterMS", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
     import ROOT, cppyy
     cppyy.loadDictionary('AtlasDetDescrDict')
@@ -69,7 +69,7 @@ def getParticlePositionFilterMS(name="ISF_ParticlePositionFilterMS", **kwargs):
                                             AtlasRegion.fAtlasForward,
                                             AtlasRegion.fAtlasCalo,
                                             AtlasRegion.fAtlasMS ] )
-    return getParticlePositionFilter(name, **kwargs)
+    return ParticlePositionFilterCfg(name, **kwargs)
 
 def ParticlePositionFilterWorldCfg(ConfigFlags, name="ISF_ParticlePositionFilterWorld", **kwargs):
     # importing Reflex dictionary to access AtlasDetDescr::AtlasRegion enum
