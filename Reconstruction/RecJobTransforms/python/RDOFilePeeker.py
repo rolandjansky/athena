@@ -3,40 +3,36 @@ from past.builtins import basestring
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 def RDOFilePeeker(runArgs, skeletonLog):
-    import PyUtils.AthFile as af
+    from PyUtils.MetaReader import read_metadata
     try:
-        f = af.fopen(runArgs.inputRDOFile[0])
+        metadata_lite = read_metadata(runArgs.inputRDOFile[0])  # Use this only to read the key 'eventTypes', which is promoted in 'lite' mode.
+        metadata      = read_metadata(runArgs.inputRDOFile[0], mode= 'full')
     except AssertionError:
         skeletonLog.error("Failed to open input file: %s", runArgs.inputRDOFile[0])
-    #check evt_type of input file
-    if 'evt_type' in f.infos:
-        import re
-        if not re.match(str(f.infos['evt_type'][0]), 'IS_SIMULATION') :
-            skeletonLog.error('This input file has incorrect evt_type: %s',str(f.infos['evt_type']))
+    #check eventTypes of input file
+    if 'eventTypes' in metadata_lite:
+        if 'IS_SIMULATION' not in metadata_lite['eventTypes']:
+            skeletonLog.error('This input file has incorrect eventTypes: %s', metadata_lite['eventTypes'])
             skeletonLog.info('Please make sure you have set input file metadata correctly.')
             skeletonLog.info('Consider using the job transforms for earlier steps if you aren\'t already.')
             #then exit gracefully
-            raise SystemExit("Input file evt_type is incorrect, please check your digi, g4sim and evgen jobs.")
-    else :
-        skeletonLog.warning('Could not find \'evt_type\' key in athfile.infos. Unable to that check evt_type is correct.')
-    metadatadict = dict()
-    if 'metadata' in f.infos:
-        if '/Digitization/Parameters' in f.infos['metadata']:
-            metadatadict = f.infos['metadata']['/Digitization/Parameters']
-            if isinstance(metadatadict, list):
-                skeletonLog.warning("%s inputfile: %s contained %s sets of Dititization Metadata. Using the final set in the list.",inputtype,inputfile,len(metadatadict))
-                metadatadict=metadatadict[-1]
-        ##Get IOVDbGlobalTag
+            raise SystemExit("Input file eventTypes is incorrect, please check your digi, g4sim and evgen jobs.")
+    else:
+        skeletonLog.warning('Could not find \'eventTypes\' key in MetaReader -> metadata. Unable to that check if eventTypes is correct.')
+
+    metadatadict = {}
+    if '/Digitization/Parameters' in metadata:
+        metadatadict = metadata['/Digitization/Parameters']
+        if isinstance(metadatadict, list):
+            skeletonLog.warning("%s inputfile: %s contained %s sets of Dititization Metadata. Using the final set in the list.",inputtype,inputfile,len(metadatadict))
+            metadatadict = metadatadict[-1]
+    ##Get IOVDbGlobalTag
         if 'IOVDbGlobalTag' not in metadatadict:
             try:
-                assert f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag'] is not None
-                metadatadict['IOVDbGlobalTag'] = f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag']
+                if metadata['/TagInfo']['IOVDbGlobalTag'] is not None:
+                    metadatadict['IOVDbGlobalTag'] = metadata['/TagInfo']['IOVDbGlobalTag']
             except:
-                try:
-                    assert f.fileinfos['conditions_tag'] is not None
-                    metadatadict['IOVDbGlobalTag'] = f.fileinfos['conditions_tag']
-                except:
-                    skeletonLog.warning("Failed to find IOVDbGlobalTag.")
+                skeletonLog.warning("Failed to find IOVDbGlobalTag.")
     else:
         ##Patch for older hit files
         if 'DigitizedDetectors' not in metadatadict:
