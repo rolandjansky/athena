@@ -59,7 +59,7 @@ def snapshot_plotter(snapshot_data, plotname):
   rects2 = ax.barh(ind + width/2, snapshot_wall_times, width, label = 'Wall Time') 
   ax.set_xlabel('Time(ms)')
   ax.set_ylabel('Steps')
-  ax.set_title('Snapshot Level Monitoring')
+  ax.set_title('CPU & Wall Time Summary')
   ax.set_yticks(ind)
   ax.set_yticklabels(snapshot_steps)
   ax.legend()
@@ -136,14 +136,14 @@ def time_plotter(complevel_data, plotname):
     alpha=opacity,
     label='Wall Time')
 
-    plt.ylabel('Components',fontsize = 35)
+    plt.ylabel('Components',fontsize = 50)
     plt.xlabel('Time(ms)', fontsize = 35)
-    plt.title(step, fontsize = 40, fontweight = "bold")
+    plt.title(step, fontsize = 60, fontweight = "bold")
     plt.yticks(index + bar_width, sorted_components)
     plt.legend(prop={'size': 30})
     
-    ax.tick_params(axis='both', which='major', labelsize=30)
-    ax.tick_params(axis='both', which='minor', labelsize=30)
+    ax.tick_params(axis='both', which='major', labelsize=40)
+    ax.tick_params(axis='both', which='minor', labelsize=40)
 
 
     fig.set_tight_layout( True )
@@ -241,14 +241,14 @@ def mem_plotter(complevel_data, plotname):
     alpha=opacity,
     label='Swap')
 
-    plt.ylabel('Components',fontsize = 35)
-    plt.xlabel('Time(ms)', fontsize = 35)
-    plt.title(step, fontsize = 40, fontweight = "bold")
+    plt.ylabel('Components',fontsize = 50)
+    plt.xlabel('Memory Size(kB)', fontsize = 45)
+    plt.title(step, fontsize = 70, fontweight = "bold")
     plt.yticks(index + bar_width, sorted_components)
-    plt.legend(prop={'size': 30})
+    plt.legend(prop={'size': 60})
     
-    ax.tick_params(axis='both', which='major', labelsize=30)
-    ax.tick_params(axis='both', which='minor', labelsize=30)
+    ax.tick_params(axis='both', which='major', labelsize=40)
+    ax.tick_params(axis='both', which='minor', labelsize=40)
 
 
     fig.set_tight_layout( True )
@@ -271,3 +271,6 @@ with open( result_file ) as json_file:
 
   memMon_serial_data = data['MemMon_Serial']
   mem_plotter(memMon_serial_data, 'MemMon_Serial.pdf')
+
+  memMon_parallel_data = data['MemMon_Parallel']
+  mem_plotter(memMon_parallel_data, 'MemMon_Parallel.pdf')
