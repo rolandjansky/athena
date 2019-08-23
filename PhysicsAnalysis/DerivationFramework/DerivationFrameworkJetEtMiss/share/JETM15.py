@@ -391,11 +391,11 @@ JETM15SlimmingHelper.ExtraVariables.append('JetETMissChargedParticleFlowObjects.
 
 JETM15SlimmingHelper.AppendToDictionary["CSSKUFO"] = 'xAOD::TrackCaloClusterContainer'
 JETM15SlimmingHelper.AppendToDictionary['CSSKUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM15SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.taste' ]
+JETM15SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.m.taste' ]
 
 JETM15SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
 JETM15SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM15SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.taste' ]
+JETM15SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.m.taste' ]
 
 
 JETM15SlimmingHelper.AppendToDictionary["CSSKChargedParticleFlowObjects"]='xAOD::PFOContainer'
