@@ -134,11 +134,11 @@ JETM13SlimmingHelper.ExtraVariables = [
 
 JETM13SlimmingHelper.AppendToDictionary["CHSUFO"] = 'xAOD::TrackCaloClusterContainer'
 JETM13SlimmingHelper.AppendToDictionary['CHSUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM13SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.taste' ]
+JETM13SlimmingHelper.ExtraVariables +=[ 'CHSUFO.pt.eta.phi.m.taste' ]
 
 JETM13SlimmingHelper.AppendToDictionary["CSSKUFO"] = 'xAOD::TrackCaloClusterContainer'
 JETM13SlimmingHelper.AppendToDictionary['CSSKUFOAux'] = 'xAOD::TrackCaloClusterAuxContainer'
-JETM13SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.taste' ]
+JETM13SlimmingHelper.ExtraVariables +=[ 'CSSKUFO.pt.eta.phi.m.taste' ]
 
 
 for truthc in [

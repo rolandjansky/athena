@@ -422,7 +422,7 @@ StatusCode UFOTool::fillTCC(xAOD::TrackCaloClusterContainer* tccContainer, const
       tccContainer->push_back(tcc);
       ElementLink< xAOD::PFOContainer > pfoLink(m_pfoPrefix+"ChargedParticleFlowObjects",i);
       const std::vector< ElementLink<xAOD::PFOContainer> > PFOLink {pfoLink};
-      tcc->setParameters(pfo->pt(), pfo->eta(), pfo->phi(), pfo->m(), xAOD::TrackCaloCluster::Taste::Neutral, ElementLink<xAOD::TrackParticleContainer>(), PFOLink);
+      tcc->setParameters(pfo->pt(), pfo->eta(), pfo->phi(), pfo->m(), xAOD::TrackCaloCluster::Taste::Charged, ElementLink<xAOD::TrackParticleContainer>(), PFOLink);
     }
   } // for all charged PFO
 
