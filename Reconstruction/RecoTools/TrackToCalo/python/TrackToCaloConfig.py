@@ -30,7 +30,7 @@ def ParticleCaloCellAssociationToolCfg(flags, **kwargs):
         acc.merge(pcExtrapToolAcc)
 
     # should this be a more global flag? It depends on whether you are in AOD
-    kwargs.setdefault("CaloCellContainer", flag.Egamma.Keys.Input.CaloCells)
+    kwargs.setdefault("CaloCellContainer", flags.Egamma.Keys.Input.CaloCells)
 
     cellAssocTool = Rec__ParticleCaloCellAssociationTool(**kwargs)
 
