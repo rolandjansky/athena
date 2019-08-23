@@ -185,7 +185,6 @@ def MooTrackFitter(name="MooTrackFitter", extraFlags=None, **kwargs):
     kwargs.setdefault("Propagator",      "MuonPropagator")
     kwargs.setdefault("SLFit" ,          not jobproperties.BField.allToroidOn())
     kwargs.setdefault("ReducedChi2Cut",  muonStandaloneFlags.Chi2NDofCut())
-    kwargs.setdefault("FitEtaStrips",    True)
     kwargs.setdefault("SegmentMomentum", "MuonSegmentMomentumFromField")
     kwargs.setdefault("CleanPhiHits",              True)
     kwargs.setdefault("UsePreciseHits",            True)
