@@ -54,14 +54,14 @@ def firstSimCreatedBarcode():
     # Is there a better way of doing this test?
     from AthenaCommon.AppMgr import theApp
     if getattr (theApp, 'EvtSel', None) == 'McEventSelector/EventSelector':
-        print 'Generator job: leaving SimBarcodeOffset at 200k'
+        mlog.info('Generator job: leaving SimBarcodeOffset at 200k')
 
     else:
         from RecExConfig.InputFilePeeker import inputFileSummary
         try:
             offset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
-        except:
-            print 'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k'
+        except Exception:
+            mlog.info('Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k')
     return int(offset + 1)
 
 
@@ -71,7 +71,6 @@ def getMCTruthClassifier(name="MCTruthClassifier", **kwargs):
     return CfgMgr.MCTruthClassifier(name, **kwargs)
 
 def getJetMCTruthClassifier(name="JetMCTruthClassifier", **kwargs):
-    from AthenaCommon import CfgMgr
     kwargs.setdefault("ParticleCaloExtensionTool","")
     return getMCTruthClassifier(name, **kwargs)
 
