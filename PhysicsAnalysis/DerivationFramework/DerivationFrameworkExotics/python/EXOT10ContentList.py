@@ -6,9 +6,10 @@ EXOT10SmartContent = [
 	"Electrons",
 	"PrimaryVertices",
 	"InDetTrackParticles",
-	"BTagging_AntiKt4EMTopo",
 	"TauJets",
 	"AntiKt4EMTopoJets",
+	"AntiKt4EMTopoJets_BTagging201810",
+	"BTagging_AntiKt4EMTopo_201810",
     "MET_Reference_AntiKt4EMTopo"
 ]
 
