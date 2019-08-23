@@ -281,8 +281,19 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::overlappingTracks(Tracks
   }
 
   // now loop as long as map is not empty
-  for( auto pixelTrackItem : setOfPixelClustersToTrackAssoc )
-  {
+    std::vector< std::pair< const InDet::PixelCluster*, const Trk::Track* > > sorted;
+    sorted.reserve( setOfPixelClustersToTrackAssoc.size() );
+    for( const std::pair< const InDet::PixelCluster*, const Trk::Track* > &pixelTrackItem : setOfPixelClustersToTrackAssoc ) {
+      sorted.push_back( pixelTrackItem );
+    }
+    std::sort( sorted.begin(), sorted.end(), [](const std::pair< const InDet::PixelCluster*, const Trk::Track* > &a,
+                                                const std::pair< const InDet::PixelCluster*, const Trk::Track* > &b) {
+                 return a.first->getHashAndIndex().collHash() < b.first->getHashAndIndex().collHash()
+                   || ( a.first->getHashAndIndex().collHash() == b.first->getHashAndIndex().collHash()
+                        &&  a.first->getHashAndIndex().objIndex() < b.first->getHashAndIndex().objIndex() );
+      });
+    //  for( auto pixelTrackItem : setOfPixelClustersToTrackAssoc )
+    for (const std::pair< const InDet::PixelCluster*, const Trk::Track* >  &pixelTrackItem :  sorted) {
     ATH_MSG_VERBOSE ("---- Checking if track shares pixel hits if other tracks: " << pixelTrackItem.first << " with R " << pixelTrackItem.first->globalPosition().perp() );
 
     // find out how many tracks use this hit already
