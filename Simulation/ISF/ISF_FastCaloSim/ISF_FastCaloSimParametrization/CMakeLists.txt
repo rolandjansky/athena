@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           GaudiKernel
                           LArCalorimeter/LArElecCalib
-			  LArCalorimeter/LArGeoModel
                           Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Simulation/ISF/ISF_FastCaloSim/ISF_FastCaloSimEvent
@@ -28,7 +27,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloTrackingGeometry
                           Simulation/G4Sim/TrackRecord
-                          Simulation/G4SimCnv/G4SimTPCnv
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/GeoModel/GeoAdaptors
                           DetectorDescription/GeoModel/GeoModelInterfaces
