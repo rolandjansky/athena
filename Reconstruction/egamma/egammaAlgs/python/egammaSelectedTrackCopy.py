@@ -26,11 +26,11 @@ egammaSelectedTrackCopy = AlgFactory( egammaAlgsConf.egammaSelectedTrackCopy,
                                       TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
                                       minNoSiHits=4,
                                       broadDeltaEta=0.1,   # this is multiplied by 2 for the Candidate Match , so +- 0.2 in eta
-                                      broadDeltaPhi=0.15,   # this is multiplied by 2 for the Candidate Match , so +- 0.3 in phi
+                                      broadDeltaPhi=0.175,  # this is multiplied by 2 for the Candidate Match , so +- 0.35 in phi
                                       narrowDeltaEta=0.05, 
                                       #These have to be relaxed enough for the conversions
                                       narrowDeltaPhi=0.05,   
-                                      narrowDeltaPhiBrem=0.20, #Dominated by the needs of assymetric conversions
+                                      narrowDeltaPhiBrem=0.25, #Dominated by the needs of assymetric conversions
                                       narrowDeltaPhiRescale=0.05,  
                                       narrowDeltaPhiRescaleBrem=0.1,
                                       egammaCaloClusterSelector = egammaCaloClusterGSFSelector
