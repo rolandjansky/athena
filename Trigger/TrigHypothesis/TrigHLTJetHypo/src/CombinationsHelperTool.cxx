@@ -27,8 +27,8 @@ StatusCode CombinationsHelperTool::initialize() {
   }  
   m_conditions = std::move(*opt_conditions);
   
-  m_grouper  = std::move(m_config->getJetGrouper());
-  m_matcher = std::move(m_config->getMatcher());
+  m_grouper  = m_config->getJetGrouper();
+  m_matcher = m_config->getMatcher();
 
   return StatusCode::SUCCESS;
 }
