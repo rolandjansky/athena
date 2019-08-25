@@ -77,10 +77,10 @@ public:
 
   /** Method to return the cashed state object - it performs a reweighting before returning the object based on the
    * valid and invaid weights */
-  virtual MultiComponentState* assembledState(Cache& cache) const = 0;
+  virtual std::unique_ptr<MultiComponentState> assembledState(Cache& cache) const = 0;
 
   /** Method to return the cashed state object - it performs a reweighting based on the input parameter  */
-  virtual MultiComponentState* assembledState(Cache& cache, const double) const = 0;
+  virtual std::unique_ptr<MultiComponentState> assembledState(Cache& cache, const double) const = 0;
 };
 } // End Trk namepace
 

@@ -159,7 +159,7 @@ Trk::MultiComponentStateAssembler::prepareStateForAssembly(Cache& cache) const
   return true;
 }
 
-Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::MultiComponentStateAssembler::assembledState(Cache& cache) const
 {
 
@@ -170,13 +170,13 @@ Trk::MultiComponentStateAssembler::assembledState(Cache& cache) const
   }
   if (cache.invalidWeightSum > 0. || cache.validWeightSum <= 0.) {
     double totalWeight = cache.validWeightSum + cache.invalidWeightSum;
-    Trk::MultiComponentState* stateAssembly = doStateAssembly(cache, totalWeight);
+    std::unique_ptr<Trk::MultiComponentState> stateAssembly = doStateAssembly(cache, totalWeight);
     return stateAssembly;
   }
   return doStateAssembly(cache, cache.validWeightSum);
 }
 
-Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::MultiComponentStateAssembler::assembledState(Cache& cache, const double newWeight) const
 {
 
@@ -186,19 +186,16 @@ Trk::MultiComponentStateAssembler::assembledState(Cache& cache, const double new
     ATH_MSG_DEBUG("Unable to prepare state for assembly... returing nullptr \n");
     return nullptr;
   }
-  Trk::MultiComponentState* stateAssembly = doStateAssembly(cache, newWeight);
-  return stateAssembly;
+  return doStateAssembly(cache, newWeight);
 }
 
-Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double newWeight) const
 {
-
   if (!isStateValid(cache)) {
     ATH_MSG_DEBUG("Cached state is empty... returning 0 \n");
     return nullptr;
   }
-
   if (cache.validWeightSum <= 0.) {
     ATH_MSG_DEBUG("Cached state has a invalid weight -- setting all weights equal : " << cache.validWeightSum);
     if (!cache.multiComponentState.empty()) {
@@ -207,7 +204,7 @@ Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double ne
         component.second = fixedWeights;
       }
     }
-    Trk::MultiComponentState* assembledState = new Trk::MultiComponentState();
+    std::unique_ptr<Trk::MultiComponentState> assembledState = std::make_unique<Trk::MultiComponentState>();
     for (auto& component : cache.multiComponentState) {
       Trk::ComponentParameters cp(component.first.release(), component.second);
       assembledState->push_back(cp);
@@ -218,14 +215,14 @@ Trk::MultiComponentStateAssembler::doStateAssembly(Cache& cache, const double ne
     return assembledState;
   }
 
-  Trk::MultiComponentState* assembledState = new Trk::MultiComponentState();
+  std::unique_ptr<Trk::MultiComponentState> assembledState = std::make_unique<Trk::MultiComponentState>();
   double scalingFactor = cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1.;
   for (auto& component : cache.multiComponentState) {
     Trk::ComponentParameters cp(component.first.release(), component.second * scalingFactor);
     assembledState->push_back(cp);
   }
 
-  // Reset the cashe before leaving
+  // Reset the cache before leaving
   this->reset(cache);
 
   ATH_MSG_DEBUG("Assembeled state created with size: " << assembledState->size());

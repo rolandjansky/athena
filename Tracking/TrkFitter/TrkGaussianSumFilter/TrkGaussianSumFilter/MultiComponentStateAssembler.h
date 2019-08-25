@@ -55,32 +55,32 @@ public:
   /** Print the status of the assembler */
   virtual void status(const Cache& cache) const override final;
 
-  /** Method to add a single set of Trk::ComponentParameters to the cashed Trk::MultiComponentState object under
+  /** Method to add a single set of Trk::ComponentParameters to the cached Trk::MultiComponentState object under
    * construction */
   virtual bool addComponent(Cache& cache, SimpleComponentParameters&&) const override final;
 
-  /** Method to add a new Trk::MultiComponentState to the cashed Trk::MultiComponentState onject under construction */
+  /** Method to add a new Trk::MultiComponentState to the cached Trk::MultiComponentState onject under construction */
   virtual bool addMultiState(Cache& cache, SimpleMultiComponentState&&) const override final;
 
   /** Method to include the weights of states that are invalid */
   virtual bool addInvalidComponentWeight(Cache& cache, const double) const override final;
 
-  /** Method to return the cashed state object - it performs a reweighting before returning the object based on the
+  /** Method to return the cached state object - it performs a reweighting before returning the object based on the
    * valid and invaid weights */
-  virtual MultiComponentState* assembledState(Cache& cache) const override final;
+  virtual std::unique_ptr<MultiComponentState> assembledState(Cache& cache) const override final;
 
-  /** Method to return the cashed state object - it performs a reweighting based on the input parameter  */
-  virtual MultiComponentState* assembledState(Cache& cache, const double) const override final;
+  /** Method to return the cached state object - it performs a reweighting based on the input parameter  */
+  virtual std::unique_ptr<MultiComponentState> assembledState(Cache& cache, const double) const override final;
 
 private:
   /** Method to Check component entries before full assembly */
   bool prepareStateForAssembly(Cache& cache) const;
 
   /** Method to assemble state with correct weightings */
-  MultiComponentState* doStateAssembly(Cache& cache, const double) const;
+  std::unique_ptr<MultiComponentState> doStateAssembly(Cache& cache, const double) const;
 
-  /** Method to check the validity of of the cashed state */
-  bool isStateValid(Cache& cache) const;
+  /** Method to check the validity of of the cached state */
+  bool isStateValid(const Cache& cache) const;
 
   // Private data members
   Gaudi::Property<double> m_minimumFractionalWeight{ this,
@@ -92,7 +92,7 @@ private:
 } // End Trk namepace
 
 inline bool
-Trk::MultiComponentStateAssembler::isStateValid(Cache& cache) const
+Trk::MultiComponentStateAssembler::isStateValid(const Cache& cache) const
 {
   return !cache.multiComponentState.empty();
 }

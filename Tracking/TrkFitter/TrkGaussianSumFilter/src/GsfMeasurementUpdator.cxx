@@ -242,7 +242,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
 
   delete stateWithNewWeights;
 
-  Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState(cache);
+  std::unique_ptr<Trk::MultiComponentState> assembledUpdatedState = m_stateAssembler->assembledState(cache);
 
   if (!assembledUpdatedState) {
     return nullptr;
@@ -250,7 +250,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
   // Renormalise state
   assembledUpdatedState->renormaliseState();
 
-  return assembledUpdatedState;
+  return assembledUpdatedState.release();
 }
 
 const Trk::MultiComponentState*
@@ -394,7 +394,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
 
   delete stateWithNewWeights;
 
-  Trk::MultiComponentState* assembledUpdatedState = m_stateAssembler->assembledState(cache);
+  std::unique_ptr<Trk::MultiComponentState> assembledUpdatedState = m_stateAssembler->assembledState(cache);
 
   if (!assembledUpdatedState){
     return nullptr;
@@ -404,7 +404,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(const Trk::MultiComponentState& 
   // Renormalise state
   assembledUpdatedState->renormaliseState();
   ATH_MSG_VERBOSE("Successful calculation of filter step: " << assembledUpdatedState->size());
-  return assembledUpdatedState;
+  return assembledUpdatedState.release();
 }
 
 bool
