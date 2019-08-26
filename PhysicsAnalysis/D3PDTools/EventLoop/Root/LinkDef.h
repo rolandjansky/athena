@@ -29,7 +29,7 @@
 #pragma link C++ class EL::MetricsSvc+;
 #pragma link C++ class EL::SlurmDriver+;
 #pragma link C++ class EL::SoGEDriver+;
-#pragma link C++ class EL::StatusCode+;
+#pragma link C++ typedef EL::StatusCode+;
 #pragma link C++ class EL::TorqueDriver+;
 #pragma link C++ class EL::VomsProxySvc+;
 #pragma link C++ class EL::IWorker+;
