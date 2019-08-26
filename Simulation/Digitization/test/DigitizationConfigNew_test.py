@@ -19,7 +19,7 @@ from MDT_Digitization.MDT_DigitizationConfigNew import MDT_DigitizerDigitToRDOCf
 from TGC_Digitization.TGC_DigitizationConfigNew import TGC_DigitizerDigitToRDOCfg
 from RPC_Digitization.RPC_DigitizationConfigNew import RPC_DigitizerDigitToRDOCfg
 from CSC_Digitization.CSC_DigitizationConfigNew import CSC_DigitBuilderDigitToRDOCfg
-from LArDigitization.LArDigitizationConfigNew import LArDigitMakerCfg
+from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
 from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 
 # Set up logging and new style config
@@ -44,7 +44,7 @@ acc.merge(MDT_DigitizerDigitToRDOCfg(ConfigFlags))
 acc.merge(TGC_DigitizerDigitToRDOCfg(ConfigFlags))
 acc.merge(RPC_DigitizerDigitToRDOCfg(ConfigFlags))
 acc.merge(CSC_DigitBuilderDigitToRDOCfg(ConfigFlags))
-acc.merge(LArDigitMakerCfg(ConfigFlags))
+acc.merge(LArTriggerDigitizationCfg(ConfigFlags))
 acc.merge(TileDigitizationCfg(ConfigFlags))
 acc.merge(TileTriggerDigitizationCfg(ConfigFlags))
 # Dump config
