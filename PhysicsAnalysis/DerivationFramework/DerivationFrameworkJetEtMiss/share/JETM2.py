@@ -159,6 +159,13 @@ reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,jetm2Seq,"JETM2")
 
+
+#======================================= 
+# SCHEDUKE BTAGGING FOR PFLOW JETS
+#======================================= 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=jetm2Seq)
+
 #=======================================
 # SCHEDULE CUSTOM MET RECONSTRUCTION
 #=======================================
@@ -181,7 +188,12 @@ JETM2SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         ]
 JETM2SlimmingHelper.AllVariables = ["MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",

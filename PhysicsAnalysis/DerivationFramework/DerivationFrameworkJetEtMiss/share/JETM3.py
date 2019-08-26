@@ -210,6 +210,12 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 applyPFOAugmentation(DerivationFrameworkJob)
 
+#=======================================
+# BTAGGING INFO FOR PFLOW JET
+#=======================================
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm3Seq)
+
 # QGTaggerTool ###
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm3Seq, algname="QGTaggerToolAlg")
 
@@ -229,7 +235,12 @@ JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt2LCTopoJets", "AntiKt6LCTopoJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKt4EMTopo_201810",
 					]
 JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",

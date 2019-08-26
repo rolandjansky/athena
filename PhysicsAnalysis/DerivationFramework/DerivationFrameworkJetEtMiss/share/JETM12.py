@@ -24,7 +24,7 @@ andstr = ' && '
 trackRequirements = '(InDetTrackParticles.pt > 10.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
 trackRequirementsMu = '(InDetTrackParticles.pt > 70.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
 trackRequirementsTtbar = '(InDetTrackParticles.pt > 25.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
-jetRequirementsTtbar = '( AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV && BTagging_AntiKt4EMTopo.MV2c10_discriminant > 0.11 )'
+jetRequirementsTtbar = '( AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV && BTagging_AntiKt4EMTopo_201810.MV2c10_discriminant > 0.11 )'
 expressionW = '( (' + orstr.join(metTriggers) + ' )' + andstr + '( count('+trackRequirements+') >=1 ) )'
 expressionMu = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+trackRequirementsMu+') >=1 ) )'
 expressionTtbar = '( (' + orstr.join(muTriggers) + ' )' + andstr + '( count('+trackRequirementsTtbar+') >=1 )' + andstr + '( count('+trackRequirements+') >=2 )' + andstr + '( count('+jetRequirementsTtbar+') >=1 ) )'
@@ -224,7 +224,12 @@ JETM12SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJe
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthJets",
-                                        "BTagging_AntiKt4EMTopo","BTagging_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         ]
 JETM12SlimmingHelper.AllVariables = ["MuonTruthParticles","TruthParticles", "TruthEvents", "TruthVertices",
                                     "MuonSegments","InDetTrackParticles",
@@ -232,7 +237,5 @@ JETM12SlimmingHelper.AllVariables = ["MuonTruthParticles","TruthParticles", "Tru
                                     "TruthMuons","TruthElectrons","TruthPhotons","TruthTaus","TruthNeutrinos",
                                     ]
 JETM12SlimmingHelper.ExtraVariables = ["InDetTrackParticles.TrkIsoPt1000_ptcone40.TrkIsoPt1000_ptcone30.TrkIsoPt1000_ptcone20.TrkIsoPt500_ptcone40.TrkIsoPt500_ptcone30.TrkIsoPt500_ptcone20"]
-
-JETM12SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
 
 JETM12SlimmingHelper.AppendContentToStream(JETM12Stream)

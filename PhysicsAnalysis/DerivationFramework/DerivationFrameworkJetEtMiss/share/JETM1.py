@@ -140,6 +140,10 @@ from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
 jetm1Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 jetm1Seq += defineEDAlg(R=0.4, inputtype="EMPFlowNeut")
 
+#SCHEDULE BTAGGING FOR PFLOW JETS
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=jetm1Seq)
+
 OutputJets["JETM1"] = []
 
 #=======================================
@@ -153,18 +157,6 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
 addTCCTrimmedJets(jetm1Seq,"JETM1")
-addCSSKSoftDropJets(jetm1Seq, "JETM1")
-
-if DerivationFrameworkIsMonteCarlo:
-  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=0.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
-  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=0.5, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
-  addSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.1, mods="truth_groomed", algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True)
-
-addConstModJets("AntiKt", 1.0, "LCTopo", ["CS", "SK"], jetm1Seq, "JETM1", ptmin=40000, ptminFilter=50000, mods="lctopo_ungroomed")
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=0.5, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
-addSoftDropJets("AntiKt", 1.0, "LCTopo", beta=1.0, zcut=0.1, algseq=jetm1Seq, outputGroup="JETM1", writeUngroomed=True, mods="lctopo_groomed", constmods=["CS", "SK"])
-
 
 # Add jets with constituent-level pileup suppression
 addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK"],jetm1Seq,"JETM1",
@@ -194,18 +186,6 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM1SlimmingHelper = SlimmingHelper("JETM1SlimmingHelper")
 JETM1SlimmingHelper.AppendToDictionary = {
-    "AntiKt10LCTopoCSSKSoftDropBeta0Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10LCTopoCSSKSoftDropBeta0Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10LCTopoCSSKSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-    "AntiKt10TruthSoftDropBeta0Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10TruthSoftDropBeta0Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-    "AntiKt10TruthSoftDropBeta50Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10TruthSoftDropBeta50Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
-    "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
-    "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
     "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
     "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
     "Kt4EMPFlowNeutEventShape": "xAOD::EventShape"    ,
@@ -217,26 +197,19 @@ JETM1SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "Primar
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-                                        "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt2Track",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         ]
-
-# Add all variabless for VR track-jets
-JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta0Zcut10Jets"]
-JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta50Zcut10Jets"]
-JETM1SlimmingHelper.AllVariables  += ["AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"]
 
 # Add QG tagger variables
 JETM1SlimmingHelper.ExtraVariables  += ["AntiKt4EMTopoJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1",
                                         "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1"]
 
 JETM1SlimmingHelper.ExtraVariables  += ["InDetTrackParticles.truthMatchProbability"]
-
-if DerivationFrameworkIsMonteCarlo:
-
-  JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta0Zcut10Jets"]
-  JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta50Zcut10Jets"]
-  JETM1SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
 
 JETM1SlimmingHelper.AllVariables = [ "MuonTruthParticles", "egammaTruthParticles",
                                      "TruthParticles", "TruthEvents", "TruthVertices",
