@@ -235,16 +235,22 @@ SeqSUSY10 += CfgMgr.DerivationFramework__DerivationKernel(
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY10SlimmingHelper = SlimmingHelper("SUSY10SlimmingHelper")
 SUSY10SlimmingHelper.SmartCollections = ["Electrons","Photons","MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-"Muons","AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
- "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
- "InDetTrackParticles", "PrimaryVertices",
+                                         "MET_Reference_AntiKt4EMPFlow",
+                                         "Muons","AntiKt4EMTopoJets",
+                                         "AntiKt4EMPFlowJets",
+                                         #"BTagging_AntiKt4EMTopo",
+                                         #"BTagging_AntiKt4EMPFlow",
+                                         "AntiKt4EMPFlowJets_BTagging201810",
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+                                         "BTagging_AntiKt4EMPFlow_201810",
+                                         "BTagging_AntiKt4EMPFlow_201903",
+                                         "AntiKt4EMTopoJets_BTagging201810",
+                                         "BTagging_AntiKt4EMTopo_201810",
+                                         "InDetTrackParticles", "PrimaryVertices",
                                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 # BTagging_AntiKt4Track no longer supported in R21, replaced with BTagging_AntiKt2Track for now
-SUSY10SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt2PV0TrackJets", "BTagging_AntiKt2Track", "MET_Track"]
-SUSY10SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
+SUSY10SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt2PV0TrackJets",  "MET_Track"]#"BTagging_AntiKt2Track",
+SUSY10SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
                                        "Muons.etcone30.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
                                        "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.HadronConeExclTruthLabelID.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.DFCommonJets_jetClean_VeryLooseBadLLP",
                                        "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",

@@ -288,7 +288,9 @@ SUSY12SlimmingHelper.SmartCollections = [
                                          "TauJets",
                                          "PrimaryVertices",
                                          "MET_Reference_AntiKt4EMTopo",
-                                         "BTagging_AntiKt4EMTopo",
+                                         #"BTagging_AntiKt4EMTopo",
+                                         "AntiKt4EMTopoJets_BTagging201810",
+                                         "BTagging_AntiKt4EMTopo_201810",
                                          "InDetTrackParticles"
                                          ] #,  "BTagging_AntiKt4Track"
 
@@ -321,7 +323,7 @@ SUSY12SlimmingHelper.ExtraVariables = [
                                        "Photons.author.Loose.Tight",
                                        #"TruthTaus.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink",
                                        #"TruthVertices.id.barcode.incomingParticleLinks.outgoingParticleLinks.x.y.z.t",
-                                       #"BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
+                                       #"BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
                                        #'Electrons.author.Medium.Tight.Loose.charge',
                                        #'Muons.ptcone20.ptcone30.ptcone40.etcone20.etcone30.etcone40',
                                        ##"Muons.etcone30.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",

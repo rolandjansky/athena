@@ -251,24 +251,41 @@ SeqSUSY3 += CfgMgr.DerivationFramework__DerivationKernel(
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY3SlimmingHelper = SlimmingHelper("SUSY3SlimmingHelper")
-SUSY3SlimmingHelper.SmartCollections = ["Electrons","Photons","Muons","MET_Reference_AntiKt4EMTopo", "MET_Reference_AntiKt4EMPFlow", "TauJets","AntiKt4EMTopoJets",
-                                        "AntiKt4EMPFlowJets", "BTagging_AntiKt4EMTopo","BTagging_AntiKt4EMPFlow", "InDetTrackParticles", "PrimaryVertices",
+SUSY3SlimmingHelper.SmartCollections = ["Electrons",
+                                        "Photons",
+                                        "Muons",
+                                        "MET_Reference_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "TauJets",
+                                        "AntiKt4EMTopoJets",
+                                        "AntiKt4EMPFlowJets",
+#                                        "BTagging_AntiKt4EMTopo",
+#                                        "BTagging_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "InDetTrackParticles",
+                                        "PrimaryVertices",
                                         "AntiKt4TruthJets"]
 SUSY3SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
-SUSY3SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
-                                      "Electrons.author.charge.ptcone20.truthOrigin.truthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthType.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId",
-                                      "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
-                                      "Photons.author.Loose.Tight",
-                                      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width.DFCommonJets_jetClean_VeryLooseBadLLP",
-                                      "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-                                      "InDetTrackParticles.truthOrigin.truthType",
-                                      "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-                                      "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
-                                      "TauJets.IsTruthMatched.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose",
-                                      "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
-                                      "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
-                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant"
-                                      ]
+SUSY3SlimmingHelper.ExtraVariables = [
+  "BTagging_AntiKt4EMTopo_201810.MV1_discriminant.MV1c_discriminant",
+  "Electrons.author.charge.ptcone20.truthOrigin.truthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthType.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId",
+  "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
+  "Photons.author.Loose.Tight",
+  "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width.DFCommonJets_jetClean_VeryLooseBadLLP",
+  "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+  "InDetTrackParticles.truthOrigin.truthType",
+  "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+  "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
+  "TauJets.IsTruthMatched.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose",
+  "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
+  "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
+  "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant"
+  ]
 
 #"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
 

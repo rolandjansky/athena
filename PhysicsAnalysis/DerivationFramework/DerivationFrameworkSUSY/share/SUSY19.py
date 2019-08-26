@@ -382,15 +382,22 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSUSY.SUSY19ContentList import *
 SUSY19SlimmingHelper = SlimmingHelper("SUSY19SlimmingHelper")
 SUSY19SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons","AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
- "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
- "PrimaryVertices","BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
- "MET_Reference_AntiKt4EMTopo",
- "MET_Reference_AntiKt4EMPFlow",
- "InDetTrackParticles"
- ]
+                                         "AntiKt4EMPFlowJets",
+                                         "MET_Reference_AntiKt4EMTopo",
+                                         "MET_Reference_AntiKt4EMPFlow",
+                                         "PrimaryVertices",
+                                         #"BTagging_AntiKt4EMTopo",
+                                         #"BTagging_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                         "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                         "MET_Reference_AntiKt4EMTopo",
+                                         "MET_Reference_AntiKt4EMPFlow",
+                                         "InDetTrackParticles"
+                                         ]
 
 SUSY19SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth",
  "MET_Core_AntiKt4EMTopo","METAssoc_AntiKt4EMTopo", "InDetPixelPrdAssociationTrackParticles"]

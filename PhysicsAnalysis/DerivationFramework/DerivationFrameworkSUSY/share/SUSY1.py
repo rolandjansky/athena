@@ -393,18 +393,21 @@ SUSY1SlimmingHelper = SlimmingHelper("SUSY1SlimmingHelper")
 SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         "AntiKt4EMTopoJets",
                                         "AntiKt4EMPFlowJets",
-
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
-
                                         "Muons",
                                         "TauJets",
-                                        "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt4EMPFlow",
-
                                         "InDetTrackParticles",
                                         "PrimaryVertices",
-                                        "BTagging_AntiKt2Track",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
+#                                        "BTagging_AntiKt4EMTopo",
+#                                        "BTagging_AntiKt4EMPFlow",
+#                                        "BTagging_AntiKt2Track",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY1SlimmingHelper.AllVariables = [
   "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt4TruthDressedWZJets", "AntiKtVR30Rmax4Rmin02TrackJets",
