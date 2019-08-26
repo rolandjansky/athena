@@ -113,7 +113,7 @@ void TFCS1DFunction::unit_test(TH1* hist,TFCS1DFunction* rtof,int nrnd,TH1* hist
     std::cout<<"rnd0="<<rnd[0]<<" -> x="<<value[0]<<std::endl;
   }
 
-  TH1* hist_val;
+  TH1* hist_val=nullptr;
   if(histfine) hist_val=(TH1*)histfine->Clone(TString(hist->GetName())+"hist_val");
    else hist_val=(TH1*)hist->Clone(TString(hist->GetName())+"hist_val");
   double weightfine=hist_val->Integral()/nrnd;
@@ -142,7 +142,6 @@ void TFCS1DFunction::unit_test(TH1* hist,TFCS1DFunction* rtof,int nrnd,TH1* hist
     float val=hist_diff->GetBinContent(ix);
     float err=hist_diff->GetBinError(ix);
     if(err>0) hist_pull->Fill(val/err);
-    //std::cout<<"x="<<hist->GetBinCenter(ix)<<" : pull val="<<val<<" err="<<err<<std::endl;
   }
   
 //Screen output in athena won't make sense and would require linking of additional libraries

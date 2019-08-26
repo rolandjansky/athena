@@ -276,6 +276,9 @@ StatusCode EgammaMonitoring::execute() {
   // Retrieve things from the event store
   const xAOD::EventInfo *eventInfo = nullptr;
   ANA_CHECK(evtStore()->retrieve(eventInfo, "EventInfo"));
+  const float mu = eventInfo->averageInteractionsPerCrossing();
+
+ 
 
   // Retrieve egamma truth particles
   const xAOD::TruthParticleContainer *egTruthParticles = nullptr;
@@ -325,9 +328,9 @@ StatusCode EgammaMonitoring::execute() {
 
       if (!electron) continue;
 
-      clusterPromptAll->fill(*electron);
+      clusterPromptAll->fill(*electron,mu);
       if (egtruth->pt() > 10*Gaudi::Units::GeV) {
-        clusterPrompt10GeV->fill(*electron);
+        clusterPrompt10GeV->fill(*electron,mu);
       }
      
 
@@ -502,9 +505,9 @@ StatusCode EgammaMonitoring::execute() {
     for (auto elrec : *RecoEl) {
 
       if (!elrec) continue;
-      clusterAll->fill(*elrec);
+      clusterAll->fill(*elrec,mu);
       if (elrec->pt() > 10*Gaudi::Units::GeV) {
-        cluster10GeV->fill(*elrec);
+        cluster10GeV->fill(*elrec,mu);
       }
       recoElectronAll->fill(*elrec);
       showerShapesAll->fill(*elrec);
@@ -579,9 +582,9 @@ StatusCode EgammaMonitoring::execute() {
       recoPhotonAll->fill(*phrec);
       isolationAll->fill(*phrec);
       showerShapesAll->fill(*phrec);
-      clusterAll->fill(*phrec);
+      clusterAll->fill(*phrec,mu);
       if (phrec->pt() > 10*Gaudi::Units::GeV) {
-        cluster10GeV->fill(*phrec);
+        cluster10GeV->fill(*phrec,mu);
       }
       if (phrec->pt() > 10*Gaudi::Units::GeV){ 
         showerShapes10GeV->fill(*phrec);
@@ -600,9 +603,9 @@ StatusCode EgammaMonitoring::execute() {
       if (!photon) continue;
 
       truthPhotonRecoPhoton->fill(*egtruth);
-      clusterPromptAll->fill(*photon);
+      clusterPromptAll->fill(*photon,mu);
       if (egtruth->pt() > 10*Gaudi::Units::GeV) {
-        clusterPrompt10GeV->fill(*photon);
+        clusterPrompt10GeV->fill(*photon,mu);
       }
 
       bool isRecoConv = xAOD::EgammaHelpers::isConvertedPhoton(photon);
@@ -616,23 +619,23 @@ StatusCode EgammaMonitoring::execute() {
 
           truthPhotonConvRecoConv->fill(*egtruth);
 
-          clusterConvPhoton->fill(*photon);
+          clusterConvPhoton->fill(*photon,mu);
 
           if (convType == xAOD::EgammaParameters::singleSi) {
             truthPhotonConvRecoConv1Si->fill(*egtruth);
-            clusterConvPhotonSi->fill(*photon);
+            clusterConvPhotonSi->fill(*photon,mu);
           } else if (convType == xAOD::EgammaParameters::singleTRT) {
             truthPhotonConvRecoConv1TRT->fill(*egtruth);
-            clusterConvPhotonTRT->fill(*photon);
+            clusterConvPhotonTRT->fill(*photon,mu);
           } else if (convType == xAOD::EgammaParameters::doubleSi) {
             truthPhotonConvRecoConv2Si->fill(*egtruth);
-            clusterConvPhotonSiSi->fill(*photon);
+            clusterConvPhotonSiSi->fill(*photon,mu);
           } else if (convType == xAOD::EgammaParameters::doubleTRT) {
             truthPhotonConvRecoConv2TRT->fill(*egtruth);
-            clusterConvPhotonTRTTRT->fill(*photon);
+            clusterConvPhotonTRTTRT->fill(*photon,mu);
           } else if (convType == xAOD::EgammaParameters::doubleSiTRT) {
             truthPhotonConvRecoConv2SiTRT->fill(*egtruth);
-            clusterConvPhotonSiTRT->fill(*photon); 
+            clusterConvPhotonSiTRT->fill(*photon,mu); 
           }
 
           if (m_IsoFixedCutTight->accept(*photon)) recoPhotonConvIsoFixedCutTight->fill(*egtruth);
@@ -641,7 +644,7 @@ StatusCode EgammaMonitoring::execute() {
         } // isRecoConv
         else {
           truthPhotonConvRecoUnconv->fill(*egtruth);
-          clusterUnconvPhoton->fill(*photon); 
+          clusterUnconvPhoton->fill(*photon,mu); 
         } 
 
       } //isTrueConv

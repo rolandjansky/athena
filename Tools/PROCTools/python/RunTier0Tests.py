@@ -701,7 +701,10 @@ def main():
             logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local setup area will not be considered!!!" %(cleanSetup, mysetup))
             logging.info("this option is mainly designed for comparing release versions!!")
         else:
-            list_patch_packages(ciMode)
+            try:
+                list_patch_packages(ciMode)
+            except:
+                logging.warning("Cannot list patch packages...\n")
 
 ########### Get unique name for the clean run directory
         UniqName = str(uuid.uuid4())
