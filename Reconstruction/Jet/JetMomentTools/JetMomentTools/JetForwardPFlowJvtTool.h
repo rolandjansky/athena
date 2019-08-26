@@ -107,9 +107,9 @@
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
     //std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_out;
     std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outFjvt;
-    CP::RetrievePFOTool *m_pfotool;
-    CP::WeightPFOTool *m_wpfotool;
-    JetCalibrationTool *m_pfoJES;
+    std::unique_ptr<CP::RetrievePFOTool> m_pfotool;
+    std::unique_ptr<CP::WeightPFOTool> m_wpfotool;
+    std::unique_ptr<JetCalibrationTool> m_pfoJES;
 
     int getPV() const;
     /// Default constructor:

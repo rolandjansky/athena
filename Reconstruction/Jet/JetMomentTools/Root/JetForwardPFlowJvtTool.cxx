@@ -80,17 +80,18 @@
   StatusCode JetForwardPFlowJvtTool::initialize()
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
-    if (m_tightOP) m_fjvtThresh = 0.4;
-    else m_fjvtThresh = 0.5;
+    if (m_tightOP) m_fjvtThresh = 0.53;
+    else m_fjvtThresh = 0.72;
     if (m_orLabel!="")  Dec_OR = std::make_unique<SG::AuxElement::Decorator<char> >(m_orLabel);
     Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
 
-    m_pfotool = new CP::RetrievePFOTool(m_pfoToolName);
+    m_pfotool = std::make_unique<CP::RetrievePFOTool>(m_pfoToolName);
     m_pfotool->initialize();
-    m_wpfotool = new CP::WeightPFOTool(m_wpfoToolName);
+
+    m_wpfotool = std::make_unique<CP::WeightPFOTool>(m_wpfoToolName);
     m_wpfotool->initialize();
 
-    m_pfoJES = new JetCalibrationTool(m_pfoJESName);
+    m_pfoJES= std::make_unique<JetCalibrationTool>(m_pfoJESName);
     m_pfoJES->setProperty("JetCollection",m_jetAlgo);
     m_pfoJES->setProperty("ConfigFile",m_caliconfig);
     m_pfoJES->setProperty("CalibSequence",m_calibSeq);
@@ -178,7 +179,6 @@
       m_pileupMomenta.push_back(-1*vertex_met);
       if(m_vertices!=-1 && vx->index()==m_vertices) break;
     }
-
   }
 
   bool JetForwardPFlowJvtTool::hasCloseByHSjet(const xAOD::Jet *jet, const xAOD::JetContainer *pjets ) const {
