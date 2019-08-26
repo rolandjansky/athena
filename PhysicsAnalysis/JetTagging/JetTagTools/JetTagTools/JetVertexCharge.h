@@ -41,7 +41,7 @@ namespace Analysis {
 
 //  class ParticleToJetAssociator;  
 
-  class JetVertexCharge : public AthAlgTool, virtual public ITagTool
+  class JetVertexCharge : public extends<AthAlgTool, ITagTool>
   {
 
     public:
@@ -51,14 +51,15 @@ namespace Analysis {
 
     virtual ~JetVertexCharge();  
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
-    void setOrigin( const xAOD::Vertex*); 
-    void finalizeHistos(); 
-    
+    virtual void finalizeHistos() override;
 
-    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag); 
+
+    virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag) const override;
 
 
   private:
@@ -71,7 +72,6 @@ namespace Analysis {
    SG::ReadCondHandleKey<JetTagCalibCondData> m_readKey{this, "HistosKey", "JetTagCalibHistosKey", "Key of input (derived) JetTag calibration data"};
    ToolHandle<CP::IMuonSelectionTool> m_muonSelectorTool;
    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCorrectionTool;
-   const xAOD::Vertex *m_primVtx = 0; 
 
 
    enum MVAcat {
@@ -117,61 +117,66 @@ namespace Analysis {
    int m_CutSharedHits;
 
    std::map<int, std::string> m_catNames;
-   std::map<std::string, TMVA::Reader*> m_tmvaReaders;
-   std::map<std::string, TMVA::MethodBase*> m_tmvaMethod;
-   std::list<std::string> m_undefinedReaders;
 
-   std::map< int, TH1F* > m_histoList_pos;
-   std::map< int, TH1F* > m_histoList_neg;
+   struct Vars
+   {
+     enum Var {
+       MU_PTREL,
+       MU_PTLONG,
+       MU_CHARGE,
+       MU_JET_DR,
+       MU_ISO_PTVAR40,
+       TVC,
+       DISTTV,
+       ERRTV,
+       MASSTV_KAONS,
+       NTRK1_USED,
+       SVC,
+       DISTSV,
+       ERRSV,
+       MASSSV_PIONS,
+       NTRK0,
+       TRACK_SV_PT,
+       JC,
+       TRACK_GOOD_PT,
+       NGOODTRK,
+       JET_UNCALIBRATED_PT,
+       JC_JETPT,
+       JC_ALL_JETPT,
+       SVC_JETPT,
+       TVC_JETPT,
+       JC_ALL,
+       MU_VTX,
+       NVARS
+     };
 
-   std::map<std::string, float*> m_variablePtr;
+     float m_v[NVARS];
 
-   float m_jet_uPt;
-   float m_jc_jetPt;
-   float m_jc_all_jetPt;
-   float m_svc_jetPt;
-   float m_tvc_jetPt;
-   
-   float m_jc;
-   float m_jc_all;
-   float m_svc;
-   float m_tvc;
+     Vars();
+     float& operator[] (Var v) { return m_v[v]; }
+     float& operator[] (const std::string& name);
+     float  operator[] (Var v) const { return m_v[v]; }
+     void clip (Var v, float max) { m_v[v] = std::min (m_v[v], max); }
+     void print(MsgStream& msg) const;
+     int category() const; 
 
-   float m_ngoodtrk;
-   float m_jc_track_pt; 
-
-   float m_sv_ntrk;
-   float m_sv_dist;
-   float m_sv_err;
-   float m_sv_track_pt;
-   float m_sv_mass_pions;
-
-   float m_tv_ntrk;
-   float m_tv_dist;
-   float m_tv_err;
-   float m_tv_mass_kaons; 
-
-   float m_mu_charge;
-   float m_mu_ptRel;
-   float m_mu_ptLong;
-   float m_mu_jet_dR;
-   float m_mu_iso;
-   float m_mu_vtx;
+     static const std::unordered_map<std::string, Var> s_namemap;
+   };
 
 
 //      methods
 //------------------------------------------------------------------------
 
-   void initializeVariablePtrs();
-   
-   bool passTrackCuts( const xAOD::TrackParticle &track ) const; 
+   bool passTrackCuts( const xAOD::Vertex& priVtx,
+                       const xAOD::TrackParticle &track ) const; 
 
-   int category(); 
-   float logLikelihoodRatio( int cat , float w, std::string author);
+   float logLikelihoodRatio( int cat , float w, std::string author) const;
 
-   StatusCode  SetupReaders( std::string author, std::string alias , int mvaCat, TList* list);
-   void PrintVariables();  
-   void ClearVars();  
+   std::unique_ptr<TMVA::MethodBase>
+   SetupReaders( Vars& vars,
+                 TMVA::Reader& reader,
+                 const std::string& author,
+                 const std::string& alias , int mvaCat, TList* list) const;
    std::string categoryToString(int cat) const;
 
    struct myVtxInfo{ 
@@ -191,7 +196,6 @@ namespace Analysis {
 
 };//end class declaration
 
-  inline void JetVertexCharge::setOrigin(const xAOD::Vertex* vtx) { m_primVtx = vtx; }
   inline void JetVertexCharge::finalizeHistos( ) {  return; }
 
 

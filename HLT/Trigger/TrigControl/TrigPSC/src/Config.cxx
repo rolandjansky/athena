@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -54,14 +54,15 @@ namespace
   }
 
   //////////////////////////////////////////////////////////////////////////////
-  string plevelToStr(const ptree& level, const string& delim = ";")
+  string plevelToStr(const ptree& level, const char delim = ';')
   {
     string ret;
     for(const auto& item : level)
     {
-      if(ret.size() != 0)
-        ret.append(delim);
-      ret.append(item.second.data());
+      if(!ret.empty() && ret.back() != delim) {
+        ret += delim;
+      }
+      ret += item.second.data();
     }
 
     return ret;
@@ -69,7 +70,7 @@ namespace
 
   //////////////////////////////////////////////////////////////////////////////
   string plevelToStr(const boost::optional<const ptree&>& level,
-                     const string& delim = ";")
+                     const char delim = ';')
   {
     return level ? plevelToStr(*level, delim) : "";
   }
@@ -262,7 +263,7 @@ void psc::Config::fillopt_jo(const ptree& hlt)
   optmap["PYTHONSETUPFILE"] = hlt.get_child("pythonSetupFile").data();
   optmap["JOBOPTIONSTYPE"]  = "NONE";
   optmap["LOGLEVEL"]        = plevelToStr(hlt.get_child_optional("logLevels"),
-                                          ",");
+                                          ',');
 
   fillopt_py(hlt);
   fillopt_common(hlt);
@@ -326,7 +327,7 @@ void psc::Config::fillopt_athenaHLT()
   if(ath_hlt)
   {
     const auto& llnode = ath_hlt->get_child_optional("logLevels");
-    optmap["LOGLEVEL"] = plevelToStr(llnode, ",");
+    optmap["LOGLEVEL"] = plevelToStr(llnode, ',');
 
     const auto& psnode = ath_hlt->get_child_optional("pythonSetupFile");
     if(psnode)
@@ -394,7 +395,7 @@ void psc::Config::fill_dbCon(const ptree& hlt, TrigDBConnectionConfig& dbcon)
   dbcon.setHltKeysFromStr(hlt.get_child("hltPrescaleKey").data());
   dbcon.setLvl1KeyFromStr(m_config.get_child(l1_path + ".Lvl1PrescaleKey").data());
   dbcon.diggestStr(plevelToStr(
-        hlt.get_child_optional("additionalConnectionParameters"), ":"));
+        hlt.get_child_optional("additionalConnectionParameters"), ':'));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

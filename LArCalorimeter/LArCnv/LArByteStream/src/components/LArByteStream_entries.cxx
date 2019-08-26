@@ -6,12 +6,16 @@
 #include "LArByteStream/LArFebHeaderContByteStreamCnv.h"
 #include "LArByteStream/LArRawDataContByteStreamTool.h"
 #include "LArByteStream/LArRodDecoder.h"
+#include "LArByteStream/LArABBADecoder.h"
 #include "ByteStreamCnvSvcBase/CollectionByteStreamCnv.h"
+#include "../LArRawDataReadingAlg.h"
 //#include "LArByteStream/LArRawChannelCollByteStreamTool.h"
 
 // Containers 
 DECLARE_COMPONENT( LArRawDataContByteStreamTool )
 DECLARE_COMPONENT( LArRodDecoder )
+DECLARE_COMPONENT( LArABBADecoder )
+DECLARE_COMPONENT( LArRawDataReadingAlg )
 
 DECLARE_CONVERTER( LArRawChannelContByteStreamCnv )
 DECLARE_CONVERTER( LArDigitContByteStreamCnv )

@@ -35,7 +35,7 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
     def __init__(self, chainDict):
         ChainConfigurationBase.__init__(self,chainDict)
-        
+       
     # ----------------------
     # Assemble the chain depending on information from chainName
     # ----------------------
@@ -54,13 +54,14 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
         
         muon_steps = muonStepDictionary[mu_key]
         bphys_steps = bphysStepDictionary[bphys_key]
-        
+
         for mu_step_level, bphys_step_level in zip(muon_steps, bphys_steps):
             for step in mu_step_level:
                 chainSteps += [step]
             for step in bphys_step_level:
                 chainSteps += [step]
-    
+
+
         myChain = self.buildChain(chainSteps)
         return myChain
 
@@ -90,14 +91,14 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
     
     # --------------------
     def getdimuL2(self):
-        stepName = 'Step1_l2Dimu'
+        stepName = 'Step2_l2Dimu'
         log.debug("Configuring step " + stepName)
         bphySeq = RecoFragmentsPool.retrieve( dimuL2SequenceCfg, None)
-        return ChainStep(stepName, [bphySeq])
+        return ChainStep(stepName, [bphySeq], multiplicity=1)
 
     def getdimuEF(self):
-        stepName = 'Step1_efDimu'
+        stepName = 'Step5_efDimu'
         log.debug("Configuring step " + stepName)
         bphySeq = RecoFragmentsPool.retrieve( dimuEFSequenceCfg, None)
-        return ChainStep(stepName, [bphySeq])
+        return ChainStep(stepName, [bphySeq], multiplicity=1)
 

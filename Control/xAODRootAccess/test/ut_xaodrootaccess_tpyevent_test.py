@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # $Id: ut_xaodrootaccess_tpyevent_test.py 796448 2017-02-09 18:28:08Z ssnyder $
 #
@@ -84,7 +84,7 @@ def main():
             return 1
         if not event.record( tree.EventInfo.getConstStore(),
                              "EventInfoAux." ).isSuccess():
-            logger.error( "Faiedl to record xAOD::EventAuxInfo from the "
+            logger.error( "Failed to record xAOD::EventAuxInfo from the "
                           "input file" )
             return 1
 

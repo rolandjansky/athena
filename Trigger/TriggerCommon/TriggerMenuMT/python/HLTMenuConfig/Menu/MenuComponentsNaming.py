@@ -4,17 +4,10 @@
 
 class CFNaming(object):
     """Static Class to collect all string manipulations on CF object names """
-    
+
     RECO_POSTFIX = "_reco"
     VIEW_POSTFIX = "_view"
     FILTER_POSTFIX = "_filter"
-
-    
-    @staticmethod
-    def reduceName(line):
-        splitLine = filter( lambda x: not ( x == "from" or x == "Filter"), line.split("_") ) # eliminate common words
-        splitLine =[ k[0] for k in filter( lambda x: not ( "Step" in x[0] or "Step" in x[1]), zip(splitLine, [""]+splitLine) )] # eliminate the word contaning Step and the one after 
-        return "_".join(splitLine)
 
     @staticmethod
     def stepName(nstep):
@@ -22,33 +15,44 @@ class CFNaming(object):
 
     @staticmethod
     def menuSequenceName(Hypo):
-        return ("S_" + Hypo)
+        return "S" + Hypo
 
     @staticmethod
     def filterName(ChainStepName):
-        return ("Filter_" + ChainStepName)
+        return "F" + ChainStepName
+
+    @staticmethod
+    def simplifyOutName( name, dropIM=False ):
+        """Removes all HLT_decisions except the front one + additiona cleaning of common words"""
+        return "HLTNav_" + name.replace("HLTNav_", "").replace("Trig", "").replace("Alg", "")
 
     @staticmethod
     def filterOutName(filter_name, filterIn):
-        return (filter_name + "_from_" + filterIn)
+        return CFNaming.simplifyOutName("HLTNav_" + filter_name + "__" + filterIn)
 
     @staticmethod
     def inputMakerOutName(IMname, filterOut):
-        return "%s_from_%s"%(IMname, filterOut)
-    #    return  (IMname + "_" + reduceName(filterOut))
+        return CFNaming.simplifyOutName("HLTNav_" + IMname + "__" + filterOut)
 
     @staticmethod
     def hypoAlgOutName(HypoName, HypoInput):
-        return  (HypoName + "_from_" + HypoInput)
-    #return  (HypoName + "_" + CFNaming.reduceName(HypoInput))
+        name = CFNaming.simplifyOutName("HLTNav_" + HypoName + "__" + HypoInput)
+        # remove the IM parts from hypos output
+        return "__".join( filter(lambda frag: not (frag.startswith("IM") or frag.startswith("F")), name.split("__")) )
 
     @staticmethod
     def comboHypoName(HypoName):
-        return ("ComboHypo_" + HypoName)
+        return "ComboHypo_" + HypoName
 
     @staticmethod
     def comboSequenceCopyName(SequenceName, ncopy, StepName):    
-        return "%s%d_for_%s"%(SequenceName, ncopy, StepName)
+        if type(SequenceName) is list:
+           sequence = []
+           for sq in SequenceName:
+              sequence.append("%s%d_for_%s"%(sq, ncopy, StepName))
+           return sequence
+        else:
+           return "%s%d_for_%s"%(SequenceName, ncopy, StepName)
 
     @staticmethod
     def comboHypoCopyName(HypoName,ncopy,StepName):
@@ -56,20 +60,20 @@ class CFNaming(object):
 
     @staticmethod
     def comboHypoOutputName(inputName):
-        return "combo_%s"%(inputName)
+        return CFNaming.simplifyOutName("HLTNav_combo_" + inputName )
 
     @staticmethod
     def stepRecoNodeName(HLTNodeName, StepCFName):
-        return  (HLTNodeName + "_" + StepCFName)
+        return HLTNodeName + "_" + StepCFName
 
     @staticmethod
     def stepSummaryName(StepCFName):
-        return ("TriggerSummary"+ StepCFName)
+        return "TriggerSummary" + StepCFName
 
     @staticmethod
     def stepRecoName(stepName):
-        return '{}{}'.format(stepName, CFNaming.RECO_POSTFIX)
+        return stepName + CFNaming.RECO_POSTFIX
 
     @staticmethod
     def stepViewName(stepName):
-        return '{}{}'.format(stepName, CFNaming.VIEW_POSTFIX)
+        return stepName + CFNaming.VIEW_POSTFIX

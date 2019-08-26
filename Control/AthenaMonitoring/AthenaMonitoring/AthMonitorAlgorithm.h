@@ -77,37 +77,56 @@ public:
      */
     virtual StatusCode fillHistograms(const EventContext& ctx) const = 0;
 
-
-    /**
-     * Adds variables from an event to a group by name.
-     * 
-     * @param groupName The string name of the GenericMonitoringTool
-     * @param variables Variables desired to be saved.
-     * @return StatusCode
+    /** @defgroup Group Filling Functions
+     *  A group of functions which fill monitored variables in groups.
+     *  @{
      */
-    template <typename... T>
-    void fill( const std::string& groupName, T&&... variables ) const {
-        fill(getGroup(groupName),std::forward<T>(variables)...);
-    }
-
+    /**
+     * Fills a vector of variables to a group by reference. (BASE FILL)
+     *
+     * At the end of the fillHistograms routine, one should save the monitored variables
+     * to the group. This function wraps the process of getting the desired group by a
+     * call to AthMonitorAlgorithm::getGroup() and a call to Monitored::Group::fill(),
+     * which also disables the auto-fill feature to avoid double-filling. Note, users
+     * should avoid using this specific function name 'fill' in daughter classes.
+     *
+     * @param groupHandle A reference of the GenericMonitoringTool to which add variables
+     * @param variables Vector of monitored variables to be saved
+     */
+    void fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
+               std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables ) const;
 
     /**
-     * Adds variables from an event to a group by the group's object reference.
-     * 
-     * At the end of the fillHistograms routine, one should save the monitored variables 
-     * to the group. This function wraps the process of getting the desired group by a 
-     * call to AthMonitorAlgorithm::getGroup() and a call to Monitored::Group::fill(), 
-     * which also disables the auto-fill feature to avoid double-filling. Note, users 
-     * should avoid using this specific function name in daughter classes.
-     * 
-     * @param groupHandle A reference of the GenericMonitoringTool to which add variables.
-     * @param variables Variables desired to be saved
-     * @return StatusCode
+     * Fills a variadic list of variables to a group by reference. Callse BASE FILL.
+     *
+     * @param groupHandle Reference to the GenericMonitoringTool
+     * @param variables... Variadic list of monitored variables to be saved
      */
     template <typename... T>
     void fill( const ToolHandle<GenericMonitoringTool>& groupHandle, T&&... variables ) const {
-        Monitored::Group(groupHandle,std::forward<T>(variables)...).fill();
+        fill(groupHandle,{std::forward<T>(variables)...});
     }
+
+    /**
+     * Fills a vector of variables to a group by name. Calls BASE FILL.
+     *
+     * @param groupHandle Reference to the GenericMonitoringTool
+     * @param variables Vector of monitored variables to be saved
+     */
+    void fill( const std::string& groupName,
+               std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables ) const;
+
+    /**
+     * Fills a variadic list of variables to a group by name. Calls BASE FILL.
+     *
+     * @param groupName The string name of the GenericMonitoringTool
+     * @param variables... Variadic list of monitored variables to be saved
+     */
+    template <typename... T>
+    void fill( const std::string& groupName, T&&... variables ) const {
+        fill(getGroup(groupName),{std::forward<T>(variables)...});
+    }
+    /** @} */ // end of fill group
 
 
     /**
@@ -190,6 +209,7 @@ public:
      */
     ToolHandle<GenericMonitoringTool> getGroup( const std::string& name ) const;
 
+
     /** 
      * Get the trigger decision tool member.
      * 
@@ -199,7 +219,6 @@ public:
      * @return m_trigDecTool
      */
     const ToolHandle<Trig::ITrigDecisionTool>& getTrigDecisionTool() const;
-
 
     /** 
      * Check whether triggers are passed
@@ -219,7 +238,7 @@ public:
      * @param ctx EventContext for the event
      * @return a SG::ReadHandle<xAOD::EventInfo>
      */
-    SG::ReadHandle<xAOD::EventInfo> GetEventInfo(const EventContext&) const;
+    SG::ReadHandle<xAOD::EventInfo> GetEventInfo( const EventContext& ) const;
 
     /** @defgroup lumi Luminosity Functions
      *  A group of functions which all deal with calculating luminosity.
@@ -229,42 +248,42 @@ public:
     /**
      * Calculate the average mu, i.e. <mu>.
      */
-    virtual float lbAverageInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbAverageInteractionsPerCrossing( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate instantaneous number of interactions, i.e. mu.
      */
-    virtual float lbInteractionsPerCrossing (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbInteractionsPerCrossing( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate average luminosity (in ub-1 s-1 => 10^30 cm-2 s-1).
      */
-    virtual float lbAverageLuminosity (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbAverageLuminosity( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the instantaneous luminosity per bunch crossing.
      */
-    virtual float lbLuminosityPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbLuminosityPerBCID( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      *  Calculate the duration of the luminosity block (in seconds)
      */
-    virtual double lbDuration (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual double lbDuration( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the average luminosity livefraction
      */
-    virtual float lbAverageLivefraction (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float lbAverageLivefraction( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the live fraction per bunch crossing ID.
      */
-    virtual float livefractionPerBCID (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual float livefractionPerBCID( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /**
      * Calculate the average integrated luminosity multiplied by the live fraction.
      */
-    virtual double lbLumiWeight (const EventContext& ctx = Gaudi::Hive::currentContext()) const;
+    virtual double lbLumiWeight( const EventContext& ctx = Gaudi::Hive::currentContext() ) const;
 
     /** @} */ // end of lumi group
 
@@ -321,6 +340,11 @@ protected:
     Gaudi::Property<float> m_defaultLBDuration {this,"DefaultLBDuration",60.}; ///< Default duration of one lumi block
     Gaudi::Property<int> m_detailLevel {this,"DetailLevel",0}; ///< Sets the level of detail used in the monitoring
     SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey {this,"EventInfoKey","EventInfo"}; ///< Key for retrieving EventInfo from StoreGate
+
+
+private:
+    typedef std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> MonVarVec_t;
+    std::string m_name;
 };
 
 #endif

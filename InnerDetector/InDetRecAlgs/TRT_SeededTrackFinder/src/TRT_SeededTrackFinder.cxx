@@ -24,9 +24,9 @@
 
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/FitQuality.h"
-#include "CxxUtils/make_unique.h"
+
+#include <memory>
 using namespace std;
-//using CLHEP::HepVector;
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -183,7 +183,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
   m_trtExtension->newEvent();
 
 //  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output
-  m_outTracks = CxxUtils::make_unique<TrackCollection>();
+  m_outTracks = std::make_unique<TrackCollection>();
 
   std::vector<Trk::Track*> tempTracks;                           //Temporary track collection
   tempTracks.reserve(128);

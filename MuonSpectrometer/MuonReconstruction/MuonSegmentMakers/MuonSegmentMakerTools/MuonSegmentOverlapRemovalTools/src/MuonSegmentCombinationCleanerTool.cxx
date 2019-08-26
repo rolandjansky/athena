@@ -17,7 +17,7 @@
 #include "MuonPattern/MuonPatternCombination.h"
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
@@ -33,7 +33,6 @@ namespace Muon {
   MuonSegmentCombinationCleanerTool::MuonSegmentCombinationCleanerTool(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_idHelperTool("Muon::MuonIdHelpers/MuonIdHelperTool"),
     m_overlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this)
   {
@@ -63,11 +62,11 @@ namespace Muon {
       ATH_MSG_FATAL("Could not get " << m_printer); 
       return sc;
     }
-    sc = m_helperTool.retrieve();
+    sc = m_edmHelperSvc.retrieve();
     if (sc.isSuccess()){
-      ATH_MSG_INFO("Retrieved " << m_helperTool );
+      ATH_MSG_INFO("Retrieved " << m_edmHelperSvc );
     }else{
-      ATH_MSG_FATAL("Could not get " << m_helperTool ); 
+      ATH_MSG_FATAL("Could not get " << m_edmHelperSvc ); 
       return sc;
     }
     sc = m_idHelperTool.retrieve();
@@ -274,7 +273,7 @@ namespace Muon {
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
-	  Identifier chId = m_helperTool->chamberId( *bestSegment );
+	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
 	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
@@ -288,7 +287,7 @@ namespace Muon {
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
-	  Identifier chId = m_helperTool->chamberId( *bestSegment );
+	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
 	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
@@ -302,7 +301,7 @@ namespace Muon {
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
-	  Identifier chId = m_helperTool->chamberId( *bestSegment );
+	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
 	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
@@ -316,7 +315,7 @@ namespace Muon {
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
-	  Identifier chId = m_helperTool->chamberId( *bestSegment );
+	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
 	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
@@ -330,7 +329,7 @@ namespace Muon {
 	  // check whether already added
 	  if( addedSegments.count(bestSegment) ) continue;
 	  addedSegments.insert(bestSegment);
-	  Identifier chId = m_helperTool->chamberId( *bestSegment );
+	  Identifier chId = m_edmHelperSvc->chamberId( *bestSegment );
 	  MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chId);
 	  segmentsPerChamberLayer[chIndex].push_back(bestSegment);
 	}
@@ -427,7 +426,7 @@ namespace Muon {
     std::vector<MuonSegment*>::const_iterator sit1_end = chamberVec1.end();
     for( ;sit1!=sit1_end;++sit1,++index1 ){
       // identifier(s) of MDT chambers on segment
-      std::set<Identifier> chIds1 = m_helperTool->chamberIds( **sit1 );
+      std::set<Identifier> chIds1 = m_edmHelperSvc->chamberIds( **sit1 );
 
       unsigned int index2 = 0;
       std::vector<MuonSegment*>::const_iterator sit2 = chamberVec2.begin();
@@ -437,7 +436,7 @@ namespace Muon {
 	if( !uniqueSecond[index2] ) continue;
 
 	// identifier(s) of MDT chambers on segment
-	std::set<Identifier> chIds2 = m_helperTool->chamberIds( **sit2 );
+	std::set<Identifier> chIds2 = m_edmHelperSvc->chamberIds( **sit2 );
 	
 	// check whether chamber identifiers overlap 
 	bool hasOverlap = false;
@@ -534,7 +533,7 @@ namespace Muon {
       if( !stationSegs || stationSegs->empty() ) continue;
 
       // get chamber identifier, chamber index and station index
-      Identifier chid = m_helperTool->chamberId( *stationSegs->front().get() );
+      Identifier chid = m_edmHelperSvc->chamberId( *stationSegs->front().get() );
       MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chid);
       MuonStationIndex::StIndex stIndex = MuonStationIndex::toStationIndex( chIndex );
       summary.stations.insert(stIndex);

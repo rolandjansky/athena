@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonStationIntersectSvc/MdtIntersectGeometry.h"
@@ -11,14 +11,17 @@
 #include "MuonCondInterface/IMDTConditionsSvc.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
+#include "GeoModelUtilities/GeoGetIds.h"
 
 namespace Muon{
 
   
   MdtIntersectGeometry::MdtIntersectGeometry( const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr,
-					      IMDTConditionsSvc* mdtCondSvc ) : m_chid(chid), m_mdtGeometry(0), m_detMgr(detMgr), m_mdtSummarySvc(mdtCondSvc)
+					      IMDTConditionsSvc* mdtCondSvc,
+                                              MsgStream* msg)
+    : m_chid(chid), m_mdtGeometry(0), m_detMgr(detMgr), m_mdtSummarySvc(mdtCondSvc)
   {
-    init();
+    init(msg);
   }
 
   MdtIntersectGeometry::MdtIntersectGeometry(const MdtIntersectGeometry &right) {
@@ -113,7 +116,7 @@ namespace Muon{
   }
 
 
-  void MdtIntersectGeometry::init()
+  void MdtIntersectGeometry::init(MsgStream* msg)
   {
 
     m_mdtIdHelper = m_detMgr->mdtIdHelper();
@@ -207,8 +210,8 @@ namespace Muon{
     Identifier secondIdml0 = m_mdtIdHelper->channelID( name,eta,phi,firstMlIndex,1,2 );
     Amg::Vector3D secondTubeMl0 = transform()*(m_detElMl0->tubePos( secondIdml0 ));
 
-    if(m_detElMl0) fillDeadTubes(m_detElMl0);
-    if(m_detElMl1) fillDeadTubes(m_detElMl1);
+    if(m_detElMl0) fillDeadTubes(m_detElMl0, msg);
+    if(m_detElMl1) fillDeadTubes(m_detElMl1, msg);
 	
     // position first tube in second layer ml 0 
     Identifier firstIdml0lay1 = m_mdtIdHelper->channelID( name,eta,phi,firstMlIndex,2,1 );
@@ -227,12 +230,16 @@ namespace Muon{
     if( !goodMl0 && goodMl1 ) m_mdtGeometry->isSecondMultiLayer(true);
   }
 
-  void MdtIntersectGeometry::fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl){
+  void MdtIntersectGeometry::fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl, MsgStream* msg){
 
     if( (mydetEl->getStationName()).find("BMG") != std::string::npos ) {
       PVConstLink cv = mydetEl->getMaterialGeom(); // it is "Multilayer"
       int nGrandchildren = cv->getNChildVols();
       if(nGrandchildren <= 0) return;
+
+      std::vector<int> tubes;
+      geoGetIds ([&] (int id) { tubes.push_back (id); }, &*cv);
+      std::sort (tubes.begin(), tubes.end());
 
       Identifier detElId = mydetEl->identify();
 
@@ -241,27 +248,31 @@ namespace Muon{
       int phi = m_mdtIdHelper->stationPhi(detElId);
       int ml = m_mdtIdHelper->multilayer(detElId);
 
+      std::vector<int>::iterator it = tubes.begin();
       for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
          for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-            bool tubefound = false;
-            for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-               int tubegeo = cv->getIdOfChildVol(kk) % 100;
-               int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
-               if( tubegeo == tube && layergeo == layer ) {
-                 tubefound=true;
-                 break;
+           int want_id = layer*100 + tube;
+           if (it != tubes.end() && *it == want_id) {
+             ++it;
+           }
+           else {
+             it = std::lower_bound (tubes.begin(), tubes.end(), want_id);
+             if (it != tubes.end() && *it == want_id) {
+               ++it;
+             }
+             else {
+               Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
+               Identifier deadTubeMLId = m_mdtIdHelper->multilayerID( deadTubeId );
+               m_deadTubes.push_back( deadTubeId );
+               m_deadTubesML.insert( deadTubeMLId );
+               if (msg) {
+                 *msg << MSG::VERBOSE
+                      << " MdtIntersectGeometry: adding dead tube (" << tube  << "), layer(" <<  layer 
+                      << "), phi(" << phi << "), eta(" << eta << "), name(" << name 
+                      << ") and adding multilayerId(" << deadTubeMLId << ")." <<std::endl;
                }
-               if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
-            }
-            if(!tubefound) {
-              Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
-              Identifier deadTubeMLId = m_mdtIdHelper->multilayerID( deadTubeId );
-              m_deadTubes.push_back( deadTubeId );
-              m_deadTubesML.insert( deadTubeMLId );
-              // std::cout << " MdtIntersectGeometry: adding dead tube (" << tube  << "), layer(" <<  layer 
-              //           << "), phi(" << phi << "), eta(" << eta << "), name(" << name 
-              //           << ") and adding multilayerId(" << deadTubeMLId << ")." <<std::endl;
-            }
+             }
+           }
          }
       }
     }

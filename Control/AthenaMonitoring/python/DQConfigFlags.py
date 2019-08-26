@@ -25,6 +25,7 @@ def createDQConfigFlags():
     acf.addFlag('DQ.doMonitoring', True)
     acf.addFlag('DQ.doStreamAwareMon', True)
     acf.addFlag('DQ.disableAtlasReadyFilter', False)
+    acf.addFlag('DQ.enableLumiAccess', True)
     acf.addFlag('DQ.FileKey', 'CombinedMonitoring')
     acf.addFlag('DQ.useTrigger', True)
 
@@ -74,5 +75,3 @@ def allSteeringFlagsOff():
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     for flag in _steeringFlags:
         setattr(getattr(ConfigFlags, 'DQ.Steering'), flag, False)
-        #print flag
-        #getattr(ConfigFlags, 'DQ.Steering.' + flag).set(False)

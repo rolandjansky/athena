@@ -121,11 +121,6 @@ StatusCode  Muon::TGC_RawDataProviderToolCore::getCabling() {
     ATH_MSG_VERBOSE( " TGCcablingServerSvc retrieved" );
   } 
 
-  if(!TgcCabGet->isConfigured()) {
-      ATH_MSG_DEBUG( "TGCcablingServer not yet configured!" );
-      return StatusCode::FAILURE;
-  }
-
   sc = TgcCabGet->giveCabling(m_cabling);
   if(sc.isFailure()) {
     ATH_MSG_FATAL( "Could not get ITGCcablingSvc from the Server !" );

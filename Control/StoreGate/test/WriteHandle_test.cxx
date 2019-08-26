@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -26,7 +26,6 @@
 #include "AthContainers/ConstDataVector.h"
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
-#include "CxxUtils/unused.h"
 #include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <iostream>
@@ -264,7 +263,8 @@ void test3()
   assert (h1.cachedPtr() == nullptr);
   assert (h1.ptr() == nullptr);
   assert (h1.cptr() == nullptr);
-  int UNUSED(xx) = 0;
+  [[maybe_unused]]
+  int xx = 0;
   EXPECT_EXCEPTION (SG::ExcNullWriteHandle, xx = (*h1).x);
   EXPECT_EXCEPTION (SG::ExcNullWriteHandle, xx = h1->x);
 

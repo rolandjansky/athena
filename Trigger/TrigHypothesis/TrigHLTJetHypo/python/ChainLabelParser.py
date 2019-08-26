@@ -21,6 +21,11 @@ def _check_parens(s, pars):
         if c == pr: np -= 1
         if np < 0:
             raise RuntimeError('Paren mismatch for parens %s, %s' % (pars, s))
+    nl = s.count(pl)
+    nr = s.count(pr)
+    if nl != nr:
+        raise RuntimeError(
+            'Paren mismatch for parens %s, %s, %d %d ' % (pars, s, nl, nr))
 
 def check_parens(s):
     _check_parens(s, '()')
@@ -48,6 +53,7 @@ def preprocess(s):
         if c not in alphabet:
             raise RuntimeError('bad character %s in string %s' % (c, s))
     print 'end of preprocess: ', s
+    check_parens(s)
     return s
 
 
@@ -56,7 +62,7 @@ class ChainLabelParser(object):
         self.label = label
         self.state = 'start'
         pp = preprocess(label)
-        print 'preprocessd string', pp, 'length', len(pp)
+        print 'preprocessed string', pp, 'length', len(pp)
         self.gc = get_char(pp)
         self.state_history = []
         self.states = {
@@ -336,7 +342,9 @@ def _test(s):
     print tree.dump()
 
 
-def test(index):
+def test():
+    import sys
+    
     from test_cases import test_strings
     c = sys.argv[1]
     index = -1
@@ -347,43 +355,18 @@ def test(index):
             len(test_strings), c)
         sys.exit()
 
+    if(index < 0 or index > len(test_strings) - 1):
+        print 'index %d not in range [0, %d]' % (index, len(test_strings) -1)
+        sys.exit()
+                                                 
+            
     print 'index', index
+    label = test_strings[index]
     print '========== Test %d ==============' % index
-    s = test_strings[index]
-    print s
-    _test(s)
-
-
-def usage(options):
-    print 'usage: ChainLabelPaers -[%s]' % options
+    print '========== label  %s ==============' % label
+    _test(label)
 
   
 if __name__ == '__main__':
 
-    import getopt, sys
-    from test_cases import test_strings
-    ncases = len(test_strings)
-    try:
-        options = "1234567"
-        opts, args = getopt.getopt(sys.argv[1:], options, [])
-    except getopt.GetoptError as err:
-        # print help information and exit:
-        print str(err) # will print something like "option -a not recognized"
-        usage(options)
-        sys.exit(2)
-
-    assert len(args) == 1
-    o = args[0]
-    try:
-        index = int(o)
-    except Exception:
-        print 'Supply an test case integer index  on the command line '
-        sys.exit(0)
-    
-    if index < 0 or index >= ncases:
-        print 'no such test case ind %d, expect val in [0, %d]'  %(index,
-                                                                   ncases-1)
-        sys.exit(0)
-
-    test(int(o))
-    
+    test()

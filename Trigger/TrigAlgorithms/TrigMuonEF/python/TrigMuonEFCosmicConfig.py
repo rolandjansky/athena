@@ -223,8 +223,7 @@ TMEF_MooTrackFitterCosmic = CfgMgr.Muon__MooTrackFitter("TMEF_MooTrackFitterCosm
                                                    Cosmics = True,   
                                                    Fitter = TMEF_MCTBFitterCosmic,
                                                    FitterPreFit = TMEF_MCTBFitterCosmic,
-                                                   CleanPhiHits = False,
-                                                   FitEtaStrips = True
+                                                   CleanPhiHits = False
                                                    )
 ToolSvc += TMEF_MooTrackFitterCosmic
 

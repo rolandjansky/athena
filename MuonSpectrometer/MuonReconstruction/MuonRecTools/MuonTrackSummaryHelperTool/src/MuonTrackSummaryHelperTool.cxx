@@ -24,11 +24,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "MuonIdHelpers/TgcIdHelper.h"
-#include "MuonIdHelpers/CscIdHelper.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
-
 #include "StoreGate/ReadHandle.h"
 
 #include <vector>
@@ -51,59 +46,11 @@ Muon::MuonTrackSummaryHelperTool::~MuonTrackSummaryHelperTool()
 
 StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
 {
-  bool muonOkay=true;
-  StatusCode sc = detStore()->retrieve(m_rpcId);
-  if (sc.isFailure())
-    {
-      msg (MSG::WARNING) << "Could not get RPC ID helper !" << endmsg;
-      muonOkay=false;
-    }
 
   if ( detStore()->retrieve( m_detMgr ).isFailure() ) {
     ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
     return StatusCode::FAILURE;
   }
-
-  sc = detStore()->retrieve(m_tgcId);
-  if (sc.isFailure())
-    {
-      msg (MSG::WARNING) << "Could not get TGC ID helper !" << endmsg;
-      muonOkay=false;
-    }
-
-  sc = detStore()->retrieve(m_stgcId);
-  if (sc.isFailure())
-    {
-      msg (MSG::WARNING) << "Could not get STGC ID helper !" << endmsg;
-      muonOkay=false;
-    }    
-
-  sc = detStore()->retrieve(m_mmId);
-  if (sc.isFailure())
-    {
-      msg (MSG::WARNING) << "Could not get MM ID helper !" << endmsg;
-      muonOkay=false;
-    }
-
-  sc = detStore()->retrieve(m_cscId);
-  if (sc.isFailure())
-    {
-      msg (MSG::WARNING) << "Could not get CSC ID helper !" << endmsg;
-      muonOkay=false;
-    }
-
-  sc = detStore()->retrieve(m_mdtId);
-  if (sc.isFailure())
-    {
-      msg (MSG::WARNING) << "Could not get MDT ID helper !" << endmsg;
-      muonOkay=false;
-    }
-
-  if (!muonOkay) 
-    {
-      msg (MSG::FATAL) << "Could not get ID Helper(s)!" << endmsg;
-      return StatusCode::FAILURE;
-    }
 
   if( m_calculateCloseHits && !m_extrapolator.empty() ){
     if (m_extrapolator.retrieve().isSuccess()){
@@ -122,8 +69,8 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if( m_edmHelperTool.retrieve().isFailure() ){
-    ATH_MSG_ERROR("Could not get " << m_edmHelperTool);      
+  if( m_edmHelperSvc.retrieve().isFailure() ){
+    ATH_MSG_ERROR("Could not get " << m_edmHelperSvc);      
     return StatusCode::FAILURE;
   }
 
@@ -139,7 +86,7 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
   // eventually there will be no need for this, as the Geometry should always be there, but whilst we're
   // debugging it all I want a way to turn off the hole search if it does wrong.
   if (m_doHoles){
-    sc = m_muonTgTool.retrieve();
+    StatusCode sc = m_muonTgTool.retrieve();
     if (sc.isFailure()) {
       msg (MSG::FATAL) << "Could not get MuonHolesOnTrackTool :"<< endmsg;
       return StatusCode::FAILURE;
@@ -181,28 +128,28 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
 
   Identifier id = rot->identify();
   ATH_MSG_DEBUG("Processing rot: "<<m_idHelperTool->toString(id));
-  if(m_rpcId->is_rpc(id)){
-    if( m_rpcId->measuresPhi(id) ) increment(information[numberOfRpcPhiHits]);
+  if(m_idHelperTool->isRpc(id)){
+    if( m_idHelperTool->rpcIdHelper().measuresPhi(id) ) increment(information[numberOfRpcPhiHits]);
     else                           increment(information[numberOfRpcEtaHits]);
-  }else if(m_cscId->is_csc(id)){
-    if( m_cscId->measuresPhi(id) ) increment(information[numberOfCscPhiHits]);
+  }else if(m_idHelperTool->isCsc(id) && (&(m_idHelperTool->cscIdHelper()))){
+    if( m_idHelperTool->cscIdHelper().measuresPhi(id) ) increment(information[numberOfCscPhiHits]);
     else  {                         
       increment(information[numberOfCscEtaHits]);
       const CscClusterOnTrack* clus = dynamic_cast<const CscClusterOnTrack*>(rot);
       if (clus && ((clus->status()==Muon::CscStatusUnspoiled) || (clus->status()==Muon::CscStatusSplitUnspoiled))) 
         increment(information[numberOfCscUnspoiltEtaHits]);
     }
-  }else if(m_tgcId->is_tgc(id)){
-    if( m_tgcId->isStrip(id) )     increment(information[numberOfTgcPhiHits]);
+  }else if(m_idHelperTool->isTgc(id)){
+    if( m_idHelperTool->tgcIdHelper().isStrip(id) )     increment(information[numberOfTgcPhiHits]);
     else                           increment(information[numberOfTgcEtaHits]);
-  }else if(m_mdtId->is_mdt(id)){  
+  }else if(m_idHelperTool->isMdt(id)){  
     increment(information[numberOfMdtHits]);
-  }else if(m_stgcId->is_stgc(id) ){
+  }else if(m_idHelperTool->issTgc(id) ){
     // strip = measuresPhi
-    if( m_stgcId->measuresPhi(id) )    increment(information[numberOfStgcPhiHits]);
+    if( m_idHelperTool->stgcIdHelper().measuresPhi(id) )    increment(information[numberOfStgcPhiHits]);
     // we do not discriminate between pads or wires
     else                               increment(information[numberOfStgcEtaHits]);
-  }else if(m_mmId->is_mm(id)){  
+  }else if(m_idHelperTool->isMM(id)){  
     increment(information[numberOfMmHits]); 
   }else{
     msg (MSG::ERROR) << "Unknown muon detector type " << endmsg;
@@ -291,16 +238,16 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles (
 	  if (assocLayer) idl = assocLayer->layerType();
 	  const Identifier id(idl);
 
-	  if(m_rpcId->is_rpc(id)){
-	    if( m_rpcId->measuresPhi(id) ) increment(information[Trk::numberOfRpcPhiHoles]);
+	  if(m_idHelperTool->isRpc(id)){
+	    if( m_idHelperTool->rpcIdHelper().measuresPhi(id) ) increment(information[Trk::numberOfRpcPhiHoles]);
 	    else                           increment(information[Trk::numberOfRpcEtaHoles]);
-	  }else if(m_cscId->is_csc(id)){
-	    if( m_cscId->measuresPhi(id) ) increment(information[Trk::numberOfCscPhiHoles]);
+	  }else if(m_idHelperTool->isCsc(id) && (&(m_idHelperTool->cscIdHelper()))){
+	    if( m_idHelperTool->cscIdHelper().measuresPhi(id) ) increment(information[Trk::numberOfCscPhiHoles]);
 	    else                           increment(information[Trk::numberOfCscEtaHoles]);
-	  }else if(m_tgcId->is_tgc(id)){
-	    if( m_tgcId->isStrip(id) )     increment(information[Trk::numberOfTgcPhiHoles]);
+	  }else if(m_idHelperTool->isTgc(id)){
+	    if( m_idHelperTool->tgcIdHelper().isStrip(id) )     increment(information[Trk::numberOfTgcPhiHoles]);
 	    else                           increment(information[Trk::numberOfTgcEtaHoles]);
-	  }else if(m_mdtId->is_mdt(id)){  
+	  }else if(m_idHelperTool->isMdt(id)){  
 	    increment(information[Trk::numberOfMdtHoles]);
 	  }else{
 	    msg (MSG::ERROR) << "searchForHoles: Unknown muon detector type " << endmsg;
@@ -544,15 +491,14 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 
     if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) {
 
-      if( isMdt ){
-	if( pars ){
-	  double rDrift = fabs(meas->localParameters()[Trk::locR]);
-	  double rTrack = fabs(pars->parameters()[Trk::locR]);
-	  // flag delta electrons: check whether track prediction larger than drift radius, require that the track passes  the tube
-	  if( rTrack > rDrift && rTrack < 14.6 ){
-	    ++proj.ndeltas;
-	    continue;
-	  }
+      // MDTs: count outlier as delta electron if rDrift < rTrack < innerTubeRadius
+      if( isMdt && pars ) {
+	double rDrift = fabs(meas->localParameters()[Trk::locR]);
+	double rTrack = fabs(pars->parameters()[Trk::locR]);
+	double innerRadius = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+	if( rTrack > rDrift && rTrack < innerRadius ) {
+	  ++proj.ndeltas;
+	  continue;
 	}
       }
       ++proj.noutliers;

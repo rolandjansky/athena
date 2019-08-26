@@ -12,7 +12,7 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
       super(TrigCOOLUpdateHelper, self).__init__(name)
 
       from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
-      self.MonTool = GenericMonitoringTool('MonTool')
+      self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.defineHistogram('TIME_CoolFolderUpdate', path='EXPERT', type='TH1F',
                                    title='Time for conditions update;time [ms]',
                                    xbins=100, xmin=0, xmax=200)
@@ -33,15 +33,20 @@ class TrigCOOLUpdateHelper(_TrigCOOLUpdateHelper):
       
 
 def setupMessageSvc():
+   import os
    from AthenaCommon.AppMgr import theApp
    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-   from AthenaCommon.Constants import VERBOSE, DEBUG, INFO, WARNING, ERROR
+   from AthenaCommon.Constants import DEBUG, WARNING
 
    svcMgr.MessageSvc = theApp.service( "MessageSvc" )     # already instantiated
    MessageSvc = svcMgr.MessageSvc
    MessageSvc.OutputLevel = theApp.OutputLevel
 
    MessageSvc.Format       = "% F%40W%S%4W%e%s%7W%R%T %0W%M"
+   # Add timestamp when running in partition
+   if os.environ.get('TDAQ_PARTITION','') != 'athenaHLT':
+      MessageSvc.Format = "%t  " + MessageSvc.Format
+
    MessageSvc.ErsFormat    = "%S: %M"
    MessageSvc.printEventIDLevel = WARNING
 
@@ -58,6 +63,9 @@ def setupMessageSvc():
    MessageSvc.warningLimit = MessageSvc.defaultLimit
    MessageSvc.errorLimit   = 0
    MessageSvc.fatalLimit   = 0
+
+   # Message forwarding to ERS
+   MessageSvc.useErsError = ['*']
 
    # set message limit to unlimited when general DEBUG is requested
    if MessageSvc.OutputLevel<=DEBUG :
@@ -76,7 +84,7 @@ class HltROBDataProviderSvc(_HltROBDataProviderSvc):
    def __init__(self, name='ROBDataProviderSvc'):
       super(HltROBDataProviderSvc, self).__init__(name)
       from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
-      self.MonTool = GenericMonitoringTool('MonTool')
+      self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
       self.MonTool.Histograms = [ 
          defineHistogram('TIME_ROBReserveData', path='EXPERT', type='TH1F',
                          title='Time to reserve ROBs for later retrieval;time [mu s]',

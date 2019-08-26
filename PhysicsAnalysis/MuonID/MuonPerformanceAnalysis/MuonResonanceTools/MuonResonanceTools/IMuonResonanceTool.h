@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // IMuonResonanceTool.h
@@ -21,7 +21,7 @@ class IMuonResonanceTool : virtual public asg::IAsgTool {
 
     public:
 
-  virtual void findResonance(const xAOD::MuonContainer*, bool isMC) const =0;
+  virtual void findResonance(const xAOD::MuonContainer*, bool isMC) =0;
 
   virtual std::vector<HistData> retrieveBookedHistograms() = 0;
 

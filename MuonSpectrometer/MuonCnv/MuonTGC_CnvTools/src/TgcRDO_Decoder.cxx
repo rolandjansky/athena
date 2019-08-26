@@ -152,11 +152,6 @@ StatusCode Muon::TgcRDO_Decoder::getCabling() const {
     return sc;
   }
   
-  if(!TgcCabGet->isConfigured()) {
-      ATH_MSG_DEBUG( "TGCcablingServer not yet configured!" );
-      return StatusCode::FAILURE;
-  }
-  
   sc = TgcCabGet->giveCabling(m_cabling);
   if(!sc.isSuccess()) {
     msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endmsg;

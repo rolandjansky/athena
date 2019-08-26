@@ -32,26 +32,14 @@ def NewJetFitterVxFinderCfg(flags, name = 'JFVxFinder', suffix = "", useBTagFlag
     output: The actual tool."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        if not 'InDetKeys' in dir():
-            from InDetRecExample.InDetKeys import InDetKeys
-        accInDetJetFitterUtils = InDetJetFitterUtilsCfg(flags, 'InDetJFUtils'+suffix)
-        inDetJetFitterUtils = accInDetJetFitterUtils.popPrivateTools()
-        acc.merge(accInDetJetFitterUtils)
-        accImprovedJetFitterRoutines = ImprovedJetFitterRoutinesCfg('ImprovedJFRoutines'+suffix)
-        improvedJetFitterRoutines = accImprovedJetFitterRoutines.popPrivateTools()
-        acc.merge(accImprovedJetFitterRoutines)
+        inDetJetFitterUtils = acc.popToolsAndMerge(InDetJetFitterUtilsCfg(flags, 'InDetJFUtils'+suffix))
+        improvedJetFitterRoutines = acc.popToolsAndMerge(ImprovedJetFitterRoutinesCfg('ImprovedJFRoutines'+suffix))
         jetFitterMode3dTo1dFinder = acc.popToolsAndMerge(JetFitterMode3dTo1dFinderCfg('JFMode3dTo1dFinder'+suffix))
         inDetImprovedJetFitterTrackSelectorTool = acc.popToolsAndMerge(InDetImprovedJetFitterTrackSelectorToolCfg('InDetImprovedJFTrackSelTool'+suffix))
-        accJetFitterSequentialVertexFitter = JetFitterSequentialVertexFitterCfg('JFSeqVxFitter'+suffix)
-        jetFitterSequentialVertexFitter = accJetFitterSequentialVertexFitter.popPrivateTools()
-        acc.merge(accJetFitterSequentialVertexFitter)
-        accExtrapolator = AtlasExtrapolatorCfg(flags, 'JFExtrapolator'+suffix)
-        jetFitterExtrapolator = accExtrapolator.popPrivateTools()
-        acc.merge(accExtrapolator)
+        jetFitterSequentialVertexFitter = acc.popToolsAndMerge(JetFitterSequentialVertexFitterCfg('JFSeqVxFitter'+suffix))
+        jetFitterExtrapolator = acc.popToolsAndMerge(AtlasExtrapolatorCfg(flags, 'JFExtrapolator'+suffix))
         improvedJetFitterInitializationHelper = acc.popToolsAndMerge(ImprovedJetFitterInitializationHelperCfg('ImprovedJFInitHelper'+suffix))
-        accVxInternalEdmFactory = VxInternalEdmFactoryCfg('VxInternalEdmFactory'+suffix)
-        vertexEdmFactory = accVxInternalEdmFactory.popPrivateTools()
-        acc.merge(accVxInternalEdmFactory)
+        vertexEdmFactory = acc.popToolsAndMerge(VxInternalEdmFactoryCfg('VxInternalEdmFactory'+suffix))
         defaults = { 'VxPrimaryContainer'                  : BTaggingFlags.PrimaryVertexCollectionName,
                      'MaxNumDeleteIterations'              : 30,
                      'VertexProbCut'                       : 0.001,

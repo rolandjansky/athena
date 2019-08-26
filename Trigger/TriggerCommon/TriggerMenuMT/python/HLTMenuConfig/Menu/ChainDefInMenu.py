@@ -15,9 +15,8 @@ def namedtuple_with_defaults(typename, field_names, default_values=()):
 
 # namedtuple class with some defaults set for those entries that do not require settings
 ChainProp = namedtuple_with_defaults("ChainProp", 
-                                     ['name', 'l1SeedItem', 'l1SeedThresholds', 'stream', 'groups', 'mergingStrategy', 'mergingOrder', 'mergingOffset', 'topoStartFrom'],
-                                     {'stream':['Main'], 
-                                      'l1SeedItem': '', 
+                                     ['name', 'l1SeedThresholds', 'stream', 'groups', 'mergingStrategy', 'mergingOrder', 'mergingOffset', 'topoStartFrom'],
+                                     {'stream':['Main'],
                                       'l1SeedThresholds': [], 
                                       'mergingStrategy':'parallel', 
                                       'mergingOrder': [], 

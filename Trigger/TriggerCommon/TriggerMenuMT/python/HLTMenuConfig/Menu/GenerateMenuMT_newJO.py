@@ -82,8 +82,10 @@ def generateMenu( flags ):
     useReworked = True
 
     if useReworked:
+        menuAcc.wasMerged()
         menuAcc = generateDecisionTree(menuChains)
     else:
+        menuAcc.wasMerged()
         menuAcc = ComponentAccumulator()
         mainSequenceName = 'HLTAllSteps'
         menuAcc.addSequence( seqAND(mainSequenceName) )
@@ -93,6 +95,11 @@ def generateMenu( flags ):
     menuAcc.printConfig()
 
     _log.info('CF is built')
+
+
+    # # generate JOSON representation of the config
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON_newJO    
+    generateJSON_newJO( None )
 
     return menuAcc
 

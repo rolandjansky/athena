@@ -87,7 +87,8 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_buffer_length(0),
   m_decompression_buffer(nullptr),
   m_readKeyRt("/MDT/RTBLOB"),
-  m_readKeyTube("/MDT/T0BLOB")
+  m_readKeyTube("/MDT/T0BLOB"),
+  m_regionIdThreshold(2500)
 {
 
   //Db Folders
@@ -446,10 +447,9 @@ StatusCode MdtCalibDbAlg::loadRt(){
     Identifier  athenaId; 
     char *pch = strtok(parameters," _,");
     regionId = atoi(pch);
-    //Long ago the hash was put in the RT file header, but now (2016) 
-    //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.    
-    //TODO: put this magic number in constatnt
-    if(regionId>2500) {
+    //Long ago the hash was put in the RT file header, but now (2016)
+    //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.
+    if(regionId>m_regionIdThreshold) {
       MuonCalib::MuonFixedId id(regionId);
       athenaId = m_idToFixedIdTool->fixedIdToId(id);
       // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
@@ -605,7 +605,6 @@ StatusCode MdtCalibDbAlg::loadRt(){
 	}      //end else regionId is OK
       }        //end if reso && rt
     }          //end try
-    //TODO: What kind of exceptions can you get here
     catch (int i) {
       ATH_MSG_FATAL( "Error in creating rt-relation!" );
       ATH_MSG_FATAL( "npoints="<<tr_points.size());
@@ -1028,7 +1027,7 @@ inline bool MdtCalibDbAlg::uncompressInMyBuffer(const coral::Blob &blob) {
   }
   //append 0 to terminate string, increase buffer if it is not big enough
   if (actual_length >= m_buffer_length)	{
-    std::unique_ptr<Bytef> old_buffer(std::move(m_decompression_buffer));
+    std::unique_ptr<Bytef[]> old_buffer(std::move(m_decompression_buffer));
     size_t old_length=m_buffer_length;
     m_buffer_length*=2;
     m_decompression_buffer.reset(new Bytef[m_buffer_length]);

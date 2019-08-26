@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1487,16 +1487,14 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   int inner = static_cast<int>((*itD)->inner());
 
   // check duplicate digits
-  TgcCoinDataCollection::const_iterator it_tgcCoinData   = coincollection->begin();
-  TgcCoinDataCollection::const_iterator it_tgcCoinData_e = coincollection->end();
-  for(it_tgcCoinData=it_tgcCoinData; it_tgcCoinData!=it_tgcCoinData_e; it_tgcCoinData++) {
-    if((TgcCoinData::TYPE_HIPT==(*it_tgcCoinData)->type()) && // Coincidence type
-       (channelIdOut_tmp==(*it_tgcCoinData)->identify()) && // channelIdOut, identify returns channelIdOut for HiPt
-       (channelIdIn_tmp==(*it_tgcCoinData)->channelIdIn()) && // channelIdIn
-       (trackletId==(*it_tgcCoinData)->trackletId()) && // trackletId 
-       (delta==(*it_tgcCoinData)->delta()) && // delta
-       (hsub==(*it_tgcCoinData)->sub()) && // hsub
-       (inner==(*it_tgcCoinData)->inner())
+  for (const TgcCoinData* tgcCoinData : *coincollection) {
+    if((TgcCoinData::TYPE_HIPT==tgcCoinData->type()) && // Coincidence type
+       (channelIdOut_tmp==tgcCoinData->identify()) && // channelIdOut, identify returns channelIdOut for HiPt
+       (channelIdIn_tmp==tgcCoinData->channelIdIn()) && // channelIdIn
+       (trackletId==tgcCoinData->trackletId()) && // trackletId 
+       (delta==tgcCoinData->delta()) && // delta
+       (hsub==tgcCoinData->sub()) && // hsub
+       (inner==tgcCoinData->inner())
        ) { 
       if(38<=trackletId && trackletId<=41) {
 	// This drop is most probably due to the fix of the HiPt Endcap Strip Board bug. 
@@ -3411,11 +3409,6 @@ StatusCode Muon::TgcRdoToPrepDataTool::getCabling() {
   if(!sc.isSuccess()) {
     msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endmsg;
     return sc;
-  }
-  
-  if(!TgcCabGet->isConfigured()) {
-    ATH_MSG_DEBUG("TGCcablingServer not yet configured!");
-    return StatusCode::FAILURE;
   }
   
   sc = TgcCabGet->giveCabling(m_tgcCabling);

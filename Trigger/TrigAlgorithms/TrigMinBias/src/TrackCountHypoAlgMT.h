@@ -17,11 +17,10 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 class TrackCountHypoAlgMT : public ::HypoBase  {
 public:
   TrackCountHypoAlgMT(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~TrackCountHypoAlgMT() override;
 
+  virtual ~TrackCountHypoAlgMT() = default;
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;
-  virtual StatusCode finalize() override;
 
 private:
   TrackCountHypoAlgMT();

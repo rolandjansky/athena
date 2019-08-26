@@ -77,15 +77,18 @@ public:
    void SetModuleGeometryCheck(const std::string &fileName,
                                FTKPattGenRoot::SectorSelection select); //! set sector selection algorithm and module geometry
    void SetRootOutput(const std::string& outfilename);		                                //! Set filename to write patterns to root file  
+   void SetFlatInCot(bool flatInCot) { m_flat_in_cot = flatInCot;}                                  //! Set algorithm for polar angle: flat in eta=0 or cot(theta)=1
    void SetOverlapRemoval(int overlap) { m_overlap = overlap;}                                  //! Set algorithm for overlap removal: 0=disabled; 1=barrel-only, 2=everywhere
    bool ReadSectorFile(const std::string& sectorfile);						//! Read in sector file
    void DeleteMaps();										//! Delete/destroy all the given maps/slices/etc...
    void WriteMapsToFile();                                                                      //! Write ssmap (and hence pmap and rmap) to output root-file.
-   void SetSliceParameters(double phi_min=-999,double phi_max=999, double c_min=-999,double c_max=999, 
-			   double d0_min=-999,double d0_max=999, double z0_min=-999,double z0_max=999, 
-			   double eta_min=-999, double eta_max=999);				//! Set slice parameters. If slice parametersa re not set, take them from the autotune procedure. Use +/- 999 for autotune parameters
-
-   void SetD0Exponent(double d0_alpha) { m_d0_alpha=d0_alpha; }
+   void SetTrackParameterRange
+      (std::pair<double,double> &track_phiRange,
+       std::pair<double,double> &track_cRange,
+       std::pair<double,double> &track_d0Range,
+       std::pair<double,double> &track_z0Range,
+       std::pair<double,double> &track_etaRange);
+   //! initialize track parameters
 protected:
    
    // input
@@ -96,7 +99,7 @@ protected:
    FTKConstantBank* m_constbank;								//! FTKConstantsBank reads the fit constants file
    SectorSelection m_select;									//! Selector algorithm
 
-   int m_overlap = 2;                                                                           //! Selector for overlap removal: 0=disabled; 1=barrel-only, 2=everywhere
+   int m_overlap;                                                                           //! Selector for overlap removal: 0=disabled; 1=barrel-only, 2=everywhere
 
    // internal variables
    // // HepRandomEngine is an abstract class defining the interface for each random engine.
@@ -115,18 +118,11 @@ protected:
    int m_keep7of8;
    double m_tolerance7of8;
 
-   // Slice parameters
-   double m_phi_min;
-   double m_phi_max;
-   double m_c_min;  
-   double m_c_max;  
-   double m_d0_min; 
-   double m_d0_max;
-   double m_z0_min; 
-   double m_z0_max; 
-   double m_eta_min;
-   double m_eta_max;
-   double m_d0_alpha;
+   bool m_flat_in_cot;
+   // track parameter intervals from which the patterns are drawn
+   // by default, these ranges are taken from the slide parameters
+   std::pair<double,double> m_phi_range,m_c_range,m_d0_range,m_z0_range,
+      m_eta_range,m_cot_range;
    // beamspot
    double m_beamspot[2];
 #ifdef DEBUG_BEAMSPOT

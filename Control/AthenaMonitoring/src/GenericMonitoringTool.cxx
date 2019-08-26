@@ -39,6 +39,11 @@ StatusCode GenericMonitoringTool::start() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode GenericMonitoringTool::stop() {
+  m_fillers.clear();
+  return StatusCode::SUCCESS;
+}
+
 StatusCode GenericMonitoringTool::book() {
 
   // If no histogram path given use parent or our own name
@@ -89,6 +94,13 @@ StatusCode GenericMonitoringTool::book() {
   return StatusCode::SUCCESS;
 }
 
+namespace GaudiUtils {
+    std::ostream& operator<< ( std::ostream& os, const std::reference_wrapper<Monitored::IMonitoredVariable>& rmv ) {
+        std::string s = rmv.get().name();
+        return os << s;
+    }
+}
+
 std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<IMonitoredVariable>> monitoredVariables) const {
   std::vector<std::shared_ptr<HistogramFiller>> result;
 
@@ -121,6 +133,9 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
 
     if (fillerVariables.size() != variables.size()) {
       ATH_MSG_DEBUG("Filler has different variables than monitoredVariables");
+      ATH_MSG_DEBUG("Filler variables            : " << fillerVariables);
+      ATH_MSG_DEBUG("Asked to fill from mon. vars: " << monitoredVariables);
+      ATH_MSG_DEBUG("Selected monitored variables: " << variables);
       continue;
     }
 
@@ -131,6 +146,10 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
   }
 
   return result;
+}
+
+uint32_t GenericMonitoringTool::runNumber() {
+  return Gaudi::Hive::currentContext().eventID().run_number();
 }
 
 uint32_t GenericMonitoringTool::lumiBlock() {

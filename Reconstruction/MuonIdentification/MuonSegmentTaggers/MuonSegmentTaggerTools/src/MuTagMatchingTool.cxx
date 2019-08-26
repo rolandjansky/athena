@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -20,7 +20,7 @@
 #include "MuonIdHelpers/MuonStationIndex.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkSurfaces/Surface.h"
 
@@ -80,7 +80,6 @@ MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
   , p_IExtrapolator("Trk::Extrapolator/AtlasExtrapolator")
   , p_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator")
   , m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
-  , m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool")
   , m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   , m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool")
   , m_selectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool")
@@ -170,7 +169,7 @@ StatusCode MuTagMatchingTool::initialize()
   ATH_CHECK( detStore()->retrieve(m_detMgr) );
 
   ATH_CHECK( m_idHelper.retrieve() );
-  ATH_CHECK( m_helper.retrieve() );
+  ATH_CHECK( m_edmHelperSvc.retrieve() );
   ATH_CHECK( m_printer.retrieve() );
   ATH_CHECK( m_pullCalculator.retrieve() );
 
@@ -845,7 +844,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
     ATH_MSG_DEBUG( " info.pullXZ " << info.pullXZ ); 
  
 
-     Identifier chId = m_helper->chamberId(*segment);
+     Identifier chId = m_edmHelperSvc->chamberId(*segment);
      Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(chId);
 //
 //  residuals and pulls in X coordinate (along tube)
@@ -893,7 +892,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
        }else{
 	 
 	 // get id and check that it is a muon hit id
-	 Identifier id = m_helper->getIdentifier(**mit);
+	 Identifier id = m_edmHelperSvc->getIdentifier(**mit);
 	 if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
 	 if( !m_idHelper->measuresPhi(id) ) continue;
 	 const Trk::TrackParameters* exP = p_propagator->propagate(*exTrack, (*mit)->associatedSurface(), Trk::anyDirection, false, Trk::NoField);

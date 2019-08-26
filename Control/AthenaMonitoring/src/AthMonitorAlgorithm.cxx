@@ -27,7 +27,7 @@ StatusCode AthMonitorAlgorithm::initialize() {
     // Retrieve the trigger decision tool if requested
     if ( !m_trigDecTool.empty() ) {
         ATH_CHECK( m_trigDecTool.retrieve() );
-	ATH_MSG_DEBUG( "TDT retrieved" );
+        ATH_MSG_DEBUG( "TDT retrieved" );
 
         // If the trigger chain is specified, parse it into a list.
         if ( m_triggerChainString!="" ) {
@@ -83,6 +83,18 @@ StatusCode AthMonitorAlgorithm::execute( const EventContext& ctx ) const {
 
     ATH_MSG_DEBUG("Event accepted!");
     return fillHistograms(ctx);
+}
+
+
+void AthMonitorAlgorithm::fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
+                                MonVarVec_t variables ) const {
+    Monitored::Group(groupHandle,variables).fill();
+}
+
+
+void AthMonitorAlgorithm::fill( const std::string& groupName,
+                                MonVarVec_t variables ) const {
+    fill(getGroup(groupName),variables);
 }
 
 
@@ -157,8 +169,12 @@ ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::stri
     // get the pointer to the tool, and check that it exists
     const ToolHandle<GenericMonitoringTool>* toolPtr = m_tools[name];
     if ( !toolPtr ) {
-        ATH_MSG_FATAL("The tool "<<name<<" could not be found in the monitoring algorithm's tool array. \n"<<
-            "This probably reflects a difference between your python configuration and c++ filling code."<<endmsg);
+        std::string available = std::accumulate( m_tools.begin(), m_tools.end(),
+            m_tools.begin()->name(), [](std::string s,auto h){return s + "," + h->name();} );
+        ATH_MSG_FATAL( "The tool " << name << " could not be found in the tool array of the " <<
+            "monitoring algorithm " << m_name << ". This probably reflects a discrepancy between " <<
+            "your python configuration and c++ filling code. Note: your available groups are {" <<
+            available << "}." << endmsg );
     }
     const ToolHandle<GenericMonitoringTool> toolHandle = *toolPtr;
     if ( toolHandle.empty() ) {

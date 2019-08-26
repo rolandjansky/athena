@@ -403,9 +403,9 @@ StatusCode HLTXAODBphysMonTool::fillTriggers(){
         const auto cgL2 = getTDT()->getChainGroup("L2_"+basename);
         const auto cgEF = getTDT()->getChainGroup("EF_"+basename);
         
-        bool isPassed   (cg-> isPassed(TrigDefs::Physics));
-        bool isPassedL2(cgL2->isPassed(TrigDefs::Physics));
-        bool isPassedEF(cgEF->isPassed(TrigDefs::Physics));
+        bool isPassed   (cg-> isPassed(TrigDefs::requireDecision));
+        bool isPassedL2(cgL2->isPassed(TrigDefs::requireDecision));
+        bool isPassedEF(cgEF->isPassed(TrigDefs::requireDecision));
         
         ATH_MSG_DEBUG("Triger passed(HLT/EF/L2): " << isPassed << isPassedL2 << isPassedEF << " " << chainName);
         ATH_MSG_VERBOSE("Triger passed(HLT/EF/L2): INT " << m_tdt->isPassed(chainName) << m_tdt->isPassed("L2_"+basename) << m_tdt->isPassed("EF_"+basename) << " " << chainName);
@@ -622,7 +622,7 @@ StatusCode HLTXAODBphysMonTool::fillEfficiencyGroups() {
     m_efficiency_denomnoVtxOS_pairs.clear();
     
     const auto cg   = getTDT()->getChainGroup(m_trigchain_denomnoVtxOS);
-    bool isPassed   (cg-> isPassed(TrigDefs::Physics)); 
+    bool isPassed   (cg-> isPassed(TrigDefs::requireDecision)); 
     
     if (isPassed){
 
@@ -1194,7 +1194,7 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
         for (const auto& trigpair : m_dedicated_chains) {
             
             const auto cg   = getTDT()->getChainGroup(trigpair.second);
-            bool isPassed   (cg-> isPassed(TrigDefs::Physics));
+            bool isPassed   (cg-> isPassed(TrigDefs::requireDecision));
             if (!isPassed) continue; // only passed chains from here on
             
             setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder/"+trigpair.first);
@@ -1251,7 +1251,7 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
         // **** loop over trigger items **** //
         for (const auto& chainName : m_monitored_chains) {
             const auto cg   = getTDT()->getChainGroup(chainName);
-            bool isPassed   (cg-> isPassed(TrigDefs::Physics));
+            bool isPassed   (cg-> isPassed(TrigDefs::requireDecision));
             
             
             if (!isPassed) continue; // only passed chains from here on
@@ -1334,7 +1334,7 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiency() {
     m_JpsiFinderEfficiency_denomnoVtxOS_pairs.clear();
     
     const auto cg   = getTDT()->getChainGroup(m_trigchain_denomnoVtxOS);
-    bool isPassed   (cg-> isPassed(TrigDefs::Physics)); 
+    bool isPassed   (cg-> isPassed(TrigDefs::requireDecision)); 
     
     if (isPassed){
 
@@ -1429,7 +1429,7 @@ StatusCode HLTXAODBphysMonTool::fillJpsiFinderEfficiencyHelper(const std::string
 
     TString prefix = m_prefix + "_Jpsi_" + groupName; // convert from std::string to TString          
     const auto cg   = getTDT()->getChainGroup(chainName);
-    bool isPassed   (cg-> isPassed(TrigDefs::Physics)); 
+    bool isPassed   (cg-> isPassed(TrigDefs::requireDecision)); 
     
     if (isPassed) { 
       const xAOD::VertexContainer*    jpsiContainer(nullptr);
@@ -1571,9 +1571,9 @@ StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, 
     const auto cgL2 = getTDT()->getChainGroup("L2_"+baseName);
     const auto cgEF = getTDT()->getChainGroup("EF_"+baseName);
     
-    bool isPassed   (cg-> isPassed(TrigDefs::Physics));
-    bool isPassedL2(cgL2->isPassed(TrigDefs::Physics));
-    bool isPassedEF(cgEF->isPassed(TrigDefs::Physics));
+    bool isPassed   (cg-> isPassed(TrigDefs::requireDecision));
+    bool isPassedL2(cgL2->isPassed(TrigDefs::requireDecision));
+    bool isPassedEF(cgEF->isPassed(TrigDefs::requireDecision));
     
     ATH_MSG_DEBUG("Trigger passed(HLT/EF/L2): " << isPassed << isPassedL2 << isPassedEF << " " << chainName << " group: " << groupName);
     if (!isPassed) return StatusCode::SUCCESS; // only HLT passed chains

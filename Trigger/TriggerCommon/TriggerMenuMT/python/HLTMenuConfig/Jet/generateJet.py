@@ -49,9 +49,9 @@ def generateChains( flags, chainDict ):
     TrigAntiKt4EMTopoSubJES = JetDefinition( "AntiKt", 0.4, TrigEMTopo, ptmin=trigMinPt,ptminfilter=trigMinPt)
     TrigAntiKt4EMTopoSubJES.modifiers = ["Calib:TrigRun2:data:JetArea_EtaJES_GSC_Insitu","Sort"] + clustermods 
 
-    #TODO: modify jet constituent configs to override offline configs for trigger calo cluster input.
     jetprefix="Trig"
     jetsuffix="subjesIS"
+    # May need a switch to disable automatic modifier prerequisite generation
     jetRecoComps = JetRecConfig.JetRecCfg(TrigAntiKt4EMTopoSubJES, flags, jetprefix, jetsuffix)
     inEventReco.mergeReco(jetRecoComps)    
 
@@ -73,11 +73,15 @@ def generateChains( flags, chainDict ):
 
     jetStep = ChainStep(stepName, [jetSequence])
 
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
+
     import pprint
     pprint.pprint(chainDict)
 
     acc.printConfig()
 
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], [ jetStep ] )
+    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ jetStep ] )
 
     return chain

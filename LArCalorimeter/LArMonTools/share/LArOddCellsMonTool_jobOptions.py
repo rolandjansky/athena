@@ -53,20 +53,14 @@ theLArOddCellsMonTool.LArPedestalKey='LArPedestal'
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 if DQMonFlags.useTrigger() and not athenaCommonFlags.isOnline():
-   from RecExConfig.InputFilePeeker import inputFileSummary
-#this retrieve the stream the file open belongs to the output is like: express_express or physics_CosmicCalo
-#so retrieve the chain, split it in the "_" char and get the second part (ie CosmicCalo or express...)
-   if inputFileSummary:
-   #Try to find the bitestreamMetaData:
-      if "bs_metadata" in inputFileSummary:
-      #Try to find the Stream:
-         if "Stream" in inputFileSummary['bs_metadata']:
-            #Try the input format should be like physics_L1Calo
-            if not inputFileSummary['bs_metadata']['Stream'].find("_")==-1:
-               #if ok get the stream name:
-               StreamFromFile=inputFileSummary['bs_metadata']['Stream'].split("_")[1]
-               if StreamFromFile=='express':
-                  theLArOddCellsMonTool.monitoredStreams=["RNDM"]  
+    from PyUtils.MetaReaderPeeker import metadata
+    # this retrieve the stream the file open belongs to the output is like: express_express or physics_CosmicCalo
+    # so retrieve the chain, split it in the "_" char and get the second part (ie CosmicCalo or express...)
+    if "stream" in metadata:
+        if '_' in metadata['stream']:
+            streamFromFile = metadata['stream'].split("_")[1]
+            if streamFromFile == 'express':
+                theLArOddCellsMonTool.monitoredStreams = ['RNDM']
 
 #ToolSvc += theLArOddCellsMonTool
 LArMon.AthenaMonTools+=[ theLArOddCellsMonTool ]

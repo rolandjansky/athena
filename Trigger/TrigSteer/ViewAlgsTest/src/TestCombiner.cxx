@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TestCombiner.cxx 
@@ -69,8 +69,8 @@ StatusCode TestCombiner::execute()
   CHECK( m_inputB.isValid() );
   ATH_MSG_DEBUG("A size "<< m_inputA->size());
   ATH_MSG_DEBUG("B size "<< m_inputB->size());
-  m_output = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
-  m_outputAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();  
+  m_output = std::make_unique< xAOD::TrigCompositeContainer >();
+  m_outputAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();  
   m_output->setStore(m_outputAux.ptr());
 
   for (size_t i = 0; i < m_inputA->size(); i++) {

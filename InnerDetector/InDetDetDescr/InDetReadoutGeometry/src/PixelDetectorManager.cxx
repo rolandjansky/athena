@@ -17,7 +17,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelKernel/GeoVAlignmentStore.h"
-#include "AsgTools/MsgStreamMacros.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 namespace InDetDD {
 
@@ -220,14 +220,14 @@ namespace InDetDD {
 
       } else if (frame == InDetDD::local) {
 
-        const SiDetectorElement * element =  m_elementCollection[idHash];
+        SiDetectorElement * element =  m_elementCollection[idHash];
         if (!element) return false;
 
         // Its a local transform
         //See header file for definition of m_isLogical          
         if( m_isLogical ){
 	  //Ensure cache is up to date and use the alignment corrected local to global transform
-	  element->updateCache();
+	  element->setCache();
 	  return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta, alignStore);
         } else 
 	  //Use default local to global transform

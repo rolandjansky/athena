@@ -38,6 +38,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "StoreGate/ReadCondHandle.h"
 
 using namespace std;
 //**********************************************************************
@@ -47,7 +48,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     : AsgTool(myname),
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool"),
     m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool"),
-    m_lumiTool("LuminosityTool/OnlLuminosityTool"),//online mu
+    m_luminosityCondDataKey("LuminosityCondDataOnline"),
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool") //offline mu
 {
     declareProperty("ElectronLHVLooseTool"      , m_electronLHVLooseTool        );
@@ -62,7 +63,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("PhotonKey",m_offPhContKey="Photons");
     declareProperty("File",m_file="");
     declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool Online");
-    declareProperty("LuminosityToolOnline", m_lumiTool, "Luminosity Tool");
+    declareProperty("LuminosityCondDataKey", m_luminosityCondDataKey, "Luminosity Tool Online");
     declareProperty("DetailedHistograms", m_detailedHists=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateDetail,this);
     declareProperty("DefaultProbePid", m_defaultProbePid="Loose");
     declareProperty("doJpsiee",m_doJpsiee=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateAltBinning,this);
@@ -140,12 +141,8 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
         ATH_MSG_ERROR("Unable to locate Service THistSvc");
         return sc;
     }
-    
-    if (m_lumiTool.retrieve().isFailure()) {
-        ATH_MSG_WARNING("Unable to retrieve LuminosityToolOnline");
-    } else {
-        ATH_MSG_INFO("Successfully retrieved LuminosityToolOnline");
-    }
+
+    ATH_CHECK( m_luminosityCondDataKey.initialize() );
 
     if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
         ATH_MSG_WARNING("Unable to retrieve LumiBlockMuTool");
@@ -804,15 +801,9 @@ void TrigEgammaAnalysisBaseTool::setAvgOfflineMu() {
 }
 
 void TrigEgammaAnalysisBaseTool::setAvgOnlineMu(){
-    float mu=0.;
-    
-    if(m_lumiTool)
-        mu=(float)m_lumiTool->lbAverageInteractionsPerCrossing();
-    else 
-        ATH_MSG_WARNING("Missing lumiTool");
-    
-    ATH_MSG_DEBUG("Online Lumi " << mu);
-    m_onlmu=mu;
+    SG::ReadCondHandle<LuminosityCondData> lumiData (m_luminosityCondDataKey);
+    m_onlmu = lumiData->lbAverageInteractionsPerCrossing();
+    ATH_MSG_DEBUG("Online Lumi " << m_onlmu);
 }
 
 // Check online/offline mu

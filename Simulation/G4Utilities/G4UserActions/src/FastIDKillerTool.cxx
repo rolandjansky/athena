@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4UserActions/FastIDKillerTool.h"
+#include "FastIDKillerTool.h"
 
 namespace G4UA
 {
@@ -15,6 +15,8 @@ namespace G4UA
   {
     declareProperty("R", m_config.R);
     declareProperty("Z", m_config.Z);
+    declareProperty("energyCut", m_config.energyCut);
+    declareProperty("isDalek", m_config.isDalek);
   }
 
   //---------------------------------------------------------------------------

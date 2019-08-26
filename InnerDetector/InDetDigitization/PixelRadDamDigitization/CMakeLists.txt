@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Commission/CommissionEvent
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Control/PileUpTools
                           Control/StoreGate
                           DetectorDescription/Identifier

@@ -22,32 +22,8 @@ ASG_TOOL_INTERFACE(IJetModifier)
 
 public:
 
-  /// Cosntructor.
-  IJetModifier();
-
-  /// Destructor.
-  virtual ~IJetModifier();
-
   /// Method to modify a jet collection.
-  /// Returns 0 for success.
-  virtual int modify(xAOD::JetContainer& jets) const =0;
-
-  /// Method to return the list of input containers.
-  /// The names of required input containers are appended to connames.
-  /// Returns nonzero for error.
-  /// Default returns 0 and adds no names.
-  virtual int inputContainerNames(std::vector<std::string>& connames);
-
-  /// Return the pseudojet retriever associated with this tool.
-  virtual const IJetPseudojetRetriever* pseudojetRetriever() const;
-
-  /// Set the pseudojet retriever associated with this tool.
-  virtual void setPseudojetRetriever(const IJetPseudojetRetriever* ppjr);
-
-private:
-
-  /// Pseudojet retriever.
-  const IJetPseudojetRetriever* m_ppjr;
+  virtual StatusCode modify(xAOD::JetContainer& jets) const = 0;
 
 };
 

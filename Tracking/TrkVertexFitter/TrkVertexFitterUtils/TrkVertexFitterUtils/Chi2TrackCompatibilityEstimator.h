@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXADAPTIVEFITTERTOOLS_CHI2TRACKCOMPATIBILITYESTIMATOR_H
@@ -30,38 +30,35 @@ namespace Trk
 {
   class PerigeeLinearizedTrack;
 
-  class Chi2TrackCompatibilityEstimator : public AthAlgTool,virtual public IVertexTrackCompatibilityEstimator
+  class Chi2TrackCompatibilityEstimator : public extends<AthAlgTool, IVertexTrackCompatibilityEstimator>
   {
    public:
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
     
    /**
     * default constructor due to Athena interface
     */
-    Chi2TrackCompatibilityEstimator(const std::string& t, const std::string& n, const IInterface*  p);
+    using base_class::base_class;
     
-   /**
-    * destructor
-    */
-    ~Chi2TrackCompatibilityEstimator();
-   
    /**
     * Estimate method changing the state of VxTrackAtVertex
     */
-     void estimate(VxTrackAtVertex &,const Amg::Vector3D & vertex);
+     virtual
+     void estimate(VxTrackAtVertex &,const Amg::Vector3D & vertex) const override;
  
     /**
     * Compatibility method returning the compatibility value
     */  
-     float compatibility(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex);
+     virtual
+     float compatibility(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const override;
     
   private:  
   
     /**
     * Compatibility method returning the compatibility value
     */  
-     template<class T> float _compatibility(T & plane,const Amg::Vector3D & vertex);
+     template<class T> float _compatibility(T & plane,const Amg::Vector3D & vertex) const;
 
   };
 }

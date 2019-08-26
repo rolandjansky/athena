@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @author: Sebastien Binet
 ## @file : PyUtils/python/Dso.py
 ## @purpose: a set of classes to model so-called 'rootmap' files
+
+from __future__ import print_function
 
 __version__ = "$Revision$"
 __author__  = "Sebastien Binet"
@@ -177,7 +179,7 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
         msg.debug("::: loading [%s]...", libname)
         try:
             return _load_lib(libname)
-        except (Exception,SystemError,), err:
+        except (Exception,SystemError,) as err:
             msg.warning("**error** %s", err)
         return
 
@@ -204,7 +206,7 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
         try:
             rflx_names = update_db(lib)
             return rflx_names
-        except Exception, err:
+        except Exception as err:
             msg.warning(err)
         return {}
 
@@ -471,7 +473,7 @@ class PyDsoDb( object ):
                 # try again...
                 try:
                     dir_content = os.listdir(path)
-                except Exception,err:
+                except Exception as err:
                     msg.warning("caught:\n%s", err)
             if dir_content is None:
                 msg.warning("could not run os.listdir on [%s]" % path)
@@ -494,7 +496,7 @@ class PyDsoDb( object ):
                         # we are only interested in libDict.so...
                         try:
                             dsoKey, libName = line[0], line[1]
-                        except Exception,err:
+                        except Exception as err:
                             msg.warning(
                                 'could not parse %s:%i', dsoFile, line_nbr
                                 )
@@ -585,8 +587,8 @@ class PyDsoDb( object ):
         caps = [ cap for cap in caps ]
         caps.sort()
         if len(caps) == 0:
-            print "::: ERROR: No such library [%s] in dsoDb !!" % libName
-            raise ValueError, ""
+            print ("::: ERROR: No such library [%s] in dsoDb !!" % libName)
+            raise ValueError ("")
         return caps
 
     def libs(self, detailedDump = False):

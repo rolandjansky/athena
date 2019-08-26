@@ -2561,9 +2561,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
 	massAtVrtX.push_back(KPLUSMASS);    
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        dsCascade = m_VKVFitter->startVertex(trackpTripletX,massAtVrtX);
+        dsCascade = m_VKVFitter->startVertex(trackpTripletX,massAtVrtX,*state);
 
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(dsCascade);
@@ -2577,12 +2577,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             
@@ -2826,10 +2826,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
 	massAtVrtX.push_back(PIMASS);    
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        dplusCascade = m_VKVFitter->startVertex(trackpTripletX,massAtVrtX);
-
+        dplusCascade = m_VKVFitter->startVertex(trackpTripletX,massAtVrtX,*state);
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(dplusCascade);
 
@@ -2842,12 +2841,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDplus(const ElementLink<xAOD::Track
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             
@@ -3132,9 +3131,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
 	massAtVrtX.push_back(KPLUSMASS);
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        d0Cascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX);
+        d0Cascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX,*state);
 
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(d0Cascade);
@@ -3150,12 +3149,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDstar(const ElementLink<xAOD::Track
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             
@@ -3430,9 +3429,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
 	massAtVrtX.push_back(KPLUSMASS);
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        d0Cascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX);
+        d0Cascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX,*state);
 
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(d0Cascade);
@@ -3446,12 +3445,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuD0(const ElementLink<xAOD::TrackPar
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             
@@ -3690,9 +3689,9 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
 	massAtVrtX.push_back(PROTONMASS);
 	massAtVrtX.push_back(PIMASS);    
 
-	m_VKVFitter->setDefault();
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
 
-        LambdaCascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX);
+        LambdaCascade = m_VKVFitter->startVertex(trackpDupletX,massAtVrtX,*state);
 
         std::vector<Trk::VertexID> vrtList;
         vrtList.push_back(LambdaCascade);
@@ -3706,12 +3705,12 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkLbMuMuLambda(const ElementLink<xAOD::Trac
 	massAtVrtXMuMu.push_back(MUMASS);    
 
 	//	bcCascade = m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
-        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList);
+        m_VKVFitter->nextVertex(trackpXMuMu,massAtVrtXMuMu,vrtList,*state);
 
 	Amg::Vector3D VertexX;
 	Amg::Vector3D VertexXMuMu;
 
-        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade();
+        Trk::VxCascadeInfo * result = m_VKVFitter->fitCascade(*state);
 
         if ( timerSvc() ) m_VtxFitTimer->pause();
                             

@@ -1,7 +1,6 @@
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
-
 include("TrigUpgradeTest/testHLT_MT.py")
 
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
@@ -24,19 +23,41 @@ theFTF.isRoI_Seeded = True
 theFTF.RoIs         = "FSRoI"
 topSequence += theFTF
 
+from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT, SPCountHypoAlgMT, SPCountHypoTool
+SpCount=TrigCountSpacePointsMT()
+SpCount.OutputLevel= DEBUG
+SpCount.SpacePointsKey="HLT_SpacePointCounts"
+topSequence += SpCount
+
+
+def makeAndSetHypo( alg, hypoClass, **hypokwargs):
+    hypoTool = hypoClass( **hypokwargs )
+    tools = alg.HypoTools
+    alg.HypoTools = tools + [ hypoTool ]
+    # now, this seems to be simpler: alg.HypoTools += [hypoTool], but it gives issue with Configurables of different class beeing named the same (even if they are private tools!)
+
+SpCountHypo = SPCountHypoAlgMT()
+SpCountHypo.OutputLevel= DEBUG
+SpCountHypo.HypoInputDecisions="L1FS"
+makeAndSetHypo( SpCountHypo, SPCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG)
+
+SpCountHypo.HypoOutputDecisions="SPDecisions"
+SpCountHypo.SpacePointsKey="HLT_SpacePointCounts"
+topSequence += SpCountHypo
+
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 topSequence.InDetTrigTrackParticleCreatorAlgMinBias.TrackName = "TrigFastTrackFinder_Tracks"
+topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
 
 from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
 TrackCountHypo=TrackCountHypoAlgMT()
-TrackCountHypoTool1=TrackCountHypoTool("HLT_mbsptrk")
-TrackCountHypoTool1.OutputLevel=DEBUG
-
 TrackCountHypo.OutputLevel= DEBUG
-TrackCountHypo.HypoTools+=[TrackCountHypoTool1]
-TrackCountHypo.HypoInputDecisions="FSDecisions"
+makeAndSetHypo( TrackCountHypo, TrackCountHypoTool, name="HLT_mbsptrk", OutputLevel=DEBUG )
+
+TrackCountHypo.HypoInputDecisions="SPDecisions"
 TrackCountHypo.HypoOutputDecisions="TrackCountDecisions"
 TrackCountHypo.tracksKey="HLT_xAODTracksMinBias"
+TrackCountHypo.trackCountKey="HLT_TrackCount"
 topSequence += TrackCountHypo
 
 from TrigMinBias.TrackCountMonitoringMT import TrackCountMonitoring

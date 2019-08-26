@@ -75,7 +75,7 @@ for obj in outObjects:
     outTags+=[tag]
 
 
-include("AthenaSealSvc/AthenaSealSvc_joboptions.py")
+include("AthenaServices/AthenaSealSvc_joboptions.py")
 AthenaSealSvc.CheckDictionary = True
 
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg

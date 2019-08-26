@@ -719,7 +719,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     compROT->m_associatedSurface=assocSurface;
     // delete global position (will be recreated in competingROT itself
     if (compROT->m_globalPosition) {
-        delete compROT->m_globalPosition.release().get();
+        compROT->m_globalPosition.release().reset();
     }
     //calling CompetingTRT_DriftCirclesOnTrack::setLocalParametersAndErrorMatrix() does not work here!
     // have to set the effective measurement and error matrix directly:

@@ -60,6 +60,7 @@
 #include "IOVDbSvcCurl.h"
 #include "BasicFolder.h"
 #include "IOVDbResolveTag.h"
+#include "CrestFunctions.h"
 
 using namespace IOVDbNamespace;
 
@@ -69,21 +70,6 @@ namespace{
   std::string
   jsonTagName(const std::string &globalTag, const std::string & folderName){
     return resolveCrestTag(globalTag,folderName);
-  }
- 
-  std::string
-  extractHashFromJson(const std::string & jsonReply){
-    std::string hash{};
-    try{
-      std::string signature="payloadHash\":\"";
-      auto startOfHash=jsonReply.find(signature) + signature.size();
-      auto endOfHash=jsonReply.find("\"",startOfHash);
-      auto len=endOfHash-startOfHash;
-      hash=jsonReply.substr(startOfHash, len);
-    } catch (std::exception & e){
-      std::cout<<__FILE__<<":"<<__LINE__<< ": "<<e.what()<<"\n while trying to find the hash in "<<jsonReply<<std::endl;
-    }
-    return hash;
   }
 }
 
@@ -246,8 +232,7 @@ IOVDbFolder::setIOVOverride(const unsigned int run,
   } else {
     if (run!=0 || lumiblock!=0) {
       m_iovoverride=IOVDbNamespace::iovTimeFromRunLumi(run,lumiblock);
-      ATH_MSG_INFO( 
-        "Override run/LB number to [" << run << ":" << lumiblock << 
+      ATH_MSG_INFO( "Override run/LB number to [" << run << ":" << lumiblock << 
         "] for folder " << m_foldername );
       m_iovoverridden=true;
     }
@@ -275,35 +260,15 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
   // if cacheDiv > 0, specifies number of slices of cache for query alignment
   // if ignoreMissChan set, don't worry about missing channels outside the cache range
   // return false if any problem
-
   // timer to track amount of time in loadCache
   TStopwatch cachetimer;
   const auto & [cachestart, cachestop] = m_iovs.getCacheBounds();
   BasicFolder b;
   if (m_source == "CREST"){
-    const std::string urlBase{"http://crest-undertow.web.cern.ch/crestapi"};
-    const std::string getTagByName{"/tags/"};
-    const std::string getAllIovsForTag{"/iovs?tagname="};
-    const std::string objectForHash{"/payloads/"};
-    const std::string  jsonFolderName=sanitiseFilename(m_foldername).substr(1, std::string::npos);
+    const std::string  jsonFolderName=sanitiseCrestTag(m_foldername);
     const std::string  completeTag=jsonTagName(globalTag, m_foldername);
     ATH_MSG_INFO("Download tag would be: "<<completeTag);
-    std::string url=urlBase+getAllIovsForTag+completeTag;
-    std::string reply;
-    std::string hash;
-    {
-      IOVDbSvcCurl request(url);
-      reply=request.get();
-      hash=extractHashFromJson(reply);
-      ATH_MSG_DEBUG("Hash: "<<hash);
-    }
-    {
-      auto payloadForHash=[](const std::string &h){return "/payloads/"+h+"/data";};
-      std::string url=urlBase+payloadForHash(hash);
-      ATH_MSG_DEBUG("URL requested: "<<url);
-      IOVDbSvcCurl request(url);
-      reply=request.get();
-    }
+    std::string reply=getPayloadForTag(completeTag);
     //
     std::istringstream ss(reply);
     //basic folder now contains the info
@@ -383,8 +348,7 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
 
   if (m_source == "COOL_DATABASE"){
     // query to fill cache - request for database activates connection
-    cool::IDatabasePtr dbPtr=m_conn->getCoolDb();
-    if (dbPtr.get()==0) {
+    if (not m_conn->open()) {
       ATH_MSG_FATAL( "Conditions database connection " <<m_conn->name() << " cannot be opened - STOP" );
       return false;
     }
@@ -400,9 +364,9 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
         m_iovs.setIovSpan(IovStore::Iov_t(0,cool::ValidityKeyMax));
         // check pointer is still valid - can go stale in AthenaMT environment
         // according to CORAL server tests done by Andrea Valassi (23/6/09)
-        if (not dbPtr.get()) throw std::runtime_error("COOL database pointer invalidated");
+        if (not m_conn->valid()) throw std::runtime_error("COOL database pointer invalidated");
         // access COOL folder in case needed to resolve tag (even for CoraCool)
-        cool::IFolderPtr folder=dbPtr->getFolder(m_foldername);
+        cool::IFolderPtr folder=m_conn->getFolderPtr(m_foldername);
 
         // resolve the tag for MV folders if not already done so
         if (m_multiversion && m_tag.empty()) {
@@ -412,9 +376,9 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
         }
         if (m_foldertype==CoraCool) {
           // CoraCool retrieve
-          // initialise CoraCool connection
           CoraCoolDatabasePtr ccDbPtr=m_conn->getCoraCoolDb();
           CoraCoolFolderPtr ccfolder=ccDbPtr->getFolder(m_foldername);
+
           auto [since,until] = m_iovs.getCacheBounds();
           CoraCoolObjectIterPtr itr=ccfolder->browseObjects(since, until,m_chansel,m_tag);
           while (itr->hasNext()) {
@@ -506,22 +470,12 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
       } catch (std::exception& e) {
         ATH_MSG_WARNING( "COOL retrieve attempt " << attempts << " failed: " << e.what() );
         // disconnect and reconnect
-        try {
-          m_conn->setInactive();
-          dbPtr=m_conn->getCoolDb();
-        } catch (std::exception& e) {
-          ATH_MSG_WARNING( "Exception from disconnect/reconnect: " <<e.what() );
-          // try once more to connect
-          try {
-            dbPtr=m_conn->getCoolDb();
-          } catch (std::exception& e) {
-            ATH_MSG_ERROR( "Cannot reconnect to database:" << e.what());
-          }
-        }
+        if (not m_conn->dropAndReconnect()) ATH_MSG_ERROR("Tried to reconnect in 'loadCache' but failed");
       }
     }
   } /*end of 'if ... COOL_DATABASE'*/ else {
     //this is code using CREST objects now
+    if (!resolveTag(nullptr,globalTag)) return false;
     addIOVtoCache(b.iov().first, b.iov().second);
     ATH_MSG_INFO("Adding IOV to cache");
     const auto & channelNumbers=b.channelIds();
@@ -532,17 +486,19 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
         const auto & vPayload = b.getVectorPayload(chan);
         const unsigned int istart=m_cacheattr.size();
         for (const auto & attList:vPayload){
+          if (m_cachespec==0) setSharedSpec(attList);
           m_cacheattr.push_back(coral::AttributeList(*m_cachespec,true));// maybe needs to be cleared before
           m_cacheattr.back().fastCopyData(attList);
           m_nbytesread+=IOVDbNamespace::attributeListSize(attList);
         }
         m_cacheccstart.push_back(istart);
         m_cacheccend.push_back(m_cacheattr.size());
-        //m_cache.saveCoraCoolEndpoints(istart, m_cache.size());
         ++iadd;
       } else {
         auto const & attList = b.getPayload(chan);
-        m_cacheattr.push_back(coral::AttributeList(*m_cachespec,true));// maybe needs to be cleared before
+        if (m_cachespec==0) setSharedSpec(attList);
+        const coral::AttributeList c(*m_cachespec,true);
+        m_cacheattr.push_back(c);// maybe needs to be cleared before
         m_cacheattr.back().fastCopyData(attList);
         m_nbytesread+=IOVDbNamespace::attributeListSize(attList);
         ++iadd;
@@ -585,7 +541,7 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
 
 bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
                                        const std::string& globalTag, 
-                                       cool::IDatabasePtr dbPtr,
+                                       cool::IDatabasePtr /*dbPtr*/,
                                        const ServiceHandle<IIOVSvc>& iovSvc) {
   ATH_MSG_DEBUG( "IOVDbFolder::recheck with DB for folder " << m_foldername<< " validitykey: " << vkey );
   if (m_iovs.empty()) {
@@ -605,7 +561,7 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
     try {
       m_iovs.setIovSpan(IovStore::Iov_t(0,cool::ValidityKeyMax));
       // access COOL folder in case needed to resolve tag (even for CoraCool)
-      cool::IFolderPtr folder=dbPtr->getFolder(m_foldername);
+      cool::IFolderPtr folder=m_conn->getFolderPtr(m_foldername);
       // resolve the tag for MV folders if not already done so
       if (m_multiversion && m_tag.empty()) { // NEEDED OR NOT?
         if (!resolveTag(folder,globalTag)) return false;
@@ -617,8 +573,7 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
       ATH_MSG_DEBUG("checking range:  "<<vkey+1<<" - "<<vkey+2);
       if (m_foldertype==CoraCool) {
         // CoraCool retrieve initialise CoraCool connection
-        CoraCoolDatabasePtr ccDbPtr   = m_conn->getCoraCoolDb();
-        CoraCoolFolderPtr   ccfolder  = ccDbPtr->getFolder(m_foldername);
+        CoraCoolFolderPtr   ccfolder  = m_conn->getFolderPtr<CoraCoolFolderPtr>(m_foldername);
         // this returns all the objects whose IOVRanges crosses this range .
         CoraCoolObjectIterPtr itr = ccfolder->browseObjects(vkey+1, vkey+2,m_chansel,m_tag);
         while (objectIteratorIsValid(itr)) {
@@ -642,16 +597,9 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
       m_nobjread+=counter;
     }catch (std::exception& e) {
       ATH_MSG_WARNING( "COOL retrieve attempt " << attempts <<  " failed: " << e.what() );
-      try { // disconnect and reconnect
-        m_conn->setInactive();
-        dbPtr=m_conn->getCoolDb();
-      }
-      catch (std::exception& e) {
-        ATH_MSG_WARNING( "Exception from disconnect/reconnect: " << e.what() );
-      }
+      if (not m_conn->dropAndReconnect()) ATH_MSG_ERROR("Tried reconnecting in loadCacheIfDbChanged but failed");
     }
   }
-  ATH_MSG_INFO( "Special cache check finished for folder " << m_foldername );
   return true;
 }
 
@@ -907,125 +855,53 @@ void IOVDbFolder::summary() {
   }
 }
 
-std::unique_ptr<SG::TransientAddress>
-IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,const unsigned int cacheRun,
-    const unsigned int cacheTime){
-  // preload Address from SG - does folder setup including COOL access
-  // also set detector store location - cannot be done in constructor
-  // as detector store does not exist yet in IOVDbSvc initialisation
-  // and sets up cache length, taking into account optional overrides
-  // returns null pointer in case of problem
-  ATH_MSG_DEBUG( "preLoadFolder for folder " << m_foldername);
-  p_detStore=detStore;
-  std::string folderdesc;
-  cool::IDatabasePtr dbPtr;
-  cool::IFolderPtr fldPtr;
-  if (m_metacon==0) {
-    // folder being read from COOL
-    // get COOL database - will wake up connection on first access
-    dbPtr=m_conn->getCoolDb();
-    if (dbPtr.get()==0) {
-      ATH_MSG_FATAL( "Conditions database connection " << m_conn->name() << " cannot be opened - STOP" );
-      return 0;
-    }
-    // get folder and read information
-    if (!dbPtr->existsFolder(m_foldername)) {
-      ATH_MSG_FATAL( "Folder " << m_foldername << " does not exist" );
-      return 0;
-    }
-    fldPtr=dbPtr->getFolder(m_foldername);
-    // get versiontype of folder
-    m_multiversion=(fldPtr->versioningMode()==cool::FolderVersioning::MULTI_VERSION);
-    // read and process description string
-    folderdesc=fldPtr->description();
-  } else {
-    // folder from meta-data
-    folderdesc=m_metacon->folderDescription();
-  }
-  ATH_MSG_DEBUG( "Folder description " << folderdesc);
-
-  // register folder with meta-data tool if writing metadata
-  if (m_writemeta) {
-    if (StatusCode::SUCCESS!=p_metaDataTool->registerFolder(m_foldername,folderdesc)) {
-      ATH_MSG_ERROR( "Failed to register folder " << m_foldername<< " for meta-data write" );
-      return 0;
-    }
-  }
-  // parse the description string
-  IOVDbParser folderpar(folderdesc,m_msg.get());
+bool 
+IOVDbFolder::overrideOptionsFromParsedDescription(const IOVDbParser & parsedDescription){
+  bool success{true};
   // check for timeStamp indicating folder is timestamp indexed
-  m_timestamp=folderpar.timebaseIs_nsOfEpoch();
+  m_timestamp=parsedDescription.timebaseIs_nsOfEpoch();
   // check for key, giving a different key to the foldername
-  if (auto newkey=folderpar.key(); not newkey.empty() and not m_jokey) {
-    ATH_MSG_DEBUG( "Key for folder " << m_foldername << " set to "
-             << newkey << " from description string" );
+  if (auto newkey=parsedDescription.key(); not newkey.empty() and not m_jokey) {
+    ATH_MSG_DEBUG( "Key for folder " << m_foldername << " set to "<< newkey << " from description string" );
     m_key=newkey;
   }
   // check for 'cache' but only if not already found in joboptions
-  if (m_cachepar.empty()) m_cachepar=folderpar.cache();
+  if (m_cachepar.empty()) m_cachepar=parsedDescription.cache();
   // check for cachehint
-  if (int newCachehint=folderpar.cachehint();newCachehint!=0) m_cachehint=newCachehint;
+  if (int newCachehint=parsedDescription.cachehint();newCachehint!=0) m_cachehint=newCachehint;
   // check for <named/>   
-  m_named=folderpar.named();
-  // get addressHeader
-  if (auto newAddrHeader = folderpar.addressHeader();not newAddrHeader.empty()){
+  m_named=parsedDescription.named();
+   // get addressHeader
+  if (auto newAddrHeader = parsedDescription.addressHeader();not newAddrHeader.empty()){
     IOVDbNamespace::replaceServiceType71(newAddrHeader);
     m_addrheader=newAddrHeader;
   }
   //get clid, if it exists (set to zero otherwise)
-  m_clid=folderpar.classId();
-  bool gotCLID=(m_clid!=0);
+  m_clid=parsedDescription.classId();
   // decode the typeName
-  if (!folderpar.getKey("typeName","",m_typename)) {
+  if (!parsedDescription.getKey("typeName","",m_typename)) {
     ATH_MSG_ERROR( "Primary type name is empty" );
-    return 0;
+    return false;
   }
+  bool gotCLID=(m_clid!=0);
+  
   ATH_MSG_DEBUG( "Got folder typename " << m_typename );
   if (!gotCLID)
     if (StatusCode::SUCCESS==p_clidSvc->getIDOfTypeName(m_typename,m_clid)) 
       gotCLID=true;
   if (!gotCLID) {
     ATH_MSG_ERROR("Could not get clid for typeName: " << m_typename);
-    return 0;
+    return false;
   }
   ATH_MSG_DEBUG( "Got folder typename " << m_typename <<  " with CLID " << m_clid );
+  return success;
+}
 
-  // setup channel list and folder type
-  if (m_metacon==0) {
-    // data being read from COOL
-    // get the list of channels
-    if (m_named) {
-      const std::map<cool::ChannelId,std::string> chanmap=fldPtr->listChannelsWithNames();
-      m_channums.reserve(chanmap.size());
-      m_channames.reserve(chanmap.size());
-      for (auto & thisChannel:chanmap){
-        m_channums.push_back(thisChannel.first);
-        m_channames.push_back(thisChannel.second);
-      }
-      m_nchan=m_channums.size();
-      ATH_MSG_DEBUG( "Retrieving list of channel numbers/names: got "<< m_nchan << " channels " );
-    } else {
-      m_channums=fldPtr->listChannels();
-      m_nchan=m_channums.size();
-      ATH_MSG_DEBUG( "Retrieving list of channel numbers only: got "<< m_nchan << " channels " );
-    }
-    // set folder type 
-    m_foldertype = IOVDbNamespace::determineFolderType(fldPtr);
-    ATH_MSG_DEBUG( "Folder identified as type " << m_foldertype );
-  }
-  // note that for folders read from metadata, folder type identification
-  // is deferred until getAddress when first data is read
-  // and channel number/name information is not read
-
-  // change channel selection for single-object read
-  if (m_foldertype==AttrList || m_foldertype==PoolRef)
-    m_chansel=cool::ChannelSelection(0);
-
-  // now create TAD
-  auto tad = CxxUtils::make_unique<SG::TransientAddress>(m_clid,m_key);
-  // process symlinks, if any
-  const auto & linknameVector = folderpar.symLinks();
-  for (const auto & linkname:linknameVector){
+std::unique_ptr<SG::TransientAddress>
+IOVDbFolder::createTransientAddress(const std::vector<std::string> & symlinks){
+  auto tad = std::make_unique<SG::TransientAddress>(m_clid,m_key);
+  //
+  for (const auto & linkname:symlinks){
     if (not linkname.empty()) {
       CLID sclid;
       if (StatusCode::SUCCESS==p_clidSvc->getIDOfTypeName(linkname,sclid)) {
@@ -1033,12 +909,84 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,const unsigned int cacheRun,
         ATH_MSG_DEBUG( "Setup symlink " << linkname << " CLID " <<sclid << " for folder " << m_foldername );
       } else {
         ATH_MSG_ERROR( "Could not get clid for symlink: "<< linkname );
-        return 0;
+        return nullptr;
       }
     }
   }
-  // setup cache length
-  if (m_timestamp) {
+  return tad;
+}
+
+std::unique_ptr<SG::TransientAddress>
+IOVDbFolder::preLoadFolder(StoreGateSvc* detStore, const unsigned int cacheRun, const unsigned int cacheTime){
+  // preload Address from SG - does folder setup including COOL access
+  // also set detector store location - cannot be done in constructor
+  // as detector store does not exist yet in IOVDbSvc initialisation
+  // and sets up cache length, taking into account optional overrides
+  // returns null pointer in case of problem
+  p_detStore=detStore;
+  std::string folderdesc;
+  if (not m_metacon) {
+    if(m_source=="CREST"){
+      const std::string  tagName=sanitiseCrestTag(m_foldername);
+      folderdesc=folderDescriptionForTag(tagName);
+    } else {
+      //folder desc from db
+      std::tie(m_multiversion, folderdesc) = IOVDbNamespace::folderMetadata(m_conn, m_foldername);
+    }
+  } else {
+    // folder from meta-data
+    folderdesc=m_metacon->folderDescription();
+  }
+  ATH_MSG_DEBUG( "Folder description " << folderdesc);
+  // register folder with meta-data tool if writing metadata
+  if (m_writemeta) {
+    if (StatusCode::SUCCESS!=p_metaDataTool->registerFolder(m_foldername,folderdesc)) {
+      ATH_MSG_ERROR( "Failed to register folder " << m_foldername<< " for meta-data write" );
+      return nullptr;
+    }
+  }
+  // parse the description string
+  IOVDbParser folderpar(folderdesc,m_msg.get());
+  //use the overrides in the folderdescription, return nullptr immediately if something went wrong
+  if (not overrideOptionsFromParsedDescription(folderpar)) return nullptr;
+  // setup channel list and folder type
+  if (not m_metacon) {
+    if(m_source=="CREST"){
+        const auto & crestTag=sanitiseCrestTag(m_foldername);
+        m_channums=channelListForTag(crestTag);
+        const std::string & payloadSpec = payloadSpecificationForTag(crestTag);
+        //determine foldertype from the description, the spec and the number of channels
+        m_foldertype = IOVDbNamespace::determineFolderType(folderdesc, payloadSpec, m_channums);
+    } else {
+      // data being read from COOL
+      auto fldPtr=m_conn->getFolderPtr<cool::IFolderPtr>(m_foldername);
+      // get the list of channels
+      std::tie(m_channums, m_channames) = IOVDbNamespace::channelList(m_conn, m_foldername,m_named);
+      // set folder type 
+      m_foldertype = IOVDbNamespace::determineFolderType(fldPtr);
+    }
+  }
+  m_nchan=m_channums.size();
+  ATH_MSG_DEBUG( "Folder identified as type " << m_foldertype );
+  // note that for folders read from metadata, folder type identification
+  // is deferred until getAddress when first data is read
+  // and channel number/name information is not read
+
+  // change channel selection for single-object read
+  if (m_foldertype==AttrList || m_foldertype==PoolRef) m_chansel=cool::ChannelSelection(0);
+  const auto & linknameVector = folderpar.symLinks();
+  // now create TAD
+  auto tad{createTransientAddress(linknameVector)};
+  if (not tad) {
+    ATH_MSG_WARNING("Transient address is null in "<<__func__);
+    return nullptr;
+  }
+  setCacheLength(m_timestamp, cacheRun, cacheTime);
+  return tad;
+}
+
+void IOVDbFolder::setCacheLength(const bool timeIs_nsOfEpoch, const unsigned int cacheRun, const unsigned int cacheTime){
+  if (timeIs_nsOfEpoch){
     long long int clen=600; // default value of 10 minutes
     if (cacheTime!=0) {
       clen=cacheTime;
@@ -1062,7 +1010,6 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore,const unsigned int cacheRun,
     const auto [run,lumi]=IOVDbNamespace::runLumiFromIovTime(m_cachelength);
     ATH_MSG_DEBUG( "Cache length set to " << run <<" runs " << lumi << " lumiblocks" );
   }
-  return tad;
 }
 
 void 
@@ -1087,6 +1034,10 @@ IOVDbFolder::resolveTag(cool::IFolderPtr fptr,const std::string& globalTag) {
   if (tag.empty()) {
     ATH_MSG_ERROR( "No IOVDbSvc.GlobalTag specified on job options or input file" );
     return false;
+  }
+  if(m_source=="CREST"){
+    m_tag=IOVDbNamespace::resolveCrestTag(globalTag,m_foldername);
+    return true;
   }
   // check for magic tags
   if (IOVDbNamespace::looksLikeMagicTag(tag) and not magicTag(tag)) return false;
@@ -1125,41 +1076,11 @@ IOVDbFolder::resolveTag(cool::IFolderPtr fptr,const std::string& globalTag) {
 }
 
 bool 
-IOVDbFolder::magicTag(std::string& tag) {
-  // tag an inputag of form TagInfo{Major|Minor}/<tag> or 
-  // TagInfo(Major|Minor}/<prefix>/<tag>
-  // and resolve to value of TagInfo object tag <tag>
-  // with optional prefix
-  // <prefix>DEFAULT tags are no longer returned
-  // return true for successful resolution
-  const std::string inputtag=tag;
-  tag="";
-  enum ResultIndices{WHOLETAG, MAJMIN, PATH1, PATH2, SIZEWITHPREFIX};
-  auto results=IOVDbNamespace::parseMagicTag(inputtag);
-  if (results.empty())   return false;
-  const auto & [prefix, target] = IOVDbNamespace::tag2PrefixTarget(results);
-  ATH_MSG_DEBUG("In magicTag for tag name: " << target << " prefix " << prefix );
-  // try to get TagInfo object
-  tag=IOVDbNamespace::getTagInfo(inputtag, p_detStore);
-  // if nothing found, try to get GeoAtlas directly from GeoModelSvc
-  if (tag.empty() and target=="GeoAtlas") {
-    ATH_MSG_DEBUG( "Attempt to get GeoAtlas tag directly from GeoModelSvc" );
-    tag=prefix+IOVDbNamespace::getGeoAtlasVersion();
-    ATH_MSG_DEBUG( "Resolved tag " << target << " to " << tag << " directly from GeoModel" );
-  }
-  if (not tag.empty()) {
-    std::string::size_type rstrip{};
-    //number of characters to strip from tag end
-    if (results[MAJMIN] == "Major") rstrip=6;
-    if (results[MAJMIN] == "Minor") rstrip=3;
-    // check if characters need to be stripped from end of tag
-    if (rstrip>0 && tag.size()>rstrip) tag=tag.substr(0,tag.size()-rstrip);
-    ATH_MSG_DEBUG( "Resolved TagInfo tag " << target  << " to value " << tag );
-  } else {
-    ATH_MSG_ERROR( "Could not resolve TagInfo tag " << target );
-  }
+IOVDbFolder::magicTag(std::string& tag) { //alters the argument
+  tag = IOVDbNamespace::resolveUsingTagInfo(tag, p_detStore);
   return (not tag.empty());
 }
+
 
 
 bool 

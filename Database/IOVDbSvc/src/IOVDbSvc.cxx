@@ -62,8 +62,7 @@ bool isOpenEnded (const IOVRange& range, bool isTimeStamp)
 {
   if (isTimeStamp) {
     return range.stop().timestamp() >= IOVTime::MAXTIMESTAMP;
-  }
-  else {
+  }else {
     return range.stop().re_time() >= IOVTime::MAXRETIME;
   }
 }
@@ -158,7 +157,6 @@ StatusCode IOVDbSvc::initialize() {
   long int pri=100;
   incSvc->addListener( this, "BeginEvent", pri );
   incSvc->addListener( this, "StoreCleared", pri );
-  incSvc->addListener( this, "EndOfBeginRun", pri );
 
   // Get context for POOL conditions files, and created an initial connection
   if (m_par_managePoolConnections) {
@@ -487,7 +485,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
   // check consistency of global tag and database instance, if set
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty()) {
+  if (!m_par_dbinst.empty() && !m_globalTag.empty() and (m_par_source!="CREST")) {
     const std::string tagstub=m_globalTag.substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
@@ -505,6 +503,7 @@ StatusCode IOVDbSvc::updateAddress(StoreID::type storeID, SG::TransientAddress* 
 
   // obtain the validity key for this folder (includes overrides)
   cool::ValidityKey vkey=folder->iovTime(m_iovTime);
+  ATH_MSG_DEBUG("Validity key "<<vkey);
   if (!folder->readMeta() && !folder->cacheValid(vkey)) {
     // mark this folder as not-dropped so cache-read will succeed
     folder->setDropped(false);
@@ -557,7 +556,6 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
                                IOpaqueAddress*&   address) {
 
   ATH_MSG_DEBUG( "getRange  clid: " << clid << " key: \""<< dbKey << "\"  t: " << time );
-
   const std::string& key=dbKey;
   FolderMap::const_iterator fitr=m_foldermap.find(key);
   if (fitr==m_foldermap.end()) {
@@ -576,12 +574,10 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
 
   /// FIXME?
   tag = folder->key();
-
-
   // check consistency of global tag and database instance, if set
   // catch most common user misconfigurations
   // this is only done here as need global tag to be set even if read from file
-  if (!m_par_dbinst.empty() && !m_globalTag.empty()) {
+  if (!m_par_dbinst.empty() && !m_globalTag.empty() and m_par_source!="CREST") {
     const std::string tagstub=m_globalTag.substr(0,7);
     ATH_MSG_DEBUG( "Checking " << m_par_dbinst << " against " <<tagstub );
     if (((m_par_dbinst=="COMP200" || m_par_dbinst=="CONDBR2") && 
@@ -611,7 +607,6 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
   }
 
   // data should now be in cache
-  //  IOpaqueAddress* address=0;
   address=0;
   // setup address and range
   {
@@ -731,7 +726,7 @@ void IOVDbSvc::signalEndProxyPreload() {
 void IOVDbSvc::handle( const Incident& inc) {
   // Handle incidents:
   // BeginEvent to set IOVDbSvc state to EVENT_LOOP
-  // StoreCleared or EndOfBeginRun to close any open POOL files
+  // StoreCleared to close any open POOL files
   ATH_MSG_VERBOSE( "entering handle(), incident type " << inc.type()
            << " from " << inc.source() );
   if (inc.type()=="BeginEvent") {
@@ -739,8 +734,7 @@ void IOVDbSvc::handle( const Incident& inc) {
   } else {
     const StoreClearedIncident* sinc= 
       dynamic_cast<const StoreClearedIncident*>(&inc);
-    if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)
-        || inc.type()=="EndOfBeginRun") {
+    if ((inc.type()=="StoreCleared" && sinc!=0 && sinc->store()==&*m_h_sgSvc)) {
       if (inc.type()=="StoreCleared") {
         m_state=IOVDbSvc::FINALIZE_ALG;
         if (m_par_dumpkeys) {
@@ -768,23 +762,8 @@ void IOVDbSvc::handle( const Incident& inc) {
   }
 }
 
-StatusCode IOVDbSvc::registerTagInfoCallback() {
-  // register callback for taginfo handling
-  // for the moment, this calls processTagInfo directly, rather than going
-  // via a call back (following RDS 08/2006)
-  ATH_MSG_DEBUG( "registerTagInfoCallback called" );
-  std::list<std::string> alist;
-  int a=0;
-  if (StatusCode::SUCCESS!=processTagInfo(a,alist)) {
-    ATH_MSG_ERROR( "Cannot process TagInfo" );
-    return StatusCode::FAILURE;
-  } else {
-    return StatusCode::SUCCESS;
-  }
-}
-
-StatusCode IOVDbSvc::processTagInfo(IOVSVC_CALLBACK_ARGS) {
-  // Processing of taginfo callback
+StatusCode IOVDbSvc::processTagInfo() {
+  // Processing of taginfo
   // Set GlobalTag and any folder-specific overrides if given
   const TagInfo* tagInfo=0;
   if (StatusCode::SUCCESS!=m_h_detStore->retrieve(tagInfo)) {
@@ -1162,8 +1141,7 @@ StatusCode IOVDbSvc::loadCaches(IOVDbConn* conn, const IOVTime* time) {
       {
         Gaudi::Guards::AuditorGuard auditor(std::string("FldrCache:")+folder->folderName(), auditorSvc(), "preLoadProxy");
         if (!folder->loadCache(vkey,m_par_cacheAlign,m_globalTag,m_par_onlineMode)) {
-          ATH_MSG_ERROR( "Cache load (prefetch) failed for folder " << 
-            folder->folderName() );
+          ATH_MSG_ERROR( "Cache load (prefetch) failed for folder " << folder->folderName() );
           // remember the failure, but also load other folders on this connection
           // while it is open
           sc=StatusCode::FAILURE;

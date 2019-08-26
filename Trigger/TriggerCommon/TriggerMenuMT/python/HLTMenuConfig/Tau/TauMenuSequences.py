@@ -72,14 +72,7 @@ def tauCaloMVAMenuSequence(name):
 def tauCoreTrackSequence():
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgsTP, eventAlgs) = makeInDetAlgs("TauCore")
-
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_TauCore
-
-    theFTFCore = TrigFastTrackFinder_TauCore()
-    theFTFCore.isRoI_Seeded = True
-    viewAlgsTP.append(theFTFCore)
-
+    (viewAlgsTP, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore")
 
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
@@ -94,7 +87,7 @@ def tauCoreTrackSequence():
     TrackRoiUpdater.RoIOutputKey = "RoiForID2"
 
 
-    fastTrackViewsMaker = EventViewCreatorAlgorithm("fastTrackViewsMaker")
+    fastTrackViewsMaker = EventViewCreatorAlgorithm("IMTauFastTrack")
     fastTrackViewsMaker.RoIsLink = "roi" # -||-
     fastTrackViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
     fastTrackViewsMaker.Views = "TAUIDViews"
@@ -110,9 +103,6 @@ def tauCoreTrackSequence():
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
          TrackCollection = viewAlg.TrackName
 
-
-    theFTFCore.TracksName=TrackCollection
-    theFTFCore.RoIs = fastTrackViewsMaker.InViewRoIs
 
     TrackRoiUpdater.RoIInputKey = fastTrackViewsMaker.InViewRoIs
     TrackRoiUpdater.fastTracksKey = TrackCollection
@@ -141,20 +131,14 @@ def tauCoreTrackSequence():
 def tauPrecisionSequence():
 
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
-    (viewAlgsPT, eventAlgs) = makeInDetAlgs("FastTrack")
+    (viewAlgsPT, eventAlgs) = makeInDetAlgs("Tau")
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='Tau',separateTrackParticleCreator="_Tau")
 
     TrackParticlesName = ""
     for viewAlg in viewAlgsPT:
         if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
             TrackParticlesName = viewAlg.TrackParticlesName
             TrackCollection = viewAlg.TrackName
-
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Tau
-    theFTF = TrigFastTrackFinder_Tau()
-    #"TrigFastTrackFinder_TauCorePre"
-    theFTF.isRoI_Seeded = True
-    theFTF.TracksName=TrackCollection
-    viewAlgsPT.append(theFTF)
 
     ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifier")
     ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]
@@ -180,7 +164,7 @@ def tauPrecisionSequence():
     trigTauMVA.Key_vertexInputContainer = "VxPrimaryCandidate"
     trigTauMVA.TrigTauTrkOutputKey = recordable("HLT_tautrack_MVA")
 
-    precisionViewsMaker = EventViewCreatorAlgorithm("precisionViewsMaker")
+    precisionViewsMaker = EventViewCreatorAlgorithm("IMPrecisionTau")
     precisionViewsMaker.RoIsLink = "roi" # -||-
     precisionViewsMaker.InViewRoIs = "TCoreViewRoIs" # contract with the fastCalo
     precisionViewsMaker.Views = "TAUID2Views"
@@ -194,7 +178,6 @@ def tauPrecisionSequence():
          viewAlg.roiCollectionName = precisionViewsMaker.InViewRoIs
 
     precisionTRU.RoIInputKey = precisionViewsMaker.InViewRoIs
-    theFTF.RoIs = precisionViewsMaker.InViewRoIs
 
     tauPInViewAlgs = parOR("tauPInViewAlgs", viewAlgsPT + [ precisionTRU, trigTauMVA ])
 

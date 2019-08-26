@@ -7,8 +7,8 @@
 #include <algorithm>
 #include <sstream>
 
-MultijetFlowNetworkBuilder::MultijetFlowNetworkBuilder(const ConditionsMT& conditions):
-FlowNetworkBuilderBase(conditions){
+MultijetFlowNetworkBuilder::MultijetFlowNetworkBuilder(ConditionsMT conditions):
+  FlowNetworkBuilderBase(std::move(conditions)){
 }
 
 std::optional<std::vector<std::shared_ptr<FlowEdge>>>
@@ -29,13 +29,12 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   auto icond{0};
   const auto jg_offset = m_conditions.size() + 1;
   
-  std::vector<std::shared_ptr<FlowEdge>> edges(m_initialEdges.begin(),
-                                               m_initialEdges.end());
+  auto edges = getSourceToConditionsEdges();
   
   // matches: std::optional<std::vector<std::vector<int>>>
   for(const auto& jg_nodes : *matches){
     // icond is m_conditons index
-    double cap = m_conditions[icond].capacity();
+    double cap = m_conditions[icond]->capacity();
 
     auto  dest  = std::back_inserter(edges);
     std::transform(jg_nodes.begin(),
@@ -50,6 +49,9 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   }
     
   //contains jets: jet - node for jets found in matching groups (nb type order)
+  // note that more than one jet group will contain a jet. use this map
+  // to avoid allocating more than one jet node to a jet.
+  
   std::map<pHypoJet, int> jets; 
 
   std::size_t jnode{m_conditions.size() + (groups_e-groups_b)};
@@ -57,35 +59,56 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   // now add the jetgroup - jet edges
   std::size_t sinkCapacity{0};
   constexpr double unitCapacity = 1.0;
-  
-  for(const auto& jgnodes : *matches){
-    // jgnodes - vector of jet group indices
-    for (auto jgnode : jgnodes){
-      // convert from (a job group index to a job group.
-      auto jgroup = *(groups_b + jgnode);
+
+
+  // *matches: conditions index     jetGroup indcies
+  //                0                jg1, jg2, jg2
+  //                1                jg1, jg4, jg5
+  //  etc
+  // note: all conditions are present with non-zero lists of job groups
+  // the entries are indicies into arrays and _not_ node numbers (add offsets
+  // to get node numbers).
+
+  //obtain a list of job groups without duplicits:
+
+  std::set<int> u_jgroups;
+  for(const auto jgis: *matches){u_jgroups.insert(jgis.begin(), jgis.end());}
+
+  // a jet may appear inmore than one matched job group. Ensure it recieves
+  // one node number.
+    
+  for(const auto& jgi : u_jgroups){
+    //jgi is a job group index, use it to retrieve the job group
+    auto jgroup = *(groups_b + jgi);
       
-      // loop over jets in group and identify group-jet edges
-      for(const auto& j : jgroup){
-        // do not allow duplicates
+    // loop over jets in group and identify group-jet edges
+    for(const auto& j : jgroup){
+      // j is a HypoJet*
         
-        auto iter = jets.find(j);
-        if (iter == jets.end()){
-          jets[j] = ++jnode;
-          edges.push_back(std::make_shared<FlowEdge>(jgnode + jg_offset,
-                                                     jnode,
-                                                     unitCapacity));
-          if(collector){
-            std::stringstream ss;
-            ss << "new edge " << jgnode + jg_offset << "->" << jnode << '\n';
-            collector->collect("MultijetFlowNetworkBuilder", ss.str());
-          }
-        }
+      auto iter = jets.find(j);
+      if (iter == jets.end()){
+	// first time this jet is seen. add it to jets.
+	jets[j] = ++jnode; 
+	edges.push_back(std ::make_shared<FlowEdge>(jgi + jg_offset,
+						    jnode,
+						    unitCapacity));
+	if(collector){
+	  std::stringstream ss;
+	  ss << "new edge " << jgi + jg_offset << "->" << jgi << '\n';
+	  collector->collect("MultijetFlowNetworkBuilder", ss.str());
+	}
+      } else {
+	// this jet has already been senn in a previous group
+	auto jnode = (*iter).second;
+	edges.push_back(std::make_shared<FlowEdge>(jgi + jg_offset,
+						   jnode,
+						   unitCapacity));
       }
     }
   }
 
   auto sourceCapacity = 0.;
-  for(const auto& c : m_conditions){sourceCapacity += c.capacity();}
+  for(const auto& c : m_conditions){sourceCapacity += c->capacity();}
   sinkCapacity = jets.size();
   if(sinkCapacity < sourceCapacity){
     
@@ -103,7 +126,7 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   if(collector){
     std::stringstream ss;
     ss << " No of matched jets in matched groups: " << jets.size() << " " 
-       << static_cast<int>(jets.size())+ "\n";
+       << static_cast<int>(jets.size()) << "\n";
 						      
 	 
 	  collector->collect("MultijetFlowNetworkBuilder", ss.str());

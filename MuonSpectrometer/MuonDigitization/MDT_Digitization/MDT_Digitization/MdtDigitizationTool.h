@@ -57,7 +57,7 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "CLHEP/Random/RandGaussZiggurat.h"
 
-#include "MuonCondInterface/IMDTConditionsSvc.h"
+#include "MuonCondData/MdtCondDbData.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
@@ -74,6 +74,7 @@ namespace MuonGM{
 
 class MdtIdHelper;
 class MdtHitIdHelper;
+class MdtCondDbData;
 
 // Digitization class for MDT hits
 /*
@@ -252,7 +253,7 @@ protected:
   ServiceHandle <IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 
   ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool{this, "CalibrationDbTool", "MdtCalibrationDbTool", ""};
-  ServiceHandle<IMDTConditionsSvc> m_pSummarySvc{this, "MDTCondSummarySvc", "MDTCondSummarySvc", ""};
+  SG::ReadCondHandleKey<MdtCondDbData> m_readKey{this, "ReadKey", "MdtCondDbData", "Key of MdtCondDbData"};
 };
 
 #endif

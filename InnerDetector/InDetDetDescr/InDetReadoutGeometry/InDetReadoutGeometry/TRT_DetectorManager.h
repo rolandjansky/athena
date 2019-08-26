@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -70,8 +70,8 @@ namespace InDetDD {
     ~TRT_DetectorManager();
     
     /** Access Raw Geometry:-------------------------------------------------------*/
-    virtual unsigned int getNumTreeTops()           const;                          //
-    virtual PVConstLink  getTreeTop(unsigned int i) const;                         //
+    virtual unsigned int getNumTreeTops()           const override;                 //
+    virtual PVConstLink  getTreeTop(unsigned int i) const override;                 //
     //-----------------------------------------------------------------------------//
     
     /** Get the ID helper: --------------------------------------------------------*/
@@ -193,7 +193,7 @@ namespace InDetDD {
                                             const Identifier & id, 
                                             const Amg::Transform3D & delta,
                                             FrameType frame,
-                                            GeoVAlignmentStore* alignStore) const;
+                                            GeoVAlignmentStore* alignStore) const override;
 
     /** Set alignable transforms: Amg based */
     bool setAlignableTransformAnyFrameDelta(ExtendedAlignableTransform * extXF, 
@@ -203,22 +203,23 @@ namespace InDetDD {
 
 
     /** Invalidate cache for all detector elements */
-    virtual void invalidateAll() const;
+    virtual void invalidateAll() const override;
    
     /** Update all caches. */
-    virtual void updateAll() const;
+    virtual void updateAll() const override;
 
 
     /** Check identifier is for this detector */
-    virtual bool identifierBelongs(const Identifier & id) const;
+    virtual bool identifierBelongs(const Identifier & id) const override;
     
     /** Call back for alignment updates, DEPRECATED. Now registered in tool. */
     StatusCode alignmentCallback( IOVSVC_CALLBACK_ARGS );
 
     /** Process new global DB folders for L1 and L2 **/
+    virtual
     bool processGlobalAlignment(const std::string &, int level, FrameType frame,
                                 const CondAttrListCollection* obj,
-                                GeoVAlignmentStore* alignStore) const;
+                                GeoVAlignmentStore* alignStore) const override;
 
     bool processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType dummy) const override;
 
@@ -267,7 +268,7 @@ namespace InDetDD {
     std::vector< AlignableTransformMap > m_alignableTransforms;
 
     // here temporarily
-    virtual const TRT_ID *getIdHelper() const;                                             //
+    virtual const TRT_ID *getIdHelper() const override;                                    //
 
     //-----------------------------------------------------------------------------//
   };

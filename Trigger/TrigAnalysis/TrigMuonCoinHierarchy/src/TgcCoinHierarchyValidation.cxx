@@ -255,11 +255,6 @@ namespace Trigger {
       return false;
     }
 
-    if(!TgcCabGet->isConfigured()){
-      ATH_MSG_FATAL("TgcCablingServiceSvc failed about isConfigured() in doAnalysisHit().");
-      return false;
-    }
-
     sc = TgcCabGet->giveCabling(m_tgcCabling);
     if(!sc.isSuccess()){
       ATH_MSG_FATAL("TgcCabGet is failed in doAnalysisHit().");

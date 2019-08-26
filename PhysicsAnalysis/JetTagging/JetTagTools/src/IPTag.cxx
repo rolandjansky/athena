@@ -80,7 +80,7 @@ namespace Analysis {
 
 
   IPTag::IPTag(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_runModus("analysis"),
       m_histoHelper(0),
       m_sortPt(false),
@@ -96,9 +96,6 @@ namespace Analysis {
       m_InDetTrackSelectorTool("InDet::InDetTrackSelectionTool", this),
       m_TightTrackVertexAssociationTool("CP::TrackVertexAssociationTool", this)
   {
-    
-    declareInterface<ITagTool>(this);
-    
     // global configuration:
     declareProperty("Runmodus"      , m_runModus);
     declareProperty("xAODBaseName"  , m_xAODBaseName);
@@ -380,11 +377,13 @@ namespace Analysis {
   }
 
 
-  StatusCode IPTag::tagJet(const xAOD::Jet * jetToTag, xAOD::BTagging* BTag) {
-
+  StatusCode IPTag::tagJet(const xAOD::Vertex& priVtx,
+                           const xAOD::Jet& jetToTag,
+                           xAOD::BTagging& BTag) const
+  {
     ATH_MSG_VERBOSE("#BTAG# m_impactParameterView = " << m_impactParameterView );
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
@@ -395,14 +394,14 @@ namespace Analysis {
     // FF: Disable reference mode running for now
     if( m_runModus == "reference" ) {
       // here we require a jet selection:
-      if( jetToTag->pt()>m_jetPtMinRef && fabs(jetToTag->eta())<2.5 ) {
-	label = xAOD::jetFlavourLabel(jetToTag);
+      if( jetToTag.pt()>m_jetPtMinRef && fabs(jetToTag.eta())<2.5 ) {
+	label = xAOD::jetFlavourLabel(&jetToTag);
 	double deltaRtoClosestB = 999., deltaRtoClosestC = 999., deltaRtoClosestT = 999.;
     	double deltaRmin(0.);
-        if (jetToTag->getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
+        if (jetToTag.getAttribute("TruthLabelDeltaR_B",deltaRtoClosestB)) {
     	  // for purification: require no b or c quark closer than dR=m_purificationDeltaR
-	  jetToTag->getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
-	  jetToTag->getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
+	  jetToTag.getAttribute("TruthLabelDeltaR_C",deltaRtoClosestC);
+	  jetToTag.getAttribute("TruthLabelDeltaR_T",deltaRtoClosestT);
     	  deltaRmin = deltaRtoClosestB < deltaRtoClosestC ? deltaRtoClosestB : deltaRtoClosestC;
           deltaRmin = deltaRtoClosestT < deltaRmin ? deltaRtoClosestT : deltaRmin;
         } else {
@@ -428,7 +427,7 @@ namespace Analysis {
       }
     }
     
-    m_tracksInJet.clear();
+    std::vector<GradedTrack> tracksInJet;
     int nbPart = m_trackGradePartitionsDefinition.size();
 
     std::vector<const xAOD::TrackParticle*> TrkFromV0;
@@ -437,20 +436,18 @@ namespace Analysis {
     
     if (m_SignWithSvx) {
       m_SVForIPTool->getDirectionFromSecondaryVertexInfo(SvxDirection,canUseSvxDirection,//output
-                                                         BTag,m_secVxFinderName,*m_priVtx);//input
+                                                         &BTag,m_secVxFinderName,priVtx);//input
     }
     
     // bad tracks from V0s, conversions, interactions:
     m_SVForIPTool->getTrkFromV0FromSecondaryVertexInfo(TrkFromV0,//output
-                                                       BTag,m_secVxFinderName);//input
+                                                       &BTag,m_secVxFinderName);//input
     if (TrkFromV0.size()!=0)  ATH_MSG_DEBUG("#BTAG# TrkFromV0 : number of reconstructed bad tracks: " << TrkFromV0.size());
 
     /** extract the TrackParticles from the jet and apply track selection: */
     int nbTrak = 0;
-    m_trackSelectorTool->primaryVertex(m_priVtx->position());
-    m_trackSelectorTool->prepare();
     std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = 
-      BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
+      BTag.auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
     double sumTrkpT = 0; unsigned ntrk=0;
     TLorentzVector pseudoTrackJet(0,0,0,0);
     if( associationLinks.size() == 0 ) {
@@ -464,8 +461,8 @@ namespace Analysis {
 	const xAOD::TrackParticle* aTemp = **trkIter;
 	
 	if (m_impactParameterView=="3D") { 
-	  if (m_InDetTrackSelectorTool->accept(*aTemp, m_priVtx) ) {
-	    if (m_TightTrackVertexAssociationTool->isCompatible(*aTemp, *m_priVtx)) {
+	  if (m_InDetTrackSelectorTool->accept(*aTemp, &priVtx) ) {
+	    if (m_TightTrackVertexAssociationTool->isCompatible(*aTemp, priVtx)) {
 	      TLorentzVector tmpTrack(0,0,0,0);
 	      tmpTrack.SetPtEtaPhiM(  aTemp->pt(), aTemp->eta(), aTemp->phi(),0);
 	      pseudoTrackJet+=tmpTrack; ntrk++;
@@ -473,14 +470,18 @@ namespace Analysis {
 	  }
 	}
 
-	if (m_trackSelectorTool->selectTrack(aTemp)) sumTrkpT += aTemp->pt();	
+	if (m_trackSelectorTool->selectTrack(priVtx.position(),
+                                             aTemp))
+        {
+          sumTrkpT += aTemp->pt();
+        }
       }
       
       for( trkIter = associationLinks.begin(); trkIter != associationLinks.end() ; ++trkIter ) {
         const xAOD::TrackParticle* aTemp = **trkIter;
         nbTrak++;
-        if( m_trackSelectorTool->selectTrack(aTemp, sumTrkpT) ) {
-          TrackGrade* theGrade = m_trackGradeFactory->getGrade(*aTemp, jetToTag->p4() );
+        if( m_trackSelectorTool->selectTrack(priVtx.position(), aTemp, sumTrkpT) ) {
+          TrackGrade* theGrade = m_trackGradeFactory->getGrade(*aTemp, jetToTag.p4() );
           ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= " << theGrade->gradeString() );
 	  bool tobeUsed = false;
           for(int i=0;i<nbPart;i++) {
@@ -496,7 +497,7 @@ namespace Analysis {
             if (m_RejectBadTracks) tobeUsed = false;
           }
           // check required IP sign:
-          if (tobeUsed) m_tracksInJet.push_back(GradedTrack(*trkIter, *theGrade));
+          if (tobeUsed) tracksInJet.push_back(GradedTrack(*trkIter, *theGrade));
           delete theGrade;
           theGrade=0;
         }
@@ -504,18 +505,18 @@ namespace Analysis {
     }
     // temporary: storing these variables (which aren't IP3D-specific) ought to be moved to a separate Tool
     if (m_xAODBaseName == "IP3D") { 
-      BTag->auxdata<unsigned>("trkSum_ntrk") = ntrk;
-      BTag->auxdata<float>("trkSum_SPt") = sumTrkpT;
-      BTag->auxdata<float>("trkSum_VPt") = pseudoTrackJet.Pt();
-      BTag->auxdata<float>("trkSum_VEta") = (pseudoTrackJet.Pt() != 0) ? pseudoTrackJet.Eta() : 1000;
+      BTag.auxdata<unsigned>("trkSum_ntrk") = ntrk;
+      BTag.auxdata<float>("trkSum_SPt") = sumTrkpT;
+      BTag.auxdata<float>("trkSum_VPt") = pseudoTrackJet.Pt();
+      BTag.auxdata<float>("trkSum_VEta") = (pseudoTrackJet.Pt() != 0) ? pseudoTrackJet.Eta() : 1000;
     }
 
 
     ATH_MSG_VERBOSE("#BTAG# #tracks = " << nbTrak);
-    ATH_MSG_VERBOSE("#BTAG# the z of the primary = " << m_priVtx->position().z());
+    ATH_MSG_VERBOSE("#BTAG# the z of the primary = " << priVtx.position().z());
 
     /** jet direction: */
-    Amg::Vector3D jetDirection(jetToTag->px(),jetToTag->py(),jetToTag->pz());
+    Amg::Vector3D jetDirection(jetToTag.px(),jetToTag.py(),jetToTag.pz());
     Amg::Vector3D unit = jetDirection.unit();
     if (m_SignWithSvx && canUseSvxDirection) {
       unit = SvxDirection.unit();
@@ -552,8 +553,8 @@ namespace Analysis {
     vectWeightC.reserve(nbTrackMean);
     vectObj.reserve(nbTrackMean);
 
-    for (std::vector<GradedTrack>::iterator trkItr = m_tracksInJet.begin(); 
-         trkItr != m_tracksInJet.end(); ++trkItr) {
+    for (std::vector<GradedTrack>::iterator trkItr = tracksInJet.begin(); 
+         trkItr != tracksInJet.end(); ++trkItr) {
 
       const xAOD::TrackParticle* trk = *(trkItr->track);
       bool isFromV0 = (std::find(TrkFromV0.begin(),TrkFromV0.end(),trk) != TrkFromV0.end());
@@ -567,7 +568,7 @@ namespace Analysis {
       /** use new Tool for "unbiased" IP estimation */
       const Trk::ImpactParametersAndSigma* myIPandSigma(0);
       if (m_trackToVertexIPEstimator) { 
-        myIPandSigma = m_trackToVertexIPEstimator->estimate(trk, m_priVtx, m_unbiasIPEstimation);
+        myIPandSigma = m_trackToVertexIPEstimator->estimate(trk, &priVtx, m_unbiasIPEstimation);
       }
       if(0==myIPandSigma) {
         ATH_MSG_WARNING("#BTAG# IPTAG: trackToVertexIPEstimator failed !");
@@ -585,14 +586,14 @@ namespace Analysis {
       if (m_impactParameterView=="2D" || m_impactParameterView=="1D" ||
          ( m_impactParameterView=="3D" && m_use2DSignForIP3D)  ) {
         signOfIP=m_trackToVertexIPEstimator->get2DLifetimeSignOfTrack(trk->perigeeParameters(),
-                                                                      unit, *m_priVtx);
+                                                                      unit, priVtx);
       }
       if (m_impactParameterView=="3D" && !m_use2DSignForIP3D) {
         signOfIP=m_trackToVertexIPEstimator->get3DLifetimeSignOfTrack(trk->perigeeParameters(),
-                                                                      unit, *m_priVtx);
+                                                                      unit, priVtx);
       }
       double signOfZIP = m_trackToVertexIPEstimator->getZLifetimeSignOfTrack(trk->perigeeParameters(),
-                                                                             unit, *m_priVtx);
+                                                                             unit, priVtx);
 
       if (m_useD0SignForZ0) signOfZIP = signOfIP;
 
@@ -759,11 +760,10 @@ namespace Analysis {
           slices.push_back(slice1);
         }
       }
-      m_likelihoodTool->setLhVariableValue(slices);
       std::vector<double> lkl;
       lkl.reserve(3);
       if(vectD0Signi.size()>0) {
-        lkl = m_likelihoodTool->calculateLikelihood();
+        lkl = m_likelihoodTool->calculateLikelihood(slices);
       } else {
         lkl.push_back(1.);
         lkl.push_back(1.e9);
@@ -777,9 +777,9 @@ namespace Analysis {
         << "pb= " << lkl[0] << " pu= " << lkl[1] << " pc= " << lkl[2] );
 
       /** fill likelihood information in xaod: */
-      BTag->setVariable<double>(m_xAODBaseName, "pb", lkl[0]);
-      BTag->setVariable<double>(m_xAODBaseName, "pu", lkl[1]);
-      if (m_useCHypo) BTag->setVariable<double>(m_xAODBaseName, "pc", lkl[2]);
+      BTag.setVariable<double>(m_xAODBaseName, "pb", lkl[0]);
+      BTag.setVariable<double>(m_xAODBaseName, "pu", lkl[1]);
+      if (m_useCHypo) BTag.setVariable<double>(m_xAODBaseName, "pc", lkl[2]);
 
       /** fill trackParticle links and other track informations in xaod: */
       
@@ -798,72 +798,66 @@ namespace Analysis {
       std::vector<int> i_vectGrades( vectGrades.begin(), vectGrades.end() );
       // specific fast accessors for mainstream instances of IPTag: IP3D, IP2D
       if( "IP3D"==m_xAODBaseName ) {
-        if (m_storeTrackParticles) BTag->setIP3D_TrackParticleLinks(IPTracks);
+        if (m_storeTrackParticles) BTag.setIP3D_TrackParticleLinks(IPTracks);
         if (m_storeIpValues) {
-          BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP3D_valD0wrtPVofTracks);
-          BTag->setTaggerInfo(f_vectZ0,      xAOD::BTagInfo::IP3D_valZ0wrtPVofTracks);
+          BTag.setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP3D_valD0wrtPVofTracks);
+          BTag.setTaggerInfo(f_vectZ0,      xAOD::BTagInfo::IP3D_valZ0wrtPVofTracks);
         }
         if (m_storeTrackParameters) {
-          BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP3D_sigD0wrtPVofTracks);
-          BTag->setTaggerInfo(f_vectZ0Signi, xAOD::BTagInfo::IP3D_sigZ0wrtPVofTracks);
-          BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP3D_weightBofTracks);
-          BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP3D_weightUofTracks);
-          BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP3D_weightCofTracks);
-          BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP3D_flagFromV0ofTracks);
-          BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP3D_gradeOfTracks);
+          BTag.setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP3D_sigD0wrtPVofTracks);
+          BTag.setTaggerInfo(f_vectZ0Signi, xAOD::BTagInfo::IP3D_sigZ0wrtPVofTracks);
+          BTag.setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP3D_weightBofTracks);
+          BTag.setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP3D_weightUofTracks);
+          BTag.setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP3D_weightCofTracks);
+          BTag.setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP3D_flagFromV0ofTracks);
+          BTag.setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP3D_gradeOfTracks);
         }
       } else {
         if( "IP2D"==m_xAODBaseName ) {
-          if (m_storeTrackParticles) BTag->setIP2D_TrackParticleLinks(IPTracks);
-          if (m_storeIpValues) BTag->setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP2D_valD0wrtPVofTracks);
+          if (m_storeTrackParticles) BTag.setIP2D_TrackParticleLinks(IPTracks);
+          if (m_storeIpValues) BTag.setTaggerInfo(f_vectD0,      xAOD::BTagInfo::IP2D_valD0wrtPVofTracks);
           if (m_storeTrackParameters) {
-            BTag->setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP2D_sigD0wrtPVofTracks);
-            BTag->setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP2D_weightBofTracks);
-            BTag->setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP2D_weightUofTracks);
-            BTag->setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP2D_weightCofTracks);
-            BTag->setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP2D_flagFromV0ofTracks);
-            BTag->setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP2D_gradeOfTracks);
+            BTag.setTaggerInfo(f_vectD0Signi, xAOD::BTagInfo::IP2D_sigD0wrtPVofTracks);
+            BTag.setTaggerInfo(vectWeightB,   xAOD::BTagInfo::IP2D_weightBofTracks);
+            BTag.setTaggerInfo(vectWeightU,   xAOD::BTagInfo::IP2D_weightUofTracks);
+            BTag.setTaggerInfo(vectWeightC,   xAOD::BTagInfo::IP2D_weightCofTracks);
+            BTag.setTaggerInfo(vectFromV0,    xAOD::BTagInfo::IP2D_flagFromV0ofTracks);
+            BTag.setTaggerInfo(i_vectGrades,  xAOD::BTagInfo::IP2D_gradeOfTracks);
           }
         } else { // generic accessors
           //// need to handle to persistify for dynamic values before adding this
           if (m_storeTrackParticles) {
-            BTag->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > (
+            BTag.setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > (
               m_xAODBaseName, "TrackParticleLinks", IPTracks );
-            BTag->setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
+            BTag.setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
           }
           if (m_storeIpValues) {
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valD0wrtPVofTracks", f_vectD0);
+            BTag.setVariable< std::vector<float> > (m_xAODBaseName, "valD0wrtPVofTracks", f_vectD0);
             if (m_impactParameterView=="3D") {
-              BTag->setVariable< std::vector<float> > (m_xAODBaseName, "valZ0wrtPVofTracks", f_vectZ0);
+              BTag.setVariable< std::vector<float> > (m_xAODBaseName, "valZ0wrtPVofTracks", f_vectZ0);
             }
           }
           if (m_storeTrackParameters) {
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigD0wrtPVofTracks", f_vectD0Signi);
+            BTag.setVariable< std::vector<float> > (m_xAODBaseName, "sigD0wrtPVofTracks", f_vectD0Signi);
             if(m_impactParameterView=="3D") {
-              BTag->setVariable< std::vector<float> > (m_xAODBaseName, "sigZ0wrtPVofTracks", f_vectZ0Signi);
+              BTag.setVariable< std::vector<float> > (m_xAODBaseName, "sigZ0wrtPVofTracks", f_vectZ0Signi);
             }
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightBofTracks",    vectWeightB);
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightUofTracks",    vectWeightU);
-            BTag->setVariable< std::vector<float> > (m_xAODBaseName, "weightCofTracks",    vectWeightC);
-            BTag->setVariable< std::vector<bool> >  (m_xAODBaseName, "flagFromV0ofTracks", vectFromV0);
-            BTag->setVariable< std::vector<int> >   (m_xAODBaseName, "gradeOfTracks",      i_vectGrades);
+            BTag.setVariable< std::vector<float> > (m_xAODBaseName, "weightBofTracks",    vectWeightB);
+            BTag.setVariable< std::vector<float> > (m_xAODBaseName, "weightUofTracks",    vectWeightU);
+            BTag.setVariable< std::vector<float> > (m_xAODBaseName, "weightCofTracks",    vectWeightC);
+            BTag.setVariable< std::vector<bool> >  (m_xAODBaseName, "flagFromV0ofTracks", vectFromV0);
+            BTag.setVariable< std::vector<int> >   (m_xAODBaseName, "gradeOfTracks",      i_vectGrades);
           }
         }
       }
     }
-
-    IPTracks.clear();
-    
-    m_likelihoodTool->clear();
-
-    m_tracksInJet.clear();
 
     return StatusCode::SUCCESS;
   }
 
   /** compute individual track contribution to the likelihoods: */
   void IPTag::trackWeight(std::string author, TrackGrade grade, double sa0, double sz0, 
-     double & twb, double & twu, double & twc) { // output parameters
+     double & twb, double & twu, double & twc) const { // output parameters
     /** define and compute likelihood: */
     std::vector<Slice> slices;
     if(m_impactParameterView=="3D") {
@@ -901,9 +895,7 @@ namespace Analysis {
       slice1.composites.push_back(compo1);
       slices.push_back(slice1);
     }
-    m_likelihoodTool->setLhVariableValue(slices);
-    std::vector<double> tmp = m_likelihoodTool->calculateLikelihood();
-    m_likelihoodTool->clear();
+    std::vector<double> tmp = m_likelihoodTool->calculateLikelihood(slices);
     twb = tmp[0];
     twu = tmp[1];
     twc = 0.;

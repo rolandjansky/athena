@@ -675,31 +675,31 @@ else:
     #
     # ------------------------------------------------------------
     
-    if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+    if InDetFlags.doTrackSegmentsDisappearing():
       InputPixelInDetTracks = []
       InputPixelInDetTracks += InputCombinedInDetTracks
       if InDetFlags.doForwardTracks(): 
         InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
       # --- load cuts for pixel segment finding
-      if (not 'InDetNewTrackingCutsPixelPrdAssociation' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsPixelPrdAssociation not set before - import them now"
+      if (not 'InDetNewTrackingCutsDisappearing' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsDisappearing not set before - import them now"
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsPixelPrdAssociation = ConfiguredNewTrackingCuts("PixelPrdAssociation")
-      InDetNewTrackingCutsPixelPrdAssociation.printInfo()
+        InDetNewTrackingCutsDisappearing = ConfiguredNewTrackingCuts("Disappearing")
+      InDetNewTrackingCutsDisappearing.printInfo()
       # --- configure pixel segment finding
       include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetPixelTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.ResolvedPixelPrdAssociationTracks(),
+      InDetPixelTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.ResolvedDisappearingTracks(),
                                                                  InDetKeys.SiSpSeededPixelTracks(),
-                                                                 InDetNewTrackingCutsPixelPrdAssociation,
+                                                                 InDetNewTrackingCutsDisappearing,
                                                                  TrackCollectionKeys,
                                                                  TrackCollectionTruthKeys)
 
       if InDetFlags.doTRTExtension() :
         include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
-        InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelPrdAssociation,
-                                                                   InDetKeys.ResolvedPixelPrdAssociationTracks(),
-                                                                   InDetKeys.ExtendedTracksPixelPrdAssociation(),
-                                                                   InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
+        InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsDisappearing,
+                                                                   InDetKeys.ResolvedDisappearingTracks(),
+                                                                   InDetKeys.ExtendedTracksDisappearing(),
+                                                                   InDetKeys.ExtendedTracksMapDisappearing(),
                                                                    TrackCollectionKeys,
                                                                    TrackCollectionTruthKeys,
                                                                    False)
@@ -790,9 +790,18 @@ else:
     # --- Ambi solve the extended (Si + TRT) and TRT standalone tracks if both run
     if InDetFlags.doCosmics() and InDetFlags.doNewTracking() and len(InputCombinedInDetTracks) > 1:
       InputCosmicsCombinedAmbiSolver = list(InputCombinedInDetTracks)
+      
+      from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguityScore
+      InDetAmbiguityScore_combinedCosmics = Trk__TrkAmbiguityScore(name = 'InDetCombinedCosmicsAmbiguityScore',
+                                                                   TrackInput = InputCosmicsCombinedAmbiSolver,
+                                                                   TrackOutput = 'ScoredMapCosmics')#,
+                                                                   #AmbiguityScoreProcessor =  InDetAmbiguityScoreProcessor )
+                                                                  
+      topSequence += InDetAmbiguityScore_combinedCosmics
+
       from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
       InDetAmbiguitySolver_combinedCosmics = Trk__TrkAmbiguitySolver(name               = 'InDetCombinedCosmicsAmbiSolver',
-                                                                     TrackInput         = InputCosmicsCombinedAmbiSolver,
+                                                                     TrackInput         = 'ScoredMapCosmics',
                                                                      TrackOutput        = "CombinedCosmicTracks",
                                                                      AmbiguityProcessor = InDetAmbiguityProcessorCosmics)
       topSequence += InDetAmbiguitySolver_combinedCosmics
@@ -1008,15 +1017,15 @@ else:
     
 
       # Dummy Merger to fill additional info for PRD-associated pixel tracklets
-      if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+      if InDetFlags.doTrackSegmentsDisappearing():
        DummyCollection = []
        if InDetFlags.doTRTExtension() :
-         DummyCollection += [ InDetKeys.ExtendedTracksPixelPrdAssociation()]
+         DummyCollection += [ InDetKeys.ExtendedTracksDisappearing()]
        else :
-         DummyCollection += [ InDetKeys.ResolvedPixelPrdAssociationTracks()]
+         DummyCollection += [ InDetKeys.ResolvedDisappearingTracks()]
        TrkTrackCollectionMerger_pix = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger_pix",
                                                                  TracksLocation          = DummyCollection,
-                                                                 OutputTracksLocation    = InDetKeys.PixelPrdAssociationTracks(),
+                                                                 OutputTracksLocation    = InDetKeys.DisappearingTracks(),
                                                                  AssoTool                = InDetPrdAssociationTool,
                                                                  UpdateSharedHitsOnly    = False,
                                                                  UpdateAdditionalInfo    = True,
@@ -1029,9 +1038,9 @@ else:
           # set up the truth info for this container
           #
             include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.PixelPrdAssociationTracks(),
-                                                         InDetKeys.PixelPrdAssociationDetailedTracksTruth(),
-                                                         InDetKeys.PixelPrdAssociationTracksTruth())
+            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.DisappearingTracks(),
+                                                         InDetKeys.DisappearingDetailedTracksTruth(),
+                                                         InDetKeys.DisappearingTracksTruth())
     
 
        if (InDetFlags.doPrintConfigurables()):

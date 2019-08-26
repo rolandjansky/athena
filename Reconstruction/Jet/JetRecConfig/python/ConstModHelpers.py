@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -9,7 +9,7 @@
 import cppyy
 try:
     cppyy.loadDictionary('xAODBaseObjectTypeDict')
-except:
+except Exception:
     pass
 from ROOT import xAODType
 xAODType.ObjectType
@@ -17,8 +17,6 @@ xAODType.ObjectType
 
 from AthenaCommon import Logging
 constmodlog = Logging.logging.getLogger('ConstModHelpers')
-
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from JetRec import JetRecConf
 from JetRecTools import JetRecToolsConf
@@ -60,7 +58,7 @@ def getConstitModAlg(constit,suffix=""):
     inputtype = constit.basetype
 
     # Need to extend to TCC
-    if not inputtype in [xAODType.CaloCluster, xAODType.ParticleFlow]:
+    if inputtype not in [xAODType.CaloCluster, xAODType.ParticleFlow]:
         constmodlog.error("Only ParticleFlow and CaloCluster currently supported!")
         raise TypeError("Unsupported input type {0}".format(inputtype))
 
@@ -85,7 +83,7 @@ def getConstitModAlg(constit,suffix=""):
 
         toolname = "ConstitMod{0}_{1}{2}".format(typename,step,suffix)
         tool = ConstModTools[step](toolname,**ConstModConfigs[step])
-        if inputtype == xAODType.ParticleFlow and not step in ["CorrectPFO","CHS"]:
+        if inputtype == xAODType.ParticleFlow and step not in ["CorrectPFO","CHS"]:
             tool.IgnoreChargedPFO=True
             tool.ApplyToChargedPFO=False
         tool.InputType = inputtype

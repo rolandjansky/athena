@@ -23,7 +23,7 @@ class sTGC_Digitizer : public AthAlgorithm {
   StatusCode finalize();
 
  private:
-  ToolHandle<IMuonDigitizationTool> m_digTool;   
+  ToolHandle<IMuonDigitizationTool> m_digTool{this, "DigitizationTool", "sTgcDigitizationTool", "sTgcDigitizationTool name"};
 };
 /*******************************************************************************/
 #endif // MUONDIGITIZATION_STGC_DIGITIZER_H

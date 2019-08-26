@@ -32,23 +32,27 @@ def detectAthenaMPProcs(argdict = {}):
     
     # Try and detect if any AthenaMP has been enabled 
     try:
-        if 'ATHENA_PROC_NUMBER' in os.environ:
-            athenaMPProcs = int(os.environ['ATHENA_PROC_NUMBER'])
-            if athenaMPProcs < 0:
-                raise ValueError("ATHENA_PROC_NUMBER value was less than zero")
-            msg.info('AthenaMP detected from ATHENA_PROC_NUMBER with {0} workers'.format(athenaMPProcs))
-        elif 'athenaopts' in argdict:
+        if 'athenaopts' in argdict:
             for substep in argdict['athenaopts'].value:
                 procArg = [opt.replace("--nprocs=", "") for opt in argdict['athenaopts'].value[substep] if '--nprocs' in opt]
                 if len(procArg) == 0:
                     athenaMPProcs = 0
                 elif len(procArg) == 1:
+                    if 'multiprocess' in argdict:
+                        raise ValueError("Detected conflicting methods to configure AthenaMP: --multiprocess and --nprocs=N (via athenaopts). Only one method must be used")
                     athenaMPProcs = int(procArg[0])
-                    if athenaMPProcs < 0:
-                        raise ValueError("--nprocs was set to a value less than zero")
+                    if athenaMPProcs < -1:
+                        raise ValueError("--nprocs was set to a value less than -1")
                 else:
                     raise ValueError("--nprocs was set more than once in 'athenaopts'")
                 msg.info('AthenaMP detected from "nprocs" setting with {0} workers for substep {1}'.format(athenaMPProcs,substep))
+        if (athenaMPProcs == 0 and
+            'ATHENA_CORE_NUMBER' in os.environ and
+            'multiprocess' in argdict):
+            athenaMPProcs = int(os.environ['ATHENA_CORE_NUMBER'])
+            if athenaMPProcs < -1:
+                raise ValueError("ATHENA_CORE_NUMBER value was less than -1")
+            msg.info('AthenaMP detected from ATHENA_CORE_NUMBER with {0} workers'.format(athenaMPProcs))
     except ValueError as errMsg:
         myError = 'Problem discovering AthenaMP setup: {0}'.format(errMsg)
         raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC_SETUP_FAIL'), myError)

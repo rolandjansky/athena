@@ -21,7 +21,6 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
   ATH_MSG_DEBUG("Will produce views=" << m_viewsKey << " roIs=" << m_inViewRoIs );
   ATH_CHECK( m_viewsKey.initialize() );
   ATH_CHECK( m_inViewRoIs.initialize() );
-  ATH_CHECK( m_scheduler.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -87,17 +86,17 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
           contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
           
           // link decision to this view
-          outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
+          outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
           ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
           ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
           ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );  
         }
         else {
           int iview = roiIt - RoIsFromDecision.begin();
-          outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
+          outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
           ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
-	  auto theview = viewVector->at(iview);
-	  ATH_CHECK( linkViewToParent( inputDecision, theview ) );
+          auto theview = viewVector->at(iview);
+          ATH_CHECK( linkViewToParent( inputDecision, theview ) );
         }
       }// loop over previous inputs
     } // loop over decisions   
@@ -110,7 +109,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
           m_viewNodeName,             // CF node to attach views to
           context,                    // Source context
-          m_scheduler.get() ) );
+          getScheduler() ) );
   
   // report number of views, stored already when container was created
   // auto viewsHandle = SG::makeHandle( m_viewsKey );

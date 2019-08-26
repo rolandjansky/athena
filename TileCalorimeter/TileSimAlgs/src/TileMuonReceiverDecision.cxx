@@ -39,10 +39,10 @@
 
 TileMuonReceiverDecision::TileMuonReceiverDecision(std::string name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
-    m_tileID(0),
-    m_tileHWID(0),
-    m_cablingService(0),
-    m_tileInfo(0),
+    m_tileID(nullptr),
+    m_tileHWID(nullptr),
+    m_cablingService(nullptr),
+    m_tileInfo(nullptr),
     m_run2(true)
 {
   // declare properties...
@@ -60,7 +60,8 @@ TileMuonReceiverDecision::~TileMuonReceiverDecision()
 
 StatusCode TileMuonReceiverDecision::initialize() {
 
-  m_cablingService = TileCablingService::getInstance();
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  m_cablingService = m_cablingSvc->cablingService();
 
   if (! m_cablingService->isRun2Cabling() ) {
      ATH_MSG_INFO("TileMuonReceiverDecision should not be used for RUN1 simulations");

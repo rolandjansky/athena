@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -30,10 +30,11 @@ class MuonResonanceSelectionTool
 
   MuonResonanceSelectionTool(std::string myname);
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /// Select Probes
-  std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > selectMuons(const xAOD::MuonContainer*, bool isMC, CP::SystematicSet sys) const;
+  virtual
+  std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > selectMuons(const xAOD::MuonContainer*, bool isMC, CP::SystematicSet sys) override;
   // cut on Impact parameters
   bool IPCut(const xAOD::Muon& mu, float z0cut, float d0cut) const;
   bool IPCutAbs(const xAOD::Muon& mu, float Abs_z0, float Abs_d0) const;
@@ -43,7 +44,7 @@ class MuonResonanceSelectionTool
   xAOD::Muon* copy(const xAOD::Muon& mu) const;
   bool hasPassedGRL (void) const;
   bool isTriggered (void) const;
-  void applyTriggerMatch(xAOD::Muon& mu) const; 
+  void applyTriggerMatch(xAOD::Muon& mu); 
 
 
  private:

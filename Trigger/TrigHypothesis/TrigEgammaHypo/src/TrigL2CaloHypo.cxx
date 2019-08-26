@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -161,6 +161,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   m_energyRatio  = -1.0;
   m_Weta2        = -1.0;
   m_Wstot        = -1.0;
+  m_F1        = -1.0;
   m_F3        = -1.0;
   m_PassedCuts   = -1;
   // Accept-All mode: temporary patch; should be done with force-accept 

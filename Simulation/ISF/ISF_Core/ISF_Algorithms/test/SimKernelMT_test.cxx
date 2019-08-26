@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -112,12 +112,12 @@ public:
   ServiceHandle<ISF::ISimulationSvc>* simulator() { return nullptr; };
   bool isDynamic() { return false; };
   ISF::SimSvcID simSvcID() { return 0; };
-  virtual ISF::SimulationFlavor simFlavor() { return ISF::Fatras; }
+  virtual ISF::SimulationFlavor simFlavor() const { return ISF::Fatras; }
   void initializeSelector() { };
   void beginEvent() { };
   void endEvent() { };
   void update(const ISF::ISFParticle& ) { };
-  bool selfSelect(const ISF::ISFParticle& particle) { return passSelectorCuts(particle); };
+  bool selfSelect(const ISF::ISFParticle& particle) const { return passSelectorCuts(particle); };
 
 }; // MockSimulationSelector class
 
@@ -139,19 +139,19 @@ public:
 
   MOCK_METHOD0(finalize, StatusCode());
   MOCK_METHOD0(setupEvent, StatusCode());
-  MOCK_METHOD3(simulate, StatusCode(const ISF::ISFParticle&, ISF::ISFParticleContainer&, McEventCollection*));
-  MOCK_METHOD3(simulateVector, StatusCode(const ISF::ConstISFParticleVector&, ISF::ISFParticleContainer&, McEventCollection*));
+  MOCK_CONST_METHOD3(simulate, StatusCode(const ISF::ISFParticle&, ISF::ISFParticleContainer&, McEventCollection*));
+  MOCK_CONST_METHOD3(simulateVector, StatusCode(const ISF::ConstISFParticleVector&, ISF::ISFParticleContainer&, McEventCollection*));
   MOCK_METHOD0(releaseEvent, StatusCode());
   MOCK_CONST_METHOD1(bid, int(const ISF::ISFParticle&));
 
   // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
-  virtual StatusCode initialize() override {
+  virtual StatusCode initialize() {
     ATH_MSG_INFO ("initializing MockSimulatorTool: " << name());
     return StatusCode::SUCCESS;
   };
-  virtual StatusCode setupEventST() override { return StatusCode::FAILURE; };
-  virtual StatusCode releaseEventST() override { return StatusCode::FAILURE; };
-  virtual ISF::SimulationFlavor simFlavor() const override { return ISF::Fatras; };
+  virtual StatusCode setupEventST() { return StatusCode::FAILURE; };
+  virtual StatusCode releaseEventST() { return StatusCode::FAILURE; };
+  virtual ISF::SimulationFlavor simFlavor() const { return ISF::Fatras; };
 
 }; // MockSimulatorTool
 
@@ -302,7 +302,7 @@ protected:
     //     CollectionMerger class
     //
     template<typename ...Args>
-    ISF::ISimulatorTool& identifySimulator(Args&... args) {
+    const ISF::ISimulatorTool& identifySimulator(Args&... args) const {
       return m_alg->identifySimulator(std::forward<Args>(args)...);
     }
 

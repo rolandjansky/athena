@@ -39,7 +39,7 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
         from egammaTrackTools.egammaTrackToolsConf import egammaTrkRefitterTool
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         GSFRefitterTool = egammaTrkRefitterTool(name = 'GSFRefitterTool',
-                                                FitterTool = egammaRec.EMCommonRefitter.GSFTrackFitter,
+                                                FitterTool = egammaRec.EMCommonRefitter.getGSFTrackFitter(),
                                                 useBeamSpot = False,
                                                 Extrapolator = AtlasExtrapolator(),
                                                 ReintegrateOutliers=True)
@@ -62,17 +62,16 @@ class egammaBremCollectionBuilder ( egammaAlgsConf.EMBremCollectionBuilder ) :
 
         if DetFlags.haveRIO.pixel_on():
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-            if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
-                from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-                pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-                pixelConditionsSummaryToolSetup.setUseConditions(True)
-                pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
-                pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
-                pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
-                pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
-                pixelConditionsSummaryToolSetup.setup()
+            from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
+            pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
+            pixelConditionsSummaryToolSetup.setUseConditions(True)
+            pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
+            pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
+            pixelConditionsSummaryToolSetup.setUseTDAQ(False)
+            pixelConditionsSummaryToolSetup.setUseDeadMap(True)
+            pixelConditionsSummaryToolSetup.setup()
 
-            InDetPixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
+            InDetPixelConditionsSummaryTool = pixelConditionsSummaryToolSetup.getTool()
 
             if InDetFlags.usePixelDCS():
                 InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]

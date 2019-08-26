@@ -5,17 +5,17 @@ __author__ = "Bruno Lenzi , Christos Anastopoulos"
 from egammaRec.Factories import FcnWrapper, ToolFactory
 import egammaTrackToolsConf
 from egammaRec import egammaKeys
-from egammaTools.InDetTools import egammaExtrapolator
+from egammaTools.InDetTools import egammaCaloExtrapolator,egammaExtrapolator
 import AthenaCommon.CfgMgr as CfgMgr
 
 EMLastCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool,
                                            name="EMLastCaloExtensionTool",
-                                           Extrapolator = egammaExtrapolator,
+                                           Extrapolator = egammaCaloExtrapolator,
                                            ParticleType = "electron")
 
 EMParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
                                             name="EMParticleCaloExtensionTool",
-                                            Extrapolator = egammaExtrapolator,
+                                            Extrapolator = egammaCaloExtrapolator,
                                             ParticleType="electron",
                                             StartFromPerigee = True)
 

@@ -162,6 +162,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "initialTrackMaker", m_trackMaker);
   declareProperty( "trigInDetTrackFitter",   m_trigInDetTrackFitter );
   declareProperty( "trigZFinder",   m_trigZFinder );
+  declareProperty( "TrigL2ResidualCalculator",   m_trigZFinder );
 
   declareProperty("TrackSummaryTool", m_trackSummaryTool);
   declareProperty( "TrigL2SpacePointTruthTool", m_TrigL2SpacePointTruthTool);
@@ -278,8 +279,6 @@ TrigFastTrackFinder::~TrigFastTrackFinder() {}
 //-----------------------------------------------------------------------
 
 HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
-
-  ATH_MSG_DEBUG("TrigFastTrackFinder::initialize() "  << PACKAGE_VERSION);
 
   if (m_roiCollectionKey.initialize().isFailure() ) {
     return HLT::BAD_JOB_SETUP;
@@ -503,13 +502,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
     }
     return HLT::ERROR;
   }
-  if (outputTracks->empty()) {
-    delete outputTracks;
-    code = attachFeature(outputTE, new TrackCollection(SG::VIEW_ELEMENTS), m_attachedFeatureName);
-  }
-  else {
-    code = attachFeature(outputTE, outputTracks, m_attachedFeatureName);
-  }
+
+  code = attachFeature(outputTE, outputTracks, m_attachedFeatureName);
   
   return code;
 }
@@ -811,11 +805,11 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
       filterSharedTracks(qualityTracks);
     }
 
-    TrackCollection* initialTracks = new TrackCollection;
-    initialTracks->reserve(qualityTracks.size());
+    TrackCollection initialTracks;
+    initialTracks.reserve(qualityTracks.size());
     for(const auto& q : qualityTracks) {
       if (std::get<0>(q)==true) {
-        initialTracks->push_back(std::get<2>(q));
+        initialTracks.push_back(std::get<2>(q));
       }
       else {
         delete std::get<2>(q);
@@ -823,13 +817,13 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
     }
     qualityTracks.clear();
 
-    ATH_MSG_DEBUG("After clone removal "<<initialTracks->size()<<" tracks left");
+    ATH_MSG_DEBUG("After clone removal "<<initialTracks.size()<<" tracks left");
 
 
     if ( timerSvc() ) {
       m_CombTrackingTimer->stop();
       m_CombTrackingTimer->propVal(iSeed);
-      m_PatternRecoTimer->propVal( initialTracks->size() );
+      m_PatternRecoTimer->propVal( initialTracks.size() );
       m_PatternRecoTimer->stop();
       m_timePattReco = m_PatternRecoTimer->elapsed();
     }
@@ -844,8 +838,7 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
 
     if ( timerSvc() ) m_TrackFitterTimer->start();
 
-    outputTracks = *(m_trigInDetTrackFitter->fit(*initialTracks, m_particleHypothesis));
-    delete initialTracks;
+    m_trigInDetTrackFitter->fit(initialTracks, outputTracks, m_particleHypothesis);
 
     if( outputTracks.empty() ) {
       ATH_MSG_DEBUG("REGTEST / No tracks fitted");
@@ -854,16 +847,15 @@ StatusCode TrigFastTrackFinder::findTracks(const TrigRoiDescriptor& roi,
     size_t counter(1);
     for (auto fittedTrack = outputTracks.begin(); fittedTrack!=outputTracks.end(); ) {
       if ((*fittedTrack)->perigeeParameters()){
-	float d0 = (*fittedTrack)->perigeeParameters()->parameters()[Trk::d0]; 
-	float z0 = (*fittedTrack)->perigeeParameters()->parameters()[Trk::z0]; 
-	if (fabs(d0) > m_initialD0Max || fabs(z0) > m_Z0Max) {
-	  ATH_MSG_WARNING("REGTEST / Reject track after fit with d0 = " << d0 << " z0= "  << z0
-			  << " larger than limits (" << m_initialD0Max << ", " << m_Z0Max << ")");
-	  ATH_MSG_DEBUG(**fittedTrack);
-	  fittedTrack = outputTracks.erase(fittedTrack);
-	  continue;
-	}
-
+        float d0 = (*fittedTrack)->perigeeParameters()->parameters()[Trk::d0]; 
+        float z0 = (*fittedTrack)->perigeeParameters()->parameters()[Trk::z0]; 
+        if (fabs(d0) > m_initialD0Max || fabs(z0) > m_Z0Max) {
+          ATH_MSG_WARNING("REGTEST / Reject track after fit with d0 = " << d0 << " z0= "  << z0
+              << " larger than limits (" << m_initialD0Max << ", " << m_Z0Max << ")");
+          ATH_MSG_DEBUG(**fittedTrack);
+          fittedTrack = outputTracks.erase(fittedTrack);
+          continue;
+        }
       } 
 
       (*fittedTrack)->info().setPatternRecognitionInfo(Trk::TrackInfo::FastTrackFinderSeed);

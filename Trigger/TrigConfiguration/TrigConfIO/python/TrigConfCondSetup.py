@@ -1,4 +1,6 @@
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+from TrigConfIO.TransformXML2JSON import transformXML2Json
 
 def setupMenuProvider():
 
@@ -10,14 +12,12 @@ def setupMenuProvider():
     condSequence = AthSequencer("AthCondSeq")             
 
     # L1 menu setup
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
     if TriggerFlags.readLVL1configFromXML():
         xmlFile = TriggerFlags.inputLVL1configFile()
     else:
         xmlFile = TriggerFlags.outputLVL1configFile()
 
     # this is a temporary measure until we have L1 menu json files being written out directly
-    from TrigConfIO.TransformXML2JSON import transformXML2Json
     l1JsonFile = transformXML2Json(xmlFile)
 
 
@@ -28,3 +28,18 @@ def setupMenuProvider():
     )
     msg.info("Configured L1MenuCondAlg with InputType=%s and JsonFileName=%s" % (l1InputType, l1JsonFile))
 
+
+    # HLT menu setup
+    if TriggerFlags.readHLTconfigFromXML():
+        xmlFile = TriggerFlags.inputHLTconfigFile()
+    else:
+        xmlFile = TriggerFlags.outputHLTconfigFile()
+
+    hltJsonFile = xmlFile.replace(".xml",".json")
+
+    hltInputType = "file"
+    from TrigConfIO.TrigConfIOConf import TrigConf__HLTMenuCondAlg
+    condSequence += TrigConf__HLTMenuCondAlg( InputType = hltInputType,
+                                              JsonFileName = hltJsonFile
+    )
+    msg.info("Configured HLTMenuCondAlg with InputType=%s and JsonFileName=%s" % (hltInputType, hltJsonFile))

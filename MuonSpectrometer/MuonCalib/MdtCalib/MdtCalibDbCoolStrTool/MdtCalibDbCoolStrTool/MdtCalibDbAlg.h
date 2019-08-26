@@ -118,7 +118,7 @@ class MdtCalibDbAlg: public AthAlgorithm {
 
   //decompression buffer and length of buffer
   uLongf m_buffer_length;
-  std::unique_ptr<Bytef> m_decompression_buffer;
+  std::unique_ptr<Bytef[]> m_decompression_buffer;
   
   //wrapper function for the zlib uncompress, 
   //that automatically creates or increases the buffer if needed.    
@@ -131,6 +131,8 @@ class MdtCalibDbAlg: public AthAlgorithm {
   SG::WriteCondHandleKey<MdtRtRelationCollection> m_writeKeyRt{this,"MdtRtRelationCollection","MdtRtRelationCollection","MDT RT relations"};
   SG::WriteCondHandleKey<MdtTubeCalibContainerCollection> m_writeKeyTube{this,"MdtTubeCalibContainerCollection","MdtTubeCalibContainerCollection","MDT tube calib"};
   SG::WriteCondHandleKey<MdtCorFuncSetCollection> m_writeKeyCor{this,"MdtCorFuncSetCollection","MdtCorFuncSetCollection","MDT cor Funcs"};
+
+  unsigned int m_regionIdThreshold;
    
 };
 

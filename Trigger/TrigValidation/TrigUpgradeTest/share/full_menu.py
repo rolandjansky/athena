@@ -5,10 +5,8 @@
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('full_menu')
 
-# import flags
-from RecExConfig.RecFlags  import rec
-rec.doESD=True
-rec.doWriteESD=True
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
@@ -18,8 +16,6 @@ include("TrigUpgradeTest/testHLT_MT.py")
 # Generate the menu
 ##################################################################
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.triggerMenuSetup = "LS2_v1"
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
 menu = GenerateMenuMT()
@@ -41,47 +37,49 @@ from AthenaCommon.AlgSequence import dumpSequence, AthSequencer
 dumpSequence(topSequence)
 
 
-import DecisionHandling
-for a in AthSequencer("HLTAllSteps").getChildren():
-    if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
-        a.OutputLevel = DEBUG
+if opt.doWriteESD:
+  from RecExConfig.RecFlags  import rec
+  rec.doESD=True
+  rec.doWriteESD=True
+  import DecisionHandling
+  from AthenaCommon.CFElements import findAlgorithm,findSubSequence
+  for a in findSubSequence(topSequence, "HLTAllSteps").getChildren():
+      if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
+          a.OutputLevel = DEBUG
 
 
-# this part uses parts from the NewJO configuration, it is very hacky for the moment
+  # this part uses parts from the NewJO configuration, it is very hacky for the moment
 
-from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
-hypos = collectHypos(AthSequencer("HLTAllSteps"))
-filters = collectFilters(AthSequencer("HLTAllSteps"))
+  from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
+  hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
+  filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
-# try to find L1Decoder
-from AthenaCommon.CFElements import findAlgorithm,findSubSequence
-l1decoder = findAlgorithm(topSequence,'L1Decoder')
-if not l1decoder:
-    l1decoder = findAlgorithm(topSequence,'L1EmulationTest')
+  # try to find L1Decoder
+  l1decoder = findAlgorithm(topSequence,'L1Decoder')
+  if not l1decoder:
+      l1decoder = findAlgorithm(topSequence,'L1EmulationTest')
 
-if l1decoder:
-    decObj = collectDecisionObjects( hypos, filters, l1decoder )
-    __log.debug("Decision Objects to export to ESD [hack method - should be replaced with triggerRunCfg()]")
-    __log.debug(decObj)
+  if l1decoder:
+      decObj = collectDecisionObjects( hypos, filters, l1decoder )
+      __log.debug("Decision Objects to export to ESD [hack method - should be replaced with triggerRunCfg()]")
+      __log.debug(decObj)
 
-    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
-    ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]
-    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj ]
-    ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
-    ItemList += [ k[0] for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-    ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTList if 'ESD' in k[1] and "TrigComposite" in k[0] ]
-    ItemList += [ "xAOD::EventInfo#EventInfo" ]
-    ItemList += [ "xAOD::EventAuxInfo#EventInfoAux." ]
-    ItemList = list(set(ItemList))
+      from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+      ItemList  = [ 'xAOD::TrigCompositeContainer#{}'.format(d) for d in decObj ]
+      ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(d) for d in decObj ]
+      ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" not in k[0] ]
+      ItemList += [ k[0] for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
+      ItemList += [ 'xAOD::TrigCompositeAuxContainer#{}Aux.'.format(k[0].split("#")[1]) for k in TriggerHLTListRun3 if 'ESD' in k[1] and "TrigComposite" in k[0] ]
+      ItemList += [ "xAOD::EventInfo#EventInfo" ]
+      ItemList += [ "xAOD::EventAuxInfo#EventInfoAux." ]
+      ItemList = list(set(ItemList))
+  
+  else:
+      ItemList = []
 
-else:
-    ItemList = []
+ 
+  import AthenaPoolCnvSvc.WriteAthenaPool
+  from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+  StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
+  StreamESD.ItemList = ItemList
 
-
-import AthenaPoolCnvSvc.WriteAthenaPool
-from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
-StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
-StreamESD.ItemList = ItemList
-
-
-HLTTop = findSubSequence(topSequence, "HLTTop")

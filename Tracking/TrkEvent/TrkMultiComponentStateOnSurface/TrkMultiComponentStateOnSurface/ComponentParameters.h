@@ -1,45 +1,59 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************************
-			ComponentParameters.h  -  description
-			-------------------------------------
+  ComponentParameters.h  -  description
+ -------------------------------------
 begin                : Sunday 8th May 2005
 author               : atkinson, amorley
 email                : Anthony.Morley@cern.ch
 decription           : Definition of component parameters for use in a mixture
-		       						 of many components. In this reigme each track parameters
+                       of many components. In this reigme each track parameters
                        object comes with a weighting (double) attached
-*********************************************************************************/
+ *********************************************************************************/
 
 #ifndef TrkComponentParameters
 #define TrkComponentParameters
+#include "TrkParameters/TrackParameters.h"
 
-#include "TrkParameters/TrackParameters.h" //typedef
+
+/*
+ * Note that the CompomentParameters class  does not own/delete 
+ * the Trk::TrackParameters ptr. 
+ * Deletion happens only if you push it 
+ * in a MultiComponentState. which takes ownership
+ *
+ * The idea is to refactor the clients  using the typedefs
+ */
 
 namespace Trk{
-    
+
+typedef std::pair<std::unique_ptr<Trk::TrackParameters>, double> SimpleComponentParameters;
+typedef std::vector<SimpleComponentParameters> SimpleMultiComponentState;
+
 class ComponentParameters : public std::pair<const TrackParameters*, double>{
- public:
+public:
 
   /** Default constructor */
-  ComponentParameters();
-  
+  ComponentParameters() = default;
   /** Constructor with pointer to track parameters and weighting double */
-  ComponentParameters(const TrackParameters*, double);
-  
-  /** Copy constructor */
-  ComponentParameters(const ComponentParameters&);
-  
-  /** Default assignment **/
+  ComponentParameters(const Trk::TrackParameters* trackParameters, double weight):
+      std::pair<const Trk::TrackParameters*, double>(trackParameters, weight)
+  {}
+  /** Default copy constructor */
+  ComponentParameters(const Trk::ComponentParameters& componentParameters) = default;
+  /** Default assignment operator **/
   ComponentParameters & operator=(const ComponentParameters&) = default;
 
-  /** Virtual destructor */
-  virtual ~ComponentParameters();
+  /** Default destructor */
+  ~ComponentParameters() = default;
 
   /** Clone method */
-  virtual const ComponentParameters* clone() const;
+  Trk::ComponentParameters clone() const
+  {
+    return ComponentParameters( (this->first)->clone(), this->second );
+  }
 
 };
 

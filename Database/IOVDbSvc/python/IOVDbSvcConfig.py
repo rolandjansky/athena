@@ -121,8 +121,8 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False):
     
         if detDb is not None and fs.find("<db>")==-1:
             dbname=configFlags.IOVDb.DatabaseInstance
-            if not detDb in _dblist.keys():
-                raise ConfigurationError("Error, db shorthand %s not known")
+            if detDb not in _dblist.keys():
+                raise ConfigurationError("Error, db shorthand %s not known" % detDb)
             #Append database string to folder-name
             fs+="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
     
@@ -246,7 +246,6 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc  = IOVDbSvcCfg(ConfigFlags)
 
     f=open('test.pkl','w')

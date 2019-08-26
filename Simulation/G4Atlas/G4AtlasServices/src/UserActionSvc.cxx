@@ -5,7 +5,6 @@
 #include <mutex>
 
 // Framework includes
-#include "CxxUtils/make_unique.h"
 
 // Geant4 includes
 #include "G4RunManager.hh"
@@ -91,7 +90,7 @@ namespace G4UA
       ATH_MSG_ERROR("Run action already exists for current thread!");
       return StatusCode::FAILURE;
     }
-    auto runAction = CxxUtils::make_unique<G4AtlasRunAction>();
+    auto runAction = std::make_unique<G4AtlasRunAction>();
     // Assign run plugins
     for(auto* action : actions.runActions)
       runAction->addRunAction(action);
@@ -103,7 +102,7 @@ namespace G4UA
       ATH_MSG_ERROR("Event action already exists for current thread!");
       return StatusCode::FAILURE;
     }
-    auto eventAction = CxxUtils::make_unique<G4AtlasEventAction>();
+    auto eventAction = std::make_unique<G4AtlasEventAction>();
     // Assign event plugins
     for(auto* action : actions.eventActions)
       eventAction->addEventAction(action);
@@ -115,7 +114,7 @@ namespace G4UA
       ATH_MSG_ERROR("Stacking action already exists for current thread!");
       return StatusCode::FAILURE;
     }
-    auto stackAction = CxxUtils::make_unique<G4AtlasStackingAction>();
+    auto stackAction = std::make_unique<G4AtlasStackingAction>();
     // Assign stacking plugins
     for(auto* action : actions.stackingActions)
       stackAction->addAction(action);
@@ -127,7 +126,7 @@ namespace G4UA
       ATH_MSG_ERROR("Tracking action already exists for current thread!");
       return StatusCode::FAILURE;
     }
-    auto trackAction = CxxUtils::make_unique<G4AtlasTrackingAction>();
+    auto trackAction = std::make_unique<G4AtlasTrackingAction>();
     // Assign tracking plugins
     for(auto* action : actions.trackingActions)
       trackAction->addTrackAction(action);
@@ -139,7 +138,7 @@ namespace G4UA
       ATH_MSG_ERROR("Stepping action already exists for current thread!");
       return StatusCode::FAILURE;
     }
-    auto stepAction = CxxUtils::make_unique<G4AtlasSteppingAction>();
+    auto stepAction = std::make_unique<G4AtlasSteppingAction>();
     // Assign stepping plugins
     for(auto* action : actions.steppingActions)
       stepAction->addAction(action);

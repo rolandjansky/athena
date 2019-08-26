@@ -23,6 +23,7 @@ def getRpcRange(name="RpcRange", **kwargs):
 
 
 def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
+    import MuonCondAlg.RpcCondDbAlgConfig # MT-safe conditions access
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the RPC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", RPC_FirstXing() ) 

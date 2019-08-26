@@ -54,7 +54,7 @@ public:
   void addBdt(const std::string& tagger, const std::string& name, MVAUtils::BDT *);
   void addChannelAlias(const std::string& channel, const std::string& alias);
   TH1* retrieveHistogram(const std::string& folder, const std::string& channel, const std::string& hname) const; 
-  lwt::JSONConfig retrieveDL1NN(std::string& tagger, const std::string& channel) const;
+  lwt::JSONConfig retrieveDL1NN(const std::string& tagger, const std::string& channel) const;
   MVAUtils::BDT* retrieveBdt(const std::string& tagger, const std::string& channel) const;
   template <class T> T* retrieveTObject(const std::string& folder, const std::string& channel, const std::string& hname) const;
   

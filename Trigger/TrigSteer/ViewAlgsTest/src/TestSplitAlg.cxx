@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
-#include "CxxUtils/make_unique.h"
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "ViewAlgs/TrigCompositeTraversal.h"
@@ -48,8 +47,8 @@ StatusCode TestSplitAlg::execute() {
   // // redirect handles to that view
   // CHECK(m_outputRoisContainer.setStore(view));
 
-  m_outputProxyContainer = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
-  m_outputProxyAuxContainer = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();  
+  m_outputProxyContainer = std::make_unique< xAOD::TrigCompositeContainer >();
+  m_outputProxyAuxContainer = std::make_unique< xAOD::TrigCompositeAuxContainer>();  
   m_outputProxyContainer->setStore(m_outputProxyAuxContainer.ptr());
 
   if ( m_inputProxyContainer->size() == 0)  return StatusCode::SUCCESS;
@@ -89,9 +88,9 @@ StatusCode TestSplitAlg::execute() {
       cont_it = std::find(m_outputVectorProxyColl.begin(), m_outputVectorProxyColl.end(), container);
       if (cont_it == m_outputVectorProxyColl.end() ){
         //create new WriteHandle
-        container = CxxUtils::make_unique< xAOD::TrigCompositeContainer >();
+        container = std::make_unique< xAOD::TrigCompositeContainer >();
         SG::WriteHandle< xAOD::TrigCompositeAuxContainer > containerAux;
-        containerAux = CxxUtils::make_unique< xAOD::TrigCompositeAuxContainer>();  
+        containerAux = std::make_unique< xAOD::TrigCompositeAuxContainer>();  
         container->setStore(containerAux.ptr());
         m_outputVectorProxyColl.push_back( container);
         m_outputVectorProxyAuxColl.push_back( containerAux);//needed?

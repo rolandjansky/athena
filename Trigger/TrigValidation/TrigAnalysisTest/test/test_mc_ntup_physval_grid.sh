@@ -2,15 +2,21 @@
 
 # art-description: Test of Trigger NTUP_PHYSVAL 
 # art-type: grid
-# art-include: 21.3/Athena
 # art-include: 21.0/Athena
+# art-include: 21.3/Athena
 # art-include: master/Athena
-# art-output: *check*
+# art-output: *.txt
 # art-output: *.log
 # art-output: log.*
+# art-output: *.new
+# art-output: *.json
 # art-output: *.root
 # art-output: *.pmon.gz
-# art-output: TotalEventsProcessed.txt
+# art-output: *perfmon*
+# art-output: *.check*
+# art-output: HLTconfig*.xml
+# art-output: L1Topoconfig*.xml
+# art-output: LVL1config*.xml
 # art-output: PHYSVAL_WEB
 
 export NAME="mc_ntup_physval_grid"
@@ -19,7 +25,7 @@ export TEST="TrigAnalysisTest"
 export NEVT=100
 export DS='/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_MC_pp_v7_chain/AOD.pool.root'
 
-Reco_tf.py --inputAODFile=${DS}  --preExec "all:from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);" --skipEvents="0" --maxEvents=${NEVT} --valid="True"  --jobNumber="1" --validationFlags doExample,doMET,doPFlow,doEgamma,doInDet,doTau,doJet,doBtag,doZee,doMuon,doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet --outputNTUP_PHYSVALFile="NTUP_PHYSVAL.pool.root" > output.log 
+Reco_tf.py --inputAODFile=${DS}  --preExec "all:from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);" --skipEvents="0" --maxEvents=${NEVT} --valid="True"  --jobNumber="1" --validationFlags doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet --outputNTUP_PHYSVALFile="NTUP_PHYSVAL.pool.root" > output.log 
 
 echo "art-result: $? PhysVal"
 

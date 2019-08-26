@@ -2,7 +2,7 @@
    Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "G4UserActions/VolumeDumper.h"
+#include "VolumeDumper.h"
 #include "G4DebuggingTools/G4DebuggingHelper.h"
 
 // Geant4

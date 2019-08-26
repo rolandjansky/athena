@@ -71,6 +71,12 @@ EGammaAmbiguityTool = ToolFactory( ElectronPhotonSelectorToolsConf.EGammaAmbigui
 
 EMFourMomBuilder = ToolFactory( egammaToolsConf.EMFourMomBuilder)
 
+egammaLargeClusterMakerTool = ToolFactory( egammaToolsConf.egammaLargeClusterMaker,
+                                           name = "egammaLCMakerTool",
+                                           InputClusterCollection = egammaKeys.ClusterKey(),
+                                           CellsName = egammaKeys.caloCellKey()
+                                           )
+
 # Electron Selectors
 from EMPIDBuilderBase import EMPIDBuilderElectronBase
 ElectronPIDBuilder = ToolFactory( EMPIDBuilderElectronBase, name = "ElectronPIDBuilder")

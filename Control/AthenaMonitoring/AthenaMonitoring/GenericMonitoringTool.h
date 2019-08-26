@@ -82,6 +82,7 @@ public:
   virtual ~GenericMonitoringTool() override;
   virtual StatusCode initialize() override;
   virtual StatusCode start() override;
+  virtual StatusCode stop() override;
 
   /// Retrieve the histogram fillers
   std::vector<std::shared_ptr<Monitored::HistogramFiller>> getHistogramsFillers(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) const;
@@ -91,6 +92,7 @@ public:
   void setPath( const std::string& newPath ) { m_histoPath = newPath; }
 
   virtual const ServiceHandle<ITHistSvc>& histogramService() { return m_histSvc; }
+  virtual uint32_t runNumber();
   virtual uint32_t lumiBlock();
 private:
   /// THistSvc (do NOT fix the service type (only the name) to allow for a different implementation online

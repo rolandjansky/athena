@@ -16,6 +16,7 @@ TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_g5_etcut_L1EM3 
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
+TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
@@ -28,6 +29,7 @@ TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_g5_etcut_L1EM3 
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
+TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
@@ -40,6 +42,7 @@ TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_g5_etcut_L1EM3 
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
+TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep1                     9   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
@@ -52,15 +55,16 @@ TriggerSummaryStep2                     9   0     DEBUG  +++ HLT_g5_etcut_L1EM3 
 TriggerSummaryStep2                     9   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep2                     9   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TriggerSummaryStep3                     9   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
+TriggerSummaryStep3                     9   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep3                     9   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
 TriggerSummaryStep3                     9   0     DEBUG  +++ HLT_e7_etcut_L1EM3 ID#1959043579
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3       10        10        6         0         0         6         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3 decisions                    15        0         0         
 TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            10        10        6         6         6         6         
-TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      15        128       24        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      15        134       24        
 TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            10        10        4         4         4         4         
-TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      12        116       10        
+TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      12        122       10        
 TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3            10        10        4         4         4         4         
-TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      11        110       8         
-TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            10        10        4         4         0         4         
-TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      12        12        0         
+TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      11        116       8         
+TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            10        10        4         4         4         4         
+TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      12        12        14        

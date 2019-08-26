@@ -3,25 +3,23 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from G4AtlasServices.G4AtlasServicesConf import DetectorGeometrySvc, G4AtlasSvc, G4GeometryNotifierSvc
 #the physics region tools
-from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg, EMBPhysicsRegionToolCfg, EMECPhysicsRegionToolCfg, HECPhysicsRegionToolCfg, FCALPhysicsRegionToolCfg, DriftWallPhysicsRegionToolCfg, DriftWall1PhysicsRegionToolCfg, DriftWall2PhysicsRegionToolCfg, MuonSystemFastPhysicsRegionToolCfg
+from G4AtlasTools.G4PhysicsRegionConfigNew import SX1PhysicsRegionToolCfg, BedrockPhysicsRegionToolCfg, CavernShaftsConcretePhysicsRegionToolCfg, PixelPhysicsRegionToolCfg, SCTPhysicsRegionToolCfg, TRTPhysicsRegionToolCfg, TRT_ArPhysicsRegionToolCfg, BeampipeFwdCutPhysicsRegionToolCfg, FWDBeamLinePhysicsRegionToolCfg
 
 #the geometry tools
 from G4AtlasTools.G4GeometryToolConfig import MaterialDescriptionToolCfg, G4AtlasDetectorConstructionToolCfg, ATLASEnvelopeCfg
 #the field config tools
 from G4AtlasTools.G4FieldConfigNew import ATLASFieldManagerToolCfg, TightMuonsATLASFieldManagerToolCfg, BeamPipeFieldManagerToolCfg, InDetFieldManagerToolCfg, MuonsOnlyInCaloFieldManagerToolCfg, MuonFieldManagerToolCfg, Q1FwdFieldManagerToolCfg, Q2FwdFieldManagerToolCfg, Q3FwdFieldManagerToolCfg, D1FwdFieldManagerToolCfg, D2FwdFieldManagerToolCfg, Q4FwdFieldManagerToolCfg, Q5FwdFieldManagerToolCfg, Q6FwdFieldManagerToolCfg, Q7FwdFieldManagerToolCfg, Q1HKickFwdFieldManagerToolCfg, Q1VKickFwdFieldManagerToolCfg, Q2HKickFwdFieldManagerToolCfg, Q2VKickFwdFieldManagerToolCfg, Q3HKickFwdFieldManagerToolCfg, Q3VKickFwdFieldManagerToolCfg, Q4VKickAFwdFieldManagerToolCfg, Q4HKickFwdFieldManagerToolCfg, Q4VKickBFwdFieldManagerToolCfg, Q5HKickFwdFieldManagerToolCfg,  Q6VKickFwdFieldManagerToolCfg, FwdRegionFieldManagerToolCfg
 
+
 def getATLAS_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
-
-    isUpgrade = ConfigFlags.GeoModel.Run =="RUN4" 
+    isUpgrade = ConfigFlags.GeoModel.Run =="RUN4"
     isRUN2 = (ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
 
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.DetFlags import DetFlags
-    from AthenaCommon.BeamFlags import jobproperties
     if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
         regionCreatorList += [SX1PhysicsRegionToolCfg(ConfigFlags), BedrockPhysicsRegionToolCfg(ConfigFlags), CavernShaftsConcretePhysicsRegionToolCfg(ConfigFlags)]
         #regionCreatorList += ['CavernShaftsAirPhysicsRegionTool'] # Not used currently
@@ -47,69 +45,61 @@ def getATLAS_RegionCreatorList(ConfigFlags):
             ## Shower parameterization overrides the calibration hit flag
             if simFlags.LArParameterization.statusOn and simFlags.LArParameterization() > 0 \
                     and ConfigFlags.Sim.CalibrationRun in ['LAr','LAr+Tile','DeadLAr']:
-                print 'You requested both calibration hits and frozen showers / parameterization in the LAr.'
-                print '  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.'
-                print '  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')'
+                print('You requested both calibration hits and frozen showers / parameterization in the LAr.')
+                print('  Such a configuration is not allowed, and would give junk calibration hits where the showers are modified.')
+                print('  Please try again with a different value of either simFlags.LArParameterization (' + str(simFlags.LArParameterization()) + ') or simFlags.CalibrationRun ('+str(ConfigFlags.Sim.CalibrationRun)+')')
                 raise RuntimeError('Configuration not allowed')
-            if simFlags.LArParameterization() > 0:
-                regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
-                                      HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]
+
+            #TODO - migrate below>>
+            #if simFlags.LArParameterization() > 0:
+            #    regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
+            #                          HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]
                 # FIXME 'EMBPhysicsRegionTool' used for parametrization also - do we need a second instance??
-                regionCreatorList += [EMECParaPhysicsRegionTool(ConfigFlags),
-                                      FCALParaPhysicsRegionTool(ConfigFlags), FCAL2ParaPhysicsRegionTool(ConfigFlags)]
-                if simFlags.LArParameterization.get_Value() > 1:
-                    regionCreatorList += [PreSampLArPhysicsRegionTool(ConfigFlags), DeadMaterialPhysicsRegionTool(ConfigFlags)]
-            elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
-                regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
-                                      HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]
+            #    regionCreatorList += [EMECParaPhysicsRegionTool(ConfigFlags),
+            #                          FCALParaPhysicsRegionTool(ConfigFlags), FCAL2ParaPhysicsRegionTool(ConfigFlags)]
+            #    if simFlags.LArParameterization.get_Value() > 1:
+            #        regionCreatorList += [PreSampLArPhysicsRegionTool(ConfigFlags), DeadMaterialPhysicsRegionTool(ConfigFlags)]
+            #elif simFlags.LArParameterization() is None or simFlags.LArParameterization() == 0:
+            #    regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags), EMECPhysicsRegionTool(ConfigFlags),
+            #                          HECPhysicsRegionTool(ConfigFlags), FCALPhysicsRegionTool(ConfigFlags)]
+
+
     ## FIXME _initPR never called for FwdRegion??
     #if simFlags.ForwardDetectors.statusOn:
     #    if DetFlags.geometry.FwdRegion_on():
     #        regionCreatorList += ['FwdRegionPhysicsRegionTool']
-    if ConfigFlags.Detector.GeometryMuon:
-        regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
-        if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
-            regionCreatorList += [MuonSystemFastPhysicsRegionTool(ConfigFlags)]
+    #if ConfigFlags.Detector.GeometryMuon:
+    #    regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
+    #    if ConfigFlags.Sim.CavernBG != 'Read' and not (simFlags.RecordFlux.statusOn and simFlags.RecordFlux()):
+    #        regionCreatorList += [MuonSystemFastPhysicsRegionTool(ConfigFlags)]
+    #<<migrate above
     return regionCreatorList
 
-#not called anywhere?
-def getCTB_RegionCreatorList(ConfigFlags):
-    regionCreatorList = []
-    from G4AtlasApps.SimFlags import simFlags
-    ## FIXME _initPR never called for SCT??
-    #if DetFlags.ID_on():
-    #    if DetFlags.geometry.SCT_on():
-    #        regionCreatorList += ['SCTSiliconPhysicsRegionTool']
-    if ConfigFlags.Detector.SimulateCalo:
-        eta=simFlags.Eta.get_Value()
-        if eta>=0 and eta<1.201:
-            if ConfigFlags.Detector.SimulateLAr:
-                regionCreatorList += [EMBPhysicsRegionTool(ConfigFlags)]
-    if ConfigFlags.Detector.SimulateMuon:
-        regionCreatorList += [DriftWallPhysicsRegionTool(ConfigFlags), DriftWall1PhysicsRegionTool(ConfigFlags), DriftWall2PhysicsRegionTool(ConfigFlags)]
-    return regionCreatorList
 
 def getTB_RegionCreatorList(ConfigFlags):
     regionCreatorList = []
-    from G4AtlasApps.SimFlags import simFlags
+    #from G4AtlasApps.SimFlags import simFlags
 
-    if (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2003"):
-        if (ConfigFlags.Detector.SimulateLAr):
-            regionCreatorList += [FCALPhysicsRegionTool(ConfigFlags)]
-    elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2002"):
-        if (ConfigFlags.Detector.SimulateLAr):
-            regionCreatorList += [HECPhysicsRegionTool(ConfigFlags)]
-    elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6EC_2002"):
-        if (ConfigFlags.Detector.SimulateLAr):
-            regionCreatorList += [EMECPhysicsRegionTool(ConfigFlags)]
-    elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2004"):
-        if (simFlags.LArTB_H6Hec.get_Value()):
-            regionCreatorList += [HECPhysicsRegionTool(ConfigFlags)]
-        if (simFlags.LArTB_H6Emec.get_Value()):
-            regionCreatorList += [EMECPhysicsRegionTool(ConfigFlags)]
-        if (simFlags.LArTB_H6Fcal.get_Value()):
-            regionCreatorList += [FCALPhysicsRegionTool(ConfigFlags)]
+    #TODO - migrate below>>
+    #if (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2003"):
+    #    if (ConfigFlags.Detector.SimulateLAr):
+    #        regionCreatorList += [FCALPhysicsRegionTool(ConfigFlags)]
+    #elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2002"):
+    #    if (ConfigFlags.Detector.SimulateLAr):
+    #        regionCreatorList += [HECPhysicsRegionTool(ConfigFlags)]
+    #elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6EC_2002"):
+    #    if (ConfigFlags.Detector.SimulateLAr):
+    #        regionCreatorList += [EMECPhysicsRegionTool(ConfigFlags)]
+    #elif (ConfigFlags.GeoModel.AtlasVersion=="tb_LArH6_2004"):
+    #    if (simFlags.LArTB_H6Hec.get_Value()):
+    #        regionCreatorList += [HECPhysicsRegionTool(ConfigFlags)]
+    #    if (simFlags.LArTB_H6Emec.get_Value()):
+    #        regionCreatorList += [EMECPhysicsRegionTool(ConfigFlags)]
+    #    if (simFlags.LArTB_H6Fcal.get_Value()):
+    #        regionCreatorList += [FCALPhysicsRegionTool(ConfigFlags)]
+    #<<migrate above
     return regionCreatorList
+
 
 #########################################################################
 def ATLAS_FieldMgrListCfg(ConfigFlags):
@@ -127,7 +117,6 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
         tool  = result.popToolsAndMerge(acc)
         fieldMgrList += [tool]
 
-    from AthenaCommon.DetFlags import DetFlags
     if ConfigFlags.Detector.SimulateBpipe:
         acc = BeamPipeFieldManagerToolCfg(ConfigFlags)
         tool  = result.popToolsAndMerge(acc)
@@ -214,18 +203,15 @@ def ATLAS_FieldMgrListCfg(ConfigFlags):
                                                        toolQ5HKickFwdFieldManager,
                                                        toolQ6VKickFwdFieldManager,
                                                        toolFwdRegionFieldManager]
-          
+
     result.setPrivateTools(fieldMgrList)
     return result
 
-#called?
-def getCTB_FieldMgrList(ConfigFlags):
-    fieldMgrList = []
-    return fieldMgrList
 
 def getTB_FieldMgrList(ConfigFlags):
     fieldMgrList = []
     return fieldMgrList
+
 
 def getGeometryConfigurationTools(ConfigFlags):
     geoConfigToolList = []
@@ -233,6 +219,7 @@ def getGeometryConfigurationTools(ConfigFlags):
     # package containing each tool, so G4AtlasTools in this case
     geoConfigToolList += [MaterialDescriptionToolCfg(ConfigFlags)]
     return geoConfigToolList
+
 
 def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
     result = ComponentAccumulator()
@@ -263,10 +250,11 @@ def DetectorGeometrySvcCfg(ConfigFlags, name="DetectorGeometrySvc", **kwargs):
         if True:
             acc = ATLAS_FieldMgrListCfg(ConfigFlags)
             fieldMgrList = result.popToolsAndMerge(acc)
-            kwargs.setdefault("FieldManagers", fieldMgrList) 
+            kwargs.setdefault("FieldManagers", fieldMgrList)
 
     result.addService(DetectorGeometrySvc(name, **kwargs))
     return result
+
 
 def G4AtlasSvcCfg(ConfigFlags, name="G4AtlasSvc", **kwargs):
     if ConfigFlags.Concurrency.NumThreads > 0:
@@ -276,6 +264,7 @@ def G4AtlasSvcCfg(ConfigFlags, name="G4AtlasSvc", **kwargs):
     kwargs.setdefault("isMT", is_hive)
     kwargs.setdefault("DetectorGeometrySvc", 'DetectorGeometrySvc')
     return G4AtlasSvc(name, **kwargs)
+
 
 def G4GeometryNotifierSvcCfg(ConfigFlags, name="G4GeometryNotifierSvc", **kwargs):
     kwargs.setdefault("ActivateLVNotifier", True)

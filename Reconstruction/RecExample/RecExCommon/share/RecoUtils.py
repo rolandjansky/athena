@@ -70,11 +70,13 @@ else:
         except:
             print "WARNING: fast MemoryAuditor not available in this release" 
 
+from AthenaAuditors.AthenaAuditorsConf import FPEAuditor
+theAuditorSvc += FPEAuditor()
+import signal
 try:
-    from AthenaAuditors.AthenaAuditorsConf import FPEAuditor
-    theAuditorSvc += FPEAuditor()
-except:
-    logRecoUtils.warning('Could not import FPEAuditor. Normal with 15.6.X.Y releases.')
+    svcMgr.CoreDumpSvc.Signals.remove (signal.SIGFPE)
+except ValueError:
+    pass
 
 
 from RecExConfig.RecoFunctions import OutputFileName

@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+# flake8: noqa  (legacy trigger)
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigGSCFex
-#from TrigBjetHypo.TrigGSCFexTuning import *   
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import mm, GeV   #commented here
 
 from AthenaCommon.AppMgr import ToolSvc
 from BTagging.BTaggingFlags import BTaggingFlags #commented here

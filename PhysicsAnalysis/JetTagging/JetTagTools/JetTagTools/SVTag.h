@@ -31,24 +31,25 @@ namespace Analysis
   class NewLikelihoodTool;
   class HistoHelperRoot;
   
-  class SVTag : public AthAlgTool , virtual public ITagTool
+  class SVTag : public extends<AthAlgTool, ITagTool>
     {
     public:
       SVTag(const std::string&,const std::string&,const IInterface*);
       virtual ~SVTag();
-      StatusCode initialize();
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
       
-      StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag);    
-      void setOrigin(const xAOD::Vertex* priVtx);
-      void finalizeHistos();
+      virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                                const xAOD::Jet& jetToTag,
+                                xAOD::BTagging& BTag) const override;
+      virtual void finalizeHistos() override;
       
     private:      
       
       //GP: calculate the 3d significance on the fly
-      double get3DSignificance(const xAOD::Vertex* priVertex,
+      double get3DSignificance(const xAOD::Vertex& priVertex,
                                std::vector<const xAOD::Vertex*>& secVertex,
-                               const Amg::Vector3D jetDirection);
+                               const Amg::Vector3D jetDirection) const;
       // double get3DSignificance(const Trk::RecVertex & priVertex,
       //                          std::vector<const Trk::RecVertex*> & secVertex,
       //                          const Amg::Vector3D jetDirection);
@@ -72,15 +73,13 @@ namespace Analysis
       // std::string m_originalTPCollectionName;
       // const xAOD::TrackParticleContainer* m_originalTPCollection;
      
-      const xAOD::Vertex* m_priVtx = 0;
-      
       /** just print some info at the beginning */
       void printParameterSettings();
 
       // for debugging:
-      int m_nbjet;
-      int m_ncjet;
-      int m_nljet;
+      mutable std::atomic<int> m_nbjet;
+      mutable std::atomic<int> m_ncjet;
+      mutable std::atomic<int> m_nljet;
 
       bool m_useCHypo;
       bool m_usePtSV2;
@@ -101,8 +100,6 @@ namespace Analysis
       bool m_isFlipped; // true if tagger is configured in flipped mode. in that case adjusts DRJPVSV computation
 
     }; // End class
-
-  inline void SVTag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 
 } // End namespace 
 

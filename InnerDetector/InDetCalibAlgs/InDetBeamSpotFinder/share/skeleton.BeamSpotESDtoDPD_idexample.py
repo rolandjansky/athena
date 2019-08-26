@@ -47,39 +47,24 @@ if hasattr(runArgs,"indetTrkErrScTag"):
     if len(runArgs.indetTrkErrScTag) > 0 :
         from IOVDbSvc.CondDB import conddb
         conddb.addOverride("/Indet/TrkErrorScaling",runArgs.indetTrkErrScTag)
-        
 
-
-from RecExConfig.InputFilePeeker import inputFileSummary
-print inputFileSummary
-#if 'metadata' in inputFileSummary:
-#    if '/EXT/DCS/MAGNETS/SENSORDATA' in inputFileSummary['metadata']:
-#        for i in  inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA']:
-#            print i['value']
-
-
-        
-if 'beam_energy' in inputFileSummary:
-    print "JW Beam", inputFileSummary['beam_energy']
+from PyUtils.MetaReaderPeeker import metadata
+if 'beam_energy' in metadata:
+    recoLog.info('JW Beam {}'.format(metadata['beam_energy']))
 else:
-    print "JW Beam: None"
-if 'beam_type' in inputFileSummary:
-    print "JW Type: ", inputFileSummary['beam_type']
+    recoLog.info('JW Beam None')
+
+if 'beam_type' in metadata:
+    recoLog.info('JW Beam {}'.format(metadata['beam_type']))
 else:
-    print "JW Type: None"
+    recoLog.info('JW Type None')
 
 geoFilePeeker=''
 
-if 'geometry' in inputFileSummary: 
-    if inputFileSummary['geometry'] != None:
-        geoFilePeeker = inputFileSummary['geometry']
-        print "JWX", geoFilePeeker 
-#print inputFileSummary['evt_type']
-if 'evt_type' in inputFileSummary:
-    if 'IS_SIMULATION' in inputFileSummary['evt_type']:
-      print "is sumiulation" 
-#print JW2 
-
+if 'GeoAtlas' in metadata:
+    if metadata['GeoAtlas']:
+        geoFilePeeker = metadata['GeoAtlas']
+        recoLog.info('JWX {}'.format(geoFilePeeker))
     
 if hasattr(runArgs,"geometryVersion"):
     if len(runArgs.geometryVersion) >0 :
@@ -98,14 +83,13 @@ ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolESDInput()
 import AthenaCommon.SystemOfUnits as Units
 globalflags.DetGeo = 'atlas'
 
-if 'evt_type' in inputFileSummary:
-    if 'IS_SIMULATION' in inputFileSummary['evt_type']:
+if 'eventTypes' in metadata:
+    if 'IS_SIMULATION' in metadata['eventTypes']:
         globalflags.DataSource = 'geant4'
     else:
         globalflags.DataSource = 'data'
-else:        
+else:
     globalflags.DataSource = 'data'
-
 
 #include('RecExCommon/RecExCommon_topOptions.py')
 

@@ -59,6 +59,7 @@ StatusCode TrigBtagFexMT::initialize() {
 
   // declareProperty overview 
   ATH_MSG_DEBUG( "declareProperty review:"                   );
+  /*
   ATH_MSG_DEBUG( "   "     << m_useBeamSpotFlag              );
   ATH_MSG_DEBUG( "   "     << m_TaggerBaseNames              );
   ATH_MSG_DEBUG( "   "     << m_JetContainerKey              );
@@ -68,24 +69,16 @@ StatusCode TrigBtagFexMT::initialize() {
   ATH_MSG_DEBUG( "   "     << m_outputBTaggingContainerKey   );
   ATH_MSG_DEBUG( "   "     << m_outputVertexContainerKey     );
   ATH_MSG_DEBUG( "   "     << m_outputBtagVertexContainerKey );
-  
+  */
+
   ATH_MSG_DEBUG( "Initialising ReadHandleKeys" );
   ATH_CHECK( m_JetContainerKey.initialize()           );
   ATH_CHECK( m_VertexContainerKey.initialize()        );
-  ATH_CHECK( m_BackUpVertexContainerKey.initialize()  );
-  ATH_CHECK( m_TrackParticleContainerKey.initialize() );
+  ATH_CHECK( m_trkContainerKey.initialize() );
 
-  ATH_CHECK( m_outputBTaggingContainerKey.initialize() );
-  ATH_CHECK( m_outputBtagVertexContainerKey.initialize() );
-  ATH_CHECK( m_outputVertexContainerKey.initialize() );
-
-  if ( m_setupOfflineTools == true ) {
-    // Retrieve the offline track association tool
-    if ( not m_bTagTrackAssocTool.name().empty() )
-      ATH_CHECK( m_bTagTrackAssocTool.retrieve() );
-    ATH_CHECK( m_bTagSecVtxTool.retrieve() );
-    ATH_CHECK( m_bTagTool.retrieve() );
-  }
+  //  ATH_CHECK( m_outputBTaggingContainerKey.initialize() );
+  //  ATH_CHECK( m_outputBtagVertexContainerKey.initialize() );
+  //  ATH_CHECK( m_outputVertexContainerKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -94,7 +87,55 @@ StatusCode TrigBtagFexMT::initialize() {
 // ----------------------------------------------------------------------------------------------------------------- 
 
 StatusCode TrigBtagFexMT::execute() {
+
+  const EventContext& ctx = getContext();
+  
   ATH_MSG_DEBUG( "Executing TrigBtagFexMT" );
+  ATH_MSG_DEBUG("--- BTAGFEX: EXECUTING");
+  
+
+  // Test retrieval of JetContainer
+  SG::ReadHandle<xAOD::JetContainer> jetContainer (m_JetContainerKey);
+  if (!jetContainer.isValid()) {
+    ATH_MSG_ERROR(" cannot retrieve JetContainer with key " << m_JetContainerKey.key());
+    return StatusCode::FAILURE;
+  }
+  if (jetContainer->size() == 0) {
+    ATH_MSG_DEBUG("    BTAGFEX: JetContainer --> empty!");
+  }
+  else {
+    ATH_MSG_DEBUG("    BTAGFEX: JetContainer --> n = " << jetContainer->size());
+  }
+
+  // Test retrieval of VertexContainer
+  const xAOD::VertexContainer* vxContainer (0);
+  StatusCode sc = evtStore()->retrieve(vxContainer, m_VertexContainerKey.key());
+  if (sc.isFailure()) {
+    ATH_MSG_ERROR(" cannot retrieve Vertex Container with key " << m_VertexContainerKey.key());
+    return StatusCode::SUCCESS;
+  }
+  if (vxContainer->size()==0) {
+    ATH_MSG_DEBUG("    BTAGFEX: VertexContainer --> empty!");
+    return StatusCode::SUCCESS;
+  }
+  else {
+    ATH_MSG_DEBUG("    BTAGFEX: VertexContainer --> n = " << vxContainer->size());
+  }
+
+
+
+  // Test retrieval of Track Particles
+  SG::ReadHandle< xAOD::TrackParticleContainer > trkContainerHandle = SG::makeHandle( m_trkContainerKey,ctx );
+  CHECK( trkContainerHandle.isValid() );
+  ATH_MSG_DEBUG("Retrieved " << trkContainerHandle->size() << " Tracks");
+
+  const xAOD::TrackParticleContainer *trkContainer =  trkContainerHandle.get();
+  
+  for ( auto trk : *trkContainer ) {
+    ATH_MSG_DEBUG( "  *** pt=" << trk->p4().Et() );
+  }
+
+
 
   return StatusCode::SUCCESS;
 }

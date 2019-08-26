@@ -100,10 +100,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 	m_rndmEngine(nullptr),
 	m_rndmEngineName("MuonDigitization"),
 
-	// Containers
-	m_digitContainer(nullptr),
-	m_sdoContainer(nullptr),
-
 	// Tools
 	m_digitTool("MM_Response_DigitTool", this),
 	m_file(nullptr),
@@ -116,8 +112,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 	m_timedHitCollection_MM(nullptr),
 
 	m_inputObjectName(""),
-	m_outputObjectName(""),
-	m_outputSDOName(""),
 
 	m_checkMMSimHits(true),
 	m_useTimeWindow(true),
@@ -187,8 +181,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 
 	//Object names
 	declareProperty("InputObjectName",     m_inputObjectName     =  "MicromegasSensitiveDetector");
-	declareProperty("OutputObjectName",    m_outputObjectName    =  "MM_DIGITS");
-	declareProperty("OutputSDOName",       m_outputSDOName       =  "MM_SDO");
 
 	//Configurations
 	declareProperty("CheckSimHits",        m_checkMMSimHits      =  true,       "Control on the hit validity"); // Currently deprecated
@@ -232,8 +224,8 @@ StatusCode MM_DigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "MagFieldSvc            " << m_magFieldSvc         );
 	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
-	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputObjectName    );
-	ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDOName       );
+	ATH_MSG_DEBUG ( "OutputObjectName       " << m_outputDigitCollectionKey.key()    );
+	ATH_MSG_DEBUG ( "OutputSDOName          " << m_outputSDO_CollectionKey.key()      );
 	ATH_MSG_DEBUG ( "UseTimeWindow          " << m_useTimeWindow       );
 	ATH_MSG_DEBUG ( "CheckSimHits           " << m_checkMMSimHits      );
 	ATH_MSG_DEBUG ( "Threshold              " << m_qThreshold          );
@@ -246,7 +238,6 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	// Initialize transient event store
 	ATH_CHECK(m_storeGateService.retrieve());
-	ATH_CHECK( service("ActiveStoreSvc", m_activeStore) );
 
 	// Initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
 	StoreGateSvc* detStore=nullptr;
@@ -276,9 +267,14 @@ StatusCode MM_DigitizationTool::initialize() {
 		return StatusCode::FAILURE;
 	}
 
-	//initialize the digit container
-	m_digitContainer = new MmDigitContainer(m_idHelper->detectorElement_hash_max());
-	m_digitContainer->addRef();
+    //initialize the output WriteHandleKeys
+    if(m_outputDigitCollectionKey.key()=="") {
+      ATH_MSG_FATAL("Property OutputObjectName not set !");
+      return StatusCode::FAILURE;
+    }
+    ATH_CHECK(m_outputDigitCollectionKey.initialize());
+    ATH_CHECK(m_outputSDO_CollectionKey.initialize());
+    ATH_MSG_DEBUG("Output Digits: '"<<m_outputDigitCollectionKey.key()<<"'");
 
 	//simulation identifier helper
 	m_muonHelper = MicromegasHitIdHelper::GetHelper();
@@ -479,8 +475,6 @@ StatusCode MM_DigitizationTool::mergeEvent() {
 
 	ATH_MSG_VERBOSE ( "MM_DigitizationTool::in mergeEvent()" );
 
-	// Cleanup and record the Digit container in StoreGate
-	ATH_CHECK( recordDigitAndSdoContainers() );
 	ATH_CHECK( doDigitization() );
 
 	// reset the pointer (delete null pointer should be safe)
@@ -508,8 +502,6 @@ StatusCode MM_DigitizationTool::processAllSubEvents() {
 
 	ATH_MSG_DEBUG ("MM_DigitizationTool::processAllSubEvents()");
 
-	ATH_CHECK( recordDigitAndSdoContainers() );
-
 	//merging of the hit collection in getNextEvent method
 
 	if (m_timedHitCollection_MM == nullptr) ATH_CHECK( getNextEvent() );
@@ -525,7 +517,6 @@ StatusCode MM_DigitizationTool::processAllSubEvents() {
 }
 /*******************************************************************************/
 StatusCode MM_DigitizationTool::finalize() {
-	m_digitContainer->release();
 
 	if (m_writeOutputFile) {
 		TDirectory*backup=gDirectory;
@@ -542,25 +533,17 @@ StatusCode MM_DigitizationTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::recordDigitAndSdoContainers() {
-
-	// cleanup digit container
-	m_digitContainer->cleanup();
-
-	// record the digit container in StoreGate
-	m_activeStore->setStore(&*m_storeGateService);
-	ATH_CHECK( m_storeGateService->record(m_digitContainer, m_outputObjectName) );
-
-	// create and record the SDO container in StoreGate
-	m_sdoContainer = new MuonSimDataCollection();
-	ATH_CHECK( m_storeGateService->record(m_sdoContainer, m_outputSDOName) );
-
-	return StatusCode::SUCCESS;
-}
-
-/*******************************************************************************/
 StatusCode MM_DigitizationTool::doDigitization() {
 
+  // create and record the Digit container in StoreGate
+  SG::WriteHandle<MmDigitContainer> digitContainer(m_outputDigitCollectionKey);
+  ATH_CHECK(digitContainer.record(std::make_unique<MmDigitContainer>(m_idHelper->detectorElement_hash_max())));
+  ATH_MSG_DEBUG ( "MmDigitContainer recorded in StoreGate." );
+
+  // Create and record the SDO container in StoreGate
+  SG::WriteHandle<MuonSimDataCollection> sdoContainer(m_outputSDO_CollectionKey);
+  ATH_CHECK(sdoContainer.record(std::make_unique<MuonSimDataCollection>()));
+  ATH_MSG_DEBUG ( "MmSDOCollection recorded in StoreGate." );
 
 	MMSimHitCollection* inputSimHitColl=nullptr;
 
@@ -992,8 +975,8 @@ StatusCode MM_DigitizationTool::doDigitization() {
                         MuonSimData simData(deposits,0);
                         simData.setPosition(hitOnSurfaceGlobal);
                         simData.setTime(m_globalHitTime);
-                        m_sdoContainer->insert ( std::make_pair ( digitID, simData ) );
-			ATH_MSG_DEBUG(" added MM SDO " <<  m_sdoContainer->size());
+                        sdoContainer->insert ( std::make_pair ( digitID, simData ) );
+			ATH_MSG_DEBUG(" added MM SDO " <<  sdoContainer->size());
 
 
 			m_n_hitStripID=stripNumber;
@@ -1143,13 +1126,12 @@ StatusCode MM_DigitizationTool::doDigitization() {
 		MmDigitCollection* digitCollection = nullptr;
 		// put new collection in storegate
 		// Get the messaging service, print where you are
-		m_activeStore->setStore( &*m_storeGateService );
-		MmDigitContainer::const_iterator it_coll = m_digitContainer->indexFind(detectorElementHash );
-		if (m_digitContainer->end() ==  it_coll) {
+		MmDigitContainer::const_iterator it_coll = digitContainer->indexFind(detectorElementHash );
+		if (digitContainer->end() ==  it_coll) {
 			digitCollection = new MmDigitCollection( elemId, detectorElementHash );
 			digitCollection->push_back(newDigit);
-			m_activeStore->setStore( &*m_storeGateService );
-			ATH_CHECK( m_digitContainer->addCollection(digitCollection, detectorElementHash ) );
+			if ( digitContainer->addCollection(digitCollection, detectorElementHash ).isFailure())
+			  ATH_MSG_WARNING("Failed to add MM collection with hash " << digitCollection->identifierHash());
 		}
 		else {
 			digitCollection = const_cast<MmDigitCollection*>( *it_coll );

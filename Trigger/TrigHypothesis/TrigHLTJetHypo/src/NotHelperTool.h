@@ -15,7 +15,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
@@ -34,8 +34,10 @@ class NotHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 	    xAODJetCollector&,
             const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
+  virtual std::size_t requiresNJets() const override;
 
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
+  virtual std::string toString() const override ;
 
  private:
   
@@ -49,7 +51,6 @@ class NotHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   Gaudi::Property<int>
    m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
   
-  std::string toString() const;
 };
 #endif
 

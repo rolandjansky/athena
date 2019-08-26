@@ -53,7 +53,7 @@
   -------------------------------------
   |
   -------------------------------------
-  |  m_savedTracks (in Store gate)    |
+  |  m_savedTracks                    |
   -------------------------------------
   |  Id2 (unique)                     |
   |                                   |
@@ -111,7 +111,8 @@ StatusCode Trk::TrkObserverTool::initialize()
   else 
     ATH_MSG_INFO ( "Retrieved tool " << m_particleCreator );
 
- 
+  m_observedTrkMap.reset( new ObservedTracksMap);
+
   return StatusCode::SUCCESS;
 }
 
@@ -126,28 +127,11 @@ StatusCode Trk::TrkObserverTool::finalize()
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
 
-void Trk::TrkObserverTool::storeInputTracks(const TrackCollection& trackCollection) {
-  // This method stores the input track in the store gate (m_savedTracks)
-  // it also puts the tracks in m_observedTrkMap
-  // (contains all tracks which occur during the ambiguity solving)
-
-  m_savedTracks = new TrackCollection(trackCollection);
-
-  if (!evtStore()->contains<TrackCollection> (m_savedTracksName)) {  // we only record it if it is not already in the store gate
-    StatusCode sc = evtStore()->record(m_savedTracks, m_savedTracksName ,true); // allow modifications
-
-    if (sc.isFailure())
-      ATH_MSG_ERROR    ("Could not record input tracks");
-    else {
-      ATH_MSG_INFO    ("Saved "<<m_savedTracks->size()<<" input tracks");
-    }
-  }
-
-  // insert all tracks in the map (with score -1, no rejection location (=0), no parend Id (=0) and -2 for holes/shared/split hits )
-  for( const auto& track : *m_savedTracks ) {
-    m_observedTrkMap->insert( std::make_pair(track, std::make_tuple(static_cast<Trk::Track*>(0), -1, 0, track, static_cast<Trk::Track*>(0), -2, -2, -2, -2, -2, -2, -2)) );  // -2 means not filled for holes, shared/split hits
-    // Id, parentId, score, rejection location, uniqueId, uniqueParentId, numPixelHoles, numSCTHoles, numSplitSharedPixel, numSplitSharedSCT, numSharedOrSplit, numSharedOrSplitPixels, numShared
-  }
+void Trk::TrkObserverTool::storeInputTrack(const Trk::Track& track) {
+  m_savedTracks.push_back(&track);
+  m_observedTrkMap->insert( std::make_pair(&track, std::make_tuple(static_cast<Trk::Track*>(0), -1, 0, const_cast<Trk::Track*>(&track), static_cast<Trk::Track*>(0), -2, -2, -2, -2, -2, -2, -2)) );
+  // -2 means not filled for holes, shared/split hits
+  // Id, parentId, score, rejection location, uniqueId, uniqueParentId, numPixelHoles, numSCTHoles, numSplitSharedPixel, numSplitSharedSCT, numSharedOrSplit, numSharedOrSplitPixels, numShared
 }
 
 void Trk::TrkObserverTool::dumpTrackMap() const {
@@ -179,12 +163,8 @@ void Trk::TrkObserverTool::dumpTrackMap() const {
 }
 
 void Trk::TrkObserverTool::reset() {
-  if (m_observedTrkMap) {  
-    m_observedTrkMap->clear();
-    delete m_observedTrkMap;
-  }
-
-  m_observedTrkMap = new ObservedTracksMap;
+  m_observedTrkMap.reset( new ObservedTracksMap);
+  m_savedTracks.clear();
 }
 
 void Trk::TrkObserverTool::updateTrackMap(const Trk::Track& track, double score, int rejectPlace) {
@@ -251,9 +231,7 @@ void Trk::TrkObserverTool::rejectTrack(const Trk::Track& track, int rejectPlace)
 }
 
 void Trk::TrkObserverTool::addSubTrack(const Trk::Track& track, const Trk::Track& parentTrack) {
-  Trk::Track* copiedTrack = new Trk::Track(track);  // deep copy of the track (because some subtracks get deleted), information has to be available later 
-  m_savedTracks->push_back(copiedTrack);  // push into collection, that new (sub)track gets saved
- 
+  m_savedTracks.push_back(&track);
   double score = -1;
   Trk::Track* uniqueParentId = 0;
 
@@ -271,11 +249,11 @@ void Trk::TrkObserverTool::addSubTrack(const Trk::Track& track, const Trk::Track
     uniqueParentId = std::get<3>(lastElement->second); // get score from parent element
   }
 
-  m_observedTrkMap->insert( std::make_pair(&track, std::make_tuple(&parentTrack, score, 0, copiedTrack, uniqueParentId, -2, -2, -2, -2, -2, -2, -2)) );  // add to map (-2 means not filled yet)
+  m_observedTrkMap->insert( std::make_pair(&track, std::make_tuple(&parentTrack, score, 0, const_cast<Trk::Track*>(&track), uniqueParentId, -2, -2, -2, -2, -2, -2, -2)) ); // add to map (-2 means not filled yet)
 }
 
 void Trk::TrkObserverTool::saveTracksToxAOD() const {
-  ATH_MSG_INFO ("Saving "<<m_savedTracks->size() << " observed track candidates to xAOD");
+  ATH_MSG_INFO ("Saving "<<m_savedTracks.size() << " observed track candidates to xAOD");
 
   xAOD::TrackParticleContainer* observedTracks = new xAOD::TrackParticleContainer();
   xAOD::TrackParticleAuxContainer* observedTracksAux = new xAOD::TrackParticleAuxContainer();
@@ -298,7 +276,7 @@ void Trk::TrkObserverTool::saveTracksToxAOD() const {
 
 
   // Create the xAOD objects:  
-  for( const auto& itr : *m_savedTracks) {  // looping through tracks
+  for( const auto& itr : m_savedTracks) {  // looping through tracks
  
     // Create the xAOD object:
     if (!itr) {
@@ -307,7 +285,7 @@ void Trk::TrkObserverTool::saveTracksToxAOD() const {
     }
     //ATH_MSG_DEBUG ("Processing track candidate "<<itr);
 
-    xAOD::TrackParticle *newParticle = createParticle(*observedTracks, *m_savedTracks, *itr);
+    xAOD::TrackParticle *newParticle = m_particleCreator->createParticle(*itr, observedTracks);
     if(!newParticle){
       ATH_MSG_WARNING("Failed to create a TrackParticle");
       continue;
@@ -361,11 +339,3 @@ void Trk::TrkObserverTool::saveTracksToxAOD() const {
   }
 } 
 
-xAOD::TrackParticle* Trk::TrkObserverTool::createParticle( xAOD::TrackParticleContainer& xaod, 
-                                                           const TrackCollection& container, 
-                                                           const Trk::Track& tp) const
-{
-  // create the xAOD::TrackParticle, the pointer is added to the container in the function
-  ElementLink<TrackCollection> trackLink(&tp,container);
-  return m_particleCreator->createParticle(trackLink,&xaod);
-}

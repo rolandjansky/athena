@@ -122,18 +122,8 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
         except:
             print 'RPCPAD cannot be removed'
 
-from DataQualityTools.DataQualityToolsConf import DQTDataFlowMonTool
-import os
-if 'AtlasProject' in os.environ and 'AtlasVersion' in os.environ:
-    releaseString = '%s-%s' % (os.environ['AtlasProject'],
-                               os.environ['AtlasVersion'])
-else:
-    releaseString = 'Unknown'
-DQTDataFlowMon = DQTDataFlowMonTool(name = 'DQTDataFlowMon',
-                                    histoPathBase = '/GLOBAL/DQTDataFlow',
-                                    releaseString = releaseString
-                                    );
-ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDataFlowMon ]
+from DataQualityTools.DQTDataFlowMonAlg import DQTDataFlowMonAlgConfigOld
+topSequence += DQTDataFlowMonAlgConfigOld(DQMonFlags)
 
 if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet() and DQMonFlags.useTrigger():
 

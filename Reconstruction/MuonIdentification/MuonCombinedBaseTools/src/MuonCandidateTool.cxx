@@ -16,6 +16,7 @@
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
 
+
 namespace MuonCombined {
  
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
@@ -47,7 +48,7 @@ namespace MuonCombined {
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
     else m_trackExtrapolationTool.disable();
     ATH_CHECK(m_ambiguityProcessor.retrieve());
-    ATH_CHECK(m_evInfo.initialize());
+    ATH_CHECK(m_beamSpotKey.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -58,16 +59,12 @@ namespace MuonCombined {
   void MuonCandidateTool::create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection, TrackCollection& outputTracks ) {
     ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size() );
     unsigned int ntracks = 0;
-    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evInfo); 
-    float beamSpotX = 0.;
-    float beamSpotY = 0.;
-    float beamSpotZ = 0.;
 
-    if(eventInfo.isValid()){
-      beamSpotX = eventInfo->beamPosX();
-      beamSpotY = eventInfo->beamPosY();
-      beamSpotZ = eventInfo->beamPosZ();
-    } 
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    float beamSpotX = beamSpotHandle->beamPos()[Amg::x];
+    float beamSpotY = beamSpotHandle->beamPos()[Amg::y];
+    float beamSpotZ = beamSpotHandle->beamPos()[Amg::z];
+
     ATH_MSG_DEBUG( " Beamspot position  bs_x " << beamSpotX << " bs_y " << beamSpotY << " bs_z " << beamSpotZ);  
       
     // Temporary collection for extrapolated tracks and links with correspondent MS tracks

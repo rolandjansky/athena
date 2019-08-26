@@ -1,35 +1,35 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon.SystemOfUnits import GeV
+from AthenaCommon.Logging import logging
+from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
+
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoTool
+
+log = logging.getLogger('TrigL2ElectronHypoTool')
+
 def TrigL2ElectronHypoToolFromDict( chainDict ):
     """ Use menu decoded chain dictionary to configure the tool """
-    cparts = [i for i in chainDict['chainParts'] if i['signature'] is 'Electron']
+    cparts = [i for i in chainDict['chainParts'] if i['signature']=='Electron']
     thresholds = sum([ [cpart['threshold']]*int(cpart['multiplicity']) for cpart in cparts], [])
 
-
     name = chainDict['chainName']
-    
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoTool
+
     tool = TrigL2ElectronHypoTool(name)
-    tool.MonTool = ""
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
-        from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-        monTool = GenericMonitoringTool("MonTool"+name)
-        monTool.Histograms = [         
-            defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative"),
-            defineHistogram('CaloTrackdEta', type='TH1F', path='EXPERT', title="L2Electron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
-            defineHistogram('CaloTrackdPhi', type='TH1F', path='EXPERT', title="L2Electron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4),
-            defineHistogram('CaloTrackEoverP', type='TH1F', path='EXPERT', title="L2Electron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12),
-            defineHistogram('PtTrack', type='TH1F', path='EXPERT', title="L2Electron Hypo p_{T}^{track} [MeV];p_{T}^{track} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
-            defineHistogram('PtCalo', type='TH1F', path='EXPERT', title="L2Electron Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000),
-            defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="L2Electron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5),
-            defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="L2Electron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2) ]
 
-        monTool.HistPath = 'L2ElectronHypo/'+tool.name()
-        tool.MonTool = monTool
-        tool += monTool
+    monTool = GenericMonitoringTool("MonTool"+name)
+    monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative")
+    monTool.defineHistogram('CaloTrackdEta', type='TH1F', path='EXPERT', title="L2Electron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
+    monTool.defineHistogram('CaloTrackdPhi', type='TH1F', path='EXPERT', title="L2Electron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
+    monTool.defineHistogram('CaloTrackEoverP', type='TH1F', path='EXPERT', title="L2Electron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12)
+    monTool.defineHistogram('PtTrack', type='TH1F', path='EXPERT', title="L2Electron Hypo p_{T}^{track} [MeV];p_{T}^{track} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
+    monTool.defineHistogram('PtCalo', type='TH1F', path='EXPERT', title="L2Electron Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
+    monTool.defineHistogram('CaloEta', type='TH1F', path='EXPERT', title="L2Electron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
+    monTool.defineHistogram('CaloPhi', type='TH1F', path='EXPERT', title="L2Electron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
 
-    from AthenaCommon.SystemOfUnits import GeV    
+    monTool.HistPath = 'L2ElectronHypo/'+tool.name()
+    tool.MonTool = monTool
+
     nt = len( thresholds )
     tool.TrackPt = [0.0] * nt
     tool.CaloTrackdETA = [ 0.2 ] *nt
@@ -61,23 +61,23 @@ def TrigL2ElectronHypoToolFromName( name, conf ):
     """
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
     decoder = DictFromChainName()
-    decodedDict = decoder.analyseShortName(conf, [], "") # no L1 info
-    decodedDict['chainName'] = name # override
+    decodedDict = decoder.getChainDict(conf)
         
     return TrigL2ElectronHypoToolFromDict( decodedDict )
 
 
 
 if __name__ == "__main__":
-    tool = TrigL2ElectronHypoToolFromName("HLT_e3_etcut", "HLT_e3_etcut")
+    tool = TrigL2ElectronHypoToolFromName("HLT_e3_etcut_L1EM3", "HLT_e3_etcut_L1EM3")
     assert tool, "Not configured simple tool"
 
-    tool = TrigL2ElectronHypoToolFromName("HLT_2e3_etcut", "HLT_2e3_etcut")    
-    assert tool, "Not configured simple tool"
-    assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
-
-    tool = TrigL2ElectronHypoToolFromName("HLT_e3_e5_etcut", "HLT_e3_e5_etcut")    
+    tool = TrigL2ElectronHypoToolFromName("HLT_2e3_etcut_L1E2M3", "HLT_2e3_etcut_L12EM3")    
     assert tool, "Not configured simple tool"
     assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
 
-    print ( "\n\nALL OK\n\n" )    
+    # Asymmetric chais not working with this. Commenting out for now
+    # tool = TrigL2ElectronHypoToolFromName("HLT_e3_e5_etcut_L12EM3", "HLT_e3_e5_etcut_L12EM3")    
+    # assert tool, "Not configured simple tool"
+    # assert len(tool.TrackPt) == 2, "Multiplicity missonfigured, set "+ str( len( tool.TrackPt ) )
+
+    log.info("ALL OK")

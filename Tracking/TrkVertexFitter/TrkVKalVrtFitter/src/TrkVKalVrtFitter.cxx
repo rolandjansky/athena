@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -20,6 +20,7 @@
 #include<iostream>
 
 namespace Trk{
+
 
 //
 //Constructor-------------------------------------------------------------- 
@@ -49,11 +50,7 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_useZPointingCnst(false),
     m_usePassNear(false),
     m_usePassWithTrkErr(false),
-    m_Charge(0),
-    m_Chi2(0.),
-    m_cascadeSize(0),
-    m_timingProfile(nullptr),
-    m_ErrMtx(nullptr)
+    m_timingProfile(nullptr)
    {
     declareInterface<IVertexFitter>(this);
     declareInterface<ITrkVKalVrtFitter>(this);
@@ -62,7 +59,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
 
 
     m_PosTrack0Charge.clear();
-    m_MassInputParticles.clear();
     
     m_BMAG    = 1.997;      /*constant ATLAS magnetic field if no exact map*/     
     m_CNVMAG  = 0.29979246;  /* conversion constant for MeV and MM */
@@ -73,8 +69,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     for( int i=0; i<6; i++){m_c_CovVrtForConstraint.push_back(0.);}
     m_c_MassInputParticles.clear();
     m_c_TrackCharge.clear();
-    m_ApproximateVertex.clear();
-    m_ApproximateVertex.reserve(3);
 //
     declareProperty("Robustness",   m_Robustness);
     declareProperty("RobustScale",  m_RobustScale);
@@ -103,21 +97,7 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     declareProperty("usePassWithTrkErrCnst",  m_usePassWithTrkErr);
 // 
     m_ifcovv0=0;
-    m_FitStatus=0;
-    m_refFrameX = 0.;   
-    m_refFrameY = 0.;
-    m_refFrameZ = 0.;
-    m_globalFirstHit = 0;
-    m_planeCnstNDOF = 0;
-    m_vkalFitControl = 0;
                                
-/*--------------------------------------------------------------------------*/
-/*  New magnetic field object is created. It's provided to VKalVrtCore.     */
-/*  VKalVrtFitter must set up Core BEFORE any call required propagation!!!  */  
-
-    m_fitField = new VKalAtlasMagFld();
-    m_fitField->setAtlasField(m_BMAG);
-
 /*--------------------------------------------------------------------------*/
 /*  New propagator object is created. It's provided to VKalVrtCore.         */
 /*  VKalVrtFitter must set up Core BEFORE any call required propagation!!!  */  
@@ -128,7 +108,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_InDetExtrapolator = 0;   //Direct pointer to Athena propagator
 
     m_isAtlasField       = false;   // To allow callback and then field first call only at execute stage
-    //m_isFieldInitialized = false;   //
 }
 
 
@@ -136,18 +115,22 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
 TrkVKalVrtFitter::~TrkVKalVrtFitter(){
     //log << MSG::DEBUG << "TrkVKalVrtFitter destructor called" << endmsg;
     if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"TrkVKalVrtFitter destructor called" << endmsg;
-    delete m_fitField;
     if(m_fitPropagator) delete m_fitPropagator;
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    if(m_vkalFitControl) delete m_vkalFitControl;
 }
 
 
 
+std::unique_ptr<IVKalState> TrkVKalVrtFitter::makeState()
+{
+  auto state = std::make_unique<State>();
+  initState (*state);
+  setDefault (*state);
+  return state;
+}
+
+
 StatusCode TrkVKalVrtFitter::finalize()
 {
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
     if(m_timingProfile)m_timingProfile->chronoPrint("Trk_VKalVrtFitter");
     if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"TrkVKalVrtFitter finalize() successful" << endmsg;
     return StatusCode::SUCCESS;
@@ -174,14 +157,7 @@ StatusCode TrkVKalVrtFitter::initialize()
 // Checking ROBUST algoritms
     if(m_Robustness<0 || m_Robustness>7 ) m_Robustness=0; 
 
-// Copy input parameters to internal structures
-    int nItr=m_c_CovVrtForConstraint.size(); if(nItr>6)nItr=6;
-    m_CovVrtForConstraint.resize(6);  for(int itr=0; itr<nItr; itr++)m_CovVrtForConstraint[itr]=m_c_CovVrtForConstraint[itr];
-        nItr=m_c_VertexForConstraint.size(); if(nItr>3)nItr=3;
-    m_VertexForConstraint.resize(3);  for(int itr=0; itr<nItr; itr++)m_VertexForConstraint[itr]=m_c_VertexForConstraint[itr];
-        nItr=m_c_MassInputParticles.size();
-    m_MassInputParticles.resize(nItr);for(int itr=0; itr<nItr; itr++)m_MassInputParticles[itr] =m_c_MassInputParticles[itr];
-        nItr=m_c_TrackCharge.size();
+    int nItr=m_c_TrackCharge.size();
     m_TrackCharge.resize(nItr);       for(int itr=0; itr<nItr; itr++)m_TrackCharge[itr]        =m_c_TrackCharge[itr];
 
 
@@ -229,26 +205,6 @@ StatusCode TrkVKalVrtFitter::initialize()
       }
     }
 //
-//---Set Control object for TrkVKalVrtCore with constraints defined in jobO
-//
-    m_vkalFitControl = new VKalVrtControl(VKalVrtControlBase(m_fitField,0,m_fitPropagator,0));  // Create main control object for TrkVKalVrtCore
-
-    for(int it=0; it<(int)m_MassInputParticles.size(); it++) m_vkalFitControl->vk_forcft.wm[it]=m_MassInputParticles[it]; //jobO track masses
-    m_vkalFitControl->setRobustness(m_Robustness);
-    m_vkalFitControl->setRobustScale(m_RobustScale);
-    for(int it=0; it<(int)m_VertexForConstraint.size(); it++) m_vkalFitControl->vk_forcft.vrt[it]=m_VertexForConstraint[it]; //jobO vertex for cnst
-    for(int it=0; it<(int)m_CovVrtForConstraint.size(); it++) m_vkalFitControl->vk_forcft.covvrt[it]=m_CovVrtForConstraint[it]; //jobO vertex covariance
-    if(m_massForConstraint>0.) m_vkalFitControl->setMassCnstData(m_MassInputParticles.size(),m_massForConstraint); // configure general mass constraint
-    if(m_IterationPrecision>0.)m_vkalFitControl->setIterationPrec(m_IterationPrecision);
-    if(m_IterationNumber)  m_vkalFitControl->setIterationNum(m_IterationNumber);
-    if(m_useAprioriVertex) m_vkalFitControl->setUseAprioriVrt();
-    if(m_useThetaCnst)     m_vkalFitControl->setUseThetaCnst();
-    if(m_usePhiCnst)       m_vkalFitControl->setUsePhiCnst();
-    if(m_usePointingCnst)  m_vkalFitControl->setUsePointingCnst(1);
-    if(m_useZPointingCnst) m_vkalFitControl->setUsePointingCnst(2);
-    if(m_usePassNear)      m_vkalFitControl->setUsePassNear(1);
-    if(m_usePassWithTrkErr)m_vkalFitControl->setUsePassNear(2);
-//
 //
     m_timingProfile=0;
     sc = service("ChronoStatSvc", m_timingProfile);
@@ -257,8 +213,6 @@ StatusCode TrkVKalVrtFitter::initialize()
     }
 
 
-//
-    m_ErrMtx=0;            // pointer to double array for error matrix
 //
     if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "TrkVKalVrtFitter initialize() successful" << endmsg;
     if(msgLvl(MSG::DEBUG)){
@@ -273,7 +227,7 @@ StatusCode TrkVKalVrtFitter::initialize()
        if(m_massForConstraint>0){ 
          msg(MSG::DEBUG)<< "   Mass constraint M="<< m_massForConstraint <<endmsg; 
          msg(MSG::DEBUG)<< " with particles M=";
-         for(int i=0; i<(int)m_MassInputParticles.size(); i++) msg(MSG::DEBUG)<<m_MassInputParticles[i]<<", ";
+         for(int i=0; i<(int)m_c_MassInputParticles.size(); i++) msg(MSG::DEBUG)<<m_c_MassInputParticles[i]<<", ";
          msg(MSG::DEBUG)<<endmsg; ;
        }
 
@@ -293,7 +247,37 @@ StatusCode TrkVKalVrtFitter::initialize()
 
     return StatusCode::SUCCESS;
 }
- 
+
+
+void TrkVKalVrtFitter::initState (State& state) const
+{
+  //----------------------------------------------------------------------
+  //  New magnetic field object is created. It's provided to VKalVrtCore.
+  //  VKalVrtFitter must set up Core BEFORE any call required propagation!!!
+  //
+  if (m_isAtlasField) {
+    state.m_fitField.setAtlasField( m_magFieldAthenaSvc.get() );
+  }
+  else {
+    state.m_fitField.setAtlasField(m_BMAG);
+  }
+
+  state.m_vkalFitControl.vk_objProp = m_fitPropagator;
+  state.m_useAprioriVertex = m_useAprioriVertex;
+  state.m_useThetaCnst = m_useThetaCnst;
+  state.m_usePhiCnst = m_usePhiCnst;
+  state.m_usePointingCnst = m_usePointingCnst;
+  state.m_useZPointingCnst = m_useZPointingCnst;
+  state.m_usePassNear = m_usePassNear;
+  state.m_usePassWithTrkErr = m_usePassWithTrkErr;
+  state.m_VertexForConstraint = m_c_VertexForConstraint;
+  state.m_CovVrtForConstraint = m_c_CovVrtForConstraint;
+  state.m_massForConstraint = m_massForConstraint;
+  state.m_Robustness = m_Robustness;
+  state.m_RobustScale = m_RobustScale;
+  state.m_MassInputParticles = m_c_MassInputParticles;
+}
+
 
 
 
@@ -304,17 +288,26 @@ StatusCode TrkVKalVrtFitter::initialize()
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk,
                                     const Amg::Vector3D & firstStartingPoint)
 {
-    m_globalFirstHit = 0;
+    State state;
+    initState (state);
     setApproximateVertex(firstStartingPoint.x(),
                          firstStartingPoint.y(),
-                         firstStartingPoint.z());
+                         firstStartingPoint.z(),
+                         state);
     setMomCovCalc(1);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     StatusCode sc=VKalVrtFit( vectorTrk,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
       std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
       for(int it=0; it<(int)vxavList.size(); it++){
           LinkToTrack * linkTT = new LinkToTrack();
@@ -322,9 +315,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
           vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 
@@ -336,17 +326,26 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*> & vectorTrk,
                                     const Amg::Vector3D & firstStartingPoint)
 {
-    m_globalFirstHit = 0;
+    State state;
+    initState (state);
     setApproximateVertex(firstStartingPoint.x(),
                          firstStartingPoint.y(),
-                         firstStartingPoint.z());
+                         firstStartingPoint.z(),
+                         state);
     setMomCovCalc(1);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     StatusCode sc=VKalVrtFit( vectorTrk,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
       std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
       for(int it=0; it<(int)vxavList.size(); it++){
         ElementLink<TrackParticleBaseCollection> TEL;  TEL.setElement( vectorTrk.at(it) );
@@ -354,9 +353,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>
         vxavList[it].setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 
@@ -375,36 +371,46 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
                                                  const xAOD::Vertex& firstStartingPoint)
 {   
+    State state;
+    initState (state);
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endmsg;
 //    m_fitSvc->setDefault();
-    m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
-    StatusCode sc=VKalVrtFitFast(vectorTrk, VertexIni); 
+    StatusCode sc=VKalVrtFitFast(vectorTrk, VertexIni, state);
     if( sc.isSuccess()){
-       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z());
+       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
     }else{
        setApproximateVertex(firstStartingPoint.position().x(),
                             firstStartingPoint.position().y(),
-                            firstStartingPoint.position().z());
+                            firstStartingPoint.position().z(),
+                            state);
     }
     setVertexForConstraint(firstStartingPoint.position().x(),
                            firstStartingPoint.position().y(),
-                           firstStartingPoint.position().z());
+                           firstStartingPoint.position().z(),
+                           state);
     setCovVrtForConstraint(firstStartingPoint.covariancePosition()(Trk::x,Trk::x),
                            firstStartingPoint.covariancePosition()(Trk::y,Trk::x),
                            firstStartingPoint.covariancePosition()(Trk::y,Trk::y),
                            firstStartingPoint.covariancePosition()(Trk::z,Trk::x),
                            firstStartingPoint.covariancePosition()(Trk::z,Trk::y),
-                           firstStartingPoint.covariancePosition()(Trk::z,Trk::z) );
-    //setCnstType(6);
-    m_useAprioriVertex=true;
+                           firstStartingPoint.covariancePosition()(Trk::z,Trk::z),
+                           state);
     setMomCovCalc(1);
+    state.m_useAprioriVertex=true;
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     sc=VKalVrtFit( vectorTrk,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                   Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
       std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
       for(int it=0; it<(int)vxavList.size(); it++){
           LinkToTrack * linkTT = new LinkToTrack();
@@ -412,10 +418,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
           vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_useAprioriVertex=false;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 
@@ -424,36 +426,46 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>& vectorTrk,
                                     const xAOD::Vertex & firstStartingPoint)
 {   
+    State state;
+    initState (state);
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endmsg;
 //    m_fitSvc->setDefault();
-    m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
-    StatusCode sc=VKalVrtFitFast(vectorTrk, VertexIni); 
+    StatusCode sc=VKalVrtFitFast(vectorTrk, VertexIni, state); 
     if( sc.isSuccess()){
-       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z());
+       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
     }else{
        setApproximateVertex(firstStartingPoint.position().x(),
                             firstStartingPoint.position().y(),
-                            firstStartingPoint.position().z());
+                            firstStartingPoint.position().z(),
+                            state);
     }
     setVertexForConstraint(firstStartingPoint.position().x(),
                            firstStartingPoint.position().y(),
-                           firstStartingPoint.position().z());
+                           firstStartingPoint.position().z(),
+                           state);
     setCovVrtForConstraint(firstStartingPoint.covariancePosition()(Trk::x,Trk::x),
                            firstStartingPoint.covariancePosition()(Trk::y,Trk::x),
                            firstStartingPoint.covariancePosition()(Trk::y,Trk::y),
                            firstStartingPoint.covariancePosition()(Trk::z,Trk::x),
                            firstStartingPoint.covariancePosition()(Trk::z,Trk::y),
-                           firstStartingPoint.covariancePosition()(Trk::z,Trk::z) );
-    //setCnstType(6);
-    m_useAprioriVertex=true;
+                           firstStartingPoint.covariancePosition()(Trk::z,Trk::z),
+                           state);
+    state.m_useAprioriVertex=true;
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     setMomCovCalc(1);
     sc=VKalVrtFit( vectorTrk,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                   Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
       std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
       for(int it=0; it<(int)vxavList.size(); it++){
         ElementLink<TrackParticleBaseCollection> TEL;  TEL.setElement( vectorTrk.at(it) );
@@ -461,10 +473,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>
         vxavList[it].setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_useAprioriVertex=false;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 
@@ -512,22 +520,28 @@ VxCandidate * TrkVKalVrtFitter::fit(const vector<const ParametersBase*> & perige
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & perigeeListC,
                                     const Amg::Vector3D & startingPoint)
 {
-    m_globalFirstHit = 0;
+    State state;
+    initState (state);
     setApproximateVertex(startingPoint.x(),
                          startingPoint.y(),
-                         startingPoint.z());
+                         startingPoint.z(),
+                         state);
     setMomCovCalc(1);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     std::vector<const NeutralParameters*> perigeeListN(0);
     StatusCode sc=VKalVrtFit( perigeeListC, perigeeListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
@@ -537,21 +551,27 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
                                     const std::vector<const NeutralParameters*> & perigeeListN,
                                     const Amg::Vector3D & startingPoint)
 {
-    m_globalFirstHit = 0;
+    State state;
+    initState (state);
     setApproximateVertex(startingPoint.x(),
                          startingPoint.y(),
-                         startingPoint.z());
+                         startingPoint.z(),
+                         state);
     setMomCovCalc(1);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     StatusCode sc=VKalVrtFit( perigeeListC,perigeeListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( (int)perigeeListN.size() , m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( (int)perigeeListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
@@ -566,41 +586,48 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & perigeeListC,
                                     const xAOD::Vertex & constraint)
 {
+    State state;
+    initState (state);
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
-    m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
-    StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 
+    StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni, state);
     if( sc.isSuccess()){
-       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z());
+       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
     }else{
        setApproximateVertex(constraint.position().x(),
                             constraint.position().y(),
-                            constraint.position().z());
+                            constraint.position().z(),
+                            state);
     }
     setVertexForConstraint(constraint.position().x(),
                            constraint.position().y(),
-                           constraint.position().z());
+                           constraint.position().z(),
+                           state);
     setCovVrtForConstraint(constraint.covariancePosition()(Trk::x,Trk::x),
                            constraint.covariancePosition()(Trk::y,Trk::x),
                            constraint.covariancePosition()(Trk::y,Trk::y),
                            constraint.covariancePosition()(Trk::z,Trk::x),
                            constraint.covariancePosition()(Trk::z,Trk::y),
-                           constraint.covariancePosition()(Trk::z,Trk::z) );
-    m_useAprioriVertex=true;
+                           constraint.covariancePosition()(Trk::z,Trk::z),
+                           state);
     setMomCovCalc(1);
+    state.m_useAprioriVertex=true;
     std::vector<const NeutralParameters*> perigeeListN(0);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     sc=VKalVrtFit( perigeeListC, perigeeListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                   Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_useAprioriVertex=false;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
@@ -610,40 +637,48 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
                                     const std::vector<const NeutralParameters*> & perigeeListN,
                                     const xAOD::Vertex & constraint)
 {
+    State state;
+    initState (state);
+
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
-    m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
-    StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 
+    StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni, state);
     if( sc.isSuccess()){
-       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z());
+       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
     }else{
        setApproximateVertex(constraint.position().x(),
                             constraint.position().y(),
-                            constraint.position().z());
+                            constraint.position().z(),
+                            state);
     }
     setVertexForConstraint(constraint.position().x(),
                            constraint.position().y(),
-                           constraint.position().z());
+                           constraint.position().z(),
+                           state);
     setCovVrtForConstraint(constraint.covariancePosition()(Trk::x,Trk::x),
                            constraint.covariancePosition()(Trk::y,Trk::x),
                            constraint.covariancePosition()(Trk::y,Trk::y),
                            constraint.covariancePosition()(Trk::z,Trk::x),
                            constraint.covariancePosition()(Trk::z,Trk::y),
-                           constraint.covariancePosition()(Trk::z,Trk::z) );
-    m_useAprioriVertex=true;
+                           constraint.covariancePosition()(Trk::z,Trk::z),
+                           state);
     setMomCovCalc(1);
+    state.m_useAprioriVertex=true;
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     sc=VKalVrtFit( perigeeListC, perigeeListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                   Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeXAODVertex( (int)perigeeListN.size(), m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( (int)perigeeListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_useAprioriVertex=false;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
@@ -654,29 +689,43 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
                                      const Amg::Vector3D & startingPoint)
 {
-    m_globalFirstHit = 0;
+  State state;
+  initState (state);
+  return fit (xtpListC, startingPoint, state);
+}
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
+                                     const Amg::Vector3D & startingPoint,
+                                     IVKalState& istate)
+{
+    State& state = dynamic_cast<State&> (istate);
+
     xAOD::Vertex * tmpVertex = 0;
     setApproximateVertex(startingPoint.x(),
                          startingPoint.y(),
-                         startingPoint.z());
+                         startingPoint.z(),
+                         state);
     setMomCovCalc(1);
     std::vector<const xAOD::NeutralParticle*> xtpListN(0);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     StatusCode sc=VKalVrtFit( xtpListC, xtpListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
     if(sc.isSuccess()) {
-       tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+       tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
        dvect fittrkwgt;  
-       sc=VKalGetTrkWeights(fittrkwgt); if(sc.isFailure())fittrkwgt.clear();
-       for(int ii=0; ii<m_FitStatus; ii++) {
+       sc=VKalGetTrkWeights(fittrkwgt, state); if(sc.isFailure())fittrkwgt.clear();
+       for(int ii=0; ii<state.m_FitStatus; ii++) {
           ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xtpListC[ii] );
           if(fittrkwgt.size())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
           else                    tmpVertex->addTrackAtVertex(TEL,1.);
        }
     }
 
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
 
     return tmpVertex;
@@ -686,19 +735,28 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
                                      const std::vector<const xAOD::NeutralParticle*> & xtpListN,
                                      const Amg::Vector3D & startingPoint)
 {
-    m_globalFirstHit = 0;
+    State state;
+    initState (state);
     xAOD::Vertex * tmpVertex = 0;
     setApproximateVertex(startingPoint.x(),
                          startingPoint.y(),
-                         startingPoint.z());
+                         startingPoint.z(),
+                         state);
     setMomCovCalc(1);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     StatusCode sc=VKalVrtFit( xtpListC, xtpListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
     if(sc.isSuccess()) {
-       tmpVertex = makeXAODVertex( (int)xtpListN.size(), m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+       tmpVertex = makeXAODVertex( (int)xtpListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
        dvect fittrkwgt;  
-       sc=VKalGetTrkWeights(fittrkwgt); if(sc.isFailure())fittrkwgt.clear();
-       for(int ii=0; ii<m_FitStatus; ii++) {
+       sc=VKalGetTrkWeights(fittrkwgt, state); if(sc.isFailure())fittrkwgt.clear();
+       for(int ii=0; ii<state.m_FitStatus; ii++) {
           if(ii<(int)xtpListC.size()) {
              ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xtpListC[ii] );
              if(fittrkwgt.size())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
@@ -711,9 +769,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        }
     }
 
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
 
     return tmpVertex;
@@ -724,39 +779,53 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
                                      const xAOD::Vertex & constraint)
 {
+    State state;
+    initState (state);
+    return fit (xtpListC, constraint, state);
+}
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
+                                     const xAOD::Vertex & constraint,
+                                     IVKalState& istate)
+{
+    State& state = dynamic_cast<State&> (istate);
+
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
-    m_globalFirstHit = 0;
     xAOD::Vertex * tmpVertex = 0;
-    setApproximateVertex(constraint.position().x(), constraint.position().y(),constraint.position().z());
+    setApproximateVertex(constraint.position().x(), constraint.position().y(),constraint.position().z(),state);
     setVertexForConstraint(constraint.position().x(),
                            constraint.position().y(),
-                           constraint.position().z());
+                           constraint.position().z(),
+                           state);
     setCovVrtForConstraint(constraint.covariancePosition()(Trk::x,Trk::x),
                            constraint.covariancePosition()(Trk::y,Trk::x),
                            constraint.covariancePosition()(Trk::y,Trk::y),
                            constraint.covariancePosition()(Trk::z,Trk::x),
                            constraint.covariancePosition()(Trk::z,Trk::y),
-                           constraint.covariancePosition()(Trk::z,Trk::z) );
-    m_useAprioriVertex=true;
+                           constraint.covariancePosition()(Trk::z,Trk::z),
+                           state);
     setMomCovCalc(1);
+    state.m_useAprioriVertex=true;
     std::vector<const xAOD::NeutralParticle*> xtpListN(0);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     StatusCode sc=VKalVrtFit( xtpListC, xtpListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
     if(sc.isSuccess()) {
-       tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix,m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+       tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix,Chi2PerTrk, TrkAtVrt, Chi2, state );
        dvect fittrkwgt;  
-       sc=VKalGetTrkWeights(fittrkwgt); if(sc.isFailure())fittrkwgt.clear();
-       for(int ii=0; ii<m_FitStatus; ii++) {
+       sc=VKalGetTrkWeights(fittrkwgt, state); if(sc.isFailure())fittrkwgt.clear();
+       for(int ii=0; ii<state.m_FitStatus; ii++) {
           ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xtpListC[ii] );
           if(fittrkwgt.size())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
           else                    tmpVertex->addTrackAtVertex(TEL,1.);
        }
     }
 
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_useAprioriVertex=false;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
 
     return tmpVertex;
@@ -766,28 +835,39 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
                                      const std::vector<const xAOD::NeutralParticle*> & xtpListN,
                                      const xAOD::Vertex & constraint)
 {
+    State state;
+    initState (state);
+
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
-    m_globalFirstHit = 0;
     xAOD::Vertex * tmpVertex = 0;
-    setApproximateVertex(constraint.position().x(), constraint.position().y(),constraint.position().z());
+    setApproximateVertex(constraint.position().x(), constraint.position().y(),constraint.position().z(),state);
     setVertexForConstraint(constraint.position().x(),
                            constraint.position().y(),
-                           constraint.position().z());
+                           constraint.position().z(),
+                           state);
     setCovVrtForConstraint(constraint.covariancePosition()(Trk::x,Trk::x),
                            constraint.covariancePosition()(Trk::y,Trk::x),
                            constraint.covariancePosition()(Trk::y,Trk::y),
                            constraint.covariancePosition()(Trk::z,Trk::x),
                            constraint.covariancePosition()(Trk::z,Trk::y),
-                           constraint.covariancePosition()(Trk::z,Trk::z) );
-    m_useAprioriVertex=true;
+                           constraint.covariancePosition()(Trk::z,Trk::z),
+                           state);
     setMomCovCalc(1);
+    state.m_useAprioriVertex=true;
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     StatusCode sc=VKalVrtFit( xtpListC, xtpListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                              Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
     if(sc.isSuccess()){
-       tmpVertex = makeXAODVertex( (int)xtpListN.size(), m_Vertex, m_ErrorMatrix,m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+       tmpVertex = makeXAODVertex( (int)xtpListN.size(), Vertex, ErrorMatrix,Chi2PerTrk, TrkAtVrt, Chi2, state );
        dvect fittrkwgt;  
-       sc=VKalGetTrkWeights(fittrkwgt); if(sc.isFailure())fittrkwgt.clear();
-       for(int ii=0; ii<m_FitStatus; ii++) {
+       sc=VKalGetTrkWeights(fittrkwgt, state); if(sc.isFailure())fittrkwgt.clear();
+       for(int ii=0; ii<state.m_FitStatus; ii++) {
           if(ii<(int)xtpListC.size()) {
              ElementLink<xAOD::TrackParticleContainer> TEL;  TEL.setElement( xtpListC[ii] );
              if(fittrkwgt.size())  tmpVertex->addTrackAtVertex(TEL,fittrkwgt[ii]);
@@ -800,10 +880,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        }
     }
 
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_useAprioriVertex=false;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
 
     return tmpVertex;
@@ -817,21 +893,29 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk)
 {
+    State state;
+    initState (state);
     Amg::Vector3D VertexIni(0.,0.,0.);
-    m_globalFirstHit = 0;
 
-    StatusCode sc=VKalVrtFitFast(vectorTrk, VertexIni); 
+    StatusCode sc=VKalVrtFitFast(vectorTrk, VertexIni, state);
+    Amg::Vector3D Vertex;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     if(sc.isSuccess()) {
-      setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z());
+      setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
       setMomCovCalc(1); 
+      TLorentzVector Momentum;
+      long int Charge;
       sc=VKalVrtFit( vectorTrk,
-          m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                     Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
     }
     
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()){
-      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
       std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
       for(int it=0; it<(int)vxavList.size(); it++){
           LinkToTrack * linkTT = new LinkToTrack();
@@ -839,30 +923,33 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
           vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> & perigeeListC)
 {
-    m_globalFirstHit = 0;
+    State state;
+    initState (state);
     Amg::Vector3D VertexIni(0.,0.,0.);
-    StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 
-    if( sc.isSuccess()) setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z());
+    StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni, state);
+    if( sc.isSuccess()) setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
     setMomCovCalc(1);
     std::vector<const NeutralParameters*> perigeeListN(0);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     sc=VKalVrtFit( perigeeListC, perigeeListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                   Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-       tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+       tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
@@ -870,21 +957,26 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*>   & perigeeListC,
                                     const std::vector<const  NeutralParameters*> & perigeeListN)
 {
-    m_globalFirstHit = 0;
+    State state;
+    initState (state);
     Amg::Vector3D VertexIni(0.,0.,0.);
-    StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 
-    if( sc.isSuccess()) setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z());
+    StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni, state); 
+    if( sc.isSuccess()) setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
     setMomCovCalc(1);
+    Amg::Vector3D Vertex;
+    TLorentzVector Momentum;
+    long int Charge;
+    std::vector<double> ErrorMatrix;
+    std::vector<double> Chi2PerTrk;
+    std::vector< std::vector<double> >  TrkAtVrt;
+    double Chi2;
     sc=VKalVrtFit( perigeeListC, perigeeListN,
-               m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+                   Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
     xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-       tmpVertex = makeXAODVertex( (int)perigeeListN.size(), m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+       tmpVertex = makeXAODVertex( (int)perigeeListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx;
-    m_ErrMtx=0;
-    m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
@@ -896,7 +988,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
             (VxVyVzPxPyPz)                                      */
 
 // Fills 5x5 matrix. Input Matrix is track covariance only.
-void TrkVKalVrtFitter::FillMatrixP(AmgSymMatrix(5)& CovMtx, std::vector<double> & Matrix)
+void TrkVKalVrtFitter::FillMatrixP(AmgSymMatrix(5)& CovMtx, std::vector<double> & Matrix) const
 {   
     CovMtx.setIdentity();
     if( Matrix.size() < 21) return;
@@ -911,7 +1003,7 @@ void TrkVKalVrtFitter::FillMatrixP(AmgSymMatrix(5)& CovMtx, std::vector<double> 
 }
 
 // Fills 5x5 matrix.  Input Matrix is a full covariance
-void TrkVKalVrtFitter::FillMatrixP(int iTrk, AmgSymMatrix(5)& CovMtx, std::vector<double> & Matrix)
+void TrkVKalVrtFitter::FillMatrixP(int iTrk, AmgSymMatrix(5)& CovMtx, std::vector<double> & Matrix) const
 {
     int iTmp=(iTrk+1)*3;
     int NContent = Matrix.size();
@@ -931,7 +1023,7 @@ void TrkVKalVrtFitter::FillMatrixP(int iTrk, AmgSymMatrix(5)& CovMtx, std::vecto
 
 
 
-Amg::MatrixX * TrkVKalVrtFitter::GiveFullMatrix(int NTrk, std::vector<double> & Matrix)
+Amg::MatrixX * TrkVKalVrtFitter::GiveFullMatrix(int NTrk, std::vector<double> & Matrix) const
 {
    Amg::MatrixX * mtx = new Amg::MatrixX(3+3*NTrk,3+3*NTrk);
    long int ij=0;
@@ -948,15 +1040,6 @@ Amg::MatrixX * TrkVKalVrtFitter::GiveFullMatrix(int NTrk, std::vector<double> & 
 
 void TrkVKalVrtFitter::clearMemory()
 {
-  if(m_ErrMtx) {
-    delete[]m_ErrMtx;
-    m_ErrMtx=0;
-  }
-
-  std::vector<double>().swap (m_ErrorMatrix);
-  std::vector<double>().swap (m_Chi2PerTrk);
-  std::vector< std::vector<double> >().swap (m_TrkAtVrt);
-  std::vector < TrkMatControl >().swap (m_trkControl);
   return;
 }
 
@@ -965,10 +1048,10 @@ void TrkVKalVrtFitter::clearMemory()
 VxCandidate * TrkVKalVrtFitter::makeVxCandidate( int Neutrals,
         const Amg::Vector3D& Vertex, const std::vector<double> & fitErrorMatrix, 
 	const std::vector<double> & Chi2PerTrk,  const std::vector< std::vector<double> >& TrkAtVrt,
-	double Chi2 ) 
+	double Chi2, const State& state ) 
 {
-    long int NTrk = m_FitStatus;
-    long int Ndf = VKalGetNDOF()+m_planeCnstNDOF;
+    long int NTrk = state.m_FitStatus;
+    long int Ndf = VKalGetNDOF(state)+state.m_planeCnstNDOF;
     AmgSymMatrix(3) CovMtxV;  
     std::vector<VxTrackAtVertex*> * tmpVTAV;
     RecVertex                     * tmpRecV; 
@@ -981,7 +1064,7 @@ VxCandidate * TrkVKalVrtFitter::makeVxCandidate( int Neutrals,
     CovMtxV(2,2)                = fitErrorMatrix[5];
 
     std::vector <double> CovFull;
-    StatusCode sc = VKalGetFullCov( NTrk, CovFull); 
+    StatusCode sc = VKalGetFullCov( NTrk, CovFull, state); 
     int covarExist=0; if( sc.isSuccess() ) covarExist=1;
     tmpVTAV = new std::vector<VxTrackAtVertex*>();
     tmpRecV = new RecVertex( Vertex, CovMtxV, Ndf, Chi2 );
@@ -1024,10 +1107,11 @@ VxCandidate * TrkVKalVrtFitter::makeVxCandidate( int Neutrals,
 xAOD::Vertex * TrkVKalVrtFitter::makeXAODVertex( int Neutrals,
         const Amg::Vector3D& Vertex, const std::vector<double> & fitErrorMatrix, 
 	const std::vector<double> & Chi2PerTrk,  const std::vector< std::vector<double> >& TrkAtVrt,
-	double Chi2 ) 
+                                                 double Chi2,
+                                                 const State& state)
 {
-    long int NTrk = m_FitStatus;
-    long int Ndf = VKalGetNDOF()+m_planeCnstNDOF;
+    long int NTrk = state.m_FitStatus;
+    long int Ndf = VKalGetNDOF(state)+state.m_planeCnstNDOF;
 
     xAOD::Vertex * tmpVertex=new xAOD::Vertex();
     tmpVertex->makePrivateStore();
@@ -1037,7 +1121,7 @@ xAOD::Vertex * TrkVKalVrtFitter::makeXAODVertex( int Neutrals,
     std::vector<VxTrackAtVertex> & tmpVTAV=tmpVertex->vxTrackAtVertex();
     tmpVTAV.clear();
     std::vector <double> CovFull;
-    StatusCode sc = VKalGetFullCov( NTrk, CovFull); 
+    StatusCode sc = VKalGetFullCov( NTrk, CovFull, state); 
     int covarExist=0; if( sc.isSuccess() ) covarExist=1;
 
     std::vector<float> floatErrMtx; 

@@ -1,6 +1,5 @@
 #!/bin/sh
-# art-type: build
-# art-ci: master
+
 rm -rf test.pkl
 python -m TrigT2CaloCommon.TrigCaloDataAccessConfig
 STA=$?

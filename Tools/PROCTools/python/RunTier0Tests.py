@@ -684,17 +684,17 @@ def main():
             }
         elif RunPileUp:
             qTestsToRun = { 
-            'q440':[ 'HITtoRDO', 'RAWtoESD', 'ESDtoAOD', 'AODtoTAG' ]
+            'q440':[ 'HITtoRDO', 'RAWtoESD', 'ESDtoAOD' ]
             }
         elif r2aMode:
             qTestsToRun = { 
-            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],
+            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD'],
             'q431':[ 'RAWtoALL']
             }
         else:
             qTestsToRun = { 
-            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],
-            'q431':[ 'RAWtoESD','ESDtoAOD','AODtoTAG']
+            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD'],
+            'q431':[ 'RAWtoESD','ESDtoAOD']
             }          
 
         

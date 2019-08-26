@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __H_FTK_COMPRESSEDPATTERNLIST
-#define __H_FTK_COMPRESSEDPATTERNLIST
+#ifndef TRIGFTKSIM_FTK_COMPRESSEDPATTERNLIST_H
+#define TRIGFTKSIM_FTK_COMPRESSEDPATTERNLIST_H
 
 #include <inttypes.h>
 #include <set>
 #include <vector>
 #include <TObject.h>
+#include "CxxUtils/restrict.h"
 
 class FTK_CompressedPatternList {
  public:
@@ -56,7 +57,7 @@ class FTK_CompressedPatternList {
    template<class LOOP> inline void patternLoop(LOOP &loop) const {
       // start pattern ID
       loop.init(m_FirstPattern);
-      uint8_t const * __restrict ptr=m_data;
+      uint8_t const * ATH_RESTRICT ptr=m_data;
       if(m_encoding == ENCODING_U7) {
          loop.process();
          for(int nPattern=m_loopHelper;nPattern>0;nPattern--) {
@@ -180,7 +181,7 @@ class FTK_CompressedPatternList {
       }
    }
  protected:
-   inline uint8_t nextByte(uint8_t const * __restrict &ptr) const {
+   inline uint8_t nextByte(uint8_t const * ATH_RESTRICT &ptr) const {
       return *(ptr++);
    }
    //
@@ -200,7 +201,7 @@ class FTK_CompressedPatternList {
    uint32_t m_loopHelper;
    //
    // pointer to data
-   uint8_t const * __restrict m_data;
+   uint8_t const * ATH_RESTRICT m_data;
 };
 
 class FTK_CompressedPatternListLoopWithCounter_base {

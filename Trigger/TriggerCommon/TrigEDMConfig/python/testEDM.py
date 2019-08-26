@@ -1,8 +1,12 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon.Logging import logging
+log = logging.getLogger('testEDM')
 
-from TriggerEDM import *
+from TriggerEDM import (TriggerL2List, TriggerEFList, TriggerResultsList, TriggerResultsRun1List,
+                        TriggerLvl1List, TriggerIDTruth, TriggerHLTList)
+from TriggerEDMRun2 import EDMDetails
 from CLIDComps.clidGenerator import clidGenerator
 cgen = clidGenerator("", False)
 
@@ -20,27 +24,27 @@ def main():
     #print TriggerSerializable 
     serializable_name = TriggerSerializable[0]
     serializable_name_no_label = re.sub(r"\#.*", "", serializable_name)
-    if not '#' in serializable_name:
-      print "ERROR, no label for " + serializable_name
+    if '#' not in serializable_name:
+      log.error("ERROR, no label for " + serializable_name)
       return 1
     #Check container has a CLID
     if not isCLIDDefined(serializable_name_no_label):
-      print "ERROR, no CLID for " + serializable_name
-    if not serializable_name_no_label in EDMDetails.keys():
-      print "ERROR: " + serializable_name_no_label + " does not correspond to any name in EDMDetails" 
+      log.error("no CLID for " + serializable_name)
+    if serializable_name_no_label not in EDMDetails.keys():
+      log.error(serializable_name_no_label + " does not correspond to any name in EDMDetails")
 
     
     #check for Aux "."
-    if "Aux" in serializable_name and not "Aux." in serializable_name:
-      print "ERROR, no final Aux. in label for " + serializable_name
+    if "Aux" in serializable_name and "Aux." not in serializable_name:
+      log.error("no final Aux. in label for " + serializable_name)
     
     file_types = TriggerSerializable[1].split(" ")
 
     allowed_file_types = ("", "BS", "DS", "ESD", "AODFULL", "AODSLIM", "AODVERYSLIM", "AODBLSSLIM")
 
     for file_type in file_types:
-      if not file_type in allowed_file_types:
-        print "ERROR, unknown file type " + file_type + " for " + serializable_name
+      if file_type not in allowed_file_types:
+        log.error("unknown file type " + file_type + " for " + serializable_name)
         return 1
 
     serializable_names.append(serializable_name)
@@ -48,18 +52,9 @@ def main():
 
   #check EDMDetails
   for EDMDetail in EDMDetails.keys():
-    EDMDetail_values = EDMDetails[EDMDetail]
-    if not EDMDetail in serializable_names_no_label:
-      print "WARNING: EDMDetail for " + EDMDetail + " does not correspond to any name in TriggerList" 
+    if EDMDetail not in serializable_names_no_label:
+      log.warning("EDMDetail for " + EDMDetail + " does not correspond to any name in TriggerList")
 
 if __name__ == "__main__":
   import sys
-  try:
-    sys.exit(main())
-  except RuntimeError, e:
-    print e
-    sys.exit(1)
-  except KeyboardInterrupt:
-    sys.exit(1)
-
-
+  sys.exit(main())

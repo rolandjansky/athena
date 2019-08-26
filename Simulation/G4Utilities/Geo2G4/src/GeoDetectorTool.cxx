@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Base class
 #include "G4AtlasTools/DetectorGeometryBase.h"
 #include "GeoDetectorTool.h"
-#include "Geo2G4SvcAccessor.h"
-#include "G4AtlasInterfaces/Geo2G4SvcBase.h"
 #include "Geo2G4Builder.h"
 #include "VolumeBuilder.h"
 
@@ -50,10 +48,9 @@ StatusCode GeoDetectorTool::initialize()
     }
   ATH_MSG_DEBUG( name() << "GeoDetectorTool::initialize() : Geo Detector name = " << m_geoDetectorName );
 
-  Geo2G4SvcAccessor accessor;
-  Geo2G4SvcBase *g=accessor.GetGeo2G4Svc();
-  m_builderName=g->GetDefaultBuilder()->GetKey();
-  m_blGetTopTransform = g->UseTopTransforms();
+  ATH_CHECK(m_geo2G4Svc.retrieve());
+  m_builderName = m_geo2G4Svc->GetDefaultBuilder()->GetKey();
+  m_blGetTopTransform = m_geo2G4Svc->UseTopTransforms();
   ATH_MSG_VERBOSE( name() << " GeoDetectorTool::initialize(): Finished" );
   return StatusCode::SUCCESS;
 }

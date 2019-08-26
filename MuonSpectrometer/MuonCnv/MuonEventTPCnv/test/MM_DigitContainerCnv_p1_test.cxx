@@ -36,9 +36,12 @@ void compare (const MmDigit& p1,
   assert (p1.stripTimeForTrigger()[0] == p2.stripTimeForTrigger()[0]);
   assert (p2.stripPositionForTrigger().size() == 1);
   assert (p1.stripPositionForTrigger()[0] == p2.stripPositionForTrigger()[0]);
-  assert (p2.stripChargeForTrigger().empty());
-  assert (p2.MMFE_VMM_idForTrigger().empty());
-  assert (p2.VMM_idForTrigger().empty());
+  assert (p2.stripChargeForTrigger().size() == 1);
+  assert (p1.stripChargeForTrigger()[0] == p2.stripChargeForTrigger()[0]);
+  assert (p2.MMFE_VMM_idForTrigger().size() == 1);
+  assert (p1.MMFE_VMM_idForTrigger()[0] == p2.MMFE_VMM_idForTrigger()[0]);
+  assert (p2.VMM_idForTrigger().size() == 1);
+  assert (p1.VMM_idForTrigger()[0] == p2.VMM_idForTrigger()[0]);
 }
 
 void compare (const MmDigitContainer& p1,
@@ -56,9 +59,8 @@ void compare (const MmDigitContainer& p1,
     for (size_t j = 0; j < coll1.size(); j++) {
       compare (*coll1[j], *coll2[j]);
     }
-  
-  ++it1;
-  ++it2;
+    ++it1;
+    ++it2;
   }
   assert (it1 == it1e && it2 == it2e);
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ExtraTreeMuonFillerTool.h"
@@ -14,7 +14,7 @@
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "MuonSegment/MuonSegment.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -28,7 +28,6 @@ ExtraTreeMuonFillerTool::ExtraTreeMuonFillerTool(const std::string &type, const 
   m_hitsForSAE(true),
   m_hitsForCombined(true),
   m_hitsForStatCombined(true),
-  m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
   m_propagator("Trk::StraightLinePropagator/MuonStraightLinePropagator") {
   declareProperty("MuonContainer", m_muonContainer);
   declareProperty("AuthorOffset", m_authorOffset);
@@ -36,7 +35,6 @@ ExtraTreeMuonFillerTool::ExtraTreeMuonFillerTool(const std::string &type, const 
   declareProperty("HitsForSAE", m_hitsForSAE);
   declareProperty("HitsForCombined", m_hitsForCombined);
   declareProperty("HitsForStatCombined", m_hitsForStatCombined);
-  declareProperty("MuonEDMHelperTool", m_edmHelper);
   declareProperty("Propagator", m_propagator);
 }
 
@@ -46,7 +44,7 @@ StatusCode ExtraTreeMuonFillerTool::initialize() {
     return StatusCode::FAILURE;
   }
   if(!m_edmHelper.retrieve().isSuccess()) {
-    ATH_MSG_FATAL("Failed to retrieve MuonEDMHelperTool!");
+    ATH_MSG_FATAL("Failed to retrieve IMuonEDMHelperSvc!");
     return StatusCode::FAILURE;		
   }
   if(!m_propagator.retrieve().isSuccess()) {

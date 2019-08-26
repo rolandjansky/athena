@@ -8,6 +8,7 @@ atlas_subdir( TrackCaloClusterRecTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
+                          Control/AthenaKernel
                           GaudiKernel
                           Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces                         
                           Tracking/TrkEvent/TrkCaloExtension
@@ -37,7 +38,7 @@ atlas_add_library( TrackCaloClusterRecToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS TrackCaloClusterRecTools
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel AthenaKernel TrkCaloExtension TrkParametersIdentificationHelpers 
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps AtlasDetDescr FourMomUtils xAODMuon xAODTracking xAODTruth 
                    xAODPFlow xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack 
                    TrkExInterfaces TrackVertexAssociationToolLib)

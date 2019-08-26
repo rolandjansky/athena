@@ -108,6 +108,11 @@ StatusCode MdtROD_Decoder::finalize() {
   
   if (m_hid2re) delete m_hid2re;
 
+  if(m_nCache>0 || m_nNotCache>0) {
+    const float cacheFraction = ((float)m_nCache) / ((float)(m_nCache + m_nNotCache));
+    ATH_MSG_INFO("Fraction of fills that use the cache = " << cacheFraction);
+  }
+
   return StatusCode::SUCCESS ; 
 } 
 
@@ -356,10 +361,12 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
       MdtCsmContainer::IDC_WriteHandle lock = rdoIDC.getWriteHandle( idHash.first );
       if( lock.alreadyPresent() ) {
           ATH_MSG_DEBUG("collections already found, do not convert");
+          ++m_nCache;
       }else{
 	ATH_MSG_DEBUG(" Collection ID = " <<idHash.second.getString()
 		      << " does not exist, create it ");
 	collection = std::make_unique<MdtCsm>(idHash.second, idHash.first);
+        ++m_nNotCache;
       }
 
 

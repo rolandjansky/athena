@@ -5,7 +5,7 @@
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 
 #include "LArDetectorToolNV.h"
-#include "LArDetectorFactory.h" 
+#include "LArDetectorFactory.h"
 #include "LArGeoCode/VDetectorParameters.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
@@ -39,7 +39,7 @@
 LArDetectorToolNV::LArDetectorToolNV(const std::string& type
 				     , const std::string& name
 				     , const IInterface* parent)
-  : GeoModelTool(type,name,parent) 
+  : GeoModelTool(type,name,parent)
   , m_barrelSaggingOn(false)
   , m_barrelVisLimit(-1)
   , m_fcalVisLimit(-1)
@@ -48,6 +48,8 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type
   , m_applyAlignments(false)
   , m_manager{nullptr}
   , m_geometryConfig("FULL")
+  , m_EMECVariantInner("Wheel")
+  , m_EMECVariantOuter("Wheel")
 {
   declareProperty("SaggingBarrelAccordeon",m_barrelSaggingOn);
   declareProperty("BarrelCellVisLimit",    m_barrelVisLimit);
@@ -57,6 +59,8 @@ LArDetectorToolNV::LArDetectorToolNV(const std::string& type
   declareProperty("BuildEndcap",           m_buildEndcap);
   declareProperty("ApplyAlignments",       m_applyAlignments);
   declareProperty("GeometryConfig",        m_geometryConfig);
+  declareProperty("EMECVariantInner",      m_EMECVariantInner);
+  declareProperty("EMECVariantOuter",      m_EMECVariantOuter);
 }
 
 LArDetectorToolNV::~LArDetectorToolNV()
@@ -66,11 +70,11 @@ LArDetectorToolNV::~LArDetectorToolNV()
 }
 
 StatusCode LArDetectorToolNV::create()
-{ 
+{
   // Initialize the HV System:
   LArHVManager *hvManager= new LArHVManager();
 
-  ATH_CHECK(detStore()->record(hvManager,"LArHVManager"));  
+  ATH_CHECK(detStore()->record(hvManager,"LArHVManager"));
 
   // Get the detector configuration.
   ServiceHandle<IGeoDbTagSvc> geoDbTag("GeoDbTagSvc",name());
@@ -90,7 +94,7 @@ StatusCode LArDetectorToolNV::create()
 
   if(LArVersion=="CUSTOM") {
     ATH_MSG_WARNING("LArDetectorToolNV:  Detector Information coming from a custom configuration!!");
-  } 
+  }
   else {
     IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("LArSwitches", detectorKey, detectorNode);
     if ((*switchSet).size()==0) {
@@ -104,7 +108,7 @@ StatusCode LArDetectorToolNV::create()
       if (!switches->isFieldNull("BARREL_ON")) {
 	m_buildBarrel = switches->getInt("BARREL_ON");
       }
-      
+
       if (!switches->isFieldNull("ENDCAP_ON")) {
 	m_buildEndcap = switches->getInt("ENDCAP_ON");
       }
@@ -119,7 +123,7 @@ StatusCode LArDetectorToolNV::create()
   ATH_MSG_INFO("  Barrel            = "  << (m_buildBarrel ? "ON" : "OFF"));
   ATH_MSG_INFO("  Endcap            = "  << (m_buildEndcap ? "ON" : "OFF"));
 
-  // Locate the top level experiment node 
+  // Locate the top level experiment node
   GeoModelExperiment* theExpt = nullptr;
   ATH_CHECK(detStore()->retrieve(theExpt,"ATLAS"));
 
@@ -151,6 +155,7 @@ StatusCode LArDetectorToolNV::create()
   theLArFactory.setFCALVisLimit        (m_fcalVisLimit);
   theLArFactory.setBuildBarrel(m_buildBarrel);
   theLArFactory.setBuildEndcap(m_buildEndcap);
+  theLArFactory.setEMECVariant(m_EMECVariantInner, m_EMECVariantOuter);
 
   if(m_detector==nullptr) {
     GeoPhysVol *world=&*theExpt->getPhysVol();
@@ -228,7 +233,7 @@ StatusCode LArDetectorToolNV::registerCallback()
 
   const DataHandle<DetCondKeyTrans> dckt;
   ATH_MSG_DEBUG("Registering callback on DetCondKeyTrans with folder " << folderName);
-  StatusCode sc = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), dckt, folderName); 
+  StatusCode sc = detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), dckt, folderName);
   if(sc.isSuccess()) {
     ATH_MSG_DEBUG(" Successfully registered ");
   }
@@ -281,7 +286,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
   const DetCondKeyTrans* align=0;
   if(detStore()->contains<DetCondKeyTrans>(LAR_ALIGN)) {
     StatusCode sc = detStore()->retrieve(align, LAR_ALIGN);
-  
+
     if(sc.isFailure()) {
       ATH_MSG_ERROR(" Could not retrieve LAr DetCondKeyTrans ");
       return sc;
@@ -323,7 +328,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
     GeoAlignableTransform *hec1GatNeg = hec1AlxPos ? hec1AlxNeg->getAlignX(): nullptr;
     GeoAlignableTransform *hec2GatPos = hec2AlxPos ? hec2AlxPos->getAlignX(): nullptr;
     GeoAlignableTransform *hec2GatNeg = hec2AlxPos ? hec2AlxNeg->getAlignX(): nullptr;
-    
+
     // loop over align names
     // if the transform presented alter its delta
     // if the transform is not presented clear its delta
@@ -403,9 +408,9 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
   else {
     ATH_MSG_DEBUG(" No LAr DetCondKeyTrans in SG, skipping align() ");
   }
-  
+
   // debug printout of global positions:
-//  for(unsigned int i=0; i<alignNames.size(); i++) 
+//  for(unsigned int i=0; i<alignNames.size(); i++)
   for(const std::string& alignName : alignNames) {
     if(detStore()->contains<StoredPhysVol>(alignName)) {
       StoredPhysVol* storedPV{nullptr};
@@ -424,7 +429,7 @@ StatusCode LArDetectorToolNV::align(IOVSVC_CALLBACK_ARGS)
       }
     }
   }
-  
+
   return StatusCode::SUCCESS;
 }
 

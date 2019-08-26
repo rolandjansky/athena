@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTSELECTORATHENAPOOL_H
@@ -17,9 +17,11 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "PersistentDataModel/Guid.h"
 
+#include "AthenaKernel/IAthenaIPCTool.h"
 #include "AthenaKernel/IAthenaSelectorTool.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "AthenaKernel/IEventShare.h"
+#include "AthenaPoolCnvSvc/IAthenaPoolCnvSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <map>
@@ -33,21 +35,14 @@ class IOpaqueAddress;
 class ISvcLocator;
 class EventContextAthenaPool;
 class PoolCollectionConverter;
-class IAthenaIPCTool;
 class ActiveStoreSvc;
 class StoreGateSvc;
-class IAthenaPoolCnvSvc;
 
 /** @class EventSelectorAthenaPool
  *  @brief This class is the EventSelector for event data.
  **/
 class EventSelectorAthenaPool :
-                public ::AthService,
-	virtual public IEvtSelector,
-	virtual public IEvtSelectorSeek,
-	virtual public IEventShare,
-        virtual public IIoComponent,
-        virtual public IIncidentListener
+  public extends<::AthService, IEvtSelector, IEvtSelectorSeek, IEventShare, IIoComponent, IIncidentListener>
 {
 
 public: // Constructor and Destructor
@@ -150,81 +145,76 @@ private: // internal member functions
    bool disconnectIfFinished( SG::SourceID fid ) const;
 
 private: // data
-   mutable EventContextAthenaPool*      m_beginIter;
-   EventContextAthenaPool*      m_endIter;
+   mutable EventContextAthenaPool* m_beginIter{};
+   EventContextAthenaPool*         m_endIter{};
 
-   ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
+   ServiceHandle<ActiveStoreSvc> m_activeStoreSvc{this, "ActiveStoreSvc", "ActiveStoreSvc", ""};
 
-   mutable PoolCollectionConverter* m_poolCollectionConverter;
-   mutable pool::ICollectionCursor* m_headerIterator;
-   mutable Guid m_guid;
+   mutable PoolCollectionConverter* m_poolCollectionConverter{};
+   mutable pool::ICollectionCursor* m_headerIterator{};
+   mutable Guid m_guid{};
    mutable std::map<SG::SourceID, int> m_activeEventsPerSource;
 
-   ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
-   ServiceHandle<IIncidentSvc> m_incidentSvc;
+   ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc{this, "AthenaPoolCnvSvc", "AthenaPoolCnvSvc", ""};
+   ServiceHandle<IIncidentSvc> m_incidentSvc{this, "IncidentSvc", "IncidentSvc", ""};
 
 private: // properties
    /// ProcessMetadata, switch on firing of FileIncidents which will trigger processing of metadata: default = true.
-   Gaudi::Property<bool> m_processMetadata;
-   /// ShowSizeStat, show size statistics from POOL for all persistified objects: default = false.
-   Gaudi::Property<bool> m_showSizeStat;
+   Gaudi::Property<bool> m_processMetadata{this, "ProcessMetadata", true, ""};
    /// CollectionType, type of the collection: default = "ImplicitROOT".
-   Gaudi::Property<std::string> m_collectionType;
+   Gaudi::Property<std::string> m_collectionType{this, "CollectionType", "ImplicitROOT", ""};
    /// CollectionTree, prefix of the collection TTree: default = "POOLContainer_".
-   Gaudi::Property<std::string> m_collectionTree;
+   Gaudi::Property<std::string> m_collectionTree{this, "CollectionTree", "POOLContainer", ""};
    /// Connection, connection string.
-   Gaudi::Property<std::string> m_connection;
+   // TODO: check if really not used anywhere
+   Gaudi::Property<std::string> m_connection{this, "Connection", "", ""};
    /// RefName, attribute name.
-   Gaudi::Property<std::string> m_refName;
-   Gaudi::Property<std::string> m_derRefName;
+   Gaudi::Property<std::string> m_refName{this, "RefName", "", ""};
    /// AttributeList SG key
-   Gaudi::Property<std::string> m_attrListKey;
+   Gaudi::Property<std::string> m_attrListKey{this, "AttributeListKey", "Input", ""};
    /// InputCollections, vector with names of the input collections.
-   Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp;
+   Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp{this, "InputCollections", {}, ""};
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
    void inputCollectionsHandler(Property&);
    /// Query, query string.
-   Gaudi::Property<std::string> m_query;
+   Gaudi::Property<std::string> m_query{this, "Query", "", ""};
 
    /// KeepInputFilesOpen, boolean flag to keep files open after PoolCollection reaches end: default = false.
    /// Needed for PilUp to run without PoolFileCatalog. Relies on POOL to close files when reaching DB_AGE_LIMIT.
-   Gaudi::Property<bool> m_keepInputFilesOpen;
+   Gaudi::Property<bool> m_keepInputFilesOpen{this, "KeepInputFilesOpen", false, ""};
 
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
-   ToolHandleArray<IAthenaSelectorTool> m_helperTools;
-   ToolHandle<IAthenaSelectorTool> m_counterTool;
-   ToolHandle<IAthenaIPCTool> m_eventStreamingTool;
+   ToolHandleArray<IAthenaSelectorTool> m_helperTools{this};
+   ToolHandle<IAthenaSelectorTool> m_counterTool{this, "CounterTool", "", ""};
+   ToolHandle<IAthenaIPCTool> m_eventStreamingTool{this, "SharedMemoryTool", "", ""};
 
    /// The following are included for compatibility with McEventSelector and are not really used.
    /// However runNo, oldRunNo and overrideRunNumberFromInput are used to reset run number for
-   /// simulated events, needed to use conditions
-   Gaudi::CheckedProperty<int> m_runNo;
-   Gaudi::CheckedProperty<int> m_oldRunNo;
-   Gaudi::Property<bool> m_overrideRunNumberFromInput;
-   Gaudi::CheckedProperty<int> m_firstEventNo;
-   Gaudi::CheckedProperty<int> m_eventsPerRun;
-   Gaudi::CheckedProperty<int> m_firstLBNo;
-   Gaudi::CheckedProperty<int> m_eventsPerLB;
-   Gaudi::CheckedProperty<int> m_initTimeStamp;
-   Gaudi::Property<int> m_timeStampInterval;
+   /// simulated events, needed to use condition
+   Gaudi::CheckedProperty<int> m_runNo{this, "RunNumber", 0, ""};
+   Gaudi::CheckedProperty<int> m_oldRunNo{this, "OldRunNumber", 0, ""};
+   Gaudi::Property<bool> m_overrideRunNumber{this, "OverrideRunNumber", false, ""};
+   Gaudi::Property<bool> m_overrideRunNumberFromInput{this, "OverrideRunNumberFromInput", false, ""};
+   // TODO: check if not really used
+   Gaudi::CheckedProperty<int> m_firstEventNo{this, "FirstEvent", 0, ""};
+   // TODO: check if not really used
+   Gaudi::CheckedProperty<int> m_eventsPerRun{this, "EventsPerRun", 1000000, ""};
+   Gaudi::CheckedProperty<int> m_firstLBNo{this, "FirstLB", 0, ""};
+   Gaudi::CheckedProperty<int> m_eventsPerLB{this, "EventsPerLB", 1000, ""};
+   Gaudi::CheckedProperty<int> m_initTimeStamp{this, "InitialTimeStamp", 0, ""};
+   Gaudi::Property<int> m_timeStampInterval{this, "TimeStampInterval", 0, ""};
 
-   /// Flags to indicate override of run/event/time
-   /// These are almost always false.
-   Gaudi::Property<bool> m_overrideRunNumber;
-   Gaudi::Property<bool> m_overrideEventNumber;
-   Gaudi::Property<bool> m_overrideTimeStamp;
-
-   mutable long m_curCollection;
+   mutable long m_curCollection{};
    mutable std::vector<int> m_numEvt;
    mutable std::vector<int> m_firstEvt;
 
    /// SkipEvents, numbers of events to skip: default = 0.
-   Gaudi::Property<int> m_skipEvents;
-   Gaudi::Property<std::vector<long>> m_skipEventSequenceProp;
+   Gaudi::Property<int> m_skipEvents{this, "SkipEvents", 0, ""};
+   Gaudi::Property<std::vector<long>> m_skipEventSequenceProp{this, "SkipEventSequence", {}, ""};
    mutable std::vector<long> m_skipEventSequence;
 
-   mutable int m_evtCount; // internal count of events
-   mutable bool m_firedIncident;
+   mutable int m_evtCount{}; // internal count of events
+   mutable bool m_firedIncident{};
 
    typedef std::mutex CallMutex;
    mutable CallMutex m_callLock;

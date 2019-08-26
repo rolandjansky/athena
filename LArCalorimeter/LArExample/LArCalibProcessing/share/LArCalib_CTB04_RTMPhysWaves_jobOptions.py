@@ -223,7 +223,7 @@ if ( WriteNT ) :
 	LArWFParams2Ntuple.DetStoreSuffix      = "_RTM"
 
 if ( WritePOOLFile ) :
-	include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 	AthenaSealSvc.CheckDictionary = True 
 
 	include( "AthenaPoolCnvSvc/AthenaPool_jobOptions.py" )

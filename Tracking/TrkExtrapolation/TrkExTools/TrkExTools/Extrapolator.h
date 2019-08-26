@@ -50,7 +50,6 @@ class Layer;
 class Volume;                  
 class DetachedTrackingVolume;
 class TrackingGeometry;
-class TrackParticleBase;
 class IPropagator;
 class IDynamicLayerCreator;
 class INavigator;
@@ -161,19 +160,6 @@ class Extrapolator : public AthAlgTool,
                                                BoundaryCheck bcheck = true,
                                                ParticleHypothesis particle=pion,
                                                MaterialUpdateMode matupmode=addNoise) const override final;
-
-
-    /** [TrackParticleBase] ---------------------------------------------------------------- */
-
-    /** P 0) <b>Base class extrapolation method</b> 
-      - returns a ParametersBase object as well, 0 if the extrapolation did not succeed 
-      */
-    virtual const TrackParameters* extrapolate(const TrackParticleBase& particleBase,
-                                               const Surface& sf,
-                                               PropDirection dir=anyDirection,
-                                               BoundaryCheck bcheck = true,
-                                               ParticleHypothesis particle=pion,
-                                               MaterialUpdateMode matupmode=addNoise) const final;
 
 
     /** [NeutralParameters] ------------------------------------------------------------- */
@@ -870,14 +856,6 @@ class Extrapolator : public AthAlgTool,
     mutable Gaudi::Accumulators::Counter<int>                     m_meotSearchCallsBw;                //!< how often the meot search is called: backward
     mutable Gaudi::Accumulators::Counter<int>                     m_meotSearchSuccessfulFw;           //!< how often the meot search was successful: forward
     mutable Gaudi::Accumulators::Counter<int>                     m_meotSearchSuccessfulBw;           //!< how often the meot search was successful: backward
-
-    typedef  tbb::concurrent_unordered_map<const Trk::TrackingVolume*,std::atomic<int>> mapOfCounters_t;  
-    mutable mapOfCounters_t m_loopVolumes;   //!< record name of the volumes where oscillation happened
-    mutable mapOfCounters_t m_oscillationVolumes;    //!< record name of the volumes where oscillation happened
-    mutable mapOfCounters_t m_distIncreaseVolumes;   //!< record name of  the voluems where the distance increases
-    mutable mapOfCounters_t m_noNextVolumes;         //!< record names of the volumes where no next one is found
-    mutable mapOfCounters_t m_volSignatureVolumes;   //!< record name of  the volumes where the distance increases
-
   };
 
 inline const TrackingGeometry* Extrapolator::trackingGeometry() const 

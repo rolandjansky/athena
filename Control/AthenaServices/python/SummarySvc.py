@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaServices/python/SummarySvc.py
 # Author: Charles Leggett
@@ -31,21 +31,17 @@ def useMessageLogger():
   for name, value in svcMgr.MessageSvc.getValuedProperties().items():
     try:
       setattr( newMsgSvc, name, value )
-    except:
+    except Exception:
       log.info( 'When configuring LoggedMessageSvc, no Property \"%s\" found',name )
   del svcMgr.MessageSvc
   svcMgr += newMsgSvc
-  MessageSvc = svcMgr.MessageSvc
 
 def useAthenaSummarySvc():
   from AthenaCommon.AppMgr import theApp
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
   theApp.CreateSvc += ["AthenaSummarySvc"]
 
-  from AthenaServices.AthenaServicesConf import AthenaSummarySvc
   from AthenaCommon.OldStyleConfig import  Service
-  AthenaSummarySvc = Service("AthenaSummarySvc")
-
-  svcMgr += AthenaSummarySvc
+  svcMgr += Service("AthenaSummarySvc")
 
   useMessageLogger()

@@ -51,18 +51,13 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
 #include "FTK_RecToolInterfaces/IFTK_DuplicateTrackRemovalTool.h"
-#include "FTK_RecToolInterfaces/IFTK_VertexFinderTool.h"
-#include "TrkVertexFitterInterfaces/IVertexCollectionSortingTool.h"
 #include "FTK_DataProviderInterfaces/IFTK_UncertaintyTool.h"
 
-#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-#include "InDetRecToolInterfaces/IVertexFinder.h"
 
 #undef FTK_useViewVector
 #ifdef  FTK_useViewVector
@@ -1642,7 +1637,9 @@ Trk::Track* FTK_DataProviderSvc::ConvertTrack(const unsigned int iTrack){
   //
   // Build the TSOS
   //
-  trkTSoSVec->push_back( new Trk::TrackStateOnSurface(NULL, trkPerigee));
+  std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
+  typePattern.set(Trk::TrackStateOnSurface::Perigee);
+  trkTSoSVec->push_back( new Trk::TrackStateOnSurface(nullptr, trkPerigee,nullptr,nullptr,typePattern));
 
 
   //

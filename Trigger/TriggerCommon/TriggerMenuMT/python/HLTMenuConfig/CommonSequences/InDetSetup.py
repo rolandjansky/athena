@@ -154,7 +154,7 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
                                                   MaximalSplitSize        = 49,
                                                   MinimalSplitProbability = 0,
                                                   DoIBLSplitting = True,
-                                                  SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
+  )
   ToolSvc += InDetMergedPixelsTool
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder
@@ -259,6 +259,13 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
       # Setup alignment folders and conditions algorithms
       from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
       condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
+
+  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinderBase
+  theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + whichSignature, whichSignature)
+  theFTF.TracksName = "TrigFastTrackFinder_Tracks" + separateTrackParticleCreator
+  viewAlgs.append(theFTF)
+
+
 
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
   from TrigEDMConfig.TriggerEDMRun3 import recordable

@@ -13,6 +13,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "CxxUtils/checker_macros.h"
 #include "JetTagTools/ITagTool.h"
 #include "JetTagCalibration/JetTagCalibCondData.h"
 
@@ -22,6 +23,7 @@
 #include <functional>
 #include <memory>
 #include <sstream>
+#include <mutex>
 
 namespace Reco { class ITrackToVertex; }
 namespace Trk  { class ITrackToVertexIPEstimator; }
@@ -50,8 +52,8 @@ namespace Analysis {
   struct IPxDInfo;
   typedef std::function<bool(const IPxDInfo&, const IPxDInfo&)> TrackSorter;
 
-  class RNNIPTag : public AthAlgTool , virtual public ITagTool {
-
+  class RNNIPTag : public extends<AthAlgTool, ITagTool>
+  {
   public:
     RNNIPTag(const std::string&,const std::string&,const IInterface*);
 
@@ -59,28 +61,25 @@ namespace Analysis {
        Implementations of the methods defined in the abstract base class
     */
     virtual ~RNNIPTag();
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-    /** Set the primary vertex. TODO: This is temporary ! The primary
-  vertex should be part of the JetTag IParticle interface
-  implementation. The trouble with ElementLink and persistency has to
-  be solved for that. Revisit ... */
-    void setOrigin(const xAOD::Vertex* priVtx);
+    virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag) const override;
 
-    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag);
-
-    void finalizeHistos() {};
+    virtual void finalizeHistos() override {}
 
   private:
 
     std::vector<IPxDInfo> get_track_info(
+      const xAOD::Vertex& priVtx,
       const std::vector<GradedTrack>&,
       const Amg::Vector3D& unit,
       const std::vector<const xAOD::TrackParticle*>& v0_tracks) const;
 
     void add_tags(xAOD::BTagging& tag, const std::string& author,
-                  std::vector<IPxDInfo>& tracks);
+                  std::vector<IPxDInfo>& tracks) const;
 
     /** base name string for persistification in xaod */
     std::string m_xAODBaseName;
@@ -138,14 +137,16 @@ namespace Analysis {
 
     // Each network list is grouped with its sort function.
     typedef std::vector<std::pair<TrackSorter, Networks> > SortGroups;
-    std::map<std::string, SortGroups > m_networks;
+    mutable std::map<std::string, SortGroups > m_networks ATLAS_THREAD_SAFE;
+    // Serialize access to m_networks.
+    mutable std::mutex m_networksMutex ATLAS_THREAD_SAFE;
 
     // load the calibration file from the COOL db
-    void update_networks_for(const std::string& author);
+    const SortGroups& get_networks_for(const std::string& author) const;
     //void register_hist(const std::string& name = "/rnnip");
     std::string get_calib_string(
       const std::string& author,
-      const std::string& name = "/rnnip");
+      const std::string& name = "/rnnip") const;
     std::string m_calibrationDirectory;
 
     /** names of fools for getting the secondary vertex information */
@@ -160,11 +161,6 @@ namespace Analysis {
     /** track classification. */
     std::vector<std::string>          m_trackGradePartitionsDefinition;
     std::vector<TrackGradePartition*> m_trackGradePartitions;
-    /** Storage for the primary vertex. Can be removed when JetTag
-     * provides origin(). */
-    // this pointer does not need to be deleted in the destructor
-    // (because it points to something in storegate)
-    const xAOD::Vertex* m_priVtx = 0;
 
     //// VD: list of tools below
     /** Track selection cuts for IPTagging */
@@ -185,10 +181,6 @@ namespace Analysis {
     //int m_nljet;
 
   }; // End class
-
-  inline void RNNIPTag::setOrigin(const xAOD::Vertex* priVtx) {
-    m_priVtx = priVtx;
-  }
 
 } // End namespace
 

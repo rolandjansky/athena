@@ -17,6 +17,7 @@
 #include "InDetIdentifier/PixelID.h"
 
 #include "PixelConditionsData/PixelModuleData.h"
+//#include "PixelConditionsData/PixelDeadMapCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
 class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool{
@@ -55,6 +56,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     SG::ReadCondHandleKey<PixelModuleData> m_condDCSStatusKey{this, "PixelDCSStatusCondData", "PixelDCSStatusCondData", "Pixel FSM status key"};
     SG::ReadCondHandleKey<PixelModuleData> m_condTDAQKey{this, "PixelTDAQCondData", "PixelTDAQCondData", "Pixel TDAQ conditions key"};
     SG::ReadCondHandleKey<PixelModuleData> m_condDeadMapKey{this, "PixelModuleData", "PixelModuleData", "Pixel deadmap conditions key"};
+//    SG::ReadCondHandleKey<PixelDeadMapCondData> m_condDeadMapKey{this, "PixelDeadMapCondData", "PixelDeadMapCondData", "Pixel deadmap conditions key"};
 };
 
 inline InterfaceID& PixelConditionsSummaryTool::interfaceID(){

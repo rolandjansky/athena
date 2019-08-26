@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONCANDIDATETRACKBUILDER_H
@@ -9,7 +9,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include <vector>
 
@@ -33,8 +33,8 @@ namespace Muon {
 	return fabs(mst1->globalPosition().z()) < fabs(mst2->globalPosition().z());
       }
       else {
-	Identifier id1=m_edmHelper->getIdentifier(*mst1);
-	Identifier id2=m_edmHelper->getIdentifier(*mst2);
+	Identifier id1=m_edmHelperSvc->getIdentifier(*mst1);
+	Identifier id2=m_edmHelperSvc->getIdentifier(*mst2);
 	if(m_idHelper->isMdt(id1) && m_idHelper->isMdt(id2)) return mst1->globalPosition().perp() < mst2->globalPosition().perp();
 	else if(m_idHelper->isRpc(id1) && m_idHelper->isMdt(id2)){
 	  if(m_idHelper->rpcIdHelper().doubletR(id1)==1){
@@ -57,9 +57,9 @@ namespace Muon {
 	}
       }
     }
-  SortMeas(const MuonEDMHelperTool* h, const MuonIdHelperTool* idh, bool end ) : m_edmHelper(h),m_idHelper(idh),isEndcap(end) {}
+  SortMeas(const IMuonEDMHelperSvc* h, const MuonIdHelperTool* idh, bool end ) : m_edmHelperSvc(h),m_idHelper(idh),isEndcap(end) {}
 
-    const MuonEDMHelperTool* m_edmHelper;
+    const IMuonEDMHelperSvc* m_edmHelperSvc;
     const MuonIdHelperTool*  m_idHelper;
     bool isEndcap;
   };
@@ -81,7 +81,9 @@ namespace Muon {
     ToolHandle<IMuonSegmentTrackBuilder>       m_muonTrackBuilder; 
     ToolHandle<MuonEDMPrinterTool>             m_printer;
     ToolHandle<MuonIdHelperTool>               m_idHelper;
-    ToolHandle<MuonEDMHelperTool>              m_edmHelper;
+    ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     bool                                       m_reOrderMeasurements;
     ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackFitter;
   };

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTMERGER_H
@@ -8,14 +8,14 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentMerger.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonSegment/MuonSegment.h"
 #include "TrkEventPrimitives/FitQuality.h"
-
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 namespace Muon {
   
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonIdHelperTool;
   class IMuonSegmentTriggerHitAssociator;
@@ -49,7 +49,9 @@ namespace Muon {
   private:
 
     ToolHandle<Muon::MuonIdHelperTool>                  m_idHelperTool;     //!< IdHelper tool
-    ToolHandle<Muon::MuonEDMHelperTool>                 m_helperTool;       //!< EDM Helper tool
+    ServiceHandle<Muon::IMuonEDMHelperSvc>              m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>                m_printer;          //!< EDM printer tool
     ToolHandle<Muon::IMuonSegmentTriggerHitAssociator>  m_triggerHitsAssociator; //!< trigger hit associator
 

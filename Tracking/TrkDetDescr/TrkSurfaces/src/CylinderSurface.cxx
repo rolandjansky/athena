@@ -8,7 +8,6 @@
 
 // Trk
 #include "TrkSurfaces/CylinderSurface.h"
-#include "CxxUtils/unused.h"
 #include "TrkSurfaces/RealQuadraticEquation.h"
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
@@ -334,10 +333,11 @@ Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, con
   }
 
   // minimal distance to cylinder axis
-  // The UNUSED declaration is to suppress redundant division checking here.
+  // The [[maybe_unused]] declaration is to suppress redundant division checking here.
   // Even a tiny change in rmin (~1e-13) can cause huge changes in the
   // reconstructed output, so don't change how it's evaluated.
-  const double UNUSED(rmin_tmp) = B * B / A;
+  [[maybe_unused]]
+  const double rmin_tmp = B * B / A;
   const double rmin2 = C - rmin_tmp;
   const double rmin = rmin2 < 0 ? 0 : sqrt(rmin2);
 
@@ -349,9 +349,10 @@ Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, con
       double first = B / A;
       return Trk::DistanceSolution(2, currDist, true, first, first);
     } else {
-      // The UNUSED declaration here suppresses redundant division checking.
+      // The [[maybe_unused]] declaration here suppresses redundant division checking.
       // We don't want to rewrite how this is evaluated due to instabilities.
-      const double UNUSED(b_a) = B / A;
+      [[maybe_unused]]
+      const double b_a = B / A;
       const double x = sqrt((radius - rmin) * (radius + rmin) / A);
       double first = b_a - x;
       double second = b_a + x;

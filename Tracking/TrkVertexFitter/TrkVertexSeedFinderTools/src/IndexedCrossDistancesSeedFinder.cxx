@@ -16,6 +16,7 @@
 #include "TrkTrack/Track.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"
 
 #include "TrkParameters/TrackParameters.h"
@@ -27,7 +28,7 @@ namespace Trk
 {
 
   IndexedCrossDistancesSeedFinder::IndexedCrossDistancesSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_useweights(true),
     m_trackdistcutoff(0.020),
     m_trackdistexppower(2),
@@ -47,26 +48,18 @@ namespace Trk
     declareProperty("TrkDistanceFinder",     m_distancefinder);
     declareProperty("maximumTracksNoCut",m_maximumTracksNoCut);
     declareProperty("maximumDistanceCut",m_maximumDistanceCut);
-    
-    declareInterface<IVertexSeedFinder>(this);
   }
 
-  IndexedCrossDistancesSeedFinder::~IndexedCrossDistancesSeedFinder() {}
+
+  IndexedCrossDistancesSeedFinder::~IndexedCrossDistancesSeedFinder()
+  {
+  }
+
 
   StatusCode IndexedCrossDistancesSeedFinder::initialize() 
   { 
-    StatusCode s = m_mode3dfinder.retrieve();
-    if (s.isFailure())
-      {
-	ATH_MSG_FATAL( "Could not find mode3dfinder tool." );
-	return StatusCode::FAILURE;
-      }
-    s = m_distancefinder.retrieve();
-    if (s.isFailure())
-      {
-	ATH_MSG_FATAL( "Could not find distance finder tool." );
-	return StatusCode::FAILURE;
-      }
+    ATH_CHECK( m_mode3dfinder.retrieve() );
+    ATH_CHECK( m_distancefinder.retrieve() );
     ATH_MSG_INFO( "Initialize successful" );
     return StatusCode::SUCCESS;
   }
@@ -77,38 +70,43 @@ namespace Trk
     return StatusCode::SUCCESS;
   }
 
-  void IndexedCrossDistancesSeedFinder::setPriVtxPosition( double vx, double vy )
+
+  Amg::Vector3D
+  IndexedCrossDistancesSeedFinder::findSeed(const std::vector<const Trk::Track*> & /*VectorTrk*/,
+                                            const xAOD::Vertex * /*constraint*/) const
   {
-    m_mode3dfinder->setPriVtxPosition( vx, vy ) ;
-    return ;
+    ATH_MSG_ERROR ("Need to supply a primary vertex.");
+    return Amg::Vector3D(0.,0.,0.);
   }
 
 
-  Amg::Vector3D IndexedCrossDistancesSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) {
-    
-
-    //create perigees from track list
-    std::vector<const TrackParameters*> perigeeList;
-    for (std::vector<const Trk::Track*>::const_iterator iter=VectorTrk.begin();
-	 iter!=VectorTrk.end();iter++) {
-      if (std::isnan((*iter)->perigeeParameters()->parameters()[Trk::d0])) {
-	continue;
-      }  
-      perigeeList.push_back((*iter)->perigeeParameters());
-    }
-
-    if (perigeeList.size()<2)
-    {
-      return Amg::Vector3D(0.,0.,0.);
-    }
-   
-    //create seed from perigee list
-    return findSeed(perigeeList,constraint);
-    
+  Amg::Vector3D
+  IndexedCrossDistancesSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & /*perigeeList*/,
+                                            const xAOD::Vertex * /*constraint*/) const
+  {
+    ATH_MSG_ERROR ("Need to supply a primary vertex.");
+    return Amg::Vector3D(0.,0.,0.);
   }
 
-  Amg::Vector3D IndexedCrossDistancesSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint) {
 
+  Amg::Vector3D
+  IndexedCrossDistancesSeedFinder::findSeed(const double vx,
+                                            const double vy,
+                                            const std::vector<const Trk::TrackParameters*>& perigeeList,
+                                            const xAOD::Vertex* constraint) const
+  {
+    std::unique_ptr<Trk::IMode3dInfo> info;
+    return findSeed (vx, vy, info, perigeeList, constraint);
+  }
+
+
+  Amg::Vector3D
+  IndexedCrossDistancesSeedFinder::findSeed(const double vx,
+                                            const double vy,
+                                            std::unique_ptr<Trk::IMode3dInfo>& info,
+                                            const std::vector<const Trk::TrackParameters*>& perigeeList,
+                                            const xAOD::Vertex* constraint) const
+  {
     ATH_MSG_DEBUG( " Enter IndexedCrossDistancesSeedFinder  " );
 
     bool useCutOnDistance=false;
@@ -118,9 +116,6 @@ namespace Trk
     }
     
     //now implement the code you already had in the standalone code...
-
-    //Variable to temporary store the points at minimum distance between the two tracks
-    std::pair<Amg::Vector3D,Amg::Vector3D> PointsAtMinDistance;
 
     //Calculate and cache the covariance matrix for the constraint
     AmgSymMatrix(3) weightMatrixPositionConstraint;
@@ -139,8 +134,7 @@ namespace Trk
 
     ATH_MSG_DEBUG( " Loop pairs of TrackParameters for modes " );
 
-//    m_trkidx = new std::vector< std::pair<int,int> > ;
-    m_trkidx.clear() ;
+    std::vector< std::pair <int, int> > trkidx ;
     int idx_i = 0 ;
     for (std::vector<const Trk::TrackParameters*>::const_iterator i=begin;i!=end-1;i++) 
     {
@@ -165,31 +159,32 @@ namespace Trk
 	
 	try {
 	  
-	  bool result=m_distancefinder->CalculateMinimumDistance(*MyI,*MyJ);
+          std::optional<ITrkDistanceFinder::TwoPoints> result
+            = m_distancefinder->CalculateMinimumDistance(*MyI,*MyJ);
 	  if (!result) {ATH_MSG_DEBUG("Problem with distance finder: THIS POINT WILL BE SKIPPED!"); 
           } 
           else 
           {
 	    //Get the points which connect the minimum distance between the two tracks
-	    PointsAtMinDistance=m_distancefinder->GetPoints();
+            double distance = Amg::distance (result->first, result->second);
 #ifdef CROSSDISTANCESSEEDFINDER_DEBUG
-	    ATH_MSG_DEBUG("Point 1 x: " << PointsAtMinDistance.first.x() << 
-			  " y: " << PointsAtMinDistance.first.y() << 
-			  " z: " << PointsAtMinDistance.first.z() );
-	    ATH_MSG_DEBUG("Point 2 x: " << PointsAtMinDistance.second.x() << 
-			  " y: " << PointsAtMinDistance.second.y() << 
-			  " z: " << PointsAtMinDistance.second.z() );
-	    ATH_MSG_DEBUG("distance is: " << m_distancefinder->GetDistance() );
+	    ATH_MSG_DEBUG("Point 1 x: " << result->first.x() << 
+			  " y: " << result->first.y() << 
+			  " z: " << result->first.z() );
+	    ATH_MSG_DEBUG("Point 2 x: " << result->second.x() << 
+			  " y: " << result->second.y() << 
+			  " z: " << result->second.z() );
+	    ATH_MSG_DEBUG("distance is: " << distance );
 #endif
 	    
-	    Amg::Vector3D thepoint((PointsAtMinDistance.first+PointsAtMinDistance.second)/2.);
+	    Amg::Vector3D thepoint((result->first+result->second)/2.);
 
             if (m_useweights)
             {
               PositionAndWeight thispoint(thepoint,
-                                          1./pow(m_trackdistcutoff+m_distancefinder->GetDistance(),m_trackdistexppower));
+                                          1./pow(m_trackdistcutoff+distance,m_trackdistexppower));
               
-              ATH_MSG_VERBOSE("distance weight: " << 1./pow(m_trackdistcutoff+m_distancefinder->GetDistance(),m_trackdistexppower) );
+              ATH_MSG_VERBOSE("distance weight: " << 1./pow(m_trackdistcutoff+distance,m_trackdistexppower) );
               
               if (constraint!=0) {
                 
@@ -210,11 +205,11 @@ namespace Trk
                 
               }
 
-              if ((useCutOnDistance==false || m_distancefinder->GetDistance()<m_maximumDistanceCut) && thispoint.second > 1e-10)
+              if ((useCutOnDistance==false || distance<m_maximumDistanceCut) && thispoint.second > 1e-10)
               {
                 CrossingPointsAndWeights.push_back( thispoint );
 
-                m_trkidx.push_back( std::pair<int,int>( idx_i - 1 , idx_j - 1 ) ) ;
+                trkidx.emplace_back( idx_i - 1 , idx_j - 1 );
 
                 ATH_MSG_VERBOSE( " crossing with track pair : " << idx_i - 1 <<" " 
 				 << MyI->parameters()[Trk::d0] <<" "<< idx_j - 1 <<" " 
@@ -225,7 +220,7 @@ namespace Trk
             else
             {
 	      Amg::Vector3D thispoint(thepoint);
-              if ( useCutOnDistance==false || m_distancefinder->GetDistance()<m_maximumDistanceCut )
+              if ( useCutOnDistance==false || distance<m_maximumDistanceCut )
               {
                 CrossingPoints.push_back( thispoint );
               }
@@ -237,7 +232,7 @@ namespace Trk
       }
       //to be understood...
     }
-    
+
     //Now all points have been collected (N*(N-1)/2) and 
     //the mode has to be calculated
 
@@ -253,16 +248,14 @@ namespace Trk
 
     if (m_useweights)
     {
-      myresult=m_mode3dfinder->getMode(CrossingPointsAndWeights);
-
-      m_correXY = m_correZ = -9.9 ;
-      m_mode3dfinder->getCorrelationDistance( m_correXY, m_correZ ) ;
+      myresult=m_mode3dfinder->getMode(vx, vy, CrossingPointsAndWeights, info);
     }
     else
     {
-      myresult=m_mode3dfinder->getMode(CrossingPoints);
+      myresult=m_mode3dfinder->getMode(vx, vy, CrossingPoints, info);
     }
-    
+
+    info->setTrkidx (std::move (trkidx));
     ATH_MSG_DEBUG(" 3D modes found ! " ); 
 
     return myresult;
@@ -270,67 +263,8 @@ namespace Trk
   }
 
 
-int IndexedCrossDistancesSeedFinder::getModes1d(   std::vector<float>  & phi, 
-                  std::vector<float> & radi, std::vector<float>  & z, std::vector<float> & wght ) const  
-{
-/**
-  std::vector<float> thephi , theradi, thez ;
-  int m = m_mode3dfinder->Modes1d( thephi, theradi, thez ) ;
-
-  phi = thephi ;
-  radi = theradi ;
-  z = thez ;
-  return m ;
-**/
-  return (int)( m_mode3dfinder->Modes1d( phi, radi, z, wght ) ) ;
-}
-
-
-int IndexedCrossDistancesSeedFinder::perigeesAtSeed( 
-         std::vector<const Trk::TrackParameters*> * perigees , 
-   const std::vector<const Trk::TrackParameters*> & perigeeList ) const
-{
-  perigees->clear() ;
-  std::vector<int> trklist(0) ;
-
-  ATH_MSG_DEBUG(" Enter perigeesAtSeed  " );
-
-  std::vector<int> modes = m_mode3dfinder->AcceptedCrossingPointsIndices() ;
- 
-  ATH_MSG_DEBUG(" found " << modes.size() <<" modes accepted for perigeesAtSeed " );
-
-  for ( unsigned int c = 0 ; c < modes.size() ; c++ )
-  {
-//    std::pair<int,int> trk = m_trkidx->at( modes[c] ) ;
-    std::pair<int,int> trk = m_trkidx.at( modes[c] ) ;
-// there was an +1 operation before m_trkidx was filled
-    ATH_MSG_DEBUG(" accepted modes " << modes[c] <<" "<< trk.first <<" "<< trk.second );
-
-    if ( std::find( trklist.begin(), trklist.end(), trk.first ) ==  trklist.end() ) 
-      trklist.push_back( trk.first ) ;
-    if ( std::find( trklist.begin(), trklist.end(), trk.second ) ==  trklist.end() )
-      trklist.push_back( trk.second ) ;
-  }
-
-//  m_trkidx.clear() ;
-//  if ( m_trkidx ) delete m_trkidx ;
-
-  ATH_MSG_DEBUG(" size of trklist with indicies : " << trklist.size() );
-
-  std::sort( trklist.begin(), trklist.end() ) ;
-
-  for ( unsigned int t = 0 ; t < trklist.size() ; t++ )
-  {
-    std::vector<const Trk::TrackParameters*>::const_iterator i= perigeeList.begin() + trklist[t] ;
-
-    perigees->push_back( dynamic_cast<const Trk::TrackParameters*>(*i)  ) ;
-  }
-
-  return perigees->size() ;
-}
- 
 std::vector<Amg::Vector3D> IndexedCrossDistancesSeedFinder::findMultiSeeds(
-    const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) 
+    const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) const
 {
 
  //implemented to satisfy inheritance but this algorithm only supports one seed at a time
@@ -339,7 +273,7 @@ std::vector<Amg::Vector3D> IndexedCrossDistancesSeedFinder::findMultiSeeds(
 }
 
 std::vector<Amg::Vector3D> IndexedCrossDistancesSeedFinder::findMultiSeeds( 
-   const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */)
+   const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) const
 {
   
    //implemented to satisfy inheritance but this algorithm only supports one seed at a time

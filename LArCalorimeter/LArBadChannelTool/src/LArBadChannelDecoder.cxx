@@ -96,8 +96,7 @@ HWIdentifier LArBadChannelDecoder::constructChannelId( const std::vector<int>& i
     return hwid;
   } 
   catch( LArOnlID_Exception& idException) {
-    log << MSG::ERROR << "Failed to produce a HWIdentifier for ";  insertExpandedID( intVec, log);
-    log << endmsg;
+    log << MSG::ERROR << "Failed to produce a HWIdentifier for ";  insertExpandedID( intVec, log) << endmsg;
   }
   return invalid;
 }

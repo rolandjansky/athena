@@ -22,4 +22,9 @@ def AthenaMonitoringCfg(flags):
         from TrigHLTMonitoring.TrigHLTMonitoringConfig import TrigHLTMonitoringConfig
         result.merge(TrigHLTMonitoringConfig(flags))
 
+    if flags.DQ.Steering.doGlobalMon:
+        local_logger.info('Set up Global monitoring')
+        from DataQualityTools.DataQualityToolsConfig import DataQualityToolsConfig
+        result.merge(DataQualityToolsConfig(flags))
+
     return result

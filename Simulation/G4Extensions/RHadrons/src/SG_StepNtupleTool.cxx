@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "SG_StepNtupleTool.h"
 
 namespace G4UA
@@ -20,7 +19,7 @@ namespace G4UA
   SG_StepNtupleTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing an SG_StepNtuple action");
-    auto action = CxxUtils::make_unique<SG_StepNtuple>(m_pdgids);
+    auto action = std::make_unique<SG_StepNtuple>(m_pdgids);
     actionList.runActions.push_back( action.get() );
     actionList.eventActions.push_back( action.get() );
     actionList.steppingActions.push_back( action.get() );

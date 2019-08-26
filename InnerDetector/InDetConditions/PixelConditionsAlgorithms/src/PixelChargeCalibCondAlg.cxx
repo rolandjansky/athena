@@ -87,6 +87,12 @@ StatusCode PixelChargeCalibCondAlg::execute() {
           std::vector<std::string> FEString;
           while (std::getline(checkFE,buffer,' ')) { FEString.push_back(buffer); }
 
+          if (FEString.size()<21) {
+            ATH_MSG_INFO("size of FEString is " << FEString.size() << " and is less than expected, 21.");
+            ATH_MSG_INFO("This is the problem in the contents in conditions DB. This should rather be fixed in DB-side.");
+            continue;
+          }
+
           // Normal pixel
           writeCdo -> setAnalogThreshold((int)channelNumber, std::atoi(FEString[1].c_str()));
           writeCdo -> setAnalogThresholdSigma((int)channelNumber, std::atoi(FEString[2].c_str()));

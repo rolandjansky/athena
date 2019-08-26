@@ -16,23 +16,16 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "StoreGate/ReadHandleKey.h"
 
 #include <vector>
 #include <bitset>
-
-class RpcIdHelper;
-class TgcIdHelper;
-class CscIdHelper;
-class MdtIdHelper;
-// New Small Wheel
-class MmIdHelper;
-class sTgcIdHelper;
 
 class Identifier;
 
@@ -88,20 +81,13 @@ private:
     /**increment the 'type'*/
     void increment(int& type) const;
 
-    // muon IdHelpers
-    const RpcIdHelper* m_rpcId{nullptr};
-    const TgcIdHelper* m_tgcId{nullptr};
-    const CscIdHelper* m_cscId{nullptr};
-    const MdtIdHelper* m_mdtId{nullptr};
-    //New Small Wheel
-    const sTgcIdHelper* m_stgcId{nullptr};
-    const MmIdHelper* m_mmId{nullptr};
-
     /* used to work out layer ids etc*/
     ToolHandle<MuonIdHelperTool> m_idHelperTool{"Muon::MuonIdHelperTool/MuonIdHelperTool"};
 
     /* used to work out if track has momentum */
-    ToolHandle<MuonEDMHelperTool> m_edmHelperTool{"Muon::MuonEDMHelperTool/MuonEDMHelperTool"};
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
 
     /* used to do hits-in-road search for straight tracks */
     ToolHandle<Trk::IExtrapolator> m_slExtrapolator{"Trk::Extrapolator/MuonStraightLineExtrapolator"};

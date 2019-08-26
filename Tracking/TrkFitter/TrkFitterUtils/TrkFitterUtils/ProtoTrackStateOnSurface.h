@@ -20,7 +20,7 @@
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkFitterUtils/TrackCalibDefs.h"
 #include <vector>
-
+#include "CxxUtils/CachedUniquePtr.h"
 namespace Trk {
 
   class MeasurementBase;
@@ -200,7 +200,7 @@ namespace Trk {
                             TrackState::CalibrationType);
 
     //! create an EDM TrackStateOnSurface object from the internal information
-    const Trk::TrackStateOnSurface* createState(bool makeSlimOutlier=true);
+    const Trk::TrackStateOnSurface* createState ATLAS_NOT_THREAD_SAFE (bool makeSlimOutlier=true);
     
     //! get surface (either from measurement or from material effects)
     const Trk::Surface *surface() const;
@@ -233,7 +233,7 @@ namespace Trk {
     bool                       m_iOwnParametersDifference; //!< flag to steer ownership on difference
     const AmgSymMatrix(5)*     m_parametersCovariance; //!< covariance matrix of fitted parameters
     bool                       m_iOwnParametersCovariance; //!< flag for ownership of covarinace matrix of fitted parameters
-    mutable Amg::VectorX*      m_measurementDifferenceVector; //!< cached difference between reference TrkParameters and measurement
+    CxxUtils::CachedUniquePtrT<Amg::VectorX>   m_measurementDifferenceVector; //!< cached difference between reference TrkParameters and measurement
   };
 
   /// general swap function for ProtoTrackStateOnSurface (to speed up sort, etc)

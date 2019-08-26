@@ -49,7 +49,7 @@ class GenerateMenuMT(object):
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau', 
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias', 
                               'Monitor', 'Calib', 'Streaming', 'Combined'] #, AFP
-        self.calibCosmicMonSigs = ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
+        self.calibCosmicMonSigs = ['Streaming'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
         self.doEgammaChains         = True 
@@ -167,7 +167,6 @@ class GenerateMenuMT(object):
 
             log.debug("Finished with retrieving chain configuration for chain %s", chain) 
             self.triggerConfigHLT.allChainConfigs.append(chainConfig)
-
         return self.triggerConfigHLT.allChainConfigs
 
 
@@ -331,12 +330,15 @@ class GenerateMenuMT(object):
         log.debug("finalListOfChainConfig %s", finalListOfChainConfigs)
         for cc in finalListOfChainConfigs:
             log.debug('ChainName %s', cc.name)
-            log.debug('  L1Seed %s', cc.seed)
             log.debug('  ChainSteps %s', cc.steps)
             for step in cc.steps:
-                log.info(step)
+                log.debug(step)
 
         makeHLTTree(HLTChains=finalListOfChainConfigs, newJO=False, triggerConfigHLT = self.triggerConfigHLT)
         # the return values used for debugging, might be removed later
+
+        from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+        generateJSON( None )
+
         return finalListOfChainConfigs
             

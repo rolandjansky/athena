@@ -95,10 +95,6 @@ namespace MuonGM {
         std::vector<double> NSWMM_hitGlobalDirectionY;
         std::vector<double> NSWMM_hitGlobalDirectionZ;
 
-        std::vector<double> NSWMM_hitLocalPositionX;
-        std::vector<double> NSWMM_hitLocalPositionY;
-        std::vector<double> NSWMM_hitLocalPositionZ;
-
         std::vector<double> NSWMM_detector_globalPositionX;
         std::vector<double> NSWMM_detector_globalPositionY;
         std::vector<double> NSWMM_detector_globalPositionZ;
@@ -117,7 +113,6 @@ namespace MuonGM {
         std::vector<int> NSWMM_particleEncoding;
         std::vector<double> NSWMM_kineticEnergy;
         std::vector<double> NSWMM_depositEnergy;
-        std::vector<double> NSWMM_StepLength;
 
         std::vector<std::string> NSWMM_sim_stationName;
         std::vector<int> NSWMM_sim_stationEta;

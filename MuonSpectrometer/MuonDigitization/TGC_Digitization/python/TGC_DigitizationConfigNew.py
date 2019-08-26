@@ -3,23 +3,22 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from StoreGate.StoreGateConf import StoreGateSvc
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from TGC_Digitization.TGC_DigitizationConf import TgcDigitizationTool, TGCDigitizer
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
+from MuonByteStreamCnvTest.MuonByteStreamCnvTestConfigNew import TgcDigitToTgcRDOCfg, TgcOverlayDigitToTgcRDOCfg
+from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
 
 # The earliest and last bunch crossing times for which interactions will be sent
 # to the TgcDigitizationTool.
 def TGC_FirstXing():
     return -50
 
+
 def TGC_LastXing():
     return 75
 
-def TGC_ItemList():
-    """Return list of item names needed for TGC output"""
-    return ["MuonSimDataCollection#*", "TgcRdoContainer#*"]
 
 def TGC_RangeToolCfg(flags, name="TGC_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for TGC"""
@@ -29,8 +28,9 @@ def TGC_RangeToolCfg(flags, name="TGC_Range", **kwargs):
     kwargs.setdefault("ItemList", ["TGCSimHitCollection#TGC_Hits"])
     return PileUpXingFolder(name, **kwargs)
 
+
 def TGC_DigitizationToolCfg(flags, name="TGC_DigitizationTool", **kwargs):
-    """Return a ComponentAccumulator with configured TgcDigitizationTool"""
+    """Return ComponentAccumulator with configured TgcDigitizationTool"""
     acc = ComponentAccumulator()
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", TGC_FirstXing()) 
@@ -43,17 +43,9 @@ def TGC_DigitizationToolCfg(flags, name="TGC_DigitizationTool", **kwargs):
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
 
-def TGC_DigitizerCfg(flags, name="TGC_Digitizer", **kwargs):
-    """Return a ComponentAccumulator with configured TGCDigitizer algorithm"""
-    acc = MuonGeoModelCfg(flags)
-    tool = acc.popToolsAndMerge(TGC_DigitizationToolCfg(flags))
-    kwargs.setdefault("DigitizationTool", tool)
-    acc.addEventAlgo(TGCDigitizer(name,**kwargs))
-    acc.merge(OutputStreamCfg(flags, "RDO", TGC_ItemList()))
-    return acc
 
 def TGC_OverlayDigitizationToolCfg(flags, name="TGC_OverlayDigitizationTool", **kwargs):
-    """Return a ComponentAccumulator with TgcDigitizationTool configured for Overlay"""
+    """Return ComponentAccumulator with TgcDigitizationTool configured for Overlay"""
     acc = ComponentAccumulator()
     kwargs.setdefault("OnlyUseContainerName", False)
     kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + flags.Overlay.SigPrefix + "TGC_DIGITS")
@@ -62,11 +54,45 @@ def TGC_OverlayDigitizationToolCfg(flags, name="TGC_OverlayDigitizationTool", **
     acc.setPrivateTools(TgcDigitizationTool(name, **kwargs))
     return acc
 
-def TGC_OverlayDigitizerCfg(flags, name="TGC_OverlayDigitizer", **kwargs):
-    """Return a ComponentAccumulator with TGCDigitizer algorithm configured for Overlay"""
+
+def TGC_DigitizerBasicCfg(toolCfg, flags, name, **kwargs):
+    """Return ComponentAccumulator with toolCfg configured TGCDigitizer algorithm"""
     acc = MuonGeoModelCfg(flags)
-    tool = acc.popToolsAndMerge(TGC_OverlayDigitizationToolCfg(flags))
+    tool = acc.popToolsAndMerge(toolCfg(flags))
     kwargs.setdefault("DigitizationTool", tool)
-    acc.addEventAlgo(TGCDigitizer(name, **kwargs))
+    acc.addEventAlgo(TGCDigitizer(name,**kwargs))
+    return acc
+
+
+def TGC_DigitizerOutputCfg(toolCfg, flags, name, **kwargs):
+    """Return ComponentAccumulator with toolCfg configured TGC Digitizer algorithm and OutputStream"""
+    acc = TGC_DigitizerBasicCfg(toolCfg, flags, name, **kwargs)
+    acc.merge(OutputStreamCfg(flags, "RDO", ["MuonSimDataCollection#*", "TgcRdoContainer#*"]))
+    return acc
+
+
+def TGC_DigitizerCfg(flags, name="TGC_Digitizer", **kwargs):
+    """Return ComponentAccumulator with configured TGC_Digitizer algorithm and Output"""
+    return TGC_DigitizerOutputCfg(TGC_DigitizationToolCfg, flags, name, **kwargs)
+
+
+def TGC_DigitizerOverlayCfg(flags, name="TGC_OverlayDigitizer", **kwargs):
+    """Return ComponentAccumulator with Overlay configured TGC_Digitizer algorithm and Output"""
+    return TGC_DigitizerOutputCfg(TGC_OverlayDigitizationToolCfg, flags, name, **kwargs)
+
+
+def TGC_DigitizerDigitToRDOCfg(flags):
+    """Return ComponentAccumulator with TGC Digitization and Digit to TGCRDO"""
+    acc = TGC_DigitizerCfg(flags)
+    acc.merge(TGCCablingConfigCfg(flags))
+    acc.merge(TgcDigitToTgcRDOCfg(flags))
+    return acc
+
+
+def TGC_DigitizerOverlayDigitToRDOCfg(flags):
+    """Return ComponentAccumulator with TGC Digitization and Digit to TGCRDO for Overlay"""
+    acc = TGC_DigitizerOverlayCfg(flags)
+    acc.merge(TGCCablingConfigCfg(flags))
+    acc.merge(TgcOverlayDigitToTgcRDOCfg(flags))
     return acc
 

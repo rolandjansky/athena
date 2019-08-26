@@ -81,8 +81,8 @@ public:
   // Initialization.
   StatusCode initialize();
 
-  // Inherited methods to modify a jet
-  virtual int modify(xAOD::JetContainer& jetCont) const;
+  // Inherited method to modify a jet container
+  virtual StatusCode modify(xAOD::JetContainer& jetCont) const;
 
   // Finalization.
   StatusCode finalize();

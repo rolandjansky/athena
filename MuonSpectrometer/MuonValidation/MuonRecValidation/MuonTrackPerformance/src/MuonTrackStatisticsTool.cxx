@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -38,7 +38,6 @@
 MuonTrackStatisticsTool::MuonTrackStatisticsTool(const std::string& t, const std::string& n, const IInterface* p)
 : 
 AthAlgTool(t,n,p),
-m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelpertTool"),
 m_doTruth     (false)
 
 {
@@ -50,7 +49,7 @@ m_doTruth     (false)
 
 StatusCode MuonTrackStatisticsTool::initialize()
 {
-	ATH_CHECK( m_helperTool.retrieve() );
+	ATH_CHECK( m_edmHelperSvc.retrieve() );
 	return StatusCode::SUCCESS;
 }
 
@@ -419,7 +418,7 @@ MuonTrackStatisticsTool::storeTruthTracks(void)
 	 const Trk::TrackParameters* genPerigee = m_truthToTrack->makePerigeeParameters(*particle);
 	 if( !genPerigee ) continue;
 	 
-	 const Trk::TrackParameters* genEntry = m_helperTool->extrapolateToMuonEntryRecord(*genPerigee,Trk::muon);
+	 const Trk::TrackParameters* genEntry = m_edmHelperSvc->extrapolateToMuonEntryRecord(*genPerigee,Trk::muon);
 	 if( !genEntry ){
 	 delete genPerigee;
 	 continue;

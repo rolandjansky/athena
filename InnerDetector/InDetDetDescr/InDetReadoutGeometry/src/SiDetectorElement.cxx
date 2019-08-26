@@ -370,8 +370,10 @@ SiDetectorElement::transformHit() const
 const Amg::Transform3D &
 SiDetectorElement::transform() const
 {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
+  if (!m_cacheValid){                                                                                               
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+    if (!m_cacheValid) updateCache();                                                                               
+  }  
   return m_transform;
 }
 
@@ -379,8 +381,10 @@ const HepGeom::Transform3D &
 SiDetectorElement::transformCLHEP() const
 {
   //stuff to get the CLHEP version of the local to global transform.
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
+   if (!m_cacheValid){                                                                                               
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+    if (!m_cacheValid) updateCache();                                                                               
+  }   
   return m_transformCLHEP;
 }
 
@@ -495,48 +499,60 @@ SiDetectorElement::isModuleFrame() const
 const Amg::Vector3D & 
 SiDetectorElement::center() const
 {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
+  if (!m_cacheValid){                                                                                               
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+    if (!m_cacheValid) updateCache();                                                                               
+  }  
   return m_center;
 }
 
 const Amg::Vector3D & 
 SiDetectorElement::normal() const
 {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
+  if (!m_cacheValid){                                                                                               
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+    if (!m_cacheValid) updateCache();                                                                               
+  }  
   return m_normal;
 }
 
 const HepGeom::Vector3D<double> & 
 SiDetectorElement::etaAxisCLHEP() const
 {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
+  if (!m_cacheValid){                                                                                               
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+    if (!m_cacheValid) updateCache();                                                                               
+  }  
   return m_etaAxisCLHEP;
 }
 
 const HepGeom::Vector3D<double> & 
 SiDetectorElement::phiAxisCLHEP() const
 {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
+  if (!m_cacheValid){                                                                                               
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+    if (!m_cacheValid) updateCache();                                                                               
+  }  
   return m_phiAxisCLHEP;
 }
 
 const Amg::Vector3D & 
 SiDetectorElement::etaAxis() const
 {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
+  if (!m_cacheValid){                                                                                               
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+    if (!m_cacheValid) updateCache();                                                                               
+  }  
   return m_etaAxis;
 }
 
 const Amg::Vector3D & 
 SiDetectorElement::phiAxis() const
 {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
+  if (!m_cacheValid){                                                                                               
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);                                                            
+    if (!m_cacheValid) updateCache();                                                                               
+  } 
   return m_phiAxis;
 }
 

@@ -34,7 +34,6 @@
 /** Constructor **/
 Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::string& n, const IInterface* p) : 
   AthAlgTool(t,n,p),
-  m_incidentSvc("IncidentSvc", n),
   m_trackFitter(""),
   m_extrapolator(""),
   m_rotcreator(""),
@@ -92,11 +91,6 @@ StatusCode  Trk::TruthTrackBuilder::initialize()
         return StatusCode::FAILURE;
     }
         
-    // Athena/Gaudi framework
-    if (m_incidentSvc.retrieve().isFailure()){
-        ATH_MSG_ERROR("Could not retrieve " << m_incidentSvc << ". Aborting ...");
-        return StatusCode::FAILURE;
-    }
     // particle property service
     if (m_particlePropSvc.retrieve().isFailure())
     {
@@ -117,17 +111,7 @@ StatusCode  Trk::TruthTrackBuilder::initialize()
       ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
       return StatusCode::FAILURE;
     }
-
-    // register to the incident service: EndEvent for eventual cache cleaning d
-    m_incidentSvc->addListener( this, IncidentType::EndEvent);
     return StatusCode::SUCCESS;
-}
-
-void Trk::TruthTrackBuilder::handle(const Incident& inc) {
-  // clear cache if needed
-  if (inc.type() == IncidentType::EndEvent ){
-      // 
-   }
 }
 
                                     

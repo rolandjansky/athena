@@ -52,12 +52,21 @@ namespace Trk {
   class Volume;
   class ITrkMaterialProviderTool;
 
+
   class GlobalChi2Fitter: virtual public IGlobalTrackFitter, public AthAlgTool {
     struct Cache {
       /*
        * Currently the information about what type of fit is being passed by the
        * presence of a TrackingVolume.
        */
+      template <class T>
+      static
+      void objVectorDeleter(const std::vector<const T *> *ptr) {
+        if (ptr) {
+          for (const T *elm : *ptr) { delete elm; }
+          delete ptr;
+        }
+      }
 
       const TrackingVolume *m_caloEntrance = nullptr;
       const TrackingVolume *m_msEntrance = nullptr;
@@ -91,6 +100,10 @@ namespace Trk {
       
       Amg::MatrixX m_derivmat;
       Amg::SymMatrixX m_fullcovmat;
+
+      std::vector< std::unique_ptr< const std::vector < const TrackStateOnSurface *>,
+                                    void (*)(const std::vector<const TrackStateOnSurface *> *) > >
+        m_matTempStore;
 
       FitterStatusCode m_fittercode;
 

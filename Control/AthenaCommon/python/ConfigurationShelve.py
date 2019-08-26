@@ -429,8 +429,12 @@ def cmpConfigs (ref, chk, refName=None, chkName=None):
       jobofile = NamedTemporaryFile(suffix='.py')
       map (jobofile.writelines, [l+os.linesep for l in job])
       jobofile.flush()
-      from commands import getstatusoutput
+
+      from future import standard_library
+      standard_library.install_aliases()
+      from subprocess import getstatusoutput
       sc,out = getstatusoutput ('athena.py %s' % jobofile.name)
+
       jobofile.close()
       if sc==0:
          return fname

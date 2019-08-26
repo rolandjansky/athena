@@ -1,11 +1,11 @@
 #
-#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaCommon.Constants import VERBOSE, DEBUG, INFO
+from AthenaCommon.Constants import DEBUG
 
 ## Small class to hold the names for cache containers, should help to avoid copy / paste errors
-class MuonCacheNames:
+class MuonCacheNames(object):
     MdtCsmCache = "MdtCsmRdoCache"
     CscCache    = "CscRdoCache"
     RpcCache    = "RpcRdoCache"
@@ -178,8 +178,8 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     acc.addService( robDPSvc )
 
     # Setup the RAW data provider tool
-    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderTool
-    MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderTool(name    = "CSC_RawDataProviderTool",
+    from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderToolMT
+    MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name    = "CSC_RawDataProviderToolMT",
                                                                Decoder = CSCRodDecoder)
     if forTrigger:
         MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache

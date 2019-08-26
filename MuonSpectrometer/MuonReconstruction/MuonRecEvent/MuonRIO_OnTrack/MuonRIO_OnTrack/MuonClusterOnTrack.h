@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -18,6 +18,7 @@
 #define MUONRIOONTRACK_MUONCLUSTERONTRACK_H
 
 // Base classes
+#include "CxxUtils/CachedUniquePtr.h"
 #include "MuonPrepRawData/MuonCluster.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -88,7 +89,7 @@ namespace Muon {
 
   protected:
     /** cache global position, the global position has to be calculated in the inheriting classes */
-    mutable const Amg::Vector3D*              m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
     
     /** The position along the strip - used to calculate the GlobalPosition*/
     double                                          m_positionAlongStrip;

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "egammaTrkRefitterTool.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODTracking/TrackParticle.h"
@@ -10,22 +9,13 @@
 #include "AthContainers/DataVector.h"
 
 #include "TrkTrack/TrackStateOnSurface.h"
-
 #include "TrkVertexOnTrack/VertexOnTrack.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/LocalParameters.h"
-#include "TrkMaterialOnTrack/MaterialEffectsBase.h"
-
-#include "VxVertex/RecVertex.h"
-#include "VxVertex/VxTrackAtVertex.h"
-
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkSurfaces/PerigeeSurface.h"
-#include "TrkParticleBase/LinkToTrackParticleBase.h"
-#include "TrkExInterfaces/IExtrapolator.h"
-
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -44,11 +34,12 @@
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ListItem.h"
 
-egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, const std::string& name, const IInterface* parent)
+egammaTrkRefitterTool::egammaTrkRefitterTool(const std::string& type, 
+                                             const std::string& name, 
+                                             const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
   m_ParticleHypothesis(Trk::electron), 
-  m_beamCondSvc("BeamCondSvc",name),
   m_idHelper(0) 
 {
   declareInterface< IegammaTrkRefitterTool >(this) ;
@@ -64,53 +55,21 @@ StatusCode egammaTrkRefitterTool::initialize()
   ATH_MSG_DEBUG("Initializing egammaTrackRefitter");
  
   // Retrieve fitter
-  if (m_ITrackFitter.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_ITrackFitter);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_ITrackFitter);
-  }
-
-  //linearized track factory
-  if (m_linFactory.retrieve().isFailure()){
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_linFactory );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO( "Retrieved VertexLinearizedTrackFactory tool " << m_linFactory );
-  }
+  ATH_CHECK(m_ITrackFitter.retrieve());
 
   // configure Atlas extrapolator
-  if (m_extrapolator.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Retrieved " << m_extrapolator);
+  ATH_CHECK(m_extrapolator.retrieve()); 
+  
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID")); 
+
+  ATH_CHECK(m_beamSpotKey.initialize(m_useBeamSpot));
 
   // configure calo cluster on track builder (only if used)
   if (m_useClusterPosition) {
-    if (m_CCOTBuilder.retrieve().isFailure()) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_CCOTBuilder );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Retrieved " << m_CCOTBuilder);
+    ATH_CHECK(m_CCOTBuilder.retrieve());
   } else {
     m_CCOTBuilder.disable();
   }
-
-  // configure beam-spot conditions service
-  if (m_beamCondSvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL( "Failed to retrieve beamspot service "<<m_beamCondSvc );
-      return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Retrieved " << m_beamCondSvc);
-
-
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_FATAL( "Could not get AtlasDetectorID helper" );
-    return StatusCode::FAILURE;
-  } 
-  ATH_MSG_INFO("Retrieved ID helpers");
-
 
   // Set the particle hypothesis to match the material effects
   Trk::ParticleSwitcher particleSwitch;
@@ -125,33 +84,29 @@ StatusCode egammaTrkRefitterTool::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode  egammaTrkRefitterTool::refitElectronTrack(const xAOD::Electron* eg,Cache& cache)  const
+StatusCode  egammaTrkRefitterTool::refitElectronTrack(const EventContext& ctx,
+                                                      const xAOD::Electron* eg,
+                                                      Cache& cache)  const
 {
-  ATH_MSG_DEBUG("Refitting a track associated  with a egamma object");
-
+  ATH_MSG_DEBUG("Refitting a track associated  with an electron");
   // protection against bad pointers
   if (eg==0) return StatusCode::SUCCESS;
-
   // Set the pointer to the egamma object. 
   cache.electron = eg;
-
   const xAOD::TrackParticle *trackParticle = eg->trackParticle();
- 
-  StatusCode sc = refitTrackParticle( trackParticle,cache);
-  
-  return sc;
+  return refitTrackParticle(ctx,trackParticle,cache);
 }
 
-StatusCode egammaTrkRefitterTool::refitTrackParticle(const xAOD::TrackParticle* trackParticle, Cache& cache) const
+StatusCode egammaTrkRefitterTool::refitTrackParticle(const EventContext& ctx,
+                                                     const xAOD::TrackParticle* trackParticle, 
+                                                     Cache& cache) const
 {
   ATH_MSG_DEBUG("Refitting a track associated  with a TrackParticle");
-
   // protection against bad pointers
   if ( !trackParticle ) {
     ATH_MSG_DEBUG("No TrackParticle");
     return StatusCode::FAILURE;
   }
-
   int nSiliconHits_trk(0);
   uint8_t dummy(0);
   if(trackParticle->summaryValue(dummy,xAOD::numberOfSCTHits)){
@@ -166,26 +121,20 @@ StatusCode egammaTrkRefitterTool::refitTrackParticle(const xAOD::TrackParticle* 
     return StatusCode::FAILURE;
   }
   
-  if ( trackParticle->trackLink().isValid() ) {      
+  if ( trackParticle->trackLink().isValid()) {      
     // retrieve and refit original track
-    StatusCode sc  = refitTrack( trackParticle->track() , cache);
-    
-    if (sc == StatusCode::FAILURE) return StatusCode::FAILURE;
-    
+    return refitTrack( ctx,trackParticle->track() , cache);
   } else {
     ATH_MSG_WARNING("Could not get TrackElementLink of the TrackParticle");
     return StatusCode::FAILURE;
-  }
-  
+  }  
   return StatusCode::SUCCESS;
 }
 
-StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& cache)  const
-{
-  //
-  // Refit the track associated with an egamma object
-  //
-  
+StatusCode  egammaTrkRefitterTool::refitTrack(const EventContext& ctx,
+                                              const Trk::Track* track, 
+                                              Cache& cache)  const
+{ 
   cache.refittedTrack=nullptr;
   cache.refittedTrackPerigee=nullptr;
   cache.originalTrack=nullptr;
@@ -212,45 +161,44 @@ StatusCode  egammaTrkRefitterTool::refitTrack(const Trk::Track* track, Cache& ca
   }
   
   // Refit the track with the beam spot if desired otherwise just refit the original track
-  if (m_useBeamSpot || m_useClusterPosition){
-  
-    egammaTrkRefitterTool::MeasurementsAndTrash  collect= addPointsToTrack(cache.originalTrack,cache.electron);
-  
-    if(collect.m_measurements.size()>4)
-      cache.refittedTrack.reset(
-                                 m_ITrackFitter->fit(collect.m_measurements,*cache.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
+  if (m_useBeamSpot || m_useClusterPosition){ 
+    egammaTrkRefitterTool::MeasurementsAndTrash collect= addPointsToTrack(ctx,
+                                                                          cache.originalTrack,
+                                                                          cache.electron);
+    if(collect.m_measurements.size()>4){
+      cache.refittedTrack.reset(m_ITrackFitter->fit(collect.m_measurements,
+                                                    *cache.originalTrack->perigeeParameters(),
+                                                    m_runOutlier,
+                                                    m_ParticleHypothesis)
                                 );
-    else {
-      ATH_MSG_WARNING("Could **NOT** add BeamSpot information into Vector refitting without BS");
+    }else {
+      ATH_MSG_WARNING("Could **NOT** add BeamSpot information into Vector, refitting without BS");
       cache.refittedTrack.reset(
-                                 m_ITrackFitter->fit(*cache.originalTrack,m_runOutlier,m_ParticleHypothesis)
+                                 m_ITrackFitter->fit(*cache.
+                                                     originalTrack,
+                                                     m_runOutlier,
+                                                     m_ParticleHypothesis)
                                 );
     }
   } else {
     std::vector<const Trk::MeasurementBase*>  measurements = getIDHits(cache.originalTrack);  
     if(measurements.size()>4){
-      ATH_MSG_DEBUG("Could not remove TRT hits !!!");
       cache.refittedTrack.reset(
-                                 m_ITrackFitter->fit(measurements,*cache.originalTrack->perigeeParameters(),m_runOutlier,m_ParticleHypothesis)
+                                 m_ITrackFitter->fit(measurements,
+                                                     *cache.originalTrack->perigeeParameters(),
+                                                     m_runOutlier,
+                                                     m_ParticleHypothesis)
                                 );
     } else {
-      ATH_MSG_DEBUG("Not enough measurements on track remove TRT hits?");
+      ATH_MSG_DEBUG("Not enough measurements on tracks");
       cache.refittedTrack=nullptr; 
     }
   }
 
   // Store refitted perigee pointers
   if (cache.refittedTrack) {
-    cache.refittedTrackPerigee=cache.refittedTrack->perigeeParameters();
-    
-    if (cache.refittedTrackPerigee!=nullptr){
-        double d0 = cache.refittedTrackPerigee->parameters()[Trk::d0];
-        double z0 = cache.refittedTrackPerigee->parameters()[Trk::z0];
-        double phi0 = cache.refittedTrackPerigee->parameters()[Trk::phi0];
-        double theta = cache.refittedTrackPerigee->parameters()[Trk::theta];
-        double qOverP = cache.refittedTrackPerigee->parameters()[Trk::qOverP];
-        ATH_MSG_DEBUG("Refitted parameters " << d0  << " " << z0  << " " << phi0 << " " << theta << " " << qOverP << "  " << 1/qOverP);
-    } else {
+    cache.refittedTrackPerigee=cache.refittedTrack->perigeeParameters();   
+    if (cache.refittedTrackPerigee==nullptr){
       ATH_MSG_WARNING("Could not get refitted Trk::Perigee");     
       return StatusCode::FAILURE;
     }
@@ -278,12 +226,14 @@ const Trk::TrackParameters* egammaTrkRefitterTool::lastTrackParameters(const Trk
   }
   
   const Trk::TrackParameters* lastValidTrkParameters(0);  
-  for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); rItTSoS != oldTrackStates->rend(); ++rItTSoS)
+  for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = oldTrackStates->rbegin(); 
+        rItTSoS != oldTrackStates->rend(); ++rItTSoS)
   { 
     if (lastValidTrkParameters!=0){
       break;
     }
-    if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0)
+    if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && 
+         (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0)
     {
       lastValidTrkParameters = (*rItTSoS)->trackParameters()->clone();
     }
@@ -304,7 +254,8 @@ double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) const {
   
   double material(0);
   //Note I am not sure if this is the correct way of accessing the information
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurface = track->trackStateOnSurfaces()->begin();    
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator 
+    trackStateOnSurface = track->trackStateOnSurfaces()->begin();    
   for (;trackStateOnSurface < track->trackStateOnSurfaces()->end(); ++ trackStateOnSurface){
     // This could be a problebm 
     const Trk:: MaterialEffectsBase* materialEffects = (*trackStateOnSurface)->materialEffectsOnTrack();
@@ -320,17 +271,17 @@ double egammaTrkRefitterTool::getMaterialTraversed(Trk::Track* track) const {
 
 
 
-egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTrack(const Trk::Track* track, const xAOD::Electron* eg) const {
-  ATH_MSG_DEBUG("Adding a Point to the Track");  
-
-
+egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTrack(const EventContext& ctx,
+                                                                                    const Trk::Track* track, 
+                                                                                    const xAOD::Electron* eg) const {
+  ATH_MSG_DEBUG("Adding Points to the Track");  
   egammaTrkRefitterTool::MeasurementsAndTrash collect {};
    /* The issue here is that some of the returned measurements are owned by storegate
     * some not. For the ones that are not put them in a vector of unique_ptr which
     * we will also return to the caller*/
 
   if (track && track->trackParameters() && track->trackParameters()->size() > 0) {
-    std::unique_ptr<const Trk::VertexOnTrack> vot (provideVotFromBeamspot( track ));
+    std::unique_ptr<const Trk::VertexOnTrack> vot (provideVotFromBeamspot(ctx,track));
     // fill the beamSpot if you have it
     if (vot.get()!=nullptr){
       collect.m_trash.push_back(std::move(vot));
@@ -359,19 +310,27 @@ egammaTrkRefitterTool::MeasurementsAndTrash egammaTrkRefitterTool::addPointsToTr
   return collect; 
 }
 
-const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Trk::Track* track) const{
+const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const EventContext& ctx, 
+                                                                        const Trk::Track* track) const{
   
-  const Trk::VertexOnTrack * vot = 0;
+  const Trk::VertexOnTrack* vot = nullptr;
   
-  Amg::Vector3D bpos = m_beamCondSvc->beamPos();
-  ATH_MSG_DEBUG("beam spot: "<<bpos);
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotData{m_beamSpotKey, ctx};
+  /*
+   * Perhaps usefull in serial Athena
+   */
+  if(!(beamSpotData.isValid())){
+      return nullptr;
+  }
+  
+  Amg::Vector3D bpos =beamSpotData->beamPos();
   float beamSpotX = bpos.x();
   float beamSpotY = bpos.y();
   float beamSpotZ = bpos.z();
-  float beamTiltX = m_beamCondSvc->beamTilt(0);
-  float beamTiltY = m_beamCondSvc->beamTilt(1);
-  float beamSigmaX = m_beamCondSvc->beamSigma(0);
-  float beamSigmaY = m_beamCondSvc->beamSigma(1);
+  float beamTiltX = beamSpotData->beamTilt(0);
+  float beamTiltY = beamSpotData->beamTilt(1);
+  float beamSigmaX = beamSpotData->beamSigma(0);
+  float beamSigmaY = beamSpotData->beamSigma(1);
 
   ATH_MSG_DEBUG("running refit with beam-spot");
 
@@ -387,9 +346,7 @@ const Trk::VertexOnTrack* egammaTrkRefitterTool::provideVotFromBeamspot(const Tr
   AmgSymMatrix(2)  beamSpotCov;
   beamSpotCov.setZero();
   beamSpotCov(0,0) = beamSigmaX * beamSigmaX;
-  beamSpotCov(1,1) = beamSigmaY * beamSigmaY;
-
-  
+  beamSpotCov(1,1) = beamSigmaY * beamSigmaY; 
   Amg::Vector3D globPos(BSC);
   surface = new Trk::PerigeeSurface(globPos);
   
@@ -431,9 +388,10 @@ std::vector<const Trk::MeasurementBase*> egammaTrkRefitterTool::getIDHits(const 
 { 
   std::vector<const Trk::MeasurementBase*> measurementSet;
   //store all silicon measurements into the measurementset
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator trackStateOnSurface = track->trackStateOnSurfaces()->begin();
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator 
+    trackStateOnSurface = track->trackStateOnSurfaces()->begin();
+  
   for ( ; trackStateOnSurface != track->trackStateOnSurfaces()->end(); ++trackStateOnSurface ) {
-
     if ( !(*trackStateOnSurface) ){
       ATH_MSG_WARNING( "This track contains an empty MeasurementBase object that won't be included in the fit" );
       continue;

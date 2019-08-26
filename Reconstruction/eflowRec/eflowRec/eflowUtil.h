@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -20,7 +20,7 @@
 */
 class eflowAzimuth {
 public:
- eflowAzimuth(double phi): m_value(phi) { if (phi != -999.) adjustRange(); }
+eflowAzimuth(double phi): m_value(phi) { if (phi != -999. && !isnan(phi)) adjustRange(); }
   eflowAzimuth(const eflowAzimuth& other): m_value(other.m_value) { }
   eflowAzimuth& operator=(const eflowAzimuth& other) { if (this == &other) return *this; else { m_value = other.m_value; return *this; } }
   ~eflowAzimuth() { }

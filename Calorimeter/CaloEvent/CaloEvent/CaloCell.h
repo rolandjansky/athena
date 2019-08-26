@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOCELL_H
@@ -42,7 +42,6 @@ obtained with caloDDE() method.
 #include "Identifier/Identifier.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "FourMom/P4EEtaPhiMBase.h"
-#include "CxxUtils/final.h"
 #include <math.h>
 #include <iostream>
 #include <functional>
@@ -108,32 +107,32 @@ public:
                CaloGain::CaloGain gain);
 
   /** @brief get energy (data member) */
-  virtual double energy () const ATH_FINAL;
+  virtual double energy () const final;
   /** @brief get phi (through CaloDetDescrElement) */
-  virtual double phi    () const ATH_FINAL;
+  virtual double phi    () const final;
   /** @brief get eta (through CaloDetDescrElement) */
-  virtual double eta    () const ATH_FINAL;
+  virtual double eta    () const final;
   /** @brief get sin(theta) (through CaloDetDescrElement) */
-  virtual double sinTh  () const ATH_FINAL;
+  virtual double sinTh  () const final;
   /** @brief get cos(theta) (derived from sinTh) */
-  virtual double cosTh  () const ATH_FINAL;
+  virtual double cosTh  () const final;
   /** @brief get sin(phi)  */
-  virtual double sinPhi  () const ATH_FINAL;
+  virtual double sinPhi  () const final;
   /** @brief get cos(phi)  */
-  virtual double cosPhi  () const ATH_FINAL;
+  virtual double cosPhi  () const final;
   /** @brief get cottan(theta)  */
-  virtual double cotTh  () const ATH_FINAL;
+  virtual double cotTh  () const final;
   /** @brief get mass (hardcoded to be null) */
-  virtual double m      () const ATH_FINAL;
+  virtual double m      () const final;
   /** @brief get energy (data member) (synonym to method e() */
-  virtual double e      () const ATH_FINAL;
+  virtual double e      () const final;
 
   /** @brief get x (through CaloDetDescrElement) */
-  virtual float x      () const ATH_FINAL;
+  virtual float x      () const final;
   /** @brief get y (through CaloDetDescrElement) */
-  virtual float y      () const ATH_FINAL;
+  virtual float y      () const final;
   /** @brief get z (through CaloDetDescrElement) */
-  virtual float z      () const ATH_FINAL;
+  virtual float z      () const final;
 
   /** @brief get ID (from cached data member) 
    *  non-virtual and inline for fast access */
@@ -141,13 +140,13 @@ public:
 
   // TODO: These can probably be made non-virtual.
   /** @brief get time (data member) */
-  virtual float        time   () const ATH_FINAL;
+  virtual float        time   () const final;
   /** @brief get quality (data member) */
-  virtual uint16_t     quality() const  ATH_FINAL;
+  virtual uint16_t     quality() const  final;
   /** @brief get provenance (data member) */
-  virtual uint16_t     provenance() const  ATH_FINAL;
+  virtual uint16_t     provenance() const  final;
   /** @brief get gain (data member ) */
-  virtual CaloGain::CaloGain  gain()    const  ATH_FINAL;
+  virtual CaloGain::CaloGain  gain()    const  final;
 
   /** @brief check is cell is dead */
   virtual bool badcell() const;

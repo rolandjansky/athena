@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,12 +18,13 @@
 #include "TestTools/initGaudi.h"
 #include "SGTools/TestStore.h"
 #include "AthenaKernel/IThinningSvc.h"
-#include "CxxUtils/make_unique.h"
+
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
+
 #include <cassert>
 #include <iostream>
-
+#include <memory>
 
 class TestThinningSvc
   : public SGTest::TestStore, virtual public IThinningSvc
@@ -148,10 +149,10 @@ void test2 (const InDet::PixelClusterContainer& cont)
 
 const InDet::PixelClusterContainer& makeclusts (StoreGateSvc* sg)
 {
-  auto cont = CxxUtils::make_unique<InDet::PixelClusterContainer>(5);
+  auto cont = std::make_unique<InDet::PixelClusterContainer>(5);
 
   for (int hash=2; hash <= 3; hash++) {
-    auto coll = CxxUtils::make_unique<InDet::PixelClusterCollection>(IdentifierHash(hash));
+    auto coll = std::make_unique<InDet::PixelClusterCollection>(IdentifierHash(hash));
 
     for (int i=0; i < 10; i++) {
       int offs = i*10 + hash*100;
@@ -172,7 +173,7 @@ const InDet::PixelClusterContainer& makeclusts (StoreGateSvc* sg)
         for (int j=0; j < 2; j++)
           cov(i,j) = 100*(i+1)*(j+1) + offs;
 
-      auto cl = CxxUtils::make_unique<InDet::PixelCluster>
+      auto cl = std::make_unique<InDet::PixelCluster>
         (Identifier (offs+1234),
          locpos,
          rdoList,

@@ -121,9 +121,9 @@ topSequence = AlgSequence()
 
 ##################################### GRL Tools ##########################################
 # Good Run List (GRL)
-from RecExConfig.InputFilePeeker import inputFileSummary
-if inputFileSummary['evt_type'][0] == "IS_DATA":
-  print 'IS_DATA! doGRL'
+from PyUtils.MetaReaderPeeker import metadata
+if metadata['eventTypes'][0] == "IS_DATA":
+  print('IS_DATA! doGRL')
   from GoodRunsLists.GoodRunsListsConf import *
   ToolSvc += GoodRunsListSelectorTool()
   GoodRunsListSelectorTool.GoodRunsListVec = grllist 

@@ -9,10 +9,10 @@
 #ifndef TRKDETDESCRUTILS_COMPACTBINNEDARRAY_H
 #define TRKDETDESCRUTILS_COMPACTBINNEDARRAY_H
 
-#include "TrkDetDescrUtils/BinnedArray.h"
 #include "TrkDetDescrUtils/BinUtility.h"
+#include "TrkDetDescrUtils/BinnedArray.h"
 
-//STL
+// STL
 #include <vector>
 
 class MsgStream;
@@ -26,30 +26,29 @@ namespace Trk {
    @author sarka.todorova@cern.ch
    */
 
-  template <class T> class CompactBinnedArray : public BinnedArray<T> {
+template<class T>
+class CompactBinnedArray : public BinnedArray<T>
+{
 
-  public:
-    /**Default Constructor - needed for inherited classes */
-    CompactBinnedArray():
-    BinnedArray<T>()
-      {}
-    
-    /**Virtual Destructor*/
-    virtual ~CompactBinnedArray(){}
+public:
+  /**Default Constructor - needed for inherited classes */
+  CompactBinnedArray()
+    : BinnedArray<T>()
+  {}
 
-    /** Implicit constructor */
-    virtual CompactBinnedArray* clone() const = 0;
-    
-    /** layer bin utility */
-    virtual const Trk::BinUtility* layerBinUtility(const Amg::Vector3D& gp) const = 0;
+  /**Virtual Destructor*/
+  virtual ~CompactBinnedArray() {}
 
-    /** layer bin  */
-    virtual size_t layerBin(const Amg::Vector3D& gp) const = 0;
+  /** Implicit constructor */
+  virtual CompactBinnedArray* clone() const = 0;
 
-  };
+  /** layer bin utility */
+  virtual const Trk::BinUtility* layerBinUtility(const Amg::Vector3D& gp) const = 0;
 
+  /** layer bin  */
+  virtual size_t layerBin(const Amg::Vector3D& gp) const = 0;
+};
 
 } // end of namespace Trk
 
 #endif // TRKDETDESCRUTILS_COMPACTBINNEDARRAY_H
-

@@ -111,6 +111,8 @@ else: include( "RecExCommon/RecExCommon_topOptions.py" )
 if TriggerFlags.doMT():
     
     log.info("configuring MT Trigger")
+    TriggerFlags.triggerMenuSetup = "LS2_v1"
+
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.CheckDependencies( True )
     AlgScheduler.ShowControlFlow( True )
@@ -121,9 +123,8 @@ if TriggerFlags.doMT():
     topSequence += Lvl1SimulationSequence(None)
     recoLog.info( "Configuring HLT (MT)" )
 
-
-    from TrigUpgradeTest.TestUtils import L1DecoderTest
-    topSequence += L1DecoderTest()
+    from L1Decoder.L1DecoderConfig import L1Decoder
+    topSequence += L1Decoder()
     
     include( "TriggerRelease/jobOfragment_TransBS_standalone.py" )
     topSequence.StreamBS.ItemList =     [ x for x in topSequence.StreamBS.ItemList if 'RoIBResult' not in x ] # eliminate RoIBResult
@@ -131,7 +132,10 @@ if TriggerFlags.doMT():
     # add a fake data dependency assuring that the StreamBS runs before the L1 decoder of HLT
     fakeTypeKey = ("FakeBSOutType","StoreGateSvc+FakeBSOutKey")
     topSequence.StreamBS.ExtraOutputs += [fakeTypeKey]
-    findAlgorithm( topSequence, "L1Decoder" ).ExtraInputs += [fakeTypeKey]
+    l1Decoder = findAlgorithm( topSequence, "L1Decoder" )
+    l1Decoder.ExtraInputs += [fakeTypeKey]
+    l1Decoder.ctpUnpacker.ForceEnableAllChains=False # this will make HLT respecting L1 chain decisions
+
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=True
     from TriggerJobOpts.TriggerConfig import triggerIDCCacheCreatorsCfg
@@ -143,7 +147,6 @@ if TriggerFlags.doMT():
 
     include ("InDetRecExample/InDetRecCabling.py")
 
-    TriggerFlags.triggerMenuSetup = "LS2_v1"
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
     menu = GenerateMenuMT()
     def signaturesToGenerate():
@@ -152,7 +155,8 @@ if TriggerFlags.doMT():
         TriggerFlags.MuonSlice.setAll()
         TriggerFlags.METSlice.setAll()
         TriggerFlags.JetSlice.setAll()
-        #TriggerFlags.TauSlice.setAll()
+        TriggerFlags.TauSlice.setAll()
+        TriggerFlags.BjetSlice.setAll()
         TriggerFlags.CombinedSlice.setAll()
 
     menu.overwriteSignaturesWith(signaturesToGenerate)
@@ -219,35 +223,62 @@ for i in outSequence.getAllChildren():
 
     if "StreamRDO" in i.getName() and TriggerFlags.doMT():
 
+        from TrigDecisionMaker.TrigDecisionMakerConfig import TrigDecisionMakerMT
+        topSequence += TrigDecisionMakerMT('TrigDecMakerMT') # Replaces TrigDecMaker and finally deprecates Run 1 EDM
+        from AthenaCommon.Logging import logging
+        log = logging.getLogger( 'WriteTrigDecisionToAOD' )
+        log.info('TrigDecision writing enabled')
+
+        # Note: xAODMaker__TrigDecisionCnvAlg no longer needed. TrigDecisionMakerMT goes straight to xAOD
+        # Note: xAODMaker__TrigNavigationCnvAlg no longer needed. MT navigation is natively xAOD 
+        
+        # *** June 2019 TEMPORARY *** for use with TrigDecMakerMT until a proper config svc is available
+        from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvc
+        ServiceMgr += TrigConfigSvc("TrigConfigSvc")
+        ServiceMgr.TrigConfigSvc.PriorityList = ["run3_dummy", "ds", "xml"]
+
+        # Still need to produce Run-2 style L1 xAOD output
+        topSequence += RoIBResultToAOD("RoIBResultToxAOD")
+
         from TrigEDMConfig.TriggerEDM import getLvl1ESDList
         StreamRDO.ItemList += preplist(getLvl1ESDList())
         StreamRDO.ItemList += ["TrigInDetTrackTruthMap#*"]
 
-        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTList
-        for item in TriggerHLTList:
+        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+        for item in TriggerHLTListRun3:
             if "ESD" in item[1] or "AOD" in item[1]:
                 StreamRDO.ItemList += [item[0]]
 
         from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects
-        print topSequence.HLTTop.Members
-        hypos = collectHypos( topSequence.HLTTop )
-        filters = collectFilters( topSequence.HLTTop )
+        hypos = collectHypos( findSubSequence(topSequence, "HLTAllSteps") )
+        filters = collectFilters( findSubSequence(topSequence, "HLTAllSteps") )
         decObj = collectDecisionObjects( hypos, filters, findAlgorithm(topSequence, "L1Decoder") )
         StreamRDO.ItemList += [ "xAOD::TrigCompositeContainer#"+obj for obj in decObj ]
         StreamRDO.ItemList += [ "xAOD::TrigCompositeAuxContainer#"+obj+"Aux." for obj in decObj ]
-        
 
-
+        StreamRDO.ItemList += [ "xAOD::TrigDecision#xTrigDecision" ]            # TODO - move this back in to TrigEDMRun3
+        StreamRDO.ItemList += [ "xAOD::TrigDecisionAuxInfo#xTrigDecisionAux." ] # TODO - move this back in to TrigEDMRun3
+        StreamRDO.MetadataItemList +=  [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
 
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
 from TrigDecisionTool.TrigDecisionToolConf import *
 
 if hasattr(ToolSvc, 'TrigDecisionTool'):
-    ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
-    ToolSvc.TrigDecisionTool.UseAODDecision = True
+    if TriggerFlags.doMT():
+        ToolSvc.TrigDecisionTool.NavigationFormat = "TrigComposite"
+        # To pick up hacked config svc
+        ToolSvc.TrigDecisionTool.TrigConfigSvc = "Trig::TrigConfigSvc/TrigConfigSvc"
+    else:
+    	# Causes TDT to use Run-1 style behaviour in this part of the transform
+        ToolSvc.TrigDecisionTool.TrigDecisionKey = "TrigDecision"
+        ToolSvc.TrigDecisionTool.UseAODDecision = True
 
 if TriggerFlags.doMT():
-    pass
+    # inform TD maker that some parts may be missing
+    if TriggerFlags.dataTakingConditions()=='Lvl1Only':
+        topSequence.TrigDecMakerMT.doHLT=False
+    elif TriggerFlags.dataTakingConditions()=='HltOnly':
+        topSequence.TrigDecMakerMT.doL1=False
 else:
     # inform TD maker that some parts may be missing
     if TriggerFlags.dataTakingConditions()=='Lvl1Only':

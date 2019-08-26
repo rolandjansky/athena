@@ -6,7 +6,7 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonSegment/MuonSegment.h"
@@ -28,7 +28,6 @@ MuonTrackPerformanceAlg::MuonTrackPerformanceAlg(const std::string& name, ISvcLo
   m_eventInfo(0),
   m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-  m_helper("Muon::MuonEDHelperTool/MuonEDMHelperTool"),
   m_truthTool("Muon::MuonTrackTruthTool/MuonTrackTruthTool"),
   m_summaryHelperTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
   m_log(0),
@@ -103,7 +102,7 @@ StatusCode MuonTrackPerformanceAlg::initialize()
 
   ATH_CHECK(m_idHelperTool.retrieve());
   ATH_CHECK(m_printer.retrieve());
-  ATH_CHECK(m_helper.retrieve());
+  ATH_CHECK(m_edmHelperSvc.retrieve());
 
   if( m_doTruth ) ATH_CHECK(m_truthTool.retrieve());
   else m_truthTool.disable();
@@ -580,7 +579,7 @@ bool MuonTrackPerformanceAlg::handleTrackTruth( const TrackCollection& trackColl
       else             pt = (**trit).perigeeParameters()->momentum().mag();
     }
     bool isSL = false;
-    if( m_helper->isSLTrack(**trit) ) { 
+    if( m_edmHelperSvc->isSLTrack(**trit) ) { 
       pt = 0.;
       isSL = true;
     }

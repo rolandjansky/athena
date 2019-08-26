@@ -37,6 +37,11 @@ def setupCommonServices():
     import StoreGate.StoreGateConf as StoreGateConf
     svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
+    # Configure the CoreDumpSvc
+    if not hasattr(svcMgr, "CoreDumpSvc"):
+        from AthenaServices.Configurables import CoreDumpSvc
+        svcMgr += CoreDumpSvc()
+
     # ThreadPoolService thread local initialization
     from GaudiHive.GaudiHiveConf import ThreadPoolSvc
     svcMgr += ThreadPoolSvc("ThreadPoolSvc")
@@ -50,6 +55,10 @@ def setupCommonServices():
     from SGComps.SGCompsConf import SGInputLoader
     topSequence = AlgSequence()
     topSequence += SGInputLoader(FailIfNoProxy = False)  # change to True eventually
+
+    # Basic operational monitoring
+    from TrigOnlineMonitor.TrigOnlineMonitorConf import TrigOpMonitor
+    topSequence += TrigOpMonitor()
 
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.ShowDataDependencies(False)
@@ -154,7 +163,7 @@ def setupCommonServicesEnd():
     if _Conf.useOnlineTHistSvc:
         svcMgr.THistSvc.Output = []
         if len(svcMgr.THistSvc.Input)>0:
-            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.' % svcMgr.THistSvc.Input)
+            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.', svcMgr.THistSvc.Input)
             svcMgr.THistSvc.Input = []
 
     # For offline running make sure at least the EXPERT stream is defined

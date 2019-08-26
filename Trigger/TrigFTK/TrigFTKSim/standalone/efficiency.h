@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TMath.h>
@@ -14,7 +14,6 @@
 #include "TFile.h"
 #include "TProfile.h"
 
-using namespace std;
 
 class MatchInfo {
 private:
@@ -28,7 +27,7 @@ public:
   bool operator<(const MatchInfo& o) const { if (m_evtindex!=o.m_evtindex) return (m_evtindex<o.m_evtindex); else return m_barcode<o.m_barcode; }
 };
 
-typedef multimap<MatchInfo,const FTKTrack*> FTKBarcodeMM;
+typedef std::multimap<MatchInfo,const FTKTrack*> FTKBarcodeMM;
 unsigned nbins;
 double maxntracks;
 double d0min, d0max;
@@ -46,6 +45,7 @@ double Dz0;
 double ptmincut;
 //double dx, dy;
 double vtxTruth[3];
+double vtxRef[3];
 
 // block of generic control histograms for the FTK tracks
 TH2F *histocoordmasketa_ftk;
@@ -151,6 +151,8 @@ TH1F *histocurv_truth;
 TH1F *histoeta_truth;
 TH1F *histophi_truth;
 TH1F *histopt_truth;
+TH2F *histo2_invptd0wrtBS_truth;
+TH2F *histo2_ptd0wrtBS_truth;
 
 TH1F *histontracks_truthM;
 TH1F *histod0_truthM;
@@ -159,8 +161,13 @@ TH1F *histocurv_truthM;
 TH1F *histoeta_truthM;
 TH1F *histophi_truthM;
 TH1F *histopt_truthM;
+TH2F *histo2_invptd0wrtBS_truthM;
+TH2F *histo2_ptd0wrtBS_truthM;
 TH1F *histod0res;
 TH1F *histoz0res;
+
+TH2F *histo2_invptd0wrtBS_eff;
+TH2F *histo2_ptd0wrtBS_eff;
 
 TProfile *histod0res_veta;
 TProfile *histoz0res_veta;
@@ -168,7 +175,9 @@ TProfile *histod0res_vphi;
 TH2F *histo2d0res_vphi;
 TH2F *histo2d0res_veta;
 TH2F *histo2d0res_coordbit;
-TH2F *histo2d0truth_vphi;
+TH2F *histo2d0PattBStruth_vphi;
+TH2F *histo2d0PattBStruthM_vphi;
+TH2F *histo2d0PattBStruth_vphi_eff;
 TH2F *histo2d0ftk_vphi;
 TH2F *histo2curvCurv;
 TProfile *histoz0res_vphi;

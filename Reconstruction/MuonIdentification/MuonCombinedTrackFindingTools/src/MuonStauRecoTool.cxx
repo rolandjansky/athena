@@ -5,7 +5,7 @@
 #include "MuonStauRecoTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
@@ -59,11 +59,10 @@ namespace MuonCombined {
     AthAlgTool(type,name,parent),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
     m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
-    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
+    m_recoValidationTool(""),
     m_trackAmbibuityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
@@ -79,8 +78,7 @@ namespace MuonCombined {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
 
     declareProperty("MuonIdHelperTool",m_idHelper );    
-    declareProperty("MuonEDMPrinterTool",m_printer );    
-    declareProperty("MuonEDMHelperTool",m_edmHelper );    
+    declareProperty("MuonEDMPrinterTool",m_printer );
     declareProperty("MuonSegmentMaker",m_segmentMaker );    
     declareProperty("MuonSegmentMakerT0Fit",m_segmentMakerT0Fit );    
     declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
@@ -124,11 +122,11 @@ namespace MuonCombined {
 
     ATH_CHECK(m_idHelper.retrieve());    
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_edmHelper.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_segmentMakerT0Fit.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
-    ATH_CHECK(m_recoValidationTool.retrieve());
+    if(!m_recoValidationTool.empty()) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackAmbibuityResolver.retrieve());
     ATH_CHECK(m_hitTimingTool.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
@@ -446,7 +444,7 @@ namespace MuonCombined {
       if( !meas || (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
       
       // get Identifier and skip pseudo measurements, ID hits and all but MDT/RPC hits
-      Identifier id = m_edmHelper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
 
       // extract time measurements for RPCs
@@ -614,7 +612,7 @@ namespace MuonCombined {
     // get RPC timing per chamber
     RpcClPerChMap::const_iterator chit = rpcPrdsPerChamber.begin();
     RpcClPerChMap::const_iterator chit_end = rpcPrdsPerChamber.end();
-    ATH_MSG_VERBOSE("RPCs per chamber " + rpcPrdsPerChamber.size() );
+    ATH_MSG_VERBOSE("RPCs per chamber " << rpcPrdsPerChamber.size() );
      
     for( ;chit!=chit_end;++chit ){
       const Trk::TrackParameters* pars = std::get<0>(chit->second);
@@ -708,19 +706,22 @@ namespace MuonCombined {
       for( unsigned int i=0;i<dcs.size();++i){
         TrkDriftCircleMath::DCSLFitter::HitSelection selection(dcs.size(),0);
         selection[i] = 1;
-        if( !mdtFitter.fit(seedLine,dcs,selection) ){
+        TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+        if( !mdtFitter.fit(result, seedLine,dcs,selection) ){
           ATH_MSG_DEBUG("Fit failed ");
           continue;
         }
-        TrkDriftCircleMath::Segment segment = mdtFitter.result();
+        TrkDriftCircleMath::Segment segment = result;
         unsigned int ndofFit = segment.ndof();
         double chi2NdofSegmentFit = segment.chi2()/(double)(ndofFit);
-        if( !segmentFinder.dropHits(segment) ){
+        bool hasDropHit = false;
+        unsigned int dropDepth = 0;
+        if( !segmentFinder.dropHits(segment, hasDropHit, dropDepth) ){
           ATH_MSG_DEBUG("DropHits failed, fit chi2/ndof " << chi2NdofSegmentFit);
           if( msgLvl(MSG::VERBOSE) ){
             segmentFinder.debugLevel(20);
-            segment = mdtFitter.result();
-            segmentFinder.dropHits(segment);
+            segment = result;
+            segmentFinder.dropHits(segment, hasDropHit, dropDepth);
             segmentFinder.debugLevel(0);
           }
           continue;
@@ -1227,7 +1228,7 @@ namespace MuonCombined {
         if( !seg->hasFittedT0() ) continue;
         float time = seg->time();
         float error = seg->errorTime();
-        Identifier id = m_edmHelper->chamberId(*seg);
+        Identifier id = m_edmHelperSvc->chamberId(*seg);
         segmentTimeCalibration(id,time,error);
         addHit(seg->globalPosition().mag(),time,error,m_segmentBetaAssociationCut);
       }
@@ -1472,14 +1473,14 @@ namespace MuonCombined {
     }
 
     // sanity check
-    if( static_cast<int>(houghDataPerSectorVec->size()) <= sector-1 ){
-      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << houghDataPerSectorVec->size() );
+    if( static_cast<int>(houghDataPerSectorVec->vec.size()) <= sector-1 ){
+      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << houghDataPerSectorVec->vec.size() );
       return;
     }
 
     // get hough maxima in the layer
     unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex,layerIndex );
-    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = (*houghDataPerSectorVec)[sector-1];
+    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = houghDataPerSectorVec->vec[sector-1];
 
     // sanity check
     if( houghDataPerSector.maxVec.size() <= sectorLayerHash ){

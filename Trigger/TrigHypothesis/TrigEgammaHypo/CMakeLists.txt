@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloUtils
                           Control/AthLinks
                           Control/StoreGate
-			  Control/AthenaMonitoring  
+                          Control/AthenaMonitoring
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODTracking
@@ -44,26 +44,26 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAlgorithms/TrigCaloRec
                           Trigger/TrigEvent/TrigMissingEtEvent
                           Trigger/TrigEvent/TrigNavigation 
-			  Trigger/TrigSteer/DecisionHandling
-			  Control/AthViews
-			  Control/AthContainers )
+                          Trigger/TrigSteer/DecisionHandling
+                          Control/AthViews
+                          Control/AthContainers )
 
 # External dependencies:
-find_package( AIDA )
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
+find_package( ROOT COMPONENTS Core MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_component( TrigEgammaHypo
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloUtilsLib AthLinks AthenaBaseComps StoreGateLib SGtests AthenaMonitoringLib xAODCaloEvent xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma GaudiKernel LumiBlockCompsLib PATCoreLib EgammaAnalysisInterfacesLib TrkSurfaces VxVertex TrigCaloEvent TrigInDetEvent TrigParticle TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigTimeAlgsLib CaloEvent CxxUtils ITrackToVertex RecoToolInterfaces egammaEvent egammaMVACalibLib TrkCaloExtension TrigCaloRecLib TrigMissingEtEvent TrigNavigationLib DecisionHandlingLib AthViews )
 
 # Install files from the package:
 atlas_install_headers( TrigEgammaHypo )
 atlas_install_python_modules( python/*.py )
 
+# Unit tests:
 atlas_add_test( TrigL2CaloHypoToolConfig SCRIPT python -m TrigEgammaHypo.TrigL2CaloHypoTool
 		POST_EXEC_SCRIPT nopost.sh )
 
@@ -72,3 +72,8 @@ atlas_add_test( TrigL2ElectronHypoToolConfig SCRIPT python -m TrigEgammaHypo.Tri
 
 atlas_add_test( TrigL2PhotonHypoToolConfig SCRIPT python -m TrigEgammaHypo.TrigL2PhotonHypoTool
 		POST_EXEC_SCRIPT nopost.sh )
+
+# Check Python syntax:
+atlas_add_test( flake8
+   SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )

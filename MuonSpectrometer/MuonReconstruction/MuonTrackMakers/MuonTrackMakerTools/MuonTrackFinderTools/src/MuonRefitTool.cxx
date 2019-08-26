@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes
@@ -28,7 +28,7 @@
 
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
@@ -50,16 +50,17 @@
 #include "MuonAlignErrorBase/AlignmentRotationDeviation.h"
 #include "TrkToolInterfaces/ITrkAlignmentDeviationTool.h"
 
+
 namespace Muon {
 
   MuonRefitTool::MuonRefitTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
     AthAlgTool(ty,na,pa),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"), 
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_alignErrorTool("MuonAlign::AlignmentErrorTool"),
     m_trackFitter("Trk::GlobalChi2Fitter/MCTBFitterMaterialFromTrack"),
     m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+    m_muonExtrapolator("Trk::Extrapolator/MuonExtrapolator"),
     m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
     m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
     m_triggerRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
@@ -110,10 +111,10 @@ namespace Muon {
     declareProperty("UsedFixedError",m_fixedError = 1. );
     declareProperty("FlagT0FitRange",m_flagT0FitRange = 0.00005 );
     declareProperty("Printer", m_printer );
-    declareProperty("Helper", m_helper );
     declareProperty("IdHelper", m_idHelper );
     declareProperty("AlignmentErrorTool", m_alignErrorTool);
     declareProperty("Extrapolator", m_extrapolator );
+    declareProperty("MuonExtrapolator", m_muonExtrapolator );
     declareProperty("MuonEntryExtrapolationTool", m_muonEntryTrackExtrapolator );
     declareProperty("MdtRotCreator",m_mdtRotCreator);
     declareProperty("CscRotCreator",m_cscRotCreator);
@@ -148,10 +149,11 @@ namespace Muon {
     ATH_MSG_INFO( "Initializing MuonRefitTool" );
 
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
     if( !m_alignErrorTool.empty() ) ATH_CHECK(m_alignErrorTool.retrieve());
     ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_CHECK( m_muonExtrapolator.retrieve() );
     ATH_CHECK( m_trackFitter.retrieve() );
 
     ATH_MSG_INFO("Retrieved " << m_trackFitter );
@@ -559,7 +561,7 @@ namespace Muon {
           continue;
         }
 //        if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
-        Identifier id = m_helper->getIdentifier(*meas);
+        Identifier id = m_edmHelperSvc->getIdentifier(*meas);
 
         if( m_idHelper->isMdt(id) ) stationIds.insert( m_idHelper->chamberIndex(id) );
 
@@ -678,7 +680,7 @@ namespace Muon {
          ATH_MSG_WARNING(" AlignmentEffectOnTrack is already on track skip it");   
         continue;
       } 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
       MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
@@ -834,7 +836,7 @@ namespace Muon {
       // skip outliers
       if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
       
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
       if( m_idHelper->isTrigger(id) || (m_idHelper->isCsc(id)&&m_idHelper->measuresPhi(id) ) ) continue;
@@ -945,8 +947,8 @@ namespace Muon {
       if( settings.prepareForFit && !settings.recreateStartingParameters && (*tsit)->type(Trk::TrackStateOnSurface::Perigee) ) {
 	if( pars == startPars ){
 	  ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars)); 
-	  const Trk::Perigee* perigee = m_helper->createPerigee(*pars);
-	  newStates.push_back( std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee) ) );
+	  std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars);
+	  newStates.push_back( std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee.release()) ) );
 	  addedPerigee = true;
 	  continue;
 	}else{
@@ -979,7 +981,7 @@ namespace Muon {
 	ATH_MSG_DEBUG("Adding perigee in front of first measurement");
       }
 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if( !id.is_valid() || !m_idHelper->isMuon(id) ){
@@ -1229,7 +1231,7 @@ namespace Muon {
       // skip outliers
       if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
       
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
       if( m_idHelper->isTrigger(id) || (m_idHelper->isCsc(id)&&m_idHelper->measuresPhi(id) ) ) continue;
@@ -1269,8 +1271,8 @@ namespace Muon {
       if( settings.prepareForFit && !settings.recreateStartingParameters && (*tsit)->type(Trk::TrackStateOnSurface::Perigee) ) {
 	if( pars == startPars ){
 	  ATH_MSG_DEBUG("Found fit starting parameters " << m_printer->print(*pars)); 
-	  const Trk::Perigee* perigee = m_helper->createPerigee(*pars);
-	  newStates.push_back( std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee) ) );
+	  std::unique_ptr<const Trk::Perigee> perigee = createPerigee(*pars);
+	  newStates.push_back( std::make_pair(true, MuonTSOSHelper::createPerigeeTSOS(perigee.release()) ) );
 	  addedPerigee = true;
 	  continue;
 	}else{
@@ -1303,7 +1305,7 @@ namespace Muon {
 	ATH_MSG_DEBUG("Adding perigee in front of first measurement");
       }
 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if( !id.is_valid() || !m_idHelper->isMuon(id) ){
@@ -1480,7 +1482,7 @@ namespace Muon {
 	continue;
       }
 
-      Identifier id = m_helper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if( !id.is_valid() ){
@@ -1546,7 +1548,7 @@ namespace Muon {
       const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
       if( meas ) {
 
-	Identifier id = m_helper->getIdentifier(*meas);
+	Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
 	if( removedIdentifiers.count(id) ){
 	
@@ -1669,8 +1671,8 @@ namespace Muon {
     m_finder.setPhiRoad(track_angleYZ,chamber_angleYZ,0.14);
 
     if( msgLvl(MSG::VERBOSE) ){
-      if(m_fitter.fit(segPars,dcsOnTrack)){
-	TrkDriftCircleMath::Segment segment = m_fitter.result();
+      TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+      if(m_fitter.fit(segment, segPars, dcsOnTrack)){
 	segment.hitsOnTrack(dcsOnTrack.size());
 	ATH_MSG_DEBUG(" segment after fit " << segment.chi2() << " ndof " << segment.ndof() << " local parameters "
 		      << segment.line().x0() << " " << segment.line().y0() << "  phi " << segment.line().phi() );
@@ -1784,6 +1786,23 @@ namespace Muon {
       }
     }
     return true;
+  }
+
+  std::unique_ptr<const Trk::Perigee> MuonRefitTool::createPerigee( const Trk::TrackParameters& pars ) const {
+    std::unique_ptr<const Trk::Perigee> perigee;
+    if( m_muonExtrapolator.empty() ) { 
+      return perigee;
+    }
+    Trk::PerigeeSurface persurf(pars.position());
+    const Trk::TrackParameters* exPars = m_muonExtrapolator->extrapolateDirectly(pars,persurf);
+    const Trk::Perigee* pp = dynamic_cast<const Trk::Perigee*>(exPars);
+    if( !pp ) {
+      ATH_MSG_WARNING(" Extrapolation to Perigee surface did not return a perigee!! ");
+      delete exPars;
+      return perigee;
+    }
+    perigee.reset(pp);
+    return perigee;
   }
 
 }

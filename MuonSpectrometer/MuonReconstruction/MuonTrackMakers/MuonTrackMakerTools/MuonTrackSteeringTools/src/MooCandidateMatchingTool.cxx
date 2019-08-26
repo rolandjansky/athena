@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooCandidateMatchingTool.h"
@@ -10,7 +10,7 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 
@@ -93,7 +93,6 @@ namespace Muon {
   MooCandidateMatchingTool::MooCandidateMatchingTool(const std::string& t, const std::string& n, const IInterface* p)    
     : AthAlgTool(t,n,p),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_slExtrapolator("Trk::Extrapolator/MuonStraightLineExtrapolator"),
       m_atlasExtrapolator("Trk::Extrapolator/AtlasExtrapolator"), 
@@ -112,18 +111,11 @@ namespace Muon {
       m_sameSideOfPerigeeTrk(0),
       m_otherSideOfPerigeeTrk(0),
       m_segmentTrackMatches(0),
-      m_segmentTrackMatchesTight(0),
-      m_reasonsForMatchOk(TrackSegmentMatchResult::NumberOfReasons),
-      m_reasonsForMatchNotOk(TrackSegmentMatchResult::NumberOfReasons)
+      m_segmentTrackMatchesTight(0)
   {
-    for ( int i = 0; i < int(TrackSegmentMatchResult::NumberOfReasons); ++i ) {
-      m_reasonsForMatchOk[i]    = 0;
-      m_reasonsForMatchNotOk[i] = 0;
-    }
-
-
     declareInterface<MooCandidateMatchingTool>(this);
     declareInterface<IMuonTrackSegmentMatchingTool>(this);
+
     declareProperty("SLExtrapolator",           m_slExtrapolator );
     declareProperty("Extrapolator",             m_atlasExtrapolator );
     declareProperty("MagFieldSvc",    m_magFieldSvc );
@@ -147,6 +139,11 @@ namespace Muon {
     declareProperty("SegmentMatchingToolTight", m_segmentMatchingToolTight);
     declareProperty("DoTrackSegmentMatching",   m_doTrackSegmentMatching = false, "Apply dedicated track-segment matching");
     declareProperty("TrackSegmentPreMatching",  m_trackSegmentPreMatchingStrategy = 0, "0=no segments match,1=any segment match,2=all segment match");
+
+    for (unsigned int i=0; i<TrackSegmentMatchResult::NumberOfReasons; i++) {
+      m_reasonsForMatchOk[i].store(0, std::memory_order_relaxed);
+      m_reasonsForMatchNotOk[i].store(0, std::memory_order_relaxed);
+    }
   }
 
   MooCandidateMatchingTool::~MooCandidateMatchingTool() { }
@@ -156,7 +153,7 @@ namespace Muon {
     ATH_CHECK( m_slExtrapolator.retrieve() );
     ATH_CHECK( m_atlasExtrapolator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_magFieldSvc.retrieve() );
     ATH_CHECK( m_segmentMatchingTool.retrieve() );
@@ -365,7 +362,6 @@ namespace Muon {
 
       if ( !haveMatch ) {
         ATH_MSG_VERBOSE("track-segment match: -> Failed in comparing segments on track");
-        
         
         ++m_reasonsForMatchNotOk[TrackSegmentMatchResult::SegmentMatch];
         return false;
@@ -793,7 +789,7 @@ namespace Muon {
       // do not want to start from non-MS measurements
       Identifier id;
       if (meas) {
-        id = m_helperTool->getIdentifier(*meas);
+        id = m_edmHelperSvc->getIdentifier(*meas);
         if ( id.is_valid() ) {
           if ( !m_idHelperTool->isMuon(id) ) continue;
           if ( m_idHelperTool->isMdt(id) && m_idHelperTool->sector(id) != sector2 ) hasStereoAngle=true;

@@ -30,8 +30,6 @@ case $ArtProcess in
      infile="../${file[${ArtProcess}]}"
      echo "Processing files: " ${infile}
      unset  ATHENA_NUM_PROC
-     unset  ATHENA_PROC_NUMBER
-
 
      Reco_tf.py --maxEvents=-1 --conditionsTag RAWtoESD:CONDBR2-BLKPA-2017-12 --geometryVersion ATLAS-R2-2016-01-00-01 --inputBSFile=${infile} --outputAODFile=MuonToroidOff_Reco.AOD.pool.root --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup' --postExec 'r2e:topSequence.BeamBackgroundFiller.Enable = False'
 

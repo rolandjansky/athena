@@ -131,6 +131,7 @@ JetChainParts = {
 #    'bMatching'    : ['mu4antidr05', 'mu6antidr05'],
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
+    'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
 }
 
@@ -158,6 +159,7 @@ JetChainParts_Default = {
     'bConfig'      : [],
     'bMatching'    : [],
     'dataScouting' : '',
+    'smc'          : 'nosmc',
     'trkopt'       : 'notrk',
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags

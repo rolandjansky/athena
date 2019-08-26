@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Heavily based on Trigger/TrigSteer/L1Decoder/python/L1MuonConfig.py
 # TODO add MDTs, CSCs
@@ -31,9 +31,9 @@ def RPCCablingConfigCfg(flags):
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     dbName = 'RPC_OFL' if flags.Input.isMC else 'RPC'
     acc.merge(addFolders(flags, 
-                   [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI', 
-                     '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ], 
-                   dbName ))
+                         [ '/RPC/TRIGGER/CM_THR_ETA', '/RPC/TRIGGER/CM_THR_PHI',
+                           '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
+                         dbName ))
 
     # that should not be here???
     acc.getService('IOVDbSvc').FoldersToMetaData     += ['/GLOBAL/BField/Maps']
@@ -68,7 +68,9 @@ def TGCCablingConfigCfg(flags):
     acc.addService( TGCCablingSvc, primary=True )
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, ['/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA'], 'TGC'))
+    dbName = 'TGC_OFL' if flags.Input.isMC else 'TGC'
+    acc.merge(addFolders(flags, '/TGC/CABLING/MAP_SCHEMA', dbName))
+
     return acc
 
 # This should be checked by experts since I just wrote it based on 
@@ -90,20 +92,20 @@ def MDTCablingConfigCfg(flags):
     MDTCablingDbTool = MDTCablingDbTool()
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    if flags.Input.isMC == True:
+    if flags.Input.isMC is True:
         MDTCablingDbTool.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA"
         MDTCablingDbTool.MezzanineFolders  = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"
         MDTCablingAlg.MapFolders = "/MDT/Ofl/CABLING/MAP_SCHEMA" 
         MDTCablingAlg.MezzanineFolders    = "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA" 
         acc.merge( addFolders( flags, ["/MDT/Ofl/CABLING/MAP_SCHEMA",
-                                           "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"], 'MDT_OFL', className="CondAttrListCollection") )
+                                       "/MDT/Ofl/CABLING/MEZZANINE_SCHEMA"], 'MDT_OFL', className="CondAttrListCollection") )
     else:
         MDTCablingDbTool.MapFolders = "/MDT/CABLING/MAP_SCHEMA"
         MDTCablingDbTool.MezzanineFolders  = "/MDT/CABLING/MEZZANINE_SCHEMA"
         MDTCablingAlg.MapFolders = "/MDT/CABLING/MAP_SCHEMA" 
         MDTCablingAlg.MezzanineFolders    = "/MDT/CABLING/MEZZANINE_SCHEMA" 
         acc.merge( addFolders( flags, ["/MDT/CABLING/MAP_SCHEMA",
-                                           "/MDT/CABLING/MEZZANINE_SCHEMA"], 'MDT', className="CondAttrListCollection") )
+                                       "/MDT/CABLING/MEZZANINE_SCHEMA"], 'MDT', className="CondAttrListCollection") )
 
     acc.addCondAlgo( MDTCablingAlg )
     acc.addPublicTool( MDTCablingDbTool )
@@ -132,13 +134,11 @@ if __name__ == '__main__':
     Configurable.configurableRun3Behavior=1
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
 
     result = RPCCablingConfigCfg(ConfigFlags)

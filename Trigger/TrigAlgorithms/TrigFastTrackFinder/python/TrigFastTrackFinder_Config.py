@@ -409,35 +409,35 @@ class TrigFastTrackFinder_Cosmic_Monitoring(TrigFastTrackFinder_CommonMonitoring
                                              title="Number of Tracks",
                                              xbins = 100, xmin=-0.5, xmax=99.5)]
 
-def remapper(type):
-    #this funcion should not be needed - we don't have to remap in both directions
-    remap  = {
-        "Muon"     : "muon",
-        "MuonCore" : "muonCore",
-        "MuonIso"  : "muonIso",
-        "eGamma"   : "electron",
-        "Tau"      : "tau",
-        "TauCore"  : "tauCore",
-        "TauIso"   : "tauIso",
-        "Jet"      : "bjet",
-        #"Jet"      : "bjetVtx",
-        "FullScan" : "fullScan",
-        "BeamSpot" : "beamSpot",
-        "Bphysics" : "bphysics",
-        "Cosmic"   : "cosmics",
-        "MinBias"  : "minBias400"
-    }
-    if type in remap.keys():
-      return remap[type]
-    else:
-      return type
-
+remap  = {
+    "FTKRefit" : "FTKRefit",
+    "FTKMon"   : "FTKMon",
+    "FTK"      : "FTK",
+    "Muon"     : "muon",
+    "MuonFS"   : "muon",
+    "MuonCore" : "muonCore",
+    "MuonIso"  : "muonIso",
+    "eGamma"   : "electron",
+    "Electron" : "electron",
+    "Tau"      : "tau",
+    "TauCore"  : "tauCore",
+    "TauIso"   : "tauIso",
+    "Jet"      : "bjet",
+    "FS"       : "bjet",
+    "bjetVtx"  : "bjetVtx",
+    "FullScan" : "fullScan",
+    "BeamSpot" : "beamSpot",
+    "Bphysics" : "bphysics",
+    "Cosmic"   : "cosmics",
+    "MinBias"  : "minBias400"
+}
 
 class TrigFastTrackFinderBase(TrigFastTrackFinder):
     __slots__ = []
     def __init__(self, name, type):
         TrigFastTrackFinder.__init__(self,name)
-        remapped_type = remapper(type)
+        remapped_type = remap[type]
+        assert(remapped_type!=None)
 
         self.retrieveBarCodes = False#Look at truth information for spacepoints from barcodes
         #self.SignalBarCodes = [10001] #single particles
@@ -486,7 +486,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           spTool.layerNumberTool = numberingTool
           ToolSvc += spTool
           self.SpacePointProviderTool=spTool
-          self.MinSPs = 5 #Only process RoI with more than 5 spacepoints 
+          self.MinHits = 5 #Only process RoI with more than 5 spacepoints
           
           self.Triplet_MinPtFrac = 1
           self.Triplet_nMaxPhiSlice = 53
@@ -652,3 +652,4 @@ class TrigFastTrackFinder_FTKMon(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_MinBias(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_MinBias"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_MinBias","MinBias")
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BTagging/IBTagSecVertexing.h"
@@ -278,7 +278,7 @@ namespace Analysis {
   }
 
 
-  StatusCode BTagSecVertexing::fillVkalVariables(xAOD::Jet& myJet,
+  StatusCode BTagSecVertexing::fillVkalVariables(const xAOD::Jet& myJet,
                          xAOD::BTagging* newBTag, 
 						 xAOD::VertexContainer* bTagVertexContainer, 
 						 const Trk::VxSecVKalVertexInfo* myVertexInfoVKal,
@@ -388,7 +388,7 @@ namespace Analysis {
 
   }
 
-  StatusCode BTagSecVertexing::fillJFVariables(xAOD::Jet& myJet,
+  StatusCode BTagSecVertexing::fillJFVariables(const xAOD::Jet& myJet,
 					       xAOD::BTagging* newBTag,
 					       xAOD::BTagVertexContainer* bTagJFVertexContainer,
 					       const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter,
@@ -692,8 +692,7 @@ namespace Analysis {
 
     xAOD::BTaggingContainer::iterator btagIter=btaggingContainer->begin();
     for (xAOD::JetContainer::const_iterator jetIter = jetContainer->begin(); jetIter != jetContainer->end(); ++jetIter, ++btagIter) {
-      //temporary const_cast
-      xAOD::Jet& jetToTag = const_cast<xAOD::Jet&>( **jetIter );
+      const xAOD::Jet& jetToTag = **jetIter;
       ToolHandleArray< InDet::ISecVertexInJetFinder >::const_iterator itSecVtxFinders = m_secVertexFinderToolsHandleArray.begin();
       ToolHandleArray< InDet::ISecVertexInJetFinder >::const_iterator itSecVtxFindersEnd = m_secVertexFinderToolsHandleArray.end();
 

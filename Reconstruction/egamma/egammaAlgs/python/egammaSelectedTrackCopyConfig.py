@@ -4,7 +4,7 @@ __doc__ = "Instantiate egammaSelectedTrackCopy with default configuration"
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from egammaCaloTools.egammaCaloToolsConf import egammaCaloClusterSelector, egammaCheckEnergyDepositTool
+from egammaCaloTools.egammaCaloToolsConf import egammaCaloClusterSelector
 from egammaTrackTools.egammaTrackToolsConfig import EMExtrapolationToolsCfg
 from egammaAlgs.egammaAlgsConf import egammaSelectedTrackCopy
 
@@ -18,10 +18,10 @@ def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
 
     if "egammaCaloClusterSelector" not in kwargs:
         egammaCaloClusterGSFSelector = egammaCaloClusterSelector(name='caloClusterGSFSelector',
-                                                                 egammaCheckEnergyDepositTool=egammaCheckEnergyDepositTool(),
-                                                                 EMEtRanges=[1500., 2500.],
-                                                                 EMFCuts=[0.8, 0.0],
-                                                                 LateralCuts=[0.7, 1.0])
+                                                                 EMEtRanges = [2500.],
+                                                                 EMFCuts = [0.7]
+                                                                 )
+
         kwargs["egammaCaloClusterSelector"] = egammaCaloClusterGSFSelector
 
     if "ExtrapolationTool" not in kwargs:
@@ -31,7 +31,8 @@ def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
 
     kwargs.setdefault("ClusterContainerName", flags.Egamma.Keys.Internal.EgammaTopoClusters)
     kwargs.setdefault("TrackParticleContainerName", flags.Egamma.Keys.Input.TrackParticles)
-    kwargs.setdefault("narrowDeltaPhiBrem", 0.20)
+    kwargs.setdefault("narrowDeltaPhiBrem", 0.25)
+    kwargs.setdefault("broadDeltaPhi", 0.175)
 
     egseltrkcpAlg = egammaSelectedTrackCopy(name, **kwargs)
 

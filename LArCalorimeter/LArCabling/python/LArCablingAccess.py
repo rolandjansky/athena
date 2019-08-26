@@ -23,17 +23,16 @@ def LArOnOffIdMapping():
 
 def LArOnOffIdMappingSC():
     condSequence = AthSequencer("AthCondSeq")
-    if hasattr(condSequence,"LArOnOffMappingAlg"):
+    folder="/LAR/IdentifierOfl/OnOffIdMap_SC"
+    if hasattr(condSequence,"LArOnOffMappingAlg") and condSequence.LArOnOffMappingAlg.ReadKey==folder:
         return #Already there....
 
-    if conddb.isMC:
-        dbname="LAR_OFL"
-    else:
-        dbname="LAR"
-
-    folder="/LAR/IdentifierOfl/OnOffIdMap_SC"
-    conddb.addFolder(dbname,folder,className="AthenaAttributeList")
-    condSequence+=LArOnOffMappingAlg(ReadKey=folder, WriteKey="LArOnOffIdMapSC", isSuperCell=True)
+    #for the moment SC mapping is only in MC database
+    #and with one tag
+    #conddb.addFolder(dbname,folder,className="AthenaAttributeList",forceMC=True)
+    conddb.addFolder("","<db>COOLOFL_LAR/OFLP200</db>"+folder,className="AthenaAttributeList",forceMC=True)
+    conddb.addOverride(folder,"LARIdentifierOflOnOffIdMap_SC-000")
+    condSequence+=LArOnOffMappingAlg("LArOnOffMappingAlgSC",ReadKey=folder, WriteKey="LArOnOffIdMapSC", isSuperCell=True)
     return
 
 
@@ -67,4 +66,24 @@ def LArCalibIdMapping():
     folder="/LAR/Identifier/CalibIdMap"
     conddb.addFolder(dbname,folder,className="AthenaAttributeList")
     condSequence+=LArCalibLineMappingAlg(ReadKey=folder)
+    return
+
+def LArCalibIdMappingSC():
+    condSequence = AthSequencer("AthCondSeq")
+    #temporarily disabled, until conditions will arrive to COOL
+    #folder="/LAR/Identifier/CalibIdMap"
+    #if hasattr(condSequence,"LArCalibLineMappingAlg") and condSequence.LArCalibLineMappingAlg.ReadKey==folder:
+    #    return #Already there....
+
+    #if conddb.isMC:
+    #    dbname="LAR_OFL"
+    #else:
+    #    dbname="LAR"
+    #conddb.addFolder(dbname,folder,className="AthenaAttributeList")
+    # SC only in OFL database
+    folder="/LAR/IdentifierOfl/CalibIdMap_SC"
+    dbname="LAR_OFL"
+    conddb.addFolder("","<db>sqlite://;schema=/afs/cern.ch/user/p/pavol/w0/public/LAr_Reco_SC_22/run/SCCalibMap.db;dbname=OFLP200</db>"+folder,className="AthenaAttributeList",forceMC=True)
+    conddb.addOverride(folder,"LARIdentifierOflCalibIdMap_SC-000")
+    condSequence+=LArCalibLineMappingAlg("LArCalibLineMappingAlgSC",ReadKey=folder, WriteKey="LArCalibIdMapSC",isSuperCell=True,MaxCL=16)
     return

@@ -445,7 +445,8 @@ void TrackFitter711::init()
 
 
   // check the reach of the end of both maps
-  assert(coord_index_1st_stage==m_ncoords_incomplete && coord_index_2nd_stage==m_ncoords);
+  assert(coord_index_1st_stage == static_cast<unsigned int>(m_ncoords_incomplete) &&
+         coord_index_2nd_stage == static_cast<unsigned int>(m_ncoords));
 
   if (m_super_extrapolate) {
     m_section_of_exp_layers = new int[m_nplanes_ignored];
