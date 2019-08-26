@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
@@ -20,6 +21,9 @@ if DerivationFrameworkIsMonteCarlo:
 TAUP1seq = CfgMgr.AthSequencer("TAUP1Sequence")
 DerivationFrameworkJob += TAUP1seq
 
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = TAUP1seq)
 
 # =============================================
 # Set up stream
@@ -169,12 +173,14 @@ TAUP1SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "Muons",
                                         "TauJets",
-                                        "MET_Reference_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",                                        
                                         "MET_Reference_AntiKt4LCTopo",
-                                        "AntiKt4EMTopoJets",
                                         "AntiKt4LCTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt4LCTopo",
+                                        "AntiKt4EMPFlowJets",                                        
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
 

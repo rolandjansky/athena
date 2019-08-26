@@ -5,14 +5,17 @@ EXOT15SmartContent = [
     "Electrons",
     "Photons",
     "AntiKt4EMTopoJets",
+    "AntiKt4EMTopoJets_BTagging201810",
+    "BTagging_AntiKt4EMTopo_201810"
+    "MET_Reference_AntiKt4EMTopo",
     "InDetTrackParticles",
     "PrimaryVertices",
-    "MET_Reference_AntiKt4EMTopo",
-    "BTagging_AntiKt4EMTopo"
 ]
 
 EXOT15AllVariablesContent = [
-    "BTagging_AntiKt4EMTopo",
+    "AntiKt4EMTopoJets",
+    "AntiKt4EMTopoJets_BTagging201810",
+    "BTagging_AntiKt4EMTopo_201810",
     "TruthEvents",
     "TruthVertices",
     "TruthParticles",
@@ -20,7 +23,6 @@ EXOT15AllVariablesContent = [
     "MuonSegments",
     "MSDisplacedVertex",
     "MSonlyTracklets",
-    "AntiKt4EMTopoJets",
     "CaloCalTopoClusters",
     "MuonTruthParticles",
     "egammaTruthParticles",

@@ -701,7 +701,7 @@ if isMC:
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT4"] = []
 reducedJetList = [
-    "AntiKt2PV0TrackJets", #flavour-tagged automatically
+    "AntiKt2PV0TrackJets",
     "AntiKt4PV0TrackJets",
     "AntiKt10TruthJets",
     "AntiKt10LCTopoJets"]
@@ -833,7 +833,11 @@ for i in listJets:
   # hand picked list of variables to save -- save disk space
   EXOT4SlimmingHelper.ExtraVariables +=[i,i+'.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau1_wta.Tau2_wta.Tau3_wta.Split12.Split23.NTrimSubjets.Parent.GhostAntiKt2TrackJet"']
 
-listBtag = ['BTagging_AntiKtVR30Rmax4Rmin02Track','BTagging_AntiKt4EMPFlow','BTagging_AntiKt4EMTopo','BTagging_AntiKt2Track']
+listBtag = ['BTagging_AntiKtVR30Rmax4Rmin02Track',
+            'BTagging_AntiKt4EMTopo_201810',
+            'BTagging_AntiKt4EMPFlow_201810',
+            'BTagging_AntiKt4EMPFlow_201903']
+
 for i in listBtag:
 	EXOT4SlimmingHelper.AppendToDictionary[i] = 'xAOD::BTaggingContainer'
 	EXOT4SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::BTaggingAuxContainer'

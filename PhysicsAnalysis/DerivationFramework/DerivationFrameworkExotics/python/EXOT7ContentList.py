@@ -16,12 +16,15 @@ EXOT7SmartCollections = [
     'AntiKt4TruthJets',
     'AntiKt4TruthWZJets',
     'AntiKt4EMTopoJets',
+    'AntiKt4EMTopoJets_BTagging201810',
     'AntiKt4EMPFlowJets', 
+    'AntiKt4EMPFlowJets_BTagging201810', 
+    'AntiKt4EMPFlowJets_BTagging201903', 
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
-    "BTagging_AntiKt4EMTopo",
-    "BTagging_AntiKt4EMPFlow",
-    "BTagging_AntiKt2Track",
+    "BTagging_AntiKt4EMTopo_201810",
+    "BTagging_AntiKt4EMPFlow_201810",
+    "BTagging_AntiKt4EMPFlow_201903",
     "BTagging_AntiKtVR30Rmax4Rmin02Track",
 ]
     

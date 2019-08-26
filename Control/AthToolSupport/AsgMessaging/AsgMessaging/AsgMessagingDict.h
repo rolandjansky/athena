@@ -11,5 +11,6 @@
 
 // Local include(s):
 #include "AsgMessaging/AsgMessaging.h"
+#include "AsgMessaging/MsgHelpers.h"
 
 #endif // not ASGMESSAGING_ASGMESSAGINGDICT_H

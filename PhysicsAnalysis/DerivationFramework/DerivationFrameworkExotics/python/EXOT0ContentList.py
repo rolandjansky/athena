@@ -8,8 +8,9 @@ EXOT0SmartCollections = [
     "Electrons",
     "Muons",
     "MET_Reference_AntiKt4EMTopo",
-    "BTagging_AntiKt4EMTopo",
     "AntiKt4EMTopoJets",
+    "AntiKt4EMTopoJets_BTagging201810",
+    "BTagging_AntiKt4EMTopo_201810",
     "PrimaryVertices",
     "InDetTrackParticles"
 ]

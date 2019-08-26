@@ -14,11 +14,6 @@
 
 #include <stdexcept>
 
-#ifndef XAOD_STANDALONE
-#include <GaudiKernel/Bootstrap.h>
-#include <GaudiKernel/ISvcLocator.h>
-#endif
-
 //
 // method implementations
 //
@@ -29,17 +24,6 @@ namespace asg
 
   namespace detail
   {
-#ifndef XAOD_STANDALONE
-    // Get the Athena message service
-    IMessageSvc* getMessageSvcAthena()
-    {
-      static IMessageSvc* msgSvc
-	= Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc");
-      return msgSvc;
-    }
-#endif
-
-
     void throw_check_fail (const std::string& str)
     {
       throw std::runtime_error (str);

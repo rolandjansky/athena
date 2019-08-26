@@ -128,9 +128,13 @@ exot2Seq += CfgMgr.DerivationFramework__DerivationKernel(name = "EXOT2Kernel",
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EXOT2SlimmingHelper = SlimmingHelper("EXOT2SlimmingHelper")
 EXOT2SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMTopoJets_BTagging201810",
                                         "AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMPFlow"
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903"
                                        ]
 TrigJetCleaningVars = '.ECPSFraction.N90Constituents.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterCenterLambda.LeadingClusterSecondR.CentroidR.OotFracClusters5.OotFracClusters10.Timing.GhostTruthAssociationFraction'
 TruthAssociationVars = '.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount'
@@ -146,7 +150,11 @@ EXOT2SlimmingHelper.AllVariables = ["TruthEvents",
                                     "HLT_xAOD__JetContainer_GSCJet",
                                    ]
 #PFlow b-tagging
-EXOT2SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
+EXOT2SlimmingHelper.AppendToDictionary ={
+    'BTagging_AntiKt4EMPFlow_201810':'xAOD::BTaggingContainer',
+    'BTagging_AntiKt4EMPFlow_201810Aux':'xAOD::BTaggingAuxContainer',
+    'BTagging_AntiKt4EMPFlow_201903':'xAOD::BTaggingContainer',
+    'BTagging_AntiKt4EMPFlow_201903Aux':'xAOD::BTaggingAuxContainer'}
 
 EXOT2SlimmingHelper.AppendContentToStream(EXOT2Stream)
 
