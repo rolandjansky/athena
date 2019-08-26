@@ -16,7 +16,6 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from LArCabling.LArCablingConfig import LArFebRodMappingCfg, LArCalibIdMappingCfg
 from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg
 from LArL1Sim.LArL1SimConf import LArTTL1Maker
-from RngComps.RandomServices import RNG
 
 
 def useLArFloat(flags):
