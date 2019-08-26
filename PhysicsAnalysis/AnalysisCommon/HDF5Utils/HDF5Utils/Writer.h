@@ -478,6 +478,24 @@ namespace H5Utils {
     return m_buffer_rows + m_offset;
   }
 
+  /** @brief makeWriter
+   *
+   * Convenience function to make a writer from an existing list of
+   * Consumers. Allows you to deduce the input type from consumers.
+   *
+   * To be used like
+   *
+   * auto writer = H5Utils::makeWriter<2>(group, name, consumers);
+   *
+   **/
+  template <size_t N, class I>
+  Writer<N,I> makeWriter(
+    H5::Group& group, const std::string& name,
+    const Consumers<I>& consumers,
+    const std::array<hsize_t, N>& extent = internal::uniform<N>(5),
+    hsize_t batch_size = 2048) {
+    return Writer<N,I>(group, name, consumers, extent, batch_size);
+  }
 
 }
 
