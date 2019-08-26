@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthContainers/test/DataVector_test.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -79,8 +78,6 @@ void throw_dv_test_err (const char* file, int line, const char* what)
 
 
 
-Athena_test::RNG stlrand;
-Athena_test::RNG stlrand2;
 Athena_test::URNG stlurand;
 Athena_test::URNG stlurand2;
 
