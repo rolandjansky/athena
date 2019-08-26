@@ -33,7 +33,7 @@ class muonNames(object):
     self.EFCBOutInName = recordable("HLT_MuonsCBOutsideIn")
     self.EFCBInOutName = "HLT_MuonsCBInsideOut"
     self.L2IsoMuonName = recordable("HLT_MuonL2ISInfo")
-    self.EFIsoMuonName = "MuonsIso"
+    self.EFIsoMuonName = recordable("HLT_MuonsIso")
 
   def getNames(self, name):
 
