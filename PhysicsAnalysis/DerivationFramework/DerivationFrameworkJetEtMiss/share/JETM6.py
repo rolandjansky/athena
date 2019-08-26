@@ -301,10 +301,13 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-                                        "BTagging_AntiKt2Track",
                                         "BTagging_AntiKtVR30Rmax4Rmin02Track",
-                                        "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKt4EMPFlow"
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         ]
 JETM6SlimmingHelper.AllVariables = [
     "TruthParticles",  "TruthEvents", "TruthVertices",

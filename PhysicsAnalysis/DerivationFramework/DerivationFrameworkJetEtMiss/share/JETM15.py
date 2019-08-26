@@ -291,8 +291,6 @@ jetm15Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM15MainKer
                                                           SkimmingTools = [JETM15OfflineSkimmingTool],
                                                           ThinningTools = thinningTools)
 
-
-
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -343,7 +341,6 @@ JETM15SlimmingHelper.SmartCollections = ["Electrons",
                                          "MET_Reference_AntiKt4EMPFlow",
                                          "AntiKt4EMTopoJets",
                                          "AntiKt4EMPFlowJets",
-					                               "BTagging_AntiKt2Track",
                                          "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         ]
 

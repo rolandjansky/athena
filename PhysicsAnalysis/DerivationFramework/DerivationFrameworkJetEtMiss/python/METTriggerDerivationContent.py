@@ -60,7 +60,13 @@ class METTriggerDerivationContentManager(object):
     self.slimmingHelper = SlimmingHelper(streamName + "SlimmingHelper")
     smartCollections = ["Electrons", "Muons", "Photons", "TauJets", "PrimaryVertices"] + ["{0}Jets".format(a) for a in jetAlgorithms] + ["MET_Reference_{0}".format(a) for a in jetAlgorithms]
     if "AntiKt4EMTopo" in jetAlgorithms:
-      smartCollections.append("BTagging_AntiKt4EMTopo")
+      smartCollections.append("AntiKt4EMTopoJets_BTagging201810")
+      smartCollections.append("BTagging_AntiKt4EMTopo_201810")
+    if "AntiKt4EMPFlow" in jetAlgorithms:
+      smartCollections.append("AntiKt4EMPFlowJets_BTagging201810")
+      smartCollections.append("AntiKt4EMPFlowJets_BTagging201903")
+      smartCollections.append("BTagging_AntiKt4EMPFlow_201810")
+      smartCollections.append("BTagging_AntiKt4EMPFlow_201903")
     self.slimmingHelper.SmartCollections = smartCollections
     self.slimmingHelper.ExtraVariables = ["{0}Jets.Timing".format(a) for a in jetAlgorithms]
     self.slimmingHelper.AllVariables = [

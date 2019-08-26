@@ -20,6 +20,12 @@ from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 applyPFOAugmentation(DerivationFrameworkJob)
 
 #====================================================================
+# BTAGGING INFO FOR PFLOW JET
+#====================================================================
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm5Seq)
+
+#====================================================================
 # SKIMMING TOOL 
 #====================================================================
 expression = '( (EventInfo.eventTypeBitmask==1) || HLT_noalg_zb_L1ZB )'
@@ -125,7 +131,12 @@ JETM5SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJet
                                         "MET_Reference_AntiKt4LCTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4EMTopoJets","AntiKt4LCTopoJets","AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMTopo", ]
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "BTagging_AntiKt4EMTopo_201810"]
 JETM5SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "MuonTruthParticles", "egammaTruthParticles",
                                     "TruthParticles", "TruthEvents", "TruthVertices",
