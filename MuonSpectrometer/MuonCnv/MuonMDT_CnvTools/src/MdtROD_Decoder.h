@@ -102,7 +102,10 @@ private:
         
 	//        bool    m_debug; //!< If true, output debugging information
         //MsgStream       m_log;
-	
+
+        // variables to count how often the caching kicks in
+        unsigned int m_nCache = 0;
+        unsigned int m_nNotCache = 0;
 }; 
 
 /*

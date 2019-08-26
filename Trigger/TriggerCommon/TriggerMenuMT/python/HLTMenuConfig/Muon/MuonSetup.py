@@ -10,6 +10,7 @@ log = logging.getLogger('MuonSetup')
 ### Output data name ###
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaCommon.DetFlags import DetFlags
+from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
 
 TrackParticlesName = recordable("HLT_xAODTracks_Muon")
 theFTF_name = "FTFTracks_Muons"
@@ -70,6 +71,7 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CSC_RawDataProviderToolMT
   MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name        = "CSC_RawDataProviderToolMT",
+                                                               CscContainerCacheKey = MuonCacheNames.CscCache,
                                                                Decoder     = CSCRodDecoder )
   ToolSvc += MuonCscRawDataProviderTool
 
@@ -115,7 +117,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MDT_RawDataProviderToolMT
   MuonMdtRawDataProviderTool = Muon__MDT_RawDataProviderToolMT(name        = "MDT_RawDataProviderToolMT",
-                                                             Decoder     = MDTRodDecoder )
+                                                               CsmContainerCacheKey = MuonCacheNames.MdtCsmCache,
+                                                               Decoder     = MDTRodDecoder )
   ToolSvc += MuonMdtRawDataProviderTool
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
@@ -151,7 +154,9 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RPC_RawDataProviderToolMT
   MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
-                                                             Decoder = RPCRodDecoder )
+                                                               RpcContainerCacheKey = MuonCacheNames.RpcCache,
+                                                               WriteOutRpcSectorLogic = False, # we don't need the RPC sector logic when running the trigger and can't write it out if we want to use the IDC cache for the RDOs
+                                                               Decoder = RPCRodDecoder )
   ToolSvc += MuonRpcRawDataProviderTool
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
@@ -188,7 +193,8 @@ def makeMuonPrepDataAlgs(forFullScan=False):
 
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TGC_RawDataProviderToolMT
   MuonTgcRawDataProviderTool = Muon__TGC_RawDataProviderToolMT(name    = "TGC_RawDataProviderToolMT",
-                                                             Decoder = TGCRodDecoder )
+                                                               TgcContainerCacheKey = MuonCacheNames.TgcCache,
+                                                               Decoder = TGCRodDecoder )
   ToolSvc += MuonTgcRawDataProviderTool
 
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
