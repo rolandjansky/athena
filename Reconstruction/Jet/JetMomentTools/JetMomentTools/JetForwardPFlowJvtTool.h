@@ -6,7 +6,7 @@
 
 // JetForwardPFlowJvtTool.h
 // Header file for class JetForwardPFlowJvtTool
-// Author: Matt Klein<matthew.henry.klein@cern.ch>
+// Author: Anastasia Kotsokechagia <anastasia.kotsokechagia@cern.ch>
 ///////////////////////////////////////////////////////////////////
 #ifndef FORWARDPFLOWJVTTOOL_JVT_FORWARDPFLOWJVTTOOL_H
 #define FORWARDPFLOWJVTTOOL_JVT_FORWARDPFLOWJVTTOOL_H 1
