@@ -82,7 +82,10 @@ class ComponentAccumulator(object):
         summary="This CA contains {0} service, {1} conditions algorithms, {2} event algorithms and {3} public tools\n"\
             .format(len(self._services),len(self._conditionsAlgs),len(self._algorithms),len(self._publicTools))
         if (self._privateTools): 
-            summary+="  Private AlgTool: "+ self._privateTools[-1].getFullName()+"\n" 
+            if (isinstance(self._privateTools, list)):
+                summary+="  Private AlgTool: "+ self._privateTools[-1].getFullName()+"\n"
+            else:
+                summary+="  Private AlgTool: "+ self._privateTools.getFullName()+"\n"
         if (self._primaryComp): 
             summary+="  Primary Component: " + self._primaryComp.getFullName()+"\n" 
         summary+="  Last component added: "+self._lastAddedComponent+"\n" 
@@ -100,7 +103,9 @@ class ComponentAccumulator(object):
              log.error("This ComponentAccumulator was never merged!")
              log.error(self._inspect())
          if getattr(self,'_privateTools',None) is not None:
-             raise RuntimeError("Deleting a ComponentAccumulator with dangling private tool(s)")
+             log = logging.getLogger("ComponentAccumulator")
+             log.error("Deleting a ComponentAccumulator with dangling private tool(s)")
+
         #pass
 
 
@@ -154,7 +159,20 @@ class ComponentAccumulator(object):
             if summariseProps:
                 printProperties(self._msg, t)
         self._msg.info( "]" )
-
+        self._msg.info( "Private Tools")
+        self._msg.info( "[" )
+        if (isinstance(self._privateTools, list)):
+            for t in self._privateTools:
+                self._msg.info( "  {0},".format(t.getFullName()) )
+                # Not nested, for now
+                if summariseProps:
+                    printProperties(self._msg, t)
+        else:
+            if self._privateTools is not None:
+                self._msg.info( "  {0},".format(self._privateTools.getFullName()) )
+                if summariseProps:
+                    printProperties(self._msg, self._privateTools)
+        self._msg.info( "]" )
 
     def addSequence(self, newseq, parentName = None ):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
@@ -344,10 +362,10 @@ class ComponentAccumulator(object):
 
 
     def getPrimary(self):
-        if self._primaryComp:
-            return self._primaryComp
-        elif self._privateTools:
+        if self._privateTools:
             return self.popPrivateTools()
+        elif self._primaryComp:
+            return self._primaryComp
         else:
             raise ConfigurationError("Called getPrimary() but no primary component nor private AlgTool is known.\n"\
                                      +self._inspect())
@@ -501,6 +519,7 @@ class ComponentAccumulator(object):
             self.setAppProperty(k,v)  #Will warn about overrides
             pass
         other._wasMerged=True
+        self._lastAddedComponent = other._lastAddedComponent+' (Merged)'
 
 
     def appendToGlobals(self):
