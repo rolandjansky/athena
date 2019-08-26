@@ -571,7 +571,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
   // Only loop over layers if they can be found within the tracking volume
   else if (trackingVolume.confinedLayers() && associatedLayer->layerMaterialProperties()) {
     const Trk::MultiComponentState* updatedState =
-      m_materialUpdator->postUpdate(*currentState, *layer, direction, particleHypothesis);
+      m_materialUpdator->postUpdate(*currentState, *layer, direction, particleHypothesis).release();
     // Memory clean-up
     if (updatedState && updatedState != currentState && currentState != &multiComponentState) {
       delete currentState;
@@ -585,7 +585,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
     //----------------------------------------
     //   Component reduction
     //----------------------------------------
-    const Trk::MultiComponentState* reducedState = m_merger->merge(*updatedState);
+    const Trk::MultiComponentState* reducedState = m_merger->merge(*updatedState).release();
 
     // Memory clean-up
     if (reducedState && reducedState != updatedState && updatedState != &multiComponentState)
@@ -696,7 +696,7 @@ Trk::GsfExtrapolator::extrapolateToVolumeBoundary(Cache& cache,
       if (layerAtBoundary->layerMaterialProperties()) {
         ATH_MSG_DEBUG("Boundary surface has material - updating properties");
         assert(currentState);
-        matUpdatedState = m_materialUpdator->postUpdate(*currentState, *layerAtBoundary, direction, particleHypothesis);
+        matUpdatedState = m_materialUpdator->postUpdate(*currentState, *layerAtBoundary, direction, particleHypothesis).release();
       }
     }
 
@@ -797,7 +797,7 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
   else if (associatedLayer != destinationLayer && trackingVolume.confinedLayers() &&
            associatedLayer->layerMaterialProperties()) {
     const Trk::MultiComponentState* updatedState =
-      m_materialUpdator->postUpdate(*currentState, *associatedLayer, direction, particleHypothesis);
+      m_materialUpdator->postUpdate(*currentState, *associatedLayer, direction, particleHypothesis).release();
 
     // Memory clean-up
     if (updatedState && updatedState != currentState && currentState != &multiComponentState)
@@ -813,7 +813,7 @@ Trk::GsfExtrapolator::extrapolateInsideVolume(Cache& cache,
        Component reduction
        ---------------------------------------- */
 
-    const Trk::MultiComponentState* reducedState = m_merger->merge(*updatedState);
+    const Trk::MultiComponentState* reducedState = m_merger->merge(*updatedState).release();
 
     // Memory clean-up
     if (reducedState && reducedState != updatedState && updatedState != &multiComponentState) {
@@ -1027,7 +1027,7 @@ Trk::GsfExtrapolator::extrapolateToIntermediateLayer(Cache& cache,
 
   const Trk::MultiComponentState* updatedState = 0;
 
-  updatedState = m_materialUpdator->update(*destinationState, layer, direction, particleHypothesis);
+  updatedState = m_materialUpdator->update(*destinationState, layer, direction, particleHypothesis).release();
 
   // Memory clean-up
   if (updatedState && updatedState != destinationState && destinationState != &multiComponentState)
@@ -1041,7 +1041,7 @@ Trk::GsfExtrapolator::extrapolateToIntermediateLayer(Cache& cache,
   /* -------------------------------------
      Component reduction
      ------------------------------------- */
-  const Trk::MultiComponentState* reducedState = m_merger->merge(*updatedState);
+  const Trk::MultiComponentState* reducedState = m_merger->merge(*updatedState).release();
 
   if (reducedState && reducedState != updatedState && updatedState != &multiComponentState) {
     delete updatedState;
@@ -1104,7 +1104,7 @@ Trk::GsfExtrapolator::extrapolateToDestinationLayer(Cache& cache,
      ---------------------------------------- */
 
   const Trk::MultiComponentState* updatedState =
-    (startLayer != &layer) ? m_materialUpdator->preUpdate(*destinationState, layer, direction, particleHypothesis)
+    (startLayer != &layer) ? m_materialUpdator->preUpdate(*destinationState, layer, direction, particleHypothesis).release()
                            : destinationState;
 
   if (updatedState && updatedState != destinationState && destinationState != &multiComponentState) {
@@ -1120,7 +1120,7 @@ Trk::GsfExtrapolator::extrapolateToDestinationLayer(Cache& cache,
      Component reduction
      ---------------------------------------- */
 
-  const Trk::MultiComponentState* reducedState = m_merger->merge(*updatedState);
+  const Trk::MultiComponentState* reducedState = m_merger->merge(*updatedState).release();
 
   if (reducedState && reducedState != updatedState && updatedState != &multiComponentState)
     delete updatedState;
@@ -1177,7 +1177,7 @@ Trk::GsfExtrapolator::extrapolateSurfaceBasedMaterialEffects(const IPropagator& 
   lastState = nextState;
   nextState = 0;
 
-  nextState = m_materialUpdator->simpliedMaterialUpdate(*lastState, direction, particleHypothesis);
+  nextState = m_materialUpdator->simpliedMaterialUpdate(*lastState, direction, particleHypothesis).release();
 
   if (nextState != lastState && lastState != &multiComponentState)
     delete lastState;
@@ -1189,7 +1189,7 @@ Trk::GsfExtrapolator::extrapolateSurfaceBasedMaterialEffects(const IPropagator& 
   lastState = nextState;
   nextState = 0;
 
-  nextState = m_merger->merge(*lastState);
+  nextState = m_merger->merge(*lastState).release();
 
   if (lastState != nextState && lastState != &multiComponentState)
     delete lastState;
