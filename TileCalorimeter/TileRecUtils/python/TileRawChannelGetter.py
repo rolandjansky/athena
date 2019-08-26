@@ -72,11 +72,11 @@ class TileRawChannelGetter ( Configured)  :
             tileDigitsContainer=""
             tileRawChannelContainer=""
 
-        from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
-        TileDQstatusAlgDefault (TileRawChannelContainer = tileRawChannelContainer,
-                                TileDigitsContainer = tileDigitsContainer,
-                                TileBeamElemContainer = tileBeamElemContainer)
-                                
+        if not globalflags.isOverlay():
+            from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+            TileDQstatusAlgDefault (TileRawChannelContainer = tileRawChannelContainer,
+                                    TileDigitsContainer = tileDigitsContainer,
+                                    TileBeamElemContainer = tileBeamElemContainer)
 
         # set time window for amplitude correction if it was not set correctly before
         if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() <= jobproperties.TileRecFlags.TimeMinForAmpCorrection() :
