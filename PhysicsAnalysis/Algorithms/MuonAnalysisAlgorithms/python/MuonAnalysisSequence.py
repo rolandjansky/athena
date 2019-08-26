@@ -90,6 +90,18 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     selectionDecorNames.append( alg.selectionDecoration )
     selectionDecorCount.append( 2 )
 
+    # Set up the track selection algorithm:
+    alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
+                           'MuonTrackSelectionAlg' + postfix )
+    alg.preselection = "&&".join (selectionDecorNames)
+    alg.selectionDecoration = 'trackSelection' + postfix + ',as_bits'
+    alg.maxD0Significance = 3
+    alg.maxDeltaZ0SinTheta = 0.5
+    seq.append( alg, inputPropName = 'particles',
+                stageName = 'selection' )
+    selectionDecorNames.append( alg.selectionDecoration )
+    selectionDecorCount.append( 3 )
+
     # Set up the muon calibration and smearing algorithm:
     alg = createAlgorithm( 'CP::MuonCalibrationAndSmearingAlg',
                            'MuonCalibrationAndSmearingAlg' + postfix )
@@ -122,19 +134,6 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
                 stageName = 'selection' )
     selectionDecorNames.append( alg.selectionDecoration )
     selectionDecorCount.append( 4 )
-
-    # Set up the track selection algorithm:
-    # TODO: temporarily moved after the quality selection due to ATLASG-780
-    alg = createAlgorithm( 'CP::AsgLeptonTrackSelectionAlg',
-                           'MuonTrackSelectionAlg' + postfix )
-    alg.preselection = "&&".join (selectionDecorNames)
-    alg.selectionDecoration = 'trackSelection' + postfix + ',as_bits'
-    alg.maxD0Significance = 3
-    alg.maxDeltaZ0SinTheta = 0.5
-    seq.append( alg, inputPropName = 'particles',
-                stageName = 'selection' )
-    selectionDecorNames.append( alg.selectionDecoration )
-    selectionDecorCount.append( 3 )
 
     # Set up the isolation calculation algorithm:
     if splitWP[1] != 'NonIso' :
@@ -178,7 +177,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
     if shallowViewOutput:
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                             'MuonViewFromSelectionAlg' + postfix )
-        alg.selection = selectionDecorNames[ : ]
+        alg.selection = selectionDecorNamesOutput[ : ]
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection' )
 
@@ -210,6 +209,7 @@ def makeMuonAnalysisSequence( dataType, workingPoint,
         alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg',
                                'MuonDeepCopyMaker' + postfix )
         alg.deepCopy = True
+        alg.selection = selectionDecorNamesOutput[ : ]
         seq.append( alg, inputPropName = 'input', outputPropName = 'output',
                     stageName = 'selection' )
         pass
