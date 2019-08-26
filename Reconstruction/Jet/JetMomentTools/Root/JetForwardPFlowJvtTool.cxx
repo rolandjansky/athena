@@ -6,7 +6,7 @@
 
 // JetForwardPFlowJvtTool.cxx
 // Implementation file for class JetForwardPFlowJvtTool
-// Author: Matt Klein<matthew.henry.klein@cern.ch>
+// Author: Anastasia Kotsokechagia <anastasia.kotsokechagia@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
 // JetForwardPFlowJvtTool includes
@@ -64,7 +64,7 @@
     declareProperty("PFOWeightToolName",  m_wpfoToolName     = "WPFOTool"                );
     declareProperty("JetCalibToolName",   m_pfoJESName       = "pfoJES"                  );
     declareProperty("JetCalibCollection", m_jetAlgo          = "AntiKt4EMPFlow"          );
-    declareProperty("JetCalibConfigFile", m_caliconfig       = ""                        );
+    declareProperty("JetCalibConfigFile", m_caliconfig       = "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config");
     declareProperty("JetCalibSequence",   m_calibSeq         = "JetArea_Residual_EtaJES" );
     declareProperty("JetCalibArea",       m_calibArea        = "00-04-82"                );
     declareProperty("JetCalibIsData",     m_isdata           = false                     );
