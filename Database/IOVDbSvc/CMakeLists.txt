@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 751303 2016-06-01 08:40:23Z krasznaa $
 ################################################################################
 # Package: IOVDbSvc
 ################################################################################
@@ -53,7 +52,7 @@ atlas_add_component( IOVDbSvc
 
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8})
 atlas_install_joboptions( share/*.py )
 atlas_install_joboptions( share/*.txt )
 
