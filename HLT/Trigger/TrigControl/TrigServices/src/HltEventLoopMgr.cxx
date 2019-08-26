@@ -800,16 +800,26 @@ StatusCode HltEventLoopMgr::processRunParams(const ptree & pt)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  TrigSORFromPtreeHelper sorhelp(msgSvc(), m_detectorStore, m_sorPath);
   const auto& rparams = pt.get_child("RunParams");
+  TrigSORFromPtreeHelper sorhelp(msgSvc(), m_detectorStore, m_sorPath, rparams);
+
+  // Override run/timestamp if needed
+  if (m_forceRunNumber > 0) {
+    sorhelp.setRunNumber(m_forceRunNumber);
+    ATH_MSG_WARNING("Run number overwrite:" << m_forceRunNumber);
+  }
+  if (m_forceSOR_ns > 0) {
+    sorhelp.setSORtime_ns(m_forceSOR_ns);
+    ATH_MSG_WARNING("SOR time overwrite:" << m_forceSOR_ns);
+  }
 
   // Set our "run context" (invalid event/slot)
-  m_currentRunCtx.setEventID( sorhelp.eventID(rparams) );
+  m_currentRunCtx.setEventID( sorhelp.eventID() );
   m_currentRunCtx.setExtension(Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
                                                            m_currentRunCtx.eventID().run_number()));
 
   // Fill SOR parameters from ptree and inform IOVDbSvc
-  ATH_CHECK( sorhelp.fillSOR(rparams, m_currentRunCtx) );
+  ATH_CHECK( sorhelp.fillSOR(m_currentRunCtx) );
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;

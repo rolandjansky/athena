@@ -21,14 +21,22 @@ namespace
 ////////////////////////////////////////////////////////////////////////////////
 TrigSORFromPtreeHelper::TrigSORFromPtreeHelper(IMessageSvc* msgSvc,
                                                const ServiceHandle<StoreGateSvc>& detStore,
-                                               const std::string& sorpath) :
+                                               const std::string& sorpath,
+                                               const ptree& rparams) :
   AthMessaging(msgSvc, CLNAME),
   m_detStore(detStore),
-  m_sorpath(sorpath)
-{}
+  m_sorpath(sorpath),
+  m_rparams(rparams)
+{
+  // Set run number and timestamp from RunParams. Can be overwritten later.
+  m_runNumber = rparams.get<unsigned int>("run_number");
+
+  const auto t = OWLTime{(rparams.get_child("timeSOR").data()).c_str()};
+  m_sorTime_ns = t.total_mksec_utc() * 1000;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
-StatusCode TrigSORFromPtreeHelper::fillSOR(const ptree & rparams, const EventContext& ctx) const
+StatusCode TrigSORFromPtreeHelper::fillSOR(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("Setup SOR in DetectorStore");
 
@@ -46,33 +54,34 @@ StatusCode TrigSORFromPtreeHelper::fillSOR(const ptree & rparams, const EventCon
     }
   }
 
-  ATH_CHECK( createSOR(rparams) );
+  ATH_CHECK( createSOR() );
 
   return StatusCode::SUCCESS;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-EventIDBase TrigSORFromPtreeHelper::eventID(const ptree& rparams) const
+EventIDBase TrigSORFromPtreeHelper::eventID() const
 {
   EventIDBase eid;
-  auto t = OWLTime{(rparams.get_child("timeSOR").data()).c_str()};
 
-  eid.set_run_number( rparams.get<unsigned int>("run_number") );
+  // Set run and timestamp
+  eid.set_run_number( m_runNumber );
+  eid.set_time_stamp( m_sorTime_ns / (1000*1000*1000) );
+  eid.set_time_stamp_ns_offset( m_sorTime_ns % (1000*1000*1000) );
+
   eid.set_lumi_block(0);  // our best guess as this is not part of RunParams
-  eid.set_time_stamp( static_cast<EventIDBase::number_type>(t.c_time()) );
-  eid.set_time_stamp_ns_offset( t.mksec()*1000 );
 
   return eid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-StatusCode TrigSORFromPtreeHelper::createSOR(const ptree& rparams) const
+StatusCode TrigSORFromPtreeHelper::createSOR() const
 {
   // obtain SOR contents from ptree
-  auto attrList = getAttrList(rparams);
+  auto attrList = getAttrList();
 
   // Validity
-  IOVTime iovTimeStart(attrList["RunNumber"].data<unsigned int>() ,0);
+  IOVTime iovTimeStart(attrList["RunNumber"].data<unsigned int>(),0);
   IOVTime iovTimeStop(attrList["RunNumber"].data<unsigned int>()+1,0);
   IOVRange iovRange(iovTimeStart, iovTimeStop);
 
@@ -106,7 +115,7 @@ StatusCode TrigSORFromPtreeHelper::createSOR(const ptree& rparams) const
 
 
 ////////////////////////////////////////////////////////////////////////////////
-coral::AttributeList TrigSORFromPtreeHelper::getAttrList(const ptree& rparams) const
+coral::AttributeList TrigSORFromPtreeHelper::getAttrList() const
 {
   // First create attribute specification
   // ugly new needed:
@@ -122,14 +131,13 @@ coral::AttributeList TrigSORFromPtreeHelper::getAttrList(const ptree& rparams) c
   // now create the attribute list and fill it in
   coral::AttributeList attrList(*attrSpec);
 
-  attrList["RunNumber"].data<unsigned int>() = rparams.get<unsigned int>("run_number");
-  attrList["RunType"].data<std::string>()    = rparams.get<std::string>("run_type");
-  attrList["RecordingEnabled"].data<bool>()  = rparams.get<bool>("recording_enabled");
+  attrList["RunNumber"].data<unsigned int>() = m_runNumber;
+  attrList["RunType"].data<std::string>()    = m_rparams.get<std::string>("run_type");
+  attrList["RecordingEnabled"].data<bool>()  = m_rparams.get<bool>("recording_enabled");
 
-  const auto& t = rparams.get_child("timeSOR").data();
-  attrList["SORTime"].data<unsigned long long>() = OWLTime{t.c_str()}.total_mksec_utc() * 1000;
+  attrList["SORTime"].data<unsigned long long>() = m_sorTime_ns;
 
-  std::pair<uint64_t, uint64_t> dm = eformat::helper::DetectorMask(rparams.get_child("det_mask").data()).serialize();
+  std::pair<uint64_t, uint64_t> dm = eformat::helper::DetectorMask(m_rparams.get_child("det_mask").data()).serialize();
   attrList["DetectorMaskFst"].data<unsigned long long>() = dm.first;
   attrList["DetectorMaskSnd"].data<unsigned long long>() = dm.second;
 
