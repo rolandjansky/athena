@@ -140,6 +140,7 @@ TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_noalg_L1RD0_FIL
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu80_msonly_3layersEC_L1MU20 ID#761101109
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6Comb_L1MU6 ID#996392590
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e3_etcut1step_L1EM3 ID#999988353
 TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_mu6_ivarmedium_L1MU6 ID#1012713062
@@ -158,6 +159,7 @@ TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_noalg_L1EM3 ID#
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e5_etcut_L1EM3 ID#324908483
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_g5_etcut_L1EM3 ID#471243435
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e3_etcut_L1EM3 ID#683953566
+TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu80_msonly_3layersEC_L1MU20 ID#761101109
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu6Comb_L1MU6 ID#996392590
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu6_ivarmedium_L1MU6 ID#1012713062
 TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_mu6noL1_L1MU6 ID#1631468602
@@ -470,6 +472,8 @@ TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6       
 TrigSignatureMoniMT                                INFO HLT_mu6fast_L1MU6 decisions                       3         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6             20        20        4         1         0         0         0         1         
 TrigSignatureMoniMT                                INFO HLT_mu6noL1_L1MU6 decisions                       4         1         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_mu80_msonly_3layersEC_L1MU2020        20        1         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_mu80_msonly_3layersEC_L1MU20 decisions                    1         0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_noalg_L1EM3               20        20        20        0         0         0         0         20        
 TrigSignatureMoniMT                                INFO HLT_noalg_L1EM3 decisions                         20        0         0         0         0         
 TrigSignatureMoniMT                                INFO HLT_noalg_L1RD0_FILLED        20        20        20        0         0         0         0         20        

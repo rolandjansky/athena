@@ -193,7 +193,7 @@ MuonChainParts = {
     'extra'          : ['noL1', 'Comb', 'fast', 'msonly'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivar','ivarmedium'],
-    'addInfo'        : ['1step'],
+    'addInfo'        : ['1step','3layersEC'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     'eventBuildType' : AllowedEventBuildingIdentifiers,

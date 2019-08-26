@@ -66,6 +66,18 @@ bool TrigMuonEFMSonlyHypoTool::decideOnSingleObject(TrigMuonEFMSonlyHypoTool::Mu
     ATH_MSG_DEBUG("Retrieval of xAOD::MuonContainer failed");
     return false;
   }
+  if(m_threeStationCut){
+    uint8_t nGoodPrcLayers=0;
+    if (!muon->summaryValue(nGoodPrcLayers, xAOD::numberOfGoodPrecisionLayers)){
+      ATH_MSG_DEBUG("No numberOfGoodPrecisionLayers variable found; not passing hypo");
+      return false;
+    }
+    if(fabs(muon->eta()) > 1.05 && nGoodPrcLayers < 3){
+      ATH_MSG_DEBUG("Muon has less than three GoodPrecisionLayers; not passing hypo");
+      return false;
+    }
+  }
+
   if (muon->primaryTrackParticle()) { // was there a muon in this RoI ?
     const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
     if (!tr) {
