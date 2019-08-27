@@ -130,7 +130,6 @@ class CaloCellGetter (Configured)  :
                         and not (jobproperties.TileRecFlags.doTileFlat        \
                                  or jobproperties.TileRecFlags.doTileFit      \
                                  or jobproperties.TileRecFlags.doTileFitCool  \
-                                 or jobproperties.TileRecFlags.doTileOpt      \
                                  or jobproperties.TileRecFlags.doTileOF1      \
                                  or jobproperties.TileRecFlags.doTileOpt2     \
                                  or jobproperties.TileRecFlags.doTileOptATLAS \

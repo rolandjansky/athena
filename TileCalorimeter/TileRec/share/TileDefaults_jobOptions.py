@@ -5,7 +5,6 @@ if ('doSim' in dir()) and doSim:
     # don't need to run any optimal filtering on simulated data
     # this is already done at digitization step
     doTileFlat = False
-    doTileOpt  = False
     doTileOF1 = False
     doTileOpt2 = False
     doTileQIE = False
@@ -31,11 +30,6 @@ if not 'doTileFlat' in dir():
     doTileFlat = jobproperties.TileRecFlags.doTileFlat()
 else:
     jobproperties.TileRecFlags.doTileFlat = doTileFlat
-
-if not 'doTileOpt' in dir():
-    doTileOpt = jobproperties.TileRecFlags.doTileOpt()
-else:
-    jobproperties.TileRecFlags.doTileOpt = doTileOpt
 
 if not 'doTileOF1' in dir():
     doTileOF1 = jobproperties.TileRecFlags.doTileOF1()
