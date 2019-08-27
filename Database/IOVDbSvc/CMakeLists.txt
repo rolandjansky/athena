@@ -136,6 +136,7 @@ atlas_add_test( TagFunctions_test
                 test/TagFunctions_test.cxx src/TagFunctions.cxx src/IOVDbStringFunctions.cxx
                 INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}     ${CURL_INCLUDE_DIRS}   
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES}  AthenaKernel  StoreGateLib  GaudiKernel TestTools EventInfo IOVSvcLib  PersistentDataModel ${COOL_LIBRARIES}  ${CURL_LIBRARIES}
+                POST_EXEC_SCRIPT "nopost.sh"
                 )
                 
 atlas_add_test( IOVDbSvcCurl_test
