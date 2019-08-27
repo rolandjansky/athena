@@ -108,6 +108,32 @@ namespace InDetDD {
 
   */  
 
+  /**
+   * Some notes on Thread safety for  AthenaMT
+   * The private methods of this class do not have locks
+   * 
+   * The method updateCache of is of particular interest as 
+   * it set all cache values and at the end sets the  
+   * m_cacheValid atomic variable to true.
+   *
+   * The const methods call the updateCache() under a mutex lock
+   * when the need to perform  lazy initialization
+   * std::lock_guard<std::recursive_mutex> lock(m_mutex);
+   *    if (!m_cacheValid) updateCache();
+   *
+   * So as concurrent const operations are valid 
+   * and do not race with each other. 
+   *
+   * The non-const methods do not use a mutex lock. They can set the state
+   * of the cache or the cache itself (invalidate/setCache methods etc)
+   *
+   * Note: Synchronisation of creating SiDetElements for different events 
+   * and accessing for each events 
+   * can be done via write/read handles or similar EventContext aware 
+   * framework machinery. 
+   */
+ 
+
   class SiDetectorElement : public Trk::TrkDetElementBase {
 
       ///////////////////////////////////////////////////////////////////
@@ -501,13 +527,10 @@ namespace InDetDD {
       void invalidate();
    
       ///Set/calculate cache values 
-      void setCache(){
-        updateCache();
-      } 
+      void setCache();
+
      ///Set/calculate all cache values including  surfaces.  
-      void setAllCaches(){
-        updateAllCaches();
-      } 
+      void setAllCaches();
    
       //@}
     
@@ -549,6 +572,12 @@ namespace InDetDD {
       ///////////////////////////////////////////////////////////////////
     
     private:
+      /*
+       * Private Methods do not use locks
+       * the methods calling them especially if const 
+       * do
+       */
+
        /// Recalculate  cached values. 
       void updateCache() const;
    
@@ -560,6 +589,7 @@ namespace InDetDD {
     
       // Calculate extent in r,z and phi. The values are cached and there
       // are rMin(), rMax etc methods.
+      // It is only used from updateCache
       void getExtent(double &rMin, double &rMax,
                      double &zMin, double &zMax,
                      double &phiMin, double &phiMax) const;
@@ -574,9 +604,16 @@ namespace InDetDD {
       // This function is used by getEtaPhiRegion()
       void getEtaPhiPoint(const HepGeom::Point3D<double> & point, double deltaZ,
                           double &etaMin, double &etaMax, double &phi) const;
-    
-      
-      //Declaring the Message method for further use
+
+      // Private recoToHitTransform Implementation method with no lock
+      const HepGeom::Transform3D recoToHitTransformImpl() const;
+ 
+      // Private Implementation  methods with no lock
+      double sinStereoImpl() const; // At center
+      // at given global position
+      double sinStereoImpl(const HepGeom::Point3D<double> &globalPosition) const;
+ 
+      // Declaring the Message method for further use
       MsgStream& msg (MSG::Level lvl) const { return m_commonItems->msg(lvl);}
     
       //Declaring the Method providing Verbosity Level
@@ -776,7 +813,17 @@ namespace InDetDD {
     {
       m_cacheValid = false;
     }
-
+    
+    inline void SiDetectorElement::setCache()
+    {
+        updateCache();
+    } 
+    
+    inline void SiDetectorElement::setAllCaches()
+    {
+        updateAllCaches();
+    } 
+ 
     inline void SiDetectorElement::updateAllCaches() const
     {
       std::lock_guard<std::recursive_mutex> lock(m_mutex);

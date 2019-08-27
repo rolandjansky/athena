@@ -143,15 +143,22 @@ SiDetectorElement::~SiDetectorElement()
   m_commonItems->unref();
 }
 
+/* 
+ * update cache 
+ * This is supposed to be called inside a block
+ * like
+ * std::lock_guard< ... > 
+ * if(!cacheValid){
+ *  updateCache()
+ * }
+ */
 void 
 SiDetectorElement::updateCache() const
 {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
   bool firstTimeTmp = m_firstTime;
-  m_firstTime = false;
-  m_cacheValid = true;
-  
+  m_firstTime=false;
+
   const GeoTrf::Transform3D & geoTransform = transformHit();
 
   double radialShift = 0.;
@@ -290,9 +297,7 @@ SiDetectorElement::updateCache() const
 
   } // end if (firstTimeTmp)
   
-
-
-  m_transformCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * recoToHitTransform();
+  m_transformCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * recoToHitTransformImpl();
   //m_transform = m_commonItems->solenoidFrame() * geoTransform * recoToHitTransform();
   m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
   
@@ -316,8 +321,7 @@ SiDetectorElement::updateCache() const
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Local frame is left-handed." << endmsg;
       }
     }
-  }
-  
+  } 
   
   // Initialize various cached members
   // The unit vectors
@@ -333,11 +337,10 @@ SiDetectorElement::updateCache() const
 
   getExtent(m_minR, m_maxR, m_minZ, m_maxZ, m_minPhi, m_maxPhi);
 
-
   // Determin isStereo
   if (firstTimeTmp) {
     if (isSCT() && m_otherSide) {
-      double sinStereoThis = std::abs(sinStereo());
+      double sinStereoThis = std::abs(sinStereoImpl());//Call the private impl method
       double sinStereoOther = std::abs(m_otherSide->sinStereo());
       if (sinStereoThis == sinStereoOther) {
         // If they happend to be equal then set side0 as axial and side1 as stereo.
@@ -353,7 +356,10 @@ SiDetectorElement::updateCache() const
     } else {
       m_isStereo = false;
     }
-  }    
+  }
+  //Install the cache at the end
+  m_cacheValid.store(true);
+
 }
 
 
@@ -408,13 +414,15 @@ SiDetectorElement::defTransform() const
 const HepGeom::Transform3D 
 SiDetectorElement::recoToHitTransform() const
 {
-
   // Determine the reconstruction local (LocalPosition) to global transform.
-
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (m_firstTime) updateCache();
 
-  // global = transform * recoLocal
+  return recoToHitTransformImpl();
+}
+const HepGeom::Transform3D 
+SiDetectorElement::recoToHitTransformImpl() const
+{
   //        = transfromHit * hitLocal
   //        = transformHit * recoToHitTransform * recoLocal
   // recoToHitTransform takes recoLocal to hitLocal
@@ -686,7 +694,11 @@ double SiDetectorElement::sinStereo() const
 {
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
+  return sinStereoImpl();
+}
 
+double SiDetectorElement::sinStereoImpl() const
+{
   // Stereo is the angle between a refVector and a vector along the strip/pixel in eta direction.
   // I'm not sure how the sign should be defined. I've defined it here
   // with rotation sense respect to normal,
@@ -708,7 +720,6 @@ double SiDetectorElement::sinStereo() const
   // sinStereo = (refVector cross etaAxis) . normal
   //           = -(center cross etaAxis) . zAxis
   //           = (etaAxis cross center). z() 
-
   double sinStereo;
   if (isBarrel()) {
     sinStereo = m_phiAxis.z();
@@ -718,24 +729,28 @@ double SiDetectorElement::sinStereo() const
   return sinStereo;
 }
 
-  double SiDetectorElement::sinStereo(const Amg::Vector2D &localPos) const
+double SiDetectorElement::sinStereo(const Amg::Vector2D &localPos) const
 {
   std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_cacheValid) updateCache();
 
   HepGeom::Point3D<double> point=globalPositionCLHEP(localPos);
-  return sinStereo(point);
+  return sinStereoImpl(point);
 }
 
 double SiDetectorElement::sinStereo(const HepGeom::Point3D<double> &globalPos) const
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
+  if (!m_cacheValid) updateCache();
+  
+  return sinStereoImpl(globalPos);
+} 
+
+double SiDetectorElement::sinStereoImpl(const HepGeom::Point3D<double> &globalPos) const
+{
   //
   // sinStereo =  (refVector cross stripAxis) . normal
   //
-
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
-
   double sinStereo;
   if (isBarrel()) {
     if (m_design->shape() != InDetDD::Trapezoid) {
@@ -836,6 +851,8 @@ SiDetectorElement::bounds() const
 }
   
 // Get min/max or r, z,and phi
+// helper method only to be used for the  cache construction
+// i.e inside updateCache
 void SiDetectorElement::getExtent(double &rMin, double &rMax, 
                                   double &zMin, double &zMax,
                                   double &phiMin, double &phiMax) const
@@ -858,7 +875,9 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 
     if (testDesign) corners[i].transform(rShift);
 
-    HepGeom::Point3D<double> globalPoint = globalPosition(corners[i]);
+    //m_tranform is already there as  part of the cache construction
+    //This methods seems to be used only as a helper for updateCache
+    HepGeom::Point3D<double> globalPoint = m_transformCLHEP* corners[i];
 
     double rPoint = globalPoint.perp();
     double zPoint = globalPoint.z();
@@ -903,8 +922,6 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
   if (phiMax > M_PI)  phiMax -= 2. * M_PI;
 
 }
-
-
 
 // Get eta/phi extent. Returns min/max eta and phi and r (for barrel)
 // or z (for endcap) Takes as input the vertex spread in z (+-deltaZ).
@@ -1002,9 +1019,6 @@ void SiDetectorElement::getEtaPhiPoint(const HepGeom::Point3D<double> & point, d
 
 void SiDetectorElement::getCorners(HepGeom::Point3D<double> *corners) const
 {
-  std::lock_guard<std::recursive_mutex> lock(m_mutex);
-  if (!m_cacheValid) updateCache();
-
   // This makes the assumption that the forward SCT detectors are orientated such that 
   // the positive etaAxis corresponds to the top of the detector where the width is largest.
   // This is currently always the case.
