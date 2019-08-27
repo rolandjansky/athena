@@ -178,7 +178,7 @@ namespace EL
                 }
                 const std::string uniqueDateFormat {
                   data.options.castString (Job::optUniqueDateFormat,
-                                           "%Y-%m-%d-%H%M")};
+                                           "-%Y-%m-%d-%H%M-")};
                 char timeString [160];
                 strftime (timeString, sizeof (timeString),
                           uniqueDateFormat.c_str(), &tvSplit);
@@ -199,7 +199,7 @@ namespace EL
                 // that can provide a useful ordering of output
                 // directories, i.e. the latest results will be listed
                 // last.
-                submitDir = data.submitDir + "-" + timeString + "-" +
+                submitDir = data.submitDir + timeString +
                   (boost::format ("%04x") % hash16).str();
                 ANA_MSG_DEBUG ("unique submit-dir: " << submitDir);
               }
@@ -221,6 +221,12 @@ namespace EL
                   ANA_MSG_ERROR ("change the name or remove file/directory already there");
                   return ::StatusCode::FAILURE;
                 case SubmitDirMode::OVERWRITE:
+                  if (tries > 1)
+                  {
+                    ANA_MSG_ERROR ("failed to remove directory " << submitDir);
+                    ANA_MSG_ERROR ("please try to remove it manually");
+                    return ::StatusCode::FAILURE;
+                  }
                   ANA_MSG_DEBUG ("removing directory " << submitDir);
                   gSystem->Exec (("rm -rf " + submitDir).c_str());
                   break;
