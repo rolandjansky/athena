@@ -53,9 +53,9 @@ class LArCollisionTimeMonAlg: public AthMonitorAlgorithm
 
   // Other properties
   Gaudi::Property<int> m_distance {this,"TrainFrontDistance",30}; // distance from train front to fill second histos
-  Gaudi::Property<bool> m_IsOnline {this,"IsOnline",false};
   Gaudi::Property<float> m_timeCut {this,"timeDiffCut",5.0};
   Gaudi::Property<int> m_minCells {this,"nCells",2};
+  Gaudi::Property<bool> m_IsOnline {this,"IsOnline",false};
   Gaudi::Property<bool> m_eWeighted {this,"eWeighted",true};
 
   //containers' handles
