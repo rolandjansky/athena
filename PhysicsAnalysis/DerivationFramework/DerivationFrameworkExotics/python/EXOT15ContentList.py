@@ -6,7 +6,7 @@ EXOT15SmartContent = [
     "Photons",
     "AntiKt4EMTopoJets",
     "AntiKt4EMTopoJets_BTagging201810",
-    "BTagging_AntiKt4EMTopo_201810"
+    "BTagging_AntiKt4EMTopo_201810",
     "MET_Reference_AntiKt4EMTopo",
     "InDetTrackParticles",
     "PrimaryVertices",
