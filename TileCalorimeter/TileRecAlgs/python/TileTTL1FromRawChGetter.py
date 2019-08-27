@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileTTL1 creation from TileRawChannel
 # with TileRawChannelToTTL1 algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -23,7 +21,7 @@ class TileTTL1FromRawChGetter ( Configured )  :
         try:
             from TileRecAlgs.TileTTL1FromRawChGetter import TileTTL1FromRawChGetter
             theTileTTL1FromRawChGetter=TileTTL1FromRawChGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileTTL1FromRawChGetter Quit")
             print traceback.format_exc()
             return False
@@ -38,13 +36,13 @@ class TileTTL1FromRawChGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileRecAlgs.TileRecAlgsConf import TileRawChannelToTTL1                
-        except:
+        except Exception:
             mlog.error("could not import TileRecAlgs.TileRawChannelToTTL1")
             print traceback.format_exc()
             return False
 
         theTileRawChannelToTTL1=TileRawChannelToTTL1()
-        self._TileRawChannelToTTL1Handle = theTileRawChannelToTTL1 ;
+        self._TileRawChannelToTTL1Handle = theTileRawChannelToTTL1
 
         # Configure TileRawChannelsToTTL1 here
         theTileRawChannelToTTL1.TileRawChannelContainer="TileRawChannelCnt"
@@ -67,7 +65,7 @@ class TileTTL1FromRawChGetter ( Configured )  :
         mlog.info(" now adding to topSequence")        
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileRawChannelToTTL1;
+        topSequence += theTileRawChannelToTTL1
         
         return True
 

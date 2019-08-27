@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileTTL1 creation from TileDigits
 # with TileDigitsToTTL1 algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -23,7 +21,7 @@ class TileTTL1FromDigitsGetter ( Configured )  :
         try:
             from TileRecAlgs.TileTTL1FromDigitsGetter import TileTTL1FromDigitsGetter
             theTileTTL1FromDigitsGetter=TileTTL1FromDigitsGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileTTL1FromDigitsGetter Quit")
             print traceback.format_exc()
             return False
@@ -38,13 +36,13 @@ class TileTTL1FromDigitsGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileRecAlgs.TileRecAlgsConf import TileDigitsToTTL1                
-        except:
+        except Exception:
             mlog.error("could not import TileRecAlgs.TileDigitsToTTL1")
             print traceback.format_exc()
             return False
 
         theTileDigitsToTTL1=TileDigitsToTTL1()
-        self._TileDigitsToTTL1Handle = theTileDigitsToTTL1 ;
+        self._TileDigitsToTTL1Handle = theTileDigitsToTTL1
 
         # Configure TileDigitsToTTL1 here
         theTileDigitsToTTL1.TileDigitsContainer="TileDigitsCnt"
@@ -67,7 +65,7 @@ class TileTTL1FromDigitsGetter ( Configured )  :
         mlog.info(" now adding to topSequence")        
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileDigitsToTTL1;
+        topSequence += theTileDigitsToTTL1
         
         return True
 

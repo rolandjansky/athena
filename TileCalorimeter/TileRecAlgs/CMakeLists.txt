@@ -54,3 +54,7 @@ set_target_properties( TileRecAlgs_TileDigitsThresholdFilter_test PROPERTIES ENA
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
+# Check python syntax:
+atlas_add_test( flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 ${CMAKE_CURRENT_SOURCE_DIR}/python
+                POST_EXEC_SCRIPT nopost.sh )
