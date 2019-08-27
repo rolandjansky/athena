@@ -16,7 +16,7 @@ EXOT6SmartContent = [
     "AntiKt4TruthJets",
     "TauJets",
     "BTagging_AntiKt4EMTopo_201810",
-    "BTagging_AntiKt4EMPFlow_201810"
+    "BTagging_AntiKt4EMPFlow_201810",
     "BTagging_AntiKt4EMPFlow_201903"
 ]
 
