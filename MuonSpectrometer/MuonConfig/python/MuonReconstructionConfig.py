@@ -5,6 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # Local
 from MuonConfig.MuonSegmentFindingConfig import MuonSegmentFindingCfg
+from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 
 
 def MuonReconstructionCfg(flags):
@@ -12,6 +13,7 @@ def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
     result=ComponentAccumulator()
     result.merge( MuonSegmentFindingCfg(flags) )
+    result.merge( MuonTrackBuildingCfg(flags) )
     return result
     
 if __name__=="__main__":
