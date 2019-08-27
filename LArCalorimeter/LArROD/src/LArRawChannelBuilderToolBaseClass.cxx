@@ -20,7 +20,6 @@ LArRawChannelBuilderToolBaseClass::LArRawChannelBuilderToolBaseClass(const std::
   AthAlgTool(type,name,parent),
   m_parent(NULL),
   m_helper(NULL),
-  m_detStore(NULL),
   m_isSC(false)
 {
 declareProperty("IsSuperCell",              m_isSC  = false);

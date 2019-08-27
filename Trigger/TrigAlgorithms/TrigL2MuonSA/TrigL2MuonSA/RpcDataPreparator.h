@@ -34,7 +34,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 
-class StoreGateSvc;
 class ActiveStoreSvc;
 class RpcIdHelper;
 
@@ -100,6 +99,9 @@ class RpcDataPreparator: public AthAlgTool
       // for writing.
       bool m_use_RoIBasedDataAccess;
       bool m_isFakeRoi;
+
+      // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
+      Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };
 
       // Flag to decide whether or not to run BS decoding
       Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };

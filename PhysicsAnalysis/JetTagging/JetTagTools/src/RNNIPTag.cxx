@@ -148,7 +148,7 @@ namespace Analysis {
   RNNIPTag::RNNIPTag(const std::string& t,
                      const std::string& n,
                      const IInterface* p)
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_unbiasIPEstimation(true),
       m_calibrationDirectory("RNNIP"),
       m_secVxFinderName("InDetVKalVxInJetTool"),
@@ -157,9 +157,6 @@ namespace Analysis {
       m_trackGradeFactory("Analysis::BasicTrackGradeFactory", this),
       m_trackToVertexIPEstimator(this)
   {
-
-    declareInterface<ITagTool>(this);
-
     // global configuration:
     declareProperty("xAODBaseName"  , m_xAODBaseName);
 
@@ -286,10 +283,12 @@ namespace Analysis {
   }
 
 
-  StatusCode RNNIPTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
-
+  StatusCode RNNIPTag::tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag) const
+  {
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
     if (m_ForcedCalibName.size() > 0) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations");
 
@@ -301,7 +300,7 @@ namespace Analysis {
     // bad tracks from V0s, conversions, interactions:
     m_SVForIPTool->getTrkFromV0FromSecondaryVertexInfo(
       TrkFromV0,//output
-      BTag,m_secVxFinderName);//input
+      &BTag,m_secVxFinderName);//input
 
     ATH_MSG_VERBOSE("#BTAG# VALERIO TrkFromV0 : number of reconstructed"
                     " bad tracks: " << TrkFromV0.size());
@@ -312,7 +311,7 @@ namespace Analysis {
     /** extract the TrackParticles from the jet and apply track selection: */
     int nbTrak = 0;
 
-    const auto& associationLinks = BTag->auxdata<TrackLinks>(
+    const auto& associationLinks = BTag.auxdata<TrackLinks>(
       m_trackAssociationName);
     double sumTrkpT = 0;
     if( associationLinks.size() == 0 ) {
@@ -325,7 +324,7 @@ namespace Analysis {
       // the second time a possibly tighter pt cut may be applied
       for(const auto& trk: associationLinks) {
         const xAOD::TrackParticle* aTemp = *trk;
-        if (m_trackSelectorTool->selectTrack(m_priVtx->position(), aTemp))
+        if (m_trackSelectorTool->selectTrack(priVtx.position(), aTemp))
         {
           sumTrkpT += aTemp->pt();
         }
@@ -335,9 +334,9 @@ namespace Analysis {
       for(const auto& trk: associationLinks) {
         const xAOD::TrackParticle* aTemp = *trk;
         nbTrak++;
-        if( m_trackSelectorTool->selectTrack(m_priVtx->position(), aTemp, sumTrkpT) ) {
+        if( m_trackSelectorTool->selectTrack(priVtx.position(), aTemp, sumTrkpT) ) {
           TrackGrade* theGrade = m_trackGradeFactory->getGrade(
-            *aTemp, jetToTag->p4() );
+            *aTemp, jetToTag.p4() );
           ATH_MSG_VERBOSE("#BTAG#  result of selectTrack is OK, grade= "
                           << theGrade->gradeString() );
           bool tobeUsed = false;
@@ -367,17 +366,17 @@ namespace Analysis {
 
     ATH_MSG_VERBOSE("#BTAG# #tracks = " << nbTrak);
     ATH_MSG_VERBOSE("#BTAG# the z of the primary = " <<
-                    m_priVtx->position().z());
+                    priVtx.position().z());
 
     /** jet direction: */
-    Amg::Vector3D jetDirection(jetToTag->px(),jetToTag->py(),jetToTag->pz());
+    Amg::Vector3D jetDirection(jetToTag.px(),jetToTag.py(),jetToTag.pz());
 
     /** prepare vectors with all track information: TP links,
      * i.p. significances, track grade, etc */
-    auto track_info = get_track_info(tracksInJet, jetDirection, TrkFromV0);
+    auto track_info = get_track_info(priVtx, tracksInJet, jetDirection, TrkFromV0);
 
     // add the tags
-    add_tags(*BTag, author, track_info);
+    add_tags(BTag, author, track_info);
 
     if (m_writeTrackLinks) {
       TrackLinks ip_tracks;
@@ -387,9 +386,9 @@ namespace Analysis {
 
       // specific fast accessors for mainstream instances of IPTag: IP3D, IP2D
       //// need to handle to persistify for dynamic values before adding this
-      BTag->setVariable<TrackLinks> (
+      BTag.setVariable<TrackLinks> (
         m_xAODBaseName, "TrackParticleLinks", ip_tracks );
-      BTag->setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
+      BTag.setDynTPELName( m_xAODBaseName, "TrackParticleLinks");
     }
 
     return StatusCode::SUCCESS;
@@ -542,6 +541,7 @@ namespace Analysis {
   // Get track info vector
 
   std::vector<IPxDInfo> RNNIPTag::get_track_info(
+    const xAOD::Vertex& priVtx,
     const std::vector<GradedTrack>& tracksInJet,
     const Amg::Vector3D& jetDirection,
     const std::vector<const xAOD::TrackParticle*>& TrkFromV0) const {
@@ -570,7 +570,7 @@ namespace Analysis {
       const Trk::ImpactParametersAndSigma* myIPandSigma(0);
       if (m_trackToVertexIPEstimator) {
         myIPandSigma = m_trackToVertexIPEstimator->estimate(
-          trk, m_priVtx, m_unbiasIPEstimation);
+          trk, &priVtx, m_unbiasIPEstimation);
       }
       if(0==myIPandSigma) {
         ATH_MSG_WARNING("#BTAG# IPTAG: trackToVertexIPEstimator failed !");
@@ -587,13 +587,13 @@ namespace Analysis {
       double signOfIP(1.);
       if ( m_use2DSignForIP3D ) {
         signOfIP=m_trackToVertexIPEstimator->get2DLifetimeSignOfTrack(
-          trk->perigeeParameters(),unit, *m_priVtx);
+          trk->perigeeParameters(),unit, priVtx);
       } else {
         signOfIP=m_trackToVertexIPEstimator->get3DLifetimeSignOfTrack(
-          trk->perigeeParameters(), unit, *m_priVtx);
+          trk->perigeeParameters(), unit, priVtx);
       }
       double signOfZIP = m_trackToVertexIPEstimator->getZLifetimeSignOfTrack(
-        trk->perigeeParameters(), unit, *m_priVtx);
+        trk->perigeeParameters(), unit, priVtx);
 
       if (m_useD0SignForZ0) signOfZIP = signOfIP;
 

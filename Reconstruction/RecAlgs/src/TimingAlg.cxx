@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include "TimingAlg.h"
 #include "RecEvent/RecoTimingObj.h"
-#include "StoreGate/StoreGateSvc.h"
 
 unsigned int TimingAlg::m_CPUID=0;
 
@@ -29,12 +28,6 @@ TimingAlg::TimingAlg(const std::string& name, ISvcLocator* pSvcLocator)
 StatusCode TimingAlg::initialize()
 {
   ATH_MSG_DEBUG( "initialize(); will write out RecoTimingObj with key " << m_timingObjOutputName);
-  
-  // retrieve the StoreGate Service (delete if not needed)
-  if (!evtStore().retrieve().isSuccess()) {
-    ATH_MSG_ERROR("Could not retrieve StoreGateSvc!");
-    return StatusCode::FAILURE;
-  }
   
   if ( m_determineCPUID && ! m_CPUID )
     {

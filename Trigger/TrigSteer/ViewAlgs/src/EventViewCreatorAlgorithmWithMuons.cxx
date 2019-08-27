@@ -93,8 +93,7 @@ StatusCode EventViewCreatorAlgorithmWithMuons::execute( const EventContext& cont
 	contexts.emplace_back( context );
 	contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
 	// link decision to this view
-	outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
-	outputDecision->setObjectLink( "muons", muonELInfo.link );
+	outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
 	ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
 	ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
 	ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );

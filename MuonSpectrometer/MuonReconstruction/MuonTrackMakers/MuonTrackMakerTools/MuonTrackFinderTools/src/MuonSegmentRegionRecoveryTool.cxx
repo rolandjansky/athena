@@ -553,9 +553,9 @@ const Trk::Track* MuonSegmentRegionRecoveryTool::findHoles( const Trk::Track& tr
 
         // perform bound check do not count holes with 100. mm of bound edge
         inBounds = surf.bounds().insideLoc2(*locPos, -100.);
-        if ( inBounds ) {
-          if ( fabs( (*locPos)[Trk::locR] ) > 14.4 ) inBounds = false;
-        }
+	if( inBounds ) {
+	  if( fabs((*locPos)[Trk::locR]) > detElLoc->innerTubeRadius() ) inBounds = false;
+	}
         delete locPos;
       }
       if ( !inBounds ) {

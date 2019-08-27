@@ -9,7 +9,8 @@ from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-        
+from CscCalibTools.CscCalibToolsConf import CscCalibTool
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger('MuonCalibConfig')
 
@@ -17,26 +18,28 @@ log = logging.getLogger('MuonCalibConfig')
 # CSC calibration
 ################################################################################
 
-#
-# def CscCalibTool(name,**kwargs):
-#     # setup condDB folders
-#     setupCscCondDB()
-#     # make tool
-#     return CfgMgr.CscCalibTool(
-#         Slope=0.19,
-#         Noise=3.5,
-#         Pedestal=2048.0,
-#         ReadFromDatabase=True,
-#         SlopeFromDatabase=False,
-#         integrationNumber=12.0,
-#         integrationNumber2=11.66,
-#         samplingTime=50.0,
-#         signalWidth=14.40922,
-#         timeOffset=71.825,
-#         IsOnline = athenaCommonFlags.isOnline(),
-#         Latency = 119
-#         )
-#     #               timeOffset=46.825) + 25 SimHIT digit time
+def CscCalibToolCfg(flags, name="CscCalibTool", **kwargs):
+    """Return ComponentAccumulator configured for CSC calibration with CscCalibTool as PrivateTools"""
+
+    acc = CscCoolStrSvcCfg(flags)
+
+    kwargs.setdefault("Slope", 0.19)
+    kwargs.setdefault("Noise", 3.5)
+    kwargs.setdefault("Pedestal", 2048.0)
+    kwargs.setdefault("ReadFromDatabase", True)
+    kwargs.setdefault("SlopeFromDatabase", False)
+    kwargs.setdefault("integrationNumber", 12.0)
+    kwargs.setdefault("integrationNumber2", 11.66)
+    kwargs.setdefault("samplingTime", 50.0)
+    kwargs.setdefault("signalWidth", 14.40922)
+    kwargs.setdefault("timeOffset", 71.825)
+    kwargs.setdefault("IsOnline", flags.Common.isOnline)
+    kwargs.setdefault("Latency", 119)
+
+    acc.setPrivateTools(CscCalibTool(name, **kwargs))
+
+    return acc
+
 
 def _setupCscCondDB( flags, name, key, dataType, cat, default, folder, database, useLocal, override="" ):
 

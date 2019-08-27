@@ -61,8 +61,8 @@ namespace Muon {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonPRDSelectionTool.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
-    ATH_CHECK(m_csc2dSegmentFinder.retrieve());
-    ATH_CHECK(m_csc4dSegmentFinder.retrieve());
+    if (m_idHelper->hasCSC() && !m_csc2dSegmentFinder.empty()) ATH_CHECK(m_csc2dSegmentFinder.retrieve());
+    if (m_idHelper->hasCSC() && !m_csc4dSegmentFinder.empty()) ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegMakerNSW.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
@@ -109,18 +109,18 @@ namespace Muon {
     }
 
     // sanity check
-    if( static_cast<int>(houghDataPerSectorVec->size()) <= sector-1 ){
-      ATH_MSG_WARNING(" m_layerHoughTool->houghData().size() smaller than sector " << houghDataPerSectorVec->size()
+    if( static_cast<int>(houghDataPerSectorVec->vec.size()) <= sector-1 ){
+      ATH_MSG_WARNING(" MuonLayerHoughTool::HoughDataPerSectorVec smaller than sector " << houghDataPerSectorVec->vec.size()
                       << " sector " << sector );
       return;
     }
 
     // get hough maxima in the layer
     unsigned int sectorLayerHash = MuonStationIndex::sectorLayerHash( regionIndex,layerIndex );
-    const MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = (*houghDataPerSectorVec)[sector-1];
+    const MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = houghDataPerSectorVec->vec[sector-1];
     ATH_MSG_DEBUG(" findMdtSegmentsFromHough: sector " << sector << " " << MuonStationIndex::regionName(regionIndex)
                   << " " << MuonStationIndex::layerName(layerIndex) << " sector hash " << sectorLayerHash
-                  << " houghData " << houghDataPerSectorVec->size() << " " << houghDataPerSector.maxVec.size());
+                  << " houghData " << houghDataPerSectorVec->vec.size() << " " << houghDataPerSector.maxVec.size());
 
     // sanity check
     if( houghDataPerSector.maxVec.size() <= sectorLayerHash ){

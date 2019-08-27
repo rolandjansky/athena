@@ -16,21 +16,16 @@
  * $Id: TagInfo.h,v 1.4 2007-03-19 19:41:49 gemmeren Exp $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "GaudiKernel/StatusCode.h"
 #include <vector>
 #include <string>
+#include <utility> //for std::pair
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 class MsgStream;
 
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+
 
 /**
 **  @class TagInfo
@@ -60,17 +55,29 @@ public:
   /// \name Tag information accessors
   //@{
 
-  /// Find tag by its name - for current tags
+  /// Find tag by its name - for current tags, returning in the reference argument
   void findTag(const std::string& name, std::string& tag) const;
+  
+  /// Find tag by name, return by value
+  std::string findTag(const std::string & name) const;
 
   /// Fill vector with all current tags
   void getTags(NameTagPairVec& pairs) const;
+  
+  /// Return a vector with all current tags
+  NameTagPairVec getTags() const;
 
-  /// Find tag by its name - for input tags
+  /// Find tag by its name - for input tags, return in the reference argument
   void findInputTag(const std::string& name, std::string& tag) const;
 
-  /// Fill vector with all current tags
+  /// Find tag by its name - for input tags, return by value
+  std::string findInputTag(const std::string& name) const;
+
+  /// Fill reference vector with all current input tags
   void getInputTags(NameTagPairVec& pairs) const;
+  
+  /// Return a vector with all current input tags
+  NameTagPairVec getInputTags() const;
 
   /// The tag of the TagInfo object
   std::string tagInfoTag() const;
@@ -96,14 +103,14 @@ public:
 
   /// Printout method:
   void printTags(MsgStream& log) const;
+  
+  /// String representation
+  std::string str() const;
+  
+  
+  
 private:
-  /// Return an iterator for a tag found
-  NameTagPairVec::iterator findTag(const std::string& name,
-                                   NameTagPairVec& tags);
-  /// Return an iterator for a tag found
-  NameTagPairVec::const_iterator findTag(const std::string& name,
-                                         const NameTagPairVec& tags) const;
-
+  
   NameTagPairVec m_tags;
   NameTagPairVec m_inputTags;
   std::string m_myTag;
@@ -112,7 +119,6 @@ private:
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(TagInfo, 61780915, 1)
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+
 
 #endif // EVENTINFO_TAGINFO_H

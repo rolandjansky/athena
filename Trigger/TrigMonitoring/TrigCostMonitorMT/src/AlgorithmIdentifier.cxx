@@ -11,7 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 AlgorithmIdentifier::AlgorithmIdentifier() :
-  m_context(),
+  m_realSlot(),
+  m_slotToSaveInto(),
   m_msg(nullptr),
   m_caller(""), 
   m_store(""),
@@ -21,13 +22,14 @@ AlgorithmIdentifier::AlgorithmIdentifier() :
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-AlgorithmIdentifier::AlgorithmIdentifier(const EventContext& context, const std::string& caller, const std::string& storeName, MsgStream& msg, const int16_t viewID) :
-  m_context(context),
+AlgorithmIdentifier::AlgorithmIdentifier(const size_t realSlot, const size_t saveSlot, const std::string& caller, const std::string& storeName, MsgStream& msg, const int16_t viewID) :
+  m_realSlot(realSlot),
+  m_slotToSaveInto(saveSlot),
   m_msg(&msg),
   m_caller(caller), 
   m_store(storeName),
   m_viewID(viewID),
-  m_hash(std::hash<std::string>{}(m_caller + m_store))
+  m_hash(std::hash<std::string>{}(m_caller + m_store + std::to_string(realSlot)))
   {}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -45,7 +47,7 @@ TrigConf::HLTHash AlgorithmIdentifier::storeHash() const {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 StatusCode AlgorithmIdentifier::isValid() const {
-  if (!m_context.valid() || !m_msg || !m_hash) {
+  if (m_caller == "" || m_store == "" || !m_msg || !m_hash) {
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -53,7 +55,7 @@ StatusCode AlgorithmIdentifier::isValid() const {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-AlgorithmIdentifier AlgorithmIdentifierMaker::make(const EventContext& context, const std::string& caller, MsgStream& msg) {
+AlgorithmIdentifier AlgorithmIdentifierMaker::make(const EventContext& context, const std::string& caller, MsgStream& msg, const int16_t slotOverride) {
   const SG::View* view = nullptr;
   const IProxyDict* proxy = nullptr;
   if (context.hasExtension<Atlas::ExtendedEventContext>()) {
@@ -65,7 +67,8 @@ AlgorithmIdentifier AlgorithmIdentifierMaker::make(const EventContext& context, 
     return AlgorithmIdentifier(); // Return a default constructed, invalid, identifier
   }
   const int16_t viewID = (view == nullptr ? AlgorithmIdentifier::s_noView : view->viewID());
-  return AlgorithmIdentifier(context, caller, proxy->name(), msg, viewID);
+  const size_t saveSlot = (slotOverride >= 0 ? slotOverride : context.slot());
+  return AlgorithmIdentifier(context.slot(), saveSlot, caller, proxy->name(), msg, viewID);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

@@ -28,7 +28,6 @@
 class PixelID;
 class IModuleDistortionsTool;
 
-class StoreGateSvc;
 class IIBLParameterSvc;
 
 namespace InDet {
@@ -124,7 +123,6 @@ public:
   ///////////////////////////////////////////////////////////////////
 
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
-  StoreGateSvc*                                 m_detStore        ;
 
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
@@ -178,7 +176,6 @@ public:
   
   /** NN clusterizationi factory for NN based positions and errors **/
   ToolHandle<NnClusterizationFactory>                   m_NnClusterizationFactory;
-  ServiceHandle<StoreGateSvc>                           m_storeGate;            //!< Event store
   ServiceHandle<IIBLParameterSvc>                       m_IBLParameterSvc;
 
 

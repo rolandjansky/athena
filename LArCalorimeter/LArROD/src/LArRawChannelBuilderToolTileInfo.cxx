@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArROD/LArRawChannelBuilderToolTileInfo.h"
@@ -35,8 +35,6 @@ LArRawChannelBuilderToolTileInfo::LArRawChannelBuilderToolTileInfo(const std::st
 									   const std::string& name,
 									   const IInterface* parent) : 
   LArRawChannelBuilderToolBase(type,name,parent),
-  m_storeGate(0),
-  m_detStore(0),
   m_man(0),
   m_peakReco("LArOFPeakRecoTool"),
   m_delayTile(0)
@@ -72,23 +70,9 @@ StatusCode LArRawChannelBuilderToolTileInfo::initTool()
   
   log << MSG::INFO << " DefaultPhase  "<<m_defaultPhase <<endmsg;
   
-  sc = service("StoreGateSvc", m_storeGate);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR
-	<< "Unable to get pointer to StoreGate Service" << endmsg;
-    return sc;
-  }
-  
-  sc = service("DetectorStore", m_detStore);
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR
-        << "Unable to get pointer to DetectorStore Service" << endmsg;
-    return sc;
-  }
-
   //retrieve CaloDetDescrManager from det store
 
-  sc = m_detStore->retrieve(m_man);
+  sc = detStore()->retrieve(m_man);
   if (sc.isFailure()) {
     log << MSG::ERROR
         << "Unable to retrieve CaloDetDescrManager from DetectorStore" << endmsg;
@@ -144,7 +128,7 @@ bool LArRawChannelBuilderToolTileInfo::buildRawChannel(const LArDigit* digit,
 
   //Retrieve TileMuonFitter ComTime object
   const ComTime* comTime;
-    StatusCode sc = m_storeGate->retrieve(comTime, m_comTimeKey);
+  StatusCode sc = evtStore()->retrieve(comTime, m_comTimeKey);
  
   if (sc.isFailure()) {
     if(bool(pLog))

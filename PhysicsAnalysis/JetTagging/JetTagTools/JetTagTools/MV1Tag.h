@@ -28,8 +28,8 @@ namespace Analysis { class CalibrationBroker; }
 
 namespace Analysis { 
 
-  class MV1Tag : public AthAlgTool , virtual public ITagTool {
-   
+  class MV1Tag : public extends<AthAlgTool, ITagTool>
+  {
   public:
     MV1Tag(const std::string&,const std::string&,const IInterface*);
       
@@ -37,17 +37,15 @@ namespace Analysis {
        Implementations of the methods defined in the abstract base class
     */
     virtual ~MV1Tag();
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
       
-    /** Set the primary vertex. TODO: This is temporary ! The primary vertex should
-	be part of the JetTag IParticle interface implementation. The trouble with 
-	ElementLink and persistency has to be solved for that. Revisit ... */
-    void setOrigin(const xAOD::Vertex* priVtx);
-      
-    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag);
+    virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag) const override;
 
-    void finalizeHistos() {};
+    
+    virtual void finalizeHistos() override {};
 
     /** helper functions to define jet category: */
     int findPtBin(double pt) const;
@@ -64,10 +62,6 @@ namespace Analysis {
 	(m_runModus=1) where already made reference histograms are read.*/ 
     std::string    m_runModus;          //!< 0=Do not read histos, 1=Read referece histos (analysis mode)
       
-    /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
-    // this pointer does not need to be deleted in the destructor (because it
-    // points to something in storegate)
-    const xAOD::Vertex* m_priVtx = 0;
 
     /** pointer to calibration in COOL: */
     // FIXME: I don't think CalibrationBroker is thread-safe.
@@ -91,8 +85,6 @@ namespace Analysis {
     std::string m_xAODBaseName;
 
   }; // End class
-
-  inline void MV1Tag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 
 } // End namespace 
 

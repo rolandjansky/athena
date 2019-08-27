@@ -20,19 +20,20 @@
  */
 struct AlgorithmIdentifier {
   AlgorithmIdentifier();
-  AlgorithmIdentifier(const EventContext& context, const std::string& caller, const std::string& storeName,  MsgStream& msg, const int16_t viewID = -1);
+  AlgorithmIdentifier(const size_t realSlot, const size_t saveSlot, const std::string& caller, const std::string& storeName,  MsgStream& msg, const int16_t viewID = -1);
   ~AlgorithmIdentifier() = default;
 
   TrigConf::HLTHash callerHash() const;
   TrigConf::HLTHash storeHash() const;
   StatusCode isValid() const;
 
-  const EventContext m_context; //!< Convenience copy of the context.
+  size_t m_realSlot; //!< The actual slot of the algorithm
+  size_t m_slotToSaveInto; //!< The slot which is used for the purposes of recording data on this algorithm's execution. Note: might not be the *actual* slot of the alg
   MsgStream* m_msg;  //!< Convenience reference to the msg service.
-  const std::string m_caller; //!< Name of the algorithm
-  const std::string m_store; //!< Name of the algorithm's store. e.g. '0_StoreGateSvc_Impl' for the main store.
-  const int16_t m_viewID; //!< If not within an event view, then the m_iewID = s_noView = -1.
-  const size_t m_hash; //!< Hash of algorithm + store. Event-unique quantity. Cached for speed.
+  std::string m_caller; //!< Name of the algorithm
+  std::string m_store; //!< Name of the algorithm's store. e.g. '0_StoreGateSvc_Impl' for the main store.
+  int16_t m_viewID; //!< If not within an event view, then the m_iewID = s_noView = -1.
+  size_t m_hash; //!< Hash of algorithm + store + realSlot. Multi-event-unique quantity (I.e. unique even with --concurrent-events > 1). Cached for speed.
 
   static constexpr int16_t s_noView = -1; //!< Constant value used to express an Algorithm which is not running in a View
 };
@@ -49,7 +50,7 @@ struct AlgorithmIdentifierMaker {
    * @param[in] msg a reference to the msgstream for printing
    * @returns Constructed AlgorithmIdentifier on the stack
    */
-  static AlgorithmIdentifier make(const EventContext& context, const std::string& caller, MsgStream& msg);
+  static AlgorithmIdentifier make(const EventContext& context, const std::string& caller, MsgStream& msg, const int16_t slotOverride = -1);
 };
 
 /** 
@@ -78,7 +79,7 @@ inline size_t AlgorithmIdentifierHashCompare::hash(const AlgorithmIdentifier& ai
 }
 
 inline bool AlgorithmIdentifierHashCompare::equal(const AlgorithmIdentifier& x, const AlgorithmIdentifier& y) {
-  return (x.m_caller == y.m_caller && x.m_store == y.m_store);
+  return (x.m_caller == y.m_caller && x.m_store == y.m_store && x.m_realSlot == y.m_realSlot);
 }
 
 #endif // TRIGCOSTMONITORMT_TRIGCOSTALGORITHMIDENTIFIER_H

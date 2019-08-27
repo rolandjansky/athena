@@ -9,8 +9,6 @@ MuonTrackStatisticsAlg
 #include "MuonTrackPerformance/MuonTrackStatisticsAlg.h"
 #include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 // INCLUDE GAUDI HEADER FILES:
 #include "GaudiKernel/MsgStream.h"
 

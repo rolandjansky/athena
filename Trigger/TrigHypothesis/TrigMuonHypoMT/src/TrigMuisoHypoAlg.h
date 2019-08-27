@@ -25,7 +25,6 @@
 #include "DecisionHandling/HypoBase.h"
 #include "TrigMuisoHypoTool.h"
 
-class StoreGateSvc;
 class TriggerElement;
 
 // --------------------------------------------------------------------------------

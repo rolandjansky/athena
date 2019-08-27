@@ -27,7 +27,11 @@ MuonSegmentMomentumFromField::MuonSegmentMomentumFromField(const std::string& ty
 							   parent):AthAlgTool(type,name,parent),
 								   m_magFieldSvc("AtlasFieldSvc",name),
 								   m_propagator("Trk::StraightLinePropagator/CosmicsPropagator"),
-								   m_navigator("Trk::Navigator/CosmicsNavigator")
+								   m_navigator("Trk::Navigator/CosmicsNavigator"),
+                   m_rpcid(nullptr),
+                   m_tgcid(nullptr),
+                   m_cscid(nullptr),
+                   m_stgcid(nullptr)
 {
   declareInterface<IMuonSegmentMomentumEstimator>(this);
 
@@ -44,6 +48,8 @@ MuonSegmentMomentumFromField::MuonSegmentMomentumFromField(const std::string& ty
   declareProperty("PropagatorTool",m_propagator);
   declareProperty("NavigatorTool",m_navigator);
   declareProperty("DoOld",m_doOld=false);
+  declareProperty("HasCSC",m_hasCSC=true);
+  declareProperty("HasSTgc",m_hasSTgc=true);
 }
 
 MuonSegmentMomentumFromField::~MuonSegmentMomentumFromField()
@@ -61,13 +67,13 @@ StatusCode MuonSegmentMomentumFromField::initialize()
 
   ATH_CHECK( m_navigator.retrieve() );
 
-  ATH_CHECK( detStore()->retrieve( m_cscid ) );
+  if (m_hasCSC) ATH_CHECK( detStore()->retrieve( m_cscid ) );
 
   ATH_CHECK( detStore()->retrieve( m_rpcid ) );
 
   ATH_CHECK( detStore()->retrieve( m_tgcid ) );
 
-  ATH_CHECK( detStore()->retrieve( m_stgcid ) );
+  if (m_hasSTgc) ATH_CHECK( detStore()->retrieve( m_stgcid ) );
 
   ATH_MSG_VERBOSE("End of Initializing");  
 
@@ -181,8 +187,8 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     if (!rot) continue;
     Identifier id=rot->identify();
 
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
-        || (m_tgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){    
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
+        || (m_stgcid && m_stgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){
       if (!firstphi1) firstphi1=rot;
       lastphi1=rot;
     }
@@ -195,8 +201,8 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     }
     if (!rot) continue;
     Identifier id=rot->identify();
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
-        || (m_tgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){    
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
+        || (m_stgcid && m_stgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){
       if (!firstphi2) firstphi2=rot;
       lastphi2=rot;
     }
@@ -345,7 +351,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     if (!rot) continue;
     Identifier id=rot->identify();
 
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || 
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) ||
 	(m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))){    
       if (!firstphi1) firstphi1=rot;
       lastphi1=rot;
@@ -359,7 +365,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
     }
     if (!rot) continue;
     Identifier id=rot->identify();
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || 
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid && m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) ||
 	(m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))){
       if (!firstphi2) firstphi2=rot;
       lastphi2=rot;

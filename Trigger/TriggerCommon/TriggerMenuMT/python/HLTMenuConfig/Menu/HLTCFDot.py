@@ -124,10 +124,18 @@ def all_DataFlow_to_dot(name, step_list):
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
                         menuseq.reuse=True
-                    cfseq_algs.append(menuseq.hypo)
+                    if type(menuseq.hypo) is list:
+                       for hp in menuseq.hypo:
+                          cfseq_algs.append(hp)
+                          file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
+                    else:
+                       cfseq_algs.append(menuseq.hypo)
+                       file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
                     if not cfseq.step.isCombo:
-                        last_step_hypoNodes.append(menuseq.hypo)
-                    file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
+                        if type(menuseq.hypo) is list:
+                           last_step_hypoNodes.append(menuseq.hypo[-1])
+                        else:
+                           last_step_hypoNodes.append(menuseq.hypo)
 
                     #combo
                 if cfseq.step.isCombo:
@@ -185,8 +193,13 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
                     menuseq.reuse=True
-                cfseq_algs.append(menuseq.hypo)
-                file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
+                if type(menuseq.hypo) is list:
+                   for hp in menuseq.hypo:
+                      cfseq_algs.append(hp)
+                      file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
+                else:
+                   cfseq_algs.append(menuseq.hypo)
+                   file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
 
 
                 #combo

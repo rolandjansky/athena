@@ -2335,8 +2335,9 @@ namespace Muon {
       int layer = (m_idHelperTool->mdtIdHelper().tubeLayer(id)-1) + 4*(m_idHelperTool->mdtIdHelper().multilayer(id)-1);
 
       bool notBetweenHits = layer < firstLayer || layer > lastLayer;
-      double distanceCut = hasMeasuredCoordinate ? -20 : -200.;
-      if( notBetweenHits && (fabs( tint.rIntersect ) > 14.4 || (!m_allMdtHoles && tint.xIntersect > distanceCut ) ) ){
+      double distanceCut  = hasMeasuredCoordinate ? -20 : -200.;
+      double innerRadius  = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+      if( notBetweenHits && ( fabs(tint.rIntersect) > innerRadius || (!m_allMdtHoles && tint.xIntersect > distanceCut) ) ) {
 	if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << " not counting tube:  distance to wire " << tint.rIntersect << " dist to tube end " << tint.xIntersect 
 						      << " " << m_idHelperTool->toString(tint.tubeId) << std::endl;
       }else{

@@ -41,10 +41,9 @@ namespace Analysis
 {
 
   MultiSVTag::MultiSVTag(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
     m_runModus("analysis")
   {
-    declareInterface<ITagTool>(this);
     declareProperty("Runmodus",       m_runModus= "analysis");
     declareProperty("jetCollectionList", m_jetCollectionList);
     declareProperty("useForcedCalibration", m_doForcedCalib   = false);
@@ -77,13 +76,15 @@ namespace Analysis
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MultiSVTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag){
-
+  StatusCode MultiSVTag::tagJet(const xAOD::Vertex& priVtx,
+                                const xAOD::Jet& jetToTag,
+                                xAOD::BTagging& BTag) const
+  {
     //Retrieval of Calibration Condition Data objects
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
 
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_DEBUG("#BTAG# MSV Using jet type " << author << " for calibrations.");
     //....
@@ -117,12 +118,12 @@ namespace Analysis
     bdt->SetPointers(inputPointers);
 
     //the jet
-    double jeteta = jetToTag->eta(), jetphi = jetToTag->phi();
-    vars.m_jetpt = jetToTag->pt();
+    double jeteta = jetToTag.eta(), jetphi = jetToTag.phi();
+    vars.m_jetpt = jetToTag.pt();
     ATH_MSG_DEBUG("#BTAG# Jet properties : eta = " << jeteta
                   << " phi = " << jetphi << " pT  = " <<vars.m_jetpt/GeV);
 
-    TLorentzVector jp4; jp4.SetPtEtaPhiM(jetToTag->pt(), jetToTag->eta(), jetToTag->phi(), jetToTag->m());
+    TLorentzVector jp4; jp4.SetPtEtaPhiM(jetToTag.pt(), jetToTag.eta(), jetToTag.phi(), jetToTag.m());
 
     int msv_n = 0;
     int all_trks = 0;
@@ -132,10 +133,10 @@ namespace Analysis
 
     bool status = true;
 
-    status &= BTag->variable<float>(m_secVxFinderName, "normdist", vars.m_normDist);
-    status &= BTag->variable<int>(m_secVxFinderName, "nvsec", msv_n);
+    status &= BTag.variable<float>(m_secVxFinderName, "normdist", vars.m_normDist);
+    status &= BTag.variable<int>(m_secVxFinderName, "nvsec", msv_n);
     std::vector< ElementLink< xAOD::VertexContainer > > msvVertices;
-    status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", msvVertices);
+    status &= BTag.variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_secVxFinderName, "vertices", msvVertices);
     ATH_MSG_DEBUG("#BTAG# MSV_vertices: " <<msvVertices.size());
     std::vector<float> v_vtxmass = std::vector<float>(10,0);
     std::vector<float> v_vtxefrc = std::vector<float>(10,0);
@@ -194,9 +195,9 @@ namespace Analysis
 
       int SV1ntrk  = 0;
       std::vector< ElementLink< xAOD::VertexContainer > > SV1Vertice;
-      status &= BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", SV1Vertice);
+      status &= BTag.variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv1_infosource, "vertices", SV1Vertice);
       if (SV1Vertice.size()>0 && SV1Vertice[0].isValid()){
-         status &= BTag->taggerInfo(SV1ntrk, xAOD::BTagInfo::SV1_NGTinSvx);
+         status &= BTag.taggerInfo(SV1ntrk, xAOD::BTagInfo::SV1_NGTinSvx);
          vars.m_diffntrkSV1 = all_trks - SV1ntrk;
       }else{ vars.m_diffntrkSV1 = all_trks;
       }
@@ -236,9 +237,9 @@ namespace Analysis
       if(ivm1>=0) {
         pvtx1.SetPtEtaPhiM(v_vtxpt[ivm1], v_vtxeta[ivm1], v_vtxphi[ivm1], v_vtxmass[ivm1]);
         TVector3 p1 = pvtx1.Vect();
-        sv1p3.SetX(v_vtxx[ivm1] - m_priVtx->x());
-        sv1p3.SetY(v_vtxy[ivm1] - m_priVtx->y());
-        sv1p3.SetZ(v_vtxz[ivm1] - m_priVtx->z());
+        sv1p3.SetX(v_vtxx[ivm1] - priVtx.x());
+        sv1p3.SetY(v_vtxy[ivm1] - priVtx.y());
+        sv1p3.SetZ(v_vtxz[ivm1] - priVtx.z());
         vars.m_mmax_mass  = v_vtxmass[ivm1];
         vars.m_mmax_efrc  = v_vtxefrc[ivm1];
 
@@ -248,9 +249,9 @@ namespace Analysis
       if(ivm2>=0) {
         pvtx2.SetPtEtaPhiM(v_vtxpt[ivm2], v_vtxeta[ivm2], v_vtxphi[ivm2], v_vtxmass[ivm2]);
         TVector3 p2 = pvtx2.Vect();
-        sv2p3.SetX(v_vtxx[ivm2] - m_priVtx->x());
-        sv2p3.SetY(v_vtxy[ivm2] - m_priVtx->y());
-        sv2p3.SetZ(v_vtxz[ivm2] - m_priVtx->z());
+        sv2p3.SetX(v_vtxx[ivm2] - priVtx.x());
+        sv2p3.SetY(v_vtxy[ivm2] - priVtx.y());
+        sv2p3.SetZ(v_vtxz[ivm2] - priVtx.z());
         vars.m_mmx2_mass  = v_vtxmass[ivm2];
         vars.m_mmx2_efrc  = v_vtxefrc[ivm2];
 
@@ -258,18 +259,14 @@ namespace Analysis
         vars.m_mmx2_dist  = v_vtxdls[ivm2];
       }
       // distances: max mass vertex to PV, and mx2 to max vertex:
-      if(m_priVtx) {
-        if(ivm1>=0&&ivm2>=0) {
+      if(ivm1>=0&&ivm2>=0) {
 
-          vars.m_mx12_2d12 = TMath::Sqrt(  (v_vtxx[ivm2] - v_vtxx[ivm1]) * (v_vtxx[ivm2] - v_vtxx[ivm1])
-                                   +  (v_vtxy[ivm2] - v_vtxy[ivm1]) * (v_vtxy[ivm2] - v_vtxy[ivm1]) );
-          vars.m_mx12_DR    = sv1p3.DeltaR(sv2p3);
-
-          vars.m_mx12_Angle = sv1p3.Angle(sv2p3);
-
-        }
-      }else {
-        ATH_MSG_WARNING("#BTAG# Tagging requested, but no primary vertex supplied.");
+        vars.m_mx12_2d12 = TMath::Sqrt(  (v_vtxx[ivm2] - v_vtxx[ivm1]) * (v_vtxx[ivm2] - v_vtxx[ivm1])
+                                         +  (v_vtxy[ivm2] - v_vtxy[ivm1]) * (v_vtxy[ivm2] - v_vtxy[ivm1]) );
+        vars.m_mx12_DR    = sv1p3.DeltaR(sv2p3);
+        
+        vars.m_mx12_Angle = sv1p3.Angle(sv2p3);
+        
       }
       //end of inputs
       ATH_MSG_DEBUG("#BTAG# MSV inputs: "           <<
@@ -301,7 +298,7 @@ namespace Analysis
     }
 
     if(m_runModus=="analysis") {
-      BTag->setVariable<double>(m_taggerNameBase, "discriminant", msvW);
+      BTag.setVariable<double>(m_taggerNameBase, "discriminant", msvW);
     }
     return StatusCode::SUCCESS;
   }

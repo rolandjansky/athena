@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef FTKConstGenAlgo_h
 #define FTKConstGenAlgo_h
@@ -51,12 +51,9 @@ public:
   StatusCode execute();
   StatusCode finalize();
    
-  class StoreGateSvc;
-  
  private:
 
   ITHistSvc *m_thistSvc;
-  StoreGateSvc*  m_storeGate;
   bool m_merging;
   bool m_genconst;
   bool m_subregion;

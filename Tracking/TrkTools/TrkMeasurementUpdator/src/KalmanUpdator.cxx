@@ -256,8 +256,8 @@ Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackParamet
     AmgSymMatrix(5) R = covTrkOne + covTrkTwo;
     // catch [-pi,pi] phi boundary problems to keep chi2 under control
     if (!diffThetaPhiWithinRange(r)) correctThetaPhiRange(r,R,true);
-    R = R.inverse();
-    AmgSymMatrix(5)       K   = covTrkOne * R;
+    AmgSymMatrix(5) R_inv = R.inverse();
+    AmgSymMatrix(5) K   = covTrkOne * R_inv;
     Amg::VectorX	  par = one.parameters() + K * r;
     AmgSymMatrix(5)* covPar = new AmgSymMatrix(5)(K * covTrkTwo);
     if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {
@@ -266,7 +266,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackParamet
     }
 
     // compute fit quality
-    double  chiSquared = r.transpose()*R*r;
+    double  chiSquared = r.transpose()*R_inv*r;
     fitQoS =  new FitQualityOnSurface(chiSquared, 5);
 	
     // return cloned version of Track Parameters (MeasuredPerigee, MeasuredAtA...)
@@ -511,13 +511,12 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
     
   // compute covariance on of residual R = +/- covRIO + H * covTrk * H.T()
   Amg::MatrixX R = (sign * covRio) + projection(covTrk,(nLocCoord==1 ? 1 : 3) ); // .similarity(H);
-  R = R.inverse();
   // compute Kalman gain matrix
-  Amg::MatrixX K   = covTrk * H.transpose() * R;
+  Amg::MatrixX K   = covTrk * H.transpose() * R.inverse();
   AmgSymMatrix(5) I;  // 5x5 unit matrix
   I.setIdentity();
   AmgSymMatrix(5) M = I - K * H;
-  if (m_outputlevel<0) logGainForm (nLocCoord,r,R,K,M);
+  if (m_outputlevel<0) {logGainForm (nLocCoord,r,R.inverse(),K,M);}
 
   // compute local filtered state
   Amg::VectorX par = parTrk + K * r;
@@ -618,14 +617,13 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
   // catch [-pi,pi] phi boundary problems to keep chi2 under control
   if (!diffThetaPhiWithinRange(r,rioPar.parameterKey()) )
     correctThetaPhiRange(r,R,true,rioPar.parameterKey());
-  R = R.inverse();
-
+  
   // compute Kalman gain matrix
-  Amg::MatrixX K   = covTrk * H.transpose() * R;
+  Amg::MatrixX K   = covTrk * H.transpose() * R.inverse();
   AmgSymMatrix(5) I;  // 5x5 unit matrix
   I.setIdentity();
   AmgSymMatrix(5) M  = I - K * H;
-  if (m_outputlevel<0) logGainForm (nLocCoord,r,R,K,M);
+  if (m_outputlevel<0) {logGainForm (nLocCoord,r,R.inverse(),K,M);}
   // compute local filtered state
   Amg::VectorX par = parTrk + K * r;
         
@@ -635,12 +633,6 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
     // one can use as well: covPar = M * covTrk; see A.Gelb why.
     covPar = new AmgSymMatrix(5)(M*covTrk);
   } else {
-    /* std::cout << "now invoking similarity on covTrk = " << std::endl << covTrk
-              << std::endl << "M=" << M << std::endl << "covRio="<<covRio << std::endl
-              << "K="<<K<<std::endl; */
-    
-    //   C = M * covTrk * M.T() +/- K * covRio * K.T()
-    // covPar = new AmgSymMatrix(5)(covTrk.similarity(M) + (sign * covRio.similarity(K))); // bad_alloc in eigen
     covPar = new AmgSymMatrix(5)(M*covTrk*M.transpose() + sign*K*covRio*K.transpose());
   }
   if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {

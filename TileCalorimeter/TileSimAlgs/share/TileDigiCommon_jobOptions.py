@@ -196,12 +196,14 @@ if doTileDigitToRawChannel:
     if TileRawChannelBuilderMF:
         TileRawChannelBuilderMF.DSPContainer = ''
 
-# Change default parameters for TileDQstatusAlg.
-from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
-dqstatus = TileDQstatusAlgDefault()
-dqstatus.TileBeamElemContainer=""; # disable reading of trigger type from BeamElem container
-dqstatus.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
-dqstatus.TileRawChannelContainer=""; # disable checking of DQstatus for simulated data
+from AthenaCommon.GlobalFlags import globalflags
+if not globalflags.isOverlay():
+    # Change default parameters for TileDQstatusAlg.
+    from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+    dqstatus = TileDQstatusAlgDefault()
+    dqstatus.TileBeamElemContainer=""; # disable reading of trigger type from BeamElem container
+    dqstatus.TileDigitsContainer="";   # disable checking of Digits container size for bi-gain mode
+    dqstatus.TileRawChannelContainer=""; # disable checking of DQstatus for simulated data
 
 
 #

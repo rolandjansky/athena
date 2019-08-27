@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -79,13 +79,6 @@ StatusCode T2SampCalibTool::initialize()
 
   // Initialize MsgStream
   m_log.setLevel(msgLevel());
-  
-  //Locate the ptr to the conditions store - needed for dB
-  sc = service("DetectorStore", m_detStore);
-  if (!sc.isSuccess() || 0 == m_detStore)  {
-    m_log << MSG::ERROR <<"Could not find DetStore" <<endmsg;
-    return StatusCode::FAILURE;
-  }
   
   /////////////////////////////////////////
   // Setup in Svc/Tools needed to use dB //
@@ -354,7 +347,7 @@ StatusCode T2SampCalibTool::readFromDb(){
   m_log << MSG::DEBUG <<"T2SampCalibTool::Reading from dB..." <<endmsg;
 
   //Register DataHandle
-  status = m_detStore->regHandle(m_lvl2_calib_handle, m_obj_key);
+  status = detStore()->regHandle(m_lvl2_calib_handle, m_obj_key);
   if (status.isFailure()) {
     m_log << MSG::ERROR <<"Could not retrieve DataHandle for T2CaloJetCalib_dBObj" <<endmsg;
     return( StatusCode::FAILURE);
@@ -381,7 +374,7 @@ StatusCode T2SampCalibTool::createCondObject(){
   lvl2_calib->set_ve_cuts(m_vecut);
   lvl2_calib->set_calib_weights(m_Weights);
   //Provide a key which is used as the name to create the folder
-  sc = m_detStore->record(lvl2_calib, m_obj_key);
+  sc = detStore()->record(lvl2_calib, m_obj_key);
   if (sc.isFailure()) {
     m_log <<MSG::ERROR <<"Could not record T2CaloJetCalib_dBObj" <<endmsg;
     return( StatusCode::FAILURE);
@@ -396,7 +389,7 @@ StatusCode T2SampCalibTool::printCondObjects(){
   m_log << MSG::INFO << "Printing T2SampCalibTool dB Calibration Info." << endmsg;
   
   //Retrieve T2CaloJetCalib_dBObj
-  sc = m_detStore->retrieve(m_lvl2_calib, m_obj_key);
+  sc = detStore()->retrieve(m_lvl2_calib, m_obj_key);
   if (sc.isFailure()) {
     m_log << MSG::ERROR <<"Could not retrieve T2CaloJetCalib_dBObj" <<endmsg;
     return( StatusCode::FAILURE);

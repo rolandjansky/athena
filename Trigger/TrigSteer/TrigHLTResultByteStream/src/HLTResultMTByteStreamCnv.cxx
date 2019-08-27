@@ -126,17 +126,18 @@ StatusCode HLT::HLTResultMTByteStreamCnv::createRep(DataObject* pObj, IOpaqueAdd
     }
   }
 
-  // Remove all non-debug stream tags if the event goes to the debug stream.
-  // Write all HLT results (if available) to the debug stream.
+  // If the event goes to the debug stream, remove all non-debug stream tags
+  // and force full event building in all debug streams
   if (debugEvent) {
     std::vector<eformat::helper::StreamTag>& writableStreamTags = hltResult->getStreamTagsNonConst();
     writableStreamTags.erase(
       std::remove_if(writableStreamTags.begin(),writableStreamTags.end(),std::not_fn(isDebugStreamTag)),
       writableStreamTags.end()
     );
-    for (eformat::helper::StreamTag& st : writableStreamTags)
-      for (const eformat::helper::SourceIdentifier& sid : resultIdsToWrite)
-        st.robs.insert(sid.code());
+    for (eformat::helper::StreamTag& st : writableStreamTags) {
+      st.robs.clear();
+      st.dets.clear();
+    }
   }
 
   // Fill the stream tags

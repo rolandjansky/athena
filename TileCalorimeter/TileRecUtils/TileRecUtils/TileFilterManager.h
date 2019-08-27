@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILEFILTERMANAGER_H
@@ -79,8 +79,6 @@ class TileFilterManager
  private:
 
   std::string   m_infoName;
-  //  StoreGateSvc* m_storeGate;
-  //  StoreGateSvc* m_detStore;
 
   int m_filterMode;
   int m_filterLevel;

@@ -161,8 +161,9 @@ void Trk::DenseEnvironmentsAmbiguityScoreProcessorTool::addNewTracks(std::vector
 
     if (!reject) {
       // add track to map, map is sorted small to big ! set if fitted
+
       ATH_MSG_VERBOSE ("Track ("<< *trackIt <<" --> "<< **trackIt << ") has score "<<score);
-      trackScoreTrackMap->insert( std::make_pair(*trackIt, -score));
+      trackScoreTrackMap->insert( std::make_pair(new Trk::Track(**trackIt), -score));
     }
   }
   

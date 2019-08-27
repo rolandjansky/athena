@@ -428,7 +428,10 @@ StatusCode HLTTauMonTool::fill() {
           }
         }
         for(const auto& tauJetLinkInfo : features){
-          ATH_CHECK(tauJetLinkInfo.isValid());
+          if (!tauJetLinkInfo.isValid()) {
+            ATH_MSG_WARNING("Invalid tauJet");
+            continue;
+          }
           ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
           v_eta.push_back((*tauJetEL)->eta());
           v_phi.push_back((*tauJetEL)->phi());
@@ -656,12 +659,18 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 
          // L1 Histograms, but looking only at RoIs seeding events passing HLT. Otherwise we are biased to events accepted by other chains
         for(const auto& tauJetLinkInfo : features){
-          ATH_CHECK(tauJetLinkInfo.isValid());
+          if (!tauJetLinkInfo.isValid()) {
+            ATH_MSG_WARNING("Invalid tauJet");
+            continue;
+          }
           const TrigCompositeUtils::Decision* decision = tauJetLinkInfo.source;
 
           const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> initialRoILinkInfo = 
             TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( decision, "initialRoI" ); 
-          ATH_CHECK(initialRoILinkInfo.isValid());
+          if (!initialRoILinkInfo.isValid()) {
+            ATH_MSG_WARNING("Invalid TrigRoiDescriptor");
+            continue;
+          }
           const ElementLink<TrigRoiDescriptorCollection> initialRoIEL = initialRoILinkInfo.link;
      
           for(itEMTau = l1Tau_cont->begin(); itEMTau!=itEMTau_e; ++itEMTau){
@@ -814,7 +823,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
           ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << featuresPreselect.size() << " TauJets"); 
         }
         for(const auto& tauJetLinkInfo : featuresPreselect){
-          ATH_CHECK(tauJetLinkInfo.isValid());
+          if (!tauJetLinkInfo.isValid()) {
+            ATH_MSG_WARNING("Invalid tauJet");
+            continue;
+          }
           const ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
 
           if(!Selection(*tauJetEL)) continue;
@@ -833,7 +845,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
           ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << featuresMerged.size() << " TauJets");
         }
         for(const auto& tauJetLinkInfo : featuresMerged){
-          ATH_CHECK(tauJetLinkInfo.isValid());
+          if (!tauJetLinkInfo.isValid()) {
+            ATH_MSG_WARNING("Invalid tauJet");
+            continue;
+          }
           const ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
           if(!Selection(*tauJetEL)) continue;
           ATH_CHECK(fillEFTau(*tauJetEL, trigItem, "basicVars"));
@@ -888,7 +903,10 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
            = getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, m_HLTTriggerCondition, "TrigTauRecMerged" );
 
         for(const auto& tauJetLinkInfo : features){
-          ATH_CHECK(tauJetLinkInfo.isValid());          
+          if (!tauJetLinkInfo.isValid()) {
+            ATH_MSG_WARNING("Invalid tauJet");
+            continue;
+          }          
           const ElementLink<xAOD::TauJetContainer> tauJetEL = tauJetLinkInfo.link;
           v_eta.push_back((*tauJetEL)->eta());
           v_phi.push_back((*tauJetEL)->phi());

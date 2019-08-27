@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"
@@ -94,19 +93,10 @@ StatusCode RPCTriggerDbTool::initialize()
 			<< " / phi "<< m_phiTableFolder << endmsg;
   
   
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    if( m_debug )  m_log << MSG::DEBUG  << "Retrieved DetectorStore" << endmsg;
-  }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  
-  
   // Get interface to IOVSvc
   m_IOVSvc = 0;
   bool CREATEIF(true);
-  sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
+  StatusCode sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
       m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
@@ -181,7 +171,7 @@ StatusCode RPCTriggerDbTool::loadRPCEtaTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
   const CondAttrListCollection * atrc;
   if( m_debug )  m_log << MSG::INFO << "Try to read from folder <" << m_etaTableFolder << ">" << endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_etaTableFolder);
+  sc=detStore()->retrieve(atrc,m_etaTableFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR 
 	  << "could not retreive the CondAttrListCollection from DB folder " 
@@ -266,7 +256,7 @@ StatusCode RPCTriggerDbTool::loadRPCPhiTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
   const CondAttrListCollection * atrc;
   if( m_debug ) m_log << MSG::INFO << "Try to read from folder <"<<m_phiTableFolder<<">"<<endmsg;
   
-  sc=m_detStore->retrieve(atrc,m_phiTableFolder);
+  sc=detStore()->retrieve(atrc,m_phiTableFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR 
 	  << "could not retreive the CondAttrListCollection from DB folder " 

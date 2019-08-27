@@ -5,7 +5,7 @@ from G4AtlasServices.G4AtlasServicesConf import StandardFieldSvc
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 #to prevent unit tests failing when just running over simulation
 import os
-if not "AthSimulation_DIR" in os.environ:
+if "AthSimulation_DIR" not in os.environ:
     from ForwardRegionMgField.ForwardRegionMgFieldConf import MagField__ForwardRegionFieldSvc
 
 def StandardFieldSvcCfg(ConfigFlags,name="StandardField", **kwargs):

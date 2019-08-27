@@ -18,10 +18,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "BTagging/IBTagTool.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
 #include <map>
+#include <atomic>
 
 
 /** The namespace of all packages in PhysicsAnalysis/JetTagging */
@@ -61,7 +63,7 @@ namespace Analysis
     @author Andreas.Wildauer@cern.ch
     */
 
-  class BTagTool : public AthAlgTool, virtual public IBTagTool
+  class BTagTool : public extends<AthAlgTool, IBTagTool>
   {
     public:
 
@@ -70,15 +72,19 @@ namespace Analysis
       virtual ~BTagTool();
 
       /** Main routines specific to an ATHENA algorithm */
-      StatusCode initialize();
-      StatusCode tagJet(const xAOD::Jet*, xAOD::BTagging*, const xAOD::Vertex* vtx = 0);
-      StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer);
-      StatusCode finalize();
-      void finalizeHistos();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
+      virtual void finalizeHistos() override;
+
+      virtual
+      StatusCode tagJet(const xAOD::Jet*, xAOD::BTagging*, const xAOD::Vertex* vtx = 0) const override;
+      virtual
+      StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) const override;
 
     private:
 
-      unsigned int m_nBeamSpotPvx, m_nAllJets;
+      mutable std::atomic<unsigned int> m_nBeamSpotPvx;
+      mutable std::atomic<unsigned int> m_nAllJets ATLAS_THREAD_SAFE;
 
       ToolHandleArray< ITagTool > m_bTagToolHandleArray;
       std::map<std::string, ITagTool*> m_bTagTool; //!< map to the btag tools

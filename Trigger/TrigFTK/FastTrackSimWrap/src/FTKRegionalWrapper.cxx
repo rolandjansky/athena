@@ -42,9 +42,6 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
     m_hitInputTool("FTK_SGHitInput/FTK_SGHitInput"),
     m_clusterConverterTool("TrigFTKClusterConverterTool"),
     m_sct_cablingToolInc("SCT_CablingToolInc"),
-    m_storeGate(0),
-    m_detStore( 0 ),
-    m_evtStore(0 ),
     m_pixelId(0),
     m_sctId(0),
     m_idHelper(0),
@@ -261,28 +258,20 @@ StatusCode FTKRegionalWrapper::initialize()
   }
 
   // This part retrieves the neccessary pixel/SCT Id helpers. They are intialized by the StoreGateSvc
-  if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    ATH_MSG_FATAL("StoreGate service not found");
-    return StatusCode::FAILURE;
-  }
-  if( service("DetectorStore",m_detStore).isFailure() ) {
-    ATH_MSG_FATAL("DetectorStore service not found");
-    return StatusCode::FAILURE;
-  }
-  if( m_detStore->retrieve(m_pixelId, "PixelID").isFailure() ) {
+  if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) {
     ATH_MSG_ERROR("Unable to retrieve Pixel helper from DetectorStore" );
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
+  if( detStore()->retrieve(m_sctId, "SCT_ID").isFailure() ) {
     ATH_MSG_ERROR("Unable to retrieve Pixel helper from DetectorStore" );
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_idHelper, "AtlasID").isFailure() ) {
+  if( detStore()->retrieve(m_idHelper, "AtlasID").isFailure() ) {
     ATH_MSG_ERROR("Unable to retrieve AtlasDetector helper from DetectorStore" );
     return StatusCode::FAILURE;
   }
 
-  if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
+  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
     ATH_MSG_ERROR("Unable to retrieve Pixel manager from DetectorStore" );
     return StatusCode::FAILURE;
   }
@@ -296,11 +285,10 @@ StatusCode FTKRegionalWrapper::initialize()
 
   // Write clusters in InDetCluster format to ESD for use in Pseudotracking
   if (m_WriteClustersToESD){
-    StatusCode sc = service("StoreGateSvc", m_storeGate);
     // Creating collection for pixel clusters
     m_FTKPxlCluContainer = std::make_unique<InDet::PixelClusterContainer>(m_pixelId->wafer_hash_max());
     m_FTKPxlCluContainer->addRef();
-    sc = m_storeGate->record(m_FTKPxlCluContainer.get(), m_FTKPxlClu_CollName);
+    StatusCode sc = evtStore()->record(m_FTKPxlCluContainer.get(), m_FTKPxlClu_CollName);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Error registering the FTK pixel container in the SG" );
       return StatusCode::FAILURE;
@@ -308,7 +296,7 @@ StatusCode FTKRegionalWrapper::initialize()
 
     // Generic format link for the pixel clusters
     const InDet::SiClusterContainer *symSiContainerPxl(0x0);
-    sc = m_storeGate->symLink(m_FTKPxlCluContainer.get(), symSiContainerPxl);
+    sc = evtStore()->symLink(m_FTKPxlCluContainer.get(), symSiContainerPxl);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Error creating the sym-link to the Pixel clusters" );
       return StatusCode::FAILURE;
@@ -317,42 +305,42 @@ StatusCode FTKRegionalWrapper::initialize()
     // Creating collection for the SCT clusters
     m_FTKSCTCluContainer = std::make_unique<InDet::SCT_ClusterContainer>(m_sctId->wafer_hash_max());
     m_FTKSCTCluContainer->addRef();
-    sc = m_storeGate->record(m_FTKSCTCluContainer.get(), m_FTKSCTClu_CollName);
+    sc = evtStore()->record(m_FTKSCTCluContainer.get(), m_FTKSCTClu_CollName);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Error registering the FTK SCT container in the SG" );
       return StatusCode::FAILURE;
     }
     // Generic format link for the pixel clusters
     const InDet::SiClusterContainer *symSiContainerSCT(0x0);
-    sc = m_storeGate->symLink(m_FTKSCTCluContainer.get(), symSiContainerSCT);
+    sc = evtStore()->symLink(m_FTKSCTCluContainer.get(), symSiContainerSCT);
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Error creating the sym-link to the SCT clusters" );
       return StatusCode::FAILURE;
     }
 
     // getting sct truth
-    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) {
-	m_ftkSctTruth = std::make_unique<PRD_MultiTruthCollection>();
-	StatusCode sc=m_storeGate->record(m_ftkSctTruth.get(),m_ftkSctTruthName);
+    if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) {
+	  m_ftkSctTruth = std::make_unique<PRD_MultiTruthCollection>();
+	  sc=evtStore()->record(m_ftkSctTruth.get(),m_ftkSctTruthName);
       if(sc.isFailure()) {
-	ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName
+        ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName
 			<<" cannot be recorded in StoreGate !");
       }
       else {
-	ATH_MSG_DEBUG("SCT FTK Truth Container " << m_ftkSctTruthName
+        ATH_MSG_DEBUG("SCT FTK Truth Container " << m_ftkSctTruthName
 		      << " is recorded in StoreGate");
       }
     }
     //getting pixel truth
-    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) {
-	m_ftkPixelTruth = std::make_unique<PRD_MultiTruthCollection>();
-	StatusCode sc=m_storeGate->record(m_ftkPixelTruth.get(),m_ftkPixelTruthName);
+    if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) {
+      m_ftkPixelTruth = std::make_unique<PRD_MultiTruthCollection>();
+      sc=evtStore()->record(m_ftkPixelTruth.get(),m_ftkPixelTruthName);
       if(sc.isFailure()) {
 	ATH_MSG_WARNING("Pixel FTK Truth Container " << m_ftkPixelTruthName
 			<<" cannot be recorded in StoreGate !");
       }
       else {
-	ATH_MSG_DEBUG("Pixel FTK Truth Container " << m_ftkPixelTruthName
+        ATH_MSG_DEBUG("Pixel FTK Truth Container " << m_ftkPixelTruthName
 		      << " is recorded in StoreGate");
       }
     }
@@ -732,7 +720,7 @@ StatusCode FTKRegionalWrapper::execute()
 
   if (m_getOffline) {
     const xAOD::TrackParticleContainer *offlineTracks = nullptr;
-    if(m_storeGate->retrieve(offlineTracks,m_offlineName).isFailure()) {
+    if(evtStore()->retrieve(offlineTracks,m_offlineName).isFailure()) {
       ATH_MSG_ERROR("Failed to retrieve Offline Tracks " << m_offlineName);
       return StatusCode::FAILURE;
     }
@@ -803,20 +791,20 @@ StatusCode FTKRegionalWrapper::execute()
 
   //get all the containers to write clusters
   if(m_WriteClustersToESD){
-    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) {
+    if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) {
 	m_ftkSctTruth = std::make_unique<PRD_MultiTruthCollection>();
 
-	StatusCode sc=m_storeGate->record(m_ftkSctTruth.get(),m_ftkSctTruthName,false);
+	StatusCode sc=evtStore()->record(m_ftkSctTruth.get(),m_ftkSctTruthName,false);
       if(sc.isFailure()) {
 	ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName
 			<<" cannot be re-recorded in StoreGate !");
       }
     }
 
-    if(!m_storeGate->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) {
+    if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) {
 	m_ftkPixelTruth = std::make_unique<PRD_MultiTruthCollection>();
 
-	StatusCode sc=m_storeGate->record(m_ftkPixelTruth.get(),m_ftkPixelTruthName,false);
+	StatusCode sc=evtStore()->record(m_ftkPixelTruth.get(),m_ftkPixelTruthName,false);
       if(sc.isFailure()) {
 	ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkPixelTruthName
 			<<" cannot be re-recorded in StoreGate !");
@@ -825,17 +813,17 @@ StatusCode FTKRegionalWrapper::execute()
 
 
     // Check the FTK pixel container
-    if (!m_storeGate->contains<InDet::PixelClusterContainer>(m_FTKPxlClu_CollName)) {
+    if (!evtStore()->contains<InDet::PixelClusterContainer>(m_FTKPxlClu_CollName)) {
       m_FTKPxlCluContainer->cleanup();
-      if (m_storeGate->record(m_FTKPxlCluContainer.get() ,m_FTKPxlClu_CollName,false).isFailure()) {
+      if (evtStore()->record(m_FTKPxlCluContainer.get() ,m_FTKPxlClu_CollName,false).isFailure()) {
 	return StatusCode::FAILURE;
       }
     }
 
     // check the FTK SCT container
-    if (!m_storeGate->contains<InDet::SCT_ClusterContainer>(m_FTKSCTClu_CollName)) {
+    if (!evtStore()->contains<InDet::SCT_ClusterContainer>(m_FTKSCTClu_CollName)) {
       m_FTKSCTCluContainer->cleanup();
-      if (m_storeGate->record(m_FTKSCTCluContainer.get(), m_FTKSCTClu_CollName,false).isFailure()) {
+      if (evtStore()->record(m_FTKSCTCluContainer.get(), m_FTKSCTClu_CollName,false).isFailure()) {
 	return StatusCode::FAILURE;
       }
     }
@@ -890,7 +878,7 @@ StatusCode FTKRegionalWrapper::execute()
 						    t,
 						    m_ftkSctTruth.get(),
 						    m_mcEventCollection,
-						    m_storeGate,
+						    evtStore().get(),
 						    m_mcTruthName);
 	  }
 	}
@@ -915,7 +903,7 @@ StatusCode FTKRegionalWrapper::execute()
 						     t,
 						     m_ftkPixelTruth.get(),
 						     m_mcEventCollection,
-						     m_storeGate,
+						     evtStore().get(),
 						     m_mcTruthName);
 	  }
 	}

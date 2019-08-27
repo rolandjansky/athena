@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -23,7 +23,6 @@ namespace D3PD{
 TileHitFillerTool::TileHitFillerTool(const string& type, 
         const string& name, const IInterface* parent):
   BlockFillerTool<TileHit>(type,name,parent),
-  m_detStore(0),
   m_tileID(0)
 {
   book().ignore(); // Avoid coverity warnings
@@ -34,8 +33,7 @@ TileHitFillerTool::TileHitFillerTool(const string& type,
  */
 StatusCode TileHitFillerTool::initialize()
 {
-  CHECK( service("DetectorStore",m_detStore) );
-  CHECK( m_detStore->retrieve(m_tileID) );
+  CHECK( detStore()->retrieve(m_tileID) );
   return StatusCode::SUCCESS;
 }
 

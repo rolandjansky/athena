@@ -50,7 +50,7 @@ echo  "art-result: $rc2 overlayST"
 rc3=-9999
 if [ $rc2 -eq 0 ]
 then
-    acmd.py diff-root MC_plus_MC.ST.RDO.pool.root MC_plus_MC.MT.RDO.pool.root --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings index_ref xAOD::JetAuxContainer_v1_InTimeAntiKt4TruthJetsAux xAOD::JetAuxContainer_v1_InTimeAntiKt4TruthJetsAuxDyn xAOD::JetAuxContainer_v1_OutOfTimeAntiKt4TruthJetsAux xAOD::JetAuxContainer_v1_OutOfTimeAntiKt4TruthJetsAuxDyn
+    acmd.py diff-root MC_plus_MC.ST.RDO.pool.root MC_plus_MC.MT.RDO.pool.root --mode=semi-detailed --order-trees --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings RecoTimingObj_p1_HITStoRDO_timings index_ref xAOD::JetAuxContainer_v1_InTimeAntiKt4TruthJetsAux xAOD::JetAuxContainer_v1_InTimeAntiKt4TruthJetsAuxDyn xAOD::JetAuxContainer_v1_OutOfTimeAntiKt4TruthJetsAux xAOD::JetAuxContainer_v1_OutOfTimeAntiKt4TruthJetsAuxDyn
     rc3=$?
 fi
 echo  "art-result: $rc3 comparison"

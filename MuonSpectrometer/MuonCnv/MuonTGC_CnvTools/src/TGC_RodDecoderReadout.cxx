@@ -65,6 +65,12 @@ StatusCode Muon::TGC_RodDecoderReadout::initialize()
 StatusCode Muon::TGC_RodDecoderReadout::finalize()
 {
   StatusCode sc = AthAlgTool::finalize();
+
+  if(m_nCache>0 || m_nNotCache>0) {
+    const float cacheFraction = ((float)m_nCache) / ((float)(m_nCache + m_nNotCache));
+    ATH_MSG_INFO("Fraction of fills that use the cache = " << cacheFraction);
+  }
+
   return sc;
 }
 
@@ -96,9 +102,11 @@ StatusCode Muon::TGC_RodDecoderReadout::fillCollection(const ROBFragment& robFra
   if(lock.alreadyPresent() ){
   	ATH_MSG_DEBUG ( " TGC RDO collection already exist with collection hash = " 
   		<< idHash << ", ID = " << sid.human() << " - converting is skipped!");
+        ++m_nCache;
   }
   else{
   	ATH_MSG_DEBUG( " Created new collection with ID = " << sid.human() << ", hash = " << idHash );
+        ++m_nNotCache;
   	// Create collection
   	rdo = std::make_unique<TgcRdo>(rdoId, idHash);
   	// Adjust bytestream data

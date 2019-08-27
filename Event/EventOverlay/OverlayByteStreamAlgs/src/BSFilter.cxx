@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <iostream>
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include "BSFilter.h"

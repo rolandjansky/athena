@@ -84,7 +84,7 @@ Trk::QuickCloseComponentsMultiStateMerger::finalize()
   return StatusCode::SUCCESS;
 }
 
-Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState& unmergedState) const
 {
 
@@ -96,17 +96,17 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
 
   if (unmergedState.size() <= m_maximumNumberOfComponents) {
     ATH_MSG_VERBOSE("State is already sufficiently small... no component reduction required");
-    return unmergedState.clone();
+    return std::unique_ptr<Trk::MultiComponentState> (unmergedState.clone());
   }
 
   if (!isAssemblerReset) {
     ATH_MSG_ERROR("Could not reset the state assembler... returning 0");
-    return 0;
+    return nullptr;
   }
 
   if (unmergedState.empty()) {
     ATH_MSG_ERROR("Attempting to merge multi-state with zero components");
-    return 0;
+    return nullptr;
   }
 
   bool componentWithoutMeasurement = false;
@@ -127,7 +127,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
   const Trk::ComponentParameters reducedState(combinedState, 1.);
   if (componentWithoutMeasurement) {
     ATH_MSG_DEBUG("A track parameters object is without measurement... reducing state to single component");
-    return (new Trk::MultiComponentState(reducedState));
+    return std::make_unique<Trk::MultiComponentState>(reducedState);
   }
 
   delete combinedState;
@@ -136,7 +136,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(const Trk::MultiComponentState&
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Trk::MultiComponentState*
+std::unique_ptr<Trk::MultiComponentState>
 Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentStateAssembler::Cache& cache,
                                                               const Trk::MultiComponentState& mcs) const
 {
@@ -296,7 +296,7 @@ Trk::QuickCloseComponentsMultiStateMerger::mergeFullDistArray(IMultiComponentSta
     cache.multiComponentState.push_back(SimpleComponentParameters(state.first.release(), state.second));
     cache.validWeightSum += state.second;
   }
-  Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState(cache);
+  std::unique_ptr<Trk::MultiComponentState> mergedState = m_stateAssembler->assembledState(cache);
   ATH_MSG_DEBUG("Number of components in merged state: " << mergedState->size());
 
   // Clear the state vector

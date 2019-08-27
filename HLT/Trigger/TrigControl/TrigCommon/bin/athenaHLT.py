@@ -115,7 +115,7 @@ def update_run_params(args):
       args.run_number = EventStorage.pickDataReader(args.file[0]).runNumber()
 
    if args.sor_time is None:
-      args.sort_time = arg_sor_time(str(AthHLT.get_sor_params(args.run_number)['SORTime']))
+      args.sor_time = arg_sor_time(str(AthHLT.get_sor_params(args.run_number)['SORTime']))
 
    if args.detector_mask is None:
       dmask = AthHLT.get_sor_params(args.run_number)['DetectorMask']
@@ -300,7 +300,7 @@ def main():
    g.add_argument('--stdcmath', action='store_true', help='use stdcmath library')
    g.add_argument('--imf', action='store_true', default=True, help='use Intel math library')
    g.add_argument('--show-includes', '-s', action='store_true', help='show printout of included files')
-   g.add_argument('--timeout', metavar='MSEC', default=60*1000, help='timeout in milliseconds')
+   g.add_argument('--timeout', metavar='MSEC', default=60*60*1000, help='timeout in milliseconds')
 
    ## Database
    g = parser.add_argument_group('Database')

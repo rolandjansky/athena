@@ -123,8 +123,12 @@ def getLArPileUpTool(name='LArPileUpTool', **kwargs): ## useLArFloat()=True,isOv
     kwargs.setdefault('Nsamples', larRODFlags.nSamples() )
     kwargs.setdefault('firstSample', larRODFlags.firstSample() )
 
-    if  isOverlay() :
-         kwargs.setdefault('RandomDigitContainer', 'LArDigitContainer_MC' )
+    if isOverlay() :
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        if overlayFlags.isOverlayMT():
+            kwargs.setdefault('RandomDigitContainer',  overlayFlags.bkgPrefix() + 'LArDigitContainer_MC' )
+        else:
+            kwargs.setdefault('RandomDigitContainer', 'LArDigitContainer_MC' )
 
     # ADC2MeVCondAlgo
     from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault

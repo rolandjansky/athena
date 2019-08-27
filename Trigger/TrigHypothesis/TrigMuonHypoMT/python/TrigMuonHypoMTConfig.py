@@ -7,7 +7,8 @@ from TrigMuonHypoMT.TrigMuonHypoMTConf import (  # noqa: F401 (algs not used her
     TrigMuonEFMSonlyHypoAlg, TrigMuonEFMSonlyHypoTool,
     TrigMuisoHypoAlg, TrigMuisoHypoTool,
     TrigMuonEFCombinerHypoAlg, TrigMuonEFCombinerHypoTool,
-    TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool
+    TrigMuonEFTrackIsolationHypoAlg, TrigMuonEFTrackIsolationHypoTool,
+    TrigL2MuonOverlapRemoverMufastAlg, TrigL2MuonOverlapRemoverMucombAlg, TrigL2MuonOverlapRemoverTool
 )
 
 # import monitoring
@@ -16,7 +17,9 @@ from TrigMuonHypoMT.TrigMuonHypoMonitoringMT import (
     TrigmuCombHypoMonitoring,
     TrigMuonEFMSonlyHypoMonitoring,
     TrigMuisoHypoMonitoring,
-    TrigMuonEFCombinerHypoMonitoring
+    TrigMuonEFCombinerHypoMonitoring,
+    TrigL2MuonOverlapRemoverMonitoringMufast,
+    TrigL2MuonOverlapRemoverMonitoringMucomb
 )
 
 # other imports
@@ -286,6 +289,87 @@ class TrigMufastHypoConfig(object):
 
         return tool
 
+### for TrigL2MuonOverlapRemoverMufast
+def TrigL2MuonOverlapRemoverMufastToolFromDict( chainDict ):	
+
+    # will change after adding muComb OverlapRemover
+    basedFex = 'Mufast'
+    config = TrigL2MuonOverlapRemoverMufastConfig()
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], basedFex)
+    # # Setup MonTool for monitored variables in AthenaMonitoring package
+    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMufast, 'TrigL2MuonOverlapRemoverMufastTool', chainDict['chainName'] )
+    
+    return tool
+
+
+class TrigL2MuonOverlapRemoverMufastConfig(object):
+    
+    def ConfigurationHypoTool( self, thresholdHLT, basedFex): 
+        
+        tool = TrigL2MuonOverlapRemoverTool( thresholdHLT )  
+
+        if (basedFex=='Mufast'):
+            tool.DoMufastBasedRemoval = True
+        else:
+            raise Exception('TrigL2MuonOverlapRemover Misconfigured (basedFex)!')
+
+        # cut defintion
+        if(tool.DoMufastBasedRemoval):
+            tool.MufastRequireDR       = True
+            tool.MufastRequireMass     = True
+            tool.MufastRequireSameSign = True
+            # BB
+            tool.MufastDRThresBB       = 0.05
+            tool.MufastMassThresBB     = 0.20
+            # BE
+            tool.MufastDRThresBE       = 0.05
+            tool.MufastMassThresBE     = 0.20
+            # EE
+            tool.MufastEtaBinsEC       = [0, 1.9, 2.1, 9.9]
+            tool.MufastDRThresEC       = [0.06, 0.05, 0.05]
+            tool.MufastMassThresEC     = [0.20, 0.15, 0.10]
+
+        return tool
+
+
+### for TrigL2MuonOverlapRemoverMucomb
+def TrigL2MuonOverlapRemoverMucombToolFromDict( chainDict ):	
+
+    # will change after adding muComb OverlapRemover
+    basedFex = 'Mucomb'
+    config = TrigL2MuonOverlapRemoverMucombConfig()
+    tool=config.ConfigurationHypoTool( chainDict['chainName'], basedFex)
+    # # Setup MonTool for monitored variables in AthenaMonitoring package
+    addMonitoring( tool, TrigL2MuonOverlapRemoverMonitoringMucomb, 'TrigL2MuonOverlapRemoverMucombTool', chainDict['chainName'] )
+    
+    return tool
+
+
+class TrigL2MuonOverlapRemoverMucombConfig(object):
+    
+    def ConfigurationHypoTool( self, thresholdHLT, basedFex): 
+        
+        tool = TrigL2MuonOverlapRemoverTool( thresholdHLT )  
+
+        if (basedFex=='Mucomb'):
+            tool.DoMucombBasedRemoval = True
+        else:
+            raise Exception('TrigL2MuonOverlapRemover Misconfigured (basedFex)!')
+
+        # cut defintion
+        if(tool.DoMucombBasedRemoval):
+            tool.MucombRequireDR       = True
+            tool.MucombRequireMufastDR = True
+            tool.MucombRequireMass     = True
+            tool.MucombRequireSameSign = True
+            tool.MucombEtaBins         = [0, 0.9, 1.1, 1.9, 2.1, 9.9]
+            tool.MucombDRThres         = [0.002, 0.001, 0.002, 0.002, 0.002]
+            tool.MucombMufastDRThres   = [0.4,   0.4,   0.4,   0.4,   0.4]
+            tool.MucombMassThres       = [0.004, 0.002, 0.006, 0.006, 0.006]
+
+        return tool
+
+
 def TrigmuCombHypoToolFromDict( chainDict ):
 
     thresholds = getThresholdsFromDict( chainDict )
@@ -387,10 +471,10 @@ class TrigMuonEFMSonlyHypoConfig(object):
 
     log = logging.getLogger('TrigMuonEFMSonlyHypoConfig')
 
-    def ConfigurationHypoTool( self, thresholdHLT, thresholds ):
+    def ConfigurationHypoTool( self, toolName, thresholds ):
 
         log = logging.getLogger(self.__class__.__name__)
-        tool = TrigMuonEFMSonlyHypoTool( thresholdHLT )  
+        tool = TrigMuonEFMSonlyHypoTool( toolName )  
 
         nt = len(thresholds)
         log.debug('Set %d thresholds', nt)
@@ -398,7 +482,8 @@ class TrigMuonEFMSonlyHypoConfig(object):
         tool.PtBins = [ [ 0, 2.5 ] ] * nt
         tool.PtThresholds = [ [ 5.49 * GeV ] ] * nt
 
- 
+        if '3layersEC' in toolName:
+            tool.RequireThreeStations=True
         for th, thvalue in enumerate(thresholds):
             thvaluename = thvalue + 'GeV'
             log.debug('Number of threshold = %d, Value of threshold = %s', th, thvaluename)
