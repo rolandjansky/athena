@@ -208,6 +208,11 @@ StatusCode TileDigitsMaker::initialize() {
   m_binTime0Lo = m_tileInfo->digitsTime0BinLo();
   m_timeStepLo = 25.0 / m_nBinsPerXLo;
 
+  m_overlayDigitContainerName = m_overlayDigitContainerKey.key();
+  ATH_CHECK( m_overlayDigitContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay) );
+  m_overlayRawChannelContainerName = m_overlayRawChannelContainerKey.key();
+  ATH_CHECK( m_overlayRawChannelContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay) );
+
   if (m_rndmEvtOverlay) {
     m_tileNoise = false;
     m_tileCoherNoise = false;
@@ -224,10 +229,6 @@ StatusCode TileDigitsMaker::initialize() {
 
     ATH_CHECK( m_DQstatusTool.retrieve() );
     ATH_CHECK( m_DQstatusKey.initialize() );
-    m_overlayDigitContainerName = m_overlayDigitContainerKey.key();
-    ATH_CHECK( m_overlayDigitContainerKey.initialize(!m_onlyUseContainerName) );
-    m_overlayRawChannelContainerName = m_overlayRawChannelContainerKey.key();
-    ATH_CHECK( m_overlayRawChannelContainerKey.initialize(!m_onlyUseContainerName) );
 
   } else {
     m_DQstatusTool.disable();
