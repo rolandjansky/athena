@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTKSim/FTKTrack.h"
@@ -31,8 +31,6 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_StoreGate(nullptr),
-  m_detStore(nullptr),
   m_ftktrack_paths_merged(0),
   m_mergedtracks_chain(nullptr),
   m_mergedtracks_tree(nullptr),
@@ -88,18 +86,9 @@ StatusCode FTK_RDO_CreatorAlgo::initialize(){
 	       << " z " <<  m_trainingBeamspotZ << " TiltX " << m_trainingBeamspotTiltX << "TiltY " << m_trainingBeamspotTiltY);
   if (m_reverseIBLlocx)ATH_MSG_INFO(" Reversing direction of IBL hit phi position");
 
-
-  StatusCode scSG = service( "StoreGateSvc", m_StoreGate );
-  if (scSG.isFailure()) {
-    ATH_MSG_FATAL("Unable to retrieve StoreGate service");
-    return scSG;
-  }
-
-  StoreGateSvc* detStore;
-  ATH_CHECK(service("DetectorStore", detStore));
-  ATH_CHECK(detStore->retrieve(m_pixelId, "PixelID"));
-  ATH_CHECK(detStore->retrieve(m_sctId, "SCT_ID"));
-  ATH_CHECK(detStore->retrieve(m_id_helper, "AtlasID"));
+  ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID"));
+  ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_id_helper, "AtlasID"));
 
   // prepare the input from the FTK tracks, merged in an external simulation
   m_mergedtracks_chain = new TChain("ftkdata","Merged tracks chain");
@@ -170,7 +159,7 @@ StatusCode FTK_RDO_CreatorAlgo::execute() {
   ATH_MSG_DEBUG("FTK_RDO_CreatorAlgo::execute() start" );
   // Get information on the events
   const EventInfo* eventInfo(0);
-  if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
+  if( evtStore()->retrieve(eventInfo).isFailure() ) {
     ATH_MSG_ERROR("Could not retrieve event info" );
     return StatusCode::FAILURE;
   }
@@ -203,7 +192,7 @@ StatusCode FTK_RDO_CreatorAlgo::execute() {
 
   m_ftk_raw_trackcollection = new FTK_RawTrackContainer;
 
-  StatusCode scJ = m_StoreGate->record(m_ftk_raw_trackcollection, m_ftk_raw_trackcollection_Name);
+  StatusCode scJ = evtStore()->record(m_ftk_raw_trackcollection, m_ftk_raw_trackcollection_Name);
   if (scJ.isFailure()) {
     ATH_MSG_FATAL("Failure registering FTK_RawTrackContainer" );
     return StatusCode::FAILURE;

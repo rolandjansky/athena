@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //===========================
@@ -29,7 +29,6 @@ public:
   float GetTime();
   
  private:
-  // StoreGateSvc* m_storeGate, *m_detStore;
   std::string m_cellContainerName;
   Double_t m_MinDist;
   Double_t m_tileMuDeltaEta ;

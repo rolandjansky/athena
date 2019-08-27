@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**    @file HLTMinbiasMonTool.h
@@ -90,8 +90,6 @@ private:
 	int error_bit(bool a, bool b);
 
 	MsgStream* m_log; //Message Stream
-	//StoreGateSvc* m_storeGate; //Store Gate
-	StoreGateSvc* m_detStore; //Detector Store
 	// Histogram Service
 	//ITHistSvc* m_histsvc;
 

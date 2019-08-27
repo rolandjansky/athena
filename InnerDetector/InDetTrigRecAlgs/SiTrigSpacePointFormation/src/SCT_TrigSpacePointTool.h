@@ -44,7 +44,6 @@ class SpacePointCollection;
 class SpacePointOverlapCollection; 
 class SpacePointContainer; 
 class SvcLocator;
-class StoreGateSvc;
 class SCT_NeighboursTable;
 
 namespace InDet { class SiElementPropertiesTable;}

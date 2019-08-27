@@ -10,8 +10,6 @@
 
 L1CaloPprPhos4ShapeMaker::L1CaloPprPhos4ShapeMaker(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator),
    m_signalShapes(0),
-   m_storeGate(0),
-   m_detStore(0),
    m_histTool("TrigT1CaloLWHistogramTool"),
    m_currentDatabaseMapsFilled(false),
    m_l1aFadcSlice(0),
@@ -59,9 +57,6 @@ StatusCode L1CaloPprPhos4ShapeMaker::initialize(){
       ATH_MSG_INFO("creating select histogram for: "<< std::hex << m_selectedCoolIds[i] << std::dec );
    }
    
-   
-   m_storeGate = 0;
-   m_detStore = 0;
    
 //    m_l1CaloTTIdTools = 0;
    m_caloMgr = 0;
@@ -481,26 +476,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::finalize(){
 StatusCode L1CaloPprPhos4ShapeMaker::loadAthenaObjects(){
 
    StatusCode sc;
-   
-   // Load StoreGate Tool 
-   // StoreGate is your access to the data.
-   sc = service("StoreGateSvc",m_storeGate);
-   if(sc.isFailure()){
-      ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
-      return sc;
-   }
-
-   // Load Detector Store - Needed for access to L1Calo COOL ID for
-   // the trigger towers.
-   sc = service("DetectorStore", m_detStore);
-   if (sc.isFailure()) {
-      ATH_MSG_ERROR("Cannot access DetectorStore");
-      return StatusCode::FAILURE;
-   }
-   else
-   	ATH_MSG_INFO("Found detector store");
-   
-   sc = m_detStore->retrieve(m_caloMgr);
+   sc = detStore()->retrieve(m_caloMgr);
    if (sc.isFailure()) {
       ATH_MSG_ERROR("Unable to retrieve CaloIdManager from DetectorStore");
       return StatusCode::FAILURE;
@@ -565,7 +541,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::loadAthenaObjects(){
 StatusCode L1CaloPprPhos4ShapeMaker::GetTriggerTowers(void){
    
    // Load in Trigger Towers. I'm not going to comment the rest, should be obvious.
-   StatusCode sc = m_storeGate->retrieve(m_triggerTowers, "TriggerTowers");
+   StatusCode sc = evtStore()->retrieve(m_triggerTowers, "TriggerTowers");
    if(sc.isFailure()){
       ATH_MSG_INFO("Failed to load TriggerTowers");
       return StatusCode::FAILURE;
@@ -576,7 +552,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::GetTriggerTowers(void){
 
 StatusCode L1CaloPprPhos4ShapeMaker::GetRODHeader(){
    
-   StatusCode sc = m_storeGate->retrieve(m_rodHeader, "RODHeaders");
+   StatusCode sc = evtStore()->retrieve(m_rodHeader, "RODHeaders");
    if(sc.isFailure()){
       ATH_MSG_INFO("Failed to load ROD Headers");
       return StatusCode::FAILURE;
@@ -586,7 +562,7 @@ StatusCode L1CaloPprPhos4ShapeMaker::GetRODHeader(){
 
 StatusCode L1CaloPprPhos4ShapeMaker::GetEventInfo(){
    
-   StatusCode sc = m_storeGate->retrieve(m_evtInfo);
+   StatusCode sc = evtStore()->retrieve(m_evtInfo);
    if(sc.isFailure()){
       ATH_MSG_INFO("Failed to load Event Information");
       return StatusCode::FAILURE;
@@ -596,8 +572,8 @@ StatusCode L1CaloPprPhos4ShapeMaker::GetEventInfo(){
 
 StatusCode L1CaloPprPhos4ShapeMaker::GetDatabaseHandle(std::string folderName){
    
-   StatusCode sc = m_storeGate->retrieve(m_attrList,folderName.c_str());
-   //ATH_MSG_INFO( m_detStore->dump() );
+   StatusCode sc = evtStore()->retrieve(m_attrList,folderName.c_str());
+   //ATH_MSG_INFO( detStore()->dump() );
    if(sc.isFailure()){
       ATH_MSG_INFO("Failed to retrieve database handle");
       return StatusCode::FAILURE;

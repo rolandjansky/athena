@@ -20,7 +20,6 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/Units.h"
 #include "globals.hh"
 #include <cmath>

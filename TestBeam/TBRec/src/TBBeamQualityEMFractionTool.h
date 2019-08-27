@@ -36,9 +36,6 @@ class TBBeamQualityEMFractionTool : public TBBeamQualityTool
   
  protected:
   
-  StoreGateSvc* m_StoreGate;
-  StoreGateSvc* m_detStore;
-  
   //LArDetDescrManager* m_larMgr;
 
   // Identifier Pointers

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloTowerContainer.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "boost/foreach.hpp"

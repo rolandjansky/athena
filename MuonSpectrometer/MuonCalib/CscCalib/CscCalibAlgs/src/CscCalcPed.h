@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCALCPED_H
@@ -100,9 +100,6 @@ namespace MuonCalib{
 
       /*********Private member variables*/
       /**Services and tools*/
-      StoreGateSvc * m_storeGate;
-      StoreGateSvc* m_detStore;
-
       // ITHistSvc * m_thistSvc;
     //      ICscCalibTool * m_cscCalibTool;
       const CscIdHelper *m_cscId;

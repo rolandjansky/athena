@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTTRACKFITTER_H
@@ -22,8 +22,6 @@
 #include "TrigL2MuonSA/AlphaBetaEstimate.h"
 #include "TrigL2MuonSA/PtFromRadius.h"
 #include "TrigL2MuonSA/PtFromAlphaBeta.h"
-
-class StoreGateSvc;
 
 namespace TrigL2MuonSA {
 
@@ -60,9 +58,6 @@ namespace TrigL2MuonSA {
     void setUseEIFromBarrel( BooleanProperty use_endcapInnerFromBarrel );
 
   private:
-    // Reference to StoreGateSvc;
-    ServiceHandle<StoreGateSvc>    m_storeGateSvc;
-    
     BooleanProperty  m_use_mcLUT;
 
     //const PtEndcapLUTSvc*                  m_ptEndcapLUTSvc;

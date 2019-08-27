@@ -5,7 +5,6 @@
 #include "TrkAmbiguitySolver/TrkAmbiguityScore.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityScoreProcessorTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
 Trk::TrkAmbiguityScore::TrkAmbiguityScore(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm (name, pSvcLocator),

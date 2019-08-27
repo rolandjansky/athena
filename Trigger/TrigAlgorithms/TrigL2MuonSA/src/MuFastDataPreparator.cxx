@@ -4,8 +4,6 @@
 
 #include "TrigL2MuonSA/MuFastDataPreparator.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
@@ -45,12 +43,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    ATH_MSG_INFO("Retrieved Service " << m_recRPCRoiSvc);
    
    // retrieve the ID helper and the region selector
-   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-   ATH_CHECK(detStore.retrieve());
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
-
    const MuonGM::MuonDetectorManager* muonMgr;
-   ATH_CHECK( detStore->retrieve( muonMgr,"Muon" ) );
+   ATH_CHECK( detStore()->retrieve( muonMgr,"Muon" ) );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_mdtIdHelper = muonMgr->mdtIdHelper();
   

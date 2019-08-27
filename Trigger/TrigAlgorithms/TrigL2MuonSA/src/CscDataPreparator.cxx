@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/CscDataPreparator.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -82,12 +81,8 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    ATH_CHECK( m_cscClusterProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_INFO("Retrieved " << m_cscClusterProvider);
 
-   // Detector Store
-   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
    // CSC ID helper
-   ATH_CHECK( detStore->retrieve(m_muonMgr, "Muon") );
+   ATH_CHECK( detStore()->retrieve(m_muonMgr, "Muon") );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_cscIdHelper = m_muonMgr->cscIdHelper();
 

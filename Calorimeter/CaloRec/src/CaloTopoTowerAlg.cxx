@@ -19,8 +19,6 @@
 /// Date : 25 February 2009
 ///============================================================
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloTowerContainer.h"
 #include "CaloEvent/CaloCell2ClusterMap.h"

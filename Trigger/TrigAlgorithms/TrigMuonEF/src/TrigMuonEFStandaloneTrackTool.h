@@ -81,7 +81,6 @@ namespace Trk {
 class ICscClusterBuilder;  
 class TrigMuonEFInfoContainer;
 class TrigTimer;
-class StoreGateSvc;
 class ActiveStoreSvc;
 class IRegSelSvc;
 class IIncidentSvc;

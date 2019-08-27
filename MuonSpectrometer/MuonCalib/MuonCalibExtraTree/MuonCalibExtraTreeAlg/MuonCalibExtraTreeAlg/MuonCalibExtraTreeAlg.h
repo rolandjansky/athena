@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCALIB_EXTRATREEALG_H
@@ -20,7 +20,6 @@
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 
-class StoreGateSvc;
 class TFile;
 class TDirectory;
 class TTree;

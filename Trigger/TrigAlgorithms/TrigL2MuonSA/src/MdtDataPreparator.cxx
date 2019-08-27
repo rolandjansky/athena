@@ -4,7 +4,6 @@
 
 #include "TrigL2MuonSA/MdtDataPreparator.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/phihelper.h"
 
 #include "MuonRDO/MdtCsmContainer.h"
@@ -127,10 +126,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    ATH_CHECK( m_readKey.initialize() );
    
    // retrieve the mdtidhelper
-   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
-   ATH_CHECK( detStore->retrieve(m_muonMgr,"Muon") );
+   ATH_CHECK( detStore()->retrieve(m_muonMgr,"Muon") );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_mdtIdHelper = m_muonMgr->mdtIdHelper();
    

@@ -16,7 +16,6 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 
 class LArDetectorManager;
-class StoreGateSvc;
 
 /** @class LArDetectorToolNV
     @brief LArDetectorToolNV is a standard GeoModel tool, which calls LArDetectorFactory::create(),

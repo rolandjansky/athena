@@ -34,7 +34,6 @@
 
 #include <stdint.h>
 
-class StoreGateSvc; 
 class PixelID; 
 class AtlasDetector;
 class SCT_ID;
@@ -64,9 +63,6 @@ private:
   // Needed to retrieve m_pixelId in order to get the barrel_ec, phi/eta_modules etc.
 
 
-  StoreGateSvc*  m_storeGate;
-  StoreGateSvc*  m_detStore;
-  StoreGateSvc*  m_evtStore;
   const PixelID * m_pixelId;
   const SCT_ID * m_sctId;
   const AtlasDetectorID* m_idHelper;

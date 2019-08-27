@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_ALGOJIVEXML_H
@@ -14,8 +14,6 @@
 #include <vector>
 
 //Forward declarations
-class StoreGateSvc;
-
 namespace JiveXML{
   //  class IDataRetriever; 
   class IFormatTool;
