@@ -6,6 +6,17 @@ from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO should maybe
 from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import Muon__MdtDriftCircleOnTrackCreator
 from MuonClusterOnTrackCreator.MuonClusterOnTrackCreatorConf import Muon__CscClusterOnTrackCreator, Muon__MuonClusterOnTrackCreator
 from TrkRIO_OnTrackCreator.TrkRIO_OnTrackCreatorConf import Trk__RIO_OnTrackCreator
+from MuonCompetingClustersOnTrackCreator.MuonCompetingClustersOnTrackCreatorConf import Muon__TriggerChamberClusterOnTrackCreator
+
+def TriggerChamberClusterOnTrackCreatorCfg(flags, **kwargs):
+    result=ComponentAccumulator()
+    acc =  MuonClusterOnTrackCreatorCfg(flags)
+    muon_cluster_creator=acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("ClusterCreator", muon_cluster_creator)
+    result.setPrivateTools(Muon__TriggerChamberClusterOnTrackCreator(**kwargs))
+    return result
+
 
 def CscClusterOnTrackCreatorCfg(flags,**kwargs):
     from MuonConfig.MuonSegmentFindingConfig import QratCscClusterFitterCfg
