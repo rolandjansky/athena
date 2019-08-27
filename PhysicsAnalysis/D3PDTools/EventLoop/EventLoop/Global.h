@@ -44,6 +44,7 @@ namespace EL
     class Module;
     struct ModuleData;
     class OutputStreamData;
+    enum class SubmitDirMode;
 
     class AlgorithmStateModule;
   }

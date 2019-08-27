@@ -314,7 +314,11 @@ namespace EL
       {
         data.sharedFileSystem
           = data.options.castBool (Job::optBatchSharedFileSystem, true);
+      }
+      break;
 
+    case Detail::ManagerStep::createSubmitDir:
+      {
         if (data.sharedFileSystem) // Shared file-system, write to output
           data.batchWriteLocation = data.submitDir;
         else

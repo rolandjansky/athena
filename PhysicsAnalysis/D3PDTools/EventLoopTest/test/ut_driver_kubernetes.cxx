@@ -27,6 +27,6 @@ int main ()
   driver.shellInit = "source setup.sh";
   UnitTest ut ("local_docker");
   ut.cleanup = false;
-  ut.location = "$HOME/unit-test.$$";
+  ut.location = "$HOME/unit-test";
   return ut.run (driver);
 }
