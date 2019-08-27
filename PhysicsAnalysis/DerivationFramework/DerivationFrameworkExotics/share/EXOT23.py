@@ -271,8 +271,8 @@ EXOT23SlimmingHelper.AppendToDictionary = {
     'BTagging_AntiKt4EMTopo_201810':'xAOD::BTaggingContainer',
     'BTagging_AntiKt4EMPFlow_201810':'xAOD::BTaggingContainer',
     'BTagging_AntiKt4EMPFlow_201903':'xAOD::BTaggingContainer',
-    'BTagging_AntiKt4EMTopoAux_201810':'xAOD:BTaggingAuxContainer'}
-    'BTagging_AntiKt4EMPFlowAux_201810':'xAOD:BTaggingAuxContainer'}
+    'BTagging_AntiKt4EMTopoAux_201810':'xAOD:BTaggingAuxContainer',
+    'BTagging_AntiKt4EMPFlowAux_201810':'xAOD:BTaggingAuxContainer',
     'BTagging_AntiKt4EMPFlowAux_201903':'xAOD:BTaggingAuxContainer'}
 
 # Add the jet containers to the stream
