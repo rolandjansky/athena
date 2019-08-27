@@ -18,10 +18,10 @@
 #include "MuonTGRecTools/IMuonTGMeasTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include "MuonTGRecTools/MuonHolesOnTrackTool.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class RpcIdHelper;
 namespace Muon{
-  class MuonIdHelperTool;
   class MuonTGMeasurementTool;
 }
 
@@ -53,7 +53,8 @@ class RpcExtrapolationTool: public AthAlgTool{
 
   bool m_cosmicMode;
   const MuonGM::MuonDetectorManager* m_muonMgr;
-  ToolHandle<Muon::MuonIdHelperTool>           m_idHelperTool;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ToolHandle<Trk::IPropagator>                 m_propagator;
   ToolHandle<Trk::INavigator>                       m_navigator;    
   ToolHandle<Trk::IExtrapolator>      m_extrapolator;

@@ -24,7 +24,6 @@ const InterfaceID& RpcExtrapolationTool::interfaceID( ) {
 RpcExtrapolationTool::RpcExtrapolationTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
-     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
      m_propagator("Trk::StraightLinePropagator/MuonStraightLinePropagator"),
      m_navigator("Trk::Navigator/MuonNavigator"),
      m_extrapolator("Trk::Extrapolator/MuonSTEP_Extrapolator"),
@@ -56,7 +55,7 @@ StatusCode RpcExtrapolationTool::initialize(){
   // get extrapolator
   ATH_CHECK( m_extrapolator.retrieve() );
 
-  ATH_CHECK( m_idHelperTool.retrieve() );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
   ATH_CHECK( m_holesTool.retrieve() );
 
@@ -103,9 +102,9 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 	
 	if (idEl.get_compact()){
 	  
-	  if(m_idHelperTool->isRpc(idEl)){
+	  if(m_muonIdHelperTool->isRpc(idEl)){
 	    
-	    if (m_idHelperTool->rpcIdHelper().stationName(idEl)==3){
+	    if (m_muonIdHelperTool->rpcIdHelper().stationName(idEl)==3){
 
 	      // from hole parameters get associated TG layer:
 	      const Trk::Layer* lay =m_extrapolator->trackingGeometry()->associatedLayer(par->position());
@@ -115,13 +114,13 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 
 	      // get the nearest channel identifier using MuonTGMeasurementTool
 	      double pitch=0.;
-	      Identifier id = m_measTool->nearestDetEl(lay,layPar,m_idHelperTool->rpcIdHelper().measuresPhi(idEl),pitch);
+	      Identifier id = m_measTool->nearestDetEl(lay,layPar,m_muonIdHelperTool->rpcIdHelper().measuresPhi(idEl),pitch);
 
 	      idEl=id;
 
 	    }
 
-	    Identifier panelID=m_idHelperTool->rpcIdHelper().panelID(idEl);
+	    Identifier panelID=m_muonIdHelperTool->rpcIdHelper().panelID(idEl);
 	    
 	    std::map<Identifier,RpcExtrapolationResults>::iterator it=panels.find(panelID);
 	    
@@ -153,14 +152,14 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 	    
 	    Identifier id(layer->layerType());
 	    
-	    if(m_idHelperTool->isRpc(id)){
+	    if(m_muonIdHelperTool->isRpc(id)){
 	      
 	      double pitch;
 	      const Identifier  id_phi = m_measTool->nearestDetEl(layer,(*iter)->trackParameters() , true, pitch) ;
 	      const Identifier  id_eta = m_measTool->nearestDetEl(layer,(*iter)->trackParameters() , false, pitch) ;
 	      
-	      Identifier panelEtaID=m_idHelperTool->rpcIdHelper().panelID(id_eta);
-	      Identifier panelPhiID=m_idHelperTool->rpcIdHelper().panelID(id_phi);
+	      Identifier panelEtaID=m_muonIdHelperTool->rpcIdHelper().panelID(id_eta);
+	      Identifier panelPhiID=m_muonIdHelperTool->rpcIdHelper().panelID(id_phi);
 
 	      // start with eta panel:
 	      std::map<Identifier,RpcExtrapolationResults>::iterator it=panels.find(panelEtaID);
@@ -241,9 +240,9 @@ void RpcExtrapolationTool::getRpcIntersections(TrackCollection::const_iterator t
 	
 	if(par){
 	  	  
-	  if(m_idHelperTool->isRpc(idHit)){
+	  if(m_muonIdHelperTool->isRpc(idHit)){
 	     
-	    Identifier panelID=m_idHelperTool->rpcIdHelper().panelID(idHit);
+	    Identifier panelID=m_muonIdHelperTool->rpcIdHelper().panelID(idHit);
 	    
 	    std::map<Identifier,RpcExtrapolationResults>::iterator it=panels.find(panelID);
 	    

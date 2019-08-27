@@ -11,11 +11,7 @@
 #include "MuonRDO/RpcPad_Cache.h"
 #include "MuonRDO/TgcRdo_Cache.h"
 
-
-class MdtIdHelper;
-class CscIdHelper;
-class RpcIdHelper;
-class TgcIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 
 class MuonCacheCreator : public AthReentrantAlgorithm {
@@ -43,10 +39,8 @@ protected:
   SG::WriteHandleKey<RpcPad_Cache> m_RpcCacheKey;
   SG::WriteHandleKey<TgcRdo_Cache> m_TgcCacheKey;
   /// ID helpers
-  const MdtIdHelper* m_mdtIdHelper = 0;
-  const CscIdHelper* m_cscIdHelper = 0;
-  const RpcIdHelper* m_rpcIdHelper = 0;
-  const TgcIdHelper* m_tgcIdHelper = 0;  
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};  
   mutable bool m_disableWarning = false;
   bool isInsideView(const EventContext&) const;
 
