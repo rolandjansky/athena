@@ -84,7 +84,7 @@ void JetTagCalibCondData::addBdt(const std::string&tagger, const std::string& ch
 
 void JetTagCalibCondData::addIPRNN(const std::string& tagger, const std::string& channel, const std::string& calstring) {
   MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
-  log << MSG::WARNING << "#BTAG# Adding RNN of " << tagger << " in cond data for channel " << channel << endmsg;
+  log << MSG::DEBUG << "#BTAG# Adding RNN of " << tagger << " in cond data for channel " << channel << endmsg;
   m_IP_RNNConfig[tagger].insert(std::make_pair(channel, calstring));
 }
 
