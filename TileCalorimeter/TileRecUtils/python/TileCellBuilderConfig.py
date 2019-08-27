@@ -13,16 +13,15 @@ def TileCellBuilderCfg(flags, **kwargs):
     """
 
     acc = ComponentAccumulator()
+    kwargs.setdefault('CheckDCS', flags.Tile.useDCS)
+    kwargs.setdefault('TileRawChannelContainer', flags.Tile.RawChannelContainer)
+    kwargs.setdefault('SkipGain', -1) # Never skip any gain by default
 
-    skipGain = kwargs.get('SkipGain', -1) # Never skip any gain by default
-    if skipGain not in [-1, 0, 1]:
-        raise(Exception("Invalid Tile gain requsted to be skipped: %s" % skipGain))
+    if kwargs['SkipGain'] not in [-1, 0, 1]:
+        raise(Exception("Invalid Tile gain requsted to be skipped: %s" % kwargs['SkipGain']))
 
     from TileRecUtils.TileDQstatusConfig import TileDQstatusAlgCfg
     acc.merge( TileDQstatusAlgCfg(flags) )
-
-    from TileRecUtils.TileRecUtilsConf import TileCellBuilder
-    tileCellBuilder = TileCellBuilder(SkipGain = skipGain)
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
     acc.merge(LArGMCfg(flags))
@@ -33,36 +32,33 @@ def TileCellBuilderCfg(flags, **kwargs):
     from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
     acc.merge(TileCablingSvcCfg(flags))
 
-    from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
-    badChanTool = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
-    tileCellBuilder.TileBadChanTool = badChanTool
+    if 'TileBadChanTool' not in kwargs:
+        from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
+        kwargs['TileBadChanTool'] = acc.popToolsAndMerge( TileBadChanToolCfg(flags) )
 
-    from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
-    emScaleTool = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
-    tileCellBuilder.TileCondToolEmscale = emScaleTool
+    if 'TileCondToolEmscale' not in kwargs:
+        from TileConditions.TileEMScaleConfig import TileCondToolEmscaleCfg
+        kwargs['TileCondToolEmscale'] = acc.popToolsAndMerge( TileCondToolEmscaleCfg(flags) )
 
-    from TileConditions.TileTimingConfig import TileCondToolTimingCfg
-    timingTool = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
-    tileCellBuilder.TileCondToolTiming = timingTool
+    if 'TileCondToolTiming' not in kwargs:
+        from TileConditions.TileTimingConfig import TileCondToolTimingCfg
+        kwargs['TileCondToolTiming'] = acc.popToolsAndMerge( TileCondToolTimingCfg(flags) )
 
-    if flags.Tile.useDCS:
+    if kwargs['CheckDCS'] and 'TileDCSTool' not in kwargs:
         from TileConditions.TileDCSConfig import TileDCSToolCfg
-        dcsTool = acc.popToolsAndMerge( TileDCSToolCfg(flags) )
-        tileCellBuilder.TileDCSTool = dcsTool
-        tileCellBuilder.CheckDCS = True
-
-    tileCellBuilder.TileRawChannelContainer = flags.Tile.RawChannelContainer
+        kwargs['TileDCSTool'] = acc.popToolsAndMerge( TileDCSToolCfg(flags) )
 
     if flags.Tile.NoiseFilter == 1:
-        if not (flags.Input.isMC or flags.Overlay.DataOverlay):
+        if not (flags.Input.isMC or flags.Overlay.DataOverlay) and 'TileDSPRawChannelContainer' not in kwargs:
             from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionAlgCfg
             corrAlgAcc = TileRawChannelCorrectionAlgCfg(flags)
             tileRawChannelCorrectionAlg = corrAlgAcc.getPrimary()
             tileRawChannelContainerDSP = tileRawChannelCorrectionAlg.OutputRawChannelContainer
-            tileCellBuilder.TileDSPRawChannelContainer = tileRawChannelContainerDSP
+            kwargs['TileDSPRawChannelContainer'] = tileRawChannelContainerDSP
             acc.merge( corrAlgAcc )
 
-    acc.setPrivateTools( tileCellBuilder )
+    from TileRecUtils.TileRecUtilsConf import TileCellBuilder
+    acc.setPrivateTools( TileCellBuilder(**kwargs) )
 
     return acc
 
