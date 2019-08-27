@@ -1,11 +1,11 @@
 #====================================================================
-# DAOD_MINI.py
-# This defines DAOD_MINI, which is a prototype for a possible new 
+# DAOD_TRIG.py
+# This defines DAOD_TRIG, which is a prototype for a possible new
 # unskimmed format for Run 3
 #=================
 # This version is used to put together a trigger DAOD for the AMSG-R3 taskforce
 #=================
-# It requires the reductionConf flag MINI in Reco_tf.py   
+# It requires the reductionConf flag TRIG in Reco_tf.py
 # For help, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DerivationFramework
 #====================================================================
 
@@ -23,7 +23,7 @@ from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-ThinningHelper = ThinningHelper( "MINIThinningHelper" )
+ThinningHelper = ThinningHelper( "TRIGThinningHelper" )
 thinningTools = []
 augmentationTools = []
 
@@ -31,7 +31,7 @@ augmentationTools = []
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MINIKernel",
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRIGKernel",
                                                                        AugmentationTools = augmentationTools,
                                                                        ThinningTools = thinningTools,
                                                                     )
@@ -116,9 +116,9 @@ objectSelection = '(%s) || (%s) || (%s) || (%s)' % (TauObjectSelection, MuonObje
 
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-MINISkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "MINISkimmingTool",
+TRIGSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "TRIGSkimmingTool",
                                                                 expression = objectSelection)
-ToolSvc += MINISkimmingTool
+ToolSvc += TRIGSkimmingTool
 
 
 
@@ -134,19 +134,19 @@ if (DerivationFrameworkIsMonteCarlo):
 #====================================================================
 # SET UP STREAM   
 #====================================================================
-streamName = derivationFlags.WriteDAOD_MINIStream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_MINIStream )
-MINIStream = MSMgr.NewPoolRootStream( streamName, fileName )
-MINIStream.AcceptAlgs(["MINIKernel"])
+streamName = derivationFlags.WriteDAOD_TRIGStream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_TRIGStream )
+TRIGStream = MSMgr.NewPoolRootStream( streamName, fileName )
+TRIGStream.AcceptAlgs(["TRIGKernel"])
 
 
 #====================================================================
 # EVENT CONTENTS - SLIMMING
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-MINISlimmingHelper = SlimmingHelper("MINISlimmingHelper")
+TRIGSlimmingHelper = SlimmingHelper("TRIGSlimmingHelper")
 
-MINISlimmingHelper.SmartCollections = ["Electrons", 
+TRIGSlimmingHelper.SmartCollections = ["Electrons",
                                        "Photons", 
                                        "Muons", 
                                        "PrimaryVertices", 
@@ -154,7 +154,7 @@ MINISlimmingHelper.SmartCollections = ["Electrons",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4LCTopoJets", 
                                        "AntiKt4EMPFlowJets",
-                                       "BTagging_AntiKt4EMTopo",
+                                       "BTagging_AntiKt4EMTopo_201810",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4LCTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
@@ -164,10 +164,10 @@ MINISlimmingHelper.SmartCollections = ["Electrons",
 
 
 # Add all variables of a given collection
-MINISlimmingHelper.AllVariables = []
+TRIGSlimmingHelper.AllVariables = []
 
 # Additional variables, beyond those provided in the smart slimming
-MINISlimmingHelper.ExtraVariables = ['InDetTrackParticlesAux.numberOfBLayerHits', 
+TRIGSlimmingHelper.ExtraVariables = ['InDetTrackParticlesAux.numberOfBLayerHits',
                                      'InDetTrackParticlesAux.expectBLayerHit',
                                      'InDetTrackParticlesAux.numberOfTRTHits',
                                      'InDetTrackParticlesAux.numberOfTRTOutliers',
@@ -180,27 +180,27 @@ MINISlimmingHelper.ExtraVariables = ['InDetTrackParticlesAux.numberOfBLayerHits'
 # Trigger content slimming -> find files in DerivationFrameworkCore/python
 # except for muons -> DerivationFrameworkMuon
 #====================================================================
-MINISlimmingHelper.IncludeAdditionalTriggerContent = True
-MINISlimmingHelper.IncludeJetTriggerContent = True
-MINISlimmingHelper.IncludeMuonTriggerContent = True
-MINISlimmingHelper.IncludeEGammaTriggerContent = True
-MINISlimmingHelper.IncludeJetTauEtMissTriggerContent = True
-MINISlimmingHelper.IncludeJetTriggerContent = True
-MINISlimmingHelper.IncludeTauTriggerContent = True
-MINISlimmingHelper.IncludeEtMissTriggerContent = True
-MINISlimmingHelper.IncludeBJetTriggerContent = True
-MINISlimmingHelper.IncludeBPhysTriggerContent = True
-MINISlimmingHelper.IncludeMinBiasTriggerContent = True
+TRIGSlimmingHelper.IncludeAdditionalTriggerContent = True
+TRIGSlimmingHelper.IncludeJetTriggerContent = True
+TRIGSlimmingHelper.IncludeMuonTriggerContent = True
+TRIGSlimmingHelper.IncludeEGammaTriggerContent = True
+TRIGSlimmingHelper.IncludeJetTauEtMissTriggerContent = True
+TRIGSlimmingHelper.IncludeJetTriggerContent = True
+TRIGSlimmingHelper.IncludeTauTriggerContent = True
+TRIGSlimmingHelper.IncludeEtMissTriggerContent = True
+TRIGSlimmingHelper.IncludeBJetTriggerContent = True
+TRIGSlimmingHelper.IncludeBPhysTriggerContent = True
+TRIGSlimmingHelper.IncludeMinBiasTriggerContent = True
 
 #====================================================================
 # Add the jet containers to the stream (defined in JetCommon if import needed)
 #====================================================================
-#addJetOutputs(MINISlimmingHelper,["MINI"])
+#addJetOutputs(TRIGSlimmingHelper,["TRIG"])
 
 
 
 #====================================================================
 # Final construction of output stream
 #====================================================================
-MINISlimmingHelper.AppendContentToStream(MINIStream)
+TRIGSlimmingHelper.AppendContentToStream(TRIGStream)
 
