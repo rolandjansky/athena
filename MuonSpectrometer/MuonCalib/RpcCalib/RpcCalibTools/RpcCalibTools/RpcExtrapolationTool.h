@@ -59,7 +59,6 @@ class RpcExtrapolationTool: public AthAlgTool{
   ToolHandle<Trk::IExtrapolator>      m_extrapolator;
   ToolHandle<Muon::IMuonTGMeasTool>                  m_measTool;
   ToolHandle<Trk::ITrackHoleSearchTool>             m_holesTool;
-  const RpcIdHelper* m_rpcIdHelper;
   const DataHandle<Trk::TrackingGeometry> m_trackingGeometry;
 
 };

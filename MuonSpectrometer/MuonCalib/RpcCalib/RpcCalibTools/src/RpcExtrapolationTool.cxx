@@ -53,8 +53,6 @@ StatusCode RpcExtrapolationTool::initialize(){
   // Get the Navigation AlgTools
   ATH_CHECK( m_navigator.retrieve() );
 
-  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
-
   // get extrapolator
   ATH_CHECK( m_extrapolator.retrieve() );
 
