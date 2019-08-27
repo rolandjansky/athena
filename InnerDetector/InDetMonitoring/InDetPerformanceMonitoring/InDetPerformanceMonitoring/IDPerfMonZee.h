@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPerfMonZee_H
@@ -170,7 +170,6 @@ public:
 
  private:
 
-  //StoreGateSvc* m_storeGate;
   std::string m_stream;
   std::string m_tracksName;
   std::string m_electronsName;

@@ -30,7 +30,6 @@
 #include "Identifier/Identifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //InnerDetector
 #include "InDetIdentifier/SCT_ID.h"

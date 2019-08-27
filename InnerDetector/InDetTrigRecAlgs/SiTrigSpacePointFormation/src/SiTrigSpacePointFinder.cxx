@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -149,12 +149,6 @@ namespace InDet{
     }
 
     // Get an Identifier helper object
-    //StoreGateSvc* detStore(0);
-    /* sc = service("DetectorStore", detStore);
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL( "Detector service not found !" );
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-      } */
   
     // Get te Pixel helper
     const PixelID* idHelperPixel;

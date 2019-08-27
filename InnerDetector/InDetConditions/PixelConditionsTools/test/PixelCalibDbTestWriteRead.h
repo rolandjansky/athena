@@ -20,9 +20,6 @@
 //#include "GaudiKernel/MsgStream.h"
 //#include "StoreGate/DataHandle.h"
 
-
-
-
 /** @class PixelCalibDbTestWriteRead
 
     The PixelCalibDbTestWriteRead provides an algorithm how to read/write the calibration data in a text file 

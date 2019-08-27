@@ -19,7 +19,6 @@
 //StoreGate
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/StoreGateSvc.h"
 //Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 //TRT

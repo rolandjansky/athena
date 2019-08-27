@@ -11,7 +11,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
@@ -107,20 +106,14 @@ StatusCode TRT_ToT_dEdx::initialize()
   MsgStream log(msgSvc(), name());
   
   // retrieve TRT-ID helper
-  StoreGateSvc* detStore = 0;
-  StatusCode sc = service( "DetectorStore", detStore );
-  if (sc.isFailure()){
-    ATH_MSG_ERROR ( "Could not get DetectorStore" );
-    return sc;
-  }
   
-  sc = detStore->retrieve(m_trtId, "TRT_ID");
+  StatusCode sc = detStore()->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
     ATH_MSG_ERROR ( "Could not get TRT_ID helper !" );
     return StatusCode::FAILURE;
   }
 
-  sc = detStore->retrieve(m_trtman, "TRT");
+  sc = detStore()->retrieve(m_trtman, "TRT");
   if (sc.isFailure()){
     ATH_MSG_ERROR ( "Could not get TRT detector manager !" );
     return StatusCode::FAILURE;
