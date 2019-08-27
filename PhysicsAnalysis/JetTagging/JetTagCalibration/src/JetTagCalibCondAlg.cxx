@@ -773,7 +773,6 @@ namespace Analysis {
      TObject* hist_raw(pfile->Get(histname.c_str()));
      if (hist_raw == nullptr) {
        ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
-       ATH_MSG_WARNING("#BTAG# Could not load TObject " << histname);
        return StatusCode::FAILURE;
      }
      else {
