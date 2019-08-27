@@ -5,8 +5,14 @@ from past.builtins import basestring
 def RDOFilePeeker(runArgs, skeletonLog):
     from PyUtils.MetaReader import read_metadata
     try:
-        metadata_lite = read_metadata(runArgs.inputRDOFile[0])  # Use this only to read the key 'eventTypes', which is promoted in 'lite' mode.
-        metadata      = read_metadata(runArgs.inputRDOFile[0], mode= 'full')
+        input_file = runArgs.inputRDOFile[0]
+        metadata_lite = read_metadata(input_file)  # Use this only to read the key 'eventTypes', which is promoted in 'lite' mode.
+        # promote keys stored under input filename key one level up to access them directly
+        metadata_lite = metadata_lite[input_file]
+        # use the mode 'full' to access all metadata (needed for '/Digitization/Parameters')
+        metadata = read_metadata(input_file, mode= 'full')
+        # promote keys stored under input filename key one level up to access them directly
+        metadata = metadata[input_file]
     except AssertionError:
         skeletonLog.error("Failed to open input file: %s", runArgs.inputRDOFile[0])
     #check eventTypes of input file
