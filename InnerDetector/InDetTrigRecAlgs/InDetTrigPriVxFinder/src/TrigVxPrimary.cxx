@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -14,7 +14,6 @@
 // **************************************************************************
 
 #include "InDetTrigPriVxFinder/TrigVxPrimary.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"

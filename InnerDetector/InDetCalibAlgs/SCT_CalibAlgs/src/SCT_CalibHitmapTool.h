@@ -13,7 +13,6 @@
 
 //Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 
 //Inner detector includes

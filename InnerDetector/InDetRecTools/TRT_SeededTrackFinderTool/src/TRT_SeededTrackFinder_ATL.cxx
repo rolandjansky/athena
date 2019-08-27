@@ -15,7 +15,6 @@
 #include <iomanip>
 #include <utility>
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -215,14 +214,7 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
   //
   setTrackQualityCuts();
 
-  StoreGateSvc* detStore = 0;
-  sc = service( "DetectorStore", detStore );
-  if (sc.isFailure()){
-    msg(MSG::FATAL) << "Could not get DetectorStore"<<endmsg;
-    return sc;
-  }
-
-  sc = detStore->retrieve(m_trtId, "TRT_ID");
+  sc = detStore()->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
     msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endmsg;
     return StatusCode::FAILURE;
