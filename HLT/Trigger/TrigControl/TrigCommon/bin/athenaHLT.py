@@ -116,6 +116,7 @@ def update_run_params(args):
 
    if args.sor_time is None:
       args.sor_time = arg_sor_time(str(AthHLT.get_sor_params(args.run_number)['SORTime']))
+      log.debug('SOR parameters: %s', AthHLT.get_sor_params(args.run_number))
 
    if args.detector_mask is None:
       dmask = AthHLT.get_sor_params(args.run_number)['DetectorMask']
