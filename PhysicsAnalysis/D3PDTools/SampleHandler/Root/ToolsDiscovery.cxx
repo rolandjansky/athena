@@ -98,7 +98,7 @@ namespace SH
 
   Sample *makeFromTChain (const std::string& name, const TChain& chain)
   {
-    std::auto_ptr<SampleLocal> result (new SampleLocal (name));
+    std::unique_ptr<SampleLocal> result (new SampleLocal (name));
     result->meta()->setString (MetaFields::treeName, chain.GetName());
 
     TIter chainIter (chain.GetListOfFiles());
@@ -308,7 +308,7 @@ namespace SH
 	  sh.add (*sample);
         } else
 	{
-	  std::auto_ptr<SampleLocal> mysample
+	  std::unique_ptr<SampleLocal> mysample
 	    (new SampleLocal (grid->name()));
 	  *mysample->meta() = *grid->meta();
 
@@ -334,7 +334,7 @@ namespace SH
       sh.add (const_cast<Sample*>(&sample));
       return;
     }
-    std::auto_ptr<TFile> file (TFile::Open (mysample->fileName(0).c_str()));
+    std::unique_ptr<TFile> file (TFile::Open (mysample->fileName(0).c_str()));
     if (!file.get())
       RCU_THROW_MSG ("could not open file: " + mysample->fileName(0));
     TObject *object = 0;

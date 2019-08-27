@@ -69,8 +69,16 @@ struct URNG
 {
   typedef uint32_t result_type;
   URNG() : seed(1) {}
-  static result_type min() { return 0; }
-  static result_type max() { return 1000000; }
+  static
+#if __cplusplus >= 201700
+  constexpr
+#endif
+  result_type min() { return 0; }
+  static
+#if __cplusplus >= 201700
+  constexpr
+#endif  
+  result_type max() { return 1000000; }
   result_type operator()() const { return randi_seed (seed, max()); }
   mutable uint32_t seed;
 };

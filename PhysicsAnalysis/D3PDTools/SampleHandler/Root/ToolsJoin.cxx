@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2013.
@@ -32,7 +32,7 @@ namespace SH
 		     const std::string& pattern)
   {
     SampleHandler mysh;
-    std::auto_ptr<SampleLocal> mysample (new SampleLocal (sampleName));
+    std::unique_ptr<SampleLocal> mysample (new SampleLocal (sampleName));
 
     boost::regex mypattern (pattern.c_str());
     for (SampleHandler::iterator sample = sh.begin(),

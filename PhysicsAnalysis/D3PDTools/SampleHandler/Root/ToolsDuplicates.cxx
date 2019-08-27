@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2013.
@@ -148,7 +148,7 @@ namespace SH
   void printDuplicateEvents (const Sample& sample)
   {
     RunEventList list;
-    std::auto_ptr<TChain> chain (sample.makeTChain ());
+    std::unique_ptr<TChain> chain (sample.makeTChain ());
     printDuplicateEvents (*chain, list);
   }
 
@@ -171,7 +171,7 @@ namespace SH
     for (SampleHandler::iterator sample = sh.begin(),
 	   end = sh.end(); sample != end; ++ sample)
     {
-      std::auto_ptr<TChain> chain ((*sample)->makeTChain ());
+      std::unique_ptr<TChain> chain ((*sample)->makeTChain ());
       printDuplicateEvents (*chain, list);
     }
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2011.
@@ -37,14 +37,14 @@ int main ()
     sh.add (new SH::SampleLocal ("test1"));
     Job job;
     job.sampleHandler (sh);
-    std::auto_ptr<BatchJob> batch_job (new BatchJob);
+    std::unique_ptr<BatchJob> batch_job (new BatchJob);
     batch_job->job = job;
     TFile file ("batch_job.root", "RECREATE");
     file.WriteObject (batch_job.get(), "job");
   }
   {
     TFile file ("batch_job.root", "READ");
-    std::auto_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file.Get ("job")));
+    std::unique_ptr<BatchJob> job (dynamic_cast<BatchJob*>(file.Get ("job")));
     RCU_ASSERT (job->job.sampleHandler().size() == 1);
   }
 

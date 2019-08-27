@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //          Copyright Nils Krumnack 2012.
@@ -112,7 +112,7 @@ namespace SH
   {
     RCU_READ_INVARIANT (this);
 
-    std::auto_ptr<DiskListLocal> result
+    std::unique_ptr<DiskListLocal> result
       (new DiskListLocal (m_dir + "/" + m_file, m_prefix + "/" + m_file));
     result->m_dirp = gSystem->OpenDirectory (result->m_dir.c_str());
     if (result->m_dirp)
