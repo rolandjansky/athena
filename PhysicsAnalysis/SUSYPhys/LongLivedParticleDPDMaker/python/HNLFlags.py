@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
@@ -176,3 +177,11 @@ class doHnlMultiLeptonTriggers(JobProperty):
     StoredValue = False
     pass
 primRPVLLDESDM.add_JobProperty(doHnlMultiLeptonTriggers)
+
+class leptonDphiThreshHnl(JobProperty):
+    # minimum threshold for |dPhi| between prompt and displaced leptons
+    statusOn = True
+    allowedTypes = ["float"]
+    StoredValue = 0.0*Units.radian
+    pass
+primRPVLLDESDM.add_JobProperty(leptonDphiThreshHnl)
