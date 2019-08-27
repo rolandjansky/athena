@@ -22,11 +22,6 @@
 #include "JetTagTools/JetTagUtils.h"
 
 #include "AthenaKernel/Units.h"
-#include "TList.h"
-#include "TString.h"
-#include "TObjString.h"
-#include "TObjArray.h"
-#include "TTree.h"
 #include <fstream>
 #include <algorithm>
 #include <utility>

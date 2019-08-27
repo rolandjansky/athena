@@ -82,6 +82,12 @@ void JetTagCalibCondData::addBdt(const std::string&tagger, const std::string& ch
   log << MSG::DEBUG << "#BTAG# m_bdts size " << m_bdts.size() << endmsg;
 }
 
+void JetTagCalibCondData::addIPRNN(const std::string& tagger, const std::string& channel, const std::string& calstring) {
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  log << MSG::WARNING << "#BTAG# Adding RNN of " << tagger << " in cond data for channel " << channel << endmsg;
+  m_IP_RNNConfig[tagger].insert(std::make_pair(channel, calstring));
+}
+
 void JetTagCalibCondData::addInputVars(const std::string&tagger, const std::string& name, const std::vector<std::string> &input) {
   MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
   log << MSG::DEBUG << "#BTAG# Adding input variables of the BDT for " << tagger << " in cond data for " << name << endmsg;
@@ -225,6 +231,29 @@ lwt::JSONConfig JetTagCalibCondData::retrieveDL1NN(const std::string& tagger, co
   }
   else {
     log << MSG::DEBUG << "#BTAG# " << tagger << " NN config not found"<< endmsg;
+  }
+
+  return config;
+}
+
+std::string JetTagCalibCondData::retrieveIPRNN(const std::string& tagger, const std::string& channel) const {
+  MsgStream log(Athena::getMessageSvc(), "JetTagCalibCondData");
+  std::string  config;
+  std::map< std::string , std::map<std::string, std::string>>::const_iterator mI;
+  mI = m_IP_RNNConfig.find(tagger);
+  if (mI != m_IP_RNNConfig.end()) {
+    log << MSG::DEBUG << "#BTAG# " << tagger << "RNN config found"<< endmsg;
+    std::map<std::string, std::string>::const_iterator mJ = mI->second.find(channel);
+    if (mJ != mI->second.end()) {
+      log << MSG::DEBUG << "#BTAG# "<< tagger << " RNN config found for jet collection " << channel << endmsg;
+      config = mJ->second;
+    }
+    else {
+      log << MSG::DEBUG << "#BTAG# "<< tagger << " RNN config not found for jet collection " << channel << endmsg;
+    }
+  }
+  else {
+    log << MSG::DEBUG << "#BTAG# " << tagger << " RNN config not found"<< endmsg;
   }
 
   return config;

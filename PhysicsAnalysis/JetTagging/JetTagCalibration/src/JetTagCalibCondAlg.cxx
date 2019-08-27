@@ -537,7 +537,7 @@ namespace Analysis {
           TObject* hPointer = nullptr;
           if (getTObject(hFullName, pfile, hPointer)) {
             if(hPointer) {
-              ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram or string: " << hPointer);
+              ATH_MSG_DEBUG( "#BTAG# Cached pointer to TObject: " << hPointer);
               if (tagger.find("DL1")!=std::string::npos ) {
                 ATH_MSG_DEBUG("#BTAG# Build DL1 NN config for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
                 TObjString* cal_string = dynamic_cast<TObjString*>(hPointer);
@@ -547,9 +547,7 @@ namespace Analysis {
                 delete cal_string;
 
                 writeCdo->addDL1NN(tagger, channel, nn_config);
-              }
-              else {
-                if ((tagger.find("MV2")!=std::string::npos ) or (tagger.find("SoftMu")!=std::string::npos ) or (tagger.find("MultiSV") !=std::string::npos)) {
+              } else if ((tagger.find("MV2")!=std::string::npos ) or (tagger.find("SoftMu")!=std::string::npos ) or (tagger.find("MultiSV") !=std::string::npos)) {
                   ATH_MSG_DEBUG("#BTAG# Build BDT for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
                   TTree *tree = dynamic_cast<TTree*>(hPointer);
                   if (tree) {
@@ -565,6 +563,8 @@ namespace Analysis {
                     TObjString *tos= nullptr;
                     if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
                     commaSepVars=tos->GetString().Data();
+                    delete tos;
+                    delete toa;
                     while (commaSepVars.find(",")!=std::string::npos) {
                       inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
                       commaSepVars.erase(0,commaSepVars.find(",")+1);
@@ -572,18 +572,29 @@ namespace Analysis {
                     inputVars.push_back(commaSepVars.substr(0,-1));
                     ATH_MSG_DEBUG("#BTAG# inputVars.size()= "<< inputVars.size() <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
                     for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
-                    delete toa;
                     writeCdo->addInputVars(tagger,fname,inputVars);
                   }
-                }
-                else {
+                } else if (tagger.find("RNNIP")!=std::string::npos) {
+                  ATH_MSG_DEBUG("#BTAG# Build RNN config for tagger " << tagger << " and jet collection " << channel << " and write it in condition data");
+                  TObjString* cal_string = dynamic_cast<TObjString*>(hPointer);
+                  std::string calstring;
+                  if (cal_string == 0){  //catch if no string was found
+                    ATH_MSG_WARNING("can't retrieve calibration: " + hFullName);
+                    calstring = std::string();
+                  }
+                  else {
+                    calstring = cal_string->GetString().Data();
+                  }
+                  delete cal_string;
+                  writeCdo->addIPRNN(tagger,channel,calstring);
+                } else {
+                  //The other ones are histograms
                   if (tagger == "IP2D" || tagger == "IP3D" || tagger == "SV1") {
                     ATH_MSG_VERBOSE("#BTAG# Smoothing histogram " << hname << " ...");
                     smoothAndNormalizeHistogram(hPointer, hname);
                   }
                   writeCdo->addHisto(i,fname,hPointer);
                 }
-              }
             } else {
               ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " << fname );
             }
@@ -596,6 +607,10 @@ namespace Analysis {
       } //end loop histograms
     } //end loop tagger
 
+    // close the file
+    pfile->Close();
+    delete pfile;
+
     if(histoWriteHandle.record(rangeW,std::move(writeCdo)).isFailure()) {
       ATH_MSG_ERROR("#BTAG# Could not record vector of histograms maps " << histoWriteHandle.key()
          		  << " with EventRange " << rangeW
@@ -604,10 +619,6 @@ namespace Analysis {
     }
     ATH_MSG_INFO("recorded new CDO " << histoWriteHandle.key() << " with range " << rangeW << " into Conditions Store");
               
-    // close the file
-    pfile->Close();
-    delete pfile;
-
     return StatusCode::SUCCESS;
   }
  
@@ -760,7 +771,6 @@ namespace Analysis {
      ATH_MSG_DEBUG("Getting object "+histname+" from file");
      //std::unique_ptr<TObject> hist_raw(pfile->Get(histname.c_str()));
      TObject* hist_raw(pfile->Get(histname.c_str()));
-     //if (hist_raw.get() == nullptr) {
      if (hist_raw == nullptr) {
        ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
        ATH_MSG_WARNING("#BTAG# Could not load TObject " << histname);
@@ -772,40 +782,6 @@ namespace Analysis {
        if (ihist!=nullptr) {
          ihist->SetDirectory(nullptr);
        }
-       // if it is a TDirectory, also need special treatment to unassociate parent
-       TDirectory* idir=dynamic_cast<TDirectory*>(hist);
-       if (idir!=nullptr) {
-         ATH_MSG_WARNING("#BTAG# TObject is a TDirectory" << histname);
-         TDirectory* mdir=idir->GetMotherDir();
-         if (mdir!=nullptr) {
-           ATH_MSG_DEBUG("Disconnecting TDirectory "+histname+" from parent");
-           mdir->GetList()->Remove(idir);
-           idir->SetMother(0);
-         } else {
-           ATH_MSG_WARNING("Could not get MotherDir for TDirectory "+histname);
-         }
-       }
-       TObjArray* iobj = dynamic_cast<TObjArray*>(hist);
-       if (iobj!=nullptr) {
-         ATH_MSG_WARNING("#BTAG# TObject is a TObjArray" << histname);
-         iobj->SetOwner(kTRUE);
-       }
-
-       TTree * tree = dynamic_cast<TTree*>(hist);
-       if (tree !=nullptr) {
-         ATH_MSG_WARNING("#BTAG# TObject is a TTree" << histname);
-         ((TTree*)hist)->LoadBaskets();
-         ((TTree*)hist)->SetDirectory(0);
-       }
-       TObjString * objS = dynamic_cast<TObjString*>(hist);
-       if (objS !=nullptr) {
-         ATH_MSG_WARNING("#BTAG# TObject is a TObjString" << histname);
-       }
-       TList * list = dynamic_cast<TList*>(hist);
-       if (list !=nullptr) {
-         ATH_MSG_WARNING("#BTAG# TObject is a TList" << histname);
-       }
-
      }
 
      return StatusCode::SUCCESS;

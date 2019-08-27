@@ -25,9 +25,6 @@
 
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "TObjString.h"
-#include "TObjArray.h"
-#include "TTree.h"
 #include <fstream>
 #include <algorithm>
 #include <utility>

@@ -48,9 +48,6 @@ PURPOSE:  b-tagging based on soft muon identification
 
 #include "AthenaKernel/Units.h"
 
-#include "TObjArray.h"
-#include "TObjString.h"
-#include "TTree.h"
 #include <fstream>
 #include <algorithm>
 #include <utility>
