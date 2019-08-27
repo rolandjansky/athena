@@ -20,9 +20,10 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                               "TauJets",
                                               "MET_Reference_AntiKt4EMTopo",
                                               "AntiKt4EMTopoJets",
-                                              "BTagging_AntiKt4EMTopo",
+                                              "AntiKt4EMTopoJets_BTagging201810",
+                                              "BTagging_AntiKt4EMTopo_201810",
                                               "InDetTrackParticles",
-                                              "PrimaryVertices"
+                                              "PrimaryVertices",
                                               ]
     else:
         HIGG4DxSlimmingHelper.SmartCollections = ["Electrons",
@@ -30,12 +31,16 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                               "TauJets",
                                               "MET_Reference_AntiKt4EMTopo",
                                               "AntiKt4EMTopoJets",
-                                              "BTagging_AntiKt4EMTopo",
+                                              "AntiKt4EMTopoJets_BTagging201810",
+                                              "BTagging_AntiKt4EMTopo_201810",
                                               "InDetTrackParticles",
                                               "PrimaryVertices",
-                                              "AntiKt4EMPFlowJets",
                                               "MET_Reference_AntiKt4EMPFlow",
-                                              "BTagging_AntiKt4EMPFlow"
+                                              "AntiKt4EMPFlowJets",
+                                              "AntiKt4EMPFlowJets_BTagging201810",
+                                              "BTagging_AntiKt4EMPFlow_201810",
+                                              "AntiKt4EMPFlowJets_BTagging201903",
+                                              "BTagging_AntiKt4EMPFlow_201903",
                                               ]
     
     # extra containers for some formats                                                  
@@ -45,9 +50,6 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
 
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
         HIGG4DxSlimmingHelper.SmartCollections += ["AntiKt4LCTopoJets"]  # used as seeds for taus
-
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
-        HIGG4DxSlimmingHelper.SmartCollections += ["BTagging_AntiKt2Track"]
 
     #extra variables added to the smart slimming content
     ExtraContentElectrons=[
