@@ -7,6 +7,7 @@ NAME:     egammaSelectedTrackCopy
 PACKAGE:  offline/Reconstruction/egamma/egammaAlgs/egammaSelectedTrackCopy
 AUTHORS:  Anastopoulos
 CREATED:  25/06/2018
+
 PURPOSE: Select track to be refitted later on with GSF
 UPDATE : 25/06/2018
 */
@@ -122,7 +123,8 @@ StatusCode egammaSelectedTrackCopy::execute()
       ++selectedClusters;
     }
   }
- //Extrapolation Cache
+
+  //Extrapolation Cache
   IEMExtrapolationTools::Cache cache{};
   for(const xAOD::TrackParticle* track : *trackTES){
     
@@ -144,6 +146,7 @@ StatusCode egammaSelectedTrackCopy::execute()
       isTRT = false;
       ++allSiTracks;
     }
+
     for(const xAOD::CaloCluster* cluster : passingClusters ){
       /*
        check if it the track is selected due to this cluster.
@@ -169,7 +172,6 @@ StatusCode egammaSelectedTrackCopy::execute()
        */
       break;
     }//Loop on clusters
-
   }//Loop on tracks
 
   ATH_MSG_DEBUG ("Selected Track container size: "  << viewCopy->size() );
@@ -223,8 +225,9 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
 
   /* 
    * First we will see if it fails the quick match 
-   * Then if it passeis check if the extrapolation 
-   * from last measurement keeps it (no GSF at this stage)
+   * Then if it passed it will get 2 chances to be selected
+   * One if it matches from last measurement
+   * The second if it matched from Perigee rescales
    */
 
   //Broad phi check
@@ -273,6 +276,40 @@ bool egammaSelectedTrackCopy::Select(const EventContext& ctx,
     ATH_MSG_DEBUG("Match from Last measurement is successful :  " << deltaPhi[2] );
     return true;
   }
-  ATH_MSG_DEBUG("Matching Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);
+  /*
+   * Passes the eta but not the phi, and we have a cluster with higher Et. 
+   * Try to rescale up the track to account for radiative loses 
+   * and retry
+   */
+  if(fabs(deltaEta[2]) < m_narrowDeltaEta && 
+     cluster->et() > track->pt()){ 
+    ATH_MSG_DEBUG("Failed from Last measurement with deltaPhi/deltaEta " 
+                  << deltaPhi[2] <<" / "<< deltaEta[2]<<", Trying Rescale" );
+    //Extrapolate from Perigee Rescaled 
+    std::vector<double>  eta1(4, -999.0);
+    std::vector<double>  phi1(4, -999.0);
+    std::vector<double>  deltaEta1(4, -999.0);
+    std::vector<double>  deltaPhi1(5, -999.0); // Set size to 5 to store deltaPhiRot
+ 
+    if (m_extrapolationTool->getMatchAtCalo (ctx,
+                                             cluster, 
+                                             track, 
+                                             Trk::alongMomentum, 
+                                             eta1,
+                                             phi1,
+                                             deltaEta1, 
+                                             deltaPhi1, 
+                                             IEMExtrapolationTools::fromPerigeeRescaled).isFailure()) {
+      return false;
+    }
+    //Redo the check with rescale
+    if( fabs(deltaEta1[2]) < m_narrowDeltaEta 
+        && deltaPhi1[2] < m_narrowRescale
+        && deltaPhi1[2] > -m_narrowRescaleBrem) {
+      ATH_MSG_DEBUG("Rescale Match success " << deltaPhi1[2] );
+      return true;
+    }
+  }
+  ATH_MSG_DEBUG("Matched Failed deltaPhi/deltaEta " << deltaPhi[2] <<" / "<< deltaEta[2]<<",isTRT, "<< trkTRT);
   return false;
 }

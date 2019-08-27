@@ -31,8 +31,7 @@ def egammaSelectedTrackCopyCfg(flags, name='egammaSelectedTrackCopy', **kwargs):
 
     kwargs.setdefault("ClusterContainerName", flags.Egamma.Keys.Internal.EgammaTopoClusters)
     kwargs.setdefault("TrackParticleContainerName", flags.Egamma.Keys.Input.TrackParticles)
-    kwargs.setdefault("narrowDeltaPhiBrem", 0.25)
-    kwargs.setdefault("broadDeltaPhi", 0.175)
+    kwargs.setdefault("narrowDeltaPhiBrem", 0.20)
 
     egseltrkcpAlg = egammaSelectedTrackCopy(name, **kwargs)
 
