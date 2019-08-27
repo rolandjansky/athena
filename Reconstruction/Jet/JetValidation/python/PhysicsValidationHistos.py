@@ -6,8 +6,9 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from PyUtils.MetaReader import read_metadata
 
-
-metadata = read_metadata(svcMgr.EventSelector.InputCollections[0]) #opens the first file from the InputCollections list
+input_file = svcMgr.EventSelector.InputCollections[0]
+metadata = read_metadata(input_file) # opens the first file from the InputCollections list
+metadata = metadata[input_file]  # promote keys stored under input_file key one level up to access them directly
 # this is a dict of dicts, take a look at what's available! Below are some examples:
 isMC = 'IS_SIMULATION' in metadata['eventTypes']
 beam_energy = metadata['beam_energy']
