@@ -162,7 +162,6 @@ topSequence += theTileTBOldNtupleRead;
 doTileHitToDigit = False
 doTileTBHitToBeamElem = False
 doTileFlat = False
-doTileOpt = False
 doTileFit = True
 include( "TileTBRec/TileTBDefaults_jobOptions.py" )
 include( "TileSimAlgs/TileTBDigitization_jobOptions.py" )

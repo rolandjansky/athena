@@ -41,14 +41,6 @@ class doTileFitCool(JobProperty):
     StoredValue  = False
     
 #
-class doTileOpt(JobProperty):
-    """ Use Optimal Filtering for energy reconstruction
-    """
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
-#
 class doTileOpt2(JobProperty):
     """ Use Optimal Filtering (version 2) for energy reconstruction
     """
@@ -267,7 +259,6 @@ list_jobproperties = [
     doTileFlat,
     doTileFit,
     doTileFitCool,
-    doTileOpt,
     doTileOF1,
     doTileOpt2,
     doTileQIE,
