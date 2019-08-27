@@ -47,8 +47,6 @@ namespace CLHEP{
   class HepRandomEngine;
 }
 
-class StoreGateSvc;
-class ActiveStoreSvc;
 class PileUpMergeSvc;
 
 class sTgcDigitContainer;
@@ -125,8 +123,6 @@ protected:
   std::string m_rndmEngineName;// name of random engine
 
 private:
-  ServiceHandle<StoreGateSvc>              m_sgSvc;
-  ActiveStoreSvc*                          m_activeStore;
   sTgcHitIdHelper*                         m_hitIdHelper;
   sTgcDigitContainer*                      m_digitContainer;
   const sTgcIdHelper*                      m_idHelper;
