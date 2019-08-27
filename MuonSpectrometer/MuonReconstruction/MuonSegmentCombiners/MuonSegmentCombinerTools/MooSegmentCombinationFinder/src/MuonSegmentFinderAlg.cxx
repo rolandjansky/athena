@@ -17,7 +17,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -21,7 +21,6 @@
 //#include "StoreGate/DataHandle.h"
 
 class Identifier;
-//class StoreGateSvc;
 
 
 /** @class PixelRecoDbTestWriteRead
@@ -45,8 +44,6 @@ class PixelRecoDbTestWriteRead:public AthAlgorithm {
   
  private:
   //MsgStream m_log;
-  //StoreGateSvc* m_sgSvc;
-  //StoreGateSvc* m_detStore;
 
   //const PixelRecoDbTool* m_calibdbtool;
   PublicToolHandle< IPixelRecoDbTool >  m_calibdbtool

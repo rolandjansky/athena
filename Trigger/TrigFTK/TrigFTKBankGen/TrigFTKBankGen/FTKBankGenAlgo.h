@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef FTKBankGenAlgo_h
 #define FTKBankGenAlgo_h
@@ -63,12 +63,9 @@ public:
   StatusCode execute();
   StatusCode finalize();
   
-  class StoreGateSvc;
-  
 private:
   
   ITHistSvc *m_thistSvc;
-  StoreGateSvc*  m_storeGate;
   ToolHandle<FTK_SGHitInputI> m_hitInputTool; // input handler
   
   TFile *m_file;

@@ -22,7 +22,6 @@
 #include "TrigL2MuonOverlapRemoverTool.h"
 #include "DecisionHandling/HypoBase.h"
 
-class StoreGateSvc;
 class TriggerElement;
 
 // --------------------------------------------------------------------------------

@@ -3,8 +3,6 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/Algorithm.h"

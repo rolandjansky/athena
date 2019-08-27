@@ -26,7 +26,6 @@
 #include <vector>
 
 class EventInfo;
-//class StoreGateSvc;
 class ILArBadChannelMasker;
 class ILArBadFebMasker;
 static std::vector<float> corrBCIDref_example;

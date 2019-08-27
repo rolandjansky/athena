@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonCalib_CalibNtupleLoader_h
@@ -16,7 +16,6 @@
 #include "string"
 
 class RegionSelectionSvc;
-class StoreGateSvc ;
 class IIncidentSvc ;
 class TChain;
 
@@ -66,9 +65,6 @@ class CalibNtupleLoader: public AthAlgTool, virtual public CalibSegmentPreparati
   ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
   //! ntuple chain
   TChain *m_chain;
-
-  //! pointer to StoreGateSvc to manipulate EventInfo
-  ServiceHandle<StoreGateSvc> m_sgSvc ;
 
   //! pointer to IncidentSvc to fire Incidents for IOV changes
   ServiceHandle<IIncidentSvc> m_incSvc ;

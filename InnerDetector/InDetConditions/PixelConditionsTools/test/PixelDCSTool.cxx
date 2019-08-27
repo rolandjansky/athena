@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //database access headers
@@ -11,7 +11,6 @@
 
 //Athena headers
 //#include "StoreGate/StoreGate.h"
-//#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h" 
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
 #include "AthenaPoolUtilities/AthenaAttributeList.h" 

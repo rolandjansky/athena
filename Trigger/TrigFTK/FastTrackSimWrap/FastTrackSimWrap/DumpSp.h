@@ -54,7 +54,6 @@
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 
 class AtlasDetectorID;
-class StoreGateSvc;
 class ITruthParameters;
 class TruthSelector; 
 class PixelID; 
@@ -118,9 +117,6 @@ private:
 
   
   boost::shared_ptr<AtlasDetectorID> m_idHelper;
-  StoreGateSvc*  m_storeGate;
-  StoreGateSvc*  m_detStore;
-  StoreGateSvc*  m_evtStore;
 
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -13,7 +13,6 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
-#include "StoreGate/StoreGateSvc.h"
 #include "Identifier/Identifier.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -28,8 +27,6 @@
 PixelOfflineCalibServiceTest::PixelOfflineCalibServiceTest(const std::string& name, ISvcLocator* pSvcLocator)
     :AthAlgorithm   (name, pSvcLocator),
      // m_log       (msgSvc(), name),
-     // m_sgSvc (0),
-     //m_detStore  (0), 
      m_calibsvc("PixelOfflineCalibSvc",name),
      m_pat(0),
      m_setup(0),
@@ -52,13 +49,6 @@ StatusCode PixelOfflineCalibServiceTest::initialize() {
   
   msg(MSG::INFO) << "PixelOfflineCalibServiceTest::initialize() called" << endmsg;
   
-  //get storegate pointers (not need for AthAlgorithm classes)
-  //if ((StatusCode::SUCCESS!=service("StoreGateSvc",m_sgSvc)) ||
-  //   (StatusCode::SUCCESS!=service("DetectorStore",m_detStore))) {
-  //  msg(MSG::INFO) << "StoreGate services not found" << endmsg;
-  //  return StatusCode::FAILURE;
-  // }
-
   //get Database manager tool
   if (StatusCode::SUCCESS!=m_calibsvc.retrieve() ) {
     msg(MSG::FATAL) << "PixelOfflineCalibSvc not found" << endmsg;

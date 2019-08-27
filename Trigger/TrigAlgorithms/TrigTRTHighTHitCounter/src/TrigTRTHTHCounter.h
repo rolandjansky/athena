@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGTRTHTHCOUNTER_H
@@ -36,11 +36,6 @@ class TrigTRTHTHCounter: public HLT::FexAlgo {
  private:
 
   
-  /** A data member to retain a connection to the Detector Store. */
-  ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<StoreGateSvc> m_storeGate;
-
-
   const TRT_ID *m_trtHelper;                     //!<  TRT ID helper
   //  ServiceHandle<IRegSelSvc>    m_regionSelector; //!<  region selector service
 

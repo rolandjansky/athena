@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,8 +27,6 @@
 #include "PanTauAlgs/ITool_PanTauTools.h"
 
 //#include "PanTauAlgs/PanTauSeedContainer.h"
-
-//class StoreGateSvc;
 
 
 
@@ -74,7 +72,6 @@ namespace PanTau
     private:
         
        //mutable MsgStream                                   m_log;
-       //StoreGateSvc*                                       m_sgSvc;
         
         std::string                                         m_Name_InputAlg;
         

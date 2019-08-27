@@ -18,7 +18,6 @@
 #include <fstream>
 #include <vector>
 #include "TrkTrack/Track.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TFile.h"
 

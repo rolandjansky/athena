@@ -4,7 +4,6 @@
 
 #include "./LArHVCondAlg.h" 
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "LArElecCalib/ILArHVPathologyDbTool.h"
 #include "CaloDetDescr/CaloDetectorElements.h"

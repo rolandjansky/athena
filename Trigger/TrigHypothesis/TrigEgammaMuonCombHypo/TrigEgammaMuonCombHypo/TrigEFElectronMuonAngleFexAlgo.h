@@ -29,7 +29,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 // trigger includes
 #include "TrigInterfaces/ComboAlgo.h"
@@ -41,7 +40,6 @@
 #include "TrigTopoEvent/ElectronMuonTopoInfoContainer.h"
 
 
-/* class StoreGateSvc; */
 /* class TriggerElement; */
 
 /**

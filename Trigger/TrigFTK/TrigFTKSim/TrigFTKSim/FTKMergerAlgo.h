@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTKMergerAlgo_h
@@ -58,9 +58,6 @@ public:
   StatusCode finalize();
 
 private:
-  StoreGateSvc* m_StoreGate;
-  StoreGateSvc* m_detStore;
-
   PileUpMergeSvc *m_mergeSvc; // Pile up service, used to merge sub-regions output
 
   // path for the plane-map information

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCountSpacePoints.h"
@@ -33,7 +33,6 @@
 TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
     m_hltExecuteInitialisationRun(kFALSE),
-    m_detStore("DetectorStore", name),
     m_regionSelector("RegSelSvc", name),
     m_doPixelSp(true),
     m_doSctSp(true),
@@ -177,19 +176,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
-  // get detector store
-  if(m_detStore.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to connect to " << m_detStore.typeAndName());
-    return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    //    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_INFO("Successfully initialised DetectorStore !");
-  }
-
   // Only get the Pixel helper if Pixel spacepoints are requested
   if(m_doPixelSp) {
-    StatusCode sc_pixH = m_detStore->retrieve(m_pixHelper, "PixelID");
+    StatusCode sc_pixH = detStore()->retrieve(m_pixHelper, "PixelID");
     if( sc_pixH.isFailure() ){
       ATH_MSG_WARNING("Could not obtain pix helper!");
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
@@ -199,7 +188,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
 
   // Only get the SCT helper if SCT spacepoints are requested
   if(m_doSctSp) {
-    StatusCode sc_sctH = m_detStore->retrieve(m_sctHelper, "SCT_ID");
+    StatusCode sc_sctH = detStore()->retrieve(m_sctHelper, "SCT_ID");
     if( sc_sctH.isFailure() ){
       ATH_MSG_WARNING("Could not obtain sct helper!");
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);

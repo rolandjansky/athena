@@ -34,7 +34,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 
-class StoreGateSvc;
 class ActiveStoreSvc;
 class RpcIdHelper;
 

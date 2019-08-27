@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTKSim/FTKDetectorTool.h"
@@ -27,9 +27,6 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   : AthAlgTool(algname,name,ifc)
   , m_log( msgSvc() , name )
   , m_dumppath("deadmap.dat")
-  , m_storeGate( 0 )
-  , m_detStore( 0 )
-  , m_evtStore( 0 )
   , m_PIX_mgr( 0 )
   , m_pixelContainer( 0 )
   , m_sctContainer( 0 )
@@ -76,23 +73,15 @@ FTKDetectorTool::~FTKDetectorTool()
 
 StatusCode FTKDetectorTool::initialize()
 {
-  if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    m_log << MSG::FATAL << "StoreGate service not found" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if( service("DetectorStore",m_detStore).isFailure() ) {
-    m_log << MSG::FATAL <<"DetectorStore service not found" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
+  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
     m_log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_pixelId, "PixelID").isFailure() ) {
+  if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) {
     m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
+  if( detStore()->retrieve(m_sctId, "SCT_ID").isFailure() ) {
     m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
