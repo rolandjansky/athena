@@ -84,6 +84,8 @@ namespace DerivationFramework {
     float m_el2IsoCut;
     float m_el2d0Min;
 
+    float m_dPhiMin;
+
     void getPromptMuonCandidates(const xAOD::MuonContainer* muons,
                                  std::vector<const xAOD::Muon*>& promptMuonCandidates) const;
     void getDisplacedMuonCandidates(const xAOD::MuonContainer* muons,
