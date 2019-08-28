@@ -44,13 +44,13 @@ def generateL1DecoderAndChains():
 
 
     data['l1emroi'] = [ ';',
-                        '1,1,0,EM3,EM7,EM15,EM20,EM50,EM100,2EM3; 1,-1.2,0,EM3,EM7,2EM3',
+                        '1,1,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.2,0,EM3,EM7',
                         '-0.6,0.2,0,EM3,EM7,EM15,EM20,EM50,EM100; 1,-1.1,0,EM3,EM7,EM15,EM20,EM50',
                         '-0.6,1.5,0,EM3,EM7,EM7']
 
     data['l1muroi'] = [';',
                        '0,0,0,MU0;',
-                       '-1,0.5,0,MU6,MU8,2MU6; 1,0.5,0,MU6,MU8,MU10,2MU6',
+                       '-1,0.5,0,MU6,MU8; 1,0.5,0,MU6,MU8,MU10',
                        '-1.5,-0.1,0,MU6,MU8,MU10']
 
     data['tracks'] = ['eta:1,phi:1,pt:120000; eta:1,phi:-1.2,et:32000;',
