@@ -49,15 +49,12 @@ StatusCode
 Trk::TrkAmbiguitySolver::execute()
 {
   ATH_MSG_VERBOSE ("TrkAmbiguitySolver::execute()");
-  SG::ReadHandle<std::multimap<const Track*, float>> scoredTracksHandle(m_scoredTracksKey);
+  SG::ReadHandle<TracksScores> scoredTracksHandle(m_scoredTracksKey);
   if ( !scoredTracksHandle.isValid() )  ATH_MSG_ERROR("Could not read scoredTracks.");
 
   std::unique_ptr<TrackCollection> resolvedTracks = std::make_unique<TrackCollection>();
   if (m_applySolve){
-    std::multimap<const Track*, float> scoredTracks;
-    for(auto &e: *scoredTracksHandle)
-      scoredTracks.insert(std::make_pair(e.first, e.second));
-
+    Trk::TracksScores scoredTracks(*scoredTracksHandle);
     resolvedTracks.reset(m_ambiTool->process(&scoredTracks)); //note: take ownership and delete
   }
   else{
