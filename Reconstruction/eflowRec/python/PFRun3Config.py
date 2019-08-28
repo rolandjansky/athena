@@ -183,6 +183,9 @@ def PFCfg(inputFlags,**kwargs):
     #Setup TRT geometry
     from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
     trtDetectorTool = TRT_DetectorTool()
+    #These two lines fix ATLASRECTS-5053. I expect eventually we can remove them, once the underlying issue is fixed.
+    trtDetectorTool.DoXenonArgonMixture = False
+    trtDetectorTool.DoKryptonMixture = False
     result.getService("GeoModelSvc").DetectorTools += [ trtDetectorTool ]
 
     #Setup up material for inner detector
