@@ -887,7 +887,18 @@ class outputHLTconfigFile(JobProperty):
 
 _flags.append(outputHLTconfigFile)
 
+class outputHLTmenuJsonFile(JobProperty):
+    """ File name for output HLT configuration XML file """
+    statusOn=True
+    StoredValue=""
 
+    def __call__(self):
+        if self.get_Value() == "":
+            return "HLTmenu_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".json"
+        else:
+            return self.get_Value()
+
+_flags.append(outputHLTmenuJsonFile)
 
 class inputL1TopoConfigFile(JobProperty):
     """Used to define an external L1Topo configuration file. To be
