@@ -68,12 +68,16 @@ void RoIsUnpackingToolBase::addChainsToDecision( HLT::Identifier thresholdId,
     ATH_MSG_DEBUG("Threshold not known " << thresholdId);
     return;
   }
+
+  TrigCompositeUtils::DecisionIDContainer ids;
   for ( auto chainId: chains->second ) {
     if ( activeChains.find(chainId) != activeChains.end() ) {
-      TrigCompositeUtils::addDecisionID( chainId.numeric(), d );
+      ids.insert( chainId.numeric() );
       ATH_MSG_DEBUG( "Added chain to the RoI/threshold decision " << chainId );
     }
   }
+  TrigCompositeUtils::insertDecisionIDs(ids, d);
+  ATH_MSG_DEBUG( "Number of decisions per RoI after adding chains using threshold " << thresholdId << " " << TrigCompositeUtils::decisionIDs( d ).size() );
 }
 
 StatusCode RoIsUnpackingToolBase::copyThresholds( const std::vector<TrigConf::TriggerThreshold*>& src, std::vector<TrigConf::TriggerThreshold*>& dest ) const {
