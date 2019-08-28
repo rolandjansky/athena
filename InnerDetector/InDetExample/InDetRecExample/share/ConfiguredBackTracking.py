@@ -148,9 +148,10 @@ class ConfiguredBackTracking:
          #
          # TRT seeded back tracking algorithm
          #
+         from AthenaCommon import CfgGetter
          from TRT_SeededTrackFinder.TRT_SeededTrackFinderConf import InDet__TRT_SeededTrackFinder
          InDetTRT_SeededTrackFinder = InDet__TRT_SeededTrackFinder(name                  = 'InDetTRT_SeededTrackFinder',
-                                                                   RefitterTool          = InDetTrackFitter,
+                                                                   RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                                    TrackTool             = InDetTRT_SeededTrackTool,
                                                                    TrackExtensionTool    = InDetTRTExtensionTool,
                                                                    MinTRTonSegment       = NewTrackingCuts.minSecondaryTRTonTrk(),
@@ -269,7 +270,7 @@ class ConfiguredBackTracking:
          #
          from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
          InDetTRT_SeededAmbiguityProcessor = Trk__SimpleAmbiguityProcessorTool(name               = 'InDetTRT_SeededAmbiguityProcessor',
-                                                                               Fitter             = InDetTrackFitter,          
+                                                                               Fitter             = CfgGetter.getPublicTool('InDetTrackFitter'),
                                                                                SelectionTool      = InDetTRT_SeededAmbiTrackSelectionTool,
                                                                                RefitPrds          = not InDetFlags.refitROT(),
                                                                                SuppressTrackFit   = False,
