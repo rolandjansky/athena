@@ -22,7 +22,7 @@ atlas_add_component( TrigMuonHypoMT
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon TrigInterfacesLib DecisionHandling AthViews xAODMuon GaudiKernel TrigT1Interfaces)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon TrigInterfacesLib DecisionHandlingLib AthViews xAODMuon GaudiKernel TrigT1Interfaces)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
