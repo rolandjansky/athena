@@ -48,13 +48,13 @@ atlas_add_library( TrackToCaloLib
                    PUBLIC_HEADERS TrackToCalo
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces 
-		   TrackCaloClusterRecTools TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloUtilsLib
+		   TrackCaloClusterRecToolsLib TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloUtilsLib
 		   PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaBaseComps AtlasDetDescr FourMomUtils xAODTracking xAODMuon xAODEgamma xAODTruth TrkSurfaces 
 		   TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces CxxUtils)
 
-atlas_add_component( TrackToCalo
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES GaudiKernel TrackToCaloLib )
+atlas_add_component( TrackToCalo src/components/*.cxx
+   LINK_LIBRARIES TrkEventPrimitives TrkExInterfaces RecoToolInterfaces
+   AthenaBaseComps ParticleCaloExtension StoreGateLib CxxUtils
+   TrackVertexAssociationToolLib GaudiKernel TrackToCaloLib )
 
 atlas_install_python_modules( python/*.py )
