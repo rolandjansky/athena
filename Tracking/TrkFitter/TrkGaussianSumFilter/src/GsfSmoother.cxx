@@ -123,7 +123,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
 
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
   const Trk::MultiComponentState* firstSmoothedState =
-    m_updator->update(*smootherPredictionMultiState, *firstSmootherMeasurementOnTrack, fitQuality);
+    m_updator->update(*smootherPredictionMultiState, *firstSmootherMeasurementOnTrack, fitQuality).release();
 
   if (!firstSmoothedState) {
     delete firstSmootherMeasurementOnTrack;
@@ -431,7 +431,7 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
   }
   // Update newly extrapolated state with MeasurementBase measurement
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
-  const Trk::MultiComponentState* updatedState = m_updator->update(*extrapolatedState, *ccot, fitQuality);
+  const Trk::MultiComponentState* updatedState = m_updator->update(*extrapolatedState, *ccot, fitQuality).release();
 
   if (!updatedState || updatedState == extrapolatedState) {
     ATH_MSG_DEBUG("Update of extrapolated state with CCOT failed .. now not being taken in account");

@@ -343,7 +343,7 @@ Trk::ForwardGsfFitter::stepForwardFit(ForwardTrajectory* forwardTrajectory,
   }
 
   std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
-  updatedState = m_updator->update(*extrapolatedState, *measurement, fitQuality);
+  updatedState = m_updator->update(*extrapolatedState, *measurement, fitQuality).release();
 
   if (!updatedState) {
     delete measurement;
