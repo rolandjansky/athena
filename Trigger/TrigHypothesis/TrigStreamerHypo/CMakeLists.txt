@@ -20,7 +20,7 @@ find_package( CLHEP )
 atlas_add_component( TrigStreamerHypo
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib GaudiKernel DecisionHandling  )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} TrigInterfacesLib TrigTimeAlgsLib GaudiKernel DecisionHandlingLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
