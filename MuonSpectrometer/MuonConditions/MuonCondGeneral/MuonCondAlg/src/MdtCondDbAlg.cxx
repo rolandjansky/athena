@@ -61,7 +61,7 @@ MdtCondDbAlg::execute(){
     	ATH_MSG_DEBUG( "IsOnline is set to True; nothing to do!" );   
 		return StatusCode::SUCCESS;
 	}
- 
+
     // launching Write Cond Handle
     SG::WriteCondHandle<MdtCondDbData> writeHandle{m_writeKey};
     if (writeHandle.isValid()) {

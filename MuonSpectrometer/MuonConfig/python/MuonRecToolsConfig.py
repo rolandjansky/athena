@@ -197,13 +197,8 @@ def MuonTrackCleanerCfg(flags, **kwargs):
 
 def MuonStationIntersectSvcCfg(flags, name='MuonStationIntersectSvc',**kwargs):
     from MuonStationIntersectSvc.MuonStationIntersectSvcConf import MuonStationIntersectSvc
-    from MuonConfig.MuonCondSvcConfig import MDTCondSummarySvcCfg
-    # Has dependency on MDTCondSummarySvc and IdHelperTool (which we ignore for now)
+    # Has dependency IdHelperTool (which we ignore for now)
     result = ComponentAccumulator()
-    acc  = MDTCondSummarySvcCfg(flags)
-    mdt_cond_summary_svc = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("MDTCondSummarySvc", mdt_cond_summary_svc)
     muon_station_intersect_svc = MuonStationIntersectSvc(name=name, **kwargs)
     result.addService(muon_station_intersect_svc, primary=True)
     return result

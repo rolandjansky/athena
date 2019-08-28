@@ -474,6 +474,14 @@ def muEFSARecoSequence( RoIs, name ):
   from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
   ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
 
+  #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
+  from AthenaCommon.AlgSequence import AthSequencer
+  from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg
+  if not athenaCommonFlags.isOnline:
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence,"MdtCondDbAlg"):
+        condSequence += MdtCondDbAlg("MdtCondDbAlg")
+
   theSegmentFinder = CfgGetter.getPublicToolClone("MuonSegmentFinder","MooSegmentFinder")
   CfgGetter.getPublicTool("MuonLayerHoughTool").DoTruth=False
   theSegmentFinderAlg=CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_"+name,

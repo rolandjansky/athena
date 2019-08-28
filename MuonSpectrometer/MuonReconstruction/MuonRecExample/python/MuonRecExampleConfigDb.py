@@ -64,7 +64,7 @@ addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool")
 
 addTool("Muon::MuonTrackTruthTool", "MuonTrackTruthTool")
 
-addTool("Muon::MuonTrackToSegmentTool", "MuonTrackToSegmentTool")
+addTool("MuonRecExample.MooreTools.MuonTrackToSegmentTool", "MuonTrackToSegmentTool")
 
 addService("MuonRecExample.MuonRecTools.MuonEDMHelperSvc", "MuonEDMHelperSvc")
 
