@@ -6,10 +6,14 @@
 #define TRIGBYTESTREAMCNVSVC_H
 
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
+#include <TH1I.h>
+#include <TH1F.h>
+#include <TH2F.h>
 
 // Forward declarations
 class StoreGateSvc;
 class IROBDataProviderSvc;
+class ITHistSvc;
 
 /** @class TrigByteStreamCnvSvc
  *  @brief A ByteStreamCnvSvc implementation for online use
@@ -29,6 +33,7 @@ public:
 
   // ------------------------- IService methods --------------------------------
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
   virtual StatusCode finalize() override;
 
   // ------------------------- IConversionSvc methods --------------------------
@@ -41,12 +46,28 @@ public:
   virtual StatusCode commitOutput(const std::string& outputFile, bool do_commit) override;
 
 private:
-  /// Helper method printing contents of m_rawEventWrite
+  // ------------------------- Helper methods ---------------------------
+  /// Print contents of m_rawEventWrite
   void printRawEvent();
-  /// Handle to the event store
-  ServiceHandle<StoreGateSvc> m_evtStore;
-  /// Handle to the ROB Data Provider
-  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc;
+  /// Fill histograms from contents of a FullEventFragment
+  void monitorRawEvent(const std::unique_ptr<uint32_t[]>& rawEventPtr) const;
+  /// Register monitoring histograms with THistSvc
+  void bookHistograms();
+
+  // ------------------------- Service handles ---------------------------
+  ServiceHandle<StoreGateSvc> m_evtStore; //< Event store
+  ServiceHandle<IROBDataProviderSvc> m_robDataProviderSvc; //< ROB Data Provider
+  ServiceHandle<ITHistSvc> m_THistSvc; //< Histogramming service
+
+  // ------------------------- Monitoring histograms ---------------------------
+  TH1I* m_histPscErrorCode{nullptr}; //< Histogram of PSC error codes
+  TH1F* m_histStreamTags{nullptr}; //< Histogram of stream tags
+  TH2F* m_histStreamTagsCorr{nullptr}; //< Histogram of stream tags correlation
+  TH2F* m_histResultSizeByModule{nullptr}; //< Histogram of HLT result size per module ID
+  TH2F* m_histResultSizeByStream{nullptr}; //< Histogram of HLT result size per stream
+  TH1F* m_histResultSizeTotal{nullptr}; //< Histogram of total HLT result size (all modules)
+  TH1F* m_histResultSizeFullEvFrag{nullptr}; //< Histogram of the size of FullEventFragment sent from HLT to DataCollector
+  TH1F* m_histEventDoneTime{nullptr}; //< Histogram of the time taken by the eventDone call
 };
 
 #endif // TRIGBYTESTREAMCNVSVC_H
