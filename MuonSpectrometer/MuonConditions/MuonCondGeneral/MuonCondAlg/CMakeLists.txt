@@ -31,13 +31,12 @@ atlas_add_library( MuonCondAlgLib
                    PUBLIC_HEADERS MuonCondAlg
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonCondSvc MuonCondTool StoreGateLib SGtests MuonIdHelpersLib
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonCondSvcLib MuonCondTool StoreGateLib SGtests MuonIdHelpersLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventInfo )
 
 atlas_add_component( MuonCondAlg
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonCondSvc MuonCondTool EventInfo MuonIdHelpersLib MuonCondAlgLib )
+                     LINK_LIBRARIES GaudiKernel MuonCondAlgLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
