@@ -7,6 +7,7 @@ from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
 from AthenaCommon.Constants import *
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon import CfgMgr
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
@@ -393,6 +394,10 @@ def DCMathSegmentMaker(name='DCMathSegmentMaker',extraFlags=None,**kwargs):
     #kwargs.setdefault("CurvedErrorScaling", False)
     kwargs.setdefault("UsePreciseError", True)
     kwargs.setdefault("SinAngleCut", 0.4)
+
+    #MDT conditions information not available online
+    if(athenaCommonFlags.isOnline):
+        kwargs.setdefault("MdtCondKey","")
 
     # MuonCompetingClustersCreator apparently just takes default
     kwargs.setdefault("MuonClusterCreator", getPrivateTool("MuonClusterOnTrackCreator") )

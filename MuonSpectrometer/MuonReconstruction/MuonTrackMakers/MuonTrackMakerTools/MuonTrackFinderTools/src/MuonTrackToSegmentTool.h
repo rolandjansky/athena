@@ -12,12 +12,13 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
 #include "TrkParameters/TrackParameters.h"
-
+#include "MuonCondData/MdtCondDbData.h"
 #include "Identifier/Identifier.h"
 
 
 #include <vector>
 
+class MdtCondDbData;
 class MuonStationIntersectSvc;
 class MsgStream;
 
@@ -81,6 +82,8 @@ namespace Muon {
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>      m_printer;          //<! tool to print out EDM objects
+
+    SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
 
   };
 

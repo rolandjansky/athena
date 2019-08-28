@@ -24,9 +24,9 @@ from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber # TODO - should may
 
 #Local
 import MuonConfig.MuonRIO_OnTrackCreatorConfig # Trying to avoid circular dependencies here
-# from MuonConfig.MuonCondSvcConfig import MDTCondSummarySvcCfg
 from MuonConfig.MuonCalibConfig import MdtCalibrationDbSvcCfg
 from MuonConfig.MuonRecToolsConfig import MCTBFitterCfg, MuonAmbiProcessorCfg, MuonStationIntersectSvcCfg, MuonTrackCleanerCfg
+from MuonConfig.MuonCondAlgConfig import MdtCondDbAlgCfg # MT-safe conditions access
 
 def MuonHoughPatternFinderTool(flags, **kwargs):
     # Taken from https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonRecTools.py#L173     from MuonHoughPatternTools/MuonHoughPatternToolsConf import Muon__MuonHoughPatternFinderTool
@@ -158,6 +158,13 @@ def DCMathSegmentMakerCfg(flags, **kwargs):
     kwargs.setdefault("RefitSegment", True)
     kwargs.setdefault("AssumePointingPhi", beamType != 'cosmics')
     kwargs.setdefault("OutputFittedT0", True)
+
+    #MDT conditions information not available online
+    if flags.Common.isOnline:
+        kwargs.setdefault("MdtCondKey","")
+
+    acc = MdtCondDbAlgCfg(flags)
+    result.merge(acc)
 
     acc = MdtCalibrationDbSvcCfg(flags) # Needed by MdtSegmentT0Fitter
     result.merge(acc)

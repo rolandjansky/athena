@@ -21,6 +21,7 @@
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
 
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/LocalDirection.h"
@@ -62,6 +63,7 @@ namespace Muon {
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_intersectSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
+    if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
     return StatusCode::SUCCESS;
   }
   
@@ -263,7 +265,13 @@ namespace Muon {
 								  const MuonTrackToSegmentTool::MeasVec& measurements ) const {
     
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack( chid, pars.position(), pars.momentum().unit() );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack( chid, pars.position(), pars.momentum().unit(), dbData, m_detMgr );
 
 
     // set to identify the hit on the segment

@@ -129,6 +129,7 @@ if muonRecFlags.doStandalone():
     #
     from MuonRecExample.MuonRec import muonRec
 
+    import MuonCondAlg.MdtCondDbAlgConfig # MT-safe conditions access
 
     if rec.doTruth():   
         from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker

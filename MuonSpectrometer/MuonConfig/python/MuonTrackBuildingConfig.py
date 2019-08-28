@@ -161,7 +161,11 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
     mctbfitter = result.getPrimary()
     result.addPublicTool(mctbfitter)
     kwargs.setdefault("Fitter", mctbfitter)
-    
+
+    #MDT conditions information not available online
+    if flags.Common.isOnline:
+        kwargs.setdefault("MdtCondKey","")
+
     acc = MooCandidateMatchingToolCfg(flags)
     track_segment_matching_tool=acc.getPrimary()
     result.addPublicTool(track_segment_matching_tool)

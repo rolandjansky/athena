@@ -43,7 +43,6 @@ def testCfg (configFlags):
 
     from MuonStationIntersectSvc.MuonStationIntersectSvcConf import MuonStationIntersectSvc
     result.addService (MuonStationIntersectSvc ('MuonStationIntersectSvc',
-                                                CreateGeometryAtInitialization = True,
                                                 OutputLevel = 1))
     
     result.addEventAlgo (TestAlg ('TestAlg'))

@@ -183,6 +183,8 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
+    if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -2289,7 +2291,13 @@ namespace Muon {
 							      std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec) const {
     
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir, dbData, m_detMgr );
 
 
     // set to identify the hit on the segment
@@ -2646,8 +2654,6 @@ namespace Muon {
 	    }
 	    Amg::Vector3D lpos_shift(lposTGC.x(),locy_shift,z_shift);
 	    
-	    // 	    std::cout << " local phi pos " << lposTGC << " shifted pos " << lpos_shift << std::endl;
-
 	    // transform the two points to global coordinates
 	    const Amg::Transform3D tgcTrans = detEl->absTransform();
 	    Amg::Vector3D gposL    = tgcTrans*lposTGC;
