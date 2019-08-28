@@ -49,7 +49,6 @@ namespace Smearing {
 
 // local namespace
 namespace {
-  const int nRegion = 108;
   const int nIpt = 9;
   const int neta = 12;
   const int ntp = 5; // Ipt,eta,phi,d0,z0
@@ -323,11 +322,11 @@ HLT::ErrorCode TrigFTKFastSim::hltExecute(const HLT::TriggerElement* , HLT::Trig
 
     // ensure each physical layer is counted once
     // todo: replace with mapping from physical to logical layers
-    bool gotPix[2][4]    = {0}; // gotPix[1][:] 3 endcap disks, gotPix[0][:] IBL + 3 barrels
-    bool gotSCTphi[2][9] = {0}; // gotSCTphi[0][:] phi modules on 9 endcap discs
-                                // gotSCTphi[1][:] 4 barrel phi layers
-    bool gotSCTuv[2][9]  = {0}; // gotSCTuv[0][:] stereo modules on the 9 endcap discs
-                                // gotSCTuv[1][:] 4 barrel stereo layers
+    bool gotPix[2][4]    = {{0}}; // gotPix[1][:] 3 endcap disks, gotPix[0][:] IBL + 3 barrels
+    bool gotSCTphi[2][9] = {{0}}; // gotSCTphi[0][:] phi modules on 9 endcap discs
+                                  // gotSCTphi[1][:] 4 barrel phi layers
+    bool gotSCTuv[2][9]  = {{0}}; // gotSCTuv[0][:] stereo modules on the 9 endcap discs
+                                  // gotSCTuv[1][:] 4 barrel stereo layers
 
     std::vector<const Trk::RIO_OnTrack*> hitsVec;
     for( unsigned int iSurf=0; it!=it_end; it++, iSurf++ ) {
