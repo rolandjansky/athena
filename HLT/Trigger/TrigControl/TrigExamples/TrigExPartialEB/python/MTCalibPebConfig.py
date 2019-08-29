@@ -230,10 +230,7 @@ def configure_hlt_result(hypo_algs):
     # Tool adding HLT bits to HLT result
     bitsmaker = TriggerBitsMakerTool()
     bitsmaker.ChainDecisions = 'HLTNav_Summary'
-    bitsmaker.ChainToBit = {}
-    bitsmaker.ChainToBit['HLT_MTCalibPeb1'] = 3
-    bitsmaker.ChainToBit['HLT_MTCalibPeb2'] = 50
-    bitsmaker.ChainToBit['HLT_MTCalibPeb3'] = 11
+    bitsmaker.HLTmenuFile = menu_json
 
     # Configure the HLT result maker to use the above tools
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr

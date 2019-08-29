@@ -109,7 +109,7 @@ if opt.doWriteESD:
 
 if configureBSResult:
     from TrigOutputHandling.TrigOutputHandlingConfig import TriggerEDMSerialiserToolCfg
-    from TrigOutputHandling.TrigOutputHandlingConf import StreamTagMakerTool # TODO: TriggerBitsMakerTool
+    from TrigOutputHandling.TrigOutputHandlingConf import StreamTagMakerTool, TriggerBitsMakerTool
     from TrigEDMConfig.TriggerEDMRun3 import persistent
 
     # Tool serialising EDM objects to fill the HLT result
@@ -123,10 +123,12 @@ if configureBSResult:
 
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerTool()
-    stmaker.ChainDecisions = 'HLTNav_Summary'
     stmaker.HLTmenuFile = TriggerFlags.outputHLTmenuJsonFile()
+
+    bitsmaker = TriggerBitsMakerTool()
+    bitsmaker.HLTmenuFile = TriggerFlags.outputHLTmenuJsonFile()
 
     # Configure the HLT result maker to use the above tools
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     hltResultMaker = svcMgr.HltEventLoopMgr.ResultMaker
-    hltResultMaker.MakerTools = [stmaker, serialiser] # TODO: add bits maker
+    hltResultMaker.MakerTools = [stmaker, serialiser, bitsmaker]

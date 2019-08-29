@@ -5,6 +5,7 @@
 #include "TrigOutputHandling/TriggerBitsMakerTool.h"
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfHLTData/HLTUtils.h"
 
 #include <algorithm>
 
@@ -24,13 +25,45 @@ StatusCode TriggerBitsMakerTool::initialize() {
   m_largestBit = 0;
   for(auto& ch : hltmenu) {
     ATH_MSG_DEBUG( "Chain " << ch.name() << " will flip " << ch.counter() <<  " bit" );
-    m_mapping[ HLT::Identifier( ch.name() ) ] = ch.counter();
+    ATH_CHECK(preInsertCheck(ch.name(), ch.counter()));
+    ATH_CHECK(hashConsistencyCheck(ch.name(), ch.namehash()));
+    m_mapping[ HLT::Identifier( ch.name() ).numeric() ] = ch.counter();
     m_largestBit = std::max(m_largestBit, ch.counter());
+  }
+
+  // This block allows extra mappings to be supplied by python, e.g. for testing purposes
+  for ( auto& chainAndBit: m_extraChainToBit ) {
+    struct { std::string chain; uint32_t bit; } conf { chainAndBit.first, chainAndBit.second };    
+    ATH_MSG_DEBUG( "Extra Chain " << conf.chain << " will flip  " << conf.bit <<  " bit" );
+    ATH_CHECK(preInsertCheck(conf.chain, conf.bit));
+    m_mapping[ HLT::Identifier( conf.chain ).numeric() ] = conf.bit;
+    m_largestBit = std::max(m_largestBit, conf.bit);
   }
 
   return StatusCode::SUCCESS;
 }
 
+
+StatusCode TriggerBitsMakerTool::hashConsistencyCheck(const std::string& chain, const size_t hash) const {
+  if (HLT::Identifier( chain ).numeric() != hash) {
+    ATH_MSG_ERROR("Inconsistent hashes found for chain:" << chain << ", from Python:" << hash
+      << ", from C++:" << HLT::Identifier( chain ).numeric());
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode TriggerBitsMakerTool::preInsertCheck(const std::string& chain, const uint32_t bit) const {
+  const auto checkIt = std::find_if(
+    m_mapping.begin(), m_mapping.end(), [&](const std::pair<TrigCompositeUtils::DecisionID, uint32_t>& m) { return m.second == bit; }
+  );
+  if (checkIt != m_mapping.end()) {
+    ATH_MSG_ERROR( "Multiple chains " << TrigConf::HLTUtils::hash2string(checkIt->first) 
+      << " and " << chain << " are both configured with ChainCounter:" << bit);
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
 
 StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
 

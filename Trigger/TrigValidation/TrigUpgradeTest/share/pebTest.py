@@ -177,7 +177,7 @@ stmaker.ChainToStream["HLT_mu6_pebtestfive_L1MU6"] = streamPhysicsPebtestfive
 
 bitsmaker = TriggerBitsMakerTool()
 bitsmaker.ChainDecisions = "HLTNav_Summary"
-bitsmaker.ChainToBit = dict( [ (chain.name, 10*num) for num,chain in enumerate(testChains) ] )
+bitsmaker.ExtraChainToBit = dict( [ (chain.name, 10*num) for num,chain in enumerate(testChains) ] )
 bitsmaker.OutputLevel = DEBUG
 
 ##### Result maker part 4 - configure all together #####

@@ -328,7 +328,7 @@ stmaker.ChainToStream = dict( [(c, streamPhysicsMain) for c in testChains ] )
 stmaker.ChainToStream["HLT_e5_etcut"] = streamPhotonPerf
 bitsmaker = TriggerBitsMakerTool()
 bitsmaker.ChainDecisions = "HLTNav_Summary"
-bitsmaker.ChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
+bitsmaker.ExtraChainToBit = dict( [ (chain, 10*num) for num,chain in enumerate(testChains) ] ) 
 
 hltResultMakerTool =  HLTResultMTMaker("MKTool")
 hltResultMakerTool.MakerTools = [ stmaker, bitsmaker, serialiser ]

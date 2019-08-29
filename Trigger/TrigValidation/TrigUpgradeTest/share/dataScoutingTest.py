@@ -176,7 +176,7 @@ stmaker.ChainToStream["HLT_e7_etcut_pebtestone_L1EM3"] = streamPhysicsPebtestone
 
 bitsmaker = TriggerBitsMakerTool()
 bitsmaker.ChainDecisions = "HLTNav_Summary"
-bitsmaker.ChainToBit = dict( [ (chain.name, 10*num) for num,chain in enumerate(testChains) ] )
+bitsmaker.ExtraChainToBit = dict( [ (chain.name, 10*num) for num,chain in enumerate(testChains) ] )
 bitsmaker.OutputLevel = DEBUG
 
 ##### Result maker part 4 - configure all together #####

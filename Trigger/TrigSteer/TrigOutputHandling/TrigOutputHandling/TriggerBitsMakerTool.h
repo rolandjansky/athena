@@ -30,9 +30,20 @@ private:
 
   StatusCode setBit(const TrigCompositeUtils::DecisionID chain, const BitCategory category, HLT::HLTResultMT& resultToFill) const;
 
+  /// Check that a chain's hash in the menu JSON (via python) agrees with the C++ implementation
+  ///
+  StatusCode hashConsistencyCheck(const std::string& chain, const size_t hash) const;
+
+  /// Check that no existing key maps to a given value
+  ///
+  StatusCode preInsertCheck(const std::string& chain, const uint32_t bit) const;
+
   SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_finalChainDecisions { this, "ChainDecisions", "HLTNav_Summary", "Container with final chain decisions"  };
 
   Gaudi::Property<std::string> m_menuJSON {this, "HLTmenuFile", "UNSET", "Filename of just-generated HLT Menu JSON used to configure the TriggerBitsMakerTool"};
+
+  Gaudi::Property<std::map<std::string, uint32_t>> m_extraChainToBit { this, "ExtraChainToBit", {},
+    "Special case and testing purposes hard-coded chain-to-bit mappings to use in addition to those from the HLT menu."};
 
   typedef std::map< TrigCompositeUtils::DecisionID, uint32_t> ChainToBitMap;
   ChainToBitMap m_mapping; //!< Mapping of each chain's hash ID to its chain counter
