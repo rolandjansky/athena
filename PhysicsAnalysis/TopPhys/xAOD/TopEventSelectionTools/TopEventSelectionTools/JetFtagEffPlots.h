@@ -70,6 +70,8 @@ class JetFtagEffPlots : public EventSelectorBase {
 
   //optional suffix you can add to your histogram
   std::string m_histogram_suffix;
+  bool m_dont_use_event_weight;
+  bool m_use_track_jets;
   bool m_doNominal;
   bool m_doMuRup;
   bool m_doMuRdown;

@@ -30,6 +30,8 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
     m_CDIfile("xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"),
     m_fill_total_hists(false),
     m_histogram_suffix(""),
+    m_dont_use_event_weight(false),
+    m_use_track_jets(false),
     m_doNominal(false),
     m_doMuRup(false),
     m_doMuRdown(false),
@@ -59,8 +61,7 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
 
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
-    // retrieve jet collection
-    m_jetCollection = m_config->sgKeyJets();
+
 
     const std::string truthWeightToolName = "PMGTruthWeightTool";
     if(asg::ToolStore::contains<PMGTools::PMGTruthWeightTool>(truthWeightToolName))
@@ -99,6 +100,10 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
         m_histogram_suffix = s.substr(7,s.size()-7);
       else if ( s=="fill_total_hist")
         m_fill_total_hists = true;
+      else if ( s=="dont_use_event_weight")
+        m_dont_use_event_weight = true;
+      else if ( s=="use_track_jets")
+        m_use_track_jets = true;
       else if ( s=="NOMINAL")
         m_doNominal = true;
       else if ( s=="MURUP")
@@ -120,6 +125,13 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
       else {
         throw std::runtime_error{ "ERROR: Can't understand argument "+s+" for JETFTAGEFFPLOTS."};
       }
+    }
+
+        // retrieve jet collection
+    if(!m_use_track_jets){
+      m_jetCollection = m_config->sgKeyJets();
+    }else{
+      m_jetCollection =  m_config->sgKeyTrackJets();
     }
 
     m_sfRetriever = asg::ToolStore::get<ScaleFactorRetriever>("top::ScaleFactorRetriever");
@@ -155,7 +167,7 @@ JetFtagEffPlots::JetFtagEffPlots(const std::string& name,
     for (std::string flavour:{"B","C","L","T"}){
 
       if(m_fill_total_hists){
-        std::string total_hist_name = flavour +"_total"+m_histogram_suffix;
+        std::string total_hist_name = flavour +"_total_"+m_jetCollection+m_histogram_suffix;
         if(m_N_pT_bins < 1){
           if (m_hists) m_hists->addHist(total_hist_name,";pT [GeV];|#eta^{jet}|;Events",
             ptBins.size()-1, ptBins.data(), etaBins.size()-1, etaBins.data());
@@ -284,7 +296,9 @@ bool JetFtagEffPlots::apply(const top::Event& event) const {
     }
     float lepton_sf = m_sfRetriever->leptonSF(event,nominal);
 
-    if (m_doNominal) eventWeightNominal     = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight")*jvt_sf*pu_weight*lepton_sf;
+    if (m_doNominal){
+      eventWeightNominal     = event.m_info->auxdataConst<float>("AnalysisTop_eventWeight")*jvt_sf*pu_weight*lepton_sf;
+    }
     if (m_doMuRup) eventWeightMuRup         = muRup*jvt_sf*pu_weight*lepton_sf;
     if (m_doMuRdown) eventWeightMuRdown     = muRdown*jvt_sf*pu_weight*lepton_sf;
     if (m_doMuFup) eventWeightMuFup         = muFup*jvt_sf*pu_weight*lepton_sf;
@@ -293,6 +307,10 @@ bool JetFtagEffPlots::apply(const top::Event& event) const {
     if (m_doVar3cdown) eventWeightVar3cDown = Var3cDown*jvt_sf*pu_weight*lepton_sf;
     if (m_doFSRup) eventWeightFSRUp         = FSRUp*jvt_sf*pu_weight*lepton_sf;
     if (m_doFSRdown) eventWeightFSRDown     = FSRDown*jvt_sf*pu_weight*lepton_sf;
+
+    if(m_dont_use_event_weight){
+      eventWeightNominal = 1.0;
+    }
 
     if (m_hists)           FillHistograms(m_hists, eventWeightNominal, event);
     if (m_hists_muRup)     FillHistograms(m_hists_muRup, eventWeightMuRup, event);
@@ -310,9 +328,16 @@ bool JetFtagEffPlots::apply(const top::Event& event) const {
 
 void JetFtagEffPlots::FillHistograms(std::shared_ptr<PlotManager> h_ptr, double w_event, const top::Event& event) const{
 
+    const xAOD::JetContainer* jets;
 
-    for (unsigned long jet_i = 0; jet_i < event.m_jets.size(); jet_i++) {
-      const xAOD::Jet* jetPtr = event.m_jets.at(jet_i);
+    if(!m_use_track_jets){
+      jets = &event.m_jets;
+    }else{
+      jets = &event.m_trackJets;
+    }
+
+    for (unsigned long jet_i = 0; jet_i < jets->size(); jet_i++) {
+      const xAOD::Jet* jetPtr = jets->at(jet_i);
 
       int jet_flavor = -99;
       bool status = jetPtr->getAttribute<int>("HadronConeExclTruthLabelID", jet_flavor);
@@ -330,7 +355,7 @@ void JetFtagEffPlots::FillHistograms(std::shared_ptr<PlotManager> h_ptr, double 
       else if (jet_flavor == 15 ) flav_name = "T";
 
       if(m_fill_total_hists){
-        static_cast<TH2D*>(h_ptr->hist(flav_name+"_total"+m_histogram_suffix))->Fill(jetPtr->pt()*toGeV, fabs(jetPtr->eta() ), w_event);
+        static_cast<TH2D*>(h_ptr->hist(flav_name+"_total_"+m_jetCollection+m_histogram_suffix))->Fill(jetPtr->pt()*toGeV, fabs(jetPtr->eta() ), w_event);
       }
 
       bool pass_cut = m_selection_tool->accept(jetPtr);
