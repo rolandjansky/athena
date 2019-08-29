@@ -78,8 +78,8 @@ private:
   std::string m_histPath;                                   //!< histogram booking path
 
   /* Properties */
-  SG::ReadCondHandleKey<LuminosityCondData> m_luminosityCondDataKey{this, "LuminosityCondDataKey",
-                                                                    "LuminosityCondData", ""};
+  SG::ReadCondHandleKey<LuminosityCondData> m_lumiDataKey{this, "LuminosityCondDataKey",
+                                                          "LuminosityCondData", ""};
 
   Gaudi::Property<std::string> m_releaseData{
       this, "ReleaseDataFile", "../ReleaseData",

@@ -52,7 +52,7 @@ TrigOpMonitor::TrigOpMonitor(const std::string& name, ISvcLocator* pSvcLocator) 
 StatusCode TrigOpMonitor::initialize()
 {
   ATH_CHECK(m_histSvc.retrieve());
-  ATH_CHECK(m_luminosityCondDataKey.initialize());
+  ATH_CHECK(m_lumiDataKey.initialize(!m_lumiDataKey.empty()));
 
   return StatusCode::SUCCESS;
 }
@@ -299,9 +299,11 @@ void TrigOpMonitor::fillIOVDbChangeHist(const EventContext& ctx)
 
 void TrigOpMonitor::fillLumiHist(const EventContext& ctx)
 {
-  SG::ReadCondHandle<LuminosityCondData> lumiData(m_luminosityCondDataKey, ctx);
-  m_lumiHist->Fill(ctx.eventID().lumi_block(), lumiData->lbAverageLuminosity());
-  m_muHist->Fill(ctx.eventID().lumi_block(), lumiData->lbAverageInteractionsPerCrossing());
+  if (!m_lumiDataKey.empty()) {
+    SG::ReadCondHandle<LuminosityCondData> lumiData(m_lumiDataKey, ctx);
+    m_lumiHist->Fill(ctx.eventID().lumi_block(), lumiData->lbAverageLuminosity());
+    m_muHist->Fill(ctx.eventID().lumi_block(), lumiData->lbAverageInteractionsPerCrossing());
+  }
 }
 
 void TrigOpMonitor::fillReleaseDataHist()

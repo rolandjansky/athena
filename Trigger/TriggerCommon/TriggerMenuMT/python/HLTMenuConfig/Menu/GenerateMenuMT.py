@@ -167,6 +167,7 @@ class GenerateMenuMT(object):
 
             log.debug("Finished with retrieving chain configuration for chain %s", chain) 
             self.triggerConfigHLT.allChainConfigs.append(chainConfig)
+
         return self.triggerConfigHLT.allChainConfigs
 
 
@@ -338,7 +339,7 @@ class GenerateMenuMT(object):
         # the return values used for debugging, might be removed later
 
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
-        generateJSON( None )
+        generateJSON()
 
         return finalListOfChainConfigs
             

@@ -252,8 +252,8 @@ def parse(chk_tcmalloc=True):
             opts.command = string.strip(arg)
 
         elif opt in ("-h", "--help"):
-            from AthenaCommon.ExitCodes import ALL_OK
-            _help_and_exit(ALL_OK)
+            print (_error_msg)
+            sys.exit()
 
         elif opt in ("-l", "--loglevel"):
             opts.msg_lvl = string.upper(arg)
