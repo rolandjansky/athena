@@ -36,6 +36,8 @@ if DetFlags.overlay.Truth_on():
       outStream.ItemList += [ "MuonSimDataCollection#TGC_SDO" ]
    if DetFlags.overlay.sTGC_on():
       outStream.ItemList += [ "MuonSimDataCollection#sTGC_SDO" ]
+   if DetFlags.overlay.Micromegas_on():
+      outStream.ItemList += [ "MuonSimDataCollection#MM_SDO" ]
    if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
       outStream.ItemList += [ "CaloCalibrationHitContainer#*" ]
    if DetFlags.overlay.pixel_on():
@@ -87,6 +89,9 @@ if DetFlags.overlay.TGC_on():
 if DetFlags.overlay.sTGC_on():
    outStream.ItemList += [ "Muon::STGC_RawDataContainer#*" ]
    outStream.ItemList += [ "sTgcDigitContainer#*" ]
+if DetFlags.overlay.Micromegas_on():
+   outStream.ItemList += [ "Muon::MM_RawDataContainer#*" ]
+   outStream.ItemList += [ "MmDigitContainer#*" ]
 
 if DetFlags.overlay.BCM_on():
    outStream.ItemList+=["BCM_RDO_Container#*"]

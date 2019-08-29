@@ -9,7 +9,7 @@ from AthenaCommon import CfgGetter
 
 from RecExConfig.RecFlags import rec as recFlags
 
-if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on():
+if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on() or DetFlags.overlay.Micromegas_on():
    
     include( "MuonEventAthenaPool/MuonEventAthenaPool_joboptions.py" )
  
@@ -115,3 +115,17 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
            job.STGC_Overlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
 
         job += CfgGetter.getAlgorithm("STGC_TruthOverlay")
+    
+    if DetFlags.overlay.Micromegas_on():
+
+        job += CfgGetter.getAlgorithm("MM_Overlay")
+        from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MM_DigitToRDO
+        job += MM_DigitToRDO()
+        job.MM_DigitToRDO.EvtStore = job.MM_Overlay.OutputStore
+
+        # This is unested as of 2019-08-23
+        if readBS:
+           ToolSvc.MM_RawDataProviderTool.EvtStore = "OriginalEvent_SG"
+           job.MM_Overlay.ConvertRDOToDigitTool.RetrievePrivateCopy = False
+
+        job += CfgGetter.getAlgorithm("MM_TruthOverlay")

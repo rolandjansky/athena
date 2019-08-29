@@ -56,3 +56,7 @@ def MM_Response_DigitTool(name="MM_Response_DigitTool",**kwargs):
     return CfgMgr.MM_Response_DigitTool(name,**kwargs)
 
 
+def MM_OverlayDigitizationTool(name="MM_OverlayDigitizationTool",**kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    return MM_DigitizationTool(name,**kwargs)
