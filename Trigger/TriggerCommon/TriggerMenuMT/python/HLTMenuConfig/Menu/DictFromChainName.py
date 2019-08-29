@@ -82,8 +82,10 @@ class DictFromChainName(object):
         # 'merging'=[], 'topoStartFrom'=False],
 
         # these if/elif/else statements are due to temporary development
+        from TrigConfHLTData.HLTUtils import string2hash
         if type(chainInfo) == str:
             chainName       = chainInfo
+            chainNameHash   = string2hash(chainInfo)
             L1chainParts    = []
             stream          = ''
             groups          = []
@@ -94,6 +96,7 @@ class DictFromChainName(object):
 
         elif 'ChainProp' in str(type(chainInfo)):
             chainName       = chainInfo.name
+            chainNameHash   = string2hash(chainInfo.name)
             L1chainParts    = chainInfo.l1SeedThresholds
             stream          = chainInfo.stream
             groups          = chainInfo.groups
@@ -119,6 +122,7 @@ class DictFromChainName(object):
         chainDict['mergingOffset']   = mergingOffset
         chainDict['mergingOrder']    = mergingOrder
         chainDict['topoStartFrom']   = topoStartFrom
+        chainDict['chainNameHash']   = chainNameHash
 
         logDict.debug('Setting chain multiplicities')
         allChainMultiplicities = self.getChainMultFromDict(chainDict)
