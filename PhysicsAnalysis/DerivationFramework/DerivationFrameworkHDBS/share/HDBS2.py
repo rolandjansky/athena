@@ -26,6 +26,7 @@ from AthenaCommon.Logging import logging
 msg = logging.getLogger( "HDBS2" )
 _info = msg.info
 
+
 _info( "DerivationFrameworkIsMonteCarlo: %s", DerivationFrameworkIsMonteCarlo)
 #====================================================================
 # SET UP STREAM
@@ -528,6 +529,8 @@ _info( SkimmingToolHDBS2)
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'],Sequencer=DerivationFrameworkJob)
 # The name of the kernel (LooseSkimKernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HDBS2Kernel",
@@ -545,14 +548,15 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("HDBS2Ker
 from DerivationFrameworkHDBS.HDBS2ExtraContent import *
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HDBS2SlimmingHelper = SlimmingHelper("HDBS2SlimmingHelper")
-
 HDBS2SlimmingHelper.SmartCollections = ["Electrons",
                                           "Photons",
                                           "Muons",
                                           "TauJets",
-                                          "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
-                                          "BTagging_AntiKt4EMTopo",
+                                          "MET_Reference_AntiKt4EMPFlow",
+                                          "AntiKt4EMPFlowJets",
+                                          "AntiKt4EMPFlowJets_BTagging201903",
+                                          "BTagging_AntiKt4EMPFlow_201903",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 
