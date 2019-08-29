@@ -608,27 +608,24 @@ inline int MuonIdHelper::technologyIndex(const std::string& name) const
 /*******************************************************************************/
 inline const std::string& MuonIdHelper::stationNameString(const int& index) const
 {
-  static std::string name = BAD_NAME;
   assert ( index >= 0 && index <= stationNameIndexMax() );
   if ( index >= 0 && index <= stationNameIndexMax() ) {
-    if (!m_stationNameVector[index].empty()) name = m_stationNameVector[index];
+    if (!m_stationNameVector[index].empty()) {
+      return m_stationNameVector[index];
+    }
   }
-  return name;
+  return BAD_NAME;
 }
 /*******************************************************************************/
 inline const std::string& MuonIdHelper::technologyString(const int& index) const
 {
   assert ( index >= 0 && index <= technologyNameIndexMax() );
-  static std::string name;
   if (index >= 0 && index <= technologyNameIndexMax()) {
-    name = m_technologyNameVector[index];
-    if (name.empty()) {
-      name = BAD_NAME;
+    if (!m_technologyNameVector[index].empty()) {
+      return m_technologyNameVector[index];
     }
-  } else {
-    name = BAD_NAME;
   }
-  return name;
+  return BAD_NAME;
 }
 /*******************************************************************************/
 inline int MuonIdHelper::nStationNames() const
