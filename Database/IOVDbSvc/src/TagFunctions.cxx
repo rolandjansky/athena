@@ -7,13 +7,13 @@
 
 #include "TagFunctions.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/TagInfo.h"
 #include "IOVDbStringFunctions.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include <stdexcept>
+
 
 
 namespace IOVDbNamespace{
@@ -58,7 +58,7 @@ namespace IOVDbNamespace{
   }
   
   std::string
-  resolveUsingTagInfo(const std::string & tag, StoreGateSvc * pDetStore){
+  resolveUsingTagInfo(const std::string & tag, StoreGateSvc * pDetStore, const std::optional<TagInfo> & inputTag){
     // tag an inputag of form TagInfo{Major|Minor}/<tag> or 
     // TagInfo(Major|Minor}/<prefix>/<tag>
     // and resolve to value of TagInfo object tag <tag>
@@ -74,7 +74,11 @@ namespace IOVDbNamespace{
     }  
     const auto & [prefix, target] = IOVDbNamespace::tag2PrefixTarget(results);
     // try to get TagInfo object
-    result=IOVDbNamespace::getTagInfo(tag, pDetStore);
+    if (pDetStore){
+      result= IOVDbNamespace::getTagInfo(tag, pDetStore);
+    } else {
+     if (inputTag.has_value()) result = inputTag.value().findTag(tag);
+    }
     // if nothing found, try to get GeoAtlas directly from GeoModelSvc
     if (result.empty() and target=="GeoAtlas") {
       result=prefix+IOVDbNamespace::getGeoAtlasVersion();

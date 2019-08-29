@@ -183,6 +183,8 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
+    if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -2289,7 +2291,13 @@ namespace Muon {
 							      std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec) const {
     
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir, dbData, m_detMgr );
 
 
     // set to identify the hit on the segment
@@ -2335,8 +2343,9 @@ namespace Muon {
       int layer = (m_idHelperTool->mdtIdHelper().tubeLayer(id)-1) + 4*(m_idHelperTool->mdtIdHelper().multilayer(id)-1);
 
       bool notBetweenHits = layer < firstLayer || layer > lastLayer;
-      double distanceCut = hasMeasuredCoordinate ? -20 : -200.;
-      if( notBetweenHits && (fabs( tint.rIntersect ) > 14.4 || (!m_allMdtHoles && tint.xIntersect > distanceCut ) ) ){
+      double distanceCut  = hasMeasuredCoordinate ? -20 : -200.;
+      double innerRadius  = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+      if( notBetweenHits && ( fabs(tint.rIntersect) > innerRadius || (!m_allMdtHoles && tint.xIntersect > distanceCut) ) ) {
 	if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << " not counting tube:  distance to wire " << tint.rIntersect << " dist to tube end " << tint.xIntersect 
 						      << " " << m_idHelperTool->toString(tint.tubeId) << std::endl;
       }else{
@@ -2645,8 +2654,6 @@ namespace Muon {
 	    }
 	    Amg::Vector3D lpos_shift(lposTGC.x(),locy_shift,z_shift);
 	    
-	    // 	    std::cout << " local phi pos " << lposTGC << " shifted pos " << lpos_shift << std::endl;
-
 	    // transform the two points to global coordinates
 	    const Amg::Transform3D tgcTrans = detEl->absTransform();
 	    Amg::Vector3D gposL    = tgcTrans*lposTGC;

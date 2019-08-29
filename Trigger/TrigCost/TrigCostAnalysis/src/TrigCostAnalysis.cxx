@@ -176,6 +176,7 @@ StatusCode TrigCostAnalysis::dumpEvent(const EventContext& context) const {
   for ( const xAOD::TrigComposite* tc : *costDataHandle ) {
     const uint64_t start = tc->getDetail<uint64_t>("start"); // in mus
     const uint64_t stop  = tc->getDetail<uint64_t>("stop"); // in mus
+    const uint32_t slot  = tc->getDetail<uint32_t>("slot");
     const uint64_t start_ms_round = std::llround( start * 1e-3 ); // in ms
     const uint64_t stop_ms_round  = std::llround( stop  * 1e-3 ); // in ms
 
@@ -186,6 +187,7 @@ StatusCode TrigCostAnalysis::dumpEvent(const EventContext& context) const {
 
     ss << "{id:" << algID++;
     ss << ", group:" << threadToCounterMap[threadID];
+    ss << ", className:'slot" << slot << "'";
     ss << ", content:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("alg"), "ALG");
     ss << "<br>" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("store"), "STORE") << "'";
     ss << ", duration:" << (stop - start); // For tooltip display: in mus

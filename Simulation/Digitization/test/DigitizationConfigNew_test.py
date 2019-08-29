@@ -15,12 +15,12 @@ from BCM_Digitization.BCM_DigitizationConfigNew import BCM_DigitizationCfg
 from SCT_Digitization.SCT_DigitizationConfigNew import SCT_DigitizationCfg
 from TRT_Digitization.TRT_DigitizationConfigNew import TRT_DigitizationCfg
 from PixelDigitization.PixelDigitizationConfigNew import PixelDigitizationCfg
-from MDT_Digitization.MDT_DigitizationConfigNew import MDT_DigitizerCfg
-from TGC_Digitization.TGC_DigitizationConfigNew import TGC_DigitizerCfg
-from RPC_Digitization.RPC_DigitizationConfigNew import RPC_DigitizerCfg
-from CSC_Digitization.CSC_DigitizationConfigNew import CSC_DigitBuilderCfg
-from LArDigitization.LArDigitizationConfigNew import LArDigitMakerCfg
-from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg
+from MDT_Digitization.MDT_DigitizationConfigNew import MDT_DigitizerDigitToRDOCfg
+from TGC_Digitization.TGC_DigitizationConfigNew import TGC_DigitizerDigitToRDOCfg
+from RPC_Digitization.RPC_DigitizationConfigNew import RPC_DigitizerDigitToRDOCfg
+from CSC_Digitization.CSC_DigitizationConfigNew import CSC_DigitBuilderDigitToRDOCfg
+from LArDigitization.LArDigitizationConfigNew import LArTriggerDigitizationCfg
+from TileSimAlgs.TileDigitizationConfig import TileDigitizationCfg, TileTriggerDigitizationCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -40,12 +40,13 @@ acc.merge(BCM_DigitizationCfg(ConfigFlags))
 acc.merge(SCT_DigitizationCfg(ConfigFlags))
 acc.merge(TRT_DigitizationCfg(ConfigFlags))
 acc.merge(PixelDigitizationCfg(ConfigFlags))
-acc.merge(MDT_DigitizerCfg(ConfigFlags))
-acc.merge(TGC_DigitizerCfg(ConfigFlags))
-acc.merge(RPC_DigitizerCfg(ConfigFlags))
-acc.merge(CSC_DigitBuilderCfg(ConfigFlags))
-acc.merge(LArDigitMakerCfg(ConfigFlags))
+acc.merge(MDT_DigitizerDigitToRDOCfg(ConfigFlags))
+acc.merge(TGC_DigitizerDigitToRDOCfg(ConfigFlags))
+acc.merge(RPC_DigitizerDigitToRDOCfg(ConfigFlags))
+acc.merge(CSC_DigitBuilderDigitToRDOCfg(ConfigFlags))
+acc.merge(LArTriggerDigitizationCfg(ConfigFlags))
 acc.merge(TileDigitizationCfg(ConfigFlags))
+acc.merge(TileTriggerDigitizationCfg(ConfigFlags))
 # Dump config
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True

@@ -124,7 +124,7 @@ namespace Muon {
     ATH_CHECK(m_key_rpc.initialize());
     if(m_key_stgc.key()!="") ATH_CHECK(m_key_stgc.initialize());
     if(m_key_mm.key()!="") ATH_CHECK(m_key_mm.initialize());
-    
+    if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());    
     
     return StatusCode::SUCCESS;
   }
@@ -1169,8 +1169,8 @@ namespace Muon {
 	if ( surf.globalToLocal(exPars->position(), exPars->momentum(), locPos) ) {
 	  // perform bound check do not count holes with 100. mm of bound edge
 	  inBounds = surf.bounds().insideLoc2(locPos, -100.);
-	  if ( inBounds ) {
-	    if ( fabs( locPos[Trk::locR] ) > 14.4 ) inBounds = false;
+	  if( inBounds && fabs(locPos[Trk::locR]) > detEl->innerTubeRadius() ) {
+	    inBounds = false;
 	  }
 	}
 	if ( !inBounds ) {
@@ -1244,7 +1244,13 @@ namespace Muon {
 								       const std::set<Identifier>& tubeIds ) const {
     
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack( chId, position, direction );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack( chId, position, direction, dbData, m_detMgr );
 
     // clear hole vector
     std::set<Identifier> holes;

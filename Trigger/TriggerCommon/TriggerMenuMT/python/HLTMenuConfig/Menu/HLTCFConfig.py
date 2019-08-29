@@ -102,7 +102,11 @@ def createCFTree(CFseq):
         else:
             already_connected.append(name)
             stepReco += ath_sequence
-        seqAndView += menuseq.hypo.Alg
+        if type(menuseq.hypo) is list:
+           for hp in menuseq.hypo:
+              seqAndView += hp.Alg
+        else:
+           seqAndView += menuseq.hypo.Alg
 
     if CFseq.step.isCombo:
         seqAndView += CFseq.step.combo.Alg
@@ -226,7 +230,10 @@ def matrixDisplay( allCFSeq ):
     longestName = longestName + 1
     def __getHyposOfStep( s ):
         if len(s.step.sequences):
-            return s.step.sequences[0].hypo.tools
+           if type(s.step.sequences[0].hypo) is list:
+              return s.step.sequences[0].hypo[0].tools
+           else:
+              return s.step.sequences[0].hypo.tools
         return []
     
 
@@ -372,11 +379,20 @@ def createDataFlow(chains, allDicts):
                         new_sequence=copy.deepcopy(sequence)
                         new_sequence.resetConnections()
                         new_sequence.name = "%s_%d"%(sequence.name, count_fil)
-                        oldhypo=sequence.hypo.Alg
-                        newHypoAlgName = "%s_%d"%(oldhypo.name(),count_fil)
-                        new_hypoAlg=oldhypo.clone(newHypoAlgName)
-                        new_sequence.replaceHypoForDuplication(new_hypoAlg)
-                        new_sequences.append(new_sequence)
+                        if type(sequence.hypo) is list:
+                           new_hypoAlg = []
+                           for hp in sequence.hypo:
+                              oldhypo=hp.Alg
+                              newHypoAlgName = "%s_%d"%(oldhypo.name(),count_fil)
+                              new_hypoAlg.append( oldhypo.clone(newHypoAlgName) )
+                           new_sequence.replaceHypoForDuplication(new_hypoAlg)
+                           new_sequences.append(new_sequence)
+                        else:
+                           oldhypo=sequence.hypo.Alg
+                           newHypoAlgName = "%s_%d"%(oldhypo.name(),count_fil)
+                           new_hypoAlg=oldhypo.clone(newHypoAlgName)
+                           new_sequence.replaceHypoForDuplication(new_hypoAlg)
+                           new_sequences.append(new_sequence)
 
                     new_chain_step_name="%s_%d"%(chain_step.name, count_fil)                    
                     # making new ChainStep

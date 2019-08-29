@@ -31,8 +31,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigDataAccess/TrigSerializeTP
                           Trigger/TrigConfiguration/TrigConfData
                           Trigger/TrigConfiguration/TrigConfIO
-                          Control/AthContainersRoot
-                          )
+                          Control/AthContainersRoot)
+
+
 find_package( tdaq-common COMPONENTS eformat )
 find_package( Boost )
 
@@ -71,4 +72,4 @@ atlas_add_test( serial_deserial_test
       ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
       POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 300
-      ) 
+      )

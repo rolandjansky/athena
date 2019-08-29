@@ -208,6 +208,11 @@ StatusCode TileDigitsMaker::initialize() {
   m_binTime0Lo = m_tileInfo->digitsTime0BinLo();
   m_timeStepLo = 25.0 / m_nBinsPerXLo;
 
+  m_overlayDigitContainerName = m_overlayDigitContainerKey.key();
+  ATH_CHECK( m_overlayDigitContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay) );
+  m_overlayRawChannelContainerName = m_overlayRawChannelContainerKey.key();
+  ATH_CHECK( m_overlayRawChannelContainerKey.initialize(!m_onlyUseContainerName && m_rndmEvtOverlay) );
+
   if (m_rndmEvtOverlay) {
     m_tileNoise = false;
     m_tileCoherNoise = false;
@@ -500,54 +505,85 @@ StatusCode TileDigitsMaker::execute() {
     }
   }
 
-  TileDigitsContainer::const_iterator collItrRndm;
-  TileDigitsContainer::const_iterator lastCollRndm;
+  TileMutableDigitsContainer::const_iterator collItrRndm;
+  TileMutableDigitsContainer::const_iterator lastCollRndm;
+  std::unique_ptr<TileMutableDigitsContainer> backgroundDigitContainer{};
   if (m_rndmEvtOverlay) {
+    backgroundDigitContainer = std::make_unique<TileMutableDigitsContainer>(true,
+                                                                            TileFragHash::Digitizer,
+                                                                            TileRawChannelUnit::ADCcounts);
+    ATH_CHECK( backgroundDigitContainer->status() );
 
-    typedef PileUpMergeSvc::TimedList<TileDigitsContainer>::type TimedDigitContList;
-    TileDigitsContainer::const_iterator rndm_digititer_begin;
-    TileDigitsContainer::const_iterator rndm_digititer_end;
-    TileDigitsContainer::const_iterator rndm_digititer;
-
-    TimedDigitContList digitContList;
-    ATH_CHECK( m_mergeSvc->retrieveSubEvtsData("TileDigitsCnt", digitContList));
-    ATH_MSG_DEBUG( "TileDigitsCnt successfully retrieved ");
-
-
-    if (digitContList.size() == 0) {
-      ATH_MSG_WARNING( "No overlay done ... ");
-      return StatusCode::SUCCESS;
-    }
-
-    TimedDigitContList::iterator iTzeroDigitCont(digitContList.begin());
-    const TileDigitsContainer * rndm_digit_container = (iTzeroDigitCont->second);
-    collItrRndm = rndm_digit_container->begin();
-    lastCollRndm = rndm_digit_container->end();
-
-    typedef PileUpMergeSvc::TimedList<TileRawChannelContainer>::type TimedRawChanContList;
-    TimedRawChanContList rawchanContList;
-    if (!(m_mergeSvc->retrieveSubEvtsData("TileRawChannelCnt", rawchanContList).isSuccess())) {
-      ATH_MSG_ERROR( "Cannot retrieve TileRawChannelContainer for DQ check");
-    } else {
-      ATH_MSG_DEBUG( "TileRawChannelContainer for DQ check retrieved");
-    }
-
-    const TileRawChannelContainer* rndm_rawchan_container(nullptr);
-    if (!rawchanContList.empty()) {
-      TimedRawChanContList::iterator iTzeroRawChanCont(rawchanContList.begin());
-      rndm_rawchan_container = iTzeroRawChanCont->second;
-    }
-
+    const TileRawChannelContainer* rndm_rawchan_container{};
     auto dqStatus = std::make_unique<TileDQstatus>();
-    ATH_CHECK( m_DQstatusTool->makeStatus (ctx,
-                                           rndm_rawchan_container,
-                                           rndm_digit_container,
-                                           nullptr, // TileBeamElemContainer
-                                           *dqStatus) );
+    if (m_onlyUseContainerName) {
+      typedef PileUpMergeSvc::TimedList<TileDigitsContainer>::type TimedDigitContList;
+      TimedDigitContList digitContList;
+      ATH_CHECK( m_mergeSvc->retrieveSubEvtsData(m_overlayDigitContainerName, digitContList));
+      ATH_MSG_DEBUG( "TileDigitsCnt successfully retrieved ");
 
+
+      if (digitContList.size() == 0) {
+        ATH_MSG_WARNING( "No overlay done ... ");
+        return StatusCode::SUCCESS;
+      }
+
+      TimedDigitContList::iterator iTzeroDigitCont(digitContList.begin());
+      for (const auto* digitCollection : *(iTzeroDigitCont->second)) {
+        for (const auto* digit : *digitCollection) {
+          auto pDigits = std::make_unique<TileDigits>(*digit);
+          ATH_CHECK(backgroundDigitContainer->push_back(std::move(pDigits)));
+        }
+      }
+      typedef PileUpMergeSvc::TimedList<TileRawChannelContainer>::type TimedRawChanContList;
+      TimedRawChanContList rawchanContList;
+      if (!(m_mergeSvc->retrieveSubEvtsData(m_overlayRawChannelContainerName, rawchanContList).isSuccess())) {
+        ATH_MSG_ERROR( "Cannot retrieve TileRawChannelContainer for DQ check");
+      } else {
+        ATH_MSG_DEBUG( "TileRawChannelContainer for DQ check retrieved");
+      }
+
+      if (!rawchanContList.empty()) {
+        TimedRawChanContList::iterator iTzeroRawChanCont(rawchanContList.begin());
+        rndm_rawchan_container = iTzeroRawChanCont->second;
+      }
+      ATH_CHECK( m_DQstatusTool->makeStatus (ctx,
+                                             rndm_rawchan_container,
+                                             backgroundDigitContainer.get(),
+                                             nullptr, // TileBeamElemContainer
+                                             *dqStatus) );
+    }
+    else {
+      SG::ReadHandle<TileDigitsContainer> tileDigitsContainerHandle(m_overlayDigitContainerKey);
+      if (tileDigitsContainerHandle.isValid()) {
+        for (const auto* digitCollection : *tileDigitsContainerHandle) {
+          for (const auto* digit : *digitCollection) {
+            auto pDigits = std::make_unique<TileDigits>(*digit);
+            ATH_CHECK(backgroundDigitContainer->push_back(std::move(pDigits)));
+          }
+        }
+      }
+      else {
+        ATH_MSG_ERROR("ReadHandle to Background Digits is invalid.");
+      }
+      SG::ReadHandle<TileRawChannelContainer> tileRawChannelContainerHandle(m_overlayRawChannelContainerKey);
+      if (tileRawChannelContainerHandle.isValid()) {
+        rndm_rawchan_container = &*tileRawChannelContainerHandle;
+      }
+      else {
+        ATH_MSG_WARNING("ReadHandle to Background Raw Channels is invalid.");
+      }
+      ATH_CHECK( m_DQstatusTool->makeStatus (ctx,
+                                             rndm_rawchan_container,
+                                             backgroundDigitContainer.get(),
+                                             nullptr, // TileBeamElemContainer
+                                           *dqStatus) );
+    }
     m_DQstatus = dqStatus.get();
 
     ATH_CHECK( SG::makeHandle (m_DQstatusKey, ctx).record (std::move (dqStatus)) );
+    collItrRndm = backgroundDigitContainer->begin();
+    lastCollRndm = backgroundDigitContainer->end();
   }
 
   // iterate over all collections in a container
@@ -564,9 +600,9 @@ StatusCode TileDigitsMaker::execute() {
   /*-------------------------------------------------------------------*/
 
   for (; collItr != lastColl; ++collItr) {
-
+    const TileHitCollection *hitCollection(*collItr);
     /* Get array of HWID's for this drawer (stored locally). */
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*collItr)->identify());
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(hitCollection->identify());
     int ros = m_tileHWID->ros(drawer_id);
     int drawer = m_tileHWID->drawer(drawer_id);
     int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -576,6 +612,9 @@ StatusCode TileDigitsMaker::execute() {
       if (m_rndmEvtOverlay && collItrRndm != lastCollRndm) {
         ++collItrRndm; // skip also one drawer in digi overlay container
       }
+      if (m_doDigiTruth) {
+        ++collItr_DigiHSTruth;
+      } // End DigiHSTruth stuff
       continue;
     }
 
@@ -616,142 +655,16 @@ StatusCode TileDigitsMaker::execute() {
     }
 
     if (m_rndmEvtOverlay && collItrRndm != lastCollRndm) {
-
-      if ((*collItr)->identify() != (*collItrRndm)->identify()) {
-        ATH_MSG_ERROR ( "Frag IDs for hit collection and digits overlay collection do not match "
-                        << MSG::hex << (*collItr)->identify() << " != " << (*collItrRndm)->identify()
-                        << MSG::dec );
-        return StatusCode::FAILURE;
-      }
-
-      // iterate over all digits in a collection 
-      TileDigitsCollection::const_iterator digitItr = (*collItrRndm)->begin();
-      TileDigitsCollection::const_iterator lastDigit = (*collItrRndm)->end();
-
-      for (; digitItr != lastDigit; ++digitItr) {
-
-        /* Get digit HWIdentifier (= adc_id) */
-        HWIdentifier adcId = (*digitItr)->adc_HWID();
-        int channel = m_tileHWID->channel(adcId);
-        int gain = m_tileHWID->adc(adcId);
-
-        igain[channel] = gain;
-
-        // get channel status
-        bool good_dq = m_DQstatus->isAdcDQgood(ros, drawer, channel, gain);
-        bool good_ch = (!m_tileBadChanTool->getAdcStatus(drawerIdx, channel, gain).isBad());
-
-        // get digits
-        std::vector<float> digits = (*digitItr)->samples();
-        // get number of time samples & compare with nSamp
-        int nSamp2 = digits.size();
-        int goodDigits = nSamp2;
-        float dig(2047.),digmin(65536.),digmax(-65536.);
-        if (good_dq) {
-          for (int js = 0; js < nSamp2; ++js) {
-            dig=digits[js];
-            if (dig<digmin) digmin=dig;
-            if (dig>digmax) digmax=dig;
-            if (dig<0.01) { // skip zeros
-              --goodDigits;
-            } else if (dig>1022.99) { // skip overflows
-              if (dig>1023.01) { // ignore everything in case of invalid digits
-                dig=2047.0;
-                goodDigits = 0;
-                break;
-              }
-              --goodDigits;
-            }
-          } 
-        } else if (goodDigits>0) {
-          goodDigits = 0;
-          dig = digmin = digmax = digits[0];
-          for (int js = 1; js < nSamp2; ++js) {
-            dig=digits[js];
-            if (dig<digmin) digmin=dig;
-            else if (dig>digmax) digmax=dig;
-          }
-        }
-        
-        if (goodDigits>0) {
-          over_gain[channel] = gain;
-          if (nSamp2 != m_nSamples) {
-            digits.resize(m_nSamples);
-            for (int js = nSamp2; js < m_nSamples; ++js)
-              digits[js] = digits[js - 1]; // repeat last value in vector (nSamp-nSamp2) times
-          }
-
-          double * buffer;
-          double * bufferLG=0;
-          if (gain == TileID::HIGHGAIN) {
-            if (digmax - digmin > 5. && good_ch ) {// 5 ADC counts cut - to ignore pure noise in HG (less than 0.1 count effect in LG)
-              float ratio = m_tileToolEmscale->doCalibCisOnl(drawerIdx, channel, TileID::HIGHGAIN, 1.)
-                          / m_tileToolEmscale->doCalibCisOnl(drawerIdx, channel, TileID::LOWGAIN, 1.); // ratio between low and high gain
-              dig=std::min(digits[0],std::max(digmin,m_tileToolNoiseSample->getPed(drawerIdx, channel, TileID::HIGHGAIN)));
-              bufferLG = m_drawerBufferLo[channel]; 
-              for (int js = 0; js < m_nSamples; ++js)        // in case low gain background is needed later
-                bufferLG[js] = (digits[js]-dig)*ratio;    // put in low gain buffer signal divided by 64 (LG/HG ratio) 
-            }
-            buffer = m_drawerBufferHi[channel];
-          } else {
-            buffer = m_drawerBufferLo[channel];
-          }
-          for (int js = 0; js < m_nSamples; ++js)
-            buffer[js] = digits[js];
-
-          if (msgLvl(MSG::VERBOSE)) {
-            msg(MSG::VERBOSE) << "RNDM BG ADC " << m_tileHWID->to_string(adcId)
-                              << " samples=";
-            for (int js = 0; js < m_nSamples; ++js)
-              msg(MSG::VERBOSE) << " " << buffer[js];
-            if (!good_ch)
-              msg(MSG::VERBOSE) << " BCH";
-            if (!good_dq) {
-              msg(MSG::VERBOSE) << " BDQ";
-            } else if (bufferLG) {
-              msg(MSG::VERBOSE) << "  LG=";
-              for (int js = 0; js < m_nSamples; ++js)
-                msg(MSG::VERBOSE) << " " << int(bufferLG[js]*100)/100.;
-            }
-            msg(MSG::VERBOSE) << endmsg;
-          }
-
-        } else if (nSamp2 > 0) {
-          over_gain[channel] = 10+gain; // flag problematic channel
-
-          double * buffer;
-          if (gain == TileID::HIGHGAIN) {
-            buffer = m_drawerBufferHi[channel];
-          } else {
-            buffer = m_drawerBufferLo[channel];
-          }
-
-          if (digmin != digmax || (dig!=0. && dig!=1023.)) dig=2047.; // keep only 0 or 1023 as it is
-          for (int js = 0; js < m_nSamples; ++js)
-            buffer[js] = dig;
-
-          if (msgLvl(MSG::VERBOSE)) {
-            msg(MSG::VERBOSE) << "BAD BG  ADC " << m_tileHWID->to_string(adcId)
-                              << " samples=";
-            for (int js = 0; js < nSamp2; ++js)
-              msg(MSG::VERBOSE) << " " << digits[js];
-            msg(MSG::VERBOSE) << ((good_ch)?"":" BCH") << ((good_dq)?"":" BDQ") << endmsg;
-          }
-
-        } else {
-          ATH_MSG_VERBOSE( "NO BG   ADC " << m_tileHWID->to_string(adcId)
-                           << " samples= 0 0 0 0 0 0 0"
-                           << ((good_ch)?"":" BCH") << ((good_dq)?"":" BDQ") );
-        }
-      }
+      const TileDigitsCollection *bkgDigitCollection(*collItrRndm);
+      ATH_CHECK(overlayBackgroundDigits(bkgDigitCollection, hitCollection, igain, ros, drawer, drawerIdx, over_gain));
       ++collItrRndm; // skip to next digi collection
     }
 
     std::vector<bool> signal_in_channel(nchMax, 0);
     std::vector<bool> signal_in_channel_DigiHSTruth(nchMax, 0);
-    ATH_CHECK(FillDigitCollection( collItr, m_drawerBufferLo, m_drawerBufferHi, igain, over_gain, ech_int, signal_in_channel));
+    ATH_CHECK(FillDigitCollection( *collItr, m_drawerBufferLo, m_drawerBufferHi, igain, over_gain, ech_int, signal_in_channel));
     if(m_doDigiTruth){
-      ATH_CHECK(FillDigitCollection( collItr_DigiHSTruth, m_drawerBufferLo_DigiHSTruth, m_drawerBufferHi_DigiHSTruth, igain, over_gain, ech_int_DigiHSTruth, signal_in_channel_DigiHSTruth));
+      ATH_CHECK(FillDigitCollection( *collItr_DigiHSTruth, m_drawerBufferLo_DigiHSTruth, m_drawerBufferHi_DigiHSTruth, igain, over_gain, ech_int_DigiHSTruth, signal_in_channel_DigiHSTruth));
     } // End DigiHSTruth stuff
 
     /* Now all signals for this collection are stored in m_drawerBuffer, 
@@ -1293,7 +1206,7 @@ StatusCode TileDigitsMaker::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int over_gain[], double ech_int[], std::vector<bool> &signal_in_channel) const{
+StatusCode TileDigitsMaker::FillDigitCollection(const TileHitCollection* hitCollection, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int over_gain[], double ech_int[], std::vector<bool> &signal_in_channel) const{
   
   // Zero sums for monitoring.
   int nChSum = 0;
@@ -1311,15 +1224,15 @@ StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator
   /* Set up buffers for handling information in a single collection. */
   IdentifierHash idhash;
 
-  HWIdentifier drawer_id = m_tileHWID->drawer_id((*hitContItr)->identify());
+  HWIdentifier drawer_id = m_tileHWID->drawer_id(hitCollection->identify());
   int ros = m_tileHWID->ros(drawer_id);
   int drawer = m_tileHWID->drawer(drawer_id);
   int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
 
 
   // iterate over all hits in a collection
-  TileHitCollection::const_iterator hitItr = (*hitContItr)->begin();
-  TileHitCollection::const_iterator lastHit = (*hitContItr)->end();
+  TileHitCollection::const_iterator hitItr = hitCollection->begin();
+  TileHitCollection::const_iterator lastHit = hitCollection->end();
 
   for (; hitItr != lastHit; ++hitItr) {
 
@@ -1454,4 +1367,132 @@ StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator
 
   return StatusCode::SUCCESS;
 
+}
+
+StatusCode TileDigitsMaker::overlayBackgroundDigits( const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[] ) {
+  if (hitCollection->identify() != bkgDigitCollection->identify()) {
+    ATH_MSG_ERROR ( "Frag IDs for hit collection and digits overlay collection do not match "
+                    << MSG::hex << hitCollection->identify() << " != " << bkgDigitCollection->identify()
+                    << MSG::dec );
+    return StatusCode::FAILURE;
+  }
+
+  // iterate over all digits in a collection
+  for (const auto* bkgDigit : *bkgDigitCollection) {
+
+    /* Get digit HWIdentifier (= adc_id) */
+    HWIdentifier adcId = bkgDigit->adc_HWID();
+    int channel = m_tileHWID->channel(adcId);
+    int gain = m_tileHWID->adc(adcId);
+
+    igain[channel] = gain;
+
+    // get channel status
+    bool good_dq = m_DQstatus->isAdcDQgood(ros, drawer, channel, gain);
+    bool good_ch = (!m_tileBadChanTool->getAdcStatus(drawerIdx, channel, gain).isBad());
+
+    // get digits
+    std::vector<float> digits = bkgDigit->samples();
+    // get number of time samples & compare with nSamp
+    int nSamp2 = digits.size();
+    int goodDigits = nSamp2;
+    float dig(2047.),digmin(65536.),digmax(-65536.);
+    if (good_dq) {
+      for (int js = 0; js < nSamp2; ++js) {
+        dig=digits[js];
+        if (dig<digmin) digmin=dig;
+        if (dig>digmax) digmax=dig;
+        if (dig<0.01) { // skip zeros
+          --goodDigits;
+        } else if (dig>1022.99) { // skip overflows
+          if (dig>1023.01) { // ignore everything in case of invalid digits
+            dig=2047.0;
+            goodDigits = 0;
+            break;
+          }
+          --goodDigits;
+        }
+      } 
+    } else if (goodDigits>0) {
+      goodDigits = 0;
+      dig = digmin = digmax = digits[0];
+      for (int js = 1; js < nSamp2; ++js) {
+        dig=digits[js];
+        if (dig<digmin) digmin=dig;
+        else if (dig>digmax) digmax=dig;
+      }
+    }
+        
+    if (goodDigits>0) {
+      over_gain[channel] = gain;
+      if (nSamp2 != m_nSamples) {
+        digits.resize(m_nSamples);
+        for (int js = nSamp2; js < m_nSamples; ++js)
+          digits[js] = digits[js - 1]; // repeat last value in vector (nSamp-nSamp2) times
+      }
+
+      double * buffer;
+      double * bufferLG=0;
+      if (gain == TileID::HIGHGAIN) {
+        if (digmax - digmin > 5. && good_ch ) {// 5 ADC counts cut - to ignore pure noise in HG (less than 0.1 count effect in LG)
+          float ratio = m_tileToolEmscale->doCalibCisOnl(drawerIdx, channel, TileID::HIGHGAIN, 1.)
+            / m_tileToolEmscale->doCalibCisOnl(drawerIdx, channel, TileID::LOWGAIN, 1.); // ratio between low and high gain
+          dig=std::min(digits[0],std::max(digmin,m_tileToolNoiseSample->getPed(drawerIdx, channel, TileID::HIGHGAIN)));
+          bufferLG = m_drawerBufferLo[channel]; 
+          for (int js = 0; js < m_nSamples; ++js)        // in case low gain background is needed later
+            bufferLG[js] = (digits[js]-dig)*ratio;    // put in low gain buffer signal divided by 64 (LG/HG ratio) 
+        }
+        buffer = m_drawerBufferHi[channel];
+      } else {
+        buffer = m_drawerBufferLo[channel];
+      }
+      for (int js = 0; js < m_nSamples; ++js)
+        buffer[js] = digits[js];
+
+      if (msgLvl(MSG::VERBOSE)) {
+        msg(MSG::VERBOSE) << "RNDM BG ADC " << m_tileHWID->to_string(adcId)
+                          << " samples=";
+        for (int js = 0; js < m_nSamples; ++js)
+          msg(MSG::VERBOSE) << " " << buffer[js];
+        if (!good_ch)
+          msg(MSG::VERBOSE) << " BCH";
+        if (!good_dq) {
+          msg(MSG::VERBOSE) << " BDQ";
+        } else if (bufferLG) {
+          msg(MSG::VERBOSE) << "  LG=";
+          for (int js = 0; js < m_nSamples; ++js)
+            msg(MSG::VERBOSE) << " " << int(bufferLG[js]*100)/100.;
+        }
+        msg(MSG::VERBOSE) << endmsg;
+      }
+
+    } else if (nSamp2 > 0) {
+      over_gain[channel] = 10+gain; // flag problematic channel
+
+      double * buffer;
+      if (gain == TileID::HIGHGAIN) {
+        buffer = m_drawerBufferHi[channel];
+      } else {
+        buffer = m_drawerBufferLo[channel];
+      }
+
+      if (digmin != digmax || (dig!=0. && dig!=1023.)) dig=2047.; // keep only 0 or 1023 as it is
+      for (int js = 0; js < m_nSamples; ++js)
+        buffer[js] = dig;
+
+      if (msgLvl(MSG::VERBOSE)) {
+        msg(MSG::VERBOSE) << "BAD BG  ADC " << m_tileHWID->to_string(adcId)
+                          << " samples=";
+        for (int js = 0; js < nSamp2; ++js)
+          msg(MSG::VERBOSE) << " " << digits[js];
+        msg(MSG::VERBOSE) << ((good_ch)?"":" BCH") << ((good_dq)?"":" BDQ") << endmsg;
+      }
+
+    } else {
+      ATH_MSG_VERBOSE( "NO BG   ADC " << m_tileHWID->to_string(adcId)
+                       << " samples= 0 0 0 0 0 0 0"
+                       << ((good_ch)?"":" BCH") << ((good_dq)?"":" BDQ") );
+    }
+  }
+  return StatusCode::SUCCESS;
 }

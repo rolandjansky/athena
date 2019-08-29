@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 751303 2016-06-01 08:40:23Z krasznaa $
 ################################################################################
 # Package: IOVDbSvc
 ################################################################################
@@ -53,7 +52,7 @@ atlas_add_component( IOVDbSvc
 
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8})
 atlas_install_joboptions( share/*.py )
 atlas_install_joboptions( share/*.txt )
 
@@ -137,6 +136,7 @@ atlas_add_test( TagFunctions_test
                 test/TagFunctions_test.cxx src/TagFunctions.cxx src/IOVDbStringFunctions.cxx
                 INCLUDE_DIRS ${COOL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}     ${CURL_INCLUDE_DIRS}   
                 LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES}  AthenaKernel  StoreGateLib  GaudiKernel TestTools EventInfo IOVSvcLib  PersistentDataModel ${COOL_LIBRARIES}  ${CURL_LIBRARIES}
+                POST_EXEC_SCRIPT "nopost.sh"
                 )
                 
 atlas_add_test( IOVDbSvcCurl_test

@@ -16,6 +16,7 @@ TrkAmbiguitySolver Algorithm
 #include "TrkTrack/TrackCollection.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
+#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include <string>
 
 namespace Trk 
@@ -42,7 +43,7 @@ namespace Trk
 
     private:
       //!<where to find tracks (set in jobOptions and can be multiple collections
-      SG::ReadHandleKey<std::multimap<const Track*, float>> m_scoredTracksKey;
+      SG::ReadHandleKey<TracksScores> m_scoredTracksKey;
       SG::WriteHandleKey<TrackCollection> m_resolvedTracksKey;//!<where to save the resolved tracks
       ToolHandle<ITrackAmbiguityProcessorTool> m_ambiTool;
       

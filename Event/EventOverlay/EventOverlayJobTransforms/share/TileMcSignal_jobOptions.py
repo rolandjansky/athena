@@ -98,23 +98,6 @@ if DetFlags.overlay.Tile_on():
       ToolSvc += newTileRawChannelBuilderFitFilterCool
       job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderFitFilterCool ]
 
-   if jobproperties.TileRecFlags.doTileOpt():
-      from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOptFilter
-      newTileRawChannelBuilderOptFilter= TileRawChannelBuilderOptFilter("newTileRawChannelBuilderOptFilter")
-      newTileRawChannelBuilderOptFilter.TileRawChannelContainer = newKey(ToolSvc.TileRawChannelBuilderOptFilter.TileRawChannelContainer)
-      newTileRawChannelBuilderOptFilter.TileDQstatus = 'BkgEvent_0_SG+TileDQstatus'
-      newTileRawChannelBuilderOptFilter.RunType = ToolSvc.TileRawChannelBuilderOptFilter.RunType
-      newTileRawChannelBuilderOptFilter.calibrateEnergy = ToolSvc.TileRawChannelBuilderOptFilter.calibrateEnergy
-      newTileRawChannelBuilderOptFilter.correctTime     = ToolSvc.TileRawChannelBuilderOptFilter.correctTime
-      newTileRawChannelBuilderOptFilter.OF2 = ToolSvc.TileRawChannelBuilderOptFilter.OF2
-      newTileRawChannelBuilderOptFilter.PedestalMode = ToolSvc.TileRawChannelBuilderOptFilter.PedestalMode
-      newTileRawChannelBuilderOptFilter.MaxIterations = ToolSvc.TileRawChannelBuilderOptFilter.MaxIterations
-      newTileRawChannelBuilderOptFilter.Minus1Iteration = ToolSvc.TileRawChannelBuilderOptFilter.Minus1Iteration
-      newTileRawChannelBuilderOptFilter.AmplitudeCorrection = ToolSvc.TileRawChannelBuilderOptFilter.AmplitudeCorrection 
-      newTileRawChannelBuilderOptFilter.EvtStore = "BkgEvent_0_SG"
-      ToolSvc += newTileRawChannelBuilderOptFilter
-      job.newTileRawChannelMaker.TileRawChannelBuilder += [ ToolSvc.newTileRawChannelBuilderOptFilter ]
-
    if jobproperties.TileRecFlags.doTileOpt2():
       ToolSvc +=  ToolSvc.TileRawChannelBuilderOpt2Filter.clone("newTileRawChannelBuilderOpt2Filter")
       ToolSvc.newTileRawChannelBuilderOpt2Filter.EvtStore="BkgEvent_0_SG"

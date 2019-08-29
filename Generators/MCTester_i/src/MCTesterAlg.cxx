@@ -51,7 +51,6 @@ MCTesterAlg::MCTesterAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("collision_E", m_collision_E=14000000.0);
   declareProperty("collision_check_sum_margin", m_collision_check_sum_margin=1);
 
-  m_sgSvc = 0;
   m_decay_name = 0;
   
   m_events_total = 0;
@@ -66,13 +65,6 @@ MCTesterAlg::MCTesterAlg(const std::string& name, ISvcLocator* pSvcLocator) :
 StatusCode MCTesterAlg::initialize()
 {
   ATH_MSG_DEBUG( "initialize()" );
-
-  // Get the Storegate collection
-  StatusCode sc = service("StoreGateSvc", m_sgSvc);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not find StoreGateSvc" );
-    return sc;
-  }
 
   //Setup and intiatlise MC-Tester
   Setup::decay_particle=m_decay_particle;
@@ -128,7 +120,7 @@ StatusCode MCTesterAlg::execute()
   
   //Load event info
   const EventInfo * mcInfoptr;
-  if ( m_sgSvc->retrieve(mcInfoptr, m_infokey).isFailure() ) {
+  if ( evtStore()->retrieve(mcInfoptr, m_infokey).isFailure() ) {
     ATH_MSG_ERROR( "Could not retrieve EventInfo" );
     return StatusCode::FAILURE;
   } else{
@@ -140,7 +132,7 @@ StatusCode MCTesterAlg::execute()
 
   //Load HepMC info
   const McEventCollection* mcCollptr;
-  if ( m_sgSvc->retrieve(mcCollptr, m_key).isFailure() ) {
+  if ( evtStore()->retrieve(mcCollptr, m_key).isFailure() ) {
     ATH_MSG_ERROR( "Could not retrieve McEventCollection" );
     return StatusCode::FAILURE;
   } else {

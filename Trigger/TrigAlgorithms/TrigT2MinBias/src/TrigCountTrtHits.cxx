@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCountTrtHits.h"
@@ -18,8 +18,6 @@
 TrigCountTrtHits::TrigCountTrtHits(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
     m_hltExecuteInitialisationRun(false),
-    m_detStore("DetectorStore", name),
-    m_storeGate("StoreGateSvc", name),
     m_trtHelper(0),
     m_rawDataTool("TrigTRT_DriftCircleProviderTool"),
     m_endcapC(0),
@@ -69,21 +67,8 @@ HLT::ErrorCode TrigCountTrtHits::hltInitialize() {
   ATH_MSG_DEBUG("Initialising this TrigCountTrtHits: " << name());
   StatusCode sc = StatusCode::FAILURE;
 
-  // Get storegate svc
-  if(m_detStore.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to connect to " << m_detStore.typeAndName());
-    return HLT::BAD_JOB_SETUP;
-  } else
-    ATH_MSG_INFO("Retrieved service " << m_detStore.typeAndName());
-
-  if(m_storeGate.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to connect to " << m_storeGate.typeAndName());
-    return HLT::BAD_JOB_SETUP;
-  } else
-    ATH_MSG_INFO("Retrieved service " << m_storeGate.typeAndName());
-
   // Get a TRT identifier helper
-  sc = m_detStore->retrieve(m_trtHelper, "TRT_ID");
+  sc = detStore()->retrieve(m_trtHelper, "TRT_ID");
   if(sc.isFailure()) {
     ATH_MSG_ERROR("Failed to retrieve " << m_trtHelper); // fatal?
     return HLT::BAD_JOB_SETUP;
@@ -248,7 +233,7 @@ HLT::ErrorCode TrigCountTrtHits::hltExecute(std::vector<std::vector<HLT::Trigger
     }
 
     const TRT_RDO_Container *trtContainer;
-    StatusCode sc_sg = m_storeGate->retrieve( trtContainer, m_trtRdoContainerName );
+    StatusCode sc_sg = evtStore()->retrieve( trtContainer, m_trtRdoContainerName );
 
     if( sc_sg.isFailure() ){
       ATH_MSG_ERROR(" Failed to retrieve trt data from SG. "); 

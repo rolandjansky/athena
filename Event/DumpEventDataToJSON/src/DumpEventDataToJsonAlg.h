@@ -19,8 +19,6 @@
 #include <vector>
 #include <map>
 
-class StoreGateSvc;
-
 /** Algorithm to dump some Event data to JSON. 
 */
 class DumpEventDataToJsonAlg : public AthAlgorithm

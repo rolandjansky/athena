@@ -28,8 +28,6 @@ LArSuperCellBuilderDriver::LArSuperCellBuilderDriver (const std::string& name,
                                           ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
   m_params (0),
-  m_storeGateSvc(NULL),
-  m_detStore(NULL),
   m_toolSvc(NULL),
   m_onlineHelper(0),
   m_DataLocation("FREE"),

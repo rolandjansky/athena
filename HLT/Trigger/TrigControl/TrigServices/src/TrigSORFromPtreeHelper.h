@@ -31,29 +31,45 @@ public:
    * @params msgSvc    Pointer to MessageSvc
    * @params detStore  Handle to DetectorStore
    * @params sorpath   COOL folder path of SOR record (e.g. /TDAQ/RunCtrl/SOR_Params)
+   * @params rparams   RunParams record
    */
-  TrigSORFromPtreeHelper(IMessageSvc* msgSvc, const ServiceHandle<StoreGateSvc>& detStore, const std::string& sorpath);
+  TrigSORFromPtreeHelper(IMessageSvc* msgSvc, const ServiceHandle<StoreGateSvc>& detStore,
+                         const std::string& sorpath, const boost::property_tree::ptree& rparams);
 
   /**
-   * Fill SOR record in Detector Store, reusing if present or creating new one
-   * otherwise. SOR contents filled according to what is specified by rparams.
-   * Validity of SOR set to this run
+   * Overwrite run number from RunParams
+   * @params run  New run number
    */
-  StatusCode fillSOR(const boost::property_tree::ptree& rparams, const EventContext& ctx) const;
+  void setRunNumber(unsigned int run) { m_runNumber = run; }
+
+  /**
+   * Overwrite SOR time from RunParams
+   * @params sorTime_ns  New start of run time in nanoseconds since epoch
+   */
+  void setSORtime_ns(unsigned long long sorTime_ns) { m_sorTime_ns = sorTime_ns; }
+
+  /**
+   * Fill SOR record in Detector Store, reusing if present or creating new one otherwise/
+   * @params ctx  EventContext to be used for IOVDbSvc
+   */
+  StatusCode fillSOR(const EventContext& ctx) const;
 
   /**
    * Create an EventIDBase filled with the value from rparams
    */
-  EventIDBase eventID(const boost::property_tree::ptree& rparams) const;
+  EventIDBase eventID() const;
 
 private:
-  StatusCode createSOR(const boost::property_tree::ptree& rparams) const;
-  coral::AttributeList getAttrList(const boost::property_tree::ptree& rparams) const;
+  StatusCode createSOR() const;
+  coral::AttributeList getAttrList() const;
   StatusCode setIOVRange(IOVRange& iovRange) const;
   StatusCode updateProxy(SOR* sor) const;
 
   ServiceHandle<StoreGateSvc> m_detStore;
   std::string m_sorpath;
+  const boost::property_tree::ptree& m_rparams;
+  unsigned int m_runNumber{0};
+  unsigned long long m_sorTime_ns{0};
 };
 
 #endif /* TRIGSORFROMPTREEHELPER_H_ */

@@ -245,14 +245,23 @@ namespace TrigCompositeUtils {
     const bool enforceDecisionOnNode = true);
 
   /**
+   * @brief Additional information returned by the TrigerDecisionTool's feature retrieval, contained within the LinkInfo.
+   **/
+  enum ActiveState {
+    UNSET, //!< Default property of state. Indicates that the creator of the LinkInfo did not supply this information
+    ACTIVE, //!< The link was still active for one-or-more of the HLT Chains requested in the TDT
+    INACTIVE //!< The link was inactive for all of the HLT Chains requested in the TDT. I.e. the object was rejected by these chains.
+  };
+
+  /**
    * @brief Helper to keep the TC & object it has linked together (for convenience)
    **/
   template<typename T>
   struct LinkInfo {
     LinkInfo()
       : source{0} {}
-    LinkInfo(const xAOD::TrigComposite *s, const ElementLink<T>& l)
-      : source{s}, link{l} {}
+    LinkInfo(const xAOD::TrigComposite *s, const ElementLink<T>& l, ActiveState as = ActiveState::UNSET)
+      : source{s}, link{l}, state{as} {}
 
     bool isValid() const {
       return source && link.isValid(); }
@@ -264,6 +273,7 @@ namespace TrigCompositeUtils {
 
     const xAOD::TrigComposite *source;
     ElementLink<T> link;
+    ActiveState state;
   };
 
 
@@ -281,15 +291,17 @@ namespace TrigCompositeUtils {
   /**
    * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
    * @param[in] linkVector Vector of paths through the navigation which are to be considered.
-   * @param[oneFeaturePerLeg] oneFeaturePerLeg True for TrigDefs::oneFeaturePerLeg. stops at the first feature (of the correct type) found per path through the navigation.
+   * @param[in] oneFeaturePerLeg True for TrigDefs::oneFeaturePerLeg. stops at the first feature (of the correct type) found per path through the navigation.
    * @param[in] featureName Optional name of feature link as saved online. The "feature" link is enforced, others may have been added. 
+   * @param[in] chains Optional set of Chain IDs which features are being requested for. Used to set the ActiveState of returned LinkInfo objects.
    * @return Typed vector of LinkInfo. Each LinkInfo wraps an ElementLink to a feature and a pointer to the feature's Decision object in the navigation.
    **/
   template<class CONTAINER>
   const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( 
     const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
     const bool oneFeaturePerLeg = true,
-    const std::string& featureName = featureString());
+    const std::string& featureName = featureString(),
+    const DecisionIDContainer chainIDs = DecisionIDContainer());
 
   /**
    * @brief search back the TC links for the object of type T linked to the one of TC (recursively).

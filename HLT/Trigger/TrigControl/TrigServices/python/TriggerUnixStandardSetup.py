@@ -56,6 +56,10 @@ def setupCommonServices():
     topSequence = AlgSequence()
     topSequence += SGInputLoader(FailIfNoProxy = False)  # change to True eventually
 
+    # Basic operational monitoring
+    from TrigOnlineMonitor.TrigOnlineMonitorConf import TrigOpMonitor
+    topSequence += TrigOpMonitor()
+
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.ShowDataDependencies(False)
     AlgScheduler.ShowControlFlow(False)
@@ -159,7 +163,7 @@ def setupCommonServicesEnd():
     if _Conf.useOnlineTHistSvc:
         svcMgr.THistSvc.Output = []
         if len(svcMgr.THistSvc.Input)>0:
-            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.' % svcMgr.THistSvc.Input)
+            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.', svcMgr.THistSvc.Input)
             svcMgr.THistSvc.Input = []
 
     # For offline running make sure at least the EXPERT stream is defined

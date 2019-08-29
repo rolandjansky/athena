@@ -49,7 +49,7 @@ namespace Analysis {
   class IJetFitterNtupleWriter;
   class IJetFitterClassifierTool;
 
-  class JetFitterTag : public AthAlgTool , virtual public ITagTool
+  class JetFitterTag : public extends<AthAlgTool, ITagTool>
   {
     public:
       JetFitterTag(const std::string&,
@@ -60,19 +60,14 @@ namespace Analysis {
        Implementations of the methods defined in the abstract base class
     */
     virtual ~JetFitterTag();
-    StatusCode initialize();
-    StatusCode finalize();
-    virtual void finalizeHistos();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual void finalizeHistos() override;
       
-    /** Set the primary vertex. TODO: This is temporary ! 
-	The primary vertex should be part of the JetTag IParticle 
-	interface implementation. 
-	The trouble with ElementLink and persistency has to be solved
-	for that. Revisit ... 
-    */
-    void setOrigin(const xAOD::Vertex*);
-      
-    virtual StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag);   
+
+    virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag) const override;
     
   private:      
 
@@ -97,7 +92,7 @@ namespace Analysis {
     
 
   }; // End class
-  inline void JetFitterTag::setOrigin(const xAOD::Vertex*) { return; }
+
 } // End namespace 
 
 #endif

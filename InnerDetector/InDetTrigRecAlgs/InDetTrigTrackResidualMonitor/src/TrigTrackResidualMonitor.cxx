@@ -30,6 +30,7 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkGeometry/TrackingVolume.h"

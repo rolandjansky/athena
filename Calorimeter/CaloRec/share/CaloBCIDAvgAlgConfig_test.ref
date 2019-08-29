@@ -1,4 +1,4 @@
-Py:Athena            INFO using release [WorkDir-22.0.4] [x86_64-centos7-gcc8-opt] [LArAndTileCellConfig4/16959b9] -- built on [2019-08-16T1512]
+Py:Athena            INFO using release [WorkDir-22.0.4] [x86_64-centos7-gcc8-opt] [master-tile-do-opt-flag-remove/1fe8536d56] -- built on [2019-08-26T1803]
 --- data
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
 Py:MetaReader        INFO Current mode used: peeker
@@ -40,11 +40,14 @@ Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProvide
 Py:ComponentAccumulator    INFO Public Tools
 Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
 --- mc
 Py:LArOFCCondAlgCfg    INFO   Standard OFC optimization computation
 Py:BunchCrossingTool    INFO Selecting MCBunchCrossingTool for this job
 Py:MCBunchCrossingTool    INFO Set the default values for the MCBunchCrossingTool configuration
-Py:ConfigurableDb    INFO Read module info for 5527 configurables from 20 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5532 configurables from 11 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EventInfoMgtInit: Got release version  Athena-22.0.4
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
@@ -113,6 +116,9 @@ Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProvide
 Py:ComponentAccumulator    INFO Public Tools
 Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
 --- online
 Py:LuminosityCondAlg    INFO luminosityCondAlgRun2Config requested /TRIGGER/OFLLUMI/OflPrefLumi
 Py:LuminosityCondAlg    INFO Created Run2 LuminosityCondAlg using folder /TRIGGER/OFLLUMI/OflPrefLumi
@@ -149,5 +155,8 @@ Py:ComponentAccumulator    INFO      * WriteKey: LArShape32Sym
 Py:ComponentAccumulator    INFO Services
 Py:ComponentAccumulator    INFO ['IOVDbSvc', 'PoolSvc', 'CondSvc', 'ProxyProviderSvc', 'DBReplicaSvc', 'AthenaPoolCnvSvc', 'EventPersistencySvc']
 Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+Py:ComponentAccumulator    INFO Private Tools
 Py:ComponentAccumulator    INFO [
 Py:ComponentAccumulator    INFO ]

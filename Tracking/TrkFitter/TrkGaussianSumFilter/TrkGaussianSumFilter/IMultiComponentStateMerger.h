@@ -17,6 +17,7 @@ decription           : Abstract base class for component reduction tools for the
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
+#include <memory>
 
 namespace Trk {
 
@@ -33,7 +34,7 @@ public:
   virtual ~IMultiComponentStateMerger(){};
 
   /** Method for merging components based on some criteria of selection */
-  virtual MultiComponentState* merge(const MultiComponentState&) const = 0;
+  virtual std::unique_ptr<MultiComponentState> merge(const MultiComponentState&) const = 0;
 };
 
 } // end Trk namespace

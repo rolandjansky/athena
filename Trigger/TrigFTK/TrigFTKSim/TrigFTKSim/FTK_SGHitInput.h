@@ -69,7 +69,6 @@ private:
 
   AtlasDetectorID* m_idHelper;
   StoreGateSvc*  m_storeGate;
-  StoreGateSvc*  m_detStore;
 
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;

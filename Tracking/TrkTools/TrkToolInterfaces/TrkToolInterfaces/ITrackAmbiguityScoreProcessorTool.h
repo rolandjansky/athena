@@ -7,6 +7,8 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkTrack/TrackCollection.h" // typedef
+#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
+
 
 static const InterfaceID IID_ITrackAmbiguityScoreProcessorTool("Trk::ITrackAmbiguityScoreProcessorTool", 1, 0);
 
@@ -26,7 +28,7 @@ class ITrackAmbiguityScoreProcessorTool : virtual public IAlgTool
 	@param tracks collection of tracks which will have ambiguities resolved. Will not be modified.
 	@return  map of score and track. Ownership is passed on 
 	(i.e. client handles deletion)*/
-        virtual void process(std::vector<const Track*>* tracks , std::multimap<const Track*, float>* trackScoreTrackMap) = 0;
+        virtual void process(std::vector<const Track*>* tracks , TracksScores* scoredTracks) = 0;
 
         /** statistics */
         virtual void statistics() {};

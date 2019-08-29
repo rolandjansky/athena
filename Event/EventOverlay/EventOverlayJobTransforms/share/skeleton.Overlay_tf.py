@@ -154,8 +154,17 @@ include("EventOverlayJobTransforms/OverlayInput_jobOptions.py")
 if DetFlags.overlay.Truth_on():
     include("EventOverlayJobTransforms/TruthOverlay_jobOptions.py")
 
+if DetFlags.overlay.BCM_on() or DetFlags.overlay.Lucid_on():
+    include ( "EventOverlayJobTransforms/BeamOverlay_jobOptions.py" )
+
 if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
     include("EventOverlayJobTransforms/InnerDetectorOverlay_jobOptions.py")
+
+if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
+    include ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
+
+if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on() or DetFlags.overlay.Micromegas_on():
+    include ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
 
 # save the overlay output
 include("EventOverlayJobTransforms/OverlayOutput_jobOptions.py")

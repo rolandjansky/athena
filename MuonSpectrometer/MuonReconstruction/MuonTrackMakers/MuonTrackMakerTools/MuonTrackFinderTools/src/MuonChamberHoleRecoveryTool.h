@@ -14,7 +14,7 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
-
+#include "MuonCondData/MdtCondDbData.h"
 #include "TrkTrack/Track.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
@@ -28,6 +28,7 @@ static const InterfaceID IID_MuonChamberHoleRecoveryTool("Muon::MuonChamberHoleR
 class MsgStream;
 class StoreGateSvc;
 
+class MdtCondDbData;
 class MuonStationIntersectSvc;
 class RpcIdHelper;
 class MdtIdHelper;
@@ -203,6 +204,7 @@ namespace Muon {
     SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};
     SG::ReadHandleKey<Muon::sTgcPrepDataContainer> m_key_stgc{this,"sTgcPrepDataContainer","STGC_Measurements","sTGC PRDs"};
     SG::ReadHandleKey<Muon::MMPrepDataContainer> m_key_mm{this,"MMPrepDataContainer","MM_Measurements","MM PRDs"};
+    SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
 
     bool m_addMeasurements;
     double m_associationPullCutEta;

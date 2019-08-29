@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -19,7 +19,6 @@
 #include "D3PDMakerTest/MyVec2.h"
 #include "ParticleEvent/SelectedParticles.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/make_unique.h"

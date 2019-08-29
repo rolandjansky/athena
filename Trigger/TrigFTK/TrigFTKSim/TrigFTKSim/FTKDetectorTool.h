@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTKDetectorTool_h
@@ -32,7 +32,6 @@
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "HepPDT/ParticleData.hh"
@@ -42,7 +41,6 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 class AtlasDetectorID;
-class StoreGateSvc;
 class ITruthParameters;
 class TruthSelector;
 class PixelID;
@@ -68,9 +66,6 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
   mutable MsgStream m_log;
   
   std::string m_dumppath;
-  StoreGateSvc*  m_storeGate;
-  StoreGateSvc*  m_detStore;
-  StoreGateSvc*  m_evtStore;
      
   const  InDetDD::PixelDetectorManager*     m_PIX_mgr;
   

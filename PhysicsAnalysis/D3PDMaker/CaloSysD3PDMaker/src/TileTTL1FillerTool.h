@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -12,7 +12,6 @@
 #ifndef TILETTL1FILLERTOOL_H
 #define	TILETTL1FILLERTOOL_H
 
-#include "StoreGate/StoreGateSvc.h"
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "TileEvent/TileTTL1Container.h"
 #include "TileEvent/TileTTL1.h"
@@ -51,9 +50,6 @@ public:
     virtual StatusCode fill (const TileTTL1& p);
     
 private:
-    /** A data member to retain a connection to the Detector Store. */
-    StoreGateSvc* m_detStore;
-    
     /** 
      * A data member to retain a pointer to the Tile Test Beam
      * Identifier service.  The MBTS identifiers were added after the

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //  file:   InDetRecStatisticsAlg.cxx
@@ -179,14 +179,7 @@ StatusCode InDet::InDetRecStatisticsAlg::initialize(){
   ATH_MSG_DEBUG("initialize()");
 
 
-  //locate the StoreGateSvc and initialize our local ptr
-  StatusCode sc1 = evtStore().retrieve();
-  if (!sc1.isSuccess()) {
-    ATH_MSG_ERROR ("Could not find StoreGateSvc");
-    return StatusCode::FAILURE;
-  }
-  
-  sc1 = getServices();           // retrieve store gate service etc
+  StatusCode sc1 = getServices();           // retrieve store gate service etc
   if (sc1.isFailure()) {
     ATH_MSG_FATAL("Error retrieving services !");
     return StatusCode::FAILURE;

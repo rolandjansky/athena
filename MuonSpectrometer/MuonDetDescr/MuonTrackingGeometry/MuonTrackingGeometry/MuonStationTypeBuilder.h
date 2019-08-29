@@ -67,7 +67,7 @@ namespace Muon {
       /** steering routine */
       const Trk::TrackingVolumeArray* processBoxStationComponents(const GeoVPhysVol* cv, Trk::CuboidVolumeBounds* envBounds) const; 
       const Trk::TrackingVolumeArray* processTrdStationComponents(const GeoVPhysVol* cv, Trk::TrapezoidVolumeBounds* envBounds) const; 
-      const Trk::TrackingVolume* processCscStation(const GeoVPhysVol* cv, std::string name) const; 
+      Trk::TrackingVolume* processCscStation(const GeoVPhysVol* cv, std::string name) const; 
       std::vector<const Trk::TrackingVolume*> processTgcStation(const GeoVPhysVol* cv) const; 
       /** components */
       const Trk::TrackingVolume* processMdtBox(Trk::Volume*&,const GeoVPhysVol*&, Amg::Transform3D*, double ) const;

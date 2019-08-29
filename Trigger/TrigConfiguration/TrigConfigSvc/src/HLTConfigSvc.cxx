@@ -146,8 +146,8 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_e5_etcut"] = "L1_EM3";
       dummyChains["HLT_e7_etcut"] = "L1_EM7";
       // for menu test
-      dummyChains["HLT_2j330_a10t_lcw_jes_30smcINF_L1J20"] = "L1_J20";
-      dummyChains["HLT_j420_a10t_lcw_jes_30smcINF_L1J20"] = "L1_J20";
+      dummyChains["HLT_2j330_a10t_lcw_jes_35smcINF_L1J100"] = "L1_J100";
+      dummyChains["HLT_j460_a10t_lcw_jes_30smcINF_L1J100"] = "L1_J100";
       dummyChains["HLT_mu26_ivarmedium_L1MU20"] = "L1_MU20";
       dummyChains["HLT_mu50_L1MU20"] = "L1_MU20";
       dummyChains["HLT_2mu14_L12MU10"] = "L1_2MU10";
@@ -166,7 +166,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_2mu6Comb_L12MU6"] = "L1_2MU6";
       dummyChains["HLT_2mu6_bJpsimumu_L12MU6"] = "L1_2MU6";
       dummyChains["HLT_3j200_L1J20"] = "L1_J20";
-      dummyChains["HLT_5j70_0eta240_L1J20"] = "L1_J20";
+      dummyChains["HLT_5j70_0eta240_L14J20"] = "L1_4J20";
       dummyChains["HLT_e3_etcut1step_mu6fast_L1EM8I_MU10"] = "L1_EM8I_MU10";
       dummyChains["HLT_e3_etcut_mu6"] = "L1_EM8I_MU10";
       dummyChains["HLT_g5_etcut"] = "L1_EM3";
@@ -174,7 +174,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_j225_gsc420_boffperf_split20"] = "L1_J100";
       dummyChains["HLT_j260_320eta490_L1J20"] = "L1_J20";
       dummyChains["HLT_j420_L1J20"] = "L1_J20";
-      dummyChains["HLT_j45_L1J20"] = "L1_J20";
+      dummyChains["HLT_j45_L1J15"] = "L1_J15";
       dummyChains["HLT_j460_a10_lcw_subjes_L1J20"] = "L1_J20";
       dummyChains["HLT_j460_a10r_L1J20"] = "L1_J20";
       dummyChains["HLT_mu20_ivar_L1MU6"] = "L1_MU6";

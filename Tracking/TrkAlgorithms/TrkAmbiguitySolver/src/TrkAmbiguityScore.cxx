@@ -2,17 +2,16 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrkAmbiguitySolver/TrkAmbiguityScore.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
-#include "TrkToolInterfaces/ITrackAmbiguityScoreProcessorTool.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "TrkAmbiguitySolver/TrkAmbiguityScore.h"
+#include "TrkToolInterfaces/ITrackAmbiguityScoreProcessorTool.h"
 
 Trk::TrkAmbiguityScore::TrkAmbiguityScore(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm (name, pSvcLocator),
   m_originTracksKey{""},
   m_scoredTracksKey("Tracks"),
   m_scoreTool("",this)
-{  
+{
   declareProperty("TrackInput"        , m_originTracksKey);
   declareProperty("TrackOutput"       , m_scoredTracksKey);
   declareProperty("AmbiguityScoreProcessor", m_scoreTool);
@@ -43,29 +42,29 @@ Trk::TrkAmbiguityScore::execute()
   std::vector<SG::ReadHandle<TrackCollection>> handles = m_originTracksKey.makeHandles();
   size_t totalsize = 0;
   for (SG::ReadHandle<TrackCollection>& trackColHandle : handles) {
-     if (!trackColHandle.isValid())    
+     if (!trackColHandle.isValid())
        msg(MSG::WARNING) << "Could not retrieve tracks from "<< trackColHandle.key() << endmsg;
      totalsize += trackColHandle->size();
   }
-  
+
   std::vector<const Track*> originTracks;
   originTracks.reserve(totalsize);
   for (SG::ReadHandle<TrackCollection>& trackColHandle : handles) {
     for(const Track* trk: *trackColHandle )
       originTracks.push_back(trk);
   }
-  
-  std::unique_ptr<std::multimap<const Track*, float>> scoredTracks(new std::multimap<const Track*, float>);
+
+  std::unique_ptr<TracksScores> scoredTracks(new TracksScores);
   if (m_scoreTool.isEnabled()){
     m_scoreTool->process(&originTracks, scoredTracks.get());
   }
   else{
     for(const Track* trk: originTracks ){
-      scoredTracks->insert( std::pair<Track*, float>(new Track(*trk), 0)); //TODO: logpT 
+      scoredTracks->push_back( std::pair<Track*, float>(new Track(*trk), 0));//TODO: logpT
     }
   }
-  
-  SG::WriteHandle<std::multimap<const Track*, float>> scoredTracksHandle(m_scoredTracksKey);
+
+  SG::WriteHandle<TracksScores> scoredTracksHandle(m_scoredTracksKey);
   ATH_CHECK(scoredTracksHandle.record(std::move(scoredTracks)));
   return StatusCode::SUCCESS;
 }

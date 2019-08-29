@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -22,29 +22,14 @@ using xAOD::EventInfo;
  (and counts, possibly energies) usable by all clients.
  */
 
-MBTSTimeDiffEventInfoAlg::MBTSTimeDiffEventInfoAlg(const std::string &name,
-    ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
-  , m_timeDiffThreshold(10.0)
-  , m_minhitsperside(2)
-  , m_mbts_threshold(40.0 / 222.0)
-  , m_tileTBID(0)
-  , m_mask(TileCell::MASK_BADCH | TileCell::MASK_OVER | TileCell::MASK_TIME)
-  , m_pattern(TileCell::MASK_TIME)
-{
-  declareProperty("MBTS_Threshold", m_mbts_threshold);  // Value in pC
-  declareProperty("MinHitsPerSide", m_minhitsperside);
-  declareProperty("TimeDiffThreshold", m_timeDiffThreshold);
-}
-
 StatusCode MBTSTimeDiffEventInfoAlg::initialize() {
-  if (m_minhitsperside == 0) {
-    m_minhitsperside = 1; //Avoid div-by-zero later
+  if (m_minHitsPerSide == 0) {
+    m_minHitsPerSide = 1; //Avoid div-by-zero later
   }
 
   ATH_MSG_INFO("Initializing. MBTS_Threshold=" << m_mbts_threshold
-               << ", MinHitsPerSide=" << m_minhitsperside
-               << ",TimeDiffThreshold=" << m_timeDiffThreshold );
+               << ", MinHitsPerSide=" << m_minHitsPerSide
+               << ", TimeDiffThreshold=" << m_timeDiffThreshold );
 
   CHECK( detStore()->retrieve(m_tileTBID));
 
@@ -55,13 +40,10 @@ StatusCode MBTSTimeDiffEventInfoAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MBTSTimeDiffEventInfoAlg::finalize() {
-  return StatusCode::SUCCESS;
-}
 
-StatusCode MBTSTimeDiffEventInfoAlg::execute() {
+StatusCode MBTSTimeDiffEventInfoAlg::execute(const EventContext& ctx) const {
 
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey, ctx);
 
   float eneA = 0.F;
   float eneC = 0.F;
@@ -70,7 +52,7 @@ StatusCode MBTSTimeDiffEventInfoAlg::execute() {
   unsigned countA = 0;
   unsigned countC = 0;
 
-  SG::ReadHandle<TileCellContainer> mbtsContainer (m_mbtsContainerKey);
+  SG::ReadHandle<TileCellContainer> mbtsContainer (m_mbtsContainerKey, ctx);
   ATH_CHECK( mbtsContainer.isValid() );
 
   for (const TileCell* mbtsCell : *mbtsContainer) {
@@ -122,7 +104,7 @@ StatusCode MBTSTimeDiffEventInfoAlg::execute() {
   if (countA > 0) timeA /= countA;
   if (countC > 0) timeC /= countC;
 
-  if (countA > m_minhitsperside && countC > m_minhitsperside) {
+  if (countA > m_minHitsPerSide && countC > m_minHitsPerSide) {
     ATH_MSG_DEBUG( "Got MBTS cells above threshold on both sides" );
     const float timediff = fabs(timeA - timeC);
     ATH_MSG_DEBUG( "Time diff " << timediff << "(" << m_timeDiffThreshold << ")");
@@ -149,7 +131,7 @@ StatusCode MBTSTimeDiffEventInfoAlg::execute() {
     ATH_MSG_DEBUG( "Not enough hits above threshold to distinguish halo from collision event");
   }
 
-  SG::WriteHandle<MBTSCollisionTime> mbtsTime(m_mbtsCollisionTimeKey);
+  SG::WriteHandle<MBTSCollisionTime> mbtsTime(m_mbtsCollisionTimeKey, ctx);
 
   if (mbtsTime.record(std::make_unique<MBTSCollisionTime>(countA, countC, eneA, eneC, timeA, timeC)).isFailure()) {
     ATH_MSG_WARNING( "Cannot record MBTSCollisionTime " );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -13,7 +13,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "AthenaKernel/Timeout.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "InDetTrigPrepRawDataFormat/FTK_TrackMaker.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h" 

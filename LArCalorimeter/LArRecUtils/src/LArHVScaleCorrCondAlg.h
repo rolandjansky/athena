@@ -26,7 +26,6 @@
 #include "LArCOOLConditions/LArHVScaleCorrFlat.h"
 #include "LArRecConditions/LArHVCorr.h"
 
-class StoreGateSvc; 
 class LArElectrodeID;
 
 class LArHVScaleCorrCondAlg: public AthAlgorithm

@@ -5,7 +5,6 @@
 #include "TrkAmbiguitySolver/TrkAmbiguitySolver.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityScoreProcessorTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
 Trk::TrkAmbiguitySolver::TrkAmbiguitySolver(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm (name, pSvcLocator),
@@ -50,26 +49,23 @@ StatusCode
 Trk::TrkAmbiguitySolver::execute()
 {
   ATH_MSG_VERBOSE ("TrkAmbiguitySolver::execute()");
-  SG::ReadHandle<std::multimap<const Track*, float>> scoredTracksHandle(m_scoredTracksKey);
+  SG::ReadHandle<TracksScores> scoredTracksHandle(m_scoredTracksKey);
   if ( !scoredTracksHandle.isValid() )  ATH_MSG_ERROR("Could not read scoredTracks.");
 
-  std::unique_ptr<TrackCollection> resolvedTracks(new TrackCollection); 
+  std::unique_ptr<TrackCollection> resolvedTracks = std::make_unique<TrackCollection>();
   if (m_applySolve){
-    std::multimap<const Track*, float> scoredTracks;
-    for(auto &e: *scoredTracksHandle)
-      scoredTracks.insert(std::make_pair(new Track(*(e.first)), e.second)); //cloned
-    
+    Trk::TracksScores scoredTracks(*scoredTracksHandle);
     resolvedTracks.reset(m_ambiTool->process(&scoredTracks)); //note: take ownership and delete
   }
   else{
     resolvedTracks->reserve(scoredTracksHandle->size());
     for(auto &e: *scoredTracksHandle)
-      resolvedTracks->push_back(new Track(*(e.first))); //cloned
+      resolvedTracks->push_back(const_cast<Track*>(e.first));
   }
 
   SG::WriteHandle<TrackCollection> resolvedTracksHandle(m_resolvedTracksKey);
   ATH_CHECK(resolvedTracksHandle.record(std::move(resolvedTracks)));
-  ATH_MSG_VERBOSE ("Saved "<<resolvedTracksHandle->size()<<" tracks");  
+  ATH_MSG_VERBOSE ("Saved "<<resolvedTracksHandle->size()<<" tracks");
   return StatusCode::SUCCESS;
 }
 

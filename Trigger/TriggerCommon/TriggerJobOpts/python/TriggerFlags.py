@@ -898,7 +898,7 @@ class outputHLTmenuJsonFile(JobProperty):
         else:
             return self.get_Value()
 
-_flags.append(outputHLTmenuFile)
+_flags.append(outputHLTmenuJsonFile)
 
 class inputL1TopoConfigFile(JobProperty):
     """Used to define an external L1Topo configuration file. To be

@@ -12,12 +12,13 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackToSegmentTool.h"
 #include "TrkParameters/TrackParameters.h"
-
+#include "MuonCondData/MdtCondDbData.h"
 #include "Identifier/Identifier.h"
 
 
 #include <vector>
 
+class MdtCondDbData;
 class MuonStationIntersectSvc;
 class MsgStream;
 
@@ -73,14 +74,16 @@ namespace Muon {
     /** @brief calculate holes */
     std::vector<Identifier> calculateHoles( const Identifier& chid, const Trk::TrackParameters& pars, const MeasVec& measurements ) const;
 
-    
-    ServiceHandle<MuonStationIntersectSvc> m_intersectSvc;     //<! pointer to hole search service
+    const MuonGM::MuonDetectorManager* m_detMgr;            //<! pointer to detector manager
+    ServiceHandle<MuonStationIntersectSvc> m_intersectSvc;  //<! pointer to hole search service
     ToolHandle<Trk::IPropagator>        m_propagator;       //<! propagator
     ToolHandle<MuonIdHelperTool>        m_idHelperTool;     //<! tool to assist with Identifiers
     ServiceHandle<IMuonEDMHelperSvc>    m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };       //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>      m_printer;          //<! tool to print out EDM objects
+
+    SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
 
   };
 

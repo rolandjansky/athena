@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCellRescaler.h" 
@@ -22,14 +22,6 @@ LArCellRescaler::~LArCellRescaler() {}
 
 StatusCode LArCellRescaler::initialize() {
   ATH_MSG_INFO( " initialization "  );
-
-  // sc=m_detStore->regHandle(m_factors,m_key);
-//   if (sc.isFailure()) {
-//     log << MSG::ERROR << "Cound not register DataHandle<CaloRec::CaloCellFactor> with key "
-// 	<< m_key << endmsg;
-//     return sc;
-//   }
-
 
   ATH_CHECK( detStore()->regFcn(&LArCellRescaler::checkConstants,
                                 dynamic_cast<LArCellRescaler*>(this),

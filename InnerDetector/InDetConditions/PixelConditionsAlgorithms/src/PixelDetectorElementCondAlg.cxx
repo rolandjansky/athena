@@ -116,7 +116,7 @@ StatusCode PixelDetectorElementCondAlg::execute(const EventContext& ctx) const
 
   // Apply alignment using readCdo passed to SiDetectorElement
   for (InDetDD::SiDetectorElement* newEl: *writeCdo) {
-    newEl->updateCache();
+    newEl->setCache();
   }
 
   // Record WriteCondHandle

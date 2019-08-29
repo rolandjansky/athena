@@ -16,9 +16,10 @@ TrkAmbiguityScore Algorithm
 #include "TrkTrack/TrackCollection.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
+#include "TrkToolInterfaces/ITrackAmbiguityScoreProcessorTool.h"
 #include <string>
 
-namespace Trk 
+namespace Trk
 {
   class ITrackAmbiguityProcessorTool;
   class ITrackAmbiguityScoreProcessorTool;
@@ -35,15 +36,11 @@ namespace Trk
 
     private:
       SG::ReadHandleKeyArray<TrackCollection>       m_originTracksKey;
-      SG::WriteHandleKey<std::multimap<const Track*, float>> m_scoredTracksKey;
+      SG::WriteHandleKey<TracksScores> m_scoredTracksKey;
       ToolHandle<ITrackAmbiguityScoreProcessorTool> m_scoreTool;
     };
 
 }
 
 
-#endif 
-
-
-
-
+#endif

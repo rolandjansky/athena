@@ -491,15 +491,14 @@ void Muon::MuonTrackSummaryHelperTool::addDetailedTrackSummary( const Trk::Track
 
     if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) {
 
-      if( isMdt ){
-	if( pars ){
-	  double rDrift = fabs(meas->localParameters()[Trk::locR]);
-	  double rTrack = fabs(pars->parameters()[Trk::locR]);
-	  // flag delta electrons: check whether track prediction larger than drift radius, require that the track passes  the tube
-	  if( rTrack > rDrift && rTrack < 14.6 ){
-	    ++proj.ndeltas;
-	    continue;
-	  }
+      // MDTs: count outlier as delta electron if rDrift < rTrack < innerTubeRadius
+      if( isMdt && pars ) {
+	double rDrift = fabs(meas->localParameters()[Trk::locR]);
+	double rTrack = fabs(pars->parameters()[Trk::locR]);
+	double innerRadius = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+	if( rTrack > rDrift && rTrack < innerRadius ) {
+	  ++proj.ndeltas;
+	  continue;
 	}
       }
       ++proj.noutliers;

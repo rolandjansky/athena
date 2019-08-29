@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1GeometrySystems/VisAttributes.h"
@@ -493,6 +493,7 @@ MatVisAttributes::MatVisAttributes() {
   }
 
   {
+    // Carbon
     SoMaterial *m = new SoMaterial;
     m->diffuseColor.setValue (0.2, 0.2, 0.2);
     m->ambientColor.setValue (0.07, 0.07, 0.07);
@@ -1013,6 +1014,37 @@ MatVisAttributes::MatVisAttributes() {
     m->shininess.setValue(0);
     add("sct::FwdFibres",m);
   }
+
+  { 
+    // NSW - sTGC
+    SoMaterial * m = new SoMaterial;
+    m->ambientColor.setValue(0.2, 0.2, 0.2);
+    m->diffuseColor.setValue(0, 0.6667, 1.0);
+    m->specularColor.setValue(0,0,0);
+    m->shininess.setValue(0.2);
+    add("Honeycomb",m);
+  }
+  {
+    // NSW - MicroMegas (MM)
+    SoMaterial *m = new SoMaterial;
+    m->diffuseColor.setValue (0.765, 0.718, 0.541);
+    m->specularColor.setValue (0.5, 0.5, 0.5);
+    //m->ambientColor.setValue(0, .157811, .187004);
+    //m->diffuseColor.setValue(.98, .8, .21);
+    //m->specularColor.setValue(.915152, .915152, .915152);
+    m->shininess.setValue(0.2);
+    add("PCB",m);
+  }
+  {
+    // NSW - Shield Steel
+    SoMaterial *m = new SoMaterial;
+    m->diffuseColor.setValue (0.424238, 0.424238, 0.424238);
+    m->specularColor.setValue(0.168, 0.168, 0.168);
+    m->shininess.setValue(0.153696);
+    add("ShieldSteel",m);
+  }
+
+
 
 //////////////
   init();

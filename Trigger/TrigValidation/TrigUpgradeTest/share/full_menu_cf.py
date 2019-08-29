@@ -122,9 +122,9 @@ if opt.doMuonSlice == True:
                              L1Thresholds=["MU4", "MU4"],
                              ChainSteps=[ step1_2mufast_asym, step2_2muComb_asym ])]
             
-    MuonChains += [Chain(name='HLT_mu6_mu4_L1MU4_MU6',
-                             L1Thresholds=["MU4", "MU6"],
-                             ChainSteps=[ step1_2mufast_asym, step2_2muComb_asym ])]        
+    # MuonChains += [Chain(name='HLT_mu6_mu4_L1MU4_MU6',
+    #                          L1Thresholds=["MU4", "MU6"],
+    #                          ChainSteps=[ step1_2mufast_asym, step2_2muComb_asym ])]        
 
     
     #FS Muon trigger
@@ -231,7 +231,7 @@ if opt.doMETSlice == True:
         Chain(name="HLT_xe65_L1XE50",         L1Thresholds=["XE50"], ChainSteps=[metCellStep]),
         Chain(name="HLT_xe30_L1XE10",         L1Thresholds=["XE10"], ChainSteps=[metCellStep]),
         Chain(name="HLT_xe30_tcpufit_L1XE10", L1Thresholds=["XE10"], ChainSteps=[metClusterPufitStep]),
-        Chain(name='HLT_xe30_cell_xe30_tcpufit_L12XE10',  L1Thresholds=["XE10","XE10"], ChainSteps=[comboStep_cell_clusterpufit ]) 
+        #Chain(name='HLT_xe30_cell_xe30_tcpufit_L1XE10',  L1Thresholds=["XE10","XE10"], ChainSteps=[comboStep_cell_clusterpufit ]) 
         ]
 
 
@@ -305,7 +305,8 @@ dumpSequence(topSequence)
 
 
 import DecisionHandling
-for a in AthSequencer("HLTAllSteps").getChildren():
+from AthenaCommon.CFElements import findAlgorithm,findSubSequence
+for a in findSubSequence(topSequence, "HLTAllSteps").getChildren():
     if isinstance(a, DecisionHandling.DecisionHandlingConf.TriggerSummaryAlg):
         a.OutputLevel = DEBUG
 
@@ -313,11 +314,10 @@ for a in AthSequencer("HLTAllSteps").getChildren():
 # this part uses parts from the NewJO configuration, it is very hacky for the moment
 
 from TriggerJobOpts.TriggerConfig import collectHypos, collectFilters, collectDecisionObjects, triggerOutputStreamCfg
-hypos = collectHypos(AthSequencer("HLTAllSteps"))
-filters = collectFilters(AthSequencer("HLTAllSteps"))
+hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
+filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
 # try to find L1Decoder
-from AthenaCommon.CFElements import findAlgorithm,findSubSequence
 l1decoder = findAlgorithm(topSequence,'L1Decoder')
 if not l1decoder:
     l1decoder = findAlgorithm(topSequence,'L1EmulationTest')

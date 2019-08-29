@@ -15,7 +15,6 @@
 #include "MuonCalibEventBase/MuonCalibEventInfo.h"
 
 // StoreGateSvc, IncidentSvc
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/ThreadLocalContext.h"
@@ -40,7 +39,7 @@ namespace MuonCalib {
 ///////////////////////
 CalibNtupleLoader::CalibNtupleLoader(const std::string &t, const std::string &n, const IInterface *p): 
   AthAlgTool(t, n, p), m_prev_event_nr(-1), m_prev_run_nr(0), m_reg_sel_svc("RegionSelectionSvc", n),
-  m_sgSvc("StoreGateSvc", n), m_incSvc("IncidentSvc", n) {
+  m_incSvc("IncidentSvc", n) {
   m_filelist="file_list.txt";
   declareProperty("FileList", m_filelist);
   m_first = 0;
@@ -52,7 +51,6 @@ CalibNtupleLoader::CalibNtupleLoader(const std::string &t, const std::string &n,
   m_skip_double_events = false;
   declareProperty("SkipDoubleEvents", m_skip_double_events);
   declareProperty("RegionSelectionSvc", m_reg_sel_svc);
-  declareProperty("StoreGateSvc", m_sgSvc);
   declareProperty("IncidentSvc", m_incSvc);
   declareInterface< CalibSegmentPreparationTool >(this);
 }
@@ -122,9 +120,6 @@ StatusCode CalibNtupleLoader::initialize(void) {
   }
   m_reader = new NTReader(m_chain);
 
-  // retrieve the StoreGate Service for access to the EventInfo
-  ATH_CHECK( m_sgSvc.retrieve() );
-
   // retrieve IncidentService to fire Incidents after changing EventInfo
   ATH_CHECK( m_incSvc.retrieve() ) ;
 
@@ -168,7 +163,7 @@ void CalibNtupleLoader::prepareSegments(const MuonCalibEvent *&event, std::map<N
 
   // get the current EventInfo from StoreGateSvc
   const EventInfo *currentEvent(NULL) ;
-  StatusCode sc = m_sgSvc->retrieve(currentEvent) ;
+  StatusCode sc = evtStore()->retrieve(currentEvent) ;
   if ( sc.isFailure() ) {
     ATH_MSG_INFO( "Couldnt retrieve EventInfo from StoreGateSvc" );
     event = NULL ;

@@ -41,6 +41,7 @@ def setupMenu():
     TriggerFlags.MuonSlice.signatures = [
         #ATR-20049
         ChainProp(name='HLT_mu60_0eta105_msonly_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu80_msonly_3layersEC_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_3mu6_L13MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
         ChainProp(name='HLT_3mu6_msonly_L13MU6', l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
         ChainProp(name='HLT_4mu4_L14MU4', l1SeedThresholds=['MU4'],   groups=MultiMuonGroup),
@@ -89,7 +90,7 @@ def setupMenu():
     TriggerFlags.METSlice.signatures = [
         ChainProp(name='HLT_xe30_cell_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe65_cell_L1XE50', groups=SingleMETGroup),
-        #ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
+        ChainProp(name='HLT_xe30_mht_L1XE10', groups=SingleMETGroup),
         ChainProp(name='HLT_xe30_tcpufit_L1XE10', groups=SingleMETGroup),
 
         # MultiMET Chain
@@ -98,7 +99,7 @@ def setupMenu():
 
     TriggerFlags.JetSlice.signatures = [
         ChainProp(name='HLT_j85_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j420_L1J20', groups=SingleJetGroup),
 
         #ChainProp(name='HLT_j225_gsc420_boffperf_split_L1J20', groups=SingleJetGroup),
@@ -106,8 +107,8 @@ def setupMenu():
 
         ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10r_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j420_a10t_lcw_jes_30smcINF_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_2j330_a10t_lcw_jes_30smcINF_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j460_a10t_lcw_jes_30smcINF_L1J100', groups=SingleJetGroup),
+        ChainProp(name='HLT_2j330_a10t_lcw_jes_35smcINF_L1J100', groups=SingleJetGroup),
         # ATR-20049
         ChainProp(name='HLT_j420_L1J100', groups=SingleJetGroup),
         ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49', groups=SingleJetGroup),
@@ -117,7 +118,7 @@ def setupMenu():
 
         ChainProp(name='HLT_3j200_L1J20', groups=MultiJetGroup),
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_5j70_0eta240_L1J20', groups=MultiJetGroup), # this chain is supposed to be seeded off L1_4J15 in principle, needs CF fix
+        ChainProp(name='HLT_5j70_0eta240_L14J20', groups=MultiJetGroup), # this chain is supposed to be seeded off L1_4J15 in principle, needs CF fix
         # ATR-20049
         ChainProp(name='HLT_3j200_L1J100', groups=MultiJetGroup),
 
@@ -172,8 +173,8 @@ def setupMenu():
     TriggerFlags.CalibSlice.signatures     = []
     TriggerFlags.CosmicSlice.signatures    = []
     TriggerFlags.StreamingSlice.signatures = [
-        ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream], groups=MinBiasGroup),
-        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream], groups=EgammaStreamersGroup),
+        ChainProp(name='HLT_noalg_L1RD0_FILLED', l1SeedThresholds=[''], stream=[PhysicsStream, 'BeamSpot'], groups=MinBiasGroup),  # FIXME: BeamSpot stream added just for testing, to be removed
+        ChainProp(name='HLT_noalg_L1EM3',        l1SeedThresholds=[''], stream=[PhysicsStream, 'LArCells'], groups=EgammaStreamersGroup),  # FIXME: LArCells stream added just for testing, to be removed
     ]
     TriggerFlags.MonitorSlice.signatures   = []
 

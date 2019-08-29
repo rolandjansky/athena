@@ -524,6 +524,8 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
 
         self.TrackToTrackParticleConvTool = "MuonParticleCreatorTool"
 
+        import MuonCondAlg.MdtCondDbAlgConfig #MDT conditions, needed for the MuonStationIntersectSvc
+
         #from MuonRecExample.MuonRecTools import MuonSTEP_Propagator
         #MuonSTEP_Propagator.OutputLevel=5
         #CfgGetter.getPublicTool("MuonStraightLinePropagator").OutputLevel=5

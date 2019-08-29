@@ -49,6 +49,11 @@ public:
    */
   virtual StatusCode endEvent(const EventContext&, SG::WriteHandle<xAOD::TrigCompositeContainer>&) = 0; 
 
+  /**
+   * @brief To be used by external suppliers of data to know if they should spend the CPU to collate their monitoring data
+   */
+  virtual bool isMonitoredEvent(const EventContext& context) const = 0;
+
 };
 
 #endif // TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H

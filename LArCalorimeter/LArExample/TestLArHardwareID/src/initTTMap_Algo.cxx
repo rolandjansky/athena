@@ -14,7 +14,6 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 
 #include "CaloIdentifier/CaloIdManager.h"

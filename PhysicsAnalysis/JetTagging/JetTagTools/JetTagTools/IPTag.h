@@ -39,8 +39,8 @@ namespace Analysis {
   class ITrackGradeFactory;
   
 
-  class IPTag : public AthAlgTool , virtual public ITagTool {
-   
+  class IPTag : public extends<AthAlgTool, ITagTool>
+  {
   public:
     IPTag(const std::string&,const std::string&,const IInterface*);
       
@@ -48,21 +48,19 @@ namespace Analysis {
        Implementations of the methods defined in the abstract base class
     */
     virtual ~IPTag();
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
       
-    /** Set the primary vertex. TODO: This is temporary ! The primary vertex should
-	be part of the JetTag IParticle interface implementation. The trouble with 
-	ElementLink and persistency has to be solved for that. Revisit ... */
-    void setOrigin(const xAOD::Vertex* priVtx);
-      
-    StatusCode tagJet(const xAOD::Jet * jetToTag, xAOD::BTagging * BTag);    
+
+    virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag) const override;
 
     /** calculate individual track contribution to the three likelihoods: */
     void trackWeight(std::string jetAuthor, TrackGrade grade, double sa0, double sz0,
                      double & twb, double & twu, double & twc) const;
     
-    void finalizeHistos() {};
+    virtual void finalizeHistos() override {};
     
   private:      
 
@@ -141,9 +139,6 @@ namespace Analysis {
     /** track classification. */
     std::vector<std::string>          m_trackGradePartitionsDefinition;
     std::vector<TrackGradePartition*> m_trackGradePartitions;
-    /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
-    // this pointer does not need to be deleted in the destructor (because it points to something in storegate)
-    const xAOD::Vertex* m_priVtx = 0;
     std::vector<std::string> m_jetCollectionList, m_jetWithInfoPlus; // 
     
     
@@ -176,8 +171,6 @@ namespace Analysis {
     mutable std::atomic<int> m_nljet;
   
   }; // End class
-
-  inline void IPTag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 
 } // End namespace 
 

@@ -19,7 +19,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IPartPropSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
 
 #include "HepPDT/ParticleData.hh"

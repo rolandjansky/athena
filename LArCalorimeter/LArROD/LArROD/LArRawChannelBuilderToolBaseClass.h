@@ -24,8 +24,6 @@
 #include "LArROD/LArRawChannelBuilderParams.h"
 #include "LArROD/LArRawChannelBuilderStatistics.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "LArCabling/LArOnOffIdMapping.h"
 
 class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
@@ -82,8 +80,6 @@ class LArRawChannelBuilderToolBaseClass : public AthAlgTool,
   LArRawChannelBuilderParams *m_parent;
   
   LArRawChannelBuilderStatistics *m_helper;  
-  
-  StoreGateSvc*  m_detStore;
   
   bool m_isSC;
 };

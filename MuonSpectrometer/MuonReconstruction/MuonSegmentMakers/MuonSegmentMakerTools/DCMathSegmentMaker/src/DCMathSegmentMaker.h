@@ -24,6 +24,8 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentTriggerHitAssociator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 
+#include "MuonCondData/MdtCondDbData.h"
+
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -64,6 +66,7 @@ namespace Muon {
   class MdtPrepData;
 }
 
+class MdtCondDbData;
 class MdtIdHelper;
 class RpcIdHelper;
 class TgcIdHelper;
@@ -436,6 +439,7 @@ class MdtDriftCircleOnTrack;
     SG::ReadHandleKey <Muon::RpcPrepDataContainer> m_rpcKey;
     SG::ReadHandleKey <Muon::TgcPrepDataContainer> m_tgcKey;
     SG::ReadHandleKey <Muon::MdtPrepDataContainer> m_mdtKey;
+    SG::ReadCondHandleKey <MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
 
   };
   

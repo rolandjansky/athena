@@ -76,7 +76,6 @@
 #include "EventInfo/EventID.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadCondHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointCLASS_DEF.h"
 #include "TrkSpacePoint/SpacePointCollection.h"
@@ -117,9 +116,6 @@ using namespace std;
 DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm( name , pSvcLocator )
   , m_idHelper()
-  , m_storeGate( 0 )
-  , m_detStore( 0 )
-  , m_evtStore( 0 )
   , m_pixelId( 0 )
   , m_sctId( 0 )
   , m_PIX_mgr( 0 )
@@ -198,11 +194,6 @@ DumpSp::initialize()
 
   ATH_MSG_INFO("DumpSp::initialize()");
   
-  if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    ATH_MSG_FATAL("StoreGate service not found");
-    return StatusCode::FAILURE;
-  }
-
   if( m_truthToTrack.retrieve().isFailure() ) {
     ATH_MSG_FATAL(m_truthToTrack << " truth to track tool not found");
     return StatusCode::FAILURE;
@@ -215,11 +206,6 @@ DumpSp::initialize()
   //   return StatusCode::FAILURE;
   // }
 
-  if( service("DetectorStore",m_detStore).isFailure() ) {
-    ATH_MSG_FATAL("DetectorStore service not found");
-    return StatusCode::FAILURE;
-  }
-
   IPartPropSvc* partPropSvc = 0;
   if( service("PartPropSvc", partPropSvc, true).isFailure() ) {
     ATH_MSG_FATAL("particle properties service unavailable");
@@ -230,7 +216,7 @@ DumpSp::initialize()
   // ID helpers
   m_idHelper.reset( new AtlasDetectorID );
   const IdDictManager* idDictMgr( 0 );
-  if( m_detStore->retrieve(idDictMgr, "IdDict").isFailure() || !idDictMgr ) {
+  if( detStore()->retrieve(idDictMgr, "IdDict").isFailure() || !idDictMgr ) {
     ATH_MSG_ERROR( "Could not get IdDictManager !");
     return StatusCode::FAILURE;
   }
@@ -238,15 +224,15 @@ DumpSp::initialize()
     ATH_MSG_ERROR( "Unable to initialize ID helper.");
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
+  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
     ATH_MSG_ERROR( "Unable to retrieve Pixel manager from DetectorStore");
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_pixelId, "PixelID").isFailure() ) {
+  if( detStore()->retrieve(m_pixelId, "PixelID").isFailure() ) {
     ATH_MSG_ERROR( "Unable to retrieve Pixel helper from DetectorStore");
     return StatusCode::FAILURE;
   }
-  if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
+  if( detStore()->retrieve(m_sctId, "SCT_ID").isFailure() ) {
     ATH_MSG_ERROR( "Unable to retrieve SCT helper from DetectorStore");
     return StatusCode::FAILURE;
   }
@@ -320,7 +306,7 @@ StatusCode
 DumpSp::execute()
 {
   const EventInfo* eventInfo(0);
-  if( m_storeGate->retrieve(eventInfo).isFailure() ) {
+  if( evtStore()->retrieve(eventInfo).isFailure() ) {
     ATH_MSG_ERROR( "Could not retrieve event info");
     return StatusCode::FAILURE;
   }
@@ -365,10 +351,10 @@ DumpSp::execute()
   HitIndexMap hitIndexMap; // keep running index event-unique to each hit
   HitIndexMap clusterIndexMap;
   // get pixel and sct cluster containers
-  if( m_storeGate->retrieve(m_pixelContainer, m_pixelClustersName).isFailure() ) {
+  if( evtStore()->retrieve(m_pixelContainer, m_pixelClustersName).isFailure() ) {
     ATH_MSG_WARNING( "unable to retrieve the PixelCluster container " << m_pixelClustersName);
   }
-  if( m_storeGate->retrieve(m_sctContainer, m_sctClustersName).isFailure() ) {
+  if( evtStore()->retrieve(m_sctContainer, m_sctClustersName).isFailure() ) {
     ATH_MSG_WARNING( "unable to retrieve the SCT_Cluster container " << m_sctClustersName);
   }
 
@@ -428,23 +414,23 @@ DumpSp::build_matching_maps()
 
   // retrieve necessary junk from Athena
   const TrackCollection* RecCollection = 0;
-  if( m_storeGate->retrieve( RecCollection, m_tracksName ).isFailure() ) { 
+  if( evtStore()->retrieve( RecCollection, m_tracksName ).isFailure() ) { 
     ATH_MSG_WARNING( "could not find TrackCollection " << m_tracksName);
     RecCollection = 0; 
   }
 
   const DataVector<Trk::Track>* trks = 0;
-  if( m_storeGate->retrieve(trks,m_tracksName).isFailure() ) { 
+  if( evtStore()->retrieve(trks,m_tracksName).isFailure() ) { 
     ATH_MSG_WARNING( "could not find Trk::Track collection " << m_tracksName);
     trks = 0;
   }
 
   const McEventCollection* SimTracks = 0;
-  if( m_storeGate->retrieve(SimTracks,"TruthEvent").isFailure() ) {
+  if( evtStore()->retrieve(SimTracks,"TruthEvent").isFailure() ) {
     string key = "G4Truth";
-    if( m_storeGate->retrieve(SimTracks,key).isFailure() ) {
+    if( evtStore()->retrieve(SimTracks,key).isFailure() ) {
       key = "";
-      if( m_storeGate->retrieve(SimTracks,key).isFailure() ) {
+      if( evtStore()->retrieve(SimTracks,key).isFailure() ) {
         ATH_MSG_WARNING( "could not find the McEventCollection");
         return;
       }
@@ -456,7 +442,7 @@ DumpSp::build_matching_maps()
   }
 
   const TrackTruthCollection* TruthMap  = 0;
-  if( m_storeGate->retrieve(TruthMap,m_tracksTruthName).isFailure() ) { 
+  if( evtStore()->retrieve(TruthMap,m_tracksTruthName).isFailure() ) { 
     ATH_MSG_WARNING( "could not find truth map " << m_tracksTruthName);
     TruthMap = 0; 
   }
@@ -520,11 +506,11 @@ DumpSp::dump_truth() const
 
   // retrieve truth tracks from athena
   const McEventCollection* SimTracks = 0;
-  if( m_storeGate->retrieve(SimTracks,"TruthEvent").isFailure() ) {
+  if( evtStore()->retrieve(SimTracks,"TruthEvent").isFailure() ) {
     string key = "G4Truth";
-    if( m_storeGate->retrieve(SimTracks,key).isFailure() ) {
+    if( evtStore()->retrieve(SimTracks,key).isFailure() ) {
       key = "";
-      if( m_storeGate->retrieve(SimTracks,key).isFailure() ) {
+      if( evtStore()->retrieve(SimTracks,key).isFailure() ) {
         ATH_MSG_WARNING( "could not find the McEventCollection");
         return;
       }
@@ -694,13 +680,13 @@ DumpSp::dump_spacepoints() const
   const SpacePointContainer*          pixelSPContainer(0);
   const SpacePointContainer*          sctSPContainer(0);
   const SpacePointOverlapCollection*  overlapCollection(0);
-  if( m_storeGate->retrieve(pixelSPContainer,m_pixelSpacePointsName).isFailure() ) {
+  if( evtStore()->retrieve(pixelSPContainer,m_pixelSpacePointsName).isFailure() ) {
     ATH_MSG_DEBUG( "Unable to retrieve PixelSpacePoint container");
   }
-  if( m_storeGate->retrieve(sctSPContainer,m_sctSpacePointsName).isFailure() ) {
+  if( evtStore()->retrieve(sctSPContainer,m_sctSpacePointsName).isFailure() ) {
     ATH_MSG_DEBUG( "Unable to retrieve SCT_SpacePoint container");
   }
-  if( m_storeGate->retrieve(overlapCollection,m_overlapSpacePointsName).isFailure() ) {
+  if( evtStore()->retrieve(overlapCollection,m_overlapSpacePointsName).isFailure() ) {
     ATH_MSG_DEBUG( "Unable to retrieve Overlap SpacePoint container");
   }
   if( !(pixelSPContainer || sctSPContainer || overlapCollection) ) {
@@ -811,8 +797,8 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
 
   const DataHandle<PixelRDO_Container> pixel_rdocontainer_iter;  
   const InDetSimDataCollection* pixelSimDataMap(0);
-  const bool have_pixel_sdo = m_storeGate->retrieve(pixelSimDataMap, "PixelSDO_Map").isSuccess();
-  if( m_storeGate->retrieve(pixel_rdocontainer_iter, "PixelRDOs").isSuccess()  ) {
+  const bool have_pixel_sdo = evtStore()->retrieve(pixelSimDataMap, "PixelSDO_Map").isSuccess();
+  if( evtStore()->retrieve(pixel_rdocontainer_iter, "PixelRDOs").isSuccess()  ) {
     pixel_rdocontainer_iter->clID(); // anything to dereference the DataHandle
     for( PixelRDO_Container::const_iterator iColl=pixel_rdocontainer_iter->begin(), fColl=pixel_rdocontainer_iter->end(); iColl!=fColl; ++iColl ) {
       const InDetRawDataCollection<PixelRDORawData>* pixel_rdoCollection(*iColl);
@@ -1005,9 +991,9 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
     return;
   }
   const InDetSimDataCollection* sctSimDataMap(0);
-  const bool have_sct_sdo = m_storeGate->retrieve(sctSimDataMap, "SCT_SDO_Map").isSuccess();
+  const bool have_sct_sdo = evtStore()->retrieve(sctSimDataMap, "SCT_SDO_Map").isSuccess();
   const DataHandle<SCT_RDO_Container> sct_rdocontainer_iter;
-  if( m_storeGate->retrieve(sct_rdocontainer_iter, "SCT_RDOs").isSuccess() ) {
+  if( evtStore()->retrieve(sct_rdocontainer_iter, "SCT_RDOs").isSuccess() ) {
     sct_rdocontainer_iter->clID(); // anything to dereference the DataHandle
     for( SCT_RDO_Container::const_iterator iColl=sct_rdocontainer_iter->begin(), fColl=sct_rdocontainer_iter->end(); iColl!=fColl; ++iColl ) {
       const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection(*iColl);
@@ -1499,7 +1485,7 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
 {
   ATH_MSG_DEBUG( "getting the reconstructed track container.");
   const DataVector<Trk::Track>* trks = 0;
-  if( m_storeGate->retrieve(trks,m_tracksName).isFailure() ) { 
+  if( evtStore()->retrieve(trks,m_tracksName).isFailure() ) { 
     ATH_MSG_WARNING( "unable to retrieve reconstructed TrackCollection " << m_tracksName);
     return;
   }
@@ -1900,7 +1886,7 @@ DumpSp::dump_vertex(  ) const
 
   // number of z vertices
   const VxContainer* vxes( 0 );
-  if( m_storeGate->retrieve( vxes, "VxPrimaryCandidate" ).isSuccess() ) {
+  if( evtStore()->retrieve( vxes, "VxPrimaryCandidate" ).isSuccess() ) {
     if( !(vxes->empty()) ) {
       for( VxContainer::const_iterator i=vxes->begin(), f=vxes->end(); i!=f; ++i ) {
         const unsigned int vx_type = (*i)->vertexType();
