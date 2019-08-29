@@ -1972,9 +1972,9 @@ def setupMenu():
         ['e5_lhvloose_nod0_bBeexM6000t_2mu4_nomucomb_L1BPH-0DR3-EM7J15_2MU4',  'L1_BPH-0DR3-EM7J15_2MU4',   ['L1_EM7','L1_2MU4'], [BPhysicsStream], ['Legacy:End-of-fill',RATE_BphysTag,BW_BphysTag],-1,['parallel',-1,[] ]],
 
         #ATR-20267
-        ['mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_L1TAU8_03dRtt',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['Run3:Primary', 'Run3:Primary', 'RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarloose","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],                                                                                                                                                                      
-        ['e24_lhmedium_nod0_ivarloose_L1EM22VHI_tau20_mediumRNN_tracktwoMVA_L1TAU8_03dRtt',    'L1_EM22VHI', ['L1_EM22VHI', 'L1_TAU8'], [PhysicsStream], ['Run3:Primary', 'Run3:Primary', 'RATE:ElectronTau', 'BW:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e24_lhmedium_nod0_ivarloose_L1EM22VHI","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
-        ['tau25_mRNN_t2MVA_L1TAU8_tau20_mRNN_t2MVA_L1TAU8_j70_j50_0eta490_invm900j50_03dRtt', 'L1_MJJ-500-NFF', ['L1_TAU8', 'L1_TAU8','',''], [PhysicsStream], ['Run3:Primary', 'Run3:Primary', 'RATE:MultiTau', 'BW:Tau', 'BW:Jet'], -1,['serial',-1,["tau25_mRNN_t2MVA_L1TAU8", "tau20_mRNN_t2MVA_L1TAU8","j70","j50_0eta490_invm900j50"]]],
+        ['mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_L1TAU8_03dRtt',  'L1_MU20MU21', ['L1_MU20', 'L1_TAU8'], [PhysicsStream], ['Run3:Primary', 'RATE:MuonTau', 'BW:MuonTau','BW:Tau', 'BW:Muon'], -1,['serial',-1,["mu20_ivarloose","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],                                                                                                                                                                      
+        ['e24_lhmedium_nod0_ivarloose_L1EM22VHI_tau20_mediumRNN_tracktwoMVA_L1TAU8_03dRtt',    'L1_EM22VHI', ['L1_EM22VHI', 'L1_TAU8'], [PhysicsStream], ['Run3:Primary',  'RATE:ElectronTau', 'BW:ElectronTau', 'BW:Tau'], -1,['serial',-1,["e24_lhmedium_nod0_ivarloose_L1EM22VHI","tau20_mediumRNN_tracktwoMVA_L1TAU8"]]],
+        ['tau25_mRNN_t2MVA_L1TAU8_tau20_mRNN_t2MVA_L1TAU8_j70_j50_0eta490_invm900j50_03dRtt', 'L1_MJJ-500-NFF', ['L1_TAU8', 'L1_TAU8','',''], [PhysicsStream], ['Run3:Primary',  'RATE:MultiTau', 'BW:Tau', 'BW:Jet'], -1,['serial',-1,["tau25_mRNN_t2MVA_L1TAU8", "tau20_mRNN_t2MVA_L1TAU8","j70","j50_0eta490_invm900j50"]]],
 
 
 			 ]
