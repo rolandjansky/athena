@@ -4,6 +4,7 @@
 
 // JetECPSFractionTool.cxx
 
+#include "StoreGate/WriteDecorHandle.h"
 #include "JetMomentTools/JetECPSFractionTool.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODPFlow/PFO.h"
@@ -20,16 +21,38 @@ using xAOD::JetFourMom_t;
 //**********************************************************************
 
 JetECPSFractionTool::JetECPSFractionTool(std::string myname)
-: JetModifierBase(myname) {
-  declareProperty("ECPSFractionThreshold", m_fraclimit =0.8);
-}
+: asg::AsgTool(myname) {
 
+  declareInterface<IJetDecorator>(this);
+
+  // Prepend jet collection name
+  m_fracKey = m_jetContainerName + "." + m_fracKey.key();
+}
 
 //**********************************************************************
 
-int JetECPSFractionTool::modifyJet(xAOD::Jet& jet) const {
-  jet.setAttribute("ECPSFraction", energyFraction(jet));
-  return 0;
+StatusCode JetECPSFractionTool::initialize(){
+
+  if(m_jetContainerName.empty()){
+    ATH_MSG_ERROR("JetECPSFractionTool needs to have its input jet container name configured!");
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK(m_fracKey.initialize());
+  return StatusCode::SUCCESS;
+}
+
+//**********************************************************************
+
+StatusCode JetECPSFractionTool::decorate(const xAOD::JetContainer& jets) const {
+
+  SG::WriteDecorHandle<xAOD::JetContainer, float> fracHandle(m_fracKey);
+  if(fracHandle.ptr() != &jets){
+    ATH_MSG_ERROR("Jet container to decorate doesn't match the configured name!");
+    return StatusCode::FAILURE;
+  }
+
+  for(const xAOD::Jet* jet : jets) fracHandle(*jet) = energyFraction(jet);
+  return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
