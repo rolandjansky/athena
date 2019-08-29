@@ -496,7 +496,7 @@ class  ConfiguredNewTrackingSiPattern:
               InDetAmbiguityScoreProcessor.sharedProbCut2            = prob2
               if NewTrackingCuts.extension() == "":
                  InDetAmbiguityScoreProcessor.SplitClusterMap_old  = "";
-              elif NewTrackingCuts.extension() == "PixelPrdAssociation":
+              elif NewTrackingCuts.extension() == "Disappearing":
                  InDetAmbiguityScoreProcessor.SplitClusterMap_old  = InDetKeys.SplitClusterAmbiguityMap();
               InDetAmbiguityScoreProcessor.SplitClusterMap_new  = InDetKeys.SplitClusterAmbiguityMap()+NewTrackingCuts.extension()
            if InDetFlags.doTIDE_RescalePixelCovariances() :
