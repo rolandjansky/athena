@@ -96,7 +96,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 	PileUpToolBase(type, name, parent),
 
 	// Services
-	m_storeGateService("StoreGateSvc", name),
 	m_magFieldSvc("AtlasFieldSvc",name) ,
 	m_mergeSvc(nullptr),
 	m_rndmSvc("AtRndmGenSvc", name ),
@@ -178,7 +177,6 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 
 	declareInterface<IMuonDigitizationTool>(this);
 
-	declareProperty("MCStore",             m_storeGateService,              "help");
 	declareProperty("MagFieldSvc",         m_magFieldSvc,        "Magnetic Field Service");
 	declareProperty("RndmSvc",             m_rndmSvc,            "Random Number Service used in Muon digitization");
 	declareProperty("RndmEngine",          m_rndmEngineName,     "Random engine name");
@@ -234,7 +232,6 @@ StatusCode MM_DigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "Configuration  MM_DigitizationTool " );
 	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
 	ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
-	ATH_MSG_DEBUG ( "MCStore                " << m_storeGateService               );
 	ATH_MSG_DEBUG ( "MagFieldSvc            " << m_magFieldSvc         );
 	ATH_MSG_DEBUG ( "DigitizationTool       " << m_digitTool           );
 	ATH_MSG_DEBUG ( "InputObjectName        " << m_inputObjectName     );
@@ -249,10 +246,6 @@ StatusCode MM_DigitizationTool::initialize() {
 	ATH_MSG_DEBUG ( "crossTalk1             " << m_crossTalk1 	     			);
 	ATH_MSG_DEBUG ( "crossTalk2             " << m_crossTalk2 	     			);
 	ATH_MSG_DEBUG ( "EnergyThreshold        " << m_energyThreshold     			);
-
-	// Initialize transient event store
-	ATH_CHECK(m_storeGateService.retrieve());
-	ATH_CHECK( service("ActiveStoreSvc", m_activeStore) );
 
 	// Initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
 	StoreGateSvc* detStore=nullptr;
@@ -556,12 +549,11 @@ StatusCode MM_DigitizationTool::recordDigitAndSdoContainers() {
 	m_digitContainer->cleanup();
 
 	// record the digit container in StoreGate
-	m_activeStore->setStore(&*m_storeGateService);
-	ATH_CHECK( m_storeGateService->record(m_digitContainer, m_outputObjectName) );
+	ATH_CHECK( evtStore()->record(m_digitContainer, m_outputObjectName) );
 
 	// create and record the SDO container in StoreGate
 	m_sdoContainer = new MuonSimDataCollection();
-	ATH_CHECK( m_storeGateService->record(m_sdoContainer, m_outputSDOName) );
+	ATH_CHECK( evtStore()->record(m_sdoContainer, m_outputSDOName) );
 
 	return StatusCode::SUCCESS;
 }
@@ -575,7 +567,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
 	IdentifierHash detectorElementHash=0;
 
 	inputSimHitColl = new MMSimHitCollection("MicromegasSensitiveDetector");
-	ATH_CHECK( m_storeGateService->record(inputSimHitColl,"InputMicroMegasHits") );
+	ATH_CHECK( evtStore()->record(inputSimHitColl,"InputMicroMegasHits") );
 
 	if( m_maskMultiplet == 3 ) {
 
@@ -1163,12 +1155,10 @@ StatusCode MM_DigitizationTool::doDigitization() {
 		MmDigitCollection* digitCollection = nullptr;
 		// put new collection in storegate
 		// Get the messaging service, print where you are
-		m_activeStore->setStore( &*m_storeGateService );
 		MmDigitContainer::const_iterator it_coll = m_digitContainer->indexFind(detectorElementHash );
 		if (m_digitContainer->end() ==  it_coll) {
 			digitCollection = new MmDigitCollection( elemId, detectorElementHash );
 			digitCollection->push_back(newDigit);
-			m_activeStore->setStore( &*m_storeGateService );
 			ATH_CHECK( m_digitContainer->addCollection(digitCollection, detectorElementHash ) );
 		}
 		else {
