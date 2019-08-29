@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( TrigDecisionMaker
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps DecisionHandling StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfL1Data TrigConfHLTData TrigDecisionEvent TrigSteeringEvent TrigSteeringLib TrigT1Result xAODTrigger )
+                     LINK_LIBRARIES AthenaBaseComps DecisionHandlingLib StoreGateLib SGtests EventInfo xAODEventInfo GaudiKernel TrigConfL1Data TrigConfHLTData TrigDecisionEvent TrigSteeringEvent TrigSteeringLib TrigT1Result xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/__init__.py python/TrigDecisionMakerConfig.py )
