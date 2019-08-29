@@ -66,7 +66,7 @@ atlas_add_component( TrigMuonEF
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigMuonEvent TrigSteeringEvent CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector EventPrimitives FourMomUtils xAODCaloEvent xAODMuon xAODTracking GaudiKernel MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces Particle PATCoreLib RecoToolInterfaces TrkEventPrimitives TrkParameters TrkSegment TrkTrack TrkTrackSummary TrkToolInterfaces TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigNavigationLib DecisionHandling TrigInterfacesLib TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigMuonEvent TrigSteeringEvent CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector EventPrimitives FourMomUtils xAODCaloEvent xAODMuon xAODTracking GaudiKernel MuonReadoutGeometry MuonIdHelpersLib CscClusterizationLib MuonPattern MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonRecToolInterfaces MuidInterfaces MuonCombinedEvent MuonCombinedToolInterfaces Particle PATCoreLib RecoToolInterfaces TrkEventPrimitives TrkParameters TrkSegment TrkTrack TrkTrackSummary TrkToolInterfaces TrigConfHLTData TrigCaloEvent TrigInDetEvent TrigNavigationLib DecisionHandlingLib TrigInterfacesLib TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigMuonEF )
