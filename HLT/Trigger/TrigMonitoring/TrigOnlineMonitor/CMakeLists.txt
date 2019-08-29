@@ -43,5 +43,6 @@ atlas_add_component( TrigOnlineMonitor
 # Install files from the package:
 atlas_install_headers( TrigOnlineMonitor )
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
 atlas_install_scripts( share/plotL1TopoROBMonHist.py )
 
