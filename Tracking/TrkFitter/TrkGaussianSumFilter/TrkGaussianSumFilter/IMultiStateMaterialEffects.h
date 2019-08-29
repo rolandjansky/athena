@@ -30,7 +30,6 @@ decription           : (Non-pure) abstract base class for defining material
 namespace Trk {
 
 class MaterialProperties;
-// class IMaterialEffectsUpdator;
 
 static const InterfaceID IID_IMultiStateMaterialEffects("IMultiStateMaterialEffects", 1, 0);
 
