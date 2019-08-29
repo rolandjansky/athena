@@ -83,14 +83,36 @@ PHYSMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name    
                                                                         ApplyAnd = False)
 ToolSvc += PHYSMuonTPThinningTool
 
+# TauJets thinning
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
+PHYSTauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "PHYSTauJetsThinningTool",
+                                                                     ThinningService = PHYSThinningHelper.ThinningSvc(),
+                                                                     ContainerName   = "TauJets",
+                                                                     SelectionString = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks<6)")
+ToolSvc += PHYSTauJetsThinningTool
+
+# Only keep tau tracks (and associated ID tracks) classified as charged tracks
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
+PHYSTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "PHYSTauTPThinningTool",
+                                                                      ThinningService        = PHYSThinningHelper.ThinningSvc(),
+                                                                      TauKey                 = "TauJets",
+                                                                      InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                      SelectionString        = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks<6)",
+                                                                      ApplyAnd               = False,
+                                                                      DoTauTracksThinning    = True,
+                                                                      TauTracksKey           = "TauTracks")
+ToolSvc += PHYSTauTPThinningTool
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #====================================================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("PHYSKernel",
-                                                                       ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool],
+                                                                       ThinningTools = [PHYSTrackParticleThinningTool,PHYSMuonTPThinningTool,
+                                                                                        PHYSTauJetsThinningTool,PHYSTauTPThinningTool],
                                                                        AugmentationTools = [PHYS_trigmatching_helper.matching_tool])
+
 #====================================================================
 # JET/MET   
 #====================================================================

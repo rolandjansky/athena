@@ -69,7 +69,10 @@ namespace DerivationFramework {
       float m_coneSize = -1.0;
       /// Flag for using @c IThinningSvc::Operator::And (instead of "or")
       bool m_and = false;
-
+      /// Apply thinning to 'classifiedCharged' tau tracks in addition to ID tracks
+      bool m_doTauTracksThinning = false;
+      /// SG key of the tau track container to use
+      std::string m_tauTracksSGKey = "TauTracks";
       /// @}
 
       /// Handle for accessing the thinning service
