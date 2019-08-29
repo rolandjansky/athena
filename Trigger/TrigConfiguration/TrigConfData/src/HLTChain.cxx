@@ -25,6 +25,12 @@ TrigConf::HLTChain::counter() const
    return data().get_child("counter").get_value<unsigned int>();
 }
 
+unsigned int
+TrigConf::HLTChain::namehash() const
+{
+   return data().get_child("nameHash").get_value<unsigned int>();
+}
+
 const std::string &
 TrigConf::HLTChain::l1item() const
 {
