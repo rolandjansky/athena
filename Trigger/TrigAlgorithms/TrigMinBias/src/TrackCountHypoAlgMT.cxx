@@ -23,7 +23,7 @@ StatusCode TrackCountHypoAlgMT::initialize()
 
   ATH_CHECK(m_tracksKey.initialize());
   ATH_CHECK(m_trackCountKey.initialize());
-  
+
   ATH_CHECK(m_min_pt.size()==m_max_z0.size());
 
   if (m_tracksKey.key() == "Undefined" || m_trackCountKey.key() == "Undefined") {

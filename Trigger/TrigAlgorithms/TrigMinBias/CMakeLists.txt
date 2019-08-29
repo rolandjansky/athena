@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PRIVATE
 atlas_add_component( TrigMinBias
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} DecisionHandlingLib AthenaMonitoringLib xAODTracking xAODTrigMinBias TrkTrack TrigInDetEvent TrigInterfacesLib StoreGateLib GaudiKernel TrkParameters TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} DecisionHandlingLib AthenaMonitoringLib xAODTracking xAODTrigMinBias TrkTrack TrigInDetEvent TrigInterfacesLib StoreGateLib GaudiKernel TrkParameters TrigTimeAlgsLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

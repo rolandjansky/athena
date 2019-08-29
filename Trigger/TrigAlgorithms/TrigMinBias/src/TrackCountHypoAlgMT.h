@@ -28,7 +28,8 @@ private:
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksKey{this,"tracksKey","Undefined",""};
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_trackCountKey{this,"trackCountKey","Undefined",""};
   Gaudi::Property<std::vector<float>> m_min_pt{this, "min_pt",{0.1,0.2,4.0}, "Accept events with momentum higher than this limit"};
-
+  Gaudi::Property<std::vector<float>> m_max_z0{this, "max_z0",{100,200,300}, "Accept events with absolute value of vertex position lower \
+  than this limit in mm; this vector has to be of the same size as min_pT vector, repetition of cut values are allowed if that makes the number of elements the same"};
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 };
 #endif // TRIGT2MINBIAS_TRACKCOUNTHYPOALGMT_H
