@@ -131,7 +131,7 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
   if(m_idHelperTool->isRpc(id)){
     if( m_idHelperTool->rpcIdHelper().measuresPhi(id) ) increment(information[numberOfRpcPhiHits]);
     else                           increment(information[numberOfRpcEtaHits]);
-  }else if(m_idHelperTool->isCsc(id) && (&(m_idHelperTool->cscIdHelper()))){
+  }else if(m_idHelperTool->isCsc(id)) {
     if( m_idHelperTool->cscIdHelper().measuresPhi(id) ) increment(information[numberOfCscPhiHits]);
     else  {                         
       increment(information[numberOfCscEtaHits]);
@@ -241,7 +241,7 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles (
 	  if(m_idHelperTool->isRpc(id)){
 	    if( m_idHelperTool->rpcIdHelper().measuresPhi(id) ) increment(information[Trk::numberOfRpcPhiHoles]);
 	    else                           increment(information[Trk::numberOfRpcEtaHoles]);
-	  }else if(m_idHelperTool->isCsc(id) && (&(m_idHelperTool->cscIdHelper()))){
+	  }else if(m_idHelperTool->isCsc(id)){
 	    if( m_idHelperTool->cscIdHelper().measuresPhi(id) ) increment(information[Trk::numberOfCscPhiHoles]);
 	    else                           increment(information[Trk::numberOfCscEtaHoles]);
 	  }else if(m_idHelperTool->isTgc(id)){
