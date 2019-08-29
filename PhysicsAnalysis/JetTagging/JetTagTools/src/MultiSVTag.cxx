@@ -10,7 +10,6 @@
 #include "Navigation/NavigationToken.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "JetTagTools/HistoHelperRoot.h"
-#include "JetTagTools/JetTagUtils.h"
 
 #include "VxSecVertex/VxSecVertexInfo.h"
 #include "VxSecVertex/VxSecVKalVertexInfo.h"
@@ -81,13 +80,14 @@ namespace Analysis
 
   StatusCode MultiSVTag::tagJet(const xAOD::Vertex& priVtx,
                                 const xAOD::Jet& jetToTag,
-                                xAOD::BTagging& BTag) const
+                                xAOD::BTagging& BTag,
+                                const std::string &jetName) const
   {
     //Retrieval of Calibration Condition Data objects
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
 
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
+    std::string author = jetName;
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_DEBUG("#BTAG# MSV Using jet type " << author << " for calibrations.");
     //....

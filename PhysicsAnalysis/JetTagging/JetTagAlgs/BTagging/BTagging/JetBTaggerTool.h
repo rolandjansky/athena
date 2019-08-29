@@ -48,6 +48,8 @@ class  JetBTaggerTool:
   Gaudi::Property<SG::WriteDecorHandleKey<xAOD::JetContainer> >m_jetBTaggingLinkName{this,"JetContainerName","","Element link form jet to BTagging container"};
   SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName { this, "BTaggingCollectionName", "", "Output BTagging container"} ;
 
+  std::string m_JetName;
+
   ToolHandle< IBTagTool > m_bTagTool; 
   ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
   ToolHandle< IBTagSecVertexing > m_bTagSecVtxTool;
