@@ -506,14 +506,13 @@ namespace Analysis {
     // Open the file
     std::string pfname, tech;
     m_poolsvc->catalog()->getFirstPFN(coolguid, pfname, tech );
-    TFile* pfile = TFile::Open(pfname.c_str(),"READ");
-    if (pfile==nullptr || !pfile->IsOpen()) {
-      delete pfile;
+    std::unique_ptr< TFile > pfile(TFile::Open(pfname.c_str(),"READ"));
+    if (pfile.get()==nullptr || !pfile.get()->IsOpen()) {
       ATH_MSG_WARNING("Problems opening input file "+pfname);
       return StatusCode::FAILURE;
     }
 
-    StatusCode sc = createHistoMap(pfile, writeCdo.get());
+    StatusCode sc = createHistoMap(pfile.get(), writeCdo.get());
     if(sc != StatusCode::SUCCESS){
     // do nothing for the moment
     }
@@ -535,7 +534,7 @@ namespace Analysis {
           hFullName+="/"; hFullName+=hname;
           ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
           TObject* hPointer = nullptr;
-          if (getTObject(hFullName, pfile, hPointer)) {
+          if (getTObject(hFullName, pfile.get(), hPointer)) {
             if(hPointer) {
               ATH_MSG_DEBUG( "#BTAG# Cached pointer to TObject: " << hPointer);
               if (tagger.find("DL1")!=std::string::npos ) {
@@ -609,7 +608,6 @@ namespace Analysis {
 
     // close the file
     pfile->Close();
-    delete pfile;
 
     if(histoWriteHandle.record(rangeW,std::move(writeCdo)).isFailure()) {
       ATH_MSG_ERROR("#BTAG# Could not record vector of histograms maps " << histoWriteHandle.key()
@@ -769,14 +767,14 @@ namespace Analysis {
   StatusCode JetTagCalibCondAlg::getTObject(const std::string& histname, TFile * pfile, TObject*& hist) const {
      // now read the histogram into memor
      ATH_MSG_DEBUG("Getting object "+histname+" from file");
-     //std::unique_ptr<TObject> hist_raw(pfile->Get(histname.c_str()));
-     TObject* hist_raw(pfile->Get(histname.c_str()));
-     if (hist_raw == nullptr) {
+     hist = pfile->Get(histname.c_str());
+     if (hist == nullptr) {
        ATH_MSG_DEBUG("#BTAG# Could not load TObject " << histname);
        return StatusCode::FAILURE;
      }
      else {
-       hist = dynamic_cast<TObject *>(hist_raw);
+       // make this histogram unassociated with the TFile, so file can be closed
+       // only for histogram objects, others do not get associated
        TH1* ihist=dynamic_cast<TH1*>(hist);
        if (ihist!=nullptr) {
          ihist->SetDirectory(nullptr);
