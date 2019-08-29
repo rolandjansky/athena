@@ -18,7 +18,7 @@ Sim_tf.py \
 --simulator 'FullG4_LongLived' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py' \
---preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;simFlags.OptionalUserActionList.addAction("G4UA::VerboseSelectorTool");simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","TargetEvent",-1);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","TargetPdgIDs", [413, 511, 513, 521]);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","TargetTrack",999999999);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","VerboseLevel",2);' \
+--preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True;simFlags.OptionalUserActionList.addAction("G4UA::VerboseSelectorTool",["Event","Tracking","Step"]);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","TargetEvent",-1);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","TargetPdgIDs", [413, 511, 513, 521]);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","TargetTrack",999999999);simFlags.UserActionConfig.addConfig("G4UA::VerboseSelectorTool","VerboseLevel",2);' \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/user.sgargiul.ZPrimebb.FlatPt.9999_EVNT.pool.root" \
