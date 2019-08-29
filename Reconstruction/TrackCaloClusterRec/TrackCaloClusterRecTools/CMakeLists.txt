@@ -6,47 +6,44 @@
 atlas_subdir( TrackCaloClusterRecTools )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives
-                          Control/AthenaKernel
-                          GaudiKernel
-                          Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces                         
-                          Tracking/TrkEvent/TrkCaloExtension
-                          Tracking/TrkEvent/TrkParametersIdentificationHelpers
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          DetectorDescription/AtlasDetDescr
-                          Event/FourMomUtils
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTracking
-                          Event/xAOD/xAODTruth
-                          Event/xAOD/xAODPFlow
-                          Event/xAOD/xAODAssociations
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          InnerDetector/InDetRecTools/TrackVertexAssociationTool
-                          )
-
-# External dependencies:
-find_package( Eigen )
+atlas_depends_on_subdirs(
+   PUBLIC
+   GaudiKernel
+   Control/AthenaBaseComps
+   Control/StoreGate
+   Event/xAOD/xAODAssociations
+   Event/xAOD/xAODCaloEvent
+   Event/xAOD/xAODPFlow
+   Event/xAOD/xAODTracking
+   Event/xAOD/xAODTruth
+   InnerDetector/InDetRecTools/TrackVertexAssociationTool
+   Reconstruction/TrackCaloClusterRec/TrackCaloClusterRecInterfaces
+   Tracking/TrkEvent/TrkEventPrimitives
+   PRIVATE
+   Control/CxxUtils
+   DetectorDescription/AtlasDetDescr
+   Event/FourMomUtils
+   Event/xAOD/xAODMuon
+   Tracking/TrkDetDescr/TrkSurfaces
+   Tracking/TrkEvent/TrkCaloExtension
+   Tracking/TrkEvent/TrkParameters
+   Tracking/TrkEvent/TrkParametersIdentificationHelpers
+   Tracking/TrkEvent/TrkTrack
+   Tracking/TrkExtrapolation/TrkExInterfaces )
 
 # Component(s) in the package:
 atlas_add_library( TrackCaloClusterRecToolsLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrackCaloClusterRecTools
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel AthenaKernel TrkCaloExtension TrkParametersIdentificationHelpers 
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AtlasDetDescr FourMomUtils xAODMuon xAODTracking xAODTruth 
-                   xAODPFlow xAODAssociations TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack 
-                   TrkExInterfaces TrackVertexAssociationToolLib)
+   TrackCaloClusterRecTools/*.h src/*.cxx
+   SHARED
+   PUBLIC_HEADERS TrackCaloClusterRecTools
+   LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCaloEvent
+   TrackCaloClusterRecInterfacesLib TrackVertexAssociationToolLib
+   xAODTracking StoreGateLib TrkEventPrimitives xAODTruth
+   xAODPFlow xAODAssociations
+   PRIVATE_LINK_LIBRARIES FourMomUtils TrkSurfaces TrkTrack
+   TrkParameters TrkExInterfaces TrkCaloExtension AtlasDetDescr
+   TrkParametersIdentificationHelpers xAODMuon CxxUtils )
 
 atlas_add_component( TrackCaloClusterRecTools
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} GaudiKernel TrkCaloExtension TrkParametersIdentificationHelpers 
-                     AthenaBaseComps AtlasDetDescr xAODMuon xAODTracking xAODTruth xAODPFlow xAODAssociations 
-                     TrkSurfaces TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrackVertexAssociationToolLib 
-                     TrackCaloClusterRecToolsLib )
+   src/components/*.cxx
+   LINK_LIBRARIES GaudiKernel TrackCaloClusterRecToolsLib )
