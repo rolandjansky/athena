@@ -336,6 +336,9 @@ reducedJetList = [
                   "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList,HIGG1D2Seq,"HIGG1D2Jets")
 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG1D2Seq)
+
 DerivationFrameworkJob += HIGG1D2Seq
 
 #====================================================================
@@ -370,10 +373,14 @@ HIGG1D2SlimmingHelper.SmartCollections = ["Electrons",
                                           "Muons",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
-                                          "BTagging_AntiKt4EMTopo",
                                           "MET_Reference_AntiKt4EMPFlow",
                                           "AntiKt4EMPFlowJets",
-                                          "BTagging_AntiKt4EMPFlow",
+                                          "AntiKt4EMTopoJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201903",
+                                          "BTagging_AntiKt4EMTopo_201810",
+                                          "BTagging_AntiKt4EMPFlow_201810",
+                                          "BTagging_AntiKt4EMPFlow_201903",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
