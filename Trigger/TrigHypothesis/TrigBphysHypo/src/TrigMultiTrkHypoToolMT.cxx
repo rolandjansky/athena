@@ -16,7 +16,6 @@
 
 #include "TrigMultiTrkHypoToolMT.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

@@ -15,7 +15,6 @@
 #include "GaudiKernel/IToolSvc.h"
 
 // Athena
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/StorableConversions.h"
 
 CaloTTPpmRxIdMapCnv::CaloTTPpmRxIdMapCnv(ISvcLocator* svcloc)

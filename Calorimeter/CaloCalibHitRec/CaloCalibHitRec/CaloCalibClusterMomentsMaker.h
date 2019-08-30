@@ -14,7 +14,6 @@
  * This is a CaloClusterCollectionProcessor which can be plugged into
  * a CaloClusterMaker for calculating calibration hit based moments
  * for each CaloCluster. */
-class StoreGateSvc; 
 class CaloDetDescrManager; 
 class CaloDetDescrElement;
 class CaloCell_ID;
