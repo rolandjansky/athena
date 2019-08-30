@@ -65,5 +65,4 @@ topAlg+=ValgrindHelperAlg()
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream("Stream1")
 Stream1.ItemList += ["EventInfo#*", "McEventCollection#*" ]
-# Stream1.ForceRead=True
 Stream1.OutputFile = "McEvent.root"

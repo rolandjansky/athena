@@ -1095,7 +1095,6 @@ if doWriteESD:
 
     Stream1.ItemList = fullItemList
     Stream1.TakeItemsFromInput=TRUE
-    Stream1.ForceRead=TRUE
 
 
 # This is a way to block a usage of those folders from "default" Db:

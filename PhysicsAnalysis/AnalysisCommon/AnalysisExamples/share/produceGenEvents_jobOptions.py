@@ -60,7 +60,6 @@ PoolSvc = Service( "PoolSvc" )
 Stream1 = AthenaPoolOutputStream( "Stream1" )
 Stream1.ItemList+=["EventInfo#*"];        	 
 Stream1.ItemList+=[ "McEventCollection#*" ]
-Stream1.ForceRead=TRUE   
 Stream1.OutputFile = "McEvent.root"
 #PoolSvc.Output    = "McEvent.root"
 #==============================================================
