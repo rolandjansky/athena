@@ -45,8 +45,6 @@ namespace Trk{
     std::vector<const Trk::Track*> InpTrkList;
     InpTrkList.push_back(InpTrk);
 
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
@@ -99,8 +97,6 @@ namespace Trk{
     InpTrkList.push_back(InpTrk);
 
 
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //
@@ -150,8 +146,6 @@ namespace Trk{
     std::vector<const xAOD::TrackParticle*> InpTrkList(1,InpTrk);
 //
 
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //------  extract information about selected tracks
 //

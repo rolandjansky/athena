@@ -49,16 +49,11 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_usePointingCnst(false),
     m_useZPointingCnst(false),
     m_usePassNear(false),
-    m_usePassWithTrkErr(false),
-    m_timingProfile(nullptr)
+    m_usePassWithTrkErr(false)
    {
     declareInterface<IVertexFitter>(this);
     declareInterface<ITrkVKalVrtFitter>(this);
     declareInterface<IVertexCascadeFitter>(this);
-    
-
-
-    m_PosTrack0Charge.clear();
     
     m_BMAG    = 1.997;      /*constant ATLAS magnetic field if no exact map*/     
     m_CNVMAG  = 0.29979246;  /* conversion constant for MeV and MM */
@@ -68,7 +63,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_c_CovVrtForConstraint.clear();
     for( int i=0; i<6; i++){m_c_CovVrtForConstraint.push_back(0.);}
     m_c_MassInputParticles.clear();
-    m_c_TrackCharge.clear();
 //
     declareProperty("Robustness",   m_Robustness);
     declareProperty("RobustScale",  m_RobustScale);
@@ -81,7 +75,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     declareProperty("VertexForConstraint",  m_c_VertexForConstraint);
     declareProperty("CovVrtForConstraint",  m_c_CovVrtForConstraint);
     declareProperty("InputParticleMasses",  m_c_MassInputParticles, "List of masses of input particles (pions assumed if this list is absent)" );
-    declareProperty("ZeroChgTracks",        m_c_TrackCharge, "Numbers of neutral tracks in input set (numbering from zero)");
     declareProperty("Extrapolator",         m_extPropagator);
     declareProperty("AtlasMagFieldSvc",     m_magFieldAthenaSvc);
     declareProperty("FirstMeasuredPoint",   m_firstMeasuredPoint);
@@ -96,7 +89,6 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     declareProperty("usePassNearCnst",        m_usePassNear);
     declareProperty("usePassWithTrkErrCnst",  m_usePassWithTrkErr);
 // 
-    m_ifcovv0=0;
                                
 /*--------------------------------------------------------------------------*/
 /*  New propagator object is created. It's provided to VKalVrtCore.         */
@@ -119,36 +111,19 @@ TrkVKalVrtFitter::~TrkVKalVrtFitter(){
 }
 
 
-
 std::unique_ptr<IVKalState> TrkVKalVrtFitter::makeState()
 {
   auto state = std::make_unique<State>();
   initState (*state);
-  setDefault (*state);
   return state;
 }
 
 
 StatusCode TrkVKalVrtFitter::finalize()
 {
-    if(m_timingProfile)m_timingProfile->chronoPrint("Trk_VKalVrtFitter");
     if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"TrkVKalVrtFitter finalize() successful" << endmsg;
     return StatusCode::SUCCESS;
 }
-
-
-void TrkVKalVrtFitter::setInitializedField() {
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Execute() time magnetic field setting is called" << endmsg;
-  if(m_isAtlasField){
-      MagField::IMagFieldSvc* mtmp =   & (*m_magFieldAthenaSvc);
-      setAthenaField(mtmp);
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "MagFieldAthenaSvc is initialized and used" << endmsg;  
-  }
-  //m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
-  return;
-}
-
-
 
 
 StatusCode TrkVKalVrtFitter::initialize()
@@ -156,9 +131,6 @@ StatusCode TrkVKalVrtFitter::initialize()
     
 // Checking ROBUST algoritms
     if(m_Robustness<0 || m_Robustness>7 ) m_Robustness=0; 
-
-    int nItr=m_c_TrackCharge.size();
-    m_TrackCharge.resize(nItr);       for(int itr=0; itr<nItr; itr++)m_TrackCharge[itr]        =m_c_TrackCharge[itr];
 
 
 // Setting constraint type - not used anymore, left for old code reference here....
@@ -200,19 +172,12 @@ StatusCode TrkVKalVrtFitter::initialize()
         m_extPropagator.disable();
       }else{
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator="<<m_extPropagator<<" retrieved" << endmsg;
-        const IExtrapolator * tmp =& (*m_extPropagator);
-        setAthenaPropagator(tmp); 
+        setAthenaPropagator(m_extPropagator.get());
       }
     }
+
 //
 //
-    m_timingProfile=0;
-    sc = service("ChronoStatSvc", m_timingProfile);
-    if ( sc.isFailure() || 0 == m_timingProfile) {
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Can not find ChronoStatSvc name="<<m_timingProfile << endmsg;
-    }
-
-
 //
     if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "TrkVKalVrtFitter initialize() successful" << endmsg;
     if(msgLvl(MSG::DEBUG)){
@@ -280,9 +245,6 @@ void TrkVKalVrtFitter::initState (State& state) const
 
 
 
-
-
-
    /** Interface for Track with starting point */
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk,
@@ -294,7 +256,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
                          firstStartingPoint.y(),
                          firstStartingPoint.z(),
                          state);
-    setMomCovCalc(1);
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
     long int Charge;
@@ -315,9 +276,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
           vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
       }
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
-
 }
 
 
@@ -332,7 +291,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>
                          firstStartingPoint.y(),
                          firstStartingPoint.z(),
                          state);
-    setMomCovCalc(1);
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
     long int Charge;
@@ -353,7 +311,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>
         vxavList[it].setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
       }
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 
 }
@@ -396,7 +353,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
                            firstStartingPoint.covariancePosition()(Trk::z,Trk::y),
                            firstStartingPoint.covariancePosition()(Trk::z,Trk::z),
                            state);
-    setMomCovCalc(1);
     state.m_useAprioriVertex=true;
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
@@ -418,7 +374,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
           vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
       }
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 
 //    return  new VxCandidate(*m_tmpRecV,*m_tmpVTAV);
@@ -459,7 +414,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>
     std::vector<double> Chi2PerTrk;
     std::vector< std::vector<double> >  TrkAtVrt;
     double Chi2;
-    setMomCovCalc(1);
     sc=VKalVrtFit( vectorTrk,
                    Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
@@ -473,7 +427,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>
         vxavList[it].setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
       }
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 
 }
@@ -526,7 +479,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> &
                          startingPoint.y(),
                          startingPoint.z(),
                          state);
-    setMomCovCalc(1);
+    std::vector<const NeutralParameters*> perigeeListN(0);
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
     long int Charge;
@@ -534,7 +487,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> &
     std::vector<double> Chi2PerTrk;
     std::vector< std::vector<double> >  TrkAtVrt;
     double Chi2;
-    std::vector<const NeutralParameters*> perigeeListN(0);
     StatusCode sc=VKalVrtFit( perigeeListC, perigeeListN,
                               Vertex, Momentum, Charge, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state, true );
 
@@ -542,7 +494,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> &
     if(sc.isSuccess()) {
       tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
@@ -557,7 +508,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
                          startingPoint.y(),
                          startingPoint.z(),
                          state);
-    setMomCovCalc(1);
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
     long int Charge;
@@ -572,7 +522,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
     if(sc.isSuccess()) {
       tmpVertex = makeXAODVertex( (int)perigeeListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
@@ -610,7 +559,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> &
                            constraint.covariancePosition()(Trk::z,Trk::y),
                            constraint.covariancePosition()(Trk::z,Trk::z),
                            state);
-    setMomCovCalc(1);
     state.m_useAprioriVertex=true;
     std::vector<const NeutralParameters*> perigeeListN(0);
     Amg::Vector3D Vertex;
@@ -628,7 +576,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> &
     if(sc.isSuccess()) {
       tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
@@ -662,7 +609,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
                            constraint.covariancePosition()(Trk::z,Trk::y),
                            constraint.covariancePosition()(Trk::z,Trk::z),
                            state);
-    setMomCovCalc(1);
     state.m_useAprioriVertex=true;
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
@@ -679,7 +625,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>  
     if(sc.isSuccess()) {
       tmpVertex = makeXAODVertex( (int)perigeeListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
@@ -704,7 +649,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
                          startingPoint.y(),
                          startingPoint.z(),
                          state);
-    setMomCovCalc(1);
     std::vector<const xAOD::NeutralParticle*> xtpListN(0);
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
@@ -726,8 +670,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        }
     }
 
-    setMomCovCalc(0);          // No full covariance by default
-
     return tmpVertex;
 }
 
@@ -742,7 +684,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
                          startingPoint.y(),
                          startingPoint.z(),
                          state);
-    setMomCovCalc(1);
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
     long int Charge;
@@ -768,8 +709,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
           }
        }
     }
-
-    setMomCovCalc(0);          // No full covariance by default
 
     return tmpVertex;
 }
@@ -803,7 +742,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
                            constraint.covariancePosition()(Trk::z,Trk::y),
                            constraint.covariancePosition()(Trk::z,Trk::z),
                            state);
-    setMomCovCalc(1);
     state.m_useAprioriVertex=true;
     std::vector<const xAOD::NeutralParticle*> xtpListN(0);
     Amg::Vector3D Vertex;
@@ -825,8 +763,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
           else                    tmpVertex->addTrackAtVertex(TEL,1.);
        }
     }
-
-    setMomCovCalc(0);          // No full covariance by default
 
     return tmpVertex;
 }
@@ -852,7 +788,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
                            constraint.covariancePosition()(Trk::z,Trk::y),
                            constraint.covariancePosition()(Trk::z,Trk::z),
                            state);
-    setMomCovCalc(1);
     state.m_useAprioriVertex=true;
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
@@ -880,8 +815,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        }
     }
 
-    setMomCovCalc(0);          // No full covariance by default
-
     return tmpVertex;
 }
 
@@ -905,7 +838,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
     double Chi2;
     if(sc.isSuccess()) {
       setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
-      setMomCovCalc(1); 
       TLorentzVector Momentum;
       long int Charge;
       sc=VKalVrtFit( vectorTrk,
@@ -923,7 +855,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk
           vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
       }
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
@@ -934,7 +865,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
     Amg::Vector3D VertexIni(0.,0.,0.);
     StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni, state);
     if( sc.isSuccess()) setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
-    setMomCovCalc(1);
     std::vector<const NeutralParameters*> perigeeListN(0);
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
@@ -950,7 +880,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
     if(sc.isSuccess()) {
        tmpVertex = makeXAODVertex( 0, Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
@@ -962,7 +891,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
     Amg::Vector3D VertexIni(0.,0.,0.);
     StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni, state); 
     if( sc.isSuccess()) setApproximateVertex(VertexIni.x(),VertexIni.y(),VertexIni.z(),state);
-    setMomCovCalc(1);
     Amg::Vector3D Vertex;
     TLorentzVector Momentum;
     long int Charge;
@@ -977,7 +905,6 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> 
     if(sc.isSuccess()) {
        tmpVertex = makeXAODVertex( (int)perigeeListN.size(), Vertex, ErrorMatrix, Chi2PerTrk, TrkAtVrt, Chi2, state );
     }
-    setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
@@ -1035,12 +962,6 @@ Amg::MatrixX * TrkVKalVrtFitter::GiveFullMatrix(int NTrk, std::vector<double> & 
       }
    }
    return mtx;
-}
-
-
-void TrkVKalVrtFitter::clearMemory()
-{
-  return;
 }
 
 

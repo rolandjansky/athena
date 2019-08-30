@@ -43,13 +43,9 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
         bool ifCovV0 /*= false*/)
 {
     State& state = dynamic_cast<State&> (istate);
-    if (ifCovV0)
-      m_ifcovv0 = ifCovV0;
 //
 //------  extract information about selected tracks
 //
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 
     int ntrk=0;
     StatusCode sc=CvtTrkTrack(InpTrk,ntrk,state);
@@ -76,10 +72,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
         bool ifCovV0 /*= false*/)
 {
     State& state = dynamic_cast<State&> (istate);
-    if (ifCovV0)
-      m_ifcovv0 = ifCovV0;
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
+
 //
 //------  extract information about selected tracks
 //
@@ -182,10 +175,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
         bool ifCovV0 /*= false*/)
 {
     State& state = dynamic_cast<State&> (istate);
-    if (ifCovV0)
-      m_ifcovv0 = ifCovV0;
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
+
 //
 //------  extract information about selected tracks
 //
@@ -223,10 +213,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
         bool ifCovV0 /*= false*/)
 {
     State& state = dynamic_cast<State&> (istate);
-    if (ifCovV0)
-      m_ifcovv0 = ifCovV0;
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
+
 //
 //------  extract information about selected tracks
 //
@@ -298,10 +285,6 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
         bool ifCovV0)
 {
 //
-//-----  Timing
-//
-     if(m_timingProfile)m_timingProfile->chronoStart("Trk_VKalVrtFitter");
-//
 //------ Variables and arrays needed for fitting kernel
 //
     int ierr,i;
@@ -346,7 +329,6 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 
     Chi2 = 100000000.;
     if(ierr){
-      if(m_timingProfile)m_timingProfile->chronoStop("Trk_VKalVrtFitter");
       return ierr;
     }
 //  
@@ -410,7 +392,6 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
       TrkPar[2] = -TrkPar[2];        // Change of sign needed
       TrkAtVrt.push_back( TrkPar );
     }
-    if(m_timingProfile)m_timingProfile->chronoStop("Trk_VKalVrtFitter");
     return 0;
   }
 
@@ -536,8 +517,6 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
  
     CovVrtTrk.resize(DIM*(DIM+1)/2);
 
-    //m_timingProfile->chronoStart("Trk_CovMatrix");
-
     ip=0;
     for( i=0; i<DIM;i++) {
       for( j=0; j<=i; j++) {
@@ -640,9 +619,8 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
   }
   
 
-  int  TrkVKalVrtFitter::VKalGetNDOF(const IVKalState& istate) const
+  int  TrkVKalVrtFitter::VKalGetNDOF(const State& state) const
   {    
-    const State& state = dynamic_cast<const State&> (istate);
     if(!state.m_FitStatus) return 0;
     int NDOF=2*state.m_FitStatus-3;
     if(state.m_usePointingCnst)         { NDOF+=2; }

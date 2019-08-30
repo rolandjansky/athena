@@ -35,11 +35,6 @@ namespace Trk{
   {
     State& state = dynamic_cast<State&> (istate);
 //
-//--- Magnetic field
-//
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
-//
 //  Convert particles and setup reference frame
 //
     int ntrk=0; 
@@ -104,11 +99,6 @@ namespace Trk{
                                               IVKalState& istate)
   {
     State& state = dynamic_cast<State&> (istate);
-//
-//--- Magnetic field
-//
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
@@ -175,11 +165,6 @@ namespace Trk{
   {
     State& state = dynamic_cast<State&> (istate);
 //
-//--- Magnetic field
-//
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
-//
 //  Convert particles and setup reference frame
 //
     int ntrk=0; 
@@ -244,11 +229,6 @@ namespace Trk{
                                               IVKalState& istate)
   {
     State& state = dynamic_cast<State&> (istate);
-//
-//--- Magnetic field
-//
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
