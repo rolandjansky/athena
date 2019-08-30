@@ -665,7 +665,7 @@ class CaloCellGetter (Configured)  :
                 theCCERescalerTool.Folder = "/LAR/CellCorrOfl/EnergyCorr"
                 from IOVDbSvc.CondDB import conddb
                 # conddb.addFolder("","/LAR/CellCorrOfl/EnergyCorr<tag>EnergyScale-00</tag><db>sqlite://;schema=escale.db;dbname=COMP200</db>")
-                conddb.addFolder("LAR_OFL", "/LAR/CellCorrOfl/EnergyCorr")
+                conddb.addFolder("LAR_OFL", "/LAR/CellCorrOfl/EnergyCorr",className="AthenaAttributeList")
                 theCaloCellMaker += theCCERescalerTool
                 theCaloCellMaker.CaloCellMakerToolNames += [theCCERescalerTool]
             except Exception:
