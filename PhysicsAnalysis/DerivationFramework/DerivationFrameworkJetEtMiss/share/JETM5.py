@@ -20,12 +20,6 @@ from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 applyPFOAugmentation(DerivationFrameworkJob)
 
 #====================================================================
-# BTAGGING INFO FOR PFLOW JET
-#====================================================================
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm5Seq)
-
-#====================================================================
 # SKIMMING TOOL 
 #====================================================================
 expression = '( (EventInfo.eventTypeBitmask==1) || HLT_noalg_zb_L1ZB )'
@@ -99,13 +93,26 @@ if doTruthThinning and DerivationFrameworkIsMonteCarlo:
     thinningTools.append(JETM5TruthThinningTool)    
 
 #=======================================
+# CREATE PRIVATE SEQUENCE
+#=======================================
+
+jetm5Seq = CfgMgr.AthSequencer("JETM5Sequence")
+DerivationFrameworkJob += jetm5Seq
+
+#=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM5Kernel",
-									SkimmingTools = [JETM5SkimmingTool],
-									ThinningTools = thinningTools)
+jetm5Seq += CfgMgr.DerivationFramework__DerivationKernel(	name = "JETM5Kernel",
+                                                                SkimmingTools = [JETM5SkimmingTool],
+                                                                ThinningTools = thinningTools)
+
+#====================================================================
+# BTAGGING INFO FOR PFLOW JET
+#====================================================================
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm5Seq)
 
 #====================================================================
 # SET UP STREAM   

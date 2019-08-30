@@ -220,7 +220,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm3Seq)
 addQGTaggerTool(jetalg="AntiKt4EMTopo", sequence=jetm3Seq, algname="QGTaggerToolAlg")
 
 # MVfJvt #
-applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm3Seq, algname='JetForwardJvtToolBDTAlg')
+#applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm3Seq, algname='JetForwardJvtToolBDTAlg')
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
