@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -40,6 +40,10 @@ namespace DerivationFramework {
       declareProperty( "ApplyAnd", m_and,
                        "Use IThinningSvc::Operator::And instead of "
                        "IThinningSvc::Operator::Or" );
+      declareProperty( "DoTauTracksThinning", m_doTauTracksThinning,
+                       "Apply thinning to tau tracks in addition to ID tracks" );
+      declareProperty( "TauTracksKey", m_tauTracksSGKey,
+                       "StoreGate key of the tau track container" );
    }
 
    StatusCode TauTrackParticleThinning::initialize() {
@@ -163,7 +167,7 @@ namespace DerivationFramework {
             // If it is, set the mask for it:
             mask.at( tpLink.index() ) = true;
          }
-         // Select the track particles in a cone if it was requested:
+         // Select the track particles in a cone if it was requested (NOT RECOMMENDED):
          if( m_coneSize > 0.0 ) {
             trIC.select( tau, m_coneSize, importedTrackParticles, mask );
          }
@@ -181,7 +185,45 @@ namespace DerivationFramework {
          ( m_and ? IThinningSvc::Operator::And : IThinningSvc::Operator::Or );
       ATH_CHECK( m_thinningSvc->filter( *importedTrackParticles, mask,
                                         opType ) );
-
+      
+      // Apply thinning to tau track collection if requested
+      if( m_doTauTracksThinning ) {
+	const xAOD::TauTrackContainer* importedTauTracks = nullptr;
+	ATH_CHECK( evtStore()->retrieve( importedTauTracks, m_tauTracksSGKey ) );
+	
+	if( importedTauTracks->size() == 0 ) {
+	  return StatusCode::SUCCESS;
+	}    
+	
+	std::vector< bool > mask_tautracks( importedTauTracks->size(), false );
+	
+	for( const xAOD::TauJet* tau : tauToCheck ) {
+	  // Get all the associated charged tau tracks:
+	  auto ttLinks = tau->tauTrackLinks(xAOD::TauJetParameters::TauTrackFlag::classifiedCharged );
+	  // Process the links:
+	  for( const auto& ttLink : ttLinks ) {
+            if( ! ttLink.isValid() ) {
+	      continue;
+            }
+            if( ttLink.dataID() != m_tauTracksSGKey ) {
+               ATH_MSG_FATAL( "Charged tau track does not come from "
+                              "container \"" << m_tauTracksSGKey << "\"" );
+               return StatusCode::FAILURE;
+            }
+            // If it is, set the mask for it:
+            mask_tautracks.at( ttLink.index() ) = true;
+         }
+         // Select the tau tracks in a cone if it was requested (NOT RECOMMENDED):
+	  if( m_coneSize > 0.0 ) {
+	    trIC.select( tau, m_coneSize, importedTauTracks, mask_tautracks );
+	  }
+	}
+	
+	// don't expect And-type thinning operation will be needed for tau tracks
+	ATH_CHECK( m_thinningSvc->filter( *importedTauTracks, mask_tautracks,
+					  IThinningSvc::Operator::Or ) );
+      }
+      
       // Return gracefully:
       return StatusCode::SUCCESS;
    }
