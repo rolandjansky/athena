@@ -326,7 +326,7 @@ MdtCondDbAlg::loadDataPsLv(EventIDRange & rangeW, std::unique_ptr<MdtCondDbData>
         const coral::AttributeList& atr=itr->second;
     
         if(atr.size()){
-            hv_name = *(static_cast<const std::string*>((atr["fsmCurrentState"]).addressOfData()));
+            hv_name = *(static_cast<const std::string*>((atr["fsm_currentState"]).addressOfData()));
             std::string delimiter = " ";
             std::vector<std::string> tokens;
             MuonCalib::MdtStringUtils::tokenize(hv_name, tokens, delimiter);

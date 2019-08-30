@@ -29,11 +29,16 @@ class MdtCondDbAlg(CfgMgr.MdtCondDbAlg):
                 kwargs['isData'] = False
             if globalflags.DataSource == 'data':
                 kwargs['isData'] = True
-                kwargs['isRun1'] = False
+                kwargs['isRun1'] = conddb.dbname == 'COMP200'
         super(MdtCondDbAlg,self).__init__(name,**kwargs)
         if globalflags.DataSource == 'data':
-            addFolder(self, "DCS_OFL", "/MDT/DCS/HV")
-            addFolder(self, "DCS_OFL", "/MDT/DCS/LV")
+            if kwargs['isRun1']:
+                addFolder(self, "DCS_OFL", "/MDT/DCS/PSHVMLSTATE")
+                addFolder(self, "DCS_OFL", "/MDT/DCS/PSLVCHSTATE")
+                addFolder(self, "DCS_OFL", "/MDT/DCS/DROPPEDCH")
+            else:
+                addFolder(self, "DCS_OFL", "/MDT/DCS/HV")
+                addFolder(self, "DCS_OFL", "/MDT/DCS/LV")
         else: # if MC or simulation
             addFolder(self, "DCS_OFL", "/MDT/DCS/DROPPEDCH"  )
             addFolder(self, "DCS_OFL", "/MDT/DCS/PSLVCHSTATE")
