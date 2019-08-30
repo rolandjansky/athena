@@ -77,6 +77,15 @@ def TrigIDPhysValMonitoringTool():
     ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
+
+    name = "ElectronDuff"
+    pdgid = 11
+    useHighestPT = True
+    chainnames = [
+      "HLT_e.*:xAODTracks_Electron"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
+
     name = "Electron_offline"
     pdgid = 11
     useHighestPT = True
@@ -97,6 +106,15 @@ def TrigIDPhysValMonitoringTool():
       "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_FTF"
     ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
+
+    name = "MuonDuff"
+    pdgid = 13
+    useHighestPT = True
+    chainnames = [
+      "HLT_mu.*:xAODTracks_Muon"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
+
 
     ############### Muons ###############
     name = "Muon_offline"
@@ -119,6 +137,16 @@ def TrigIDPhysValMonitoringTool():
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_Tau_FTF:roi=forID",
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
       "HLT_tau.*idperf.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
+    ]
+    outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
+
+    name = "TauDuff"
+    pdgid = 15
+    useHighestPT = True
+    chainnames = [
+      "HLT_tau.*:key=xAODTracks_TauCore",
+      "HLT_tau.*:key=xAODTracks_TauIso",
+      "HLT_tau.*:key=xAODTracks_Tau"
     ]
     outputlist += [makePhysvalMon(name, pdgid, chainnames, useHighestPT )]
 
