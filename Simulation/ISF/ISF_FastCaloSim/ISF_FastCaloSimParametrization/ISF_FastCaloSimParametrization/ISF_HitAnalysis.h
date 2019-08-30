@@ -86,10 +86,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
 
  private:
 
-   /** a handle on Store Gate for access to the Event Store */
-   //StoreGateSvc* m_storeGate;
-   //StoreGateSvc* m_detStore;
-
    const IGeoModelSvc *m_geoModel;
    const TileInfo *m_tileInfo;
    const LArEM_ID *m_larEmID;
