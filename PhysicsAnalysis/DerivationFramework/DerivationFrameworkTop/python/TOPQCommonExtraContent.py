@@ -19,8 +19,9 @@
 #   TOPQExtraVariables_AntiKt4EMPFlowJets
 #   TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 #   TOPQExtraVariables_AntiKt2PV0TrackJets
-#   TOPQExtraVariables_BTagging_AntiKt4EMPFlow
-#   TOPQExtraVariables_BTagging_AntiKt4EMTopo
+#   TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201810
+#   TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201903
+#   TOPQExtraVariables_BTagging_AntiKt4EMTopo_201810
 #   TOPQExtraVariables_CombinedMuonTrackParticles
 #   TOPQExtraVariables_ExtrapolatedMuonTrackParticles
 #   TOPQExtraVariables_InDetTrackParticles
@@ -289,22 +290,6 @@ TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                          + "DFCommonJets_Calib_m."
                                          + "DFCommonJets_Calib_phi."
                                          + "DFCommonJets_Calib_pt."
-                                         + "DFCommonJets_FixedCutBEff_60_MV2c10."
-                                         + "DFCommonJets_FixedCutBEff_60_DL1."
-                                         + "DFCommonJets_FixedCutBEff_70_MV2c10."
-                                         + "DFCommonJets_FixedCutBEff_70_DL1."
-                                         + "DFCommonJets_FixedCutBEff_77_MV2c10."
-                                         + "DFCommonJets_FixedCutBEff_77_DL1."
-                                         + "DFCommonJets_FixedCutBEff_85_MV2c10."
-                                         + "DFCommonJets_FixedCutBEff_85_DL1."
-                                         + "DFCommonJets_HybBEff_60_MV2c10."
-                                         + "DFCommonJets_HybBEff_60_DL1."
-                                         + "DFCommonJets_HybBEff_70_MV2c10."
-                                         + "DFCommonJets_HybBEff_70_DL1."
-                                         + "DFCommonJets_HybBEff_77_MV2c10."
-                                         + "DFCommonJets_HybBEff_77_DL1."
-                                         + "DFCommonJets_HybBEff_85_MV2c10."
-                                         + "DFCommonJets_HybBEff_85_DL1."
                                          + "DFCommonJets_Jvt."
                                          + "DFCommonJets_passJvt."
                                          + "DFCommonJets_passOR."
@@ -604,7 +589,7 @@ TOPQExtraVariables_BTagging_AntiKtVR30Rmax4Rmin02Track =  ["BTagging_AntiKtVR30R
 
 # heavy flavour tagging
 # default variables are in : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkFlavourTag/python/BTaggingContent.py
-TOPQExtraVariables_BTagging_AntiKt4EMPFlow = ["BTagging_AntiKt4EMPFlow."
+TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201810 = ["BTagging_AntiKt4EMPFlow_201810."
                                               + "BTagTrackToJetAssociator."
                                               + "BTagTrackToJetAssociatorBB."
                                               + "IP3D_pb."
@@ -618,7 +603,37 @@ TOPQExtraVariables_BTagging_AntiKt4EMPFlow = ["BTagging_AntiKt4EMPFlow."
                                               + "SV1_pu."
                                               + "SV1_vertices"]
 
-TOPQExtraVariables_BTagging_AntiKt4EMTopo = ["BTagging_AntiKt4EMTopo."
+TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201903 = ["BTagging_AntiKt4EMPFlow_201903."
+                                              + "BTagTrackToJetAssociator."
+                                              + "BTagTrackToJetAssociatorBB."
+                                              + "IP3D_pb."
+                                              + "IP3D_pu."
+                                              + "JetFitter_JFvertices."
+                                              + "JetFitter_tracksAtPVlinks."
+                                              + "MSV_badTracksIP."
+                                              + "MSV_vertices."
+                                              + "SV1_badTracksIP."
+                                              + "SV1_pb."
+                                              + "SV1_pu."
+                                              + "SV1_vertices"]
+
+TOPQExtraVariables_BTagging_AntiKt4EMTopo_201810 = ["BTagging_AntiKt4EMTopo_201810."
+                                             + "DFCommonJets_FixedCutBEff_60_MV2c10."
+                                             + "DFCommonJets_FixedCutBEff_60_DL1."
+                                             + "DFCommonJets_FixedCutBEff_70_MV2c10."
+                                             + "DFCommonJets_FixedCutBEff_70_DL1."
+                                             + "DFCommonJets_FixedCutBEff_77_MV2c10."
+                                             + "DFCommonJets_FixedCutBEff_77_DL1."
+                                             + "DFCommonJets_FixedCutBEff_85_MV2c10."
+                                             + "DFCommonJets_FixedCutBEff_85_DL1."
+                                             + "DFCommonJets_HybBEff_60_MV2c10."
+                                             + "DFCommonJets_HybBEff_60_DL1."
+                                             + "DFCommonJets_HybBEff_70_MV2c10."
+                                             + "DFCommonJets_HybBEff_70_DL1."
+                                             + "DFCommonJets_HybBEff_77_MV2c10."
+                                             + "DFCommonJets_HybBEff_77_DL1."
+                                             + "DFCommonJets_HybBEff_85_MV2c10."
+                                             + "DFCommonJets_HybBEff_85_DL1."
                                              + "JetVertexCharge_discriminant."
                                              + "MSV_N2Tpair."
                                              + "MSV_energyTrkInJet."

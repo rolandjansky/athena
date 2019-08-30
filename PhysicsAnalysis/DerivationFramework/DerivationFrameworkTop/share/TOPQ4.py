@@ -69,6 +69,9 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 # Create the private sequence
 TOPQ4Sequence = CfgMgr.AthSequencer("TOPQ4Sequence")
 
+# First skim on leptons
+TOPQ4Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ4SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
+
 #====================================================================
 # Special jets
 #====================================================================
@@ -78,9 +81,6 @@ from TrackCaloClusterRecTools.TrackCaloClusterConfig import runTCCReconstruction
 import AthenaCommon.AtlasUnixStandardJob
 include("RecExCond/AllDet_detDescr.py")
 runTCCReconstruction(TOPQ4Sequence, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles",outputTCCName="TrackCaloClustersCombinedAndNeutral")
-
-# First skim on leptons
-TOPQ4Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ4SkimmingKernel_lep", SkimmingTools = skimmingTools_lep)
 
 # Before any custom jet reconstruction, it's good to set up the output list
 from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
