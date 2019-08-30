@@ -2130,8 +2130,8 @@ class TopoAlgoDef:
             alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
             alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinMSqr', 2*2)
-            alg.addvariable('MaxMSqr', 9*9)
+            alg.addvariable('MinMSqr', 8*8)
+            alg.addvariable('MaxMSqr', 15*15)
             alg.addvariable('MinET1', 4)
             alg.addvariable('MinET2', 4)
             
