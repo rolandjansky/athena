@@ -64,3 +64,8 @@ atlas_add_test( MBTSTimeDiffEventInfoAlgConfig_test
                 SCRIPT python -m TileRecAlgs.MBTSTimeDiffEventInfoAlgConfig
                 PROPERTIES TIMEOUT 300
                 POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileDigitsFilterConfig_test
+                SCRIPT python -m TileRecAlgs.TileDigitsFilterConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)
