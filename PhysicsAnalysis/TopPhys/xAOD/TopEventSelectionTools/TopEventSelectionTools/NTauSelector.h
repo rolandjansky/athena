@@ -17,6 +17,8 @@ public:
     explicit NTauSelector(const std::string& params);
 
     bool apply(const top::Event& event) const override;
+
+    bool applyParticleLevel(const top::ParticleLevelEvent& event) const;
 };
 
 }
