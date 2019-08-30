@@ -12,8 +12,6 @@ CaloCellEnergyRescaler::CaloCellEnergyRescaler (const std::string& type,
 						const IInterface* parent) :
   base_class (type, name, parent) {}
 
-                                                                                
-
 CaloCellEnergyRescaler::~CaloCellEnergyRescaler() {}
 
 
@@ -28,7 +26,6 @@ CaloCellEnergyRescaler::process (CaloCellContainer* theCaloCellContainer,
                                  const EventContext& ctx) const {
 
   SG::ReadCondHandle<AthenaAttributeList> eneShiftHdl(m_eneShiftFldr,ctx);
-
 
   //Possible optimization: If the following lines turn out to be slow to be executed on every event, 
   //put them into a conditions algo
