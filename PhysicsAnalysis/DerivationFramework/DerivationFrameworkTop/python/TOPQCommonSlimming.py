@@ -57,8 +57,9 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1
 
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4EMPFlowJets
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMPFlow
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMTopo
+  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201810
+  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMPFlow_201903
+  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_BTagging_AntiKt4EMTopo_201810
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 
   # For TCC W/Z taggers, see TOPQDERIV-80

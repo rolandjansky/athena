@@ -176,7 +176,7 @@ def setup_jet(TOPQname, ToolSvc):
     smallR_sel = 'count({}) >= 5'.format(akt4EMcalib_20)
     largeR_sel = 'count({}) >= 1'.format(largeR_200)
     btag_sel = ('count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV'
-                ' && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_MV2c10) > 0')
+                ' && AntiKt4EMTopoJets_BTagging201810.DFCommonJets_FixedCutBEff_85_MV2c10) > 0')
     TOPQ_Selection_jet = '(({} && {}) || {})'.format(btag_sel,
                                                      smallR_sel,
                                                      largeR_sel)
