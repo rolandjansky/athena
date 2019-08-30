@@ -25,7 +25,7 @@ def createTileConfigFlags():
      tcf.addFlag('Tile.TimeMaxForAmpCorrection', lambda prevFlags : (prevFlags.Beam.BunchSpacing / 2.))
      tcf.addFlag('Tile.OfcFromCOOL', True)
      tcf.addFlag('Tile.BestPhaseFromCOOL', lambda prevFlags : (prevFlags.Beam.Type == 'collisions'))
-     tcf.addFlag('Tile.readDigits', True)
+     tcf.addFlag('Tile.readDigits', lambda prevFlags : not prevFlags.Input.isMC)
      tcf.addFlag('Tile.doOverflowFit', True)
      tcf.addFlag('Tile.zeroAmplitudeWithoutDigits', _zeroAmplitudeWithouDigits)
      tcf.addFlag('Tile.correctPedestalDifference', _correctPedestalDifference)
