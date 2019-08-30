@@ -22,8 +22,8 @@ bool NElectronSelector::apply(const top::Event& event) const {
 bool NElectronSelector::applyParticleLevel(const top::ParticleLevelEvent& event) const {
     // If any of the required collections is a nullptr (i.e. has not been
     // loaded) return false.
-    if ( not event.m_electrons ){
-	return false;
+    if ( !event.m_electrons ){
+      return false;
     }
 
     auto func = [&](const xAOD::TruthParticle* truElPtr){return truElPtr->pt() > value();};
