@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFMSSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, muEFCBInvMassSequence, muEFCBInvMassFSSequence
 
 
 
@@ -42,11 +42,17 @@ def muIsoSequenceCfg(flags):
 def muEFCBSequenceCfg(flags):
     return muEFCBSequence()
 
+def muEFCBInvMSequenceCfg(flags):
+    return muEFCBInvMassSequence()
+
 def FSmuEFSASequenceCfg(flags):
     return muEFSAFSSequence()
 
 def FSmuEFCBSequenceCfg(flags):
     return muEFCBFSSequence()
+
+def FSmuEFCBInvMSequenceCfg(flags):
+    return muEFCBInvMassFSSequence()
 
 def muEFIsoSequenceCfg(flags):
     return muEFIsoSequence()
@@ -154,7 +160,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     # --------------------
     def getmuEFCB(self):
-        return self.getStep(4,'EFCB', [muEFCBSequenceCfg])
+        if 'invm' in self.chainPart['invMassInfo']:
+            return self.getStep(4,'EFCBinvM', [muEFCBInvMSequenceCfg])
+        else:
+            return self.getStep(4,'EFCB', [muEFCBSequenceCfg])
  
     # --------------------
     def getFSmuEFSA(self):
@@ -162,7 +171,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
     # --------------------
     def getFSmuEFCB(self):
-        return self.getStep(2,'FSmuEFCB', [FSmuEFCBSequenceCfg])
+        if 'invm' in self.chainPart['invMassInfo']:
+            return self.getStep(2,'FSmuEFCB', [FSmuEFCBInvMSequenceCfg])
+        else:
+            return self.getStep(2,'FSmuEFCB', [FSmuEFCBSequenceCfg])
 
     #---------------------
     def getmuEFIso(self):
