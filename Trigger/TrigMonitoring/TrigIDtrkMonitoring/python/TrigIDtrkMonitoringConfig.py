@@ -305,7 +305,7 @@ def TrigIDtrkMonitoringTool():
 		tidatauduff = TrigTestBase(name = "IDTauTool",
 				       histoPathBase = "/Trigger/HLT")
 		tidatauduff.AnalysisConfig = "Tier0"
-		tidatauduff.SliceTag = "HLT/TRIDT/Tau/Expert"
+		tidatauduff.SliceTag = "HLT/TRIDT/TauDuff/Expert"
 		tidatauduff.UseHighestPT = True
 		tidatauduff.ntupleChainNames += [
 			"Offline",
