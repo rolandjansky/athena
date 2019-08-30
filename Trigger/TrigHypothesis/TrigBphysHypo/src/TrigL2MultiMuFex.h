@@ -27,7 +27,7 @@
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphysAuxContainer.h"
