@@ -112,6 +112,7 @@ class BtagFexSplit (TrigBtagFex):
         self.UsePriVtxKeyBackup = True
         self.PriVtxKeyBackup = "EFHistoPrmVtx"
         self.TrackKey  = TrackKey
+        self.JetCalibrationName = "AntiKt4EMTopo"
         
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True

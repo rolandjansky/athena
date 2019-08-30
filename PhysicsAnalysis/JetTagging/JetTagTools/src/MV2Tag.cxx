@@ -19,7 +19,6 @@
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
-#include "JetTagTools/JetTagUtils.h"
 
 #include "AthenaKernel/Units.h"
 #include "TList.h"
