@@ -145,3 +145,12 @@ class TrigMuonEFCombinerHypoMonitoring(GenericMonitoringTool):
                              xbins=100, xmin=-3.2, xmax=3.2)
         self.defineHistogram('Phi_sel', type='TH1F', path='EXPERT', title="Selected Phi reconstruction from #TrigMuonEFCombinerHypo; Phi",
                              xbins=100, xmin=-3.15, xmax=3.15)
+
+
+class TrigMuonEFInvMassHypoMonitoring(GenericMonitoringTool):
+
+    def __init__ (self, name="TrigMuonEFInvMassHypoMonitoring"):
+        super(TrigMuonEFInvMassHypoMonitoring, self).__init__(name)
+
+        self.defineHistogram('Mass', type='TH1F', path='EXPERT', title="Dimuon mass from #TrigMuonEFInvMHypo; Mass (GeV)",
+                             xbins=200, xmin=0, xmax=200)
