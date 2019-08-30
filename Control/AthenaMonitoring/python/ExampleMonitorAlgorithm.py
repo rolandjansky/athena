@@ -49,7 +49,7 @@ def ExampleMonitoringConfig(inputFlags):
     # some generic property
     # exampleMonAlg.RandomHist = True
     # to enable a trigger filter, for example:
-    exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
+    #exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -83,7 +83,7 @@ def ExampleMonitoringConfig(inputFlags):
     ### STEP 5 ###
     # Configure histograms
     myGroup.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
-                            path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
+                            path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0)
     myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
                             path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
     myGroup.defineHistogram('random', title='LB;x;Events',
