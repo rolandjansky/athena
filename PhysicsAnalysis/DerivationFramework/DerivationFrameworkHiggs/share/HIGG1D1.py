@@ -289,13 +289,15 @@ HIGG1D1SlimmingHelper.SmartCollections = ["Electrons",
 					  "MET_Reference_AntiKt4EMPFlow",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4EMPFlowJets",
-                                          "BTagging_AntiKt4EMTopo",
-                                          "BTagging_AntiKt4EMPFlow",
+                                          "AntiKt4EMTopoJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201810",
+                                          "AntiKt4EMPFlowJets_BTagging201903",
+                                          "BTagging_AntiKt4EMTopo_201810",
+                                          "BTagging_AntiKt4EMPFlow_201810",
+                                          "BTagging_AntiKt4EMPFlow_201903",
                                           "InDetTrackParticles",
                                           "PrimaryVertices" ]
 
-HIGG1D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer',
-                                            'BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
 
 HIGG1D1SlimmingHelper.AllVariables = ["HLT_xAOD__PhotonContainer_egamma_Iso_Photons","Electrons","Photons","TruthPrimaryVertices","egammaClusters","GSFConversionVertices","TruthEvents", "TruthParticles", "TruthVertices", "AntiKt4TruthJets","AntiKt4TruthWZJets","TruthElectrons","TruthPhotons","TruthMuons","TruthTaus","TruthBoson","PrimaryVertices","MET_Truth", "MET_Track","egammaTruthParticles","CaloCalTopoClusters","HggPrimaryVertices"]
 
@@ -319,7 +321,7 @@ HIGG1D1SlimmingHelper.ExtraVariables = ["Muons.quality.EnergyLoss.energyLossType
                                         "TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea",
                                         "TruthIsoCentralEventShape.DensitySigma.Density.DensityArea",
                                         "TruthIsoForwardEventShape.DensitySigma.Density.DensityArea",
-                                        "BTagging_AntiKt4EMTopo.MV2cl100_discriminant"]
+                                        "BTagging_AntiKt4EMTopo_201810.MV2cl100_discriminant"]
 
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 HIGG1D1SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
