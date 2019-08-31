@@ -31,7 +31,7 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const Track*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& istate)
+                                              IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //
@@ -96,7 +96,7 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const xAOD::TrackParticle*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& istate)
+                                              IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //
@@ -161,7 +161,7 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const TrackParticleBase*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& istate)
+                                              IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //
@@ -226,7 +226,7 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const TrackParameters*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& istate)
+                                              IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //

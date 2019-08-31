@@ -111,7 +111,7 @@ TrkVKalVrtFitter::~TrkVKalVrtFitter(){
 }
 
 
-std::unique_ptr<IVKalState> TrkVKalVrtFitter::makeState()
+std::unique_ptr<IVKalState> TrkVKalVrtFitter::makeState() const
 {
   auto state = std::make_unique<State>();
   initState (*state);
@@ -640,7 +640,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 }
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
                                      const Amg::Vector3D & startingPoint,
-                                     IVKalState& istate)
+                                     IVKalState& istate) const
 {
     State& state = dynamic_cast<State&> (istate);
 
@@ -724,7 +724,7 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 }
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
                                      const xAOD::Vertex & constraint,
-                                     IVKalState& istate)
+                                     IVKalState& istate) const
 {
     State& state = dynamic_cast<State&> (istate);
 
@@ -1029,7 +1029,7 @@ xAOD::Vertex * TrkVKalVrtFitter::makeXAODVertex( int Neutrals,
         const Amg::Vector3D& Vertex, const std::vector<double> & fitErrorMatrix, 
 	const std::vector<double> & Chi2PerTrk,  const std::vector< std::vector<double> >& TrkAtVrt,
                                                  double Chi2,
-                                                 const State& state)
+                                                 const State& state) const
 {
     long int NTrk = state.m_FitStatus;
     long int Ndf = VKalGetNDOF(state)+state.m_planeCnstNDOF;

@@ -99,7 +99,6 @@ namespace Trk{
     if( TYPE == 14) { state.m_usePhiCnst = true; state.m_useThetaCnst = true; state.m_usePassNear  = true;}
   }
 
-
 //
 // Define finctions for on-the-fly fitter configuration 
 //
