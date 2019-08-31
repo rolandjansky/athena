@@ -139,9 +139,12 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
   // Get the first fitQuality
   // ========================
 
-  const Trk::TrackParameters* combinedFirstSmoothedState = m_combiner->combine(*firstSmoothedState, true);
-  const Trk::MultiComponentStateOnSurface* updatedStateOnSurface = new MultiComponentStateOnSurface(
-    firstSmootherMeasurementOnTrack, combinedFirstSmoothedState, firstSmoothedState, fitQuality.release());
+  std::unique_ptr<Trk::TrackParameters> combinedFirstSmoothedState = m_combiner->combine(*firstSmoothedState, true);
+  const Trk::MultiComponentStateOnSurface* updatedStateOnSurface 
+    = new MultiComponentStateOnSurface(firstSmootherMeasurementOnTrack, 
+                                       combinedFirstSmoothedState.release(), 
+                                       firstSmoothedState, 
+                                       fitQuality.release());
   smoothedTrajectory->push_back(updatedStateOnSurface);
 
   // =====================================================
@@ -259,7 +262,7 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
       if (!forwardsMultiStateOnSurface) {
         // Create new multiComponentState from single state
         Trk::ComponentParameters componentParameters((*trackStateOnSurface)->trackParameters(), 1.);
-        forwardsMultiStateOwn = CxxUtils::make_unique<Trk::MultiComponentState>(componentParameters);
+        forwardsMultiStateOwn = std::make_unique<Trk::MultiComponentState>(componentParameters);
         forwardsMultiState = forwardsMultiStateOwn.get();
       } else {
         forwardsMultiState = forwardsMultiStateOnSurface->components();
@@ -285,11 +288,11 @@ Trk::GsfSmoother::fit(const ForwardTrajectory& forwardTrajectory,
       const Trk::MultiComponentStateOnSurface* updatedStateOnSurface = 0;
 
       if (trackStateOnSurface == lasttrackStateOnSurface) {
-        const Trk::TrackParameters* combinedLastState = m_combiner->combine(*updatedState, true);
+        std::unique_ptr<Trk::TrackParameters> combinedLastState = m_combiner->combine(*updatedState, true);
 
         if (combinedLastState)
           updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
-            measurement.release(), combinedLastState, updatedState->clone(), fitQuality.release());
+            measurement.release(), combinedLastState.release(), updatedState->clone(), fitQuality.release());
         else
           updatedStateOnSurface =
             new Trk::MultiComponentStateOnSurface(measurement.release(), updatedState->clone(), fitQuality.release());
@@ -470,13 +473,14 @@ Trk::GsfSmoother::addCCOT(const Trk::TrackStateOnSurface* currentState,
   Trk::PseudoMeasurementOnTrack* pseudoMeasurement = new PseudoMeasurementOnTrack(locpars, covMatrix, *currentSurface);
 
   //  Combine the state using and find the mode of the distribution
-  const Trk::TrackParameters* combinedState = m_combiner->combine(*extrapolatedState, true);
+  std::unique_ptr<Trk::TrackParameters> combinedState = m_combiner->combine(*extrapolatedState, true);
 
   const Trk::FitQualityOnSurface* combinedFitQuality = m_updator->fitQuality(*extrapolatedState, *ccot);
 
   // Build a TSOS using the dummy measurement and combined state
   Trk::MultiComponentStateOnSurface* final =
-    new Trk::MultiComponentStateOnSurface(pseudoMeasurement, combinedState, extrapolatedState, combinedFitQuality);
+    new Trk::MultiComponentStateOnSurface(pseudoMeasurement, combinedState.release(), 
+                                          extrapolatedState, combinedFitQuality);
   smoothedTrajectory->push_back(updatedMCSOS);
   smoothedTrajectory->push_back(final);
   ATH_MSG_DEBUG("Successfully added CCOT ");
