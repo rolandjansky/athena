@@ -94,8 +94,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
     
     // Access to TrigFeature
-    bool Run2_Access = true;
-    // bool Run2_Access = false;
+    //    bool Run2_Access = true;
+    bool Run2_Access = false;
 
     
     if ( m_trigDecTool->isPassed(trigName) ) {
