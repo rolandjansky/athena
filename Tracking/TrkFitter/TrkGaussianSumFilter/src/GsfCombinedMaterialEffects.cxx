@@ -15,7 +15,7 @@ decription           : Implementation code for GsfCombinedMaterialEffects class
 
 #include "TrkGaussianSumFilter/MultiStateMaterialEffectsAdapter.h"
 
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
+#include "TrkGaussianSumFilter/IGSFMaterialEffects.h"
 #include "TrkGeometry/Layer.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
