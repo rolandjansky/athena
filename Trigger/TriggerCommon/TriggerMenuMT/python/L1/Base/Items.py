@@ -61,6 +61,12 @@ class MenuItemsCollection(object):
     def itemNames(self):
         return self.items.keys()
 
+    def json(self):
+        confObj = odict()
+        for item in self:
+            confObj[item.name] = item.json()
+        return confObj
+
 
 class MenuItem(object):
 
