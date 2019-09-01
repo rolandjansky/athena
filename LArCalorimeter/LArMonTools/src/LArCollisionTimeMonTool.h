@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,7 +25,6 @@
 #include "TMath.h"
 #include "TTree.h"
 
-class StoreGateSvc;
 class ITHistSvc;
 
 //class TH1F;
@@ -71,8 +70,6 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   // services
   //const EventInfo* m_evtInfo;
 
-  //StoreGateSvc* m_eventStore;
-  //  StoreGateSvc* m_detectorStore;
   //ITHistSvc* m_rootStore;
   
  private:

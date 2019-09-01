@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_MDTROD_DECODER_H
@@ -23,8 +23,6 @@
 #include <map>
 #include <vector>
 #include <cassert>
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -80,7 +78,6 @@ public:
 
 private:
 
-        StoreGateSvc *m_EvtStore;
         MDT_Hid2RESrcID* m_hid2re;
 	SG::ReadCondHandleKey<MuonMDT_CablingMap> m_readKey{this, "ReadKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
 

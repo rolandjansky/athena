@@ -5,7 +5,6 @@
 #include "MDT_RawDataProviderToolCore.h"
 #include "MuonRDO/MdtCsmContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 

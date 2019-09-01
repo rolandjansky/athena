@@ -5,7 +5,6 @@
 #include "MuonEventCnvTools/MuonEventCnvTool.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"

@@ -36,8 +36,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "GaudiKernel/IToolSvc.h"
 
 #include "TH1F.h"
