@@ -23,7 +23,7 @@ namespace NSWL1 {
     as well as the resulting trigger primitive.
 
     */
-    struct PadTrigger {
+    struct PadTrigger {//S.I make this a proper class // needs a wrap-up
         uint16_t m_bandid; ///< see bandId below
         float m_eta;
         float m_phi;
@@ -50,23 +50,10 @@ namespace NSWL1 {
         std::vector<int> m_trgPadEtaIndicesInner;
         std::vector<int> m_trgPadEtaIndicesOuter;        
         
-        //std::vector<std::vector<float>> m_pad_strip_info; // hack to match pads to strips until we fix the band id issue
-                                                        // m_pad_strip_info.size gives the number of pads in each PadTrigger
-                                                        // m_pad_strip_info[i][0] gives the multilayer id of the ith pad in this trigger
-                                                        // m_pad_strip_info[i][1] gives the gasgap id     of the ith pad in this trigger
-                                                        // m_pad_strip_info[i][2] gives the local min y   of the ith pad in this trigger
-                                                        // m_pad_strip_info[i][3] gives the local max y   of the ith pad in this trigger
-        
         std::vector< std::shared_ptr<PadData>> m_pads; ///!< digits contributing to this trigger primitive
         std::vector< std::shared_ptr<PadData>> m_padsInner; ///!< digits contributing to this trigger primitive
         std::vector< std::shared_ptr<PadData>> m_padsOuter; ///!< digits contributing to this trigger primitive
         int m_triggerindex;
-        /**
-        for now computed as as SingleWedgePadTrigger::halfPadCoordinates().ieta
-        
-        \todo when we have an inner+outer candidate, will they get the same bandid?
-        Also do we need to cache it as a datamember?
-        */
         PadTrigger() : m_bandid(0), m_eta(0), m_phi(0),m_etamin(0),m_etamax(0),m_phimin(0),m_phimax(0)
         ,m_eta_id(0), m_phi_id(0), m_multiplet_id(0),m_isSmall(0),m_moduleIdInner(0),m_moduleIdOuter(0) {
         
@@ -89,6 +76,7 @@ namespace NSWL1 {
         int isSmall ()      const {return m_isSmall;}
         int moduleIdInner() const { return m_moduleIdInner;}
         int moduleIdOuter() const { return m_moduleIdOuter;}
+
         std::vector<float> const trglocalminYInner() const { return m_trglocalminYInner; }
         std::vector<float> const trglocalmaxYInner() const { return m_trglocalmaxYInner; }
         std::vector<float> const trglocalminYOuter() const { return m_trglocalminYOuter; }

@@ -17,6 +17,9 @@
 #include "TrigT1NSWSimTools/SectorTriggerCandidate.h"
 #include "TrigT1NSWSimTools/SingleWedgePadTrigger.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
+#include "TrigT1NSWSimTools/sTGCTriggerBandsInEta.h"
+
+
 //Event info includes
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -48,8 +51,8 @@
 #include <functional>
 #include <algorithm>
 #include <map>
-#include <utility> // make_pair
-
+#include <utility>
+#include <math.h>
 
 namespace NSWL1 {
 //------------------------------------------------------------------------------
@@ -57,6 +60,8 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
                                                         const std::string& name,
                                                         const IInterface* parent) :
     AthAlgTool(type,name,parent),
+    m_EtaBandsLargeSector(BandsInEtaLargeSector),
+    m_EtaBandsSmallSector(BandsInEtaSmallSector),
     m_incidentSvc("IncidentSvc",name),
     m_detManager(0),
     m_pad_cache_runNumber(-1),
@@ -65,12 +70,15 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
     m_sTgcDigitContainer(""),
     m_sTgcSdoContainer(""),
     m_PadEfficiency(0.0),
+    m_phiIdBits(0),
     m_useSimple4of4(false),
     m_doNtuple(false),
-    m_tdrLogic()
+    m_tdrLogic(),
+    m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable",this)
 {
     declareInterface<NSWL1::IPadTriggerLogicTool>(this);
     declareProperty("TimeJitter", m_PadEfficiency = 1.0, "pad trigger efficiency (tmp placeholder)");
+    declareProperty("PhiIdBits", m_phiIdBits = 6, "Number of bit to compute Phi-Id of pad triggers");
     declareProperty("UseSimple4of4", m_useSimple4of4 = false, "use simplified logic requiring 4 hits on 4 gas gaps");
     declareProperty("DoNtuple", m_doNtuple = false, "save the trigger outputs in an analysis ntuple");
 }
@@ -79,10 +87,11 @@ PadTriggerLogicOfflineTool::~PadTriggerLogicOfflineTool() {
 
 }
 
+
+
 StatusCode PadTriggerLogicOfflineTool::initialize() {
     ATH_MSG_INFO( "initializing " << name() );
     ATH_MSG_INFO( name() << " configuration:");
-
 
     const IInterface* parent = this->parent();
     const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
@@ -96,6 +105,7 @@ StatusCode PadTriggerLogicOfflineTool::initialize() {
     // retrieve the Incident Service
     ATH_CHECK(m_incidentSvc.retrieve());
     m_incidentSvc->addListener(this,IncidentType::BeginEvent);
+    ATH_CHECK(m_lutCreatorToolsTGC.retrieve());
     ATH_CHECK( detStore()->retrieve( m_detManager ));
     
     return StatusCode::SUCCESS;
@@ -270,37 +280,37 @@ StatusCode PadTriggerLogicOfflineTool::get_tree_from_histsvc( TTree*&tree)
     return StatusCode::SUCCESS;
 }
 
+int PadTriggerLogicOfflineTool::ROI2BandId(const float &EtaTrigAtCenter, const int &SectorType){
+
+    switch(SectorType){
+        case(1)://L
+ 	        for(unsigned int i=0;i<m_EtaBandsLargeSector.size();i++){
+	    	    if(EtaTrigAtCenter < m_EtaBandsLargeSector.at(i) && EtaTrigAtCenter > m_EtaBandsLargeSector.at(i+1) ){
+                    return i;
+                }
+            }           
+            break;
+
+        case(0)://S
+	        for(unsigned int i=0;i<m_EtaBandsSmallSector.size();i++){
+		        if(EtaTrigAtCenter < m_EtaBandsSmallSector.at(i) && EtaTrigAtCenter > m_EtaBandsSmallSector.at(i+1) ){
+                    return i;
+                } 
+		    }
+            break;
+
+        default:
+            ATH_MSG_FATAL(" Unexpected SectorType="<<SectorType);
+            break;        
+    }
+    return -999;
+}
 
 
 
 
 //------------------------------------------------------------------------------
 NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandidate &stc){
-    //check if [b0,b1] is within [a0,a1]
-    static auto within=[](const auto& a0,const auto&  a1,const auto&  b0,const auto&  b1,const auto& tol){
-        if(a0<=b0 && a1>=b1) return true;
-        
-        if(b0<a0 && b1<a1){
-            if(fabs(b0-a0)<tol){
-                return true;
-            }
-        }
-        if(b0<a0 && b1>a1){
-            if(fabs(b0-a0)<tol && fabs(b1-a1)<tol){
-                return true;
-            }
-        }
-        
-        if(b1>a1 && a0<b0){
-            if(fabs(b1-a1)<tol) return true;
-        }
-        
-        if(b1>a1 && b0>a0){
-            if(fabs(b1-a1)<tol && fabs(b0-a0)<tol) return true;
-        }
-        return false;
-    };
-    
     
     PadTrigger pt;
     const Polygon roi=stc.triggerRegion3();    
@@ -316,15 +326,35 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     const float phiTrig=trigVector.Phi();
     pt.m_eta    = etaTrig;
     pt.m_phi    = phiTrig;
+
+    /*
+    ===== Recipe for projecting eta of the trigger centroid to the axis of symmetry on a sector =======
+    */
     //**************************************************************************************
     auto pad0=innertrg.pads().at(0);
-    
+    Identifier idt(pad0->id());
+    const Trk::PlaneSurface &surf = m_detManager->getsTgcReadoutElement(idt)->surface(idt);
+    Amg::Vector3D global_trgCoordinates(xcntr,ycntr,zcntr);
+    Amg::Vector2D local_trgCoordinates;
+    surf.globalToLocal(global_trgCoordinates,Amg::Vector3D(),local_trgCoordinates);
+
+    float yloc_trg=local_trgCoordinates.y();
+    Amg::Vector2D local_trgCoordinateOnAxis(0,yloc_trg);
+    Amg::Vector3D global_trgCoordinateProjectedOnAxis;
+    surf.localToGlobal(local_trgCoordinateOnAxis, Amg::Vector3D(),global_trgCoordinateProjectedOnAxis);
+    TVector3 trgVectorProjectedOnAxis(global_trgCoordinateProjectedOnAxis.x(),global_trgCoordinateProjectedOnAxis.y(),global_trgCoordinateProjectedOnAxis.z());
+    float etaProjected=trgVectorProjectedOnAxis.Eta();
+    int secType=pad0->sectorType();
+    int matchedBandId=ROI2BandId(fabs(etaProjected),secType);
+    pt.m_bandid=matchedBandId+2;// Y.R Bands start from 2
+     /* ======== End of band Id matching and assignment ======================= */
+
     pt.m_multiplet_id = pad0->multipletId();
     pt.m_eta_id = innertrg.halfPadCoordinates().ieta;//this is meaningless and shoiuld be removed
-    pt.m_phi_id = innertrg.halfPadCoordinates().iphi;//This is the PHI-ID of the trigger 
+    //pt.m_phi_id = innertrg.halfPadCoordinates().iphi;//This is the PHI-ID of the trigger (now remmoved)
     pt.m_isSmall= int(innertrg.isSmallSector());
-    
-    //************** assign extrema of the trigger region coordinates in eta-phi **************
+
+    //************** assign extrema of the trigger region coordinates in eta-phi  and some other variables for offline analysis **************
     std::vector<std::pair<float,float>> trg_etaphis;
     for(auto v : boost::geometry::exterior_ring(roi)){
         const float xcurr=coordinate<0>(v);
@@ -334,13 +364,26 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
         const float phicurr=phi(xcurr,ycurr,zcurr);
         trg_etaphis.emplace_back(etacurr,phicurr);
     }
-    const auto trg_etaminmax=std::minmax_element(trg_etaphis.begin(),trg_etaphis.end(),[](const auto& l,const auto& r){return l.first<r.first;});
-    const auto trg_phiminmax=std::minmax_element(trg_etaphis.begin(),trg_etaphis.end(),[](const auto& l,const auto& r){return l.second<r.second;});
-    pt.m_etamin=(trg_etaminmax.first)->first;
-    pt.m_etamax=(trg_etaminmax.second)->first;
+    const auto trg_phiminmax=std::minmax_element(trg_etaphis.begin(),trg_etaphis.end(),[](
+        const std::pair<float,float>& l,const std::pair<float,float>& r){return l.second<r.second;}
+    );
+    float trgEtaMin=0;
+    float trgEtaMax=0;
+
+    if(pt.m_isSmall){
+        trgEtaMin=m_EtaBandsSmallSector.at(matchedBandId+1);
+        trgEtaMax=m_EtaBandsSmallSector.at(matchedBandId);
+    }
+
+    else{
+        trgEtaMin=m_EtaBandsLargeSector.at(matchedBandId+1);
+        trgEtaMax=m_EtaBandsLargeSector.at(matchedBandId);
+    }
+
+    pt.m_etamin=trgEtaMin;
+    pt.m_etamax=trgEtaMax;
     pt.m_phimin=(trg_phiminmax.first)->second;
     pt.m_phimax=(trg_phiminmax.second)->second;
-    
     pt.m_moduleIdInner=-1;
     pt.m_moduleIdOuter=-1;
     
@@ -348,23 +391,18 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
         pt.m_moduleIdInner=stc.wedgeTrigs().at(0).pads().at(0)->moduleId();
         pt.m_moduleIdOuter=stc.wedgeTrigs().at(1).pads().at(1)->moduleId();
     }
-    else{//single wedge trigger
-        //if the first one is inner set m_moduleIdInner
+    else{
         int multId0=stc.wedgeTrigs().at(0).pads().at(0)->multipletId();
         if( multId0==1){
             pt.m_moduleIdInner=stc.wedgeTrigs().at(0).pads().at(0)->moduleId();
         }
-        //if the first one is outer set m_moduleIdOuter
         else{
             pt.m_moduleIdOuter=stc.wedgeTrigs().at(0).pads().at(0)->moduleId();
         }
-        //one of the module Ids remain as -1;
+        //one of the module Ids remain as -1 /single wedge trigger 
     }
 
     //****************************************************************************************
-
-     //S.I value of Z where trigger region is calculated.
-     //from Z0 --> <Z of a pad> --->local coordinate
 
     for(const SingleWedgePadTrigger& swt : stc.wedgeTrigs()){
         int currwedge=swt.pads().at(0)->multipletId();
@@ -378,88 +416,42 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     	for(const auto &p : swt.pads()){
                 //S.I 17-07-18
                 const float padZ=p->m_cornerXyz[0][2];
-    			const Polygon pol=Project(roi,zcntr,padZ);
+
     			Identifier Id( p->id());
     			const Trk::PlaneSurface &padsurface = m_detManager->getsTgcReadoutElement(Id)->surface(Id);
-    			std::vector<Amg::Vector2D> local_trgcorners;// corners of the triggering region as projected on the detector layer
-                std::vector<Amg::Vector2D> local_padcorners;//pad's corners written in local coordinate system
-                
-                for(unsigned int i=0;i<4;i++){
-                    const Amg::Vector3D global_padcorner(p->m_cornerXyz[i][0],p->m_cornerXyz[i][1],padZ);
-                    Amg::Vector2D local_padcorner;
-                    padsurface.globalToLocal(global_padcorner,Amg::Vector3D(),local_padcorner);
-                    local_padcorners.push_back(local_padcorner);
-                }
+    			float Phi=p->stationPhiAngle();
+                //Find the radial boundaries of the band within the sector axis
+                float Rmin=fabs(padZ*tan(2*atan(-1*exp(pt.m_etamax))) );
+                float Rmax=fabs(padZ*tan(2*atan(-1*exp(pt.m_etamin))) );
 
-    			for(const auto& v : boost::geometry::exterior_ring(pol)){
-    				float x=coordinate<0>(v);
-    				float y=coordinate<1>(v);
-    				const Amg::Vector3D globalcorner(x,y,padZ);
-    				Amg::Vector2D localcorner;
-    				padsurface.globalToLocal(globalcorner,globalcorner,localcorner);
-    				local_trgcorners.push_back(localcorner);
-    			}
-                static auto compare_y=[](const Amg::Vector2D &lhs, const Amg::Vector2D& rhs){return lhs.y()<rhs.y();};
-                auto local_padminmaxy=std::minmax_element(local_padcorners.begin(),local_padcorners.end(),compare_y);
-    			float local_padminy=local_padminmaxy.first->y();
-    			float local_padmaxy=local_padminmaxy.second->y();
-                const auto local_trigminmaxy=std::minmax_element(local_trgcorners.begin(),local_trgcorners.end(),compare_y);
-                float local_trigminy=local_trigminmaxy.first->y();
-                float local_trigmaxy=local_trigminmaxy.second->y();
-                float padMidY=0.5*(local_padminy+local_padmaxy);  
-                //select the band that matches to the trigger region within given tolerance (now set to 1 strip pitch 3.2 mm)
-                bool bandisUp=within(padMidY,local_padmaxy,local_trigminy,local_trigmaxy,3.2);
-                bool bandisDown=within(local_padminy,padMidY, local_trigminy,local_trigmaxy,3.2);
-                int selectedbandId=-1;
-                int bandOffset=0;
-                char side      = p->sideId()     == 0 ? 'C' : 'A';
-                char type      = p->sectorType() == 0 ? 'S' : 'L';
-                int stationEta = p->moduleId(); //this is also meaningless as we might have different inner-outer module IDs in transition
-                int multiplet=p->multipletId();
-                int layer=p->gasGapId();
-                //if ( side == 'C' ) stationEta *= -1;
-                int stationPhi = p->sectorId();
-                static sTGCDetectorHelper sTGC_helper;
-                static auto stationEtas={1,2,3};
+                float xmin=Rmin*cos(Phi);
+                float ymin=Rmin*sin(Phi);
                 
-                float bandLocalMinY=-1;
-                float bandLocalMaxY=-1;
-                
-                for(const auto& ieta : stationEtas){
-                    if(ieta==stationEta) break;
-                    bandOffset+=sTGC_helper.Get_sTGCDetector(type,ieta,stationPhi,multiplet,side)->GetReadoutParameters().nTriggerBands.at(layer-1);
-                    bandOffset+=0;//do not apply band Offsets as strip channels start from 1 on the next module;
-                }
-                if(bandisUp ){
-                      selectedbandId=p->padEtaId()*2;
-                      bandLocalMinY=padMidY;
-                      bandLocalMaxY=local_padmaxy;
-                }
-                else if(bandisDown){
-                      selectedbandId=p->padEtaId()*2-1;
-                      bandLocalMinY=local_padminy;
-                      bandLocalMaxY=padMidY;
-                }
-                else{
+                float xmax=Rmax*cos(Phi);
+                float ymax=Rmax*sin(Phi);
 
-                     return PadTrigger();
-                }
-                
-                selectedbandId+=bandOffset;
+
+                Amg::Vector3D global_trgMinOnAxis(xmin,ymin,padZ);
+                Amg::Vector3D global_trgMaxOnAxis(xmax,ymax,padZ);
+
+                Amg::Vector2D local_trgMinOnAxis;
+                Amg::Vector2D local_trgMaxOnAxis;
+                padsurface.globalToLocal(global_trgMinOnAxis,Amg::Vector3D(),local_trgMinOnAxis);
+                padsurface.globalToLocal(global_trgMaxOnAxis,Amg::Vector3D(),local_trgMaxOnAxis);
+
+                float bandLocalMaxY=local_trgMaxOnAxis.y();
+                float bandLocalMinY=local_trgMinOnAxis.y();
+
                 trglocalminY.push_back(bandLocalMinY);
                 trglocalmaxY.push_back(bandLocalMaxY);
                 trgSelectedLayers.push_back(p->gasGapId());
-                trgSelectedBands.push_back(selectedbandId);
+                trgSelectedBands.push_back(matchedBandId+2);
                 trgPadPhiIndices.push_back(p->padPhiId());
                 trgPadEtaIndices.push_back(p->padEtaId());
                 trgPads.push_back(p);
     			pt.m_pads.push_back(p);
-                
-                //it seems pad overlap is  precise enough around 5microns .
-                if(!within(local_padminy,local_padmaxy,local_trigminy,local_trigmaxy,0.005)){
-                    ATH_MSG_FATAL("TRIGGER REGION FALLS OUTSIDE THE PAD!. SOMETHING IS WRONG.");
-                }
-    	} // for(p) pads
+    	} // eof for(p) pads
+        //assign variables / wedgewise
         if(currwedge==1){
             pt.m_trglocalminYInner=trglocalminY;
             pt.m_trglocalmaxYInner=trglocalmaxY;
@@ -488,14 +480,39 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
         trgPadEtaIndices.clear();
         trgPads.clear();
         
-    } // for (swt) single wedge trigger
+    } // eof for (swt) single wedge trigger
 
-    pt.m_bandid=pt.m_trgSelectedBandsInner.size() >0? pt.m_trgSelectedBandsInner.at(0) : pt.m_trgSelectedBandsOuter.at(0);
+    //Assignment of  Phi Id using 6 bits slicing
+    Identifier padIdentifier(pt.m_pads.at(0)->id() );
+    IdentifierHash moduleHashId;
+    const sTgcIdHelper* idhelper=m_detManager->stgcIdHelper();
+    const IdContext ModuleContext = idhelper->detectorElement_context();
+
+    //get the module Identifier using the pad's
+    idhelper->get_hash( padIdentifier, moduleHashId, &ModuleContext );
+    const auto regSelector = m_lutCreatorToolsTGC->getLUT();
+    const RegSelModule* thismodule=regSelector->Module(moduleHashId);
+
+    float stationPhiMin=thismodule->phiMin();
+    float stationPhiMax=thismodule->phiMax();
+
+    float trgPhiCntr=pt.m_phi;
+    int nPhiSlices=1<<m_phiIdBits;//6 bits for Phi Id; i.e interval of [0,....63]
+
+    if( trgPhiCntr<stationPhiMin || trgPhiCntr> stationPhiMax ){
+        ATH_MSG_FATAL("Pad Trigger Phi is outside of the station!");
+        //better to change the return type to return a statuscode ?
+    }
+    float step=(stationPhiMax-stationPhiMin)/nPhiSlices;
+    for( int i=0;i<nPhiSlices;i++){
+        if(stationPhiMin+i*step>=trgPhiCntr){
+            pt.m_phi_id=i;
+            break;
+        }
+
+    }
     return pt;
 }
-
-
-//------------------------------------------------------------------------------
 
 
 } // NSWL1

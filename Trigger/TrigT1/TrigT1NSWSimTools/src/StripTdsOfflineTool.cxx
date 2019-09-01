@@ -379,13 +379,28 @@ namespace NSWL1 {
                 return cStatus::FILL_ERROR;
             }
 
+            
+            int sideid= (stationEta>0) ? 1 : 0;
+            int sectortype= (isSmall==1) ? 0 : 1;
+            int sectorid=stationPhi;
+            int moduleid=std::abs(stationEta);
+            int wedgeid=wedge;
+            int layerid=layer;
+            strip->setSideId(sideid);
+            strip->setSectorType(sectortype);
+            strip->setSectorId(sectorid);
+            strip->setModuleId(moduleid);
+            strip->setWedgeId(wedgeid);
+            strip->setLayerId(layerid);
+
             strip->set_readStrip(read_strip);
             strip->set_globX(strip_gpos.x());
             strip->set_globY(strip_gpos.y());
             strip->set_globZ(strip_gpos.z());
-            strip->set_locX(strip_lpos.x());
-            strip->set_locY(strip_lpos.y());
+            //strip->set_locX(strip_lpos.x());
+            //strip->set_locY(strip_lpos.y());
             strip->set_locZ(0             );
+
             m_strip_cache.push_back(std::move(strip));
 	      }//collections
       }//items
@@ -408,6 +423,7 @@ namespace NSWL1 {
 		   <<"sectiorID:"<< strip->sectorId() + 1<< "\n" <<"layer:"<<strip->wedge()<< "\n");
     }
 
+/* */
     char side= strip->sideId() ? 'A' : 'C';
     char type= strip->type();
     sTGCDetectorHelper sTGC_helper;

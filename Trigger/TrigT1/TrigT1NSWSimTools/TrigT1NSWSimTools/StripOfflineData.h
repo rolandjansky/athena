@@ -48,6 +48,12 @@ namespace NSWL1 {
     float               m_lx,m_ly,m_lz=0;
     bool                m_read_strip;
     
+    int m_sideId;
+    int m_sectorType;
+    int m_sectorId;
+    int m_moduleId;
+    int m_wedgeId;
+    int m_layerId;
 
   public:
     StripOfflineData(Identifier id, const sTgcIdHelper* helper, const sTgcDigit* digit);
@@ -61,6 +67,15 @@ namespace NSWL1 {
     void setBandId(int band_id);         //!< set the band id
     void setPhiId(int phi_id);           //!< set the phi id
     void set_readStrip(bool readStrip);
+
+    void setSideId(int);
+    void setSectorType(int);
+    void setSectorId(int);
+    void setModuleId(int);
+    void setWedgeId(int);
+    void setLayerId(int);
+
+
         
     //! methods for retrieving the bare data
     uint32_t id()        const;  //!< get the 32 bit word identifing the fragment
@@ -82,6 +97,7 @@ namespace NSWL1 {
     int isSmall()      const;  //!< get the side (0==sideC, 1==sideA)
     int moduleId()    const;  //!< get the physics module (ranging from 0 at lowest R to 3 at highest R)
     int sectorId()    const;  //!< get the sector (ranging from 0 to 15)
+    int sectorType() const;
     int wedge() const;  //!< get the multiplet (ranging from 0 to 1, 1 is at lowest |z|)
     int layer()    const;  //!< get the gas gap (ranging from 0 to 3, 1 is at lowest |z|)
     int channelId()   const;  //!< get the channel

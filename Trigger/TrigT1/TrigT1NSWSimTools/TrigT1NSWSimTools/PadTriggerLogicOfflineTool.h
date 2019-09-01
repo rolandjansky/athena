@@ -19,13 +19,17 @@
 #include "TrigT1NSWSimTools/TriggerTypes.h"
 
 
+//To access detector envelope
+#include "RegSelLUT/IRegionIDLUT_Creator.h"
+
+
 //forward declarations
 class IIncidentSvc;
 class TTree;
 
 
 namespace MuonGM {
-class MuonDetectorManager;
+    class MuonDetectorManager;
 }
 
 namespace NSWL1 {
@@ -67,6 +71,9 @@ namespace NSWL1 {
         StatusCode compute_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads, std::vector<std::unique_ptr<PadTrigger>> &triggers);
 
 
+        int ROI2BandId(const float &EtaTrigAtCenter, const int &SectorType);//Recipe From Y.R (based on eta slicing of triggering bands see the implementation) 
+        
+        
         static std::vector<std::unique_ptr<PadTrigger>> build4of4SingleWedgeTriggers(const std::vector<std::shared_ptr<PadData>> &pads);
 
         /**
@@ -79,6 +86,11 @@ namespace NSWL1 {
             
     private:
         /// get the output tree from the athena histogram service
+         const std::vector<float> m_EtaBandsLargeSector;
+         const std::vector<float> m_EtaBandsSmallSector;
+
+
+
         StatusCode get_tree_from_histsvc(TTree*&);
 
         ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
@@ -92,7 +104,7 @@ namespace NSWL1 {
         StringProperty   m_sTgcDigitContainer;                  //!< property, todo
         StringProperty   m_sTgcSdoContainer;                    //!< property, todo
         FloatProperty    m_PadEfficiency;                       //!< property, todo
-
+        IntegerProperty m_phiIdBits;
         BooleanProperty  m_useSimple4of4;                       //!< property, todo
         BooleanProperty  m_doNtuple;                            //!< property, todo
 
@@ -100,6 +112,8 @@ namespace NSWL1 {
 
         void fillGeometricInformation(const std::shared_ptr<PadOfflineData>&);
          L1TdrStgcTriggerLogic m_tdrLogic;
+
+         ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC; 
     };  
 
 } // namespace NSWL1

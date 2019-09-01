@@ -51,7 +51,7 @@ namespace NSWL1 {
       m_ridxScheme(0),
       m_dtheta_min(0),
       m_dtheta_max(0),
-      m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable")
+      m_lutCreatorToolsTGC ("sTGC_RegionSelectorTable",this)
     {
       declareInterface<NSWL1::IStripSegmentTool>(this);
       declareProperty("DoNtuple", m_doNtuple = false, "input the StripTds branches into the analysis ntuple"); 
@@ -185,9 +185,11 @@ namespace NSWL1 {
 
        int bcid=-1;
        int sectorid=-1;
-       
+       int sideid=-1;
+
       for(  auto& cl : clusters){
           bcid=cl->BCID();
+          sideid=cl->sideId();
           /*
             S.I : For the sector logic I guess we need sector Ids from 1 to 16 / per side
           The convention followed by different people throghout this simulation chain (starting from padTDs Tool upto here) is :
@@ -197,6 +199,11 @@ namespace NSWL1 {
 	      
           if(cl->isSmall()) sectorid*=2;
           else sectorid=sectorid*2-1;
+
+
+          if(sideid == 0 ){//C
+              sectorid+=16;
+          }
           /*****************************************************************************************************/
           auto item =cluster_map.find(cl->bandId());
 	        if (item != cluster_map.end()){
@@ -206,6 +213,9 @@ namespace NSWL1 {
 	          cluster_map[cl->bandId()][cl->wedge()-1].push_back(std::move(cl));
 	        }
       }
+
+
+      ATH_MSG_DEBUG(" Building NSW Segment RDO  at sector="<<sectorid);
       auto trgRawData=std::make_unique< Muon::NSW_TrigRawData>((uint16_t)(sectorid), (uint16_t)(bcid));
       
       for(const auto& band : cluster_map){//main band loop
@@ -266,6 +276,8 @@ namespace NSWL1 {
             glx2=glx2/charge2;
             gly2=gly2/charge2;
          }
+
+         //centroid calc
          glx=(glx1+glx2)/2.;
          gly=(gly1+gly2)/2.;
          float slope=(r2-r1)/(z2-z1);
@@ -312,12 +324,17 @@ namespace NSWL1 {
         
         //do not get confused. this one is trigger phiId 
         int phiId=band.second[0].at(0)->phiId();
-        float delta_z=fabs(m_zbounds.second-avg_z);
+        float delta_z=fabs(m_zbounds.second-fabs(avg_z) );
+        int sign=-99999;
+        sign= (fabs(theta_inf)<fabs(theta)) ? 1: -1;
         float delta_r=delta_z*tan(theta_inf);
-        float rfar=avg_r+delta_r;
+        //float delta_r=delta_z*tan(theta);
+        float rfar=avg_r+sign*delta_r;
 
-        if(r1>m_rbounds.second || r2>m_rbounds.second ){
-            ATH_MSG_WARNING("measured r is out of detector envelope! r1="<<r1<<" r2="<<r2<<" rmax="<<m_rbounds.second);
+ 
+        if( rfar > m_rbounds.second || rfar < m_rbounds.first ){
+            ATH_MSG_WARNING("measured r is out of detector envelope! rfar="<<rfar<<" rmax="<<m_rbounds.second);
+            return StatusCode::SUCCESS;
         }
         
         
@@ -327,7 +344,7 @@ namespace NSWL1 {
                 rIndex=findRIdx(rfar);
                 break;
             case 1:
-                rIndex=findRIdx(eta_inf);
+                rIndex=findRIdx(fabs(eta_inf));
                 break;
             default:
                 break;   

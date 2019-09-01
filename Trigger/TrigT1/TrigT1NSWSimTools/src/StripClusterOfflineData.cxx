@@ -10,6 +10,7 @@ namespace NSWL1 {
 
   StripClusterOfflineData::StripClusterOfflineData(int bandId,
                            int bcid,
+						   int sideid,
                            int phiId,
 						   int isSmall,
 						   int moduleId,
@@ -23,6 +24,7 @@ namespace NSWL1 {
 						   float globZ) : StripClusterData(),
 								  m_bandId(bandId),
 								  m_bcid(bcid),
+								  m_sideid(sideid),
 								  m_phiId(phiId),
 								  m_isSmall(isSmall),
 								  m_moduleId(moduleId),
