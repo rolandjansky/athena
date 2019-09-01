@@ -52,8 +52,6 @@
 #include "TrkGeometry/DetachedTrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include<fstream>
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 
 // STD
 #include <map>

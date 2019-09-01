@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscRdoContByteStreamTool.h"
@@ -46,13 +46,6 @@ StatusCode Muon::CscRdoContByteStreamTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  //  StoreGateSvc * detStore;
-  //  status = service("DetectorStore", detStore);
-  //  if (status.isFailure()) {
-  //    ATH_MSG_FATAL ( "DetectorStore service not found !" );
-  //    return StatusCode::FAILURE;
-  //  } else {}
- 
   // Get the RPC id helper from the detector store
   const CscIdHelper* csc_id;
   if ( detStore()->retrieve(csc_id, "CSCIDHELPER").isFailure()) {

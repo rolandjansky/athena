@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@ class Identifier;
 class MmIdHelper;
 class MuonIdHelper;
 class MM_RawDataCollection;
-class StoreGateSvc;
 
 namespace MuonGM
 {    
