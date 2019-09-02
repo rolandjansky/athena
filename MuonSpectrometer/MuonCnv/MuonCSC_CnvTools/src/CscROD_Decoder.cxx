@@ -8,7 +8,7 @@
 
 #include "MuonRDO/CscRawDataCollection.h"
 #include "MuonRDO/CscRawDataContainer.h"
-#include "MuonIdHelpers/CscIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "eformat/Issue.h"
 
@@ -53,17 +53,9 @@ StatusCode Muon::CscROD_Decoder::initialize()
     return StatusCode::FAILURE;
   }
 
-  // Get the CSC id helper from the detector store
-  status = detStore()->retrieve(m_cscHelper, "CSCIDHELPER");
-  if (status.isFailure()) {
-    ATH_MSG_FATAL ( "Could not get CscIdHelper !" );
-    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_DEBUG ( " Found the CscIdHelper. " );
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
  
-  m_hid2re.set( &(*m_cabling), m_cscHelper );
+  m_hid2re.set( &(*m_cabling), m_muonIdHelperTool.get() );
 
   if ( m_isCosmic ) {
      m_hid2re.set_isCosmic();
@@ -127,7 +119,7 @@ void Muon::CscROD_Decoder::fillCollection(const xAOD::EventInfo& eventInfo,
 uint32_t Muon::CscROD_Decoder::getHashId(const uint32_t word, std::string /*detdescr*/) const {
   CscRODReadOut rodReadOut;
   /** set the CSC Id Helper */
-  rodReadOut.set(m_cscHelper);
+  rodReadOut.set(m_muonIdHelperTool.get());
   rodReadOut.setChamberBitVaue(1);
 
   rodReadOut.decodeAddress( word );
@@ -140,7 +132,7 @@ uint32_t Muon::CscROD_Decoder::getHashId(const uint32_t word, std::string /*detd
 Identifier Muon::CscROD_Decoder::getChannelId(const uint32_t word, std::string /*detdescr*/) const {
   CscRODReadOut rodReadOut;
   /** set the CSC Id Helper */
-  rodReadOut.set(m_cscHelper);
+  rodReadOut.set(m_muonIdHelperTool.get());
   rodReadOut.setChamberBitVaue(1);
 
   rodReadOut.decodeAddress( word );
@@ -152,7 +144,7 @@ Identifier Muon::CscROD_Decoder::getChannelId(const uint32_t word, std::string /
 void Muon::CscROD_Decoder::getSamples(const std::vector<uint32_t>& words, std::vector<uint16_t>& samples) const {
   CscRODReadOut rodReadOut;
   /** set the CSC Id Helper */
-  rodReadOut.set(m_cscHelper);
+  rodReadOut.set(m_muonIdHelperTool.get());
   rodReadOut.setChamberBitVaue(1);
 
   for (unsigned int j=0; j<words.size(); ++j) {
@@ -176,7 +168,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
   CscRODReadOut rodReadOut;
 
   /** set the CSC Id Helper */
-  rodReadOut.set(m_cscHelper);
+  rodReadOut.set(m_muonIdHelperTool.get());
   rodReadOut.setChamberBitVaue(1);
 
   /** get some information */
@@ -395,10 +387,10 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
 	rodReadOut.decodeAddress( address );
         Identifier moduleId  = rodReadOut.decodeAddress();
         Identifier channelId = rodReadOut.decodeAddress(moduleId);
-        int stationId        = m_cscHelper->stationName(channelId);
-        int currentLayer     = m_cscHelper->wireLayer(channelId);
-        int orientation      = m_cscHelper->measuresPhi(channelId);
-        int stripId          = m_cscHelper->strip(channelId);
+        int stationId        = m_muonIdHelperTool->cscIdHelper().stationName(channelId);
+        int currentLayer     = m_muonIdHelperTool->cscIdHelper().wireLayer(channelId);
+        int orientation      = m_muonIdHelperTool->cscIdHelper().measuresPhi(channelId);
+        int stripId          = m_muonIdHelperTool->cscIdHelper().strip(channelId);
 
 	counter += 1;
   
@@ -448,7 +440,7 @@ void Muon::CscROD_Decoder::rodVersion2(const ROBFragment& robFrag,  CscRawDataCo
                         << idColl << " " << hashId << "  " << spuID << "  " << stationId << " :: measphi"
                         << orientation << " L" << currentLayer << " strId " << stripId << " nStr " << width
                         << " T" << time << " nSampWords " << totalSampleWords << " "
-                        << m_cscHelper->show_to_string(channelId) );
+                        << m_muonIdHelperTool->cscIdHelper().show_to_string(channelId) );
       }
       
       ATH_MSG_DEBUG ( "****Total Cluster count = " << clusterCount 
