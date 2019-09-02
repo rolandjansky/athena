@@ -244,6 +244,8 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMTopoJets",
+                                        "AntiKt4EMPFlowJets",
                                         "AntiKt8EMPFlowJets",
                                         "AntiKt8EMPFlowExKt2SubJets",
                                         "AntiKt8EMPFlowExKt3SubJets",
@@ -255,7 +257,7 @@ FTAG1SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "BTagging_AntiKt8EMPFlowExKt3GASub",
                                          ]
 
-FTAG1SlimmingHelper.AllVariables = [
+FTAG1SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets", "AntiKt4EMPFlowJets",
                                     "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
                                     "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
@@ -342,14 +344,10 @@ if BTaggingFlags.Do2019Retraining:
                                          "AntiKt4EMPFlowJets_BTagging201903"]
     FTAG1SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo_201810SecVtx.-vxTrackAtVertex"]
 else:
-    FTAG1SlimmingHelper.SmartCollections += ["AntiKt4EMTopoJets",
-                                             "AntiKt4EMPFlowJets"]
     FTAG1SlimmingHelper.AllVariables += ["BTagging_AntiKt4EMPFlow",
                                          "BTagging_AntiKt4EMPFlowJFVtx",
                                          "BTagging_AntiKt4EMTopo",
-                                         "BTagging_AntiKt4EMTopoJFVtx",
-                                         "AntiKt4EMTopoJets",
-                                         "AntiKt4EMPFlowJets"]
+                                         "BTagging_AntiKt4EMTopoJFVtx"]
     FTAG1SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
 
 #----------------------------------------------------------------------
