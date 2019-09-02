@@ -77,8 +77,8 @@ TgcRawDataValAlg::initialize(){
   ATH_CHECK(  detStore()->retrieve(m_muonMgr) );
   ATH_MSG_DEBUG( " Found the MuonDetectorManager from detector store. "  );
 
-  ATH_CHECK(  detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
-  
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+
   //histograms directory names
   m_generic_path_tgcmonitoring = "Muon/MuonRawDataMonitoring/TGC";
 
