@@ -1,4 +1,4 @@
-Py:Athena            INFO using release [WorkDir-22.0.4] [x86_64-centos7-gcc8-opt] [CaloCellCorrCondHandles/d932b8d] -- built on [2019-08-30T1411]
+Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [CaloCellCorrCondHandles/b375616] -- built on [2019-09-02T1443]
 --- data
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
 Py:MetaReader        INFO Current mode used: peeker
@@ -47,9 +47,9 @@ Py:ComponentAccumulator    INFO ]
 Py:LArOFCCondAlgCfg    INFO   Standard OFC optimization computation
 Py:BunchCrossingTool    INFO Selecting MCBunchCrossingTool for this job
 Py:MCBunchCrossingTool    INFO Set the default values for the MCBunchCrossingTool configuration
-Py:ConfigurableDb    INFO Read module info for 5533 configurables from 5 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5534 configurables from 5 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-EventInfoMgtInit: Got release version  Athena-22.0.4
+EventInfoMgtInit: Got release version  Athena-22.0.5
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
 Py:MCBunchCrossingTool    INFO Adding folder to IOVDbSvc: /Digitization/Parameters
 Py:ComponentAccumulator    INFO Event Inputs
@@ -127,7 +127,7 @@ Py:ComponentAccumulator    INFO Top sequence 0
 Py:ComponentAccumulator    INFO \__ AthAlgSeq (seq: SEQ AND)
 Py:ComponentAccumulator    INFO    \__ CaloBCIDAvgAlg (alg)
 Py:ComponentAccumulator    INFO        * BunchCrossingTool: BunchCrossingTool
-Py:ComponentAccumulator    INFO        * LuminosityCondDataKey: LuminosityCondDataOnline
+Py:ComponentAccumulator    INFO        * LuminosityCondDataKey: LuminosityCondData
 Py:ComponentAccumulator    INFO        * ShapeKey: LArShape32Sym
 Py:ComponentAccumulator    INFO        * isMC: False
 Py:ComponentAccumulator    INFO Condition Algorithms
@@ -143,7 +143,7 @@ Py:ComponentAccumulator    INFO      * BunchGroupInputKey:
 Py:ComponentAccumulator    INFO      * BunchLumisInputKey: 
 Py:ComponentAccumulator    INFO      * FillParamsInputKey: 
 Py:ComponentAccumulator    INFO      * LuminosityFolderInputKey: /TRIGGER/LUMI/HLTPrefLumi
-Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondDataOnline
+Py:ComponentAccumulator    INFO      * LuminosityOutputKey: LuminosityCondData
 Py:ComponentAccumulator    INFO      * OnlineLumiCalibrationInputKey: OnlineLumiCalibrationCondData
 Py:ComponentAccumulator    INFO      * SkipInvalid: False
 Py:ComponentAccumulator    INFO  \__ LArPileUpAvgSymCondAlg (cond alg)
