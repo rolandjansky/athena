@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -15,7 +15,6 @@
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
@@ -39,30 +38,39 @@ PixelGangedAmbiguitiesFinder::PixelGangedAmbiguitiesFinder(
   declareInterface<PixelGangedAmbiguitiesFinder>(this);
 } 
 
+StatusCode PixelGangedAmbiguitiesFinder::initialize() {
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
+
+  return StatusCode::SUCCESS;
+}
 
 //----------------------------------------------------------------------------
 // Execute method:
 // Called by the PixelClusterization algorithms of InDetPrepRawDataFormation
   // A map containing the pairs of Pixel Clusters which shares the same 
   // ganged pixel is created.
-  // Inputs are the cluster collection of a module, and the silicon 
-  // detector manager, and the map to be filled.
+  // Inputs are the cluster collection of a module, and the map to be filled.
   // Output is the map.
 void PixelGangedAmbiguitiesFinder::execute(
                               PixelClusterCollection* collection,
-                              const InDetDD::SiDetectorManager& manager,
                               PixelGangedClusterAmbiguities& theMap){
     if (collection->size()<2) return;
 
     ATH_MSG_DEBUG(collection->size() << " clusters");
     ATH_MSG_DEBUG("The map has " << theMap.size() << " entries already");
 
-    Identifier elementID = collection->identify();
+    IdentifierHash elementHash = collection->identifyHash();
 
     // Get detector info.
     // Find detector element for these RDOs
 
-    SiDetectorElement* element = manager.getDetectorElement(elementID);
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* pixelDetEle(*pixelDetEleHandle);
+    if (not pixelDetEleHandle.isValid() or pixelDetEle==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+      return;
+    }
+    const InDetDD::SiDetectorElement* element = pixelDetEle->getDetectorElement(elementHash);
     const InDetDD::PixelModuleDesign* design =(dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
 	  if (not design){
 			ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of PixelGangedAmbiguitiesFinder.cxx.");

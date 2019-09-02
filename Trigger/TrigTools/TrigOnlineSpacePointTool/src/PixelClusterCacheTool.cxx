@@ -308,7 +308,7 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
 	  else 
 	    {
 	      const InDetRawDataCollection<PixelRDORawData>* pRdoColl = (*collIt);
-	      InDet::PixelClusterCollection* pColl=m_clusteringTool->clusterize(*pRdoColl,*p_indet_mgr,*m_pixel_id);
+	      InDet::PixelClusterCollection* pColl=m_clusteringTool->clusterize(*pRdoColl,*m_pixel_id);
 	      if(pColl!=NULL)
 		offlineCollVector.push_back(pColl);
 	    }

@@ -72,6 +72,7 @@ StatusCode DQTLumiMonTool::initialize(){
   ATH_CHECK( m_EventInfoKey.initialize() );
   ATH_CHECK( m_VertexContainerKey.initialize() );
   ATH_CHECK( m_PixelClustersKey.initialize(m_environment != AthenaMonManager::AOD) );
+  ATH_CHECK( m_pixelDetEleCollKey.initialize() );
   return DataQualityFatherMonTool::initialize();
 }
 

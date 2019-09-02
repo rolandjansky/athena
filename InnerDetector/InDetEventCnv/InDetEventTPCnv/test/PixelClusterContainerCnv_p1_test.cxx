@@ -103,7 +103,9 @@ void testit (const InDet::PixelClusterContainer& trans1)
 {
   MsgStream log (0, "test");
   InDet::PixelClusterContainerCnv_p1 cnv;
+  cnv.setUseDetectorElement(false);
   PixelClusterContainerCnv_tlp1 tlcnv;
+  tlcnv.setUseDetectorElement(false);
   cnv.setRuntimeTopConverter (&tlcnv);
   InDet::InDetPRD_Container_p1 pers;
   cnv.transToPers (&trans1, &pers, log);

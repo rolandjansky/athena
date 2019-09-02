@@ -165,7 +165,6 @@ def makeInDetAlgs( whichSignature='', separateTrackParticleCreator='' ):
   InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization" + signature,
                                                         clusteringTool          = InDetMergedPixelsTool,
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                        DetectorManagerName     = InDetKeys.PixelManager(),
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
                                                         AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
                                                         ClustersName            = "PixelTrigClusters")

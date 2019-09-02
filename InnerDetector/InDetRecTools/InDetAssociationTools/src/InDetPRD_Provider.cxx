@@ -56,6 +56,7 @@ StatusCode InDet::InDetPRD_Provider::initialize()
      // Get TRT helpers
      ATH_CHECK(detStore()->retrieve(m_trtIdHelper, "TRT_ID"));
 
+     ATH_CHECK(m_pixelDetEleCollKey.initialize());
      ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
      return StatusCode::SUCCESS;
