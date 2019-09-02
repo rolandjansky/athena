@@ -12,8 +12,8 @@
  ** Created: August 1
  **************************************************************************/
 
-#include "TrigTauHypo/T2TauTauCombFexAlgo.h"
-#include "TrigTauHypo/T2TauTauCombHypo.h"
+#include "T2TauTauCombFexAlgo.h"
+#include "T2TauTauCombHypo.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 

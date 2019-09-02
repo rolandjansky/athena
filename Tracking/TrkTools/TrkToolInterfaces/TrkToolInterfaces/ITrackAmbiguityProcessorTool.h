@@ -9,10 +9,14 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkTrack/TrackCollection.h" // typedef
+#include "AthenaKernel/CLASS_DEF.h"
 
 static const InterfaceID IID_ITrackAmbiguityProcessorTool("Trk::ITrackAmbiguityProcessorTool", 1, 0);
 
 namespace Trk {
+
+  typedef std::vector<std::pair<const Track*, float>> TracksScores;
+
 
 /** @brief Interface for resolving hit assoication ambiguities in a given track collection.
 
@@ -29,7 +33,8 @@ class ITrackAmbiguityProcessorTool : virtual public IAlgTool
 	@param tracks collection of tracks which will have ambiguities resolved. Will not be modified.
 	@return new collections of tracks, with ambiguities resolved. Ownership is passed on 
 	(i.e. client handles deletion)*/
-	virtual TrackCollection*  process(const TrackCollection* tracks)=0;
+        virtual TrackCollection*  process(const TrackCollection*) {return nullptr;}; 
+        virtual TrackCollection*  process(TracksScores*) {return nullptr;};
 
         /** statistics */
         virtual void statistics() {};
@@ -38,9 +43,12 @@ class ITrackAmbiguityProcessorTool : virtual public IAlgTool
 
 inline const InterfaceID& Trk::ITrackAmbiguityProcessorTool::interfaceID()
 {
-	return IID_ITrackAmbiguityProcessorTool;
+  return IID_ITrackAmbiguityProcessorTool;
 }
 
 } //end ns
+
+CLASS_DEF( Trk::TracksScores, 22699437, 0 )
+
 
 #endif // TrackAmbiguityProcessorTool_H

@@ -329,7 +329,7 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
        std::map< int,std::vector<uint16_t> > ovlSamples;
        uint32_t sigHash;
        uint32_t ovlHash;
-       uint32_t sigAddress = this->stripData( sigData, nSigSamples, sigSamples, sigHash, spuID, j , true); // real data
+       uint32_t sigAddress = this->stripData( sigData, nSigSamples, sigSamples, sigHash, spuID, j , m_isDataOverlay); // need to patch in the case of real data
        uint32_t ovlAddress = this->stripData( ovlData, nOvlSamples, ovlSamples, ovlHash, spuID, j , false); // simulation
        if (sigSamples.size()==0 && ovlSamples.size()==0) continue;
 
@@ -390,20 +390,17 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
           ATH_MSG_VERBOSE("stationName,Eta,Phi="<<stationName<<","<<stationEta<<","<<stationPhi<<" - me="<<me);
           bool good=true;
           for (unsigned int j=0; j<datum->width(); ++j) {
-            int chamberLayer = ( (address & 0x00000800) >> 11) + 0;
-            std::string det=m_cscCalibTool->getDetDescr();
-            if ( det.find ("ATLAS-") != std::string::npos )
-              chamberLayer = ( (address & 0x00000800) >> 11) + 1;
+            int chamberLayer = ( (address & 0x00000800) >> 11) + 1;
             int wireLayer    = ( (address & 0x00000600) >>  9) + 1;
             int measuresPhi  = ( (address & 0x00000100) >>  8);
             int strip        = (  address & 0x000000FF) + 1 + j;
-            ATH_MSG_VERBOSE("det,chamberlayer,wirelayer,measuresphi,strip="<<det<<","<<chamberLayer<<","<<wireLayer<<","<<measuresPhi<<","<<strip);
+            ATH_MSG_VERBOSE("chamberlayer,wirelayer,measuresphi,strip="<<chamberLayer<<","<<wireLayer<<","<<measuresPhi<<","<<strip);
             // Added to Online -> Offline id  in A side number is opposite bug#56002
             if (measuresPhi) {
               int stationEta  =  ( ((address & 0x00001000) >> 12 ) == 0x0) ? -1 : 1;
               if (stationEta>0) {
+                ATH_MSG_VERBOSE("FLIP strip. Formerly strip="<<strip<<", now strip="<<49-strip);
                 strip = 49-strip;
-                ATH_MSG_VERBOSE("FLIP strip, now strip="<<strip);
               }
             }
             insertedstrips.insert(strip);//for checks
@@ -428,8 +425,12 @@ void CscOverlay::mergeCollections(const CscRawDataCollection *bkgCollection,
        //check
        if (readstrips!=insertedstrips){
          ATH_MSG_WARNING("Readstrips != Insertedstrips: ");
-         for (std::set<int>::const_iterator i = readstrips.begin(); i!=readstrips.end(); ++i){std::cout<<*i<<" ";} std::cout<<std::endl;
-         for (std::set<int>::const_iterator i = insertedstrips.begin(); i!=insertedstrips.end(); ++i){std::cout<<*i<<" ";} std::cout<<std::endl;
+         std::ostringstream readstream;
+         for (std::set<int>::const_iterator i = readstrips.begin(); i!=readstrips.end(); ++i){readstream<<*i<<" ";}
+         ATH_MSG_WARNING(readstream.str());
+         std::ostringstream insertstream;
+         for (std::set<int>::const_iterator i = insertedstrips.begin(); i!=insertedstrips.end(); ++i){insertstream<<*i<<" ";}
+         ATH_MSG_WARNING(insertstream.str());
        }
 
     }

@@ -9,6 +9,9 @@
 //  Author: Thomas Kittelmann <Thomas.Kittelmann@cern.ch>  //
 //                                                         //
 //  Initial version: April 2007                            //
+//
+//  Updates:
+//  - Riccardo.Maria.Bianchi@cern.ch
 //                                                         //
 /////////////////////////////////////////////////////////////
 
@@ -1680,31 +1683,31 @@ void VP1MainWindow::updateCentralStackWidget()
 //_________________________________________________________________________________
 void VP1MainWindow::quickSetupTriggered()
 {
-	VP1Msg::messageVerbose("VP1MainWindow::quickSetupTriggered()");
+  VP1Msg::messageVerbose("VP1MainWindow::quickSetupTriggered()");
 
-    QSettings settings("ATLAS", "VP1Light");
+  QSettings settings("ATLAS", "VP1Light");
 
-	QString plugfile, channelname, tabname;
+  QString plugfile, channelname, tabname;
 
-	if (sender()==pushButton_quicksetup_geometrystudies||sender()==action_quicklaunch_Geometry_studies) {
+  if (sender()==pushButton_quicksetup_geometrystudies||sender()==action_quicklaunch_Geometry_studies) {
 
-        //Open geometry database selection dialog for VP1Light
-        #ifdef BUILDVP1LIGHT
-        	if(settings.value("db/dbByEnv").toString().isEmpty()){
-	            VP1GeoDBSelection dbSelection;
-	            dbSelection.exec();
-	            if(!dbSelection.result())
-	                return;
-	        }
-        #endif // BUILDVP1LIGHT
+    //Open geometry database selection dialog for VP1Light
+#ifdef BUILDVP1LIGHT
+    if(settings.value("db/dbByEnv").toString().isEmpty()){
+      VP1GeoDBSelection dbSelection;
+      dbSelection.exec();
+      if(!dbSelection.result())
+        return;
+    }
+#endif // BUILDVP1LIGHT
 
-		plugfile="libVP1GeometryPlugin.so";
-		channelname="Geometry";
-		tabname = "Geometry";
-	} else if (sender()==pushButton_quicksetup_trackingstudies||sender()==action_quicklaunch_Tracking_studies) {
-		plugfile="libVP1TrackPlugin.so";
-		channelname="Tracking";
-		tabname = "Tracking";
+    plugfile="libVP1GeometryPlugin.so";
+    channelname="Geometry";
+    tabname = "Geometry";
+  } else if (sender()==pushButton_quicksetup_trackingstudies||sender()==action_quicklaunch_Tracking_studies) {
+    plugfile="libVP1TrackPlugin.so";
+    channelname="Tracking";
+    tabname = "Tracking";
 	} else if (sender()==pushButton_quicksetup_calostudies||sender()==action_quicklaunch_Calo_studies) {
 		plugfile="libVP1CaloPlugin.so";
 		channelname="Calo Cells";
@@ -1713,62 +1716,62 @@ void VP1MainWindow::quickSetupTriggered()
 		plugfile="libVP1BanksPlugin.so";
 		channelname="Banks";
 		tabname = "StoreGate";
-	} else if (sender()==pushButton_quicksetup_3dcocktail||sender()==action_quicklaunch_3dcocktail) {
-		#ifndef BUILDVP1LIGHT
-			plugfile="libVP13DCocktailPlugin.so";
-			channelname="3DCocktail";
-			tabname = "3D Cocktail";
-		#else
-      //Open Geometry DB and AOD file selection dialog for VP1Light
-      	if(settings.value("aod/aodByEnv").toString().isEmpty()){
-            VP1AODSelection aodSelection;
-            aodSelection.exec();
-            if(!aodSelection.result())
-                return;
-        }
-        if(settings.value("db/dbByEnv").toString().isEmpty()){
-            VP1GeoDBSelection dbSelection;
-            dbSelection.exec();
-            if(!dbSelection.result())
-                return;
-        }
-    	m_scheduler->loadEvent();
+  } else if (sender()==pushButton_quicksetup_3dcocktail||sender()==action_quicklaunch_3dcocktail) {
+#ifndef BUILDVP1LIGHT
+    plugfile="libVP13DCocktailPlugin.so";
+    channelname="3DCocktail";
+    tabname = "3D Cocktail";
+#else
+    //Open Geometry DB and AOD file selection dialog for VP1Light
+    if(settings.value("aod/aodByEnv").toString().isEmpty()){
+      VP1AODSelection aodSelection;
+      aodSelection.exec();
+      if(!aodSelection.result())
+        return;
+    }
+    if(settings.value("db/dbByEnv").toString().isEmpty()){
+      VP1GeoDBSelection dbSelection;
+      dbSelection.exec();
+      if(!dbSelection.result())
+        return;
+    }
+    m_scheduler->loadEvent();
 
-			pushButton_eventselect->setEnabled(true);
-			plugfile="libVP1LightPlugin.so";
-			channelname="VP1Light";
-			tabname = "Geometry/AOD";
-    #endif // BUILDVP1LIGHT
-	} else if (sender()==action_quicklaunch_trackcalo_commis) {
-		plugfile="libVP13DCocktailPlugin.so";
-		channelname="TrackCalo";
-		tabname = "Track/Calo";
-	} else if (sender()==pushButton_quicksetup_analysisstudies||sender()==action_quicklaunch_analysisstudies) {
+    pushButton_eventselect->setEnabled(true);
+    plugfile="libVP1LightPlugin.so";
+    channelname="VP1Light";
+    tabname = "Geometry/AOD";
+#endif // BUILDVP1LIGHT
+  } else if (sender()==action_quicklaunch_trackcalo_commis) {
+    plugfile="libVP13DCocktailPlugin.so";
+    channelname="TrackCalo";
+    tabname = "Track/Calo";
+  } else if (sender()==pushButton_quicksetup_analysisstudies||sender()==action_quicklaunch_analysisstudies) {
 
-        //Open AOD file selection dialog for VP1Light
-        #ifdef BUILDVP1LIGHT
-        	if(settings.value("aod/aodByEnv").toString().isEmpty()){
-	            VP1AODSelection aodSelection;
-	            aodSelection.exec();
-	            if(!aodSelection.result())
-	                return;
-	        }
-	    	m_scheduler->loadEvent();
-				pushButton_eventselect->setEnabled(true);
-        #endif // BUILDVP1LIGHT
+    //Open AOD file selection dialog for VP1Light
+#ifdef BUILDVP1LIGHT
+    if(settings.value("aod/aodByEnv").toString().isEmpty()){
+      VP1AODSelection aodSelection;
+      aodSelection.exec();
+      if(!aodSelection.result())
+        return;
+    }
+    m_scheduler->loadEvent();
+    pushButton_eventselect->setEnabled(true);
+#endif // BUILDVP1LIGHT
 
-		plugfile="libVP1AODPlugin.so";
-		channelname="AOD";
-		tabname = "Analysis";
-	} else {
-		addToMessageBox("quickSetupTriggered() Error: Unknown sender");
-		return;
-	}
+    plugfile="libVP1AODPlugin.so";
+    channelname="AOD";
+    tabname = "Analysis";
+  } else {
+    addToMessageBox("quickSetupTriggered() Error: Unknown sender");
+    return;
+  }
 
-	#ifdef __APPLE__
-		if (plugfile.endsWith(".so"))
-			plugfile = plugfile.left(plugfile.count()-3)+".dylib";
-	#endif
+#ifdef __APPLE__
+  if (plugfile.endsWith(".so"))
+    plugfile = plugfile.left(plugfile.count()-3)+".dylib";
+#endif
 
 
 	//Check that the plugin is available:

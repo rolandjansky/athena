@@ -18,14 +18,6 @@ find_package( Davix )
 atlas_disable_as_needed()
 
 # Component(s) in the package:
-atlas_add_library( fReadCastor
-   src/fReadCastor.h src/fReadCastor.cxx
-   NO_PUBLIC_HEADERS
-   PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CASTOR_INCLUDE_DIRS}
-   ${Boost_INCLUDE_DIRS}
-   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CASTOR_LIBRARIES}
-   ${Boost_LIBRARIES} )
-
 atlas_add_library( fReadXRootD
    src/fReadXRootD.h src/fReadXRootD.cxx
    NO_PUBLIC_HEADERS

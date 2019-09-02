@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -26,25 +26,10 @@ namespace InDet
   
 
   NnPixelClusterSplitProbTool::NnPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p)
-          :AthAlgTool(t,n,p),
-           m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
-           m_useBeamSpotInfo(true)
+          :base_class(t,n,p)
   {
-
-    m_priorMultiplicityContent.push_back(2793337);
-    m_priorMultiplicityContent.push_back(82056);
-    m_priorMultiplicityContent.push_back(19944);
-
-
-    declareInterface<IPixelClusterSplitProbTool>(this);
-
-    declareProperty("NnClusterizationFactory",m_NnClusterizationFactory);
-    declareProperty("PriorMultiplicityContent",m_priorMultiplicityContent);
-    declareProperty("useBeamSpotInfo",m_useBeamSpotInfo);
-
-
   }
-  
+
 
   StatusCode NnPixelClusterSplitProbTool::initialize()
   {
@@ -153,9 +138,9 @@ namespace InDet
       (*iter)/=sum;
     }
 
-    if (m_priorMultiplicityContent.size()<vectorOfProbs.size())
+    if (m_priorMultiplicityContent.value().size()<vectorOfProbs.size())
     {
-      ATH_MSG_ERROR("Prior compatibilities count " <<  m_priorMultiplicityContent.size() << " is too small: please correct through job properties.");
+      ATH_MSG_ERROR("Prior compatibilities count " <<  m_priorMultiplicityContent.value().size() << " is too small: please correct through job properties.");
       return InDet::PixelClusterSplitProb(std::vector<double>());
     }
 
@@ -163,13 +148,13 @@ namespace InDet
     int count=0;
     for (std::vector<double>::iterator iter=begin;iter!=end;++iter,++count)
     {
-      psum+=(*iter)/m_priorMultiplicityContent[count];
+      psum+=(*iter)/m_priorMultiplicityContent.value()[count];
     }
 
     count=0;
     for (std::vector<double>::iterator iter=begin;iter!=end;++iter,++count)
     {
-      (*iter)/=m_priorMultiplicityContent[count];
+      (*iter)/=m_priorMultiplicityContent.value()[count];
       (*iter)/=psum;
     }
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: egammaRecContainer.h 666999 2015-05-13 18:20:00Z christos $
@@ -19,7 +19,7 @@
 typedef DataVector< egammaRec > EgammaRecContainer;
 
 #ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( EgammaRecContainer , 1265838377 , 1 )
 #endif // XAOD_STANDALONE
  

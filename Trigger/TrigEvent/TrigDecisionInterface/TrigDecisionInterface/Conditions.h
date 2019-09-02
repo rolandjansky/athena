@@ -37,6 +37,7 @@ namespace TrigDefs {
   //
   const static unsigned int ignoreIOV = 0x1 << 15;
   const static unsigned int alsoDeactivateTEs = 0x1 << 16;
+  const static unsigned int includeFailedDecisions = 0x1 << 16; //!< Run3 synonym of alsoDeactivateTEs.
   const static unsigned int ignoreFDR = 0x1 << 17;
   //
   const static unsigned int Physics = requireDecision | enforceLogicalFlow;
@@ -62,6 +63,12 @@ namespace TrigDefs {
   const static unsigned int L2_error                  = 0x1 << 20;
 
   const static unsigned int Express_passed            = 0x1 << 20;
+
+  /// Run 3 "enum". Only return the first feature along each route through the navigation
+  const static unsigned int oneFeaturePerLeg          = 0x1 << 21;
+  /// Run 3 "enum". Return all features along legs (still with type and container checks)
+  const static unsigned int allFeaturesPerLeg         = 0x1 << 22;
+
 
 }
 

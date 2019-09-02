@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from IOVDbSvc.CondDB import conddb
 
@@ -10,31 +10,32 @@ from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-# Inner Detector alignment
-conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/DX","/TRT/Calib/DX")
-
+if DetFlags.TRT_on():
 # Dead/Noisy Straw Lists
-if hasattr(topSequence,"OutputConditionsAlg"): # revert to old style CondHandle in case streaming to POOL
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status")
-else:
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status",className='TRTCond::StrawStatusMultChanContainer')
+    if hasattr(topSequence,"OutputConditionsAlg"): # revert to old style CondHandle in case streaming to POOL
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status")
+    else:
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status",className='TRTCond::StrawStatusMultChanContainer')
 
-if hasattr(topSequence,"OutputConditionsAlg"):
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent")
-else:
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent",className='TRTCond::StrawStatusMultChanContainer')
+    if hasattr(topSequence,"OutputConditionsAlg"):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent")
+    else:
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent",className='TRTCond::StrawStatusMultChanContainer')
 
 # Argon straw list
-if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"):
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT")
-else:
-    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
+    if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT")
+    else:
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Cond/StatusHT","/TRT/Cond/StatusHT",className='TRTCond::StrawStatusMultChanContainer')
 
-
+# TRT Lvl 3 alignment
+if DetFlags.TRT_on() :
+    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/DX","/TRT/Calib/DX")
 # Pixel module distortions
-conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist")
+if DetFlags.pixel_on() :
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/PixelDist","/Indet/PixelDist")
 # IBL stave distortions 
-conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection")
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection")
 
 # TRT Condition Algorithm
 from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTAlignCondAlg
@@ -79,8 +80,8 @@ if DetFlags.TRT_on() and ((not DetFlags.simulate.TRT_on()) or DetFlags.overlay.T
         import os
         if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
             condSeq += TRTAlignCondAlg
-if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on()):
 
+if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.SCT_on()):
     if not hasattr(condSeq, "SCT_AlignCondAlg"):
         import os
         if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
@@ -90,4 +91,15 @@ if DetFlags.SCT_on() and ((not DetFlags.simulate.SCT_on()) or DetFlags.overlay.S
             if not hasattr(condSeq, "SCT_DetectorElementCondAlg"):
                 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
                 condSeq += SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
+
+if DetFlags.pixel_on() and ((not DetFlags.simulate.pixel_on()) or DetFlags.overlay.pixel_on()):
+    if not hasattr(condSeq, "PixelAlignCondAlg"):
+        import os
+        if "AthSimulation_DIR" not in os.environ: # Protection for AthSimulation builds
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
+            condSeq += PixelAlignCondAlg(name = "PixelAlignCondAlg",
+                                         UseDynamicAlignFolders =  InDetGeometryFlags.useDynamicAlignFolders())
+            if not hasattr(condSeq, "PixelDetectorElementCondAlg"):
+                from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
+                condSeq += PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg")
 

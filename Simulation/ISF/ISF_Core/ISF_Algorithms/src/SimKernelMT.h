@@ -77,26 +77,26 @@ public:
 
 private:
   /// Returns the simulator to use for the given particle
-  ISimulatorTool& identifySimulator(const ISF::ISFParticle& particle) const;
+  const ISimulatorTool& identifySimulator(const ISF::ISFParticle& particle) const;
 
   /// Input Generator Truth collection
-  SG::ReadHandleKey<McEventCollection> m_inputEvgenKey;
+  SG::ReadHandleKey<McEventCollection> m_inputEvgenKey{this, "InputEvgenCollection", "", "Input EVGEN collection."};
   /// Output Simulation Truth collection
-  SG::WriteHandleKey<McEventCollection> m_outputTruthKey;
+  SG::WriteHandleKey<McEventCollection> m_outputTruthKey{this, "OutputTruthCollection", "", "Output Truth collection."};
 
   /// Input converter service (from Generator->ISF particle types)
-  ServiceHandle<IInputConverter> m_inputConverter;
+  ServiceHandle<IInputConverter> m_inputConverter{this, "InputConverter", "", "Input McEventCollection->ISFParticleContainer conversion service."};
 
   /// Quasi-Stable Particle Simulation Patcher
-  ServiceHandle<Simulation::IZeroLifetimePatcher> m_qspatcher;
+  ServiceHandle<Simulation::IZeroLifetimePatcher> m_qspatcher{this, "QuasiStablePatcher", "", "Quasi-Stable Particle Simulation Patcher"};
 
   /// Simulation Tools
-  ToolHandleArray<ISimulatorTool> m_simulationTools;
+  PublicToolHandleArray<ISimulatorTool> m_simulationTools{this, "SimulationTools", {}, ""};
 
   /// When no appropriate simulator can be found for a given particle, the particle is sent to this "particle killer":
-  ToolHandle<ISimulatorTool> m_particleKillerTool;
+  PublicToolHandle<ISimulatorTool> m_particleKillerTool{this, "ParticleKillerTool", "", ""};
 
-  ServiceHandle<IGeoIDSvc>  m_geoIDSvc;
+  ServiceHandle<IGeoIDSvc>  m_geoIDSvc{this, "GeoIDSvc", "", "Since InputConverter doesn't set Geo ID yet, do it here"};
 
   /// The simulation selectors defining the "routing chain"
   std::array<ToolHandleArray<ISimulationSelector>, AtlasDetDescr::fNumAtlasRegions> m_simSelectors;

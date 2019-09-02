@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,14 +10,15 @@
 #define MUGIRLNSCANDIDATETOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "MuGirlInterfaces/ICandidateTool.h"
 #include "MuGirlCandidate/Distance.h"
 #include "MuGirlCandidate/MuGirlNS.h"
 #include "TrigMuonEvent/TrigMuonEFTrack.h"
 #include "TrigMuonEvent/MuonFeature.h"
 #include "Identifier/Identifier.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 class IRegSelSvc;
 
@@ -36,7 +37,6 @@ class IMdtDriftCircleOnTrackCreator;
 class IMuonClusterOnTrackCreator;
 class IMuonSegmentMaker;
 class IMuonRdoToPrepDataTool;
-class MuonEDMHelperTool; 
 class MuonIdHelperTool;
 class IMuonSegmentSelectionTool;
 class MuonLayerHoughTool;
@@ -232,9 +232,9 @@ public:
     {
         return m_pCaloEnergyTool;
     }
-    const ToolHandle<Muon::MuonEDMHelperTool>& muonHelperTool() const
+    const ServiceHandle<Muon::IMuonEDMHelperSvc>& muonHelperTool() const
     {
-        return m_helperTool;
+        return m_edmHelperSvc;
     }
     const ToolHandle<Muon::MuonIdHelperTool>& muonIdHelperTool() const
     {
@@ -331,7 +331,9 @@ private:
     ToolHandle<Muon::IMuonClusterOnTrackCreator>    m_pCscClusterCreator;
     ToolHandle<Trk::IIntersector>                   m_pIntersector;
     ToolHandle<Rec::IMuidCaloEnergy>                m_pCaloEnergyTool;
-    ToolHandle<Muon::MuonEDMHelperTool>             m_helperTool;
+    ServiceHandle<Muon::IMuonEDMHelperSvc>          m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonIdHelperTool>              m_idHelperTool;
     ToolHandle<Muon::IMuonSegmentSelectionTool>     m_segmentSelectionTool;
     ToolHandle<Muon::MuonLayerHoughTool>            m_pMuonLayerHoughTool;

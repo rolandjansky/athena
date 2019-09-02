@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
@@ -58,10 +60,10 @@ class SCT_ConfigurationCondAlg : public AthReentrantAlgorithm
   SG::ReadCondHandleKey<CondAttrListVec> m_readKeyMur{this, "ReadKeyMur", "/SCT/DAQ/Config/MUR", "Key of input (raw) conditions folder of Murs"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::WriteCondHandleKey<SCT_ConfigurationCondData> m_writeKey{this, "WriteKey", "SCT_ConfigurationCondData", "Key of output (derived) conditions data"};
-  ServiceHandle<ICondSvc> m_condSvc;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   ToolHandle<ISCT_CablingTool> m_cablingTool{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"}; //!< Handle on SCT cabling service
   ToolHandle<ISCT_ReadoutTool> m_readoutTool{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle on readout tool"}; //!< Handle on readout tool
-  const SCT_ID* m_pHelper; //!< ID helper for SCT
+  const SCT_ID* m_pHelper{nullptr}; //!< ID helper for SCT
 };
 
 #endif // SCT_CONFIGURATIONCONDALG

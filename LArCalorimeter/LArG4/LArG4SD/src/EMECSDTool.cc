@@ -20,21 +20,24 @@ namespace LArG4
     , m_emepowcalc("EMECPosOuterWheelCalculator", name)
     , m_emenowcalc("EMECNegOuterWheelCalculator", name)
     , m_emepscalc("EMECPresamplerCalculator", name)
-    , m_emeobarcalc("EMECBackOuterBarretteCalculator", name)
+    , m_emepobarcalc("EMECPosBackOuterBarretteCalculator", name)
+    , m_emenobarcalc("EMECNegBackOuterBarretteCalculator", name)
   {
     declareProperty("PosIWVolumes", m_posIWVolumes);
     declareProperty("NegIWVolumes", m_negIWVolumes);
     declareProperty("PosOWVolumes", m_posOWVolumes);
     declareProperty("NegOWVolumes", m_negOWVolumes);
     declareProperty("PresVolumes", m_presVolumes);
-    declareProperty("BOBarretteVolumes", m_bobVolumes);
+    declareProperty("PosBOBarretteVolumes", m_posBOBVolumes);
+    declareProperty("NegBOBarretteVolumes", m_negBOBVolumes);
 
     declareProperty("EMECPosIWCalculator", m_emepiwcalc);
     declareProperty("EMECNegIWCalculator", m_emeniwcalc);
     declareProperty("EMECPosOWCalculator", m_emepowcalc);
     declareProperty("EMECNegOWCalculator", m_emenowcalc);
     declareProperty("EMECPSCalculator", m_emepscalc);
-    declareProperty("EMECBOBCalculator", m_emeobarcalc);
+    declareProperty("EMECPosBOBCalculator", m_emepobarcalc);
+    declareProperty("EMECNegBOBCalculator", m_emenobarcalc);
   }
 
   //---------------------------------------------------------------------------
@@ -47,7 +50,8 @@ namespace LArG4
     ATH_CHECK(m_emepowcalc.retrieve());
     ATH_CHECK(m_emenowcalc.retrieve());
     ATH_CHECK(m_emepscalc.retrieve());
-    ATH_CHECK(m_emeobarcalc.retrieve());
+    ATH_CHECK(m_emepobarcalc.retrieve());
+    ATH_CHECK(m_emenobarcalc.retrieve());
 
     return StatusCode::SUCCESS;
   }
@@ -77,7 +81,10 @@ namespace LArG4
       makeOneSD( "LAr::Endcap::Presampler::LiquidArgon", &*m_emepscalc, m_presVolumes )
     );
     sdWrapper->addSD(
-      makeOneSD( "LAr::EMEC::BackOuterBarrette::Module::Phidiv", &*m_emeobarcalc, m_bobVolumes )
+      makeOneSD( "LAr::EMEC::Pos::BackOuterBarrette::Module::Phidiv", &*m_emepobarcalc, m_posBOBVolumes )
+    );
+    sdWrapper->addSD(
+      makeOneSD( "LAr::EMEC::Neg::BackOuterBarrette::Module::Phidiv", &*m_emenobarcalc, m_negBOBVolumes )
     );
 
     // Setup frozen shower SD

@@ -100,6 +100,7 @@ class _JobPropertyMeta(type):
         return type.__new__( self, name, bases, dct )
 
 
+@six.add_metaclass(_JobPropertyMeta)
 class JobProperty(object):
     """ Base class for the job properties.  
         
@@ -123,7 +124,6 @@ class JobProperty(object):
         The actual Value of the JobProperty is (statusOn AND StoredValue)
 
     """
-    __metaclass__ = _JobPropertyMeta
 
     statusOn=False
     allowedTypes=list()
@@ -204,7 +204,7 @@ class JobProperty(object):
             self.__dict__['statusOn']=True
             self._do_action()
         else:
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
 
     def set_Off(self):
         """ Sets statusOn equals to False. 
@@ -213,7 +213,7 @@ class JobProperty(object):
             self.__dict__['statusOn']=False
             self._undo_action()
         else:
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
 
     def lock(self):
         """ lock the property
@@ -265,7 +265,7 @@ class JobProperty(object):
                         (n_value, self._context_name)
                         )
             elif name == 'StoredValue' and self._locked:
-                self._log.info('The JobProperty %s is blocked' % self.__name__)
+                self._log.info('The JobProperty %s is blocked', self.__name__)
             else: 
                 self.__dict__[name] = n_value
         elif name == '__name__' or name == '_context_name':

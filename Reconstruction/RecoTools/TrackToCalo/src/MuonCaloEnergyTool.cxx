@@ -25,10 +25,9 @@ namespace Rec {
 
   MuonCaloEnergyTool::MuonCaloEnergyTool(const std::string& t, const std::string& n, const IInterface*  p )
     : AthAlgTool(t,n,p),
-    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-    m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
+    m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
+    m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", this),
     m_particleCreator("Trk::TrackParticleCreatorTool/MuonCaloParticleCreator"),
-    m_caloNoiseTool("CaloNoiseToolDefault"),
     m_sigmasAboveNoise(4.),
     m_emEtCut(2.5*Gaudi::Units::GeV),
     m_emF1Cut(0.15),
@@ -40,7 +39,6 @@ namespace Rec {
     declareProperty("ParticleCaloExtensionTool",      m_caloExtensionTool );
     declareProperty("ParticleCaloCellAssociationTool",m_caloCellAssociationTool );
     declareProperty("TrackParticleCreator",           m_particleCreator );
-    declareProperty("CaloNoiseTool",                  m_caloNoiseTool);
 
     //coneSize for including calo cells around track
     declareProperty("SigmasAboveNoise", m_sigmasAboveNoise = 4.);
@@ -56,8 +54,8 @@ namespace Rec {
     ATH_CHECK(m_caloExtensionTool.retrieve());
     ATH_CHECK(m_caloCellAssociationTool.retrieve());
     ATH_CHECK(m_particleCreator.retrieve());
-    ATH_CHECK(m_caloNoiseTool.retrieve());
 
+    ATH_CHECK(m_caloNoiseCDOKey.initialize());
     ATH_CHECK(m_indetTrackParticleLocation.initialize());
     ATH_CHECK(m_muonTrackParticleLocation.initialize());
 
@@ -180,11 +178,11 @@ namespace Rec {
 
     if(!tp) return;
 
-    const Rec::ParticleCellAssociation* association = 0;
-    m_caloCellAssociationTool->particleCellAssociation(*tp,association,0.2,NULL,true);
+    std::unique_ptr<const Rec::ParticleCellAssociation> association = 
+      m_caloCellAssociationTool->particleCellAssociation(*tp,0.2,nullptr);
 
-    if(!association) return;
-    ATH_MSG_DEBUG( " particleCellAssociation done  " << association );
+    if(!association) {return;}
+    ATH_MSG_DEBUG( " particleCellAssociation done  " << association.get());
 
     std::vector< std::pair<const CaloCell*,Rec::ParticleCellIntersection*> > cellIntersections = association->cellIntersections();
 
@@ -203,7 +201,10 @@ namespace Rec {
     double Eloss = 0.;
     double scaleTG = 1.0;
     if(!caloExtension.muonEntryLayerIntersection()) {
-      if(caloExtension.caloEntryLayerIntersection()->momentum().mag()-fabs(deltaE)>1000.) ATH_MSG_WARNING( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly for momentum " << caloExtension.caloEntryLayerIntersection()->momentum().mag() );
+      if(caloExtension.caloEntryLayerIntersection()->momentum().mag()-fabs(deltaE)>1000.) {
+        ATH_MSG_WARNING( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly for momentum " 
+                         << caloExtension.caloEntryLayerIntersection()->momentum().mag() );
+      }
       ATH_MSG_DEBUG( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly ");
     } else {     
       Eloss = caloExtension.caloEntryLayerIntersection()->momentum().mag() - caloExtension.muonEntryLayerIntersection()->momentum().mag();
@@ -275,6 +276,11 @@ namespace Rec {
 
     // measured and expected energies 
 
+    //Get Calo-Noise CDO:
+    SG::ReadCondHandle<CaloNoise> caloNoiseHdl{m_caloNoiseCDOKey};
+    const CaloNoise* caloNoise=*caloNoiseHdl;
+
+
     double E_em1  = 0.;
     double E_em   = 0.;
     double E_em_expected = 0.;
@@ -320,9 +326,8 @@ namespace Rec {
 
 //      if(f_exp<0.1) f_exp = 0.1;
 
-//    cellnoisedb = m_caloNoiseTool->getNoise(cell,ICalorimeterNoiseTool::ELECTRONICNOISE);
-      double sigma_Noise = m_caloNoiseTool->getEffectiveSigma(curr_cell,ICalorimeterNoiseTool::MAXSYMMETRYHANDLING,ICalorimeterNoiseTool::ELECTRONICNOISE);
-//      double sigma_NoiseA  = m_caloNoiseTool->totalNoiseRMS(curr_cell);
+      double sigma_Noise = caloNoise->getEffectiveSigma(id,curr_cell->gain(),cellEn);
+
       double thetaCell = atan2(sqrt(curr_cell->x()*curr_cell->x()+curr_cell->y()*curr_cell->y()),curr_cell->z());
       double phiCell = atan2(curr_cell->y(),curr_cell->x());
 

@@ -50,9 +50,6 @@ namespace {
 
 SCT_ReadCalibDataCondAlg::SCT_ReadCalibDataCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
-  , m_defectMapIntToString{}
-  , m_condSvc{"CondSvc", name}
-  , m_id_sct{nullptr}
 {
   m_ignoreDefects.value().push_back("NOISE_SLOPE");
   m_ignoreDefects.value().push_back("OFFSET_SLOPE");

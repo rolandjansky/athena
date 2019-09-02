@@ -18,6 +18,7 @@
 #include <map>
 #include <string>
 #include <list>
+#include <atomic>
 #include "JetTagTools/ITagTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "MVAUtils/BDT.h"
@@ -42,7 +43,7 @@ namespace Analysis
   class NewLikelihoodTool;
   class HistoHelperRoot;
 
-  class SoftMuonTag : public AthAlgTool, virtual public ITagTool
+  class SoftMuonTag : public extends<AthAlgTool, ITagTool>
   {
   public:
     SoftMuonTag(const std::string&,const std::string&,const IInterface*);
@@ -51,17 +52,17 @@ namespace Analysis
        Implementations of the methods defined in the abstract base class
     */
     virtual ~SoftMuonTag();
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
       
-    /** Set the primary vertex. TODO: This is temporary ! The primary vertex should
-	be part of the JetTag IParticle interface implementation. The trouble with
-	ElementLink and persistency has to be solved for that. Revisit ... */
-    void setOrigin(const xAOD::Vertex* priVtx);
+
+    virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                              const xAOD::Jet& jetToTag,
+                              xAOD::BTagging& BTag,
+                              const std::string &jetName) const override;
       
-    StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag);  
-      
-    void finalizeHistos();
+
+    virtual void finalizeHistos() override;
       
   private:
     /** ANDREA **/
@@ -81,17 +82,16 @@ namespace Analysis
     std::string m_MV2cXX;
     std::string m_xAODBaseName;
 
-    std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
-    float deltaR(float eta1, float eta2, float phi1, float phi2); 
+    float deltaR(float eta1, float eta2, float phi1, float phi2) const;
 
     /** ANDREA **/
       
     const unsigned m_nClasses=3;//b,u,c probabilities. It might be better to read from calib file for future
     const bool m_writeRootFile=false;//Developper option
-    bool m_disableAlgo;
-    int  m_warnCounter;
+    mutable std::atomic<bool> m_disableAlgo;
+    mutable std::atomic<int>  m_warnCounter;
 
     /** GP: Tool for the estimation of the IPs to the Vertex */
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
@@ -130,36 +130,35 @@ namespace Analysis
     double m_DRcut;
     double m_MatchChi2cut;
 
-    //SMT vars
-    float  m_pt    			;
-    float  m_absEta			;
-    float  m_sm_mu_pt          	;
-    float  m_sm_dR             	;
-    float  m_sm_qOverPratio    	;
-    float  m_sm_mombalsignif   	;
-    float  m_sm_scatneighsignif	;
-    float  m_sm_pTrel          	;
-    float  m_sm_mu_d0          	;
-    float  m_sm_mu_z0          	;
-    float  m_sm_ID_qOverP      	;
-    float  m_sm_mu_sv_mass     	;
-    float  m_sm_mu_sv_efrc     	;
-    float  m_sm_mu_sv_ntrk     	;
-    float  m_sm_mu_sv_VtxnormDist	;
-    float  m_sm_mu_sv_ntrkVtx		;
-    float  m_sm_mu_sv_dmaxPt 		;
-    float  m_sm_mu_sv_Lxy 		;  
-    float  m_sm_mu_sv_L3d 		;  
-    float  m_sm_mu_sv_dR  		;  
+    struct Vars
+    {
+      //SMT vars
+      float  m_pt    			;
+      float  m_absEta			;
+      float  m_sm_dR             	;
+      float  m_sm_qOverPratio    	;
+      float  m_sm_mombalsignif   	;
+      float  m_sm_scatneighsignif	;
+      float  m_sm_pTrel          	;
+      float  m_sm_mu_d0          	;
+      float  m_sm_mu_sv_mass     	;
+      float  m_sm_mu_sv_efrc     	;
+      float  m_sm_mu_sv_ntrk     	;
+      float  m_sm_mu_sv_VtxnormDist	;
+      float  m_sm_mu_sv_ntrkVtx		;
+      float  m_sm_mu_sv_dmaxPt 		;
+      float  m_sm_mu_sv_Lxy 		;  
+      float  m_sm_mu_sv_L3d 		;  
+      float  m_sm_mu_sv_dR  		;  
 
-    float m_my_smt;
-
+      void SetVariableRefs(MsgStream& msg,
+                           const std::vector<std::string>& inputVars,
+                           unsigned &nConfgVar,
+                           bool &badVariableFound,
+                           std::vector<float*> &inputPointers);
+    };
+    
     SG::ReadHandleKey<xAOD::TrackParticleContainer > m_TrackParticles {this, "TrackParticlesName", "InDetTrackParticles", "Input track particle container to find SV with a muon"};
-
-    /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
-    // this pointer does not need to be deleted in the destructor (because it
-    // points to something in storegate)
-    const xAOD::Vertex* m_priVtx = 0;
 
     /** just print some info at the beginning */
     void printParameterSettings();
@@ -176,10 +175,7 @@ namespace Analysis
     std::string m_muonAssociationName;
       
     void ReplaceNaN_andAssign(std::map<std::string, double> var_map);
-    void SetVariableRefs(const std::vector<std::string> inputVars,
-			 unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
-    void ClearInputs();
-    void PrintInputs();
+    void PrintInputs(const Vars& vars) const;
 
     std::vector<float> GetMulticlassResponse(MVAUtils::BDT* bdt) const {
       std::vector<float> v(m_nClasses,-1);
@@ -189,7 +185,6 @@ namespace Analysis
    
   }; // End class
  
-  inline void SoftMuonTag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 } // End namespace
 
 #endif

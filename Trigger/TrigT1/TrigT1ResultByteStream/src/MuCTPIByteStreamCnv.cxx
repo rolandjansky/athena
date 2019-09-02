@@ -8,7 +8,7 @@
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ROBData.h"
 
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 // Trigger include(s):
 #include "TrigT1Result/MuCTPI_RDO.h"

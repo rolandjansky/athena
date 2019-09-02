@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCalibTools/IdToFixedIdTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/CscIdHelper.h"
@@ -43,22 +42,15 @@ StatusCode IdToFixedIdTool::initialize()
   StatusCode status = AlgTool::initialize();
   if ( status.isFailure() ) return status;
   
-  StoreGateSvc* detStore=0;
-  status = serviceLocator()->service("DetectorStore", detStore);
- 
-  if ( status.isSuccess() ) {
-    status = detStore->retrieve( p_MuonMgr );
-    if ( status.isFailure() ) {
-      ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
-    } else {
-      p_MdtIdHelper = p_MuonMgr->mdtIdHelper();
-      p_CscIdHelper = p_MuonMgr->cscIdHelper();    
-      p_RpcIdHelper = p_MuonMgr->rpcIdHelper();
-      p_TgcIdHelper = p_MuonMgr->tgcIdHelper();
-      ATH_MSG_INFO(" Retrieved IdHelpers: (muon, mdt, csc, rpc and tgc) ");
-    }
+  status = detStore()->retrieve( p_MuonMgr );
+  if ( status.isFailure() ) {
+    ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
   } else {
-    ATH_MSG_ERROR(" MuonDetDescrMgr not found in DetectorStore ");
+    p_MdtIdHelper = p_MuonMgr->mdtIdHelper();
+    p_CscIdHelper = p_MuonMgr->cscIdHelper();    
+    p_RpcIdHelper = p_MuonMgr->rpcIdHelper();
+    p_TgcIdHelper = p_MuonMgr->tgcIdHelper();
+    ATH_MSG_INFO(" Retrieved IdHelpers: (muon, mdt, csc, rpc and tgc) ");
   }
 
   return status;

@@ -29,6 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
+                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
@@ -45,7 +46,7 @@ atlas_add_component( TrigInDetRecoTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel InDetPrepRawData SiSpacePoint InDetRecToolInterfaces TrkSpacePoint TrkTrack TrigInDetEvent TrigInDetPattRecoEvent TrigSteeringEvent AthenaKernel GeoPrimitives IRegionSelector ByteStreamCnvSvcBaseLib EventInfo InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkSegment TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel InDetPrepRawData SiSpacePoint InDetRecToolInterfaces TrkSpacePoint TrkTrack TrigInDetEvent TrigInDetPattRecoEvent TrigSteeringEvent AthenaKernel GeoPrimitives IRegionSelector ByteStreamCnvSvcBaseLib EventInfo InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack SiSPSeededTrackFinderData TrkSurfaces TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkSegment TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigInDetRecoTools )

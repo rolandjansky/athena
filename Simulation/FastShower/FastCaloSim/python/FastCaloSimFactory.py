@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
@@ -32,16 +32,10 @@ def FastCaloSimFactory(name="FastCaloSimFactory", **kwargs):
     #theFastShowerCellBuilderTool.Extrapolator=timedExtrapolator
     mlog.info("configure TimedExtrapolator finished")
 
-    from CaloTrackingGeometry.CaloTrackingGeometryConf import CaloSurfaceHelper
-    caloSurfaceHelper = CaloSurfaceHelper()
-    ToolSvc+=caloSurfaceHelper
-    #theFastShowerCellBuilderTool.CaloSurfaceHelper=caloSurfaceHelper  
-
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags 
     #theFastShowerCellBuilderTool.CaloEntrance = TrkDetFlags.InDetContainerName()
 
     kwargs.setdefault("CaloEntrance", TrkDetFlags.InDetContainerName())
-    kwargs.setdefault("CaloSurfaceHelper", caloSurfaceHelper)
     kwargs.setdefault("Extrapolator", timedExtrapolator)
     
     from FastCaloSim.FastCaloSimConf import FastShowerCellBuilderTool

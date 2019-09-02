@@ -24,6 +24,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/setupStoreGate.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <map>
@@ -157,6 +158,7 @@ public:
                           CONT* destCont)
   {
     EventContext ctx;
+    ctx.setExtension (Atlas::ExtendedEventContext (m_evtStore->hiveProxyDict(), 0));
     return tool->process (destCont, ctx);
   }
 

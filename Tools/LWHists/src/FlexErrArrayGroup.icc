@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -104,6 +104,7 @@ inline FlexBinChunk<T>* FlexErrArrayGroup<T>::getChunk(unsigned igroup)
     FlexBinChunk<T> * chunk = MP_NEW(FlexBinChunk<T>)();
     addIndexPointer(LWHistBitUtils::countSetBitsBefore<uint8_t>(m_chunksallocated,igroup),chunk);
     LWHistBitUtils::setBit<uint8_t>(m_chunksallocated,igroup);
+    // cppcheck-suppress assertWithSideEffect
     assert(getChunk(igroup)==chunk);
     assert(getChunkNoAlloc(igroup)==chunk);
     return chunk;
@@ -340,9 +341,10 @@ inline void FlexErrArrayGroup<T>::setBinContent( unsigned bin,
 #endif
     return;
   }
-  getChunk(igroup)->setBinContent(getChunkBin(bin),val);
+  FlexBinChunk<T>* chunk = getChunk(igroup);
+  chunk->setBinContent(getChunkBin(bin),val);
 
-  assert(getChunk(igroup)->getBinContent(getChunkBin(bin))==val||bothNaN(getChunk(igroup)->getBinContent(getChunkBin(bin)),val));
+  assert(chunk->getBinContent(getChunkBin(bin))==val||bothNaN(chunk->getBinContent(getChunkBin(bin)),val));
 #ifdef LW_STRICT_ROOT_BEHAVIOUR
   if (pretendSumWMode)
     getErrChunk(igroup)[getChunkBin(bin)] = pre_error*pre_error;

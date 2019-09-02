@@ -5,8 +5,8 @@
 //@file ReadFromFileMetaData.h
 //@brief Class to read from file metadata and give the results
 //@author Shaun Roe
-#ifndef IOVDBSVC_ReadFromFileMetaData_H
-#define IOVDBSVC_ReadFromFileMetaData_H
+#ifndef IOVDbSvc_ReadFromFileMetaData_h
+#define IOVDbSvc_ReadFromFileMetaData_h
 
 
 #include "CoolKernel/ValidityKey.h"
@@ -26,6 +26,7 @@ namespace coral{
 }
 
 namespace IOVDbNamespace{
+  //@brief Encapsulates the functionality to read database quantities from file metadata
   class ReadFromFileMetaData{
   public:
     ReadFromFileMetaData()=delete;

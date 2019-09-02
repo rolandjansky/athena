@@ -192,7 +192,7 @@ namespace InDetDD {
 
       } else if (frame == InDetDD::local) { // local shift
 
-        const SiDetectorElement * element =  m_elementCollection[idHash];
+        SiDetectorElement * element =  m_elementCollection[idHash];
         if (!element) return false;
 
 
@@ -200,7 +200,7 @@ namespace InDetDD {
         //See header file for definition of m_isLogical          
         if( m_isLogical ){
           //Ensure cache is up to date and use the alignment corrected local to global transform
-          element->updateCache();
+          element->setCache();
           return setAlignableTransformLocalDelta(m_alignableTransforms[idHash], element->transform(), delta, alignStore);
         } else 
           //Use default local to global transform
@@ -229,14 +229,14 @@ namespace InDetDD {
         // Its a global transform
         return setAlignableTransformGlobalDelta(m_moduleAlignableTransforms[idModuleHash], delta, alignStore);
       } else if (frame == InDetDD::local) { // local shift
-        const SiDetectorElement * element =  m_elementCollection[idHash];
+        SiDetectorElement * element =  m_elementCollection[idHash];
         if (!element) return false;
        
         // Its a local transform
         //See header file for definition of m_isLogical          
         if( m_isLogical ){
           //Ensure cache is up to date and use the alignment corrected local to global transform
-          element->updateCache();
+          element->setCache();
           return setAlignableTransformLocalDelta(m_moduleAlignableTransforms[idModuleHash], element->moduleTransform(), delta, alignStore);
         } else 
           //Use default local to global transform
@@ -393,5 +393,16 @@ namespace InDetDD {
     return alignmentChange;
   }
 
+bool SCT_DetectorManager::processSpecialAlignment(
+    const std::string &, InDetDD::AlignFolderType) const {
+  return false;
+}
+
+bool SCT_DetectorManager::processSpecialAlignment(const std::string& /*key*/,
+                                                  const CondAttrListCollection* /*obj*/,
+                                                  GeoVAlignmentStore* /*alignStore*/) const {
+  return false;
+
+}
 
 } // namespace InDetDD

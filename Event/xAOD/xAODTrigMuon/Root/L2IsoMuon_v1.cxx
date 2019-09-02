@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: L2IsoMuon_v1.cxx 605614 2014-07-09 12:49:31Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -73,21 +72,21 @@ namespace xAOD {
 
    void L2IsoMuon_v1::setPt( float pt ) {
 
-      static Accessor< float > acc( "pt" );
+      static const Accessor< float > acc( "pt" );
       acc( *this ) = pt;
       return;
    }
 
    void L2IsoMuon_v1::setEta( float eta ) {
 
-      static Accessor< float > acc( "eta" );
+      static const Accessor< float > acc( "eta" );
       acc( *this ) = eta;
       return;
    }
 
    void L2IsoMuon_v1::setPhi( float phi ) {
 
-      static Accessor< float > acc( "phi" );
+      static const Accessor< float > acc( "phi" );
       acc( *this ) = phi;
       return;
    }

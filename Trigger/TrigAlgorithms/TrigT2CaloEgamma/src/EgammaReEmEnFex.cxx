@@ -26,12 +26,11 @@ EgammaReEmEnFex::EgammaReEmEnFex(const std::string& type, const std::string& nam
   declareProperty("QlCorrectionDimension", m_dimension);
   declareProperty("QlCorrection", m_correction);
   // Calibration object
-  m_calib = new T2CalibrationEgamma();
+  m_calib=std::make_unique<T2CalibrationEgamma>();
 }
 
 EgammaReEmEnFex::~EgammaReEmEnFex()
 {
-  delete m_calib;
 }
 
 StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const IRoiDescriptor& roi,
@@ -94,7 +93,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
 
   } // end of loop over sampling 0
 
-#ifndef NDEBUG
+#if 0 // Can't call EtaPhiRange from a const method!
   // This will internaly define normal, narrow and large clusters
   if (msgLvl(MSG::DEBUG)) {
     if (m_geometryTool->EtaPhiRange(0, 0, energyEta, energyPhi)) {
@@ -153,7 +152,7 @@ StatusCode EgammaReEmEnFex::execute(xAOD::TrigEMCluster& rtrigEmCluster, const I
   rtrigEmCluster.setEt(rtrigEmCluster.energy() / cosh(energyEta));
   rtrigEmCluster.setRawEt(rtrigEmCluster.rawEnergy() / cosh(energyEta));
 
-#ifndef NDEBUG
+#if 0 // Can't call EtaPhiRange from a const method!
   // This will internaly define normal, narrow and large clusters
   if (msgLvl(MSG::DEBUG)) {
     if (m_geometryTool->EtaPhiRange(0, 3, energyEta, energyPhi)) {

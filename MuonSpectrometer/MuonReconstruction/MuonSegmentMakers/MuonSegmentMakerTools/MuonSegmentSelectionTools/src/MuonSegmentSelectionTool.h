@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTSELECTIONTOOL_H
@@ -9,12 +9,14 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 class Identifier;
 
 namespace Muon {
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonSegment;
   class IMuonSegmentHitSummaryTool;
@@ -71,7 +73,9 @@ namespace Muon {
 
 
     ToolHandle<MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
-    ToolHandle<MuonEDMHelperTool>              m_helperTool;       //!< EDM Helper tool
+    ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
     ToolHandle<MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
     ToolHandle<IMuonSegmentHitSummaryTool>     m_hitSummaryTool;   //!< hit summary tool
 

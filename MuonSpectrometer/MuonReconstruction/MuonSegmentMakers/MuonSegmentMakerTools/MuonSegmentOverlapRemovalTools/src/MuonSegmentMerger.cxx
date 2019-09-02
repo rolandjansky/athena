@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentMerger.h"
  
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentTriggerHitAssociator.h"
 
@@ -26,14 +26,12 @@ namespace Muon {
   MuonSegmentMerger::MuonSegmentMerger(const std::string& ty,const std::string& na,const IInterface* pa)
     : AthAlgTool(ty,na,pa),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
       m_triggerHitsAssociator("Muon::DCMathSegmentMaker/DCMathSegmentMaker")
   {
     declareInterface<IMuonSegmentMerger>(this);
 
     declareProperty("MuonIdHelperTool",m_idHelperTool );
-    declareProperty("MuonEDMHelperTool",m_helperTool );
     declareProperty("MuonEDMPrinterTool",m_printer);
     declareProperty("TriggerHitAssociator",m_triggerHitsAssociator);
   }
@@ -48,8 +46,8 @@ namespace Muon {
       return StatusCode::FAILURE;
     }
 
-    if (m_helperTool.retrieve().isFailure()){
-      ATH_MSG_ERROR("Could not get " << m_helperTool); 
+    if (m_edmHelperSvc.retrieve().isFailure()){
+      ATH_MSG_ERROR("Could not get " << m_edmHelperSvc); 
       return StatusCode::FAILURE;
     }
 
@@ -97,7 +95,7 @@ namespace Muon {
       
       // create segment key object
       MuonSegmentKey sk(**sit);
-      Identifier chId = m_helperTool->chamberId(**sit);
+      Identifier chId = m_edmHelperSvc->chamberId(**sit);
       if(!m_idHelperTool->isMdt(chId)) {
 	outputSegments.push_back(new MuonSegment(**sit));
 	continue;
@@ -169,7 +167,7 @@ namespace Muon {
     for( ;sit!=sit_end;++sit ){
       ATH_MSG_DEBUG(" " << m_printer->print(**sit));
 
-      // Identifier chid = m_helperTool->chamberId(**sit);
+      // Identifier chid = m_edmHelperSvc->chamberId(**sit);
 
       if( !aSegment ) aSegment = *sit;
       
@@ -355,7 +353,7 @@ namespace Muon {
     for( ;sit!=sit_end;++sit ){
       ATH_MSG_DEBUG(" " << m_printer->print(**sit));
 
-      Identifier chid = m_helperTool->chamberId(**sit);
+      Identifier chid = m_edmHelperSvc->chamberId(**sit);
       bool isEndcap = m_idHelperTool->isEndcap(chid);
 
       if( !aSegment ) aSegment = *sit;

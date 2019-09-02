@@ -66,6 +66,8 @@ cd $rundir
 # L1Topo config file
 generateL1TopoMenu.py $menu >&! $logfiletopo
 cp L1Topoconfig_*.xml ${dest}
+rename _${release}.xml .xml L1Topoconfig_*.xml
+cp L1Topoconfig_*.xml ${dest}
 
 # L1 + HLT config file
 if [ -z "$TMXML_DEBUG" ]; then
@@ -86,6 +88,7 @@ fi
 if [[ -e outputLVL1config.xml ]]; then
     cp outputLVL1config.xml ${dest}/LVL1config_${menu}_${release}.xml
     cp outputHLTconfig.xml ${dest}/HLTconfig_${menu}_${release}.xml
+    cp outputLVL1config.xml ${dest}/LVL1config_${menu}.xml
 fi
 
 #this gives some more sensitivity to hidden problems

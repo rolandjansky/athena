@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchConf_v1.cxx 583374 2014-02-14 15:52:54Z krasznaa $
 
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -33,7 +32,7 @@ namespace xAOD {
 
    bool BunchConf_v1::intensitiesBeam1Available() const {
 
-      static Accessor< std::vector< float > > acc( "intensitiesBeam1" );
+      static const Accessor< std::vector< float > > acc( "intensitiesBeam1" );
       return acc.isAvailable( *this );
    }
 
@@ -42,7 +41,7 @@ namespace xAOD {
 
    bool BunchConf_v1::intensitiesBeam2Available() const {
 
-      static Accessor< std::vector< float > > acc( "intensitiesBeam2" );
+      static const Accessor< std::vector< float > > acc( "intensitiesBeam2" );
       return acc.isAvailable( *this );
    }
 
@@ -60,7 +59,7 @@ namespace xAOD {
 
    bool BunchConf_v1::unpairedBCIDsBeam1Available() const {
 
-      static Accessor< std::vector< int > > acc( "unpairedBCIDsBeam1" );
+      static const Accessor< std::vector< int > > acc( "unpairedBCIDsBeam1" );
       return acc.isAvailable( *this );
    }
 
@@ -70,7 +69,7 @@ namespace xAOD {
 
    bool BunchConf_v1::unpairedBCIDsBeam2Available() const {
 
-      static Accessor< std::vector< int > > acc( "unpairedBCIDsBeam2" );
+      static const Accessor< std::vector< int > > acc( "unpairedBCIDsBeam2" );
       return acc.isAvailable( *this );
    }
 
@@ -80,7 +79,7 @@ namespace xAOD {
 
    bool BunchConf_v1::unpairedIntensitiesBeam1Available() const {
 
-      static Accessor< std::vector< float > >
+      static const Accessor< std::vector< float > >
          acc( "unpairedIntensisitesBeam1" );
       return acc.isAvailable( *this );
    }
@@ -91,7 +90,7 @@ namespace xAOD {
 
    bool BunchConf_v1::unpairedIntensitiesBeam2Available() const {
 
-      static Accessor< std::vector< float > >
+      static const Accessor< std::vector< float > >
          acc( "unpairedIntensisitesBeam2" );
       return acc.isAvailable( *this );
    }

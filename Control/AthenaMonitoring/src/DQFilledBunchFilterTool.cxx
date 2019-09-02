@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/DQFilledBunchFilterTool.h"
@@ -37,10 +37,7 @@ bool DQFilledBunchFilterTool::accept() const {
   if (m_alwaysReturnTrue) {
     return true;
   } else {
-    const EventInfo* eventInfo(0);
-    CHECK( evtStore()->retrieve( eventInfo ), false );
-    
-    EventID::number_type bcid = eventInfo->event_ID()->bunch_crossing_id();  
+    EventID::number_type bcid = Gaudi::Hive::currentContext().eventID().bunch_crossing_id();  
     bool value = m_bunchtool->isFilled(bcid) ^ m_invert;
     ATH_MSG_VERBOSE("Filled bunch DQ tool accept called, value " << value);
     return value;

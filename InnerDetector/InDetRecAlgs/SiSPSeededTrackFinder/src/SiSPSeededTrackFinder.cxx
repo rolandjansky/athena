@@ -4,6 +4,8 @@
 
 #include "SiSPSeededTrackFinder/SiSPSeededTrackFinder.h"
 
+#include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
+#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
@@ -14,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
-(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
+(const std::string& name,ISvcLocator* pSvcLocator) : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -25,8 +27,12 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
 StatusCode InDet::SiSPSeededTrackFinder::initialize() 
 {
   ATH_CHECK(m_evtKey.initialize());
-  ATH_CHECK(m_SpacePointsSCTKey.initialize());
-  ATH_CHECK(m_SpacePointsPixelKey.initialize());
+  if (not m_SpacePointsPixelKey.empty()) {
+    ATH_CHECK(m_SpacePointsPixelKey.initialize());
+  }
+  if (not m_SpacePointsSCTKey.empty()) {
+    ATH_CHECK(m_SpacePointsSCTKey.initialize());
+  }
   ATH_CHECK(m_outputTracksKey.initialize());
 
   // Get tool for space points seed maker
@@ -73,7 +79,6 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   if (msgLvl(MSG::DEBUG)) {
     dump(MSG::DEBUG, nullptr);
   }
-  m_counterTotal   = {};
   m_neventsTotal   = 0;
   m_neventsTotalV  = 0;
   m_problemsTotal  = 0;
@@ -85,42 +90,44 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
 // Execute
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinder::execute() 
+StatusCode InDet::SiSPSeededTrackFinder::execute(const EventContext& ctx) const
 { 
   if (not m_useNewStrategy and not m_useZBoundaryFinding and not m_ITKGeometry) {
-    return oldStrategy();
+    return oldStrategy(ctx);
   }
-  return newStrategy();
+  return newStrategy(ctx);
 }
 
 ///////////////////////////////////////////////////////////////////
 // Execute with old strategy
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
+StatusCode InDet::SiSPSeededTrackFinder::oldStrategy(const EventContext& ctx) const
 {
-  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey};
+  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
   ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));
   // For HI events we can use MBTS information from calorimeter
   //
-  if (not isGoodEvent()) {
+  if (not isGoodEvent(ctx)) {
     return StatusCode::SUCCESS;
   }
 
+  SiSpacePointsSeedMakerEventData seedEventData;
   bool ZVE = false;
   if (m_useZvertexTool) {
-    m_zvertexmaker->newEvent();
-    if (not m_zvertexmaker->getVertices().empty()) ZVE = true;
-    m_seedsmaker->find3Sp(m_zvertexmaker->getVertices());
+    std::list<Trk::Vertex> vertices = m_zvertexmaker->newEvent(seedEventData);
+    if (not vertices.empty()) ZVE = true;
+    m_seedsmaker->find3Sp(seedEventData, vertices);
   } else {
-    m_seedsmaker->newEvent(-1);
+    m_seedsmaker->newEvent(seedEventData, -1);
     std::list<Trk::Vertex> VZ;
-    m_seedsmaker->find3Sp(VZ);
+    m_seedsmaker->find3Sp(seedEventData, VZ);
   }
 
   const bool PIX = true;
   const bool SCT = true;
-  m_trackmaker->newEvent(PIX, SCT);
+  InDet::SiTrackMakerEventData_xk trackEventData;
+  m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   bool ERR = false;
   Counter_t counter{};
@@ -128,9 +135,10 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   std::multimap<double, Trk::Track*> qualityTrack;
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
-  while ((seed = m_seedsmaker->next())) {
+  while ((seed = m_seedsmaker->next(seedEventData))) {
     ++counter[kNSeeds];
-    for (Trk::Track* t: m_trackmaker->getTracks(seed->spacePoints())) {
+    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(trackEventData, seed->spacePoints());
+    for (Trk::Track* t: trackList) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
     }
     if (not ZVE and (counter[kNSeeds] >= m_maxNumberSeeds)) {
@@ -139,7 +147,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
       break;
     }
   }
-  m_trackmaker->endEvent();
+  m_trackmaker->endEvent(trackEventData);
 
   // Remove shared tracks with worse quality
   //
@@ -176,28 +184,31 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
 // Execute with new strategy
 ///////////////////////////////////////////////////////////////////
 
-StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
+StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) const
 {
-  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey};
+  SG::WriteHandle<TrackCollection> outputTracks{m_outputTracksKey, ctx};
   ATH_CHECK(outputTracks.record(std::make_unique<TrackCollection>()));
   // For HI events we can use MBTS information from calorimeter
   //
-  if (not isGoodEvent()) {
+  if (not isGoodEvent(ctx)) {
     return StatusCode::SUCCESS;
   }
 
   // Get beam information and preparation for z -histogramming
   //
-  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey};
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{m_beamSpotKey, ctx};
   Trk::PerigeeSurface per(beamSpotHandle->beamPos());
+
+  SiSpacePointsSeedMakerEventData seedEventData;
  
-  m_seedsmaker->newEvent(0);
+  m_seedsmaker->newEvent(seedEventData, 0);
   std::list<Trk::Vertex> VZ;
-  m_seedsmaker->find3Sp(VZ);
+  m_seedsmaker->find3Sp(seedEventData, VZ);
 
   const bool PIX = true ;
   const bool SCT = true ;
-  m_trackmaker->newEvent(PIX, SCT);
+  InDet::SiTrackMakerEventData_xk trackEventData;
+  m_trackmaker->newEvent(trackEventData, PIX, SCT);
 
   std::vector<int> nhistogram(m_histsize, 0);
   std::vector<double> zhistogram(m_histsize, 0.);
@@ -209,10 +220,11 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   std::multimap<double, Trk::Track*> qualityTrack;
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
-  while ((seed = m_seedsmaker->next())) {
+  while ((seed = m_seedsmaker->next(seedEventData))) {
     ++counter[kNSeeds];
     bool firstTrack{true};
-    for (Trk::Track* t: m_trackmaker->getTracks(seed->spacePoints())) {
+    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(trackEventData, seed->spacePoints());
+    for (Trk::Track* t: trackList) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
 
       if (firstTrack and not m_ITKGeometry) {
@@ -227,21 +239,21 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
     }
   }
 
-  m_seedsmaker->newEvent(1); 
+  m_seedsmaker->newEvent(seedEventData, 1);
 
   double ZB[2];
   if (not m_ITKGeometry) {
     findZvertex(VZ, ZB, nhistogram, zhistogram, phistogram);
-    m_seedsmaker->find3Sp(VZ, ZB);
+    m_seedsmaker->find3Sp(seedEventData, VZ, ZB);
   } else {
-    m_seedsmaker->find3Sp(VZ);
+    m_seedsmaker->find3Sp(seedEventData, VZ);
   }
 
   // Loop through all seed and reconsrtucted tracks collection preparation
   //
-  while ((seed = m_seedsmaker->next())) {
+  while ((seed = m_seedsmaker->next(seedEventData))) {
     ++counter[kNSeeds];
-    for (Trk::Track* t: m_trackmaker->getTracks(seed->spacePoints())) {
+    for (Trk::Track* t: m_trackmaker->getTracks(trackEventData, seed->spacePoints())) {
       qualityTrack.insert(std::make_pair(-trackQuality(t), t));
     }
     if (counter[kNSeeds] >= m_maxNumberSeeds) {
@@ -250,7 +262,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
       break;
     }
   }
-  m_trackmaker->endEvent();
+  m_trackmaker->endEvent(trackEventData);
 
   // Remove shared tracks with worse quality
   //
@@ -387,13 +399,13 @@ MsgStream& InDet::SiSPSeededTrackFinder::dumpevent(MsgStream& out, const InDet::
 // Test is it good event for reconstruction (mainly for HI events)
 ///////////////////////////////////////////////////////////////////
 
-bool InDet::SiSPSeededTrackFinder::isGoodEvent() const {
+bool InDet::SiSPSeededTrackFinder::isGoodEvent(const EventContext& ctx) const {
 
   if (not m_useMBTS) return true;
 
   // Test MBTS information from calorimeter
   //
-  SG::ReadHandle<xAOD::EventInfo> eventInfo{m_evtKey};
+  SG::ReadHandle<xAOD::EventInfo> eventInfo{m_evtKey, ctx};
   if (not eventInfo->isEventFlagBitSet(xAOD::EventInfo::Background, xAOD::EventInfo::MBTSTimeDiffHalo)) {
     return true;
   }
@@ -401,28 +413,32 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() const {
   // Test total number pixels space points
   //
   unsigned int nsp = 0;
-  SG::ReadHandle<SpacePointContainer> spacePointsPixel{m_SpacePointsPixelKey};
-  if (not spacePointsPixel.isValid()) {
-    for (const SpacePointCollection* spc: *spacePointsPixel) {
-      nsp += spc->size();
-    }
-    if (static_cast<int>(nsp) > m_maxPIXsp) {
-      ATH_MSG_WARNING("Found more than "<<m_maxPIXsp<<" pixels space points in background event. Skip track finding");
-      return false;
+  if (not m_SpacePointsPixelKey.empty()) {
+    SG::ReadHandle<SpacePointContainer> spacePointsPixel{m_SpacePointsPixelKey, ctx};
+    if (not spacePointsPixel.isValid()) {
+      for (const SpacePointCollection* spc: *spacePointsPixel) {
+        nsp += spc->size();
+      }
+      if (static_cast<int>(nsp) > m_maxPIXsp) {
+        ATH_MSG_WARNING("Found more than "<<m_maxPIXsp<<" pixels space points in background event. Skip track finding");
+        return false;
+      }
     }
   }
  
   // Test total number sct space points
   //
   nsp = 0;
-  SG::ReadHandle<SpacePointContainer> spacePointsSCT{m_SpacePointsSCTKey};
-  if (not spacePointsSCT.isValid()) {
-    for (const SpacePointCollection* spc: *spacePointsSCT) {
-      nsp += spc->size();
-    }
-    if (static_cast<int>(nsp) > m_maxSCTsp) {
-      ATH_MSG_WARNING("Found more than "<<m_maxSCTsp<<" sct space points in background event. Skip track finding");
-      return false;
+  if (not m_SpacePointsSCTKey.empty()) {
+    SG::ReadHandle<SpacePointContainer> spacePointsSCT{m_SpacePointsSCTKey, ctx};
+    if (not spacePointsSCT.isValid()) {
+      for (const SpacePointCollection* spc: *spacePointsSCT) {
+        nsp += spc->size();
+      }
+      if (static_cast<int>(nsp) > m_maxSCTsp) {
+        ATH_MSG_WARNING("Found more than "<<m_maxSCTsp<<" sct space points in background event. Skip track finding");
+        return false;
+      }
     }
   }
 

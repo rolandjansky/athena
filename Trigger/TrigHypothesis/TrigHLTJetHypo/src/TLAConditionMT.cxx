@@ -3,7 +3,7 @@
 */
 
 #include "./TLAConditionMT.h"
-#include "./IConditionVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 
 #include <sstream>
 #include <stdexcept>
@@ -57,7 +57,7 @@ TLAConditionMT::TLAConditionMT(double etaMin,
 }
 
 bool TLAConditionMT::isSatisfied(const HypoJetVector& ips,
-                                 std::unique_ptr<IConditionVisitor>&) const{
+                                 const std::unique_ptr<ITrigJetHypoInfoCollector>&) const{
   if(ips.size() != 2){
     std::stringstream ss;
     ss << "TLA::isSatisfied must see exactly 2 particles, but recieved "

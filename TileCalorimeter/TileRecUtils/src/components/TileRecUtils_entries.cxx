@@ -1,11 +1,11 @@
 #include "TileRecUtils/TileRawChannelBuilderFlatFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderFitFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderFitFilterCool.h"
-#include "TileRecUtils/TileRawChannelBuilderOptFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderOpt2Filter.h"
 #include "TileRecUtils/TileRawChannelBuilderQIEFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderManyAmps.h"
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
+#include "TileRecUtils/TileRawChannelBuilderWienerFilter.h"
 #include "TileRecUtils/TileCellBuilder.h"
 #include "TileRecUtils/TileCellBuilderFromHit.h"
 #include "TileRecUtils/TileCellFakeProb.h"
@@ -26,15 +26,16 @@
 #include "../TileRawChannelBuilderTest.h"
 #include "../TileDQstatusTool.h"
 #include "../TileDQstatusAlg.h"
+#include "../TileRawChannelCorrectionAlg.h"
 
 DECLARE_COMPONENT( TileRawChannelBuilderFlatFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderFitFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderFitFilterCool )
-DECLARE_COMPONENT( TileRawChannelBuilderOptFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderOpt2Filter )
 DECLARE_COMPONENT( TileRawChannelBuilderQIEFilter )
 DECLARE_COMPONENT( TileRawChannelBuilderManyAmps )
 DECLARE_COMPONENT( TileRawChannelBuilderMF )
+DECLARE_COMPONENT( TileRawChannelBuilderWienerFilter )
 DECLARE_COMPONENT( TileCellBuilder )
 DECLARE_COMPONENT( TileCellBuilderFromHit )
 DECLARE_COMPONENT( TileCellFakeProb )
@@ -55,3 +56,4 @@ DECLARE_COMPONENT( TileMuonReceiverDumper )
 DECLARE_COMPONENT( TileRawChannelBuilderTest )
 DECLARE_COMPONENT( TileDQstatusTool )
 DECLARE_COMPONENT( TileDQstatusAlg )
+DECLARE_COMPONENT( TileRawChannelCorrectionAlg )

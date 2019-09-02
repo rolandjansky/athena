@@ -42,7 +42,6 @@ def trigCaloDataAccessSvcCfg( flags ):
 
     from TileGeoModel.TileGMConfig import TileGMCfg    
     acc.merge( TileGMCfg( flags ) )
-    acc.getService('GeoModelSvc').DetectorTools['TileDetectorTool'].GeometryConfig = 'RECO'
 
     from RegionSelector.RegSelConfig import regSelCfg
     acc.merge( regSelCfg( flags ) )
@@ -54,8 +53,11 @@ def trigCaloDataAccessSvcCfg( flags ):
     acc.merge(addFolders(flags, ['/LAR/BadChannels/BadChannels'], 'LAR'))
     acc.merge(addFolders(flags, ['/LAR/BadChannels/MissingFEBs'], 'LAR'))
 
-    from TileConditions.TileConditionsConfig import tileCondCfg
-    acc.merge( tileCondCfg (flags) )
+    from TileConditions.TileEMScaleConfig import TileEMScaleCondAlgCfg
+    acc.merge( TileEMScaleCondAlgCfg(flags) )
+
+    from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
+    acc.merge( TileBadChannelsCondAlgCfg(flags) )
 
     from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
     import math

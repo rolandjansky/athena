@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_MERGEMCEVENTCOLLTOOL_H
@@ -9,12 +9,11 @@
 
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/PhysicalConstants.h"
 
 #include <utility> /* pair */
 
 class McEventCollection;
-class StoreGateSvc;
-class PileUpMergeSvc;
 
 namespace HepMC {
   class GenParticle;
@@ -52,6 +51,9 @@ public:
   virtual StatusCode processAllSubEvents() override final;
 
 private:
+  //** The types used to classify the events. NOPUTYPE is used both as the number of types, and to flag a reject (no type)
+  typedef enum puType { INTIME, OUTOFTIME, RESTOFMB, CAVERN, NOPUTYPE } puType;
+
   //** Add the required information from the current GenEvent to the output McEventCollection
   StatusCode processEvent(const McEventCollection *pMcEvtColl, const double currentEventTime, const int currentBkgEventIndex);
   //** Special case of processEvent for the first (signal) GenEvent
@@ -66,63 +68,6 @@ private:
   void printDetailsOfMergedMcEventCollection() const;
   //** Ensure that any GenEvent::HeavyIon info is stored in the signal GenEvent.
   StatusCode saveHeavyIonInfo(const McEventCollection *pMcEvtColl);
-
-  //** Handle for the PileUpMergeSvc (provides input McEventCollections)
-  ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
-  //** New McEventCollection to be written out to file
-  McEventCollection* m_pOvrlMcEvColl;
-  //** Name of input McEventCollection
-  StringProperty m_truthCollInputKey;
-  //** Name of output McEventCollection
-  StringProperty m_truthCollOutputKey;
-  //** Should unstable particles should be kept?
-  BooleanProperty m_keepUnstable;
-  //** Eta cut-off for INTIME GenParticles
-  DoubleProperty m_absEtaMax;
-  //** Eta cut-off for OUTOFTIME GenParticles
-  DoubleProperty m_absEtaMax_outOfTime;
-  //** Define time range for OUTOFTIME GenParticles
-  DoubleProperty m_lowTimeToKeep, m_highTimeToKeep;
-  //** Radius acceptance cut on production vertex of all stable particles (in mm)
-  DoubleProperty m_rRange;
-  //** Radius acceptance squared to speed up cut
-  double m_r2Range;
-  //** Cut on Z coordinate of production vertex in mm, to distinguish between minbias and cavern background categories
-  DoubleProperty m_zRange;
-  //** Minimum threshold for pT for selected pileup particles.
-  DoubleProperty m_ptMin;
-  //** Minimum threshold for Kinetic Energy of selected cavern events
-  DoubleProperty m_minKinE;
-  //** save minimum bias events in the t0 bunch xing
-  BooleanProperty m_saveInTimePileup;
-  //** save minbias events which are "close" by (within [ m_lowTimeToKeep, m_highTimeToKeep ])
-  BooleanProperty m_saveOutOfTimePileup;
-  //** save as well the rest of minbias
-  BooleanProperty m_saveRestOfPileup;
-  //** save as well the cavern background
-  BooleanProperty m_saveCavernBackground;
-  //** do the slimming - flag to do slimming or not
-  BooleanProperty m_doSlimming;
-  //** The types used to classify the events. NOPUTYPE is used both as the number of types, and to flag a reject (no type)
-  typedef enum puType { INTIME, OUTOFTIME, RESTOFMB, CAVERN, NOPUTYPE } puType;
-  //** Should any details of GenEvents corresponding to each puType be saved?
-  bool m_saveType[NOPUTYPE];
-  //** The index (before sorting) within the McEventCollection where the background events start
-  unsigned int m_startingIndexForBackground;
-  //** Bool to indicate that the next GenEvent is a new signal event
-  bool m_newevent;
-  //** The total number of GenEvents that will be passed for the current signal event
-  unsigned int m_nInputMcEventColls;
-  //** How many background events have been read so far for this signal event
-  unsigned int m_nBkgEventsReadSoFar;
-  //** Ensure that the collision GenVertex objects of minbias background events are saved.
-  BooleanProperty m_addBackgroundCollisionVertices;
-  //** Should empty GenEvents be removed from the output McEventCollection?
-  BooleanProperty m_compressOutputCollection;
-  //** Just save the Signal GenEvent
-  BooleanProperty m_onlySaveSignalTruth;
-  //** Temporary store for the true signal event number
-  int m_signal_event_number;
   //** Classify the current GenParticle according to the MC Truth Taskforce requirements
   MergeMcEventCollTool::puType classifyVertex(const HepMC::GenParticle *pCurrentVertexParticle, const HepMC::GenVertex *pCurrentParticleProductionVertex, double currentEventTime);
   //** Check if the current GenVertex contains beam particles
@@ -134,5 +79,53 @@ private:
   PileUpBackgroundMap m_backgroundClassificationMap;
   //** Update the map of GenEvent->puType
   void updateClassificationMap(int signal_process_id, int event_number, int hack, int classification, bool firstUpdateForThisEvent);
+
+  ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", "Handle for the PileUpMergeSvc (provides input McEventCollections)"};
+  //** New McEventCollection to be written out to file
+  McEventCollection* m_pOvrlMcEvColl{};
+  StringProperty m_truthCollInputKey{this, "TruthCollInputKey", "TruthEvent", "Name of input McEventCollection"};
+  StringProperty m_truthCollOutputKey{this, "TruthCollOutputKey", "TruthEvent", "Name of output McEventCollection"};
+  BooleanProperty m_keepUnstable{this, "KeepUnstable", false, "Do not cut unstable particles"};
+  DoubleProperty m_absEtaMax{this, "AbsEtaMax", 5.0, "Eta cut-off for INTIME GenParticles"};
+  DoubleProperty m_absEtaMax_outOfTime{this,"OutOfTimeAbsEtaMax", 3.0, "Eta cut-off for OUTOFTIME GenParticles"};
+  DoubleProperty m_lowTimeToKeep{this, "LowTimeToKeep", -51.0, "leading edge in ns of the time window to keep if SaveOutOfTimePileUp is true"};
+  DoubleProperty m_highTimeToKeep{this, "HighTimeToKeep", 51.0, "trailing edge in ns of the time window to keep if SaveOutOfTimePileUp is true"};
+  //** Radius acceptance cut on production vertex of all stable particles (in mm)
+  DoubleProperty m_rRange{this, "rRange", 20.0*Gaudi::Units::mm, "rRange of production vertex in mm"};
+  //** Radius acceptance squared to speed up cut
+  double m_r2Range{400.0};
+  //** Cut on Z coordinate of production vertex in mm, to distinguish between minbias and cavern background categories
+  DoubleProperty m_zRange{this, "zRange", 200.0*Gaudi::Units::mm, "z range of production vertex in mm"};
+  DoubleProperty m_ptMin{this, "ptMin", 0.4*Gaudi::Units::GeV, "Minimum threshold for pT for selected pileup particles in MeV"};
+  DoubleProperty m_minKinE{this, "EKinMin", 1.0*Gaudi::Units::MeV, "Minimum threshold for Kinetic Energy of selected cavern events in MeV"};
+  //** save minimum bias events in the t0 bunch xing
+  BooleanProperty m_saveInTimePileup{this, "SaveInTimeMinBias", true, "save min bias particles in the t0 xing"};
+  //** save minbias events which are "close" by (within [ m_lowTimeToKeep, m_highTimeToKeep ])
+  BooleanProperty m_saveOutOfTimePileup{this, "SaveOutOfTimeMinBias", true, "save out of time min bias particles in the [LowTimeToKeep:HighTimeToKeep] range"};
+  //** save as well the rest of minbias
+  BooleanProperty m_saveRestOfPileup{this, "SaveRestOfMinBias", false, "save the rest of out of time min bias particles as well"};
+  //** save as well the cavern background
+  BooleanProperty m_saveCavernBackground{this, "SaveCavernBackground", true, "save the cavern background as well"};
+  //** do the slimming - flag to do slimming or not
+  BooleanProperty m_doSlimming{this, "DoSlimming", true, "flag to do the slimming or save everything"};
+  //** Should any details of GenEvents corresponding to each puType be saved?
+  bool m_saveType[NOPUTYPE];
+  //** The index (before sorting) within the McEventCollection where the background events start
+  unsigned int m_startingIndexForBackground{0};
+  //** Bool to indicate that the next GenEvent is a new signal event
+  bool m_newevent{true};
+  //** The total number of GenEvents that will be passed for the current signal event
+  unsigned int m_nInputMcEventColls{0};
+  //** How many background events have been read so far for this signal event
+  unsigned int m_nBkgEventsReadSoFar{0};
+  //** Ensure that the collision GenVertex objects of minbias background events are saved.
+  BooleanProperty m_addBackgroundCollisionVertices{this, "AddBackgroundCollisionVertices", true, "ensure that the collision GenVertex objects of minbias background events are saved."};
+  //** Should empty GenEvents be removed from the output McEventCollection?
+  BooleanProperty m_compressOutputCollection{this, "CompressOutputCollection", false, "Remove all empty GenEvents from the output McEventCollection"};
+  //** Just save the Signal GenEvent
+  BooleanProperty m_onlySaveSignalTruth{this, "OnlySaveSignalTruth", false, "Just save the Signal GenEvent"};
+  //** Temporary store for the true signal event number
+  int m_signal_event_number{0};
+
 };
 #endif //MCTRUTHSIMALGS_MERGEMCEVENTCOLLTOOL_H

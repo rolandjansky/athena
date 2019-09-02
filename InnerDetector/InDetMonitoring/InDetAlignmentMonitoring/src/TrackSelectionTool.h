@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKSELECTIONTOOL_H
@@ -49,12 +49,8 @@ namespace InDetAlignMon{
 
     //if this method is used the decision on which trackcollection
     //is made by the calling method
-    DataVector<Trk::Track>* selectTracksNew(const std::string&);
     const DataVector<Trk::Track>* selectTracks(const std::string &);
-    DataVector<xAOD::TrackParticle>* selectTracksParticle(const std::string &);
 
-    //if this method the decision on which trackcollection
-    //is made from the configuration of the TrackSlectionTool (in jobOptions)
     const DataVector<Trk::Track>* selectTracks();
 
     std::string getTrackColName(){

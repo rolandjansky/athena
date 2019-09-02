@@ -3,7 +3,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, ChainStep, Chain, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonMenuConfig import l2MuFastRecoCfg, l2MuFastHypoCfg
+from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastRecoCfg, l2MuFastHypoCfg
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict
 
 
@@ -36,11 +36,17 @@ def generateChains( flags, chainDict ):
     l2muFastStep = ChainStep( stepName, [l2muFastSequence] )
 
     ### Set muon step2 ###
-    # Please set up L2muComb step here 
+    # Please set up L2muComb step here
+
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
+
 
     import pprint
     pprint.pprint(chainDict)
 
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], [ l2muFastStep ] )
+    chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep ] )
+
 
     return chain

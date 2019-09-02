@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,15 +20,12 @@
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelBuilderOpt2Filter.h"
 #include "TileRecUtils/TileRawChannelBuilderOpt2FilterLookup.h"
-#include "TileConditions/TileOptFilterWeights.h"
-#include "TileConditions/TilePulseShapes.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileDigits.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
-#include "TileConditions/TileOptFilterWeights.h"
 
 // Atlas includes
 #include "AthAllocators/DataPool.h"
@@ -153,7 +150,7 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
   ATH_CHECK( m_tileCondToolOfc.retrieve() );
   
   //=== get TileCondToolNoiseSample
-  ATH_CHECK( m_tileToolNoiseSample.retrieve() );
+  ATH_CHECK( m_tileToolNoiseSample.retrieve(EnableTool{m_pedestalMode == -1}) );
 
   if (m_bestPhase) {
     //=== get TileToolTiming
@@ -201,6 +198,8 @@ TileRawChannel * TileRawChannelBuilderOpt2Filter::rawChannel(const TileDigits* d
   double time = 0.;
   double chi2 = 0.;
   m_digits = digits->samples();
+  m_digits.erase(m_digits.begin(),m_digits.begin()+m_firstSample);
+  m_digits.resize(m_nSamples);
   const HWIdentifier adcId = digits->adc_HWID();
   int gain = m_tileHWID->adc(adcId);
   
@@ -575,7 +574,6 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
   amplitude = 0.;
   time = 0.;
   float ofcPhase = (float) phase;
-
   unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
   TileOfcWeightsStruct weights;
   if (m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, ofcPhase, m_of2, weights).isFailure())
@@ -609,7 +607,7 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
     ofc2int(digits_size, b, b_int, bscale);
     calib = ascale + slope_scale;
   }
-  
+
   ATH_MSG_VERBOSE( "OptFilterPha=" << phase );
 
   if (m_of2) {
@@ -711,7 +709,6 @@ double TileRawChannelBuilderOpt2Filter::compute(int ros, int drawer, int channel
     }
     chi2 = 0.0;
   }
-
   return chi2;
 }
 

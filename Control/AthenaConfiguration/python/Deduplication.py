@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 
 #Functions used by the ComponentAccumulator to de-duplicate componentes defined multiple times
 from GaudiKernel.GaudiHandles import GaudiHandleArray, PublicToolHandle, PublicToolHandleArray, ServiceHandle, ServiceHandleArray, PrivateToolHandle
@@ -7,7 +9,7 @@ from AthenaCommon.Configurable import ConfigurableAlgTool
 import collections
 from AthenaCommon.Logging import logging
 
-from UnifyProperties import unifyProperty 
+from AthenaConfiguration.UnifyProperties import unifyProperty
 
 _msg=logging.getLogger('ComponentAccumulator') #'Deduplication' would the better name but breaks tons of unit-test log comparison
 
@@ -17,6 +19,7 @@ class DeduplicationFailed(RuntimeError):
 
 def deduplicate(newComp,compList):
     #Check for duplicates:
+
     for idx,comp in enumerate(compList):
         if comp.getType()==newComp.getType() and comp.getFullName()==newComp.getFullName():
             #Found component of the same type and name
@@ -46,7 +49,7 @@ def deduplicate(newComp,compList):
 
 def deduplicateComponent(newComp,comp):
     #print "Checking ", comp, comp.getType(), comp.getJobOptName()
-    allProps=frozenset(comp.getValuedProperties().keys()+newComp.getValuedProperties().keys())
+    allProps=frozenset(list(comp.getValuedProperties().keys())+list(newComp.getValuedProperties().keys()))
     for prop in allProps:
         if not prop.startswith('_'):
             try:
@@ -59,7 +62,7 @@ def deduplicateComponent(newComp,comp):
                 newprop=None
 
             # both are defined but with distinct type
-            if type(oldprop) != type(newprop):
+            if type(oldprop) != type(newprop) and oldprop is not None and newprop is not None:
                 raise DeduplicationFailed("Property  '%s' of component '%s' defined multiple times with conflicting types %s and %s" % \
                                           (prop,comp.getJobOptName(),type(oldprop),type(newprop)))
 
@@ -76,7 +79,7 @@ def deduplicateComponent(newComp,comp):
                         continue
                     else:
                         raise DeduplicationFailed("PublicToolHandle / ServiceHandle '%s.%s' defined multiple times with conflicting values %s and %s" % \
-                                                  (comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
+                                                  (comp.getType(),comp.getJobOptName(),oldprop.getFullName(),newprop.getFullName()))
                         pass
                     #Case 2: A list of public tools (PublicToolHandleArray) or a list of service (ServiceHandelArray):
                 elif isinstance(oldprop,PublicToolHandleArray) or isinstance(oldprop,ServiceHandleArray):
@@ -111,7 +114,13 @@ def deduplicateComponent(newComp,comp):
                         deduplicate(newTool,mergedHandleArray)
                     setattr(newComp,prop,mergedHandleArray)
                     pass
-                    
+
+                elif oldprop is None or oldprop == []:
+                    setattr(newComp,prop, newprop)
+
+                elif newprop is None or newprop == []:
+                    setattr(newComp,prop, oldprop)
+
                 elif isinstance(oldprop,collections.Sequence) or isinstance(oldprop,dict): #if properties are mergeable, do that!
                     #Try merging this property. Will raise on failure
                     mergeprop=unifyProperty(propid,oldprop,newprop)
@@ -120,6 +129,7 @@ def deduplicateComponent(newComp,comp):
                 elif isinstance(oldprop,PrivateToolHandle):
                     # This is because we get a PTH if the Property is set to None, and for some reason the equality doesn't work as expected here.
                     continue
+
                 else:
                     raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
                                                       (comp.getJobOptName(),str(prop)))

@@ -1,7 +1,4 @@
-#include "../LArG3Escale.h"
-#include "../LArG3Escale_TDR.h"
 #include "../LArNonLinearity.h"
-#include "../LArCellBuilderFromLArHitTool.h"
 #include "../LArCellBuilderFromLArRawChannelTool.h"
 #include "../LArCellEmMiscalib.h"
 #include "../LArCellRescaler.h"
@@ -21,10 +18,7 @@
 #include "../LArHVFraction.h"
 
 DECLARE_COMPONENT( LArNoisyROAlg )
-DECLARE_COMPONENT( LArG3Escale )
-DECLARE_COMPONENT( LArG3Escale_TDR )
 DECLARE_COMPONENT( LArNonLinearity )
-DECLARE_COMPONENT( LArCellBuilderFromLArHitTool )
 DECLARE_COMPONENT( LArCellBuilderFromLArRawChannelTool )
 DECLARE_COMPONENT( LArCellEmMiscalib )
 DECLARE_COMPONENT( LArCellRescaler )

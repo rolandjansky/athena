@@ -40,7 +40,7 @@ log.info( "Set input BS file" )
 # Force-load AthenaSealSvc (to have all the dictionaries for CBNT
 # writing):
 #
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 from AthenaCommon.AppMgr import theApp
 theApp.CreateSvc += [ ServiceMgr.AthenaSealSvc.getFullName() ]
 

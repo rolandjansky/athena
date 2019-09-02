@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -13,9 +13,10 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "iPatInterfaces/ITrackBuilder.h"
 #include "iPatTrack/HitList.h"
+#include "GaudiKernel/ToolHandle.h"
+#include <atomic>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -49,7 +50,7 @@ private:
     ToolHandle<ITrackQuality>  	m_trackQuality;
 
     // counters
-    mutable int			m_buildCount;
+    mutable std::atomic_int	m_buildCount;
 
 };
 

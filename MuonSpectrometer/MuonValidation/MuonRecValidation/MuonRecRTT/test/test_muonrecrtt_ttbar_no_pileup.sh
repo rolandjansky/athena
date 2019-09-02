@@ -44,8 +44,6 @@ case $ArtProcess in
      infile="../${file[${ArtProcess}]}"
      echo "Processing files: " ${infile}
      unset  ATHENA_NUM_PROC
-     unset  ATHENA_PROC_NUMBER
-
 
      Reco_tf.py --maxEvents=-1 --inputRDOFile=${infile} --outputAODFile=valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad_no_pileup.AOD.pool.root $ValOption --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup' --postExec 'r2e:topSequence.BeamBackgroundFiller.Enable = False'
 

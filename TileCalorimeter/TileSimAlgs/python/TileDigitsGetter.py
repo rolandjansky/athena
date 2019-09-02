@@ -4,8 +4,6 @@
 # TileDigits creation from TileHit
 # with TileDigitsMaker algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -28,9 +26,9 @@ class TileDigitsGetter ( Configured )  :
         try:
             from TileSimAlgs.TileDigitsGetter import TileDigitsGetter
             theTileDigitsGetter=TileDigitsGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileDigitsGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileDigitsGetter.usable():
@@ -47,13 +45,13 @@ class TileDigitsGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileSimAlgs.TileSimAlgsConf import TileDigitsMaker                
-        except:
+        except Exception:
             mlog.error("could not import TileSimAlgs.TileDigitsMaker")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileDigitsMaker=TileDigitsMaker()
-        self._TileDigitsMakerHandle = theTileDigitsMaker ;
+        self._TileDigitsMakerHandle = theTileDigitsMaker
 
         from Digitization.DigitizationFlags import digitizationFlags
         theTileDigitsMaker.DoHSTruthReconstruction = digitizationFlags.doDigiTruth()
@@ -90,7 +88,7 @@ class TileDigitsGetter ( Configured )  :
         # get a handle on topalg
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileDigitsMaker;
+        topSequence += theTileDigitsMaker
         
         return True
 

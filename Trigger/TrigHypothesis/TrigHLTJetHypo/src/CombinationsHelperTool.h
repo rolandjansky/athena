@@ -9,12 +9,13 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 #include "ConditionsDefsMT.h"
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
 class ITrigJetInfoCollector;
+class xAODJetCollector;
 
 class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
  public:
@@ -24,11 +25,17 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
                          const IInterface* parent);
   
 
-  StatusCode initialize() override;
+  virtual StatusCode initialize() override;
 
-  bool pass(HypoJetVector&, ITrigJetHypoInfoCollector*) const;
+  virtual bool pass(HypoJetVector&,
+		    xAODJetCollector&,
+		    const std::unique_ptr<ITrigJetHypoInfoCollector>&
+		    ) const override;
+
+  virtual std::size_t requiresNJets() const override;
 
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
+  virtual std::string toString() const override;
 
  private:
 
@@ -37,36 +44,29 @@ class CombinationsHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperM
  ToolHandle<ITrigJetHypoToolConfig> m_config {
    this, "HypoConfigurer", {}, "Configurer to set up TrigHLTJetHypoHelper2"}; 
 
-  // Object to make jet groups. Jet groups
-  // are vectors of jets selected from a jet vector
-  // which is, in this case, the incoming jet vector.
-  std::unique_ptr<IJetGrouper> m_grouper;
-
-  ConditionsMT m_conditions;
+ // Object to make jet groups. Jet groups
+ // are vectors of jets selected from a jet vector
+ // which is, in this case, the incoming jet vector.
+ std::unique_ptr<IJetGrouper> m_grouper;
   
-   ToolHandleArray<ITrigJetHypoToolHelperMT> m_children {
-     this, "children", {}, "list of child jet hypo helpers"};
+ ConditionsMT m_conditions;
 
-   /* 
-  Gaudi::Property<unsigned int>
-    m_size{this, "groupSize", {}, "Jet group size"};
-   */
+ 
+ Gaudi::Property<int>
+   m_parentNodeID {this, "parent_id", {}, "hypo tool tree parent node id"};
+ 
+ Gaudi::Property<int>
+   m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
+ 
+ // Object that matches jet groups with ITrigJetHypoToolHelper objects
+  std::unique_ptr<IGroupsMatcherMT> m_matcher;
 
-  Gaudi::Property<int>
-    m_parentNodeID {this, "parent_id", {}, "hypo tool tree parent node id"};
   
-  Gaudi::Property<int>
-    m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
-
-
-  bool testGroup(HypoJetVector&, ITrigJetHypoInfoCollector*) const;
   void collectData(const std::string& setuptime,
                    const std::string& exetime,
-                   ITrigJetHypoInfoCollector*,
-                   std::unique_ptr<IConditionVisitor>& cVstr,
+		   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
                    bool) const;
 
-  std::string toString() const;
 
 };
 #endif

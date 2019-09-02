@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCondToolConf.py
 #author: nils.gollub@cern.ch
 
 import string
 
-from TileConditions.TileCondProxyConf  import *
-from AthenaCommon.Constants import INFO
+from TileConditions.TileCondProxyConf  import getTileCondProxy
 
 #=== check Athena running mode
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -40,7 +39,9 @@ def bookTileCalibCondAlg(calibData, proxy):
 #____________________________________________________________________________
 def getTileCondToolEmscale(source = 'FILE', name = 'TileCondToolEmscale', **kwargs):
 
-    if not source in validSources: raise(Exception("Invalid source: %s" % source))
+    if source not in validSources:
+        raise(Exception("Invalid source: %s" % source))
+
     from TileConditions.TileConditionsConf import TileCondToolEmscale
 
     from AthenaCommon.AlgSequence import AthSequencer
@@ -61,10 +62,13 @@ def getTileCondToolEmscale(source = 'FILE', name = 'TileCondToolEmscale', **kwar
             #=== Connect COOL TileCondProxies to the tool
             #====================================================
             from AthenaCommon.GlobalFlags import globalflags
-            if (globalflags.DataSource() == 'data'): onlCacheUnit = "OnlineMegaElectronVolts"
+            if (globalflags.DataSource() == 'data'):
+                onlCacheUnit = "OnlineMegaElectronVolts"
 
-            if isOnline and isUsedDataBaseRun2: oflLasFibProxy = None
-            else: oflLasFibProxy = getTileCondProxy('COOL', 'Flt', 'oflLasFib', 'TileCondProxyCool_OflLasFib')
+            if isOnline and isUsedDataBaseRun2:
+                oflLasFibProxy = None
+            else:
+                oflLasFibProxy = getTileCondProxy('COOL', 'Flt', 'oflLasFib', 'TileCondProxyCool_OflLasFib')
 
             oflCisLinProxy = getTileCondProxy('COOL', 'Flt', 'oflCisFitLin', 'TileCondProxyCool_OflCisLin')
             oflCisNlnProxy = getTileCondProxy('COOL', 'Flt', 'oflCisFitNln', 'TileCondProxyCool_OflCisNln')
@@ -123,7 +127,9 @@ def getTileCondToolEmscale(source = 'FILE', name = 'TileCondToolEmscale', **kwar
 #____________________________________________________________________________
 def getTileExpertToolEmscale(source='FILE', name='TileExpertToolEmscale', **kwargs):
 
-    if not source in validSources: raise(Exception("Invalid source: %s"%source))
+    if source not in validSources:
+        raise(Exception("Invalid source: %s"%source))
+
     from TileConditions.TileConditionsConf import TileExpertToolEmscale
 
     from AthenaCommon.AlgSequence import AthSequencer
@@ -282,7 +288,9 @@ def getTileCondToolMuID(source = 'FILE', name = 'TileCondToolMuID', **kwargs):
 #____________________________________________________________________________
 def getTileCondToolTiming(source = 'FILE', runType = 'PHY', online = False, name = 'TileCondToolTiming', **kwargs):
 
-    if not runType in validRunTypes: raise(Exception("Invalid run type %s"%runType))
+    if runType not in validRunTypes:
+        raise(Exception("Invalid run type %s"%runType))
+
     from TileConditions.TileConditionsConf import TileCondToolTiming
 
     #do some check for global flag here: if source='' and flag set, adopt flag
@@ -334,7 +342,9 @@ def getTileCondToolTiming(source = 'FILE', runType = 'PHY', online = False, name
 #____________________________________________________________________________
 def getTileCondToolPulseShape(source = 'FILE', runType = 'PHY', name = 'TileCondToolPulseShape', **kwargs):
 
-    if not runType in validRunTypes: raise(Exception("Invalid run type %s"%runType))
+    if runType not in validRunTypes:
+        raise(Exception("Invalid run type %s"%runType))
+
     from TileConditions.TileConditionsConf import TileCondToolPulseShape
 
     #do some check for global flag here: if source='' and flag set, adopt flag
@@ -433,7 +443,9 @@ def getTileCondToolMuRcvPulseShape(source = 'FILE', name = 'TileCondToolMuRcvPul
 #____________________________________________________________________________
 def getTileBadChanTool(source = 'FILE', name = 'TileBadChanTool', **kwargs):
 
-    if not source in validSources: raise(Exception("Invalid source: %s"%source))
+    if source not in validSources:
+        raise(Exception("Invalid source: %s"%source))
+
     from TileConditions.TileConditionsConf import TileBadChanTool
 
     from AthenaCommon.AlgSequence import AthSequencer
@@ -452,8 +464,11 @@ def getTileBadChanTool(source = 'FILE', name = 'TileBadChanTool', **kwargs):
             #====================================================
             #=== Connect COOL TileCondProxies to the tool
             #====================================================
-            if isOnline and isUsedDataBaseRun2: offlineBadChannelsProxy = None
-            else: offlineBadChannelsProxy = getTileCondProxy('COOL','Bch','oflStatAdc','TileCondProxyCool_OflBch')
+            if isOnline and isUsedDataBaseRun2:
+                offlineBadChannelsProxy = None
+            else:
+                offlineBadChannelsProxy = getTileCondProxy('COOL','Bch','oflStatAdc','TileCondProxyCool_OflBch')
+
             onlineBadChannelsProxy = getTileCondProxy('COOL','Bch','onlStatAdc','TileCondProxyCool_OnlBch')
         else:
             #========================================================
@@ -487,8 +502,10 @@ def getTileCondToolNoiseSample(source = 'FILE', name = 'TileCondToolNoiseSample'
     tool = None
     sampleNoise = 'TileSampleNoise'
 
-    if isOnline or not isUsedDataBaseRun2: onlineSampleNoiseProxy = None
-    else: onlineSampleNoiseProxy = getTileCondProxy('COOL','Flt','onlNoiseAdc','TileCondProxyCool_OnlineNoiseSample')
+    if isOnline or not isUsedDataBaseRun2:
+        onlineSampleNoiseProxy = None
+    else:
+        onlineSampleNoiseProxy = getTileCondProxy('COOL','Flt','onlNoiseAdc','TileCondProxyCool_OnlineNoiseSample')
 
     onlineSampleNoise = 'TileOnlineSampleNoise' if onlineSampleNoiseProxy else ''
 
@@ -504,7 +521,8 @@ def getTileCondToolNoiseSample(source = 'FILE', name = 'TileCondToolNoiseSample'
         sampleNoiseProxy = getTileCondProxy('FILE','Flt','TileDefault.ped','TileCondProxyFile_NoiseSample')
 
     bookTileCalibCondAlg(sampleNoise, sampleNoiseProxy)
-    if (onlineSampleNoiseProxy): bookTileCalibCondAlg(onlineSampleNoise, onlineSampleNoiseProxy)
+    if (onlineSampleNoiseProxy):
+        bookTileCalibCondAlg(onlineSampleNoise, onlineSampleNoiseProxy)
 
     tool = TileCondToolNoiseSample(name,
                                    TileSampleNoise = sampleNoise,
@@ -604,7 +622,9 @@ def getTileCondToolNoiseRawChn(source = 'FILE', name = 'TileCondToolNoiseRawChn'
 #____________________________________________________________________________
 def getTileCellNoiseTool(source = 'FILE', name = 'TileCellNoiseTool', **kwargs):
 
-    if not source in validSources: raise(Exception("Invalid source: %s"%source))
+    if source not in validSources:
+        raise(Exception("Invalid source: %s"%source))
+
     from TileConditions.TileConditionsConf import TileCellNoiseTool
 
     #do some check for global flag here: if source='' and flag set, adopt flag
@@ -623,8 +643,11 @@ def getTileCellNoiseTool(source = 'FILE', name = 'TileCellNoiseTool', **kwargs):
 #____________________________________________________________________________
 def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', name = 'TileCondToolOfcCool', **kwargs):
 
-    if not source  in validSources : raise(Exception("Invalid source: %s" % source ))
-    if not runType in validRunTypes: raise(Exception("Invalid run type %s" % runType))
+    if source not in validSources:
+        raise(Exception("Invalid source: %s" % source ))
+
+    if runType not in validRunTypes:
+        raise(Exception("Invalid run type %s" % runType))
 
     from TileConditions.TileConditionsConf import TileCondToolOfcCool
 
@@ -639,7 +662,8 @@ def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', na
 
     if source == 'COOL':
         # There are OFC for OF1 only in DB used in Run2
-        if ofcType == 'OF1' and not (isUsedDataBaseRun2 or isMC): return None
+        if ofcType == 'OF1' and not (isUsedDataBaseRun2 or isMC):
+            return None
 
         from TileCoolMgr import GetTileOfcCoolSource, AddTileOfcCoolSource, tileCoolMgr
 
@@ -677,13 +701,16 @@ def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', na
 #____________________________________________________________________________
 def getTileCondToolTMDB(source = 'FILE', runType = 'PHY', name = 'TileCondToolTMDB', **kwargs):
 
-    if not runType in validRunTypes: raise(Exception("Invalid run type %s" % runType))
+    if runType not in validRunTypes:
+        raise(Exception("Invalid run type %s" % runType))
+
     from TileConditions.TileConditionsConf import TileCondToolTMDB
 
     #do some check for global flag here: if source='' and flag set, adopt flag
     tool = None
 
-    if not isUsedDataBaseRun2: return None
+    if not isUsedDataBaseRun2:
+        return None
 
     TMDBThreshold = 'TileTMDBThreshold'
     TMDBDelay = 'TileTMDBDelay'
@@ -738,7 +765,9 @@ def getTileCondToolDspThreshold(source = 'FILE', name = 'TileCondToolDspThreshol
         #====================================================
         #=== Connect COOL TileCondProxies to the tool
         #====================================================
-        if not isUsedDataBaseRun2: return None
+        if not isUsedDataBaseRun2:
+            return None
+
         dspThresholdProxy = getTileCondProxy('COOL', 'Flt', 'oflDspThreshold', 'TileCondProxyCool_DspThreshold')
     elif  source == 'FILE':
         #========================================================

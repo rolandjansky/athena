@@ -237,8 +237,8 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       copier.addHelperCompToMET(helper_i);
     }
 
-    if(save3comp && helper_i == static_cast<uint>(TrigEFMissingEtComponent::TCPUC)) { 
-      ATH_MSG_DEBUG( "Save PUC MET" );
+    if(save3comp && helper_i == static_cast<uint>(TrigEFMissingEtComponent::TCPufit)) { 
+      ATH_MSG_DEBUG( "Save TC PUFit MET" );
       copier.addHelperCompToMET(helper_i);
     }
 
@@ -303,7 +303,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
         case TrigEFMissingEtComponent::JET:   
         case TrigEFMissingEtComponent::JETB1:   case TrigEFMissingEtComponent::JETB2:   
         case TrigEFMissingEtComponent::JETE1:   case TrigEFMissingEtComponent::JETE2:
-        case TrigEFMissingEtComponent::TCPUC: case TrigEFMissingEtComponent::TCPUCUnc:             
+        case TrigEFMissingEtComponent::TCPufit: case TrigEFMissingEtComponent::TCPufitUnc:             
           ATH_MSG_DEBUG("Topo. cluster elements or jets - do nothing.");
           break;
         case TrigEFMissingEtComponent::Muons: 
@@ -316,11 +316,11 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
       }
     } else if (save3comp) {
       switch (static_cast<TrigEFMissingEtComponent::Component>(helper_i)) {
-        case TrigEFMissingEtComponent::TCPUC: 
-          ATH_MSG_DEBUG( "Corrected MET" );
+        case TrigEFMissingEtComponent::TCPufit: 
+          ATH_MSG_DEBUG( "PUFit Corrected MET" );
           copier.setMETCompFromHelper(0, helper_i);
           break;
-        case TrigEFMissingEtComponent::TCPUCUnc: 
+        case TrigEFMissingEtComponent::TCPufitUnc: 
           ATH_MSG_DEBUG( "Original MET" );
           copier.setMETCompFromHelper(1, helper_i);
           break;

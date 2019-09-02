@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
                           Control/AthenaKernel
+                          Control/CxxUtils
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/IRegionSelector
                           DetectorDescription/IdDictDetDescr

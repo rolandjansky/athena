@@ -1,8 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigInDetCombinedTrackFitter
-from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2HighPtTrackFitter
-from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2LowPtTrackFitter
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 
@@ -99,42 +96,7 @@ class ConfiguredTrigL2_InDetRotCreator(Trk__RIO_OnTrackCreator) :
 
 
 
-
-class ConfiguredTrigL2LowPtTrackFitter(TrigL2LowPtTrackFitter) :
-    __slots__ = []
-    def __init__(self, name = 'ConfiguredTrigL2LowPtTrackFitter') :
-        TrigL2LowPtTrackFitter.__init__(self,name)
-        from AthenaCommon.AppMgr import ToolSvc
-        offlineExtrapolator = ConfiguredTrigL2_Extrapolator()
-        ToolSvc += offlineExtrapolator
-        offlineRotCreator = ConfiguredTrigL2_InDetRotCreator()
-        ToolSvc += offlineRotCreator
-        self.useROTs=False
-        self.ROTcreator=offlineRotCreator
-        self.TrackExtrapolatorTool=offlineExtrapolator
-
-
         
-
-class ConfiguredTrigL2_TrackFitter(TrigInDetCombinedTrackFitter) :
-    __slots__ = []
-    def __init__(self, name = "ConfiguredTrigL2_TrackFitter") :
-        TrigInDetCombinedTrackFitter.__init__(self, name)
-        from AthenaCommon.AppMgr import ToolSvc
-                
-        offlineRotCreator = ConfiguredTrigL2_InDetRotCreator()
-        ToolSvc += offlineRotCreator
-
-        trigL2HighPtTrackFitter = TrigL2HighPtTrackFitter(name='TrigL2HighPtTrackFitter',
-                                                                    useROTs=False,
-                                                                    ROTcreator=offlineRotCreator)
-        trigL2LowPtTrackFitter = ConfiguredTrigL2LowPtTrackFitter()
-        
-        ToolSvc += trigL2HighPtTrackFitter
-        ToolSvc += trigL2LowPtTrackFitter
-        
-        self.HighPtTrackFitter = trigL2HighPtTrackFitter
-        self.LowPtTrackFitter = trigL2LowPtTrackFitter
 
 
 

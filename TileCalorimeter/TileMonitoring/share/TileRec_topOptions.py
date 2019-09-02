@@ -195,23 +195,12 @@ if doTrigger:
         cfg = TriggerConfigGetter()
 
 
-topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
-
-
 if not athenaCommonFlags.isOnline():
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
-    lumiTool = LuminosityToolDefault()
-    lumiTool.OutputLevel = INFO
-    ToolSvc += lumiTool
+    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
+    LuminosityCondAlgDefault()
 else:
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-    ToolSvc += LuminosityToolOnline()
-
-if not athenaCommonFlags.isOnline() and False:
-    from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
-    liveTool = TrigLivefractionToolDefault()
-    liveTool.OutputLevel = INFO
-    ToolSvc += liveTool
+    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+    LuminosityCondAlgOnlineDefault()
 
 
 TileCorrectTime = True
@@ -334,8 +323,7 @@ if doAtlantis:
         from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
         svcMgr += ByteStreamAddressProviderSvc()
 
-    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ 'ROIB::RoIBResult/RoIBResult'
-                                                      , 'MuCTPI_RDO/MUCTPI_RDO'
+    svcMgr.ByteStreamAddressProviderSvc.TypeNames += [  'MuCTPI_RDO/MUCTPI_RDO'
                                                       , 'MuCTPI_RIO/MUCTPI_RIO'
                                                       , 'LVL_ROI/LVL_ROI' ]
 

@@ -12,7 +12,6 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParticleBase/TrackParticleBase.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "InDetRecToolInterfaces/ITrtDriftCircleCutTool.h"
 #include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
@@ -40,7 +39,6 @@ namespace InDet
     : AthAlgTool(t,n,p)
     , m_trackSumTool("Trk::TrackSummaryTool", this)
     , m_extrapolator("Trk::Extrapolator", this)
-    , m_iBeamCondSvc ("BeamCondSvc",n)
     , m_magFieldSvc("AtlasFieldSvc",n)
     , m_trtDCTool("InDet::InDetTrtDriftCircleCutTool", this)
     , m_inDetTestBLayerTool("", this)
@@ -109,7 +107,6 @@ namespace InDet
     
     declareProperty("TrackSummaryTool"   , m_trackSumTool);
     declareProperty("Extrapolator"       , m_extrapolator);
-    declareProperty("BeamPositionSvc"    , m_iBeamCondSvc);
     declareProperty("MagFieldSvc", m_magFieldSvc);
     declareProperty("TrtDCCutTool"       , m_trtDCTool);
     declareProperty("InDetTestBLayerTool", m_inDetTestBLayerTool);
@@ -137,9 +134,7 @@ namespace InDet
 	    }
     } 
     ATH_CHECK( m_extrapolator.retrieve() );
-    if (m_iBeamCondSvc.retrieve().isFailure()){
-      ATH_MSG_INFO("Could not find BeamCondSvc. Will use (0,0,0) if no vertex is given and extrapolation is needed.");
-    }
+    ATH_CHECK(m_beamSpotKey.initialize());
     if (m_useEtaDepententMinHitTrt || m_useEtaDepententMinHitTrtWithOutliers){
 	    if(m_trtDCTool.empty()) {
 	      ATH_MSG_ERROR(" Eta delendent cut on number of TRT hits requested but TrtDCCutTool not specified. ");
@@ -202,10 +197,11 @@ namespace InDet
     //in case no Vertex is provided by the user, beam position will be used if available
     if (myVertex==0) {
       //ATH_MSG_DEBUG( "No vertex given, using beam spot or 0,0,0" );
-      if (!m_iBeamCondSvc.empty()) {
-        myVertex=new Trk::RecVertex(m_iBeamCondSvc->beamVtx());
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      if (beamSpotHandle.isValid()) {
+        myVertex=new Trk::RecVertex(beamSpotHandle->beamVtx());
       } else {
-        ATH_MSG_WARNING( " Cannot get beamSpot center from iBeamCondSvc. Using (0,0,0)... " );
+        ATH_MSG_WARNING( " Cannot get beamSpot center from BeamSpotData. Using (0,0,0)... " );
         myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
       }
     }
@@ -374,10 +370,11 @@ namespace InDet
     const Trk::Perigee* extrapolatedPerigee=dynamic_cast<const Trk::Perigee*>(definintParameters);
     const Trk::Vertex* myVertex=vertex;
     if (vertex==0) {
-      if (!m_iBeamCondSvc.empty()) {
-        myVertex=new Trk::RecVertex(m_iBeamCondSvc->beamVtx());
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      if (beamSpotHandle.isValid()) {
+        myVertex=new Trk::RecVertex(beamSpotHandle->beamVtx());
       } else {
-        ATH_MSG_WARNING( " Cannot get beamSpot center from iBeamCondSvc. Using (0,0,0)... " );
+        ATH_MSG_WARNING( " Cannot get beamSpot center from BeamSpotData. Using (0,0,0)... " );
         myVertex=new Trk::Vertex(Amg::Vector3D(0,0,0));
       }
     }
@@ -435,6 +432,13 @@ namespace InDet
     return true;
   }
 
+  Amg::Vector3D InDetDetailedTrackSelectorTool::getPosOrBeamSpot(const xAOD::Vertex* vertex) const
+  {
+    if(vertex) return vertex->position();
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    if(beamSpotHandle.isValid()) return beamSpotHandle->beamVtx().position();
+    else return Amg::Vector3D(0,0,0);
+  }
 
   // ---------------------------------------------------------------------
   bool 
@@ -635,7 +639,7 @@ namespace InDet
 	}
       }
     }
-    Trk::PerigeeSurface perigeeSurface( vertex ? vertex->position() : (!m_iBeamCondSvc.empty() ? m_iBeamCondSvc->beamVtx().position() : Amg::Vector3D(0,0,0) ) );
+    Trk::PerigeeSurface perigeeSurface( getPosOrBeamSpot(vertex) );
     
     const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(perigee,perigeeSurface,Trk::anyDirection,true,Trk::pion );
     const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 

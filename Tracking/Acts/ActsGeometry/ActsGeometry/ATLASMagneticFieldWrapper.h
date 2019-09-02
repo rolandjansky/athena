@@ -7,7 +7,8 @@
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/MagneticField/concept/AnyFieldLookup.hpp"
+#include "Acts/Utilities/Units.hpp"
+#include "Acts/MagneticField/MagneticFieldContext.hpp"
 
 class ATLASMagneticFieldWrapper
 {
@@ -17,6 +18,10 @@ public:
 
   struct Cache {
     // empty, no cache for now
+
+    Cache(std::reference_wrapper<const Acts::MagneticFieldContext> /*mctx*/) {
+      // does nothing, but is required
+    }
   };
 
   // FieldCell is not needed anymore, keep it for backwards compatibility right now.
@@ -32,7 +37,7 @@ public:
     {
       Acts::Vector3D bfield;
       m_fieldService->getField(&pos, &bfield);
-      
+
       bfield *= m_bFieldUnit; // kT -> T;
 
       return bfield;
@@ -57,7 +62,7 @@ public:
 
   private:
     MagField::IMagFieldSvc *m_fieldService;
-    const double m_bFieldUnit = 1000.*Acts::units::_T;
+    const double m_bFieldUnit = 1000.*Acts::UnitConstants::T;
   };
 
   ATLASMagneticFieldWrapper(MagField::IMagFieldSvc *fieldService)
@@ -76,7 +81,7 @@ public:
 
     return bfield;
   }
-  
+
   Acts::Vector3D
   getField(const Acts::Vector3D& pos, Cache& /*cache*/) const
   {
@@ -94,7 +99,7 @@ public:
 
     return bfield;
   }
-  
+
   Acts::Vector3D
   getFieldGradient(const Acts::Vector3D& position,
                    Acts::ActsMatrixD<3, 3>& gradient,
@@ -104,18 +109,18 @@ public:
   }
 
   // only kept for backwards compatibility
-  Acts::concept::AnyFieldCell<>
+  FieldCell
   getFieldCell(const Acts::Vector3D& /*position*/) const
   {
     return m_fieldCell;
   }
-        
+
 private:
   // only kept for backwards compatibility
   FieldCell m_fieldCell;
-  
+
   MagField::IMagFieldSvc *m_fieldService;
-  const double m_bFieldUnit = 1000.*Acts::units::_T;
+  const double m_bFieldUnit = 1000.*Acts::UnitConstants::T;
 };
 
 

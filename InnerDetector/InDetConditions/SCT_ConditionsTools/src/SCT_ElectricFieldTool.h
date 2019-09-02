@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -38,8 +40,8 @@ class SCT_ElectricFieldTool: public extends<AthAlgTool, ISCT_ElectricFieldTool>
  private:
   enum FieldModel{UNIFORM_FIELD, FLAT_DIODE};
 
-  int m_eFieldModel; //!< 0 uniform E-field model, 1 flat diode model
-  TF1 m_model;
+  IntegerProperty m_eFieldModel{this, "EFieldModel", FLAT_DIODE, "UNIFORM_FIELD=0 uniform E-field model, FLAT_DIODE=1 flat diode model"};
+  TF1 m_model{"pol6", "pol6", 0., 0.03};
 };
 
 #endif // SCT_ElectricFieldTool_h

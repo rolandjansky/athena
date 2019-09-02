@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */ 
@@ -28,7 +30,7 @@ class SCT_SensorsCondAlg : public AthReentrantAlgorithm
  private:
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKey{this, "ReadKey", "/SCT/Sensors", "Key of input (raw) conditions folder"};
   SG::WriteCondHandleKey<SCT_SensorsCondData> m_writeKey{this, "WriteKey", "SCT_SensorsCondData", "Key of output (derived) conditions data"};
-  ServiceHandle<ICondSvc> m_condSvc; 
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
 };
 
 #endif // SCT_SENSORSCONDALG

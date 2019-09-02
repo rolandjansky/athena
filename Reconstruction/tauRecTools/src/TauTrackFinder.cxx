@@ -18,7 +18,7 @@
 
 TauTrackFinder::TauTrackFinder(const std::string& name ) :
         TauRecToolBase(name),
-        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
+        m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
         m_trackSelectorTool_tau(""),
         m_trackToVertexTool("Reco::TrackToVertex"),
         m_z0maxDelta(1000),

@@ -10,7 +10,7 @@ def getSpecialConfiguration(flags):
     """Return a dict of Special configuration as parsed from flags.Input.Files"""
     if len(flags.Input.Files) > 1:
         log.info("Multiple input files. Using the first for Digitization special configuration.")
-    log.info("Obtaining Digitization special configuration from %s." % flags.Input.Files[0])
+    log.info("Obtaining Digitization special configuration from %s", flags.Input.Files[0])
     File = AthFile.fopen(flags.Input.Files[0])
     # extract the special config list
     tag_info = File.infos.get("tag_info", {})
@@ -48,5 +48,15 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.PileUpPremixing", False)
     # Special configuration read from flags.Input.Files
     flags.addFlag("Digitization.SpecialConfiguration", getSpecialConfiguration)
+    # Run Calorimeter noise simulation
+    flags.addFlag("Digitization.DoCaloNoise", True)
+    # Run pile-up premixing
+    flags.addFlag("Digitization.DoDigiTruth", True)
+    # Use high-gain Forward Calorimeters
+    flags.addFlag("Digitization.HighGainFCal", False)
+    # Use high-gain ElectroMagnetic EndCap Inner Wheel
+    flags.addFlag("Digitization.HighGainEMECIW", True)
+    # Do global pileup digitization
+    flags.addFlag("Digitization.Pileup", True)
     return flags
 

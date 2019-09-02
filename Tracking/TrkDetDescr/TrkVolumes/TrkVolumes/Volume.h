@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,7 +15,8 @@
 #include "TrkDetDescrUtils/ObjectAccessor.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaKernel/CLASS_DEF.h"
-
+#include "CxxUtils/CachedUniquePtr.h"
+#include <memory>
 class MsgStream;
 
 namespace Trk {
@@ -70,9 +71,9 @@ namespace Trk {
                                                 const Amg::Vector3D& mom,
                                                 bool forceInside=false) const;
       protected:         
-        mutable Amg::Transform3D*                  m_transform;         //!< HepGeom::Transform3D
-        mutable Amg::Vector3D*                     m_center;            //!< center position of the surface
-        SharedObject<const VolumeBounds>           m_volumeBounds;      //!< the volumeBounds
+        std::unique_ptr<Amg::Transform3D>               m_transform;         //!< HepGeom::Transform3D
+        CxxUtils::CachedUniquePtrT<Amg::Vector3D>       m_center;            //!< center position of the surface
+        SharedObject<const VolumeBounds>                m_volumeBounds;      //!< the volumeBounds
     };  
   
     inline const Amg::Transform3D& Volume::transform() const
@@ -84,14 +85,14 @@ namespace Trk {
     {
      if (m_center) return (*m_center);
      if (!m_center && m_transform){
-        m_center = new Amg::Vector3D(m_transform->translation());
+        m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
         return(*m_center);
       }
      return Trk::s_origin;
     }
 
     inline const VolumeBounds& Volume::volumeBounds() const
-    {  return(m_volumeBounds.getRef()); }
+    {  return *(m_volumeBounds.get()); }
     
     
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 

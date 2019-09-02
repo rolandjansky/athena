@@ -13,10 +13,11 @@ def ExampleMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
     ### STEP 1 ###
-    # Define one top-level monitoring algorithm. The new configuration 
-    # framework uses a component accumulator.
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    result = ComponentAccumulator()
+    # If you need to set up special tools, etc., you will need your own ComponentAccumulator;
+    # uncomment the following 2 lines and use the last three lines of this function instead of the ones
+    # just before
+    # from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    # result = ComponentAccumulator()
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
@@ -48,7 +49,7 @@ def ExampleMonitoringConfig(inputFlags):
     # some generic property
     # exampleMonAlg.RandomHist = True
     # to enable a trigger filter, for example:
-    exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
+    #exampleMonAlg.TriggerChain = 'HLT_mu26_ivarmedium'
 
     ### STEP 4 ###
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
@@ -78,21 +79,51 @@ def ExampleMonitoringConfig(inputFlags):
     # Add a GMT for the other example monitor algorithm
     anotherGroup = helper.addGroup(anotherExampleMonAlg,'ExampleMonitor')
 
+
     ### STEP 5 ###
     # Configure histograms
-    myGroup.defineHistogram('lumiPerBCID',title='Luminosity;L/BCID;Events',
-                            path='ToRuleThemAll',xbins=10,xmin=0.0,xmax=10.0)
+    myGroup.defineHistogram('lumiPerBCID',title='Luminosity,WithCommaInTitle;L/BCID;Events',
+                            path='ToRuleThemAll',xbins=40,xmin=0.0,xmax=80.0)
     myGroup.defineHistogram('lb', title='Luminosity Block;lb;Events',
-                            path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5)
+                            path='ToFindThem',xbins=1000,xmin=-0.5,xmax=999.5,weight='testweight')
     myGroup.defineHistogram('random', title='LB;x;Events',
                             path='ToBringThemAll',xbins=30,xmin=0,xmax=1,opt='kLBNHistoryDepth=10')
-    myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
-                            path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
+    myGroup.defineHistogram('random', title='title;x;y',path='ToBringThemAll',
+                            xbins=[0,.1,.2,.4,.8,1.6])
+    myGroup.defineHistogram('random,pT', type='TH2F', title='title;x;y',path='ToBringThemAll',
+                            xbins=[0,.1,.2,.4,.8,1.6],ybins=[0,10,30,40,60,70,90])
+    # myGroup.defineHistogram('pT_passed,pT',type='TEfficiency',title='Test TEfficiency;x;Eff',
+    #                         path='AndInTheDarkness',xbins=100,xmin=0.0,xmax=50.0)
 
     anotherGroup.defineHistogram('lbWithFilter',title='Lumi;lb;Events',
                                  path='top',xbins=1000,xmin=-0.5,xmax=999.5)
     anotherGroup.defineHistogram('run',title='Run Number;run;Events',
                                  path='top',xbins=1000000,xmin=-0.5,xmax=999999.5)
+
+    # Example defining an array of histograms. This is useful if one seeks to create a
+    # number of histograms in an organized manner. (For instance, one plot for each ASIC
+    # in the subdetector, and these components are mapped in eta, phi, and layer.) Thus,
+    # one might have an array of TH1's such as quantity[etaIndex][phiIndex][layerIndex].
+    for alg in [exampleMonAlg,anotherExampleMonAlg]:
+        # Using an array of groups
+        array = helper.addArray([2],alg,'ExampleMonitor')
+        array.defineHistogram('a,b',title='AB',type='TH2F',path='Eta',
+                              xbins=10,xmin=0.0,xmax=10.0,
+                              ybins=10,ymin=0.0,ymax=10.0)
+        array.defineHistogram('c',title='C',path='Eta',
+                              xbins=10,xmin=0.0,xmax=10.0)
+        array = helper.addArray([4,2],alg,'ExampleMonitor')
+        array.defineHistogram('a',title='A',path='EtaPhi',
+                              xbins=10,xmin=0.0,xmax=10.0)
+        # Using a map of groups
+        layerList = ['layer1','layer2']
+        clusterList = ['clusterX','clusterB']
+        array = helper.addArray([layerList],alg,'ExampleMonitor')
+        array.defineHistogram('c',title='C',path='Layer',
+                              xbins=10,xmin=0,xmax=10.0)
+        array = helper.addArray([layerList,clusterList],alg,'ExampleMonitor')
+        array.defineHistogram('c',title='C',path='LayerCluster',
+                              xbins=10,xmin=0,xmax=10.0)
 
     ### STEP 6 ###
     # Finalize. The return value should be a tuple of the ComponentAccumulator
@@ -113,7 +144,7 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
+    from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
 
     # Set the Athena configuration flags
@@ -136,7 +167,7 @@ if __name__=='__main__':
     cfg.merge(exampleMonitorAcc)
 
     # If you want to turn on more detailed messages ...
-    #exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
+    # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=False) # set True for exhaustive info
 
     cfg.run() #use cfg.run(20) to only run on first 20 events

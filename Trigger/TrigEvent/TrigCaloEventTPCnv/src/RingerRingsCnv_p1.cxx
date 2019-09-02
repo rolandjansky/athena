@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCaloEvent/RingerRings.h"
@@ -16,13 +16,10 @@ void RingerRingsCnv_p1::transToPers(const RingerRings *trans,
   if ( (!trans) || (!pers) )
     return;
 
-  // Hack! Should be fixed by adding a const accessor on RingerRings
-  RingerRings *trans_non_const = const_cast<RingerRings *>(trans);
-  
   pers->m_numberOfRings = trans->size();
   pers->m_rings.clear();
   for (unsigned int i = 0; i < trans->size(); ++i) { 
-    pers->m_rings.push_back(trans_non_const->at(i));
+    pers->m_rings.push_back(trans->at(i));
   }
 }
 

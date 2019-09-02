@@ -18,11 +18,11 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "CaloEvent/CaloBCIDAverage.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
@@ -37,43 +37,45 @@ class IReAlgToolCalo;
     IReAlgToolCalos and produces the TrigEMCluster output. */
 class T2CaloEgammaReFastAlgo : public AthReentrantAlgorithm {
 
-public:
-  T2CaloEgammaReFastAlgo(const std::string& name, ISvcLocator* pSvcLocator);
-
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& context) const override;
-  /** calculate zo mass */
-  // float calculateZ0(const float etaLayer1, const float etaLayer2);
-
-private:
-  ServiceHandle<IRegSelSvc> m_regionSelector;
-
-  // Properties:
-  Gaudi::Property<float> m_l1eta{this, "L1ForceEta", -10.0, "Forced LVL1 eta"};
-  Gaudi::Property<float> m_l1phi{this, "L1ForcePhi", -10.0, "Forced LVL1 phi"};
-  Gaudi::Property<double> m_etaWidth{this, "EtaWidth", 0.1, "Eta Width of the Region of Interest"};
-  Gaudi::Property<double> m_phiWidth{this, "PhiWidth", 0.1, "Phi Width of the Region of Interest"};
-
-  Gaudi::Property<bool> m_storeCells{this, "StoreCells", false,
-                                     "store cells in container attached to RoI"};
-
-  ToolHandleArray<IEgammaCalibration> m_calibsBarrel{
-      this, "CalibListBarrel", {}, "list of calib tools for the Barrel clusters"};
-  ToolHandleArray<IEgammaCalibration> m_calibsEndcap{
-      this, "CalibListEndcap", {}, "list of calib tools for the EndCap clusters"};
-
-  Gaudi::Property<std::vector<float>> m_rhoEta{
-      this, "RhoEta", {}, "Variables to calculate Z0 position"};
-  Gaudi::Property<std::vector<float>> m_zEta{
-      this, "ZEta", {}, "Variables to calculate Z0 position"};
-
-  ToolHandleArray<IReAlgToolCalo> m_emAlgTools{
-      this, "IReAlgToolList", {}, "list of ReAlgToolCalos for feature extraction"};
-
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
-    this, "RoIs", "OutputRoIs", "input RoIs"};
-  SG::WriteHandleKey<xAOD::TrigEMClusterContainer> m_clusterContainerKey{
-      this, "ClustersName", "CaloClusters", "Calo cluster container"};
+  public:
+    T2CaloEgammaReFastAlgo(const std::string& name, ISvcLocator* pSvcLocator);
+  
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(const EventContext& context) const override;
+    /** calculate zo mass */
+    // float calculateZ0(const float etaLayer1, const float etaLayer2);
+  
+  private:
+    ServiceHandle<IRegSelSvc> m_regionSelector;
+  
+    // Properties:
+    Gaudi::Property<float> m_l1eta{this, "L1ForceEta", -10.0, "Forced LVL1 eta"};
+    Gaudi::Property<float> m_l1phi{this, "L1ForcePhi", -10.0, "Forced LVL1 phi"};
+    Gaudi::Property<double> m_etaWidth{this, "EtaWidth", 0.1, "Eta Width of the Region of Interest"};
+    Gaudi::Property<double> m_phiWidth{this, "PhiWidth", 0.1, "Phi Width of the Region of Interest"};
+  
+    Gaudi::Property<bool> m_storeCells{this, "StoreCells", false,
+                                       "store cells in container attached to RoI"};
+  
+    ToolHandleArray<IEgammaCalibration> m_calibsBarrel{
+        this, "CalibListBarrel", {}, "list of calib tools for the Barrel clusters"};
+    ToolHandleArray<IEgammaCalibration> m_calibsEndcap{
+        this, "CalibListEndcap", {}, "list of calib tools for the EndCap clusters"};
+  
+    Gaudi::Property<std::vector<float>> m_rhoEta{
+        this, "RhoEta", {}, "Variables to calculate Z0 position"};
+    Gaudi::Property<std::vector<float>> m_zEta{
+        this, "ZEta", {}, "Variables to calculate Z0 position"};
+  
+    ToolHandleArray<IReAlgToolCalo> m_emAlgTools{
+        this, "IReAlgToolList", {}, "list of ReAlgToolCalos for feature extraction"};
+    SG::ReadHandleKey<CaloBCIDAverage> m_bcidAvgKey {
+	this, "BCIDAvgKey", "CaloBCIDAverage", "" };
+  
+    SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
+      this, "RoIs", "OutputRoIs", "input RoIs"};
+    SG::WriteHandleKey<xAOD::TrigEMClusterContainer> m_clusterContainerKey{
+        this, "ClustersName", "CaloClusters", "Calo cluster container"};
 };
 
 #endif

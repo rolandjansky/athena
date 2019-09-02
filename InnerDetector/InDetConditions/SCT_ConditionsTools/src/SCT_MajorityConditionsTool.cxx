@@ -15,9 +15,7 @@ using namespace SCT_ConditionsData;
 // Constructor
 SCT_MajorityConditionsTool::SCT_MajorityConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent)
- {
-  declareProperty("UseOverall", m_overall=false);
-  declareProperty("MajorityFraction", m_majorityFraction=0.9);
+{
 }
 
 // Initialize

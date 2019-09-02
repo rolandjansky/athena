@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 // $Id$
 /**
@@ -663,7 +663,7 @@ ConcurrentBitset::const_iterator::operator++()
 
     // Iterate until we find a block with at least one bit set.
     while (data < end) {
-      // Read the current block, tests to see if there are any set bits.
+      // Read the current block; test to see if there are any set bits.
       cache = *data;
       if (ATH_UNLIKELY (cache != 0)) {
         // Found a block with at least one bit set.  Which is the first?
@@ -674,7 +674,7 @@ ConcurrentBitset::const_iterator::operator++()
         m_data = data;
 
         // Shift the bit found off of cache.
-        // Need to to it in two steps, because @c b might be @c BLOCKSIZE-1
+        // Need to do it in two steps, because @c b might be @c BLOCKSIZE-1
         // (and shifting by @c BLOCKSIZE is undefined).
         m_cache = (cache>>1) >> b;
         return *this;

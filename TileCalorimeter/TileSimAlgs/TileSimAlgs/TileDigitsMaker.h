@@ -30,11 +30,12 @@
 // Tile includes
 #include "TileEvent/TileHitContainer.h"
 #include "TileEvent/TileDigitsContainer.h"
+#include "TileEvent/TileDQstatus.h"
 #include "TileConditions/TileCondToolPulseShape.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileEvent/TileDQstatus.h"
+#include "TileConditions/TileCablingSvc.h"
 #include "TileRecUtils/ITileDQstatusTool.h"
 
 // Atlas includes
@@ -84,13 +85,22 @@ class TileDigitsMaker: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method
 
   private:
-    StatusCode FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel) const;
+    StatusCode overlayBackgroundDigits( const TileDigitsCollection *bkgDigitCollection, const TileHitCollection* hitCollection, int igain[], int ros, int drawer, int drawerIdx, int over_gain[] );
+
+    StatusCode FillDigitCollection(const TileHitCollection* hitCollection, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[], std::vector<bool> &signal_in_channel) const;
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
                                                           "input Tile hit container key"};
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainer_DigiHSTruthKey{this,"TileHitContainer_DigiHSTruth","TileHitCnt_DigiHSTruth",
                                                           "input Tile hit container key"};
+
+    Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+    SG::ReadHandleKey<TileDigitsContainer> m_overlayDigitContainerKey{this, "OverlayTileDigitContainerName","",""};
+    std::string m_overlayDigitContainerName{""};
+
+    SG::ReadHandleKey<TileRawChannelContainer> m_overlayRawChannelContainerKey{this, "OverlayTileRawChannelContainerName","TileRawChannelCnt",""};
+    std::string m_overlayRawChannelContainerName{""};
 
     SG::WriteHandleKey<TileDigitsContainer> m_digitsContainerKey{this,"TileDigitsContainer",
                                                                  "TileDigitsCnt",
@@ -153,6 +163,12 @@ class TileDigitsMaker: public AthAlgorithm {
     int m_binTime0Lo;                   //!< Index of time=0 bin for low gain pulse shape
     double m_timeStepLo;                //!< Time step in low gain pulse shape: 25.0 / nBinsPerXLo
 
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
+
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service to use
 
     ToolHandle<TileCondToolNoiseSample> m_tileToolNoiseSample{this,
@@ -172,6 +188,7 @@ class TileDigitsMaker: public AthAlgorithm {
 
     SG::WriteHandleKey<TileDQstatus> m_DQstatusKey {this,
         "TileDQstatus", "TileDQstatus", "Output TileDQstatus key" };
+
 };
 
 #endif // TILESIMALGS_TILEDIGITSMAKER_H

@@ -3,6 +3,8 @@
 # A collection of methods to unify/merge list-properties
 # ToDo: Define the merging-method when defining the property
 
+from __future__ import print_function
+
 from AthenaCommon.Logging import logging
 
 log=logging.getLogger('ComponentAccumulator')
@@ -60,6 +62,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "CondInputLoader.Load":unifySet,
                "IOVDbSvc.Folders":unifySet,
                "IOVDbSvc.FoldersToMetaData":unifySet,
+               "IOVDbSvc.overrideTags":unifySet,
                "EvtPersistencySvc.CnvServices":unifySet,
                "PoolSvc.ReadCatalog":unifySet,
                "ProxyProviderSvc.ProviderNames":unifySet,
@@ -75,6 +78,7 @@ _propsToUnify={"GeoModelSvc.DetectorTools":unifySet,
                "*.InputMakerInputDecisions": unifySet,
                "*.InputMakerOutputDecisions": unifySet,
                "AddressRemappingSvc.TypeKeyRenameMaps": unifySet,
+               "AuditorSvc.Auditors": unifySet,
                }
 
 def setUnificationFunction(key, function):

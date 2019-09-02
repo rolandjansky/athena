@@ -92,7 +92,7 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
     // Link to new decision
     newd->setObjectLink("roi", roiEL);
     newd->setObjectLink("view", viewEL);
-    linkToPrevious(newd, previousDecision);
+    linkToPrevious(newd, previousDecision, eventContext);
     
     ATH_MSG_DEBUG("REGTEST:  View = " << (*viewEL));
     ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());

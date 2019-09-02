@@ -26,12 +26,12 @@ if 'EvtMax' in dir():
 athenaCommonFlags.FilesInput.set_Value_and_Lock(FileNameVec)
 athenaCommonFlags.PoolESDInput.set_Value_and_Lock(FileNameVec)
 
-from RecExConfig.InputFilePeeker import inputFileSummary
-
-if not 'RunNumber' in dir():
-    if inputFileSummary.has_key('run_number'): RunNumber = inputFileSummary['run_number'][0]
-    else:                                            RunNumber = 000000
-
+from PyUtils.MetaReaderPeeker import metadata
+if 'RunNumber' not in dir():
+    if 'runNumbers' in metadata:
+        RunNumber = metadata['runNumbers'][0]
+    else:
+        RunNumber = 000000
 
 rec.AutoConfiguration=['everything']
 rec.readESD.set_Value_and_Lock(True)

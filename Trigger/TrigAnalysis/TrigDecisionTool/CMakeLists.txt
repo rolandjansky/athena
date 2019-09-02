@@ -60,6 +60,7 @@ else()
       Trigger/TrigEvent/TrigNavStructure
       Trigger/TrigEvent/TrigNavigation
       Trigger/TrigEvent/TrigStorageDefinitions
+      Trigger/TrigSteer/DecisionHandling
       PRIVATE
       Control/AthenaBaseComps
       Control/AthenaKernel
@@ -102,7 +103,7 @@ else()
          xAODTrigger GaudiKernel AnalysisTriggerEvent TrigConfHLTData
          TrigConfL1Data TrigDecisionEvent TrigMuonEvent TrigNavStructure
          TrigStorageDefinitions StoreGateLib TrigNavigationLib
-         TrigRoiConversionLib
+         TrigRoiConversionLib DecisionHandlingLib
          PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    endif()
@@ -121,7 +122,7 @@ if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
    atlas_add_test( Templates_test
       SOURCES test/Templates_test.cxx
       LINK_LIBRARIES TrigNavigationLib AthenaKernel GaudiKernel AthContainers
-      AnalysisTriggerEvent TrigSteeringEvent TrigMuonEvent CxxUtils
+      AnalysisTriggerEvent TrigSteeringEvent TrigMuonEvent 
       TrigDecisionToolLib
       EXTRA_PATTERNS ".*" )
 endif()

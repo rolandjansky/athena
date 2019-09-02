@@ -22,7 +22,7 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
     ATH_MSG_DEBUG( "Final decision of the chain " << conf.chain << " will be read from " << conf.collection );
   }
 
-  if (m_enableCostMonitoring) {
+  if (m_doCostMonitoring) {
     CHECK( m_trigCostSvcHandle.retrieve() );
     CHECK( m_costWriteHandleKey.initialize() );
   }
@@ -45,6 +45,8 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   Decision* prescaledOutput = newDecisionIn( container, "HLTPrescaled" );
   Decision* rerunOutput = newDecisionIn( container, "HLTRerun" );
 
+  DecisionIDContainer allPassingFinalIDs;
+
   // Collate final decisions into the passRawOutput object
   for ( auto& key: m_finalDecisionKeys ) {
     auto handle{ SG::makeHandle(key, context) };
@@ -59,28 +61,40 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
       continue;
     }
 
-    DecisionIDContainer sum;
     for ( const Decision* decisionObject: *handle ) {
-      sum.insert( decisionIDs(decisionObject).begin(), decisionIDs(decisionObject).end() );  // copy from vector
-    }
-    
-    DecisionIDContainer finalIDs;
-    std::set_intersection( sum.begin(), sum.end(),
+      // Get passing chains from this decisionObject
+      DecisionIDContainer passingIDs;
+      decisionIDs(decisionObject, passingIDs);
+
+      // Filter out chains for which this is NOT the final step of their processing
+      DecisionIDContainer passingFinalIDs;
+      std::set_intersection( passingIDs.begin(), passingIDs.end(),
           thisCollFilter->second.begin(), thisCollFilter->second.end(), 
-          std::inserter(finalIDs, finalIDs.begin() ) ); // should be faster than remove_if
-    
-    decisionIDs( passRawOutput ).insert( decisionIDs( passRawOutput ).end(),
-          finalIDs.begin(), finalIDs.end() ); // Copy decisions set into passRawOutput's persistent vector
-    
+          std::inserter(passingFinalIDs, passingFinalIDs.begin() ) ); // should be faster than remove_if
+
+      if (passingFinalIDs.size() == 0) {
+        continue;
+      }
+
+      // Accumulate and de-duplicate passed IDs for which this hypo was the Chain's final step
+      allPassingFinalIDs.insert( passingFinalIDs.begin(), passingFinalIDs.end() );
+      // Create seed links for the navigation to follow
+      linkToPrevious(passRawOutput, decisionObject, context);
+    }
   }
-  if ( msgLvl( MSG::DEBUG ) ) {
-    ATH_MSG_DEBUG( "Number of positive decisions " <<  decisionIDs( passRawOutput ).size() << " passing chains");
-    for ( auto d: decisionIDs( passRawOutput ) ) {
+
+  // Copy decisions set into passRawOutput's persistent vector
+  decisionIDs(passRawOutput).insert( decisionIDs(passRawOutput).end(),
+    allPassingFinalIDs.begin(), allPassingFinalIDs.end() );
+
+  if (msgLvl(MSG::DEBUG)) {
+    ATH_MSG_DEBUG( "Number of positive decisions " <<  allPassingFinalIDs.size() << " passing chains");
+    for ( auto d: allPassingFinalIDs ) {
       ATH_MSG_DEBUG( HLT::Identifier( d ) );
     }
   }
 
-  // TODO collate final rerun decisions into the rerunOutput object
+  // TODO collate final rerun decisions & terminus links into the rerunOutput object
 
   // Get the data from the L1 decoder, this is where prescales were applied
   SG::ReadHandle<DecisionContainer> l1DecoderSummary( m_l1SummaryKey, context );
@@ -98,7 +112,8 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     } else if (d->name() == "rerun") {
       rerunChains = d;
     } else {
-      ATH_MSG_WARNING("DecisionSummaryMakerAlg encountered an unknown set of decisions from the L1Decoder, name '" << d->name() << "'");
+      ATH_MSG_ERROR("DecisionSummaryMakerAlg encountered an unknown set of decisions from the L1Decoder, name '" << d->name() << "'");
+      return StatusCode::FAILURE;
     }
   }
 
@@ -124,7 +139,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
         rerunIDs.begin(), rerunIDs.end() );
 
   // Do cost monitoring
-  if (m_enableCostMonitoring) {
+  if (m_doCostMonitoring) {
     SG::WriteHandle<xAOD::TrigCompositeContainer> costMonOutput = createAndStore(m_costWriteHandleKey, context);
     // Populate collection (assuming monitored event, otherwise collection will remain empty)
     ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput));

@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARTOOLS_ILARMCSYMTOOL_H
 #define LARTOOLS_ILARMCSYMTOOL_H
 
+#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/IAlgTool.h"
 
 class Identifier;
@@ -17,7 +18,7 @@ Used in MC when symmetry can be assumed.
 
 */
 
-class ILArMCSymTool: virtual public IAlgTool
+class ATLAS_NOT_THREAD_SAFE ILArMCSymTool: virtual public IAlgTool
 {
  public:
     /// interface ID

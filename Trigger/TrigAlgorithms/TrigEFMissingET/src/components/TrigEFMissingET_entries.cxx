@@ -17,6 +17,8 @@
 #include "../EFMissingETFromClustersMT.h"
 #include "../EFMissingETFromClustersPufitMT.h"
 #include "../EFMissingETFromJetsMT.h"
+#include "../EFMissingETFlagsMT.h"
+#include "../EFMissingETComponentCopier.h"
 
 DECLARE_COMPONENT( EFMissingET )
 DECLARE_COMPONENT( EFMissingETBaseTool )
@@ -37,4 +39,5 @@ DECLARE_COMPONENT( EFMissingETFromCellsMT )
 DECLARE_COMPONENT( EFMissingETFromClustersMT )
 DECLARE_COMPONENT( EFMissingETFromClustersPufitMT )
 DECLARE_COMPONENT( EFMissingETFromJetsMT )
+DECLARE_COMPONENT( EFMissingETFlagsMT )
 

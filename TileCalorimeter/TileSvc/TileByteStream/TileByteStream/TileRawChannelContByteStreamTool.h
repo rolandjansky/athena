@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILERAWCHANNELCONTRAWEVENTTOOL_H
 #define TILEBYTESTREAM_TILERAWCHANNELCONTRAWEVENTTOOL_H
 
+#include "TileByteStream/TileHid2RESrcID.h"
+
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
-
-#include "TileByteStream/TileHid2RESrcID.h"
 
 class TileHWID;
 class TileRawChannelContainer;
@@ -65,10 +65,12 @@ class TileRawChannelContByteStreamTool: public AthAlgTool {
     bool m_doFragType5;
 
     /** Handle to Tile calibration tool */
-    ToolHandle<TileCondToolEmscale> m_tileToolEmscale;
+    ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
+        "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale conditions tool"};
 
     /** Handle to Tile bad channel tool */
-    ToolHandle<ITileBadChanTool> m_tileBadChanTool;
+    ToolHandle<ITileBadChanTool> m_tileBadChanTool{this,
+        "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
 
     /** internal array for all TileRawChannels */
     TileFastRawChannel* m_channels;

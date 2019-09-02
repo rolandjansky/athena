@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************************************
@@ -101,7 +101,7 @@ class MultiComponentStateOnSurface : public TrackStateOnSurface
   virtual ~MultiComponentStateOnSurface();
 
   /** Clone method for deep copy of MultiComponentStateOnSurface - overidden from base class */
-  virtual TrackStateOnSurface* clone() const;
+  virtual TrackStateOnSurface* clone() const override final;
 
   /** Method to return a pointer to the multi-component state */
   const MultiComponentState* components() const;

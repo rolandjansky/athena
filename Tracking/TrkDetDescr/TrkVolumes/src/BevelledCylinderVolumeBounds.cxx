@@ -28,7 +28,7 @@
 #include <iostream>
 #include <math.h>
 
-double Trk::BevelledCylinderVolumeBounds::s_numericalStable = 10e-2 * Gaudi::Units::millimeter;
+const double Trk::BevelledCylinderVolumeBounds::s_numericalStable = 10e-2 * Gaudi::Units::millimeter;
 
 Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds() :
  VolumeBounds(),
@@ -40,51 +40,10 @@ Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds() :
  m_thetaPlus(0.),
  m_type(-1),
  m_boundaryAccessors(),
- m_subtractedVolume(0)
+ m_subtractedVolume(nullptr)
 {}
 
-/* // bevelled by theta cut - removed since not needed anymore
 
-Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(double radius, double halez, double thetaMinus, double thetaPlus) :
- VolumeBounds(),
- m_innerRadius(0.),
- m_outerRadius(fabs(radius)),
- m_halfPhiSector(M_PI),
- m_halfZ(fabs(halez)),
- m_thetaMinus(thetaMinus),
- m_thetaPlus(thetaPlus),
- m_type(-1),
- m_boundaryAccessors(),
- m_subtractedVolume(0)
-{}
-
-Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(double rinner, double router, double halez, double thetaMinus, double thetaPlus) :
- VolumeBounds(),
- m_innerRadius(fabs(rinner)),
- m_outerRadius(fabs(router)),
- m_halfPhiSector(M_PI),
- m_halfZ(fabs(halez)),
- m_thetaMinus(thetaMinus),
- m_thetaPlus(thetaPlus),
- m_type(-1),
- m_boundaryAccessors(),
- m_subtractedVolume(0)
-{}
-
-Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(double rinner, double router, double haphi, double halez, double thetaMinus, double thetaPlus) :
- VolumeBounds(),
- m_innerRadius(fabs(rinner)),
- m_outerRadius(fabs(router)),
- m_halfPhiSector(haphi),
- m_halfZ(fabs(halez)),
- m_thetaMinus(thetaMinus),
- m_thetaPlus(thetaPlus),
- m_type(-1),
- m_boundaryAccessors(),
- m_subtractedVolume(0)
-{}
-
-*/
 
 Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(double rinner, double router, double haphi, double halez, int type) :
  VolumeBounds(),
@@ -96,7 +55,7 @@ Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(double rinner, d
  m_thetaPlus(0.),
  m_type(type),
  m_boundaryAccessors(),
- m_subtractedVolume(0) 
+ m_subtractedVolume(nullptr) 
 {}
 
 Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(const Trk::BevelledCylinderVolumeBounds& cylbo) :
@@ -109,12 +68,11 @@ Trk::BevelledCylinderVolumeBounds::BevelledCylinderVolumeBounds(const Trk::Bevel
  m_thetaPlus(cylbo.m_thetaPlus),
  m_type(cylbo.m_type), 
  m_boundaryAccessors(),
- m_subtractedVolume(0)
+ m_subtractedVolume(nullptr)
 {}
 
 Trk::BevelledCylinderVolumeBounds::~BevelledCylinderVolumeBounds()
 {
-  delete m_subtractedVolume;
 }
 
 Trk::BevelledCylinderVolumeBounds& 
@@ -129,7 +87,7 @@ Trk::BevelledCylinderVolumeBounds&
    m_thetaMinus = cylbo.m_thetaMinus;    
    m_thetaPlus  = cylbo.m_thetaPlus;
    m_type       = cylbo.m_type;
-   m_subtractedVolume = 0;     
+   m_subtractedVolume.store(nullptr) ;     
   }
   return *this;
 }
@@ -144,7 +102,10 @@ const std::vector<const Trk::Surface*>* Trk::BevelledCylinderVolumeBounds::decom
     Amg::RotationMatrix3D discRot(transform.rotation());
     Amg::Vector3D  cylCenter(transform.translation());
 
-    if (m_type > -1 && !m_subtractedVolume) m_subtractedVolume = subtractedVolume();  
+    //Lazy init m_m_subtractedVolume
+    if (m_type > -1 && !m_subtractedVolume) {
+      m_subtractedVolume.set(std::unique_ptr<Trk::Volume>(subtractedVolume())); 
+    } 
    
     // bottom Ellipse/Disc (negative z)
     if (m_type<0) retsf->push_back(new Trk::PlaneSurface(  new Amg::Transform3D((discRot*Amg::AngleAxis3D(-m_thetaMinus+M_PI, Amg::Vector3D(0.,1.,0.))) *
@@ -423,7 +384,7 @@ Trk::RectangleBounds* Trk::BevelledCylinderVolumeBounds::sectorPlaneBounds() con
 
 Trk::Volume* Trk::BevelledCylinderVolumeBounds::subtractedVolume() const
 {
-  if (m_type<1) return 0; 
+  if (m_type<1) return nullptr; 
 
   double tp = tan(m_halfPhiSector);
   Trk::Volume* volIn = 0; 
@@ -434,14 +395,12 @@ Trk::Volume* Trk::BevelledCylinderVolumeBounds::subtractedVolume() const
   if ( m_type>1 ) { 
     double hz = m_outerRadius*(1./cos(m_halfPhiSector)-1.); 
     volOut = new Trk::Volume(new Amg::Transform3D( Amg::Translation3D(Amg::Vector3D(m_outerRadius+hz,0.,0.))),
-			     new Trk::CuboidVolumeBounds(hz,m_outerRadius*tp+0.1,m_halfZ +0.1) );
+                             new Trk::CuboidVolumeBounds(hz,m_outerRadius*tp+0.1,m_halfZ +0.1) );
   }
- 
-  if (!volIn)  m_subtractedVolume = volOut;
-  else if (!volOut) m_subtractedVolume = volIn;
-  else m_subtractedVolume = new Trk::Volume(0, new Trk::CombinedVolumeBounds(volIn,volOut,false));
-
-  return m_subtractedVolume; 
+  
+  if (!volIn)  return volOut;
+  else if (!volOut) return  volIn;
+  return new Trk::Volume(0, new Trk::CombinedVolumeBounds(volIn,volOut,false));
 }
 
 // ostream operator overload
@@ -467,9 +426,4 @@ std::ostream& Trk::BevelledCylinderVolumeBounds::dump( std::ostream& sl ) const
     sl << sl_temp.str();
     return sl;
 }
-
-
-
-
-
 

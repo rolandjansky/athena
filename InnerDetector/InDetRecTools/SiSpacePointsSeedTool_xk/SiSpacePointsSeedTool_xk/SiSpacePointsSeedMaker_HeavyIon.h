@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -16,397 +18,251 @@
 #ifndef SiSpacePointsSeedMaker_HeavyIon_H
 #define SiSpacePointsSeedMaker_HeavyIon_H
 
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
+#include "BeamSpotConditionsData/BeamSpotData.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "SiSPSeededTrackFinderData/SiSpacePointForSeed.h"
+#include "SiSPSeededTrackFinderData/SiSpacePointsSeedMakerEventData.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
-#include "SiSpacePointsSeedTool_xk/SiSpacePointForSeed.h"
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+
+#include <iosfwd>
 #include <list>
 #include <vector>
-#include <map>
-#include <iosfwd>
 
-class MsgStream   ;
-
+class MsgStream;
 
 namespace InDet {
 
+  using EventData = SiSpacePointsSeedMakerEventData;
 
   class SiSpacePointsSeedMaker_HeavyIon : 
-    virtual public ISiSpacePointsSeedMaker, public AthAlgTool
-    {
-      ///////////////////////////////////////////////////////////////////
-      // Public methods:
-      ///////////////////////////////////////////////////////////////////
+    public extends<AthAlgTool, ISiSpacePointsSeedMaker>
+  {
+    ///////////////////////////////////////////////////////////////////
+    // Public methods:
+    ///////////////////////////////////////////////////////////////////
       
-    public:
+  public:
       
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // Standard tool methods
+    ///////////////////////////////////////////////////////////////////
 
-      SiSpacePointsSeedMaker_HeavyIon
-	(const std::string&,const std::string&,const IInterface*);
-      virtual ~SiSpacePointsSeedMaker_HeavyIon();
-      virtual StatusCode               initialize();
-      virtual StatusCode               finalize  ();
+    SiSpacePointsSeedMaker_HeavyIon
+    (const std::string&,const std::string&,const IInterface*);
+    virtual ~SiSpacePointsSeedMaker_HeavyIon() = default;
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-      ///////////////////////////////////////////////////////////////////
-      // Methods to initialize tool for new event or region
-      ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // Methods to initialize tool for new event or region
+    ///////////////////////////////////////////////////////////////////
 
-      void newEvent (int);
-      void newRegion
-	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&);
-      void newRegion
-	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,const IRoiDescriptor&);
+    virtual void newEvent(EventData& data, int iteration) const override;
+    virtual void newRegion(EventData& data,
+                           const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>&vSCT) const override;
+    virtual void newRegion(EventData& data,
+                           const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>&vSCT,
+                           const IRoiDescriptor& iRD) const override;
      
-      ///////////////////////////////////////////////////////////////////
-      // Methods to initilize different strategies of seeds production
-      // with two space points with or without vertex constraint
-      ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // Methods to initilize different strategies of seeds production
+    // with two space points with or without vertex constraint
+    ///////////////////////////////////////////////////////////////////
 
-      void find2Sp (const std::list<Trk::Vertex>&);
+    virtual void find2Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
 
-      ///////////////////////////////////////////////////////////////////
-      // Methods to initilize different strategies of seeds production
-      // with three space points with or without vertex constraint
-      ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // Methods to initilize different strategies of seeds production
+    // with three space points with or without vertex constraint
+    ///////////////////////////////////////////////////////////////////
 
-      void find3Sp (const std::list<Trk::Vertex>&);
-      void find3Sp (const std::list<Trk::Vertex>&,const double*);
+    virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+    virtual void find3Sp(EventData& data, const std::list<Trk::Vertex>& lv, const double* zVertex) const override;
 
-      ///////////////////////////////////////////////////////////////////
-      // Methods to initilize different strategies of seeds production
-      // with variable number space points with or without vertex constraint
-      // Variable means (2,3,4,....) any number space points
-      ///////////////////////////////////////////////////////////////////
- 
-      void findVSp (const std::list<Trk::Vertex>&);
+    ///////////////////////////////////////////////////////////////////
+    // Methods to initilize different strategies of seeds production
+    // with variable number space points with or without vertex constraint
+    // Variable means (2,3,4,....) any number space points
+    ///////////////////////////////////////////////////////////////////
+
+    virtual void findVSp(EventData& data, const std::list<Trk::Vertex>& lv) const override;
+
+    ///////////////////////////////////////////////////////////////////
+    // Iterator through seeds pseudo collection produced accordingly
+    // methods find    
+    ///////////////////////////////////////////////////////////////////
       
-      ///////////////////////////////////////////////////////////////////
-      // Iterator through seeds pseudo collection produced accordingly
-      // methods find    
-      ///////////////////////////////////////////////////////////////////
+    virtual const SiSpacePointsSeed* next(EventData& data) const override;
       
-      const SiSpacePointsSeed* next();
+    ///////////////////////////////////////////////////////////////////
+    // Print internal tool parameters and status
+    ///////////////////////////////////////////////////////////////////
+
+    virtual MsgStream& dump(EventData& data, MsgStream& out) const override;
+
+  private:
+    enum Size {SizeRF=53,
+               SizeZ=11,
+               SizeRFZ=SizeRF*SizeZ,
+               SizeI=9,
+               SizeRFV=100,
+               SizeZV=3,
+               SizeRFZV=SizeRFV*SizeZV,
+               SizeIV=6};
+
+    ///////////////////////////////////////////////////////////////////
+    // Private data and methods
+    ///////////////////////////////////////////////////////////////////
       
-      ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
-      ///////////////////////////////////////////////////////////////////
+    ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle{this, "MagFieldSvc", "AtlasFieldSvc"};
 
-      MsgStream&    dump          (MsgStream   & out) const;
-      std::ostream& dump          (std::ostream& out) const;
+    ///////////////////////////////////////////////////////////////////
+    // Space points container
+    ///////////////////////////////////////////////////////////////////
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsSCT{this, "SpacePointsSCTName", "SCT_SpacePoints"};
+    SG::ReadHandleKey<SpacePointContainer> m_spacepointsPixel{this, "SpacePointsPixelName", "PixelSpacePoints"};
+    SG::ReadHandleKey<SpacePointOverlapCollection> m_spacepointsOverlap{this, "SpacePointsOverlapName", "OverlapSpacePoints"};
 
-    protected:
-      
-      
-  /**    @name Disallow default instantiation, copy, assignment */
-  //@{
-  SiSpacePointsSeedMaker_HeavyIon() = delete;
-  SiSpacePointsSeedMaker_HeavyIon(const SiSpacePointsSeedMaker_HeavyIon&) = delete;
-  SiSpacePointsSeedMaker_HeavyIon &operator=(const SiSpacePointsSeedMaker_HeavyIon&) = delete;
-  //@}     
-      
-      ///////////////////////////////////////////////////////////////////
-      // Protected data and methods
-      ///////////////////////////////////////////////////////////////////
-      
-      ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle ;
-      MagField::IMagFieldSvc*                m_fieldService {}      ;
+    SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
-      SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
-      bool                        m_pixel  {}                       ;
-      bool                        m_sct    {}                       ;
-      bool                        m_endlist {}                      ;
-      bool                        m_useOverlap {}                   ;
-      bool                        m_trigger  {}                     ;
-      bool                        m_izvertex  {}                    ;
-      int                         m_outputlevel  {}                 ;
-      int                         m_nprint  {}                      ;
-      int                         m_state {}                        ;
-      int                         m_nspoint {}                      ;
-      int                         m_mode   {}                       ;
-      int                         m_nlist  {}                       ;
-      int                         m_maxsize  {}                     ;
-      unsigned int                m_maxNumberVertices  {}           ;
-      float                       m_r1min{}, m_r1minv {}              ;
-      float                       m_r1max{}, m_r1maxv   {}            ;
-      float                       m_r2min{}, m_r2minv {}              ;
-      float                       m_r2max{}, m_r2maxv {}              ;
-      float                       m_r3min{}                         ;
-      float                       m_r3max{}                         ;
-      float                       m_drmin{}, m_drminv {}              ;
-      float                       m_drmax{}                         ;
-      float                       m_rapcut {}                       ;
-      float                       m_dzdrmin{}                       ;
-      float                       m_dzdrmax {}                      ;
-      float                       m_zmin{}                          ;
-      float                       m_zmax {}                         ;
-      float                       m_zminU  {}                       ;
-      float                       m_zmaxU  {}                       ;
-      float                       m_ftrig {}                        ;
-      float                       m_ftrigW {}                       ;
-      float                       m_r_rmax {}                       ;
-      float                       m_r_rstep  {}                     ;
-      float                       m_dzver  {}                       ;
-      float                       m_dzdrver {}                      ;
-      float                       m_diver   {}                      ;
-      float                       m_diverpps  {}                    ;
-      float                       m_diversss {}                     ;
-      float                       m_dazmax  {}                      ;
-      float                       m_ptmin  {}                       ;
-      float                       m_ipt   {}                        ;
-      float                       m_ipt2  {}                        ;
-      float                       m_COF {}                          ;
-      float                       m_K  {}                           ;
-      int m_r_size      {}                                            ;
-      int m_rf_size  {}                                               ;
-      int m_rfz_size  {}                                              ;
-      std::list<InDet::SiSpacePointForSeed*>* m_r_Sorted  {}          ;
-      std::list<InDet::SiSpacePointForSeed*>  m_rfz_Sorted [   583] ;
-      std::list<InDet::SiSpacePointForSeed*>  m_rfzv_Sorted[   300] ;
-      std::list<InDet::SiSpacePointForSeed*>  m_l_spforseed         ;
-      std::list<InDet::SiSpacePointForSeed*>::iterator m_i_spforseed; 
-      std::list<InDet::SiSpacePointForSeed*>::iterator m_rMin     ;
+    // Properties, which will not be changed after construction
+    BooleanProperty m_pixel{this, "usePixel", true};
+    BooleanProperty m_sct{this, "useSCT", true};
+    BooleanProperty m_useOverlap{this, "useOverlapSpCollection", false};
+    IntegerProperty m_maxsize{this, "maxSize", 20000};
+    IntegerProperty m_maxsizeSP{this, "maxSizeSP", 4000};
+    IntegerProperty m_maxOneSize{this, "maxSeedsForSpacePoint", 6};
+    UnsignedIntegerProperty m_maxNumberVertices{this, "maxNumberVertices", 1};
+    FloatProperty m_r1minv{this, "minVRadius1", 0.};
+    FloatProperty m_r1maxv{this, "maxVRadius1", 60.};
+    FloatProperty m_r2minv{this, "minVRadius2", 70.};
+    FloatProperty m_r2maxv{this, "maxVRadius2", 200.};
+    FloatProperty m_drmin{this, "mindRadius", 10.};
+    FloatProperty m_drmax{this, "maxdRadius", 270.};
+    FloatProperty m_zmin{this, "minZ", -250.};
+    FloatProperty m_zmax{this, "maxZ", +250.};
+    FloatProperty m_r_rmax{this, "radMax", 600.};
+    FloatProperty m_r_rstep{this, "radStep", 2.};
+    FloatProperty m_dzver{this, "maxdZver", 5.};
+    FloatProperty m_dzdrver{this, "maxdZdRver", 0.02};
+    FloatProperty m_diver{this, "maxdImpact", 10.};
+    FloatProperty m_diverpps{this, "maxdImpactPPS", 1.7};
+    FloatProperty m_diversss{this, "maxdImpactSSS", 1000.};
 
-      int m_ns{},m_nsaz{},m_nsazv {}                                    ;
-      int m_fNmax{},m_fvNmax {}                                       ;
-      int m_fNmin{},m_fvNmin    {}                                    ;
-      int m_zMin{}                                                  ;
-      int  m_nr{}     ; int* m_r_index{}   ; int* m_r_map{}                 ;
-      int  m_nrfz {}  , m_rfz_index  [583], m_rfz_map  [583]            ;
-      int  m_nrfzv{}  , m_rfzv_index [300], m_rfzv_map [300]            ;
-      int m_rfz_b[583],m_rfz_t[593],m_rfz_ib[583][9],m_rfz_it[583][9]     ;
-      int m_rfzv_n[300],m_rfzv_i[300][6]                              ;
-      float m_sF{}                                                  ;
-      float m_sFv {}                                                ;
+    // Properties, which can be updated in initialize
+    FloatProperty m_r3max{this, "maxRadius3", 600.}; // Always overwritten by m_r_rmax
+    FloatProperty m_rapcut{this, "RapidityCut", 2.7};
+    FloatProperty m_ptmin{this, "pTmin", 500.};
 
-      ///////////////////////////////////////////////////////////////////
-      // Tables for 3 space points seeds search
-      ///////////////////////////////////////////////////////////////////
-     
-      int    m_maxsizeSP {}                                         ;                    
-      InDet::SiSpacePointForSeed** m_SP  {}                         ;
-      float               *  m_Zo {}                                ; 
-      float               *  m_Tz {}                                ;
-      float               *  m_R  {}                                ;
-      float               *  m_U {}                                 ;
-      float               *  m_V  {}                                ;
-      float               *  m_Er {}                                ;
+    // Properties, which are not used in this implementation of SiSpacePointsSeedMaker_HeavyIon class
+    FloatProperty m_r1min{this, "minRadius1", 0.};
+    FloatProperty m_r1max{this, "maxRadius1", 600.};
+    FloatProperty m_r2min{this, "minRadius2", 0.};
+    FloatProperty m_r2max{this, "maxRadius2", 600.};
+    FloatProperty m_r3min{this, "minRadius3", 0.};
 
-      std::list<InDet::SiSpacePointsSeed*>           m_l_seeds    ;
-      std::list<InDet::SiSpacePointsSeed*>::iterator m_i_seed     ; 
-      std::list<InDet::SiSpacePointsSeed*>::iterator m_i_seede    ;
+    // Not updated at all
+    float m_drminv{20.};
+    float m_zminU{0.};
+    float m_zmaxU{0.};
+    float m_ftrig{0.};
+    float m_ftrigW{0.};
 
-      std::multimap<float,InDet::SiSpacePointsSeed*> m_mapOneSeeds;
-      InDet::SiSpacePointsSeed*                      m_OneSeeds {}  ;
-      int                                            m_maxOneSize {};
-      int                                            m_nOneSeeds {} ;
-      std::list<float>                               m_l_vertex   ;
- 
-      ///////////////////////////////////////////////////////////////////
-      // Beam geometry
-      ///////////////////////////////////////////////////////////////////
- 
-      float m_xbeam[4];    // x,ax,ay,az - center and x-axis direction
-      float m_ybeam[4];    // y,ax,ay,az - center and y-axis direction
-      float m_zbeam[4];    // z,ax,ay,az - center and z-axis direction
+    // Updated in only initialize
+    bool m_initialized{false};
+    int m_outputlevel{0};
+    int m_r_size{0};
+    int m_fNmax{0};
+    int m_fvNmax{0};
+    int m_rfz_b[SizeRFZ];
+    int m_rfz_t[SizeRFZ];
+    int m_rfz_ib[SizeRFZ][SizeI];
+    int m_rfz_it[SizeRFZ][SizeI];
+    int m_rfzv_n[SizeRFZV];
+    int m_rfzv_i[SizeRFZV][SizeIV];
+    float m_dzdrmin{0.};
+    float m_dzdrmax{0.};
+    float m_ipt{0.};
+    float m_ipt2{0.};
+    float m_COF{0.};
+    float m_sF{0.};
+    float m_sFv{0.};
 
-      ///////////////////////////////////////////////////////////////////
-      // Space points container
-      ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // Private methods
+    ///////////////////////////////////////////////////////////////////
+    /**    @name Disallow default instantiation, copy, assignment */
+    //@{
+    SiSpacePointsSeedMaker_HeavyIon() = delete;
+    SiSpacePointsSeedMaker_HeavyIon(const SiSpacePointsSeedMaker_HeavyIon&) = delete;
+    SiSpacePointsSeedMaker_HeavyIon &operator=(const SiSpacePointsSeedMaker_HeavyIon&) = delete;
+    //@}     
 
-      SG::ReadHandle<SpacePointContainer>         m_spacepointsSCT         ;
-      SG::ReadHandle<SpacePointContainer>         m_spacepointsPixel       ;
-      SG::ReadHandle<SpacePointOverlapCollection> m_spacepointsOverlap     ;
+    MsgStream& dumpConditions(EventData& data, MsgStream& out) const;
+    MsgStream& dumpEvent(EventData& data, MsgStream& out) const;
 
-      ///////////////////////////////////////////////////////////////////
-      // Protected methods
-      ///////////////////////////////////////////////////////////////////
+    void buildFrameWork();
+    void buildBeamFrameWork(EventData& data) const;
 
-      MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
+    SiSpacePointForSeed* newSpacePoint
+    (EventData& data, const Trk::SpacePoint*const&) const;
+    void newSeed
+    (EventData& data,
+     const Trk::SpacePoint*&,const Trk::SpacePoint*&,
+     const float&) const;
+    void newSeed
+    (EventData& data,
+     const Trk::SpacePoint*&,const Trk::SpacePoint*&,
+     const Trk::SpacePoint*&,const float&) const;
 
-      void buildFrameWork()                                       ;
-      void buildBeamFrameWork()                                   ;
+    void newOneSeed
+    (EventData& data,
+     const Trk::SpacePoint*&,const Trk::SpacePoint*&,
+     const Trk::SpacePoint*&,const float&,const float&) const;
+    void fillSeeds(EventData& data) const;
 
-      SiSpacePointForSeed* newSpacePoint
-	(const Trk::SpacePoint*const&)                            ;
-      void newSeed
-      (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-       const float&)                                              ; 
-      void newSeed
-      (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-       const Trk::SpacePoint*&,const float&)                      ;
+    void fillLists(EventData& data) const;
+    void erase(EventData& data) const;
+    void production2Sp(EventData& data) const;
+    void production3Sp(EventData& data) const;
+    void production3Sp
+    (EventData& data,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     int,int,int&) const;
+    void production3SpTrigger
+    (EventData& data,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     int,int,int&) const;
+    void production3SpNoVertex
+    (EventData& data,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     std::list<InDet::SiSpacePointForSeed*>::iterator*,
+     int,int,int&) const;
 
-      void newOneSeed
-      (const Trk::SpacePoint*&,const Trk::SpacePoint*&,
-       const Trk::SpacePoint*&,const float&,const float&)         ;
-      void fillSeeds()                                            ;
+    bool newVertices(EventData& data, const std::list<Trk::Vertex>&) const;
+    void findNext(EventData& data) const;
+    bool isZCompatible(EventData& data, float&,float&,float&) const;
+    float dZVertexMin(EventData& data, float&) const;
+    void convertToBeamFrameWork(EventData& data, const Trk::SpacePoint*const&,float*) const;
 
-      void fillLists     ()                                       ;
-      void erase         ()                                       ;
-      void production2Sp ()                                       ;
-      void production3Sp ()                                       ;
-      void production3Sp
-	(std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 int,int,int&);
-      void production3SpTrigger
-	(std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 int,int,int&);
-     void production3SpNoVertex
-	(std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 std::list<InDet::SiSpacePointForSeed*>::iterator*,
-	 int,int,int&);
+    void initializeEventData(EventData& data) const;
+  };
 
-      bool newVertices(const std::list<Trk::Vertex>&)             ;
-      void findNext()                                             ;
-      bool isZCompatible     (float&,float&,float&)               ;
-      float dZVertexMin(float&)                                   ;
-      void convertToBeamFrameWork(const Trk::SpacePoint*const&,float*)  ;
-   };
-
-  MsgStream&    operator << (MsgStream&   ,const SiSpacePointsSeedMaker_HeavyIon&);
-  std::ostream& operator << (std::ostream&,const SiSpacePointsSeedMaker_HeavyIon&); 
-
-  ///////////////////////////////////////////////////////////////////
-  // Inline methods
-  ///////////////////////////////////////////////////////////////////
-
-  inline const SiSpacePointsSeed* SiSpacePointsSeedMaker_HeavyIon::next()
-    {
-      if(m_i_seed==m_i_seede) {findNext(); if(m_i_seed==m_i_seede) return 0;} 
-      return(*m_i_seed++);
-    }
-
-  inline bool SiSpacePointsSeedMaker_HeavyIon::isZCompatible  
-    (float& Zv,float& R,float& T)
-    {
-      if(Zv < m_zmin || Zv > m_zmax) return false;
-      if(!m_izvertex               ) return true ;
-
-      std::list<float>::iterator v=m_l_vertex.begin(),ve=m_l_vertex.end(); 
-
-      float dZmin = fabs((*v)-Zv); ++v;
-
-      for(; v!=ve; ++v) {
-	float dZ = fabs((*v)-Zv); if(dZ<dZmin) dZmin=dZ;
-      }
-      return dZmin < (m_dzver+m_dzdrver*R)*sqrt(1.+T*T);
-    }
-
-  inline float SiSpacePointsSeedMaker_HeavyIon::dZVertexMin(float& Z)
-    {
-      float dZm = 1.E10;
-      std::list<float>::iterator v=m_l_vertex.begin(),ve=m_l_vertex.end();
-
-      for(; v!=ve; ++v) {float dZ = fabs((*v)-Z); if(dZ<dZm) dZm = dZ;}
-      return dZm;
-    }
-
-  ///////////////////////////////////////////////////////////////////
-  // New space point for seeds 
-  ///////////////////////////////////////////////////////////////////
-
-  inline SiSpacePointForSeed* SiSpacePointsSeedMaker_HeavyIon::newSpacePoint
-    (const Trk::SpacePoint*const& sp) 
-    {
-      SiSpacePointForSeed* sps;
-
-      float r[3]; convertToBeamFrameWork(sp,r);
-
-      if(m_i_spforseed!=m_l_spforseed.end()) {
-	sps = (*m_i_spforseed++); sps->set(sp,r); 
-      }
-      else                               {
-	m_l_spforseed.push_back((sps=new SiSpacePointForSeed(sp,r)));
-	m_i_spforseed = m_l_spforseed.end();	
-      }
-      
-      return sps;
-    }
-
-  ///////////////////////////////////////////////////////////////////
-  // New 2 space points seeds 
-  ///////////////////////////////////////////////////////////////////
-
-  inline void SiSpacePointsSeedMaker_HeavyIon::newSeed
-      (const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
-       const float& z) 
-    {
-      if(m_i_seede!=m_l_seeds.end()) {
-	SiSpacePointsSeed* s = (*m_i_seede++);
-	s->erase     (  ); 
-	s->add       (p1); 
-	s->add       (p2); 
-	s->setZVertex(double(z));
-      }
-      else                  {
-	m_l_seeds.push_back(new SiSpacePointsSeed(p1,p2,z));
-	m_i_seede = m_l_seeds.end(); 
-      }
-    }
-
-  ///////////////////////////////////////////////////////////////////
-  // New 3 space points seeds 
-  ///////////////////////////////////////////////////////////////////
-
-  inline void SiSpacePointsSeedMaker_HeavyIon::newSeed
-      (const Trk::SpacePoint*& p1,const Trk::SpacePoint*& p2, 
-       const Trk::SpacePoint*& p3,const float& z) 
-    {
-      if(m_i_seede!=m_l_seeds.end()) {
-	SiSpacePointsSeed* s = (*m_i_seede++);
-	s->erase     (  ); 
-	s->add       (p1); 
-	s->add       (p2); 
-	s->add       (p3); 
-	s->setZVertex(double(z));
-      }
-      else                  {
-	m_l_seeds.push_back(new SiSpacePointsSeed(p1,p2,p3,z));
-	m_i_seede = m_l_seeds.end(); 
-      }
-    }
-  
-  ///////////////////////////////////////////////////////////////////
-  // Fill seeds
-  ///////////////////////////////////////////////////////////////////
-
-  inline void SiSpacePointsSeedMaker_HeavyIon::fillSeeds ()
-    {
-      std::multimap<float,InDet::SiSpacePointsSeed*>::iterator 
-	l  = m_mapOneSeeds.begin(),
-	le = m_mapOneSeeds.end  ();
-
-      for(; l!=le; ++l) {
-
-	if(m_i_seede!=m_l_seeds.end()) {
-	  SiSpacePointsSeed* s = (*m_i_seede++);
-	  *s = *(*l).second;
-	}
-	else                  {
-	  m_l_seeds.push_back(new SiSpacePointsSeed(*(*l).second));
-	  m_i_seede = m_l_seeds.end(); 
-	}
-      }
-    }
-  
 } // end of name space
 
 #endif // SiSpacePointsSeedMaker_HeavyIon_H
-

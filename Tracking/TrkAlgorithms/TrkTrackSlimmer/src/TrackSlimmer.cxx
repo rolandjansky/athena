@@ -50,10 +50,10 @@ StatusCode Trk::TrackSlimmer::initialize()
         ATH_MSG_INFO("Retrieved tool " << m_slimTool );
     }
     ATH_CHECK(m_trackLocation.initialize());
-    ATH_CHECK(m_slimmedTracks.initialize());
+    ATH_CHECK(m_slimmedTracks.initialize(m_ptCut>0. || !m_setPersistificationHints));
 
     ATH_MSG_INFO("initialize() successful in " << name() );
-    bool error = m_trackLocation.size() != m_slimmedTracks.size();
+    bool error = (m_ptCut>0. || !m_setPersistificationHints) &&  m_trackLocation.size() != m_slimmedTracks.size();
     if(error){
        ATH_MSG_ERROR("Inconsistent number of inputs and output in " << name() );
        ATH_MSG_ERROR("Inputs " << m_trackLocation.size() << " outputs " << m_slimmedTracks.size() );
@@ -87,7 +87,13 @@ StatusCode Trk::TrackSlimmer::execute()
 
     using namespace std;
     auto InputHandles = m_trackLocation.makeHandles();
-    auto OutputHandles = m_slimmedTracks.makeHandles();
+    std::vector<SG::WriteHandle<TrackCollection> > OutputHandles = ( (m_ptCut>0. || !m_setPersistificationHints)
+                                                                     ? m_slimmedTracks.makeHandles()
+                                                                     : std::vector<SG::WriteHandle<TrackCollection> >(m_trackLocation.size()));
+    if (OutputHandles.size() != InputHandles.size()) {
+      ATH_MSG_ERROR("Failed to create output collection with correct size." );
+      return StatusCode::FAILURE;
+    }
     auto InputIt  = InputHandles.begin();
     auto InputE   = InputHandles.end();
     auto OutputIt = OutputHandles.begin();

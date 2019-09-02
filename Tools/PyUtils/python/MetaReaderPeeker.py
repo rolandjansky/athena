@@ -34,6 +34,9 @@ def _setup():
     metadata['file_name'] = first_filename
 
 
+# convert_itemList and convert_metadata_items have the same implementation as the one in MetaReaderPeekerFull.
+# If there are changes, these must be modified in both files.
+
 def convert_itemList(layout=None):
     # Find the itemsList:
     item_list = None
@@ -57,7 +60,8 @@ def convert_itemList(layout=None):
             return item_list
 
         elif layout == '#join':
-            return [k + '#' + v for k, v in item_list]
+            return [k + '#' + v for k, v in item_list if k]
+
 
         elif layout == 'dict':
             from collections import defaultdict
@@ -74,12 +78,6 @@ def convert_metadata_items(layout=None):
 
     if 'metadata_items' in metadata:
         metadata_items = metadata['metadata_items']
-
-    print('==== start filenames =============================================')
-    print('==================================================================')
-    print(metadata['file_name'])
-    print('==================================================================')
-    print('\n')
 
     # add key to match the athfile output
     if metadata_items is not None:

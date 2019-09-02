@@ -10,11 +10,7 @@ TestPileUpTool::TestPileUpTool(const std::string& type,
                                const std::string& name,
                                const IInterface* parent)
   : PileUpToolBase(type, name, parent)
-  , m_doFiltering(false)
-  , m_maxInTimePileUp(4)
 {
-  declareProperty("DoFiltering", m_doFiltering, "");
-  declareProperty("MaxInTimePileUp", m_maxInTimePileUp, "");
 }
 
 StatusCode TestPileUpTool::prepareEvent(unsigned int nInputEvents)

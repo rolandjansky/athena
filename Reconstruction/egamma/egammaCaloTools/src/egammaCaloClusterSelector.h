@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef EGAMMACALOTOOLS_EGAMMACALOCLUSTERSELECTOR_H
 #define EGAMMACALOTOOLS_EGAMMACALOCLUSTERSELECTOR_H
@@ -9,7 +9,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
 #include "egammaInterfaces/IegammaMiddleShape.h"
-
+#include "egammaInterfaces/IegammaIso.h"
 // Framework includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -53,6 +53,10 @@ private:
   ToolHandle<IegammaMiddleShape> m_egammaMiddleShape {this, 
       "egammaMiddleShapeTool", "egammaMiddleShape/egammamiddleshape",
       "Optional tool that performs cuts on middle shape variables"};
+  /** @brief Tool for hadronic leakage calculation*/
+  ToolHandle<IegammaIso> m_HadronicLeakageTool {this,
+    "HadronicLeakageTool", "egammaIso", 
+    "Handle of the EMCaloIsolationTool for Hadronic leakage"};
 
   Gaudi::Property<double>  m_ClusterEtCut {this,
       "ClusterEtCut", 0.0, "Cut on cluster EM+Had Et"};
@@ -73,8 +77,14 @@ private:
   Gaudi::Property<std::vector<double> >  m_RetaCuts {this,
       "RetaCut", {}, "Cut on cluster Reta"};
 
-  // this variable is set at initialize based on the configuration
-  bool m_runMiddleShapes{false};
+  Gaudi::Property<std::vector<double> >  m_HadLeakCuts {this,
+      "HadLeakCut", {}, "Cut on cluster Hadronic Leakage"};
+
+  // these variables are set at initialize based on the configuration
+  bool m_doReta{false}; 
+  bool m_doHadLeak{false};
+
+
 
 };
 

@@ -8,6 +8,9 @@ from G4UserActions.G4UserActionsConf import G4UA__RadiationMapsMakerTool
 # radmaptool.Material        = "" # if left empty all materials are used (default)
 # radmaptool.NBinsR          =   120
 # radmaptool.NBinsZ          =   240
+# radmaptool.NBinsLogEn      =    90
+# radmaptool.NBinsLogEo      =    45
+# radmaptool.NBinsLogTimeCut =    20
 # radmaptool.NBinsR3D        =    30
 # radmaptool.NBinsZ3D        =    60
 # radmaptool.NBinsPhi3D      =    32
@@ -21,6 +24,12 @@ from G4UserActions.G4UserActionsConf import G4UA__RadiationMapsMakerTool
 # radmaptool.ZMaxFull        =  2400.0 # in cm 
 # radmaptool.PhiMinZoom      =  -180.0 # in degrees
 # radmaptool.PhiMaxZoom      =   180.0 # in degrees
+# radmaptool.LogEMinn        =  -11.0  # in log10(E/MeV)
+# radmaptool.LogEMaxn        =    7.0  # in log10(E/MeV)
+# radmaptool.LogEMino        =   -2.0  # in log10(E/MeV)
+# radmaptool.LogEMaxo        =    7.0  # in log10(E/MeV)
+# radmaptool.LogTMin         =   -9.0  # in log10(t_cut/s)
+# radmaptool.LogTMax         =   11.0  # in log10(t_cut/s)
 #
 simFlags.OptionalUserActionList.addAction('G4UA::RadiationMapsMakerTool')
 

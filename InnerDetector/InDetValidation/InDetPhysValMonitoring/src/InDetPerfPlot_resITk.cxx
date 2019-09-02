@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,7 +34,6 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(InDetPlotBase* pParent, const std::st
   m_resITk_chargeID{},
   m_resITk_chargeID_vs_eta{},
   m_resITk_chargeID_vs_pt{},
-  m_resITk_chargeID_vs_phi{},
 
   m_resITk_momTail{},
   m_resITk_momTail_vs_eta{},

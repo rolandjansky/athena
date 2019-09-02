@@ -4,7 +4,9 @@
 
 #include "egammaUtils/CandidateMatchHelpers.h"
 
-double CandidateMatchHelpers::CorrectedEta(double clusterEta,double z_first,bool isEndCap){    
+double CandidateMatchHelpers::CorrectedEta(const double clusterEta,
+                                           const double z_first,
+                                           const bool isEndCap){    
   if (clusterEta == -999){
     return clusterEta;
   }
@@ -21,12 +23,12 @@ double CandidateMatchHelpers::CorrectedEta(double clusterEta,double z_first,bool
       Rclus=fabs(Zcalo*(tanthetaclus));
       //Negative Eta ---> negative Z
       if(clusterEta<0){
-	Zclus = -Zclus;
+        Zclus = -Zclus;
       }
     } 	  
     else{
       if(tanthetaclus!=0){
-	Zclus=Rcalo/(tanthetaclus);
+        Zclus=Rcalo/(tanthetaclus);
       }
     }
   }
@@ -34,22 +36,24 @@ double CandidateMatchHelpers::CorrectedEta(double clusterEta,double z_first,bool
     //eta 0
     Zclus=0;
   }
-  //===========================================================//    
   //correct for a possible shift in the track perigee wrt to (0,0)
   double thetaclus_corrected=atan2(Rclus,Zclus-z_first);
   double etaclus_corrected = 99999; //if theta =0 or M_PI the eta +-inf this happens when Rclus =0 
   if(Rclus!=0){
     etaclus_corrected = -log(tan(thetaclus_corrected/2));
   }
-  //===========================================================//
+  
   return etaclus_corrected;
 }
 
-double CandidateMatchHelpers::PhiROT(double Et,double Eta, int charge, double r_first ,bool isEndCap){
-  //===========================================================//
+double CandidateMatchHelpers::PhiROT(const double Et,
+                                     const double Eta, 
+                                     const int charge, 
+                                     const double r_first ,
+                                     const bool isEndCap){
   //Used in order to derive the formula below
   const  double Rcalo = 1200;
-  //===========================================================//
+  
   // correct phi for extrapolation to calo
   double phiRot = 0.0;
   double ecCorr = 1.0;

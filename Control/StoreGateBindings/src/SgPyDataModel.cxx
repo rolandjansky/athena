@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,7 +16,8 @@ TClass* objectIsA (PyObject* obj)
 {
   PyObject* repr = PyObject_Repr (obj);
   if (!repr) return nullptr;
-  const char* s = PyString_AsString (repr);
+  std::string str = RootUtils::PyGetString (repr).first;
+  const char* s = str.c_str();
   if (*s == '<') ++s;
   if (strncmp (s, "ROOT.", 5) == 0)
     s += 5;
@@ -84,10 +85,11 @@ namespace SG {
 
     // this will be a conversion for a class instance only (see below:
     // verified that only a ObjectProxy is expected), so bind with cast
-    TClass* cls = TClass::GetClass (PyString_AS_STRING(pytp));
+    std::string pytpstr = RootUtils::PyGetString(pytp).first;
+    TClass* cls = TClass::GetClass (pytpstr.c_str());
     if (!cls) {
       PyErr_Format( PyExc_TypeError, "Can't find TClass for `%s'",
-		    PyString_AS_STRING(pytp) );
+		    pytpstr.c_str() );
       return 0;
     }
     TClass* act_class = cls->GetActualClass (address);
@@ -189,8 +191,12 @@ namespace SG {
 
   PyProxyMgr::~PyProxyMgr()
   {
-    Py_DECREF(m_aliases);
-    Py_DECREF(m_clids);
+    // Don't do this if don't have a valid thread state.
+    // (With py3, the interpreter gets shut down before global dtors run...)
+    if (PyThreadState_GET()) {
+      Py_DECREF(m_aliases);
+      Py_DECREF(m_clids);
+    }
     // delete the proxy dicts...
     for ( PyProxyMap_t::iterator 
 	    i    = m_proxyMap.begin(),

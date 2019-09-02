@@ -10,10 +10,8 @@
 
 /*******************************************************************************/
 sTGC_Digitizer::sTGC_Digitizer(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator),
-    m_digTool("sTgcDigitizationTool", this )
+  : AthAlgorithm(name, pSvcLocator)
 {
-  declareProperty("sTGC_DigitizationTool", m_digTool);
 }
 /*******************************************************************************/
 sTGC_Digitizer::~sTGC_Digitizer()  {}

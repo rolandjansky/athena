@@ -17,8 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/RDBAccessSvc
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoModel/GeoModelInterfaces
-                          Event/EventInfo
-                          Event/EventInfoMgt
                           MuonSpectrometer/Amdcsimrec/AmdcStand
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           Tools/PathResolver )
@@ -33,12 +31,12 @@ atlas_add_library( AmdcAthLib
                    PUBLIC_HEADERS AmdcAth
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel AmdcCore MuonAlignmentData StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AtlasDetDescr EventInfo AmdcStand MuonReadoutGeometry PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AtlasDetDescr AmdcStand MuonReadoutGeometry PathResolver )
 
 atlas_add_component( AmdcAth
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel AmdcCore MuonAlignmentData StoreGateLib SGtests AtlasDetDescr EventInfo AmdcStand MuonReadoutGeometry PathResolver AmdcAthLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel AmdcCore MuonAlignmentData StoreGateLib SGtests AtlasDetDescr AmdcStand MuonReadoutGeometry PathResolver AmdcAthLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

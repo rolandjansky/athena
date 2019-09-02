@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSEGMENTPAIRMATCHINGTOOL_H
@@ -9,16 +9,17 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 
 #include "TrkTrack/TrackCollection.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 class MdtIdHelper;
 
 namespace Muon {
   class MuonSegment;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
 }
 
@@ -50,7 +51,9 @@ namespace Muon {
   private:
     
     ToolHandle<MuonIdHelperTool>               m_idHelper;         //!< IdHelper tool
-    ToolHandle<MuonEDMHelperTool>              m_helperTool;       //!< EDM Helper tool
+    ServiceHandle<IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
     ToolHandle<MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
   };
 

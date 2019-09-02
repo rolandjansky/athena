@@ -1,7 +1,7 @@
 // dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLEEVENT_PARTICLELINKS_H
@@ -36,7 +36,7 @@
 #include <vector>
 #include<string>
 #include "AthLinks/ElementLink.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 template<class Container>
 class ParticleLinks: public  std::vector< ElementLink<Container> >

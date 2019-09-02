@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -54,11 +54,13 @@
 
 #include "TrigT2CaloCommon/phiutils.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 class IRegSelSvc;
 // class ITrigRegionSelector;
 class LArRoI_Map;
 class IROBDataProviderSvc;
-class StoreGateSvc;
 class T2CaloConfig;
 
 /** Class that provides access to data for

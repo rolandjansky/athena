@@ -29,7 +29,6 @@ ByteStreamInputSvc.RunNumber      += [ 0000000 ]
 # and output from which algorithm to use as input for TileCellBuilder
 
 doTileFlat = True
-doTileOpt = True
 doTileFit = True
 
 TileRunType = 8

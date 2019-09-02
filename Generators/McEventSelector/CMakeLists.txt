@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           GaudiKernel
                           PRIVATE
-                          Control/SGTools
                           Event/EventInfo )
 
 # Component(s) in the package:
@@ -21,7 +20,7 @@ atlas_add_component( McEventSelector
                      src/McEventCnv.cxx
                      src/McCnvSvc.cxx
                      src/McEventSelector_entries.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel SGTools EventInfo )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel EventInfo )
 
 # Install files from the package:
 atlas_install_headers( McEventSelector )

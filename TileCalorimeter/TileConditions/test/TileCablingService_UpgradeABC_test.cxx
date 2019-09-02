@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -18,9 +18,9 @@ void test1() {
 
 
   IdDictParser parser;
-  TileCablingSvc::init_idhelpers (parser,
-                                  "IdDictTileCalorimeter-upgradeABC.xml", 
-                                  TileCablingService::UpgradeABC);
+  TileCablingSvcMock::init_idhelpers (parser,
+                                      "IdDictTileCalorimeter-upgradeABC.xml",
+                                      TileCablingService::UpgradeABC);
 
   TileCablingService* cabling = TileCablingService::getInstance();
 
@@ -55,8 +55,8 @@ void test1() {
           // Skip merged E1 cells
           if (tileID->sample(swid) == TileID::SAMP_E
               && tileID->tower(swid) == 42 // E1 tower
-              && cabling->E1_merged_with_run2(ros, drawer) 
-              && cabling->E1_merged_with_run2(ros, drawer) == tileID->module(swid)) {
+              && cabling->E1_merged_with_run2plus(ros, drawer)
+              && cabling->E1_merged_with_run2plus(ros, drawer) == tileID->module(swid)) {
 
             Identifier swid2 = cabling->h2s_adc_id(hwid);
             assert(tileID->system(swid) == tileID->system(swid2));

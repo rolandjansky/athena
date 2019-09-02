@@ -16,7 +16,6 @@ muidMaterialAllocator = Trk__MaterialAllocator(
     name                      = 'MuidMaterialAllocator',
     AggregateMaterial         = True,
     Extrapolator              = atlasExtrapolator,
-    SpectrometerExtrapolator  = muonExtrapolator,
     TrackingGeometrySvc       = ServiceMgr.AtlasTrackingGeometrySvc)
 ToolSvc += muidMaterialAllocator
 

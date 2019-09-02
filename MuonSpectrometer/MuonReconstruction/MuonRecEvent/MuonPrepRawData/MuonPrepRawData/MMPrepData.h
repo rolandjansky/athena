@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONPREPRAWDATA_MMPREPDATA_H
@@ -81,13 +81,13 @@ namespace Muon
     int time() const;
 
     /** @brief Returns the ADC counts */
-    int charge() const;
+    double charge() const;
 
     /** @brief Returns the microTPC angle */
-    int angle() const;
+    double angle() const;
 
     /** @brief Returns the microTPC chisq Prob. */
-    int chisqProb() const;
+    double chisqProb() const;
 
     /** @brief Dumps information about the PRD*/
     MsgStream&    dump( MsgStream&    stream) const;
@@ -119,9 +119,9 @@ namespace Muon
   // return globalPosition:
   inline const Amg::Vector3D& MMPrepData::globalPosition() const
   {
-    if (m_globalPosition==0) m_globalPosition = m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition());
+    if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
 
-    if (m_globalPosition==0) throw Trk::PrepRawDataUndefinedVariable();
+    if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
     return *m_globalPosition;
   }
 
@@ -130,17 +130,17 @@ namespace Muon
     return m_time;
   }
   
-  inline int MMPrepData::charge() const 
+  inline double MMPrepData::charge() const 
   {
     return m_charge;
   }
 
-  inline int MMPrepData::angle() const 
+  inline double MMPrepData::angle() const 
   {
     return m_angle;
   }
 
-  inline int MMPrepData::chisqProb() const 
+  inline double MMPrepData::chisqProb() const 
   {
     return m_chisqProb;
   }

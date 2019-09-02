@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  *   */
 
 
@@ -11,11 +11,9 @@ using namespace Trig;
 TrigEgammaSelectorBaseTool::TrigEgammaSelectorBaseTool(const std::string& myname):
   AsgTool(myname),
   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-  m_lumiTool("LuminosityTool/OnlLuminosityTool"),
   m_storeGate(nullptr),
   m_trigdec(nullptr)
 {
-  declareProperty("LuminosityToolOnline"    , m_lumiTool              , "Luminosity Tool Online" );
   declareProperty("LuminosityTool"          , m_lumiBlockMuTool       , "Luminosity Tool Offline");
 
   // just for compile
@@ -30,13 +28,6 @@ TrigEgammaSelectorBaseTool::TrigEgammaSelectorBaseTool(const std::string& myname
 }
 //!==========================================================================
 StatusCode TrigEgammaSelectorBaseTool::initialize(){
-
-  if (m_lumiTool.retrieve().isFailure()) {
-      ATH_MSG_WARNING("Unable to retrieve LuminosityToolOnline");
-      return StatusCode::FAILURE;
-  } else {
-      ATH_MSG_INFO("Successfully retrieved LuminosityToolOnline");
-  }
 
   if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
       ATH_MSG_WARNING("Unable to retrieve LumiBlockMuTool");
@@ -69,13 +60,6 @@ void TrigEgammaSelectorBaseTool::dressDecision(const SG::AuxElement * /*aux*/, s
 float TrigEgammaSelectorBaseTool::getOnlAverageMu(){
   if(m_lumiBlockMuTool){
     return m_lumiBlockMuTool->averageInteractionsPerCrossing(); // (retrieve mu for the current BCID)
-  }
-  return 0.0;
-}
-//!==========================================================================
-float TrigEgammaSelectorBaseTool::getAverageMu(){
-  if(m_lumiTool){
-    return m_lumiTool->lbAverageInteractionsPerCrossing(); // (retrieve mu for the current BCID)
   }
   return 0.0;
 }

@@ -35,7 +35,7 @@
 class SCT_ConditionsParameterTool: public extends<AthAlgTool, ISCT_ConditionsParameterTool> {
  public:
   ///Constructor necessary for Svc factory
-  SCT_ConditionsParameterTool(const std::string &type, const std::string &name, const IInterface *parent);
+  SCT_ConditionsParameterTool(const std::string& type, const std::string& name, const IInterface* parent);
 
   ///(virtual) Destructor does nothing
   virtual ~SCT_ConditionsParameterTool() = default;

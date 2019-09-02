@@ -20,11 +20,11 @@
 
 class HWIdentifier;
 class LArOnlineID_Base;
+class CaloCell_Base_ID;
 class StoreGateSvc;
 class LArEM_Base_ID;
 class LArHEC_Base_ID;
 class LArFCAL_Base_ID;
-class CaloCell_ID;
 class MsgStream;
 
 class LArCond2NtupleBase : public AthAlgorithm {
@@ -65,18 +65,16 @@ class LArCond2NtupleBase : public AthAlgorithm {
   
   NTuple::Item<float> m_FEBTemp1, m_FEBTemp2;
 
-  MsgStream* m_log;
 
   StoreGateSvc* m_detStore; 
   const LArEM_Base_ID* m_emId;
   const LArHEC_Base_ID* m_hecId;
   const LArFCAL_Base_ID* m_fcalId;
   const LArOnlineID_Base* m_onlineId;
-  const CaloCell_ID* m_caloId;
+  const CaloCell_Base_ID* m_caloId;
   ToolHandle<ILArFEBTempTool> m_FEBTempTool;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
-  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKeySC{this,"SCCablingKey","LArOnOffIdMapSC","SG Key of SC LArOnOffIdMapping object"};
   SG::ReadCondHandleKey<LArBadChannelCont> m_BCKey{this, "BadChanKey", "LArBadChannel", "SG bad channels key"};
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
 

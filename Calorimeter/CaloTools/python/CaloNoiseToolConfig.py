@@ -92,22 +92,8 @@ def CaloNoiseToolCfg(configFlags):
             from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
             result.merge( LArHVScaleCfg(configFlags) )
 
-            from LArCondUtils.LArCondUtilsConf import LArHVToolDB
-            theLArHVToolDB = LArHVToolDB("LArHVToolDB")
-            result.addPublicTool( theLArHVToolDB )
-
-            from LArRecUtils.LArRecUtilsConf import LArHVCorrTool
-            theLArHVCorrTool = LArHVCorrTool("LArHVCorrTool")
-            theLArHVCorrTool.keyOutput = "LArHVScaleCorr"
-            theLArHVCorrTool.folderName= "/LAR/ElecCalibFlat/HVScaleCorr"
-            theLArHVCorrTool.doTdrift = False
-            theLArHVCorrTool.DeltaTupdate = 0
-            theLArHVCorrTool.HVTool = theLArHVToolDB
-            result.addPublicTool( theLArHVCorrTool )
-
             from LArCellRec.LArCellRecConf import LArCellHVCorr
             theLArCellHVCorr = LArCellHVCorr("LArCellHVCorr")
-            theLArCellHVCorr.HVCorrTool = theLArHVCorrTool
             result.addPublicTool( theLArCellHVCorr )
 
             caloNoiseToolDB.RescaleForHV=True
@@ -132,7 +118,6 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = CaloNoiseToolCfg(ConfigFlags)
 
     f=open('test.pkl','w')

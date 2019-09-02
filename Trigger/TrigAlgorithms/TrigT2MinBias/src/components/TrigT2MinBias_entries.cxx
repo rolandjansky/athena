@@ -1,11 +1,15 @@
-#include "TrigT2MinBias/T2MbtsFex.h"
-#include "TrigT2MinBias/T2MbtsHypo.h"
-#include "TrigT2MinBias/TrigCountSpacePoints.h"
-#include "TrigT2MinBias/TrigCountSpacePointsHypo.h"
-#include "TrigT2MinBias/TrigCountTrtHits.h"
-#include "TrigT2MinBias/TrigCountTrtHitsHypo.h"
-#include "TrigT2MinBias/T2ZdcFex.h"
-#include "TrigT2MinBias/T2ZdcHypo.h"
+#include "../T2MbtsFex.h"
+#include "../T2MbtsHypo.h"
+#include "../TrigCountSpacePoints.h"
+#include "../TrigCountSpacePointsHypo.h"
+#include "../TrigCountTrtHits.h"
+#include "../TrigCountTrtHitsHypo.h"
+#include "../T2ZdcFex.h"
+#include "../T2ZdcHypo.h"
+#include "../TrigCountSpacePointsMT.h"
+#include "../SPCountHypoAlgMT.h"
+#include "../SPCountHypoTool.h"
+
 
 DECLARE_COMPONENT( T2MbtsFex )
 DECLARE_COMPONENT( T2MbtsHypo )
@@ -15,4 +19,6 @@ DECLARE_COMPONENT( TrigCountTrtHits )
 DECLARE_COMPONENT( TrigCountTrtHitsHypo )
 DECLARE_COMPONENT( T2ZdcFex )
 DECLARE_COMPONENT( T2ZdcHypo )
-
+DECLARE_COMPONENT( TrigCountSpacePointsMT )
+DECLARE_COMPONENT( SPCountHypoAlgMT )
+DECLARE_COMPONENT( SPCountHypoTool )

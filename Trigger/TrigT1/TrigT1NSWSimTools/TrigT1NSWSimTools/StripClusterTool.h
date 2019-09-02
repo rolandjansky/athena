@@ -22,9 +22,14 @@
 
 //forward declarations
 class IIncidentSvc;
+class IAtRndmGenSvc;
 class sTgcIdHelper;
 class sTgcDigit;
 class TTree;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -67,11 +72,11 @@ namespace NSWL1 {
     void reset_ntuple_variables();                          //!< reset the variables used in the analysis ntuple                                                                                              
     void clear_ntuple_variables();                          //!< clear the variables used in the analysis ntuple                                                                                              
     void fill_strip_validation_id(std::vector<std::unique_ptr<StripClusterData>>& clusters);  //!< fill the ntuple branch for the StripTdsOffline   
-    bool MatchModule(const std::unique_ptr<StripData>& one, const StripData* two);
     
 
     // needed Servives, Tools and Helpers
     ServiceHandle< IIncidentSvc >      m_incidentSvc;       //!< Athena/Gaudi incident Service
+    ServiceHandle< IAtRndmGenSvc >     m_rndmSvc;           //!< Athena random number service
     const MuonGM::MuonDetectorManager* m_detManager;        //!< MuonDetectorManager
     const sTgcIdHelper*                m_sTgcIdHelper;      //!< sTgc offline Id helper
 
@@ -113,6 +118,12 @@ namespace NSWL1 {
     std::vector<int> *m_cl_layer;
     std::vector<int> *m_cl_bandId;
 
+    std::vector<int> *m_cl_phiId;
+    //Cache that holds which strips to read based on bandid
+    // 2d-vector for eta/phi station coordinates
+    // map from BandID to a set of strips
+    
+    //std::vector< std::vector<std::unique_ptr<StripData> >* > m_clusters;
     std::vector< std::shared_ptr<std::vector<std::unique_ptr<StripData> >>  > m_clusters;
   };  // end of StripClusterTool class
 

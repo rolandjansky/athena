@@ -40,18 +40,20 @@ job += CfgGetter.getAlgorithm("CopyTimings")
 import AthenaPoolCnvSvc.ReadAthenaPoolDouble
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 OverlayEventSelector = ServiceMgr.DoubleEventSelector
 OverlayEventSelector.PrimaryInputCollections = athenaCommonFlags.PoolRDOInput()
 OverlayEventSelector.SecondaryaryInputCollections = athenaCommonFlags.PoolHitsInput()
 OverlayEventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 # Properly generate event context
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
 nThreads = jp.ConcurrencyFlags.NumThreads()
 if nThreads > 0:
-    svcMgr.AthenaHiveEventLoopMgr.UseSecondaryEventNumber = True
-elif hasattr(svcMgr, "AthenaHiveEventLoopMgr"):
-    svcMgr.AthenaEventLoopMgr.UseSecondaryEventNumber = True
+    EventLoop = Service("AthenaHiveEventLoopMgr")
+else:
+    EventLoop = Service("AthenaEventLoopMgr")
+EventLoop.UseSecondaryEventNumber = True
+svcMgr += EventLoop
 
 
 #-------------------------

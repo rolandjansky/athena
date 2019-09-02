@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ namespace InDet
       @author  Tatjana Lenz <tatjana.lenz@cern.ch>
   */  
 
-  class ZVTOP_TrkProbTubeCalc : virtual public IZVTOP_TrkProbTubeCalc, public AthAlgTool
+  class ZVTOP_TrkProbTubeCalc : public extends<AthAlgTool, IZVTOP_TrkProbTubeCalc>
     {
     public:
       ZVTOP_TrkProbTubeCalc(const std::string&,const std::string&,const IInterface*);
@@ -39,15 +39,15 @@ namespace InDet
       virtual ~ZVTOP_TrkProbTubeCalc ();
       
        /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
        /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
+      virtual StatusCode finalize  () override;
       
-      virtual double calcProbTube(const Trk::Track& trk, Trk::Vertex& vec);
-      virtual double calcProbTube(const Rec::TrackParticle& trk, Trk::Vertex& vec);
-      virtual double calcProbTube(const Trk::TrackParticleBase& trk, Trk::Vertex& vec);
-      virtual double calcProbTube(const Trk::Perigee* trk, Trk::Vertex& vec);
-      virtual double calcProbTube(const Trk::RecVertex& vtx, Trk::Vertex& vec);
+      virtual double calcProbTube(const Trk::Track& trk, Trk::Vertex& vec) const override;
+      virtual double calcProbTube(const Rec::TrackParticle& trk, Trk::Vertex& vec) const override;
+      virtual double calcProbTube(const Trk::TrackParticleBase& trk, Trk::Vertex& vec) const override;
+      virtual double calcProbTube(const Trk::Perigee* trk, Trk::Vertex& vec) const override;
+      virtual double calcProbTube(const Trk::RecVertex& vtx, Trk::Vertex& vec) const override;
     private:
       
       /** member variables for algorithm properties: */

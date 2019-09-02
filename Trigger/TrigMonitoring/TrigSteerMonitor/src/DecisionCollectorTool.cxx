@@ -30,6 +30,7 @@ StatusCode DecisionCollectorTool::getDecisions( std::vector<TrigCompositeUtils::
 		       TrigCompositeUtils::decisionIDs( d ).begin(),
 		       TrigCompositeUtils::decisionIDs( d ).end() );
       }
+      ATH_MSG_DEBUG("Collected from decision container " << decisionKey.key() <<  " objects " <<handle.cptr()->size()  << " accumulated decisions " << output.size() );
     }
   }
   return StatusCode::SUCCESS;

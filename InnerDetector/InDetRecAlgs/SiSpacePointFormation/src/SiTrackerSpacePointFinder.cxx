@@ -31,6 +31,7 @@ ATLAS Collaboration
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadCondHandle.h"
 
+#include "AthenaMonitoring/Monitored.h"
 namespace InDet {
 
 //------------------------------------------------------------------------
@@ -148,15 +149,13 @@ StatusCode SiTrackerSpacePointFinder::initialize()
   }
 
   ATH_CHECK(m_SiSpacePointMakerTool.retrieve());
-  if (!m_overrideBS){
-    ATH_CHECK(m_beamSpotKey.initialize());
-  }else{
-//    m_beamSpotKey = "";//Remove request for condition object
-  }
+  ATH_CHECK(m_beamSpotKey.initialize(!m_overrideBS));
 
   ATH_CHECK(m_SpacePointCache_SCTKey.initialize(!m_SpacePointCache_SCTKey.key().empty()));
   ATH_CHECK(m_SpacePointCache_PixKey.initialize(!m_SpacePointCache_PixKey.key().empty()));
   m_cachemode = !m_SpacePointCache_SCTKey.key().empty() || !m_SpacePointCache_PixKey.key().empty();
+
+  if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
 
   ATH_MSG_INFO( "SiTrackerSpacePointFinder::initialized for package version " << PACKAGE_VERSION );
   return StatusCode::SUCCESS;
@@ -171,6 +170,12 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   ++m_numberOfEvents;
   const InDetDD::SiDetectorElementCollection* elements = nullptr;
   const SiElementPropertiesTable* properties = nullptr;
+  
+  auto nReceivedClustersSCT = Monitored::Scalar<int>( "numSctClusters" , 0 );
+  auto nReceivedClustersPIX = Monitored::Scalar<int>( "numPixClusters" , 0 );
+  auto nSCTspacePoints = Monitored::Scalar<int>( "numSctSpacePoints"   , 0 );
+  auto nPIXspacePoints = Monitored::Scalar<int>( "numPixSpacePoints"   , 0 );
+
   if (m_selectSCTs) {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey, ctx);
     elements = sctDetEle.retrieve();
@@ -243,6 +248,7 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     r_cache.SCTCContainer = sct_clcontainer.cptr();
 
     ATH_MSG_DEBUG( "SCT Cluster container found: " << sct_clcontainer->size() << " collections" );
+    nReceivedClustersSCT = sct_clcontainer->size();
     // Get hold of all clusters and iterate through them.
     // Pixel clusters will be converted immediately to pixel space points.
     // For SCT clusters, posssible pairs will be found and space points computed.
@@ -302,6 +308,8 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
     PixelClusterContainer::const_iterator colNext = pixel_clcontainer->begin();
     PixelClusterContainer::const_iterator lastCol = pixel_clcontainer->end();
 
+    nReceivedClustersPIX = pixel_clcontainer->size();
+
     int numColl=0;
     for (; colNext != lastCol; ++colNext)
     {
@@ -357,15 +365,20 @@ StatusCode SiTrackerSpacePointFinder::execute (const EventContext& ctx) const
   }
   if (m_selectPixels) {
     m_numberOfPixel += spacePointContainerPixel->numberOfCollections();
+    nPIXspacePoints  = spacePointContainerPixel->numberOfCollections();
   }
   if (m_selectSCTs) {
     m_numberOfSCT   += spacePointContainer_SCT->numberOfCollections();
+    nSCTspacePoints  = spacePointContainer_SCT->numberOfCollections();
   }
   if(m_cachemode)//Prevent unnecessary atomic counting
   {
      m_sctCacheHits  += sctCacheCount;
      m_pixCacheHits  += pixCacheCount;
   }
+
+  auto mon = Monitored::Group( m_monTool, nReceivedClustersPIX,nReceivedClustersSCT, nPIXspacePoints, nSCTspacePoints );
+
   return StatusCode::SUCCESS;
 }
 

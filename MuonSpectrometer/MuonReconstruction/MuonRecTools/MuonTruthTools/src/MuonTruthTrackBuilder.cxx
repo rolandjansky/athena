@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@
 // HepMC
 #include "HepMC/GenParticle.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
@@ -65,7 +65,6 @@ namespace Muon {
     m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
     m_muonCompRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_trackExtrapolationTool("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
     m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner"),
@@ -103,7 +102,7 @@ namespace Muon {
     ATH_CHECK( m_muonClusterCreator.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_muonCompRotCreator.retrieve() );
     ATH_CHECK( m_trackFitter.retrieve() );
     ATH_CHECK( m_slTrackFitter.retrieve() );
@@ -574,17 +573,18 @@ namespace Muon {
 		++m_trackSLFits;
 		ATH_MSG_VERBOSE("Track fit of truth trajectory successful, track created. " << std::endl 
 				<< m_printer->print(*track) << std::endl << m_printer->printStations(*track) );
-		Trk::Track* cleanedTrack = m_trackCleaner->clean(*track);
-		if( cleanedTrack && cleanedTrack != track ){
+		std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*track);
+		if( cleanedTrack && !(cleanedTrack->perigeeParameters() == track->perigeeParameters()) ){
 		  ATH_MSG_DEBUG("SL Before cleaner " << m_printer->print(*track) << std::endl 
 				<< " After cleaner " << m_printer->print(*cleanedTrack) );
 		  delete track;
-		  track = cleanedTrack;
+		  //using release until the entire code can be migrated to use smart pointers
+		  track = cleanedTrack.release();
 		  ++m_trackCleanedSL;
 		}else if( !cleanedTrack ) {
 		  ++m_failedTrackCleaningSL;
 		}
-		if( !m_helper->goodTrack(*track,2) ){
+		if( !m_edmHelperSvc->goodTrack(*track,2) ){
 		  ATH_MSG_DEBUG(" SL Track with large fit chi2!! " );
 		}else ++m_goodTrackSLFits;
 	      }else{ 
@@ -603,17 +603,18 @@ namespace Muon {
 			    << m_printer->print(*track) << std::endl << m_printer->printStations(*track) );
 	    ++m_trackFits;
 
-	    Trk::Track* cleanedTrack = m_trackCleaner->clean(*track);
-	    if( cleanedTrack && cleanedTrack != track ){
+	    std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*track);
+	    if( cleanedTrack && !(cleanedTrack->perigeeParameters() == track->perigeeParameters()) ){
 	      ATH_MSG_DEBUG("Before cleaner " << m_printer->print(*track) << std::endl 
 			    << " After cleaner " << m_printer->print(*cleanedTrack) );
 	      delete track;
-	      track = cleanedTrack;
+	      //using release until the entire code can be migrated to use smart pointers
+	      track = cleanedTrack.release();
 	      ++m_trackCleaned;
 	    }else{
 	      ++m_failedTrackCleaning;
 	    }
-	    if( !m_helper->goodTrack(*track,2) ){
+	    if( !m_edmHelperSvc->goodTrack(*track,2) ){
 	      ATH_MSG_DEBUG(" Track with large fit chi2!! " );
 	    }else ++m_goodTrackFits;
 
@@ -655,7 +656,7 @@ namespace Muon {
       std::vector<const Trk::MeasurementBase*>::const_iterator it_end = layer.meas.end();
       for( ;it!=it_end;++it ){
 	msg(MSG::VERBOSE) << " r  " << (*it)->globalPosition().perp() <<  " z  " << (*it)->globalPosition().z() 
-			  << "   " <<  m_idHelper->toString( m_helper->getIdentifier(**it) ) << std::endl;
+			  << "   " <<  m_idHelper->toString( m_edmHelperSvc->getIdentifier(**it) ) << std::endl;
       }
       msg(MSG::VERBOSE) << endmsg;
     }
@@ -696,18 +697,19 @@ namespace Muon {
 	ATH_MSG_WARNING("Segment fit of truth trajectory NOT successful, NO segment created. ");
       }else{
 
-	Trk::Track* cleanedTrack = m_trackCleaner->clean(*track);
-	if( cleanedTrack && cleanedTrack != track ){
+	std::unique_ptr<Trk::Track> cleanedTrack = m_trackCleaner->clean(*track);
+	if( cleanedTrack && !(cleanedTrack->perigeeParameters() == track->perigeeParameters()) ){
 	  ATH_MSG_DEBUG("Segment Before cleaner " << m_printer->print(*track) << std::endl 
 			<< " After cleaner " << m_printer->print(*cleanedTrack) );
 	  delete track;
-	  track = cleanedTrack;
+	  //using release until the entire code can be migrated to use smart pointers
+	  track = cleanedTrack.release();
 	  ++m_nsegmentCleaned[layer.stIndex];
 	}else if( !cleanedTrack ) {
 	  ATH_MSG_WARNING("Segment cleaning failed, NO segment created. ");
 	  ++m_nfailedSegmentCleaning[layer.stIndex];
 	}
-	if( !m_helper->goodTrack(*track,2) ){
+	if( !m_edmHelperSvc->goodTrack(*track,2) ){
 	  ATH_MSG_DEBUG(" Segment with large fit chi2!! " );
 	}
       }
@@ -823,7 +825,7 @@ namespace Muon {
     std::vector<const Trk::MeasurementBase*>::const_iterator it_end = hitsIn.end();
     for( ;it!=it_end;++it ){
       // skip 
-      Identifier id = m_helper->getIdentifier(**it);
+      Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( splitSL != -1 ){
 	bool isSmall = !m_idHelper->isSmallChamber(id);
 	bool isTgc = m_idHelper->isTgc(id);
@@ -855,7 +857,7 @@ namespace Muon {
     }
     
     if( !lastMeas ) return false;
-    Identifier id = m_helper->getIdentifier(*firstMeas);
+    Identifier id = m_edmHelperSvc->getIdentifier(*firstMeas);
     MuonStationIndex::StIndex stFirst = m_idHelper->stationIndex( id );
     bool isEM = stFirst != MuonStationIndex::EM;
     if( (!isEM && nprec < 3 ) ||  ( isEM && (nprec < 2 || nprec + ntrigEta < 4 ) ) ) return false;
@@ -917,7 +919,7 @@ namespace Muon {
     // final check to ensure that we have a phi measurement or a pseudo at the start of the full track
     if( splitNSWEI == -1 && !addedFakePhiFirst ){
       // check if the is a phi measurement and it is in the same station layer
-      if( !firstPhi || stFirst != m_idHelper->stationIndex(  m_helper->getIdentifier(*firstPhi) ) ){
+      if( !firstPhi || stFirst != m_idHelper->stationIndex(  m_edmHelperSvc->getIdentifier(*firstPhi) ) ){
 	Trk::PseudoMeasurementOnTrack* pseudo =  createPseudo( per, *firstMeas );
 	if( !pseudo ){
 	  ATH_MSG_WARNING("Failed to create pseudo measurement");

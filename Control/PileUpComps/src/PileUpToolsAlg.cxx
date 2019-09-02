@@ -1,19 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Class header
 #include "PileUpToolsAlg.h"
 #include <algorithm>
-#include "PileUpTools/IPileUpTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
 PileUpToolsAlg::PileUpToolsAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , m_puTools(/*this*/) // TODO make the PileUpTools private
 {
-  declareProperty("PileUpTools", m_puTools, "IPileUpTools to be run for each event");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -43,7 +43,6 @@
 #include <fstream>
 
 class AtlasDetectorID;
-//class StoreGateSvc;
 class IIOVRegistrationSvc; 
 class IToolSvcl; 
 class IIOVSvc; 
@@ -86,9 +85,6 @@ class PixelDCSTool: virtual public AthAlgTool,
 
   //mutable MsgStream m_log;
   
-  //  StoreGateSvc* m_detStore; 
-  //ServiceHandle< StoreGateSvc > m_detStore; 
-
   //  IToolSvc* m_toolsvc; 
   ServiceHandle< IToolSvc > m_toolsvc; 
 

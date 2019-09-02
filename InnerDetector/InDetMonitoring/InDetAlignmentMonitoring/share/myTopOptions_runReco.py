@@ -90,7 +90,7 @@ else :
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
-
+from PyUtils.MetaReaderPeeker import metadata
 
 #set input file. Note that this triggers autoconfiguration automatically (see RecExCommonAutoConfiguration wiki)
 # here a MC RDO is specified, but this can also be a data BS, an ESD AOD or TAG
@@ -228,7 +228,7 @@ if not InDetAlignMonRunOnESD :
 
 addLumiBlockTools = False
 if InDetAlignMonRunOnESD :
-    if not 'IS_SIMULATION' in inputFileSummary['evt_type'] and 'goodRunList' in dir() and goodRunList!='' and 'goodRunListArray' in dir() and goodRunListArray!='':
+    if not 'IS_SIMULATION' in metadata['eventTypes'] and 'goodRunList' in dir() and goodRunList!='' and 'goodRunListArray' in dir() and goodRunListArray!='':
         addLumiBlockTools = True
 else :
     if goodRunList!='' and 'goodRunListArray' in dir() and goodRunListArray!='':
@@ -267,7 +267,7 @@ if  addLumiBlockTools :
     seq.GRLTriggerAlg1.GoodRunsListArray = [ goodRunListArray ]
 
 if InDetAlignMonRunOnESD :
-    if cosmicData and not 'IS_SIMULATION' in inputFileSummary['evt_type']:
+    if cosmicData and not 'IS_SIMULATION' in metadata['eventTypes']:
             #apply the TRT cosmics calibrations to cosmics data runs
         conddb.addOverride('/TRT/Calib/T0','TrtCalibT0-AlignmentJune2010-00') 
         conddb.addOverride('/TRT/Calib/RT','TrtCalibRt-AlignmentJune2010-00') 

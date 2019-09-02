@@ -102,5 +102,16 @@ class topoEgammaGetter ( Configured ) :
             return False
         print self._topoEgammaBuilder
 
+        # the egammaLargeClusterMaker (Which chooses the cells to store in the AOD)
+        from egammaAlgs.egammaLargeClusterMakerAlg import egammaLargeClusterMakerAlg
+        try:
+            self._egammaLargeClusterMaker = egammaLargeClusterMakerAlg()
+        except Exception:
+            mlog.error("could not get handle to egammaLargeClusterMaker")
+            import traceback
+            print traceback.format_exc()
+            return False
+        print self._egammaLargeClusterMaker
+
         return True
 

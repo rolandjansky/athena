@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,8 +8,6 @@
 
 #include "MdtRdoToPrepDataTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonReadoutGeometry/MuonStation.h"
@@ -17,13 +15,17 @@
 #include "MdtRDO_Decoder.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
+#include "MdtCalibSvc/MdtCalibrationTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 
 #include "MuonPrepRawData/MdtTwinPrepData.h"    // TWIN TUBES
 
+#include "GeoModelUtilities/GeoGetIds.h"
+
 #include "GaudiKernel/ThreadLocalContext.h"
+#include <vector>
+#include <algorithm>
 
 using namespace MuonGM;
 using namespace Trk;
@@ -36,7 +38,7 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_muonMgr(0),
   m_mdtHelper(0),
-  m_calibrationSvc(0),
+  m_calibrationTool("MdtCalibrationTool",this),
   m_mdtCalibSvcSettings(new MdtCalibrationSvcSettings() ),
   m_calibHit( 0 ),
   m_invSpeed(1./299.792458),
@@ -72,6 +74,8 @@ Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
   // DataHandle
   declareProperty("RDOContainer",	m_rdoContainerKey = std::string("MDTCSM"),"MdtCsmContainer to retrieve");
   declareProperty("OutputCollection",	m_mdtPrepDataContainerKey = std::string("MDT_DriftCircles"),"Muon::MdtPrepDataContainer to record");
+
+  declareProperty("CalibrationTool",m_calibrationTool);
 }
 
 
@@ -86,13 +90,14 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
     ATH_MSG_FATAL(" Cannot retrieve MuonDetectorManager ");
     return StatusCode::FAILURE;
   }
-  
-  // get MDT Calibration service
-  if (!serviceLocator()->service("MdtCalibrationSvc", m_calibrationSvc).isSuccess() || 0 == m_calibrationSvc) {
-    ATH_MSG_ERROR(" Could not initialize MDT Calibration service Service");
-    return StatusCode::FAILURE;
+
+  StatusCode sc = m_calibrationTool.retrieve();
+  if ( sc.isFailure() ){
+    ATH_MSG_ERROR( "Could not retrieve MdtCalibrationTool"  );
+  } else {
+    ATH_MSG_VERBOSE("MdtCalibrationTool retrieved with statusCode = "<<sc<<" pointer = "<<m_calibrationTool );
   }
-  
+
   /// create an empty MDT PrepData container for filling
   m_mdtHelper = m_muonMgr->mdtIdHelper();
 
@@ -1316,7 +1321,7 @@ MdtDriftCircleStatus MdtRdoToPrepDataTool::getMdtDriftRadius(const MdtDigit * di
     // MdtCalibHit calib_hit( channelId, digit->tdc(), digit->adc(), measured_position, descriptor );
     m_calibHit->setGlobalPointOfClosestApproach(position);
 
-    bool drift_ok = m_calibrationSvc->driftRadiusFromTime(*m_calibHit,inputData,*m_mdtCalibSvcSettings,false);
+    bool drift_ok = m_calibrationTool->driftRadiusFromTime(*m_calibHit,inputData,*m_mdtCalibSvcSettings,false);
     if (!drift_ok) {
       if( m_calibHit->driftTime() < 0. ) return MdtStatusBeforeSpectrum;
       else                             return MdtStatusAfterSpectrum;
@@ -1414,8 +1419,7 @@ MdtDriftCircleStatus MdtRdoToPrepDataTool::getMdtTwinPosition(const MdtDigit * d
     // calculate and calibrate radius for both hits and calculate twin position
     second_calib_hit.setGlobalPointOfClosestApproach(second_measured_position);
 
-
-    bool second_ok = m_calibrationSvc->twinPositionFromTwinHits(calib_hit, second_calib_hit, signedTrackLength, second_signedTrackLength, secondHitIsPrompt);
+    bool second_ok = m_calibrationTool->twinPositionFromTwinHits(calib_hit, second_calib_hit, signedTrackLength, second_signedTrackLength, secondHitIsPrompt);
     if (!second_ok){
       if( calib_hit.driftTime() < 0. || second_calib_hit.driftTime() < 0. ) return MdtStatusBeforeSpectrum;
       else                             return MdtStatusAfterSpectrum;
@@ -1453,6 +1457,10 @@ void MdtRdoToPrepDataTool::initDeadChannels(const MuonGM::MdtReadoutElement* myd
   int nGrandchildren = cv->getNChildVols();
   if(nGrandchildren <= 0) return;
 
+  std::vector<int> tubes;
+  geoGetIds ([&] (int id) { tubes.push_back (id); }, &*cv);
+  std::sort (tubes.begin(), tubes.end());
+
   Identifier detElId = mydetEl->identify();
 
   int name = m_mdtHelper->stationName(detElId);
@@ -1461,24 +1469,25 @@ void MdtRdoToPrepDataTool::initDeadChannels(const MuonGM::MdtReadoutElement* myd
   int ml = m_mdtHelper->multilayer(detElId);
   std::vector<Identifier> deadTubes;
 
+  std::vector<int>::iterator it = tubes.begin();
   for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-      bool tubefound = false;
-      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
-        if( tubegeo == tube && layergeo == layer ) {
-          tubefound=true;
-          break;
-        }
-        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
+      int want_id = layer*100 + tube;
+      if (it != tubes.end() && *it == want_id) {
+        ++it;
       }
-      if(!tubefound) {
-        Identifier deadTubeId = m_mdtHelper->channelID( name, eta, phi, ml, layer, tube );
-        deadTubes.push_back( deadTubeId );
-        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
-                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
-                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+      else {
+        it = std::lower_bound (tubes.begin(), tubes.end(), want_id);
+        if (it != tubes.end() && *it == want_id) {
+          ++it;
+        }
+        else {
+          Identifier deadTubeId = m_mdtHelper->channelID( name, eta, phi, ml, layer, tube );
+          deadTubes.push_back( deadTubeId );
+          ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
+                          << "), phi(" << phi << "), eta(" << eta << "), name(" << name
+                          << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+        }
       }
     }
   }

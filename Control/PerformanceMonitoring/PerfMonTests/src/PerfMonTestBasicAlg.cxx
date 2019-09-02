@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PerfMonTestBasicAlg.cxx 
@@ -16,9 +16,7 @@
 #include "GaudiKernel/Property.h"
 #include "PerfMonKernel/IPerfMonSvc.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // PerfMonTests includes
 #include "PerfMonTestBasicAlg.h"

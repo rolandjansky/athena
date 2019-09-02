@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file RedirectRngComps.py
 # @brief temporary (ah!) backward compatibility hack
@@ -7,7 +7,7 @@
 # from AthenaServices.AthenaServicesConf import AtDSFMTGenSvc
 # @endcode
 
-from AthenaServices.AthenaServicesConf import *
+from AthenaServices.AthenaServicesConf import *   # noqa
 try:
     import RngComps.RngCompsConf
     AtDSFMTGenSvc = RngComps.RngCompsConf.AtDSFMTGenSvc

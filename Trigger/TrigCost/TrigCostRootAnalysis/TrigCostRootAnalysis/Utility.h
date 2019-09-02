@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -------------------------------------------------------------
@@ -39,12 +39,6 @@ class TFile;
   #define MUTEX_ON //noop
   #define MUTEX_OFF //noop
 #endif
-
-/**
- * @def UNUSED(expr)
- * Preprocessed macro to mark deliberately unused variables and hide pedantic compiler warnings.
- */
-#define UNUSED(expr) do {(void) (expr);} while (0)
 
 /**
  * @file TrigCostRootAnalysis/Utility.h

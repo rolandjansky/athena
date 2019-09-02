@@ -11,13 +11,14 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           PRIVATE
-                          InnerDetector/InDetRecEvent/SiSpacePointsSeed )
+                          InnerDetector/InDetRecEvent/SiSpacePointsSeed
+                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData )
 
 # Component(s) in the package:
 atlas_add_component( SiZvertexTool_xk
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces SiSpacePointsSeed )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces SiSpacePointsSeed SiSPSeededTrackFinderData )
 
 # Install files from the package:
 atlas_install_headers( SiZvertexTool_xk )

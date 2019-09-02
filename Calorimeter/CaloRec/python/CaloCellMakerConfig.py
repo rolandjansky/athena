@@ -1,10 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 #from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
 from CaloRec.CaloRecConf import CaloCellMaker, CaloCellContainerFinalizerTool     
 from LArCellRec.LArCellBuilderConfig import LArCellBuilderCfg,LArCellCorrectorCfg
-from TileRecUtils.TileRecUtilsConf import TileCellBuilder
+from TileRecUtils.TileCellBuilderConfig import TileCellBuilderCfg
+from CaloCellCorrection.CaloCellCorrectionConfig import CaloCellPedestalCorrCfg, CaloCellNeighborsAverageCorrCfg
 
 def CaloCellMakerCfg(configFlags):
     result=ComponentAccumulator()
@@ -17,19 +18,26 @@ def CaloCellMakerCfg(configFlags):
 
     larCellBuilder=LArCellBuilderCfg(configFlags)
 
-
-    
     larCellCorrectors=LArCellCorrectorCfg(configFlags)
+    theTileCellBuilder = TileCellBuilderCfg(configFlags)
 
-    theTileCellBuilder = TileCellBuilder()
+    theCaloCellPedestalCorr=CaloCellPedestalCorrCfg(configFlags)
+    theCaloCellNeighborsAverageCorr=CaloCellNeighborsAverageCorrCfg(configFlags)
 
-    cellAlgo=CaloCellMaker(CaloCellMakerToolNames=[larCellBuilder.popPrivateTools(),CaloCellContainerFinalizerTool()]+larCellCorrectors.popPrivateTools(),
-                            CaloCellsOutputName="AllCalo")
+    #Old Config:
+    #CaloCellMakerToolNames': PrivateToolHandleArray(['LArCellBuilderFromLArRawChannelTool/LArCellBuilderFromLArRawChannelTool','TileCellBuilder/TileCellBuilder','CaloCellContainerFinalizerTool/CaloCellContainerFinalizerTool','LArCellNoiseMaskingTool/LArCellNoiseMaskingTool','CaloCellPedestalCorr/CaloCellPedestalCorr','CaloCellNeighborsAverageCorr/CaloCellNeighborsAverageCorr','CaloCellContainerCheckerTool/CaloCellContainerCheckerTool']),
+
+    cellAlgo=CaloCellMaker(CaloCellMakerToolNames=[larCellBuilder.popPrivateTools(),theTileCellBuilder.popPrivateTools(),CaloCellContainerFinalizerTool()]+larCellCorrectors.popPrivateTools()+[theCaloCellPedestalCorr.popPrivateTools(),theCaloCellNeighborsAverageCorr.popPrivateTools()],
+                           CaloCellsOutputName="AllCalo")
     result.merge(larCellBuilder)
     result.merge(larCellCorrectors)
-    return result,cellAlgo
+    result.merge(theTileCellBuilder)
+    result.merge(theCaloCellPedestalCorr)
+    result.merge(theCaloCellNeighborsAverageCorr)
+    result.addEventAlgo(cellAlgo,primary=True)
+    return result
 
-
+ 
                                       
 if __name__=="__main__":
     from AthenaCommon.Logging import log
@@ -42,19 +50,20 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
 
-    ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.Input.Files = defaultTestFiles.RDO
     ConfigFlags.lock()
 
     cfg=ComponentAccumulator()
 
+    from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+    cfg.addEventAlgo(xAODMaker__EventInfoCnvAlg())
+
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
     
-    acc,cellMakerAlg=CaloCellMakerCfg(ConfigFlags)
+    acc=CaloCellMakerCfg(ConfigFlags)
+    acc.getPrimary().CaloCellsOutputName="AllCaloNew"
     cfg.merge(acc)
-
-    cellMakerAlg.CaloCellsOutputName="AllCaloNew"
-    cfg.addEventAlgo(cellMakerAlg)
     
     f=open("CaloCellMaker.pkl","w")
     cfg.store(f)

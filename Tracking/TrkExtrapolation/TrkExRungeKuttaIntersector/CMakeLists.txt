@@ -44,5 +44,6 @@ atlas_add_test( RungeKuttaIntersector_test
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES TrkExUtils GaudiKernel TestTools CxxUtils ${ROOT_LIBRARIES}
                 EXTRA_PATTERNS "^AtlasFieldSvc +INFO"
+                PROPERTIES TIMEOUT 300
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

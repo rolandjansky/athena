@@ -63,7 +63,7 @@ createPersistent( xAOD::TrigElectronContainer* trans ) {
 xAOD::TrigElectronContainer* xAODTrigElectronContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "3492BB27-3ED8-45E3-9A5B-7266949CEDA9" );
+   static const pool::Guid v1_guid( "3492BB27-3ED8-45E3-9A5B-7266949CEDA9" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {

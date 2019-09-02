@@ -2,7 +2,6 @@
 
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from PixelConditionsTools.PixelDCSConditionsConfig import PixelDCSConditionsCfg
 from SiPropertiesTool.SiPropertiesToolConf import SiPropertiesTool
 from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg

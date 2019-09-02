@@ -31,13 +31,13 @@ namespace InDet {
 
   class NnClusterizationFactory;
 
-  class NnPixelClusterSplitProbTool : public AthAlgTool, virtual public IPixelClusterSplitProbTool
+  class NnPixelClusterSplitProbTool : public extends<AthAlgTool, IPixelClusterSplitProbTool>
   {
   public:
     
     NnPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p);
 
-    virtual ~NnPixelClusterSplitProbTool() {};
+    virtual ~NnPixelClusterSplitProbTool() = default;
     
     StatusCode initialize();
 
@@ -50,12 +50,12 @@ namespace InDet {
     
     InDet::PixelClusterSplitProb compileSplitProbability(std::vector<double>& vectorOfProbs ) const;
     
-    ToolHandle<NnClusterizationFactory> m_NnClusterizationFactory;
+    ToolHandle<NnClusterizationFactory> m_NnClusterizationFactory{ this, "NnClusterizationFactory", "InDet::NnClusterizationFactory/NnClusterizationFactory" };
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
-    std::vector<double> m_priorMultiplicityContent;
+    DoubleArrayProperty m_priorMultiplicityContent{ this, "PriorMultiplicityContent", {2793337, 82056, 19944} };
 
-    bool m_useBeamSpotInfo;
+    BooleanProperty m_useBeamSpotInfo{ this, "useBeamSpotInfo", true };
 
   };
   

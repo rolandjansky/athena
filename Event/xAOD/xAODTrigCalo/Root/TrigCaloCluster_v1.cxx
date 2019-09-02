@@ -41,7 +41,7 @@ namespace xAOD {
                                         clusterQuality, setClusterQuality )
 
   float TrigCaloCluster_v1::rawEnergy(const CaloSample sampling) const {
-    static Accessor< std::vector <float > > eAcc("rawEnergySample");
+    static const Accessor< std::vector <float > > eAcc("rawEnergySample");
     const std::vector<float>& var = eAcc( *this );
     if( var.size() <= static_cast< size_t >( sampling ) ) {
        std::cerr << "xAOD::TrigCaloCluster_v1::rawEnergy ERROR Invalid/unknown "
@@ -53,7 +53,7 @@ namespace xAOD {
 
   bool TrigCaloCluster_v1::setRawEnergy(const CaloSample sampling,
                                         const float theEnergy) {
-    static Accessor< std::vector <float > > eAcc("rawEnergySample");
+    static const Accessor< std::vector <float > > eAcc("rawEnergySample");
     std::vector<float>& var = eAcc( *this );
     if( var.size() < SIZE ) var.resize( SIZE );
     if( var.size() <= static_cast< size_t >( sampling ) ) {

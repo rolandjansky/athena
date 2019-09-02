@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,12 +35,11 @@
 // Constructor with parameters:
 Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_TrackName("Tracks"),
-  m_NewTrackName("ReFitted_Tracks"),
+  m_trackName("Tracks"),
+  m_newTrackName("ReFitted_Tracks"),
   m_runOutlier(false),
   m_matEffects(3),
   m_ParticleHypothesis(Trk::pion),
-  m_fitRIO_OnTrack(false),
   m_tracks(0),
   m_ITrackFitter("TrkKalmanFitter/KalmanFitter"),
   m_ITrackFitterTRT(""),
@@ -54,8 +53,8 @@ Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
 {  
 
   // Get parameter values from jobOptions file
-  declareProperty("TrackName",            m_TrackName,    "collection name for tracks to be refitted");
-  declareProperty("NewTrackName",         m_NewTrackName, "collection name for output tracks");
+  declareProperty("TrackName",            m_trackName,    "collection name for tracks to be refitted");
+  declareProperty("NewTrackName",         m_newTrackName, "collection name for output tracks");
   declareProperty("FitterTool",           m_ITrackFitter, "ToolHandle for track fitter implementation");
   declareProperty("FitterToolTRT",        m_ITrackFitterTRT, "ToolHandle for TRT track fitter implementation");
   declareProperty("SummaryTool" ,         m_trkSummaryTool, "ToolHandle for track summary tool");
@@ -63,7 +62,6 @@ Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("TrackSelectionTool",   m_trkSelectorTool, "ToolHandle for track selection tool");
   declareProperty("runOutlier",           m_runOutlier,   "switch to control outlier finding in track fit");
   declareProperty("matEffects",           m_matEffects,   "type of material interaction in extrapolation");
-  declareProperty("fitRIO_OnTrack",       m_fitRIO_OnTrack,"obsolete!");
   declareProperty("useParticleHypothesisFromTrack", m_usetrackhypo,"fit with particle hypothesis from original track");
 
   // constrained fitting
@@ -77,16 +75,7 @@ Trk::ReFitTrack::ReFitTrack(const std::string &name, ISvcLocator *pSvcLocator) :
 // Initialize method:
 StatusCode Trk::ReFitTrack::initialize()
 {
-  msg(MSG::INFO) << "ReFitTrack::initialize()" << endmsg;
-
-
-  if (m_fitRIO_OnTrack) {
-    msg(MSG::WARNING) << "fitRIO_OnTrack flag: This flag is now obsolete! " << endmsg;
-    msg(MSG::INFO) << "fitRIO_OnTrack flag: In the past its effect was to decompose"
-		   << " a track into hits before fitting, which misses outliers etc." << endmsg;
-    msg(MSG::INFO) << "fitRIO_OnTrack flag: instead, please configure the active "
-		   << "track fitter to do the decomposition you want." << endmsg;
-  }
+  ATH_MSG_INFO("ReFitTrack::initialize()");
 
   if (m_ITrackFitter.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Failed to retrieve tool "<<m_ITrackFitter.typeAndName()<<endmsg;
@@ -137,9 +126,9 @@ StatusCode Trk::ReFitTrack::initialize()
   Trk::ParticleSwitcher particleSwitch;
   m_ParticleHypothesis = particleSwitch.particle[m_matEffects];
 
-  ATH_CHECK( m_TrackName.initialize() );
+  ATH_CHECK( m_trackName.initialize() );
   ATH_CHECK( m_vxContainerName.initialize() );
-  ATH_CHECK( m_NewTrackName.initialize() );
+  ATH_CHECK( m_newTrackName.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -148,68 +137,40 @@ StatusCode Trk::ReFitTrack::initialize()
 StatusCode Trk::ReFitTrack::execute() 
 {
   ATH_MSG_DEBUG ("ReFitTrack::execute()");
-  StatusCode sc;
 
   // clean up association tool
   m_assoTool->reset();
 
-  SG::ReadHandle<TrackCollection> tracks (m_TrackName);
+  SG::ReadHandle<TrackCollection> tracks (m_trackName);
 
   if (!tracks.isValid()){
-    msg(MSG::ERROR) <<"Track collection named " << m_TrackName.key() 
+    msg(MSG::ERROR) <<"Track collection named " << m_trackName.key() 
 		    << " not found, exit ReFitTrack." << endmsg;
     return StatusCode::SUCCESS;
+  } else { 
+    ATH_MSG_DEBUG ("Tracks collection '" << m_trackName.key() << "' retrieved from EventStore.");
   }
-  else{ 
-    ATH_MSG_DEBUG ("Tracks collection '" << m_TrackName.key() << "' retrieved from EventStore.");
-  }
-  
-  // constrainVx
-  std::unique_ptr<const Trk::PerigeeSurface> constrainSf;
-  std::unique_ptr<const Trk::RecVertex>      cleanup_constrainVx; 
-  const Trk::RecVertex*      constrainVx = 0; 
-  //const VxContainer* 	     vxContainer = 0;
 
   ATH_MSG_DEBUG("Track fit configured with constrain option : " << m_constrainFitMode );
 
-  // constrain fit to be done
-  if (m_constrainFitMode > 0){
-      if ( m_constrainFitMode > 1 ){
-        SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-        // get vertex position and uncertainties from BeamCondSvc
-        constrainVx = new Trk::RecVertex(beamSpotHandle->beamVtx());   
-        cleanup_constrainVx.reset( constrainVx );
-        ATH_MSG_DEBUG("Track fit with BeamSpot constraint (x/y/z)  = " 
-            << constrainVx->position().x() << ", " 
-            << constrainVx->position().y() << ", " 
-            << constrainVx->position().z());
-      } else if (m_constrainFitMode ==1){
-	  SG::ReadHandle<VxContainer> vxContainer (m_vxContainerName);
-	  ATH_MSG_DEBUG("Track fit with vertex from collection '" << m_vxContainerName.key() << "'.");
-	  if (!vxContainer.isValid())
-	    ATH_MSG_WARNING("Track fit configured to use vertex constraint, but '" << m_vxContainerName.key() << "' could not be retrieved.");
-          else if (vxContainer->size() == 1 ) {
-	    ATH_MSG_WARNING("Track fit configured to use vertex constraint, but '" << m_vxContainerName.key() << "' contains only dummy vertex.");
-          } else {
-              // only refit to the 'signal' vertex
-              constrainVx = &((*vxContainer)[0]->recVertex());
-              ATH_MSG_DEBUG("Track fit with Vertex constraint (x/y/z)  = " 
-                  << constrainVx->position().x() << ", " 
-                  << constrainVx->position().y() << ", " 
-                  << constrainVx->position().z());              
-          }
-      }
-      // constrain surface (either BS of VTX)
-      if (constrainVx) {
-        constrainSf.reset( new Trk::PerigeeSurface(constrainVx->position()));
-      }
+  // Handle the various possible constraints.
+  std::unique_ptr<const Trk::PerigeeSurface> constrainSf;
+  std::unique_ptr<const Trk::RecVertex>      constrainVx; 
+  
+  if (m_constrainFitMode > 0){ 
+    constrainVx.reset( setupConstrainedFit() );
+  }
+  
+  // constrain surface (either BS of VTX)
+  if (constrainVx) {
+    constrainSf.reset( new Trk::PerigeeSurface(constrainVx->position()));
   }
     
   ParticleHypothesis hypo=m_ParticleHypothesis;
 
   // create new collection of tracks to write in storegate
   auto newtracks = std::make_unique<TrackCollection>();
-  SG::WriteHandle<TrackCollection> outputtracks (m_NewTrackName);
+  SG::WriteHandle<TrackCollection> outputtracks (m_newTrackName);
 
   // loop over tracks
   for (TrackCollection::const_iterator itr  = (*tracks).begin(); itr < (*tracks).end(); itr++){
@@ -226,7 +187,9 @@ StatusCode Trk::ReFitTrack::execute()
       passedSelection = m_trkSelectorTool->decision(**itr);
     }
    
+   
     if (m_ITrackFitterTRT.name()!="" && m_trkSummaryTool.name()!=""){
+      ATH_MSG_VERBOSE ("Creating summary");
       const Trk::TrackSummary *summary = m_trkSummaryTool->createSummaryNoHoleSearch(**itr);
       if ( (**itr).measurementsOnTrack()->size() - summary->get(numberOfTRTHits)<3 )
         trtonly=true;
@@ -234,6 +197,7 @@ StatusCode Trk::ReFitTrack::execute()
     }
 
     if (passedSelection) {
+      ATH_MSG_VERBOSE ("Passed selection");
 
        const Trk::Perigee* origPerigee = (*itr)->perigeeParameters();
        if (origPerigee){ 
@@ -247,6 +211,8 @@ StatusCode Trk::ReFitTrack::execute()
 
 	  // create a measurement for the beamspot
 	  if (constrainVx && origPerigee){
+      
+         ATH_MSG_VERBOSE ("Creating measurement for beamspot.");
          // extrapolate the track to the vertex -- for consistent Measurement frame
          std::unique_ptr<const Trk::TrackParameters> tp( m_extrapolator->extrapolate(**itr,*constrainSf,Trk::anyDirection) );
          const Trk::Perigee* tpConstrainedSf = dynamic_cast<const Trk::Perigee*>(tp.get());
@@ -273,9 +239,10 @@ StatusCode Trk::ReFitTrack::execute()
          newtrack = (trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(vec, *origPerigee, m_runOutlier,hypo);
          // now delete the vsvx
         
-      } else 
+      } else {
         newtrack = (trtonly ? m_ITrackFitterTRT : m_ITrackFitter)->fit(**itr,m_runOutlier,hypo);
-    }
+      }
+    } // passed selection
 
     if (newtrack) newtracks->push_back(newtrack);
 
@@ -283,7 +250,7 @@ StatusCode Trk::ReFitTrack::execute()
       if (newtrack==0) ATH_MSG_DEBUG ("Refit Failed");
       else {
       
-        ATH_MSG_VERBOSE ("re-fitted track:" << *newtrack);
+        // ATH_MSG_VERBOSE ("re-fitted track:" << *newtrack);
         const Trk::Perigee *aMeasPer=
           dynamic_cast<const Trk::Perigee*>(newtrack->perigeeParameters () );
         if (aMeasPer==0){
@@ -300,18 +267,25 @@ StatusCode Trk::ReFitTrack::execute()
     }
   }
 
+  ATH_MSG_VERBOSE ("Add PRDs to assoc tool.");
+
   // recreate the summaries on the final track collection with correct PRD tool
   TrackCollection::const_iterator t  = newtracks->begin();
   TrackCollection::const_iterator te = newtracks->end  ();
   for ( ; t!=te; ++t) {
     if((m_assoTool->addPRDs(**t)).isFailure()) {ATH_MSG_WARNING("Failed to add PRDs to map");}
   }
+  
+  ATH_MSG_VERBOSE ("Recalculate the summary");
+  
   // now recalculate the summary ... the usual nasty const cast is needed here
   t  = newtracks->begin();
   for ( ; t!=te; ++t) {
     Trk::Track& nonConstTrack = const_cast<Trk::Track&>(**t);
     m_trkSummaryTool->updateTrack(nonConstTrack);
   }
+
+  ATH_MSG_VERBOSE ("Save tracks");
 
   ATH_CHECK(outputtracks.record(std::move(newtracks)));
 
@@ -323,4 +297,39 @@ StatusCode Trk::ReFitTrack::finalize()
 {
   msg(MSG::INFO) << "ReFitTrack::finalize()" << endmsg;
   return StatusCode::SUCCESS;
+}
+
+const Trk::RecVertex* Trk::ReFitTrack::setupConstrainedFit()
+{
+  // constrainVx
+  const Trk::RecVertex*      constrainVx = 0; 
+  if ( m_constrainFitMode == 2 ){
+    // Beamspot mode
+    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+    // get vertex position and uncertainties from BeamCondSvc
+    constrainVx = new Trk::RecVertex(beamSpotHandle->beamVtx());   
+    ATH_MSG_DEBUG("Track fit with BeamSpot constraint (x/y/z)  = " 
+      << constrainVx->position().x() << ", " 
+      << constrainVx->position().y() << ", " 
+      << constrainVx->position().z());
+  } else if (m_constrainFitMode ==1){
+    // Vertex mode
+    SG::ReadHandle<VxContainer> vxContainer (m_vxContainerName);
+    ATH_MSG_DEBUG("Track fit with vertex from collection '" << m_vxContainerName.key() << "'.");
+    if (!vxContainer.isValid())
+      ATH_MSG_WARNING("Track fit configured to use vertex constraint, but '" << m_vxContainerName.key() << "' could not be retrieved.");
+    else if (vxContainer->size() == 1 ) {
+      ATH_MSG_WARNING("Track fit configured to use vertex constraint, but '" << m_vxContainerName.key() << "' contains only dummy vertex.");
+    } else {
+      // only refit to the 'signal' vertex
+      constrainVx = new Trk::RecVertex( (*vxContainer)[0]->recVertex() ); // Just copy it to simplify ownership.
+      ATH_MSG_DEBUG("Track fit with Vertex constraint (x/y/z)  = " 
+        << constrainVx->position().x() << ", " 
+        << constrainVx->position().y() << ", " 
+        << constrainVx->position().z());              
+    }
+  } else {
+    ATH_MSG_WARNING("Unknown constraint mode: "<< m_constrainFitMode);
+  }
+  return constrainVx;
 }

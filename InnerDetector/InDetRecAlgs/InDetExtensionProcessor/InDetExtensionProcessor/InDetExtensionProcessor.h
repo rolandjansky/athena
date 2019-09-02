@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,14 +10,17 @@
 #define INDETEXTENSIONPROCESSOR_H
 
 // Base class
+
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "CxxUtils/checker_macros.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/TrackExtensionMap.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
+
+#include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
 #include <array>
@@ -79,10 +82,18 @@ private:
 
   // -- statistics protected by mutex
   mutable std::mutex  m_statMutex;
-  mutable int         m_Nevents;
-  mutable std::vector<int> m_Ninput, m_Nrecognised, m_Nextended, m_Nrejected, m_Nfailed,
-                           m_NrecoveryBremFits,m_NbremFits,m_Nfits,m_NnotExtended,m_NlowScoreBremFits,
-                           m_NextendedBrem;
+  mutable int         m_Nevents ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_Ninput ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_Nrecognised ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_Nextended ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_Nrejected ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_Nfailed ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_NrecoveryBremFits ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_NbremFits ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_Nfits ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_NnotExtended ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_NlowScoreBremFits ATLAS_THREAD_SAFE;
+  mutable std::vector<int> m_NextendedBrem ATLAS_THREAD_SAFE;
 
   //! internal monitoring: categories for counting different types of extension results
   enum StatIndex {iAll, iBarrel, iTransi, iEndcap , Nregions};

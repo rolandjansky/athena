@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,6 +23,7 @@
 #include "MuonPrepRawData/MdtDriftCircleStatus.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "CxxUtils/CachedUniquePtr.h"
 
 class MdtPrepDataContainerCnv;
 
@@ -134,7 +135,7 @@ protected :
     
     /**@brief Global position of measurement.
     Calculated on demand and cached (not deleted in destructor, not written to disk)*/
-    mutable const Amg::Vector3D*          m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
 
 };
 
@@ -145,7 +146,7 @@ protected :
 // return globalPosition:
 inline const Amg::Vector3D& MdtPrepData::globalPosition() const
 {
-    if (m_globalPosition==0) m_globalPosition = &( m_detEl->surface(identify()).center() ); // not making copy!
+    if (not m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(m_detEl->surface(identify()).center()));
     return *m_globalPosition;
 }
 

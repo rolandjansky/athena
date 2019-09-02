@@ -1,43 +1,38 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MUONSTATIONINTERSECTSVC_H
 #define MUON_MUONSTATIONINTERSECTSVC_H
 
-// std
-#include <vector>
-
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 
 const InterfaceID IID_IMuonStationIntersectSvc("MuonStationIntersectSvc", 1, 0);
 
-#include "GeoPrimitives/GeoPrimitives.h"
-
 #include "MuonStationIntersectSvc/MuonStationIntersect.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
-//class Incident;
-class MdtIdHelper;
+class MuonIdHelperTool;
 namespace MuonGM {
   class MuonDetectorManager;
 }
 
 namespace Muon {
-  class MuonIntersectGeometry;
+  class MdtIntersectGeometry;
 }
 
-class Identifier;
-class MsgStream;
+class MdtCondDbData;
 
 /**
   Athena service that provides a list of tubes crossed by a give trajectory.
 
  @author Niels van Eldik
 */
-class MuonStationIntersectSvc : public AthService, virtual public IInterface,  virtual public IIncidentListener {
+
+class MuonStationIntersectSvc : public AthService, virtual public IInterface{
  public:
   MuonStationIntersectSvc(const std::string& name,ISvcLocator* sl);
   virtual ~MuonStationIntersectSvc();
@@ -52,25 +47,24 @@ class MuonStationIntersectSvc : public AthService, virtual public IInterface,  v
       @param id the Identifier of the chamber
       @param pos a impact position of the trajectory with the chamber
       @param dir the direction of the trajectory in the chamber
+      @param condData the MDT conditions data for eliminating dead chambers/multilayers
+      @param detMgr the MuonDetectorManager, needed by the MuonStationIntersect object
       @return a Muon::MuonStationIntersect object 
   */
-  const Muon::MuonStationIntersect& tubesCrossedByTrack( const Identifier& id, const Amg::Vector3D& pos, 
-							 const Amg::Vector3D& dir ) const;
+  const Muon::MuonStationIntersect tubesCrossedByTrack( const Identifier& id, const Amg::Vector3D& pos, 
+							 const Amg::Vector3D& dir, const MdtCondDbData* condData,
+							 const MuonGM::MuonDetectorManager* detMgr) const;
 
-  /** @brief get geometry description of the give chamber */
-  const Muon::MuonIntersectGeometry* getChamberGeometry( const Identifier& id ) const;
- 
-  /** @brief get geometry description of the give chamber + neighbouring chambers */
-  const std::vector<const Muon::MuonIntersectGeometry*>& getStationGeometry( const Identifier& id ) const;  
-
-
-  /**  incident service handle for EndEvent */
-  void handle(const Incident& inc);// maybe in the future clear per event
+  /** @brief get geometry description of the given chamber + neighbouring chambers */
+  const std::vector<std::unique_ptr<Muon::MdtIntersectGeometry> > getStationGeometry( const Identifier& id, const MdtCondDbData* dbData, const MuonGM::MuonDetectorManager* detMgr ) const;
 
  private:
 
-  class Imp;
-  mutable Imp* m_imp;
+  /** @brief get identifiers of chamber corresponding to this id and its neighbors */
+  const std::vector<Identifier> binPlusneighbours( const Identifier& id ) const;
+
+  ToolHandle<Muon::MuonIdHelperTool> m_idHelper{this,"MuonIdHelperTool","Muon::MuonIdHelperTool/MuonIdHelperTool","MuonIdHelperTool"};
+
 };
 
 

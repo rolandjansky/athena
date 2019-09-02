@@ -57,7 +57,7 @@ class IMdtDriftCircleOnTrackCreator;
 class IMuonSegmentMaker;
 class MuonSegment;
 }
-class MdtCalibrationDbSvc;
+class MdtCalibrationDbTool;
 
 namespace Rec
 {
@@ -224,10 +224,9 @@ public:
     {
         return m_caloCellAssociationTool;
     }
-
-    const ServiceHandle<MdtCalibrationDbSvc>& mdtCalibrationDbSvc()
+    const ToolHandle<MdtCalibrationDbTool>& mdtCalibrationDbTool()
     {
-        return m_pMdtCalibDbSvc;
+      return m_calibrationDbTool;
     }
     double idP() const
     {
@@ -422,8 +421,8 @@ private:
     ToolHandle<IStauBetaTofTool> m_pTofTool;
     ToolHandle<MuGirlNS::IGlobalFitTool> m_pGlobalFitTool;
     ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
+    ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
 
-    ServiceHandle<MdtCalibrationDbSvc> m_pMdtCalibDbSvc;
     ServiceHandle<IAtRndmGenSvc> m_randSvc;
     std::string m_randStreamName;
 

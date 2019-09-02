@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ namespace InDet
                              const IInterface *parent);
       
       /** Destructor*/
-      ~TruthPixelClusterSplitter();
+      ~TruthPixelClusterSplitter() = default;
       
       /** AthAlgTool interface methods */
       StatusCode initialize();            
@@ -49,11 +49,11 @@ namespace InDet
       
     private:
 
-      ToolHandle<TruthClusterizationFactory> m_truthClusterizationFactory;
+      ToolHandle<TruthClusterizationFactory> m_truthClusterizationFactory{this, "NnClusterizationFactory", "InDet::NnClusterizationFactory/TruthClusterizationFactory"};
 
-      double m_thresholdSplittingIntoTwoClusters;
-      double m_thresholdSplittingIntoThreeClusters;
-      bool m_splitOnlyOnBLayer;
+      DoubleProperty m_thresholdSplittingIntoTwoClusters{this, "ThresholdSplittingIntoTwoClusters", 0.95};
+      DoubleProperty m_thresholdSplittingIntoThreeClusters{this, "ThresholdSplittingIntoThreeClusters", 0.90};
+      BooleanProperty m_splitOnlyOnBLayer{this, "SplitOnlyOnBLayer", true};
 
     };
 }

@@ -284,7 +284,7 @@ class egamma
   unsigned int isgoodoq(unsigned int mask= egammaPIDObs::ALLOQ, bool *found = NULL) const;
 
   
-  /** @brief override standard errors to allow lazy loading */
+  /** @brief override standard errors to allow lazy loading (lazy loading NOW DISABLED) */
   virtual const I4MomentumError* errors() const;
 
   void setErrorMatrix(Amg::MatrixX);
@@ -308,8 +308,6 @@ class egamma
 
  protected:
 
-  void setupErrorMatrices() const;
-  
   // extra 4 momentum for the cluster based egamma object 
   // P4ImplEEtaPhiM  m_momentumCluster; 
   momentum_type  m_momentumCluster; 
@@ -396,10 +394,6 @@ egamma::set4Mom (const CLHEP::HepLorentzVector & hlv )
 inline                                                       
 const egamma::momentum_type&  egamma::get4Mom( egamma::eg4MomType type ) const
 { 
-  const I4MomentumError* errors = momentumBase().errors();
-  if (errors == 0) {
-    setupErrorMatrices();
-  }
   if ( type==egamma::Combined ) return this->momentumBase(); 
   else                          return m_momentumCluster;    
 }                                                            

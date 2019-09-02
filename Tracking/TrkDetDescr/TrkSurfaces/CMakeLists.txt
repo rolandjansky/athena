@@ -9,7 +9,7 @@ atlas_subdir( TrkSurfaces )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/SGTools
+   Control/AthenaKernel
    Control/AthContainers
    DetectorDescription/GeoPrimitives
    DetectorDescription/Identifier
@@ -27,7 +27,7 @@ atlas_depends_on_subdirs(
 atlas_add_library( TrkSurfaces
    TrkSurfaces/*.h src/*.cxx
    PUBLIC_HEADERS TrkSurfaces
-   LINK_LIBRARIES SGTools AthContainers GeoPrimitives Identifier EventPrimitives
+   LINK_LIBRARIES AthenaKernel AthContainers GeoPrimitives Identifier EventPrimitives
    GaudiKernel TrkDetDescrUtils TrkDetElementBase TrkEventPrimitives
    PRIVATE_LINK_LIBRARIES CxxUtils )
 

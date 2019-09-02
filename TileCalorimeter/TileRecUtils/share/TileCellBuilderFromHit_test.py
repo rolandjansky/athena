@@ -421,7 +421,7 @@ from TileRecUtils.TileRecUtilsConf import TileCellBuilderFromHit
 def maketool (name, bct, noise=0, **kw):
     return TileCellBuilderFromHit (name,
                                    TileBadChanTool = bct,
-                                   UseCaloNoiseTool = False,
+                                   CaloNoise = '',
                                    TileHitContainer = 'TileHitCnt',
                                    NoiseSigma = noise,
                                    **kw)

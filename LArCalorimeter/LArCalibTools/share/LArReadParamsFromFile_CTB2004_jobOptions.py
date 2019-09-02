@@ -158,7 +158,7 @@ if ( WriteRootFile  ) :
 
 if ( WritePoolFile ) :
 
-	include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+	include( "AthenaServices/AthenaSealSvc_joboptions.py" )
         include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
         AthenaSealSvc.CheckDictionary = True 
 

@@ -121,9 +121,9 @@ if hasattr(runArgs,"maxEvents"):
 
 #
 #####################
-from RecExConfig.InputFilePeeker import inputFileSummary
 from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
-objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+from PyUtils.MetaReaderPeeker import convert_itemList
+objKeyStore.addManyTypesInputFile(convert_itemList(layout = '#join'))
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
 tf.readBS=False

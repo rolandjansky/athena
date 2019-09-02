@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file T_AthenaPoolCustCnv.icc
@@ -18,8 +18,8 @@
 
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/ClassName.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "PersistentDataModel/Token.h"
-#include "SGTools/StorableConversions.h"
 
 //__________________________________________________________________________
 template <class TRANS, class PERS>
@@ -78,7 +78,6 @@ template <class TRANS, class PERS>
 template <class P>
 StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::poolToObject(const Token*& token, P*& pObj) {
    pObj = nullptr;
-   const std::string className = ClassName<P>::name();
    void* voidPtr = nullptr;
    try {
       this->m_athenaPoolCnvSvc->setObjPtr(voidPtr, token);
@@ -91,10 +90,6 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::poolToObject(const Token*& token, P
       return(StatusCode::FAILURE);
    }
    pObj = reinterpret_cast<P*>(voidPtr);
-   if (pObj == nullptr) {
-      ATH_MSG_ERROR("poolToObject: Failed to cast object for Token = " << (token != nullptr ? token->toString() : ""));
-      return(StatusCode::FAILURE);
-   }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________

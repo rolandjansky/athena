@@ -16,14 +16,13 @@
 #include "PixelGeoModelAthenaComps.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
 using InDetDD::PixelDetectorManager; 

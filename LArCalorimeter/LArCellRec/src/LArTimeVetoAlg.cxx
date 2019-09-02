@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArTimeVetoAlg.h"
@@ -64,7 +64,7 @@ StatusCode LArTimeVetoAlg::execute( const EventContext& ctx ) const
     //m_nevtMasked++;
 
     // retrieve EventInfo
-    SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey); 
+    SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx);
     if (!eventInfo->updateErrorState(xAOD::EventInfo::LAr,xAOD::EventInfo::Error)) {
       ATH_MSG_WARNING( " cannot set error state for LAr "  );
     }

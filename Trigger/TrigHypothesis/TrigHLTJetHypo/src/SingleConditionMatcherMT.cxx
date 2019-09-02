@@ -13,24 +13,30 @@
 //
 
 #include "./SingleConditionMatcherMT.h"
+#include "./xAODJetCollector.h"
+#include "./DebugInfoCollector.h"
 #include <sstream>
 #include <algorithm>
 
-SingleConditionMatcherMT::SingleConditionMatcherMT(const ConditionBridgeMT& cb):
-  m_condition(cb){
+SingleConditionMatcherMT::SingleConditionMatcherMT(std::unique_ptr<IConditionMT>&& cb):
+  m_condition(std::move(cb)){
 }
   
-bool SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
-                                     const HypoJetGroupCIter& jets_e,
-                                     std::unique_ptr<IConditionVisitor>& v) {
+std::optional<bool>
+SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
+                                const HypoJetGroupCIter& jets_e,
+                                xAODJetCollector& jetCollector,
+                                const std::unique_ptr<ITrigJetHypoInfoCollector>& v,
+				bool ) const {
 
-  
+
   for(auto i=jets_b; i != jets_e; ++i){
-    if (m_condition.isSatisfied(*i, v)){
-      return true;
+    if (m_condition->isSatisfied(*i, v)){
+      jetCollector.addJets((*i).cbegin(), (*i).cend());
+      return std::make_optional<bool>(true);
     }
   }
-  return false;
+  return  std::optional<bool>(false);
 }
 
 
@@ -41,16 +47,10 @@ std::string SingleConditionMatcherMT::toString() const noexcept {
   ss << "SingleConditionMatcherMT/" << '\n';
   ss << "Condition:\n";
 
-  ss << m_condition.toString() << '\n';
+  ss << m_condition->toString() << '\n';
 
   
   return ss.str();
-}
-
-
-ConditionsMT SingleConditionMatcherMT::getConditions() const noexcept {
-  ConditionsMT c {m_condition};
-  return c;
 }
 
 

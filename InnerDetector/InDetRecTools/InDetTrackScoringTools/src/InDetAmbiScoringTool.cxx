@@ -13,7 +13,6 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "TMath.h"
 #include <vector>
@@ -47,7 +46,6 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   m_trkSummaryTool("Trk::TrackSummaryTool", this),
   m_selectortool("InDet::InDetTrtDriftCircleCutTool", this),
   m_summaryTypeScore(Trk::numberOfTrackSummaryTypes),
-  m_iBeamCondSvc("BeamCondSvc",n),
   m_extrapolator("Trk::Extrapolator", this),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
@@ -84,7 +82,6 @@ InDet::InDetAmbiScoringTool::InDetAmbiScoringTool(const std::string& t,
   declareProperty("Extrapolator",      m_extrapolator);
   declareProperty("SummaryTool" ,      m_trkSummaryTool);
   declareProperty("DriftCircleCutTool",m_selectortool );
-  declareProperty("BeamPositionSvc",   m_iBeamCondSvc );
   declareProperty("MagFieldSvc",       m_magFieldSvc);
   
   declareProperty("maxRPhiImpEM",      m_maxRPhiImpEM  = 50.  );
@@ -157,11 +154,7 @@ StatusCode InDet::InDetAmbiScoringTool::initialize()
     msg(MSG::DEBUG) << "Retrieved tool " << m_selectortool << endmsg;
   }
 
-  sc = m_iBeamCondSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::DEBUG) << "Could not find BeamCondSvc." << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_beamSpotKey.initialize());
 
   sc =  m_magFieldSvc.retrieve();
   if (sc.isFailure()){
@@ -309,7 +302,8 @@ Trk::TrackScore InDet::InDetAmbiScoringTool::simpleScore( const Trk::Track& trac
   //
   // --- beam spot position 
   Amg::Vector3D beamSpotPosition(0,0,0);
-  if (m_iBeamCondSvc) beamSpotPosition = m_iBeamCondSvc->beamVtx().position();
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  if (beamSpotHandle.isValid()) beamSpotPosition = beamSpotHandle->beamVtx().position();
   // --- create surface
   Trk::PerigeeSurface perigeeSurface(beamSpotPosition);
 

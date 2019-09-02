@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from os import listdir
 from os.path import join as pjoin
 import xml.etree.cElementTree as cElementTree
 
-from .db import fetch_iovs
 from .events import process_iovs
 from .sugar import define_iov_type, IOVSet, RunLumi, RunLumiType
 

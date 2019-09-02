@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_MERGECALIBHITSTOOL_H
@@ -8,12 +8,12 @@
 #include "PileUpTools/PileUpToolBase.h"
 
 #include "GaudiKernel/ServiceHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include <vector>
 #include <string>
 
 class CaloCalibrationHitContainer;
-class PileUpMergeSvc;
 
 /** @class MergeCalibHitsTool
  *  @brief an algorithm to copy in the overlayed store the calib hits from the signal event
@@ -50,10 +50,10 @@ public:
   virtual StatusCode processAllSubEvents() override final;
 
 private:
-  bool m_firstSubEvent;
-  ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
+  Gaudi::Property<bool> m_oldFormat{this, "OldFormat", false, ""};
+  ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
+  bool m_firstSubEvent{true};
   std::vector<CaloCalibrationHitContainer*> m_outputContainers;//FIXME hardcoded size
-  bool m_oldFormat;
   std::vector<std::string> m_CalibrationHitContainer;
 };
 #endif //MCTRUTHSIMALGS_MERGECALIBHITSTOOL_H

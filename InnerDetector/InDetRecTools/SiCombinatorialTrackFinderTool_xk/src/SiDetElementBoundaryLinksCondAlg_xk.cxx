@@ -4,8 +4,9 @@
 
 #include "SiDetElementBoundaryLinksCondAlg_xk.h"
 
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLink_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLink_xk.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/WriteCondHandle.h"
 
@@ -69,6 +70,11 @@ namespace InDet {
     // InnerDetector/InDetRecTools/SiCombinatorialTrackFinderTool_xk/src/SiCombinatorialTrackFinder_xk.cxx
     std::unique_ptr<InDet::SiDetElementBoundaryLinks_xk> writeCdo{std::make_unique<InDet::SiDetElementBoundaryLinks_xk>()};
     // ____________ Fill writeCdo using readCdo ____________
+    if (m_usePixelDetectorManager) {
+      const InDetDD::PixelDetectorManager* pixmgr = nullptr;
+      ATH_CHECK(detStore()->retrieve(pixmgr, "Pixel"));
+      readCdo = pixmgr->getDetectorElementCollection();
+    }
     for (const InDetDD::SiDetectorElement* newEl: *readCdo) {
       InDet::SiDetElementBoundaryLink_xk dl{newEl};
       writeCdo->push_back(dl);

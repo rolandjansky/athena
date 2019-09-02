@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelRodDecoder.h"
@@ -53,7 +53,6 @@ PixelRodDecoder::PixelRodDecoder
       m_pixelCabling("PixelCablingSvc",name),
       m_pixel_id(nullptr),
       m_det(eformat::SubDetector()),
-      m_cablingData(nullptr),
       m_errors("PixelByteStreamErrorsSvc",name)
 {
     declareInterface< IPixelRodDecoder  >( this );
@@ -70,17 +69,9 @@ PixelRodDecoder::~PixelRodDecoder() {
 
 
 StatusCode PixelRodDecoder::initialize() {
-    ATH_MSG_INFO(" initialize ");
-    StatusCode sc = AthAlgTool::initialize();
-    if (sc.isFailure()) return sc;
+    ATH_MSG_INFO("PixelRodDecoder::initialize()");
 
-
-    // Retrieve id mapping
-    if (m_pixelCabling.retrieve().isFailure()) {
-        ATH_MSG_FATAL( "Failed to retrieve service " << m_pixelCabling);
-        return StatusCode::FAILURE;
-    } else
-        ATH_MSG_INFO("Retrieved service " << m_pixelCabling);
+    ATH_CHECK(m_pixelCabling.retrieve());
 
     ATH_CHECK(detStore()->retrieve(m_pixel_id, "PixelID"));
 
@@ -107,6 +98,9 @@ StatusCode PixelRodDecoder::initialize() {
     m_maxNumGenWarnings = 200;
     m_numBCIDWarnings = 0;
     m_maxNumBCIDWarnings = 50;
+
+    ATH_CHECK(m_condCablingKey.initialize());
+    ATH_CHECK(m_condHitDiscCnfgKey.initialize());
 
     return StatusCode::SUCCESS;
 }
@@ -147,9 +141,13 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
     uint32_t rodId = robFrag->rod_source_id(); // get source ID => method of ROBFragment, Returns the source identifier of the ROD fragment
     uint32_t robId = robFrag->rob_source_id(); // get source ID => returns the Identifier of the ROB fragment. More correct to use w.r.t. rodId.
     uint32_t robBCID = robFrag->rod_bc_id();
-    if (m_pixelCabling->isIBL(robId) && (robId != rodId)) {
+    if (((robId>>16) & 0xFF)==0x14 && (robId != rodId)) { // isIBL(robId)
         generalwarning("Discrepancy in IBL SourceId: ROBID 0x" << std::hex << robId << " unequal to RODID 0x" << rodId);
     }
+
+    SG::ReadCondHandle<PixelCablingCondData> pixCabling(m_condCablingKey);
+    //SG::ReadCondHandle<PixelHitDiscCnfgData> pixHitDiscCnfg(m_condHitDiscCnfgKey);
+    std::unique_ptr<SG::ReadCondHandle<PixelHitDiscCnfgData> > pixHitDiscCnfg;
 
     // check the ROD status for truncation
     if (robFrag->nstatus() != 0) {
@@ -247,7 +245,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
     // Do a check on IBL Slink ID
     eformat::helper::SourceIdentifier sid_rob(robId);
     sLinkSourceId = (sid_rob.module_id()) & 0x000F; // retrieve S-Link number from the source Identifier (0xRRRL, L = Slink number)
-    if (m_pixelCabling->isIBL(robId) && sLinkSourceId  > 0x3) { // Check if SLink number for the IBL is correct!
+    if (((robId>>16) & 0xFF)==0x14 && sLinkSourceId>0x3) { // Check if SLink number for the IBL is correct!
         generalwarning("In ROB 0x" << std::hex << robId <<  ": IBL/DBM SLink number not in correct range (0-3): SLink = "
                        << std::dec << sLinkSourceId);
     }
@@ -312,8 +310,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             nwords_in_module_fragment = 1;
 
             if (m_is_ibl_present) {
-                m_is_ibl_module = m_pixelCabling->isIBL(robId);
-                m_is_dbm_module = m_pixelCabling->isDBM(robId);
+              if (((robId>>16) & 0xFF)==0x14) { m_is_ibl_module=true; }
+              if (((robId>>16) & 0xFF)==0x15) { m_is_dbm_module=true; }
             }
 
             errorcode = 0; // reset errorcode
@@ -342,12 +340,6 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
                 fe_IBLheader = extractFefromLinkNum(linkNum_IBLheader);
                 mLink = fe_IBLheader; // this is used to retrieve the onlineId. It contains only the 3 LSBs of the nnnnn, indicating the number of FE w.r.t. the SLink
                 sLinkHeader = extractSLinkfromLinkNum(linkNum_IBLheader); // this is used to check that the (redundant) info is correctly transmitted
-
-
-                // Get the hit discrimination configuration setting for this FE
-                hitDiscCnfg = m_pixelCabling->getHitDiscCnfg(robId, mLink);
-                //ATH_MSG_DEBUG("HitDiscCngf = " << hitDiscCnfg << " for ROB 0x" << std::hex
-                //             << robId << ", link 0x" << mLink << std::dec);
 
                 if (sLinkHeader != sLinkSourceId) {
                     generalwarning("In ROB 0x" << std::hex << robId << ", link 0x" << mLink
@@ -447,7 +439,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 
 
             // Get onlineId
-            onlineId = m_pixelCabling->getOnlineIdFromRobId(robId, mLink);
+            onlineId = pixCabling->getOnlineIdFromRobId(robId, mLink);
+
             if (onlineId == 0) {
                 generalwarning("In ROB 0x" << std::hex << robId << ", FE: 0x" << mLink
                                << ": Got invalid onlineId (= 0) in FE header - dataword = 0x" << rawDataWord);
@@ -457,7 +450,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
             ATH_MSG_VERBOSE("In decoder: got onlineId 0x" << std::hex << onlineId );
 #endif
 
-            offlineIdHash = m_pixelCabling->getOfflineIdHash(onlineId);
+            offlineIdHash = m_pixel_id->wafer_hash(pixCabling->find_entry_onoff(onlineId));
 
             if (offlineIdHash != previous_offlineIdHash) {
                 m_errors->addRead(offlineIdHash);
@@ -649,7 +642,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
               }
             }
 	    /* TODO, bring it back when IDC friendly
-            if(rdoIdc->hasExternalCache() && rdoIdc->tryFetch(offlineIdHash)){
+            if(rdoIdc->hasExternalCache() && rdoIdc->tryAddFromCache(offlineIdHash)){
                 ATH_MSG_DEBUG("Hash already in collection - cache hit " << offlineIdHash);
                 continue;
             }
@@ -727,6 +720,17 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, IPixelRD
 #ifdef PIXEL_DEBUG
                                 ATH_MSG_VERBOSE("Starting from tot = 0x" << std::hex << tot[i] << " IBLtot[0] = 0x" << std::hex << IBLtot[0] << "   IBLtot[1] = 0x" << IBLtot[1] << std::dec );
 #endif
+
+                                if (!pixHitDiscCnfg) {
+                                  pixHitDiscCnfg = std::make_unique<SG::ReadCondHandle<PixelHitDiscCnfgData> > (m_condHitDiscCnfgKey);
+                                }
+                                // Get the hit discrimination configuration setting for this FE
+                                if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_PLANAR || m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::DBM) {
+                                  hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfgPL();
+                                }
+                                else if (m_pixelCabling->getModuleType(pixelId)==IPixelCablingSvc::IBL_3D) {
+                                  hitDiscCnfg = (*pixHitDiscCnfg)->getHitDiscCnfg3D();
+                                }
 
                                 // Now do some interpreting of the ToT values
                                 if (hitDiscCnfg == 2 && IBLtot[0] == 2) IBLtot[0] = 16;
@@ -1603,7 +1607,14 @@ uint32_t PixelRodDecoder::getDataType(unsigned int rawDataWord, bool link_start)
 
 void PixelRodDecoder::addRODError(uint32_t robid, uint32_t robStatus) {
     std::vector<IdentifierHash> idHashes;
-    m_pixelCabling->getOfflineList(idHashes,robid);
+
+    const std::deque<Identifier> offlineIdList =SG::ReadCondHandle<PixelCablingCondData>(m_condCablingKey)->find_entry_offlineList(robid);
+    std::deque<Identifier>::const_iterator it1 = offlineIdList.begin();
+    std::deque<Identifier>::const_iterator it2 = offlineIdList.end();
+    for (; it1!=it2;++it1) {
+      idHashes.push_back(m_pixel_id->wafer_hash(*it1));
+    }
+
     std::vector<IdentifierHash>::iterator hashIt = idHashes.begin();
     std::vector<IdentifierHash>::iterator hashEnd = idHashes.end();
     for (; hashIt != hashEnd; ++hashIt) {

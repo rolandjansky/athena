@@ -17,7 +17,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -31,8 +30,6 @@
 #include "StoreGate/ReadCondHandle.h"
 #include <cmath>
 #include "TrkRIO_OnTrack/check_cast.h"
-using CLHEP::mm;
-using CLHEP::micrometer;
 
 //clustermap is most likely to be removed at later date
 #define __clustermap
@@ -63,47 +60,36 @@ namespace
       square(vectorOfPositions[j][1] - allLocalPositions[1][1]) / allErrorMatrix[1](1, 1) +
       square(vectorOfPositions[k][1] - allLocalPositions[2][1]) / allErrorMatrix[2](1, 1);
   }
-
-  // avoid a lot of '/sqrt(12)' in loops, declare the constant here
-  // constexpr sqrt is a gcc extension, unsupported by clang.
-  //constexpr double TOPHAT_SIGMA = 1. / sqrt(12.);
-  static double TOPHAT_SIGMA = 1. / std::sqrt(12.);
 }
 
 InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   ::AthAlgTool(t, n, p),
   m_pixDistoTool("PixelDistortionsTool", this),
-  m_detStore(nullptr),
   m_disableDistortions(false),
   m_rel13like(false),
   m_pixelid(nullptr),
-  m_applyNNcorrection(false),
   m_applydRcorrection(false),
   m_NNIBLcorrection(false),
   m_IBLAbsent(true),
   m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
-  m_storeGate("StoreGateSvc", n),
   m_IBLParameterSvc("IBLParameterSvc", n),
   m_dRMap(""),
   m_dRMapName("dRMap"),
   m_doNotRecalibrateNN(false),
   m_noNNandBroadErrors(false),
   m_usingTIDE_Ambi(false),
-  m_splitClusterHandle("SplitClusterAmbiguityMap") {
+  m_splitClusterMapKey("") {
   declareInterface<IRIO_OnTrackCreator>(this);
 
   declareProperty("PixelDistortionsTool", m_pixDistoTool, "Tool to retrieve pixel distortions");
   declareProperty("PositionStrategy", m_positionStrategy = 1, "Which calibration of cluster positions");
-  declareProperty("ErrorStrategy", m_errorStrategy = 2, "Which calibration of cluster position errors");
   declareProperty("DisableDistortions", m_disableDistortions, "Disable simulation of module distortions");
   declareProperty("Release13like", m_rel13like, "Activate release-13 like settigs");
-  declareProperty("applyNNcorrection", m_applyNNcorrection);
   declareProperty("applydRcorrection", m_applydRcorrection);
   declareProperty("NNIBLcorrection", m_NNIBLcorrection);
-  declareProperty("EventStore", m_storeGate);
   declareProperty("NnClusterizationFactory", m_NnClusterizationFactory);
-  declareProperty("SplitClusterAmbiguityMap", m_splitClusterHandle);//Remove Later
+  declareProperty("SplitClusterAmbiguityMap", m_splitClusterMapKey);//Remove Later
   declareProperty("dRMapName", m_dRMapName);  //This is a string to prevent the scheduler seeing trkAmbSolver as both creating and requiring the map
   declareProperty("doNotRecalibrateNN", m_doNotRecalibrateNN);
   declareProperty("m_noNNandBroadErrors", m_noNNandBroadErrors);
@@ -125,15 +111,19 @@ StatusCode
 InDet::PixelClusterOnTrackTool::initialize() {
 
   ATH_MSG_DEBUG(name() << " initialize()");
+
+  m_errorStrategy = m_errorStrategyProperty;
   ATH_MSG_DEBUG("Error strategy is" << m_errorStrategy);
+
   ATH_MSG_DEBUG("Release 13 flag is" << m_rel13like);
 
   if (m_IBLParameterSvc.retrieve().isFailure()) {
     ATH_MSG_WARNING("Could not retrieve IBLParameterSvc");
   } else {
-    m_IBLParameterSvc->setBoolParameters(m_applyNNcorrection, "doPixelClusterSplitting");
+    m_IBLParameterSvc->setBoolParameters(m_applyNNcorrectionProperty.value(), "doPixelClusterSplitting");
     m_IBLParameterSvc->setBoolParameters(m_IBLAbsent, "IBLAbsent");
   }
+  m_applyNNcorrection = m_applyNNcorrectionProperty;
 
   ATH_CHECK(m_clusterErrorKey.initialize());
 
@@ -141,15 +131,6 @@ InDet::PixelClusterOnTrackTool::initialize() {
   if (!m_pixelErrorScalingKey.key().empty()) {
     ATH_CHECK(m_pixelErrorScalingKey.initialize());
     ATH_MSG_DEBUG("Detected need for scaling Pixel errors.");
-  }
-
-
-  // the NN corrections
-  if (m_applyNNcorrection){
-    ATH_CHECK(m_NnClusterizationFactory.retrieve());
-  }
-  else {
-    m_NnClusterizationFactory.disable();
   }
 
 
@@ -166,19 +147,13 @@ InDet::PixelClusterOnTrackTool::initialize() {
 
   ATH_CHECK (detStore()->retrieve(m_pixelid, "PixelID"));
 
-  ATH_CHECK( service("DetectorStore", m_detStore));
-  
-  ATH_CHECK (m_storeGate.retrieve());
-   
   m_dRMap = SG::ReadHandleKey<InDet::DRMap>(m_dRMapName);
   ATH_CHECK( m_dRMap.initialize() );
 
-  if (!m_splitClusterHandle.key().empty()){
-    ATH_CHECK( m_splitClusterHandle.initialize() );
-  } else {
-    ATH_MSG_INFO("SplitClusterAmbiguityMap disabled by an empty DataHandle");
-  }
-
+  m_applyNNcorrection = !m_splitClusterMapKey.key().empty();
+  ATH_CHECK(m_splitClusterMapKey.initialize(m_applyNNcorrection));
+  ATH_CHECK(m_NnClusterizationFactory.retrieve( DisableTool{!m_applyNNcorrection} ));
+  
   // Include IBL calibration constants
   //Moved to initialize to remove statics and prevent repitition
   
@@ -212,7 +187,7 @@ void
 InDet::PixelClusterOnTrackTool::FillFromDataBase() const{
     if (m_fX.empty()) {
       const CondAttrListCollection *atrlistcol = nullptr;
-      if (StatusCode::SUCCESS == m_detStore->retrieve(atrlistcol, "/PIXEL/PixelClustering/PixelCovCorr")) {
+      if (StatusCode::SUCCESS == detStore()->retrieve(atrlistcol, "/PIXEL/PixelClustering/PixelCovCorr")) {
         // loop over objects in collection
         for (CondAttrListCollection::const_iterator citr = atrlistcol->begin(); citr != atrlistcol->end(); ++citr) {
           std::vector<float> fx, fy, fb, fc, fd;
@@ -281,16 +256,6 @@ const InDet::PixelClusterOnTrack *
 InDet::PixelClusterOnTrackTool::correct
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
 
-#ifdef __clustermap
-  bool clusterMapExists = m_applyNNcorrection ? m_storeGate->contains<InDet::PixelGangedClusterAmbiguities>(
-    m_splitClusterHandle.key()) : false; //Preserve compatability for now
- 
-  if (!clusterMapExists && m_applyNNcorrection) {
-    ATH_MSG_INFO("No PixelCluster splitting information available, switchng NN recalibration off (was: on).");
-    ATH_MSG_INFO(" -> This is expected if you read ESD data prior to release 17.0.2.8");
-    m_applyNNcorrection = false;
-  }
-#endif
   auto element= dynamic_cast<const InDetDD::SiDetectorElement *>(rio.detectorElement());
   if ((not m_applyNNcorrection) or (element and element->isBlayer() and (not m_NNIBLcorrection) and (not m_IBLAbsent))){
         return correctDefault(rio, trackPar);
@@ -324,6 +289,10 @@ InDet::PixelClusterOnTrackTool::correct
 const InDet::PixelClusterOnTrack *
 InDet::PixelClusterOnTrackTool::correctDefault
   (const Trk::PrepRawData &rio, const Trk::TrackParameters &trackPar) const {
+  using CLHEP::micrometer;
+
+  const double TOPHAT_SIGMA = 1. / std::sqrt(12.);
+
   //  const InDet::SiCluster* SC = dynamic_cast<const InDet::SiCluster*> (&rio);
   const InDet::PixelCluster *pix = nullptr;
 
@@ -812,33 +781,31 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
                                                      Amg::MatrixX &finalerrormatrix) const {
   std::vector<Amg::Vector2D> vectorOfPositions;
   int numberOfSubclusters = 1;
-
   vectorOfPositions.push_back(pixelPrepCluster->localPosition());
-  #ifdef __clustermap
 
-  SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterHandle);
-  InDet::PixelGangedClusterAmbiguities::const_iterator mapBegin = splitClusterMap->begin();
-  InDet::PixelGangedClusterAmbiguities::const_iterator mapEnd = splitClusterMap->end();
- 
-  for (InDet::PixelGangedClusterAmbiguities::const_iterator mapIter = mapBegin; mapIter != mapEnd; ++mapIter) {
-    const SiCluster *first = (*mapIter).first;
-    const SiCluster *second = (*mapIter).second;
-    if (first == pixelPrepCluster && second != pixelPrepCluster) {
-      ATH_MSG_DEBUG("Found additional split cluster in ambiguity map (+=1).");
-      numberOfSubclusters += 1;
-      const SiCluster *otherOne = second;
-      const InDet::PixelCluster *pixelAddCluster = dynamic_cast<const InDet::PixelCluster *>(otherOne);
-      if (pixelAddCluster == 0) {
-        ATH_MSG_WARNING("Pixel ambiguity map has empty pixel cluster. Please DEBUG!");
-        continue;
-      }
-      vectorOfPositions.push_back(pixelAddCluster->localPosition());
- 
-      ATH_MSG_DEBUG( "Found one more pixel cluster. Position x: "
-                        << pixelAddCluster->localPosition()[0] << "y: " << pixelAddCluster->localPosition()[1]);
-    }// find relevant element of map
-  }// iterate over map
-#endif
+  if (m_applyNNcorrection){
+    SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterMapKey);
+    InDet::PixelGangedClusterAmbiguities::const_iterator mapBegin = splitClusterMap->begin();
+    InDet::PixelGangedClusterAmbiguities::const_iterator mapEnd = splitClusterMap->end(); 
+    for (InDet::PixelGangedClusterAmbiguities::const_iterator mapIter = mapBegin; mapIter != mapEnd; ++mapIter) {
+      const SiCluster *first = (*mapIter).first;
+      const SiCluster *second = (*mapIter).second;
+      if (first == pixelPrepCluster && second != pixelPrepCluster) {
+        ATH_MSG_DEBUG("Found additional split cluster in ambiguity map (+=1).");
+        numberOfSubclusters += 1;
+        const SiCluster *otherOne = second;
+        const InDet::PixelCluster *pixelAddCluster = dynamic_cast<const InDet::PixelCluster *>(otherOne);
+        if (pixelAddCluster == 0) {
+          ATH_MSG_WARNING("Pixel ambiguity map has empty pixel cluster. Please DEBUG!");
+          continue;
+        }
+        vectorOfPositions.push_back(pixelAddCluster->localPosition());
+        
+        ATH_MSG_DEBUG( "Found one more pixel cluster. Position x: "
+                       << pixelAddCluster->localPosition()[0] << "y: " << pixelAddCluster->localPosition()[1]);
+      }// find relevant element of map
+    }// iterate over map
+  }
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
@@ -958,20 +925,19 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
                                                    Amg::Vector2D &finalposition,
                                                    Amg::MatrixX &finalerrormatrix) const {
   std::vector<Amg::Vector2D> vectorOfPositions;
-#ifdef __clustermap
-  SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterHandle);
-  int numberOfSubclusters = 1 + splitClusterMap->count(pixelPrepCluster);
- 
-  if (splitClusterMap->count(pixelPrepCluster) == 0 && pixelPrepCluster->isSplit()) {
-    numberOfSubclusters = 2;
-  }
-  if (splitClusterMap->count(pixelPrepCluster) != 0 && !pixelPrepCluster->isSplit()) {
-    numberOfSubclusters = 1;
-  }
-#else
   int numberOfSubclusters = 1;
+  if(m_applyNNcorrection){
+    SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterMapKey);
+    numberOfSubclusters = 1 + splitClusterMap->count(pixelPrepCluster);
+ 
+    if (splitClusterMap->count(pixelPrepCluster) == 0 && pixelPrepCluster->isSplit()) {
+      numberOfSubclusters = 2;
+    }
+    if (splitClusterMap->count(pixelPrepCluster) != 0 && !pixelPrepCluster->isSplit()) {
+      numberOfSubclusters = 1;
+    }
+  }
 
-#endif
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
   const Trk::AtaPlane *parameters = dynamic_cast<const Trk::AtaPlane *>(&trackPar);
@@ -1145,6 +1111,7 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
 
 double
 InDet::PixelClusterOnTrackTool::splineIBLPullX(float x, int layer) const {
+  std::lock_guard<std::mutex> lock(m_mutex);
   FillFromDataBase();
   const int fNp = m_fY[layer].size();
   const int fKstep = 0;
@@ -1152,8 +1119,6 @@ InDet::PixelClusterOnTrackTool::splineIBLPullX(float x, int layer) const {
   const auto result = std::minmax_element(std::begin(m_fX[layer]), std::end(m_fX[layer]));
   const double fXmin = *(result.first);
   const double fXmax = *(result.second);
-  //const double fXmin = *std::min_element(std::begin(m_fX[layer]), std::end(m_fX[layer]));
-  //const double fXmax = *std::max_element(std::begin(m_fX[layer]), std::end(m_fX[layer]));
 
   int klow = 0;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -205,14 +205,27 @@ StatusCode InDetV0FinderTool::initialize()
   ATH_CHECK( m_extrapolator.retrieve() );
   msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endmsg;
 
+  // Initialize vertex container key
+  ATH_CHECK( m_vertexKey.initialize() );
+
+  m_v0LinksDecorkey = m_vertexKey.key() + ".V0Link";
+  m_v0_ksLinksDecorkey = m_vertexKey.key() + ".KshortLink";
+  m_v0_laLinksDecorkey = m_vertexKey.key() + ".LambdaLink";
+  m_v0_lbLinksDecorkey = m_vertexKey.key() + ".LambdabarLink";
   ATH_CHECK( m_v0LinksDecorkey.initialize());
   ATH_CHECK( m_v0_ksLinksDecorkey.initialize());
   ATH_CHECK( m_v0_laLinksDecorkey.initialize());
   ATH_CHECK( m_v0_lbLinksDecorkey.initialize());
+
+  m_mDecor_gfit = m_vertexKey.key() + ".gamma_fit";
+  m_mDecor_gmass = m_vertexKey.key() + ".gamma_mass";
+  m_mDecor_gmasserr = m_vertexKey.key() + ".gamma_massError";
+  m_mDecor_gprob = m_vertexKey.key() + ".gamma_probability";
   ATH_CHECK( m_mDecor_gfit.initialize());
   ATH_CHECK( m_mDecor_gmass.initialize());
   ATH_CHECK( m_mDecor_gmasserr.initialize());
   ATH_CHECK( m_mDecor_gprob.initialize());
+
   ATH_CHECK( m_beamSpotKey.initialize());
 
 
@@ -227,9 +240,6 @@ StatusCode InDetV0FinderTool::initialize()
 // Get the vertex point estimator tool from ToolSvc
   ATH_CHECK( m_vertexEstimator.retrieve() );
   msg(MSG::DEBUG) << "Retrieved tool " << m_vertexEstimator << endmsg;
-
-  // Initialize vertex container key
-  ATH_CHECK( m_vertexKey.initialize() );
 
   const HepPDT::ParticleData* pd_pi = m_particleDataTable->particle(PDG::pi_plus);
   const HepPDT::ParticleData* pd_p  = m_particleDataTable->particle(PDG::p_plus);

@@ -17,7 +17,6 @@
 // Boost
 #include <boost/lexical_cast.hpp>
 // ATLAS cxx utils
-#include "CxxUtils/make_unique.h"
 #include "PmbCxxUtils/CustomBenchmark.h"
 // ROOT includes
 #include "TTree.h"
@@ -431,10 +430,10 @@ StatusCode ISF::SimKernel::execute()
       //  -> releaseEvent()
       if ( curSimSvc){
         if( curSimSvc->releaseEvent().isFailure() ) {
-          ATH_MSG_WARNING( "Event setup failed for "
+          ATH_MSG_WARNING( "Event release failed for "
                            << curSimSvc->simSvcDescriptor() );
         } else {
-          ATH_MSG_DEBUG  ( "Event setup done for "
+          ATH_MSG_DEBUG  ( "Event release done for "
                            << curSimSvc->simSvcDescriptor() );
         }
       }
@@ -501,7 +500,7 @@ StatusCode ISF::SimKernel::prepareInput(SG::ReadHandle<McEventCollection>& input
   }
 
   // create copy
-  outputTruth = CxxUtils::make_unique<McEventCollection>(*inputTruth);
+  outputTruth = std::make_unique<McEventCollection>(*inputTruth);
 
   // Apply QS patch if required
   if(!m_qspatcher.empty()) {

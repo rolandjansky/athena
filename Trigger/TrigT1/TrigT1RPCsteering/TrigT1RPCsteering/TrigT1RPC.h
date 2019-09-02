@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCMuonTrigger_H
@@ -30,6 +30,8 @@
 //#include "TrigT1RPCmonitoring/TrigEfficiency.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonDigitContainer/RpcDigitContainer.h"
+#include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
 
 #define DEFAULT_L1MuctpiStoreLocationRPC "L1MuctpiStoreRPC"
 
@@ -80,7 +82,6 @@ private:
 private:
 
     //  ActiveStoreSvc*                      m_activeStore;
-    // ServiceHandle<StoreGateSvc>          m_EvtStore;
   
   const MuonGM::MuonDetectorManager*   m_MuonMgr;
   const RpcIdHelper*                   m_rpcId;
@@ -88,6 +89,8 @@ private:
   ServiceHandle <IRPCcablingServerSvc> m_cabling_getter;
   const IRPCcablingSvc*                m_cabling;
 
+  SG::ReadHandleKey<RpcDigitContainer> m_rpcDigitKey{this, "RPCDigitContainer", "RPC_DIGITS", "RPC Digit Input Container"};
+  SG::WriteHandleKey<LVL1MUONIF::Lvl1MuCTPIInput> m_muctpiKey{this, "MuctpiLocationRPC", DEFAULT_L1MuctpiStoreLocationRPC, "Location of muctip for Rpc"};
 };
 
 

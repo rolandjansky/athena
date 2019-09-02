@@ -1,16 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-##############################
-# L2 Electron Fex Algorithm Configuration:
-# Phillip Urquijo <Phillip.Urquijo@cern.ch>
-##############################
-
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronFexMT 
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronFexMT
 from AthenaCommon.SystemOfUnits import GeV, mm
 
-from AthenaCommon.AppMgr import ToolSvc
+from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool
 
-from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+ParticleCaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
 
 # ---------------------------------------------------------------
 # class for common setups (like monitoring)
@@ -31,17 +28,19 @@ class L2ElectronFexBase(TrigL2ElectronFexMT):
         self.CaloTrackdEoverPLow  = 0.0
         self.CaloTrackdEoverPHigh = 999.0
 
+        self.ParticleCaloExtensionTool = ParticleCaloExtensionTool
+
         from TriggerJobOpts.TriggerFlags import TriggerFlags
         if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in  TriggerFlags.enableMonitoring():
             monTool = GenericMonitoringTool('MonTool')
-            monTool.Histograms +=[defineHistogram('CaloTrackdEta', path='EXPERT', type='TH1F', title="L2Electron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
-            monTool.Histograms +=[defineHistogram('CaloTrackdPhi', path='EXPERT', type='TH1F', title="L2Electron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
-            monTool.Histograms +=[defineHistogram('CaloTrackEoverP', path='EXPERT', type='TH1F', title="L2Electron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12) ]
-            monTool.Histograms +=[defineHistogram('PtTrack', path='EXPERT', type='TH1F', title="L2Electron Hypo p_{T}^{track} [MeV];p_{T}^{track} [MeV];Nevents", xbins=50, xmin=0, xmax=100000) ]
-            monTool.Histograms +=[defineHistogram('PtCalo', path='EXPERT', type='TH1F', title="L2Electron Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000) ]
-            monTool.Histograms +=[defineHistogram('CaloEta',path='EXPERT',  type='TH1F', title="L2Electron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5) ]
-            monTool.Histograms +=[defineHistogram('CaloPhi', path='EXPERT', type='TH1F', title="L2Electron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2) ]
-            monTool.Histograms +=[defineHistogram('CaloTrackdEtaNoExtrapMon', path='EXPERT',type='TH1F', title="L2Electron Fex #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
+            monTool.defineHistogram('CaloTrackdEta', path='EXPERT', type='TH1F', title="L2Electron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
+            monTool.defineHistogram('CaloTrackdPhi', path='EXPERT', type='TH1F', title="L2Electron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
+            monTool.defineHistogram('CaloTrackEoverP', path='EXPERT', type='TH1F', title="L2Electron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12)
+            monTool.defineHistogram('PtTrack', path='EXPERT', type='TH1F', title="L2Electron Hypo p_{T}^{track} [MeV];p_{T}^{track} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
+            monTool.defineHistogram('PtCalo', path='EXPERT', type='TH1F', title="L2Electron Hypo p_{T}^{calo} [MeV];p_{T}^{calo} [MeV];Nevents", xbins=50, xmin=0, xmax=100000)
+            monTool.defineHistogram('CaloEta',path='EXPERT',  type='TH1F', title="L2Electron Hypo #eta^{calo} ; #eta^{calo};Nevents", xbins=200, xmin=-2.5, xmax=2.5)
+            monTool.defineHistogram('CaloPhi', path='EXPERT', type='TH1F', title="L2Electron Hypo #phi^{calo} ; #phi^{calo};Nevents", xbins=320, xmin=-3.2, xmax=3.2)
+            monTool.defineHistogram('CaloTrackdEtaNoExtrapMon', path='EXPERT',type='TH1F', title="L2Electron Fex #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4)
 
             self.MonTool = monTool
 

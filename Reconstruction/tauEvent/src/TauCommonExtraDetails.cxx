@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file TauCommonExtraDetails.cxx
@@ -17,7 +17,7 @@
 #include "tauEvent/TauCommonExtraDetails.h"
 //Other includes
 #include "CaloEvent/CaloCellContainer.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 #include "AthLinks/ElementLink.h"
 //C/C++ includes
 #include <string>

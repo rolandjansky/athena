@@ -17,15 +17,14 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "LArElecCalib/ILArMCSymTool.h"
-#include "CaloInterface/ICaloLumiBCIDTool.h"
 #include <iostream>
 //#include <time.h>
 
-LArCellCont::LArCellCont() : m_event(0), m_corrBCIDref( corrBCIDref_example ), m_caloLumiBCIDTool(nullptr), m_lumi_block(0), m_bcid(5000), m_larCablingSvc(nullptr), m_BCIDcache(false)
+LArCellCont::LArCellCont() : m_event(0), m_corrBCIDref( corrBCIDref_example ), m_lumi_block(0), m_bcid(5000), m_larCablingSvc(nullptr), m_BCIDcache(false)
 {}
 
 StatusCode
-LArCellCont::initialize(bool applyOffsetCorrection) {
+LArCellCont::initialize(bool /*applyOffsetCorrection*/) {
 
 #ifdef TRIGLARCELLDEBUG
 std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
@@ -93,16 +92,6 @@ if (sc.isFailure()){
    std::cout << "LArCellCont\t\t DEBUG \t"
 	     << "Problems to retrieve LArCablingSvc" << std::endl;
    return StatusCode::FAILURE;
- }
-
-ICaloLumiBCIDTool* iclbt=0;
- if ( applyOffsetCorrection ) {
-   if ( toolSvc->retrieveTool("ICaloLumiBCIDTool/CaloLumiBCIDToolDefault", iclbt).isFailure() ) {
-     std::cout << "could not retrieve the tool" << std::endl;
-   } else {
-     std::cout << "Tool retrieved from within LArCellCont" << std::endl;
-     m_caloLumiBCIDTool= iclbt;
-   }
  }
 
 LArRoI_Map* roiMap;
@@ -345,20 +334,17 @@ void LArCellCont::lumiBlock_BCID(const unsigned int lumi_block, const unsigned i
 void LArCellCont::updateBCID() {
   //std::clock_t startT,endT;
   //startT = clock();
-  int bcid=m_bcid;
   std::map<HWIdentifier,int>::const_iterator end = m_indexset.end  ();
   int indexsetmax = m_indexset.size();
   //m_corrBCID.resize(1);
-  if ( (m_larCablingSvc == 0) || (m_caloLumiBCIDTool==0) ) return;
+  if ( m_larCablingSvc == 0 ) return;
     std::vector<float>& BCID0=m_corrBCID[0];
     BCID0.resize(indexsetmax+1);
     std::map<HWIdentifier,int>::const_iterator beg = m_indexset.begin();
     for( ; beg != end ; ++beg ) {
-      HWIdentifier hwid = (*beg).first;
       int idx = (*beg).second;
       if ( idx < (int)BCID0.size() ){
-	Identifier id = m_larCablingSvc->cnvToIdentifier(hwid);
-	float corr = m_caloLumiBCIDTool->average(id,bcid);
+	float corr = 0.0;
 	BCID0[idx] = corr;
       }
     } // end of HWID

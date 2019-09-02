@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ namespace Trk {
        /** Resize the layer to the tracking volume - not implemented */ 
        virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) const override {}
 
-       mutable SharedObject<const Surface> m_surfaceRepresentation;  //!< for the navigation Volume the surface is a private member */
+       SharedObject<const Surface> m_surfaceRepresentation;  //!< for the navigation Volume the surface is a private member */
       
     private:
         /**Default Constructor*/
@@ -72,7 +72,7 @@ namespace Trk {
             
   };
 
-  inline const Surface& MaterialLayer::surfaceRepresentation() const { return (*(m_surfaceRepresentation.getPtr())); }  
+  inline const Surface& MaterialLayer::surfaceRepresentation() const { return (*(m_surfaceRepresentation.get())); }  
 
 
 } // end of namespace

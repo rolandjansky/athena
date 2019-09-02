@@ -10,14 +10,14 @@
 
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrkTrack/Track.h"
 #include "TrkSegment/TrackSegment.h"
-#include <limits>
+
+#include "StoreGate/ReadCondHandle.h"
 #include <cmath>
 
 //================ Constructor =================================================
@@ -26,13 +26,11 @@ InDet::InDetSlidingWindowTrackTimeTool::InDetSlidingWindowTrackTimeTool(std::str
                                                                         , std::string const& n
                                                                         , IInterface const* p
                                                                         ) : AthAlgTool(t, n, p)
-  , m_averageT0(0.)
-  , m_trtconddbsvc("TRT_CalDbSvc", n) {
+  , m_caldbtool("TRT_CalDbTool", this) {
   declareInterface<IInDetCosmicsEventPhaseTool>(this);
-  declareProperty("TRTCalDbSvc", m_trtconddbsvc);
-  declareProperty("UseTRTCalibration", m_gett0 = true);
-  declareProperty("UseNewEP", m_useNewEP = true);
+  declareProperty("TRTCalDbTool", m_caldbtool);
   declareProperty("GlobalOffset", m_globalOffset = 10.);
+  declareProperty("UseNewEP", m_useNewEP = true);
   declareProperty("NumberIterations", m_nIterations = 5);
   declareProperty("WindowSize", m_windowSize = 7.);
 }
@@ -46,7 +44,10 @@ InDet::InDetSlidingWindowTrackTimeTool::~InDetSlidingWindowTrackTimeTool()
 //================ Initialisation =================================================
 
 StatusCode InDet::InDetSlidingWindowTrackTimeTool::initialize() {
-  ATH_CHECK( m_trtconddbsvc.retrieve());
+  ATH_CHECK( m_caldbtool.retrieve());
+  // Read key
+  ATH_CHECK( m_T0ReadKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -57,69 +58,22 @@ StatusCode InDet::InDetSlidingWindowTrackTimeTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-//============================================================================================
-
-void InDet::InDetSlidingWindowTrackTimeTool::beginRun() {
-  m_averageT0 = 0.;
-  if (!m_useNewEP) {
-    ATH_MSG_INFO("InDetSlidingWindowTrackTimeTool::beginRun, averageT0 = 0 (m_useNewEP=false) ");
-    return;
-  }
-  TRT_ID const* TRTHelper;
-  if (detStore()->retrieve(TRTHelper, "TRT_ID").isFailure()) {
-    ATH_MSG_FATAL("Could not get TRT ID helper");
-    return;
-  }
-  int countAverageT0 = 0; // should be equal to 32*2*1642  105088
-  double rtShift = 0.; // shift from 0 of the RT relation
-  for (std::vector<Identifier>::const_iterator it = TRTHelper->straw_layer_begin(); it != TRTHelper->straw_layer_end();
-       it++) {
-    int nStrawsInLayer = TRTHelper->straw_max(*it);
-    for (int i = 0; i <= nStrawsInLayer; i++) {
-      Identifier id = TRTHelper->straw_id(*it, i);
-      if (std::abs(TRTHelper->barrel_ec(id)) != 1)   // average only for barrel straws
-        continue;
-      m_averageT0 += m_trtconddbsvc->getT0(id); // access straw T0 same as elsewhere, countAverageT0++;
-      countAverageT0++;
-      const TRTCond::RtRelation* rtRelation = m_trtconddbsvc->getRtRelation(id);
-      if (!rtRelation) {
-        ATH_MSG_DEBUG("rtRelation missing in InDetCosmicsEventPhase::initialize!");
-        continue;
-      }
-      rtShift += rtRelation->drifttime(0.);
-    }
-  }
-  if (countAverageT0 == 0) {
-    m_averageT0 = std::numeric_limits<double>::infinity();
-    rtShift = std::numeric_limits<double>::infinity();
-  } else {
-    m_averageT0 /= (double(countAverageT0));
-    rtShift /= (double(countAverageT0));
-  }
-
-  double averageT0 = m_averageT0;
-  m_averageT0 -= 20.; // shift so that the range is about the same as before
-  m_averageT0 += rtShift;
-
-  //print value for test
-  ATH_MSG_DEBUG("The number of straws seen is: " << countAverageT0
-                                                 << " and the values expected is:  " << 105088);
-  ATH_MSG_DEBUG("The average T0 is: " << averageT0
-                                      << ", average RT(r=0) is " << rtShift
-                                      << " and we are subtracting: " << m_averageT0);
-  ATH_MSG_INFO("InDetSlidingWindowTrackTimoeol::beginRun Using updated EP calculation (December 2009), subtracting: " << m_averageT0
-                                                                                                                      << " ns (average T0: " << averageT0
-                                                                                                                      << " ns, average RT(r=0): " << rtShift << " ns), GlobalOffset: " << m_globalOffset <<
-  " ns.");
-
-  return;
-}
 
 double InDet::InDetSlidingWindowTrackTimeTool::findPhase(Trk::Track const* track) const {
   ATH_MSG_DEBUG("Finding phase...");
-  std::vector<float> data{0., 0.1, -0.00087, 0.};
-  TRTCond::RtRelation const* rtr = (m_gett0) ? 0
-                                   : new TRTCond::BasicRtRelation(data);
+  
+  double aT0=0.;
+  if (!m_useNewEP) {
+    ATH_MSG_INFO(" Set averageT0 = 0 (m_useNewEP=false) ");
+  } else {
+    SG::ReadCondHandle<TRTCond::AverageT0> rhl{m_T0ReadKey};
+    const TRTCond::AverageT0* avgT0{*rhl};
+    aT0=avgT0->get();
+  }
+
+
+  TRTCond::RtRelation const* rtr = 0;
+
   double timeresidualsum = 0;
   size_t ntrthits = 0;
   double windowCenter = 0;
@@ -140,15 +94,16 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase(Trk::Track const* track
           ) continue;
       Identifier const& ident = trtcirc->identify();
       double rawdrifttime = rawhit->rawDriftTime();
-      double t0 = (m_gett0) ? m_trtconddbsvc->getT0(ident)
-                  : 0;
+      double t0 = m_caldbtool->getT0(ident);
+
       ATH_MSG_DEBUG("T0 : " << t0);
-      if (m_gett0) rtr = m_trtconddbsvc->getRtRelation(ident);
+      rtr = m_caldbtool->getRtRelation(ident);
+
       Trk::TrackParameters const* tparp = state->trackParameters();
       if (!tparp) continue;
       double trkdistance = tparp->parameters()[Trk::driftRadius];
       double trkdrifttime = rtr->drifttime(fabs(trkdistance));
-      double timeresidual = rawdrifttime - t0 + m_averageT0 - trkdrifttime;
+      double timeresidual = rawdrifttime - t0 + aT0 - trkdrifttime;
       ATH_MSG_DEBUG("trkdistance=" << trkdistance
                                    << "  trkdrifttime=" << trkdrifttime
                                    << "  timeresidual=" << timeresidual
@@ -166,21 +121,24 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase(Trk::Track const* track
       windowCenter = timeresidualsum / ntrthits;
     } else break;
   }
-  if (!m_gett0) delete rtr;
+
   ATH_MSG_DEBUG("timeresidualsum = " << timeresidualsum);
   ATH_MSG_DEBUG("ntrtrhits = " << ntrthits);
+
   if (ntrthits > 1)
     return windowCenter + m_globalOffset;
   return 0.;
 }
 
 double InDet::InDetSlidingWindowTrackTimeTool::findPhase(Trk::Segment const* segment) const {
-  std::vector<float> data{0., 0.1, -0.00087, 0.};
-  TRTCond::RtRelation const* rtr = (m_gett0) ? 0
-                                   : new TRTCond::BasicRtRelation(data);
+
   double sum_tr = 0.;
   double sum_goodhits = 0.;
   int nhits = segment->numberOfMeasurementBases();
+
+  std::vector<double> data{0., 0.1, -0.00087,0.};
+  TRTCond::RtRelation const* rtr = 0;
+
   for (int i = 0; i < nhits; ++i) {
     Trk::RIO_OnTrack const* rio = dynamic_cast<Trk::RIO_OnTrack const*>(segment->measurement(i));
     InDet::TRT_DriftCircleOnTrack const* trtcirc = dynamic_cast<InDet::TRT_DriftCircleOnTrack const*>(rio);
@@ -189,7 +147,7 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase(Trk::Segment const* seg
     if (!rawhit) continue;
     if (!rawhit->lastBinHigh() && !rawhit->isNoise()) {
       Identifier const& ident = trtcirc->identify();
-      if (m_gett0) rtr = m_trtconddbsvc->getRtRelation(ident);
+      rtr = m_caldbtool->getRtRelation(ident);
       if (not rtr) {
         ATH_MSG_WARNING("Rt relation pointer is null!");
         return 0.;
@@ -204,13 +162,23 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase(Trk::Segment const* seg
       ATH_MSG_VERBOSE("Hit has lastbin high");
     }
   }
-  if (!m_gett0) delete rtr;
   if (sum_goodhits > 1) return sum_tr / sum_goodhits + m_globalOffset;
   return 0;
 }
 
 double InDet::InDetSlidingWindowTrackTimeTool::findPhaseFromTE(Trk::Track const* track) const {
+
   ATH_MSG_DEBUG("Finding phase...");
+
+  double aT0=0.;
+  if (!m_useNewEP) {
+    ATH_MSG_INFO(" Set averageT0 = 0 (m_useNewEP=false) ");
+  } else {
+    SG::ReadCondHandle<TRTCond::AverageT0> rhl{m_T0ReadKey};
+    const TRTCond::AverageT0* avgT0{*rhl};
+    aT0=avgT0->get();
+  }
+
   double timeresidualsum = 0;
   size_t ntrthits = 0;
   for (Trk::TrackStateOnSurface const* state : *track->trackStateOnSurfaces()) {
@@ -224,10 +192,9 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhaseFromTE(Trk::Track const*
     if (!rawhit) continue;
     Identifier const& ident = trtcirc->identify();
     double rawtrailingedge = rawhit->trailingEdge() * 3.125;
-    double t0 = (m_gett0) ? m_trtconddbsvc->getT0(ident)
-                : 0;
+    double t0 = m_caldbtool->getT0(ident);
     ATH_MSG_DEBUG("T0 : " << t0);
-    double timeresidual = rawtrailingedge - t0 + m_averageT0;
+    double timeresidual = rawtrailingedge - t0 + aT0;
     ATH_MSG_DEBUG("timeresidual=" << timeresidual);
     if (timeresidual < 2000) {
       timeresidualsum += timeresidual;

@@ -5,8 +5,6 @@
 #ifndef SIMULATIONBASE
 #include "PixelConditionsSummaryTool.h"
 
-#define UNUSED_VARIABLE(x) (void)(x)
-
 PixelConditionsSummaryTool::PixelConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent)
   :AthAlgTool(type, name, parent),
   m_pixelID(0),
@@ -75,11 +73,9 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-bool PixelConditionsSummaryTool::isActive(const Identifier & elementId, const InDetConditions::Hierarchy h) const {
- 
-  UNUSED_VARIABLE(elementId);
-  UNUSED_VARIABLE(h);
-
+bool PixelConditionsSummaryTool::isActive(const Identifier & /*elementId*/,
+                                          const InDetConditions::Hierarchy /*h*/) const
+{
   return true;
 }
 
@@ -99,14 +95,14 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash & moduleHash) con
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
 
-bool PixelConditionsSummaryTool::isActive(const IdentifierHash & moduleHash, const Identifier & elementId) const{
-
-  UNUSED_VARIABLE(elementId);
-
+bool PixelConditionsSummaryTool::isActive(const IdentifierHash & moduleHash,
+                                          const Identifier & /*elementId*/) const
+{
   if (m_useByteStream && !m_pixelBSErrorsSvc->isActive(moduleHash)) { return false; }
 
   if (m_useDCSState) {
@@ -121,23 +117,21 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash & moduleHash, con
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
 
-double PixelConditionsSummaryTool::activeFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd) const {
-
-  UNUSED_VARIABLE(moduleHash);
-  UNUSED_VARIABLE(idStart);
-  UNUSED_VARIABLE(idEnd);
-
+double PixelConditionsSummaryTool::activeFraction(const IdentifierHash & /*moduleHash*/,
+                                                  const Identifier & /*idStart*/,
+                                                  const Identifier & /*idEnd*/) const
+{
   return 1.0;
 }
 
-bool PixelConditionsSummaryTool::isGood(const Identifier & elementId, const InDetConditions::Hierarchy h)const{
-
-  UNUSED_VARIABLE(h);
-
+bool PixelConditionsSummaryTool::isGood(const Identifier & elementId,
+                                        const InDetConditions::Hierarchy /*h*/)const
+{
   Identifier moduleID       = m_pixelID->wafer_id(elementId);
   IdentifierHash moduleHash = m_pixelID->wafer_hash(moduleID);
 
@@ -162,6 +156,7 @@ bool PixelConditionsSummaryTool::isGood(const Identifier & elementId, const InDe
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
@@ -189,14 +184,14 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash) const
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
 
-bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash, const Identifier & elementId) const {
-
-  UNUSED_VARIABLE(elementId);
-
+bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash,
+                                        const Identifier & /*elementId*/) const
+{
   if (m_useByteStream && !m_pixelBSErrorsSvc->isGood(moduleHash)) { return false; }
 
   if (m_useDCSState) {
@@ -218,15 +213,15 @@ bool PixelConditionsSummaryTool::isGood(const IdentifierHash & moduleHash, const
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return false; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return false; }
 
   return true;
 }
 
-double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & moduleHash, const Identifier & idStart, const Identifier & idEnd) const {
-
-  UNUSED_VARIABLE(idStart);
-  UNUSED_VARIABLE(idEnd);
-
+double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & moduleHash,
+                                                const Identifier & /*idStart*/,
+                                                const Identifier & /*idEnd*/) const
+{
   if (m_useByteStream && !m_pixelBSErrorsSvc->isGood(moduleHash)) { return 0.; }
 
   if (m_useDCSState) {
@@ -248,6 +243,7 @@ double PixelConditionsSummaryTool::goodFraction(const IdentifierHash & moduleHas
   if (m_useTDAQ && SG::ReadCondHandle<PixelModuleData>(m_condTDAQKey)->getModuleStatus(moduleHash)) { return 1.0; }
 
   if (m_useDeadMap && SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return 1.0; }
+//  if (m_useDeadMap && SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey)->getModuleStatus(moduleHash)) { return 1.0; }
 
   // TODO!!!  Calculate active fraction from dead map.
 

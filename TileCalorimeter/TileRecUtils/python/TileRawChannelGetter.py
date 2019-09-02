@@ -4,12 +4,8 @@
 # TileRawChannel creation from TileDigits 
 # TileRawChannelMaker algorithm using
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-import AthenaCommon.CfgMgr as CfgMgr
-from RecExConfig.Configured import Configured
 import traceback
 
 from RecExConfig.Configured import Configured
@@ -39,12 +35,12 @@ class TileRawChannelGetter ( Configured)  :
         try:        
             from TileRecUtils.TileRecUtilsConf import TileRawChannelMaker               
             theTileRawChannelMaker = TileRawChannelMaker("TileRChMaker")
-        except:
+        except Exception:
             mlog.error("could not import TileRecUtils.TileRawChannelMaker")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
     
-        self._TileRChMaker = theTileRawChannelMaker;
+        self._TileRChMaker = theTileRawChannelMaker
 
         # Configure TileInfoLoader
         from AthenaCommon.AppMgr import ServiceMgr
@@ -52,45 +48,40 @@ class TileRawChannelGetter ( Configured)  :
         from TileConditions.TileInfoConfigurator import TileInfoConfigurator
         tileInfoConfigurator = TileInfoConfigurator()
 
-        # register output in objKeyStore
-        from RecExConfig.ObjKeyStore import objKeyStore
-        
-        from AthenaCommon.AppMgr import ToolSvc
-
         from TileRecUtils.TileRecFlags import jobproperties
 
         # true for real data, false for MC - GlobalFlags.DataSource.is_data()
         # true for nominal ATLAS configuration - GlobalFlags.DetGeo.is_atlas()
         from AthenaCommon.GlobalFlags import globalflags
-        if globalflags.DataSource() == 'data' and not globalflags.isOverlay():
+        if globalflags.DataSource() == 'data' and jobproperties.TileRecFlags.noiseFilter() < 0:
             # apply noise filter for real data (if this option was not set before)
-            if jobproperties.TileRecFlags.noiseFilter() < 0:
-                jobproperties.TileRecFlags.noiseFilter=1
+            jobproperties.TileRecFlags.noiseFilter = 1
 
+        if globalflags.DataSource() == 'data' and not globalflags.isOverlay():
             if jobproperties.TileRecFlags.TileRunType() == 1 :
-                tileBeamElemContainer="";
+                tileBeamElemContainer=""
             else:
-                tileBeamElemContainer="TileBeamElemCnt";
+                tileBeamElemContainer="TileBeamElemCnt"
             if jobproperties.TileRecFlags.readDigits():
-                tileDigitsContainer="TileDigitsCnt";
+                tileDigitsContainer="TileDigitsCnt"
             else:
-                tileDigitsContainer="";
-            tileRawChannelContainer="TileRawChannelCnt";
+                tileDigitsContainer=""
+            tileRawChannelContainer="TileRawChannelCnt"
         else:
-            tileBeamElemContainer="";
-            tileDigitsContainer="";
-            tileRawChannelContainer="";
+            tileBeamElemContainer=""
+            tileDigitsContainer=""
+            tileRawChannelContainer=""
 
-        from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
-        dq = TileDQstatusAlgDefault (TileRawChannelContainer = tileRawChannelContainer,
-                                     TileDigitsContainer = tileDigitsContainer,
-                                     TileBeamElemContainer = tileBeamElemContainer)
-                                
+        if not globalflags.isOverlay():
+            from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
+            TileDQstatusAlgDefault (TileRawChannelContainer = tileRawChannelContainer,
+                                    TileDigitsContainer = tileDigitsContainer,
+                                    TileBeamElemContainer = tileBeamElemContainer)
 
         # set time window for amplitude correction if it was not set correctly before
         if jobproperties.TileRecFlags.TimeMaxForAmpCorrection() <= jobproperties.TileRecFlags.TimeMinForAmpCorrection() :
             from AthenaCommon.BeamFlags import jobproperties
-            mlog.info("adjusting min/max time of parabolic correction for %s" % jobproperties.Beam.bunchSpacing)
+            mlog.info("adjusting min/max time of parabolic correction for %s", jobproperties.Beam.bunchSpacing)
             halfBS = jobproperties.Beam.bunchSpacing.get_Value()/2.
             if halfBS > 25.1:
                 mlog.info("Bunch spacing is too big, keeping default limits for parabolic correction")
@@ -108,6 +99,9 @@ class TileRawChannelGetter ( Configured)  :
         # run optimal filter only if readDigits is set
         if jobproperties.TileRecFlags.readDigits():
 
+            from AthenaCommon.AlgSequence import AlgSequence
+            topSequence = AlgSequence()
+
             TilePulseTypes = {0 : 'PHY', 1 : 'PHY', 2 : 'LAS', 4 : 'PHY', 8 : 'CIS'}
             TilePulse = TilePulseTypes[jobproperties.TileRecFlags.TileRunType()]
 
@@ -116,6 +110,7 @@ class TileRawChannelGetter ( Configured)  :
             toolOfcCoolOF1 = None
 
             NoiseFilterTools = []
+            TileRawChannelContainerDSP = ''
             if jobproperties.TileRecFlags.noiseFilter() == 1:
 
                 if globalflags.DataSource() == 'data':
@@ -146,14 +141,22 @@ class TileRawChannelGetter ( Configured)  :
 
                         NoiseFilterTools += [theTileRawChannelOF1Corrector]
 
+
                 from TileRecUtils.TileRecUtilsConf import TileRawChannelNoiseFilter
                 theTileRawChannelNoiseFilter = TileRawChannelNoiseFilter()
                 NoiseFilterTools += [theTileRawChannelNoiseFilter]
 
+                if globalflags.DataSource() == 'data' and not globalflags.isOverlay():
+                    from TileRecUtils.TileRecUtilsConf import TileRawChannelCorrectionAlg
+                    theTileRawChannelCorrectionAlg = TileRawChannelCorrectionAlg()
+                    theTileRawChannelCorrectionAlg.NoiseFilterTools= NoiseFilterTools
+                    TileRawChannelContainerDSP = 'TileRawChannelCntCorrected'
+                    topSequence += theTileRawChannelCorrectionAlg
 
             if (jobproperties.TileRecFlags.doTileMF()
                 or (not jobproperties.TileRecFlags.OfcFromCOOL()
                     and (jobproperties.TileRecFlags.doTileOF1()
+                         or jobproperties.TileRecFlags.doTileWiener()
                          or jobproperties.TileRecFlags.doTileOpt2()
                          or jobproperties.TileRecFlags.doTileOptATLAS()))):
 
@@ -165,6 +168,7 @@ class TileRawChannelGetter ( Configured)  :
 
             if jobproperties.TileRecFlags.OfcFromCOOL():
                 if (jobproperties.TileRecFlags.doTileMF()
+                    or jobproperties.TileRecFlags.doTileWiener()
                     or jobproperties.TileRecFlags.doTileOpt2()
                     or jobproperties.TileRecFlags.doTileOptATLAS()):
 
@@ -182,9 +186,9 @@ class TileRawChannelGetter ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderQIEFilter
                     theTileRawChannelBuilderQIEFilter= TileRawChannelBuilderQIEFilter()
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderQIEFilter Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
                     
                 #TileRawChannelBuilderQIEFilter Options:
@@ -195,9 +199,9 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderQIEFilter.correctTime     = jobproperties.TileRecFlags.correctTime()
                 theTileRawChannelBuilderQIEFilter.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderQIEFilter.PedestalMode = 1
-                theTileRawChannelBuilderQIEFilter.DSPContainer = dq.TileRawChannelContainer
+                theTileRawChannelBuilderQIEFilter.DSPContainer = TileRawChannelContainerDSP
       
-                mlog.info(" adding now TileRawChannelBuilderQIEFilter to the algorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderQIEFilter to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderQIEFilter]
             
@@ -207,9 +211,9 @@ class TileRawChannelGetter ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderManyAmps
                     theTileRawChannelBuilderManyAmps= TileRawChannelBuilderManyAmps()
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderManyAmps Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
       
                 #TileRawChannelBuilderManyAmps Options:
@@ -219,9 +223,9 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderManyAmps.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
                 theTileRawChannelBuilderManyAmps.correctTime     = jobproperties.TileRecFlags.correctTime()    
                 theTileRawChannelBuilderManyAmps.NoiseFilterTools= NoiseFilterTools
-                theTileRawChannelBuilderManyAmps.DSPContainer = dq.TileRawChannelContainer
+                theTileRawChannelBuilderManyAmps.DSPContainer = TileRawChannelContainerDSP
                  
-                mlog.info(" adding now TileRawChannelBuilderManyAmps to the algorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderManyAmps to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderManyAmps]
       
@@ -231,9 +235,9 @@ class TileRawChannelGetter ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFlatFilter
                     theTileRawChannelBuilderFlatFilter= TileRawChannelBuilderFlatFilter()
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderFlatFilter Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
       
                 #TileRawChannelBuilderFlatFilter Options: 
@@ -245,9 +249,9 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFlatFilter.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderFlatFilter.FrameLength = TileFrameLength
                 theTileRawChannelBuilderFlatFilter.SignalLength = TileFrameLength - 1
-                theTileRawChannelBuilderFlatFilter.DSPContainer = dq.TileRawChannelContainer
+                theTileRawChannelBuilderFlatFilter.DSPContainer = TileRawChannelContainerDSP
       
-                mlog.info(" adding now TileRawChannelBuilderFlatFilter to the algorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderFlatFilter to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFlatFilter]
       
@@ -258,9 +262,9 @@ class TileRawChannelGetter ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilter
                     theTileRawChannelBuilderFitFilter= TileRawChannelBuilderFitFilter()
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderFitFilter Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
                 
                 #TileRawChannelBuilderFitFilter Options: 
@@ -269,10 +273,10 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFitFilter.correctTime     = jobproperties.TileRecFlags.correctTime()    
                 theTileRawChannelBuilderFitFilter.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderFitFilter.FrameLength = TileFrameLength
-                theTileRawChannelBuilderFitFilter.DSPContainer = dq.TileRawChannelContainer
+                theTileRawChannelBuilderFitFilter.DSPContainer = TileRawChannelContainerDSP
                 
                 # add the tool to list of tool ( should use ToolHandle eventually)
-                mlog.info(" adding now TileRawChannelBuilderFitFilter to the algorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderFitFilter to the algorithm: %s", theTileRawChannelMaker.name())
 
                 if jobproperties.TileRecFlags.doTileFit():
                     jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelFit"
@@ -292,9 +296,9 @@ class TileRawChannelGetter ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderFitFilterCool
                     theTileRawChannelBuilderFitFilterCool= TileRawChannelBuilderFitFilterCool()
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderFitFilterCool Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
                 
                 #TileRawChannelBuilderFitFilterCool Options: 
@@ -305,10 +309,10 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderFitFilterCool.correctTime     = jobproperties.TileRecFlags.correctTime()    
                 theTileRawChannelBuilderFitFilterCool.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderFitFilterCool.FrameLength = TileFrameLength
-                theTileRawChannelBuilderFitFilterCool.DSPContainer = dq.TileRawChannelContainer
+                theTileRawChannelBuilderFitFilterCool.DSPContainer = TileRawChannelContainerDSP
                 
                 # add the tool to list of tool ( should use ToolHandle eventually)
-                mlog.info(" adding now TileRawChannelBuilderFitFilterCool to the algorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderFitFilterCool to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderFitFilterCool]
                 
@@ -318,9 +322,9 @@ class TileRawChannelGetter ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderMF
                     theTileRawChannelBuilderMF= TileRawChannelBuilderMF()
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderMF Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
                                     
                 # setup COOL to get OFCs, needed for COF to retrieve pulse shape and derivatives
@@ -338,7 +342,7 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderMF.correctTime = jobproperties.TileRecFlags.correctTime()
                 theTileRawChannelBuilderMF.BestPhase       = jobproperties.TileRecFlags.BestPhaseFromCOOL()
                 theTileRawChannelBuilderMF.NoiseFilterTools = NoiseFilterTools
-                theTileRawChannelBuilderMF.MaxIterations = 5; # iterative mode on
+                theTileRawChannelBuilderMF.MaxIterations = 5 # iterative mode on
                 theTileRawChannelBuilderMF.AmplitudeCorrection = False
                 theTileRawChannelBuilderMF.TimeFromCOF = False
                 theTileRawChannelBuilderMF.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
@@ -346,47 +350,18 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderMF.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderMF.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
 
-                theTileRawChannelBuilderMF.DSPContainer = dq.TileRawChannelContainer
-                mlog.info(" adding now TileRawChannelBuilderMF to the algorithm: %s" % theTileRawChannelMaker.name())
+                theTileRawChannelBuilderMF.DSPContainer = TileRawChannelContainerDSP
+                mlog.info(" adding now TileRawChannelBuilderMF to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderMF]
 
-            if jobproperties.TileRecFlags.doTileOpt():
-                try:
-                    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOptFilter
-                    theTileRawChannelBuilderOptFilter= TileRawChannelBuilderOptFilter()
-                except:
-                    mlog.error("could not get handle to TileRawChannelBuilderOptFilter Quit")
-                    print traceback.format_exc()
-                    return False
-                
-                #TileRawChannelBuilderOptFilter Options:
-                jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelOpt"
-                theTileRawChannelBuilderOptFilter.TileRawChannelContainer = "TileRawChannelOpt"
-                theTileRawChannelBuilderOptFilter.RunType = jobproperties.TileRecFlags.TileRunType()
-                theTileRawChannelBuilderOptFilter.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
-                theTileRawChannelBuilderOptFilter.correctTime     = jobproperties.TileRecFlags.correctTime()
-                theTileRawChannelBuilderOptFilter.OF2 = True
-                theTileRawChannelBuilderOptFilter.PedestalMode = 1
-                theTileRawChannelBuilderOptFilter.MaxIterations = 5
-                theTileRawChannelBuilderOptFilter.Minus1Iteration = True
-                theTileRawChannelBuilderOptFilter.AmplitudeCorrection = False; # don't need correction after iterations
-                theTileRawChannelBuilderOptFilter.TimeCorrection = False # don't need correction after iterations
-                theTileRawChannelBuilderOptFilter.DSPContainer = dq.TileRawChannelContainer
-                
-                ServiceMgr.TileInfoLoader.LoadOptFilterWeights=True
-                
-                mlog.info(" adding now TileRawChannelBuilderOptFilter to the algorithm: %s" % theTileRawChannelMaker.name())
-      
-                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptFilter]
-      
             if jobproperties.TileRecFlags.doTileOF1():
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
                     theTileRawChannelBuilderOF1 = TileRawChannelBuilderOpt2Filter("TileRawChannelBuilderOF1")
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderOF1 Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
                 
                 # setup COOL to get OFCs
@@ -412,8 +387,8 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOF1.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderOF1.OF2 = False
                 theTileRawChannelBuilderOF1.PedestalMode = -1
-                theTileRawChannelBuilderOF1.MaxIterations = 1; # just one iteration
-                theTileRawChannelBuilderOF1.Minus1Iteration = False; # assume that max sample is at t=0
+                theTileRawChannelBuilderOF1.MaxIterations = 1 # just one iteration
+                theTileRawChannelBuilderOF1.Minus1Iteration = False # assume that max sample is at t=0
                 theTileRawChannelBuilderOF1.AmplitudeCorrection = jobproperties.TileRecFlags.correctAmplitude()
                 theTileRawChannelBuilderOF1.TimeCorrection = False
                 theTileRawChannelBuilderOF1.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
@@ -421,8 +396,8 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderOF1.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOF1.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
       
-                theTileRawChannelBuilderOF1 = dq.TileRawChannelContainer
-                mlog.info(" adding now TileRawChannelBuilderOF1 to the algorithm: %s" % theTileRawChannelMaker.name())
+                theTileRawChannelBuilderOF1 = TileRawChannelContainerDSP
+                mlog.info(" adding now TileRawChannelBuilderOF1 to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOF1]
 
@@ -430,9 +405,9 @@ class TileRawChannelGetter ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
                     theTileRawChannelBuilderOpt2Filter= TileRawChannelBuilderOpt2Filter()
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderOpt2Filter Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
                 
                 # setup COOL to get OFCs
@@ -446,16 +421,16 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOpt2Filter.calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
                 theTileRawChannelBuilderOpt2Filter.correctTime     = jobproperties.TileRecFlags.correctTime()
                 theTileRawChannelBuilderOpt2Filter.NoiseFilterTools= NoiseFilterTools
-                theTileRawChannelBuilderOpt2Filter.BestPhase       = False; # no point to use best phase with interations
+                theTileRawChannelBuilderOpt2Filter.BestPhase       = False # no point to use best phase with interations
                 theTileRawChannelBuilderOpt2Filter.OF2 = True
                 theTileRawChannelBuilderOpt2Filter.PedestalMode = 1
                 theTileRawChannelBuilderOpt2Filter.MaxIterations = 5
                 theTileRawChannelBuilderOpt2Filter.Minus1Iteration = True
-                theTileRawChannelBuilderOpt2Filter.AmplitudeCorrection = False; # don't need correction after iterations
-                theTileRawChannelBuilderOpt2Filter.TimeCorrection    = False; # don't need correction after iterations
-                theTileRawChannelBuilderOpt2Filter.DSPContainer = dq.TileRawChannelContainer
+                theTileRawChannelBuilderOpt2Filter.AmplitudeCorrection = False # don't need correction after iterations
+                theTileRawChannelBuilderOpt2Filter.TimeCorrection    = False # don't need correction after iterations
+                theTileRawChannelBuilderOpt2Filter.DSPContainer = TileRawChannelContainerDSP
       
-                mlog.info(" adding now TileRawChannelBuilderOpt2Filter to the algorithm: %s" % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderOpt2Filter to the algorithm: %s", theTileRawChannelMaker.name())
       
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOpt2Filter]
                 self._TileRawChannelBuilderOpt2Filter = theTileRawChannelBuilderOpt2Filter
@@ -465,9 +440,9 @@ class TileRawChannelGetter ( Configured)  :
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderOpt2Filter
                     theTileRawChannelBuilderOptATLAS= TileRawChannelBuilderOpt2Filter("TileRawChannelBuilderOptATLAS")
-                except:
+                except Exception:
                     mlog.error("could not get handle to TileRawChannelBuilderOpt2Filter Quit")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
                 
                 # setup COOL to get OFCs
@@ -491,9 +466,9 @@ class TileRawChannelGetter ( Configured)  :
                 theTileRawChannelBuilderOptATLAS.BestPhase       = jobproperties.TileRecFlags.BestPhaseFromCOOL()
                 theTileRawChannelBuilderOptATLAS.NoiseFilterTools= NoiseFilterTools
                 theTileRawChannelBuilderOptATLAS.OF2 = True
-                #theTileRawChannelBuilderOptATLAS.PedestalMode = 1; # not sure if we need this option here
-                theTileRawChannelBuilderOptATLAS.MaxIterations = 1; # just one iteration
-                theTileRawChannelBuilderOptATLAS.Minus1Iteration = False; # assume that max sample is at t=0
+                #theTileRawChannelBuilderOptATLAS.PedestalMode = 1 # not sure if we need this option here
+                theTileRawChannelBuilderOptATLAS.MaxIterations = 1 # just one iteration
+                theTileRawChannelBuilderOptATLAS.Minus1Iteration = False # assume that max sample is at t=0
                 theTileRawChannelBuilderOptATLAS.AmplitudeCorrection = jobproperties.TileRecFlags.correctAmplitude()
                 theTileRawChannelBuilderOptATLAS.TimeCorrection = jobproperties.TileRecFlags.correctTimeNI()
                 theTileRawChannelBuilderOptATLAS.AmpMinForAmpCorrection = jobproperties.TileRecFlags.AmpMinForAmpCorrection()
@@ -501,52 +476,79 @@ class TileRawChannelGetter ( Configured)  :
                     theTileRawChannelBuilderOptATLAS.TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
                     theTileRawChannelBuilderOptATLAS.TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection()
 
-                theTileRawChannelBuilderOptATLAS.DSPContainer = dq.TileRawChannelContainer
+                theTileRawChannelBuilderOptATLAS.DSPContainer = TileRawChannelContainerDSP
                 
-                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the algorithm: %s"
-                          % theTileRawChannelMaker.name())
+                mlog.info(" adding now TileRawChannelBuilderOpt2Filter with name TileRawChannelBuilderOptATLAS to the algorithm: %s",
+                          theTileRawChannelMaker.name())
                 
                 theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderOptATLAS]
                 self._TileRawChannelBuilderOptATLAS = theTileRawChannelBuilderOptATLAS
+
+            if jobproperties.TileRecFlags.doTileWiener():
+                try:
+                    from TileRecUtils.TileRecUtilsConf import TileRawChannelBuilderWienerFilter
+                    theTileRawChannelBuilderWienerFilter= TileRawChannelBuilderWienerFilter()
+                except Exception:
+                    mlog.error("could not get handle to TileRawChannelBuilderWienerFilter Quit")
+                    traceback.print_exc()
+                    return False
+
+                #TileRawChannelBuilderWienerFilter Options:
+                jobproperties.TileRecFlags.TileRawChannelContainer           = "TileRawChannelWiener"
+                theTileRawChannelBuilderWienerFilter.TileRawChannelContainer = "TileRawChannelWiener"
+                theTileRawChannelBuilderWienerFilter.RunType                 = jobproperties.TileRecFlags.TileRunType()
+                theTileRawChannelBuilderWienerFilter.calibrateEnergy         = jobproperties.TileRecFlags.calibrateEnergy()
+                theTileRawChannelBuilderWienerFilter.correctTime             = jobproperties.TileRecFlags.correctTime()
+                theTileRawChannelBuilderWienerFilter.NoiseFilterTools        = NoiseFilterTools
+                theTileRawChannelBuilderWienerFilter.BestPhase               = False # no point to use best phase with interations
+                theTileRawChannelBuilderWienerFilter.MC                      = globalflags.DataSource()!='data'
+                theTileRawChannelBuilderWienerFilter.PedestalMode            = 1
+                theTileRawChannelBuilderWienerFilter.MaxIterations           = 5
+                theTileRawChannelBuilderWienerFilter.Minus1Iteration         = True
+                theTileRawChannelBuilderWienerFilter.AmplitudeCorrection     = False # don't need correction after iterations
+                theTileRawChannelBuilderWienerFilter.TimeCorrection          = False # don't need correction after iterations
+                theTileRawChannelBuilderWienerFilter.DSPContainer            = TileRawChannelContainerDSP
+
+                mlog.info(" adding now TileRawChannelBuilderWienerFilter to the algorithm: %s", theTileRawChannelMaker.name())
+
+                theTileRawChannelMaker.TileRawChannelBuilder += [theTileRawChannelBuilderWienerFilter]
             
 
             # now add algorithm to topSequence
             # this should always come at the end
 
             mlog.info(" now adding to topSequence")        
-            from AthenaCommon.AlgSequence import AlgSequence
-            topSequence = AlgSequence()
 
             if jobproperties.TileRecFlags.noiseFilter() == 2:
                 # Instantiation of the C++ algorithm
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileRawCorrelatedNoise
                     theTileRawCorrelatedNoise=TileRawCorrelatedNoise("TileRCorreNoise")
-                except:
+                except Exception:
                     mlog.error("could not import TileRecUtils.TileRawCorrelatedNoise")
-                    print traceback.format_exc()
+                    traceback.print_exc()
                     return False
                 #theTileRawCorrelatedNoise.UseMeanFiles = False
                 #theTileRawCorrelatedNoise.PMTOrder = True
                 jobproperties.TileRecFlags.TileDigitsContainer = "NewDigitsContainer"
-                topSequence += theTileRawCorrelatedNoise;
+                topSequence += theTileRawCorrelatedNoise
 
             jobproperties.TileRecFlags.print_JobProperties('tree&value')
 
             theTileRawChannelMaker.TileDigitsContainer = jobproperties.TileRecFlags.TileDigitsContainer()
-            topSequence += theTileRawChannelMaker;
+            topSequence += theTileRawChannelMaker
 
         else:
             mlog.info(" Disable all OF methods because readDigits flag set to False ")
             jobproperties.TileRecFlags.doTileFlat = False
             jobproperties.TileRecFlags.doTileFit = False
             jobproperties.TileRecFlags.doTileFitCool = False
-            jobproperties.TileRecFlags.doTileOpt = False
             jobproperties.TileRecFlags.doTileOpt2 = False
             jobproperties.TileRecFlags.doTileOptATLAS = False
             jobproperties.TileRecFlags.doTileManyAmps = False
             jobproperties.TileRecFlags.doTileMF = False
             jobproperties.TileRecFlags.doTileOF1 = False
+            jobproperties.TileRecFlags.doTileWiener = False
             jobproperties.TileRecFlags.OfcFromCOOL = False
             jobproperties.TileRecFlags.print_JobProperties('tree&value')
 

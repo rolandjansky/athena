@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StoreGateBindings/StoreGatePyExt.h"
@@ -122,10 +122,17 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
     return pyname;
   }
 
-  if ( pykey != Py_None && ! PyString_Check( pykey ) ) {
-    PyErr_SetString( PyExc_TypeError, 
-                     "retrieve() argument 2 must be string key" );
-    return 0;
+  auto [namestr, nameflag] = RootUtils::PyGetString( pyname );
+  auto [keystr, keyflag] = RootUtils::PyGetString( pykey );
+  if ( !keyflag ) {
+    if (pykey == Py_None) {
+      keystr = "<None>";
+    }
+    else {
+      PyErr_SetString( PyExc_TypeError, 
+                       "retrieve() argument 2 must be string key" );
+      return 0;
+    }
   }
 
   SG::PyProxyDict* proxyDict = s_mgr.pyproxy(store);
@@ -133,7 +140,7 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
   PyObject* pyclid = s_mgr.pyclid(pyname);
   if ( ! pyclid ) {
     PyErr_Format( PyExc_NameError, 
-                  "ID of \"%s\" is unknown", PyString_AS_STRING( pyname ) );
+                  "ID of \"%s\" is unknown", namestr.c_str() );
     return 0;
   }
 
@@ -143,19 +150,19 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
     PyErr_Format( PyExc_LookupError, 
                   "no py-proxies for (clid=%lu, type=%s, key=%s)", 
                   PyLong_AsUnsignedLong(pyclid),
-                  PyString_AS_STRING( pyname ),
+                  namestr.c_str(),
                   (char*)( (pykey == Py_None) 
                            ? "<None>" 
-                           : PyString_AS_STRING(pykey) )
+                           : keystr.c_str() )
                   );
     return 0;
   }
 
   _SGPY_MSG("retrieved py-proxy [clid=" << PyLong_AsUnsignedLong(pyclid)
-            << ", type=" << PyString_AS_STRING( pyname )
+            << ", type=" << namestr.c_str()
             << ", key=" << (char*)( (pykey == Py_None) 
                                     ? "<None>" 
-                                    : PyString_AS_STRING(pykey) )
+                                    : keystr.c_str() )
             << "]");
 
   SG::DataProxy* proxy = (SG::DataProxy*)ObjectProxy_ASVOIDPTR(pyproxy);
@@ -164,10 +171,10 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
     PyErr_Format( PyExc_LookupError, 
                   "no proxies for (clid=%lu, type=%s, key=%s)", 
                   PyLong_AsUnsignedLong(pyclid),
-                  PyString_AS_STRING( pyname ),
+                  namestr.c_str(),
                   (char*)( (pykey == Py_None) 
                            ? "<None>" 
-                           : PyString_AS_STRING(pykey) )
+                           : keystr.c_str() )
                   );
     return 0;
   }
@@ -179,7 +186,7 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
   DataObject* dobj = proxy->accessData();
   if ( ! dobj ) {
     PyErr_Format( PyExc_LookupError, 
-                  "no such object \"%s\"", PyString_AS_STRING( pyname ) );
+                  "no such object \"%s\"", namestr.c_str() );
     return 0;
   }
 
@@ -308,7 +315,7 @@ AthenaInternal::retrieveObjectFromStore( StoreGateSvc* store,
       const RootType& fromType = RootType::ByName(realName);
       
       if ( (bool)fromType ) {
-        const RootType& toType = RootType::ByName( PyString_AS_STRING( pyname ) );
+        const RootType& toType = RootType::ByName( namestr );
         res = dbb->object();
         if (fromType.Class() && toType.Class())
           res = fromType.Class()->DynamicCast (toType.Class(), res);
@@ -359,7 +366,10 @@ AthenaInternal::py_sg_contains (StoreGateSvc* store,
     return pyname;
   }
 
-  if ( pykey != Py_None && ! PyString_Check( pykey ) ) {
+  auto [namestr, nameflag] = RootUtils::PyGetString (pyname);
+  auto [keystr,  keyflag]  = RootUtils::PyGetString (pykey);
+
+  if ( !keyflag ) {
     PyErr_SetString( PyExc_TypeError, 
                      "contains() argument 2 must be string key" );
     return 0;
@@ -369,16 +379,16 @@ AthenaInternal::py_sg_contains (StoreGateSvc* store,
   const CLID clid = s_mgr.clid (pyname);
   if ( clid == CLID_NULL ) {
     PyErr_Format( PyExc_NameError, 
-                  "ID of \"%s\" is unknown", PyString_AS_STRING( pyname ) );
+                  "ID of \"%s\" is unknown", namestr.c_str() );
     return 0;
   }
 
   const bool sg_contains = 
-    store->contains (clid, PyString_AS_STRING (pykey)) ;
+    store->contains (clid, keystr) ;
 
   _SGPY_MSG("sg::contains(" << clid
-            << "/" << PyString_AS_STRING( pyname ) << ", "
-            << PyString_AS_STRING (pykey)
+            << "/" << namestr.c_str() << ", "
+            << keystr.c_str()
             << ") = [" 
             << (sg_contains ? std::string("true") : std::string("false"))
             << "]");
@@ -414,18 +424,19 @@ AthenaInternal::py_sg_getitem (StoreGateSvc* store,
     return 0;
   }
 
-  if ( ! PyString_Check( pykey ) ) {
+  auto [keystr, keyflag] = RootUtils::PyGetString (pykey);
+  if ( ! keyflag ) {
     PyErr_SetString( PyExc_TypeError, 
                      "__getitem__() argument 1 must be string key" );
     return 0;
   }
 
   // Retrieve the main @c CLID of the object recorded in @c StoreGate
-  const CLID clid = store->clid (PyString_AS_STRING (pykey));
+  const CLID clid = store->clid (keystr);
   if ( CLID_NULL == clid ) {
     PyErr_Format (PyExc_LookupError, 
                   "no clid for key=%s", 
-                  PyString_AS_STRING(pykey));
+                  keystr.c_str());
     return 0;
   }
   
@@ -490,8 +501,11 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
 
   if ( PyErr_Occurred() )
     return 0;
-    
-  if ( ! PyString_Check( pykey ) ) {
+
+  auto [keystr, keyflag] = RootUtils::PyGetString (pykey);
+  auto [namestr, nameflag] = RootUtils::PyGetString (pyname);
+
+  if ( ! keyflag ) {
     PyErr_SetString( PyExc_TypeError, 
                      "record() argument 2 must be string key" );
     return 0;
@@ -501,7 +515,7 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
   const CLID id = s_mgr.clid(pyname);
   if ( CLID_NULL == id ) {
     PyErr_Format( PyExc_NameError, 
-                  "ID of \"%s\" is unknown", PyString_AS_STRING( pyname ) );
+                  "ID of \"%s\" is unknown", namestr.c_str() );
     return 0;
   }
   
@@ -509,8 +523,8 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
   s_mgr.load_type(id);
 
   _SGPY_MSG("ID=" << id
-            << ", tp=" << PyString_AS_STRING (pyname)
-            << ", key=" << PyString_AS_STRING (pykey));
+            << ", tp=" << namestr.c_str()
+            << ", key=" << keystr.c_str());
 
   SG::PyDataBucket* dbb = new SG::PyDataBucket (obj, id);
 
@@ -522,7 +536,7 @@ AthenaInternal::recordObjectToStore( StoreGateSvc* store,
             << ", pyrobj @" << ObjectProxy_ASVOIDPTR(obj));
   _SGPY_MSG("pdb-cast(" << dbb->clID() << "): " << dbb->cast(dbb->clID()));
 	    
-  int sc = store->typeless_record( dbb, PyString_AS_STRING(pykey),
+  int sc = store->typeless_record( dbb, keystr,
                                    isPlainPyObj 
                                    ? (void*)obj
                                    : ObjectProxy_ASVOIDPTR(obj),

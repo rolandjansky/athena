@@ -66,6 +66,10 @@ private:
   /** Toggle storage of lepton CaloCells */
   Gaudi::Property<bool> m_storeLeptonCells{this,"storeLeptonCells",false,"Toggle storage of lepton CaloCells"};
 
+  Gaudi::Property<std::string> m_electronID{this,"electronID","LHMedium","Select electron ID"};
+
+  Gaudi::Property<bool> m_selectElectrons{this,"selectElectrons",true,"Toggle usage of electron ID"};
+
   
 };
 #endif

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigMinBias/TrigVertexCounter.h"
+#include "TrigVertexCounter.h"
 #include "xAODTrigMinBias/TrigVertexCounts.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/Vertex.h"

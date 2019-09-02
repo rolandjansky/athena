@@ -37,7 +37,6 @@ namespace Muon {
 }
 
 class MsgStream;
-class StoreGateSvc;
 class ICscSegmentFinder;
 
 class MuonSegmentFinderAlg : public AthAlgorithm

@@ -50,25 +50,8 @@ namespace InDet {
   
   // Constructor with parameters:
   SCT_ClusteringTool::SCT_ClusteringTool(const std::string& type, const std::string& name, const IInterface* parent) :
-    AthAlgTool(type, name, parent),
-    m_errorStrategy(1),
-    m_checkBadChannels(true),
-    m_clusterMaker("InDet::ClusterMakerTool", this),
-    m_timeBinStr(""),
-    m_innermostBarrelX1X(false),
-    m_innertwoBarrelX1X(false),
-    m_majority01X(false),
-    m_useRowInformation(false)
+    base_class(type, name, parent)
   {
-    declareInterface<ISCT_ClusteringTool>(this);
-    declareProperty("globalPosAlg" , m_clusterMaker);
-    declareProperty("errorStrategy", m_errorStrategy);
-    declareProperty("checkBadChannels", m_checkBadChannels);
-    declareProperty("timeBins", m_timeBinStr);
-    declareProperty("majority01X", m_majority01X);
-    declareProperty("innermostBarrelX1X", m_innermostBarrelX1X);
-    declareProperty("innertwoBarrelX1X", m_innertwoBarrelX1X);
-    declareProperty("useRowInformation", m_useRowInformation);
   }
   
   StatusCode SCT_ClusteringTool::decodeTimeBins() {

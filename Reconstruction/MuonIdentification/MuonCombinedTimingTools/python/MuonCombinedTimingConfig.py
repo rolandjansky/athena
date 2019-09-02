@@ -3,16 +3,21 @@
 ########################## start of MuonTiming Filter Fragment ##################################
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
+from AthenaCommon.DetFlags import DetFlags
 import AthenaCommon.CfgMgr      as CfgMgr
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.Include import include
 include( "TrackInCaloTools/TrackInCaloTools_jobOptions.py" )
 #from TrackInCaloTools import TrackInCaloTools_jobOptions
 
+# CalDb tool
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
+
 # set up TRT tool
 InDetSlidingWindowTrackTimeToolMCP = CfgMgr.InDet__InDetSlidingWindowTrackTimeTool \
    (name              = "InDetSlidingWindowTrackTimeToolMCP",
-    UseTRTCalibration = True,
+    TRTCalDbTool      = InDetTRTCalDbTool,
     UseNewEP          = False,
     GlobalOffset      = 0.,
     NumberIterations  = 5,
@@ -21,7 +26,7 @@ ToolSvc += InDetSlidingWindowTrackTimeToolMCP
 
 TRT_TrackTimingTool = CfgMgr.InDet__TRT_TrackTimingTool \
    (name = "TRT_TrackTimingTool",
-    EventPhaseTool = InDetSlidingWindowTrackTimeToolMCP )
+    EventPhaseTool = InDetSlidingWindowTrackTimeToolMCP)
 ToolSvc += TRT_TrackTimingTool
 #TRT_TrackTimingTool.OutputLevel = 1
 #if muonCombinedRecFlags.printConfigurables():

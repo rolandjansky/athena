@@ -1,14 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Include import include
 
 from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 source = globalflags.DataSource()
 
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.CfgGetter import getService
+from AthenaCommon.CfgGetter import getService,getPrivateTool
 from RecExConfig.RecAlgsFlags import recAlgs
 
 
@@ -32,15 +33,18 @@ def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
     raise ValueError( "RpcPrepDataProviderTool: unsupported dataSource %s" % source )
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
+  if athenaCommonFlags.isOnline: 
+      kwargs["ReadKey"] = ""
   return Muon__RpcRdoToPrepDataTool(name,**kwargs)
 
 
 def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
-  global source,include,getService
+  global source,include,getService,getPrivateTool
 
   # setup dependencies which are not yet in C++
   import MuonCnvExample.MuonCablingConfig
-  getService("MdtCalibrationSvc")
+  from MuonCnvExample import MuonCalibConfig
+  MuonCalibConfig.setupMdtCondDB()
   include("AmdcAth/AmdcAth_jobOptions.py")
   
   if source == 'data':

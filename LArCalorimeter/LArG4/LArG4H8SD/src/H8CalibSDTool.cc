@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "H8CalibSDTool.h"
@@ -96,7 +96,7 @@ StatusCode H8CalibSDTool::initializeCalculators()
     std::vector<std::string> emptyStringVec;
     auto uninstSD =
       makeOneSD("Default::Dead::Uninstrumented::Calibration::Region", &*m_h8defaultcalc, emptyStringVec);
-    // WARNING: This probably isn't thread safe!
+    // UPDATE: This is thread-safe now
     CaloG4::VEscapedEnergyProcessing* eep =
       new EscapedEnergyProcessing( uninstSD.get() );
     auto registry = CaloG4::EscapedEnergyRegistry::GetInstance();

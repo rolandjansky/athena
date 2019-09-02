@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRK_TRACKPARAMETERSIDHELPER_H
@@ -45,13 +45,13 @@ namespace Trk {
     /** set version bits */
     void setVersion( TrackParametersIdentifier& id ) const;
 
-    static unsigned int           m_version;
-    static BitField<unsigned int> m_validField;
-    static BitField<unsigned int> m_versionField;
-    static BitField<unsigned int> m_technologyField;
+    static const unsigned int           m_version;
+    static const BitField<unsigned int> m_validField;
+    static const BitField<unsigned int> m_versionField;
+    static const BitField<unsigned int> m_technologyField;
 
-    static BitField<unsigned int> m_isEntryToLayerField;
-    static BitField<unsigned int> m_caloSamplingField;
+    static const BitField<unsigned int> m_isEntryToLayerField;
+    static const BitField<unsigned int> m_caloSamplingField;
 
   };
 

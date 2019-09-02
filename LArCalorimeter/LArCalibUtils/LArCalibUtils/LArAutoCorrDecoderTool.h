@@ -18,6 +18,7 @@
 
 #include "StoreGate/DataHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "LArRawConditions/LArConditionsContainer.h"
 
@@ -58,12 +59,14 @@ class LArAutoCorrDecoderTool: public AthAlgTool,
   const Eigen::MatrixXd ACDiagonal( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
   const Eigen::MatrixXd ACPhysics( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
 
-  const LArOnlineID*  m_onlineID;
+  const LArOnlineID_Base*  m_onlineID;
 
   std::string m_keyAutoCorr;
 
   const DataHandle<ILArAutoCorr> m_autoCorr;
 
+  // Running on cells or supercells?
+  bool m_isSC;
 };
 
 #endif

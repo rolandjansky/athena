@@ -1,3 +1,3 @@
-#include "TrigEgammaRec/TrigEgammaRec.h"
+#include "../TrigEgammaRec.h"
 
 DECLARE_COMPONENT( TrigEgammaRec )

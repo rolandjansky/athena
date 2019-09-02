@@ -36,7 +36,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "LumiBlockComps/ILuminosityTool.h"
 #include "PathResolver/PathResolver.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelMonitoring/PixelMon2DLumiMaps.h"
@@ -53,7 +52,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
     m_IBLParameterSvc("IBLParameterSvc", name),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_trackSelTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this),
-    m_lumiTool("LuminosityTool"),
     m_moduleTemperature(new dcsDataHolder()),
     m_coolingPipeTemperatureInlet(new dcsDataHolder()),
     m_coolingPipeTemperatureOutlet(new dcsDataHolder()),
@@ -69,7 +67,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   declareProperty("PixelCablingSvc", m_pixelCableSvc);
   declareProperty("HoleSearchTool", m_holeSearchTool);
   declareProperty("TrackSelectionTool", m_trackSelTool);
-  declareProperty("LuminosityTool", m_lumiTool);
 
   declareProperty("RDOName", m_Pixel_RDOName = "PixelRDOs");  // storegate container names
   declareProperty("RODErrorName", m_detector_error_name = "pixel_error_summary");
@@ -123,7 +120,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_nActive_mod, 0, sizeof(m_nActive_mod));
   m_pixelid = 0;
   m_event = 0;
-  m_event5min = 0;
+  m_event_ref = 0;
   m_startTime = 0;
   m_majorityDisabled = 0;
   m_lumiBlockNum = 0;
@@ -444,13 +441,6 @@ StatusCode PixelMainMon::initialize() {
     m_trackSelTool.disable();
   }
 
-  if (m_lumiTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_lumiTool << endmsg;
-  }
-  
   if (!m_doDCS) return StatusCode::SUCCESS;
 
   m_atrcollist.push_back(std::string("/PIXEL/DCS/TEMPERATURE"));
@@ -709,12 +699,10 @@ StatusCode PixelMainMon::fillHistograms() {
   if(!(thisEventInfo.isValid())) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No EventInfo object found" << endmsg;
   } else {
-
     m_currentTime = thisEventInfo->timeStamp();
     m_currentBCID = thisEventInfo->bcid();
     int currentdiff = (int)(m_currentTime - m_firstBookTime) / 100;
     int currentdiff5min = (int)(m_currentTime - m_firstBookTime) / 300;
-
     // for 100 sec
     if (currentdiff > m_nRefresh) {
       m_doRefresh = true;
@@ -726,10 +714,8 @@ StatusCode PixelMainMon::fillHistograms() {
     if (currentdiff5min > m_nRefresh5min) {
       m_doRefresh5min = true;
       m_nRefresh5min = currentdiff5min;
-      m_event5min = 1;
     } else {
       m_doRefresh5min = false;
-      m_event5min++;
     }
   }
 
@@ -776,12 +762,8 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // track
   if (m_doTrack) {
-    if (evtStore()->contains<TrackCollection>(m_TracksName.key())) {
-      if (fillTrackMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(4., 2.);
+    if (fillTrackMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(4., 1.);
@@ -789,14 +771,10 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // hits
   if (m_doRDO) {
-    if (evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName.key())) {
-      if (fillHitsMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) {
-          msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-        }
+    if (fillHitsMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) {
+        msg(MSG::INFO) << "Could not fill histograms" << endmsg;
       }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(1., 2.);
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(1., 1.);
@@ -814,12 +792,8 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // cluster
   if (m_doCluster) {
-    if (evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName.key())) {
-      if (fillClustersMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(3., 2.);
+    if (fillClustersMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(3., 1.);
@@ -827,12 +801,8 @@ StatusCode PixelMainMon::fillHistograms() {
 
   // space point
   if (m_doSpacePoint) {
-    if (evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName.key())) {
-      if (fillSpacePointMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
-      }
-    } else if (m_storegate_errors) {
-      m_storegate_errors->Fill(2., 2.);
+    if (fillSpacePointMon().isFailure()) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not fill histograms" << endmsg;
     }
   } else {
     if (m_storegate_errors) m_storegate_errors->Fill(2., 1.);
@@ -847,6 +817,7 @@ StatusCode PixelMainMon::fillHistograms() {
     if (m_storegate_errors) m_storegate_errors->Fill(6., 1.);
   }
 
+  if (m_doRefresh) m_event_ref = m_event;
   return StatusCode::SUCCESS;
 }
 

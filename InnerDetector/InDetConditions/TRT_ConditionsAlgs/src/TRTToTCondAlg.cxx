@@ -258,10 +258,10 @@ void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std:
   for (unsigned int ind=0; ind < 180; ++ind) {
     Dedxcorrection.para_short_mimicToXe_MC[0][ind]=result_dict["para_short_mimicToXeXe"][ind];
   }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
+  for (unsigned int ind=0; ind < 1080; ++ind) {
     Dedxcorrection.para_long_mimicToXe_DATA[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
   }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
+  for (unsigned int ind=0; ind < 1080; ++ind) {
     Dedxcorrection.para_long_mimicToXe_MC[0][ind]=result_dict["para_long_mimicToXeXe"][ind];
   }
 
@@ -336,10 +336,10 @@ void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std:
   for (unsigned int ind=0; ind < 180; ++ind) {
     Dedxcorrection.para_short_mimicToXe_MC[1][ind]=result_dict["para_short_mimicToXeAr"][ind];
   }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
+  for (unsigned int ind=0; ind < 1080; ++ind) {
     Dedxcorrection.para_long_mimicToXe_DATA[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
   }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
+  for (unsigned int ind=0; ind < 1080; ++ind) {
     Dedxcorrection.para_long_mimicToXe_MC[1][ind]=result_dict["para_long_mimicToXeAr"][ind];
   }
 
@@ -414,10 +414,10 @@ void TRTToTCondAlg::update_New(TRTDedxcorrection & Dedxcorrection, std::map<std:
   for (unsigned int ind=0; ind < 180; ++ind) {
     Dedxcorrection.para_short_mimicToXe_MC[2][ind]=result_dict["para_short_mimicToXeKr"][ind];
   }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
+  for (unsigned int ind=0; ind < 1080; ++ind) {
     Dedxcorrection.para_long_mimicToXe_DATA[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
   }
-  for (unsigned int ind=0; ind < 1800; ++ind) {
+  for (unsigned int ind=0; ind < 1080; ++ind) {
     Dedxcorrection.para_long_mimicToXe_MC[2][ind]=result_dict["para_long_mimicToXeKr"][ind];
   }
 }
@@ -493,7 +493,7 @@ void TRTToTCondAlg::update_Old(TRTDedxcorrection & Dedxcorrection, std::map<std:
       Dedxcorrection.para_short_mimicToXe_DATA[gasType][ind] = 1.;
     }
 
-    for (unsigned int ind=0; ind < 1800; ++ind) {
+    for (unsigned int ind=0; ind < 1080; ++ind) {
       Dedxcorrection.para_long_mimicToXe_MC[gasType][ind]   = 1.;
       Dedxcorrection.para_long_mimicToXe_DATA[gasType][ind] = 1.;
     }

@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def CollectionMergerCfg(ConfigFlags, bare_collection_name,
@@ -34,6 +36,6 @@ def CollectionMergerCfg(ConfigFlags, bare_collection_name,
 
   else:
       mergeable_collection = bare_collection_name
-  print result
-  print "#################################"
+  print (result)
+  print ("#################################")
   return result, mergeable_collection

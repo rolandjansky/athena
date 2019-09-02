@@ -10,10 +10,10 @@
 
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include <string>
 
-class PileUpMergeSvc;
 /** @class MergeTrackRecordCollTool
  *  @brief an algorithm to merge MC track record collTool in the overlay store
  *
@@ -47,9 +47,9 @@ public:
      */
   virtual StatusCode processAllSubEvents() override final;
 private:
-  ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
-  StringProperty m_trRecCollKey;
+  ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
+  StringProperty m_trRecCollKey{this, "TrackRecordCollKey", "MuonEntryLayer", ""};
   SG::WriteHandleKey<TrackRecordCollection> m_outputKey{ this, "TrackRecordCollOutputKey", "MuonExitLayer", "" };
-  bool m_firstSubEvent;
+  bool m_firstSubEvent{true};
 };
 #endif //MCTRUTHSIMALGS_MERGETRACKRECORDCOLLTOOL_H

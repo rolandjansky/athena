@@ -49,10 +49,10 @@ MetaDataSvc.IOV...  DEBUG in initialize()
 MetaDataSvc.IOV...  DEBUG initialize(): need to modify folders 
 MetaDataSvc          INFO Found MetaDataTools = PrivateToolHandleArray(['IOVDbMetaDataTool'])
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
+EventSelector       DEBUG Initializing EventSelector
 EventSelector       DEBUG Service base class initialized successfully
 IoComponentMgr       INFO IoComponent EventSelector has already had file EmptyPoolFile.root registered with i/o mode READ
-EventSelector        INFO reinitialization...
+EventSelector       DEBUG reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "EmptyPoolFile.root" from the collection list.
 PersistencySvc:...  DEBUG lookupPFN: EmptyPoolFile.root returned FID: '????' tech=ROOT_All
@@ -65,7 +65,7 @@ EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shape
 EmptyPoolFile.root  DEBUG --->Reading Shape[0 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 EmptyPoolFile.root  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
-EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
 EmptyPoolFile.root  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 ##Shapes            DEBUG No objects passing selection criteria... Container has 3 Entries in total.
@@ -112,7 +112,7 @@ SimplePoolFile1...  DEBUG ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Off
 SimplePoolFile1...  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
 SimplePoolFile1...  DEBUG ---->[0]:ExampleHitContainer_p1 Typ:ExampleHitContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
-SimplePoolFile1...  DEBUG ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile1...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
 SimplePoolFile1...  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile1...  DEBUG --->Reading Shape[4 , ????]: [1 Column(s)]
@@ -200,7 +200,7 @@ EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shape
 EmptyPoolFile.root  DEBUG --->Reading Shape[0 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 EmptyPoolFile.root  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
-EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
 EmptyPoolFile.root  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 ##Shapes            DEBUG No objects passing selection criteria... Container has 3 Entries in total.
@@ -650,7 +650,7 @@ EmptyPoolFile.root  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shape
 EmptyPoolFile.root  DEBUG --->Reading Shape[0 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 EmptyPoolFile.root  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
-EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+EmptyPoolFile.root  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
 EmptyPoolFile.root  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
 EmptyPoolFile.root  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 ##Shapes            DEBUG No objects passing selection criteria... Container has 3 Entries in total.
@@ -712,7 +712,7 @@ SimplePoolFile2...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shape
 SimplePoolFile2...  DEBUG --->Reading Shape[0 , ????]: [1 Column(s)]
 SimplePoolFile2...  DEBUG ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile2...  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
-SimplePoolFile2...  DEBUG ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile2...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile2...  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
 SimplePoolFile2...  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile2...  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
@@ -786,9 +786,9 @@ MetaDataSvc.IOV...  DEBUG processInputFileMetaData: file name SimplePoolFile2.ro
 MetaDataSvc.IOV...  DEBUG Could not retrieve IOVMetaDataContainer objects from InputMetaDataStore - cannot process input file meta data
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000000].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000000].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000000]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000]
 SimplePoolFile2...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] POOLContainer(DataHeader)
 POOLContainer(D...  DEBUG Opening
 POOLContainer(D...  DEBUG    attributes# = 1
@@ -839,9 +839,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 11 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000001].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000001].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000001]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000001].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000001].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000001]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 11 events processed so far  <<<===
@@ -867,9 +867,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 12 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000002].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000002].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000002]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000002].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000002].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000002]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 12 events processed so far  <<<===
@@ -895,9 +895,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 13 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000003].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000003].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000003]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000003].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000003].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000003]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 13 events processed so far  <<<===
@@ -923,9 +923,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 14 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000004].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000004].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000004]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000004].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000004].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000004]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 14 events processed so far  <<<===
@@ -951,9 +951,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 15 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000005].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000005].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000005]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000005].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000005].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000005]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 15 events processed so far  <<<===
@@ -979,9 +979,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 16 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000006].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000006].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000006]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000006].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000006].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000006]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 16 events processed so far  <<<===
@@ -1007,9 +1007,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 17 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000007].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000007].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000007]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000007].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000007].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000007]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 17 events processed so far  <<<===
@@ -1035,9 +1035,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 18 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000008].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000008].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000008]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000008].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000008].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000008]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 18 events processed so far  <<<===
@@ -1063,9 +1063,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 19 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000009].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000009].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000009]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000009].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000009].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000009]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 19 events processed so far  <<<===
@@ -1091,9 +1091,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 20 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000A].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000A].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000A]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000A].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000A].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000A]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 20 events processed so far  <<<===
@@ -1119,9 +1119,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 21 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000B].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000B].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000B]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000B].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000B].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000B]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 21 events processed so far  <<<===
@@ -1147,9 +1147,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 22 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000C].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000C].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000C]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000C].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000C].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000C]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 22 events processed so far  <<<===
@@ -1175,9 +1175,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 23 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000D].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000D].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000D]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000D].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000D].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000D]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 23 events processed so far  <<<===
@@ -1203,9 +1203,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 24 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000E].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000E].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000E]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000E].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000E].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000E]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 24 events processed so far  <<<===
@@ -1231,9 +1231,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 25 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000F].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000F].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000F]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000F].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000F].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000F]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 25 events processed so far  <<<===
@@ -1259,9 +1259,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 26 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000010].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000010].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000010]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000010].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000010].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000010]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 26 events processed so far  <<<===
@@ -1287,9 +1287,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 27 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000011].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000011].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000011]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000011].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000011].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000011]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 27 events processed so far  <<<===
@@ -1315,9 +1315,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 28 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000012].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000012].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000012]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000012].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000012].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000012]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 28 events processed so far  <<<===
@@ -1343,9 +1343,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 29 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000013].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000013].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000013]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000013].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000013].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000013]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 29 events processed so far  <<<===
@@ -1371,9 +1371,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 30 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000014].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000014].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000014]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000014].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000014].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000014]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start of run 2    <<<===
@@ -1400,9 +1400,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #20, run #2 31 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000015].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000015].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000015]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000015].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000015].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000015]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #21, run #2 31 events processed so far  <<<===
@@ -1428,9 +1428,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #21, run #2 32 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000016].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000016].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000016]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000016].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000016].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000016]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #22, run #2 32 events processed so far  <<<===
@@ -1456,9 +1456,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #22, run #2 33 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000017].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000017].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000017]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000017].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000017].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000017]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #23, run #2 33 events processed so far  <<<===
@@ -1484,9 +1484,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #23, run #2 34 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000018].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000018].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000018]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000018].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000018].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000018]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #24, run #2 34 events processed so far  <<<===
@@ -1512,9 +1512,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #24, run #2 35 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000019].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000019].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000019]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000019].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000019].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000019]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #25, run #2 35 events processed so far  <<<===
@@ -1540,9 +1540,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #25, run #2 36 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001A].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001A].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001A]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001A].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001A].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001A]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #26, run #2 36 events processed so far  <<<===
@@ -1568,9 +1568,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #26, run #2 37 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001B].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001B].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001B]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001B].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001B].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001B]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #27, run #2 37 events processed so far  <<<===
@@ -1596,9 +1596,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #27, run #2 38 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001C].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001C].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001C]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001C].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001C].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001C]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #28, run #2 38 events processed so far  <<<===
@@ -1624,9 +1624,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #28, run #2 39 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001D].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001D].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001D]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001D].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001D].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001D]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #29, run #2 39 events processed so far  <<<===
@@ -1652,9 +1652,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #29, run #2 40 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001E].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001E].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001E]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001E].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001E].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001E]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #30, run #2 40 events processed so far  <<<===
@@ -1680,9 +1680,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #30, run #2 41 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001F].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001F].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000001F]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001F].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001F].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000001F]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #31, run #2 41 events processed so far  <<<===
@@ -1708,9 +1708,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #31, run #2 42 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000020].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000020].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000020]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000020].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000020].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000020]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #32, run #2 42 events processed so far  <<<===
@@ -1736,9 +1736,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #32, run #2 43 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000021].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000021].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000021]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000021].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000021].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000021]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #33, run #2 43 events processed so far  <<<===
@@ -1764,9 +1764,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #33, run #2 44 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000022].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000022].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000022]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000022].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000022].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000022]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #34, run #2 44 events processed so far  <<<===
@@ -1792,9 +1792,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #34, run #2 45 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000023].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000023].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000023]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000023].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000023].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000023]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #35, run #2 45 events processed so far  <<<===
@@ -1820,9 +1820,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #35, run #2 46 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000024].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000024].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000024]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000024].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000024].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000024]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #36, run #2 46 events processed so far  <<<===
@@ -1848,9 +1848,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #36, run #2 47 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000025].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000025].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000025]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000025].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000025].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000025]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #37, run #2 47 events processed so far  <<<===
@@ -1876,9 +1876,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #37, run #2 48 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000026].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000026].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000026]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000026].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000026].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000026]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #38, run #2 48 events processed so far  <<<===
@@ -1904,9 +1904,9 @@ PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #38, run #2 49 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000027].
-EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000027].
-EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000027]
+EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000027].
+EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000027].
+EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000027]
 AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #39, run #2 49 events processed so far  <<<===
@@ -1948,7 +1948,7 @@ SimplePoolFile3...  DEBUG ---->[0]:EventInfo_p4 Typ:EventInfo_p4 [21] Size:0 Off
 SimplePoolFile3...  DEBUG --->Reading Shape[1 , ????]: [1 Column(s)]
 SimplePoolFile3...  DEBUG ---->[0]:ExampleTrackContainer_p1 Typ:ExampleTrackContainer_p1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --->Reading Shape[2 , ????]: [1 Column(s)]
-SimplePoolFile3...  DEBUG ---->[0]:DataHeaderForm_p5 Typ:DataHeaderForm_p5 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile3...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --->Reading Shape[3 , ????]: [1 Column(s)]
 SimplePoolFile3...  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --->Reading Shape[4 , ????]: [1 Column(s)]

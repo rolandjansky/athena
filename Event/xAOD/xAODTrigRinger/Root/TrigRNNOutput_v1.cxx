@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -21,7 +21,7 @@ namespace xAOD{
     AUXSTORE_OBJECT_SETTER_AND_GETTER(TrigRNNOutput_v1, std::vector<float>, decision, setDecision)
 
     void TrigRNNOutput_v1::setDecision(float d){
-        static Accessor< std::vector<float> > acc( "decision" );
+        static const Accessor< std::vector<float> > acc( "decision" );
         acc(*this).push_back(d);
     }
 

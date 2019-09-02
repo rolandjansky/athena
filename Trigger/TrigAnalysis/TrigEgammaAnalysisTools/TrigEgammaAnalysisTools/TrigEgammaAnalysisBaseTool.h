@@ -16,7 +16,7 @@
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "LumiBlockComps/ILumiBlockMuTool.h"
-#include "LumiBlockComps/ILuminosityTool.h"
+#include "LumiBlockData/LuminosityCondData.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
@@ -37,6 +37,10 @@
 #include "xAODCaloRings/CaloRings.h"                   
 #include "xAODCaloRings/CaloRingsContainer.h"          
 #include "xAODCaloRings/tools/getCaloRingsDecorator.h" 
+#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class TrigEgammaAnalysisBaseTool
 : public asg::AsgTool,
@@ -121,8 +125,14 @@ private:
   ToolHandle<Trig::ITrigEgammaEmulationTool> m_emulationTool;
   ToolHandle<ITrigEgammaPlotTool> m_plot;
 
+
 protected:
   // Methods
+  ///*! Offline isEM Selectors */
+  ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
+  /*! Offline LH Selectors */
+  ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool;
+  ToolHandle<IAsgElectronLikelihoodTool> m_electronLHVLooseTool;
   /*! Simple setter to pick up correct probe PID for given trigger */
   void parseTriggerName(const std::string,const std::string, bool&, std::string &,float &, float &, std::string &,std::string &, bool&, bool&);
   /*! Split double object trigger in two simple object trigger */
@@ -210,8 +220,9 @@ protected:
 
   // ToolHandles
   ToolHandleArray<ITrigEgammaAnalysisBaseTool> m_tools;
-  /*! Offline Lumi tool */
-  ToolHandle<ILuminosityTool>  m_lumiTool; // This would retrieve the offline <mu>
+  /*! Luminosity data */
+  SG::ReadCondHandleKey<LuminosityCondData> m_luminosityCondDataKey;
+  //{ (AthAlgTool*)this, "LuminosityCondDataKey", "LuminosityCondData", "", "" };
   /*! Online Lumi tool */
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool; // This would retrieve the offline <mu>
   

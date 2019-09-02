@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_HIT_ANALYSIS_H
@@ -11,6 +11,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArElecCalib/ILArfSampl.h"
@@ -38,7 +39,6 @@ namespace Trk
 
 #include "TrkExInterfaces/ITimedExtrapolator.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
-class ICaloSurfaceHelper;
 
 #include <string>
 #include <Rtypes.h>
@@ -61,7 +61,6 @@ class LArHEC_ID;
 class IGeoModelSvc;
 
 //############################
-class ICaloSurfaceBuilder;
 class ICaloCoordinateTool;
 class IExtrapolateToCaloTool;
 class CaloDepthTool;
@@ -87,10 +86,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
 
  private:
 
-   /** a handle on Store Gate for access to the Event Store */
-   //StoreGateSvc* m_storeGate;
-   //StoreGateSvc* m_detStore;
-
    const IGeoModelSvc *m_geoModel;
    const TileInfo *m_tileInfo;
    const LArEM_ID *m_larEmID;
@@ -98,7 +93,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
    const LArHEC_ID *m_larHecID;
    const TileID * m_tileID;
    const TileDetDescrManager * m_tileMgr;
-   const DataHandle<ILArfSampl>   m_dd_fSampl;
+   SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
 
    /** Simple variables by Ketevi */
    std::vector<float>* m_hit_x;
@@ -194,9 +189,18 @@ class ISF_HitAnalysis : public AthAlgorithm {
    std::vector<float>* m_newTTC_Angle3D;
    std::vector<float>* m_newTTC_AngleEta;
 
+
+   std::vector<float>* m_MuonEntryLayer_E;
+   std::vector<float>* m_MuonEntryLayer_px;
+   std::vector<float>* m_MuonEntryLayer_py;
+   std::vector<float>* m_MuonEntryLayer_pz;
+   std::vector<float>* m_MuonEntryLayer_x;
+   std::vector<float>* m_MuonEntryLayer_y;
+   std::vector<float>* m_MuonEntryLayer_z;
+   std::vector<int>* m_MuonEntryLayer_pdg;
+
    /** The new Extrapolator setup */
    ToolHandle<Trk::ITimedExtrapolator>  m_extrapolator;
-   ToolHandle<ICaloSurfaceHelper>       m_caloSurfaceHelper;
    mutable const Trk::TrackingVolume*   m_caloEntrance;
    std::string                          m_caloEntranceName;
    // extrapolation through Calo
@@ -209,8 +213,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
    //IExtrapolateToCaloTool*      m_etoCaloEntrance;
    //CaloDepthTool*               m_calodepth;
    //CaloDepthTool*               m_calodepthEntrance;
-   ///ICaloSurfaceBuilder*           m_calosurf;
-   //ICaloSurfaceBuilder*           m_calosurf_entrance;
    //Trk::IExtrapolator*            m_extrapolator;
    //std::string                    m_extrapolatorName;
    //std::string                    m_extrapolatorInstanceName;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimpleAmbiguityProcessorTool.h"
@@ -476,9 +476,34 @@ void Trk::SimpleAmbiguityProcessorTool::increment_by_eta(std::vector<int>& Ntrac
 /** Do actual processing of event. Takes a track container, 
     and then returns the tracks which have been selected*/
 
-TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollection* tracks)
-{
-  
+
+TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollection* trackCol){
+  std::vector<const Track*> tracks;
+  tracks.reserve(trackCol->size());
+  for(const Track* e: *trackCol){
+    tracks.push_back(e);
+  }
+  return process_vector(tracks);
+}
+
+
+TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(TracksScores* tracksScores){
+  std::vector<const Track*> tracks;
+  tracks.reserve(tracksScores->size());
+  for(auto& e: *tracksScores){
+    tracks.push_back(e.first);
+  }
+
+  TrackCollection* re_tracks = process_vector(tracks);
+
+  for(auto& e: *tracksScores){
+    delete e.first;
+  }
+  return re_tracks;
+}
+
+
+TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process_vector(std::vector<const Track*> &tracks){
   using namespace std;
 
 #if defined SIMPLEAMBIGPROCNTUPLECODE || defined SIMPLEAMBIGPROCDEBUGCODE
@@ -495,8 +520,8 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
   m_barcodeTrackMap.clear();
   // fill the truth maps
     
-  TrackCollection::const_iterator trackIt    = tracks->begin();
-  TrackCollection::const_iterator trackItEnd = tracks->end();
+  TrackCollection::const_iterator trackIt    = tracks.begin();
+  TrackCollection::const_iterator trackItEnd = tracks.end();
     
   for ( ; trackIt != trackItEnd ; ++trackIt) {
     std::map<int,int> barcodeOccurence;
@@ -607,7 +632,7 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
   
   //put tracks into maps etc
   ATH_MSG_DEBUG ("Adding input track candidates to list");
-  addNewTracks(tracks);
+  addNewTracks(&tracks);
  
   // going to do simple algorithm for now:
   // - take track with highest score
@@ -652,7 +677,7 @@ void Trk::SimpleAmbiguityProcessorTool::reset()
 }
 
 //==================================================================================================
-void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const TrackCollection* tracks)
+void Trk::SimpleAmbiguityProcessorTool::addNewTracks(std::vector<const Track*>* tracks)
 {
   using namespace std;
 
@@ -662,8 +687,8 @@ void Trk::SimpleAmbiguityProcessorTool::addNewTracks(const TrackCollection* trac
  
   ATH_MSG_DEBUG ("Number of tracks at Input: "<<tracks->size());
  
-  TrackCollection::const_iterator trackIt    = tracks->begin();
-  TrackCollection::const_iterator trackItEnd = tracks->end();
+  std::vector<const Track*>::const_iterator trackIt    = tracks->begin();
+  std::vector<const Track*>::const_iterator trackItEnd = tracks->end();
 
 #ifdef SIMPLEAMBIGPROCNTUPLECODE          
 
@@ -1225,7 +1250,7 @@ const Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitPrds( const Trk::Track
   }
 
   // refit using first parameter, do outliers
-  const Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = 0;
 
   if (m_tryBremFit && track->info().trackProperties(Trk::TrackInfo::BremFit))
     {
@@ -1280,7 +1305,7 @@ const Trk::Track* Trk::SimpleAmbiguityProcessorTool::refitRots( const Trk::Track
   ATH_MSG_VERBOSE ("Refit track "<<track);
 
   // refit using first parameter, do outliers
-  const Trk::Track* newTrack = 0;
+  Trk::Track* newTrack = 0;
 
   if (m_tryBremFit &&
       track->info().trackProperties(Trk::TrackInfo::BremFit))

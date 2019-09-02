@@ -12,8 +12,6 @@
 
 SCT_TdaqEnabledCondAlg::SCT_TdaqEnabledCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
-  , m_condSvc{"CondSvc", name}
-  , m_onlineId{}
 {
 }
 

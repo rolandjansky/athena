@@ -39,7 +39,7 @@ namespace MuonCombined {
     m_candidateTrackBuilder("Muon::MuonCandidateTrackBuilderTool/MuonCandidateTrackBuilderTool"),
     m_recoValidationTool(""),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder"),
-    m_trackAmbiguityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+    m_trackAmbiguityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_layerHashProvider("Muon::MuonLayerHashProviderTool")
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
@@ -210,8 +210,13 @@ namespace MuonCombined {
     
       // more than 1 track call ambiguity solver and select first track
       TrackCollection* resolvedTracks = m_trackAmbiguityResolver->process(&tracks);
-      selectedTrack = resolvedTracks->front();
-      delete resolvedTracks;
+      if (!resolvedTracks || resolvedTracks->empty() ) {
+         ATH_MSG_WARNING("Ambiguity resolver returned no tracks. Arbitrarily using the first track of initial collection.");
+         selectedTrack = tracks.front();
+      } else {
+        selectedTrack = resolvedTracks->front();
+        delete resolvedTracks;
+      }
     }
     // get candidate
     const Muon::MuonCandidate* candidate = trackCandidateLookup[selectedTrack];
@@ -346,7 +351,7 @@ namespace MuonCombined {
   bool MuonInsideOutRecoTool::getLayerDataTech( int sector, Muon::MuonStationIndex::TechnologyIndex technology, Muon::MuonStationIndex::DetectorRegionIndex regionIndex,
 						Muon::MuonStationIndex::LayerIndex layerIndex, const Muon::MuonPrepDataContainer< COL >* input, std::vector<const COL*>& output ) {
 
-    if(!input) return true;
+    if(!input || input->size()==0) return true;
     typedef Muon::MuonPrepDataContainer< COL > ContainerType;
     // get technologies in the given layer
     unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex, layerIndex );

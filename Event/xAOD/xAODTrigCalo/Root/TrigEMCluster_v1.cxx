@@ -55,7 +55,7 @@ namespace xAOD {
                                         setWstot )
 
   float TrigEMCluster_v1::energy(const CaloSample sampling) const {
-    static Accessor< std::vector <float > > eAcc("energySample");
+    static const Accessor< std::vector <float > > eAcc("energySample");
     const std::vector<float>& var = eAcc( *this );
     if( var.size() <= static_cast< size_t >( sampling ) ) {
        std::cerr << "xAOD::TrigEMCluster_v1::energy ERROR Invalid/unknown "
@@ -67,7 +67,7 @@ namespace xAOD {
 
   bool TrigEMCluster_v1::setEnergy(const CaloSample sampling,
                                    const float theEnergy) {
-    static Accessor< std::vector <float > > eAcc("energySample");
+    static const Accessor< std::vector <float > > eAcc("energySample");
     std::vector<float>& var = eAcc( *this );
     if( var.size() < SIZE ) var.resize( SIZE );
     if( var.size() <= static_cast< size_t >( sampling ) ) {

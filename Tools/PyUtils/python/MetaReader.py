@@ -19,7 +19,8 @@ regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d
 regex_BS_files = re.compile(r'^(\w+):.*((\.D?RAW\..*)|(\.data$))')
 
 
-def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key_filter= []):
+def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, meta_key_filter = [],
+                  unique_tag_info_values = True):
     """
     This tool is independent of Athena framework and returns the metadata from a given file.
     :param filenames: the input file from which metadata needs to be extracted.
@@ -97,7 +98,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
         if current_file_type == 'POOL':
             import ROOT
             # open the file using ROOT.TFile
-            current_file = ROOT.TFile.Open(filename)
+            current_file = ROOT.TFile.Open( _get_pfn(filename) )
 
             # open the tree 'POOLContainer' to read the number of entries
             if current_file.GetListOfKeys().Contains('POOLContainer'):
@@ -105,8 +106,16 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
             else:
                 meta_dict[filename]['nentries'] = None
 
+            # open the tree 'CollectionTree' to read auto flush
+            if current_file.GetListOfKeys().Contains('CollectionTree'):
+                meta_dict[filename]['auto_flush'] = current_file.Get('CollectionTree').GetAutoFlush()
+
             # read and add the 'GUID' value
             meta_dict[filename]['file_guid'] = _read_guid(filename)
+
+            # read and add compression level and algorithm
+            meta_dict[filename]['file_comp_alg'] = current_file.GetCompressionAlgorithm()
+            meta_dict[filename]['file_comp_level'] = current_file.GetCompressionLevel()
 
             # ----- read extra metadata required for 'lite' and 'full' modes ----------------------------------------#
             if mode != 'tiny':
@@ -324,7 +333,39 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
             msg.error('Unknown filetype for {0} - there is no metadata interface for type {1}'.format(filename, current_file_type))
             return None
 
+        # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
+        # ATEAM-560: https://its.cern.ch/jira/browse/ATEAM-560
+        # ATEAM-531: https://its.cern.ch/jira/browse/ATEAM-531
+        # This changes will remove all duplicates values presented in some files due
+        # to the improper merging of two IOVMetaDataContainers.
+        if unique_tag_info_values:
+            msg.info('MetaReader is called with the parameter "unique_tag_info_values" set to True. '
+                     'This is a workaround to remove all duplicate values from "/TagInfo" key')
+            if '/TagInfo' in meta_dict[filename]:
+                for key, value in meta_dict[filename]['/TagInfo'].items():
+                    if isinstance(value, list):
+                        unique_list = list(set(value))
+                        meta_dict[filename]['/TagInfo'][key] = unique_list[0] if len(unique_list) == 1 else unique_list
+
     return meta_dict
+
+
+def _get_pfn(filename):
+    """
+    Extract the actuall filename if LFN or PFN notation is used
+    """
+    pfx = filename[0:4]
+    if pfx == 'PFN:':
+        return filename[4:]
+    if pfx == 'LFN:':
+        import subprocess, os
+        os.environ['POOL_OUTMSG_LEVEL'] = 'Error'
+        output = subprocess.check_output(['FClistPFN','-l',filename[4:]]).split('\n')
+        if len(output) == 2:
+            return output[0]
+        msg.error( 'FClistPFN({0}) returned unexpected number of lines:'.format(filename) )
+        msg.error( '\n'.join(output) )
+    return filename
 
 
 def _read_guid(filename):
@@ -334,7 +375,7 @@ def _read_guid(filename):
     :return: the guid value
     """
     import ROOT
-    root_file = ROOT.TFile.Open(filename)
+    root_file = ROOT.TFile.Open( _get_pfn(filename) )
     params = root_file.Get('##Params')
 
     regex = re.compile(r'^\[NAME=([a-zA-Z0-9_]+)\]\[VALUE=(.*)\]')

@@ -48,11 +48,11 @@ def release_metadata():
       'nightly release': '?',
       'nightly name': '?',
       'date': '?',
-      'platform': os.getenv('CMTCONFIG', '?'),
+      'platform': '?',
       }
 
-   for ld_path in os.environ['LD_LIBRARY_PATH'].split(os.pathsep):
-      release_data = os.path.join(ld_path, '..', 'ReleaseData')
+   for cmake_path in os.environ['CMAKE_PREFIX_PATH'].split(os.pathsep):
+      release_data = os.path.join(cmake_path, 'ReleaseData')
       if os.path.exists(release_data):
          d1=d
          cfg = configparser.SafeConfigParser()
@@ -60,6 +60,8 @@ def release_metadata():
             cfg.read( release_data )
             if cfg.has_section( 'release_metadata' ):
                d1.update( dict( cfg.items( 'release_metadata' ) ) )
+               d1['platform'] = os.getenv( '%s_PLATFORM' % d1['project name'],
+                                           '?' )
                release = d1['release'].split('.')
                base_release = d1['base release'].split('.')
                if len(release)>=3 or len(base_release)>=3:
@@ -75,6 +77,14 @@ def iadd( self, tool ):
       tool = (tool,)
 
  # only add once (allow silently)
+   if self.configurableRun3Behavior:
+      # But if duplicates may not be the same Configurable instances,
+      # need to force the owner to prevent errors about public tools
+      # not in ToolSvc when old configuration fragments are imported
+      # in new configurations.
+      dups = [t for t in tool if t in self.getChildren()]
+      for t in dups:
+         t.setParent (self.name())
    tool = [t for t in tool if t not in self.getChildren()]
    if len(tool)==0: return self
 
@@ -913,7 +923,7 @@ ToolSvc     = ServiceMgr.ToolSvc
 def auditor( self, auditor ):
    Logging.log.warning( """AuditorSvc.auditor is deprecated, use instead:
    from GaudiAud import %s
-   svcMgr.AuditorSvc += %s()""" % (auditor,auditor) )
+   svcMgr.AuditorSvc += %s()""", auditor, auditor )
 
    if type(auditor) == str:
       from AthenaCommon import ConfigurableDb
@@ -939,7 +949,7 @@ GaudiSvcConf.AuditorSvc.__iadd__ =iadd
 del iadd
 
 
-def delattr( self, attr ):
+def _delattr( self, attr ):
    try:
       c = getattr( self, attr )
 
@@ -958,8 +968,8 @@ def delattr( self, attr ):
 
    super( GaudiSvcConf.AuditorSvc, self ).__delattr__( attr )
 
-GaudiSvcConf.AuditorSvc.__delattr__ = delattr
-del delattr
+GaudiSvcConf.AuditorSvc.__delattr__ = _delattr
+del _delattr
 
 
 # AuditorSvc globals

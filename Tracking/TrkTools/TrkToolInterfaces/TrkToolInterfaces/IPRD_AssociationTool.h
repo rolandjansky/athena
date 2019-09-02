@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,8 +12,6 @@
 
 class AtlasDetectorID;
 class Identifier;
-
-static const InterfaceID IID_IPRD_AssociationTool("Trk::IPRD_AssociationTool", 1, 0);
 
 namespace Trk {
 
@@ -34,7 +32,7 @@ The user is responsible for informing the tool about the Tracks in question, by 
   class IPRD_AssociationTool : virtual public IAlgTool
   {
     public:
-      static const InterfaceID& interfaceID( ) ;
+      DeclareInterfaceID (IPRD_AssociationTool, 1, 0);
 
       //      typedef std::pair<const PrepRawData*, const Track*>     PrepRawDataTrackMapPair;
       typedef std::multimap<const PrepRawData*, const Track*> PrepRawDataTrackMap;
@@ -49,19 +47,47 @@ The user is responsible for informing the tool about the Tracks in question, by 
       /** */
       typedef std::set<const Track*>   TrackSet;
 
+      /// The mutable state of the tool.
+      struct Maps {
+        // holds the tracks associated with each PRD (i.e. the PRD* is the key)
+        IPRD_AssociationTool::PrepRawDataTrackMap m_prepRawDataTrackMap;
+        // holds the PRDs associated with each Track (i.e. the Track* is the key)
+        IPRD_AssociationTool::TrackPrepRawDataMap m_trackPrepRawDataMap;
+      };
+
+      /** add the PRDs from this track to maps*/
+      virtual StatusCode addPRDs(Maps& maps, const Track& track) const =0;
+
       /** add the PRDs from this track to the store*/
       virtual StatusCode addPRDs(const Track& track)=0;
+
+  /** remove the PRDs from this track from the maps
+      @param track all PRDs from 'track' will be removed from maps */
+      virtual StatusCode removePRDs(Maps& maps, const Track& track) const =0;
+
 
   /** remove the PRDs from this track from the store
       @param track all PRDs from 'track' will be removed from the PRD_AssociationTool's 
       internal store.*/
       virtual StatusCode removePRDs(const Track& track)=0;
 
+  /** does this PRD belong to at least one track in maps?
+      @param prd the PrepRawData in question
+      @return true if 'prd' exists in at least one track (of course PRD_AssociationTool can only
+      give information about tracks it knows about i.e. that were added to maps with addPRDs()*/
+      virtual bool isUsed(const Maps& maps, const PrepRawData& prd) const=0;
+
   /** does this PRD belong to at least one track?
       @param prd the PrepRawData in question
       @return true if 'prd' exists in at least one track (of course PRD_AssociationTool can only
       give information about tracks it knows about i.e. that were added with addPRDs()*/
       virtual bool isUsed(const PrepRawData& prd) const=0;
+
+  /** does this PRD belong to more than one track in maps?
+      @param prd the PrepRawData in question
+      @return true if 'prd' exists on more than one track (of course PRD_AssociationTool can only
+      give information about tracks it knows about i.e. that were added to maps with addPRDs()*/
+      virtual bool isShared(const Maps& maps, const PrepRawData& prd) const=0;
 
   /** does this PRD belong to more than one track?
       @param prd the PrepRawData in question
@@ -78,6 +104,10 @@ The user is responsible for informing the tool about the Tracks in question, by 
       deleted - they belong to the Track (and thus the event).*/
       virtual std::vector< const PrepRawData* > getPrdsOnTrack(const Track& track) const=0;
 
+      // getPrdsOnTrack with state passed explicitly.
+      virtual std::vector< const PrepRawData* > getPrdsOnTrack(const Maps& maps,
+                                                               const Track& track) const=0;
+
   /** Return transient sets of connected and disconnected tracks, *AND* remove disconnected 
       tracks from this tool.
       i.e. get (transient) set of tracks which share/don't share PrepRawData, and remove those 
@@ -87,7 +117,10 @@ The user is responsible for informing the tool about the Tracks in question, by 
       for speed, but they will be reset each time this method is called (whether in your 
       algorithm or that of another), hence they are transient. You **MUST** copy them if
       you need  them to have an extended lifetime.*/
-      virtual TrackSet findConnectedTracks( const Track& track)  =0;
+      virtual TrackSet findConnectedTracks( const Track& track) const =0;
+
+      // findConnectedTracks with state passed explicitly.
+      virtual TrackSet findConnectedTracks( const Maps& maps, const Track& track) const =0;
 
   /** get the Tracks associated with this PrepRawData. 
       IMPORTANT: Please use the typedefs IPRD_AssociationTool::PrepRawDataTrackMapRange and 
@@ -95,15 +128,14 @@ The user is responsible for informing the tool about the Tracks in question, by 
       representation may change.*/
       virtual PrepRawDataTrackMapRange onTracks(const PrepRawData& prd) const=0 ;
 
+      // onTracks with explicit state
+      virtual PrepRawDataTrackMapRange onTracks(const Maps& maps,
+                                                const PrepRawData& prd) const=0 ;
+
       /**this may well go, but at the moment it resets the tool*/
       virtual void reset()=0;
   };
 
 }//end of ns
-
-inline const InterfaceID& Trk::IPRD_AssociationTool::interfaceID()
-{
-  return IID_IPRD_AssociationTool;
-}
 
 #endif 

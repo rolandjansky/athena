@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadChannelTimingAlg.h"
@@ -15,7 +15,6 @@
 #include "CaloIdentifier/LArEM_ID.h"
 
 #include "GaudiKernel/Chrono.h"
-#include "StoreGate/StoreGateSvc.h"
 #include <cstdlib>
 
 // DEBUG only

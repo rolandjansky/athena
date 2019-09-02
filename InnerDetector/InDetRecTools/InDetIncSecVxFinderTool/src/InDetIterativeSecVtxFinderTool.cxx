@@ -22,6 +22,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include "TrkVertexSeedFinderUtils/IMode3dFinder.h"
 #include <map>
 #include <vector>
 #include <utility>
@@ -130,10 +131,6 @@ InDetIterativeSecVtxFinderTool::~InDetIterativeSecVtxFinderTool()
 void InDetIterativeSecVtxFinderTool::setPriVtxPosition( double vx, double vy, double vz )
 { 
   m_privtx = Amg::Vector3D( vx, vy, vz ) ; 
- 
-  m_SeedFinder->setPriVtxPosition( vx, vy ) ; 
-
-  return ; 
 }
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVtxFinderTool::findVertex(const xAOD::TrackParticleContainer* trackParticles)
@@ -364,22 +361,25 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
       theconstraint.setFitQuality( m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), 
                                     m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF() );
 
-      seedVertex = m_SeedFinder->findSeed( perigeeList, &theconstraint );
+      seedVertex = m_SeedFinder->findSeed( m_privtx.x(), m_privtx.y(),
+                                           perigeeList, &theconstraint );
 
     } else {
     
       ATH_MSG_DEBUG( " goto seed finder " );
 
-      seedVertex = m_SeedFinder->findSeed(perigeeList);
+      std::unique_ptr<Trk::IMode3dInfo> info;
+      seedVertex = m_SeedFinder->findSeed(m_privtx.x(), m_privtx.y(),
+                                          info, perigeeList);
 
       ATH_MSG_DEBUG( " seedFinder finished " );
 
 #ifdef MONITORTUNES
       std::vector<float> FsmwX, FsmwY, FsmwZ, wght ;
-//      m_leastmodes->push_back( m_SeedFinder->getModes1d( FsmwX , FsmwY, FsmwZ, wght ) ) ;
+//      m_leastmodes->push_back( info->Modes1d( FsmwX , FsmwY, FsmwZ, wght ) ) ;
 
       double cXY = -9.9, cZ = -9.9 ;
-      m_SeedFinder->getCorrelationDistance( cXY, cZ ) ;
+      info->getCorrelationDistance( cXY, cZ ) ;
 
       m_sdFsmwX->push_back( FsmwX ) ;
       m_sdFsmwY->push_back( FsmwY ) ;
@@ -395,7 +395,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
 
 /**
       ATH_MSG_DEBUG( " Check perigeesAtSeed " );
-      ncandi = m_SeedFinder->perigeesAtSeed( m_seedperigees, perigeeList ) ;
+      ncandi = info->perigeesAtSeed( *m_seedperigees, perigeeList ) ;
 **/
 
       Amg::MatrixX looseConstraintCovariance(3,3);
@@ -475,23 +475,15 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
       else
       { //check first whether it is not too far away!
         
-        bool isOK=false;
         double distance=0.;
         try
         {
-          Trk::PlaneSurface* mySurface=m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter,&seedVertex);
-          delete mySurface;
-          isOK=true;
+          std::unique_ptr<Trk::PlaneSurface> mySurface=m_ImpactPoint3dEstimator->Estimate3dIP(*perigeeListIter,&seedVertex,distance);
           ATH_MSG_VERBOSE( " ImpactPoint3dEstimator done " );
         }
         catch (error::ImpactPoint3dEstimatorProblem err)
         {
           ATH_MSG_WARNING( " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p );
-        }
-        
-        if (isOK)
-        {
-          distance=m_ImpactPoint3dEstimator->getDistance();
         }
         
         if (distance<0)
@@ -1263,22 +1255,17 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativeSecVt
             pt2 += pt*pt*0.000001 ;
 
 #ifdef MONITORTUNES
-            bool isOK=false;
             double distance=0.;
             try
             {
-              Trk::PlaneSurface* mySurface= 
-                   m_ImpactPoint3dEstimator->Estimate3dIP( (*tracksIter).initialPerigee(), &((*vxIter)->position()) );
-              delete mySurface;
-              isOK=true;
+              std::unique_ptr<Trk::PlaneSurface> mySurface= 
+                   m_ImpactPoint3dEstimator->Estimate3dIP( (*tracksIter).initialPerigee(), &((*vxIter)->position()), distance );
             }
             catch (error::ImpactPoint3dEstimatorProblem err)
             {
               ATH_MSG_WARNING( " ImpactPoint3dEstimator failed  " << err.p );
             }
         
-            if (isOK) distance=m_ImpactPoint3dEstimator->getDistance();
-
             double error= 1. ;
 	
             if( svperigee->covariance() )
@@ -1374,7 +1361,7 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D > 
     return false ;
   }
 
-  double * Pv = new double[ ntrk ] ;
+  std::vector<double> Pv (ntrk);
   double vx = 0., vy = 0., vz = 0., eK0 = 0. ;
   double pi2 = 139.57018*139.57018 ;   // Pion in MeV
 
@@ -1407,11 +1394,10 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D > 
   if ( ntrk != 2 )
   {
     ATH_MSG_VERBOSE( " ntrk != 2 , Meaningless to test V0 " );
-    delete Pv ;
     return false ;
   }
 
-  if (  a0z > 15. || Rxy > 500. ) { delete Pv ; return false ; }
+  if (  a0z > 15. || Rxy > 500. ) { return false ; }
 
   // 1 eV^(-1) of time = hbar / eV = 6.582173*10^(-16) second,  for energy-time in natural unit
 //  double planck = 6.582173 ;      
@@ -1432,8 +1418,6 @@ bool InDetIterativeSecVtxFinderTool::V0kine( const std::vector< Amg::Vector3D > 
       || ( mGam > 0 && sqrt( mGam ) < 40. )  // gamma conversion ;
       || ( mLam > 0 && fabs( sqrt( mLam ) - 1115.683 ) < 200.  ) //  Lambda 
      )  return true ;
-
-  delete Pv ;
 
   return false ;
 }

@@ -109,10 +109,10 @@ StatusCode CaloCellFastCopyTool::initialize() {
 
 
 StatusCode CaloCellFastCopyTool::process (CaloCellContainer* theCont,
-                                          const EventContext& /*ctx*/) const
+                                          const EventContext& ctx) const
 {
   // Retrieve source cell container
-  SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey);
+  SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey, ctx);
 
   ATH_CHECK( dispatchCopy (srcCont.cptr(), theCont) );
 
@@ -126,10 +126,10 @@ StatusCode CaloCellFastCopyTool::process (CaloCellContainer* theCont,
 
 
 StatusCode CaloCellFastCopyTool::process (CaloConstCellContainer* theCont,
-                                          const EventContext& /*ctx*/) const
+                                          const EventContext& ctx) const
 {
   // Retrieve source cell container
-  SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey);
+  SG::ReadHandle<CaloCellContainer> srcCont(m_srcCellContainerKey, ctx);
 
   ATH_CHECK( dispatchCopyConst (srcCont.cptr(), theCont) );
 

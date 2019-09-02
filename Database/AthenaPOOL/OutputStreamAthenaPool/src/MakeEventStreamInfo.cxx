@@ -33,6 +33,7 @@ MakeEventStreamInfo::MakeEventStreamInfo(const std::string& type,
    // Declare the properties
    declareProperty("Key", m_key = "");
    declareProperty("EventInfoKey", m_eventInfoKey = "EventInfo");
+   declareProperty("OldEventInfoKey", m_oEventInfoKey = "McEventInfo");
 }
 //___________________________________________________________________________
 MakeEventStreamInfo::~MakeEventStreamInfo() {
@@ -75,36 +76,30 @@ StatusCode MakeEventStreamInfo::preExecute() {
 //___________________________________________________________________________
 StatusCode MakeEventStreamInfo::postExecute() {
    const IAlgorithm* parentAlg = dynamic_cast<const IAlgorithm*>(this->parent());
-   if (parentAlg == 0) {
+   if (parentAlg == nullptr) {
       ATH_MSG_ERROR("Unable to get parent Algorithm");
       return(StatusCode::FAILURE);
    }
-   const DataHeader* pHeader = nullptr;
-   const std::string headerKey = parentAlg->name();
-   // Check for the DataHeader, return success of no DH in SG, assuming event was vetoed.
-   if (!m_eventStore->contains<DataHeader>(headerKey)) {
+
+   SG::ReadHandle<DataHeader> dataHeader(parentAlg->name());
+   if (!dataHeader.isValid()) {
       return(StatusCode::SUCCESS);
    }
-   // Retrieve the DataHeader
-   if (!m_eventStore->retrieve(pHeader, headerKey).isSuccess()) {
-      ATH_MSG_ERROR("Unable to retrieve DataHeader for key = " << headerKey);
-      return(StatusCode::FAILURE);
-   }
+   // Retrieve the EventInfo object
    EventType evtype;
    unsigned long long runN = 0;
    unsigned lumiN = 0;
-   // Retrieve the EventInfo object
-   const EventInfo* pEvent = m_eventStore->tryConstRetrieve<EventInfo>();
-   if( pEvent ) {
-      runN = pEvent->event_ID()->run_number();
-      lumiN = pEvent->event_ID()->lumi_block();
-      evtype = *pEvent->event_type();
+   SG::ReadHandle<xAOD::EventInfo> xEventInfo(m_eventInfoKey);
+   if (xEventInfo.isValid()) {
+      runN = xEventInfo->runNumber();
+      lumiN = xEventInfo->lumiBlock();
+      evtype = eventTypeFromxAOD(xEventInfo.get());
    } else {
-      const xAOD::EventInfo* xEvent = m_eventStore->tryConstRetrieve<xAOD::EventInfo>(m_eventInfoKey);
-      if( xEvent ) {
-         runN = xEvent->runNumber();
-         lumiN = xEvent->lumiBlock();
-         evtype = eventTypeFromxAOD(xEvent);
+      SG::ReadHandle<EventInfo> oEventInfo(m_oEventInfoKey);
+      if (oEventInfo.isValid()) {
+         runN = oEventInfo->event_ID()->run_number();
+         lumiN = oEventInfo->event_ID()->lumi_block();
+         evtype = *oEventInfo->event_type();
       } else {
          ATH_MSG_ERROR("Unable to retrieve EventInfo object");
          return(StatusCode::FAILURE);
@@ -116,7 +111,6 @@ StatusCode MakeEventStreamInfo::postExecute() {
          ATH_MSG_ERROR("Could not register EventStreamInfo object");
          return(StatusCode::FAILURE);
       }
-      // set processingTag for EventStreamInfo object
    }
    EventStreamInfo* pEventStream = nullptr;
    if (!m_metaDataStore->retrieve(pEventStream, m_key.value()).isSuccess()) {
@@ -124,10 +118,10 @@ StatusCode MakeEventStreamInfo::postExecute() {
       return(StatusCode::FAILURE);
    }
    pEventStream->addEvent();
-   pEventStream->insertProcessingTag(pHeader->getProcessTag());
+   pEventStream->insertProcessingTag(dataHeader->getProcessTag());
    pEventStream->insertLumiBlockNumber( lumiN );
    pEventStream->insertRunNumber( runN );
-   for (std::vector<DataHeaderElement>::const_iterator iter = pHeader->begin(), iterEnd = pHeader->end();
+   for (std::vector<DataHeaderElement>::const_iterator iter = dataHeader->begin(), iterEnd = dataHeader->end();
 		   iter != iterEnd; iter++) {
       pEventStream->insertItemList(iter->getPrimaryClassID(), iter->getKey());
    }

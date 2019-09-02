@@ -208,7 +208,7 @@ bool Trk::TrackingGeometry::atVolumeBoundary( const Amg::Vector3D& gp, const Trk
     if (!vol) return isAtBoundary;
     const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol->boundarySurfaces();
     for (unsigned int ib=0; ib< bounds.size(); ib++) {
-        const Trk::Surface& surf = (bounds[ib].getPtr())->surfaceRepresentation();
+        const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
         if ( surf.isOnSurface(gp,true,tol,tol)  ) isAtBoundary = true;
     }
     return isAtBoundary;
@@ -223,10 +223,10 @@ bool Trk::TrackingGeometry::atVolumeBoundary(const Amg::Vector3D& gp, const Amg:
     if (!vol) return isAtBoundary;
     const std::vector< SharedObject<const BoundarySurface<TrackingVolume> > > bounds = vol->boundarySurfaces();
     for (unsigned int ib=0; ib< bounds.size(); ib++) {
-        const Trk::Surface& surf = (bounds[ib].getPtr())->surfaceRepresentation();
+        const Trk::Surface& surf = (bounds[ib].get())->surfaceRepresentation();
         if ( surf.isOnSurface(gp,true,tol,tol) ) {
             isAtBoundary = true;
-            const Trk::TrackingVolume* attachedVol = (bounds[ib].getPtr())->attachedVolume(gp,mom,dir);
+            const Trk::TrackingVolume* attachedVol = (bounds[ib].get())->attachedVolume(gp,mom,dir);
             if (!nextVol && attachedVol) nextVol=attachedVol;
         }
     }

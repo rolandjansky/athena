@@ -17,6 +17,8 @@
 #include "TRT_ConditionsData/StrawT0Container.h"
 #include "TRT_ConditionsData/MultChanContainer.h"
 #include "AthenaKernel/CondCont.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
 
 namespace TRTCond 
 {
@@ -51,19 +53,21 @@ namespace TRTCond
     
     /// set t0
     void setT0(const ExpandedIdentifier& id, float t0, float t0err) {
-      if( id.level()==ExpandedIdentifier::DETECTOR ) 
+      if( id.level()==ExpandedIdentifier::DETECTOR ) { 
 	findContainer(id)->setT0(t0,t0err) ; 
-      else if( id.level()==ExpandedIdentifier::BARRELEC ) 
-	std::cout << "Sorry: TRTCond::StrawT0MultChanContainer cannot store containers at BARREL_EC granularity" << std::endl ;
-      else 
+      } else if( id.level()==ExpandedIdentifier::BARRELEC ) {
+        MsgStream log(Athena::getMessageSvc(),"StrawT0MultChanContainer"); 
+	log << MSG::WARNING << "Sorry:  cannot store containers at BARREL_EC granularity" << endmsg;
+      } else { 
 	findContainer(id)->setT0( id, t0,t0err) ;
+      }
     }
-    
     /// public method to unpack a StrawT0 object
     void unpack(const ExpandedIdentifier& id, const StrawT0& sd, float& t0 , float& t0err) const {
       const StrawT0LayerContainer* container = getContainer(channelId(id)) ;
-      if(not container){ 
-        std::cout << "ERRRRRRORRRRRR: cannot find container ..." << id << " " << channelId(id) << std::endl ;
+      if(not container){
+         MsgStream log(Athena::getMessageSvc(),"StrawT0MultChanContainer");  
+         log << MSG::ERROR  << "cannot find container channel" << channelId(id) << endmsg ;
       } else {
         container->unpack( sd,t0,t0err ) ;
       }

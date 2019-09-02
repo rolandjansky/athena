@@ -12,7 +12,6 @@ include("TriggerTest/TrigScanFiles.py")
 ###############################
 
 doTrigger=True
-TriggerModernConfig=True
 
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.OutputLevel( INFO )

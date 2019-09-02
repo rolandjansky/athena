@@ -217,9 +217,13 @@ if doReadBS:
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr
 
-#from TRT_ConditionsTools.TRT_ConditionsToolsConf import TRTCalDbTool
-#TRTCalibDBTool=TRTCalDbTool()
-#ToolSvc+=TRTCalibDBTool
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool")
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+InDetStrawSummaryTool=TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                             isGEANT4=(globalflags.DataSource == 'geant4'))
+
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
 TRTCalibDBSvc=TRT_CalDbSvc()
@@ -246,24 +250,12 @@ print      FillAlignTrkInfo
 from TRT_CalibTools.TRT_CalibToolsConf import FillAlignTRTHits 
 FillAlignTRTHits = FillAlignTRTHits ( name = 'FillAlignTRTHits',
                                       NeighbourSvc='TRT_StrawNeighbourSvc',
-                                      TRTCalDbSvc=TRTCalibDBSvc)
+                                      TRTCalDbTool = InDetCalDbTool,
+                                      TRTStrawSummaryTool = InDetStrawSummaryTool)
+
 ToolSvc += FillAlignTRTHits
 print      FillAlignTRTHits
 
-#from TRT_CalibTools.TRT_CalibToolsConf import TRTCalAccumulator
-#TRTCalAccumulator = TRTCalAccumulator ( name = "TRTCalAccumulator",
-#                                        TRTCalDBTool=TRTCalibDBTool,
-#                                        storeAllWires = True,
-#                                        calibrateRt = False,
-#                                        createStrawTuple = True,
-#                                        rtParameterizationType = 1,
-#                                        rtPolyOrder = 0,
-#                                        minEntriesPerStraw = 0, #2'
-#                                        maxTrackChisquarePerDof = 3, #10.,
-#                                        minTimebinsOverThreshold = 2)
-
-#ToolSvc += TRTCalAccumulator
-#print      TRTCalAccumulator
 
 # select good quality tracks
 from TRT_AlignAlgs.TRT_AlignAlgsConf import TRTTrackSelectionAlg

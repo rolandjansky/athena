@@ -16,46 +16,38 @@ description          : Class for sorting components according to largest weight.
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
-namespace Trk{
-  
-class SortByLargerComponentWeight {
- public:
-  SortByLargerComponentWeight () {};
+namespace Trk {
 
-  bool operator () ( const ComponentParameters firstComponent,
-         const ComponentParameters secondComponent ) const
+class SortByLargerComponentWeight
+{
+public:
+  SortByLargerComponentWeight(){};
 
-    { return firstComponent.second > secondComponent.second; }
+  bool operator()(const ComponentParameters firstComponent, const ComponentParameters secondComponent) const
 
+  {
+    return firstComponent.second > secondComponent.second;
+  }
 };
 
-class SortByLargerWeight {
+class SortByLargerWeight
+{
 
- public:
-  SortByLargerWeight () {};
+public:
+  SortByLargerWeight(){};
 
-  bool operator () ( const double& firstWeight,
-         const double& secondWeight ) const
-    
-    { return firstWeight > secondWeight; }
-
+  bool operator()(const double& firstWeight, const double& secondWeight) const { return firstWeight > secondWeight; }
 };
 
-class SortBySmallerWeight {
+class SortBySmallerWeight
+{
 
- public:
-  SortBySmallerWeight () {};
+public:
+  SortBySmallerWeight(){};
 
-  bool operator () ( const double& firstWeight,
-                     const double& secondWeight ) const
-
-    { return firstWeight < secondWeight; }
-
+  bool operator()(const double& firstWeight, const double& secondWeight) const { return firstWeight < secondWeight; }
 };
-
-
 
 }
 
 #endif
-

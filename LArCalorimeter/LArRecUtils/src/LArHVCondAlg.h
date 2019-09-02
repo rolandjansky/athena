@@ -30,7 +30,6 @@
 
 
 // forward declaration
-class StoreGateSvc; 
 class CondAttrListCollection;
 class AthenaAttributeList;
 class LArEM_ID;
@@ -69,6 +68,8 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this, "OnOffMap", "LArOnOffIdMap", "SG key for mapping object"};
 
+  SG::ReadCondHandleKey<LArHVIdMapping> m_hvMappingKey {this, "HVMappingKey", "LArHVIdMap", "Key for mapping object" };
+
   // Conditions keys write:
   SG::WriteCondHandleKey<LArHVData> m_hvDataKey {this, "OutputHVData", "LArHVData", "Key for output HV data object"};
   
@@ -94,7 +95,17 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 
   typedef std::vector<std::vector<unsigned short> > pathVec;
 
-  StatusCode fillPayload(LArHVData *hvdata, const LArHVData* hvdataOld, std::vector<float> &voltage, std::vector<float> &current, std::vector<unsigned int> &hvlineidx, const LArHVPathology& pathologies, pathVec& hasPathologyEM, pathVec& hasPathologyHEC, pathVec& hasPathologyFCAL) const;
+  StatusCode fillPayload(LArHVData *hvdata
+			 , const LArHVData* hvdataOld
+			 , const LArHVIdMapping* hvCabling
+			 , std::vector<float> &voltage
+			 , std::vector<float> &current
+			 , std::vector<unsigned int> &hvlineidx
+			 , const LArHVPathology& pathologies
+			 , pathVec& hasPathologyEM
+			 , pathVec& hasPathologyHEC
+			 , pathVec& hasPathologyFCAL) const;
+
   void addHV(std::vector< LArHVData::HV_t > & v, double hv, double wt) const;
   void addCurr(std::vector< LArHVData::CURRENT_t > & ihv, double curr, double wt) const;
   std::vector<unsigned int> getElecList(const Identifier& id, const LArHVPathology& pathologies) const;
@@ -106,11 +117,30 @@ class LArHVCondAlg: public AthReentrantAlgorithm
 
   StatusCode updateMethod(CaloAffectedRegionInfoVec *vAffected, const LArBadFebCont* bfCont, const LArOnOffIdMapping* cabling) const;
 
-  StatusCode searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const;
-  StatusCode searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const;
-  StatusCode searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const;
-  StatusCode searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const;
-  StatusCode searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAffected, const std::vector<float> &voltage, const std::vector<unsigned int> &hvlineidx) const;
+  StatusCode searchNonNominalHV_EMB(CaloAffectedRegionInfoVec *vAffected
+				    , const LArHVIdMapping* hvCabling
+				    , const std::vector<float> &voltage
+				    , const std::vector<unsigned int> &hvlineidx) const;
+
+  StatusCode searchNonNominalHV_EMEC_OUTER(CaloAffectedRegionInfoVec *vAffected
+					   , const LArHVIdMapping* hvCabling
+					   , const std::vector<float> &voltage
+					   , const std::vector<unsigned int> &hvlineidx) const;
+
+  StatusCode searchNonNominalHV_EMEC_INNER(CaloAffectedRegionInfoVec *vAffected
+					   , const LArHVIdMapping* hvCabling
+					   , const std::vector<float> &voltage
+					   , const std::vector<unsigned int> &hvlineidx) const;
+
+  StatusCode searchNonNominalHV_HEC(CaloAffectedRegionInfoVec *vAffected
+				    , const LArHVIdMapping* hvCabling
+				    , const std::vector<float> &voltage
+				    , const std::vector<unsigned int> &hvlineidx) const;
+
+  StatusCode searchNonNominalHV_FCAL(CaloAffectedRegionInfoVec *vAffected
+				     , const LArHVIdMapping* hvCabling
+				     , const std::vector<float> &voltage
+				     , const std::vector<unsigned int> &hvlineidx) const;
   float HV_nominal(const char *identification,const float eta) const;
   std::vector<int> returnProblem(const float eta, const float phi, const float delta_eta, const float delta_phi);
 

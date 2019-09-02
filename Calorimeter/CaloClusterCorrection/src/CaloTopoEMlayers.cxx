@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -57,32 +57,49 @@ StatusCode CaloTopoEMlayers::initialize()
 {
   CHECK(CaloFillRectangularCluster::initialize() );
 
-  // set up the sampling windows:
-  float f_neta = (float)m_neta;
-  float f_nphi = (float)m_nphi;
-
-  m_deta0 = m_detas2*f_neta;
-  m_dphi0 = m_dphis2*f_nphi;
-
-  m_deta1 = m_detas2*f_neta;
-  m_dphi1 = m_dphis2*f_nphi;
-
-  m_deta2 = m_detas2*f_neta;
-  m_dphi2 = m_dphis2*f_nphi;
-
-  m_deta3 = m_detas2*f_neta;
-  m_dphi3 = m_dphis2*f_nphi;
-
   return StatusCode::SUCCESS;
 }
 
 
-
-void CaloTopoEMlayers::get_seed (const xAOD::CaloCluster* cluster,
-                                 const CaloCell* /*max_et_cell*/,
+void CaloTopoEMlayers::get_seed (CaloClusterCorr::SamplingHelper& /*helper*/,
+                                 const xAOD::CaloCluster* cluster,
                                  double& eta,
                                  double& phi) const
 {
   eta = cluster->eta();
   phi = cluster->phi();
+}
+
+
+/** 
+ * @brief Set up layer-by-layer cluster window sizes.
+ * @param neta Cluster eta size.
+ * @param nphi Cluster phi size.
+ * @param detas2 Middle layer cell eta size.
+ * @param detas2 Middle layer cell phi size.
+ *
+ * Returns per-layer array of deta,dphi pairs.
+ */
+CaloFillRectangularCluster::WindowArray_t
+CaloTopoEMlayers::initWindows (const int neta,
+                               const int nphi,
+                               const double detas2,
+                               const double dphis2) const
+{
+  CaloFillRectangularCluster::WindowArray_t w;
+
+  float f_neta = (float)neta;
+  float f_nphi = (float)nphi;
+
+  w[0].first  = detas2*f_neta;
+  w[1].first  = w[0].first;
+  w[2].first  = w[0].first;
+  w[3].first  = w[0].first;
+
+  w[0].second = dphis2*f_nphi;
+  w[1].second = w[0].second;
+  w[2].second = w[0].second;
+  w[3].second = w[0].second;
+
+  return w;
 }

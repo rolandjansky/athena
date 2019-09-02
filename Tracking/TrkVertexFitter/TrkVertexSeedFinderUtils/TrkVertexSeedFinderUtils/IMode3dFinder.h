@@ -25,31 +25,92 @@ namespace Trk
 
    */
 
-  static const InterfaceID IID_IMODE3DFINDER("IMode3dFinder", 1, 1);
+  /// Auxillary interface for getting back additional data.
+  /// Mostly for debugging/monitoring.
+  class IMode3dInfo
+  {
+  public:
+    virtual ~IMode3dInfo() = default;
 
-  class IMode3dFinder : virtual public IAlgTool {
+    virtual unsigned int Modes1d(std::vector<float> &,
+                                 std::vector<float> &, 
+                                 std::vector<float> &,
+                                 std::vector<float> &) const = 0 ;
 
-     public:
-       /** Virtual destructor */
-       virtual ~IMode3dFinder(){};
+    virtual const std::vector<int>& AcceptedCrossingPointsIndices() const = 0;
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IMODE3DFINDER; };
-       
-       virtual void setPriVtxPosition( double, double ) = 0 ;
+    virtual void getCorrelationDistance( double &cXY, double &cZ ) const = 0 ;
 
-       //obtain the 3d-mode (position) from a list of positions (distribution in space)
-       virtual const Amg::Vector3D getMode(const std::vector<Trk::PositionAndWeight> &) const =0;
+    virtual int perigeesAtSeed( std::vector<const Trk::TrackParameters*>& perigees , 
+                                const std::vector<const Trk::TrackParameters*>& perigeeList ) const = 0;
 
-       //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
-       virtual const Amg::Vector3D getMode(const std::vector<Amg::Vector3D> &) const=0;       
-
-       virtual unsigned int Modes1d(std::vector<float> &, std::vector<float> &, 
-				    std::vector<float> &, std::vector<float> &) const = 0 ;
-       virtual const std::vector<int> & AcceptedCrossingPointsIndices() const = 0 ;
-       virtual void getCorrelationDistance( double &cXY, double &cZ ) = 0 ;
+    virtual void setTrkidx (std::vector< std::pair <int, int> >&& trkidx) = 0;
+  };
 
 
+  class IMode3dFinder : virtual public IAlgTool
+  {
+  public:
+    DeclareInterfaceID( IMode3dFinder, 1, 0);
+
+    /**
+     * @brief Obtain the 3d-mode (position) from a list of positions
+     *        (distribution in space)
+     * @param vx Primary vertex x-coordinate.
+     * @param vy Primary vertex y-coordinate.
+     * @param points List of points with weights.
+     */
+    virtual const Amg::Vector3D
+    getMode (const double vx,
+             const double vy,
+             const std::vector<Trk::PositionAndWeight> &) const = 0;
+
+
+    /**
+     * @brief Obtain the 3d-mode (position) from a list of positions
+     *        (distribution in space)
+     * @param vx Primary vertex x-coordinate.
+     * @param vy Primary vertex y-coordinate.
+     * @param points List of points with weights.
+     * @param info[out] Optionally returns an object for retrieving
+     *                  additional information.  May be left null if additional
+     *                  information is not available.
+     */
+    virtual const Amg::Vector3D
+    getMode (const double vx,
+             const double vy,
+             const std::vector<Trk::PositionAndWeight>& points,
+             std::unique_ptr<IMode3dInfo>& info) const = 0;
+
+
+    /**
+     * @brief Obtain the 3d-mode (position) from a list of positions
+     *        (distribution in space)
+     * @param vx Primary vertex x-coordinate.
+     * @param vy Primary vertex y-coordinate.
+     * @param points List of points --- unweighted!
+     */
+    virtual const Amg::Vector3D
+    getMode (const double vx,
+             const double vy,
+             const std::vector<Amg::Vector3D>& points) const = 0;
+
+    
+    /**
+     * @brief Obtain the 3d-mode (position) from a list of positions
+     *        (distribution in space)
+     * @param vx Primary vertex x-coordinate.
+     * @param vy Primary vertex y-coordinate.
+     * @param points List of points --- unweighted!
+     * @param info[out] Optionally returns an object for retrieving
+     *                  additional information.  May be left null if additional
+     *                  information is not available.
+     */
+    virtual const Amg::Vector3D
+    getMode (const double vx,
+             const double vy,
+             const std::vector<Amg::Vector3D>& points,
+             std::unique_ptr<IMode3dInfo>& info) const = 0;
   };
 }
 

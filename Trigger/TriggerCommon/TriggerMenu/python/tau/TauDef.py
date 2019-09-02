@@ -196,7 +196,6 @@ class L2EFChain_tau(L2EFChainDef):
         theTrigFTK_VxPrimary_EF.useRawTracks = False
         theTrigFTK_VxPrimary_EF.useRefittedTracks = False
         theTrigFTK_VxPrimary_EF.vertexContainerName= 'PrimVertexFTK'
-        theTrigFTK_VxPrimary_EF.getVertexContainer = True
         vertexAlgorithms = [theTrigFTK_VxPrimary_EF]
 
         self.EFsequenceList += [[[ self.currentItem ], vertexAlgorithms, self.continueChain('L2', 'vertex')]]
@@ -292,13 +291,13 @@ class L2EFChain_tau(L2EFChainDef):
         # Strategies which need calorimeter pre-selection
         needsCaloPre  = ['calo', 'ptonly',
                          'track', 'tracktwo', 'tracktwoEF']
-        needsCaloMVAPre = ['tracktwoMVA']
+        needsCaloMVAPre = ['tracktwoMVA', 'tracktwoEFmvaTES' ]
         # Strategies which need fast-track finding
         needsTrackTwoPre = ['tracktwo', 'tracktwoonly']
-        needsTrackTwoNoPre = ['tracktwoEF','tracktwoMVA']
+        needsTrackTwoNoPre = ['tracktwoEF','tracktwoMVA', 'tracktwoEFmvaTES']
         needsTrackPre    = ['track', 'FTK', 'FTKRefit', 'FTKNoPrec']
         # Strategies which need Run-II final hypo
-        needsRun2Hypo = ['calo', 'ptonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'FTK', 'FTKRefit', 'FTKNoPrec']
+        needsRun2Hypo = ['calo', 'ptonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwoEFmvaTES']
         fastTrackingUsed = needsTrackPre + needsTrackTwoPre + needsTrackTwoNoPre
 
 

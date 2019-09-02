@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_PRD_ASSOCIATIONTOOL_H
@@ -15,11 +15,6 @@
 class AtlasDetectorID;
 class Identifier;
 
-namespace InDet {
-  class Track;
-  class PrepRawData;
-}
-
 namespace iFatras {
   /** Concrete Implementation of the IPRD_AssociationTool interface.*/
   
@@ -28,29 +23,48 @@ namespace iFatras {
   public:
     ISF_PRD_AssociationTool(const std::string&,const std::string&,const IInterface*);
     virtual ~ISF_PRD_AssociationTool();
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize  () override;
     
     /** add the PRDs from this track to the store
 	@param track all PRDs from 'track' will be added to PRD_AssociationTool's internal store.*/
-    virtual StatusCode addPRDs(const Trk::Track& track);
+    virtual StatusCode addPRDs(const Trk::Track& track) override;
 
+    /** add the PRDs from this track to maps.
+        @param track all PRDs from 'track' will be added to PRD_AssociationTool's internal store.*/
+    virtual StatusCode addPRDs(Maps& maps, const Trk::Track& track) const override;
+
+    /** remove the PRDs from this track from maps
+        @param track all PRDs from 'track' will be removed from maps */
+    virtual StatusCode removePRDs(Maps& maps, const Trk::Track& track) const override;
     /** remove the PRDs from this track from the store
 	@param track all PRDs from 'track' will be removed from the PRD_AssociationTool's 
 	internal store.*/
-    virtual StatusCode removePRDs(const Trk::Track& track);
+    virtual StatusCode removePRDs(const Trk::Track& track) override;
     
+    /** does this PRD belong to at least one track in maps?
+        @param prd the PrepRawData in question
+        @return true if 'prd' exists in at least one track (of course PRD_AssociationTool can only
+        give information about tracks it knows about i.e. that were added to maps with addPRDs()*/
+    virtual bool isUsed(const Maps& maps, const Trk::PrepRawData& prd) const override final;
+
     /** does this PRD belong to at least one track?
 	@param prd the PrepRawData in question
 	@return true if 'prd' exists in at least one track (of course PRD_AssociationTool can only
 	give information about tracks it knows about i.e. that were added with addPRDs()*/
-    virtual bool isUsed(const Trk::PrepRawData& prd) const;
+    virtual bool isUsed(const Trk::PrepRawData& prd) const override;
  
+    /** does this PRD belong to more than one track in maps?
+        @param prd the PrepRawData in question
+        @return true if 'prd' exists on more than one track (of course PRD_AssociationTool can only
+        give information about tracks it knows about i.e. that were added to maps with addPRDs()*/
+    virtual bool isShared(const Maps& maps, const Trk::PrepRawData& prd) const override final;
+
     /** does this PRD belong to more than one track?
 	@param prd the PrepRawData in question
 	@return true if 'prd' exists on more than one track (of course PRD_AssociationTool can only
 	give information about tracks it knows about i.e. that were added with addPRDs()*/
-    virtual bool isShared(const Trk::PrepRawData& prd) const;
+    virtual bool isShared(const Trk::PrepRawData& prd) const override;
     
     /**returns a vector of PRDs belonging to the passed track.
        It's basically for the convenience of users and is created purely from the passed track.
@@ -59,41 +73,60 @@ namespace iFatras {
        @param track this Track will be iterated through and all PrepRawData added to a vector
        @return vector of PrepRawData* belonging to 'track'. The PrepRawData should NOT be deleted 
        - they belong to the Track (and thus the event).*/
-    virtual std::vector< const Trk::PrepRawData* > getPrdsOnTrack(const Trk::Track& track) const;
+    virtual std::vector< const Trk::PrepRawData* > getPrdsOnTrack(const Trk::Track& track) const override;
     
+    // getPrdsOnTrack with state passed explicitly.
+    virtual std::vector< const Trk::PrepRawData* > getPrdsOnTrack(const Maps& maps,
+                                                                  const Trk::Track& track) const override;
+
     /** returns set of tracks which share PRD with this one
 	@param track this Track must be known to this tool. 
 	@return a set of tracks which share PRD/hits with the passed 'track'*/
-    virtual Trk::IPRD_AssociationTool::TrackSet findConnectedTracks( const Trk::Track& track) ;
+    virtual Trk::IPRD_AssociationTool::TrackSet findConnectedTracks( const Trk::Track& track) const override;
     
+    // findConnectedTracks with state passed explicitly.
+    virtual IPRD_AssociationTool::TrackSet findConnectedTracks( const Maps& maps, const Trk::Track& track) const override;
+
     /** get the Tracks associated with this Trk::PrepRawData. 
 	IMPORTANT: Please use the typedefs IPRD_AssociationTool::PrepRawDataRange and 
 	IPRD_AssociationTool::ConstPRD_MapIt (defined in the interface) to access the 
 	tracks, as the way the data is stored internally may change.*/
-    virtual Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange onTracks(const Trk::PrepRawData& prd) const;
+    virtual Trk::IPRD_AssociationTool::PrepRawDataTrackMapRange onTracks(const Trk::PrepRawData& prd) const override;
     
+    // onTracks with explicit state
+    virtual IPRD_AssociationTool::PrepRawDataTrackMapRange onTracks(const Maps& maps,
+                                                                    const Trk::PrepRawData& prd) const override;
+
     /** resets the tool - should be called before using tool (and maybe afterwards to free up 
 	memory)*/
-    virtual void reset();
+    virtual void reset() override;
  
   private:
-    /** holds the tracks associated with each PRD (i.e. the PRD* is the key)*/
-    IPRD_AssociationTool::PrepRawDataTrackMap m_prepRawDataTrackMap;
-    
-    /** holds the PRDs associated with each Track (i.e. the Track* is the key)*/
-    IPRD_AssociationTool::TrackPrepRawDataMap m_trackPrepRawDataMap;
-    
+    // Holds the associations.
+    Maps m_maps;
   };
  
-  inline bool iFatras::ISF_PRD_AssociationTool::isUsed(const Trk::PrepRawData& prd) const
-    {
-      return (m_prepRawDataTrackMap.count(&prd)>0);
-    }
+inline bool iFatras::ISF_PRD_AssociationTool::isUsed(const Maps& maps,
+                                                     const Trk::PrepRawData& prd) const
+{
+  return (maps.m_prepRawDataTrackMap.count(&prd)>0);
+}
+
+inline bool iFatras::ISF_PRD_AssociationTool::isUsed(const Trk::PrepRawData& prd) const
+{
+  return isUsed (m_maps, prd);
+}
   
-  inline bool iFatras::ISF_PRD_AssociationTool::isShared(const Trk::PrepRawData& prd) const
-    {
-      return (m_prepRawDataTrackMap.count(&prd)>1);
-    }
+inline bool iFatras::ISF_PRD_AssociationTool::isShared(const Maps& maps,
+                                                       const Trk::PrepRawData& prd) const
+{
+  return (maps.m_prepRawDataTrackMap.count(&prd)>1);
+}
+
+inline bool iFatras::ISF_PRD_AssociationTool::isShared(const Trk::PrepRawData& prd) const
+{
+  return isShared (m_maps, prd);
+}
   
 }
 

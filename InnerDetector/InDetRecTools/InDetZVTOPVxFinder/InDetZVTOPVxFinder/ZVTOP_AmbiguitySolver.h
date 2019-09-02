@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ namespace InDet
       @author  Tatjana Lenz <tatjana.lenz@cern.ch>
   */  
 
-  class ZVTOP_AmbiguitySolver : virtual public IZVTOP_AmbiguitySolver, public AthAlgTool
+  class ZVTOP_AmbiguitySolver : public extends<AthAlgTool, IZVTOP_AmbiguitySolver>
     {
     public:
       ZVTOP_AmbiguitySolver(const std::string&,const std::string&,const IInterface*);
@@ -43,11 +43,11 @@ namespace InDet
       virtual ~ZVTOP_AmbiguitySolver ();
       
        /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
        /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
+      virtual StatusCode finalize  () override;
       //std::vector<Trk::VxCandidate*> solveAmbiguities(std::vector<Trk::VxCandidate*> VxContainer); --David S.
-      std::vector< xAOD::Vertex* > solveAmbiguities(std::vector< xAOD::Vertex* > VertexContainer);
+      virtual std::vector< xAOD::Vertex* > solveAmbiguities(std::vector< xAOD::Vertex* > VertexContainer) const override;
       
     private:
 

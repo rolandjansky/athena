@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 # import the TrackToVertexIPEstimator configurable
-from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
+from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
 
 def SpecialTrackAssociatorCfg( name = 'SpecialTrackAssociator', useBTagFlagsDefaults = True, **options ):
     """Sets up a SpecialTrackAssociator tool and returns it.
@@ -16,11 +16,11 @@ def SpecialTrackAssociatorCfg( name = 'SpecialTrackAssociator', useBTagFlagsDefa
     output: The actual tool."""
     acc = ComponentAccumulator()
     if useBTagFlagsDefaults:
-        defaults = { 'dzSinTheta_cut'         : 3,
-                     'doPV'                   : True }
+        defaults = { 'WorkingPoint'           : 'Loose',
+                   }
     for option in defaults:
         options.setdefault(option, defaults[option])
     options['name'] = name
-    acc.setPrivateTools(CP__TightTrackVertexAssociationTool( **options))
+    acc.setPrivateTools(CP__TrackVertexAssociationTool( **options))
  
     return acc

@@ -11,10 +11,13 @@
 #
 #########################################################
 
-
-from Digitization.DigitizationFlags import digitizationFlags
 from AthenaCommon.AlgSequence import AlgSequence
-job = AlgSequence()
+topSequence = AlgSequence()
 
-from AthenaCommon.CfgGetter import getPublicTool
-getPublicTool("MergeMcEventCollTool").ptMin = 100.0 #400.0 MeV
+for alg in topSequence:
+    if 'PileUpToolsAlg' in alg.name():
+        alg.PileUpTools["MergeMcEventCollTool"].ptMin = 100.0 #400.0 MeV
+        break
+    if 'MergeMcEventCollection' == alg.name():
+        alg.MergeMcEventCollTool.ptMin = 100.0 #400.0 MeV
+        break

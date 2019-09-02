@@ -11,7 +11,7 @@
 
 TrackParticleCellAssociationAlg::TrackParticleCellAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
-  m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool") {
+  m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", this) {
 
   declareProperty("ParticleCaloCellAssociationTool",m_caloCellAssociationTool);
   declareProperty("PtCut", m_ptCut = 25000. );
@@ -58,8 +58,9 @@ StatusCode TrackParticleCellAssociationAlg::execute()
 
     // get ParticleCellAssociation
     ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() );
-    const Rec::ParticleCellAssociation* association = 0;
-    if( !m_caloCellAssociationTool->particleCellAssociation(*tp,association,0.1) ){
+    std::unique_ptr<const Rec::ParticleCellAssociation> association
+      =m_caloCellAssociationTool->particleCellAssociation(*tp,0.1);
+    if(!association){
       ATH_MSG_DEBUG("failed to obtain the ParticleCellAssociation");
       continue;
     }
@@ -71,7 +72,9 @@ StatusCode TrackParticleCellAssociationAlg::execute()
     }
 
     // create cell from ParticleCellAssociation
-    xAOD::CaloCluster* cluster = Rec::CrossedCaloCellHelper::crossedCells( *association,*association->container(), *clusColl );
+    xAOD::CaloCluster* cluster = Rec::CrossedCaloCellHelper::crossedCells( *association,
+                                                                           *association->container(), 
+                                                                           *clusColl );
     if( !cluster ){
       ATH_MSG_WARNING("Failed to create cluster from ParticleCellAssociation");
       continue;

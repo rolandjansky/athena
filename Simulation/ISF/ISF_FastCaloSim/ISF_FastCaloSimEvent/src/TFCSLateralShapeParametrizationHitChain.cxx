@@ -52,38 +52,52 @@ FCSReturnCode TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationSt
     return FCSFatal;
   }
 
-  float Ehit=simulstate.E(calosample())/nhit;
+  float Elayer=simulstate.E(calosample());
+  float Ehit=Elayer/nhit;
+  float sumEhit=0;
 
   bool debug = msgLvl(MSG::DEBUG);
   if (debug) {
-    ATH_MSG_DEBUG("E("<<calosample()<<")="<<simulstate.E(calosample())<<" #hits="<<nhit);
+    ATH_MSG_DEBUG("E("<<calosample()<<")="<<simulstate.E(calosample())<<" #hits~"<<nhit);
   }
 
-  for (int i = 0; i < nhit; ++i) {
-    TFCSLateralShapeParametrizationHitBase::Hit hit; 
+  int ihit=0;
+  TFCSLateralShapeParametrizationHitBase::Hit hit;
+  hit.reset_center();
+  do {
+    hit.reset();
     hit.E()=Ehit;
     for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
       if (debug) {
-        if (i < 2) hitsim->setLevel(MSG::DEBUG);
+        if (ihit < 2) hitsim->setLevel(MSG::DEBUG);
         else hitsim->setLevel(MSG::INFO);
       }
 
       for (int i = 0; i <= FCS_RETRY_COUNT; i++) {
+        //TODO: potentially change logic in case of a retry to redo the whole hit chain from an empty hit instead of just redoing one step in the hit chain
         if (i > 0) ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): Retry simulate_hit call " << i << "/" << FCS_RETRY_COUNT);
   
         FCSReturnCode status = hitsim->simulate_hit(hit, simulstate, truth, extrapol);
 
-        if (status == FCSSuccess)
+        if (status == FCSSuccess) {
+          if(sumEhit+hit.E()>Elayer) hit.E()=Elayer-sumEhit;//sum of all hit energies needs to be Elayer: correct last hit accordingly
           break;
-        else if (status == FCSFatal)
-          return FCSFatal;
+        } else {
+          if (status == FCSFatal) return FCSFatal;
+        }    
 
         if (i == FCS_RETRY_COUNT) {
           ATH_MSG_ERROR("TFCSLateralShapeParametrizationHitChain::simulate(): simulate_hit call failed after " << FCS_RETRY_COUNT << "retries");
         }
       }
     }
-  }
+    sumEhit+=hit.E();
+    ++ihit;
+    if(ihit>10*nhit) {
+      ATH_MSG_WARNING("TFCSLateralShapeParametrizationHitChain::simulate(): aborting hit chain, iterated " << 10*nhit << " times, expected " << nhit<<" times. Deposited E("<<calosample()<<")="<<sumEhit);
+      break;
+    }  
+  } while (sumEhit<Elayer);
 
   return FCSSuccess;
 }

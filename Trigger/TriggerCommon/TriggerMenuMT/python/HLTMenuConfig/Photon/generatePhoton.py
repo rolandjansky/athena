@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg
-from TrigUpgradeTest.PhotonMenuConfig import l2PhotonRecoCfg, l2PhotonHypoCfg
+from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
+from TriggerMenuMT.HLTMenuConfig.Photon.PhotonRecoSequences import l2PhotonRecoCfg, l2PhotonHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
     ChainStep, Chain, getChainStepName, createStepView
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -63,8 +63,15 @@ def generateChains(flags, chainDict):
 
     l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
 
+
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
+
     import pprint
     pprint.pprint(chainDict)
 
-    chain = Chain(chainDict['chainName'], chainDict['L1item'], [fastCaloStep, l2PhotonStep])
+
+
+    chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, l2PhotonStep])
     return chain

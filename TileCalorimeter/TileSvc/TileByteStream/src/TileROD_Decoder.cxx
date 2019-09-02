@@ -13,16 +13,10 @@
 #include "TileIdentifier/TileTBFrag.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
-#include "TileL2Algs/TileL2Builder.h"
 
 // Atlas includes
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "AthenaKernel/errorcheck.h"
-
-// Gaudi includes
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 
 #include <algorithm>
 #include <iomanip>
@@ -39,41 +33,15 @@ static const InterfaceID IID_ITileROD_Decoder("TileROD_Decoder", 1, 0);
 TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& name,
                                  const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_hid2re(0)
-  , m_hid2reHLT(0)
+  , m_of2Default(true)
+  , m_MBTS(nullptr)
+  , m_hid2re(nullptr)
+  , m_hid2reHLT(nullptr)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
-  , m_fullTileRODs(320000) // default 2017 full mode
   , m_checkMaskedDrawers(false)
 {
   declareInterface<TileROD_Decoder>(this);
-  
-  declareProperty("useFrag0", m_useFrag0 = true);
-  declareProperty("useFrag1", m_useFrag1 = true);
-  declareProperty("useFrag4", m_useFrag4 = true);
-  declareProperty("useFrag5Raw", m_useFrag5Raw = false);
-  declareProperty("useFrag5Reco", m_useFrag5Reco = false);
-  declareProperty("ignoreFrag4HLT", m_ignoreFrag4HLT = false);
-  
-  declareProperty("TileCellEthresholdMeV", m_TileCellEthreshold = -100000.);
-  declareProperty("TileDefaultChannelBuilder", m_TileDefaultChannelBuilder = "TileRawChannelBuilderFlatFilter/TileROD_RCBuilder");
-  declareProperty("TileDefaultL2Builder", m_TileDefaultL2Builder = "TileL2Builder/TileROD_L2Builder");
-  declareProperty("VerboseOutput", m_verbose = false);
-  declareProperty("calibrateEnergy", m_calibrateEnergy = true); // convert ADC counts to pCb for RawChannels
-  declareProperty("suppressDummyFragments", m_suppressDummyFragments = false);
-  declareProperty("maskBadDigits", m_maskBadDigits = false); // put -1 in digits vector for channels with bad BCID or CRC in unpack_frag0
-  declareProperty("MaxWarningPrint", m_maxWarningPrint = 1000);
-  declareProperty("MaxErrorPrint", m_maxErrorPrint = 100);
 
-  declareProperty("AllowedTimeMin", m_allowedTimeMin = -50.); // set amp to zero if time is below allowed time min
-  declareProperty("AllowedTimeMax", m_allowedTimeMax =  50.); // set amp to zero if time is above allowed time max
-  declareProperty("fullTileMode", m_fullTileRODs); // run from which to take the cabling (for the moment, either 320000 - full 2017 mode - or 0 - 2016 mode)
-
-  updateAmpThreshold(15.);
-  m_timeMinThresh = -25;
-  m_timeMaxThresh = 25;
-
-  m_of2Default = true;
-  m_MBTS = NULL;
   m_WarningCounter = 0;
   m_ErrorCounter = 0;
   
@@ -82,8 +50,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   }
 }
 
-void TileROD_Decoder::updateAmpThreshold(float ampMinThresh) {
-  m_ampMinThresh = ampMinThresh;
+void TileROD_Decoder::updateAmpThreshold() {
   m_ampMinThresh_pC = m_ampMinThresh * (12.5 / 1023.);
   m_ampMinThresh_MeV = m_ampMinThresh * (12.5 / 1023. / 1.05 * 1000.);
 }
@@ -121,13 +88,12 @@ int TileROD_Decoder::getErrorCounter() {
 
 StatusCode TileROD_Decoder::initialize() {
   
+  updateAmpThreshold();
+
   m_rc2bytes5.setVerbose(m_verbose);
   m_rc2bytes2.setVerbose(m_verbose);
   m_rc2bytes.setVerbose(m_verbose);
   m_d2Bytes.setVerbose(m_verbose);
-  
-  ServiceHandle<IToolSvc> toolSvc("ToolSvc", this->name());
-  ATH_CHECK( toolSvc.retrieve() );
   
   // retrieve TileHWID helper from det store
   ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
@@ -154,14 +120,6 @@ StatusCode TileROD_Decoder::initialize() {
     ATH_CHECK( m_tileBadChanTool.retrieve() );
   }
 
-  // Get Tool to TileChannelBuilder, to be used to convert automatically digits->channels.
-  //ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultChannelBuilder );
-  //ListItem algRC(m_TileDefaultChannelBuilder);
-  //ATH_CHECK( toolSvc->retrieveTool(algRC.type(), algRC.name(), m_RCBuilder, this) );
-  
-  //ATH_MSG_DEBUG( "algtool " << m_TileDefaultChannelBuilder << " created " );
-  //ATH_CHECK( m_RCBuilder->setProperty(BooleanProperty("calibrateEnergy", m_calibrateEnergy)) );
-  
   m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
 
   m_Rw2Cell[0].reserve(m_maxChannels);
@@ -173,13 +131,10 @@ StatusCode TileROD_Decoder::initialize() {
   m_Rw2Pmt[2].reserve(m_maxChannels * TileCalibUtils::MAX_DRAWER);
   m_Rw2Pmt[3].reserve(m_maxChannels * TileCalibUtils::MAX_DRAWER);
   
-  if (m_TileDefaultL2Builder.size() > 0) {
-    ATH_MSG_DEBUG( "creating algtool " << m_TileDefaultL2Builder );
-    ListItem algL2(m_TileDefaultL2Builder);
-    ATH_CHECK( toolSvc->retrieveTool(algL2.type(), algL2.name(), m_L2Builder, this) );
-    ATH_MSG_DEBUG( "algtool " << m_TileDefaultL2Builder << " created " );
+  if (!m_L2Builder.empty()) {
+    ATH_CHECK( m_L2Builder.retrieve() );
   } else {
-    m_L2Builder = 0;
+    m_L2Builder.disable();
   }
   
   // Initialize
@@ -1030,6 +985,8 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
                                    DigitsMetaData_t& digitsMetaData,
                                    const uint32_t* p, pDigiVec & pDigits) const
 {
+
+
   int size = *(p) - sizeOverhead;
 
   // second word is frag ID (0x100-0x4ff) and frag type
@@ -1086,9 +1043,9 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
 
   const uint32_t* const end_data = data + size;
   while (data < end_data) {
-    if ((*data & 0x00FFFF00) == 0x00BABE00) {
-      unsigned int miniDrawer = *data & 0xFF;
-
+    if ((*data & 0xFFFF0000) == 0xABCD0000) {
+      unsigned int miniDrawer = *(data+6) & 0xFF;
+     
       if ((++data < end_data) && (*data == 0x12345678) && (++data < end_data)) {
 
         unsigned int fragSize   = *data & 0xFF;
@@ -1106,10 +1063,10 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
         // check trailer
         const uint32_t* trailer = data + paramsSize + 3 + fragSize; // 2 = (BCID + L1ID)
 
-        if ((trailer + 3) <= end_data // 3 = (trailer size)
+
+        if ((trailer + 1) <= end_data // 3 = (trailer size)
             && *trailer == 0x87654321
-            && *(++trailer) == 0xBCBCBCDC
-            && *(++trailer) == (0x00DEAD00 | (miniDrawer) | (miniDrawer << 24))) {
+            ) {
 
           if (paramsSize == 3){
             runNumber[miniDrawer]  = *(++data);
@@ -1132,6 +1089,8 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/,
           bcid[miniDrawer] = (*(++data) >> 16) & 0xFFFF;
           l1id[miniDrawer] = *(++data);
 
+
+          
 
           if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::VERBOSE) << "FRAG6: Found MD[" << miniDrawer << "] fragment"
@@ -3009,7 +2968,7 @@ void TileROD_Decoder::fillCollectionL2(const ROBData * rob, TileL2Container & v)
     // return;
   }
   
-  if (DataType >= 3 && counter == 0 && m_L2Builder) {
+  if (DataType >= 3 && counter == 0 && !m_L2Builder.empty()) {
     if (m_L2Builder->process(fragmin, fragmax, &v).isFailure()) {
       ATH_MSG_ERROR( "Failure in " << m_L2Builder );
       return;
@@ -3542,7 +3501,7 @@ uint32_t TileROD_Decoder::make_copyHLT(bool of2,
       ATH_MSG_ERROR("TileROD_Decderr::make_copyHLT is not MT-safe but used in "
                     "a MT job.  Results will likely be wrong.");
     }
-    if (m_MBTS != NULL && MBTS_chan >= 0) {
+    if (m_MBTS && MBTS_chan >= 0) {
       auto it = m_mapMBTS.find (frag_id);
       unsigned int idx = it != m_mapMBTS.end() ? it->second : 0u;
       if (idx < (*m_MBTS).size()) { // MBTS present (always last channel)

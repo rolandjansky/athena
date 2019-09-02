@@ -58,7 +58,7 @@ theApp.EvtMax = 50
 #---------------------------------------------------------------
 include("GeneratorObjectsAthenaPool/GeneratorObjectsAthenaPool_joboptions.py")
 
-include("AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include("AthenaServices/AthenaSealSvc_joboptions.py" )
 AthenaSealSvc.CheckDictionary = TRUE
 
 

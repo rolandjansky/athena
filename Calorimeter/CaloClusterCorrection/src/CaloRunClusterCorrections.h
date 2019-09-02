@@ -32,9 +32,10 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
+#include "TileConditions/TileBadChannels.h"
+#include "LArRecConditions/LArBadChannelCont.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-class StoreGateSvc;
 class MsgStream;
 class IToolSvc;
 
@@ -354,12 +355,6 @@ private:
   /// If true, don't clear out the values of long properties.
   bool m_noClearProps;
 
-  /// The event store.
-  //ServiceHandle<StoreGateSvc> m_storeGate;
-
-  /// The detector store.
-  //ServiceHandle<StoreGateSvc> m_detStore;
-
   /// The job options service.
   ServiceHandle<IJobOptionsSvc> m_jos;
 
@@ -379,13 +374,18 @@ private:
   /// COOL folder name in case of COOL inline storage
   std::string  m_folderName;
 
-  /// Public AlgTool to convert COOL inline data into ToolConstants objects
+  /// AlgTool to convert COOL inline data into ToolConstants objects
   ToolHandle<Blob2ToolConstants> m_coolInlineTool;
 
   // FIXME: Dependencies don't get propagated from dynamically-created
   // correction tools.  Hardcode this dependency as a workaround.
   SG::ReadCondHandleKey<CaloAffectedRegionInfoVec> m_affKey{this,
      "LArAffectedRegionKey", "LArAffectedRegionInfo", "SG key for affected regions cond object"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_LArBCKey { this, 
+      "LArBadChanKey","LArBadChannel","SG Key of LArBadChannelCont object"};
+  SG::ReadCondHandleKey<TileBadChannels> m_TileBCKey{this,
+      "TileBadChanKey", "TileBadChannels", "Input Tile bad channel status"};
+
 };
 
 

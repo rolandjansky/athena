@@ -26,7 +26,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/Enums.h"
 
-#include "TrigCaloHypo/TrigEFCaloHypoNoise.h"
+#include "TrigEFCaloHypoNoise.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "hltinterface/IInfoRegister.h"

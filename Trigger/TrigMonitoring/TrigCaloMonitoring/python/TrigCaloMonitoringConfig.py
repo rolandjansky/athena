@@ -54,6 +54,9 @@ def HLTCaloMonitoringTool():
                          roifcalhadcellcontmaker,
                          RoITileCellContMaker()]
     HLTCaloFEB.sigma = 3
+
+    HLTCaloFEB.NoiseTool=theCaloNoiseTool
+
 #
     # Add Region Selector if there is none
     from AthenaCommon.AppMgr import ServiceMgr
@@ -81,7 +84,15 @@ def HLTCaloMonitoringTool():
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloESD_CaloCells
 
     xAODTrigEMClusters = HLTCaloESD_xAODTrigEMClusters("xAODTrigEMClusters")
-    xAODCaloClusters   = HLTCaloESD_xAODCaloClusters  ("xAODCaloClusters")
+    xAODCaloClustersFS   = HLTCaloESD_xAODCaloClusters  ("xAODCaloClustersFS",
+                                        HLTContainerRun2 = "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker",
+                                        HLTContainerRun3 = "HLT_TopoCaloClustersFS")
+    xAODCaloClustersRoI  = HLTCaloESD_xAODCaloClusters  ("xAODCaloClustersRoI",
+                                        HLTContainerRun2 = "",
+                                        HLTContainerRun3 = "HLT_TopoCaloClustersRoI")
+    xAODCaloClustersLC   = HLTCaloESD_xAODCaloClusters  ("xAODCaloClustersLC",
+                                        HLTContainerRun2 = "",
+                                        HLTContainerRun3 = "HLT_TopoCaloClustersLC")
     CaloCells          = HLTCaloESD_CaloCells         ("CaloCells")
         
     HLTCaloL2 = HLTCaloToolL2(name             = 'HLTCaloL2',
@@ -98,7 +109,9 @@ def HLTCaloMonitoringTool():
     #ToolSvc += HLTCaloCluster;                                                                                                                                                                                                                                    
     #ToolSvc += xAODCaloClusters
     #list += [ "HLTCaloClusterTool/HLTCaloCluster" ];                                                                                                                                                                                                              
-    list += [ xAODCaloClusters ]
+    list += [ xAODCaloClustersFS ]
+    list += [ xAODCaloClustersRoI ]
+    list += [ xAODCaloClustersLC ]
     #ToolSvc += CaloCells
     list += [ CaloCells ]
     

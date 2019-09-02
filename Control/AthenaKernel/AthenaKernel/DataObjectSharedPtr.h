@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -19,6 +19,7 @@
 
 #include "GaudiKernel/DataObject.h"
 #include "boost/intrusive_ptr.hpp"
+#include <memory>
 
 
 inline void intrusive_ptr_add_ref (DataObject* o)
@@ -48,6 +49,8 @@ public:
   DataObjectSharedPtr() {}
   explicit DataObjectSharedPtr (T* p, bool add_ref = true)
     : Base (p, add_ref) {}
+  explicit DataObjectSharedPtr (std::unique_ptr<T> p, bool add_ref = true)
+    : Base (p.release(), add_ref) {}
   DataObjectSharedPtr (const DataObjectSharedPtr& rhs)
     : Base (rhs) {}
   template <class U>

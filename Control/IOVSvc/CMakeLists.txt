@@ -16,8 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Control/AthContainersInterfaces
                           Database/PersistentDataModel
-                          Event/EventInfo 
-			  Event/xAOD/xAODEventInfo )
+                          Event/EventInfo
+                          Event/xAOD/xAODEventInfo )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -35,13 +35,13 @@ atlas_add_library( IOVSvcLib
 atlas_add_component( IOVSvc
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} IOVSvcLib )
 
 atlas_add_test( IOVSvcTool_test
                 SOURCES
                 test/IOVSvcTool_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel
+                LINK_LIBRARIES IOVSvcLib
                 EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 
@@ -49,7 +49,7 @@ atlas_add_test( IOVSvc_test
                 SOURCES
                 test/IOVSvc_test.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests GaudiKernel TestTools EventInfo IOVSvcLib xAODEventInfo PersistentDataModel
+                LINK_LIBRARIES IOVSvcLib
                 EXTRA_PATTERNS "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
 

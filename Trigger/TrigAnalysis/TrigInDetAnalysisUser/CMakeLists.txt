@@ -66,6 +66,7 @@ atlas_add_executable( TIDAreader
 
 atlas_add_executable( TIDArdict
                       Analysis/src/rmain.cxx
+                      Analysis/src/TagNProbe.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} TrigInDetAnalysis TrigInDetAnalysisExampleLib TrigInDetAnalysisUtils Resplot Readcards TIDA TIDAcomputils )
 

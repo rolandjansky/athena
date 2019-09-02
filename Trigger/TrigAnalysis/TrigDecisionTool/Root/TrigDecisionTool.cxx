@@ -102,6 +102,15 @@ StatusCode
 Trig::TrigDecisionTool::initialize() {
    TrigDecisionToolCore::initialize().ignore();
 
+   if (m_navigationFormat != "TriggerElement" && m_navigationFormat != "TrigComposite") {
+     ATH_MSG_ERROR("NavigationFormat property must be one of 'TriggerElement' for Run 1, 2 triggered input or 'TrigComposite' for Run 3+ triggered input");
+     return StatusCode::FAILURE;
+   }
+
+   if (m_navigationFormat == "TrigComposite") {
+     ATH_CHECK(m_HLTSummaryKeyIn.initialize());
+   }
+
    s_instances.push_back(name());
    if ( s_instances.size() > 1) {
        ATH_MSG_WARNING("Several TrigDecisionTool instances" );
@@ -287,6 +296,11 @@ unsigned int
 Trig::TrigDecisionTool::isPassedBits( const std::string& chain ) const {
 
    return TrigDecisionToolCore::isPassedBits( chain );
+}
+
+const std::string&
+Trig::TrigDecisionTool::getNavigationFormat() const {
+   return m_navigationFormat;
 }
 
 

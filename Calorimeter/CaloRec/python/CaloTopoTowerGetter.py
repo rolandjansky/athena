@@ -1,10 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # specifies Tower/TopoCluster -> TopoTower
 from AthenaCommon.JobProperties import jobproperties as jp
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 import traceback
 
 from RecExConfig.Configured import Configured
@@ -26,9 +24,9 @@ class CaloTopoTowerGetter ( Configured )  :
                 try:
                     from CaloRec.CaloTowerCmbGetter import CaloTowerCmbGetter
                     theCaloTowerCmbGetter = CaloTowerCmbGetter()
-                except:
+                except Exception:
                     mlog.error("could not get handle to CaloTowerCmbGetter Quit")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
 			
                 if not theCaloTowerCmbGetter.usable():
@@ -45,7 +43,7 @@ class CaloTopoTowerGetter ( Configured )  :
                     theCaloClusterTopoGetter = CaloClusterTopoGetter()
                 except Exception:
                     mlog.error("could not get handle to CaloClusterTopoGetter  Quit")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
         
                 if not theCaloClusterTopoGetter.usable():
@@ -63,7 +61,7 @@ class CaloTopoTowerGetter ( Configured )  :
                     theCaloCell2TopoClusterMapperGetter = CaloCell2TopoClusterMapperGetter()
                 except Exception:
                     mlog.error("could not get handle to CaloCell2TopoClusterMapperGetter  Quit")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
 		
                 if not theCaloCell2TopoClusterMapperGetter.usable():
@@ -78,21 +76,21 @@ class CaloTopoTowerGetter ( Configured )  :
                 try:        
                     from CaloRec.CaloRecConf import CaloTopoTowerAlgorithm                
                     theCaloTopoTowerAlgorithm=CaloTopoTowerAlgorithm("TopoTowerBldr")
-                except:
+                except Exception:
                     mlog.error("could not import CaloRec.CaloTopoTowerAlgorithm")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
 
-                self._CaloTopoTowerAlgorithmHandle = theCaloTopoTowerAlgorithm ;
+                self._CaloTopoTowerAlgorithmHandle = theCaloTopoTowerAlgorithm
 
 
                 # configure CaloTopoTowerAlgorithm here
                 try:
                     from CaloUtils.CaloUtilsConf import CaloTopoTowerBuilderTool
                     theCaloTopoTowerBuilderTool=CaloTopoTowerBuilderTool("TopoTowerTwrBldr")
-                except:
+                except Exception:
                     mlog.error("could not get handle to CaloTopoTowerBuilderTool Quit")
-                    print traceback.format_exc()
+                    print(traceback.format_exc())
                     return False
     
                 theCaloTopoTowerAlgorithm.TowerBuilderTools+= [ theCaloTopoTowerBuilderTool.getFullName() ]
@@ -135,7 +133,7 @@ class CaloTopoTowerGetter ( Configured )  :
                 from AthenaCommon.AlgSequence import AlgSequence
                 topSequence = AlgSequence()
 
-                topSequence += theCaloTopoTowerAlgorithm ;
+                topSequence += theCaloTopoTowerAlgorithm
 
                 return True
 	

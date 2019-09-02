@@ -1,26 +1,20 @@
-// emacs: this is -*- c++ -*-
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/* emacs: this is -*- c++ -*- */
+/**
+ **   @file         StatVal.h  
  **
- **   File:         StatVal.h  
- **
- **   Description:  simple class containing the value and stat error
- **
+ **                 simple class containing the value and stat error
  ** 
- **   Author:       M.Sutton  
+ **   @author      M.Sutton  
  **
- **   Created:      Mon Jun 21 18:35:22 BST 2004
- **   Modified:     
- **                   
- **                   
+ **   @date         Mon Jun 21 18:35:22 BST 2004
  **
- **************************************************************************/ 
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **
+ **/
 
 
-#ifndef __STATVAL_H
-#define __STATVAL_H
+#ifndef RESPLOT_STATVAL_H
+#define RESPLOT_STATVAL_H
 
 #include <iostream>
 #include <iomanip>
@@ -64,5 +58,5 @@ inline std::ostream& operator<<(std::ostream& s, const StatVal& sv) {
 
 
 
-#endif  /* __STATVAL_H */
+#endif  /* RESPLOT_STATVAL_H */
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -156,8 +156,7 @@ namespace Trig {
     template<class T, class CONT, class LINK>
     struct insert_and_flatten<T, CONT, true, LINK> {
       static void do_it(std::vector<Trig::Feature<T> >& destination, const CONT* source, const HLT::TriggerElement* te, const std::string& label, 
-			unsigned int condition, HLT::NavigationCore* navigation,const LINK& lnk) {	
-	(void)lnk; //get rid of unused par warning
+			unsigned int condition, HLT::NavigationCore* navigation,const LINK& /*lnk*/) {	
 
 	//std::cout << "insert_and_flatten<true> " << label << " of container of size " << source->size() <<  std::endl;
       
@@ -243,8 +242,7 @@ namespace Trig {
       void _do_it(false_type dummy = false_type()) const {(void)dummy;/* do nothing */;}
     
       template<class FEATURE,bool do_flatten>
-      void _do_it(true_type dummy = true_type()) const {
-	(void)dummy; // turn of unused par warning
+      void _do_it(true_type /*dummy*/ = true_type()) const {
 
 	//const HLT::TriggerElement* sourceTE(0);
 	std::string sourceLabel;

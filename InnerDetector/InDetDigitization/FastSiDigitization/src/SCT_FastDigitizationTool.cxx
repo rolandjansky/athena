@@ -10,7 +10,6 @@
 // Hit class includes
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "Identifier/Identifier.h"
-#include "CxxUtils/make_unique.h"
 
 // Det Descr includes
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -45,11 +44,9 @@
 #include "CLHEP/Random/RandLandau.h"
 
 #include <algorithm>
+#include <memory>
 #include <sstream>
 #include <string>
-
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
 
 SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
                                                    const std::string& name,
@@ -66,7 +63,6 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   m_randomEngineName("FastSCT_Digitization"),
   m_thpcsi(nullptr),
   m_clusterMaker("InDet::ClusterMakerTool"),
-  m_vetoThisBarcode(crazyParticleBarcode),
   m_sctClusterMap(nullptr),
   m_sctClusterContainer("SCT_Clusters"),
   m_sctPrdTruth("PRD_MultiTruthSCT"),
@@ -105,7 +101,6 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
   declareProperty("DiffusionShiftX_endcap", m_DiffusionShiftX_endcap);
   declareProperty("DiffusionShiftY_endcap", m_DiffusionShiftY_endcap);
   declareProperty("HardScatterSplittingMode"      , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
-  declareProperty("ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
 }
 
 //----------------------------------------------------------------------
@@ -210,7 +205,7 @@ StatusCode SCT_FastDigitizationTool::createOutputContainers()
 {
   if (!m_sctClusterContainer.isValid())
     {
-      m_sctClusterContainer = CxxUtils::make_unique<InDet::SCT_ClusterContainer>(m_sct_ID->wafer_hash_max());
+      m_sctClusterContainer = std::make_unique<InDet::SCT_ClusterContainer>(m_sct_ID->wafer_hash_max());
       if(!m_sctClusterContainer.isValid())
         {
           ATH_MSG_FATAL( "[ --- ] Could not create SCT_ClusterContainer");
@@ -229,7 +224,7 @@ StatusCode SCT_FastDigitizationTool::createOutputContainers()
   // truth info
   if (!m_sctPrdTruth.isValid())
     {
-      m_sctPrdTruth = CxxUtils::make_unique<PRD_MultiTruthCollection>();
+      m_sctPrdTruth = std::make_unique<PRD_MultiTruthCollection>();
       if (!m_sctPrdTruth.isValid())
         {
           ATH_MSG_FATAL("Could not record collection " << m_sctPrdTruth.name());

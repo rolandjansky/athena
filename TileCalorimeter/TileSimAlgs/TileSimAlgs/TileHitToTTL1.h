@@ -32,6 +32,7 @@
 #include "TileEvent/TileTTL1Container.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -115,6 +116,12 @@ class TileHitToTTL1: public AthAlgorithm {
 
     bool m_tileNoise;   //!< If true => generate noise for the TileTTL1 creation
     bool m_tileThresh;  //!< If true => apply threshold on the conversion to TileTTL1
+
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
 
     ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""}; //!< Random number generator engine to use
 

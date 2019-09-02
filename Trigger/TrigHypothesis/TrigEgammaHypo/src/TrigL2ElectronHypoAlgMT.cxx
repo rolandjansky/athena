@@ -111,7 +111,7 @@ StatusCode TrigL2ElectronHypoAlgMT::execute( const EventContext& context ) const
     ATH_CHECK( tool->decide( hypoToolInput ) );    
   } 
 
-  ATH_CHECK( printDebugInformation(outputHandle, MSG::DEBUG) );
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
   return StatusCode::SUCCESS;
 }

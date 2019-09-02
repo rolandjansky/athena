@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -14,7 +14,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "TrigInterfaces/FexAlgo.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 //LVL1 ROIS
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -23,6 +22,7 @@
 //MUON CLUSTER
 #include "TrigL2LongLivedParticles/MuonCluster.h"
 #include "CxxUtils/fpcompare.h"
+#include "CxxUtils/phihelper.h"
 
 using namespace std;
 
@@ -215,7 +215,7 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
               ++n_in_clu;
               if(n_itr==1){
                   muonClu[i_cl].eta = muonClu[i_cl].eta + (muonClu0[j_cl].eta-muonClu[i_cl].eta)/n_in_clu;
-                  muonClu[i_cl].phi = HLT::wrapPhi(muonClu[i_cl].phi + HLT::wrapPhi(muonClu0[j_cl].phi-muonClu[i_cl].phi)/n_in_clu);
+                  muonClu[i_cl].phi = CxxUtils::wrapToPi(muonClu[i_cl].phi + CxxUtils::wrapToPi(muonClu0[j_cl].phi-muonClu[i_cl].phi)/n_in_clu);
               } else{
                   //to recalculate the average with all RoIs within a dR = 0.4 cone of the seed position
                   eta_avg += muonClu0[j_cl].eta;
@@ -284,8 +284,8 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   //only need to do this if the MuonCluster will pass the hypo!
   if( (m_CluNum >= 3 && fabs(m_CluEta) < 1.0) || (m_CluNum >= 4 && fabs(m_CluEta) >= 1.0 && fabs(m_CluEta) <= 2.5)){
     double phiHalfWidth = 0.35;
-    double phiMinus = HLT::wrapPhi(m_CluPhi-phiHalfWidth);
-    double phiPlus  = HLT::wrapPhi(m_CluPhi+phiHalfWidth); 
+    double phiMinus = CxxUtils::wrapToPi(m_CluPhi-phiHalfWidth);
+    double phiPlus  = CxxUtils::wrapToPi(m_CluPhi+phiHalfWidth);
     TrigRoiDescriptor* roi =  new TrigRoiDescriptor(m_CluEta, m_CluEta-0.4, m_CluEta+0.4,m_CluPhi, phiMinus, phiPlus);
     
     HLT::ErrorCode hltStatus = attachFeature(outputTE, roi, "forID");
@@ -338,7 +338,7 @@ void MuonCluster::clearEvent() {
 
 float MuonCluster::DeltaR(std::vector<const LVL1::RecMuonRoI*>::const_iterator p_roi,lvl1_muclu_roi q_roi){
 
-  float delPhi = HLT::wrapPhi((*p_roi)->phi()-(q_roi).phi);
+  float delPhi = CxxUtils::wrapToPi((*p_roi)->phi()-(q_roi).phi);
   float delEta = (*p_roi)->eta()-(q_roi).eta;
 
   return(sqrt(delPhi*delPhi+delEta*delEta));  
@@ -346,7 +346,7 @@ float MuonCluster::DeltaR(std::vector<const LVL1::RecMuonRoI*>::const_iterator p
 
 float MuonCluster::DeltaR(lvl1_muclu_roi p_roi,lvl1_muclu_roi q_roi){
 
-  float delPhi = HLT::wrapPhi((p_roi).phi-(q_roi).phi);
+  float delPhi = CxxUtils::wrapToPi((p_roi).phi-(q_roi).phi);
   float delEta = (p_roi).eta-(q_roi).eta;
 
   return(sqrt(delPhi*delPhi+delEta*delEta));

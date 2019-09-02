@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -113,7 +113,7 @@ void fillVertex(VKVertex *vk, int NTRK, long int *ich, double xyz0[3], double (*
     for (int tk=0; tk<NTRK ; tk++) {
        long int TrkID=tk;
        vk->TrackList[tk]= std::make_unique< VKTrack >(TrkID, &inp_Trk5[tk][0], &inp_CovTrk5[tk][0], vk, vrtForCFT.wm[tk]);
-     //printT(&inp_Trk5[tk*5], &inp_CovTrk5[tk*15] , "Input track:");
+     //printT(&inp_Trk5[tk][0], &inp_CovTrk5[tk][0] , "Input track:");
      //std::cout<<(*vk->TrackList[tk]);
        vk->tmpArr[tk]= std::make_unique< TWRK > ();
        vk->TrackList[tk]->Charge = ich[tk];           // Charge coinsides with sign of curvature
@@ -141,7 +141,7 @@ void fillVertex(VKVertex *vk, int NTRK, long int *ich, double xyz0[3], double (*
 bool checkPosition(VKVertex * vk, double vertex[3]){
     bool insideGoodVolume=true;
     if(vk->vk_fitterControl && vk->vk_fitterControl->vk_objProp) 
-           { insideGoodVolume = vk->vk_fitterControl->vk_objProp->checkTarget(vertex);}
+           { insideGoodVolume = vk->vk_fitterControl->vk_objProp->checkTarget(vertex, *vk->vk_fitterControl->vk_istate);}
     else { insideGoodVolume = myPropagator.checkTarget(vertex); }
     return insideGoodVolume;
 }
@@ -156,9 +156,9 @@ int fitVertex(VKVertex * vk)
 {
     int  i, jerr, tk, it=0;
 
-    double chi2df, dparst[6];
+    double dparst[6];
     double chi2min, chi21s=11., chi22s=10., vShift;
-    double aermd[30],tmpd[30];  // temporary array
+    double aermd[6],tmpd[6]={0.};  // temporary arrays
     double tmpPer[5],tmpCov[15], tmpWgt[15];
     double VrtMomCov[21],PartMom[4];
     double cnstRemnants=0., iniCnstRem=0.;
@@ -188,7 +188,6 @@ int fitVertex(VKVertex * vk)
     VKTrack * trk=0;
 
     chi2min = 1e15;
-    chi2df = 0.;
 
     if( vrtForCFT.nmcnst && vrtForCFT.useMassCnst )  {       //mass constraints are present
       std::vector<int> index;
@@ -196,19 +195,15 @@ int fitVertex(VKVertex * vk)
        if(vrtForCFT.wmfit[ic]>0){    // new mass constraint
            index.clear();
            for(tk=0; tk<NTRK; tk++){ if( vrtForCFT.indtrkmc[ic][tk] )index.push_back(tk); }
-           vk->ConstraintList.emplace_back(new VKMassConstraint( NTRK, vrtForCFT.wmfit[ic], index, vk) );
+           vk->ConstraintList.emplace_back(std::make_unique<VKMassConstraint>( NTRK, vrtForCFT.wmfit[ic], index, vk));
         }
       }
-      //VKMassConstraint *ctmp=dynamic_cast<VKMassConstraint*>( vk->ConstraintList[0]); std::cout<<(*ctmp)<<'\n';
     }
     if( vrtForCFT.usePointingCnst==1 ){  //3Dpointing
-      vk->ConstraintList.emplace_back(new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, false));
-      //VKPointConstraint *ptmp=dynamic_cast<VKPointConstraint*>( vk->ConstraintList[1]); std::cout<<(*ptmp)<<'\n';
+      vk->ConstraintList.emplace_back(std::make_unique<VKPointConstraint>( NTRK, vrtForCFT.vrt, vk, false));
     }
     if( vrtForCFT.usePointingCnst==2 ){  //Z pointing
-      VKPointConstraint *temp = new VKPointConstraint( NTRK, vrtForCFT.vrt, vk, true);
-      vk->ConstraintList.emplace_back(temp);
-      //VKPointConstraint *ptmp=dynamic_cast<VKPointConstraint*>( vk->ConstraintList[1]); std::cout<<(*ptmp)<<'\n';
+      vk->ConstraintList.emplace_back(std::make_unique<VKPointConstraint>( NTRK, vrtForCFT.vrt, vk, true));
     }
     if ( vrtForCFT.useAprioriVrt ) {
         cfdcopy(vrtForCFT.covvrt, tmpd,   6);
@@ -217,13 +212,18 @@ int fitVertex(VKVertex * vk)
         cfdcopy(vrtForCFT.vrt, vk->apriorV,   3);
         cfdcopy(      aermd, vk->apriorVWGT,6);
     }
-    if ( vrtForCFT.usePhiCnst )  vk->ConstraintList.emplace_back(new VKPhiConstraint( NTRK, vk));
-    if ( vrtForCFT.useThetaCnst )vk->ConstraintList.emplace_back(new VKThetaConstraint( NTRK, vk));
+    if ( vrtForCFT.usePhiCnst )  vk->ConstraintList.emplace_back(std::make_unique<VKPhiConstraint>( NTRK, vk));
+    if ( vrtForCFT.useThetaCnst )vk->ConstraintList.emplace_back(std::make_unique<VKThetaConstraint>( NTRK, vk));
     if ( vrtForCFT.usePlaneCnst ){
       if( vrtForCFT.Ap+vrtForCFT.Bp+vrtForCFT.Cp != 0.){
-        vk->ConstraintList.emplace_back(new VKPlaneConstraint( NTRK, vrtForCFT.Ap, vrtForCFT.Bp, vrtForCFT.Cp, vrtForCFT.Dp, vk));
+        vk->ConstraintList.emplace_back(std::make_unique<VKPlaneConstraint>( NTRK, vrtForCFT.Ap, vrtForCFT.Bp, vrtForCFT.Cp, vrtForCFT.Dp, vk));
       }
     }
+//-----Debug printout
+//    for(auto & cnst : vk->ConstraintList) {
+//       VKMassConstraint *ctmp=dynamic_cast<VKMassConstraint*>( cnst.get() );   if(ctmp) std::cout<<(*ctmp)<<'\n'; 
+//       VKPointConstraint *ptmp=dynamic_cast<VKPointConstraint*>( cnst.get() );    if(ptmp) std::cout<<(*ptmp)<<'\n';
+//    }
 //
 // Needed for track close to vertex constraint
     for(i=0; i<2*6; i++)vk->FVC.cvder[i]=0.;
@@ -274,9 +274,9 @@ int fitVertex(VKVertex * vk)
             myPropagator.Propagate(vk->TrackList[tk].get(), vk->refV,  targV, tmpPer, tmpCov, (vk->vk_fitterControl).get());
             cfTrkCovarCorr(tmpCov);
             double eig5=cfSmallEigenvalue(tmpCov,5 );
- 	    if(eig5<1.e-15 ){ 
+            if(eig5>0 && eig5<1.e-15 ){
                 tmpCov[0]+=1.e-15; tmpCov[2]+=1.e-15; tmpCov[5]+=1.e-15;  tmpCov[9]+=1.e-15;  tmpCov[14]+=1.e-15; 
-	    }else if(tmpCov[0]>1.e9) {  //Bad propagation with material. Try without it.
+	    }else if(tmpCov[0]>1.e9 || eig5<0.) {  //Bad propagation with material. Try without it.
                myPropagator.Propagate(-999, vk->TrackList[tk]->Charge, vk->TrackList[tk]->refPerig,vk->TrackList[tk]->refCovar,
 	              	                vk->refV,  targV, tmpPer, tmpCov, (vk->vk_fitterControl).get()); 
 
@@ -344,8 +344,9 @@ int fitVertex(VKVertex * vk)
 //Reset mag.field
           for( i=0; i<3; i++) dparst[i]=vk->refIterV[i]+vk->fitV[i]; // fitted vertex at global frame
           vrtForCFT.localbmag=myMagFld.getMagFld(dparst,(vk->vk_fitterControl).get());
-	  if ( vk->passNearVertex ) {
+	  if ( vk->passNearVertex && it>1 ) {  //No necessary information at first iteration
             jerr = afterFit(vk, vk->ader, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
+            if(jerr!=0) return -17;  // Non-invertable matrix for combined track
 	    cfdcopy( PartMom, &dparst[3], 3);  //vertex part of it is filled above
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
 	    cfdcopy(  PartMom, vk->fitMom, 3);          //save Momentum
@@ -370,14 +371,15 @@ int fitVertex(VKVertex * vk)
         }
 //
 // 
-	if (chi22s > 1e8) {  IERR = -1; return IERR; }      // TOO HIGH CHI2 - BAD FIT
+	if (chi22s > 1e8)     { return  -1; }      // TOO HIGH CHI2 - BAD FIT
+	if (chi22s != chi22s) { return -14; }      // Chi2 == nan  - BAD FIT
 	for( i=0; i<3; i++) newVrtXYZ[i] = vk->refIterV[i]+vk->fitV[i];  //   fitted vertex in global frame
 	//std::cout.precision(11);
 	//std::cout<<"NNFIT Iter="<<it<<" Chi2ss="<< chi21s <<", "<<chi22s<<", "<<vShift<<'\n';
 	//std::cout<<"NNVertex="<<newVrtXYZ[0]<<", "<<newVrtXYZ[1]<<", "<<newVrtXYZ[2]<<'\n';
 	//std::cout<<"-----------------------------------------------"<<'\n';
 /*  Test of convergence */
-	chi2df = fabs(chi21s - chi22s);
+	double chi2df = fabs(chi21s - chi22s);
   /*---------------------Normal convergence--------------------*/
         double PrecLimit = std::min(chi22s*1.e-4, vrtForCFT.IterationPrecision);
 //std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
@@ -397,7 +399,8 @@ int fitVertex(VKVertex * vk)
 
 // Track near vertex constraint recalculation for next fit
 	if ( vk->passNearVertex ) {
-            jerr = afterFit(vk, vk->ader, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
+            if(it==1) jerr = afterFit(vk,        0, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
+            else      jerr = afterFit(vk, vk->ader, vk->FVC.dcv, PartMom, VrtMomCov, (vk->vk_fitterControl).get());
             for( i=0; i<3; i++) dparst[i] = vk->refIterV[i]+vk->fitV[i]; // fitted vertex at global frame
             cfdcopy( PartMom, &dparst[3], 3);
             cfdcopy(VrtMomCov,vk->FVC.dcovf,21);  //Used in chi2 caclulation later...
@@ -478,6 +481,8 @@ int fitVertex(VKVertex * vk)
         ptot[0]+=pp[0]; ptot[1]+=pp[1]; ptot[2]+=pp[2]; ptot[3]+=pp[3];
     }
     cfdcopy(MainVRT->fitVcov, covf  , 6);  //fitted vertex covariance
+    FitCONTROL->setVertexMass(sqrt((ptot[3]-ptot[2])*(ptot[3]+ptot[2]) - ptot[1]*ptot[1] - ptot[0]*ptot[0]) );
+    FitCONTROL->setVrtMassError(0.);
 //     
 //  If required - get full covariance matrix
 //
@@ -493,7 +498,7 @@ int fitVertex(VKVertex * vk)
             FitCONTROL->getFullCovariance()[out] = ARR2D_FS(MainVRT->ader, 3*vkalNTrkM+3, ti, tj);
             out++;
         } }
-        int activeTrk[vkalNTrkM]={1};
+        int activeTrk[vkalNTrkM]={0};  std::fill_n(activeTrk,NTRK,1);
         double vrtMass=0., vrtMassError=0.;
         cfmasserr(MainVRT.get(), activeTrk,MainVRT->vk_fitterControl->vk_forcft.localbmag, &vrtMass, &vrtMassError);
         FitCONTROL->setVertexMass(vrtMass);

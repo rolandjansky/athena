@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -15,7 +15,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include <string>
 #include <vector>
@@ -71,8 +70,6 @@ private:
     //const LArEM_ID*     m_larEm_ID;
     //const LArHEC_ID*    m_larHec_ID;
     //const LArFCAL_ID*   m_larFcal_ID;
-
-    const CaloDetDescrManager*   m_caloDDMgr;
 
     std::vector<LArCell*> m_Cells_Tot;
     std::vector<LArCell*> m_Cells_Vis;

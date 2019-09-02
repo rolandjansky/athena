@@ -28,11 +28,19 @@ GenericMonitoringTool::~GenericMonitoringTool() { }
 
 StatusCode GenericMonitoringTool::initialize() {
   ATH_CHECK(m_histSvc.retrieve());
+  return StatusCode::SUCCESS;
+}
 
+StatusCode GenericMonitoringTool::start() {
   if ( not m_explicitBooking ) {
     ATH_MSG_DEBUG("Proceeding to histogram booking");
     return book();
   }
+  return StatusCode::SUCCESS;
+}
+
+StatusCode GenericMonitoringTool::stop() {
+  m_fillers.clear();
   return StatusCode::SUCCESS;
 }
 
@@ -53,17 +61,21 @@ StatusCode GenericMonitoringTool::book() {
 
   m_fillers.reserve(m_histograms.size());
   for (const std::string& item : m_histograms) {
+    if (item.empty()) {
+      ATH_MSG_DEBUG( "Skipping empty histogram definition" );
+      continue;
+    }
     ATH_MSG_DEBUG( "Configuring monitoring for: " << item );
     HistogramDef def = HistogramDef::parse(item);
 
     if (def.ok) {
-        std::shared_ptr<HistogramFiller> filler(factory.create(def));
-        
-        if (filler) {
-            m_fillers.push_back(filler);
-        } else {
-          ATH_MSG_WARNING( "The histogram filler cannot be instantiated for: " << def.name );
-        }
+      std::shared_ptr<HistogramFiller> filler(factory.create(def));
+
+      if (filler) {
+        m_fillers.push_back(filler);
+      } else {
+        ATH_MSG_WARNING( "The histogram filler cannot be instantiated for: " << def.name );
+      }
     } else {
       ATH_MSG_ERROR( "Unparsable histogram definition: " << item );
       return StatusCode::FAILURE;
@@ -82,11 +94,20 @@ StatusCode GenericMonitoringTool::book() {
   return StatusCode::SUCCESS;
 }
 
+namespace GaudiUtils {
+    std::ostream& operator<< ( std::ostream& os, const std::reference_wrapper<Monitored::IMonitoredVariable>& rmv ) {
+        std::string s = rmv.get().name();
+        return os << s;
+    }
+}
+
 std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogramsFillers(std::vector<std::reference_wrapper<IMonitoredVariable>> monitoredVariables) const {
   std::vector<std::shared_ptr<HistogramFiller>> result;
 
   for (auto filler : m_fillers) {
+    // Find the associated monitored variable for each histogram's variable(s)
     auto fillerVariables = filler->histogramVariablesNames();
+
     std::vector<std::reference_wrapper<IMonitoredVariable>> variables;
 
     for (auto fillerVariable : fillerVariables) {
@@ -98,17 +119,37 @@ std::vector<std::shared_ptr<HistogramFiller>> GenericMonitoringTool::getHistogra
       }
     }
 
+    // Find the weight variable in the list of monitored variables
+    auto fillerWeight = filler->histogramWeightName();
+    Monitored::IMonitoredVariable* weight = nullptr;
+    if ( fillerWeight != "" ) {
+      for (auto monValue : monitoredVariables) {
+        if (fillerWeight.compare(monValue.get().name()) == 0) {
+          weight = &monValue.get();
+          break;
+        }
+      }
+    }
+
     if (fillerVariables.size() != variables.size()) {
       ATH_MSG_DEBUG("Filler has different variables than monitoredVariables");
+      ATH_MSG_DEBUG("Filler variables            : " << fillerVariables);
+      ATH_MSG_DEBUG("Asked to fill from mon. vars: " << monitoredVariables);
+      ATH_MSG_DEBUG("Selected monitored variables: " << variables);
       continue;
     }
 
     std::shared_ptr<HistogramFiller> fillerCopy(filler->clone());
     fillerCopy->setMonitoredVariables(variables);
+    fillerCopy->setMonitoredWeight(weight);
     result.push_back(fillerCopy);
   }
 
   return result;
+}
+
+uint32_t GenericMonitoringTool::runNumber() {
+  return Gaudi::Hive::currentContext().eventID().run_number();
 }
 
 uint32_t GenericMonitoringTool::lumiBlock() {

@@ -6,7 +6,7 @@
 atlas_subdir( TrigEgammaRec )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODPrimitives
                           GaudiKernel
@@ -18,14 +18,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigParticle
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
-                          PRIVATE
                           Calorimeter/CaloEvent
                           Calorimeter/CaloUtils
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEgammaCnv
                           Event/xAOD/xAODEventShape
                           Event/xAOD/xAODTracking
-			  PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
+			              PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
                           Reconstruction/egamma/egammaEvent
                           Reconstruction/egamma/egammaUtils
                           Trigger/TrigTools/TrigTimeAlgs )
@@ -34,17 +33,10 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
-atlas_add_library( TrigEgammaRecLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigEgammaRec
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES xAODEgamma xAODPrimitives GaudiKernel CaloUtilsLib RecoToolInterfaces egammaRecEvent TrigCaloEvent TrigParticle TrigSteeringEvent LumiBlockCompsLib TrigInterfacesLib EgammaAnalysisInterfacesLib TrigTimeAlgsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent xAODCaloEvent xAODEventShape xAODTracking egammaEvent egammaUtils)
-
 atlas_add_component( TrigEgammaRec
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODPrimitives GaudiKernel CaloUtilsLib LumiBlockCompsLib RecoToolInterfaces egammaRecEvent TrigCaloEvent TrigParticle TrigSteeringEvent TrigInterfacesLib CaloEvent xAODCaloEvent xAODEventShape xAODTracking EgammaAnalysisInterfacesLib egammaEvent egammaUtils TrigTimeAlgsLib TrigEgammaRecLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODPrimitives GaudiKernel CaloUtilsLib LumiBlockCompsLib RecoToolInterfaces egammaRecEvent TrigCaloEvent TrigParticle TrigSteeringEvent TrigInterfacesLib CaloEvent xAODCaloEvent xAODEventShape xAODTracking EgammaAnalysisInterfacesLib egammaEvent egammaUtils TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

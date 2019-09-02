@@ -2,7 +2,10 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "TRT_ConditionsData/HTcalculator.h"
-#include "AsgTools/MsgStreamMacros.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "GaudiKernel/MsgStream.h"
+#include <iostream>
+
 
 /*****************************************************************************\
 |*%%%  Default Constructor  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
@@ -24,7 +27,8 @@ HTcalculator::~HTcalculator(){
 
 void HTcalculator::checkInitialization(){
   if( not m_HasBeenInitialized ) {
-    //ATH_MSG_WARNING( "The HTcalculator is about to be used uninitialized - Loading default");
+    MsgStream log(Athena::getMessageSvc(),"HTcalculator");
+    log << MSG::WARNING <<  "The HTcalculator is about to be used uninitialized - Loading default" << endmsg;
     setDefaultCalibrationConstants();
     m_HasBeenInitialized=1;
   }
@@ -36,8 +40,7 @@ float HTcalculator::Limit(float prob){
   }
   else if( prob < 0.0 ){
     return 0.0;
-  }
-  
+  } 
   return prob;
 }
 
@@ -106,13 +109,6 @@ float HTcalculator::getProbHT(
   // Jared - Temporarily disable ZR corrections, reproducibility issues with calibration
   //correctionZR = 1.0;
 
-  /*
-  std::cout "check       "
-		 << "  GammaOccupan: " << correctionPGOG
-		 << "  correctionSL: " << correctionSL
-		 << "  correctionZR: " << correctionZR
-		 << "  correctionTW: " << correctionTW << std::endl;
-  */
 
   return correctionPGOG * correctionSL * correctionZR * correctionTW;
 }
@@ -162,16 +158,15 @@ float HTcalculator::pHTvsPGOG(int TrtPart, int GasType, float p, float mass, flo
 
 
 StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
-  //std::cout << "Set TRT HT PID Parameters from the Vector Database << std::endl;
+   MsgStream log(Athena::getMessageSvc(),"HTcalculator");
    if ( channel_values->size() < 1){
-      //ATH_MSG_ERROR(" There are no Pid channels available!!");
+      log << MSG::ERROR << " There are no Pid channels available!!" << endmsg;
       return StatusCode::FAILURE;
    }
 
    CondAttrListVec::const_iterator first_channel = channel_values->begin();
    CondAttrListVec::const_iterator last_channel  = channel_values->end();
 
-   //std::cout << "There are " << channel_values->size() << "  Channels " << std::endl;
    int inichan = 0;
    for (; first_channel != last_channel; ++first_channel) {
      switch(first_channel->first){
@@ -509,9 +504,6 @@ StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
 	}
     }
 
-   //std::cout << "We have read " << inichan << " good channels" << std::endl;
-   //std::cout << m_par_pHTvsPGOG_new [0][0].GetBinValue(0) << "\t" << m_par_pHTvsPGOG_new [0][0].GetBinValue(1) << " " << m_par_pHTvsPGOG_new [0][0].GetBinValue(2) << std::endl;
-
 
    for (int i = 0 ; i < N_DET; i++) {
      for (int j = 0 ; j < N_GAS; j++) {
@@ -528,7 +520,6 @@ StatusCode HTcalculator::ReadVectorDB( const CondAttrListVec* channel_values){
    } 
   
    m_HasBeenInitialized=1;
-   //ATH_MSG_INFO(" TRT PID HT Vector DB loaded: ");
    return StatusCode::SUCCESS;
 }
 
@@ -552,7 +543,9 @@ void HTcalculator::setDefaultCalibrationConstants(){
   \*****************************************************************************/
 	//FIXME
   if (m_datainplace) return;  // Just to load 1 time
-  //std::cout << "Looks like HT PID DB is NOT available, so lets set hard-coded PID calibration constants. Derived from Run1 Data Zee and Zmumu 50 ns. FIXME!!" << std::endl;
+  
+  MsgStream log(Athena::getMessageSvc(),"HTcalculator");
+  log << MSG::WARNING << " HT PID DB is NOT available. Set hard-coded PID calibration constants. Derived from Run1 Data Zee and Zmumu 50 ns." << endmsg;
   m_HasBeenInitialized=1;
 
 // Expanding to a 2D fit (gamma,occupancy) for three types of gases: Xenon, Argon, Krypton:

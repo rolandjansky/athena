@@ -7,7 +7,7 @@ from AthenaCommon.Logging import logging
 
 def CaloNoiseCondAlg(noisetype="totalNoise"):
     if noisetype not in ("electronicNoise","pileupNoise","totalNoise"):
-        raise RunTimeError("Requested noise of unknown type %s" % noisetype)
+        raise RuntimeError("Requested noise of unknown type %s" % noisetype)
 
 
     noiseAlgName="Calo_"+noisetype+"Alg"
@@ -30,7 +30,7 @@ def _CaloNoiseCondAlgMC(noiseAlgName,noisetype):
     from CaloTools.CaloNoiseFlags import jobproperties
     if jobproperties.CaloNoiseFlags.FixedLuminosity() >= 0 :
         theCaloNoiseAlg.Luminosity=jobproperties.CaloNoiseFlags.FixedLuminosity()
-        mlog.info("  Luminosity (in 10**33) units used for pileup noise from CaloNoiseFlags : %f"%theCaloNoiseAlg.Luminosity)
+        mlog.info("  Luminosity (in 10**33) units used for pileup noise from CaloNoiseFlags : %f", theCaloNoiseAlg.Luminosity)
     else:
         if jobproperties.CaloNoiseFlags.UseCaloLuminosity():
             lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
@@ -41,7 +41,7 @@ def _CaloNoiseCondAlgMC(noiseAlgName,noisetype):
         else:
             from AthenaCommon.BeamFlags import jobproperties
             theCaloNoiseAlg.Luminosity=jobproperties.Beam.estimatedLuminosity()/1e+33
-            mlog.info("  Luminosity (in 10**33) units used for pileup noise from BeamFlags : %f"%self.Luminosity)
+            mlog.info("  Luminosity (in 10**33) units used for pileup noise from BeamFlags : %f", theCaloNoiseAlg.Luminosity)
             pass
         pass
     theCaloNoiseAlg.LArNoiseFolder="/LAR/NoiseOfl/CellNoise"
@@ -73,7 +73,7 @@ def _CaloNoiseCondAlgData(noiseAlgName,noisetype):
         conddb.addFolder('CALO_ONL',folder,className="CondAttrListCollection")
         if fixedLumi >= 0 :
             theCaloNoiseAlg.Luminosity = fixedLumi
-            mlog.info("online mode: use fixed luminosity for scaling pileup noise: %f"%fixedLumi)
+            mlog.info("online mode: use fixed luminosity for scaling pileup noise: %f", fixedLumi)
         else:
             if caloLumi:
                 lumiFolder='/CALO/Noise/PileUpNoiseLumi'
@@ -92,24 +92,27 @@ def _CaloNoiseCondAlgData(noiseAlgName,noisetype):
             theCaloNoiseAlg.TileNoiseFolder="/TILE/OFL02/NOISE/CELL"
             conddb.addFolder("LAR_OFL","/LAR/NoiseOfl/CellNoise",className="CondAttrListCollection")
             conddb.addFolder("TILE_OFL","/TILE/OFL02/NOISE/CELL",className="CondAttrListCollection")
+            from CaloRec.CaloCellFlags import jobproperties
             if jobproperties.CaloCellFlags.doLArHVCorr():
                 mlog.info("Run2 & doLArHVCorr=True: Will rescale noise automatically for HV trips")
                 theCaloNoiseAlg.useHVCorr=True
-                from LArConditionsCommon import LArHVDB
+                from LArConditionsCommon import LArHVDB  # noqa: F401
                 pass
             pass
         else: #COMP200 case:
-            #The noise for runs before 2012 is a different folder:
+            #The noise for runs before 2012 is in different folders:
             theCaloNoiseAlg.CaloNoiseFolder="/CALO/Ofl/Noise/CellNoise"
-            theCaloNoiseAlg.LArNoiseFolder=""
-            theCaloNoiseAlg.TileNoiseFolder=""
+            theCaloNoiseAlg.LArNoiseFolder="/LAR/NoiseOfl/CellNoise"
+            theCaloNoiseAlg.TileNoiseFolder="/TILE/OFL02/NOISE/CELL"
             conddb.addFolder("CALO_OFL","/CALO/Ofl/Noise/CellNoise",className="CondAttrListCollection")
+            conddb.addFolder("LAR_OFL","/LAR/NoiseOfl/CellNoise",className="CondAttrListCollection")
+            conddb.addFolder("TILE_OFL","/TILE/OFL02/NOISE/CELL",className="CondAttrListCollection")
             
 
         # for luminosity
         if fixedLumi >= 0 :
             theCaloNoiseAlg.Luminosity = fixedLumi
-            mlog.info("offline mode: use fixed luminosity for scaling pileup noise: %f"%fixedLumi)
+            mlog.info("offline mode: use fixed luminosity for scaling pileup noise: %f", fixedLumi)
         else:
             theCaloNoiseAlg.Luminosity = -1
             if caloLumi:

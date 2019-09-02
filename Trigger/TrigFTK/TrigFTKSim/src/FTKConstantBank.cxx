@@ -13,13 +13,13 @@
 #include <Eigen/Dense>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <cassert>
 #include <cstdio>
 #include <cmath>
 #include <bitset>
-#include <ieee754.h>
 using namespace std;
 
 //#define SIMPLEMJ // ibl undefined simple majority to see if we can get majority for ibl
@@ -291,21 +291,21 @@ void FTKConstantBank::doAuxFW(bool do_it) {
 
 
   // pre-calculate the majority logic elements
-  m_maj_invkk_hw = new signed long long**[m_nsectors];
+  m_maj_invkk_hw = new int**[m_nsectors];
   m_maj_invkk_aux = new signed long long**[m_nsectors];
   m_maj_invkk_pow = new short int**[m_nsectors];
-  m_maj_invkk_pow_hw = new short int**[m_nsectors];
+  m_maj_invkk_pow_hw = new int**[m_nsectors];
   for (int isec=0;isec!=m_nsectors;++isec) { // sector loop
-    m_maj_invkk_hw [isec] = new signed long long*[m_ncoords];
+    m_maj_invkk_hw [isec] = new int*[m_ncoords];
     m_maj_invkk_aux[isec] = new signed long long*[m_ncoords];
     m_maj_invkk_pow[isec] = new short int*[m_ncoords];
-    m_maj_invkk_pow_hw[isec] = new short int*[m_ncoords];
+    m_maj_invkk_pow_hw[isec] = new int*[m_ncoords];
     for (int ix=0;ix!=m_ncoords;++ix) { // 1st coordinate loop    
 
-      m_maj_invkk_hw [isec][ix] = new signed long long[m_ncoords];
+      m_maj_invkk_hw [isec][ix] = new int[m_ncoords];
       m_maj_invkk_aux[isec][ix] = new signed long long[m_ncoords];
       m_maj_invkk_pow[isec][ix] = new short int[m_ncoords];
-      m_maj_invkk_pow_hw[isec][ix] = new short int[m_ncoords];
+      m_maj_invkk_pow_hw[isec][ix] = new int[m_ncoords];
       for (int jx=0;jx!=m_ncoords;++jx) { // 2nd coordinate loop
         m_maj_invkk_hw [isec][ix][jx] = 0;
         m_maj_invkk_aux[isec][ix][jx] = 0;
@@ -323,6 +323,14 @@ void FTKConstantBank::doAuxFW(bool do_it) {
     int npixcy = 6; // we have 6 pixel coords -- not sure what to do about this!!
     /* PIXEL layer [0-5]*/
     bool ofl = false;
+    m_temp = new std::pair<int,int>*[m_ncoords];
+    for (int ix=0;ix!=m_ncoords;++ix) { // 1st coordinate loop
+      m_temp[ix] = new std::pair<int,int>[m_ncoords];
+      for (int jx=0;jx!=m_ncoords;++jx) { // 2nd coordinate loop
+        m_temp[ix][jx].first = 0;
+        m_temp[ix][jx].second = 0;
+      }
+    }
     for (int ix=0;ix!=npixcy;ix+=2) { // pxl layers loop (2 coordinates each)
 
       m_maj_invkk_pow[isec][ix][ix]        = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]    ))) - 1;
@@ -330,35 +338,48 @@ void FTKConstantBank::doAuxFW(bool do_it) {
       m_maj_invkk_pow[isec][ix+1][ix]      = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix]  ))) - 1;
       m_maj_invkk_pow[isec][ix+1][ix+1]    = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix+1]))) - 1;
 
-      m_maj_invkk_pow_hw[isec][ix][ix]     = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix]   * const_scale_map[ix]  ) * m_maj_invkk[isec][ix][ix]    ))) - 1;
-      m_maj_invkk_pow_hw[isec][ix][ix+1]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix]   * const_scale_map[ix+1]) * m_maj_invkk[isec][ix][ix+1]  ))) - 1;
-      m_maj_invkk_pow_hw[isec][ix+1][ix]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix+1] * const_scale_map[ix]  ) * m_maj_invkk[isec][ix+1][ix]  ))) - 1;
-      m_maj_invkk_pow_hw[isec][ix+1][ix+1] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix+1] * const_scale_map[ix+1]) * m_maj_invkk[isec][ix+1][ix+1]))) - 1;
-
-
       m_maj_invkk_aux[isec][ix][ix]     = aux_asr(m_maj_invkk[isec][ix][ix]     * pow(2, m_maj_invkk_pow[isec][ix][ix]),     0, CONST_PREC, ofl);
       m_maj_invkk_aux[isec][ix][ix+1]   = aux_asr(m_maj_invkk[isec][ix][ix+1]   * pow(2, m_maj_invkk_pow[isec][ix][ix+1]),   0, CONST_PREC, ofl);
       m_maj_invkk_aux[isec][ix+1][ix]   = aux_asr(m_maj_invkk[isec][ix+1][ix]   * pow(2, m_maj_invkk_pow[isec][ix+1][ix]),   0, CONST_PREC, ofl);
       m_maj_invkk_aux[isec][ix+1][ix+1] = aux_asr(m_maj_invkk[isec][ix+1][ix+1] * pow(2, m_maj_invkk_pow[isec][ix+1][ix+1]), 0, CONST_PREC, ofl);
 
-      m_maj_invkk_hw [isec][ix][ix]     = aux_asr(8./(const_scale_map[ix]   * const_scale_map[ix]  ) * m_maj_invkk[isec][ix][ix]     * pow(2, m_maj_invkk_pow_hw[isec][ix][ix]),     0, CONST_PREC, ofl);
-      m_maj_invkk_hw [isec][ix][ix+1]   = aux_asr(8./(const_scale_map[ix]   * const_scale_map[ix+1]) * m_maj_invkk[isec][ix][ix+1]   * pow(2, m_maj_invkk_pow_hw[isec][ix][ix+1]),   0, CONST_PREC, ofl);
-      m_maj_invkk_hw [isec][ix+1][ix]   = aux_asr(8./(const_scale_map[ix+1] * const_scale_map[ix]  ) * m_maj_invkk[isec][ix+1][ix]   * pow(2, m_maj_invkk_pow_hw[isec][ix+1][ix]),   0, CONST_PREC, ofl);
-      m_maj_invkk_hw [isec][ix+1][ix+1] = aux_asr(8./(const_scale_map[ix+1] * const_scale_map[ix+1]) * m_maj_invkk[isec][ix+1][ix+1] * pow(2, m_maj_invkk_pow_hw[isec][ix+1][ix+1]), 0, CONST_PREC, ofl);
+      m_temp[ix][ix] = getFloating(-m_maj_invkk[isec][ix][ix]/(const_scale_map[ix]* const_scale_map[ix] ));
+      m_maj_invkk_hw [isec][ix][ix]     = m_temp[ix][ix].first;
+      m_maj_invkk_pow_hw[isec][ix][ix]  = m_temp[ix][ix].second;
 
+      m_temp[ix][ix+1] = getFloating(-m_maj_invkk[isec][ix][ix+1]/(const_scale_map[ix]* const_scale_map[ix+1] ));
+      m_maj_invkk_hw [isec][ix][ix+1]     = m_temp[ix][ix+1].first;
+      m_maj_invkk_pow_hw[isec][ix][ix+1]  = m_temp[ix][ix+1].second;
+ 
+      m_temp[ix+1][ix] = getFloating(-m_maj_invkk[isec][ix+1][ix]/(const_scale_map[ix+1]* const_scale_map[ix] ));
+      m_maj_invkk_hw [isec][ix+1][ix]     = m_temp[ix+1][ix].first;
+      m_maj_invkk_pow_hw[isec][ix+1][ix]  = m_temp[ix+1][ix].second;
+
+      m_temp[ix+1][ix+1] = getFloating(-m_maj_invkk[isec][ix+1][ix+1]/(const_scale_map[ix+1]* const_scale_map[ix+1] ));
+      m_maj_invkk_hw [isec][ix+1][ix+1]     = m_temp[ix+1][ix+1].first;
+      m_maj_invkk_pow_hw[isec][ix+1][ix+1]  = m_temp[ix+1][ix+1].second;
+     
     } // end pxl layers loop
     /* SCT layers */
     for (int ix=npixcy;ix!=m_ncoords;++ix) { // SCT layers loop (1 coordinate each)
-      m_maj_invkk[isec][ix][ix] = 1./m_maj_kk[isec][ix][ix];      
-
       m_maj_invkk_pow[isec][ix][ix] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]))) - 1;
       m_maj_invkk_aux[isec][ix][ix] = aux_asr(m_maj_invkk[isec][ix][ix] * pow(2, m_maj_invkk_pow[isec][ix][ix]), 0, CONST_PREC, ofl);
 
-      m_maj_invkk_pow_hw[isec][ix][ix] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix] * const_scale_map[ix]) * m_maj_invkk[isec][ix][ix]))) - 1;
-      m_maj_invkk_hw    [isec][ix][ix] = aux_asr(8./(const_scale_map[ix] * const_scale_map[ix]) * m_maj_invkk[isec][ix][ix] * pow(2, m_maj_invkk_pow_hw[isec][ix][ix]), 0, CONST_PREC, ofl);
+      m_temp[ix][ix] = getFloating(-m_maj_invkk[isec][ix][ix]);///(const_scale_map[ix]* const_scale_map[ix] ));
+      m_maj_invkk_hw [isec][ix][ix]     = m_temp[ix][ix].first;
+      m_maj_invkk_pow_hw[isec][ix][ix]  = m_temp[ix][ix].second;
     } // end SCT layers loop
 
     if (ofl) FTKSetup::PrintMessageFmt(ftk::warn, "  maj/invkk overflowed allowed precision in sector %d.\n", isec);
+    
+    //clean up dynamic memory
+    for (int ix=0;ix!=m_ncoords;++ix) {
+      for (int jx=0;jx!=m_ncoords;++jx) {
+        //delete [] m_temp[ix][jx];
+      }
+      delete [] m_temp[ix];
+    }
+    delete m_temp;
 
   } // end sector loop
 
@@ -438,6 +459,7 @@ int FTKConstantBank::linfit(int secid, FTKTrack &track) const
   if (nmissing!=guess_res) {
     // majority failed, this chi2 is used as a flag
     track.setChi2(0.);
+    track.setChi2FW(0);
   }
   else {
     // evaluate the chi2
@@ -508,6 +530,7 @@ void FTKConstantBank::linfit_chisq(int secid, FTKTrack &trk) const {
     }
 
   trk.setChi2(chi2);
+  trk.setChi2FW(round(chi2));
 }
 
 
@@ -545,15 +568,20 @@ void FTKConstantBank::linfit_pars_eval(int secid, FTKTrack &trk) const
 
   if (m_npars>3) {
     trk.setZ0(pars[3]);
+    trk.setZ0FW(round(pars[3]));
     trk.setZ0Raw(pars[3]);
     trk.setCotTheta(pars[4]);
+    trk.setCTheta(round(pars[4]));
   }
   //cout << "secid: " << secid << endl; // cy debug
   //cout << "phi after corrgen: " << pars[2] << endl; //cy debug
   trk.setHalfInvPt(pars[0]);
+  trk.setInvPtFW(round(pars[0]*1e5)/1e5);
   trk.setIP(pars[1]);
+  trk.setIPFW(round(pars[1]));
   trk.setIPRaw(pars[1]);
   trk.setPhi(pars[2]); // angle is moved within -pi to +pi
+  trk.setPhiFW(round(pars[2])); // angle is moved within -3 to +3
   trk.setPhiRaw(pars[2]); // angle is moved within -pi to +pi
   //    cout << "phi within [-pi,pi]: " << track.getPhi() << endl; // cy debug
 
@@ -647,8 +675,8 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
       a[0] -= m_maj_kk[secid][col][m_missid[0]]*coords[col];
       a[1] -= m_maj_kk[secid][col][m_missid[1]]*coords[col];
       if (cmDebug > 8) {
-	printf("\ta[0] = %f\n",a[0]);
-	printf("\ta[1] = %f\n",a[1]);
+        FTKSetup::PrintMessageFmt(ftk::info,"\ta[0] = %f\n",a[0]);
+        FTKSetup::PrintMessageFmt(ftk::info,"\ta[1] = %f\n",a[1]);
       }
     }
 
@@ -740,12 +768,12 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
     }
     if (cmDebug > 5) {
       FTKSetup::PrintMessage(ftk::debg,"new coordinates:\n");
-      if (newcoords)
-	for (int i=0;i<m_ncoords;++i)
-	  printf("\t%d: %f\n",i,newcoords[i]);
-      else
-	for (int i=0;i<m_ncoords;++i)
-	  printf("\t%d: %f\n",i,coords[i]);
+      if (newcoords) {
+        for (int i=0;i<m_ncoords;++i) FTKSetup::PrintMessageFmt(ftk::debg,"\t%d: %f\n",i,newcoords[i]);
+      }  
+      else {
+        for (int i=0;i<m_ncoords;++i) FTKSetup::PrintMessageFmt(ftk::info,"\t%d: %f\n",i,coords[i]);
+      }
       FTKSetup::PrintMessage(ftk::debg,"\n");
     }
 
@@ -757,11 +785,10 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
 
 unsigned int FTKConstantBank::floatToReg27(float f) {
 
-  ieee754_float f_f;
-  f_f.f = f;
-  int f_sign = f_f.ieee.negative;
-  int f_exp = f_f.ieee.exponent;
-  int f_frac = f_f.ieee.mantissa;
+  int f_f = float_bits(f);
+  int f_sign = (f_f >> 31) & 0x1;
+  int f_exp = (f_f >> 23) & 0xFF;
+  int f_frac = f_f & 0x007FFFFF;
   int r_sign;
   int r_exp;
   int r_frac;
@@ -1587,9 +1614,10 @@ signed long long FTKConstantBank::aux_asr(signed long long input , int shift, in
   unsigned long long shifted = abs(input);
 
   // make the baseline shift
-  if (shift > 0) shifted = (shifted << shift);
-  if (shift < 0) {
-    // clear bits that will "go negative"
+  if (shift >= 0) {
+    shifted = (shifted << shift);
+  } else if (shift < 0) {
+    // clear bits that will "go negative"  
     shifted &= ~((static_cast<long long>(1) << -shift) - 1);
     shifted = (shifted >> -shift);
   }
@@ -1599,10 +1627,52 @@ signed long long FTKConstantBank::aux_asr(signed long long input , int shift, in
   if (static_cast<unsigned long long>(llabs(output)) != shifted) overflow = true;
 
   // reinstate the sign.
-  if (input < 0) output *= -1;
+  if (input < 0) {
+    output *= -1;
+    if (shift <= 0){
+      if (abs(input) != shifted * pow(2,-shift)) output -= 1;
+    }
+  }
 
   return output;
 
+}
+
+std::pair<int, int> FTKConstantBank::getFloating(double input)
+{
+  //floating point ranges (assuming 13 bits for significand and 5 bits for exponent)
+  const int minsignificand = -4096;
+  const int maxsignificand = 4095;
+  const int maxexponent = 31;
+ 
+  std::pair<int, int> output;
+
+  //if signficand is greater than 13 bits, return max value
+  if(round(input) > maxsignificand){
+    output.first = maxsignificand;
+    output.second = 0;
+    return output;
+  }
+  if(round(input) < minsignificand){
+    output.first = maxsignificand;
+    output.second = 0;
+    return output;
+  }
+
+  double significand = input;
+  int exponent = 0;
+  while(round(significand*2.0) <= maxsignificand &&
+    round(significand*2.0) >= minsignificand &&
+    exponent <= maxexponent){
+    significand *= 2.0;
+    exponent++;
+  }
+
+  int sig = round(significand);
+
+  output.first = sig;
+  output.second = exponent;
+  return output;
 }
 
 
@@ -1613,31 +1683,28 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
   long long chi2HW(0);
 
   bool ofl = false; // overflow
-
+  bool oflhw = false;
+ 
+  for (int i=0;i<m_ncoords;++i) {
+    m_coordsmask[i] = (trk.getBitmask()>>i)&1;
+  }
   // cout << __LINE__ << "::" << __FUNCTION__ << "  sector=" << secid << endl;
 
   for( int i = 0 ; i < m_nconstr ; ++i ) {
 
     long double chi_component = m_kaverage[secid][i];
     signed long long chi_componentLL = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30 to the same level as the Sij
-    signed long long chi_componentHW = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); 
-    
+    signed long long chi_componentHW = aux_asr(m_kaverage_aux[secid][i], 11, 29, oflhw); //Rui's change to match fw
+
     for( int j = 0 ; j < m_ncoords ; ++j ) {
 
       int p = const_plane_map[j]; int c = const_coord_map[j]; 
 
       chi_component   += m_kernel[secid][i][j]     * trk.getCoord(j); 
       chi_componentLL += m_kernel_aux[secid][i][j] * trk.getAUXCoord(j);
-      chi_componentHW += m_kernel_hw [secid][i][j] * trk.getHwCoord(p, c);
+      if (m_coordsmask[j] == 1) chi_componentHW += aux_asr(m_kernel_hw [secid][i][j] * const_scale_map1[j] * trk.getHwCoord(p, c), -1, 33, oflhw);
 
-
-
-      // if (i == 0 && !trk.getNMissing() && (j < 6) && (j % 2)) 
-      //   cerr << "JS: " << __FUNCTION__ << "::" << __LINE__ << "   sector=" << secid
-      //                        << "    plane=" << p
-      //                        << "    coord=" << setfill('0') << setw(4) << trk.getHwCoord(p, c)
-      //                        << "    one?=" << setprecision(4) << 8/16.88 * trk.getHwCoord(j/2, 1) / trk.getAUXCoord(j) << endl;
-
+      //RZ: Calculate chi_partials without guessed hit first and do the shift, then add the shifted guessed hit component (different from add  then shift)
     }
 
     chi2 += (chi_component * chi_component);
@@ -1645,20 +1712,29 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
     chi_componentLL = aux_asr(chi_componentLL, 0, 30, ofl);
     chi2LL += (chi_componentLL * chi_componentLL);
 
-    chi_componentHW = aux_asr(chi_componentHW, 0, 30, ofl);
-    chi2HW += (chi_componentHW * chi_componentHW);
+    chi_componentHW = aux_asr(chi_componentHW, -2, 27, oflhw); //Rui's change to match fw
 
+    signed long long chi_componentHW_guess=0;
+    if (trk.getNMissing() != 0){ //RZ: calculate chipartial component for guessed hit here
+      for( int j = 0 ; j < m_ncoords ; ++j ) {
+        int p = const_plane_map[j]; int c = const_coord_map[j];
+        if (m_coordsmask[j] == 0) chi_componentHW_guess += aux_asr(m_kernel_hw [secid][i][j] * const_scale_map1[j] * trk.getHwCoord(p, c), 0, 33, oflhw);
+      }
+    }
+    chi_componentHW += aux_asr(chi_componentHW_guess, -3, 27, oflhw); //Rui's change to match fw
+
+    chi2HW += (chi_componentHW * chi_componentHW);
 
   }  
 
   chi2LL = aux_asr(chi2LL, 0, 45, ofl);
-  chi2HW = aux_asr(chi2HW, 0, 45, ofl);
+  chi2HW = aux_asr(chi2HW, 0, 57, oflhw); //Rui's change to match fw
 
   // If there was a bit overflow, set the chi-square to some artificially large value so it fails the cut.
   // Otherwise, set to the caluclated value, scaled back to nominal units.
 
-  float fchi2 = ofl ? 9999999. : chi2HW / pow(2.0, 2.*EFF_SHIFT);
-  trk.setChi2FW(fchi2);
+  float fchi2 = oflhw ? 9999999. : chi2HW / pow(2.0, 2.*13);//EFF_SHIFT); //Rui's change to match fw
+  trk.setChi2FW(round(fchi2));
   trk.setChi2  (fchi2);
 
   // any negative hits?
@@ -1720,10 +1796,10 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   }
 
   // keep track of which hits are missing.
-  int nmissing = 0; int missid[2] = {-1, -1};
+  int nmissing = 0; int lmissid[2] = {-1, -1};
   for( int j = 0 ; j < m_ncoords ; ++j ) {
     if (!m_coordsmask[j]) {
-      missid[nmissing] = j;
+      lmissid[nmissing] = j;
       nmissing++;
     } 
   }
@@ -1735,18 +1811,17 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
     return 0;
   }
   if (nmissing == 2) { // 2 missing, must be consecutive pixel hits.
-    if (missid[0] >= npixcy || missid[0]+1 != missid[1]) {
-      // FTKSetup::PrintMessageFmt(ftk::warn, "Two guessed coordinates must be from the same pix hit: missing %d, %d.\n", missid[0], missid[1]);
+    if (lmissid[0] >= npixcy || lmissid[0]+1 != lmissid[1]) {
+      // FTKSetup::PrintMessageFmt(ftk::warn, "Two guessed coordinates must be from the same pix hit: missing %d, %d.\n", m_missid[0], m_missid[1]);
       return 0;
     }
   }
   if (nmissing == 1) { // can't imagine how this would happen...
-    if (missid[0] < npixcy) {
+    if (lmissid[0] < npixcy) {
       // FTKSetup::PrintMessage(ftk::warn, "Single miss/drop must be in SCT - returning.\n");
       return 0;
     }
   }
-
 
   // calculate the chi partials
   // long double* m_partials = new long double [m_ncoords];
@@ -1756,7 +1831,7 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
     // m_partials[i]   = m_kaverage[secid][i]; 
     partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
-    partialsHW[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
+    partialsHW[i] = aux_asr(m_kaverage_aux[secid][i], 11, 30, ofl); //9
 
     for (int j = 0 ; j < m_ncoords ; ++j ) {
       if (m_coordsmask[j]) {
@@ -1765,9 +1840,10 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
         // m_partials[i]   += m_kernel[secid][i][j] * track.getCoord(j);
         partialsLL[i] += m_kernel_aux[secid][i][j] * track.getAUXCoord(j); 
-        partialsHW[i] += m_kernel_hw[secid][i][j]  * track.getHwCoord(p, c); 
+        partialsHW[i] += aux_asr(m_kernel_hw[secid][i][j]  * const_scale_map1[j] * track.getHwCoord(p, c), -1, 33, ofl); //Rui's change to match fw
       }
     }
+    partialsHW[i] = aux_asr(partialsHW[i], -2, 27, ofl); //Rui's change to match fw
   }  
 
   if (ofl) {
@@ -1783,15 +1859,14 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   long long tHW[2] = {0, 0};
   for (int j = 0; j < nmissing; ++j) {
     for (int i = 0; i < m_nconstr; ++i ) {
-      // t[j] -= m_kernel[secid][i][missid[j]] * m_partials[i];
-      tLL[j] -= m_kernel_aux[secid][i][missid[j]] * partialsLL[i];
-      tHW[j] -= m_kernel_hw[secid][i][missid[j]]  * partialsHW[i];
+      tLL[j] -= m_kernel_aux[secid][i][lmissid[j]] * partialsLL[i];
+      tHW[j] += m_kernel_hw[secid][i][lmissid[j]]  * partialsHW[i]; 
     }
 
     tLL[j] = aux_asr(tLL[j], 0, 50, ofl); // 50
-    tHW[j] = aux_asr(tHW[j], 0, 50, ofl); // 50
-    // cerr << "JS: " << j << " ofl=" << ofl << "  tHW[j]/tLL[j]=" << (1./const_scale_map[missid[j]])*tHW[j]/tLL[j] << endl;
+    tHW[j] = aux_asr(tHW[j], -16, 27, ofl); //Rui's change to match fw
   }
+
   // delete [] m_partials;
   delete [] partialsLL;
   delete [] partialsHW;
@@ -1804,7 +1879,7 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   // for (int ix = 0; ix < nmissing; ++ix) // 1st coordinate loop    
   //   for (int jx=0; jx < nmissing; ++jx) // 2nd coordinate loop
   //     for (int row=0;row!=m_nconstr;++row) 
-  //       coef[ix][jx] += m_kernel[secid][row][missid[ix]] * m_kernel[secid][row][missid[jx]];
+  //       coef[ix][jx] += m_kernel[secid][row][m_missid[ix]] * m_kernel[secid][row][m_missid[jx]];
   // coef.Invert();
   // TVectorD newcoord = coef * t;
   // fstream outfs;
@@ -1812,89 +1887,62 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
 
   // get the pointer to the track coordinates
+  int cHW_signed[2] = {0, 0};
   unsigned int cHW[2] = {0, 0};
+
   float *coords = track.getCoords();
   if (nmissing == 1) {
-
-    coords[missid[0]] = tLL[0] * m_maj_invkk_aux[secid][missid[0]][missid[0]]
-                          / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[0]] - 1);
-
-    cHW[0] = tHW[0] * m_maj_invkk_hw[secid][missid[0]][missid[0]]
-             / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] - 1);
+    coords[lmissid[0]] = tLL[0] * m_maj_invkk_aux[secid][lmissid[0]][lmissid[0]]
+      / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[0]][lmissid[0]] - 1);
+    cHW_signed[0] = aux_asr(tHW[0] * m_maj_invkk_hw[secid][lmissid[0]][lmissid[0]],-( 5 + m_maj_invkk_pow_hw[secid][lmissid[0]][lmissid[0]]), 40, ofl); //Rui's change to match fw
+    cHW[0] = max(cHW_signed[0],0); //RZ: if guessed hit < 0, set it to 0
 
     FTKHit newhit(1);
+    cHW[0] = aux_asr(cHW[0], -3, 27, ofl); //Rui's change to match fw
+
     newhit.setHwCoord(0, cHW[0]);
-    track.setFTKHit(const_plane_map[missid[0]], newhit);
-
-
-    ///  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][missid[0]][missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] << endl;
-    ///  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][missid[0]][missid[0]] 
-    ///                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[0]] - 1) 
-    ///                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][missid[0]][missid[0]] 
-    ///                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] - 1) << endl;
-
-    ///  cout << __LINE__ << "  JS:  " << missid[0] << "    C=" << track.getCoord(missid[0]) 
-    ///                                               << "    A=" << 1.*track.getAUXCoord(missid[0]) / const_scale_map[missid[0]]
-    ///                                               << "    H=" << track.getHwCoord(const_plane_map[missid[0]], 0) << endl;
-    ///  cout << __LINE__ << "  JS:  " << missid[0] << "  A/C=" << 0.125 * track.getAUXCoord(const_plane_map[missid[0]])   / track.getCoord(missid[0]) 
-    ///                                               << "  H/C=" << 1. * track.getHwCoord(const_plane_map[missid[0]], 0) / track.getCoord(missid[0])
-    ///                                               << "  H/A=" << 1. * track.getHwCoord(const_plane_map[missid[0]], 0) * const_scale_map[missid[0]] / track.getAUXCoord(missid[0]) 
-    ///                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[missid[0]], 0) << endl;
-
-
+    track.setFTKHit(const_plane_map[lmissid[0]], newhit);
 
   } else if (nmissing == 2) {
+    coords[lmissid[0]] =   tLL[0] * m_maj_invkk_aux[secid][lmissid[0]][lmissid[0]]
+                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[0]][lmissid[0]] - 1)
+                         + tLL[1] * m_maj_invkk_aux[secid][lmissid[0]][lmissid[1]]
+                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[0]][lmissid[1]] - 1);
+    coords[lmissid[1]] =   tLL[0] * m_maj_invkk_aux[secid][lmissid[1]][lmissid[0]]
+                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[1]][lmissid[0]] - 1)
+                         + tLL[1] * m_maj_invkk_aux[secid][lmissid[1]][lmissid[1]]
+                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][lmissid[1]][lmissid[1]] - 1);
 
-    coords[missid[0]] =   tLL[0] * m_maj_invkk_aux[secid][missid[0]][missid[0]]
-                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[0]])
-                          + tLL[1] * m_maj_invkk_aux[secid][missid[0]][missid[1]]
-                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[1]]);
+    cHW_signed[0] =  aux_asr(tHW[0] * m_maj_invkk_hw[secid][lmissid[0]][lmissid[0]], -(5+m_maj_invkk_pow_hw[secid][lmissid[0]][lmissid[0]]), 40,ofl)+ aux_asr(tHW[1] * m_maj_invkk_hw[secid][lmissid[0]][lmissid[1]], -(5+m_maj_invkk_pow_hw[secid][lmissid[0]][lmissid[1]]), 40, ofl); //Rui's change to match fw
+    cHW_signed[1] =  aux_asr(tHW[0] * m_maj_invkk_hw[secid][lmissid[1]][lmissid[0]], -(5+m_maj_invkk_pow_hw[secid][lmissid[1]][lmissid[0]]), 40, ofl)+aux_asr(tHW[1] * m_maj_invkk_hw[secid][lmissid[1]][lmissid[1]], -(5+m_maj_invkk_pow_hw[secid][lmissid[1]][lmissid[1]]), 40, ofl); //Rui's change to match fw
 
-    coords[missid[1]] =   tLL[0] * m_maj_invkk_aux[secid][missid[1]][missid[0]]
-                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[1]][missid[0]])
-                          + tLL[1] * m_maj_invkk_aux[secid][missid[1]][missid[1]]
-                            / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][missid[1]][missid[1]]);
-
-
-    cHW[0] =   tHW[0] * m_maj_invkk_hw[secid][missid[0]][missid[0]]
-                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[0]])
-             + tHW[1] * m_maj_invkk_hw[secid][missid[0]][missid[1]]
-                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[1]]);
-
-    cHW[1] =   tHW[0] * m_maj_invkk_hw[secid][missid[1]][missid[0]]
-                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[1]][missid[0]])
-             + tHW[1] * m_maj_invkk_hw[secid][missid[1]][missid[1]]
-                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[1]][missid[1]]);
+    cHW[0] = max(cHW_signed[0],0);
+    cHW[1] = max(cHW_signed[1],0);
 
     FTKHit newhit(2);
+    cHW[0] = aux_asr(cHW[0], -1, 27, ofl); //Rui's change to match fw
+    cHW[1] = aux_asr(cHW[1], 0, 27, ofl); //Rui's change to match fw
+
     newhit.setHwCoord(0, cHW[0]);
     newhit.setHwCoord(1, cHW[1]);
-    track.setFTKHit(const_plane_map[missid[0]], newhit);
+    track.setFTKHit(const_plane_map[lmissid[0]], newhit);
+
+    ////  cout << __LINE__ << "  JS:  " << m_missid[0] << "   C=" << track.getCoord(m_missid[0]) 
+    ////                                               << "   A=" << track.getAUXCoord(m_missid[0]) 
+    ////                                               << "   H=" << track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+    ////  cout << __LINE__ << "  JS:  " << m_missid[0] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[m_missid[0]])   / track.getCoord(m_missid[0]) 
+    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) / track.getCoord(m_missid[0])
+    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) * const_scale_map[m_missid[0]] / track.getAUXCoord(m_missid[0]) 
+    ////                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
 
 
-    ////  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][missid[0]][missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] << endl;
-    ////  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][missid[0]][missid[0]] 
-    ////                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][missid[0]][missid[0]] - 1) 
-    ////                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][missid[0]][missid[0]] 
-    ////                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][missid[0]][missid[0]] - 1) << endl;
-
-
-    ////  cout << __LINE__ << "  JS:  " << missid[0] << "   C=" << track.getCoord(missid[0]) 
-    ////                                               << "   A=" << track.getAUXCoord(missid[0]) 
-    ////                                               << "   H=" << track.getHwCoord(const_plane_map[missid[0]], 0) << endl;
-    ////  cout << __LINE__ << "  JS:  " << missid[0] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[missid[0]])   / track.getCoord(missid[0]) 
-    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[missid[0]], 0) / track.getCoord(missid[0])
-    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[missid[0]], 0) * const_scale_map[missid[0]] / track.getAUXCoord(missid[0]) 
-    ////                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[missid[0]], 0) << endl;
-
-
-    ////  cout << __LINE__ << "  JS:  " << missid[1] << "   C=" << track.getCoord(missid[1]) 
-    ////                                               << "   A=" << track.getAUXCoord(missid[1]) 
-    ////                                               << "   H=" << track.getHwCoord(const_plane_map[missid[1]], 1) << endl;
-    ////  cout << __LINE__ << "  JS:  " << missid[1] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[missid[1]])   / track.getCoord(missid[1]) 
-    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[missid[1]], 1) / track.getCoord(missid[1]) 
-    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[missid[1]], 1) * const_scale_map[missid[1]] / track.getAUXCoord(missid[1])
-    ////                                               << "  set/ret=" << 1. * cHW[1] / track.getHwCoord(const_plane_map[missid[1]], 1) << endl;
+    ////  cout << __LINE__ << "  JS:  " << m_missid[1] << "   C=" << track.getCoord(m_missid[1]) 
+    ////                                               << "   A=" << track.getAUXCoord(m_missid[1]) 
+    ////                                               << "   H=" << track.getHwCoord(const_plane_map[m_missid[1]], 1) << endl;
+    ////  cout << __LINE__ << "  JS:  " << m_missid[1] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[m_missid[1]])   / track.getCoord(m_missid[1]) 
+    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[1]], 1) / track.getCoord(m_missid[1]) 
+    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[1]], 1) * const_scale_map[m_missid[1]] / track.getAUXCoord(m_missid[1])
+    ////                                               << "  set/ret=" << 1. * cHW[1] / track.getHwCoord(const_plane_map[m_missid[1]], 1) << endl;
 
   } 
 

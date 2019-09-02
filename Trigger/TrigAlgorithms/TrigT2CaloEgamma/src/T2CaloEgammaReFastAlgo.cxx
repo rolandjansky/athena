@@ -34,6 +34,7 @@ StatusCode T2CaloEgammaReFastAlgo::initialize()
   ATH_CHECK(m_regionSelector.retrieve());
   ATH_CHECK(m_clusterContainerKey.initialize());
   ATH_CHECK(m_roiCollectionKey.initialize());
+  ATH_CHECK( m_bcidAvgKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -65,10 +66,10 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
     }
     else {
       etamin = std::max(-2.5, m_l1eta - m_etaWidth);
-      etamax = std::min(2.5, m_l1eta + m_etaWidth);
+      etamax = std::min(2.5, static_cast<double>(m_l1eta) + m_etaWidth);
 
       phimin = HLT::wrap_phi(m_l1phi - m_phiWidth);
-      phimax = HLT::wrap_phi(m_l1phi + m_phiWidth);
+      phimax = HLT::wrap_phi(static_cast<double>(m_l1phi) + m_phiWidth);
 
       etaL1 = m_l1eta;
       phiL1 = m_l1phi;
@@ -187,3 +188,4 @@ StatusCode T2CaloEgammaReFastAlgo::execute(const EventContext& context) const
 
   return StatusCode::SUCCESS;
 }
+

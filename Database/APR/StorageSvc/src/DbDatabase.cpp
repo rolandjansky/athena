@@ -139,17 +139,17 @@ const DbDatabase::Redirections& DbDatabase::redirections() const {
   return isValid() ? ptr()->redirections() : s_redirects; 
 }
 
-/// Retrieve redirected association link from link container
-DbStatus DbDatabase::getRedirection(const Token& token, Token::OID_t& lnkH) const
-{  return isValid() ? ptr()->getRedirection(token,lnkH) : Error;  }
+/// read an object referenced by the token
+DbStatus DbDatabase::read(const Token& token, ShapeH shape, void** object)
+{  return isValid() ? ptr()->read(token, shape, object) : Error;  }
 
-/// Retrieve association link from link container
-DbStatus DbDatabase::getLink(const Token::OID_t& lnkH, Token* pTok) const
-{  return isValid() ? ptr()->getLink(lnkH, pTok, DbSection()) : Error;  }
+/// Calculate required OID modification (shift) for source OID (oid) for a given merge section 
+DbStatus DbDatabase::getRedirection(const Token::OID_t& oid, int merge_section, Token::OID_t& shift)
+{  return isValid() ? ptr()->getRedirection(oid, merge_section, shift) : Error;  }
 
-/// Retrieve association link from link container with also using section information
-DbStatus DbDatabase::getLink(const Token::OID_t& lnkH, Token* pTok, const DbSection& s) const
-{  return isValid() ? ptr()->getLink(lnkH, pTok, s) : Error;            }
+/// Expand OID into a full Token, based on the Links table. For merged files provide links section#
+DbStatus DbDatabase::getLink(const Token::OID_t& oid, int merge_section, Token* pTok)
+{  return isValid() ? ptr()->getLink(oid, merge_section, pTok) : Error;  }
 
 /// Access local container token (if container exists)
 std::string DbDatabase::cntName(const Token& token) const

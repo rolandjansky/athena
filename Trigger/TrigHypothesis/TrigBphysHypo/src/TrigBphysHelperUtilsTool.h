@@ -92,12 +92,17 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     
     StatusCode vertexFit(xAOD::TrigBphys * result,
                          const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
-                         const std::vector<double>& inputMasses);
+                         const std::vector<double>& inputMasses) const;
+
+    StatusCode vertexFit(xAOD::TrigBphys * result,
+                         const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
+                         const std::vector<double>& inputMasses,
+                         Trk::IVKalState& istate) const;
 
 
     StatusCode vertexFit(xAOD::TrigBphys * result,
 		       const std::vector<const xAOD::TrackParticle*> &trks,
-		       const std::vector<double>& inputMasses);
+		       const std::vector<double>& inputMasses) const;
 
     // simplify this using templates perhaps? 
     double invariantMass(const xAOD::IParticle *p1, const xAOD::IParticle* p2, double m1, double m2) const;
@@ -110,6 +115,9 @@ class TrigBphysHelperUtilsTool: virtual public ::AthAlgTool
     /// Use the fitted position and the beamline to determine lxy, tau, etc.
     /// call after setting the kinematic values, to do ok.
     void setBeamlineDisplacement(xAOD::TrigBphys* bphys,const std::vector<const xAOD::TrackParticle*> &ptls);
+
+    std::unique_ptr<Trk::IVKalState> makeVKalState() const;
+
     
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

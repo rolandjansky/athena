@@ -166,13 +166,6 @@ TileInfo::initialize()
 
   if(debug) log<<MSG::DEBUG<<"In TileInfo::initialize..."<<endmsg;
 
-  // Declare our CLID.
-  IClassIDSvc* clidsvc = 0;
-  CHECK( m_svcLocator->service("ClassIDSvc", clidsvc, true) );
-  clidsvc->setTypePackageForID (classID(),
-                                "TileInfo",
-                                Athena::PackageInfo (BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)));
-
     //=== get TileCablingSvc
   StatusCode sc = m_tileCablingSvc.retrieve();
   if(sc.isFailure()){

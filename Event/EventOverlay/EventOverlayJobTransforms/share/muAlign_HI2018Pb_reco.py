@@ -26,7 +26,7 @@ conddb.addFolderWithTag("TRT_OFL","/TRT/Calib/MC/T0","TrtCalibT0-R2-MC-run2-scen
 conddb.addMarkup("/TRT/Calib/MC/T0","<forceRunNumber>313000</forceRunNumber>")
 
 from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-TRTMCCalibDBTool=TRT_CalDbTool(name="TRTMCCalibDBTool",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0",isGEANT4=True)
+TRTMCCalibDBTool=TRT_CalDbTool(name="TRTMCCalibDBTool",RtFolderName="/TRT/Calib/MC/RT",T0FolderName="/TRT/Calib/MC/T0")
 
 #This would add another trtdriftfuntiontool, using the new trtcaldb
 ToolSvc.InDetTRT_DriftFunctionTool.IsOverlay=True

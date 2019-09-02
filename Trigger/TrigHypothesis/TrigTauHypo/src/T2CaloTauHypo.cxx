@@ -16,8 +16,8 @@
 #include "GaudiKernel/StatusCode.h"
 
 #include "TrigCaloEvent/TrigTauCluster.h"
-#include "TrigTauHypo/T2CaloTauHypo.h"
-#include "TrigTauHypo/ITrigTauClusterTool.h"
+#include "T2CaloTauHypo.h"
+#include "ITrigTauClusterTool.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"

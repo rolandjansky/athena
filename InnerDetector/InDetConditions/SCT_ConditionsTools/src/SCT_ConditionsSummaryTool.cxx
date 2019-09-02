@@ -18,8 +18,7 @@ using namespace std;
 // Constructor
 SCT_ConditionsSummaryTool::SCT_ConditionsSummaryTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_toolHandles{this},
-  m_noReports{true} {
+  m_toolHandles{this} {
   declareProperty("ConditionsTools", m_toolHandles);
 }
 

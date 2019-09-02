@@ -23,18 +23,19 @@ atlas_add_component( TrigUpgradeTest
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref share/*.conf )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/exec*.sh test/test*.sh )
+atlas_install_scripts( test/exec*.sh test/test*.sh test/test*.py )
 
 # Check python syntax:
 atlas_add_test( flake8
    SCRIPT flake8 --select=F,E7,E9,W6 --ignore=E701 ${CMAKE_CURRENT_SOURCE_DIR}/python
    POST_EXEC_SCRIPT nopost.sh )
 
-# Unit tests:
+# Unit tests (they test things from outside TrigUpgradeTest - should be moved or removed):
 atlas_add_test( ViewSchedule1  SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=1 POST_EXEC_SCRIPT nopost.sh )
 atlas_add_test( ViewSchedule2  SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=2 POST_EXEC_SCRIPT nopost.sh )
 atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh ENVIRONMENT THREADS=64 POST_EXEC_SCRIPT nopost.sh )
 atlas_add_test( merge SCRIPT test/test_merge.sh PROPERTIES TIMEOUT 1000 POST_EXEC_SCRIPT nopost.sh )
+
 
 # Helper to define unit tests running in a separate directory
 # The test name is derived from the test script name: test/test_${name}.sh
@@ -49,34 +50,8 @@ function( _add_test name )
       ${ARGN} )
 endfunction( _add_test )
 
-_add_test( id_run_mc POST_EXEC_SCRIPT nopost.sh )
-_add_test( id_run_data POST_EXEC_SCRIPT nopost.sh )
-_add_test( mu_run_data POST_EXEC_SCRIPT nopost.sh )
-_add_test( id_calo_run_data POST_EXEC_SCRIPT nopost.sh )
-_add_test( emu_l1_decoding POST_EXEC_SCRIPT nopost.sh )
-_add_test( jet POST_EXEC_SCRIPT nopost.sh )
-_add_test( l1sim POST_EXEC_SCRIPT nopost.sh )
-_add_test( egamma_run_data EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*|Fragment size" )
-_add_test( decodeBS EXTRA_PATTERNS "-s FillMissingEDM.*(present|absent)" PROPERTIES DEPENDS egammaRunData )
-_add_test( calo_only_data EXTRA_PATTERNS "-s .*ERROR.*|FastCaloL2EgammaAlg.*REGTEST*" )
-_add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*" )
-_add_test( emu_newjo EXTRA_PATTERNS "-s TrigSignatureMo.*INFO HLT_.*" )
-_add_test( runMenuTest EXTRA_PATTERNS "-s .*ERROR (?\!attempt to add a duplicate).*|(?\!IOVSvcTool).*FATAL.*|TrigSignatureMoniMT .*INFO.*" )
-_add_test( peb EXTRA_PATTERNS "-s obeysLB=.*robs=.*dets = |adds PEBInfo|TriggerSummary.*HLT_.*" )
-_add_test( dataScouting EXTRA_PATTERNS "-s obeysLB=.*robs=.*dets = |adds PEBInfo|TriggerSummary.*HLT_.*|Serialiser.*Type|Serialiser.*ROBFragments with IDs|{module.*words}" )
-_add_test( bjet_menuALLTE EXTRA_PATTERNS "-s TrigSignatureMoniMT.*HLT_.*" )
-_add_test( met_fromCells EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
-_add_test( met_fromClusters EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
-_add_test( met_fromClustersPufit EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
-_add_test( met_fromJets EXTRA_PATTERNS "-s METHypoAlg.*MET.*value" )
 
-# ART-based tests:
-_add_test( full_menu_build POST_EXEC_SCRIPT "trig-art-result-parser.sh full_menu_build.log \"athena CheckLog RegTest\"" )
-_add_test( newJO_build POST_EXEC_SCRIPT "trig-art-result-parser.sh newJO_build.log \"Configuration athena CheckLog RegTest\"" )
-_add_test( bjet_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh bjet_menu.log \"athena CheckLog RegTest\"" )
-_add_test( electron_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh electron_menu.log \"athena CheckLog RegTest\"")
-_add_test( jet_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh jet_menu.log \"athena CheckLog RegTest\"")
-_add_test( met_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh met_menu.log \"athena CheckLog RegTest\"" )
-_add_test( mu_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh mu_menu.log \"athena CheckLog RegTest\"")
-_add_test( photon_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh photon_menu.log \"athena CheckLog RegTest\"")
-_add_test( tau_menu POST_EXEC_SCRIPT "trig-art-result-parser.sh tau_menu.log \"athena CheckLog RegTest\"")
+_add_test( emu_l1_decoding POST_EXEC_SCRIPT nopost.sh ) # should be moved to the L1Decoder package
+_add_test( emu_scaling_CF  EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
+_add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
+

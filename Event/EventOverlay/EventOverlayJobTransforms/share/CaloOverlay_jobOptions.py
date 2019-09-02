@@ -62,7 +62,13 @@ if DetFlags.overlay.Tile_on():
     include( "TileL2Algs/TileL2Algs_jobOptions.py" )
 
     job.TileHitVecToCnt.DigitizationTool.RndmEvtOverlay = True
+    job.TileHitVecToCnt.DigitizationTool.OnlyUseContainerName = not overlayFlags.isOverlayMT()
     theTileDigitsMaker.RndmEvtOverlay = True
+    theTileDigitsMaker.OverlayTileDigitContainerName = "TileDigitsCnt"
+    if overlayFlags.isOverlayMT():
+       theTileDigitsMaker.OverlayTileDigitContainerName = overlayFlags.bkgPrefix() + "TileDigitsCnt"
+       theTileDigitsMaker.OverlayTileRawChannelContainerName = overlayFlags.bkgPrefix() + "TileRawChannelCnt"
+       theTileDigitsMaker.OnlyUseContainerName = False
     if overlayFlags.isDataOverlay():
        theApp.Dlls += [ "TileByteStream"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileBeamElemContainer/TileBeamElemCnt"]
@@ -72,9 +78,5 @@ if DetFlags.overlay.Tile_on():
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileLaserObject/TileLaserObj"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileRawChannelContainer/MuRcvRawChCnt"]
        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TileDigitsContainer/MuRcvDigitsCnt"]
-
-    from TileRecUtils.TileDQstatusAlgDefault import TileDQstatusAlgDefault
-    dqstatus = TileDQstatusAlgDefault()
-    dqstatus.Enable = False
 
 #--------------------

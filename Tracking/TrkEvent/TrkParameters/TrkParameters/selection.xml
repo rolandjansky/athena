@@ -2,12 +2,26 @@
   <!--class name="Trk::CurvilinearParametersT" /-->
   <class name="Trk::Charged" />
   <class name="Trk::TrackParameters" />
-  <class name="Trk::CurvilinearParameters" />
-  <class name="Trk::AtaCone" />
-  <class name="Trk::AtaCylinder" />
-  <class name="Trk::AtaDisc" />
-  <class name="Trk::Perigee" />
-  <class name="Trk::AtaPlane" />
-  <class name="Trk::AtaStraightLine" />
+  <class name="Trk::CurvilinearParameters" >
+  	<field name="m_surface" transient="true" />
+  </class>
+  <class name="Trk::AtaCone" >
+  	<field name="m_surface" transient="true" />
+  </class>
+  <class name="Trk::AtaCylinder" >
+    	<field name="m_surface" transient="true" />
+  </class>
+  <class name="Trk::AtaDisc" >
+    	<field name="m_surface" transient="true" />
+  </class>
+  <class name="Trk::Perigee" >
+    	<field name="m_surface" transient="true" />
+  </class>
+  <class name="Trk::AtaPlane" >
+    	<field name="m_surface" transient="true" />
+  </class>
+  <class name="Trk::AtaStraightLine" >
+   	<field name="m_surface" transient="true" />
+  </class>
   <class name="std::vector<const Trk::TrackParameters*>"/>
 </lcgdict>

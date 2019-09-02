@@ -32,7 +32,6 @@ CaloCellNeighborsAverageCorr::CaloCellNeighborsAverageCorr(
 			     const std::string& name, 
 			     const IInterface* parent)
   :base_class(type, name, parent),
-   m_calo_dd_man(nullptr),
    m_calo_id(nullptr),
    m_tile_id(nullptr)
 {
@@ -66,8 +65,7 @@ StatusCode CaloCellNeighborsAverageCorr::initialize()
   ATH_MSG_INFO ( "Skip Dead Tile   = " << ((m_skipDeadTile)?"true":"false")   );
 
   
-  m_calo_dd_man  = CaloDetDescrManager::instance();
-  m_calo_id   = m_calo_dd_man->getCaloCell_ID();  
+  ATH_CHECK( detStore()->retrieve (m_calo_id, "CaloCell_ID") );
   m_tile_id   = m_calo_id->tile_idHelper();
 
   ATH_MSG_INFO ( "CaloCellNeighborsAverageCorr initialize() end" );

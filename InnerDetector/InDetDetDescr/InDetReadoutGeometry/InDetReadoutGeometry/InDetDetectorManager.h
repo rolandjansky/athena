@@ -169,8 +169,13 @@ namespace InDetDD {
                                               const Amg::Transform3D & delta,
                                               FrameType frame,
                                               GeoVAlignmentStore* alignStore=nullptr) const = 0;
-    
-      virtual bool processSpecialAlignment(const std::string & key, InDetDD::AlignFolderType alignfolder) const;
+
+      virtual bool processSpecialAlignment(const std::string & key,
+                                           InDetDD::AlignFolderType alignfolder) const = 0;
+
+      virtual bool processSpecialAlignment(const std::string& key,
+                                           const CondAttrListCollection* obj=nullptr,
+                                           GeoVAlignmentStore* alignStore=nullptr) const = 0;
 
       bool processGlobalAlignmentContainer(const std::string & key,
                                            const CondAttrListCollection* obj=nullptr,

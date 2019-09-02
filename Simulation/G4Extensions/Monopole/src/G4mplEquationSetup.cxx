@@ -35,6 +35,12 @@
 //
 
 // =======================================================================
+// Modified: 19 May 2019, M. Bandieramonte: introduced MT mode. The class
+//           was a Singleton and it was not thread-safe.
+//           Added the #ifdef G4MULTITHREADED directive to handle
+//           the multithreaded case. One instance of the class will be created
+//           per each thread and stored in a tbb::concurrent_unordered_map that
+//           is hashed with the threadID number.
 // Modified: 28 August 2013, W. Taylor: adapted for ATLAS
 // Created:  23 May 2013,    J. Apostolakis
 //            Adapted from G4MonopoleFieldSetup by B. Bozsogi
@@ -62,7 +68,11 @@
 //    AtlasRK4, NystromRK4 - these have the equation of motion embedded inside
 #include "G4SystemOfUnits.hh"
 
-G4mplEquationSetup* G4mplEquationSetup::fG4mplEquationSetup=0;
+#ifdef G4MULTITHREADED
+G4mplEquationSetup::ESThreadMap_t G4mplEquationSetup::m_ESThreadMap;
+#endif
+
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -84,13 +94,17 @@ G4mplEquationSetup::G4mplEquationSetup():
 
 G4mplEquationSetup* G4mplEquationSetup::GetInstance()
 {
-  if ( fG4mplEquationSetup == 0 )
-    {
-      static G4mplEquationSetup theInstance;
-      fG4mplEquationSetup = &theInstance;
-    }
+#ifdef G4MULTITHREADED
+    auto es = getES();
+    if (!es) //nullpointer if it is not found
+      return setES();
+    else return es;
+#else
+    //Standard implementation of a Singleton Pattern
+    static G4mplEquationSetup instance;
+    return &instance;
+#endif
 
-  return fG4mplEquationSetup;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -106,6 +120,30 @@ G4mplEquationSetup::~G4mplEquationSetup()
   if ( fCreatedOrdinaryStepper ) delete fStepper;
   if ( fMonopoleStepper )  delete fMonopoleStepper;
 }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+#ifdef G4MULTITHREADED
+  G4mplEquationSetup* G4mplEquationSetup::getES()
+  {
+   // Get current thread-ID
+   const auto tid = std::this_thread::get_id();
+   auto esPair = m_ESThreadMap.find(tid);
+   if(esPair == m_ESThreadMap.end())
+      return nullptr; //if not found return null pointer
+   else return esPair->second;
+  }
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......   
+
+   G4mplEquationSetup* G4mplEquationSetup::setES()
+   {
+      G4mplEquationSetup* instance = new G4mplEquationSetup;
+      const auto tid = std::this_thread::get_id();
+      auto inserted = m_ESThreadMap.insert( std::make_pair(tid, instance)).first;
+      return (G4mplEquationSetup*) inserted->second;
+   }
+#endif
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

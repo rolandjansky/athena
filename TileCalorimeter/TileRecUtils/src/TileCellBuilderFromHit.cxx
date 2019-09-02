@@ -22,7 +22,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloConditions/CaloAffectedRegionInfoVec.h"
 #include "Identifier/IdentifierHash.h"
 
@@ -30,6 +29,7 @@
 #include "AthAllocators/DataPool.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // access all Hits inside container
 #include "EventContainers/SelectAllObject.h" 
@@ -78,7 +78,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_maxTime (25.)
   , m_minTime(-25.)
   , m_maskBadChannels(false)
-  , m_useNoiseTool(true)
   , m_noiseSigma(20.*MeV)
   , m_tileID(0)
   , m_tileTBID(0)
@@ -86,10 +85,12 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
   , m_tileInfo(0)
   , m_pHRengine(0)
   , m_rndmSvc ("AtRndmGenSvc", name)
-  , m_noiseTool("CaloNoiseTool")
   , m_tileMgr(0)
   , m_mbtsMgr(0)
   , m_RChType(TileFragHash::Default)
+  , m_RUN2(false)
+  , m_RUN2plus(false)
+  , m_E1_TOWER(10)
 {
   declareInterface<TileCellBuilderFromHit>( this );
 
@@ -105,10 +106,6 @@ TileCellBuilderFromHit::TileCellBuilderFromHit(const std::string& type, const st
 
   // Noise Sigma
   declareProperty("NoiseSigma",m_noiseSigma);
-
-  // NoiseTool
-  declareProperty("UseCaloNoiseTool",m_useNoiseTool);
-  declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
 
   // Maximum and minimum time for a cell to be included:
   declareProperty("MaxTime", m_maxTime);
@@ -139,7 +136,7 @@ StatusCode TileCellBuilderFromHit::initialize() {
   
   // retrieve MBTS and Tile detector manager, TileID helper and TileIfno from det store
   // retrieve MBTS and Tile detector manager, TileID helper and TileIfno from det store
-  if (m_MBTSContainerKey.key().empty()) {
+  if (m_MBTSContainerKey.empty()) {
     m_mbtsMgr = nullptr;
   } else {
 
@@ -167,13 +164,12 @@ StatusCode TileCellBuilderFromHit::initialize() {
   //=== get TileCondToolEmscale
   ATH_CHECK( m_tileToolEmscale.retrieve() );
 
-  //---- retrieve the noise tool ----------------
-  if (m_useNoiseTool) {
+  //---- retrieve the noise ----------------
+  if (!m_caloNoiseKey.empty()) {
+    ATH_CHECK( m_caloNoiseKey.initialize() );
     ATH_MSG_INFO( "Reading electronic noise from DB" );
-    ATH_CHECK( m_noiseTool.retrieve() );
   } else {
     ATH_MSG_INFO( "Noise Sigma " << m_noiseSigma << " MeV is selected!" );
-    m_noiseTool.disable();
   }
 
   ATH_CHECK( m_rndmSvc.retrieve());
@@ -186,10 +182,13 @@ StatusCode TileCellBuilderFromHit::initialize() {
 
   ATH_MSG_INFO( "taking hits from '" << m_hitContainerKey.key() << "'" );
 
-  m_cabling = TileCablingService::getInstance();
-  m_RUN2 = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling);
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  m_cabling = m_cablingSvc->cablingService();
 
-  if (m_RUN2 && !m_E4prContainerKey.key().empty()) {
+  m_RUN2 = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling);
+  m_RUN2plus = m_cabling->isRun2PlusCabling();
+
+  if (m_RUN2 && !m_E4prContainerKey.empty()) {
     ATH_CHECK( m_E4prContainerKey.initialize() );
     ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainerKey.key() );
   } else {
@@ -230,12 +229,12 @@ StatusCode TileCellBuilderFromHit::process (CaloCellContainer * theCellContainer
     ATH_MSG_DEBUG( "Container " << m_hitContainerKey.key() << " with TileHits found ");
 
     std::unique_ptr<TileCellContainer> MBTSCells;
-    if (!m_MBTSContainerKey.key().empty()) {
+    if (!m_MBTSContainerKey.empty()) {
       MBTSCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
     }
 
     std::unique_ptr<TileCellContainer> E4prCells;
-    if (!m_E4prContainerKey.key().empty()) {
+    if (!m_E4prContainerKey.empty()) {
       E4prCells = std::make_unique<TileCellContainer>(SG::VIEW_ELEMENTS);
     }
     
@@ -243,18 +242,24 @@ StatusCode TileCellBuilderFromHit::process (CaloCellContainer * theCellContainer
     SelectAllObject<TileHitContainer>::const_iterator begin = selAll.begin();
     SelectAllObject<TileHitContainer>::const_iterator end = selAll.end();
 
+    const CaloNoise* caloNoise = nullptr;
+    if (!m_caloNoiseKey.empty()) {
+      SG::ReadCondHandle<CaloNoise> noiseH (m_caloNoiseKey, ctx);
+      caloNoise = noiseH.cptr();
+    }
+
     if (begin != end) {
       ATH_MSG_DEBUG( " Calling build() method for hits from " << m_hitContainerKey.key() );
-      build (drawerEvtStatus, begin, end, theCellContainer,
+      build (caloNoise, drawerEvtStatus, begin, end, theCellContainer,
              MBTSCells.get(), E4prCells.get());
     }
     
-    if (!m_MBTSContainerKey.key().empty()) {
+    if (!m_MBTSContainerKey.empty()) {
       SG::WriteHandle<TileCellContainer> MBTSContainer(m_MBTSContainerKey, ctx);
       ATH_CHECK( MBTSContainer.record(std::move(MBTSCells)) );
     }
     
-    if (!m_E4prContainerKey.key().empty()) {
+    if (!m_E4prContainerKey.empty()) {
       SG::WriteHandle<TileCellContainer> E4prContainer(m_E4prContainerKey, ctx);
       ATH_CHECK( E4prContainer.record(std::move(E4prCells)) );
     }
@@ -611,12 +616,12 @@ TileCellBuilderFromHit::maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStat
         << drawer2+1 << " status " << chan1 << "/" << chan2 << " "
         << (chStatus1.isBad()?"bad":"good") << "/"
         << (chStatus2.isBad()?"bad":"good") << "/"
-        << ((m_RUN2)?" RUN2 cabling": "RUN1 cabling")
+        << ((m_RUN2plus)?" RUN2+ cabling": "RUN1 cabling")
         << std::endl;
       }
 #endif
       if (chan1 == 4) {
-        if (m_RUN2 || !chStatus1.isBad()) {
+        if (m_RUN2plus || !chStatus1.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan1 was " << pCell->ene1() << " changing to half of " << pCell->ene2()
@@ -629,7 +634,7 @@ TileCellBuilderFromHit::maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStat
           --drawerEvtStatus[ros1][drawer1].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
         }
       } else {
-        if (m_RUN2 || !chStatus2.isBad()) {
+        if (m_RUN2plus || !chStatus2.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan2 was " << pCell->ene2() << " changing to half of " << pCell->ene1()
@@ -736,7 +741,8 @@ TileCellBuilderFromHit::maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStat
 
 
 template<class ITERATOR, class COLLECTION>
-void TileCellBuilderFromHit::build(TileDrawerEvtStatusArray& drawerEvtStatus,
+void TileCellBuilderFromHit::build(const CaloNoise* caloNoise,
+                                   TileDrawerEvtStatusArray& drawerEvtStatus,
                                    const ITERATOR & begin, const ITERATOR & end, COLLECTION * coll,
                                    TileCellContainer* MBTSCells,
                                    TileCellContainer* E4prCells) const
@@ -765,7 +771,7 @@ void TileCellBuilderFromHit::build(TileDrawerEvtStatusArray& drawerEvtStatus,
   bool overflow = false;
   bool underflow = false;
   bool overfit = false;
-  float ener_min = (m_useNoiseTool) ? 1.0E-30F : 0.0;
+  float ener_min = (!m_caloNoiseKey.empty()) ? 1.0E-30F : 0.0;
 
   std::vector<TileCell*> allCells (m_tileID->cell_hash_max(), nullptr);
   std::vector<TileCell*> MBTSVec;   //!< vector to of pointers to MBTS cells
@@ -965,9 +971,9 @@ void TileCellBuilderFromHit::build(TileDrawerEvtStatusArray& drawerEvtStatus,
                                 ros, drawer, true, non_zero_time, (fabs(ener) > m_eneForTimeCut)
           , overflow, underflow, overfit);
 
-      if (E1_CELL && m_RUN2) {
+      if (E1_CELL && m_RUN2plus) {
 
-        int drawer2 = m_cabling->E1_merged_with_run2(ros,drawer);
+        int drawer2 = m_cabling->E1_merged_with_run2plus(ros,drawer);
         if (drawer2 != 0) { // Raw channel split into two E1 cells for Run 2.
           Identifier cell_id2 = m_tileID->cell_id(TileID::GAPDET, side, drawer2, m_E1_TOWER, TileID::SAMP_E);
           int index2 = m_tileID->cell_hash(cell_id2);
@@ -1075,9 +1081,10 @@ void TileCellBuilderFromHit::build(TileDrawerEvtStatusArray& drawerEvtStatus,
       
       if (! (bad1 && bad2) ) {
 
-        float noiseSigma = (m_useNoiseTool)
-            ? m_noiseTool->getEffectiveSigma(pCell,ICalorimeterNoiseTool::MAXSYMMETRYHANDLING,ICalorimeterNoiseTool::ELECTRONICNOISE)
-            : m_noiseSigma;
+        float noiseSigma = m_noiseSigma;
+        if (caloNoise) {
+          noiseSigma = caloNoise->getEffectiveSigma (pCell->ID(), pCell->gain(), pCell->energy());
+        }
 
         if (bad1 || bad2 || single_PMT) {
             

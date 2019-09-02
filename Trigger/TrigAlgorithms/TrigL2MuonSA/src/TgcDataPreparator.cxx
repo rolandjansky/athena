@@ -4,8 +4,6 @@
 
 #include "TrigL2MuonSA/TgcDataPreparator.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
@@ -80,10 +78,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   ServiceHandle<StoreGateSvc> detStore( "DetectorStore", name() );
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
-   ATH_CHECK( detStore->retrieve( m_muonMgr,"Muon" ) );
+   ATH_CHECK( detStore()->retrieve( m_muonMgr,"Muon" ) );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_tgcIdHelper = m_muonMgr->tgcIdHelper();
 

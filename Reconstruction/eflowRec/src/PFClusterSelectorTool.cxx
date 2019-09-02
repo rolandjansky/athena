@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -16,7 +16,9 @@ PFClusterSelectorTool::PFClusterSelectorTool(const std::string& type,const std::
 StatusCode PFClusterSelectorTool::initialize(){
 
   ATH_CHECK(m_caloClustersReadHandleKey.initialize());
-  ATH_CHECK(m_caloCalClustersReadHandleKey.initialize());
+  if(!m_caloCalClustersReadHandleKey.key().empty()) {
+    ATH_CHECK(m_caloCalClustersReadHandleKey.initialize());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -31,7 +33,11 @@ StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecC
     return StatusCode::SUCCESS;
   }
 
-  SG::ReadHandle<xAOD::CaloClusterContainer> caloCalClustersReadHandle(m_caloCalClustersReadHandleKey);
+  const xAOD::CaloClusterContainer* calclusters = nullptr;
+  if (!m_caloCalClustersReadHandleKey.key().empty()) {
+    SG::ReadHandle<xAOD::CaloClusterContainer> caloCalClustersReadHandle(m_caloCalClustersReadHandleKey);
+    calclusters = caloCalClustersReadHandle.get();
+  }
   
   /* Fill the vector of eflowRecClusters */
   unsigned int nClusters = caloClustersReadHandle->size();
@@ -39,9 +45,9 @@ StatusCode PFClusterSelectorTool::execute(eflowRecClusterContainer& theEFlowRecC
     /* Create the eflowRecCluster and put it in the container */
     std::unique_ptr<eflowRecCluster> thisEFRecCluster  = std::make_unique<eflowRecCluster>(ElementLink<xAOD::CaloClusterContainer>(*caloClustersReadHandle, iCluster), theCaloClusterContainer);
     
-    if (caloCalClustersReadHandle.isValid()){
+    if (calclusters){
       std::map<IdentifierHash,double> cellsWeightMap;
-      retrieveLCCalCellWeight(caloClustersReadHandle->at(iCluster)->e(), iCluster, cellsWeightMap, *caloCalClustersReadHandle);
+      retrieveLCCalCellWeight(caloClustersReadHandle->at(iCluster)->e(), iCluster, cellsWeightMap, *calclusters);
 
       if (msgLvl(MSG::DEBUG)) {
         //zhangr

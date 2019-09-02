@@ -294,6 +294,14 @@ TRTCalFitTool = FitTool (name = 'TRTCalFitTool')
 ToolSvc += TRTCalFitTool
 print      TRTCalFitTool
 
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool")
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+InDetStrawSummaryTool=TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                             isGEANT4=(globalflags.DataSource == 'geant4'))
+
+
 
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 TRTCondStream=AthenaOutputStreamTool(name="CondStream1",OutputFile="trtcalibout.pool.root")
@@ -304,6 +312,8 @@ print TRTCondStream
 from TRT_CalibTools.TRT_CalibToolsConf import FillAlignTrkInfo 
 FillAlignTrkInfo = FillAlignTrkInfo ( name = 'FillAlignTrkInfo',
                                       TrackSummaryTool = InDetTrackSummaryTool)
+
+
 ToolSvc += FillAlignTrkInfo
 print      FillAlignTrkInfo
 
@@ -311,7 +321,9 @@ from TRT_CalibTools.TRT_CalibToolsConf import FillAlignTRTHits
 FillAlignTRTHits = FillAlignTRTHits ( name = 'FillAlignTRTHits',
                                       minTimebinsOverThreshold=0, 
                                       NeighbourSvc=TRTStrawNeighbourSvc,
-                                      TRTCalDbSvc=TRTCalibDBSvc)
+                                      TRTCalDbTool = InDetCalDbTool,
+                                      TRTStrawSummaryTool = InDetStrawSummaryTool)
+
 ToolSvc += FillAlignTRTHits
 print      FillAlignTRTHits
 

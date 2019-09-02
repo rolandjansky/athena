@@ -87,11 +87,11 @@ private:
   // jO controllable properties.
   // "Main" containers are read, have data from "overlay" containers added,
   // and written out with the original SG keys.
-  SG::ReadHandleKey<CscRawDataContainer> m_bkgInputKey{this,"BkgInputKey","OriginalEvent_SG+CSCRDO",""};
-  SG::ReadHandleKey<CscRawDataContainer> m_signalInputKey{this,"SignalInputKey","BkgEvent_0_SG+CSCRDO",""};
-  SG::WriteHandleKey<CscRawDataContainer> m_outputKey{this,"OutputKey","StoreGateSvc+CSCRDO",""};
+  SG::ReadHandleKey<CscRawDataContainer> m_bkgInputKey{this,"BkgInputKey","Bkg_CSCRDO",""};
+  SG::ReadHandleKey<CscRawDataContainer> m_signalInputKey{this,"SignalInputKey","Sig_CSCRDO",""};
+  SG::WriteHandleKey<CscRawDataContainer> m_outputKey{this,"OutputKey","CSCRDO",""};
 
-
+  Gaudi::Property<bool> m_isDataOverlay{this, "isDataOverlay", false, ""};
   const CscIdHelper   * m_cscHelper{nullptr};
   ToolHandle<ICscCalibTool> m_cscCalibTool{this, "CalibTool", "CscCalibTool", ""};
   PublicToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool{this, "CscRdoDecoderTool", "Muon::CscRDO_Decoder", ""};

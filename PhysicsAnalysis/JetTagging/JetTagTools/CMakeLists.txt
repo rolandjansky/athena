@@ -11,7 +11,6 @@ atlas_depends_on_subdirs(
     PUBLIC
     Control/AthToolSupport/AsgTools
     Control/AthenaBaseComps
-    Control/SGTools
     Control/StoreGate
     DetectorDescription/GeoPrimitives
     Event/xAOD/xAODBTagging
@@ -75,7 +74,7 @@ atlas_add_library( JetTagToolsLib
     src/TrackSelector.cxx
     src/HistoHelperRoot.cxx src/NewLikelihoodTool.cxx
     src/BasicTrackGradeFactory.cxx src/DetailedTrackGradeFactory.cxx
-    src/GradedTrack.cxx src/IPTag.cxx src/JetTagUtils.cxx
+    src/GradedTrack.cxx src/IPTag.cxx
     src/SVForIPTool.cxx src/SVTag.cxx src/JetFitterTag.cxx
     src/JetFitterNtupleWriter.cxx src/JetFitterNNTool.cxx
     src/JetFitterInputWriter.cxx src/JetFitterDummyClassifier.cxx
@@ -91,7 +90,7 @@ atlas_add_library( JetTagToolsLib
     DEFINITIONS ${CLHEP_DEFINITIONS}
 
     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LWTNN_LIBRARIES}
-    AsgTools AthenaBaseComps SGTools GeoPrimitives xAODBTagging xAODJet
+    AsgTools AthenaBaseComps GeoPrimitives xAODBTagging xAODJet
     xAODTracking GaudiKernel JetTagInfo JetSubStructureUtils TrkParameters
     JetRecLib JetSubStructureMomentToolsLib egammaMVACalibLib MVAUtils
     TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib

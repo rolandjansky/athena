@@ -54,10 +54,10 @@ if "dt" not in dir():
 print "Using dt: ",dt
 
 if "GlobalTag" not in dir():
-    GlobalTag =  'COMCOND-BLKPA-2015-05'
+    GlobalTag =  'COMCOND-BLKPA-2017-09'
 
 if "Geometry" not in dir():
-    Geometry = 'ATLAS-R2-2015-02-00-00'
+    Geometry = 'ATLAS-R2-2015-04-00-00'
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(int(RunNumberOld))
@@ -120,12 +120,19 @@ if "sqliteHVCorr" in dir():
    conddb.addMarkup("/LAR/ElecCalibFlat/HVScaleCorr","<db>sqlite://;schema="+sqliteHVCorr+";dbname=CONDBR2</db>")
 
 if mu==0:
-   conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoisenoise_2015_ofc0_25ns")
+   #conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoisenoise_2015_ofc0_25ns")
+   # for 2017:
+   conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoisenoise-mc16-ofc25mc15mu0-25ns-A3MinBias_1phi_v2")
 else:   
    if dt==25:
-      conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoisenoise_2015_ofc25mu20_25ns")
+      #conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoisenoise_2015_ofc25mu20_25ns")
+      # for the 2017 running:
+      conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoisenoise-mc16-ofc25mc15mu20-25ns-A3MinBias_1phi_v2")
    else:   
-      conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoisenoise_2015_ofc25mu20_50ns")
+      #conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoisenoise_2015_ofc25mu20_50ns")
+      # not possible for 2017:
+      print "Could not handle 50ns in 2017"
+      sys.exit(-1)
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()

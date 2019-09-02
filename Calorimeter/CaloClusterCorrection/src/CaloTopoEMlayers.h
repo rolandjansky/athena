@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCLUSTERCORRECTION_CALOTOPOEMLAYERS_H
@@ -49,11 +49,28 @@ class CaloTopoEMlayers : public CaloFillRectangularCluster
   // Algtool virtual method 
   virtual StatusCode initialize() override;
 
-  virtual void get_seed (const xAOD::CaloCluster* cluster,
-                         const CaloCell* max_et_cell,
+  virtual void get_seed (CaloClusterCorr::SamplingHelper& helper,
+                         const xAOD::CaloCluster* cluster,
                          double& eta, double& phi) const override;
 
- private:
+
+  /** 
+   * @brief Set up layer-by-layer cluster window sizes.
+   * @param neta Cluster eta size.
+   * @param nphi Cluster phi size.
+   * @param detas2 Middle layer cell eta size.
+   * @param detas2 Middle layer cell phi size.
+   *
+   * Returns per-layer array of deta,dphi pairs.
+   */
+  virtual
+  WindowArray_t initWindows (const int neta,
+                             const int nphi,
+                             const double detas2,
+                             const double dphis2) const override;
+
+
+private:
 
   CaloTopoEMlayers() = delete;
 };

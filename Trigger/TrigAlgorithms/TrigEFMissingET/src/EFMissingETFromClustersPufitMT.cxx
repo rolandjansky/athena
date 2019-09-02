@@ -24,7 +24,7 @@ PURPOSE:  athenaMT migration
 
 // TrigEFMissingET includes
 #include "EFMissingETFromClustersPufitMT.h"
-
+#include "EFMissingETComponentCopier.h"
 
 #include <TMatrixD.h>
 
@@ -58,14 +58,9 @@ StatusCode EFMissingETFromClustersPufitMT::initialize()
 
   ATH_MSG_DEBUG( "called EFMissingETFromClustersPufitMT::initialize()" );
 
-  if(m_saveuncalibrated) 
-  {
-    m_metHelperComp = TrigEFMissingEtComponent::TCEM;
+  if(m_saveuncalibrated) {
     m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
-  }
-  else 
-  {
-    m_metHelperComp = TrigEFMissingEtComponent::TCLCW;
+  } else {
     m_clusterstate = xAOD::CaloCluster_v1::CALIBRATED;
   }
 
@@ -75,13 +70,12 @@ StatusCode EFMissingETFromClustersPufitMT::initialize()
 }
 
 
-StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET * /* met */ ,
+StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET *met,
 						  TrigEFMissingEtHelper *metHelper, 
 						  const EventContext& ctx ) const
 {
 
   ATH_MSG_DEBUG( "called EFMissingETFromClustersPufitMT::update()" );
-
 
   auto totalTimer = Monitored::Timer( "TIME_Total" );
   auto caloClustersHandle = SG::makeHandle( m_clustersKey, ctx );
@@ -91,13 +85,9 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET * /* met *
 
   /// fetching the topo. cluster component
   TrigEFMissingEtComponent* metComp = nullptr;
-  metComp = metHelper->GetComponent(TrigEFMissingEtComponent::TCPUC); // fetch Cluster component
+  metComp = metHelper->GetComponent(TrigEFMissingEtComponent::TCPufit); // fetch Cluster component
   if (metComp==0) {
-    ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );
-    return StatusCode::FAILURE;
-  }
-  if(string(metComp->m_name).substr(0,2)!="TC"){
-    ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" );
+    ATH_MSG_ERROR( "cannot fetch TC PUFit component!" );
     return StatusCode::FAILURE;
   }
 
@@ -140,7 +130,7 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET * /* met *
            binPhi = (fmod(phi+TMath::TwoPi(),TMath::TwoPi()) / TMath::TwoPi())*m_nphibins,
            index0 = binEta*m_nphibins + binPhi;
        int binEta1 = (fmod(eta + m_etarange*(1+0.5/m_netabins),2*m_etarange))/(2*m_etarange)*m_netabins, 
-     binPhi1 = (fmod(phi+TMath::TwoPi()*(1+0.5/m_nphibins),TMath::TwoPi()) / TMath::TwoPi())*m_nphibins,
+           binPhi1 = (fmod(phi+TMath::TwoPi()*(1+0.5/m_nphibins),TMath::TwoPi()) / TMath::TwoPi())*m_nphibins,
            index1 = binEta1*m_nphibins + binPhi,
            index2 = binEta *m_nphibins + binPhi1,
            index3 = binEta1*m_nphibins + binPhi1;
@@ -251,17 +241,17 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET * /* met *
       double cosphi1 = ExInMask[k1]*ET1inv;
       double sinphi1 = EyInMask[k1]*ET1inv;
       dXdEa[k1][0] = -(							\
-		       Etobs[0][0]*(covEtobsinv[0][0]*cosphi1+covEtobsinv[1][0]*sinphi1) + \
-		       Etobs[1][0]*(covEtobsinv[0][1]*cosphi1+covEtobsinv[1][1]*sinphi1) - \
-		       EtTowerTrimMean/varRhoA[k1] );
+        Etobs[0][0]*(covEtobsinv[0][0]*cosphi1+covEtobsinv[1][0]*sinphi1) + \
+        Etobs[1][0]*(covEtobsinv[0][1]*cosphi1+covEtobsinv[1][1]*sinphi1) - \
+        EtTowerTrimMean/varRhoA[k1] );
       for (int k2 = 0; k2<nummasks; k2++) {
-	double ET2inv = 1/EtInMask[k2];
-	double cosphi2 = ExInMask[k2]*ET2inv;
-	double sinphi2 = EyInMask[k2]*ET2inv;
-	dXdEab[k1][k2] = (						\
-			  cosphi1*(covEtobsinv[0][0]*cosphi2+covEtobsinv[1][0]*sinphi2) + \
-			  sinphi1*(covEtobsinv[0][1]*cosphi2+covEtobsinv[1][1]*sinphi2) );
-	if (k1 == k2) dXdEab[k1][k2] += 1/varRhoA[k1];
+      	double ET2inv = 1/EtInMask[k2];
+      	double cosphi2 = ExInMask[k2]*ET2inv;
+      	double sinphi2 = EyInMask[k2]*ET2inv;
+      	dXdEab[k1][k2] = (						\
+  			  cosphi1*(covEtobsinv[0][0]*cosphi2+covEtobsinv[1][0]*sinphi2) + \
+  			  sinphi1*(covEtobsinv[0][1]*cosphi2+covEtobsinv[1][1]*sinphi2) );
+      	if (k1 == k2) dXdEab[k1][k2] += 1/varRhoA[k1];
       }
     }
     TMatrixD covFit(dXdEab); covFit.Invert(); TMatrixD Evals(covFit*dXdEa);
@@ -285,7 +275,7 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET * /* met *
     metComp->m_sumE  = sumEEta;
     metComp->m_usedChannels += 1;
   
-    metComp = metHelper->GetComponent(TrigEFMissingEtComponent::TCPUCUnc); // fetch first auxiliary component to store uncorrected MET
+    metComp = metHelper->GetComponent(TrigEFMissingEtComponent::TCPufitUnc); // fetch first auxiliary component to store uncorrected MET
     
     metComp->m_ex = -(float) ETobscor[0][0];
     metComp->m_ey = -(float) ETobscor[1][0];  
@@ -300,12 +290,12 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET * /* met *
      // Just store zero energies for the clusters 
      metComp->m_ex = 0.;
      metComp->m_ey = 0.;
-     metComp->m_ey = 0.;
+     metComp->m_ez = 0.;
      metComp->m_sumEt = 0.;
      metComp->m_sumE  = 0.;
      metComp->m_usedChannels += 1;
        
-     metComp = metHelper->GetComponent(TrigEFMissingEtComponent::TCPUCUnc); // fetch first auxiliary component to store uncorrected MET
+     metComp = metHelper->GetComponent(TrigEFMissingEtComponent::TCPufitUnc); // fetch first auxiliary component to store uncorrected MET
      
      metComp->m_ex = -MExEta;
      metComp->m_ey = -MEyEta;
@@ -325,7 +315,15 @@ StatusCode EFMissingETFromClustersPufitMT::update(xAOD::TrigMissingET * /* met *
    
   } // end container loop.
   
-  
+
+
+  // Save MET into final met object
+  EFMissingETComponentCopier copier = EFMissingETComponentCopier(met, metHelper);
+  const std::vector<std::string> vComp = {"TCPufit", "TCPufitUnc"};
+  met->defineComponents( vComp );
+  copier.addHelperCompToMET(TrigEFMissingEtComponent::TCPufit);
+  copier.setMETCompFromHelper(0, TrigEFMissingEtComponent::TCPufit);
+  copier.setMETCompFromHelper(1, TrigEFMissingEtComponent::TCPufitUnc);
   
   return StatusCode::SUCCESS;
 

@@ -9,8 +9,8 @@
 
 class SingleJetGrouper: public IJetGrouper{
  public:
-  HypoJetGroupVector group(HypoJetIter&,
-                           HypoJetIter&) const override;
+  std::vector<HypoJetGroupVector> group(HypoJetIter&,
+					HypoJetIter&) const override;
   std::string getName() const override; 
   std::string toString() const override;
 };

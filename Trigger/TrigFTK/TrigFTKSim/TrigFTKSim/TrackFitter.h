@@ -18,7 +18,7 @@
 
 class TrackFitter {
 protected:
-  int m_ncoords; // number of coordinates
+  unsigned int m_ncoords; // number of coordinates
   int m_nplanes; // number of used layers
 
   int m_npars; // number of parameters
@@ -30,16 +30,19 @@ protected:
   float m_Chi2Cut_vetomaj; // Chi2 for full fits above which majority
 			   // is not attempted; not used by default
 
-  float m_Chi2DofCut; // Cut on the chi2 per degree of freedom; not
+  float m_Chi2DofCutAux; // Cut on the chi2 per degree of freedom for Aux; not
 		      // used by default
 
-  int m_HitWarrior; // 1 means in-road HW enabled, 2 mean global HW (default)
+  float m_Chi2DofCutSSB; // Cut on the chi2 per degree of freedom for SSB; not
+          // used by default
 
-  int m_HitWarrior_first; // 0 means no HW in the 1st stage, 1 means HW within the same raod (default), and 2 means HW within the same sector
+  int m_HitWarrior; // 1 means in-road HW enabled, 2 mean global HW (default)
 
   int m_HW_ndiff; // maximum number of different points
 
   float *m_HW_dev; //[m_ncoords] tolerances for the HW
+
+  bool m_AuxDoctor; // true means enabling Aux Doctor, false means disabling it
 
   int m_keep_rejected; // >0 keep rejected roads (1 HW rej, 2 bad quality)
 
@@ -81,13 +84,13 @@ protected:
   FTKPlaneMap *m_pmap; // plane-map, needed to know hits dimension
 
   int m_ntracks; // counter of the stored tracks
+  int m_ntracks_pre_hw; // counter of the stored tracks before HW filter
 
   std::list<FTKTrack> m_tracks; // list of output tracks
   std::list<FTKTrack> m_tracks_pre_hw; // list of output tracks before HW filter
-  std::list<FTKTrack> m_sector_tracks; // list of first stage tracks in the same sector
-  std::list<FTKTrack> m_tracks_first; // list of first stage tracks
 
-  int m_processor_stage; // It tells processor() which part to work on for HW within the same sector
+  std::list<FTKTrack> m_tracks_hits; // list of stored tracks that pass hit requirements
+  std::list<FTKTrack> m_tracks_pattern; // list of stored tracks with patterns
 
   int m_ncombs; // number of combinations
   int m_nfits; // number of fits tryied in a road
@@ -114,14 +117,16 @@ protected:
 
   bool m_identify_badhit; // the flag enables the identification of the bad hits for the recovery
 
-  bool m_saveIncompleteTracks; // true if you want to save incompelte tracks
+  bool m_saveStepByStepTracks; // true if you want to save incompelte tracks
 
   virtual void processor_init(int);
   virtual void processor(const FTKRoad &);
   virtual void processor_end(int);
   virtual void compute_truth(const unsigned int&,const FTKRoad &,FTKTrack&) const;
-  int doHitWarriorFilter(FTKTrack&,std::list<FTKTrack>&);
+  int doHitWarriorFilter(FTKTrack&,std::list<FTKTrack>&,bool isfirst=false);
+  int doAuxDoctor(FTKTrack&,std::list<FTKTrack>&);
   std::list<FTKTrack>::iterator removeTrack(std::list<FTKTrack>&, std::list<FTKTrack>::iterator, FTKTrack&, const FTKTrack&,bool isnew=false);
+  std::list<FTKTrack>::iterator removeTrackStage1(std::list<FTKTrack>&, std::list<FTKTrack>::iterator, FTKTrack&, const FTKTrack&,bool isnew=false);
 
 public:
   TrackFitter();
@@ -150,11 +155,11 @@ public:
   void setHitWarrior(int v) { m_HitWarrior = v; }
   int getHitWarrior() const { return m_HitWarrior; }
 
-  void setHitWarriorFirst(int v) { m_HitWarrior_first = v; }
-  int getHitWarriorFirst() const { return m_HitWarrior_first; }
-
   void setHWNDiff(int v) { m_HW_ndiff = v; }
   int getHWNDiff() const { return m_HW_ndiff; }
+
+  void setAuxDoctor(bool v) { m_AuxDoctor = v; }
+  bool getAuxDoctor() const { return m_AuxDoctor; }
 
   void setMaxNcomb(int v) { m_max_ncomb = v; }
   void setMaxNhitsPerPlane(int v) { m_max_nhitsperplane = v; }
@@ -176,6 +181,9 @@ public:
   int getKeepRejected() const { return m_keep_rejected; }
   void setKeepRejected(int v) { m_keep_rejected = v; }
 
+  void setSaveStepByStepTracks(bool flag) { m_saveStepByStepTracks = flag; }
+  bool getSaveStepByStepTracks() const { return m_saveStepByStepTracks; }
+
   void loadHWConf(const char*);
 
   void setChi2Cut(float v) { m_Chi2Cut = v; }
@@ -187,8 +195,11 @@ public:
   void setChi2Cut_vetomaj(float v) { m_Chi2Cut_vetomaj = v; }
   float getChi2Cut_vetomaj() const { return m_Chi2Cut_vetomaj; }
 
-  void setChi2DofCut(float v) { m_Chi2DofCut = v; }
-  float getChi2DofCut() const { return m_Chi2DofCut; }
+  void setChi2DofCutAux(float v) { m_Chi2DofCutAux = v; }
+  float getChi2DofCutAux() const { return m_Chi2DofCutAux; }
+
+  void setChi2DofCutSSB(float v) { m_Chi2DofCutSSB = v; }
+  float getChi2DofCutSSB() const { return m_Chi2DofCutSSB; }
 
   void setBank(int, int, FTKConstantBank*);
 
@@ -203,10 +214,6 @@ public:
     { m_trackoutput_pre_hw = module; }
   FTKTrackOutput* getTrackOutputModule() { return m_trackoutput; }
   FTKTrackOutput* getTrackOutputModulePreHW() { return m_trackoutput_pre_hw; }
-
-  void setSaveIncompleteTracks(bool flag) { m_saveIncompleteTracks = flag; }
-  bool getSaveIncompeteTracks() const { return m_saveIncompleteTracks; }
-
   // output for firmware tests
   //void setFirmwareOutputModule(FTKFirmwareOutput *module) { m_fwoutput = module; }
   //void setNSectorsFWO( int v ) { m_maxsectors_fwo = v; }

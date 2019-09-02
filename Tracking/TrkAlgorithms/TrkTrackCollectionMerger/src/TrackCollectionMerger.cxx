@@ -199,7 +199,7 @@ std::ostream& Trk::operator <<
 // Merge track collections and remove duplicates
 ///////////////////////////////////////////////////////////////////
 
-StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol) const
+StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol)
 {
   // loop over forward track, accept them and add them imto association tool
   if(trackCol && trackCol->size()) {

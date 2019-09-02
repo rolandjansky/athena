@@ -4,6 +4,11 @@
 #
 #==============================================================
 
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("testDCSConditions")
+msg.setLevel(logging.INFO)
+
 #--------------------------------------------------------------
 # Standard includes
 #--------------------------------------------------------------
@@ -39,8 +44,7 @@ globalflags.DetDescrVersion="ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
-print globalflags
-
+msg.info(globalflags)
 
 #--------------------------------------------------------------
 # Set Detector setup

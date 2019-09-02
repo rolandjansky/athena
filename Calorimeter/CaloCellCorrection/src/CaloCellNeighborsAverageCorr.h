@@ -40,7 +40,6 @@ public:
 
 private:
 
- const CaloDetDescrManager* m_calo_dd_man;
  const CaloCell_ID* m_calo_id;
  const TileID* m_tile_id;
  bool m_testMode;

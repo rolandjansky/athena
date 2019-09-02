@@ -31,13 +31,3 @@ if 'Tile2003Noise' in dir() and Tile2003Noise: # special testbeam noise values
     from TileConditions.TileCondProxyConf import getTileCondProxy
     ToolSvc.TileCondToolNoiseSample.ProxyNoiseSample = getTileCondProxy('FILE','Flt','Tile2003.ped','TileCondProxyFile_NoiseSample')
 
-# load optimal filter weights if needed
-if ('doTileOpt' in dir()) and (doTileOpt):
-    tileInfoConfigurator.LoadOptFilterWeights=True
-    tileInfoConfigurator.filenameDeltaCISSuffix="of2_Delta_CIS_7Samples"
-    if TileFrameLength==9:
-        tileInfoConfigurator.filenameDeltaPhysicsSuffix="of2_Delta_Phys_9Samples"
-    if TileFrameLength==7:
-        tileInfoConfigurator.filenameDeltaPhysicsSuffix="of2_Delta_Phys_7Samples"
-
-

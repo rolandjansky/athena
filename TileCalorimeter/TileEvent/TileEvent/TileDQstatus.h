@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -178,7 +178,7 @@ protected:
   }
   /** @brief parses DQ fragments and fill error arrays for event*/
   void fillArrays(const TileRawChannelCollection * coll,
-                  const TileDigitsContainer* digitsCnt, int gain);
+                  const TileDigitsContainer* digitsCnt, int gain, unsigned short fragBCID);
   void fillBCIDErrDetail(const TileDigitsContainer* digitsCnt,
                          int frag, int gain);
   void fillTrips(unsigned int partition, const std::vector<float>& trips, double* rndmVec,

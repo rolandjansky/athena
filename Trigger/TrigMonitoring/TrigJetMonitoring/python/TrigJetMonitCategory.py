@@ -48,7 +48,11 @@ monitoring_jet = ['j25',
                   'j460_a10r_L1J100',
                   '4j120',
                   '6j70',
-                  '6j55_0eta240_L14J15']
+                  '6j55_0eta240_L14J15',
+                  'j35_nojcalib',
+                  'j45',
+                  'j0_perf_ftk_L1RD0_FILLED',
+                  'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 
@@ -98,7 +102,11 @@ primary_jet                = ['j25',
                               'j460_a10r_L1J100',
                               '4j120',
                               '6j70',
-                              '6j55_0eta240_L14J15']
+                              '6j55_0eta240_L14J15',
+                              'j35_nojcalib',
+                              'j45_320eta490',
+                              'j0_perf_ftk_L1RD0_FILLED',
+                              'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 
@@ -150,7 +158,11 @@ monitoring_jet_pp = ['j25',
                      'j460_a10r_L1J100',
                      '4j120',
                      '6j70',
-                     '6j55_0eta240_L14J15']
+                     '6j55_0eta240_L14J15',
+                     'j35_nojcalib',
+                     'j45_320eta490',
+                     'j0_perf_ftk_L1RD0_FILLED',
+                     'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 
@@ -199,7 +211,11 @@ primary_jet_pp                = ['j25',
                                  'j460_a10r_L1J100',
                                  '4j120',
                                  '6j70',
-                                 '6j55_0eta240_L14J15']
+                                 '6j55_0eta240_L14J15',
+                                 'j35_nojcalib',
+                                 'j45_320eta490',
+                                 'j0_perf_ftk_L1RD0_FILLED',
+                                 'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 ########################## validation Config ###############################################
@@ -250,7 +266,11 @@ monitoring_jet_validation = ['j25',
                              'j460_a10r_L1J100',
                              '4j120',
                              '6j70',
-                             '6j55_0eta240_L14J15']
+                             '6j55_0eta240_L14J15',
+                             'j35_nojcalib',
+                             'j45_320eta490',
+                             'j0_perf_ftk_L1RD0_FILLED',
+                             'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 
@@ -303,7 +323,11 @@ primary_jet_validation        = ['j25',
                                  'j460_a10r_L1J100',
                                  '4j120',
                                  '6j70',
-                                 '6j55_0eta240_L14J15']
+                                 '6j55_0eta240_L14J15',
+                                 'j35_nojcalib',
+                                 'j45_320eta490',
+                                 'j0_perf_ftk_L1RD0_FILLED',
+                                 'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 

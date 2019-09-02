@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 // Base class
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
+#include "CxxUtils/CachedUniquePtr.h"
 #include "Identifier/IdentifierHash.h"
 
 // for ElementLink to IdentifiableContainer PlanarClusterContainer
@@ -116,7 +117,7 @@ namespace iFatras {
     const iFatras::PlanarDetElement* m_detEl;
 
     /** The global position */
-    mutable const Amg::Vector3D*  m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
     
   };
 
@@ -124,8 +125,8 @@ namespace iFatras {
   { return ( detectorElement()->surface()); }
 
   inline const Amg::Vector3D* PlanarClusterOnTrack::globalPositionPtr() const {
-    if (!m_globalPosition) m_globalPosition = associatedSurface().localToGlobal(localParameters());
-    return m_globalPosition; }
+    if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(associatedSurface().localToGlobal(localParameters())));
+    return m_globalPosition.get(); }
   
   inline const Amg::Vector3D& PlanarClusterOnTrack::globalPosition() const {
     return *globalPositionPtr(); }

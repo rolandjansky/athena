@@ -22,6 +22,8 @@ atlas_depends_on_subdirs(
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/PersistentDataModel
    Event/EventInfo
+   Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODTrigger
    Event/ByteStreamCnvSvcLegacy )
 
 # External dependencies:
@@ -39,7 +41,7 @@ atlas_add_library( ByteStreamCnvSvcLib
    ByteStreamCnvSvcBaseLib StoreGateLib rt
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES}
    AthenaKernel SGTools CollectionBase FileCatalog
-   AthenaPoolUtilities PersistentDataModel EventInfo
+   AthenaPoolUtilities PersistentDataModel EventInfo xAODEventInfo xAODTrigger
    ByteStreamCnvSvcLegacy )
 
 atlas_add_component( ByteStreamCnvSvc
@@ -91,15 +93,14 @@ function( _add_test testName toExecute )
    # Set up the test:
    atlas_add_test( ${testName}
       SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/${testName}_test.sh
-      PROPERTIES TIMEOUT 300
+      PROPERTIES TIMEOUT 600
       ${_options} )
 
 endfunction( _add_test )
 
 # Test(s) in the package:
 _add_test( BSEventSelector
-   "athena.py ByteStreamCnvSvc/BSEventSelector_test_jobOptions.py"
-   POST_EXEC test/post_check.sh )
+   "athena.py ByteStreamCnvSvc/BSEventSelector_test_jobOptions.py" )
 
 _add_test( AtlCopyBSEvent1_test
    "AtlCopyBSEvent -e 186882810,187403142,187404922,187419528 -o test.data /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"
@@ -123,7 +124,7 @@ _add_test( AtlCopyBSEvent5_test
 #   DEPENDS ByteStreamCnvSvc_AtlFindBSEvent4_test_ctest )
 
 
- atlas_add_test( ByteStreamConfigTest    SCRIPT python -m ByteStreamCnvSvc.ByteStreamConfig    POST_EXEC_SCRIPT nopost.sh )
+atlas_add_test( ByteStreamConfigTest    SCRIPT python -m ByteStreamCnvSvc.ByteStreamConfig    POST_EXEC_SCRIPT nopost.sh )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

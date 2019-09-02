@@ -5,30 +5,31 @@ __author__ = "Bruno Lenzi , Christos Anastopoulos"
 from egammaRec.Factories import FcnWrapper, ToolFactory
 import egammaTrackToolsConf
 from egammaRec import egammaKeys
-from egammaTools.InDetTools import egammaExtrapolator
+from egammaTools.InDetTools import egammaCaloExtrapolator,egammaExtrapolator
 import AthenaCommon.CfgMgr as CfgMgr
 
 EMLastCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool,
                                            name="EMLastCaloExtensionTool",
-                                           Extrapolator = egammaExtrapolator)
+                                           Extrapolator = egammaCaloExtrapolator,
+                                           ParticleType = "electron")
 
 EMParticleCaloExtensionTool =  ToolFactory (CfgMgr.Trk__ParticleCaloExtensionTool, 
                                             name="EMParticleCaloExtensionTool",
-                                            Extrapolator = egammaExtrapolator,
-                                            ParticleType="muon",
+                                            Extrapolator = egammaCaloExtrapolator,
+                                            ParticleType="electron",
                                             StartFromPerigee = True)
 
 EMExtrapolationTools = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
                                     name ="EMExtrapolationTools",
-                                    LastCaloExtentionTool=EMLastCaloExtensionTool,
-                                    PerigeeCaloExtentionTool = EMParticleCaloExtensionTool,
+                                    LastCaloExtensionTool=EMLastCaloExtensionTool,
+                                    PerigeeCaloExtensionTool = EMParticleCaloExtensionTool,
                                     Extrapolator=egammaExtrapolator,
                                     useCaching=False)
 
 EMExtrapolationToolsCache = ToolFactory( egammaTrackToolsConf.EMExtrapolationTools,
                                          name ="EMExtrapolationToolsCache",
-                                         LastCaloExtentionTool=EMLastCaloExtensionTool,
-                                         PerigeeCaloExtentionTool = EMParticleCaloExtensionTool,
+                                         LastCaloExtensionTool=EMLastCaloExtensionTool,
+                                         PerigeeCaloExtensionTool = EMParticleCaloExtensionTool,
                                          Extrapolator=egammaExtrapolator,
                                          GSFPerigeeCache='GSFPerigeeCaloExtension',
                                          GSFLastCache='GSFLastCaloExtension',

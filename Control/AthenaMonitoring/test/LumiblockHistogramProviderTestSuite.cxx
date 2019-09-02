@@ -26,6 +26,7 @@
 #include "mocks/MockHistogramFactory.h"
 
 #include "../src/HistogramFiller/LumiblockHistogramProvider.h"
+#include "../src/HistogramFiller/OfflineHistogramProvider.h"
 
 using namespace std;
 using namespace Monitored;
@@ -41,6 +42,7 @@ class LumiblockHistogramProviderTestSuite {
         REGISTER_TEST_CASE(test_shouldThrowExceptionWhen_kLBNHistoryDepth_isDefinedAs_NaN),
         REGISTER_TEST_CASE(test_shouldNotThrowExceptionWhen_kLBNHistoryDepth_isDefinedAsNumber),
         REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedAlias),
+        REGISTER_TEST_CASE(test_shouldCreateNewHistogramWithUpdatedLumiBlock),
       };
     }
 
@@ -109,6 +111,35 @@ class LumiblockHistogramProviderTestSuite {
         m_gmTool->mock_lumiBlock = [lumiBlock]() { return lumiBlock; };
         m_histogramFactory->mock_create = [&histogram, expectedAlias](const HistogramDef& def) mutable {
           VALUE(def.alias) EXPECTED(expectedAlias);
+          return &histogram;
+        };
+
+        TNamed* const result = testObj.histogram();
+        VALUE(result) EXPECTED(&histogram);
+      }
+    }
+
+    void test_shouldCreateNewHistogramWithUpdatedLumiBlock() {
+      auto expectedFlow = {
+        make_tuple(100, 100000, "/run_100000/lowStat_LB101-120/"),
+        make_tuple(125, 200000, "/run_200000/lowStat_LB121-140/"),
+      };
+
+      TNamed histogram;
+      HistogramDef histogramDef;
+      histogramDef.convention = "OFFLINE:lowStat";
+
+      OfflineHistogramProvider testObj(m_gmTool.get(), m_histogramFactory, histogramDef);
+
+      for (auto input : expectedFlow) {
+        const unsigned lumiBlock = get<0>(input);
+        const unsigned runNumber = get<1>(input);
+        const string expectedTld = get<2>(input);
+
+        m_gmTool->mock_lumiBlock = [lumiBlock]() { return lumiBlock; };
+        m_gmTool->mock_runNumber = [runNumber]() { return runNumber; };
+        m_histogramFactory->mock_create = [&histogram, expectedTld](const HistogramDef& def) mutable {
+          VALUE(def.tld) EXPECTED(expectedTld);
           return &histogram;
         };
 

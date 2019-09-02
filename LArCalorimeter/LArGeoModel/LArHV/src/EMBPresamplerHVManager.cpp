@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/EMBPresamplerHVManager.h"
@@ -24,44 +24,69 @@
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArCabling/LArHVCablingTool.h"
 
+#ifndef SIMULATIONBASE
+#include "LArRecConditions/LArHVIdMapping.h"
+#endif
+
 #include "Identifier/HWIdentifier.h"
 
 #include <atomic>
 
 class EMBPresamplerHVManager::Clockwork {
 public:
-  EMBPresamplerHVDescriptor      *descriptor;
-  EMBPresamplerHVModuleConstLink  linkArray[2][4][32];
+  Clockwork(const EMBPresamplerHVManager* manager) {
+    CellPartitioning etaPartitioning;
+    for (unsigned int i= 0; i<4; i++)  etaPartitioning.addValue(i*0.4);
+    etaPartitioning.addValue(1.525);
+    descriptor = new EMBPresamplerHVDescriptor(etaPartitioning,CellBinning(0.0, 2*M_PI, 32));
+
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iEta=0; iEta<4; ++iEta) {
+	for(int iPhi=0; iPhi<32; ++iPhi) {
+	  moduleArray[iSide][iEta][iPhi] = new EMBPresamplerHVModule(manager, iSide, iEta,iPhi);
+	}
+      }
+    }
+
+    StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
+    if (StatusCode::SUCCESS!=detStore->retrieve(elecId, "LArElectrodeID")) {
+      throw std::runtime_error("EMBPresamplerHVManager failed to retrieve LArElectrodeID");
+    }
+
+    if (StatusCode::SUCCESS!=detStore->retrieve(hvId,"LArHVLineID")) {
+      throw std::runtime_error("EMBPresamplerHVManager failed to retrieve LArHVLineID");
+    }
+  }
+  ~Clockwork() {
+    delete descriptor;
+    for(int iSide=0; iSide<2; ++iSide) {
+      for(int iEta=0; iEta<4; ++iEta) {
+	for(int iPhi=0; iPhi<32; ++iPhi) {
+	  delete moduleArray[iSide][iEta][iPhi];
+	}
+      }
+    }
+  }
+  EMBPresamplerHVDescriptor*      descriptor;
+  const EMBPresamplerHVModule*    moduleArray[2][4][32];
   std::atomic<bool>               init{false};
   std::mutex                      mtx;
   std::vector<EMBPresamplerHVPayload> payloadArray;
+  const LArElectrodeID* elecId;
+  const LArHVLineID* hvId;
 };
 
-
-
-
-
 EMBPresamplerHVManager::EMBPresamplerHVManager()
-:m_c(new Clockwork)
+  : m_c(new Clockwork(this))
 {
-
-  CellPartitioning etaPartitioning;
-  for (unsigned int i= 0; i<4; i++)  etaPartitioning.addValue(i*0.4);
-  etaPartitioning.addValue(1.525);
-  
-  m_c->descriptor = new EMBPresamplerHVDescriptor(etaPartitioning,CellBinning(0.0, 2*M_PI, 32));	
-  m_c->init=false;
-
 }
-
 
 EMBPresamplerHVManager::~EMBPresamplerHVManager()
 {
-  delete m_c->descriptor;
   delete m_c;
 }
 
-const EMBPresamplerHVDescriptor *EMBPresamplerHVManager::getDescriptor() const
+const EMBPresamplerHVDescriptor* EMBPresamplerHVManager::getDescriptor() const
 {
   return m_c->descriptor;
 }
@@ -86,10 +111,9 @@ unsigned int EMBPresamplerHVManager::endEtaIndex() const
   return m_c->descriptor->getEtaPartitioning().getFirstDivisionNumber() + m_c->descriptor->getEtaPartitioning().getNumDivisions();
 }
 
-EMBPresamplerHVModuleConstLink EMBPresamplerHVManager::getHVModule(unsigned int iSide, unsigned int iEta,unsigned int iPhi) const
+const EMBPresamplerHVModule& EMBPresamplerHVManager::getHVModule(unsigned int iSide, unsigned int iEta,unsigned int iPhi) const
 {
-  if (!m_c->linkArray[iSide][iEta][iPhi]) m_c->linkArray[iSide][iEta][iPhi] = EMBPresamplerHVModuleConstLink(new EMBPresamplerHVModule(this, iSide, iEta,iPhi));
-  return m_c->linkArray[iSide][iEta][iPhi];
+  return *(m_c->moduleArray[iSide][iEta][iPhi]);
 }
 
 unsigned int EMBPresamplerHVManager::beginSideIndex() const
@@ -116,14 +140,6 @@ void EMBPresamplerHVManager::update() const {
     
     StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
 
-    const LArElectrodeID* elecId;
-    if (StatusCode::SUCCESS!=detStore->retrieve(elecId, "LArElectrodeID"))
-      return;
-
-    const LArHVLineID* hvId;
-    if (StatusCode::SUCCESS!=detStore->retrieve(hvId,"LArHVLineID"))
-      return;
-	
     ISvcLocator* svcLocator = Gaudi::svcLocator(); 
     IToolSvc* toolSvc;
     LArHVCablingTool* hvcablingTool;
@@ -158,7 +174,7 @@ void EMBPresamplerHVManager::update() const {
         //std::cout << "    ++ found data for cannode, line " << cannode << " " << line << std::endl;
 
         // 2. Construct the identifier
-        HWIdentifier id = hvId->HVLineId(1,1,cannode,line);
+        HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);
 
         std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
 
@@ -166,16 +182,16 @@ void EMBPresamplerHVManager::update() const {
 	for(size_t i=0;i<electrodeIdVec.size();i++)
 	{
             HWIdentifier& elecHWID = electrodeIdVec[i];
-            int detector = elecId->detector(elecHWID);
+            int detector = m_c->elecId->detector(elecHWID);
             if (detector==1) {
 
                //std::cout << "       in Barrel " << std::endl;
 
 // side  in standard offline 0 for z<0 (C) 1 for z>0 (A)
 //  in electrode numbering, this is the opposite (0 for A and 1 for C)
-	    unsigned int sideIndex=1-elecId->zside(elecHWID);
+	    unsigned int sideIndex=1-m_c->elecId->zside(elecHWID);
 // eta index, no trouble
-	    unsigned int etaIndex=elecId->hv_eta(elecHWID)-1;
+	    unsigned int etaIndex=m_c->elecId->hv_eta(elecHWID)-1;
 // phi index   
 //  offline 0 to 2pi in 2pi/32 bins  (2 presampler cells per phi_HV)
 //  module from elecID : 0 to 31
@@ -186,7 +202,7 @@ void EMBPresamplerHVManager::update() const {
 //  offline phi  0  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
 	    unsigned int phiIndex;
             if (sideIndex==1) {
-             phiIndex=elecId->module(elecHWID);
+             phiIndex=m_c->elecId->module(elecHWID);
             }
 // module numbering on the C side 0 around phi=pi, running backwards
 //   phi           0                                     pi                                            2pi
@@ -195,14 +211,14 @@ void EMBPresamplerHVManager::update() const {
 // Module          15 14        9 8 7 6 5  4  3  2  1   0 31 30 29 38 27 26 25 24 23 22 21 20 19 18 17 16
 //  offline phi    0  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 
             else {
-              int imodule=elecId->module(elecHWID);
+              int imodule=m_c->elecId->module(elecHWID);
               if (imodule<16) phiIndex = 15 - imodule;
               else           phiIndex =  47 - imodule;
             }
 
 	    unsigned int index             =  128*sideIndex+32*etaIndex+phiIndex;
 	  
-	    unsigned int gapIndex=elecId->gap(elecHWID);
+	    unsigned int gapIndex=m_c->elecId->gap(elecHWID);
             if (sideIndex==0) gapIndex=1-gapIndex;
 
 
@@ -214,7 +230,7 @@ void EMBPresamplerHVManager::update() const {
             if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>(); 
 
 
-         // std::cout << "             hvlineId,elecHWID,cannode,line, side,phi module, sector,eta,electrode,gap,index " << std::hex << id << " " << elecHWID << std::dec << " " << cannode << " " << line << " " << elecId->zside(elecHWID) << " " << elecId->module(elecHWID) << " " << elecId->hv_phi(elecHWID) << " " << elecId->hv_eta(elecHWID) << " " << elecId->electrode(elecHWID)
+         // std::cout << "             hvlineId,elecHWID,cannode,line, side,phi module, sector,eta,electrode,gap,index " << std::hex << id << " " << elecHWID << std::dec << " " << cannode << " " << line << " " << m_c->elecId->zside(elecHWID) << " " << m_c->elecId->module(elecHWID) << " " << m_c->elecId->hv_phi(elecHWID) << " " << m_c->elecId->hv_eta(elecHWID) << " " << m_c->elecId->electrode(elecHWID)
          //  << " " << gapIndex << "  " << index << " " << voltage << std::endl;
 
 	    
@@ -231,6 +247,10 @@ void EMBPresamplerHVManager::update() const {
   }
 }
 
+void  EMBPresamplerHVManager::reset() const {
+  m_c->init=false;
+}
+
 EMBPresamplerHVPayload *EMBPresamplerHVManager::getPayload(const EMBPresamplerHVModule &module) const {
   update();
   unsigned int sideIndex         = module.getSideIndex();
@@ -240,6 +260,47 @@ EMBPresamplerHVPayload *EMBPresamplerHVManager::getPayload(const EMBPresamplerHV
   return &m_c->payloadArray[index];
 }
 
-void  EMBPresamplerHVManager::reset() const {
-  m_c->init=false;
+#ifndef SIMULATIONBASE
+int EMBPresamplerHVManager::hvLineNo(const EMBPresamplerHVModule& module
+				     , int gap
+				     , const LArHVIdMapping* hvIdMapping) const {
+  int sideIndex         = module.getSideIndex();
+  int phiIndex          = module.getPhiIndex();
+  int etaIndex          = module.getEtaIndex();
+
+  // ________________________ Construct ElectrodeID ________________________________
+  int id_detector = 1;
+  int id_zside = 1 - sideIndex;
+  int id_module{0};
+  if(sideIndex==1){
+    id_module = phiIndex;
+  }
+  else {
+    if(phiIndex<16) {
+      id_module = 15 - phiIndex;
+    }
+    else {
+      id_module = 47 - phiIndex;
+    }
+  }
+  int id_hv_phi{0};
+  int id_hv_eta = etaIndex + 1;
+  int id_gap = sideIndex==0 ? 1-gap : gap;
+  int id_electrode{0};
+
+  HWIdentifier elecHWID = m_c->elecId->ElectrodeId(id_detector
+						   ,id_zside
+						   ,id_module
+						   ,id_hv_phi
+						   ,id_hv_eta
+						   ,id_gap
+						   ,id_electrode);
+  // ________________________  ________________________________
+
+  // Get LArHVLineID corresponding to a given LArElectrodeId
+  HWIdentifier id = hvIdMapping->getLArHVLineID(elecHWID);
+
+  // Extract HV Line No
+  return m_c->hvId->can_node(id)*1000 + m_c->hvId->hv_line(id);
 }
+#endif

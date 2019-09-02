@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigSteerMonitor.TrigSteerMonitorConf import *
 
@@ -121,6 +121,10 @@ class TrigOpMonitor(TrigOpMoni):
     def __init__(self,name="TrigOpMonitor"):
         super(TrigOpMonitor, self).__init__(name)
         
+        from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgDefault
+        LuminosityCondAlgDefault()
+
+
     def target(self):
         return [ "Online", "Validation" ]
 

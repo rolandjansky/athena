@@ -6,7 +6,6 @@
 // Tile includes
 #include "TileDCSCondAlg.h"
 #include "TileConditions/TileCablingService.h"
-#include "TileConditions/TileCablingSvc.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
 // Athena includes
@@ -21,14 +20,9 @@
 
 TileDCSCondAlg::TileDCSCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc("CondSvc", name),
   m_cabling(nullptr)
 {
 
-}
-
-
-TileDCSCondAlg::~TileDCSCondAlg() {
 }
 
 
@@ -50,11 +44,10 @@ StatusCode TileDCSCondAlg::initialize() {
                 << ((m_readStates) ? m_statesKey.key() : ""));
 
   //=== get TileCablingSvc
-  ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
-  ATH_CHECK( cablingSvc.retrieve() );
+  ATH_CHECK( m_cablingSvc.retrieve() );
 
   //=== cache pointers to cabling helpers
-  m_cabling = cablingSvc->cablingService();
+  m_cabling = m_cablingSvc->cablingService();
 
   if (!m_cabling) {
     ATH_MSG_ERROR( "Pointer to TileCablingService is zero: " << m_cabling);

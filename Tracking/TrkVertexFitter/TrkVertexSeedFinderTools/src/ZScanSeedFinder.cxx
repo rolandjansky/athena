@@ -26,7 +26,7 @@ namespace Trk
 {
 
   ZScanSeedFinder::ZScanSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     
     m_mode1dfinder("Trk::FsmwMode1dFinder", this),
     m_IPEstimator("Trk::TrackToVertexIPEstimator", this),
@@ -37,11 +37,7 @@ namespace Trk
     m_minPt(400.),
     m_usePt(false),
     m_expPt(1.),
-    m_cacheWeights(true),
-    m_cachedRunNumber(0),
-    m_cachedEventNumber(0),
-    m_cachedConstraintX(0.),
-    m_cachedConstraintY(0.)
+    m_cacheWeights(true)
   {   
     declareProperty("Mode1dFinder",     m_mode1dfinder);
     declareProperty("IPEstimator", m_IPEstimator);
@@ -53,10 +49,13 @@ namespace Trk
     declareProperty("UseLogPt", m_useLogPt);
     declareProperty("MinPt", m_minPt);
     declareProperty("CacheWeights", m_cacheWeights);
-    declareInterface<IVertexSeedFinder>(this);
   }
 
-  ZScanSeedFinder::~ZScanSeedFinder() {}
+
+  ZScanSeedFinder::~ZScanSeedFinder()
+  {
+  }
+
 
   StatusCode ZScanSeedFinder::initialize() 
   { 
@@ -87,7 +86,7 @@ namespace Trk
   }
 
 
-  Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) {
+  Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) const {
     
     //create perigees from track list
     std::vector<const TrackParameters*> perigeeList;
@@ -110,133 +109,17 @@ namespace Trk
     
   }
 
-  Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint) {
-  
-    // protect against overflow in exponential function
-    const double maxExpArg = log(std::numeric_limits<double>::max()/1.1);
+  Amg::Vector3D ZScanSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint) const {
+
 
     double ZResult=0.;
-
-    // Check for new run/event/constraint
-    if (!m_cacheWeights)
-    {
-      m_weightMap.clear();
+    std::vector<Trk::DoubleAndWeight> ZPositions;
+    if (m_cacheWeights) {
+      ZPositions = getPositionsCached (perigeeList, constraint);
     }
-    else
-    {
-      SG::ReadHandle<xAOD::EventInfo> myEventInfo(m_eventInfoKey);
-      if ( !myEventInfo.isValid() )
-      {
-	  ATH_MSG_ERROR("Failed to retrieve event information; clearing cached weights");
-	  m_weightMap.clear();
-	  m_cachedRunNumber = 0;
-	  m_cachedEventNumber = 0;
-	  if (constraint != 0)
-	  {
-	    m_cachedConstraintX = constraint->position().x();
-	    m_cachedConstraintY = constraint->position().y();
-	  }
-	  else
-	  {
-	    m_cachedConstraintX = std::numeric_limits<double>::max();
-	    m_cachedConstraintY = std::numeric_limits<double>::max();
-	  }
-      }
-      else
-      {
-	  unsigned int ei_RunNumber = myEventInfo->runNumber();
-	  unsigned int ei_EventNumber = myEventInfo->eventNumber();
-	  if (ei_RunNumber != m_cachedRunNumber || 
-	      ei_EventNumber != m_cachedEventNumber ||
-	      ( (constraint != 0) && (constraint->position().x() != m_cachedConstraintX) ) ||
-	      ( (constraint != 0) && (constraint->position().y() != m_cachedConstraintY) ))
-	  {
-	    ATH_MSG_DEBUG("Clearing cached weights due to new event and/or constraint");
-	    m_weightMap.clear();
-	    m_cachedRunNumber = ei_RunNumber;
-	    m_cachedEventNumber = ei_EventNumber;
-	    if (constraint != 0)
-	    {
-	      m_cachedConstraintX = constraint->position().x();
-	      m_cachedConstraintY = constraint->position().y();
-	    }
-	    else
-	    {
-	      m_cachedConstraintX = std::numeric_limits<double>::max();
-	      m_cachedConstraintY = std::numeric_limits<double>::max();
-	    }
-	  }
-      }
+    else {
+      ZPositions = getPositionsUncached (perigeeList, constraint);
     }
-
-    //Prepare the vector of points, on which the 3d mode has later to be calculated
-    std::vector<DoubleAndWeight> ZPositions;
-
-    // Whether weighting or not, we want an accurate extrapolated z0 values
-
-    for (auto i : perigeeList)
-    {
-      const Perigee* iTrk = dynamic_cast<const Trk::Perigee*>(i);
-      if (iTrk == 0)
-      {
-	  ATH_MSG_WARNING("Neutrals not supported for seeding. Rejecting track...");
-	  continue;
-      }
-
-      std::pair<double, double> z0AndWeight;
-      if (m_cacheWeights && (m_weightMap.count(*iTrk) != 0) )
-      {
-	z0AndWeight = m_weightMap[*iTrk];
-      }
-      else
-      {
-	const Trk::ImpactParametersAndSigma* ipas = 0;
-	if (constraint != 0 && constraint->covariancePosition()(0,0)!=0) ipas = m_IPEstimator->estimate(i, constraint);
-	if (ipas != 0 && ipas->sigmad0 > 0)
-	{
-	  z0AndWeight.first = ipas->IPz0 + constraint->position().z();
-	    double chi2IP = std::pow(ipas->IPd0/ipas->sigmad0, 2);
-	    ATH_MSG_VERBOSE("d0 from tool: " << ipas->IPd0 << " error: " << ipas->sigmad0 << " chi2: " << chi2IP);
-	    if ( !m_disableAllWeights )
-	    {
-	      z0AndWeight.second = 1./(1.+exp(std::min((chi2IP-m_constraintcutoff)/m_constrainttemp, maxExpArg)));
-	    }
-	    else
-	    {
-	      z0AndWeight.second = 1.;
-	    }
-	}
-	else
-	{
-	  if (constraint != 0) ATH_MSG_WARNING("Unable to compute impact parameter significance; setting IPWeight = 1");
-	  z0AndWeight.first = iTrk->position()[Trk::z];
-	  z0AndWeight.second = 1.;
-	}
-	if (ipas != 0) delete ipas;
-	// apply pT weighting as/if configured
-	if (!m_disableAllWeights && ( m_usePt || m_useLogPt) )
-	{
-	    double Pt = fabs(1./iTrk->parameters()[Trk::qOverP])*sin(iTrk->parameters()[Trk::theta]);
-	    if ( m_usePt )
-	    {
-	      z0AndWeight.second *= std::pow(Pt, m_expPt);
-	    }
-	    else
-	    {
-	      z0AndWeight.second *= log(std::max(Pt / m_minPt, 1.001));
-	    }
-	}
-	// cache the result
-	m_weightMap[*iTrk] = z0AndWeight;
-      }  // end of lookup/compute z0AndWeight
-      ATH_MSG_DEBUG("Found position z: " << z0AndWeight.first << " with weight " << z0AndWeight.second);
-
-      if (z0AndWeight.second >= 0.01)
-      {
-	ZPositions.push_back(z0AndWeight);
-      }
-
-    } // end of loop over perigeeList
 
     if ( ZPositions.size()>0 ) 
     {
@@ -256,7 +139,144 @@ namespace Trk
     
   }
 
-  std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) {
+
+  std::vector<Trk::DoubleAndWeight>
+  ZScanSeedFinder::getPositionsUncached (const std::vector<const Trk::TrackParameters*> & perigeeList,
+                                         const xAOD::Vertex * constraint) const
+  {
+    std::vector<Trk::DoubleAndWeight> ZPositions;
+
+    for (const Trk::TrackParameters* i : perigeeList)
+    {
+      const Perigee* iTrk = dynamic_cast<const Trk::Perigee*>(i);
+      if (iTrk == 0)
+      {
+	  ATH_MSG_WARNING("Neutrals not supported for seeding. Rejecting track...");
+	  continue;
+      }
+
+      std::pair<double, double> z0AndWeight =
+        estimateWeight (*iTrk, constraint);
+      ATH_MSG_DEBUG("Found position z: " << z0AndWeight.first <<
+                    " with weight " << z0AndWeight.second);
+
+      if (z0AndWeight.second >= 0.01)
+      {
+	ZPositions.push_back(z0AndWeight);
+      }
+    }
+
+    return ZPositions;
+  }
+
+
+  std::vector<Trk::DoubleAndWeight>
+  ZScanSeedFinder::getPositionsCached (const std::vector<const Trk::TrackParameters*> & perigeeList,
+                                       const xAOD::Vertex * constraint) const
+  {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    Cache& cache = *m_cache.get (ctx);
+
+    Amg::Vector2D constraintkey;
+    if (constraint) {
+      constraintkey.x() = constraint->position().x();
+      constraintkey.y() = constraint->position().y();
+    }
+    else {
+      constraintkey.x() = std::numeric_limits<double>::max();
+      constraintkey.y() = std::numeric_limits<double>::min();
+    }
+
+    std::vector<Trk::DoubleAndWeight> ZPositions;
+
+    std::lock_guard<std::mutex> lock (cache.m_mutex);
+    if (ctx.evt() != cache.m_evt) {
+      cache.m_weightMap.clear();
+    }
+
+    for (const Trk::TrackParameters* i : perigeeList)
+    {
+      const Perigee* iTrk = dynamic_cast<const Trk::Perigee*>(i);
+      if (iTrk == 0)
+      {
+	  ATH_MSG_WARNING("Neutrals not supported for seeding. Rejecting track...");
+	  continue;
+      }
+
+      Cache::key_t key (*iTrk, constraintkey);
+      auto [it, flag] = cache.m_weightMap.try_emplace (key, Cache::value_t());
+      if (flag) {
+        it->second = estimateWeight (*iTrk, constraint);
+        ATH_MSG_DEBUG("Found position z: " << it->second.first <<
+                      " with weight " << it->second.second);
+      }
+
+      if (it->second.second >= 0.01)
+      {
+	ZPositions.push_back (it->second);
+      }
+    }
+
+    return ZPositions;
+  }
+
+
+  /**
+   * @brief Estimate z-position and weight for one track.
+   */
+  std::pair<double, double>
+  ZScanSeedFinder::estimateWeight (const Trk::Perigee& iTrk,
+                                   const xAOD::Vertex* constraint) const
+  {
+    // protect against overflow in exponential function
+    static const double maxExpArg = log(std::numeric_limits<double>::max()/1.1);
+
+    std::unique_ptr<const Trk::ImpactParametersAndSigma> ipas;
+    if (constraint != 0 && constraint->covariancePosition()(0,0)!=0) {
+      ipas = std::unique_ptr<const Trk::ImpactParametersAndSigma> (m_IPEstimator->estimate (&iTrk, constraint));
+    }
+
+    std::pair<double, double> z0AndWeight;
+    if (ipas != 0 && ipas->sigmad0 > 0)
+    {
+      z0AndWeight.first = ipas->IPz0 + constraint->position().z();
+      double chi2IP = std::pow(ipas->IPd0/ipas->sigmad0, 2);
+      ATH_MSG_VERBOSE("d0 from tool: " << ipas->IPd0 << " error: " << ipas->sigmad0 << " chi2: " << chi2IP);
+      if ( !m_disableAllWeights )
+      {
+        z0AndWeight.second = 1./(1.+exp(std::min((chi2IP-m_constraintcutoff)/m_constrainttemp, maxExpArg)));
+      }
+      else
+      {
+        z0AndWeight.second = 1.;
+      }
+    }
+    else
+    {
+      if (constraint != 0) ATH_MSG_WARNING("Unable to compute impact parameter significance; setting IPWeight = 1");
+      z0AndWeight.first = iTrk.position()[Trk::z];
+      z0AndWeight.second = 1.;
+    }
+
+    // apply pT weighting as/if configured
+    if (!m_disableAllWeights && ( m_usePt || m_useLogPt) )
+    {
+      double Pt = fabs(1./iTrk.parameters()[Trk::qOverP])*sin(iTrk.parameters()[Trk::theta]);
+      if ( m_usePt )
+      {
+        z0AndWeight.second *= std::pow(Pt, m_expPt);
+      }
+      else
+      {
+        z0AndWeight.second *= log(std::max(Pt / m_minPt, 1.001));
+      }
+    }
+
+    return z0AndWeight;
+  }
+
+
+  std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>& /* vectorTrk */,const xAOD::Vertex * /* constraint */) const {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
@@ -264,35 +284,14 @@ namespace Trk
 
   }
 
-  std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) {
+
+  std::vector<Amg::Vector3D> ZScanSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& /* perigeeList */,const xAOD::Vertex * /* constraint */) const {
  
     //implemented to satisfy inheritance but this algorithm only supports one seed at a time
     ATH_MSG_WARNING("Multi-seeding requested but seed finder not able to operate in that mode, returning no seeds");
     return std::vector<Amg::Vector3D>(0);
 
   }
-
-
-  void ZScanSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
-    //implemented to satisfy inheritance
-  }
-
-  int ZScanSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> * /*a */ ,
-				       const std::vector<const Trk::TrackParameters*>&  /*b */) const{
-      //implemented to satisfy inheritance
-    return 0;
-  }
-
-  int ZScanSeedFinder::getModes1d(std::vector<float>& /* a */, std::vector<float> &  /*b */, 
-				  std::vector<float>& /* c */, std::vector<float>& /* d */) const{
-      //implemented to satisfy inheritance  
-    return 0;
-  }
-
-  void ZScanSeedFinder::getCorrelationDistance( double & /* cXY*/, double & /*cZ */ ){
-      //implemented to satisfy inheritance    
-  }
-
 
 
 }

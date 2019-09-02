@@ -16,7 +16,7 @@
 // ACTS
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Surfaces/BoundaryCheck.hpp"
-#include "Acts/Extrapolator/Navigator.hpp"
+#include "Acts/Propagator/Navigator.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 
@@ -26,14 +26,14 @@
 #include <memory>
 
 ActsExtrapolationTool::ActsExtrapolationTool(const std::string& type, const std::string& name,
-    const IInterface* parent) 
+    const IInterface* parent)
   : AthAlgTool(type, name, parent),
     m_fieldServiceHandle("AtlasFieldSvc", name)
 {
 
 }
-  
-StatusCode 
+
+StatusCode
 ActsExtrapolationTool::initialize()
 {
   using namespace std::literals::string_literals;
@@ -42,7 +42,7 @@ ActsExtrapolationTool::initialize()
   ATH_MSG_INFO("Initializing ACTS extrapolation");
 
   ATH_CHECK( m_trackingGeometryTool.retrieve() );
-  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry 
+  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry
     = m_trackingGeometryTool->trackingGeometry();
 
   Acts::Navigator navigator(trackingGeometry);
@@ -54,7 +54,7 @@ ActsExtrapolationTool::initialize()
     using BField_t = ATLASMagneticFieldWrapper;
     BField_t bField(m_fieldServiceHandle.get());
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper), 
+    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
                                                                       std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }
@@ -67,18 +67,11 @@ ActsExtrapolationTool::initialize()
     using BField_t = Acts::ConstantBField;
     BField_t bField(Bx, By, Bz);
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper), 
+    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
                                                                       std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }
 
   ATH_MSG_INFO("ACTS extrapolation successfully initialized");
   return StatusCode::SUCCESS;
-}
-
-
-void
-ActsExtrapolationTool::prepareAlignment() const 
-{
-  m_trackingGeometryTool->prepareAlignment();
 }

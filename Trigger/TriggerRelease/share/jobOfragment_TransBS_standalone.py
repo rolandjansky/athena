@@ -2,9 +2,17 @@
 # Write to Transient BS
 #--------------------------------------------------------------
 include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
-        
+#
+# add here in ExtraInputs all conditions data which are needed for BS encoding
+#        
 StreamBS = AthenaOutputStream("StreamBS",
-                             EvtConversionSvc = "ByteStreamCnvSvc")
+                              EvtConversionSvc = "ByteStreamCnvSvc",
+                              ExtraInputs = [('xAOD::EventInfo','StoreGateSvc+EventInfo'),
+                                             ('TileBadChannels','ConditionStore+TileBadChannels'),
+                                             ('SCT_CablingData','ConditionStore+SCT_CablingData'), 
+                                             ('PixelHitDiscCnfgData','ConditionStore+PixelHitDiscCnfgData'),
+                                             ('MuonMDT_CablingMap','ConditionStore+MuonMDT_CablingMap') 
+                                             ])
 StreamBS.ForceRead=True
 if not TriggerFlags.fakeLVL1():
    #LVL1
@@ -43,11 +51,6 @@ if TriggerFlags.doMuon():
 #--------------------------------------------------------------
 # BSCnv Svc: Provider Service for all RIO classes
 #--------------------------------------------------------------
-# temp fix:
-theApp.CreateSvc  += ["StoreGateSvc/StoreGateSvc" ]
-#include ( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
-#include ("ByteStreamCnvSvcBase/BSAddProvSvc_RIO_jobOptions.py")
-
 if not hasattr( ServiceMgr, "ByteStreamAddressProviderSvc" ):
    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
    ServiceMgr += ByteStreamAddressProviderSvc()
@@ -85,32 +88,9 @@ if TriggerFlags.doMuon():
       "CscRawDataContainer/CSCRDO",
       "MuCTPI_RDO/MUCTPI_RDO"
       ]
-      
-ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
-ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RecRoIBResult/RecRoIBResult" ]
 
 # this must be in a fragment:
 if not hasattr(ServiceMgr,"ProxyProviderSvc"):                           
    from SGComps.SGCompsConf import ProxyProviderSvc
    ServiceMgr += ProxyProviderSvc()
 ServiceMgr.ProxyProviderSvc.ProviderNames += [ "ByteStreamAddressProviderSvc" ]
-      
-#--------------------------------------------------------------- 
-# BS to RIO for all Det
-#---------------------------------------------------------------
-#if TriggerFlags.doID():
-#   include( "TRT_DriftFunctionTool/TRT_DriftFunctionTool_options.py" )
-#   theApp.Dlls += [ "TRT_ConditionsAlgs" ]
-
-#if TriggerFlags.doCalo():
-#   from AthenaCommon.AppMgr import ToolSvc
-#   ToolSvc.LArRoI_Map.Print=FALSE
-#   if TriggerFlags.doEF():
-#      ToolSvc.LArRodDecoder.LArCell=TRUE
-   # LArCell Correction Tools
-#   ToolSvc.LArRodDecoder.LArCellEthreshold = -10.030;  # threshold in GeV 
-#   theApp.Dlls += [ "LArRawUtils", "LArROD" ]
-#   theApp.Dlls += [ "LArCellRec" ]
-#   theApp.DLLs += ["TileRecUtils"]
-#   theApp.Dlls += [ "TileRecAlgs" ]
-#   include( "TileByteStream/TileCellIDC_FromBS_jobOptions.py" )      

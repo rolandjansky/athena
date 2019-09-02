@@ -69,7 +69,6 @@ def getInDetxAODParticleCreatorTool() :
                                                                  Extrapolator            = InDetExtrapolator,
                                                                  TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
                                                                  BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
-                                                                 ForceTrackSummaryUpdate = False,
                                                                  KeepParameters          = True,
                                                                  KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
                                                                  PerigeeExpression       = _perigee_expression)
@@ -99,6 +98,8 @@ def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, t
         xAODTrackParticleCnvAlg.xAODTruthLinkVector =  passCollectionName( 'xAODTruthLinks', InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in) )
         xAODTrackParticleCnvAlg.TrackTruthContainerName = passCollectionName(track_particle_truth_in,(is_mc and InDetFlags.doTruth()))
         xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True
+        from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
+        xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
         topSequence += xAODTrackParticleCnvAlg
 
 def convertTrackParticles(aod_track_particles_in, track_particle_truth_in,track_particle_out, topSequence) :
@@ -117,6 +118,8 @@ def convertTrackParticles(aod_track_particles_in, track_particle_truth_in,track_
         xAODTrackParticleCnvAlg.xAODTruthLinkVector =  passCollectionName( 'xAODTruthLinks', InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in) )
         xAODTrackParticleCnvAlg.TrackTruthContainerName = ""
         xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True
+        from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
+        xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
         topSequence += xAODTrackParticleCnvAlg 
 
 if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <---- [XXX JDC Should we included this?
@@ -192,11 +195,11 @@ if InDetFlags.doTrackSegmentsPixel() and InDetFlags.doParticleCreation():
                               topSequence)
 
 
-if InDetFlags.doTrackSegmentsPixelPrdAssociation() and InDetFlags.doParticleCreation():
+if InDetFlags.doTrackSegmentsDisappearing() and InDetFlags.doParticleCreation():
     if doCreation :
-        createTrackParticles(InDetKeys.PixelPrdAssociationTracks(),
-                             InDetKeys.PixelPrdAssociationTracksTruth(),
-                             InDetKeys.xAODPixelPrdAssociationTrackParticleContainer(),
+        createTrackParticles(InDetKeys.DisappearingTracks(),
+                             InDetKeys.DisappearingTracksTruth(),
+                             InDetKeys.xAODDisappearingTrackParticleContainer(),
                              topSequence)
 
 

@@ -87,6 +87,7 @@ TileRawChannelBuilder::TileRawChannelBuilder(const std::string& type
   declareProperty("RunType", m_runType = 0);
   declareProperty("DataPoolSize", m_dataPoollSize = -1);
   declareProperty("UseDSPCorrection", m_useDSP = true);
+  declareProperty("FirstSample",m_firstSample = 0); 
 
 }
 
@@ -115,7 +116,7 @@ StatusCode TileRawChannelBuilder::initialize() {
   m_rawChannelCnt = nullptr;
   m_nChL = m_nChH = 0;
   m_RChSumL = m_RChSumH = 0.0;
-
+  m_evtCounter = -1; 
   // retrieve TileID helpers and TileIfno from det store
   ATH_CHECK( detStore()->retrieve(m_tileID, "TileID") );
   ATH_CHECK( detStore()->retrieve(m_tileHWID, "TileHWID") );
@@ -160,10 +161,9 @@ StatusCode TileRawChannelBuilder::initialize() {
 
   if (m_dataPoollSize < 0) m_dataPoollSize = m_tileHWID->channel_hash_max();
 
-  ServiceHandle<TileCablingSvc> cablingSvc("TileCablingSvc", name());
-  ATH_CHECK( cablingSvc.retrieve());
+  ATH_CHECK( m_cablingSvc.retrieve());
     
-  const TileCablingService* cabling = cablingSvc->cablingService();
+  const TileCablingService* cabling = m_cablingSvc->cablingService();
   if (!cabling) {
     ATH_MSG_ERROR( "Unable to retrieve TileCablingService" );
     return StatusCode::FAILURE;
@@ -189,8 +189,8 @@ StatusCode TileRawChannelBuilder::initialize() {
     m_tileIdTransforms.disable();
   }
 
-  ATH_CHECK( m_rawChannelContainerKey.initialize() );
-  ATH_CHECK( m_DQstatusKey.initialize() );
+  ATH_CHECK( m_rawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_DQstatusKey.initialize(SG::AllowEmpty) );
 
   if (m_useDSP && !m_DSPContainerKey.key().empty()) {
     ATH_CHECK( m_DSPContainerKey.initialize() );
@@ -525,30 +525,18 @@ StatusCode TileRawChannelBuilder::commitContainer()
   if ( m_useDSP && !m_DSPContainerKey.key().empty() &&
        (DQstatus->incompleteDigits() || m_chCounter<12288) && itrTool!=endTool )
   {
-    const TileRawChannelContainer * dspCnt =
-      SG::makeHandle (m_DSPContainerKey, ctx).get();
+    const TileRawChannelContainer * dspCnt = SG::makeHandle (m_DSPContainerKey, ctx).get();
     ATH_MSG_DEBUG( "Incomplete container - use noise filter corrections from DSP container" );
-    auto copiedDspCnt = std::make_unique<TileMutableRawChannelContainer> (*dspCnt);
-    ATH_CHECK( copiedDspCnt->status() );
-    dspCnt = copiedDspCnt.get();
-    for (;itrTool!=endTool;++itrTool){
-      if ((*itrTool)->process(*copiedDspCnt).isFailure()) {
-        ATH_MSG_ERROR( " Error status returned from noise filter " );
-      } else {
-        ATH_MSG_DEBUG( "Noise filter applied to DSP container" );
-      }
-    }
 
     std::vector<IdentifierHash> hashes = m_rawChannelCnt->GetAllCurrentHashes();
     std::vector<IdentifierHash> dspHashes = dspCnt->GetAllCurrentHashes();
     if (hashes != dspHashes) {
       ATH_MSG_ERROR( " Error in applying noise corrections; "
                      "hash vectors do not match.");
-    }
-    else {
+    } else {
       // Go through all TileRawChannelCollections
       for (IdentifierHash hash : hashes) {
-              TileRawChannelCollection* coll  = m_rawChannelCnt->indexFindPtr (hash);
+        TileRawChannelCollection* coll = m_rawChannelCnt->indexFindPtr (hash);
         const TileRawChannelCollection* dcoll = dspCnt->indexFindPtr (hash);
 
         if (coll->identify() != dcoll->identify()) {

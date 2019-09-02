@@ -8,6 +8,7 @@
 #include "TH2.h"
 
 #include "AthenaMonitoring/HistogramFiller.h"
+#include <boost/range/combine.hpp>
 
 namespace Monitored {
   /**
@@ -42,23 +43,55 @@ namespace Monitored {
       auto histogram = this->histogram<TH2>();
       std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
-      if (areVectorsSameSize) {
-        for (unsigned i = 0; i < size1; ++i) {
-          histogram->Fill(vector1[i], vector2[i]);
+      if (areVectorsSameSize) { // Two equal-size vectors
+        if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==size1 ) {
+          // Weighted fill
+          auto weightVector = m_monWeight->getVectorRepresentation();
+          double value1,value2,weight;
+          for (const auto& zipped : boost::combine(vector1,vector2,weightVector)) {
+            boost::tie(value1,value2,weight) = zipped;
+            histogram->Fill(value1,value2,weight);
+          }
+        } else {
+          // Unweighted fill
+          for (unsigned i = 0; i < size1; ++i) {
+            histogram->Fill(vector1[i], vector2[i]);
+          }
         }
-
         result = size1;
-      } else if (size1 == 1) {
-        for (auto value : vector2) {
-          histogram->Fill(vector1[0], value);
-        }
 
+      } else if (size1 == 1) { // Scalar vector1 and vector vector2
+        if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==size2 ) {
+          // Weighted fill
+          auto weightVector = m_monWeight->getVectorRepresentation();
+          double value,weight;
+          for (const auto& zipped : boost::combine(vector2,weightVector)) {
+            boost::tie(value,weight) = zipped;
+            histogram->Fill(vector1[0],value,weight);
+          }
+        } else {
+          // Unweighted fill
+          for (auto value : vector2) {
+            histogram->Fill(vector1[0], value);
+          }
+        }
         result = size2;
-      } else {
-        for (auto value : vector1) {
-          histogram->Fill(value, vector2[0]);
-        }
 
+      } else { // Vector vector1 and scalar vector2
+        if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==size1 ) {
+          // Weighted fill
+          auto weightVector = m_monWeight->getVectorRepresentation();
+          double value,weight;
+          for (const auto& zipped : boost::combine(vector1,weightVector)) {
+            boost::tie(value,weight) = zipped;
+            histogram->Fill(value,vector2[0],weight);
+          }
+        } else {
+          // Unweighted fill
+          for (auto value : vector1) {
+            histogram->Fill(value, vector2[0]);
+          }
+        }
         result = size1;
       }
 

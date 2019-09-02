@@ -54,6 +54,9 @@ private:
 
   static G4ProcessHelper* pinstance;
 
+  // Version where we know if we baryonize already
+  ReactionProduct GetFinalStateInternal(const G4Track& aTrack,G4ParticleDefinition*& aTarget, const bool baryonize_failed);
+
   G4double Regge(const double boost) const;
   G4double Pom(const double boost) const;
 
@@ -65,7 +68,7 @@ private:
   G4bool ReactionGivesBaryon(const ReactionProduct& aReaction) const;
   void ReadAndParse(const G4String& str,
                     std::vector<G4String>& tokens,
-                    const G4String& delimiters = " ") const;
+                    const G4String& delimiters = " ");
 
   //Map of applicable particles
   std::map<const G4ParticleDefinition*,G4bool> known_particles;

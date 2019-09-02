@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolUtilities
                           InnerDetector/InDetRecEvent/InDetPrepRawData
+                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
                           Tracking/TrkEvent/TrkRIO_OnTrack )
 # External dependencies:
 find_package( CLHEP )
@@ -24,6 +25,6 @@ atlas_add_component( SeedToTrackConversionTool
                      src/*.cxx
                      src/components/*.cxx 
 		     INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-		     LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkTrack TrkExInterfaces TrkToolInterfaces AthenaPoolUtilities InDetPrepRawData TrkRIO_OnTrack )
+		     LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetRecToolInterfaces TrkTrack TrkExInterfaces TrkToolInterfaces AthenaPoolUtilities InDetPrepRawData SiSPSeededTrackFinderData TrkRIO_OnTrack )
 # Install files from the package:
 atlas_install_headers( SeedToTrackConversionTool )

@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    TrigJetSplitterAllTE.cxx        
@@ -9,7 +9,6 @@
 //                   
 //  
 //
-//   $Id: TrigJetSplitterAllTE.cxx, v0.0   Tue 17 Jun 2014 03:26:44 CEST sutt $
 
 
 #include "GaudiKernel/IToolSvc.h"
@@ -21,7 +20,7 @@
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetCollection.h"
 #include "FourMomUtils/P4DescendingSorters.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "xAODJet/JetContainer.h"
 #include "AthContainers/ConstDataVector.h"
@@ -225,8 +224,8 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     // Make deep copy of vertex and attach to output TE
 
     /// create RoI correspondinding to the jet
-    double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
-    double phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
+    double phiMinus = CxxUtils::wrapToPi(jetPhi-m_phiHalfWidth); 
+    double phiPlus  = CxxUtils::wrapToPi(jetPhi+m_phiHalfWidth); 
 
     double etaMinus = jetEta-m_etaHalfWidth;  
     double etaPlus  = jetEta+m_etaHalfWidth;  
@@ -251,8 +250,8 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
       m_etaHalfWidth = halfWidth;
       m_phiHalfWidth = halfWidth;
 
-      phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
-      phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
+      phiMinus = CxxUtils::wrapToPi(jetPhi-m_phiHalfWidth); 
+      phiPlus  = CxxUtils::wrapToPi(jetPhi+m_phiHalfWidth); 
 
       etaMinus = jetEta-m_etaHalfWidth;  
       etaPlus  = jetEta+m_etaHalfWidth;  

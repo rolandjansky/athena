@@ -10,6 +10,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp1Fex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReSamp2Fex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReEmEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaReHadEnFex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerReFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaReFastAlgo
 
@@ -354,38 +355,49 @@ class RingerFexConfig( RingerFex ):
     self.NMaxCells = [320, 512, 272, 128, 128, 128, 128]
 
 
-class RingerFexEndCapConfig( RingerFex ):
+class RingerReFexConfig( RingerReFex ):
+  
   __slots__ = []
-  def __init__(self, name = "RingerFexEndCapConfig"):
-    super(RingerFexEndCapConfig, self).__init__(name)
+  
+  def __init__(self, name = "RingerReMaker"):
+    super(RingerReFex, self).__init__(name)
+    self.EtaBins              = [0.0000, 999.999] # bin pairs: min < eta <= max, PS,barrel,crack,endcap
+    self.GlobalCenter         = False
+    self.RingerKey            = "L2CaloRings"
+    self.EtaSearchWindowSize  = 0.1
+    self.PhiSearchWindowSize  = 0.1
+    self.DEtaRings            = [0.025, 0.003125, 0.025, 0.05, 0.1, 0.1, 0.1]
+    self.DPhiRings            = [0.098174770424681, 0.098174770424681, 0.024543692606170, 0.024543692606170, 
+                                 0.098174770424681, 0.098174770424681, 0.098174770424681]
+    self.NRings               = [8, 64, 8, 8, 4, 4, 4]
+    self.NLayersRings         = [2, 2, 2, 2, 4, 5, 4]
+    self.NMaxCells            = [320, 512, 272, 128, 128, 128, 128]
+    self.UseHad               = True
+    from RingerConstants import Layer
+    self.LayersRings          = [
+                                 Layer.PreSamplerB,Layer.PreSamplerE,
+                                 Layer.EMB1,       Layer.EME1,
+                                 Layer.EMB2,       Layer.EME2,
+                                 Layer.EMB3,       Layer.EME3,
+                                 Layer.HEC0,       Layer.TileBar0, Layer.TileGap2, Layer.TileExt0,
+                                 Layer.HEC1,       Layer.HEC2,     Layer.TileBar1, Layer.TileGap0, Layer.TileExt1,
+                                 Layer.HEC3,       Layer.TileBar2, Layer.TileGap1, Layer.TileExt2
+                                ]
 
-    self.HltFeature = "HLT_TrigT2CaloEgamma"
-    self.Feature = "TrigT2CaloEgamma"
-    self.EtaBins = [1.54, 2.5] # bin pairs: min < eta <= max
-    self.GlobalCenter = False
-    self.EtaSearchWindowSize = 0.1
-    self.PhiSearchWindowSize = 0.1
-    self.HistLabel = 'EndCap'
 
-    from TrigT2CaloEgamma.RingerConstants import Layer
 
-    # FIXME The EM1 from 1.8->2.5 granularity is 0.025/4=0.006250. However, from 1.57 to
-    # 1.8 it should be 0.025/6
-    # FIXME The HAD3 has segmentation of 0.1 x 0.1 from 1.8->2.5, whereas this is also not true from 1.57 to 1.8, being from 0.2 x 0.1
-    self.DEtaRings = [0.0, 0.006250, 0.025, 0.05, 0.1, 0.1, 0.1]
-    self.DPhiRings = [0.0,  0.098174770424681, 0.024543692606170, 0.024543692606170, 0.098174770424681, 0.098174770424681, 0.098174770424681]
-    self.NRings = [0, 32, 8, 8, 4, 4, 4]
-    self.LayersRings = [
-                        #Layer.PreSamplerB,Layer.PreSamplerE,
-                        Layer.EMB1,       Layer.EME1,
-                        Layer.EMB2,       Layer.EME2,
-                        Layer.EMB3,       Layer.EME3,
-                        Layer.HEC0,       Layer.TileBar0, Layer.TileGap2, Layer.TileExt0,
-                        Layer.HEC1,       Layer.HEC2,     Layer.TileBar1, Layer.TileGap0, Layer.TileExt1,
-                        Layer.HEC3,       Layer.TileBar2, Layer.TileGap1, Layer.TileExt2
-                        ]
-    self.NLayersRings = [0, 2, 2, 2, 4, 5, 4]
-    self.NMaxCells = [0, 272, 128, 128, 128, 128]
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring():
+      from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool,defineHistogram
+      monTool = GenericMonitoringTool('MonTool')
+      monTool.Histograms +=[
+                              defineHistogram( "TIME_total", title="Total Time;time[ms]",xbins=50, xmin=0,
+                              xmax=5,type='TH1F', path='EXPERT'),
+                              defineHistogram( "TIME_load_cells", title="Load Cells Time;time[ms]",xbins=50, xmin=0,
+                              xmax=5,type='TH1F', path='EXPERT'),
+                   
+                              ]
+      self.MonTool = monTool
 
 
 class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
@@ -400,12 +412,13 @@ class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
 
 class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
    __slots__ = []
-   def __init__ (self, name="T2CaloEgamma_ReFastAlgo"):
+   def __init__ (self, name="T2CaloEgamma_ReFastAlgo", ClustersName="HLT_L2CaloEMClusters", doRinger=False, RingerKey="HLT_L2CaloRinger"):
        super(T2CaloEgamma_ReFastAlgo, self).__init__(name)
        # here put your customizations
        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-       from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
-       svcMgr += TrigCaloDataAccessSvc()
+       if not hasattr(svcMgr,'TrigCaloDataAccessSvc'):
+         from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
+         svcMgr += TrigCaloDataAccessSvc()
        samp2 = EgammaReSamp2FexConfig(name="ReFaAlgoSamp2FexConfig",
                                       trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
                                       ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
@@ -418,10 +431,23 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        samph = EgammaReHadEnFexConfig("ReFaAlgoHadEnFexConfig",
                                       trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc,
                                       ExtraInputs=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )])
-       # temporary fix for Tile
-       samph.ExtraInputs += [('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-
+       
+       samph.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
+       
        self.IReAlgToolList = [ samp2, samp1, sampe, samph ]
+       
+       if doRinger:
+         from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import RingerReFexConfig
+         from AthenaCommon.Constants import DEBUG
+         ringer = RingerReFexConfig('ReFaAlgoRingerFexConfig')
+         #ringer.RingsKey= recordable("L2CaloRinger")
+         ringer.OutputLevel = DEBUG
+         ringer.RingerKey= RingerKey #"HLT_L2CaloRinger"
+         ringer.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+         ringer.ClustersName = ClustersName
+         #ToolSvc+=ringer
+         self.IReAlgToolList+= [ringer]
+ 
 
        self.EtaWidth = 0.2
        self.PhiWidth = 0.2

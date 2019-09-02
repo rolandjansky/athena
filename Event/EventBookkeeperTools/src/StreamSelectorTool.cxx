@@ -6,6 +6,7 @@
  *  @brief This file contains the implementation for the StreamSelectorTool class.
  *  $Id: StreamSelectorTool.cxx,v 1.5 2009-03-17 09:44:46 cranshaw Exp $
  **/
+#include <algorithm>
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -23,6 +24,8 @@ StreamSelectorTool::StreamSelectorTool(const std::string& type, const std::strin
    declareProperty("CutFlowSvc", m_cutflow,
                    "handle to the ICutFlowSvc instance this filtering algorithm"
                    " will use for building the flow of cuts.");
+   declareProperty("AcceptStreams",m_streamName,"Name of stream to be used as a ACCEPT, defaluts to ALL");
+   declareProperty("VetoStreams",m_unstreamName,"Name of stream to be used as a VETO, defaluts to ALL");
 }
 //___________________________________________________________________________
 StreamSelectorTool::~StreamSelectorTool() {
@@ -47,7 +50,7 @@ StatusCode StreamSelectorTool::postNext() const {
    StatusCode retc = StatusCode::SUCCESS;
 
    // if default, just return immediately
-   if (m_streamName=="ALL") return retc;
+   //if (m_streamName.size()>0 && m_streamName[0]=="ALL") return retc;
 
    // Use attribute list to filter on selected stream
    const DataHandle<AthenaAttributeList> attrList;
@@ -57,16 +60,50 @@ StatusCode StreamSelectorTool::postNext() const {
       // fill the input bookkeeper
       float weight = (*attrList)["EventWeight"].data<float>();
       // Search for stream name in attribute list, and check flag
-      if ( attrList->specification().exists(m_streamName) ) {
-         if ((*attrList)[m_streamName].data<bool>()!=true) {
-            retc = StatusCode::RECOVERABLE;
-            ATH_MSG_INFO("Rejecting event");
+      for (auto sel = m_streamName.begin(); sel != m_streamName.end(); ++sel) {
+         // check veto
+         if ( attrList->specification().exists(*sel) ) {
+           bool dec(false);
+           bool veto(false);
+           // First check for vetoes
+           for (auto ivet = m_unstreamName.begin(); ivet != m_unstreamName.end(); ++ivet) {
+             try {
+               if ((*attrList)[*ivet].data<bool>()) {
+                 ATH_MSG_DEBUG("Stream " << *ivet << " vetoed event");
+                 veto=true;
+                 break; 
+               }
+             }
+             catch (...) {
+               ATH_MSG_WARNING("Unable to access " << m_streamName << " decision");
+             }
+           }
+           // if not vetoed, then look for accept
+           if (!veto) {
+             try {
+               dec = (*attrList)[*sel].data<bool>();
+             }
+             catch (...) {
+               ATH_MSG_WARNING("Unable to access " << m_streamName << " decision");
+             }
+           } else {
+             // exit loop as reject if already vetoed
+             retc = StatusCode::RECOVERABLE;
+             break;
+           }
+           // if not vetoed and decision found in attribute list 
+           if (dec!=true) {
+             // Rejecting event
+             retc = StatusCode::RECOVERABLE;
+             ATH_MSG_DEBUG("Rejecting event");
+           } else {
+             // Accepting event
+             ATH_MSG_DEBUG("Accepting event");
+             m_cutflow->addEvent(m_cutid,weight);
+           }  
          } else {
-            // Accepting event
-            m_cutflow->addEvent(m_cutid,weight);
-         }  
-      } else {
-         ATH_MSG_ERROR("Stream decision for " << m_streamName << " does not exist in input");
+           ATH_MSG_ERROR("Stream decision for " << m_streamName << " does not exist in input");
+         }
       }
       // Get pointer to metadata store
       ServiceHandle<StoreGateSvc> mstore("StoreGateSvc/MetaDataStore",this->name());

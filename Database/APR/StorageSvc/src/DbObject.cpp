@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbObject.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  DbObject implementation
 //--------------------------------------------------------------------
@@ -75,24 +74,16 @@ DbStatus DbObjectAccessor::makeObjectLink(const DbObject* pObj,
 }
 
 /// Validate an association of an object
-DbStatus DbObjectAccessor::getObjectLink( const DbObject* pObj,
-                                          const Token::OID_t& lnkH,
-                                          Token*        pTok)
-{
-  return DbHeap::container(pObj).containedIn().getLink(lnkH, pTok);
-}
-
-/// Validate an association of an object
 Token::OID_t& DbObjectAccessor::objectOid(const DbObject* pObj) {
   return DbHeap::oid(pObj);
 }
 
-/// Open handle
-DbStatus DbObjectAccessor::open(void**                    ptr,
-                                ShapeH                    shape,
-                                const DbContainer&        cntH, 
-                                const Token&              tokenH, 
-                                DbAccessMode )
+/// Read an object from a container
+DbStatus DbObjectAccessor::read( void**                  ptr,
+                                 ShapeH                  shape,
+                                 const DbContainer&      cntH, 
+                                 const Token::OID_t&     oid,
+                                 int                     /* merge_section_n */ )
 {
-  return cntH.load(ptr, shape, tokenH.oid());
+   return cntH.load(ptr, shape, oid);
 }

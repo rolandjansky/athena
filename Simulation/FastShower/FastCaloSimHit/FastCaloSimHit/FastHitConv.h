@@ -15,6 +15,7 @@
 #include "LArSimEvent/LArHitContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "TileSimEvent/TileHitVector.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -67,8 +68,7 @@ private:
   PileUpMergeSvc* m_pMergeSvc;
 
   // Data description objects
-
-  const DataHandle<ILArfSampl>    m_dd_fSampl; // DataHandle for LAr sampling fraction
+  SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
   const TileInfo* m_tileInfo;                  // Pointer to TileInfo class
 
   const LArEM_ID*     m_larEmID;

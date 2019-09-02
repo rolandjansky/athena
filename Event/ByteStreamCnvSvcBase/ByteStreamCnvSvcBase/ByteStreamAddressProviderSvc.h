@@ -14,7 +14,6 @@
 #include <map>
 #include <set>
 
-class IROBDataProviderSvc;
 class IClassIDSvc;
 
 template <class TYPE> class SvcFactory;
@@ -47,16 +46,10 @@ private:
    // type and name of the objects to create the address for.
    std::vector<std::string> m_typeNames;
 
-   ServiceHandle<IROBDataProviderSvc> m_rdpSvc;
    ServiceHandle<IClassIDSvc> m_clidSvc;
 
    std::map<unsigned int, std::set<std::string> > m_clidKey;
 
-   UnsignedIntegerProperty        m_ctpModuleID;
-   UnsignedIntegerProperty        m_muCTPIModuleID;
-   UnsignedIntegerArrayProperty   m_jetProcModuleID;
-   UnsignedIntegerArrayProperty   m_caloClusterProcModuleID;
-   UnsignedIntegerArrayProperty   m_topoProcModuleID;
    int m_storeID;
 };
 

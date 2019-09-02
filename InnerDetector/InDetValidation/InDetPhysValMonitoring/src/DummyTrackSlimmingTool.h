@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Dear emacs, this is -*-c++-*- */
@@ -19,13 +19,13 @@ public:
 
   /** standard Athena-Algorithm method */
   virtual StatusCode
-  initialize() {
+  initialize() override {
     return StatusCode::SUCCESS;
   }
 
   /** standard Athena-Algorithm method */
   virtual StatusCode
-  finalize() {
+  finalize() override {
     return StatusCode::SUCCESS;
   }
 
@@ -36,6 +36,8 @@ public:
         configured
    */
   virtual Trk::Track* slim(const Trk::Track& track) const override;
+  virtual std::unique_ptr<Trk::Track> slimCopy(const Trk::Track& track) const override;
+
 private:
 };
 

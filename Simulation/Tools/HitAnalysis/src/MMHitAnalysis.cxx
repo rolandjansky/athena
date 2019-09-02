@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMHitAnalysis.h"
@@ -11,8 +11,8 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 #include "MuonIdHelpers/MmIdHelper.h"
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
-#include "MuonSimEvent/GenericMuonSimHitCollection.h"
-#include "MuonSimEvent/GenericMuonSimHit.h"
+#include "MuonSimEvent/MMSimHitCollection.h"
+#include "MuonSimEvent/MMSimHit.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include "TH1.h"
@@ -264,14 +264,14 @@ StatusCode MMHitAnalysis::execute() {
 
   m_hits_x->clear();
 
-  const DataHandle<GenericMuonSimHitCollection> p_collection;
+  const DataHandle<MMSimHitCollection> p_collection;;
   if ((evtStore()->retrieve(p_collection,"MicromegasSensitiveDetector"))==StatusCode::SUCCESS) {
-    for (GenericMuonSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit){
+    for (MMSimHitCollection::const_iterator i_hit = p_collection->begin(); i_hit != p_collection->end(); ++i_hit){
       
       Amg::Vector3D p = (*i_hit).globalPosition();
       //Get station names and make plots for each sector
       MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper(); 
-      int simId = (*i_hit).GenericId();
+      int simId = (*i_hit).MMId();
       std::string sim_stationName = hitHelper->GetStationName(simId);
       int sim_side = hitHelper->GetSide(simId);
       //Declare station name strings

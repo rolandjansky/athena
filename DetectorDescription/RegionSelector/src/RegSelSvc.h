@@ -412,13 +412,13 @@ private:
   StringProperty m_LArFebRodMapKey;
 
   //! Data structure to hold Pixel data.
-  RegSelSiLUT* m_newpixel;
+  RegSelSiLUT* m_newpixel{nullptr};
 
   //! Data structure to hold SCT data.
-  RegSelSiLUT* m_newsct;
+  RegSelSiLUT* m_newsct{nullptr};
 
   //! Data structure to hold TRT data.
-  RegSelSiLUT* m_newtrt;
+  RegSelSiLUT* m_newtrt{nullptr};
 
   //! Data structure to hold Tile data.
   RegSelectorMap m_tileData; 
@@ -498,13 +498,13 @@ private:
   ToolHandle<IRegionIDLUT_Creator> m_lutCreatorToolsTGC;
 
 
-  RegSelSiLUT* m_newrpc;
-  RegSelSiLUT* m_newmdt;
-  RegSelSiLUT* m_newtgc;
-  RegSelSiLUT* m_newcsc;
+  RegSelSiLUT* m_newrpc{nullptr};
+  RegSelSiLUT* m_newmdt{nullptr};
+  RegSelSiLUT* m_newtgc{nullptr};
+  RegSelSiLUT* m_newcsc{nullptr};
 
-  RegSelSiLUT* m_newmm;
-  RegSelSiLUT* m_newstgc;
+  RegSelSiLUT* m_newmm{nullptr};
+  RegSelSiLUT* m_newstgc{nullptr};
 
   
   StringProperty m_PixConditionsSvc;
@@ -513,7 +513,7 @@ private:
 
   BooleanProperty                    m_initFTK;
   ToolHandle<IRegionIDLUT_Creator>   m_lutCreatorToolFTK;
-  RegSelSiLUT*                       m_ftklut;
+  RegSelSiLUT*                       m_ftklut{nullptr};
 
   bool m_duplicateRemoval;
 

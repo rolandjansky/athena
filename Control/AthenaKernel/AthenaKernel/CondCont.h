@@ -101,7 +101,7 @@ namespace Athena {
 
 /**
  * @brief Define extended status codes used by CondCont.
- *        We add DUPLICATE and OVERLAP.
+ *        We add DUPLICATE, OVERLAP, and EXTENDED.
  */
 enum class CondContStatusCode : StatusCode::code_t
 {
@@ -118,7 +118,16 @@ enum class CondContStatusCode : StatusCode::code_t
   // Attempt to insert an item in a CondCont with a range that partially
   // overlaps with an existing one.
   // This is classified as Success.
-  OVERLAP           = 11
+  OVERLAP           = 11,
+
+  // Attempt to insert an item in a CondCont where the new range is an extension
+  // of the last range.  That is, the start time of the new range matches
+  // that of the last range in the container, and the end time of the new range
+  // is larger than that of the last range in the container.  The end time
+  // of the last range has been extended to match the new range.
+  // The payload of the existing range is unchanged, and the new
+  // item has been deleted.
+  EXTENDED          = 12
 };
 STATUSCODE_ENUM_DECL (CondContStatusCode)
 
@@ -131,8 +140,8 @@ class CondContBase
 public:
   /**
    * @brief Status code category for ContCont.
-   *        This adds new codes DUPLICATE and OVERLAP, which are classified
-   *        as success.
+   *        This adds new codes DUPLICATE, OVERLAP, and EXTENDED,
+   *        which are classified as success.
    */
   class Category : public StatusCode::Category
   {
@@ -157,6 +166,11 @@ public:
     static bool isOverlap (code_t code);
     /// Helper to test whether a code is OVERLAP.
     static bool isOverlap (StatusCode code);
+
+    /// Helper to test whether a code is EXTENDED.
+    static bool isExtended (code_t code);
+    /// Helper to test whether a code is EXTENDED.
+    static bool isExtended (StatusCode code);
   };
 
 
@@ -269,6 +283,8 @@ public:
    * The container will take ownership of this object.
    *
    * Returns SUCCESS if the object was successfully inserted;
+   * EXTENDS if the last existing range in the container was extended
+   * to match the new range;
    * OVERLAP if the object was inserted but the range partially overlaps
    * with an existing one;
    * DUPLICATE if the object wasn't inserted because the range
@@ -440,16 +456,17 @@ public:
     // I don't think IOVDbSvc should do _that_, so we check for that here.
     bool overlap (const RangeKey& r1, const RangeKey& r2) const
     { return r1.m_stop > r2.m_stop; }
-    bool extendRange (RangeKey& r, const RangeKey& newRange) const
+    int extendRange (RangeKey& r, const RangeKey& newRange) const
     {
       if (r.m_start != newRange.m_start) {
-        return false;
+        return -1;
       }
       if (newRange.m_stop > r.m_stop) {
         r.m_stop = newRange.m_stop;
         r.m_range = newRange.m_range;
+        return 1;
       }
-      return true;
+      return 0;
     }
   };
 
@@ -496,6 +513,8 @@ protected:
    * @param ctx Event context for the current thread.
    *
    * Returns SUCCESS if the object was successfully inserted;
+   * EXTENDS if the last existing range in the container was extended
+   * to match the new range;
    * OVERLAP if the object was inserted but the range partially overlaps
    * with an existing one;
    * DUPLICATE if the object wasn't inserted because the range
@@ -670,6 +689,8 @@ public:
    * The container will take ownership of this object.
    *
    * Returns SUCCESS if the object was successfully inserted;
+   * EXTENDS if the last existing range in the container was extended
+   * to match the new range;
    * OVERLAP if the object was inserted but the range partially overlaps
    * with an existing one;
    * DUPLICATE if the object wasn't inserted because the range
@@ -873,6 +894,8 @@ public:
    * on the most-derived @c CondCont.
    *
    * Returns SUCCESS if the object was successfully inserted;
+   * EXTENDS if the last existing range in the container was extended
+   * to match the new range;
    * OVERLAP if the object was inserted but the range partially overlaps
    * with an existing one;
    * DUPLICATE if the object wasn't inserted because the range

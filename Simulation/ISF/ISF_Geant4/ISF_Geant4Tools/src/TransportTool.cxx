@@ -214,7 +214,7 @@ void iGeant4::G4TransportTool::finalizeOnce()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) {
+StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) const {
 
   // give a screen output that you entered Geant4SimSvc
   ATH_MSG_VERBOSE( "Particle " << isp << " received for simulation." );
@@ -231,7 +231,7 @@ StatusCode iGeant4::G4TransportTool::simulate( const ISF::ISFParticle& isp, ISF:
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) {
+StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticleVector& particles, ISF::ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) const {
 
   ATH_MSG_DEBUG (name() << ".simulateVector(...) : Received a vector of " << particles.size() << " particles for simulation.");
   /** Process ParticleState from particle stack */
@@ -264,11 +264,13 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
   // not implemented yet... need to get particle stack from Geant4 and convert to ISFParticle
   ATH_MSG_VERBOSE( "Simulation done" );
 
+  Slot& slot = *m_slots;
+  Slot::lock_t lock (slot.m_mutex);
+  
   for (auto* cisp : particles) {
-    auto* isp = const_cast<ISF::ISFParticle*>(cisp);
     // return any secondaries associated with this particle
-    auto searchResult = m_secondariesMap.find( isp );
-    if ( searchResult == m_secondariesMap.end() ) {
+    auto searchResult = slot.m_secondariesMap.find( cisp );
+    if ( searchResult == slot.m_secondariesMap.end() ) {
 
       ATH_MSG_VERBOSE( "Found no secondaries" );
 
@@ -276,7 +278,7 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
 
       ATH_MSG_VERBOSE( "Found secondaries: " << searchResult->second.size() );
       secondaries.splice( end(secondaries), std::move(searchResult->second) ); //append vector
-      m_secondariesMap.erase( searchResult );
+      slot.m_secondariesMap.erase( searchResult );
     }
   }
   // Geant4 call done
@@ -303,12 +305,6 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
   G4SDManager::GetSDMpointer()->PrepareNewEvent();
 
   return StatusCode::SUCCESS;
-}
-
-//________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::setupEventST()
-{
-  return setupEvent();
 }
 
 //________________________________________________________________________
@@ -358,18 +354,14 @@ StatusCode iGeant4::G4TransportTool::releaseEvent()
 }
 
 //________________________________________________________________________
-StatusCode iGeant4::G4TransportTool::releaseEventST()
-{
-  return releaseEvent();
-}
-
-//________________________________________________________________________
 // Act as particle broker for G4 secondaries
 void iGeant4::G4TransportTool::push( ISF::ISFParticle *particle, const ISF::ISFParticle *parent )
 {
   ATH_MSG_VERBOSE( "Caught secondary particle push() from Geant4" );
 
-  m_secondariesMap[ parent ].push_back( particle );
+  Slot& slot = *m_slots;
+  Slot::lock_t lock (slot.m_mutex);
+  slot.m_secondariesMap[ parent ].push_back( particle );
 }
 
 //________________________________________________________________________

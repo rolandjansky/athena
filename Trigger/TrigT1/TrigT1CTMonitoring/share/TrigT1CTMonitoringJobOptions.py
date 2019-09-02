@@ -149,7 +149,7 @@ muonCnvFlags.TgcCablingMode.set_Value_and_Lock( "12-fold" )
 from TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig import RPCRecRoiConfig
 from TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig import TGCRecRoiConfig
 
-from RecExConfig.InputFilePeeker import inputFileSummary as ifs
+from PyUtils.MetaReaderPeeker import metadata
 from TrigT1CTMonitoring.TrigT1CTMonitoringConfig import *
 
 #below to read from cool
@@ -184,8 +184,8 @@ if testLabFile:
     LVL1ConfigSvc.DBBGSKey=11
 
 elif RunSimOnData:
-    run = ifs['run_number'][0]
-    lb= ifs['lumi_block'][0]
+    run = metadata['runNumbers'][0]
+    lb = metadata['lumiBlockNumbers'][0]
     keys = _getKeys(run,lb)
     from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
     tf.triggerConfig="DATARECO:DB:TRIGGERDB:%i,%i,%i" % keys
@@ -212,8 +212,8 @@ elif RunSimOnData:
     topSequence += CTPSimulationOnData("CTPSimulation")
     
 elif checkDQ:
-    run = ifs['run_number'][0]
-    lb= ifs['lumi_block'][0]
+    run = metadata['runNumbers'][0]
+    lb = metadata['lumiBlockNumbers'][0]
     keys = _getKeys(run,lb)
     from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
     tf.triggerConfig="DATARECO:DB:TRIGGERDB:%i,%i,%i" % keys
@@ -270,7 +270,6 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-    "ROIB::RoIBResult/RoIBResult",
     "MuCTPI_RDO/MUCTPI_RDO",
     "CTP_RDO/CTP_RDO",
     "MuCTPI_RIO/MUCTPI_RIO",

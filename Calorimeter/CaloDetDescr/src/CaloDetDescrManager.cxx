@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -193,7 +193,6 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
   int niter=0;
   const CaloDetDescrElement* elt=0 ;
   const CaloDetDescrElement* elt_best=0 ;
-  static CaloPhiRange range;
 
   double eta2=eta;
   double phi2=phi;
@@ -223,7 +222,7 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
     elt = get_element(caloCellHash);
     //std::cout << "    element  " << elt->eta() << " " << elt->phi() << " " << elt->deta() << " " << elt->dphi() << std::endl; 
     double deta=std::fabs(eta-elt->eta())-0.5*elt->deta();
-    double dphi = std::fabs(range.fix(phi-elt->phi())) - 0.5*elt->dphi();
+    double dphi = std::fabs(CaloPhiRange::fix(phi-elt->phi())) - 0.5*elt->dphi();
     if (deta>0. || dphi > 0.) {
       double delta=0.;
       if (deta>0.) { 
@@ -231,7 +230,7 @@ CaloDetDescrManager_Base::get_element (CaloCell_ID::SUBCALO subCalo,
          delta = delta + deta;
       }
       if (dphi>0.) {
-         phi2=range.fix(phi2+(phi-elt->phi()));
+        phi2=CaloPhiRange::fix(phi2+(phi-elt->phi()));
          delta = delta + dphi;
       }
       //std::cout << "  need to iteration => eta2,phi2 " << eta2 << " " << phi2 << std::endl;
@@ -259,7 +258,6 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
                                       double phi) const
 {
   const CaloDetDescrElement* elt=0;
-  static CaloPhiRange range;
   
   // For LAr loop on regions :
 
@@ -297,7 +295,7 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
       if (m_cell_id->cell_id (caloCellHash) != cellId) return elt;
       elt = get_element(caloCellHash);
       double deta=std::fabs(eta-elt->eta())-0.5*elt->deta();
-      double dphi = std::fabs(range.fix(phi-elt->phi())) - 0.5*elt->dphi();
+      double dphi = std::fabs(CaloPhiRange::fix(phi-elt->phi())) - 0.5*elt->dphi();
       if (deta>0. || dphi > 0.) {
         double delta=0.;
         if (deta>0.) {
@@ -305,7 +303,7 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
          delta = delta + deta;
         }
         if (dphi>0.) {
-          phi2=range.fix(phi2+(phi-elt->phi()));
+          phi2=CaloPhiRange::fix(phi2+(phi-elt->phi()));
           delta = delta + dphi;
         }
         if (delta<deltabest) {
@@ -325,16 +323,22 @@ CaloDetDescrManager_Base::get_element(CaloCell_ID::CaloSample sample,
   } else {
 
     // For Tiles loop on elements :
-  
+
     for ( unsigned int i = m_subCalo_min[CaloCell_ID::TILE]; 
-	  i < m_subCalo_max[CaloCell_ID::TILE]; i++ ) {
+	  i < m_subCalo_max[CaloCell_ID::TILE]; i++ )
+    {
       const CaloDetDescrElement* pt = m_element_vec[i];
-      if (pt)
+      if (pt) {
+        const double dphi = std::fabs(CaloPhiRange::fix(phi-pt->phi()));
 	if ( pt->getSampling() == sample &&
-	     pt->eta()+pt->deta()/2 <= eta && 
-	     pt->eta()-pt->deta()/2 >= eta &&
-	     pt->phi()+pt->phi()/2 <= phi && 
-	     pt->phi()-pt->phi()/2 >= phi ) elt = pt ; 
+	     pt->eta()+pt->deta()/2 >= eta && 
+	     pt->eta()-pt->deta()/2 <= eta &&
+             dphi <=  pt->dphi()/2 )
+        {
+          elt = pt;
+          break;
+        }
+      }
     }
   }
   return elt;
@@ -348,7 +352,6 @@ CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
 {
   //std::cout << " ----- in get_element_raw for eta,phi raw " << eta << " " << phi << std::endl;
   const CaloDetDescrElement* elt=0;
-  static CaloPhiRange range;
   
   // For LAr loop on regions :
 
@@ -388,7 +391,7 @@ CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
       elt = get_element(caloCellHash);
       //std::cout << "  elt raw,phi raw " << elt->eta_raw() << " " << elt->phi_raw() << std::endl;
       double deta=std::fabs(eta-elt->eta_raw())-0.5*elt->deta();
-      double dphi = std::fabs(range.fix(phi-elt->phi_raw())) - 0.5*elt->dphi();
+      double dphi = std::fabs(CaloPhiRange::fix(phi-elt->phi_raw())) - 0.5*elt->dphi();
       if (deta>0. || dphi > 0.) {
         double delta=0.;
         if (deta>0.) {
@@ -396,7 +399,7 @@ CaloDetDescrManager_Base::get_element_raw(CaloCell_ID::CaloSample sample,
          delta = delta + deta;
         }
         if (dphi>0.) {
-          phi2=range.fix(phi2+(phi-elt->phi_raw()));
+          phi2=CaloPhiRange::fix(phi2+(phi-elt->phi_raw()));
           delta = delta + dphi;
         }
         if (delta<deltabest) {
@@ -1422,7 +1425,7 @@ const
 void CaloDetDescrManager_Base::build_sample (const CaloCell_ID::SUBCALO subCalo,
                                              const bool barrel,
                                              const int sampling_or_module,
-                                             CaloCell_ID::CaloSample& sample) const
+                                             CaloCell_ID::CaloSample& sample)
 {
   if ( subCalo == CaloCell_ID::LAREM ) {
     if ( barrel ) {
@@ -1465,7 +1468,7 @@ void CaloDetDescrManager_Base::build_sample (const CaloCell_ID::SUBCALO subCalo,
 void CaloDetDescrManager_Base::decode_sample (CaloCell_ID::SUBCALO& subCalo,
                                               bool& barrel,
                                               int& sampling_or_module,
-                                              const CaloCell_ID::CaloSample sample) const
+                                              const CaloCell_ID::CaloSample sample)
 {
   if ( sample == CaloCell_ID::PreSamplerB) {
     subCalo = CaloCell_ID::LAREM;

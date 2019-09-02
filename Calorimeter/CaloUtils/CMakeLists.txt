@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 730049 2016-03-15 14:19:51Z krasznaa $
 ################################################################################
 # Package: CaloUtils
 ################################################################################
@@ -22,6 +21,7 @@ atlas_depends_on_subdirs(
    Control/CxxUtils
    Event/FourMom
    Event/xAOD/xAODCaloEvent
+   Event/xAOD/xAODCore
    GaudiKernel
    PRIVATE
    AtlasTest/TestTools
@@ -39,7 +39,7 @@ atlas_add_library( CaloUtilsLib CaloUtils/*.h CaloUtils/*.icc src/*.h src/*.cxx
    PUBLIC_HEADERS CaloUtils
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES CaloConditions CaloEvent CaloGeoHelpers CaloIdentifier
-   AthenaBaseComps AthenaKernel Navigation FourMom xAODCaloEvent GaudiKernel
+   AthenaBaseComps AthenaKernel Navigation FourMom xAODCaloEvent xAODCore GaudiKernel
    CaloDetDescrLib StoreGateLib
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CxxUtils
    SGTools IdDictParser Identifier )
@@ -83,13 +83,13 @@ atlas_add_test( CaloVertexedCluster_test
 
 atlas_add_test( CaloTowerStore_test
    SCRIPT test/CaloTowerStore_test.sh
-   EXTRA_PATTERNS "[0-9] [A-Z]+ 20[123][0-9]|Reading file|^CORAL/Services/ConnectionService (Info|Warning)|^RelationalDatabase Info|^Data source lookup|^DetDescrCnvSvc +INFO|^CORAL/RelationalPlugins/frontier Info|^PluginManager Info|^RalSessionMgr Warning|^DBReplicaSvc +INFO|IOVDbSvc +INFO|^Py:Athena +INFO|^EventInfoMgtInit: Got release|^TEnvRec::ChangeValue|^PoolSvc +INFO|^PoolSvc +WARNING Unable to locate catalog|being retired|including file|Deaccess DbDatabase|^IoComponentMgr +INFO|File version|Global positioning|^Domain|duplicate entry|already loaded|RootDbase: all good|frontier.c|^Py:ConfigurableDb +(WARNING|INFO)|ApplicationMgr +INFO|INFO [sS]top|^CaloIdMgrDetDes.*INFO|^TTOnlineIDDetDe.*INFO|^CaloIDHelper_ID.*INFO|^AtlasDetectorID +INFO|^AthenaEventLoopMgrWARNING|^CaloDM_IDDetDes.*INFO|^CaloLVL1_IDDetD.*INFO|^LArFCAL_ID +INFO|^LArMiniFCAL_IDD.*INFO|^LArHEC_ID +INFO|^LArMiniFCAL_ID +INFO|TileTBIdDetDesc.*INFO|^TileIDDetDescrCnv +INFO|CaloCell_IDDetD.*INFO|TileID +INFO|^LArFCAL_IDDetDe.*INFO|^TileTBIDDetDesc.*INFO|^LArEM_ID +INFO|^LArHEC_IDDetDes.*INFO|^LArEM_IDDetDesc.*INFO|^EndcapDMConst.*INFO|^GeoModelSvc +INFO|USHAPE|U-shape|Cs Tube|XMLFileCatalog Info|No IOVSvcTool associated|^RalSessionMgr Info|RDBMS technology|INFO Found unknown streamer checksum|^GUID: Class pool::DbString has GUID|^AthenaRootStrea.* INFO|INFO TileDddbManager|^CORAL/"
+   EXTRA_PATTERNS "[0-9] [A-Z]+ 20[123][0-9]|Reading file|^CORAL/Services/ConnectionService (Info|Warning)|^RelationalDatabase Info|^Data source lookup|^DetDescrCnvSvc +INFO|^CORAL/RelationalPlugins/frontier Info|^PluginManager Info|^RalSessionMgr Warning|^DBReplicaSvc +INFO|IOVDbSvc +INFO|^Py:Athena +INFO|^EventInfoMgtInit: Got release|^TEnvRec::ChangeValue|^PoolSvc +INFO|^PoolSvc +WARNING Unable to locate catalog|being retired|including file|Deaccess DbDatabase|^IoComponentMgr +INFO|File version|Global positioning|^Domain|duplicate entry|already loaded|RootDbase: all good|frontier.c|^Py:ConfigurableDb +(WARNING|INFO)|ApplicationMgr +INFO|INFO [sS]top|^CaloIdMgrDetDes.*INFO|^TTOnlineIDDetDe.*INFO|^CaloIDHelper_ID.*INFO|^AtlasDetectorID +INFO|^AthenaEventLoopMgrWARNING|^CaloDM_IDDetDes.*INFO|^CaloLVL1_IDDetD.*INFO|^LArFCAL_ID +INFO|^LArMiniFCAL_IDD.*INFO|^LArHEC_ID +INFO|^LArMiniFCAL_ID +INFO|TileTBIdDetDesc.*INFO|^TileIDDetDescrCnv +INFO|CaloCell_IDDetD.*INFO|TileID +INFO|^LArFCAL_IDDetDe.*INFO|^TileTBIDDetDesc.*INFO|^LArEM_ID +INFO|^LArHEC_IDDetDes.*INFO|^LArEM_IDDetDesc.*INFO|^EndcapDMConst.*INFO|^GeoModelSvc +INFO|USHAPE|U-shape|Cs Tube|XMLFileCatalog Info|IOVSvcTool|^RalSessionMgr Info|RDBMS technology|INFO Found unknown streamer checksum|^GUID: Class pool::DbString has GUID|^AthenaRootStrea.* INFO|INFO TileDddbManager|^CORAL/"
    PROPERTIES TIMEOUT 500 )
 
 atlas_add_test( CaloTowerBuilderTool_test
    SCRIPT test/CaloTowerBuilderTool_test.sh
-   EXTRA_PATTERNS "[0-9] [A-Z]+ 20[123][0-9]|Reading file|^CORAL/Services/ConnectionService (Info|Warning)|^RelationalDatabase Info|^Data source lookup|^DetDescrCnvSvc +INFO|^CORAL/RelationalPlugins/frontier Info|^PluginManager Info|^RalSessionMgr Warning|^DBReplicaSvc +INFO|IOVDbSvc +INFO|^Py:Athena +INFO|^EventInfoMgtInit: Got release|^TEnvRec::ChangeValue|^PoolSvc +INFO|^PoolSvc +WARNING Unable to locate catalog|being retired|including file|Deaccess DbDatabase|^IoComponentMgr +INFO|File version|Global positioning|^Domain|duplicate entry|already loaded|RootDbase: all good|frontier.c|^Py:ConfigurableDb +(WARNING|INFO)|ApplicationMgr +INFO|INFO [sS]top|^CaloIdMgrDetDes.*INFO|^TTOnlineIDDetDe.*INFO|^CaloIDHelper_ID.*INFO|^AtlasDetectorID +INFO|^AthenaEventLoopMgrWARNING|^CaloDM_IDDetDes.*INFO|^CaloLVL1_IDDetD.*INFO|^LArFCAL_ID +INFO|^LArMiniFCAL_IDD.*INFO|^LArHEC_ID +INFO|^LArMiniFCAL_ID +INFO|TileTBIdDetDesc.*INFO|^TileIDDetDescrCnv +INFO|CaloCell_IDDetD.*INFO|TileID +INFO|^LArFCAL_IDDetDe.*INFO|^TileTBIDDetDesc.*INFO|^LArEM_ID +INFO|^LArHEC_IDDetDes.*INFO|^LArEM_IDDetDesc.*INFO|^EndcapDMConstru.*INFO|^GeoModelSvc +INFO|USHAPE|U-shape|Cs Tube|XMLFileCatalog Info|No IOVSvcTool associated|^RalSessionMgr Info|RDBMS technology|INFO Found unknown streamer checksum|^GUID: Class pool::DbString has GUID|^AthenaRootStrea.* INFO|INFO TileDddbManager|oracle Info|initialize_from_dictionary|Calo Detector Manager"
-   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-09"
+   EXTRA_PATTERNS "[0-9] [A-Z]+ 20[123][0-9]|Reading file|^CORAL/Services/ConnectionService (Info|Warning)|^RelationalDatabase Info|^Data source lookup|^DetDescrCnvSvc +INFO|^CORAL/RelationalPlugins/frontier Info|^PluginManager Info|^RalSessionMgr Warning|^DBReplicaSvc +INFO|IOVDbSvc +INFO|^Py:Athena +INFO|^EventInfoMgtInit: Got release|^TEnvRec::ChangeValue|^PoolSvc +INFO|^PoolSvc +WARNING Unable to locate catalog|being retired|including file|Deaccess DbDatabase|^IoComponentMgr +INFO|File version|Global positioning|^Domain|duplicate entry|already loaded|RootDbase: all good|frontier.c|^Py:ConfigurableDb +(WARNING|INFO)|ApplicationMgr +INFO|INFO [sS]top|^CaloIdMgrDetDes.*INFO|^TTOnlineIDDetDe.*INFO|^CaloIDHelper_ID.*INFO|^AtlasDetectorID +INFO|^AthenaEventLoopMgrWARNING|^CaloDM_IDDetDes.*INFO|^CaloLVL1_IDDetD.*INFO|^LArFCAL_ID +INFO|^LArMiniFCAL_IDD.*INFO|^LArHEC_ID +INFO|^LArMiniFCAL_ID +INFO|TileTBIdDetDesc.*INFO|^TileIDDetDescrCnv +INFO|CaloCell_IDDetD.*INFO|TileID +INFO|^LArFCAL_IDDetDe.*INFO|^TileTBIDDetDesc.*INFO|^LArEM_ID +INFO|^LArHEC_IDDetDes.*INFO|^LArEM_IDDetDesc.*INFO|^EndcapDMConstru.*INFO|^GeoModelSvc +INFO|USHAPE|U-shape|Cs Tube|XMLFileCatalog Info|IOVSvcTool|^RalSessionMgr Info|RDBMS technology|INFO Found unknown streamer checksum|^GUID: Class pool::DbString has GUID|^AthenaRootStrea.* INFO|INFO TileDddbManager|oracle Info|initialize_from_dictionary|Calo Detector Manager"
+   ENVIRONMENT "ATLAS_REFERENCE_TAG=CaloUtils/CaloUtils-01-00-11"
    PROPERTIES TIMEOUT 500 )
 
 # Install files from the package:

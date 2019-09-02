@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MdtDataPreparator.h"
 
-#include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/phihelper.h"
 
 #include "MuonRDO/MdtCsmContainer.h"
 
@@ -23,7 +23,6 @@
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 #include "MuonCablingData/MdtAmtMap.h"
@@ -35,6 +34,7 @@
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+#include "GeoModelUtilities/GeoGetIds.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
@@ -126,10 +126,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    ATH_CHECK( m_readKey.initialize() );
    
    // retrieve the mdtidhelper
-   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
-   ATH_CHECK( detStore->retrieve(m_muonMgr,"Muon") );
+   ATH_CHECK( detStore()->retrieve(m_muonMgr,"Muon") );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_mdtIdHelper = m_muonMgr->mdtIdHelper();
    
@@ -815,7 +812,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
        << phiMaxChamber[chamber] );
      TrigRoiDescriptor roi2( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
                              etaMinChamber[chamber], etaMaxChamber[chamber],
-                             HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
+                             CxxUtils::phiBisect(phiMinChamber[chamber],phiMaxChamber[chamber]),
                              phiMinChamber[chamber], phiMaxChamber[chamber] );
      for(int i_sector=0; i_sector<2; i_sector++) {
        for(int i_type=0; i_type<2; i_type++) {
@@ -885,7 +882,7 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
        << phiMaxChamber[chamber] );
      TrigRoiDescriptor roi2( 0.5*(etaMinChamber[chamber]+etaMaxChamber[chamber]),
                              etaMinChamber[chamber], etaMaxChamber[chamber],
-                             HLT::phiMean(phiMinChamber[chamber],phiMaxChamber[chamber]),
+                             CxxUtils::phiBisect(phiMinChamber[chamber],phiMaxChamber[chamber]),
                              phiMinChamber[chamber], phiMaxChamber[chamber] );
      for(int i_sector=0; i_sector<2; i_sector++) {
        for(int i_type=0; i_type<2; i_type++) {
@@ -1159,6 +1156,10 @@ void TrigL2MuonSA::MdtDataPreparator::initDeadChannels(const MuonGM::MdtReadoutE
   int nGrandchildren = cv->getNChildVols();
   if(nGrandchildren <= 0) return;
 
+  std::vector<int> tubes;
+  geoGetIds ([&] (int id) { tubes.push_back (id); }, &*cv);
+  std::sort (tubes.begin(), tubes.end());
+
   Identifier detElId = mydetEl->identify();
 
   int name = m_mdtIdHelper->stationName(detElId);
@@ -1167,24 +1168,25 @@ void TrigL2MuonSA::MdtDataPreparator::initDeadChannels(const MuonGM::MdtReadoutE
   int ml = m_mdtIdHelper->multilayer(detElId);
   std::vector<Identifier> deadTubes;
 
+  std::vector<int>::iterator it = tubes.begin();
   for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-      bool tubefound = false;
-      for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
-        if( tubegeo == tube && layergeo == layer ) {
-          tubefound=true;
-          break;
-        }
-        if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
+      int want_id = layer*100 + tube;
+      if (it != tubes.end() && *it == want_id) {
+        ++it;
       }
-      if(!tubefound) {
-        Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
-        deadTubes.push_back( deadTubeId );
-        ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
-                        << "), phi(" << phi << "), eta(" << eta << "), name(" << name
-                        << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+      else {
+        it = std::lower_bound (tubes.begin(), tubes.end(), want_id);
+        if (it != tubes.end() && *it == want_id) {
+          ++it;
+        }
+        else {
+          Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
+          deadTubes.push_back( deadTubeId );
+          ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
+                          << "), phi(" << phi << "), eta(" << eta << "), name(" << name
+                          << "), multilayerId(" << ml << ") and identifier " << deadTubeId <<" .");
+        }
       }
     }
   }

@@ -8,13 +8,14 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonSegment/MuonSegmentCombination.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 namespace Muon {
   
   class MuonSegment;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuonIdHelperTool;
 
@@ -53,7 +54,9 @@ namespace Muon {
     SegVec removeDuplicates( MuonSegmentCombination::SegmentVec& segments ) const;
 
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;     //!< IdHelper tool
-    ToolHandle<Muon::MuonEDMHelperTool>              m_helperTool;       //!< EDM Helper tool
+    ServiceHandle<Muon::IMuonEDMHelperSvc>           m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };       //!< EDM Helper tool
     ToolHandle<Muon::MuonEDMPrinterTool>             m_printer;          //!< EDM printer tool
 
     bool m_removePartialOverlaps; //!< remove partial overlaps between segments

@@ -726,15 +726,20 @@ const Trk::RIO_OnTrack*  FTKTrackMakerMT::createPixelCluster(const FTK_RawPixelC
 
 
 InDet::PixelClusterCollection* FTKTrackMakerMT::getPixelClusterCollection(IdentifierHash hashId, InDet::PixelClusterContainer* pixelClusterContainer, const PixelID* pixidHelper) const {
-
-  InDet::PixelClusterContainer::const_iterator it = pixelClusterContainer->indexFind(hashId);
-  if(it!=pixelClusterContainer->end()) {
-    InDet::PixelClusterCollection* pcoll = const_cast<InDet::PixelClusterCollection*>(&(**it));
+  
+  InDet::PixelClusterCollection* pcoll = nullptr;
+  //use naughtyRetrieve to make clear this is a potentially thread hostile retrieve.
+  //naughtyRetrieve will protect external caches if it has an external cache by failing
+  if( pixelClusterContainer->naughtyRetrieve(hashId, pcoll).isFailure()){
+    ATH_MSG_ERROR("Using a thread hostile naughtyRetrieve on an external cache");
+    return nullptr;
+  }
+  if(pcoll != nullptr) {
     return pcoll;
   }
   ATH_MSG_VERBOSE(" Creating  PixelClusterCollection with hashid 0x" << std::hex << hashId << std::dec);
   Identifier id = pixidHelper->wafer_id(hashId);
-  InDet::PixelClusterCollection* pcoll = new InDet::PixelClusterCollection(hashId);
+  pcoll = new InDet::PixelClusterCollection(hashId);
   pcoll->setIdentifier(id);
   StatusCode sc = pixelClusterContainer->addCollection(pcoll,hashId);
   if (sc.isFailure()){
@@ -747,14 +752,19 @@ InDet::PixelClusterCollection* FTKTrackMakerMT::getPixelClusterCollection(Identi
 
 InDet::SCT_ClusterCollection*  FTKTrackMakerMT::getSCT_ClusterCollection(IdentifierHash hashId,InDet::SCT_ClusterContainer* sctClusterContainer, const SCT_ID* sctidHelper) const {
 
-  InDet::SCT_ClusterContainer::const_iterator it = sctClusterContainer->indexFind(hashId);
-  if(it!=sctClusterContainer->end()) {
-    InDet::SCT_ClusterCollection* pcoll = const_cast<InDet::SCT_ClusterCollection*>(&(**it));
+  InDet::SCT_ClusterCollection* pcoll = nullptr;
+  //use naughtyRetrieve to make clear this is a potentially thread hostile retrieve.
+  //naughtyRetrieve will protect external caches if it has an external cache by failing
+  if( sctClusterContainer->naughtyRetrieve(hashId, pcoll).isFailure()){
+    ATH_MSG_ERROR("Using a thread hostile naughtyRetrieve on an external cache");
+    return nullptr;
+  }
+  if(pcoll != nullptr) {
     return pcoll;
   }
   ATH_MSG_VERBOSE(" Creating  SCT_ClusterCollection with hashid 0x" << std::hex << hashId << std::dec);
   Identifier id = sctidHelper->wafer_id(hashId);
-  InDet::SCT_ClusterCollection* pcoll = new InDet::SCT_ClusterCollection(hashId);
+  pcoll = new InDet::SCT_ClusterCollection(hashId);
   pcoll->setIdentifier(id);
   StatusCode sc = sctClusterContainer->addCollection(pcoll,hashId);
   if (sc.isFailure()){

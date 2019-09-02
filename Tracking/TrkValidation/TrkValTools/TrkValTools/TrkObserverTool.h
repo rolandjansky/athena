@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrkObserverTool.h 
@@ -38,69 +38,58 @@
 #include "ObservedTracksMap.h"
 
 namespace Trk {
-	class ITrackParticleCreatorTool;
+  class ITrackParticleCreatorTool;
 
 
-	class TrkObserverTool
-  	: virtual public Trk::ITrkObserverTool,
-            public ::AthAlgTool
-	{ 
+  class TrkObserverTool
+    : public extends<AthAlgTool, Trk::ITrkObserverTool>
+  { 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
-	public: 
-	
-  	// Copy constructor: 
+    /////////////////////////////////////////////////////////////////// 
+    // Public methods: 
+    /////////////////////////////////////////////////////////////////// 
+  public: 
+ 
+    // Copy constructor: 
 
-  	/// Constructor with parameters: 
-  	TrkObserverTool( const std::string& type,
-		     const std::string& name, 
-		     const IInterface* parent );
+    /// Constructor with parameters: 
+    TrkObserverTool( const std::string& type,
+                     const std::string& name, 
+                     const IInterface* parent );
 
-  	/// Destructor: 
-  	virtual ~TrkObserverTool(); 
+    /// Destructor: 
+    virtual ~TrkObserverTool() = default;
 
-  	// Athena algtool's Hooks
-  	virtual StatusCode  initialize();
-		virtual StatusCode  finalize();
+    // Athena algtool's Hooks
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  finalize() override;
 
-		void saveTracksToxAOD();
-		void dumpTrackMap();
+    virtual void saveTracksToxAOD() const override;
+    virtual void dumpTrackMap() const override;
 
-		void updateTrackMap(const Trk::Track& track, double score, int rejectPlace);
-		void updateScore(const Trk::Track& track, double score);
-		void updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared) const;
-		void rejectTrack(const Trk::Track& track, int rejectPlace) const;
+    virtual void updateTrackMap(const Trk::Track& track, double score, int rejectPlace) override;
+    virtual void updateScore(const Trk::Track& track, double score) override;
+    virtual void updateHolesSharedHits(const Trk::Track& track, int numPixelHoles, int numSCTHoles, int numSplitSharedPixel, int numSplitSharedSCT, int numSharedOrSplit, int numSharedOrSplitPixels, int numShared) const override;
+    virtual void rejectTrack(const Trk::Track& track, int rejectPlace) const override;
 
-		void addSubTrack(const Trk::Track& track, const Trk::Track& parentTrack);
-		void storeInputTracks(const TrackCollection& trackCollection);
-		void reset();
+    virtual void addSubTrack(const Trk::Track& track, const Trk::Track& parentTrack) override;
+    virtual void storeInputTrack(const Trk::Track& track) override;
+    virtual void reset() override;
 
-	/////////////////////////////////////////////////////////////////// 
-  // Private data: 
-	/////////////////////////////////////////////////////////////////// 
-	private: 
+    /////////////////////////////////////////////////////////////////// 
+    // Private data: 
+    /////////////////////////////////////////////////////////////////// 
+  private: 
 
-		/// job Properties
-		std::string m_savedTracksName;	// name of the observed (saved) Track collection
-		std::string m_observedTrksXaodName;	// name of the observed tracks in xaod
+    /// job Properties
+    StringProperty m_savedTracksName{this, "ObservedTrackCollectionName", "ObservedTrackCollection", "name of the observed (saved) Track collection"};
+    StringProperty m_observedTrksXaodName{this, "ObservedTracksXaodName", "ObservedTracks", "name of the observed tracks in xaod"};
+    PublicToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator{this, "TrackParticleCreator", "Trk::TrackParticleCreatorTool/TrackParticleCreatorTool", "paricle creator, for creating TrackParticle from Tracks"};
 
-		ObservedTracksMap* 	m_observedTrkMap;	// Maps with the all observed tracks and information
+    std::unique_ptr<ObservedTracksMap> m_observedTrkMap; // Maps with the all observed tracks and information
 
-
-
-
-		ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreator;		// paricle creator, for creating TrackParticle from Tracks
-		TrackCollection* m_savedTracks;		// collection with all the Tracks whcih are/should be saved
-		inline xAOD::TrackParticle* createParticle( xAOD::TrackParticleContainer& xaod, const TrackCollection& container, const Trk::Track& tp) ;	// method for particle creation from tracks
-
-
-
-		/// Default constructor: 
-		TrkObserverTool();
-
-	}; 
+    std::vector<const Track*> m_savedTracks;  //  all the Tracks which are/should be saved for xaod, no ownership
+  }; 
 }
 
 

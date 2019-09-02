@@ -30,7 +30,7 @@ def setTrfSignalHandlers(handler):
         try:
             msg.debug("Setting signalhandler for %s to %s" % (s, handler))
             _savedSignalHandlerDict[s] =  signal.signal(getattr(signal, s), handler)
-        except Exception, e:
+        except Exception as e:
             msg.error("Unable to attach custom signal handler to %s: %s" % (s, e))
             continue
 
@@ -41,6 +41,6 @@ def resetTrfSignalHandlers():
     for s in _defaultSignalList:
         try:
             signal.signal(getattr(signal, s), _savedSignalHandlerDict.get(s, signal.SIG_DFL))
-        except Exception, e:
+        except Exception as e:
             msg.error("Unable to attach custom signal handler to %s: %s" % (s, e))
             continue

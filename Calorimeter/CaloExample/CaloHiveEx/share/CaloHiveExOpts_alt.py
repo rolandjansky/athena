@@ -165,8 +165,8 @@ if (nProc > 0) :
 
 #from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
 from RecExConfig.ObjKeyStore import objKeyStore, CfgKeyStore
-from RecExConfig.InputFilePeeker import inputFileSummary
-objKeyStore.addManyTypesInputFile(inputFileSummary['eventdata_itemsList'])
+from PyUtils.MetaReaderPeeker import convert_itemList
+objKeyStore.addManyTypesInputFile(convert_itemList(layout = '#join'))
 
 
 topSequence = AlgSequence()

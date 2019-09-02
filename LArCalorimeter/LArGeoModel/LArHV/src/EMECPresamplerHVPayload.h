@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _EMECPresamplerHVPayload_h_
-#define _EMECPresamplerHVPayload_h_
+#ifndef LARHV_EMECPRESAMPLERHVPAYLOAD_H
+#define LARHV_EMECPRESAMPLERHVPAYLOAD_H
 #include <iostream>
 struct EMECPresamplerHVPayload {
   double         voltage[2];

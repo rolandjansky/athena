@@ -24,6 +24,8 @@ primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 ## TriggerAPI ##
 from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
 apitriggers = RPVLLTriggers()
+from LongLivedParticleDPDMaker.RPVLLTriggers import rpvllTrig
+
 
 class KinkedTrack_containerFlags(JobProperty):
     statusOn = True
@@ -151,6 +153,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe110_pufit_xe70_L1XE50',
         'HLT_xe110_pufit_xe65_L1XE55',
         'HLT_xe110_pufit_xe65_L1XE60',
+        'HLT_xe110_pufit_xe65_L1XE50',
         'HLT_xe110_L1XE60',
         'HLT_xe110_mht_L1XE60',
         'HLT_xe110_mht_L1XE50',
@@ -174,7 +177,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe120_pufit_L1XE60',
         'HLT_xe130_mht_L1XE50'        
         ]
-    if apitriggers.doTriggerAPI:
+    if rpvllTrig.doRPVLLTriggerAPI:
         triggerNames += apitriggers.getKinkedTrackJetMetTriggers() ## TriggerAPI
     cutsEtMin = [80.0*Units.GeV, 40.0*Units.GeV]
     cutsEtMinForStublet = [90.0*Units.GeV, 40.0*Units.GeV]
@@ -235,8 +238,10 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
         'HLT_e28_lhtight_ivarloose',
         'HLT_e28_lhtight_nod0_iloose',
         'HLT_e28_lhtight_nod0_ivarloose',
+        'HLT_e60_lhmedium_nod0',
+        'HLT_e140_lhloose_nod0'
         ]
-    if apitriggers.doTriggerAPI:
+    if rpvllTrig.doRPVLLTriggerAPI:
         triggerNames += apitriggers.getKinkedTrackZeeTriggers() ## TriggerAPI
     doTriggerMatch = False
     electronPtMin = 40*Units.GeV
@@ -270,7 +275,7 @@ class KinkedTrack_ZmumuFilterFlags(JobProperty):
         'HLT_mu26_imedium',
         'HLT_mu26_ivarmedium',
         ]
-    if apitriggers.doTriggerAPI:
+    if rpvllTrig.doRPVLLTriggerAPI:
         triggerNames += apitriggers.getKinkedTrackZmumuTriggers() ## TriggerAPI
     doTriggerMatch = False
     muonPtMin = 40*Units.GeV

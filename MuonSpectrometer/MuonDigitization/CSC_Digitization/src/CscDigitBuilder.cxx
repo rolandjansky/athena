@@ -8,7 +8,6 @@
 // Digitization algorithm for the CSC hits
 
 #include "CSC_Digitization/CscDigitBuilder.h"
-#include "PileUpTools/IPileUpTool.h"
 
 CscDigitBuilder::CscDigitBuilder(const std::string& name,
                                  ISvcLocator* pSvcLocator)

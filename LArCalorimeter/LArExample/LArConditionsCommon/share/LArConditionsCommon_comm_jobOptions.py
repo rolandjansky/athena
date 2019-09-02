@@ -7,6 +7,9 @@
 
 include.block ( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py" )
 
+if not "SuperCells" in dir():
+   SuperCells=False
+
 from RecExConfig.RecFlags import rec
 from LArConditionsCommon.LArCondFlags import larCondFlags 
 
@@ -140,6 +143,7 @@ if larCondFlags.LoadElecCalib():
 
 
   if (haveElecCalibInline):
+   if not SuperCells: 
       # Run 2 case:
       #1. uA2MeV
       if larCondFlags.ua2MeVFolder()=="":
@@ -194,7 +198,12 @@ if larCondFlags.LoadElecCalib():
           theLArCondSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
       else:
           #Load from offline DB
-          addLArFolder ('LAR_OFL',
+          if 'RekeyOFC' in dir():    
+            addLArFolder ('LAR_OFL',
+                        'OFC/PhysWave/RTM/'+larCondFlags.OFCShapeFolder(),
+                        'LArOFCComplete', selection+"<key>"+RekeyOFC+"</key>")
+          else:  
+            addLArFolder ('LAR_OFL',
                         'OFC/PhysWave/RTM/'+larCondFlags.OFCShapeFolder(),
                         'LArOFCComplete', selection)
 
@@ -207,16 +216,25 @@ if larCondFlags.LoadElecCalib():
               theLArCondSvc.ShapeInput="/LAR/ElecCalibFlat/Shape"
           else:
               #Load from offline database
-              addLArFolder ('LAR_OFL',
+              if 'RekeyShape' in dir():
+                addLArFolder ('LAR_OFL',
+                            'Shape/RTM/'+larCondFlags.OFCShapeFolder(),
+                            'LArShapeComplete', selection+"<key>"+RekeyShape+"</key>")
+              else:  
+                addLArFolder ('LAR_OFL',
                             'Shape/RTM/'+larCondFlags.OFCShapeFolder(),
                             'LArShapeComplete', selection)
 
 
           pass
       pass
+   else:
+      print "In SuperCell case... so far will not initialise folders."   
 
   else: #Run 1 case, no COOL-inline electronic calibration
-
+   if not SuperCells: 
+      from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault
+      LArMCSymCondAlgDefault()
       #For run 1 we read some electronic calibration constants from the offline DB:
       if not larCondFlags.ua2MeVFolder.is_locked():
           larCondFlags.ua2MeVFolder="uA2MeV/Symmetry"
@@ -236,9 +254,16 @@ if larCondFlags.LoadElecCalib():
       else:
           #Load from offline database
           addLArFolder ('LAR_OFL', larCondFlags.ua2MeVFolder(), 'LAruA2MeVMC')
+
+      #Schedule Sym-Cond algo for uA2MeV
+      from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LAruA2MeVMC_LAruA2MeVSym_ as LAruA2MeVSymAlg
+      condSeq+=LAruA2MeVSymAlg(ReadKey="LAruA2MeV",WriteKey="LAruA2MeVSym")
       
       #2. DAC2uA
       addLArFolder ('LAR_ONL', 'DAC2uA', 'LArDAC2uAMC')
+      #Schedule Sym-Cond algo for DACuA
+      from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArDAC2uAMC_LArDAC2uASym_ as LArDAC2uASymAlg
+      condSeq+=LArDAC2uASymAlg(ReadKey="LArDAC2uA",WriteKey="LArDAC2uASym")
 
       #3. Pedestal
       addLArFolder ('LAR_ONL', 'Pedestal', 'LArPedestalComplete',
@@ -281,4 +306,6 @@ if larCondFlags.LoadElecCalib():
                             'LArShapeComplete', selection)
           pass
       pass
+   else:
+      print "In SuperCell case... so far will not initialise folders."   
   pass

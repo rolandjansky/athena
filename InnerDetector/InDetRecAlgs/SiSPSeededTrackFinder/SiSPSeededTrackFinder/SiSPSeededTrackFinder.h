@@ -8,7 +8,7 @@
 #ifndef SiSPSeededTrackFinder_H
 #define SiSPSeededTrackFinder_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
@@ -24,6 +24,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <atomic>
 #include <string>
 
 //class SpacePointContainer;
@@ -32,7 +33,7 @@ namespace InDet {
   // Class-algorithm for track finding in Pixels and SCT
   // initiated by space points seeds
   // 
-  class SiSPSeededTrackFinder : public AthAlgorithm 
+  class SiSPSeededTrackFinder : public AthReentrantAlgorithm 
   {
     
     ///////////////////////////////////////////////////////////////////
@@ -47,10 +48,12 @@ namespace InDet {
 
     SiSPSeededTrackFinder(const std::string &name, ISvcLocator *pSvcLocator);
     virtual ~SiSPSeededTrackFinder() = default;
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
+    virtual StatusCode finalize() override;
 
+    /** Make this algorithm clonable. */
+    virtual bool isClonable() const override { return true; };
 
   protected:
 
@@ -59,7 +62,7 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
      
     enum ECounter {kNSeeds, kNTracks, kNCounter};
-    class Counter_t : public std::array<int, kNCounter> 
+    class Counter_t : public std::array<std::atomic_int, kNCounter> 
     {
     public:
       Counter_t& operator += (const Counter_t& counter) {
@@ -97,12 +100,12 @@ namespace InDet {
 
     Trk::MagneticFieldProperties m_fieldprop;
 
-    Counter_t m_counterTotal{};
+    mutable Counter_t m_counterTotal ATLAS_THREAD_SAFE {};
 
-    int m_neventsTotal{0}; // Number events 
-    int m_neventsTotalV{0}; // Number events 
-    int m_problemsTotal{0}; // Numbe revents with number seeds > maxNumber
-    int m_problemsTotalV{0}; // Numbe revents with number seeds > maxNumber
+    mutable std::atomic_int m_neventsTotal{0}; // Number events 
+    mutable std::atomic_int m_neventsTotalV{0}; // Number events 
+    mutable std::atomic_int m_problemsTotal{0}; // Numbe revents with number seeds > maxNumber
+    mutable std::atomic_int m_problemsTotalV{0}; // Numbe revents with number seeds > maxNumber
 
     // For new strategy reconstruction
     //
@@ -118,7 +121,7 @@ namespace InDet {
      */
     MsgStream& dump(MSG::Level lvl, const SiSPSeededTrackFinder::Counter_t*) const;
 
-    bool isGoodEvent() const;
+    bool isGoodEvent(const EventContext& ctx) const;
     double trackQuality(const Trk::Track*) const;
     void filterSharedTracks(std::multimap<double, Trk::Track*>&) const;
     void fillZHistogram(const Trk::Track* Tr,
@@ -131,8 +134,8 @@ namespace InDet {
                      std::vector<int>& nhistogram,
                      std::vector<double>& zhistogram,
                      std::vector<double>& phistogram) const;
-    StatusCode oldStrategy();
-    StatusCode newStrategy();
+    StatusCode oldStrategy(const EventContext& ctx) const;
+    StatusCode newStrategy(const EventContext& ctx) const;
     void magneticFieldInit();
 
     MsgStream& dumptools(MsgStream& out) const;

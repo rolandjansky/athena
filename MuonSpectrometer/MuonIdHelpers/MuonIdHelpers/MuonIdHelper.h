@@ -148,6 +148,9 @@ class MuonIdHelper : public AtlasDetectorID
 
   void print(const Identifier& id) const;
 
+  // Check whether helper is fully initialized  
+  bool isInitialized() const;
+
   ///////////// compact identifier stuff begins /////////////////////////////////
 
  public:
@@ -344,7 +347,7 @@ class MuonIdHelper : public AtlasDetectorID
  protected:
   mutable MsgStream *m_Log;
   inline virtual void create_mlog() const;
-
+  bool m_init;
 };
 
 // For backwards compatibility
@@ -606,36 +609,33 @@ inline int MuonIdHelper::technologyIndex(const std::string& name) const
 inline const std::string& MuonIdHelper::stationNameString(const int& index) const
 {
   assert ( index >= 0 && index <= stationNameIndexMax() );
-  static std::string name;
   if ( index >= 0 && index <= stationNameIndexMax() ) {
-    name = m_stationNameVector[index];
-    if (name.empty()) {
-      name = BAD_NAME;
+    if (!m_stationNameVector[index].empty()) {
+      return m_stationNameVector[index];
     }
-  } else {
-    name = BAD_NAME;
   }
-  return name;
+  return BAD_NAME;
 }
 /*******************************************************************************/
 inline const std::string& MuonIdHelper::technologyString(const int& index) const
 {
   assert ( index >= 0 && index <= technologyNameIndexMax() );
-  static std::string name;
   if (index >= 0 && index <= technologyNameIndexMax()) {
-    name = m_technologyNameVector[index];
-    if (name.empty()) {
-      name = BAD_NAME;
+    if (!m_technologyNameVector[index].empty()) {
+      return m_technologyNameVector[index];
     }
-  } else {
-    name = BAD_NAME;
   }
-  return name;
+  return BAD_NAME;
 }
 /*******************************************************************************/
 inline int MuonIdHelper::nStationNames() const
 {
   return (int)m_isSmall.size();
+}
+/*******************************************************************************/
+inline bool MuonIdHelper::isInitialized() const
+{
+  return m_init;
 }
 /*******************************************************************************/
 #endif // DETECTORDESCRIPTION_MUONIDHELPER_H

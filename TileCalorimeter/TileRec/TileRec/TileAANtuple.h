@@ -22,6 +22,7 @@
 ///    TileRawChannelContainerFit       key of fit filtered RawChannels in TDS
 ///    TileRawChannelContainerFitCool   key of fit filtered RawChannels in TDS
 ///    TileRawChannelOF1                key of OF1 filtered RawChannels in TDS
+///    TileRawChannelWiener             key of Wiener filtered RawChannels in TDS
 ///    TileLaserObject         string   key of Laser Object in TDS
 ///    CalibrateEnergy         bool     If calibration should be applied to energy
 ///    CalibMode               bool     If data is in calibration mode (bi-gain input)
@@ -300,6 +301,11 @@ class TileAANtuple : public AthAlgorithm {
       float m_chi2MF[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
       float m_pedMF[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
 
+      float m_eWiener[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_tWiener[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_pedWiener[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+      float m_chi2Wiener[N_ROS2][N_MODULES][N_CHANS] = {{{0}}};
+
       short m_ROD_GlobalCRC[N_ROS][N_MODULES] = {{0}};
       short m_ROD_BCID[N_ROS][N_MODULES] = {{0}};
       short m_ROD_DMUBCIDErr[N_ROS][N_MODULES][N_DMUS] = {{{0}}};
@@ -328,6 +334,8 @@ class TileAANtuple : public AthAlgorithm {
     };
     std::unique_ptr<Arrays> m_arrays;
 
+    bool m_qdctimeout;
+    bool m_tdctimeout;
     int m_daqtype;
     int m_nBadDr;
     int m_nBadHV;
@@ -347,6 +355,7 @@ class TileAANtuple : public AthAlgorithm {
     SG::ReadHandleKey<TileRawChannelContainer> m_dspRawChannelContainerKey;
     SG::ReadHandleKey<TileRawChannelContainer> m_mfRawChannelContainerKey;
     SG::ReadHandleKey<TileRawChannelContainer> m_of1RawChannelContainerKey;
+    SG::ReadHandleKey<TileRawChannelContainer> m_wienerRawChannelContainerKey;
     SG::ReadHandleKey<TileLaserObject> m_laserObjectKey;
     SG::ReadHandleKey<TileRawChannelContainer> m_tileMuRcvRawChannelContainerKey; // TMDB
     SG::ReadHandleKey<TileDigitsContainer> m_tileMuRcvDigitsContainerKey; // TMDB

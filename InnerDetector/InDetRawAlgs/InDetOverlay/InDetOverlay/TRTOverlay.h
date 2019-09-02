@@ -45,10 +45,10 @@ private:
 
   const TRT_ID *m_trtId{};
 
-  SG::ReadHandleKey<TRT_RDO_Container> m_bkgInputKey{this, "BkgInputKey", "OriginalEvent_SG+TRT_RDOs"," ReadHandleKey for Background Input TRT_RDO_Container"};
-  SG::ReadHandleKey<TRT_RDO_Container> m_signalInputKey{this, "SignalInputKey", "BkgEvent_0_SG+TRT_RDOs", "ReadHandleKey for Signal Input TRT_RDO_Container"};
-  SG::WriteHandleKey<TRT_RDO_Container> m_outputKey{this, "OutputKey", "StoreGateSvc+TRT_RDOs", "WriteHandleKey for Output TRT_RDO_Container"};
-  SG::ReadHandleKey<InDetSimDataCollection> m_signalInputSDOKey{this, "SignalInputSDOKey", "BkgEvent_0_SG+TRT_SDO_Map", "ReadHandleKey for Signal Input InDetSimDataCollection for TRT"};
+  SG::ReadHandleKey<TRT_RDO_Container> m_bkgInputKey{this, "BkgInputKey", "Bkg_TRT_RDOs"," ReadHandleKey for Background Input TRT_RDO_Container"};
+  SG::ReadHandleKey<TRT_RDO_Container> m_signalInputKey{this, "SignalInputKey", "Sig_TRT_RDOs", "ReadHandleKey for Signal Input TRT_RDO_Container"};
+  SG::WriteHandleKey<TRT_RDO_Container> m_outputKey{this, "OutputKey", "TRT_RDOs", "WriteHandleKey for Output TRT_RDO_Container"};
+  SG::ReadHandleKey<InDetSimDataCollection> m_signalInputSDOKey{this, "SignalInputSDOKey", "Sig_TRT_SDO_Map", "ReadHandleKey for Signal Input InDetSimDataCollection for TRT"};
 
   BooleanProperty m_includeBkg { this, "includeBkg", true, "Include Background RDO Container" };
 

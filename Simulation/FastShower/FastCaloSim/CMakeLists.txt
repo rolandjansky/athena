@@ -27,7 +27,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           Simulation/FastShower/FastCaloSimAthenaPool
                           PRIVATE
-                          Calorimeter/CaloTrackingGeometry
                           Control/AthAllocators
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/AtlasDetDescr
@@ -98,4 +97,4 @@ atlas_install_joboptions( share/*.py )
 atlas_add_test( FastShowerCellBuilderTool_test
   SCRIPT test/FastShowerCellBuilderTool_test.sh
   PROPERTIES TIMEOUT 600
-  EXTRA_PATTERNS "Reading file|FastCaloSimFactory|FileName|default:|DATAPATH|Cache alignment|map from|Database being retired|Resolved path|^Domain|HepPDT Version|from file" )
+  EXTRA_PATTERNS "Reading file|FastCaloSimFactory|FileName|default:|DATAPATH|Cache alignment|map from|Database being retired|Resolved path|^Domain|HepPDT Version|from file|AtlasTracking.* INFO|CaloTra.* INFO" )

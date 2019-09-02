@@ -1,21 +1,21 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/**
  **
- **   File:         ReadCards.cxx        
+ **   @file         ReadCards.cxx        
  **
- **   Description:  This is a *good* parser. It now seems to parse 
+ **                 This is a *good* parser. It now seems to parse 
  **                 quite well, and is quite neatly coded.   
  ** 
- **   Author:       M.Sutton    
+ **   @author       M.Sutton    
  **
- **   Created:      Tue Apr 26 13:44:42 CEST 2005
- **   Modified:     Sat Mar 18 10:09:14 GMT 2006
+ **   @date         Tue Apr 26 13:44:42 CEST 2005
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
+
+
 #include <string>
 #include <algorithm>
 
@@ -34,12 +34,12 @@ std::vector<std::string> ReadCards::mPath;
 /** set up the search path for the config files
  **/
 
-#ifdef _DIR_
+#ifdef  RESPLOTDIR_TMP
 #define SREPLACE(s) REPLACE(s)
 #define REPLACE(s) #s
-#define __DIR__ SREPLACE(_DIR_)
+#define RESPLOTDIR  SREPLACE(RESPLOTDIR_TMP)
 #else
-#define __DIR__ ""
+#define RESPLOTDIR ""
 #endif
 
 void ReadCards::CreatePath() { 
@@ -51,12 +51,12 @@ void ReadCards::CreatePath() {
     }
   }
   mPath.push_back("");
-  mPath.push_back(std::string(__DIR__)+"/");
+  mPath.push_back(std::string( RESPLOTDIR )+"/");
   //  for ( int i=0 ; i<mPath.size() ; i++ )   cout << "ReadCards>>CreatePath() mPath[" << i << "]=" << mPath[i] << endl;
 }
 
 
-/** check for file in cwd or if not, check in the __DIR__, then read the file
+/** check for file in cwd or if not, check in the RESPLOTDIR, then read the file
  **/
 
 void ReadCards::Construct(const std::string& filename) {
@@ -78,12 +78,12 @@ void ReadCards::Construct(const std::string& filename) {
 
   int pid = getpid();
 
-  char tfile[256];
+  char tfile[1024];
 
   if ( mFileName.find("/")==std::string::npos ) std::sprintf( tfile, ".readcards-%s-%d", mFileName.c_str(), pid );
   else                                          std::sprintf( tfile, ".readcards-%d", pid );
 
-  char cmd[512];
+  char cmd[2056];
   std::sprintf( cmd, "cpp -I. -P %s > %s", mFileName.c_str(), tfile );
 
   std::system( cmd );

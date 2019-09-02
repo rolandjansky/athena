@@ -20,6 +20,29 @@ cluster_list = [
 
 
 ]
+
+cluster_list_photon = [
+    {'name': 'clusterUnconvPhoton', 'title': 'Clusters Unconverted Photons'},
+    {'name': 'clusterConvPhoton', 'title': 'Clusters Converted Photons'},
+    {'name': 'clusterConvPhotonSi', 'title': 'Clusters Converted Photons - Si'},
+    {'name': 'clusterConvPhotonSiSi', 'title': 'Clusters Converted Photons - SiSi'},
+    {'name': 'clusterConvPhotonTRT', 'title': 'Clusters Converted Photons - TRT'},
+    {'name': 'clusterConvPhotonTRTTRT', 'title': 'Clusters Converted Photons - TRTTRT'},
+    {'name': 'clusterConvPhotonSiTRT', 'title': 'Clusters Converted Photons - SiTRT'},
+]
+
+photon_cluster_list = [
+     {'name': 'clusterUnconvPhoton', 'title': 'Clusters Unconverted Photons'},
+    {'name': 'clusterConvPhoton', 'title': 'Clusters Converted Photons'},
+    {'name': 'clusterConvPhotonSi', 'title': 'Clusters Converted Photons - Si'},
+    {'name': 'clusterConvPhotonSiSi', 'title': 'Clusters Converted Photons - SiSi'},
+    {'name': 'clusterConvPhotonTRT', 'title': 'Clusters Converted Photons - TRT'},
+    {'name': 'clusterConvPhotonTRTTRT', 'title': 'Clusters Converted Photons - TRTTRT'},
+    {'name': 'clusterConvPhotonSiTRT', 'title': 'Clusters Converted Photons - SiTRT'},
+
+]
+
+
 electron_comparison_list = [
     {'name': 'showerShapesAll', 'title': 'Shower Shape - Inclusive'},
     {'name': 'showerShapes10GeV', 'title': 'Shower Shape - 10 GeV'},
@@ -119,24 +142,53 @@ def make_comparison_plots(type, f_base, f_nightly, result_file):
         for histo in get_key_names(f_nightly, folder['name']):
             h_base = f_base.Get(folder['name'] + '/' + histo)
             h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+            if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue
             make_ratio_plot(h_base, h_nightly, folder['title'], result_file)
 
 
-def make_profile_plots(f_base, f_nightly, result_file):
 
-    for i, folder in enumerate(cluster_list):
+def makeIQEPlots(inHist, name):
+    outHist = inHist.QuantilesX(0.75, "EResolution_IQE_mu")
+    outHist.GetXaxis().SetTitle("<#mu>")
+    outHist.GetYaxis().SetTitle("IQE")
+    outHist25 = inHist.QuantilesX(0.25, "EResolutio_IQE_mu_25")
+    outHist.Add(outHist25, -1)
+    outHist.Scale(1/1.349)
+    
+    return outHist.Clone(inHist.GetName() + "_"+ name)
+
+
+
+
+def make_profile_plots(f_base, f_nightly, result_file, particle_type):
+
+    cluster_list_to_loop = cluster_list
+
+    if particle_type == "gamma": cluster_list_to_loop = cluster_list + cluster_list_photon
+
+    for i, folder in enumerate(cluster_list_to_loop):
         for histo in get_key_names(f_nightly, folder['name']):
-            print(histo)
             if '2D' not in histo:
                 continue
-            h_base = f_base.Get(folder['name'] + '/' + histo)
-            h_base_profile = h_base.ProfileX(histo+"_ProfileB")
-            h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
-            h_nightly_profile = h_nightly.ProfileX(histo+"_Profile")
-            h_base_profile.SetDirectory(0)
-            h_nightly_profile.SetDirectory(0)
+            if 'mu' in histo:
+              h_base = f_base.Get(folder['name'] + '/' + histo)
+              h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+              if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue
+              h_base = makeIQEPlots(h_base,'IQE')
+              h_nightly = makeIQEPlots(h_nightly,'IQE')
+              make_ratio_plot(h_base, h_nightly, folder['title'], result_file, 'IQE')
 
-            make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, "Mean E_{raw}/E_{truth}")
+            else: 
+              h_base = f_base.Get(folder['name'] + '/' + histo)
+              h_base_profile = h_base.ProfileX(histo+"_ProfileB")
+              h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+              h_nightly_profile = h_nightly.ProfileX(histo+"_Profile")
+              h_base_profile.SetDirectory(0)
+              h_nightly_profile.SetDirectory(0)
+              if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue 
+              y_axis_label = "Mean %s" % (h_base_profile.GetTitle() )
+              h_base_profile.SetTitle("")
+              make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, y_axis_label)
 
 
 
@@ -317,7 +369,7 @@ if __name__ == '__main__':
 
     make_comparison_plots(particle_type, baseline_file, nightly_file, output_file)
 
-    make_profile_plots(baseline_file, nightly_file, output_file)
+    make_profile_plots(baseline_file, nightly_file, output_file, particle_type)
 
 
     if particle_type == 'gamma':

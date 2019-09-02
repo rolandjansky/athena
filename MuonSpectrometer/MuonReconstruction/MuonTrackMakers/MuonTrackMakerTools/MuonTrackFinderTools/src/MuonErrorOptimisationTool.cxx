@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes
@@ -15,7 +15,7 @@
 #include "MuonErrorOptimisationTool.h"
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecToolInterfaces/IMuonRefitTool.h"
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
@@ -26,7 +26,6 @@ namespace Muon {
   MuonErrorOptimisationTool::MuonErrorOptimisationTool( const std::string& ty,const std::string& na,const IInterface* pa) : 
     AthAlgTool(ty,na,pa),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"), 
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
     m_refitTool("Muon::MuonRefitTool/MuonRefitTool"),
@@ -42,7 +41,6 @@ namespace Muon {
     m_nbetterFit(0)
   {
     declareProperty("Printer", m_printer );
-    declareProperty("Helper", m_helper );
     declareProperty("IdHelper", m_idHelper );
     declareProperty("TrackSummeryTool", m_trackSummaryTool );
     declareProperty("RefitTool",m_refitTool ); 
@@ -71,7 +69,7 @@ namespace Muon {
     ATH_MSG_INFO( "Initializing MuonErrorOptimisationTool" );
     
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
     ATH_CHECK( m_trackSummaryTool.retrieve() );
     if( !m_refitTool.empty() ) ATH_CHECK( m_refitTool.retrieve() );
@@ -119,7 +117,7 @@ namespace Muon {
     if( refittedTrack ){
     
       // check whether it is ok
-      if( !m_helper->goodTrack(*refittedTrack,m_chi2NdofCutRefit) ) {
+      if( !m_edmHelperSvc->goodTrack(*refittedTrack,m_chi2NdofCutRefit) ) {
 	ATH_MSG_VERBOSE("Precise fit bad " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
 	
 	// if not delete track
@@ -142,7 +140,7 @@ namespace Muon {
       if( refittedTrack ) {
       
         // check whether it is ok
-        if( !m_helper->goodTrack(*refittedTrack,m_chi2NdofCutRefit) ) {
+        if( !m_edmHelperSvc->goodTrack(*refittedTrack,m_chi2NdofCutRefit) ) {
           ATH_MSG_VERBOSE("Loose fit bad " << std::endl << m_printer->print(*refittedTrack) << std::endl << m_printer->printStations(*refittedTrack));
           // if not delete track
           result2 = refittedTrack != &track ? refittedTrack : 0;

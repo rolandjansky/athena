@@ -3,12 +3,10 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaCommon import Logging
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
 from SiLorentzAngleTool.SiLorentzAngleToolConf import SCTSiLorentzAngleCondAlg
 from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
 from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsToolCfg
 from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
 
 def SCT_LorentzAngleToolCfg(flags, name="SCT_LorentzAngleTool", **kwargs):

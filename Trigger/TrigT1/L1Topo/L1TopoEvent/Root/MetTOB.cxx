@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  MetTOB.cpp
 //  TopoCore
@@ -10,9 +10,9 @@
 unsigned int TCS::MetTOB::fg_instances = 0;
 TCS::Heap<TCS::MetTOB> TCS::MetTOB::fg_heap("Met");
 
-unsigned int TCS::MetTOB::g_nBitsEx = 15;
-unsigned int TCS::MetTOB::g_nBitsEy = 15;
-unsigned int TCS::MetTOB::g_nBitsEt = 15;
+const unsigned int TCS::MetTOB::g_nBitsEx = 15;
+const unsigned int TCS::MetTOB::g_nBitsEy = 15;
+const unsigned int TCS::MetTOB::g_nBitsEt = 15;
 
 // default constructor
 TCS::MetTOB::MetTOB() : BaseTOB(0) {

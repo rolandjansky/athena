@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloFillRectangularCluster.h,v 1.7 2009-04-25 17:57:00 ssnyder Exp $
@@ -48,7 +48,6 @@
 namespace CaloClusterCorr {
 class SamplingHelper;
 }
-//class StoreGateSvc;
 //class CaloCluster;
 class CaloCell;
 class CaloCellContainer;
@@ -93,17 +92,16 @@ public:
 
   /*
    * @brief Return the seed position of a cluster.
+   * @param helper Sampling calculation helper object.
    * @param cluster The cluster on which to operate.
-   * @param max_et_cell The cell with the largest energy
-   *  (of those being considered for inclusion in the cluster).
    * @param[out] eta The @f$\eta@f$ location of the cluster seed.
    * @param[out] phi The @f$\phi@f$ location of the cluster seed.
    *
    * The cluster seed is the center of rectangular cluster windows.
    * This may be overridden by derived classes to change the seed definition.
    */
-  virtual void get_seed (const xAOD::CaloCluster* cluster,
-                         const CaloCell* max_et_cell,
+  virtual void get_seed (CaloClusterCorr::SamplingHelper& helper,
+                         const xAOD::CaloCluster* cluster,
                          double& eta, double& phi) const;
 
 
@@ -112,6 +110,27 @@ public:
    * @param name The new container name.
    */
   virtual StatusCode setCaloCellContainerName (const std::string& name) override;
+
+
+  /// Holds the per-layer window sizes.
+  typedef std::array<std::pair<double, double>, 4> WindowArray_t;
+
+
+  /** 
+   * @brief Set up layer-by-layer cluster window sizes.
+   * @param neta Cluster eta size.
+   * @param nphi Cluster phi size.
+   * @param detas2 Middle layer cell eta size.
+   * @param detas2 Middle layer cell phi size.
+   *
+   * Returns per-layer array of deta,dphi pairs.
+   */
+  virtual
+  WindowArray_t initWindows (const int neta,
+                             const int nphi,
+                             const double detas2,
+                             const double dphis2) const;
+
 
 
 private:
@@ -145,10 +164,6 @@ private:
 
 
 protected:
-  /// middle layer  cell segmentation size 
-  double m_detas2;
-  double m_dphis2;
-
   /// Cell window sizes in each sampling.
   double m_deta0, m_deta1, m_deta2, m_deta3;
   double m_dphi0, m_dphi1, m_dphi2, m_dphi3;

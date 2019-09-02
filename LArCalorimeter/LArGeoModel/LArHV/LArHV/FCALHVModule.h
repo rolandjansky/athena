@@ -1,64 +1,48 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef FCALHVMODULE_H_HEADER_INCLUDED_B6E380D9
-#define FCALHVMODULE_H_HEADER_INCLUDED_B6E380D9
-class HECHVModule;
-class HECHVManager;
+#ifndef LARHV_FCALHVMODULE_H
+#define LARHV_FCALHVMODULE_H
+
 class FCALHVManager;
-#include "GeoModelKernel/ConstLink.h"
-#include "GeoModelKernel/RCBase.h"
-#include "LArHV/FCALHVLineConstLink.h"
+class FCALHVLine;
 
-//##ModelId=47ABB2AD00A4
-class FCALHVModule : public RCBase
+/**
+ * @class FCALHVModule
+ * 
+ * @brief Describes one HV Module within the FCAL
+ *
+ * It owns the pointers to HV Lines
+ */
+
+class FCALHVModule
 {
-  public:
-    //##ModelId=47ABB2AD00A9
-    FCALHVModule(const FCALHVManager *manager, unsigned int iSide, unsigned int iSector, unsigned int iSampling);
+ public:
+  FCALHVModule(const FCALHVManager *manager
+	       , unsigned int iSide
+	       , unsigned int iSector
+	       , unsigned int iSampling);
+  ~FCALHVModule();
 
-    // Side Index (0=Negative, 1=Positive)
-    //##ModelId=47ABB2AD00B2
-    unsigned int getSideIndex() const;
+  // Side Index (0=Negative, 1=Positive)
+  unsigned int getSideIndex() const;
 
-    // Get eta Index
-    //##ModelId=47ABB2AD00B4
-    unsigned int getSamplingIndex() const;
+  unsigned int getSamplingIndex() const;
+  unsigned int getSectorIndex() const;
 
-    // Get sector index
-    //##ModelId=47ABB2AD00B6
-    unsigned int getSectorIndex() const;
+  unsigned int getNumHVLines() const;
 
-    // Get num electrodes
-    //##ModelId=47ABB2AD00B8
-    unsigned int getNumHVLines() const;
+  const FCALHVLine& getHVLine(unsigned int iLine) const;
+  
+  const FCALHVManager& getManager() const;
 
-    // Gets an electrode
-    //##ModelId=47ABB2AD00BA
-    FCALHVLineConstLink getHVLine(unsigned int iLine) const;
+ private:
+  FCALHVModule(const FCALHVModule& right);
+  FCALHVModule& operator=(const FCALHVModule& right);
 
-    //##ModelId=47ABB3E7009B
-    const FCALHVManager *getManager() const;
-
-  private:
-    // Destructor
-    //##ModelId=47ABB2AD00BD
-    virtual ~FCALHVModule();
-
-    // Illegal operation
-    //##ModelId=47ABB2AD00BF
-    FCALHVModule(const FCALHVModule& right);
-
-    // Illegal operation
-    //##ModelId=47ABB2AD00C1
-    FCALHVModule& operator=(const FCALHVModule& right);
-
-    class Clockwork;
-    Clockwork *m_c;
-
+  class Clockwork;
+  Clockwork *m_c;
 };
 
-
-
-#endif /* FCALHVMODULE_H_HEADER_INCLUDED_B6E380D9 */
+#endif

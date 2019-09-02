@@ -33,7 +33,7 @@ public:
   JetVoronoiMomentsTool(const std::string& name);
 
   // Inherited methods to modify a jet container
-  virtual int modify(xAOD::JetContainer& jets) const;
+  virtual StatusCode modify(xAOD::JetContainer& jets) const;
   virtual int modifyJet(xAOD::Jet& jet) const;
 
 private:

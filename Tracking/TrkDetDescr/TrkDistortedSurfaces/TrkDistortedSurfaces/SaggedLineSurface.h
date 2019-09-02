@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -72,8 +72,8 @@ namespace Trk {
 
    protected:
 
-     LineSaggingDescriptor*         m_saggingDescriptor; //!< the distortion descriptor
-     mutable Amg::Vector3D*         m_lineDirection;     //!< nominal end position
+     LineSaggingDescriptor*                         m_saggingDescriptor; //!< the distortion descriptor
+     CxxUtils::CachedUniquePtrT<Amg::Vector3D>      m_lineDirection;     //!< nominal end position
  
   };
  

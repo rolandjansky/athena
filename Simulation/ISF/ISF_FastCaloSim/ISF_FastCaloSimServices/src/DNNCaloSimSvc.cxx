@@ -578,7 +578,7 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
 	
       }
     }
-    else if((sampling == 2)) {
+    else if(sampling == 2) {
       if ((range.diff(phi_raw , phiRawImpactCell) < m_phiRawMiddleCut) && (range.diff(phi_raw, phiRawImpactCell) > - m_phiRawMiddleCut)) {
 	       if ((eta_raw < etaRawImpactCell + m_etaRawMiddleCut) && (eta_raw > etaRawImpactCell - m_etaRawMiddleCut)) {
 	         nSqCuts ++;

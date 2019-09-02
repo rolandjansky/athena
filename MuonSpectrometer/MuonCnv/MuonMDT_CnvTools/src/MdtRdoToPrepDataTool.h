@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,13 +26,11 @@ class AtlasDetectorID;
 class Identifier;
 class MdtIdHelper;
 class MdtDigit;
-class MdtCalibrationSvc;
+class MdtCalibrationTool;
 class MdtCalibrationSvcSettings;
 class MdtCalibHit;
 //class MdtRDO_Decoder;
 class MdtCsm;
-class StoreGateSvc;
-//class MdtCalibrationDbSvc; //TWIN TUBES
 
 
 namespace MuonGM
@@ -122,7 +120,7 @@ namespace Muon
     const MdtIdHelper * m_mdtHelper;
         
     /// MDT calibration service
-    MdtCalibrationSvc* m_calibrationSvc;
+    ToolHandle<MdtCalibrationTool> m_calibrationTool;
     MdtCalibrationSvcSettings* m_mdtCalibSvcSettings; 
     MdtCalibHit* m_calibHit;
     double m_invSpeed;
@@ -157,7 +155,6 @@ namespace Muon
     bool   m_use1DPrepDataTwin;
     bool   m_twinCorrectSlewing;
     bool   m_discardSecondaryHitTwin;
-    //  const MdtCalibrationDbSvc* m_dbSvc;
     int m_twin_chamber[2][3][36];
     int m_secondaryHit_twin_chamber[2][3][36];
     // - TWIN TUBE

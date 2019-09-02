@@ -69,6 +69,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    * Retrieved from CVMFS XML, EventInfo (MC) or fetched from TRIG1 dAOD
    */
    virtual double getEBWeight(const xAOD::EventInfo* eventInfo) const override;
+   virtual double getEBWeight(const EventContext& context) const override;
 
   /**
    * @return The amount of online walltime contributed by this event 
@@ -77,6 +78,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    * Retrieved from COOL and CVMFS XML or fetched from TRIG1 dAOD
    */
    virtual double getEBLiveTime(const xAOD::EventInfo* eventInfo) const override;
+   virtual double getEBLiveTime(const EventContext& context) const override;
 
   /**
    * @return the instantaneous luminosity for the current event in units of cm-2s-1.
@@ -85,6 +87,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    * Retrieved from CVMFS XML or fetched from TRIG1 dAOD
    */
    virtual double getLBLumi(const xAOD::EventInfo* eventInfo) const override;
+   virtual double getLBLumi(const EventContext& context) const override;
 
   /**
    * @return The mean luminosity of all events seen
@@ -131,6 +134,7 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    * Retrieved from CVMFS XML or fetched from TRIG1 dAOD
    */
    virtual bool isGoodLB(const xAOD::EventInfo* eventInfo) const override; 
+   virtual bool isGoodLB(const EventContext& context) const override; 
 
   /**
    * @brief Parse a presscale XML and return a ordered summary of its content
@@ -144,12 +148,13 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
     StatusCode loadWeights(); //!< Read into memory from XML event weights for this EnhancedBias run.
     StatusCode loadLumi(); //!< Read into memory this EnhancedBias run's XML
     StatusCode trackAverages(const xAOD::EventInfo* eventInfo) const; //!< Internal function to keep track of the mean instantaneous lumi & mean pileup of the EB/MC sample being processed.
-
+    StatusCode trackAverages(const EventContext& context) const;
     /**
      * @return Internal mapping of an event number to a weight ID.
      * Retrieved from CVMFS XML or fetched from TRIG1 dAOD
      */
     int32_t getEventEBID(const xAOD::EventInfo* eventInfo) const; 
+    int32_t getEventEBID(const EventContext& context) const; 
 
     ToolHandle<Trig::IBunchCrossingTool> m_bcTool; //!< Tool to get distance into bunch train
 

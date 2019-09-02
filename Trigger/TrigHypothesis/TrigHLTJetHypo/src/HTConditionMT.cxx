@@ -3,7 +3,7 @@
 */
 
 #include "./HTConditionMT.h"
-#include "./IConditionVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 
 #include <sstream>
@@ -16,7 +16,7 @@ HTConditionMT::HTConditionMT(double htMin): m_htMin(htMin){
 
 
 bool HTConditionMT::isSatisfied(const HypoJetVector& ips,
-                                std::unique_ptr<IConditionVisitor>&) const {
+                                const std::unique_ptr<ITrigJetHypoInfoCollector>&) const {
   return std::accumulate(ips.begin(),
                          ips.end(),
                          0.0,

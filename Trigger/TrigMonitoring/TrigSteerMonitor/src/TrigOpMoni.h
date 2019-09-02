@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSTEERMONITOR_TRIGOPMONI_H
@@ -18,7 +18,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "EventInfo/EventID.h"  /* number_type */
 #include "AthenaKernel/IOVRange.h"
-#include "LumiBlockComps/ILuminosityTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LumiBlockData/LuminosityCondData.h"
 #include <map>
 #include <string>
 
@@ -81,9 +82,11 @@ private:
   bool  m_SubDetHistFilled{false};
 
   ServiceHandle<IJobOptionsSvc>       m_JobOptionsSvc;
-  ToolHandle<ILuminosityTool>         m_lumiTool; 
   MagField::IMagFieldSvc*             m_MagFieldSvc{0};  
   IIOVDbSvc*                          m_IOVDbSvc{0};
+
+  SG::ReadCondHandleKey<LuminosityCondData> m_luminosityCondDataKey
+  { this, "LuminosityCondDataKey", "LuminosityCondData", "", };
 
   TrigMonGroup m_monGroup;
   

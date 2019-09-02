@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 
 # This module is based upon Control/AthenaCommon/python/DetFlags.py

@@ -630,6 +630,12 @@ namespace InDetDD {
         }
     }
 
+    bool TRT_DetectorManager::processSpecialAlignment(const std::string& /*key*/,
+                                                      const CondAttrListCollection* /*obj*/,
+                                                      GeoVAlignmentStore* /*alignStore*/) const {
+      return false;
+    }
+
 
     void TRT_DetectorManager::setConditions(TRT_Conditions * conditions)
     {

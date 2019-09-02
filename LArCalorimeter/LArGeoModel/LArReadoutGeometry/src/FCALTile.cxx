@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/FCALTile.h"
@@ -12,7 +12,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
-// Class FCALTile 
 
 FCALTile::FCALTile(const FCALTile &right)
   :m_module(right.m_module),m_tile(right.m_tile)
@@ -80,13 +79,13 @@ unsigned int FCALTile::getNumHVLines() const {
   return 4;
 }
 
-const FCALHVLineConstLink & FCALTile::getHVLine (unsigned int i) const {
+const FCALHVLine* FCALTile::getHVLine (unsigned int i) const {
   if (!m_line[i]) {
     
     for (unsigned int j=0;j<getNumTubes();j++) {
-      unsigned int index=getTube(j)->getHVLine()->getLineIndex();
+      unsigned int index=getTube(j)->getHVLine().getLineIndex();
       if (i==index) { 
-	m_line[i]=getTube(j)->getHVLine();
+	m_line[i]=&(getTube(j)->getHVLine());
 	break;
       }
     }
@@ -156,8 +155,8 @@ FCALTubeConstLink FCALTile::getTube (unsigned int i) const {
 
         //std::cout << " feedNumber, lineNumber " << feedNumber << " " << lineNumber << std::endl;
 	
-	const FCALHVManager *hvManager=getModule()->getManager()->getHVManager();
-	FCALHVModuleConstLink hvMod = hvManager->getHVModule(iSide,hv_moduleNumber,iSampling);
+	const FCALHVManager& hvManager=getModule()->getManager()->getHVManager();
+	const FCALHVModule& hvMod = hvManager.getHVModule(iSide,hv_moduleNumber,iSampling);
 	unsigned int index=0;
 
 	if      (lineNumber%4==0) index=0;
@@ -166,7 +165,7 @@ FCALTubeConstLink FCALTile::getTube (unsigned int i) const {
 	else if (lineNumber%4==3) index=2;
 	else throw std::runtime_error("Error in FCALTile: unrecognized HV Line");
 
-	FCALHVLineConstLink hvElec = hvMod->getHVLine(index);
+	const FCALHVLine& hvElec = hvMod.getHVLine(index);
         //std::cout << " add hvElec for index " << index << "  hvElec= " << hvElec << std::endl;
 	
 	FCALTubeConstLink tubeLink(new FCALTube(this, hvElec, (*t).second.x(),(*t).second.y()));

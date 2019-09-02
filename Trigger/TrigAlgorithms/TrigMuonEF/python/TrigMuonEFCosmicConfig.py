@@ -223,8 +223,7 @@ TMEF_MooTrackFitterCosmic = CfgMgr.Muon__MooTrackFitter("TMEF_MooTrackFitterCosm
                                                    Cosmics = True,   
                                                    Fitter = TMEF_MCTBFitterCosmic,
                                                    FitterPreFit = TMEF_MCTBFitterCosmic,
-                                                   CleanPhiHits = False,
-                                                   FitEtaStrips = True
+                                                   CleanPhiHits = False
                                                    )
 ToolSvc += TMEF_MooTrackFitterCosmic
 
@@ -340,9 +339,9 @@ else:
     from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
     MuidTrackSummaryTool = Trk__TrackSummaryTool(name ="MuidTrackSummaryTool",
                                                  InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-                                                 InDetHoleSearchTool = InDetTrigHoleSearchTool,
-                                                 MuonSummaryHelperTool = MuonTrackSummaryHelperTool,
-                                                 doSharedHits           = False)     
+                                                 MuonSummaryHelperTool  = MuonTrackSummaryHelperTool,
+                                                 doSharedHits           = False,
+                                                 doHolesInDet           = True)
 
 ToolSvc += MuidTrackSummaryTool
 #END SUMMARY TOOL

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCALIBCLUSTERMOMENTSMAKER2_H
@@ -14,7 +14,6 @@
  * This is a CaloClusterCollectionProcessor which can be plugged into
  * a CaloClusterMaker for calculating calibration hit based moments
  * for each CaloCluster. */
-class StoreGateSvc; 
 class CaloDetDescrManager; 
 class CaloDetDescrElement;
 class CaloCell_ID;
@@ -200,8 +199,6 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
   /** ReadHandleKey for truth particle container */
   SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerKey{this,"TruthParticles","TruthParticles","ReadHandleKey for truth particle container"};
   
-  const CaloDetDescrManager* m_calo_dd_man; 
-
   const CaloCell_ID* m_calo_id;
 
   const CaloDM_ID*    m_caloDM_ID;

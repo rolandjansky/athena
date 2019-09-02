@@ -21,7 +21,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 
-#include "TrigMissingETHypo/TrigEFMissingETHypo.h"
+#include "TrigEFMissingETHypo.h"
 
 //#include "TrigCaloEvent/TrigMissingET.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"

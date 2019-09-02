@@ -46,7 +46,7 @@ namespace G4UA
       else if(msgLvl(MSG::WARNING)) { m_config.verboseLevel = MSG::WARNING; }
       else if(msgLvl(MSG::ERROR))   { m_config.verboseLevel = MSG::ERROR;   }
       else if(msgLvl(MSG::FATAL))   { m_config.verboseLevel = MSG::FATAL;   }
-      auto action = CxxUtils::make_unique<PhysicsValidationUserAction>(m_config);
+      auto action = std::make_unique<PhysicsValidationUserAction>(m_config);
       actionList.runActions.push_back( action.get() );
       actionList.eventActions.push_back( action.get() );
       actionList.trackingActions.push_back( action.get() );

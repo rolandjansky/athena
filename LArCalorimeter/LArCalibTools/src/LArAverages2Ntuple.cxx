@@ -6,6 +6,7 @@
 
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -17,6 +18,7 @@ LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSv
   declareProperty("ContainerKey",m_contKey);
   declareProperty("NSamples",m_Nsamples=7);
   declareProperty("KeepOnlyPulsed",m_keepPulsed=true);
+  declareProperty("isSC",m_isSC=false);
   m_ipass=0;
 }
 
@@ -36,7 +38,31 @@ StatusCode LArAverages2Ntuple::initialize()
     return StatusCode::FAILURE;
   }
   
-  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  StatusCode sc;
+  if ( m_isSC ){
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
+
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
+  }
 
   ATH_CHECK( m_cablingKey.initialize() );
   ATH_CHECK( m_calibMapKey.initialize() );
@@ -60,6 +86,7 @@ StatusCode LArAverages2Ntuple::initialize()
   }
 
 
+  ATH_CHECK( nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000) );
   ATH_CHECK( nt->addItem("DAC",m_DAC,0,65535) );
   ATH_CHECK( nt->addItem("isPulsed",m_isPulsed,0,1) );
   ATH_CHECK( nt->addItem("delay",m_delay,0,240) );
@@ -168,6 +195,7 @@ StatusCode LArAverages2Ntuple::execute()
      }
 
      HWIdentifier chid=(*it)->channelID();
+     m_onlChanId = chid.get_identifier32().get_compact();
      m_channel=m_onlineHelper->channel(chid);
      m_slot=m_onlineHelper->slot(chid);
      m_FT=m_onlineHelper->feedthrough(chid);

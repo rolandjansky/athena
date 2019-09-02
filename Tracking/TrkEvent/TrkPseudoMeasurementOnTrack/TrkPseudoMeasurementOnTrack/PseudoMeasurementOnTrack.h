@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ namespace Trk{
       virtual ~PseudoMeasurementOnTrack() override;
 
       //! virtual constructor, not absolutely needed but given for EDM symmetry 
-      virtual PseudoMeasurementOnTrack* clone() const override;
+      virtual PseudoMeasurementOnTrack* clone() const override final;
 
       //! move constructor
       PseudoMeasurementOnTrack(PseudoMeasurementOnTrack&& pmot);
@@ -71,26 +71,31 @@ namespace Trk{
       PseudoMeasurementOnTrack& operator=(PseudoMeasurementOnTrack&& pmot);   
 
       //! returns the surface for the local to global transformation (interface from MeasurementBase)
-      virtual const Surface& associatedSurface() const override;
+      virtual const Surface& associatedSurface() const override final;
 
       //! Test to see if an associated surface exists.
       bool hasSurface() const;
 
       //! returns the global Position (interface from MeasurementBase)
-      virtual const Amg::Vector3D& globalPosition() const override;
+      virtual const Amg::Vector3D& globalPosition() const override final;
+
+      /** Extended method checking the type*/
+       virtual bool type(MeasurementBaseType::Type type) const override final{
+         return (type==MeasurementBaseType::PseudoMeasurementOnTrack);
+       }
 
       //! produces logfile output about its content in MsgStream form. 
-      virtual MsgStream&    dump( MsgStream& out ) const override;
+      virtual MsgStream&    dump( MsgStream& out ) const override final;
       //! produces logfile output about its content in stdout form. 
-      virtual std::ostream& dump( std::ostream& out ) const override;
+      virtual std::ostream& dump( std::ostream& out ) const override final;
 
     protected:
 
       //! holds the surface to which the PMoT is associated. The surface is responsible for the correct local-to-global transformation.
-      mutable const Surface* m_associatedSurface;
+      const Surface* m_associatedSurface;
 
       //! Global position of the PMoT
-      mutable const Amg::Vector3D*  m_globalPosition;
+      const Amg::Vector3D*  m_globalPosition;
   };
 
   inline PseudoMeasurementOnTrack* PseudoMeasurementOnTrack::clone() const 

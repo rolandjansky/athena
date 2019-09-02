@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ManagedMonitorToolTest_H
@@ -9,6 +9,7 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "TRandom3.h"
+#include "CxxUtils/checker_macros.h"
 
 class TH1;
 class TGraph;
@@ -19,7 +20,7 @@ class TH1F_LW;
 class TH2F;
 class TH2F_LW;
 
-class ManagedMonitorToolTest : public ManagedMonitorToolBase
+class ATLAS_NOT_THREAD_SAFE ManagedMonitorToolTest : public ManagedMonitorToolBase
 {
    public:
 
@@ -73,6 +74,11 @@ class ManagedMonitorToolTest : public ManagedMonitorToolBase
       int                m_offset;
       TRandom3           m_gen;
 
+      TEfficiency*       m_efficiency;
+      TEfficiency*       m_managedEfficiency;
+      TEfficiency*       m_managedEfficiencyXLB;
+
+      TGraph*            m_managedGraphXLB;
 };
 
 #endif

@@ -24,9 +24,13 @@
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
-#include "CommissionEvent/ComTime.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "EventPrimitives/EventPrimitives.h"
+#include "xAODEventInfo/EventInfo.h"
+
+#include "StoreGate/ReadHandle.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -46,7 +50,6 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
   m_trt_mgr_location("TRT"),
   m_trt_mgr(0),
   m_trtid(0),
-  m_coll_pll(0),
   m_global_offset(0),
   m_useToTCorrection(false),
   m_useHTCorrection(false),
@@ -111,6 +114,29 @@ InDet::TRT_DriftCircleToolCosmics::TRT_DriftCircleToolCosmics(const std::string&
 InDet::TRT_DriftCircleToolCosmics::~TRT_DriftCircleToolCosmics(){}
 
 ///////////////////////////////////////////////////////////////////
+// Test validity gate
+///////////////////////////////////////////////////////////////////
+bool InDet::TRT_DriftCircleToolCosmics::passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const
+{
+  bool foundInterval = false;
+  unsigned  mask = 0x02000000;
+  int i = 0;
+  while ( !foundInterval && (i < 24) ) {
+    if (word & mask) {
+      float thisTime = ((0.5+i)*3.125)-t0;
+      if (thisTime >= lowGate && thisTime <= highGate) foundInterval = true;
+    }
+    mask >>= 1;
+    if (i == 7 || i == 15) 
+      mask >>= 1;
+    i++;
+  }
+  if (foundInterval) return true;
+  return false;
+}
+
+
+///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
 
@@ -155,7 +181,7 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::initialize()
   }
 
   // Initialize Read handle key
-  ATH_CHECK(m_comTimeName.initialize());
+  ATH_CHECK(m_evtPhaseKey.initialize());
   return sc;
 }
 
@@ -167,28 +193,6 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::finalize()
 {
    StatusCode sc = AthAlgTool::finalize(); return sc;
 }
-///////////////////////////////////////////////////////////////////
-// Test validity gate
-///////////////////////////////////////////////////////////////////
-bool InDet::TRT_DriftCircleToolCosmics::passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const
-{
-  bool foundInterval = false;
-  unsigned  mask = 0x02000000;
-  int i = 0;
-  while ( !foundInterval && (i < 24) ) {
-    if (word & mask) {
-      float thisTime = ((0.5+i)*3.125)-t0;
-      if (thisTime >= lowGate && thisTime <= highGate) foundInterval = true;
-    }
-    mask >>= 1;
-    if (i == 7 || i == 15) 
-      mask >>= 1;
-    i++;
-  }
-  if (foundInterval) return true;
-  return false;
-}
-
 
 ///////////////////////////////////////////////////////////////////
 // Trk::TRT_DriftCircles collection production
@@ -205,19 +209,18 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
     return rio;
   }
 
-  SG::ReadHandle<ComTime> theComTime(m_comTimeName);
+  SG::ReadHandle<ComTime> theComTime(m_evtPhaseKey);
   
 
   	 
-  double timecor=0.;
+  float timecor=0.;
   if (theComTime.isValid()) {
     timecor = theComTime->getTime() + m_global_offset;
-    ATH_MSG_VERBOSE("Retrieved ComTime object with name "
-		    << m_comTimeName<<" found! Time="<<timecor);
+    ATH_MSG_VERBOSE("Retrieved event phase with name "
+		    << theComTime.key() <<" found! Time="<<timecor);
   }else{
-    ATH_MSG_VERBOSE("ComTime object not found with name "<<m_comTimeName<<"!!!");
+    ATH_MSG_VERBOSE("Event phase not found with name "<<theComTime.key()<<"!!!");
     timecor=m_global_offset; // cannot correct drifttime
-    //return rio;
   }
 
   DataVector<TRT_RDORawData>::const_iterator r,rb=rdo->begin(),re=rdo->end(); 
@@ -230,48 +233,20 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
     rio->setIdentifier(rdo->identify());
     rio->reserve( std::distance(rb, re) );
 
-    //In case of real CTB data: 
-    if(m_driftFunctionTool->isTestBeamData()) {
-      //   perform initial loop to find the trigger pll in first layer
-       for(r=rb; r!=re; ++r) {
-          // skip if rdo is not testbeam or cosmic flavor
-          const TRT_TB04_RawData* tb_rdo = dynamic_cast<const TRT_TB04_RawData*>(*r);
-          if(tb_rdo) {
-            Identifier   id  = tb_rdo->identify();
-            // skip if not first layer
-            if(m_trtid->layer_or_wheel(id)) continue;
-            // store the trigger pll first time encountered
-            m_coll_pll = tb_rdo->getTrigType(); 
-          }
-       }
-    }
-
-    ATH_MSG_VERBOSE( " choose timepll for rdo collection: " << m_coll_pll);
 
     // Loop through all RDOs in the collection
     //
+
     for(r=rb; r!=re; ++r) {
 
-      if (!*r) { 
-        ATH_MSG_ERROR(" No RDO pointer! ");
-	continue;
-      }
-
       Identifier   id  = (*r)->identify();
-      int          tdcvalue  = (*r)->driftTimeBin();
-      int          newtdcvalue  = tdcvalue;
-      unsigned int timepll = 0;
-
-      // Fix hardware bug in testbeam
-      if(m_driftFunctionTool->isTestBeamData()) {
-        const TRT_TB04_RawData* tb_rdo = dynamic_cast<const TRT_TB04_RawData*>(*r);
-        if(tb_rdo) timepll = tb_rdo->getTrigType();
-        if(m_coll_pll) {
-          newtdcvalue = tdcvalue - timepll/2 + m_coll_pll/2;
-        }
-        // Increase precision of timing
-        newtdcvalue=2*newtdcvalue+(m_coll_pll%2);
-      }
+      int   LTbin      = (*r)->driftTimeBin(); 
+      bool  isOK       =true;
+      double t0         =0.;
+      double rawTime    = m_driftFunctionTool->rawTime(LTbin);
+      double radius     =0.;
+      double driftTime  =0.;
+      unsigned int word    = (*r)->getWord(); 
 
       //
       //Get straw status
@@ -282,40 +257,38 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
             || (m_ConditionsSummary->getStatusPermanent(id))) {
             strawstat = 0;
          }
+         if(!strawstat) continue;
       }
-
-
-      
-      bool  isOK=true;
-      double t0=0.;
-      double driftTime=0.;
-      double radius=0.;
-      double rawTime   = m_driftFunctionTool->rawTime(newtdcvalue);
-
 
       //correct for phase
       rawTime-=timecor;
+
+      // ToT and HT Corrections            
+
+      bool isArgonStraw=true;
+      if (m_useToTCorrection) rawTime -= m_driftFunctionTool->driftTimeToTCorrection((*r)->timeOverThreshold(), id, isArgonStraw);
+      if (m_useHTCorrection)  rawTime += m_driftFunctionTool->driftTimeHTCorrection(id, isArgonStraw);           
+
       //make tube hit if first bin is high and no later LE appears
-      if( newtdcvalue==0 || newtdcvalue==24 ) {
+      if( LTbin==0 || LTbin==24 ) {
         isOK=false;
       } else {
         radius    = m_driftFunctionTool->driftRadius(rawTime,id,t0,isOK);
         driftTime = rawTime-t0;
       }
 
-      unsigned int word = (*r)->getWord(); 
       if(!isOK) word &= 0xF7FFFFFF; 
       else word |= 0x08000000;
+
 
       //std::vector<Identifier>    dvi // we dont need this                                   ;
       ATH_MSG_VERBOSE( " id " << m_trtid->layer_or_wheel(id)
 	  << " " << m_trtid->straw_layer(id)
 	  << " " << m_trtid->straw(id)
-          << " new time bin  " << newtdcvalue << " old bin " << (*r)->driftTimeBin()
+          << " time bin  " << LTbin
           << " timecor " << timecor
-	  << " old timepll " << timepll  << " new time " << rawTime );
+	  << " corrected time " << rawTime );
          
-
       double error=0;
       if(Mode<2) {
 	error = m_driftFunctionTool->errorOfDriftRadius(driftTime,id)         ;
@@ -347,6 +320,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
                 // setting the index (via -> size) has to be done just before the push_back! (for safety) 
                 tdc->setHashAndIndex(rio->identifyHash(), rio->size());
                 rio->push_back(tdc);
+
            }else{
              if(strawstat){
                 tdc->setHashAndIndex(rio->identifyHash(), rio->size());

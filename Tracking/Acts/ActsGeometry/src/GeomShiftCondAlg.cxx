@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/GeomShiftCondAlg.h"
@@ -17,7 +17,6 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
 #include "GaudiKernel/ICondSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 // PACKAGE
 #include "ActsGeometry/ActsAlignmentStore.h"
@@ -37,8 +36,7 @@ GeomShiftCondAlg::GeomShiftCondAlg( const std::string& name,
             ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_cs("CondSvc",name),
-  m_trackingGeometrySvc("ActsTrackingGeometrySvc", name),
-  m_detStore("StoreGateSvc/DetectorStore", name)
+  m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
 {
 }
 
@@ -53,9 +51,9 @@ StatusCode GeomShiftCondAlg::initialize() {
     ATH_MSG_ERROR("unable to retrieve CondSvc");
   }
 
-  ATH_CHECK ( m_detStore->retrieve(p_pixelManager, "Pixel") );
-  ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
-  ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
+  ATH_CHECK ( detStore()->retrieve(p_pixelManager, "Pixel") );
+  ATH_CHECK ( detStore()->retrieve(p_SCTManager, "SCT") );
+  ATH_CHECK ( detStore()->retrieve(p_TRTManager, "TRT") );
 
 
   if (m_wchk.initialize().isFailure()) {

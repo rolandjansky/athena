@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-from TrigUpgradeTest.ElectronMenuConfig import l2CaloRecoCfg, l2CaloHypoCfg
+from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, \
     ChainStep, Chain, getChainStepName, createStepView
 
@@ -76,6 +76,10 @@ def generateChains( flags,  chainDict ):
                                       CA = accTrk)
 
     fastInDetStep = ChainStep( secondStepName, [fastInDetSequence] )
+
+    l1Thresholds=[]
+    for part in chainDict['chainParts']:
+        l1Thresholds.append(part['L1threshold'])
     
     # # # EF calo
 
@@ -83,5 +87,6 @@ def generateChains( flags,  chainDict ):
     
     # # # offline egamma
 
-    chain = Chain( chainDict['chainName'], chainDict['L1item'], [fastCaloStep, fastInDetStep] )
+    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, fastInDetStep] )
+    
     return chain

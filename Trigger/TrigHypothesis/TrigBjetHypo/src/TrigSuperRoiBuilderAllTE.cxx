@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -25,7 +25,7 @@
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetCollection.h"
 #include "FourMomUtils/P4DescendingSorters.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "xAODJet/JetContainer.h"
 #include "AthContainers/ConstDataVector.h"
@@ -182,8 +182,8 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi );
 
     // create RoI correspondinding to the jet
-    double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
-    double phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
+    double phiMinus = CxxUtils::wrapToPi(jetPhi-m_phiHalfWidth); 
+    double phiPlus  = CxxUtils::wrapToPi(jetPhi+m_phiHalfWidth); 
     double etaMinus = jetEta-m_etaHalfWidth;  
     double etaPlus  = jetEta+m_etaHalfWidth;  
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTPATTERNFINDER_H
@@ -9,14 +9,13 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
+#include "MdtCalibSvc/MdtCalibrationTool.h"
 
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtData.h"
 #include "TrigL2MuonSA/TrackData.h"
 
 class MdtIdHelper;
-class StoreGateSvc;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -68,7 +67,7 @@ class MuFastPatternFinder: public AthAlgTool
 
    private:
       // MDT calibration service
-      ServiceHandle<MdtCalibrationSvc> m_mdtCalibrationSvc;
+      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool;
 
       // Id helper
       const MdtIdHelper* m_mdtIdHelper;

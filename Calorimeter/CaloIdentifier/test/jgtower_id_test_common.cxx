@@ -13,9 +13,6 @@
  */
 
 
-#include "boost/foreach.hpp"
-
-
 // This because test differencing ignored lines containing `0x...'
 std::string munghex (const std::string& h)
 {
@@ -122,11 +119,7 @@ void test_towers (const JGTowerBase_ID& tower_id)
   for (size_t i = 0; i < hashvec.size(); i++)
     assert (hashvec[i]);
 
-#if __cplusplus > 201100
   for (Identifier t_id : tower_id.tower_range()) {
-#else
-    BOOST_FOREACH (Identifier t_id, tower_id.tower_range()) {
-#endif
       hashsum -= tower_id.tower_hash (t_id);
     }
     assert (hashsum == 0);
@@ -234,7 +227,7 @@ else{
  {
    IdContext regionContext = idhelper.region_context();
 
-   BOOST_FOREACH (Identifier r_id, idhelper.reg_range()) {
+   for (Identifier r_id : idhelper.reg_range()) {
   
      //IdentifierHash hashId;
      // assert (idhelper.get_hash (r_id, hashId, &regionContext) == 0);

@@ -30,6 +30,18 @@ ToolSvc += InDet__InDetTrackHoleSearchTool( \
   useSCT                       = DetFlags.haveRIO.SCT_on(),
   CountDeadModulesAfterLastHit = True)
 
+from InDetRecExample.InDetJobProperties import InDetFlags
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
+pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
+pixelConditionsSummaryToolSetup.setUseConditions(True)
+pixelConditionsSummaryToolSetup.setUseDCSState((globalflags.DataSource=='data') and InDetFlags.usePixelDCS())
+pixelConditionsSummaryToolSetup.setUseByteStream((globalflags.DataSource=='data'))
+pixelConditionsSummaryToolSetup.setUseTDAQ(athenaCommonFlags.isOnline())
+pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
+pixelConditionsSummaryToolSetup.setup()
+InDetPixelConditionsSummaryTool = pixelConditionsSummaryToolSetup.getTool()
+
 if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   # now get the InDet tools as used for InDet tracks
   #   (duplication for ESD running in case InDet not rerun)
@@ -38,7 +50,7 @@ if muonCombinedRecFlags.useDetailedPixelHoleSearch():
   ToolSvc += InDet__InDetTestPixelLayerTool( 
     name = "CombinedMuonInDetTestPixelLayerTool",
     Extrapolator = atlasExtrapolator,
-    PixelSummaryTool = ToolSvc.PixelConditionsSummaryTool,
+    PixelSummaryTool = InDetPixelConditionsSummaryTool,
     CheckActiveAreas = True,
     CheckDeadRegions = True
     )
@@ -64,9 +76,11 @@ ToolSvc += InDet__InDetTrackSummaryHelperTool( \
   useTRT          = DetFlags.haveRIO.TRT_on() )
  
 # default CombinedMuonTrackSummary
+# @TODO doHolesMuon = False correct ?
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 ToolSvc += Trk__TrackSummaryTool( 'CombinedMuonTrackSummary',
                                   doSharedHits             = False,
+                                  doHolesInDet             = True,
                                   doHolesMuon              = False,
                                   AddDetailedInDetSummary  = True,
                                   AddDetailedMuonSummary   = True,
@@ -74,7 +88,6 @@ ToolSvc += Trk__TrackSummaryTool( 'CombinedMuonTrackSummary',
                                   TRT_ElectronPidTool      = None,
                                   PixelToTPIDTool          = None,
                                   MuonSummaryHelperTool    = muonTrackSummaryHelper,
-                                  InDetHoleSearchTool      = ToolSvc.CombinedMuonIDHoleSearch,
                                   PixelExists              = True )
 
 # load tools requiring pixels
@@ -90,7 +103,7 @@ if DetFlags.haveRIO.pixel_on():
   from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
   ToolSvc += InDet__InDetTestBLayerTool( \
     name                       = "CombinedMuonTestBLayer",
-    PixelSummaryTool           = ToolSvc.PixelConditionsSummaryTool,
+    PixelSummaryTool           = InDetPixelConditionsSummaryTool,
     Extrapolator               = atlasExtrapolator)
 
   # load PixelToTPID tool
@@ -100,7 +113,7 @@ if DetFlags.haveRIO.pixel_on():
     ReadFromCOOL               = True)
 
   # set properties into public tools
-  ToolSvc.CombinedMuonIDHoleSearch.PixelSummaryTool    = ToolSvc.PixelConditionsSummaryTool
+  ToolSvc.CombinedMuonIDHoleSearch.PixelSummaryTool    = InDetPixelConditionsSummaryTool
   ToolSvc.CombinedMuonIDSummaryHelper.PixelToTPIDTool = ToolSvc.CombinedMuonPixelToTPID
   ToolSvc.CombinedMuonIDSummaryHelper.TestBLayerTool  = ToolSvc.CombinedMuonTestBLayer
   ToolSvc.CombinedMuonTrackSummary.PixelToTPIDTool    = ToolSvc.CombinedMuonPixelToTPID

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -95,7 +95,7 @@ StatusCode LArNoisyROAlg::execute (const EventContext& ctx) const
   if ( badFEBFlag || badFEBFlag_W || badSaturatedTightCut || MNBLooseCut || MNBTightCut || MNBTight_PsVetoCut) 
   {
     // retrieve EventInfo
-    SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey); 
+    SG::ReadHandle<xAOD::EventInfo> eventInfo (m_eventInfoKey, ctx); 
 
     bool failSetWARN=false;
     bool failSetWARNREASON=false;

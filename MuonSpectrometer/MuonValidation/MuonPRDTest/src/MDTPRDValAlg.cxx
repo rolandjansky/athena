@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTPRDValAlg.h"
@@ -38,8 +38,6 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 //#include "TrkMagFieldInterfaces/IMagneticFieldTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include <iostream>
 #include <fstream>
 #include "TTree.h"
@@ -64,7 +62,6 @@ MDTPRDValAlg::MDTPRDValAlg(const std::string& name,
   m_log(0),
   m_debug(false),
   m_verbose(false),
-  m_sgSvc(0),
 
   m_counter_ValHitNumber(-99),
   m_Validation_MDT_Type(-99),
@@ -177,30 +174,13 @@ StatusCode MDTPRDValAlg::initialize()
   /**Locate the StoreGateSvc and initialize our local ptr
      intitialize transient event store
   */
-  StatusCode sc = service("StoreGateSvc", m_sgSvc);
-
-  if (!sc.isSuccess() || 0 == m_sgSvc) {
-    *m_log << MSG::ERROR << "MDTPRDValAlg: Could not find StoreGateSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  else { 
-    *m_log << MSG::DEBUG << "Retrieved StoreGateSvc" << endmsg;
-  } 
-      
-  StoreGateSvc* detStore;
-  sc = serviceLocator()->service( "DetectorStore", detStore );
-  if (sc.isFailure())   {
-    *m_log << MSG::ERROR << "Cannot locate the DetectorStore" << endmsg; 
-    return sc;
-  }
- 
-  sc = detStore->retrieve( m_pMuonMgr ); 
+  StatusCode sc = detStore()->retrieve( m_pMuonMgr ); 
   if (sc.isFailure()){
     *m_log << MSG::ERROR << "Cannot retrieve MuonDetectorManager" << endmsg;
     return sc;
   }
 
-  sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
+  sc = detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER");
   if (sc.isFailure()){
     *m_log << MSG::ERROR << "Cannot retrieve m_mdtId" << endmsg;
     return sc;
@@ -434,11 +414,11 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
 
   /**Access MC truth information*/
   const DataHandle<McEventCollection> mcEvent;
-  if(!m_sgSvc->contains<McEventCollection>(m_key)) {
+  if(!evtStore()->contains<McEventCollection>(m_key)) {
     if( m_debug ) *m_log << MSG::DEBUG << "MDTPRDValAlg: Could not find MCevent" << endmsg;    
     return;
   }
-  if(m_sgSvc->retrieve(mcEvent,m_key).isFailure()){
+  if(evtStore()->retrieve(mcEvent,m_key).isFailure()){
       *m_log << MSG::WARNING << "MDTPRDValAlg: Could not retrieve MCevent" << endmsg;
       return;
   }else{
@@ -515,8 +495,8 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
   const TrackRecordCollection* truthCollection = 0;
   std::string location = "MuonEntryLayer"; // Was "MuonEntryLayer"  
   if(exit) location = "MuonExitLayer";
-  if ( m_sgSvc->contains<TrackRecordCollection>(location) ) {
-    if(m_sgSvc->retrieve(truthCollection,location ).isFailure()){
+  if ( evtStore()->contains<TrackRecordCollection>(location) ) {
+    if(evtStore()->retrieve(truthCollection,location ).isFailure()){
       *m_log << MSG::WARNING << " Could not retrieve " << location << endmsg;
     }
   }    
@@ -524,8 +504,8 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
   if( !truthCollection ){
     location ="MuonEntryLayerFilter";
     if(exit) location = "MuonExitLayerFilter";
-    if( m_sgSvc->contains<TrackRecordCollection>(location) ){
-      if(m_sgSvc->retrieve(truthCollection,location ).isFailure()){
+    if( evtStore()->contains<TrackRecordCollection>(location) ){
+      if(evtStore()->retrieve(truthCollection,location ).isFailure()){
 	*m_log << MSG::WARNING << " Could not retrieve " << location << endmsg;
       }
     }
@@ -534,8 +514,8 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
   if( !truthCollection ){
     location ="MuonEntryRecord";
     if(exit) location = "MuonExitRecord";
-    if( m_sgSvc->contains<TrackRecordCollection>(location) ){
-      if(m_sgSvc->retrieve(truthCollection,location ).isFailure()){
+    if( evtStore()->contains<TrackRecordCollection>(location) ){
+      if(evtStore()->retrieve(truthCollection,location ).isFailure()){
 	*m_log << MSG::WARNING << " Could not retrieve " << location << endmsg;
       }
     }
@@ -614,13 +594,13 @@ void MDTPRDValAlg::addSimHits( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
 
   
   std::string location = "MDT_Hits";
-  if ( !m_sgSvc->contains<MDTSimHitCollection>(location) ) {
+  if ( !evtStore()->contains<MDTSimHitCollection>(location) ) {
     if( m_debug ) *m_log << MSG::DEBUG << " No SimHits found at " << location << endmsg;
     return;
   }
   
   const DataHandle<MDTSimHitCollection> p_collection;
-  if (m_sgSvc->retrieve(p_collection,location).isFailure()) {
+  if (evtStore()->retrieve(p_collection,location).isFailure()) {
     *m_log << MSG::WARNING << "No MDTSimHitCollection in StoreGate!" << endmsg;
     return;
   }
@@ -691,12 +671,12 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
   //Retrieving MDT truth hits from MDT_SDO container 
   std::string  location = "MDT_SDO";
   const MuonSimDataCollection* sdoContainer = 0;
-  if ( !m_sgSvc->contains<MuonSimDataCollection>(location) ) {
+  if ( !evtStore()->contains<MuonSimDataCollection>(location) ) {
     if( m_debug ) *m_log << MSG::DEBUG << " No SimData found at " << location << endmsg;
     return;
   }
   
-  if (m_sgSvc->retrieve(sdoContainer,location).isFailure()) {
+  if (evtStore()->retrieve(sdoContainer,location).isFailure()) {
     *m_log << MSG::WARNING << "No MDT Sdo Container found" << endmsg;
     return;
   }
@@ -755,12 +735,12 @@ void MDTPRDValAlg::addPrepData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap ) con
   //MDT raw hits....
   const Muon::MdtPrepDataContainer* mdtPrds = 0;      
   std::string  location = "MDT_DriftCircles";
-  if ( !m_sgSvc->contains<Muon::MdtPrepDataContainer>(location) ) {
+  if ( !evtStore()->contains<Muon::MdtPrepDataContainer>(location) ) {
     if( m_debug ) *m_log << MSG::DEBUG << " No MdtPrepData found at " << location << endmsg;
     return;
   }
   
-  if( m_sgSvc->retrieve( mdtPrds,location ).isFailure() ) {
+  if( evtStore()->retrieve( mdtPrds,location ).isFailure() ) {
     *m_log << MSG::WARNING << "MdtPrepDataContainer not found at " << location << endmsg;
     return;
   }
@@ -817,7 +797,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   const xAOD::EventInfo* pevt;
 		
 	
-  if (m_sgSvc->retrieve(pevt).isFailure()) {
+  if (evtStore()->retrieve(pevt).isFailure()) {
     *m_log << MSG::WARNING << "Could not find event" << endmsg;
     return;
   }else {

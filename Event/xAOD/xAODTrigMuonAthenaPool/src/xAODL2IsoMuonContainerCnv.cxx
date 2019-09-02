@@ -60,7 +60,7 @@ xAOD::L2IsoMuonContainer*
 xAODL2IsoMuonContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "D3AD2358-29B9-48D1-B181-89D4DA39B5CC" );
+   static const pool::Guid v1_guid( "D3AD2358-29B9-48D1-B181-89D4DA39B5CC" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v1_guid ) ) {

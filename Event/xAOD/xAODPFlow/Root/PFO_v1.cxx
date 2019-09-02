@@ -654,6 +654,16 @@ namespace xAOD {
     }
   }
 
+  unsigned int PFO_v1::nCaloCluster() const {
+    const ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
+    if (!p_acc) return 0;
+    else if (!p_acc->isAvailable(*this)) {return 0;}
+    else{
+      const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
+      return theLinks.size();
+    }
+  }
+  
   const CaloCluster* PFO_v1::cluster(unsigned int index) const {
     
     const ConstAccessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);

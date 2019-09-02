@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -14,19 +14,14 @@
 
 #include "TrigBjetHypo/TrigFarawayJetFinderAllTE.h"
 
-#include "xAODMuon/MuonContainer.h"
-
+#include "CxxUtils/phihelper.h"
 #include "JetEvent/Jet.h"
-
-// #include "TrigParticle/TrigEFBjetContainer.h"
-// #include "TrigParticle/TrigEFBjet.h"
-
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigNavigation/TriggerElement.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
@@ -238,8 +233,8 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 	// For the jets with dR(jet,muon) > 0.5 
 	// create RoI correspondinding to the jet
 	
-	double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
-	double phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
+	double phiMinus = CxxUtils::wrapToPi(jetPhi-m_phiHalfWidth); 
+	double phiPlus  = CxxUtils::wrapToPi(jetPhi+m_phiHalfWidth); 
 	
 	double etaMinus = jetEta-m_etaHalfWidth;  
 	double etaPlus  = jetEta+m_etaHalfWidth;  

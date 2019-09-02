@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/HECHVSubgap.h"
@@ -9,66 +9,69 @@
 #include "HECHVPayload.h"
 
 class HECHVSubgap::Clockwork {
-
 public:
+  Clockwork(const HECHVModule* modulePtr
+	    , unsigned int subgap)
+    : module(modulePtr)
+    , iSubgap(subgap)
+  {}
 
-    const HECHVModule *module;
-
-    unsigned int iSubgap;
+  const HECHVModule *module;
+  unsigned int iSubgap;
 };
 
-//##ModelId=47A0797F024A
-HECHVSubgap::HECHVSubgap(HECHVModuleConstLink module, unsigned int iSubgap):m_c(new Clockwork())
+HECHVSubgap::HECHVSubgap(const HECHVModule* module
+			 , unsigned int iSubgap)
+  :m_c(new Clockwork(module,iSubgap))
 {
-  m_c->module=&*module;
-  m_c->iSubgap=iSubgap;
 }
 
-//##ModelId=47A0797F024D
-HECHVModuleConstLink HECHVSubgap::getModule() const
-{
-  return m_c->module;
-}
-
-//##ModelId=47A0797F024F
-unsigned int HECHVSubgap::getSubgapIndex() const
-{
-  return m_c->iSubgap;
-}
-
-//##ModelId=47A0797F0251
 HECHVSubgap::~HECHVSubgap()
 {
   delete m_c;
 }
 
-//##ModelId=47AB8A2103AC
+const HECHVModule& HECHVSubgap::getModule() const
+{
+  return *(m_c->module);
+}
+
+unsigned int HECHVSubgap::getSubgapIndex() const
+{
+  return m_c->iSubgap;
+}
+
 bool HECHVSubgap::hvOn() const
 {
-  HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
-  if (payload->voltage<-9999) return false;
-  else return true;
+  HECHVPayload *payload = m_c->module->getManager().getPayload(*this);
+  return (payload->voltage>=-9999);
 }
 
 double HECHVSubgap::voltage() const {
-  HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
+  HECHVPayload *payload = m_c->module->getManager().getPayload(*this);
   return payload->voltage;
 }
 
 
 double HECHVSubgap::current() const {
-  HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
+  HECHVPayload *payload = m_c->module->getManager().getPayload(*this);
   return payload->current;
 }
 
 void HECHVSubgap::voltage_current(double& voltage, double&current) const {
- HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
+ HECHVPayload *payload = m_c->module->getManager().getPayload(*this);
  voltage = payload->voltage;
  current = payload->current;
 }
 
-
-int HECHVSubgap::hvLineNo() const {
-  HECHVPayload *payload = m_c->module->getManager()->getPayload(*this);
-  return payload->hvLineNo;
+#ifndef SIMULATIONBASE
+int HECHVSubgap::hvLineNo(const LArHVIdMapping* hvIdMapping) const {
+  return hvIdMapping
+    ? m_c->module->getManager().hvLineNo(*this,hvIdMapping)
+    : m_c->module->getManager().getPayload(*this)->hvLineNo;
 }
+#else
+int HECHVSubgap::hvLineNo() const {
+  return m_c->module->getManager().getPayload(*this)->hvLineNo;
+}
+#endif

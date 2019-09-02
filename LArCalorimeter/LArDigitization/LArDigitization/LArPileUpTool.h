@@ -28,11 +28,10 @@
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
 #include "LArElecCalib/ILArfSampl.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/LArBadChannelCont.h"
-
-#include "StoreGate/DataHandle.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEventInfo/EventAuxInfo.h"
@@ -41,20 +40,27 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteHandle.h"
 #include "LArRawConditions/LArADC2MeV.h"
 #include "LArRawConditions/LArAutoCorrNoise.h"
+#include "LArDigitization/LArHitEMap.h"
+#include "PileUpTools/PileUpMergeSvc.h"
+
+#include "LArRawEvent/LArDigitContainer.h"
+#include "LArSimEvent/LArHitContainer.h"
+#include "LArSimEvent/LArHitFloatContainer.h"
 
 class StoreGateSvc;
-class PileUpMergeSvc;
 class ITriggerTime;
-class LArDigitContainer;
 class LArOnlineID;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
-class LArHitEMap;
+class CaloCell_ID;
 class LArDigit;
 class ILArOFC;
+class CaloDetDescrManager;
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -96,14 +102,14 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 #define MAXADC 4096       // Maximal Adc count + 1 ( used for the overflows)
 
 
-  StatusCode AddHit(const Identifier & cellId, float energy, float time, bool iSignal, unsigned int offset, unsigned int ical);
+  StatusCode AddHit(const Identifier cellId, const float energy, const float time, const bool iSignal);
 
 
   StatusCode MakeDigit(const Identifier & cellId,
 		       HWIdentifier & ch_id,
-		       const std::vector<std::pair<float,float> >  *TimeE,
+		       const std::vector<std::pair<float,float> >* TimeE,
 		       const LArDigit * rndm_digit, CLHEP::HepRandomEngine * engine,
-		       const std::vector<std::pair<float,float> > *TimeE_DigiHSTruth = nullptr);
+		       const std::vector<std::pair<float,float> >* TimeE_DigiHSTruth = nullptr);
 
 
   StatusCode ConvertHits2Samples(const Identifier & cellId, HWIdentifier ch_id,
@@ -135,99 +141,144 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
 //
 // >>>>>>>> private data parts
 //
-  PileUpMergeSvc* m_mergeSvc;
-  LArHitEMap* m_hitmap;   // map of hits in cell
-  LArHitEMap* m_hitmap_DigiHSTruth;   // map of hits in cell 
-  std::vector <std::string> m_HitContainer; // hit container name list
-  std::vector<int> m_CaloType;
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
+
+
+  SG::WriteHandleKey<LArHitEMap> m_hitMapKey{this,"LArHitEMapKey","LArHitEMap"};
+  SG::WriteHandle<LArHitEMap> m_hitmap; //Set in perpareEvent, used in subsequent methods (mergeEvent, fillMapFromHit)
+  SG::WriteHandleKey<LArHitEMap> m_hitMapKey_DigiHSTruth{this,"LArHitEMapKey","LArHitEMap_DigiHSTruth"};
+  SG::WriteHandle<LArHitEMap> m_hitmap_DigiHSTruth; //Set in perpareEvent, used in subsequent methods (mergeEvent, fillMapFromHit)
+
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKeyArray<LArHitContainer> m_hitContainerKeys{this, "LArHitContainers", {"LArHitEMB", "LArHitEMEC", "LArHitHEC", "LArHitFCAL"},
+      "Name of input hit vectors (default=[LArHitEMB, LArHitEMEC, LArHitHEC, LArHitFCAL])" };  //!< vector with the names of LArHitContainers to use
+  SG::ReadHandleKeyArray<LArHitFloatContainer> m_hitFloatContainerKeys{this, "LArHitFloatContainers", {"LArHitEMB", "LArHitEMEC", "LArHitHEC", "LArHitFCAL"},
+      "Name of input hit vectors (default=[LArHitEMB, LArHitEMEC, LArHitHEC, LArHitFCAL])" };  //!< vector with the names of LArHitFloatContainers to use
+  std::vector <std::string> m_hitContainerNames; // hit container name list
 
 //
 // ........ Algorithm properties
 //
-  std::string m_SubDetectors;      // subdetectors
-  std::string m_DigitContainerName;    // output digit container name list
-  std::string m_DigitContainerName_DigiHSTruth;    // output digit container name list
-  LArDigitContainer* m_DigitContainer;
-  LArDigitContainer* m_DigitContainer_DigiHSTruth;
-  std::vector<std::string> m_EmBarrelHitContainerName;
-  std::vector<std::string> m_EmEndCapHitContainerName;
-  std::vector<std::string> m_HecHitContainerName;
-  std::vector<std::string> m_ForWardHitContainerName;
-  bool m_NoiseOnOff;            // noise (in all sub-detectors) is on if true
-  bool m_PileUp;                // pile up or not
+  SG::WriteHandleKey<LArDigitContainer> m_DigitContainerName{this, "DigitContainer", "LArDigitContainer_MC",
+      "Name of output digit container"};    // output digit container name list 
+  SG::WriteHandleKey<LArDigitContainer>  m_DigitContainerName_DigiHSTruth{this, "DigitContainer_DigiHSTruth", 
+      "LArDigitContainer_DigiHSTruth", "Name of output signal digit container"};    // output digit container name list  
+  SG::WriteHandle<LArDigitContainer> m_DigitContainer;
+  SG::WriteHandle<LArDigitContainer> m_DigitContainer_DigiHSTruth;
+
+  Gaudi::Property<bool> m_NoiseOnOff{this, "NoiseOnOff", true,
+      "put electronic noise (default=true)"};            // noise (in all sub-detectors) is on if true
+  Gaudi::Property<bool> m_PileUp{this, "PileUp", false,
+      "Pileup mode (default=false)"};                // pile up or not
+
 // Switches (true by default) on Noise for each sub-detector (can be combined)
-  bool m_NoiseInEMB;               // noise in Barrel is off if false
-  bool m_NoiseInEMEC;              // noise in EndCap is off if false
-  bool m_NoiseInHEC;               // noise in HEC    is off if false
-  bool m_NoiseInFCAL;              // noise in FCAL   is off if false
+  Gaudi::Property<bool> m_NoiseInEMB {this, "NoiseInEMB", true,
+      "put noise in EMB (default=true)"};               // noise in Barrel is off if false
+  Gaudi::Property<bool> m_NoiseInEMEC{this, "NoiseInEMEC", true,
+      "put noise in EMEC (default=true)"};              // noise in EndCap is off if false
+  Gaudi::Property<bool> m_NoiseInHEC{this, "NoiseInHEC", true,
+      "put noise in HEC (default=true)"};                  // noise in HEC is off if false
+  Gaudi::Property<bool> m_NoiseInFCAL{this, "NoiseInFCAL", true,
+      "put noise in FCAL (default=true)"};              // noise in FCAL is off if false
   //put false if you want cancel the noise in one or several sub-detectors
-  bool m_CrossTalk;                // flag for Cross Talk
-  bool m_CrossTalkStripMiddle;     // flag for strip-middle cross talk (if m_CrooTalk is true)
-  bool m_CrossTalk2Strip;          // flag for 2nd neighbor cross-talk
-  bool m_CrossTalkMiddle;          // flag for middle to middle cross-talk
-  float m_scaleStripXtalk;          // scale factor for strip to strip cross-talk
-  float m_scaleStripMiddle;         // scale factor for strip-middle cross-talk
-  float m_scaleMiddleXtalk;         // scale factor for middle-middle cross-talk
-// Windows mode
-  bool m_Windows;
-  float m_WindowsEtaSize;
-  float m_WindowsPhiSize;
-  float m_WindowsPtCut;
-//
+  Gaudi::Property<bool> m_CrossTalk{this, "CrossTalk", true,
+      "Simulate cross-talk (default=true)"};                // flag for Cross Talk
+  Gaudi::Property<bool> m_CrossTalkStripMiddle{this, "CrossTalkStripMiddle", true,
+      "Add strip/middle cross talk (if crosstalk is true) (default=true)"};     // flag for strip-middle cross talk (if m_CrooTalk is true)
+  Gaudi::Property<bool> m_CrossTalk2Strip{this, "CrossTalk2Strip", true,
+      "Add 2nd strip cross talk (if crosstalk is true) (default=true)"};          // flag for 2nd neighbor cross-talk
+  Gaudi::Property<bool> m_CrossTalkMiddle{this, "CrossTalkMiddle", true,
+      "Add middle to middle cross talk for barrel(if crosstalk is true) (default=true)"};          // flag for middle to middle cross-talk
+  Gaudi::Property<float> m_scaleStripXtalk{this, "scaleStripXtalk", 1.,
+      "Scale factor for strip xtalk"};          // scale factor for strip to strip cross-talk
+  Gaudi::Property<float> m_scaleStripMiddle{this, "scaleStripMiddle", 1.,
+      "Scale factor for strip-middle xtalk"};         // scale factor for strip-middle cross-talk
+  Gaudi::Property<float> m_scaleMiddleXtalk{this, "scaleMiddleXtalk", 1.,
+      "Scale factor for middle xtalk"};         // scale factor for middle-middle cross-talk
+  // Windows mode
+  Gaudi::Property<bool> m_Windows{this, "Windows", false,
+      "Window mode (produce digits only around true e/photon) (default=false)"};
+  Gaudi::Property<float> m_WindowsEtaSize{this, "WindowsEtaSize", 0.4,
+      "Eta size of window (default=0.4)"};
+  Gaudi::Property<float> m_WindowsPhiSize{this, "WindowsPhiSize", 0.5,
+      "Phi size of window (default=0.5)"};
+  Gaudi::Property<float> m_WindowsPtCut{this, "WindowsPtCut", 5000.,
+      "Pt cut on e/photons for window mode (Default=5GeV)"};
+  //
   enum CaloNum{EM,HEC,FCAL,EMIW};
   double m_LowGainThresh[4];       // energy thresholds for the low gain
   double m_HighGainThresh[4];      // energy thresholds for the high gain
-  double m_EnergyThresh;           // Zero suppression energy threshold
+
+  Gaudi::Property<double> m_EnergyThresh{this, "EnergyThresh", -99.,
+      "Hit energy threshold (default=-99)"};           // Zero suppression energy threshold
   //double m_AdcPerGeV;              // adc = UnCalibretedEnergy*Gain/m_AdcPerGeV + Pedestal
-  int    m_NSamples;               // number of samples in Digit
-  unsigned int m_firstSample;      // first sample to use for pulse shape for in time energy deposit
-  bool   m_usePhase;               // use tbin phase to get shape (default = false for Atlas)
-  bool m_rndmEvtRun;               // use run,event number for random number seeding
-  bool m_useTriggerTime;
-  bool m_RndmEvtOverlay;         // Pileup and noise added by overlaying random events
-  bool m_isMcOverlay;             // true if input RDO for overlay are from MC, false if from data
-  bool m_useBad;
-  std::string m_RandomDigitContainer; // random digit container name list
+  Gaudi::Property<int>    m_NSamples{this, "Nsamples", 5,
+      "Number of ADC samples (default=5)"};               // number of samples in Digit
+  Gaudi::Property<unsigned int> m_firstSample{this, "firstSample", 0,
+      "First sample to use for the shape for in-time signal"};      // first sample to use for pulse shape for in time energy deposit
+  Gaudi::Property<bool> m_usePhase{this, "UsePhase", false,
+      "use 1ns binned pulse shape (default=false)"};               // use tbin phase to get shape (default = false for Atlas)
+  Gaudi::Property<bool> m_rndmEvtRun{this, "UseRndmEvtRun", false,
+      "Use Run and Event number to seed rndm number (default=false)"};               // use run,event number for random number seeding
+  Gaudi::Property<bool> m_useTriggerTime{this, "UseTriggerTime", false,
+      "Use Trigger tool (for commissioning) (default=false)"};
+  Gaudi::Property<bool> m_RndmEvtOverlay{this, "RndmEvtOverlay", false,
+      "Pileup and/or noise added by overlaying random events (default=false)"};         // Pileup and noise added by overlaying random events
+  Gaudi::Property<bool> m_isMcOverlay{this, "isMcOverlay", false,
+      "Is input Overlay from MC or data (default=false, from data)"};             // true if input RDO for overlay are from MC, false if from data
+  bool m_useBad{true};
+  Gaudi::Property<std::string> m_RandomDigitContainer{this, "RandomDigitContainer", "LArDigitContainer_Random",
+      "Name of random digit container"}; // random digit container name list
 
-  bool m_useMBTime;
-  bool m_recordMap;
-  bool m_useLArHitFloat;
-  bool m_pedestalNoise;
-  bool m_addPhase;
-  float m_phaseMin;
-  float m_phaseMax;
-  bool m_ignoreTime;
-  int m_sampleGainChoice;
-  bool m_roundingNoNoise;  // flag used in NoNoise case: if true add random number [0;1[ in ADC count, if false add only average of 0.5
-
-// Detector Description objects
-
-  //const DataHandle<ILArNoise>     m_dd_noise;
-  //const DataHandle<ILArfSampl>    m_dd_fSampl;
-  //const DataHandle<ILArPedestal>  m_dd_pedestal;
-  //const DataHandle<ILArShape>     m_dd_shape;
-  SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoise","SG Key of ILArNoise object"};
-  SG::ReadCondHandleKey<ILArfSampl>   m_fSamplKey{this,"fSamplKey","LArfSampl","SG Key of LArfSampl object"};
+  Gaudi::Property<bool> m_useMBTime{this, "UseMBTime", false,
+      "use detailed hit time from MB events in addition to bunch crossing time for pileup (default=false)"};
+  Gaudi::Property<bool> m_recordMap{this, "RecordMap", true,
+      "Record LArHitEMap in detector store for use by LArL1Sim (default=true)"};
+  Gaudi::Property<bool> m_useLArHitFloat{this, "useLArFloat", true,
+      "Use simplified transient LArHit (default=false)"};
+  Gaudi::Property<bool> m_pedestalNoise{this, "PedestalNoise", false,
+      "Use noise from Pedestal structure instead of LArNoise (default=false)"};
+  Gaudi::Property<bool> m_addPhase{this, "AddPhase", false,
+      "Add random phase (default = false)"};
+  Gaudi::Property<float> m_phaseMin{this, "PhaseMin", 0.,
+      "Minimum time to add (default=0)"};
+  Gaudi::Property<float> m_phaseMax{this, "PhaseMax", 25.0,
+      "Maximum time to add (default=25)"};
+  Gaudi::Property<bool> m_ignoreTime{this, "IgnoreTime", false,
+      "Set all hit time to 0, for debugging (default = false)"};
+  int m_sampleGainChoice{2};
+  Gaudi::Property<bool> m_roundingNoNoise{this, "RoundingNoNoise", true,
+      "if true add random number [0:1[ in no noise case before rounding ADC to integer, if false add only 0.5 average"};  // flag used in NoNoise case: if true add random number [0;1[ in ADC count, if false add only average of 0.5
+ 
+  SG::ReadCondHandleKey<ILArNoise>    m_noiseKey{this,"NoiseKey","LArNoiseSym","SG Key of ILArNoise object"};
+  SG::ReadCondHandleKey<ILArfSampl>   m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
   SG::ReadCondHandleKey<ILArPedestal> m_pedestalKey{this,"PedestalKey","LArPedestal","SG Key of LArPedestal object"};
-  SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShape","SG Key of LArShape object"};
+  SG::ReadCondHandleKey<ILArShape>    m_shapeKey{this,"ShapeKey","LArShapeSym","SG Key of LArShape object"};
   SG::ReadCondHandleKey<LArADC2MeV>   m_adc2mevKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
+  const LArOnOffIdMapping* m_cabling{}; //Set in perpareEvent, used also in mergeEvent
 
   //ToolHandle<ILArAutoCorrNoiseTool> m_autoCorrNoiseTool;
   SG::ReadCondHandleKey<LArAutoCorrNoise> m_autoCorrNoiseKey{this,"AutoCorrNoiseKey","LArAutoCorrNoise","SG Key of AutoCorrNoise conditions object"};
-  ToolHandle<ILArBadChannelMasker> m_maskingTool;
-  SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey;
-  ToolHandle<ITriggerTime> m_triggerTimeTool;
+  ToolHandle<ILArBadChannelMasker> m_maskingTool{this, "MaskingTool", "LArBadChannelMaskingTool" ,"Tool handle for dead channel masking"};
+  SG::ReadCondHandleKey<LArBadFebCont> m_badFebKey{this, "BadFebKey", "LArBadFeb", "Key of BadFeb object in ConditionsStore"};
+  PublicToolHandle<ITriggerTime> m_triggerTimeTool{this, "TriggerTimeToolName", "CosmicTriggerTimeTool", "Trigger Tool Name"};
 
-  const LArEM_ID*        m_larem_id;
-  const LArHEC_ID*       m_larhec_id;
-  const LArFCAL_ID*      m_larfcal_id;
-  const LArOnlineID*     m_laronline_id;
+  const CaloCell_ID*     m_calocell_id{};
+  const LArEM_ID*        m_larem_id{};
+  const LArHEC_ID*       m_larhec_id{};
+  const LArFCAL_ID*      m_larfcal_id{};
+  const LArOnlineID*     m_laronline_id{};
 
-  bool m_skipNoHit;
+  const CaloDetDescrManager* m_caloDDMgr{};
+
+  Gaudi::Property<bool> m_skipNoHit{this, "SkipNoHit", false,
+      "Skip events with no LAr hits (default=false)"};
 
   ServiceHandle<IAthRNGSvc> m_rndmGenSvc{this, "RndmSvc", "AthRNGSvc", ""};
 
-  bool m_doDigiTruth;
+  Gaudi::Property<bool> m_doDigiTruth{this, "DoDigiTruthReconstruction", false,
+      "Also create information about reconstructed digits for HS hits"};
 
   std::vector<double> m_Samples;
   std::vector<double> m_Samples_DigiHSTruth;
@@ -236,11 +287,10 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   std::vector<bool> m_SubDetFlag;
   std::vector<float> m_energySum;
   std::vector<float> m_energySum_DigiHSTruth;
-  int m_nhit_tot;
-  float m_trigtime;
-  unsigned int m_n_cells;
+  int m_nhit_tot{0};
+  float m_trigtime{0};
 
-  const ILArOFC* m_larOFC;
+  const ILArOFC* m_larOFC{};
 
 };
 

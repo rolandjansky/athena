@@ -1,8 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TrigBjetHypo.TrigBjetHypoConf import TrigSuperRoiBuilderAllTE
-
-from AthenaCommon.SystemOfUnits import GeV
 
 
 def getSuperRoiBuilderAllTEInstance( ):

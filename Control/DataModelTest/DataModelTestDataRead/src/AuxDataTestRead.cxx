@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -58,25 +58,25 @@ StatusCode AuxDataTestRead::initialize()
 StatusCode AuxDataTestRead::execute()
 {
   ++m_count;
-  std::cout << m_count << "\n";
+  ATH_MSG_INFO( m_count );
 
   const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
-  static BAux::Accessor<int> anInt1 ("anInt1");
-  static BAux::Accessor<float> aFloat1 ("aFloat1");
-  static BAux::Accessor<ElementLink<BAuxVec> > anEL ("anEL");
-  static BAux::Accessor<DMTest::B> aB ("aB");
-  static BAux::Accessor<float> dFloat1 ("dFloat1");
-  static BAux::Accessor<int> dInt1 ("dInt1");
-  static BAux::Accessor<int> dInt2 ("dInt2");
-  //static BAux::Accessor<SG::PackedElement<unsigned int> > pInt ("pint");
-  //static BAux::Accessor<SG::PackedElement<float> > pFloat ("pfloat");
-  //static BAux::Accessor<SG::PackedElement<std::vector<int> > > pvint ("pvint");
-  //static BAux::Accessor<SG::PackedElement<std::vector<float> > > pvfloat ("pvfloat");
-  static BAux::Accessor<unsigned int> pInt ("pint");
-  static BAux::Accessor<float> pFloat ("pfloat");
-  static BAux::Accessor<std::vector<int> > pvint ("pvint");
-  static BAux::Accessor<std::vector<float> > pvfloat ("pvfloat");
+  static const BAux::Accessor<int> anInt1 ("anInt1");
+  static const BAux::Accessor<float> aFloat1 ("aFloat1");
+  static const BAux::Accessor<ElementLink<BAuxVec> > anEL ("anEL");
+  static const BAux::Accessor<DMTest::B> aB ("aB");
+  static const BAux::Accessor<float> dFloat1 ("dFloat1");
+  static const BAux::Accessor<int> dInt1 ("dInt1");
+  static const BAux::Accessor<int> dInt2 ("dInt2");
+  //static const BAux::Accessor<SG::PackedElement<unsigned int> > pInt ("pint");
+  //static const BAux::Accessor<SG::PackedElement<float> > pFloat ("pfloat");
+  //static const BAux::Accessor<SG::PackedElement<std::vector<int> > > pvint ("pvint");
+  //static const BAux::Accessor<SG::PackedElement<std::vector<float> > > pvfloat ("pvfloat");
+  static const BAux::Accessor<unsigned int> pInt ("pint");
+  static const BAux::Accessor<float> pFloat ("pfloat");
+  static const BAux::Accessor<std::vector<int> > pvint ("pvint");
+  static const BAux::Accessor<std::vector<float> > pvfloat ("pvfloat");
 
   const BAuxVec* vec = 0;
   CHECK( evtStore()->retrieve (vec, m_readPrefix + "bauxvec") );
@@ -130,9 +130,8 @@ StatusCode AuxDataTestRead::execute()
     ost << " dInt1: " << dInt1(*b);
   if (dInt2.isAvailable(*b))
     ost << " dInt2: " << dInt2(*b);
-  ost << "\n";
 
-  std::cout << ost.str();
+  ATH_MSG_INFO (ost.str() );
     
   if (!m_writePrefix.empty()) {
     // Passing this as the third arg of record will make the object const.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -33,6 +33,7 @@ class TH1D;
 class TH2D;
 namespace Trk{
   class TrkVKalVrtFitter;
+  class IVKalState;
 }
 
 
@@ -199,17 +200,21 @@ namespace InDet {
  	                std::vector<const xAOD::TrackParticle*>  & ListSecondTracks) const;
 
 
-     StatusCode VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listPart,Amg::Vector3D& Vertex) const;
+     StatusCode VKalVrtFitFastBase(const std::vector<const xAOD::TrackParticle*>& listPart,
+                                   Amg::Vector3D& Vertex,
+                                   Trk::IVKalState& istate) const;
 
 
       StatusCode VKalVrtFitBase(const std::vector<const xAOD::TrackParticle*> & listPart,
-                                                  Amg::Vector3D&                 Vertex,
-                                                  TLorentzVector&                Momentum,
-                                                  long int&                      Charge,
-                                                  std::vector<double>&           ErrorMatrix,
-                                                  std::vector<double>&           Chi2PerTrk,
-                                                  std::vector< std::vector<double> >& TrkAtVrt,
-                                                  double& Chi2 ) const;
+                                Amg::Vector3D&                 Vertex,
+                                TLorentzVector&                Momentum,
+                                long int&                      Charge,
+                                std::vector<double>&           ErrorMatrix,
+                                std::vector<double>&           Chi2PerTrk,
+                                std::vector< std::vector<double> >& TrkAtVrt,
+                                double& Chi2,
+                                Trk::IVKalState& istate,
+                                bool ifCovV0) const;
   };
 
 

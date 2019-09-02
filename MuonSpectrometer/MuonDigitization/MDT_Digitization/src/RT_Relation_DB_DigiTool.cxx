@@ -19,11 +19,11 @@ RT_Relation_DB_DigiTool::RT_Relation_DB_DigiTool( const std::string& type, const
 : AthAlgTool(type,name,parent)
 , m_maxRadius(0)
 , m_muonGeoMgr(0)
-, m_calibDbSvc("MdtCalibrationDbSvc", name)
+, m_calibrationDbTool("MdtCalibrationDbTool",this)
 {
   declareInterface<IMDT_DigitizationTool>(this);
   declareProperty("EffectiveRadius",  m_effRadius = 14.4275);
-  declareProperty("MdtCalibrationDbSvc", m_calibDbSvc);
+  declareProperty("CalibrationDbTool",m_calibrationDbTool);
 }
 
 
@@ -32,34 +32,22 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
 {
   ATH_MSG_INFO ("Initializing RT_Relation_DB_DigiTool");
 
-  StoreGateSvc* detStore=0;
-  StatusCode status = serviceLocator()->service("DetectorStore", detStore);
-  
-  if (status.isSuccess()) 
+  if(detStore()->contains<MuonDetectorManager>( "Muon" ))
   {
-    if(detStore->contains<MuonDetectorManager>( "Muon" ))
+    StatusCode status = detStore()->retrieve(m_muonGeoMgr);
+    if (status.isFailure())
     {
-      status = detStore->retrieve(m_muonGeoMgr);
-      if (status.isFailure())
-      {
-	ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
-        return status;
-      }
-      else
-      {
-	ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate");
-        //initialize the MdtIdHelper
+      ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
+      return status;
+    }
+    else
+    {  
+      ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate");
+      //initialize the MdtIdHelper
 //         m_idHelper = m_muonGeoMgr->mdtIdHelper();
 //         ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
 //         if(!m_idHelper) return status;
-      }
     }
-  }
-  
-  if ( !m_calibDbSvc.retrieve().isSuccess() )
-  {
-    ATH_MSG_FATAL("Unable to retrieve pointer to MdtCalibrationDbSvc");
-    return StatusCode::FAILURE;
   }
   
   initializeTube();
@@ -100,7 +88,7 @@ bool RT_Relation_DB_DigiTool::initializeTube()
 double RT_Relation_DB_DigiTool::getDriftTime(double r,Identifier DigitId,CLHEP::HepRandomEngine *rndmEngine) const
 {
   //Get RT relation from DB
-  const MuonCalib::MdtRtRelation *data = m_calibDbSvc->getRtCalibration( DigitId );
+  const MuonCalib::MdtRtRelation *data = m_calibrationDbTool->getRtCalibration( DigitId );
   
   double time        = 0.0;
   double t           = 0.0;

@@ -1,62 +1,47 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HECHVSUBGAP_H_HEADER_INCLUDED_E1B34569
-#define HECHVSUBGAP_H_HEADER_INCLUDED_E1B34569
+#ifndef LARHV_HECHVSUBGAP_H
+#define LARHV_HECHVSUBGAP_H
+
 class HECHVModule;
-#include "GeoModelKernel/RCBase.h"
-#include "LArHV/HECHVModuleConstLink.h"
-//  
-//##ModelId=47A0797F0247
-class HECHVSubgap : public RCBase
+
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
+class HECHVSubgap
 {
-  public:
-    // Constructor
-    //##ModelId=47A0797F024A
-    HECHVSubgap(HECHVModuleConstLink module, unsigned int iSubgap);
+ public:
+  HECHVSubgap(const HECHVModule* module, unsigned int iSubgap);
+  ~HECHVSubgap();
 
-    // returns a pointer to the module that owns this electrode.
-    //##ModelId=47A0797F024D
-    HECHVModuleConstLink getModule() const;
+  // returns a pointer to the module that owns this electrode.
+  const HECHVModule& getModule() const;
 
-    // Returns the index of this electrode.
-    //##ModelId=47A0797F024F
-    unsigned int getSubgapIndex() const;
+  // Returns the index of this electrode.
+  unsigned int getSubgapIndex() const;
 
-    // HV Status
-    bool hvOn() const;
-    
-    // Voltage
-    double voltage() const;
+  bool hvOn() const;
+  double voltage() const;
+  double current() const;
 
-    // Current
-    double current() const;
+#ifndef SIMULATIONBASE
+  int hvLineNo(const LArHVIdMapping* hvIdMapping=nullptr) const;
+#else
+  int hvLineNo() const;
+#endif
 
-    // HVLine no
-    int hvLineNo() const;
+  // Voltage and current at the same time:
+  void voltage_current(double& v, double& i) const;
 
-    // Voltage and current at the same time:
-    void voltage_current(double& v, double& i) const;
+ private:
+  HECHVSubgap(const HECHVSubgap& right);
+  HECHVSubgap& operator=(const HECHVSubgap& right);
 
-  private:
-    // Destructor
-    //##ModelId=47A0797F0251
-    virtual ~HECHVSubgap();
-
-    // Illegal operation
-    //##ModelId=47A0797F0253
-    HECHVSubgap(const HECHVSubgap& right);
-
-    // Illegal operation
-    //##ModelId=47A0797F0255
-    HECHVSubgap& operator=(const HECHVSubgap& right);
-
-    class Clockwork;
-    Clockwork *m_c;
-
+  class Clockwork;
+  Clockwork *m_c;
 };
 
-
-
-#endif /* HECHVSUBGAP_H_HEADER_INCLUDED_E1B34569 */
+#endif

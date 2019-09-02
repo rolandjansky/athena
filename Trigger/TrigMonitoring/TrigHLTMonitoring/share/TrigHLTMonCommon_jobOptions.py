@@ -102,7 +102,6 @@ if data_type == 'bytestream':
 
     theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
     theByteStreamAddressProviderSvc.TypeNames += ['HLT::HLTResult/HLTResult_HLT',
-        "ROIB::RoIBResult/RoIBResult",
         "MuCTPI_RDO/MUCTPI_RDO",
         "CTP_RDO/CTP_RDO",
         ]
@@ -147,7 +146,6 @@ if data_type == 'pool':
         HLTMonFlags.doTau     = True
         HLTMonFlags.doMuon    = True
         HLTMonFlags.doIDtrk   = True
-        HLTMonFlags.doIDJpsiMon = True
         HLTMonFlags.doCalo    = True
         HLTMonFlags.doBphys   = False
         HLTMonFlags.doMinBias = False
@@ -172,7 +170,7 @@ if data_type == 'pool':
     DQTDataFlowMon = DQTDataFlowMonTool(name = 'DQTDataFlowMon', 
             histoPathBase = '/GLOBAL/DQTDataFlow',                                     
             releaseString = releaseString)                                   
-    ToolSvc += DQTDataFlowMon 
+    #ToolSvc += DQTDataFlowMon #bugfix ATR-20161
     ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDataFlowMon ]
 
 #-- set up output histogram file ------------------------------------------------------------------------------

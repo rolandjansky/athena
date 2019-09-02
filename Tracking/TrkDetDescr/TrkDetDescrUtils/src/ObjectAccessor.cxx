@@ -12,18 +12,20 @@
 #include <iostream>
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/
-MsgStream& Trk::operator << ( MsgStream& sl, const Trk::ObjectAccessor& oac)
-{ 
-  for( const ObjectAccessor::value_type &elm : oac ) {
-    sl << (oac.end() - oac.begin()) << "-ObjectAccessor: | "  << elm << " | ";
+MsgStream&
+Trk::operator<<(MsgStream& sl, const Trk::ObjectAccessor& oac)
+{
+  for (const ObjectAccessor::value_type& elm : oac) {
+    sl << (oac.end() - oac.begin()) << "-ObjectAccessor: | " << elm << " | ";
   }
   return sl;
 }
 
-std::ostream& Trk::operator << ( std::ostream& sl, const Trk::ObjectAccessor& oac)
+std::ostream&
+Trk::operator<<(std::ostream& sl, const Trk::ObjectAccessor& oac)
 {
-  for( const ObjectAccessor::value_type &elm : oac ) {
-    sl << (oac.end() - oac.begin()) << "-ObjectAccessor: | "  << elm << " | ";
+  for (const ObjectAccessor::value_type& elm : oac) {
+    sl << (oac.end() - oac.begin()) << "-ObjectAccessor: | " << elm << " | ";
   }
   return sl;
 }

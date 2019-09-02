@@ -8,7 +8,6 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 # for documentation of method X, see Simulation__X._propertyDocDct
 from BeamEffects.BeamEffectsConf import Simulation__GenEventValidityChecker
 from BeamEffects.BeamEffectsConf import Simulation__GenEventRotator
-from BeamEffects.BeamEffectsConf import Simulation__GenEventBeamEffectBooster
 from BeamEffects.BeamEffectsConf import Simulation__GenEventVertexPositioner
 from BeamEffects.BeamEffectsConf import Simulation__VertexBeamCondPositioner
 from BeamEffects.BeamEffectsConf import Simulation__VertexPositionFromFile
@@ -65,7 +64,7 @@ def makeVertexBeamCondPositioner(ConfigFlags,name="VertexBeamCondPositioner", **
     #from BeamEffectsConfigFlagsTest import ConfigFlags
     from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
     from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
-    from RngComps.RandomServices import RNG, AthEngines
+    from RngComps.RandomServices import AthEngines
 
     result = ComponentAccumulator()
     

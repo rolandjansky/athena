@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_DetectorTool.h"
 #include "TRTDetectorFactory_Full.h" 
 
 #include "GeoModelUtilities/GeoModelExperiment.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
@@ -36,8 +35,8 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
     m_rdbAccessSvc("RDBAccessSvc",name),
     m_geometryDBSvc("InDetGeometryDBSvc",name),
     m_sumSvc("TRT_StrawStatusSummarySvc", name),
-    m_doArgonMixture(0),
-    m_doKryptonMixture(0),
+    m_doArgonMixture(1),
+    m_doKryptonMixture(1),
     m_useDynamicAlignFolders(false),
     m_manager(0),
     m_athenaComps(0)
@@ -50,8 +49,8 @@ TRT_DetectorTool::TRT_DetectorTool( const std::string& type, const std::string& 
   declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
   declareProperty("GeometryDBSvc", m_geometryDBSvc);
   declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);  // need for Argon
-  declareProperty("DoXenonArgonMixture", m_doArgonMixture); // Set to 1 to use argon. DEFAULT VALUE is 0. Overridden by DOARGONMIXTURE switch
-  declareProperty("DoKryptonMixture", m_doKryptonMixture); // Set to 1 to use krypton. DEFAULT VALUE is 0. Overridden by DOKRYPTONMIXTURE switch
+  declareProperty("DoXenonArgonMixture", m_doArgonMixture); // Set to 1 to use argon. DEFAULT VALUE is 1. Overridden by DOARGONMIXTURE switch
+  declareProperty("DoKryptonMixture", m_doKryptonMixture); // Set to 1 to use krypton. DEFAULT VALUE is 1. Overridden by DOKRYPTONMIXTURE switch
   declareProperty("useDynamicAlignFolders", m_useDynamicAlignFolders);
 
 }

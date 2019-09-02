@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -16,7 +16,7 @@ void test1() {
   std::cout << "test1\n";
 
   IdDictParser parser;
-  TileCablingSvc::init_idhelpers (parser);
+  TileCablingSvcMock::init_idhelpers (parser);
 
   TileCablingService* cabling = TileCablingService::getInstance();
 
@@ -54,8 +54,8 @@ void test1() {
           // Skip merged E1 cells
           if (tileID->sample(swid) == TileID::SAMP_E
               && tileID->tower(swid) == 10 // E1 tower
-              && cabling->E1_merged_with_run2(ros, drawer) 
-              && cabling->E1_merged_with_run2(ros, drawer) == tileID->module(swid)) continue;
+              && cabling->E1_merged_with_run2plus(ros, drawer)
+              && cabling->E1_merged_with_run2plus(ros, drawer) == tileID->module(swid)) continue;
 
           // Skip not connected C10 and D4
           if (!cabling->TileGap_connected(swid)) continue;

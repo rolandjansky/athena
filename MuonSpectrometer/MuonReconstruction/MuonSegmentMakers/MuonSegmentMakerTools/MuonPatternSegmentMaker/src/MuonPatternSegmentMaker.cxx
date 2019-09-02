@@ -38,9 +38,9 @@ namespace Muon {
 
   MuonPatternSegmentMaker::MuonPatternSegmentMaker(const std::string& t,const std::string& n,const IInterface* p)  :  
     AthAlgTool(t,n,p),
-    m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
-    m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
-    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
+    m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker", this),
+    m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator", this),
+    m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator", this),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
   {

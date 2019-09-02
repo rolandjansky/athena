@@ -69,24 +69,10 @@ namespace InDet {
 
   NnClusterizationFactory::NnClusterizationFactory(const std::string& name,
                                                    const std::string& n, const IInterface* p)
-    : AthAlgTool(name, n,p),
-      m_nParticleGroup {0U,1U,1U,1U}, // unsigned int
-      m_nnNames        {std::regex("^NumberParticles(|/|_.*)$"),
-                        std::regex("^ImpactPoints([0-9])P(|/|_.*)$"),
-                        std::regex("^ImpactPointErrorsX([0-9])(|/|_.*)$"),
-                        std::regex("^ImpactPointErrorsY([0-9])(|/|_.*)$"),
-                       },
-      m_assembleInput( &NnClusterizationFactory::assembleInputRunII ),
-      m_calculateOutput( &TTrainedNetwork::calculateNormalized )
+    : AthAlgTool(name, n, p)
   {
     declareInterface<NnClusterizationFactory>(this);
   }
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// Destructor - check up memory allocation
-/// delete any memory allocation on the heap
-
-  NnClusterizationFactory::~NnClusterizationFactory() {}
 
   StatusCode NnClusterizationFactory::initialize() {
 
@@ -458,7 +444,7 @@ namespace InDet {
     if (numberSubClusters>0 && static_cast<unsigned int>(numberSubClusters) < m_maxSubClusters) {
       // get position network id for the given cluster multiplicity then
       // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-      std::vector<double> position1P( ((*(nn_collection.at(m_NNId[kPositionNN].at(numberSubClusters-1)))).*m_calculateOutput)(inputData) );
+      std::vector<double> position1P(((*(nn_collection.at( m_NNId[kPositionNN-1].at(numberSubClusters-1)))).*m_calculateOutput)(inputData));
       std::vector<Amg::Vector2D> myPosition1=getPositionsFromOutput(position1P,input,pCluster,sizeX,sizeY);
 
       assert( position1P.size() % 2 == 0);
@@ -475,8 +461,8 @@ namespace InDet {
       }
       // get error network id for the given cluster multiplicity then
       // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-      std::vector<double> errors1PX( ((*(nn_collection.at(m_NNId[kErrorXNN].at(numberSubClusters-1)))).*m_calculateOutput)(inputDataNew) );
-      std::vector<double> errors1PY( ((*(nn_collection.at(m_NNId[kErrorYNN].at(numberSubClusters-1)))).*m_calculateOutput)(inputDataNew) );
+      std::vector<double> errors1PX( ((*(nn_collection.at(m_NNId[kErrorXNN-1].at(numberSubClusters-1)))).*m_calculateOutput)(inputDataNew) );
+      std::vector<double> errors1PY( ((*(nn_collection.at(m_NNId[kErrorYNN-1].at(numberSubClusters-1)))).*m_calculateOutput)(inputDataNew) );
 
       std::vector<Amg::MatrixX> errorMatrices1;
       getErrorMatrixFromOutput(errors1PX,errors1PY,errorMatrices1,numberSubClusters);

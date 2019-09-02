@@ -7,6 +7,10 @@
 
 class EMBHVModule;
 
+#ifndef SIMULATIONBASE
+class LArHVIdMapping;
+#endif
+
 class EMBHVElectrode
 {
  public:
@@ -28,7 +32,11 @@ class EMBHVElectrode
   double voltage(int iGap) const;
   double current(int iGap) const;
 
+#ifndef SIMULATIONBASE
+  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
+#else
   int hvLineNo(int iGap) const;
+#endif
 
   // Voltage and current at the same tine.:
   void voltage_current(int iGap, double& v, double& i) const;

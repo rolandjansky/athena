@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@ class Identifier;
 class MmIdHelper;
 class MuonIdHelper;
 class MM_RawDataCollection;
-class StoreGateSvc;
 
 namespace MuonGM
 {    
@@ -39,6 +38,7 @@ namespace Muon
 
   class IMuonRawDataProviderTool;
   class MuonIdHelperTool;
+  class IMMClusterBuilderTool;
 
   class MmRdoToPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
   {
@@ -94,6 +94,8 @@ namespace Muon
 
     std::string m_outputCollectionLocation;            
     bool m_merge; 
+
+    ToolHandle<IMMClusterBuilderTool> m_clusterBuilderTool;
 
   }; 
 } // end of namespace

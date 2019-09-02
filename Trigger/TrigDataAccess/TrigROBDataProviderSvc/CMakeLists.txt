@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Trigger/TrigEvent/TrigSteeringEvent	
                           PRIVATE
+                          Control/AthenaMonitoring
                           Control/CxxUtils
                           Control/StoreGate
                           Event/ByteStreamCnvSvcBase

@@ -27,9 +27,9 @@ public:
   virtual StatusCode execute() override final;
 
 private:
-  SG::ReadHandleKey<TgcDigitContainer> m_bkgInputKey{ this, "BkgInputKey", "OriginalEvent_SG+TGC_DIGITS", "ReadHandleKey for Background Input TgcDigitContainer" };
-  SG::ReadHandleKey<TgcDigitContainer> m_signalInputKey{ this, "SignalInputKey", "BkgEvent_0_SG+TGC_DIGITS", "ReadHandleKey for Signal Input TgcDigitContainer" };
-  SG::WriteHandleKey<TgcDigitContainer> m_outputKey{ this, "OutputKey", "StoreGateSvc+TGC_DIGITS", "WriteHandleKey for Output TgcDigitContainer" };
+  SG::ReadHandleKey<TgcDigitContainer> m_bkgInputKey{ this, "BkgInputKey", "Bkg_TGC_DIGITS", "ReadHandleKey for Background Input TgcDigitContainer" };
+  SG::ReadHandleKey<TgcDigitContainer> m_signalInputKey{ this, "SignalInputKey", "Sig_TGC_DIGITS", "ReadHandleKey for Signal Input TgcDigitContainer" };
+  SG::WriteHandleKey<TgcDigitContainer> m_outputKey{ this, "OutputKey", "TGC_DIGITS", "WriteHandleKey for Output TgcDigitContainer" };
 
 };
 

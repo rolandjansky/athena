@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FASTTRT_DIGITIZATION_FASTTRT_DIGITIZATIONTOOL_H
@@ -56,7 +56,6 @@ namespace InDetDD {
 }
 
 class TRT_ID;
-class StoreGateSvc;
 class ITRT_DriftFunctionTool;
 
 
@@ -140,7 +139,6 @@ private:
   // Split configuration
   int m_HardScatterSplittingMode;                                         // Process all TRT_Hits or just those from signal or background events
   bool m_HardScatterSplittingSkipper;
-  IntegerProperty m_vetoThisBarcode;
 
   bool m_useEventInfo;  // get mu from EventInfo ? 
   std::string m_EventInfoKey;

@@ -5,7 +5,7 @@
 #include "MuonStauRecoTool.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "MuonRecToolInterfaces/IMuonSegmentMaker.h"
 #include "MuonCombinedToolInterfaces/IMuonLayerSegmentMatchingTool.h"
@@ -36,7 +36,7 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/IRtRelation.h"
@@ -59,12 +59,11 @@ namespace MuonCombined {
     AthAlgTool(type,name,parent),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_segmentMaker("Muon::DCMathSegmentMaker/DCMathSegmentMaker"),
     m_segmentMakerT0Fit("Muon::DCMathSegmentMaker/DCMathT0FitSegmentMaker"),
     m_segmentMatchingTool("Muon::MuonLayerSegmentMatchingTool/MuonLayerSegmentMatchingTool"),
-    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
-    m_trackAmbibuityResolver("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
+    m_recoValidationTool(""),
+    m_trackAmbibuityResolver("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
     m_hitTimingTool("Muon::MuonHitTimingTool/MuonHitTimingTool"),
     m_layerHoughTool("Muon::MuonLayerHoughTool/MuonLayerHoughTool"),
     m_muonPRDSelectionTool("Muon::MuonPRDSelectionTool/MuonPRDSelectionTool"),
@@ -74,14 +73,12 @@ namespace MuonCombined {
     m_stauTofTool("MuGirlNS::StauBetaTofTool/StauBetaTofTool"),
     m_insideOutRecoTool("MuonCombined::MuonInsideOutRecoTool/MuonInsideOutRecoTool"),
     m_updator("Trk::KalmanUpdator/KalmanUpdator"),
-    m_mdtCalibrationDbSvc("MdtCalibrationDbSvc", name)
-
+    m_calibrationDbTool("MdtCalibrationDbTool", this)
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
 
     declareProperty("MuonIdHelperTool",m_idHelper );    
-    declareProperty("MuonEDMPrinterTool",m_printer );    
-    declareProperty("MuonEDMHelperTool",m_edmHelper );    
+    declareProperty("MuonEDMPrinterTool",m_printer );
     declareProperty("MuonSegmentMaker",m_segmentMaker );    
     declareProperty("MuonSegmentMakerT0Fit",m_segmentMakerT0Fit );    
     declareProperty("MuonLayerSegmentMatchingTool",m_segmentMatchingTool );    
@@ -96,7 +93,7 @@ namespace MuonCombined {
     declareProperty("MuonTofTool",m_stauTofTool);
     declareProperty("Updator", m_updator );
     declareProperty("MuonInsideOutRecoTool", m_insideOutRecoTool );
-    declareProperty("MdtCalibrationDbSvc", m_mdtCalibrationDbSvc );
+    declareProperty("MdtCalibrationDbTool", m_calibrationDbTool );
     declareProperty("DoSummary", m_doSummary = false );
     declareProperty("ConsideredPDGs", m_pdgsToBeConsidered );
     declareProperty("UseTruthMatching", m_useTruthMatching = false );
@@ -125,11 +122,11 @@ namespace MuonCombined {
 
     ATH_CHECK(m_idHelper.retrieve());    
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_edmHelper.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_segmentMaker.retrieve());
     ATH_CHECK(m_segmentMakerT0Fit.retrieve());
     ATH_CHECK(m_segmentMatchingTool.retrieve());
-    ATH_CHECK(m_recoValidationTool.retrieve());
+    if(!m_recoValidationTool.empty()) ATH_CHECK(m_recoValidationTool.retrieve());
     ATH_CHECK(m_trackAmbibuityResolver.retrieve());
     ATH_CHECK(m_hitTimingTool.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
@@ -140,7 +137,8 @@ namespace MuonCombined {
     ATH_CHECK(m_stauTofTool.retrieve());
     ATH_CHECK(m_insideOutRecoTool.retrieve());
     ATH_CHECK(m_updator.retrieve());
-    ATH_CHECK(m_mdtCalibrationDbSvc.retrieve());
+    ATH_CHECK(m_calibrationDbTool.retrieve());
+    ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
     
     if( m_doTruth ){
       // add pdgs from jobO to set
@@ -332,6 +330,8 @@ namespace MuonCombined {
     ATH_MSG_DEBUG("Refining candidates " << candidates.size());
     for( auto& candidate : candidates ){
       
+      ATH_MSG_DEBUG("   candidate: betaseed beta" << candidate->betaSeed.beta<<", error"<< candidate->betaSeed.error<< " layerDataVec size" << candidate->layerDataVec.size()<<" hits size" <<candidate->hits.size() );
+      
       // get beta from candidate and pass it to TOF tool
       float beta = candidate->betaFitResult.beta;
       m_stauTofTool->setBeta(beta);
@@ -398,7 +398,7 @@ namespace MuonCombined {
   }
   
   void MuonStauRecoTool::extractTimeMeasurementsFromTrack( MuonStauRecoTool::Candidate& candidate ) {
-    
+    ATH_MSG_VERBOSE("extractTimeMeasurementsFromTrack for candidate: beta seed " << candidate.betaSeed.beta );
     Trk::Track* combinedTrack = candidate.combinedTrack.get();
     if( !combinedTrack ) return;
     
@@ -418,6 +418,8 @@ namespace MuonCombined {
       ATH_MSG_WARNING(" track without states, cannot extractTimeMeasurementsFromTrack " );
       return; 
     }
+    
+    ATH_MSG_VERBOSE("Track : "<<(*combinedTrack));
 
     // store RPC prds for clustering 
     typedef std::vector<const Muon::MuonClusterOnTrack*> RpcClVec;
@@ -442,7 +444,7 @@ namespace MuonCombined {
       if( !meas || (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
       
       // get Identifier and skip pseudo measurements, ID hits and all but MDT/RPC hits
-      Identifier id = m_edmHelper->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
 
       // extract time measurements for RPCs
@@ -483,7 +485,7 @@ namespace MuonCombined {
           float locR = pars->parameters()[Trk::locR];
           float errR = pars->covariance() ? Amg::error(*pars->covariance(),Trk::locR) : 0.3;
           auto detEl = mdt->detectorElement();
-          auto data = m_mdtCalibrationDbSvc->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
+          auto data = m_calibrationDbTool->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
           auto rtRelation = data.rtRelation;
           bool out_of_bound_flag = false;
           float drdt = rtRelation->rt()->driftvelocity(driftTime);
@@ -610,6 +612,8 @@ namespace MuonCombined {
     // get RPC timing per chamber
     RpcClPerChMap::const_iterator chit = rpcPrdsPerChamber.begin();
     RpcClPerChMap::const_iterator chit_end = rpcPrdsPerChamber.end();
+    ATH_MSG_VERBOSE("RPCs per chamber " << rpcPrdsPerChamber.size() );
+     
     for( ;chit!=chit_end;++chit ){
       const Trk::TrackParameters* pars = std::get<0>(chit->second);
       const RpcClVec&             phiClusters = std::get<1>(chit->second);
@@ -702,19 +706,22 @@ namespace MuonCombined {
       for( unsigned int i=0;i<dcs.size();++i){
         TrkDriftCircleMath::DCSLFitter::HitSelection selection(dcs.size(),0);
         selection[i] = 1;
-        if( !mdtFitter.fit(seedLine,dcs,selection) ){
+        TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+        if( !mdtFitter.fit(result, seedLine,dcs,selection) ){
           ATH_MSG_DEBUG("Fit failed ");
           continue;
         }
-        TrkDriftCircleMath::Segment segment = mdtFitter.result();
+        TrkDriftCircleMath::Segment segment = result;
         unsigned int ndofFit = segment.ndof();
         double chi2NdofSegmentFit = segment.chi2()/(double)(ndofFit);
-        if( !segmentFinder.dropHits(segment) ){
+        bool hasDropHit = false;
+        unsigned int dropDepth = 0;
+        if( !segmentFinder.dropHits(segment, hasDropHit, dropDepth) ){
           ATH_MSG_DEBUG("DropHits failed, fit chi2/ndof " << chi2NdofSegmentFit);
           if( msgLvl(MSG::VERBOSE) ){
             segmentFinder.debugLevel(20);
-            segment = mdtFitter.result();
-            segmentFinder.dropHits(segment);
+            segment = result;
+            segmentFinder.dropHits(segment, hasDropHit, dropDepth);
             segmentFinder.debugLevel(0);
           }
           continue;
@@ -764,7 +771,7 @@ namespace MuonCombined {
         float locR = rline;
         float errR = dc.errorTrack();
         auto detEl = mdt->detectorElement();
-        auto data = m_mdtCalibrationDbSvc->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
+        auto data = m_calibrationDbTool->getCalibration(detEl->collectionHash(),detEl->detectorElementHash());
         auto rtRelation = data.rtRelation;
         bool out_of_bound_flag = false;
         float drdt = rtRelation->rt()->driftvelocity(driftTime);
@@ -1221,7 +1228,7 @@ namespace MuonCombined {
         if( !seg->hasFittedT0() ) continue;
         float time = seg->time();
         float error = seg->errorTime();
-        Identifier id = m_edmHelper->chamberId(*seg);
+        Identifier id = m_edmHelperSvc->chamberId(*seg);
         segmentTimeCalibration(id,time,error);
         addHit(seg->globalPosition().mag(),time,error,m_segmentBetaAssociationCut);
       }
@@ -1302,10 +1309,12 @@ namespace MuonCombined {
       clusters.push_back( phiClusterOnTrack->clone() );
     }
 
+    ATH_MSG_DEBUG("About to loop over Hough::Hits");
+    
     std::vector<MuonHough::Hit*>::const_iterator hit = maximum.hits.begin();
     std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
     for( ;hit!=hit_end;++hit ) {
-      
+      ATH_MSG_DEBUG("hit x,y_min,y_max,w = "<<(*hit)->x<<","<<(*hit)->ymin<<","<<(*hit)->ymax<<","<<(*hit)->w);
       // treat the case that the hit is a composite TGC hit
       if( (*hit)->tgc ){
         for( const auto& prd : (*hit)->tgc->etaCluster.hitList ) handleCluster(*prd,clusters);
@@ -1315,6 +1324,18 @@ namespace MuonCombined {
         else                        handleCluster( static_cast<const Muon::MuonCluster&>(*(*hit)->prd),clusters);
       }
     }
+    
+    ATH_MSG_DEBUG("About to loop over calibrated hits");
+    
+    
+    ATH_MSG_DEBUG("Dumping MDTs");
+    for (auto it : mdts)
+      ATH_MSG_DEBUG(*it);
+    
+    ATH_MSG_DEBUG("Dumping clusters");
+    for (auto it : clusters)
+      ATH_MSG_DEBUG(*it);
+    
 
     // require at least 2 MDT hits
     if( mdts.size() > 2 ){
@@ -1326,12 +1347,12 @@ namespace MuonCombined {
 			  mdts, clusters,
 			  !clusters.empty(), segColl.get(), intersection.trackParameters->momentum().mag() );
       if( segColl ){
-	Trk::SegmentCollection::iterator sit = segColl->begin();
-	Trk::SegmentCollection::iterator sit_end = segColl->end();
-	for( ; sit!=sit_end;++sit){
-	  Trk::Segment* tseg=*sit;
-	  Muon::MuonSegment* mseg=dynamic_cast<Muon::MuonSegment*>(tseg);
-          ATH_MSG_DEBUG( " " << m_printer->print(*mseg) );
+      	Trk::SegmentCollection::iterator sit = segColl->begin();
+      	Trk::SegmentCollection::iterator sit_end = segColl->end();
+      	for( ; sit!=sit_end;++sit){
+      	  Trk::Segment* tseg=*sit;
+      	  Muon::MuonSegment* mseg=dynamic_cast<Muon::MuonSegment*>(tseg);
+          ATH_MSG_DEBUG( "Segment:  " << m_printer->print(*mseg) );
           segments.push_back( std::shared_ptr<const Muon::MuonSegment>(mseg) );
         }
       }
@@ -1444,15 +1465,22 @@ namespace MuonCombined {
     Muon::MuonStationIndex::DetectorRegionIndex regionIndex = intersection.layerSurface.regionIndex;
     Muon::MuonStationIndex::LayerIndex  layerIndex  = intersection.layerSurface.layerIndex;
 
+    // get hough data
+    SG::ReadHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> houghDataPerSectorVec {m_houghDataPerSectorVecKey};
+    if (!houghDataPerSectorVec.isValid()) {
+      ATH_MSG_ERROR("Hough data per sector vector not found");
+      return;
+    }
+
     // sanity check
-    if( static_cast<int>(m_layerHoughTool->houghData().size()) <= sector-1 ){
-      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << m_layerHoughTool->houghData().size() );
+    if( static_cast<int>(houghDataPerSectorVec->vec.size()) <= sector-1 ){
+      ATH_MSG_WARNING( " sector " << sector << " larger than the available sectors in the Hough tool: " << houghDataPerSectorVec->vec.size() );
       return;
     }
 
     // get hough maxima in the layer
     unsigned int sectorLayerHash = Muon::MuonStationIndex::sectorLayerHash( regionIndex,layerIndex );
-    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = m_layerHoughTool->houghData()[sector-1];
+    const Muon::MuonLayerHoughTool::HoughDataPerSector& houghDataPerSector = houghDataPerSectorVec->vec[sector-1];
 
     // sanity check
     if( houghDataPerSector.maxVec.size() <= sectorLayerHash ){

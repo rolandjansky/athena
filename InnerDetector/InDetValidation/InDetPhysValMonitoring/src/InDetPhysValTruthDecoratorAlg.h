@@ -15,10 +15,10 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandle.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "AthContainers/AuxElement.h"
 #include "GaudiKernel/EventContext.h"
 #include "InDetPhysValMonitoring/IAthSelectionTool.h"
@@ -26,7 +26,6 @@
 #include <utility>
 #include <vector>
 
-class IBeamCondSvc;
 
 // class to decorate xAOD::TruthParticles with additional information required by validation
 class InDetPhysValTruthDecoratorAlg: public AthReentrantAlgorithm {
@@ -41,11 +40,12 @@ public:
 private:
   bool decorateTruth(const xAOD::TruthParticle& particle,
                      std::vector< std::pair<SG::WriteDecorHandle<xAOD::TruthParticleContainer,float>,
-                                            const SG::AuxElement::ConstAccessor<float> &> > &float_decor) const;
+                                            const SG::AuxElement::ConstAccessor<float> &> > &float_decor,
+                                            const Amg::Vector3D& beamPos) const;
 
   PublicToolHandle<Trk::IExtrapolator> m_extrapolator
      {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};
-  ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   PublicToolHandle<IAthSelectionTool>         m_truthSelectionTool
      {this,"TruthSelectionTool","",""};

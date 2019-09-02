@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,6 +10,7 @@
 @section TRT_ConditionsData_TRT_ConditionsDataIntro Introduction
 
 This package provides TDS objects for storing TRT Conditions data.
+They are all valid for a given IoV and must thus be accessed with ReadCondHandle.
 
 @section TRT_ConditionsData_TRT_ConditionsDataOverview Class Overview
 
@@ -35,11 +36,13 @@ This package provides TDS objects for storing TRT Conditions data.
   -  TRTCond::StrawStatusContainer :  A NestedContainer of StrawStatus instances
   -  TRTCond::StrawStatusMultChanContainer :  A MultChanContainer
   -  TRTCond::LinearPacker :  Packs a value into a PackedType e.g. a char
-  -  TRTAlifloat : DEPRECIATED
-  -  TRTRtfloat : DEPRECIATED
-  -  TRTWeifloat : DEPRECIATED
   -  TRTStrawStatusData :  A class holding dead/noisy status (to be relaced by TRTCond::StrawStatus)
- 
+  -  HTcalculator            : Calculates the probability of an electron to produce a HT hit
+  -  StorePIDId              : Holds data used by HTcalculator 
+  -  TRTCond::HWmap          : Finds HV-line of a given straw
+  -  TRTCond::AliveStraws    : Number of alive straws in various detector elements
+  -  TRTCond::ActiveFraction : Basically the same thing
+  -  TRTDedxCorrections      : Holds corrections to the dE/dx calculation from the ToT
 
 
 */

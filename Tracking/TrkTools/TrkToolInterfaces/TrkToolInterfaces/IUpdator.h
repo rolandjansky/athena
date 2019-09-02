@@ -55,43 +55,43 @@ public:
     static const InterfaceID& interfaceID( ) ;
     /** updator for Kalman-Filter based algorithms getting the measurement
         coordinates from Amg::Vector2D (use for example with PrepRawData) */
-    virtual const TrackParameters* addToState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&) const = 0;
+    virtual TrackParameters* addToState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&) const = 0;
     /** updator for Kalman-Filter based algorithms getting the measurement
         coordinates from LocalParameters (use for example with
         MeasurementBase or RIO_OnTrack) */
-    virtual const TrackParameters* addToState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&) const = 0;
+    virtual TrackParameters* addToState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&) const = 0;
     /** the updator interface with FitQualityOnSurface allows to save the chi2 in
         one step with the updating (the chi2 is automatically known during
         the updating maths). Version using Amg::Vector2D. */
-    virtual const TrackParameters* addToState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&, FitQualityOnSurface*& ) const = 0;
+    virtual TrackParameters* addToState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&, FitQualityOnSurface*& ) const = 0;
     /** the updator interface with FitQualityOnSurface allows to save the chi2 in
         one step with the updating (the chi2 is automatically known during
         the updating maths). Version using LocalParameters. */
-    virtual const TrackParameters* addToState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&, FitQualityOnSurface*& ) const = 0;
+    virtual TrackParameters* addToState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&, FitQualityOnSurface*& ) const = 0;
 
     /** the reverse updating or inverse KalmanFilter removes a measurement
         from the track state, giving a predicted or unbiased state, here 
         working with Amg::Vector2D from (for example) PrepRawData objects.
       */
-    virtual const TrackParameters* removeFromState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&) const = 0;
+    virtual TrackParameters* removeFromState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&) const = 0;
     /** the reverse updating or inverse KalmanFilter removes a measurement
         from the track state, giving a predicted or unbiased state, here
         working with LocalParameters from (for example) MeasurementBase
         or RIO_OnTrack objects.
       */
-    virtual const TrackParameters* removeFromState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&) const = 0;
+    virtual TrackParameters* removeFromState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&) const = 0;
     /** the reverse updating or inverse KalmanFilter removes a measurement from
         the track state, giving a predicted or unbiased state, here working with
         with Amg::Vector2D and in addition giving back the fit quality
         of the given state.
       */
-    virtual const TrackParameters* removeFromState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&, FitQualityOnSurface*&) const = 0;
+    virtual TrackParameters* removeFromState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&, FitQualityOnSurface*&) const = 0;
     /** the reverse updating or inverse KalmanFilter removes a measurement
         from the track state, giving a predicted or unbiased state, here
         working with LocalParameters and in addition giving back the
         fit quality of the given state.
       */
-    virtual const TrackParameters* removeFromState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&, FitQualityOnSurface*&) const = 0;
+    virtual TrackParameters* removeFromState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&, FitQualityOnSurface*&) const = 0;
 
     /** adds to a track state the parameters from another state using a 
         statistical combination - use with care! In particular it is the
@@ -100,7 +100,7 @@ public:
         more than one of the two states. Method to be used e.g. for Kalman Smoothing
         or InDet - Muons track combination.
     */
-    virtual const TrackParameters* combineStates   (const TrackParameters&, const TrackParameters&) const = 0;
+    virtual TrackParameters* combineStates   (const TrackParameters&, const TrackParameters&) const = 0;
     /** adds to a track state the parameters from another state using a 
         statistical combination and determines fit quality - use with care!
         In particular it is the caller's responsiblility that both states
@@ -109,7 +109,7 @@ public:
         Method to be used e.g. for Kalman Smoothing or InDet - Muons track
         combination.
     */
-    virtual const TrackParameters* combineStates   (const TrackParameters&, const TrackParameters&, FitQualityOnSurface*&) const = 0;
+    virtual TrackParameters* combineStates   (const TrackParameters&, const TrackParameters&, FitQualityOnSurface*&) const = 0;
 
     /** pure AMG interface for reference-track KF, allowing update of parameter differences
     */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -67,16 +67,18 @@ StatusCode xAODTestReadHVec::initialize()
 StatusCode xAODTestReadHVec::execute (const EventContext& ctx) const
 {
   const DMTest::HVec* hvec = SG::get (m_hvecKey, ctx);
-  std::cout << m_hvecKey.key() << ":";
+  std::ostringstream ost1;
+  ost1 << m_hvecKey.key() << ":";
   for (const H* h : *hvec)
-    std::cout << " " << h->aFloat();
-  std::cout << "\n";
+    ost1 << " " << h->aFloat();
+  ATH_MSG_INFO (ost1.str());
 
   if (const DMTest::HVec* hview = SG::get (m_hviewKey, ctx)) {
-    std::cout << m_hviewKey.key() << ":";
+    std::ostringstream ost2;
+    ost2 << m_hviewKey.key() << ":";
     for (const H* h : *hview)
-      std::cout << " " << h->aFloat();
-    std::cout << "\n";
+      ost2 << " " << h->aFloat();
+    ATH_MSG_INFO (ost2.str());
 
 
     if (!m_vecWriteKey.key().empty()) {

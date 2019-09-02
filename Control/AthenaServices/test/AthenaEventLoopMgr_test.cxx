@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -20,11 +20,10 @@
 #include "AthenaKernel/errorcheck.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/ICollectionSize.h"
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IEvtSelector.h"
@@ -158,7 +157,7 @@ public:
 
 TestContext::TestContext()
   : m_object(&m_ei),
-    m_addr (CxxUtils::make_unique<TestAddress> (&m_object)),
+    m_addr (std::make_unique<TestAddress> (&m_object)),
     m_event_num (0)
 {
   m_object.addRef();

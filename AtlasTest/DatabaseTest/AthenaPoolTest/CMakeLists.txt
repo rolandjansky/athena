@@ -75,7 +75,7 @@ function (athenapooltest_run_test testName jo pattern)
                   @ONLY )
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/athenapooltest_${testName}.sh
-                  ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolTest/AthenaPoolTest-01-00-05"
+                  ENVIRONMENT "ATLAS_REFERENCE_TAG=AthenaPoolTest/AthenaPoolTest-01-00-06"
                   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post_check_with_select.sh ${testName} ${pattern}"
                   PROPERTIES TIMEOUT 900
                    )
@@ -86,19 +86,20 @@ function (athenapooltest_run_test testName jo pattern)
 endfunction (athenapooltest_run_test)
 
 
-# Write with DoubleEventSelector
-athenapooltest_run_test( AthenaPoolTestWriteDoubleSelector AthenaPoolTestWriteDoubleSelector
-                         "'^..DoubleEvent|^..AthenaPoolTest'" )
-athenapooltest_run_test( AthenaPoolTestReadDoubleSelector AthenaPoolTestReadDoubleSelector
-                         "'^..DoubleEvent|^..AthenaPoolTest'"
-                         DEPENDS AthenaPoolTestWriteDoubleSelector )
-
 # Write/read out some simple objects:
 athenapooltest_run_test( AthenaPoolTestWrite AthenaPoolTestWrite
                          "^..AthenaPoolTestD" )
 athenapooltest_run_test( AthenaPoolTestRead AthenaPoolTestRead
                          "AthenaPoolTestD"
                          DEPENDS AthenaPoolTestWrite )
+
+# Write with DoubleEventSelector
+athenapooltest_run_test( AthenaPoolTestWriteDoubleSelector AthenaPoolTestWriteDoubleSelector
+                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         DEPENDS AthenaPoolTestRead)
+athenapooltest_run_test( AthenaPoolTestReadDoubleSelector AthenaPoolTestReadDoubleSelector
+                         "'^..DoubleEvent|^..AthenaPoolTest'"
+                         DEPENDS AthenaPoolTestWriteDoubleSelector )
 
 # Add on test of navigation still using simple objects:
 # AthenaPoolTestWrite - Step2 - rewrite part in another file
@@ -109,7 +110,7 @@ athenapooltest_run_test( AthenaPoolTestStep2WriteDoubleSelector AthenaPoolTestSt
 # normal EventSelector
 athenapooltest_run_test( AthenaPoolTestStep2Write AthenaPoolTestStep2Write
                          "^..AthenaPoolTestD"
-                         DEPENDS AthenaPoolTestRead )
+                         DEPENDS AthenaPoolTestStep2WriteDoubleSelector )
 
 # Copy the Step2 file
 #athenapooltest_run_test( AthenaPoolTestCopy AthenaPoolTestCopy
@@ -135,14 +136,16 @@ athenapooltest_run_test( AthenaPoolTestStep2Write AthenaPoolTestStep2Write
 
 # Test write/read of indet rdos:
 athenapooltest_run_test( InDetRawDataWriter InDetRawDataWriter_jobOptions
-                         "InDetRawDataFak" )
+                         "InDetRawDataFak"
+                         DEPENDS AthenaPoolTestStep2Write )
 athenapooltest_run_test( InDetRawDataRead InDetRawDataReader_jobOptions
                          "InDetRawDataFak"
                          DEPENDS InDetRawDataWriter )
 
 # Test write/read of LAr cell
 athenapooltest_run_test( LArCellContWriter LArCellContWriter_jobOptions
-                         "LArCellContFake" )
+                         "LArCellContFake"
+                         DEPENDS InDetRawDataRead )
 athenapooltest_run_test( LArCellContRead LArCellContReader_jobOptions
                          "LArCellContFake"
                          DEPENDS LArCellContWriter )
@@ -157,7 +160,8 @@ athenapooltest_run_test( ReadCombinedRDO ReadCombinedRDO
 
 # Test basic overlay algorithms with DoubleEventSelector
 athenapooltest_run_test( DoubleEventSelectorOverlayTest DoubleEventSelectorOverlayTest
-                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1'" )
+                         "'^..DoubleEvent|^..AthenaPoolAddr|^..Stream1'"
+                         DEPENDS ReadCombinedRDO )
 
 # AthenaMT test for DoubleEventSelector
 atlas_add_test( DoubleEventSelectorOverlayTestMT
@@ -222,7 +226,7 @@ atlas_add_test( DoubleEventSelectorOverlayTestMT
 # Check for adding DetDescr tags to event info object:
 athenapooltest_run_test( EventInfoWrite EventInfoWrite
                          "'^..[TE][av][ge][In][nt][fI][on][Mf][go][rW]'"
-                         DEPENDS LArCellContRead )
+                         DEPENDS DoubleEventSelectorOverlayTest )
 athenapooltest_run_test( EventInfoWriteStep2 EventInfoWriteStep2
                          "'^..[TE][av][ge][In][nt][fI][on][Mf][go][rW]'"
                          DEPENDS EventInfoWrite )

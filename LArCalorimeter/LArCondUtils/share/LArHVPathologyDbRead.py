@@ -5,7 +5,7 @@ from time import strptime,time
 from calendar import timegm
 
 if "GloablTag" not in dir():
-    GlobalTag = 'CONDBR2-BLKPA-2016-14'
+    GlobalTag = 'CONDBR2-BLKPA-2017-03'
 
 if "inputsqlite" not in dir():
    dbConn="COOLOFL_LAR/CONDBR2"
@@ -55,7 +55,7 @@ globalflags.InputFormat = 'bytestream'
 globalflags.DatabaseInstance="CONDBR2"
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-03-01-00'
+jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-04-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit

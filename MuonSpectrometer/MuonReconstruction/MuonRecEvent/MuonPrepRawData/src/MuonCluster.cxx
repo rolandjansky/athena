@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,35 +26,35 @@ namespace Muon
                 const Amg::MatrixX* locErrMat
                 ) :
       PrepRawData(RDOId, locpos, rdoList, locErrMat), //call base class constructor
-      m_globalPosition(0)
+      m_globalPosition()
   { 
   }
 
   // Destructor:
   MuonCluster::~MuonCluster()
   {
-    delete m_globalPosition;
   }
 
   // Default constructor:
   MuonCluster::MuonCluster():
       PrepRawData(), 
-      m_globalPosition(0)
+      m_globalPosition()
   { }
 
   //copy constructor:
   MuonCluster::MuonCluster(const MuonCluster& RIO):
-      PrepRawData(RIO)
+      PrepRawData(RIO),
+      m_globalPosition()
   { 
     // copy only if it exists
-    m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+
+    if (RIO.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
   }
 
   MuonCluster::MuonCluster(MuonCluster&& RIO):
-    PrepRawData(std::move(RIO)),
-    m_globalPosition (RIO.m_globalPosition)
+    PrepRawData(std::move(RIO))
   { 
-    RIO.m_globalPosition = nullptr;
+    m_globalPosition = std::move(RIO.m_globalPosition);
   }
 
   //assignment operator
@@ -63,8 +63,8 @@ namespace Muon
     if (&RIO !=this)
     {
       Trk::PrepRawData::operator=(RIO);
-      delete m_globalPosition;
-      m_globalPosition = (RIO.m_globalPosition) ? new Amg::Vector3D(*RIO.m_globalPosition) : 0;
+      if (RIO.m_globalPosition) m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*RIO.m_globalPosition));
+      else if (m_globalPosition) m_globalPosition.release().reset();
     }
     return *this;
   }
@@ -74,9 +74,7 @@ namespace Muon
     if (&RIO !=this)
     {
       Trk::PrepRawData::operator=(std::move(RIO));
-      delete m_globalPosition;
-      m_globalPosition = RIO.m_globalPosition;
-      RIO.m_globalPosition = nullptr;
+      m_globalPosition = std::move(RIO.m_globalPosition);
     }
     return *this;
   }

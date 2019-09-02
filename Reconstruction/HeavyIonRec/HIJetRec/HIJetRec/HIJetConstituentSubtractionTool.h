@@ -43,7 +43,7 @@ public:
   HIJetConstituentSubtractionTool(const std::string& t);
   
   /// \brief Implementing abstract methods from base
-  int modify(xAOD::JetContainer& jets) const;
+  StatusCode modify(xAOD::JetContainer& jets) const;
 
   /// \brief Implementing abstract methods from base, not used
   int modifyJet(xAOD::Jet&) const {return 1;};

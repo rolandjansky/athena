@@ -31,10 +31,12 @@
 #include "TileConditions/ITileBadChanTool.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolTiming.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Calo includes
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloConditions/CaloAffectedRegionInfo.h"
+#include "CaloConditions/CaloNoise.h"
 
 // Atlas includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -42,6 +44,7 @@
 #include "Identifier/HWIdentifier.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
 // Gaudi includes
@@ -65,7 +68,6 @@ class TileDetDescrManager;
 class TileCellCollection;
 class CaloCellContainer;
 class TileCablingService;
-class ICalorimeterNoiseTool;
 class IAtRndmGenSvc;
 
 
@@ -99,6 +101,9 @@ class TileCellBuilderFromHit
     typedef TileDrawerEvtStatus TileDrawerEvtStatusArray[5][64];
 
     // properties
+    SG::ReadCondHandleKey<CaloNoise> m_caloNoiseKey{this, "CaloNoise",
+                                                    "electronicNoise",
+                                                    "CaloNoise object to read"};
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this, "TileHitContainer", 
                                                           "TileHitCnt", 
                                                           "Input Tile hit container key"};
@@ -127,8 +132,7 @@ class TileCellBuilderFromHit
     float m_maxTime;              //!< maximum time for the PMTs in the cels
     float m_minTime;              //!< minimum time for the PMTs in the cels
     bool m_maskBadChannels;      //!< if true=> bad channels are masked
-    bool m_useNoiseTool;         //!< if true=> add noise to all cells
-    float m_noiseSigma;          //!< cell electroing noise if the CaloNoiseTool is switched off 
+    float m_noiseSigma;          //!< cell electronic noise if CaloNoise is switched off 
 
     const TileID* m_tileID;   //!< Pointer to TileID
     const TileTBID* m_tileTBID; //!< Pointer to TileTBID
@@ -145,7 +149,12 @@ class TileCellBuilderFromHit
     ToolHandle<TileCondToolEmscale> m_tileToolEmscale{this,
         "TileCondToolEmscale", "TileCondToolEmscale", "Tile EM scale calibration tool"};
 
-    ToolHandle<ICalorimeterNoiseTool> m_noiseTool; //!< Calo Noise tool with noise values
+    /**
+     * @brief Name of Tile cabling service
+     */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service"};
+
 
     const TileDetDescrManager* m_tileMgr; //!< Pointer to TileDetDescrManager
     const MbtsDetDescrManager* m_mbtsMgr; //!< Pointer to MbtsDetDescrManager
@@ -165,7 +174,8 @@ class TileCellBuilderFromHit
 
     //!< method to process raw channels from a given vector and store them in collection
     template<class ITERATOR, class COLLECTION>
-    void build(TileDrawerEvtStatusArray& drawerEvtStatus,
+    void build(const CaloNoise* caloNoise,
+               TileDrawerEvtStatusArray& drawerEvtStatus,
                const ITERATOR & begin,
                const ITERATOR & end,
                COLLECTION * coll,
@@ -192,7 +202,8 @@ class TileCellBuilderFromHit
                         int ros, int drawer, bool count_over, bool good_time, bool good_ener,
         bool overflow, bool underflow, bool good_overflowfit) const; //!< method to compute the cell quality bits
 
-    int m_RUN2;
+    bool m_RUN2;
+    bool m_RUN2plus;
     int m_E1_TOWER;
 
     static const int NSIDE = 2;

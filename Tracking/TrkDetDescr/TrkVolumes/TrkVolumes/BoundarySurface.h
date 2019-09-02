@@ -119,9 +119,9 @@ class Surface;
   {
   msg << "BoundarySurface debug information: " << std::endl;
   msg << "     -> pointer to insideVolume         = " << m_insideVolume       << std::endl;
-  msg << "     -> pointer to insideVolumeArray    = " << m_insideVolumeArray.getPtr()  << std::endl;
+  msg << "     -> pointer to insideVolumeArray    = " << m_insideVolumeArray.get()  << std::endl;
   msg << "     -> pointer to outsideVolume        = " << m_outsideVolume      << std::endl;
-  msg << "     -> pointer to outsideVolumeArray   = " << m_outsideVolumeArray.getPtr() << endmsg;
+  msg << "     -> pointer to outsideVolumeArray   = " << m_outsideVolumeArray.get() << endmsg;
   
   
   }

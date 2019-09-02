@@ -17,6 +17,8 @@
 #include "Identifier/Identifier.h"
 #include "CscSegmentMakers/ICscSegmentFinder.h" //including MuonSegmentCombination(Collection).h CscPrepDataContainer.h"
 
+#include <atomic>
+
 class ICscSegmentUtilTool;
 
 namespace MuonGM {
@@ -58,10 +60,10 @@ private:  // data
 
   // Properties.
   // Number of events dumped.
-  mutable int m_dumpcount;
-  mutable int m_dumped;
+  int m_dumpcount;
+  mutable std::atomic_int m_dumped;
   // Debug flags.
-  mutable bool m_dump;
+  mutable std::atomic_bool m_dump;
   double m_max_chisquare;
   double m_max_slope_r;
   double m_max_slope_phi;

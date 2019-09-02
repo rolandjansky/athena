@@ -24,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Tracking/TrkEvent/TrkTrack
 			  Tracking/TrkDetDescr/TrkSurfaces
 			  Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
+			  Tracking/TrkVertexFitter/TrkVertexSeedFinderUtils
 			  Tracking/TrkVertexFitter/TrkVxEdmCnv
 			  Event/EventPrimitives
 			  InnerDetector/InDetConditions/InDetBeamSpotService

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -12,7 +12,7 @@
 #define PIXELGANGEDCLUSTERAMBIGUITIES_H 1
 
 //<<<<<< INCLUDES                                                       >>>>>>
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <map>
 #include "InDetPrepRawData/SiCluster.h"
 

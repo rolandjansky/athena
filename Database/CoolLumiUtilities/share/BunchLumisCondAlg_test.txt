@@ -1,0 +1,10 @@
+ApplicationMgr.ExtSvc = {"StoreGateSvc/ConditionStore"};
+BunchLumisCondAlg.BunchLumisFolderInputKey = "testLumi";
+BunchLumisCondAlg.FillParamsInputKey = "FillParamsCondData";
+BunchLumisCondAlg.BunchLumisOutputKey = "BunchLumisCondData";
+
+BunchLumisCondAlg5.BunchLumisFolderInputKey = "testLumi5";
+BunchLumisCondAlg5.BunchLumisOutputKey = "BunchLumisCondData5";
+
+BunchLumisCondAlg7.BunchLumisFolderInputKey = "testLumi";
+BunchLumisCondAlg7.BunchLumisOutputKey = "BunchLumisCondData7";

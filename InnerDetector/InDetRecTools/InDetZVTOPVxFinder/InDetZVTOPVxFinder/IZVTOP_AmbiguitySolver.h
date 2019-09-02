@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,21 +17,13 @@
 namespace InDet 
 {
 
-
-  static const InterfaceID IID_IZVTOP_AmbiguitySolver("InDet::IZVTOP_AmbiguitySolver", 1, 0);
-
   class IZVTOP_AmbiguitySolver : virtual public IAlgTool {
   public:
-    static const InterfaceID& interfaceID( ) ;
+    DeclareInterfaceID (IZVTOP_AmbiguitySolver, 1, 0);
 
     // enter declaration of your interface-defining member functions here
-    virtual std::vector< xAOD::Vertex* > solveAmbiguities(std::vector< xAOD::Vertex* > VertexContainer) = 0;
+    virtual std::vector< xAOD::Vertex* > solveAmbiguities(std::vector< xAOD::Vertex* > VertexContainer) const = 0;
   };
-
-  inline const InterfaceID& InDet::IZVTOP_AmbiguitySolver::interfaceID()
-    { 
-      return IID_IZVTOP_AmbiguitySolver; 
-    }
 
 } // end of namespace
 

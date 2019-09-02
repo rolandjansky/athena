@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthMpEvtLoopMgr.h"
@@ -139,10 +139,15 @@ StatusCode AthMpEvtLoopMgr::nextEvent(int maxevt)
   return m_evtProcessor->nextEvent(maxevt);
 }
 
-StatusCode AthMpEvtLoopMgr::executeEvent(void* par)
+EventContext AthMpEvtLoopMgr::createEventContext() {
+  // return an invalid context - method should not be called
+  return EventContext{};
+}
+
+StatusCode AthMpEvtLoopMgr::executeEvent(EventContext&& ctx)
 {
   // Perhaps there we should return StatusCode::FAILURE as this method shoud not be called directly
-  return m_evtProcessor->executeEvent(par);
+  return m_evtProcessor->executeEvent(std::move(ctx));
 }
 
 StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
@@ -242,7 +247,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   ATH_MSG_DEBUG("Successfully finalized I/O before forking");
 
   // Extract process file descriptors
-  boost::shared_ptr<AthenaInterprocess::FdsRegistry> registry = extractFds();
+  std::shared_ptr<AthenaInterprocess::FdsRegistry> registry = extractFds();
 
   // Flush stream buffers
   fflush(NULL);
@@ -436,19 +441,19 @@ StatusCode AthMpEvtLoopMgr::generateOutputReport()
 	      masterFile /= boost::filesystem::path(*keys_it);
 	      if(boost::filesystem::exists(masterFile) && boost::filesystem::is_regular_file(masterFile))
 		ofs << "    <File "
-		    << "description=\"" << outp._description
-		    << "\" mode=\"" << outp._access_mode
+		    << "description=\"" << outp.description
+		    << "\" mode=\"" << outp.access_mode
 		    << "\" name=\"" << masterFile.string()
-		    << "\" shared=\"" << (outp._shared?"True":"False")
-		    << "\" technology=\"" << outp._technology
+		    << "\" shared=\"" << (outp.shared?"True":"False")
+		    << "\" technology=\"" << outp.technology
 		    << "\"/>" << std::endl;
 	    }
 	    ofs << "    <File "
-		<< "description=\"" << outp._description
-		<< "\" mode=\"" << outp._access_mode
-		<< "\" name=\"" << outp._filename
-		<< "\" shared=\"" << (outp._shared?"True":"False")
-		<< "\" technology=\"" << outp._technology
+		<< "description=\"" << outp.description
+		<< "\" mode=\"" << outp.access_mode
+		<< "\" name=\"" << outp.filename
+		<< "\" shared=\"" << (outp.shared?"True":"False")
+		<< "\" technology=\"" << outp.technology
 		<< "\"/>" << std::endl;
 	  }
 	}
@@ -462,11 +467,11 @@ StatusCode AthMpEvtLoopMgr::generateOutputReport()
   return StatusCode::SUCCESS;
 }
 
-boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
+std::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
 {
   ATH_MSG_DEBUG("Extracting file descriptors");
   using namespace boost::filesystem;
-  boost::shared_ptr<AthenaInterprocess::FdsRegistry> registry(new AthenaInterprocess::FdsRegistry());
+  std::shared_ptr<AthenaInterprocess::FdsRegistry> registry(new AthenaInterprocess::FdsRegistry());
 
   // Extract file descriptors associated with the current process
   // 1. Store only those regular files in the registry, which

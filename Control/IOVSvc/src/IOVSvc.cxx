@@ -8,13 +8,12 @@
  *  IOVSvc
  *
  *  Author: Charles Leggett
- *  $Id: IOVSvc.cxx,v 1.66 2008-06-04 23:35:03 leggett Exp $
  *
  *  Provides automatic updating and callbacks for time dependent data
  *
  *****************************************************************************/
 
-#include "IOVSvc/IOVSvc.h"
+#include "IOVSvc.h"
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
@@ -27,7 +26,6 @@
 
 using SG::DataProxy;
 using SG::TransientAddress;
-using namespace std;
 
 const std::string defaultStore = "StoreGateSvc";
 
@@ -63,7 +61,7 @@ bool eventIDMatch (const EventIDBase& e1, const EventIDBase& e2)
 //
 
 IOVSvc::IOVSvc( const std::string& name, ISvcLocator* svc )
-  : AthService( name, svc ), 
+  : base_class( name, svc ), 
     p_toolSvc("ToolSvc",name),
     p_CLIDSvc("ClassIDSvc",name),
     p_sgs("StoreGateSvc",name),
@@ -92,18 +90,8 @@ StatusCode IOVSvc::initialize() {
   StatusCode status = AthService::initialize();
   msg().setLevel( m_outputLevel.value() );
 
-#ifndef NDEBUG
-  if (msgLvl(MSG::DEBUG)) {
-    msg() << MSG::DEBUG << "Initializing IOVSvc version " 
-          << PACKAGE_VERSION << endmsg;
-  }
-#endif
-
-#ifndef NDEBUG
-  if (msgLvl(MSG::DEBUG)) {
-    msg() << MSG::DEBUG << "AthService initialized" << endmsg;
-  }
-#endif
+  ATH_MSG_DEBUG( "Initializing IOVSvc version " << PACKAGE_VERSION  );
+  ATH_MSG_DEBUG( "AthService initialized"  );
 
   if (!p_sgs.isValid()) {
     ATH_MSG_ERROR("could not get the Event Store");
@@ -125,41 +113,10 @@ StatusCode IOVSvc::initialize() {
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-StatusCode IOVSvc::finalize() {
-
-  // cleanup
-
-  toolMap::iterator itr = m_toolMap.begin();
-  for (; itr!= m_toolMap.end(); ++itr) {
-    IIOVSvcTool* ist = itr->second;
-    p_toolSvc->releaseTool( ist ).ignore();
-  }
-
-  StatusCode status = AthService::finalize();
-
-#ifndef NDEBUG
-  if (msgLvl(MSG::DEBUG) && status.isSuccess() ) {
-    msg() << MSG::DEBUG << "Service finalised successfully" << endmsg;
-  }
-#endif
-
-  return status;
-
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-StatusCode 
-IOVSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
+StatusCode IOVSvc::finalize()
 {
-  if ( IIOVSvc::interfaceID().versionMatch(riid) )    {
-    *ppvInterface = (IIOVSvc*)this;
-  }
-  else  {
-    // Interface is not directly available: try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
+  ATH_CHECK( AthService::finalize() );
+  ATH_MSG_DEBUG( "Service finalised successfully" );
   return StatusCode::SUCCESS;
 }
 
@@ -175,27 +132,23 @@ IOVSvc::regProxy( const DataProxy *proxy, const std::string& key,
   std::lock_guard<std::recursive_mutex> lock(m_lock);
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    msg() << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
-          << storeName << "\" and failed to create one" << endmsg;
+    ATH_MSG_ERROR( "regProxy: no IOVSvcTool associated with store \"" 
+                   << storeName << "\" and failed to create one"  );
     return (StatusCode::FAILURE);
   }
 
   IIOVSvcTool *ist2 = getTool( proxy );
   if (ist2 != 0) {
     if (ist2 != ist) {
-      msg() << MSG::ERROR << "regProxy: when registering proxy for " 
-            << fullProxyName(proxy) << " with store \"" << storeName
-            << "\", it is already registered with store \"" 
-            << ist2->getStoreName() << "\"" << endmsg;
+      ATH_MSG_ERROR( "regProxy: when registering proxy for " 
+                     << fullProxyName(proxy) << " with store \"" << storeName
+                     << "\", it is already registered with store \"" 
+                     << ist2->getStoreName() << "\""  );
       return StatusCode::FAILURE;
     } else {
-#ifndef NDEBUG
-      if (msgLvl(MSG::DEBUG)) {
-        msg() << MSG::DEBUG << "regProxy: proxy for " << fullProxyName(proxy)
-              << " already registered with store \"" << storeName << "\""
-              << endmsg;
-      }
-#endif
+      ATH_MSG_DEBUG( "regProxy: proxy for " << fullProxyName(proxy)
+                     << " already registered with store \"" << storeName << "\""
+                     );
       return StatusCode::SUCCESS;
     }
   }
@@ -216,28 +169,24 @@ IOVSvc::regProxy( const CLID& clid, const std::string& key,
   std::lock_guard<std::recursive_mutex> lock(m_lock);
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    msg() << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
-          << storeName << "\" and failed to create one." << endmsg;
+    ATH_MSG_ERROR( "regProxy: no IOVSvcTool associated with store \"" 
+                   << storeName << "\" and failed to create one."  );
     return (StatusCode::FAILURE);
   }
 
   IIOVSvcTool *ist2 = getTool( clid, key );
   if (ist2 != 0) {
     if (ist2 != ist) {
-      msg() << MSG::ERROR << "regProxy: when registering proxy for "
-            << fullProxyName(clid,key)
-            << " with store " << storeName
-            << ", it is already registered with store \"" 
-            << ist2->getStoreName() << "\"" << endmsg;
+      ATH_MSG_ERROR( "regProxy: when registering proxy for "
+                     << fullProxyName(clid,key)
+                     << " with store " << storeName
+                     << ", it is already registered with store \"" 
+                     << ist2->getStoreName() << "\""  );
       return StatusCode::FAILURE;
     } else {
-#ifndef NDEBUG
-      if (msgLvl(MSG::DEBUG)) {
-        msg() << MSG::DEBUG << "regProxy: proxy for " << fullProxyName(clid,key)
-              << " already registered with store \"" << storeName << "\""
-              << endmsg;
-      }
-#endif
+      ATH_MSG_DEBUG( "regProxy: proxy for " << fullProxyName(clid,key)
+                     << " already registered with store \"" << storeName << "\""
+                     );
       return StatusCode::SUCCESS;
     }
   }
@@ -258,9 +207,8 @@ IOVSvc::deregProxy( const DataProxy *proxy ) {
   std::lock_guard<std::recursive_mutex> lock(m_lock);
   IIOVSvcTool *ist = getTool( proxy );
   if (ist == 0) {
-    msg() << MSG::ERROR << "deregProxy: no IOVSvcTool found for proxy "
-          << fullProxyName( proxy )
-          << endmsg;
+    ATH_MSG_ERROR( "deregProxy: no IOVSvcTool found for proxy "
+          << fullProxyName( proxy ) );
     return (StatusCode::FAILURE);
   }
 
@@ -280,9 +228,8 @@ IOVSvc::deregProxy( const CLID& clid, const std::string& key ) {
   std::lock_guard<std::recursive_mutex> lock(m_lock);
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
-    msg() << MSG::ERROR << "deregProxy: no IOVSvcTool found for proxy " 
-          << fullProxyName(clid,key) 
-          << endmsg;
+    ATH_MSG_ERROR( "deregProxy: no IOVSvcTool found for proxy " 
+                   << fullProxyName(clid,key) );
     return StatusCode::FAILURE; 
   }
 
@@ -302,15 +249,14 @@ IOVSvc::ignoreProxy( const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    msg() << MSG::ERROR << "ignoreProxy: no IOVSvcTool found for store " 
-          << storeName << " and failed to create one"
-          << endmsg;
+    ATH_MSG_ERROR( "ignoreProxy: no IOVSvcTool found for store " 
+                   << storeName << " and failed to create one" );
     return;
   }
 
   return ist->ignoreProxy( clid, key );
-
 }
+
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
@@ -326,8 +272,8 @@ IOVSvc::replaceProxy( const DataProxy* pOld, const DataProxy* pNew,
   if (0 != ist) {
     sc = ist->replaceProxy(pOld, pNew);
   } else {
-    msg() << MSG::ERROR << "regProxy: no IOVSvcTool associated with store \"" 
-          << storeName << "\" and failed to create one." << endmsg;
+    ATH_MSG_ERROR( "regProxy: no IOVSvcTool associated with store \"" 
+                   << storeName << "\" and failed to create one."  );
   } 
   return sc;
 }
@@ -346,8 +292,8 @@ IOVSvc::preLoadTAD( const TransientAddress *tad,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    msg() << MSG::ERROR << "preLoadTAD: no IOVSvcTool associated with store \""
-          << storeName << "\" and failed to create one." << endmsg;
+    ATH_MSG_ERROR( "preLoadTAD: no IOVSvcTool associated with store \""
+                   << storeName << "\" and failed to create one."  );
     return StatusCode::FAILURE;
   } else {
     return ist->preLoadTAD( tad );
@@ -366,9 +312,8 @@ IOVSvc::preLoadDataTAD( const TransientAddress *tad,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    msg() << MSG::ERROR 
-          << "preLoadDataTAD: no IOVSvcTool associated with store \""
-          << storeName << "\" and failed to create one." << endmsg;
+    ATH_MSG_ERROR( "preLoadDataTAD: no IOVSvcTool associated with store \""
+                   << storeName << "\" and failed to create one."  );
     return StatusCode::FAILURE;
   } else {
     return ist->preLoadDataTAD( tad );
@@ -390,17 +335,11 @@ IOVSvc::setRange(const CLID& clid, const std::string& key,
     // FIXME - this should be eliminated once the IOVDbSvc is set up to 
     // use store names. There should be no default store for setRange
 
-    msg() << MSG::WARNING << "setRange(CLID,key,range) for unregistered proxies "
-          << "is deprecated - you need to specify a store! "
-          << "This will be an ERROR soon!" 
-          << endmsg;
+    ATH_MSG_WARNING( "setRange(CLID,key,range) for unregistered proxies "
+                     << "is deprecated - you need to specify a store! "
+                     << "This will be an ERROR soon!" );
 
     return setRange(clid,key,iovr, defaultStore );
-
-    //     msg() << MSG::ERROR << "setRange: proxy " << fullProxyName(clid, key) 
-    //           << " not registered in any store."
-    //           << endmsg;
-    //     return StatusCode::FAILURE;
 
   } else {
     return ist->setRange( clid, key, iovr );
@@ -416,24 +355,24 @@ IOVSvc::setRange(const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( storeName );
   if (ist == 0) {
-    msg() << MSG::ERROR << "setRange: no IOVSvcTool assocaited with store \"" 
-          << storeName << "\" and failed to create one." << endmsg;
+    ATH_MSG_ERROR( "setRange: no IOVSvcTool assocaited with store \"" 
+                   << storeName << "\" and failed to create one."  );
     return StatusCode::FAILURE;
   }
 
   IIOVSvcTool *ist2 = getTool( clid, key );
   if (ist2 == 0) {
-    msg() << MSG::INFO << "setRange: proxy for " << fullProxyName(clid,key)
-          << " not registered with store \"" << storeName << "\". Doing it now"
-          << endmsg;
+    ATH_MSG_INFO( "setRange: proxy for " << fullProxyName(clid,key)
+                  << " not registered with store \"" << storeName << "\". Doing it now"
+                  );
     if (ist->regProxy(clid, key).isFailure()) {
       return StatusCode::FAILURE;
     }
   } else if (ist2 != ist) {
-    msg() << MSG::INFO << "setRange: when registering proxy (clid: " 
-          << clid << " key: " << key << ") with store \"" << storeName
-          << "\" --> already registered with store \"" << ist2->getStoreName()
-          << "\"" << endmsg;
+    ATH_MSG_INFO( "setRange: when registering proxy (clid: " 
+                  << clid << " key: " << key << ") with store \"" << storeName
+                  << "\" --> already registered with store \"" << ist2->getStoreName()
+                  << "\""  );
     return StatusCode::FAILURE;
   }
 
@@ -451,8 +390,8 @@ IOVSvc::getRange(const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
-    msg() << MSG::ERROR << "getRange: proxy for " << fullProxyName(clid,key)
-          << " not registered" << endmsg;
+    ATH_MSG_ERROR( "getRange: proxy for " << fullProxyName(clid,key)
+                   << " not registered"  );
     return StatusCode::FAILURE;
   } else {
     return ist->getRange( clid, key, iov );
@@ -470,8 +409,8 @@ IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
-    msg() << MSG::ERROR << "getRangeFromDB: proxy for " 
-          << fullProxyName(clid,key) << " not registered" << endmsg;
+    ATH_MSG_ERROR( "getRangeFromDB: proxy for " 
+                   << fullProxyName(clid,key) << " not registered"  );
     return StatusCode::FAILURE;
   } else {
     return ist->getRangeFromDB( clid, key, range, tag, ioa );
@@ -490,8 +429,8 @@ IOVSvc::getRangeFromDB(const CLID& clid, const std::string& key,
 
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
-    msg() << MSG::ERROR << "getRangeFromDB: proxy for "
-          << fullProxyName(clid, key) << " not registered" << endmsg;
+    ATH_MSG_ERROR( "getRangeFromDB: proxy for "
+                   << fullProxyName(clid, key) << " not registered"  );
     return StatusCode::FAILURE;
   } else {
     return ist->getRangeFromDB( clid, key, time, range, tag, ioa );
@@ -507,8 +446,8 @@ IOVSvc::setRangeInDB(const CLID& clid, const std::string& key,
   
   IIOVSvcTool *ist = getTool( clid, key );
   if (ist == 0) {
-    msg() << MSG::ERROR << "setRangeInDB: proxy for "
-          << fullProxyName(clid,key) << " not registered" << endmsg;
+    ATH_MSG_ERROR( "setRangeInDB: proxy for "
+                   << fullProxyName(clid,key) << " not registered"  );
     return StatusCode::FAILURE;
   } else {
     return ist->setRangeInDB( clid, key, range, tag );
@@ -526,9 +465,9 @@ IOVSvc::regFcn(SG::DataProxy* dp,
 
   IIOVSvcTool *ist = getTool( dp );
   if (ist == 0) {
-    msg() << MSG::ERROR << "regFcn: no IOVSvcTool found containing DataProxy "
-          << fullProxyName( dp )
-          << "-> Need to bind DataHandle first" << endmsg;
+    ATH_MSG_ERROR( "regFcn: no IOVSvcTool found containing DataProxy "
+                   << fullProxyName( dp )
+                   << "-> Need to bind DataHandle first"  );
     return StatusCode::FAILURE;
   } else {
     return ist->regFcn( dp, c, fcn, trigger );
@@ -544,18 +483,17 @@ IOVSvc::regFcn(const CallBackID c1,
 
 
   if (c1 == c2) {
-    msg() << MSG::ERROR 
-          << "Cannot register 2nd callback function and assocaited"
-          << " object with itself" << endmsg;
+    ATH_MSG_ERROR( "Cannot register 2nd callback function and assocaited"
+                   << " object with itself"  );
     return StatusCode::FAILURE;
   }
 
 
   IIOVSvcTool *ist = getTool( c1 );
   if (ist == 0) {
-    msg() << MSG::ERROR << "CallBack function \"" << c2.name()
-          << "\" cannot be registered since function \"" << c1.name()
-          << "\" has not been registered first" << endmsg;
+    ATH_MSG_ERROR( "CallBack function \"" << c2.name()
+                   << "\" cannot be registered since function \"" << c1.name()
+                   << "\" has not been registered first"  );
     return StatusCode::FAILURE;
   } else {
     return ist->regFcn(c1, c2, fcn2, trigger);
@@ -572,17 +510,14 @@ IOVSvc::regFcn(const std::string& toolName,
 
   IAlgTool *ia;
   if ( p_toolSvc->retrieveTool(toolName, ia, 0, false).isFailure() ) {
-    msg() << MSG::ERROR << "AlgTool " << toolName << " has not yet been created"
-          << " and thus cannot be registered"
-          << endmsg;
-
+    ATH_MSG_ERROR( "AlgTool " << toolName << " has not yet been created"
+                   << " and thus cannot be registered" );
     return StatusCode::FAILURE;
   }
 
   IIOVSvcTool *ist = getTool( ia );
   if (ist == 0) {
-    msg() << MSG::ERROR << "No callback registered with AlgTool " << toolName
-          << endmsg;
+    ATH_MSG_ERROR( "No callback registered with AlgTool " << toolName );
     return StatusCode::FAILURE;
   } else {
     return ist->regFcn(ia, c2, fcn2, trigger);
@@ -599,9 +534,8 @@ IOVSvc::getTriggeredTools(const std::string& key,
 
   IIOVSvcTool *ist = getTool( storeName, false );
   if (ist == 0) {
-    msg() << MSG::ERROR << "getTriggeredTools: no store \"" << storeName
-          << "\" associated with any IOVSvcTool"
-          << endmsg;
+    ATH_MSG_ERROR( "getTriggeredTools: no store \"" << storeName
+                   << "\" associated with any IOVSvcTool" );
     return StatusCode::FAILURE;
   } else {
     return ist->getTriggeredTools(key, tools);
@@ -615,7 +549,7 @@ IOVSvc::getTriggeredTools(const std::string& key,
 StatusCode 
 IOVSvc::reinitialize()
 {
-  // Set flad to reset all proxies 
+  // Set flag to reset all proxies 
 
   toolMap::iterator itr = m_toolMap.begin();
   for ( ; itr!=m_toolMap.end(); ++itr) {
@@ -630,26 +564,24 @@ IOVSvc::reinitialize()
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 StatusCode
-IOVSvc::createIOVTool( const std::string& storeName ) {
+IOVSvc::createIOVTool( const std::string& storeName, IIOVSvcTool*& ist ) {
 
   std::string store(storeName);
+  std::string toolName("IOVSvcTool");
   if (storeName == "default") store = defaultStore;
 
-#ifndef NDEBUG
-  if (msgLvl(MSG::DEBUG)) {
-    msg() << MSG::DEBUG
-          << "Creating IOVSvcTool associated with store \"" << store
-          << "\"" << endmsg;
-  }
-#endif
+  // Append the store name if not default
+  if (store != defaultStore) toolName += ("_" + store);
+
+  ATH_MSG_DEBUG( "Creating " << toolName << " associated with store \"" << store
+                 << "\""  );
 
   toolMap::iterator itr = m_toolMap.find( store );
   if ( itr == m_toolMap.end() ) {
-    IIOVSvcTool *ist(0);
-    if (p_toolSvc->retrieveTool( "IOVSvcTool/" + store, ist, this ).isFailure()) {
-      msg() << MSG::ERROR 
-            << "Unable to create IOVSvcTool assocaited with store \"" 
-            << store << "\"" << endmsg;
+    ist = nullptr;
+    if (p_toolSvc->retrieveTool( "IOVSvcTool/" + toolName, ist, this ).isFailure()) {
+      ATH_MSG_ERROR( "Unable to create IOVSvcTool associated with store \"" 
+                     << store << "\""  );
       return StatusCode::FAILURE;
     } else {
       m_toolMap[ store ] = ist;
@@ -657,56 +589,27 @@ IOVSvc::createIOVTool( const std::string& storeName ) {
       return StatusCode::SUCCESS;
     }
   } else {
-    msg() << MSG::INFO
-          << "an IOVSvcTool already exists assocaited with store \"" 
-          << store << "\"" << endmsg;
+    ATH_MSG_INFO( "an IOVSvcTool already exists associated with store \"" 
+                  << store << "\""  );
+    ist = itr->second;
     return StatusCode::SUCCESS;
   }
 
 }
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-bool
-IOVSvc::createIOVTool( const std::string& storeName, IIOVSvcTool*& ist ) const {
-
-  std::string store(storeName);
-  if (storeName == "default") store = defaultStore;
-
-#ifndef NDEBUG
-  if (msgLvl(MSG::DEBUG)) {
-    msg() << MSG::DEBUG
-          << "Creating IOVSvcTool associated with store \"" << store
-          << "\"" << endmsg;
-  }
-#endif
-
-  ist = 0;
-  toolMap::const_iterator itr = m_toolMap.find( store );
-  if ( itr == m_toolMap.end() ) {
-    if (p_toolSvc->retrieveTool( "IOVSvcTool/"+store, ist, this ).isFailure()) {
-      msg() << MSG::ERROR 
-            << "Unable to create IOVSvcTool assocaited with store \"" 
-            << store << "\"" << endmsg;
-      return false;
-    } else {
-      m_toolMap[ store ] = ist;
-      ist->setStoreName( store );
-    }
-  } else {
-    msg() << MSG::INFO
-          << "an IOVSvcTool already exists assocaited with store \"" 
-          << store << "\"" << endmsg;
-    ist = itr->second;    
-  }
-  return true;
-
+ /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+ 
+StatusCode
+IOVSvc::createIOVTool( const std::string& storeName )
+{
+  IIOVSvcTool* ist = nullptr;
+  return createIOVTool (storeName, ist);
 }
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 IIOVSvcTool* 
-IOVSvc::getTool( const std::string& storeName, bool createIF ) const {
+IOVSvc::getTool( const std::string& storeName, bool createIF ) {
 
   std::string store(storeName);
   if (storeName == "default") {
@@ -716,10 +619,12 @@ IOVSvc::getTool( const std::string& storeName, bool createIF ) const {
   toolMap::const_iterator itr = m_toolMap.find( store );
   IIOVSvcTool *ist(0);
   if ( itr == m_toolMap.end() ) {
-    msg() << MSG::INFO << "No IOVSvcTool associated with store \"" << store
-          << "\"" << endmsg;
+    ATH_MSG_INFO( "No IOVSvcTool associated with store \"" << store
+                  << "\""  );
 
-    if (createIF) createIOVTool(store, ist);
+    if (createIF) {
+      createIOVTool(store, ist).ignore();
+    }
 
   } else {
     ist = itr->second;
@@ -815,7 +720,7 @@ std::string
 IOVSvc::fullProxyName( const CLID& clid, const std::string& key ) const {
 
   std::string fullname, tname;
-  ostringstream ost;
+  std::ostringstream ost;
   ost << clid;
   if (p_CLIDSvc->getTypeNameOfID( clid, tname ).isFailure()) {
     fullname = "[" + ost.str() + "/" + key + "]";
@@ -850,12 +755,8 @@ IOVSvc::resetAllProxies() {
   toolMap::iterator itr = m_toolMap.begin();
   for (; itr!= m_toolMap.end(); ++itr) {
     IIOVSvcTool* ist = itr->second;
-#ifndef NDEBUG
-    if (msgLvl(MSG::DEBUG)) {
-      msg() << MSG::DEBUG << "resetting all proxies for store \""
-            << ist->getStoreName() << "\"" << endmsg;
-    }
-#endif
+    ATH_MSG_DEBUG( "resetting all proxies for store \""
+                   << ist->getStoreName() << "\""  );
     ist->resetAllProxies();
   }
 

@@ -168,6 +168,19 @@ CaloCellContainerFromClusterTool::process (CaloConstCellContainer* theCont,
 			 << "   ===> cells cannot be written in AOD as requested ! " );
         continue;
       }
+      if (!cellLinks->getCellContainerLink().isValid() ||
+          (cellLinks->size() > 0 &&
+           cellLinks->getCellContainer()->empty()))
+      {
+        // FIXME: cluster links are screwed up in ESDs due to changes
+        //        in output algorithm sequencing; see ATR-19778.
+        //        For now, add some protection to avoid a crash in that case,
+        //        but this isn't a real fix.
+        ATH_MSG_WARNING( "  Cluster has invalid cell links to container " << 
+                         cellLinks->getCellContainerLink().dataID()
+			 << "   ===> giving up ! " );
+        return StatusCode::SUCCESS;
+      }
 
       ATH_MSG_DEBUG( "Will loop over cells" );
       

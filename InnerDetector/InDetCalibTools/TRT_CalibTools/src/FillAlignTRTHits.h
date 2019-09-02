@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_CALIBTOOLS__FILLALIGNTRTHITS_H
@@ -22,8 +22,8 @@ PURPOSE:  Tool to fill Hit info into the TRT::Hit messenger class
 #include <string>
 #include "TRT_CalibTools/IFillAlignTrkInfo.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+#include "TRT_ConditionsServices/ITRT_CalDbTool.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
 #include "TRT_DriftCircleTool/ITRT_DriftCircleTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -33,10 +33,8 @@ PURPOSE:  Tool to fill Hit info into the TRT::Hit messenger class
 #include <TFile.h>
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 
-class ITRT_StrawSummarySvc;
 class AtlasDetectorID;
 class TRT_ID;
-class ITRT_CalDbSvc;
 
 namespace Trk {
   class IPropagator;
@@ -68,11 +66,9 @@ private:
 
   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool{this, "TRTDriftFunctionTool", "TRT_DriftFunctionTool", "Drift function tool name"};
   ToolHandle<Trk::IUpdator> m_updatorHandle{this, "UpdatorTool", "Trk::KalmanUpdator/TrkKalmanUpdator", "Measurement updator to calculate unbiased track states"};
- // ToolHandle<ITRTCalDbTool> m_trtcaldbtool ;
- // ToolHandle<ITRTStrawNeighbourTool> m_neighbourtool;
-  ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc ;
+  ToolHandle<ITRT_CalDbTool> m_trtcaldbTool ;
   ServiceHandle<ITRT_StrawNeighbourSvc> m_neighbourSvc ;
-  ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; //!< The ConditionsSummaryTool
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_TRTStrawSummaryTool; //!< The ConditionsSummaryTool
 
   Trk::IUpdator* m_updator; //!< updator for unbiased states
 
@@ -84,7 +80,6 @@ private:
   unsigned int m_numOfHitsAccepted ;
   unsigned int m_numOfProcessedTracks ;
   float m_DoMCCosmicTimeShift;
-//  StoreGateSvc     * m_store_gate;
 
   TFile* m_f;
   TNtuple* m_ntuple;

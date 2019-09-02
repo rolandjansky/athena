@@ -114,7 +114,6 @@ class AlignmentTrackFitter () :
             name                      = 'MuidMaterialAllocator',
             AggregateMaterial         = True,
             Extrapolator              = MuidExtrapolator,
-            SpectrometerExtrapolator  = MuonExtrapolator,
             TrackingGeometrySvc       = svcMgr.AtlasTrackingGeometrySvc)
         ToolSvc += MuidMaterialAllocator
         

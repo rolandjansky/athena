@@ -49,9 +49,9 @@ namespace met {
   ////////////////
   METAssociator::METAssociator(const std::string& name) :
     AsgTool(name),
-    m_trkseltool(""),
-    m_trkIsolationTool(""),
-    m_caloIsolationTool(""),
+    m_trkseltool(this,""),
+    m_trkIsolationTool(this,""),
+    m_caloIsolationTool(this,""),
     m_pvcollKey(""),
     m_clcollKey(""),
     m_trkcollKey(""),

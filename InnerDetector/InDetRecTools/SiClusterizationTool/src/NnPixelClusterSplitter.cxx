@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,22 +32,9 @@
 InDet::NnPixelClusterSplitter::NnPixelClusterSplitter(const std::string &type,
         const std::string &name,
         const IInterface *parent) :
-        AthAlgTool(type,name,parent),
-        m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
-        m_useBeamSpotInfo(true)
+        base_class(type,name,parent)
 {
-   declareInterface<IPixelClusterSplitter>(this);
-
-   declareProperty("NnClusterizationFactory",m_NnClusterizationFactory);
-   declareProperty("ThresholdSplittingIntoTwoClusters",m_thresholdSplittingIntoTwoClusters=0.95);
-   declareProperty("ThresholdSplittingIntoThreeClusters",m_thresholdSplittingIntoThreeClusters=0.90);
-   declareProperty("SplitOnlyOnBLayer",m_splitOnlyOnBLayer=true);
-   declareProperty("useBeamSpotInfo",m_useBeamSpotInfo);
-   
 }
-
-InDet::NnPixelClusterSplitter::~NnPixelClusterSplitter()
-{}
 
 StatusCode InDet::NnPixelClusterSplitter::initialize() {
     

@@ -59,7 +59,8 @@ class ISvcLocator;
 TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator),
     m_pCaloClusterContainer(NULL),
-    m_pTrigCaloQuality(NULL)
+    m_pTrigCaloQuality(NULL),
+    m_ncellDeco(0)
 {
 
   // Eta and Phi size of the RoI window...
@@ -106,6 +107,9 @@ TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator*
     HLT::ErrorCode TrigCaloClusterMaker::hltInitialize()
 {
   msg() << MSG::DEBUG << "in initialize()" << endmsg;
+
+  // Initialise decorators
+  m_ncellDeco = new SG::AuxElement::Decorator<int>("nCells");
   
   // Global timers...
   if (timerSvc()) {
@@ -168,6 +172,8 @@ HLT::ErrorCode TrigCaloClusterMaker::hltFinalize()
 {
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "in finalize()" << endmsg;
+
+  delete m_ncellDeco;
 
   return HLT::OK;
 }
@@ -396,14 +402,16 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     CaloClusterCellLink* num_cell_links = cl->getCellLinks();
     if(! num_cell_links) {
     //m_size.push_back(0);
+      (*m_ncellDeco)( *cl ) = 0;  
     } else {
       m_size.push_back(num_cell_links->size()); 
+      (*m_ncellDeco)( *cl ) = num_cell_links->size();  
     }
     
     m_N_BAD_CELLS .push_back(cl->getMomentValue(xAOD::CaloCluster::N_BAD_CELLS));
     m_ENG_FRAC_MAX.push_back(cl->getMomentValue(xAOD::CaloCluster::ENG_FRAC_MAX));
   }
-  
+
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << " REGTEST: Produced a Cluster Container of Size= " << m_pCaloClusterContainer->size() << endmsg;
     if(!m_pCaloClusterContainer->empty()) {
@@ -458,7 +466,7 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
 	    << endmsg;
     }
   }
-  
+
   // Time total TrigCaloClusterMaker execution time.
   if (timerSvc()){
     m_timer[0]->stop();

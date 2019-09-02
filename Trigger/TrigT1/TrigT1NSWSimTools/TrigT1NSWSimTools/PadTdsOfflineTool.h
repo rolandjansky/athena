@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // -*-c++-*-
@@ -112,7 +112,7 @@ namespace NSWL1 {
         void printStgcGeometryFromAgdd() const; ///< test function to demonstrate the access to the AGDD parameters
         bool get_truth_hits_this_pad(const Identifier &pad_id, std::vector<MuonSimData::Deposit> &deposits); // simhits for a given pad
         /// get the output tree from the athena histogram service
-        TTree* get_tree_from_histsvc();
+        StatusCode get_tree_from_histsvc(TTree*&);
         /// whether it's a pad digit (based on 'channelType'
         bool is_pad_digit(const sTgcDigit* digit) const;
         int cache_index(const sTgcDigit* digit) const;

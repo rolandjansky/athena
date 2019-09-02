@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuFastPatternFinder.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
 
@@ -31,9 +29,10 @@ TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type,
 						     const std::string& name,
 						     const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_mdtCalibrationSvc( "MdtCalibrationSvc", name )
+   m_mdtCalibrationTool("MdtCalibrationTool",this)
 {
    declareInterface<TrigL2MuonSA::MuFastPatternFinder>(this);
+   declareProperty("CalibrationTool",m_mdtCalibrationTool);
 }
 
 // --------------------------------------------------------------------------------
@@ -56,18 +55,11 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
    }
    
    // retrieve the mdtidhelper  
-   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
    const MuonGM::MuonDetectorManager* muonMgr;                                                                 
-   ATH_CHECK( detStore->retrieve( muonMgr,"Muon" ) ); 
+   ATH_CHECK( detStore()->retrieve( muonMgr,"Muon" ) ); 
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore."); 
    m_mdtIdHelper = muonMgr->mdtIdHelper();                                                   
 
-   // Locate MDT calibration service
-   ATH_CHECK( m_mdtCalibrationSvc.retrieve() );
-   
-   // 
    return StatusCode::SUCCESS; 
 }
 
@@ -76,10 +68,6 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
 
 void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitData& mdtHit, double track_phi, double phi0, bool isEndcap)
 {
-   // if was error in getting servce,
-   if( ! m_mdtCalibrationSvc ) return;
-
-   // 
    int StationName  = mdtHit.name;
    int StationEta   = mdtHit.StationEta;
    int StationPhi   = mdtHit.StationPhi;
@@ -127,7 +115,7 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
    ATH_MSG_DEBUG("... MDT hit position X/Y/Z/track_phi/Multilayer/Layer/Tube="
 		 << X << "/" << Y << "/" << Z << "/" << track_phi << "/" << Multilayer << "/" << Layer << "/" << Tube);
 
-   m_mdtCalibrationSvc->driftRadiusFromTime( calHit, point.mag() );
+   m_mdtCalibrationTool->driftRadiusFromTime( calHit, point.mag() );
    double driftSpace = calHit.driftRadius();
    double driftSigma = calHit.sigmaDriftRadius();
 

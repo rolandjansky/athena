@@ -47,6 +47,7 @@ class HistogramFactoryTestSuite {
         REGISTER_TEST_CASE(test_shouldProperlyFormatPathForOnlineHistograms),
         REGISTER_TEST_CASE(test_shouldProperlyFormatPathForDefaultHistograms),
         REGISTER_TEST_CASE(test_shouldProperlyFormatPathForCustomHistograms),
+        REGISTER_TEST_CASE(test_shouldProperlyFormatPathForOfflineHistograms),
         REGISTER_TEST_CASE(test_shouldSetXAxisLabelsFor1DHistogram),
         REGISTER_TEST_CASE(test_shouldSetXAndYAxisLabelsFor2DHistogram),
         REGISTER_TEST_CASE(test_shouldSetExtendAxesWhenkCanRebinIsSet),
@@ -166,6 +167,15 @@ class HistogramFactoryTestSuite {
       histogramDef.alias = "customAlias";
       m_testObj->create(histogramDef);
       VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/custom/path/for/histogram/customAlias")) EXPECTED(true);
+    }
+
+    void test_shouldProperlyFormatPathForOfflineHistograms() {
+      HistogramDef histogramDef = defaultHistogramDef("TH1F");
+      histogramDef.path = "/custom/path/for/histogram";
+      histogramDef.alias = "offlineAlias";
+      histogramDef.tld = "/run_XXXXXX/lbYYY/";
+      m_testObj->create(histogramDef);
+      VALUE(m_histSvc->exists("/HistogramFactoryTestSuite/run_XXXXXX/lbYYY/custom/path/for/histogram/offlineAlias")) EXPECTED(true);
     }
 
     void test_shouldSetXAxisLabelsFor1DHistogram() {
@@ -291,7 +301,7 @@ class HistogramFactoryTestSuite {
   private:
     typedef void (HistogramFactoryTestSuite::*TestCase)(void);
 
-    function<void(void)> registerTestCase(TestCase testCase, string testCaseName) {
+    function<void(void)> registerTestCase(TestCase testCase, const string& testCaseName) {
       return [this, testCase, testCaseName]() {
         m_log << MSG::INFO << "Current test case: " << testCaseName << endmsg;
         beforeEach();

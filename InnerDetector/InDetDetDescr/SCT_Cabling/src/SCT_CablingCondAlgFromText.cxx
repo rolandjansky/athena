@@ -58,9 +58,7 @@ namespace {
 
 // Constructor
 SCT_CablingCondAlgFromText::SCT_CablingCondAlgFromText(const std::string& name, ISvcLocator* pSvcLocator):
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_condSvc{"CondSvc", name},
-  m_idHelper{nullptr}
+  AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 

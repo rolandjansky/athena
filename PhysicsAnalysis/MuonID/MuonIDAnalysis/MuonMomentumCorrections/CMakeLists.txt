@@ -55,14 +55,12 @@ atlas_add_dictionary( MuonMomentumCorrectionsDict
    LINK_LIBRARIES MuonMomentumCorrectionsLib )
 
 # Executable(s) in the package:
-if( XAOD_STANDALONE )
-   atlas_add_executable( MCAST_Tester
-      util/MCAST_Tester.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
-      xAODEventInfo xAODMuon xAODCore PATInterfaces xAODCore AsgTools
-      MuonSelectorToolsLib MuonMomentumCorrectionsLib )
-endif()
+atlas_add_executable( MCAST_Tester
+  util/MCAST_Tester.cxx
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
+  xAODEventInfo xAODMuon xAODCore PATInterfaces xAODCore AsgTools
+  MuonSelectorToolsLib MuonMomentumCorrectionsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

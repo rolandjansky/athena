@@ -48,7 +48,13 @@ if rec.doMuonCombined() and DetFlags.Muon_on() and DetFlags.ID_on():
 if rec.doESD() and recAlgs.doTrackParticleCellAssociation() and DetFlags.ID_on():
     from AthenaCommon.CfgGetter import getPublicTool
     getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
-    topSequence += CfgMgr.TrackParticleCellAssociationAlg("TrackParticleCellAssociationAlg")
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool
+    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+    caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = pcExtensionTool)
+
+    topSequence += CfgMgr.TrackParticleCellAssociationAlg("TrackParticleCellAssociationAlg", 
+                                                          ParticleCaloCellAssociationTool=caloCellAssociationTool)
 
 #
 # functionality : energy flow

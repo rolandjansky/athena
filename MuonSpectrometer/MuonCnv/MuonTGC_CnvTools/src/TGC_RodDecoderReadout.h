@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -45,9 +45,9 @@ namespace Muon
       const TgcIdHelper*    m_tgcIdHelper;
 
       /** Retrieve header of ROBFragment */
-      TgcRdo* getCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const;
+      void getCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdo* rdo) const;
       /** Convert data contents of ROBFragment to RDO */
-      void byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs, TgcRdo& rdo, uint32_t source_id);
+      void byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs, TgcRdo* rdo, uint32_t source_id);
       /** Show status words */
       void showStatusWords(const uint32_t source_id, const uint16_t rdoId, const int idHash, 
 			   const uint32_t nstatus, const uint32_t* status) const;
@@ -55,6 +55,10 @@ namespace Muon
       bool m_showStatusWords;
       /** Flag for skipping coincidence objects (for TrigT1TGC running on data) **/ 
       bool m_skipCoincidence;
+
+      // counters to see how often we use the cache for the raw data collections
+      unsigned int m_nCache = 0;
+      unsigned int m_nNotCache = 0;
     };
 } // end of namespace
 

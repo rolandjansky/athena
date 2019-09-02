@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrkExTools.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
 
-# importi the FullLinearizedTrackFactory configurable
+# import the FullLinearizedTrackFactory configurable
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
 
 def BTagFullLinearizedTrackFactoryCfg(flags, name = 'FullLinearizedTrackFactory', useBTagFlagsDefaults = True, **options ):

@@ -30,7 +30,6 @@ def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     kwargs.setdefault("OutputObjectName", "sTGC_DIGITS")
     kwargs.setdefault("OutputSDOName", "sTGC_SDO")
     kwargs.setdefault("doToFCorrection", True)
-     
     return CfgMgr.sTgcDigitizationTool(name,**kwargs)
 
 def getSTGCRange(name="sTgcRange", **kwargs): 
@@ -40,3 +39,19 @@ def getSTGCRange(name="sTgcRange", **kwargs):
     kwargs.setdefault('CacheRefreshFrequency', 1.0 ) #default 0 no dataproxy reset 
     kwargs.setdefault('ItemList', ["sTGCSimHitCollection#sTGCSensitiveDetector"] ) 
     return CfgMgr.PileUpXingFolder(name, **kwargs)
+
+def STGC_OverlayDigitizationTool(name="STGC_OverlayDigitizationTool",**kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "sTGC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "sTGC_SDO")
+    else:
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() +  "+sTGC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+sTGC_SDO")
+    return sTgcDigitizationTool(name,**kwargs)
+
+def getSTGC_OverlayDigitizer(name="STGC_OverlayDigitizer", **kwargs):
+    kwargs.setdefault("DigitizationTool","STGC_OverlayDigitizationTool")
+    return CfgMgr.sTGC_Digitizer(name,**kwargs)

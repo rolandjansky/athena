@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_CLASSID_TRAITS_H
@@ -24,9 +24,6 @@
 #include "AthenaKernel/ClassName.h"
 
 #include "AthenaKernel/tools/AthenaPackageInfo.h"
-#ifndef BOOST_HAS_STATIC_ASSERT
-# include "CxxUtils/unused.h"
-#endif
 #include <type_traits>
 
 
@@ -35,15 +32,8 @@ template <bool x> struct ERROR_you_should_use_the_CLASS_DEF_macro_to_define_CLID
 template <>       struct ERROR_you_should_use_the_CLASS_DEF_macro_to_define_CLID_and_VERSION<true>{};
 
 ///internal use: issues a compilation error when condition B is false
-#ifdef BOOST_HAS_STATIC_ASSERT
 #define MY_STATIC_ASSERT( B ) \
   static_assert (B, "You should use the CLASS_DEF macro to define CLID and VERSION");
-#else
-#define MY_STATIC_ASSERT( B ) \
-  UNUSED(typedef ::boost::static_assert_test<                           \
-      sizeof(ERROR_you_should_use_the_CLASS_DEF_macro_to_define_CLID_and_VERSION< (bool)( B ) >)>\
-         BOOST_JOIN(boost_static_assert_typedef_, __LINE__))
-#endif
 
 /** @class ClassID_traits
  * @brief  a traits class that associates a CLID to a type T

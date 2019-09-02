@@ -267,7 +267,7 @@ from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrackSummaryTool",
                                               InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
                                               doSharedHits           = False,
-                                              InDetHoleSearchTool    = InDetHoleSearchTool)
+                                              doHolesInDet           = True)
 #InDetTrackSummaryTool.OutputLevel = DEBUG
 ToolSvc += InDetTrackSummaryTool
 if InDetFlags.doPrintConfigurables: print      InDetTrackSummaryTool

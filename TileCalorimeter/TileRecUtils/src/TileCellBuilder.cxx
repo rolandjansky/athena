@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 
 // Tile includes
 #include "TileRecUtils/TileCellBuilder.h"
@@ -62,15 +60,15 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_fullSizeCont(true)
   , m_maskBadChannels(true)
   , m_fakeCrackCells(false)
-  , m_tileID(0)
-  , m_tileTBID(0)
-  , m_tileHWID(0)
-  , m_cabling(0)
-  , m_tileDCS("TileDCSTool")
-  , m_tileMgr(0)
-  , m_mbtsMgr(0)
+  , m_tileID(nullptr)
+  , m_tileTBID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_cabling(nullptr)
+  , m_tileMgr(nullptr)
+  , m_mbtsMgr(nullptr)
   , m_notUpgradeCabling(true)
   , m_run2(false)
+  , m_run2plus(false)
 {
   declareInterface<TileCellBuilder>( this );
 
@@ -143,7 +141,6 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
 
   declareProperty("UseDemoCabling", m_useDemoCabling = 0); // if set to 2015 - assume TB 2015 cabling
 
-  declareProperty("TileDCSTool", m_tileDCS); // FIXME
   declareProperty("CheckDCS", m_checkDCS = false);
 }
 
@@ -192,18 +189,15 @@ StatusCode TileCellBuilder::initialize() {
   //=== get TileCondToolTiming
   ATH_CHECK( m_tileToolTiming.retrieve() );
 
-  if (m_checkDCS) {
-    CHECK( m_tileDCS.retrieve() );
-  }
-  else {
-    m_tileDCS.disable();
-  }
+  CHECK( m_tileDCS.retrieve(EnableTool{m_checkDCS}) );
 
-  m_cabling = TileCablingService::getInstance();
+  ATH_CHECK( m_cablingSvc.retrieve() );
+  m_cabling = m_cablingSvc->cablingService();
 
   reset(true, false);
 
-  m_run2 = (m_cabling->isRun2Cabling() || m_cabling->getCablingType() == TileCablingService::UpgradeABC);
+  m_run2 = m_cabling->isRun2Cabling();
+  m_run2plus = m_cabling->isRun2PlusCabling();
 
   if (m_run2 && !m_E4prContainerKey.key().empty()) {
     ATH_CHECK( m_E4prContainerKey.initialize() );
@@ -212,7 +206,7 @@ StatusCode TileCellBuilder::initialize() {
     m_E4prContainerKey = ""; // no E4' container for RUN1
   }
 
-  if ((TileCablingService::getInstance())->getCablingType() == TileCablingService::UpgradeABC) {
+  if (m_cabling->getCablingType() == TileCablingService::UpgradeABC) {
     m_towerE1 = E1_TOWER_UPGRADE_ABC;
     m_notUpgradeCabling = false;
   }
@@ -895,12 +889,12 @@ bool TileCellBuilder::maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStatus
         << drawer2+1 << " status " << chan1 << "/" << chan2 << " "
         << (chStatus1.isBad()?"bad":"good") << "/"
         << (chStatus2.isBad()?"bad":"good") << "/"
-        << ((m_run2)?" RUN2 cabling": "RUN1 cabling")
+        << ((m_run2plus)?" RUN2+ cabling": "RUN1 cabling")
         << std::endl;
       }
 #endif
       if (chan1 == 4) {
-        if (m_run2 || !chStatus1.isBad()) {
+        if (m_run2plus || !chStatus1.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan1 was " << pCell->ene1() << " changing to half of " << pCell->ene2()
@@ -913,7 +907,7 @@ bool TileCellBuilder::maskBadChannels (TileDrawerEvtStatusArray& drawerEvtStatus
           --drawerEvtStatus[ros1][drawer1].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
         }
       } else {
-        if (m_run2 || !chStatus2.isBad()) {
+        if (m_run2plus || !chStatus2.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan2 was " << pCell->ene2() << " changing to half of " << pCell->ene1()
@@ -1158,7 +1152,7 @@ void TileCellBuilder::build (const EventContext& ctx,
       channel1 = pmt2channel[channel];
     }
 
-    Identifier cell_id = (TileCablingService::getInstance())->h2s_cell_id_index (ros, drawer, channel1, index, pmt);
+    Identifier cell_id = m_cabling->h2s_cell_id_index (ros, drawer, channel1, index, pmt);
 
     if (index == -3) { // E4' cells
 
@@ -1228,8 +1222,9 @@ void TileCellBuilder::build (const EventContext& ctx,
         unsigned char iqual = iquality(qual);
         // for MBTS qbit use AND of good_time and non_zero_time and check that energy is above MBTS energy threshold in pC
         unsigned char qbit = qbits(drawerEvtStatus, params.m_RChType,
-                                   ros, drawer, false, (good_time && non_zero_time)
-           , (fabs(ener) > m_eneForTimeCutMBTS), overflow, underflow, overfit);
+                                   ros, drawer, false, (good_time && non_zero_time),
+                                   (fabs(ener) > m_eneForTimeCutMBTS), overflow, underflow, overfit);
+
         CaloGain::CaloGain cgain = (gain == TileID::HIGHGAIN)
                                    ? CaloGain::TILEONEHIGH
                                    : CaloGain::TILEONELOW;
@@ -1283,9 +1278,9 @@ void TileCellBuilder::build (const EventContext& ctx,
           , overflow, underflow, overfit);
 
 
-      if (m_run2 && channel == E1_CHANNEL && ros > 2) { // Raw channel -> E1 cell.
+      if (m_run2plus && channel == E1_CHANNEL && ros > 2) { // Raw channel -> E1 cell.
 
-       int drawer2 = (TileCablingService::getInstance())->E1_merged_with_run2(ros,drawer);
+       int drawer2 = m_cabling->E1_merged_with_run2plus(ros,drawer);
        if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.
          int side = (ros == 3) ? 1 : -1;
          Identifier cell_id2 = m_tileID->cell_id(TileID::GAPDET, side, drawer2, m_towerE1, TileID::SAMP_E);

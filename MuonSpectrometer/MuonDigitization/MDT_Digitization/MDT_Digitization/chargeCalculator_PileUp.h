@@ -37,7 +37,6 @@ to the third digit of decimal number of the  pdgid.
 
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
 #include "TrkDetDescrUtils/GeometryStatics.h"
 
@@ -64,6 +63,10 @@ double chargeCalculator_PileUp(const MDTSimHit& hit){
 		if (particleEncoding < 0.0) qcharge = -qcharge;
 //		std::cout << "SB: BINGO! Qball: qcharge=" << qcharge <<std::endl;	
 		}
+                else if(((int)(abs(particleEncoding)/10000000) == 2) && ((int)(abs(particleEncoding)/100000)==200)) {
+                        qcharge = (double)((abs(particleEncoding) / 1000) % 100) / (double)((abs(particleEncoding) / 10) % 100);
+                        if (particleEncoding < 0.0) qcharge = -qcharge;
+                }
     } else {
 //      std::cout << "SB: genParticle=0 " <<std::endl;
     }

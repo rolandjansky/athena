@@ -11,7 +11,7 @@
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ROBData.h"
 
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 // Trigger include(s):
 #include "L1TopoRDO/L1TopoRDOCollection.h"

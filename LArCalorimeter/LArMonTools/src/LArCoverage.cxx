@@ -77,7 +77,6 @@ LArCoverage::LArCoverage(const std::string& type,
   m_LArFCAL_IDHelper	= NULL;
   m_LArHEC_IDHelper	= NULL;
   m_caloIdMgr		= NULL;
-  m_CaloDetDescrMgr	= NULL;
   m_hBadChannelsBarrelA = NULL;
   m_hBadChannelsBarrelC = NULL;
   m_hBadChannelsEndcapA = NULL;
@@ -96,47 +95,17 @@ StatusCode
 LArCoverage::initialize()
 {
   ATH_MSG_INFO( "Initialize LArCoverage" );
-  StatusCode sc;
-
-  sc = detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get LArOnlineIDHelper" );
-    return sc;
-  }
   
-  // Retrieve ID helpers
-  sc =  detStore()->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get CaloIdMgr" );
-    return sc;
-  }
+  ATH_CHECK(  detStore()->retrieve( m_caloIdMgr ) );
   m_LArEM_IDHelper   = m_caloIdMgr->getEM_ID();
   m_LArHEC_IDHelper  = m_caloIdMgr->getHEC_ID();
   m_LArFCAL_IDHelper = m_caloIdMgr->getFCAL_ID();
    
-  // CaloDetDescrMgr gives "detector description", including real positions of cells
-  sc = detStore()->retrieve(m_CaloDetDescrMgr);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get CaloDetDescrMgr ");
-    return sc;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID") );
   ATH_CHECK( m_BCKey.initialize() );
   ATH_CHECK( m_BFKey.initialize() );
-
-  // Get bad-channel mask
-  sc=m_badChannelMask.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
-    return StatusCode::FAILURE;
-  }
-   
-  // Get LAr Cabling Service
-  sc=m_larCablingService.retrieve();
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Could not retrieve LArCablingService" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_badChannelMask.retrieve() );
+  ATH_CHECK( m_larCablingService.retrieve() );
    
   // LArOnlineIDStrHelper
   m_strHelper = new  LArOnlineIDStrHelper(m_LArOnlineIDHelper);
@@ -581,6 +550,9 @@ LArCoverage::fillHistograms()
 
   if(m_eventsCounter > m_nevents ) return StatusCode::SUCCESS;
 
+  const CaloDetDescrManager* ddman = nullptr;
+  ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
+
   // Retrieve Raw Channels Container
   
   SG::ReadHandle<LArRawChannelContainer> pRawChannelsContainer(m_rawChannelsKey);
@@ -612,7 +584,7 @@ LArCoverage::fillHistograms()
     
     // Get Physical Coordinates
     float etaChan = 0; float phiChan = 0.;
-    const CaloDetDescrElement* caloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
+    const CaloDetDescrElement* caloDetElement = ddman->get_element(offlineID);
     if(caloDetElement == 0 ){
       ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
       continue; 
@@ -788,7 +760,7 @@ LArCoverage::fillHistograms()
   // Fill known missing FEBs with -1
   //
   
-  FillKnownMissingFEBs(m_CaloDetDescrMgr);
+  FillKnownMissingFEBs(ddman);
 
   //
   // Fix for Cosmetic : Fill "empty bins" in plots 

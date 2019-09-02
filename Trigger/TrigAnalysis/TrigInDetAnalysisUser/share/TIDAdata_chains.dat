@@ -1,3 +1,4 @@
+/* emacs: this is -*- c++ -*- */
 testChains = {
     //  "Offline",
     //  "Muons",
@@ -52,6 +53,10 @@ testChains = {
     "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:2",
     "HLT_e24_medium_L2Star_idperf:InDetTrigParticleCreation_Electron_EFID",
     "HLT_e24_medium_L2Star_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",
+
+    "HLT_e28_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
+    "HLT_e28_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+    "HLT_e28_medium_gsf_idperf:GSFTrigTrackParticles",
 
     "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:0",
     "HLT_e5_loose_L2Star_idperf:TrigL2SiTrackFinder_eGamma:1",

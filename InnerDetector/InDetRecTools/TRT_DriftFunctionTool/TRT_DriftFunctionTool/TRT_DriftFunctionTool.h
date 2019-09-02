@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -51,42 +51,42 @@ public:
   static const InterfaceID& interfaceID();
 
   /** Retrieves needed services             */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   /** Finalize                              */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
 
   /** Returns True for drifttimes between -10 and 75ns */
-  bool isValidTime(double drifttime) const;
+  virtual bool isValidTime(double drifttime) const override;
 
   /** Returns True for CTB real data */
-  bool isTestBeamData() const;
+  virtual bool isTestBeamData() const override;
 
   /** Returns center of leading edge bin in ns for bin number = tdcvalue.
     * note, that the binwidth can vary with run type. */
-  double rawTime(int tdcvalue) const;
+  virtual double rawTime(int tdcvalue) const override;
 
 
   /** Returns drift radius in mm and t0 in ns
    *  The radius is truncated so it belongs to [0,2]mm.
    *  isOK is false if there is no t0 or the drifttime is non-valid */
-  double driftRadius(double rawtime, Identifier id, double& t0, bool& isOK, unsigned int word=0) const;
+  virtual double driftRadius(double rawtime, Identifier id, double& t0, bool& isOK, unsigned int word=0) const override;
 
   /** Returns drift radius for MC.
    *  the inpout time in ns has t0 subtracted */
-  double driftRadius(double drifttime) const;
+  virtual double driftRadius(double drifttime) const override;
 
   /** Returns approximate drift time (t0 subtracted) */
-  double approxDriftTime(double driftradius) const;
+  virtual double approxDriftTime(double driftradius) const override;
 
   /** Time-dependent error of drift radius in mm */
-  double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10, unsigned int word=0) const;  
+  virtual double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10, unsigned int word=0) const override;
 
   /** Returns time over threshold correction to the drift time (ns) */
-  double driftTimeToTCorrection(double tot, Identifier id, bool isArgonStraw=false);
+  virtual double driftTimeToTCorrection(double tot, Identifier id, bool isArgonStraw=false) const override;
   
   /** Returns high threshold correction to the drift time (ns) */
-  double driftTimeHTCorrection(Identifier id, bool isArgonStraw=false);
+  virtual double driftTimeHTCorrection(Identifier id, bool isArgonStraw=false) const override;
   
   /** Initialise Rt relation in data */
   void setupRtRelationData();

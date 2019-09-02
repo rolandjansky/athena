@@ -28,11 +28,7 @@
     <label name="T2E" value="44" />
     <label name="T3F" value="45" />
     <label name="T3E" value="46" />
-    <label name="T4F" value="47" />
     <label name="T4E" value="48" />
-    <label name="EIS" value="49" />
-    <label name="CSS" value="50" />
-    <label name="CSL" value="51" />
     <label name="BIM" value="52" />
     <label name="BMG" value="54" />
     <label name="MMS" value="55" />
@@ -2695,7 +2691,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="3071" />
+    <range field="mmChannel" minvalue="1" maxvalue="3072" />
   </region>
      <!--  Stereoangle position abs(stationEta) 2-->
   <region group="mm">
@@ -2705,7 +2701,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="3071" />
+    <range field="mmChannel" minvalue="1" maxvalue="3072" />
   </region>
 
 
@@ -2739,7 +2735,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="1 2" />
-    <range field="mmChannel" minvalue="1" maxvalue="3071" />
+    <range field="mmChannel" minvalue="1" maxvalue="3072" />
   </region>
      <!--  Stereoangle position abs(stationEta) 2-->
   <region group="mm">
@@ -2749,7 +2745,7 @@
     <range field="technology" value="MM" />
     <range field="mmMultilayer" minvalue="1" maxvalue="2" />
     <range field="mmGasGap" values="3 4" />
-    <range field="mmChannel" minvalue="1" maxvalue="3071" />
+    <range field="mmChannel" minvalue="1" maxvalue="3072" />
   </region>
 
 </IdDictionary>

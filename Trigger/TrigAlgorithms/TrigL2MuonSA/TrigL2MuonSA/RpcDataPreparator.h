@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCDATAPREPARATOR_H
@@ -34,7 +34,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 
-class StoreGateSvc;
 class ActiveStoreSvc;
 class RpcIdHelper;
 
@@ -56,20 +55,13 @@ namespace TrigL2MuonSA {
 class RpcDataPreparator: public AthAlgTool
 {
    public:
-      
-      static const InterfaceID& interfaceID();
-
-   public:
 
       RpcDataPreparator(const std::string& type, 
 			const std::string& name,
 			const IInterface*  parent);
     
-      ~RpcDataPreparator();
-    
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
-    
+      virtual StatusCode initialize() override;
+
       StatusCode prepareData(const TrigRoiDescriptor*    p_roids,
 			     unsigned int roiWord,
 			     TrigL2MuonSA::RpcHits&      rpcHits,
@@ -80,11 +72,6 @@ class RpcDataPreparator: public AthAlgTool
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
  private:
-		       
-      // Reference to StoreGateSvc;
-      ServiceHandle<StoreGateSvc>   m_storeGateSvc;
-      ServiceHandle<ActiveStoreSvc> m_activeStore;
-      
       // Region Selector
       ServiceHandle<IRegSelSvc> m_regionSelector;
 
@@ -97,18 +84,24 @@ class RpcDataPreparator: public AthAlgTool
       const RpcIdHelper* m_rpcIdHelper;
 
       // handles to the RoI driven data access
-      ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
-      ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider;
+      ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
+       this, "RpcRawDataProvider", "Muon::RPC_RawDataProviderTool/RPC_RawDataProviderTool"};
+
+      ToolHandle<Muon::IMuonRdoToPrepDataTool> m_rpcPrepDataProvider{
+       this, "RpcPrepDataProvider", "Muon::RpcRdoToPrepDataTool/RpcPrepDataProviderTool"};
       
-      ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
+      ToolHandle <Muon::MuonIdHelperTool> m_idHelperTool{"Muon::MuonIdHelperTool/MuonIdHelperTool"};
 
       SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_rpcPrepContainerKey{
-	this, "RpcPrepDataContainer", "RPC_Measurements", "Neme of the RPCContainer to read in"};
+       this, "RpcPrepDataContainer", "RPC_Measurements", "Name of the RPCContainer to read in"};
 
       // Declare the keys used to access the data: one for reading and one
       // for writing.
       bool m_use_RoIBasedDataAccess;
       bool m_isFakeRoi;
+
+      // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
+      Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };
 
       // Flag to decide whether or not to run BS decoding
       Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };

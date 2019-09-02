@@ -62,6 +62,8 @@ public:
   void getClusterSize();
 
 private: 
+
+  inline bool passCellTimeCut(const CaloCell*) const;
   
   const CaloCell_ID* m_calo_id;
   
@@ -126,6 +128,13 @@ private:
    * clusters are merged if a cell passing the neighbor threshold
    * would be included in both clusters.  */
   float m_seedThresholdOnEorAbsEinSigma;         
+
+
+  /**                                                                                                             
+   * threshold used for timing cut. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighbouring cells.*/
+  float m_seedThresholdOnTAbs;
+  
+
 
   /** @brief Key of the CaloNoise Conditions data object. Typical values 
       are '"electronicNoise', 'pileupNoise', or '"totalNoise' (default) */
@@ -225,7 +234,12 @@ private:
    * @brief if set to true treat cells with a dead OTX which can be
    * predicted by L1 trigger info as good instead of bad cells */
   bool m_treatL1PredictedCellsAsGood;
-                                                 
+
+  /**                                                                                              
+   * if set to true, time cut is applied to seed cells, no cut otherwise 
+   */
+  bool m_seedCutsInT;                                      
+
   /** 
    * @brief vector of names of the calorimeter samplings to consider
    * for seeds.

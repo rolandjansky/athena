@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #file: TileCoolMgr.py
 #author: nils.gollub@cern.ch
 #modifications: lukas.pribyl@cern.ch
 
-class TileCoolMgr:
+class TileCoolMgr(object):
     
     #_______________________________________________________________
     def __init__(self,isMC,isOnline,dbInstance):
@@ -38,16 +38,16 @@ class TileCoolMgr:
     #_______________________________________________________________
     def addSource(self, condId, folder, connStr, tag, folder2, type, key = ""):
         if type not in self.__validTypes:
-            self.__log.error("Folder type \'%s\' not recognized!" % type)
+            self.__log.error("Folder type \'%s\' not recognized!", type)
         if (type != "OfflineOnly") and (folder2 == ""):
-            self.__log.error("For folder type \'%s\' second folder name required!" % type)
+            self.__log.error("For folder type \'%s\' second folder name required!", type)
         self.__idDict[condId] = [folder, connStr, tag, folder2, type, key]
 
     #_______________________________________________________________
     def getFolder(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
             return None
         else:
             return idInfo[0]
@@ -55,22 +55,25 @@ class TileCoolMgr:
     def getKey(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
             return None
-        elif idInfo[5] != "": return idInfo[5]
-        elif len(self.getTag(condId)):   return self.getTag(condId)
+        elif idInfo[5] != "":
+            return idInfo[5]
+        elif len(self.getTag(condId)):
+            return self.getTag(condId)
         else:
             folder = self.getActualFolder(condId)
-            if folder: return folder
+            if folder:
+                return folder
             else:
-                self.__log.error("Cannot find out key for  \'%s\'!" % condId)
+                self.__log.error("Cannot find out key for  \'%s\'!", condId)
                 return None
 
     #_______________________________________________________________
     def getFolderTwo(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
             return None
         else:
             return idInfo[3]
@@ -79,50 +82,58 @@ class TileCoolMgr:
     def isSplitMC(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
             return None
         else:
-            if idInfo[4]=="SplitMC": return True
-            else: return False
+            if idInfo[4]=="SplitMC":
+                return True
+            else:
+                return False
 
     #_______________________________________________________________
     def isSplitOnline(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
             return None
         else:
-            if idInfo[4]=="SplitOnline": return True
-            else: return False            
+            if idInfo[4]=="SplitOnline":
+                return True
+            else:
+                return False
 
     #_______________________________________________________________
     def isOfflineOnly(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
             return None
         else:
-            if idInfo[4]=="OfflineOnly": return True
-            else: return False            
+            if idInfo[4]=="OfflineOnly":
+                return True
+            else:
+                return False
 
     #_______________________________________________________________
     def isSqlite(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
             return None
         else:
-            if idInfo[4]=="Sqlite": return True
-            else: return False
+            if idInfo[4]=="Sqlite":
+                return True
+            else:
+                return False
 
 
     #_______________________________________________________________
     def setFolder(self, condId, folder):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
         else:
-            self.__log.info("Setting folder for condId \'%s\' to \'%s\'" % (condId,folder))
+            self.__log.info("Setting folder for condId \'%s\' to \'%s\'", condId,folder)
             idInfo[0] = folder
             idInfo[3] = folder
 
@@ -130,9 +141,9 @@ class TileCoolMgr:
     def setDbConn(self, condId, dbConn):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
         else:
-            self.__log.info("Setting dbConn for condId \'%s\' to \'%s\'" % (condId,dbConn))
+            self.__log.info("Setting dbConn for condId \'%s\' to \'%s\'", condId, dbConn)
             idInfo[1] = dbConn
             from string import find
             if find(dbConn,".db")>0:
@@ -143,7 +154,7 @@ class TileCoolMgr:
     def getDbConn(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
         else:
             return idInfo[1]
 
@@ -151,19 +162,19 @@ class TileCoolMgr:
     def setTag(self, condId, tag):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
         else:
             if len(tag) > 0:
                 if not tag.startswith('Tile'):
                     tag = self.getTagPrefix(self.getActualFolder(condId)) + tag
-            self.__log.info("Setting tag for condId \'%s\' to \'%s\'" % (condId,tag))
+            self.__log.info("Setting tag for condId \'%s\' to \'%s\'", condId, tag)
             idInfo[2] = tag
 
     #_______________________________________________________________
     def getTag(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
         else:
             return idInfo[2]
 
@@ -189,7 +200,7 @@ class TileCoolMgr:
     def getConnectionString(self, condId):
         idInfo = self.__idDict.get(condId)
         if not idInfo:
-            self.__log.error("CondId \'%s\' not recognized!" % condId)
+            self.__log.error("CondId \'%s\' not recognized!", condId)
         else:
             fullStr = idInfo[1]+" "
             if len(idInfo[2]):
@@ -203,15 +214,22 @@ class TileCoolMgr:
 
 
     def getActualFolder(self, condId):
-        if self.isOfflineOnly(condId): return self.getFolder(condId)
-        elif self.isSplitOnline(condId): 
-            if self.isOnline() and not self.isMC(): return self.getFolder(condId)
-            else:                                   return self.getFolderTwo(condId)
+        if self.isOfflineOnly(condId):
+            return self.getFolder(condId)
+        elif self.isSplitOnline(condId):
+            if self.isOnline() and not self.isMC():
+                return self.getFolder(condId)
+            else:
+                return self.getFolderTwo(condId)
         elif self.isSplitMC(condId):
-            if self.isMC(): return self.getFolderTwo(condId)
-            else:           return self.getFolder(condId)
-        elif self.isSqlite(condId): return self.getFolder(condId)
-        else: return None
+            if self.isMC():
+                return self.getFolderTwo(condId)
+            else:
+                return self.getFolder(condId)
+        elif self.isSqlite(condId):
+            return self.getFolder(condId)
+        else:
+            return None
 
 
 
@@ -348,7 +366,7 @@ class TileCoolMgr:
 
 
 
-def TileCoolMgrConfig(configflags):
+def TileCoolMgrConfig(configFlags):
     #Instantiate TileCoolMgr based on run3-style config flags
     return TileCoolMgr(isMC=configFlags.Input.isMC, 
                        isOnline=configFlags.common.isOnline,

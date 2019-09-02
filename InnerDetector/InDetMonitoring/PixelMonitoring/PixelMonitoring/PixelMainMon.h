@@ -19,7 +19,6 @@
 #include "InDetRawData/InDetTimeCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "LumiBlockComps/ILuminosityTool.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -176,11 +175,10 @@ class PixelMainMon : public ManagedMonitorToolBase {
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
   ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool;
   ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
-  ToolHandle<ILuminosityTool> m_lumiTool;
 
   const PixelID* m_pixelid;
   uint64_t m_event;
-  uint64_t m_event5min;
+  uint64_t m_event_ref;
 
   time_t m_startTime;
   bool m_majorityDisabled;  // check for each event, true if >50% modules disabled

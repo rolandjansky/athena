@@ -1038,6 +1038,9 @@ void TrigEgammaPlotTool::bookElectronDistributionHistos(const std::string &direc
     addHistogram(new TH1F("ptcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 50, 0.0, 1.0));
     addHistogram(new TH1F("ptvarcone20", "ptcone20; ptcone20; Count", 50, 0.0, 5.0));
     addHistogram(new TH1F("ptvarcone20_rel", "ptcone20/pt; ptcone20/pt; Count", 50, 0.0, 1.0));
+    addHistogram(new TH1F("lhtight_discriminant", "lh tight discriminant; lh tight discriminant; Count", 50, -5.,2.));
+    addHistogram(new TH1F("lhmedium_discriminant", "lh medium discriminant; lh medium discriminant; Count", 50, -5.,2.));
+    addHistogram(new TH1F("lhloose_discriminant", "lh loose discriminant; lh loose discriminant; Count", 50, -5.,2.));
     
     if(m_detailedHists){
         addHistogram(new TH2F("deta1_vs_clusterEta", "HLT deta1 as function of cluster #eta; #eta; deta1; Count",

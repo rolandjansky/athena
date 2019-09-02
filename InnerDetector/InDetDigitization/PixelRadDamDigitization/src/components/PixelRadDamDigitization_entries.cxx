@@ -9,6 +9,7 @@
 #include "src/ChargeCollProbSvc.h"
 #include "src/EnergyDepositionTool.h"
 #include "src/RadDamageUtil.h"
+#include "src/EfieldInterpolator.h"
 #include "src/RD53SimTool.h"
 #include "src/FEI4SimTool.h"
 #include "src/FEI3SimTool.h"
@@ -17,6 +18,7 @@ using namespace RadDam;
 DECLARE_COMPONENT(PixelDigitization)
 DECLARE_COMPONENT(EnergyDepositionTool)
 DECLARE_COMPONENT(RadDamageUtil)
+DECLARE_COMPONENT(EfieldInterpolator)
 DECLARE_COMPONENT(PixelDigitizationTool)
 DECLARE_COMPONENT(PixelNoisyCellGenerator)
 DECLARE_COMPONENT(PixelChargeSmearer)

@@ -23,21 +23,13 @@ LOGGING_PRINT_LEVEL 4
 #  level 3: stop if FATAL,ERROR,WARNING
 LOGGING_ABORT_LEVEL 2
 #
-####### options specific to makesmallbank
+####### options specific to makecompressedbank
 #
-# input files: TTree "Bank" with objects FTKPattern
-NINPUTS 1
-# first file (text)
-bank.pcache.root
-
+TOWER 0
 # output/input file
 #   format written by FTKTSPBank
 PCACHEIN patterns.pcache.root
 PCACHEOUT cached.root
-#
-#   binary format (not compatible)
-# BINARYIN ssidFile.bin
-BINARYOUT ssidFile.bin
 #
 # binarylookup-tables output file
 CCACHEIN ssidFile.root
@@ -83,9 +75,9 @@ using namespace std;
 #define PMAP "PMAP"
 #define RMAP "RMAP"
 #define SSMAP "SSMAP"
+#define IBLMODE "IBLMODE"
+#define MODULELUTPATH "MODULELUTPATH"
 #define TSP_SSMAP "TSP_SSMAP"
-#define BINARYIN "BINARYIN"
-#define BINARYOUT "BINARYOUT"
 #define CCACHEIN "CCACHEIN"
 #define CCACHEOUT "CCACHEOUT"
 #define MAXPATT "MAXPATT"
@@ -99,53 +91,49 @@ using namespace std;
 class MakeSmallBankSteering : public FTKSteering {
 public:
    static MakeSmallBankSteering *Instance(void) {
-      if(!fSteering) {
-         fSteering=new MakeSmallBankSteering();
-         fSteering->AddIntPar(TOWER,1,-1);
-         fSteering->AddStringPar(PCACHEIN,1);
-         fSteering->AddStringPar(PCACHEOUT,1);
-         fSteering->AddStringPar(BINARYIN,1);
-         fSteering->AddStringPar(BINARYOUT,1);
-         fSteering->AddStringPar(CCACHEIN,1);
-         fSteering->AddStringPar(CCACHEOUT,1);
-         fSteering->AddIntPar(MAXPATT,1,-1);
-         fSteering->AddStringPar(ROOTIN,1);
-         fSteering->AddStringPar(PMAP,1,
-				 "../config/map_file/raw_8LcIbl123.pmap");
-         fSteering->AddStringPar(RMAP,1,
-				 "../config/map_file/raw_12Libl.tmap");
-         fSteering->AddStringPar(SSMAP,1,
-				 "../config/ss_file/raw_30x32x72Ibl.ss");
-         fSteering->AddStringPar(TSP_SSMAP,1,
-				 "../config/ss_file/raw_15x16x36Ibl.ss");
-         fSteering->AddDoublePar(TSP_SSID,0);
-         fSteering->AddDoublePar(DC_SSID,0);
-         fSteering->AddIntPar(PRINTSECTOR,1,-1);
-         fSteering->AddIntPar(HWMODESS_TSP,1,-1);
-         fSteering->AddIntPar(HWMODESS_DC,1,-1);
+      if(!s_fsteering) {
+         s_fsteering=new MakeSmallBankSteering();
+         s_fsteering->AddIntPar(TOWER,1,-1);
+         s_fsteering->AddStringPar(PCACHEIN,0,"");
+         s_fsteering->AddStringPar(PCACHEOUT,1,"");
+         s_fsteering->AddStringPar(CCACHEIN,0,"");
+         s_fsteering->AddStringPar(CCACHEOUT,1,"");
+         s_fsteering->AddIntPar(MAXPATT,1,-1);
+         s_fsteering->AddIntPar(IBLMODE,1,1);
+         s_fsteering->AddStringPar(ROOTIN,1);
+         s_fsteering->AddStringPar(PMAP,1,"");
+         s_fsteering->AddStringPar(RMAP,1,"");
+         s_fsteering->AddStringPar(SSMAP,1,"");
+         s_fsteering->AddStringPar(MODULELUTPATH,1,"");
+         s_fsteering->AddStringPar(TSP_SSMAP,1,"");
+         s_fsteering->AddDoublePar(TSP_SSID,0);
+         s_fsteering->AddDoublePar(DC_SSID,0);
+         s_fsteering->AddIntPar(PRINTSECTOR,1,-1);
+         s_fsteering->AddIntPar(HWMODESS_TSP,1,2);
+         s_fsteering->AddIntPar(HWMODESS_DC,1,2);
       }
-      return fSteering;
+      return s_fsteering;
    }
    MakeSmallBankSteering(void) {
-      fPmap=0;
-      fRmap=0;
-      fSSmap=0;
-      fSSmap_tsp=0;
+      m_fPmap=0;
+      m_fRmap=0;
+      m_fSSmap=0;
+      m_fSSmap_tsp=0;
    }
-   const char *GetCCachedBankFileIn(void) const {
-      return *(*this)[CCACHEIN];
+   int GetNumCCachedBankFileIn(void) const {
+      return (*this)[CCACHEIN]->GetActualSize();
    }
-   const char *GetPCachedBankFileIn(void) const {
-      return *(*this)[PCACHEIN];
+   const char *GetCCachedBankFileIn(int ind) const {
+      return (*(*this)[CCACHEIN])[ind];
    }
-   const char *GetBinaryFileIn(void) const {
-      return *(*this)[BINARYIN];
+   int GetNumPCachedBankFileIn(void) const {
+      return (*this)[PCACHEIN]->GetActualSize();
+   }
+   const char *GetPCachedBankFileIn(int ind) const {
+      return (*(*this)[PCACHEIN])[ind];
    }
    const char *GetRootFileIn(void) const {
       return *(*this)[ROOTIN];
-   }
-   const char *GetBinaryFileOut(void) const {
-      return *(*this)[BINARYOUT];
    }
    const char *GetCCacheFileOut(void) const {
       return *(*this)[CCACHEOUT];
@@ -153,55 +141,59 @@ public:
    const char *GetPCacheFileOut(void) const {
       return *(*this)[PCACHEOUT];
    }
-   const int GetNSSIDdc(void) {
+   int GetNumSSIDdc(void) const {
       return (*this)[DC_SSID]->GetActualSize();
    }
-   const pair<int,int> GetSSIDdc(int i) {
+   const pair<int,int> GetSSIDdc(int i) const {
       double dSSID=(*(*this)[DC_SSID])[i];
       pair<int,int> r;
       r.first=(int)dSSID;
       r.second=(int)((dSSID-r.first)*10.+0.5);
       return r;
    }
-   int GetNSSIDtsp(void) {
+   int GetNumSSIDtsp(void) const {
       return (*this)[TSP_SSID]->GetActualSize();
    }
-   const pair<int,int> GetSSIDtsp(int i) {
+   const pair<int,int> GetSSIDtsp(int i) const {
+      /// floating point input:  SSID.layer
       double dSSID=(*(*this)[TSP_SSID])[i];
       pair<int,int> r;
       r.first=(int)dSSID;
       r.second=(int)((dSSID-r.first)*10.+0.5);
       return r;
    }
-   int GetTower(void) {
+   int GetTower(void) const {
       return (*this)[TOWER][0];
    }
-   int GetPrintSector(void) {
+   int GetPrintSector(void) const {
       return (*this)[PRINTSECTOR][0];
    }
-   int GetMaxPatt(void) {
+   int GetMaxPatt(void) const {
       return (*this)[MAXPATT][0];
    }
-   int GetHWModeSS_tsp(void) {
+   int GetHWModeSS_tsp(void) const {
       return (*this)[HWMODESS_TSP][0];
    }
-   int GetHWModeSS_dc(void) {
+   int GetHWModeSS_dc(void) const {
       return (*this)[HWMODESS_DC][0];
+   }
+   int GetIBLMODE(void) const {
+      return (*this)[IBLMODE][0];
    }
    
    FTKSSMap *GetSSmap(void);
    FTKSSMap *GetSSmapTSP(void);
 private:
-   static MakeSmallBankSteering *fSteering;
+   static MakeSmallBankSteering *s_fsteering;
    void LoadPmapRmap(void);
 
-   FTKPlaneMap *fPmap;
-   FTKRegionMap *fRmap;
-   FTKSSMap *fSSmap;
-   FTKSSMap *fSSmap_tsp;
+   FTKPlaneMap *m_fPmap;
+   FTKRegionMap *m_fRmap;
+   FTKSSMap *m_fSSmap;
+   FTKSSMap *m_fSSmap_tsp;
 };
 
-MakeSmallBankSteering *MakeSmallBankSteering::fSteering=0;
+MakeSmallBankSteering *MakeSmallBankSteering::s_fsteering=0;
 
 int main(int argc, char const *argv[]) {
    // ============ read steering ==================
@@ -214,6 +206,9 @@ int main(int argc, char const *argv[]) {
          logging.Fatal("parse")<<"failed to open steering file \""
                                <<argv[1]<<"\"\n";
          error=3;
+      } else {
+         logging.Info("parse")<<"opened steering file \""
+                              <<argv[1]<<"\"\n";
       }
    }
    if(MakeSmallBankSteering::Instance()->Parse(*steering)<0) {
@@ -232,115 +227,121 @@ int main(int argc, char const *argv[]) {
    int hwModeSS_tsp=MakeSmallBankSteering::Instance()->GetHWModeSS_tsp();
    int hwModeSS_dc=MakeSmallBankSteering::Instance()->GetHWModeSS_dc();
 
-   char const *pcachedBankFileIn=
-      MakeSmallBankSteering::Instance()->GetPCachedBankFileIn();
-   FTK_CompressedAMBank *bank[4]={0,0,0,0};
-   int nBank=0;
+   vector<FTK_CompressedAMBank *> banks;
+   FTKSetup &ftkset = FTKSetup::getFTKSetup();
+   ftkset.setHWModeSS(2);
+   ftkset.setIBLMode(MakeSmallBankSteering::Instance()->GetIBLMODE());
+   ftkset.setITkMode(0);
+
    FTKSSMap *ssMap=MakeSmallBankSteering::Instance()->GetSSmap();
    FTKSSMap *ssMapTSP=MakeSmallBankSteering::Instance()->GetSSmapTSP();
-   if((!error)&& pcachedBankFileIn && pcachedBankFileIn[0]) {
-      bank[nBank]=new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
-                                           hwModeSS_tsp,hwModeSS_dc);
-      error=bank[nBank++]->readROOTBankCache(pcachedBankFileIn);
+   for(int ibank=0;
+       ibank<MakeSmallBankSteering::Instance()->GetNumPCachedBankFileIn();
+       ibank++) {
+      if(error) break;
+      FTK_CompressedAMBank *bank=
+         new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
+                                  hwModeSS_tsp,hwModeSS_dc);
+      bank->setCompressionScheme(FTK_CompressedAMBank::COMPRESSION_DELTA);
+      TDirectory *pcacheFile=FTKRootFile::Instance()->OpenRootFileReadonly
+         (MakeSmallBankSteering::Instance()->GetPCachedBankFileIn(ibank));
+      if(pcacheFile) {
+         error=bank->readPCachedBank(pcacheFile,0);
+         banks.push_back(bank);
+         delete pcacheFile;
+      } else {
+         logging.Error("pcache")
+            <<"could not open "
+            <<MakeSmallBankSteering::Instance()->GetPCachedBankFileIn(ibank)
+            <<"\n";
+         delete bank;
+      }
    }
-   char const *ccachedBankFileIn=
-      MakeSmallBankSteering::Instance()->GetCCachedBankFileIn();
-   if((!error)&& ccachedBankFileIn && ccachedBankFileIn[0]) {
-      bank[nBank]=new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
-                                           hwModeSS_tsp,hwModeSS_dc);
-      error=bank[nBank++]->readROOTBankCache(ccachedBankFileIn);
-   }
-   char const *binaryInputName=
-     MakeSmallBankSteering::Instance()->GetBinaryFileIn();
-   if((!error) && binaryInputName && binaryInputName[0]) {
-      bank[nBank]=new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
-                                           hwModeSS_tsp,hwModeSS_dc);
-     error=bank[nBank++]->readBinaryFile(binaryInputName);
+   for(int ibank=0;
+       ibank<MakeSmallBankSteering::Instance()->GetNumCCachedBankFileIn();
+       ibank++) {
+      if(error) break;
+      FTK_CompressedAMBank *bank=
+         new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
+                                  hwModeSS_tsp,hwModeSS_dc);
+      bank->setCompressionScheme(FTK_CompressedAMBank::COMPRESSION_DELTA);
+      error=bank->readROOTBankCache
+         (MakeSmallBankSteering::Instance()->GetCCachedBankFileIn(ibank));
+      banks.push_back(bank);
    }
    char const *rootInputName=
      MakeSmallBankSteering::Instance()->GetRootFileIn();
    int maxPatterns=MakeSmallBankSteering::Instance()->GetMaxPatt();
    if((!error) && rootInputName && rootInputName[0]) {
-      bank[nBank]=new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
-                                           hwModeSS_tsp,hwModeSS_dc);
-      error=bank[nBank++]->readROOTBank(rootInputName,maxPatterns);
+      FTK_CompressedAMBank *bank=
+         new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
+                                  hwModeSS_tsp,hwModeSS_dc);
+      bank->setCompressionScheme(FTK_CompressedAMBank::COMPRESSION_DELTA);
+      error=bank->readROOTBank(rootInputName,maxPatterns);
+      banks.push_back(bank);
    }
-   for(int iBank=1;iBank<nBank;iBank++) {
-     error=bank[0]->compare(bank[iBank]);
+   for(size_t iBank=1;iBank<banks.size();iBank++) {
+     error=banks[0]->compare(banks[iBank]);
      if(error) {
         logging.Error("main")<<"bank[0] and bank["
                              <<iBank<<"] are not in agreement\n";
+     } else {
+        logging.Info("main")<<"bank[0] and bank["
+                            <<iBank<<"] are in agreement\n";
      }
-   }
-   char const *binaryOutputName=
-      MakeSmallBankSteering::Instance()->GetBinaryFileOut();
-   if((!error) && bank[0] && binaryOutputName && binaryOutputName[0]) {
-      error=bank[0]->writeBinaryFile(binaryOutputName);
    }
    char const *ccachedBankOutputName=
       MakeSmallBankSteering::Instance()->GetCCacheFileOut();
-   if((!error) && bank[0] && ccachedBankOutputName &&
+   if((!error) && banks[0] && ccachedBankOutputName &&
       ccachedBankOutputName[0]) {
-      error=bank[0]->writeCCachedBankFile(ccachedBankOutputName);
+      error=banks[0]->writeCCachedBankFile(ccachedBankOutputName);
    }
    char const *pcachedBankOutputName=
       MakeSmallBankSteering::Instance()->GetPCacheFileOut();
-   if((!error) && bank[0] && pcachedBankOutputName && 
+   if((!error) && banks[0] && pcachedBankOutputName && 
       pcachedBankOutputName[0]) {
-      error=bank[0]->writePCachedBankFile(pcachedBankOutputName);
+      error=banks[0]->writePCachedBankFile(pcachedBankOutputName);
    }
 
-   if((!error) && bank[0]) {
-#ifdef USE_COMPRESSEDAMBANK_DC
-      std::vector<FTK_CompressedAMBank>
-#else
-         std::vector<std::list<int> >
-#endif
-         roadFinderInput(bank[0]->getNPlanes());
-      for(int i=0;i<MakeSmallBankSteering::Instance()->GetNSSIDdc();i++) {
+   if((!error) && banks[0]) {
+      FTK_CompressedAMBank *bank=banks[0];
+      std::vector<std::list<int> > roadFinderInput(bank->getNPlanes());
+      for(int i=0;i<MakeSmallBankSteering::Instance()->GetNumSSIDdc();i++) {
          pair<int,int> dcSSIDlayer=
             MakeSmallBankSteering::Instance()->GetSSIDdc(i);
          int layer=dcSSIDlayer.second;
          int dcSSID=dcSSIDlayer.first;
          cout<<i<<" L="<<layer<<" dcSSID="<<dcSSID<<" -> tspSSID=[";
-         vector<int> tspSSIDvector=bank[0]->getTSPssidVector(layer,dcSSID);
+         vector<int> tspSSIDvector=bank->getTSPssidVector(layer,dcSSID);
          for(unsigned j=0;j<tspSSIDvector.size();j++) {
             cout<<" "<<tspSSIDvector[j];
          }
          cout<<"]\n";
-#ifdef USE_COMPRESSEDAMBANK_DC
-         roadFinderInput[layer][dcSSID]=(1<<tspSSIDvector.size())-1;
-#else
          for(unsigned j=0;j<tspSSIDvector.size();j++) {
             roadFinderInput[layer].push_back(tspSSIDvector[j]);
          }
-#endif
       }
-      for(int i=0;i<MakeSmallBankSteering::Instance()->GetNSSIDtsp();i++) {
+      for(int i=0;i<MakeSmallBankSteering::Instance()->GetNumSSIDtsp();i++) {
          pair<int,int> tspSSIDlayer=
             MakeSmallBankSteering::Instance()->GetSSIDtsp(i);
          int layer=tspSSIDlayer.second;
          int tspSSID=tspSSIDlayer.first;
-         std::pair<int,int> dcSSIDxy=bank[0]->getDCssid(layer,tspSSID);
+         std::pair<int,int> dcSSIDxy=bank->getDCssid(layer,tspSSID);
          cout<<"L="<<layer<<" tspSSID "<<tspSSID<<" -> dcSSID="<<dcSSIDxy.first
              <<" tspLOCAL="<<dcSSIDxy.second<<"\n";
-#ifdef USE_COMPRESSEDAMBANK_DC
-         roadFinderInput[layer][dcSSIDxy.first] |= 1<<dcSSIDxy.second;
-#else
          roadFinderInput[layer].push_back(tspSSID);
-#endif
       }
-      bank[0]->init();
-      bank[0]->clear();
-      bank[0]->data_organizer_r(roadFinderInput);
-      bank[0]->am_in_r(roadFinderInput);
-      bank[0]->am_output();
-      bank[0]->printRoads(bank[0]->getRoads(),-1);
+      bank->init();
+      bank->clear();
+      bank->data_organizer_r(roadFinderInput);
+      bank->am_in_r(roadFinderInput);
+      bank->am_output();
+      bank->printRoads(bank->getRoads(),-1);
    }
-   if((!error) && bank[0]) {
+   if((!error) && banks[0]) {
       int printsector=MakeSmallBankSteering::Instance()->GetPrintSector();
       if(printsector>=0) {
-         bank[0]->printSector(printsector);
+         banks[0]->printSector(printsector);
       }
    }
 
@@ -348,26 +349,29 @@ int main(int argc, char const *argv[]) {
 }
 
 void MakeSmallBankSteering::LoadPmapRmap(void) {
-  if(!fPmap) {
-      fPmap = new FTKPlaneMap(*(*this)[PMAP]);
+  if(!m_fPmap) {
+      m_fPmap = new FTKPlaneMap(*(*this)[PMAP]);
    }
-   if(!fRmap) {
-      fRmap = new FTKRegionMap(fPmap,*(*this)[RMAP]);
+   if(!m_fRmap) {
+      m_fRmap = new FTKRegionMap(m_fPmap,*(*this)[RMAP]);
+   }
+   if((GetHWModeSS_tsp()==2)||(GetHWModeSS_dc()==2)) {
+      m_fRmap->loadModuleIDLUT(*(*this)[MODULELUTPATH]);
    }
 }
 
 FTKSSMap *MakeSmallBankSteering::GetSSmap(void) {
    LoadPmapRmap();
-   if(!fSSmap) {
-      fSSmap=new FTKSSMap(fRmap,*(*this)[SSMAP],false); // FTKRoadFinderAlgo
+   if(!m_fSSmap) {
+      m_fSSmap=new FTKSSMap(m_fRmap,*(*this)[SSMAP],false); // FTKRoadFinderAlgo
    }
-   return fSSmap;
+   return m_fSSmap;
 }
 
 FTKSSMap *MakeSmallBankSteering::GetSSmapTSP(void) {
    LoadPmapRmap();
-   if(!fSSmap_tsp) {
-      fSSmap_tsp=new FTKSSMap(fRmap,*(*this)[TSP_SSMAP],false);// FTKRoadFinderAlgo
+   if(!m_fSSmap_tsp) {
+      m_fSSmap_tsp=new FTKSSMap(m_fRmap,*(*this)[TSP_SSMAP],false);// FTKRoadFinderAlgo
    }
-   return fSSmap_tsp;
+   return m_fSSmap_tsp;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ElectricFieldTool.h"
@@ -7,9 +7,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 SCT_ElectricFieldTool::SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface* p) : 
-  base_class(t, n, p),
-  m_model{"pol6", "pol6", 0., 0.03} {
-  declareProperty("EFieldModel", m_eFieldModel=FLAT_DIODE); //!< flat diode model as default
+  base_class(t, n, p) {
 }
 
 StatusCode 

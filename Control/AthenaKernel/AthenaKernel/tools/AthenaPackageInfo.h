@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_TOOLS_ATHENA_PACKAGEINFO_H
@@ -18,7 +18,7 @@ namespace Athena {
  *
  * FIXME class works fine technically, but it does not satisfy
  * the use case it was designed for, namely to add package information
- * to the ClassID_traits definition in SGTools/CLASS_DEF.h
+ * to the ClassID_traits definition in AthenaKernel/CLASS_DEF.h
  *
  * $Id: AthenaPackageInfo.h,v 1.4 2007-12-14 01:58:50 binet Exp $
  */

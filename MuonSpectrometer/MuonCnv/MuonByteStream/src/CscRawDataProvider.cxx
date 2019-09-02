@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonByteStream/CscRawDataProvider.h"
@@ -14,9 +14,11 @@
 Muon::CscRawDataProvider::CscRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_rawDataTool     ("Muon::CSC_RawDataProviderTool/CscRawDataProviderTool", this)
+  m_rawDataTool     ("Muon::CSC_RawDataProviderTool/CscRawDataProviderTool", this),
+  m_regionSelector  ("RegSelSvc",name)
 {
   declareProperty ("ProviderTool", m_rawDataTool);
+  declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");
 }
 
 // Destructor
@@ -28,13 +30,15 @@ Muon::CscRawDataProvider::~CscRawDataProvider(){
 // Initialize
 StatusCode Muon::CscRawDataProvider::initialize() {
   ATH_MSG_VERBOSE(" in initialize()");
+  ATH_MSG_VERBOSE( m_seededDecoding );
+
+  ATH_CHECK( m_roiCollectionKey.initialize(m_seededDecoding) );// pass the seeded decoding flag - this marks the RoI collection flag as not used for the case when we decode the full detector
 
   // Get CscRawDataProviderTool
-  if (m_rawDataTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve serive " << m_rawDataTool );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_VERBOSE("Retrieved service " << m_rawDataTool );
+  ATH_CHECK( m_rawDataTool.retrieve() );
+
+  // We only need the region selector in RoI seeded mode
+  if(m_seededDecoding) ATH_CHECK( m_regionSelector.retrieve() );
   
   return StatusCode::SUCCESS;
 }
@@ -48,9 +52,34 @@ StatusCode Muon::CscRawDataProvider::finalize() {
 StatusCode Muon::CscRawDataProvider::execute() {
   ATH_MSG_VERBOSE( "CscRawDataProvider::execute" );
 
-  // ask CscRawDataProviderTool to decode entire event and to fill the IDC
-  if (m_rawDataTool->convert().isFailure())
-    ATH_MSG_ERROR ( "BS conversion into RDOs failed" );
+  if(m_seededDecoding) {
+   
+    // read in the RoIs to process
+    SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey);
+    if(!muonRoI.isValid()){
+      ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
+      return StatusCode::SUCCESS;
+    }
+
+    // loop on RoIs
+    std::vector<IdentifierHash>  csc_hash_ids;
+    for(auto roi : *muonRoI){
+      ATH_MSG_DEBUG("Get has IDs for RoI " << *roi);
+      // get list of hash IDs from region selection
+      m_regionSelector->DetHashIDList(CSC, *roi, csc_hash_ids);
+
+      // decode the ROBs
+      if(m_rawDataTool->convert(csc_hash_ids).isFailure()) {
+        ATH_MSG_ERROR( "RoI seeded BS conversion into RDOs failed"  );
+      }
+      // clear vector of hash IDs ready for next RoI
+      csc_hash_ids.clear();
+    }
+  } else {
+   // ask CscRawDataProviderTool to decode entire event and to fill the IDC
+   if (m_rawDataTool->convert().isFailure())
+     ATH_MSG_ERROR ( "BS conversion into RDOs failed" );
+ }
 
   return StatusCode::SUCCESS;
 }

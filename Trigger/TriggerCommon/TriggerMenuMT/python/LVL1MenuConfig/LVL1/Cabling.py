@@ -1,4 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+# Disable flake8 checking due to the use of 'exec':
+# flake8: noqa
+#
+
+from Limits import Limits
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("Cabling")

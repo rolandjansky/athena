@@ -6,12 +6,12 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthContainers/DataVector.h"
 
-#include "TrigTauHypo/L2TauTopoFex.h"
+#include "L2TauTopoFex.h"
 
 //Constructor
 L2TauTopoFex::L2TauTopoFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){
@@ -84,7 +84,7 @@ HLT::ErrorCode L2TauTopoFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass )
           	ATH_MSG_DEBUG("Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2);
 
 	float dEta = fabs(roiDescriptor1->eta() - roiDescriptor2->eta());
-        float dPhi = fabs(HLT::wrapPhi(roiDescriptor1->phi()-roiDescriptor2->phi()));
+        float dPhi = fabs(CxxUtils::wrapToPi(roiDescriptor1->phi()-roiDescriptor2->phi()));
 
 	m_dR = sqrt(dEta*dEta+dPhi*dPhi); // compute dR
 

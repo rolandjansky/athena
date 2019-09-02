@@ -1,20 +1,16 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
-from __future__ import with_statement, division
+from __future__ import with_statement, division, print_function
 
 from DQUtils import process_iovs
-from DQUtils.general import timer
-from DQUtils.sugar import RunLumi, IOVSet, define_iov_type
+from DQUtils.sugar import IOVSet, define_iov_type
 from DQUtils.ext import tally
 
 import DCSCalculator2.config as config
 from .variable import GoodIOV, DCSC_Variable_With_Mapping, DefectIOV
-from .consts import (BLACK, WHITE, GREY, RED, YELLOW, GREEN, 
+from .consts import (WHITE, GREY, RED, YELLOW, GREEN, 
                      EMPTY, OUT_OF_CONFIG, BAD, GOOD)
-
-from collections import namedtuple
-from pprint import pprint
 
 import logging
 log = logging.getLogger("DCSCalculator2.subdetector")
@@ -74,7 +70,7 @@ class DCSC_Subdetector(object):
         """
 
         # inputs is literally the same as self.variables
-            # Is this true?? I don't think it is
+        #    # Is this true?? I don't think it is
         # calculate_good_iovs will calculate the goodness of all input channels
         # and remap the channel ids if necessary.  
         # TODO: This could be rewritten to be more clear.
@@ -199,7 +195,7 @@ class DCSC_Subdetector(object):
                 
                 statetally = tally(pretty(x.good) for x in states[1:])
                 
-                print since, until, statetally 
+                print(since, until, statetally)
             
         return result
         

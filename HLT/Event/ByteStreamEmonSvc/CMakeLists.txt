@@ -6,33 +6,26 @@
 atlas_subdir( ByteStreamEmonSvc )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
+                          GaudiKernel
+                          Event/ByteStreamCnvSvcBase
                           Event/ByteStreamCnvSvc
                           Event/ByteStreamData
-                          GaudiKernel
-                          PRIVATE
+                          Event/EventInfo
+                          Control/CxxUtils
                           Control/StoreGate
-                          Database/PersistentDataModel
-                          Event/ByteStreamCnvSvcBase
-                          Event/EventInfo )
+                          Database/PersistentDataModel )
+
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( tdaq COMPONENTS emon ohroot owl is omniORB4 omnithread oh )
 
 # Component(s) in the package:
-atlas_add_library( ByteStreamEmonSvcLib
-                   src/ByteStreamEmonInputSvc.cxx
-                   PUBLIC_HEADERS ByteStreamEmonSvc
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ByteStreamData GaudiKernel ByteStreamCnvSvcLib ByteStreamData_test StoreGateLib SGtests ByteStreamCnvSvcBaseLib
-                   PRIVATE_LINK_LIBRARIES PersistentDataModel EventInfo )
-
 atlas_add_component( ByteStreamEmonSvc
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS} ${TDAQ_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ByteStreamCnvSvcLib ByteStreamData ByteStreamData_test GaudiKernel StoreGateLib SGtests PersistentDataModel ByteStreamCnvSvcBaseLib EventInfo ByteStreamEmonSvcLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${TDAQ_LIBRARIES} ByteStreamCnvSvcLib ByteStreamData GaudiKernel StoreGateLib PersistentDataModel ByteStreamCnvSvcBaseLib EventInfo )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-

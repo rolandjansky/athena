@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -24,6 +24,7 @@ const unsigned int TileCalibUtils::BAD_DEFINITION_CHAN;
 const unsigned int TileCalibUtils::NOISY_DEFINITION_CHAN;
 const unsigned int TileCalibUtils::NOGAINL1_DEFINITION_CHAN;
 const unsigned int TileCalibUtils::BADTIMING_DEFINITION_CHAN;
+const unsigned int TileCalibUtils::WRONGBCID_DEFINITION_CHAN;
 
 //
 //_____________________________________________________________________________

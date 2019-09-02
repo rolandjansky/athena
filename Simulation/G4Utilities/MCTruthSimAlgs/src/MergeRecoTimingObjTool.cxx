@@ -1,25 +1,23 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeRecoTimingObjTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "PileUpTools/PileUpMergeSvc.h"
 #include "RecEvent/RecoTimingObj.h"
-#include "StoreGate/StoreGateSvc.h"
 
 MergeRecoTimingObjTool::MergeRecoTimingObjTool(const std::string& type,
                                                const std::string& name,
                                                const IInterface* parent) :
-  PileUpToolBase(type, name, parent),
-  m_pMergeSvc("PileUpMergeSvc", name),
-  m_recTimingObjInputKey("EVNTtoHITS_timings"),
-  m_recTimingObjOutputKey("EVNTtoHITS_timings"),
-  m_firstSubEvent(true)
+  PileUpToolBase(type, name, parent)
 {
-  declareProperty("RecoTimingObjInputKey", m_recTimingObjInputKey);
-  declareProperty("RecoTimingObjOutputKey", m_recTimingObjOutputKey);
+}
+
+StatusCode MergeRecoTimingObjTool::initialize()
+{
+  ATH_CHECK(m_pMergeSvc.retrieve());
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MergeRecoTimingObjTool::prepareEvent(unsigned int nInputEvents)
@@ -35,27 +33,22 @@ StatusCode MergeRecoTimingObjTool::processBunchXing(int bunchXing,
                                                     SubEventIterator eSubEvents)
 {
   ATH_MSG_VERBOSE ( "processBunchXing()" );
-  if(m_firstSubEvent && bunchXing==0)
-    {
-      if (bSubEvents != eSubEvents)
-        {
-	  const RecoTimingObj *oldColl(0);
-	  if (m_pMergeSvc->retrieveSingleSubEvtData(m_recTimingObjInputKey.value(), oldColl,
-						    bunchXing, bSubEvents).isSuccess())
-	    {
-	      CHECK(processRecoTimingObj(oldColl));
-	    }
-          else
-            {
-              ATH_MSG_DEBUG ( "processBunchXing: No RecoTimingObj found." );
-            }
-        }
-      else
-        {
-          ATH_MSG_DEBUG ( "processBunchXing: Central Bunch Crossing Empty?!" );
-        }
-      m_firstSubEvent=false;
+  if(m_firstSubEvent && bunchXing==0) {
+    if (bSubEvents != eSubEvents) {
+      const RecoTimingObj *oldColl(nullptr);
+      if (m_pMergeSvc->retrieveSingleSubEvtData(m_recTimingObjInputKey.value(), oldColl,
+                                                bunchXing, bSubEvents).isSuccess()) {
+        ATH_CHECK(processRecoTimingObj(oldColl));
+      }
+      else {
+        ATH_MSG_DEBUG ( "processBunchXing: No RecoTimingObj found." );
+      }
     }
+    else {
+      ATH_MSG_DEBUG ( "processBunchXing: Central Bunch Crossing Empty?!" );
+    }
+    m_firstSubEvent=false;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -75,17 +68,11 @@ bool MergeRecoTimingObjTool::toProcess(int bunchXing) const
 StatusCode MergeRecoTimingObjTool::processAllSubEvents()
 {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
-  if(!m_pMergeSvc)
-    {
-      CHECK(m_pMergeSvc.retrieve());
-    }
-
-  const RecoTimingObj *oldColl(NULL);
-  if( !m_pMergeSvc->retrieveOriginal(m_recTimingObjInputKey.value(), oldColl).isSuccess() || !oldColl)
-    {
-      ATH_MSG_DEBUG ( "processAllSubEventss: Cannot find RecoTimingObj in input HITS file" );
-      return StatusCode::SUCCESS;
-    }
+  const RecoTimingObj *oldColl(nullptr);
+  if( !m_pMergeSvc->retrieveOriginal(m_recTimingObjInputKey.value(), oldColl).isSuccess() || !oldColl) {
+    ATH_MSG_DEBUG ( "processAllSubEventss: Cannot find RecoTimingObj in input HITS file" );
+    return StatusCode::SUCCESS;
+  }
   return this->processRecoTimingObj(oldColl);
 }
 
@@ -93,7 +80,7 @@ StatusCode MergeRecoTimingObjTool::processAllSubEvents()
 StatusCode MergeRecoTimingObjTool::processRecoTimingObj(const RecoTimingObj* inputObj)
 {
   RecoTimingObj *outputRecoTimingObj = new RecoTimingObj(*inputObj); //CHECK copy constructor is OK!!
-  CHECK(evtStore()->record(outputRecoTimingObj, m_recTimingObjOutputKey.value()));
+  ATH_CHECK(evtStore()->record(outputRecoTimingObj, m_recTimingObjOutputKey.value()));
   ATH_MSG_DEBUG( "processRecoTimingObj: copied original event RecoTimingObj" );
   return StatusCode::SUCCESS;
 }

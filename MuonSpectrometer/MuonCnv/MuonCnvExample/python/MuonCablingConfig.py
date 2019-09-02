@@ -31,18 +31,12 @@ if globalflags.DataSource() == 'data':
 log.info("configuring Muon cabling in MuonCablingConfig")
 if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.readRIOPool.RPC_on() or DetFlags.digitize.RPC_on():
     try:
-        log.info("importing the InputFilePeeker from MuoncablingConfig")
-        from RecExConfig.InputFilePeeker import inputFileSummary
-        if inputFileSummary['metadata']['/TagInfo'].has_key('RPC_CablingType'):
-            cablingTag = inputFileSummary['metadata']['/TagInfo']['RPC_CablingType']
+        log.info("importing the MetaReader for MuoncablingConfig")
+        from PyUtils.MetaReaderPeekerFull import metadata
+        if 'RPC_CablingType' in metadata['/TagInfo']:
+            cablingTag = metadata['/TagInfo']['RPC_CablingType']
             log.info("Have retrieved RPC taginfo of " + str(cablingTag) + ". Setting default mode to new" )
-            muonCnvFlags.RpcCablingMode='new'
-#    try:
-#        cablingTag = inputFileSummary['metadata']['/TagInfo']['RPC_CablingType']
-#        logMuon.info("Have retrieved RPC taginfo of " + str(cablingTag) + ". Setting default to mode to new" )
-#        setDefault(self.RpcCablingMode, 'new')
-#    except:
-#        log.info("No RPC cabling taginfo found. Using normal configuration.")
+            muonCnvFlags.RpcCablingMode = 'new'
         else:
             log.info("No RPC cabling taginfo found. Using normal configuration.")
     except:
@@ -118,6 +112,14 @@ if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.read
     if muonCnvFlags.TgcCablingMode=='12-fold' or muonCnvFlags.TgcCablingMode=='auto':
         from IOVDbSvc.CondDB import conddb
         conddb.addFolderSplitMC('TGC','/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA')
+
+    from TGC_CondCabling.TGC_CondCablingConf import TGCCablingDbTool
+    TGCCablingDbTool = TGCCablingDbTool()
+    if globalflags.DataSource() == 'geant4':
+        TGCCablingDbTool.filename_ASD2PP_DIFF_12='ASD2PP_diff_12_OFL.db'
+    else:
+        TGCCablingDbTool.filename_ASD2PP_DIFF_12='ASD2PP_diff_12_ONL.db'
+    ToolSvc+=TGCCablingDbTool
 
     #if globalflags.DataSource() == 'geant4' and not DetFlags.digitize.TGC_on():
         #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_EIFI")

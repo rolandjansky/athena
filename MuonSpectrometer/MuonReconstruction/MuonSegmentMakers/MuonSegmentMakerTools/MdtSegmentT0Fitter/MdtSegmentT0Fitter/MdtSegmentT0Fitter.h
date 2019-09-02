@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Fitting for in situ calibration of segments
@@ -13,12 +13,13 @@
 #include "TrkDriftCircleMath/DCSLFitter.h"
 #include "MuonSegmentMakerInterfaces/IDCSLFitProvider.h"
 
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 
+#include <atomic>
 #include <vector>
 
 class IIdToFixedIdTool;
-class MdtCalibrationDbSvc;
+class MdtCalibrationDbTool;
 class TMinuit;
 
 namespace TrkDriftCircleMath {
@@ -28,24 +29,23 @@ namespace TrkDriftCircleMath {
 
       MdtSegmentT0Fitter(const std::string&,const std::string&,const IInterface*);
       virtual ~MdtSegmentT0Fitter ();
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
       
-      bool fit( const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const;
-      bool fit( const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed ) const;
+      virtual bool fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const override;
+      virtual bool fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed ) const override;
 
  
-      DCSLFitter* getFitter() { return this; }
+      virtual const DCSLFitter* getFitter() const override { return this; }
 
     private:
-		  bool m_trace; // debug - traces operation
+      bool m_trace; // debug - traces operation
       bool m_dumpToFile; // debug - dumps some performance info
-		  bool m_dumpNoFit; // debug - print hit info where fit doesn't run		
+      bool m_dumpNoFit; // debug - print hit info where fit doesn't run		
 
       bool m_useInternalRT; // whether to use an internal RT function or the one from Calibration Service
-		  ServiceHandle<MdtCalibrationDbSvc> m_calibDbSvc;
-      // MdtCalibrationDbSvc* m_calibDbSvc;
-      
+      ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
+
       int m_minHits; // minimum number of selected hits for t0 fit. Otherwise use default
 
       bool m_constrainShifts; // whether to constrain t0 shifts to a 50 ns window
@@ -58,17 +58,17 @@ namespace TrkDriftCircleMath {
       TMinuit* m_minuit;
 
       // counters
-      mutable unsigned int m_ntotalCalls;
-      mutable unsigned int m_npassedNHits;
-      mutable unsigned int m_npassedSelectionConsistency;
-      mutable unsigned int m_npassedNSelectedHits;
-      mutable unsigned int m_npassedMinHits;
-      mutable unsigned int m_npassedMinuitFit;
+      mutable std::atomic_uint m_ntotalCalls;
+      mutable std::atomic_uint m_npassedNHits;
+      mutable std::atomic_uint m_npassedSelectionConsistency;
+      mutable std::atomic_uint m_npassedNSelectedHits;
+      mutable std::atomic_uint m_npassedMinHits;
+      mutable std::atomic_uint m_npassedMinuitFit;
     };
     
-  inline bool MdtSegmentT0Fitter::fit( const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const { 
+  inline bool MdtSegmentT0Fitter::fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const { 
     HitSelection selection(dcs.size(),0);
-    return fit( line, dcs, selection, t0Seed ); 
+    return fit( result, line, dcs, selection, t0Seed ); 
   }
 }
 

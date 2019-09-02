@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file SCT_ClusteringTool.h
@@ -36,7 +36,7 @@ namespace InDet {
    * Input is from RDOs, assumed to be sorted. They are then scanned 
    * in order and neighbouring RDOs are grouped together.
    */
-  class SCT_ClusteringTool: public AthAlgTool, virtual public ISCT_ClusteringTool {
+  class SCT_ClusteringTool: public extends<AthAlgTool, ISCT_ClusteringTool> {
   public:
     ///Normal constructor for an AlgTool; 'properties' are also declared here
     SCT_ClusteringTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -57,18 +57,18 @@ namespace InDet {
                const SCT_ID& idHelper) const;
     
   private:
-    int                                       m_errorStrategy;
-    bool                                      m_checkBadChannels;
+    IntegerProperty m_errorStrategy{this, "errorStrategy", 1};
+    BooleanProperty m_checkBadChannels{this, "checkBadChannels", true};
     ToolHandle<IInDetConditionsTool>          m_conditionsTool{this, "conditionsTool",
         "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
-    ToolHandle< ClusterMakerTool >            m_clusterMaker;
+    ToolHandle< ClusterMakerTool >            m_clusterMaker{this, "globalPosAlg", "InDet::ClusterMakerTool"};
     typedef std::vector<Identifier>           IdVec_t;
-    std::string                               m_timeBinStr;
-    int                                       m_timeBinBits[3];
-    bool                                      m_innermostBarrelX1X;
-    bool                                      m_innertwoBarrelX1X;
-    bool                                      m_majority01X;
-    bool                                      m_useRowInformation;
+    StringProperty m_timeBinStr{this, "timeBins", ""};
+    int m_timeBinBits[3]{-1, -1, -1};
+    BooleanProperty m_innermostBarrelX1X{this, "innermostBarrelX1X", false};
+    BooleanProperty m_innertwoBarrelX1X{this, "innertwoBarrelX1X", false};
+    BooleanProperty m_majority01X{this, "majority01X", false};
+    BooleanProperty m_useRowInformation{this, "useRowInformation", false};
 
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

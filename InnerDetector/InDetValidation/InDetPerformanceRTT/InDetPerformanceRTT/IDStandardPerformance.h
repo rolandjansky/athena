@@ -743,8 +743,6 @@ class IDStandardPerformance : public ManagedMonitorToolBase
 
     float m_Pi;
     const AtlasDetectorID*               m_idHelper;          //!< Used to find out the sub-det from PRD->identify().
-    //StoreGateSvc*                      m_storeGate;
-    //StoreGateSvc*                      m_detStore;
 
     const PixelID*                        m_pixelID;
     const SCT_ID*                         m_sctID;

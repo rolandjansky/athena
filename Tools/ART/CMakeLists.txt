@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # CMake configuration file for the ART package.
 #
@@ -10,6 +10,12 @@ atlas_subdir( ART )
 # Declare the package's dependencies: 
 atlas_depends_on_subdirs( PRIVATE
                           TestPolicy )
+
+# External dependencies:
+find_package( futures )
+find_package( requests )
+find_package( scandir )
+find_package( pyyaml )
 
 # Install files from the package:
 atlas_install_python_modules( python/ART/*.py )

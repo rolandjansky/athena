@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -14,7 +14,7 @@
 #define TAU_CONTAINER_ANALYSIS_H
 
 #include "AthContainers/DataVector.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "tauEvent/TauJet.h"
 
 #include "NavFourMom/IParticleContainer.h"

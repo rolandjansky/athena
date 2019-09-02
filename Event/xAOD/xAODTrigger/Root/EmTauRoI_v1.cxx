@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EmTauRoI_v1.cxx 652708 2015-03-09 15:46:47Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -75,10 +74,10 @@ namespace xAOD {
                                          setHadCore ) 
 
    /// Accessor for the names of the passed thresholds
-   static SG::AuxElement::Accessor< std::vector< std::string > >
+   static const SG::AuxElement::Accessor< std::vector< std::string > >
       names( "thrNames" );
    /// Accessor for the values (in MeV) of the passed thresholds
-   static SG::AuxElement::Accessor< std::vector< float > >
+   static const SG::AuxElement::Accessor< std::vector< float > >
       values( "thrValues" );
 
    /// @param name The name of the passed threshold

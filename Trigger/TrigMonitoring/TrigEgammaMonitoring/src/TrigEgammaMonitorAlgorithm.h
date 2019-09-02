@@ -15,5 +15,8 @@ class TrigEgammaMonitorAlgorithm : public AthMonitorAlgorithm {
   virtual ~TrigEgammaMonitorAlgorithm();
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
+
+  ///Name of the trigger items to be monitored.
+  //std::vector<std::string> m_trigItems; 
 };
 #endif

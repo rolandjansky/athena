@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -35,8 +37,8 @@ class SCT_DetectorElementCondAlg : public AthReentrantAlgorithm
   SG::ReadCondHandleKey<GeoAlignmentStore> m_readKey;
   SG::WriteCondHandleKey<InDetDD::SiDetectorElementCollection> m_writeKey{this, "WriteKey", "SCT_DetectorElementCollection", "Key of output SiDetectorElementCollection for SCT"};
 
-  ServiceHandle<ICondSvc> m_condSvc;
-  const InDetDD::SCT_DetectorManager* m_detManager;
+  ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
+  const InDetDD::SCT_DetectorManager* m_detManager{nullptr};
 };
 
 #endif // SCT_CONDITIONSALGORITHMS_SCT_DETECTORELEMENTCONDALG_H

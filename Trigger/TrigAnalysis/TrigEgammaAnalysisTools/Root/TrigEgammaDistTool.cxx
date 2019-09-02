@@ -10,6 +10,7 @@
 #include "xAODTrigger/TrigPassBitsContainer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigEgammaAnalysisTools/ValidationException.h"
 
 #include "string"
 #include <algorithm>
@@ -344,6 +345,20 @@ void TrigEgammaDistTool::fillShowerShapes(const std::string &dir,const xAOD::Ega
             hist1("topoetcone20_rel")->Fill(getIsolation_topoetcone20(eg)/eg->pt());
             hist1("topoetcone40_shift_rel")->Fill((getIsolation_topoetcone40(eg)-2450)/eg->pt());
         }
+	// Fill the LH discriminant for LH tight medium and loose -> Not working *YET* in master. I'll keep it here so I can uncomment when fixed
+	// ATH_MSG_DEBUG("Computing the lh discriminant!");
+	// auto ctx = Gaudi::Hive::currentContext() ;
+	// try {
+	//     hist1("lhtight_discriminant")->Fill(m_electronLHTool[0]->calculate(ctx, eg));
+	//     hist1("lhmedium_discriminant")->Fill(m_electronLHTool[1]->calculate(ctx, eg));
+	//     hist1("lhloose_discriminant")->Fill(m_electronLHTool[2]->calculate(ctx, eg));
+	// } catch(const ValidationException &e) {
+	//     ATH_MSG_WARNING("Exception thrown: " << e.msg() << " not computing lh discriminants!");
+	// } catch(...) {
+	//     ATH_MSG_WARNING("Unknown exception caught, while computing lh discriminants!. Ignoring");
+	// }
+
+
         
     }
 }

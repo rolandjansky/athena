@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonMDT_Cabling/MuonMDT_CablingAlg.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"

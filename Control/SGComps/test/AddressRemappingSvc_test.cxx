@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -195,12 +195,15 @@ void fillTADList (IAddressProvider::tadList& tads,
 //  Foo/bar1
 //  Foo/bar2 + symlink 321 + aliases bar2.d1, bar2.d2, bar2.x2
 //  Foo/foo3 + aliases foo3.x1, foo3.d2
+//  Foo/fee1_DELETED
+//  Foo/fee1Aux._DELETED
 void checkTADList (const IAddressProvider::tadList& tads,
                    const Addrs& addrs)
 {
   CLID fooclid = ClassID_traits<xAODFoo>::ID();
+  CLID auxclid = ClassID_traits<SG::IConstAuxStore>::ID();
 
-  assert (tads.size() == 3);
+  assert (tads.size() == 5);
   size_t i = 0;
   for (const SG::TransientAddress* tad : tads) {
     if (i == 0) {
@@ -234,6 +237,24 @@ void checkTADList (const IAddressProvider::tadList& tads,
       assert (tad->alias() ==
               (SG::TransientAddress::TransientAliasSet { "foo3.x1",
                                                          "foo3.d2" }));
+    }
+    else if (i == 3) {
+      assert (tad->clID() == fooclid);
+      assert (tad->name() == "fee1_DELETED");
+      assert (tad->address() == &addrs.addr4);
+      assert (tad->clearAddress() == false);
+      assert (tad->transientID() ==
+              SG::TransientAddress::TransientClidSet { fooclid });
+      assert (tad->alias().empty());
+    }
+    else if (i == 4) {
+      assert (tad->clID() == auxclid);
+      assert (tad->name() == "fee1Aux._DELETED");
+      assert (tad->address() == &addrs.addr5);
+      assert (tad->clearAddress() == false);
+      assert (tad->transientID() ==
+              SG::TransientAddress::TransientClidSet { auxclid });
+      assert (tad->alias().empty());
     }
     ++i;
   }

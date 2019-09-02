@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -21,7 +21,6 @@
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CxxUtils/StrFormat.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/System.h"
 #include <memory>
 #include <sstream>
@@ -156,8 +155,8 @@ StatusCode xAODTestReadCVec::execute (const EventContext& ctx) const
   }
 
   if (!m_writeKey.key().empty()) {
-    auto vecnew = CxxUtils::make_unique<CVec>();
-    auto store = CxxUtils::make_unique<CAuxContainer>();
+    auto vecnew = std::make_unique<CVec>();
+    auto store = std::make_unique<CAuxContainer>();
     vecnew->setStore (store.get());
     for (size_t i = 0; i < cvec->size(); i++) {
       vecnew->push_back (new C);

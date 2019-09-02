@@ -17,9 +17,11 @@
 //
 #include <math.h>
 #include <fstream>
+
+#include "AthenaKernel/RNGWrapper.h"
+
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "LArRawEvent/LArTTL1.h"
@@ -31,6 +33,7 @@
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/CaloID_Exception.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArIdManager.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 //
@@ -63,12 +66,8 @@ const double crossingRate = 1. / crossingTime;
 
 LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator)
-  , m_atRndmGenSvc("AtRndmGenSvc",name)
-  , m_rndmEngineName("LArTTL1Maker")
-  , m_rndmEngine(0)
   , m_ttSvc("CaloTriggerTowerService")
-  , m_fSamplKey("LArfSampl")
-  , m_hitmap(0)
+  , m_fSamplKey("LArfSamplSym")
   , m_EmTTL1ContainerName{"LArTTL1EM"}
   , m_HadTTL1ContainerName{"LArTTL1HAD"}
   , m_xxxHitContainerName{{std::string("LArHitEMB"),std::string("LArHitEMEC"), std::string("LArHitHEC"),std::string("LArHitFCAL")}}
@@ -87,7 +86,6 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   m_useTriggerTime        = false;
   //m_triggerTimeToolName   = "CosmicTriggerTimeTool";
   //p_triggerTimeTool       = 0;
-  m_useMapfromStore = true;
 
   m_BeginRunPriority      = 100;
 
@@ -131,8 +129,6 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   // ........ declare the private data as properties
   //
 
-  declareProperty("RndmSvc", m_atRndmGenSvc);
-
   declareProperty("EmBarrelHitContainerName", m_xxxHitContainerName[0]);
   declareProperty("EmEndCapHitContainerName",m_xxxHitContainerName[1]);
   declareProperty("HecHitContainerName",m_xxxHitContainerName[2]);
@@ -157,8 +153,6 @@ LArTTL1Maker::LArTTL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("NoHadCalibrationMode",m_noHadCalibMode);
   declareProperty("ChronoTest",m_chronoTest);
   declareProperty("DebugThreshold",m_debugThresh);
-
-  declareProperty("useMapFromStore",m_useMapfromStore,"Use LArHitEMap already filled from detector store");
 
   declareProperty("TruthHitsContainer",m_truthHitsContainer="","Specify a value to get a pair of LArTTL1 containers with the truth hits in them");
   declareProperty("LArfSamplKey",m_fSamplKey);
@@ -281,9 +275,7 @@ StatusCode LArTTL1Maker::initialize()
   //
   const CaloIdManager* caloMgr = nullptr;
   ATH_CHECK( detStore()->retrieve (caloMgr) );
-  const LArIdManager*	 larMgr = nullptr;
-  ATH_CHECK( detStore()->retrieve (larMgr) );
-  
+  ATH_CHECK( detStore()->retrieve(m_OflHelper,"CaloCell_ID"));
   //
   //..... need of course the LVL1 helper
   //
@@ -316,12 +308,7 @@ StatusCode LArTTL1Maker::initialize()
   incSvc->addListener(this, "BeginRun",  m_BeginRunPriority);
 
 
-  ATH_CHECK( m_atRndmGenSvc.retrieve() );
-  m_rndmEngine = m_atRndmGenSvc->GetEngine(m_rndmEngineName);
-  if(!m_rndmEngine) {
-    ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
-    return StatusCode::FAILURE ;
-  }
+  ATH_CHECK( m_RandomSvc.retrieve() );
 
   ATH_CHECK(m_fSamplKey.initialize());
 
@@ -336,6 +323,7 @@ StatusCode LArTTL1Maker::initialize()
   ATH_CHECK(m_EmTTL1ContainerName.initialize());
   ATH_CHECK(m_HadTTL1ContainerName.initialize());
 
+  ATH_CHECK(m_hitMapKey.initialize());
 
   ATH_MSG_DEBUG  ( "Initialization completed successfully"  );
   return StatusCode::SUCCESS;
@@ -347,14 +335,7 @@ void LArTTL1Maker::handle(const Incident& /* inc*/ )
 {
   ATH_MSG_DEBUG ( "LArTTL1Maker handle()" );
 
-  //
-  // ...... init hit map 
-  //
-  if ( this->initHitMap() == StatusCode::FAILURE ) {
-    ATH_MSG_ERROR ( " Error from initHitMap() " );
-  }
 
-  //
   // ...... Read auxiliary data files
   //
   if ( this->readAuxiliary() == StatusCode::FAILURE ) {
@@ -386,19 +367,11 @@ StatusCode LArTTL1Maker::execute()
   SG::ReadCondHandle<ILArfSampl> fSamplhdl(m_fSamplKey);
   const ILArfSampl* fSampl=*fSamplhdl;
 
-
-  int totHit=0;
-  if ( this->fillEMap(totHit) == StatusCode::FAILURE ) return StatusCode::FAILURE;
-  ATH_MSG_DEBUG ( "total number of hits with |E|> 1.e-06 found = " << totHit );
-  
+  SG::ReadHandle<LArHitEMap> hitmap(m_hitMapKey);
 
   if(m_chronoTest) {
     m_chronSvc->chronoStop ( "fill LArHitEMap " );
     m_chronSvc->chronoPrint( "fill LArHitEMap " );
-  }
-
-  if (!m_useMapfromStore && totHit==0) {
-    ATH_MSG_WARNING ( " No LAr hit in the event "  );
   }
 
   //
@@ -458,7 +431,7 @@ StatusCode LArTTL1Maker::execute()
   m_chronSvc->chronoStart( "LArTTL1Mk hit loop " );
 
   int it = 0;
-  int it_end = m_hitmap->GetNbCells();
+  int it_end = hitmap->GetNbCells();
   ATH_MSG_DEBUG ( "Size of the hit map= " << it_end );
   
   //
@@ -473,13 +446,10 @@ StatusCode LArTTL1Maker::execute()
   float printEthresh=20.;
   int nMissingGain=0;
   for( ; it!=it_end;++it) {
-    LArHitList * hitlist = m_hitmap->GetCell(it);
-    if (hitlist != 0 ) {
-      
-      const std::vector<std::pair<float,float> >* timeE = hitlist->getData();
-      if (timeE->size() > 0 ) {
-	Identifier  cellId = hitlist->getIdentifier();
-
+    const LArHitList& hitlist = hitmap->GetCell(it);      
+      const std::vector<std::pair<float,float> >& timeE = hitlist.getData();
+      if (timeE.size() > 0 ) {
+	Identifier cellId = m_OflHelper->cell_id(IdentifierHash(it));
 	int specialCase=0;
 	bool skipCell=false;
 	//
@@ -563,11 +533,12 @@ StatusCode LArTTL1Maker::execute()
 	  //
 	  // .... loop on hits in hit list
 	  //
-	  std::vector<std::pair<float,float> >::const_iterator first = timeE->begin();
-	  std::vector<std::pair<float,float> >::const_iterator last  = timeE->end();
-	  while (first != last) {
-	    float hitEnergy = (*first).first;
-	    float hitTime   = (*first).second - trigtime;
+	  //std::vector<std::pair<float,float> >::const_iterator first = timeEbegin();
+	  //std::vector<std::pair<float,float> >::const_iterator last  = timeE->end();
+	  //while (first != last) {
+	  for (const auto& first : timeE) {
+	    float hitEnergy = first.first;
+	    float hitTime   = first.second - trigtime;
 	    if(hitTime>99000.) {
 	      if(hitEnergy > printEthresh) {
 		ATH_MSG_WARNING 
@@ -642,11 +613,10 @@ StatusCode LArTTL1Maker::execute()
 		}
 	      }
 	    }
-	    ++first;
 	  } // end of loop on hits in the list    
 	} // skip cell condition
       } // check timeE->size() > 0
-    } // check hitlist > 0
+   
   } // end of loop on hit lists
   
   ATH_MSG_DEBUG
@@ -1283,9 +1253,11 @@ std::vector<float> LArTTL1Maker::computeNoise(const Identifier towerId, const in
   const float c75 = (c31*c11-c51*c71-c52*c72-c53*c73-c54*c74) * inv_c55;
   const float c76 = (c21*c11-c61*c71-c62*c72-c63*c73-c64*c74-c65*c75)/c66;
   const float c77 = sqrt(c11*c11-c71*c71-c72*c72-c73*c73-c74*c74-c75*c75-c76*c76);
-  
+
+  ATHRNG::RNGWrapper* rngWrapper = m_RandomSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
   double rndm[s_NBSAMPLES];
-  RandGaussZiggurat::shootArray(m_rndmEngine,(int)s_NBSAMPLES,rndm,0.,1.);
+  RandGaussZiggurat::shootArray(*rngWrapper,static_cast<int>(s_NBSAMPLES),rndm,0.,1.);
   outputV[0] = inputV[0] + c11*rndm[0];
   outputV[1] = inputV[1] + c21*rndm[0] + c22*rndm[1];
   outputV[2] = inputV[2] + c31*rndm[0] + c32*rndm[1] + c33*rndm[2];
@@ -1296,159 +1268,6 @@ std::vector<float> LArTTL1Maker::computeNoise(const Identifier towerId, const in
 
   return outputV ;
 
-}
-
-
-StatusCode LArTTL1Maker::fillEMap(int& totHit) 
-
-{
-// +======================================================================+
-// +                                                                      +
-// + Author: F. Ledroit                                                   +
-// + Creation date: 2003/01/14                                            +
-// +                                                                      +
-// +======================================================================+
-
-//
-// ........ reset the map Energies
-//
-  if (m_useMapfromStore) {
-    ATH_CHECK( detStore()->retrieve(m_hitmap,"LArHitEMap") );
-  }
-
-  else {
-
-    m_hitmap->EnergyReset();
-    ATH_MSG_DEBUG ( "Execute: energy reset done" );
-
-
-    Identifier cellId;
-    float hitEnergy;
-    float hitTime;
-    int skipHit=0;
-
-    //
-    // ............ loop over the wanted hit containers (one per sub-detector)
-    //
-
-    // std::vector<const LArHitContainer*> hitContainers;
-    // SG::ReadHandle<LArHitContainer>  emBarrelHitsHdl(m_EmBarrelHitContainerName);
-    // hitContainers.push_back(emBarrelHitsHdl);
-    // SG::ReadHandle<LArHitContainer>  emEndCapHitsHdl(m_EmEndCapHitContainerName);
-    // hitContainers.push_back(emEndCapHitsHdl);
-    // SG::ReadHandle<LArHitContainer>  hecHitsHdl( m_HecHitContainerName);
-    // hitContainers.push_back(hecCapHitsHdl);
-    // SG::ReadHandle<LArHitContainer>  fcalHitsHdl( m_ForWardHitContainerName);
-    // hitContainers.push_back(fcalHitsHdl);
-
-    for (auto& dhk : m_xxxHitContainerName) 
-    {      
-      if (!m_PileUp) {
-	//
-	// ....... loop over hits and get informations
-	//
-	
-	SG::ReadHandle<LArHitContainer> hit_container(dhk);
-	LArHitContainer::const_iterator hititer;
-	for(hititer=hit_container->begin();hititer != hit_container->end();hititer++) {
-	  cellId = (*hititer)->cellID();
-	  hitEnergy = (float)(*hititer)->energy();
-	  hitTime = (float)(*hititer)->time();
-	    
-	  //
-	  // ....... fill the Map ; don't keep hits with ridiculously small energy
-	  //
-	  if (fabs(hitEnergy) > 1.e-06) {
-	    if ( !m_hitmap->AddEnergy(cellId,hitEnergy,hitTime) ) {
-	      ATH_MSG_FATAL ( " Cell " << cellId.getString()
-                              << " could not add the energy= " << hitEnergy  << " (MeV)" );
-	      return(StatusCode::FAILURE);
-	    }
-	    ++totHit;
-	  }
-	  else {
-	    ++skipHit;
-	  }
-	  
-	} // .... end of loop over hits
-      } // ... end of NO pile-up condition
-      else {
-	
-	typedef PileUpMergeSvc::TimedList<LArHitContainer>::type TimedHitContList;
-	TimedHitContList hitContList;
-	//
-	// ...retrieve list of pairs (time,container) from PileUp service
-	//
-	
-	if (!(m_mergeSvc->retrieveSubEvtsData(dhk.key(),hitContList).isSuccess()) && hitContList.size()==0) {
-	  ATH_MSG_ERROR ( "Could not fill TimedHitContList" );
-	  return StatusCode::FAILURE;
-	}
-	
-        ATH_MSG_DEBUG ( "number of containers in the list: " << hitContList.size() );
-	
-	//
-	// ...loop over this list
-	//
-	TimedHitContList::iterator iFirstCont(hitContList.begin());
-	TimedHitContList::iterator iEndCont(hitContList.end());
-	double SubEvtTimOffset;
-
-	while (iFirstCont != iEndCont) {
-	  // get time for this subevent
-	  // new coding of time information (January 05)
-	  const PileUpTimeEventIndex* time_evt = &(iFirstCont->first);
-	  SubEvtTimOffset = time_evt->time();
-	  //	  SubEvtTimOffset = iFirstCont->first;
-
-	  // get LArHitContainer for this subevent
-	  const LArHitContainer& firstCont = *(iFirstCont->second);
-          ATH_MSG_DEBUG 
-            ( "number of hits in container: " << firstCont.size() 
-              << ", first five are:" );
-	
-	  int numHit=0;
-	  // Loop over cells in this LArHitContainer
-	  LArHitContainer::const_iterator f_cell=firstCont.begin();
-	  LArHitContainer::const_iterator l_cell=firstCont.end();
-	  while (f_cell != l_cell) {
-	    hitEnergy = (float) (*f_cell)->energy();
-	    hitTime = (float) SubEvtTimOffset;
-	    cellId = (*f_cell)->cellID();
-            ++f_cell;
-
-	    if(numHit<5) {
-	      ATH_MSG_DEBUG
-                ( "cellId " << m_lvl1Helper->show_to_string(cellId) 
-                  << ", energy= " << hitEnergy
-                  << ", time= " << hitTime );
-	    }
-	    ++numHit;
-	    ++totHit;
-	    
-	    //
-	    // ....... fill the Map
-	    //
-	    if ( !m_hitmap->AddEnergy(cellId,hitEnergy,hitTime) )
-	      {
-		ATH_MSG_FATAL ( " Cell " << cellId.getString()
-                                << " could not add the energy= " << hitEnergy  << " (?eV)" );
-		return(StatusCode::FAILURE);
-	      }
-	    
-	  } // ... end of while loop on hits
-	  
-	  ++iFirstCont;
-	} // ... end of while loop on containers
-      
-      } // ... end of pile-up condition
-    } // .... end of loop over containers
-  
-    ATH_MSG_DEBUG
-      ( "skipped " << skipHit  << " hits with abs(energy) less than 1.e-06 " );
-  }
-
-  return StatusCode::SUCCESS;
 }
 
 
@@ -2158,37 +1977,3 @@ int LArTTL1Maker::decodeInverse(int region, int eta)
  return Ieta ; 
 }
 
-
-StatusCode LArTTL1Maker::initHitMap()
-{
-  if (m_useMapfromStore) {
-    ATH_MSG_INFO ( " Use LArHitEMap from detector store. should be filled by LArDigitMaker (digitmaker1)" );
-    return StatusCode::SUCCESS;
-  }
-
-  m_hitmap = new LArHitEMap();
-
-//
-// ......... make the Sub-detector flag vector
-//
-  static std::vector<bool> SubDetFlag;
-  for (int i=0; i < LArHitEMap::NUMDET ; i++)
-  {
-   SubDetFlag.push_back(true);
-  }
-
-//
-//  put all cell energies to 0.
-//
-
-  if ( ! m_hitmap->Initialize(SubDetFlag) )
-    {
-      ATH_MSG_FATAL ( "Making of the cell table failed"  );
-      return StatusCode::FAILURE;
-    }
-  
-  ATH_MSG_INFO ( "Number of created cells in LArHitEMap " 
-                 << m_hitmap->GetNbCells() );
-
-  return StatusCode::SUCCESS;
-}

@@ -12,36 +12,188 @@
 #include "TrigObjectMatching/TrigMatchToolCore.h"
 
 TrigMatchToolCore::TrigMatchToolCore()
-  : m_nConfiguredChainNames(0),
-    m_trigDecisionToolCore(0),
-    m_nFeatureContainers (100)
+  : m_chainNameIndex (this),
+    m_trigDecisionToolCore(0)
 {
-
-   m_l1l2Map.clear();
-   m_featureLabel = "";
-   m_caches = &m_cacheMap[""];
 }
 
 TrigMatchToolCore::~TrigMatchToolCore()
 {
-  BOOST_FOREACH (const cacheMap_t::value_type& p, m_cacheMap) {
-    BOOST_FOREACH (TrigFeatureCacheBase* cache, p.second) {
-      delete cache;
+}
+
+std::string
+TrigMatchToolCore::propagateChainNames( const std::string &chainName ) const
+{
+   return m_chainNameIndex.propagateChainNames (chainName);
+}
+
+
+void TrigMatchToolCore::endEvent()
+{
+   m_slotCache->clear();
+  
+   return;
+}
+
+
+// Clear saved chain name -> index mapping and rebuild from current
+// configuration.
+void TrigMatchToolCore::clearChainIndex()
+{
+  m_chainNameIndex.clear();
+}
+
+
+TrigMatchToolCore::TrigFeatureCacheBase*&
+TrigMatchToolCore::getCache1 (const std::type_info* tid, int type_key,
+                              SlotCache& slotCache,
+                              const SlotCache::lock_t& /*lock*/) const
+{
+  if (type_key < 0) {
+    m_typeMap.key (tid);
+  }
+
+  if (static_cast<int> (slotCache.m_caches->size()) <= type_key)
+    slotCache.m_caches->resize (type_key + 1);
+  return (*slotCache.m_caches)[type_key];
+}
+
+
+size_t
+TrigMatchToolCore::chainNameToIndex (const std::string& chainName) const
+{
+  return m_chainNameIndex.chainNameToIndex (chainName);
+}
+
+
+const Trig::FeatureContainer&
+TrigMatchToolCore::getCachedFeatureContainer (size_t chainIndex,
+                                              SlotCache& slotCache,
+                                              const SlotCache::lock_t& /*lock*/) const
+{
+  if (chainIndex >= slotCache.m_featureContainers.size()) {
+    if (chainIndex >= slotCache.m_nFeatureContainers)
+      slotCache.m_nFeatureContainers = chainIndex + 1;
+    slotCache.m_featureContainers.resize (slotCache.m_nFeatureContainers);
+    slotCache.m_featureContainersValid.resize (slotCache.m_nFeatureContainers);
+  }
+
+  if (!slotCache.m_featureContainersValid[chainIndex]) {
+#if 0
+    // Use this once FeatureContainer::swap is available to avoid copies.
+    Trig::FeatureContainer fc = 
+      this->getFeatureContainer (m_chainNameIndex.chainName(chainIndex),
+                                 TrigDefs::alsoDeactivateTEs);
+    slotCache.m_featureContainers[chainIndex].swap (fc);
+#else
+    slotCache.m_featureContainers[chainIndex] = 
+      this->getFeatureContainer (m_chainNameIndex.chainName(chainIndex),
+                                 TrigDefs::alsoDeactivateTEs);
+#endif
+    slotCache.m_featureContainersValid[chainIndex] = true;
+  }
+
+  return slotCache.m_featureContainers[chainIndex];
+}
+
+
+//***************************************************************************
+
+
+TrigMatchToolCore::ChainNameIndex::ChainNameIndex (TrigMatchToolCore* core)
+  : m_core (core)
+{
+}
+
+
+void
+TrigMatchToolCore::ChainNameIndex::assertConfiguredChainNames()
+{
+  if (m_chainNames.empty()) {
+    m_chainNames = m_core->getConfiguredChainNames();
+    m_nConfiguredChainNames = m_chainNames.size();
+    m_chainIndexMap.clear();
+    for (size_t i = 0; i < m_chainNames.size(); i++) {
+      const std::string& chainName = m_chainNames[i];
+      m_chainIndexMap[chainName] = i;
+
+      // Build the L1L2 map.  Note that we ignore regex support
+      // at this stage - we'll implement regex support by matching
+      // to the keys in the cache later on.  Also note that the
+      // cached version does not have parentheses around it (so
+      // they can easily be combined)
+      if (chainName.find("L2_") != std::string::npos) {
+        const std::string l1 = m_core->lowerChainName( chainName );
+
+        if( m_l1l2Map.find( l1 ) == m_l1l2Map.end() ) {
+          m_l1l2Map[ l1 ] = chainName;
+        } else {
+          m_l1l2Map[ l1 ] = m_l1l2Map[ l1 ] + "|" + chainName;
+        }
+      }
     }
   }
 }
 
-std::string
-TrigMatchToolCore::propagateChainNames( const std::string &chainName ) {
 
+size_t
+TrigMatchToolCore::ChainNameIndex::chainNameToIndex (const std::string& chainName)
+{
+  lock_t lock (m_mutex);
+  assertConfiguredChainNames();
+  chainIndexMap_t::iterator it = m_chainIndexMap.find (chainName);
+  if (it == m_chainIndexMap.end()) {
+    size_t chainIndex = m_chainNames.size();
+    m_chainIndexMap[chainName] = chainIndex;
+    m_chainNames.push_back (chainName);
+    return chainIndex;
+  }
+  else
+    return it->second;
+}
+
+
+std::vector<std::string>
+TrigMatchToolCore::ChainNameIndex::configuredChainNames()
+{
+  lock_t lock (m_mutex);
+  assertConfiguredChainNames();
+  return std::vector<std::string> (m_chainNames.begin(),
+                                   m_chainNames.begin() + m_nConfiguredChainNames);
+}
+
+
+std::string
+TrigMatchToolCore::ChainNameIndex::chainName (size_t index)
+{
+  lock_t lock (m_mutex);
+  assertConfiguredChainNames();
+  return m_chainNames.at (index);
+}
+
+
+void
+TrigMatchToolCore::ChainNameIndex::clear()
+{
+  lock_t lock (m_mutex);
+  m_chainNames.clear();
+  m_chainIndexMap.clear();
+  m_nConfiguredChainNames = 0;
+  m_l1l2Map.clear();
+  assertConfiguredChainNames();
+}
+
+
+std::string
+TrigMatchToolCore::ChainNameIndex::propagateChainNames( const std::string &chainName )
+{
    // only applicable for L1 chains
    if( chainName.find( "L1_" ) == std::string::npos )
       return chainName;
 
-   // check that the cache is built
-   this->buildL1L2Map();
+  lock_t lock (m_mutex);
 
-   // add it to the cache if necessary
+  // add it to the cache if necessary
    if( m_l1l2Map.find( chainName ) == m_l1l2Map.end() ) {
 
       // if its not in the cache, we need to check
@@ -79,119 +231,16 @@ TrigMatchToolCore::propagateChainNames( const std::string &chainName ) {
    return output;
 }
 
-// Build the L1L2 map.  Note that we ignore regex support
-// at this stage - we'll implement regex support by matching
-// to the keys in the cache later on.  Also note that the
-// cached version does not have parentheses around it (so
-// they can easily be combined)
-void TrigMatchToolCore::buildL1L2Map() {
 
-   if( m_l1l2Map.size() ) return;
-
-   // loop through all the L2 chains and check if they are seeded by the L1 item
-   this->assertConfiguredChainNames();
-
-   for (size_t i = 0; i < m_nConfiguredChainNames; i++) {
-      const std::string& chainName = m_chainNames[i];
-
-      if( chainName.find("L2_") == std::string::npos ) {
-         continue;
-      }
-
-      const std::string l1 = this->lowerChainName( chainName );
-
-      if( m_l1l2Map.find( l1 ) == m_l1l2Map.end() ) {
-         m_l1l2Map[ l1 ] = chainName;
-      } else {
-         m_l1l2Map[ l1 ] = m_l1l2Map[ l1 ] + "|" + chainName;
-      }
-   }
-
-   return;
-}
-
-void TrigMatchToolCore::endEvent() {
-
-   BOOST_FOREACH (const cacheMap_t::value_type& p, m_cacheMap) {
-     BOOST_FOREACH (TrigFeatureCacheBase* cache, p.second) {
-       cache->clear();
-     }
-   }
-
-   std::vector<Trig::FeatureContainer>().swap (m_featureContainers);
-   std::vector<bool>().swap (m_featureContainersValid);
-   
-   return;
-}
-
-
-TrigMatchToolCore::TrigFeatureCacheBase*&
-TrigMatchToolCore::getCache1 (const std::type_info* tid, int& type_key)
+int TrigMatchToolCore::TypeMap::key (const std::type_info* tid)
 {
-  if (type_key < 0) {
-    typeMap_t::const_iterator it = m_typeMap.find (tid);
-    if (it != m_typeMap.end())
-      type_key = it->second;
-    else {
-      type_key = m_typeMap.size();
-      m_typeMap[tid] = type_key;
-    }
-  }
-
-  if (static_cast<int> (m_caches->size()) <= type_key)
-    m_caches->resize (type_key + 1);
-  return (*m_caches)[type_key];
-}
-
-
-void TrigMatchToolCore::buildChainIndexMap()
-{
-  m_chainIndexMap.clear();
-  for (size_t i = 0; i < m_chainNames.size(); i++)
-    m_chainIndexMap[m_chainNames[i]] = i;
-}
-
-
-size_t
-TrigMatchToolCore::chainNameToIndex (const std::string& chainName)
-{
-  this->assertConfiguredChainNames();
-  chainIndexMap_t::iterator it = m_chainIndexMap.find (chainName);
-  if (it == m_chainIndexMap.end()) {
-    size_t chainIndex = m_chainNames.size();
-    m_chainIndexMap[chainName] = chainIndex;
-    m_chainNames.push_back (chainName);
-    return chainIndex;
-  }
-  else
+  lock_t lock (m_mutex);
+  typeMap_t::const_iterator it = m_typeMap.find (tid);
+  if (it != m_typeMap.end()) {
     return it->second;
-}
-
-
-const Trig::FeatureContainer&
-TrigMatchToolCore::getCachedFeatureContainer (size_t chainIndex)
-{
-  if (chainIndex >= m_featureContainers.size()) {
-    if (chainIndex >= m_nFeatureContainers)
-      m_nFeatureContainers = chainIndex + 1;
-    m_featureContainers.resize (m_nFeatureContainers);
-    m_featureContainersValid.resize (m_nFeatureContainers);
   }
 
-  if (!m_featureContainersValid[chainIndex]) {
-#if 0
-    // Use this once FeatureContainer::swap is available to avoid copies.
-    Trig::FeatureContainer fc = 
-      this->getFeatureContainer (m_chainNames[chainIndex],
-                                 TrigDefs::alsoDeactivateTEs);
-    m_featureContainers[chainIndex].swap (fc);
-#else
-    m_featureContainers[chainIndex] = 
-      this->getFeatureContainer (m_chainNames[chainIndex],
-                                 TrigDefs::alsoDeactivateTEs);
-#endif
-    m_featureContainersValid[chainIndex] = true;
-  }
-
-  return m_featureContainers[chainIndex];
+  int type_key = m_typeMap.size();
+  m_typeMap[tid] = type_key;
+  return type_key;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -20,15 +20,12 @@
 
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
-#include "CxxUtils/make_unique.h"
 
 #include <limits>
+#include <memory>
 #include <cstdint>
 
 using namespace RadDam;
-
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
 
 PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
                                              const std::string &name,
@@ -45,7 +42,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_fesimTool(nullptr),
   m_energyDepositionTool(nullptr),
   m_detID(nullptr),
-  m_vetoThisBarcode(crazyParticleBarcode),
   m_timedHits(nullptr),
   m_rndmSvc("AtRndmGenSvc",name),
   m_mergeSvc("PileUpMergeSvc",name),
@@ -67,7 +63,6 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("RndmEngine",       m_rndmEngineName,  "Random engine name");
   declareProperty("OnlyHitElements",  m_onlyHitElements, "Process only elements with hits");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
-  declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 //=======================================
@@ -361,7 +356,7 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
 
   // Prepare event
   if (!m_rdoContainer.isValid()) {
-    if (!(m_rdoContainer=CxxUtils::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())).isValid()) {
+    if (!(m_rdoContainer=std::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())).isValid()) {
       ATH_MSG_FATAL("Could not create PixelRDO_Container");
       return StatusCode::FAILURE;
     }
@@ -369,7 +364,7 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   ATH_MSG_DEBUG("PixelRDO_Container " << m_rdoContainer.name() << " registered in StoreGate");
 
   if (!m_simDataColl.isValid()) {
-    if (!(m_simDataColl = CxxUtils::make_unique<InDetSimDataCollection>()).isValid()) {
+    if (!(m_simDataColl = std::make_unique<InDetSimDataCollection>()).isValid()) {
       ATH_MSG_FATAL("Could not create InDetSimDataCollection");
       return StatusCode::FAILURE;
     }

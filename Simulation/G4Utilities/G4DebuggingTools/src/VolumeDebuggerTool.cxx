@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "VolumeDebuggerTool.h"
 
 namespace G4UA
@@ -27,7 +26,7 @@ namespace G4UA
   VolumeDebuggerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing a VolumeDebugger");
-    auto action = CxxUtils::make_unique<VolumeDebugger>(m_config);
+    auto action = std::make_unique<VolumeDebugger>(m_config);
     actionList.runActions.push_back( action.get() );
     return action;
   }

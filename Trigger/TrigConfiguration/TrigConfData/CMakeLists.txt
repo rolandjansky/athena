@@ -6,7 +6,11 @@
 atlas_subdir( TrigConfData )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( CxxUtils )
+atlas_depends_on_subdirs( PUBLIC
+                          Control/AthenaKernel
+                          PRIVATE
+                          Control/CxxUtils
+                          )
 
 # External dependencies:
 find_package( Boost REQUIRED )
@@ -15,7 +19,7 @@ find_package( Boost REQUIRED )
 atlas_add_library ( TrigConfData TrigConfData/*.h src/*.cxx
                     PUBLIC_HEADERS TrigConfData
                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                    LINK_LIBRARIES ${Boost_LIBRARIES} )
+                    LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel )
 
 atlas_add_test( ConstIter SOURCES test/itertest.cxx
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}

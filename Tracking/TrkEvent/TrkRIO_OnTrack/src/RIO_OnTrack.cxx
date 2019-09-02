@@ -17,7 +17,7 @@
 #include <string>
 #include <typeinfo>
 
-unsigned int Trk::RIO_OnTrack::s_numberOfInstantiations=0;
+std::atomic<unsigned int> Trk::RIO_OnTrack::s_numberOfInstantiations{0};
 
 // Constructor with parameters:
 Trk::RIO_OnTrack::RIO_OnTrack(  const Trk::LocalParameters& locpars,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,13 +51,13 @@ template <class Tvol> inline const Tvol* BoundarySubtractedCylinderSurface<Tvol>
 
   if ( (*localNormal).dot(dir*parms.momentum()) > 0.){
     attVolume = BoundarySurface<Tvol>::m_outsideVolume;
-    if (BoundarySurface<Tvol>::m_outsideVolumeArray.getPtr()){
-      attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.getPtr()->object(parms.position());
+    if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()){
+      attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(parms.position());
     }
   } else {
     attVolume = BoundarySurface<Tvol>::m_insideVolume;
-    if (BoundarySurface<Tvol>::m_insideVolumeArray.getPtr()){
-      attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.getPtr()->object(parms.position());
+    if (BoundarySurface<Tvol>::m_insideVolumeArray.get()){
+      attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.get()->object(parms.position());
     }
   }
  delete localNormal;
@@ -75,13 +75,13 @@ template <class Tvol> inline const Tvol* BoundarySubtractedCylinderSurface<Tvol>
     delete lp;
     if ( (*localNormal).dot(dir*mom) > 0.){
       attVolume = BoundarySurface<Tvol>::m_outsideVolume;
-      if (BoundarySurface<Tvol>::m_outsideVolumeArray.getPtr()){
-        attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.getPtr()->object(pos);
+      if (BoundarySurface<Tvol>::m_outsideVolumeArray.get()){
+        attVolume = BoundarySurface<Tvol>::m_outsideVolumeArray.get()->object(pos);
       }
     } else {
       attVolume = BoundarySurface<Tvol>::m_insideVolume;
-      if (BoundarySurface<Tvol>::m_insideVolumeArray.getPtr()){
-        attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.getPtr()->object(pos);
+      if (BoundarySurface<Tvol>::m_insideVolumeArray.get()){
+        attVolume = BoundarySurface<Tvol>::m_insideVolumeArray.get()->object(pos);
       }
     }
       delete localNormal;      

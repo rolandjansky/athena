@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CORACOOL_CORACOOLOBJECTITER_H
@@ -17,6 +17,18 @@
 //
 // Richard Hawkings, started 10/2006
 
+/** Note that the COOL interface changed to use a different idiom, and so we change the
+    interface here:
+    
+    CoraCoolObjectIterPtr itr=CoraCoolFolderPtr->browseObjects(..);
+    while (itr->goToNext()) {
+      CoraCoolObject & obj=itr->currentRef();
+      // do something with the object
+    }
+    itr->close();
+    
+**/
+
 #include "CoolKernel/IObjectIterator.h"
 #include "CoraCool/CoraCoolTypes.h"
 
@@ -25,9 +37,8 @@ class CoraCoolFolder;
 class CoraCoolObjectIter {
  public:
   // constructor - do not use this directly but create iterators using
-  // CoraCoolFolder::broweObject(..)
-  CoraCoolObjectIter(CoraCoolFolder* coracoolfolder,
-		     cool::IObjectIteratorPtr coolptr);
+  // CoraCoolFolder::browseObject(..)
+  CoraCoolObjectIter(CoraCoolFolder* coracoolfolder, cool::IObjectIteratorPtr coolptr);
   ~CoraCoolObjectIter();
 
   // get the next object - call hasNext() first to check there is one
@@ -36,6 +47,12 @@ class CoraCoolObjectIter {
 
   // does the iterator have a next object
   bool hasNext();
+  
+  // go to next, if the folder has
+  bool goToNext();
+  
+  // return a reference to the current object
+  CoraCoolObject & currentRef();
 
   // close the iterator, releasing resources
   void close();
@@ -80,7 +97,7 @@ class CoraCoolObjectIter {
     long long* m_lower; // array of lower and upper bounds for ranges
     long long*  m_upper;// assumed to be store in ascending numerical order
   };
-
+  void readDataToBuffer();
   bool iHasNext();
   bool equalAttr(const coral::Attribute& a1, const coral::Attribute& a2) const;
   bool isNumAttr(const std::string& spec) const;

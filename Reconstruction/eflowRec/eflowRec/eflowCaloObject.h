@@ -18,6 +18,7 @@ PURPOSE:  Calorimeter Object data class
 
 #include <vector>
 #include <memory>
+#include <map>
 #include "AthLinks/ElementLink.h"
 
 class eflowRecCluster;
@@ -53,6 +54,10 @@ public:
     }
   }
 
+  /* For a specific eflowTrackClusterLink indicate whether or not it has been fully/partially subtracted via the bool */
+  /* True indicates it has been fully or partially subtracted, whilst false indicates it has not been modified at all */
+  void setTrackClusterLinkSubtractionStatus(unsigned int index, bool status) { m_trackClusterLinks[index].second = status; }
+  
   /* Track accessor methods */
   eflowRecTrack* efRecTrack(int i) const { return m_eflowRecTracks[i]; }
   unsigned nTracks() const{ return m_eflowRecTracks.size(); }
@@ -65,7 +70,7 @@ public:
 
 
   /* Link accessor methods */
-  std::vector<eflowTrackClusterLink*> efRecLink() const { return m_trackClusterLinks; }
+  std::vector<std::pair<eflowTrackClusterLink*,bool> > efRecLink() const { return m_trackClusterLinks; }
   void clearLinks() { m_trackClusterLinks.clear(); }
 
   /* Calculate total tracks energy, total tracks energy variance, total cluster energy for subtraction */
@@ -77,14 +82,14 @@ public:
 
 private:
 
-  void addTrackClusterLink(eflowTrackClusterLink* trackClusterLink) { m_trackClusterLinks.push_back(trackClusterLink); }
+  void addTrackClusterLink(eflowTrackClusterLink* trackClusterLink) { m_trackClusterLinks.push_back(std::pair(trackClusterLink,false)); }
 
  private:
   /* Vector of clusters */
   std::vector<eflowRecCluster*> m_eflowRecClusters;
 
-  /* Vector of track-cluster matches */
-  std::vector<eflowTrackClusterLink*> m_trackClusterLinks;
+  /* Vector of track-cluster matches - the bool is to be used to indicate whether a cluster was subtracted or not */
+  std::vector<std::pair<eflowTrackClusterLink*,bool> > m_trackClusterLinks;
 
   /* Vector of tracks */
   std::vector<eflowRecTrack*> m_eflowRecTracks;

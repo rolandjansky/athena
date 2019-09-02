@@ -1,41 +1,37 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONROITOOL_H
-#define TRIGMUONROITOOL_H
+#ifndef TRIGMUONROITOOLS_TRIGMUONROITOOL_H
+#define TRIGMUONROITOOLS_TRIGMUONROITOOL_H
+
+#include "TrigMuonRoITools/ITrigMuonRoITool.h"
+#include "TrigT1Result/MuCTPIRoI.h"
+
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h" 
-#include "GaudiKernel/ServiceHandle.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "EventInfo/EventID.h"
-#include "TrigMuonRoITools/ITrigMuonRoITool.h"
 
-/* class StoreGateSvc; */
-class IROBDataProviderSvc;
-
-class TrigMuonRoITool: public AthAlgTool, 
-		       virtual public ITrigMuonRoITool
+class TrigMuonRoITool: public extends<AthAlgTool, ITrigMuonRoITool>
 {
     public:
 
     TrigMuonRoITool(const std::string& type, 
-		    const std::string& name,
-		    const IInterface*  parent);
-    
-    ~TrigMuonRoITool();
-    
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
-    
+                    const std::string& name,
+                    const IInterface*  parent);
+
+    virtual StatusCode initialize() override;
+
     /// iterator over muon RoIs in time with event in MuCTPi format
-    virtual std::vector<ROIB::MuCTPIRoI>::const_iterator begin_InTimeRoIs() ;
-    virtual std::vector<ROIB::MuCTPIRoI>::const_iterator end_InTimeRoIs() ;
+    virtual std::vector<ROIB::MuCTPIRoI>::const_iterator begin_InTimeRoIs() override;
+    virtual std::vector<ROIB::MuCTPIRoI>::const_iterator end_InTimeRoIs() override;
 
     /// iterator over muon RoIs out of time with event in MuCTPi format
     /// pair < Muon RoI in RoIB format, difference: RoI(BCID)-event(BCID) >
-    virtual std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator begin_OutOfTimeRoIs() ;
-    virtual std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator end_OutOfTimeRoIs() ;
+    virtual std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator begin_OutOfTimeRoIs() override;
+    virtual std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator end_OutOfTimeRoIs() override;
 
     private:
 
@@ -82,4 +78,4 @@ class TrigMuonRoITool: public AthAlgTool,
     bool m_decodeMuCTPiFromROB;
 };
 
-#endif  // TRIGMUONROITOOL_H
+#endif

@@ -25,7 +25,7 @@ class skimRawExecutor(scriptExecutor):
         # in the RAW file we are going to skim. This is because the HI workflow
         # will provide millions of events in their filter file, more than acmd.py
         # can cope with.
-        listEvtCommand = ['AtlListBSEvents.exe', '-l']
+        listEvtCommand = ['AtlListBSEvents', '-l']
         listEvtCommand.extend(self.conf.argdict['inputBSFile'].value)
         # For best lookup speed, we store the runnumber/eventnumber in a dictionary (set would also
         # be fast)
@@ -47,10 +47,10 @@ class skimRawExecutor(scriptExecutor):
                             # the fast hash search against a dictionary 
                             rawEventList[runstr + "-" + evtstr] = True
                             msg.debug("Identified run {0}, event {1} in input RAW files".format(runstr, evtstr))
-                    except ValueError, e:
+                    except ValueError as e:
                         msg.warning("Failed to understand this line from AtlListBSEvents: {0}".format(line))
-        except subprocess.CalledProcessError, e:
-            errMsg = "Call to AtlListBSEvents.exe failed: {0}".format(e)
+        except subprocess.CalledProcessError as e:
+            errMsg = "Call to AtlListBSEvents failed: {0}".format(e)
             msg.error(erMsg)
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_SETUP_FAIL"), errMsg)
         msg.info("Found {0} events as skim candidates in RAW inputs".format(len(rawEventList)))
@@ -66,7 +66,7 @@ class skimRawExecutor(scriptExecutor):
                         msg.debug("Found run {0}, event {1} in master filter list".format(runstr, evtstr))
                         os.write(slimFF.fileno(), line)
                         count += 1
-                except ValueError, e:
+                except ValueError as e:
                     msg.warning("Failed to understand this line from master filter file: {0} {1}".format(line, e))
             if count == 0:
                 # If there are no matched events, create a bogus request for run and event 0 to keep

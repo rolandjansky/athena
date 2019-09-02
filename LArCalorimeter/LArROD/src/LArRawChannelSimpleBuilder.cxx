@@ -130,7 +130,7 @@ StatusCode LArRawChannelSimpleBuilder::execute (const EventContext& ctx) const
     }
   }
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey, ctx};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key() );
