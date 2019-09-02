@@ -45,7 +45,7 @@ namespace Trk{
 //---------------------------------------------------------------------------
 //Interface itself
 
-      virtual std::unique_ptr<IVKalState> makeState() = 0;
+      virtual std::unique_ptr<IVKalState> makeState() const = 0;
 
       virtual StatusCode VKalVrtFit(const  std::vector<const xAOD::TrackParticle*>   & listC,
                                     const  std::vector<const xAOD::NeutralParticle*> & listN,
@@ -57,7 +57,7 @@ namespace Trk{
                        std::vector< std::vector<double> >& TrkAtVrt,
                        double& Chi2,
                        IVKalState& istate,
-                       bool ifCovV0 = false) =0;
+                       bool ifCovV0 = false) const =0;
       virtual StatusCode VKalVrtFit(const  std::vector<const Track*> & list,
                        Amg::Vector3D&         Vertex,
                        TLorentzVector&   Momentum,
@@ -67,7 +67,7 @@ namespace Trk{
                        std::vector< std::vector<double> >& TrkAtVrt,
                        double& Chi2,
                        IVKalState& istate,
-                       bool ifCovV0 = false) =0;
+                       bool ifCovV0 = false) const =0;
       virtual StatusCode VKalVrtFit(const  std::vector<const TrackParticleBase*> & list,
                        Amg::Vector3D&         Vertex,
                        TLorentzVector&   Momentum,
@@ -77,7 +77,7 @@ namespace Trk{
                        std::vector< std::vector<double> >& TrkAtVrt,
                        double& Chi2,
                        IVKalState& istate,
-                       bool ifCovV0 = false) =0;
+                       bool ifCovV0 = false) const =0;
       virtual StatusCode VKalVrtFit(const std::vector<const TrackParameters*> & listC,
                                     const std::vector<const NeutralParameters*>& listN,
                        Amg::Vector3D&         Vertex,
@@ -88,7 +88,7 @@ namespace Trk{
                        std::vector< std::vector<double> >& TrkAtVrt,
                        double& Chi2,
                        IVKalState& istate,
-                       bool ifCovV0 = false) =0;
+                       bool ifCovV0 = false) const =0;
 //------
       virtual StatusCode VKalVrtCvtTool(const Amg::Vector3D& Vertex,
 	                          const TLorentzVector& Momentum,
@@ -96,16 +96,16 @@ namespace Trk{
 				  const long int& Charge,
 				  std::vector<double>& Perigee,
 				  std::vector<double>& CovPerigee,
-                                  IVKalState& istate) =0;
+                                  IVKalState& istate) const =0;
 //.........................................................................................
-      virtual StatusCode VKalVrtFitFast(const std::vector<const Track*>& list,Amg::Vector3D& Vertex, IVKalState& istate) =0;
-      virtual StatusCode VKalVrtFitFast(const std::vector<const xAOD::TrackParticle*>& list, Amg::Vector3D& Vertex, IVKalState& istate) =0;
-      virtual StatusCode VKalVrtFitFast(const std::vector<const TrackParticleBase*>& list, Amg::Vector3D& Vertex, IVKalState& istate) =0;
-      virtual StatusCode VKalVrtFitFast(const std::vector<const TrackParameters*>& list, Amg::Vector3D& Vertex, IVKalState& istate) =0;
+      virtual StatusCode VKalVrtFitFast(const std::vector<const Track*>& list,Amg::Vector3D& Vertex, IVKalState& istate) const =0;
+      virtual StatusCode VKalVrtFitFast(const std::vector<const xAOD::TrackParticle*>& list, Amg::Vector3D& Vertex, IVKalState& istate) const =0;
+      virtual StatusCode VKalVrtFitFast(const std::vector<const TrackParticleBase*>& list, Amg::Vector3D& Vertex, IVKalState& istate) const =0;
+      virtual StatusCode VKalVrtFitFast(const std::vector<const TrackParameters*>& list, Amg::Vector3D& Vertex, IVKalState& istate) const =0;
 //.........................................................................................
 
 
-      virtual Track* CreateTrkTrack(const std::vector<double>& VKPerigee, const std::vector<double>& VKCov, IVKalState& istate) =0;
+      virtual Track* CreateTrkTrack(const std::vector<double>& VKPerigee, const std::vector<double>& VKCov, const IVKalState& istate) const =0;
 
       virtual StatusCode VKalGetTrkWeights(std::vector<double>& Weights,
                                            const IVKalState& istate) const =0;
@@ -141,20 +141,20 @@ namespace Trk{
 
       virtual double VKalGetImpact(const xAOD::TrackParticle*,const Amg::Vector3D& Vertex, const long int Charge,
                                std::vector<double>& Impact,std::vector<double>& ImpactError,
-                                   IVKalState& istate) = 0;
+                                   IVKalState& istate) const = 0;
       virtual double VKalGetImpact(const TrackParticleBase*,const Amg::Vector3D& Vertex, const long int Charge,
                                std::vector<double>& Impact,std::vector<double>& ImpactError,
-                                   IVKalState& istate) = 0;
+                                   IVKalState& istate) const = 0;
       virtual double VKalGetImpact(const Track*,const Amg::Vector3D& Vertex, const long int Charge,
                               std::vector<double>& Impact,std::vector<double>& ImpactError,
-                                   IVKalState& istate) = 0;
+                                   IVKalState& istate) const = 0;
 
        virtual double VKalGetImpact(const xAOD::TrackParticle*,const Amg::Vector3D& Vertex, const long int Charge,
-                                    std::vector<double>& Impact,std::vector<double>& ImpactError) = 0;
+                                    std::vector<double>& Impact,std::vector<double>& ImpactError) const = 0;
       virtual double VKalGetImpact(const TrackParticleBase*,const Amg::Vector3D& Vertex, const long int Charge,
-                                   std::vector<double>& Impact,std::vector<double>& ImpactError) = 0;
+                                   std::vector<double>& Impact,std::vector<double>& ImpactError) const = 0;
       virtual double VKalGetImpact(const Track*,const Amg::Vector3D& Vertex, const long int Charge,
-                                   std::vector<double>& Impact,std::vector<double>& ImpactError) = 0;
+                                   std::vector<double>& Impact,std::vector<double>& ImpactError) const = 0;
 //----------------------------------------------------------------------------------------------------
 
    };

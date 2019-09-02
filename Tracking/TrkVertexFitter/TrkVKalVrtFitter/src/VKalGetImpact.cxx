@@ -25,17 +25,16 @@ namespace Trk {
 namespace Trk{
 
   double TrkVKalVrtFitter::VKalGetImpact(const Trk::Track* InpTrk,const Amg::Vector3D& Vertex, const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError)
+                                         std::vector<double>& Impact, std::vector<double>& ImpactError) const
   {
     State state;
     initState (state);
     return VKalGetImpact (InpTrk, Vertex, Charge, Impact, ImpactError, state);
   }
 
-
   double TrkVKalVrtFitter::VKalGetImpact(const Trk::Track* InpTrk,const Amg::Vector3D& Vertex, const long int Charge,
                                          std::vector<double>& Impact, std::vector<double>& ImpactError,
-                                         IVKalState& istate)
+                                         IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //
@@ -74,9 +73,8 @@ namespace Trk{
 
 
 
-//
   double TrkVKalVrtFitter::VKalGetImpact(const TrackParticleBase* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError)
+                                         std::vector<double>& Impact, std::vector<double>& ImpactError) const
   {
     State state;
     initState (state);
@@ -86,7 +84,7 @@ namespace Trk{
 
   double TrkVKalVrtFitter::VKalGetImpact(const TrackParticleBase* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
                                          std::vector<double>& Impact, std::vector<double>& ImpactError,
-                                         IVKalState& istate)
+                                         IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //
@@ -125,7 +123,7 @@ namespace Trk{
   }
 
   double TrkVKalVrtFitter::VKalGetImpact(const xAOD::TrackParticle* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
-                                  std::vector<double>& Impact, std::vector<double>& ImpactError)
+                                         std::vector<double>& Impact, std::vector<double>& ImpactError) const
   {
     State state;
     initState (state);
@@ -135,7 +133,7 @@ namespace Trk{
 
   double TrkVKalVrtFitter::VKalGetImpact(const xAOD::TrackParticle* InpTrk,const Amg::Vector3D& Vertex,const long int Charge,
                                          std::vector<double>& Impact, std::vector<double>& ImpactError,
-                                         IVKalState& istate)
+                                         IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
 //

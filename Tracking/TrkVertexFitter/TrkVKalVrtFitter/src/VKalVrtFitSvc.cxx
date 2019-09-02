@@ -40,7 +40,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const Track*>& InpTrk,
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         IVKalState& istate,
-        bool ifCovV0 /*= false*/)
+        bool ifCovV0 /*= false*/) const
 {
     State& state = dynamic_cast<State&> (istate);
 //
@@ -69,7 +69,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         IVKalState& istate,
-        bool ifCovV0 /*= false*/)
+        bool ifCovV0 /*= false*/) const
 {
     State& state = dynamic_cast<State&> (istate);
 
@@ -172,7 +172,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParticleBas
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         IVKalState& istate,
-        bool ifCovV0 /*= false*/)
+        bool ifCovV0 /*= false*/) const
 {
     State& state = dynamic_cast<State&> (istate);
 
@@ -210,7 +210,7 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const TrackParameters*
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         IVKalState& istate,
-        bool ifCovV0 /*= false*/)
+        bool ifCovV0 /*= false*/)  const
 {
     State& state = dynamic_cast<State&> (istate);
 
@@ -282,7 +282,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
         std::vector< std::vector<double> >& TrkAtVrt,
 	double& Chi2,
         State& state,
-        bool ifCovV0)
+        bool ifCovV0) const
 {
 //
 //------ Variables and arrays needed for fitting kernel
@@ -407,7 +407,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 				      const long int& Charge,
 				      dvect& Perigee,
 				      dvect& CovPerigee,
-                                      IVKalState& istate)
+                                      IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
     int i,j,ij;				      
@@ -446,7 +446,7 @@ int TrkVKalVrtFitter::VKalVrtFit3( int ntrk,
 
 
   void TrkVKalVrtFitter::VKalToTrkTrack( double curBMAG, double  vp1, double  vp2, double  vp3,
-                                         double& tp1, double& tp2, double& tp3)
+                                         double& tp1, double& tp2, double& tp3) const
 //tp - ATLAS parameters, vp - VKalVrt parameters//
   {   tp1= vp2;   //phi angle
       tp2= vp1;   //theta angle
