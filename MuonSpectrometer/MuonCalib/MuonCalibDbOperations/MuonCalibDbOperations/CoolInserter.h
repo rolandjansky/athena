@@ -32,13 +32,14 @@
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class RegionSelectionSvc;
 
 namespace MuonGM {
   class MuonDetectorManager;
 }
 
-class MdtIdHelper;	
 	
 namespace MuonCalib {
 
@@ -96,7 +97,8 @@ class CoolInserter : public AthAlgorithm {
   bool m_cool_connect, m_t0_created, m_rt_created;	
   //already filled chambers - do not double fill
   std::set<NtupleStationId> m_t0_filled, m_rt_filled;
-  const MdtIdHelper* m_mdtIdHelper;
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   const MuonGM::MuonDetectorManager* m_detMgr;
   std::ostringstream m_data_string;
   int m_n_tubes_added;
