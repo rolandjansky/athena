@@ -246,8 +246,8 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   std::string MC_type = (m_config->isAFII()) ? "AFII" : "MC16";
 
   // Moriond2018 - AF2 JES
-  // Fall2018 - JES/JER update
-  std::string conference = "Fall2018";
+  // Summer2019 - JES/JER update
+  std::string conference = "Summer2019";
 
   // If JMS is allowed then there should also be extrapolation and frozen uncertainties configured
   std::string JMS_Uncertainty = "";
@@ -432,7 +432,7 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
   std::string calibArea  = "None"; // Take the default JetUncertainties CalibArea tag
   std::string MC_type = "MC16";
 
-  conference = "Spring2019";
+  conference = "Summer2019";
   configDir  = "rel21";
 
   //This has zero impact on the JES uncertainties, but controls how the JER uncertainties (currently only for small-R jets) are applied
