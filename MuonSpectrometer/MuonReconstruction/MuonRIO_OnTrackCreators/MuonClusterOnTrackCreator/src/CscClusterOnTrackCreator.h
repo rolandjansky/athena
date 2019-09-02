@@ -28,7 +28,8 @@
 
 #include "MuonPrepRawData/CscStripPrepDataContainer.h"
 
-class CscIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 
 namespace Muon {
 
@@ -100,9 +101,8 @@ namespace Muon {
 
   private:
     const MuonGM::MuonDetectorManager*   m_muonMgr;          // Muon GeoModel
-    const CscIdHelper*                   m_cscIdHelper;
-    const RpcIdHelper*                   m_rpcIdHelper;     
-    const TgcIdHelper*                   m_tgcIdHelper;     
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     ToolHandle<ICscStripFitter>          m_stripFitter;
     ToolHandle<ICscClusterFitter>        m_clusterFitter;
     ToolHandle<ICscClusterUtilTool>      m_clusterUtilTool;
