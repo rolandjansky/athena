@@ -21,6 +21,7 @@
 #include "TrkParameters/TrackParameters.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class StoreGateSvc;
 
@@ -32,7 +33,6 @@ class StoreGateSvc;
   */
 
 namespace Muon {
-  class MuonIdHelperTool;
   class MuonEDMPrinterTool;
 }
 
@@ -137,7 +137,8 @@ class MuTagMatchingTool : virtual public IMuTagMatchingTool, public AthAlgTool{
 
    ToolHandle<Trk::IExtrapolator> p_IExtrapolator ;//!< Pointer on IExtrapolator
    ToolHandle<Trk::IPropagator> p_propagator ;//!< Pointer on propagator for SL propagation
-   ToolHandle<Muon::MuonIdHelperTool>             m_idHelper;
+   ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
    ServiceHandle<Muon::IMuonEDMHelperSvc>         m_edmHelperSvc {this, "edmHelper", 
      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
      "Handle to the service providing the IMuonEDMHelperSvc interface" };
