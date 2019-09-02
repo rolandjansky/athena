@@ -18,11 +18,12 @@
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonRDO/MM_RawDataContainer.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 #include <string>
 #include <vector>
 class AtlasDetectorID;
 class Identifier;
-class MmIdHelper;
 class MuonIdHelper;
 class MM_RawDataCollection;
 
@@ -37,7 +38,6 @@ namespace Muon
 {
 
   class IMuonRawDataProviderTool;
-  class MuonIdHelperTool;
   class IMMClusterBuilderTool;
 
   class MmRdoToPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
@@ -82,8 +82,8 @@ namespace Muon
     const MuonGM::MuonDetectorManager * m_muonMgr;
     
     /// MM and muon identifier helper
-    const MmIdHelper * m_mmIdHelper;
-    ToolHandle <Muon::MuonIdHelperTool> m_idHelperTool; 
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     
     bool m_fullEventDone;
     
