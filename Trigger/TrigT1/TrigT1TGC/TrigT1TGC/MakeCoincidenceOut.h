@@ -10,9 +10,9 @@
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/NTuple.h"
-
-class TgcIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 namespace LVL1TGCTrigger {
 
@@ -39,7 +39,8 @@ namespace LVL1TGCTrigger {
    private:
     StringProperty  m_key;
     BooleanProperty m_WriteMCtruth;
-    const TgcIdHelper* m_tgcIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
     //NTuple::Tuple* m_ntuplePtr;
     
     NTuple::Item<long>   m_runNumber, m_eventNumber;
