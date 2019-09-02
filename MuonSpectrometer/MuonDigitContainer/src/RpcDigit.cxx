@@ -26,7 +26,7 @@ RpcDigit::RpcDigit(const Identifier& id, float time)
 
 // Validity check.
 
-bool RpcDigit::is_valid(const RpcIdHelper * rpcHelper) const {
-  return (rpcHelper->valid(m_muonId));
+bool RpcDigit::is_valid(const RpcIdHelper& rpcHelper) const {
+  return (rpcHelper.valid(m_muonId));
 }
 
