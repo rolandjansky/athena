@@ -26,7 +26,8 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "CscClusterization/ICscClusterBuilder.h"
 
-class CscIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 class ICscClusterBuilder;
 
 namespace Muon {
@@ -81,8 +82,8 @@ namespace TrigL2MuonSA {
   private:
 
     // Geometry Services
-    const MuonGM::MuonDetectorManager* m_muonMgr;
-    const CscIdHelper* m_cscIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+      "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
 
     // Region Selector
     ServiceHandle<IRegSelSvc>  m_regionSelector;
