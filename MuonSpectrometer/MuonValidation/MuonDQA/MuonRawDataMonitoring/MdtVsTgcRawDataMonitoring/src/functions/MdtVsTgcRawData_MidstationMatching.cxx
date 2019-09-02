@@ -109,7 +109,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       for(unsigned int iROT=0; iROT<segm0->numberOfContainedROTs(); ++iROT) {
         const Trk::RIO_OnTrack* rio = segm0->rioOnTrack(iROT);
         Identifier id = rio->identify();
-        stationName = int(m_mdtIdHelper->stationName(id));
+        stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
         
         if((stationName==17)||(stationName==18))nMdtMeas++;// MDT
       }
@@ -161,8 +161,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
       for(unsigned int iROT=0; iROT<segm1->numberOfContainedROTs(); ++iROT){
         const Trk::RIO_OnTrack* rio = segm1->rioOnTrack(iROT);
         Identifier id = rio->identify();
-        stationName = int(m_mdtIdHelper->stationName(id));
-        bool isStrip = m_tgcIdHelper->isStrip(id);
+        stationName = int(m_muonIdHelperTool->mdtIdHelper().stationName(id));
+        bool isStrip = m_muonIdHelperTool->tgcIdHelper().isStrip(id);
         
         if(((stationName==41)||(stationName==42))&&isStrip)nTGCStrips[0]++;// TGC
         if(((stationName==43)||(stationName==44))&&isStrip)nTGCStrips[1]++;// TGC
@@ -331,11 +331,11 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
           Identifier tgcid=(*prepitc)->identify();
           int tgcAC=(tre->sideA()==false);//isNotAside a:0, c:1
           int tgcFE=(tre->forward()==false);//isNotForward f:0, e:1
-          int tgcWS=(m_tgcIdHelper->isStrip(tgcid));//isStrip w=0, s=1
-          int stationName = m_tgcIdHelper->stationName(tgcid);
+          int tgcWS=(m_muonIdHelperTool->tgcIdHelper().isStrip(tgcid));//isStrip w=0, s=1
+          int stationName = m_muonIdHelperTool->tgcIdHelper().stationName(tgcid);
           int stationEta  = abs(tre->getStationEta());
           int stationPhi  = tre->getStationPhi();
-          int gasGap      = m_tgcIdHelper->gasGap(tgcid);
+          int gasGap      = m_muonIdHelperTool->tgcIdHelper().gasGap(tgcid);
           
           // Cut hits except those from same side Midstation
           if(tgcAC!=i) continue;
@@ -447,8 +447,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
           
           // Get id values
           Identifier tgcid1=(tpdVector[k].at(iTPD1))->identify();
-          int stationName1 = m_tgcIdHelper->stationName(tgcid1);
-          int gasGap1      = m_tgcIdHelper->gasGap(tgcid1);
+          int stationName1 = m_muonIdHelperTool->tgcIdHelper().stationName(tgcid1);
+          int gasGap1      = m_muonIdHelperTool->tgcIdHelper().gasGap(tgcid1);
           int layer1       = TGCgetlayer(stationName1,gasGap1);
           if(layer1>=0)thisTPDlayerMatches[layer1]++;
           
@@ -488,8 +488,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
             if(abs(dPhi)<dPhiCutTPD[k] && abs(dRho)<dRhoCutTPD[k]){
               // Get id values
               Identifier tgcid2=(tpdVector[k].at(iTPD2))->identify();
-              int stationName2 = m_tgcIdHelper->stationName(tgcid2);
-              int gasGap2      = m_tgcIdHelper->gasGap(tgcid2);
+              int stationName2 = m_muonIdHelperTool->tgcIdHelper().stationName(tgcid2);
+              int gasGap2      = m_muonIdHelperTool->tgcIdHelper().gasGap(tgcid2);
               int layer2       = TGCgetlayer(stationName2,gasGap2);
               
               // Add PRD2 to matches for PRD1
