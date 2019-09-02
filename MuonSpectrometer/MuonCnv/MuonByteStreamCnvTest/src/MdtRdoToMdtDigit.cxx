@@ -3,7 +3,6 @@
 */
 
 #include "MdtRdoToMdtDigit.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 
 MdtRdoToMdtDigit::MdtRdoToMdtDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
@@ -13,7 +12,7 @@ MdtRdoToMdtDigit::MdtRdoToMdtDigit(const std::string& name,
 
 StatusCode MdtRdoToMdtDigit::initialize()
 {
-  ATH_CHECK( detStore()->retrieve(m_mdtHelper, "MDTIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   ATH_CHECK( m_mdtRdoDecoderTool.retrieve() );
   ATH_CHECK(m_mdtRdoKey.initialize());
   ATH_CHECK(m_mdtDigitKey.initialize());
@@ -32,7 +31,7 @@ StatusCode MdtRdoToMdtDigit::execute(const EventContext& ctx) const
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " MDT RDOs." );
 
   SG::WriteHandle<MdtDigitContainer> wh_mdtDigit(m_mdtDigitKey, ctx);
-  ATH_CHECK(wh_mdtDigit.record(std::make_unique<MdtDigitContainer>(m_mdtHelper->module_hash_max())));
+  ATH_CHECK(wh_mdtDigit.record(std::make_unique<MdtDigitContainer>(m_muonIdHelperTool->mdtIdHelper().module_hash_max())));
   ATH_MSG_DEBUG( "Decoding MDT RDO into MDT Digit"  );
 
   // retrieve the collection of RDO
@@ -49,7 +48,7 @@ StatusCode MdtRdoToMdtDigit::execute(const EventContext& ctx) const
 
 StatusCode MdtRdoToMdtDigit::decodeMdt( const MdtCsm * rdoColl, MdtDigitContainer * mdtContainer, MdtDigitCollection*& collection, Identifier& oldId ) const
 {
-  const IdContext mdtContext = m_mdtHelper->module_context();
+  const IdContext mdtContext = m_muonIdHelperTool->mdtIdHelper().module_context();
 
   if ( rdoColl->size() > 0 ) {
     ATH_MSG_DEBUG( " Number of AmtHit in this Csm "
@@ -72,9 +71,9 @@ StatusCode MdtRdoToMdtDigit::decodeMdt( const MdtCsm * rdoColl, MdtDigitContaine
 
       // find here the Proper Digit Collection identifier, using the rdo-hit id
       // (since RDO collections are not in a 1-to-1 relation with digit collections)
-      const Identifier elementId = m_mdtHelper->elementID(newDigit->identify());
+      const Identifier elementId = m_muonIdHelperTool->mdtIdHelper().elementID(newDigit->identify());
       IdentifierHash coll_hash;
-      if (m_mdtHelper->get_hash(elementId, coll_hash, &mdtContext)) {
+      if (m_muonIdHelperTool->mdtIdHelper().get_hash(elementId, coll_hash, &mdtContext)) {
         ATH_MSG_WARNING( "Unable to get MDT digit collection hash id "
                          << "context begin_index = " << mdtContext.begin_index()
                          << " context end_index  = " << mdtContext.end_index()

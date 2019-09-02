@@ -11,8 +11,7 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
-
-class RpcIdHelper;
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class RpcRdoToRpcDigit : public AthReentrantAlgorithm {
 
@@ -27,6 +26,8 @@ class RpcRdoToRpcDigit : public AthReentrantAlgorithm {
  private:
   StatusCode decodeRpc( const RpcPad *, RpcDigitContainer *, RpcDigitCollection*& ) const;
   ToolHandle<Muon::IRPC_RDO_Decoder>  m_rpcRdoDecoderTool{this,"rpcRdoDecoderTool","Muon::RpcRDO_Decoder",""};
+  ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+    "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
   ServiceHandle<IRPCcablingServerSvc> m_rpcCablingServerSvc{this, "RPCcablingServerSvc", "RPCcablingServerSvc", ""};
   const RpcIdHelper *   m_rpcHelper{};
   const IRPCcablingSvc * m_rpcCabling{};
