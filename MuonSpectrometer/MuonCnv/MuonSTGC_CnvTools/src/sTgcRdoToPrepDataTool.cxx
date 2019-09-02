@@ -36,7 +36,6 @@ Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_muonMgr(0),
   m_stgcIdHelper(0),
-  m_muonIdHelper(0),
   m_fullEventDone(false),
   m_stgcPrepDataContainer(0),
   m_clusterBuilderTool("Muon::SimpleSTgcClusterBuilderTool/SimpleSTgcClusterBuilderTool",this)

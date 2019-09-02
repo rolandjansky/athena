@@ -28,7 +28,6 @@ class MdtRdoToMdtDigit : public AthAlgorithm {
 
   ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtRdoDecoderTool{this, "mdtRdoDecoderTool", "Muon::MdtRDO_Decoder", ""};
   const MdtIdHelper *   m_mdtHelper{};
-  MdtDigitContainer *   m_mdtContainer{};
   SG::ReadHandleKey<MdtCsmContainer> m_mdtRdoKey{this, "MdtRdoContainer", "MDTCSM", "Mdt RDO Input"};
   SG::WriteHandleKey<MdtDigitContainer> m_mdtDigitKey{this, "MdtDigitContainer", "MDT_DIGITS", "Mdt Digit Output"};
 };
