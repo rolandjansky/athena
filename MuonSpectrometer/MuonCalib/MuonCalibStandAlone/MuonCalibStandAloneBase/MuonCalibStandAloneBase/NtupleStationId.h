@@ -166,7 +166,7 @@ class NtupleStationId
 			return m_region_id;
 			}
 	/** initialize geometry information */
-		bool InitializeGeometry(const MdtIdHelper* mdtIdHelper, const MuonGM::MuonDetectorManager* detMgr);
+		bool InitializeGeometry(const MdtIdHelper& mdtIdHelper, const MuonGM::MuonDetectorManager* detMgr);
 	/** get station eta and phi*/
 		inline int GetStation() const
 			{
