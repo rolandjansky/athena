@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ namespace InDet
 
 bool 
 PixelClusteringToolBase::areNeighbours(const std::vector<Identifier>& group, const Identifier& rdoID,
-   InDetDD::SiDetectorElement* /*element*/,
+   const InDetDD::SiDetectorElement* /*element*/,
    const PixelID& pixelID) const{
     std::vector<Identifier>::const_iterator groupBegin = group.begin();
     std::vector<Identifier>::const_iterator groupEnd = group.end();

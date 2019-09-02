@@ -48,6 +48,8 @@ private:
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameSCT;
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_PRDTruthNameTRT;
 
+  // For P->T converter of PixelClusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   // For P->T converter of SCT_Clusters
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

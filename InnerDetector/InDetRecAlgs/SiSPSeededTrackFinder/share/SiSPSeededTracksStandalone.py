@@ -209,8 +209,7 @@ if doPixel:
         from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
         condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
                                                               ReadKey = "PixelDetectorElementCollection",
-                                                              WriteKey = "PixelDetElementBoundaryLinks_xk",
-                                                              UsePixelDetectorManager = True)
+                                                              WriteKey = "PixelDetElementBoundaryLinks_xk")
     if numThreads >= 2:
         condSeq.InDetSiDetElementBoundaryLinksPixelCondAlg.Cardinality = numThreads
 
@@ -338,7 +337,6 @@ if doPixel:
     InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
                                                           clusteringTool          = InDetMergedPixelsTool,
                                                           gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                          DetectorManagerName     = InDetKeys.PixelManager(), 
                                                           DataObjectName          = InDetKeys.PixelRDOs(),
                                                           ClustersName            = InDetKeys.PixelClusters())
     topSequence += InDetPixelClusterization

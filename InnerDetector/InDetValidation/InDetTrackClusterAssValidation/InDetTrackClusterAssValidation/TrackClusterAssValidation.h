@@ -246,6 +246,8 @@ namespace InDet {
       SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationPixel;
       SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationSCT;
       SG::ReadHandleKey<PRD_MultiTruthCollection>    m_truth_locationTRT;
+      // For P->T converter of PixelClusters
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
       // For P->T converter of SCT_Clusters
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 

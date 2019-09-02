@@ -13,7 +13,6 @@
 
 // Det Descr
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
 
@@ -72,7 +71,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   PileUpToolBase(type, name, parent),
   m_thpcsi(NULL),
   m_rndmSvc("AtRndmGenSvc",name),
-  m_manager_pix(NULL),
   m_pixel_ID(0),
   m_sct_ID(0),
   m_randomEngine(0),
@@ -169,19 +167,15 @@ StatusCode SiSmearedDigitizationTool::initialize()
     }
 
   if(m_SmearPixel){ // Smear Pixel
-    // Get the Pixel Detector Manager
-    if (StatusCode::SUCCESS != detStore()->retrieve(m_manager_pix,"Pixel") ) {
-      ATH_MSG_ERROR ( "Can't get Pixel_DetectorManager " );
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG ( "Retrieved Pixel_DetectorManager with version "  << m_manager_pix->getVersion().majorNum() );
-    }
-
     if (detStore()->retrieve(m_pixel_ID, "PixelID").isFailure()) {
       ATH_MSG_ERROR ( "Could not get Pixel ID helper" );
       return StatusCode::FAILURE;
     }
 
+    if (not m_useCustomGeometry) {
+      // Initialize ReadCondHandleKey
+      ATH_CHECK(m_pixelDetEleCollKey.initialize());
+    }
   }else{ // Smear SCT
     if (detStore()->retrieve(m_sct_ID, "SCT_ID").isFailure()) {
       ATH_MSG_ERROR ( "Could not get SCT ID helper" );
@@ -928,6 +922,16 @@ StatusCode SiSmearedDigitizationTool::digitize()
     } else ATH_MSG_DEBUG("Found and Retrieved collection " << m_detElementMapName);
   } else ATH_MSG_DEBUG("Collection " << m_detElementMapName  << " not found!");
 
+  // Get PixelDetectorElementCollection
+  const InDetDD::SiDetectorElementCollection* elementsPixel = nullptr;
+  if ((not m_useCustomGeometry) and m_SmearPixel) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+    elementsPixel = pixelDetEle.retrieve();
+    if (elementsPixel==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
+  }
   // Get SCT_DetectorElementCollection
   const InDetDD::SiDetectorElementCollection* elementsSCT = nullptr;
   if ((not m_useCustomGeometry) and (not m_SmearPixel)) {
@@ -968,7 +972,9 @@ StatusCode SiSmearedDigitizationTool::digitize()
 
       if(m_SmearPixel){ // Smear Pixel
         if (!m_useCustomGeometry) { // Not custom Pixel
-          const InDetDD::SiDetectorElement* hitSiDetElement_temp = m_manager_pix->getDetectorElement(barrelEC,layerDisk,phiModule,etaModule);
+          Identifier wafer_id = m_pixel_ID->wafer_id(barrelEC,layerDisk,phiModule,etaModule);
+          IdentifierHash wafer_hash = m_pixel_ID->wafer_hash(wafer_id);
+          const InDetDD::SiDetectorElement* hitSiDetElement_temp = elementsPixel->getDetectorElement(wafer_hash);
           ATH_MSG_DEBUG("Pixel SiDetectorElement --> barrel_ec " << barrelEC << ", layer_disk " << layerDisk << ", phi_module " << phiModule << ", eta_module " << etaModule );
           hitSiDetElement = hitSiDetElement_temp;
         } else { // Custom Pixel
@@ -1626,6 +1632,16 @@ StatusCode SiSmearedDigitizationTool::digitize()
 
 StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
 {
+  // Get PixelDetectorElementCollection
+  const InDetDD::SiDetectorElementCollection* elementsPixel = nullptr;
+  if ((not m_useCustomGeometry) and m_SmearPixel) {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+    elementsPixel = pixelDetEle.retrieve();
+    if (elementsPixel==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+      return StatusCode::FAILURE;
+    }
+  }
   // Get SCT_DetectorElementCollection
   const InDetDD::SiDetectorElementCollection* elementsSCT = nullptr;
   if ((not m_useCustomGeometry) and (not m_SmearPixel)) {
@@ -1713,7 +1729,7 @@ StatusCode SiSmearedDigitizationTool::createAndStoreRIOs()
       IdentifierHash waferID;
       waferID = firstDetElem->first;
 
-      const InDetDD::SiDetectorElement* detElement = m_manager_pix->getDetectorElement(waferID);
+      const InDetDD::SiDetectorElement* detElement = elementsPixel->getDetectorElement(waferID);
 
       InDet::PixelClusterCollection *clusterCollection = new InDet::PixelClusterCollection(waferID);
       clusterCollection->setIdentifier(detElement->identify());

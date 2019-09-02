@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -24,7 +24,6 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/PixelRDORawData.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 
@@ -57,7 +56,6 @@ namespace InDet{
     m_gangedAmbiguitiesFinder("InDet::PixelGangedAmbiguitiesFinder"),
     m_clusteringTool("InDet::MergedPixelsTool"),
     m_pixelRDOContainerName("PixelRDOs"),    // RDO container
-    m_managerName("Pixel"),
     m_clustersName("PixelTrigClusters"),
     m_ambiguitiesMapName("TrigPixelClusterAmbiguitiesMap"),
     m_regionSelector("RegSelSvc", name),
@@ -70,7 +68,6 @@ namespace InDet{
     m_skipBSDecoding(false)
   {  
     // Get parameter values from jobOptions file
-    declareProperty("DetectorManagerName",     m_managerName);
     declareProperty("clusteringTool",          m_clusteringTool);
     declareProperty("gangedAmbiguitiesFinder", m_gangedAmbiguitiesFinder);
     declareProperty("ClustersName",            m_clustersName);
@@ -146,16 +143,6 @@ namespace InDet{
       ATH_MSG_INFO( m_gangedAmbiguitiesFinder.propertyName() << ": Retrieved tool " << m_gangedAmbiguitiesFinder.type() );
     }
 
-  
-    StatusCode sc =detStore()->retrieve(m_manager,m_managerName);
-    if (sc.isFailure()){
-      ATH_MSG_FATAL( "Cannot retrieve the Pixel detector manager " 
-		     << m_managerName );
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    } else {
-      ATH_MSG_DEBUG( "Pixel detector manager retrieved!" );
-    }
-
     const PixelID * IdHelper(0);
     if (detStore()->retrieve(IdHelper, "PixelID").isFailure()) {
       ATH_MSG_FATAL( "Could not get PixelID helper" );
@@ -182,7 +169,7 @@ namespace InDet{
       }
     }
     else {    
-      sc = store()->retrieve(m_clusterContainer, m_clustersName);
+      StatusCode sc = store()->retrieve(m_clusterContainer, m_clustersName);
       
       if (sc.isFailure()) {
 	ATH_MSG_ERROR( "Failed to get Cluster Container" );
@@ -198,7 +185,7 @@ namespace InDet{
       
     // symlink the collection
     const SiClusterContainer* symSiContainer(0);
-    sc = store()->symLink(m_clusterContainer,symSiContainer);
+    StatusCode sc = store()->symLink(m_clusterContainer,symSiContainer);
     if (sc.isFailure()) {
       ATH_MSG_WARNING( "Pixel clusters could not be symlinked in StoreGate !" );
     } else {
@@ -480,7 +467,7 @@ namespace InDet{
       
 	if (RDO_Collection->size() != 0){
 	
-	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,*m_manager,*m_idHelper);
+	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,*m_idHelper);
 	
 	  if (m_clusterCollection && m_clusterCollection->size()!=0){ 
 	  
@@ -502,7 +489,7 @@ namespace InDet{
 	      
 	      const size_t ambiMapSize = AmbiguitiesMap->size();
 	      m_gangedAmbiguitiesFinder->execute(m_clusterCollection,
-						 *m_manager, *AmbiguitiesMap);
+						 *AmbiguitiesMap);
 	      
 	      if (ambiMapSize != AmbiguitiesMap->size())
 		ATH_MSG_DEBUG( "After filling - Ambiguities map: " 
@@ -546,7 +533,7 @@ namespace InDet{
 
 	if (RDO_Collection->size() != 0){
 	  // Use one of the specific clustering AlgTools to make clusters
-	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,*m_manager,
+	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,
 							     *m_idHelper);
 	  if (m_clusterCollection){
 	    if (m_clusterCollection->size() != 0) {
@@ -563,7 +550,6 @@ namespace InDet{
 		ATH_MSG_VERBOSE( "Filling ambiguities map" );  
 		
 		m_gangedAmbiguitiesFinder->execute(m_clusterCollection,
-						   *m_manager,
 						   *AmbiguitiesMap);
 		
 		ATH_MSG_VERBOSE( "Ambiguities map: " 

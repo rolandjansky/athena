@@ -1,7 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
+// Athena
+#include "AthenaKernel/errorcheck.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelCluster_p1.h"
@@ -10,6 +12,8 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterCnv_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterContainerCnv_p1.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/StoreGateSvc.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -17,16 +21,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
-// Athena
-#include "StoreGate/StoreGateSvc.h"
-
-
-
-#include "AthAllocators/DataPool.h"
 
 void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterContainer* transCont,  InDet::InDetPRD_Container_p1* persCont, MsgStream &log) 
 {
@@ -93,6 +87,15 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
     // So here we loop over all collection and extract their channels
     // from the vector.
 
+    const InDetDD::SiDetectorElementCollection* elements(nullptr);
+    if (m_useDetectorElement) {
+        SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+        const InDetDD::SiDetectorElementCollection* elements = *pixelDetEleHandle;
+        if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+            log << MSG::FATAL << m_pixelDetEleCollKey.fullKey() << " is not available." << endmsg;
+            return;
+        }
+    }
 
     InDet::PixelClusterCollection* coll = 0;
 
@@ -109,7 +112,7 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
         coll->setIdentifier(Identifier(pcoll.m_id));
         unsigned int nchans           = pcoll.m_end - pcoll.m_begin;
         coll->resize(nchans);
-        InDetDD::SiDetectorElement * de = m_pixMgr->getDetectorElement(collIDHash);
+        const InDetDD::SiDetectorElement * de = (m_useDetectorElement ? elements->getDetectorElement(collIDHash) : nullptr);
         // Fill with channels
         for (unsigned int ichan = 0; ichan < nchans; ++ ichan) {
             const TPObjRef pchan = persCont->m_PRD[ichan + pcoll.m_begin];
@@ -180,12 +183,15 @@ StatusCode InDet::PixelClusterContainerCnv_p1::initialize(MsgStream &log) {
       log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
    } 
-   
-   sc = detStore->retrieve(m_pixMgr);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
-      return sc;
+
+   if (m_useDetectorElement) {
+      CHECK(m_pixelDetEleCollKey.initialize());
    }
 
    return StatusCode::SUCCESS;
+}
+
+// Method for test/PixelClusterContainerCnv_p1_test.cxx
+void InDet::PixelClusterContainerCnv_p1::setUseDetectorElement(const bool useDetectorElement) {
+   m_useDetectorElement = useDetectorElement;
 }

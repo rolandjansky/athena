@@ -102,6 +102,7 @@ void testit (const InDet::PixelClusterContainer& trans1)
 {
   MsgStream log (0, "test");
   PixelClusterContainerCnv_p3 cnv;
+  cnv.setUseDetectorElement(false);
   InDet::PixelClusterContainer_p3 pers;
   cnv.transToPers (&trans1, &pers, log);
   std::unique_ptr<InDet::PixelClusterContainer> trans2
