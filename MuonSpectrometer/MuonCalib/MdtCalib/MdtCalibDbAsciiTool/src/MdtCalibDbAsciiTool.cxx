@@ -7,7 +7,6 @@
 #include "SGTools/TransientAddress.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
@@ -124,14 +123,10 @@ StatusCode MdtCalibDbAsciiTool::initialize() {
   m_debug = true;
   m_verbose = true;
   if( m_debug ) *m_log << MSG::DEBUG << "Initializing " << endmsg;
- 
-  StatusCode sc = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-  if (!sc.isSuccess()) {
-    *m_log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endmsg;
-    return sc;
-  }
+
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
-  sc = detStore()->retrieve( m_detMgr );
+  StatusCode sc = detStore()->retrieve( m_detMgr );
   if (!sc.isSuccess()) {
     *m_log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endmsg;
     return sc;
@@ -225,11 +220,11 @@ StatusCode MdtCalibDbAsciiTool::defaultT0s() {
     delete m_tubeData; m_tubeData=0;
   }
   m_tubeData = new MdtTubeCalibContainerCollection();
-  m_tubeData->resize( m_mdtIdHelper->module_hash_max() );
+  m_tubeData->resize( m_muonIdHelperTool->mdtIdHelper().module_hash_max() );
   if( m_debug ) *m_log << MSG::DEBUG << " Created new MdtTubeCalibContainerCollection size " << m_tubeData->size() << endmsg;
 
-  MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
-  MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
+  MdtIdHelper::const_id_iterator it     = m_muonIdHelperTool->mdtIdHelper().module_begin();
+  MdtIdHelper::const_id_iterator it_end = m_muonIdHelperTool->mdtIdHelper().module_end();
   for( ; it!=it_end;++it ) {
     
     MuonCalib::MdtTubeCalibContainer* tubes=0;
@@ -291,7 +286,7 @@ StatusCode MdtCalibDbAsciiTool::defaultT0s() {
 	}
       }
       if( m_verbose ){
-	*m_log << MSG::VERBOSE << "Adding chamber " << m_mdtIdHelper->print_to_string(*it) << endmsg;
+	*m_log << MSG::VERBOSE << "Adding chamber " << m_muonIdHelperTool->mdtIdHelper().print_to_string(*it) << endmsg;
 	*m_log << MSG::VERBOSE << " size " << size
 	       << " ml " << nml << " l " << nlayers << " t " 
 	       << ntubes << " address " << tubes << endmsg;
@@ -327,8 +322,8 @@ StatusCode MdtCalibDbAsciiTool::defaultT0s() {
     if( m_verbose ) *m_log << MSG::VERBOSE << " set t0's done " << endmsg;
     //MdtBasicRegionHash hash;
     IdentifierHash hash;
-    IdContext idCont = m_mdtIdHelper->module_context();
-    m_mdtIdHelper->get_hash( *it, hash, &idCont );
+    IdContext idCont = m_muonIdHelperTool->mdtIdHelper().module_context();
+    m_muonIdHelperTool->mdtIdHelper().get_hash( *it, hash, &idCont );
 
     if( hash < m_tubeData->size() ){
       (*m_tubeData)[hash] = tubes;
@@ -347,18 +342,18 @@ StatusCode MdtCalibDbAsciiTool::defaultT0s() {
 MuonCalib::MdtTubeCalibContainer * MdtCalibDbAsciiTool::buildMdtTubeCalibContainer(const Identifier& id) {    
     MuonCalib::MdtTubeCalibContainer* tubes = 0;
 
-    const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID(id,1,1,1) );
+    const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_muonIdHelperTool->mdtIdHelper().channelID(id,1,1,1) );
     const MuonGM::MdtReadoutElement* detEl2 = 0;
-    if (m_mdtIdHelper->numberOfMultilayers(id) == 2){
-      detEl2 = m_detMgr->getMdtReadoutElement(m_mdtIdHelper->channelID(id,2,1,1) );
+    if (m_muonIdHelperTool->mdtIdHelper().numberOfMultilayers(id) == 2){
+      detEl2 = m_detMgr->getMdtReadoutElement(m_muonIdHelperTool->mdtIdHelper().channelID(id,2,1,1) );
     }else{
-      *m_log << MSG::ERROR << "A single multilayer for this station " << m_mdtIdHelper->show_to_string(id);
+      *m_log << MSG::ERROR << "A single multilayer for this station " << m_muonIdHelperTool->mdtIdHelper().show_to_string(id);
     }
 
     if( m_verbose ) *m_log << MSG::VERBOSE << " new det el " << detEl << std::endl;
     
     if( !detEl ){ 
-      *m_log << MSG::WARNING << "No detEl found for " << m_mdtIdHelper->print_to_string(id) << std::endl;
+      *m_log << MSG::WARNING << "No detEl found for " << m_muonIdHelperTool->mdtIdHelper().print_to_string(id) << std::endl;
     }else{
       int nml = 2;
       if( !detEl2 ) {
@@ -381,13 +376,13 @@ MuonCalib::MdtTubeCalibContainer * MdtCalibDbAsciiTool::buildMdtTubeCalibContain
       // build the region name in the format STATION_ETA_PHI
       std::string rName;
 
-      int stName =  m_mdtIdHelper->stationName(id);
-      int stPhi = m_mdtIdHelper->stationPhi(id);
-      int stEta = m_mdtIdHelper->stationEta(id);
+      int stName =  m_muonIdHelperTool->mdtIdHelper().stationName(id);
+      int stPhi = m_muonIdHelperTool->mdtIdHelper().stationPhi(id);
+      int stEta = m_muonIdHelperTool->mdtIdHelper().stationEta(id);
   
       std::string seperator("_");
       MuonCalib::ToString ts;
-      rName = m_mdtIdHelper->stationNameString(stName);
+      rName = m_muonIdHelperTool->mdtIdHelper().stationNameString(stName);
       rName += seperator + ts( stPhi ) + seperator + ts( stEta );
       tubes=new MuonCalib::MdtTubeCalibContainer( rName,nml, nlayers, ntubes );
     }
