@@ -40,10 +40,6 @@
 
 Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_mdtIdHelper(0),
-  m_rpcIdHelper(0),
-  m_tgcIdHelper(0),
-  m_cscIdHelper(0),
   m_mdtHelper(0),
   m_rpcHelper(0),
   m_cscHelper(0),
@@ -173,10 +169,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   ATH_CHECK( service("StoreGateSvc",m_StoreGate) );
 
   // retrieve the id helper
-  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_tgcIdHelper,"TGCIDHELPER") );
-  ATH_CHECK( detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER") );
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   //simulation identifier helper
   m_mdtHelper = MdtHitIdHelper::GetHelper();
@@ -335,7 +328,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
       int layer = m_mdtHelper->GetLayer(id);
       int tube = m_mdtHelper->GetTube(id);
       
-      Identifier iMdt = m_mdtIdHelper->channelID(stationName, stationEta,
+      Identifier iMdt = m_muonIdHelperTool->mdtIdHelper().channelID(stationName, stationEta,
 						 stationPhi, multilayer, layer, tube);
       //int barcode = ci->particleNum();   // just an index    
       int barcode = ci->trackNumber()+1;   // just an index 
@@ -351,9 +344,9 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	m_fsim_hit_id[m_nFSim]    = iMdt.get_identifier32().get_compact();
 	m_fsim_hit_index[m_nFSim] = barcode+1;      // link to mother particle
 	m_fsim_hit_techn[m_nFSim] = 0;    
-	m_fsim_hit_station_name[m_nFSim] = m_mdtIdHelper->stationName(iMdt);
-	m_fsim_hit_station_eta[m_nFSim] = m_mdtIdHelper->stationEta(iMdt);
-	m_fsim_hit_station_phi[m_nFSim] = m_mdtIdHelper->stationPhi(iMdt);
+	m_fsim_hit_station_name[m_nFSim] = m_muonIdHelperTool->mdtIdHelper().stationName(iMdt);
+	m_fsim_hit_station_eta[m_nFSim] = m_muonIdHelperTool->mdtIdHelper().stationEta(iMdt);
+	m_fsim_hit_station_phi[m_nFSim] = m_muonIdHelperTool->mdtIdHelper().stationPhi(iMdt);
 	int sign = ci->localPosition()[0]>0 ? -1 : 1;
 	m_fsim_hit_pos[m_nFSim][0] = sign*ci->driftRadius(); 
 	m_fsim_hit_residual[m_nFSim] = 10000.; 
@@ -388,12 +381,12 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	m_fsim_hit_id[m_nFSim] = iRpc.get_identifier32().get_compact();
 	m_fsim_hit_index[m_nFSim] = barcode;      // link to mother particle
 	m_fsim_hit_techn[m_nFSim] = 1;
-        if (m_rpcIdHelper->measuresPhi(iRpc)) m_fsim_hit_techn[m_nFSim] += 10;
+        if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(iRpc)) m_fsim_hit_techn[m_nFSim] += 10;
 	//m_fsim_hit_match[m_nFSim] = -1;
 	//m_fsim_hole_match[m_nFSim] = -1;
-	m_fsim_hit_station_name[m_nFSim] = m_rpcIdHelper->stationName(iRpc);
-	m_fsim_hit_station_eta[m_nFSim] = m_rpcIdHelper->stationEta(iRpc);
-	m_fsim_hit_station_phi[m_nFSim] = m_rpcIdHelper->stationPhi(iRpc);
+	m_fsim_hit_station_name[m_nFSim] = m_muonIdHelperTool->rpcIdHelper().stationName(iRpc);
+	m_fsim_hit_station_eta[m_nFSim] = m_muonIdHelperTool->rpcIdHelper().stationEta(iRpc);
+	m_fsim_hit_station_phi[m_nFSim] = m_muonIdHelperTool->rpcIdHelper().stationPhi(iRpc);
         for (unsigned int i=0;i<3;i++) m_fsim_hit_pos[m_nFSim][i] = ci->localPosition()[i]; 
 	m_fsim_hit_residual[m_nFSim] = 10000.; 
 	// extrapolate gen. track to get residual
@@ -405,7 +398,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 									    Trk::alongMomentum,false,Trk::muon) ;
             if (trPar) { 
 	      const Amg::Vector3D locExtr = rpcROE->globalToLocalCoords(trPar->position(),iRpc);
-	      m_fsim_hit_residual[m_nFSim] = (m_rpcIdHelper->measuresPhi(iRpc) ) ? locExtr[1] - m_fsim_hit_pos[m_nFSim][1]:
+	      m_fsim_hit_residual[m_nFSim] = (m_muonIdHelperTool->rpcIdHelper().measuresPhi(iRpc) ) ? locExtr[1] - m_fsim_hit_pos[m_nFSim][1]:
 		                                                                   locExtr[2] - m_fsim_hit_pos[m_nFSim][2];
 	    }
 	  }
@@ -483,17 +476,17 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	if ( rio ) { 
 	  Identifier dig_id = rio->identify();             
           m_fhit_id[m_nFHit] =  dig_id.get_identifier32().get_compact();
-          if ( m_mdtIdHelper->is_mdt(dig_id) ) m_fhit_techn[m_nFHit] = 0; 
-          if ( m_mdtIdHelper->is_rpc(dig_id) ) m_fhit_techn[m_nFHit] = 1; 
-          if ( m_mdtIdHelper->is_tgc(dig_id) ) m_fhit_techn[m_nFHit] = 2; 
-          if ( m_mdtIdHelper->is_csc(dig_id) ) m_fhit_techn[m_nFHit] = 3; 
-          m_fhit_station_name[m_nFHit] = m_mdtIdHelper->stationName(dig_id);
-          m_fhit_station_eta[m_nFHit] = m_mdtIdHelper->stationEta(dig_id);
-          m_fhit_station_phi[m_nFHit] = m_mdtIdHelper->stationPhi(dig_id);
+          if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(dig_id) ) m_fhit_techn[m_nFHit] = 0; 
+          if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(dig_id) ) m_fhit_techn[m_nFHit] = 1; 
+          if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(dig_id) ) m_fhit_techn[m_nFHit] = 2; 
+          if ( m_muonIdHelperTool->mdtIdHelper().is_csc(dig_id) ) m_fhit_techn[m_nFHit] = 3; 
+          m_fhit_station_name[m_nFHit] = m_muonIdHelperTool->mdtIdHelper().stationName(dig_id);
+          m_fhit_station_eta[m_nFHit] = m_muonIdHelperTool->mdtIdHelper().stationEta(dig_id);
+          m_fhit_station_phi[m_nFHit] = m_muonIdHelperTool->mdtIdHelper().stationPhi(dig_id);
           // distinguish phi hits
-          if (m_fhit_techn[m_nFHit]==1 && m_rpcIdHelper->measuresPhi(dig_id)) m_fhit_techn[m_nFHit] +=10; 
-          if (m_fhit_techn[m_nFHit]==2 && m_tgcIdHelper->isStrip(dig_id)) m_fhit_techn[m_nFHit] +=10; 
-          if (m_fhit_techn[m_nFHit]==3 && m_cscIdHelper->measuresPhi(dig_id)) m_fhit_techn[m_nFHit] +=10; 
+          if (m_fhit_techn[m_nFHit]==1 && m_muonIdHelperTool->rpcIdHelper().measuresPhi(dig_id)) m_fhit_techn[m_nFHit] +=10; 
+          if (m_fhit_techn[m_nFHit]==2 && m_muonIdHelperTool->tgcIdHelper().isStrip(dig_id)) m_fhit_techn[m_nFHit] +=10; 
+          if (m_fhit_techn[m_nFHit]==3 && m_muonIdHelperTool->cscIdHelper().measuresPhi(dig_id)) m_fhit_techn[m_nFHit] +=10; 
           // calculate residual as distance of layer intersection from tube/strip center ( check of nearest detEl identification )
           m_fhit_residual[m_nFHit] = 10000.;  // dummy default
           if (m_fhit_techn[m_nFHit]==0) {
@@ -510,7 +503,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	      const Amg::Vector3D stripposition=rpcROE->surface(dig_id).transform().inverse()*rpcROE->stripPos(dig_id);
 	      const Amg::Vector3D localhit=rpcROE->surface(dig_id).transform().inverse()*(*iter)->trackParameters()->position();    
 	      m_fhit_residual[m_nFHit] = 2*(stripposition[0] - localhit[0])/
-		rpcROE->StripPitch(m_rpcIdHelper->measuresPhi(dig_id)); 
+		rpcROE->StripPitch(m_muonIdHelperTool->rpcIdHelper().measuresPhi(dig_id)); 
 	    }
 	  }
           if (m_fhit_techn[m_nFHit]==2 || m_fhit_techn[m_nFHit]==12) {      // tgc hits
@@ -518,10 +511,10 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	    if (tgcROE){      
 	      const Amg::Vector3D stripposition=tgcROE->surface(dig_id).transform().inverse()*tgcROE->channelPos(dig_id);
 	      const Amg::Vector3D localhit=tgcROE->surface(dig_id).transform().inverse()*(*iter)->trackParameters()->position(); 
-	      int plane = m_tgcIdHelper->gasGap(dig_id);
-              if (m_tgcIdHelper->isStrip(dig_id)) {    
+	      int plane = m_muonIdHelperTool->tgcIdHelper().gasGap(dig_id);
+              if (m_muonIdHelperTool->tgcIdHelper().isStrip(dig_id)) {    
 		m_fhit_residual[m_nFHit] = 2*(stripposition[0] - localhit[0])/
-		  tgcROE->StripPitch(plane,m_tgcIdHelper->channel(dig_id),localhit[1]);
+		  tgcROE->StripPitch(plane,m_muonIdHelperTool->tgcIdHelper().channel(dig_id),localhit[1]);
               } else {
 		m_fhit_residual[m_nFHit] = (stripposition[0] - localhit[0])/
 		  (*iter)->measurementOnTrack()->localCovariance()(Trk::locX,Trk::locX);
@@ -534,7 +527,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
 	      const Amg::Vector3D stripposition=cscROE->surface(dig_id).transform().inverse()*cscROE->stripPos(dig_id);
 	      const Amg::Vector3D localhit=cscROE->surface(dig_id).transform().inverse()*(*iter)->trackParameters()->position();    
 	      m_fhit_residual[m_nFHit] = 2*(stripposition[0] - localhit[0])/
-		cscROE->StripPitch(m_cscIdHelper->measuresPhi(dig_id)); 
+		cscROE->StripPitch(m_muonIdHelperTool->cscIdHelper().measuresPhi(dig_id)); 
 	    }
 	  }
           m_nFHit++;
@@ -570,19 +563,19 @@ void Muon::MuonTGHitNtuple::fillRecNtuple(const TrackCollection* tracks ) const
 	if ( rio ) { 
 	  Identifier dig_id = rio->identify();             
           m_hit_id[m_nHit] =  dig_id.get_identifier32().get_compact();
-          if ( m_mdtIdHelper->is_mdt(dig_id) ) m_hit_techn[m_nHit] = 0; 
-          if ( m_mdtIdHelper->is_rpc(dig_id) ) m_hit_techn[m_nHit] = 1; 
-          if ( m_mdtIdHelper->is_tgc(dig_id) ) m_hit_techn[m_nHit] = 2; 
-          if ( m_mdtIdHelper->is_csc(dig_id) ) m_hit_techn[m_nHit] = 3; 
+          if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(dig_id) ) m_hit_techn[m_nHit] = 0; 
+          if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(dig_id) ) m_hit_techn[m_nHit] = 1; 
+          if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(dig_id) ) m_hit_techn[m_nHit] = 2; 
+          if ( m_muonIdHelperTool->mdtIdHelper().is_csc(dig_id) ) m_hit_techn[m_nHit] = 3; 
           // distinguish phi hits
-          if (m_hit_techn[m_nHit]==1 && m_rpcIdHelper->measuresPhi(dig_id)) m_hit_techn[m_nHit] +=10; 
-          if (m_hit_techn[m_nHit]==2 && m_tgcIdHelper->isStrip(dig_id)) m_hit_techn[m_nHit] +=10; 
-          if (m_hit_techn[m_nHit]==3 && m_cscIdHelper->measuresPhi(dig_id)) m_hit_techn[m_nHit] +=10; 
+          if (m_hit_techn[m_nHit]==1 && m_muonIdHelperTool->rpcIdHelper().measuresPhi(dig_id)) m_hit_techn[m_nHit] +=10; 
+          if (m_hit_techn[m_nHit]==2 && m_muonIdHelperTool->tgcIdHelper().isStrip(dig_id)) m_hit_techn[m_nHit] +=10; 
+          if (m_hit_techn[m_nHit]==3 && m_muonIdHelperTool->cscIdHelper().measuresPhi(dig_id)) m_hit_techn[m_nHit] +=10; 
           //
 	  m_hit_track[m_nHit] = m_nRec;
-          m_hit_station_name[m_nHit] = m_mdtIdHelper->stationName(dig_id);
-          m_hit_station_eta[m_nHit] = m_mdtIdHelper->stationEta(dig_id);
-          m_hit_station_phi[m_nHit] = m_mdtIdHelper->stationPhi(dig_id);
+          m_hit_station_name[m_nHit] = m_muonIdHelperTool->mdtIdHelper().stationName(dig_id);
+          m_hit_station_eta[m_nHit] = m_muonIdHelperTool->mdtIdHelper().stationEta(dig_id);
+          m_hit_station_phi[m_nHit] = m_muonIdHelperTool->mdtIdHelper().stationPhi(dig_id);
           // find matching simulated hit
           m_hit_match[m_nHit] = -1;
           for (int is=0; is < m_nSimHit; is++) {
@@ -616,14 +609,14 @@ void Muon::MuonTGHitNtuple::fillRecNtuple(const TrackCollection* tracks ) const
 	  } 
           m_hole_id[m_nHole] =  dig_id.get_identifier32().get_compact();
           if (dig_id.get_identifier32().get_compact()>0) {  
-	    if ( m_mdtIdHelper->is_mdt(dig_id) ) m_hole_techn[m_nHole] = 0; 
-	    if ( m_mdtIdHelper->is_rpc(dig_id) ) m_hole_techn[m_nHole] = 1; 
-	    if ( m_mdtIdHelper->is_tgc(dig_id) ) m_hole_techn[m_nHole] = 2; 
-	    if ( m_mdtIdHelper->is_csc(dig_id) ) m_hole_techn[m_nHole] = 3; 
+	    if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(dig_id) ) m_hole_techn[m_nHole] = 0; 
+	    if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(dig_id) ) m_hole_techn[m_nHole] = 1; 
+	    if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(dig_id) ) m_hole_techn[m_nHole] = 2; 
+	    if ( m_muonIdHelperTool->mdtIdHelper().is_csc(dig_id) ) m_hole_techn[m_nHole] = 3; 
 	    m_hole_track[m_nHit] = m_nRec;
-	    m_hole_station_name[m_nHole] = m_mdtIdHelper->stationName(dig_id);
-	    m_hole_station_eta[m_nHole] = m_mdtIdHelper->stationEta(dig_id);
-	    m_hole_station_phi[m_nHole] = m_mdtIdHelper->stationPhi(dig_id);
+	    m_hole_station_name[m_nHole] = m_muonIdHelperTool->mdtIdHelper().stationName(dig_id);
+	    m_hole_station_eta[m_nHole] = m_muonIdHelperTool->mdtIdHelper().stationEta(dig_id);
+	    m_hole_station_phi[m_nHole] = m_muonIdHelperTool->mdtIdHelper().stationPhi(dig_id);
 	    // find matching simulated hit
 	    m_hole_match[m_nHole] = -1;
             m_hole_residual[m_nHole] = 10000.;
@@ -750,7 +743,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
       int layer = m_mdtHelper->GetLayer(id);
       int tube = m_mdtHelper->GetTube(id);
       
-      Identifier iMdt = m_mdtIdHelper->channelID(stationName, stationEta,
+      Identifier iMdt = m_muonIdHelperTool->mdtIdHelper().channelID(stationName, stationEta,
 						 stationPhi, multilayer, layer, tube);
       //int barcode = ci->particleNum();   // just an index    
       int barcode = ci->trackNumber();   // just an index 
@@ -768,9 +761,9 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
 	m_sim_hit_techn[m_nSimHit] = 0;    
 	m_sim_hit_match[m_nSimHit] = -1;    
 	m_sim_hole_match[m_nSimHit] = -1;    
-	m_sim_hit_station_name[m_nSimHit] = m_mdtIdHelper->stationName(iMdt);
-	m_sim_hit_station_eta[m_nSimHit] = m_mdtIdHelper->stationEta(iMdt);
-	m_sim_hit_station_phi[m_nSimHit] = m_mdtIdHelper->stationPhi(iMdt);
+	m_sim_hit_station_name[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationName(iMdt);
+	m_sim_hit_station_eta[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationEta(iMdt);
+	m_sim_hit_station_phi[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationPhi(iMdt);
 	int sign = ci->localPosition()[0]>0 ? -1 : 1;
 	m_sim_hit_pos[m_nSimHit][0] = sign * ci->driftRadius(); 
 	// extrapolate gen. track to get residual
@@ -805,12 +798,12 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
 	m_sim_hit_id[m_nSimHit] = iRpc.get_identifier32().get_compact();
 	m_sim_hit_index[m_nSimHit] = barcode;      // link to mother particle
 	m_sim_hit_techn[m_nSimHit] = 1;
-        if (m_rpcIdHelper->measuresPhi(iRpc)) m_sim_hit_techn[m_nSimHit] += 10;
+        if (m_muonIdHelperTool->rpcIdHelper().measuresPhi(iRpc)) m_sim_hit_techn[m_nSimHit] += 10;
 	m_sim_hit_match[m_nSimHit] = -1;
 	m_sim_hole_match[m_nSimHit] = -1;
-	m_sim_hit_station_name[m_nSimHit] = m_rpcIdHelper->stationName(iRpc);
-	m_sim_hit_station_eta[m_nSimHit] = m_rpcIdHelper->stationEta(iRpc);
-	m_sim_hit_station_phi[m_nSimHit] = m_rpcIdHelper->stationPhi(iRpc);
+	m_sim_hit_station_name[m_nSimHit] = m_muonIdHelperTool->rpcIdHelper().stationName(iRpc);
+	m_sim_hit_station_eta[m_nSimHit] = m_muonIdHelperTool->rpcIdHelper().stationEta(iRpc);
+	m_sim_hit_station_phi[m_nSimHit] = m_muonIdHelperTool->rpcIdHelper().stationPhi(iRpc);
         for (unsigned int i=0;i<3;i++) m_sim_hit_pos[m_nSimHit][i] = ci->localPosition()[i]; 
 	// extrapolate gen. track to get residual
 	m_sim_hit_residual[m_nSimHit] = 10000.; 
@@ -822,7 +815,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
 									    Trk::alongMomentum,false,Trk::muon) ;
             if (trPar) { 
 	      const Amg::Vector3D locExtr = rpcROE->globalToLocalCoords(trPar->position(),iRpc);
-	      m_sim_hit_residual[m_nSimHit] = (m_rpcIdHelper->measuresPhi(iRpc) ) ? locExtr[1] - m_sim_hit_pos[m_nSimHit][1]:
+	      m_sim_hit_residual[m_nSimHit] = (m_muonIdHelperTool->rpcIdHelper().measuresPhi(iRpc) ) ? locExtr[1] - m_sim_hit_pos[m_nSimHit][1]:
 		                                                                    locExtr[2] - m_sim_hit_pos[m_nSimHit][2];
 	    }
 	  }
@@ -877,7 +870,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
       m_sim_hit_id[m_nSimHit] = 0;
       m_sim_hit_index[m_nSimHit] = barcode;      // link to mother particle
       m_sim_hit_techn[m_nSimHit] = 3;
-      if (m_cscIdHelper->measuresPhi(iCsc)) m_sim_hit_techn[m_nSimHit] += 10;
+      if (m_muonIdHelperTool->cscIdHelper().measuresPhi(iCsc)) m_sim_hit_techn[m_nSimHit] += 10;
       m_sim_hit_station_name[m_nSimHit] = -1;
       m_sim_hit_station_eta[m_nSimHit] = -1;
       m_sim_hit_station_phi[m_nSimHit] = -1;
@@ -915,9 +908,9 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
           m_sim_hit_techn[m_nSimHit] = 0;    
           m_sim_hit_match[m_nSimHit] = -1;    
           m_sim_hole_match[m_nSimHit] = -1;    
-          m_sim_hit_station_name[m_nSimHit] = m_mdtIdHelper->stationName(iMdt);
-          m_sim_hit_station_eta[m_nSimHit] = m_mdtIdHelper->stationEta(iMdt);
-          m_sim_hit_station_phi[m_nSimHit] = m_mdtIdHelper->stationPhi(iMdt);
+          m_sim_hit_station_name[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationName(iMdt);
+          m_sim_hit_station_eta[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationEta(iMdt);
+          m_sim_hit_station_phi[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationPhi(iMdt);
           m_nSimHit++;
 	}
       }
@@ -948,9 +941,9 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
           m_sim_hit_techn[m_nSimHit] = 1;    
           m_sim_hit_match[m_nSimHit] = -1;    
           m_sim_hole_match[m_nSimHit] = -1;    
-          m_sim_hit_station_name[m_nSimHit] = m_mdtIdHelper->stationName(iRpc);
-          m_sim_hit_station_eta[m_nSimHit] = m_mdtIdHelper->stationEta(iRpc);
-          m_sim_hit_station_phi[m_nSimHit] = m_mdtIdHelper->stationPhi(iRpc);
+          m_sim_hit_station_name[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationName(iRpc);
+          m_sim_hit_station_eta[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationEta(iRpc);
+          m_sim_hit_station_phi[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationPhi(iRpc);
           m_nSimHit++;
 	}
       }
@@ -981,9 +974,9 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
           m_sim_hit_techn[m_nSimHit] = 2;    
           m_sim_hit_match[m_nSimHit] = -1;    
           m_sim_hole_match[m_nSimHit] = -1;    
-          m_sim_hit_station_name[m_nSimHit] = m_mdtIdHelper->stationName(iTgc);
-          m_sim_hit_station_eta[m_nSimHit] = m_mdtIdHelper->stationEta(iTgc);
-          m_sim_hit_station_phi[m_nSimHit] = m_mdtIdHelper->stationPhi(iTgc);
+          m_sim_hit_station_name[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationName(iTgc);
+          m_sim_hit_station_eta[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationEta(iTgc);
+          m_sim_hit_station_phi[m_nSimHit] = m_muonIdHelperTool->mdtIdHelper().stationPhi(iTgc);
           m_nSimHit++;
 	}
       }
@@ -1015,13 +1008,13 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
 	m_hole_match[m_nHole] = -1;
 	m_hole_track[m_nHole] = itr-(*tracks).begin();
 	if (m_hole_id[m_nHole]) {    // find matching simulated hit (if exists)
-	  if ( m_mdtIdHelper->is_mdt(idh) ) m_hole_techn[m_nHole] = 0; 
-	  if ( m_mdtIdHelper->is_rpc(idh) ) m_hole_techn[m_nHole] = 1; 
-	  if ( m_mdtIdHelper->is_tgc(idh) ) m_hole_techn[m_nHole] = 2; 
-	  if ( m_mdtIdHelper->is_csc(idh) ) m_hole_techn[m_nHole] = 3; 
-	  m_hole_station_name[m_nHole] = m_mdtIdHelper->stationName(idh);
-	  m_hole_station_eta[m_nHole] = m_mdtIdHelper->stationEta(idh);
-	  m_hole_station_phi[m_nHole] = m_mdtIdHelper->stationPhi(idh);
+	  if ( m_muonIdHelperTool->mdtIdHelper().is_mdt(idh) ) m_hole_techn[m_nHole] = 0; 
+	  if ( m_muonIdHelperTool->mdtIdHelper().is_rpc(idh) ) m_hole_techn[m_nHole] = 1; 
+	  if ( m_muonIdHelperTool->mdtIdHelper().is_tgc(idh) ) m_hole_techn[m_nHole] = 2; 
+	  if ( m_muonIdHelperTool->mdtIdHelper().is_csc(idh) ) m_hole_techn[m_nHole] = 3; 
+	  m_hole_station_name[m_nHole] = m_muonIdHelperTool->mdtIdHelper().stationName(idh);
+	  m_hole_station_eta[m_nHole] = m_muonIdHelperTool->mdtIdHelper().stationEta(idh);
+	  m_hole_station_phi[m_nHole] = m_muonIdHelperTool->mdtIdHelper().stationPhi(idh);
 	  for (int is=0; is < m_nSimHit; is++) {
 	    Identifier ids(m_sim_hit_id[is]);
 	    if ( m_sim_hit_techn[is]==m_hole_techn[m_nHole] && layerMatch(ids,idh) ) { 
@@ -1167,13 +1160,13 @@ const TrackCollection* Muon::MuonTGHitNtuple::holesFromSim() const
           int assocMeas = 0;
           unsigned int lId = layer->layerType();
 	  const Identifier layId(lId);
-          if (m_mdtIdHelper->is_mdt(layId) ) {
+          if (m_muonIdHelperTool->mdtIdHelper().is_mdt(layId) ) {
 	    bool measPhi = false;
 	    const Trk::TrackStateOnSurface* hole = createHole(nextPar,layer,measPhi);
 	    if (hole) holes->push_back(hole); 
 	  } else {
-	    if (m_tgcIdHelper->is_tgc(layId) ) {
-	      if (lId > 0 && m_tgcIdHelper->gasGap(layId)==2 && m_tgcIdHelper->gasGapMax(layId)==3) assocMeas+=2;
+	    if (m_muonIdHelperTool->tgcIdHelper().is_tgc(layId) ) {
+	      if (lId > 0 && m_muonIdHelperTool->tgcIdHelper().gasGap(layId)==2 && m_muonIdHelperTool->tgcIdHelper().gasGapMax(layId)==3) assocMeas+=2;
 	      if (lId == 0) std::cout << "TGC layer not identified, this phi hole can be fake" << std::endl;
 	    }
 	    if (assocMeas<2){
@@ -1230,30 +1223,30 @@ const Trk::TrackStateOnSurface* Muon::MuonTGHitNtuple::createHole(const Trk::Tra
 
 bool Muon::MuonTGHitNtuple::layerMatch(Identifier id1, Identifier id2) const
 {  
-  if (   m_mdtIdHelper->stationName(id1) ==   m_mdtIdHelper->stationName(id2)
-      && m_mdtIdHelper->stationEta(id1)  ==   m_mdtIdHelper->stationEta(id2)
-      && m_mdtIdHelper->stationPhi(id1)  ==   m_mdtIdHelper->stationPhi(id2) ) {
+  if (   m_muonIdHelperTool->mdtIdHelper().stationName(id1) ==   m_muonIdHelperTool->mdtIdHelper().stationName(id2)
+      && m_muonIdHelperTool->mdtIdHelper().stationEta(id1)  ==   m_muonIdHelperTool->mdtIdHelper().stationEta(id2)
+      && m_muonIdHelperTool->mdtIdHelper().stationPhi(id1)  ==   m_muonIdHelperTool->mdtIdHelper().stationPhi(id2) ) {
 
-    if (   m_mdtIdHelper->is_mdt(id1) &&  m_mdtIdHelper->is_mdt(id2)  ) {
-      if   (( m_mdtIdHelper->multilayer(id1)== m_mdtIdHelper->multilayer(id2) )
-	   && ( m_mdtIdHelper->tubeLayer(id1) == m_mdtIdHelper->tubeLayer(id2)) ) {
+    if (   m_muonIdHelperTool->mdtIdHelper().is_mdt(id1) &&  m_muonIdHelperTool->mdtIdHelper().is_mdt(id2)  ) {
+      if   (( m_muonIdHelperTool->mdtIdHelper().multilayer(id1)== m_muonIdHelperTool->mdtIdHelper().multilayer(id2) )
+	   && ( m_muonIdHelperTool->mdtIdHelper().tubeLayer(id1) == m_muonIdHelperTool->mdtIdHelper().tubeLayer(id2)) ) {
 	return true; 
       } else {
         return false;
       }
     }
-    if  (   m_rpcIdHelper->is_rpc(id1) &&  m_rpcIdHelper->is_rpc(id2) ) {
-      if ( m_rpcIdHelper->doubletR(id1) == m_rpcIdHelper->doubletR(id2)
-	   && m_rpcIdHelper->doubletZ(id1) == m_rpcIdHelper->doubletZ(id2)
-	   && m_rpcIdHelper->gasGap(id1)   == m_rpcIdHelper->gasGap(id2)
-	   && m_rpcIdHelper->measuresPhi(id1) == m_rpcIdHelper->measuresPhi(id2) ) 
+    if  (   m_muonIdHelperTool->rpcIdHelper().is_rpc(id1) &&  m_muonIdHelperTool->rpcIdHelper().is_rpc(id2) ) {
+      if ( m_muonIdHelperTool->rpcIdHelper().doubletR(id1) == m_muonIdHelperTool->rpcIdHelper().doubletR(id2)
+	   && m_muonIdHelperTool->rpcIdHelper().doubletZ(id1) == m_muonIdHelperTool->rpcIdHelper().doubletZ(id2)
+	   && m_muonIdHelperTool->rpcIdHelper().gasGap(id1)   == m_muonIdHelperTool->rpcIdHelper().gasGap(id2)
+	   && m_muonIdHelperTool->rpcIdHelper().measuresPhi(id1) == m_muonIdHelperTool->rpcIdHelper().measuresPhi(id2) ) 
 	return true;
       else 
 	return false;
     }
-    if (    m_tgcIdHelper->is_tgc(id1) == m_tgcIdHelper->is_tgc(id2) ) {
-      if (  m_tgcIdHelper->gasGap(id1) == m_tgcIdHelper->gasGap(id2)
-	    && m_tgcIdHelper->isStrip(id1) == m_tgcIdHelper->isStrip(id2)
+    if (    m_muonIdHelperTool->tgcIdHelper().is_tgc(id1) == m_muonIdHelperTool->tgcIdHelper().is_tgc(id2) ) {
+      if (  m_muonIdHelperTool->tgcIdHelper().gasGap(id1) == m_muonIdHelperTool->tgcIdHelper().gasGap(id2)
+	    && m_muonIdHelperTool->tgcIdHelper().isStrip(id1) == m_muonIdHelperTool->tgcIdHelper().isStrip(id2)
             && m_muonMgr->getTgcReadoutElement(id1) == m_muonMgr->getTgcReadoutElement(id2) )  
 	return true;
       else 
@@ -1274,7 +1267,7 @@ const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* Muon:
     if (m_sim_hit_index[is]==index) {
       Identifier ids(m_sim_hit_id[is]);
      
-      if (m_mdtIdHelper->is_mdt(ids)) { 
+      if (m_muonIdHelperTool->mdtIdHelper().is_mdt(ids)) { 
 	//Get the MdtReadoutElement and the tube position from it
 	const MuonGM::MdtReadoutElement* mdtROE = m_muonMgr->getMdtReadoutElement(ids);			
 	Amg::Vector3D pos = mdtROE->tubePos(ids);
@@ -1300,7 +1293,7 @@ const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* Muon:
         }
       } 
      
-      if (m_rpcIdHelper->is_rpc(ids)) { 
+      if (m_muonIdHelperTool->rpcIdHelper().is_rpc(ids)) { 
 	//Get the RpcReadoutElement and the strip position from it
 	const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(ids);			
 	Amg::Vector3D pos = rpcROE->stripPos(ids);
@@ -1326,7 +1319,7 @@ const std::vector<std::pair<const Trk::Layer*,std::vector<Identifier> > >* Muon:
         }
       } 
      
-      if (m_tgcIdHelper->is_tgc(ids)) { 
+      if (m_muonIdHelperTool->tgcIdHelper().is_tgc(ids)) { 
 	//Get the TgcReadoutElement and the strip position from it
 	const MuonGM::TgcReadoutElement* tgcROE = m_muonMgr->getTgcReadoutElement(ids);			
 	Amg::Vector3D pos = tgcROE->channelPos(ids);
@@ -1370,7 +1363,7 @@ Identifier Muon::MuonTGHitNtuple::getRpcId(const RPCSimHit* hit) const
   int gasGap = m_rpcHelper->GetGasGapLayer(id);
   int measPhi = m_rpcHelper->GetMeasuresPhi(id);
 
-  const Identifier id1 = m_rpcIdHelper->channelID(stationName, stationEta, stationPhi, doubletR,
+  const Identifier id1 = m_muonIdHelperTool->rpcIdHelper().channelID(stationName, stationEta, stationPhi, doubletR,
                                                         doubletZ, doubletPhi,gasGap, measPhi, 1);
   // this id is sufficient to define surface (for extrapolation et cet.)
   return id1;
@@ -1379,7 +1372,7 @@ Identifier Muon::MuonTGHitNtuple::getRpcId(const RPCSimHit* hit) const
 //  const MuonGM::RpcReadoutElement* rpcROE = m_muonMgr->getRpcReadoutElement(id1);
 //
 //  int  nStrips = rpcROE->Nstrips(measPhi);  
-//  const Identifier idN = m_rpcIdHelper->channelID(stationName, stationEta, stationPhi, doubletR,
+//  const Identifier idN = m_muonIdHelperTool->rpcIdHelper().channelID(stationName, stationEta, stationPhi, doubletR,
 //                                                        doubletZ, doubletPhi,gasGap, measPhi, nStrips);
 //
 //  const Amg::Vector3D loc1 = rpcROE->globalToLocalCoords(rpcROE->stripPos(id1),id1);
@@ -1393,7 +1386,7 @@ Identifier Muon::MuonTGHitNtuple::getRpcId(const RPCSimHit* hit) const
 //  
 //  if (strip<1 || strip > nStrips) return Identifier(0);
 //
-//  const Identifier idHit = m_rpcIdHelper->channelID(stationName, stationEta, stationPhi, doubletR,
+//  const Identifier idHit = m_muonIdHelperTool->rpcIdHelper().channelID(stationName, stationEta, stationPhi, doubletR,
 //						    doubletZ, doubletPhi,gasGap, measPhi, strip);
 //
 //  return idHit;
@@ -1408,7 +1401,7 @@ Identifier Muon::MuonTGHitNtuple::getCscId( const CSCSimHit* hit) const
   int chamberLayer = m_cscHelper->GetChamberLayer(id);
   int wireLayer = m_cscHelper->GetWireLayer(id);
 
-  const Identifier idr = m_cscIdHelper->channelID(stationName, stationEta, stationPhi, chamberLayer,
+  const Identifier idr = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, chamberLayer,
                                                  wireLayer,0, 1);
   // this id is sufficient to define surface (for extrapolation et cet.)
   return idr;
@@ -1422,7 +1415,7 @@ Identifier Muon::MuonTGHitNtuple::getTgcId( const TGCSimHit* hit) const
   int stationPhi  = m_tgcHelper->GetStationPhi(id);
   int gasGap = m_tgcHelper->GetGasGap(id);
 
-  const Identifier idr = m_tgcIdHelper->channelID(stationName, stationEta, stationPhi, gasGap, 0, 1);
+  const Identifier idr = m_muonIdHelperTool->tgcIdHelper().channelID(stationName, stationEta, stationPhi, gasGap, 0, 1);
   // this id is sufficient to define surface (for extrapolation et cet.)
   return idr;
 }
