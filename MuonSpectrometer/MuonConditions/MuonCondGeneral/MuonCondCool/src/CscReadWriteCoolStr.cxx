@@ -35,8 +35,7 @@ namespace MuonCalib {
                                  m_read(false),
                                  m_ofile("output.cal"),
                                  m_outFileType("04-00"),
-                                 m_condDataContainer(NULL),
-                                 m_cscId(0)
+                                 m_condDataContainer(NULL)
   {
     // declare properties
 
@@ -70,10 +69,10 @@ namespace MuonCalib {
       return StatusCode::FAILURE;
     }
     
-    StatusCode sc = p_detstore->retrieve(m_cscId,"CSCIDHELPER");
+    StatusCode sc = m_muonIdHelperTool.retrieve();
     if(sc.isFailure())
     {
-      m_log << MSG::FATAL << "Cannot retrieve CscIdHelper from detector store" << endmsg;
+      m_log << MSG::FATAL << "Cannot retrieve MuonIdHelperTool" << endmsg;
       return sc;
     }
 
@@ -380,7 +379,7 @@ namespace MuonCalib {
     
     string dataType ="";
 
-    IdContext channelContext = m_cscId->channel_context();
+    IdContext channelContext = m_muonIdHelperTool->cscIdHelper().channel_context();
 
     if(m_outFileType =="04-00"){
       outFile << "<HEADER>\n" << m_outFileType << "\n</HEADER>\n";
@@ -441,13 +440,13 @@ namespace MuonCalib {
             }
 
             Identifier chanId;
-            m_cscId->get_id((IdentifierHash)indxItr, chanId, &channelContext);
-            int eta = m_cscId->stationEta(chanId);
-            int phi = m_cscId->stationPhi(chanId);
-            int measuresPhi = m_cscId->measuresPhi(chanId);
-            int strip = m_cscId->strip(chanId);
-            int size = m_cscId->stationName(chanId);//1 for large, 0 for not
-            int layer = m_cscId->wireLayer(chanId);
+            m_muonIdHelperTool->cscIdHelper().get_id((IdentifierHash)indxItr, chanId, &channelContext);
+            int eta = m_muonIdHelperTool->cscIdHelper().stationEta(chanId);
+            int phi = m_muonIdHelperTool->cscIdHelper().stationPhi(chanId);
+            int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(chanId);
+            int strip = m_muonIdHelperTool->cscIdHelper().strip(chanId);
+            int size = m_muonIdHelperTool->cscIdHelper().stationName(chanId);//1 for large, 0 for not
+            int layer = m_muonIdHelperTool->cscIdHelper().wireLayer(chanId);
 
             int sector = (phi*2 - size + 50)*eta;
 
@@ -491,10 +490,10 @@ namespace MuonCalib {
 
               //Retreive data for a single strip in scope, at layer Since and stripSince. All values should be same, so its fine
               CHECK(m_cscCoolStrSvc->getAsmScope(asmNum, measuresPhi, layerSince, layerUntil, stripSince, stripUntil));
-              Identifier chanId = m_cscId->channelID(stationName, stationEta, stationPhi, 
+              Identifier chanId = m_muonIdHelperTool->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
                   chamberLayer, layerSince, measuresPhi, stripSince);
               IdentifierHash hash;
-              m_cscId->get_channel_hash(chanId, hash);
+              m_muonIdHelperTool->cscIdHelper().get_channel_hash(chanId, hash);
               std::string data = RetrieveDataAsString(*parNameItr, (int)hash, dataType);
 
               //update file
@@ -533,9 +532,9 @@ namespace MuonCalib {
 
             stringstream ss;
             Identifier chanId;
-            m_cscId->get_id((IdentifierHash)indxItr, chanId, &channelContext);
+            m_muonIdHelperTool->cscIdHelper().get_id((IdentifierHash)indxItr, chanId, &channelContext);
 
-            ss << indxItr << " " << m_cscId->show_to_string(chanId);
+            ss << indxItr << " " << m_muonIdHelperTool->cscIdHelper().show_to_string(chanId);
 
             stringId = ss.str();
 
