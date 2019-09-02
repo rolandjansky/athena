@@ -129,6 +129,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_e5_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_e7_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_g5_etcut_L1EM3"] = "L1_EM3";
+      dummyChains["HLT_g5_etcut_larpeb_L1EM3"] = "L1_EM3";
       dummyChains["HLT_g10_etcut_L1EM7"] = "L1_EM7";
       dummyChains["HLT_g15_etcut_L1EM12"] = "L1_EM12";
       dummyChains["HLT_mu6_L1MU6"] = "L1_MU6";
