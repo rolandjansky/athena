@@ -112,12 +112,7 @@ StatusCode MdtVsRpcRawDataValAlg::initialize(){
     ATH_MSG_DEBUG ( " Found the MuonDetectorManager from detector store. " );
   }
 
-  sc = detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
-  if (sc.isFailure())
-    {
-      ATH_MSG_ERROR ( "Can't retrieve RpcIdHelper" );
-      return sc;
-    }	 
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
   
   // get RPC cablingSvc
   const IRPCcablingServerSvc* RpcCabGet = 0;
@@ -135,17 +130,6 @@ StatusCode MdtVsRpcRawDataValAlg::initialize(){
   } else {
     ATH_MSG_DEBUG ( " Found the RPCcablingSvc. " );    } 
 
-
-  //mdt stuff
-  sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Cannot get MdtIdHelper" );
-    return StatusCode::FAILURE;
-  }  
-  else {
-    ATH_MSG_DEBUG ( " Found the MdtIdHelper. " );
-  }
- 
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
 
   ATH_CHECK(m_key_mdt.initialize());
@@ -246,16 +230,16 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 
 	      Identifier prd_id = (*rpcPrd)->identify();
 
-	      int irpcstationPhi	=   int(m_rpcIdHelper->stationPhi (prd_id))  ;		   
-	      int irpcstationName	=   int(m_rpcIdHelper->stationName(prd_id))  ;		   
-	      int irpcstationEta	=   int(m_rpcIdHelper->stationEta (prd_id))  ;			   
-	      int irpcdoubletR 	=   int(m_rpcIdHelper->doubletR   (prd_id))  ;		
-	      int irpcmeasuresPhi	=   int(m_rpcIdHelper->measuresPhi(prd_id))  ;
+	      int irpcstationPhi	=   int(m_muonIdHelperTool->rpcIdHelper().stationPhi (prd_id))  ;		   
+	      int irpcstationName	=   int(m_muonIdHelperTool->rpcIdHelper().stationName(prd_id))  ;		   
+	      int irpcstationEta	=   int(m_muonIdHelperTool->rpcIdHelper().stationEta (prd_id))  ;			   
+	      int irpcdoubletR 	=   int(m_muonIdHelperTool->rpcIdHelper().doubletR   (prd_id))  ;		
+	      int irpcmeasuresPhi	=   int(m_muonIdHelperTool->rpcIdHelper().measuresPhi(prd_id))  ;
 	      // only take eta hits
 	      if( irpcmeasuresPhi != 0 )continue;
-	      int irpcdoubletPhi	 =   int(m_rpcIdHelper->doubletPhi(prd_id))  ;
-	      int irpcdoubletZ	 =   int(m_rpcIdHelper->doubletZ(prd_id))    ;
-	      int irpcstrip		 =   int(m_rpcIdHelper->strip(prd_id))       ;
+	      int irpcdoubletPhi	 =   int(m_muonIdHelperTool->rpcIdHelper().doubletPhi(prd_id))  ;
+	      int irpcdoubletZ	 =   int(m_muonIdHelperTool->rpcIdHelper().doubletZ(prd_id))    ;
+	      int irpcstrip		 =   int(m_muonIdHelperTool->rpcIdHelper().strip(prd_id))       ;
 	   
 	    
       
@@ -264,8 +248,8 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 	      std::string hardware_name=convertChamberName(irpcstationName,irpcstationEta,irpcstationPhi,type) ;
   	  	  
 	      if (selectChambersRange(hardware_name, m_chamberName, 
-				      m_rpcIdHelper->stationEta(dig_id), m_StationEta,
-				      m_rpcIdHelper->stationPhi(dig_id), m_StationPhi, m_StationSize) && chambersCosmicSetup(hardware_name,m_cosmicStation)) {	 
+				      m_muonIdHelperTool->rpcIdHelper().stationEta(dig_id), m_StationEta,
+				      m_muonIdHelperTool->rpcIdHelper().stationPhi(dig_id), m_StationPhi, m_StationSize) && chambersCosmicSetup(hardware_name,m_cosmicStation)) {	 
 
 		//define layer
                 int imdt_multi_near = 0;
@@ -415,21 +399,21 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		    for (Muon::MdtPrepDataCollection::const_iterator mdtCollection=(*containerMdtIt)->begin(); mdtCollection!=(*containerMdtIt)->end(); ++mdtCollection ) 
 		      {
 			dig_idmdt = (*mdtCollection)->identify();
-			int imdt_station      =  int(m_mdtIdHelper->stationName (dig_idmdt));
+			int imdt_station      =  int(m_muonIdHelperTool->mdtIdHelper().stationName (dig_idmdt));
 			if (imdt_station != irpcstationName) continue;
-			int imdt_eta          =  int(m_mdtIdHelper->stationEta  (dig_idmdt));
+			int imdt_eta          =  int(m_muonIdHelperTool->mdtIdHelper().stationEta  (dig_idmdt));
 			if (imdt_eta     != irpcstationEta ) continue; 
-			int imdt_phi          =  int(m_mdtIdHelper->stationPhi  (dig_idmdt));
+			int imdt_phi          =  int(m_muonIdHelperTool->mdtIdHelper().stationPhi  (dig_idmdt));
 			if (imdt_phi     != irpcstationPhi ) continue;
 			dig_idmdt = (*mdtCollection)->identify();
-			int imdt_multi     =  int(m_mdtIdHelper->multilayer  (dig_idmdt));
+			int imdt_multi     =  int(m_muonIdHelperTool->mdtIdHelper().multilayer  (dig_idmdt));
 			// only look at near multilayer
 			if(imdt_multi  != imdt_multi_near) continue;
 			int imdt_adc       =  int((*mdtCollection)->adc());
 			//cut on noise
 			if( imdt_adc<ncutadc )continue;  
 			int imdt_tdc       =  int((*mdtCollection)->tdc());
-			int imdt_wire      =  int(m_mdtIdHelper->tube        (dig_idmdt));
+			int imdt_wire      =  int(m_muonIdHelperTool->mdtIdHelper().tube        (dig_idmdt));
 		    
  		    
 			//get mdt information from geomodel to book and fill mdtvsrpc histos with the right min and max range
