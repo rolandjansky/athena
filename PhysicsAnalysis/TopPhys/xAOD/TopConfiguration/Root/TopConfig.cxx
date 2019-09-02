@@ -1449,13 +1449,19 @@ namespace top{
 
   void TopConfig::sgKeyJets(const std::string& s)
   {
-      if (!m_configFixed){
+      if (!m_configFixed) {
           m_useJets = false;
           if (s != "None")
               m_useJets = true;
 
+          size_t delim_pos = s.find('_');
+          // for b-tagging shallow copies, e,g.
+          // AntiKt4EMPFlowJets_BTagging20181003
+          // we want to have quick access  to base collection name
+          m_sgKeyJetsType = s.substr(0, delim_pos);
+
 	  // If anti-kt4 pflow jets then...
-	  if (s == "AntiKt4EMPFlowJets" )
+	  if (m_sgKeyJetsType == "AntiKt4EMPFlowJets")
 	      m_useParticleFlowJets = true;
 
           m_sgKeyJets = s;

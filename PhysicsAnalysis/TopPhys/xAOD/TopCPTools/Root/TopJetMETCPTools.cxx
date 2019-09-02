@@ -117,13 +117,13 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ApplyJetCalibrationR21
 
   // Get jet calibration name and erase "Jets" from the end
-  std::string caloJets_collection = m_config->sgKeyJets();
+  std::string caloJets_type = m_config->sgKeyJetsType();
   std::string jetCalibrationName;
-  if (caloJets_collection == "AntiKt4EMTopoNoElJets"){
+  if (caloJets_type == "AntiKt4EMTopoNoElJets"){
     jetCalibrationName="AntiKt4EMTopoJets";
   }
   else{
-    jetCalibrationName = caloJets_collection ;
+    jetCalibrationName = caloJets_type ;
   }
   jetCalibrationName.erase(jetCalibrationName.length() - 4);
 

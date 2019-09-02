@@ -46,7 +46,7 @@ namespace top{
     top::check( m_met_maker.retrieve() , "Failed to retrieve met maker tool" );
     top::check( m_met_systematics.retrieve() , "Failed to retrieve met systematic tool" );
 
-    std::string jet_collection = m_config->sgKeyJets();
+    std::string jet_collection = m_config->sgKeyJetsType();
     jet_collection.erase(jet_collection.length() - 4); //erase "Jets" from jet collection name
 
     m_MET_core = "MET_Core_"+jet_collection;
