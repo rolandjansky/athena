@@ -56,17 +56,7 @@ StatusCode MuonSegmentAmbiCleaner::initialize()
 
   ATH_MSG_VERBOSE(" MuonSegmentiAmbiCleaner::Initializing ");
 
-  StatusCode sc = detStore()->retrieve( m_detMgr );
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR(" Cannot retrieve MuonDetDescrMgr ");
-  } else {
-    m_mdtIdHelper = m_detMgr->mdtIdHelper();
-    m_cscIdHelper = m_detMgr->cscIdHelper();
-    m_rpcIdHelper = m_detMgr->rpcIdHelper();
-    m_tgcIdHelper = m_detMgr->tgcIdHelper();
-    ATH_MSG_INFO(" Retrieved IdHelpers: (mdt, csc, rpc and tgc) ");
-  }
-
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
 
   ATH_MSG_VERBOSE("End of Initializing");
   return StatusCode::SUCCESS;
@@ -160,25 +150,25 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
     irio++;
     //    if (m_debug) std::cout << " Loop over RIOs "  << irio << std::endl; 
     //	    idSegmentMap[id]= segment;
-    if( m_mdtIdHelper->is_mdt( rot->identify() ) ){
+    if( m_muonIdHelperTool->mdtIdHelper().is_mdt( rot->identify() ) ){
       meas_keep->push_back(rot->clone());
       netamdt++;
       continue;
-    }else if( m_rpcIdHelper->is_rpc( rot->identify() ) ){
-      if( m_rpcIdHelper->measuresPhi(id) != 1) {
+    }else if( m_muonIdHelperTool->rpcIdHelper().is_rpc( rot->identify() ) ){
+      if( m_muonIdHelperTool->rpcIdHelper().measuresPhi(id) != 1) {
 	meas_keep->push_back(rot->clone());
         netarpc++;
 	continue ;
       }
-    }else if( m_tgcIdHelper->is_tgc( rot->identify() ) ){
-      if( m_tgcIdHelper->isStrip(id) != 1 ) {
+    }else if( m_muonIdHelperTool->tgcIdHelper().is_tgc( rot->identify() ) ){
+      if( m_muonIdHelperTool->tgcIdHelper().isStrip(id) != 1 ) {
 	meas_keep->push_back(rot->clone());
         netatgc++;
 	continue;
       }
-    }else if( m_cscIdHelper->is_csc( rot->identify() ) ){
+    }else if( m_muonIdHelperTool->cscIdHelper().is_csc( rot->identify() ) ){
       meas_keep->push_back(rot->clone());
-      if( m_cscIdHelper->measuresPhi(id) != 1) {
+      if( m_muonIdHelperTool->cscIdHelper().measuresPhi(id) != 1) {
 	  netacsc++;
       } else {
 	nphicsc++;
@@ -195,12 +185,12 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
     ok_phi[nphi] = 0; 
     det_phi[nphi] = 0; 
     dis_phi[nphi] = 10000000; 
-    if (m_rpcIdHelper->is_rpc( rot->identify())) {
+    if (m_muonIdHelperTool->rpcIdHelper().is_rpc( rot->identify())) {
       nphirpc++;
-      int code = 1000000*(m_rpcIdHelper->stationName(id));
-      code = code + 2*((m_rpcIdHelper->doubletR(id))-1)+16*((m_rpcIdHelper->gasGap(id))-1);
+      int code = 1000000*(m_muonIdHelperTool->rpcIdHelper().stationName(id));
+      code = code + 2*((m_muonIdHelperTool->rpcIdHelper().doubletR(id))-1)+16*((m_muonIdHelperTool->rpcIdHelper().gasGap(id))-1);
       chambercode_phi[nphi] = code;
-      stripcode_phi[nphi] = m_rpcIdHelper->strip(id);
+      stripcode_phi[nphi] = m_muonIdHelperTool->rpcIdHelper().strip(id);
       ok_phi[nphi] = 1;
       det_phi[nphi] = 1; 
       const Muon::RpcClusterOnTrack* rrot = dynamic_cast<const Muon::RpcClusterOnTrack*>(rot);
@@ -221,12 +211,12 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
 	std::cout << " dis RPC " << disRPC <<  std::endl;
       }
       dis_phi[nphi] = disRPC;
-    } else if ( m_tgcIdHelper->is_tgc( rot->identify())) {
+    } else if ( m_muonIdHelperTool->tgcIdHelper().is_tgc( rot->identify())) {
       nphitgc++;
-      int code = 1000000*(m_tgcIdHelper->stationName(id))+100*(m_tgcIdHelper->stationEta(id)+10);
-      code = code + m_tgcIdHelper->gasGap(id);
+      int code = 1000000*(m_muonIdHelperTool->tgcIdHelper().stationName(id))+100*(m_muonIdHelperTool->tgcIdHelper().stationEta(id)+10);
+      code = code + m_muonIdHelperTool->tgcIdHelper().gasGap(id);
       chambercode_phi[nphi] = code;
-      stripcode_phi[nphi] = m_tgcIdHelper->channel(id);
+      stripcode_phi[nphi] = m_muonIdHelperTool->tgcIdHelper().channel(id);
       ok_phi[nphi] = 1;
       det_phi[nphi] = 2; 
       
@@ -269,12 +259,12 @@ const Muon::MuonSegment* MuonSegmentAmbiCleaner::resolve(const Muon::MuonSegment
          Identifier id1 = id_phi[i];
          Identifier id2 = id_phi[j];
          if (det_phi[i] == 1 && det_phi[j] == 1 && m_debug) {
-           std::cout << " RPC Station 1 eta " << m_rpcIdHelper->stationEta(id1) << " phi " <<  m_rpcIdHelper->stationPhi(id1) << std::endl;
-           std::cout << " RPC Station 2 eta " << m_rpcIdHelper->stationEta(id2) << " phi " <<  m_rpcIdHelper->stationPhi(id2) << std::endl;
+           std::cout << " RPC Station 1 eta " << m_muonIdHelperTool->rpcIdHelper().stationEta(id1) << " phi " <<  m_muonIdHelperTool->rpcIdHelper().stationPhi(id1) << std::endl;
+           std::cout << " RPC Station 2 eta " << m_muonIdHelperTool->rpcIdHelper().stationEta(id2) << " phi " <<  m_muonIdHelperTool->rpcIdHelper().stationPhi(id2) << std::endl;
          }
          if (det_phi[i] == 2 && det_phi[j] == 2 && m_debug) {
-           std::cout << " TGC Station 1 eta " << m_tgcIdHelper->stationEta(id1) << " phi " <<  m_tgcIdHelper->stationPhi(id1) << std::endl;
-           std::cout << " TGC Station 2 eta " << m_tgcIdHelper->stationEta(id2) << " phi " <<  m_tgcIdHelper->stationPhi(id2) << std::endl;
+           std::cout << " TGC Station 1 eta " << m_muonIdHelperTool->tgcIdHelper().stationEta(id1) << " phi " <<  m_muonIdHelperTool->tgcIdHelper().stationPhi(id1) << std::endl;
+           std::cout << " TGC Station 2 eta " << m_muonIdHelperTool->tgcIdHelper().stationEta(id2) << " phi " <<  m_muonIdHelperTool->tgcIdHelper().stationPhi(id2) << std::endl;
          }
 
 	 if (m_debug) std::cout << " Ambiguous " << " Distance1 " << dis_phi[i] << " Distance1 " << dis_phi[j] << std::endl; 
