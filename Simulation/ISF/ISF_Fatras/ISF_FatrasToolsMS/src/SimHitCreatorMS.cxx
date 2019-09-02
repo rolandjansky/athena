@@ -71,7 +71,6 @@ iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
     m_mdtIdHelper(nullptr),
     m_mmOffToSimId(nullptr),
     m_stgcOffToSimId(nullptr),
-    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_muonMgr(nullptr),
     m_mdtSigmaDriftRadius(0.08),
     m_BMGid(-1),
@@ -123,8 +122,8 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
   // m_sTgcHitIdHelper = sTgcHitIdHelper::GetHelper(); 
   // m_mmHitIdHelper = MicromegasHitIdHelper::GetHelper(); 
 
-  if (detStore()->retrieve(m_mdtIdHelper,"MDTIDHELPER").isFailure()) {
-    ATH_MSG_FATAL("Cannot get MdtIdHelper" );
+  if (m_muonIdHelperTool.retrieve().isFailure()) {
+    ATH_MSG_FATAL("Cannot get MuonIdHelperTool" );
     return StatusCode::FAILURE;
   }  
   else {
@@ -170,10 +169,10 @@ StatusCode iFatras::SimHitCreatorMS::initialize()
 
   ATH_MSG_INFO( "[ mutrack ] initialize() successful." );
 
-     m_BMGpresent = m_mdtIdHelper->stationNameIndex("BMG") != -1;
+     m_BMGpresent = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG") != -1;
       if(m_BMGpresent){
         ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
-        m_BMGid = m_mdtIdHelper->stationNameIndex("BMG");
+        m_BMGid = m_muonIdHelperTool->mdtIdHelper().stationNameIndex("BMG");
         for(int phi=6; phi<8; phi++) { // phi sectors
           for(int eta=1; eta<4; eta++) { // eta sectors
             for(int side=-1; side<2; side+=2) { // side
@@ -443,11 +442,11 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
      ATH_MSG_VERBOSE(  "[ muhit ] Creating MDTSimHit with identifier " <<  simId );
      // local position from the mdt's i
      const MuonGM::MdtReadoutElement* MdtRoEl = m_muonMgr->getMdtReadoutElement(id);
-     if(m_BMGpresent && m_mdtIdHelper->stationName(id) == m_BMGid ) {
+     if(m_BMGpresent && m_muonIdHelperTool->mdtIdHelper().stationName(id) == m_BMGid ) {
        auto myIt = m_DeadChannels.find(MdtRoEl->identify());
        if( myIt != m_DeadChannels.end() ){
          if( std::find( (myIt->second).begin(), (myIt->second).end(), id) != (myIt->second).end() ) {
-           ATH_MSG_DEBUG("Skipping tube with identifier " << m_mdtIdHelper->show_to_string(id) );
+           ATH_MSG_DEBUG("Skipping tube with identifier " << m_muonIdHelperTool->mdtIdHelper().show_to_string(id) );
            return false;
          }
        }
@@ -604,10 +603,10 @@ void iFatras::SimHitCreatorMS::initDeadChannels(const MuonGM::MdtReadoutElement*
 
   Identifier detElId = mydetEl->identify();
 
-  int name = m_mdtIdHelper->stationName(detElId);
-  int eta = m_mdtIdHelper->stationEta(detElId);
-  int phi = m_mdtIdHelper->stationPhi(detElId);
-  int ml = m_mdtIdHelper->multilayer(detElId);
+  int name = m_muonIdHelperTool->mdtIdHelper().stationName(detElId);
+  int eta = m_muonIdHelperTool->mdtIdHelper().stationEta(detElId);
+  int phi = m_muonIdHelperTool->mdtIdHelper().stationPhi(detElId);
+  int ml = m_muonIdHelperTool->mdtIdHelper().multilayer(detElId);
   std::vector<Identifier> deadTubes;
   
     for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
@@ -623,7 +622,7 @@ void iFatras::SimHitCreatorMS::initDeadChannels(const MuonGM::MdtReadoutElement*
         if( layergeo > layer ) break; // don't loop any longer if you cannot find tube anyway anymore
       }
       if(!tubefound) {
-        Identifier deadTubeId = m_mdtIdHelper->channelID( name, eta, phi, ml, layer, tube );
+        Identifier deadTubeId = m_muonIdHelperTool->mdtIdHelper().channelID( name, eta, phi, ml, layer, tube );
         deadTubes.push_back( deadTubeId );
         ATH_MSG_VERBOSE("adding dead tube (" << tube  << "), layer(" <<  layer
                         << "), phi(" << phi << "), eta(" << eta << "), name(" << name

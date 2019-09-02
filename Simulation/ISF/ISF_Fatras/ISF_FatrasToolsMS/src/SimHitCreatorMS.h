@@ -28,15 +28,11 @@
 #include "MuonSimEvent/sTGCSimHitCollection.h"
 //Muon ReadoutGeometry includes
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 // Identifier
 #include "Identifier/Identifier.h"
 // Muon
-class MdtHitIdHelper;
-class RpcHitIdHelper;
-class CscHitIdHelper;
-class TgcHitIdHelper;
-class MdtIdHelper;
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -126,10 +122,8 @@ namespace iFatras
       ServiceHandle<IAtRndmGenSvc>         m_randomSvc;                //!< Random Svc  
       std::string                          m_randomEngineName;         //!< Name of the random number stream
       CLHEP::HepRandomEngine*              m_randomEngine;             //!< Random Engine 
-      MdtHitIdHelper*                      m_mdtHitIdHelper;
-      RpcHitIdHelper*                      m_rpcHitIdHelper;
-      CscHitIdHelper*                      m_cscHitIdHelper;
-      TgcHitIdHelper*                      m_tgcHitIdHelper;
+      ToolHandle<Muon::MuonIdHelperTool> m_muonIdHelperTool{this, "idHelper", 
+        "Muon::MuonIdHelperTool/MuonIdHelperTool", "Handle to the MuonIdHelperTool"};
       const MdtIdHelper* 		   m_mdtIdHelper;    //added to protect against dead sensors 
       MM_SimIdToOfflineId*                 m_mmOffToSimId;
       sTgcSimIdToOfflineId*                m_stgcOffToSimId;
