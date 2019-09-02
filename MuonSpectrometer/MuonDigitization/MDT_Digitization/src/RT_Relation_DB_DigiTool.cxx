@@ -32,27 +32,21 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
 {
   ATH_MSG_INFO ("Initializing RT_Relation_DB_DigiTool");
 
-  StoreGateSvc* detStore=0;
-  StatusCode status = serviceLocator()->service("DetectorStore", detStore);
-  
-  if (status.isSuccess()) 
+  if(detStore()->contains<MuonDetectorManager>( "Muon" ))
   {
-    if(detStore->contains<MuonDetectorManager>( "Muon" ))
+    StatusCode status = detStore()->retrieve(m_muonGeoMgr);
+    if (status.isFailure())
     {
-      status = detStore->retrieve(m_muonGeoMgr);
-      if (status.isFailure())
-      {
-	ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
-        return status;
-      }
-      else
-      {
-	ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate");
-        //initialize the MdtIdHelper
+      ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
+      return status;
+    }
+    else
+    {  
+      ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate");
+      //initialize the MdtIdHelper
 //         m_idHelper = m_muonGeoMgr->mdtIdHelper();
 //         ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
 //         if(!m_idHelper) return status;
-      }
     }
   }
   

@@ -74,7 +74,7 @@ atlas_add_library( JetTagToolsLib
     src/TrackSelector.cxx
     src/HistoHelperRoot.cxx src/NewLikelihoodTool.cxx
     src/BasicTrackGradeFactory.cxx src/DetailedTrackGradeFactory.cxx
-    src/GradedTrack.cxx src/IPTag.cxx src/JetTagUtils.cxx
+    src/GradedTrack.cxx src/IPTag.cxx
     src/SVForIPTool.cxx src/SVTag.cxx src/JetFitterTag.cxx
     src/JetFitterNtupleWriter.cxx src/JetFitterNNTool.cxx
     src/JetFitterInputWriter.cxx src/JetFitterDummyClassifier.cxx

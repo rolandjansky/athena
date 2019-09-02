@@ -12,7 +12,6 @@
 // Version 1.0 18/07/2004
 ///////////////////////////////////////////////////////////////////
 
-#include "StoreGate/StoreGateSvc.h"
 #include "MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 

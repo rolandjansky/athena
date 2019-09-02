@@ -77,9 +77,9 @@ namespace Analysis
       virtual void finalizeHistos() override;
 
       virtual
-      StatusCode tagJet(const xAOD::Jet*, xAOD::BTagging*, const xAOD::Vertex* vtx = 0) const override;
+      StatusCode tagJet(const xAOD::Jet*, xAOD::BTagging*, const std::string &jetName, const xAOD::Vertex* vtx = 0) const override;
       virtual
-      StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) const override;
+      StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer, const std::string &jetName) const override;
 
     private:
 

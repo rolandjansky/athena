@@ -71,11 +71,11 @@ def MdtDigitToMdtRDOCfg(flags, name="MdtDigitToMdtRDO", **kwargs):
     return acc
 
 
-def MdtOverlayDigitToMdtRDOCfg(flags, name="OverlayMdtDigitToMdtRDO", **kwargs):
+def MdtOverlayDigitToMdtRDOCfg(flags, name="MdtOverlayDigitToMdtRDO", **kwargs):
     """Return ComponentAccumulator with Overlay configured MdtDigitToMdtRDO algorithm"""
     acc = ComponentAccumulator()
-    kwargs.setdefault("InputObjectName", flags.Overlay.OutputStore + "+MDT_DIGITS")
-    kwargs.setdefault("OutputObjectName", flags.Overlay.OutputStore + "+MDTCSM")
+    kwargs.setdefault("InputObjectName", flags.Overlay.SigPrefix + "MDT_DIGITS")
+    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MDTCSM")
     acc.addEventAlgo(MdtDigitToMdtRDO(name, **kwargs))
     return acc
 
@@ -161,11 +161,11 @@ def STGC_DigitToRDOCfg(flags, name="STGC_DigitToRDO", **kwargs):
     return acc
 
 
-def STGC_OverlayDigitToRDOCfg(flags, name="OverlaySTGC_DigitToRDO", **kwargs):
+def STGC_OverlayDigitToRDOCfg(flags, name="STGC_OverlayDigitToRDO", **kwargs):
     """Return ComponentAccumulator with Overlay configured STGC_DigitToRDO algorithm"""
     acc = ComponentAccumulator()
-    kwargs.setdefault("InputObjectName", flags.Overlay.OutputStore + "+sTGC_DIGITS")
-    kwargs.setdefault("OutputObjectName", flags.Overlay.OutputStore + "+STGCRDO")
+    kwargs.setdefault("InputObjectName", flags.Overlay.SigPrefix + "sTGC_DIGITS")
+    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "STGCRDO")
     acc.addEventAlgo(STGC_DigitToRDO(name, **kwargs))
     return acc
 
@@ -181,11 +181,11 @@ def MM_DigitToRDOCfg(flags, name="MM_DigitToRDO", **kwargs):
     return acc
 
 
-def MM_OverlayDigitToRDOCfg(flags, name="OverlayMM_DigitToRDO", **kwargs):
+def MM_OverlayDigitToRDOCfg(flags, name="MM_OverlayDigitToRDO", **kwargs):
     """Return ComponentAccumulator with Overlay configured MM_DigitToRDO algorithm"""
     acc = ComponentAccumulator()
-    kwargs.setdefault("InputObjectName", flags.Overlay.OutputStore + "+MM_DIGITS")
-    kwargs.setdefault("OutputObjectName", flags.Overlay.OutputStore + "+MMRDO")
+    kwargs.setdefault("InputObjectName", flags.Overlay.SigPrefix + "MM_DIGITS")
+    kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "MMRDO")
     acc.addEventAlgo(MM_DigitToRDO(name, **kwargs))
     return acc
 

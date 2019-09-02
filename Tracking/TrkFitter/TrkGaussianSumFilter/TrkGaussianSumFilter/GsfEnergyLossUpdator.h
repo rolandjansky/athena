@@ -20,7 +20,7 @@ decription           : Class for describing energy loss effects only.
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
+#include "TrkGaussianSumFilter/IGSFMaterialEffects.h"
 #include "TrkExUtils/MaterialUpdateMode.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -31,7 +31,7 @@ class MaterialProperties;
 
 class GsfEnergyLossUpdator
   : public AthAlgTool
-  , virtual public IMaterialEffectsUpdator
+  , virtual public IGSFMaterialEffects
 {
 
 public:
@@ -48,143 +48,21 @@ public:
   StatusCode finalize() override final;
 
   /** Layer based material effects update - track parameters given by pointer */
-  virtual const TrackParameters* update(const TrackParameters* parameters,
-                                        const Layer& layer,
-                                        PropDirection direction = anyDirection,
-                                        ParticleHypothesis particleHypothesis = nonInteracting,
-                                        MaterialUpdateMode matmode = Trk::addNoise) const override final;
+  virtual std::unique_ptr<TrackParameters> update(const TrackParameters* parameters,
+                                                  const Layer& layer,
+                                                  PropDirection direction = anyDirection,
+                                                  ParticleHypothesis particleHypothesis = nonInteracting,
+                                                  MaterialUpdateMode matmode = Trk::addNoise) const override final;
 
   /** Material properties based effects update - track parameters are given by reference */
-  virtual const TrackParameters* update(const TrackParameters&,
-                                        const MaterialProperties&,
-                                        double,
-                                        PropDirection direction = anyDirection,
-                                        ParticleHypothesis particleHypothesis = nonInteracting,
-                                        MaterialUpdateMode matmode = Trk::addNoise) const override final;
-
-  /** User updator interface (full update for a layer):
-  The parmeters are given as a pointer, they are deleted inside the update method.
-  Update occurs on the place where the parameters parm are according to the specified MaterialEffectsOnTrack
-  */
-  virtual const TrackParameters* update(const TrackParameters* parm,
-                                        const MaterialEffectsOnTrack&,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const override final
-  {
-    (void)particle;
-    (void)matupmode;
-    return parm;
-  }
-
-  /** Pre-Update */
-  virtual const TrackParameters* preUpdate(const TrackParameters*,
-                                           const Layer&,
-                                           PropDirection,
-                                           ParticleHypothesis,
-                                           MaterialUpdateMode) const override final
-  {
-    return nullptr;
-  };
-
-  /** Post-Update */
-  virtual const TrackParameters* postUpdate(const TrackParameters&,
-                                            const Layer&,
-                                            PropDirection,
-                                            ParticleHypothesis,
-                                            MaterialUpdateMode) const override final
-  {
-    return nullptr;
-  };
-
-  virtual void validationAction() const override final{};
-
-  virtual void modelAction(const TrackParameters* parm = 0) const override final
-  {
-    if (parm)
-      return;
-  }
-
-  typedef IMaterialEffectsUpdator::ICache ICache;
-  class Cache : public ICache
-  {};
-
-  virtual std::unique_ptr<ICache> getCache() const override final { return std::make_unique<Cache>(); }
-
-  virtual const TrackParameters* update(ICache& icache,
-                                        const TrackParameters* parm,
-                                        const Layer& sf,
-                                        PropDirection dir = alongMomentum,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const override final
-  {
-
-    (void)icache;
-    return update(parm, sf, dir, particle, matupmode);
-  }
-
-  virtual const TrackParameters* update(ICache& icache,
-                                        const TrackParameters* parm,
-                                        const MaterialEffectsOnTrack& meff,
-                                        Trk::ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const override final
-  {
-
-    (void)icache;
-    return update(parm, meff, particle, matupmode);
-  }
-
-  virtual const TrackParameters* preUpdate(ICache& icache,
-                                           const TrackParameters* parm,
-                                           const Layer& sf,
-                                           PropDirection dir = alongMomentum,
-                                           ParticleHypothesis particle = pion,
-                                           MaterialUpdateMode matupmode = addNoise) const override final
-  {
-
-    (void)icache;
-    return preUpdate(parm, sf, dir, particle, matupmode);
-  }
-
-  virtual const TrackParameters* postUpdate(ICache& icache,
-                                            const TrackParameters& parm,
-                                            const Layer& sf,
-                                            PropDirection dir = alongMomentum,
-                                            ParticleHypothesis particle = pion,
-                                            MaterialUpdateMode matupmode = addNoise) const override final
-  {
-
-    (void)icache;
-    return postUpdate(parm, sf, dir, particle, matupmode);
-  }
-
-  virtual const TrackParameters* update(ICache& icache,
-                                        const TrackParameters& parm,
-                                        const MaterialProperties& mprop,
-                                        double pathcorrection,
-                                        PropDirection dir = alongMomentum,
-                                        ParticleHypothesis particle = pion,
-                                        MaterialUpdateMode matupmode = addNoise) const override final
-  {
-    (void)icache;
-    return update(parm, mprop, pathcorrection, dir, particle, matupmode);
-  }
-
-  /** Validation Action: */
-  virtual void validationAction(ICache& icache) const override final
-  {
-    (void)icache;
-    validationAction();
-  }
-
-  /** Model Action:*/
-  virtual void modelAction(ICache& icache, const TrackParameters* parm = 0) const override final
-  {
-    (void)icache;
-    modelAction(parm);
-  }
+  virtual std::unique_ptr<TrackParameters> update(const TrackParameters&,
+                                                  const MaterialProperties&,
+                                                  double,
+                                                  PropDirection direction = anyDirection,
+                                                  ParticleHypothesis particleHypothesis = nonInteracting,
+                                                  MaterialUpdateMode matmode = Trk::addNoise) const override final;
 
 private:
-  int m_outputlevel; //!< to cache current output level
   ToolHandle<IEnergyLossUpdator> m_EnergyLossUpdator{ this,
                                                       "EnergyLossUpdator",
                                                       "Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",

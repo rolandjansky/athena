@@ -10,7 +10,6 @@
 #include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 
 #include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"

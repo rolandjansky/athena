@@ -37,7 +37,3 @@ atlas_add_component( MuonStationIntersectSvc
 
 atlas_install_python_modules( python/*.py )
 
-#atlas_add_test( MdtIntersectGeometry_test
-#  SCRIPT python -m MuonStationIntersectSvc.MdtIntersectGeometry_test
-#  PROPERTIES TIMEOUT 600
-#  EXTRA_PATTERNS "-s dead tube" )

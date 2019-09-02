@@ -1,4 +1,4 @@
-Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-opt] [CaloCellCorrCondHandles/b375616] -- built on [2019-09-02T1443]
+Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-dbg] [atlas-work3/745482d71eac] -- built on [2019-08-31T2048]
 --- data
 Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
 Py:MetaReader        INFO Current mode used: peeker
@@ -47,7 +47,7 @@ Py:ComponentAccumulator    INFO ]
 Py:LArOFCCondAlgCfg    INFO   Standard OFC optimization computation
 Py:BunchCrossingTool    INFO Selecting MCBunchCrossingTool for this job
 Py:MCBunchCrossingTool    INFO Set the default values for the MCBunchCrossingTool configuration
-Py:ConfigurableDb    INFO Read module info for 5534 configurables from 5 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5536 configurables from 69 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EventInfoMgtInit: Got release version  Athena-22.0.5
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200

@@ -54,7 +54,8 @@ namespace Analysis {
 
     virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
                               const xAOD::Jet& jetToTag,
-                              xAOD::BTagging& BTag) const override;
+                              xAOD::BTagging& BTag,
+                              const std::string &jetName) const override;
 
     /** calculate individual track contribution to the three likelihoods: */
     void trackWeight(std::string jetAuthor, TrackGrade grade, double sa0, double sz0,

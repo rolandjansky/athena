@@ -9,7 +9,7 @@ from MDT_Digitization.MDT_DigitizationConf import (
     MdtDigitizationTool, MDT_Response_DigiTool, RT_Relation_DB_DigiTool, MDT_Digitizer
 )
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
-from MuonByteStreamCnvTest.MuonByteStreamCnvTestConfigNew import MdtDigitToMdtRDOCfg, MdtOverlayDigitToMdtRDOCfg
+from MuonConfig.MuonByteStreamCnvTestConfig import MdtDigitToMdtRDOCfg, MdtOverlayDigitToMdtRDOCfg
 from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
 
 # The earliest and last bunch crossing times for which interactions will be sent
@@ -21,6 +21,7 @@ def MDT_FirstXing():
 def MDT_LastXing():
     # was 800 for large time window
     return 150
+
 
 def MDT_RangeToolCfg(flags, name="MDT_Range", **kwargs):
     """Return a PileUpXingFolder tool configured for MDT"""
@@ -118,3 +119,4 @@ def MDT_DigitizerOverlayDigitToRDOCfg(flags):
     acc.merge(MDTCablingConfigCfg(flags))
     acc.merge(MdtOverlayDigitToMdtRDOCfg(flags))
     return acc
+

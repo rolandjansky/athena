@@ -11,8 +11,8 @@ from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-# MDT imports
-from MDT_Digitization.MDT_DigitizationConfigNew import MDT_DigitizerCfg
+from MuonConfig.MDT_DigitizationConfig import MDT_DigitizerDigitToRDOCfg
+
 # Set up logging and new style config
 log.setLevel(DEBUG)
 Configurable.configurableRun3Behavior = True
@@ -24,7 +24,7 @@ ConfigFlags.lock()
 # Construct our accumulator to run
 acc = MainServicesSerialCfg()
 acc.merge(PoolReadCfg(ConfigFlags))
-acc.merge(MDT_DigitizerCfg(ConfigFlags))
+acc.merge(MDT_DigitizerDigitToRDOCfg(ConfigFlags))
 # Dump config
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True

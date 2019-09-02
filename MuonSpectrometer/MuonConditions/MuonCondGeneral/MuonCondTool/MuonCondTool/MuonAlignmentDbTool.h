@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_MUONALIGNMENTDBTOOL_H
@@ -10,9 +10,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "StoreGate/StoreGateSvc.h"
 class Identifier; 
-class StoreGateSvc; 
 class MdtIdHelper;
 class CscIdHelper;
 class RpcIdHelper;

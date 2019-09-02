@@ -12,7 +12,6 @@
 
 class Identifier;
 class IdentifierHash;
-class StoreGateSvc;
 
 namespace MuonGM {
     class MuonDetectorManager;

@@ -11,11 +11,7 @@ from AthenaConfiguration.TestDefaults import defaultTestFiles
 from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-# RPC imports
-from RPC_Digitization.RPC_DigitizationConfigNew import (
-    RPC_RangeToolCfg, RPC_DigitizationToolCfg, RPC_DigitizerCfg,
-    RPC_OverlayDigitizationToolCfg, RPC_OverlayDigitizerCfg,
-)
+from MuonConfig.RPC_DigitizationConfig import RPC_DigitizerDigitToRDOCfg
 
 # Set up logging and new style config
 log.setLevel(DEBUG)
@@ -28,7 +24,7 @@ ConfigFlags.lock()
 # Construct our accumulator to run
 acc = MainServicesSerialCfg()
 acc.merge(PoolReadCfg(ConfigFlags))
-acc.merge(RPC_DigitizerCfg(ConfigFlags))
+acc.merge(RPC_DigitizerDigitToRDOCfg(ConfigFlags))
 # Dump config
 acc.getService("StoreGateSvc").Dump = True
 acc.getService("ConditionStore").Dump = True

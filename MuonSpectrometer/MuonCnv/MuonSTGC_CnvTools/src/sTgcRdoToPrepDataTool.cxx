@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,8 +10,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/PropertyMgr.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
@@ -65,17 +63,9 @@ StatusCode Muon::sTgcRdoToPrepDataTool::initialize()
   ATH_MSG_DEBUG(" in initialize()");
   
   /// get the detector descriptor manager
-  StoreGateSvc* detStore=0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
-  
-  if (sc.isSuccess()) {
-    sc = detStore->retrieve( m_muonMgr );
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-      return sc;
-    }
-  } else {
-    ATH_MSG_ERROR("DetectorStore not found ");
+  StatusCode sc = detStore()->retrieve( m_muonMgr );
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
     return sc;
   }
   

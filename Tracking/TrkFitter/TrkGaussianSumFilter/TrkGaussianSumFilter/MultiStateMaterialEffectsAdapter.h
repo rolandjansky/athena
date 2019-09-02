@@ -22,13 +22,13 @@ decription           : Converter class for single component material effects to
 
 namespace Trk {
 
-class IMaterialEffectsUpdator;
+class IGSFMaterialEffects ;
 
 namespace MultiStateMaterialEffectsAdapter {
 
 void
 compute(IMultiStateMaterialEffects::Cache&,
-        const ToolHandle<IMaterialEffectsUpdator>&,
+        const ToolHandle<IGSFMaterialEffects>&,
         const ComponentParameters&,
         const MaterialProperties&,
         double,

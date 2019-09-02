@@ -7,7 +7,7 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
 from RPC_Digitization.RPC_DigitizationConf import RpcDigitizationTool, RPC_Digitizer
 from PileUpComps.PileUpCompsConf import PileUpXingFolder
-from MuonByteStreamCnvTest.MuonByteStreamCnvTestConfigNew import RpcDigitToRpcRDOCfg, RpcOverlayDigitToRpcRDOCfg
+from MuonConfig.MuonByteStreamCnvTestConfig import RpcDigitToRpcRDOCfg, RpcOverlayDigitToRpcRDOCfg
 from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
 
 # The earliest and last bunch crossing times for which interactions will be sent

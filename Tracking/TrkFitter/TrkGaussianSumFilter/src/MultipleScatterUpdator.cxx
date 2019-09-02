@@ -25,12 +25,9 @@ Trk::MultipleScatterUpdator::MultipleScatterUpdator(const std::string& type,
                                                     const std::string& name,
                                                     const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_outputlevel(1)
   , m_multipleScatterLogTermOn(true)
 {
-
-  declareInterface<IMaterialEffectsUpdator>(this);
-
+  declareInterface<IGSFMaterialEffects>(this);
   declareProperty("MultipleScatterLogarithmicTermOn", m_multipleScatterLogTermOn);
 }
 
@@ -39,7 +36,6 @@ Trk::MultipleScatterUpdator::~MultipleScatterUpdator() {}
 StatusCode
 Trk::MultipleScatterUpdator::initialize()
 {
-  m_outputlevel = msg().level() - MSG::DEBUG; // save the threshold for debug printout in private member
   ATH_CHECK(m_msUpdator.retrieve());
   ATH_MSG_DEBUG("Initialisation of " << name() << " was successful");
   return StatusCode::SUCCESS;
@@ -52,7 +48,7 @@ Trk::MultipleScatterUpdator::finalize()
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::MultipleScatterUpdator::update(const Trk::TrackParameters* trackParameters,
                                     const Trk::Layer& layer,
                                     Trk::PropDirection direction,
@@ -85,14 +81,14 @@ Trk::MultipleScatterUpdator::update(const Trk::TrackParameters* trackParameters,
 
   if (!materialProperties) {
     ATH_MSG_DEBUG("No material properties associated with layer... returning original parameters");
-    return trackParameters->clone();
+    return std::unique_ptr<Trk::TrackParameters> (trackParameters->clone());
   }
 
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters->covariance();
 
   if (!measuredTrackCov) {
     ATH_MSG_DEBUG("No measured track parameters for multiple scatter... returning original parameters");
-    return trackParameters->clone();
+    return std::unique_ptr<Trk::TrackParameters> (trackParameters->clone());
   }
 
   // Define the path correction
@@ -102,13 +98,11 @@ Trk::MultipleScatterUpdator::update(const Trk::TrackParameters* trackParameters,
 
   double pathLength = pathCorrection * materialProperties->thickness();
 
-  const Trk::TrackParameters* updatedTrackParameters =
-    update(*trackParameters, *materialProperties, pathLength, direction, particleHypothesis);
 
-  return updatedTrackParameters;
+  return   update(*trackParameters, *materialProperties, pathLength, direction, particleHypothesis);
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::MultipleScatterUpdator::update(const Trk::TrackParameters& trackParameters,
                                     const Trk::MaterialProperties& materialProperties,
                                     double pathLength,
@@ -122,8 +116,8 @@ Trk::MultipleScatterUpdator::update(const Trk::TrackParameters& trackParameters,
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters.covariance();
 
   if (!measuredTrackCov) {
-    msg(MSG::DEBUG) << "No measurement associated with track parameters... returning original parameters" << endmsg;
-    return trackParameters.clone();
+    ATH_MSG_DEBUG( "No measurement associated with track parameters... returning original parameters");
+    return std::unique_ptr<Trk::TrackParameters>(trackParameters.clone());
   }
 
   const Amg::Vector3D& globalMomentum = trackParameters.momentum();
@@ -151,6 +145,11 @@ Trk::MultipleScatterUpdator::update(const Trk::TrackParameters& trackParameters,
   (*cov_out)(Trk::theta, Trk::theta) += angularVariation;
   const AmgVector(5)& par = trackParameters.parameters();
   // return trackParameters.cloneToNew( trackParameters.parameters(), measuredTrackCov );
-  return trackParameters.associatedSurface().createTrackParameters(
-    par[Trk::loc1], par[Trk::loc2], par[Trk::phi], par[Trk::theta], par[Trk::qOverP], cov_out);
+  return std::unique_ptr<Trk::TrackParameters> (
+    trackParameters.associatedSurface().createTrackParameters(par[Trk::loc1], 
+                                                              par[Trk::loc2], 
+                                                              par[Trk::phi], 
+                                                              par[Trk::theta], 
+                                                              par[Trk::qOverP], 
+                                                              cov_out));
 }

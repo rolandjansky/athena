@@ -4,7 +4,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeListSpecification.h"

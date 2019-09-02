@@ -30,10 +30,9 @@ Trk::GsfEnergyLossUpdator::GsfEnergyLossUpdator(const std::string& type,
                                                 const std::string& name,
                                                 const IInterface* parent)
   : AthAlgTool(type, name, parent)
-  , m_outputlevel(0)
 {
 
-  declareInterface<IMaterialEffectsUpdator>(this);
+  declareInterface<IGSFMaterialEffects>(this);
 }
 
 Trk::GsfEnergyLossUpdator::~GsfEnergyLossUpdator() {}
@@ -41,29 +40,25 @@ Trk::GsfEnergyLossUpdator::~GsfEnergyLossUpdator() {}
 StatusCode
 Trk::GsfEnergyLossUpdator::initialize()
 {
-
-  m_outputlevel = msg().level() - MSG::DEBUG; // save the threshold for debug printout in private member
-
   if (m_EnergyLossUpdator.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve tool " << m_EnergyLossUpdator
                                              << ". No energy effects will be taken into account.");
     return StatusCode::FAILURE;
-  } else
+  } else{
     ATH_MSG_INFO("Retrieved tool " << m_EnergyLossUpdator);
-
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
+  }
+  ATH_MSG_INFO("Initialisation of " << name() << " was successful");
   return StatusCode::SUCCESS;
 }
 
 StatusCode
 Trk::GsfEnergyLossUpdator::finalize()
 {
-
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
+  ATH_MSG_INFO("Finalisation of " << name() << " was successful" );
   return StatusCode::SUCCESS;
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::GsfEnergyLossUpdator::update(const Trk::TrackParameters* trackParameters,
                                   const Trk::Layer& layer,
                                   Trk::PropDirection direction,
@@ -74,24 +69,22 @@ Trk::GsfEnergyLossUpdator::update(const Trk::TrackParameters* trackParameters,
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
   if (!measuredCov) {
-    if (m_outputlevel <= 0)
-      msg(MSG::DEBUG) << "No measurement on track parameters... returning original track parameters" << endmsg;
-    return trackParameters->clone();
+      ATH_MSG_DEBUG("No measurement on track parameters... returning original track parameters");
+      return std::unique_ptr<Trk::TrackParameters>(trackParameters->clone());
   }
-
   // Request the material properties
   const Trk::MaterialProperties* materialProperties = layer.fullUpdateMaterialProperties(*trackParameters);
 
-  if (!materialProperties)
-    return trackParameters->clone();
-
+  if (!materialProperties){
+    return std::unique_ptr<Trk::TrackParameters>(trackParameters->clone());
+  }
   double pathLength =
     layer.surfaceRepresentation().pathCorrection(trackParameters->position(), trackParameters->momentum()) *
     materialProperties->thickness();
-  return this->update(*trackParameters, *materialProperties, pathLength, direction);
+   return this->update(*trackParameters, *materialProperties, pathLength, direction);
 }
 
-const Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 Trk::GsfEnergyLossUpdator::update(const TrackParameters& trackParameters,
                                   const MaterialProperties& materialProperties,
                                   double pathLength,
@@ -99,15 +92,12 @@ Trk::GsfEnergyLossUpdator::update(const TrackParameters& trackParameters,
                                   ParticleHypothesis particle,
                                   Trk::MaterialUpdateMode) const
 {
-  if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Updating energy loss effects using material properties and path length" << endmsg;
 
   const AmgSymMatrix(5)* measuredCov = trackParameters.covariance();
 
   if (!measuredCov) {
-    if (m_outputlevel <= 0)
-      msg(MSG::DEBUG) << "No measurement on track parameters... returning original track parameters" << endmsg;
-    return trackParameters.clone();
+      ATH_MSG_DEBUG("No measurement on track parameters... returning original track parameters");
+      return std::unique_ptr<Trk::TrackParameters>(trackParameters.clone());
   }
 
   AmgSymMatrix(5)* updatedCovarianceMatrix = new AmgSymMatrix(5)(*measuredCov);
@@ -141,11 +131,12 @@ Trk::GsfEnergyLossUpdator::update(const TrackParameters& trackParameters,
   // Update diagonal and off-diagonal covariance matrix elements
   (*updatedCovarianceMatrix)(Trk::qOverP, Trk::qOverP) += sigmaQoverP * sigmaQoverP;
 
-  return trackParameters.associatedSurface().createTrackParameters(trackStateVector[Trk::locX],
-                                                                   trackStateVector[Trk::locY],
-                                                                   trackStateVector[Trk::phi],
-                                                                   trackStateVector[Trk::theta],
-                                                                   trackStateVector[Trk::qOverP] *
-                                                                     (1. + momentumFractionLost),
-                                                                   updatedCovarianceMatrix);
+  return std::unique_ptr<Trk::TrackParameters> (
+    trackParameters.associatedSurface().createTrackParameters(trackStateVector[Trk::locX],
+                                                              trackStateVector[Trk::locY],
+                                                              trackStateVector[Trk::phi],
+                                                              trackStateVector[Trk::theta],
+                                                              trackStateVector[Trk::qOverP] *
+                                                              (1. + momentumFractionLost),
+                                                              updatedCovarianceMatrix));
 }

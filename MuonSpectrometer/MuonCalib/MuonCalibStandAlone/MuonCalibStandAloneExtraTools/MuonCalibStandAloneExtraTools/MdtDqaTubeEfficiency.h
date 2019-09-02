@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -47,7 +47,6 @@ class TNtuple;
 class TH1F;
 class TH1I;
 
-class StoreGateSvc; 
 class MdtIdHelper;
 
 namespace MuonGM{
