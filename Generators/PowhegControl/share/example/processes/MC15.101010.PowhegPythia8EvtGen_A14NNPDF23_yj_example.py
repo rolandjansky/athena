@@ -4,7 +4,7 @@
 # EVGEN configuration
 #--------------------------------------------------------------
 evgenConfig.description = "POWHEG+Pythia8 direct photon plus jet production with A14 NNPDF2.3 tune."
-evgenConfig.keywords = ["SM", "QCD", "QED", "photon", "jet", "prompt"]
+evgenConfig.keywords = ["SM", "QCD", "QED", "photon"]
 evgenConfig.contact = ["stefan.richter@cern.ch"]
 
 # --------------------------------------------------------------
