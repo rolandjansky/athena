@@ -18,6 +18,9 @@
 # art-output: HLTconfig*.xml
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
+# art-cores: 8
+
+unset ATHENA_NPROC_NUM
 
 export NAME="mc_pp_v7_trigedm_grid"
 export JOB_LOG="athena.log"

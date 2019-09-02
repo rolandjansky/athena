@@ -12,6 +12,9 @@
 # art-output: *.pmon.gz
 # art-output: *perfmon*
 # art-output: *.check*
+# art-cores: 8
+
+unset ATHENA_NPROC_NUM
 
 export NAME="trigAna_q221_RDOtoPhysval_mt1_grid"
 export TEST="TrigAnalysisTest"
