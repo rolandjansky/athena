@@ -111,14 +111,8 @@ StatusCode CscPrdValAlg::initialize() {
 
   StatusCode sc;
 
-  sc = detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Cannot get CscIdHelper" );
-    return sc; 
-  }
-  else {
-    ATH_MSG_DEBUG( " Found the CscIdHelper. " );
-  }
+  ATH_CHECK( m_muonIdHelperTool.retrieve() );
+  ATH_MSG_DEBUG( " Found the MuonIdHelperTool. " );
 
   //Fetch strip fitter
   sc = m_stripFitter.retrieve();
@@ -532,14 +526,14 @@ StatusCode CscPrdValAlg::fillHistograms()  {
 
       // Identify the PRD cluster
       Identifier prawId = praw.identify();
-      int stationName = m_cscIdHelper->stationName(prawId);
-      std::string stationString = m_cscIdHelper->stationNameString(stationName);
+      int stationName = m_muonIdHelperTool->cscIdHelper().stationName(prawId);
+      std::string stationString = m_muonIdHelperTool->cscIdHelper().stationNameString(stationName);
       int chamberType = stationString == "CSS" ? 0 : 1;
-      int stationEta  = m_cscIdHelper->stationEta(prawId);
-      int stationPhi  = m_cscIdHelper->stationPhi(prawId);
-      int wireLayer   = m_cscIdHelper->wireLayer(prawId);
-      int measuresPhi = m_cscIdHelper->measuresPhi(prawId);
-      int stripId     = m_cscIdHelper->strip(prawId);
+      int stationEta  = m_muonIdHelperTool->cscIdHelper().stationEta(prawId);
+      int stationPhi  = m_muonIdHelperTool->cscIdHelper().stationPhi(prawId);
+      int wireLayer   = m_muonIdHelperTool->cscIdHelper().wireLayer(prawId);
+      int measuresPhi = m_muonIdHelperTool->cscIdHelper().measuresPhi(prawId);
+      int stripId     = m_muonIdHelperTool->cscIdHelper().strip(prawId);
 
       int sectorNo  = stationEta * (2 * stationPhi - chamberType);
 
