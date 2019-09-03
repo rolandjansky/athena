@@ -145,7 +145,7 @@ print "job config", len(runArgs.jobConfig)
 
 if len(runArgs.jobConfig) != 1:
     print "runArgs.jobConfig ", runArgs.jobConfig
-    evgenLog.error("You must supply one and only one jobConfig file argument")
+    evgenLog.error("You must supply one and only one jobConfig file argument. It has to start from mc. and end with .py")
     sys.exit(1)
 
 print "Using JOBOPTSEARCHPATH (as seen in skeleton) = '%s'" % (os.environ["JOBOPTSEARCHPATH"])
@@ -168,7 +168,7 @@ print "JO file ",jofiles
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
     print "runArgs.jobConfig wrong ", runArgs.jobConfig
-    evgenLog.error("You must supply one and only one jobOption file in DSID directory")
+    evgenLog.error("You must supply one and only one jobOption file in DSID directory. It has to start with mc. and end with .py")
     sys.exit(1)
 #jofile = dsid + '/' + jofiles[0]
 jofile = jofiles[0]
