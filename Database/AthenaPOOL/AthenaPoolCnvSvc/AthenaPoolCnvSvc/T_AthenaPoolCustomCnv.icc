@@ -67,7 +67,11 @@ StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj
 }
 
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj, const Token* token) {
+StatusCode
+T_AthenaPoolCustomCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj,
+                                                     const Token* token,
+                                                     const std::string& /*key*/)
+{
    if (token != nullptr) {
       this->m_classID = token->classID();
    }
