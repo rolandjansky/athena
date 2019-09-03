@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 #include "MuonDigitContainer/TgcDigitCollection.h"
 #include "MuonSimEvent/TGCSimHit.h"
@@ -36,7 +37,6 @@ TgcDigitMaker::TgcDigitMaker(TgcHitIdHelper*                    hitIdHelper,
 			     const MuonGM::MuonDetectorManager* mdManager,
 			     unsigned int                       runperiod)
 {
-  m_digits                  = 0;
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;
   m_runperiod               = runperiod;
@@ -68,7 +68,9 @@ StatusCode TgcDigitMaker::initialize()
   // initialize the TGC identifier helper
   m_idHelper = m_mdManager->tgcIdHelper();
   
-  readFileOfTimeJitter();
+  if (readFileOfTimeJitter().isFailure()) {
+    return StatusCode::FAILURE;
+  }
 
   // Read share/TGC_Digitization_energyThreshold.dat file and store values in m_energyThreshold. 
   readFileOfEnergyThreshold();
@@ -139,7 +141,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
     elemId.show();
   }
   
-  m_digits = new TgcDigitCollection(elemId, coll_hash);
+  std::unique_ptr<TgcDigitCollection> digits = std::make_unique<TgcDigitCollection>(elemId, coll_hash);
 
   // Direction cosine of incident angle of this track
   Amg::Vector3D direCos = hit->localDireCos();
@@ -251,10 +253,10 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  Identifier newId = m_idHelper -> channelID(stationName,stationEta,stationPhi,
 						     ilyr, isStrip, iwg);
 	  uint16_t bctag = bcTagging(wDigitTime,isStrip);
-	  addDigit(newId,bctag);
+	  addDigit(newId,bctag, digits.get());
 
 	  if(iwg==iWG[0]) {
-	    randomCrossTalk(elemId, ilyr, isStrip, iwg, posInWG[0], wDigitTime, rndmEngine);
+	    randomCrossTalk(elemId, ilyr, isStrip, iwg, posInWG[0], wDigitTime, rndmEngine, digits.get());
 	  }	 
  
 	  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "WireGroup: newid breakdown digitTime x/y/z direcos height_gang bctag: "
@@ -390,7 +392,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	else {
 	  Identifier newId = m_idHelper -> channelID(stationName,stationEta,stationPhi, ilyr, isStrip, istr);
 	  uint16_t bctag = bcTagging(sDigitTime,isStrip);
-	  addDigit(newId, bctag);
+	  addDigit(newId, bctag, digits.get());
 
 	  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip: newid breakdown digitTime x/y/z direcos r_center bctag: "
 						   << newId << " " << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr << "/"
@@ -401,7 +403,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						   << bctag << endmsg;
 
 	  if(istr==iStr[0]) {
-	    randomCrossTalk(elemId, ilyr, isStrip, iStr[0], posInStr[0], sDigitTime, rndmEngine);
+	    randomCrossTalk(elemId, ilyr, isStrip, iStr[0], posInStr[0], sDigitTime, rndmEngine, digits.get());
 	  }
 	}
       }
@@ -411,7 +413,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
     }
   } // end of strip number calculation
   
-  return m_digits;
+  return digits.release();
 }
 
 MsgStream& TgcDigitMaker::msg(const MSG::Level lvl) const { return m_msg << lvl ; }
@@ -419,7 +421,7 @@ bool TgcDigitMaker::msgLevel(const MSG::Level lvl) const { return m_msg.get().le
 void TgcDigitMaker::setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); return; }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-void TgcDigitMaker::readFileOfTimeJitter()
+StatusCode TgcDigitMaker::readFileOfTimeJitter()
 {
 
   const char* const fileName = "TGC_Digitization_timejitter.dat";
@@ -431,12 +433,12 @@ void TgcDigitMaker::readFileOfTimeJitter()
   }
   else {
     msg(MSG::FATAL) << "readFileOfTimeJitter(): Could not find file " << fileName << endmsg;
-    exit(-1);
+    return StatusCode::FAILURE;
   }
 
   if(ifs.bad()){
     msg(MSG::FATAL) << "readFileOfTimeJitter(): Could not open file "<< fileName << endmsg;
-    exit(-1);
+    return StatusCode::FAILURE;
   }
 
   int angle = 0;
@@ -460,6 +462,7 @@ void TgcDigitMaker::readFileOfTimeJitter()
     i++;
   }
   ifs.close();
+  return StatusCode::SUCCESS;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
 float TgcDigitMaker::timeJitter(const Amg::Vector3D direCosLocal, CLHEP::HepRandomEngine* rndmEngine) const 
@@ -534,44 +537,44 @@ uint16_t TgcDigitMaker::bcTagging(const double digitTime, const int isStrip) con
   return bctag;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void TgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag) {
-  if((bctag & 0x1) != 0) {
-    bool duplicate = false; 
-    for(TgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
-      if(id==(*it)->identify() && TgcDigit::BC_PREVIOUS==(*it)->bcTag()) {
-	duplicate = true;
-	break; 
-      }
-    }
-    if(!duplicate) { 
-      TgcDigit* multihitDigit = new TgcDigit(id,TgcDigit::BC_PREVIOUS);
-      m_digits -> push_back(multihitDigit);
-    }
-  }
-  if((bctag & 0x2) != 0) {
+void TgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, TgcDigitCollection* digits) const {
+  if ((bctag & 0x1) != 0) {
     bool duplicate = false;
-    for(TgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) { 
-      if(id==(*it)->identify() && TgcDigit::BC_CURRENT==(*it)->bcTag()) {
+    for (const auto& digit : *digits) {
+      if (id==digit->identify() && TgcDigit::BC_PREVIOUS==digit->bcTag()) {
         duplicate = true;
         break;
       }
     }
-    if(!duplicate) {
-      TgcDigit* multihitDigit = new TgcDigit(id,TgcDigit::BC_CURRENT);
-      m_digits -> push_back(multihitDigit);
+    if (!duplicate) {
+      std::unique_ptr<TgcDigit> multihitDigit = std::make_unique<TgcDigit>(id,TgcDigit::BC_PREVIOUS);
+      digits -> push_back(multihitDigit.release());
     }
   }
-  if((bctag & 0x4) != 0) {
+  if ((bctag & 0x2) != 0) {
     bool duplicate = false;
-    for(TgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) { 
-      if(id==(*it)->identify() && TgcDigit::BC_NEXT==(*it)->bcTag()) {
+    for (const auto& digit : *digits) {
+      if (id==digit->identify() && TgcDigit::BC_CURRENT==digit->bcTag()) {
         duplicate = true;
         break;
       }
     }
-    if(!duplicate) {
-      TgcDigit* multihitDigit = new TgcDigit(id,TgcDigit::BC_NEXT);
-      m_digits -> push_back(multihitDigit);
+    if (!duplicate) {
+      std::unique_ptr<TgcDigit> multihitDigit = std::make_unique<TgcDigit>(id,TgcDigit::BC_CURRENT);
+      digits -> push_back(multihitDigit.release());
+    }
+  }
+  if ((bctag & 0x4) != 0) {
+    bool duplicate = false;
+    for (const auto& digit : *digits) {
+      if (id==digit->identify() && TgcDigit::BC_NEXT==digit->bcTag()) {
+        duplicate = true;
+        break;
+      }
+    }
+    if (!duplicate) {
+      std::unique_ptr<TgcDigit> multihitDigit = std::make_unique<TgcDigit>(id,TgcDigit::BC_NEXT);
+      digits -> push_back(multihitDigit.release());
     }
   }
   return;
@@ -1000,7 +1003,8 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
                                     const int channel,
                                     const float posInChan,
                                     const double digitTime,
-                                    CLHEP::HepRandomEngine* rndmEngine) 
+                                    CLHEP::HepRandomEngine* rndmEngine,
+                                    TgcDigitCollection* digits) const
 {
   int stationName = m_idHelper->stationName(elemId) - OFFSET_STATIONNAME;
   int stationEta  = m_idHelper->stationEta(elemId)  - OFFSET_STATIONETA;
@@ -1059,7 +1063,7 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
     if(jChan == channel || jChan < 1 || jChan > maxChannelNumber) continue;
 
     Identifier newId = m_idHelper->channelID(elemId, gasGap, isStrip, jChan);
-    addDigit(newId, bctag); // TgcDigit can be duplicated. 
+    addDigit(newId, bctag, digits); // TgcDigit can be duplicated. 
   }
 }
 
