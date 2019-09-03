@@ -2136,30 +2136,49 @@ class TopoAlgoDef:
             alg.addvariable('MinET2', 4)
             
             tm.registerAlgo(alg)
-            
+
+
+        #CEP algorithms    
         if usev8:
-          for x in [50,60]:
-            toponame = "CEP-CJ%is6" % x 
-            log.info("Define %s" % toponame)
-            
+            CEPmap = [{"algoname": 'CEP_CJ', "minETlist": [50, 60]}]
+
+        else:    
+            CEPmap = []
+
+        for x in CEPmap:    
+
+            for k in x:
+                exec("%s = x[k]" % k)
+
             inputList = ['CJs']
+            toponames=[]            
+
+            for minET in minETlist:  # noqa: F821
+                toponames.append ("CEP-CJ%is6" % (minET))     # noqa: F821 
             
-            alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
-            alg.addvariable('MinET1', x)
-            alg.addvariable('MinXi', 13000.0*0.02)
-            alg.addvariable('MaxXi', 13000.0*0.05)
+            alg = AlgConf.ExclusiveJets( name = algoname, inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1 # noqa: F821
+            alg.addgeneric('InputWidth', HW.InputWidthJET) # noqa: F821
+            alg.addgeneric('MaxTob', HW.InputWidthJET)       # noqa: F821
+            alg.addgeneric('NumResultBits',  len(toponames)) # noqa: F821
+            alg.addvariable('MinXi', 13000.0*0.02) # noqa: F821
+            alg.addvariable('MaxXi', 13000.0*0.05) # noqa: F821
+            for bitid,minET in enumerate(minETlist):  # noqa: F821
+                alg.addvariable('MinET1', minET, bitid)# noqa: F821
             tm.registerAlgo(alg)
 
         if usev8:            
-          x = 50
-          toponame = "CEP-CJ%is6ETA21" % x 
-          log.info("Define %s" % toponame)
+            x = 50
+            toponame = "CEP-CJ%is6ETA21" % x 
+            log.info("Define %s" % toponame)
             
-          inputList = ['CJsETA21']
+            inputList = ['CJsETA21']
             
-          alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
-          alg.addvariable('MinET1', x)
-          alg.addvariable('MinXi', 13000.0*0.02)
-          alg.addvariable('MaxXi', 13000.0*0.05)
-          tm.registerAlgo(alg)
+            alg = AlgConf.ExclusiveJets( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1 # noqa: F821
+            alg.addgeneric('InputWidth', HW.InputWidthJET) # noqa: F821
+            alg.addgeneric('MaxTob', HW.InputWidthJET)       # noqa: F821
+            alg.addgeneric('NumResultBits', 1) # noqa: F821
+            alg.addvariable('MinET1', x) # noqa: F821
+            alg.addvariable('MinXi', 13000.0*0.02) # noqa: F821
+            alg.addvariable('MaxXi', 13000.0*0.05) # noqa: F821
+            tm.registerAlgo(alg)
         
