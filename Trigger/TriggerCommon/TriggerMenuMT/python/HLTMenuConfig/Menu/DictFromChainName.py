@@ -72,21 +72,21 @@ def getUniqueThresholdsFromItem(item):
 
 class DictFromChainName(object):
 
-    def getChainDict(self,chainInfo):
+    def getChainDict(self, chainInfo):
         logDict.debug("chainInfo %s", chainInfo)
 
         # ---- Loop over all chains (keys) in dictionary ----
         # ---- Then complete the dict with other info    ----
         # Default input format will be namedtuple:
-        # ChainProp: ['name', 'L1chainParts'=[], 'stream', 'groups',
+        # ChainProp: ['name', 'L1Thresholds'=[], 'stream', 'groups',
         # 'merging'=[], 'topoStartFrom'=False],
 
         # these if/elif/else statements are due to temporary development
         from TrigConfHLTData.HLTUtils import string2hash
         if type(chainInfo) == str:
             chainName       = chainInfo
+            l1Thresholds    = []
             chainNameHash   = string2hash(chainInfo)
-            L1chainParts    = []
             stream          = ''
             groups          = []
             mergingStrategy = 'parallel'
@@ -96,8 +96,8 @@ class DictFromChainName(object):
 
         elif 'ChainProp' in str(type(chainInfo)):
             chainName       = chainInfo.name
+            l1Thresholds    = chainInfo.l1SeedThresholds
             chainNameHash   = string2hash(chainInfo.name)
-            L1chainParts    = chainInfo.l1SeedThresholds
             stream          = chainInfo.stream
             groups          = chainInfo.groups
             mergingStrategy = chainInfo.mergingStrategy
@@ -110,8 +110,9 @@ class DictFromChainName(object):
 
         L1item = getL1item(chainName)
 
+
         logDict.debug("Analysing chain with name: %s", chainName)
-        chainDict = self.analyseShortName(chainName,  L1chainParts, L1item)
+        chainDict = self.analyseShortName(chainName,  l1Thresholds, L1item)
         logDict.debug('ChainProperties: %s', chainDict)
 
         # setting the L1 item
@@ -374,11 +375,12 @@ class DictFromChainName(object):
         for chainindex, chainparts in enumerate(multichainparts):
 
             chainProperties = {} #will contain properties for one part of chain if multiple parts
-
             if len(L1thresholds) != 0:
                 chainProperties['L1threshold'] = L1thresholds[chainindex]
             else:
-                chainProperties['L1threshold'] = getAllThresholdsFromItem ( L1item )[chainindex]  #replced getUniqueThresholdsFromItem
+                __th = getAllThresholdsFromItem ( L1item )
+                assert chainindex < len(__th), "In defintion of the chain {} there is not enough thresholds to be used, index: {} >= number of thresholds, thresholds are: {}".format(chainName, chainindex, __th )
+                chainProperties['L1threshold'] = __th[chainindex]  #replced getUniqueThresholdsFromItem
 
 
             chainpartsNoL1 = chainparts

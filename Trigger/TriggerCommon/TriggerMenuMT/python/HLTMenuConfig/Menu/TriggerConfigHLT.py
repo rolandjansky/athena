@@ -59,11 +59,11 @@ class TriggerConfigHLT(object):
 
         log.info("Writing of config files needs to be implemented")
 
-__chainsDict = {}
+#__chainsDict = {}
 def getChainDictFromChainName(chainName, allChainDicts = None):
-    if __chainsDict == {}:
-        __chainsDict.update( [ (c['chainName'], c) for c in allChainDicts ] )
-    return __chainsDict[chainName]
+    found = [ c for c in TriggerConfigHLT.currentTriggerConfig().allChainDicts if c['chainName'] == chainName ]
+    assert len(found) == 1, "Problem finding a unique dict for the chain {}, found that many: {} ".format(chainName, len(found))
+    return found[0]
 
 ##############################
 # this function was supposed to be part of the class but doesn't work for now

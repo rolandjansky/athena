@@ -52,6 +52,8 @@ def __generateJSON( chainDicts, chainConfigs, menuName ):
                       "streams": streamDicts,
                       # "sequences": sequences 
                     }
+
+
         menuDict["chains"].append( chainDict )
 
     from AthenaCommon.AppMgr import release_metadata
