@@ -2,7 +2,7 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.CFElements import parOR, seqAND
+from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigT2CaloCommon.CaloDef import HLTLCTopoRecoSequence
 from TrigEDMConfig.TriggerEDMRun3 import recordable
@@ -86,3 +86,119 @@ def tauCaloMVASequence(ConfigFlags):
 
     tauCaloMVASequence = seqAND("tauCaloMVASequence", [tauCaloMVAViewsMaker, tauCaloMVAInViewSequence ])
     return (tauCaloMVASequence, tauCaloMVAViewsMaker, sequenceOut)
+
+def tauFTFCoreSequence( RoIs, name ):
+    import AthenaCommon.CfgMgr as CfgMgr
+
+    tauFTFCoreSequence = parOR(name)
+
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauCore',separateTrackParticleCreator="_TauCore")
+
+    for viewAlg in viewAlgs:
+       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+         TrackCollection = viewAlg.TrackName
+
+    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifierCoreFTF")
+    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]
+    viewAlgs.append(ViewVerify)
+
+    tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
+
+    viewAlgs.append(tauTrackRoiUpdaterAlg)
+
+    global TrackParticlesName
+    global theFTF_name
+
+    for viewAlg in viewAlgs:
+       tauFTFCoreSequence += viewAlg
+       #print viewAlg.name()
+       if "RoIs" in viewAlg.properties():
+         viewAlg.RoIs = RoIs
+       if "roiCollectionName" in viewAlg.properties():
+         viewAlg.roiCollectionName = RoIs
+       if "TrackRoiUpdater" in viewAlg.name():
+         viewAlg.RoIInputKey = RoIs
+       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+         TrackParticlesName = viewAlg.TrackParticlesName
+       if "TrigFastTrackFinder" in  viewAlg.name():
+         theFTF_name = viewAlg.getName()
+
+    sequenceOut = TrackParticlesName
+
+    return tauFTFCoreSequence, sequenceOut
+
+def tauFTFIsoSequence( RoIs , name):
+    import AthenaCommon.CfgMgr as CfgMgr
+
+    tauFTFIsoSequence = parOR("FTFIsoViewNode")
+
+    from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
+    (viewAlgs, eventAlgs) = makeInDetAlgs(whichSignature='TauIso',separateTrackParticleCreator="_TauIso")
+
+    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifierCoreFTF")
+    ViewVerify.DataObjects = [('xAOD::TauJetContainer','StoreGateSvc+HLT_TrigTauRecMerged')]
+    viewAlgs.append(ViewVerify)
+
+    global TrackParticlesNameIso
+    global theFTFIso_name
+
+    for viewAlg in viewAlgs:
+       tauFTFIsoSequence += viewAlg
+       #print viewAlg.name()
+       if "RoIs" in viewAlg.properties():
+         viewAlg.RoIs = RoIs
+       if "roiCollectionName" in viewAlg.properties():
+         viewAlg.roiCollectionName = RoIs
+       if "TrackRoiUpdater" in viewAlg.name():
+         viewAlg.RoIInputKey = RoIs
+       if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
+         TrackParticlesNameIso = viewAlg.TrackParticlesName
+       if "TrigFastTrackFinder" in  viewAlg.name():
+         theFTFIso_name = viewAlg.getName()
+
+    sequenceOut = TrackParticlesNameIso
+
+    return (tauFTFIsoSequence, sequenceOut)
+
+def tauFTFSequence(ConfigFlags):
+
+    RecoSequenceName = "tauFTFCoreInViewSequence"
+
+    ftfCoreViewsMaker                   = EventViewCreatorAlgorithm("IMFTFCore")
+    ftfCoreViewsMaker.RoIsLink          = "roi" # -||-
+    ftfCoreViewsMaker.InViewRoIs        = "FTFCoreViewRoIs" # contract with the fastCalo
+    ftfCoreViewsMaker.Views             = "TAUFTFCoreViews"
+    ftfCoreViewsMaker.ViewFallThrough   = True
+    ftfCoreViewsMaker.RequireParentView = True
+    ftfCoreViewsMaker.ViewNodeName      = RecoSequenceName
+
+    #tauFTFCoreRecoSequence, sequenceOutCore = tauFTFCoreSequence( ftfCoreViewsMaker.InViewRoIs, "RoIs")
+
+    (tauFTFCoreInViewSequence, sequenceOut) = tauFTFCoreSequence( ftfCoreViewsMaker.InViewRoIs, RecoSequenceName)
+
+    tauFastTrackCoreSequence = seqAND("tauFastTrackCoreSequence", [ftfCoreViewsMaker, tauFTFCoreInViewSequence ])
+    return (tauFastTrackCoreSequence, ftfCoreViewsMaker, sequenceOut)
+
+
+
+####    ftfIsoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFIso")
+####    ftfIsoViewsMaker.RoIsLink          = "roi" # -||-
+####    ftfIsoViewsMaker.InViewRoIs        = "FTFIsoViewRoIs" # contract with the fastCalo
+####    ftfIsoViewsMaker.Views             = "TAUFTFIsoViews"
+####    ftfIsoViewsMaker.ViewFallThrough   = True
+####    ftfIsoViewsMaker.RequireParentView = True
+####
+####    tauFTFIsoRecoSequence  = tauFTFIsoSequence( ftfIsoViewsMaker.InViewRoIs, "RoIs")
+####
+####    tauTrackRecoSequence, sequenceOutIso = seqOR("tauTrackRecoSequence", [tauFTFIsoRecoSequence, tauFTFCoreRecoSequence])
+####
+####    tauSequence = seqAND("tauTrackRecoSequence", [ftfIsoViewsMaker, tauTrackRecoSequence])
+####
+####    return (tauSequence, ftfIsoViewsMaker, sequenceOutIso)
+####
+####    (tauCaloInViewSequence, sequenceOut) = tauCaloRecoSequence( InViewRoIs, RecoSequenceName)
+####
+####    tauCaloSequence = seqAND("tauCaloSequence", [tauCaloViewsMaker, tauCaloInViewSequence ])
+####    return (tauCaloSequence, tauCaloViewsMaker, sequenceOut)    """
+####

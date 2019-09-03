@@ -10,7 +10,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFr
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence
+from TriggerMenuMT.HLTMenuConfig.Tau.TauRecoSequences import tauCaloSequence, tauCaloMVASequence, tauFTFSequence
 
 # ====================================================================================================  
 #    Get MenuSequences
@@ -194,5 +194,25 @@ def tauPrecisionSequence():
 
     return  MenuSequence( Sequence    = tauPrecisionAthSequence,
                           Maker       = precisionViewsMaker,
+                          Hypo        = precisionHypo,
+                          HypoToolGen = TrigEFTauMVHypoToolFromDict )
+
+
+# ===============================================================================================
+#      Fast, precision tracking and ID step (altogether) / Precision tracking not included yet
+# ===============================================================================================
+
+def tauTwoStepTrackSequence():
+
+    (sequence, ftfCoreViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(tauFTFSequence,ConfigFlags)    
+
+    from TrigTauHypo.TrigTauHypoConf import  TrigEFTauMVHypoAlgMT
+    precisionHypo = TrigEFTauMVHypoAlgMT("EFTauMVHypoAlg2")
+    precisionHypo.taujetcontainer = "HLT_TrigTauRecMerged_MVA"
+
+    from TrigTauHypo.TrigEFTauMVHypoTool import TrigEFTauMVHypoToolFromDict
+
+    return  MenuSequence( Sequence    = sequence,
+                          Maker       = ftfCoreViewsMaker,
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
