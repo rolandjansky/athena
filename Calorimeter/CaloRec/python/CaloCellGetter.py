@@ -665,7 +665,7 @@ class CaloCellGetter (Configured)  :
                 theCCERescalerTool.Folder = "/LAR/CellCorrOfl/EnergyCorr"
                 from IOVDbSvc.CondDB import conddb
                 # conddb.addFolder("","/LAR/CellCorrOfl/EnergyCorr<tag>EnergyScale-00</tag><db>sqlite://;schema=escale.db;dbname=COMP200</db>")
-                conddb.addFolder("LAR_OFL", "/LAR/CellCorrOfl/EnergyCorr")
+                conddb.addFolder("LAR_OFL", "/LAR/CellCorrOfl/EnergyCorr",className="AthenaAttributeList")
                 theCaloCellMaker += theCCERescalerTool
                 theCaloCellMaker.CaloCellMakerToolNames += [theCCERescalerTool]
             except Exception:
@@ -677,18 +677,13 @@ class CaloCellGetter (Configured)  :
 
         if jobproperties.CaloCellFlags.doCaloCellTimeCorr() and globalflags.DataSource() == 'data' and not athenaCommonFlags.isOnline():
             try:
-                from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
                 from CaloCellCorrection.CaloCellCorrectionConf import CaloCellTimeCorrTool
                 theLArTimeCorr = CaloCellTimeCorrTool()
                 theLArTimeCorr.Folder = "/LAR/TimeCorrectionOfl/CellTimeOffset"
                 from IOVDbSvc.CondDB import conddb
                 # conddb.addFolder("","/LAR/TimeCorrectionOfl/CellTimeOffset<tag>LARTimeCorrectionOflCellTimeOffset-empty</tag><db>sqlite://;schema=timecorr.db;dbname=COMP200</db>")
-                conddb.addFolder("LAR_OFL", "/LAR/TimeCorrectionOfl/CellTimeOffset")
-                theCaloTimeCorrTool = CaloCellContainerCorrectorTool("LArTimeCorrTool",
-                                                                   CellCorrectionToolNames=[theLArTimeCorr]
-                                                                   )
-                theCaloCellMaker += theCaloTimeCorrTool
-                theCaloCellMaker.CaloCellMakerToolNames += [theCaloTimeCorrTool]
+                conddb.addFolder("LAR_OFL", "/LAR/TimeCorrectionOfl/CellTimeOffset",className="AthenaAttributeList")
+                theCaloCellMaker.CaloCellMakerToolNames += [theLArTimeCorr]
                 
             except Exception:
                 mlog.error("could not get handle to CaloCellTimeCorrTool Quit")

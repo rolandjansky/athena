@@ -3,63 +3,51 @@
 */
 
 #include "CaloCellTimeCorrTool.h" 
-#include "CaloEvent/CaloCell.h"
+#include "CaloEvent/CaloCellContainer.h"
 #include "CaloCondBlobObjs/CaloCondBlobFlt.h"
 
 
 CaloCellTimeCorrTool::CaloCellTimeCorrTool (const std::string& type, 
 						const std::string& name, 
 						const IInterface* parent) :
-  CaloCellCorrection(type, name, parent),
-  m_corrValues(0) { 
-  declareInterface<CaloCellCorrection>(this); 
-  declareProperty("Folder",m_key="/CALO/Ofl/CellTimeCorr",
-		  "Key (=foldername) of AttrListCollection");
-}
-                        
+  base_class (type, name, parent) {}
 
 CaloCellTimeCorrTool::~CaloCellTimeCorrTool() {}
 
 
 StatusCode CaloCellTimeCorrTool::initialize() {
-  ATH_CHECK( detStore()->regFcn(&CaloCellTimeCorrTool::load,
-                                dynamic_cast<CaloCellTimeCorrTool*>(this),
-                                m_attrList,m_key) );
+  ATH_CHECK(m_timeShiftFldr.initialize());
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode CaloCellTimeCorrTool::load(IOVSVC_CALLBACK_ARGS) {
 
-  ATH_MSG_INFO("in IOV callback function");
-  if (m_corrValues) {
-    ATH_MSG_INFO("Delete previously loaded correction values");
-    delete m_corrValues;
-    m_corrValues=0;
-  }
+StatusCode CaloCellTimeCorrTool::process (CaloCellContainer* theCaloCellContainer,
+					  const EventContext& ctx) const {
+  
+  SG::ReadCondHandle<AthenaAttributeList> timeShiftHdl(m_timeShiftFldr,ctx);
 
 
-  const coral::Blob& blob = (*m_attrList)["CaloCondBlob16M"].data<coral::Blob>();
+  //Possible optimization: If the following lines turn out to be slow to be executed on every event, 
+  //put them into a conditions algo
+  const coral::Blob& blob = (**timeShiftHdl)["CaloCondBlob16M"].data<coral::Blob>();
   if (blob.size()<3) {
-    ATH_MSG_INFO("Found empty blob, no corretion needed :-)");
+    ATH_MSG_DEBUG("Found empty blob, no corretion needed");
+    return StatusCode::SUCCESS;
   }
-  else {
-    m_corrValues=CaloCondBlobFlt::getInstance(blob);
-    ATH_MSG_INFO("Database folder has vaues for " << m_corrValues->getNChans() << " channels and " << m_corrValues->getNGains() << " gains.");
-  }
-  return StatusCode::SUCCESS;
-}
 
-
-void CaloCellTimeCorrTool::MakeCorrection (CaloCell* theCell,
-                                           const EventContext& /*ctx*/) const
-{
-  if (m_corrValues) {
+  std::unique_ptr<const CaloCondBlobFlt> corrValues(CaloCondBlobFlt::getInstance(blob));
+  ATH_MSG_DEBUG("Database folder has values for " << corrValues->getNChans() << " channels and " << corrValues->getNGains() << " gains.");
+  
+  CaloCellContainer::iterator it=theCaloCellContainer->begin();
+  CaloCellContainer::iterator it_e=theCaloCellContainer->end();
+  for(;it!=it_e;++it) {
+    CaloCell* theCell=(*it);
     const IdentifierHash& hash_id=theCell->caloDDE()->calo_hash();
-    if (hash_id<m_corrValues->getNChans()) {
-      const float& shift= m_corrValues->getData(hash_id,0,0);
+    if (hash_id<corrValues->getNChans()) {
+      const float& shift= corrValues->getData(hash_id,0,0);
       theCell->setTime(theCell->time()+shift);
-    }
-  }
-  return;
+    }//end if hash_id<NChans
+  }//end loop over cells
+  return StatusCode::SUCCESS;
 }
