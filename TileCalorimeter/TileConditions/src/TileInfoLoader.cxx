@@ -24,7 +24,6 @@
 #include "TileConditions/TileCablingSvc.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
-#include "TileConditions/TileOptFilterWeights.h"
 
 // Calo includes
 #include "CaloIdentifier/TileID.h"
@@ -57,7 +56,6 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   : AthService(name, pSvcLocator)
   , m_detStore("DetectorStore", name)
   , m_pulsevar(new TilePulseShapes())
-  , m_OFWeights(new TileOptFilterWeights())
 {
 
   //==========================================================
@@ -190,26 +188,12 @@ TileInfoLoader::TileInfoLoader(const std::string& name,
   //==========================================================
   declareProperty("filename_DecoCovaFilePrefix" ,m_DecoCovaFilePrefix  = "DecoCovaMatrix");
 
-  //==========================================================
-  //=== TileOptFilterWeights configuration
-  //==========================================================
-  declareProperty("LoadOptFilterWeights"       ,m_loadOptFilterWeights          = false);
-  declareProperty("OFPhysicsNSamples"          ,m_OFWeights->m_NSamples_Phys    = 7);
-  declareProperty("filenameNoiseCISSuffix"     ,m_OFWeights->m_noiseCISSuffix     = "510082_CIS");
-  declareProperty("filenameNoisePhysicsSuffix" ,m_OFWeights->m_noisePhysicsSuffix = "520020_Phys");
-  declareProperty("filenameDeltaCISSuffix"     ,m_OFWeights->m_deltaCISSuffix     = "of2_Delta_CIS_7Samples");
-  declareProperty("filenameDeltaPhysicsSuffix" ,m_OFWeights->m_deltaPhysicsSuffix = "of2_Delta_Phys_7Samples");
-  declareProperty("LoadOptFilterCorrelation"   ,m_loadOptFilterCorrelation      = false);
-  declareProperty("filenameNoiseCorrSuffix"    ,m_OFWeights->m_noiseCorrSuffix    = "520020_Phys");
-  declareProperty("filenameDeltaCorrSuffix"    ,m_OFWeights->m_deltaCorrSuffix    = "Delta_Phys_9Samples");
-  declareProperty("DeltaConf"                  ,m_OFWeights->m_DeltaConf        = true);
 }
 
 //*****************************************************************************
 TileInfoLoader::~TileInfoLoader() {
 //*****************************************************************************
   delete m_pulsevar;
-  delete m_OFWeights;
 }
 
 //*****************************************************************************
@@ -258,8 +242,6 @@ StatusCode TileInfoLoader::initialize() {
   std::copy (std::begin(m_nPhElecVec), std::end(m_nPhElecVec), std::begin(info->m_nPhElecVec));
 
   
-  m_OFWeights->m_NSamples_Phys = info->m_nSamples; // to make sure that everything is consistent
-
   //=== Find the detector store service.
   CHECK( m_detStore.retrieve() );
 
@@ -394,10 +376,6 @@ StatusCode TileInfoLoader::initialize() {
   // put pointer to new TilePulseShapes in TileInfo
   // only if we want to use them (i.e. when we also read all calib files)
   info->m_pulseShapes = m_pulsevar;
-
-  // point to OptFilterWeights or Correlation
-  if (m_loadOptFilterWeights) info->m_OptFilterWeights=m_OFWeights;
-  if (m_loadOptFilterCorrelation) info->m_OptFilterCorrelation= m_OFWeights;
 
   //=== Initialize and register TileInfo object
   CHECK( info->initialize() );
