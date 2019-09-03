@@ -58,6 +58,7 @@ if DOWRITE:
         "el_eta",
         "el_jetcone_dr",
         ]
+    out.ForceRead = True
     if DOWRITE>1:
         # another output stream... with the same content.
         out = arcw.createNtupleOutputStream("StreamD3PD_2",
@@ -68,6 +69,7 @@ if DOWRITE:
             "el_eta",
             "el_jetcone_dr",
             ]
+        out.ForceRead = True
         
     pass
 
