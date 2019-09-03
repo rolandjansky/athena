@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -10,7 +10,6 @@
 #include "LUCID_HitHelper.h"
 
 // Athena headers
-#include "CxxUtils/make_unique.h" // For make unique
 #include "LUCID_GeoModel/LUCID_Constants.h"
 
 // Geant4 headers
@@ -35,7 +34,7 @@ LUCID_SensitiveDetector::LUCID_SensitiveDetector(const std::string& name, const 
 // Initialize from G4 - necessary to new the write handle for now
 void LUCID_SensitiveDetector::Initialize(G4HCofThisEvent *)
 {
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<LUCID_SimHitCollection>(m_HitColl.name());
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<LUCID_SimHitCollection>(m_HitColl.name());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
