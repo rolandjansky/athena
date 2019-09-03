@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAPOOLCNVSVC_T_ATHENAPOOLCNVBASE_H
@@ -45,7 +45,9 @@ protected:
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
    /// @param token [IN] POOL token of the persistent representation.
-   virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token);
+   /// @param key [IN] SG key of the object being read.
+   virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token,
+                                       const std::string& key);
 
    /// Set POOL placement.
    virtual void setPlacement(const std::string& key = "");
