@@ -60,8 +60,8 @@ PadTriggerLogicOfflineTool::PadTriggerLogicOfflineTool( const std::string& type,
                                                         const std::string& name,
                                                         const IInterface* parent) :
     AthAlgTool(type,name,parent),
-    m_EtaBandsLargeSector(BandsInEtaLargeSector),
-    m_EtaBandsSmallSector(BandsInEtaSmallSector),
+    m_etaBandsLargeSector(BandsInEtaLargeSector),
+    m_etaBandsSmallSector(BandsInEtaSmallSector),
     m_incidentSvc("IncidentSvc",name),
     m_detManager(0),
     m_pad_cache_runNumber(-1),
@@ -284,16 +284,16 @@ int PadTriggerLogicOfflineTool::ROI2BandId(const float &EtaTrigAtCenter, const i
 
     switch(SectorType){
         case(1)://L
- 	        for(unsigned int i=0;i<m_EtaBandsLargeSector.size();i++){
-	    	    if(EtaTrigAtCenter < m_EtaBandsLargeSector.at(i) && EtaTrigAtCenter > m_EtaBandsLargeSector.at(i+1) ){
+ 	        for(unsigned int i=0;i<m_etaBandsLargeSector.size();i++){
+	    	    if(EtaTrigAtCenter < m_etaBandsLargeSector.at(i) && EtaTrigAtCenter > m_etaBandsLargeSector.at(i+1) ){
                     return i;
                 }
             }           
             break;
 
         case(0)://S
-	        for(unsigned int i=0;i<m_EtaBandsSmallSector.size();i++){
-		        if(EtaTrigAtCenter < m_EtaBandsSmallSector.at(i) && EtaTrigAtCenter > m_EtaBandsSmallSector.at(i+1) ){
+	        for(unsigned int i=0;i<m_etaBandsSmallSector.size();i++){
+		        if(EtaTrigAtCenter < m_etaBandsSmallSector.at(i) && EtaTrigAtCenter > m_etaBandsSmallSector.at(i+1) ){
                     return i;
                 } 
 		    }
@@ -351,7 +351,6 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
 
     pt.m_multiplet_id = pad0->multipletId();
     pt.m_eta_id = innertrg.halfPadCoordinates().ieta;//this is meaningless and shoiuld be removed
-    //pt.m_phi_id = innertrg.halfPadCoordinates().iphi;//This is the PHI-ID of the trigger (now remmoved)
     pt.m_isSmall= int(innertrg.isSmallSector());
 
     //************** assign extrema of the trigger region coordinates in eta-phi  and some other variables for offline analysis **************
@@ -371,13 +370,13 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
     float trgEtaMax=0;
 
     if(pt.m_isSmall){
-        trgEtaMin=m_EtaBandsSmallSector.at(matchedBandId+1);
-        trgEtaMax=m_EtaBandsSmallSector.at(matchedBandId);
+        trgEtaMin=m_etaBandsSmallSector.at(matchedBandId+1);
+        trgEtaMax=m_etaBandsSmallSector.at(matchedBandId);
     }
 
     else{
-        trgEtaMin=m_EtaBandsLargeSector.at(matchedBandId+1);
-        trgEtaMax=m_EtaBandsLargeSector.at(matchedBandId);
+        trgEtaMin=m_etaBandsLargeSector.at(matchedBandId+1);
+        trgEtaMax=m_etaBandsLargeSector.at(matchedBandId);
     }
 
     pt.m_etamin=trgEtaMin;
@@ -414,22 +413,18 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const SectorTriggerCandida
         std::vector<int> trgPadEtaIndices;
         std::vector< std::shared_ptr<PadData>> trgPads;
     	for(const auto &p : swt.pads()){
-                //S.I 17-07-18
                 const float padZ=p->m_cornerXyz[0][2];
-
     			Identifier Id( p->id());
     			const Trk::PlaneSurface &padsurface = m_detManager->getsTgcReadoutElement(Id)->surface(Id);
     			float Phi=p->stationPhiAngle();
                 //Find the radial boundaries of the band within the sector axis
+                
                 float Rmin=fabs(padZ*tan(2*atan(-1*exp(pt.m_etamax))) );
                 float Rmax=fabs(padZ*tan(2*atan(-1*exp(pt.m_etamin))) );
-
                 float xmin=Rmin*cos(Phi);
                 float ymin=Rmin*sin(Phi);
-                
                 float xmax=Rmax*cos(Phi);
                 float ymax=Rmax*sin(Phi);
-
 
                 Amg::Vector3D global_trgMinOnAxis(xmin,ymin,padZ);
                 Amg::Vector3D global_trgMaxOnAxis(xmax,ymax,padZ);

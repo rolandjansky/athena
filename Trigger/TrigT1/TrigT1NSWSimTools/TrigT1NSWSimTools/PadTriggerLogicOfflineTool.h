@@ -86,8 +86,8 @@ namespace NSWL1 {
             
     private:
         /// get the output tree from the athena histogram service
-         const std::vector<float> m_EtaBandsLargeSector;
-         const std::vector<float> m_EtaBandsSmallSector;
+         const std::vector<float> m_etaBandsLargeSector;
+         const std::vector<float> m_etaBandsSmallSector;
 
 
 

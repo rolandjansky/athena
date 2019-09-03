@@ -113,17 +113,17 @@ namespace NSWL1 {
         float rmax=-1;
         float zmin=-1;
         float zmax=-1;
-        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->_etaMin()) < fabs(M2->_etaMin());} );
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return std::abs(M1->_etaMin()) < std::abs(M2->_etaMin());} );
         etamin=moduleList.at(0)->_etaMin();
-        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->_etaMax()) > fabs(M2->_etaMax());} );
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return std::abs(M1->_etaMax()) > std::abs(M2->_etaMax());} );
         etamax=moduleList.at(0)->_etaMax();
-        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->rMin()) < fabs(M2->rMin());} );
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return std::abs(M1->rMin()) < std::abs(M2->rMin());} );
         rmin=moduleList.at(0)->rMin();
-        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->rMax()) > fabs(M2->rMax());} );
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return std::abs(M1->rMax()) > std::abs(M2->rMax());} );
         rmax=moduleList.at(0)->rMax();
-        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->zMin()) < fabs(M2->zMin());} );
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return std::abs(M1->zMin()) < std::abs(M2->zMin());} );
         zmin=moduleList.at(0)->zMin();
-        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return fabs(M1->zMax()) > fabs(M2->zMax());} );
+        std::sort(moduleList.begin(),moduleList.end(),[](const auto& M1,const auto& M2){ return std::abs(M1->zMax()) > std::abs(M2->zMax());} );
         zmax=moduleList.at(0)->zMax();
         
         if(rmin<=0 || rmax<=0){
@@ -320,15 +320,14 @@ namespace NSWL1 {
          }
         
         //However it needs to be kept an eye on... will be something in between 7 and 15 mrad needs to be decided 
-        //if(fabs(dtheta)>15) return StatusCode::SUCCESS; 
+        //if(std::abs(dtheta)>15) return StatusCode::SUCCESS; 
         
         //do not get confused. this one is trigger phiId 
         int phiId=band.second[0].at(0)->phiId();
-        float delta_z=fabs(m_zbounds.second-fabs(avg_z) );
+        float delta_z=std::abs(m_zbounds.second-std::abs(avg_z) );
         int sign=-99999;
-        sign= (fabs(theta_inf)<fabs(theta)) ? 1: -1;
+        sign= (std::abs(theta_inf)<std::abs(theta)) ? 1: -1;
         float delta_r=delta_z*tan(theta_inf);
-        //float delta_r=delta_z*tan(theta);
         float rfar=avg_r+sign*delta_r;
 
  
@@ -344,7 +343,7 @@ namespace NSWL1 {
                 rIndex=findRIdx(rfar);
                 break;
             case 1:
-                rIndex=findRIdx(fabs(eta_inf));
+                rIndex=findRIdx(std::abs(eta_inf));
                 break;
             default:
                 break;   
