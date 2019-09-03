@@ -1,0 +1,1 @@
+      common/chargino/mcharg,mneut

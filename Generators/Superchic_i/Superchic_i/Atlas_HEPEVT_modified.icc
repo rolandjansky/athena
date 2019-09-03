@@ -1,0 +1,10 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Inline implementations for Atlas_HEPEVT_modified
+
+// initialise pointer
+void Atlas_HEPEVT_modified::init(void) {
+if (!s_atlas_HEPEVT) s_atlas_HEPEVT = static_cast<HEPEVT*>(atlas_hepevt_modified_address_());
+}
