@@ -11,7 +11,6 @@ TileUseCOOL=False; # do not use COOL DB
 
 msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
-tileInfoConfigurator.OFPhysicsNSamples = TileFrameLength
 tileInfoConfigurator.TrigSample = (TileFrameLength-1)/2
 
 msg.info("Adjusting TileInfo to return cell noise for Fit Method")
