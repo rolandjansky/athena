@@ -226,5 +226,3 @@ def tauTwoStepTrackSeqIso():
                           Maker       = ftfIsoViewsMaker,
                           Hypo        = precisionHypo,
                           HypoToolGen = TrigEFTauMVHypoToolFromDict )
-
-
