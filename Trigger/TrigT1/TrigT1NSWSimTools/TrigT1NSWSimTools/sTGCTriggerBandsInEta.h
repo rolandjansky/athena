@@ -1,3 +1,6 @@
+//Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+
 #ifndef STGCTRIGGERBANDSINETA_H
 #define STGCTRIGGERBANDSINETA_H
 
@@ -5,6 +8,7 @@
 
 namespace NSWL1{
     //***** these should be in descending order . do not shuffle  ****
+
     const std::vector<float> BandsInEtaLargeSector={
         2.766,
         2.729,
@@ -40,7 +44,7 @@ namespace NSWL1{
         1.942,
         1.926,
         1.915,
-	    1.886,
+	1.886,
         1.869,
         1.852,
         1.836,
@@ -136,7 +140,7 @@ namespace NSWL1{
         1.897,
         1.883,
         1.869,
-	    1.844,
+	1.844,
         1.828,
         1.813,
         1.797,
@@ -167,7 +171,7 @@ namespace NSWL1{
         1.486,
         1.475,
         1.466,
-	    1.453,
+	1.453,
         1.443,
         1.433,
         1.424,
