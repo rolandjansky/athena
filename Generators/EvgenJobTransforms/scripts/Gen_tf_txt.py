@@ -55,12 +55,12 @@ class EvgenExecutor(athenaExecutor):
 
 # read the JO directory
         os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-        CommonCvmfsDir = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/common'
+        CommonCvmfsDir = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/common'
         os.environ["JOBOPTSEARCHPATH"] = CommonCvmfsDir+":"+os.environ["JOBOPTSEARCHPATH"]
 #        msg.info("Using JOBOPTSEARCHPATH = '%s'" % os.environ["LOCAL_INSTALL_DIR"])
         dsidparam = (self._trf.argdict["jobConfig"].value).values()[0][0]
          # Adding cvmfs path to JOBOPTSEARCHPATH
-        BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/"
+        BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MCJobOptions/"
         msg.info("!! Base cvmfs path = '%s'" % BaseCvmfsPath)
 
         if len(dsidparam)==6 and dsidparam.isdigit(): #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
