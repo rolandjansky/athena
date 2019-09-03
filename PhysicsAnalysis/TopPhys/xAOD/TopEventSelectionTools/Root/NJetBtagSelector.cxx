@@ -7,11 +7,18 @@
 
 namespace top {
 
-  NJetBtagSelector::NJetBtagSelector(const std::string& params,std::shared_ptr<top::TopConfig> config) :
-    SignValueSelector("JET_N_BTAG", params, true, true, ":","_","MV2c10") {
+  NJetBtagSelector::NJetBtagSelector(const std::string& params, std::shared_ptr<top::TopConfig> config, bool doTrackJets) :
+    SignValueSelector((doTrackJets ? "TJET_N_BTAG" : "JET_N_BTAG"), params, true, true, ":","_","MV2c10"),
+    m_doTrackJets(doTrackJets) {
     checkMultiplicityIsInteger();
     // check if the provided btag WP is really available - need to replace : with _ to match the naming of variables
-    if (std::find(config->bTagWP_available().begin(), config->bTagWP_available().end(), valueStringDelimReplace()) == config->bTagWP_available().end()) {
+    bool bTagWP_exists = false;
+    if (m_doTrackJets)
+      bTagWP_exists = (std::find(config->bTagWP_available_trkJet().begin(), config->bTagWP_available_trkJet().end(), valueStringDelimReplace()) != config->bTagWP_available_trkJet().end());
+    else
+      bTagWP_exists = (std::find(config->bTagWP_available().begin(), config->bTagWP_available().end(), valueStringDelimReplace()) != config->bTagWP_available().end());
+
+    if (!bTagWP_exists) {
       std::cout << "NJetBtagSelector is confused\n";
       std::cout << "B-tagging working point " << valueString() << " doesn't seem to be supported.\n";
       std::cout << "Please note that you should provide the argument as ==> bTagAlgorithm:bTagWP now. \n ";
@@ -31,8 +38,13 @@ namespace top {
       }
       return jetPtr->auxdataConst<char>("isbtagged_"+valueStringDelimReplace());
     };
-    auto count = std::count_if(event.m_jets.begin(), event.m_jets.end(), func);
-    return checkInt(count, multiplicity());
+    int count = 0;
+    if (m_doTrackJets) {
+       count = std::count_if(event.m_trackJets.begin(), event.m_trackJets.end(), func);
+    } else {
+       count = std::count_if(event.m_jets.begin(), event.m_jets.end(), func);
+    }
+      return checkInt(count, multiplicity());
   }
   
 }

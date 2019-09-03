@@ -966,6 +966,9 @@ namespace top {
         systematicTree->makeOutputVariable(m_tjet_mv2c00,  "tjet_mv2c00");
         systematicTree->makeOutputVariable(m_tjet_mv2c10,  "tjet_mv2c10");
         systematicTree->makeOutputVariable(m_tjet_mv2c20,  "tjet_mv2c20");
+        systematicTree->makeOutputVariable(m_tjet_DL1,    "tjet_DL1");
+        systematicTree->makeOutputVariable(m_tjet_DL1r,   "tjet_DL1r");
+        systematicTree->makeOutputVariable(m_tjet_DL1rmu, "tjet_DL1rmu");
         for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
           if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP] , "tjet_isbtagged_"+shortBtagWP(tagWP));
           else systematicTree->makeOutputVariable(m_tjet_tagWeightBin[tagWP] , "tjet_tagWeightBin_"+tagWP);
@@ -2750,6 +2753,9 @@ namespace top {
       m_tjet_mv2c00.resize(event.m_trackJets.size());
       m_tjet_mv2c10.resize(event.m_trackJets.size());
       m_tjet_mv2c20.resize(event.m_trackJets.size());
+      m_tjet_DL1.resize(event.m_trackJets.size());
+      m_tjet_DL1r.resize(event.m_trackJets.size());
+      m_tjet_DL1rmu.resize(event.m_trackJets.size());
       for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
         if (tagWP.find("Continuous") == std::string::npos) {
           m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
@@ -2786,6 +2792,9 @@ namespace top {
         mvx = -999;
         if (btag) btag->MVx_discriminant("MV2c20", mvx);
         m_tjet_mv2c20[i] = mvx;
+        m_tjet_DL1[i]    = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
+        m_tjet_DL1r[i]   = jetPtr->auxdataConst<float>("AnalysisTop_DL1r");
+        m_tjet_DL1rmu[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rmu");
         for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
           if (tagWP.find("Continuous") == std::string::npos) {
             m_tjet_isbtagged[tagWP][i] = false;

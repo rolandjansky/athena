@@ -689,6 +689,9 @@ private:
     std::vector<float> m_tjet_mv2c00;
     std::vector<float> m_tjet_mv2c10;
     std::vector<float> m_tjet_mv2c20;
+    std::vector<float> m_tjet_DL1;
+    std::vector<float> m_tjet_DL1r;
+    std::vector<float> m_tjet_DL1rmu;
     std::unordered_map<std::string, std::vector<char>>  m_tjet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int>>   m_tjet_tagWeightBin;//one vector per jet tag-weight bin in case Continuous WP is used
 

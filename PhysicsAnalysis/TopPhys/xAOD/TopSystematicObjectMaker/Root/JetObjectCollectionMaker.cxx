@@ -509,6 +509,8 @@ StatusCode JetObjectCollectionMaker::executeTrackJets(bool executeNominal) {
   ///-- No calibrations or systematics yet --///
   ///-- Only run this on the nominal execution --///
   if(!executeNominal) return StatusCode::SUCCESS;
+
+  top::check( decorateDL1(true) , "Failed to decorate track jets with DL1 b-tagging discriminant");
     
   ///-- Just make a shallow copy to keep these in line with everything else --///
 
@@ -650,15 +652,19 @@ StatusCode JetObjectCollectionMaker::decorateHSJets() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetObjectCollectionMaker::decorateDL1() {
+StatusCode JetObjectCollectionMaker::decorateDL1(bool trackJets) {
   // initialise decorators
   static const SG::AuxElement::Decorator<float> DL1("AnalysisTop_DL1");
   static const SG::AuxElement::Decorator<float> DL1r("AnalysisTop_DL1r");
   static const SG::AuxElement::Decorator<float> DL1rmu("AnalysisTop_DL1rmu");
 
-  // retrieve small-R jets collection
+  // retrieve small-R jets collection -- either calo or track jets
   const xAOD::JetContainer* jets(nullptr);
-  top::check( evtStore()->retrieve( jets , m_config->sgKeyJets() ) , "Failed to retrieve small-R jet collection"+m_config->sgKeyJets() );
+  if (trackJets) {
+    top::check( evtStore()->retrieve( jets , m_config->sgKeyTrackJets() ) , "Failed to retrieve track jet collection"+m_config->sgKeyTrackJets() );
+  } else {
+    top::check( evtStore()->retrieve( jets , m_config->sgKeyJets() ) , "Failed to retrieve small-R jet collection"+m_config->sgKeyJets() );
+  }
 
   for(const auto& jet : *jets) {
     // Default value

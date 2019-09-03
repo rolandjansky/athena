@@ -163,7 +163,7 @@ namespace top{
       bool m_DL1Possible;
       bool m_DL1rPossible;
       bool m_DL1rmuPossible;
-      StatusCode decorateDL1();
+      StatusCode decorateDL1(bool trackJets=false);
 
   };
 } // namespace

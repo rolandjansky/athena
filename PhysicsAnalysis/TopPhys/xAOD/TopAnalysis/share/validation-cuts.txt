@@ -311,6 +311,36 @@ SELECTION ejets_MV2c10_2018
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
+########################################################################
+# For testing whether track jet b-tag selection works
+# ONLY FOR TESTING, DOES NOT MAKE SENSE TO USE THIS FOR PHYSICS ANALYSIS
+# THESE COMBINE TRACK-JET B-TAGGING WITH KLFITTER ON CALO JETS!!!
+
+SELECTION ejets_tjet_MV2c10_2015
+. EL_2015
+. ejets_basic
+TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_tjet_MV2c10_2016
+. EL_2016
+. ejets_basic
+TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_tjet_MV2c10_2017
+. EL_2017
+. ejets_basic
+TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_tjet_MV2c10_2018
+. EL_2018
+. ejets_basic
+TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+########################################################################
+
 SELECTION ejets_particle
 PRIVTX
 PARTICLE_LEVEL
@@ -382,6 +412,36 @@ SELECTION mujets_MV2c10_2018
 . mujets_basic
 JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
+
+########################################################################
+# For testing whether track jet b-tag selection works
+# ONLY FOR TESTING, DOES NOT MAKE SENSE TO USE THIS FOR PHYSICS ANALYSIS
+# THESE COMBINE TRACK-JET B-TAGGING WITH KLFITTER ON CALO JETS!!!
+
+SELECTION mujets_tjet_MV2c10_2015
+. MU_2015
+. mujets_basic
+TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_tjet_MV2c10_2016
+. MU_2016
+. mujets_basic
+TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_tjet_MV2c10_2017
+. MU_2017
+. mujets_basic
+TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_tjet_MV2c10_2018
+. MU_2018
+. mujets_basic
+TJET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+########################################################################
 
 SELECTION mujets_particle
 PRIVTX
