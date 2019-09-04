@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -8,7 +8,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
@@ -68,8 +68,6 @@ StatusCode PixelClusterCacheTool::initialize()  {
     ATH_MSG_FATAL("Could not get Pixel ID helper");
     return StatusCode::FAILURE;
   } 
-
-  p_indet_mgr = mgr;  
 
   m_clusterization.setPixelID(m_pixel_id);
   m_clusterization.initializeGeometry(mgr);
@@ -132,6 +130,8 @@ StatusCode PixelClusterCacheTool::initialize()  {
     m_rdoContainer->addRef();
   }
 
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
+
   return sc;
 }
 
@@ -151,6 +151,14 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
                                                       const std::vector<IdentifierHash>& listOfPixIds,
 							std::vector<int>& errorVect, bool isFullScan)
 {
+  // Get PixelDetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(pixelDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+
   if(!evtStore()->contains<InDet::PixelClusterContainer>(m_containerName))
     {
       m_clusterContainer->cleanup();
@@ -285,6 +293,7 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
   int npixels=0;
   for (std::vector<IdentifierHash>::iterator it=reducedList.begin(); it != reducedList.end(); ++it)
     {
+      const InDetDD::SiDetectorElement* element = elements->getDetectorElement((*it));
       PixelRDO_Container::const_iterator collIt=m_rdoContainer->indexFind((*it));
       if(collIt==m_rdoContainer->end())
 	continue;
@@ -302,7 +311,8 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
 		  npixels++;
 		  m_clusterization.addHit(coll_id,coll_hash_id,
 					  m_pixel_id->phi_index(pixId),
-					  m_pixel_id->eta_index(pixId),(*rdoIt));
+					  m_pixel_id->eta_index(pixId),(*rdoIt),
+                                          element);
 		}
 	    }
 	  else 
