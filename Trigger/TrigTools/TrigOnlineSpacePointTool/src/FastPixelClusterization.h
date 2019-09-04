@@ -54,8 +54,9 @@ class FastPixelClusterization {
     void setPixelID(const PixelID* pixelID){ m_pixelID = pixelID; }  
 
     void addHit( const Identifier waferId, const IdentifierHash  hashElemId, 
-        const unsigned int phi_channel, const unsigned int rz_channel, 
-        const PixelRDORawData* pHit = 0);
+                 const unsigned int phi_channel, const unsigned int rz_channel, 
+                 const PixelRDORawData* pHit,
+                 const InDetDD::SiDetectorElement* element );
 
     void finishHits();
 
@@ -221,7 +222,7 @@ class FastPixelClusterization {
   private:
 
     const InDetDD::PixelDetectorManager* m_man;
-    InDetDD::SiDetectorElement* m_detEl;
+    const InDetDD::SiDetectorElement* m_detEl;
 
     const ISiLorentzAngleTool* m_lorentzAngleTool;
 
