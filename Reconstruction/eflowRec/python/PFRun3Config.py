@@ -211,7 +211,6 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
 
     iovDbSvc=result.getService("IOVDbSvc")
-    iovDbSvc.FoldersToMetaData+=['/GLOBAL/BField/Maps']
 
     from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
     kwargs.setdefault( "UseDCS", True )

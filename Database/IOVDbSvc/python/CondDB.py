@@ -255,10 +255,6 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
         "Add a tag override for the specified folder"
         self.iovdbsvc.overrideTags+=['<prefix>%s</prefix> <tag>%s</tag>' % (folder,tag)]
 
-    def toMetaData(self,folder):
-        "Add a folder to the list to be written out for meta-data"
-        self.iovdbsvc.FoldersToMetaData+=[folder]
-
     def blockFolder(self,folder):
         "Block use of specified conditions DB folder so data can be read from elsewhere"
         self.blocklist+=[folder]
