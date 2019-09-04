@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_IINDETGEOMODELTOOL_H
@@ -8,7 +8,6 @@
 #include "GaudiKernel/IAlgTool.h"
 
 namespace InDetDD{
-  class PixelDetectorManager;
   class TRT_DetectorManager;
 }
 class PixelID;
@@ -30,8 +29,6 @@ namespace JiveXML{
     /// Return the interface identifier
     static const InterfaceID& interfaceID();
 
-    /// Provide the Pixel geometry manager
-    virtual const InDetDD::PixelDetectorManager* PixelGeoManager() const = 0 ;
     /// Provide the TRT geometry manager
     virtual const InDetDD::TRT_DetectorManager* TRTGeoManager() const = 0 ;
 
