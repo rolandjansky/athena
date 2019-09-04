@@ -126,6 +126,7 @@ class Registry(object):
         self.add_default("Elmass", atlas_common.mass.e, name="mass_e", description="mass of electron in GeV")
         self.add_default("emalpharunning", -1, description="")
         self.add_default("emalpharunnning", -1, name="emalpharunning", description="")
+        self.add_default("emvirtual", 1, description="compute soft-virtual QED terms (integrated subtractions)")
         self.add_default("enhancereg", -1, description="enhance reg")
         self.add_default("evenmaxrat", 1, description="speed up upper-bound calculation by taking maximum of identical processes. [1:enabled]")
         self.add_default("ew_ho", -1, description="")

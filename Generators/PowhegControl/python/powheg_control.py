@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 import collections
 import os
@@ -10,6 +10,26 @@ from utility import HeartbeatTimer
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
+
+
+
+def _format_QCD_scale_text(factor):
+    '''
+    Helper function to format QCD scale value
+    to conform to the ATLAS weight variation
+    naming scheme if possible.
+    Given a scale factor as a float, it returns
+    a string that is:
+    - '0.5'
+    - '1'
+    - '2'
+    - or the float rounded to two digits after the decimal point if it is not equal to one of the above
+    '''
+    try:
+        return {0.5 : '0.5', 1.0 : '1', 2.0 : '2'}[factor]
+    except KeyError:
+        return '{0:.2f}'.format(factor)
+
 
 
 class PowhegControl(object):
@@ -118,11 +138,11 @@ class PowhegControl(object):
 
         # Run appropriate generation functions
         if not use_external_run_card:
-            self.__generate_run_card()
+            self._generate_run_card()
         if not create_run_card_only:
-            self.__generate_events()
+            self._generate_events()
 
-    def __generate_run_card(self):
+    def _generate_run_card(self):
         """! Initialise runcard with appropriate options."""
         # Check that event generation is correctly set up
         if (hasattr(self, "bornsuppfact") and self.bornsuppfact > 0.0) and (hasattr(self, "bornktmin") and self.bornktmin <= 0.0):
@@ -180,9 +200,11 @@ class PowhegControl(object):
                             raise TypeError("Use 'PowhegConfig.PDF = {0}' rather than 'PowhegConfig.PDF = [{0}]'".format(parameter.value[0] if len(parameter.value) > 0 else "<value>"))
                         self.define_event_weight_group("PDF_variation", ["PDF"], combination_method="hessian")
                         for PDF in map(int, parameter.value[1:]):
-                            self.add_weight_to_group("PDF_variation", "PDF set = {:d}".format(PDF), [PDF])
+                            self.add_weight_to_group("PDF_variation", "MUR1_MUF1_PDF{:d}".format(PDF), [PDF])
                 # Scale variations
                 if parameter.name in ["mu_F", "mu_R"] and isinstance(parameter.value, collections.Iterable):
+                    pdfs = self.process.parameters_by_name("PDF")[0].value
+                    nominal_pdf = pdfs if isinstance(pdfs, int) or isinstance(pdfs, str) else pdfs[0]
                     if "scale_variation" not in self.__event_weight_groups.keys(): # skip if this group already exists
                         mu_Rs = self.process.parameters_by_name("mu_R")[0].value
                         mu_Fs = self.process.parameters_by_name("mu_F")[0].value
@@ -191,7 +213,9 @@ class PowhegControl(object):
                             raise ValueError("Number of mu_R and mu_F variations must be the same.")
                         self.define_event_weight_group("scale_variation", ["mu_R", "mu_F"], combination_method="envelope")
                         for mu_R, mu_F in zip(map(float, mu_Rs[1:]), map(float, mu_Fs[1:])):
-                            self.add_weight_to_group("scale_variation", "muR = {:.2f}, muF = {:.2f}".format(mu_R, mu_F), [mu_R, mu_F])
+                            mu_R_text = _format_QCD_scale_text(mu_R)
+                            mu_F_text = _format_QCD_scale_text(mu_F)
+                            self.add_weight_to_group("scale_variation", "MUR{mur}_MUF{muf}_PDF{nominal_pdf}".format(mur=mu_R_text, muf=mu_F_text, nominal_pdf=nominal_pdf), [mu_R, mu_F])
                 f_runcard.write("{}\n".format(parameter))
 
         # Schedule cross-section_calculator
@@ -230,7 +254,7 @@ class PowhegControl(object):
             self.scheduler.add("reweighter", self.process, self.__event_weight_groups)
 
     @timed("Powheg LHE event generation")
-    def __generate_events(self):
+    def _generate_events(self):
         """! Generate events according to the scheduler."""
         # Setup heartbeat thread
         heartbeat = HeartbeatTimer(600., "{}/eventLoopHeartBeat.txt".format(self.__run_directory))

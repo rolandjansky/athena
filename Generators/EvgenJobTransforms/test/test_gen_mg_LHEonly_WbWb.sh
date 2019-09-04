@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: Generation test Sherpa DY without inputs 
+# art-description: Generation test MadGraph LHE-only for W+bW-b
 # art-type: build
 # art-include: 21.6/AthGeneration
 # art-output: *.root
@@ -7,10 +7,10 @@
 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
-Gen_tf.py --ecmEnergy=13000 --jobConfig=421001 --maxEvents=10 \
-    --outputEVNTFile=test_sherpa_dy_inelastic.EVNT.pool.root \
+rm *;
+Gen_tf_txt.py --ecmEnergy=13000 --jobConfig=421124 \
+    --outputTXTFile=test_mg_WbWb.TXT \
 
 echo "art-result: $? generate"
-
 
 
