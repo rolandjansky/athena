@@ -35,7 +35,7 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
     
   private:
-    std::string m_muonSGKey;
+    std::string m_partSGKey;
     std::string m_truthSGKey;
     std::string m_truthPileupSGKey;
     std::string m_truthMuonSGKey;
