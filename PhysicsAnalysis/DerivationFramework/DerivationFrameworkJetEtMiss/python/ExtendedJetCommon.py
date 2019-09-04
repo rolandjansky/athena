@@ -202,8 +202,11 @@ def getJetAugmentationTool(jetalg, suffix=''):
     if hasattr(ToolSvc,jetaugtoolname):
         jetaugtool = getattr(ToolSvc,jetaugtoolname)
     else:
+        inJets = jetalg+'Jets'
+        if '_BTagging' in jetalg:
+          inJets = jetalg.replace('_BTagging','Jets_BTagging')
         jetaugtool = CfgMgr.DerivationFramework__JetAugmentationTool(jetaugtoolname,
-                                                                     InputJets=jetalg+'Jets')
+                                                                     InputJets=inJets)
         ToolSvc += jetaugtool
 
     return jetaugtool
@@ -416,7 +419,10 @@ def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFramew
     jetaugtool.JetBtagTools = btagtools
     jetaugtool.JetBtagWPs = btagWPs
 
-    extjetlog.info('ExtendedJetCommon: Applying b-tagging working points for jet collection: '+jetalg+'Jets')
+    inJets = jetalg+'Jets'
+    if '_BTagging' in jetalg:
+      inJets = jetalg.replace('_BTagging','Jets_BTagging')
+    extjetlog.info('ExtendedJetCommon: Applying b-tagging working points for jet collection: '+inJets)
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def addOriginCorrection(jetalg, sequence, algname,vertexPrefix):
@@ -645,7 +651,6 @@ def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
-applyBTagging_xAODColl("AntiKt4EMTopo")
 applyOverlapRemoval()
 eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
