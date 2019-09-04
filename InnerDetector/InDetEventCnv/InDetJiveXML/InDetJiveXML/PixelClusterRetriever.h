@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JIVEXML_PIXELCLUSTERRETRIEVER_H
@@ -8,6 +8,8 @@
 #include "JiveXML/IDataRetriever.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetJiveXML/IInDetGeoModelTool.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace JiveXML
 {
@@ -48,7 +50,7 @@ namespace JiveXML
       virtual std::string dataTypeName() const { return m_typeName; }
 
       /// initialize only geo model tool
-      virtual StatusCode initialize() { return m_geo.retrieve(); }
+      virtual StatusCode initialize();
 
     private:
 
@@ -63,6 +65,7 @@ namespace JiveXML
       /// The StoreGate key for the PRD MultiTruthMap with the track associations
       std::string m_PixelTruthMapName;
 
+      SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     };
 }
 #endif
