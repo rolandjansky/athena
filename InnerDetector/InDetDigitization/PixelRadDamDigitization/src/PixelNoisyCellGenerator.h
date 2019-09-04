@@ -24,7 +24,6 @@
 
 namespace InDetDD{
   class PixelModuleDesign;
-  class PixelDetectorManager;
 }
 
 class PixelID;
@@ -62,7 +61,6 @@ class PixelNoisyCellGenerator:public PixelProcessorTool {
     double getNoiseToT() const;
     const PixelID            *m_pixelID;     /**< the ID helper */
     double m_rndNoiseProb;
-    const InDetDD::PixelDetectorManager *m_pixMgr;
 
 };
 
