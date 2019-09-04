@@ -306,40 +306,22 @@ augmentationTools.append(TrigMatchAug)
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTaggingBenchmarks
 #========================================================================================================================================
 
-# $equire 2 b-tags from the same algorithm
-b2tag_EMTopo_MV2c10_Fixed    = "count(AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 2"
-b2tag_EMTopo_MV2r_Fixed   = "count(AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2r)   >= 2"
-b2tag_EMTopo_MV2rmu_Fixed = "count(AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2rmu) >= 2"
-b2tag_EMTopo_MV2          = "(%s || %s || %s)" % (b2tag_EMTopo_MV2c10_Fixed,b2tag_EMTopo_MV2r_Fixed,b2tag_EMTopo_MV2rmu_Fixed)
+# Require 2 b-tags from the same algorithm
 
-b2tag_EMTopo_DL1_Fixed       = "count(AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_DL1)    >= 2"
-b2tag_EMTopo_DL1r_Fixed      = "count(AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_DL1r)   >= 2"
-b2tag_EMTopo_DL1rmu_Fixed    = "count(AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_DL1rmu) >= 2"
-b2tag_EMTopo_DL1             = "(%s || %s || %s)" % (b2tag_EMTopo_DL1_Fixed,b2tag_EMTopo_DL1r_Fixed,b2tag_EMTopo_DL1rmu_Fixed)
+#Write the taggers out by hand because we don't have a CDI
+bfix77_DL1r_2019   ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1r_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1r_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1r_pu))>2.224999999999999))'
+bfix77_DL1rmu_2019 ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1rmu_pb/(0.03*BTagging_AntiKt4EMPFlow_201903.DL1rmu_pc+(1-0.03)*BTagging_AntiKt4EMPFlow_201903.DL1rmu_pu))>2.195))'
+bfix77_DL1_2019    ='(count(log(BTagging_AntiKt4EMPFlow_201903.DL1_pb/(0.018*BTagging_AntiKt4EMPFlow_201903.DL1_pc+(1-0.018)*BTagging_AntiKt4EMPFlow_201903.DL1_pu))>2.015))'
+bfix77_DL1r_2018   ='(count(log(BTagging_AntiKt4EMPFlow_201810.DL1r_pb/(0.08*BTagging_AntiKt4EMPFlow_201810.DL1r_pc+(1-0.08)*BTagging_AntiKt4EMPFlow_201810.DL1r_pu))>0.7550000000000002))'
+bfix77_DL1rmu_2018 ='(count(log(BTagging_AntiKt4EMPFlow_201810.DL1rmu_pb/(0.03*BTagging_AntiKt4EMPFlow_201810.DL1rmu_pc+(1-0.03)*BTagging_AntiKt4EMPFlow_201810.DL1rmu_pu))>2.1650000000000005))'
+bfix77_DL1_2018    ='(count(log(BTagging_AntiKt4EMPFlow_201810.DL1_pb/(0.08*BTagging_AntiKt4EMPFlow_201810.DL1_pc+(1-0.08)*BTagging_AntiKt4EMPFlow_201810.DL1_pu))>1.4150000000000003))'
 
-b2tag77_EMTopo         = "(%s || %s)" % (b2tag_EMTopo_MV2, b2tag_EMTopo_DL1)
-
-
-b2tag_EMPFlow_MV2c10_Fixed = "count(AntiKt4EMPFlowJets.DFCommonJets_FixedCutBEff_77_MV2c10)    >= 2"
-b2tag_EMPFlow_MV2r_Fixed   = "count(AntiKt4EMPFlowJets.DFCommonJets_FixedCutBEff_77_MV2r)   >= 2"
-b2tag_EMPFlow_MV2rmu_Fixed = "count(AntiKt4EMPFlowJets.DFCommonJets_FixedCutBEff_77_MV2rmu) >= 2"
-b2tag_EMPFlow_MV2          = "(%s || %s || %s)" % (b2tag_EMPFlow_MV2c10_Fixed,b2tag_EMPFlow_MV2r_Fixed,b2tag_EMPFlow_MV2rmu_Fixed)
-
-b2tag_EMPFlow_DL1_Fixed       = "count(AntiKt4EMPFlowJets.DFCommonJets_FixedCutBEff_77_DL1)    >= 2"
-b2tag_EMPFlow_DL1r_Fixed      = "count(AntiKt4EMPFlowJets.DFCommonJets_FixedCutBEff_77_DL1r)   >= 2"
-b2tag_EMPFlow_DL1rmu_Fixed    = "count(AntiKt4EMPFlowJets.DFCommonJets_FixedCutBEff_77_DL1rmu) >= 2"
-b2tag_EMPFlow_DL1             = "(%s || %s || %s)" % (b2tag_EMPFlow_DL1_Fixed,b2tag_EMPFlow_DL1r_Fixed,b2tag_EMPFlow_DL1rmu_Fixed)
-
-b2tag77_EMPFlow         = "(%s || %s)" % (b2tag_EMPFlow_MV2, b2tag_EMPFlow_DL1)
+#accept if any of the above tags has more than 2
+b2tag77_EMPFlow = "(%s >= 2 || %s >= 2 || %s >= 2 || %s >= 2 || %s >= 2 || %s >= 2)" % (bfix77_DL1r_2019, bfix77_DL1rmu_2019, bfix77_DL1_2019, bfix77_DL1r_2018, bfix77_DL1rmu_2018, bfix77_DL1_2018)
 
 # jet skimming
-resolved_4jetsEMTopo  = "count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt  > 25*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)  < 2.8)) >= 4 && %s" % b2tag77_EMTopo
-resolved_4jetsEMPFlow = "count((AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 25*GeV) && (abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8)) >= 4 && %s" % b2tag77_EMPFlow
-resolved_4jet         = "(%s || %s)" % (resolved_4jetsEMTopo, resolved_4jetsEMPFlow)
-
-resolved_2jetsEMTopo  = "count((AntiKt4EMTopoJets.DFCommonJets_Calib_pt  > 25*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)  < 2.8)) >= 2 && %s" % b2tag77_EMTopo
-resolved_2jetsEMPFlow = "count((AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 25*GeV) && (abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8)) >= 2 && %s" % b2tag77_EMPFlow
-resolved_2jet         = "(%s || %s)" % (resolved_2jetsEMTopo, resolved_2jetsEMPFlow)
+resolved_4jet = "count((AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 25*GeV) && (abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8)) >= 4 && %s" % b2tag77_EMPFlow
+resolved_2jet = "count((AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 25*GeV) && (abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8)) >= 2 && %s" % b2tag77_EMPFlow
 
 singleElectron       = "count((Electrons.Tight)        && (Electrons.pt > 25*GeV) && (abs(Electrons.eta) < 2.5)) >= 1"
 singleMuon           = "count((Muons.DFCommonGoodMuon) && (Muons.pt     > 25*GeV) && (abs(Muons.eta)     < 2.5)) >= 1"
@@ -443,7 +425,7 @@ exot8PreSeq += exot8Seq
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT8"] = []
 reducedJetList = [
-    "AntiKt2PV0TrackJets", #flavour-tagged automatically
+    "AntiKt2PV0TrackJets",
     "AntiKt4PV0TrackJets",
     "AntiKt4TruthJets",
     "AntiKt4TruthWZJets",
@@ -487,11 +469,12 @@ FlavorTagInit(scheduleFlipped = False, JetCollections  = ['AntiKt4EMPFlowJets'],
 #====================================================================
 applyJetCalibration_xAODColl("AntiKt4EMTopo", exot8Seq)
 updateJVT_xAODColl("AntiKt4EMTopo", exot8Seq)
-applyBTagging_xAODColl("AntiKt4EMTopo",exot8Seq)
+applyBTagging_xAODColl("AntiKt4EMTopo_BTagging201810",exot8Seq)
 
 applyJetCalibration_xAODColl("AntiKt4EMPFlow", exot8Seq)
 updateJVT_xAODColl("AntiKt4EMPFlow", exot8Seq)
-applyBTagging_xAODColl("AntiKt4EMPFlow", exot8Seq)
+applyBTagging_xAODColl("AntiKt4EMPFlow_BTagging201810", exot8Seq)
+applyBTagging_xAODColl("AntiKt4EMPFlow_BTagging201903", exot8Seq)
 
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot8Seq)
 
@@ -533,29 +516,34 @@ exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", Thinning
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EXOT8SlimmingHelper = SlimmingHelper("EXOT8SlimmingHelper")
 
-EXOT8SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
-                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
-                                        "PrimaryVertices",
+EXOT8SlimmingHelper.SmartCollections = ["PrimaryVertices",
                                         "Electrons",
                                         "Muons",
                                         "Photons",
+                                        "InDetTrackParticles",
+                                        "AntiKt2LCTopoJets",
+                                        "AntiKt4EMTopoJets",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag",
                                         "MET_Reference_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets",
+                                        "AntiKt4EMPFlowJets_BTagging201810",
+                                        "AntiKt4EMPFlowJets_BTagging201903",
+                                        "BTagging_AntiKt4EMPFlow_201810",
+                                        "BTagging_AntiKt4EMPFlow_201903",
+                                        "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt4TruthJets",
                                         "AntiKt4TruthWZJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets",
                                         "HLT_xAOD__BTaggingContainer_HLTBjetFex",
-                                        "InDetTrackParticles",
-                                        "AntiKt4EMPFlowJets",
-                                        "BTagging_AntiKt4EMPFlow",
-                                        "MET_Reference_AntiKt4EMPFlow",
-                                        "AntiKt2LCTopoJets",
                                         ]
 
-EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge", 
-                                      "Muons.charge", 
+EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
+                                      "Muons.charge",
+                                      "InDetTrackParticles.truthMatchProbability",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumMass",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumPt",
                                       "AntiKt4EMTopoJets.TrackSumPt",
@@ -608,7 +596,7 @@ EXOT8SlimmingHelper.AllVariables   = ["TruthEvents",
                                       "CombinedMuonTrackParticles",
                                       "ExtrapolatedMuonTrackParticles",
                                       ]
-                                      
+
 EXOT8SlimmingHelper.StaticContent = [
                                      "xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                      "xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.",
@@ -622,14 +610,12 @@ EXOT8SlimmingHelper.StaticContent = [
 EXOT8SlimmingHelper.AppendToDictionary = {
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets"    :   "xAOD::JetContainer"        ,
     "AntiKt10LCTopoCSSKSoftDropBeta100Zcut10JetsAux" :   "xAOD::JetAuxContainer"     ,
-    "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer"   , 
-    "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer",
+    "BTagging_AntiKt4EMPFlow_201810"                 :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKt4EMPFlow_201810Aux"              :   "xAOD::BTaggingAuxContainer",
+    "BTagging_AntiKt4EMPFlow_201903"                 :   "xAOD::BTaggingContainer"   ,
+    "BTagging_AntiKt4EMPFlow_201903Aux"              :   "xAOD::BTaggingAuxContainer",
 }
                                
-# Add all variabless for VR track-jets
-EXOT8SlimmingHelper.SmartCollections  += ["BTagging_AntiKtVR30Rmax4Rmin02Track"]
-EXOT8SlimmingHelper.SmartCollections  += ["BTagging_AntiKtVR30Rmax4Rmin02TrackGhostTag"]
-
 # Save certain b-tagging variables for VR track-jet
 EXOT8SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
@@ -649,8 +635,14 @@ if globalflags.DataSource()=="geant4":
                                      "xAOD::JetAuxContainer#AntiKt10TruthTrimmedPtFrac5SmallR20JetsAux.",
                                      ]
     EXOT8SlimmingHelper.AppendToDictionary = {
-      "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"        ,
-      "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"        ,
+      "AntiKt10TruthSoftDropBeta100Zcut10Jets"   :   "xAOD::JetContainer"             ,
+      "AntiKt10TruthSoftDropBeta100Zcut10JetsAux":   "xAOD::JetAuxContainer"          ,
+      "TruthTop"                                 :   "xAOD::TruthParticleContainer"   ,
+      "TruthTopAux"                              :   "xAOD::TruthParticleAuxContainer",
+      "TruthBSM"                                 :   "xAOD::TruthParticleContainer"   ,
+      "TruthBSMAux"                              :   "xAOD::TruthParticleAuxContainer",
+      "TruthBoson"                               :   "xAOD::TruthParticleContainer"   ,
+      "TruthBosonAux"                            :   "xAOD::TruthParticleAuxContainer"
     }
     EXOT8SlimmingHelper.AllVariables  += ["AntiKt10TruthSoftDropBeta100Zcut10Jets"]
 
