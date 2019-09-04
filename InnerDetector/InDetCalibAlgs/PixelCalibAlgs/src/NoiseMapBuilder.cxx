@@ -15,9 +15,6 @@
 
 // EDM
 #include "InDetRawData/PixelRDO_Container.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h" 
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h" 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
@@ -41,7 +38,6 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_tHistSvc("THistSvc", name),
   m_pixelConditionsSummarySvc("PixelConditionsSummarySvc", name),
   m_BSErrorsSvc("PixelByteStreamErrorsSvc",name),
-  m_pixman(0), 
   m_pixelID(0),
   m_pixelRDOKey("PixelRDOs"),
   m_nEvents(0.),
@@ -179,13 +175,6 @@ StatusCode NoiseMapBuilder::initialize(){
     return StatusCode::FAILURE;
   }
 
-  // retrieve PixelDetectorManager
-  sc = detStore()->retrieve(m_pixman,"Pixel");
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to retrieve PixelDetectorManager");
-    return StatusCode::FAILURE;
-  }
-
   // retrieve PixelID helper
   sc = detStore()->retrieve(m_pixelID, "PixelID");
   if(!sc.isSuccess()){
@@ -253,14 +242,9 @@ StatusCode NoiseMapBuilder::registerHistograms(){
   
   m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", m_hist_lbMax, -0.5, m_hist_lbMax+0.5);
   m_tHistSvc->regHist("/histfile/NEventsLB", m_nEventsLBHist).setChecked();
-  
-  for(InDetDD::SiDetectorElementCollection::const_iterator iter=m_pixman->getDetectorElementBegin(); 
-      iter!=m_pixman->getDetectorElementEnd(); ++iter) {    
 
-    const InDetDD::SiDetectorElement* element = *iter;
-    if(!element) continue;
-    
-    Identifier ident = element->identify();
+  for (PixelID::const_id_iterator wafer_it=m_pixelID->wafer_begin(); wafer_it!=m_pixelID->wafer_end(); ++wafer_it) {
+    Identifier ident = *wafer_it;
     if(!m_pixelID->is_pixel(ident)) continue; 
     
     //const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
@@ -579,16 +563,8 @@ StatusCode NoiseMapBuilder::finalize() {
   //for(unsigned int moduleHash = 0; moduleHash < m_pixelID->wafer_hash_max(); moduleHash++)
   //for(std::vector<int>::iterator it = m_moduleHashList.begin(); it != m_moduleHashList.end(); ++it)
 
-  //
-  // loop in detector elements
-  //
-  for(InDetDD::SiDetectorElementCollection::const_iterator iter=m_pixman->getDetectorElementBegin(); 
-      iter!=m_pixman->getDetectorElementEnd(); ++iter) {    
-
-    const InDetDD::SiDetectorElement* element = *iter;
-    if(element == 0) continue;
-
-    Identifier ident = element->identify();
+  for (PixelID::const_id_iterator wafer_it=m_pixelID->wafer_begin(); wafer_it!=m_pixelID->wafer_end(); ++wafer_it) {
+    Identifier ident = *wafer_it;
     if(!m_pixelID->is_pixel(ident)) continue;  
 
     int bec     = m_pixelID->barrel_ec (ident);
