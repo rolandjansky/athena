@@ -50,10 +50,6 @@ class IClassIDSvc;
 class Identifier;
 class PixelID;
 
-namespace InDetDD{ 
-  class PixelDetectorManager; 
-}
-
 
 class PixelDCSTool: virtual public AthAlgTool,
 		    virtual public IPixelDCSTool
@@ -98,7 +94,6 @@ class PixelDCSTool: virtual public AthAlgTool,
   PublicToolHandle< IAthenaOutputStreamTool > m_streamer
      {this,"AthenaPoolOutputStreamTool","AthenaPoolOutputStreamTool/CondStreamPixelDCSTest",""};
 
-  const InDetDD::PixelDetectorManager* m_pixman; 
   const PixelID* m_pixid; 
 
   PixelDCSData* m_pixelDCSData;
