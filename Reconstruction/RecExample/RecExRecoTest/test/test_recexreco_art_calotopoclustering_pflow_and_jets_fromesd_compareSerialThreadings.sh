@@ -4,10 +4,10 @@
 # art-type: grid
 # art-include: master/Athena
 # art-athena-mt: 8
-# art-output: athenaSerial.log
-# art-output: athenaOneThread.log
-# art-output: athenaTwoThreads.log
-# art-output: athenaFiveThreads.log
+# art-output: serial
+# art-output: threadOne
+# art-output: threadTwo
+# art-output: threadFive
 
 export ATHENA_CORE_NUMBER=8
 
