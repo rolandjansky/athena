@@ -82,12 +82,9 @@ StatusCode FTK_HashIDTool::initialize(){
     
   }  
   if (ret.isSuccess()) {
-    StoreGateSvc* detStore;
-    ATH_CHECK(service("DetectorStore", detStore));
-    
-    ATH_CHECK(detStore->retrieve(m_pixelId, "PixelID"));
-    ATH_CHECK(detStore->retrieve(m_id_helper, "AtlasID"));
-    ATH_CHECK(detStore->retrieve(m_pixelManager));
+    ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID"));
+    ATH_CHECK(detStore()->retrieve(m_id_helper, "AtlasID"));
+    ATH_CHECK(detStore()->retrieve(m_pixelManager));
   }
   return ret; 
 }

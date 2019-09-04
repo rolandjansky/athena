@@ -23,8 +23,6 @@
 
 #include <vector>
 
-class StoreGateSvc;
-
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
@@ -67,8 +65,6 @@ class TrigFTKClusterConverterTool : public AthAlgTool, virtual public ITrigFTKCl
 private:
 
   bool m_usePixelCalibSvc;
-
-  StoreGateSvc* m_evtStore;
 
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;

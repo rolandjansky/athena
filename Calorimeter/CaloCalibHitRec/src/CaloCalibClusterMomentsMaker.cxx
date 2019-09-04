@@ -38,7 +38,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloDM_ID.h"
 
-#include "StoreGate/StoreGateSvc.h" 
 #include "StoreGate/ReadHandle.h" 
 #include "CLHEP/Units/SystemOfUnits.h"
 
