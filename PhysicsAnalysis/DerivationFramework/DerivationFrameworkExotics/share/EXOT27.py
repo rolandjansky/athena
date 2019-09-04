@@ -13,8 +13,6 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import (
     DerivationFramework__GenericObjectThinning,
     DerivationFramework__FilterCombinationAND,
     DerivationFramework__FilterCombinationOR)
-from TriggerMenu.api.TriggerAPI import TriggerAPI
-from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (
@@ -123,24 +121,16 @@ def outputContainer(container, warnIfNotSmart=True):
 EXOT27PreliminarySkimmingTools = []
 
 # trigger selection
-trigger_all_periods = (
-      TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017
-      | TriggerPeriod.y2018 | TriggerPeriod.future2e34)
-# Set live fraction to 0.95 to catch any short, accidental prescales
-trigger_list = TriggerAPI.getLowestUnprescaledAnyPeriod(
-    trigger_all_periods,
-    triggerType = TriggerType.xe | TriggerType.el | TriggerType.mu | TriggerType.g,
-    livefraction = 0.95)
+trigger_list = EXOT27Utils.met_triggers + EXOT27Utils.single_electron_triggers +\
+        EXOT27Utils.single_muon_triggers + EXOT27Utils.single_photon_triggers
 EXOT27TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(
     "EXOT27TriggerSkimmingTool",
     TriggerListOR = trigger_list
     )
 EXOT27PreliminarySkimmingTools.append(EXOT27TriggerSkimmingTool)
 # Remake the trigger list to use for the matching
-triggers_for_matching = TriggerAPI.getLowestUnprescaledAnyPeriod(
-    trigger_all_periods,
-    triggerType = TriggerType.el | TriggerType.mu | TriggerType.g,
-    livefraction = 0.95)
+triggers_for_matching = EXOT27Utils.single_electron_triggers +\
+        EXOT27Utils.single_muon_triggers + EXOT27Utils.single_photon_triggers
 
 # Add the tools to the ToolSvc
 for tool in EXOT27PreliminarySkimmingTools:
@@ -487,10 +477,7 @@ EXOT27SkimmingORTools = []
 # Electrons:
 ToolSvc += DerivationFramework__TriggerSkimmingTool(
     "EXOT27EleTriggerSkimmingTool",
-    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
-    trigger_all_periods,
-    triggerType = TriggerType.el,
-    livefraction = 0.95) )
+    TriggerListOR = EXOT27Utils.single_electron_triggers)
 ToolSvc += DerivationFramework__xAODStringSkimmingTool(
     "EXOT27EleOfflineSkimmingTool",
     expression = " && ".join(map("({0})".format, [
@@ -505,14 +492,11 @@ EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
 # Muons:
 ToolSvc += DerivationFramework__TriggerSkimmingTool(
     "EXOT27MuonTriggerSkimmingTool",
-    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
-    trigger_all_periods,
-    triggerType = TriggerType.mu,
-    livefraction = 0.95) )
+    TriggerListOR = EXOT27Utils.single_muon_triggers)
 ToolSvc += DerivationFramework__xAODStringSkimmingTool(
     "EXOT27MuonOfflineSkimmingTool",
     expression = " && ".join(map("({0})".format, [
-      "count("+EXOT27BaselineMuon+") >= 2",
+      "count("+EXOT27BaselineMuon+") >= 1",
       "count("+EXOT27SignalMuon+") >= 1"]) ) )
 EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
       "EXOT27MuonChannelSkim",
@@ -523,10 +507,7 @@ EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
 # Photons:
 ToolSvc += DerivationFramework__TriggerSkimmingTool(
     "EXOT27PhotonTriggerSkimmingTool",
-    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
-    trigger_all_periods,
-    triggerType = TriggerType.g,
-    livefraction = 0.95) )
+    TriggerListOR = EXOT27Utils.single_photon_triggers)
 ToolSvc += DerivationFramework__xAODStringSkimmingTool(
     "EXOT27PhotonOfflineSkimmingTool",
     expression = "count("+EXOT27SignalPhoton+") >= 1")
@@ -539,10 +520,7 @@ EXOT27SkimmingORTools.append(DerivationFramework__FilterCombinationAND(
 # Apply no extra selection to events passing the MET trigger
 EXOT27SkimmingORTools.append(DerivationFramework__TriggerSkimmingTool(
     "EXOT27METTriggerSkimmingTool",
-    TriggerListOR = TriggerAPI.getLowestUnprescaledAnyPeriod(
-    trigger_all_periods,
-    triggerType = TriggerType.xe,
-    livefraction = 0.95) ) )
+    TriggerListOR = EXOT27Utils.met_triggers) )
 
 for tool in EXOT27SkimmingORTools:
   ToolSvc += tool
