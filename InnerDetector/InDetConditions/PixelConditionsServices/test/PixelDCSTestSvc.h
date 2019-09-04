@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -25,9 +25,6 @@
 class IPixelDCSSvc;
 class PixelConditionsSummaryTool;
 class PixelID;
-namespace InDetDD{ 
-  class PixelDetectorManager; 
-}
 
 class PixelDCSTestSvc: public AthAlgorithm{
 
@@ -44,8 +41,6 @@ class PixelDCSTestSvc: public AthAlgorithm{
  private:
 
   const PixelID* m_pixid; 
-  const InDetDD::PixelDetectorManager* m_pixman; 
-
 
   ServiceHandle< IPixelDCSSvc > m_pixelDCSSvc;
   ToolHandle<PixelConditionsSummaryTool> m_pixelSvc;
