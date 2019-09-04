@@ -322,7 +322,7 @@ if DerivationFrameworkIsMonteCarlo:
 
   from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthClassifierFallback
   from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
-  MUON1MuonTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "MUON1MuonTruthClassifierFallback",MCTruthClassifierTool = MCTruthClassifier )
+  MUON1MuonTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "MUON1MuonTruthClassifierFallback",MCTruthClassifierTool = MCTruthClassifier, ContainerKey="Muons")
   ToolSvc += MUON1MuonTruthClassifierFallback
   MUON1AugmentTools.append(MUON1MuonTruthClassifierFallback)
 

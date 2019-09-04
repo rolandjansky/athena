@@ -23,7 +23,7 @@ DerivationFramework::MuonTruthClassifierFallback::MuonTruthClassifierFallback(co
   AthAlgTool(t, n, p)
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
-  declareProperty("MuonContainerKey", m_muonSGKey="Muons");
+  declareProperty("ContainerKey", m_partSGKey="");
   declareProperty("TruthContainerKey", m_truthSGKey="TruthEvents");
   declareProperty("TruthPileupContainerKey", m_truthPileupSGKey="TruthPileupEvents");
   declareProperty("TruthMuonContainerKey", m_truthMuonSGKey="MuonTruthParticles");
@@ -53,10 +53,10 @@ StatusCode DerivationFramework::MuonTruthClassifierFallback::finalize()
 StatusCode DerivationFramework::MuonTruthClassifierFallback::addBranches() const
 {
  
-  // Retrieve main muon collection
-  const xAOD::MuonContainer* muons = nullptr;
-  if (evtStore()->retrieve(muons,m_muonSGKey).isFailure()) {
-    ATH_MSG_ERROR("No Muon collection with name " << m_muonSGKey << " found in StoreGate!");
+  // Retrieve main particle collection
+  const xAOD::IParticleContainer* parts = nullptr;
+  if (evtStore()->retrieve(parts,m_partSGKey).isFailure()) {
+    ATH_MSG_ERROR("No Muon collection with name " << m_partSGKey << " found in StoreGate!");
     return StatusCode::FAILURE;
   }
   const xAOD::TruthEventContainer* tec = nullptr;
@@ -79,12 +79,10 @@ StatusCode DerivationFramework::MuonTruthClassifierFallback::addBranches() const
 
   // Set up the decorator
   SG::AuxElement::Decorator<float> decorator_dR("TruthClassifierFallback_dR"); 
-  // There are some cases where reco->truth matching fails (either prompt or nonprompt), in which case we can store the precomputed classification of the truth muon.
   SG::AuxElement::Decorator<int> decorator_type("TruthClassifierFallback_truthType"); 
   SG::AuxElement::Decorator<int> decorator_origin("TruthClassifierFallback_truthOrigin"); 
 
   SG::AuxElement::Decorator<float> decorator_pu_dR("PileupTruthClassifierFallback_dR"); 
-  // There are some cases where reco->truth matching fails (either prompt or nonprompt), in which case we can store the precomputed classification of the truth muon.
   SG::AuxElement::Decorator<int> decorator_pu_type("PileupTruthClassifierFallback_truthType"); 
   SG::AuxElement::Decorator<int> decorator_pu_origin("PileupTruthClassifierFallback_truthOrigin"); 
 
@@ -94,29 +92,29 @@ StatusCode DerivationFramework::MuonTruthClassifierFallback::addBranches() const
   static SG::AuxElement::Decorator<int> decorator_tO("truthOrigin") ;
 
 
-  for (auto mu : *muons) {
+  for (auto part : *parts) {
     const xAOD::TruthParticle *closest = nullptr;
 
     for (auto muTruth : *truthMuons) {
-      if (closest && closest->p4().DeltaR(mu->p4()) < muTruth->p4().DeltaR(mu->p4())) continue;
+      if (closest && closest->p4().DeltaR(part->p4()) < muTruth->p4().DeltaR(part->p4())) continue;
       closest = muTruth;
     }
 
     for (auto event : *tec) {
       for (size_t parti = 0; parti < event->nTruthParticles(); parti++) {
-        const xAOD::TruthParticle *part = event->truthParticle(parti);
-        if (!part) continue;
-        if (part->status()!=1) continue;
-        if (part->barcode()>2e5) continue;
-        if (!part->charge()) continue;
-        if (abs(part->pdgId())==13) continue;
-        if (part->pt()<m_minPt) continue;
-        if (closest && closest->p4().DeltaR(mu->p4()) < part->p4().DeltaR(mu->p4())) continue;
-        closest = part;
+        const xAOD::TruthParticle *tpart = event->truthParticle(parti);
+        if (!tpart) continue;
+        if (tpart->status()!=1) continue;
+        if (tpart->barcode()>2e5) continue;
+        if (!tpart->charge()) continue;
+        if (abs(tpart->pdgId())==13) continue;
+        if (tpart->pt()<m_minPt) continue;
+        if (closest && closest->p4().DeltaR(part->p4()) < tpart->p4().DeltaR(part->p4())) continue;
+        closest = tpart;
       }
     }
 
-    decorator_dR(*mu) = (closest ? closest->p4().DeltaR(mu->p4()) : -1);
+    decorator_dR(*part) = (closest ? closest->p4().DeltaR(part->p4()) : -1);
 
     int newType = -1;
     int newOrigin = -1;
@@ -128,8 +126,8 @@ StatusCode DerivationFramework::MuonTruthClassifierFallback::addBranches() const
       newType = res.first;
       newOrigin = res.second;
     }
-    decorator_type(*mu) = newType;
-    decorator_origin(*mu) = newOrigin;
+    decorator_type(*part) = newType;
+    decorator_origin(*part) = newOrigin;
 
     if (tpec) {
       const xAOD::TruthParticle *closestPileup = nullptr;
@@ -141,11 +139,11 @@ StatusCode DerivationFramework::MuonTruthClassifierFallback::addBranches() const
           if (part->barcode()>2e5) continue;
           if (!part->charge()) continue;
           if (part->pt()<m_minPt) continue;
-          if (closestPileup && closestPileup->p4().DeltaR(mu->p4()) < part->p4().DeltaR(mu->p4())) continue;
+          if (closestPileup && closestPileup->p4().DeltaR(part->p4()) < part->p4().DeltaR(part->p4())) continue;
           closestPileup = part;
         }
       }
-      decorator_pu_dR(*mu) = (closestPileup ? closestPileup->p4().DeltaR(mu->p4()) : -1);
+      decorator_pu_dR(*part) = (closestPileup ? closestPileup->p4().DeltaR(part->p4()) : -1);
       int newPileupType = -1;
       int newPileupOrigin = -1;
       if (closestPileup) {
@@ -153,8 +151,8 @@ StatusCode DerivationFramework::MuonTruthClassifierFallback::addBranches() const
         newPileupType = res.first;
         newPileupOrigin = res.second;
       }
-      decorator_pu_type(*mu) = newPileupType;
-      decorator_pu_origin(*mu) = newPileupOrigin;
+      decorator_pu_type(*part) = newPileupType;
+      decorator_pu_origin(*part) = newPileupOrigin;
     }
   }
 
