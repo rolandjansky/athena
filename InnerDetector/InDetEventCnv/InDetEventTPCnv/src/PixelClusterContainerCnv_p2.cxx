@@ -215,9 +215,7 @@ StatusCode PixelClusterContainerCnv_p2::initialize(MsgStream &log) {
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the PixelID helper." << endmsg;
    //   }
 
-   if (m_useDetectorElement) {
-     CHECK(m_pixelDetEleCollKey.initialize());
-   }
+   CHECK(m_pixelDetEleCollKey.initialize(m_useDetectorElement));
 
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
