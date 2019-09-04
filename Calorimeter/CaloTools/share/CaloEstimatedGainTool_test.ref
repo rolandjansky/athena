@@ -1,0 +1,12 @@
+GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
+GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
+GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
+GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
+TestAlg              INFO Initializing TestAlg...
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr    SUCCESS                     PyAthena::Alg/TestAlg
+ApplicationMgr    SUCCESS      PyAthena::Alg/TestAlg
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
+Py:TestAlg           INFO finished
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
+TestAlg              INFO Finalizing TestAlg...
