@@ -94,7 +94,6 @@ if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in d
 
 msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
-tileInfoConfigurator.OFPhysicsNSamples = TileFrameLength
 tileInfoConfigurator.TrigSample = (TileFrameLength-1)/2
 
 if athenaCommonFlags.isOnline():

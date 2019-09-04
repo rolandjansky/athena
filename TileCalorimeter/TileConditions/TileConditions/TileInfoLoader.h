@@ -42,7 +42,6 @@
 #include <string>
 
 class TilePulseShapes;
-class TileOptFilterWeights;
 class StoreGateSvc;
 class TileCablingSvc;
 template<class TYPE> class SvcFactory;
@@ -118,9 +117,6 @@ private:
     int    m_nPhElecVec[7];
 
 
-    /** Pointer to Optimal Filtering weights*/
-    TileOptFilterWeights* m_OFWeights;
-
     /** Filenames of input files */
     std::string m_digitsShapeFileHi;
     std::string m_digitsShapeFileLo;
@@ -128,9 +124,6 @@ private:
     std::string m_MuRcvShapeFile;
     std::string m_MuL1ShapeFile;
     std::string m_DecoCovaFilePrefix;
-
-    bool m_loadOptFilterWeights;
-    bool m_loadOptFilterCorrelation;
 
     // name of TileCalibContainer in detector store
     std::string m_calibCntName;

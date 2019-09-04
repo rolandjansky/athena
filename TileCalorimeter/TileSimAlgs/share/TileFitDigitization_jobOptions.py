@@ -41,7 +41,6 @@ TileFrameLength = 9; # correct frame length for all testbeams
 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
 tileInfoConfigurator = TileInfoConfigurator()
 tileInfoConfigurator.NSamples = TileFrameLength
-tileInfoConfigurator.OFPhysicsNSamples = TileFrameLength
 tileInfoConfigurator.TrigSample = (TileFrameLength-1)/2
 tileInfoConfigurator.NoiseScaleIndex = 3; # Noise for Fit method
 from AthenaCommon.AppMgr import ToolSvc
