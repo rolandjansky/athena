@@ -10,19 +10,16 @@
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelConditionsData/PixelModuleData.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
 
 #include "SiLorentzAngleTool/SiLorentzAngleCondData.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 // forward declarations
-namespace InDetDD {
-  class PixelDetectorManager;
-}  
-
 namespace MagField {
   class IMagFieldSvc;
 }
@@ -37,7 +34,6 @@ class PixelSiLorentzAngleCondAlg: public AthAlgorithm {
 
   private:
     const PixelID* m_pixid;
-    const InDetDD::PixelDetectorManager* m_detManager;
 
     ServiceHandle<ICondSvc> m_condSvc;
     ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
@@ -45,6 +41,7 @@ class PixelSiLorentzAngleCondAlg: public AthAlgorithm {
     SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp{this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
     SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV  {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyBFieldSensor{this, "ReadKeyBFieldSensor", "/EXT/DCS/MAGNETS/SENSORDATA", "Key of input B-field sensor"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
     SG::WriteCondHandleKey<SiLorentzAngleCondData> m_writeKey{this, "WriteKey", "PixelSiLorentzAngleCondData", "Key of output SiLorentzAngleCondData"};
 
@@ -56,7 +53,7 @@ class PixelSiLorentzAngleCondAlg: public AthAlgorithm {
     bool                     m_useMagFieldDcs;
     double                   m_correctionFactor;
 
-    Amg::Vector3D getMagneticField(const IdentifierHash& elementHash) const;
+    Amg::Vector3D getMagneticField(const InDetDD::SiDetectorElement* element) const;
 };
 
 #endif // PIXELSILORENTZANGLECONDALG
