@@ -12,7 +12,6 @@
 # art-output: *.pmon.gz
 # art-output: *perfmon*
 # art-output: *.check*
-# art-cores: 8
 
 unset ATHENA_NPROC_NUM
 

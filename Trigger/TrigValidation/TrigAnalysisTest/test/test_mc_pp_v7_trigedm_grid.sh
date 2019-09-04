@@ -18,7 +18,6 @@
 # art-output: HLTconfig*.xml
 # art-output: L1Topoconfig*.xml
 # art-output: LVL1config*.xml
-# art-cores: 8
 
 unset ATHENA_NPROC_NUM
 
