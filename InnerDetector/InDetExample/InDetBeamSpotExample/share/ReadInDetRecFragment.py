@@ -326,7 +326,6 @@ include("InDetRecExample/InDetRec_all.py")
 # Remaining streams parameters
 #--------------------------------------------------------------
 if doWriteESD:
-  StreamESD.ForceRead = True
   if needsOutputFilePatch:
     if not jobConfig['griduser']:
       # See comment below on version tag info.
@@ -337,7 +336,6 @@ if doWriteESD:
       StreamESD.OutputFile = jobConfig['outputfile']
 
 if doWriteAOD:
-  StreamAOD.ForceRead = True
   if needsOutputFilePatch:
     if not jobConfig['griduser']:
       # The following is a hack to get version tag info into the DPD. Simply

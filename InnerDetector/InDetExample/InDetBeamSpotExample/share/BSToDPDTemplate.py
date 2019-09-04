@@ -222,7 +222,6 @@ include("InDetRecExample/InDetRec_all.py")
 #       - Should we use InDetKeys as in ReadInDetFragment.py instead
 #       - Or use DPD maker?
 if doWriteESD:
-    StreamESD.ForceRead = True
     if not jobConfig['griduser']:
         # See comment below on version tag info.
         itemList = StreamESD.ItemList
@@ -232,7 +231,6 @@ if doWriteESD:
         StreamESD.OutputFile = jobConfig['outputfile']
 
 if doWriteAOD:
-    StreamAOD.ForceRead = True
     if not jobConfig['griduser']:
         # The following is a hack to get version tag info into the DPD. Simply
         # setting StreamAOD.OutputFile to the desired file name does NOT work.

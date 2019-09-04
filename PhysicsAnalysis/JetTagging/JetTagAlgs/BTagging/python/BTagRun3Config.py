@@ -157,7 +157,6 @@ if __name__=="__main__":
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge(OutputStreamCfg(cfgFlags,"ESD", ItemList=BTaggingFlags.btaggingESDList))
-    cfg.getEventAlgo("OutputStreamESD").ForceRead = True
 
 
     #cfg.getService("StoreGateSvc").Dump=True

@@ -218,6 +218,4 @@ TrackCollectionTruthKeys   = [InDetKeys.TracksTruth()]
   
 include("InDetRecExample/InDetRec_all.py")
 
-if doWriteESD: StreamESD.ForceRead = True
     
-if doWriteAOD: StreamAOD.ForceRead = True
