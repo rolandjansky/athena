@@ -44,7 +44,7 @@ atlas_add_library( CaloClusterCorrectionLib
                    PUBLIC_HEADERS CaloClusterCorrection
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES CaloCondBlobObjs CaloConditions CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel CxxUtils AthenaPoolUtilities xAODCaloEvent GaudiKernel LArIdentifier LArRecConditions TileConditions CaloRecLib StoreGateLib SGtests LArToolsLib CaloDetDescrLib CaloUtilsLib
+                   LINK_LIBRARIES CaloCondBlobObjs CaloConditions CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel CxxUtils AthenaPoolUtilities xAODCaloEvent GaudiKernel LArIdentifier LArRecConditions TileConditionsLib CaloRecLib StoreGateLib SGtests LArToolsLib CaloDetDescrLib CaloUtilsLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TestTools CaloGeoHelpers Identifier EventKernel PathResolver )
 
 atlas_add_component( CaloClusterCorrection
