@@ -47,7 +47,6 @@ class TProfile;
 class TProfile2D;
 class TProfile_LW;
 class TProfile2D_LW;
-namespace InDetDD { class PixelDetectorManager; }
 namespace InDet {
 class PixelCluster;
 class IInDetTrackSelectionTool;

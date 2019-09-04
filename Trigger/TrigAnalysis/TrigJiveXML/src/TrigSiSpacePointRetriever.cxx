@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigJiveXML/TrigSiSpacePointRetriever.h"
@@ -12,8 +12,6 @@
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
-
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 namespace JiveXML {
 
@@ -107,12 +105,6 @@ namespace JiveXML {
   //--------------------------------------------------------------------------
   
   StatusCode TrigSiSpacePointRetriever::initialize(){
-
-    const InDetDD::PixelDetectorManager* pixel_geomanager;
-    if (detStore()->retrieve(pixel_geomanager, "Pixel").isFailure() ){
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get Pixel GeoModel Manager!" << endmsg;
-	return StatusCode::RECOVERABLE;
-    }
 
 //migration: https://twiki.cern.ch/twiki/bin/view/Atlas/InDetPkgFixing 
     if ( detStore()->retrieve(m_pixelHelper, "PixelID").isFailure() ){

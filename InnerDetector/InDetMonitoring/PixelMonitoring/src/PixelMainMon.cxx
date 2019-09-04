@@ -32,7 +32,6 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
