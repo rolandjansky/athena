@@ -166,34 +166,23 @@ StatusCode SiSmearedDigitizationTool::initialize()
       return StatusCode::FAILURE;
     }
 
-  if(m_SmearPixel){ // Smear Pixel
-    if (detStore()->retrieve(m_pixel_ID, "PixelID").isFailure()) {
-      ATH_MSG_ERROR ( "Could not get Pixel ID helper" );
-      return StatusCode::FAILURE;
-    }
+  if (detStore()->retrieve(m_pixel_ID, "PixelID").isFailure()) {
+    ATH_MSG_ERROR ( "Could not get Pixel ID helper" );
+    return StatusCode::FAILURE;
+  }
 
-    if (not m_useCustomGeometry) {
-      // Initialize ReadCondHandleKey
-      ATH_CHECK(m_pixelDetEleCollKey.initialize());
-    }
-  }else{ // Smear SCT
+  if (not m_SmearPixel){ // Smear SCT
     if (detStore()->retrieve(m_sct_ID, "SCT_ID").isFailure()) {
       ATH_MSG_ERROR ( "Could not get SCT ID helper" );
       return StatusCode::FAILURE;
     }
 
-    if (detStore()->retrieve(m_pixel_ID, "PixelID").isFailure()) {
-      ATH_MSG_ERROR ( "Could not get Pixel ID helper" );
-      return StatusCode::FAILURE;
-    }
-
     m_inputObjectName="SCT_Hits"; // Set the input object name
-
-    if (not m_useCustomGeometry) {
-      // Initialize ReadCondHandleKey
-      ATH_CHECK(m_SCTDetEleCollKey.initialize());
-    }
   }
+
+  // Initialize ReadCondHandleKeys
+  ATH_CHECK(m_pixelDetEleCollKey.initialize(m_SmearPixel and (not m_useCustomGeometry)));
+  ATH_CHECK(m_SCTDetEleCollKey.initialize((not m_SmearPixel) and (not m_useCustomGeometry)));
 
   //Get own engine with own seeds:
   m_randomEngine = m_rndmSvc->GetEngine(m_randomEngineName);

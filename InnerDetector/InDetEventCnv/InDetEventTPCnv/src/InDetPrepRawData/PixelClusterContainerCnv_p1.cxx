@@ -184,9 +184,7 @@ StatusCode InDet::PixelClusterContainerCnv_p1::initialize(MsgStream &log) {
       return StatusCode::FAILURE;
    } 
 
-   if (m_useDetectorElement) {
-      CHECK(m_pixelDetEleCollKey.initialize());
-   }
+   CHECK(m_pixelDetEleCollKey.initialize(m_useDetectorElement));
 
    return StatusCode::SUCCESS;
 }
