@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACKFAKEWRITER_H
@@ -29,7 +29,8 @@
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/TRT_RDO_Container.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "FakeTrackBuilder.h"
 class PixelID;
 class SCT_ID;
@@ -74,9 +75,8 @@ private:
     ///////////////////////////////////////////////////////////////////
 private:
 
-    /// Access to event store
-    std::string  m_pixMgrLocation;                    //!< Location of pixel Manager 
-    const InDetDD::PixelDetectorManager*  m_pixMgr;   //!< Detector Manager
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
+
     unsigned int m_eventcounter;
     bool         m_doInDet;
     bool         m_addBrokenTracks;
