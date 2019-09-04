@@ -53,8 +53,8 @@ namespace Trk {
       // default methods
       DenseEnvironmentsAmbiguityProcessorTool(const std::string&,const std::string&,const IInterface*);
       virtual ~DenseEnvironmentsAmbiguityProcessorTool ();
-      virtual StatusCode initialize();
-      virtual StatusCode finalize  ();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize  () override;
 
       /**Returns a processed TrackCollection from the passed 'tracks'
      @param tracks collection of tracks which will have ambiguities resolved. Will not be 
@@ -62,9 +62,11 @@ namespace Trk {
      The tracks will be refitted if no fitQuality is given at input.
      @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
      (i.e. client handles deletion)*/
-      TrackCollection*  process(TracksScores* trackScoreTrackMap) override;    
+      virtual TrackCollection*  process(TracksScores* trackScoreTrackMap) override;
+      
+      virtual TrackCollection*  process(const TrackCollection*) override {return nullptr;}; 
       /** statistics output */
-      virtual void statistics();
+      virtual void statistics() override;
 
     private:
       
