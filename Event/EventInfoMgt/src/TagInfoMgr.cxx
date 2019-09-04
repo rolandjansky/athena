@@ -34,7 +34,6 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/CondAttrListCollAddress.h"
 #include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"
-#include "CxxUtils/make_unique.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 
 // Gaudi includes
@@ -887,7 +886,7 @@ TagInfoMgr::preLoadAddresses( StoreID::type storeID,
     if (storeID == StoreID::DETECTOR_STORE) {
 
         std::unique_ptr<SG::TransientAddress> tad = 
-          CxxUtils::make_unique<SG::TransientAddress>( ClassID_traits<TagInfo>::ID(), m_tagInfoKeyValue );
+          std::make_unique<SG::TransientAddress>( ClassID_traits<TagInfo>::ID(), m_tagInfoKeyValue );
         IAddressProvider* addp = this;
         tad->setProvider(addp, storeID);
         // Get IOpaqueAddress and add to tad
@@ -996,7 +995,7 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
     // information. Otherwise we fill from from event info (OLD and
     // most likely not used anymore. RDS 08/2012).
     if (attrListColl && attrListColl->size() == 0) {
-        tagInfo = CxxUtils::make_unique<TagInfo>(m_lastTagInfo);
+        tagInfo = std::make_unique<TagInfo>(m_lastTagInfo);
         if (m_log.level() <= MSG::DEBUG) {
             m_log << MSG::DEBUG << "createObj: recreate tagInfo from saved info" << endmsg; 
             // Dump out contents of TagInfo
@@ -1005,7 +1004,7 @@ TagInfoMgr::createObj(IOpaqueAddress* addr, DataObject*& dataObj) {
         }
     }
     else {
-        tagInfo = CxxUtils::make_unique<TagInfo>();
+        tagInfo = std::make_unique<TagInfo>();
         if (StatusCode::SUCCESS != fillTagInfo(attrListColl, tagInfo.get())) {
             m_log << MSG::DEBUG << "createObj: Unable to fill TagInfo !" << endmsg;
             return StatusCode::FAILURE;
