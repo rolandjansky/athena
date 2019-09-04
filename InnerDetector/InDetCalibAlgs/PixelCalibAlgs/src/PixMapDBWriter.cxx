@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // PixelCalibAlgs
@@ -12,10 +12,8 @@
 
 // geometry
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h" // kazuki
 #include "InDetReadoutGeometry/SiDetectorElement.h" // kazuki
 #include "InDetReadoutGeometry/PixelModuleDesign.h" // kazuki
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h" // kazuki
 
 // ROOT
 #include "TFile.h"
@@ -44,8 +42,7 @@ PixMapDBWriter::PixMapDBWriter(const std::string& name, ISvcLocator* pSvcLocator
   m_listSpecialPixels(true),
   m_isIBL(true), // kazuki
   m_pixMapFileName("PixMap.root"),
-  m_pixelID(0),
-  m_pixman(0) // kazuki
+  m_pixelID(0)
 {
   declareProperty("SpecialPixelMapKey", m_specialPixelMapKey, "Key of the map to be merged with/compared to the new pixel map");
   declareProperty("DoValidate", m_doValidate, "Switch for validation mode");
@@ -78,13 +75,7 @@ StatusCode PixMapDBWriter::initialize(){
     return StatusCode::FAILURE;
   }
 
-  // kazuki ==>
-  sc = detStore()->retrieve( m_pixman, "Pixel" );
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID manager" );
-    return StatusCode::FAILURE;
-  }
-  // <== //
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -286,15 +277,18 @@ StatusCode PixMapDBWriter::finalize(){
   spm->resize(m_pixelID->wafer_hash_max());
 
   // kazuki
-  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
-  itermin = m_pixman->getDetectorElementBegin();
-  itermax = m_pixman->getDetectorElementEnd();
   int niterators=0; // kazuki
   if(m_pixelID->wafer_hash_max() > 1744) m_isIBL = true; // #modules only Pixel is 1744
 
-  for( iter = itermin; iter != itermax; ++iter) {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);  
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
+  
+  for (const InDetDD::SiDetectorElement* element: *elements) {
     niterators++; // kazuki
-    const InDetDD::SiDetectorElement* element = *iter;
     if(element == 0) continue;
     Identifier ident = element->identify();
     if(!m_pixelID->is_pixel(ident)) continue;  // OK this Element is included
@@ -410,8 +404,7 @@ StatusCode PixMapDBWriter::finalize(){
     std::vector<std::pair<unsigned int, Identifier> > results;
     std::vector<std::pair<unsigned int, Identifier> > results_absnum;
 
-    for( iter = itermin; iter != itermax; ++iter){
-      const InDetDD::SiDetectorElement* element = *iter;
+    for (const InDetDD::SiDetectorElement* element: *elements) {      
       if(element == 0) continue;
       Identifier ident = element->identify();
       if(!m_pixelID->is_pixel(ident)) continue;  // OK this Element is included
