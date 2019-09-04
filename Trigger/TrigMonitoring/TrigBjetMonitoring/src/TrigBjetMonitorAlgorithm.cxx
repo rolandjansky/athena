@@ -17,14 +17,14 @@
 TrigBjetMonitorAlgorithm::TrigBjetMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
   : AthMonitorAlgorithm(name,pSvcLocator)
   ,m_doRandom(true)
-  ,m_AllChains{}
-  ,m_MuonContainerKey("Muons")
-  ,m_VertexContainerKey("PrimaryVertices")
+  ,m_allChains{}
+  ,m_muonContainerKey("Muons")
+  ,m_vertexContainerKey("PrimaryVertices")
   ,m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
-  declareProperty ("AllChains", m_AllChains);
-  declareProperty("MuonContainerName",m_MuonContainerKey);
-  declareProperty("VertexContainerName",m_VertexContainerKey);
+  declareProperty ("AllChains", m_allChains);
+  declareProperty("MuonContainerName",m_muonContainerKey);
+  declareProperty("VertexContainerName",m_vertexContainerKey);
 }
 
 
@@ -32,8 +32,8 @@ TrigBjetMonitorAlgorithm::~TrigBjetMonitorAlgorithm() {}
 
 
 StatusCode TrigBjetMonitorAlgorithm::initialize() {
-  ATH_CHECK( m_MuonContainerKey.initialize() );
-  ATH_CHECK( m_VertexContainerKey.initialize() );
+  ATH_CHECK( m_muonContainerKey.initialize() );
+  ATH_CHECK( m_vertexContainerKey.initialize() );
   return AthMonitorAlgorithm::initialize();
 }
 
@@ -49,12 +49,12 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   auto OffyVtx = Monitored::Scalar<float>("Off_yVtx",0.0);
   auto OffzVtx = Monitored::Scalar<float>("Off_zVtx",0.0);
 
-  SG::ReadHandle<xAOD::VertexContainer> offlinepv(m_VertexContainerKey, ctx);
+  SG::ReadHandle<xAOD::VertexContainer> offlinepv(m_vertexContainerKey, ctx);
   if (! offlinepv.isValid() ) {
-    ATH_MSG_ERROR("evtStore() does not contain VertexContainer Collection with name "<< m_VertexContainerKey);
+    ATH_MSG_ERROR("evtStore() does not contain VertexContainer Collection with name "<< m_vertexContainerKey);
     return StatusCode::FAILURE;
   }
-  std::cout << " Size of the Off-line PV container: " << offlinepv->size()  << std::endl;
+  ATH_MSG_INFO(" Size of the Off-line PV container: " << offlinepv->size() );
   OffNVtx = offlinepv->size() ;
   for (unsigned int j = 0; j<offlinepv->size(); j++){
     OffxVtx = (*(offlinepv))[j]->x();
@@ -68,10 +68,10 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   std::string chainName;
 
-  int size_AllChains = m_AllChains.size();
+  int size_AllChains = m_allChains.size();
   ATH_MSG_INFO(" Size of the AllChains trigger container: " << size_AllChains );
   for (int i =0; i<size_AllChains; i++){
-    chainName = m_AllChains.at(i);
+    chainName = m_allChains.at(i);
     ATH_MSG_INFO("  Chain number: " << i << " AllChains Chain Name: " << chainName );
   }
 
@@ -90,7 +90,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   
 
 
-  for ( auto& trigName : m_AllChains ) {
+  for ( auto& trigName : m_allChains ) {
 
     
     // Access to TrigFeature
@@ -99,7 +99,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
     
     if ( m_trigDecTool->isPassed(trigName) ) {
-      std::cout << " Trigger chain from AllChains list: " << trigName << " has fired !!! " << std::endl;
+      ATH_MSG_INFO(" Trigger chain from AllChains list: " << trigName << " has fired !!! " );
 
 
       // Trigger type
@@ -141,8 +141,8 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	bjetChain = false;
       }// found
 
-      std::cout << " Trigger type: bjetChain " << bjetChain << " mujetChain " << mujetChain << " FTKChain " << FTKChain << " splitChain " << splitChain << std::endl;
-      std::cout << " Keys -- priVtxKey:  " << priVtxKey << " jetKey: " << jetKey << " trackKey: " << trackKey << std::endl;
+      ATH_MSG_INFO( " Trigger type: bjetChain " << bjetChain << " mujetChain " << mujetChain << " FTKChain " << FTKChain << " splitChain " << splitChain );
+      ATH_MSG_INFO( " Keys -- priVtxKey:  " << priVtxKey << " jetKey: " << jetKey << " trackKey: " << trackKey );
 
       // Read the TrigFeature contener
 
@@ -153,7 +153,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	Trig::FeatureContainer fc = m_trigDec->features(trigName);
 	const std::vector< Trig::Combination >& triggerCombs = fc.getCombinations();
 	ATH_MSG_INFO("RETRIEVED " << triggerCombs.size() << " COMBINATIONS FOR "  << trigName);
-	std::cout << " Size of triggerCombs : " << triggerCombs.size() << std::endl;
+	ATH_MSG_INFO( " Size of triggerCombs : " << triggerCombs.size() );
 	// Take all combinations for this b-jet trigger
 	std::vector< Trig::Combination >::const_iterator triggerComb;
 	for( triggerComb = triggerCombs.begin(); triggerComb != triggerCombs.end(); ++triggerComb ) {
@@ -171,7 +171,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	      if( not onlinepv->empty()) {
 		// PVz_tr 
 		std::string NameH = "PVz_tr_"+trigName;
-		std::cout << " NameH: " << NameH << std::endl;
+		ATH_MSG_INFO( " NameH: " << NameH );
 		auto PVz_tr = Monitored::Scalar<float>(NameH,0.0);
 		PVz_tr = (*(onlinepv))[0]->z();
 		ATH_MSG_INFO("        PVz_tr: " << PVz_tr);
@@ -188,7 +188,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	      for(const auto* trk : *onlinetrack) {
 		// d0 
 		std::string NameH = "d0_"+trigName;
-		std::cout << " NameH: " << NameH << std::endl;
+		ATH_MSG_INFO( " NameH: " << NameH  );
 		auto d0 = Monitored::Scalar<float>(NameH,0.0);
 		d0 = trk->d0();
 		ATH_MSG_INFO("        d0: " << d0);
@@ -205,7 +205,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	      for(const auto* bjet : *onlinebjet) {
 		// wMV2c20 
 		std::string NameH = "wMV2c20_"+trigName;
-		std::cout << " NameH: " << NameH << std::endl;
+		ATH_MSG_INFO( " NameH: " << NameH  );
 		auto wMV2c20 = Monitored::Scalar<double>(NameH,0.0);
 		wMV2c20 = bjet->auxdata<double>("MV2c20_discriminant");
 		ATH_MSG_INFO("        wMV2c20: " << wMV2c20);
@@ -227,7 +227,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	      for(const auto* jet : *onlinejet) {
 		// jetPt 
 		std::string NameH = "jetPt_"+trigName;
-		std::cout << " NameH: " << NameH << std::endl;
+		ATH_MSG_INFO( " NameH: " << NameH  );
 		auto jetPt = Monitored::Scalar<float>(NameH,0.0);
 		jetPt = (jet->pt())*1.e-3;
 		ATH_MSG_INFO("        jetPt: " << jetPt);
@@ -260,7 +260,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 		  for(const auto* jet : *onlinejet) {
 		    // jetPt 
 		    std::string NameH = "jetPt_"+trigName;
-		    std::cout << " NameH: " << NameH << std::endl;
+		    ATH_MSG_INFO( " NameH: " << NameH  );
 		    auto jetPt = Monitored::Scalar<float>(NameH,0.0);
 		    jetPt = (jet->pt())*1.e-3;
 		    ATH_MSG_INFO("        jetPt: " << jetPt);
@@ -293,7 +293,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    // jetPt 
 	    const xAOD::Jet* jet = *(jetLinkInfo.link);
 	    std::string NameH = "jetPt_"+trigName;
-	    std::cout << " NameH: " << NameH << std::endl;
+	    ATH_MSG_INFO( " NameH: " << NameH  );
 	    auto jetPt = Monitored::Scalar<float>(NameH,0.0);
 	    jetPt = (jet->pt())*1.e-3;
 	    ATH_MSG_INFO("        jetPt: " << jetPt);
@@ -304,7 +304,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       } // else Run3  
 
     } else {
-      std::cout << " Trigger chain from AllChains list: " << trigName << " has not fired " << std::endl;
+      ATH_MSG_INFO( " Trigger chain from AllChains list: " << trigName << " has not fired "  );
     } // trigger not fired
     
 
