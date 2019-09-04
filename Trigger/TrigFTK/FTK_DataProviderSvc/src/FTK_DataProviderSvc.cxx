@@ -6,7 +6,6 @@
 #include "FTK_DataProviderSvc/FTK_DataProviderSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
@@ -93,7 +92,6 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_BeamCondSvc("BeamCondSvc", name),
   m_pixelId(0),
   m_sctId(0),
-  m_pixelManager(0),
   m_id_helper(0),
   m_uncertaintyTool("FTK_UncertaintyTool"),
   m_trackFitter("Trk::ITrackFitter/InDetTrigTrackFitter"),
@@ -258,11 +256,11 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_CHECK(detStore->retrieve(m_pixelId, "PixelID"));
   ATH_CHECK(detStore->retrieve(m_sctId, "SCT_ID"));
   ATH_CHECK(detStore->retrieve(m_id_helper, "AtlasID"));
-  ATH_CHECK(detStore->retrieve(m_pixelManager,"Pixel"));
   ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
   ATH_MSG_INFO( " getting UncertaintyTool with name " << m_uncertaintyTool.name());
@@ -1821,13 +1819,12 @@ float FTK_DataProviderSvc::dphi(const float p1, const float p2) const {
 const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const IdentifierHash hash, const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee) {
 
   Identifier wafer_id = m_pixelId->wafer_id(hash); // Need to set up this tool
-  const InDetDD::SiDetectorElement* pDE = m_pixelManager->getDetectorElement(hash);
+  const InDetDD::SiDetectorElement* pDE = getPixelDetectorElement(hash);
 
   ATH_MSG_VERBOSE( " Pixel FTKHit hashID 0x" << std::hex << hash << std::dec << " " << m_id_helper->print_to_string(pDE->identify()));
 
-  const InDetDD::SiDetectorElement* pixelDetectorElement = m_pixelManager->getDetectorElement(hash);
   const InDetDD::PixelModuleDesign* design
-    (dynamic_cast<const InDetDD::PixelModuleDesign*>(&pixelDetectorElement->design()));
+    (dynamic_cast<const InDetDD::PixelModuleDesign*>(&pDE->design()));
 
   ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createPixelCluster: raw FTK cluster position: " <<
       " Row(phi): " <<  raw_pixel_cluster.getRowCoord() << " Col(eta): " << raw_pixel_cluster.getColCoord() <<
@@ -1945,7 +1942,7 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const Identifie
   ATH_MSG_VERBOSE("FTK_DataProviderSvc::createPixelCluster: local coordinates phiPos, etaPos"<<  phiPos << ", " << etaPos);
   ATH_MSG_VERBOSE(" FTK cluster phiwidth " << phiWidth << " etawidth " <<  etaWidth << " siWidth.phiR() " << siWidth.phiR() << " siWidth.z() " << siWidth.z());
 
-  // bool blayer = pixelDetectorElement->isBlayer();
+  // bool blayer = pDE->isBlayer();
 
   std::vector<Identifier> rdoList;
   rdoList.push_back(pixel_id);
@@ -1973,7 +1970,7 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const Identifie
   
   if(averageZPitch > 399*micrometer && averageZPitch < 401*micrometer){
     SG::ReadCondHandle<PixelCalib::PixelOfflineCalibData> offlineCalibData(m_clusterErrorKey);
-    if(pixelDetectorElement->isBarrel()){
+    if(pDE->isBarrel()){
       // Barrel corrections //
       int ibin = offlineCalibData->getPixelClusterErrorData()->getBarrelBin(eta,int(colRow.y()),int(colRow.x()));
       (*cov)(0,0) = square(offlineCalibData->getPixelClusterErrorData()->getPixelBarrelPhiError(ibin));
@@ -1993,7 +1990,7 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const Identifie
   }
 
   InDet::PixelCluster* pixel_cluster = new InDet::PixelCluster(pixel_id, position, rdoList, siWidth,
-							       pixelDetectorElement, cov);
+							       pDE, cov);
   ATH_MSG_VERBOSE("covariance " << (*cov)(0,0) << ", " << (*cov)(0,1));
   ATH_MSG_VERBOSE("           " << (*cov)(1,0) << ", " <<   (*cov)(1,1)) ;
 
@@ -2224,6 +2221,12 @@ unsigned int FTK_DataProviderSvc::getSCTHashID(const FTK_RawTrack& track, unsign
     id = track.getSCTCluster(iclus).getModuleID();
   }
   return id;
+}
+
+const InDetDD::SiDetectorElement* FTK_DataProviderSvc::getPixelDetectorElement(const IdentifierHash hash) const {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_pixelDetEleCollKey};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(hash);
 }
 
 const InDetDD::SiDetectorElement* FTK_DataProviderSvc::getSCTDetectorElement(const IdentifierHash hash) const {
