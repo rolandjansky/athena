@@ -30,7 +30,6 @@
 class PixelID;
 class IModuleDistortionsTool;
 
-class StoreGateSvc;
 class IIBLParameterSvc;
 
 

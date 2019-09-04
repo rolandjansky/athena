@@ -18,8 +18,6 @@
 #include "TrkFitterInterfaces/ITrackFitter.h" 
 #include "TrkFitterUtils/FitterTypes.h" 
 
-class StoreGateSvc;
-
 class AtlasDetectorID;
 class PixelID;
 class SCT_ID;
@@ -64,8 +62,6 @@ class TrigFTKTrackConverter : public AthAlgTool, virtual public ITrigFTKTrackCon
   void createPixelTruth(Identifier,const MultiTruth&);
 
 private:
-
-  StoreGateSvc* m_evtStore;
 
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;

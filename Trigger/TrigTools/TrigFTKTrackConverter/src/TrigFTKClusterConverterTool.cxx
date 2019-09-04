@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,6 @@
 #include "HepMC/GenParticle.h"
 
 #include "StoreGate/ReadCondHandle.h"
-#include "StoreGate/StoreGateSvc.h" 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 #include "TrigFTKTrackConverter/TrigFTKTrackConverter.h"
@@ -79,35 +78,22 @@ StatusCode TrigFTKClusterConverterTool::initialize() {
   if(m_usePixelCalibSvc) {
     ATH_CHECK(m_clusterErrorKey.initialize());
   }
-  if(m_doTruth) {
-    sc = service( "StoreGateSvc", m_evtStore ); 
-    if (sc.isFailure()) { 
-      ATH_MSG_FATAL("Unable to retrieve StoreGate service"); 
-      return sc; 
-    } 
-  }
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    ATH_MSG_FATAL("DetStore service not found"); 
-    return StatusCode::FAILURE; 
-  }
 
   // Get SCT & pixel Identifier helpers
 
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
      ATH_MSG_FATAL("Could not get Pixel ID helper");
      return StatusCode::FAILURE;  
   }
 
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {  
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {  
      ATH_MSG_FATAL("Could not get SCT ID helper");
      return StatusCode::FAILURE;
   }
 
-  sc = detStore->retrieve(m_pixelManager);  
+  sc = detStore()->retrieve(m_pixelManager);  
   if( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore."); 
+    ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore()."); 
     return sc;
   } 
 
@@ -115,7 +101,7 @@ StatusCode TrigFTKClusterConverterTool::initialize() {
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
 	//Get ID helper
-	if (detStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
+	if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
 		ATH_MSG_FATAL("Could not get AtlasDetectorID helper AtlasID");
 		return StatusCode::FAILURE;
 	}

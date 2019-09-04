@@ -37,7 +37,6 @@
  * energy content. */
 
 class Identifier; 
-class StoreGateSvc; 
 class CaloDetDescrManager; 
 class CaloDetDescrElement;
 

@@ -28,7 +28,6 @@
  #include "xAODTrigL1Calo/CPMTowerContainer.h"
  #include "AthContainers/DataVector.h"
  #include "GaudiKernel/DataSvc.h"
- #include "StoreGate/StoreGateSvc.h"
  #include "StoreGate/ReadHandleKey.h"
  #include "StoreGate/WriteHandleKey.h"
  #include "StoreGate/WriteHandleKeyArray.h"

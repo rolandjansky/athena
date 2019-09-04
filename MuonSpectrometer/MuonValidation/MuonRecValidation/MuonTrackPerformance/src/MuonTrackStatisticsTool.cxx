@@ -10,7 +10,6 @@
 
 #include "MuonTrackPerformance/MuonTrackStatisticsTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "TString.h"
 #include "HepMC/GenParticle.h"
 #include "TrkTrackSummary/TrackSummary.h"
