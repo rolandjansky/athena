@@ -194,6 +194,13 @@ if DerivationFrameworkIsMonteCarlo:
   ToolSvc += BkgElectronClassificationTool
   AugmentationTools.append(BkgElectronClassificationTool)
 
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthClassifierFallback
+  MuonTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "MuonTruthClassifierFallback",MCTruthClassifierTool = BkgElectronMCTruthClassifier, ContainerKey="Muons")
+  ElectronTruthClassifierFallback = DerivationFramework__MuonTruthClassifierFallback( name = "ElectronTruthClassifierFallback",MCTruthClassifierTool = BkgElectronMCTruthClassifier, ContainerKey="Electrons")
+  ToolSvc += MuonTruthClassifierFallback
+  ToolSvc += ElectronTruthClassifierFallback
+  AugmentationTools.append(MuonTruthClassifierFallback)
+  AugmentationTools.append(ElectronTruthClassifierFallback)
 
 #====================================================================
 # SKIMMING TOOL
@@ -342,6 +349,8 @@ SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo_201810.MV1_discrim
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
                                       "MuonClusterCollection.eta_sampl.phi_sampl",
                                       "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection",
+                                      "Muons.TruthClassifierFallback_truthType.TruthClassifierFallback_truthOrigin.TruthClassifierFallback_dR",
+                                      "Electrons.TruthClassifierFallback_truthType.TruthClassifierFallback_truthOrigin.TruthClassifierFallback_dR",
                                       "PrimaryVertices.covariance"]
 
 # Saves BDT and input variables for light lepton algorithms.
