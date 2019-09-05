@@ -141,11 +141,20 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_j85_L1J20"] = "L1_J20";
       dummyChains["HLT_j100_L1J20"] = "L1_J20";
       // from egamma test
+      dummyChains["HLT_2e17_etcut_L12EM15VH"] = "L1_2EM15VH";
       dummyChains["HLT_2e3_etcut"] = "L1_2EM3";
+      dummyChains["HLT_2e3_etcut_L12EM3"] = "L1_2EM3";
+      dummyChains["HLT_2g35_etcut_L12EM20VH"] = "L1_2EM20VH";
+      dummyChains["HLT_e26_etcut_L1EM22VHI"] = "L1_EM22VHI";
       dummyChains["HLT_e3_e5_etcut"] = "L1_2EM3";
       dummyChains["HLT_e3_etcut"] = "L1_EM3";
+      dummyChains["HLT_e3_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_e5_etcut"] = "L1_EM3";
+      dummyChains["HLT_e5_etcut_L1EM3"] = "L1_EM3";
       dummyChains["HLT_e7_etcut"] = "L1_EM7";
+      dummyChains["HLT_e7_etcut_L1EM3"] = "L1_EM3";
+      dummyChains["HLT_g140_etcut_L1EM24VHI"] = "L1_EM24VHI";
+      dummyChains["HLT_g5_etcut_L1EM3"] = "L1_EM3";
       // for menu test
       dummyChains["HLT_2j330_a10t_lcw_jes_35smcINF_L1J100"] = "L1_J100";
       dummyChains["HLT_j460_a10t_lcw_jes_30smcINF_L1J100"] = "L1_J100";
