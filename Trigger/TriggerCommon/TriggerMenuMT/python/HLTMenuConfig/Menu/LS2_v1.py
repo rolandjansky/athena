@@ -21,7 +21,7 @@ def setupMenu():
     SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
     MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
     SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
-    #MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
+    MultiPhotonGroup = ['RATE:MultiPhoton', 'BW:Photon']
     SingleMETGroup = ['RATE:MET', 'BW:MET']
     MultiMETGroup = ['RATE:MultiMET', 'BW:MultiMET']
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
@@ -69,12 +69,14 @@ def setupMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
         # ElectronChains----------
-        ChainProp(name='HLT_e3_etcut1step_L1EM3', groups=SingleElectronGroup),
+        #ChainProp(name='HLT_e3_etcut1step_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM3', stream=[PhysicsStream, 'express'], groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_etcut_L1EM22VHI', groups=SingleElectronGroup),
         # currently disabled, seems to be a problem with the precision calo step
-        #ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_2e3_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
+        ChainProp(name='HLT_2e17_etcut_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         #ChainProp(name='HLT_e3_etcut_e7_etcut_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
         # enabling only one step
         #ChainProp(name='HLT_2e3_etcut1step_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
@@ -85,6 +87,9 @@ def setupMenu():
 
         # PhotonChains------------
         ChainProp(name='HLT_g5_etcut_L1EM3', groups=SinglePhotonGroup),  
+        ChainProp(name='HLT_g140_etcut_L1EM24VHI', groups=SinglePhotonGroup),  
+        #ChainProp(name='HLT_g35_etcut_g25_etcut_L12EM20VH', groups=MultiPhotonGroup),  # Not working due ATR-19962
+        ChainProp(name='HLT_2g35_etcut_L12EM20VH', groups=MultiPhotonGroup),  
         ChainProp(name='HLT_g5_etcut_larpeb_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),  
     ]
 
