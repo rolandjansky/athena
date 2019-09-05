@@ -7,8 +7,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/Timeout.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
 #include "MuonSegment/MuonSegmentQuality.h"

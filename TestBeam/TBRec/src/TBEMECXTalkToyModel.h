@@ -5,7 +5,6 @@
 #ifndef TBREC_TBEMECXTALKTOYMODEL_H
 #define TBREC_TBEMECXTALKTOYMODEL_H
 
-class StoreGateSvc; 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloEvent/CaloCellContainer.h"

@@ -7,7 +7,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "LArElecCalib/LArConditionsException.h"
 

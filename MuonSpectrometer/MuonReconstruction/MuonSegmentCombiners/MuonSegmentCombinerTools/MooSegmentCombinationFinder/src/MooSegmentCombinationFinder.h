@@ -31,7 +31,6 @@
 
 
 class ICscSegmentFinder;
-class StoreGateSvc;
 class MdtIdHelper;
 
 namespace Muon 
