@@ -452,6 +452,7 @@ void test_baseinfo()
   std::vector<CLID> clids;
   clids = SG::BaseInfo<DataVector<CC> >::get_bases();
   std::vector<CLID> exp1 = list_of
+    (ClassID_traits<SG::AuxVectorBase>::ID())
     (ClassID_traits<DataVector<AA> >::ID())
     (ClassID_traits<DataVector<BB> >::ID())
     (ClassID_traits<DataVector<CC> >::ID());
@@ -461,6 +462,7 @@ void test_baseinfo()
 
   clids = SG::BaseInfo<DataVector<R> >::get_bases();
   std::vector<CLID> exp2 = list_of
+    (ClassID_traits<SG::AuxVectorBase>::ID())
     (ClassID_traits<DataVector<R> >::ID())
     (ClassID_traits<DataVector<N> >::ID())
     (ClassID_traits<DataVector<O> >::ID())

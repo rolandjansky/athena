@@ -1,7 +1,6 @@
-Wed May 22 16:58:40 CEST 2019
-Preloading tcmalloc_minimal.so
+Sun Sep  1 23:00:17 EDT 2019
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-dbg] [atlas-work3/a2d84b85b4c] -- built on [2019-05-22T0547]
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and [1] concurrent events
@@ -9,24 +8,25 @@ Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead3MT_jo.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead3_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5470 configurables from 64 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5002 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+# setting LC_ALL to "C"
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
-                                          running on lxplus729.cern.ch on Wed May 22 16:59:03 2019
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Sun Sep  1 23:00:21 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr                                     INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 AthDictLoaderSvc                                   INFO in initialize...
 AthDictLoaderSvc                                   INFO acquired Dso-registry
-ClassIDSvc                                         INFO  getRegistryEntries: read 7745 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 4252 CLIDRegistry entries for module ALL
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
@@ -34,17 +34,15 @@ MetaDataSvc                                        INFO Initializing MetaDataSvc
 AthenaPoolCnvSvc                                   INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc                                            INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                            INFO Frontier compression level set to 5
-DBReplicaSvc                                       INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc                                       INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-20T2152/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-dbg/share/dbreplica.config
-DBReplicaSvc                                       INFO Total of 10 servers found for host lxplus729.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc                                       INFO Read replica configuration from /home/sss/atlas/rootaccess/build/share/dbreplica.config
+DBReplicaSvc                                       INFO No specific match for domain found - use default fallback
+DBReplicaSvc                                       INFO Total of 1 servers found for host karma [atlas_dd ]
 PoolSvc                                            INFO Successfully setup replica sorting algorithm
 PoolSvc                                            INFO Setting up APR FileCatalog and Streams
 PoolSvc                                            INFO POOL WriteCatalog is file:xAODTestRead3MT_catalog.xml
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
 MetaDataSvc                                        INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
-EventSelector                                      INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
-EventSelector                                      INFO reinitialization...
 EventSelector                                      INFO EventSelection with query 
 PoolSvc                                            INFO File is not in Catalog! Attempt to open it anyway.
 Warning in <TClass::Init>: no dictionary for class DMTest::C_v1 is available
@@ -62,7 +60,7 @@ Warning in <TClass::Init>: no dictionary for class DataVector<DMTest::H_v2> is a
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 9537AB7C-6D7D-ED65-5325-B23A804F19D8
 Domain[ROOT_All]                                   INFO                           xaoddata3.root
-RootDatabase.open                                  INFO xaoddata3.root File version:61600
+RootDatabase.open                                  INFO xaoddata3.root File version:61800
 xaoddata3.root                                     INFO Database being retired...
 Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 9537AB7C-6D7D-ED65-5325-B23A804F19D8
 Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
@@ -71,22 +69,22 @@ DbSession                                          INFO     Open     DbSession
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 9537AB7C-6D7D-ED65-5325-B23A804F19D8
 Domain[ROOT_All]                                   INFO                           xaoddata3.root
-RootDatabase.open                                  INFO xaoddata3.root File version:61600
+RootDatabase.open                                  INFO xaoddata3.root File version:61800
 xaoddata3.root                                     INFO Database being retired...
 Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 9537AB7C-6D7D-ED65-5325-B23A804F19D8
 Domain[ROOT_All]                                   INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession                                          INFO     Open     DbSession    
 Domain[ROOT_All]                                   INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] 0885CB92-B2A3-7544-815B-00FE1F144CE0
+Domain[ROOT_All]                                   INFO ->  Access   DbDatabase   READ      [ROOT_All] A7425CFF-718F-C043-9763-32B089F286C3
 Domain[ROOT_All]                                   INFO                           xaoddata3.root
-RootDatabase.open                                  INFO xaoddata3.root File version:61600
-ClassIDSvc                                         INFO  getRegistryEntries: read 1874 CLIDRegistry entries for module ALL
+RootDatabase.open                                  INFO xaoddata3.root File version:61800
+ClassIDSvc                                         INFO  getRegistryEntries: read 1816 CLIDRegistry entries for module ALL
 EventPersistencySvc                                INFO Added successfully Conversion service:AthenaPoolCnvSvc
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 320 CLIDRegistry entries for module ALL
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 5352 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 274 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 9548 CLIDRegistry entries for module ALL
 PyComponentMgr                              0      INFO Initializing PyComponentMgr...
 LoadReadDicts                               0      INFO Initializing LoadReadDicts...
-ClassIDSvc                                  0      INFO  getRegistryEntries: read 432 CLIDRegistry entries for module ALL
+ClassIDSvc                                  0      INFO  getRegistryEntries: read 136 CLIDRegistry entries for module ALL
 ThreadPoolSvc                               0      INFO no thread init tools attached
 AvalancheSchedulerSvc                       0      INFO Activating scheduler in a separate thread
 AvalancheSchedulerSvc                       0      INFO Found 17 algorithms
@@ -101,6 +99,7 @@ AvalancheSchedulerSvc                       0      INFO Data Dependencies for Al
       none
   cvecCnv
     o OUTPUT  ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
+    o OUTPUT  ( 'SG::AuxVectorBase' , 'StoreGateSvc+cvec' ) 
   xAODTestReadCVec
     o INPUT   ( 'DMTest::CVec' , 'StoreGateSvc+cvec' ) 
   xAODTestReadCInfo
@@ -186,19 +185,19 @@ AthenaHiveEventLoopMgr                      0      INFO Setup EventSelector serv
 ApplicationMgr                              0      INFO Application Manager Initialized successfully
 PoolSvc                                     0      INFO Enabled implicit multithreading in ROOT via PersistencySvc to: 1
 xaoddata3.root                              0      INFO Database being retired...
-Domain[ROOT_All]                            0      INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 0885CB92-B2A3-7544-815B-00FE1F144CE0
+Domain[ROOT_All]                            0      INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A7425CFF-718F-C043-9763-32B089F286C3
 Domain[ROOT_All]                            0      INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession                                   0      INFO     Open     DbSession    
 Domain[ROOT_All]                            0      INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]                            0      INFO ->  Access   DbDatabase   READ      [ROOT_All] 0885CB92-B2A3-7544-815B-00FE1F144CE0
+Domain[ROOT_All]                            0      INFO ->  Access   DbDatabase   READ      [ROOT_All] A7425CFF-718F-C043-9763-32B089F286C3
 Domain[ROOT_All]                            0      INFO                           xaoddata3.root
-RootDatabase.open                           0      INFO xaoddata3.root File version:61600
+RootDatabase.open                           0      INFO xaoddata3.root File version:61800
 ApplicationMgr                              0      INFO Application Manager Started successfully
 AthenaHiveEventLoopMgr                      0      INFO Starting loop on events
 AthenaPoolConverter                     0   0      INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start of run 0    <<<===
 AthenaHiveEventLoopMgr                  0   0      INFO   ===>>>  start processing event #0, run #0 on slot 0,  0 events processed so far  <<<===
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 15 CLIDRegistry entries for module ALL
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 18 CLIDRegistry entries for module ALL
 xAODTestReadCVec                        0   0      INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec                        0   0      INFO Type of aux store: DMTest::CAuxContainer_v1
 RootAuxDynReader                        0   0      INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAuxDynReader::getBranchInfo(const unsigned long&, const SG::AuxStoreInternal&)): attribute dVar1 (id=225 typename=f) has different type than the branch vector<int>
@@ -255,7 +254,7 @@ xAODTestReadCVec                        0   0      INFO  anInt1 110 aFloat: 200.
 xAODTestReadCInfo                       0   0      INFO cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 xAODTestReadCInfo                       0   0      INFO cinfo  anInt1 1000 aFloat: 0.1 anInt2: 2000 dInt1: 3000 cEL: cvec[1]
 xAODTestRead                            0   0      INFO 1
-ClassIDSvc                              0   0      INFO  getRegistryEntries: read 50 CLIDRegistry entries for module ALL
+ClassIDSvc                              0   0      INFO  getRegistryEntries: read 58 CLIDRegistry entries for module ALL
 xAODTestRead                            0   0      INFO ctrig aux items: aFloat anInt anInt2 dInt1 
 xAODTestRead                            0   0      INFO  anInt1 501 aFloat: 600 anInt2: 701 dInt1: 481
 xAODTestRead                            0   0      INFO  anInt1 502 aFloat: 600.1 anInt2: 702 dInt1: 482
@@ -2862,9 +2861,9 @@ xAODTestReadCView_copy                  19  0      INFO copy_cview: 2010 2009 20
 xAODTestReadHVec_copy                   19  0      INFO copy_hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5 8011.5 8012.5 8013.5 8014.5 8015.5 8016.5 8017.5 8018.5 8019.5 8020.5
 xAODTestReadHVec_copy                   19  0      INFO copy_hview: 8020.5 8019.5 8018.5 8017.5 8016.5 8015.5 8014.5 8013.5 8012.5 8011.5 8010.5 8009.5 8008.5 8007.5 8006.5 8005.5 8004.5 8003.5 8002.5 8001.5
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #19, run #0 on slot 0,  20 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.955376
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.14858
 xaoddata3.root                                     INFO Database being retired...
-Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 0885CB92-B2A3-7544-815B-00FE1F144CE0
+Domain[ROOT_All]                                   INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A7425CFF-718F-C043-9763-32B089F286C3
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...

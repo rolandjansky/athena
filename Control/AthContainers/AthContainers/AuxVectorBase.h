@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AuxVectorBase.h 793298 2017-01-21 01:30:06Z ssnyder $
@@ -715,6 +715,12 @@ private:
 
 
 } // namespace SG
+
+
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF( SG::AuxVectorBase, 33347479, 1 )
+#endif
 
 
 #include "AthContainers/AuxVectorBase.icc"
