@@ -122,12 +122,13 @@ class EvgenConfig(TransformConfig):
     doNotSaveItems = ListOfStrings("List of StreamEVGEN items to NOT save in output file - note occurs BEFORE extraSaveItems are added")
     extraSaveItems = ListOfStrings("List of extra StreamEVGEN items to save in output file - note occurs AFTER doNotSaveItems are removed")
     inputFilesPerJob = Integer("number of input files per job",0, AllowedExpression("value >= 0"))
+    reqEvents = Integer("minimum number of events in output file",0, AllowedExpression("value >= 0"))
 
     def __init__(self, name="evgenConfig"):
         TransformConfig.__init__(self, name)
         self.contact = ["MC group"]
         self.auxfiles = ["PDGTABLE.MeV", "pdt.table", "DECAY.DEC", "Bdecays0.dat", "Bs2Jpsiphi.DEC","G4particle_whitelist.txt","susyParticlePdgid.txt"]
-        self.minevents = 5000
+        self.reqEvents = 10000
         self.maxeventsstrategy = "ABORT"
         self.specialConfig = "NONE"
 
