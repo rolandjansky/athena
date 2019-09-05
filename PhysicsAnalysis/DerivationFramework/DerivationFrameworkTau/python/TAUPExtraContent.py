@@ -111,6 +111,10 @@ ExtraContentTAUP3              =   ExtraContentPhotons                  \
 #                                  + ExtraContentMuons
 #                                  + ExtraContentTaus
 
+ExtraContentTAUP5              =   ExtraContentPhotons                  \
+                                 + ExtraContentElectrons                \
+                                 + ExtraContentMuons                    
+
 ExtraContentTruthTAUP1         =   ExtraContentPhotonsTruth             \
                                  + ExtraContentElectronsTruth           \
                                  + ExtraContentMuonsTruth               \
@@ -132,6 +136,12 @@ ExtraContentTruthTAUP3         =   ExtraContentPhotonsTruth             \
 #                                + ExtraContentElectronsTruth           \
 #                                + ExtraContentMuonsTruth               \
 #                                + ExtraContentTausTruth
+
+ExtraContentTruthTAUP5         =   ExtraContentPhotonsTruth             \
+                                 + ExtraContentElectronsTruth           \
+                                 + ExtraContentMuonsTruth               \
+                                 + ExtraContentTausTruth                \
+                                 + ExtraContentJetsTruth
 
 # ==========================================================================================================================
 # Extra containers
@@ -214,6 +224,8 @@ ExtraContainersTAUP4            =   ExtraContainersTrigger      \
                                      "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit",
                                      "HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig"]
 
+ExtraContainersTAUP5            =   ExtraContainersElectrons   
+
 ExtraContainersTruthTAUP1      = ["TruthEvents",
                                   "TruthParticles",
                                   "TruthVertices"
@@ -243,3 +255,10 @@ ExtraContainersTruthTAUP3      = ["TruthEvents",
 #                                 "AntiKt4TruthJets",
 #                                #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
 #                                 "AntiKt4TruthWZJets"]
+ExtraContainersTruthTAUP5      = ["TruthEvents",
+                                  "TruthParticles",
+                                  "TruthVertices",
+                                  "AntiKt4TruthJets",
+                                 #"BTagging_AntiKt4Truth", JRC TEMPORARILY COMMENTED
+                                  "AntiKt4TruthWZJets"
+                                 ]

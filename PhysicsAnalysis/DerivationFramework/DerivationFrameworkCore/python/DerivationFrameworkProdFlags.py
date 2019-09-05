@@ -958,6 +958,18 @@ class WriteDAOD_TAUP4Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TAUP4Stream)
 listAODtoDPD.append(WriteDAOD_TAUP4Stream.StreamName)
 
+class WriteDAOD_TAUP5Stream(JobProperty):
+    """TAUP5: Z+gamma Boosted DiTau validation analysis"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_TAUP5'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkTau/TAUP5.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TAUP5Stream)
+listAODtoDPD.append(WriteDAOD_TAUP5Stream.StreamName)
 
 #################################
 # Defined by the SUSY group
