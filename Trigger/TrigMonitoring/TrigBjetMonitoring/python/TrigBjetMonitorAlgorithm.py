@@ -12,10 +12,14 @@
 def TrigBjetMonConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
+    # from AthenaCommon.Logging import logging
+    # log = logging.getLogger( 'TrigBjetMonitorAlgorithm.py' )
+
     ### STEP 1 ###
     # Define one top-level monitoring algorithm. The new configuration 
     # framework uses a component accumulator.
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    # EN: Not needed for the moment
+    # from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     # result = ComponentAccumulator()
 
     # The following class will make a sequence, configure algorithms, and link
@@ -173,7 +177,6 @@ def TrigBjetMonConfig(inputFlags):
 
     # print " ==> In TrigBjetMonitorAlgorithm.py: AllChains list: ", AllChains
     trigBjetMonAlg.AllChains = AllChains
-    #shifterTrigBjetMonAlg.AllChains = AllChains
 
 
 
@@ -196,8 +199,9 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
+    from AthenaCommon.Constants import DEBUG
     log.setLevel(DEBUG)
+    # from AthenaCommon.Constants import INFO
     # log.setLevel(INFO)
 
     # Set the Athena configuration flags
