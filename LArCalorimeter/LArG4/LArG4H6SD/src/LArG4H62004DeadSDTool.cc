@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4H62004DeadSDTool.h"
 
 #include "LArG4H62004CalibSD.h"
-
-#include "CxxUtils/make_unique.h"
 
 // For escaped energy
 #include "CaloG4Sim/EscapedEnergyRegistry.h"
@@ -67,7 +65,7 @@ StatusCode LArG4H62004DeadSDTool::initializeSD()
 StatusCode LArG4H62004DeadSDTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-  if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
+  if (!m_HitColl.isValid()) m_HitColl = std::make_unique<CaloCalibrationHitContainer>(m_HitColl.name());
   m_deadSD ->EndOfAthenaEvent( &*m_HitColl );
   if (m_do_eep) m_uninstSD     ->EndOfAthenaEvent( &*m_HitColl );
   return StatusCode::SUCCESS;

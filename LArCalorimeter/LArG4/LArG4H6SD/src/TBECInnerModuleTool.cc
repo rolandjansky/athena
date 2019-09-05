@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBECInnerModuleTool.h"
 #include "LArG4Code/LArG4SimpleSD.h"
-
-#include "CxxUtils/make_unique.h"
 
 TBECInnerModuleTool::TBECInnerModuleTool(const std::string& type, const std::string& name, const IInterface *parent)
   : LArG4SDTool(type,name,parent)
@@ -94,19 +92,19 @@ StatusCode TBECInnerModuleTool::initializeSD()
 StatusCode TBECInnerModuleTool::Gather()
 {
   // In this case, *unlike* other SDs, the *tool* owns the collection
-  if (!m_HitColl_gapadj.isValid()) m_HitColl_gapadj = CxxUtils::make_unique<LArHitContainer>("LArHitEMEC_gapadj");
+  if (!m_HitColl_gapadj.isValid()) m_HitColl_gapadj = std::make_unique<LArHitContainer>("LArHitEMEC_gapadj");
   m_gapadjSD->EndOfAthenaEvent( &*m_HitColl_gapadj );
-  if (!m_HitColl_gapold.isValid()) m_HitColl_gapold = CxxUtils::make_unique<LArHitContainer>("LArHitEMEC_gapold");
+  if (!m_HitColl_gapold.isValid()) m_HitColl_gapold = std::make_unique<LArHitContainer>("LArHitEMEC_gapold");
   m_gapoldSD->EndOfAthenaEvent( &*m_HitColl_gapold );
-  if (!m_HitColl_gap_e.isValid()) m_HitColl_gap_e = CxxUtils::make_unique<LArHitContainer>("LArHitEMEC_gap_e");
+  if (!m_HitColl_gap_e.isValid()) m_HitColl_gap_e = std::make_unique<LArHitContainer>("LArHitEMEC_gap_e");
   m_gap_eSD->EndOfAthenaEvent( &*m_HitColl_gap_e );
-  if (!m_HitColl_gap_s.isValid()) m_HitColl_gap_s = CxxUtils::make_unique<LArHitContainer>("LArHitEMEC_gap_s");
+  if (!m_HitColl_gap_s.isValid()) m_HitColl_gap_s = std::make_unique<LArHitContainer>("LArHitEMEC_gap_s");
   m_gap_sSD->EndOfAthenaEvent( &*m_HitColl_gap_s );
-  if (!m_HitColl_gap_se.isValid()) m_HitColl_gap_se = CxxUtils::make_unique<LArHitContainer>("LArHitEMEC_gap_se");
+  if (!m_HitColl_gap_se.isValid()) m_HitColl_gap_se = std::make_unique<LArHitContainer>("LArHitEMEC_gap_se");
   m_gap_seSD->EndOfAthenaEvent( &*m_HitColl_gap_se );
-  if (!m_HitColl_chcoll.isValid()) m_HitColl_chcoll = CxxUtils::make_unique<LArHitContainer>("LArHitEMEC_chcoll");
+  if (!m_HitColl_chcoll.isValid()) m_HitColl_chcoll = std::make_unique<LArHitContainer>("LArHitEMEC_chcoll");
   m_chcollSD->EndOfAthenaEvent( &*m_HitColl_chcoll );
-  if (!m_HitColl_ropt.isValid()) m_HitColl_ropt = CxxUtils::make_unique<LArHitContainer>("LArHitEMEC_ropt");
+  if (!m_HitColl_ropt.isValid()) m_HitColl_ropt = std::make_unique<LArHitContainer>("LArHitEMEC_ropt");
   m_roptSD->EndOfAthenaEvent( &*m_HitColl_ropt );
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoH62004EventAction.h"
@@ -7,7 +7,6 @@
 #include "GaudiKernel/GaudiException.h"
 //#include "ParticleGenerator/ParticleManager.h"
 #include "LArG4RunControl/LArGeoTB2004Options.h"
-#include "CxxUtils/make_unique.h" // For make unique
 
 #include <iomanip>
 
@@ -37,7 +36,7 @@ namespace G4UA
 
     //ATH_MSG_DEBUG ( "TBEventInfo: "<<m_evnum<<"/"<<pdg<<"/"<<evtype<<"/"<<0<<"/"<<beamm<<"/"<<""<<"/"<<m_xpos<<"/"<<0<<"/"<<m_ypos);
 
-    m_ev = CxxUtils::make_unique<TBEventInfo>(++m_evnum,pdg,evtype,0,beamm,"",m_xpos,0,m_ypos);
+    m_ev = std::make_unique<TBEventInfo>(++m_evnum,pdg,evtype,0,beamm,"",m_xpos,0,m_ypos);
     return;
   }
 
