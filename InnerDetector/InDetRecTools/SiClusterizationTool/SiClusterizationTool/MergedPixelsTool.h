@@ -36,7 +36,6 @@ class PixelID;
 
 namespace InDetDD {
   class SiDetectorElement;
-  class SiDetectorManager;
 }
 
 namespace InDet {

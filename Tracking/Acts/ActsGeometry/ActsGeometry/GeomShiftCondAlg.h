@@ -16,7 +16,6 @@
 #include <string>
 
 namespace InDetDD {
-  class InDetDetectorManager;
   class PixelDetectorManager;
   class SCT_DetectorManager;
   class TRT_DetectorManager;
