@@ -173,6 +173,11 @@ def _createCfgFlags():
         return createPFConfigFlags()
     _addFlagsCategory(acf,"PF",__pflow, 'eflowRec')
 
+    def __btagging():
+        from BTagging.BTaggingConfigFlags import createBTaggingConfigFlags
+        return createBTaggingConfigFlags()
+    _addFlagsCategory(acf,"BTagging",__btagging, 'BTagging')
+
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags
         dqf = createDQConfigFlags()

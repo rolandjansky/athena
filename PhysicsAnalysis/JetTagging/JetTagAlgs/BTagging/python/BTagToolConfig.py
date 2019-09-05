@@ -4,12 +4,11 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from BTagging.BTaggingConf import Analysis__BTagTool
 from BTagging.BTaggingFlags import BTaggingFlags
 
-def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, Verbose = False, options = {}):
+def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, **options):
       """Adds a new myBTagTool instance and registers it.
 
       input: jetcol:             The name of the jet collections.
              ToolSvc:            The ToolSvc instance.
-             Verbose:            Whether to print detailed information about the tool.
              options:            Python dictionary of options to be passed to the BTagTool.
              (note the options storeSecondaryVerticesInJet is passed to the removal tool instead)
 
@@ -26,72 +25,52 @@ def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, Ve
 
       if 'IP2D' in TaggerList:
           from JetTagTools.IP2DTagConfig import IP2DTagCfg
-          accIP2D = IP2DTagCfg(ConfigFlags, 'IP2DTag')
-          ip2dtool = accIP2D.popPrivateTools()
-          acc.merge(accIP2D)
+          ip2dtool = acc.popToolsAndMerge(IP2DTagCfg(ConfigFlags, 'IP2DTag'))
           tagToolList.append(ip2dtool)
 
       if 'IP3D' in TaggerList:
           from JetTagTools.IP3DTagConfig import IP3DTagCfg
-          accIP3D = IP3DTagCfg(ConfigFlags, 'IP3DTag')
-          ip3dtool = accIP3D.popPrivateTools()
-          acc.merge(accIP3D)
+          ip3dtool = acc.popToolsAndMerge(IP3DTagCfg(ConfigFlags, 'IP3DTag'))
           tagToolList.append(ip3dtool)
 
       if 'SV1' in TaggerList:
           from JetTagTools.SV1TagConfig import SV1TagCfg
-          accSV1 = SV1TagCfg('SV1Tag')
-          sv1tool = accSV1.popPrivateTools()
-          acc.merge(accSV1)
+          sv1tool = acc.popToolsAndMerge(SV1TagCfg('SV1Tag'))
           tagToolList.append(sv1tool)
 
       if 'RNNIP' in TaggerList:
           from JetTagTools.RNNIPTagConfig import RNNIPTagCfg
-          accRNNIP = RNNIPTagCfg(ConfigFlags, 'RNNIPTag')
-          rnniptool = accRNNIP.popPrivateTools()
-          acc.merge(accRNNIP)
+          rnniptool = acc.popToolsAndMerge(RNNIPTagCfg(ConfigFlags, 'RNNIPTag'))
           tagToolList.append(rnniptool)
 
       if 'JetFitterNN' in TaggerList:
           from JetTagTools.JetFitterTagConfig import JetFitterTagCfg
-          accJetFitter = JetFitterTagCfg('JetFitterTagNN')
-          jetfitterNNtool = accJetFitter.popPrivateTools()
-          acc.merge(accJetFitter)
+          jetfitterNNtool = acc.popToolsAndMerge(JetFitterTagCfg('JetFitterTagNN'))
           tagToolList.append(jetfitterNNtool)
       
       if 'SoftMu' in TaggerList:
           from JetTagTools.SoftMuonTagConfig import SoftMuonTagCfg
-          accSoftMu = SoftMuonTagCfg(ConfigFlags, 'SoftMuonTag')
-          softmutool = accSoftMu.popPrivateTools()
-          acc.merge(accSoftMu)
+          softmutool = acc.popToolsAndMerge(SoftMuonTagCfg(ConfigFlags, 'SoftMuonTag'))
           tagToolList.append(softmutool)
 
       if 'MultiSVbb1' in TaggerList:
           from JetTagTools.MultiSVTagConfig import MultiSVTagCfg
-          accMultiSV = MultiSVTagCfg('MultiSVbb1Tag','MultiSVbb1')
-          multisvbb1tool = accMultiSV.popPrivateTools()
-          acc.merge(accMultiSV)
+          multisvbb1tool = acc.popToolsAndMerge(MultiSVTagCfg('MultiSVbb1Tag','MultiSVbb1'))
           tagToolList.append(multisvbb1tool)
 
       if 'MultiSVbb2' in TaggerList:
           from JetTagTools.MultiSVTagConfig import MultiSVTagCfg
-          accMultiSV = MultiSVTagCfg('MultiSVbb2Tag','MultiSVbb2')
-          multisvbb2tool = accMultiSV.popPrivateTools()
-          acc.merge(accMultiSV)
+          multisvbb2tool = acc.popToolsAndMerge(MultiSVTagCfg('MultiSVbb2Tag','MultiSVbb2'))
           tagToolList.append(multisvbb2tool)
 
       if 'JetVertexCharge' in TaggerList:
           from JetTagTools.JetVertexChargeConfig import JetVertexChargeCfg
-          accJVC = JetVertexChargeCfg('JetVertexCharge')
-          jvc = accJVC.popPrivateTools()
-          acc.merge(accJVC)
+          jvc = acc.popToolsAndMerge(JetVertexChargeCfg('JetVertexCharge'))
           tagToolList.append(jvc)
 
       if 'DL1' in TaggerList or 'DL1mu' in TaggerList or 'DL1rnn' in TaggerList:
           from JetTagTools.MultivariateTagManagerConfig import MultivariateTagManagerCfg
-          accMVTM = MultivariateTagManagerCfg('mvtm', TaggerList = TaggerList)
-          mvtm = accMVTM.popPrivateTools()
-          acc.merge(accMVTM)
+          mvtm = acc.popToolsAndMerge(MultivariateTagManagerCfg('mvtm', TaggerList = TaggerList))
           tagToolList.append(mvtm)
 
       options = dict(options)
