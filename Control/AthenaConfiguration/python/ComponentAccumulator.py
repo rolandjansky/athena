@@ -46,7 +46,7 @@ def printProperties(msg, c, nestLevel = 0):
             propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,ConfigurableAlgTool):
             propstr = propval.getFullName()
-        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr) )
+        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr))
     return
 
 
@@ -76,6 +76,9 @@ class ComponentAccumulator(object):
         self._wasMerged=False
         self._isMergable=True
         self._lastAddedComponent="Unknown" 
+
+    def setAsTopLevel(self):
+        self._isMergable = False
 
 
     def _inspect(self): #Create a string some basic info about this CA, useful for debugging
@@ -173,6 +176,10 @@ class ComponentAccumulator(object):
                 if summariseProps:
                     printProperties(self._msg, self._privateTools)
         self._msg.info( "]" )
+        self._msg.info( "TheApp properties" )
+        for k,v in six.iteritems(self._theAppProps):
+            self._msg.info("  {} : {}".format(k,v))
+
 
     def addSequence(self, newseq, parentName = None ):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
@@ -431,7 +438,7 @@ class ComponentAccumulator(object):
                 raise RuntimeError("merge called with a ComponentAccumulator a dangling (array of) private tools")
         
         if not other._isMergable:
-            raise ConfigurationError("Attempted to merge the accumulator that was unsafely manipulated (likely with foreach_component, ...)")
+            raise ConfigurationError("Attempted to merge the ComponentAccumulator that was unsafely manipulated (likely with foreach_component, ...) or is a top level ComponentAccumulator, in such case revert the order")
 
         #destSubSeq = findSubSequence(self._sequence, sequence)
         #if destSubSeq == None:
