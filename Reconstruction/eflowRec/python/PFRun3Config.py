@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def getPFTrackSelectorAlgorithm(inputFlags):
@@ -166,6 +166,13 @@ def PFCfg(inputFlags,**kwargs):
     from IOVDbSvc.IOVDbSvcConfig import addFolders
     result.merge(addFolders(inputFlags,['/Indet/IBLDist'],'INDET_OFL'))
     
+    #Setup Pixel conditions
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
+    result.addCondAlgo(PixelAlignCondAlg(name = "PixelAlignCondAlg",UseDynamicAlignFolders = False))
+
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
+    result.addCondAlgo(PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg"))
+
     #Setup SCT conditions
     from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
     result.addCondAlgo(SCT_AlignCondAlg(name = "SCT_AlignCondAlg",UseDynamicAlignFolders = False))
