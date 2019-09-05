@@ -60,9 +60,7 @@ jobproperties.RecConfFlags.AllowBackNavigation = True
 
 ## Set up a standard logger
 from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Gen')
-
-evgenLog.info("****************** GENERATING EVENTS WITH GEN_TF *****************")
+evgenLog = logging.getLogger('Gen_tf')
 
 ##==============================================================
 ## Run arg handling
@@ -271,6 +269,7 @@ evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION ****************
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
+evgenLog.info(".transform              GENtoEVNT")
 
 ## Sort and check generator name / JO name consistency
 ##
