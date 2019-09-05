@@ -47,9 +47,6 @@ class PixelID;
 class SCT_ID;
 class EventID;
 
-namespace InDetDD {
-  class PixelDetectorManager;
-}
 namespace HepPDT {
   class ParticleDataTable;
 }
@@ -65,9 +62,7 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
 
   mutable MsgStream m_log;
   
-  std::string m_dumppath;
-     
-  const  InDetDD::PixelDetectorManager*     m_PIX_mgr;
+  std::string m_dumppath;  
   
   const InDet::SiClusterContainer*  m_pixelContainer;
   const InDet::SiClusterContainer*  m_sctContainer;
@@ -76,6 +71,7 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
   ToolHandle<IInDetConditionsTool>        m_sctCondSummaryTool{this, "SctSummaryTool",
       "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   
   const PixelID*   m_pixelId;
