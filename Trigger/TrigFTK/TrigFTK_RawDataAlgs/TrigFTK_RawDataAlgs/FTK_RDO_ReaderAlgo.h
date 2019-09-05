@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FTK_RDO_ReaderAlgo_h
@@ -34,10 +34,6 @@ class AtlasDetectorID;
 class Identifier;
 class PixelID;
 class SCT_ID;
-
-namespace InDetDD {
-  class PixelDetectorManager;
-}
 
 namespace Trk {
   class IResidualPullCalculator;
@@ -107,8 +103,8 @@ private:
   const AtlasDetectorID* m_idHelper;
   const PixelID* m_pixelId;  
   const SCT_ID* m_sctId;  
-  const InDetDD::PixelDetectorManager*  m_PIX_mgr;
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   ToolHandle<Trk::IResidualPullCalculator> m_residualCalc;

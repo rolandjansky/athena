@@ -40,7 +40,6 @@ class PixelID;
 class SCT_ID;
 
 namespace InDetDD {
-  class PixelDetectorManager;
   class SiDetectorElement;
 }
 
@@ -68,8 +67,9 @@ public:
 							 bool& uniqueMatch);
   
   double getSctLocX(const InDetDD::SiDetectorElement* pDE, const float stripCoord, const int clusterWidth);
-  const std::pair<double,double> getPixLocXlocY(const IdentifierHash hash, const float rawLocalPhiCoord, const float rawLocalEtaCoord);
+  const std::pair<double,double> getPixLocXlocY(const InDetDD::SiDetectorElement* pixelDetectorElement, const float rawLocalPhiCoord, const float rawLocalEtaCoord);
   void compareTracks(const FTK_RawTrack* ftkTrack, 
+                     const InDetDD::SiDetectorElementCollection* pixelElements,
                      const InDetDD::SiDetectorElementCollection* sctElements,
 		     std::map<unsigned int,std::pair<double,double>>& offlinetrackPixLocxLocy,
 		     std::map<unsigned int,double>& offlinetrackSctLocx);
@@ -93,13 +93,12 @@ public:
   const PixelID* m_pixelId;
   const SCT_ID*  m_sctId;
   
-  const InDetDD::PixelDetectorManager* m_pixelManager;
-
   const AtlasDetectorID* m_id_helper;
 
   ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   /// Histograms ///
