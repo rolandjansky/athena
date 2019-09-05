@@ -45,7 +45,6 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
@@ -72,10 +71,11 @@ private:
   std::string m_smearingFilePath;
   std::string m_smearingFileName;
 
+  std::vector<bool> m_isStereo{};
+
   const AtlasDetectorID* m_id_helper;
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;
-  const InDetDD::SCT_DetectorManager* m_SCT_Manager;
   ToolHandle<Trk::ITrackSummaryTool> m_trkSumTool;
   ToolHandle<IFTK_UncertaintyTool> m_uncertaintyTool;
   

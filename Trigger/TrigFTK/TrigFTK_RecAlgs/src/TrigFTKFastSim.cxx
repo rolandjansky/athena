@@ -10,6 +10,7 @@
 #include "TrigFTK_RecAlgs/TrigFTKFastSim.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
 
 namespace Par {
   const int Ipt = 0;
@@ -81,7 +82,6 @@ TrigFTKFastSim::TrigFTKFastSim(const std::string &n, ISvcLocator *pSvcLoc)
     m_id_helper(0),
     m_pixelId(0),
     m_sctId(0),
-    m_SCT_Manager(0),
     m_trkSumTool("TrackSummaryTool"),
     m_uncertaintyTool("FTK_UncertaintyTool"),
     m_rndmSvc("AtRndmGenSvc","Smearing"),
@@ -137,10 +137,19 @@ HLT::ErrorCode TrigFTKFastSim::hltInitialize() {
     return HLT::BAD_JOB_SETUP;
   }
 
-  sc = detStore()->retrieve(m_SCT_Manager);
+  const InDetDD::SCT_DetectorManager* sctManager{nullptr};
+  sc = detStore()->retrieve(sctManager);
   if( sc.isFailure() ) {
     ATH_MSG_DEBUG("Failure retrieving ID_helper"); 
     return HLT::BAD_JOB_SETUP;
+  }
+
+  m_isStereo.resize(m_sctId->wafer_hash_max(), false);
+  const InDetDD::SiDetectorElementCollection* sctDetElementColl{sctManager->getDetectorElementCollection()};
+  for (const InDetDD::SiDetectorElement* element: *sctDetElementColl) {
+    if (element->isStereo()) {
+      m_isStereo[element->identifyHash()] = true;
+    }
   }
 
   sc = m_rndmSvc.retrieve();
@@ -375,10 +384,11 @@ HLT::ErrorCode TrigFTKFastSim::hltExecute(const HLT::TriggerElement* , HLT::Trig
           const Trk::RIO_OnTrack *trkHit = new InDet::SCT_ClusterOnTrack( dynamic_cast <const InDet::SCT_ClusterOnTrack&>(*measurement));
           hitsVec.push_back(trkHit);
 
-          const InDetDD::SiDetectorElement* pDE = m_SCT_Manager->getDetectorElement( hitID );
+          const Identifier wafer_id = m_sctId->wafer_id(hitID);
+          const IdentifierHash wafer_hash = m_sctId->wafer_hash(wafer_id);
           int layer = m_sctId->layer_disk(hitID);
           bool barrel = m_sctId->is_barrel(hitID);
-          if( pDE->isStereo() ) {
+          if( m_isStereo[wafer_hash] ) {
             if( gotSCTuv[barrel][layer] == false ) {
               stage2_hits++;
               gotSCTuv[barrel][layer] = true;
