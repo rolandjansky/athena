@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTK_RawDataAlgs/FTK_RDO_ReaderAlgo.h"
@@ -12,7 +12,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IUpdator.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 #include "EventInfo/EventInfo.h"
@@ -109,6 +108,7 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
   ATH_MSG_INFO("FTK_RDO_ReaderAlgo::initialize()" );
 
   // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   //FIX THESE
@@ -1801,11 +1801,13 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(TrackCollection *trackCollection,std::vec
     ATH_MSG_WARNING( "Could not get updatorTool !" << endl);
     return;
   }
-  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    ATH_MSG_WARNING( "Unable to retrieve Pixel manager from DetectorStore" << endl);
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
     return;
   }
-
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
   if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
@@ -1887,7 +1889,9 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(TrackCollection *trackCollection,std::vec
 
 	    resAssociatedTrack->push_back(iTrack);
 	    if (m_idHelper->is_pixel(hitId)) {
-	      const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
+              const Identifier wafer_id = m_pixelId->wafer_id(hitId);
+              const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+	      const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
 	      clustID->push_back(sielement->identifyHash());
 
 	      y_residual->push_back(res_y);
@@ -1949,11 +1953,13 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(const xAOD::TrackParticleContainer *track
     ATH_MSG_WARNING( "Could not get updatorTool !" << endl);
     return;
   }
-  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    ATH_MSG_WARNING( "Unable to retrieve Pixel manager from DetectorStore" << endl);
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
     return;
   }
-
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
   if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
@@ -2037,7 +2043,9 @@ void FTK_RDO_ReaderAlgo::Fill_Clusters(const xAOD::TrackParticleContainer *track
 	    
 	    resAssociatedTrack->push_back(iTrack);
 	    if (m_idHelper->is_pixel(hitId)) {
-	      const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
+              const Identifier wafer_id = m_pixelId->wafer_id(hitId);
+              const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+	      const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
 	      clustID->push_back(sielement->identifyHash());
 
 	      x_residual->push_back(res_x);

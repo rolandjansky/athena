@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FTK_RDO_MonitorAlgo.h"
@@ -46,7 +46,6 @@ FTK_RDO_MonitorAlgo::FTK_RDO_MonitorAlgo(const std::string& name, ISvcLocator* p
   m_DataProviderSvc("IFTK_DataProviderSvc/IFTK_DataProviderSvc", name),
   m_pixelId(0),
   m_sctId(0),
-  m_pixelManager(0),
   m_id_helper(0),
   m_minPt(1000.),
   m_maxa0(1.),
@@ -140,13 +139,13 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
 
   ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID"));
   ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
-  ATH_CHECK(detStore()->retrieve(m_pixelManager));
   ATH_CHECK(detStore()->retrieve(m_id_helper, "AtlasID"));
 
   ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
   ATH_CHECK(m_sctLorentzAngleTool.retrieve());
 
   // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   ATH_MSG_INFO("RDO_CollectionName " << m_ftk_raw_trackcollection_Name);
@@ -198,6 +197,12 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 		   << "event" << eventID->event_number());
   }
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* pixelElements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or pixelElements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return StatusCode::FAILURE;
+  }
   SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
   const InDetDD::SiDetectorElementCollection* sctElements(*sctDetEleHandle);
   if (not sctDetEleHandle.isValid() or sctElements==nullptr) {
@@ -344,7 +349,7 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 	  
 	  if (eta> m_mineta && eta < m_maxeta && phi0> m_minphi && phi0 < m_maxphi) {
 	    if (uniqueMatch) { 
-	      if (m_getRawTracks)(this)->compareTracks(ftkRawTrack, sctElements, offlinetrackPixLocxLocy, offlinetrackSctLocx);
+	      if (m_getRawTracks)(this)->compareTracks(ftkRawTrack, pixelElements, sctElements, offlinetrackPixLocxLocy, offlinetrackSctLocx);
 	      if (m_getTracks) {
 		const Trk::Track* ftktrack = m_DataProviderSvc->getCachedTrack(ftkTrackMatch.first,false);
 		if (ftktrack) (this)->compareTracks(ftktrack, offlinetrackPixLocxLocy, offlinetrackSctLocx, false);
@@ -1131,6 +1136,7 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
 }
 
 void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack, 
+                                        const InDetDD::SiDetectorElementCollection* pixelElements,
                                         const InDetDD::SiDetectorElementCollection* sctElements,
 					std::map<unsigned int,std::pair<double,double> >& offlinetrackPixLocxLocy,
 					std::map<unsigned int,double>& offlinetrackSctLocx
@@ -1184,8 +1190,8 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
       layername="PIXE";
     }
 
-
-    const std::pair<double,double> ftkLocxLocy =(this)->getPixLocXlocY(hash,rawLocalPhiCoord, rawLocalEtaCoord);
+    const InDetDD::SiDetectorElement* pixelDetectorElement = pixelElements->getDetectorElement(hash);
+    const std::pair<double,double> ftkLocxLocy =(this)->getPixLocXlocY(pixelDetectorElement, rawLocalPhiCoord, rawLocalEtaCoord);
     auto p = offlinetrackPixLocxLocy.find(hash);
     if (p!=offlinetrackPixLocxLocy.end()) {
       std::pair<double, double> offlineLocxLoxy= p->second;
@@ -1460,9 +1466,8 @@ void FTK_RDO_MonitorAlgo::compareTracks(const Trk::Track* ftkTrack,
 
 
 
-const std::pair<double,double> FTK_RDO_MonitorAlgo::getPixLocXlocY(const IdentifierHash hash, const float rawLocalPhiCoord, const float rawLocalEtaCoord) {
-	
-  const InDetDD::SiDetectorElement* pixelDetectorElement = m_pixelManager->getDetectorElement(hash);
+const std::pair<double,double> FTK_RDO_MonitorAlgo::getPixLocXlocY(const InDetDD::SiDetectorElement* pixelDetectorElement, const float rawLocalPhiCoord, const float rawLocalEtaCoord) {
+  const IdentifierHash hash = pixelDetectorElement->identifyHash();
   const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&pixelDetectorElement->design());
   
   const InDetDD::SiCellId cornerCell(0, 0);
