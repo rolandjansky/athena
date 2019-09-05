@@ -129,6 +129,8 @@ StatusCode Trk::ReFitTrack::initialize()
   ATH_CHECK( m_trackName.initialize() );
   ATH_CHECK( m_vxContainerName.initialize() );
   ATH_CHECK( m_newTrackName.initialize() );
+  ATH_CHECK( m_pixelDetEleCollKey.initialize() );
+  ATH_CHECK( m_SCTDetEleCollKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
