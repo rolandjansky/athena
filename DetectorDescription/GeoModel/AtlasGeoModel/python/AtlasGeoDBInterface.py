@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 
 import coral
@@ -22,7 +24,7 @@ class AtlasGeoDBInterface:
 
     def __del__(self):
 
-        if self.bVerbose: print "-> close DB connection"
+        if self.bVerbose: print ("-> close DB connection")
         del self.dbSession
 
 
@@ -72,7 +74,7 @@ class AtlasGeoDBInterface:
         for currentRow in iter(query.execute()):
             for i in range(0,currentRow.size()):
                 if currentRow[i].specification().name()=="TAG_ID":
-                    if self.bVerbose: print "*** GeoTagId ******** ",str(currentRow)
+                    if self.bVerbose: print ("*** GeoTagId ******** ",str(currentRow))
                     self.dbGeoTagId=currentRow[i].data()
                     continue
 
@@ -125,9 +127,9 @@ class AtlasGeoDBInterface:
 
         # Check if the geometry tag was found in the DB
         if self.dbGeoTagId=="":
-            print "The geometry tag ",self.dbGeoTag," could not be found in the database."
-            print "Its name might be misspelled and/or the script might access a local DB that is not up to date."
-            print ""
+            print ("The geometry tag ",self.dbGeoTag," could not be found in the database.")
+            print ("Its name might be misspelled and/or the script might access a local DB that is not up to date.")
+            print ("")
             import sys
             sys.exit();
 
@@ -149,7 +151,7 @@ class AtlasGeoDBInterface:
 
             bindstag2node = coral.AttributeList()
             condString="C.NODE_ID=A.NODE_ID AND A.TAG_ID=B.CHILD_TAG and B.PARENT_TAG IN (%s)" % str(tagIdList)[1:-1]
-            if self.bVerbose: print "----------------------------\n"+condString
+            if self.bVerbose: print ("----------------------------\n"+condString)
             query0.setCondition(condString,bindstag2node)
 
             # Analyze the output and collect the new tag and node versions
@@ -177,7 +179,7 @@ class AtlasGeoDBInterface:
         upLeafName=leafName.upper()
 
         # check if table is defined in the current geometry
-        if not self.TagAndNodeVersionDict.has_key(leafName):
+        if not leafName in self.TagAndNodeVersionDict:
             dbId=[]
             dbContent={}
             paramName=[]
