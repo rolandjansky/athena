@@ -29,10 +29,6 @@ class SCT_ID;
 class Identifier;
 class IdentifierHash;
 
-namespace InDetDD {
-  class PixelDetectorManager;
-}
-
 namespace InDet {
   class PixelCluster;
   class SCT_Cluster;
@@ -69,13 +65,12 @@ private:
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;
   
-  const InDetDD::PixelDetectorManager* m_pixelManager;
-
   ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
   ToolHandle<Trk::ITrackFitter> m_trackFitter;
 
   SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   bool m_doFit;
@@ -89,6 +84,7 @@ private:
   const AtlasDetectorID* m_idHelper;
   bool m_collectionsReady;
 
+  const InDetDD::SiDetectorElement* getPixelDetectorElement(const IdentifierHash hash) const;
   const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash hash) const;
 };
 

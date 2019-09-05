@@ -19,7 +19,6 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h" 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "GeneratorObjects/McEventCollection.h"
@@ -86,12 +85,6 @@ StatusCode TrigFTKTrackConverter::initialize() {
      ATH_MSG_FATAL("Could not get SCT ID helper");
      return StatusCode::FAILURE;
   }
-
-  sc = detStore()->retrieve(m_pixelManager);  
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore()."); 
-    return sc;
-  } 
 
 	//Get ID helper
 	if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
