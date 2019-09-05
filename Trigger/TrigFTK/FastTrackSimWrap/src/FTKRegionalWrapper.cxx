@@ -13,7 +13,6 @@
 
 #include "SCT_Cabling/SCT_OnlineId.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
@@ -45,7 +44,6 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
     m_pixelId(0),
     m_sctId(0),
     m_idHelper(0),
-    m_PIX_mgr(0),
     m_IBLMode(0),
     m_fixEndcapL0(false),
     m_ITkMode(false),
@@ -271,15 +269,10 @@ StatusCode FTKRegionalWrapper::initialize()
     return StatusCode::FAILURE;
   }
 
-  if( detStore()->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    ATH_MSG_ERROR("Unable to retrieve Pixel manager from DetectorStore" );
-    return StatusCode::FAILURE;
-  }
 
   // ReadCondHandleKey
-  if (m_getOffline) {
-    ATH_CHECK(m_SCTDetEleCollKey.initialize());
-  }
+  ATH_CHECK(m_pixelDetEleCollKey.initialize(m_getOffline));
+  ATH_CHECK(m_SCTDetEleCollKey.initialize(m_getOffline));
   ATH_CHECK(m_condCablingKey.initialize());
 
 
@@ -725,6 +718,13 @@ StatusCode FTKRegionalWrapper::execute()
       return StatusCode::FAILURE;
     }
     if(offlineTracks->size()!=0){
+      // Get PixelDetectorElementCollection
+      SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+      const InDetDD::SiDetectorElementCollection* pixelElements(pixelDetEle.retrieve());
+      if (pixelElements==nullptr) {
+        ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+        return StatusCode::FAILURE;
+      }
       // Get SCT_DetectorElementCollection
       SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEle(m_SCTDetEleCollKey);
       const InDetDD::SiDetectorElementCollection* sctElements(sctDetEle.retrieve());
@@ -763,7 +763,9 @@ StatusCode FTKRegionalWrapper::execute()
 	      if (m_idHelper->is_pixel(hitId)) {
 		m_offline_isPixel->push_back(true);
 		m_offline_isBarrel->push_back(int(m_pixelId->is_barrel(hitId)));
-		const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
+                const Identifier wafer_id = m_pixelId->wafer_id(hitId);
+                const IdentifierHash wafer_hash = m_pixelId->wafer_hash(wafer_id);
+		const InDetDD::SiDetectorElement* sielement = pixelElements->getDetectorElement(wafer_hash);
 		m_offline_clustID->push_back(sielement->identifyHash());
 		m_offline_trackNumber->push_back(iTrk);
 		m_offline_layer->push_back(m_pixelId->layer_disk(hitId));
