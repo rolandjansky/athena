@@ -21,7 +21,7 @@ def LArADC2MeVCondAlgCfg(flags):
     isMC=flags.Input.isMC
     
     if isMC:
-        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScale"]
+        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
         theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
         theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
         theADC2MeVCondAlg.LArRampKey="LArRampSym"

@@ -12,7 +12,7 @@ def LArRawChannelBuilderAlgCfg(configFlags):
         #defaults are fine .. 
         acc.addEventAlgo(LArRawChannelBuilderAlg())
     else:
-        acc.addEventAlgo(LArRawChannelBuilderAlg(LArRawChannelKey="LArRawChannels_fromDigits"))
+        acc.addEventAlgo(LArRawChannelBuilderAlg(LArRawChannelKey="LArRawChannels_FromDigits"))
     return acc
 
 
@@ -38,6 +38,6 @@ if __name__=="__main__":
     acc.merge(LArRawChannelBuilderAlgCfg(ConfigFlags))
     
     from LArEventTest.LArEventTestConf import DumpLArRawChannels
-    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_fromDigits",),sequenceName="AthAlgSeq")
+    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels_FromDigits",),sequenceName="AthAlgSeq")
 
     acc.run(3)
