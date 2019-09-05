@@ -492,20 +492,11 @@ class CaloCellGetter (Configured)  :
        
 
         if doHVCorr:
-            from LArCellRec.LArCellRecConf import LArCellHVCorrAlg
-            theLArCellHVCorrAlg = LArCellHVCorrAlg()
-            try:
-                from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
-                from CaloIdentifier import SUBCALO 
-                theHVCorrTool = CaloCellContainerCorrectorTool("HVCorrTool",
-                        CaloNums=[ SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.LARFCAL ],
-                        CellCorrectionToolNames=[ theLArCellHVCorrAlg])
-            except Exception:
-                mlog.error("could not get handle to HVCorrTool Quit")
-                print(traceback.format_exc())
-                return False
-            theCaloCellMaker += theHVCorrTool
-            theCaloCellMaker.CaloCellMakerToolNames += [theHVCorrTool]
+            from LArCellRec.LArCellRecConf import LArCellContHVCorrTool
+            theLArCellHVCorrTool = LArCellContHVCorrTool()
+    
+            #theCaloCellMaker += theHVCorrTool
+            theCaloCellMaker.CaloCellMakerToolNames += [theLArCellHVCorrTool]
 
         #
         # correction to undo online calibration and apply new LAr electronics calibration for ADC->MeV conversion
