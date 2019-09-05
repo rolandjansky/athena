@@ -41,8 +41,8 @@ namespace CP {
     declareProperty("Apply_SC_leakcorr",           m_apply_SC_leak_corr   = false);
     declareProperty("Apply_etaEDParPU_correction",    m_apply_etaEDParPU_corr= false);
     declareProperty("Apply_etaEDPar_mc_correction", m_apply_etaEDParPU_mc_corr= false);
-    declareProperty("CorrFile_etaEDParPU_correction", m_corr_etaEDParPU_file = "IsolationCorrections/zetas_pu.root");
-    declareProperty("CorrFile_etaEDPar_mc_correction", m_corr_etaEDPar_mc_corr_file = "IsolationCorrections/zetas_corr.root");
+    declareProperty("CorrFile_etaEDParPU_correction", m_corr_etaEDParPU_file = "IsolationCorrections/v4/zetas.root");
+    declareProperty("CorrFile_etaEDPar_mc_correction", m_corr_etaEDPar_mc_corr_file = "IsolationCorrections/v4/zetas_correction.root");
 
     m_isol_corr = new IsolationCorrection(name);
   }
