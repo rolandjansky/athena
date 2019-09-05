@@ -22,12 +22,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #define GENERATORMODULESSUPERCHIC_H
 
 #include "GeneratorModules/GenModule.h"
-
 #include "Superchic_i/Atlas_HEPEVT_modified.h"
-
-#include "HepMC/IO_GenEvent.h"
-#include "HepMC/IO_HEPEVT.h"
-#include "HepMC/GenEvent.h"
 
 using std::string;
 typedef std::vector<std::string> CommandVector;
@@ -66,7 +61,7 @@ protected:
   unsigned int m_proc;
   std::string m_beam;
   std::string m_outtg;
-  std::string m_sfaci; // TODO check this ?
+  std::string m_sfaci;
   std::string m_an;
   std::string m_az;
   std::string m_rz;

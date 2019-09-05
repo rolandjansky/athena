@@ -15,8 +15,11 @@ extern "C" {
 /**
 @class Atlas_HEPEVT_modified.h
 
-@brief      Needed fot interface of Superchic_i to Superchic3.03 generator
+@brief Needed fot interface of Superchic_i to Superchic3.03 generator
 to store the umodified HEPEVT common.
+This code was directly copied  from Tailola_i package  https://gitlab.cern.ch/atlas/athena/blob/21.6/Generators/Tauola_i/Tauola_i/Atlas_HEPEVT.h
+with minor changes, original author list is following. This modified class takes into account the length of the array in hepevt parameteri nmxhep which is set to (nmxhep=4000) instead of HEPEVT standard event common which uses nmxhep=10000
+
 
 @author Borut Paul Kersevan (BPK), June 2003
 
@@ -75,9 +78,10 @@ private:
   int m_dummy;
   double m_realdummy;
 
-  static HEPEVT* s_atlas_HEPEVT;
+  // s_HEPEVT is needed access  the umodified HEPEVT common block information
+  static HEPEVT* s_HEPEVT;
 
-  HEPEVT m_atlas_HEPEVT;
+  HEPEVT m_HEPEVT;
 
 };
 

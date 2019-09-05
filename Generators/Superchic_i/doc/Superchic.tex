@@ -1,0 +1,163 @@
+\documentclass[11pt]{article}
+\newdimen\SaveHeight \SaveHeight=\textheight
+\textwidth=6.5in
+\textheight=8.9in
+\textwidth=6.5in
+\textheight=9.0in
+\hoffset=-.5in
+\voffset=-1in
+\def\topfraction{1.}
+\def\textfraction{0.}
+\def\topfraction{1.}
+\def\textfraction{0.}
+\begin{document}
+\title{Superchic\_i: An interface between SuperChic  MC event generator for CEP and Athena
+version in release 21.6}
+\author{ Prabhakar  Palni (Prabhakar.Palni@cern.ch)}
+%\today
+
+\maketitle
+
+
+\section{Introduction}
+
+
+ SuperChic 3 Monte Carlo event generator for central exclusive production
+
+This interface package runs SuperChic MC Generator (v3.05) within Athena framework, and stores the events output into the transient store in HepMC format.
+
+SuperChic MC event generator is dedicated for Central exclusive production (CEP) processes in high-energy hadron-hadron collisions (pp, pA, and AA beams) for both photon and QCD-initiated production. This documentation gives you some details about setting up the Superchic interface (which is prepared using the latest available Superchic version 3.05) and activating the module using the JobOptions. 
+
+In order to initialize and calculate input parameters like such as opacity,screening amplitude,sudakov factor, and skewed PDF the subroutine calcparam.F is used. To generate events superchicrun.F subroutine is used which inheritates from the superchic.f subroutine.
+
+
+\section{Usage of Job Options}
+
+
+The example job option file can be found under the following path.
+ 
+ {\bf Superchic\_i/share/jobOptions.Superchic.py }
+ 
+Before running this script, first setup the athena 
+ 
+ {\bf asetup 21.6,latest,AthGeneration,slc6 }
+ 
+ Above command sets up the latest AthGeneration cache.
+ 
+The Superchic input parameters can be set from the job options service. The
+ default parameters initializes the  Superchic for PbPb beams at center-of-mass energy per nucleon of 5.02 TeV for the light by light scattering process [$\gamma \gamma  \rightarrow \gamma \gamma$ (process no. 59)].
+ 
+
+
+{\bf All the parameters passed to Superchic are in the units specified
+in the Superchic manual https://superchic.hepforge.org/superchic3.pdf }
+
+The default jobOptions.Superchic.py file  can be copied to your test run directory. The initialization parameters can be changed via the following line in the jobOptions.py
+
+\begin{verbatim}Superchic.Initialize = ["parameter_1 value_1", "parameter_2 value_2"]
+\end{verbatim}
+
+Each quoted string sets one parameter value in the fortran variable format. You can set all the input parameters
+separated by commas, however, the important ones are listed below.
+
+
+
+{\bf parameter\_1:} must be one of the following variable names, an error message is returned if the specified variable is not in the input parameter list. 
+
+{\bf value\_1:} is the input parameter's value.\\
+
+JO Example:\\
+The following command generates 10 events for Pb+Pb collisions at 5.02 TeV center-of-mass energy along with important input parameters for process 59 i.e $\gamma \gamma  \rightarrow \gamma \gamma$. \\
+
+Running the  Job Option to produce events 
+\begin{verbatim}
+Generate_tf.py --ecmEnergy=5020.0 --maxEvents=10  --firstEvent=1  --randomSeed=14 
+ --outputEVNTFile=test.pool.root --jobConfig  jobOptions.Superchic.py
+
+\end{verbatim}
+
+
+Example of the initialization of the input parameters in the JO is shown below.
+
+
+\begin{verbatim}
+
+
+genSeq.Superchic.Initialize = \
+["rts 5.02d3",                    # set the COM collision energy (in fortran syntax)
+"isurv 4",                        # Model of soft survival
+"intag 'in5'",                    # for input files
+"PDFname 'MMHT2014lo68cl'",       # PDF set name
+"PDFmember 0",                    # PDF member
+"proc 59",                        # Process number (59:gg->gg, 56:gg->ee, 57:gg->mumu)
+"beam 'ion'",                     # Beam type ('prot', 'ion','ionp')
+"outtg 'out'",                    # for output file name
+"sfaci .false."                   # Include soft survival effects
+]
+
+\end{verbatim}
+
+One can also add the kinematical cuts to the outgoing particles or the system, details can be found in the manual.
+
+%
+%{\large \bf Random Numbers}\\
+%
+% Superchic\_i is using the AtRndmGenSvc Athena Service to provide to Superchic (via the ran function,
+% found in Superchic\_i/src/ran.F) the necessary random numbers. This service is using the RanecuEngine of CLHEP,
+% and is based on the ``stream'' logic, each stream being able to provide an idependent sequence of random
+% numbers. Superchic\_i is using two streams: Superchic\_INIT and Superchic. The first stream is used to provide
+% random numbers for the initialization phase of Superchic and the second one for the event generation. The user
+% can set the initial seeds of each stream via the following option in the jobOption file.
+%
+% \begin{verbatim}
+% AtRndmGenSvc.Seeds = [``Superchic_INIT 2345533 9922199'', ``Superchic 5498921 659091'']
+% \end{verbatim}
+%
+% The above sets the seeds of the Superchic\_INIT stream to 2345533 and 9922199 and of the Superchic one to
+% 5498921 and 659091. If the user will not set the seeds of a stream then the AtRndmGenSvc will use default
+% values.
+%
+% The seeds of the Random number service are saved for each event in the HepMC Event record and they are printed
+% on screen by DumpMC. In this way an event can be reproduced easily. The user has to rerun the job by simply seting
+% the seeds of the Superchic stream (the seeds of the Superchic\_INIT stream should stay the same) to the seeds of that
+% event.
+%
+% Additionaly the AtRndmGenSvc is dumping into a file (AtRndmGenSvc.out) the seeds of all the streams at the end
+% of the job. This file can be read back by the service if the user set the option
+% \begin{verbatim} AtRndmGenSvc.ReadFromFile = true \end{verbatim} (default = false). In this case the file
+% AtRndmGenSvc.out is read and the streams saved in this file are created with seeds as in this file. The name of
+% the file to be read can be set by the user via the option
+% \begin{verbatim} AtRndmGenSvc.FileToRead = MyFileName \end{verbatim}
+%
+% The above file is also written out when a job crashes. {\bf This last option (when job crashing) is currently not
+%   working, waiting for a modification in Athena}.
+%
+% The {\bf Superchic\_i/share/jobOptions.Superchic.py } contains the above options.\\
+
+
+
+
+
+
+\section{Running SuperChic in Standalone way}
+
+One can directly carry out following commands in the fresh terminal to produce superchic events in standalone way.
+
+\begin{tiny}
+\begin{verbatim}
+
+source /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/superchic/3.05/x86_64-slc6-gcc49-opt/superchicenv-genser.sh
+cp -rf /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/superchic/3.05/x86_64-slc6-gcc49-opt/bin /tmp/cern_username/
+cd /tmp/cern_username/bin/
+export LHAPATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current/
+./init < input.DAT
+./superchic  < input.DAT
+
+\end{verbatim}
+\end{tiny}
+
+
+You can change the input.DAT file to change the C.O.M collision energy for the particular process, process no., numberof events etc. Above commands will produce output stored under the directory {\bf  'evrecs' }.
+
+
+\end{document}

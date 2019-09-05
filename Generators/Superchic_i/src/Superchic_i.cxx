@@ -22,8 +22,6 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
-#include "HepMC/IO_HEPEVT.h"
-#include "HepMC/HEPEVT_Wrapper.h"
 
 #include <stdlib.h>
 #include <iostream>
@@ -43,10 +41,7 @@ namespace{
   static std::string     superchic_stream = "SUPERCHIC_INIT";
 }
 
-
-using HepMC::HEPEVT_Wrapper;
-
-// store the HEPEVT common information from the superchic3.03 hepevt output.
+// store the HEPEVT common information from the hepevt output.
 Atlas_HEPEVT_modified* Superchic_i::s_atlas_HEPEVT = new Atlas_HEPEVT_modified();
 
 // call fortran subroutines to calculate parameters and then generate events
@@ -149,11 +144,6 @@ Superchic_i::~Superchic_i()
     static const bool CREATEIFNOTTHERE(true);
     ATH_CHECK( service("AtRndmGenSvc", p_AtRndmGenSvc, CREATEIFNOTTHERE) );
 
-    // Set size of common blocks in HEPEVT: note these correspond to stdhep
-    HepMC::HEPEVT_Wrapper::set_sizeof_int(4);
-    HepMC::HEPEVT_Wrapper::set_sizeof_real(8);
-    HepMC::HEPEVT_Wrapper::set_max_number_entries(4000);
-
     // Save the SUPERCHIC_INIT stream seeds....
     CLHEP::HepRandomEngine* engine = p_AtRndmGenSvc->GetEngine(superchic_stream);
     const long* sip = engine->getSeeds();
@@ -234,8 +224,6 @@ Superchic_i::~Superchic_i()
     // Create the event vertex
     HepMC::GenVertex* v1 = new HepMC::GenVertex();
     evt->add_vertex( v1 );
-
-    //    HepMC::HEPEVT_Wrapper::print_hepevt();
 
     // use the s_atlas_HEPEVT  ponter to obtain the information from the common block
     int npart = s_atlas_HEPEVT->nhep();

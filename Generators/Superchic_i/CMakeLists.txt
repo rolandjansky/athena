@@ -24,10 +24,6 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( CLHEP )
 find_package( HepMC COMPONENTS HepMC HepMCfio )
-
-## TODO Currently FindSuperchic.cmake do not find the superchic generator libraries as it is under atlasexternals
-#include("FindSuperchic.cmake")
-
 find_package( Superchic )
 
 atlas_disable_as_needed()
