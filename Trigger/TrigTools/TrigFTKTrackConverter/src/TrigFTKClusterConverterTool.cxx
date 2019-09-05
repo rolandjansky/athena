@@ -19,7 +19,6 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h" 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
 #include "GeneratorObjects/McEventCollection.h"
@@ -91,13 +90,8 @@ StatusCode TrigFTKClusterConverterTool::initialize() {
      return StatusCode::FAILURE;
   }
 
-  sc = detStore()->retrieve(m_pixelManager);  
-  if( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore()."); 
-    return sc;
-  } 
-
   // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
 	//Get ID helper
@@ -217,7 +211,7 @@ InDet::PixelCluster* TrigFTKClusterConverterTool::createPixelCluster(IdentifierH
   Identifier wafer_id = m_pixelId->wafer_id(hash);
 
 
-  const InDetDD::SiDetectorElement* pDE = m_pixelManager->getDetectorElement(hash);
+  const InDetDD::SiDetectorElement* pDE = getPixelDetectorElement(hash);
   const InDetDD::PixelModuleDesign* design 
     (dynamic_cast<const InDetDD::PixelModuleDesign*>(&pDE->design()));
  
@@ -437,6 +431,12 @@ StatusCode TrigFTKClusterConverterTool::getMcTruthCollections(StoreGateSvc* evtS
 		<< " is found in StoreGate"); 
   }
   return sc;
+}
+
+const InDetDD::SiDetectorElement* TrigFTKClusterConverterTool::getPixelDetectorElement(const IdentifierHash hash) const {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_pixelDetEleCollKey};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(hash);
 }
 
 const InDetDD::SiDetectorElement* TrigFTKClusterConverterTool::getSCTDetectorElement(const IdentifierHash hash) const {
