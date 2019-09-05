@@ -31,7 +31,6 @@
 // Athena/Gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
-#include "StoreGate/StoreGateSvc.h"
 
 // Other stuff
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
@@ -74,8 +73,6 @@ namespace LVL1TGCTrigger {
 ///////////////////////////////////////////////////////////////////////////
   LVL1TGCTrigger::LVL1TGCTrigger::LVL1TGCTrigger(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
-    m_sgSvc("StoreGateSvc", name),
-    m_detectorStore(0), 
     m_cabling(0),
     m_bctagInProcess(0),
     m_db(0),
@@ -87,7 +84,6 @@ namespace LVL1TGCTrigger {
     m_debuglevel(false),
     m_readCondKey("TGCTriggerData")
 {
-    declareProperty("EventStore", m_sgSvc, "Event Store"); 
     declareProperty("MuCTPIInput_TGC",     m_keyMuCTPIInput_TGC="L1MuctpiStoreTGC");
     declareProperty("InputData_perEvent",  m_keyTgcDigit="TGC_DIGITS");
     declareProperty("TileMuRcv_Input",     m_keyTileMu="TileMuRcvCnt");
@@ -159,15 +155,8 @@ namespace LVL1TGCTrigger {
     g_USE_CONDDB          = true;
  
 
-    StatusCode sc = service("DetectorStore", m_detectorStore);
-    if (sc.isFailure()){
-      m_log << MSG::FATAL
-	    << "Unable to get pointer to DetectorStore Service" << endmsg;
-      return StatusCode::FAILURE;
-    }
-
     // TrigConfigSvc
-    sc = m_configSvc.retrieve();
+    StatusCode sc = m_configSvc.retrieve();
     if (sc.isFailure()) {
       m_log << MSG::ERROR << "Could not connect to " << m_configSvc.typeAndName() << endmsg;
     }
@@ -178,18 +167,6 @@ namespace LVL1TGCTrigger {
     // clear Masked channel
     m_MaskedChannel.clear();
       
-     // StoreGate
-    //sc = service("StoreGateSvc", m_sgSvc);
-    sc = m_sgSvc.retrieve();
-    if (sc.isFailure()) {
-      m_log << MSG::FATAL << "Could not find StoreGateSvc" << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      if (m_debuglevel) {
-	m_log << MSG::DEBUG << "Could find StoreGateSvc" << endmsg;
-      }
-    }
-
     g_TGCCOIN=0;
     if (g_OUTCOINCIDENCE) g_TGCCOIN = new TGCCoincidences();
 
@@ -284,7 +261,7 @@ namespace LVL1TGCTrigger {
     // TgcRdo
     m_tgcrdo.clear();
     const TgcRdoContainer * rdoCont;
-    sc = m_sgSvc->retrieve( rdoCont, "TGCRDO" );
+    sc = evtStore()->retrieve( rdoCont, "TGCRDO" );
     if (sc.isFailure()) {
       m_log << MSG::WARNING << "Cannot retrieve TgcRdoContainer with key=TGCRDO" << endmsg;
       return StatusCode::SUCCESS;
@@ -300,7 +277,7 @@ namespace LVL1TGCTrigger {
     }
 
     const DataHandle<TgcDigitContainer> tgc_container;
-    sc = m_sgSvc->retrieve(tgc_container, m_keyTgcDigit);
+    sc = evtStore()->retrieve(tgc_container, m_keyTgcDigit);
     if (sc.isFailure()) {
       m_log << MSG::FATAL << " Cannot retrieve TGC Digit Container " << endmsg;
       return sc;
@@ -332,7 +309,7 @@ namespace LVL1TGCTrigger {
     }
 
     // record   MuCTPIInput_TGC 
-    sc = m_sgSvc->record(muctpiinput, m_keyMuCTPIInput_TGC);
+    sc = evtStore()->record(muctpiinput, m_keyMuCTPIInput_TGC);
     if (sc.isFailure()) { 
       m_log << MSG::FATAL 
         << "Could not record MuCTPIInput_TGC."  << endmsg; 
@@ -1450,7 +1427,7 @@ StatusCode LVL1TGCTrigger::fillTMDB()
  
   // retrive TileMuonReceiverContainer
   const DataHandle<TileMuonReceiverContainer> tileMuRecCont;
-  sc = m_sgSvc->retrieve(tileMuRecCont, m_keyTileMu);
+  sc = evtStore()->retrieve(tileMuRecCont, m_keyTileMu);
   
   if (sc.isFailure()) {
     m_log << MSG::WARNING << " Cannot retrieve Tile Muon Receiver Container " << endmsg;

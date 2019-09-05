@@ -24,8 +24,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class StoreGateSvc;
-
 class LArAutoCorrDecoderTool: public AthAlgTool,
 			      virtual public ILArAutoCorrDecoderTool
 

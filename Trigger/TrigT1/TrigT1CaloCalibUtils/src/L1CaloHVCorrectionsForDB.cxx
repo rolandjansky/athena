@@ -5,7 +5,6 @@
 #include "TrigT1CaloCalibUtils/L1CaloHVCorrectionsForDB.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 

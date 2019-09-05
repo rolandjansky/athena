@@ -10,7 +10,6 @@
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/NTuple.h"
 
 class TgcIdHelper;
@@ -38,7 +37,6 @@ namespace LVL1TGCTrigger {
     StatusCode bookHistos();
 
    private:
-    ServiceHandle<StoreGateSvc> m_sgSvc;
     StringProperty  m_key;
     BooleanProperty m_WriteMCtruth;
     const TgcIdHelper* m_tgcIdHelper;

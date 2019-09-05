@@ -3,8 +3,6 @@
 */
 
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "MDT_Digitization/MdtDigiToolInput.h"
 #include "MDT_Digitization/RT_Relation_DB_DigiTool.h"
 
