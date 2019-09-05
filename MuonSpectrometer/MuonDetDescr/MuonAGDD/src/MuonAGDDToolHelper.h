@@ -1,15 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MuonAGDDToolHelper_H
-#define MuonAGDDToolHelper_H
+#ifndef MUONAGDD_MUONAGDDTOOLHELPER_H
+#define MUONAGDD_MUONAGDDTOOLHELPER_H
 
 #include "GaudiKernel/StatusCode.h"
 
 #include <vector>
-
-class ITagInfoMgr;
 
 namespace MuonGM 
 {
@@ -23,8 +21,6 @@ class MuonAGDDToolHelper
 public:
 	MuonAGDDToolHelper();
 	
-	StatusCode SetTagInfo(std::string,std::string) const;
-	
 	std::vector<std::string>& ReadAGDDFlags();
 	
 	void SetNSWComponents();
@@ -34,16 +30,10 @@ public:
 	bool BuildMScomponents() const;
 	bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr) const;
 
-	inline std::string TagInfoKey() {return m_tagInfoKey;}
-
 private:
 
 	IRDBAccessSvc* p_RDBAccessSvc;
 	IGeoModelSvc* p_GeoModelSvc;
-	
-	
-	ITagInfoMgr* m_tagInfoMgr;
-	std::string m_tagInfoKey;
 	
 };
 
