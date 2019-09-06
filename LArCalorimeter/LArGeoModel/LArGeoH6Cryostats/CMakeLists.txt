@@ -7,7 +7,6 @@ atlas_subdir( LArGeoH6Cryostats )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
-                          Control/CxxUtils
                           Control/StoreGate
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
@@ -25,5 +24,5 @@ atlas_add_library( LArGeoH6Cryostats
                    PUBLIC_HEADERS LArGeoH6Cryostats
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${GEOMODEL_LIBRARIES} StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} CxxUtils GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${EIGEN_LIBRARIES} GaudiKernel )
 
