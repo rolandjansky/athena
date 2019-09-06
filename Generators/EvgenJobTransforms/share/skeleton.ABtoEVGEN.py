@@ -195,21 +195,21 @@ if joparts[0].startswith("MC") and all(c in string.digits for c in joparts[0][2:
         evgenLog.error("MC14 (or later) job option scripts are needed to work with Generate_tf!")
         evgenLog.error(jo + " will not be processed: please rename or otherwise update to a >= MC14 JO.")
         sys.exit(1)
-    ## Check that there are exactly 3 name parts separated by '.': MCxx, physicsShort, .py
-    if len(joparts) != 3:
+    ## Check that there are exactly 4 name parts separated by '.': MCxx, DSID, physicsShort, .py
+    if len(joparts) != 4:
         evgenLog.error(jofile + " name format is wrong: must be of the form MC<xx>.<yyyyyy>.<physicsShort>.py: please rename.")
         sys.exit(1)
     ## Check the DSID part of the name
-    #jo_dsidpart = joparts[1]
-    #try:
-    #    jo_dsidpart = int(jo_dsidpart)
-    #    if runArgs.runNumber != jo_dsidpart:
-    #        raise Exception()
-    #except:
-    #    evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % (str(runArgs.runNumber), jo_dsidpart))
-    #    sys.exit(1)
+    jo_dsidpart = joparts[1]
+    try:
+        jo_dsidpart = int(jo_dsidpart)
+        if runArgs.runNumber != jo_dsidpart:
+            raise Exception()
+    except:
+        evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % (str(runArgs.runNumber), jo_dsidpart))
+        sys.exit(1)
     ## Check the length limit on the physicsShort portion of the filename
-    jo_physshortpart = joparts[1]
+    jo_physshortpart = joparts[2]
     if len(jo_physshortpart) > 60:
         evgenLog.error(jofile + " contains a physicsShort field of more than 60 characters: please rename.")
         sys.exit(1)
