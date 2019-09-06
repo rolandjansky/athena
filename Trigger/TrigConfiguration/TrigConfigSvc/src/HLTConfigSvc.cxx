@@ -206,6 +206,7 @@ HLTConfigSvc::initialize() {
       dummyChains["HLT_j35_gsc45_boffperf_split_L1J20"] = "L1_J20";
       dummyChains["HLT_j35_gsc45_bmv2c1070_split_L1J20"] = "L1_J20";
       dummyChains["HLT_xe30_cell_xe30_tcpufit_L1XE10"] = "L1_XE10";
+      dummyChains["HLT_xe30_mht_L1XE10"] = "L1_XE10";
       dummyChains["HLT_mu60_0eta105_msonly_L1MU20"] = "L1_MU20";
       dummyChains["HLT_3mu6_L13MU6"] = "L1_3MU6";
       dummyChains["HLT_3mu6_msonly_L13MU6"] = "L1_3MU6";
