@@ -640,7 +640,7 @@ if recAlgs.doAtlfast():
 AODFix_postAtlfast()
 
 # functionality : FTK  truth-based FastSim
-if DetFlags.detdescr.FTK_on():
+if rec.doTruth() and DetFlags.detdescr.FTK_on():
     protectedInclude("TrigFTKFastSimTruth/TrigFTKFastSimTruth_jobOptions.py")
 
 
