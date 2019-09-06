@@ -135,7 +135,7 @@ namespace CP {
         return StatusCode::FAILURE ;
       }
       ATH_MSG_INFO(" Path found = "<<filename);
-      std::unique_ptr<TFile> f(new TFile(filename.c_str(), "READ"));
+      std::unique_ptr<TFile> f(TFile::Open(filename.c_str(), "READ"));
 
       m_map_isotype_zetaPU[xAOD::Iso::topoetcone20] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone20"));
       m_map_isotype_zetaPU[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)f->Get("topoetcone30"));
@@ -149,7 +149,7 @@ namespace CP {
           return StatusCode::FAILURE ;
         }
         ATH_MSG_INFO(" Path found = "<<filename);
-        std::unique_ptr<TFile> f_corr(new TFile(filename.c_str(), "READ"));
+        std::unique_ptr<TFile> f_corr(TFile::Open(filename.c_str(), "READ"));
 
         m_map_isotype_zeta_mc_corr[xAOD::Iso::topoetcone20] = std::unique_ptr<TGraph>((TGraph*)f_corr->Get("topoetcone20"));
         m_map_isotype_zeta_mc_corr[xAOD::Iso::topoetcone30] = std::unique_ptr<TGraph>((TGraph*)f_corr->Get("topoetcone30"));
