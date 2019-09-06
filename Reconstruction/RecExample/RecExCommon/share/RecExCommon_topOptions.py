@@ -639,9 +639,9 @@ if recAlgs.doAtlfast():
     protectedInclude ("AtlfastAlgs/Atlfast_RecExCommon_Fragment.py")
 AODFix_postAtlfast()
 
-# functionality : FTK reconstruction
-if DetFlags.detdescr.FTK_on() :
-    protectedInclude( "FTK_RecExample/FTKRec_jobOptions.py")
+# functionality : FTK  truth-based FastSim
+if DetFlags.detdescr.FTK_on():
+    protectedInclude("TrigFTKFastSimTruth/TrigFTKFastSimTruth_jobOptions.py")
 
 
 pdr.flag_domain('trig')

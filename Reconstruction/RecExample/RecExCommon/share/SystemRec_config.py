@@ -24,6 +24,10 @@ pdr.flag_domain('id')
 if DetFlags.detdescr.ID_on():
     protectedInclude( "InDetRecExample/InDetRec_jobOptions.py" )
     AODFix_postInDetRec()
+
+# functionality : FTK reconstruction
+if DetFlags.detdescr.FTK_on() :
+    protectedInclude( "FTK_RecExample/FTKRec_jobOptions.py")
          
         
 # functionality : Muon reconstruction
