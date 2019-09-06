@@ -28,15 +28,11 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="
 
     # Set remaining options
     new_prefix = options.get('new_prefix', None)
-    print(new_prefix)
-    print(options)
     if new_prefix:
         btagname = new_prefix + jetcol
         del options['new_prefix']
-        print(options)
     else:
         btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
-    print(btagname)
     options.setdefault('name', (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower())
     options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
     options.setdefault('JetCalibrationName', jetcol.replace('Track','PV0Track'))

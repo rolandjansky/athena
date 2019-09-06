@@ -80,16 +80,12 @@ def BTagESDtoESDCfg(flags, jet, new):
 
     #Register input ESD container in output
     ESDItemList = registerOutputContainersForJetCollection(flags, jet, flags.BTagging.OutputFiles.Prefix)
-    print(ESDItemList)
 
     #Register new ouput ESD container
     ESDnewItemList = registerOutputContainersForJetCollection(flags, jet, new)
-    print(ESDnewItemList)
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     acc.merge(OutputStreamCfg(flags,"ESD", ItemList=ESDItemList+ESDnewItemList))
-    acc.getEventAlgo("OutputStreamESD").ForceRead = True
-
 
     return acc
 
@@ -198,9 +194,7 @@ if __name__=="__main__":
 
     acc.merge(BTagCfg(cfgFlags))
 
-    #cfg.getService("StoreGateSvc").Dump=True
-
-    acc.setAppProperty("EvtMax",20)
+    acc.setAppProperty("EvtMax",-1)
 
     acc.run()
     f=open("BTag.pkl","w")
