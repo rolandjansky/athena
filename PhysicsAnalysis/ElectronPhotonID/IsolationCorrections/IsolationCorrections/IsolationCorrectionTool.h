@@ -73,8 +73,11 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
 
         bool m_apply_SC_leak_corr;
         bool m_apply_etaEDParPU_corr;
+        bool m_apply_etaEDParPU_mc_corr;
         std::string m_corr_etaEDParPU_file;
+        std::string m_corr_etaEDPar_mc_corr_file;
         std::map<xAOD::Iso::IsolationType,std::unique_ptr<TGraph>> m_map_isotype_zetaPU;
+        std::map<xAOD::Iso::IsolationType,std::unique_ptr<TGraph>> m_map_isotype_zeta_mc_corr;
 
         bool m_usemetadata;
 	bool m_is_mc;
