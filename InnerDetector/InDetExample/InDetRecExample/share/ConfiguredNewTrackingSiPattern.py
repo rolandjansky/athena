@@ -189,12 +189,12 @@ class  ConfiguredNewTrackingSiPattern:
                                                                TracksMaxEta              = 2.5,
                                                                TracksMaxD0               = 9999.,
                                                                MaxDeltaZTracksPair       = 1.0,
-                                                               TrackZ0Window             = 1.0 )
+                                                               TrackZ0Window             = 2.0 )
             elif InDetFlags.LowPtRoIStrategy() == 2:
                from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__TruthHSRoISeedTool
                ZWindowRoISeedTool = InDet__TruthHSRoISeedTool (name = "InDetZWindowRoISeedTool",
                                                                InputTruthEventsCollection = "TruthEvents",
-                                                               TrackZ0Window             = 1.0 )
+                                                               TrackZ0Window             = 2.0 )
             elif InDetFlags.LowPtRoIStrategy() == 3:
                from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__FileRoISeedTool
                ZWindowRoISeedTool = InDet__FileRoISeedTool (name = "InDetZWindowRoISeedTool",
