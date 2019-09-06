@@ -24,7 +24,6 @@
 
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
-#include "CxxUtils/make_unique.h"
 
 /********************************************************/
 reinitTTMap_Algo::reinitTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
@@ -326,12 +325,12 @@ StatusCode reinitTTMap_Algo::testStruct(){
   std::string fcalFile="initDumpFCAL.txt";
   std::string otherFile="initDumpOther.txt";
   if(m_dumpMap) {
-    dumpFcal=CxxUtils::make_unique<std::ofstream>(fcalFile.c_str());   
+    dumpFcal=std::make_unique<std::ofstream>(fcalFile.c_str());   
     if (dumpFcal==0) {
       std::cout << "Problem opening FCAL dump file" << std::endl;
       return StatusCode::SUCCESS;
     }
-    dumpOther=CxxUtils::make_unique<std::ofstream>(otherFile.c_str());   
+    dumpOther=std::make_unique<std::ofstream>(otherFile.c_str());   
     if (dumpOther==0) {
       std::cout << "Problem opening other dump file" << std::endl;
       return StatusCode::SUCCESS;
