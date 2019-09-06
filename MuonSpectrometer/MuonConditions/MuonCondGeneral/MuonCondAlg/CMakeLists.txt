@@ -16,7 +16,6 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondData
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondSvc
-                          MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondTool
                           PRIVATE
                           Event/EventInfo
                           MuonSpectrometer/MuonIdHelpers )
@@ -31,7 +30,7 @@ atlas_add_library( MuonCondAlgLib
                    PUBLIC_HEADERS MuonCondAlg
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonCondSvcLib MuonCondTool StoreGateLib SGtests MuonIdHelpersLib
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities Identifier GaudiKernel MuonCondData MuonCondInterface MuonCondSvcLib StoreGateLib MuonIdHelpersLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventInfo )
 
 atlas_add_component( MuonCondAlg
