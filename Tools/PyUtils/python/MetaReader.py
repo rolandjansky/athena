@@ -33,6 +33,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
     from RootUtils import PyROOTFixes
 
     # Check if the input is a file or a list of files.
+    from past.builtins import basestring
     if isinstance(filenames, basestring):
         filenames = [filenames]
 
@@ -66,7 +67,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 with open(filename, 'rb') as binary_file:
                     magic_file = binary_file.read(4)
 
-                    if magic_file == 'root':
+                    if magic_file == 'root' or magic_file == b'root':
                         current_file_type = 'POOL'
                         meta_dict[filename]['file_type'] = 'POOL'
 
@@ -304,7 +305,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                     meta_dict[filename]['lumiBlockNumbers'].append(bs_metadata.get('LumiBlock', 0))
 
                 ievt = iter(bs)
-                evt = ievt.next()
+                evt = next(ievt)
                 evt.check()  # may raise a RuntimeError
                 processing_tags = [dict(stream_type = tag.type, stream_name = tag.name, obeys_lbk = bool(tag.obeys_lumiblock)) for tag in evt.stream_tag()]
                 meta_dict[filename]['processingTags'] = [x['stream_name'] for x in processing_tags]
@@ -381,8 +382,11 @@ def _read_guid(filename):
     regex = re.compile(r'^\[NAME=([a-zA-Z0-9_]+)\]\[VALUE=(.*)\]')
 
     for i in range(params.GetEntries()):
-        params.GetEntry(i)
-        param = params.db_string
+        # Work around apparent pyroot issue:
+        # If we try to access params.db_string directly, we see trailing
+        # garbage, which can confuse python's bytes->utf8 conversion
+        # and result in an error.
+        param = params.GetLeaf('db_string').GetValueString()
 
         result = regex.match(param)
         if result:
