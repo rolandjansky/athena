@@ -9,7 +9,6 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrkToolInterfaces/ITrackAmbiguityScoreProcessorTool.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkEventPrimitives/TrackScore.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
@@ -59,7 +58,7 @@ namespace Trk {
                            TracksScores* trackScoreTrackMap) override;
 
       /** statistics output */
-      virtual void statistics();
+      virtual void statistics() override;
 
     private:
       

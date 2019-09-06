@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
@@ -118,8 +119,11 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    acc = CaloNoiseToolCfg(ConfigFlags)
+    flags1 = ConfigFlags.clone()
+    flags1.Input.Files = defaultTestFiles.RAW
+    flags1.lock()
+    acc1 = CaloNoiseToolCfg (flags1)
+    acc1.printCondAlgs(summariseProps=True)
+    print ('IOVDbSvc:', acc1.getService('IOVDbSvc').Folders)
+    acc1.wasMerged()
 
-    f=open('test.pkl','w')
-    acc.store(f)
-    f.close()

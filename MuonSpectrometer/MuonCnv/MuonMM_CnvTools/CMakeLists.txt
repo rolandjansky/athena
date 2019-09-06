@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
-                          Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr

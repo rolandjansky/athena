@@ -183,6 +183,9 @@ def PFCfg(inputFlags,**kwargs):
     #Setup TRT geometry
     from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
     trtDetectorTool = TRT_DetectorTool()
+    #These two lines fix ATLASRECTS-5053. I expect eventually we can remove them, once the underlying issue is fixed.
+    trtDetectorTool.DoXenonArgonMixture = False
+    trtDetectorTool.DoKryptonMixture = False
     result.getService("GeoModelSvc").DetectorTools += [ trtDetectorTool ]
 
     #Setup up material for inner detector
@@ -208,7 +211,6 @@ def PFCfg(inputFlags,**kwargs):
     result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
 
     iovDbSvc=result.getService("IOVDbSvc")
-    iovDbSvc.FoldersToMetaData+=['/GLOBAL/BField/Maps']
 
     from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
     kwargs.setdefault( "UseDCS", True )

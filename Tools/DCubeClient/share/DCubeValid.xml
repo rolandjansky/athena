@@ -14,6 +14,7 @@
 <server>/afs/cern.ch/user/c/cibak/scratch2</server>
 
 <!-- known branches -->
+<branch>master</branch>
 <branch>dev</branch>
 <branch>devval</branch>
 <branch>bugfix</branch>
@@ -63,6 +64,12 @@
 <cmt>x86_64-slc6-gcc49-dbg</cmt>
 <cmt>x86_64-slc6-gcc62-opt</cmt>
 <cmt>x86_64-slc6-gcc62-dbg</cmt>
+<cmt>x86_64-slc6-gcc8-opt</cmt>
+<cmt>x86_64-slc6-gcc8-dbg</cmt>
+<cmt>x86_64-centos7-gcc62-opt</cmt>
+<cmt>x86_64-centos7-gcc62-dbg</cmt>
+<cmt>x86_64-centos7-gcc8-opt</cmt>
+<cmt>x86_64-centos7-gcc8-dbg</cmt>
 <!-- this one matches to ALL -->
 <cmt>*</cmt>
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenParticle.h"
 
-#include "StoreGate/StoreGateSvc.h" 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
 
@@ -76,40 +75,26 @@ StatusCode TrigFTKTrackConverter::initialize() {
 
   StatusCode sc = AlgTool::initialize();
 
-  if(m_doTruth) {
-    sc = service( "StoreGateSvc", m_evtStore ); 
-    if (sc.isFailure()) { 
-      ATH_MSG_FATAL("Unable to retrieve StoreGate service"); 
-      return sc; 
-    } 
-  }
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    ATH_MSG_FATAL("DetStore service not found"); 
-    return StatusCode::FAILURE; 
-  }
-
   // Get SCT & pixel Identifier helpers
 
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
      ATH_MSG_FATAL("Could not get Pixel ID helper");
      return StatusCode::FAILURE;  
   }
 
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {  
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {  
      ATH_MSG_FATAL("Could not get SCT ID helper");
      return StatusCode::FAILURE;
   }
 
-  sc = detStore->retrieve(m_pixelManager);  
+  sc = detStore()->retrieve(m_pixelManager);  
   if( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore."); 
+    ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore()."); 
     return sc;
   } 
 
 	//Get ID helper
-	if (detStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
+	if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
 		ATH_MSG_FATAL("Could not get AtlasDetectorID helper AtlasID");
 		return StatusCode::FAILURE;
 	}
@@ -493,18 +478,18 @@ InDet::SCT_ClusterCollection*  TrigFTKTrackConverter::getCollection(InDet::SCT_C
 StatusCode TrigFTKTrackConverter::getMcTruthCollections() {
   
 
-  StatusCode sc = m_evtStore->retrieve(m_mcEventCollection, m_mcTruthName ); 
+  StatusCode sc = evtStore()->retrieve(m_mcEventCollection, m_mcTruthName ); 
 
   if ( sc.isFailure() ){ 
     ATH_MSG_WARNING("Cannot retrieve McEventCollection "<<m_mcTruthName); 
     return StatusCode::FAILURE; 
   } 
 
-  if(!m_evtStore->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) { 
+  if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) { 
 
      m_ftkPixelTruth = new PRD_MultiTruthCollection;
             
-     sc=m_evtStore->record(m_ftkPixelTruth,m_ftkPixelTruthName,false); 
+     sc=evtStore()->record(m_ftkPixelTruth,m_ftkPixelTruthName,false); 
      if(sc.isFailure()) { 
        ATH_MSG_WARNING("Pixel FTK Truth Container " << m_ftkPixelTruthName  
            <<" cannot be recorded in StoreGate !"); 
@@ -518,11 +503,11 @@ StatusCode TrigFTKTrackConverter::getMcTruthCollections() {
         << " is found in StoreGate"); 
   }
 
-  if(!m_evtStore->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) { 
+  if(!evtStore()->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) { 
 
      m_ftkSctTruth = new PRD_MultiTruthCollection;
             
-     sc=m_evtStore->record(m_ftkSctTruth,m_ftkSctTruthName,false); 
+     sc=evtStore()->record(m_ftkSctTruth,m_ftkSctTruthName,false); 
      if(sc.isFailure()) { 
        ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName  
 		 <<" cannot be recorded in StoreGate !"); 

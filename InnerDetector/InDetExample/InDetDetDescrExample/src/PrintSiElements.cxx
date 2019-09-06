@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/PrintSiElements.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadCondHandle.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/Identifier.h"
@@ -65,6 +63,7 @@ StatusCode PrintSiElements::initialize(){
   m_fileout << "# SCT   tag: " << geoModel->SCT_VersionOverride() << std::endl;
   m_fileout << "# TRT   tag: " << geoModel->TRT_VersionOverride() << std::endl;
   // ReadCondHandleKey
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
   return StatusCode::SUCCESS;
 }
@@ -74,9 +73,12 @@ StatusCode
 PrintSiElements::printElements(const std::string & managerName){
   const InDetDD::SiDetectorElementCollection * elements = nullptr;
   if (managerName=="Pixel") {
-    const InDetDD::PixelDetectorManager * manager;
-    ATH_CHECK(detStore()->retrieve(manager,managerName));
-    elements = manager->getDetectorElementCollection();
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+    elements = *pixelDetEleHandle;
+    if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::FAILURE;
+    }
   } else if (managerName=="SCT") {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
     elements = *sctDetEleHandle;

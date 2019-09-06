@@ -11,7 +11,6 @@
 #include "JetTagTools/GradedTrack.h"
 #include "JetTagTools/SVForIPTool.h"
 #include "JetTagTools/ITrackGradeFactory.h"
-#include "JetTagTools/JetTagUtils.h"
 
 #include "JetTagInfo/TrackGrade.h"
 #include "JetTagInfo/TrackGradesDefinition.h"
@@ -285,10 +284,11 @@ namespace Analysis {
 
   StatusCode RNNIPTag::tagJet(const xAOD::Vertex& priVtx,
                               const xAOD::Jet& jetToTag,
-                              xAOD::BTagging& BTag) const
+                              xAOD::BTagging& BTag,
+                              const std::string &jetName) const
   {
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
+    std::string author = jetName;
     if (m_ForcedCalibName.size() > 0) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations");
 

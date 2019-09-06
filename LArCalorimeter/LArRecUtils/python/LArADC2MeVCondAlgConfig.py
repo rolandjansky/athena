@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def LArADC2MeVCondAlgCfg(configFlags):
@@ -17,7 +19,7 @@ def LArADC2MeVCondAlgCfg(configFlags):
     isMC=configFlags.Input.isMC
     
     if isMC:
-        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScale"]
+        requiredConditions=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScale"]
         theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
         theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
         theADC2MeVCondAlg.LArRampKey="LArRampSym"
@@ -25,39 +27,39 @@ def LArADC2MeVCondAlgCfg(configFlags):
         theADC2MeVCondAlg.LArHVScaleCorrKey="LArHVScaleCorr"
         theADC2MeVCondAlg.UseFEBGainTresholds=False
     else: # not MC:
-        requiredConditons=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
+        requiredConditions=["Ramp","DAC2uA","uA2MeV","MphysOverMcal","HVScaleCorr"]
         from LArRecUtils.LArFebConfigCondAlgConfig import LArFebConfigCondAlgCfg
         if 'COMP200' in configFlags.IOVDb.DatabaseInstance: # Run1 case
             theADC2MeVCondAlg.LAruA2MeVKey="LAruA2MeVSym"
             theADC2MeVCondAlg.LArDAC2uAKey="LArDAC2uASym"
         result.merge(LArFebConfigCondAlgCfg(configFlags))
 
-    result.merge(LArElecCalibDbCfg(configFlags,requiredConditons))
+    result.merge(LArElecCalibDbCfg(configFlags,requiredConditions))
     result.addCondAlgo(theADC2MeVCondAlg,primary=True)
     return result
 
 
-if __name__=="__main__":
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
+if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
-    log.setLevel(DEBUG)
-
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     from AthenaConfiguration.TestDefaults import defaultTestFiles
-    ConfigFlags.Input.Files = defaultTestFiles.RAW
-    ConfigFlags.lock()
+    ConfigFlags.loadAllDynamicFlags (quiet = True)
 
-    cfg=ComponentAccumulator()
-    from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
-    cfg.merge( TrigBSReadCfg(ConfigFlags) )
+    print ('--- data')
+    flags1 = ConfigFlags.clone()
+    flags1.Input.Files = defaultTestFiles.RAW
+    flags1.lock()
+    acc1 = LArADC2MeVCondAlgDefault (flags1)
+    acc1.printCondAlgs(summariseProps=True)
+    print ('IOVDbSvc:', acc1.getService('IOVDbSvc').Folders)
+    acc1.wasMerged()
 
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    cfg.merge(LArGMCfg(ConfigFlags))
- 
-
-    cfg.merge(LArADC2MeVCondAlgCfg(ConfigFlags))
-    f=open("LArADC2MeVCondAlgo.pkl","w")
-    cfg.store(f)
-    f.close()
+    print ('--- mc')
+    flags2 = ConfigFlags.clone()
+    flags2.Input.Files = defaultTestFiles.ESD
+    flags2.lock()
+    acc2 = LArADC2MeVCondAlgDefault (flags2)
+    acc2.printCondAlgs(summariseProps=True)
+    print ('IOVDbSvc:', acc2.getService('IOVDbSvc').Folders)
+    acc2.wasMerged()

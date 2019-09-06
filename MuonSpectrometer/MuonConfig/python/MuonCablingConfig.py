@@ -35,10 +35,6 @@ def RPCCablingConfigCfg(flags):
                            '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
                          dbName ))
 
-    # that should not be here???
-    acc.getService('IOVDbSvc').FoldersToMetaData     += ['/GLOBAL/BField/Maps']
-
-
     from RPC_CondCabling.RPC_CondCablingConf import RPCCablingDbTool
     RPCCablingDbTool = RPCCablingDbTool()
     RPCCablingDbTool.MapConfigurationFolder = '/RPC/CABLING/MAP_SCHEMA'

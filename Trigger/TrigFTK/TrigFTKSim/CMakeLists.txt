@@ -45,7 +45,7 @@ find_package( Boost COMPONENTS iostreams program_options filesystem thread syste
 find_package( Eigen )
 find_package( HepMC )
 find_package( HepPDT )
-find_package( ROOT COMPONENTS Matrix Cint Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( ROOT COMPONENTS Matrix Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 find_package( TBB )
 
 add_definitions(-DHAVE_BOOST_IOSTREAMS)

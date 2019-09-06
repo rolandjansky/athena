@@ -39,6 +39,7 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="
     print(btagname)
     options.setdefault('name', (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower())
     options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
+    options.setdefault('JetCalibrationName', jetcol.replace('Track','PV0Track'))
     options.setdefault('BTaggingCollectionName', btagname)
 
     # -- create main BTagging algorithm

@@ -48,7 +48,7 @@ protected:
   // The last argument is the Pixel Identifier helper class
      bool areNeighbours(const std::vector<Identifier>& group, 
                         const Identifier& rdoID,
-                        InDetDD::SiDetectorElement* element,
+                        const InDetDD::SiDetectorElement* element,
    	                const PixelID& pixelID) const;
 
      // Check wether the RDO is a duplicate of one already in the cluster

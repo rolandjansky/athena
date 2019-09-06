@@ -17,6 +17,10 @@ if __name__=='__main__':
     parser.add_argument('--postExec', help='Code to execute after setup')
     parser.add_argument('--dqOffByDefault', action='store_true',
                         help='Set all DQ steering flags to False, user must then switch them on again explicitly')
+    parser.add_argument('--maxEvents', type=int,
+                        help='Maximum number of events to process')
+    parser.add_argument('--loglevel', type=int, default=3,
+                        help='Verbosity level')
     parser.add_argument('flags', nargs='*', help='Config flag overrides')
     args = parser.parse_args()
 
@@ -73,4 +77,4 @@ if __name__=='__main__':
     # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
     cfg.printConfig(withDetails=False) # set True for exhaustive info
 
-    cfg.run() #use cfg.run(20) to only run on first 20 events
+    cfg.run(args.maxEvents, args.loglevel)

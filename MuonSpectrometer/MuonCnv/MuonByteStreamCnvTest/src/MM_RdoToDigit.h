@@ -28,7 +28,6 @@ class MM_RdoToDigit : public AthAlgorithm {
 
   ToolHandle<Muon::IMM_RDO_Decoder> m_mmRdoDecoderTool{this, "mmRdoDecoderTool", "Muon::MM_RDO_Decoder", ""};
   const MmIdHelper *   m_mmHelper{};
-  MmDigitContainer *   m_mmContainer{};
   SG::ReadHandleKey<Muon::MM_RawDataContainer> m_mmRdoKey{this, "MmRdoContainer", "MMRDO", "MM RDO Input"};
   SG::WriteHandleKey<MmDigitContainer> m_mmDigitKey{this, "MmDigitContainer", "MM_DIGITS", "MM Digit Output"};
 };

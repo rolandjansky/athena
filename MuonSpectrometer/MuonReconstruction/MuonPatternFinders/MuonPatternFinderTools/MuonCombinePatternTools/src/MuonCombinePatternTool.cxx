@@ -5,7 +5,6 @@
 #include "MuonCombinePatternTools/MuonCombinePatternTool.h"
 
 
-#include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/sincos.h"
 
 #include "TrkSurfaces/Surface.h" // should not be included

@@ -33,7 +33,6 @@
 
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include "JetTagTools/JetTagUtils.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
 
 namespace Analysis {
@@ -152,14 +151,15 @@ namespace Analysis {
 
   StatusCode JetFitterTag::tagJet(const xAOD::Vertex& /*priVtx*/,
                                   const xAOD::Jet& jetToTag,
-                                  xAOD::BTagging& BTag) const
+                                  xAOD::BTagging& BTag,
+                                  const std::string &jetName) const
   {
     /** author to know which jet algorithm: */
-    std::string jetauthor = JetTagUtils::getJetAuthor(&jetToTag);
+    std::string jetauthor = jetName;
 
     if (m_doForcedCalib) {
       jetauthor = m_ForcedCalibName;
-    } 
+    }
 
     double jetpT = jetToTag.pt();
     double jeteta = jetToTag.eta();

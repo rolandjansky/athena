@@ -24,8 +24,6 @@
 #include "eformat/Issue.h"
 #include "eformat/SourceIdentifier.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/GaudiException.h"
@@ -39,8 +37,6 @@
 //#include "RpcByteStreamAccess/IRPC_ByteStreamErrorSvc.h"
 
 // #include "minibench.h"
-class StoreGateSvc;
-
 
 namespace Muon
 {
@@ -138,7 +134,6 @@ namespace Muon
   private:
     
     //RpcPadIdHash*                      m_hashfunc;
-    //ServiceHandle<StoreGateSvc>        m_storeGate;
     const IRPCcablingSvc*              m_cabling;
     const RpcIdHelper*                 m_pRpcIdHelper;
     

@@ -27,6 +27,7 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
+#include "MuonCondData/MdtCondDbData.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MdtPrepDataCollection.h"
@@ -61,6 +62,7 @@ class IRegSelSvc;
 class IRoiDescriptor;
 class ITrackingGeometrySvc;
 class MuonStationIntersectSvc;
+class MdtCondDbData;
 
 namespace Muon {
   class IMdtDriftCircleOnTrackCreator;
@@ -177,7 +179,7 @@ namespace Muon {
     ToolHandle<MuonEDMPrinterTool>             m_printer;              //!< EDM printer tool
     ToolHandle<IMuonHitSummaryTool>            m_hitSummaryTool;       //!< hit summary tool
     ServiceHandle<IRegSelSvc>                  m_regionSelector;       //!< The region selector
-
+    SG::ReadCondHandleKey<MdtCondDbData> m_condKey{this, "MdtCondKey", "MdtCondDbData", "Key of MdtCondDbData"};
     //properties
     double m_deta;
     double m_dphi;

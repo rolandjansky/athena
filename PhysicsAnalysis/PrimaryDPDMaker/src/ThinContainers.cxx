@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //=============================================================================
@@ -52,8 +52,6 @@
 #include "CaloEvent/CaloCellLink.h"
 #include "CaloEvent/CaloCluster.h"
 
-// Needed for the pixel clusters
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 //
 #include "InDetPrepRawData/PixelClusterCollection.h"

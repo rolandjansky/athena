@@ -36,8 +36,6 @@
 
 #include "DecisionHandling/Combinators.h"
 
-class StoreGateSvc;
-
 
 class TrigMultiTrkHypoToolMT: public ::AthAlgTool  {
   enum { MaxNumberTools = 20 };

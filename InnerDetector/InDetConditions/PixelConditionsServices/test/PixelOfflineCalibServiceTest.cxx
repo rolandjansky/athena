@@ -14,9 +14,6 @@
 #include <iostream>
 #include <string>
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelConditionsData/PixelCalibDataColl.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h" 

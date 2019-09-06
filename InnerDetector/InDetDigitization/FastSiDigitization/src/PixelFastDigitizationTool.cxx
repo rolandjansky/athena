@@ -160,6 +160,7 @@ StatusCode PixelFastDigitizationTool::initialize()
 
   ATH_CHECK(m_pixelCabling.retrieve());
   ATH_CHECK(m_chargeDataKey.initialize());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   //locate the AtRndmGenSvc and initialize our local ptr
   if (!m_rndmSvc.retrieve().isSuccess())
@@ -940,7 +941,7 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
     if (clusterCollection) {
       if (clusterCollection->size() != 0) {
         ATH_MSG_DEBUG ( "Filling ambiguities map" );
-        m_gangedAmbiguitiesFinder->execute(clusterCollection,*m_manager,*m_ambiguitiesMap);
+        m_gangedAmbiguitiesFinder->execute(clusterCollection,*m_ambiguitiesMap);
         ATH_MSG_DEBUG ( "Ambiguities map: " << m_ambiguitiesMap->size() << " elements" );
         if ((m_pixelClusterContainer->addCollection(clusterCollection, waferID)).isFailure()){
           ATH_MSG_WARNING( "Could not add collection to Identifyable container !" );

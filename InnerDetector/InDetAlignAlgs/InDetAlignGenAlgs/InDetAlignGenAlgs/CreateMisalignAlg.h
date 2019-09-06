@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETALIGNMENT_CREATEMISALIGNALG_H
@@ -42,7 +42,6 @@ class SCT_ID;
 class TRT_ID;
 
 namespace InDetDD {
-class PixelDetectorManager;
 class TRT_DetectorManager;
 }
 
@@ -71,12 +70,12 @@ private:
     const SCT_ID                          *m_sctIdHelper;
     const TRT_ID                          *m_trtIdHelper;
 
-    const InDetDD::PixelDetectorManager   *m_pixelManager;
     const InDetDD::TRT_DetectorManager    *m_TRT_Manager;
 
     ToolHandle< IInDetAlignDBTool >        m_IDAlignDBTool;
     ServiceHandle<ITRT_AlignDbSvc>          m_trtaligndbservice;
 
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
     // algorithm parameters, possible to declare at runtime

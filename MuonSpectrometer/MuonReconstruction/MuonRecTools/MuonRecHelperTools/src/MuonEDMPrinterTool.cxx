@@ -744,58 +744,53 @@ namespace Muon {
     unsigned int nchHitsPhi = 0;
 
 
-    StoreGateSvc* storeGate = 0;
-    if (service("StoreGateSvc", storeGate).isFailure() || !storeGate ){
-      ATH_MSG_DEBUG("Cannot retrieve StoreGateSvc ");
-    }else{
-      if( isMdt ){
-	const MdtPrepDataContainer* mdtPrdContainer = 0;
-	std::string key = "MDT_DriftCircles";
-	if(storeGate->retrieve(mdtPrdContainer,key).isFailure()) {
-	  ATH_MSG_DEBUG("Cannot retrieve " << key);
-	}else{
-	  IdentifierHash hash_id;
-	  m_idHelper->mdtIdHelper().get_module_hash(chId,hash_id );
-	  MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
-	  if( colIt != mdtPrdContainer->end() ) nchHitsEta = (*colIt)->size();
-	  else 	  ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
-	}
-      }else if( m_idHelper->isRpc(chId) ){
-	const RpcPrepDataContainer* rpcPrdContainer = 0;
-	std::string key = "RPC_Measurements";
-	if(storeGate->retrieve(rpcPrdContainer,key).isFailure()) {
-	  ATH_MSG_DEBUG("Cannot retrieve " << key);
-	}else{
-	  IdentifierHash hash_id;
-	  m_idHelper->rpcIdHelper().get_module_hash(chId,hash_id );
-	  RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
-	  if( colIt != rpcPrdContainer->end() ) {
-	    RpcPrepDataCollection::const_iterator rpcIt = (*colIt)->begin();
-	    RpcPrepDataCollection::const_iterator rpcIt_end = (*colIt)->end();
-	    for( ;rpcIt!=rpcIt_end;++rpcIt ){
-	      if( m_idHelper->measuresPhi((*rpcIt)->identify()) ) ++nchHitsPhi;
-	      else                                                ++nchHitsEta;
-	    }
-	  }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
-	}
-      }else if( m_idHelper->isTgc(chId) ){
-	const TgcPrepDataContainer* tgcPrdContainer = 0;
-	std::string key = "TGC_Measurements";
-	if(storeGate->retrieve(tgcPrdContainer,key).isFailure()) {
-	  ATH_MSG_DEBUG("Cannot retrieve " << key);
-	}else{
-	  IdentifierHash hash_id;
-	  m_idHelper->tgcIdHelper().get_module_hash(chId,hash_id );
-	  TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(hash_id);
-	  if( colIt != tgcPrdContainer->end() ) {
-	    TgcPrepDataCollection::const_iterator tgcIt = (*colIt)->begin();
-	    TgcPrepDataCollection::const_iterator tgcIt_end = (*colIt)->end();
-	    for( ;tgcIt!=tgcIt_end;++tgcIt ){
-	      if( m_idHelper->measuresPhi((*tgcIt)->identify()) ) ++nchHitsPhi;
-	      else                                                ++nchHitsEta;
-	    }
-	  }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
-	}
+    if( isMdt ){
+      const MdtPrepDataContainer* mdtPrdContainer = 0;
+      std::string key = "MDT_DriftCircles";
+      if(evtStore()->retrieve(mdtPrdContainer,key).isFailure()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      }else{
+        IdentifierHash hash_id;
+        m_idHelper->mdtIdHelper().get_module_hash(chId,hash_id );
+        MdtPrepDataContainer::const_iterator colIt = mdtPrdContainer->indexFind(hash_id);
+        if( colIt != mdtPrdContainer->end() ) nchHitsEta = (*colIt)->size();
+        else 	  ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
+      }
+    }else if( m_idHelper->isRpc(chId) ){
+      const RpcPrepDataContainer* rpcPrdContainer = 0;
+      std::string key = "RPC_Measurements";
+      if(evtStore()->retrieve(rpcPrdContainer,key).isFailure()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      }else{
+        IdentifierHash hash_id;
+        m_idHelper->rpcIdHelper().get_module_hash(chId,hash_id );
+        RpcPrepDataContainer::const_iterator colIt = rpcPrdContainer->indexFind(hash_id);
+        if( colIt != rpcPrdContainer->end() ) {
+          RpcPrepDataCollection::const_iterator rpcIt = (*colIt)->begin();
+          RpcPrepDataCollection::const_iterator rpcIt_end = (*colIt)->end();
+          for( ;rpcIt!=rpcIt_end;++rpcIt ){
+            if( m_idHelper->measuresPhi((*rpcIt)->identify()) ) ++nchHitsPhi;
+            else                                                ++nchHitsEta;
+          }
+        }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
+      }
+    }else if( m_idHelper->isTgc(chId) ){
+      const TgcPrepDataContainer* tgcPrdContainer = 0;
+      std::string key = "TGC_Measurements";
+      if(evtStore()->retrieve(tgcPrdContainer,key).isFailure()) {
+        ATH_MSG_DEBUG("Cannot retrieve " << key);
+      }else{
+        IdentifierHash hash_id;
+        m_idHelper->tgcIdHelper().get_module_hash(chId,hash_id );
+        TgcPrepDataContainer::const_iterator colIt = tgcPrdContainer->indexFind(hash_id);
+        if( colIt != tgcPrdContainer->end() ) {
+          TgcPrepDataCollection::const_iterator tgcIt = (*colIt)->begin();
+          TgcPrepDataCollection::const_iterator tgcIt_end = (*colIt)->end();
+          for( ;tgcIt!=tgcIt_end;++tgcIt ){
+            if( m_idHelper->measuresPhi((*tgcIt)->identify()) ) ++nchHitsPhi;
+            else                                                ++nchHitsEta;
+          }
+        }else ATH_MSG_DEBUG("Collection not found: hash " << hash_id);
       }
     }
 

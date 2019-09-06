@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/IPartPropSvc.h"
@@ -130,6 +130,7 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
   ATH_CHECK( m_tracklocation.initialize());
 
   // Read Cond Handle Key
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   if (msgLvl(MSG::DEBUG)) {

@@ -4,8 +4,6 @@
 
 #include "InDetDetDescrExample/ReadSiDetectorElements.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"

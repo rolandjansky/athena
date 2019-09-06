@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSALGS_NOISEMAPBUILDER_H
@@ -21,10 +21,6 @@ class PixelID;
 class TH2D;
 class TH2C;
 class TH1D;
-
-namespace InDetDD{ 
-  class PixelDetectorManager;
-}
 
 /**
  *
@@ -68,7 +64,6 @@ class NoiseMapBuilder: public AthAlgorithm{
   ServiceHandle <IInDetConditionsSvc> m_pixelConditionsSummarySvc;
   ServiceHandle <IPixelByteStreamErrorsSvc> m_BSErrorsSvc;
 
-  const InDetDD::PixelDetectorManager *m_pixman; 
   const PixelID *m_pixelID;
 
   // vector of modulename and vector(barrel/endcap, layer, phi, eta)

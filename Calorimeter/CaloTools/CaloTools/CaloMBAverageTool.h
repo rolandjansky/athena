@@ -12,7 +12,6 @@
 #define CALOTOOLS_CaloMBAverageTool_H
 
 class Identifier; 
-class StoreGateSvc; 
 class CaloIdManager;
 class CaloCell_ID;
 class CaloDetDescrElement;

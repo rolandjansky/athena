@@ -43,7 +43,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       m_ComputedTime(nullptr),
       m_comTime(0.0),
       m_timeJitter(0.0),
-      m_eventStore("StoreGateSvc", name),
       m_BarrelAnalogthreshold({-1,-1,-1,-1,-1,-1,-1}),
       m_EndcapAnalogthreshold({-1,-1,-1,-1,-1,-1,-1}),
       m_BarrelToTthreshold({-1,-1,-1,-1,-1,-1,-1}),
@@ -91,8 +90,7 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       }
 
       if (m_useComTime) {
-        CHECK(m_eventStore.retrieve());
-        if (StatusCode::SUCCESS==m_eventStore->retrieve(m_ComputedTime,"ComTime")) {
+        if (StatusCode::SUCCESS==evtStore()->retrieve(m_ComputedTime,"ComTime")) {
           m_comTime = m_ComputedTime->getTime();
           ATH_MSG_DEBUG("Found tool for cosmic/commissioning timing: ComTime");
         } 
@@ -129,7 +127,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     ComTime  *m_ComputedTime;
     double m_comTime;       /**< cosmics timing ofs */
     double m_timeJitter; 
-    ServiceHandle<StoreGateSvc>  m_eventStore;
     std::vector<int> m_BarrelAnalogthreshold;
     std::vector<int> m_EndcapAnalogthreshold;
     std::vector<int> m_BarrelToTthreshold;

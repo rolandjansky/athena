@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowCopy.h 766390 2016-08-04 11:18:59Z wlampl $
@@ -11,9 +11,6 @@
 // System include(s):
 #include <map>
 #include <iostream>
-
-//Core includes
-#include "CxxUtils/make_unique.h"
 
 // EDM include(s):
 #include "AthLinks/DataLink.h"
@@ -37,7 +34,7 @@ namespace xAOD {
 
   template< class T >
   std::unique_ptr<T> prepareElementForShallowCopy(const T* /*elem*/) {
-    return CxxUtils::make_unique<T>();
+    return std::make_unique<T>();
   }
 
 

@@ -23,7 +23,7 @@ atlas_add_component( TrigUpgradeTest
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref share/*.conf )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/exec*.sh test/test*.sh test/test*.py )
+atlas_install_scripts( test/exec*.sh test/test*.sh )
 
 # Check python syntax:
 atlas_add_test( flake8
@@ -54,4 +54,3 @@ endfunction( _add_test )
 _add_test( emu_l1_decoding POST_EXEC_SCRIPT nopost.sh ) # should be moved to the L1Decoder package
 _add_test( emu_scaling_CF  EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
 _add_test( emu_step_processing EXTRA_PATTERNS "-s TrigSignatureMoniMT.*INFO HLT_.*|TriggerSummaryStep.* chains passed:|TriggerSummaryStep.*+++ HLT_.*") # should be moved to TriggerMenuMT
-

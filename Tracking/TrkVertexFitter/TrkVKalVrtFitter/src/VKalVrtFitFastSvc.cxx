@@ -31,14 +31,9 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const Track*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& istate)
+                                              IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
-//
-//--- Magnetic field
-//
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
@@ -101,14 +96,9 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const xAOD::TrackParticle*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& istate)
+                                              IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
-//
-//--- Magnetic field
-//
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
@@ -171,14 +161,9 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const TrackParticleBase*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& istate)
+                                              IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
-//
-//--- Magnetic field
-//
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //
@@ -241,14 +226,9 @@ namespace Trk{
 
   StatusCode TrkVKalVrtFitter::VKalVrtFitFast(const std::vector<const TrackParameters*>& InpTrk,
                                               Amg::Vector3D& Vertex,
-                                              IVKalState& istate)
+                                              IVKalState& istate) const
   {
     State& state = dynamic_cast<State&> (istate);
-//
-//--- Magnetic field
-//
-    //if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
-    std::call_once(m_isFieldInitialized,&TrkVKalVrtFitter::setInitializedField,this);    //to allow callback for init
 //
 //  Convert particles and setup reference frame
 //

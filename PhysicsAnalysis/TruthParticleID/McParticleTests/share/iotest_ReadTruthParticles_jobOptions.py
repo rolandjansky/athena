@@ -90,7 +90,6 @@ import os
 outStream.OutputFile = os.path.join( \
     os.path.dirname(INPUT[0]),
     "reaccessed.%s" % os.path.basename(INPUT[0]) )
-outStream.ForceRead = True
 
 outStream.ItemList += [ "EventInfo#McEventInfo" ]
 outStream.ItemList += [ "McEventCollection#GEN_EVENT" ]

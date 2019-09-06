@@ -57,7 +57,6 @@ namespace G4UA{
       , m_scEnd(0)
       , m_gen(0)
       , m_geoID(0)
-      , m_theta(0.)
       , m_pth(0.)
       , m_pph(0.)
       , m_p(0.)

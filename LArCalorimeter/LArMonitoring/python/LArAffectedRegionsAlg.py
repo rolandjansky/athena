@@ -2,33 +2,13 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-'''@file ExampleLArMonitorAlgorithm.py
-@author C. D. Burton
-@author P. Onyisi
-@date 2018-01-11
-@brief Example python configuration for the Run III AthenaMonitoring package
-'''
-
 def LArAffectedRegionsConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''
 
-    ### STEP 1 ###
-    # Define one top-level monitoring algorithm. The new configuration 
-    # framework uses a component accumulator.
-    #from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    #result = ComponentAccumulator()
-
-    # The following class will make a sequence, configure algorithms, and link
-    # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArAffectedRegionsCfg')
 
 
-    ### STEP 2 ###
-    # Adding an algorithm to the helper. Just pass the type to the 
-    # helper. Then, the helper will instantiate an instance and set up the 
-    # base class configuration following the inputFlags. The returned object 
-    # is the algorithm.
     from LArMonitoring.LArMonitoringConf import LArAffectedRegionsAlg
     larAffectedRegAlg = helper.addAlgorithm(LArAffectedRegionsAlg,'larAffectedRegAlg')
 
@@ -36,37 +16,15 @@ def LArAffectedRegionsConfig(inputFlags):
     affectedRegGroupName="LArAffectedRegionsMonGroup"
 
 
-    ### STEP 3 ###
     # Edit properties of a algorithm
     larAffectedRegAlg.AffectedRegionsGroupName=affectedRegGroupName
-    larAffectedRegAlg.IsOnline = isOnline  #assuming isOnline is defined in upper level JO
-
-    ### STEP 4 ###
-    # Add some tools. N.B. Do not use your own trigger decion tool. Use the
-    # standard one that is included with AthMonitorAlgorithm.
-
-    # # First, add a tool that's set up by a different configuration function. 
-    # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
-    # # which must be merged with the one from this function.
-    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-    # result.merge(caloNoiseAcc)
-    # exampleMonAlg.CaloNoiseTool = caloNoiseTool
-
-    # # Then, add a tool that doesn't have its own configuration function. In
-    # # this example, no accumulator is returned, so no merge is necessary.
-    # from MyDomainPackage.MyDomainPackageConf import MyDomainTool
-    # exampleMonAlg.MyDomainTool = MyDomainTool()
+    larAffectedRegAlg.IsOnline = inputFlags.Common.isOnline
 
 
-
-    # Add a generic monitoring tool (a "group" in old language). The returned 
-    # object here is the standard GenericMonitoringTool.
-    #for each group, then add two histograms
-
-    from LArMonitoring import GlobalVariables #to define the ranges
+    from LArMonitoring.GlobalVariables import lArDQGlobals #to define the ranges
     larAffReg_hist_path='AffectedRegions/' #histogram path
     
+
     #EMBPS
     group_name_ending="EMBPS" 
     larAffectedRegAlg.EMBPSname=group_name_ending
@@ -81,18 +39,19 @@ def LArAffectedRegionsConfig(inputFlags):
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
-                                          xbins=GlobalVariables.HVeta_EMB["EMBAPS"][0],xmin=GlobalVariables.HVeta_EMB["EMBAPS"][1],xmax=GlobalVariables.HVeta_EMB["EMBAPS"][2],
-                                          ybins=GlobalVariables.HVphi_EMB["EMBAPS"][0],ymin=GlobalVariables.HVphi_EMB["EMBAPS"][1],ymax=GlobalVariables.HVphi_EMB["EMBAPS"][2]
+                                          xbins=lArDQGlobals.HVeta_EMB["EMBAPS"][0],xmin=lArDQGlobals.HVeta_EMB["EMBAPS"][1],xmax=lArDQGlobals.HVeta_EMB["EMBAPS"][2],
+                                          ybins=lArDQGlobals.HVphi_EMB["EMBAPS"][0],ymin=lArDQGlobals.HVphi_EMB["EMBAPS"][1],ymax=lArDQGlobals.HVphi_EMB["EMBAPS"][2]
     )
     affectedRegGroupEMBPS.defineHistogram('etaNEG,phi;LArAffectedRegionsEMBCPS',
                                           title='HV Affected Regions - EMBC - Presampler;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
-                                          xbins=GlobalVariables.HVeta_EMB["EMBCPS"][0],xmin=GlobalVariables.HVeta_EMB["EMBCPS"][1],xmax=GlobalVariables.HVeta_EMB["EMBCPS"][2],
-                                          ybins=GlobalVariables.HVphi_EMB["EMBCPS"][0],ymin=GlobalVariables.HVphi_EMB["EMBCPS"][1],ymax=GlobalVariables.HVphi_EMB["EMBCPS"][2]
+                                          xbins=lArDQGlobals.HVeta_EMB["EMBCPS"][0],xmin=lArDQGlobals.HVeta_EMB["EMBCPS"][1],xmax=lArDQGlobals.HVeta_EMB["EMBCPS"][2],
+                                          ybins=lArDQGlobals.HVphi_EMB["EMBCPS"][0],ymin=lArDQGlobals.HVphi_EMB["EMBCPS"][1],ymax=lArDQGlobals.HVphi_EMB["EMBCPS"][2]
 
     )
+
 
     #EMB
     group_name_ending="EMB"
@@ -108,8 +67,8 @@ def LArAffectedRegionsConfig(inputFlags):
                                         type='TH2F',
                                         path=larAffReg_hist_path,
                                         weight='problem',
-                                        xbins=GlobalVariables.HVeta_EMB["EMBA"][0],xmin=GlobalVariables.HVeta_EMB["EMBA"][1],xmax=GlobalVariables.HVeta_EMB["EMBA"][2],
-                                        ybins=GlobalVariables.HVphi_EMB["EMBA"][0],ymin=GlobalVariables.HVphi_EMB["EMBA"][1],ymax=GlobalVariables.HVphi_EMB["EMBA"][2]
+                                        xbins=lArDQGlobals.HVeta_EMB["EMBA"][0],xmin=lArDQGlobals.HVeta_EMB["EMBA"][1],xmax=lArDQGlobals.HVeta_EMB["EMBA"][2],
+                                        ybins=lArDQGlobals.HVphi_EMB["EMBA"][0],ymin=lArDQGlobals.HVphi_EMB["EMBA"][1],ymax=lArDQGlobals.HVphi_EMB["EMBA"][2]
          
     )
     affectedRegGroupEMB.defineHistogram('etaNEG,phi;LArAffectedRegionsEMBC',
@@ -117,8 +76,8 @@ def LArAffectedRegionsConfig(inputFlags):
                                         type='TH2F',
                                         path=larAffReg_hist_path,
                                         weight='problem',
-                                        xbins=GlobalVariables.HVeta_EMB["EMBC"][0],xmin=GlobalVariables.HVeta_EMB["EMBC"][1],xmax=GlobalVariables.HVeta_EMB["EMBC"][2],
-                                        ybins=GlobalVariables.HVphi_EMB["EMBC"][0],ymin=GlobalVariables.HVphi_EMB["EMBC"][1],ymax=GlobalVariables.HVphi_EMB["EMBC"][2]
+                                        xbins=lArDQGlobals.HVeta_EMB["EMBC"][0],xmin=lArDQGlobals.HVeta_EMB["EMBC"][1],xmax=lArDQGlobals.HVeta_EMB["EMBC"][2],
+                                        ybins=lArDQGlobals.HVphi_EMB["EMBC"][0],ymin=lArDQGlobals.HVphi_EMB["EMBC"][1],ymax=lArDQGlobals.HVphi_EMB["EMBC"][2]
     )
         
 
@@ -136,16 +95,16 @@ def LArAffectedRegionsConfig(inputFlags):
                                            type='TH2F',
                                            path=larAffReg_hist_path,
                                            weight='problem',
-                                           xbins=GlobalVariables.HVeta_EMEC["EMECAPS"],
-                                           ybins=GlobalVariables.HVphi_EMEC["EMECAPS"]
+                                           xbins=lArDQGlobals.HVeta_EMEC["EMECAPS"],
+                                           ybins=lArDQGlobals.HVphi_EMEC["EMECAPS"]
     )
     affectedRegGroupEMECPS.defineHistogram('etaNEG,phi;LArAffectedRegionsEMECCPS',
                                            title='HV Affected Regions - EMECC - Presampler;#eta;#phi',
                                            type='TH2F',
                                            path=larAffReg_hist_path,
                                            weight='problem',
-                                           xbins=GlobalVariables.HVeta_EMEC["EMECCPS"],
-                                           ybins=GlobalVariables.HVphi_EMEC["EMECCPS"]
+                                           xbins=lArDQGlobals.HVeta_EMEC["EMECCPS"],
+                                           ybins=lArDQGlobals.HVphi_EMEC["EMECCPS"]
     )
 
 
@@ -163,16 +122,16 @@ def LArAffectedRegionsConfig(inputFlags):
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_EMEC["EMECA"],
-                                         ybins=GlobalVariables.HVphi_EMEC["EMECA"]
+                                         xbins=lArDQGlobals.HVeta_EMEC["EMECA"],
+                                         ybins=lArDQGlobals.HVphi_EMEC["EMECA"]
     )
     affectedRegGroupEMEC.defineHistogram('etaNEG,phi;LArAffectedRegionsEMECC',
                                          title='HV Affected Regions - EMECC - Samplings 1-3;#eta;#phi',
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_EMEC["EMECC"],
-                                         ybins=GlobalVariables.HVphi_EMEC["EMECC"]
+                                         xbins=lArDQGlobals.HVeta_EMEC["EMECC"],
+                                         ybins=lArDQGlobals.HVphi_EMEC["EMECC"]
     )
 
 
@@ -190,16 +149,16 @@ def LArAffectedRegionsConfig(inputFlags):
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_HECFcal["HECA"][0],xmin=GlobalVariables.HVeta_HECFcal["HECA"][1],xmax=GlobalVariables.HVeta_HECFcal["HECA"][2],
-                                         ybins=GlobalVariables.HVphi_HECFcal["HECA"][0],ymin=GlobalVariables.HVphi_HECFcal["HECA"][1],ymax=GlobalVariables.HVphi_HECFcal["HECA"][2]
+                                         xbins=lArDQGlobals.HVeta_HECFcal["HECA"][0],xmin=lArDQGlobals.HVeta_HECFcal["HECA"][1],xmax=lArDQGlobals.HVeta_HECFcal["HECA"][2],
+                                         ybins=lArDQGlobals.HVphi_HECFcal["HECA"][0],ymin=lArDQGlobals.HVphi_HECFcal["HECA"][1],ymax=lArDQGlobals.HVphi_HECFcal["HECA"][2]
     )
     affectedRegGroupHEC0.defineHistogram('etaNEG,phi;LArAffectedRegionsHECC0',
                                          title='HV Affected Regions - HECC - Layer 1;#eta;#phi',
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_HECFcal["HECC"][0],xmin=GlobalVariables.HVeta_HECFcal["HECC"][1],xmax=GlobalVariables.HVeta_HECFcal["HECC"][2],
-                                         ybins=GlobalVariables.HVphi_HECFcal["HECC"][0],ymin=GlobalVariables.HVphi_HECFcal["HECC"][1],ymax=GlobalVariables.HVphi_HECFcal["HECC"][2]
+                                         xbins=lArDQGlobals.HVeta_HECFcal["HECC"][0],xmin=lArDQGlobals.HVeta_HECFcal["HECC"][1],xmax=lArDQGlobals.HVeta_HECFcal["HECC"][2],
+                                         ybins=lArDQGlobals.HVphi_HECFcal["HECC"][0],ymin=lArDQGlobals.HVphi_HECFcal["HECC"][1],ymax=lArDQGlobals.HVphi_HECFcal["HECC"][2]
     )
 
     #HEC1
@@ -216,16 +175,16 @@ def LArAffectedRegionsConfig(inputFlags):
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_HECFcal["HECA"][0],xmin=GlobalVariables.HVeta_HECFcal["HECA"][1],xmax=GlobalVariables.HVeta_HECFcal["HECA"][2],
-                                         ybins=GlobalVariables.HVphi_HECFcal["HECA"][0],ymin=GlobalVariables.HVphi_HECFcal["HECA"][1],ymax=GlobalVariables.HVphi_HECFcal["HECA"][2]
+                                         xbins=lArDQGlobals.HVeta_HECFcal["HECA"][0],xmin=lArDQGlobals.HVeta_HECFcal["HECA"][1],xmax=lArDQGlobals.HVeta_HECFcal["HECA"][2],
+                                         ybins=lArDQGlobals.HVphi_HECFcal["HECA"][0],ymin=lArDQGlobals.HVphi_HECFcal["HECA"][1],ymax=lArDQGlobals.HVphi_HECFcal["HECA"][2]
     )
     affectedRegGroupHEC1.defineHistogram('etaNEG,phi;LArAffectedRegionsHECC1',
                                          title='HV Affected Regions - HECC - Layer 2;#eta;#phi',
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_HECFcal["HECC"][0],xmin=GlobalVariables.HVeta_HECFcal["HECC"][1],xmax=GlobalVariables.HVeta_HECFcal["HECC"][2],
-                                         ybins=GlobalVariables.HVphi_HECFcal["HECC"][0],ymin=GlobalVariables.HVphi_HECFcal["HECC"][1],ymax=GlobalVariables.HVphi_HECFcal["HECC"][2]
+                                         xbins=lArDQGlobals.HVeta_HECFcal["HECC"][0],xmin=lArDQGlobals.HVeta_HECFcal["HECC"][1],xmax=lArDQGlobals.HVeta_HECFcal["HECC"][2],
+                                         ybins=lArDQGlobals.HVphi_HECFcal["HECC"][0],ymin=lArDQGlobals.HVphi_HECFcal["HECC"][1],ymax=lArDQGlobals.HVphi_HECFcal["HECC"][2]
     )
     
     #HEC2
@@ -242,16 +201,16 @@ def LArAffectedRegionsConfig(inputFlags):
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_HECFcal["HECA"][0],xmin=GlobalVariables.HVeta_HECFcal["HECA"][1],xmax=GlobalVariables.HVeta_HECFcal["HECA"][2],
-                                         ybins=GlobalVariables.HVphi_HECFcal["HECA"][0],ymin=GlobalVariables.HVphi_HECFcal["HECA"][1],ymax=GlobalVariables.HVphi_HECFcal["HECA"][2]
+                                         xbins=lArDQGlobals.HVeta_HECFcal["HECA"][0],xmin=lArDQGlobals.HVeta_HECFcal["HECA"][1],xmax=lArDQGlobals.HVeta_HECFcal["HECA"][2],
+                                         ybins=lArDQGlobals.HVphi_HECFcal["HECA"][0],ymin=lArDQGlobals.HVphi_HECFcal["HECA"][1],ymax=lArDQGlobals.HVphi_HECFcal["HECA"][2]
     )
     affectedRegGroupHEC2.defineHistogram('etaNEG,phi;LArAffectedRegionsHECC2',
                                          title='HV Affected Regions - HECC - Layer 3;#eta;#phi',
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_HECFcal["HECC"][0],xmin=GlobalVariables.HVeta_HECFcal["HECC"][1],xmax=GlobalVariables.HVeta_HECFcal["HECC"][2],
-                                         ybins=GlobalVariables.HVphi_HECFcal["HECC"][0],ymin=GlobalVariables.HVphi_HECFcal["HECC"][1],ymax=GlobalVariables.HVphi_HECFcal["HECC"][2]
+                                         xbins=lArDQGlobals.HVeta_HECFcal["HECC"][0],xmin=lArDQGlobals.HVeta_HECFcal["HECC"][1],xmax=lArDQGlobals.HVeta_HECFcal["HECC"][2],
+                                         ybins=lArDQGlobals.HVphi_HECFcal["HECC"][0],ymin=lArDQGlobals.HVphi_HECFcal["HECC"][1],ymax=lArDQGlobals.HVphi_HECFcal["HECC"][2]
     )
         
     #HEC3
@@ -268,16 +227,16 @@ def LArAffectedRegionsConfig(inputFlags):
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_HECFcal["HECA"][0],xmin=GlobalVariables.HVeta_HECFcal["HECA"][1],xmax=GlobalVariables.HVeta_HECFcal["HECA"][2],
-                                         ybins=GlobalVariables.HVphi_HECFcal["HECA"][0],ymin=GlobalVariables.HVphi_HECFcal["HECA"][1],ymax=GlobalVariables.HVphi_HECFcal["HECA"][2]
+                                         xbins=lArDQGlobals.HVeta_HECFcal["HECA"][0],xmin=lArDQGlobals.HVeta_HECFcal["HECA"][1],xmax=lArDQGlobals.HVeta_HECFcal["HECA"][2],
+                                         ybins=lArDQGlobals.HVphi_HECFcal["HECA"][0],ymin=lArDQGlobals.HVphi_HECFcal["HECA"][1],ymax=lArDQGlobals.HVphi_HECFcal["HECA"][2]
     )
     affectedRegGroupHEC3.defineHistogram('etaNEG,phi;LArAffectedRegionsHECC3',
                                          title='HV Affected Regions - HECC - Layer 4;#eta;#phi',
                                          type='TH2F',
                                          path=larAffReg_hist_path,
                                          weight='problem',
-                                         xbins=GlobalVariables.HVeta_HECFcal["HECC"][0],xmin=GlobalVariables.HVeta_HECFcal["HECC"][1],xmax=GlobalVariables.HVeta_HECFcal["HECC"][2],
-                                         ybins=GlobalVariables.HVphi_HECFcal["HECC"][0],ymin=GlobalVariables.HVphi_HECFcal["HECC"][1],ymax=GlobalVariables.HVphi_HECFcal["HECC"][2]
+                                         xbins=lArDQGlobals.HVeta_HECFcal["HECC"][0],xmin=lArDQGlobals.HVeta_HECFcal["HECC"][1],xmax=lArDQGlobals.HVeta_HECFcal["HECC"][2],
+                                         ybins=lArDQGlobals.HVphi_HECFcal["HECC"][0],ymin=lArDQGlobals.HVphi_HECFcal["HECC"][1],ymax=lArDQGlobals.HVphi_HECFcal["HECC"][2]
     )
     
     #FCAL0
@@ -294,16 +253,16 @@ def LArAffectedRegionsConfig(inputFlags):
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
-                                          xbins=GlobalVariables.HVeta_HECFcal["FCalA"][0],xmin=GlobalVariables.HVeta_HECFcal["FCalA"][1],xmax=GlobalVariables.HVeta_HECFcal["FCalA"][2],
-                                          ybins=GlobalVariables.HVphi_HECFcal["FCalA"][0],ymin=GlobalVariables.HVphi_HECFcal["FCalA"][1],ymax=GlobalVariables.HVphi_HECFcal["FCalA"][2]
+                                          xbins=lArDQGlobals.HVeta_HECFcal["FCalA"][0],xmin=lArDQGlobals.HVeta_HECFcal["FCalA"][1],xmax=lArDQGlobals.HVeta_HECFcal["FCalA"][2],
+                                          ybins=lArDQGlobals.HVphi_HECFcal["FCalA"][0],ymin=lArDQGlobals.HVphi_HECFcal["FCalA"][1],ymax=lArDQGlobals.HVphi_HECFcal["FCalA"][2]
     )
     affectedRegGroupFCAL0.defineHistogram('etaNEG,phi;LArAffectedRegionsFCALC0',
                                           title='HV Affected Regions - FCALC - Layer 1;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
-                                          xbins=GlobalVariables.HVeta_HECFcal["FCalC"][0],xmin=GlobalVariables.HVeta_HECFcal["FCalC"][1],xmax=GlobalVariables.HVeta_HECFcal["FCalC"][2],
-                                          ybins=GlobalVariables.HVphi_HECFcal["FCalC"][0],ymin=GlobalVariables.HVphi_HECFcal["FCalC"][1],ymax=GlobalVariables.HVphi_HECFcal["FCalC"][2]
+                                          xbins=lArDQGlobals.HVeta_HECFcal["FCalC"][0],xmin=lArDQGlobals.HVeta_HECFcal["FCalC"][1],xmax=lArDQGlobals.HVeta_HECFcal["FCalC"][2],
+                                          ybins=lArDQGlobals.HVphi_HECFcal["FCalC"][0],ymin=lArDQGlobals.HVphi_HECFcal["FCalC"][1],ymax=lArDQGlobals.HVphi_HECFcal["FCalC"][2]
     )
 
     #FCAL1
@@ -320,16 +279,16 @@ def LArAffectedRegionsConfig(inputFlags):
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
-                                          xbins=GlobalVariables.HVeta_HECFcal["FCalA"][0],xmin=GlobalVariables.HVeta_HECFcal["FCalA"][1],xmax=GlobalVariables.HVeta_HECFcal["FCalA"][2],
-                                          ybins=GlobalVariables.HVphi_HECFcal["FCalA"][0],ymin=GlobalVariables.HVphi_HECFcal["FCalA"][1],ymax=GlobalVariables.HVphi_HECFcal["FCalA"][2]
+                                          xbins=lArDQGlobals.HVeta_HECFcal["FCalA"][0],xmin=lArDQGlobals.HVeta_HECFcal["FCalA"][1],xmax=lArDQGlobals.HVeta_HECFcal["FCalA"][2],
+                                          ybins=lArDQGlobals.HVphi_HECFcal["FCalA"][0],ymin=lArDQGlobals.HVphi_HECFcal["FCalA"][1],ymax=lArDQGlobals.HVphi_HECFcal["FCalA"][2]
     )
     affectedRegGroupFCAL1.defineHistogram('etaNEG,phi;LArAffectedRegionsFCALC1',
                                           title='HV Affected Regions - FCALC - Layer 2;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
-                                          xbins=GlobalVariables.HVeta_HECFcal["FCalC"][0],xmin=GlobalVariables.HVeta_HECFcal["FCalC"][1],xmax=GlobalVariables.HVeta_HECFcal["FCalC"][2],
-                                          ybins=GlobalVariables.HVphi_HECFcal["FCalC"][0],ymin=GlobalVariables.HVphi_HECFcal["FCalC"][1],ymax=GlobalVariables.HVphi_HECFcal["FCalC"][2]
+                                          xbins=lArDQGlobals.HVeta_HECFcal["FCalC"][0],xmin=lArDQGlobals.HVeta_HECFcal["FCalC"][1],xmax=lArDQGlobals.HVeta_HECFcal["FCalC"][2],
+                                          ybins=lArDQGlobals.HVphi_HECFcal["FCalC"][0],ymin=lArDQGlobals.HVphi_HECFcal["FCalC"][1],ymax=lArDQGlobals.HVphi_HECFcal["FCalC"][2]
 
     )
 
@@ -347,39 +306,26 @@ def LArAffectedRegionsConfig(inputFlags):
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
-                                          xbins=GlobalVariables.HVeta_HECFcal["FCalA"][0],xmin=GlobalVariables.HVeta_HECFcal["FCalA"][1],xmax=GlobalVariables.HVeta_HECFcal["FCalA"][2],
-                                          ybins=GlobalVariables.HVphi_HECFcal["FCalA"][0],ymin=GlobalVariables.HVphi_HECFcal["FCalA"][1],ymax=GlobalVariables.HVphi_HECFcal["FCalA"][2]
+                                          xbins=lArDQGlobals.HVeta_HECFcal["FCalA"][0],xmin=lArDQGlobals.HVeta_HECFcal["FCalA"][1],xmax=lArDQGlobals.HVeta_HECFcal["FCalA"][2],
+                                          ybins=lArDQGlobals.HVphi_HECFcal["FCalA"][0],ymin=lArDQGlobals.HVphi_HECFcal["FCalA"][1],ymax=lArDQGlobals.HVphi_HECFcal["FCalA"][2]
     )
     affectedRegGroupFCAL2.defineHistogram('etaNEG,phi;LArAffectedRegionsFCALC2',
                                           title='HV Affected Regions - FCALC - Layer 3;#eta;#phi',
                                           type='TH2F',
                                           path=larAffReg_hist_path,
                                           weight='problem',
-                                          xbins=GlobalVariables.HVeta_HECFcal["FCalC"][0],xmin=GlobalVariables.HVeta_HECFcal["FCalC"][1],xmax=GlobalVariables.HVeta_HECFcal["FCalC"][2],
-                                          ybins=GlobalVariables.HVphi_HECFcal["FCalC"][0],ymin=GlobalVariables.HVphi_HECFcal["FCalC"][1],ymax=GlobalVariables.HVphi_HECFcal["FCalC"][2]
+                                          xbins=lArDQGlobals.HVeta_HECFcal["FCalC"][0],xmin=lArDQGlobals.HVeta_HECFcal["FCalC"][1],xmax=lArDQGlobals.HVeta_HECFcal["FCalC"][2],
+                                          ybins=lArDQGlobals.HVphi_HECFcal["FCalC"][0],ymin=lArDQGlobals.HVphi_HECFcal["FCalC"][1],ymax=lArDQGlobals.HVphi_HECFcal["FCalC"][2]
     )
 
-    #    pass #end of isOnline
     
 
 
-    ### STEP 6 ###
-    # Finalize. The return value should be a tuple of the ComponentAccumulator
-    # and the sequence containing the created algorithms. If we haven't called
-    # any configuration other than the AthMonitorCfgHelper here, then we can 
-    # just return directly (and not create "result" above)
     
     return helper.result()
     
-    # # Otherwise, merge with result object and return
-    # acc, seq = helper.result()
-    # result.merge(acc)
-    # return result, seq
-
 
 if __name__=='__main__':
-
-    isOnline=False
 
     # Setup the Run III behavior
     from AthenaCommon.Configurable import Configurable
@@ -406,8 +352,7 @@ if __name__=='__main__':
     cfg.merge(PoolReadCfg(ConfigFlags))
 
 #    larAffectedRegionsAcc, larAffectedRegionsAlg = LArAffectedRegionsConfig(ConfigFlags)
-    larAffectedRegionsAcc = LArAffectedRegionsConfig(ConfigFlags)
-    
-    cfg.merge(larAffectedRegionsAcc)
+    cfg.merge(LArAffectedRegionsConfig(ConfigFlags))
+
     Nevents=10
     cfg.run(Nevents) #use cfg.run() to run on all events

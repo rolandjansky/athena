@@ -88,7 +88,6 @@ if DetFlags.writeRDOPool.any_on():
     Stream1.ItemList+=["EventInfo#*"];           
     Stream1.ItemList+=["TBEventInfo#*"];           
     Stream1.ItemList+=["McEventCollection#*"]
-    Stream1.ForceRead=TRUE;  #force read of output data 
 
     Stream1.OutputFile = PoolRDOOutput
 

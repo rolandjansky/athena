@@ -25,7 +25,6 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-// class StoreGateSvc;
 class RegSelSiLUT;
 
 #include <iostream>

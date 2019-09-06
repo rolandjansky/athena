@@ -119,9 +119,6 @@ def BTagCfg(inputFlags,**kwargs):
     #result.merge(addFolders(inputFlags,['/GLOBAL/TrackingGeo/LayerMaterialV2'],'GLOBAL_ONL'))
     result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
     
-    iovDbSvc=result.getService("IOVDbSvc")
-    iovDbSvc.FoldersToMetaData+=['/GLOBAL/BField/Maps']
-
     from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
     kwargs.setdefault( "UseDCS", True )
     result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))

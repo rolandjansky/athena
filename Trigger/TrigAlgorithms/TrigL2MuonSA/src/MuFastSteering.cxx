@@ -28,7 +28,6 @@ using namespace SG;
 
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
-    m_storeGate("StoreGateSvc", name), 
     m_timerSvc("TrigTimerSvc", name),
     m_regionSelector("RegSelSvc", name),
     m_recMuonRoIUtils(),
@@ -52,11 +51,6 @@ MuFastSteering::~MuFastSteering() {
 HLT::ErrorCode MuFastSteering::hltInitialize()
 {
   ATH_MSG_DEBUG("Initializing MuFastSteering - package version " << PACKAGE_VERSION);
-  
-  if (m_storeGate.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve service StoreGateSvc");
-    return HLT::BAD_JOB_SETUP;
-  }
   
   StatusCode sc;
 

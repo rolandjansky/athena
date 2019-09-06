@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDTOOL_RPCTRIGGERDBTOOL_H
@@ -12,7 +12,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 class Identifier; 
-class StoreGateSvc; 
 
 class RpcIdHelper;
 class IIOVSvc;
@@ -63,7 +62,6 @@ public:
 
 
     
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
 
 

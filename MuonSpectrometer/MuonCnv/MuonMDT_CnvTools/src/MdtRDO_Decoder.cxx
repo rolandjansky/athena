@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtRDO_Decoder.h"
@@ -15,14 +15,7 @@ MdtRDO_Decoder::MdtRDO_Decoder(const std::string& type, const std::string& name,
 
 StatusCode MdtRDO_Decoder::initialize() {
    
-  StoreGateSvc * detStore;
-  StatusCode status = service("DetectorStore", detStore);
-  if (status.isFailure()) {
-    ATH_MSG_FATAL("DetectorStore service not found !");
-    return StatusCode::FAILURE;
-  } else {}
-  
-  status = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER");
+  StatusCode status = detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER");
   if (status.isFailure()) {
     ATH_MSG_FATAL("Could not get MdtIdHelper !");
     return StatusCode::FAILURE;

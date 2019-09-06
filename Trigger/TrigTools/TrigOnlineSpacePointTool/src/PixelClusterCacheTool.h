@@ -7,14 +7,15 @@
 
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "IPixelClusterCacheTool.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetRawData/PixelRDO_Container.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelRawDataByteStreamCnv/IPixelRodDecoder.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include <vector>
@@ -45,7 +46,6 @@ private:
   std::string m_containerName;
   FastPixelClusterization m_clusterization;
   //PixelIdMapping *m_IdMapping; 
-  const InDetDD::PixelDetectorManager* p_indet_mgr;
   const PixelID* m_pixel_id;
   IdContext m_cntx_pix;   
   ToolHandle<IPixelRodDecoder> m_offlineDecoder;
@@ -55,6 +55,7 @@ private:
   ServiceHandle<IPixelByteStreamErrorsSvc>   m_bsErrorSvc;
   ToolHandle<InDet::IPixelClusteringTool> m_clusteringTool;
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
   bool m_doBS;
 };

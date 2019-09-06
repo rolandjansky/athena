@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenu.L1Topo.py')
+log = logging.getLogger('TriggerMenu.L1TopoMenu.TopoAlgoDef')
 
 from TriggerMenu.l1topo.TopoAlgos import SortingAlgo, DecisionAlgo
 from TriggerJobOpts.TriggerFlags import TriggerFlags

@@ -94,7 +94,6 @@ theApp.OutStream     = [];
 Stream1                  =  Algorithm( "Stream1" )
 Stream1.EvtConversionSvc = "AthenaPoolCnvSvc"; 
 Stream1.OutputFile = "assocs.pool.root"
-#Stream1.ForceRead=TRUE;  #force read of output data objs
 
 # Event Info
 Stream1.ItemList += [ "EventInfo#*" ]

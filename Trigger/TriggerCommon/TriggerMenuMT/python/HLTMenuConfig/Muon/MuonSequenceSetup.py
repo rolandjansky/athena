@@ -289,7 +289,27 @@ def muEFCBSequence():
                          Hypo        = trigMuonEFCBHypo,
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
 
+########################
+### EF CB with dimuon ##
+### mass cuts         ##
+########################
+def muEFCBInvMassSequence():
 
+    (muonEFCBSequence, efcbViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBAlgSequence, ConfigFlags)
+
+    # setup EFCB hypo
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg, TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoToolFromDict
+    trigMuonEFCBHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFCombinerInvMHypoAlg" )
+    trigMuonEFCBHypo.MuonDecisions = sequenceOut
+    
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+
+    trigMuonEFInvMHypo = TrigMuonEFInvMassHypoAlg( "TrigMuonEFInvMassHypoAlg" )
+    trigMuonEFInvMHypo.MuonDecisions = sequenceOut
+    return MenuSequence( Sequence    = muonEFCBSequence,
+                         Maker       = efcbViewsMaker,
+                         Hypo        = [trigMuonEFCBHypo, trigMuonEFInvMHypo],
+                         HypoToolGen = [TrigMuonEFCombinerHypoToolFromDict, TrigMuonEFInvMassHypoToolFromDict] )
 
 ######################
 ### EF SA full scan ###
@@ -367,6 +387,31 @@ def muEFCBFSSequence():
                          Maker       = efcbfsInputMaker,
                          Hypo        = trigMuonEFCBFSHypo,
                          HypoToolGen = TrigMuonEFCombinerHypoToolFromDict )
+
+
+######################
+### EF CB FS with   ##
+### dimuon mass cut ##
+######################
+                   
+def muEFCBInvMassFSSequence():
+
+    (muonEFCBFSSequence, efcbfsInputMaker, sequenceOut) = RecoFragmentsPool.retrieve(muEFCBFSAlgSequence, ConfigFlags)
+
+    # setup EFCB hypo
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoAlg, TrigMuonEFInvMassHypoAlg, TrigMuonEFInvMassHypoToolFromDict
+    trigMuonEFCBFSHypo = TrigMuonEFCombinerHypoAlg( "TrigMuonEFFSCombinerInvMHypoAlg" )
+    trigMuonEFCBFSHypo.MuonDecisions = sequenceOut
+
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFCombinerHypoToolFromDict
+
+    trigMuonEFInvMHypo = TrigMuonEFInvMassHypoAlg( "TrigMuonEFFSInvMassHypoAlg" )
+    trigMuonEFInvMHypo.MuonDecisions = sequenceOut
+
+    return MenuSequence( Sequence    = muonEFCBFSSequence,
+                         Maker       = efcbfsInputMaker,
+                         Hypo        = [trigMuonEFCBFSHypo, trigMuonEFInvMHypo],
+                         HypoToolGen = [TrigMuonEFCombinerHypoToolFromDict, TrigMuonEFInvMassHypoToolFromDict] )
 
 
 ######################

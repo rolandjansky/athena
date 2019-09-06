@@ -51,7 +51,6 @@ def MagneticFieldSvcCfg(flags, **kwargs):
         db='GLOBAL'
         
     result.merge(addFolders(flags,['/GLOBAL/BField/Maps <noover/>'],detDb=db) )
-    result.getService('IOVDbSvc').FoldersToMetaData     += ['/GLOBAL/BField/Maps'] # TODO fixme?
         
     if not flags.Common.isOnline:
         result.merge(addFolders(flags, ['/EXT/DCS/MAGNETS/SENSORDATA'], detDb='DCS_OFL', className="CondAttrListCollection") )

@@ -94,8 +94,8 @@ namespace Trk {
 	 The tracks will be refitted if no fitQuality is given at input.
 	 @return new collections of tracks, with ambiguities resolved. Ownership is passed on 
 	 (i.e. client handles deletion)*/
-      virtual TrackCollection*  process(const TrackCollection*);
-      virtual TrackCollection*  process(std::multimap<const Track*, float >* trackScoreTrackMap);
+      virtual TrackCollection*  process(const TrackCollection*) override;
+      virtual TrackCollection*  process(TracksScores* scoredTracks) override;
 
       /** statistics output */
       virtual void statistics();

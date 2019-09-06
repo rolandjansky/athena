@@ -6,7 +6,6 @@
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelInterfaces/IGeoModelTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"

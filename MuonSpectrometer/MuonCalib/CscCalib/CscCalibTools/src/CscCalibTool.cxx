@@ -6,7 +6,6 @@
 
 #include "CscCalibTool.h"
 #include "StoreGate/DataHandle.h"
-#include "EventInfo/TagInfo.h"
 #include <sstream>
 
 #include <cmath>
@@ -706,21 +705,3 @@ double CscCalibTool::getTimeOffset()        const {return m_timeOffset;}
 double CscCalibTool::getSignalWidth()       const {return m_signalWidth;}
 double CscCalibTool::getNumberOfIntegration()  const {return m_integrationNumber;}
 double CscCalibTool::getNumberOfIntegration2() const {return m_integrationNumber2;}
-
-
-std::string CscCalibTool::getDetDescr() const {
-
-  std::string detdescr = "";
-
-  const DataHandle<TagInfo> tagInfo;
-  if (detStore()->retrieve(tagInfo).isFailure()) {
-    ATH_MSG_ERROR ( "Could not retrieve tag info  from TDS. - abort ..." );
-    return detdescr;
-  }
-
-  tagInfo->findTag("GeoAtlas", detdescr);
-  ATH_MSG_VERBOSE ( "DetDescr tag = " << detdescr);
-  return detdescr;
-
-}
-

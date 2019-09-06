@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCONDITIONSTOOLS_IPIXELBYTESTREAMERRORSSVC_H
@@ -28,9 +28,6 @@ class PixelID;
 class StoreGateSvc;
 class Identifier;
 class IdentifierHash;
-namespace InDetDD{
-  class PixelDetectorManager; 
-}
 
 /**
  * @class PixelByteStreamErrorsSvc

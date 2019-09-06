@@ -41,7 +41,7 @@ public:
     TrackWithIndex(std::unique_ptr<Trk::Track>intrack,
                    size_t index):track(std::move(intrack)), origIndex(index){}
     
-    TrackWithIndex(const TrackWithIndex&) = default;
+    TrackWithIndex(const TrackWithIndex&) = delete;
     TrackWithIndex(TrackWithIndex&&) = default;
     TrackWithIndex& operator=(const TrackWithIndex&) = delete;
     TrackWithIndex& operator=(TrackWithIndex&&) = default;

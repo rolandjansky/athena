@@ -56,10 +56,6 @@ def setupCommonServices():
     topSequence = AlgSequence()
     topSequence += SGInputLoader(FailIfNoProxy = False)  # change to True eventually
 
-    # Basic operational monitoring
-    from TrigOnlineMonitor.TrigOnlineMonitorConf import TrigOpMonitor
-    topSequence += TrigOpMonitor()
-
     from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.ShowDataDependencies(False)
     AlgScheduler.ShowControlFlow(False)
@@ -151,9 +147,11 @@ def setupCommonServices():
 def setupCommonServicesEnd():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr    
     from AthenaCommon.Logging import logging
+    from AthenaCommon.AlgSequence import AlgSequence
 
     log = logging.getLogger( 'TriggerUnixStandardSetup::setupCommonServicesEnd:' )
-    
+    topSequence = AlgSequence()
+
     # --- create the ByteStreamCnvSvc after the Detector Description otherwise
     # --- the initialization of converters fails
     #from AthenaCommon.AppMgr import theApp
@@ -170,6 +168,10 @@ def setupCommonServicesEnd():
     else:
         if 1 not in [ o.count('EXPERT') for o in svcMgr.THistSvc.Output ]:
             svcMgr.THistSvc.Output += ["EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'"]
+
+    # Basic operational monitoring
+    from TrigOnlineMonitor.TrigOnlineMonitorConfig import TrigOpMonitor
+    topSequence += TrigOpMonitor()
 
     # Set default properties for some important services after all user job options
     log.info('Configure core services for online runnig')

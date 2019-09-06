@@ -8,7 +8,6 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthCheckMacros.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/StorableConversions.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
@@ -70,8 +69,8 @@ StatusCode HLT::HLTResultMTByteStreamCnv::finalize() {
 // Implementation of Converter::createObj
 // =============================================================================
 StatusCode HLT::HLTResultMTByteStreamCnv::createObj(IOpaqueAddress* /*pAddr*/, DataObject*& /*pObj*/) {
-  ATH_REPORT_ERROR(StatusCode::FAILURE) << "Using BS converter to decode HLTResultMT is not supported!"
-                                        << " Use HLTResultMTByteStreamDecoderAlg instead";
+  ATH_MSG_ERROR("Using BS converter to decode HLTResultMT is not supported!"
+                << " Use HLTResultMTByteStreamDecoderAlg instead");
   return StatusCode::FAILURE;
 }
 

@@ -81,7 +81,7 @@ namespace TrigCompositeUtils {
     collateIDs.insert( src.begin(), src.end() ); // Set operation 2. Get from src
     decisionIDs( dest ).clear(); // Clear target
     // Copy from set to (ordered) vector
-    decisionIDs( dest ).insert( decisionIDs(dest).end(), src.begin(), src.end() );
+    decisionIDs( dest ).insert( decisionIDs(dest).end(), collateIDs.begin(), collateIDs.end() );
   }
 
   void uniqueDecisionIDs(Decision* dest) {

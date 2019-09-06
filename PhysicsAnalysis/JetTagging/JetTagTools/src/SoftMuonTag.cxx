@@ -33,7 +33,6 @@ PURPOSE:  b-tagging based on soft muon identification
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h" 
-#include "JetTagTools/JetTagUtils.h"
 
 #include "JetTagInfo/TruthInfo.h"
 #include "JetTagInfo/SoftMuonInfo.h"
@@ -275,12 +274,13 @@ namespace Analysis
 
   StatusCode SoftMuonTag::tagJet(const xAOD::Vertex& priVtx,
                                  const xAOD::Jet& jetToTag,
-                                 xAOD::BTagging& BTag) const
+                                 xAOD::BTagging& BTag,
+                                 const std::string &jetName) const
   {
     ATH_MSG_DEBUG( "#BTAG# Starting tagJet");
 
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(&jetToTag);
+    std::string author = jetName;
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 

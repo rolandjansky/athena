@@ -733,7 +733,7 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
                     << "and is NO Longer Stored as a seperate Parameter");
   }
   // Determine the combined state as well to be passed to the MultiComponentStateOnSurface object
-  const Trk::TrackParameters* combinedPerigee = m_stateCombiner->combine(*stateExtrapolatedToPerigee, true);
+  std::unique_ptr<Trk::TrackParameters> combinedPerigee = m_stateCombiner->combine(*stateExtrapolatedToPerigee, true);
 
   // Perigee is given as an additional MultiComponentStateOnSurface
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> pattern(0);
@@ -744,12 +744,15 @@ Trk::GaussianSumFitter::makePerigee(const Trk::SmoothedTrajectory* smoothedTraje
     //    actual cutoff is 0.01eV track
     ATH_MSG_ERROR("makePerigee() about to return with 0 momentum!! Returning null instead");
     delete stateExtrapolatedToPerigee;
-    delete combinedPerigee;
-    return 0;
+    return nullptr;
   }
 
   const Trk::MultiComponentStateOnSurface* perigeeMultiStateOnSurface =
-    new MultiComponentStateOnSurface(0, combinedPerigee, stateExtrapolatedToPerigee, 0, 0, pattern, modeQoverP);
+    new MultiComponentStateOnSurface(0, combinedPerigee.release(), 
+                                     stateExtrapolatedToPerigee, 
+                                     0, 
+                                     0, 
+                                     pattern, modeQoverP);
   ATH_MSG_DEBUG("makePerigee() returning sucessfully!");
   return perigeeMultiStateOnSurface;
 }

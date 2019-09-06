@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileCell creation from TileBeamElem
 # with TileBeamElemToCell algorithm
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -23,7 +21,7 @@ class TileCellFromBeamElGetter ( Configured )  :
         try:
             from TileRecAlgs.TileCellFromBeamElGetter import TileCellFromBeamElGetter
             theTileCellFromBeamElGetter=TileCellFromBeamElGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileCellFromBeamElGetter Quit")
             print traceback.format_exc()
             return False
@@ -38,13 +36,13 @@ class TileCellFromBeamElGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileRecAlgs.TileRecAlgsConf import TileBeamElemToCell                
-        except:
+        except Exception:
             mlog.error("could not import TileRecAlgs.TileBeamElemToCell")
             print traceback.format_exc()
             return False
 
         theTileBeamElemToCell=TileBeamElemToCell()
-        self._TileBeamElemToCellHandle = theTileBeamElemToCell ;
+        self._TileBeamElemToCellHandle = theTileBeamElemToCell
 
         # Configure TileBeamElemToCell here
         # Check TileRecAlgs_jobOptions.py for full configurability
@@ -68,7 +66,7 @@ class TileCellFromBeamElGetter ( Configured )  :
         mlog.info(" now adding to topSequence")        
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileBeamElemToCell;
+        topSequence += theTileBeamElemToCell
         
         return True
 

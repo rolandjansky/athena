@@ -21,6 +21,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h" //typedef, cannot fwd declare
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h" //typedef, cannot fwd declare
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "PixelCabling/IPixelCablingSvc.h"
@@ -151,6 +152,10 @@ private:
 
   SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
   {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
+
+  // For P->T converter of PixelClusters
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
+  {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
   //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
   bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, const InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;

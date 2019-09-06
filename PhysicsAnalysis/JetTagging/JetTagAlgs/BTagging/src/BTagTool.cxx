@@ -81,7 +81,7 @@ namespace Analysis {
   }
 
 
-  StatusCode BTagTool::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag, const xAOD::Vertex* vtx) const {
+  StatusCode BTagTool::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag, const std::string &jetName, const xAOD::Vertex* vtx) const {
 
     ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag->px() << ", " << jetToTag->py() << ", "
 		    << jetToTag->pz() << "; " << jetToTag->e() << ") MeV");
@@ -134,7 +134,7 @@ namespace Analysis {
     /* ----------------------------------------------------------------------------------- */
 
     for (const ToolHandle<ITagTool>& tool : m_bTagToolHandleArray) {
-      sc = tool->tagJet(*primaryVertex, *jetToTag, *BTag);
+      sc = tool->tagJet(*primaryVertex, *jetToTag, *BTag, jetName);
       if (sc.isFailure()) {
         ATH_MSG_WARNING("#BTAG# failed tagger: " << tool.typeAndName() );
       }
@@ -157,7 +157,7 @@ namespace Analysis {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode BTagTool::tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) const {
+  StatusCode BTagTool::tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer, const std::string &jetName) const {
 
     /* ----------------------------------------------------------------------------------- */
     /*               RETRIEVE PRIMARY VERTEX CONTAINER FROM STOREGATE                      */
@@ -203,7 +203,7 @@ namespace Analysis {
       /* ----------------------------------------------------------------------------------- */
 
       for (const ToolHandle<ITagTool>& tool : m_bTagToolHandleArray) {
-        StatusCode sc = tool->tagJet(*primaryVertex, **jetIter, **btagIter);
+        StatusCode sc = tool->tagJet(*primaryVertex, **jetIter, **btagIter, jetName);
         if (sc.isFailure()) {
           ATH_MSG_WARNING("#BTAG# failed tagger: " << tool.typeAndName() );
         }

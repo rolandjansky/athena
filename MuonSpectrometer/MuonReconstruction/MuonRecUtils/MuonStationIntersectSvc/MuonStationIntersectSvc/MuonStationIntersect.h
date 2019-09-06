@@ -22,7 +22,7 @@ namespace Muon {
     void setTubeIntersects( TubeIntersects intersects ) { m_intersects.swap(intersects); }
 
   private:
-    mutable TubeIntersects m_intersects;
+    TubeIntersects m_intersects;
   };
 
 

@@ -13,6 +13,8 @@
 # art-output: *perfmon*
 # art-output: *.check*
 
+unset ATHENA_NPROC_NUM
+
 export NAME="trigAna_HITtoRDOTrig_mt1_grid"
 export TEST="TrigAnalysisTest"
 export INPUT="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091_tid10504490_00/HITS.10504490._000001.pool.root.1"

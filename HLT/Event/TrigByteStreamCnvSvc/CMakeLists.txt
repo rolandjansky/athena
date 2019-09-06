@@ -14,11 +14,12 @@ atlas_depends_on_subdirs(
     Event/ByteStreamCnvSvcBase
     Event/ByteStreamCnvSvc
     Event/xAOD/xAODEventInfo
+    GaudiKernel
     HLT/Trigger/TrigControl/TrigKernel
 )
 
 # External dependencies
-find_package( tdaq-common COMPONENTS eformat_write hltinterface )
+find_package( tdaq-common COMPONENTS eformat eformat_write hltinterface )
 
 # Libraries in the package
 atlas_add_library(
@@ -36,6 +37,7 @@ atlas_add_library(
     ${TDAQ-COMMON_LIBRARIES}
     ByteStreamCnvSvcBaseLib
     ByteStreamCnvSvcLib
+    GaudiKernel
     xAODEventInfo
     TrigKernel
 )

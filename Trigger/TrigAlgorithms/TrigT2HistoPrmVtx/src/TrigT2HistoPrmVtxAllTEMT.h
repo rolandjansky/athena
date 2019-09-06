@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -39,9 +39,9 @@ class TrigT2HistoPrmVtxAllTEMT : public TrigT2HistoPrmVtxBaseMT {
   TrigT2HistoPrmVtxAllTEMT(const std::string&, ISvcLocator*);
   virtual ~TrigT2HistoPrmVtxAllTEMT() override;
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
   unsigned int getTrackNumbers(const xAOD::TrackParticleContainer*);

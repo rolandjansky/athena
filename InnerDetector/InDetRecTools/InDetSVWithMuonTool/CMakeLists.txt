@@ -39,7 +39,7 @@ atlas_add_library(
     AthenaBaseComps GaudiKernel TrkVKalVrtFitterLib xAODTracking
 
     PRIVATE_LINK_LIBRARIES
-    AnalysisUtils xAODBTagging
+    AnalysisUtilsLib xAODBTagging
     )
 
 

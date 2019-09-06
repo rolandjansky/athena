@@ -88,7 +88,7 @@ class Cabling(object):
     @staticmethod
     def getCableName(thrtype,mapping):
 
-        from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+        from Lvl1Flags import Lvl1Flags
         run1 = Lvl1Flags.CTPVersion()<=3
         
         if run1:
@@ -232,7 +232,7 @@ class InputCable(object):
 
         cableAssign = self.getCTPINCableAssignment(self.thrtype)
 
-        from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+        from Lvl1Flags import Lvl1Flags
         run1 = Lvl1Flags.CTPVersion()<=3
         if run1 and self.thrtype=="EM":
             cableAssign += self.getCTPINCableAssignment("TAU")

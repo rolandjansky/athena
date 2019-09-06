@@ -25,7 +25,6 @@
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
-#include "TileConditions/TileOptFilterWeights.h"
 
 #include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -103,8 +102,6 @@ TileInfo::TileInfo(ISvcLocator *svcLocator)
   , m_MuL1Time0Bin(0)
   , m_MuL1BinsPerX(0)
   , m_pulseShapes(0)
-  , m_OptFilterWeights(0)
-  , m_OptFilterCorrelation(0)
   , m_tileCablingSvc("TileCablingSvc","TileInfo")
   , m_nPhElec(0)
   , m_nPhElecVec()
@@ -195,12 +192,6 @@ TileInfo::initialize()
   if (m_pulseShapes)
     m_pulseShapes->load(log);
   
-  //=== Read OptFilter Weights &&/|| Correlation in TileInfoLoader.cxx
-  if (m_OptFilterWeights)
-    m_OptFilterWeights->loadWeights(log);
-  if (m_OptFilterCorrelation)
-    m_OptFilterCorrelation->loadCorrelation(log);
-
   if(debug) log << MSG::DEBUG << " TileInfo initialization completed. " << endmsg;  
   return StatusCode::SUCCESS;
 }

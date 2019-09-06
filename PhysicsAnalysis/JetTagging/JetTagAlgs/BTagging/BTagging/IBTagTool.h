@@ -40,8 +40,8 @@ class IBTagTool : virtual public IAlgTool
        /** Virtual destructor */
        virtual ~IBTagTool() = default;
 
-       virtual StatusCode tagJet(const xAOD::Jet*, xAOD::BTagging*, const xAOD::Vertex* vtx = 0) const = 0;
-       virtual StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) const = 0;
+       virtual StatusCode tagJet(const xAOD::Jet*, xAOD::BTagging*, const std::string &jetName, const xAOD::Vertex* vtx = 0) const = 0;
+       virtual StatusCode tagJet(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer, const std::string &jetName) const = 0;
        virtual void finalizeHistos() = 0;
 
 };

@@ -99,6 +99,32 @@ class L1EmulationTest(L1Decoder):
 
         self.L1DecoderSummaryKey = "L1DecoderSummary"
 
+from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+chainsConfig = TriggerConfigHLT( )
+
+chainsCounter = 0
+
+def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=[] ):
+    """
+    In addition to making the chain object fills the flags that are used to generate MnuCOnfig JSON file
+    """
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
+    prop = ChainProp( name=name,  l1SeedThresholds=L1Thresholds, groups=Groups )
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
+    decoder = DictFromChainName()
+    chainDict = decoder.getChainDict( prop )
+    global chainsCounter
+    chainDict["chainCounter"] = chainsCounter
+    chainsCounter += 1
+    TriggerConfigHLT.currentTriggerConfig().allChainDicts.append( chainDict )
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
+    chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=ChainSteps )
+    TriggerConfigHLT.currentTriggerConfig().allChainConfigs.append( chainConfig )
+    return chainConfig
+
 if __name__ == "__main__":
     from AthenaCommon.Constants import DEBUG
     real = L1EmulationTest(OutputLevel=DEBUG)
