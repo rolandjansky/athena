@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_CSCCOOLSTRSVC_H
@@ -24,11 +24,6 @@
 //Added to use CscIdHelper
 #include "Identifier/Identifier.h"
 #include "MuonIdHelpers/CscIdHelper.h"
-
-//#include "MuonGeoModel/MuonDetectorManager.h"
-// temporary includes to access CLOBs
-//#include "CoolKernel/ExtendedAttributeListSpecification.h"
-//#include "CoolKernel/PredefinedStorageHints.h"
 
 //Calib conditions data classes
 #include "MuonCondData/CscCondDataContainer.h"
@@ -178,7 +173,6 @@ namespace MuonCalib {
     StatusCode cacheVersion2(std::istringstream &, CscCondDataCollectionBase * const);
 
     int swapChamberLayerReturnHash(const Identifier & id) const;
-    bool ignoreBadMultilayer() const;
 
     bool getVal( float& val, const CscCondDataCollection<float>& coll, unsigned int index) const;
     bool getVal( bool& val, const CscCondDataCollection<bool>& coll, unsigned int index) const;
