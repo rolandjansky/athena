@@ -207,9 +207,16 @@ if InDetFlags.loadRotCreator():
             ToolSvc += PixelClusterOnTrackToolDigital
 
         else :
-            PixelClusterOnTrackToolDigital = PixelClusterOnTrackTool.clone("InDetPixelClusterOnTrackToolDigital")
-            # PixelClusterOnTrackToolDigital.SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap() + InDetNewTrackingCuts.extension() + "cloned"
-            PixelClusterOnTrackToolDigital.SplitClusterAmbiguityMap = ""
+            PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
+                                                                     LorentzAngleTool   = ToolSvc.PixelLorentzAngleTool,
+                                                                     DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                     applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
+                                                                                           InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
+                                                                     NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
+                                                                     InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
+                                                                     SplitClusterAmbiguityMap = "",
+                                                                     RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
+                                                                     )
             ToolSvc += PixelClusterOnTrackToolDigital
     else:
         PixelClusterOnTrackTool = None
