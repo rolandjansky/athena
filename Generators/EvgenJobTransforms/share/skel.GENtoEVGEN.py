@@ -208,8 +208,8 @@ dsid = os.path.basename(dsid_param)
 #Jodir = dsid[:3]+'xxx'
 #JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
 #JoCvmfsDsid = os.path.join(JoCvmfsPath, dsid)
-#jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc16') and f.endswith('.py'))]
-jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc16') and f.endswith('.py'))]
+#jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc') and f.endswith('.py'))]
+jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
 #print "JO file ",jofiles
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
@@ -217,6 +217,9 @@ if len(jofiles) !=1:
     sys.exit(1)
 #jofile = dsid + '/' + jofiles[0]
 jofile = jofiles[0]
+#include("EvgenJobTransforms/check_jo_consistency.py")
+#check_consistency(jofile)
+
 joparts = (os.path.basename(jofile)).split(".")
 #jo = runArgs.jobConfig[0]
 #jofile = os.path.basename(jo)

@@ -161,8 +161,8 @@ evgenLog.info("dsid " + dsid)
 #Jodir = dsid[:3]+'xxx'
 #JoCvmfsPath = os.path.join(BaseCvmfsPath, Jodir)
 #JoCvmfsDsid = os.path.join(JoCvmfsPath, dsid)
-#jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc16') and f.endswith('.py'))]
-jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc16') and f.endswith('.py'))]
+#jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc') and f.endswith('.py'))]
+jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
 print "JO file ",jofiles
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
