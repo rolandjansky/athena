@@ -52,3 +52,12 @@ const std::vector<std::size_t>& Tree::firstGeneration() const {
 }
 
 
+std::ostream& operator<< (std::ostream& out, const Tree& t){
+  out << "[";
+  auto n = t.size();
+  auto i = 0u;
+  for(; i < n; ++i){out << i << " ";}
+  out << "]";
+  return out;
+}
+    

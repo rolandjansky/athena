@@ -4,7 +4,7 @@
 
 // ********************************************************************
 //
-// NAME:     FlowNetworkBase.cxx
+// NAME:     FlowNetworkMatcherBase.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
 //
 // AUTHOR:   P Sherwood
@@ -12,7 +12,7 @@
 // ********************************************************************
 //
 
-#include "./FlowNetworkBase.h"
+#include "./FlowNetworkMatcherBase.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowNetwork.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FordFulkerson.h"
 #include "./ITrigJetHypoInfoCollector.h"
@@ -24,13 +24,15 @@
 #include <algorithm>
 #include <map>
 
-FlowNetworkBase::FlowNetworkBase(std::size_t nConditions) :
+#include <iostream>
+
+FlowNetworkMatcherBase::FlowNetworkMatcherBase(std::size_t nConditions) :
   m_nConditions(nConditions){
   // remainder of members initialised by derived classes.
 }
 
 std::optional<bool>
-FlowNetworkBase::match(const HypoJetGroupCIter& groups_b,
+FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
                                        const HypoJetGroupCIter& groups_e,
 				       xAODJetCollector& jetCollector,
                                        const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
@@ -52,13 +54,15 @@ FlowNetworkBase::match(const HypoJetGroupCIter& groups_b,
      conditions are reached. If these are satisfied, they are connected to 
      the sink.
   */
-  
+
+  std::cerr<< "FlowNetworkMatcherBase::match sent 0 \n";
   if(!m_nConditions){
     if(collector){
-      collector->collect("FlowNetworkBase", "No conditions");
+      collector->collect("FlowNetworkMatcherBase", "No conditions configured");
     }
     return std::make_optional<bool>(false);
   }
+  std::cerr<< "FlowNetworkMatcherBase::match sent 100 \n";
   
   // Determine jet group - condition satisfaction.
 
@@ -66,13 +70,14 @@ FlowNetworkBase::match(const HypoJetGroupCIter& groups_b,
   if (iter_diff < 0){return std::optional<bool>();}  // must be postive
   if(static_cast<std::size_t>(iter_diff) < m_nConditions) {
     if(collector){
-      collector->collect("FlowNetworkBase",
+      collector->collect("FlowNetworkMatcherBase",
 			 "Too few jet groups " +
 			 std::to_string(m_nConditions) + " " +
 			 std::to_string(iter_diff));
     }
     return std::make_optional<bool>(false);
   }
+  std::cerr<< "FlowNetworkMatcherBase::match sent 300 \n";
 
   std::map<int, pHypoJet> nodeToJet; 
 
@@ -81,12 +86,14 @@ FlowNetworkBase::match(const HypoJetGroupCIter& groups_b,
                                           groups_e,
                                           collector,
                                           nodeToJet);
+  std::cerr<< "FlowNetworkMatcherBase::match sent 400 \n";
   if(!G.has_value()){
     if(collector){collector -> collect("MaximumBipartiteGroupsMatcher",
 				       "Network construction early return");}
     return std::make_optional<bool> (false);
   }
 
+  std::cerr<< "FlowNetworkMatcherBase::match sent 500 \n";
   
   if(collector){
     std::stringstream ss;
@@ -94,6 +101,7 @@ FlowNetworkBase::match(const HypoJetGroupCIter& groups_b,
     collector->collect("MaximumBipartiteGroupsMatcher - before", ss.str());
   }
   
+  std::cerr<< "FlowNetworkMatcherBase::match sent 600 \n";
   auto V = (*G)->V();
   FordFulkerson ff (**G, 0, V-1);
   if(ff.error()){
@@ -144,12 +152,5 @@ FlowNetworkBase::match(const HypoJetGroupCIter& groups_b,
 }
 
 
-std::string FlowNetworkBase::toString() const  {
-  std::stringstream ss;
 
-  ss << "MaximumBipartiteMatcherMT\n";
-  ss << m_flowNetworkBuilder -> toString(); 
-
-  return ss.str();
-}
 

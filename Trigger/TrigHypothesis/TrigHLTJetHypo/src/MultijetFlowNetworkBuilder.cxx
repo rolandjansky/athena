@@ -159,3 +159,9 @@ MultijetFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
 }
 
 
+std::string MultijetFlowNetworkBuilder::toString() const {
+  std::stringstream ss;
+  ss << "MultijetFlowNetworkBuilder:\n";
+  ss << FlowNetworkBuilderBase::toString();
+  return ss.str();
+}

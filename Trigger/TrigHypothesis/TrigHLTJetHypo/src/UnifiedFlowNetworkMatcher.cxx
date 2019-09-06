@@ -26,7 +26,7 @@
 #include <map>
 
 UnifiedFlowNetworkMatcher::UnifiedFlowNetworkMatcher(ConditionsMT&& cs,
-						     const std::vector<std::size_t>& treeVec) : FlowNetworkBase(cs.size()){
+						     const std::vector<std::size_t>& treeVec) : FlowNetworkMatcherBase(cs.size()){
 
   Tree tree(treeVec);
   // calculate the network capacity by adding the capacities of the
@@ -47,5 +47,14 @@ UnifiedFlowNetworkMatcher::UnifiedFlowNetworkMatcher(ConditionsMT&& cs,
     std::move(std::make_unique<UnifiedFlowNetworkBuilder>(std::move(cs),
 							  tree));
   
+}
+
+std::string UnifiedFlowNetworkMatcher::toString() const  {
+  std::stringstream ss;
+
+  ss << "UnifiedFlowNetworkMatcher \n";
+  // ss << m_flowNetworkBuilder -> toString(); 
+
+  return ss.str();
 }
 

@@ -15,17 +15,18 @@
 // ********************************************************************
 //
 
-#include "./FlowNetworkBase.h"
+#include "./FlowNetworkMatcherBase.h"
 #include "./ConditionsDefsMT.h"
 
 class MaximumBipartiteGroupsMatcherMT:
-virtual public FlowNetworkBase {
+public virtual IGroupsMatcherMT, private FlowNetworkMatcherBase {
 
   /* An initialiser for FlowNetwork base */
 
 public:
   MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs);
   ~MaximumBipartiteGroupsMatcherMT(){}
+  virtual std::string toString() const override;
 };
 
 #endif

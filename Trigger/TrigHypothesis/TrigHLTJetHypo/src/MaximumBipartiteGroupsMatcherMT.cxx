@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <map>
 
-MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs) : FlowNetworkBase(cs.size()){
+MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs) : FlowNetworkMatcherBase(cs.size()){
 
   for(const auto& cond : cs){
     m_totalCapacity += cond->capacity();
@@ -35,3 +35,11 @@ MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(ConditionsMT&& 
   
 }
 
+std::string MaximumBipartiteGroupsMatcherMT::toString() const  {
+  std::stringstream ss;
+
+  ss << "MaximumBipartiteGroupsMatcherMT \n";
+  ss << m_flowNetworkBuilder -> toString(); 
+
+  return ss.str();
+}

@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -47,8 +48,12 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
 
  private:
-  ToolHandleArray<ITrigJetConditionConfig> m_conditionMakers;
-  Gaudi::Property<std::vector<std::size_t>> m_treeVec; 
+  ToolHandleArray<ITrigJetConditionConfig> m_conditionMakers{
+    this, "conditionMakers", {}, "hypo tree node to conditiionMaker map"};
+
+  Gaudi::Property<std::vector<std::size_t>> m_treeVec{
+    this, "treeVector", {}, "integer sequence representation of jet hypo tree"};
+      
  
 };
 #endif

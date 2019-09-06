@@ -10,6 +10,8 @@ from TrigHLTJetHypo.TrigJetHypoToolConfig import (
     trigJetHypoToolHelperFromDict,
     trigJetHypoToolHelperFromDict_)
 
+from TrigHLTJetHypo.FlowNetworkSetter import FlowNetworkSetter
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
@@ -222,18 +224,14 @@ class FlowNetworkVsPartitionsTestsDijetsExtended(CombinationsTests) :
                  bkgd_etmax=20000.,  # MeV
     ):
         CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
-        self.chain_name = 'HLT_FNvsPartitionDijets'
+        self.chain_name = 'HLT_FNvsPartitionDijetsExtended'
 
     def make_helper_tool(self):
         chain_label = """agree([]
-                         dijet([(130mass)(131mass)])
+                         flownetwork([(130mass)(131mass)(10et)(11et)(0011par)])
                          partgen([] 
                             and([]
                                 dijet([(130mass)]) simple([(10et)])
-                            )
-                           
-                            and([]
-                                dijet([(131mass)]) simple([(11et)])
                             )
                          )
         )"""
@@ -318,10 +316,60 @@ class FlowNetworkVsCombinationsTests(CombinationsTests) :
         return chain_name + '_s' + str(self.n_sgnl) + '_b' + \
             str(self.n_bkgd) + '.log'
 
+class SimpleFlowNetworkTests(CombinationsTests) :
+    """ initial tests using a singlr flow network that represents an entire
+    hypo tree"""
+
+    def __init__(self,
+                 n_sgnl=4,
+                 n_bkgd=4,
+                 bkgd_etmax=50000.,  # MeV
+    ):
+        CombinationsTests.__init__(self, n_sgnl, n_bkgd, bkgd_etmax)
+        self.chain_name = 'HLT_SimpleFlowNetwork'
+
+    def make_helper_tool(self):
+        chain_label =  """simple([(10et)(20et)])"""
+        toolSetter = FlowNetworkSetter(self.chain_name)
+        return trigJetHypoToolHelperFromDict_(chain_label,
+                                              self.chain_name,
+                                              toolSetter=toolSetter)
+
+    def make_event_generator(self):
+        generator = SimpleHypoJetVectorGenerator()
+
+        # setup signal so that partitions would fail, but combinations pass.
+        # for n_sgnl = 4 and 2 EtaEt conditions, this means:
+        # create 4 jets such that only one pair passes the lower EtaEt cut.
+        ets = (30000., 31000., 85000., 86000.)
+        etas = (0.49, -0.5, 0.5, -0.5)
+        if self.n_sgnl == 4:
+            generator.ets = ets[:]
+            generator.etas = etas[:]
+        elif self.n_sgnl == 3:
+            generator.ets = ets[:3]
+            generator.etas = etas[:3]
+        else:
+            msg = self.__class__.__name__ + " n_sgnl =" + str(self.n_sgnl)
+            msg += " legal values = 3, 4"
+            raise RuntimeError(msg)
+
+
+        generator.n_bkgd = self.n_bkgd
+        generator.bkgd_etmax = self.bkgd_etmax
+
+        return generator
+
+    def logfile_name(self, chain_name):
+        return chain_name + '_s' + str(self.n_sgnl) + '_b' + \
+            str(self.n_bkgd) + '.log'
+
+
     
 def JetHypoExerciserCfg():
 
-    test_conditions = FlowNetworkVsPartitionsTestsDijets(n_sgnl=4, n_bkgd=0)
+    test_conditions = SimpleFlowNetworkTests(n_sgnl=4, n_bkgd=0)
+    #test_conditions = FlowNetworkVsPartitionsTestsDijets(n_sgnl=4, n_bkgd=0)
     # test_conditions = FlowNetworkVsCombinationsTests(n_sgnl=4, n_bkgd=0)
 
     print(test_conditions.__dict__)
@@ -355,7 +403,7 @@ if __name__=="__main__":
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     cfg=MainServicesSerialCfg()
     cfg.merge(JetHypoExerciserCfg())
-    cfg.setAppProperty("EvtMax", 100)
+    cfg.setAppProperty("EvtMax", 10)
     cfg.run()
 
     #f=open("HelloWorld.pkl","w")

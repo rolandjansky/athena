@@ -5,7 +5,7 @@
 std::vector<double>  svec2dvec(const std::vector<std::string>& svec){
   
   std::vector<double> result;
-  result.reserve(svec.size());
+  result.resize(svec.size());
   
   std::transform(svec.cbegin(), svec.cend(), result.begin(), ArgStrToDouble());
   return result;

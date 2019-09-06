@@ -1,53 +1,49 @@
-"""Instantiates AlgTools from parameters stored in a node instance"""
+"""Instantiates TrigJetHypoToolConfig_flownetwork AlgTool 
+from a hypo tree."""
 
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from TrigHLTJetHypo.TrigHLTJetHypoConf import (
-    TrigJetHypoToolConfig_simple,
-    TrigJetHypoToolConfig_simple_partition,
-    TrigJetHypoToolConfig_dijet,
-    NotHelperTool,
-    AndHelperTool,
-    OrHelperTool,
+    TrigJetConditionConfig_etaet,
+    TrigJetConditionConfig_dijet,
+    TrigJetHypoToolConfig_flownetwork,
     TrigJetHypoToolHelperMT,
-    CombinationsHelperTool,
-    TrigJetHypoToolConfig_combgen,
-    TrigJetHypoToolConfig_partgen,
 )
 
-from TrigHLTJetHypoUnitTests.TrigHLTJetHypoUnitTestsConf import (
-    AgreeHelperTool,
-)
+from collections import defaultdict
 
-class ToolSetter(object):
+class FlowNetworkSetter(object):
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
     def __init__(self, name):
 
+        self.name = name
+        # for simple, use TrigJetConditionConfig_etaet. Needs to be
+        # completed because simple can conain any single jet condition
         self.tool_factories = {
-            'simple': [TrigJetHypoToolConfig_simple, 0],
-            'simplepartition': [TrigJetHypoToolConfig_simple_partition, 0],
-            'not': [NotHelperTool, 0],
-            'and': [AndHelperTool, 0],
-            'agree': [AgreeHelperTool, 0],
-            'or': [OrHelperTool, 0],
-            'dijet': [TrigJetHypoToolConfig_dijet, 0],
-            'combgen': [TrigJetHypoToolConfig_combgen, 0],
-            'partgen': [TrigJetHypoToolConfig_partgen, 0],
-            # 'flownetwork': [TrigJetHypoToolConfig_flownetwork, 0],
+            'simple': [TrigJetConditionConfig_etaet, 0], 
+            'etaet': [TrigJetConditionConfig_etaet, 0],
+            'dijet': [TrigJetConditionConfig_dijet, 0],
             }
 
+        self.nodeToParent=defaultdict(list)
+        self.nodeToConditionTool=defaultdict(list)
+
         self.mod_router = {
-            'not': self.mod_logical_unary,
-            'and': self.mod_logical_binary,
-            'agree': self.mod_logical_binary,
-            'or': self.mod_logical_binary,
-            'simple': self.mod_simple,
-            'simplepartition': self.mod_simple,
-            'combgen': self.mod_combgen,  #  shared with partgen
-            'partgen': self.mod_combgen,  #  shared with combgen
-            'dijet': self.mod_dijet,
-            # 'flownetwork': self.mod_flownetwork,
+            'not': self.not_supported_yet,
+            'and': self.not_supported_yet,
+            'agree': self.not_supported_yet,
+            'or': self.not_supported_yet,
+            'simple': self._mod_leaf,
+            'etaet': self._mod_leaf,
+            'simplepartition': self.not_supported_yet,
+            'combgen': self.not_supported_yet,  #  shared with partgen
+            'partgen': self.not_supported_yet,  #  shared with combgen
+            'dijet': self._mod_leaf,
         }
+
+    def not_supported_yet(self, node):
+        raise NotImplementedError(
+            'FlowNetworkSetter: scenarion not yet supported: ' + node.scenario)
 
     def mod_logical_binary(self, node):
         """Set the HypoConfigTool instance the 'and' and 'or' scenarios
@@ -134,7 +130,7 @@ class ToolSetter(object):
 
         node.tool = helper_tool
  
-    def mod_dijet(self, node):
+    def _mod_leaf(self, node, treeMap, conditionMakers):
         """Set the HypoConfigTool instance in a hypo tree node"""
 
         scen = node.scenario
@@ -144,22 +140,15 @@ class ToolSetter(object):
         
         self.tool_factories[scen][1] += 1
 
-        config_tool = klass(name=name+'_config')
+        config_tool = klass(name=name)
         [setattr(config_tool, k, v) for k, v in node.conf_attrs.items()]
-        helper_tool = TrigJetHypoToolHelperMT(name=name+'_helper')
-        helper_tool.HypoConfigurer = config_tool
-
-        helper_tool.node_id = node.node_id
-        helper_tool.parent_id = node.parent_id
-
-        node.tool = helper_tool                               
-
-    def mod(self, node):
-        """Set the HypoConfigTool instance according to the scenario.
-        Note: node.accept must perform depth first navigation to ensure
-        child tools are set."""
+        node.tool = config_tool
+        treeMap[node.node_id] = node.parent_id
+        print node.dump()
+        print 'treeMap from _mode_leaf_', treeMap
+        conditionMakers[node.node_id] = config_tool
         
-        self.mod_router[node.scenario](node)
+
 
     def report(self):
         wid = max(len(k) for k in self.tool_factories.keys())
@@ -170,3 +159,58 @@ class ToolSetter(object):
              for k, v in self.tool_factories.items()])
 
         return rep
+
+
+    def mod(self, node):
+        """Entry mode for this module. Uses a (usaully compound) hypo tree node.
+        - The Tools set in the tree nodes are TrigJetConditionConfig_XXX
+          objects. These are factories for Condition objects
+        - The tree use used to 
+          = find the tree vector (node-parent relationsships)
+          = find the node - Condition factory relationships
+          = instantiate and return a TrigJetHypoToolConfig_flownetwork instance.
+        """
+
+        # tree information to be filled in.
+        treeMap = {}
+        conditionMakersDict = {}
+
+        # navicate the tree filling in node-parent and node- Condtion factory
+        # relatrions
+        self.mod_router[node.scenario](node,
+                                       treeMap=treeMap,
+                                       conditionMakers=conditionMakersDict)
+
+
+        # convert the maps to  lists
+        treeVector = [0 for i in range(len(treeMap))]
+        for i,p in treeMap.items():
+            treeVector[i] = p
+        
+        conditionMakersVector =  [0 for i in range(len(conditionMakersDict))]
+        for i,p in conditionMakersDict.items():
+            conditionMakersVector[i] = p
+
+        # instantiate and initilise the TrigJetHypoToolConfig_flownetwork obj.
+        # The helper tool will ask the config tool for various compnents.
+
+
+        name = '%s_%d' % (node.scenario, node.node_id)
+        print name
+
+        config_tool = TrigJetHypoToolConfig_flownetwork(name + '_config')
+
+        config_tool.treeVector = treeVector
+        config_tool.conditionMakers = conditionMakersVector
+
+        # instantantiate and initialise the helper tool
+        helper_tool =  TrigJetHypoToolHelperMT(name+'_helper')
+        helper_tool.HypoConfigurer = config_tool
+        helper_tool.node_id = node.node_id
+        helper_tool.parent_id = node.parent_id
+        helper_tool.debug=True
+
+        # overwrite the top node Condition Factory tool
+        # with the TrigJetHypoToolHelperMT intance
+        node.tool = helper_tool 
+

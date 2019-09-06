@@ -14,7 +14,9 @@ from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
 
-def  trigJetHypoToolHelperFromDict_(chain_label, chain_name):
+def  trigJetHypoToolHelperFromDict_(chain_label,
+                                    chain_name,
+                                    toolSetter=None):
 
     parser = ChainLabelParser(chain_label, debug=False)
 
@@ -39,8 +41,10 @@ def  trigJetHypoToolHelperFromDict_(chain_label, chain_name):
     log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
 
     # debug flag to be relayed to C++ objects
-    visitor = ToolSetter(chain_name)
-    tree.accept(visitor)
+    # visitor = ToolSetter(chain_name)
+    if toolSetter is None:
+        toolSetter = ToolSetter(self.chain_name)
+    tree.accept(modifier=toolSetter)
 
     log.info(visitor.report())
 

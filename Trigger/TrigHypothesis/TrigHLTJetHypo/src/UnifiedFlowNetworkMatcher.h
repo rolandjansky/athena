@@ -15,11 +15,11 @@
 // ********************************************************************
 //
 
-#include "./FlowNetworkBase.h"
+#include "./FlowNetworkMatcherBase.h"
 #include "./ConditionsDefsMT.h"
 
 class UnifiedFlowNetworkMatcher:
-virtual public FlowNetworkBase {
+public virtual IGroupsMatcherMT, private FlowNetworkMatcherBase {
 
   /* An initialiser for FlowNetwork base */
 
@@ -28,11 +28,8 @@ public:
 			    const std::vector<std::size_t>& treeVec);
   
   ~UnifiedFlowNetworkMatcher(){}
+  virtual std::string toString() const override;
 
- private:
-  
-  //tree stucture:  parent nodes according to position.
-  std::vector<std::size_t> m_treeVec; 
 };
 
 #endif

@@ -25,6 +25,8 @@ virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
                    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
                    int& V,
 		   std::map<int, pHypoJet>& nodeToJet) const override;
+ 
+  std::string toString() const override;
 
  private:
   Tree m_tree;  // tree structure for Conditions objects.

@@ -52,6 +52,7 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
 			      xAODJetCollector& jetCollector,
 			      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
 
+  ATH_MSG_INFO ("sent 0");
 
   JetTrigTimer timer;
   timer.start();
@@ -62,6 +63,7 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
     collectData(timer.readAndReset(), collector, pass);
     return pass;
   }
+  ATH_MSG_INFO ("sent 100");
 
   HypoJetIter begin = jets.begin(); 
   HypoJetIter end = jets.end(); 
@@ -72,14 +74,17 @@ TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
                            return cleaner->select(j);}
                          );
   }
+  ATH_MSG_INFO ("sent 200");
 
   auto jetGroupsVector = m_grouper->group(begin, end);
   for(const auto& jetGroups : jetGroupsVector){
+    ATH_MSG_INFO ("sent 300");
     auto pass = m_matcher->match(jetGroups.begin(),
 				 jetGroups.end(),
 				 jetCollector,
 				 collector);
     
+    ATH_MSG_INFO ("sent 400");
     timer.stop();
     
     collectData(timer.readAndReset(), collector, pass);

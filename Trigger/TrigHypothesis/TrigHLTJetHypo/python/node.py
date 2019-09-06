@@ -1,5 +1,13 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
+"""
+Node - represents a tree structure. scenario and parameters which are strings 
+filled in while parsing a jet hyp[o label. A visitor is used to convert 
+parameters to entites used to initialise jet hypo config alg tools. 
+These processed quatnities are stored in the conf_attr dictionary.
+The tree will be retraversed by a setter visitor which willuse the condig_Attrs
+to instantiate a condiguration AlgTool, which, by convention, will have a
+name TrigJetHypoToolConfig_XXX.
+"""
 from constants import logicals
     
 class Node(object):
@@ -34,7 +42,7 @@ class Node(object):
         self.children.append(c)
         
     def accept(self, modifier):
-        "call self before children"
+        "call children before self"
 
         for c in self.children:
             c.accept(modifier)

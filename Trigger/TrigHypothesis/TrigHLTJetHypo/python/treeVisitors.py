@@ -18,7 +18,7 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'EtThreshold': '0.',
                 'eta_mins': '0.',
                 'eta_maxs': '3.2',
-                'asymmetricEtas': '0',
+                'asymmetricEtas': 0,  # exception: not a string
                 'mass_mins': '0.0',
                 'mass_maxs': 'inf',
                 'deta_mins': '0.',
@@ -111,6 +111,9 @@ class ConditionsDictMakerBase(object):
     window_re = re.compile(
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
+    # key: substring from chain label. value: asttribute of python
+    # component proxy
+    
     labelToAttribute_low = {
         'eta': 'eta_mins',
         'peta': 'eta_mins',
@@ -166,7 +169,7 @@ class ConditionsDictMakerBase(object):
         for a in attributes: result[a] = []
 
         for c in conditions:  # there is a parameter string for each condition
-            toks = c.split(',')  # parameters seperated by ','
+            toks = c.split(',')  # parameters in par string are separated by ','
             toks = [t.strip() for t in toks]
 
             # copy attributes...
@@ -245,7 +248,7 @@ class ConditionsDictMakerBase(object):
             for attr in attributes2: # whatever has not been removed...
                 result[attr].append(defaultParameters(attr))
 
-        msgs = ['SimpleConditionsDict OK']
+        msgs = ['ConditionsDict OK']
         error = False
         return result, error, msgs
 
@@ -522,6 +525,7 @@ class TreeParameterExpander(object):
         self.expander = self.router[node.scenario]()
         self.expander.mod(node)
         print self.expander.report()
+
     def report(self):
         return self.expander.report()
         

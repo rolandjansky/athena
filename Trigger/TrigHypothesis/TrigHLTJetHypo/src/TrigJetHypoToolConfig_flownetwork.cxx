@@ -89,7 +89,7 @@ TrigJetHypoToolConfig_flownetwork::getMatcher () const {
   if(!opt_conds.has_value()){
     return std::unique_ptr<IGroupsMatcherMT>(nullptr);
   }
-  
+
   return groupsMatcherFactoryMT_Unified(std::move(*opt_conds),
 					m_treeVec);
 }

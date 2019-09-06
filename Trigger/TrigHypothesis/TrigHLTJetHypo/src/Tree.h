@@ -13,6 +13,7 @@
  * With this structure nested conditions are supported.
  */
 #include <vector>
+#include <ostream>
 
 class Tree{
  public:
@@ -30,4 +31,5 @@ class Tree{
   std::vector<std::size_t> m_firstGeneration;
 };
 
+std::ostream& operator<< (std::ostream&, const Tree&);
 #endif

@@ -18,8 +18,11 @@
 #include "../TrigJetHypoToolConfig_dijet.h"
 #include "../TrigJetHypoToolConfig_combgen.h"
 #include "../TrigJetHypoToolConfig_partgen.h"
+#include "../TrigJetHypoToolConfig_flownetwork.h"
+//
 #include "../TrigJetConditionConfig_etaet.h"
 #include "../TrigJetConditionConfig_dijet.h"
+//
 #include "../NotHelperTool.h"
 #include "../AndHelperTool.h"
 #include "../OrHelperTool.h"
@@ -34,34 +37,35 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/NullCleanerTool.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TightCleanerTool.h"
 
-DECLARE_COMPONENT( TrigHLTJetHypo2 )
+DECLARE_COMPONENT(TrigHLTJetHypo2)
 
-DECLARE_COMPONENT( TrigEFRazorAllTE )
-DECLARE_COMPONENT( TrigEFDPhiMetJetAllTE )
-DECLARE_COMPONENT( TrigHLTJetHypo_Dijet )
-DECLARE_COMPONENT( TrigHLTJetHypo_DijetMassDEta )
-DECLARE_COMPONENT( TrigHLTJetHypo_DijetMassDEtaDPhi )
-DECLARE_COMPONENT( TrigJetHypoToolConfig_simple )
-DECLARE_COMPONENT( TrigJetHypoToolConfig_simple_partition )
-DECLARE_COMPONENT( TrigJetHypoToolConfig_dijet )
-DECLARE_COMPONENT( TrigJetHypoToolConfig_combgen )
-DECLARE_COMPONENT( TrigJetHypoToolConfig_partgen )
-DECLARE_COMPONENT( NotHelperTool)
-DECLARE_COMPONENT( AndHelperTool)
- DECLARE_COMPONENT( OrHelperTool)
-DECLARE_COMPONENT( TrigHLTJetHypo_SMC )
-DECLARE_COMPONENT( TrigHLTJetHypo_HT )
-DECLARE_COMPONENT( TrigHLTJetHypo_TLA )
-DECLARE_COMPONENT( TrigHLTJetHypo_EtaEt )
+DECLARE_COMPONENT(TrigEFRazorAllTE)
+DECLARE_COMPONENT(TrigEFDPhiMetJetAllTE)
+DECLARE_COMPONENT(TrigHLTJetHypo_Dijet)
+DECLARE_COMPONENT(TrigHLTJetHypo_DijetMassDEta)
+DECLARE_COMPONENT(TrigHLTJetHypo_DijetMassDEtaDPhi)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_simple)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_simple_partition)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_dijet)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_combgen)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_partgen)
+DECLARE_COMPONENT(TrigJetHypoToolConfig_flownetwork)
+DECLARE_COMPONENT(NotHelperTool)
+DECLARE_COMPONENT(AndHelperTool)
+ DECLARE_COMPONENT(OrHelperTool)
+DECLARE_COMPONENT(TrigHLTJetHypo_SMC)
+DECLARE_COMPONENT(TrigHLTJetHypo_HT)
+DECLARE_COMPONENT(TrigHLTJetHypo_TLA)
+DECLARE_COMPONENT(TrigHLTJetHypo_EtaEt)
 
 
-DECLARE_COMPONENT( TrigJetConditionConfig_etaet )
-DECLARE_COMPONENT( TrigJetConditionConfig_dijet )
+DECLARE_COMPONENT(TrigJetConditionConfig_etaet)
+DECLARE_COMPONENT(TrigJetConditionConfig_dijet)
 
-DECLARE_COMPONENT( TrigJetHypoAlgMT )
-DECLARE_COMPONENT( TrigJetHypoToolMT )
-DECLARE_COMPONENT( TrigJetHypoToolHelperMT )
-DECLARE_COMPONENT( CombinationsHelperTool )
+DECLARE_COMPONENT(TrigJetHypoAlgMT)
+DECLARE_COMPONENT(TrigJetHypoToolMT)
+DECLARE_COMPONENT(TrigJetHypoToolHelperMT)
+DECLARE_COMPONENT(CombinationsHelperTool)
 
 DECLARE_COMPONENT(BasicCleanerTool)
 DECLARE_COMPONENT(AntiCleanerTool)

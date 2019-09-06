@@ -75,15 +75,18 @@ StatusCode JetHypoExerciserAlg::execute() {
   ++m_ncall;
 
   // make a HypoJet, add to vector and send to helper tool
+  ATH_MSG_INFO ("sent 100");
 
   
   HypoJetVector jv = m_generator->get();
+  ATH_MSG_INFO ("sent 200");
   
   std::unique_ptr<ITrigJetHypoInfoCollector> debugInfoCollector(nullptr);
   if(m_visitDebug){
     auto collectorName = name() + "debugInfoCollector";
     debugInfoCollector.reset(new  DebugInfoCollector(collectorName));
   } 
+  ATH_MSG_INFO ("sent 300");
 
   xAODJetCollector jetCollector;
 

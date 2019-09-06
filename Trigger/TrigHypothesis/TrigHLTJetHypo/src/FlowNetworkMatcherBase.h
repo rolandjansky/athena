@@ -4,10 +4,10 @@
 
 // ********************************************************************
 //
-// NAME:     FlowNetworkBase.h
+// NAME:     FlowNetworkMatcherMatcherBase.h
 // PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
 //
-// Based class for flow network matchers. Derived classes provide a vector
+// Base class for flow network matchers. Derived classes provide a vector
 // of FlowEdges
 // AUTHOR:   P Sherwood
 //
@@ -27,7 +27,7 @@
 class ITrigJetHypoInfoCollector;
 class xAODJetCollector;
 
-class FlowNetworkBase:
+class FlowNetworkMatcherBase:
 virtual public IGroupsMatcherMT {
 
   /* Used to find jets pass multithreshold,
@@ -37,15 +37,15 @@ virtual public IGroupsMatcherMT {
      See Algorithms, Sedgewick and Wayne 4th edition */
 
 public:
-  FlowNetworkBase(std::size_t nConditions);
+  FlowNetworkMatcherBase(std::size_t nConditions);
 
   /*
-   FlowNetworkBase(unique_ptr<IFlowNetworkBuilder>,
+   FlowNetworkMatcherBase(unique_ptr<IFlowNetworkBuilder>,
 		  std::size_t totalCapacity,
 		  std::size_t m_nConditions);
   */
    
-  ~FlowNetworkBase(){}
+  ~FlowNetworkMatcherBase(){}
 
   // cannot match if internal problem (eg FlowNetwork error)
   std::optional<bool> match(const HypoJetGroupCIter&,
@@ -53,7 +53,6 @@ public:
 			    xAODJetCollector&,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>&,
 			    bool debug=false) const override;
-  std::string toString() const override;
 
 protected:
   std::size_t m_nConditions{0};    

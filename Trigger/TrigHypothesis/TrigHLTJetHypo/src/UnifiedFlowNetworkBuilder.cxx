@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <sstream>
 
+#include <ostream>
+
 
 UnifiedFlowNetworkBuilder::UnifiedFlowNetworkBuilder(ConditionsMT conditions,
 						     const Tree& tree):
@@ -153,8 +155,18 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
     edges.push_back(std::make_shared<FlowEdge>(n, sink, 1));
   }
 
-						
+  for(const auto& e : edges){
+    std::cout << "UnifiedFlowNetworkBuilder Edge " << e  << '\n';
+  }
   return std::make_optional<std::vector<std::shared_ptr<FlowEdge>>>(edges);
+}
+
+std::string UnifiedFlowNetworkBuilder::toString() const {
+  std::stringstream ss;
+  ss << "UnifiedFlowNetworkBuilder:\n";
+  ss << "  treeVector: " << m_tree << '\n';;
+  ss << FlowNetworkBuilderBase::toString();
+  return ss.str();
 }
 
 
