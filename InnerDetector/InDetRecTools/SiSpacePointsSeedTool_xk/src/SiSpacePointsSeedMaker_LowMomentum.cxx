@@ -402,6 +402,10 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::find2Sp(const std::list<Trk::Vertex>& lv) 
 {
+
+  m_zminU     = m_zmin;
+  m_zmaxU     = m_zmax;
+
   int mode; lv.begin()!=lv.end() ?  mode = 1 : mode = 0;
   bool newv = newVertices(lv);
   
@@ -431,6 +435,10 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find2Sp(const std::list<Trk::Ver
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const std::list<Trk::Vertex>& lv) 
 {
+
+  m_zminU     = m_zmin;
+  m_zmaxU     = m_zmax;
+
   int mode; lv.begin()!=lv.end() ? mode = 3 : mode = 2; 
   bool newv = newVertices(lv);
 
@@ -453,9 +461,34 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const std::list<Trk::Ver
   }
 }
 
-void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const std::list<Trk::Vertex>& lv,const double*) 
+void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const std::list<Trk::Vertex>& lv,const double* ZVertex) 
 {
-  find3Sp(lv);
+  //find3Sp(lv);
+
+  m_zminU     = ZVertex[0]; if(m_zminU < m_zmin) m_zminU = m_zmin; 
+  m_zmaxU     = ZVertex[1]; if(m_zmaxU > m_zmax) m_zmaxU = m_zmax;
+
+  int mode; lv.begin()!=lv.end() ? mode = 3 : mode = 2; 
+  bool newv = newVertices(lv);
+
+  if(newv || !m_state || m_nspoint!=3 || m_mode!=mode || m_nlist) {
+
+    i_seede   = l_seeds.begin() ;
+    m_state   = 1               ;
+    m_nspoint = 3               ;
+    m_nlist   = 0               ;
+    m_mode    = mode            ;
+    m_endlist = true            ;
+    m_fNmin   = 0               ;
+    m_zMin    = 0               ;
+    production3Sp   ();
+  }
+  i_seed  = l_seeds.begin();
+
+  if(m_outputlevel<=0) {
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+  }
+
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -466,6 +499,10 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::find3Sp(const std::list<Trk::Ver
 
 void InDet::SiSpacePointsSeedMaker_LowMomentum::findVSp (const std::list<Trk::Vertex>& lv)
 {
+
+  m_zminU     = m_zmin;
+  m_zmaxU     = m_zmax;
+
   int mode; lv.begin()!=lv.end() ? mode = 6 : mode = 5;
   bool newv = newVertices(lv);
   
@@ -742,14 +779,23 @@ bool InDet::SiSpacePointsSeedMaker_LowMomentum::newVertices(const std::list<Trk:
   unsigned int s1 = l_vertex.size(); 
   unsigned int s2 = lV      .size(); 
 
+  m_isvertex = false;
   if(s1==0 && s2==0) return false;
 
   std::list<Trk::Vertex>::const_iterator v;
-  l_vertex.erase(l_vertex.begin(),l_vertex.end());
-  
+  //l_vertex.erase(l_vertex.begin(),l_vertex.end());
+  l_vertex.clear();
+  if(s2 == 0) return false;  
+
+  m_isvertex = true;
   for(v=lV.begin(); v!=lV.end(); ++v) {
-    l_vertex.push_back(float((*v).position().z()));
+    //l_vertex.push_back(float((*v).position().z()));
+    l_vertex.insert(float((*v).position().z()));
   }
+
+  m_zminU = (*l_vertex. begin())-20.; if( m_zminU < m_zmin) m_zminU = m_zmin;
+  m_zmaxU = (*l_vertex.rbegin())+20.; if( m_zmaxU > m_zmax) m_zmaxU = m_zmax;
+
   return false;
 }
 
