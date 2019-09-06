@@ -14,6 +14,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 
 
 #====================================================================
@@ -281,6 +282,13 @@ HION4_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
 ToolSvc += HION4_MaxCellDecoratorTool
 
 
+#====================================================================                                                                              
+# Initialize flavour tagging algoritmhs
+#====================================================================                                                        
+
+FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'], Sequencer = DerivationFrameworkJob)
+
+
 #================
 # THINNING
 #================
@@ -371,7 +379,8 @@ HION4SlimmingHelper.SmartCollections = [
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMTopoJets_BTagging201810",
+                                        "BTagging_AntiKt4EMTopo_201810",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"
                                         ]
