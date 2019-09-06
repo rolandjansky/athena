@@ -99,7 +99,7 @@ from EvgenProdTools.EvgenProdToolsConf import CountHepMC
 svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
 theApp.EvtMax = -1
 
-#evgenConfig.reqEvents = 1
+#evgenConfig.minevents = 1
 if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
 
@@ -281,51 +281,51 @@ if gen_require_steering(gennames):
         raise RuntimeError("'EvtGen' found in job options name, please set '--steering=afterburn'")
 
 
-## Check that the evgenConfig.reqEvents setting is acceptable
-## reqEvents defines the production event sizes and must be sufficiently "round"    
+## Check that the evgenConfig.minevents setting is acceptable
+## minevents defines the production event sizes and must be sufficiently "round"    
 rounding = 0
 if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   multiInput = runArgs.inputGeneratorFile.count(',')+1
 else:
    multiInput = 0
    
-if evgenConfig.reqEvents < 1:
-    raise RunTimeError("evgenConfig.reqEvents must be at least 0")
+if evgenConfig.minevents < 1:
+    raise RunTimeError("evgenConfig.minevents must be at least 0")
 else:
-    allowed_reqEvents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
-    msg = "evgenConfig.reqEvents = %d: " % evgenConfig.reqEvents
+    allowed_minevents_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
+    msg = "evgenConfig.minevents = %d: " % evgenConfig.minevents
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
 #    if multiInput !=0 :
-#        dummy_reqEvents = evgenConfig.reqEvents*(multiInput)
-#        evgenLog.info('Replacing input reqEvents '+str(evgenConfig.reqEvents)+' with calculated '+str(dummy_reqEvents))
-#        evgenConfig.reqEvents = dummy_reqEvents
+#        dummy_minevents = evgenConfig.minevents*(multiInput)
+#        evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(dummy_minevents))
+#        evgenConfig.minevents = dummy_minevents
 
-    if evgenConfig.reqEvents >= 1000 and evgenConfig.reqEvents % 1000 != 0:
+    if evgenConfig.minevents >= 1000 and evgenConfig.minevents % 1000 != 0:
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
-#        rest1000 = evgenConfig.reqEvents % 1000
+#        rest1000 = evgenConfig.minevents % 1000
 #        if multiInput !=0 :
 #            rounding=1
 #            if rest1000 < 1000-rest1000:
-#                evgenLog.info('Replacing reqEvents '+str(evgenConfig.reqEvents)+' with roundeded '+str(evgenConfig.reqEvents-rest1000))
-#                evgenConfig.reqEvents = evgenConfig.reqEvents-rest1000
+#                evgenLog.info('Replacing minevents '+str(evgenConfig.minevents)+' with roundeded '+str(evgenConfig.minevents-rest1000))
+#                evgenConfig.minevents = evgenConfig.minevents-rest1000
 #            else:
-#                evgenLog.info('Replacing input reqEvents '+str(evgenConfig.reqEvents)+' with calculated '+str(evgenConfig.reqEvents-rest1000+1000))
-#                evgenConfig.reqEvents = evgenConfig.reqEvents-rest1000+1000
+#                evgenLog.info('Replacing input minevents '+str(evgenConfig.minevents)+' with calculated '+str(evgenConfig.minevents-rest1000+1000))
+#                evgenConfig.minevents = evgenConfig.minevents-rest1000+1000
 #        else:    
-           msg += "reqEvents in range >= 1000 must be a multiple of 1000"
+           msg += "minevents in range >= 1000 must be a multiple of 1000"
            raise RuntimeError(msg)
-    elif evgenConfig.reqEvents < 1000 and evgenConfig.reqEvents not in allowed_reqEvents_lt1000:
+    elif evgenConfig.minevents < 1000 and evgenConfig.minevents not in allowed_minevents_lt1000:
 # introduced due to PRODSYS-788, commented out on 06.07.18 obo Dominic
 #        if multiInput !=0:
 #           rounding=1
-#           round_reqEvents=min(allowed_reqEvents_lt1000,key=lambda x:abs(x-evgenConfig.reqEvents))
-#           evgenLog.info('Replacing reqEvents lt 1000 '+str(evgenConfig.reqEvents)+' with rounded '+str(round_reqEvents))
-#           evgenConfig.reqEvents=round_reqEvents
+#           round_minevents=min(allowed_minevents_lt1000,key=lambda x:abs(x-evgenConfig.minevents))
+#           evgenLog.info('Replacing minevents lt 1000 '+str(evgenConfig.minevents)+' with rounded '+str(round_minevents))
+#           evgenConfig.minevents=round_minevents
 #        else:
-           msg += "reqEvents in range <= 1000 must be one of %s" % allowed_reqEvents_lt1000
+           msg += "minevents in range <= 1000 must be one of %s" % allowed_minevents_lt1000
            raise RuntimeError(msg)
 #    else:
-#    postSeq.CountHepMC.RequestedOutput = evgenConfig.reqEvents if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
-    postSeq.CountHepMC.RequestedOutput = evgenConfig.reqEvents if runArgs.maxEvents == -1  else runArgs.maxEvents
+#    postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 or rounding==1 else runArgs.maxEvents
+    postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1  else runArgs.maxEvents
     evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords list is not empty:
@@ -737,7 +737,7 @@ print "MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames))
 
 from PyJobTransformsCore.runargs import RunArguments
 runPars = RunArguments()
-runPars.reqEvents = evgenConfig.reqEvents
+runPars.minevents = evgenConfig.minevents
 runPars.maxeventsstrategy = evgenConfig.maxeventsstrategy
 with open("config.pickle", 'w') as f:
     import cPickle
