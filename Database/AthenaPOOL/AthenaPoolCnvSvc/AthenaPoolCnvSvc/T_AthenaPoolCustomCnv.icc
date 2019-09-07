@@ -21,18 +21,18 @@
 #include <stdexcept>
 
 template <class TRANS, class PERS>
-T_AthenaPoolCustomCnv<TRANS, PERS>::T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocator,
-                                                          const char* name /*= nullptr*/) : BaseType(pSvcLocator, name) {
+T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::T_AthenaPoolCustomCnvWithKey(ISvcLocator* pSvcLocator,
+                                                                        const char* name /*= nullptr*/) : BaseType(pSvcLocator, name) {
 }
 
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPers(DataObject* pObj, const std::string&/* key*/) {
+StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPers(DataObject* pObj, const std::string&/* key*/) {
    ATH_MSG_VERBOSE("In DataObjectToPers() for key = " << pObj->name());
    return(StatusCode::SUCCESS);
 }
 
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
    ATH_MSG_VERBOSE("In DataObjectToPool() for key = " << pObj->name());
    TRANS* obj = nullptr;
    PERS* persObj = nullptr;
@@ -42,7 +42,7 @@ StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj
       return(StatusCode::FAILURE);
    }
    try {
-      persObj = createPersistent(obj);
+     persObj = createPersistentWithKey(obj, key);
    } catch (std::exception &e) {
       ATH_MSG_ERROR("Failed to create persistent object: " << e.what());
       return(StatusCode::FAILURE);
@@ -68,9 +68,9 @@ StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj
 
 template <class TRANS, class PERS>
 StatusCode
-T_AthenaPoolCustomCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj,
-                                                     const Token* token,
-                                                     const std::string& /*key*/)
+T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::PoolToDataObject(DataObject*& pObj,
+                                                            const Token* token,
+                                                            const std::string& key)
 {
    if (token != nullptr) {
       this->m_classID = token->classID();
@@ -82,7 +82,7 @@ T_AthenaPoolCustomCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj,
       extCnv->resetTPCnvForReading();
    }
    try {
-      transObj = createTransient();
+      transObj = createTransientWithKey(key);
    } catch(std::exception &e) {
       ATH_MSG_ERROR("Failed to convert persistent object to transient: " << e.what());
       // cleanup
@@ -102,7 +102,7 @@ T_AthenaPoolCustomCnv<TRANS, PERS>::PoolToDataObject(DataObject*& pObj,
 // plus reading of all extending objects
 template <class TRANS, class PERS>
 template <class P>
-inline P* T_AthenaPoolCustomCnv<TRANS, PERS>::poolReadObject() {
+inline P* T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::poolReadObject() {
    P* persObj = nullptr;
    if (this->poolToObject(this->m_i_poolToken, persObj).isFailure()) {
       std::string error("POOL read failed. Token = ");
@@ -119,7 +119,7 @@ inline P* T_AthenaPoolCustomCnv<TRANS, PERS>::poolReadObject() {
 // using the indicated top-level TP converter
 template <class TRANS, class PERS>
 template <class P>
-inline void T_AthenaPoolCustomCnv<TRANS, PERS>::poolReadObject(TopLevelTPCnvBase& tlp_converter) {
+inline void T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::poolReadObject(TopLevelTPCnvBase& tlp_converter) {
    AthenaPoolCnvTPExtension *extCnv = dynamic_cast<AthenaPoolCnvTPExtension*>(this);
    // set which Top level TP concerter will by used for reading
    // only matters for extended converters
@@ -136,16 +136,32 @@ inline void T_AthenaPoolCustomCnv<TRANS, PERS>::poolReadObject(TopLevelTPCnvBase
 
 // Remember the POOL object until commit (then delete it)
 template <class TRANS, class PERS>
-inline void T_AthenaPoolCustomCnv<TRANS, PERS>::keepPoolObj(PERS* obj) {
+inline void T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::keepPoolObj(PERS* obj) {
    m_persObjList.push_back(obj);
 }
 
 // callback from the CleanupSvc to delete persistent object in the local list
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::cleanUp() {
+StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::cleanUp() {
    for (typename std::vector<PERS*>::const_iterator i = m_persObjList.begin(); i != m_persObjList.end(); i++) {
       delete *i;
    }
    m_persObjList.clear();
    return(StatusCode::SUCCESS);
+}
+
+
+template <class TRANS, class PERS>
+PERS* T_AthenaPoolCustomCnv<TRANS, PERS>::createPersistentWithKey
+  (TRANS* obj, const std::string& /*key*/)
+{
+  return createPersistent(obj);
+}
+
+
+template <class TRANS, class PERS>
+TRANS* T_AthenaPoolCustomCnv<TRANS, PERS>::createTransientWithKey
+  (const std::string& /*key*/)
+{
+  return createTransient();
 }

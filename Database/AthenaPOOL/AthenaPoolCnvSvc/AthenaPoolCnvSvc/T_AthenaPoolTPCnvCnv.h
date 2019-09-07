@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -26,14 +26,12 @@
 
 
 /**
- * @brief Athena pool converter for aux store classes.
+ * @brief Athena pool converter for a class using TP separation.
  *
- * AUXSTORE is the class being read/written.
+ * TRANS is the transient class being read/written.
+ * TPCNV_CUR is the current TP converter class.  The persistent
+ *           type is taken from TPCNV_CUR::Pers_t.
  * TPCNVS is a list of TP converters to handle older versions of the class.
- *
- * On writing, the container is copied (and thinned if required).
- * For reading, we read the object either directly
- * or using one of the TP converters, depending on the saved GUID.
  */
 template <class TRANS, class TPCNV_CUR, class ... TPCNVS>
 class T_AthenaPoolTPCnvCnv
