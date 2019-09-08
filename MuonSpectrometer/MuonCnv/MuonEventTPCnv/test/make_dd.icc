@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -44,7 +44,6 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 
@@ -77,7 +76,7 @@ MuonChamber::MuonChamber (MuonGM::MuonDetectorManager& muo_dd,
 
 void MuonChamber::makeCsc (const Identifier& id)
 {
-  auto elt = CxxUtils::make_unique<MuonGM::CscReadoutElement>
+  auto elt = std::make_unique<MuonGM::CscReadoutElement>
     (&m_pvol, "CSS", 1, 2, false, &m_muo_dd);
   elt->setIdentifier (id);
   elt->m_ngasgaps = 2;
@@ -88,7 +87,7 @@ void MuonChamber::makeCsc (const Identifier& id)
 
 void MuonChamber::makeRpc (const Identifier& id)
 {
-  auto elt = CxxUtils::make_unique<MuonGM::RpcReadoutElement>
+  auto elt = std::make_unique<MuonGM::RpcReadoutElement>
     (&m_pvol, "BIL", 1, 2, false, &m_muo_dd);
   elt->setIdentifier (id);
   elt->m_nphistrippanels = 1;
@@ -100,7 +99,7 @@ void MuonChamber::makeRpc (const Identifier& id)
 
 void MuonChamber::makeTgc (const Identifier& id)
 {
-  auto elt = CxxUtils::make_unique<MuonGM::TgcReadoutElement>
+  auto elt = std::make_unique<MuonGM::TgcReadoutElement>
     (&m_pvol, "T2F", 1, 2, false, &m_muo_dd);
   elt->setIdentifier (id);
   elt->m_ngasgaps = 2;
@@ -111,7 +110,7 @@ void MuonChamber::makeTgc (const Identifier& id)
 
 void MuonChamber::makeMdt (const Identifier& id)
 {
-  auto elt = CxxUtils::make_unique<MuonGM::MdtReadoutElement>
+  auto elt = std::make_unique<MuonGM::MdtReadoutElement>
     (&m_pvol, "BIL", 1, 2, false, &m_muo_dd);
   elt->setIdentifier (id);
   //elt->m_ngasgaps = 2;
@@ -122,7 +121,7 @@ void MuonChamber::makeMdt (const Identifier& id)
 
 void MuonChamber::makesTgc (const Identifier& id)
 {
-  auto elt = CxxUtils::make_unique<MuonGM::sTgcReadoutElement>
+  auto elt = std::make_unique<MuonGM::sTgcReadoutElement>
     (&m_pvol, "STS", 1, 2, 1, false, &m_muo_dd);
   elt->setIdentifier (id);
   elt->initDesign (0, 0, 0, 0, 0, 0, 0, 1);
@@ -139,7 +138,7 @@ void MuonChamber::makesTgc (const Identifier& id)
 
 void MuonChamber::makeMm (const Identifier& id)
 {
-  auto elt = CxxUtils::make_unique<MuonGM::MMReadoutElement>
+  auto elt = std::make_unique<MuonGM::MMReadoutElement>
     (&m_pvol, "MMS", 1, 2, 1, false, &m_muo_dd);
   elt->setIdentifier (id);
   elt->initDesign (0, 0, 0, 0, 0);
@@ -259,22 +258,22 @@ const MuonGM::MuonDetectorManager& make_dd()
                                    "IdDictLArCalorimeter.xml");
   IdDictMgr& idd = parser.parse ("IdDictParser/ATLAS_IDS.xml");
 
-  auto pix_id = CxxUtils::make_unique<PixelID>();
+  auto pix_id = std::make_unique<PixelID>();
   pix_id->initialize_from_dictionary (idd);
   assert ( sg->record (std::move (pix_id), "PixelID") );
 
-  auto sct_id = CxxUtils::make_unique<SCT_ID>();
+  auto sct_id = std::make_unique<SCT_ID>();
   sct_id->initialize_from_dictionary (idd);
   assert ( sg->record (std::move (sct_id), "SCT_ID") );
 
-  auto trt_id = CxxUtils::make_unique<TRT_ID>();
+  auto trt_id = std::make_unique<TRT_ID>();
   trt_id->initialize_from_dictionary (idd);
   assert ( sg->record (std::move (trt_id), "TRT_ID") );
 
-  auto muo_dd = CxxUtils::make_unique<MuonGM::MuonDetectorManager>();
+  auto muo_dd = std::make_unique<MuonGM::MuonDetectorManager>();
   MuonGM::MuonChamber chamber (*muo_dd, *pvol);
 
-  auto csc_id = CxxUtils::make_unique<CscIdHelper>();
+  auto csc_id = std::make_unique<CscIdHelper>();
   csc_id->initialize_from_dictionary (idd);
   muo_dd->set_cscIdHelper (csc_id.get());
   for (int hash=2; hash <= 3; hash++) {
@@ -282,7 +281,7 @@ const MuonGM::MuonDetectorManager& make_dd()
   }
   assert ( sg->record (std::move (csc_id), "CscIdHelper") );
 
-  auto rpc_id = CxxUtils::make_unique<RpcIdHelper>();
+  auto rpc_id = std::make_unique<RpcIdHelper>();
   rpc_id->initialize_from_dictionary (idd);
   muo_dd->set_rpcIdHelper (rpc_id.get());
   for (int hash=2; hash <= 3; hash++) {
@@ -290,7 +289,7 @@ const MuonGM::MuonDetectorManager& make_dd()
   }
   assert ( sg->record (std::move (rpc_id), "RpcIdHelper") );
 
-  auto tgc_id = CxxUtils::make_unique<TgcIdHelper>();
+  auto tgc_id = std::make_unique<TgcIdHelper>();
   tgc_id->initialize_from_dictionary (idd);
   muo_dd->set_tgcIdHelper (tgc_id.get());
   for (int hash=2; hash <= 3; hash++) {
@@ -298,7 +297,7 @@ const MuonGM::MuonDetectorManager& make_dd()
   }
   assert ( sg->record (std::move (tgc_id), "TgcIdHelper") );
 
-  auto mdt_id = CxxUtils::make_unique<MdtIdHelper>();
+  auto mdt_id = std::make_unique<MdtIdHelper>();
   mdt_id->initialize_from_dictionary (idd);
   muo_dd->set_mdtIdHelper (mdt_id.get());
   for (int hash=2; hash <= 3; hash++) {
@@ -308,7 +307,7 @@ const MuonGM::MuonDetectorManager& make_dd()
 
   new MuonGM::sTGC_Technology ("sTG1-dummy");
   new MuonGM::sTGC_Technology ("sTGC_1");
-  auto stgc_id = CxxUtils::make_unique<sTgcIdHelper>();
+  auto stgc_id = std::make_unique<sTgcIdHelper>();
   stgc_id->initialize_from_dictionary (idd);
   muo_dd->set_stgcIdHelper (stgc_id.get());
   for (int hash=2; hash <= 3; hash++) {
@@ -316,7 +315,7 @@ const MuonGM::MuonDetectorManager& make_dd()
   }
   assert ( sg->record (std::move (stgc_id), "sTgcIdHelper") );
 
-  auto mm_id = CxxUtils::make_unique<MmIdHelper>();
+  auto mm_id = std::make_unique<MmIdHelper>();
   mm_id->initialize_from_dictionary (idd);
   muo_dd->set_mmIdHelper (mm_id.get());
   for (int hash=2; hash <= 3; hash++) {
@@ -324,20 +323,20 @@ const MuonGM::MuonDetectorManager& make_dd()
   }
   assert ( sg->record (std::move (mm_id), "MmIdHelper") );
 
-  auto atl_id = CxxUtils::make_unique<AtlasDetectorID>();
+  auto atl_id = std::make_unique<AtlasDetectorID>();
   atl_id->initialize_from_dictionary (idd);
   assert ( sg->record (std::move (atl_id), "AtlasID") );
 
-  auto pix_dd = CxxUtils::make_unique<InDetDD::PixelDetectorManager>(sg);
+  auto pix_dd = std::make_unique<InDetDD::PixelDetectorManager>(sg);
   assert ( sg->record (std::move (pix_dd), "Pixel") );
 
-  auto sct_dd = CxxUtils::make_unique<InDetDD::SCT_DetectorManager>(sg);
+  auto sct_dd = std::make_unique<InDetDD::SCT_DetectorManager>(sg);
   assert ( sg->record (std::move (sct_dd), "SCT") );
 
-  auto trt_dd = CxxUtils::make_unique<InDetDD::TRT_DetectorManager>(sg);
+  auto trt_dd = std::make_unique<InDetDD::TRT_DetectorManager>(sg);
   assert ( sg->record (std::move (trt_dd), "TRT") );
 
-  auto id_mgr = CxxUtils::make_unique<IdDictManager>(idd);
+  auto id_mgr = std::make_unique<IdDictManager>(idd);
   assert ( sg->record (std::move (id_mgr), "IdDict") );
 
   const MuonGM::MuonDetectorManager& ret = *muo_dd;
