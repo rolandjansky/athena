@@ -38,7 +38,7 @@ atlas_add_component( TrigMuonHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon MuonIdHelpersLib MuonRecHelperToolsLib TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrigInterfacesLib DecisionHandling AthViews xAODMuon xAODTracking GaudiKernel MuonSegment MuonSegmentMakerUtils TrigConfHLTData TrigT1Interfaces TrigT1Result LumiBlockData )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} xAODTrigMuon MuonIdHelpersLib MuonRecHelperToolsLib TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrigInterfacesLib DecisionHandlingLib AthViews xAODMuon xAODTracking GaudiKernel MuonSegment MuonSegmentMakerUtils TrigConfHLTData TrigT1Interfaces TrigT1Result LumiBlockData )
 
 atlas_add_test( TrigMuonHypoConfig SCRIPT python -m  	TrigMuonHypo.TrigMuonHypoConfig
 		POST_EXEC_SCRIPT nopost.sh )
