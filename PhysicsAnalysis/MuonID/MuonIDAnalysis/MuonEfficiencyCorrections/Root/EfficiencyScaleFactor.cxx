@@ -138,6 +138,10 @@ namespace CP {
                 m_sf_KineDepsys.reset();
             }
             return;
+        } else if (m_measurement == CP::MuonEfficiencyType::TTVA){
+            m_sf_KineDepsys = std::make_unique<TTVAClosureSysHandler>(ReadHistFromFile("SF_NonClosure_sys",f.get(),time_unit));
+            m_sf_KineDepsys->SetSystematicWeight( IsUpVariation() ? 1 : -1);
+        
         }
         /// That one needs to be named properly in the future
         

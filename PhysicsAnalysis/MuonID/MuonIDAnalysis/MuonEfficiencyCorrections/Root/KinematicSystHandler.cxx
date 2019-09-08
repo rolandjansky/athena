@@ -26,7 +26,9 @@ namespace CP {
         return nullptr;
     }
 
-            
+    //###############################################################
+    //                  PtKinematicSystHandler
+    //###############################################################                
     PtKinematicSystHandler::PtKinematicSystHandler(std::unique_ptr<HistHandler> pt_flatnesss, std::unique_ptr<HistHandler> energy_loss):
              m_flatness(),
              m_loss(),
@@ -71,13 +73,32 @@ namespace CP {
     bool PtKinematicSystHandler::initialize(){
         return m_flatness.get() != nullptr && m_loss.get() != nullptr;
     }
-   
-    
+    //###############################################################
+    //                  TTVAClosureSysHandler
+    //###############################################################
+    TTVAClosureSysHandler::TTVAClosureSysHandler(std::unique_ptr<HistHandler> HistHandler):
+        m_Handler(),
+        m_SystWeight(0) {
+      m_Handler.swap(HistHandler);
+    }
+    void TTVAClosureSysHandler::SetSystematicWeight( float SystWeight){m_SystWeight = SystWeight;}
+    bool TTVAClosureSysHandler::initialize() { return m_Handler.get() != nullptr; }
+    CorrectionCode TTVAClosureSysHandler::GetKineDependent(const xAOD::Muon&mu, float& Eff) const{
+        int binsys = -1;
+        CorrectionCode cc = m_Handler->FindBin(mu, binsys);
+        if (cc != CorrectionCode::Ok) {
+            return cc;
+        }
+        Eff *= (1. + m_SystWeight * std::fabs(m_Handler->GetBinContent(binsys)));
+        return CorrectionCode::Ok;   
+    }
+    //###############################################################
+    //                  PrimodialPtSystematic
+    //###############################################################
     PrimodialPtSystematic::PrimodialPtSystematic(std::unique_ptr<HistHandler> Handler) :
                     m_Handler(),
                     m_SystWeight(0) {
         m_Handler.swap(Handler);
-
     }
     CorrectionCode PrimodialPtSystematic::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {
         // Account for catastrophic energy loss for  very high

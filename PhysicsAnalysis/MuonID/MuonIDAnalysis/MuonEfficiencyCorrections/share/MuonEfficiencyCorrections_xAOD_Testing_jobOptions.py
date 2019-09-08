@@ -31,43 +31,44 @@ alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
 alg.MuonSelectionTool = GetSelectionTool()
 alg.DefaultRelease="cFeb_2019"
-alg.ValidationRelease="cMay_2019"
+alg.ValidationRelease="cAugust_2019"
 alg.SGKey = "CalibratedMuons"
 ## Select 30 GeV muons for the high-pt WP only
-alg.MinPt = 4000
-alg.MaxEta = 2.7
+alg.MinPt = 15000
+alg.MaxEta = 2.5
 #alg.MinQualit = 1 #Medium
 WPs = [
          # reconstruction WPs
-      #  "LowPt",
+        "LowPt",
         "Loose", 
         "Medium", 
-       # "Tight", 
-     #   "HighPt",       
+        "Tight", 
+        "HighPt", 
+        "CaloTag",      
          # track-to-vertex-association WPs
          "TTVA",
          # BadMuon veto SFs
      #   "BadMuonVeto_HighPt",
         #"GradientIso",
          # isolation WPs
-        "FCLooseIso",                    
-        "FCTight_FixedRadIso",
-        "FCLoose_FixedRadIso",           
-        "FixedCutHighPtTrackOnlyIso",
-        "FCTightIso",                    
-        "FixedCutPflowLooseIso",
-        "FCTightTrackOnlyIso",           
-        "FixedCutPflowTightIso",
-        "FCTightTrackOnly_FixedRadIso",
+#        "FCLooseIso",                    
+#        "FCTight_FixedRadIso",
+#        "FCLoose_FixedRadIso",           
+#        "FixedCutHighPtTrackOnlyIso",
+#        "FCTightIso",                    
+#        "FixedCutPflowLooseIso",
+#        "FCTightTrackOnlyIso",           
+#        "FixedCutPflowTightIso",
+#        "FCTightTrackOnly_FixedRadIso",
         ]
 
 for WP in WPs: 
-    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="190312_Winter_r21", 
-                                                  #CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/SFFiles/Winter_2019_coarsePtBinning/"
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP, Release="190530_r21", 
+                                               #   CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/Autumn_2019/"
                                                   )]
     alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, 
-                                                #CustomInput = "/ptmp/mpp/niko/TEMP/"
-                                                Release = "190530_r21"
+                                                CustomInput = "/ptmp/mpp/junggjo9/Cluster/SFFiles/Autumn_2019/"
+                                                #Release = "190530_r21"
                                               )]
   
 theJob += alg

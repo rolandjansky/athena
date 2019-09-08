@@ -73,11 +73,11 @@ namespace CP {
     ///     is smaller than the total value of the latter itself.
     class PtKinematicSystHandler : public IKinematicSystHandler {
         public:
-            virtual CorrectionCode GetKineDependent(const xAOD::Muon& mu, float& eff) const;
+             CorrectionCode GetKineDependent(const xAOD::Muon& mu, float& eff) const override;
             
-            virtual void SetSystematicWeight(float syst_weight);
+            void SetSystematicWeight(float syst_weight) override;
             
-            virtual bool initialize();
+            bool initialize() override;
             
             /// Constructor having two histhandler objects inside. The 
             PtKinematicSystHandler(std::unique_ptr<HistHandler> pt_flatnesss, std::unique_ptr<HistHandler> energy_loss);
@@ -92,29 +92,42 @@ namespace CP {
     
     class PrimodialPtSystematic: public IKinematicSystHandler {
         public:
-            virtual CorrectionCode GetKineDependent(const xAOD::Muon &mu, float& Eff) const;
+            CorrectionCode GetKineDependent(const xAOD::Muon &mu, float& Eff) const override;
     
-            virtual void SetSystematicWeight(float SystWeight);
+            void SetSystematicWeight(float SystWeight) override;
 
-            virtual bool initialize();
+            bool initialize() override;
             PrimodialPtSystematic(std::unique_ptr<HistHandler> HistHandler);
-        protected:
+        private:
+            std::unique_ptr<HistHandler> m_Handler;
+            float m_SystWeight;
+    };
+    ///     Extra systematic assigned for the TTVA non-closure
+    ///
+    ///
+    class TTVAClosureSysHandler: public IKinematicSystHandler {
+        public:
+            TTVAClosureSysHandler(std::unique_ptr<HistHandler> HistHandler);
+            
+            void SetSystematicWeight( float SystWeight) override;
+            bool initialize() override;
+            CorrectionCode GetKineDependent(const xAOD::Muon&mu, float& Eff) const override;
+        private:
             std::unique_ptr<HistHandler> m_Handler;
             float m_SystWeight;
     };
 
 
-
     class BadMuonVetoSystHandler: public IKinematicSystHandler {
         public:
-            virtual CorrectionCode GetKineDependent(const xAOD::Muon &mu, float& Eff) const;
-            virtual void SetSystematicWeight(float SystWeight);
+             CorrectionCode GetKineDependent(const xAOD::Muon &mu, float& Eff) const override;
+             void SetSystematicWeight(float SystWeight)override;
 
-            virtual bool initialize();
+            bool initialize() override;
             BadMuonVetoSystHandler(TDirectory* InDir);
             virtual ~BadMuonVetoSystHandler();
 
-        protected:
+        private:
             CP::CorrectionCode FindAppropiatePolynomial(const xAOD::Muon& mu, TF1* &Poly) const;
             std::string GetNextProperty(std::string &sstr);
 
