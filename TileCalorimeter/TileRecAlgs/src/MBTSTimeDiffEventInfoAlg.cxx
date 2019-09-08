@@ -23,7 +23,7 @@ using xAOD::EventInfo;
  */
 
 StatusCode MBTSTimeDiffEventInfoAlg::initialize() {
-  if (m_minHitsPerSide == 0) {
+  if (m_minHitsPerSide == 0u) {
     m_minHitsPerSide = 1; //Avoid div-by-zero later
   }
 
