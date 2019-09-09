@@ -228,25 +228,10 @@ joparts = (os.path.basename(jofile)).split(".")
 officialJO = False
 if joparts[0].startswith("mc") and all(c in string.digits for c in joparts[0][2:]):
     officialJO = True
-    ## Check that the JO does not appear to be an old one, since we can't use those
-    if int(joparts[0][2:]) < 14:
-        evgenLog.error("MC14 (or later) job option scripts are needed to work with Generate_tf!")
-        evgenLog.error(jo + " will not be processed: please rename or otherwise update to a >= MC14 JO.")
-        sys.exit(1)
     ## Check that there are exactly 4 name parts separated by '.': MCxx, DSID, physicsShort, .py
     if len(joparts) != 3:
-        evgenLog.error(jofile + " name format is wrong: must be of the form MC<xx>.<physicsShort>.py: please rename.")
+        evgenLog.error(jofile + " name format is wrong: must be of the form mc.<physicsShort>.py: please rename.")
         sys.exit(1)
-    ## Check the DSID part of the name
-    #jo_dsidpart = joparts[1]
-    #try:
-    #    jo_dsidpart = int(jo_dsidpart)
-    #    if runArgs.runNumber != jo_dsidpart:
-    #        raise Exception()
-    #except:
-    #    evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % 
-#(str(runArgs.runNumber), jo_dsidpart))
-    #    sys.exit(1)
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[1]
     if len(jo_physshortpart) > 50:
@@ -378,7 +363,7 @@ else:
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
     # TODO: Make the package name configurable
-    kwfile = "MC15JobOptions/evgenkeywords.txt"
+    kwfile = "EvgenJobTransforms/evgenkeywords.txt"
     kwpath = None
     for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
         kwpath = os.path.join(p, kwfile)
@@ -410,7 +395,7 @@ if evgenConfig.keywords:
 if evgenConfig.categories:
     ## Get the allowed categories file from the JO package if possibe
     # TODO: Make the package name configurable
-    lkwfile = "MC15JobOptions/CategoryList.txt"
+    lkwfile = "EvgenJobTransforms/CategoryList.txt"
     lkwpath = None
     for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
         lkwpath = os.path.join(p, lkwfile)
