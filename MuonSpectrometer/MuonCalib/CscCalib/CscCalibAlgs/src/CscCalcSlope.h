@@ -19,6 +19,7 @@ so that he can determine the validity of the constants
 #include "AthContainers/DataVector.h"
 #include "CscCalibData/CscCalibResultCollection.h"
 #include "MuonCSC_CnvTools/ICSC_RDO_Decoder.h"
+#include "MuonCondData/CscCondDbData.h"
 
 //temporary for tests
 #include "BipolarFit.h"
@@ -36,6 +37,7 @@ class ICscCalibTool;
 class cscIdHelper;
 class CscCalibResultCollection;
 class TGraphErrors;
+class CscCondDbData;
 
 namespace MuonCalib{
   /** 
@@ -83,10 +85,10 @@ namespace MuonCalib{
       StoreGateSvc * m_storeGate;
       //ITHistSvc * m_thistSvc;
       ICscCalibTool * m_cscCalibTool;
-      ServiceHandle<CscICoolStrSvc> m_cscCoolStrSvc;
       ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
       const CscIdHelper *m_cscId;
       IChronoStatSvc* m_chronoSvc;
+      SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
 
       /**Parameters input through joboptions*/
       std::string m_outputFileName;

@@ -19,8 +19,7 @@
 *******************************************************************************/
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonCondData/CscCondDataContainer.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonCondData/CscCondDbData.h"
 #include "CscCalibTools/ICscCalibTool.h"
 #include "CxxUtils/checker_macros.h"
 
@@ -32,6 +31,8 @@
 #include <inttypes.h>
 #include <mutex>
 #include <vector>
+
+class CscCondDbData;
 
 class CscCalibTool : public extends<AthAlgTool, ICscCalibTool> {
 
@@ -143,7 +144,7 @@ private:
 
 protected:
 
-  ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
+  SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
 
   bool  m_readFromDatabase;
   bool  m_slopeFromDatabase;

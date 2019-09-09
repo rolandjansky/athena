@@ -42,7 +42,6 @@ namespace MuonCalib {
     m_cscId(NULL),
     m_muon_mgr(NULL),
     m_chronoSvc(0),
-    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc",name),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
     m_maxStripHash(0),
     m_numBits(12),
@@ -127,11 +126,7 @@ namespace MuonCalib {
       return StatusCode::FAILURE;
     }
 
-    if(m_cscCoolStrSvc.retrieve().isFailure())
-    {
-      mLog << MSG::FATAL << "Unable to retrieve CscCoolStrSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_readKey.initialize());
 
     sc = service("ChronoStatSvc",m_chronoSvc);    
     if(sc.isFailure())
@@ -812,6 +807,9 @@ namespace MuonCalib {
       if(m_debug) mLog << MSG::DEBUG <<  "Begining loop over all " << m_peds->size()  
         << " channels data was collected for." << endmsg;
 
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey}; 
+      const CscCondDbData* readCdo{*readHandle};
+
       //form is:hashID chamber LayerOrientationStrip  parametervalue parametervalue 
       CscCalibResultCollection::iterator pedItr = m_peds->begin();
       CscCalibResultCollection::iterator pedEnd = m_peds->end();
@@ -830,7 +828,7 @@ namespace MuonCalib {
         string onlineHexId;
 
         //Online ids are same as "string ids" used internally in COOL db.
-        m_cscCoolStrSvc->indexToStringId(hashId, "CHANNEL", onlineHexId);
+        readCdo->indexToStringId(hashId, "CHANNEL", onlineHexId);
 
         if(m_debug) mLog << MSG::DEBUG << "we're on hash " << hashId << " with pedestal " << ped 
           << "and noise " << noise << endmsg;//<< " and threshold " << thold << endmsg;
@@ -903,6 +901,9 @@ namespace MuonCalib {
     //Outputs a single parameter in version 03-00
     void CscCalcPed::outputParameter3(const CscCalibResultCollection & results, ofstream & out){
 
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey}; 
+      const CscCondDbData* readCdo{*readHandle};
+
       out << "\n";
       out << "<NEW_PAR> " << results.parName() << "\n";
       std::string idString;
@@ -914,7 +915,7 @@ namespace MuonCalib {
         double value = (*resItr)->value();
         std::string idString;
 
-        m_cscCoolStrSvc->indexToStringId(hashId, "CHANNEL", idString);
+        readCdo->indexToStringId(hashId, "CHANNEL", idString);
 
         out << idString << " " << value << "\n";
       }

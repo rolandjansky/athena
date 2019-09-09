@@ -24,11 +24,12 @@ an RDO
 #include "TH1.h"
 #include "TH2.h"
 #include "TH2F.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonCondData/CscCondDbData.h"
 
 class cscIdHelper;
 class TFile;
 class IdentifierHash;
+class CscCondDbData;
 //class ICscCalibTool;
 
 namespace Muon {
@@ -105,9 +106,9 @@ namespace MuonCalib{
       const CscIdHelper *m_cscId;
       const MuonGM::MuonDetectorManager * m_muon_mgr;
       IChronoStatSvc* m_chronoSvc;
-      ServiceHandle<CscICoolStrSvc> m_cscCoolStrSvc;
       ToolHandle<Muon::ICSC_RDO_Decoder> m_cscRdoDecoderTool;
-    
+      SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
+ 
 
     /**Parameters input through joboptions*/
       std::string m_outputFileName;
