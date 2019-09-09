@@ -98,9 +98,9 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
     thinningTools.append(HIGG4DxElectronTPThinningTool)
 
     # Tracks associated with taus
-    HIGG4DxTauSelectionString = "TauJets.pt > 18*GeV"
+    HIGG4DxTauSelectionString = "(TauJets.pt > 18*GeV || TauJets.ptFinalCalib > 18.0*GeV)"
     if HIGG4DxName in ['HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
-        HIGG4DxTauSelectionString = "TauJets.pt > 40*GeV"
+        HIGG4DxTauSelectionString = "(TauJets.pt > 40*GeV || TauJets.ptFinalCalib > 40.0*GeV)"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
     HIGG4DxTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                    = HIGG4DxName+"TauTPThinningTool",
                                                                              ThinningService         = HIGG4DxThinningSvc,
