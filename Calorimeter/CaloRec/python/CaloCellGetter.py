@@ -257,14 +257,8 @@ class CaloCellGetter (Configured)  :
             doFastCaloSimNoise=jobproperties.CaloCellFlags.doFastCaloSimNoise()
             if doFastCaloSimNoise:
                 try:
-                    from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
-                    theAddNoiseCellBuilderTool=AddNoiseCellBuilderTool()
-                    
-                    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-                    theCaloNoiseTool = CaloNoiseToolDefault()
-                    ToolSvc += theCaloNoiseTool
-                    
-                    theAddNoiseCellBuilderTool.CaloNoiseTool=theCaloNoiseTool.getFullName()
+                    from FastCaloSim.AddNoiseCellBuilderToolDefault import AddNoiseCellBuilderToolDefault
+                    theAddNoiseCellBuilderTool=AddNoiseCellBuilderToolDefault()
                     
                     print(theAddNoiseCellBuilderTool)
 

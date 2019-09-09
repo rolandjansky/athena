@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSim/AddNoiseCellBuilderTool.h"
@@ -11,6 +11,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "TileEvent/TileCell.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include <map>
 #include <iomanip>
@@ -21,10 +22,8 @@ AddNoiseCellBuilderTool::AddNoiseCellBuilderTool(
                                                  const std::string& name,
                                                  const IInterface* parent)
   : BasicCellBuilderTool(type, name, parent)
-  , m_noiseTool("CaloNoiseTool/calonoisetool")
   , m_rndmSvc("AtRndmGenSvc", name)
 {
-  declareProperty("CaloNoiseTool",         m_noiseTool);
   declareProperty("doNoise",               m_donoise);
   declareProperty("RandomStreamName",      m_randomEngineName,     "Name of the random number stream");
 
@@ -42,7 +41,8 @@ StatusCode AddNoiseCellBuilderTool::initialize()
 
   ATH_CHECK(BasicCellBuilderTool::initialize());
 
-  ATH_CHECK(m_noiseTool.retrieve());
+  ATH_CHECK(m_noiseKey.initialize());
+  ATH_CHECK(m_estimatedGain.retrieve());
 
   // Random number service
   ATH_CHECK(m_rndmSvc.retrieve());
@@ -71,18 +71,17 @@ AddNoiseCellBuilderTool::process (CaloCellContainer* theCellContainer,
 
   ATH_MSG_INFO("Executing start calo size=" <<theCellContainer->size()<<" Event="<<ctx.evt()/*<<" rseed="<<rseed*/);
 
+  SG::ReadCondHandle<CaloNoise> noise (m_noiseKey, ctx);
+
   double E_tot=0;
   double Et_tot=0;
-  CaloCellContainer::iterator f_cell = theCellContainer->begin();
-  CaloCellContainer::iterator l_cell = theCellContainer->end();
-  for ( ; f_cell!=l_cell; ++f_cell)
+  for (CaloCell* cell : *theCellContainer)
     {
-      CaloCell* cell = (*f_cell) ;
       if(!cell) continue;
       const CaloDetDescrElement* theDDE=cell->caloDDE();
       if(!theDDE) continue;
 
-      CaloGain::CaloGain gain=m_noiseTool->estimatedGain(cell,ICaloNoiseToolStep::CELLS);
+      CaloGain::CaloGain gain=m_estimatedGain->estimatedGain (ctx, *cell,ICaloEstimatedGainTool::Step::CELLS);
 
 #if FastCaloSim_project_release_v1 == 12
       CaloCell_ID::SUBCALO calo=theDDE->getSubCalo();
@@ -96,8 +95,7 @@ AddNoiseCellBuilderTool::process (CaloCellContainer* theCellContainer,
 #endif
 
       if(m_donoise) {
-        double sigma=m_noiseTool->elecNoiseRMS(cell);
-        //double enoise=m_rand->Gaus(0.0,1.0)*sigma;
+        double sigma = noise->getNoise (cell->caloDDE()->calo_hash(), cell->gain());
         double enoise=CLHEP::RandGaussZiggurat::shoot(m_randomEngine,0.0,1.0)*sigma;
         /*
           if(cell->energy()>1000) {
