@@ -31,8 +31,15 @@ CscCondDbAlg::initialize(){
     ATH_CHECK(m_condSvc .retrieve());
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_writeKey.initialize());
-    ATH_CHECK(m_readKey_folder_da_hv  .initialize());
-    ATH_CHECK(m_readKey_folder_da_stat.initialize());
+    ATH_CHECK(m_readKey_folder_da_hv     .initialize());
+    ATH_CHECK(m_readKey_folder_da_f001   .initialize());
+    ATH_CHECK(m_readKey_folder_da_noise  .initialize());
+    ATH_CHECK(m_readKey_folder_da_ped    .initialize());
+    ATH_CHECK(m_readKey_folder_da_pslope .initialize());
+    ATH_CHECK(m_readKey_folder_da_rms    .initialize());
+    ATH_CHECK(m_readKey_folder_da_status .initialize());
+    ATH_CHECK(m_readKey_folder_da_t0base .initialize());
+    ATH_CHECK(m_readKey_folder_da_t0phase.initialize());
 
     if(m_condSvc->regHandle(this, m_writeKey).isFailure()) {
       ATH_MSG_FATAL("Unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
@@ -41,6 +48,87 @@ CscCondDbAlg::initialize(){
 
     return StatusCode::SUCCESS;
 }
+
+/*
+
+// prepareCollections
+StatusCode
+CscCondDbAlg::prepareCollections() const {
+
+    // prepare contexts
+    m_moduleContext  = m_idHelper->cscIdHelper().module_context();
+    m_channelContext = m_idHelper->cscIdHelper().channel_context();
+
+    //prepare layer hash array
+    int hash = 0;
+
+    for(int stationName  = 0; stationName < 2; stationName++){
+      for(int stationEta =0; stationEta <2; stationEta++){
+        for(int stationPhi = 0; stationPhi <8; stationPhi++){
+          for(int wireLayer = 0; wireLayer <4; wireLayer++){
+            for(int measuresPhi = 0; measuresPhi <2; measuresPhi++){
+              Identifier id = m_idHelper->cscIdHelper().channelID(
+                  stationName+1,
+                  (stationEta? 1:-1),
+                  stationPhi+1,
+                  2,//only installed chamber layer
+                  wireLayer+1,
+                  measuresPhi,
+                  1 //channel doesn't matter. We'll just use first
+                  );
+              unsigned int onlineId;
+              if(!offlineToOnlineId(id, onlineId).isSuccess()) {
+                ATH_MSG_ERROR("Failed at geting online id!");
+                return StatusCode::RECOVERABLE;
+              }
+              m_onlineChannelIdsFromLayerHash.push_back(onlineId);
+              m_layerHashes[stationName][stationEta][stationPhi][wireLayer][measuresPhi] = hash++;
+            }
+          }
+        }
+      }
+    }
+
+    *(const_cast<unsigned int*>(&m_maxLayerHash)) = hash -1; //-1 because hash overshoots in loop
+
+
+    //prepare chamberCoolChannel. This is similar to the hash array in CscIdHelper.
+    //Putting it here because cool channels are dependent on this hash, and it can't
+    //ever change, even if idHelper's definition changes
+    hash = 1;
+    for(int stationName  = 0; stationName < 2; stationName++){
+      for(int stationEta =0; stationEta <2; stationEta++){
+        for(int stationPhi = 0; stationPhi <8; stationPhi++){
+          Identifier id = m_idHelper->cscIdHelper().channelID(
+              stationName+1,
+              (stationEta? 1:-1),
+              stationPhi+1,
+              2,//only installed chamber layer 2
+              1,//wirelayer doesn't matter, we'll just use first
+              0,//measures phi doesn't matter, we'll just use precision
+              1 //channel doesn't matter. We'll just use first
+              );
+          unsigned int onlineId;
+          if(!offlineToOnlineId(id, onlineId).isSuccess()) {
+            ATH_MSG_ERROR("Failed at geting online id!");
+            return StatusCode::RECOVERABLE;
+          }
+
+          m_onlineChannelIdsFromChamberCoolChannel.push_back(onlineId);
+          m_chamberCoolChannels[stationName][stationEta][stationPhi] = hash++;
+        }
+      }
+    }
+    *(const_cast<unsigned int*>(&m_maxChamberCoolChannel)) = hash - 1; //-1 because hash overshoots in loop
+    *(const_cast<unsigned int*>(&m_maxChanHash)) = m_idHelper->cscIdHelper().channel_hash_max() - 1;
+
+
+    ATH_MSG_DEBUG("Maximum Chamber COOL Channel is " << m_maxChamberCoolChannel);
+    ATH_MSG_DEBUG("Maximum Layer hash is " << m_maxLayerHash);
+    ATH_MSG_DEBUG("Maximum Channel hash is " << m_maxChanHash);
+
+}
+*/
 
 
 // execute
@@ -63,17 +151,25 @@ CscCondDbAlg::execute(){
         return StatusCode::SUCCESS; 
     }
     std::unique_ptr<CscCondDbData> writeCdo{std::make_unique<CscCondDbData>()};
+    writeCdo->setParameters(m_onlineOfflinePhiFlip);
+
     EventIDRange rangeW;
     StatusCode sc  = StatusCode::SUCCESS;
 
-    // retrieving data
+    // retrieving data only
     if(m_isData) {
         //if(loadDataHv  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; // keep for future development
-        if(loadDataStat(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
     }
-    else {
-        if(loadDataStat(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE;
-    }
+
+    // both data and MC
+    if(loadDataF001   (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
+    if(loadDataNoise  (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
+    if(loadDataPed    (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
+    if(loadDataPSlope (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
+    if(loadDataRMS    (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
+    if(loadDataStatus (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
+    if(loadDataT0Base (rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
+    if(loadDataT0Phase(rangeW, writeCdo).isFailure()) sc = StatusCode::FAILURE; 
 
     if(sc.isFailure()){
         ATH_MSG_WARNING("Could not read data from the DB");
@@ -178,13 +274,69 @@ CscCondDbAlg::loadDataHv(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& 
 }
 
 
-
-// loadDataStat
+// loadDataF001
 StatusCode
-CscCondDbAlg::loadDataStat(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
-  
-    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_stat};
+CscCondDbAlg::loadDataF001(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_f001};
+	return loadData(rangeW, writeCdo, readHandle, "f001");
+}
+
+// loadDataNoise
+StatusCode
+CscCondDbAlg::loadDataNoise(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_noise};
+	return loadData(rangeW, writeCdo, readHandle, "noise");
+}
+
+// loadDataPed
+StatusCode
+CscCondDbAlg::loadDataPed(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_ped};
+	return loadData(rangeW, writeCdo, readHandle, "ped");
+}
+
+// loadDataPSlope
+StatusCode
+CscCondDbAlg::loadDataPSlope(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_pslope};
+	return loadData(rangeW, writeCdo, readHandle, "pslope");
+}
+
+// loadDataRMS
+StatusCode
+CscCondDbAlg::loadDataRMS(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_rms};
+	return loadData(rangeW, writeCdo, readHandle, "rms");
+}
+
+// loadDataStatus
+StatusCode
+CscCondDbAlg::loadDataStatus(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_status};
+	return loadData(rangeW, writeCdo, readHandle, "status");
+}
+
+// loadDataT0Base
+StatusCode
+CscCondDbAlg::loadDataT0Base(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0base};
+	return loadData(rangeW, writeCdo, readHandle, "t0base");
+}
+
+// loadDataT0Phase
+StatusCode
+CscCondDbAlg::loadDataT0Phase(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo){
+    SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey_folder_da_t0phase};
+	return loadData(rangeW, writeCdo, readHandle, "t0phase", true);
+}
+
+
+// loadData
+StatusCode
+CscCondDbAlg::loadData(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>& writeCdo, SG::ReadCondHandle<CondAttrListCollection> readHandle, const std::string parName, bool parAsm) {
+
     const CondAttrListCollection* readCdo{*readHandle}; 
+
     if(readCdo==0){
       ATH_MSG_ERROR("Null pointer to the read conditions object");
        return StatusCode::FAILURE; 
@@ -217,13 +369,19 @@ CscCondDbAlg::loadDataStat(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>
 		ss >> version;
 
         if(version == "1" || atoi(version.c_str()) == 1){
-            if(!cacheVersion1(data, writeCdo).isSuccess()) {
+            if(!cacheVersion1(data, writeCdo, parName).isSuccess()) {
                 ATH_MSG_ERROR("Failed caching from COOL string version 1");
                 return StatusCode::FAILURE;
             }
         }
+        else if(version == "02-00" && parAsm) {
+            if(!cacheVersion2ASM(data, writeCdo, parName).isSuccess()) {
+                ATH_MSG_ERROR("Failed caching from COOL string version 02-00 in ASM format");
+                return StatusCode::FAILURE;
+            }
+        }
         else if(version == "02-00") {
-            if(!cacheVersion2(data, writeCdo).isSuccess()) {
+            if(!cacheVersion2(data, writeCdo, parName).isSuccess()) {
                 ATH_MSG_ERROR("Failed caching from COOL string version 02-00");
                 return StatusCode::FAILURE;
             }
@@ -233,13 +391,19 @@ CscCondDbAlg::loadDataStat(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>
             // set to 1 or sometimes 1.00000, so we convert to integer here and check
             ATH_MSG_WARNING("Don't recognize CSC COOL string version " << version << ". Will treat as default version " << m_defaultDatabaseReadVersion);
             if(m_defaultDatabaseReadVersion == "1"){
-                if(!cacheVersion1(data, writeCdo).isSuccess()) {
+                if(!cacheVersion1(data, writeCdo, parName).isSuccess()) {
                     ATH_MSG_ERROR("Failed caching from COOL string version 1");
                     return StatusCode::FAILURE;
                 }
             }
+            else if(m_defaultDatabaseReadVersion == "02-00" && parAsm) {
+                if(!cacheVersion2ASM(data, writeCdo, parName).isSuccess()) {
+                    ATH_MSG_ERROR("Failed caching from COOL string version 02-00 in ASM format");
+                    return StatusCode::FAILURE;
+                }
+            }
             else if(m_defaultDatabaseReadVersion == "02-00"){
-                if(!cacheVersion2(data, writeCdo).isSuccess()) {
+                if(!cacheVersion2(data, writeCdo, parName).isSuccess()) {
                     ATH_MSG_ERROR("Failed caching from COOL string version 02-00");
                     return StatusCode::FAILURE;
                 }
@@ -253,9 +417,10 @@ CscCondDbAlg::loadDataStat(EventIDRange & rangeW, std::unique_ptr<CscCondDbData>
 
 // cacheVersion1
 StatusCode 
-CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName){
 
-	// ATTENTION: careful, this is untested yet!
+	// ATTENTION: careful, this is untested yet! (lack of data)
+	ATH_MSG_WARNING("Running cacheVersion1 function for parameter "<<parName<<", which is not properly implemented for folders other than /CSC/STAT/ nor properly tested!");
 
     std::string valueStr;
 	std::istringstream ss(data);
@@ -279,8 +444,8 @@ CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& wr
 		// swapping version 1 strings
         if(m_phiSwapVersion1Strings){
             Identifier chanId;
-			IdContext context = m_idHelper->cscIdHelper().channel_context();
-            m_idHelper->cscIdHelper().get_id((IdentifierHash)index, chanId, &context);
+            IdContext channelContext = m_idHelper->cscIdHelper().channel_context();
+            m_idHelper->cscIdHelper().get_id((IdentifierHash)index, chanId, &channelContext);
             int stationEta  = m_idHelper->cscIdHelper().stationEta (chanId); // +1 Wheel A   -1 Wheel C
             int measuresPhi = m_idHelper->cscIdHelper().measuresPhi(chanId); // 0 eta 1 phi
 
@@ -315,7 +480,7 @@ CscCondDbAlg::cacheVersion1(std::string data, std::unique_ptr<CscCondDbData>& wr
 
 // cacheVersion2
 StatusCode 
-CscCondDbAlg::cacheVersion2(std::string data, std::unique_ptr<CscCondDbData>& writeCdo) {
+CscCondDbAlg::cacheVersion2(std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName) {
 
 	std::istringstream ss(data);
     std::string valueStr;
@@ -342,34 +507,476 @@ CscCondDbAlg::cacheVersion2(std::string data, std::unique_ptr<CscCondDbData>& wr
             continue;
         }
 
-		// next element is the status bit
-        unsigned int token;
-        iss >> token;
+        // record parameter
+        if(recordParameter(chanAddress, valueStr, writeCdo, parName).isFailure())
+        	return StatusCode::FAILURE;
 
-		ATH_MSG_DEBUG("channel address: " << chanAddress << " and token " << token);
-
-        //remaining categories need offline identifiers
-        Identifier chamberId;
-        Identifier channelId;
-        if(!onlineToOfflineIds(chanAddress, chamberId, channelId).isSuccess())
-            ATH_MSG_ERROR("Cannon get offline Ids from online Id" << std::hex << chanAddress << std::dec);
-		
-        IdentifierHash chanHash;
-        m_idHelper->cscIdHelper().get_channel_hash(channelId, chanHash);
-        writeCdo->setChannelStatus(chanHash, token);
+        // reset the address
         chanAddress = 0;
-
     }
-
 
     return StatusCode::SUCCESS;
 }
 
 
+// cacheVersion2ASM
+StatusCode 
+CscCondDbAlg::cacheVersion2ASM(std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName) {
+
+	std::istringstream ss(data);
+    std::string valueStr;
+    std::string chanAddress;
+    bool setAddress = false;
+
+	bool started = false;
+    while(ss.good()) {
+        ss >> valueStr;
+
+		if(valueStr == "<END_DATA>") break;
+   
+        if(valueStr == "<BEGIN_DATA>"){
+            started = true;
+			continue;
+		}
+		if(!started) continue;
+		ATH_MSG_DEBUG("current element " << valueStr);
+        std::istringstream iss(valueStr);
+
+
+		// use new iss to translate the hex
+        if(!setAddress){
+            iss >> chanAddress;
+            setAddress = true;
+            continue;
+        }
+
+        // chanAddress is the ASM tag, need to do something with it
+        // format: ASM[#:1-5]_[StationEtaString:AorC][stationPhi:1-8]_[stationName:50-51]
+        //         xxx   3   x                  5                6   x             x9
+        int asmNum = atoi(chanAddress.substr(3,1).c_str());
+
+        int stationEta = 0;
+        if     (chanAddress[5] == 'A') stationEta =  1;
+        else if(chanAddress[5] == 'C') stationEta = -1;   
+        else{
+            ATH_MSG_FATAL("Bad ASMID String in CSC COOL database \"" << chanAddress << "\" (wheel " << chanAddress[5] << " doesn't exist!");
+            return StatusCode::FAILURE;
+        }
+         
+        int stationPhi  = atoi(chanAddress.substr(6,1).c_str());
+        int stationName = atoi(chanAddress.substr(8,2).c_str());
+        
+        if(stationPhi < 1 || stationPhi > 8 || stationName < 50 || stationName > 51){
+            ATH_MSG_FATAL("Bad ASMID String in CSC COOL database: \"" << chanAddress << "\"");
+            ATH_MSG_FATAL("Read station phi: " << stationPhi << ", stationName " << stationName);
+            return StatusCode::FAILURE;
+        }
+
+        int chamberLayer = 2;  // chamberLayer1 was never built.
+
+        int measuresPhi  = 0;
+        int layerSince   = 0;
+        int layerUntil   = 0;
+        int stripSince   = 0;
+        int stripUntil   = 0;
+        if(!getAsmScope(asmNum, measuresPhi, layerSince, layerUntil, stripSince, stripUntil).isSuccess()){ 
+            ATH_MSG_FATAL("Failure of getAsmScope in cacheVersion2.");
+            return StatusCode::FAILURE;
+        }
+
+        //  Now for given asmID, loop over strip and layer
+        unsigned int index = 0;
+        Identifier chanId;
+        IdentifierHash hashIdentifier;
+        for(int iStrip = stripSince; iStrip < stripUntil; iStrip++){ 
+            for(int iLayer = layerSince; iLayer < layerUntil; iLayer++){ 
+                chanId = m_idHelper->cscIdHelper().channelID(stationName, stationEta, stationPhi, 
+                                                             chamberLayer, iLayer, measuresPhi, iStrip);
+                m_idHelper->cscIdHelper().get_channel_hash(chanId, hashIdentifier);
+                index = (int) hashIdentifier;
+
+                ATH_MSG_VERBOSE("[cache version 2 (ASM)] Recording "
+                                    << valueStr << " at index " << index 
+                                    << "\nstationName " << stationName
+                                    <<"\nstationEta " << stationEta
+                                    << "\nstationPhi " << stationPhi 
+                                    << "\nchamberLayer " << chamberLayer
+                                    << "\niLayer " << iLayer
+                                    << "\nmeasuresPhi " << measuresPhi
+                                    << "\niStrip " << iStrip); 
+
+                // record parameter
+                if(recordParameter(hashIdentifier, valueStr, writeCdo, parName).isFailure())
+                	return StatusCode::FAILURE;
+            }
+        }
+
+        // reset the address
+        setAddress  = false;
+        chanAddress = "";
+    }
+
+    return StatusCode::SUCCESS;
+}
+
+
+// getAsmScope
+StatusCode 
+CscCondDbAlg::getAsmScope(int asmNum, int &measuresPhi,  int & layerSince, int & layerUntil, int & stripSince , int & stripUntil){
+    // copy-paste from CscCoolStrSvc
+
+    if(asmNum == 1 ){
+        stripSince = 1;  //inclusive
+        stripUntil = 97; //exclusive
+        layerSince = 1; //inclusive
+        layerUntil = 3; //exclusive
+        measuresPhi = 0;
+    }
+    else if(asmNum == 2){
+        stripSince = 1;  //inclusive
+        stripUntil = 97; //exclusive
+        layerSince = 3; //inclusive
+        layerUntil = 5; //exclusive
+        measuresPhi = 0;
+    }
+    else if(asmNum == 3){
+        stripSince = 97; 
+        stripUntil = 193;
+        layerSince = 1;
+        layerUntil = 3;
+        measuresPhi = 0;
+    }
+    else if( asmNum == 4){
+        stripSince = 97; 
+        stripUntil = 193;
+        layerSince = 3;
+        layerUntil = 5;
+        measuresPhi = 0;
+    }
+    else if(asmNum == 5){
+        stripSince = 1;
+        stripUntil = 49;
+        layerSince = 1;
+        layerUntil = 5;
+        measuresPhi = 1;
+    }
+    else {
+        ATH_MSG_FATAL("ASM  number  \"" << asmNum << "\" is invalid. It needs to end in a number from 1-5.");
+        return StatusCode::FAILURE;
+    }
+    return StatusCode::SUCCESS;
+}
+
+
+
+// recordParameter
+StatusCode
+CscCondDbAlg::recordParameter(unsigned int chanAddress, std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName){
+
+    // retrieve channel hash
+    Identifier chamberId;
+    Identifier channelId;
+    if(!writeCdo->onlineToOfflineIds(chanAddress, chamberId, channelId).isSuccess())
+        ATH_MSG_ERROR("Cannon get offline Ids from online Id" << std::hex << chanAddress << std::dec);
+    
+    IdentifierHash chanHash;
+    m_idHelper->cscIdHelper().get_channel_hash(channelId, chanHash);
+    
+    // record parameter
+    return recordParameter(chanHash, data, writeCdo, parName);   
+}
+
+
+// recordParameter
+StatusCode
+CscCondDbAlg::recordParameter(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo, const std::string parName){
+    
+    // record parameter
+    StatusCode sc = StatusCode::FAILURE;
+    if     (parName == "f001"   ) sc = recordParameterF001   (chanHash, data, writeCdo);
+    else if(parName == "noise"  ) sc = recordParameterNoise  (chanHash, data, writeCdo);
+    else if(parName == "ped"    ) sc = recordParameterPed    (chanHash, data, writeCdo);
+    else if(parName == "pslope" ) sc = recordParameterPSlope (chanHash, data, writeCdo);
+    else if(parName == "rms"    ) sc = recordParameterRMS    (chanHash, data, writeCdo);
+    else if(parName == "status" ) sc = recordParameterStatus (chanHash, data, writeCdo);
+    else if(parName == "t0base" ) sc = recordParameterT0Base (chanHash, data, writeCdo);
+    else if(parName == "t0phase") sc = recordParameterT0Phase(chanHash, data, writeCdo);
+
+    if(!sc.isSuccess())
+        ATH_MSG_ERROR("Cannot extract parameter " <<parName<< " for channel hash " <<chanHash<< " from data string '" <<data << "'");
+    return sc;
+}
+
+
+// recordParameterF001
+StatusCode
+CscCondDbAlg::recordParameterF001(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+
+    float token;
+    if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    writeCdo->setChannelF001(chanHash, token);
+    return StatusCode::SUCCESS;
+}
+
+
+// recordParameterNoise
+StatusCode
+CscCondDbAlg::recordParameterNoise(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+
+    float token;
+    if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    writeCdo->setChannelNoise(chanHash, token);
+    return StatusCode::SUCCESS;
+}
+
+
+// recordParameterPed
+StatusCode
+CscCondDbAlg::recordParameterPed(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+
+    float token;
+    if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    writeCdo->setChannelPed(chanHash, token);
+    return StatusCode::SUCCESS;
+}
+
+
+// recordParameterPSlope
+StatusCode
+CscCondDbAlg::recordParameterPSlope(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+
+    float token;
+    if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    writeCdo->setChannelPSlope(chanHash, token);
+    return StatusCode::SUCCESS;
+}
+
+
+// recordParameterRMS
+StatusCode
+CscCondDbAlg::recordParameterRMS(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+
+    float token;
+    if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    writeCdo->setChannelRMS(chanHash, token);
+    return StatusCode::SUCCESS;
+}
+
+
+// recordParameterStatus
+StatusCode
+CscCondDbAlg::recordParameterStatus(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+
+    unsigned int token;
+    if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    writeCdo->setChannelStatus(chanHash, token);
+    return StatusCode::SUCCESS;
+}
+
+
+// recordParameterT0Base
+StatusCode
+CscCondDbAlg::recordParameterT0Base(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+
+    float token;
+    if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    writeCdo->setChannelT0Base(chanHash, token);
+    return StatusCode::SUCCESS;
+}
+
+
+// recordParameterT0Phase
+StatusCode
+CscCondDbAlg::recordParameterT0Phase(IdentifierHash chanHash, std::string data, std::unique_ptr<CscCondDbData>& writeCdo){
+
+    bool token;
+    if(getParameter(chanHash, data, token).isFailure()) return StatusCode::FAILURE;
+    writeCdo->setChannelT0Phase(chanHash, token);
+    return StatusCode::SUCCESS;
+}
+
+
+
+// ID HELPER FUNCTIONS BELOW ------------------------------
+
+/*
+// indexToStringId
+StatusCode 
+CscCondDbAlg::indexToStringId(const unsigned int & index, const std::string & cat, std::string & idString) const {
+    // copy-paste from CscCoolStrSvc
+
+    //There is no string id for the CSC category.
+    if(cat == "CSC") {
+        idString = "";
+        return StatusCode::SUCCESS;
+    } 
+    if(cat == "ENDCAP") {
+        if(index == 0)
+            idString = "-1";
+        if(index == 1)
+            idString = "1";
+        else {
+            ATH_MSG_ERROR("Requested index " << index << " can't be converted to a string Id for the category " << cat);
+            return StatusCode::RECOVERABLE;
+        }
+    }
+
+    //remaining categories need online identifiers
+    unsigned int onlineId = 0;
+    stringstream ss;
+    if(cat == "CHAMBER"){
+        Identifier chamberId;
+        m_idHelper->cscIdHelper().get_id(IdentifierHash(index), chamberId, &m_moduleContext);
+        if(!offlineElementToOnlineId(chamberId, onlineId).isSuccess()) {
+            ATH_MSG_ERROR("Failed converting chamber identifier to online id during stringId gen.");
+            return StatusCode::RECOVERABLE;
+        }
+    } 
+    else if(cat == "LAYER"){
+        unsigned int onlineId;
+        if(!layerHashToOnlineId(index, onlineId)){
+            ATH_MSG_ERROR("Failed at getting online id from layer hash during stringId gen."); 
+        }
+    }
+    else if(cat == "CHANNEL"){
+        Identifier channelId;
+        m_idHelper->cscIdHelper().get_id(IdentifierHash(index), channelId, &m_channelContext);
+        if(!offlineToOnlineId(channelId, onlineId).isSuccess()) {
+            ATH_MSG_ERROR("Failed converting chamber identifier to online id during stringId gen.");
+            return StatusCode::RECOVERABLE;
+        }
+    }
+
+    ss << hex << setfill('0') << setw(5) << onlineId << dec;
+    idString = ss.str();
+    return StatusCode::SUCCESS;
+}
+
+
+// layerHashToOnlineId
+StatusCode
+CscCondDbAlg::layerHashToOnlineId(const unsigned int & layerHash, unsigned int & onlineId) const {
+    // copy-paste from CscCoolStrSvc
+
+    if(layerHash > m_onlineChannelIdsFromLayerHash.size()) {
+		ATH_MSG_ERROR("Tried to lookup online id from layer hash " << layerHash <<". Max is " << m_onlineChannelIdsFromLayerHash.size());
+        return StatusCode::SUCCESS;
+    }
+    onlineId = m_onlineChannelIdsFromLayerHash[layerHash];
+    return StatusCode::SUCCESS;
+}
+
+
+// offlineElementToOnlineId
+StatusCode 
+CscCondDbAlg::offlineElementToOnlineId(const Identifier & id, unsigned int &onlineId) const {
+    // copy-paste from CscCoolStrSvc
+
+    onlineId = 0;
+    //Phi,wireLayer,and strip all are offset by one between the two schemes.
+    //Also, station name is 50 or 51 in Identifiers, but only 0 or 1 in 
+    //the online id.
+    int stationName  	((m_idHelper->cscIdHelper().stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
+    int phi =   		(m_idHelper->cscIdHelper().stationPhi(id) - 1)&0x7  ;		// 0000 1110 0000 0000 0000
+    int eta = 		((m_idHelper->cscIdHelper().stationEta(id) == 1) ? 1:0) &0x1;  	// 0000 0001 0000 0000 0000
+    int chamLay = 		1;		// 0000 0000 1000 0000 0000
+    int wireLay = 		0;		// 0000 0000 0110 0000 0000
+    int measuresPhi = 0;		// 0000 0000 0001 0000 0000
+    int strip = 		0;     	// 0000 0000 0000 1111 1111
+
+    onlineId 	+= (stationName << 16);	// 0001 0000 0000 0000 0000
+    onlineId        += (phi << 13) ;	// 0000 1110 0000 0000 0000
+    onlineId	+= (eta <<12);  	      // 0000 0001 0000 0000 0000
+    onlineId 	+= (chamLay <<11);	    // 0000 0000 1000 0000 0000
+    onlineId	+= (wireLay << 9);	    // 0000 0000 0110 0000 0000
+    onlineId	+= (measuresPhi << 8);	// 0000 0000 0001 0000 0000
+    onlineId	+= strip ;     	      	// 0000 0000 0000 1111 1111
+    return StatusCode::SUCCESS;
+}
+
+
+// offlineToOnlineId
+StatusCode 
+CscCondDbAlg::offlineToOnlineId(const Identifier & id, unsigned int &onlineId) const {
+    // copy-paste from CscCoolStrSvc
+
+    onlineId = 0;
+    //Phi,wireLayer,and strip all are offset by one between the two schemes.
+    //Also, station name is 50 or 51 in Identifiers, but only 0 or 1 in 
+    //the online id.
+    int stationName  	((m_idHelper->cscIdHelper().stationName(id) -50)&0x1 );		// 0001 0000 0000 0000 0000
+    int phi =   		(m_idHelper->cscIdHelper().stationPhi(id) - 1)&0x7  ;		    // 0000 1110 0000 0000 0000
+    int eta = 		((m_idHelper->cscIdHelper().stationEta(id) == 1) ? 1:0) &0x1;  // 0000 0001 0000 0000 0000
+    int chamLay = 		(m_idHelper->cscIdHelper().chamberLayer(id)-1) &0x1;		    // 0000 0000 1000 0000 0000
+    int wireLay = 		(m_idHelper->cscIdHelper().wireLayer(id)-1) &0x3;		      // 0000 0000 0110 0000 0000
+    int measuresPhi = 	(m_idHelper->cscIdHelper().measuresPhi(id) &0x1);		    // 0000 0000 0001 0000 0000
+    int strip;     		                                          // 0000 0000 0000 1111 1111
+
+    //Online and offline phi ids are flipped on A wheel
+    if(m_onlineOfflinePhiFlip && measuresPhi && eta == 1){
+        strip = (48 - (m_idHelper->cscIdHelper().strip(id))) & 0xff;  
+    }
+    else {
+        strip = (m_idHelper->cscIdHelper().strip(id)-1) & 0xff;     		     
+    }
+
+
+    onlineId 	+= (stationName << 16);	// 0001 0000 0000 0000 0000
+    onlineId        += (phi << 13) ;	// 0000 1110 0000 0000 0000
+    onlineId	+= (eta <<12);  	      // 0000 0001 0000 0000 0000
+    onlineId 	+= (chamLay <<11);	    // 0000 0000 1000 0000 0000
+    onlineId	+= (wireLay << 9);	    // 0000 0000 0110 0000 0000
+    onlineId	+= (measuresPhi << 8);	// 0000 0000 0001 0000 0000
+    onlineId	+= strip ;     		      // 0000 0000 0000 1111 1111
+    return StatusCode::SUCCESS;
+}
+
+
+// onlineToOfflineElementId
+StatusCode 
+CscCondDbAlg::onlineToOfflineElementId(const unsigned int & onlineId, Identifier &elementId) const {
+    // copy-paste from CscCoolStrSvc
+
+    int stationName =       ((onlineId >> 16)&0x1) + 50;
+    int phi =               ((onlineId >> 13)&0x7)+1;
+    int eta =               ((((onlineId >> 12)&0x1) == 1) ? 1:-1);
+
+    elementId = m_idHelper->cscIdHelper().elementID(stationName,eta,phi);
+    return StatusCode::SUCCESS;
+}
+
+
+// onlineToOfflineChannelId
+StatusCode 
+CscCondDbAlg::onlineToOfflineChannelId(const unsigned int & onlineId, Identifier &chanId) const {
+    // copy-paste from CscCoolStrSvc
+
+    int stationName =       ((onlineId >> 16)&0x1) + 50;
+    int phi =               ((onlineId >> 13)&0x7)+1;
+    int eta =               ((((onlineId >> 12)&0x1) == 1) ? 1:-1);
+    int chamLay =           ((onlineId>>11)&0x1) +1;
+    int wireLay =           ((onlineId>>9)&0x3) +1;
+    int measuresPhi =       ((onlineId >> 8)&0x1);
+    int strip;
+
+    //Online and offline phi ids are flipped on A wheel
+    if(m_onlineOfflinePhiFlip && measuresPhi && eta == 1){
+        strip = 48 - ((onlineId)&0xff) ; //equivalent: 49 -( onlineId&0xff +1)
+    }
+    else {
+        strip = ((onlineId)&0xff) +1;
+    }
+
+    chanId = m_idHelper->cscIdHelper().channelID(stationName,eta,phi,chamLay,wireLay,measuresPhi,strip);
+    return StatusCode::SUCCESS;
+}
+
 
 // onlineToOfflineIds
 StatusCode 
 CscCondDbAlg::onlineToOfflineIds(const unsigned int & onlineId, Identifier &elementId, Identifier &channelId) const {
+    // copy-paste from CscCoolStrSvc
+
     int stationName =       ((onlineId >> 16)&0x1) + 50;
     int phi =               ((onlineId >> 13)&0x7)+1;
     int eta =               ((((onlineId >> 12)&0x1) == 1) ? 1:-1);
@@ -392,6 +999,7 @@ CscCondDbAlg::onlineToOfflineIds(const unsigned int & onlineId, Identifier &elem
     return StatusCode::SUCCESS;
 }
 
+*/
 
 
 /*
