@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -1147,18 +1147,17 @@ void TRTDetectorFactory_Full::create(GeoPhysVol *world)
   }
 
   // Create and initialize by 0 arrays of descriptors
-  InDetDD::TRT_EndcapDescriptor* descriptorsAB[nSides][nStrawLayMaxEc][m_data->nEndcapPhi];
-  InDetDD::TRT_EndcapDescriptor* descriptorsC[nSides][nStrawLayMaxEc][m_data->nEndcapPhi];
+  std::vector<InDetDD::TRT_EndcapDescriptor*> descriptorsAB[nSides][nStrawLayMaxEc];
+  std::vector<InDetDD::TRT_EndcapDescriptor*> descriptorsC[nSides][nStrawLayMaxEc];
   InDetDD::TRT_EndcapDescriptor* pDescriptor = 0;
   InDetDD::TRT_EndcapElement* element = 0;
 
-  for(iiSide = 0; iiSide<nSides; iiSide++)
-    for(iiPlane = 0; iiPlane < nStrawLayMaxEc; iiPlane++)
-      for(iiPhi = 0; iiPhi < m_data->nEndcapPhi; iiPhi++)
-	{
-	  descriptorsAB[iiSide][iiPlane][iiPhi] = 0;
-	  descriptorsC[iiSide][iiPlane][iiPhi] = 0;
-	}
+  for(iiSide = 0; iiSide<nSides; iiSide++) {
+    for(iiPlane = 0; iiPlane < nStrawLayMaxEc; iiPlane++) {
+      descriptorsAB[iiSide][iiPlane].resize (m_data->nEndcapPhi);
+      descriptorsC[iiSide][iiPlane].resize (m_data->nEndcapPhi);
+    }
+  }
 
 
 
