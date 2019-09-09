@@ -1,12 +1,7 @@
-#define TESTZDC_StripSD
-
 #include "src/ZDC_StripSD.h"
 #include "gtest/gtest.h"
 
-
 #include "TestTools/initGaudi.h"
-#include "src/CollectionMerger.h"
-#include "src/CollectionMerger.cxx"
 
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
@@ -36,15 +31,13 @@ class GaudiEnvironment : public ::testing::Environment {
 class ZDC_StripSDtest : public ::testing::Test {	
   protected:
     virtual void SetUp() override {
-      m_alg = new ISF::CollectionMerger{"CollectionMerger", g_svcLoc};
-      ASSERT_TRUE( m_alg->setProperties().isSuccess() );
+//add something here in the future
     }
 
     virtual void TearDown() override {
-      ASSERT_TRUE( m_alg->finalize().isSuccess() );
-      delete m_alg;
+//add something here in the future
     }
-  ISF::CollectionMerger* m_alg;
+//you can define something here 
 };
 //end of environment setting
 

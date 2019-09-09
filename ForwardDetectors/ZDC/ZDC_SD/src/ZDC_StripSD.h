@@ -14,6 +14,7 @@
 
 // STL header
 #include <string>
+#include <gtest/gtest_prod.h>
 
 // G4 needed classes
 class G4Step;
@@ -21,7 +22,11 @@ class G4HCofThisEvent;
 
 class ZDC_StripSD : public G4VSensitiveDetector
 {
-
+ FRIEND_TEST( ZDC_StripSDtest, ProcessHits );
+ FRIEND_TEST( ZDC_StripSDtest, Initialize );
+ FRIEND_TEST( ZDC_StripSDtest, StartOfAthenaEvent );
+ FRIEND_TEST( ZDC_StripSDtest, EndOfAthenaEvent );
+ FRIEND_TEST( ZDC_StripSDtest, AddHit );
  public:
 
   ZDC_StripSD(const std::string& name, const std::string& hitCollectionName);
@@ -40,11 +45,7 @@ class ZDC_StripSD : public G4VSensitiveDetector
    same SD classes as the standard simulation. */
   template <class... Args> void AddHit(Args&&... args){ m_HitColl->Emplace( args... ); }
 
-#ifdef TESTZDC_StripSD
- public:
-#else
  private:
-#endif
   SG::WriteHandle<ZDC_SimStripHit_Collection> m_HitColl;
   float    m_Edep_Cherenkov_Strip[2][4];
   int   m_NPhoton_Cherenkov_Strip[2][4];
