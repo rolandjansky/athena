@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CSCSensitiveDetector.h"
@@ -7,7 +7,6 @@
 #include <string>
 #include <sstream>
 #include "MuonSimEvent/CscHitIdHelper.h"
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
 #include "G4ChargedGeantino.hh"
@@ -26,7 +25,7 @@ CSCSensitiveDetector::CSCSensitiveDetector(const std::string& name,
 // Implemenation of memebr functions
 void CSCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
-  if (!m_myCSCHitColl.isValid()) m_myCSCHitColl = CxxUtils::make_unique<CSCSimHitCollection>();
+  if (!m_myCSCHitColl.isValid()) m_myCSCHitColl = std::make_unique<CSCSimHitCollection>();
 }
 
 G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) {
