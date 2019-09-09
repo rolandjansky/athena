@@ -97,8 +97,7 @@ CscSegmentUtilTool::CscSegmentUtilTool
 (const std::string& type, const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent), m_gm(0), m_phelper(0), 
     m_rotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
-    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", name)
+    m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
   declareInterface<ICscSegmentUtilTool>(this);
   declareProperty("max_chisquare_tight", m_max_chisquare_tight = 16.); // 16 for outlier removal...
@@ -174,10 +173,7 @@ StatusCode CscSegmentUtilTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_readKey.initialize());
 
   ATH_CHECK(m_eventInfo.initialize());
 
@@ -2533,23 +2529,14 @@ bool CscSegmentUtilTool::isGood(uint32_t stripHashId) const {
 }
 
 int CscSegmentUtilTool::stripStatusBit ( uint32_t stripHashId ) const {
-  uint32_t status = 0x0;
-  if ( !m_cscCoolStrSvc->getStatus(status,stripHashId) ) {
+
+  SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+  const CscCondDbData* readCdo{*readHandle};
+
+  int status = 0;
+  if(!readCdo->readChannelStatus(stripHashId, status).isSuccess())
     ATH_MSG_WARNING ( " failed to access CSC conditions database - status - "
                       << "strip hash id = " << stripHashId );
-
-    uint8_t status2 = 0x0;
-    if ( (m_cscCoolStrSvc->getStatus(status2,stripHashId)).isFailure() ) {
-      ATH_MSG_WARNING ( " failed to access CSC conditions database old way - status - "
-                        << "strip hash id = " << stripHashId );
-    }else{
-      ATH_MSG_INFO ( " Accessed CSC conditions database old way - status - "
-                     << "strip hash id = " << stripHashId );
-    }
-  } else {
-    ATH_MSG_VERBOSE ( "The status word is " << std::hex << status
-      << " for strip hash = " << std::dec << stripHashId );
-  }
   return status;
 }
 

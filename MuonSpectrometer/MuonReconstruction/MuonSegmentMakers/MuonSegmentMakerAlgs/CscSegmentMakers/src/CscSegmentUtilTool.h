@@ -13,7 +13,7 @@
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include "CscClusterization/ICscClusterUtilTool.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonCondData/CscCondDbData.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 //#include "CscClusterization/CalibCscStripFitter.h"
@@ -32,6 +32,7 @@ namespace Muon {
   class CscPrepData;
 }
 class ICscSegmentFinder;
+class CscCondDbData;
 
 class CscSegmentUtilTool : virtual public ICscSegmentUtilTool, public AthAlgTool {
 
@@ -118,8 +119,7 @@ private:  // data
   ToolHandle<Muon::ICscClusterOnTrackCreator> m_rotCreator;
   ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
   
-  ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
-
+  SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
 
   // Convert a local 2D segment to MuonSegment
