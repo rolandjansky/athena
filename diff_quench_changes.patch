@@ -1,0 +1,150 @@
+diff --git a/Calorimeter/CaloG4Sim/CMakeLists.txt b/Calorimeter/CaloG4Sim/CMakeLists.txt
+index e54a2b73d0..1d6c8725c1 100644
+--- a/Calorimeter/CaloG4Sim/CMakeLists.txt
++++ b/Calorimeter/CaloG4Sim/CMakeLists.txt
+@@ -20,7 +20,7 @@ find_package( CLHEP )
+ find_package( Geant4 )
+ find_package( TBB )
+ find_package( XercesC )
+-find_package( GTest REQUIRED )
++
+ # Component(s) in the package:
+ atlas_add_library( CaloG4SimLib
+                    src/*.cc
+@@ -39,9 +39,3 @@ atlas_add_component( CaloG4Sim
+ # Install files from the package:
+ atlas_install_python_modules( python/*.py )
+ 
+-atlas_add_test( EscapedEnergyRegistry_gtest
+-                SOURCES
+-                test/EscapedEnergyRegistry_gtest.cxx
+-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} ${GTEST_LIBRARIES} AthenaBaseComps GaudiKernel G4AtlasInterfaces G4AtlasToolsLib
+-                    CxxUtils MCTruth CaloG4SimLib pthread )
+diff --git a/Calorimeter/CaloG4Sim/CaloG4Sim/derivedVEscapedEnergyProcessing.h b/Calorimeter/CaloG4Sim/CaloG4Sim/derivedVEscapedEnergyProcessing.h
+deleted file mode 100644
+index 5ffd4a941a..0000000000
+--- a/Calorimeter/CaloG4Sim/CaloG4Sim/derivedVEscapedEnergyProcessing.h
++++ /dev/null
+@@ -1,52 +0,0 @@
+-/*
+-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+-*/
+-
+-// VEscapedEnergyProcessing
+-// 13-Jul-2004 William Seligman
+-
+-#ifndef CaloG4_derivedVEscapedEnergyProcessing_H
+-#define CaloG4_derivedVEscapedEnergyProcessing_H
+-
+-#include "G4Step.hh"
+-#include "globals.hh"
+-#include "CaloG4Sim/VEscapedEnergyProcessing.h"
+-
+-namespace CaloG4
+-{
+-
+-  /// @class VEscapedEnergyProcessing
+-  /// @brief Virtual interface for escaped energy processor classes.
+-  ///
+-  /// The SimulationEnergies class provides a common procedure for
+-  /// categorizing the energy deposited in a given G4Step.  However,
+-  /// different detectors have different scheme for handling one of the
+-  /// categories: escaped energy.
+-  ///
+-  /// The issue is that, if a particle's energy is lost by escaping the
+-  /// simulation, you don't want to record that energy in the volume it
+-  /// escapes; you want to record that energy in the volume in which the
+-  /// particle was created.  Neutrinos are a good example of this.
+-  ///
+-  /// In effect, the SimulationEnergies class has to issue an "interrupt"
+-  /// to some other volume than the current G4Step, telling that other
+-  /// volume to accumulate the energy of the escaped particle.  The Tile
+-  /// Simulation and the LAr simulation handle this interrupt
+-  /// differently, since they organize sensitive detectors in a different
+-  /// way.
+-  ///
+-  /// This interface "hides" the different escaped-energy processing
+-  /// required by the different detectors in the simulation.
+-  ///
+-  class derivedVEscapedEnergyProcessing : public VEscapedEnergyProcessing
+-  {
+-
+-  public:
+-
+-    virtual G4bool Process( G4Step* ) { return true; }
+-
+-  };
+-
+-} // namespace CaloG4
+-
+-#endif // CaloG4_derivedVEscapedEnergyProcessing_H
+diff --git a/Calorimeter/CaloG4Sim/test/EscapedEnergyRegistry_gtest.cxx b/Calorimeter/CaloG4Sim/test/EscapedEnergyRegistry_gtest.cxx
+deleted file mode 100644
+index 370f719e1f..0000000000
+--- a/Calorimeter/CaloG4Sim/test/EscapedEnergyRegistry_gtest.cxx
++++ /dev/null
+@@ -1,20 +0,0 @@
+-#include "CaloG4Sim/EscapedEnergyRegistry.h"
+-#include "CaloG4Sim/derivedVEscapedEnergyProcessing.h"
+-#include "gtest/gtest.h"
+-
+-TEST( testcase, test1 ) {
+-
+-const G4String name = "processing";
+-CaloG4::EscapedEnergyRegistry* classToTest = CaloG4::EscapedEnergyRegistry::GetInstance();
+-CaloG4::derivedVEscapedEnergyProcessing* classToOperate = new CaloG4::derivedVEscapedEnergyProcessing();
+-classToTest->AddAndAdoptProcessing( name, classToOperate );
+-ASSERT_EQ( classToOperate, classToTest->GetProcessing( name ) );
+-
+-}
+-//add something
+-int main(int argc, char **argv) {
+-
+-    testing::InitGoogleTest(&argc, argv);
+-    return RUN_ALL_TESTS();
+-
+-}
+diff --git a/Simulation/G4Atlas/G4AtlasTools/src/G4FieldManagerToolBase.cxx b/Simulation/G4Atlas/G4AtlasTools/src/G4FieldManagerToolBase.cxx
+index ae3efd9378..9b82794ab9 100644
+--- a/Simulation/G4Atlas/G4AtlasTools/src/G4FieldManagerToolBase.cxx
++++ b/Simulation/G4Atlas/G4AtlasTools/src/G4FieldManagerToolBase.cxx
+@@ -16,18 +16,7 @@
+ #include "G4NystromRK4.hh"
+ #include "G4ClassicalRK4.hh"
+ #include "G4AtlasRK4.hh"
+-#include "G4BogackiShampine23.hh"
+-#include "G4BogackiShampine45.hh"
+-#include "G4CashKarpRKF45.hh"
+-#include "G4DoLoMcPriRK34.hh"
+-#include "G4DormandPrince745.hh"
+-#include "G4DormandPrinceRK56.hh"
+-#include "G4DormandPrinceRK78.hh"
+-#include "G4RK547FEq1.hh"
+-#include "G4RK547FEq2.hh"
+-#include "G4RK547FEq3.hh"
+-#include "G4RKG3_Stepper.hh"
+-#include "G4TsitourasRK45.hh"
++
+ // CLHEP includes
+ #include "CLHEP/Units/SystemOfUnits.h"
+ 
+@@ -120,18 +109,6 @@ G4FieldManagerToolBase::getStepper(std::string name, G4MagneticField* field) con
+   else if (name=="NystromRK4") return new G4NystromRK4(eqRhs);
+   else if (name=="ClassicalRK4") return new G4ClassicalRK4(eqRhs);
+   else if (name=="AtlasRK4") return new G4AtlasRK4(eqRhs);
+-  else if (name=="BogackiShampine23") return new G4BogackiShampine23(eqRhs);
+-  else if (name=="BogackiShampine45") return new G4BogackiShampine45(eqRhs);
+-  else if (name=="CashKarpRKF45") return new G4CashKarpRKF45(eqRhs);
+-  else if (name=="DoLoMcPriRK34") return new G4DoLoMcPriRK34(eqRhs);
+-  else if (name=="DormandPrince745") return new G4DormandPrince745(eqRhs);
+-  else if (name=="DormandPrinceRK56") return new G4DormandPrinceRK56(eqRhs);
+-  else if (name=="DormandPrinceRK78") return new G4DormandPrinceRK78(eqRhs);
+-  else if (name=="RK547FEq1") return new G4RK547FEq1(eqRhs);
+-  else if (name=="RK547FEq2") return new G4RK547FEq2(eqRhs);
+-  else if (name=="RK547FEq3") return new G4RK547FEq3(eqRhs);
+-  else if (name=="RKG3_Stepper") return new G4RKG3_Stepper(eqRhs);
+-  else if (name=="TsitourasRK45") return new G4TsitourasRK45(eqRhs);
+   else {
+     ATH_MSG_ERROR("Stepper " << name << " not available! returning NystromRK4!");
+     return new G4NystromRK4(eqRhs);

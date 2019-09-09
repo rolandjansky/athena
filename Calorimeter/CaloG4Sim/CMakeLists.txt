@@ -20,7 +20,7 @@ find_package( CLHEP )
 find_package( Geant4 )
 find_package( TBB )
 find_package( XercesC )
-find_package( GTest REQUIRED )
+
 # Component(s) in the package:
 atlas_add_library( CaloG4SimLib
                    src/*.cc
@@ -39,9 +39,3 @@ atlas_add_component( CaloG4Sim
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 
-atlas_add_test( EscapedEnergyRegistry_gtest
-                SOURCES
-                test/EscapedEnergyRegistry_gtest.cxx
-                INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} ${GTEST_LIBRARIES} AthenaBaseComps GaudiKernel G4AtlasInterfaces G4AtlasToolsLib
-                    CxxUtils MCTruth CaloG4SimLib pthread )
