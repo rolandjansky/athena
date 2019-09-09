@@ -130,3 +130,9 @@ if configureBSResult:
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
     hltResultMaker = svcMgr.HltEventLoopMgr.ResultMaker
     hltResultMaker.MakerTools = [stmaker, serialiser] # TODO: add bits maker
+
+m = findAlgorithm(topSequence,'TrigSignatureMoniMT')
+print m
+m.OutputLevel=DEBUG
+
+

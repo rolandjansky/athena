@@ -119,31 +119,11 @@ def createCFTree(CFseq):
 ## CORE of Decision Handling
 #######################################
 
-def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
+def makeHLTTree(newJO=False, triggerConfigHLT = None):
     """ creates the full HLT tree"""
 
     # Check if triggerConfigHLT exits, if yes, derive information from this
     # this will be in use once TrigUpgrade test has migrated to TriggerMenuMT completely
-
-    if triggerConfigHLT:
-        assert len(triggerConfigHLT.allChainConfigs) != 0, "Chain configurations passed, but list of configurations it is empty"
-        assert len(triggerConfigHLT.allChainDicts) != 0, "Chain configurations passed, but list of chain dicts it is empty"
-        assert HLTChains is None, "Both triggerConfigHLT and HLTChains list passed to CF building, either one or the other shoudl be used"
-        allChainConfigs = triggerConfigHLT.allChainConfigs
-        allChainDicts = triggerConfigHLT.allChainDicts
-    else:
-        log.info("No triggerConfigHLT was passed, only relying on HLTChains now, in this mode complex chains can not be handled")
-        log.info("Creating necessary chainDict info now")
-
-        allChainConfigs = HLTChains
-        allChainDicts = []
-        from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-        decodeChainName = DictFromChainName.DictFromChainName()
-        for chain in allChainConfigs:
-            chainDict = decodeChainName.getChainDict(chain.name)
-            allChainDicts.append(chainDict)
-            from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-        TriggerConfigHLT.currentTriggerConfig().allChainDicts = allChainDicts # need to fill it because HypoTool creation needs it
 
     # lock flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -165,7 +145,7 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     topSequence.remove( l1decoder )
 
     # set CTP chains before creating the full tree (and the monitor)
-    EnabledChainNamesToCTP = dict([ (c["chainName"], c["L1item"])  for c in allChainDicts])
+    EnabledChainNamesToCTP = dict([ (c["chainName"], c["L1item"])  for c in triggerConfigHLT.dictsList()])
     l1decoder[0].ChainToCTPMapping = EnabledChainNamesToCTP
 
     # main HLT top sequence
@@ -179,7 +159,7 @@ def makeHLTTree(HLTChains, newJO=False, triggerConfigHLT = None):
     hltTop +=  steps
 
     # make DF and CF tree from chains
-    finalDecisions = decisionTree_From_Chains(steps, allChainConfigs, allChainDicts, newJO)
+    finalDecisions = decisionTree_From_Chains(steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
 
     flatDecisions=[]
     for step in finalDecisions:

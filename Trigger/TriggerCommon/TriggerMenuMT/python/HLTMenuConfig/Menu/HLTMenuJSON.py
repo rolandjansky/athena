@@ -67,9 +67,9 @@ def generateJSON():
     __log.info("Generating HLT JSON config in the rec-ex-common job")
     from TriggerJobOpts.TriggerFlags import TriggerFlags
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-    triggerConfigHLT = TriggerConfigHLT.currentTriggerConfig()
 
-    return __generateJSON( triggerConfigHLT.allChainDicts, triggerConfigHLT.allChainConfigs, TriggerFlags.triggerMenuSetup() )
+
+    return __generateJSON( TriggerConfigHLT.dictsList(), TriggerConfigHLT.configsList(), TriggerFlags.triggerMenuSetup() )
     
 def generateJSON_newJO( chainDicts, chainConfigs ):
     __log.info("Generating HLT JSON config in the new JO")

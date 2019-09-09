@@ -291,7 +291,7 @@ if opt.doCombinedSlice == True:
 ##### Make all HLT #######
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
-makeHLTTree( None, triggerConfigHLT=TriggerConfigHLT.currentTriggerConfig() )
+makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
 
 
 ##########################################
