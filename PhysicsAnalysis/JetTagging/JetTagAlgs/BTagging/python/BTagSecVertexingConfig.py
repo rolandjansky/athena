@@ -46,14 +46,20 @@ def BTagSecVtxToolCfg(flags, name, JetCollection, outputObjs = None, **options):
 
     varFactory = acc.popToolsAndMerge(MSVVariablesFactoryCfg("MSVVarFactory"))
 
-    options = dict(options)
+    new_prefix = options.get('new_prefix', None)
+    if new_prefix:
+        btagname = new_prefix + jetcol
+    else:
+        btagname = flags.BTagging.OutputFiles.Prefix + jetcol
+
+    options = {}
     options.setdefault('SecVtxFinderList', secVtxFinderList)
     options.setdefault('SecVtxFinderTrackNameList', secVtxFinderTrackNameList)
     options.setdefault('SecVtxFinderxAODBaseNameList', secVtxFinderxAODBaseNameList)
     options.setdefault('PrimaryVertexName',BTaggingFlags.PrimaryVertexCollectionName)
     options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
-    options.setdefault('BTagJFVtxCollectionName', flags.BTagging.OutputFiles.Prefix + jetcol + OutputFilesJFVxname)
-    options.setdefault('BTagSVCollectionName', flags.BTagging.OutputFiles.Prefix + jetcol + OutputFilesSVname)
+    options.setdefault('BTagJFVtxCollectionName', btagname + OutputFilesJFVxname)
+    options.setdefault('BTagSVCollectionName', btagname + OutputFilesSVname)
     options.setdefault('JetFitterVariableFactory', jetFitterVF)
     options.setdefault('MSVVariableFactory', varFactory)
     options['name'] = name

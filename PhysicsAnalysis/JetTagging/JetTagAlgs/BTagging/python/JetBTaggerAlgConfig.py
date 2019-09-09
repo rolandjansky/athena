@@ -24,15 +24,16 @@ def JetBTaggerAlgCfg(ConfigFlags, JetCollection="", TaggerList=[], SetupScheme="
     
     # setup the secondary vertexing tool
     from BTagging.BTagSecVertexingConfig import BTagSecVtxToolCfg
-    options.setdefault('BTagSecVertexing', acc.popToolsAndMerge(BTagSecVtxToolCfg(ConfigFlags, 'SecVx'+ConfigFlags.BTagging.GeneralToolSuffix, jetcol, outputObjs = objs)))
+    options.setdefault('BTagSecVertexing', acc.popToolsAndMerge(BTagSecVtxToolCfg(ConfigFlags, 'SecVx'+ConfigFlags.BTagging.GeneralToolSuffix, jetcol, outputObjs = objs, **options)))
 
-    # Set remaining options
     new_prefix = options.get('new_prefix', None)
     if new_prefix:
         btagname = new_prefix + jetcol
         del options['new_prefix']
     else:
         btagname = ConfigFlags.BTagging.OutputFiles.Prefix + jetcol
+
+    # Set remaining options
     options.setdefault('name', (btagname + ConfigFlags.BTagging.GeneralToolSuffix).lower())
     options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
     options.setdefault('JetCalibrationName', jetcol.replace('Track','PV0Track'))
