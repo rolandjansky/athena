@@ -473,16 +473,18 @@ HIGG8D1SlimmingHelper.SmartCollections = ["Electrons",
                                           #"BTagging_AntiKt4LCTopo",
                                           "MET_Reference_AntiKt4EMTopo",
                                           "AntiKt4EMTopoJets",
-                                          "BTagging_AntiKt4EMTopo",
+                                          "BTagging_AntiKt4EMTopo_201810",
+																					"BTagging_AntiKt4EMPFlow_201810",
+																					"BTagging_AntiKt4EMPFlow_201903",
+																					"AntiKt4EMPFlowJets_BTagging201810",
+																					"AntiKt4EMPFlowJets_BTagging201903",
+																					"AntiKt4EMTopoJets_BTagging201810",
                                           "InDetTrackParticles",
                                           "PrimaryVertices",
                                           "AntiKt4EMPFlowJets"]
 # Adding PFlow b-jets
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit 
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = HIGG8D1Seq) 
-
-HIGG8D1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer'}
-HIGG8D1SlimmingHelper.SmartCollections += ["BTagging_AntiKt4EMPFlow"] 
 
 # Adding PFlow MET
 HIGG8D1SlimmingHelper.SmartCollections += ["MET_Reference_AntiKt4EMPFlow"] 
