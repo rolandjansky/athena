@@ -106,9 +106,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-
-
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 using namespace std;
