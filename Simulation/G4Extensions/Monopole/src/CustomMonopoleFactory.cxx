@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -117,7 +117,6 @@ void CustomMonopoleFactory::loadCustomMonopoles()
 	      G4cout << "CustomMonopoleFactory: XX = " << XX << ", YY = " << YY << G4endl;
 
 	      elChargeFromPDGcode = (pdgCode>0) ? round(100.*XX/YY)/100. : -round(100.*XX/YY)/100.;
-	      //elChargeFromPDGcode = (pdgCode>0) ? floor(100*XX/YY)/100 : -floor(100*XX/YY)/100;
 	      G4cout << "CustomMonopoleFactory: elChargeFromPDGcode = " << elChargeFromPDGcode << G4endl;
 	    }
 
