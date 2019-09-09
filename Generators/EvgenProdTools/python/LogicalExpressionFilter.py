@@ -22,7 +22,7 @@ from GaudiKernel.GaudiHandles import *
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.Logging import logging
 
-import tokenize
+import tokenize, random
 from cStringIO import StringIO
 
 class LogicalExpressionFilter( PyAthena.Alg ):
@@ -50,6 +50,9 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         # Create the filters list
         self.filters = []
         
+        # Optional sampling - needs random numbers
+        self.Sampling = -1.
+
         #where the transformed cmd goes
         self.cmd = ""
 
@@ -157,6 +160,10 @@ class LogicalExpressionFilter( PyAthena.Alg ):
             self.msg.fatal("%s is not a valid Python expression string. Exception: %s" % (self.Expression,e))
             return StatusCode.Failure
 
+            # If needed, set up a random number generator
+            if self.Sampling>=0:
+                random.seed(1234)
+
         return StatusCode.Success
 
     def evalFilter(self, filterName):
@@ -187,13 +194,24 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         else:
             event_weight = weights[0]
 
+        response = bool(eval(self.cmd)) if self.cmd else True
+
+        if self.Sampling==0:
+            mc[0].weights().push_back( int(response) )
+        elif not response:
+            self.msg.info('Failed filter with sampling %s and weight %s'%(self.Sampling,mc[0].weights()[0]))
+            response = random.random()<self.Sampling
+            for a in xrange(len(mc[0].weights())): mc[0].weights()[a] /= self.Sampling
+            event_weight /= self.Sampling
+            self.msg.info('Now filter is %s and weight %s'%(response,mc[0].weights()[0]))
+
         self.nEventsProcessed+=1
         self.nEventsProcessedWeighted+=event_weight
         if event_weight > 0 :
             self.nEventsProcessedPosWeighted+=event_weight
         else :
             self.nEventsProcessedNegWeighted+=abs(event_weight)
-        response = bool(eval(self.cmd)) if self.cmd else True
+
         if response:
             self.nEventsPassed+=1
             self.nEventsPassedWeighted+=event_weight
