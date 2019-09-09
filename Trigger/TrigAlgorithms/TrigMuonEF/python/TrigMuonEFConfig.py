@@ -60,7 +60,7 @@ TrigCaloFillRectangularCluster = PublicToolFactory( Cccc.CaloFillRectangularClus
 
 if not hasattr(ServiceMgr,"TrackingVolumesSvc"):
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
-    ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
+    ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc")
 
 def TMEF_MaterialEffectsUpdator(name='TMEF_MaterialEffectsUpdator',**kwargs):
     return CfgMgr.Trk__MaterialEffectsUpdator(name,**kwargs)

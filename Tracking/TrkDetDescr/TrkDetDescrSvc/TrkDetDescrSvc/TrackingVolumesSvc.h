@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,14 +53,11 @@ namespace Trk {
       / N.B. Don't forget to release the interface after use!!! **/
       StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   
-      /** Create the geometry */
-      StatusCode trackingVolumesInit(IOVSVC_CALLBACK_ARGS);
-  
       /** @copydoc ITrackingVolumesSvc::volume() */
-      const Trk::Volume& volume(const TrackingVolumeIdentifier& volumeId) const;
+      virtual const Trk::Volume& volume(const TrackingVolumeIdentifier& volumeId) const override;
   
       /** @copydoc ITrackingVolumesSvc::volumeName() */
-      const std::string& volumeName(const TrackingVolumeIdentifier& volumeId) const;
+      virtual const std::string& volumeName(const TrackingVolumeIdentifier& volumeId) const override;
   
       friend class SvcFactory<TrackingVolumesSvc>;
   
@@ -79,9 +76,6 @@ namespace Trk {
       std::vector<const Trk::Volume*>             m_volumes;
       /** the names of the TrackingVolumes */
       std::vector<std::string >                   m_volumeNames;
-  
-      //!< enables the callback
-      bool                                        m_buildGeometryFromTagInfo;
   
   };
 }
