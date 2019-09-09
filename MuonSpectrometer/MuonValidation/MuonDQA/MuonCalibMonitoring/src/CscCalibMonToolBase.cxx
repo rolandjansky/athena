@@ -48,7 +48,6 @@ using namespace std;
     m_monGroupVec(NULL),
     m_muon_mgr(NULL),
     m_cscIdHelper(NULL),
-    m_cscCoolSvc(NULL),
     m_statDbColl(NULL)
 {
    
@@ -83,7 +82,7 @@ StatusCode CscCalibMonToolBase::initialize()
   ATH_CHECK( detStore()->retrieve(m_cscIdHelper,"CSCIDHELPER") );
   ATH_MSG_DEBUG( " Found the CscIdHelper. "  );
 
-  ATH_CHECK( service("MuonCalib::CscCoolStrSvc",m_cscCoolSvc) );
+  ATH_CHECK( m_readKey.initialize() );
 
   //m_generic_path_csccalibmonitoring = "Muon/MuonCalibrationMonitoring/CSC";
   m_generic_path_csccalibmonitoring = "MUON_CSC";
@@ -688,6 +687,9 @@ StatusCode CscCalibMonToolBase::bookHistograms()
     if(m_doStatDb){
       //This is a histogram collection both derived classes will probably like
 
+      SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+      const CscCondDbData* readCdo{*readHandle};
+
       m_statDbColl = new HistCollection(m_maxHashId +1);
       string statDbName = "stat_cool";
       string statDbTitle = "Status Word Value From COOL";
@@ -706,8 +708,8 @@ StatusCode CscCalibMonToolBase::bookHistograms()
       //Loop through channels retrieving status words
       for(unsigned int chanItr = 0; chanItr <= m_maxHashId; chanItr++){
         if(m_expectedHashIdsAll.count(chanItr)) {
-          uint8_t statWord;
-          if(!(m_cscCoolSvc->getStatus(statWord, chanItr)).isSuccess()){
+          int statWord;
+          if(!readCdo->readChannelStatus(chanItr, statWord).isSuccess()){
             ATH_MSG_WARNING( "Failed to retrieve statword for hashId " 
                              << chanItr  );
           }
@@ -807,6 +809,9 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
   //missing channels
   set<int> missingChannels = procParameterInput->expectedChannels;
 
+  SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+  const CscCondDbData* readCdo{*readHandle};
+
   //--Cycle through values and fill histograms
   int numFailures = 0, maxFailures = 10;
   CscCalibResultCollection::const_iterator chanItr = parVals->begin();
@@ -827,7 +832,7 @@ StatusCode CscCalibMonToolBase::procParameter(const CscCalibResultCollection *pa
     if(procParameterInput->dbName != "")
     {
       //Get expected value from database
-      if(!(m_cscCoolSvc->getParameter(oldVal, procParameterInput->dbName, hashId)).isSuccess())
+      if(!(readCdo->readChannelParam(hashId, oldVal, procParameterInput->dbName)).isSuccess())
       {
         numFailures++;
         ATH_MSG_WARNING( "CscCalibMonToolBase :  Failed to retrieve parameter"

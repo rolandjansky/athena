@@ -936,6 +936,9 @@ StatusCode CscCalibMonToolSlope::makeFracGraphs(const CscCalibReportSlope & slop
 StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & slopeReport)
 {//This function has grown a bit unwieldly, and duplicates info in sets and arrays. Can this be merged?
 
+  SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+  const CscCondDbData* readCdo{*readHandle};
+
   //****Find Dead channels
   IdContext channelContext = m_cscIdHelper->channel_context(); 
 
@@ -986,7 +989,7 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
     //if its dead
     float adc, ped;
     bool wasDead, isDead;
-    uint8_t statusWord;
+    int statusWord;
     for(unsigned int hashItr = 0; hashItr <= m_maxHashId ; hashItr++)
     {
       Identifier id;
@@ -998,8 +1001,8 @@ StatusCode CscCalibMonToolSlope::findDeadChannels(const CscCalibReportSlope & sl
       if(chamberLayer == 2 && pulsedChambers->count((int)chamberHash))
       {//This is a good chamber layer and it is a pulsed chamber
 
-        m_cscCoolSvc->getStatus(statusWord, hashItr);
-        m_cscCoolSvc->getParameter(ped,"ped", hashItr);
+        ATH_CHECK(readCdo->readChannelStatus(hashItr, statusWord));
+        ATH_CHECK(readCdo->readChannelPed   (hashItr, ped       ));
         wasDead = statusWord & 0x1;
 
         adc = ampProf->GetBinContent( hashItr + 1 );

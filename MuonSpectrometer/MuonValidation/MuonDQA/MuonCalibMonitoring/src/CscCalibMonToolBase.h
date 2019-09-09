@@ -32,10 +32,12 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonCondData/CscCondDataCollection.h"
 #include "MuonCondData/CscCondDataContainer.h"
-#include "MuonCondInterface/CscICoolStrSvc.h"
+#include "MuonCondData/CscCondDbData.h"
 
 #include "CscCalibData/CscCalibResultContainer.h"
 
+
+class CscCondDbData;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -179,8 +181,7 @@ class CscCalibMonToolBase: public ManagedMonitorToolBase
         const CscIdHelper * m_cscIdHelper;
 
         /**Access to COOL database*/
-        MuonCalib::CscICoolStrSvc* m_cscCoolSvc;
-
+        SG::ReadCondHandleKey<CscCondDbData> m_readKey{this, "ReadKey", "CscCondDbData", "Key of CscCondDbData"};   
 
 
         /**
