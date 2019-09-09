@@ -5,7 +5,7 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 from TriggerMenuMT.HLTMenuConfig.CommonSequences.InDetSetup import makeInDetAlgs
 
-eventAlgs,viewAlgs = makeInDetAlgs(whichSignature='FS', separateTrackParticleCreator='MinBias')
+viewAlgs, eventAlgs = makeInDetAlgs(whichSignature='MinBias', separateTrackParticleCreator='MinBias')
 
 for viewAlg in viewAlgs:
         if "RoIs" in viewAlg.properties():
@@ -16,21 +16,13 @@ for viewAlg in viewAlgs:
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence  = AlgSequence()
 topSequence.L1Decoder.ChainToCTPMapping={"HLT_mbsptrk":"L1_RD0_FILLED"}
-topSequence += eventAlgs
-
-topSequence.InDetSCTRawDataProvider_FS.RoIs   = "FSRoI"
-topSequence.InDetPixelRawDataProvider_FS.RoIs = "FSRoI"
-topSequence.InDetTRTRawDataProvider_FS.RoIs   = "FSRoI"
-topSequence.InDetSCT_Clusterization_FS.RoIs   = "FSRoI"
-topSequence.InDetPixelClusterization_FS.RoIs  = "FSRoI"
-topSequence.TrigFastTrackFinder_FS.RoIs       = "FSRoI"
+topSequence += viewAlgs
 
 from TrigT2MinBias.TrigT2MinBiasConf import TrigCountSpacePointsMT, SPCountHypoAlgMT, SPCountHypoTool
 SpCount=TrigCountSpacePointsMT()
 SpCount.OutputLevel= DEBUG
 SpCount.SpacePointsKey="HLT_SpacePointCounts"
 topSequence += SpCount
-
 
 def makeAndSetHypo( alg, hypoClass, **hypokwargs):
     hypoTool = hypoClass( **hypokwargs )
@@ -46,9 +38,6 @@ makeAndSetHypo( SpCountHypo, SPCountHypoTool, name="HLT_mbsptrk", OutputLevel=DE
 SpCountHypo.HypoOutputDecisions="SPDecisions"
 SpCountHypo.SpacePointsKey="HLT_SpacePointCounts"
 topSequence += SpCountHypo
-
-topSequence.InDetTrigTrackParticleCreatorAlgMinBias.roiCollectionName="FSRoI"
-topSequence.InDetTrigTrackParticleCreatorAlgMinBias.TrackName = "TrigFastTrackFinder_TracksMinBias"
 
 from TrigMinBias.TrigMinBiasConf import TrackCountHypoAlgMT, TrackCountHypoTool
 TrackCountHypo=TrackCountHypoAlgMT()
