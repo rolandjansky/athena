@@ -177,6 +177,9 @@ m_thinningSvc("ThinningSvc",n)
                      m_pdgIdsToKeep={},
                      "List of PDG IDs to always keep");
 
+    declareProperty ("LongLivedPDGIDs",
+                     m_longLivedPdgIds={},
+                     "List of PDG IDs of long lived particles so that one can store their children");
 }
 
 // Destructor
@@ -324,6 +327,13 @@ bool DerivationFramework::MenuTruthThinning::isAccepted(const xAOD::TruthParticl
 
     int pdg_id = std::abs(p->pdgId());
     int barcode = p->barcode();
+
+    // All explicitly requested PDG IDs of long lived particles, this is needed
+    // because their childrens barcodes can be above the cut off m_geantOffset = 200000
+    if(m_longLivedPdgIds.size()>0 && parentIsLongLived(p)){
+      ok=true;
+    }
+
 
     if (barcode > m_geantOffset && !m_writeGeant && !m_writeEverything && !ok) {
         if (! (pdg_id == 22/*PDG::gamma*/ &&
@@ -747,3 +757,16 @@ bool DerivationFramework::MenuTruthThinning::isFsrFromLepton(const xAOD::TruthPa
     return false;
 }
 
+bool DerivationFramework::MenuTruthThinning::parentIsLongLived(const xAOD::TruthParticle* part) const {
+  //loop over the parents of the truth particle, if the parent is in the list of long lived particles
+  //store this truth particle.
+  for(size_t parent_itr = 0; parent_itr < part->nParents(); parent_itr++){
+    if(!part->parent(parent_itr)) continue;
+    const xAOD::TruthParticle* parent = part->parent(parent_itr);
+    const int parent_abs_pdgid = abs(parent->pdgId());
+    if(std::find(m_longLivedPdgIds.begin(), m_longLivedPdgIds.end(), parent_abs_pdgid) != m_longLivedPdgIds.end() ){
+      return true;
+    }
+  }
+  return false;
+}
