@@ -24,11 +24,15 @@
 #include <algorithm>
 #include <map>
 
-#include <iostream>
 
 FlowNetworkMatcherBase::FlowNetworkMatcherBase(std::size_t nConditions) :
   m_nConditions(nConditions){
   // remainder of members initialised by derived classes.
+}
+
+void
+FlowNetworkMatcherBase::setFlowNetworkBuilder(std::unique_ptr<IFlowNetworkBuilder> b){
+  m_flowNetworkBuilder = std::move(b);
 }
 
 std::optional<bool>
@@ -55,14 +59,12 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
      the sink.
   */
 
-  std::cerr<< "FlowNetworkMatcherBase::match sent 0 \n";
   if(!m_nConditions){
     if(collector){
       collector->collect("FlowNetworkMatcherBase", "No conditions configured");
     }
     return std::make_optional<bool>(false);
   }
-  std::cerr<< "FlowNetworkMatcherBase::match sent 100 \n";
   
   // Determine jet group - condition satisfaction.
 
@@ -77,7 +79,6 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
     }
     return std::make_optional<bool>(false);
   }
-  std::cerr<< "FlowNetworkMatcherBase::match sent 300 \n";
 
   std::map<int, pHypoJet> nodeToJet; 
 
@@ -86,14 +87,12 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
                                           groups_e,
                                           collector,
                                           nodeToJet);
-  std::cerr<< "FlowNetworkMatcherBase::match sent 400 \n";
   if(!G.has_value()){
     if(collector){collector -> collect("MaximumBipartiteGroupsMatcher",
 				       "Network construction early return");}
     return std::make_optional<bool> (false);
   }
 
-  std::cerr<< "FlowNetworkMatcherBase::match sent 500 \n";
   
   if(collector){
     std::stringstream ss;
@@ -101,7 +100,6 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
     collector->collect("MaximumBipartiteGroupsMatcher - before", ss.str());
   }
   
-  std::cerr<< "FlowNetworkMatcherBase::match sent 600 \n";
   auto V = (*G)->V();
   FordFulkerson ff (**G, 0, V-1);
   if(ff.error()){
@@ -138,11 +136,12 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
                              edges.end(),
                              [V](const auto& edge){return edge->to() == V-1 and
                                                    std::round(edge->flow()) == 1;});
-  
+
   std::transform(edges.begin(),
                  iter,
                  std::back_inserter(passing_jets),
                  [&nodeToJet](const auto& edge){return nodeToJet[edge->from()];});
+
 
   jetCollector.addJets(passing_jets.cbegin(), passing_jets.cend());
 	       

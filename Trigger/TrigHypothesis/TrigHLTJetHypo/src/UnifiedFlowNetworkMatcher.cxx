@@ -41,11 +41,12 @@ UnifiedFlowNetworkMatcher::UnifiedFlowNetworkMatcher(ConditionsMT&& cs,
 		    [&cs](auto sum, auto index) {
 		      return  sum + cs[index]->capacity();});
 
-  m_totalCapacity = totalCapacity;
+  setTotalCapacity(totalCapacity);
 
-  m_flowNetworkBuilder =
-    std::move(std::make_unique<UnifiedFlowNetworkBuilder>(std::move(cs),
-							  tree));
+  setFlowNetworkBuilder(
+			std::move(std::make_unique<UnifiedFlowNetworkBuilder>(std::move(cs),
+									      tree))
+			);			
   
 }
 

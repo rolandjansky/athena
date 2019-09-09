@@ -26,20 +26,22 @@
 
 MaximumBipartiteGroupsMatcherMT::MaximumBipartiteGroupsMatcherMT(ConditionsMT&& cs) : FlowNetworkMatcherBase(cs.size()){
 
+  double totalCapacity{0};
   for(const auto& cond : cs){
-    m_totalCapacity += cond->capacity();
+    totalCapacity += cond->capacity();
   }
-
-  m_flowNetworkBuilder =
-    std::move(std::make_unique<MultijetFlowNetworkBuilder>(std::move(cs)));
+  setTotalCapacity(totalCapacity);
   
+  
+  auto builder = std::make_unique<MultijetFlowNetworkBuilder>(std::move(cs));
+  setFlowNetworkBuilder(std::move(builder));
 }
 
 std::string MaximumBipartiteGroupsMatcherMT::toString() const  {
   std::stringstream ss;
 
   ss << "MaximumBipartiteGroupsMatcherMT \n";
-  ss << m_flowNetworkBuilder -> toString(); 
+  ss << FlowNetworkMatcherBase::toString(); 
 
   return ss.str();
 }

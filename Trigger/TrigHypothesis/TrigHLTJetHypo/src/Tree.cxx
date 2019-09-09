@@ -3,7 +3,6 @@
 */
 
 #include "./Tree.h"
-#include <iostream>
 
 Tree::Tree(const std::vector<std::size_t>& parents) :
   m_parents(parents),

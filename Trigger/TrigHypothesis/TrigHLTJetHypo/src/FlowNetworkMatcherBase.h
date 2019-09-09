@@ -24,6 +24,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
 #include <optional>
 
+#include <iostream>
 class ITrigJetHypoInfoCollector;
 class xAODJetCollector;
 
@@ -45,7 +46,7 @@ public:
 		  std::size_t m_nConditions);
   */
    
-  ~FlowNetworkMatcherBase(){}
+  ~FlowNetworkMatcherBase(){std::cerr<<" ~FlowNetworkMatcherBase()\n";}
 
   // cannot match if internal problem (eg FlowNetwork error)
   std::optional<bool> match(const HypoJetGroupCIter&,
@@ -53,11 +54,14 @@ public:
 			    xAODJetCollector&,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>&,
 			    bool debug=false) const override;
-
-protected:
+ protected:
+  // Derived classes customise initialisation
+  void setFlowNetworkBuilder(std::unique_ptr<IFlowNetworkBuilder> );
+  void setTotalCapacity(double c){m_totalCapacity = c;}
+  std::string toString() const {return m_flowNetworkBuilder -> toString();}
+ private:
   std::size_t m_nConditions{0};    
 
-  // Derived classes customise initialisation
   std::unique_ptr<IFlowNetworkBuilder> m_flowNetworkBuilder{nullptr};
   double m_totalCapacity{0};  // network capacity
 };

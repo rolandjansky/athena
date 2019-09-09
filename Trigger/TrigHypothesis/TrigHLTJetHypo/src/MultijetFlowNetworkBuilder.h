@@ -17,6 +17,7 @@ class MultijetFlowNetworkBuilder:
 virtual public IFlowNetworkBuilder, private FlowNetworkBuilderBase{
  public:
   MultijetFlowNetworkBuilder(ConditionsMT);
+  ~MultijetFlowNetworkBuilder(){}
   virtual std::string toString() const override;
  protected:
   virtual std::optional<std::vector<std::shared_ptr<FlowEdge>>>

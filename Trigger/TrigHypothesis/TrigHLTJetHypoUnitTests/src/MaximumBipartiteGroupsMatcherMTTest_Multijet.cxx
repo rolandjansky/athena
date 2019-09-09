@@ -125,11 +125,11 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, debugFlagIsFalse){
 }
 
 TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_0){
-  /* (j0, j1) -> c0                                                                                        
-     (j0, j2) -> c0                                                                                        
-     (j0, j1) -> c1                                                                                        
-     Fails - j0 is shared.                                                                                 
-  */
+   /* (j0, j1) -> c0  
+     (j0, j2) -> c0                        
+     (j0, j1) -> c1
+       Fails - j0 is shared.  
+ */
 
   auto out = std::make_unique<std::ofstream>(nullptr);
   if (m_debug){out.reset(new std::ofstream("mj_flowNetworkBuilder_0.log"));}
@@ -173,7 +173,8 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_0){
   auto groups = makeJetGroupsMT(jets.begin(), jets.end());
   EXPECT_TRUE(groups.size() == 6);
 
-  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();                                          
+  auto collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
+
   collector.reset(new DebugInfoCollector("mj_flowNetworkBuilder_0"));   
 
   auto G = builder->create(groups.begin(), groups.end(), collector, nodeToJet);
@@ -183,10 +184,10 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_0){
 }
 
 TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_1){
-  /* (j0, j1) -> c0                                                                                        
-     (j0, j1) -> c1                                                                                        
-     (j3, j4) -> c1                                                                                        
-     Passes.                                                                                               
+  /* (j0, j1) -> c0
+    (j0, j1) -> c1
+    (j3, j4) -> c1K
+     Passes.  
   */
 
   auto out = std::make_unique<std::ofstream>(nullptr);
@@ -246,10 +247,10 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_1){
 }
 
 TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_2){
-  /* (j0, j1) -> c0                                                                                        
-     (j0, j1) -> c1                                                                                        
-     (j3, j4) -> c1                                                                                        
-     Passes.                                                                         
+  /* (j0, j1) -> c0    
+    (j0, j1) -> c1
+       (j3, j4) -> c1
+       Passes.
      Test with no collector                      
   */
 
@@ -628,4 +629,3 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj4){
   EXPECT_TRUE(jetCollector.empty()); // not xAOD jets
   EXPECT_TRUE(*pass);
 }
-
