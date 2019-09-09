@@ -5,6 +5,9 @@
 // Header include
 #include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
 #include "TrkVKalVrtFitter/VKalVrtAtlas.h"
+#include  "xAODTracking/TrackParticleAuxContainer.h" 
+#include  "xAODTracking/NeutralParticleAuxContainer.h" 
+#include  "AthContainers/AuxStoreInternal.h"
 //-------------------------------------------------
 // Other stuff
 #include "GaudiKernel/IChronoStatSvc.h"
@@ -103,41 +106,56 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
 //     To allow simultaneous use of TrackParticles with/without assoc.vertex 
 //      - global position is defined as (0,0,Zv)/(0,0,0).
 //     Difference with the real ATLAS global system is then neglected for DxAOD (it's tiny in any case). 
-    std::vector<const xAOD::TrackParticle*>   wrkTrkC(InpTrkC.size());
+    std::unique_ptr< SG::AuxStoreInternal > pAux;
+    std::unique_ptr< SG::AuxStoreInternal > nAux;
+    xAOD::TrackParticleContainer   TPC;
+    xAOD::NeutralParticleContainer NPC;
+    std::vector<const xAOD::TrackParticle*>     wrkTrkC(InpTrkC.size());
     std::vector<const xAOD::NeutralParticle*>   wrkTrkN(InpTrkN.size());
     if(fullxAOD){
       std::copy(InpTrkC.begin(),InpTrkC.end(),wrkTrkC.begin());
       std::copy(InpTrkN.begin(),InpTrkN.end(),wrkTrkN.begin());
     }else{
+      pAux = std::make_unique< SG::AuxStoreInternal >();
+      TPC.setStore( pAux.get() );
+      TPC.reserve( InpTrkC.size() );
       for(int i=0; i<(int)InpTrkC.size(); i++){
-        xAOD::TrackParticle * nprt=new xAOD::TrackParticle(*InpTrkC[i]);
+        TPC.push_back(new xAOD::TrackParticle(*InpTrkC[i]));
+	if(!TPC[i])return StatusCode::FAILURE;
         if(InpTrkC[i]->isAvailable< ElementLink< xAOD::VertexContainer> >( "vertexLink") ) {
           const ElementLink<xAOD::VertexContainer>& vlink = 
                    InpTrkC[i]->auxdata< ElementLink< xAOD::VertexContainer > >("vertexLink");
           if( vlink.isValid() ) {
             ATH_MSG_DEBUG("Associated vertex (x,y,z)="<<(*vlink)->x()<<","<<(*vlink)->y()<<","<<(*vlink)->z());
-            nprt->setParametersOrigin( 0., 0., (*vlink)->z());
+            TPC[i]->setParametersOrigin( 0., 0., (*vlink)->z());
           } else {
             ATH_MSG_DEBUG("TrackParticle has no associated vertex!");
-            nprt->setParametersOrigin(0.,0.,0.);
+            TPC[i]->setParametersOrigin(0.,0.,0.);
           }
         }
-        wrkTrkC[i]=nprt;
+        wrkTrkC[i]=TPC[i];
       }
-      for(int i=0; i<(int)InpTrkN.size(); i++){
-        xAOD::NeutralParticle * nprt=new xAOD::NeutralParticle(*InpTrkN[i]);
-        if(InpTrkN[i]->isAvailable< ElementLink< xAOD::VertexContainer> >( "vertexLink") ) {
-          const ElementLink<xAOD::VertexContainer>& vlink = 
+      //--Only if NeutralParticles are present - very rare
+      if(InpTrkN.size()){
+        nAux = std::make_unique< SG::AuxStoreInternal >();
+        NPC.setStore( nAux.get() );
+        NPC.reserve( InpTrkN.size() );
+        for(int i=0; i<(int)InpTrkN.size(); i++){
+          NPC.push_back(new xAOD::NeutralParticle(*InpTrkN[i]));
+	  if(!NPC[i])return StatusCode::FAILURE;
+          if(InpTrkN[i]->isAvailable< ElementLink< xAOD::VertexContainer> >( "vertexLink") ) {
+            const ElementLink<xAOD::VertexContainer>& vlink = 
                    InpTrkN[i]->auxdata< ElementLink< xAOD::VertexContainer > >("vertexLink");
-          if( vlink.isValid() ) {
-            ATH_MSG_DEBUG("Associated vertex (x,y,z)="<<(*vlink)->x()<<","<<(*vlink)->y()<<","<<(*vlink)->z());
-            nprt->setParametersOrigin(0.,0.,(*vlink)->z());
-          } else {
-            ATH_MSG_DEBUG("NeutralParticle has no associated vertex!");
-            nprt->setParametersOrigin(0.,0.,0.);
+            if( vlink.isValid() ) {
+              ATH_MSG_DEBUG("Associated vertex (x,y,z)="<<(*vlink)->x()<<","<<(*vlink)->y()<<","<<(*vlink)->z());
+              NPC[i]->setParametersOrigin(0.,0.,(*vlink)->z());
+            } else {
+              ATH_MSG_DEBUG("NeutralParticle has no associated vertex!");
+              NPC[i]->setParametersOrigin(0.,0.,0.);
+            }
           }
+          wrkTrkN[i]=NPC[i];
         }
-        wrkTrkN[i]=nprt;
       }
     }
     long int ntrk=0;
@@ -149,15 +167,10 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
       ATH_MSG_WARNING(" Please don't use FirstMeasuredPoint=TRUE jobO with xAOD.");
     }
     if(wrkTrkC.size()) sc=CvtTrackParticle(wrkTrkC,ntrk);
-    if(sc.isFailure()){
-      if(!fullxAOD){ for(auto & ptr : wrkTrkC)delete ptr; for(auto & ptr : wrkTrkN)delete ptr; }
-      return StatusCode::FAILURE;
-    }
+    if(sc.isFailure()) return StatusCode::FAILURE;
+
     if(wrkTrkN.size()) sc=CvtNeutralParticle(wrkTrkN,ntrk);
-    if(sc.isFailure()){
-      if(!fullxAOD){ for(auto & ptr : wrkTrkC)delete ptr; for(auto & ptr : wrkTrkN)delete ptr; }
-      return StatusCode::FAILURE;
-    }
+    if(sc.isFailure()) return StatusCode::FAILURE;
 //--
     long int ierr = VKalVrtFit3( ntrk, Vertex, Momentum, Charge, ErrorMatrix, 
                                  Chi2PerTrk, TrkAtVrt,Chi2 ) ;
@@ -198,7 +211,6 @@ StatusCode TrkVKalVrtFitter::VKalVrtFit(const std::vector<const xAOD::TrackParti
        }
     }
 //--
-    if(!fullxAOD){ for(auto & ptr : wrkTrkC)delete ptr; for(auto & ptr : wrkTrkN)delete ptr; }
     if (ierr) return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
 }
