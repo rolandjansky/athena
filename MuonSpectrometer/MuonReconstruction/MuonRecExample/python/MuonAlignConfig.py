@@ -7,7 +7,8 @@ from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 
 from AthenaCommon.AlgSequence import AthSequencer
-from MuonCondAlg.MuonCondAlgConf import MuonAlignmentErrorDbAlg
+from MuonCondSvc.MuonCondSvcConf import MuonAlignmentErrorDbAlg
+from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
 
 from MuonRecExample.MuonRecUtils import logMuon
 from IOVDbSvc.CondDB import conddb
@@ -30,20 +31,11 @@ muonAlignFlags.setDefaults()
 
 import re
 logMuon.info("Reading alignment constants from DB")
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL')
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA')
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUONALIGN/MDT/ENDCAP/SIDEC')
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA')
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC')
-from MuonCondTool.MuonCondToolConf import MuonAlignmentDbTool
-MuonAlignmentDbTool = MuonAlignmentDbTool("MGM_AlignmentDbTool")
-MuonAlignmentDbTool.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
-                                      "/MUONALIGN/MDT/ENDCAP/SIDEA",
-                                      "/MUONALIGN/MDT/ENDCAP/SIDEC",
-                                      "/MUONALIGN/TGC/SIDEA",
-                                      "/MUONALIGN/TGC/SIDEC"]
-ToolSvc += MuonAlignmentDbTool
-MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
+conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
+conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')
+conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUONALIGN/MDT/ENDCAP/SIDEC',className='CondAttrListCollection')
+conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA',className='CondAttrListCollection')
+conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC',className='CondAttrListCollection')
 
 from AtlasGeoModel.MuonGM import GeoModelSvc
 MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
@@ -51,7 +43,6 @@ MuonDetectorTool = GeoModelSvc.DetectorTools[ "MuonDetectorTool" ]
 # Condition DB is needed only if A-lines or B-lines are requested
 if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
     MuonDetectorTool.UseConditionDb = 1
-    MuonDetectorTool.TheMuonAlignmentTool = MGM_AlignmentDbTool
     # here define to what extent B-lines are enabled
     if muonAlignFlags.UseBlines=='none':
         MuonDetectorTool.EnableMdtDeformations = 0
@@ -63,19 +54,32 @@ if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
         MuonDetectorTool.EnableMdtDeformations = 3
 
 
+condSequence = AthSequencer("AthCondSeq")
+if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
+   'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
+
+    condSequence+=MuonAlignmentCondAlg('MuonAlignmentCondAlg')
+    MuonAlignmentCondAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
+                                           "/MUONALIGN/MDT/ENDCAP/SIDEA",
+                                           "/MUONALIGN/MDT/ENDCAP/SIDEC",
+                                           "/MUONALIGN/TGC/SIDEA",
+                                           "/MUONALIGN/TGC/SIDEC"]
+    MuonAlignmentCondAlg.DumpALines = False
+    MuonAlignmentCondAlg.DumpBLines = False
+    MuonAlignmentCondAlg.DumpILines = False
+
 # here define if I-lines (CSC internal alignment) are enabled
 if muonAlignFlags.UseIlines: 
     MuonDetectorTool.EnableCscInternalAlignment = True
     if conddb.dbdata == 'COMP200' and 'HLT' in globalflags.ConditionsTag() :
         logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
         MuonDetectorTool.UseIlinesFromGM = True
-        MuonAlignmentDbTool.ILinesFromCondDB = False
     else :
         logMuon.info("Reading CSC I-Lines from conditions database.")
-        conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/CSC/ILINES','/MUONALIGN/CSC/ILINES')
-        MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
+        conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/CSC/ILINES','/MUONALIGN/CSC/ILINES',className='CondAttrListCollection')
         MuonDetectorTool.UseIlinesFromGM = False
-        MuonAlignmentDbTool.ILinesFromCondDB = True
+        MuonAlignmentCondAlg.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
+        MuonAlignmentCondAlg.ILinesFromCondDB = True
 
 # here define if As-Built (MDT chamber alignment) are enabled
 if muonAlignFlags.UseAsBuilt:
@@ -86,14 +90,13 @@ if muonAlignFlags.UseAsBuilt:
     else :
         logMuon.info("Reading As-Built parameters from conditions database")
         MuonDetectorTool.EnableMdtAsBuiltParameters = 1
-        #MuonAlignmentDbTool.AsBuiltFile = "clob_asbuilt_nominal.txt"
-        conddb.addFolder('MUONALIGN_OFL','/MUONALIGN/MDT/ASBUILTPARAMS')
-        MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
+        conddb.addFolder('MUONALIGN_OFL','/MUONALIGN/MDT/ASBUILTPARAMS',className='CondAttrListCollection')
+        MuonAlignmentCondAlg.ParlineFolders += ["/MUONALIGN/MDT/ASBUILTPARAMS"]
 
 # nuisance parameter used during track fit to account for alignment uncertainty
 condSequence = AthSequencer("AthCondSeq")
 if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
    'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
+
     conddb.addFolder("MUONALIGN_OFL","/MUONALIGN/ERRS",className='CondAttrListCollection')
     condSequence += MuonAlignmentErrorDbAlg("MuonAlignmentErrorDbAlg")
-
