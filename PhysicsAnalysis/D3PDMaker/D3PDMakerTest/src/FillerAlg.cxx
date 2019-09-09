@@ -21,13 +21,12 @@
 #include "NavFourMom/INavigable4MomentumCollection.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 #include <sstream>
 #include <stdint.h>
 
 
 using CLHEP::GeV;
-using CxxUtils::make_unique;
+using std::make_unique;
 
 
 namespace D3PDTest {
