@@ -125,6 +125,8 @@ namespace InDetDD {
 
     // Should we reference count the geophysvol as well?
 
+    // Set surface
+    m_surface = std::make_unique<Trk::PlaneSurface>(*this);
   }
 
 
@@ -842,14 +844,12 @@ namespace InDetDD {
   Trk::Surface& 
   SiDetectorElement::surface()
   {
-    if (not m_surface) m_surface.set(std::make_unique<Trk::PlaneSurface>(*this));
     return *m_surface;
   }
   
   const Trk::Surface& 
   SiDetectorElement::surface() const
   {
-    if (not m_surface) m_surface.set(std::make_unique<Trk::PlaneSurface>(*this));
     return *m_surface;
   }
   

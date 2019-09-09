@@ -13,7 +13,6 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 
 // Data member classes
-#include "CxxUtils/CachedUniquePtr.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -30,6 +29,7 @@
 #include "CLHEP/Geometry/Point3D.h"
 
 #include <atomic>
+#include <memory>
 #include <mutex>
 
 class AtlasDetectorID;
@@ -516,8 +516,6 @@ namespace InDetDD {
     ///////////////////////////////////////////////////////////////////
     //@{.
     //   - Methods to handle invalidating and updating caches. The cached values include values that are affected by alignment
-    //     Surface are only created on demand.  The method updateAllCaches also creates the surfaces as well as calling updateCache.
-    //     Conditions cache contains Lorentz angle related quantities.
      
     /// Signal that cached values are no longer valid.
     /// Invalidate general cache (inline)
@@ -526,9 +524,6 @@ namespace InDetDD {
     ///Set/calculate cache values (inline)
     void setCache();
 
-    ///Set/calculate all cache values including  surfaces. (inline)
-    void setAllCaches();
-   
     //@}
     
     ///////////////////////////////////////////////////////////////////
@@ -578,9 +573,6 @@ namespace InDetDD {
     /// Recalculate  cached values. 
     void updateCache() const;
    
-    /// Update all caches including surfaces.
-    void updateAllCaches() const;
-
     /// Determine m_isStereo variable and m_stereoCacheValid variable.
     void determineStereo() const;
     
@@ -687,7 +679,7 @@ namespace InDetDD {
     mutable double m_minPhi ATLAS_THREAD_SAFE;// Guarded by m_mutex
     mutable double m_maxPhi ATLAS_THREAD_SAFE;// Guarded by m_mutex
 
-    CxxUtils::CachedUniquePtrT<Trk::Surface> m_surface;
+    std::unique_ptr<Trk::Surface> m_surface;
     mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
 
     const GeoAlignmentStore* m_geoAlignStore{};

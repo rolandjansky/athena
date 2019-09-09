@@ -296,21 +296,6 @@ namespace InDetDD {
     updateCache();
   } 
     
-  inline void SiDetectorElement::setAllCaches()
-  {
-    updateAllCaches();
-  } 
- 
-  inline void SiDetectorElement::updateAllCaches() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    if (not m_surface) surface();
-  }
-
   inline const Amg::Transform3D& SiDetectorElement::transform(const Identifier&) const
   {
     return transform();

@@ -53,7 +53,7 @@ namespace InDetDD
         element_iter != getDetectorElementEnd();
         ++element_iter) {
             if (*element_iter) {
-                (*element_iter)->setAllCaches();
+                (*element_iter)->setCache();
             }
         }
     }
