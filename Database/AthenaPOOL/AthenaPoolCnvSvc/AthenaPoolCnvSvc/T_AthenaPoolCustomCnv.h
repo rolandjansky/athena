@@ -20,13 +20,16 @@
 template <class T, class P> class T_AthenaPoolExtendingCnv;
 
 
-/** @class T_AthenaPoolCustomCnv
- *  @brief This templated class extends T_AthenaPoolCustCnv to provide management of the persistent objects
- *  created by the converter and to correctly delete retrieved persistent objects.
- **/
+/**
+ * @class T_AthenaPoolCustomCnvWithKey
+ * @brief This templated class extends T_AthenaPoolCustCnv
+ *        to provide management of the persistent objects
+ *        created by the converter and to correctly delete
+ *        retrieved persistent objects.
+ */
 template <class TRANS, class PERS>
-class T_AthenaPoolCustomCnv : public T_AthenaPoolCustCnv<TRANS, PERS> {
-
+class T_AthenaPoolCustomCnvWithKey : public T_AthenaPoolCustCnv<TRANS, PERS>
+{
    /// need the extending converter class as friend,
    /// so clones can access the original converter methods
 friend class T_AthenaPoolExtendingCnv<TRANS,PERS>;
@@ -37,8 +40,8 @@ public:
    /// Constructor
    /// @param svcloc [IN] Gaudi service locator
    /// @param name [IN] Optional name, for error reporting.
-   T_AthenaPoolCustomCnv(ISvcLocator* pSvcLocator,
-                         const char* name = nullptr);
+   T_AthenaPoolCustomCnvWithKey(ISvcLocator* pSvcLocator,
+                                const char* name = nullptr);
 
 protected:
 
@@ -50,7 +53,7 @@ protected:
       @param obj [IN] transient object
       @return the created persistent representation (by pointer)
    */
-   virtual PERS* createPersistent(TRANS* obj) = 0;
+   virtual PERS* createPersistentWithKey(TRANS* obj, const std::string& key) = 0;
 
    /** method to be implemented by the developer.
       It has to find out the type of the
@@ -60,7 +63,7 @@ protected:
       if the version 1 of poolReadObject is used, the persistent
       object HAS TO BE DELETED manually.
    */
-   virtual TRANS* createTransient() = 0;
+  virtual TRANS* createTransientWithKey(const std::string& key) = 0;
 
    /** Read object of type P.  This is an exception-throwing version of poolToObject()
       plus reading of all extending objects.
@@ -85,34 +88,56 @@ protected:
 
    /// Obsolete methods replaced by createPersistent() and createTransient()
    /// obsolete
-   virtual StatusCode transToPers(TRANS*, PERS*&) { return(StatusCode::FAILURE); }
+   virtual StatusCode transToPers(TRANS*, PERS*&) override { return(StatusCode::FAILURE); }
    /// obsolete
-   virtual StatusCode persToTrans(TRANS*&, PERS*) { return(StatusCode::FAILURE); }
+   virtual StatusCode persToTrans(TRANS*&, PERS*) override { return(StatusCode::FAILURE); }
 
    /// Convert an object into Persistent.
    /// @param pObj [IN] pointer to the transient object.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key);
+   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key) override;
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.
    /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
-   virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& key);
+   virtual StatusCode DataObjectToPool(DataObject* pObj, const std::string& key) override;
 
    /// Read an object from POOL.
    /// @param pObj [OUT] pointer to the transient object.
    /// @param token [IN] POOL token of the persistent representation.
    /// @param key [IN] SG key of the object being read.
    virtual StatusCode PoolToDataObject(DataObject*& pObj, const Token* token,
-                                       const std::string& key);
+                                       const std::string& key) override;
 
    /// Callback from the CleanupSvc to delete persistent object in the local list
-   virtual StatusCode cleanUp();
+   virtual StatusCode cleanUp() override;
 
    /// Local cache for persistent objects created by this converter (Ahena does not use POOL cache).
    /// These objects are deleted after a commit.
    std::vector<PERS*> m_persObjList;
 };
 
+
+/**
+ * @brief Compatibility for old converter classes that don't get passed the key.
+ */
+template <class TRANS, class PERS>
+class T_AthenaPoolCustomCnv
+  : public T_AthenaPoolCustomCnvWithKey<TRANS, PERS>
+{
+protected:
+  using T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::T_AthenaPoolCustomCnvWithKey;
+
+
+  virtual PERS* createPersistent(TRANS* obj) = 0;
+  virtual PERS* createPersistentWithKey(TRANS* obj, const std::string& /*key*/) override;
+
+  virtual TRANS* createTransient() = 0;
+  virtual TRANS* createTransientWithKey(const std::string& /*key*/) override;
+};
+
+
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.icc"
+
+
 #endif
