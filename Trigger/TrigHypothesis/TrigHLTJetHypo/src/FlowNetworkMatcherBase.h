@@ -24,7 +24,6 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowEdge.h"
 #include <optional>
 
-#include <iostream>
 class ITrigJetHypoInfoCollector;
 class xAODJetCollector;
 
@@ -46,7 +45,7 @@ public:
 		  std::size_t m_nConditions);
   */
    
-  ~FlowNetworkMatcherBase(){std::cerr<<" ~FlowNetworkMatcherBase()\n";}
+  ~FlowNetworkMatcherBase(){}
 
   // cannot match if internal problem (eg FlowNetwork error)
   std::optional<bool> match(const HypoJetGroupCIter&,
