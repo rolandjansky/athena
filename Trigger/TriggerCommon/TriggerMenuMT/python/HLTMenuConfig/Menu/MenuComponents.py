@@ -461,8 +461,8 @@ class Chain(object):
     def decodeHypoToolConfs(self, allChainDicts):
         """ This is extrapolating the hypotool configuration from the (combined) chain name"""
         import copy
-        from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import getChainDictFromChainName
-        chainDict = getChainDictFromChainName(self.name, allChainDicts)
+        from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+        chainDict = TriggerConfigHLT.getChainDictFromChainName(self.name)
 
         for step in self.steps:
             if len(step.sequences) == 0:
