@@ -4,8 +4,6 @@
 
 #ifndef TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOTOOL_H 
 #define TRIGMUONEFMSONLYHYPO_TRIGMUONEFMSONLYHYPOTOOL_H 1
-#include <string>
-#include "AthenaBaseComps/AthAlgTool.h" 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h" 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
@@ -37,12 +35,12 @@ class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {
     const xAOD::Muon* muon;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };
-  StatusCode initialize() override;    
+  virtual StatusCode initialize() override;    
   StatusCode decide(std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo>& toolInput) const ;
+ private:
   bool decideOnSingleObject(TrigMuonEFMSonlyHypoTool::MuonEFInfo& input, size_t cutIndex) const;
   StatusCode inclusiveSelection(std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo>& toolInput) const;
   StatusCode multiplicitySelection(std::vector<TrigMuonEFMSonlyHypoTool::MuonEFInfo>& toolInput) const;
- private:
   HLT::Identifier m_decisionId;
   // Properties:
   Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {

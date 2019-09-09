@@ -2,11 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-
 #include "TrigMuonEFMSonlyHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 
@@ -17,7 +12,6 @@ using namespace TrigCompositeUtils;
 
 TrigMuonEFMSonlyHypoAlg::TrigMuonEFMSonlyHypoAlg( const std::string& name,
 						  ISvcLocator* pSvcLocator ) :
-//  ::AthReentrantAlgorithm( name, pSvcLocator )
   ::HypoBase( name, pSvcLocator )
 {
 

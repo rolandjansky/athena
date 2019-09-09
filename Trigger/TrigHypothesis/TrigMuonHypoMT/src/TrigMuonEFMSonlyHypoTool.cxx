@@ -4,8 +4,6 @@
 
 #include "DecisionHandling/Combinators.h"
 #include "TrigMuonEFMSonlyHypoTool.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaMonitoring/Monitored.h"
 class ISvcLocator;
 TrigMuonEFMSonlyHypoTool::TrigMuonEFMSonlyHypoTool(const std::string & type, const std::string & name, const IInterface* parent):
@@ -16,7 +14,7 @@ TrigMuonEFMSonlyHypoTool::~TrigMuonEFMSonlyHypoTool(){
 }
 StatusCode TrigMuonEFMSonlyHypoTool::initialize(){
   if(m_acceptAll) {
-    ATH_MSG_INFO("Accepting all the events with not cut!");
+    ATH_MSG_INFO("Accepting all the events!");
   } else {
     if(m_ptBins.size()<=0){ 
       ATH_MSG_ERROR("Trying to configure hypo with no pT bins. This is probably a configuration mistake.");
