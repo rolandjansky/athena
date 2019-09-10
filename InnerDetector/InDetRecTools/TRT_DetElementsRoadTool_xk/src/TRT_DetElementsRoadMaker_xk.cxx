@@ -16,6 +16,8 @@
 
 #include <utility>
 
+#include "GeoModelInterfaces/IGeoModelTool.h"
+
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_BarrelElement.h"
 #include "InDetReadoutGeometry/TRT_EndcapElement.h"
@@ -26,7 +28,6 @@
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "EventInfo/TagInfo.h"
 
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsRoadMaker_xk.h"
 #include "TRT_DetElementsRoadTool_xk/TRT_DetElementsComparison.h"
@@ -104,35 +105,13 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
     msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
   }
 
-  // get the key -- from StoreGate (DetectorStore)
-  //
-  std::vector< std::string > tagInfoKeys = detStore()->keys<TagInfo> ();
-  std::string tagInfoKey = "";
-
-  if(tagInfoKeys.size()==0)
-    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endmsg;
-   else {
-     if(tagInfoKeys.size() > 1) {
-       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endmsg;
-     }
-     tagInfoKey = tagInfoKeys[0];
-   }
-
-  m_callbackString = tagInfoKey;
-
-  const DataHandle<TagInfo> tagInfoH;
-  
   // register the Callback
   //
-
-  sc = detStore()->regFcn(&InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction,
-			  this,tagInfoH,m_callbackString);
-  if (sc.isFailure()) {
-    msg(MSG::FATAL)<< "Failed to register the callback " << m_proptool << endmsg;
-  }
-  else {
-    msg(MSG::INFO) << "Register the callback" << m_proptool << endmsg;
-  }
+  ATH_CHECK(m_geoModelSvc.retrieve());
+  ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align,
+                               m_geoModelSvc->getTool("TRT_DetectorTool"),
+                               &InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction,
+                               this));
 
   // Get output print level
   //
@@ -616,10 +595,8 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoadCTB
 ///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
-(IOVSVC_CALLBACK_ARGS_P(I,keys))
+(IOVSVC_CALLBACK_ARGS)
 {
-  (void) I;
-
   const InDetDD::TRT_DetectorManager*  trtmgr = 0;
   StatusCode sc = detStore()->retrieve(trtmgr,m_trt);
 
@@ -627,15 +604,6 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
     msg(MSG::FATAL)<<"Could not get TRT DetectorManager  !"<<endmsg; 
     return StatusCode::FAILURE;
   }
-
-  // check if the string is ESD for guaranteeing that misalignment has been introduced already
-  //
-  bool needsUpdate = false;
-
-  for (std::list<std::string>::const_iterator k=keys.begin(); k!=keys.end(); ++k) {
-    if ((*k) == m_callbackString) {needsUpdate = true; break;}
-  } 
-  if(!needsUpdate) return StatusCode::SUCCESS;
 
   const double pi2=2.*M_PI, pi=M_PI;
   m_map[0]=m_map[1]=m_map[2]=0;
