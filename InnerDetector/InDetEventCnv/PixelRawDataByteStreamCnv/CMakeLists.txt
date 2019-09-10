@@ -19,7 +19,8 @@ atlas_depends_on_subdirs(
    Control/AthContainers
    DetectorDescription/IRegionSelector
    Event/ByteStreamCnvSvcBase
-   InnerDetector/InDetConditions/PixelConditionsServices
+   InnerDetector/InDetConditions/PixelConditionsTools
+   InnerDetector/InDetConditions/InDetByteStreamErrors
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelCabling
@@ -43,5 +44,5 @@ atlas_add_component( PixelRawDataByteStreamCnv
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData
    GaudiKernel InDetRawData AthenaBaseComps AthContainers  StoreGateLib
    ByteStreamCnvSvcBaseLib InDetIdentifier InDetReadoutGeometry IRegionSelector
-   xAODEventInfo TrigSteeringEvent PixelConditionsData PixelRawDataByteStreamCnvLib )
+   xAODEventInfo TrigSteeringEvent InDetByteStreamErrors PixelConditionsData PixelRawDataByteStreamCnvLib )
 

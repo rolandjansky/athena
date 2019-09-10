@@ -8,14 +8,14 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
 #include <string>
 #include <sstream>
 #include <vector>
 #include <fstream>
 #include <utility> // pair
 
-class IInDetConditionsSvc;
-class IPixelByteStreamErrorsSvc;
 class ITHistSvc;
 class PixelID;
 class TH2D;
@@ -61,8 +61,9 @@ class NoiseMapBuilder: public AthAlgorithm{
 
  private:
   ServiceHandle <ITHistSvc> m_tHistSvc;
-  ServiceHandle <IInDetConditionsSvc> m_pixelConditionsSummarySvc;
-  ServiceHandle <IPixelByteStreamErrorsSvc> m_BSErrorsSvc;
+
+  ToolHandle<IInDetConditionsTool> m_pixelConditionsTool
+  {this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
   const PixelID *m_pixelID;
 

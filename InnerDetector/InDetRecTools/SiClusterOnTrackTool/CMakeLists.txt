@@ -23,7 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           PRIVATE
                           Event/EventPrimitives
-                          InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetDetDescr/InDetIdentifier

@@ -7,7 +7,7 @@
 #include "PixelCalibAlgs/PixelConvert.h"
 
 // PixelConditions
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
+#include "PixelConditionsTools/ISpecialPixelMapSvc.h"
 #include "PixelConditionsData/SpecialPixelMap.h"
 
 // geometry

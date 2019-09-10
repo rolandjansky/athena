@@ -128,9 +128,10 @@ private:
 
   //#ifdef HAVE_VERSION_15
   ToolHandle<Trig::TrigDecisionTool>        m_trigDecTool; // tool to retrieve trigger decision
-  ServiceHandle<IInDetConditionsSvc>        m_pixelCondSummarySvc; // tool to retrieve pixel conditions db
-  ToolHandle<IInDetConditionsTool>          m_sctCondSummaryTool{this, "SctSummaryTool",
-      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
+  ToolHandle<IInDetConditionsTool>          m_pixelCondSummaryTool
+  {this, "PixelSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
+  ToolHandle<IInDetConditionsTool>          m_sctCondSummaryTool
+  {this, "SctSummaryTool", "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
   ToolHandle<ISiLorentzAngleTool>           m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool>           m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
   //#else

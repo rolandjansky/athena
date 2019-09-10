@@ -8,7 +8,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "StoreGate/ReadCondHandle.h"
@@ -21,7 +21,6 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
   ManagedMonitorToolBase(type, name, parent),
   m_pixID( 0 ),
   m_sctID( 0 ),
-  m_ErrorSvc("PixelByteStreamErrorsSvc",name),
   m_errorGeoPixel(),
   m_disabledGeoPixel(),
   m_errorGeoSCT(),

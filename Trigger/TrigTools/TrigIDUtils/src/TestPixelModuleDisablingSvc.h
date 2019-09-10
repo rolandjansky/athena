@@ -17,7 +17,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 
-#include "PixelConditionsServices/IPixelTDAQSvc.h"
+#include "PixelConditionsTools/IPixelTDAQSvc.h"
 
 #include <set>
 #include <map>

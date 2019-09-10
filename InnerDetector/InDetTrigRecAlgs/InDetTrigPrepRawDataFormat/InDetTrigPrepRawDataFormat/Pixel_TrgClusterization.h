@@ -34,7 +34,7 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "Identifier/IdentifierHash.h"
 
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 
@@ -120,7 +120,9 @@ namespace InDet {
     bool m_doFullScan;             //!< support for FullScan mode
     double                   m_etaHalfWidth;       //!< ROI half-width in eta
     double                   m_phiHalfWidth;       //!< ROI half-width in phi
-    ServiceHandle<IPixelByteStreamErrorsSvc>   m_bsErrorSvc;
+    ToolHandle<IPixelByteStreamErrorsTool> m_bsError
+    {this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool for PixelByteStreamError"};
+
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
     bool                     m_doTimeOutChecks;   //check global timer
     bool                     m_skipBSDecoding;    //option to skip BS decoding in MC
