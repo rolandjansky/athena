@@ -14,6 +14,8 @@ namespace FatjetTruthLabel
     other_From_V, // matched to W/Z
     notruth,   // failed to truth-jet matching (pileup)
     qcd,       // not matched to top or W/Z (background jet)
+    Hbb,       // full-contained H->bb
+    other_From_H, //matched to H
   };  
   inline int enumToInt(const TypeEnum type)
   {
@@ -27,6 +29,8 @@ namespace FatjetTruthLabel
       case other_From_V: return 6;
       case notruth:      return 7;
       case qcd:          return 8;
+      case Hbb:          return 9;
+      case other_From_H: return 10;
       default:           return 0;
       }
   }  
@@ -48,6 +52,10 @@ namespace FatjetTruthLabel
       return notruth;
     }else if ( type==8 ){
       return qcd;
+    }else if ( type == 9){
+      return Hbb;
+    }else if ( type == 10){
+      return other_From_H;
     }
     
     return UNKNOWN;
@@ -70,6 +78,10 @@ namespace FatjetTruthLabel
         return notruth;
     if (name.EqualTo("qcd",TString::kIgnoreCase))
         return qcd;
+    if (name.EqualTo("Hbb",TString::kIgnoreCase))
+        return Hbb;
+    if (name.EqualTo("other_From_H",TString::kIgnoreCase))
+        return other_From_H;
     return UNKNOWN;
   }
 }

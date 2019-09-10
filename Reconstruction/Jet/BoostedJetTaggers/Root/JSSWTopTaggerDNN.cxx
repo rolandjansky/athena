@@ -49,9 +49,9 @@ JSSWTopTaggerDNN::JSSWTopTaggerDNN( const std::string& name ) :
     declareProperty( "TruthParticleContainerName",   m_truthParticleContainerName="TruthParticles");
     declareProperty( "TruthWBosonContainerName",   m_truthWBosonContainerName="TruthBosonWithDecayParticles");
     declareProperty( "TruthZBosonContainerName",   m_truthZBosonContainerName="TruthBosonWithDecayParticles");
+    declareProperty( "TruthHBosonContainerName",   m_truthHBosonContainerName="TruthBosonWithDecayParticles");
     declareProperty( "TruthTopQuarkContainerName",   m_truthTopQuarkContainerName="TruthTopQuarkWithDecayParticles");
 
-    declareProperty( "DSID",             m_DSID = -1);
     declareProperty( "IsMC",             m_IsMC = true);
 
     declareProperty( "dR_truthJet",      m_dR_truthJet = 0.75);

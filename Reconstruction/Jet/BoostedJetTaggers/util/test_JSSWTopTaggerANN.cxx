@@ -44,7 +44,6 @@ int main( int argc, char* argv[] ) {
 
   // arguments
   TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
-  int m_DSID=361028;
   int  ievent=-1;
   int  nevents=-1;
   bool m_IsMC=true;
@@ -91,16 +90,6 @@ int main( int argc, char* argv[] ) {
       if(std::string(argv[ipos]).compare("-event")==0){
         ievent = atoi(argv[ipos+1]);
         Info( APP_NAME, "Argument (-event) : Running only on event # %i", ievent );
-        break;
-      }
-    }
-  }
-
-  if(options.find("-d")!=std::string::npos){
-    for( int ipos=0; ipos<argc ; ipos++ ) {
-      if(std::string(argv[ipos]).compare("-d")==0){
-        m_DSID = atoi(argv[ipos+1]);
-        Info( APP_NAME, "Argument (-d) : DSID = %i", m_DSID );
         break;
       }
     }
@@ -203,7 +192,6 @@ int main( int argc, char* argv[] ) {
   m_Tagger.setProperty( "CalibArea",    "/eos/user/g/gang/public/BoostedJetTaggers/JSSWTopTaggerANN/");
   m_Tagger.setProperty( "ConfigFile",   "JSSANNTagger_test.dat");
   m_Tagger.setProperty("TruthJetContainerName", "AntiKt10TruthTrimmedPtFrac5SmallR20Jets");
-  m_Tagger.setProperty("DSID", m_DSID); // if you want to use Sherpa W/Z+jets sample, do not forget to set up the DSID
   m_Tagger.setProperty("IsMC", m_IsMC);
   m_Tagger.retrieve();
 

@@ -22,6 +22,8 @@ Truth labels are defined as enum in BoostedJetTaggers/FatjetLabelEnum.h:
     other_From_V, // matched to W/Z
     notruth,   // failed to truth-jet matching (pileup)
     qcd,       // not matched to top or W/Z (background jet)
+    Hbb,       // full-contained H->bb
+    other_From_H, // matched to Higgs
   };  
 ```
 
@@ -39,6 +41,8 @@ I is decorated to the given jet as integer by decorateTruthLabel( ) function in 
       case other_From_V: return 6;
       case notruth:      return 7;
       case qcd:          return 8;
+      case Hbb:          return 9;
+      case other_From_H: return	10;
       default:           return 0;
       }
   }  
@@ -68,11 +72,18 @@ Details of truth definitions
 1. Associated trimmed truth jet is matched to truth Z boson by dR<0.75
 2. Trimmed truth jet mass satisfies 60 < mJ < 110GeV
 
+* FatjetTruthLabel::Hbb
+1. Associated trimmed truth jet is matched to truth H boson by dR<0.75
+2. GhostBHadronsFinalCount is greater than 1
+
 * FatjetTruthLabel::other_From_t
 If trimmed truth jet is matched to truth top quark but does not satisfy the additional requirements above, FatjetTruthLabel::other_From_t is decorated.
 
 * FatjetTruthLabel::other_From_V
 If trimmed truth jet is matched to truth W or Z but does not satisfy the additional requirements above, FatjetTruthLabel::other_From_V is decorated.
+
+* FatjetTruthLabel::other_From_H
+If trimmed truth jet is matched to truth Hbut does not satisfy the additional requirements above, FatjetTruthLabel::other_From_H is decorated.
 
 * FatjetTruthLabel::unknown
 All jets not satisfying the above are defined as FatjetTruthLabel::unknown.
@@ -82,14 +93,10 @@ It is implemented in Root/JSSTaggerBase.cxx.
 
 Sherpa V+jets
 -----------------------------------
-Sherpa V+jets samples do not contain the intermediate truth W/Z boson information in the TruthParticles container.
+Sherpa 2.2.1 V+jets samples do not contain the intermediate truth W/Z boson information in the TruthParticles container.
 We can look at the pair of truth particles with status==3, check the flavors of them, and reconstruct the mass of truth W/Z to define the truth W/Z boson.
 The function matchToWZ_Sherpa( ) is called only when the flag isSherpa is turned on. The flag is turned on based on dataset ID defined in getIsSherpa( ) function in BoostedJetTaggers/JSSTaggerBase.h.
-You can give the dataset ID when you initialize the tool e.g.
-```
-m_tool->setProperty("DSID", 364100);
-```
-If you don't set DSID, isSherpa flag is automatically turned off.
+The DSID is needed to determine if the isSherpa flag should be switched on. This is done now automatically in the code and does not need to be provided anymore
 
 
 
