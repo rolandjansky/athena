@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTPTCNV_EVENTSTREAMINFOPTCNV_P3_H
@@ -12,9 +12,7 @@
  * @author  <vaniachine@anl.gov>
  */
 
-#define private public
 #include "EventTPCnv/EventStreamInfo_p3.h"
-#undef private
 
 class EventStreamInfoPTCnv_p3 : EventStreamInfo_p3 {
 public:
