@@ -2,13 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-
 #include "TrigMuonEFCombinerHypoAlg.h"
 #include "AthViews/ViewHelper.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 using namespace TrigCompositeUtils; 
 
@@ -17,7 +13,6 @@ using namespace TrigCompositeUtils;
 
 TrigMuonEFCombinerHypoAlg::TrigMuonEFCombinerHypoAlg( const std::string& name,
 						  ISvcLocator* pSvcLocator ) :
-//  ::AthReentrantAlgorithm( name, pSvcLocator )
   ::HypoBase( name, pSvcLocator )
 {
 

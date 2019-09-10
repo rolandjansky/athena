@@ -5,19 +5,11 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #ifndef TRIGL2MUONOVERLAPREMOVER_TRIGL2MUONOVERLAPREMOVERTOOL_H 
 #define TRIGL2MUONOVERLAPREMOVER_TRIGL2MUONOVERLAPREMOVERTOOL_H 1
 
-#include <string>
-#include "AthenaBaseComps/AthAlgTool.h" 
 #include "DecisionHandling/HLTIdentifier.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
-#include "xAODTrigMuon/versions/L2CombinedMuonContainer_v1.h"
-#include "xAODTrigMuon/L2CombinedMuon.h" 
 #include "TrigT1Interfaces/RecMuonRoI.h"
-
 #include "DecisionHandling/TrigCompositeUtils.h" 
-#include "DecisionHandling/Combinators.h"
-
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
 class StoreGateSvc;
