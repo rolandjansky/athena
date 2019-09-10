@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ANALYSISTEST_READCONSTITUENT_H
@@ -13,8 +13,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
-
-class StoreGateSvc;
 
 /////////////////////////////////////////////////////////////////////////////
 

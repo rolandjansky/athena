@@ -9,7 +9,6 @@
 #include "GaudiKernel/ObjectVector.h"
 //#include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "MissingETGoodness/Goodies.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"

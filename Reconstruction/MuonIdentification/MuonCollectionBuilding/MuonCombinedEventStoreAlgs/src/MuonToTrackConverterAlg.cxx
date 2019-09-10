@@ -31,7 +31,6 @@ MuonToTrackConverterAlg::MuonToTrackConverterAlg(const std::string& name,
 			 ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
   m_useMuonHitsOnly(false), 
-  m_storeGate("StoreGateSvc", name),
   m_edmPrinter("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
   m_muonHoleRecoverTool("")
