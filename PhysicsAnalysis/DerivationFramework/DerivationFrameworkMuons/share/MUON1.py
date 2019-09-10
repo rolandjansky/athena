@@ -326,6 +326,11 @@ if DerivationFrameworkIsMonteCarlo:
   ToolSvc += MUON1MuonTruthClassifierFallback
   MUON1AugmentTools.append(MUON1MuonTruthClassifierFallback)
 
+  from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonTruthIsolationTool
+  MUON1MuonTruthIsolationTool = DerivationFramework__MuonTruthIsolationTool( name = "MUON1MuonTruthIsolationTool",ContainerKey="Muons")
+  ToolSvc += MUON1MuonTruthIsolationTool
+  MUON1AugmentTools.append(MUON1MuonTruthIsolationTool)
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================
