@@ -520,6 +520,32 @@ namespace top{
     this->jetSubstructureName( settings->value("LargeJetSubstructure") );
     this->decoKeyJetGhostTrack( settings->value("JetGhostTrackDecoName") );
 
+    // check that small-R jets use tagged collectio name for new derivations
+    // this is due to b-tagging since AthDerivation-21.2.72.0
+    if(m_aodMetaData->valid()) {
+      try {
+        std::string deriv_rel_name = m_aodMetaData->get("/TagInfo", "AtlasRelease_AODtoDAOD");
+        size_t pos = deriv_rel_name.find('-');
+        if (pos != std::string::npos) {
+          deriv_rel_name = deriv_rel_name.substr(pos+1);
+          if (deriv_rel_name >= "21.2.72.0") { // release where we need tagged jet collection
+            if (this->sgKeyJets() == this->sgKeyJetsType()) { // jet collection is NOT tagged
+              throw std::runtime_error("TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4PFlow_BTagging201903\". This is necessary for b-tagging to work!");
+            }
+          } else { // release does NOT have tagged jet collection
+            if (this->sgKeyJets() != this->sgKeyJetsType()) { // jet collection is NOT tagged
+              throw std::runtime_error("TopConfig: You are using derivation with release older than 21.2.72.0 so you cannot use tagged jet containers as you specified: \""+this->sgKeyJets()+"\". Use \""+this->sgKeyJetsType()+"\" instead.");
+            }
+          }
+        } else {
+          std::cout << "WARNING: Could not parse derivation release from the file metadata. We cannot check that correct jet collection is used for b-tagging. You are on your own." << std::endl;
+        }
+        // try to parse the derivation release, we need the release number
+      } catch (std::logic_error& e) {
+        std::cout << "WARNING: Could not obtain derivation release from the file metadata We cannot check that correct jet collection is used for b-tagging. You are on your own." << std::endl;
+      }
+    }
+
     // ROOTCORE/Analysis release series
     this->setReleaseSeries();
 
