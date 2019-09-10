@@ -62,7 +62,6 @@ StatusCode IsolationCPTools::setupIsolation() {
 
   // Muon Isolation WPs
   std::set<std::string> muon_isolations{{
-      "Gradient",
       "FCTight",
       "FCLoose",
       "FCTightTrackOnly",
