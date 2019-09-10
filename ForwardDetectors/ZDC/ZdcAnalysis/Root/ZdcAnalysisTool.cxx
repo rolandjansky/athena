@@ -242,6 +242,26 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializeDefault()
     return zdcDataAnalyzer;
 }
 
+std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2015G4()
+{
+    ZDCDataAnalyzer::ZDCModuleFloatArray tau1, tau2, peak2ndDerivMinSamples, t0;
+    ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
+    ZDCDataAnalyzer::ZDCModuleFloatArray deltaT0CutLow, deltaT0CutHigh, chisqDivAmpCut;
+    ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
+    
+    std::unique_ptr<ZDCDataAnalyzer> zdcDataAnalyzer (new ZDCDataAnalyzer(MakeMessageFunction(), 
+									  m_numSample, 
+									  m_deltaTSample, 
+									  m_presample, 
+									  "FermiExp", 
+									  peak2ndDerivMinSamples,
+									  peak2ndDerivMinThresholdsHG, 
+									  peak2ndDerivMinThresholdsLG, 
+									  m_lowGainOnly));
+
+    return zdcDataAnalyzer;
+}
+
 std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
 {
     //
@@ -671,6 +691,9 @@ StatusCode ZdcAnalysisTool::initialize()
     }
     else if (m_configuration == "PbPb2018") {
         m_zdcDataAnalyzer = initializePbPb2018();
+    }
+    else if (m_configuration == "PbPb2015G4") {
+      m_zdcDataAnalyzer = initializePbPb2015G4();
     }
     else {
         ATH_MSG_ERROR("Unknown configuration: "  << m_configuration);
