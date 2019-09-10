@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -346,7 +346,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
     if (m_muonEfficiencySFTool->getEfficiencyScaleFactor( mu, sf_reco ) == CP::CorrectionCode::OutOfValidityRange) {
       if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: Reco getEfficiencyScaleFactor out of validity range");
     }
-    ATH_MSG_VERBOSE( " MuonReco ScaleFactor " << sf_reco );
+    ATH_MSG_VERBOSE( "MuonReco ScaleFactor " << sf_reco );
     sf *= sf_reco;
 
     float sf_ttva(1.);
@@ -354,7 +354,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
       if (m_muonTTVAEfficiencySFTool->getEfficiencyScaleFactor( mu, sf_ttva ) == CP::CorrectionCode::OutOfValidityRange) {
 	if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: TTVA getEfficiencyScaleFactor out of validity range");
       }
-      ATH_MSG_VERBOSE( " MuonTTVA ScaleFactor " << sf_ttva );
+      ATH_MSG_VERBOSE( "MuonTTVA ScaleFactor " << sf_ttva );
       sf *= sf_ttva;
     }
 
@@ -363,7 +363,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
       if (m_muonEfficiencyBMHighPtSFTool->getEfficiencyScaleFactor( mu, sf_badHighPt ) == CP::CorrectionCode::OutOfValidityRange) {
 	if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: BadMuonHighPt getEfficiencyScaleFactor out of validity range");
       }
-      ATH_MSG_VERBOSE( " MuonTTVA ScaleFactor " << sf_badHighPt );
+      ATH_MSG_VERBOSE( "MuonTTVA ScaleFactor " << sf_badHighPt );
       sf *= sf_badHighPt;
     }
   }
@@ -379,7 +379,7 @@ bool SUSYObjDef_xAOD::IsCosmicMuon(const xAOD::Muon& input, float z0cut, float d
         if(warnOVR) ATH_MSG_WARNING(" GetSignalMuonSF: Iso getEfficiencyScaleFactor out of validity range");
       } 
     }
-    ATH_MSG_VERBOSE( " MuonIso ScaleFactor " << sf_iso );
+    ATH_MSG_VERBOSE( "MuonIso ScaleFactor " << sf_iso );
     sf *= sf_iso;
   }
 
@@ -420,14 +420,14 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
   
   if((!isdimuon && mulegs<2) || (isdimuon && sfmuons.size()==2) || (mulegs>=2 && isOR)){   //Case 1: the tool takes easy care of the single, standard-dimuon and OR-of-single chains
     if (m_muonTriggerSFTool->getTriggerScaleFactor( sfmuons, trig_sf, trigExpr ) == CP::CorrectionCode::Ok) {
-      ATH_MSG_DEBUG( " MuonTrig ScaleFactor " << trig_sf );
+      ATH_MSG_DEBUG( "MuonTrig ScaleFactor " << trig_sf );
     }
     else{
-      ATH_MSG_DEBUG( " MuonTrig FAILED SOMEHOW");
+      ATH_MSG_DEBUG( "MuonTrig FAILED SOMEHOW");
     }
   }
   else if(mulegs!=2 && isOR){ //Case 2: not supported. Not efficiency defined for (at least) one leg. Sorry...
-    ATH_MSG_WARNING( " SF for " << trigExpr << " are only supported for two muon events!");
+    ATH_MSG_WARNING( "SF for " << trigExpr << " are only supported for two muon events!");
   }
   else{ //Case 3: let's go the hard way...
         //Following https://twiki.cern.ch/twiki/bin/view/Atlas/TrigMuonEfficiency

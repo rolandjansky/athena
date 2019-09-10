@@ -103,6 +103,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_badJetCut(""),
     m_fatJetUncConfig(""),
     m_fatJetUncVars(""),
+    m_TCCJetUncConfig(""),
     m_WtagConfig(""),
     m_ZtagConfig(""),
     m_WZTaggerCalibArea(""),
@@ -225,7 +226,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_fwdjetEtaMin(-99.),
     m_fwdjetPtMax(-99.),
     m_fwdjetTightOp(false),
-    m_JMScalib(""),
+    m_JMScalib(false),
     //
     m_orDoTau(false),
     m_orDoPhoton(false),
@@ -266,6 +267,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
     m_metJetSelection(""),
     m_fatJets(""),
+    m_TCCJets(""),
     //
     m_currentSyst(),
     m_EG_corrModel(""),
@@ -276,6 +278,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_jetFatCalibTool(""),
     m_jetUncertaintiesTool(""),
     m_fatjetUncertaintiesTool(""),
+    m_TCCjetUncertaintiesTool(""),
     m_jetCleaningTool(""),
     m_jetJvtUpdateTool(""),
     m_jetFwdJvtTool(""),
@@ -454,6 +457,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   declareProperty( "JetJMSCalib",  m_JMScalib );
   declareProperty( "JetLargeRcollection",  m_fatJets );
+  declareProperty( "JetTCCcollection",  m_TCCJets );
 
   //BTAGGING
   declareProperty( "BtagTagger", m_BtagTagger);
@@ -556,6 +560,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
   declareProperty( "JetLargeRuncConfig",  m_fatJetUncConfig );
   declareProperty( "JetLargeRuncVars",  m_fatJetUncVars );
+  declareProperty( "JetTCCuncConfig",  m_TCCJetUncConfig );
   declareProperty( "JetWtaggerConfig",  m_WtagConfig );
   declareProperty( "JetZtaggerConfig",  m_ZtagConfig );
   declareProperty( "JetWZTaggerCalibArea",  m_WZTaggerCalibArea );
@@ -574,6 +579,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_jetFatCalibTool.declarePropertyFor( this, "FatJetCalibTool", "The JetCalibTool for large-R jets" );
   m_jetUncertaintiesTool.declarePropertyFor( this, "JetUncertaintiesTool", "The JetUncertaintiesTool" );
   m_fatjetUncertaintiesTool.declarePropertyFor( this, "FatJetUncertaintiesTool", "The JetUncertaintiesTool for large-R jets" );
+  m_TCCjetUncertaintiesTool.declarePropertyFor( this, "TCCJetUncertaintiesTool", "The JetUncertaintiesTool for TCC jets" );
   m_jetCleaningTool.declarePropertyFor( this, "JetCleaningTool", "The JetCleaningTool" );
   m_jetJvtUpdateTool.declarePropertyFor( this, "JetJvtUpdateTool", "The JetJvtUpdateTool" );
   m_jetJvtEfficiencyTool.declarePropertyFor( this, "JetJvtEfficiencyTool", "The JetJvtEfficiencyTool" );
@@ -794,7 +800,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
     ATH_MSG_FATAL( "Data source incorrectly configured!!" );
     ATH_MSG_FATAL("You must set the DataSource property to Data, FullSim or AtlfastII !!");
     if (autoconf) ATH_MSG_FATAL("Autoconfiguration seems to have failed!");
-    // if(m_useLeptonTrigger<0) ATH_MSG_ERROR( " UseLeptonTrigger not set");
+    // if(m_useLeptonTrigger<0) ATH_MSG_ERROR( "UseLeptonTrigger not set");
     ATH_MSG_FATAL( "Exiting... " );
     return StatusCode::FAILURE;
   }
@@ -1288,12 +1294,14 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jetEta, "Jet.Eta", rEnv, 2.8);
   configFromFile(m_JVT_WP, "Jet.JVT_WP", rEnv, "Default");
   configFromFile(m_JvtPtMax, "Jet.JvtPtMax", rEnv, 120.0e3);
-  configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Fall2018/R4_SR_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
+  configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Summer2019/R4_SR_Scenario1_SimpleJER.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2018SmallR
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "default"); // Defaults to default area set by tool
   configFromFile(m_jetUncertaintiesPDsmearing, "Jet.UncertPDsmearing", rEnv, false); // for non "SimpleJER" config, run MC twice with IsData on/off, see twiki above
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off large jets 
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Spring2019/R10_GlobalReduction.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
+  configFromFile(m_TCCJets, "Jet.TCCcollection", rEnv, "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"); // set to "None" to turn off TCC jets 
+  configFromFile(m_TCCJetUncConfig, "Jet.TCCuncConfig", rEnv, "rel21/Summer2019/R10_Scale_TCC_all.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Summer2019TCC
   configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedContainedWTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
   configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedContainedZTagger_AntiKt10TrackCaloClusterTrimmed_MaxSignificance_3Var_MC16d_20190410.dat");
   configFromFile(m_WZTaggerCalibArea, "Jet.WZTaggerCalibArea", rEnv, "SmoothedWZTaggers/Rel21/");
@@ -1301,15 +1309,11 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_TopTaggerCalibArea, "Jet.TopTaggerCalibArea", rEnv, "JSSWTopTaggerDNN/Rel21/");
   configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_MC16Recommendation_Consolidated_EMTopo_Apr2019_Rel21.config");
   configFromFile(m_jesConfigAFII, "Jet.JESConfigAFII", rEnv, "JES_MC16Recommendation_AFII_EMTopo_Apr2019_Rel21.config");
-  configFromFile(m_jesConfigEMPFlow, "Jet.JESConfigEMPFlow", rEnv, "JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config");
-  configFromFile(m_jesConfigEMPFlowAFII, "Jet.JESConfigEMPFlowAFII", rEnv, "JES_MC16Recommendation_AFII_PFlow_Apr2019_Rel21.config");
-  configFromFile(m_jesConfigJMS, "Jet.JESConfigJMS", rEnv, "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config");
+  configFromFile(m_jesConfigJMS, "Jet.JESConfigJMS", rEnv, "JES_JMS_MC16Recommendation_Consolidated_MC_only_EMTopo_July2019_Rel21.config");
+  configFromFile(m_jesConfigJMSData, "Jet.JESConfigJMSData", rEnv, "JES_JMS_MC16Recommendation_Consolidated_data_only_EMTopo_Sep2019_Rel21.config");
   configFromFile(m_jesConfigFat, "Jet.JESConfigFat", rEnv, "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_17Oct2018.config");
   configFromFile(m_jesConfigFatData, "Jet.JESConfigFatData", rEnv, "JES_MC16recommendation_FatJet_Trimmed_JMS_comb_3April2019.config");
   configFromFile(m_jesCalibSeq, "Jet.CalibSeq", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
-  configFromFile(m_jesCalibSeqAFII, "Jet.CalibSeqAFII", rEnv, "JetArea_Residual_EtaJES_GSC");
-  configFromFile(m_jesCalibSeqEMPFlow, "Jet.CalibSeqEMPFlow", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
-  configFromFile(m_jesCalibSeqEMPFlowAFII, "Jet.CalibSeqEMPFlowAFII", rEnv, "JetArea_Residual_EtaJES_GSC");
   configFromFile(m_jesCalibSeqJMS, "Jet.CalibSeqJMS", rEnv, "JetArea_Residual_EtaJES_GSC");
   configFromFile(m_jesCalibSeqFat, "Jet.CalibSeqFat", rEnv, "EtaJES_JMS");
   //
@@ -1323,7 +1327,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_fwdjetEtaMin, "FwdJet.JvtEtaMin", rEnv, 2.5);
   configFromFile(m_fwdjetPtMax, "FwdJet.JvtPtMax", rEnv, 50e3);
   configFromFile(m_fwdjetTightOp, "FwdJet.JvtUseTightOP", rEnv, false);
-  configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, "None");
+  configFromFile(m_JMScalib, "Jet.JMSCalib", rEnv, false);
   //
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
@@ -1792,6 +1796,14 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("Configured (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
     }
   }
+  if (!m_TCCjetUncertaintiesTool.empty()) {
+    CP::SystematicCode ret = m_TCCjetUncertaintiesTool->applySystematicVariation(systConfig);
+    if ( ret != CP::SystematicCode::Ok) {
+      ATH_MSG_VERBOSE("Cannot configure (TCC)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    } else {
+      ATH_MSG_VERBOSE("Configured (TCC)JetUncertaintiesTool for systematic var. " << systConfig.name() );
+    }
+  }
   if (!m_jetJvtEfficiencyTool.empty()) {
     CP::SystematicCode ret = m_jetJvtEfficiencyTool->applySystematicVariation(systConfig);
     if ( ret != CP::SystematicCode::Ok) {
@@ -2202,6 +2214,12 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectsType = SystObjType::Jet;
     }
   }
+  if (!m_TCCjetUncertaintiesTool.empty()) {
+    if ( m_TCCjetUncertaintiesTool->isAffectedBySystematic( CP::SystematicVariation(sys.basename(), CP::SystematicVariation::CONTINUOUS) ) ) {
+      sysInfo.affectsKinematics = true;
+      sysInfo.affectsType = SystObjType::Jet;
+    }
+  }
   if (!m_muonCalibrationAndSmearingTool.empty()) {
     if ( m_muonCalibrationAndSmearingTool->isAffectedBySystematic(sys) ) {
       sysInfo.affectsKinematics = true;
@@ -2550,7 +2568,7 @@ StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electr
     if (dec_passOR( *jet )) Njet++;
   }
 
-  ATH_MSG_VERBOSE( " After overlap removal: Nel=" << Nel << ", Nmu=" << Nmu << ", Njet=" << Njet );
+  ATH_MSG_VERBOSE( "After overlap removal: Nel=" << Nel << ", Nmu=" << Nmu << ", Njet=" << Njet );
   */
 
   return StatusCode::SUCCESS;

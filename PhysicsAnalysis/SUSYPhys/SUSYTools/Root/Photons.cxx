@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -154,8 +154,6 @@ bool SUSYObjDef_xAOD::IsSignalPhoton(const xAOD::Photon& input, float ptcut, flo
 
   if ( !dec_baseline(input) )  return false;
 
-  if(!input.vertex()) return false;
-
   if ( !m_egammaAmbiguityTool->accept(input) ) return false;
 
   if ( input.pt() < ptcut ) return false;
@@ -223,7 +221,7 @@ double SUSYObjDef_xAOD::GetSignalPhotonSF(const xAOD::Photon& ph, const bool eff
     sf *= sf_trigger;
   }
 
-  ATH_MSG_VERBOSE( " ScaleFactor " << sf );
+  ATH_MSG_VERBOSE( "ScaleFactor " << sf );
 
   dec_effscalefact(ph) = sf;
   return sf;
@@ -296,7 +294,7 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
     ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
-  ATH_MSG_VERBOSE( " ScaleFactor " << sf );
+  ATH_MSG_VERBOSE( "ScaleFactor " << sf );
 
   dec_effscalefact(ph) = sf;
   return sf;

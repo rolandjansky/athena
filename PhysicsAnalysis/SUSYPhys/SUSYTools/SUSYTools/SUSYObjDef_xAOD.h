@@ -141,7 +141,7 @@ namespace ST {
     void setDataSource(int source);
 
     // Apply the correction on a modifyable object
-    StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false) override final;
+    StatusCode FillJet(xAOD::Jet& input, const bool doCalib = true, bool isFat = false, bool isTCC = false) override final;
     StatusCode FillTrackJet(xAOD::Jet& input) override final;
     StatusCode FillTau(xAOD::TauJet& input) override final;
     StatusCode FillMuon(xAOD::Muon& input, const float ptcut, const float etacut) override final;
@@ -477,6 +477,7 @@ namespace ST {
 
     std::string m_fatJetUncConfig;
     std::string m_fatJetUncVars;
+    std::string m_TCCJetUncConfig;
 
     std::string m_WtagConfig;
     std::string m_ZtagConfig;
@@ -637,7 +638,7 @@ namespace ST {
     double m_fwdjetPtMax;
     bool   m_fwdjetTightOp;
 
-    std::string m_JMScalib;
+    bool m_JMScalib;
 
     /// Overlap removal options
     bool   m_orDoTau;
@@ -687,6 +688,7 @@ namespace ST {
     std::string m_defaultJets;
     std::string m_defaultTrackJets;
     std::string m_fatJets;
+    std::string m_TCCJets;
 
     CP::SystematicSet m_defaultSyst = CP::SystematicSet();
     CP::SystematicSet m_currentSyst;
@@ -703,6 +705,7 @@ namespace ST {
     asg::AnaToolHandle<IJetCalibrationTool> m_jetFatCalibTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesTool;
     asg::AnaToolHandle<ICPJetUncertaintiesTool> m_fatjetUncertaintiesTool;
+    asg::AnaToolHandle<ICPJetUncertaintiesTool> m_TCCjetUncertaintiesTool;
     asg::AnaToolHandle<IJetSelector> m_jetCleaningTool;
     asg::AnaToolHandle<IJetUpdateJvt> m_jetJvtUpdateTool;
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
@@ -716,16 +719,12 @@ namespace ST {
     //
     std::string m_jesConfig;
     std::string m_jesConfigJMS;
+    std::string m_jesConfigJMSData;
     std::string m_jesConfigAFII;
-    std::string m_jesConfigEMPFlow;
-    std::string m_jesConfigEMPFlowAFII;
     std::string m_jesConfigFat;
     std::string m_jesConfigFatData;
     std::string m_jesCalibSeq;
     std::string m_jesCalibSeqJMS;
-    std::string m_jesCalibSeqAFII;
-    std::string m_jesCalibSeqEMPFlow;
-    std::string m_jesCalibSeqEMPFlowAFII;
     std::string m_jesCalibSeqFat;
 
     //
