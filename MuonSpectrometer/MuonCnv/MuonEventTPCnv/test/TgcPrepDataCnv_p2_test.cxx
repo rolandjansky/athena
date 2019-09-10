@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,7 +13,6 @@
 #undef NDEBUG
 #include "MuonEventTPCnv/MuonPrepRawData/TgcPrepDataCnv_p2.h"
 #include "TestTools/leakcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
