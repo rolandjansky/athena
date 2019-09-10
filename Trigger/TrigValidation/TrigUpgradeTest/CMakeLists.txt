@@ -23,7 +23,7 @@ atlas_add_component( TrigUpgradeTest
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref share/*.conf )
 atlas_install_python_modules( python/*.py )
-atlas_install_scripts( test/exec*.sh test/test*.sh )
+atlas_install_scripts( test/exec*.sh test/test*.sh test/test*.py )
 
 # Check python syntax:
 atlas_add_test( flake8
