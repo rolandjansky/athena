@@ -60,7 +60,7 @@ def make_calo_cells (detStore, desc):
     for addr, (e, gain, exp) in desc.items():
         cellid = idhelper.cell_id (*addr)
         elt = mgr.get_element (cellid)
-        assert elt != None
+        assert elt is not None
         if addr[0] == TILE:
             cc = ROOT.TileCell (elt, e)
         else:
@@ -156,7 +156,7 @@ def testCfg (configFlags):
 
     from FastCaloSim.AddNoiseCellBuilderToolConfig import AddNoiseCellBuilderToolCfg
     acc = AddNoiseCellBuilderToolCfg (configFlags)
-    tool = acc.popPrivateTools()
+    acc.popPrivateTools()
     result.merge (acc)
 
     result.addEventAlgo (TestAlg ('TestAlg'))
