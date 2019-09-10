@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CoolHistExample.cxx - simple example of algorithm accessing CoolHistSvc
@@ -13,7 +13,6 @@
 #include "TH1.h"
 #include "TDirectory.h"
 #include "DetDescrCondExample/CoolHistExample.h"
-#include "StoreGate/StoreGateSvc.h"
 
 CoolHistExample::CoolHistExample(const std::string& name, 
   ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),

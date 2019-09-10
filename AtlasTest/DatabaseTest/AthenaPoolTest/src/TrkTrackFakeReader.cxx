@@ -38,9 +38,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 //#include "InDetDetDescr/InDet_DetDescrManager.h"
 
-// TES include
-#include "StoreGate/StoreGateSvc.h"
-
 // test includes
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"

@@ -29,7 +29,6 @@
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 class IAddressCreator;
-class StoreGateSvc;
 class CollectionMetadata;
 
 /**
