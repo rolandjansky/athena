@@ -96,6 +96,7 @@ _add_test( PackedContainer_test )
 _add_test( debug_test )
 _add_test( AtomicDecorator_test )
 _add_test( AtomicConstAccessor_test )
+_add_test( supportsThinning_test )
 
 if( NOT XAOD_STANDALONE )
    _add_test( dataVectorAsELV_test )
