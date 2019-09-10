@@ -47,7 +47,7 @@ private:
 
   Gaudi::Property<double> m_fraclimit{this, "ECPSFractionThreshold", 0.8,
       "Threshold for identifying a cluser as ECPS"};
-  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", 0.8,
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "",
       "SG key for input jet container"};
 
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_fracKey{this, "ECPSFractionDecorKey", "ECPSFraction",
