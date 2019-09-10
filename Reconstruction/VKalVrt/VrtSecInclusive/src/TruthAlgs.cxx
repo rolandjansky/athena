@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -512,8 +512,9 @@ namespace VKalVrtAthena {
 	    ATH_MSG_DEBUG( "> getNewTruthInfo() : mismatch numreco & re-fit size "  <<  numReco  <<  ","  <<  ListMatBaseTracks.size() );}
 	  else{
 	    ATH_MSG_DEBUG( "> getNewTruthInfo() : numreco & re-fit size "  <<  numReco  <<  ","  <<  ListMatBaseTracks.size() );
-	    
-	    m_fitSvc->setApproximateVertex( Vpos.x(), Vpos.y(), Vpos.z() );
+
+            std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+	    m_fitSvc->setApproximateVertex( Vpos.x(), Vpos.y(), Vpos.z(), *state );
             
 	    sc=m_fitSvc->VKalVrtFit( ListMatBaseTracks,
                                      dummyNeutrals,
@@ -523,7 +524,8 @@ namespace VKalVrtAthena {
                                      newvrt.vertexCov,
                                      newvrt.Chi2PerTrk,
                                      newvrt.TrkAtVrt,
-                                     newvrt.Chi2 );
+                                     newvrt.Chi2,
+                                     *state );
 	    //
 	    // check if refit is success
 	    //

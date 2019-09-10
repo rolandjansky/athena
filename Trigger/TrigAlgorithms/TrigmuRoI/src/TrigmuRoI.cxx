@@ -2,7 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include "StoreGate/StoreGateSvc.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigT1Result/RoIBResult.h"
 

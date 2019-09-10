@@ -61,7 +61,6 @@ try:
 except:
   Stream1 = AthenaPoolOutputStream( "Stream1", "DidNotSetOutputName.root", True )
 Stream1.TakeItemsFromInput=TRUE;
-Stream1.ForceRead=TRUE;  #force read of output data objs
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #Stream1.ExcludeList = ['6421#*']
 

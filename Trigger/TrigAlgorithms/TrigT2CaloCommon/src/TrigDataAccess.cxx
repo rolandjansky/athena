@@ -16,7 +16,6 @@
 // ********************************************************************
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArRecEvent/LArCell.h"
@@ -423,6 +422,8 @@ StatusCode TrigDataAccess::finalize(){
 	}
 	m_zdcDigitCollection.clear();
 	m_zdcCol.clear();
+	delete m_fullCellContainer;
+	m_fullCellContainer=nullptr;
 	return StatusCode::SUCCESS;
 
 } // End of finalize

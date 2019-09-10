@@ -62,16 +62,6 @@ StatusCode TauTrackSlimmer::initialize()
 
     ATH_MSG_VERBOSE( "TauTrackSlimmer :: initialize()" );
 
-    /*
-       sc = service( "StoreGateSvc", evtStore() );
-       if( sc.isFailure() )
-       {
-       log << MSG :: ERROR;
-       log << "Unable to retrieve pointer to StoreGateSvc";
-       log );
-       return StatusCode :: FAILURE;
-       }
-     */
     if ( m_thinningSvc.retrieve().isFailure() )
     {
         ATH_MSG_ERROR( "Unable to retrieve pointer to IThinningSvc" );

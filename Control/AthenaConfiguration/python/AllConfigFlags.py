@@ -4,17 +4,27 @@ from __future__ import print_function
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
-from AthenaConfiguration.AutoConfigFlags import GetFileMD
-import imp
+from AthenaConfiguration.AutoConfigFlags import GetFileMD, GetDetDescrInfo
+import six
+
+
+def _moduleExists (modName):
+    if six.PY34:
+        import importlib
+        return importlib.util.find_spec (modName) is not None
+    else:
+        import imp
+        try:
+           imp.find_module (modName)
+        except ImportError:
+            return False
+        return True
 
 
 def _addFlagsCategory (acf, name, generator, modName = None):
-    if modName is not None:
-        try:
-            imp.find_module(modName)
-        except ImportError:
-            return None
-    return acf.addFlagsCategory (name, generator)
+    if _moduleExists (modName):
+        return acf.addFlagsCategory (name, generator)
+    return None
 
         
 def _createCfgFlags():
@@ -23,12 +33,12 @@ def _createCfgFlags():
 
     acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # former global.InputFiles
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
-    acf.addFlag('Input.isMC', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("isMC",None)) # former global.isMC
-    acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("RunNumber",None))) # former global.RunNumber
-    acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Project","data17_13TeV") ) # former global.ProjectName
+    acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
+    acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
+    acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
 
     def _inputCollections(inputFile):
-        rawCollections = GetFileMD(inputFile).get("SGKeys","").split()
+        rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
         collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
         return collections
 
@@ -44,7 +54,7 @@ def _createCfgFlags():
     acf.addFlag('Scheduler.ShowControlFlow', True)
 
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
-    acf.addFlag('Common.useOnlineLumi', False ) #  Use online version of luminosity. ??? Should just use isOnline?
+    acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)
 
     def _checkProject():
@@ -59,7 +69,7 @@ def _createCfgFlags():
     acf.addFlag('Beam.BunchSpacing', 25) # former global.BunchSpacing
     acf.addFlag('Beam.Type', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_type','collisions') )# former global.BeamType
     acf.addFlag("Beam.NumberOfCollisions", lambda prevFlags : 2. if prevFlags.Beam.Type=='collisions' else 0.) # former global.NumberOfCollisions
-    acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('BeamEnergy',7*TeV)) # former global.BeamEnergy
+    acf.addFlag('Beam.Energy', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get('beam_energy',7*TeV)) # former global.BeamEnergy
     acf.addFlag('Beam.estimatedLuminosity', lambda prevFlags : ( 1E33*(prevFlags.Beam.NumberOfCollisions)/2.3 ) *\
         (25./prevFlags.Beam.BunchSpacing)) # former flobal.estimatedLuminosity
 
@@ -105,15 +115,15 @@ def _createCfgFlags():
 
 #Geo Model Flags:
     acf.addFlag('GeoModel.Layout', 'atlas') # replaces global.GeoLayout
-    acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("Geometry","ATLAS-R2-2016-01-00-01")) #
+    acf.addFlag("GeoModel.AtlasVersion", lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("GeoAtlas",None) or "ATLAS-R2-2016-01-00-01") #
     acf.addFlag("GeoModel.Align.Dynamic", lambda prevFlags : (not prevFlags.Detector.Simulate))
-    acf.addFlag("GeoModel.StripGeoType", "GMX") # Based on CommonGeometryFlags.StripGeoType
-    acf.addFlag("GeoModel.Run","RUN2") # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
-    acf.addFlag("GeoModel.Type", "UNDEFINED") # Geometry type in {ITKLoI, ITkLoI-VF, etc...}
-    acf.addFlag("GeoModel.IBLLayout", "UNDEFINED") # IBL layer layout  in {"planar", "3D", "noIBL", "UNDEFINED"}
+    acf.addFlag("GeoModel.StripGeoType", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('StripGeoType',"GMX")) # Based on CommonGeometryFlags.StripGeoType
+    acf.addFlag("GeoModel.Run", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('Run',"RUN2")) # Based on CommonGeometryFlags.Run (InDetGeometryFlags.isSLHC replaced by GeoModel.Run=="RUN4")
+    acf.addFlag("GeoModel.Type", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('GeoType',"UNDEFINED")) # Geometry type in {ITKLoI, ITkLoI-VF, etc...}
+    acf.addFlag("GeoModel.IBLLayout", lambda prevFlags : GetDetDescrInfo(prevFlags.GeoModel.AtlasVersion).get('IBLlayout',"UNDEFINED")) # IBL layer layout  in {"planar", "3D", "noIBL", "UNDEFINED"}
 
 #IOVDbSvc Flags:
-    acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("ConditionsTag","CONDBR2-BLKPA-2017-05"))
+    acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-2017-05")
     from IOVDbSvc.IOVDbAutoCfgFlags import getDatabaseInstanceDefault
     acf.addFlag("IOVDb.DatabaseInstance",getDatabaseInstanceDefault)
 
@@ -134,7 +144,7 @@ def _createCfgFlags():
 
 #CaloCell flags
     acf.addFlag("Calo.Cell.doLArHVCorr",False) # Disable for now as it is broken...
-
+    acf.addFlag("Calo.Cell.doPileupOffsetBCIDCorr", True)
 #TopoCluster Flags:
     acf.addFlag("Calo.TopoCluster.doTwoGaussianNoise",True)
     acf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)

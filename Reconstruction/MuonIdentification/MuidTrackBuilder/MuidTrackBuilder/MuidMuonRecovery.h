@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -18,14 +18,15 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuidInterfaces/IMuidMuonRecovery.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace Muon
 {
-    class MuonEDMHelperTool;
     class MuonEDMPrinterTool;
     class MuonIdHelperTool;
 }
@@ -60,7 +61,9 @@ public:
  private:
     // helpers, managers, tools
     ToolHandle<Trk::IExtrapolator>                      m_extrapolator; 
-    ToolHandle<Muon::MuonEDMHelperTool>                 m_helper;   //<! multipurpose helper tool
+    ServiceHandle<Muon::IMuonEDMHelperSvc>              m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };   //<! multipurpose helper tool
     ToolHandle<Muon::MuonIdHelperTool>                  m_idHelper; //<! tool to assist with Identifiers
     ToolHandle<Muon::MuonEDMPrinterTool>                m_printer;  //<! tool to print EDM objects
     ToolHandle<Trk::IResidualPullCalculator>            m_residualCalculator;

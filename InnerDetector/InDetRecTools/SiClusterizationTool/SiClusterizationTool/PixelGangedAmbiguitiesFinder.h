@@ -24,10 +24,11 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace InDetDD {
   class SiDetectorElement;
-  class SiDetectorManager;
 }
 
 
@@ -48,6 +49,8 @@ namespace InDet{
     ~PixelGangedAmbiguitiesFinder() = default;
   
     static const InterfaceID& interfaceID() { return IID_PixelGangedAmbiguitiesFinder; };
+
+    virtual StatusCode initialize();
   
     // Called by the PixelClusterization algorithms of InDetPrepRawDataFormation
     // A map containing the pairs of Pixel Clusters which shares the same 
@@ -55,17 +58,17 @@ namespace InDet{
     // Inputs are the cluster collection of a module, and the silicon 
     // detector manager, and the map to be filled.
     void execute(PixelClusterCollection* collection,
-                 const InDetDD::SiDetectorManager& manager,
                  PixelGangedClusterAmbiguities& map);  
  
   private:
 
     typedef InDetDD::SiDetectorElement SiDetectorElement;
     typedef InDetDD::SiLocalPosition SiLocalPosition;
-    typedef InDetDD::SiDetectorManager SiDetectorManager;
 
     // If possibile, internally solve ganged pixel ambiguities
     BooleanProperty m_internalSolving{this, "InternalSolving", false, "Standalone resolution of ganged pixel ambiguities"};
+
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
     // Determines if a pixel cell (whose identifier is the first argument) is 
     // a ganged pixel. If this is the case, the last argument assumes the 

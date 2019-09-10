@@ -58,10 +58,10 @@ void test1 (InDet::VertexPointEstimator& tool)
 
 
   int err = 0;
-  Amg::Vector3D v1 = tool.getCirclesIntersectionPoint (&p1a, &p1b, 0, err);
+  std::map<std::string, float> m1;
+  Amg::Vector3D v1 = tool.getCirclesIntersectionPoint (&p1a, &p1b, 0, err, m1);
   assert (err == 0);
   assertVec3D ("v1", v1, {35.8597, 1.72122, 1.74997});
-  std::map<std::string, float> m1 = tool.getLastValues();
   assert (m1.size() == 2);
   assert ( Athena_test::isEqual (m1["deltaPhiTracks"], 0.0255183, 1e-5 ) );
   assert ( Athena_test::isEqual (m1["DR1R2"], -2.60722, 1e-5 ) );
@@ -70,10 +70,10 @@ void test1 (InDet::VertexPointEstimator& tool)
   Trk::Perigee p2b (pos1b, mom1b,  1, pos0);
 
   err = 0;
-  Amg::Vector3D v2 = tool.getCirclesIntersectionPoint (&p2a, &p2b, 0, err);
+  std::map<std::string, float> m2;
+  Amg::Vector3D v2 = tool.getCirclesIntersectionPoint (&p2a, &p2b, 0, err, m2);
   assert (err == 0);
   assertVec3D ("v2", v2, {31.1606, 1.69782, 1.74998});
-  std::map<std::string, float> m2 = tool.getLastValues();
   assert (m2.size() == 2);
   assert ( Athena_test::isEqual (m2["deltaPhiTracks"], 0.0338889, 1e-5 ) );
   assert ( Athena_test::isEqual (m2["DR1R2"], -4.59815, 1e-5 ) );
@@ -87,7 +87,8 @@ void test1 (InDet::VertexPointEstimator& tool)
   Trk::Perigee p3b (pos3b, mom3b,  1, pos0);
 
   err = 0;
-  Amg::Vector3D v3 = tool.getCirclesIntersectionPoint (&p3a, &p3b, 0, err);
+  std::map<std::string, float> m3;
+  Amg::Vector3D v3 = tool.getCirclesIntersectionPoint (&p3a, &p3b, 0, err, m3);
 #if 0
   std::cout << v3.x() << ", " << v3.y() << ", " << v3.z() << "\n";
   std::cout << err << "\n";
@@ -96,7 +97,6 @@ void test1 (InDet::VertexPointEstimator& tool)
 #endif
   assert (err == 8);
   assertVec3D ("v3", v3, {-45.9745, 0.190709, 0.729039});
-  std::map<std::string, float> m3 = tool.getLastValues();
   assert (m3.size() == 2);
   assert ( Athena_test::isEqual (m3["deltaPhiTracks"], 0.0642217, 1e-5 ) );
   assert ( Athena_test::isEqual (m3["DR1R2"], -16.5221, 1e-5 ) );

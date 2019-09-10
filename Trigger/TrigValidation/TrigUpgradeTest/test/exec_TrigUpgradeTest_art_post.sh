@@ -74,11 +74,11 @@ if [ "${ATH_RETURN}" -ne "0" ] && [ -n "${gitlabTargetBranch}" ]; then
 fi
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for errors"
-timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
+timeout 5m check_log.py --config checklogTrigUpgradeTest.conf --errors --showexcludestats ${JOB_LOG} 2>&1 | tee checklog.log
 echo "art-result: ${PIPESTATUS[0]} CheckLog"
 
 echo $(date "+%FT%H:%M %Z")"     Running checklog for warnings"
-timeout 5m check_log.pl --config checklogTrigUpgradeTest.conf --noerrors --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
+timeout 5m check_log.py --config checklogTrigUpgradeTest.conf --warnings --showexcludestats ${JOB_LOG} >warnings.log 2>&1
 
 ### PERFMON
 
@@ -125,9 +125,11 @@ if [ -f ${REF_FOLDER}/expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     Running rootcomp"
   timeout 10m rootcomp.py --skip="TIME_" ${REF_FOLDER}/expert-monitoring.root expert-monitoring.root >rootcompout.log 2>&1
   echo "art-result: ${PIPESTATUS[0]} RootComp"
-else
+elif [ -f expert-monitoring.root ]; then
   echo $(date "+%FT%H:%M %Z")"     No reference expert-monitoring.root found in ${REF_FOLDER}"
   echo "art-result: 999 RootComp"
+else
+  echo $(date "+%FT%H:%M %Z")"     No expert-monitoring.root file and no reference are found - skipping RootComp"
 fi
 
 ### CHAINDUMP
@@ -135,8 +137,8 @@ fi
 
 # Using temporary workaround to dump HLTChain.txt
 if [ -f expert-monitoring.root ] && [ $[SKIP_CHAIN_DUMP] != 1 ]; then
-  echo "Running chainDumpWorkaround.sh"
-  chainDumpWorkaround.sh expert-monitoring.root
+  echo "Running chainDump"
+  timeout 5m chainDump.py -f expert-monitoring.root --json >ChainDump.log 2>&1
 fi
 
 ### CHECKFILE

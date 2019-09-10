@@ -232,8 +232,7 @@ IOVDbFolder::setIOVOverride(const unsigned int run,
   } else {
     if (run!=0 || lumiblock!=0) {
       m_iovoverride=IOVDbNamespace::iovTimeFromRunLumi(run,lumiblock);
-      ATH_MSG_INFO( 
-        "Override run/LB number to [" << run << ":" << lumiblock << 
+      ATH_MSG_INFO( "Override run/LB number to [" << run << ":" << lumiblock << 
         "] for folder " << m_foldername );
       m_iovoverridden=true;
     }
@@ -261,13 +260,12 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
   // if cacheDiv > 0, specifies number of slices of cache for query alignment
   // if ignoreMissChan set, don't worry about missing channels outside the cache range
   // return false if any problem
-
   // timer to track amount of time in loadCache
   TStopwatch cachetimer;
   const auto & [cachestart, cachestop] = m_iovs.getCacheBounds();
   BasicFolder b;
   if (m_source == "CREST"){
-    const std::string  jsonFolderName=sanitiseFilename(m_foldername).substr(1, std::string::npos);
+    const std::string  jsonFolderName=sanitiseCrestTag(m_foldername);
     const std::string  completeTag=jsonTagName(globalTag, m_foldername);
     ATH_MSG_INFO("Download tag would be: "<<completeTag);
     std::string reply=getPayloadForTag(completeTag);
@@ -477,6 +475,7 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
     }
   } /*end of 'if ... COOL_DATABASE'*/ else {
     //this is code using CREST objects now
+    if (!resolveTag(nullptr,globalTag)) return false;
     addIOVtoCache(b.iov().first, b.iov().second);
     ATH_MSG_INFO("Adding IOV to cache");
     const auto & channelNumbers=b.channelIds();
@@ -487,17 +486,19 @@ IOVDbFolder::loadCache(const cool::ValidityKey vkey,
         const auto & vPayload = b.getVectorPayload(chan);
         const unsigned int istart=m_cacheattr.size();
         for (const auto & attList:vPayload){
+          if (m_cachespec==0) setSharedSpec(attList);
           m_cacheattr.push_back(coral::AttributeList(*m_cachespec,true));// maybe needs to be cleared before
           m_cacheattr.back().fastCopyData(attList);
           m_nbytesread+=IOVDbNamespace::attributeListSize(attList);
         }
         m_cacheccstart.push_back(istart);
         m_cacheccend.push_back(m_cacheattr.size());
-        //m_cache.saveCoraCoolEndpoints(istart, m_cache.size());
         ++iadd;
       } else {
         auto const & attList = b.getPayload(chan);
-        m_cacheattr.push_back(coral::AttributeList(*m_cachespec,true));// maybe needs to be cleared before
+        if (m_cachespec==0) setSharedSpec(attList);
+        const coral::AttributeList c(*m_cachespec,true);
+        m_cacheattr.push_back(c);// maybe needs to be cleared before
         m_cacheattr.back().fastCopyData(attList);
         m_nbytesread+=IOVDbNamespace::attributeListSize(attList);
         ++iadd;
@@ -599,7 +600,6 @@ bool IOVDbFolder::loadCacheIfDbChanged(const cool::ValidityKey vkey,
       if (not m_conn->dropAndReconnect()) ATH_MSG_ERROR("Tried reconnecting in loadCacheIfDbChanged but failed");
     }
   }
-  ATH_MSG_INFO( "Special cache check finished for folder " << m_foldername );
   return true;
 }
 
@@ -913,7 +913,7 @@ IOVDbFolder::createTransientAddress(const std::vector<std::string> & symlinks){
       }
     }
   }
-  return std::move(tad);
+  return tad;
 }
 
 std::unique_ptr<SG::TransientAddress>
@@ -923,12 +923,12 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore, const unsigned int cacheRun, 
   // as detector store does not exist yet in IOVDbSvc initialisation
   // and sets up cache length, taking into account optional overrides
   // returns null pointer in case of problem
-  ATH_MSG_DEBUG( "preLoadFolder for folder " << m_foldername);
   p_detStore=detStore;
   std::string folderdesc;
   if (not m_metacon) {
     if(m_source=="CREST"){
-      folderdesc=folderDescriptionForTag(m_foldername);
+      const std::string  tagName=sanitiseCrestTag(m_foldername);
+      folderdesc=folderDescriptionForTag(tagName);
     } else {
       //folder desc from db
       std::tie(m_multiversion, folderdesc) = IOVDbNamespace::folderMetadata(m_conn, m_foldername);
@@ -952,7 +952,11 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore, const unsigned int cacheRun, 
   // setup channel list and folder type
   if (not m_metacon) {
     if(m_source=="CREST"){
-        m_channums=channelListForTag(m_foldername);
+        const auto & crestTag=sanitiseCrestTag(m_foldername);
+        m_channums=channelListForTag(crestTag);
+        const std::string & payloadSpec = payloadSpecificationForTag(crestTag);
+        //determine foldertype from the description, the spec and the number of channels
+        m_foldertype = IOVDbNamespace::determineFolderType(folderdesc, payloadSpec, m_channums);
     } else {
       // data being read from COOL
       auto fldPtr=m_conn->getFolderPtr<cool::IFolderPtr>(m_foldername);
@@ -973,7 +977,10 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore, const unsigned int cacheRun, 
   const auto & linknameVector = folderpar.symLinks();
   // now create TAD
   auto tad{createTransientAddress(linknameVector)};
-  if (not tad) return nullptr;
+  if (not tad) {
+    ATH_MSG_WARNING("Transient address is null in "<<__func__);
+    return nullptr;
+  }
   setCacheLength(m_timestamp, cacheRun, cacheTime);
   return tad;
 }
@@ -1028,6 +1035,10 @@ IOVDbFolder::resolveTag(cool::IFolderPtr fptr,const std::string& globalTag) {
     ATH_MSG_ERROR( "No IOVDbSvc.GlobalTag specified on job options or input file" );
     return false;
   }
+  if(m_source=="CREST"){
+    m_tag=IOVDbNamespace::resolveCrestTag(globalTag,m_foldername);
+    return true;
+  }
   // check for magic tags
   if (IOVDbNamespace::looksLikeMagicTag(tag) and not magicTag(tag)) return false;
   // check tag exists - if not, lookup hierarchically
@@ -1065,41 +1076,11 @@ IOVDbFolder::resolveTag(cool::IFolderPtr fptr,const std::string& globalTag) {
 }
 
 bool 
-IOVDbFolder::magicTag(std::string& tag) {
-  // tag an inputag of form TagInfo{Major|Minor}/<tag> or 
-  // TagInfo(Major|Minor}/<prefix>/<tag>
-  // and resolve to value of TagInfo object tag <tag>
-  // with optional prefix
-  // <prefix>DEFAULT tags are no longer returned
-  // return true for successful resolution
-  const std::string inputtag=tag;
-  tag="";
-  enum ResultIndices{WHOLETAG, MAJMIN, PATH1, PATH2, SIZEWITHPREFIX};
-  auto results=IOVDbNamespace::parseMagicTag(inputtag);
-  if (results.empty())   return false;
-  const auto & [prefix, target] = IOVDbNamespace::tag2PrefixTarget(results);
-  ATH_MSG_DEBUG("In magicTag for tag name: " << target << " prefix " << prefix );
-  // try to get TagInfo object
-  tag=IOVDbNamespace::getTagInfo(inputtag, p_detStore);
-  // if nothing found, try to get GeoAtlas directly from GeoModelSvc
-  if (tag.empty() and target=="GeoAtlas") {
-    ATH_MSG_DEBUG( "Attempt to get GeoAtlas tag directly from GeoModelSvc" );
-    tag=prefix+IOVDbNamespace::getGeoAtlasVersion();
-    ATH_MSG_DEBUG( "Resolved tag " << target << " to " << tag << " directly from GeoModel" );
-  }
-  if (not tag.empty()) {
-    std::string::size_type rstrip{};
-    //number of characters to strip from tag end
-    if (results[MAJMIN] == "Major") rstrip=6;
-    if (results[MAJMIN] == "Minor") rstrip=3;
-    // check if characters need to be stripped from end of tag
-    if (rstrip>0 && tag.size()>rstrip) tag=tag.substr(0,tag.size()-rstrip);
-    ATH_MSG_DEBUG( "Resolved TagInfo tag " << target  << " to value " << tag );
-  } else {
-    ATH_MSG_ERROR( "Could not resolve TagInfo tag " << target );
-  }
+IOVDbFolder::magicTag(std::string& tag) { //alters the argument
+  tag = IOVDbNamespace::resolveUsingTagInfo(tag, p_detStore);
   return (not tag.empty());
 }
+
 
 
 bool 

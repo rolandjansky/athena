@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -31,16 +31,16 @@ ConditionsMT conditionsFactoryEtaEtMT(const std::vector<double>& etaMins,
     
     if (asymmetricEtas[i] != 0){
       conditions.push_back
-	(std::move(
-		   (std::make_unique<EtaEtAsymmetricConditionMT>(etaMins[i],
-								 etaMaxs[i],
-								 thresholds[i]))));
+	(
+         (std::make_unique<EtaEtAsymmetricConditionMT>(etaMins[i],
+                                                       etaMaxs[i],
+                                                       thresholds[i])));
       
     } else {
       conditions.push_back
-	(std::move(
-		   (std::make_unique<EtaEtConditionMT>(etaMins[i],
-						       etaMaxs[i],thresholds[i]))));
+	(
+         (std::make_unique<EtaEtConditionMT>(etaMins[i],
+                                             etaMaxs[i],thresholds[i])));
     }
   }
   return conditions;
@@ -58,13 +58,13 @@ ConditionsMT conditionsFactoryDijetMT(const std::vector<double>& massMins,
   
   for(std::size_t i = 0; i < massMins.size(); ++i){
     conditions.push_back
-      (std::move(
-		 std::make_unique<DijetConditionMT>(massMins[i],
-						    massMaxs[i],
-						    detaMins[i],
-						    detaMaxs[i],
-						    dphiMins[i],
-						    dphiMaxs[i])));
+      (
+       std::make_unique<DijetConditionMT>(massMins[i],
+                                          massMaxs[i],
+                                          detaMins[i],
+                                          detaMaxs[i],
+                                          dphiMins[i],
+                                          dphiMaxs[i]));
     
   }
   return conditions;
@@ -80,13 +80,13 @@ ConditionsMT conditionsFactoryTLAMT(const std::vector<double>& etaMins,
 
   ConditionsMT conditions;
   conditions.push_back
-    (std::move(
-	       std::make_unique<TLAConditionMT>(etaMins,
-						etaMaxs, 
-						ystarMins,
-						ystarMaxs,
-						massMins,
-						massMaxs)));
+    (
+     std::make_unique<TLAConditionMT>(etaMins,
+                                      etaMaxs, 
+                                      ystarMins,
+                                      ystarMaxs,
+                                      massMins,
+                                      massMaxs));
   
   return conditions;
 }
@@ -97,8 +97,8 @@ ConditionsMT conditionsFactoryHTMT(double htMin){
   
   ConditionsMT conditions;
   conditions.push_back
-    (std::move(
-	       std::make_unique<HTConditionMT>(htMin)));
+    (
+     std::make_unique<HTConditionMT>(htMin));
   return conditions;
   
 }

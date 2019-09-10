@@ -57,20 +57,18 @@ def metClusterPufitMenuSequence():
 
 
 
-#def metJetMenuSequence():
+def metJetMenuSequence():
 
     # menu components   
     # retrieve the reco seuqnece
-#    from TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences import metJetAthSequence
-#    (metJetSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(metJetAthSequence,ConfigFlags)
-  
+    from TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences import metJetAthSequence
+    (metJetSequence, InputMakerAlg, sequenceOut) = RecoFragmentsPool.retrieve(metJetAthSequence,ConfigFlags)
+
     #hypo
-#    from TrigMissingETHypo.TrigMissingETHypoConfigMT import MissingETHypoAlgMT, TrigMETCellHypoToolFromDict
+    metHypoAlg = TrigMissingETHypoAlgMT("METHypoAlg_mht")
+    metHypoAlg.METContainerKey=sequenceOut
 
-#    metHypoAlg = MissingETHypoAlgMT("METHypoAlg_mht")
-#    metHypoAlg.METContainerKey=sequenceOut
-
-#    return  MenuSequence( Sequence    = metJetSequence,
-#                          Maker       = InputMakerAlg,
-#                          Hypo        = metHypoAlg,
-#                          HypoToolGen = TrigMETCellHypoToolFromDict )
+    return  MenuSequence( Sequence    = metJetSequence,
+                          Maker       = InputMakerAlg,
+                          Hypo        = metHypoAlg,
+                          HypoToolGen = TrigMETCellHypoToolFromDict )

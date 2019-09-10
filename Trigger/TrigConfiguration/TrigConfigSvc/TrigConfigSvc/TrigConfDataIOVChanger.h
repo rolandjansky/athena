@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -77,9 +77,7 @@ namespace TrigConf {
 
     unsigned int m_LastRun; //!< the run number of the event last executed
 
-    ServiceHandle<StoreGateSvc> m_storeGate; //!< handle to SG service
     ServiceHandle<StoreGateSvc> m_metaDataStore; //!< handle to output metadata store
-    ServiceHandle<StoreGateSvc> m_detStore; //!< handle to the detector store
     
   };
 }

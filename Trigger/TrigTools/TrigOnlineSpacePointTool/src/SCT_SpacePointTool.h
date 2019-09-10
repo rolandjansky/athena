@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_SpacePointTool_H
@@ -7,13 +7,14 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "BeamSpotConditionsData/BeamSpotData.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "BeamSpotConditionsData/BeamSpotData.h"
+
 #include <vector>
 
 class ITrigL2LayerNumberTool;
@@ -97,13 +98,12 @@ class SCT_SpacePointTool : public AthAlgTool {
     double m_xCenter;
     double m_yCenter;
 
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
     bool m_useBeamSpot;
     bool m_useOfflineAlgorithm;
 
     ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
-
-    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
 #define SCTSP_NTIMERS 7
     TrigTimer* m_timer[SCTSP_NTIMERS];

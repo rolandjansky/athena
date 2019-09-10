@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -505,7 +505,7 @@ Trk::TrackingVolume::~TrackingVolume()
    delete m_layerAttemptsCalculator;
 }
 
-void Trk::TrackingVolume::clear() const
+void Trk::TrackingVolume::clear() 
 {
   if (m_confinedVolumes) { delete m_confinedVolumes; m_confinedVolumes=0; }
   if (m_confinedLayers)  { delete m_confinedLayers; m_confinedLayers=0; }
@@ -513,15 +513,16 @@ void Trk::TrackingVolume::clear() const
     for (size_t i =0; i < m_confinedDenseVolumes->size(); i++)
       delete (*m_confinedDenseVolumes)[i];
     delete m_confinedDenseVolumes;
-    m_confinedDenseVolumes = 0;
+    m_confinedDenseVolumes = nullptr;
   }
   if (m_confinedArbitraryLayers) {
     for (size_t i =0; i < m_confinedArbitraryLayers->size(); i++)
       delete (*m_confinedArbitraryLayers)[i];
     delete m_confinedArbitraryLayers;
-    m_confinedArbitraryLayers = 0; 
+    m_confinedArbitraryLayers = nullptr; 
   }
 }
+
 
 const Trk::Layer*   Trk::TrackingVolume::associatedLayer(const Amg::Vector3D& gp) const
 {  
@@ -1021,14 +1022,11 @@ void Trk::TrackingVolume::moveVolume( Amg::Transform3D& shift ) const
 {
   if (m_transform) {
     Amg::Transform3D transf = shift * (*m_transform);
-    delete m_transform;
-    m_transform = new Amg::Transform3D(transf);
+    const_cast<Trk::TrackingVolume*>(this)->m_transform = std::make_unique<Amg::Transform3D>(transf);
   } else {
-    m_transform = new Amg::Transform3D(shift);
+    const_cast<Trk::TrackingVolume*>(this)->m_transform = std::make_unique<Amg::Transform3D>(shift);
   }
-
-  delete m_center;
-  m_center = new Amg::Vector3D(m_transform->translation()); 
+  const_cast<Trk::TrackingVolume*>(this)->m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation())); 
 }
 
 

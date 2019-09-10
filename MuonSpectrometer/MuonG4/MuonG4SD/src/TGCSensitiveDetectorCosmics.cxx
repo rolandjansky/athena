@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCSensitiveDetectorCosmics.h"
 #include <string>
-#include "CxxUtils/make_unique.h" // For make unique
 #include "MuonSimEvent/TgcHitIdHelper.h"
 #include "MCTruth/TrackHelper.h"
 #include "G4Geantino.hh"
@@ -25,7 +24,7 @@ TGCSensitiveDetectorCosmics::TGCSensitiveDetectorCosmics(const std::string& name
 // Implemenation of member functions
 void TGCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
-  if (!m_myTGCHitColl.isValid()) m_myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
+  if (!m_myTGCHitColl.isValid()) m_myTGCHitColl = std::make_unique<TGCSimHitCollection>();
   // START OF COSMICS-SPECIFIC CODE
   m_mom = Amg::Vector3D(0.,0.,0.);
   m_globH = Amg::Vector3D(0.,0.,0.);

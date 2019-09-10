@@ -57,8 +57,6 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
                                                       const std::string& name,
                                                       const IInterface* parent)
   : CaloClusterProcessor (type, name, parent),
-    //m_storeGate ("StoreGateSvc",  name),
-    //m_detStore  ("DetectorStore", name),
     m_jos       ("JobOptionsSvc", name),
     m_toolsvc   ("ToolSvc",       name),
     m_coolInlineTool("Blob2ToolConstants",this)
@@ -68,8 +66,6 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
   declareProperty ("PreserveOrder", m_preserveOrder = false);
   declareProperty ("NoClearProps",  m_noClearProps = false);
 
-  //declareProperty ("EventStore",    m_storeGate);
-  //declareProperty ("DetectorStore", m_detStore);
   declareProperty ("JobOptionsSvc", m_jos);
   declareProperty ("ToolSvc",       m_toolsvc);
   declareProperty ("COOLFolder",    m_folderName);
@@ -82,8 +78,6 @@ CaloRunClusterCorrections::CaloRunClusterCorrections (const std::string& type,
 StatusCode CaloRunClusterCorrections::initialize()
 {
   // Fetch services used.
-  //CHECK( m_storeGate.retrieve() );
-  //CHECK( m_detStore.retrieve() );
   CHECK( m_jos.retrieve() );
   CHECK( m_toolsvc.retrieve() );
 
@@ -173,19 +167,6 @@ CaloRunClusterCorrections::execute (const EventContext& ctx,
       xAOD::CaloClusterContainer* interimCont=CaloClusterStoreHelper::makeContainer(&(*evtStore()),tool.save_container,msg());
       CaloClusterStoreHelper::copyContainer(collection,interimCont);
       CHECK(CaloClusterStoreHelper::finalizeClusters(&(*evtStore()),interimCont, tool.save_container, msg()));
-
-      /*
-      xAOD::CaloClusterContainer* savecoll = copyContainer (collection);
-      
-      CHECK( CaloClusterStoreHelper::recordClusters(&*m_storeGate, 
-                                                    savecoll,
-                                                    tool.save_container,
-                                                    *m_log) );
-      CHECK( CaloClusterStoreHelper::finalizeClusters(&*m_storeGate, 
-						      savecoll,
-                                                      tool.save_container,
-						      *m_log) );
-      */
     }
     
     CHECK( tool.collproc->execute (ctx, collection) );

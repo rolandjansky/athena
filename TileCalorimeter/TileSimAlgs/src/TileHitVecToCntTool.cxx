@@ -785,6 +785,7 @@ StatusCode TileHitVecToCntTool::processAllSubEvents() {
   double eHitTot(0.0);
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
+  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
   CLHEP::HepRandomEngine * engine = *rngWrapper;
 
   if(!m_onlyUseContainerName && m_rndmEvtOverlay) {

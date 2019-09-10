@@ -209,7 +209,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
       
       if ( vrodid32fullDet.size() != robFrags.size() ) {
         ATH_MSG_DEBUG( "Missing ROBs, requested " << vrodid32fullDet.size() << " obtained " << robFrags.size() );
-        status |= 0x1; // dummy code
+        //status |= 0x1; // dummy code
         clearMissing( vrodid32fullDet, robFrags, ( cache->larContainer ) );
       }
 
@@ -418,7 +418,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
       			 "event: Bad ROB block ( eformat checks ) : 0x"
       			 << std::hex << sourceID << std::dec );
       	// Data seems corrupted
-      	status |= 0x1; // dummy code
+      	//status |= 0x1; // dummy code
       	reset_LArCol ( coll );
 
       } else {
@@ -431,7 +431,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 			   "event: Empty ROD block ( less than 3 words ) : 0x"
 			   << std::hex << sourceID << std::dec );
 	  // Data seems corrupted
-	  status |= 0x1; // dummy code
+	  //status |= 0x1; // dummy code
 	  reset_LArCol ( coll );
 	} else { // End of if small size
 	  //TB the converter has state
@@ -440,7 +440,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 
 	  // Accumulates inferior byte from ROD Decoder
 	  // TB the converter has state
-	  status |= (m_larDecoder->report_error());
+	  //status |= (m_larDecoder->report_error());
 
 	  if ( m_applyOffsetCorrection ) larcell->applyBCIDCorrection( sourceID );
 	} 
@@ -572,7 +572,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
 
   if ( requestROBs.size() != robFrags.size() ) {
     ATH_MSG_DEBUG( "Missing ROBs, requested " << requestROBs.size() << " obtained " << robFrags.size() );
-    status |= 0x1; // dummy code
+    //status |= 0x1; // dummy code
     clearMissing( requestROBs, robFrags, ( cache->larContainer ) );
   }
   auto roiROBs = Monitored::Scalar( "roiROBs_LAr", robFrags.size() );

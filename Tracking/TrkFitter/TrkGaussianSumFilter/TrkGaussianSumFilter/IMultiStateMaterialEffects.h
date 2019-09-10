@@ -17,9 +17,9 @@ decription           : (Non-pure) abstract base class for defining material
 #ifndef Trk_IMultiStateMaterialEffects_H
 #define Trk_IMultiStateMaterialEffects_H
 
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -30,29 +30,32 @@ decription           : (Non-pure) abstract base class for defining material
 namespace Trk {
 
 class MaterialProperties;
-//class IMaterialEffectsUpdator;
 
 static const InterfaceID IID_IMultiStateMaterialEffects("IMultiStateMaterialEffects", 1, 0);
 
-class IMultiStateMaterialEffects : virtual public IAlgTool{
+class IMultiStateMaterialEffects : virtual public IAlgTool
+{
 
- public:
-  struct Cache{
-    Cache(){
+public:
+  struct Cache
+  {
+    Cache()
+    {
       weights.reserve(6);
       deltaPs.reserve(6);
       deltaCovariances.reserve(6);
     }
     Cache(Cache&&) = default;
     Cache& operator=(Cache&&) = default;
-    ~Cache()=default;
+    ~Cache() = default;
     Cache(const Cache&) = delete;
     Cache& operator=(const Cache&) = delete;
 
     std::vector<double> weights;
     std::vector<double> deltaPs;
     std::vector<std::unique_ptr<const AmgSymMatrix(5)>> deltaCovariances;
-    void reset(){
+    void reset()
+    {
       weights.clear();
       deltaPs.clear();
       deltaCovariances.clear();
@@ -63,15 +66,14 @@ class IMultiStateMaterialEffects : virtual public IAlgTool{
   static const InterfaceID& interfaceID() { return IID_IMultiStateMaterialEffects; };
 
   /** virtual destructor */
-  virtual ~IMultiStateMaterialEffects() {};
-  
-  virtual void compute( IMultiStateMaterialEffects::Cache&,
-                        const ComponentParameters&,
-                        const MaterialProperties&,
-                        double,
-                        PropDirection direction = anyDirection,
-                        ParticleHypothesis particleHypothesis = nonInteracting ) const = 0;
+  virtual ~IMultiStateMaterialEffects(){};
 
+  virtual void compute(IMultiStateMaterialEffects::Cache&,
+                       const ComponentParameters&,
+                       const MaterialProperties&,
+                       double,
+                       PropDirection direction = anyDirection,
+                       ParticleHypothesis particleHypothesis = nonInteracting) const = 0;
 };
 }
 #endif

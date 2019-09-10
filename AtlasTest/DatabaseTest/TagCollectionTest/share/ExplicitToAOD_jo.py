@@ -41,6 +41,5 @@ theApp.EvtMax = 200000
 
 # Stream1 is defined in the AODtoPool job options
 Stream1.OutputLevel = INFO
-Stream1.ForceRead = "true"
 Stream1.OutputFile = "AODExplicit.root"
 ExampleStreamConfig(Stream1)

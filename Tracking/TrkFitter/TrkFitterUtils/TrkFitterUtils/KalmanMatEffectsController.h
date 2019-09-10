@@ -14,7 +14,7 @@
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/TrackBreakpointType.h"
-
+#include "CxxUtils/checker_macros.h"
 namespace Trk{
 
   /** @brief This class is a wrapper around the input particle hypothesis given
@@ -57,57 +57,44 @@ namespace Trk{
     ~KalmanMatEffectsController(); */
 
     //! particleHypothesis as it was passed to the fitter
-    ParticleHypothesis originalParticleHypo()    const;
-    //! particleHypothesis as it should be used for extrapolation calls
-    ParticleHypothesis particleType()    const;
-    //! flag saying if dynamic noise adjustment should be called or not
-    bool doDNA()                         const;
-    //! flag saying if dynamic noise adjustment should maximise sensitivity to electron bremsstrahlung (aggressive tuning) or minimise effects on non-electron particles (generic tuning)
-    bool aggressiveDNA()                 const;
-    //! return breakpoint type resulting from DNA-based breakpoint search
-    TrackBreakpointType breakpointType() const;
-    //! sets breakpoint type after DNA & Separator provide such information
-    void updateBreakpoint(TrackBreakpointType) const;
-
-  private:
-    const ParticleHypothesis m_inputHypothesis;
-    const bool               m_haveDNA;
-    mutable TrackBreakpointType m_breakPointType;
-  };
-
-  /*
-    MsgStream& operator << ( MsgStream& sl, const KalmanMatEffectsController& dme);
-    std::ostream& operator << ( std::ostream& sl, const KalmanMatEffectsController& dme);
-  */
-
-  inline ParticleHypothesis KalmanMatEffectsController::originalParticleHypo() const
-    {
+    ParticleHypothesis originalParticleHypo()    const    {
       return m_inputHypothesis;
     }
-
-  inline ParticleHypothesis KalmanMatEffectsController::particleType() const
-    {
+    //! particleHypothesis as it should be used for extrapolation calls
+    ParticleHypothesis particleType()    const {     
       if (m_haveDNA && m_inputHypothesis==Trk::electron) return Trk::pion;
       return m_inputHypothesis;
     }
-
-  inline bool KalmanMatEffectsController::doDNA() const
-    {
+    //! flag saying if dynamic noise adjustment should be called or not
+    bool doDNA()                         const    {
       return ( m_haveDNA
                && (m_breakPointType==Trk::BreakpointNotSpecified
                    || m_breakPointType==Trk::DnaBremPointUseful) );
     }
 
-  inline bool KalmanMatEffectsController::aggressiveDNA() const
-    { 
+    //! flag saying if dynamic noise adjustment should maximise sensitivity to electron bremsstrahlung 
+    //(aggressive tuning) or minimise effects on non-electron particles (generic tuning)
+    bool aggressiveDNA()                 const    { 
       return (this->doDNA() && m_inputHypothesis==electron); 
     }
+    //! return breakpoint type resulting from DNA-based breakpoint search
+    TrackBreakpointType breakpointType() const{ 
+      return m_breakPointType; 
+    }
+    //! sets breakpoint type after DNA & Separator provide such information
+    void updateBreakpoint (TrackBreakpointType newBPT) { 
+      m_breakPointType = newBPT; 
+    }
 
-  inline TrackBreakpointType KalmanMatEffectsController::breakpointType() const
-    { return m_breakPointType; }
+    void updateBreakpoint ATLAS_NOT_THREAD_SAFE (TrackBreakpointType newBPT) const { 
+      const_cast<TrackBreakpointType&> (m_breakPointType) = newBPT; 
+    }
 
-  inline void KalmanMatEffectsController::updateBreakpoint(TrackBreakpointType newBPT) const
-  { m_breakPointType = newBPT; }
+  private:
+    const ParticleHypothesis m_inputHypothesis;
+    const bool               m_haveDNA;
+    TrackBreakpointType m_breakPointType;
+  };
 
 } // end namespace Trk
 #endif

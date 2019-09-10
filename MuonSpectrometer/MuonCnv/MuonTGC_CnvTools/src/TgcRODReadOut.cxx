@@ -813,12 +813,6 @@ bool Muon::TgcRODReadOut::setSbLoc(uint16_t subDetectorId,
       return false;
     }
     
-    // check if TGCcablingServer is properly initialized
-    if (!TgcCabGet->isConfigured()) {
-      if(m_log) (*m_log) << MSG::ERROR << " TGCcablingServer not initialized!" << endmsg;
-      return false; 
-    }
-    
     // get Cabling Service
     sc = TgcCabGet->giveCabling(m_cabling);
     if(sc.isFailure()){

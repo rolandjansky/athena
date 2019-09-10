@@ -60,6 +60,7 @@ StatusCode TauProcessorAlg::initialize() {
     ATH_CHECK( m_tauShotClusOutputContainer.initialize() );
     ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
     ATH_CHECK( m_tauPi0CellOutputContainer.initialize() );
+    ATH_CHECK( m_pixelDetEleCollKey.initialize() ); 
     ATH_CHECK( m_SCTDetEleCollKey.initialize() ); 
 
     ATH_CHECK( m_cellMakerTool.retrieve() );

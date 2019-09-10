@@ -947,8 +947,8 @@ bool MuonTGC_CablingSvc::getReadoutIDfromOnlineID(int & subDetectorID,
   if(!status) {
     if(adChannel) {
       ATH_MSG_DEBUG("getReadoutIDfromASDOut fails for adjacent");
-      }
-    } else {
+    }
+    else {
       ATH_MSG_WARNING(" getReadoutIDfromASDOut :"
 	    << " Cannot get ReadoutID for "
 	    << " side=" << sideType
@@ -958,6 +958,7 @@ bool MuonTGC_CablingSvc::getReadoutIDfromOnlineID(int & subDetectorID,
 	    << " layer=" << layerNumber
 	    << " chamber=" << rNumber
 	    << " channel=" << channelNumber);
+    }
   }
   if(!status) return false;
 

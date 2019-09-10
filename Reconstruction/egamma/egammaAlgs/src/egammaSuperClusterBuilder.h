@@ -62,32 +62,44 @@ protected:
   //
 private:
 
+  struct CentralPosition {
+    float etaB = 999;
+    float phiB = 999;
+    float emaxB = -999*Gaudi::Units::GeV;
+    float etaEC = 999;
+    float phiEC = 999;
+    float emaxEC = -999*Gaudi::Units::GeV;
+  };
+  
   /** Find the reference position (eta, phi) relative to which cells are restricted.
       The return value is whether it succeeded in finding a positive energy max value. 
       (If rv = false, the output variables are passed as arguments are not updated.) 
   */
-  bool findCentralPosition(float& eta, float& phi, bool& isBarrel,
-			   const std::vector<const xAOD::CaloCluster*>& clusters) const;
+  CentralPosition findCentralPosition(const std::vector<const xAOD::CaloCluster*>& clusters) const;
 
-  /** Find the reference position (eta, phi) relative to which cells are restricted.
-      The return value is whether it succeeded in finding a positive energy max value. 
-      (If rv = false, the output variables are passed as arguments are not updated.) 
-  */
-  void findPhiSize(float& phiSizePlus, float& phiSizeMinus, float phi,
-		   const xAOD::CaloCluster* cluster) const;
+  struct PhiSize {
+    float plusB = 0;
+    float minusB = 0;
+    float plusEC = 0;
+    float minusEC = 0;
+  };
+  
+  /** Find the size of the cluster */  
+  PhiSize findPhiSize(const CentralPosition& cp0,
+		      const xAOD::CaloCluster* cluster) const;
 
   
   /** Add the EM cells from reference cluster to self; eta and phi are the ones to use for limiting size. 
       This excludes L1 (which is done as a separate step). note, use raw eta and phi! */
   StatusCode addEMCellsToCluster(xAOD::CaloCluster* newCluster,
 				 const xAOD::CaloCluster* ref,
-				 float eta, float phi, bool isBarrel) const;
+				 const CentralPosition& cp0) const;
 
   /** Add the preshower and L1 EM cells from reference cluster to self; note, use raw eta and phi! */
   StatusCode addL0L1EMCellsToCluster(xAOD::CaloCluster* newCluster,
 				     const xAOD::CaloCluster* ref,
-				     float eta, float phi, bool isBarrel,
-				     float phiSizePlus, float phiSizeMinus) const;
+				     const CentralPosition& cp0,
+				     const PhiSize& phiSize) const;
   
   /** function to calibrate the new clusters energy */
   StatusCode calibrateCluster(xAOD::CaloCluster* newCluster,

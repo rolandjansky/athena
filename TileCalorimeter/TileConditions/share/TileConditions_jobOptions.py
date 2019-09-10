@@ -94,7 +94,6 @@ if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in d
 
 msg.info("Adjusting TileInfo for %s samples" % TileFrameLength )
 tileInfoConfigurator.NSamples = TileFrameLength
-tileInfoConfigurator.OFPhysicsNSamples = TileFrameLength
 tileInfoConfigurator.TrigSample = (TileFrameLength-1)/2
 
 if athenaCommonFlags.isOnline():
@@ -141,22 +140,6 @@ else:
     #=== set file name with bad channels
     msg.info("Reading TileCal bad channel list from %s" % TileBchList )
     ToolSvc.TileBadChanTool.ProxyOflBch = getTileCondProxy('FILE','Bch',TileBchList,'TileCondProxyFile_OflBch')
-
-# load optimal filter weights if needed
-if ('doTileOpt' in dir()) and (doTileOpt):
-    tileInfoConfigurator.LoadOptFilterWeights=True
-    tileInfoConfigurator.filenameDeltaCISSuffix="of2_Delta_CIS_7Samples"
-
-    if ('TileRunType' in dir()) and (TileRunType==2):
-        if TileFrameLength==9:
-            tileInfoConfigurator.filenameDeltaPhysicsSuffix="of2_Delta_Laser_9Samples"
-        if TileFrameLength==7:
-            tileInfoConfigurator.filenameDeltaPhysicsSuffix="of2_Delta_Laser_7Samples"
-    else:
-        if TileFrameLength==9:
-            tileInfoConfigurator.filenameDeltaPhysicsSuffix="of2_Delta_Phys_9Samples"
-        if TileFrameLength==7:
-            tileInfoConfigurator.filenameDeltaPhysicsSuffix="of2_Delta_Phys_7Samples"
 
 # fine-tune CellNoise values depending on beam type
 if not 'TileCommissioning' in dir():

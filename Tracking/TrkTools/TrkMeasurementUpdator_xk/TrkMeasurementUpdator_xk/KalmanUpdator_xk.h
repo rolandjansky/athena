@@ -60,10 +60,10 @@ namespace Trk {
       // /////////////////////////////////////////////////////////////////
     
       //! add without chi2 calculation, PRD-level, EDM track parameters
-      virtual const TrackParameters* addToState 
+      virtual TrackParameters* addToState 
         (const TrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&) const override final;
       //! add without chi2 calculation, ROT-level, EDM track parameters
-      virtual const TrackParameters* addToState 
+      virtual TrackParameters* addToState 
         (const TrackParameters&,const LocalParameters&,const Amg::MatrixX&) const override final;
 
       //! add without chi2 calculation, PRD-level, pattern track parameters
@@ -83,9 +83,9 @@ namespace Trk {
       // Remove without Xi2 calculation
       ///////////////////////////////////////////////////////////////////
 
-      virtual const TrackParameters* removeFromState 
+      virtual TrackParameters* removeFromState 
 	(const TrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&) const override final;
-      virtual const TrackParameters* removeFromState 
+      virtual TrackParameters* removeFromState 
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&) const override final;
 
       virtual bool removeFromState 
@@ -99,10 +99,10 @@ namespace Trk {
       // Add  with Xi2 calculation
       ///////////////////////////////////////////////////////////////////
 
-      virtual const TrackParameters* addToState 
+      virtual TrackParameters* addToState 
 	(const TrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
 	 FitQualityOnSurface*&) const override final;
-      virtual const TrackParameters* addToState 
+      virtual TrackParameters* addToState 
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&,
 	 FitQualityOnSurface*&) const override final;
       virtual std::pair<AmgVector(5),AmgSymMatrix(5)>* updateParameterDifference 
@@ -123,10 +123,10 @@ namespace Trk {
       // Remove with Xi2 calculation
       ///////////////////////////////////////////////////////////////////
 
-      virtual const TrackParameters* removeFromState 
+      virtual TrackParameters* removeFromState 
 	(const TrackParameters&,const Amg::Vector2D&  ,const Amg::MatrixX&,
 	 FitQualityOnSurface*&) const override final;
-      virtual const TrackParameters* removeFromState 
+      virtual TrackParameters* removeFromState 
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&,
 	 FitQualityOnSurface*&) const override final;
 
@@ -141,9 +141,9 @@ namespace Trk {
       // Combine two state with or without Xi2 calculation
       ///////////////////////////////////////////////////////////////////
 
-      virtual const TrackParameters* combineStates   
+      virtual TrackParameters* combineStates   
 	(const TrackParameters&, const TrackParameters&) const override final;
-      virtual const TrackParameters* combineStates   
+      virtual TrackParameters* combineStates   
 	(const TrackParameters&, const TrackParameters&, 
 	 FitQualityOnSurface*&) const override final;
 
@@ -200,11 +200,11 @@ namespace Trk {
       // Updators
       ///////////////////////////////////////////////////////////////////
       
-      const TrackParameters* update 
+      TrackParameters* update 
 	(const TrackParameters&,const Amg::Vector2D&,const Amg::MatrixX&,
 	 FitQualityOnSurface*&,int,bool) const;
 
-      const TrackParameters* update 
+      TrackParameters* update 
 	(const TrackParameters&,const LocalParameters&,const Amg::MatrixX&,
 	 FitQualityOnSurface*&,int,bool) const;
 
@@ -243,7 +243,7 @@ namespace Trk {
       bool localParametersToUpdator
 	(const LocalParameters&,const Amg::MatrixX&,int&,int&,double*,double*) const;
       
-      const TrackParameters* updatorToTrackParameters
+     TrackParameters* updatorToTrackParameters
 	(const TrackParameters&,double*,double*) const; 
 
       ///////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCandidateTrackBuilderTool.h"
@@ -22,7 +22,6 @@ namespace Muon {
     m_muonTrackBuilder("Muon::MooTrackBuilder/MooMuonTrackBuilder"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_reOrderMeasurements(true),
     m_trackFitter("Rec::CombinedMuonTrackBuilder/CombinedMuonTrackBuilder")
   {
@@ -45,7 +44,7 @@ namespace Muon {
     ATH_CHECK(m_muonTrackBuilder.retrieve());
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_idHelper.retrieve());
-    ATH_CHECK(m_edmHelper.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_trackFitter.retrieve());
 
     return StatusCode::SUCCESS;
@@ -117,7 +116,7 @@ namespace Muon {
        
       if(m_reOrderMeasurements) {
 	// reorder measurements using SortMeas (defined in header file)
-	std::stable_sort(containedMeasurements.begin(),containedMeasurements.end(),SortMeas(&*m_edmHelper,&*m_idHelper,isEndcap));
+	std::stable_sort(containedMeasurements.begin(),containedMeasurements.end(),SortMeas(&*m_edmHelperSvc,&*m_idHelper,isEndcap));
       }
       // insert in measurements list
       measurements.insert( measurements.end(),
@@ -134,7 +133,7 @@ namespace Muon {
     if(m_reOrderMeasurements&&reorderAllMeasurements) {
       // reorder measurements using SortMeas (defined in header file)
       ATH_MSG_VERBOSE(" reorder all measurements before " <<  m_printer->print(measurements)) ;
-      std::stable_sort(measurements.begin(),measurements.end(),SortMeas(&*m_edmHelper,&*m_idHelper,isEndcap));
+      std::stable_sort(measurements.begin(),measurements.end(),SortMeas(&*m_edmHelperSvc,&*m_idHelper,isEndcap));
     }
 
     ATH_MSG_VERBOSE( m_printer->print(measurements)) ;

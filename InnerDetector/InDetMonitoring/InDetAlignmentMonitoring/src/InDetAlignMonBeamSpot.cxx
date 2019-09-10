@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: InDetAlignMonBeamSpot.cxx,v 1.6 2009-02-05 20:55:08 beringer Exp $
@@ -11,7 +11,6 @@
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 //#include "GaudiKernel/MsgStream.h"
-//#include "StoreGate/StoreGateSvc.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkParticleBase/TrackParticleBaseCollection.h"

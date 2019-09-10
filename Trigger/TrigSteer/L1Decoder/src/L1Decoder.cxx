@@ -38,7 +38,7 @@ StatusCode L1Decoder::initialize() {
   incidentSvc->addListener(this,"BeginRun", 200);
   incidentSvc.release().ignore();
 
-  if (m_enableCostMonitoring) {
+  if (m_doCostMonitoring) {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
 
@@ -134,7 +134,7 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
 
   }
   // Do cost monitoring, this utilises the HLT_costmonitor chain
-  if (m_enableCostMonitoring) {
+  if (m_doCostMonitoring) {
     const static HLT::Identifier costMonitorChain(m_costMonitoringChain);
     const auto activeCostMonIt = std::find(activeChains.begin(), activeChains.end(), costMonitorChain);
     const bool doCostMonitoring = (activeCostMonIt != activeChains.end());

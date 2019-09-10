@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigFTKSim/FTKTrack.h"
@@ -47,8 +47,6 @@ using namespace std;
 /////////////////////////////////////////////////////////////////////////////
 FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_StoreGate(0),
-  m_detStore(0),
   m_mergeSvc(0),
   m_pmap_path(""), m_pmap(0x0),
   m_useStandalone(true),
@@ -201,13 +199,6 @@ StatusCode FTKMergerAlgo::initialize(){
   /*TODO: this part is required only if the FTKMerger algo is reading from SG (in conversion mode)
    * or writing in the SG (not currently supported). This check can be relaxed
    */
-  StatusCode scSG = service( "StoreGateSvc", m_StoreGate );
-  if (scSG.isFailure()) {
-    log << MSG::FATAL << "Unable to retrieve StoreGate service" << endmsg;
-    return scSG;
-  }
-
-
   if (m_useStandalone) {
     ATH_MSG_INFO("useStandalone: True - Using tracks produced from the standalone version");
   } 
@@ -286,12 +277,6 @@ StatusCode FTKMergerAlgo::initialize(){
 
     /* This wroking mode interacts with the Detector objects, for
      * this reason generic identifiers are retrieved */
-    StatusCode sc = service("DetectorStore", m_detStore);
-    if ( sc.isFailure() ) { 
-      log << MSG::FATAL << "DetStore service not found" << endmsg; 
-      return StatusCode::FAILURE;
-    }
-
 
     // Get the required tools and create the required collections only if track conversion is being performed
     if (m_trackConverterTool.retrieve().isFailure() ) {
@@ -313,11 +298,11 @@ StatusCode FTKMergerAlgo::initialize(){
     
     // ID helpers
     m_idHelper = new AtlasDetectorID;
-    if (m_detStore->retrieve(m_pixel_id, "PixelID").isFailure()) {
+    if (detStore()->retrieve(m_pixel_id, "PixelID").isFailure()) {
       log << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
-    if (m_detStore->retrieve(m_sct_id, "SCT_ID").isFailure()) {
+    if (detStore()->retrieve(m_sct_id, "SCT_ID").isFailure()) {
       log << MSG::FATAL << "Could not get SCT ID helper" << endmsg;
       return StatusCode::FAILURE;
     }
@@ -327,14 +312,14 @@ StatusCode FTKMergerAlgo::initialize(){
     // Creating collection for pixel clusters
     m_FTKPxlCluContainer = new InDet::PixelClusterContainer(m_pixel_id->wafer_hash_max());
     m_FTKPxlCluContainer->addRef();
-    sc = m_StoreGate->record(m_FTKPxlCluContainer,m_FTKPxlClu_CollName);
+    StatusCode sc = evtStore()->record(m_FTKPxlCluContainer,m_FTKPxlClu_CollName);
     if (sc.isFailure()) {
       log << MSG::FATAL << "Error registering the FTK pixel container in the SG" << endmsg;
       return StatusCode::FAILURE;
     }
     // Generic format link for the pixel clusters
     const InDet::SiClusterContainer *symSiContainerPxl(0x0);
-    sc = m_StoreGate->symLink(m_FTKPxlCluContainer,symSiContainerPxl);
+    sc = evtStore()->symLink(m_FTKPxlCluContainer,symSiContainerPxl);
     if (sc.isFailure()) {
       log << MSG::FATAL << "Error creating the sym-link to the Pixel clusters" << endmsg;
       return StatusCode::FAILURE;
@@ -343,14 +328,14 @@ StatusCode FTKMergerAlgo::initialize(){
     // Creating collection for the SCT clusters
     m_FTKSCTCluContainer = new InDet::SCT_ClusterContainer(m_sct_id->wafer_hash_max());
     m_FTKSCTCluContainer->addRef();
-    sc = m_StoreGate->record(m_FTKSCTCluContainer,m_FTKSCTClu_CollName);
+    sc = evtStore()->record(m_FTKSCTCluContainer,m_FTKSCTClu_CollName);
     if (sc.isFailure()) {
       log << MSG::FATAL << "Error registering the FTK SCT container in the SG" << endmsg;
       return StatusCode::FAILURE;
     }
     // Generic format link for the pixel clusters
     const InDet::SiClusterContainer *symSiContainerSCT(0x0);
-    sc = m_StoreGate->symLink(m_FTKSCTCluContainer,symSiContainerSCT);
+    sc = evtStore()->symLink(m_FTKSCTCluContainer,symSiContainerSCT);
     if (sc.isFailure()) {
       log << MSG::FATAL << "Error creating the sym-link to the SCT clusters" << endmsg;
       return StatusCode::FAILURE;
@@ -1072,7 +1057,7 @@ StatusCode FTKMergerAlgo::mergeSGContent()
 
   // Get information on the events
   const EventInfo* eventInfo(0);
-  if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
+  if( evtStore()->retrieve(eventInfo).isFailure() ) {
     log << MSG::ERROR << "Could not retrieve event info" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -1091,14 +1076,14 @@ StatusCode FTKMergerAlgo::mergeSGContent()
     track_contname << "FTKTracks" << ibank << ends;
 
     //    const char *Ccontname = track_contname.str().c_str();
-    //    if (m_StoreGate->contains<FTKAthTrackContainer>(Ccontname)) {
+    //    if (evtStore()->contains<FTKAthTrackContainer>(Ccontname)) {
 
     const std::string Ccontname=track_contname.str();
-    if (m_StoreGate->contains<FTKAthTrackContainer>(Ccontname.c_str())) {
+    if (evtStore()->contains<FTKAthTrackContainer>(Ccontname.c_str())) {
 
 
       const DataHandle<FTKAthTrackContainer> ftktracks_cont;
-      StatusCode sc = m_StoreGate->retrieve(ftktracks_cont,Ccontname);
+      StatusCode sc = evtStore()->retrieve(ftktracks_cont,Ccontname);
       if (!sc.isSuccess()) {
 	log << MSG::ERROR << "Could not get tracks in region " << ibank << endmsg;
 	return StatusCode::FAILURE;
@@ -1172,7 +1157,7 @@ StatusCode FTKMergerAlgo::mergeSGContent()
   // prepare the output collection
   m_out_indettrack = new TrigInDetTrackCollection;
   
-  StatusCode sc = m_StoreGate->record(m_out_indettrack , m_out_indettrack_Name);
+  StatusCode sc = evtStore()->record(m_out_indettrack , m_out_indettrack_Name);
   if (sc.isFailure()) {
     log << MSG::FATAL << "Failure registering FTK LVL2 collection" << endmsg;
     return StatusCode::FAILURE;
@@ -1183,7 +1168,7 @@ StatusCode FTKMergerAlgo::mergeSGContent()
 
   m_out_trktrack = new TrackCollection;
 
-  StatusCode sc2 = m_StoreGate->record(m_out_trktrack , m_out_trktrack_Name);
+  StatusCode sc2 = evtStore()->record(m_out_trktrack , m_out_trktrack_Name);
   if (sc2.isFailure()) {
     log << MSG::FATAL << "Failure registering FTK Trk::Track" << endmsg;
     return StatusCode::FAILURE;
@@ -1195,7 +1180,7 @@ StatusCode FTKMergerAlgo::mergeSGContent()
 
   
   m_out_trackPC = new Rec::TrackParticleContainer;
-  StatusCode sc1 = m_StoreGate->record(m_out_trackPC , m_out_trackPC_Name);
+  StatusCode sc1 = evtStore()->record(m_out_trackPC , m_out_trackPC_Name);
   if (sc1.isFailure()) {
     log << MSG::FATAL << "Failure registering FTK Track Particle collection" << endmsg;
     return StatusCode::FAILURE;
@@ -1309,7 +1294,7 @@ StatusCode FTKMergerAlgo::mergeSGContent()
 
   }
 
-  sc = m_StoreGate->record(SGFinalContainer,"FTKTracksFinal");
+  sc = evtStore()->record(SGFinalContainer,"FTKTracksFinal");
   if (sc.isFailure()) {
     log << MSG::FATAL << "Failure registering final FTK collection" << endmsg;
     return StatusCode::FAILURE;
@@ -1380,7 +1365,7 @@ StatusCode FTKMergerAlgo::mergePoolFiles()
 
    // Get information on the events
    const EventInfo* eventInfo(0);
-   if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
+   if( evtStore()->retrieve(eventInfo).isFailure() ) {
      log << MSG::ERROR << "Could not retrieve event info" << endmsg;
      return StatusCode::FAILURE;
    }
@@ -1419,7 +1404,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
 
   // Get information on the events
   const EventInfo* eventInfo(0);
-  if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
+  if( evtStore()->retrieve(eventInfo).isFailure() ) {
     log << MSG::ERROR << "Could not retrieve event info" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -1459,7 +1444,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
    /* The SG registration has to be repeated each event because the
       m_out_indetterack is not an IDS container. The memory is freed by
       the SG, no delete call has to be raised */
-   StatusCode sc = m_StoreGate->record(m_out_indettrack , m_out_indettrack_Name);
+   StatusCode sc = evtStore()->record(m_out_indettrack , m_out_indettrack_Name);
    if (sc.isFailure()) {
      log << MSG::FATAL << "Failure registering FTK LVL2 collection" << endmsg;
      return StatusCode::FAILURE;
@@ -1470,7 +1455,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
 
    // registering the TRigInDetTrack collection for the refitted tracks
    m_out_indettrackconv = new TrigInDetTrackCollection;
-   StatusCode SCidc = m_StoreGate->record(m_out_indettrackconv, m_out_indettrackconv_Name);
+   StatusCode SCidc = evtStore()->record(m_out_indettrackconv, m_out_indettrackconv_Name);
    if (SCidc.isFailure()) {
      log << MSG::FATAL << "Failure registering FTK LVL2 converted collection" << endmsg;
      return StatusCode::FAILURE;
@@ -1481,7 +1466,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
 
    // create and register the collection for the converted  TrackParticle
    m_out_ftktrackconv = new TrackCollection;
-   StatusCode sc3 = m_StoreGate->record(m_out_ftktrackconv , m_out_ftktrackconv_Name);
+   StatusCode sc3 = evtStore()->record(m_out_ftktrackconv , m_out_ftktrackconv_Name);
    if (sc3.isFailure()) {
      log << MSG::FATAL << "Failure registering converted FTK Trk::Track" << endmsg;
      return StatusCode::FAILURE;
@@ -1491,7 +1476,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
    }
 
    m_out_ftktrackparticleconv = new Rec::TrackParticleContainer;
-   StatusCode SCtpc = m_StoreGate->record(m_out_ftktrackparticleconv, m_out_ftktrackparticleconv_Name);
+   StatusCode SCtpc = evtStore()->record(m_out_ftktrackparticleconv, m_out_ftktrackparticleconv_Name);
    if (SCtpc.isFailure()) {
        log << MSG::FATAL << "Failure registering converted FTK TrackParticles" << endmsg;
    }
@@ -1510,7 +1495,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
    m_out_trackPC  = new Rec::TrackParticleContainer();
 
 
-   sc = m_StoreGate->record(m_out_trktrack , m_out_trktrack_Name);
+   sc = evtStore()->record(m_out_trktrack , m_out_trktrack_Name);
    if (sc.isFailure()) {
      log << MSG::FATAL << "Failure registering FTK Trk::Track collection" << endmsg;
      return StatusCode::FAILURE;
@@ -1520,7 +1505,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
    }
 
 
-   sc = m_StoreGate->record(m_out_trackPC , m_out_trackPC_Name);
+   sc = evtStore()->record(m_out_trackPC , m_out_trackPC_Name);
    if (sc.isFailure()) {
      log << MSG::FATAL << "Failure registering FTK TrackParticle collection" << endmsg;
      return StatusCode::FAILURE;
@@ -1530,18 +1515,18 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
    }
 
    // Check the FTK pixel container
-   if (!m_StoreGate->contains<InDet::PixelClusterContainer>(m_FTKPxlClu_CollName)) {
+   if (!evtStore()->contains<InDet::PixelClusterContainer>(m_FTKPxlClu_CollName)) {
       m_FTKPxlCluContainer->cleanup();
-      if (m_StoreGate->record(m_FTKPxlCluContainer,m_FTKPxlClu_CollName,false).isFailure()) {
+      if (evtStore()->record(m_FTKPxlCluContainer,m_FTKPxlClu_CollName,false).isFailure()) {
         log << MSG::FATAL << "Error registering FTK pixel cluster instance" << endmsg;
         return StatusCode::FAILURE;
       }
    }
 
    // check the FTK SCT container
-    if (!m_StoreGate->contains<InDet::SCT_ClusterContainer>(m_FTKSCTClu_CollName)) {
+    if (!evtStore()->contains<InDet::SCT_ClusterContainer>(m_FTKSCTClu_CollName)) {
       m_FTKSCTCluContainer->cleanup();
-      if (m_StoreGate->record(m_FTKSCTCluContainer,m_FTKSCTClu_CollName,false).isFailure()) {
+      if (evtStore()->record(m_FTKSCTCluContainer,m_FTKSCTClu_CollName,false).isFailure()) {
         log << MSG::FATAL << "Error registering FTK SCT cluster instance" << endmsg;
         return StatusCode::FAILURE;
       }

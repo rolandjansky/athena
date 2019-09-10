@@ -21,20 +21,30 @@ bool EtaEtConditionMT::isSatisfied(const pHypoJet& ip,
                                    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   auto abseta = std::abs(ip->eta());
   auto et = ip->et();
-  bool result =
+  bool pass =
     m_etaMin <= abseta and
     m_etaMax > abseta and
     m_threshold <= et;
+
+  
   if(collector){
-    auto result_str = result ? "pass" : "fail";
-    std::stringstream ss;
-    ss << "EtaEtConditionMT " << this;
-    collector->collect(ss.str(),
-		       std::to_string(abseta) + " " +
-		       std::to_string(et) + " " +
-		       result_str + '\n');
+    const void* address = static_cast<const void*>(this);
+
+    std::stringstream ss0;
+    ss0 << "EtaEtCondition: (" << address << ") " 
+        << " eta[" << m_etaMin << ", " << m_etaMax << "]" 
+        << " et thresh " << m_threshold
+        << " pass: "  << std::boolalpha << pass << '\n';
+
+    auto j_addr = static_cast<const void*>(ip);
+    std::stringstream ss1;
+    ss1 <<  "     jet : ("<< j_addr << ")"
+        " abseta " << abseta << " et " << et << '\n';
+
+    collector->collect(ss0.str(), ss1.str());
+
   }
-  return result;
+  return pass;
 }
 
 

@@ -245,6 +245,15 @@ PedestalAutoCorrLog.info( " ====================================================
 
 #######################################################################################
 include ("LArConditionsCommon/LArMinimalSetup.py")
+# new way to configure mapping:
+# we need standard mapping for BadChannelAlg, there is no SC bad channel DB yet
+from LArCabling.LArCablingAccess import LArCalibIdMapping,LArOnOffIdMapping
+LArOnOffIdMapping()
+LArCalibIdMapping()
+if SuperCells:
+   from LArCabling.LArCablingAccess import LArCalibIdMappingSC,LArOnOffIdMappingSC
+   LArOnOffIdMappingSC()
+   LArCalibIdMappingSC()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -253,6 +262,9 @@ include ("LArConditionsCommon/LArMinimalSetup.py")
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
@@ -350,7 +362,12 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+
+theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=theLArBadFebCondAlg
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
@@ -444,6 +461,7 @@ if runAccumulator:
       LArAutoCorrMaker.Nsamples     = NSamples
       LArAutoCorrMaker.KeyOutput  = KeyOutputAC
       LArAutoCorrMaker.GroupingType = GroupingType
+      LArAutoCorrMaker.BunchCrossingTool = ""
    
       topSequence += LArAutoCorrMaker
 
@@ -468,8 +486,6 @@ else :
 #                                                                    #
 ######################################################################
 
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence+=xAODMaker__EventInfoCnvAlg()
 
 if ( doLArCalibDataQuality  ) :
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
@@ -611,7 +627,7 @@ if ( doMonitoring ) :
    svcMgr += THistSvc()
    #svcMgr.THistSvc.Output = ["AllMon DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName+"' OPT='New'"]
 
-   svcMgr.THistSvc.Output = ["GLOBAL DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName+"' OPT='New'"]
+   svcMgr.THistSvc.Output = ["GLOBAL DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName+"' OPT='RECREATE'"]
 
 
 
@@ -623,7 +639,10 @@ if ( WriteNtuple ) :
       LArPedestals2Ntuple.ContainerKey = KeyOutputPed
       LArPedestals2Ntuple.AddFEBTempInfo = False
       LArPedestals2Ntuple.isSC = SuperCells
-      
+      if SuperCells:
+         LArPedestals2Ntuple.CablingKey = "LArOnOffIdMapSC"
+         LArPedestals2Ntuple.CalibMapKey = "LArCalibIdMapSC"
+
       topSequence += LArPedestals2Ntuple
 
    if AutoCorr :
@@ -633,7 +652,10 @@ if ( WriteNtuple ) :
       LArAutoCorr2Ntuple.AddFEBTempInfo  = False
       LArAutoCorr2Ntuple.ContainerKey = KeyOutputAC
       LArAutoCorr2Ntuple.isSC = SuperCells
-      
+      if SuperCells:
+         LArAutoCorr2Ntuple.CablingKey = "LArOnOffIdMapSC"
+         LArAutoCorr2Ntuple.CalibMapKey = "LArCalibIdMapSC"
+
       topSequence += LArAutoCorr2Ntuple
 
    theApp.HistogramPersistency = "ROOT"

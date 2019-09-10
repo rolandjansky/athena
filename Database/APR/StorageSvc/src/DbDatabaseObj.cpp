@@ -757,7 +757,6 @@ std::string DbDatabaseObj::cntName(const Token& token) {
   return "";
 }
 
-
 DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object) 
 {
    if( 0 == m_info ) open();
@@ -768,7 +767,20 @@ DbStatus DbDatabaseObj::read(const Token& token, ShapeH shape, void** object)
       if( token.dbID() == name() ) {
          // Regular read operation, make sure we know the container name
          if( containerName.empty() ) {
-            containerName = m_linkVec[ m_indexMap[oid.first] ]->contID();
+            auto iter = m_indexMap.find(oid.first);
+            if( iter != m_indexMap.end() ) {
+               containerName = m_linkVec[ iter->second ]->contID();
+            } else {
+               if( unsigned(oid.first) < m_indexMap.size() ) {
+                  // try a direct link table access
+                  containerName = m_linkVec[ oid.first ]->contID();
+               } else {
+                  DbPrint log( name() );
+                  log << DbPrintLvl::Error << "OID1 not found in the index redirection map. Token=" << token.toString()
+                      << DbPrint::endmsg;
+                  return Error;
+               }
+            }
          }
          Sections::const_iterator j = m_sections.find( containerName );
          if( j != m_sections.end() ) {

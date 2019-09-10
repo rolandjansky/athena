@@ -39,16 +39,10 @@ Trk::EventCnvSuperTool::~EventCnvSuperTool(){
 
 StatusCode
 Trk::EventCnvSuperTool::initialize(){   
-    // Try to get det store and then AtlasID
-    StoreGateSvc *detStore = 0;
-    StatusCode sc = service( "DetectorStore", detStore );
+    // Try to get AtlasID
+    StatusCode sc = detStore()->retrieve( m_detID, "AtlasID" );
     if( sc.isFailure() ) {
-        msg(MSG::WARNING) << "Could not get DetectorStore, nor Id Helper, and so will be unable to do anything useful." << endmsg;
-    } else {    
-        sc = detStore->retrieve( m_detID, "AtlasID" );
-        if( sc.isFailure() ) {
-            msg(MSG::WARNING) << "Could not get AtlasDetectorID " << endmsg;
-        }
+        msg(MSG::WARNING) << "Could not get AtlasDetectorID " << endmsg;
     }
         
     //Now try to get the tools

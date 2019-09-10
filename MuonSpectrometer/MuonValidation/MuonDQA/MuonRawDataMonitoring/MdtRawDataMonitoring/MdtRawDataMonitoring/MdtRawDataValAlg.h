@@ -46,7 +46,6 @@ class MuonDQAHistList;
 
 namespace Muon {
   class MdtPrepData;
-  class MuonIdHelperTool;
 }
 
 //stl includes
@@ -118,7 +117,6 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   MDTNoisyTubes* m_masked_tubes;
 
   const MdtIdHelper* m_mdtIdHelper;  
-  ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   const MuonGM::MuonDetectorManager*  p_MuonDetectorManager ; //!< Pointer On MuonDetectorManager
 

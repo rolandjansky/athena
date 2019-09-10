@@ -16,7 +16,7 @@ log = logging.getLogger('pebMenuDefs')
 # PEB Info Writer step
 ##################################################################
 def pebInputMaker(name):
-    maker = InputMakerForRoI("pebInputMaker_"+name, mergeOutputs=False)
+    maker = InputMakerForRoI("IMpeb_"+name, mergeOutputs=False)
     maker.RoIs="pebInputRoI_"+name
     return maker
 

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ThinTrkTrackAlg.cxx
@@ -118,6 +118,10 @@ StatusCode ThinTrkTrackAlg::initialize(){
     if (m_doMuons) {
       ATH_MSG_INFO("Will thin " << m_muonsKey << " Trk::Tracks with key " << m_CombinedMuonsTracksKey);
     }     
+
+    ATH_CHECK(m_pixelDetEleCollKey.initialize());
+    ATH_CHECK(m_SCTDetEleCollKey.initialize());
+
     ATH_MSG_DEBUG ( "==> done with initialize " << name() << "..." );
     return StatusCode::SUCCESS;
 }

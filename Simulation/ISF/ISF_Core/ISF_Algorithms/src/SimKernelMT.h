@@ -77,7 +77,7 @@ public:
 
 private:
   /// Returns the simulator to use for the given particle
-  ISimulatorTool& identifySimulator(const ISF::ISFParticle& particle) const;
+  const ISimulatorTool& identifySimulator(const ISF::ISFParticle& particle) const;
 
   /// Input Generator Truth collection
   SG::ReadHandleKey<McEventCollection> m_inputEvgenKey{this, "InputEvgenCollection", "", "Input EVGEN collection."};

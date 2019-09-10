@@ -17,7 +17,6 @@
 
 //#include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
 
 // Framework include files

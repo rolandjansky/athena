@@ -19,7 +19,6 @@ DataQualityFatherMonTool::DataQualityFatherMonTool(const std::string & type,
 						   const std::string & name,
 						   const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent)
-  , m_detStore(detStore().operator->())
  //----------------------------------------------------------------------------------
 {
   declareInterface<IMonitorToolBase>(this);
@@ -46,23 +45,6 @@ StatusCode DataQualityFatherMonTool:: initialize()
 {
 
   StatusCode sc;
-  //m_stem=m_THistSvc_streamname+m_path;
-  //sc = service( "StoreGateSvc", m_storeGate);
-  //if( sc.isFailure() )
-  //  {
-  //    log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endmsg;
-  //    return sc;
-  //  }
-
-  /*  
-  sc = service("DetectorStore", m_detStore);
-  if( sc.isFailure() )
-    {
-      log << MSG::ERROR << "Unable to get pointer to DetectorStore Service" << endmsg;
-      return sc;
-    }
-  */
-
   sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure())  {
     ATH_MSG_ERROR( "Unable to Initialize ManagedMonitoringToolBase::initialize" );

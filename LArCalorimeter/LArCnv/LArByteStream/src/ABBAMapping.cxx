@@ -14,7 +14,7 @@ typedef std::map<int, HWIdentifier> abba_map;
 }*/
 
 void add_to_map_2(abba_map* map, long value, int key) {
-  HWIdentifier identifier((HWIdentifier::value_type) value);
+  HWIdentifier identifier((HWIdentifier::value_type) (value<<32));
   (*map)[key] = identifier;
 }
 

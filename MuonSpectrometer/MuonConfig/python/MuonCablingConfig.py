@@ -35,10 +35,6 @@ def RPCCablingConfigCfg(flags):
                            '/RPC/CABLING/MAP_SCHEMA', '/RPC/CABLING/MAP_SCHEMA_CORR' ],
                          dbName ))
 
-    # that should not be here???
-    acc.getService('IOVDbSvc').FoldersToMetaData     += ['/GLOBAL/BField/Maps']
-
-
     from RPC_CondCabling.RPC_CondCablingConf import RPCCablingDbTool
     RPCCablingDbTool = RPCCablingDbTool()
     RPCCablingDbTool.MapConfigurationFolder = '/RPC/CABLING/MAP_SCHEMA'
@@ -68,7 +64,9 @@ def TGCCablingConfigCfg(flags):
     acc.addService( TGCCablingSvc, primary=True )
 
     from IOVDbSvc.IOVDbSvcConfig import addFolders
-    acc.merge(addFolders(flags, ['/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA'], 'TGC'))
+    dbName = 'TGC_OFL' if flags.Input.isMC else 'TGC'
+    acc.merge(addFolders(flags, '/TGC/CABLING/MAP_SCHEMA', dbName))
+
     return acc
 
 # This should be checked by experts since I just wrote it based on 

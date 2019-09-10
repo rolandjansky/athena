@@ -6,7 +6,6 @@
 
 #include "CscCalibTool.h"
 #include "StoreGate/DataHandle.h"
-#include "EventInfo/TagInfo.h"
 #include <sstream>
 
 #include <cmath>
@@ -101,12 +100,12 @@ StatusCode CscCalibTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-
-  m_addedfunc   =new TF1("addedfunc", dualbipfunc, 0,500,10);
-  m_bipolarFunc =new TF1("bipolarFunc",   bipfunc, -500,500,5);
-
   m_messageCnt_t0base=0;
   m_messageCnt_t0phase=0;
+
+  std::lock_guard<std::mutex> lock(m_mutex);
+  m_addedfunc   =new TF1("addedfunc", dualbipfunc, 0,500,10);
+  m_bipolarFunc =new TF1("bipolarFunc",   bipfunc, -500,500,5);
 
   return StatusCode::SUCCESS;
 }
@@ -635,7 +634,8 @@ std::vector<float> CscCalibTool::getSamplesFromBipolarFunc(const double driftTim
     result.push_back(0.0);
     return result;
   }
-  
+
+  std::lock_guard<std::mutex> lock(m_mutex);
   m_bipolarFunc->SetParameters(stripCharge0, driftTime0,
                                m_integrationNumber,m_integrationNumber2,m_signalWidth);
 
@@ -670,16 +670,16 @@ std::pair<double,double> CscCalibTool::addBipfunc(const double driftTime0,
     return result;
   }
   
+  std::lock_guard<std::mutex> lock(m_mutex);
   m_addedfunc->SetParameters(stripCharge0, driftTime0,
-                           m_integrationNumber,m_integrationNumber2,m_signalWidth,
-                           stripCharge1, driftTime1,
-                           m_integrationNumber,m_integrationNumber2,m_signalWidth);
+                             m_integrationNumber,m_integrationNumber2,m_signalWidth,
+                             stripCharge1, driftTime1,
+                             m_integrationNumber,m_integrationNumber2,m_signalWidth);
   result.second =m_addedfunc->GetMaximum(); // ==>stripCharges of added bipolars
   float tmax =m_addedfunc->GetX(result.second);
   result.first = tmax - getZ0()*m_signalWidth;
 
-  if (stripCharge0>0.0 && stripCharge1>0.0)
-    return result;
+  if (stripCharge0>0.0 && stripCharge1>0.0) return result;
 
   float bipmin = m_addedfunc->GetMinimum(); // ==>stripCharges of added bipolars
   float tmin = m_addedfunc->GetX(bipmin);
@@ -687,8 +687,6 @@ std::pair<double,double> CscCalibTool::addBipfunc(const double driftTime0,
     result.first = tmin-getZ0()*m_signalWidth;
     result.second = bipmin;
   }
-    
-
   
   //  To check out conversion is correct...
   ATH_MSG_VERBOSE ( "(" << driftTime0 << ":" << int(stripCharge0) << ")"
@@ -707,21 +705,3 @@ double CscCalibTool::getTimeOffset()        const {return m_timeOffset;}
 double CscCalibTool::getSignalWidth()       const {return m_signalWidth;}
 double CscCalibTool::getNumberOfIntegration()  const {return m_integrationNumber;}
 double CscCalibTool::getNumberOfIntegration2() const {return m_integrationNumber2;}
-
-
-std::string CscCalibTool::getDetDescr() const {
-
-  std::string detdescr = "";
-
-  const DataHandle<TagInfo> tagInfo;
-  if (detStore()->retrieve(tagInfo).isFailure()) {
-    ATH_MSG_ERROR ( "Could not retrieve tag info  from TDS. - abort ..." );
-    return detdescr;
-  }
-
-  tagInfo->findTag("GeoAtlas", detdescr);
-  ATH_MSG_VERBOSE ( "DetDescr tag = " << detdescr);
-  return detdescr;
-
-}
-

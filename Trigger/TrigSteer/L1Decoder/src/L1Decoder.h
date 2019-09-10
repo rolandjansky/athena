@@ -60,7 +60,7 @@ private:
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_FSDecisions{
     this, "FSDecisions", "L1FS", "Name of the decisions container (suitable for filters) containing all unprescaled chains"};
 
-  Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
+  Gaudi::Property<bool> m_doCostMonitoring{this, "DoCostMonitoring", false, 
     "Enables start-of-event cost monitoring behavior."};
 
   Gaudi::Property<std::string> m_costMonitoringChain{this, "CostMonitoringChain", "HLT_costmonitor", 

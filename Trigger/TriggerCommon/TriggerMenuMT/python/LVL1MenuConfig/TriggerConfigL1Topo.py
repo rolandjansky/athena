@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoMenu import L1TopoMenu
-from TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoFlags import L1TopoFlags
+from L1Topo.L1TopoMenu import L1TopoMenu
+from L1Topo.L1TopoFlags import L1TopoFlags
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerConfigL1Topo")
@@ -68,7 +68,7 @@ class TriggerConfigL1Topo(object):
         return algo
 
 
-    
+
     def getRegisteredAlgo(self, name):
         if name in self.registeredAlgos:
 #            print "Returning algo: {0}, ID:{1}, reassigning to {2}" .format(self.registeredAlgos[name].name,self.registeredAlgos[name].algoId,self.runningid )
@@ -153,10 +153,9 @@ class TriggerConfigL1Topo(object):
                 raise RuntimeError("L1Topo algo of name '%s' is not defined in L1Topo algo definition file TopoAlgoDef.py." % topooutput.algoname )
 
             topooutput.sortingAlgos = self.findRegisteredSortingAlgoByOutput(topooutput.algo)
-
             #print "For decision alg %s with inputs %r found the following sorting algs %r" % (topooutput.algo.name, topooutput.algo.inputs, [x.name for x in topooutput.sortingAlgos])
-
             self.menu += topooutput
+
 
         if not self.menu.check():
             raise RuntimeError("Menu check failed")

@@ -1,48 +1,46 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TrigBphysHypo.TrigBphysHypoConf import TrigMultiTrkHypoMT,TrigMultiTrkHypoToolMT
+from TrigBphysHypo.TrigBphysHypoConf import TrigMultiTrkHypoMT, TrigMultiTrkHypoToolMT  # noqa: F401
 from TrigBphysHypo.TrigMultiTrkHypoMTMonitoringConfig import TrigMultiTrkHypoToolMTMonitoring
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
+
+from AthenaCommon.Logging import logging
+log = logging.getLogger('TrigMultiTrkHypoMTConfig')
 
 def findL2teBaseName(cName,topos):
-     indices = []
-     for topo in topos:
-         indices.append(cName.find(topo))
-     firstTopoOccurance = sorted(indices,key=int)[0]
+    indices = []
+    for topo in topos:
+        indices.append(cName.find(topo))
+    firstTopoOccurance = sorted(indices,key=int)[0]
      
-     return cName[:firstTopoOccurance-1]         
+    return cName[:firstTopoOccurance-1]
 
 def TrigMultiTrkHypoToolMTFromDict( chainDict ):
 
-    print chainDict
-    config = TrigMultiTrkHypoMTConfig()    
-    tool=config.ConfigurationHypoTool( chainDict )
+    config = TrigMultiTrkHypoMTConfig()
+    tool = config.ConfigurationHypoTool( chainDict )
 
-    addMonitoring( tool, TrigMultiTrkHypoToolMTMonitoring, "TrigMultiTrkHypoToolMT", chainDict['chainName'] )
-    
+    tool.MonTool = TrigMultiTrkHypoToolMTMonitoring('MonTool')
+
     return tool
 
-def TrigMultiTrkHypoToolFromName( name, thresholdsHLT ):    
-    from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName   
+def TrigMultiTrkHypoToolFromName( name, thresholdsHLT ):
     decoder = DictFromChainName()    
     decodedDict = decoder.analyseShortName(thresholdsHLT, [], "") # no L1 info    
     decodedDict['chainName'] = name # override
-    print decodedDict
     return TrigMultiTrkHypoToolMTFromDict( decodedDict )
         
-class TrigMultiTrkHypoMTConfig():
+class TrigMultiTrkHypoMTConfig(object):
 
     def ConfigurationHypoTool( self, chainDict):
 
         topoAlgs = chainDict['topo']
         topoAlgs = chainDict['chainName']
-        print '*************topos******************'
-        print topoAlgs
         #print findL2teBaseName(chainDict['chainName'],topoAlgs)
 
         tool = TrigMultiTrkHypoToolMT( chainDict['chainName'] )
   
-        print "TrigMultiTrkHypoToolMTConfig: Set for algorithm ", topoAlgs
+        log.debug("Set for algorithm %s", topoAlgs)
 
         if 'nocut' in topoAlgs:
             tool.AcceptAll = True
@@ -78,24 +76,13 @@ class TrigMultiTrkHypoMTConfig():
         return tool 
 
 
-def addMonitoring(tool, monClass, name, thresholdHLT ):
-     try:
-         if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-             tool.MonTool = monClass( name + "Monitoring_" + thresholdHLT ) 
-     except AttributeError:
-         tool.MonTool = ""
-         print name, ' Monitoring Tool failed'
-         
 def getBphysThresholds(chainDict) :
     mult = 0
-    mult_without_noL1 = 0
     trkmuons = []
     fexNameExt = ""
 
     for part in chainDict['chainParts'] :
         mult = mult + int(part['multiplicity'])
-        #if not 'noL1' in  part['extra'] :
-        #    mult_without_noL1 = mult_without_noL1 + int(part['multiplicity'])
 
     for dictpart in chainDict['chainParts']:
         if 'mu' in dictpart['trigType']:

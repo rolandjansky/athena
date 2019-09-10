@@ -70,7 +70,6 @@ class IRegSelSvc;
 // class ITrigRegionSelector;
 class LArRoI_Map;
 class IROBDataProviderSvc;
-class StoreGateSvc;
 class T2CaloConfig;
 
 /** Class that provides access to data for
@@ -310,7 +309,7 @@ protected:
   /** TileCellCont pointer - has collections of TileCells */
   TileCellCont* m_tilecell;
   /** Full Container */
-  CaloCellContainer* m_fullCellContainer;
+  CaloCellContainer* m_fullCellContainer=nullptr;
   /** Input DataBlock to pre-allocate memory space for
       ROBFragment to be decoded */
   //std::vector<uint32_t> m_datablock;

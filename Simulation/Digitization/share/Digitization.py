@@ -123,7 +123,6 @@ if DetFlags.writeRDOPool.any_on():
     else:
         eventInfoKey = "EventInfo"
     streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True, noTag=True, eventInfoKey=eventInfoKey)
-    streamRDO.ForceRead = True
     from Digitization.DigiOutput import getStreamRDO_ItemList
     streamRDO.ItemList = getStreamRDO_ItemList(logDigitization_flags)
     streamRDO.AcceptAlgs += [ digitizationFlags.digiSteeringConf.get_Value() ]

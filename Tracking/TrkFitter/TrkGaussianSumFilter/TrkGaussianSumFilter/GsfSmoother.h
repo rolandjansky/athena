@@ -14,12 +14,12 @@ decription           : Class definition for the GSF smoother
 #ifndef TrkGsfSmoother_H
 #define TrkGsfSmoother_H
 
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
+#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
-#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkFitterUtils/FitterTypes.h"
+#include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 
@@ -32,15 +32,17 @@ class IMultiStateMeasurementUpdator;
 class IMultiStateExtrapolator;
 class CaloCluster_OnTrack;
 
-class GsfSmoother : public AthAlgTool, virtual public IGsfSmoother {
+class GsfSmoother
+  : public AthAlgTool
+  , virtual public IGsfSmoother
+{
 
- public:
-
+public:
   /** Constructor with AlgTool parameters */
   GsfSmoother(const std::string&, const std::string&, const IInterface*);
 
   /** Virtual destructor */
-  virtual ~GsfSmoother() {};
+  virtual ~GsfSmoother(){};
 
   /** AlgTool initialise method */
   StatusCode initialize();
@@ -51,38 +53,40 @@ class GsfSmoother : public AthAlgTool, virtual public IGsfSmoother {
   /** Configure the GSF smoother
       - Configure the extrapolator
       - Configure the measurement updator */
-  virtual StatusCode configureTools ( const ToolHandle<IMultiStateExtrapolator> &, 
-                                      const ToolHandle<IMultiStateMeasurementUpdator> &);
+  virtual StatusCode configureTools(const ToolHandle<IMultiStateExtrapolator>&,
+                                    const ToolHandle<IMultiStateMeasurementUpdator>&);
 
   /** Gsf smoother method */
-  virtual SmoothedTrajectory* fit (const ForwardTrajectory&, 
-                                   const ParticleHypothesis particleHypothesis = nonInteracting, 
-                                   const CaloCluster_OnTrack* ccot = 0  ) const;
+  virtual SmoothedTrajectory* fit(const ForwardTrajectory&,
+                                  const ParticleHypothesis particleHypothesis = nonInteracting,
+                                  const CaloCluster_OnTrack* ccot = 0) const;
 
- private:
-
+private:
   /** Method for combining the forwards fitted state and the smoothed state */
-  const MultiComponentState* combine (const MultiComponentState&, const MultiComponentState&) const;
-  
+  const MultiComponentState* combine(const MultiComponentState&, const MultiComponentState&) const;
+
   /** Methof to add the CaloCluster onto the track */
-  const MultiComponentState* addCCOT( const Trk::TrackStateOnSurface* currentState, 
-                                      const Trk::CaloCluster_OnTrack* ccot,  
-                                      Trk::SmoothedTrajectory* smoothedTrajectory) const;
+  const MultiComponentState* addCCOT(const Trk::TrackStateOnSurface* currentState,
+                                     const Trk::CaloCluster_OnTrack* ccot,
+                                     Trk::SmoothedTrajectory* smoothedTrajectory) const;
 
-
- private:
-  bool                                      m_combineWithFitter;
- ToolHandle<IMultiComponentStateMerger>    m_merger{this,
-    "ComponentMerger", "Trk::QuickCloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger",""};
-  ToolHandle<IMultiComponentStateCombiner>  m_combiner{this,    
-    "MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfSmootherCombiner",""};
+private:
+  bool m_combineWithFitter;
+  ToolHandle<IMultiComponentStateMerger> m_merger{
+    this,
+    "ComponentMerger",
+    "Trk::QuickCloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger",
+    ""
+  };
+  ToolHandle<IMultiComponentStateCombiner> m_combiner{ this,
+                                                       "MultiComponentStateCombiner",
+                                                       "Trk::MultiComponentStateCombiner/GsfSmootherCombiner",
+                                                       "" };
   /*
    * Special Tool Handles set by the configureTools
    */
-  ToolHandle<IMultiStateExtrapolator>       m_extrapolator;
+  ToolHandle<IMultiStateExtrapolator> m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
- 
-
 };
 
 } // end Trk namespace

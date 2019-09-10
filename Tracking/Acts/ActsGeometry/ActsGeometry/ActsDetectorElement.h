@@ -12,8 +12,8 @@
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 
 // ACTS
-#include "Acts/Detector/DetectorElementBase.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/DetectorElementBase.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 // STL
 #include <mutex>

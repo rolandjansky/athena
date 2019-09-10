@@ -106,7 +106,7 @@ namespace Trk {
         const std::string                                            m_name;
         const Layer*                                                 m_layerRepresentation;
         const std::vector<const Layer*>*                             m_multilayerRepresentation;
-	    mutable Amg::Transform3D*                                    m_baseTransform;         // optional use (for alignment purpose) 
+	      mutable Amg::Transform3D*                                    m_baseTransform;         // optional use (for alignment purpose) 
         mutable std::vector<std::pair<const Trk::Volume*,float> >*   m_constituents;  
         
                 

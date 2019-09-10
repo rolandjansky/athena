@@ -15,7 +15,7 @@ __doc__="Decoding of chain name into a dictionary"
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 logDict = logging.getLogger('TriggerMenu.menu.DictFromChainName')
-
+import re
 
 def getOverallL1item(chainName):
     """
@@ -28,6 +28,14 @@ def getOverallL1item(chainName):
     # this assumes that the last string of a chain name is the overall L1 item
     cNameParts = chainName.split("_L1")
     return 'L1_' + cNameParts[-1]
+
+def getL1item(chainName):
+    mainL1 = getOverallL1item(chainName)
+    #replace the '_' left-closest-to ETA by '.' so that L1J75_31ETA49 becomes L1J75.31ETA49
+    if 'ETA' in mainL1:
+        r = re.compile("_(?P<eta>..ETA..)")
+        mainL1 = r.sub(".\\g<eta>", mainL1)
+    return mainL1
 
 def getAllThresholdsFromItem(item):
     """
@@ -64,19 +72,21 @@ def getUniqueThresholdsFromItem(item):
 
 class DictFromChainName(object):
 
-    def getChainDict(self,chainInfo):
+    def getChainDict(self, chainInfo):
         logDict.debug("chainInfo %s", chainInfo)
 
         # ---- Loop over all chains (keys) in dictionary ----
         # ---- Then complete the dict with other info    ----
         # Default input format will be namedtuple:
-        # ChainProp: ['name', 'L1chainParts'=[], 'stream', 'groups',
+        # ChainProp: ['name', 'L1Thresholds'=[], 'stream', 'groups',
         # 'merging'=[], 'topoStartFrom'=False],
 
         # these if/elif/else statements are due to temporary development
+        from TrigConfHLTData.HLTUtils import string2hash
         if type(chainInfo) == str:
             chainName       = chainInfo
-            L1chainParts    = []
+            l1Thresholds    = []
+            chainNameHash   = string2hash(chainInfo)
             stream          = ''
             groups          = []
             mergingStrategy = 'parallel'
@@ -86,7 +96,8 @@ class DictFromChainName(object):
 
         elif 'ChainProp' in str(type(chainInfo)):
             chainName       = chainInfo.name
-            L1chainParts    = chainInfo.l1SeedThresholds
+            l1Thresholds    = chainInfo.l1SeedThresholds
+            chainNameHash   = string2hash(chainInfo.name)
             stream          = chainInfo.stream
             groups          = chainInfo.groups
             mergingStrategy = chainInfo.mergingStrategy
@@ -97,10 +108,11 @@ class DictFromChainName(object):
         else:
             logDict.error("Format of chainInfo passed to genChainDict not known")
 
-        L1item = getOverallL1item(chainName)
+        L1item = getL1item(chainName)
+
 
         logDict.debug("Analysing chain with name: %s", chainName)
-        chainDict = self.analyseShortName(chainName,  L1chainParts, L1item)
+        chainDict = self.analyseShortName(chainName,  l1Thresholds, L1item)
         logDict.debug('ChainProperties: %s', chainDict)
 
         # setting the L1 item
@@ -111,6 +123,7 @@ class DictFromChainName(object):
         chainDict['mergingOffset']   = mergingOffset
         chainDict['mergingOrder']    = mergingOrder
         chainDict['topoStartFrom']   = topoStartFrom
+        chainDict['chainNameHash']   = chainNameHash
 
         logDict.debug('Setting chain multiplicities')
         allChainMultiplicities = self.getChainMultFromDict(chainDict)
@@ -122,6 +135,10 @@ class DictFromChainName(object):
             logDict.debug('SUPER FINAL dictionary: %s', pp.pformat(chainDict))
 
         return chainDict
+
+
+
+
 
     def getChainMultFromDict(self, chainDict):
         allMultis = []
@@ -187,7 +204,7 @@ class DictFromChainName(object):
         genchainDict['chainName'] = chainName
 
         # remove the L1 item from the name
-        hltChainName = chainName.replace(L1item.replace("L1_", "_L1"),'')
+        hltChainName = chainName[:chainName.index("_L1")]
 
         # ---- specific chain part information ----
         allChainProperties=[]
@@ -358,11 +375,12 @@ class DictFromChainName(object):
         for chainindex, chainparts in enumerate(multichainparts):
 
             chainProperties = {} #will contain properties for one part of chain if multiple parts
-
             if len(L1thresholds) != 0:
                 chainProperties['L1threshold'] = L1thresholds[chainindex]
             else:
-                chainProperties['L1threshold'] = getAllThresholdsFromItem ( L1item )[chainindex]  #replced getUniqueThresholdsFromItem
+                __th = getAllThresholdsFromItem ( L1item )
+                assert chainindex < len(__th), "In defintion of the chain {} there is not enough thresholds to be used, index: {} >= number of thresholds, thresholds are: {}".format(chainName, chainindex, __th )
+                chainProperties['L1threshold'] = __th[chainindex]  #replced getUniqueThresholdsFromItem
 
 
             chainpartsNoL1 = chainparts

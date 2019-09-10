@@ -108,7 +108,7 @@ Identifier Muon::CscRDO_Decoder::channelIdentifier(const CscRawData * rawData, i
   m_rodReadOut.setAddress(address);
   Identifier moduleId   = m_rodReadOut.decodeAddress();
   
-  ATH_MSG_DEBUG ( " CscRDO_Decoder OUTPUT ::: " << m_cscCalibTool->getDetDescr() << "  "
+  ATH_MSG_DEBUG ( " CscRDO_Decoder OUTPUT ::: "
                   << m_timeOffset << "  " << m_samplingTime << " " << m_signalWidth << " "
                   << m_cscHelper << "  " << m_detdescr << "  " << address << "   "
                   << moduleId << " " << j );

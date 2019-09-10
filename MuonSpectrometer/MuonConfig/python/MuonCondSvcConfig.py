@@ -20,9 +20,7 @@ from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg, addFolders
 #     return result
 
 def MDTCondSummarySvcCfg(flags, **kwargs):
-    # This is probably wrong. I'm pretty confused by this for the moment.
     result = ComponentAccumulator()
-    # result.merge(IOVDbSvcCfg(flags))
     if flags.Common.isOnline:
       kwargs['ConditionsServices'] = []  # COOL folders not available online
     else:    
@@ -55,8 +53,8 @@ def MDTCondSummarySvcCfg(flags, **kwargs):
       result.addService(cond_svc)
       kwargs['ConditionsServices'] = [cond_svc]  # COOL folders not available online
     cond_summary = MDTCondSummarySvc(**kwargs)
-    result.addService(cond_summary)
-    return result, cond_summary
+    result.addService(cond_summary, primary=True)
+    return result
  
 def RPCCondSummarySvcCfg(flags,**kwargs):
     result = ComponentAccumulator()
@@ -87,10 +85,3 @@ def TGCCondSummarySvcCfg(flags,**kwargs):
     if flags.Common.isOnline:
       kwargs['ConditionsServices'] = []  # COOL folders not available online
     return TGCCondSummarySvc(**kwargs)
-
-# def MuonStationIntersectSvcCfg(flags, **kwargs):
-#     # has dependencies on
-#     # 'IdHelper' : PublicToolHandle('Muon::MuonIdHelperTool/MuonIdHelperTool'), # GaudiHandle
-#     # 'MDTCondSummarySvc' : ServiceHandle('MDTCondSummarySvc'), # GaudiHandle
-#     result=ComponentAccumulator()
-    

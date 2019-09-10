@@ -19,6 +19,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
+#include "egammaRecEvent/egammaRecContainer.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "GaudiKernel/EventContext.h"
 
@@ -26,8 +27,6 @@
 #include "xAODTracking/TrackParticleContainerFwd.h" 
 #include "TrkEventPrimitives/PropDirection.h"
 #include "StoreGate/ReadHandleKey.h"
-
-class egammaRec;
 
 namespace Reco  { class ITrackToVertex; }
 
@@ -47,9 +46,11 @@ public:
   /** @brief Gaudi algorithm hooks*/
   StatusCode initialize() override;
   /** @brief execute method*/
-  virtual StatusCode executeRec(const EventContext& ctx, egammaRec* eg) const override final;
+  virtual StatusCode executeRec(const EventContext& ctx, 
+                                EgammaRecContainer* egammas) const override final;
   /** @brief execute method*/
-  virtual StatusCode trackExecute(const EventContext& ctx, egammaRec* eg,  
+  virtual StatusCode trackExecute(const EventContext& ctx, 
+                                  egammaRec* eg,  
                                   const xAOD::TrackParticleContainer * trackPC) const override final;
 
 private:

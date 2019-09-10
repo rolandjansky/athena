@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -16,11 +16,7 @@
 
 #include "D3PDMakerUtils/ObjGetterTool.h" 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-
-
-namespace InDetDD{
-  class PixelDetectorManager;
-}
+#include "StoreGate/ReadCondHandleKey.h"
 
 namespace D3PD { 
 
@@ -39,7 +35,7 @@ class  JetTagPixelModuleGetterTool
   
  private: 
 
-  const InDetDD::PixelDetectorManager* m_pixMan; 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
  
 }; 
 

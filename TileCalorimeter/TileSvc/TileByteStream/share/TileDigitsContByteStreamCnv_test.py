@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TileByteStream/TileDigitsContByteStreamCnv_test.py
 # Author: scott snyder
@@ -24,6 +24,7 @@ def find_file (fname):
     return None
 
 # Find input file.
+RunNumber = 204073
 fpath = os.environ.get ('ATLAS_REFERENCE_DATA',
                         '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests')
 input_fname = os.path.join (fpath, 'data12_8TeV.00204073.physics_JetTauEtmiss.merge.RAW._lb0144._SFO-5._0001.1')

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,7 +10,6 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetExtensionProcessor/InDetExtensionProcessor.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"

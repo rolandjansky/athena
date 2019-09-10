@@ -1,4 +1,4 @@
-#!/bin/sh -xv
+#!/bin/sh
 #/** @file post.sh
 # @brief sh script that check the return code of an executable and compares
 # its output with a reference (if available).

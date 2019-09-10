@@ -24,7 +24,7 @@ namespace IOVDbNamespace{
       const std::string urlBase{"http://crest-undertow.web.cern.ch/crestapi"};
       const std::string getTagMap="/globaltagmaps/"+globalTagName;
       const std::string url=urlBase+getTagMap;
-      std::cout<<"Calling CURL"<<std::endl;
+      //std::cout<<"Calling CURL"<<std::endl;
       IOVDbSvcCurl request(url);
       curlReply=request.get();
     }

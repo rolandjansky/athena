@@ -5,10 +5,12 @@
 #ifndef EXTRAPOLATEMUONTOIPTOOL_H
 #define EXTRAPOLATEMUONTOIPTOOL_H
 
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <atomic>
@@ -17,7 +19,6 @@ namespace Trk{
   class IExtrapolator;
 }
 namespace Muon{
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
 }
 
@@ -59,9 +60,13 @@ class ExtrapolateMuonToIPTool : virtual public Muon::IMuonTrackExtrapolationTool
   /** find measured parameters closest to IP to start back extrapolation */ 
   const Trk::TrackParameters* findMeasuredParametersClosestToIP( const Trk::Track& track ) const;
 
+  std::unique_ptr<const Trk::Perigee> createPerigee( const Trk::TrackParameters& pars ) const;
 
   ToolHandle<Trk::IExtrapolator>   m_extrapolator;              //!< Extrapolator
-  ToolHandle<Muon::MuonEDMHelperTool>    m_helper;               //!< muon EDM helper tool
+  ToolHandle<Trk::IExtrapolator>   m_muonExtrapolator;              //!< MuonExtrapolator
+  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+    "Handle to the service providing the IMuonEDMHelperSvc interface" };               //!< muon EDM helper tool
   ToolHandle<Muon::MuonEDMPrinterTool>   m_printer;              //!< muon EDM printer tool
 
   mutable std::atomic_uint m_nextrapolations;

@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
@@ -30,6 +28,7 @@ StatusCode DumpEventDataToJsonAlg::initialize()
   ATH_CHECK( m_eventInfoKey.initialize());
   ATH_CHECK( m_trackParticleKeys.initialize() );
   ATH_CHECK( m_jetKeys.initialize() );
+  ATH_CHECK( m_caloClustersKeys.initialize() );
   ATH_CHECK( m_muonKeys.initialize() );
   if (m_extrapolateTracks) {
     ATH_CHECK( m_extrapolator.retrieve() );
@@ -54,9 +53,11 @@ StatusCode DumpEventDataToJsonAlg::execute ()
   ATH_CHECK(getAndFillArrayOfContainers(j, m_jetKeys, "Jets"));
   ATH_CHECK(getAndFillArrayOfContainers(j, m_trackParticleKeys, "Tracks"));
   ATH_CHECK(getAndFillArrayOfContainers(j, m_muonKeys, "Muons"));
+  ATH_CHECK(getAndFillArrayOfContainers(j, m_caloClustersKeys, "CaloClusters"));
   
   std::string key = std::to_string(eventInfo->eventNumber()) + "/" + std::to_string(eventInfo->runNumber());
-  m_eventData[key].push_back(j);
+  
+  m_eventData[key] = j;
   
   return StatusCode::SUCCESS;
 }
@@ -86,6 +87,19 @@ nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::Jet& jet){
   data["energy"] = jet.e();
   return data;
 }
+
+// Specialisation for CaloClusters
+template <> 
+nlohmann::json DumpEventDataToJsonAlg::getData( const xAOD::CaloCluster& clust){
+  nlohmann::json data;
+  data["phi"]    = clust.phi();
+  data["eta"]    = clust.eta();
+  data["energy"] = clust.e();
+  //data["etaSize"] = clust.getClusterEtaSize(); // empty
+  //data["phiSize"] = clust.getClusterPhiSize(); // empty
+  return data;
+}
+
 
 // Specialisation for Tracks
 template <> 

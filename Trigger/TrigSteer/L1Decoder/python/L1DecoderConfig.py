@@ -2,8 +2,8 @@
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 
-
-
+from AthenaCommon.Logging import logging
+log = logging.getLogger('L1DecoderConfig')
 
 def mapThresholdToL1DecisionCollection(threshold):
     """
@@ -84,7 +84,7 @@ class L1Decoder(L1Decoder) :
         super(L1Decoder, self).__init__(name, *args, **kwargs)
 
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
+        from L1Decoder.L1DecoderConf import CTPUnpackingTool
 
         # CTP unpacker
 
@@ -104,7 +104,11 @@ class L1Decoder(L1Decoder) :
             unpackers, rerunUnpackers = createMuonRoIUnpackers()
             self.roiUnpackers += unpackers
             self.rerunRoiUnpackers += rerunUnpackers
-            
+
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        self.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
+        self.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
+
         self.L1DecoderSummaryKey = "L1DecoderSummary"
 
 
@@ -114,7 +118,7 @@ def L1DecoderCfg(flags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
     from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool
-    from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
+    from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring
 
     acc = ComponentAccumulator()
     decoderAlg = L1Decoder()
@@ -131,7 +135,8 @@ def L1DecoderCfg(flags):
     decoderAlg.roiUnpackers += unpackers
     decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
-
+    decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
+    decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
     from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
     acc.merge( TrigConfigSvcCfg( flags ) )

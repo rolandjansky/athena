@@ -183,11 +183,12 @@ def _make_vbenf_label(chain_parts):
       []
       simple
       (
-        [(%(etlo).0fet)(%(etlo).0fet)]
+        [(%(etlo).0fet, 500neta)(%(etlo).0fet, peta500)]
       )
       combgen
       (
-        [(2)(10et)]
+        # [(2)(10et)]
+        [(10et)]
         dijet
         (
           [(%(masslo).0fmass, 26dphi)]
@@ -369,9 +370,9 @@ def _tests():
 
     chain_names = (
         'HLT_j85_L1J20',
-        'HLT_j80_0eta240_2j60_320eta490_L1J20',
-        'HLT_j85_j70_L1J20',
-        'HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet',
+        # 'HLT_j80_0eta240_2j60_320eta490_L1J20',
+        # ``'HLT_j85_j70_L1J20',
+        'HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',
         'HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
         
         

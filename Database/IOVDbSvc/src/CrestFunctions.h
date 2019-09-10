@@ -45,6 +45,9 @@ namespace IOVDbNamespace{
   folderDescriptionForTag(const std::string & tag, const bool testing=false);
   
   std::string 
+  payloadSpecificationForTag(const std::string & tag, const bool testing=false);
+  
+  std::string 
   extractDescriptionFromJson(const std::string & jsonReply);
 }
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPC_EXTRAPOLATIONTOOL
@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthLinks/DataLink.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkGeometry/TrackingGeometry.h"

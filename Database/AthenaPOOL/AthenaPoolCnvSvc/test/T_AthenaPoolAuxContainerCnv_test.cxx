@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -126,7 +126,7 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
   }
   SGTest::store.record (trans2, "store");
 
-  YAuxCont_v2* pers2a = cnv.createPersistent (trans2);
+  YAuxCont_v2* pers2a = cnv.createPersistentWithKey (trans2, "store");
   assert (pers2a->size() == trans2->size());
   const int* x2a = reinterpret_cast<const int*> (pers2a->getData (x_auxid));
   const Link_t* l2a = reinterpret_cast<const Link_t*> (pers2a->getData (l_auxid));
@@ -143,7 +143,7 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& /*testsvc*/)
     thinsvc.remap (vec, i, i-1);
   thinsvc.remap (trans2, 7, IThinningSvc::RemovedIdx);
 
-  YAuxCont_v2* pers2b = cnv.createPersistent (trans2);
+  YAuxCont_v2* pers2b = cnv.createPersistentWithKey (trans2, "store");
   assert (pers2b->size() == trans2->size()-1);
   const int* x2b = reinterpret_cast<const int*> (pers2b->getData (x_auxid));
   const Link_t* l2b = reinterpret_cast<const Link_t*> (pers2b->getData (l_auxid));

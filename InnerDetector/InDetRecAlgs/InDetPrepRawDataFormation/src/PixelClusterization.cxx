@@ -13,12 +13,10 @@
 #include "InDetRawData/PixelRDO_Container.h"
 #include "InDetPrepRawDataFormation/PixelClusterization.h"
 #include "InDetRawData/PixelRDORawData.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 
 
@@ -38,17 +36,14 @@ namespace InDet{
   m_rdoContainerKey(""),
   m_roiCollectionKey(""),
   m_regionSelector("RegSelSvc", name),
-  m_managerName("Pixel"),
   m_roiSeeded(false),
   m_idHelper(nullptr),
   m_clusterContainerKey(""),
   m_clusterContainerLinkKey(""),
   m_ambiguitiesMapKey(""),
-  m_clusterContainercacheKey(""),
-  m_manager(nullptr) {  
+  m_clusterContainercacheKey("") {
     // Get parameter values from jobOptions file
     declareProperty("DataObjectName", m_rdoContainerKey = std::string("PixelRDOs"));
-    declareProperty("DetectorManagerName",m_managerName);
     declareProperty("clusteringTool", m_clusteringTool);
     declareProperty("gangedAmbiguitiesFinder", m_gangedAmbiguitiesFinder);
     declareProperty("ClustersName", 
@@ -87,7 +82,6 @@ namespace InDet{
     ATH_CHECK(m_clusteringTool.retrieve());
     // get the InDet::PixelGangedAmbiguitiesFinder
     ATH_CHECK(m_gangedAmbiguitiesFinder.retrieve());
-    ATH_CHECK(detStore()->retrieve(m_manager, m_managerName));
     // Get the Pixel helper
     ATH_CHECK(detStore()->retrieve(m_idHelper,"PixelID"));
     ATH_CHECK( m_rdoContainerKey.initialize() );
@@ -147,11 +141,11 @@ namespace InDet{
         if( lock.alreadyPresent() ) continue;
 
         // Use one of the specific clustering AlgTools to make clusters
-        std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
+        std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper));
 
         if (clusterCollection && !clusterCollection->empty()){
 
-          m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*ambiguitiesMap);
+          m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*ambiguitiesMap);
           ATH_CHECK(lock.addOrDelete( std::move(clusterCollection) ));
         }else{
           ATH_MSG_DEBUG("No PixelClusterCollection to write");
@@ -181,11 +175,11 @@ namespace InDet{
           if( lock.alreadyPresent() ) continue;
 
           // Use one of the specific clustering AlgTools to make clusters
-          std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
+          std::unique_ptr<PixelClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_idHelper));
           if (clusterCollection && !clusterCollection->empty()){
             ATH_MSG_VERBOSE( "REGTEST: Pixel : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
-            m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*m_manager,*ambiguitiesMap);
+            m_gangedAmbiguitiesFinder->execute(clusterCollection.get(),*ambiguitiesMap);
             ATH_CHECK(lock.addOrDelete( std::move(clusterCollection) ));
 
           }else{

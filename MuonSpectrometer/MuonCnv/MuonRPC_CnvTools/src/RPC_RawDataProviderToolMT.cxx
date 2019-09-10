@@ -7,7 +7,6 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ThreadLocalContext.h"

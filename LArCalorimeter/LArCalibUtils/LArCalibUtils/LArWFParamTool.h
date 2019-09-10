@@ -11,7 +11,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CaloIdentifier/CaloGain.h"
 #include "LArRawConditions/LArWFParams.h"

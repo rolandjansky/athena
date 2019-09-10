@@ -162,7 +162,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("WritingTool",            m_streamer);
    declareProperty("Store",                  m_dataStore);
    declareProperty("MetadataStore",          m_metadataStore);
-   declareProperty("ForceRead",              m_forceRead=false);
+   declareProperty("ForceRead",              m_forceRead=true);
    declareProperty("ExtendProvenanceRecord", m_extendProvenanceRecord=true);
    declareProperty("WriteOnExecute",         m_writeOnExecute=true);
    declareProperty("WriteOnFinalize",        m_writeOnFinalize=false);

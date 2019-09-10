@@ -17,10 +17,10 @@
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/DiscBounds.h"
+#include "GeoModelInterfaces/IGeoModelTool.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetReadoutGeometry/TRT_Numerology.h"
 #include "InDetRecToolInterfaces/ITRT_TrackExtensionTool.h"
-#include "EventInfo/TagInfo.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "StoreGate/ReadHandle.h"
@@ -148,28 +148,13 @@ StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::initialize()
     return StatusCode::FAILURE;
   }
 
-  // get the key -- from StoreGate (DetectorStore)
-  //
-  std::vector< std::string > tagInfoKeys =  detStore()->keys<TagInfo> ();
-  std::string tagInfoKey = "";
-
-  if(tagInfoKeys.size()==0)
-    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endmsg;
-   else {
-     if(tagInfoKeys.size() > 1) {
-       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endmsg;
-     }
-     tagInfoKey = tagInfoKeys[0];
-   }
-
-  m_callbackString = tagInfoKey;
-
-  const DataHandle<TagInfo> tagInfoH;
-  
   // register the Callback
   //
-  sc = detStore()->regFcn(&InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsUpdate,
-			  this,tagInfoH,m_callbackString);
+  ATH_CHECK(m_geoModelSvc.retrieve());
+  ATH_CHECK(detStore()->regFcn(&IGeoModelTool::align,
+                               m_geoModelSvc->getTool("TRT_DetectorTool"),
+                               &InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsUpdate,
+                               this));
 
   if (sc.isFailure()) {
     msg(MSG::FATAL)<< "Failed to register the callback " << name() << endmsg;
@@ -1138,16 +1123,8 @@ unsigned int InDet::TRT_TrackSegmentsMaker_ATLxk::localMaximum
 ///////////////////////////////////////////////////////////////////
 
 StatusCode InDet::TRT_TrackSegmentsMaker_ATLxk::mapStrawsUpdate
-(IOVSVC_CALLBACK_ARGS_P(I,keys))
+(IOVSVC_CALLBACK_ARGS)
 {
-  (void) I;
-
-  bool needsUpdate = false;
-  for (std::list<std::string>::const_iterator k=keys.begin(); k!=keys.end(); ++k) {
-    if ((*k) == m_callbackString) {needsUpdate = true; break;}
-  } 
-  if(!needsUpdate) return StatusCode::SUCCESS;
-
   m_gupdate = true; mapStrawsProduction();
   return StatusCode::SUCCESS;
 }
@@ -1161,9 +1138,7 @@ void InDet::TRT_TrackSegmentsMaker_ATLxk::magneticFieldInit()
 {
   // Build MagneticFieldProperties 
   //
-  Trk::MagneticFieldProperties* pMF = 0;
-  if     (m_fieldmode == "NoField"    ) pMF = new Trk::MagneticFieldProperties(Trk::NoField  );
-  else if(m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField);
-  else                                  pMF = new Trk::MagneticFieldProperties(Trk::FullField);
-  m_fieldprop = *pMF; delete pMF;
+  if     (m_fieldmode == "NoField"    ) m_fieldprop = Trk::MagneticFieldProperties(Trk::NoField  );
+  else if(m_fieldmode == "MapSolenoid") m_fieldprop = Trk::MagneticFieldProperties(Trk::FastField);
+  else                                  m_fieldprop = Trk::MagneticFieldProperties(Trk::FullField);
 }

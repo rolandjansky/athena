@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -72,6 +72,7 @@ StatusCode DQTLumiMonTool::initialize(){
   ATH_CHECK( m_EventInfoKey.initialize() );
   ATH_CHECK( m_VertexContainerKey.initialize() );
   ATH_CHECK( m_PixelClustersKey.initialize(m_environment != AthenaMonManager::AOD) );
+  ATH_CHECK( m_pixelDetEleCollKey.initialize() );
   return DataQualityFatherMonTool::initialize();
 }
 
@@ -202,7 +203,7 @@ StatusCode DQTLumiMonTool::fillHistograms(){
     
     if(! pixelClContainer.isValid()) {
       ATH_MSG_WARNING("Could not retrieve " <<m_PixelClustersKey<< " from evtStore");
-    }else if(m_detStore->retrieve(pixelId, m_PixelIDKey).isFailure() || !pixelId){
+    }else if(detStore()->retrieve(pixelId, m_PixelIDKey).isFailure() || !pixelId){
       ATH_MSG_WARNING("Could not retrieve " <<m_PixelIDKey<< " from DetStore");
     }else{
       int nClustersAll = 0;

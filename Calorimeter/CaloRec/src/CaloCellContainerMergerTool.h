@@ -5,7 +5,6 @@
 #ifndef CALOREC_CALOCELLCONTAINERMERGERTOOL_H
 #define CALOREC_CALOCELLCONTAINERMERGERTOOL_H
 
-class StoreGateSvc; 
 #include "AthenaBaseComps/AthAlgTool.h"
 
 

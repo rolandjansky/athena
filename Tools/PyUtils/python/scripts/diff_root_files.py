@@ -13,13 +13,17 @@ __author__ = "Sebastien Binet"
 import PyUtils.acmdlib as acmdlib
 
 ### globals -------------------------------------------------------------------
-g_ALLOWED_MODES = ('summary', 'detailed')
+g_ALLOWED_MODES = ('summary', 'semi-detailed', 'detailed')
 g_ALLOWED_ERROR_MODES = ('bailout', 'resilient')
 g_args = None
 
 ### classes -------------------------------------------------------------------
 
 ### functions -----------------------------------------------------------------
+def _is_detailed():
+    global g_args
+    return g_args.mode == 'detailed'
+
 def _is_summary():
     global g_args
     return g_args.mode == 'summary'
@@ -65,6 +69,7 @@ def _is_exit_early():
                   help="""\
 Enable a particular mode.
   'summary': only report the number of differences.
+  'semi-detailed': report the number of differences and the leaves that differ.
   'detailed': display everything.
 default='%(default)s'.
 allowed: %(choices)s
@@ -285,7 +290,7 @@ def main(args):
             else:
                 in_synch = d_old and d_new and d_old[0] == d_new[0] and d_old[2] == d_new[2]
             if not in_synch:
-                if not _is_summary():
+                if _is_detailed():
                     if d_old:
                         print '::sync-old %s' %'.'.join(["%03i"%ientry]+map(str, d_old[2]))
                     else:
@@ -306,13 +311,13 @@ def main(args):
                     branch_old = '.'.join(["%03i"%ientry, d_old[2][0]])
                     branch_new = '.'.join(["%03i"%jentry, d_new[2][0]])
                     if branch_old < branch_new: 
-                        if not _is_summary():
+                        if _is_detailed():
                             print '::sync-old skipping entry'
                         summary[d_old[2][0]] += 1
                         fnew.allgood = False
                         read_new = False
                     elif branch_old > branch_new:
-                        if not _is_summary():
+                        if _is_detailed():
                             print '::sync-new skipping entry'
                         summary[d_new[2][0]] += 1
                         fold.allgood = False
@@ -332,19 +337,19 @@ def main(args):
                             elif leaf_old == prev_leaf_old:
                                 # old has bigger array, skip old entry
                                 read_new = False
-                                if not _is_summary():
+                                if _is_detailed():
                                     print '::sync-old skipping entry'
                                 summary[leaf_old] += 1
                             elif leaf_new == prev_leaf_new:
                                 # new has bigger array, skip new entry
                                 read_old = False
-                                if not _is_summary():
+                                if _is_detailed():
                                     print '::sync-new skipping entry'
                                 summary[leaf_new] += 1
                                                             
                         if read_old and read_new:
                             summary[d_new[2][0]] += 1
-                            if not _is_summary():
+                            if _is_detailed():
                                 print '::sync-old+new skipping both entries'
                         fold.allgood = False
                         fnew.allgood = False
@@ -364,7 +369,7 @@ def main(args):
                 diff_value = '%.8f%%' % (diff_value,)
             except Exception:
                 pass
-            if not _is_summary():
+            if _is_detailed():
                 print '%s %r -> %r => diff= [%s]' %(n, iold, inew, diff_value)
                 pass
             summary[leafname_fromdump(d_old)] += 1

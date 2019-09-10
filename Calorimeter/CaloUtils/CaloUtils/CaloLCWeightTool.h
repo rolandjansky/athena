@@ -31,7 +31,6 @@
 class CaloCell_ID;
 class CaloDetDescrManager;
 class ICalorimeterNoiseTool;
-class StoreGateSvc;
 class CaloCluster;
 
 class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightTool

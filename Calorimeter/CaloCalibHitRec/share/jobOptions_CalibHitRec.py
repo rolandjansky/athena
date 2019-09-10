@@ -88,7 +88,6 @@ if writePool:
                       "LArHitContainer#*",                 # LAr hits
                       "McEventCollection#*"                # mc truth (hepmc)
 		]
-    Stream1.ForceRead=TRUE  #force read of output data
 
 
 # LAr hits

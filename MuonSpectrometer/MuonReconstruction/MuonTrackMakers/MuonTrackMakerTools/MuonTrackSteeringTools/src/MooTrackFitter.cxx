@@ -21,7 +21,7 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
 
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include "TrkGeometry/MagneticFieldProperties.h"
@@ -76,7 +76,6 @@ namespace Muon {
     m_momentumEstimator("MuonSegmentMomentum/MuonSegmentMomentum"),
     m_magFieldProperties(Trk::NoField),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_entryHandler("Muon::MuPatCandidateTool/MuPatCandidateTool"),
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
@@ -98,7 +97,6 @@ namespace Muon {
     declareProperty("SegmentMomentum",     m_momentumEstimator);
     declareProperty("HitTool",m_hitHandler);
     declareProperty("IdHelper",m_idHelperTool);
-    declareProperty("MuonHelperTool",m_helperTool);
     declareProperty("MuonPrinterTool",m_printer);
     declareProperty("CandidateTool",m_entryHandler);
     declareProperty("TrackToSegmentTool",m_trackToSegmentTool);
@@ -110,7 +108,6 @@ namespace Muon {
     declareProperty("SLFit",               m_slFit = true);
     declareProperty("RunOutlier",          m_runOutlier = false);
     declareProperty("MatEffects",          m_matEffects = 2);
-    declareProperty("FitEtaStrips",        m_fitEtaStrips = false);
     declareProperty("SeedAtStartOfTrack",  m_seedAtStartOfTrack = true );
     declareProperty("SeedWithAvePhi",      m_seedWithAvePhi = true );
     declareProperty("SeedWithSegmentTheta",m_seedWithSegmentTheta = true );
@@ -140,7 +137,7 @@ namespace Muon {
     ATH_CHECK( m_trackFitterPrefit.retrieve() );
     ATH_CHECK( m_momentumEstimator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_hitHandler.retrieve() );
     ATH_CHECK( m_entryHandler.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
@@ -153,25 +150,39 @@ namespace Muon {
     ATH_CHECK( m_mdtRotCreator.retrieve() );
     ATH_CHECK( m_phiHitSelector.retrieve() );
 
+    m_nfits=0;
+    m_nfailedExtractInital=0;
+    m_nfailedMinMaxPhi=0;
+    m_nfailedParsInital=0;
+    m_nfailedExtractCleaning=0;
+    m_nfailedFakeInitial=0;
+    m_nfailedTubeFit=0;
+    m_noPerigee=0;
+    m_nlowMomentum=0;
+    m_nfailedExtractPrecise=0;
+    m_nfailedFakePrecise=0;
+    m_nfailedFitPrecise=0;
+    m_nsuccess=0;
+
     return StatusCode::SUCCESS;
   }
   
   StatusCode MooTrackFitter::finalize(){
     
-    double nfits = m_counters.nfits > 0 ? m_counters.nfits : 1.;
-    double nfailedExtractInital = m_counters.nfailedExtractInital/nfits;
-    double nfailedMinMaxPhi = m_counters.nfailedMinMaxPhi/nfits;
-    double nfailedParsInital = m_counters.nfailedParsInital/nfits;
-    double nfailedExtractCleaning = m_counters.nfailedExtractCleaning/nfits;
-    double nfailedFakeInitial = m_counters.nfailedFakeInitial/nfits;
-    double nfailedTubeFit = m_counters.nfailedTubeFit/nfits;
-    double noPerigee = m_counters.noPerigee/nfits;
-    double nlowMomentum = m_counters.nlowMomentum/nfits;
-    double nfailedExtractPrecise = m_counters.nfailedExtractPrecise/nfits;
-    double nfailedFakePrecise = m_counters.nfailedFakePrecise/nfits;
-    double nfailedFitPrecise = m_counters.nfailedFitPrecise/nfits;
-    double nsuccess = m_counters.nsuccess/nfits;
-    ATH_MSG_INFO(" Summarizing statistics: nfits " << m_counters.nfits << std::endl
+    double nfits = m_nfits.load() > 0 ? m_nfits.load() : 1.;
+    double nfailedExtractInital = m_nfailedExtractInital/nfits;
+    double nfailedMinMaxPhi = m_nfailedMinMaxPhi/nfits;
+    double nfailedParsInital = m_nfailedParsInital/nfits;
+    double nfailedExtractCleaning = m_nfailedExtractCleaning/nfits;
+    double nfailedFakeInitial = m_nfailedFakeInitial/nfits;
+    double nfailedTubeFit = m_nfailedTubeFit/nfits;
+    double noPerigee = m_noPerigee/nfits;
+    double nlowMomentum = m_nlowMomentum/nfits;
+    double nfailedExtractPrecise = m_nfailedExtractPrecise/nfits;
+    double nfailedFakePrecise = m_nfailedFakePrecise/nfits;
+    double nfailedFitPrecise = m_nfailedFitPrecise/nfits;
+    double nsuccess = m_nsuccess/nfits;
+    ATH_MSG_INFO(" Summarizing statistics: nfits " << m_nfits << std::endl
                  << "|  extract  | phi range | startPars | clean phi |  add fake |    fit    | no perigee |  low mom  |  extract  |  add fake | final fit |   passed  |" 
                  << std::endl << std::setprecision(2)
                  << std::setw(12) << nfailedExtractInital << std::setw(12) << nfailedMinMaxPhi << std::setw(12) << nfailedParsInital
@@ -200,6 +211,8 @@ namespace Muon {
 
   Trk::Track* MooTrackFitter::refit( const MuPatTrack& trkCan ) const {
 
+    GarbageCan localGarbage;
+
     // internal representation of the track in fitter
     FitterData fitterData;
     
@@ -214,7 +227,7 @@ namespace Muon {
     if( !pp ) return 0;
     
     // fit track
-    Trk::Track* track = fit(*pp,fitterData.measurements);
+    Trk::Track* track = fit(*pp,fitterData.measurements,localGarbage);
 
     if( track ){
       // clean and evaluate track
@@ -229,14 +242,14 @@ namespace Muon {
       ATH_MSG_DEBUG(" Fit failed " );
     }
  
-    cleanUp();
+    localGarbage.cleanUp();
 
     return track;
   }
 
 
   Trk::Track* MooTrackFitter::refit( const Trk::Track& track ) const {
-    
+
     if ( msgLvl(MSG::DEBUG) ) {
       const DataVector<const Trk::TrackStateOnSurface>* states = track.trackStateOnSurfaces();
       int nStates = 0;
@@ -271,65 +284,67 @@ namespace Muon {
     }else{
       ATH_MSG_DEBUG(" Refit failed " );
     }
-    cleanUp();
+
     return newTrack;
   }
 
 
   Trk::Track* MooTrackFitter::fit( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, const PrepVec* externalPhiHits ) const {
 
-    ++m_counters.nfits;
+    GarbageCan localGarbage;
+
+    ++m_nfits;
 
     // internal representation of the track in fitter
     FitterData fitterData;
 
     // extract hits and geometrical information
-    if( !extractData(entry1,entry2,fitterData) ) {
+    if( !extractData(entry1,entry2,fitterData, localGarbage) ) {
       ATH_MSG_DEBUG(" Failed to extract data for initial fit" );
-      cleanUp();
+      localGarbage.cleanUp();
       return 0;
     }
-    ++m_counters.nfailedExtractInital;
+    ++m_nfailedExtractInital;
 
     // get the minimum and maximum phi compatible with all eta hits, don't use for cosmics
     if( !m_cosmics && !getMinMaxPhi( fitterData )  ) {
       ATH_MSG_DEBUG(" Phi range check failed, candidate stations not pointing. Will not fit track" );
-      cleanUp();      
+      localGarbage.cleanUp();
       return 0;
     }
 
-    ++m_counters.nfailedMinMaxPhi;
+    ++m_nfailedMinMaxPhi;
 
 
     // create start parameters
-    Trk::Perigee* startPars = createStartParameters(fitterData);
+    Trk::Perigee* startPars = createStartParameters(fitterData,localGarbage);
     if( !startPars ) {
       ATH_MSG_DEBUG(" Creation of start parameters failed " );
-      cleanUp();
+      localGarbage.cleanUp();
       return 0;
     }
-    ++m_counters.nfailedParsInital;
+    ++m_nfailedParsInital;
 
     // clean phi hits and reevaluate hits. Do not run for cosmics
-    bool hasCleaned = m_cleanPhiHits ? cleanPhiHits( startPars->momentum().mag(), fitterData, externalPhiHits ) : true;
+    bool hasCleaned = m_cleanPhiHits ? cleanPhiHits( startPars->momentum().mag(), fitterData, externalPhiHits, localGarbage ) : true;
     if( hasCleaned ){
       ATH_MSG_DEBUG(" Cleaned phi hits, re-extracting hits" );
       bool usePrecise = m_usePreciseHits ? true : (fitterData.firstHasMomentum || fitterData.secondHasMomentum);
       if( !extractData( fitterData, usePrecise ) ) {
         ATH_MSG_DEBUG(" Failed to extract data after phi hit cleaning" );
-        cleanUp();
+        localGarbage.cleanUp();
         return 0;
       }
     }
-    ++m_counters.nfailedExtractCleaning;
+    ++m_nfailedExtractCleaning;
 
     // check whether there are enough phi constraints, if not add fake phi hits
-    if( !addFakePhiHits(fitterData,startPars) ) {
+    if( !addFakePhiHits(fitterData,startPars,localGarbage) ) {
       ATH_MSG_DEBUG(" Failed to add fake phi hits for precise fit" );
-      cleanUp();
+      localGarbage.cleanUp();
       return 0;
     }
-    ++m_counters.nfailedFakeInitial;
+    ++m_nfailedFakeInitial;
 
     // fit track with broad errors, no material
     Trk::ParticleSwitcher particleSwitch;
@@ -338,33 +353,33 @@ namespace Muon {
     if( fitterData.firstHasMomentum || fitterData.secondHasMomentum ) doPreFit = false;
     if( !doPreFit ) particleType = Trk::muon;
     
-    Trk::Track* track = fit(*startPars,fitterData.measurements,particleType,doPreFit);
+    Trk::Track* track = fit(*startPars,fitterData.measurements,localGarbage,particleType,doPreFit);
     
     
     if( !track ) {
       ATH_MSG_DEBUG(" Fit failed " );
-      cleanUp();
+      localGarbage.cleanUp();
       return 0;
     }
-    ++m_counters.nfailedTubeFit;
+    ++m_nfailedTubeFit;
 
     // create start parameters
     const Trk::Perigee* pp = track->perigeeParameters();
     if( !pp ) {
       ATH_MSG_DEBUG(" Track without perigee parameters, exit " );
       delete track;
-      cleanUp();
+      localGarbage.cleanUp();
       return 0;
     }
-    ++m_counters.noPerigee;
+    ++m_noPerigee;
 
     if( !m_slFit && !validMomentum( *pp ) ){
       ATH_MSG_DEBUG(" Low momentum, rejected " );
       delete track;
-      cleanUp();
+      localGarbage.cleanUp();
       return 0;
     }
-    ++m_counters.nlowMomentum;
+    ++m_nlowMomentum;
 
     if( !fitterData.firstHasMomentum && !fitterData.secondHasMomentum && doPreFit ){
       ATH_MSG_DEBUG(" Performing second fit " );
@@ -372,7 +387,7 @@ namespace Muon {
       // refit with precise errors
       FitterData fitterDataRefit;
       fitterDataRefit.startPars = pp->clone();
-      m_parametersToBeDeleted.push_back(fitterDataRefit.startPars);
+      localGarbage.parametersToBeDeleted.push_back(fitterDataRefit.startPars);
       fitterDataRefit.firstIsTrack = fitterData.firstIsTrack;
       fitterDataRefit.secondIsTrack = fitterData.secondIsTrack;
       fitterDataRefit.firstHasMomentum = fitterData.firstHasMomentum;
@@ -388,34 +403,34 @@ namespace Muon {
       if( !extractData( fitterDataRefit, true ) ) {
         ATH_MSG_DEBUG(" Failed to extract data for precise fit" );
         delete track;
-        cleanUp();
+        localGarbage.cleanUp();
         return 0;
       }
-      ++m_counters.nfailedExtractPrecise;
+      ++m_nfailedExtractPrecise;
       
       // check whether there are enough phi constraints, if not add fake phi hits
-      if( !addFakePhiHits(fitterDataRefit,startPars) ) {
+      if( !addFakePhiHits(fitterDataRefit,startPars,localGarbage) ) {
         ATH_MSG_DEBUG(" Failed to add fake phi hits for precise fit" );
-        cleanUp();
+        localGarbage.cleanUp();
         delete track;
         return 0;
       }
-      ++m_counters.nfailedFakePrecise;
+      ++m_nfailedFakePrecise;
       
       // fit track
-      Trk::Track* newTrack = fit(*pp,fitterDataRefit.measurements);
+      Trk::Track* newTrack = fit(*pp,fitterDataRefit.measurements,localGarbage);
       if( newTrack ){
         delete track;
         track = newTrack;
       }else if( !m_allowFirstFit ){
         ATH_MSG_DEBUG(" Precise fit failed " );
         delete track;
-        cleanUp();
+        localGarbage.cleanUp();
         return 0;
       }else{
         ATH_MSG_DEBUG(" Precise fit failed, keep fit with broad errors" );
       }
-      ++m_counters.nfailedFitPrecise;
+      ++m_nfailedFitPrecise;
     }
 
     if( track ){
@@ -449,14 +464,14 @@ namespace Muon {
 //      ATH_MSG_DEBUG(" Refit failed " );
     }
     
-    if( track ) ++m_counters.nsuccess;
+    if( track ) ++m_nsuccess;
     
-    cleanUp();
+    localGarbage.cleanUp();
     if( msgLvl(MSG::DEBUG) && track ) msg(MSG::DEBUG) << MSG::DEBUG << " Track found " << endmsg;
     return track;
   }
 
-  bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2 , MooTrackFitter::FitterData& fitterData ) const {
+  bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2 , MooTrackFitter::FitterData& fitterData, GarbageCan& garbage ) const {
     // sanity checks on the entries
     if( corruptEntry( entry1 ) ) {
       ATH_MSG_DEBUG(" corrupt first entry,  cannot perform fit: eta hits " << entry1.etaHits().size() );
@@ -497,8 +512,8 @@ namespace Muon {
     }
     // merge hitLists and add them to the fitterData
     MuPatHitList& hitList = fitterData.hitList;
-    copyHitList(entry1.hitList(),fitterData.copyHitList1);
-    copyHitList(entry2.hitList(),fitterData.copyHitList2);
+    copyHitList(entry1.hitList(),fitterData.copyHitList1,garbage);
+    copyHitList(entry2.hitList(),fitterData.copyHitList2,garbage);
 
     if( !m_hitHandler->merge(fitterData.copyHitList1,fitterData.copyHitList2,hitList) ) return false;
 
@@ -661,7 +676,7 @@ namespace Muon {
     return true;
   }
  
-  bool MooTrackFitter::addFakePhiHits( MooTrackFitter::FitterData& fitterData, const Trk::TrackParameters* startpar ) const {
+  bool MooTrackFitter::addFakePhiHits( MooTrackFitter::FitterData& fitterData, const Trk::TrackParameters* startpar, GarbageCan& garbage ) const {
     
     // check whether we have enough phi constraints
     unsigned nphiConstraints = hasPhiConstrain(fitterData);
@@ -682,7 +697,6 @@ namespace Muon {
     Amg::Vector3D* overlapPos = 0;
     const Amg::Vector3D* phiPos = 0;
     if( fitterData.numberOfSLOverlaps() > 0 || (fitterData.numberOfSmallChambers() > 0 && fitterData.numberOfLargeChambers() > 0 ) ){
-      
       
       
       // in case of SL overlaps, pass average position of the two segments 
@@ -731,7 +745,7 @@ namespace Muon {
         delete overlapPos;overlapPos=0;
 
         // only perform SL overlap fit for MDT segments
-        Identifier chId = m_helperTool->chamberId(*segInfo1->segment);
+        Identifier chId = m_edmHelperSvc->chamberId(*segInfo1->segment);
         if( !m_idHelperTool->isMdt(chId) ) return false;
 
         ATH_MSG_VERBOSE(" Special treatment for tracks with one station, a SL overlap and no phi hits " );
@@ -750,7 +764,7 @@ namespace Muon {
         const Trk::TrackParameters* exPars1 = m_propagator->propagate(segPars1,fitterData.measurements.front()->associatedSurface(),
                                                                       Trk::anyDirection,false,m_magFieldProperties);
         if( exPars1 ){
-          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.front(),&exPars1->position(),0,10.);
+          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.front(),&exPars1->position(),0,10.,garbage);
           delete exPars1;
           if( fake ) {
             fitterData.phiHits.push_back(fake);
@@ -768,7 +782,7 @@ namespace Muon {
         const Trk::TrackParameters* exPars2 = m_propagator->propagate(segPars2,fitterData.measurements.back()->associatedSurface(),
                                                                        Trk::anyDirection,false,m_magFieldProperties);
         if( exPars2 ){
-          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.back(),&exPars2->position(),0,10.);
+          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.back(),&exPars2->position(),0,10.,garbage);
           delete exPars2;
           if( fake ){
             fitterData.phiHits.push_back(fake);
@@ -783,13 +797,13 @@ namespace Muon {
           (fitterData.stations.size() == 1) || 
           (nphiConstraints==1 && fitterData.numberOfSLOverlaps()==0 && 
            fitterData.numberOfSmallChambers() > 0 && fitterData.numberOfLargeChambers() > 0) ){
-        const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.front(),overlapPos,phiPos,100.);
+        const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.front(),overlapPos,phiPos,100.,garbage);
         if( fake ) {
           fitterData.phiHits.push_back(fake);
           fitterData.measurements.insert(fitterData.measurements.begin(),fake);
           fitterData.firstLastMeasurements.insert(fitterData.firstLastMeasurements.begin(),fake);
         }
-        fake = createFakePhiForMeasurement(*fitterData.measurements.back(),overlapPos,phiPos,100.);
+        fake = createFakePhiForMeasurement(*fitterData.measurements.back(),overlapPos,phiPos,100.,garbage);
         if( fake ){
           fitterData.phiHits.push_back(fake);
           fitterData.measurements.push_back(fake);
@@ -815,7 +829,7 @@ namespace Muon {
          return false;
         }
         
-        Identifier firstId = m_helperTool->getIdentifier(*fitterData.measurements.front());
+        Identifier firstId = m_edmHelperSvc->getIdentifier(*fitterData.measurements.front());
         if( !firstId.is_valid() ) {
          ATH_MSG_WARNING(" unexpected condition, first measurement has no identifier " );
 	 delete phiPos; phiPos=0;
@@ -827,7 +841,7 @@ namespace Muon {
           ATH_MSG_VERBOSE(" Adding fake in same station as overlap " );
 
           // create pseudo at end of track
-          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.back(),overlapPos,phiPos,100.);
+          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.back(),overlapPos,phiPos,100.,garbage);
           if( fake ){
             fitterData.phiHits.push_back(fake);
             fitterData.measurements.push_back(fake);
@@ -836,7 +850,7 @@ namespace Muon {
         }else{
           ATH_MSG_VERBOSE(" Adding fake in other station as overlap " );
           // create pseudo at begin of track
-          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.front(),overlapPos,phiPos,100.);
+          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.front(),overlapPos,phiPos,100.,garbage);
           if( fake ) {
             fitterData.phiHits.push_back(fake);
             fitterData.measurements.insert(fitterData.measurements.begin(),fake);
@@ -920,10 +934,10 @@ namespace Muon {
             fake = new Trk::PseudoMeasurementOnTrack(Trk::LocalParameters(Trk::DefinedParameter(mdtpar->parameters()[Trk::locY],Trk::locY)),
 						     cov,mdtpar->associatedSurface());
             delete mdtpar;
-            m_measurementsToBeDeleted.push_back(fake);
+            garbage.measurementsToBeDeleted.push_back(fake);
           }
         }
-        else fake = createFakePhiForMeasurement(*fitterData.measurements.back(),overlapPos,phiPos,10.);
+        else fake = createFakePhiForMeasurement(*fitterData.measurements.back(),overlapPos,phiPos,10.,garbage);
         if ( fake ) {
           fitterData.phiHits.push_back(fake);
           fitterData.measurements.insert(fitterData.measurements.begin()+indexlast,fake);
@@ -942,11 +956,11 @@ namespace Muon {
 	    cov(0,0) = 100.;
             fake = new Trk::PseudoMeasurementOnTrack(Trk::LocalParameters(Trk::DefinedParameter(mdtpar->parameters()[Trk::locY],Trk::locY)),
 						     cov,mdtpar->associatedSurface());
-            m_measurementsToBeDeleted.push_back(fake);
+            garbage.measurementsToBeDeleted.push_back(fake);
             delete mdtpar;
           }
         }
-        else fake = createFakePhiForMeasurement(*fitterData.measurements.front(),overlapPos,phiPos,100.);
+        else fake = createFakePhiForMeasurement(*fitterData.measurements.front(),overlapPos,phiPos,100.,garbage);
         if ( fake ) {
           fitterData.phiHits.insert(fitterData.phiHits.begin(),fake);
           fitterData.measurements.insert(fitterData.measurements.begin()+indexfirst,fake);
@@ -962,13 +976,14 @@ namespace Muon {
   } 
 
   const Trk::MeasurementBase* MooTrackFitter::createFakePhiForMeasurement( const Trk::MeasurementBase& meas, 
-                                                                            const Amg::Vector3D* overlapPos, 
-                                                                            const Amg::Vector3D* phiPos,
-                                                                            double errPos ) const {
+									   const Amg::Vector3D* overlapPos, 
+									   const Amg::Vector3D* phiPos,
+									   double errPos,
+									   GarbageCan& garbage) const {
     
     
     // check whether measuring phi
-    Identifier id = m_helperTool->getIdentifier( meas );
+    Identifier id = m_edmHelperSvc->getIdentifier( meas );
     if( id == Identifier () ) {
       ATH_MSG_WARNING(" Cannot create fake phi hit from a measurement without Identifier " );
       return 0;
@@ -1178,7 +1193,7 @@ namespace Muon {
     Trk::PseudoMeasurementOnTrack* fake = new Trk::PseudoMeasurementOnTrack(locPars,cov,surf);
     
     // should be deleted before exiting, add to list 
-    m_measurementsToBeDeleted.push_back(fake);
+    garbage.measurementsToBeDeleted.push_back(fake);
 
     if( msgLvl(MSG::DEBUG) ) {
     
@@ -1511,13 +1526,13 @@ namespace Muon {
   }
 
   
-  const MuonSegment* MooTrackFitter::segmentFromEntry( const MuPatCandidateBase& entry ) const {
+  const MuonSegment* MooTrackFitter::segmentFromEntry( const MuPatCandidateBase& entry, GarbageCan & garbage ) const {
 
     // if track entry use first segment
     const MuPatTrack* trkEntry = dynamic_cast<const MuPatTrack*>(&entry);
     if( trkEntry ){
       const MuonSegment* seg = m_trackToSegmentTool->convert(trkEntry->track());
-      m_measurementsToBeDeleted.push_back(seg);
+      garbage.measurementsToBeDeleted.push_back(seg);
       return seg;
     }
 
@@ -1534,7 +1549,7 @@ namespace Muon {
     return entry.entryPars().charge()/entry.entryPars().momentum().mag();
   }
 
-  double MooTrackFitter::qOverPFromEntries( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry ) const {
+  double MooTrackFitter::qOverPFromEntries( const MuPatCandidateBase& firstEntry, const MuPatCandidateBase& secondEntry, GarbageCan& garbage ) const {
 
     if( m_slFit ) return 0;
 
@@ -1544,13 +1559,13 @@ namespace Muon {
     else if( secondEntry.hasMomentum() )  return qOverPFromEntry(secondEntry);
  
     // no momentum yet, estimate from segments
-    const MuonSegment* segFirst = segmentFromEntry(firstEntry);
+    const MuonSegment* segFirst = segmentFromEntry(firstEntry,garbage);
     if( !segFirst ){
       ATH_MSG_WARNING(" failed to get segment for first entry, this should not happen " );
       return qOverP;
     }
 
-    const MuonSegment* segSecond = segmentFromEntry(secondEntry);
+    const MuonSegment* segSecond = segmentFromEntry(secondEntry,garbage);
     if( !segSecond ){
       ATH_MSG_WARNING(" failed to get segment for second entry, this should not happen " );
       return qOverP;
@@ -1590,7 +1605,7 @@ namespace Muon {
       if( segInfo1 && segInfo2 && fitterData.stations.size() == 1 && fitterData.numberOfSLOverlaps()==1 ){
 
         // only perform SL overlap fit for MDT segments
-        Identifier chId = m_helperTool->chamberId(*segInfo1->segment);
+        Identifier chId = m_edmHelperSvc->chamberId(*segInfo1->segment);
         if( m_idHelperTool->isMdt(chId) ) {
         
           IMuonSegmentInOverlapResolvingTool::SegmentMatchResult result = m_overlapResolver->matchResult(*segInfo1->segment,*segInfo2->segment);
@@ -1715,10 +1730,10 @@ namespace Muon {
 
   }
 
-  Trk::Perigee* MooTrackFitter::createStartParameters( MooTrackFitter::FitterData& fitterData ) const {
+  Trk::Perigee* MooTrackFitter::createStartParameters( MooTrackFitter::FitterData& fitterData, GarbageCan& garbage ) const {
 
     // get momentum + charge from entry if available, else use MuonSegmentMomentum to estimate the momentum
-    double qOverP = qOverPFromEntries(*fitterData.firstEntry,*fitterData.secondEntry);
+    double qOverP = qOverPFromEntries(*fitterData.firstEntry,*fitterData.secondEntry,garbage);
     Trk::Perigee* perigee = 0,*startPars=0;
     const MuPatCandidateBase *entry1=fitterData.firstEntry,*entry2=fitterData.secondEntry;
      
@@ -1834,7 +1849,7 @@ namespace Muon {
       return 0;
     }
 
-    m_parametersToBeDeleted.push_back(perigee);
+    garbage.parametersToBeDeleted.push_back(perigee);
     fitterData.startPars = perigee;
 
     return perigee;
@@ -1909,7 +1924,7 @@ namespace Muon {
 
 
 
-  Trk::Track* MooTrackFitter::fit( const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits, 
+  Trk::Track* MooTrackFitter::fit( const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits, GarbageCan& garbage,
                                     Trk::ParticleHypothesis partHypo, bool prefit ) const {
 
     if( hits.empty() ) return 0;
@@ -1934,7 +1949,7 @@ namespace Muon {
 	ATH_MSG_DEBUG(" start parameters after first hit, shifting them.... " );
 	Trk::Perigee* perigee = createPerigee(startPars,*hits.front());
 	if( perigee ){
-	  m_parametersToBeDeleted.push_back(perigee);
+	  garbage.parametersToBeDeleted.push_back(perigee);
 	  pars = perigee;
 	}else{
 	  ATH_MSG_DEBUG(" failed to move start pars, failing fit " );
@@ -1961,8 +1976,10 @@ namespace Muon {
   }
     
   Trk::Track* MooTrackFitter::fitWithRefit( const Trk::Perigee& startPars, MooTrackFitter::MeasVec& hits ) const {
+
+    GarbageCan localGarbage;
     
-    Trk::Track* track = fit(startPars,hits);
+    Trk::Track* track = fit(startPars,hits,localGarbage);
 
     // exceptions that are not refitted
     if( m_slFit ) return track;
@@ -2002,26 +2019,13 @@ namespace Muon {
       }
     }
     
-    cleanUp();
+    localGarbage.cleanUp();
 
     return track;
   } 
 
-  void MooTrackFitter::cleanUp() const {
-    std::for_each( m_measurementsToBeDeleted.begin(),m_measurementsToBeDeleted.end(),MuonDeleteObject<const Trk::MeasurementBase>());
-    m_measurementsToBeDeleted.clear();
-
-    std::for_each( m_parametersToBeDeleted.begin(),m_parametersToBeDeleted.end(),MuonDeleteObject<const Trk::TrackParameters>());
-    m_parametersToBeDeleted.clear();
-
-    std::for_each( m_mctbHitsToBeDeleted.begin(),m_mctbHitsToBeDeleted.end(),MuonDeleteObject<const MuPatHit>());
-    m_mctbHitsToBeDeleted.clear();
-
-  }
-
-
   bool MooTrackFitter::cleanPhiHits( double momentum, MooTrackFitter::FitterData& fitterData, 
-                                      const std::vector<const Trk::PrepRawData*>* patternPhiHits ) const {
+				     const std::vector<const Trk::PrepRawData*>* patternPhiHits, GarbageCan& garbage ) const {
 
     ATH_MSG_VERBOSE(" cleaning phi hits " );
 
@@ -2138,9 +2142,9 @@ namespace Muon {
     std::vector<const Trk::MeasurementBase*>::iterator mit_end = newMeasurements->end();
     for( ;mit!=mit_end;++mit ){
 
-      m_measurementsToBeDeleted.push_back(*mit);
+      garbage.measurementsToBeDeleted.push_back(*mit);
 
-      const Identifier& id = m_helperTool->getIdentifier(**mit);
+      const Identifier& id = m_edmHelperSvc->getIdentifier(**mit);
       
       if( !id.is_valid() ) {
         ATH_MSG_WARNING(" Phi measurement without valid Identifier! " );        
@@ -2202,7 +2206,7 @@ namespace Muon {
 
   std::unique_ptr<Trk::Track> MooTrackFitter::cleanAndEvaluateTrack( Trk::Track& track, const std::set<Identifier>& excludedChambers ) const {
     // preselection to get ride of really bad tracks
-    if( !m_helperTool->goodTrack( track, m_preCleanChi2Cut ) ){
+    if( !m_edmHelperSvc->goodTrack( track, m_preCleanChi2Cut ) ){
       ATH_MSG_DEBUG(" Track rejected due to large chi2" << std::endl
                            << m_printer->print(track) );
       return 0;
@@ -2222,7 +2226,7 @@ namespace Muon {
     }
 
     // selection to get ride of bad tracks after cleaning
-    if( !m_helperTool->goodTrack( *cleanTrack, m_chi2Cut ) ){
+    if( !m_edmHelperSvc->goodTrack( *cleanTrack, m_chi2Cut ) ){
       ATH_MSG_DEBUG(" Track rejected after cleaning " << std::endl
                            << m_printer->print(*cleanTrack) );
       return 0;
@@ -2326,13 +2330,17 @@ namespace Muon {
     TrkDriftCircleMath::LocPos segPos(lpos.y(),lpos.z());
     TrkDriftCircleMath::Line segPars(segPos,angleYZ);
     
-    m_fitter.fit(segPars,dcs);
-    TrkDriftCircleMath::Segment segment = m_fitter.result();
+    TrkDriftCircleMath::Segment segment(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+    TrkDriftCircleMath::DCSLFitter fitter;
+    fitter.fit(segment, segPars, dcs);
     segment.hitsOnTrack(dcs.size());
     ATH_MSG_DEBUG(" segment after fit " << segment.chi2() << " ndof " << segment.ndof() << " local parameters "
                          << segment.line().x0() << " " << segment.line().y0() << "  phi " << segment.line().phi() );
 
-    bool success = m_finder.dropHits(segment);
+    bool hasDroppedHit = false;
+    unsigned int dropDepth = 0;
+    TrkDriftCircleMath::SegmentFinder finder;
+    bool success = finder.dropHits(segment, hasDroppedHit, dropDepth);
     if( !success ) {
       ATH_MSG_DEBUG(" drop hits failed " );
       return;
@@ -2387,6 +2395,8 @@ namespace Muon {
   }
 
   std::pair<Trk::Track*,Trk::Track*> MooTrackFitter::splitTrack( const Trk::Track& track ) const {
+
+    GarbageCan localGarbage;
 
     // access TSOS of track
     const DataVector<const Trk::TrackStateOnSurface>* oldTSOT = track.trackStateOnSurfaces();
@@ -2488,7 +2498,7 @@ namespace Muon {
       }
 
       // get identifier, if it has no identifier or is not a muon hit continue
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) {
         ATH_MSG_VERBOSE(" adding state with measurement without valid identifier " << m_printer->print(*pars) );
         currentTrack->tsos.push_back(*tit);
@@ -2524,13 +2534,13 @@ namespace Muon {
 
       ATH_MSG_DEBUG(" track candidate can be split, trying to fit split tracks " );
       // fit the two tracks
-      firstTrack.track = fitSplitTrack( *firstTrack.firstParameters, firstTrack.tsos );
+      firstTrack.track = fitSplitTrack( *firstTrack.firstParameters, firstTrack.tsos, localGarbage );
       if( firstTrack.track ){
 
         ATH_MSG_DEBUG(" fitted first track, trying second " );
 
 
-        secondTrack.track = fitSplitTrack( *secondTrack.firstParameters, secondTrack.tsos );
+        secondTrack.track = fitSplitTrack( *secondTrack.firstParameters, secondTrack.tsos, localGarbage );
 
         if( secondTrack.track ){
           ATH_MSG_DEBUG(" fitted second track " );
@@ -2549,12 +2559,12 @@ namespace Muon {
 
     }
 
-    cleanUp();
+    localGarbage.cleanUp();
 
     return std::make_pair(firstTrack.track,secondTrack.track);
   }
 
-  Trk::Track* MooTrackFitter::fitSplitTrack( const Trk::TrackParameters& startPars, const std::vector<const Trk::TrackStateOnSurface*>& tsos ) const {
+  Trk::Track* MooTrackFitter::fitSplitTrack( const Trk::TrackParameters& startPars, const std::vector<const Trk::TrackStateOnSurface*>& tsos, GarbageCan& garbage ) const {
     
     // first create track out of the constituent
     double phi=startPars.momentum().phi();
@@ -2597,7 +2607,7 @@ namespace Muon {
         const Trk::MeasurementBase* meas = (*tit)->measurementOnTrack();
         if( !meas ) continue;
         
-        Identifier id = m_helperTool->getIdentifier(*meas);
+        Identifier id = m_edmHelperSvc->getIdentifier(*meas);
         if( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) continue;
 
         if( m_idHelperTool->isMdt(id) ){
@@ -2673,7 +2683,7 @@ namespace Muon {
 
           const Trk::MeasurementBase* fake = createFakePhiForMeasurement( *(positionFirstFake->measurementOnTrack()), 
                                                                           &(positionFirstFake->trackParameters()->position()),
-                                                                          0, fakeError );
+                                                                          0, fakeError, garbage );
           if( fake ) {
             // need to clone as fake is already added to garbage collection
             trackStateOnSurfaces->push_back( MuonTSOSHelper::createMeasTSOSWithUpdate( **tit, 
@@ -2691,7 +2701,7 @@ namespace Muon {
           }
           const Trk::MeasurementBase* fake = createFakePhiForMeasurement( *(positionSecondFake->measurementOnTrack()), 
                                                                           &(positionSecondFake->trackParameters()->position()),
-                                                                          0, fakeError );
+                                                                          0, fakeError, garbage );
           if( fake ) {
             // need to clone as fake is already added to garbage collection
             trackStateOnSurfaces->push_back( MuonTSOSHelper::createMeasTSOSWithUpdate( **tit,
@@ -2717,15 +2727,15 @@ namespace Muon {
     
   }
 
-  void MooTrackFitter::copyHitList( const MuPatHitList& hitList, MuPatHitList& copy ) const {
+  void MooTrackFitter::copyHitList( const MuPatHitList& hitList, MuPatHitList& copy, GarbageCan& garbage ) const {
     MuPatHitCit it = hitList.begin();
     MuPatHitCit it_end = hitList.end();
     for( ;it!=it_end;++it ){
       const Trk::TrackParameters* pars = (*it)->parameters().clone();
       MuPatHit* hit = new MuPatHit( pars, &(*it)->preciseMeasurement(), (*it)->broadMeasurement().clone(), (*it)->info());
       copy.insert(copy.end(),hit);
-      m_parametersToBeDeleted.push_back(pars);
-      m_mctbHitsToBeDeleted.push_back(hit);
+      garbage.parametersToBeDeleted.push_back(pars);
+      garbage.mctbHitsToBeDeleted.push_back(hit);
     }
   }
    

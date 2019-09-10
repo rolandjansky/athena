@@ -237,7 +237,6 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamESD.ItemList += [ "TrigDec::TrigDecision#TrigDecision" ]
     StreamESD.ItemList += [ "HLT::HLTResult#HLTResult_L2" ]
     StreamESD.ItemList += [ "HLT::HLTResult#HLTResult_EF" ]
-    StreamESD.ForceRead = True # otherwise unread stuff is not copied
     if InDetFlags.doDBMstandalone(): 
       StreamESD.ItemList+=["TrackCollection#SiSPSeededTracks"]
 
@@ -261,7 +260,6 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamAOD.ItemList += [ "HLT::HLTResult#HLTResult_EF" ]
     if InDetFlags.doDBMstandalone():
       StreamESD.ItemList+=["TrackCollection#SiSPSeededTracks"]
-    StreamAOD.ForceRead = True # otherwise unread stuff is not copied
   
   if 'doCopyRDO' in dir() and doCopyRDO:
     # --- create stream
@@ -270,4 +268,3 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamRDO.ItemList   +=  ['TRT_RDO_Container#*','SCT_RDO_Container#*','PixelRDO_Container#*']
     StreamRDO.ItemList   +=  ['InDetSimDataCollection#*','McEventCollection#*']
     # --- Force read
-    StreamRDO.ForceRead  = TRUE;  #force read of output data objs

@@ -9,8 +9,8 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadCondHandle.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArElecCalib/ILArfSampl.h"
@@ -85,10 +85,6 @@ class ISF_HitAnalysis : public AthAlgorithm {
 
  private:
 
-   /** a handle on Store Gate for access to the Event Store */
-   //StoreGateSvc* m_storeGate;
-   //StoreGateSvc* m_detStore;
-
    const IGeoModelSvc *m_geoModel;
    const TileInfo *m_tileInfo;
    const LArEM_ID *m_larEmID;
@@ -96,7 +92,7 @@ class ISF_HitAnalysis : public AthAlgorithm {
    const LArHEC_ID *m_larHecID;
    const TileID * m_tileID;
    const TileDetDescrManager * m_tileMgr;
-   const DataHandle<ILArfSampl>   m_dd_fSampl;
+   SG::ReadCondHandleKey<ILArfSampl> m_fSamplKey{this,"fSamplKey","LArfSamplSym","SG Key of LArfSampl object"};
 
    /** Simple variables by Ketevi */
    std::vector<float>* m_hit_x;

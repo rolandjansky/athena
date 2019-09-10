@@ -19,7 +19,9 @@ TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLo
 StatusCode  TrigCostAnalysis::initialize() {
   ATH_MSG_VERBOSE("In initialize()");
 
+  ATH_MSG_DEBUG("Reading from " << m_costDataKey.key());
   ATH_CHECK( m_costDataKey.initialize() );
+
   if (!m_enhancedBiasTool.name().empty()) {
     ATH_CHECK( m_enhancedBiasTool.retrieve() );
   } else {
@@ -29,10 +31,12 @@ StatusCode  TrigCostAnalysis::initialize() {
       return StatusCode::FAILURE;
     }
   }
+
   ATH_CHECK( m_TimeRangeLengthLB > 0 );
   if (m_hashDictionaryFromFile) {
     TrigConf::HLTUtils::file2hashes();
   }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -69,6 +73,7 @@ StatusCode TrigCostAnalysis::execute() {
     ATH_MSG_DEBUG("Monitoring event " << context.eventID().event_number() << " in range " << range->getName());
     
     SG::ReadHandle<xAOD::TrigCompositeContainer> costDataHandle(m_costDataKey, context);
+    ATH_CHECK( costDataHandle.isValid() );
 
     CostData costData;
     ATH_CHECK( costData.set(costDataHandle.get()) );
@@ -171,6 +176,7 @@ StatusCode TrigCostAnalysis::dumpEvent(const EventContext& context) const {
   for ( const xAOD::TrigComposite* tc : *costDataHandle ) {
     const uint64_t start = tc->getDetail<uint64_t>("start"); // in mus
     const uint64_t stop  = tc->getDetail<uint64_t>("stop"); // in mus
+    const uint32_t slot  = tc->getDetail<uint32_t>("slot");
     const uint64_t start_ms_round = std::llround( start * 1e-3 ); // in ms
     const uint64_t stop_ms_round  = std::llround( stop  * 1e-3 ); // in ms
 
@@ -181,6 +187,7 @@ StatusCode TrigCostAnalysis::dumpEvent(const EventContext& context) const {
 
     ss << "{id:" << algID++;
     ss << ", group:" << threadToCounterMap[threadID];
+    ss << ", className:'slot" << slot << "'";
     ss << ", content:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("alg"), "ALG");
     ss << "<br>" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("store"), "STORE") << "'";
     ss << ", duration:" << (stop - start); // For tooltip display: in mus

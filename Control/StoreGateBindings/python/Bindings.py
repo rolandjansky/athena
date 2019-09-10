@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: StoreGateBindings/python/Bindings.py
 # @author: Wim Lavrijsen <WLavrijsen@lbl.gov>
 # @author: Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 ### data
 __version__ = "$Revision: 1.6 $"
@@ -65,7 +67,7 @@ def _setup():
 
     # add specialized contains method
     def contains( self, klass_or_clid, key ):
-        print "---- StoreGateSvc.contains() ",  klass_or_clid, key
+        print ("---- StoreGateSvc.contains() ",  klass_or_clid, key)
         if isinstance(klass_or_clid, str):
             try:
                 clid = int(klass_or_clid)
@@ -92,8 +94,8 @@ def _setup():
     # dict-pythonization of storegate: __getitem__
     def __getitem__ (self, key):
         try:
-            ret = py_sg_getitem(self, key)
-        except LookupError,err:
+            ret = py_sg_getitem(self, key.encode())
+        except LookupError as err:
             raise KeyError(str(err))
         if ret and hasattr(ret,'setStore') and not ret.hasStore():
             if not hasattr(ret,'trackIndices') or ret.trackIndices():
@@ -113,7 +115,7 @@ def _setup():
         if fd is None:
             import sys
             fd = sys.stdout
-        print >> fd, self.__class__._dump( self )
+        print (self.__class__._dump( self ), file=fd)
     StoreGateSvc._dump = StoreGateSvc.dump
     StoreGateSvc.dump  = dump
 

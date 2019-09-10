@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------
@@ -32,7 +32,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "StoreGate/StoreGateSvc.h" 
 #include "TFile.h"
 #include "TH2F.h"
 #include "TString.h"
@@ -89,8 +88,6 @@ GetLCClassification::~GetLCClassification()
 
 StatusCode GetLCClassification::initialize()
 {
-  //---- initialize the StoreGateSvc ptr ----------------
-  
   m_outputFile = new TFile(m_outputFileName.c_str(),"RECREATE");
   m_outputFile->cd();
   m_hclus.resize(0);

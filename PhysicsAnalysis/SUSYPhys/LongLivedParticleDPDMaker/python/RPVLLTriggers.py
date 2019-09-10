@@ -1,6 +1,11 @@
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties
+
+import AthenaCommon.SystemOfUnits as Units
+
 
 # general function to get current menu unprescaled triggers for given trigger type
 #def getTriggerList( trigger_type, matching_pattern="", rejection_pattern="", test=[] ):
@@ -101,11 +106,32 @@ class RPVLLTriggers:
         EmergingList = getTriggerList( TriggerType.j_multi, "HLT_4j", ["boffperf_split"] )
         return EmergingList
 
-    # HNL
-    def getHNLTriggers(self):
-        #HnlFilterTool.Triggers
-        HNLList = getTriggerList( TriggerType.mu_single, "ivarmedium" )
-        return HNLList
+    # HNL (single prompt muon)
+    def getHNLSingleMuonTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLSingleMuonList = getTriggerList( TriggerType.mu_single, "ivarmedium" )
+        return HNLSingleMuonList
+
+    # HNL (single prompt electron)
+    def getHNLSingleElectronTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLSingleElectronList = getTriggerList( TriggerType.el_single, "",
+            ["etcut", "lhloose", "noringer"] ) # Copied from getKinkedTrackZeeTriggers
+        return HNLSingleElectronList
+
+    # HNL (multi muons)
+    def getHNLMultiMuonTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLMultiMuonList = getTriggerList( TriggerType.mu_multi, "" )
+        # We may need to restrict di-muon triggers.
+        return HNLMultiMuonList
+
+    # HNL (multi electrons)
+    def getHNLMultiElectronTriggers(self):
+        #HnlSkimmingTool.Triggers
+        HNLMultiElectronList = getTriggerList( TriggerType.el_multi, "" )
+        # We may need to restrict di-electron triggers.
+        return HNLMultiElectronList
 
     # HV Muvtx
     def getHVMuvtxTriggers(self):
@@ -155,5 +181,19 @@ class RPVLLTriggers:
         HIPsList = getTriggerList( TriggerType.exotics, "hiptrt" )
         return HIPsList
 
-    # on / off switch
-    doTriggerAPI = True
+
+    
+# Flags to turn RPVLL TriggerAPI implementation on/off
+class RPVLLTriggerAPIFlags(JobPropertyContainer):
+    """ RPV/LL TriggerAPI flag container """
+
+jobproperties.add_Container(RPVLLTriggerAPIFlags)
+
+rpvllTrig=jobproperties.RPVLLTriggerAPIFlags
+
+class doRPVLLTriggerAPI(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+    pass
+rpvllTrig.add_JobProperty(doRPVLLTriggerAPI)

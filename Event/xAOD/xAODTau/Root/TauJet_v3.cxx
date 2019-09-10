@@ -18,6 +18,15 @@
 //#include "xAODTau/versions/TauJetCalibMapper_v3.h"
 #include "TauJetAccessors_v3.h"
 
+
+namespace{
+  bool
+  inRange(const double val, const double lo, const double hi){
+    return (val>=lo) and (val<=hi);
+  }
+
+}
+
 namespace xAOD {
   
   TauJet_v3::TauJet_v3()
@@ -102,8 +111,10 @@ namespace xAOD {
   }
 
   TauJet_v3::FourMom_t TauJet_v3::p4() const {
-    FourMom_t p4;
-    p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
+    FourMom_t p4{};
+    bool validAnswer = inRange(eta(),-10,10);
+    validAnswer&= inRange(phi(),-M_PI,+M_PI);
+    if (validAnswer) p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
     return p4;	
   }
 

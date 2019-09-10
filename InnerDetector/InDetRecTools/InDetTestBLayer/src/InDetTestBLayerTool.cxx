@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -270,7 +270,8 @@ namespace InDet {
 
     if (!mp)
       {
-        ATH_MSG_WARNING("Found Track with no perigee parameters: no information whether a hit is expected in the " << s_layerNames[layer] << " will be provided." );
+	//This can happen if re-creating the summary for tracks prior to ambi-solving and final fit, e.g. in StatisticAlg 
+        ATH_MSG_DEBUG("Found Track with no perigee parameters: no information whether a hit is expected in the " << s_layerNames[layer] << " will be provided." );
 	return false;
       }
     else
@@ -319,7 +320,8 @@ namespace InDet {
 
     if(!mp)
       {
-        ATH_MSG_WARNING("Found TrackParticle with no perigee parameters: no information whether a hit is expected in the " << s_layerNames[layer] << " will be provided." );
+	//This can happen if re-creating the summary for tracks prior to ambi-solving and final fit, e.g. in StatisticAlg
+        ATH_MSG_DEBUG("Found TrackParticle with no perigee parameters: no information whether a hit is expected in the " << s_layerNames[layer] << " will be provided." );
 	return false;
       }
     else
@@ -516,7 +518,8 @@ namespace InDet {
     const Trk::Perigee* startParameters = track->perigee();
 
     if(!startParameters){
-      ATH_MSG_WARNING("Found TrackParticle with no perigee parameters: no " << s_layerNames[layer] << " info will be provided");
+      //This can happen if re-creating the summary for tracks prior to ambi-solving and final fit, e.g. in StatisticAlg
+      ATH_MSG_DEBUG("Found TrackParticle with no perigee parameters: no " << s_layerNames[layer] << " info will be provided");
       return false;
     }
 

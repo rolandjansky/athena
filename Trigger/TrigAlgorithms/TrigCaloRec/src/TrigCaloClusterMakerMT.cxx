@@ -49,6 +49,8 @@
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 //#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
+#include "StoreGate/WriteDecorHandle.h"
+
 //
 class ISvcLocator;
 
@@ -89,6 +91,9 @@ TrigCaloClusterMakerMT::TrigCaloClusterMakerMT(const std::string& name, ISvcLoca
     ATH_MSG_INFO("No monTool configured => NO MONITOING");
   }
      
+  m_mDecor_ncells = m_outputClustersKey.key() + "." + m_mDecor_ncells.key();
+  ATH_CHECK( m_mDecor_ncells.initialize());
+
   ATH_CHECK( m_clusterMakers.retrieve() );
   ATH_CHECK( m_clusterCorrections.retrieve() );
  
@@ -130,7 +135,6 @@ StatusCode TrigCaloClusterMakerMT::execute()
   // We now take care of the Cluster Making... 
   auto  clusterContainer =   SG::makeHandle (m_outputClustersKey, ctx); 
   ATH_MSG_VERBOSE(" Output Clusters : " <<  clusterContainer.name());
-
   ATH_CHECK( clusterContainer.record (std::make_unique<xAOD::CaloClusterContainer>(),  std::make_unique<xAOD::CaloClusterTrigAuxContainer> () ));
 
   xAOD::CaloClusterContainer* pCaloClusterContainer = clusterContainer.ptr();
@@ -281,14 +285,19 @@ StatusCode TrigCaloClusterMakerMT::execute()
   }
 #endif
 
+  // Decorator handle
+  SG::WriteDecorHandle<xAOD::CaloClusterContainer, int> mDecor_ncells(m_mDecor_ncells, ctx);
+
   // fill monitored variables
   for (xAOD::CaloCluster* cl : *pCaloClusterContainer) {
     
     CaloClusterCellLink* num_cell_links = cl->getCellLinks();
     if(! num_cell_links) {
       sizeVec.push_back(0);
+      mDecor_ncells(*cl) = 0;
     } else {
       sizeVec.push_back(num_cell_links->size()); 
+      mDecor_ncells(*cl) = num_cell_links->size();
     }
     clus_phi.push_back(cl->phi());
     clus_eta.push_back(cl->eta());

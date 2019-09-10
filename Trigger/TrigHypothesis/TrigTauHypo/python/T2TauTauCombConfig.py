@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+# flake8: noqa  (legacy trigger)
 
 from TrigTauHypo.TrigTauHypoConf import T2TauTauCombFexAlgo, T2TauTauCombHypo
 from AthenaCommon.SystemOfUnits import GeV

@@ -74,6 +74,10 @@ class Alg( CfgPyAlgorithm ):
     should be overridden.
     """
     def __init__(self, name = None, **kw):
+        # Needed to prevent spurious root errors about streams in CreateRealData.
+        import ROOT
+        ROOT.GaudiPython.CallbackStreamBuf
+
         if name is None: name = kw.get('name', self.__class__.__name__)
         ## init base class
         super(Alg, self).__init__(name, **kw)

@@ -5,7 +5,6 @@
 #include "MergeTrackRecordCollTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "StoreGate/StoreGateSvc.h"
 
 MergeTrackRecordCollTool::MergeTrackRecordCollTool(const std::string& type,
                                                    const std::string& name,

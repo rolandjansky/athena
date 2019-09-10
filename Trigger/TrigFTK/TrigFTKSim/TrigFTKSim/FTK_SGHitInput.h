@@ -49,10 +49,6 @@
 class PixelID;
 class SCT_ID;
 
-namespace InDetDD {
-  class PixelDetectorManager;
-}
-
 /** This class interface the ID hits with the FTK simulation
     implemented in Athena. Original code */   
 class FTK_SGHitInput : virtual public FTK_SGHitInputI, public AthAlgTool,
@@ -69,12 +65,9 @@ private:
 
   AtlasDetectorID* m_idHelper;
   StoreGateSvc*  m_storeGate;
-  StoreGateSvc*  m_detStore;
 
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;
-
-  const InDetDD::PixelDetectorManager*     m_PIX_mgr;
 
   const InDet::SiClusterContainer*  m_pixelContainer;
   const InDet::SiClusterContainer*  m_sctContainer;
@@ -88,6 +81,7 @@ private:
   ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   std::string  	 m_pixelClustersName;

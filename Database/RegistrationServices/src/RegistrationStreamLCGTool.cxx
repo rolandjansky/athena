@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -73,7 +73,6 @@ RegistrationStreamLCGTool::RegistrationStreamLCGTool(
 ) 
     :
     AthAlgTool(type,name,parent),
-    m_storeGateSvc( "StoreGateSvc",        name ),
     m_metadataStore( "StoreGateSvc/MetaDataStore",        name ),
     m_poolSvc( "PoolSvc", name ),
     m_collection(0),
@@ -93,7 +92,6 @@ RegistrationStreamLCGTool::RegistrationStreamLCGTool(
                     "READ, CREATE, CREATE_AND_OVERWRITE");
     declareProperty("Slave",              m_slave=true, 
                     "Default = true = take type,connection,name,mode from parent stream");
-    declareProperty("StoreName",          m_storeName="StoreGateSvc",       "EXPERTS");
     declareProperty("PrimaryKey",         m_primKeyAtts, "primary key attributes, ALL must be present");
 }
 
@@ -111,21 +109,9 @@ RegistrationStreamLCGTool::initialize()
     
     ATH_MSG_DEBUG("In initialize ");
 
-    // set up the SG service:
-    m_storeGateSvc = ServiceHandle<StoreGateSvc>( m_storeName, name() );
-    StatusCode sc = m_storeGateSvc.retrieve();
-    if ( !sc.isSuccess() ) {
-        ATH_MSG_ERROR("Could not locate default store");
-	return sc;
-    }
-    else {
-        ATH_MSG_DEBUG("Found " << m_storeName << " store.");
-    }
-    assert( m_storeGateSvc );
-
     // set up the metadata store:
     m_metadataStore = ServiceHandle<StoreGateSvc>( "StoreGateSvc/MetaDataStore", name() );
-    sc = m_metadataStore.retrieve();
+    StatusCode sc = m_metadataStore.retrieve();
     if ( !sc.isSuccess() ) {
         ATH_MSG_ERROR("Could not locate metadata store");
 	return sc;
@@ -464,7 +450,7 @@ RegistrationStreamLCGTool::fillAtt(std::vector< std::pair<std::string, std::stri
     else {
         // AttributeLists should have been filled by other Algorithms and put in StoreGate
         //   Choose the one for the tagKey from the itemlist
-        StatusCode retrieveStatus = m_storeGateSvc->retrieve(attributes, tagKey);
+        StatusCode retrieveStatus = evtStore()->retrieve(attributes, tagKey);
 	if (retrieveStatus.isFailure()) {
 	   ATH_MSG_ERROR("Could not retrieve attributes. Key/tagname " << tagKey);
 	   return  StatusCode::FAILURE;

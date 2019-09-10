@@ -18,7 +18,7 @@
 
 #ifndef TGCDIGITMAKER_H
 #define TGCDIGITMAKER_H
-
+#include "CxxUtils/checker_macros.h"
 #include <vector>
 #include <string>
 
@@ -111,7 +111,7 @@ class TgcDigitMaker {
   /**
      Reads parameters for intrinsic time response from timejitter.dat.
   */
-  void  readFileOfTimeJitter();
+  StatusCode readFileOfTimeJitter();
   /**
      Calculates intrinsic time response according to incident angle of
      a track based on time response parameters
@@ -125,7 +125,7 @@ class TgcDigitMaker {
   bool efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int gasGap, const int isStrip, const double energyDeposit) const;
 
   uint16_t bcTagging(const double digittime, const int isStrip) const;
-  void addDigit(const Identifier id, const uint16_t bctag);
+  void addDigit(const Identifier id, const uint16_t bctag, TgcDigitCollection* digits) const;
 
   /** Read share/TGC_Digitization_energyThreshold.dat file */
   void readFileOfEnergyThreshold();
@@ -140,7 +140,8 @@ class TgcDigitMaker {
   /** Get energy threshold value for each chamber */
   double getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int gasGap, int isStrip) const;
   void randomCrossTalk(const Identifier elemId, const int gasGap, const int isStrip, const int channel, 
-		       const float posInStrip, const double digitTime, CLHEP::HepRandomEngine* rndmEngine);
+		       const float posInStrip, const double digitTime, CLHEP::HepRandomEngine* rndmEngine,
+                       TgcDigitCollection* digits) const;
   /** Method to check a chamber is dead or active */
   bool isDeadChamber(const std::string stationName, int stationEta, int stationPhi, int gasGap);
   /** Method to get time window offset */
@@ -171,7 +172,6 @@ class TgcDigitMaker {
 
   std::vector<std::vector<float> > m_vecAngle_Time;
 
-  TgcDigitCollection* m_digits;
   TgcHitIdHelper* m_hitIdHelper;
   unsigned int m_runperiod;
   const MuonGM::MuonDetectorManager* m_mdManager;
@@ -192,7 +192,7 @@ class TgcDigitMaker {
   double m_bunchCrossingTime;
 
   //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg;
+  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
 };
 
 #endif

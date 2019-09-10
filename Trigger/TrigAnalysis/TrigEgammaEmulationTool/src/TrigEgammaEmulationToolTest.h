@@ -67,7 +67,6 @@ namespace Trig{
 
             std::map<std::string, unsigned >m_countMap;
             std::vector<std::string>   m_triggerList;
-            StoreGateSvc              *m_storeGate;
             asg::AcceptInfo            m_accept;
 
             const xAOD::ElectronContainer   *m_offElectrons;

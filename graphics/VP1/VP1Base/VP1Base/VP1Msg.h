@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,14 +21,7 @@
 #include "VP1Base/VP1String.h"
 
 
-/* utility function to declare that a variable or a function parameter is unused by design
- * and not that somebody has forgotten about it.
- * Used also for assert() statements; otherwise compiler throw warnings while building
- * in "opt" (release, because the assert() are removed and sometimes the variable used
- * as assert() parameters appear to not be used at all, to the compiler.
- */
 #pragma once
-#define _UNUSED(x) ((void)x)
 
 
 

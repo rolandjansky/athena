@@ -12,8 +12,6 @@ def TRT_GeometryCfg( flags ):
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
     trtDetectorTool = TRT_DetectorTool()
-    trtDetectorTool.DoXenonArgonMixture = flags.Detector.SimulateTRT
-    trtDetectorTool.DoKryptonMixture = flags.Detector.SimulateTRT
     trtDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     geoModelSvc.DetectorTools += [ trtDetectorTool ]
     acc.addService(geoModelSvc)

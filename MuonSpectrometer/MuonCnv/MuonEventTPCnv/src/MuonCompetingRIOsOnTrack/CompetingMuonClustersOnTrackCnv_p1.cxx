@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -13,14 +13,13 @@
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "CxxUtils/make_unique.h"
 
 void 
 CompetingMuonClustersOnTrackCnv_p1::persToTrans( const Muon::CompetingMuonClustersOnTrack_p1 *persObj,
                                                        Muon::CompetingMuonClustersOnTrack *transObj, 
                                                        MsgStream &log )
 {
-  auto containedChildRots = CxxUtils::make_unique<std::vector< const Muon::MuonClusterOnTrack * > >();
+  auto containedChildRots = std::make_unique<std::vector< const Muon::MuonClusterOnTrack * > >();
 
   for (const TPObjRef& ref : persObj->m_containedChildRots) {
     ITPConverterFor<Trk::MeasurementBase>  *rotCnv = 0;

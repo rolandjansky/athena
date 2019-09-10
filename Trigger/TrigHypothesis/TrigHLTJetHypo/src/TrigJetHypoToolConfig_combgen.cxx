@@ -29,6 +29,22 @@ TrigJetHypoToolConfig_combgen::~TrigJetHypoToolConfig_combgen(){
 
 StatusCode TrigJetHypoToolConfig_combgen::initialize() {
   CHECK(checkVals());
+  
+  auto mult = (*m_children.begin()) -> requiresNJets();
+  for (const auto& c : m_children){
+    if(c->requiresNJets() != mult){
+      ATH_MSG_ERROR("Children require differing number of jets:");
+      return StatusCode::FAILURE;
+    }
+  }
+
+  if(!mult){
+    ATH_MSG_ERROR("Children require 0 jets:");
+    return StatusCode::FAILURE;
+  }
+    
+  m_size = mult;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -42,16 +58,18 @@ TrigJetHypoToolConfig_combgen::getConditions() const {
                                              m_etaMaxs,
                                              m_EtThresholds,
                                              m_asymmetricEtas);
-  
-  auto capacity0 = conditions[0]->capacity();
+  if(conditions.empty()){
+     return std::make_optional<ConditionsMT>(std::move(conditions));
+  }
+
+  // allow only very simple conditions
   if(std::any_of(conditions.begin(),
 		 conditions.end(),
-		 [capacity0](const auto& c) {
-		   return c->capacity() != capacity0;}))
-    {
-      ATH_MSG_ERROR("Conditions have differing capacities");
-      return std::optional<ConditionsMT>();
-    }
+		 [](const auto& c) {
+		   return c->capacity() != 1;})){
+    ATH_MSG_ERROR("There is a condition with capacity != 1");
+    return std::optional<ConditionsMT>();
+  }
   
   return std::make_optional<ConditionsMT>(std::move(conditions));
 }
@@ -82,7 +100,7 @@ StatusCode TrigJetHypoToolConfig_combgen::checkVals() const {
     ATH_MSG_ERROR(name()<< ": No children ");
     return StatusCode::FAILURE;
   }
-    
+
   return StatusCode::SUCCESS;
 }
 

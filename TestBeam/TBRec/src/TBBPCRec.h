@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TBREC_TBBPCREC_H
@@ -18,8 +18,6 @@
 #include "TBEvent/TBBPCCont.h"
 #include "TBEvent/TBBPCRawCont.h"
 
-
-class StoreGateSvc;
 
 class TBBPCRec : public AthAlgorithm
 {

@@ -30,7 +30,6 @@
 class PixelID;
 class IModuleDistortionsTool;
 
-class StoreGateSvc;
 class IIBLParameterSvc;
 
 
@@ -128,7 +127,6 @@ public:
 
   ToolHandle<IModuleDistortionsTool>            m_pixDistoTool    ;
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool", "Tool to retreive Lorentz angle"};
-  StoreGateSvc*                                 m_detStore        ;
   /* ME: Test histos have nothing to do with production code, use a flag
     IHistogram1D* m_h_Resx;
     IHistogram1D* m_h_Resy;
@@ -174,7 +172,6 @@ public:
   
   /** NN clusterizationi factory for NN based positions and errors **/
   ToolHandle<InDet::NnClusterizationFactory>                   m_NnClusterizationFactory;
-  ServiceHandle<StoreGateSvc>                           m_storeGate;            //!< Event store
   ServiceHandle<IIBLParameterSvc>                       m_IBLParameterSvc;
 
   SG::ReadHandleKey<InDet::DRMap>                      m_dRMap;      //!< the actual dR map         

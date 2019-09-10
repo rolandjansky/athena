@@ -6,11 +6,8 @@
 #define LARRAWCONDITIONS_LARMINBIASMC_H
 
 #include "LArRawConditions/LArMinBiasComplete.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
-
-class ILArMCSymTool;
 
 /** Implementation of the interface ILArMinBias for MC
  *  Derives from LArMinBiasComplete, and implements the phi-z symmetry
@@ -34,11 +31,6 @@ class LArMinBiasMC: public LArMinBiasComplete {
   
   static float dummy;
   
- private: 
-  
-  // helper for MC z-phi symmetry 
-  ToolHandle<ILArMCSymTool> m_larmcsym;
-
 };
 
 

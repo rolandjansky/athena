@@ -24,11 +24,20 @@ atlas_add_dictionary( TrigValToolsDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} TrigValTools )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py bin/chainDump.py )
-atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py python/TrigValSteering bin/chainDump.py )
+atlas_install_data( share/*.json share/*.conf )
 atlas_install_runtime( macros/*.C bin/chainDump.py )
-atlas_install_scripts( bin/*.py bin/*.pl bin/*.sh )
+atlas_install_scripts( bin/*.py bin/*.pl bin/*.sh test/*.py )
 atlas_install_generic( html/root2html/*.html
                        DESTINATION share/TrigValTools/root2html
                        EXECUTABLE )
+
+# Unit tests:
+atlas_add_test( TrigValSteering_flake8
+                SCRIPT flake8 --select=ATL,F,E7,E9,W6 --enable-extension=ATL900,ATL901 ${CMAKE_CURRENT_SOURCE_DIR}/python/TrigValSteering
+                POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TrigValSteering_unit_test
+                SCRIPT test_unit_trigvalsteering.py
+                POST_EXEC_SCRIPT nopost.sh )
 

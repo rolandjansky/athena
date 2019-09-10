@@ -36,8 +36,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
 #include "EventInfo/EventInfo.h"
@@ -76,7 +74,6 @@
 
 ISF_HitAnalysis::ISF_HitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
    : AthAlgorithm(name, pSvcLocator)
-   //, m_storeGate(0)
    , m_geoModel(0)
    , m_tileInfo(0)
    , m_larEmID(0)
@@ -325,7 +322,8 @@ StatusCode ISF_HitAnalysis::initialize()
   m_tileID=caloIdManager->getTileID();
   if(m_tileID==0)
     throw std::runtime_error("ISF_HitAnalysis: Invalid Tile ID helper");
-  sc=detStore()->regHandle(m_dd_fSampl,"LArfSampl");
+
+  sc=m_fSamplKey.initialize(); 
   if(sc.isFailure())
     {
       ATH_MSG_ERROR("Unable to register handle for LArfSampl");
@@ -804,6 +802,9 @@ StatusCode ISF_HitAnalysis::execute()
   return StatusCode::FAILURE;
  }
 
+ SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
+ const ILArfSampl* fSampl=*fSamplHdl;
+
  //now if the branches were created correctly, the pointers point to something and it is possible to clear the vectors
  TVector3 vectest;
  vectest.SetPtEtaPhi(1.,1.,1.);
@@ -927,7 +928,7 @@ StatusCode ISF_HitAnalysis::execute()
        ATH_MSG_WARNING( "Warning no sampling info for "<<id.getString());
      } 
 
-     if(m_larEmID->is_lar_em(id) || m_larHecID->is_lar_hec(id) || m_larFcalID->is_lar_fcal(id)) sampfrac=m_dd_fSampl->FSAMPL(id);
+     if(m_larEmID->is_lar_em(id) || m_larHecID->is_lar_hec(id) || m_larFcalID->is_lar_fcal(id)) sampfrac=fSampl->FSAMPL(id);
 
      if(m_larEmID->is_lar_em(id)) {
        //LAr EM cells
@@ -1222,7 +1223,7 @@ StatusCode ISF_HitAnalysis::execute()
           {
            CaloCell_ID::CaloSample larlayer = m_calo_dd_man->get_element(larhitid)->getSampling();
 
-           float larsampfrac=m_dd_fSampl->FSAMPL(larhitid);
+           float larsampfrac=fSampl->FSAMPL(larhitid);
            m_g4hit_energy->push_back( ghit.Energy() );
            m_g4hit_time->push_back( ghit.Time() );
            m_g4hit_identifier->push_back( larhitid.get_compact() );

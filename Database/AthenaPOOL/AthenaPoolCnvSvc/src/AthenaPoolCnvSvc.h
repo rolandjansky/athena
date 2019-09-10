@@ -97,7 +97,7 @@ public:
    /// @param placement [IN] pointer to the placement hint
    /// @param obj [IN] pointer to the Data Object to be written to Pool
    /// @param classDesc [IN] pointer to the Seal class description for the Data Object.
-   Token* registerForWrite(Placement* placement, const void* obj, const RootType& classDesc) const;
+   Token* registerForWrite(Placement* placement, const void* obj, const RootType& classDesc);
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.
@@ -151,6 +151,10 @@ public:
 
    /// Read the next data object
    virtual StatusCode readData() const;
+
+   /// Send abort to SharedWriter clients if the server quits on error
+   /// @param client_n [IN] number of the current client, -1 if no current
+   StatusCode abortSharedWrClients(int client_n);
 
    /// Implementation of IIncidentListener: Handle for EndEvent incidence
    void handle(const Incident& incident);

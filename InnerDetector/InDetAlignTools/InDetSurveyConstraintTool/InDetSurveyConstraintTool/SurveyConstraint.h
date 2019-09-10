@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SURVEYCONSTRAINTTOOLS_SURVEYCONSTRAINT_H
@@ -18,10 +18,6 @@ class IToolSvc;
 class IInDetAlignDBTool;
 class PixelID;
 class SCT_ID;
-
-namespace InDetDD{
-  class PixelDetectorManager;
-}
 
 class SurveyConstraint : virtual public ISurveyConstraint, public AthAlgTool{
  public:
@@ -66,7 +62,6 @@ class SurveyConstraint : virtual public ISurveyConstraint, public AthAlgTool{
 			       Amg::Transform3D CurrentTransRandSect);
   
  private :
-  const InDetDD::PixelDetectorManager*   m_pixelManager;
   const AtlasDetectorID*                 m_idHelper;
   const PixelID*                         m_pixid;
   const SCT_ID*                          m_sctid;
@@ -77,6 +72,7 @@ class SurveyConstraint : virtual public ISurveyConstraint, public AthAlgTool{
   IInDetAlignDBTool*                     m_survey_IDAlignDBTool;
   IRndmGenSvc*                           m_randsvc;
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // dictionary of module constrain objects, indexed by moduleID

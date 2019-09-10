@@ -11,7 +11,6 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -95,7 +94,6 @@ private:
   EventID m_lastEventID;
   eformat::SubDetector m_subdet_id;
   std::vector<uint32_t> m_rodBlock; //For reading only : data fragment
-  //StoreGateSvc* m_detectorStore;
   const LArOnlineID* m_onlineHelper;
   
   // event fragments for writing

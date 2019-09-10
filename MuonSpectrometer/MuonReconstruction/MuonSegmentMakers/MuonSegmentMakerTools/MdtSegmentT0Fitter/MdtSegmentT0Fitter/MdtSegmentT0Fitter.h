@@ -32,16 +32,16 @@ namespace TrkDriftCircleMath {
       virtual StatusCode initialize() override;
       virtual StatusCode finalize  () override;
       
-      virtual bool fit( const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const override;
-      virtual bool fit( const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed ) const override;
+      virtual bool fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const override;
+      virtual bool fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed ) const override;
 
  
       virtual const DCSLFitter* getFitter() const override { return this; }
 
     private:
-		  bool m_trace; // debug - traces operation
+      bool m_trace; // debug - traces operation
       bool m_dumpToFile; // debug - dumps some performance info
-		  bool m_dumpNoFit; // debug - print hit info where fit doesn't run		
+      bool m_dumpNoFit; // debug - print hit info where fit doesn't run		
 
       bool m_useInternalRT; // whether to use an internal RT function or the one from Calibration Service
       ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool;
@@ -66,9 +66,9 @@ namespace TrkDriftCircleMath {
       mutable std::atomic_uint m_npassedMinuitFit;
     };
     
-  inline bool MdtSegmentT0Fitter::fit( const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const { 
+  inline bool MdtSegmentT0Fitter::fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, double t0Seed ) const { 
     HitSelection selection(dcs.size(),0);
-    return fit( line, dcs, selection, t0Seed ); 
+    return fit( result, line, dcs, selection, t0Seed ); 
   }
 }
 

@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MissingETGoodness_EtmissGoodnessManagerAlg_H
@@ -12,8 +12,6 @@
 #include "MissingETGoodness/Goodies.h"
 
 /////////////////////////////////////////////////////////////////////////////
-
-class StoreGateSvc;
 
 class EtmissGoodnessManagerAlg : public AthAlgorithm 
 {
@@ -32,8 +30,6 @@ class EtmissGoodnessManagerAlg : public AthAlgorithm
 
   int m_version;
   int m_quality;
-
-  StoreGateSvc* m_storeGate;
 };
 
 #endif // MissingETGoodness_EtmissGoodnessManagerAlg_H

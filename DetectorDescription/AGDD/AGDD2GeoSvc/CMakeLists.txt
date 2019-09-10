@@ -12,15 +12,13 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AGDD/AGDDKernel
                           GaudiKernel
                           PRIVATE
-                          DetectorDescription/AGDD/AGDDHandlers
-                          Event/EventInfo
-                          Event/EventInfoMgt )
+                          DetectorDescription/AGDD/AGDDHandlers )
 
 # Component(s) in the package:
 atlas_add_component( AGDD2GeoSvc
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AGDDControl AGDDKernel GaudiKernel AGDDHandlers EventInfo )
+                     LINK_LIBRARIES AthenaBaseComps AGDDControl AGDDKernel GaudiKernel AGDDHandlers )
 
 # Install files from the package:
 atlas_install_headers( AGDD2GeoSvc )

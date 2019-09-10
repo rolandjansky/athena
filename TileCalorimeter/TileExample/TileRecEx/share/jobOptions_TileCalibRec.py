@@ -453,9 +453,6 @@ if not 'TileEmulateDSP' in dir():
 if not 'doTileFlat' in dir():
     doTileFlat = False
 
-if not 'doTileOpt' in dir():
-    doTileOpt = False
-
 if not 'doTileOpt2' in dir():
     doTileOpt2 = not TileCompareMode and ReadDigits
 
@@ -1310,9 +1307,6 @@ if doTileMon:
         if doTileFitCool:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelFitCool"
 
-        if doTileOpt:
-            theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelOpt"
-
         if doTileOpt2:
             theTileRawChannelMon.TileRawChannelContainer = "TileRawChannelOpt2"
 
@@ -1354,9 +1348,6 @@ if doTileMon:
 
         if doTileFitCool:
             theTileDQFragMon.TileRawChannelContainerOffl = "TileRawChannelFitCool"
-
-        if doTileOpt:
-            theTileDQFragMon.TileRawChannelContainerOffl = "TileRawChannelOpt"
 
         if doTileOpt2:
             theTileDQFragMon.TileRawChannelContainerOffl = "TileRawChannelOpt2"

@@ -40,7 +40,7 @@ atlas_add_component( LArCalibTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRecConditions CaloCondBlobObjs AthenaKernel AthenaPoolUtilities EventInfo LArCOOLConditions LArRawEvent LArToolsLib TrigDecisionTool LumiBlockComps )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRecConditions CaloCondBlobObjs AthenaKernel AthenaPoolUtilities EventInfo LArCOOLConditions LArRawEvent LArToolsLib TrigDecisionToolLib LumiBlockCompsLib LumiBlockData )
 
 # Install files from the package:
 atlas_install_headers( LArCalibTools )

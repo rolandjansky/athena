@@ -36,7 +36,6 @@
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
-class StoreGateSvc;
 class TrigTimer;
 
 /** Main LVL2 Algorithm. Sided by a xAOD::L2CombinedMuon, calculate trackID isolation 
@@ -67,10 +66,6 @@ class muIso: public HLT::FexAlgo {
                             const xAOD::TrackParticleContainer& idTrackParticles,
                             xAOD::L2IsoMuonContainer& muonISColl );
  private:
-
-  /** Pointer to Storegate. */
-  //ServiceHandle<StoreGateSvc>  m_pStoreGate;
-  StoreGateSvc*  m_pStoreGate;
 
   /** Timer service Handle. */
   ServiceHandle<ITrigTimerSvc> m_pTimerService;

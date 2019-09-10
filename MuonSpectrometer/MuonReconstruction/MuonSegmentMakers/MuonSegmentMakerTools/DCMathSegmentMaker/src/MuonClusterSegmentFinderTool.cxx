@@ -28,7 +28,6 @@ namespace Muon {
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool", this),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this) {
 
     declareInterface<IMuonClusterSegmentFinderTool>(this);
@@ -46,7 +45,7 @@ namespace Muon {
   StatusCode MuonClusterSegmentFinderTool::initialize() {
     ATH_CHECK( m_slTrackFitter.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_ambiTool.retrieve() );
     ATH_CHECK( m_trackToSegmentTool.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
@@ -406,7 +405,7 @@ namespace Muon {
 	
 	ATH_MSG_DEBUG( "Fitting a 3D segment with " << phiHits.size() << " phi hits and " << vec2.size() << " total hits" );
 	for(unsigned int k=0; k<vec2.size(); ++k) {
-	  Identifier id = m_helper->getIdentifier(*vec2[k]);
+	  Identifier id = m_edmHelperSvc->getIdentifier(*vec2[k]);
 	  ATH_MSG_VERBOSE( m_idHelperTool->toString(id) << " " << vec2[k]->globalPosition().perp() << ", " << vec2[k]->globalPosition().z() );
 	}
 	Trk::Track* segtrack = fit(vec2,*startpar);
@@ -732,7 +731,7 @@ namespace Muon {
 	//using release until the entire code can be migrated to use smart pointers
 	segtrack = cleanedTrack.release();
       }
-      if( !m_helper->goodTrack(*segtrack,10) ) {
+      if( !m_edmHelperSvc->goodTrack(*segtrack,10) ) {
 	if(segtrack->fitQuality()) {
 	  ATH_MSG_DEBUG( "segment fit with chi^2/nDoF = " << segtrack->fitQuality()->chiSquared() << "/" << segtrack->fitQuality()->numberDoF() );
 	}

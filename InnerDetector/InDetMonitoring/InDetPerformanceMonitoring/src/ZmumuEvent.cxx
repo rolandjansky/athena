@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //==================================================================================
@@ -15,7 +15,6 @@
 #include "InDetPerformanceMonitoring/PerfMonServices.h"
 
 // ATLAS headers
-#include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 

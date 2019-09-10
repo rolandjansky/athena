@@ -20,9 +20,6 @@ def  EDMDecodingVersion():
     # change version only if not rerunning the trigger    
     TriggerFlags.EDMDecodingVersion = 2
 
-    # run the AutoConfiguration
-    from RecExConfig.InputFilePeeker import inputFileSummary  # noqa: F401
-    
     if globalflags.InputFormat.is_bytestream():
         # BYTESTREAM: decide Run1/Run2 based on Run number
         from RecExConfig.AutoConfiguration  import GetRunNumber
@@ -45,7 +42,7 @@ def  EDMDecodingVersion():
             log.info("Decoding version set to 1, because HLTResult_EF found in pool file")
         elif cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_HLT"):          
             TriggerFlags.EDMDecodingVersion = 2
-        elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTSummary"):          
+        elif cfgKeyStore.isInInputFile( "xAOD::TrigCompositeContainer", "HLTNav_Summary"):
             TriggerFlags.EDMDecodingVersion = 3
         else:
             log.warning("Cannot recognise HLT EDM format, TriggerFlags.EDMDecodingVersion=%d", TriggerFlags.EDMDecodingVersion())
@@ -176,15 +173,17 @@ class ByteStreamUnpackGetter(Configured):
             #
             # Configure DataScouting
             #
-            from RecExConfig.InputFilePeeker import inputFileSummary
-            if inputFileSummary['bs_metadata']['Stream'].startswith('calibration_DataScouting_') or TriggerFlags.doAlwaysUnpackDSResult():
-                for stag in inputFileSummary['stream_tags']:
-                    if (stag['stream_type'] == 'calibration') and (stag['stream_name'].startswith('DataScouting_')):
-                        ds_tag = stag['stream_name'][0:15]
-                        ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
-                        extr.DSResultKeys += [ ds_tag ]
+            from PyUtils.MetaReaderPeeker import metadata
 
-        else:            
+            stream_local = metadata['stream']
+
+            if stream_local.startswith('calibration_DataScouting_') or TriggerFlags.doAlwaysUnpackDSResult():
+                if 'calibration' in stream_local and 'DataScouting_' in stream_local:
+                    ds_tag = stream_local[12:27]
+                    ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "HLT::HLTResult/"+ds_tag ]
+                    extr.DSResultKeys += [ ds_tag ]
+
+        else:
             #if data doesn't have HLT info set HLTResult keys as empty strings to avoid warnings
             # but the extr alg must run
             extr.L2ResultKey=""
@@ -278,16 +277,16 @@ class HLTTriggerResultGetter(Configured):
         log = logging.getLogger("HLTTriggerResultGetter.py")        
         
         if rec.doESD():
-            from RecExConfig.InputFilePeeker import inputFileSummary
-            if 'bs_metadata' in inputFileSummary and 'Stream' in inputFileSummary['bs_metadata']:
-                stream=inputFileSummary['bs_metadata']['Stream']
-                log.debug("the stream found in 'bs_metadata' is "+stream)
+            from PyUtils.MetaReaderPeeker import metadata
+            if 'stream' in metadata:
+                stream = metadata['stream']
+                log.debug("the stream found in 'metadata' is "+stream)
                 if "express" in stream:
                     from TrigEDMConfig.TriggerEDM import getTypeAndKey,EDMDetails
                     type,key=getTypeAndKey("TrigOperationalInfo#HLT_EXPRESS_OPI_HLT")
                     if 'collection'in EDMDetails[type]:
                         colltype = EDMDetails[type]['collection']
-                        log.info("Adding HLT_EXPRESS_OPI_HLT to ESD for stream "+stream)                        
+                        log.info("Adding HLT_EXPRESS_OPI_HLT to ESD for stream "+stream)
                         from RecExConfig.ObjKeyStore import objKeyStore
                         objKeyStore.addStreamESD(colltype, key)
                     return True
@@ -441,11 +440,11 @@ class HLTTriggerResultGetter(Configured):
                 svcMgr += ThinningSvc(name='ESDThinningSvc', Streams=['StreamESD']) # the default is configured for AODs
             _addSlimming('StreamESD', svcMgr.ESDThinningSvc, _TriggerESDList )                
             log.info("configured navigation slimming for ESD output")              
-            
 
 
 
-        objKeyStore.addManyTypesStreamESD( _TriggerESDList )                        
+
+        objKeyStore.addManyTypesStreamESD( _TriggerESDList )
         objKeyStore.addManyTypesStreamAOD( _TriggerAODList )        
             
         return True

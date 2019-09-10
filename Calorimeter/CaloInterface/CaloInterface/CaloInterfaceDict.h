@@ -13,6 +13,7 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloInterface/ICaloAffectedTool.h"
+#include "CaloInterface/ICaloEstimatedGainTool.h"
 
 #endif 
 

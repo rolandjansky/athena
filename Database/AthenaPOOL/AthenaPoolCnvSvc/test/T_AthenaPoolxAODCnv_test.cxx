@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -100,7 +100,7 @@ void test1 (ISvcLocator* svcloc, TestCnvSvc& testsvc)
   for (size_t i=0; i < N; i++)
     trans1.push_back (new Y_v2(i));
 
-  DataVector<Y_v2>* pers1 = cnv.createPersistent (&trans1);
+  DataVector<Y_v2>* pers1 = cnv.createPersistentWithKey (&trans1, "");
   assert (pers1->size() == trans1.size());
   for (size_t i = 0; i < N; i++)
     assert ((*pers1)[i] == trans1[i]);

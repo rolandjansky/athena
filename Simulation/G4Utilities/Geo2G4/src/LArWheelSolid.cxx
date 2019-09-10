@@ -101,8 +101,45 @@ G4GeometryType LArWheelSolid::GetEntityType() const
   case OuterLeadWheel:
     return G4String("LArOuterLeadWheel");
     break;
+  case InnerAbsorberCone:
+    return G4String("LArInnerAbsorberCone");
+    break;
+  case InnerElectrodCone:
+    return G4String("LArInnerElectrodCone");
+    break;
+  case InnerGlueCone:
+    return G4String("LArInnerGlueCone");
+    break;
+  case InnerLeadCone:
+    return G4String("LArInnerLeadCone");
+    break;
+  case OuterAbsorberFrontCone:
+    return G4String("LArOuterAbsorberFrontCone");
+    break;
+  case OuterElectrodFrontCone:
+    return G4String("LArOuterElectrodFrontCone");
+    break;
+  case OuterGlueFrontCone:
+    return G4String("LArOuterGlueFrontCone");
+    break;
+  case OuterLeadFrontCone:
+    return G4String("LArOuterLeadFrontCone");
+    break;
+  case OuterAbsorberBackCone:
+    return G4String("LArOuterAbsorberBackCone");
+    break;
+  case OuterElectrodBackCone:
+    return G4String("LArOuterElectrodBackCone");
+    break;
+  case OuterGlueBackCone:
+    return G4String("LArOuterGlueBackCone");
+    break;
+  case OuterLeadBackCone:
+    return G4String("LArOuterLeadBackCone");
+    break;
+  default:
+    G4Exception("LArWheelSolid", "UnknownSolidType", FatalException,"GetEntityType: Unknown LArWheelType.");
   }
-  G4Exception("LArWheelSolid", "UnknownSolidType", FatalException,"GetEntityType: Unknown LArWheelType.");
   return G4String("");
 }
 

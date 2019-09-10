@@ -24,7 +24,8 @@
 #include "Acts/Surfaces/PlaneSurface.hpp"
 #include "Acts/Surfaces/RectangleBounds.hpp"
 #include "Acts/Surfaces/TrapezoidBounds.hpp"
-#include "Acts/Utilities/GeometryContext.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 // STL
 #include <mutex>
@@ -36,6 +37,10 @@
 
 using Acts::Transform3D;
 using Acts::Surface;
+
+using namespace Acts::UnitLiterals;
+
+constexpr double length_unit = 1_mm;
 
 ActsDetectorElement::ActsDetectorElement(
     const InDetDD::SiDetectorElement* detElem,
@@ -53,8 +58,8 @@ ActsDetectorElement::ActsDetectorElement(
   if (boundsType == Trk::SurfaceBounds::Rectangle) {
 
     const InDetDD::SiDetectorDesign &design = detElem->design();
-    double hlX = design.width()/2.;
-    double hlY = design.length()/2.;
+    double hlX = design.width()/2. * length_unit;
+    double hlY = design.length()/2. * length_unit;
 
     auto rectangleBounds = std::make_shared<const Acts::RectangleBounds>(
         hlX, hlY);
@@ -70,9 +75,9 @@ ActsDetectorElement::ActsDetectorElement(
 
     const InDetDD::SiDetectorDesign &design = detElem->design();
 
-    double minHlX = design.minWidth()/2.;
-    double maxHlX = design.maxWidth()/2.;
-    double hlY    = design.length()/2.;
+    double minHlX = design.minWidth()/2. * length_unit;
+    double maxHlX = design.maxWidth()/2. * length_unit;
+    double hlY    = design.length()/2. * length_unit;
 
     auto trapezoidBounds = std::make_shared<const Acts::TrapezoidBounds>(
         minHlX, maxHlX, hlY);
@@ -98,18 +103,18 @@ ActsDetectorElement::ActsDetectorElement(
   m_explicitIdentifier = id;
 
   // we know this is a straw
-  double length = detElem->strawLength()*0.5;
+  double length = detElem->strawLength()*0.5 * length_unit;
 
   // we need to find the radius
   auto ecElem = dynamic_cast<const InDetDD::TRT_EndcapElement*>(detElem);
   auto brlElem = dynamic_cast<const InDetDD::TRT_BarrelElement*>(detElem);
   double innerTubeRadius{0.};
   if (ecElem) {
-    innerTubeRadius = ecElem->getDescriptor()->innerTubeRadius();
+    innerTubeRadius = ecElem->getDescriptor()->innerTubeRadius() * length_unit;
   }
   else {
     if (brlElem){
-      innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius();
+      innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius() * length_unit;
     } else {
       throw std::runtime_error("Cannot get tube radius for element in ActsDetectorElement c'tor");
     }
@@ -153,6 +158,7 @@ ActsDetectorElement::transform(const Acts::GeometryContext& anygctx) const
   assert(alignmentStore != nullptr);
 
   // get the correct cached transform
+  // units should be fine here since we converted at construction
   const Transform3D* cachedTrf = alignmentStore->getTransform(this);
 
   assert(cachedTrf != nullptr);
@@ -171,9 +177,13 @@ ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
     Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
     {
       Amg::Transform3D g2l
-        = detElem->getMaterialGeom()->getAbsoluteTransform(m_store);
+        = detElem->getMaterialGeom()->getAbsoluteTransform(m_store)
+        * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
 
-      return g2l * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
+      // need to make sure translation has correct units
+      g2l.translation() *= length_unit;
+
+      return g2l;
     }
 
     Transform3D operator()(const InDetDD::TRT_BaseElement*) const
@@ -205,9 +215,13 @@ ActsDetectorElement::getDefaultTransformMutexed() const
     Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
     {
       Amg::Transform3D g2l
-        = detElem->getMaterialGeom()->getDefAbsoluteTransform();
+        = detElem->getMaterialGeom()->getDefAbsoluteTransform()
+        * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
 
-      return g2l * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
+      // need to make sure translation has correct units
+      g2l.translation() *= length_unit;
+
+      return g2l;
     }
 
     Transform3D operator()(const InDetDD::TRT_BaseElement*) const

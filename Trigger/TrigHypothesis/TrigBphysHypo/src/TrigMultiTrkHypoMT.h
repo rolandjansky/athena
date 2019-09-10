@@ -37,7 +37,7 @@
 
 #include "DecisionHandling/HypoBase.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 
 #include "AthenaMonitoring/Monitored.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"

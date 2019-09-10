@@ -8,6 +8,7 @@ atlas_subdir( InDetTestPixelLayer )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          Control/AthenaKernel
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           GaudiKernel
@@ -41,11 +42,11 @@ atlas_add_library( InDetTestPixelLayerLib
                    src/*.cxx
                    PUBLIC_HEADERS InDetTestPixelLayer
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel InDetIdentifier InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel InDetIdentifier InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces
                    PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetReadoutGeometry TrkGeometry TrkSurfaces TrkMeasurementBase TrkParticleBase TrkTrack TrkTrackSummary TrkExInterfaces )
 
 atlas_add_component( InDetTestPixelLayer
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel InDetIdentifier InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr IdDictDetDescr InDetReadoutGeometry TrkGeometry TrkSurfaces TrkMeasurementBase TrkParticleBase TrkTrack TrkTrackSummary TrkExInterfaces InDetTestPixelLayerLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives Identifier GaudiKernel InDetIdentifier InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr IdDictDetDescr InDetReadoutGeometry TrkGeometry TrkSurfaces TrkMeasurementBase TrkParticleBase TrkTrack TrkTrackSummary TrkExInterfaces InDetTestPixelLayerLib )
 

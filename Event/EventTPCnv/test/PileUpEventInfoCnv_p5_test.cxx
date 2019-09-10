@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -17,7 +17,6 @@
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
-#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -160,16 +159,16 @@ std::string stroffs (const char* s, int offs)
 
 std::unique_ptr<EventID> make_id (int offs)
 {
-  return CxxUtils::make_unique<EventID> (1234+offs, 2345+offs, 3456+offs,
-                                         4567+offs, 5678+offs, 6789+offs,
-                                         4321+offs, 5432+offs,
-                                         6543+offs, 7654+offs);
+  return std::make_unique<EventID> (1234+offs, 2345+offs, 3456+offs,
+                                    4567+offs, 5678+offs, 6789+offs,
+                                    4321+offs, 5432+offs,
+                                    6543+offs, 7654+offs);
 }
 
 
 std::unique_ptr<EventType> make_type (int offs)
 {
-  auto etype = CxxUtils::make_unique<EventType>();
+  auto etype = std::make_unique<EventType>();
   etype->add_type (3+offs);
   etype->add_type (13+offs);
   etype->add_type (25+offs);
@@ -196,7 +195,7 @@ std::unique_ptr<TriggerInfo> make_tinfo (TriggerInfo::number_type offs)
                            stroffs("qwe", offs), false,
                            std::set<TriggerInfo::number_type> {13+offs, 14+offs},
                            std::set<TriggerInfo::number_type> {15+offs, 110+offs, 112+offs});
-  auto tinfo = CxxUtils::make_unique<TriggerInfo>
+  auto tinfo = std::make_unique<TriggerInfo>
     (123+offs,
      234+offs,
      345+offs,
@@ -215,7 +214,7 @@ std::unique_ptr<EventInfo> make_ei (int offs)
   std::unique_ptr<EventType> etype = make_type (offs);
   std::unique_ptr<TriggerInfo> tinfo = make_tinfo (offs);
   
-  auto ei = CxxUtils::make_unique<EventInfo> (id.release(), etype.release(), tinfo.release());
+  auto ei = std::make_unique<EventInfo> (id.release(), etype.release(), tinfo.release());
   for (unsigned int i = 0; i < EventInfo::nDets; i++) {
     EventInfo::EventFlagSubDet ii = static_cast<EventInfo::EventFlagSubDet>(i);
     ei->setEventFlags (ii, i*100+3);

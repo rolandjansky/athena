@@ -65,13 +65,13 @@ class TrigBtagFexMT: public AthAlgorithm {
   const xAOD::Vertex* getPrimaryVertex(const xAOD::VertexContainer* vertexContainer);
 
  private:
-  // TOOLS
-  /** @brief Offline BTag tool */
-  PublicToolHandle< Analysis::IBTagTool > m_bTagTool {this,"BTagTool","Analysis/IBTagTool","Offline BTag tool"};
-  /** @brief Offline TrackAssociation tool */
-  PublicToolHandle< Analysis::IBTagTrackAssociation > m_bTagTrackAssocTool {this,"BTagTrackAssocTool","Analysis/BTagTrackAssociation","Offline TrackAssociation tool"};
-  /** @brief Offline SecondaryVertexing tool */
-  PublicToolHandle< Analysis::IBTagSecVertexing > m_bTagSecVtxTool {this,"BTagSecVertexing","Analysis/BTagSecVertexing","Offline SecondaryVertexing tool"};
+//  // TOOLS
+//  /** @brief Offline BTag tool */
+//  PublicToolHandle< Analysis::IBTagTool > m_bTagTool {this,"BTagTool","Analysis/IBTagTool","Offline BTag tool"};
+//  /** @brief Offline TrackAssociation tool */
+//  PublicToolHandle< Analysis::IBTagTrackAssociation > m_bTagTrackAssocTool {this,"BTagTrackAssocTool","Analysis/BTagTrackAssociation","Offline TrackAssociation tool"};
+//  /** @brief Offline SecondaryVertexing tool */
+//  PublicToolHandle< Analysis::IBTagSecVertexing > m_bTagSecVtxTool {this,"BTagSecVertexing","Analysis/BTagSecVertexing","Offline SecondaryVertexing tool"};
 
   // DATA
   /** @brief List of xAOD tagger basenames */
@@ -93,12 +93,12 @@ class TrigBtagFexMT: public AthAlgorithm {
  private:
   SG::ReadHandleKey< xAOD::JetContainer > m_JetContainerKey {this,"JetKey","SplitJet","Key for input jets"};
   SG::ReadHandleKey< xAOD::VertexContainer > m_VertexContainerKey {this,"PriVtxKey","xPrimVx","Key of primary vertexes"};
-  SG::ReadHandleKey< xAOD::VertexContainer > m_BackUpVertexContainerKey {this,"PriVtxKeyBackup","EFHistoPrmVtx","Back-Up Key of primary vertexes"};
-  SG::ReadHandleKey< xAOD::TrackParticleContainer > m_TrackParticleContainerKey {this,"TrackKey","InDetTrigTrackingxAODCnv_Bjet_IDTrig","Key for track particle container"};
+  //  SG::ReadHandleKey< xAOD::VertexContainer > m_BackUpVertexContainerKey {this,"PriVtxKeyBackup","EFHistoPrmVtx","Back-Up Key of primary vertexes"};
+  SG::ReadHandleKey< xAOD::TrackParticleContainer > m_trkContainerKey {this,"TracksKey","tracks__COLL","Key for track particle container"};
 
-  SG::WriteHandleKey< xAOD::BTaggingContainer > m_outputBTaggingContainerKey {this,"OutputBTagKey","HLTBjetFex","Output Btagging Container Key"};
-  SG::WriteHandleKey< xAOD::VertexContainer > m_outputVertexContainerKey {this,"OutputVtxKey","HLT_BjetVertexFex","Output Vertex Container Key"};
-  SG::WriteHandleKey< xAOD::BTagVertexContainer > m_outputBtagVertexContainerKey {this,"OutputBtagVtxKey","HLT_BjetSecondaryVertexFex","Output Btag Vertex Container Key"};
+  //  SG::WriteHandleKey< xAOD::BTaggingContainer > m_outputBTaggingContainerKey {this,"OutputBTagKey","HLTBjetFex","Output Btagging Container Key"};
+  //  SG::WriteHandleKey< xAOD::VertexContainer > m_outputVertexContainerKey {this,"OutputVtxKey","HLT_BjetVertexFex","Output Vertex Container Key"};
+  //  SG::WriteHandleKey< xAOD::BTagVertexContainer > m_outputBtagVertexContainerKey {this,"OutputBtagVtxKey","HLT_BjetSecondaryVertexFex","Output Btag Vertex Container Key"};
 };
 
 #endif

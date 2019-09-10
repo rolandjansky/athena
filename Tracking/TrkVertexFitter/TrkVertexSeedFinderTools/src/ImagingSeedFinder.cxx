@@ -25,19 +25,19 @@ namespace Trk
   // --------------------------------------------------------------------------------
   // ImagingSeedFinder constructor
   ImagingSeedFinder::ImagingSeedFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
+    base_class(t,n,p),
     m_vertexImageMaker("Trk::VertexImageMaker", this),
     m_VertexClusterFinder( "Trk::SimpleVertexClusterFinder", this)
   {   
 
     declareProperty("VertexImageMaker"        , m_vertexImageMaker         );
     declareProperty("VertexCluster"           , m_VertexClusterFinder      );
-    declareInterface<IVertexSeedFinder>(this);
   } //End ImagingSeedFinder constructor
 
-  // --------------------------------------------------------------------------------
-  // ImagingSeedFinder destructor
-  ImagingSeedFinder::~ImagingSeedFinder() {} //End ImagingSeedFinder destructor
+
+  ImagingSeedFinder::~ImagingSeedFinder()
+  {
+  }
 
 
   // --------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ namespace Trk
 
   // --------------------------------------------------------------------------------
   // ImagingSeedFinder find seed - based on vector of Trk::Track's
-  Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint)
+  Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint) const
   {
     std::vector<Amg::Vector3D> seeds =
       findMultiSeeds( vectorTrk, constraint);
@@ -79,7 +79,7 @@ namespace Trk
 
   // --------------------------------------------------------------------------------
   // ImagingSeedFinder find seed - based on vector of Trk::ParametersBase
-  Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & parametersList,const xAOD::Vertex * constraint)
+  Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & parametersList,const xAOD::Vertex * constraint) const
   {
     std::vector<Amg::Vector3D> seeds =
       findMultiSeeds( parametersList, constraint);
@@ -92,7 +92,7 @@ namespace Trk
 
   // --------------------------------------------------------------------------------
   // ImagingSeedFinder find multiseed - based on vector of Trk::Track's
-  std::vector<Amg::Vector3D> ImagingSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>&  vectorTrk ,const xAOD::Vertex *  constraint ) {
+  std::vector<Amg::Vector3D> ImagingSeedFinder::findMultiSeeds(const std::vector<const Trk::Track*>&  vectorTrk ,const xAOD::Vertex *  constraint ) const {
  
     //create perigees from track list
     std::vector<const Trk::TrackParameters*> perigeeList;
@@ -115,7 +115,7 @@ namespace Trk
   // ImagingSeedFinder find multiseed - based on vector of Trk::ParametersBase
   std::vector<Amg::Vector3D>
   ImagingSeedFinder::findMultiSeeds(const std::vector<const Trk::TrackParameters*>& parametersList,
-                                    const xAOD::Vertex * constraint)
+                                    const xAOD::Vertex * constraint) const
   {
     ATH_MSG_DEBUG( "findMultiSeeds using ImagingSeedFinder has been called"  );
 
@@ -148,26 +148,6 @@ namespace Trk
     return vertices;
 
   } // End ImagingSeedFinder find multiseed - based on vector of Trk::ParametersBase
-
-  void ImagingSeedFinder::setPriVtxPosition(double /* vx */, double /* vy */) {
-    //implemented to satisfy inheritance
-  }
-
-  int ImagingSeedFinder::perigeesAtSeed( std::vector<const Trk::TrackParameters*> */* a */ ,
-					 const std::vector<const Trk::TrackParameters*> & /* b */ ) const{
-    //implemented to satisfy inheritance
-    return 0;
-  }
-
-  int ImagingSeedFinder::getModes1d(std::vector<float> & /* a */, std::vector<float> & /* b */, 
-				    std::vector<float> & /* c */, std::vector<float> & /* d */) const{
-   //implemented to satisfy inheritance
-    return 0;
-  }
-
-  void ImagingSeedFinder::getCorrelationDistance( double &/* cXY */, double &/* cZ */ ){
-    //implemented to satisfy inheritance
-  }
 
 
 } //End Trk namespace

@@ -191,7 +191,6 @@ if not simFlags.ISFRun:
         #import EventInfoMgt.EventInfoMgtInit
 
         ## EventInfo & TruthEvent always written by default
-        stream1.ForceRead=True
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
                             "JetCollection#*"]
@@ -230,7 +229,6 @@ if not simFlags.ISFRun:
             if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
                 stream1.ItemList += ["sTGCSimHitCollection#*"]
                 stream1.ItemList += ["MMSimHitCollection#*"]
-                stream1.ItemList += ["GenericMuonSimHitCollection#*"]
 
         ## Lucid
         if DetFlags.Lucid_on():

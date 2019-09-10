@@ -7,8 +7,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/Timeout.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
 #include "MuonSegment/MuonSegmentQuality.h"
@@ -40,7 +38,7 @@
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
@@ -86,7 +84,6 @@ namespace Muon {
     m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator", this),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_segmentFinder("Muon::MdtMathSegmentFinder/MdtMathSegmentFinder", this),
     m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool", this),
     m_segmentSelectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", this),
@@ -105,7 +102,7 @@ namespace Muon {
     declareProperty("MuonCompetingClustersCreator",     m_compClusterCreator);
     declareProperty("IdHelper", m_idHelperTool);
     declareProperty("EDMPrinter", m_printer);
-    declareProperty("EDMHelper", m_helper);    
+    declareProperty("EDMHelper", m_edmHelperSvc);    
     declareProperty("MdtSegmentFinder",     m_segmentFinder);
     declareProperty("SegmentFitter", m_segmentFitter);
     declareProperty("SegmentSelector", m_segmentSelectionTool);
@@ -156,7 +153,7 @@ namespace Muon {
     ATH_CHECK( m_compClusterCreator.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_segmentFinder.retrieve() );
     ATH_CHECK( m_segmentSelectionTool.retrieve() );
     
@@ -183,6 +180,8 @@ namespace Muon {
       ATH_MSG_ERROR("Couldn't initalize MDT ReadHandleKey");
       return StatusCode::FAILURE;
     }
+
+    if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -677,16 +676,17 @@ namespace Muon {
 
       // refit segment after recalibration
       TrkDriftCircleMath::DCSLFitter  defaultFitter;
-      bool goodFit = defaultFitter.fit( line, segment.dcs(), hitSelector.selectHitsOnTrack(segment.dcs()) );
+      TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
+      bool goodFit = defaultFitter.fit( result, line, segment.dcs(), hitSelector.selectHitsOnTrack(segment.dcs()) );
       if( goodFit ){
-	if( fabs(segment.line().phi() - defaultFitter.result().line().phi()) > 0.01 || 
-	    fabs(segment.line().x0() - defaultFitter.result().line().x0()) > 0.01 || 
-	    fabs(segment.line().y0() - defaultFitter.result().line().y0()) > 0.01 ) {
+	if( fabs(segment.line().phi() - result.line().phi()) > 0.01 || 
+	    fabs(segment.line().x0() - result.line().x0()) > 0.01 || 
+	    fabs(segment.line().y0() - result.line().y0()) > 0.01 ) {
 	
 	  // update local position and global
-	  linephi = defaultFitter.result().line().phi();
-	  lpos[1] =  defaultFitter.result().line().position().x() ;
-	  lpos[2] =  defaultFitter.result().line().position().y() ;
+	  linephi = result.line().phi();
+	  lpos[1] =  result.line().position().x() ;
+	  lpos[2] =  result.line().position().y() ;
 	  gpos = sInfo.amdbTrans*lpos;
 	
 	  // recreate  surface 
@@ -829,13 +829,13 @@ namespace Muon {
     MuonSegmentQuality* quality = new MuonSegmentQuality( segment.chi2(), segment.ndof(), holeVec );
 
     const TrkDriftCircleMath::DCSLFitter* dcslFitter = m_dcslFitProvider->getFitter();
-
+    TrkDriftCircleMath::Segment result(TrkDriftCircleMath::Line(0.,0.,0.), TrkDriftCircleMath::DCOnTrackVec());
     if( dcslFitter && !segment.hasT0Shift() && m_outputFittedT0 ){
-      if( !dcslFitter->fit( segment.line(), segment.dcs(), hitSelector.selectHitsOnTrack( segment.dcs() ) ) ) {
+      if( !dcslFitter->fit( result, segment.line(), segment.dcs(), hitSelector.selectHitsOnTrack( segment.dcs() ) ) ) {
 	ATH_MSG_DEBUG( " T0 refit failed ");
       }else{
 	if( msgLvl(MSG::DEBUG) ) {
-	  if( dcslFitter->result().hasT0Shift() ) ATH_MSG_DEBUG(" Fitted T0 " << dcslFitter->result().t0Shift());
+	  if( result.hasT0Shift() ) ATH_MSG_DEBUG(" Fitted T0 " << result.t0Shift());
 	  else                                      ATH_MSG_DEBUG(" No fitted T0 ");
 	}
       }
@@ -843,14 +843,14 @@ namespace Muon {
     bool hasFittedT0 = false;
     double fittedT0  = 0;
     double errorFittedT0  = 1.;
-    if( m_outputFittedT0 && ( segment.hasT0Shift() || ( dcslFitter && dcslFitter->result().hasT0Shift() ) ) ){
+    if( m_outputFittedT0 && ( segment.hasT0Shift() || ( dcslFitter && result.hasT0Shift() ) ) ){
       hasFittedT0 = true;
       if( segment.hasT0Shift() ){
 	fittedT0 = segment.t0Shift();
 	errorFittedT0 = segment.t0Error();
-      }else if( dcslFitter && dcslFitter->result().hasT0Shift() ) {
-	fittedT0 = dcslFitter->result().t0Shift();
-	errorFittedT0 = dcslFitter->result().t0Error();
+      }else if( dcslFitter && result.hasT0Shift() ) {
+	fittedT0 = result.t0Shift();
+	errorFittedT0 = result.t0Error();
       }else{
 	ATH_MSG_WARNING(" Failed to access fitted t0 ");
 	hasFittedT0 = false;
@@ -1768,45 +1768,44 @@ namespace Muon {
       // calculate side
       Trk::DriftCircleSide side = locPos[Trk::driftRadius] < 0 ? Trk::LEFT : Trk::RIGHT;
 	  
-      const MdtDriftCircleOnTrack* constDC = 0;
+      MdtDriftCircleOnTrack* nonconstDC = 0;
       bool hasT0 = segment.hasT0Shift();
       if( !hasT0 ){
 	//ATH_MSG_VERBOSE(" recalibrate MDT hit");
-	constDC = m_mdtCreator->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir);
+	nonconstDC = m_mdtCreator->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir);
       }else{
 	ATH_MSG_VERBOSE(" recalibrate MDT hit with shift " << segment.t0Shift());
-	constDC = m_mdtCreatorT0->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir,segment.t0Shift());
+	nonconstDC = m_mdtCreatorT0->createRIO_OnTrack(*riodc->prepRawData(),mdtGP,&gdir,segment.t0Shift());
       }
       
-      if( !constDC ){
+      if( !nonconstDC ){
 	dcit->state( TrkDriftCircleMath::DCOnTrack::OutOfTime );
 	continue;
       }
 
       // update the drift radius after recalibration, keep error
-      MdtDriftCircleOnTrack *new_drift_circle=new MdtDriftCircleOnTrack(*constDC);
+      MdtDriftCircleOnTrack *new_drift_circle=new MdtDriftCircleOnTrack(*nonconstDC);
       measurementsToBeDeleted.push_back(new_drift_circle);
-      TrkDriftCircleMath::DriftCircle new_dc(dcit->position(), fabs(constDC->driftRadius()), dcit->dr(), dcit->drPrecise(), 
+      TrkDriftCircleMath::DriftCircle new_dc(dcit->position(), fabs(nonconstDC->driftRadius()), dcit->dr(), dcit->drPrecise(), 
 					     static_cast<TrkDriftCircleMath::DriftCircle *>(&(*dcit))->state()
 					     , dcit->id(), dcit->index(),new_drift_circle);
       TrkDriftCircleMath::DCOnTrack new_dc_on_track(new_dc, dcit->residual(), dcit->errorTrack());
       (*dcit)=new_dc_on_track;
 
-      MdtDriftCircleOnTrack* dcOn = const_cast<MdtDriftCircleOnTrack*>(constDC);
       if( hasT0 ) {
 	if( msgLvl(MSG::VERBOSE) ){
-	  double shift = riodc->driftTime() - dcOn->driftTime();
+	  double shift = riodc->driftTime() - nonconstDC->driftTime();
 	  ATH_MSG_VERBOSE(" t0 shift " << segment.t0Shift() << " from hit " << shift 
-			  << " recal " << dcOn->driftRadius() << " t " << dcOn->driftTime() << "  from fit " << dcit->r() 
+			  << " recal " << nonconstDC->driftRadius() << " t " << nonconstDC->driftTime() << "  from fit " << dcit->r() 
 			  << " old " << riodc->driftRadius() << " t " << riodc->driftTime());
-	  if( fabs( fabs(dcOn->driftRadius()) - fabs(dcit->r()) ) > 0.1 && dcOn->driftRadius() < 19. && dcOn->driftRadius() > 1. ) {
+	  if( fabs( fabs(nonconstDC->driftRadius()) - fabs(dcit->r()) ) > 0.1 && nonconstDC->driftRadius() < 19. && nonconstDC->driftRadius() > 1. ) {
 	    ATH_MSG_WARNING("Detected invalid recalibration after T0 shift");
 	  }
 	}
       }
-      m_mdtCreator->updateSign( *dcOn, side );
+      m_mdtCreator->updateSign( *nonconstDC, side );
       double dist = pointOnHit.x();
-      rioDistVec.push_back( std::make_pair(dist,dcOn) );
+      rioDistVec.push_back( std::make_pair(dist,nonconstDC) );
     }
     return measurementsToBeDeleted;
   }
@@ -2290,7 +2289,13 @@ namespace Muon {
 							      std::vector<std::pair<double,const Trk::MeasurementBase*> >& rioDistVec) const {
     
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack(chid, gpos, gdir, dbData, m_detMgr );
 
 
     // set to identify the hit on the segment
@@ -2336,8 +2341,9 @@ namespace Muon {
       int layer = (m_idHelperTool->mdtIdHelper().tubeLayer(id)-1) + 4*(m_idHelperTool->mdtIdHelper().multilayer(id)-1);
 
       bool notBetweenHits = layer < firstLayer || layer > lastLayer;
-      double distanceCut = hasMeasuredCoordinate ? -20 : -200.;
-      if( notBetweenHits && (fabs( tint.rIntersect ) > 14.4 || (!m_allMdtHoles && tint.xIntersect > distanceCut ) ) ){
+      double distanceCut  = hasMeasuredCoordinate ? -20 : -200.;
+      double innerRadius  = m_detMgr->getMdtReadoutElement(id)->innerTubeRadius();
+      if( notBetweenHits && ( fabs(tint.rIntersect) > innerRadius || (!m_allMdtHoles && tint.xIntersect > distanceCut) ) ) {
 	if( msgLvl(MSG::VERBOSE)  ) msg(MSG::VERBOSE) << " not counting tube:  distance to wire " << tint.rIntersect << " dist to tube end " << tint.xIntersect 
 						      << " " << m_idHelperTool->toString(tint.tubeId) << std::endl;
       }else{
@@ -2573,7 +2579,7 @@ namespace Muon {
 
     for( std::vector<const Trk::MeasurementBase*>::const_iterator it = rots.begin();it!=rots.end();++it ){
 
-      Identifier id = m_helper->getIdentifier(**it);
+      Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( !id.is_valid() ) continue;
       Amg::Vector3D lpos;
       double lxmin(0),lxmax(0),phimin(0.),phimax(0.);
@@ -2646,8 +2652,6 @@ namespace Muon {
 	    }
 	    Amg::Vector3D lpos_shift(lposTGC.x(),locy_shift,z_shift);
 	    
-	    // 	    std::cout << " local phi pos " << lposTGC << " shifted pos " << lpos_shift << std::endl;
-
 	    // transform the two points to global coordinates
 	    const Amg::Transform3D tgcTrans = detEl->absTransform();
 	    Amg::Vector3D gposL    = tgcTrans*lposTGC;

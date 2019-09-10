@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuFastPatternFinder.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
 
@@ -57,11 +55,8 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
    }
    
    // retrieve the mdtidhelper  
-   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
    const MuonGM::MuonDetectorManager* muonMgr;                                                                 
-   ATH_CHECK( detStore->retrieve( muonMgr,"Muon" ) ); 
+   ATH_CHECK( detStore()->retrieve( muonMgr,"Muon" ) ); 
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore."); 
    m_mdtIdHelper = muonMgr->mdtIdHelper();                                                   
 

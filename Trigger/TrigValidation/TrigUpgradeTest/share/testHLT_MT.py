@@ -15,7 +15,7 @@
 #   -c "myModifier=True/False"
 # Existing modifiers can be found in "TriggerRelease/python/Modifiers.py"
 #
-class opt :
+class opt:
     setupForMC       = None           # force MC setup
     setLVL1XML       = 'TriggerMenuMT/LVL1config_LS2_v1.xml' # 'TriggerMenu/LVL1config_Physics_pp_v7.xml' # default for legacy
     setDetDescr      = None           # force geometry tag
@@ -29,7 +29,7 @@ class opt :
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
-    doESD            = True           # Write out an ESD?
+    doWriteESD       = True           # Write out an ESD?
     doL1Unpacking    = True           # decode L1 data in input file if True, else setup emulation
     doL1Sim          = False          # (re)run L1 simulation
     isOnline         = False          # isOnline flag (TEMPORARY HACK, should be True by default)
@@ -44,6 +44,7 @@ class opt :
     doTauSlice        = True
     doCombinedSlice   = True
     doBphysicsSlice   = True
+    doStreamingSlice  = True
     enabledSignatures = []
     disabledSignatures = []
 #
@@ -69,7 +70,7 @@ for option in defaultOptions:
 import re
 sliceRe = re.compile("^do.*Slice")
 slices = [a for a in dir(opt) if sliceRe.match(a)]
-if opt.doEmptyMenu == True:
+if opt.doEmptyMenu is True:
     log.info("Disabling all slices")
     for s in slices:
         if s in globals():
@@ -89,7 +90,7 @@ for s in slices:
     if 'Electron' in s or 'Photon' in s:
         signature = 'Egamma'
 
-    if eval('opt.'+s) == True:
+    if eval('opt.'+s) is True:
         enabledSig = 'TriggerFlags.'+signature+'Slice.setAll()'
         opt.enabledSignatures.append( enabledSig )
     else:
@@ -120,9 +121,18 @@ if len(athenaCommonFlags.FilesInput())>0:
 else:   # athenaHLT
     globalflags.InputFormat = 'bytestream'
     globalflags.DataSource = 'data' if not opt.setupForMC else 'data'
-    if '_run_number' in dir():
-        TriggerRelease.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
-        del _run_number
+    if '_run_number' not in dir():
+        import PyUtils.AthFile as athFile
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
+        _run_number = af.run_number[0]
+
+    TriggerRelease.Modifiers._run_number = _run_number   # noqa, set by athenaHLT
+
+    from RecExConfig.RecFlags import rec
+    rec.RunNumber =_run_number
+    del _run_number
+
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or TriggerFlags.OnlineGeoTag()
@@ -154,7 +164,7 @@ if opt.trigBase is not None:
 setModifiers = ['noLArCalibFolders',
                 'ForceMuonDataType',
                 'useNewRPCCabling',
-                #'enableCostMonitoring', 
+                'enableCostMonitoring',
                 #'enableCoherentPS',
                 'useOracle',
                 'enableHotIDMasking',
@@ -274,7 +284,7 @@ for mod in modifierList:
 from IOVDbSvc.CondDB import conddb #This import will also set up CondInputLoader
 conddb.setGlobalTag(globalflags.ConditionsTag())
 
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 #--------------------------------------------------------------
@@ -319,8 +329,8 @@ if TriggerFlags.doCalo():
     svcMgr.ToolSvc += TrigDataAccess()
 
 if TriggerFlags.doMuon():
-    import MuonCnvExample.MuonCablingConfig
-    import MuonRecExample.MuonReadCalib
+    import MuonCnvExample.MuonCablingConfig  # noqa: F401
+    import MuonRecExample.MuonReadCalib      # noqa: F401
     if globalflags.InputFormat.is_pool():
         include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )
 
@@ -402,16 +412,6 @@ if hasattr(svcMgr.THistSvc, "Output"):
     from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
-# -------------------------------------------------------------
-# Message formatting and OutputLevel
-# -------------------------------------------------------------
-if TriggerFlags.Online.doValidation():
-    TriggerFlags.enableMonitoring = TriggerFlags.enableMonitoring.get_Value()+['Log']
-else:
-    svcMgr.MessageSvc.Format = "%t  " + svcMgr.MessageSvc.Format   # add time stamp
-    if hasattr(svcMgr.MessageSvc,'useErsError'):   # ERS forwarding with TrigMessageSvc
-        svcMgr.MessageSvc.useErsError = ['*']
-
 #-------------------------------------------------------------
 # Apply modifiers
 #-------------------------------------------------------------
@@ -423,13 +423,13 @@ for mod in modifierList:
 #-------------------------------------------------------------    
 if len(opt.condOverride)>0:
     for folder,tag in opt.condOverride.iteritems():
-        log.warn('Overriding folder %s with tag %s' % (folder,tag))
+        log.warning('Overriding folder %s with tag %s', folder, tag)
         conddb.addOverride(folder,tag)
 
 if svcMgr.MessageSvc.OutputLevel<INFO:
     from AthenaCommon.JobProperties import jobproperties
     jobproperties.print_JobProperties('tree&value')
-    print svcMgr
+    print(svcMgr)
 
 
 from AthenaCommon.Configurable import Configurable
@@ -439,3 +439,20 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 ConfigFlags.lock()
 triggerIDCCacheCreatorsCfg(ConfigFlags).appendToGlobals()
 Configurable.configurableRun3Behavior=False
+
+#-------------------------------------------------------------
+# Non-ComponentAccumulator Cost Monitoring
+#-------------------------------------------------------------
+
+from AthenaCommon.AppMgr import ServiceMgr
+from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
+
+# This should be temporary, it is doing the same job as TrigCostMonitorMTConfig but without using a ComponentAccumulator
+if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
+    trigCostService = TrigCostMTSvc()
+    trigCostService.MonitorAllEvents = ConfigFlags.Trigger.CostMonitoring.monitorAllEvents
+    trigCostService.SaveHashes = True # This option will go away once the TrigConfigSvc is fully up & running
+    ServiceMgr += trigCostService
+    #
+    ServiceMgr.AuditorSvc += TrigCostMTAuditor()
+    theApp.AuditAlgorithms=True

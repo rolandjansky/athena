@@ -36,11 +36,7 @@ BOOST_AUTO_TEST_SUITE(IOVDbSvcCurlTest)
     IOVDbSvcCurl myCurlObject("https://hgafsdjafgda");
     BOOST_CHECK_THROW(myCurlObject.get(), CurlException);
   }
-  BOOST_AUTO_TEST_CASE(getCrestPage){
-    IOVDbSvcCurl myCurlObject("http://crest-undertow.web.cern.ch/crestapi/iovs?tagname=Indet_Align-channelList");
-    const auto crestObj=myCurlObject.get();
-    BOOST_CHECK(crestObj != "");
-    BOOST_TEST_MESSAGE(crestObj);
-  }
+  
+  
 
 BOOST_AUTO_TEST_SUITE_END()

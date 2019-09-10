@@ -22,7 +22,7 @@
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackCleaner.h"
@@ -46,7 +46,6 @@ namespace Muon {
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool", this),
     m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter", this),
     m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool", this),
     m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner", this),
     m_segmentOverlapRemovalTool("Muon::MuonSegmentOverlapRemovalTool/MuonSegmentOverlapRemovalTool", this)
  {
@@ -94,7 +93,7 @@ namespace Muon {
     ATH_CHECK(m_trackToSegmentTool.retrieve());
     ATH_CHECK(m_slTrackFitter.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
-    ATH_CHECK(m_helper.retrieve());
+    ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_trackCleaner.retrieve());
     ATH_CHECK(m_segmentOverlapRemovalTool.retrieve());
 
@@ -321,7 +320,7 @@ return (fabs(i.z()) < fabs(j.z()));}
       }else{ ATH_MSG_DEBUG("track remains unchanged");}
 	
 	
-      if( !m_helper->goodTrack(*segtrack,30) && vec2.size() > 4) {
+      if( !m_edmHelperSvc->goodTrack(*segtrack,30) && vec2.size() > 4) {
         if(msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << "bad segment fit:" ;
           if (segtrack->fitQuality()) msg(MSG::DEBUG) << "with chi^2/nDoF = " << segtrack->fitQuality()->chiSquared() << "/" << segtrack->fitQuality()->numberDoF() ;

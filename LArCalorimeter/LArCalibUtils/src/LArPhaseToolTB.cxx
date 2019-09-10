@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: LArPhaseToolTB.cxx,v 1.1 2006-06-27 18:32:09 ssnyder Exp $
@@ -14,7 +14,6 @@
 
 #include "LArCalibUtils/LArPhaseToolTB.h"
 #include "TBEvent/TBPhase.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
 

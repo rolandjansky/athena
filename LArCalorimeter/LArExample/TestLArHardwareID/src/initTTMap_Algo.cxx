@@ -14,7 +14,6 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/IToolSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
@@ -25,7 +24,6 @@
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
-#include "CxxUtils/make_unique.h"
 
 /********************************************************/
 initTTMap_Algo::initTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
@@ -362,12 +360,12 @@ StatusCode initTTMap_Algo::testStruct(){
   std::string fcalFile="initDumpFCAL.txt";
   std::string otherFile="initDumpOther.txt";
   if(m_dumpMap) {
-    dumpFcal=CxxUtils::make_unique<std::ofstream>(fcalFile.c_str());   
+    dumpFcal=std::make_unique<std::ofstream>(fcalFile.c_str());   
     if (dumpFcal==0) {
       std::cout << "Problem opening FCAL dump file" << std::endl;
       return StatusCode::SUCCESS;
     }
-    dumpOther=CxxUtils::make_unique<std::ofstream>(otherFile.c_str());   
+    dumpOther=std::make_unique<std::ofstream>(otherFile.c_str());   
     if (dumpOther==0) {
       std::cout << "Problem opening other dump file" << std::endl;
       return StatusCode::SUCCESS;

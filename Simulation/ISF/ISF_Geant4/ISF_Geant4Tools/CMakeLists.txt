@@ -21,8 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Sim/SimHelpers
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces
-                          Simulation/ISF/ISF_Geant4/ISF_Geant4Event
-                          Simulation/ISF/ISF_HepMC/ISF_HepMC_Event )
+                          Simulation/ISF/ISF_Geant4/ISF_Geant4Event )
 
 # External dependencies:
 find_package( CLHEP )

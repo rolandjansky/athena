@@ -39,7 +39,7 @@
 // HepMC
 #include "HepMC/GenParticle.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
@@ -65,7 +65,6 @@ namespace Muon {
     m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
     m_muonCompRotCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_trackExtrapolationTool("Muon::MuonTrackExtrapolationTool/MuonTrackExtrapolationTool"),
     m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner"),
@@ -103,7 +102,7 @@ namespace Muon {
     ATH_CHECK( m_muonClusterCreator.retrieve() );
     ATH_CHECK( m_idHelper.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_muonCompRotCreator.retrieve() );
     ATH_CHECK( m_trackFitter.retrieve() );
     ATH_CHECK( m_slTrackFitter.retrieve() );
@@ -585,7 +584,7 @@ namespace Muon {
 		}else if( !cleanedTrack ) {
 		  ++m_failedTrackCleaningSL;
 		}
-		if( !m_helper->goodTrack(*track,2) ){
+		if( !m_edmHelperSvc->goodTrack(*track,2) ){
 		  ATH_MSG_DEBUG(" SL Track with large fit chi2!! " );
 		}else ++m_goodTrackSLFits;
 	      }else{ 
@@ -615,7 +614,7 @@ namespace Muon {
 	    }else{
 	      ++m_failedTrackCleaning;
 	    }
-	    if( !m_helper->goodTrack(*track,2) ){
+	    if( !m_edmHelperSvc->goodTrack(*track,2) ){
 	      ATH_MSG_DEBUG(" Track with large fit chi2!! " );
 	    }else ++m_goodTrackFits;
 
@@ -657,7 +656,7 @@ namespace Muon {
       std::vector<const Trk::MeasurementBase*>::const_iterator it_end = layer.meas.end();
       for( ;it!=it_end;++it ){
 	msg(MSG::VERBOSE) << " r  " << (*it)->globalPosition().perp() <<  " z  " << (*it)->globalPosition().z() 
-			  << "   " <<  m_idHelper->toString( m_helper->getIdentifier(**it) ) << std::endl;
+			  << "   " <<  m_idHelper->toString( m_edmHelperSvc->getIdentifier(**it) ) << std::endl;
       }
       msg(MSG::VERBOSE) << endmsg;
     }
@@ -710,7 +709,7 @@ namespace Muon {
 	  ATH_MSG_WARNING("Segment cleaning failed, NO segment created. ");
 	  ++m_nfailedSegmentCleaning[layer.stIndex];
 	}
-	if( !m_helper->goodTrack(*track,2) ){
+	if( !m_edmHelperSvc->goodTrack(*track,2) ){
 	  ATH_MSG_DEBUG(" Segment with large fit chi2!! " );
 	}
       }
@@ -826,7 +825,7 @@ namespace Muon {
     std::vector<const Trk::MeasurementBase*>::const_iterator it_end = hitsIn.end();
     for( ;it!=it_end;++it ){
       // skip 
-      Identifier id = m_helper->getIdentifier(**it);
+      Identifier id = m_edmHelperSvc->getIdentifier(**it);
       if( splitSL != -1 ){
 	bool isSmall = !m_idHelper->isSmallChamber(id);
 	bool isTgc = m_idHelper->isTgc(id);
@@ -858,7 +857,7 @@ namespace Muon {
     }
     
     if( !lastMeas ) return false;
-    Identifier id = m_helper->getIdentifier(*firstMeas);
+    Identifier id = m_edmHelperSvc->getIdentifier(*firstMeas);
     MuonStationIndex::StIndex stFirst = m_idHelper->stationIndex( id );
     bool isEM = stFirst != MuonStationIndex::EM;
     if( (!isEM && nprec < 3 ) ||  ( isEM && (nprec < 2 || nprec + ntrigEta < 4 ) ) ) return false;
@@ -920,7 +919,7 @@ namespace Muon {
     // final check to ensure that we have a phi measurement or a pseudo at the start of the full track
     if( splitNSWEI == -1 && !addedFakePhiFirst ){
       // check if the is a phi measurement and it is in the same station layer
-      if( !firstPhi || stFirst != m_idHelper->stationIndex(  m_helper->getIdentifier(*firstPhi) ) ){
+      if( !firstPhi || stFirst != m_idHelper->stationIndex(  m_edmHelperSvc->getIdentifier(*firstPhi) ) ){
 	Trk::PseudoMeasurementOnTrack* pseudo =  createPseudo( per, *firstMeas );
 	if( !pseudo ){
 	  ATH_MSG_WARNING("Failed to create pseudo measurement");

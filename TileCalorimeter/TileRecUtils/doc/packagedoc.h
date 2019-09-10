@@ -16,7 +16,7 @@ This package contains the algorithms and tools used for TileCal reconstruction
   
   The following algorithms are present in this package:
 
-    - TileRawChannelMaker: builds TileRawChannels from TileDigits by making use of one or several of the following tools: TileRawChannelBuilderFlatFilter, TileRawChannelBuilderFitFilter, TileRawChannelBuilderFitFilterCool, TileRawChannelBuilderOptFilter, TileRawChannelBuilderOpt2Filter,TileRawChannelBuilderManyAmps.
+    - TileRawChannelMaker: builds TileRawChannels from TileDigits by making use of one or several of the following tools: TileRawChannelBuilderFlatFilter, TileRawChannelBuilderFitFilter, TileRawChannelBuilderFitFilterCool, TileRawChannelBuilderOpt2Filter,TileRawChannelBuilderManyAmps.
 
   - TileRawChannelVerify: this algorithm compares two sets of  TileRawChannels (obtained from different data and/or reconstructed by different methods) dumping differences in the console. 
 
@@ -30,8 +30,6 @@ This package contains the algorithms and tools used for TileCal reconstruction
   - TileRawChannelBuilderFitFilter: used by TileDigitsMaker. TileRawChannels are built using the Fit method, based on fit of the pulse samples minimizing the noise contribution. Default mehtod used for testbeam and cosmics reconstruction until 2008.
 
   - TileRawChannelBuilderFitFilterCool: used by TileDigitsMaker. TileRawChannels are built using the Fit method, based on fit of the pulse samples minimizing the noise contribution. Pulse shapes are loaded from COOL DB.
-
-  - TileRawChannelBuilderOptFilter: used by TileDigitsMaker. TileRawChannels are built using the Optimal Filtering method, based on linear combinations of the samples minimizing the noise contribution. Two version of the method are used: OF1 (which computes amplitude and phase) and OF2 (which computes amplitude, phase and pedestal)
 
   - TileRawChannelBuilderOpt2Filter: used by TileDigitsMaker. TileRawChannels are built using the Optimal Filtering method, based on linear combinations of the samples minimizing the noise contribution. Two version of the method are used: OF1 (which computes amplitude and phase) and OF2 (which computes amplitude, phase and pedestal). The Opt2Filter makes several iterations, so the time doesn't need to be known in advance. Default method for cosmics since 2008.
 

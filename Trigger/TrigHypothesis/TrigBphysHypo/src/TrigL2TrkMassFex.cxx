@@ -28,7 +28,7 @@
 
 #include "TrigParticle/TrigL2Bphys.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 #include "BtrigUtils.h"
 
 // additions of xAOD objects

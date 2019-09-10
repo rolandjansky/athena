@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Simulation-specific flags.
@@ -788,6 +788,23 @@ class TruthService(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ISF_TruthService'
 
+class ParticleSimWhiteList(JobProperty):
+    """Steering of ISF: set the ParticleSimWhiteList tool"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_ParticleSimWhiteList'
+
+class ExtraParticlesPDGTABLE(JobProperty):
+    """Steering of ISF: set filename of PDGTABLE"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PDGTABLE.MeV'
+
+class ExtraParticlesRanges(JobProperty):
+    """Steering of ISF: set ranges for pdgIDs to be added"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = '111-556,1112-9090226'
 
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):

@@ -29,7 +29,7 @@ const std::string MuonIdHelper::BAD_NAME = "UNKNOWN";
 // Constructor
 
 MuonIdHelper::MuonIdHelper(): m_station_region_index(0), m_module_hash_max(0),
-  m_channel_hash_max(0), m_detectorElement_hash_max(0), m_Log(NULL) {
+  m_channel_hash_max(0), m_detectorElement_hash_max(0), m_Log(NULL), m_init(false) {
 
   m_MUON_INDEX           =  0;
   m_GROUP_INDEX           =  6500;
@@ -511,7 +511,7 @@ int MuonIdHelper::init_hashes(void) {
     m_module_vec[nids] = (*first);
     nids++;
   }
-    
+  
   return (0);
 }
 
@@ -569,7 +569,7 @@ int MuonIdHelper::init_detectorElement_hashes(void) {
     m_detectorElement_vec[nids] = (*first);
     nids++;
   }
-
+  
   return (0);
 }
 
@@ -620,15 +620,7 @@ int MuonIdHelper::init_channel_hashes(void) {
 	     << endmsg;
     return (1);
   }
-  /*
-    nids = 0;
-    std::set<Identifier>::const_iterator first = ids.begin();
-    std::set<Identifier>::const_iterator last  = ids.end();
-    for (; first != last && nids < m_channel_vec.size(); ++first) {
-    m_channel_vec[nids] = (*first);
-    nids++;
-    }
-  */
+  
   return (0);
 }
 

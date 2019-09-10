@@ -5,7 +5,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 
-def TrigBSReadCfg( inputFlags ):
+def ByteStreamReadCfg( inputFlags, typeNames=[] ):
     """
     Creates accumulator for BS reading
     """
@@ -43,7 +43,7 @@ def TrigBSReadCfg( inputFlags ):
     acc.addService( robDPSvc ) 
 
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-    bsAddressProviderSvc = ByteStreamAddressProviderSvc()
+    bsAddressProviderSvc = ByteStreamAddressProviderSvc(TypeNames=typeNames)
     acc.addService( bsAddressProviderSvc )
 
     from IOVDbMetaDataTools.IOVDbMetaDataToolsConf import IOVDbMetaDataTool
@@ -75,12 +75,19 @@ def TrigBSReadCfg( inputFlags ):
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamAttListMetadataSvc
     acc.addService( ByteStreamAttListMetadataSvc() )
     
-           
-    # this is trigger specific and should only be loaded if some doTrigger flags is set
-    # or it should be moved elsewhere, however, since there is no better location now let is stick here
-    bsCnvSvc.InitCnvs += [ "EventInfo",
-                           "HLT::HLTResult" ]
+    bsCnvSvc.InitCnvs += [ "EventInfo",]
+
+    return acc
+
+def TrigBSReadCfg(inputFlags):
+
+    acc=ByteStreamReadCfg( inputFlags )
+
+    bsCnvSvc=acc.getService("ByteStreamCnvSvc")
+    bsCnvSvc.InitCnvs += ["HLT::HLTResult" ]
     
+    bsAddressProviderSvc=acc.getService("ByteStreamAddressProviderSvc")
+
     bsAddressProviderSvc.TypeNames += [
         "TileCellIDC/TileCellIDC",
         "MdtDigitContainer/MDT_DIGITS",
@@ -105,6 +112,8 @@ def TrigBSReadCfg( inputFlags ):
     
     if inputFlags.Input.isMC is False:
         bsCnvSvc.GetDetectorMask=True
+        from IOVDbSvc.IOVDbSvcConfig import addFolders
+        acc.merge(addFolders(inputFlags,'/TDAQ/RunCtrl/SOR_Params','TDAQ' ))
         # still need to figure out how conditions are setup in new system
         #from IOVDbSvc.CondDB import conddb
         #conddb.addFolder( 'TDAQ', '/TDAQ/RunCtrl/SOR_Params' )

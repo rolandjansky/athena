@@ -141,7 +141,7 @@ void fillVertex(VKVertex *vk, int NTRK, long int *ich, double xyz0[3], double (*
 bool checkPosition(VKVertex * vk, double vertex[3]){
     bool insideGoodVolume=true;
     if(vk->vk_fitterControl && vk->vk_fitterControl->vk_objProp) 
-           { insideGoodVolume = vk->vk_fitterControl->vk_objProp->checkTarget(vertex);}
+           { insideGoodVolume = vk->vk_fitterControl->vk_objProp->checkTarget(vertex, *vk->vk_fitterControl->vk_istate);}
     else { insideGoodVolume = myPropagator.checkTarget(vertex); }
     return insideGoodVolume;
 }

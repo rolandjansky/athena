@@ -59,7 +59,7 @@ namespace Trk {
       const Amg::Vector3D& magneticField() const;
 
     protected:
-      mutable MagneticFieldMode              m_magneticFieldMode;
+      MagneticFieldMode              m_magneticFieldMode;
       Amg::Vector3D                          m_magneticField;
   };
 

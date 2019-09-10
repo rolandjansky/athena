@@ -60,10 +60,6 @@ namespace Trk {
   class IRIO_OnTrackCreator;
 }
 
-namespace InDetDD {
-  class PixelDetectorManager;
-}
-
 namespace InDet {
   class PixelCluster;
   class PixelClusterOnTrack;
@@ -161,6 +157,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  private:
 
   float dphi(const float phi1, const float phi2) const;
+  const InDetDD::SiDetectorElement* getPixelDetectorElement(const IdentifierHash hash) const;
   const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash hash) const;
 
   std::string m_RDO_key;
@@ -171,10 +168,9 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   const PixelID* m_pixelId;
   const SCT_ID*  m_sctId;
   
-  const InDetDD::PixelDetectorManager* m_pixelManager;
-
   const AtlasDetectorID* m_id_helper;
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
 

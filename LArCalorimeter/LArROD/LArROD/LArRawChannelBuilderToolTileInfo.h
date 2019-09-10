@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -49,9 +49,6 @@ class LArRawChannelBuilderToolTileInfo : public LArRawChannelBuilderToolBase {
   unsigned int    m_maxSample;
    
   double m_globaltimeoffsettop, m_globaltimeoffsetbottom;
-
-  StoreGateSvc* m_storeGate;
-  StoreGateSvc* m_detStore;
 
   const CaloDetDescrManager* m_man;
 

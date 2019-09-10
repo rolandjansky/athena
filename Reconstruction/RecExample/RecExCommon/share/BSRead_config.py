@@ -33,20 +33,8 @@ if rec.doMuon():
     include("MuonCnvExample/MuonReadBS_jobOptions.py")
 
 if DetFlags.readRDOBS.LAr_on():
-    if globalflags.DataSource()=='data':
-        svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
-    else: # Bytestream from MC
-        svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
-
-    #everything else is take care of by LArRawChanneGetter.py
-        
-##         from LArROD.LArRODFlags import larRODFlags
-##         if larRODFlags.readDigits() or larRODFlags.doDSP():
-##             svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
-##         #if larRODFlags.readRawChannels() or not larRODFlags.doDSP():
-##         #    svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
-##     else: # Bytestream from MC
-##         svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
+    from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg 
+    topSequence+=LArRawDataReadingAlg() #Default config ist fine
         
 if DetFlags.readRDOBS.Tile_on():
     svcMgr.ByteStreamAddressProviderSvc.TypeNames += [

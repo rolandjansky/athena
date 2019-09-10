@@ -1,6 +1,5 @@
-#
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-#
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.Constants import VERBOSE, DEBUG
 
@@ -36,7 +35,8 @@ def MuonPrdCacheCfg():
 # The forTrigger paramater is used to put the algorithm in RoI mode
 # The function returns a ComponentAccumulator and the data-converting algorithm, which should be added to the right sequence by the user
 def RpcRDODecodeCfg(flags, forTrigger=False):
-    acc = ComponentAccumulator()
+    from MuonConfig.MuonCondAlgConfig import RpcCondDbAlgCfg # MT-safe conditions access
+    acc = RpcCondDbAlgCfg(flags)
 
     # We need the RPC cabling to be setup
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
@@ -49,6 +49,8 @@ def RpcRDODecodeCfg(flags, forTrigger=False):
     # Get the RDO -> PRD tool
     from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
     RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "RpcRdoToRpcPrepDataTool")
+    if flags.Common.isOnline: 
+        RpcRdoToRpcPrepDataTool.ReadKey = "" ## cond data not needed online
     acc.addPublicTool( RpcRdoToRpcPrepDataTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Get the RDO -> PRD alorithm

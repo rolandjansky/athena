@@ -86,6 +86,18 @@ StatusCode AthMonitorAlgorithm::execute( const EventContext& ctx ) const {
 }
 
 
+void AthMonitorAlgorithm::fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
+                                MonVarVec_t variables ) const {
+    Monitored::Group(groupHandle,variables).fill();
+}
+
+
+void AthMonitorAlgorithm::fill( const std::string& groupName,
+                                MonVarVec_t variables ) const {
+    fill(getGroup(groupName),variables);
+}
+
+
 SG::ReadHandle<xAOD::EventInfo> AthMonitorAlgorithm::GetEventInfo( const EventContext& ctx ) const {
     return SG::ReadHandle<xAOD::EventInfo>(m_EventInfoKey, ctx);
 }

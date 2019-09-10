@@ -7,15 +7,23 @@ atlas_subdir( MuonCondData )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/AthContainers
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/Identifier )
+                          DetectorDescription/Identifier
+                          GaudiKernel
+                          PRIVATE
+                          Event/EventInfo
+                          MuonSpectrometer/MuonIdHelpers )
+
 
 # Component(s) in the package:
 atlas_add_library( MuonCondData
                    src/*.cxx
                    PUBLIC_HEADERS MuonCondData
-                   LINK_LIBRARIES AthContainers AthenaPoolUtilities Identifier StoreGateLib SGtests )
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel AthContainers AthenaPoolUtilities Identifier GaudiKernel StoreGateLib SGtests MuonIdHelpersLib 
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventInfo )
 

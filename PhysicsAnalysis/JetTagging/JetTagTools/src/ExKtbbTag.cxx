@@ -5,7 +5,6 @@
 #include "JetTagTools/ExKtbbTag.h"
 
 #include "GaudiKernel/IToolSvc.h"
-#include "JetTagTools/JetTagUtils.h"     // get jet author
 #include "xAODBTagging/SecVtxHelper.h"   // extract SV information
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -132,13 +131,12 @@ StatusCode ExKtbbTag::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode ExKtbbTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+StatusCode ExKtbbTag::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const std::string &jetName) {
 
-  // get jet author information //
+  // set jet author information //
 
   if(m_ForceCalibChannel.empty()){
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
-    std::string alias = m_calibrationTool->channelAlias(author);
+    std::string alias = m_calibrationTool->channelAlias(jetname);
 
     m_ForceCalibChannel = alias;
   }

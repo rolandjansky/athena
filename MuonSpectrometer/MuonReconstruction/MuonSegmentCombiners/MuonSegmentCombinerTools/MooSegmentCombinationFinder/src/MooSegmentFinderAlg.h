@@ -22,7 +22,6 @@
 #include "MuonRecToolInterfaces/HoughDataPerSec.h"
 
 class MsgStream;
-class StoreGateSvc;
 
 namespace Muon {
   class IMuonClusterSegmentFinder;

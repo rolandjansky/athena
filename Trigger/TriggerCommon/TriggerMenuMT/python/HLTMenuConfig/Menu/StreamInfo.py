@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TriggerMenu.menu.StreamInfo' )
+log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.StreamInfo' )
 
 monStreams = ['monitoring_random', 
               'CSC',
@@ -62,6 +62,15 @@ calibStreams = [
                 'L1TopoMismatches'
                 ]
 
+fullEventBuildingStreams = ['Main',
+                            'express']
+
+lumiBlockAgnosticStreams = ['BeamSpot',
+                            'Background',
+                            'IDTracks',
+                            'VdM',
+                            'PixelBeam']
+
 ##NOTE: DataScouting_xx_NAME: 
 ##xx stands for the unique ROB_ID associated with the stream. If you add a new one,
 ##make sure to use a unique number
@@ -81,34 +90,32 @@ def getAllStreams():
     return monStreams + physicsStreams + calibStreams + dataScoutingStreams + expressStreams
 
 
-def getStreamTag(streams):
-
-
-    # stream is a tuple (stream, type, obeyLB, prescale)
+def getStreamTags(streams):
+    # Stream is a tuple (name, type, obeysLumiBlock, forceFullEventBuilding)
     streamTags = []
 
-    for stream in streams:
-        
-        if stream in physicsStreams:
-            streamTags += [(stream, 'physics', 'yes', '1')]
-        elif stream in calibStreams:
-            if 'BeamSpot' in stream or 'Background' in stream or "IDTracks" in stream or 'VdM' in stream or 'PixelBeam' in stream:
-               streamTags += [(stream, 'calibration', 'yes', '1')]
-            else: 
-               streamTags += [(stream, 'calibration', 'no', '1')]
-        elif stream in expressStreams:
-            streamTags += [(stream, 'express', 'yes', '1')]
-        elif stream in monStreams:
-            streamTags += [(stream, 'monitoring', 'yes', '1')]
-        elif stream in dataScoutingStreams:
-            streamTags += [(stream, 'calibration', 'yes', '1')]
-            
+    for stream_name in streams:
+        # Determine type of stream
+        stream_type = 'UNDEFINED'
+        if stream_name in physicsStreams:
+            stream_type = 'physics'
+        elif stream_name in calibStreams:
+            stream_type = 'calibration'
+        elif stream_name in expressStreams:
+            stream_type = 'express'
+        elif stream_name in monStreams:
+            stream_type = 'monitoring'
+        elif stream_name in dataScoutingStreams:
+            stream_type = 'calibration'
         else:
-            log.error('Stream %s not defined, returning dummy stream!', stream)
-            return [ ('jettauetmiss','physics','yes','1') ]#[('','','','')]
-            
+            log.error('Unknown stream name %s, cannot determine the stream type', stream_name)
 
-    log.debug('StreamTags '+str(streamTags))
+        # Determine obeysLumiBlock and fullEventBuildingStreams flags
+        obeys_lb = stream_name not in lumiBlockAgnosticStreams
+        full_ev_build = stream_name in fullEventBuildingStreams
+
+        # Create the stream tag tuple
+        streamTags.append( (stream_name, stream_type, obeys_lb, full_ev_build) )
+
+    log.debug('StreamTags: %s', streamTags)
     return streamTags
-
-#[ ('jettauetmiss','physics','yes','1') ]

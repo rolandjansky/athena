@@ -1,0 +1,950 @@
+Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : [function]
+Beam.Type                                : [function]
+Beam.estimatedLuminosity                 : [function]
+Calo.Cell.doLArHVCorr                    : False
+Calo.Cell.doPileupOffsetBCIDCorr         : True
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTopoClusterLocalCalib : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.Project                           : 'Athena'
+Common.doExpressProcessing               : False
+Common.isOnline                          : False
+Common.useOnlineLumi                     : [function]
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+Detector.Geometry                        : [function]
+Detector.GeometryAFP                     : False
+Detector.GeometryALFA                    : False
+Detector.GeometryBCM                     : False
+Detector.GeometryBpipe                   : False
+Detector.GeometryCSC                     : False
+Detector.GeometryCalo                    : [function]
+Detector.GeometryCavern                  : False
+Detector.GeometryDBM                     : False
+Detector.GeometryForward                 : [function]
+Detector.GeometryFwdRegion               : False
+Detector.GeometryID                      : [function]
+Detector.GeometryLAr                     : False
+Detector.GeometryLucid                   : False
+Detector.GeometryMDT                     : False
+Detector.GeometryMM                      : False
+Detector.GeometryMuon                    : [function]
+Detector.GeometryPixel                   : False
+Detector.GeometryRPC                     : False
+Detector.GeometrySCT                     : False
+Detector.GeometryTGC                     : False
+Detector.GeometryTRT                     : False
+Detector.GeometryTile                    : False
+Detector.GeometryZDC                     : False
+Detector.GeometrysTGC                    : False
+Detector.Overlay                         : [function]
+Detector.OverlayBCM                      : False
+Detector.OverlayCSC                      : False
+Detector.OverlayCalo                     : [function]
+Detector.OverlayDBM                      : False
+Detector.OverlayID                       : [function]
+Detector.OverlayLAr                      : False
+Detector.OverlayMDT                      : False
+Detector.OverlayMM                       : False
+Detector.OverlayMuon                     : [function]
+Detector.OverlayPixel                    : False
+Detector.OverlayRPC                      : False
+Detector.OverlaySCT                      : False
+Detector.OverlayTGC                      : False
+Detector.OverlayTRT                      : False
+Detector.OverlayTile                     : False
+Detector.OverlaysTGC                     : False
+Detector.Simulate                        : [function]
+Detector.SimulateAFP                     : False
+Detector.SimulateALFA                    : False
+Detector.SimulateBCM                     : False
+Detector.SimulateBpipe                   : False
+Detector.SimulateCSC                     : False
+Detector.SimulateCalo                    : [function]
+Detector.SimulateCavern                  : False
+Detector.SimulateDBM                     : False
+Detector.SimulateForward                 : [function]
+Detector.SimulateFwdRegion               : False
+Detector.SimulateHGTD                    : False
+Detector.SimulateID                      : [function]
+Detector.SimulateLAr                     : False
+Detector.SimulateLucid                   : False
+Detector.SimulateMDT                     : False
+Detector.SimulateMM                      : False
+Detector.SimulateMuon                    : [function]
+Detector.SimulatePixel                   : False
+Detector.SimulateRPC                     : False
+Detector.SimulateSCT                     : False
+Detector.SimulateTGC                     : False
+Detector.SimulateTRT                     : False
+Detector.SimulateTile                    : False
+Detector.SimulateZDC                     : False
+Detector.SimulatesTGC                    : False
+GeoModel.Align.Dynamic                   : [function]
+GeoModel.AtlasVersion                    : [function]
+GeoModel.IBLLayout                       : [function]
+GeoModel.Layout                          : 'atlas'
+GeoModel.Run                             : [function]
+GeoModel.StripGeoType                    : [function]
+GeoModel.Type                            : [function]
+IOVDb.DatabaseInstance                   : [function]
+IOVDb.GlobalTag                          : [function]
+Input.Collections                        : [function]
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root']
+Input.ProjectName                        : [function]
+Input.RunNumber                          : [function]
+Input.SecondaryFiles                     : []
+Input.isMC                               : [function]
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.EVNTFileName                      : 'myEVNT.pool.root'
+Output.HISTFileName                      : 'myHIST.root'
+Output.HITSFileName                      : 'myHITS.pool.root'
+Output.RDOFileName                       : 'myRDO.pool.root'
+Output.doESD                             : False
+Random.Engine                            : 'dSFMT'
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : True
+Scheduler.ShowDataDeps                   : True
+Scheduler.ShowDataFlow                   : True
+TrackingGeometry.MagneticFileMode        : 6
+TrackingGeometry.MaterialSource          : 'COOL'
+Flag categories that can be loaded dynamically
+Category        :                 Generator name : Defined in
+DQ              :                           __dq : AthenaConfiguration/AllConfigFlags.py
+Digitization    :                 __digitization : AthenaConfiguration/AllConfigFlags.py
+Egamma          :                       __egamma : AthenaConfiguration/AllConfigFlags.py
+LAr             :                          __lar : AthenaConfiguration/AllConfigFlags.py
+Muon            :                         __muon : AthenaConfiguration/AllConfigFlags.py
+Overlay         :                      __overlay : AthenaConfiguration/AllConfigFlags.py
+PF              :                        __pflow : AthenaConfiguration/AllConfigFlags.py
+Sim             :                   __simulation : AthenaConfiguration/AllConfigFlags.py
+Tile            :                         __tile : AthenaConfiguration/AllConfigFlags.py
+Trigger         :                      __trigger : AthenaConfiguration/AllConfigFlags.py
+Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : [function]
+Beam.Type                                : [function]
+Beam.estimatedLuminosity                 : [function]
+Calo.Cell.doLArHVCorr                    : False
+Calo.Cell.doPileupOffsetBCIDCorr         : True
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTopoClusterLocalCalib : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.Project                           : 'Athena'
+Common.doExpressProcessing               : False
+Common.isOnline                          : False
+Common.useOnlineLumi                     : [function]
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+Detector.Geometry                        : [function]
+Detector.GeometryAFP                     : False
+Detector.GeometryALFA                    : False
+Detector.GeometryBCM                     : False
+Detector.GeometryBpipe                   : False
+Detector.GeometryCSC                     : False
+Detector.GeometryCalo                    : [function]
+Detector.GeometryCavern                  : False
+Detector.GeometryDBM                     : False
+Detector.GeometryForward                 : [function]
+Detector.GeometryFwdRegion               : False
+Detector.GeometryID                      : [function]
+Detector.GeometryLAr                     : True
+Detector.GeometryLucid                   : False
+Detector.GeometryMDT                     : False
+Detector.GeometryMM                      : False
+Detector.GeometryMuon                    : [function]
+Detector.GeometryPixel                   : False
+Detector.GeometryRPC                     : False
+Detector.GeometrySCT                     : False
+Detector.GeometryTGC                     : False
+Detector.GeometryTRT                     : False
+Detector.GeometryTile                    : True
+Detector.GeometryZDC                     : False
+Detector.GeometrysTGC                    : False
+Detector.Overlay                         : [function]
+Detector.OverlayBCM                      : False
+Detector.OverlayCSC                      : False
+Detector.OverlayCalo                     : [function]
+Detector.OverlayDBM                      : False
+Detector.OverlayID                       : [function]
+Detector.OverlayLAr                      : False
+Detector.OverlayMDT                      : False
+Detector.OverlayMM                       : False
+Detector.OverlayMuon                     : [function]
+Detector.OverlayPixel                    : False
+Detector.OverlayRPC                      : False
+Detector.OverlaySCT                      : False
+Detector.OverlayTGC                      : False
+Detector.OverlayTRT                      : False
+Detector.OverlayTile                     : False
+Detector.OverlaysTGC                     : False
+Detector.Simulate                        : [function]
+Detector.SimulateAFP                     : False
+Detector.SimulateALFA                    : False
+Detector.SimulateBCM                     : False
+Detector.SimulateBpipe                   : False
+Detector.SimulateCSC                     : False
+Detector.SimulateCalo                    : [function]
+Detector.SimulateCavern                  : False
+Detector.SimulateDBM                     : False
+Detector.SimulateForward                 : [function]
+Detector.SimulateFwdRegion               : False
+Detector.SimulateHGTD                    : False
+Detector.SimulateID                      : [function]
+Detector.SimulateLAr                     : False
+Detector.SimulateLucid                   : False
+Detector.SimulateMDT                     : False
+Detector.SimulateMM                      : False
+Detector.SimulateMuon                    : [function]
+Detector.SimulatePixel                   : False
+Detector.SimulateRPC                     : False
+Detector.SimulateSCT                     : False
+Detector.SimulateTGC                     : False
+Detector.SimulateTRT                     : False
+Detector.SimulateTile                    : False
+Detector.SimulateZDC                     : False
+Detector.SimulatesTGC                    : False
+GeoModel.Align.Dynamic                   : [function]
+GeoModel.AtlasVersion                    : [function]
+GeoModel.IBLLayout                       : [function]
+GeoModel.Layout                          : 'atlas'
+GeoModel.Run                             : [function]
+GeoModel.StripGeoType                    : [function]
+GeoModel.Type                            : [function]
+IOVDb.DatabaseInstance                   : [function]
+IOVDb.GlobalTag                          : [function]
+Input.Collections                        : [function]
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root']
+Input.ProjectName                        : [function]
+Input.RunNumber                          : [function]
+Input.SecondaryFiles                     : []
+Input.isMC                               : [function]
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.EVNTFileName                      : 'myEVNT.pool.root'
+Output.HISTFileName                      : 'myHIST.root'
+Output.HITSFileName                      : 'myHITS.pool.root'
+Output.RDOFileName                       : 'myRDO.pool.root'
+Output.doESD                             : False
+Random.Engine                            : 'dSFMT'
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : True
+Scheduler.ShowDataDeps                   : True
+Scheduler.ShowDataFlow                   : True
+Tile.AmpMinForAmpCorrection              : 15.0
+Tile.BestPhaseFromCOOL                   : [function]
+Tile.NoiseFilter                         : [function]
+Tile.OfcFromCOOL                         : True
+Tile.RawChannelContainer                 : [function]
+Tile.RunType                             : [function]
+Tile.TimeMaxForAmpCorrection             : [function]
+Tile.TimeMinForAmpCorrection             : [function]
+Tile.correctAmplitude                    : True
+Tile.correctPedestalDifference           : [function]
+Tile.correctTime                         : [function]
+Tile.correctTimeNI                       : True
+Tile.doFit                               : False
+Tile.doFitCOOL                           : False
+Tile.doFlat                              : False
+Tile.doMF                                : False
+Tile.doManyAmps                          : False
+Tile.doOF1                               : False
+Tile.doOpt2                              : [function]
+Tile.doOptATLAS                          : [function]
+Tile.doOverflowFit                       : True
+Tile.doQIE                               : False
+Tile.readDigits                          : [function]
+Tile.useDCS                              : [function]
+Tile.zeroAmplitudeWithoutDigits          : [function]
+TrackingGeometry.MagneticFileMode        : 6
+TrackingGeometry.MaterialSource          : 'COOL'
+Flag categories that can be loaded dynamically
+Category        :                 Generator name : Defined in
+DQ              :                           __dq : AthenaConfiguration/AllConfigFlags.py
+Digitization    :                 __digitization : AthenaConfiguration/AllConfigFlags.py
+Egamma          :                       __egamma : AthenaConfiguration/AllConfigFlags.py
+LAr             :                          __lar : AthenaConfiguration/AllConfigFlags.py
+Muon            :                         __muon : AthenaConfiguration/AllConfigFlags.py
+Overlay         :                      __overlay : AthenaConfiguration/AllConfigFlags.py
+PF              :                        __pflow : AthenaConfiguration/AllConfigFlags.py
+Sim             :                   __simulation : AthenaConfiguration/AllConfigFlags.py
+Trigger         :                      __trigger : AthenaConfiguration/AllConfigFlags.py
+Flag Name                                : Value
+Beam.BunchSpacing                        : 25
+Beam.Energy                              : [function]
+Beam.NumberOfCollisions                  : [function]
+Beam.Type                                : [function]
+Beam.estimatedLuminosity                 : [function]
+Calo.Cell.doLArHVCorr                    : False
+Calo.Cell.doPileupOffsetBCIDCorr         : True
+Calo.Noise.fixedLumiForNoise             : -1
+Calo.Noise.useCaloNoiseLumi              : True
+Calo.TopoCluster.doTopoClusterLocalCalib : True
+Calo.TopoCluster.doTreatEnergyCutAsAbsol : False
+Calo.TopoCluster.doTwoGaussianNoise      : True
+Common.Project                           : 'Athena'
+Common.doExpressProcessing               : False
+Common.isOnline                          : False
+Common.useOnlineLumi                     : [function]
+Concurrency.NumConcurrentEvents          : 0
+Concurrency.NumProcs                     : 0
+Concurrency.NumThreads                   : 0
+Detector.Geometry                        : [function]
+Detector.GeometryAFP                     : False
+Detector.GeometryALFA                    : False
+Detector.GeometryBCM                     : False
+Detector.GeometryBpipe                   : False
+Detector.GeometryCSC                     : False
+Detector.GeometryCalo                    : [function]
+Detector.GeometryCavern                  : False
+Detector.GeometryDBM                     : False
+Detector.GeometryForward                 : [function]
+Detector.GeometryFwdRegion               : False
+Detector.GeometryID                      : [function]
+Detector.GeometryLAr                     : True
+Detector.GeometryLucid                   : False
+Detector.GeometryMDT                     : False
+Detector.GeometryMM                      : False
+Detector.GeometryMuon                    : [function]
+Detector.GeometryPixel                   : False
+Detector.GeometryRPC                     : False
+Detector.GeometrySCT                     : False
+Detector.GeometryTGC                     : False
+Detector.GeometryTRT                     : False
+Detector.GeometryTile                    : True
+Detector.GeometryZDC                     : False
+Detector.GeometrysTGC                    : False
+Detector.Overlay                         : [function]
+Detector.OverlayBCM                      : False
+Detector.OverlayCSC                      : False
+Detector.OverlayCalo                     : [function]
+Detector.OverlayDBM                      : False
+Detector.OverlayID                       : [function]
+Detector.OverlayLAr                      : False
+Detector.OverlayMDT                      : False
+Detector.OverlayMM                       : False
+Detector.OverlayMuon                     : [function]
+Detector.OverlayPixel                    : False
+Detector.OverlayRPC                      : False
+Detector.OverlaySCT                      : False
+Detector.OverlayTGC                      : False
+Detector.OverlayTRT                      : False
+Detector.OverlayTile                     : False
+Detector.OverlaysTGC                     : False
+Detector.Simulate                        : [function]
+Detector.SimulateAFP                     : False
+Detector.SimulateALFA                    : False
+Detector.SimulateBCM                     : False
+Detector.SimulateBpipe                   : False
+Detector.SimulateCSC                     : False
+Detector.SimulateCalo                    : [function]
+Detector.SimulateCavern                  : False
+Detector.SimulateDBM                     : False
+Detector.SimulateForward                 : [function]
+Detector.SimulateFwdRegion               : False
+Detector.SimulateHGTD                    : False
+Detector.SimulateID                      : [function]
+Detector.SimulateLAr                     : False
+Detector.SimulateLucid                   : False
+Detector.SimulateMDT                     : False
+Detector.SimulateMM                      : False
+Detector.SimulateMuon                    : [function]
+Detector.SimulatePixel                   : False
+Detector.SimulateRPC                     : False
+Detector.SimulateSCT                     : False
+Detector.SimulateTGC                     : False
+Detector.SimulateTRT                     : False
+Detector.SimulateTile                    : False
+Detector.SimulateZDC                     : False
+Detector.SimulatesTGC                    : False
+GeoModel.Align.Dynamic                   : [function]
+GeoModel.AtlasVersion                    : [function]
+GeoModel.IBLLayout                       : [function]
+GeoModel.Layout                          : 'atlas'
+GeoModel.Run                             : [function]
+GeoModel.StripGeoType                    : [function]
+GeoModel.Type                            : [function]
+IOVDb.DatabaseInstance                   : [function]
+IOVDb.GlobalTag                          : [function]
+Input.Collections                        : [function]
+Input.Files                              : ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root']
+Input.ProjectName                        : [function]
+Input.RunNumber                          : [function]
+Input.SecondaryFiles                     : []
+Input.isMC                               : [function]
+LAr.DBConnection                         : ''
+LAr.ElecCalibSqlite                      : ''
+LAr.ForceIOVRunNumber                    : ''
+LAr.LoadElecCalib                        : True
+LAr.OFCShapeFolder                       : ''
+LAr.ROD.DoOFCMixedOptimization           : False
+LAr.ROD.FirstSample                      : 0
+LAr.ROD.UseDelta                         : 0
+LAr.ROD.UseHighestGainAutoCorr           : False
+LAr.ROD.nSamples                         : 5
+LAr.RawChannelSource                     : [function]
+LAr.UseMCShape                           : True
+LAr.UseShape                             : True
+LAr.doAlign                              : [function]
+LAr.doCellEmMisCalib                     : [function]
+LAr.doCellNoiseMasking                   : True
+LAr.doCellSporadicNoiseMasking           : True
+LAr.doHVCorr                             : [function]
+Output.AODFileName                       : 'myAOD.pool.root'
+Output.ESDFileName                       : 'myESD.pool.root'
+Output.EVNTFileName                      : 'myEVNT.pool.root'
+Output.HISTFileName                      : 'myHIST.root'
+Output.HITSFileName                      : 'myHITS.pool.root'
+Output.RDOFileName                       : 'myRDO.pool.root'
+Output.doESD                             : False
+Random.Engine                            : 'dSFMT'
+Scheduler.CheckDependencies              : True
+Scheduler.ShowControlFlow                : True
+Scheduler.ShowDataDeps                   : True
+Scheduler.ShowDataFlow                   : True
+Tile.AmpMinForAmpCorrection              : 15.0
+Tile.BestPhaseFromCOOL                   : [function]
+Tile.NoiseFilter                         : [function]
+Tile.OfcFromCOOL                         : True
+Tile.RawChannelContainer                 : [function]
+Tile.RunType                             : [function]
+Tile.TimeMaxForAmpCorrection             : [function]
+Tile.TimeMinForAmpCorrection             : [function]
+Tile.correctAmplitude                    : True
+Tile.correctPedestalDifference           : [function]
+Tile.correctTime                         : [function]
+Tile.correctTimeNI                       : True
+Tile.doFit                               : False
+Tile.doFitCOOL                           : False
+Tile.doFlat                              : False
+Tile.doMF                                : False
+Tile.doManyAmps                          : False
+Tile.doOF1                               : False
+Tile.doOpt2                              : [function]
+Tile.doOptATLAS                          : [function]
+Tile.doOverflowFit                       : True
+Tile.doQIE                               : False
+Tile.readDigits                          : [function]
+Tile.useDCS                              : [function]
+Tile.zeroAmplitudeWithoutDigits          : [function]
+TrackingGeometry.MagneticFileMode        : 6
+TrackingGeometry.MaterialSource          : 'COOL'
+Flag categories that can be loaded dynamically
+Category        :                 Generator name : Defined in
+DQ              :                           __dq : AthenaConfiguration/AllConfigFlags.py
+Digitization    :                 __digitization : AthenaConfiguration/AllConfigFlags.py
+Egamma          :                       __egamma : AthenaConfiguration/AllConfigFlags.py
+Muon            :                         __muon : AthenaConfiguration/AllConfigFlags.py
+Overlay         :                      __overlay : AthenaConfiguration/AllConfigFlags.py
+PF              :                        __pflow : AthenaConfiguration/AllConfigFlags.py
+Sim             :                   __simulation : AthenaConfiguration/AllConfigFlags.py
+Trigger         :                      __trigger : AthenaConfiguration/AllConfigFlags.py
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v1/myRDO.pool.root
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
+Py:Athena            INFO using release [WorkDir-22.0.5] [x86_64-centos7-gcc8-dbg] [atlas-work3/902c3650479f] -- built on [2019-09-06T1506]
+Py:TileCablingSvc    INFO Forcing RUN2 (2014-2017) cabling for run 284500 with geometry ATLAS-R2-2016-01-00-01
+Py:TileInfoLoaderCfg    INFO Adjusting TileInfo to return cell noise for Opt.Filter without iterations
+Py:TileCablingSvc    INFO Forcing RUN2 (2014-2017) cabling for run 284500 with geometry ATLAS-R2-2016-01-00-01
+Py:TileCablingSvc    INFO Forcing RUN2 (2014-2017) cabling for run 284500 with geometry ATLAS-R2-2016-01-00-01
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r1)
+                                          running on lxplus717.cern.ch on Fri Sep  6 17:22:28 2019
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+Py:ConfigurableDb    INFO Read module info for 5537 configurables from 69 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:ComponentAccumulator    INFO INITIALIZE STEP
+ClassIDSvc           INFO  getRegistryEntries: read 15899 CLIDRegistry entries for module ALL
+PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc              INFO Frontier compression level set to 5
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-05T2131/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus717.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+PoolSvc              INFO Successfully setup replica sorting algorithm
+PoolSvc              INFO Setting up APR FileCatalog and Streams
+PoolSvc              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
+PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession            INFO     Open     DbSession    
+Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
+IOVDbSvc             INFO Opened read transaction for POOL PersistencySvc
+IOVDbSvc             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc             INFO Cache alignment will be done in 3 slices
+IOVDbSvc             INFO Global tag: OFLCOND-MC16-SDR-17 set from joboptions
+IOVDbSvc             INFO Initialised with 3 connections and 18 folders
+IOVDbSvc             INFO Service IOVDbSvc initialised successfully
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
+IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
+ClassIDSvc           INFO  getRegistryEntries: read 937 CLIDRegistry entries for module ALL
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_TILE/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
+IOVDbSvc             INFO Disconnecting from COOLOFL_TILE/OFLP200
+IOVDbSvc             INFO Added taginfo remove for /LAR/Align
+IOVDbSvc             INFO Added taginfo remove for /LAR/Identifier/CalibIdMap
+IOVDbSvc             INFO Added taginfo remove for /LAR/Identifier/FebRodMap
+IOVDbSvc             INFO Added taginfo remove for /LAR/Identifier/OnOffIdMap
+IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/CALIB/CES
+IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/CALIB/CIS/FIT/LIN
+IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/CALIB/CIS/FIT/NLN
+IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/CALIB/EMS
+IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/CALIB/LAS/FIBER
+IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/CALIB/LAS/LIN
+IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/CALIB/LAS/NLN
+IOVDbSvc             INFO Added taginfo remove for /TILE/OFL02/NOISE/SAMPLE
+IOVDbSvc             INFO Added taginfo remove for /LAR/LArCellPositionShift
+IOVDbSvc             INFO Added taginfo remove for /LAR/ElecCalibMC/DAC2uA
+IOVDbSvc             INFO Added taginfo remove for /LAR/ElecCalibMC/HVScaleCorr
+IOVDbSvc             INFO Added taginfo remove for /LAR/ElecCalibMC/MphysOverMcal
+IOVDbSvc             INFO Added taginfo remove for /LAR/ElecCalibMC/Ramp
+IOVDbSvc             INFO Added taginfo remove for /LAR/ElecCalibMC/uA2MeV
+ClassIDSvc           INFO  getRegistryEntries: read 18 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1922 CLIDRegistry entries for module ALL
+GeoModelSvc          INFO Explicitly initializing DetDescrCnvSvc
+DetDescrCnvSvc       INFO  initializing 
+DetDescrCnvSvc       INFO Found DetectorStore service
+DetDescrCnvSvc       INFO  filling proxies for detector managers 
+DetDescrCnvSvc       INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloSuperCellMgr with CLID 241807251 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArEM_SuperCell_ID with CLID 99488227 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHEC_SuperCell_ID with CLID 254277678 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArFCAL_SuperCell_ID with CLID 12829437 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArMiniFCAL_ID with CLID 79264204 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TTOnlineID with CLID 38321944 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArOnline_SuperCellID with CLID 115600394 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArHVLineID with CLID 27863673 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for LArElectrodeID with CLID 80757351 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for Tile_SuperCell_ID with CLID 49557789 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TileTBID with CLID 2903 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for STGCIDHELPER with CLID 4174 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for MMIDHELPER with CLID 4175 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
+DetDescrCnvSvc       INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
+GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
+GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
+GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
+GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
+EventPersistenc...   INFO Added successfully Conversion service:DetDescrCnvSvc
+LArElectrodeIDD...   INFO in createObj: creating a LArElectrodeID helper object in the detector store
+IdDictDetDescrCnv    INFO in initialize
+IdDictDetDescrCnv    INFO in createObj: creating a IdDictManager object in the detector store
+IdDictDetDescrCnv    INFO IdDictName:  IdDictParser/ATLAS_IDS.xml
+IdDictDetDescrCnv    INFO Reading InnerDetector    IdDict file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv    INFO Reading LArCalorimeter   IdDict file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv    INFO Reading TileCalorimeter  IdDict file IdDictParser/IdDictTileCalorimeter.xml
+IdDictDetDescrCnv    INFO Reading Calorimeter      IdDict file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv    INFO Reading MuonSpectrometer IdDict file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv    INFO Reading ForwardDetectors IdDict file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv    INFO Found id dicts:
+IdDictDetDescrCnv    INFO Using dictionary tag: null
+IdDictDetDescrCnv    INFO Dictionary ATLAS                version default              DetDescr tag (using default) file 
+IdDictDetDescrCnv    INFO Dictionary Calorimeter          version default              DetDescr tag CaloIdentifier-LVL1-02 file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv    INFO Dictionary ForwardDetectors     version default              DetDescr tag ForDetIdentifier-01       file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv    INFO Dictionary InnerDetector        version IBL-DBM              DetDescr tag InDetIdentifier-IBL3D25-02 file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv    INFO Dictionary LArCalorimeter       version fullAtlas            DetDescr tag LArIdentifier-DC3-05-Comm file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv    INFO Dictionary LArElectrode         version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv    INFO Dictionary LArHighVoltage       version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv    INFO Dictionary MuonSpectrometer     version R.03                 DetDescr tag MuonIdentifier-08         file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv    INFO Dictionary TileCalorimeter      version fullAtlasAndTestBeam DetDescr tag TileIdentifier-00         file IdDictParser/IdDictTileCalorimeter.xml
+LArElectrodeID       INFO  => initialize_from_dictionary()
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArHVLineIDDetD...   INFO in createObj: creating a LArHVLineID helper object in the detector store
+LArHVLineID          INFO  => initialize_from_dictionary()
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArHVLineID          INFO  => initialize_from_dictionary(dict_mgr) =0
+LArHVLineID          INFO Register_dict_tag of LArHighVoltage is OK
+LArHVLineID          INFO setDictVersion of LArHighVoltage is OK
+LArHVLineID          INFO [initLevelsFromDict] m_dict OK ... 
+LArHVLineID          INFO [initialize_from_dictionary] >  HV line range -> 11/1/48:79/0:15 | 11/1/148:179/0:15 | 11/1/80:93/0:7 | 11/1/180:193/0:7 | 11/1/200:231/0:15 | 11/1/232:263/0:15 | 11/1/296,297,306,307/0:15 | 11/1/299,304,305,308,309/0:15 | 11/1/264:279/0:15 | 11/1/280:295/0:15 | 11/1/0:47/0:15 | 11/1/320:322/0:15 | 11/1/100:147/0:15 | 11/1/324,325/0:15 | 11/1/312:315/0:15 | 11/1/316:319/0:15 | 11/1/300:303/0:15 | 11/1/310,311/0:15 | 11/1/323/0:15 | 11/1/326,327/0:15 | 11/1/94:99/0:15 | 11/1/194:199/0:15
+LArHVLineID          INFO [init_hashes()] > Hvline_size= 5008
+GeoModelSvc.LAr...   INFO Keys for LAr are ATLAS-R2-2016-01-00-01  ATLAS
+GeoModelSvc.LAr...   INFO Building LAr version LAr-Revised-17-01 while ATLAS version is ATLAS-R2-2016-01-00-01
+GeoModelSvc.LAr...   INFO LAr Geometry Options:
+GeoModelSvc.LAr...   INFO   Sagging           = false
+GeoModelSvc.LAr...   INFO   Barrel            = ON
+GeoModelSvc.LAr...   INFO   Endcap            = ON
+BarrelConstruction   INFO Getting primary numbers for ATLAS, ATLAS-R2-2016-01-00-01
+BarrelConstruction   INFO   Makes detailed absorber sandwich  ? 1 1
+BarrelConstruction   INFO   Use sagging in geometry  ? 0
+EMECConstruction     INFO multi-layered version of absorbers activated, parameter value is 1
+EMECConstruction     INFO activating LAr::EMEC::Pos::InnerWheel
+EMECConstruction     INFO activating LAr::EMEC::Pos::OuterWheel
+ClassIDSvc           INFO  getRegistryEntries: read 2850 CLIDRegistry entries for module ALL
+CaloIDHelper_ID...   INFO in createObj: creating a TileTBID helper object in the detector store
+TileTBID             INFO initialize_from_dictionary 
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+EndcapDMConstru...   INFO Start building EC electronics geometry
+EMECConstruction     INFO multi-layered version of absorbers activated, parameter value is 1
+EMECConstruction     INFO activating LAr::EMEC::Neg::InnerWheel
+EMECConstruction     INFO activating LAr::EMEC::Neg::OuterWheel
+EndcapDMConstru...   INFO Start building EC electronics geometry
+GeoModelSvc          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 33588Kb 	 Time = 2.02S
+GeoModelSvc.Til...   INFO  Entering TileDetectorTool::create()
+TileDddbManager      INFO m_tag = ATLAS-R2-2016-01-00-01
+TileDddbManager      INFO n_tiglob = 5
+TileDddbManager      INFO n_timod = 320
+TileDddbManager      INFO n_cuts = 9
+TileDddbManager      INFO n_saddle = 1
+TileDddbManager      INFO n_tilb = 21
+TileDddbManager      INFO n_tileSwitches = 1
+CaloIDHelper_ID...   INFO in createObj: creating a TileID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-05T2131/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-dbg/share/TileNeighbour_reduced.txt
+TileHWIDDetDesc...   INFO in createObj: creating a TileHWID helper object in the detector store
+TileHWID             INFO initialize_from_dictionary 
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+ClassIDSvc           INFO  getRegistryEntries: read 55 CLIDRegistry entries for module ALL
+CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_ID helper object in the detector store
+CaloIDHelper_ID...   INFO in createObj: creating a LArEM_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-05T2131/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-dbg/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-05T2131/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-dbg/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-05T2131/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-dbg/share/FCal3DNeighborsPrev-April2011.txt
+CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+GeoModelSvc.Til...   INFO  U-shape parameter from database is: 1
+GeoModelSvc.Til...   INFO  Glue parameter from database is: 1
+GeoModelSvc.Til...   INFO  Cs Tube parameter from database is: 0
+GeoModelSvc.Til...   INFO  Entering TileAtlasFactory::create()
+GeoModelSvc.Til...   INFO  Tile Geometry with Saddle supports, starting from TileCal-CSC-02 xxx
+GeoModelSvc.Til...   INFO  => New BFingerLengthPos 430.5
+GeoModelSvc.Til...   INFO  => New BFingerLengthNeg 420.5
+GeoModelSvc.Til...   INFO  Positioning barrel with translation 0
+GeoModelSvc.Til...   INFO  Positioning positive barrel finger with translation 3035.25
+GeoModelSvc.Til...   INFO  Positioning negative barrel finger with translation -3030.25
+GeoModelSvc.Til...   INFO  Positioning positive ext.barrel with translation 4854.75
+GeoModelSvc.Til...   INFO  Positioning positive ext.barrel finger with translation ztrans= 6338.5
+GeoModelSvc.Til...   INFO  Positioning positive ext.barrel saddle with translation ztrans= 6192.5
+GeoModelSvc.Til...   INFO  Positive ITC envelope parameters: PLUG1  Rmin= 3438.85 Rmax= 4250 dzITC1= 154.5
+GeoModelSvc.Til...   INFO                                    PLUG2  Rmin= 2981 Rmax= 3440 dzITC2= 47.425
+GeoModelSvc.Til...   INFO  Positioning positive ITC with translation 3405
+GeoModelSvc.Til...   INFO  Positioning positive Gap with translation 3552
+GeoModelSvc.Til...   INFO  Positioning positive Crack with translation 3536
+GeoModelSvc.Til...   INFO  Positioning negative ext.barrel with translation ztrans -4854.75
+GeoModelSvc.Til...   INFO  Positioning negative ext.barrel finger with translation ztrans= -6338.5
+GeoModelSvc.Til...   INFO  Positioning negative ext.barrel saddle with translation ztrans= -6192.5
+GeoModelSvc.Til...   INFO  Negative ITC envelope parameters: PLUG1  Rmin= 3438.85 Rmax= 4250 dzITC1= 154.5
+GeoModelSvc.Til...   INFO                                    PLUG2  Rmin= 2981 Rmax= 3440 dzITC2= 47.425
+GeoModelSvc.Til...   INFO  Positioning negative ITC with translation -3405
+GeoModelSvc.Til...   INFO  Positioning negative Gap with translation -3552
+GeoModelSvc.Til...   INFO  Positioning negative Crack with translation -3536
+GeoModelSvc.Til...   INFO  Global positioning of barrel with rotation (0,0,0)) and translation (0,0,0) Gaudi::Units::cm
+GeoModelSvc.Til...   INFO  Global positioning of positive ext.barrel with rotation (0,0,0)) and translation (0,0,0) Gaudi::Units::cm
+GeoModelSvc.Til...   INFO  Global positioning of negative ext.barrel with rotation (0,0,0)) and translation (0,0,1) Gaudi::Units::cm
+TileDetDescrMan...   INFO Entering create_elements()
+GeoModelSvc          INFO GeoModelSvc.TileDetectorTool	 SZ= 4776Kb 	 Time = 1.93S
+ClassIDSvc           INFO  getRegistryEntries: read 66 CLIDRegistry entries for module ALL
+TileInfoLoader       INFO Changing TTL1 calib from 4.1 to 6.9
+TileInfoLoader       INFO Changing TTL1 noise sigma from 2.5 to 2.8
+CaloIDHelper_ID...   INFO in createObj: creating a CaloLVL1_ID helper object in the detector store
+CaloLVL1_ID          INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+TileCablingSvc       INFO RUN2 ATLAS geometry flag detected for geometry: ATLAS-R2-2016-01-00-01
+TileCablingSvc       INFO Cabling for RUN2 (2014-2017) ATLAS geometry is set via jobOptions 
+TileCablingSvc       INFO Setting Cabling type to 4
+AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 4939 CLIDRegistry entries for module ALL
+CondInputLoader      INFO Initializing CondInputLoader...
+CondInputLoader      INFO Adding base classes:
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/CalibIdMap' )   ->
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' )   ->
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CES' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/LIN' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/NLN' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/EMS' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/FIBER' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/LIN' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/NLN' )   ->
+  +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/NOISE/SAMPLE' )   ->
+  +  ( 'LArDAC2uAMC' , 'ConditionStore+LArDAC2uA' )   -> ILArDAC2uA (579584)
+  +  ( 'LArHVScaleCorrComplete' , 'ConditionStore+LArHVScaleCorr' )   -> ILArHVScaleCorr (93397263)
+  +  ( 'LArMphysOverMcalMC' , 'ConditionStore+LArMphysOverMcal' )   -> ILArMphysOverMcal (128308807)
+  +  ( 'LArRampMC' , 'ConditionStore+LArRamp' )   -> ILArRamp (8123)
+  +  ( 'LAruA2MeVMC' , 'ConditionStore+LAruA2MeV' )   -> ILAruA2MeV (154639332)
+CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/CalibIdMap' ) 
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/FebRodMap' ) 
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CES' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/LIN' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/NLN' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/EMS' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/FIBER' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/LIN' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/CALIB/LAS/NLN' ) 
+    +  ( 'CondAttrListCollection' , 'ConditionStore+/TILE/OFL02/NOISE/SAMPLE' ) 
+    +  ( 'ILArDAC2uA' , 'ConditionStore+LArDAC2uA' ) 
+    +  ( 'ILArHVScaleCorr' , 'ConditionStore+LArHVScaleCorr' ) 
+    +  ( 'ILArMphysOverMcal' , 'ConditionStore+LArMphysOverMcal' ) 
+    +  ( 'ILArRamp' , 'ConditionStore+LArRamp' ) 
+    +  ( 'ILAruA2MeV' , 'ConditionStore+LAruA2MeV' ) 
+    +  ( 'LArDAC2uAMC' , 'ConditionStore+LArDAC2uA' ) 
+    +  ( 'LArHVScaleCorrComplete' , 'ConditionStore+LArHVScaleCorr' ) 
+    +  ( 'LArMphysOverMcalMC' , 'ConditionStore+LArMphysOverMcal' ) 
+    +  ( 'LArRampMC' , 'ConditionStore+LArRamp' ) 
+    +  ( 'LAruA2MeVMC' , 'ConditionStore+LAruA2MeV' ) 
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCisLin) for folder: "/TILE/OFL02/CALIB/CIS/FIT/LIN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCisNln) for folder: "/TILE/OFL02/CALIB/CIS/FIT/NLN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflLasLin) for folder: "/TILE/OFL02/CALIB/LAS/LIN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflLasNln) for folder: "/TILE/OFL02/CALIB/LAS/NLN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflLasFib) for folder: "/TILE/OFL02/CALIB/LAS/FIBER"
+TileEMScaleCondAlg   INFO ProxyOflLasFib is set up and can be used
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflCes) for folder: "/TILE/OFL02/CALIB/CES"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OflEms) for folder: "/TILE/OFL02/CALIB/EMS"
+TileEMScaleCondAlg   INFO Undoing online calibration is not requested, since OnlCacheUnit= 'OnlCacheUnit':Invalid
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCis) for folder: "/TILE/OFL02/CALIB/CIS/FIT/LIN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlLas) for folder: "/TILE/OFL02/CALIB/LAS/LIN"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlCes) for folder: "/TILE/OFL02/CALIB/CES"
+TileEMScaleCond...   INFO Creating TileCondProxyCool(TileEMScaleCondAlg.TileCondProxyCool_OnlEms) for folder: "/TILE/OFL02/CALIB/EMS"
+TileSampleNoise...   INFO Creating TileCondProxyCool(TileSampleNoiseCondAlg.TileCondProxyCool_NoiseSample) for folder: "/TILE/OFL02/NOISE/SAMPLE"
+PyComponentMgr       INFO Initializing PyComponentMgr...
+TestAlg              INFO Initializing TestAlg...
+ClassIDSvc           INFO  getRegistryEntries: read 1131 CLIDRegistry entries for module ALL
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr    SUCCESS ****************************** Algorithm Sequence ****************************
+ApplicationMgr    SUCCESS AthSequencer/AthMasterSeq
+ApplicationMgr    SUCCESS      AthSequencer/AthAlgEvtSeq
+ApplicationMgr    SUCCESS           AthSequencer/AthBeginSeq
+ApplicationMgr    SUCCESS                AthIncFirerAlg/BeginIncFiringAlg
+ApplicationMgr    SUCCESS                IncidentProcAlg/IncidentProcAlg1
+ApplicationMgr    SUCCESS           AthSequencer/AthAllAlgSeq
+ApplicationMgr    SUCCESS                AthSequencer/AthCondSeq
+ApplicationMgr    SUCCESS                     CondInputLoader/CondInputLoader
+ApplicationMgr    SUCCESS                     LArFebRodMappingAlg/LArFebRodMappingAlg
+ApplicationMgr    SUCCESS                     LArCalibLineMappingAlg/LArCalibLineMappingAlg
+ApplicationMgr    SUCCESS                     TileEMScaleCondAlg/TileEMScaleCondAlg
+ApplicationMgr    SUCCESS                     TileCalibCondAlg<TileCalibDrawerFlt>/TileSampleNoiseCondAlg
+ApplicationMgr    SUCCESS                     LArOnOffMappingAlg/LArOnOffMappingAlg
+ApplicationMgr    SUCCESS                     LArMCSymCondAlg/LArMCSymCondAlg
+ApplicationMgr    SUCCESS                     LArSymConditionsAlg<LArRampMC, LArRampSym>/LArSymConditionsAlg<LArRampMC, LArRampSym>
+ApplicationMgr    SUCCESS                     LArSymConditionsAlg<LArDAC2uAMC, LArDAC2uASym>/LArSymConditionsAlg<LArDAC2uAMC, LArDAC2uASym>
+ApplicationMgr    SUCCESS                     LArSymConditionsAlg<LAruA2MeVMC, LAruA2MeVSym>/LArSymConditionsAlg<LAruA2MeVMC, LAruA2MeVSym>
+ApplicationMgr    SUCCESS                     LArSymConditionsAlg<LArMphysOverMcalMC, LArMphysOverMcalSym>/LArSymConditionsAlg<LArMphysOverMcalMC, LArMphysOverMcalSym>
+ApplicationMgr    SUCCESS                     LArADC2MeVCondAlg/LArADC2MeVCondAlg
+ApplicationMgr    SUCCESS                AthSequencer/AthAlgSeq
+ApplicationMgr    SUCCESS                     PyAthena::Alg/TestAlg
+ApplicationMgr    SUCCESS           AthSequencer/AthEndSeq
+ApplicationMgr    SUCCESS                AthIncFirerAlg/EndIncFiringAlg
+ApplicationMgr    SUCCESS                IncidentProcAlg/IncidentProcAlg2
+ApplicationMgr    SUCCESS      AthSequencer/AthOutSeq
+ApplicationMgr    SUCCESS      AthSequencer/AthRegSeq
+ApplicationMgr    SUCCESS ******************************************************************************
+CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/CalibIdMap'
+CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/FebRodMap'
+CondInputLoader      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/OnOffIdMap'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/CES'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/LIN'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/CIS/FIT/NLN'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/EMS'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/LAS/FIBER'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/LAS/LIN'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/CALIB/LAS/NLN'
+CondInputLoader      INFO created CondCont<CondAttrListCollection> with key 'ConditionStore+/TILE/OFL02/NOISE/SAMPLE'
+CondInputLoader      INFO created CondCont<LArDAC2uAMC> with key 'ConditionStore+LArDAC2uA'
+CondInputLoader      INFO created CondCont<LArHVScaleCorrComplete> with key 'ConditionStore+LArHVScaleCorr'
+CondInputLoader      INFO created CondCont<LArMphysOverMcalMC> with key 'ConditionStore+LArMphysOverMcal'
+CondInputLoader      INFO created CondCont<LArRampMC> with key 'ConditionStore+LArRamp'
+CondInputLoader      INFO created CondCont<LAruA2MeVMC> with key 'ConditionStore+LAruA2MeV'
+ApplicationMgr       INFO Application Manager Started successfully
+AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
+EventPersistenc...   INFO Added successfully Conversion service:TagInfoMgr
+ClassIDSvc           INFO  getRegistryEntries: read 109 CLIDRegistry entries for module ALL
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to LARAlign-IOVDEP-01 for folder /LAR/Align
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to LArCellPositionShift-IOVDEP-00 for folder /LAR/LArCellPositionShift
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to LARElecCalibMCDAC2uA-IOVDEP-00 for folder /LAR/ElecCalibMC/DAC2uA
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to LARElecCalibMCHVScaleCorr-IOVDEP-01 for folder /LAR/ElecCalibMC/HVScaleCorr
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to LARElecCalibMCMphysOverMcal-CSC02-I for folder /LAR/ElecCalibMC/MphysOverMcal
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to LARElecCalibMCRamp-IOVDEP-00 for folder /LAR/ElecCalibMC/Ramp
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to LARElecCalibMCuA2MeV-IOVDEP-00 for folder /LAR/ElecCalibMC/uA2MeV
+IOVDbSvc             INFO Disconnecting from COOLOFL_LAR/OFLP200
+AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8A720FEC-E1F7-E511-AB56-02163E010D43
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000114.gen.COND/cond09_mc.000114.gen.COND._0002.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000114.gen.COND/cond09_mc.000114.gen.COND._0002.pool.root File version:52200
+CaloMgrDetDescrCnv   INFO in createObj: creating a Calo Detector Manager object in the detector store
+CaloIdMgrDetDes...   INFO in createObj: creating a CaloDescrManager object in the detector store
+ClassIDSvc           INFO  getRegistryEntries: read 544 CLIDRegistry entries for module ALL
+CaloIDHelper_ID...   INFO in createObj: creating a CaloDM_ID helper object in the detector store
+CaloDM_ID            INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a TTOnlineID helper object in the detector store
+TTOnlineID           INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a CaloCell_SuperCell_ID helper object in the detector store
+CaloIDHelper_ID...   INFO in createObj: creating a LArEM_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-05T2131/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-dbg/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-05T2131/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-dbg/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-05T2131/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-dbg/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-09-05T2131/Athena/22.0.5/InstallArea/x86_64-centos7-gcc8-dbg/share/TileSuperCellNeighbour.txt
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+CaloIdMgrDetDes...   INFO  Finished 
+CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000003.gen.COND/cond08_mc.000003.gen.COND._0064.pool.root File version:52200
+AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
+IOVDbSvc             INFO Opening COOL connection for COOLOFL_TILE/OFLP200
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to TileOfl02CalibCes-SIM-07 for folder /TILE/OFL02/CALIB/CES
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to TileOfl02CalibCisFitLin-COM-00 for folder /TILE/OFL02/CALIB/CIS/FIT/LIN
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to TileOfl02CalibCisFitNln-COM-00 for folder /TILE/OFL02/CALIB/CIS/FIT/NLN
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to TileOfl02CalibEms-COM-00 for folder /TILE/OFL02/CALIB/EMS
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to TileOfl02CalibLasFiber-000-00 for folder /TILE/OFL02/CALIB/LAS/FIBER
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to TileOfl02CalibLasLin-COM-00 for folder /TILE/OFL02/CALIB/LAS/LIN
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to TileOfl02CalibLasNln-COM-00 for folder /TILE/OFL02/CALIB/LAS/NLN
+IOVDbFolder          INFO HVS tag OFLCOND-MC16-SDR-17 resolved to TileOfl02NoiseSample-TwoGauss-21 for folder /TILE/OFL02/NOISE/SAMPLE
+IOVDbSvc             INFO Disconnecting from COOLOFL_TILE/OFLP200
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 64ADE389-CABD-DD11-8D4C-000423D950B0
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0053.pool.root
+Warning in <TClass::Init>: no dictionary for class DataHeader_p2 is available
+Warning in <TClass::Init>: no dictionary for class DataHeaderElement_p2 is available
+Warning in <TClass::Init>: no dictionary for class PoolToken_p1 is available
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond08/cond08_mc.000001.gen.COND/cond08_mc.000001.gen.COND._0053.pool.root File version:51800
+LArOnlineIDDetD...   INFO in createObj: creating a LArOnlineID helper object in the detector store
+LArOnlineID          INFO initialize_from_dictionary
+AtlasDetectorID      INFO initialize_from_dictionary - OK
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 7C42BC12-BD96-E011-B8EC-003048F0E01C
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000032.gen.COND/cond09_mc.000032.gen.COND._0001.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000032.gen.COND/cond09_mc.000032.gen.COND._0001.pool.root File version:52600
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8A720FEC-E1F7-E511-AB56-02163E010D43
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 3CE29BA7-A6DC-DC11-BF61-000423D65662
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/comcond/comcond.000004.lar_conditions.recon.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0044.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/comcond/comcond.000004.lar_conditions.recon.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0044.pool.root File version:51400
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8667C6F2-1559-DE11-A611-000423D9A21A
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 303FCBD8-653E-DD11-ABBD-000423D99862
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000003.conditions.simul.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0061.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/oflcond/oflcond.000003.conditions.simul.pool.v0000/oflcond.000003.conditions.simul.pool.v0000._0061.pool.root File version:51800
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 64ADE389-CABD-DD11-8D4C-000423D950B0
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D27D07D4-C135-E011-84A9-003048F0E01E
+Domain[ROOT_All]     INFO                           /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000027.gen.COND/cond09_mc.000027.gen.COND._0001.pool.root
+RootDatabase.open    INFO /cvmfs/atlas-condb.cern.ch/repo/conditions/cond09/cond09_mc.000027.gen.COND/cond09_mc.000027.gen.COND._0001.pool.root File version:52600
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 7C42BC12-BD96-E011-B8EC-003048F0E01C
+LArFebRodMappin...   INFO Done reading Feb/Rod mapping. Found 1524 Febs and 762 Rods
+LArFebRodMappin...   INFO recorded new LArFebRodMap with range {[0,l:0] - [INVALID]} into Conditions Store
+LArCalibLineMap...   INFO Done reading readout/calibration line mapping.
+LArCalibLineMap...   INFO recorded new LArCalibLineMap with range {[0,l:0] - [INVALID]} into Conditions Store
+LArOnOffMappingAlg   INFO Done reading online/offline identifier mapping
+LArOnOffMappingAlg   INFO Found 195072 online identifier and 182468 offline identifier. 12604 disconnected channels.
+LArOnOffMappingAlg   INFO recorded new LArOnOffIdMap with range {[0,l:0] - [INVALID]} into Conditions Store
+LArMCSymCondAlg      INFO recorded new LArMCSym with range {[0,l:0] - [INVALID]} into Conditions Store
+LArSymCondition...   INFO recorded new LArRampSym with range {[0,l:0] - [240000,l:0]} into Conditions Store
+LArSymCondition...   INFO recorded new LArDAC2uASym with range {[0,l:0] - [240001,l:0]} into Conditions Store
+LArSymCondition...   INFO recorded new LAruA2MeVSym with range {[0,l:0] - [240000,l:0]} into Conditions Store
+LArSymCondition...   INFO recorded new LArMphysOverMcalSym with range {[0,l:0] - [INVALID]} into Conditions Store
+LArADC2MeVCondAlg    INFO IOV of ADC2MeV object is {[0,t:0,l:0] - [222500,l:0]}
+AthDictLoaderSvc     INFO in initialize...
+AthDictLoaderSvc     INFO acquired Dso-registry
+ClassIDSvc           INFO  getRegistryEntries: read 1022 CLIDRegistry entries for module ALL
+Py:TestAlg           INFO finished
+AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 3CE29BA7-A6DC-DC11-BF61-000423D65662
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 303FCBD8-653E-DD11-ABBD-000423D99862
+/cvmfs/atlas-co...   INFO Database being retired...
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D27D07D4-C135-E011-84A9-003048F0E01E
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+ApplicationMgr       INFO Application Manager Stopped successfully
+IncidentProcAlg1     INFO Finalize
+CondInputLoader      INFO Finalizing CondInputLoader...
+TestAlg              INFO Finalizing TestAlg...
+IncidentProcAlg2     INFO Finalize
+AthDictLoaderSvc     INFO in finalize...
+PyComponentMgr       INFO Finalizing PyComponentMgr...
+ToolSvc              INFO Removing all tools created by ToolSvc
+IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.08 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/CalibIdMap (AttrList) db-read 1/1 objs/chan/bytes 1/1/1520148 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/FebRodMap (AttrList) db-read 1/1 objs/chan/bytes 1/1/6100 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/OnOffIdMap (AttrList) db-read 1/1 objs/chan/bytes 1/1/780292 ((     0.03 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CES (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/103344 ((     0.13 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/80 ((     0.08 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/CIS/FIT/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/80 ((     0.07 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/EMS (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/92 ((     0.07 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/FIBER (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/940 ((     0.07 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/LIN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/72 ((     0.07 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/CALIB/LAS/NLN (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/76 ((     0.08 ))s
+IOVDbFolder          INFO Folder /TILE/OFL02/NOISE/SAMPLE (AttrListColl) db-read 1/1 objs/chan/bytes 277/277/641476 ((     0.09 ))s
+IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.04 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/DAC2uA (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.04 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/HVScaleCorr (PoolRefColl) db-read 1/1 objs/chan/bytes 12/12/1980 ((     0.04 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/MphysOverMcal (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/516 ((     0.04 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/Ramp (PoolRefColl) db-read 1/1 objs/chan/bytes 3/3/489 ((     0.04 ))s
+IOVDbFolder          INFO Folder /LAR/ElecCalibMC/uA2MeV (PoolRefColl) db-read 1/1 objs/chan/bytes 1/1/165 ((     0.04 ))s
+IOVDbSvc             INFO  bytes in ((      1.06 ))s
+IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 10 ReadTime: ((     0.40 ))s
+IOVDbSvc             INFO Connection COOLOFL_TILE/OFLP200 : nConnect: 2 nFolders: 8 ReadTime: ((     0.66 ))s
+IdDictDetDescrCnv    INFO in finalize
+*****Chrono*****     INFO ****************************************************************************************************
+*****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****     INFO ****************************************************************************************************
+cObjR_ALL            INFO Time User   : Tot=  0.5  [s] Ave/Min/Max=0.0227(+-0.0746)/    0/ 0.36  [s] #= 22
+cObj_ALL             INFO Time User   : Tot= 1.37  [s] Ave/Min/Max=0.0761(+-0.196)/    0/  0.8  [s] #= 18
+ChronoStatSvc        INFO Time User   : Tot= 32.5  [s]                                             #=  1
+*****Chrono*****     INFO ****************************************************************************************************
+ChronoStatSvc.f...   INFO  Service finalized successfully 
+ApplicationMgr       INFO Application Manager Finalized successfully
+ApplicationMgr       INFO Application Manager Terminated successfully

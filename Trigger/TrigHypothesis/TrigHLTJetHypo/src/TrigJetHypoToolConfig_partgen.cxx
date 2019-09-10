@@ -42,6 +42,19 @@ TrigJetHypoToolConfig_partgen::getConditions() const {
                                              m_etaMaxs,
                                              m_EtThresholds,
                                              m_asymmetricEtas);
+
+  if(conditions.empty()){
+    return std::make_optional<ConditionsMT>(std::move(conditions));
+  }
+  
+  // allow only very simple conditions
+  if(std::any_of(conditions.begin(),
+		 conditions.end(),
+		 [](const auto& c) {
+		   return c->capacity() != 1;})){
+    ATH_MSG_ERROR("There is a condition with capacity != 1");
+    return std::optional<ConditionsMT>();
+  }
   
   return std::make_optional<ConditionsMT>(std::move(conditions));
 }

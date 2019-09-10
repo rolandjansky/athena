@@ -77,3 +77,7 @@ atlas_add_test( LArRecUtilsConfig_test
                 SCRIPT python -m LArRecUtils.LArRecUtilsConfig
                 EXTRA_PATTERNS "-s ComponentAccumulator|^---" )
 
+atlas_add_test( LArADC2MeVCondAlgConfig_test
+                SCRIPT python -m LArRecUtils.LArADC2MeVCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---" )
+

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,7 +9,7 @@
 
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 
-#include "CxxUtils/make_unique.h"
+#include <memory>
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -32,7 +32,7 @@ InDet::TRT_TrackSegmentsFinder::TRT_TrackSegmentsFinder
   m_nsegmentsTotal    = 0                                ;
   m_useCaloSeeds      = false                            ;
   m_minNumberDCs     = 9                                 ; 
-  m_ClusterEt         = 2750.0                           ; 
+  m_ClusterEt         = 3000.0                           ; 
   declareProperty("SegmentsMakerTool",m_segmentsMakerTool);
   declareProperty("SegmentsLocation" ,m_foundSegments    );
   declareProperty("useCaloSeeds"     ,m_useCaloSeeds     );
@@ -97,7 +97,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
 
 StatusCode InDet::TRT_TrackSegmentsFinder::execute() 
 {
-  StatusCode s = m_foundSegments.record( CxxUtils::make_unique<Trk::SegmentCollection>());
+  StatusCode s = m_foundSegments.record( std::make_unique<Trk::SegmentCollection>());
   
   if (s.isFailure() || !m_foundSegments.isValid() ) {
     msg(MSG::ERROR)<<"Could not save TRT segments" <<endmsg;
@@ -131,7 +131,9 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
       CaloClusterROI_Collection::const_iterator c = m_calo->begin(), ce = m_calo->end();
 
       for(; c!=ce; ++c) {
-        if ( ( (*c)->energy()*sin((*c)->globalPosition().theta()) ) < m_ClusterEt) {continue;}
+        if ( (*c)->energy()/cosh((*c)->globalPosition().eta()) < m_ClusterEt) {
+          continue;
+        }
         double x = (*c)->globalPosition().x();
         double y = (*c)->globalPosition().y();
         double z = (*c)->globalPosition().z();

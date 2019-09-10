@@ -18,8 +18,6 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SCT_Cabling/ISCT_CablingTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "TrigFTKToolInterfaces/ITrigFTKClusterConverterTool.h"
 #include "TrigFTKTrackConverter/TrigFTKClusterConverterTool.h"
 
@@ -34,17 +32,12 @@
 
 #include <stdint.h>
 
-class StoreGateSvc; 
 class PixelID; 
 class AtlasDetector;
 class SCT_ID;
 class SCT_OnlineId;
 class IdentifierHash;
 class ITrigFTKClusterConverterTool;
-
-namespace InDetDD {
-  class PixelDetectorManager;
-}
 
 class FTKRegionalWrapper : public AthAlgorithm {
 public:
@@ -64,17 +57,14 @@ private:
   // Needed to retrieve m_pixelId in order to get the barrel_ec, phi/eta_modules etc.
 
 
-  StoreGateSvc*  m_storeGate;
-  StoreGateSvc*  m_detStore;
-  StoreGateSvc*  m_evtStore;
   const PixelID * m_pixelId;
   const SCT_ID * m_sctId;
   const AtlasDetectorID* m_idHelper;
 
-  const InDetDD::PixelDetectorManager*  m_PIX_mgr;
   SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
   {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   std::unique_ptr<FTKClusteringEngine> m_clusteringEngine = nullptr;

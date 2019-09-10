@@ -3,6 +3,7 @@
 // @date 21 March 2018
 
 #include "IOVDbSvcCurl.h"
+#include <iostream>
 
 namespace IOVDbNamespace{
 

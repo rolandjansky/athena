@@ -1,13 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #include <sstream>
 #include <utility>
 #include <vector>
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigT1CaloEvent/CPMHits.h"
 #include "TrigT1CaloEvent/CPMTower.h"

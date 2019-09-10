@@ -253,14 +253,10 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
 
     result.merge(LArGMCfg(configFlags))
 
-    from LArBadChannelTool.LArBadChannelConfig import LArBadChannelCfg
-    result.merge(LArBadChannelCfg(configFlags))
     from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
     result.merge(LArHVScaleCfg(configFlags))
 
     result.merge(TileGMCfg(configFlags))
-    from TileConditions.TileConditionsConfig import tileCondCfg
-    result.merge(tileCondCfg(configFlags))
 
     if not doLCCalib:
         theCaloClusterSnapshot=CaloClusterSnapshot(OutputName=clustersname+"snapshot",SetCrossLinks=True)
@@ -336,8 +332,10 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
 
     CaloTopoCluster.ClusterMakerTools = [TopoMaker, TopoSplitter]
     
-    from CaloClusterCorrection.CaloClusterBadChannelListCorr import CaloClusterBadChannelListCorr
-    BadChannelListCorr = CaloClusterBadChannelListCorr()
+    from CaloBadChannelTool.CaloBadChanToolConfig import CaloBadChanToolCfg
+    caloBadChanTool = result.popToolsAndMerge( CaloBadChanToolCfg(configFlags) )
+    from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterBadChannelList
+    BadChannelListCorr = CaloClusterBadChannelList(badChannelTool = caloBadChanTool)
     CaloTopoCluster.ClusterCorrectionTools += [BadChannelListCorr]
 
     CaloTopoCluster.ClusterCorrectionTools += [getTopoMoments(configFlags)]
@@ -390,7 +388,6 @@ if __name__=="__main__":
                                                             "xAOD::CaloClusterAuxContainer#*CaloCalTopoClusters*Aux.",#+theKey+"Aux.",
                                                             # "CaloClusterCellLinkContainer#"+theKey+"_links"
                                                            ]))
-    cfg.getEventAlgo("OutputStreamxAOD").ForceRead=True
 
     from AthenaServices.AthenaServicesConf import ThinningSvc, ThinningOutputTool
     cfg.addService(ThinningSvc())

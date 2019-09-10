@@ -6,11 +6,8 @@
 #define LARRAWCONDITIONS_LARMPHYSOVERMCALMC_H
 
 #include "LArRawConditions/LArMphysOverMcalComplete.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
-
-class ILArMCSymTool;
 
 /** Implementation of the interface ILArMphysOverMcal for MC
  *  Derives from LArMphysOverMcalComplete, and implements the phi-z symmetry
@@ -34,13 +31,8 @@ class LArMphysOverMcalMC: public LArMphysOverMcalComplete {
   // retrieving MphysOverMcal using online ID
   
   virtual const float& MphysOverMcal(const HWIdentifier&  CellID, int gain=0) const ;
-  
- private: 
-  
-  // helper for MC z-phi symmetry 
-//  LArMCSym m_larmc;
-  ToolHandle<ILArMCSymTool> m_larmcsym;
 
+  constexpr static float dummy=LArElecCalib::ERRORCODE;
 };
 //ConditionsContainer clid for athenaMT
 #include "AthenaKernel/CondCont.h"

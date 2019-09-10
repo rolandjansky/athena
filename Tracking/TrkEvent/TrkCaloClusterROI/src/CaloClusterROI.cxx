@@ -78,7 +78,8 @@ Trk::CaloClusterROI& Trk::CaloClusterROI::operator=(const Trk::CaloClusterROI& c
 const Amg::Vector3D Trk::CaloClusterROI::globalPosition() const
 {
     if(m_localParams){
-      return *(m_surface->localToGlobal(*m_localParams));
+      std::unique_ptr<const Amg::Vector3D> tmp_global(m_surface->localToGlobal(*m_localParams));
+      return std::move(*tmp_global); // return "copy"
     }
     if(m_surface){
       return Amg::Vector3D(m_surface->center());

@@ -13,7 +13,6 @@
 #include "InDetIdentifier/SiliconID.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"

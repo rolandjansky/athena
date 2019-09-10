@@ -12,9 +12,9 @@ decription           : Basic definitions for a track state described by more
                         than one set of Track Parameters. The resulting state is
 		                    a mixture of components. Each component is described by
 		                   a ComponentParameters object which is of the type
-                       std::pair< const TrackParameters*, double> 
-                       The double describes the weighting of the component - 
-                       or its relative importance in the mixture.			
+                       std::pair< const TrackParameters*, double>
+                       The double describes the weighting of the component -
+                       or its relative importance in the mixture.
 *********************************************************************************/
 
 #ifndef TrkMultiComponentState
@@ -52,7 +52,7 @@ class MultiComponentState : public std::vector<ComponentParameters>{
       This will only work if there are 5 track parameters in each componant
   */
   MultiComponentState* cloneWithScaledError( double, double,
-                                             double, double, 
+                                             double, double,
                                              double ) const;
 
   /** Check to see if all components in the state have measured track parameters */
@@ -61,10 +61,13 @@ class MultiComponentState : public std::vector<ComponentParameters>{
   /** Clone state performing renormalisation of total state weighting to one */
   MultiComponentState* clonedRenormalisedState() const;
 
+  /** Performing renormalisation of total state weighting to one */
+  void renormaliseState( double norm = 1 ) ;
+
   /** Dump methods */
   MsgStream&    dump( MsgStream& ) const;
   std::ostream& dump( std::ostream& ) const;
-  
+
 };
 
 /** Overload of << operator for MsgStream and std::ostream */

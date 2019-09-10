@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FakeTrackBuilder.h"
@@ -37,12 +37,12 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
 
-Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::PixelDetectorManager* pixMgr) {
+Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::SiDetectorElementCollection* elements) {
   using namespace Trk;
   using namespace InDet;
   //unsigned int counter=0;
@@ -85,10 +85,10 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::PixelDetectorManager* pi
   trackStateOnSurfaces->push_back( new TrackStateOnSurface(0, trackParameter, 0,  ebr,type1) );
   //std::cout<<counter++<<std::endl;
 
-  if (pixMgr){
+  if (elements){
     // test state #4 - AtaPlane at a valid detector element + MatEffects
     IdentifierHash idHash(0); // should be first pixel 
-    InDetDD::SiDetectorElement * detEl = pixMgr->getDetectorElement( idHash);
+    const InDetDD::SiDetectorElement * detEl = elements->getDetectorElement( idHash);
 
     // MaterialEffects
     const Trk::EnergyLoss       *eloss = new Trk::EnergyLoss((0.5),0.19);
@@ -132,8 +132,8 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::PixelDetectorManager* pi
   // trackStateOnSurfaces->push_back( new TrackStateOnSurface(vOT, 0, 0, 0,  typePattern) );
   // std::cout<<counter++<<std::endl;
 
-  if (pixMgr) {
-    InDetDD::SiDetectorElement * detEl = *(pixMgr->getDetectorElementBegin());
+  if (elements) {
+    const InDetDD::SiDetectorElement * detEl = *(elements->begin());
     if (!detEl) 
       std::cerr<<"Unable to find any pixel Detector element!! Aborting this part of the test."<<std::endl;
     else {
@@ -179,12 +179,12 @@ Trk::Track* FakeTrackBuilder::buildTrack(const InDetDD::PixelDetectorManager* pi
   return new Trk::Track(info,  trackStateOnSurfaces, fitQuality);
 }
 
-Trk::Track* FakeTrackBuilder::buildBrokenTrack(const InDetDD::PixelDetectorManager* /*pixMgr*/) {
+Trk::Track* FakeTrackBuilder::buildBrokenTrack(const InDetDD::SiDetectorElementCollection* /*elements*/) {
   // using namespace Trk;
   // 
   // DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
   // 
-  // if (pixMgr) {
+  // if (elements) {
   //   unsigned int pix1 = 2832011902UL; // CLHEP::bar l1 mod(6,0) index(274,125)
   //   Identifier idPix1(pix1);
   //   InDet::PixelClusterOnTrack* fakePix1
@@ -222,7 +222,7 @@ Trk::Track* FakeTrackBuilder::buildBrokenTrack(const InDetDD::PixelDetectorManag
     return 0;
 }
 
-Rec::TrackParticle* FakeTrackBuilder::buildTrackParticle(const InDetDD::PixelDetectorManager* /*pixMgr*/) {
+Rec::TrackParticle* FakeTrackBuilder::buildTrackParticle(const InDetDD::SiDetectorElementCollection* /*elements*/) {
   //FIXME - complete
   return 0;
 }

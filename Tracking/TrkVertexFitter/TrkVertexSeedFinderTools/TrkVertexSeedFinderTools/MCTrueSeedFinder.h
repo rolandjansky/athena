@@ -34,40 +34,64 @@ namespace Trk
   //                         from Trk::RecVertex   to xAOD::Vertex,
   //                         from Trk::Vertex      to Amg::Vector3D
 
-  class MCTrueSeedFinder : public AthAlgTool, virtual public IVertexSeedFinder
+  class MCTrueSeedFinder : public extends<AthAlgTool, IVertexSeedFinder>
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
+    // Standard Gaudi constructor.
+    MCTrueSeedFinder (const std::string& t,
+                      const std::string& n,
+                      const IInterface*  p);
 
-    //default constructor due to Athena interface
-    MCTrueSeedFinder(const std::string& t, const std::string& n, const IInterface*  p);
-    
-    //destructor
+
     virtual ~MCTrueSeedFinder();
 
-    // Interface for Tracks with starting seed/linearization point
-    virtual Amg::Vector3D findSeed(const std::vector<const Trk::Track*> & vectorTrk,const xAOD::Vertex * constraint=0);
+
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+
+
+    using IVertexSeedFinder::findSeed;
+
+
+    /**
+     *  Finds a linearization point out of a vector of tracks
+     *  and returns it as an Amg::Vector3D object. If you want an 
+     *  additional constraint can be taken into account.
+     */
+    virtual Amg::Vector3D
+    findSeed (const std::vector<const Trk::Track*> & vectorTrk,
+              const xAOD::Vertex * constraint=0) const override;
     
-    /** Interface for MeasuredPerigee with starting point */
-    virtual Amg::Vector3D findSeed(const std::vector<const Trk::TrackParameters*> & perigeeList,const xAOD::Vertex * constraint=0);
 
-    // Interface for finding vector of seeds from tracks
-    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const xAOD::Vertex * constraint=0);
+    /** 
+     * Finds a linearization point out of a vector of TrackParameters
+     *  and returns it as an Amg::Vector3D object. If you want an 
+     * additional constraint can be taken into account.
+     */
+    virtual Amg::Vector3D
+    findSeed (const std::vector<const Trk::TrackParameters*> & perigeeList,
+              const xAOD::Vertex * constraint=0) const override;
 
-    // Interface for finding vector of seeds from track parameters
-    virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0);
 
-    //The below four functions are dummy functions so that this compiles. The functions are needed in the interface IMode3dFinder.h for Mode3dFromFsmw1dFinder (the seed finder for the Inclusive Secondary Vertex Finder)
+    /**
+     * Finds full vector of linearization points from a vector of tracks
+     *  and returns it as an Amg::Vector3D object.  Intended for seed finders that produce all at once.
+     *  If you want an additional constraint can be taken into account.
+     */
+    virtual std::vector<Amg::Vector3D>
+    findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,
+                   const xAOD::Vertex * constraint=0) const override;
 
-    virtual void setPriVtxPosition( double vx, double vy );
 
-    virtual int perigeesAtSeed( std::vector<const Trk::TrackParameters*> * a,
-                              const std::vector<const Trk::TrackParameters*> & b ) const;
-
-    virtual int getModes1d(std::vector<float>& a, std::vector<float>& b, 
-			   std::vector<float>& c, std::vector<float>& d  ) const;
-    virtual void getCorrelationDistance( double &cXY, double &cZ );
+    /**
+     * Finds full vector of linearization points from a vector
+     * of TrackParameters and returns it as an Amg::Vector3D object.
+     * Intended for seed finders that produce all at once.
+     * If you want an additional constraint can be taken into account.
+     */
+    virtual std::vector<Amg::Vector3D>
+    findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,
+                   const xAOD::Vertex * constraint=0) const override;
 
 
   private:

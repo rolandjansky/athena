@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //-----------------------------------------------------------------------------
@@ -12,8 +12,8 @@
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p2.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "CxxUtils/make_unique.h"
 
+#include <memory>
 
 InDet::TRT_DriftCircle
 TRT_DriftCircleCnv_p2::createTRT_DriftCircle( const InDet::TRT_DriftCircle_p2 *persObj,
@@ -26,7 +26,7 @@ TRT_DriftCircleCnv_p2::createTRT_DriftCircle( const InDet::TRT_DriftCircle_p2 *p
   localPos[Trk::locX] = persObj->m_locPos;
   localPos[Trk::locY] = 0;
 
-  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(1,1);
+  auto cmat = std::make_unique<Amg::MatrixX>(1,1);
    (*cmat)(0,0) = static_cast<double>(persObj->m_errMat);
   
   InDet::TRT_DriftCircle dc (clusId,

@@ -19,7 +19,8 @@ regex_persistent_class = re.compile(r'^([a-zA-Z]+(_[pv]\d+)?::)*[a-zA-Z]+_[pv]\d
 regex_BS_files = re.compile(r'^(\w+):.*((\.D?RAW\..*)|(\.data$))')
 
 
-def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key_filter= []):
+def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, meta_key_filter = [],
+                  unique_tag_info_values = True):
     """
     This tool is independent of Athena framework and returns the metadata from a given file.
     :param filenames: the input file from which metadata needs to be extracted.
@@ -32,6 +33,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
     from RootUtils import PyROOTFixes
 
     # Check if the input is a file or a list of files.
+    from past.builtins import basestring
     if isinstance(filenames, basestring):
         filenames = [filenames]
 
@@ -65,7 +67,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
                 with open(filename, 'rb') as binary_file:
                     magic_file = binary_file.read(4)
 
-                    if magic_file == 'root':
+                    if magic_file == 'root' or magic_file == b'root':
                         current_file_type = 'POOL'
                         meta_dict[filename]['file_type'] = 'POOL'
 
@@ -303,7 +305,7 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
                     meta_dict[filename]['lumiBlockNumbers'].append(bs_metadata.get('LumiBlock', 0))
 
                 ievt = iter(bs)
-                evt = ievt.next()
+                evt = next(ievt)
                 evt.check()  # may raise a RuntimeError
                 processing_tags = [dict(stream_type = tag.type, stream_name = tag.name, obeys_lbk = bool(tag.obeys_lumiblock)) for tag in evt.stream_tag()]
                 meta_dict[filename]['processingTags'] = [x['stream_name'] for x in processing_tags]
@@ -332,6 +334,20 @@ def read_metadata(filenames, file_type=None, mode='lite', promote=None, meta_key
             msg.error('Unknown filetype for {0} - there is no metadata interface for type {1}'.format(filename, current_file_type))
             return None
 
+        # This is a required workaround which will temporarily be fixing ATEAM-560 originated from  ATEAM-531
+        # ATEAM-560: https://its.cern.ch/jira/browse/ATEAM-560
+        # ATEAM-531: https://its.cern.ch/jira/browse/ATEAM-531
+        # This changes will remove all duplicates values presented in some files due
+        # to the improper merging of two IOVMetaDataContainers.
+        if unique_tag_info_values:
+            msg.info('MetaReader is called with the parameter "unique_tag_info_values" set to True. '
+                     'This is a workaround to remove all duplicate values from "/TagInfo" key')
+            if '/TagInfo' in meta_dict[filename]:
+                for key, value in meta_dict[filename]['/TagInfo'].items():
+                    if isinstance(value, list):
+                        unique_list = list(set(value))
+                        meta_dict[filename]['/TagInfo'][key] = unique_list[0] if len(unique_list) == 1 else unique_list
+
     return meta_dict
 
 
@@ -344,14 +360,14 @@ def _get_pfn(filename):
         return filename[4:]
     if pfx == 'LFN:':
         import subprocess, os
-        os.environ['POOL_OUTMSG_LEVEL'] = 'Error' 
+        os.environ['POOL_OUTMSG_LEVEL'] = 'Error'
         output = subprocess.check_output(['FClistPFN','-l',filename[4:]]).split('\n')
         if len(output) == 2:
             return output[0]
         msg.error( 'FClistPFN({0}) returned unexpected number of lines:'.format(filename) )
         msg.error( '\n'.join(output) )
     return filename
- 
+
 
 def _read_guid(filename):
     """
@@ -366,8 +382,11 @@ def _read_guid(filename):
     regex = re.compile(r'^\[NAME=([a-zA-Z0-9_]+)\]\[VALUE=(.*)\]')
 
     for i in range(params.GetEntries()):
-        params.GetEntry(i)
-        param = params.db_string
+        # Work around apparent pyroot issue:
+        # If we try to access params.db_string directly, we see trailing
+        # garbage, which can confuse python's bytes->utf8 conversion
+        # and result in an error.
+        param = params.GetLeaf('db_string').GetValueString()
 
         result = regex.match(param)
         if result:
