@@ -5,4 +5,5 @@ from AthenaCommon.CfgGetter import addTool
 addTool("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getMdtRdoToMdtDigit", "MdtRdoToMdtDigitOverlay")
 addTool("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getRpcRdoToRpcDigit", "RpcRdoToRpcDigitOverlay")
 addTool("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getTgcRdoToTgcDigit", "TgcRdoToTgcDigitOverlay")
+addTool("MuonByteStreamCnvTest.MuonByteStreamCnvTestConfig.getSTGC_RdoToDigit", "STGC_RdoToDigitOverlay")
 

@@ -102,8 +102,6 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_rndmEngine(0),
     m_rndmSvc("AtRndmGenSvc", name),
     m_rndmEngineName("MuonDigitization"),
-    m_sgSvc("StoreGateSvc", name), 
-    m_activeStore(0), 
     m_hitIdHelper(0), 
     m_digitContainer(0),
     m_idHelper(0),
@@ -151,7 +149,6 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
   declareInterface<IMuonDigitizationTool>(this);
   declareProperty("RndmSvc",                 m_rndmSvc,                                             "Random Number Service used in Muon digitization");
   declareProperty("RndmEngine",              m_rndmEngineName,                                      "Random engine name");
-  declareProperty("MCStore",                 m_sgSvc,                                               "Simulated Data Event Store"); 
   declareProperty("InputObjectName",         m_inputHitCollectionName    = "sTGCSensitiveDetector", "name of the input object");
   declareProperty("OutputObjectName",        m_outputDigitCollectionName = "sTGC_DIGITS",           "name of the output object");
   declareProperty("OutputSDOName",           m_outputSDO_CollectionName  = "sTGC_SDO"); 
@@ -175,22 +172,9 @@ StatusCode sTgcDigitizationTool::initialize() {
   ATH_MSG_INFO ( "Configuration  sTgcDigitizationTool" );
   ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
   ATH_MSG_INFO ( "RndmEngine             " << m_rndmEngineName      );
-  ATH_MSG_INFO ( "MCStore                " << m_sgSvc               );
   ATH_MSG_INFO ( "InputObjectName        " << m_inputHitCollectionName );
   ATH_MSG_INFO ( "OutputObjectName       " << m_outputDigitCollectionName );
   ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionName  ); 
-
-  // initialize transient event store 
-  if(m_sgSvc.retrieve().isFailure()) { 
-    ATH_MSG_FATAL("Could not retrieve StoreGateSvc!");
-    return StatusCode::FAILURE; 
-  } 
-
-  status = service("ActiveStoreSvc", m_activeStore);
-  if(!status.isSuccess()) { 
-    msg(status.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get active store service" << endmsg; 
-    return status;
-  }
 
   // retrieve MuonDetctorManager from DetectorStore
   status = detStore()->retrieve(m_mdManager);
@@ -430,8 +414,7 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
   m_digitContainer->cleanup();
   
   // record the digit container in StoreGate
-  m_activeStore->setStore(&*m_sgSvc);
-  StatusCode status = m_sgSvc->record(m_digitContainer, m_outputDigitCollectionName);
+  StatusCode status = evtStore()->record(m_digitContainer, m_outputDigitCollectionName);
   if(status.isFailure()) {
     ATH_MSG_FATAL("Unable to record sTGC digit container in StoreGate");
     return status;
@@ -440,7 +423,7 @@ StatusCode sTgcDigitizationTool::recordDigitAndSdoContainers() {
   
   // create and record the SDO container in StoreGate
   m_sdoContainer = new MuonSimDataCollection();
-  status = m_sgSvc->record(m_sdoContainer, m_outputSDO_CollectionName);
+  status = evtStore()->record(m_sdoContainer, m_outputSDO_CollectionName);
   if(status.isFailure())  {
     ATH_MSG_FATAL("Unable to record sTGC SDO collection in StoreGate");
     return status;
@@ -1112,8 +1095,6 @@ StatusCode sTgcDigitizationTool::doDigitization() {
    /*************************************************
     * Output the digits to the StoreGate collection *
     ************************************************/
-  m_activeStore->setStore(&*m_sgSvc);
-
   for(std::map< IdentifierHash, std::map< Identifier, std::vector<sTgcDigit> > >::iterator it_coll = outputDigits.begin(); it_coll != outputDigits.end(); ++it_coll){
 	  IdentifierHash coll = it_coll->first;
 	  msg(MSG::VERBOSE) << "coll = "<< coll << endmsg;
