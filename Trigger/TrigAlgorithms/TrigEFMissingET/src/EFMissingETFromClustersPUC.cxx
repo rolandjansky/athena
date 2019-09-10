@@ -414,7 +414,6 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
 
  } // end container loop.
 
-
   if(m_timersvc)
     m_glob_timer->stop(); // total time
 

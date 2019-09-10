@@ -22,6 +22,7 @@ def trace(frame, event, arg):
 
 
 from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSupp,
+                                                   EFMissingET_Fex_2sidednoiseSuppPUC,
                                                    EFMissingET_Fex_Jets,
                                                    EFMissingET_Fex_TrackAndJets,
                                                    EFMissingET_Fex_FTKTrackAndJets,
@@ -35,6 +36,7 @@ from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSu
 from TrigL2MissingET.TrigL2MissingETConfig import L2MissingET_Fex
 
 from TrigMissingETHypo.TrigMissingETHypoConfig import (EFMetHypoJetsXE,
+                                                       EFMetHypoCellPUCXE_2sided,
                                                        EFMetHypoTrackAndJetsXE,
                                                        EFMetHypoFTKTrackAndJetsXE,
                                                        EFMetHypoTrackAndClustersXE,
@@ -154,7 +156,7 @@ class L2EFChain_met(L2EFChainDef):
 
         mucorr=  '_wMu' if EFmuon else ''          
         ##MET with topo-cluster
-        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht' or EFrecoAlg=='trkmht' or EFrecoAlg=='pufittrack' or EFrecoAlg=='trktc':
+        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht' or EFrecoAlg=='trkmht' or EFrecoAlg=='pufittrack' or EFrecoAlg=='trktc' or EFrecoAlg=='cellpufit':
 
             ##Topo-cluster
             if EFrecoAlg=='tc':
@@ -269,8 +271,19 @@ class L2EFChain_met(L2EFChainDef):
                 theEFMETFex = EFMissingET_Fex_topoClustersPS() 
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPS()        
-
+                
                 theEFMETHypo = EFMetHypoTCPSXE('EFMetHypo_TCPS_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+                
+            ## CellPufit
+            if EFrecoAlg=='cellpufit':
+               #MET fex
+                theEFMETFex = EFMissingET_Fex_2sidednoiseSuppPUC()
+                
+               #Muon correction fex
+                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topocl()        
+                
+               #Hypo
+                theEFMETHypo = EFMetHypoCellPUCXE_2sided('EFMetHypo_cellpufit_xe%d%s' % (threshold, mucorr),ef_thr=float(threshold)*0.1)                    
 
 
 
@@ -488,7 +501,11 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ [''],          [theEFMETFex],  'EF_xe_step1' ]]  
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
             
-            
+
+        elif EFrecoAlg=='cellpufit':
+            self.EFsequenceList +=[[ [''],          [theEFMETFex],  'EF_xe_step1' ]]  
+            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
+             
         ########### Signatures ###########
         if L2recoAlg=="l2fsperf" or  L2recoAlg=="L2FS" :
             self.L2signatureList += [ [['L2_xe_step1']] ]
