@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -22,7 +22,6 @@
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
-#include "CxxUtils/make_unique.h"
 #include "AsgTools/AsgMessaging.h"
 
 // Derivation include
@@ -120,7 +119,7 @@ int main( int argc, char* argv[] ) {
 
    if (isElectron) {
    //tight ECIDS
-   std::unique_ptr<AsgElectronChargeIDSelectorTool> m_electronECIDS = CxxUtils::make_unique<AsgElectronChargeIDSelectorTool> ("tightECIDS");
+   std::unique_ptr<AsgElectronChargeIDSelectorTool> m_electronECIDS = std::make_unique<AsgElectronChargeIDSelectorTool> ("tightECIDS");
    std::string trainingfile    = std::string(std::getenv("ROOTCOREBIN")) + "/data/ElectronPhotonSelectorTools/ECIDS_20161125for2017Moriond.root";
    CHECK(m_electronECIDS->setProperty("TrainingFile", trainingfile));
    CHECK(m_electronECIDS->setProperty("CutOnBDT", 0));
@@ -128,7 +127,7 @@ int main( int argc, char* argv[] ) {
    CHECK(m_electronECIDS->initialize());
    
    //Tight Likelihood electron
-   std::unique_ptr<AsgElectronLikelihoodTool> m_TightLH = CxxUtils::make_unique<AsgElectronLikelihoodTool> ("TightLH");
+   std::unique_ptr<AsgElectronLikelihoodTool> m_TightLH = std::make_unique<AsgElectronLikelihoodTool> ("TightLH");
    CHECK(m_TightLH->setProperty("WorkingPoint", "TightLHElectron"));
    m_TightLH->msg().setLevel(mylevel);
    CHECK(m_TightLH->initialize());
@@ -159,7 +158,7 @@ int main( int argc, char* argv[] ) {
    } // is electron
    else {
      //Tight cut based photon
-     std::unique_ptr<AsgPhotonIsEMSelector> m_photonTightIsEMSelector = CxxUtils::make_unique<AsgPhotonIsEMSelector> ("photonTightIsEMSelector");
+     std::unique_ptr<AsgPhotonIsEMSelector> m_photonTightIsEMSelector = std::make_unique<AsgPhotonIsEMSelector> ("photonTightIsEMSelector");
      CHECK(m_photonTightIsEMSelector->setProperty("WorkingPoint", "TightPhoton"));
      m_photonTightIsEMSelector->msg().setLevel(mylevel);
      CHECK(m_photonTightIsEMSelector->initialize());
