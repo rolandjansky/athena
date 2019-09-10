@@ -3,24 +3,20 @@
 from AthenaCommon import CfgMgr
 
 def getSCT_DetectorTool(name="SCT_DetectorTool", **kwargs):
-    kwargs.setdefault("DetectorName",     "SCT");
-    kwargs.setdefault("Alignable",        True);
-    kwargs.setdefault("RDBAccessSvc",     "RDBAccessSvc");
-    kwargs.setdefault("GeometryDBSvc",    "InDetGeometryDBSvc");
-    kwargs.setdefault("GeoDbTagSvc",      "GeoDbTagSvc");
-    from AthenaCommon.DetFlags      import DetFlags
+    kwargs.setdefault("DetectorName",     "SCT")
+    kwargs.setdefault("Alignable",        True)
+    kwargs.setdefault("RDBAccessSvc",     "RDBAccessSvc")
+    kwargs.setdefault("GeometryDBSvc",    "InDetGeometryDBSvc")
+    kwargs.setdefault("GeoDbTagSvc",      "GeoDbTagSvc")
     return CfgMgr.SCT_DetectorTool(name, **kwargs)
 
 
-###### ComponentAccumulator
-
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def SCT_GeometryCfg( flags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    acc,geoModelSvc = GeoModelCfg( flags )
+    acc = GeoModelCfg( flags )
+    geoModelSvc=acc.getPrimary()
     from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     if flags.GeoModel.Run=="RUN4":
@@ -39,7 +35,6 @@ def SCT_GeometryCfg( flags ):
         sctDetectorTool = SCT_DetectorTool()
     sctDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
     geoModelSvc.DetectorTools += [ sctDetectorTool ]
-    acc.addService(geoModelSvc)
     if flags.GeoModel.Align.Dynamic:
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID",className="CondAttrListCollection"))
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection"))

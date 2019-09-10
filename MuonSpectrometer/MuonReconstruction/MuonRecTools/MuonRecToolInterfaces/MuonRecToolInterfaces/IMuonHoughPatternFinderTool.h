@@ -15,6 +15,8 @@
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 
+#include "MuonRecToolInterfaces/HoughDataPerSec.h"
+
 #include <vector>
 
 static const InterfaceID IID_IMuonHoughPatternFinderTool("Muon::IMuonHoughPatternFinderTool",1,0);
@@ -33,11 +35,12 @@ namespace Muon {
     static const InterfaceID& interfaceID();
 
     /** find patterns for a give set of MuonPrepData collections + optionally CSC segment combinations */
-    virtual MuonPatternCombinationCollection* find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
-						    const std::vector<const CscPrepDataCollection*>& cscCols,  
-						    const std::vector<const TgcPrepDataCollection*>& tgcCols,  
-						    const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-						    const MuonSegmentCombinationCollection* cscSegmentCombis ) const = 0;
+    virtual std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muon::HoughDataPerSectorVec>>
+    find( const std::vector<const MdtPrepDataCollection*>& mdtCols,  
+          const std::vector<const CscPrepDataCollection*>& cscCols,  
+          const std::vector<const TgcPrepDataCollection*>& tgcCols,  
+          const std::vector<const RpcPrepDataCollection*>& rpcCols,  
+          const MuonSegmentCombinationCollection* cscSegmentCombis ) const = 0;
 
   };
   

@@ -18,10 +18,11 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummar
 
 
 from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
+# @TODO check that InDetTrigTrackSummaryHelperTool does not do hole search.
 InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrackSummaryTool",
                                                       InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-                                                      InDetHoleSearchTool    = None,
                                                       doSharedHits           = False,
+                                                      doHolesInDet           = False,
                                                       TRT_ElectronPidTool    = None
                                                       )
 ToolSvc += InDetTrigFastTrackSummaryTool
@@ -32,8 +33,8 @@ if (InDetTrigFlags.doPrintConfigurables()):
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigHoleSearchTool
 InDetTrigTrackSummaryToolWithHoleSearch = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolWithHoleSearch",
                                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-                                                                InDetHoleSearchTool    = InDetTrigHoleSearchTool,
                                                                 doSharedHits           = False,
+                                                                doHolesInDet           = True,
                                                                 TRT_ElectronPidTool    = None
                                                       )
 ToolSvc += InDetTrigTrackSummaryToolWithHoleSearch
@@ -45,7 +46,7 @@ InDetTrigTrackSummaryToolSharedHitsWithTRTPid = \
     Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolSharedHitsWithTRT",
                           InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
                           doSharedHits           = InDetTrigFlags.doSharedHits(),
-                          InDetHoleSearchTool    = InDetTrigHoleSearchTool,
+                          doHolesInDet           = True,
                           TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
 
 ToolSvc += InDetTrigTrackSummaryToolSharedHitsWithTRTPid

@@ -1,18 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineSpacePointTool/PixelGCBuilder.h"
+#include "PixelGCBuilder.h"
+
 #include "InDetPrepRawData/PixelClusterCollection.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include <cmath>
 //#define GCDEBUG 
 
-PixelGCBuilder::PixelGCBuilder(const InDetDD::PixelDetectorManager* &manager, const PixelID* pixelId, 
+PixelGCBuilder::PixelGCBuilder(const PixelID* pixelId, 
 			       int offsetEndcapPixels) {
-  m_manager=manager;
   m_pixelID = pixelId;
   m_OffsetEndcapPixels = offsetEndcapPixels;
 }
@@ -21,6 +22,7 @@ PixelGCBuilder::~PixelGCBuilder() {
 }
 
 void PixelGCBuilder::formSpacePoints (const InDet::PixelClusterCollection& clusterColl, 
+                                      const InDetDD::SiDetectorElementCollection* elements,
 				      std::vector<TrigSiSpacePoint*>& space_points) {
   double locT, locL, errLocT, errLocL, x, dx, y, dy;
   double r, dr, phi, dphi, z, dz;
@@ -31,7 +33,7 @@ void PixelGCBuilder::formSpacePoints (const InDet::PixelClusterCollection& clust
   // Get element id    
   const Identifier& waferId = clusterColl.identify();
   const IdentifierHash& waferIdHash = clusterColl.identifyHash();
-  const InDetDD::SiDetectorElement* element=m_manager->getDetectorElement(waferIdHash);
+  const InDetDD::SiDetectorElement* element=elements->getDetectorElement(waferIdHash);
 
   double pitchPhi = element->phiPitch();
   double pitchRz  = element->etaPitch();

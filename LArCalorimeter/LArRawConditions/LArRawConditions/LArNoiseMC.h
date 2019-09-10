@@ -6,11 +6,9 @@
 #define LARRAWCONDITIONS_LARNOISEMC_H
 
 #include "LArRawConditions/LArNoiseComplete.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
 
-class ILArMCSymTool;
 
 /** Implementation of the interface ILArNoise for MC
  *  Derives from LArNoiseComplete, and implements the phi-z symmetry
@@ -29,15 +27,10 @@ class LArNoiseMC: public LArNoiseComplete {
 
   virtual StatusCode initialize ( );
   
-  // retrieving Noise using online ID
-  
+  // retrieving Noise using online ID  
   virtual  const float& noise(const HWIdentifier&  CellID, int gain) const ;
-    
- private: 
-  
-  // helper for MC z-phi symmetry 
-  ToolHandle<ILArMCSymTool> m_larmcsym;
-  
+
+  static float dummy;  
 };
 
 #include "AthenaKernel/CondCont.h"

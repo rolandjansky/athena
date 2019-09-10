@@ -1,11 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+
+from __future__ import print_function
 
 # by default only export the getter functions
 __all__ = [ "getPublicTool", "getPublicToolClone", "getPrivateTool", "getPrivateToolClone",
             "getService", "getServiceClone", "getAlgorithm", "getAlgorithmClone" ]
 
-from ConfiguredFactory import ConfiguredFactory
+from AthenaCommon.ConfiguredFactory import ConfiguredFactory
 
 # (private) storage of tools and services
 _configFactory = ConfiguredFactory( propertiesToExcludeIfDefaultValue = [ "EvtStore", "DetStore", "decSvc", "AcceptAlgs", "RequireAlgs", "VetoAlgs" ] )

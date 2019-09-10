@@ -79,7 +79,6 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
     m_ncurevt(0),
     m_skipExecAlgs(false),
     m_loadProxies(true),
-    m_eventContext(nullptr),
     m_isEmbedding(false),
     m_allowSerialAndMPToDiffer(true)
 {
@@ -208,10 +207,6 @@ StatusCode PileUpEventLoopMgr::initialize()
     return StatusCode::FAILURE;
   }
 
-  // create the EventContext object
-  m_eventContext = new EventContext();
-
-
   //-------------------------------------------------------------------------
   // Base class initialize (done at the end to allow algs to access stores)
   //-------------------------------------------------------------------------
@@ -240,8 +235,6 @@ StatusCode PileUpEventLoopMgr::finalize()
   if (m_isEventOverlayJob) {
     CHECK(m_signalStream.finalize());
   }
-
-  delete m_eventContext; m_eventContext = nullptr;
 
   return MinimalEventLoopMgr::finalize();
 }
@@ -440,11 +433,8 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       }
 
       ATH_MSG_INFO ( "set aliases" );
-      CHECK(m_evtStore->setAlias(pOverEvent, "EventInfo"));
       //add an alias to "OverlayEvent" (backward compatibility)
       CHECK(m_evtStore->setAlias(pOverEvent, "OverlayEvent"));
-      //add an alias to "MyEvent" (backward compatibility)
-      CHECK(m_evtStore->setAlias(pOverEvent, "MyEvent"));
 
       //FIXME at this point one may want to look into the original event
       //FIXME to decide whether to skip it or to do the pile-up
@@ -543,7 +533,14 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
         }
       else
         {
-          if( !(executeEvent(reinterpret_cast<void*>(pOverEvent)).isSuccess()) )
+
+          // create an EventContext from the eventID obj
+          EventContext ctx;
+          EventID   ev_id = eventIDFromxAOD( pOverEvent );
+          ctx.setEventID( ev_id );
+          ctx.set(m_nevt,0);
+          
+          if( !(executeEvent( std::move(ctx) ).isSuccess()) )
             {
               ATH_MSG_ERROR ( "Terminating event processing loop due to errors" );
               return StatusCode::FAILURE;
@@ -695,18 +692,18 @@ StatusCode PileUpEventLoopMgr::endRunAlgorithms()
 //=========================================================================
 // Run the algorithms for the current event
 //=========================================================================
-StatusCode PileUpEventLoopMgr::executeAlgorithms()
+StatusCode PileUpEventLoopMgr::executeAlgorithms(const EventContext& ctx)
 {
   // Call the execute() method of all top algorithms
   for ( ListAlg::iterator ita = m_topAlgList.begin();
         ita != m_topAlgList.end();
         ita++ )
     {
-      StatusCode sc = (*ita)->sysExecute(*m_eventContext);
+      StatusCode sc = (*ita)->sysExecute( ctx );
       // this duplicates what is already done in Algorithm::sysExecute, which
       // calls Algorithm::setExecuted, but eventually we plan to remove that 
       // function
-      m_aess->algExecState(*ita,*m_eventContext).setState(AlgExecState::State::Done, sc);
+      m_aess->algExecState(*ita, ctx ).setState(AlgExecState::State::Done, sc);
       if ( !sc.isSuccess() )
         {
           ATH_MSG_INFO ( "Execution of algorithm " <<
@@ -720,37 +717,31 @@ StatusCode PileUpEventLoopMgr::executeAlgorithms()
 
 
 //=========================================================================
-// executeEvent(void* par)
+// executeEvent(EventContext&& ctx)
 //=========================================================================
-StatusCode PileUpEventLoopMgr::executeEvent(void* par)
+StatusCode PileUpEventLoopMgr::executeEvent( EventContext&& ctx )
 {
 
-  const xAOD::EventInfo* pEvent(reinterpret_cast<xAOD::EventInfo*>(par)); //AUIII!
-  assert(pEvent);
-
-  // Make EventID for the Event Context
-  EventID   ev_id = eventIDFromxAOD( pEvent );
-  m_eventContext->setEventID( ev_id );
-  m_eventContext->set(m_nevt,0);
-
   /// Is this correct, or should it be set to a pileup store?
-  m_eventContext->setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(), pEvent->runNumber()) );
-  Gaudi::Hive::setCurrentContext( m_eventContext );
+  ctx.setExtension( Atlas::ExtendedEventContext(m_evtStore->hiveProxyDict(),
+                                                ctx.eventID().run_number()) );
+  Gaudi::Hive::setCurrentContext( ctx );
 
-  m_aess->reset(*m_eventContext);
-  if (m_evtStore->record(std::make_unique<EventContext> (*m_eventContext),
-                         "EventContext").isFailure())
+  m_aess->reset(ctx);
+
+  // make copy to std::move into store
+  auto puctx =std::make_unique<EventContext> ( ctx );
+  EventContext* pctx = puctx.get();
+  
+  if (m_evtStore->record( std::move(puctx) ,"EventContext").isFailure())
   {
     m_msg << MSG::ERROR 
           << "Error recording event context object" << endmsg;
     return (StatusCode::FAILURE);
   }
 
-  // Make EventInfo for incidents
-  EventInfo ei( new EventID(ev_id), new EventType( eventTypeFromxAOD(pEvent) ) );
-
   /// Fire begin-Run incident if new run:
-  if (m_firstRun || (m_currentRun != pEvent->runNumber()) )
+  if (m_firstRun || (m_currentRun != pctx->eventID().run_number()) )
     {
       // Fire EndRun incident unless this is the first run
       if (!m_firstRun)
@@ -759,29 +750,23 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
           CHECK(this->endRunAlgorithms());
         }
       m_firstRun=false;
-      m_currentRun = pEvent->runNumber();
+      m_currentRun = ctx.eventID().run_number();
 
       ATH_MSG_INFO ( "  ===>>>  start of run " << m_currentRun << "    <<<===" );
 
       // Fire BeginRun "Incident"
-      m_incidentSvc->fireIncident(Incident(this->name(),IncidentType::BeginRun,*m_eventContext));
+      m_incidentSvc->fireIncident(Incident(this->name(),IncidentType::BeginRun,ctx));
       CHECK(this->beginRunAlgorithms());
     }
 
-  // Fire BeginEvent "Incident"
-  //m_incidentSvc->fireIncident(Incident(ei, this->name(),IncidentType::BeginEvent));
-
-  // Execute Algorithms
-  //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
-
   bool eventFailed(false);
   // Call the execute() method of all top algorithms
-  StatusCode sc = executeAlgorithms();
+  StatusCode sc = executeAlgorithms( ctx );
 
   if(!sc.isSuccess())
     {
       eventFailed = true;
-      m_aess->setEventStatus( EventStatus::AlgFail, *m_eventContext );
+      m_aess->setEventStatus( EventStatus::AlgFail, ctx );
 
       /// m_failureMode 1,
       /// RECOVERABLE: skip algorithms, but do not terminate job
@@ -806,22 +791,19 @@ StatusCode PileUpEventLoopMgr::executeEvent(void* par)
     }
   else
     {
-      m_aess->setEventStatus( EventStatus::Success, *m_eventContext );
+      m_aess->setEventStatus( EventStatus::Success, ctx );
 
       // Call the execute() method of all output streams
       for (ListAlg::iterator ito = m_outStreamList.begin();
            ito != m_outStreamList.end(); ito++ )
         {
-          sc = (*ito)->sysExecute(*m_eventContext);
+          sc = (*ito)->sysExecute( ctx );
           if( !sc.isSuccess() )
             {
               eventFailed = true;
             }
         }
     }
-
-  // Fire EndEvent "Incident"
-  //m_incidentSvc->fireIncident( Incident(ei, this->name(), IncidentType::EndEvent) );
 
   //------------------------------------------------------------------------
   // Check if there was an error processing current event

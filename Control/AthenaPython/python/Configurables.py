@@ -1,12 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: Configurables.py
 # @purpose: a set of Configurables for the PyAthena components
 # @author: Sebastien Binet <binet@cern.ch>
 
+from __future__ import print_function
+
 import AthenaCommon.Constants as Lvl
 from AthenaCommon.Configurable import *
 from AthenaCommon import CfgMgr
+import six
 
 ### 
 class PyComponents(object):
@@ -27,7 +30,7 @@ def _get_prop_value(pycomp, propname):
     v = pycomp.properties()[propname]
     if v == pycomp.propertyNoValue:
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        if propname == 'OutputLevel':
+        if propname == 'OutputLevel' and hasattr (svcMgr, 'MessageSvc'):
             # special case of OutputLevel...
             v = getattr(svcMgr.MessageSvc, propname)
         else:
@@ -75,7 +78,7 @@ def declare_property (o, kw, property_name,
 class CfgPyAlgorithm( ConfigurableAlgorithm ):
     def __init__( self, name, **kw ):
         super( CfgPyAlgorithm, self ).__init__(name)
-        for n,v in kw.iteritems():
+        for n,v in six.iteritems (kw):
             setattr(self,n,v)
     # pickling support
     def __getstate__( self ):
@@ -99,7 +102,7 @@ class CfgPyAlgorithm( ConfigurableAlgorithm ):
         if not hasattr( svcMgr, 'PyComponentMgr' ):
             svcMgr += CfgMgr.PyAthena__PyComponentMgr('PyComponentMgr')
 
-        import PyAthena
+        from AthenaPython import PyAthena
         
         ## populate the PyComponents instances repository
         name = self.getJobOptName()
@@ -120,7 +123,7 @@ class CfgPyAlgorithm( ConfigurableAlgorithm ):
 class CfgPyService( ConfigurableService ):
     def __init__( self, name, **kw ):
         super( CfgPyService, self ).__init__(name)
-        for n,v in kw.iteritems():
+        for n,v in six.iteritems (kw):
             setattr(self,n,v)
     # pickling support
     def __getstate__( self ):
@@ -144,7 +147,7 @@ class CfgPyService( ConfigurableService ):
         if not hasattr( svcMgr, 'PyComponentMgr' ):
             svcMgr += CfgMgr.PyAthena__PyComponentMgr('PyComponentMgr')
         
-        import PyAthena
+        from AthenaPython import PyAthena
 
         ## populate the PyComponents instances repository
         name = self.getJobOptName()
@@ -165,7 +168,7 @@ class CfgPyService( ConfigurableService ):
 class CfgPyAlgTool( ConfigurableAlgTool ):
     def __init__( self, name, **kw ):
         super( CfgPyAlgTool, self ).__init__(name)
-        for n,v in kw.iteritems():
+        for n,v in six.iteritems (kw):
             setattr(self,n,v)
     # pickling support
     def __getstate__( self ):
@@ -207,7 +210,7 @@ class CfgPyAlgTool( ConfigurableAlgTool ):
 class CfgPyAud( ConfigurableAuditor ):
     def __init__( self, name, **kw ):
         super( CfgPyAud, self ).__init__(name)
-        for n,v in kw.iteritems():
+        for n,v in six.iteritems (kw):
             setattr(self,n,v)
     # pickling support
     def __getstate__( self ):
@@ -318,7 +321,7 @@ def _install_fancy_attrs():
     msg('installing fancy getattrs... (%i)', ncomps)
     for k,comp in comps:
         msg('handling [%s]...', k)
-        for attr_name, attr in comp.__dict__.iteritems():
+        for attr_name, attr in six.iteritems (comp.__dict__):
             if _is_pycomp(attr):
                 msg(' ==> [%s]...', attr_name)
                 setattr(comp, attr_name,

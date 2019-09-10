@@ -93,6 +93,7 @@ Stream2 = AthenaPoolOutputStream( "Stream2", "AthenaPoolMultiTest_NoSplit2.root"
 Stream2.CheckNumberOfWrites = False
 # Filtered stream 1
 Stream1 = AthenaPoolOutputStream( "Stream1", "AthenaPoolMultiTest_NoSplit1.root", False, noTag=False )
+Stream1.WritingTool.AttributeListKey="SimpleTag"
 Stream1.WritingTool.SaveDecisions = True
 Stream1.CheckNumberOfWrites = False
 # Filtered stream 3
@@ -101,6 +102,7 @@ Stream3.CheckNumberOfWrites = False
 # Unfiltered stream
 StreamAll = AthenaPoolOutputStream( "StreamAll", "AthenaPoolMultiTest_StreamAll.root", False, noTag=False )
 StreamAll.CheckNumberOfWrites = False
+StreamAll.WritingTool.AttributeListKey="SimpleTag"
 StreamAll.WritingTool.SaveDecisions = True
 
 # Configure them using filter methods and itemlist
@@ -109,21 +111,17 @@ StreamAll.WritingTool.SaveDecisions = True
 
 # bit 2
 Stream2.TakeItemsFromInput = True
-Stream2.ForceRead=TRUE
 Stream2.AcceptAlgs  = ["Splitter2"]
 Stream2.VetoAlgs    = ["Splitter1"]
 # bit 1
 Stream1.TakeItemsFromInput = True
-Stream1.ForceRead=TRUE
 Stream1.AcceptAlgs = ["Splitter1"]
 # bit 3
 Stream3.TakeItemsFromInput = True
-Stream3.ForceRead=TRUE
 Stream3.AcceptAlgs = ["Splitter3"]
 Stream3.VetoAlgs   = ["Splitter2"]
 # Unfiltered
 StreamAll.TakeItemsFromInput = True
-StreamAll.ForceRead=TRUE
 
 for stream in [Stream1, Stream2, Stream3]:
   stream.WriteOnExecute = False
@@ -138,10 +136,8 @@ svcMgr.MessageSvc.debugLimit = 5000
 import AthenaCommon.CfgMgr as CfgMgr
 if not hasattr(svcMgr, 'DecisionSvc'): svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
-svcMgr.DecisionSvc.SaveDecisions = True
 if not hasattr(svcMgr, 'ItemListSvc'): svcMgr += CfgMgr.ItemListSvc()
 svcMgr.ItemListSvc.OutputLevel = DEBUG
-#svcMgr.DecisionSvc.OutputLevel = VERBOSE
 #--------------------------------------------------------------
 #  To restrict the POOL messages one has to set the POOL_OUTMSG_LEVEL env in advance.
 #  (see: http://savannah.cern.ch/support/?func=detailsupport&support_id=100139&group_id=25)

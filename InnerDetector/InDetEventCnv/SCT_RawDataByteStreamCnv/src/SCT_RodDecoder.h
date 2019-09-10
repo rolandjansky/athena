@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETRAWDATABYTESTREAM_SCT_RODDECODER_H 
@@ -131,7 +133,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
 
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
       IdentifierHash or hash IDs. Also allows decoding of these IDs. */
-  const SCT_ID* m_sctID;
+  const SCT_ID* m_sctID{nullptr};
 
   /** "Context" of an expanded identifier (ExpandedIdentifier) for compact or 
       hash versions (Identifier32 or IdentifierHash) */
@@ -150,94 +152,94 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
                                                             "Tool to retrieve SCT Configuration Tool"};
 
   /** Total number of single strips with hit decoded in condensed mode */
-  mutable std::atomic_uint m_singleCondHitNumber;   
+  mutable std::atomic_uint m_singleCondHitNumber{0};
 
   /** Total number of paired strips with hit decoded in condensed mode */
-  mutable std::atomic_uint m_pairedCondHitNumber;  
+  mutable std::atomic_uint m_pairedCondHitNumber{0};
   
   /** Total number of first strips with hit decoded in expanded mode */
-  mutable std::atomic_uint m_firstExpHitNumber;   
+  mutable std::atomic_uint m_firstExpHitNumber{0};
   
   /** Total number of consecutive paired strips with hit decoded in expanded mode */
-  mutable std::atomic_uint m_evenExpHitNumber;   
+  mutable std::atomic_uint m_evenExpHitNumber{0};
   
   /** Total number of last consecutive strips with hit decoded in expanded mode */
-  mutable std::atomic_uint m_lastExpHitNumber;  
+  mutable std::atomic_uint m_lastExpHitNumber{0};
   
   /** Total number of decoded header data */
-  mutable std::atomic_uint m_headNumber;       
+  mutable std::atomic_uint m_headNumber{0};
   
   /** Total number of decoded trailer data */
-  mutable std::atomic_uint m_trailerNumber;   
+  mutable std::atomic_uint m_trailerNumber{0};
   
   /** Total number of BCID errors in the header data */
-  mutable std::atomic_uint m_headErrorBCID;  
+  mutable std::atomic_uint m_headErrorBCID{0};
   
   /** Total number of Lvl1ID errors in the header data */
-  mutable std::atomic_uint m_headErrorLvl1ID; 
+  mutable std::atomic_uint m_headErrorLvl1ID{0};
   
   /** Total number of timeout errors in the header data */
-  mutable std::atomic_uint m_headErrorTimeout;    
+  mutable std::atomic_uint m_headErrorTimeout{0};
   
   /** Total number of formatter errors in the header data */
-  mutable std::atomic_uint m_headErrorFormatter;  
+  mutable std::atomic_uint m_headErrorFormatter{0};
   
   /** Total number of preamble errors in the header data */
-  mutable std::atomic_uint m_headErrorPreamble;  
+  mutable std::atomic_uint m_headErrorPreamble{0};
   
   /** Total number of overflow errors in the trailer data */
-  mutable std::atomic_uint m_trailerErrorOverflow; 
+  mutable std::atomic_uint m_trailerErrorOverflow{0};
   
   /** Total number of header trailer limit errors in the trailer data */
-  mutable std::atomic_uint m_trailerErrorLimit;   
+  mutable std::atomic_uint m_trailerErrorLimit{0};
   
   /** Total number of trailer bit errors */
-  mutable std::atomic_uint m_trailerErrorBit;    
+  mutable std::atomic_uint m_trailerErrorBit{0};
   
   /** Total number of configuration data for raw data */
-  mutable std::atomic_uint m_configDataBit;     
+  mutable std::atomic_uint m_configDataBit{0};
   
   /** Total number of flag error data */
-  mutable std::atomic_uint m_flagErrorBit;     
+  mutable std::atomic_uint m_flagErrorBit{0};
   
   /** Total number of first hit data errors */
-  mutable std::atomic_uint m_condHit1Error;   
+  mutable std::atomic_uint m_condHit1Error{0};
   
   /** Total number second hit data errors */
-  mutable std::atomic_uint m_condHit2Error;  
+  mutable std::atomic_uint m_condHit2Error{0};
   
   /** Total number of chip number errors */
-  mutable std::atomic_uint m_chipNumberError;  
+  mutable std::atomic_uint m_chipNumberError{0};
   
   /** Total number of unknown data formats */
-  mutable std::atomic_uint m_unknownDataFormat; 
+  mutable std::atomic_uint m_unknownDataFormat{0};
   
   /** Total number of SCT hits in ByteStream */
-  mutable std::atomic_uint m_nHits;
+  mutable std::atomic_uint m_nHits{0};
   
   /** Total number of SCT RDOs created */
-  mutable std::atomic_uint m_nRDOs;
+  mutable std::atomic_uint m_nRDOs{0};
   
   /** Total number of masked links in the header data */
-  mutable std::atomic_uint m_maskedLinkNumber;
+  mutable std::atomic_uint m_maskedLinkNumber{0};
   
   /** Total number of masked RDOs */
-  mutable std::atomic_uint m_maskedRODNumber;
+  mutable std::atomic_uint m_maskedRODNumber{0};
   
   /** Total number of ROD clock errors */
-  mutable std::atomic_uint m_rodClockErrorNumber;
+  mutable std::atomic_uint m_rodClockErrorNumber{0};
   
   /** Total number of truncated ROBFragments */
-  mutable std::atomic_uint m_truncatedRODNumber;
+  mutable std::atomic_uint m_truncatedRODNumber{0};
   
   /** Total number of missing link headers */
-  mutable std::atomic_uint m_numMissingLinkHeader;
+  mutable std::atomic_uint m_numMissingLinkHeader{0};
   
   /** Total number of SCT unknown online IDs */
-  mutable std::atomic_uint m_numUnknownOfflineID;
+  mutable std::atomic_uint m_numUnknownOfflineID{0};
   
   /** Swap phi readout direction */
-  std::vector<bool> m_swapPhiReadoutDirection;
+  std::vector<bool> m_swapPhiReadoutDirection{};
 };
 
 #endif //SCT_RAWDATABYTESTREAM_SCT_RODDECODER_H

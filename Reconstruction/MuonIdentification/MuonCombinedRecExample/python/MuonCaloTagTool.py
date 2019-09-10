@@ -3,7 +3,7 @@
 ### JobOptions to run MuonCaloTag in xAOD
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPublicTool,getService
+from AthenaCommon.CfgGetter import getPublicTool,getService, getPrivateTool
 
 ###logfile
 from AthenaCommon.Logging import log
@@ -35,20 +35,26 @@ def TrackEnergyInCaloTool( name ='TrackEnergyInCaloTool', **kwargs ):
     return CfgMgr.TrackEnergyInCaloTool(name,**kwargs)
 
 def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
+    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+    from TrackToCalo.TrackToCaloConf import Rec__ParticleCaloCellAssociationTool
+    caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
+    kwargs.setdefault("ExtrapolatorHandle",       AtlasExtrapolator() )
+    kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
+    kwargs.setdefault("ParticleCaloCellAssociationTool",       caloCellAssociationTool )
     return CfgMgr.TrackDepositInCaloTool(name,**kwargs)
 
 def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
-    kwargs.setdefault("TrackEnergyInCaloTool", getPublicTool("TrackEnergyInCaloTool") )
+    kwargs.setdefault("TrackEnergyInCaloTool", getPrivateTool("TrackEnergyInCaloTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
 
-def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):
+def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):  
     from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import CaloMuonTag as ConfiguredCaloMuonTag
     CaloMuonTagLoose = ConfiguredCaloMuonTag(name = "CaloMuonTagLoose")
     CaloMuonTagLoose.TagMode="Loose"
     CaloMuonTagTight = ConfiguredCaloMuonTag(name = "CaloMuonTag")
     kwargs.setdefault("CaloMuonTagLoose",       CaloMuonTagLoose )
     kwargs.setdefault("CaloMuonTagTight",       CaloMuonTagTight )
-    kwargs.setdefault("CaloMuonLikelihoodTool", getPublicTool("CaloMuonLikelihoodTool") )
+    kwargs.setdefault("CaloMuonLikelihoodTool", getPrivateTool("CaloMuonLikelihoodTool") )
     kwargs.setdefault("TrackDepositInCaloTool", getPublicTool("TrackDepositInCaloTool") )
     kwargs.setdefault("TrackSelectorTool",      getPublicTool("CaloTrkMuIdAlgTrackSelectorTool") )
     kwargs.setdefault("doCaloLR",               True )

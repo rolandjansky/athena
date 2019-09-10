@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ProxyProviderSvc_test.cxx
@@ -30,7 +30,6 @@
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/StoreID.h"
-#include "CxxUtils/make_unique.h"
 
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -135,7 +134,7 @@ void testReadPrivate(StoreGateSvc& rSG) {
   //record must fail because we already have a provider
   //not yet SGASSERTERROR(rSG.record(new Foo(6.28), "privFoo").isSuccess());
   assert(rSG.record(new Foo(6.28), "privFoo").isSuccess());
-  assert(rSG.overwrite(CxxUtils::make_unique<Foo>(6.28), "privFoo").isSuccess());
+  assert(rSG.overwrite(std::make_unique<Foo>(6.28), "privFoo").isSuccess());
   
   apFoo=rSG.readUniquePrivateCopy<Foo>("privFoo");
   assert(nullptr != apFoo.get());

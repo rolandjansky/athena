@@ -110,7 +110,7 @@ void TrackLODManager::Imp::updateAttachmentForDetailLevel(TrackCommonFlags::DETA
 //____________________________________________________________________
 void TrackLODManager::setDetailLevel(TrackCommonFlags::DETAILLEVEL dl)
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("signal received in setDetailLevel (old = "+TrackCommonFlags::toString(m_d->detailLevel)+", new = "+TrackCommonFlags::toString(dl));
   if ( m_d->detailLevel == dl )
     return;

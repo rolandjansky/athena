@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LArBadChannel_H
@@ -57,8 +57,8 @@ class  LArBadChannel : public LArBadChannelEnum {
 				
   static PosType bitPosition( ProblemType pb)
   {
-    // if no bit packing object set, use enumerators as bit positions
-    return s_packing == 0 ? static_cast<PosType>(pb) : s_packing->bitPosition(pb);
+    // use enumerators as bit positions
+    return static_cast<PosType>(pb);
   }
 
   bool operator!=(BitWord other) {return m_word != other;}
@@ -75,11 +75,7 @@ class  LArBadChannel : public LArBadChannelEnum {
 	
 
   BitWord m_word;
-  static LArBadChanBitPacking* s_packing;
-  // FIXME declare a friend to set the m_packing
-
-  BitWord& packedDataRef() {return m_word;}
-	
+  BitWord& packedDataRef() {return m_word;}	
   friend class LArBadChanBitPacking;
 };
 

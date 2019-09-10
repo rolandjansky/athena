@@ -11,27 +11,24 @@
 // Use of ExpressionParsing to analyse a more complex string
 
 #include "DerivationFrameworkTools/PrescaleTool.h"
+#include "xAODEventInfo/EventInfo.h"
 
 namespace DerivationFramework {
 
   PrescaleTool::PrescaleTool(const std::string& t,
       const std::string& n,
       const IInterface* p) : 
-    AthAlgTool(t,n,p),
-    m_prescale(1),
-    m_eventCounter(0)
+    AthAlgTool(t,n,p)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
-    declareProperty("Prescale", m_prescale);
   }
 
   StatusCode PrescaleTool::initialize()
   {
-    if (m_prescale < 1) {
+    if (m_prescale < 1u) {
       ATH_MSG_FATAL("Prescale of less than 1 makes no sense");
       return StatusCode::FAILURE;
     }
-    m_eventCounter = 0;
     return StatusCode::SUCCESS;
   }
 
@@ -42,10 +39,7 @@ namespace DerivationFramework {
 
   bool PrescaleTool::eventPassesFilter() const
   {
-    bool accept(false);
-    if (m_eventCounter % m_prescale == 0) accept = true;
-    ++m_eventCounter; 
-    return accept;
+    return (Gaudi::Hive::currentContext().eventID().event_number() % m_prescale == 0);
   }  
 
 }

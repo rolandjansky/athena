@@ -1,22 +1,78 @@
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#L1MU
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#L1MU.
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#RerunL1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#RerunL1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#L1TAU
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#L1TAU.
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#PEBInfoWriterAlg_pebtestone_from_pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#PEBInfoWriterAlg_pebtestone_from_pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step3_pebtestone_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step3_pebtestone_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#PEBInfoWriterAlg_pebtestthree_from_pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#PEBInfoWriterAlg_pebtestthree_from_pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_ElectronprecisionCaloHypo_from_precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#precisionCaloViewsMaker_from_Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#L1EM
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
@@ -30,405 +86,159 @@ HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigComposite
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#RerunL1MU.
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#PEBInfoWriterAlg_pebtestone_from_pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#PEBInfoWriterAlg_pebtestone_from_pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#RerunL1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#RerunL1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#PEBInfoWriterAlg_pebtestthree_from_pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#PEBInfoWriterAlg_pebtestthree_from_pebInputMaker_pebtestthree_from_Filter_Step3_pebtestthree_from_PEBInfoWriterAlg_dataScoutingElectronTest_from_pebInputMaker_dataScoutingElectronTest_from_Filter_Step3_dataScoutingElectronTest_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#L1J
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#L1J.
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeContainer_v1#Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeContainer persistent type xAOD::TrigCompositeContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#pebInputMaker_pebtestone_from_Filter_Step3_pebtestone_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_EleL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigCompositeAuxContainer_v2#Filter_Step3_etcut_from_TrigL2ElectronHypoAlgMT_from_l2ElectronViewsMaker_from_Filter_Step2_etcut_from_ElectronL2CaloHypo_from_fastCaloViewsMaker_from_Filter_Step1_etcut_from_L1EM.
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigCompositeAuxContainer persistent type xAOD::TrigCompositeAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigEMClusterContainer_v1#L2CaloEMClusters
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigEMClusterContainer_v1#HLT_L2CaloEMClusters
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigEMClusterContainer persistent type xAOD::TrigEMClusterContainer_v1 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigEMClusterAuxContainer_v2#L2CaloEMClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigEMClusterAuxContainer_v2#HLT_L2CaloEMClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigEMClusterAuxContainer persistent type xAOD::TrigEMClusterAuxContainer_v2 will be written to 1 result ROBFragments with IDs: [0]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigElectronContainer_v1#Electrons
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigElectronContainer_v1#HLT_L2Electrons
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigElectronContainer persistent type xAOD::TrigElectronContainer_v1 will be written to 2 result ROBFragments with IDs: [0, 3]
-HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigElectronAuxContainer_v1#ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot
+HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Type xAOD::TrigElectronAuxContainer_v1#HLT_L2ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot
 HLTRMakerAlg.HLTResultMTMaker.Serialiser    0     DEBUG Transient type xAOD::TrigElectronAuxContainer persistent type xAOD::TrigElectronAuxContainer_v1 will be written to 2 result ROBFragments with IDs: [0, 3]
-TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     0   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     0   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     0   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     0   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     0   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...0   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...0   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...0   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+HLTRMakerAlg.HLTResultMTMaker.StreamT...0   0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...0   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...0   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
 --> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
                    {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
                    {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     1   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     1   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     1   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     1   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...1   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...1   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...1   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
-                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
-                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
-                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     2   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     2   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     2   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...2   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...2   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...2   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
-                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
-                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
-                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     3   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     3   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     3   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     3   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...3   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...3   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...3   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
-                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
-                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
-                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     4   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     4   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     4   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     4   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     4   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     4   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...4   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...4   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...4   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Payload size = {module 3: 717 words}
+                   {module 0: 3048 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...1   0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...1   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...1   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
 --> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
                    {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
                    {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     5   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     5   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     5   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     5   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...5   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...5   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...5   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Payload size = {module 3: 865 words}
+                   {module 0: 3439 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...2   0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...2   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...2   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
 --> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
                    {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {Main, physics, obeysLB=1, robs=[], dets = []}
                    {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     6   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     6   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     6   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...6   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...6   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...6   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Payload size = {module 3: 1383 words}
+                   {module 0: 4119 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...3   0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...3   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...3   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
 --> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
                    {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {Main, physics, obeysLB=1, robs=[], dets = []}
                    {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     7   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     7   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     7   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     7   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     7   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     7   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...7   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...7   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...7   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
-                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
-                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     8   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     8   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     8   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     8   0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...8   0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...8   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...8   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
-                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
-                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
-                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     10  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     10  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     10  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     10  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...10  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...10  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...10  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
-                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
-                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
-                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     11  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep4                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     11  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     11  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-HLTRMakerAlg.HLTResultMTMaker.StreamT...11  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...11  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Payload size = {module 3: 1716 words}
+                   {module 0: 4290 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...4   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...4   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
 --> Stream tags  = {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
                    {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     12  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     12  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     12  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     12  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...12  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...12  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...12  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
-                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+--> Payload size = {module 3: 865 words}
+                   {module 0: 3277 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...5   0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...5   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...5   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
                    {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
                    {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     13  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     13  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     13  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     13  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     13  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...13  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...13  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...13  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
-                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
-                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
-                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     14  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep4                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     14  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     14  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-HLTRMakerAlg.HLTResultMTMaker.StreamT...14  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...14  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Payload size = {module 3: 3122 words}
+                   {module 0: 5939 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...6   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...6   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
 --> Stream tags  = {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
                    {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep4                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     16  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-HLTRMakerAlg.HLTResultMTMaker.StreamT...16  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+--> Payload size = {module 3: 606 words}
+                   {module 0: 2937 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...7   0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...7   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...7   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1198 words}
+                   {module 0: 3691 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...8   0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...8   0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...8   0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 754 words}
+                   {module 0: 3166 words}
+--> Payload size = {module 3: 152 words}
+                   {module 0: 2381 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...10  0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...10  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...10  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1901 words}
+                   {module 0: 4475 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...11  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...11  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
 --> Stream tags  = {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
-TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     17  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     17  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     17  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     17  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...17  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...17  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...17  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
-                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 532 words}
+                   {module 0: 2863 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...12  0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...12  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...12  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 2345 words}
+                   {module 0: 5243 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...13  0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...13  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...13  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1605 words}
+                   {module 0: 4017 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...14  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...14  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 569 words}
+                   {module 0: 2900 words}
+--> Payload size = {module 3: 152 words}
+                   {module 0: 2381 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...16  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+--> Stream tags  = {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+--> Payload size = {module 3: 717 words}
+                   {module 0: 3048 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...17  0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...17  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...17  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
+                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
+                   {Main, physics, obeysLB=1, robs=[], dets = []}
+                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1013 words}
+                   {module 0: 3425 words}
+--> Payload size = {module 3: 569 words}
+                   {module 0: 2981 words}
+HLTRMakerAlg.HLTResultMTMaker.StreamT...19  0     DEBUG Chain HLT_e7_etcut_pebtestone_L1EM3 ID#828305884 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
+HLTRMakerAlg.HLTResultMTMaker.StreamT...19  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree_L1EM3 ID#2094465796 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
+HLTRMakerAlg.HLTResultMTMaker.StreamT...19  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest_L1EM3 ID#3544995384 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
+--> Stream tags  = {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
                    {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
                    {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
-TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     18  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep1                     19  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep2                     19  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep3                     19  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryStep3                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryStep3                     19  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-TriggerSummaryStep4                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e12_etcut ID#242428028
-TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e5_etcut_dataScoutingElectronTest ID#1523191700
-TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980
-TriggerSummaryFinal                     19  0     DEBUG  +++ HLT_e7_etcut_pebtestone ID#2670063038
-HLTRMakerAlg.HLTResultMTMaker.StreamT...19  0     DEBUG Chain HLT_e7_etcut_pebtestone ID#2670063038 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0000], SubDets = [] to stream physics_pebtestone
-HLTRMakerAlg.HLTResultMTMaker.StreamT...19  0     DEBUG Chain HLT_e3_etcut_dataScoutingElectronTest_pebtestthree ID#2070680980 adds PEBInfo ROBs = [0x42002e, 0x420060, 0x420064, 0x7c0003], SubDets = [] to stream physics_DSElectronWithPEB
-HLTRMakerAlg.HLTResultMTMaker.StreamT...19  0     DEBUG Chain HLT_e5_etcut_dataScoutingElectronTest ID#1523191700 adds PEBInfo ROBs = [0x7c0003], SubDets = [] to stream physics_dataScoutingElectronTest
---> Stream tags  = {Main, physics, obeysLB=1, robs=[], dets = []}
-                   {pebtestone, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0000 ], dets = []}
-                   {DSElectronWithPEB, physics, obeysLB=1, robs=[0x0042002e 0x00420060 0x00420064 0x007c0003 ], dets = []}
-                   {dataScoutingElectronTest, physics, obeysLB=1, robs=[0x007c0003 ], dets = []}
+--> Payload size = {module 3: 1938 words}
+                   {module 0: 4431 words}

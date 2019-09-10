@@ -123,7 +123,6 @@ if DetFlags.writeRDOPool.any_on():
     else:
         eventInfoKey = "EventInfo"
     streamRDO = AthenaPoolOutputStream("StreamRDO", athenaCommonFlags.PoolRDOOutput.get_Value(), asAlg=True, noTag=True, eventInfoKey=eventInfoKey)
-    streamRDO.ForceRead = True
     from Digitization.DigiOutput import getStreamRDO_ItemList
     streamRDO.ItemList = getStreamRDO_ItemList(logDigitization_flags)
     streamRDO.AcceptAlgs += [ digitizationFlags.digiSteeringConf.get_Value() ]
@@ -136,10 +135,3 @@ if DetFlags.writeRDOPool.any_on():
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel      = 3
 
-#--------------------------------------------------------------
-# Event related parameters
-#--------------------------------------------------------------
-# Number of events to be processed
-theApp.EvtMax = athenaCommonFlags.EvtMax()
-# Number of input events to be skipped
-ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()

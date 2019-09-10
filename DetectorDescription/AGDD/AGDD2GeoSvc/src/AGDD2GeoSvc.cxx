@@ -9,9 +9,6 @@
 #include "AGDDControl/AGDDTokenizer.h"
 #include "AGDDKernel/AliasStore.h"
 
-#include "EventInfo/TagInfo.h"
-#include "EventInfoMgt/ITagInfoMgr.h"
-
 #include <iostream>
 #include <sstream>
 
@@ -36,17 +33,6 @@ AGDDtoGeoSvc::initialize()
   localInitialization();
 
   ATH_CHECK(m_builders.retrieve());
-  for (const auto& aTest : m_builders) {
-    ATH_CHECK(aTest->construct());
-  }
-
-  const DataHandle<TagInfo> tagInfoH;
-  std::string tagInfoKey="";
-
-  ATH_CHECK(service("TagInfoMgr",m_tagInfoMgr));
-  tagInfoKey=m_tagInfoMgr->tagInfoKey();
-
-  ATH_MSG_INFO(" initializing ");
 
   return StatusCode::SUCCESS;
 }

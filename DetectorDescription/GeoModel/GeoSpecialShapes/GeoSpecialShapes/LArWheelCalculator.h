@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
@@ -8,7 +8,9 @@
 #include <vector>
 
 #include "CLHEP/Vector/ThreeVector.h"
-#include "SGTools/CLASS_DEF.h"
+#ifndef XAOD_STANDALONE
+    #include "AthenaKernel/CLASS_DEF.h"
+#endif // XAOD_STANDALONE
 
 #include "GeoSpecialShapes/LArWheelCalculatorEnums.h"
 
@@ -209,8 +211,10 @@ class LArWheelCalculator
     void fill_sincos_parameterization();
 };
 
-//using the macro below we can assign an identifier (and a version)
-//This is required and checked at compile time when you try to record/retrieve
-CLASS_DEF(LArWheelCalculator, 900345678, 1)
+#ifndef XAOD_STANDALONE
+    //using the macro below we can assign an identifier (and a version)
+    //This is required and checked at compile time when you try to record/retrieve
+    CLASS_DEF(LArWheelCalculator , 900345678 , 1)
+#endif // XAOD_STANDALONE
 
 #endif // GEOSPECIALSHAPES_LARWHEELCALCULATOR_H

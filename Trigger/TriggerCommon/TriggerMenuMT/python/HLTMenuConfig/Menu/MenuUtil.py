@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging        import logging
 
 
-log = logging.getLogger('TriggerMenu.menu.MenuUtil.py')
+log = logging.getLogger('TriggerMenuMT.HLTMenuConfig.Menu.MenuUtil.py')
 
 
 
@@ -13,7 +13,7 @@ def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
     for item, prescales in HLTPrescale.iteritems():
         # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
         if item not in triggerPythonConfig.allChains.keys():
-            log.debug('Signature %s not registered to TriggerPythonConfig' % item)
+            log.debug('Signature %s not registered to TriggerPythonConfig', item)
             continue
         n = len(prescales)
         hltchain = None
@@ -22,10 +22,11 @@ def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
                 hltchain = ch
             if n > 3  and hltchain:
                 if hltchain.prescale != "0":
-                    log.warning("chain "+ hltchain.chain_name + " in rerun mode with special strema tag does not have the correct HLT PS [=0] ")
+                    log.warning("chain %s in rerun mode with special strema tag does not have the correct HLT PS [=0] ",
+                                hltchain.chain_name)
                 if hltchain.rerun_prescale !=  "1":
-                    log.error("chain "+ hltchain.chain_name + " has special stream tag but it's not in rerun mode")
-                list.append( "%s:%s" %(str(hltchain.chain_name),str(prescales[3])) )
+                    log.error("chain %s has special stream tag but it's not in rerun mode", hltchain.chain_name)
+                list.append( "%s:%s", hltchain.chain_name, prescales[3] )
             
 
     return list
@@ -38,10 +39,10 @@ def applyHLTPrescale(triggerPythonConfig, HLTPrescale):
         # prescales is a list of 3 integers [HLT_prescale, HLT_pass_through, rerun_prescale]
         if item not in triggerPythonConfig.allChains.keys():
             if triggerPythonConfig.signaturesOverwritten:
-                log.warning('Attempt to set prescales for nonexisting chain: %s' % item)
+                log.warning('Attempt to set prescales for nonexisting chain: %s', item)
                 continue
             else:
-                log.error('Attempt to set prescales for nonexisting chain: %s' % item)
+                log.error('Attempt to set prescales for nonexisting chain: %s', item)
                 continue
         n = len(prescales)
         hltchain = None
@@ -70,11 +71,11 @@ def checkGroups(triggerPythonConfig):
 
     for chain in triggerPythonConfig.theHLTChains:
         if len(chain.groups) == 0:
-            log.error( "group undefined for chain: " + str(chain.chain_name) )
+            log.error( "group undefined for chain: %s", chain.chain_name )
         for i in chain.groups:
             if 'BW' in i:
                 if i.split('BW:')[1] not in allgroup:
-                    log.error( "BW Group " + str(i)+ " for chain "+ str(chain.chain_name) + " not allowed." )
+                    log.error( "BW Group %d for chain %s not allowed.", i, chain.chain_name)
 
                   
         
@@ -99,7 +100,7 @@ def checkTriggerGroupAssignment(triggerPythonConfig):
 
     for chain in triggerPythonConfig.theL2HLTChains + triggerPythonConfig.theEFHLTChains:
         if len(chain.groups) == 0:
-            log.error( "IN CHAIN: GROUP undefined for chain: " + str(chain.chain_name) )
+            log.error( "IN CHAIN: GROUP undefined for chain: %s", chain.chain_name )
         else:
             GroupAssigned=False
             
@@ -107,7 +108,7 @@ def checkTriggerGroupAssignment(triggerPythonConfig):
                 if group in chain.groups:
                     GroupAssigned=True
             if GroupAssigned is False and CheckGroups is True:
-                log.warning( "IN CHAIN: GROUP (primary, supporting, ... etc) undefined for chain: " + str(chain.chain_name) + ".")
+                log.warning( "IN CHAIN: GROUP (primary, supporting, ... etc) undefined for chain: %s", chain.chain_name )
 
 #def checkStreamConsistency(triggerPythonConfig,streamConfig):
 def checkStreamConsistency(triggerPythonConfig):
@@ -126,7 +127,7 @@ def checkStreamConsistency(triggerPythonConfig):
     already_used_robs={}
     for chain in triggerPythonConfig.theHLTChains:
         if len(chain.stream_tag) == 0:
-            log.error( "IN CHAIN: STREAMTAG undefined for chain: " + str(chain.chain_name) )
+            log.error( "IN CHAIN: STREAMTAG undefined for chain: %s", chain.chain_name )
         else:
             for stream in chain.stream_tag:
                 if stream[0] not in allStreams:

@@ -4,12 +4,12 @@
 
 #include "./TrigJetHypoToolHelperMT.h"
 #include "./ITrigJetHypoInfoCollector.h"
-#include "./groupsMatcherFactoryMT.h"
+#include "./xAODJetCollector.h"
 #include "./JetTrigTimer.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"  // TLorentzVec
 #include "./nodeIDPrinter.h"
-#include "./ConditionDebugVisitor.h"
+#include "./DebugInfoCollector.h"
 #include <algorithm>
 #include <sstream>
 
@@ -21,19 +21,20 @@ TrigJetHypoToolHelperMT::TrigJetHypoToolHelperMT(const std::string& type,
 
 StatusCode TrigJetHypoToolHelperMT::initialize() {
 
-  auto conditions = m_config->getConditions();
-  m_grouper  = std::move(m_config->getJetGrouper());
-  m_matcher = std::move(groupsMatcherFactoryMT(conditions));
-  // std::string s = toString();
-
+  m_grouper  = m_config->getJetGrouper();
+  m_matcher = m_config->getMatcher();
+  if(!m_matcher){
+    ATH_MSG_ERROR("Error setting matcher");
+    return StatusCode::FAILURE;
+  }
+		  
   return StatusCode::SUCCESS;
 }
 
 void
 TrigJetHypoToolHelperMT::collectData(const std::string& exetime,
-                                     ITrigJetHypoInfoCollector* collector,
-                                     const IConditionVisitor* cVisitor,
-                                     bool pass) const {
+                                     const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
+                                     const std::optional<bool>& pass) const {
   if(!collector){return;}
   auto helperInfo = nodeIDPrinter(name(),
                                   m_nodeID,
@@ -42,19 +43,15 @@ TrigJetHypoToolHelperMT::collectData(const std::string& exetime,
                                   exetime
                                   );
   
-  helperInfo += cVisitor->toString();
-  
   collector->collect(name(), helperInfo);
 }
       
 
-bool TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
-                                   ITrigJetHypoInfoCollector* collector) const {
+bool
+TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
+			      xAODJetCollector& jetCollector,
+			      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
 
-
-  // visit conditions if debugging
-  ConditionDebugVisitor*
-    cVisitor = collector ? new ConditionDebugVisitor : nullptr;
 
   JetTrigTimer timer;
   timer.start();
@@ -62,7 +59,7 @@ bool TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
   if(jets.empty()){   
     timer.stop();
     bool pass = false;
-    collectData(timer.readAndReset(), collector, cVisitor, pass);
+    collectData(timer.readAndReset(), collector, pass);
     return pass;
   }
 
@@ -76,34 +73,49 @@ bool TrigJetHypoToolHelperMT::pass(HypoJetVector& jets,
                          );
   }
 
-  auto jetGroups = m_grouper->group(begin, end);
-  bool pass = m_matcher->match(jetGroups.begin(), jetGroups.end(), cVisitor);
-  timer.stop();
+  auto jetGroupsVector = m_grouper->group(begin, end);
+  for(const auto& jetGroups : jetGroupsVector){
+    auto pass = m_matcher->match(jetGroups.begin(),
+				 jetGroups.end(),
+				 jetCollector,
+				 collector);
+    
+    timer.stop();
+    
+    collectData(timer.readAndReset(), collector, pass);
 
-  collectData(timer.readAndReset(), collector, cVisitor, pass);
-  return pass;
+    if(!pass.has_value()){
+      ATH_MSG_ERROR("Matcher cannot determine result. Config error?");
+      return false;
+    }
+    
+    if(*pass){return true;}
+    timer.start();
+  }
+  
+  timer.stop();
+  return false;
 }
   
 std::string TrigJetHypoToolHelperMT::toString() const {
 
-  
-
+ 
   std::stringstream ss;
   ss << nodeIDPrinter(name(),
                       m_nodeID,
                       m_parentNodeID);
   
   
-  ss << " Cleaners [" << m_cleaners.size() << "]: \n";
+  ss << "Cleaners:\n No of cleaners: "  << m_cleaners.size() << '\n';
 
   for(auto cleaner : m_cleaners) {
     ss << cleaner->toString() 
        << '\n';
   }
-    
-  ss << "\n Grouper: " << m_grouper->toString() << '\n';
 
-  ss << "\n Matcher: \n";
+  ss << "\nGrouper:\n " << m_grouper->toString() << '\n';
+
+  ss << "\nMatcher:\n";
   ss << m_matcher -> toString();
 
   return ss.str();
@@ -115,4 +127,11 @@ TrigJetHypoToolHelperMT::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
   return StatusCode::SUCCESS;
 }
+
+std::size_t TrigJetHypoToolHelperMT::requiresNJets() const {
+  return m_config->requiresNJets();
+}
+
+
+
 

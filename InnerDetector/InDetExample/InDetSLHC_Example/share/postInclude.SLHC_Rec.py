@@ -38,7 +38,8 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
     print '===> OVERWRITTEN TOOL SETTINGS ................'
                                                                             
     # --- turn off cluster calibration from DB, does not exist for IBL
-    ToolSvc.InDetClusterMakerTool.UsePixelCalibCondDB = False
+    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+    PixelConfigCondAlg.UseCalibConditions = False
     
 # --- switch alignment for IBL geometry off (gives WARNING)
 from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool

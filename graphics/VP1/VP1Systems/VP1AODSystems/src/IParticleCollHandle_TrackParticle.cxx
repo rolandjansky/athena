@@ -21,8 +21,10 @@
 
 //VP1
 #include "VP1Base/IVP1System.h"
-#include "VP1Utils/VP1SGAccessHelper.h"
-#include "VP1Utils/VP1SGContentsHelper.h"
+#ifndef BUILDVP1LIGHT
+  #include "VP1Utils/VP1SGAccessHelper.h"
+  #include "VP1Utils/VP1SGContentsHelper.h"
+#endif // BUILDVP1LIGHT
 
 //Qt
 #include <QStringList>
@@ -35,11 +37,24 @@
 #include "Inventor/nodes/SoDrawStyle.h"
 #include "Inventor/nodes/SoLightModel.h"
 
+#ifdef BUILDVP1LIGHT
+  #include <QSettings>
+  #include "xAODRootAccess/Init.h"
+  #include "xAODRootAccess/TEvent.h"
+#endif // BUILDVP1LIGHT
+
 //____________________________________________________________________
-QStringList IParticleCollHandle_TrackParticle::availableCollections( IVP1System*sys )
-{
-  return VP1SGContentsHelper(sys).getKeys<xAOD::TrackParticleContainer>();
-}
+#if defined BUILDVP1LIGHT
+  QStringList IParticleCollHandle_TrackParticle::availableCollections( IVP1System*sys )
+  {
+    return sys->getObjectList(xAOD::Type::TrackParticle);
+  }
+#else
+  QStringList IParticleCollHandle_TrackParticle::availableCollections( IVP1System*sys )
+  {
+    return VP1SGContentsHelper(sys).getKeys<xAOD::TrackParticleContainer>();
+  }
+#endif // BUILDVP1LIGHT
 
 //____________________________________________________________________
 class IParticleCollHandle_TrackParticle::Imp {
@@ -165,11 +180,20 @@ bool IParticleCollHandle_TrackParticle::load()
   messageVerbose("loading TrackParticle collection");
 
   //Get collection:
-  const xAOD::TrackParticleContainer * coll(0);
-  if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
-    message("Error: Could not retrieve track particle collection with key="+name());
-    return false;
-  }
+  const xAOD::TrackParticleContainer * coll(nullptr);
+
+  #if defined BUILDVP1LIGHT
+    // Retrieve objects from the event
+    if( !(systemBase()->getEvent())->retrieve( coll, name().toStdString()).isSuccess() ) {
+      message("Error: Could not retrieve collection with key="+name());
+       return false;
+    }
+  #else
+    if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
+      message("Error: Could not retrieve track particle collection with key="+name());
+      return false;
+    }
+  #endif // BUILDVP1LIGHT
 
   // // Retrieve the xAOD particles:
   //  const xAOD::TrackParticleContainer* xaod = evtStore()->retrieve<const xAOD::TrackParticleContainer>( m_TrackParticleCollection );

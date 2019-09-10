@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigTrackResidualMonitor/TrigTrackResidualMonitor.h"
@@ -39,6 +39,8 @@
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 namespace InDet
 {
@@ -199,19 +201,8 @@ namespace InDet
       msg() << MSG::INFO << "Retrieved ResidualPull Calculator " << m_residualPullCalculator << endmsg;
     }
     
-    //detStore 
-    StoreGateSvc* detStore(0);
-    StatusCode sc = service("DetectorStore", detStore);
-    if (sc.isFailure()){
-      msg() << MSG::FATAL << "Detector service not found !" << endmsg;
-      return HLT::BAD_ALGO_CONFIG;
-    } 
-    
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Detector service found" << endmsg;
-    
-    
     //idHelper ATLAS ID 
-    if (detStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
+    if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
       msg() << MSG::FATAL << "Could not get Atlas ID helper" << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
@@ -222,7 +213,7 @@ namespace InDet
     
     //Pixel ID 
     const PixelID * IdHelperPixel(0);
-    if (detStore->retrieve(IdHelperPixel, "PixelID").isFailure()) {
+    if (detStore()->retrieve(IdHelperPixel, "PixelID").isFailure()) {
       msg() << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }
@@ -235,7 +226,7 @@ namespace InDet
 
     //SCT ID 
     const SCT_ID * IdHelperSCT(0);
-    if (detStore->retrieve(IdHelperSCT, "SCT_ID").isFailure()) {
+    if (detStore()->retrieve(IdHelperSCT, "SCT_ID").isFailure()) {
       msg() << MSG::FATAL << "Could not get SCT ID helper" << endmsg;
       return HLT::BAD_ALGO_CONFIG;
     }

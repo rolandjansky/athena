@@ -20,15 +20,15 @@ authors : Niels van Eldik (CERN PH-ATC)
 
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
-#include "CaloInterface/ICaloNoiseTool.h"
+
 
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
 
 #include "PathLengthUtils.h"
 
 #include "StoreGate/ReadHandleKey.h"
+#include "CaloConditions/CaloNoise.h"
 
-class ICaloNoiseTool;
 
 namespace Rec {
   class IParticleCaloCellAssociationTool;
@@ -66,8 +66,8 @@ namespace Rec {
     ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
     ToolHandle< Trk::ITrackParticleCreatorTool >       m_particleCreator;     /**< The CB Particle Creator Tool */
     
-    // FIXME: mutable
-    mutable ToolHandle <ICaloNoiseTool>  m_caloNoiseTool; //!< Tool to quantify electronic noise in calorimeter
+    SG::ReadCondHandleKey<CaloNoise> m_caloNoiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
+
 
     // DATA MEMBERS
     double m_sigmasAboveNoise; // 4.

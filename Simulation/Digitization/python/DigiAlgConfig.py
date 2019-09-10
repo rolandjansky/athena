@@ -44,7 +44,7 @@ def getStandardTruthPileUpTools():
             PileUpToolsList += [ "MergeMcEventCollTool" ]
         PileUpToolsList += [ "MergeTruthJetsTool" ]
         if DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
-            PileUpToolsList += [ "MergeTrackRecordCollTool" ]
+            PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
             PileUpToolsList += [ "MergeCalibHitsTool" ]
     return PileUpToolsList
@@ -61,7 +61,7 @@ def getStandardSignalOnlyTruthPileUpTools():
             PileUpToolsList += [ "SignalOnlyMcEventCollTool" ]
         PileUpToolsList += [ "MergeTruthJetsTool" ]
         if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
-            PileUpToolsList += [ "MergeTrackRecordCollTool" ]
+            PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
             PileUpToolsList += [ "MergeCalibHitsTool" ]
     return PileUpToolsList
@@ -86,7 +86,7 @@ def getStandardInTimeOnlyTruthPileUpTools():
             PileUpToolsList += [ "InTimeOnlyMcEventCollTool" ]
         PileUpToolsList += [ "MergeTruthJetsTool" ]
         if not athenaCommonFlags.DoFullChain() and DetFlags.writeRDOPool.Muon_on(): #possibly this should be digitize.Muon_on()
-            PileUpToolsList += [ "MergeTrackRecordCollTool" ]
+            PileUpToolsList += [ "MergeMuonEntryLayerTool" ]
         if DetFlags.writeRDOPool.Calo_on(): #possibly this should be digitize.Calo_on()
             PileUpToolsList += [ "MergeCalibHitsTool" ]
     return PileUpToolsList

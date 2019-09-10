@@ -25,8 +25,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetSimData/InDetSimData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
-#include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
 #include "InDetSimEvent/TRTHitIdHelper.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -49,15 +47,12 @@
 // Gaudi includes
 #include "GaudiKernel/SmartDataPtr.h"
 
-#include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
 //CondDB
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 #include <limits>
 #include <cstdint>
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
-//Barcodes at the HepMC level are int
 
 // Random Number Generation
 #include "AthenaKernel/RNGWrapper.h"
@@ -68,57 +63,12 @@ static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>:
 
 //_____________________________________________________________________________
 TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
-					 const std::string& name,
-					 const IInterface* parent)
-  : PileUpToolBase(type, name, parent),
-    m_TRTpaiToolXe("TRT_PAI_Process_Xe"),
-    m_TRTpaiToolAr("TRT_PAI_Process_Ar"),
-    m_TRTpaiToolKr("TRT_PAI_Process_Kr"),
-    m_TRTsimdrifttimetool("TRT_SimDriftTimeTool"),
-    m_mergeSvc("PileUpMergeSvc",name),
-    m_pElectronicsProcessing(NULL),
-    m_pProcessingOfStraw(NULL),
-    m_pDigConditions(NULL),
-    m_pNoise(NULL),
-    m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc",name),
-    m_manager(NULL),
-    m_trt_id(NULL),
-    m_thpctrt(NULL),
-    m_alreadyPrintedPDGcodeWarning(false),
-    m_minCrossingTimeSDO(0.0),
-    m_maxCrossingTimeSDO(0.0),
-    m_minpileuptruthEkin(0.0),
-    //m_ComTime(NULL),
-    m_particleTable(NULL),
-    m_dig_vers_from_condDB(-1),
-    m_digverscontainerkey("/TRT/Cond/DigVers"),
-    m_first_event(true),
-    m_condDBdigverfoldersexists(false),
-    m_HardScatterSplittingMode(0),
-    m_HardScatterSplittingSkipper(false),
-    m_UseGasMix(0),
-    m_cosmicEventPhase(0.0),
-    m_sumTool("TRT_StrawStatusSummaryTool",this)
-
+                                         const std::string& name,
+                                         const IInterface* parent)
+  : PileUpToolBase(type, name, parent)
 {
-
-  declareInterface<TRTDigitizationTool>(this);
-  declareProperty("PAI_Tool_Xe", m_TRTpaiToolXe, "The PAI model for ionisation in the TRT Xe gas" );
-  declareProperty("PAI_Tool_Ar", m_TRTpaiToolAr, "The PAI model for ionisation in the TRT Ar gas" );
-  declareProperty("PAI_Tool_Kr", m_TRTpaiToolKr, "The PAI model for ionisation in the TRT Kr gas" );
-  declareProperty("SimDriftTimeTool", m_TRTsimdrifttimetool, "Drift time versus distance (r-t-relation) for TRT straws" );
-  declareProperty("MergeSvc", m_mergeSvc, "Merge service" );
-  declareProperty("DataObjectName", m_dataObjectName="TRTUncompressedHits", "Data Object Name" );
-  declareProperty("PrintOverrideableSettings", m_printOverrideableSettings = false, "Print overrideable settings" );
-  declareProperty("PrintDigSettings", m_printUsedDigSettings = true, "Print ditigization settings" );
   m_settings = new TRTDigSettings();
   m_settings->addPropertiesForOverrideableParameters(static_cast<AlgTool*>(this));
-  declareProperty("TRT_StrawNeighbourSvc",         m_TRTStrawNeighbourSvc);
-  declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
-  declareProperty("UseGasMix",                     m_UseGasMix);
-  declareProperty("HardScatterSplittingMode",      m_HardScatterSplittingMode);
-  declareProperty("ParticleBarcodeVeto",           m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
-
 }
 
 //_____________________________________________________________________________
@@ -138,21 +88,13 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 StatusCode TRTDigitizationTool::initialize()
 {
 
-  ATH_MSG_INFO ( "TRTDigitization::initialize() begin" );
-  //ATH_MSG_DEBUG ( "TRTDigitization::initialize() begin" );
+  ATH_MSG_DEBUG ( name()<<"::initialize() begin" );
 
   // Get the TRT Detector Manager
-  if (StatusCode::SUCCESS != detStore()->retrieve(m_manager,"TRT") ) {
-    ATH_MSG_ERROR ( "Can't get TRT_DetectorManager " );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "Retrieved TRT_DetectorManager with version "  << m_manager->getVersion().majorNum() );
-  }
+  ATH_CHECK(detStore()->retrieve(m_manager,"TRT"));
+  ATH_MSG_DEBUG ( "Retrieved TRT_DetectorManager with version "  << m_manager->getVersion().majorNum() );
 
-  if (detStore()->retrieve(m_trt_id, "TRT_ID").isFailure()) {
-    ATH_MSG_ERROR ( "Could not get TRT ID helper" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_trt_id, "TRT_ID"));
 
   // Fill setting defaults and process joboption overrides:
   m_settings->initialize(m_manager);
@@ -163,32 +105,29 @@ StatusCode TRTDigitizationTool::initialize()
 
   /// Get the PAI Tool for Xe, Ar, Kr gas mixtures:
 
-  if ( StatusCode::SUCCESS != m_TRTpaiToolXe.retrieve() ) {
-    ATH_MSG_ERROR ( "Can't get the Xe PAI Tool" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "Retrieved the PAI Tool for Xe straws" );
-  }
+  ATH_CHECK(m_TRTpaiToolXe.retrieve());
+  ATH_MSG_DEBUG ( "Retrieved the PAI Tool for Xe straws" );
 
-  if ( StatusCode::SUCCESS != m_TRTpaiToolAr.retrieve() ) {
-    ATH_MSG_WARNING ( "Can't get the Ar PAI Tool --> default PAI tool will be used for all straws (okay, if you don't use Argon straws)" );
-  } else {
-    ATH_MSG_DEBUG ( "Retrieved the PAI Tool for Ar straws" );
-  }
+  ATH_CHECK(m_TRTpaiToolAr.retrieve());
+  ATH_MSG_DEBUG ( "Retrieved the PAI Tool for Ar straws" );
 
-  if ( StatusCode::SUCCESS != m_TRTpaiToolKr.retrieve() ) {
-    ATH_MSG_WARNING ( "Can't get the Kr PAI Tool --> default PAI tool will be used for all straws (okay, if you don't use Krypton straws)" );
-  } else {
-    ATH_MSG_DEBUG ( "Retrieved the PAI Tool for Kr straws" );
-  }
+  ATH_CHECK(m_TRTpaiToolKr.retrieve());
+  ATH_MSG_DEBUG ( "Retrieved the PAI Tool for Kr straws" );
 
   /// Get the Sim-DriftTime Tool:
-  if ( StatusCode::SUCCESS != m_TRTsimdrifttimetool.retrieve() ) {
-    ATH_MSG_ERROR ( "Can't get the Sim. Drifttime Tool" );
+  ATH_CHECK(m_TRTsimdrifttimetool.retrieve());
+  ATH_MSG_DEBUG ( "Retrieved the Sim. Drifttime Tool" );
+
+  // Check data object name
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL ( "Property DataObjectName not set!" );
     return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "Retrieved the Sim. Drifttime Tool" );
   }
+  m_dataObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG ( "Input hits: " << m_dataObjectName );
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   // Initialize data handle keys
   ATH_CHECK(m_outputRDOCollName.initialize());
@@ -198,34 +137,17 @@ StatusCode TRTDigitizationTool::initialize()
   ATH_CHECK(m_rndmSvc.retrieve());
 
   // Get the Particle Properties Service
-  IPartPropSvc* p_PartPropSvc = 0;
+  IPartPropSvc* p_PartPropSvc(nullptr);
   static const bool CREATEIFNOTTHERE(true);
-  StatusCode PartPropStatus = service("PartPropSvc", p_PartPropSvc, CREATEIFNOTTHERE);
-  if ( !PartPropStatus.isSuccess() || 0 == p_PartPropSvc ) {
-    ATH_MSG_ERROR ( "Could not initialize Particle Properties Service" );
-    return PartPropStatus;
-  }
+  ATH_CHECK(service("PartPropSvc", p_PartPropSvc, CREATEIFNOTTHERE));
   m_particleTable = p_PartPropSvc->PDT();
 
   //locate the PileUpMergeSvc and initialize our local ptr
-  if (!m_mergeSvc.retrieve().isSuccess()) {
-    ATH_MSG_ERROR ( "Could not find PileUpMergeSvc" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_mergeSvc.retrieve());
 
   //Retrieve TRT_StrawNeighbourService.
-  if (!m_TRTStrawNeighbourSvc.retrieve().isSuccess()) {
-    ATH_MSG_FATAL ( "Could not get StrawNeighbourSvc!" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_TRTStrawNeighbourSvc.retrieve());
 
-  // Check data object name
-  if (m_dataObjectName == "")  {
-    ATH_MSG_FATAL ( "Property DataObjectName not set!" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( "Input hits: " << m_dataObjectName );
-  }
 
   m_minpileuptruthEkin = m_settings->pileUpSDOsMinEkin();
 
@@ -269,8 +191,8 @@ StatusCode TRTDigitizationTool::prepareEvent(unsigned int)
 
 //_____________________________________________________________________________
 StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
-						 SubEventIterator bSubEvents,
-						 SubEventIterator eSubEvents) {
+                                                 SubEventIterator bSubEvents,
+                                                 SubEventIterator eSubEvents) {
 
   m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
@@ -335,7 +257,7 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
 
   //Resuming initialiazation. Section below had to be moved into event loop due to dependence on conditions data
 
-  TRTElectronicsNoise *electronicsNoise(NULL);
+  TRTElectronicsNoise *electronicsNoise(nullptr);
   if ( m_settings->noiseInUnhitStraws() || m_settings->noiseInSimhits() ) {
     electronicsNoise = new TRTElectronicsNoise(m_settings, elecNoiseRndmEngine);
   }
@@ -373,7 +295,7 @@ StatusCode TRTDigitizationTool::lateInitialize(CLHEP::HepRandomEngine* noiseRndm
     ATH_MSG_DEBUG ( "Average straw noise level is " << m_pDigConditions->strawAverageNoiseLevel() );
 
   } else {
-    m_pNoise = NULL;
+    m_pNoise = nullptr;
   }
 
   ITRT_PAITool *TRTpaiToolXe = &(* m_TRTpaiToolXe);
@@ -568,42 +490,58 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
 
   m_vDigits.clear();
 
+  //  get the container(s)
+  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
+  TimedHitCollection<TRTUncompressedHit> thpctrt;
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<TRTUncompressedHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get TRTUncompressedHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // Define Hit Collection
+    thpctrt.reserve(1);
+
+    // create a new hits collection
+    thpctrt.insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollection->size() << " hits");
+  }
+  else {
+    TimedHitCollList hitCollList; // this is a list<pair<time_t, DataLink<TRTUncompressedHitCollection> > >
+    unsigned int numberOfSimHits(0);
+    if ( !(m_mergeSvc->retrieveSubEvtsData(m_dataObjectName, hitCollList, numberOfSimHits).isSuccess()) && hitCollList.size()==0 ) {
+      ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG ( hitCollList.size() << " TRTUncompressedHitCollections with key " << m_dataObjectName << " found" );
+    }
+
+    // Define Hit Collection
+    thpctrt.reserve(numberOfSimHits);
+
+    //now merge all collections into one
+    TimedHitCollList::iterator   iColl(hitCollList.begin());
+    TimedHitCollList::iterator endColl(hitCollList.end()  );
+    m_HardScatterSplittingSkipper = false;
+    // loop on the hit collections
+    while ( iColl != endColl ) {
+      //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
+      if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; ++iColl; continue; }
+      if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { ++iColl; continue; }
+      if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
+      const TRTUncompressedHitCollection* p_collection(iColl->second);
+      thpctrt.insert(iColl->first, p_collection);
+      ATH_MSG_DEBUG ( "TRTUncompressedHitCollection found with " << p_collection->size() << " hits" );
+      ++iColl;
+    }
+  }
+  m_thpctrt = &thpctrt;
+
   //Set of all hitid's with simhits (used for noise simulation).
   std::set<int> sim_hitids;
   std::set<Identifier> simhitsIdentifiers;
-
-  //  get the container(s)
-  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
-
-  //this is a list<pair<time_t, DataLink<TRTUncompressedHitCollection> > >
-  TimedHitCollList hitCollList;
-  unsigned int numberOfSimHits(0);
-  if ( !(m_mergeSvc->retrieveSubEvtsData(m_dataObjectName, hitCollList, numberOfSimHits).isSuccess()) && hitCollList.size()==0 ) {
-    ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ( hitCollList.size() << " TRTUncompressedHitCollections with key " << m_dataObjectName << " found" );
-  }
-
-  // Define Hit Collection
-  TimedHitCollection<TRTUncompressedHit> thpctrt(numberOfSimHits);
-
-  //now merge all collections into one
-  TimedHitCollList::iterator   iColl(hitCollList.begin());
-  TimedHitCollList::iterator endColl(hitCollList.end()  );
-  m_HardScatterSplittingSkipper = false;
-  // loop on the hit collections
-  while ( iColl != endColl ) {
-    //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
-    if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; ++iColl; continue; }
-    if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { ++iColl; continue; }
-    if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
-    const TRTUncompressedHitCollection* p_collection(iColl->second);
-    thpctrt.insert(iColl->first, p_collection);
-    ATH_MSG_DEBUG ( "TRTUncompressedHitCollection found with " << p_collection->size() << " hits" );
-    ++iColl;
-  }
-  m_thpctrt = &thpctrt;
 
   // Process the Hits straw by straw: get the iterator pairs for given straw
   ATH_CHECK(this->processStraws(sim_hitids, simhitsIdentifiers, rndmEngine, strawRndmEngine, elecProcRndmEngine, elecNoiseRndmEngine,paiRndmEngine));
@@ -748,7 +686,7 @@ StatusCode TRTDigitizationTool::createAndStoreRDOs()
   // for testing
   IdentifierHash IdHash; // default value is 0xFFFFFFFF
   IdentifierHash IdHashOld; // default value is 0xFFFFFFFF
-  TRT_RDO_Collection *RDOColl(NULL);
+  TRT_RDO_Collection *RDOColl(nullptr);
 
   Identifier idStraw;
 
@@ -899,7 +837,7 @@ StatusCode TRTDigitizationTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
 
   ATH_MSG_INFO ("Updating condition settings TRT_Digitization! ");
 
-  const AthenaAttributeList* atrlist(NULL);
+  const AthenaAttributeList* atrlist(nullptr);
 
   if (StatusCode::SUCCESS == detStore()->retrieve(atrlist, m_digverscontainerkey ) && atrlist != 0) {
     std::list<std::string>::const_iterator itr;

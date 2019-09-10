@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonChamberHoleRecoveryTool.h"
@@ -10,7 +10,7 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
@@ -71,7 +71,6 @@ namespace Muon {
       m_clusRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
       m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"), 
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
   {
     declareInterface<IMuonHoleRecoveryTool>(this);
@@ -86,7 +85,6 @@ namespace Muon {
     declareProperty("ClusterRotCreator",          m_clusRotCreator);
     declareProperty("PullCalculator",          m_pullCalculator);
     declareProperty("IdHelper",                m_idHelperTool);
-    declareProperty("EDMHelper",               m_helperTool);
     declareProperty("EDMPrinter",              m_printer);
 
     declareProperty("AddMeasurements",       m_addMeasurements = true);
@@ -104,7 +102,7 @@ namespace Muon {
   {
 
     ATH_CHECK( detStore()->retrieve( m_detMgr ) );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_CHECK( m_mdtRotCreator.retrieve() );
@@ -126,7 +124,7 @@ namespace Muon {
     ATH_CHECK(m_key_rpc.initialize());
     if(m_key_stgc.key()!="") ATH_CHECK(m_key_stgc.initialize());
     if(m_key_mm.key()!="") ATH_CHECK(m_key_mm.initialize());
-    
+    if(!m_condKey.empty()) ATH_CHECK(m_condKey.initialize());    
     
     return StatusCode::SUCCESS;
   }
@@ -209,7 +207,7 @@ namespace Muon {
 	continue;
       }
       
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       
       // Not a ROT, else it would have had an identifier. Keep the TSOS.
       if ( !id.is_valid() || !m_idHelperTool->mdtIdHelper().is_muon(id) ) {
@@ -302,7 +300,7 @@ namespace Muon {
       }
       
       // get identifier, keep state if it has no identifier.
-      Identifier id = m_helperTool->getIdentifier(*meas);
+      Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if ( !id.is_valid() ) {
 	newStates.push_back( std::make_pair(false, *tsit) );
 	continue;
@@ -387,7 +385,7 @@ namespace Muon {
     // this should be a MDT
     const MdtDriftCircleOnTrack* mdtFirst = dynamic_cast<const MdtDriftCircleOnTrack*>(meas);
     if ( !mdtFirst ) {
-      ATH_MSG_WARNING("Bad hit: not a MDT " << m_idHelperTool->toString(m_helperTool->getIdentifier(*meas)) );
+      ATH_MSG_WARNING("Bad hit: not a MDT " << m_idHelperTool->toString(m_edmHelperSvc->getIdentifier(*meas)) );
       if ( tsit + 1 == tsit_end ) --tsit;
       return tsit;
     }
@@ -1044,7 +1042,7 @@ namespace Muon {
 	}
 	
 	// calibrate Mdt PRD
-	const MdtDriftCircleOnTrack* mdtROT = m_mdtRotCreator->createRIO_OnTrack(mdtPrd, exPars->position(), &(exPars->momentum()));
+        MdtDriftCircleOnTrack* mdtROT = m_mdtRotCreator->createRIO_OnTrack(mdtPrd, exPars->position(), &(exPars->momentum()));
 	// sanity check
 	if ( !mdtROT ) {
 	  ATH_MSG_DEBUG(" failed to calibrate MdtPrepData " << m_idHelperTool->toString(id) );
@@ -1065,16 +1063,8 @@ namespace Muon {
 	    // calculate side
 	    Trk::DriftCircleSide side = locPos[Trk::driftRadius] < 0 ? Trk::LEFT : Trk::RIGHT;
 	    
-	    // cast away constness
-	    MdtDriftCircleOnTrack* changeMdtROT = const_cast<MdtDriftCircleOnTrack*>(mdtROT);
-	    // sanity check
-	    // if( !changeMdtROT ){
-	    // ATH_MSG_WARNING(" failed to cast away constness of mdtROt " << m_idHelperTool->toString(id) );
-	    // continue;
-	    // }
-	    
 	    // update sign
-	    m_mdtRotCreator->updateSign( *changeMdtROT, side );
+	    m_mdtRotCreator->updateSign( *mdtROT, side );
 	  }
 	}
 	
@@ -1179,8 +1169,8 @@ namespace Muon {
 	if ( surf.globalToLocal(exPars->position(), exPars->momentum(), locPos) ) {
 	  // perform bound check do not count holes with 100. mm of bound edge
 	  inBounds = surf.bounds().insideLoc2(locPos, -100.);
-	  if ( inBounds ) {
-	    if ( fabs( locPos[Trk::locR] ) > 14.4 ) inBounds = false;
+	  if( inBounds && fabs(locPos[Trk::locR]) > detEl->innerTubeRadius() ) {
+	    inBounds = false;
 	  }
 	}
 	if ( !inBounds ) {
@@ -1254,7 +1244,13 @@ namespace Muon {
 								       const std::set<Identifier>& tubeIds ) const {
     
     // calculate crossed tubes
-    const MuonStationIntersect& intersect = m_intersectSvc->tubesCrossedByTrack( chId, position, direction );
+    const MdtCondDbData* dbData;
+    if(!m_condKey.empty()){
+      SG::ReadCondHandle<MdtCondDbData> readHandle{m_condKey};
+      dbData=readHandle.cptr();
+    }
+    else dbData=nullptr; //for online running
+    const MuonStationIntersect intersect = m_intersectSvc->tubesCrossedByTrack( chId, position, direction, dbData, m_detMgr );
 
     // clear hole vector
     std::set<Identifier> holes;

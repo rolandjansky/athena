@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ConfigurableDb.py
 # Author: Sebastien Binet (binet@cern.ch)
@@ -11,7 +11,16 @@ This repository of (informations on) Configurables is used by the PropertyProxy
 class to locate Configurables and feed the JobOptionsSvc. It could also be used
 to feed the AthenaEmacs module..."""
 
+from __future__ import with_statement, print_function
+
 import string
+import six
+if six.PY2:
+    _maketrans = string.maketrans
+    _translate = string.translate
+else:
+    _maketrans = str.maketrans
+    _translate = str.translate
 
 
 ### data ---------------------------------------------------------------------
@@ -22,7 +31,7 @@ __all__ = [ 'CfgDb', 'cfgDb',
             'loadConfigurableDb', 'unloadConfigurableDb',
             'getConfigurable' ]
 
-_transtable = string.maketrans('<>&*,: ().', '__rp__s___')
+_transtable = _maketrans('<>&*,: ().', '__rp__s___')
 
 ### helpers ------------------------------------------------------------------
 def _fillConfDict():
@@ -170,7 +179,7 @@ def loadConfigurableDb():
          cfgDb.msg.debug( "\t-loading [%s]...", confDb )
          try:
             cfgDb._loadModule( confDb )
-         except Exception, err:
+         except Exception as err:
             import traceback
             traceback.print_exc()
             cfgDb.msg.warning( "Could not load file [%s] !", confDb )
@@ -178,7 +187,7 @@ def loadConfigurableDb():
          nFiles += 1
    cfgDb.msg.debug( "loading confDb files... [DONE]" )
    nPkgs = len( set([k['package'] for k in cfgDb.values()]) )
-   cfgDb.msg.debug( "loaded %i confDb packages" % nPkgs )
+   cfgDb.msg.debug( "loaded %i confDb packages", nPkgs )
    return nFiles
 
 
@@ -227,7 +236,7 @@ def getConfigurable( className, requester = '', assumeCxxClass = True ):
    confClass = className
    if assumeCxxClass:
     # assume className is C++: --> translate to python
-      confClass = string.translate( confClass, _transtable )
+      confClass = _translate( confClass, _transtable )
 
  # attempt to retrieve existing information
    confClassInfo = cfgDb.get( confClass )
@@ -240,7 +249,7 @@ def getConfigurable( className, requester = '', assumeCxxClass = True ):
 
  # load the module
    try:
-      mod = __import__( confMod, globals(), locals(), confClass )
+      mod = __import__( confMod, globals(), locals(), confClass, level=0 )
    except ImportError:
       cfgDb.msg.warning( "%s: Module %s not found (needed for configurable %s)",
                    requester, confMod, className )

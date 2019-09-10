@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/ServicesPythonize.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
 """Pythonizations for common Gaudi/Athena services."""
+
+from __future__ import print_function
 
 import sys
 try:
@@ -80,6 +82,10 @@ def _josvc_verify( self, client, property, value ):
       if prop.name() == property:
          if prop.value() == value:
             return True
+         if isinstance (value, type({})):
+            pval = eval(prop.value())
+            if pval == value:
+               return True
          break
 
    return False

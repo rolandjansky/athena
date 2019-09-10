@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  MuonNextBCTOB.cpp
 //  TopoCore
@@ -10,10 +10,10 @@
 unsigned int TCS::MuonNextBCTOB::fg_instances = 0;
 TCS::Heap<TCS::MuonNextBCTOB> TCS::MuonNextBCTOB::fg_heap("MuonNextBC");
 
-unsigned int TCS::MuonNextBCTOB::g_nBitsEt = 8;
-unsigned int TCS::MuonNextBCTOB::g_nBitsIsolation = 5;
-unsigned int TCS::MuonNextBCTOB::g_nBitsEta = 6;
-unsigned int TCS::MuonNextBCTOB::g_nBitsPhi = 6;
+const unsigned int TCS::MuonNextBCTOB::g_nBitsEt = 8;
+const unsigned int TCS::MuonNextBCTOB::g_nBitsIsolation = 5;
+const unsigned int TCS::MuonNextBCTOB::g_nBitsEta = 6;
+const unsigned int TCS::MuonNextBCTOB::g_nBitsPhi = 6;
 
 // default constructor
 TCS::MuonNextBCTOB::MuonNextBCTOB(uint32_t roiWord) :

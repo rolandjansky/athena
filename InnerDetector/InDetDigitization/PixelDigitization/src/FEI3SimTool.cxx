@@ -5,10 +5,8 @@
 #include "FEI3SimTool.h"
 
 FEI3SimTool::FEI3SimTool( const std::string& type, const std::string& name,const IInterface* parent):
-  FrontEndSimTool(type,name,parent),
-  m_timingTune(2015)
+  FrontEndSimTool(type,name,parent)
 {
-	declareProperty("TimingTune",           m_timingTune, "Version of the timing calibration");	
 }
 
 FEI3SimTool::~FEI3SimTool() { }
@@ -31,6 +29,7 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
   const PixelID* pixelId = static_cast<const PixelID *>(chargedDiodes.element()->getIdHelper());
   const IdentifierHash moduleHash = pixelId->wafer_hash(chargedDiodes.identify()); // wafer hash
+  Identifier moduleID = pixelId->wafer_id(chargedDiodes.element()->identify());
 
   int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
   int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
@@ -38,19 +37,22 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
   if (abs(barrel_ec)!=m_BarrelEC) { return; }
 
-  SG::ReadCondHandle<PixelModuleData> module_data(m_moduleDataKey);
+  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
 
   // Add cross-talk
-  CrossTalk(module_data->getCrossTalk(barrel_ec,layerIndex),chargedDiodes);
+  CrossTalk(moduleData->getCrossTalk(barrel_ec,layerIndex),chargedDiodes);
 
-  // Add thermal noise
-  ThermalNoise(module_data->getThermalNoise(barrel_ec,layerIndex),chargedDiodes, rndmEngine);
+  if (m_doNoise) {
+    // Add thermal noise
+    ThermalNoise(moduleData->getThermalNoise(barrel_ec,layerIndex),chargedDiodes, rndmEngine);
 
-  // Add random noise
-  RandomNoise(chargedDiodes, rndmEngine);
+    // Add random noise
+    RandomNoise(chargedDiodes, rndmEngine);
+  }
 
   // Add random diabled pixels
-  RandomDisable(chargedDiodes, rndmEngine);
+  RandomDisable(chargedDiodes, rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
 
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
     // Merge ganged pixel
@@ -82,48 +84,48 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     }
   }
 
-
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
 
     Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
     double charge = (*i_chargedDiode).second.charge();
 
-    // Apply analog threshold, timing simulation
-    double th0  = m_pixelCalibSvc->getThreshold(diodeID);
-    double ith0 = m_pixelCalibSvc->getTimeWalk(diodeID);
+    int circ = m_pixelCabling->getFE(&diodeID,moduleID);
+    int type = m_pixelCabling->getPixelType(diodeID);
 
-    double threshold = th0+m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(rndmEngine)+m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+    // Apply analog threshold, timing simulation
+    double th0 = calibData->getAnalogThreshold((int)moduleHash, circ, type);
+    double ith0 = calibData->getInTimeThreshold((int)moduleHash, circ, type);
+
+    double threshold = th0+calibData->getAnalogThresholdSigma((int)moduleHash,circ,type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine)+calibData->getAnalogThresholdNoise((int)moduleHash, circ, type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine); // This noise check is unaffected by digitizationFlags.doInDetNoise in 21.0 - see PixelCellDiscriminator.cxx in that branch
     double intimethreshold = (ith0/th0)*threshold;
 
     if (charge>threshold) {
-      int bunchSim;
+      int bunchSim = 0;
       if ((*i_chargedDiode).second.totalCharge().fromTrack()) {
-        if (m_timingTune==2015) { bunchSim = relativeBunch2015((*i_chargedDiode).second.totalCharge(),barrel_ec,layerIndex,moduleIndex, rndmEngine); }
-        else                    { bunchSim = relativeBunch2009(threshold,intimethreshold,(*i_chargedDiode).second.totalCharge(), rndmEngine); }
+        if      (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2015) { bunchSim = relativeBunch2015((*i_chargedDiode).second.totalCharge(),barrel_ec,layerIndex,moduleIndex, rndmEngine); }
+        else if (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)==2009) { bunchSim = relativeBunch2009(threshold,intimethreshold,(*i_chargedDiode).second.totalCharge(), rndmEngine); }
       } 
       else {
-        bunchSim = CLHEP::RandFlat::shootInt(rndmEngine,m_timeBCN);
+        if (moduleData->getFEI3TimingSimTune(barrel_ec,layerIndex)>0) { bunchSim = CLHEP::RandFlat::shootInt(rndmEngine,moduleData->getNumberOfBCID(barrel_ec,layerIndex)); }
       }
 
-      if (bunchSim<0 || bunchSim>m_timeBCN) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-      else                                  { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim, &msg()); }
+      if (bunchSim<0 || bunchSim>moduleData->getNumberOfBCID(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+      else                                                                          { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim); }
     } 
     else {
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    if (charge<module_data->getAnalogThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-
     // charge to ToT conversion
-    double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
-    double totsig = m_pixelCalibSvc->getTotRes(diodeID,tot);
+    double tot    = calibData->getToT((int)moduleHash, circ, type, charge);
+    double totsig = calibData->getTotRes((int)moduleHash, circ, tot);
     int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(rndmEngine,tot,totsig));
 
     if (nToT<1) { nToT=1; }
 
-    if (nToT<=module_data->getToTThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (nToT<=moduleData->getToTThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
-    if (nToT>=module_data->getLatency(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (nToT>=moduleData->getFEI3Latency(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // Filter events
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
@@ -141,22 +143,21 @@ void FEI3SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     const Identifier id_readout = chargedDiodes.element()->identifierFromCellId(cellId);
 
     // Front-End simulation
-    if (bunch>=0 && bunch<m_timeBCN) {
+    if (bunch>=0 && bunch<moduleData->getNumberOfBCID(barrel_ec,layerIndex)) {
       Pixel1RawData *p_rdo = new Pixel1RawData(id_readout,nToT,bunch,0,bunch);
       rdoCollection.push_back(p_rdo);
+      p_rdo = nullptr;
     }
 
     // Duplication mechanism for FEI3 small hits :
-    bool hitDupli = false;
-    if (module_data->getHitDuplication(barrel_ec,layerIndex)) { hitDupli=true; }
-
-    if (hitDupli) {
+    if (moduleData->getFEI3HitDuplication(barrel_ec,layerIndex)) {
       bool smallHitChk = false;
-      if (nToT<=module_data->getSmallHitToT(barrel_ec,layerIndex)) { smallHitChk=true; }
+      if (nToT<=moduleData->getFEI3SmallHitToT(barrel_ec,layerIndex)) { smallHitChk=true; }
 
-      if (smallHitChk && bunch>0 && bunch<=m_timeBCN) {
+      if (smallHitChk && bunch>0 && bunch<=moduleData->getNumberOfBCID(barrel_ec,layerIndex)) {
         Pixel1RawData *p_rdo = new Pixel1RawData(id_readout,nToT,bunch-1,0,bunch-1);
         rdoCollection.push_back(p_rdo);
+        p_rdo = nullptr;
       }
     }
   }
@@ -168,6 +169,8 @@ int FEI3SimTool::relativeBunch2009(const double threshold, const double intimeth
   int BCID=0;
   double myTimeWalkEff = 0.;
   double overdrive  = intimethreshold - threshold ;
+
+  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
 
   //my TimeWalk computation through PARAMETRIZATION (by Francesco De Lorenzi - Milan)
   //double curvature  =  7.6e7*overdrive-2.64e10;
@@ -182,13 +185,13 @@ int FEI3SimTool::relativeBunch2009(const double threshold, const double intimeth
 
   myTimeWalkEff = myTimeWalk+myTimeWalk*0.2*CLHEP::RandGaussZiggurat::shoot(rndmEngine);
 
-  double randomjitter  = CLHEP::RandFlat::shoot(rndmEngine,(-m_timeJitter/2.0),(m_timeJitter/2.0));    	
+  double randomjitter  = CLHEP::RandFlat::shoot(rndmEngine,(-moduleData->getTimeJitter(0,1)/2.0),(moduleData->getTimeJitter(0,1)/2.0));    	
 
   //double G4Time	 = totalCharge.time();
 
   double G4Time = getG4Time(totalCharge);
-  double timing        = m_timeZero+myTimeWalkEff+(randomjitter)+G4Time-m_comTime; 
-  BCID                 = static_cast<int>(floor(timing/m_timePerBCO));
+  double timing        = moduleData->getTimeOffset(0,1)+myTimeWalkEff+(randomjitter)+G4Time-moduleData->getComTime(); 
+  BCID = static_cast<int>(floor(timing/moduleData->getBunchSpace()));
   //ATH_MSG_DEBUG (  CTW << " , " << myTimeWalkEff << " , " << G4Time << " , " << timing << " , " << BCID );    
 
   return BCID;
@@ -217,6 +220,7 @@ int FEI3SimTool::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_
    * 60% working point tune-2
    */
 
+  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
   double prob = 0.0;
   if (barrel_ec==0 && layer_disk==1) {
     if (abs(moduleID)==0) {
@@ -399,7 +403,7 @@ int FEI3SimTool::relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_
   double timeWalk = 0.0;
   if (rnd<prob) { timeWalk = 25.0; }
 
-  int BCID = static_cast<int>(floor((G4Time+m_timeZero+timeWalk)/m_timePerBCO));
+  int BCID = static_cast<int>(floor((G4Time+moduleData->getTimeOffset(barrel_ec,layer_disk)+timeWalk)/moduleData->getBunchSpace()));
 
   return BCID;
 }

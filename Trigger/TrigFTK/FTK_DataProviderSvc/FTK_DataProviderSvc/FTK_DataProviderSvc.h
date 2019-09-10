@@ -34,9 +34,16 @@
 
 #include <vector>
 #include "FTK_RecToolInterfaces/IFTK_HashIDTool.h"
+#include "FTK_RecToolInterfaces/IFTK_VertexFinderTool.h"
+
+#include "TrkVertexFitterInterfaces/IVertexCollectionSortingTool.h"
+#include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
+
+#include "InDetRecToolInterfaces/IVertexFinder.h"
 
 /// Forward Declarations ///
 class AtlasDetectorID;
+class IBeamCondSvc;
 class PixelID;
 class SCT_ID;
 class Identifier;
@@ -50,23 +57,14 @@ namespace Trk {
   class Track;
   class ITrackFitter;
   class ITrackSummaryTool;
-  class ITrackParticleCreatorTool;
   class IRIO_OnTrackCreator;
-  class IVertexCollectionSortingTool;
-}
-
-namespace InDetDD {
-  class PixelDetectorManager;
 }
 
 namespace InDet {
   class PixelCluster;
   class PixelClusterOnTrack;
   class SCT_Cluster;
-  class IVertexFinder;
 }
-
-class IFTK_VertexFinderTool;
 
 
 class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public IIncidentListener,
@@ -139,7 +137,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
  bool fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer*);
 
- 
+ bool makeDummyVertex(bool withRefit);
+
  const Trk::RIO_OnTrack* createPixelCluster(const IdentifierHash hash, const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee);
  const Trk::RIO_OnTrack* createSCT_Cluster(const IdentifierHash hash, const FTK_RawSCT_Cluster& raw_sct_cluster, const Trk::TrackParameters& trkPerigee);
  
@@ -158,19 +157,23 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  private:
 
   float dphi(const float phi1, const float phi2) const;
+  const InDetDD::SiDetectorElement* getPixelDetectorElement(const IdentifierHash hash) const;
   const InDetDD::SiDetectorElement* getSCTDetectorElement(const IdentifierHash hash) const;
 
   std::string m_RDO_key;
   StoreGateSvc* m_storeGate;
+
+  ServiceHandle<IBeamCondSvc> m_BeamCondSvc;
+
   const PixelID* m_pixelId;
   const SCT_ID*  m_sctId;
   
-  const InDetDD::PixelDetectorManager* m_pixelManager;
-
   const AtlasDetectorID* m_id_helper;
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
   SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_clusterErrorKey{this, "PixelOfflineCalibData", "PixelOfflineCalibData", "Output key of pixel cluster"};
+
 
   ToolHandle<IFTK_UncertaintyTool> m_uncertaintyTool;
   ToolHandle<Trk::ITrackFitter> m_trackFitter;

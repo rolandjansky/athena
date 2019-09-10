@@ -16,9 +16,11 @@
 #include "InDetSimEvent/SiHitCollection.h"
 
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 
@@ -27,10 +29,6 @@
 #include "SensorSimTool.h"
 #include "FrontEndSimTool.h"
 #include "EnergyDepositionTool.h"
-
-namespace InDetDD{
-  class PixelDetectorManager;
-}
 
 namespace RadDam{
 
@@ -59,6 +57,7 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     std::vector<SiHitCollection*> m_hitCollPtrs;
 
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
     SG::WriteHandle<PixelRDO_Container>     m_rdoContainer;
     SG::WriteHandle<InDetSimDataCollection> m_simDataColl;
 
@@ -75,8 +74,6 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     const PixelID            *m_detID;
 
-    IntegerProperty           m_vetoThisBarcode;
-
     TimedHitCollection<SiHit> *m_timedHits;
 
   protected:
@@ -85,7 +82,6 @@ class PixelDigitizationTool : public PileUpToolBase {
     ServiceHandle <PileUpMergeSvc> m_mergeSvc;
 
     CLHEP::HepRandomEngine *m_rndmEngine;
-    const InDetDD::PixelDetectorManager *m_detManager;
 
     std::string   m_inputObjectName;
     bool          m_createNoiseSDO;

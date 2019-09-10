@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from itertools import repeat
+from __future__ import print_function
 
 HIERARCHY = (
     ("Inner_Detector",(
@@ -97,7 +97,6 @@ class DetectorHierarchy(object):
             if self.depth == 2:
                 jstr = " "
                 indent = " : "
-            parlen = len(self.parent.name) if self.parent else 0
             sub_part = indent, jstr.join(repr(x) for x in self.sub_hierarchy)
         
         width = self.parent.max_sub_width if self.parent else len(self.name)
@@ -109,9 +108,9 @@ class DetectorHierarchy(object):
 detector_hierarchy = DetectorHierarchy(("All", HIERARCHY))
 
 def test():
-    print "Detector hierarchy:"
-    print detector_hierarchy
-    print
+    print("Detector hierarchy:")
+    print(detector_hierarchy)
+    print()
     
     accumulated = detector_hierarchy.get_channels("Inner_Detector")
     

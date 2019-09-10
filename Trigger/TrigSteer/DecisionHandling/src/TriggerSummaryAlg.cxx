@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Property.h"
@@ -37,7 +37,7 @@ StatusCode TriggerSummaryAlg::execute(const EventContext& context) const
   
   // that is certain input
   auto l1DecisionHandle = SG::makeHandle(  m_inputDecisionKey, context );
-  auto inputHandles( m_finalDecisionKeys.makeHandles() );
+  auto inputHandles( m_finalDecisionKeys.makeHandles(context) );
   TrigCompositeUtils::DecisionIDContainer allPassingIDs;
   for ( auto input: inputHandles ) {
     if ( input.isValid() ) {

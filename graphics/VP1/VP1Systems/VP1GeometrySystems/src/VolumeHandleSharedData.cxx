@@ -164,11 +164,13 @@ SoNode * VolumeHandleSharedData::toShapeNode(const GeoPVConstLink& pV)
 {
   const GeoLogVol * logVolume = pV->getLogVol();
 
+  // if shape already stored for this volume, return that
   SoShape * shape (0);
   std::map<const GeoLogVol *, SoShape *>::iterator itShape = m_d->logvol2shape.find(logVolume);
   if (itShape!=m_d->logvol2shape.end()) {
     return itShape->second;
   }
+
   const GeoShape * geoshape = logVolume->getShape();
     
   m_d->visaction.reset();

@@ -10,31 +10,27 @@
 namespace Monitored {
   class VecHistogramFiller1DWithOverflows : public HistogramFiller1D {
   public:
-    VecHistogramFiller1DWithOverflows(TH1* hist, const HistogramDef& histDef) 
-      : HistogramFiller1D(hist, histDef) {}
+    VecHistogramFiller1DWithOverflows(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
+      : HistogramFiller1D(definition, provider) {}
 
     virtual VecHistogramFiller1DWithOverflows* clone() override { return new VecHistogramFiller1DWithOverflows(*this); };
 
     virtual unsigned fill() override {
-      using namespace std;
-
       if (m_monVariables.size() != 1) {
         return 0;
       }
 
-      unsigned i(0);
-      auto hist = histogram();
+      auto histogram = this->histogram<TH1>();
       auto valuesVector = m_monVariables[0].get().getVectorRepresentation();
-      lock_guard<mutex> lock(*(this->m_mutex));
+      std::lock_guard<std::mutex> lock(*(this->m_mutex));
 
-      for (auto value : valuesVector) {
-        hist->AddBinContent(i, value);
-        hist->SetEntries(hist->GetEntries() + value);
-
-        ++i;
+      for (unsigned i = 0; i < std::size(valuesVector); ++i) {
+        auto value = valuesVector[i];
+        histogram->AddBinContent(i, value);
+        histogram->SetEntries(histogram->GetEntries() + value);
       }
 
-      return i;
+      return std::size(valuesVector);
     }
   };
 }

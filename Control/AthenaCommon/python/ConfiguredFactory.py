@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+
+from __future__ import print_function
 
 __author__ = 'Martin Woudstra <martin.woudstra@cern.ch>'
 
@@ -10,10 +12,10 @@ from GaudiKernel.GaudiHandles import \
      PrivateToolHandle,PrivateToolHandleArray,\
      ServiceHandle,ServiceHandleArray
 
-from Configurable import Configurable
-import ConfigurableDb
-from AppMgr import ToolSvc, ServiceMgr  # noqa: 401
-from Logging import logging
+from AthenaCommon.Configurable import Configurable
+from AthenaCommon import ConfigurableDb
+from AthenaCommon.AppMgr import ToolSvc, ServiceMgr  # noqa: 401
+from AthenaCommon.Logging import logging
 
 
 # Classes-to-be-raised-as-errors
@@ -618,7 +620,7 @@ class ConfiguredFactory(object):
             # Not available, just keep the old one
             return propertyValue
 
-        except ConfigurationError,err:
+        except ConfigurationError as err:
             if propStack is not None: propStack.pop()
             if self._requireAllDependencies or not isPropDefault:
                 raise
@@ -700,7 +702,7 @@ class ConfiguredFactory(object):
 
             try:
                 setattr(conf,name,resolvedValue)
-            except Exception,err:
+            except Exception as err:
                 raise ConfigurationError("ERROR in setting %s(%r).%s = %r\n  Exception raised: %s" %
                                          (conf.getType(),conf.getName(),name,value,err) )
 
@@ -1271,17 +1273,17 @@ class ConfiguredFactory(object):
                     
                 # turn filename syntax into module syntax: remove extension and replace / with . (dot)
                 confDbModule = os.path.splitext(localfile)[0].replace(os.sep,'.')
-                self.logger().debug( "importing %s..." % confDbModule )
+                self.logger().debug( "importing %s...", confDbModule )
                 try:
                     mod = __import__( confDbModule, globals(), locals(), [dbFile] )
-                except Exception, err:
+                except Exception as err:
                     self.logger().warning( "Error importing module %s !", confDbModule )
                     self.logger().warning( "Reason: %s", err )
                 else:
                     nFiles += 1
 
         stopTime = time.time()
-        self.logger().info( "imported %i confDb modules in %.2f seconds" % (nFiles,stopTime-startTime) )
+        self.logger().info( "imported %i confDb modules in %.2f seconds", nFiles, stopTime-startTime )
         self._hasReadDB = True
         
 

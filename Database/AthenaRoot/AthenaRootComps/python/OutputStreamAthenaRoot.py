@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file OutputStreamAthenaRoot.py
 ## @brief Helper methods to create output streams
@@ -6,10 +6,12 @@
 ## $Id: OutputStreamAthenaRoot.py 723505 2016-02-11 22:29:40Z gemmeren $
 ###############################################################
 
+from __future__ import print_function
+
 import AthenaCommon.CfgMgr as CfgMgr
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-from AthenaRootCompsConf import Athena__RootOutputStreamTool as AthenaRootOutputStreamTool
+from AthenaRootComps.AthenaRootCompsConf import Athena__RootOutputStreamTool as AthenaRootOutputStreamTool
 
 def createNtupleOutputStream(streamName, fileName, tupleName="physics", asAlg = False):
     if asAlg:

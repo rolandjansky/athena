@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -75,7 +77,7 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   
   //----------Private Attributes----------//
   ToolHandle<ISCT_CablingTool> m_cabling{this, "SCT_CablingTool", "SCT_CablingTool", "Tool to retrieve SCT Cabling"};
-  const SCT_ID*                       m_id_sct;      //!< Handle to SCT ID helper
+  const SCT_ID* m_id_sct{nullptr}; //!< Handle to SCT ID helper
 };
 
 //---------------------------------------------------------------------- 

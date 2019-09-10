@@ -1,20 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECABLINGSVC_H
 #define TILECONDITIONS_TILECABLINGSVC_H
 
-// Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
+// Tile includes
+#include "TileConditions/TileCablingService.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "Identifier/Identifier.h"
+#include "CxxUtils/checker_macros.h"
 
-// Tile includes
-#include "TileConditions/TileCablingService.h"
+// Gaudi includes
+#include "GaudiKernel/ServiceHandle.h"
 
 // Forward declaration
 class StoreGateSvc;
@@ -25,7 +26,7 @@ template<class TYPE> class SvcFactory;
 //NGO At some point TileCablingService should be made a tool, but this will introduce
 //NGO many upstream code changes.
 
-class TileCablingSvc: public AthService {
+class ATLAS_CHECK_THREAD_SAFETY TileCablingSvc: public AthService {
     friend class SvcFactory<TileCablingSvc> ;
 
   public:

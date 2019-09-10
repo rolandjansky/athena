@@ -1,3 +1,7 @@
+#
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+
 # ****************************************************************************
 # jobOptions file for setting up TilePulseForTileMuonReceiver algorithm
 # ============================================================================
@@ -14,26 +18,25 @@ svcMgr.TileInfoLoader.MuRcvPed = TileMuRcvPedestal
 # svcMgr.TileCablingSvc.CablingType = 4 
 
 from AthenaCommon import CfgMgr
-toolSvc = CfgMgr.ToolSvc()
 
 # Set up TileCondToolPulseShape to be used in
 # TilePulseForTileMuonReceiver and TileCondToolOfc
 from TileConditions.TileCondToolConf import getTileCondToolMuRcvPulseShape
-toolSvc += getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
+TileCondToolMuRcvPulseShape = getTileCondToolMuRcvPulseShape('FILE', 'TileCondToolMuRcvPulseShape')
 
-# Set up TileCondToolOfc to be used in TileRawChannelBuilderMF
-toolSvc += CfgMgr.TileCondToolOfc('TileCondToolMuRcvOfc'
-                                  , OptFilterDeltaCorrelation = True
-                                  , TileCondToolPulseShape = toolSvc.TileCondToolMuRcvPulseShape)
+# Set up TileCondToolOfc to be used in TileRawChannelBuilderMFi
+TileCondToolMuRcvOfc = CfgMgr.TileCondToolOfc('TileCondToolMuRcvOfc'
+                                              , OptFilterDeltaCorrelation = True
+                                              , TileCondToolPulseShape = TileCondToolMuRcvPulseShape)
 
 # Set up TileRawChannelBuilderMF to be used in TilePulseForTileMuonReceiver
-toolSvc += CfgMgr.TileRawChannelBuilderMF('TileMuRcvRawChannelBuilderMF'
-                                          , MF = 1
-                                          , PedestalMode = 0
-                                          , DefaultPedestal = TileMuRcvPedestal
-                                          , calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
-                                          , TileCondToolOfc = toolSvc.TileCondToolMuRcvOfc
-                                          , TileCondToolOfcOnFly = toolSvc.TileCondToolMuRcvOfc)
+TileMuRcvRawChannelBuilderMF = CfgMgr.TileRawChannelBuilderMF('TileMuRcvRawChannelBuilderMF'
+                                                              , MF = 1
+                                                              , PedestalMode = 0
+                                                              , DefaultPedestal = TileMuRcvPedestal
+                                                              , calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
+                                                              , TileCondToolOfc = TileCondToolMuRcvOfc
+                                                              , TileCondToolOfcOnFly = TileCondToolMuRcvOfc)
 
 #  Random number engine in TilePulseForTileMuonReceiver
 from Digitization.DigitizationFlags import jobproperties
@@ -47,9 +50,11 @@ topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver
                                                    , IntegerDigits = not jobproperties.Digitization.PileUpPremixing()
                                                    , UseCoolPedestal = False
                                                    , UseCoolPulseShapes = True
-                                                   , TileCondToolPulseShape = toolSvc.TileCondToolMuRcvPulseShape
-                                                   , TileRawChannelBuilderMF = toolSvc.TileMuRcvRawChannelBuilderMF)
-
+                                                   , TileCondToolPulseShape = TileCondToolMuRcvPulseShape
+                                                   , TileRawChannelBuilderMF = TileMuRcvRawChannelBuilderMF)
+if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    topSequence.TilePulseForTileMuonReceiver.MuonReceiverDigitsContainer = overlayFlags.bkgPrefix() + "MuRcvDigitsCnt"
 
 topSequence += CfgMgr.TileMuonReceiverDecision('TileMuonReceiverDecision'
 #                                                , OutputLevel = VERBOSE 
@@ -57,4 +62,6 @@ topSequence += CfgMgr.TileMuonReceiverDecision('TileMuonReceiverDecision'
 						, MuonReceiverEneThreshCellD6andD5Low = 500
 						, MuonReceiverEneThreshCellD6High = 600
 						, MuonReceiverEneThreshCellD6andD5High = 600)
-
+if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    topSequence.TileMuonReceiverDecision.TileMuonReceiverContainer = overlayFlags.bkgPrefix() + "TileMuRcvCnt"

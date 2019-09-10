@@ -25,17 +25,20 @@
 namespace Analysis
 {  
   
-  class MultiSVTag : public AthAlgTool , virtual public ITagTool
+  class MultiSVTag : public extends<AthAlgTool, ITagTool>
     {
     public:
       MultiSVTag(const std::string&,const std::string&,const IInterface*);
       virtual ~MultiSVTag();
-      StatusCode initialize();
-      StatusCode finalize();      
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
 
-      StatusCode tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging * BTag);
-      void setOrigin(const xAOD::Vertex* priVtx);
-      void finalizeHistos();
+      virtual StatusCode tagJet(const xAOD::Vertex& priVtx,
+                                const xAOD::Jet& jetToTag,
+                                xAOD::BTagging& BTag,
+                                const std::string &jetName) const override;
+
+      virtual void finalizeHistos() override;
       
     private:      
       std::string m_taggerName; 
@@ -50,9 +53,7 @@ namespace Analysis
       //
       std::string m_runModus; 
       std::string m_refType;
-      const xAOD::Vertex* m_priVtx = 0;
    
-      bool m_disableAlgo;
       int  m_warnCounter;
     
       std::vector<std::string> m_jetCollectionList;
@@ -62,44 +63,48 @@ namespace Analysis
       std::string m_secVxFinderName;
       std::string m_xAODBaseName;
       //...
-      //variables for bb tag
-      float m_jetpt;
-      float m_nvtx;
-      float m_maxefrc;
-      float m_summass;
-      float m_totalntrk;
-      float m_diffntrkSV0;
-      float m_diffntrkSV1;
-    
-      float m_normDist;
-      //properties of vertex with maximum (and 2nd max) mass:
-      float m_mmax_mass ;
-      float m_mmax_efrc ;
-      
-      float m_mmax_DRjet;
-      float m_mmax_dist ;
-      float m_mmx2_mass ; 
-      float m_mmx2_efrc ;
-     
-      float m_mmx2_DRjet;
-      float m_mmx2_dist ;
-       // distances: max mass vertex to PV, and mx2 to max vertex
-      float m_mx12_2d12 ; 
-      float m_mx12_DR   ;
-      float m_mx12_Angle;
       //...
-      std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
-      std::list<std::string> m_undefinedReaders;
       std::string m_sv0_infosource;
       std::string m_sv1_infosource;
 
-      void SetVariableRefs(const std::vector<std::string> inputVars, 
-			   unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers);
+      struct Vars
+      {
+        //variables for bb tag
+        float m_jetpt = 0;
+        float m_nvtx = 0;
+        float m_maxefrc  = 0;
+        float m_summass  = 0;
+        float m_totalntrk = 0;
+        float m_diffntrkSV0 = -999;
+        float m_diffntrkSV1 = -999;
+    
+        float m_normDist = 0;
+        //properties of vertex with maximum (and 2nd max) mass:
+        float m_mmax_mass = -9;
+        float m_mmax_efrc = -9;
+      
+        float m_mmax_DRjet = -9;
+        float m_mmax_dist  = -9;
+        float m_mmx2_mass  = -9; 
+        float m_mmx2_efrc  = -9;
+     
+        float m_mmx2_DRjet = -9;
+        float m_mmx2_dist  = -9;
+        // distances: max mass vertex to PV, and mx2 to max vertex
+        float m_mx12_2d12  = -9; 
+        float m_mx12_DR    = -9;
+        float m_mx12_Angle = -9;
+
+        void SetVariableRefs(MsgStream& msg,
+                             const std::vector<std::string>& inputVars, 
+                             unsigned &nConfgVar,
+                             bool &badVariableFound,
+                             std::vector<float*> &inputPointers);
+      };
+
       double GetClassResponse (MVAUtils::BDT* bdt) const { return (bdt->GetPointers().size() ? bdt->GetGradBoostMVA(bdt->GetPointers()) : -9.); }
     }; // End class
 
-
-  inline void MultiSVTag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }
 
 } // End namespace 
 

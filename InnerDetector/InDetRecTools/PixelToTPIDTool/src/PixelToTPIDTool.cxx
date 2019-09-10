@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -39,12 +39,11 @@
 //================ Constructor =================================================
 
 InDet::PixelToTPIDTool::PixelToTPIDTool(const std::string& t,
-			  const std::string& n,
-			  const IInterface*  p )
+                                        const std::string& n,
+                                        const IInterface*  p )
   :
   AthAlgTool(t,n,p),
   m_IBLParameterSvc("IBLParameterSvc",n),
-  m_overflowIBLToT(0),
   m_pixelid(nullptr)
 {
   declareInterface<IPixelToTPIDTool>(this);
@@ -109,10 +108,10 @@ StatusCode InDet::PixelToTPIDTool::initialize()
   }
   
   if (m_IBLParameterSvc.retrieve().isFailure()) { 
-      ATH_MSG_FATAL("Could not retrieve IBLParameterSvc"); 
-      return StatusCode::FAILURE; 
+    ATH_MSG_FATAL("Could not retrieve IBLParameterSvc"); 
+    return StatusCode::FAILURE; 
   } else  
-      ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
+    ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
 
   ATH_CHECK(m_moduleDataKey.initialize());
 
@@ -164,7 +163,7 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track,
 
     // Loop over track states on surfaces (i.e. generalized hits):
     for ( ; tsosIter != tsosIterEnd; ++tsosIter) {
-	
+ 
       const Trk::MeasurementBase *measurement = (*tsosIter)->measurementOnTrack();
       if (measurement && !(*tsosIter)->type(Trk::TrackStateOnSurface::Outlier)) {
         if (!(*tsosIter)->trackParameters()) {
@@ -173,98 +172,77 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track,
           return -1;
         }
 
-	const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
-	if (pixclus) {
+        const InDet::PixelClusterOnTrack *pixclus = dynamic_cast<const InDet::PixelClusterOnTrack*>(measurement);
+        if (pixclus) {
           
           //bool isok=false;
           double locx=pixclus->localParameters()[Trk::locX];
-	  double locy=pixclus->localParameters()[Trk::locY];
-	  int bec=m_pixelid->barrel_ec(pixclus->identify());
-	  int layer=m_pixelid->layer_disk(pixclus->identify());
-	  int eta_module=m_pixelid->eta_module(pixclus->identify());//check eta module to select thickness
-	  
-	  /*
-	  if ( ( bec==0 && fabs(locy)<30. &&  (( locx > -8.20 && locx < -0.60 ) || ( locx > 0.50 && locx < 8.10 ) ) ) ||
-               ( std::abs(bec) == 2 && fabs(locy)<30. && ( ( locx > -8.15 && locx < -0.55 ) || ( locx > 0.55 && locx < 8.15 ) ) ) ) isok=true;
-          
-          if (!isok) continue;
-          
-	  */
-	  
-	  /* const Trk::CovarianceMatrix &measerr=pixclus->localErrorMatrix().covariance();
-          const Trk::MeasuredTrackParameters *measpar=dynamic_cast<const Trk::MeasuredTrackParameters *>((*tsosIter)->trackParameters());
-          if (!measpar) {
-            msg(MSG::DEBUG) << "No measured track parameters available, returning -1" << endmsg;
-            return -1;
-          }
-          const Trk::CovarianceMatrix &trackerr=measpar->localErrorMatrix().covariance();
-          double resphi=pixclus->localParameters()[Trk::locX]-(*tsosIter)->trackParameters()->parameters()[Trk::locX];
-          double reseta=pixclus->localParameters()[Trk::locY]-(*tsosIter)->trackParameters()->parameters()[Trk::locY];
-          double pullphi = (measerr[0][0]>trackerr[0][0]) ? fabs(resphi/sqrt(measerr[0][0]-trackerr[0][0])) : 0;
-          double pulleta = (measerr[1][1]>trackerr[1][1]) ? fabs(reseta/sqrt(measerr[1][1]-trackerr[1][1])) : 0;
-          if (pullphi>5 || pulleta>5) continue; */
-	  
-	  float dotProd = (*tsosIter)->trackParameters()->momentum().dot((*tsosIter)->trackParameters()->associatedSurface().normal());
+          double locy=pixclus->localParameters()[Trk::locY];
+          int bec=m_pixelid->barrel_ec(pixclus->identify());
+          int layer=m_pixelid->layer_disk(pixclus->identify());
+          int eta_module=m_pixelid->eta_module(pixclus->identify());//check eta module to select thickness
+   
+          float dotProd = (*tsosIter)->trackParameters()->momentum().dot((*tsosIter)->trackParameters()->associatedSurface().normal());
           float cosalpha=fabs(dotProd/(*tsosIter)->trackParameters()->momentum().mag());
           
-	  if (std::abs(cosalpha)<.16) continue;
-	  
-	  
-	  float charge=pixclus->prepRawData()->totalCharge()*cosalpha;
-	  
-	  
-	  //keep track if this is an ibl cluster with overflow
-	  int iblOverflow=0;
-	  
-	  
-	  if ( (m_IBLParameterSvc->containsIBL()) and (bec==0) and (layer==0) ){ // check if IBL 
-	  
-	  //loop over ToT and check if anyone is overflow (ToT==14) check for IBL cluster overflow
-    m_overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getIBLOverflowToT();
-	  const std::vector<int>& ToTs = pixclus->prepRawData()->totList();
-	  
-    for (int pixToT : ToTs) {
-      if (pixToT >= m_overflowIBLToT) {
-        //overflow pixel hit -- flag cluster
-        iblOverflow = 1;
-        break; //no need to check other hits of this cluster
-      }
-    }// end
+          if (std::abs(cosalpha)<.16) continue;
+   
+   
+          float charge=pixclus->prepRawData()->totalCharge()*cosalpha;
+   
+   
+          //keep track if this is an ibl cluster with overflow
+          int iblOverflow=0;
+   
+   
+          if ( (m_IBLParameterSvc->containsIBL()) and (bec==0) and (layer==0) ){ // check if IBL 
+   
+            //loop over ToT and check if anyone is overflow (ToT==14) check for IBL cluster overflow
+            int overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getFEI4OverflowToT(0,0);
+            const std::vector<int>& ToTs = pixclus->prepRawData()->totList();
+   
+            for (int pixToT : ToTs) {
+              if (pixToT >= overflowIBLToT) {
+                //overflow pixel hit -- flag cluster
+                iblOverflow = 1;
+                break; //no need to check other hits of this cluster
+              }
+            }// end
 
-	    //this is IBL layer -- @todo: check using proper service (safe against geometries)
-	    if(((eta_module>=-10 && eta_module<=-7)||(eta_module>=6 && eta_module<=9)) && (fabs(locy)<10. && (locx>-8.33 && locx <8.3)) ){//check if IBL 3D and good cluster selection
-	    	
-			dEdxValue=charge*m_conversionfactor/IBL_3D_sensorthickness;
-	    		dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
-			pixelhits++;
-			if(iblOverflow==1)nUsedIBLOverflowHits++;
-	    
-	    }else if((eta_module>=-6 && eta_module<=5) && (fabs(locy)<20. &&( locx >-8.33 && locx <8.3 )) ){//check if IBL planar and good cluster selection
-	 
-	 		dEdxValue=charge*m_conversionfactor/IBL_PLANAR_sensorthickness; 
-	    		dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
-			pixelhits++;
-			if(iblOverflow==1)nUsedIBLOverflowHits++;
-	    }else{
-	    	dEdxValue=-1;
-	    }//end check which IBL Module
-	    
-	    //PIXEL layer and ENDCAP
-	  //}else if(layer !=0 && bec==0 && fabs(locy)<30. &&  (( locx > -8.20 && locx < -0.60 ) || ( locx > 0.50 && locx < 8.10 ) ) ){
-	  }else if(bec==0 && fabs(locy)<30. &&  (( locx > -8.20 && locx < -0.60 ) || ( locx > 0.50 && locx < 8.10 ) ) ){
-	  
-	  	dEdxValue=charge*m_conversionfactor/Pixel_sensorthickness;
-		dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
-		pixelhits++;
-		
-	  }else if (std::abs(bec) == 2 && fabs(locy)<30. && ( ( locx > -8.15 && locx < -0.55 ) || ( locx > 0.55 && locx < 8.15 ) ) ){
-	  
-	  	dEdxValue=charge*m_conversionfactor/Pixel_sensorthickness;
-		dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
-		pixelhits++;
-	  
-	  }
-	}//pixclus iterator
+            //this is IBL layer -- @todo: check using proper service (safe against geometries)
+            if(((eta_module>=-10 && eta_module<=-7)||(eta_module>=6 && eta_module<=9)) && (fabs(locy)<10. && (locx>-8.33 && locx <8.3)) ){//check if IBL 3D and good cluster selection
+      
+              dEdxValue=charge*m_conversionfactor/IBL_3D_sensorthickness;
+              dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
+              pixelhits++;
+              if(iblOverflow==1)nUsedIBLOverflowHits++;
+     
+            }else if((eta_module>=-6 && eta_module<=5) && (fabs(locy)<20. &&( locx >-8.33 && locx <8.3 )) ){//check if IBL planar and good cluster selection
+  
+              dEdxValue=charge*m_conversionfactor/IBL_PLANAR_sensorthickness; 
+              dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
+              pixelhits++;
+              if(iblOverflow==1)nUsedIBLOverflowHits++;
+            }else{
+              dEdxValue=-1;
+            }//end check which IBL Module
+     
+            //PIXEL layer and ENDCAP
+            //}else if(layer !=0 && bec==0 && fabs(locy)<30. &&  (( locx > -8.20 && locx < -0.60 ) || ( locx > 0.50 && locx < 8.10 ) ) ){
+          }else if(bec==0 && fabs(locy)<30. &&  (( locx > -8.20 && locx < -0.60 ) || ( locx > 0.50 && locx < 8.10 ) ) ){
+   
+            dEdxValue=charge*m_conversionfactor/Pixel_sensorthickness;
+            dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
+            pixelhits++;
+  
+          }else if (std::abs(bec) == 2 && fabs(locy)<30. && ( ( locx > -8.15 && locx < -0.55 ) || ( locx > 0.55 && locx < 8.15 ) ) ){
+   
+            dEdxValue=charge*m_conversionfactor/Pixel_sensorthickness;
+            dEdxMap.insert(std::pair<float,int>(dEdxValue, iblOverflow));
+            pixelhits++;
+   
+          }
+        }//pixclus iterator
       }
     }
   }
@@ -281,12 +259,12 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track,
     //averageCharge += itCharge.first;
     
     if(itdEdx.second==0){
-    	averagedEdx += itdEdx.first;
-    	nUsedHits++;
+      averagedEdx += itdEdx.first;
+      nUsedHits++;
     }
     
     if(itdEdx.second > 0){ 
-    	IBLOverflow++;
+      IBLOverflow++;
     }
     
     
@@ -301,22 +279,22 @@ float InDet::PixelToTPIDTool::dEdx(const Trk::Track& track,
     if (((int)pixelhits > 1) and ((int)nUsedHits >=(int)pixelhits-1)) break; 
     
     if((int)IBLOverflow>0 and (int)pixelhits==1){ //only IBL in overflow
-    	averagedEdx=itdEdx.first;
-    	break;
+      averagedEdx=itdEdx.first;
+      break;
     }   
   
   }
   
   if (nUsedHits > 0 or (nUsedHits==0 and(int)IBLOverflow>0 and (int)pixelhits==1)) {
-  	
-	if(nUsedHits > 0) averagedEdx = averagedEdx / nUsedHits;
-  	//if(nUsedHits == 0 and (int)IBLOverflow > 0 and (int)pixelhits == 1) averagedEdx = averagedEdx; 
+   
+    if(nUsedHits > 0) averagedEdx = averagedEdx / nUsedHits;
+    //if(nUsedHits == 0 and (int)IBLOverflow > 0 and (int)pixelhits == 1) averagedEdx = averagedEdx; 
     
-    	ATH_MSG_DEBUG("NEW dEdx = " << averagedEdx);
-    	ATH_MSG_DEBUG("Used hits: " << nUsedHits << ", IBL overflows: " << IBLOverflow );
-    	ATH_MSG_DEBUG("Original number of measurements = " << pixelhits << "( map size = " << dEdxMap.size() << ") " );
+    ATH_MSG_DEBUG("NEW dEdx = " << averagedEdx);
+    ATH_MSG_DEBUG("Used hits: " << nUsedHits << ", IBL overflows: " << IBLOverflow );
+    ATH_MSG_DEBUG("Original number of measurements = " << pixelhits << "( map size = " << dEdxMap.size() << ") " );
     
-    	return averagedEdx;  
+    return averagedEdx;  
   }
 
   return -1;
@@ -418,5 +396,4 @@ float InDet::PixelToTPIDTool::getMass(double dedx, double p, int nGoodPixels) co
 
 
 
-  /* ----------------------------------------------------------------------------------- */
-
+/* ----------------------------------------------------------------------------------- */

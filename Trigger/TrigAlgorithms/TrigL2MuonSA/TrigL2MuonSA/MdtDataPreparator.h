@@ -124,7 +124,6 @@ namespace TrigL2MuonSA {
   private:
 
     // Reference to StoreGateSvc;
-    ServiceHandle<StoreGateSvc>    m_storeGateSvc;
     ServiceHandle<ActiveStoreSvc> m_activeStore;
     
     // Tools for the Raw data conversion
@@ -161,6 +160,10 @@ namespace TrigL2MuonSA {
     SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepContainerKey{
 	this, "MDTPrepDataContainer","MDT_DriftCircles", "Name of the MDTContainer to read in"};
 
+    // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
+    Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };
+
+    // Flag to decide if we need to decode BS or not (e.g. not needed for MC)
     Gaudi::Property<bool> m_decodeBS { this, "DecodeBS", true, "Flag to decide whether ot not to run BS->RDO decoding" };
 
     bool m_use_mdtcsm;

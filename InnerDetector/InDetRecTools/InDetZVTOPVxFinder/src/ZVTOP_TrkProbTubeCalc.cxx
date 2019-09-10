@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,9 +22,8 @@ InDet::ZVTOP_TrkProbTubeCalc::ZVTOP_TrkProbTubeCalc(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AthAlgTool(t,n,p)
+  base_class(t,n,p)
 {
-  declareInterface<IZVTOP_TrkProbTubeCalc>(this);
   //  template for property declaration
   declareProperty("Extrapolator",		m_extrapolator);
 }
@@ -53,7 +52,7 @@ StatusCode InDet::ZVTOP_TrkProbTubeCalc::finalize()
 }
 
 //============================================================================================
-double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Track& trk, Trk::Vertex& vec)
+double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Track& trk, Trk::Vertex& vec) const
 {
   double probTube = 0.;
   //perigee surface 
@@ -64,7 +63,7 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Track& trk, Trk::Ve
 }
 
 //============================================================================================
-double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::RecVertex& beam_spot, Trk::Vertex& vec)
+double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::RecVertex& beam_spot, Trk::Vertex& vec) const
 {
   double probTube = 0.;
   Amg::Vector3D diff; 
@@ -76,7 +75,7 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::RecVertex& beam_spo
   return probTube;
 }
 //============================================================================================
-double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Rec::TrackParticle& trk, Trk::Vertex& vec)
+double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Rec::TrackParticle& trk, Trk::Vertex& vec) const
 {
   double probTube = 0.;
   const Trk::Perigee* trkPer(trk.measuredPerigee());
@@ -84,7 +83,7 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Rec::TrackParticle& trk,
   return probTube;
 }
 
-double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::TrackParticleBase& trk, Trk::Vertex& vec)
+double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::TrackParticleBase& trk, Trk::Vertex& vec) const
 {
   double probTube = 0.;
   //perigee surface 
@@ -94,7 +93,7 @@ double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::TrackParticleBase& 
   return probTube;
 }
 
-double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Perigee* trkPer, Trk::Vertex& vec){
+double InDet::ZVTOP_TrkProbTubeCalc::calcProbTube(const Trk::Perigee* trkPer, Trk::Vertex& vec) const {
 
   double probTube = 0.;
   Amg::Vector3D lp =vec.position();

@@ -1,7 +1,7 @@
 // this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODJET_JETALGORITHMTYPE_H
@@ -56,7 +56,7 @@ namespace xAOD {
       EMTopo,
       TopoTower,
       Tower,
-      Truth,
+      Truth,      
       TruthWZ,
       Track,
       PFlow,      
@@ -119,7 +119,7 @@ namespace xAOD {
     /// Convert jet transformation enum to string.
     std::string name(Type t);
     /// Convert string to jet transformation enum.
-    Type type(std::string name);
+    Type type(const std::string& name);
   }
 
 }

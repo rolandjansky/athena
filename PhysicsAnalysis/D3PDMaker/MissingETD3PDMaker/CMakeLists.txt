@@ -20,7 +20,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Particle
                           PRIVATE
                           Control/AthenaKernel
-                          Control/SGTools
                           Event/FourMomUtils
                           Event/xAOD/xAODMissingET
                           Reconstruction/MuonIdentification/muonEvent
@@ -36,7 +35,7 @@ atlas_add_component( MissingETD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent StoreGateLib SGtests EventKernel GaudiKernel D3PDMakerUtils JetEvent MissingETEvent MissingETGoodnessLib MissingETPerformanceLib Particle AthenaKernel SGTools FourMomUtils xAODMissingET muonEvent egammaEvent tauEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent StoreGateLib SGtests EventKernel GaudiKernel D3PDMakerUtils JetEvent MissingETEvent MissingETGoodnessLib MissingETPerformanceLib Particle AthenaKernel FourMomUtils xAODMissingET muonEvent egammaEvent tauEvent )
 
 # Install files from the package:
 atlas_install_headers( MissingETD3PDMaker )

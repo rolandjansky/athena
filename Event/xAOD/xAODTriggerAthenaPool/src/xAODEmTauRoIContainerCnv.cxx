@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -34,8 +34,8 @@ createPersistent( xAOD::EmTauRoIContainer* trans ) {
 
 xAOD::EmTauRoIContainer* xAODEmTauRoIContainerCnv::createTransient() {
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "101CD1EE-5EA2-11E3-895D-02163E00A743" );
-   static pool::Guid v2_guid( "6AB862C4-31E6-4F66-AAE8-56BA01E350F2" );   
+   static const pool::Guid v1_guid( "101CD1EE-5EA2-11E3-895D-02163E00A743" );
+   static const pool::Guid v2_guid( "6AB862C4-31E6-4F66-AAE8-56BA01E350F2" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v2_guid ) ) {

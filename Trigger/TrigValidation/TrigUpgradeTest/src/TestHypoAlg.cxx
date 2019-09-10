@@ -92,8 +92,7 @@ namespace HLTTest {
         linkToPrevious( d, decisionInput().key(), pos );
       }
       else{
-        ATH_MSG_ERROR( " Can not find reference to previous decision from feature " + m_linkName.value() + " from reco object " << reco_counter );
-        return StatusCode::FAILURE;
+        ATH_MSG_DEBUG( " Can not find reference to this feature " + m_linkName.value() + " from reco object " << reco_counter <<" in any previous decision" );
       }
       reco_counter++;
     }

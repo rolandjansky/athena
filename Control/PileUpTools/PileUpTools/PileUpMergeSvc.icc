@@ -30,6 +30,7 @@ namespace {
   void fillLink(DATALINK&, const NoKey&, IProxyDict*)
   { /*leave it in default state*/ }
 
+  [[maybe_unused]] // suppress clang warning (false positive?)
   PileUpTimeEventIndex::PileUpType getOldPileUpType(const xAOD::EventInfo_v1::PileUpType &newType) {
     PileUpTimeEventIndex::PileUpType oldType = PileUpTimeEventIndex::Unknown;
     switch(newType) {

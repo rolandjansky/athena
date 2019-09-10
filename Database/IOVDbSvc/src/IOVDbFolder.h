@@ -5,8 +5,8 @@
 // IOVDbFolder.h
 // helper class for IOVDbSvc managing folder access
 // Richard Hawkings, started 24/11/08
-#ifndef IOVDBSVC_IOVDBFOLDER_H
-#define IOVDBSVC_IOVDBFOLDER_H
+#ifndef IOVDbSvc_IOVDbFolder_h
+#define IOVDbSvc_IOVDbFolder_h
 
 #include <string>
 #include "AthenaKernel/MsgStreamMember.h"
@@ -41,7 +41,8 @@ class CondAttrListCollection;
 class IOVDbFolder {
 public:
   IOVDbFolder(IOVDbConn* conn, const IOVDbParser& folderprop, MsgStream & /*msg*/,
-              IClassIDSvc* clidsvc,const bool checkglock);
+              IClassIDSvc* clidsvc,const bool checkglock, const bool outputToFile=false,
+              const std::string & source="COOL_DATABASE");
   ~IOVDbFolder();
   
 
@@ -142,8 +143,17 @@ private:
   // add this IOV to cache, including channel counting if over edge of cache
   void addIOVtoCache(cool::ValidityKey since, cool::ValidityKey until);
   
-  //
+  //override intrinsic (member variable) options from the from a parsed folder description
+  bool overrideOptionsFromParsedDescription(const IOVDbParser & parsedDescription);
   
+  //create transient address, processing symlinks if given
+  std::unique_ptr<SG::TransientAddress>
+  createTransientAddress(const std::vector<std::string> & symlinks);
+  
+  //setup cache length according to whether timestamp==ns of epoch
+  void setCacheLength(const bool timeIs_nsOfEpoch, const unsigned int cacheRun, const unsigned int cacheTime);
+  
+  //update the cache using either a Cool or CoraCool object (templated)
   template<class T>
   unsigned int 
   cacheUpdateImplementation(T & obj, const ServiceHandle<IIOVSvc>& iovSvc){
@@ -184,13 +194,25 @@ private:
     }
     return counter;    
   }
+  
+  
+  bool
+  objectIteratorIsValid( cool::IObjectIteratorPtr & objItr){
+    return objItr->goToNext();
+  }
+ 
+  bool
+  objectIteratorIsValid(CoraCoolObjectIterPtr & objItr){
+    return objItr->hasNext();
+  }
+  
 
   // cache update for online mode
-  void specialCacheUpdate(CoraCoolObject & obj,
-                          const ServiceHandle<IIOVSvc>& iovSvc);
+  void 
+  specialCacheUpdate(CoraCoolObject & obj,const ServiceHandle<IIOVSvc>& iovSvc);
 
-  void specialCacheUpdate(const cool::IObject& obj,
-                          const ServiceHandle<IIOVSvc>& iovSvc);
+  void 
+  specialCacheUpdate(const cool::IObject& obj,const ServiceHandle<IIOVSvc>& iovSvc);
  
   
   StoreGateSvc*        p_detStore;     // pointer to detector store
@@ -255,6 +277,8 @@ private:
   std::vector<unsigned int> m_cacheccstart;
   std::vector<unsigned int> m_cacheccend;
   IOVDbNamespace::IovStore m_iovs;
+  const bool m_outputToFile;
+  const std::string m_source;
   
   protected:
    /// Log a message using the Athena controlled logging system

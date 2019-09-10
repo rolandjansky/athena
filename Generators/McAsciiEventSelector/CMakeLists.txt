@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
-                          Control/SGTools
+                          Control/AthenaKernel
                           Event/EventInfo
                           PhysicsAnalysis/TruthParticleID/McParticleKernel )
 
@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( McAsciiEventSelector
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel AthenaBaseComps SGTools EventInfo McParticleKernel )
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps AthenaKernel EventInfo McParticleKernel )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

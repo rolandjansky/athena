@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ExitCodes.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
 """Conventional exit codes, returned to shell."""
+
+from __future__ import print_function
 
 
 ### successful run

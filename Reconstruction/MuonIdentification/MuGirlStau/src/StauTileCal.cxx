@@ -46,8 +46,9 @@ MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
     m_pCaloCells = new StauTileCalCells();
     if (m_pTrkParticle != NULL)
     {
-        const Rec::ParticleCellAssociation* association = NULL;
-        if (m_pStau->caloCellAssociationTool()->particleCellAssociation(*m_pTrkParticle, association, 0.1))
+      std::unique_ptr<const Rec::ParticleCellAssociation> association = 
+        m_pStau->caloCellAssociationTool()->particleCellAssociation(*m_pTrkParticle, 0.1);
+        if (association)
         {
             int intersected = 0, passed_enery_cut = 0;
             double energy_cut = m_pStau->tileEnergyCut() * 1000;
@@ -64,7 +65,7 @@ MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log,
                       << ", intersected cells: " << intersected
                       << ", passed energy cut " << energy_cut << ": " << passed_enery_cut
                       << endmsg;
-            initCaloCells(association);
+            initCaloCells(association.get());
         }
         else
             LOG_DEBUG << "failed to get Calo cells" << endmsg;

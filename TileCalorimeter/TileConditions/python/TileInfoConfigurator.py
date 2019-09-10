@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 #
@@ -140,7 +140,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
             self._coolof1ofcIsConfigured = True
             name = 'TileCondToolOfcCoolOF1'
         else:
-            self._msg.info("setupCOOLOFC: not known OFC type: %s! Nothing will be done!" % ofcType)
+            self._msg.info("setupCOOLOFC: not known OFC type: %s! Nothing will be done!", ofcType)
             return False
 
         #=== connect TileCondToolOfcCool to COOL
@@ -148,7 +148,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         from .TileCondToolConf import getTileCondToolOfcCool
         toolOfcCool = getTileCondToolOfcCool('COOL', type, ofcType, name )
         if toolOfcCool is not None:
-            self._msg.info("Changing default TileCondToolOfcCool configuration to COOL source for %s" % ofcType)
+            self._msg.info("Changing default TileCondToolOfcCool configuration to COOL source for %s", ofcType)
             ToolSvc += toolOfcCool
             return True
         elif ofcType == 'OF1':
@@ -399,9 +399,12 @@ class _TileInfoConfigurator( TileInfoLoader ):
             self._msg.info("setting up DCS TileCal conditions data")
             dbConnStr = 'DCS_OFL'
             from IOVDbSvc.CondDB import conddb
-            if useHV:     conddb.addFolder(dbConnStr, "/TILE/DCS/HV", className = 'CondAttrListCollection')
-            if useHVSET:  conddb.addFolder(dbConnStr, "/TILE/DCS/HVSET", className = 'CondAttrListCollection')
-            if useSTATUS: conddb.addFolder(dbConnStr, "/TILE/DCS/STATES", className = 'CondAttrListCollection')
+            if useHV:
+                conddb.addFolder(dbConnStr, "/TILE/DCS/HV", className = 'CondAttrListCollection')
+            if useHVSET:
+                conddb.addFolder(dbConnStr, "/TILE/DCS/HVSET", className = 'CondAttrListCollection')
+            if useSTATUS:
+                conddb.addFolder(dbConnStr, "/TILE/DCS/STATES", className = 'CondAttrListCollection')
 
             from TileConditions.TileConditionsConf import TileDCSCondAlg
             condSequence += TileDCSCondAlg(name = dcsCondAlg,
@@ -465,7 +468,7 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
 
     #=== ensure the creation of service
     from AthenaCommon.AppMgr import theApp
-    if not svcName in theApp.CreateSvc:
+    if svcName not in theApp.CreateSvc:
         theApp.CreateSvc += [ svcName ]
 
     #=== ensure the availability of TileCablingSvc
@@ -474,7 +477,6 @@ def TileInfoConfigurator(name="TileInfoLoader", **kwargs):
         svcMgr += CfgMgr.TileCablingSvc()
 
     #=== ensure the configuration of all needed tools
-    from AthenaCommon.AppMgr import ToolSvc
 
 
 #    if not hasattr(ToolSvc, "TileBadChanTool"):

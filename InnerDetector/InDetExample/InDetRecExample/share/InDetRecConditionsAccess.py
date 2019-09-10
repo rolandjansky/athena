@@ -40,35 +40,45 @@ if not hasattr(condSeq, "BeamSpotCondAlg"):
 if DetFlags.haveRIO.pixel_on():
     # Load pixel conditions summary service
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc, "PixelConditionsSummaryTool"):
-        from PixelConditionsTools.PixelConditionsSummaryToolSetup import PixelConditionsSummaryToolSetup
-        pixelConditionsSummaryToolSetup = PixelConditionsSummaryToolSetup()
-        pixelConditionsSummaryToolSetup.setUseConditions(True)
-        pixelConditionsSummaryToolSetup.setUseDCSState(isData  and InDetFlags.usePixelDCS())
-        pixelConditionsSummaryToolSetup.setUseByteStream(isData)
-        pixelConditionsSummaryToolSetup.setUseTDAQ(False)
-        pixelConditionsSummaryToolSetup.setUseDeadMap((not athenaCommonFlags.isOnline()))
-        pixelConditionsSummaryToolSetup.setup()
 
-    InDetPixelConditionsSummaryTool = ToolSvc.PixelConditionsSummaryTool
+    #################
+    # Module status #
+    #################
+    useNewConditionsFormat = False
 
-    if InDetFlags.usePixelDCS():
-        InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
-        InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
-
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetPixelConditionsSummaryTool
-
- 
-    # Load pixel calibration service
     if not athenaCommonFlags.isOnline():
-        if not conddb.folderRequested('/PIXEL/PixCalib'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
-        from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
-        InDetPixelCalibSvc = PixelCalibSvc()
-        ServiceMgr += InDetPixelCalibSvc
-        if InDetFlags.doPrintConfigurables():
-            print InDetPixelCalibSvc
+        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
+            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATE", className="CondAttrListCollection")
+        if not conddb.folderRequested("/PIXEL/DCS/FSMSTATUS"):
+            conddb.addFolder("DCS_OFL", "/PIXEL/DCS/FSMSTATUS", className="CondAttrListCollection")
+        if not hasattr(condSeq, "PixelDCSCondStateAlg"):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondStateAlg
+            condSeq += PixelDCSCondStateAlg(name="PixelDCSCondStateAlg")
+
+    if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
+        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
+    if not hasattr(condSeq, "PixelConfigCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+        condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseDeadMap=True,
+                                    ReadDeadMapKey="/PIXEL/PixMapOverlay",
+                                    UseCalibConditions=True)
+
+    if useNewConditionsFormat:
+        if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+            conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
+        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+
+    #####################
+    # Calibration Setup #
+    #####################
+    if not conddb.folderRequested("/PIXEL/PixCalib"):
+        conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection")
+    if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+        condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
     # Load Pixel BS errors service
     if not (globalflags.DataSource=='geant4'):
@@ -106,7 +116,6 @@ if DetFlags.haveRIO.pixel_on():
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
         pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
-
 
 #
 # --- Load SCT Conditions Services
@@ -380,7 +389,9 @@ if DetFlags.haveRIO.TRT_on():
 
     # Dead/Noisy Straw Service
     useOldStyle = False
-    if DetFlags.simulate.any_on() or athenaCommonFlags.EvtMax==1:
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+    if DetFlags.simulate.any_on() or hasattr(topSequence,"OutputConditionsAlg"):
          useOldStyle = True
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
     InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc",
@@ -394,6 +405,10 @@ if DetFlags.haveRIO.TRT_on():
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
     InDetTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
                                                             isGEANT4 = useOldStyle)
+    # CalDb tool
+    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+    InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
+
     # Alive straws algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTStrawCondAlg
     TRTStrawCondAlg = TRTStrawCondAlg(name = "TRTStrawCondAlg",
@@ -411,6 +426,13 @@ if DetFlags.haveRIO.TRT_on():
     # dEdx probability algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
     TRTToTCondAlg = TRTToTCondAlg(name = "TRTToTCondAlg")
+
+    if InDetFlags.doCosmics() :
+        # Average T0 CondAlg
+        from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTPhaseCondAlg
+        TRTPhaseCondAlg = TRTPhaseCondAlg(name = "TRTPhaseCondAlg",
+                                          TRTCalDbTool = InDetTRTCalDbTool)
+        condSeq += TRTPhaseCondAlg
 
     # Condition algorithms for straw conditions
     if not hasattr(condSeq, "TRTStrawCondAlg"):

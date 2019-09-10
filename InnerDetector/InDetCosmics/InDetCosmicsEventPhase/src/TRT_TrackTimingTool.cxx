@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 ///////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 
 #include "InDetIdentifier/TRT_ID.h"
 
-#include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
+
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
 
@@ -22,7 +22,7 @@ using CLHEP::GeV;
 InDet::TRT_TrackTimingTool::TRT_TrackTimingTool(const std::string& t,
                                                 const std::string& n,
                                                 const IInterface* p) :
-  AthAlgTool(t, n, p), m_ITrackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter"), m_eventPhaseTool(), m_trtconddbsvc(
+  AthAlgTool(t, n, p), m_ITrackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter"), m_eventPhaseTool(), m_caldbsvc(
     "TRT_CalDbSvc", n), m_doEtaCorrection(true), m_debug(false) {
   declareInterface<ITRT_TrackTimingTool>(this);
   declareInterface<Trk::ITrackTimingTool>(this);
@@ -30,7 +30,7 @@ InDet::TRT_TrackTimingTool::TRT_TrackTimingTool(const std::string& t,
   // retrieve properties from job options
   declareProperty("FitterTool", m_ITrackFitter);
   declareProperty("EventPhaseTool", m_eventPhaseTool);
-  declareProperty("TRTCalDbSvc", m_trtconddbsvc);
+  declareProperty("TRTCalDbSvc", m_caldbsvc);
   declareProperty("DoEtaCorrection", m_doEtaCorrection);
   declareProperty("DebugMissingMeasurement", m_debug);
   declareProperty("EventInfoKey", m_EventInfoKey = "ByteStreamEventInfo");
@@ -195,7 +195,7 @@ float InDet::TRT_TrackTimingTool::getTrackTimeFromDriftRadius(const Trk::Track* 
     float trackR = tparp->parameters()[Trk::driftRadius];
 
     Identifier id = trtcirc->identify();
-    const TRTCond::RtRelation* rtRelation = m_trtconddbsvc->getRtRelation(id);
+    const TRTCond::RtRelation* rtRelation = m_caldbsvc->getRtRelation(id);
     if (not rtRelation) {
       ATH_MSG_WARNING("Rt relation pointer is null!");
       continue;

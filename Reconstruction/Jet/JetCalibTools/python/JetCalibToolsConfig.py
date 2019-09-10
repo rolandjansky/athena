@@ -24,29 +24,30 @@ all = ['getJetCalibTool']
 pflowcontexts = {
     "T0":("JES_MC15cRecommendation_PFlow_Aug2016_rel21.config","00-04-77","JetArea_Residual_EtaJES"),
     # Omit smearing, to avoid any efficiency loss
-    "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_InSitu"),
+    "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_PFlow_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_Insitu"),
 }
 
 topocontexts = {
     "T0":("JES_MC15cRecommendation_May2016_rel21.config","00-04-77","JetArea_Residual_EtaJES"),
-    # Placeholder from a vague approximation of the 2017 setup?
-    "Trigger":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_Residual_EtaJES_InSitu"),
     # Omit smearing, to avoid any efficiency loss
-    "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_InSitu"),
+    "AnalysisLatest":("JES_data2017_2016_2015_Consolidated_EMTopo_2018_Rel21.config","00-04-82","JetArea_Residual_EtaJES_GSC_Insitu"),
+    "TrigRun2":("JES_MC15cRecommendation_May2016_Trigger.config","00-04-77","JetArea_EtaJES_GSC_Insitu"),
 }
 
 rscanlc2 = {
-    "RScanLatest":("JES_MC16Recommendation_Rscan2LC_22Feb2018_rel21.config","00-04-81","JetArea_Residual_EtaJES_GSC_InSitu")
+    "RScanLatest":("JES_MC16Recommendation_Rscan2LC_22Feb2018_rel21.config","00-04-81","JetArea_Residual_EtaJES_GSC_Insitu")
 }
 
 rscanlc6 = {
-    "RScanLatest":("JES_MC16Recommendation_Rscan6LC_22Feb2018_rel21.config","00-04-81","JetArea_Residual_EtaJES_GSC_InSitu")
+    "RScanLatest":("JES_MC16Recommendation_Rscan6LC_22Feb2018_rel21.config","00-04-81","JetArea_Residual_EtaJES_GSC_Insitu")
 }
 
 fatjetcontexts = {
-    "CombinedMass": ("JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config","00-04-81","EtaJES_JMS"),
-    "CaloMass":     ("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config","00-04-81","EtaJES_JMS"),
-    "TAMass":       ("JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config","00-04-81","EtaJES_JMS"),
+    "CombinedMass":  ("JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config","00-04-81","EtaJES_JMS"),
+    "CaloMass":      ("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config","00-04-81","EtaJES_JMS"),
+    "TAMass":        ("JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config","00-04-81","EtaJES_JMS"),
+    "TrigUngroomed": ("JES_Full2012dataset_Rscan_June2014.config","00-04-77","JetArea_EtaJES"),
+    "TrigTrimmed":   ("JES_MC15recommendation_FatJet_June2015.config","00-04-77","EtaJES_JMS"),
 }
 
 # List AFII config files separately, to avoid needing to specify a different context
@@ -61,6 +62,7 @@ calibcontexts = {
     "AntiKt4EMPFlow":pflowcontexts,
     "AntiKt4EMTopo":topocontexts,
     "AntiKt4LCTopo":topocontexts,
+    "AntiKt10LCTopo":fatjetcontexts,
     # Standard trimmed
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20":fatjetcontexts,
     # R-Scan
@@ -69,7 +71,7 @@ calibcontexts = {
 
 }
 
-hasInSitu = ["AntiKt4LCTopo", "AntiKt4EMTopo", "AntiKt4EMPFlow"]
+hasInSitu = ["AntiKt4LCTopo", "AntiKt4EMTopo", "AntiKt4EMPFlow", "TrigAntiKt4EMTopo"]
 
 # This method extracts the relevant configuration, does some consistency checks,
 # then forwards the configuration to defineJetCalibTool, returning the output.
@@ -98,7 +100,7 @@ def getJetCalibTool(jetcollection, context, data_type, calibseq = ""):
         # Check that the calib sequence requests something sensible for the in situ calibration
         # Leave other checks for the tool code.
         # Might need to specialise if we decide MC trigger jets should also have in situ.
-        if calibseq_tmp.endswith("InSitu"):
+        if calibseq_tmp.endswith("Insitu"):
             if data_type == 'data':
                 if not jetcollection in hasInSitu:
                     raise ValueError("In situ calibration does not exist for {0}, context {1}".format(jetcollection,context))
@@ -141,16 +143,17 @@ def getJetCalibToolPrereqs(modspec,jetdef):
     calibcontext, data_type, calibseq = getCalibSpecsFromString(modspec)
     if calibseq=="":
         cfg, calibarea, calibseq = calibcontexts[jetdef.basename][calibcontext]
-    # For now, only dependent on calibseq -- can ignore InSitu, which is
+    # For now, only dependent on calibseq -- can ignore Insitu, which is
     # added when getting the concrete tool
     prereqs = []
     prereqs.append("mod:ConstitFourMom")
     if "JetArea" in calibseq:
         prereqs.append("input:EventDensity")
     if "GSC" in calibseq:
-        prereqs += ["mod:CaloEnergies",
-                    "mod:TrackMoments",
-                    "ghost:MuonSegment"]
+        prereqs += ["mod:CaloEnergies"]
+        if calibcontext != "TrigRun2": # No track/MS GSC for trigger w/o FTK
+            prereqs += ["mod:TrackMoments",
+                        "ghost:MuonSegment"]
     jetcaliblog.debug("Prereqs for calibseq '{0}': {1}".format(calibseq,str(prereqs)))
     return prereqs
 

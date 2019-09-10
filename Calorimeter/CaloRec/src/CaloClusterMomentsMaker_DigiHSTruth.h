@@ -29,8 +29,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-class StoreGateSvc; 
-class ICalorimeterNoiseTool;
 class CaloDetDescrManager; 
 class CaloDetDescrElement;
 class CaloCell_ID;
@@ -41,6 +39,8 @@ class LArHVFraction;
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "CaloDetDescr/CaloDepthTool.h"
 #include "CaloInterface/ILArHVFraction.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 //#include "fastjet/PseudoJet.hh"
 #include <string>
 #include <vector>
@@ -118,21 +118,14 @@ class CaloClusterMomentsMaker_DigiHSTruth final: public extends<AthAlgTool, Calo
   bool m_calculateLArHVFraction;
 
   /**
-   * @brief switch to use the pile-up noise CaloNoiseTool 
-   *
-   * if usePileUpNoise is set to true the relevant sigma for each cell
-   * will be the quadratic sum of the electronics noise at current
-   * cell gain and its pile-up noise at the current
-   * luminosity. Otherwise it will be just the electronics noise. */
-  bool m_usePileUpNoise;
-
-  /**
    * @brief if set to true use 2-gaussian noise description for
    * TileCal  */
   bool m_twoGaussianNoise;
 
   ToolHandle<CaloDepthTool> m_caloDepthTool;
-  ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+ /** @brief Key of the CaloNoise Conditions data object. Typical values 
+     are '"electronicNoise', 'pileupNoise', or '"totalNoise' (default) */
+  SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
   ToolHandle<ILArHVFraction> m_larHVFraction;
 
   /// Not used anymore (with xAOD), but required to when configured from 

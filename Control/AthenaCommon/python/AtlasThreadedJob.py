@@ -1,16 +1,18 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasThreadedJob.py
 ## @brief py-module to configure the Athena AppMgr for threaded (Hive) jobs
 ## @author Charles Leggett
 ###############################################################
 
-def _setupAtlasThreadedJob():
-    from AppMgr import theApp
-    from AppMgr import ServiceMgr as svcMgr
-    import Constants
+from __future__ import print_function
 
-    from ConcurrencyFlags import jobproperties as jps
+def _setupAtlasThreadedJob():
+    from AthenaCommon.AppMgr import theApp
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    from AthenaCommon import Constants
+
+    from AthenaCommon.ConcurrencyFlags import jobproperties as jps
 
     if (jps.ConcurrencyFlags.NumProcs() == 0) :
         theApp.MessageSvcType = "InertMessageSvc"
@@ -38,7 +40,7 @@ def _setupAtlasThreadedJob():
     arp.TopAlg=["AthMasterSeq"] #this should enable control flow
     svcMgr += arp
 
-    from AlgScheduler import AlgScheduler
+    from AthenaCommon.AlgScheduler import AlgScheduler
     AlgScheduler.ShowDataDependencies(False)
     AlgScheduler.ShowControlFlow(False)
 

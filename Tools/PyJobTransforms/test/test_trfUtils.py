@@ -7,6 +7,7 @@
 #  @author graeme.andrew.stewart@cern.ch
 #  @version $Id: test_trfUtils.py 711194 2015-11-27 14:44:03Z mavogel $
 
+from __future__ import print_function
 import unittest
 import os
 import pwd
@@ -29,16 +30,16 @@ class trfUtilsInfanticide(unittest.TestCase):
         self.exitWrapper = "exit.sh"
         
         waitFile = open(self.waitWrapper, "w")
-        print >>waitFile, "#!/bin/sh"
-        print >>waitFile, "sleep 100"
+        print("#!/bin/sh", file=waitFile)
+        print("sleep 100", file=waitFile)
         waitFile.close()
-        os.chmod(self.waitWrapper, 00755)
+        os.chmod(self.waitWrapper, 0o0755)
     
         exitFile = open(self.exitWrapper, "w")
-        print >>exitFile, "#!/bin/sh"
-        print >>exitFile, "sleep 100 &"
+        print("#!/bin/sh", file=exitFile)
+        print("sleep 100 &", file=exitFile)
         exitFile.close()
-        os.chmod(self.exitWrapper, 00755)
+        os.chmod(self.exitWrapper, 0o0755)
 
  
     def teardown(self):

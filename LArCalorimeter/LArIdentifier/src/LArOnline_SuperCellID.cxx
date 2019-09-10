@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArIdentifier/LArOnline_SuperCellID.h"
@@ -41,11 +41,11 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
   
     // Check whether this helper should be reinitialized
     if (!reinitialize(dict_mgr)) {
-        if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
+        if(m_msgSvc) log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
         return (0);
     }
     else {
-        log << MSG::DEBUG << "(Re)initialize" << endmsg;
+        if(m_msgSvc) log << MSG::DEBUG << "(Re)initialize" << endmsg;
     }
 
     // init base object
@@ -73,7 +73,11 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
     std::string group_name("LArOnline_SuperCell");
     if(LArOnlineID_Base::initLevelsFromDict(group_name)) return (1);
 
-    std::cout << "Finished initLevelsFromDict" << std::endl;
+    if(m_msgSvc) {
+       log << MSG::INFO << "Finished initLevelsFromDict" << endmsg;
+    } else {
+       std::cout << "Finished initLevelsFromDict" << std::endl;
+    }
 
 
     /* Find value for the field LAr Calorimeter */
@@ -127,13 +131,6 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
     region_id.add(larField);
     region_id.add(larOnlineField);
     Range prefix;
-    /* Calib Multirange */
-/*
-    ExpandedIdentifier region_id2; 
-    region_id2.add(larField);
-    region_id2.add(larOnlineCalibField);
-    Range prefix2;
-*/
 
     /*Full range for all channels*/
     m_full_laronline_range = m_dict->build_multirange( region_id, group_name,  prefix); 
@@ -228,11 +225,6 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
                 std::cout << strg1 << std::endl;
                 std::cout << strg2 << std::endl;
             }     
-            //std::cout << "min > " << size << " " 
-            //    << i << " "
-            //      << show_to_string(min) << " " 
-            //      << m_pnz_reg_impl.unpack(min) << " " 
-            //      << std::endl;
         }
     }
 
@@ -303,7 +295,11 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
         // For each feedthrough we save the possible slot values for
         // the hash calculation.
         if (get_expanded_id(min, ftExpId, &ftContext)) {
-            std::cout << " *****  Error cannot get ft expanded id for " << show_to_string(min) << std::endl;
+            if(m_msgSvc) {
+               log << MSG::WARNING << " *****  Warning cannot get ft expanded id for " << show_to_string(min) << endmsg;
+            } else {
+               std::cout << " *****  Warning cannot get ft expanded id for " << show_to_string(min) << std::endl;
+            }
         }
 
         // If there is more than a single range found for this
@@ -337,27 +333,6 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
             }
         }
 
-        // for (unsigned int i = 0; i < m_full_feb_range.size(); ++i) {
-        //     if (m_full_feb_range[i].match(ftExpId)) {
-        //         nrangesFound += 1;
-        //         const Range::field& slotField = m_full_feb_range[i][m_slot_index];
-        //         // if (slotField.get_mode() == Range::field::enumerated) {
-        //         //     // save values
-        //         //     hc.m_slot_values = slotField.get_values();
-        //         // }
-        //         if (slotField.get_mode() == Range::field::both_bounded ||
-        //             slotField.get_mode() == Range::field::enumerated) {
-        //             // save values
-        //             unsigned int nvalues = slotField.get_indices();
-        //             hc.m_slot_values.reserve(hc.m_slot_values.size() + nvalues);
-        //             for (unsigned int j = 0; j < nvalues; ++j) {
-        //                 hc.m_slot_values.push_back(slotField.get_value_at(j));
-        //             }
-        //         }
-        //     }
-        // }
-
-
         // Set hash calculator
         m_feb_hash_calcs[m_bec_ft_impl.unpack(min)] = hc;
 
@@ -375,11 +350,6 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
             else {
                 std::cout << strg << std::endl;
             }     
-            //std::cout << "min > " << size << " " 
-            //    << i << " "
-            //      << show_to_string(min) << " " 
-            //      << m_pnz_reg_impl.unpack(min) << " " 
-            //      << std::endl;
         }
     }
 

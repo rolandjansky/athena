@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // C/C++
@@ -34,7 +34,6 @@
 #include "TrigSteering/SteeringChain.h"
 #include "TrigSteering/TrigSteer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 // Local
 #include "TrigMonitoringEvent/TrigMonConfig.h"
@@ -422,7 +421,8 @@ bool Trig::TrigNtElemTool::PassFilter(TrigMonTE &elem) const
 }
 
 //---------------------------------------------------------------------------------------
-void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE UNUSED(&elem), const HLT::TriggerElement UNUSED(*hlt_te))
+void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE& /*elem*/,
+                                     const HLT::TriggerElement* /*hlt_te*/)
 {
 
 //   //

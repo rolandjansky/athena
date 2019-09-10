@@ -22,8 +22,6 @@ DecisionSvc::DecisionSvc(const std::string& name,
 #endif
   m_algstateSvc("AlgExecStateSvc",name)
 {
-  declareProperty("SaveDecisions", m_extend = false, "Set to true to add streaming decisions to an attributeList");
-  declareProperty("AttributeListKey", m_attListKey = "SimpleTag", "StoreGate key of AttributeList to extend");
 }
 
 DecisionSvc::~DecisionSvc()

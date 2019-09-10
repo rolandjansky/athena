@@ -354,9 +354,10 @@ useNoiseCuts2012: use 2012 values of noise cuts (only available for matched filt
             else:
                 pedestalProvider = ToolSvc.L1DynamicPedestalProviderRoot
         else:
-            if not 'inputFileSummary' in dir():
+
+            if not 'MetaReaderPeeker' in dir():
                 try:
-                    from RecExConfig.InputFilePeeker import inputFileSummary
+                    from PyUtils.MetaReaderPeekerFull import metadata
                 except ImportError:
                     log.warning('configureTriggerTowerMaker could not retrieve input file summary. Will not configure dynamic pedestal correction from text.')
                     return
@@ -366,7 +367,7 @@ useNoiseCuts2012: use 2012 values of noise cuts (only available for matched filt
                 pedestalProvider = LVL1__L1DynamicPedestalProviderTxt('L1DynamicPedestalProviderTxt',
                                                                       InputFileEM=inputFileTxtEM,
                                                                       InputFileHAD=inputFileTxtHAD)
-                pedestalProvider.BeamIntensityPattern=inputFileSummary['metadata']['/Digitization/Parameters']['BeamIntensityPattern']
+                pedestalProvider.BeamIntensityPattern = metadata['/Digitization/Parameters']['BeamIntensityPattern']
                 ToolSvc += pedestalProvider
             else:
                 pedestalProvider = ToolSvc.L1DynamicPedestalProviderTxt

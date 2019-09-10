@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -9,7 +9,6 @@
 
 namespace Trk {
 
-ForCFT      forcft_1;
 
 /*------------------------------------------------------------------------------*/
 /* Package for vertex fit with constraints 					*/
@@ -41,7 +40,7 @@ ForCFT      forcft_1;
 /*   STPCNV :   track momentum from track (theta,phi,1/r) at vertex       	*/
 /*------------------------------------------------------------------------------*/
 
-void prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double  *vrt, double  *vrte)
+void ForCFT::prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double  *vrt, double  *vrte) noexcept
 {
     long int i__1;
     double   summ;
@@ -76,108 +75,105 @@ void prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double 
 /*										*/
 /*------------------------------------------------------------------------------*/
 
-    forcft_1.localbmag = (*bmag);
-    forcft_1.nmcnst = 0;
-    for (int i=0; i<8; ++i) forcft_1.wmfit[i] = -10000.;
+    localbmag = (*bmag);
+    nmcnst = 0;
+    for (int i=0; i<8; ++i) wmfit[i] = -10000.;
     summ = 0.;
     i__1 = (*ntrk)<vkalNTrkM ? (*ntrk): vkalNTrkM;
     for (int i=0; i<i__1; ++i) {
-	forcft_1.wm[i] =  fabs(wm[i]);
+	wm[i] =  fabs(wm[i]);
 	summ += wm[i];
     }
     if ((*wmfit) > summ) {
 /*  Set general mass constraint based on ALL tracks */
-	forcft_1.nmcnst = 1;
+	nmcnst = 1;
 	for (int i = 0; i < vkalNTrkM; ++i) {
-	    forcft_1.indtrkmc[0][i] = 0;
-	    if (i < (*ntrk)) {forcft_1.indtrkmc[0][i] = 1;}
+	    indtrkmc[0][i] = 0;
+	    if (i < (*ntrk)) {indtrkmc[0][i] = 1;}
 	}
-	forcft_1.wmfit[0] = (*wmfit);
+	wmfit[0] = (*wmfit);
     }
 
-    forcft_1.vrt[0]    = vrt[0];
-    forcft_1.vrt[1]    = vrt[1];
-    forcft_1.vrt[2]    = vrt[2];
-    forcft_1.covvrt[0] = vrte[0];
-    forcft_1.covvrt[1] = vrte[1];
-    forcft_1.covvrt[2] = vrte[2];
-    forcft_1.covvrt[3] = vrte[3];
-    forcft_1.covvrt[4] = vrte[4];
-    forcft_1.covvrt[5] = vrte[5];
-    forcft_1.irob = 0;
-    forcft_1.IterationNumber    = 50;
-    forcft_1.IterationPrecision = 1.e-3;
-    for (int i = 0; i < vkalNTrkM; ++i) forcft_1.robres[i]=1.; //Safety
+    this->vrt[0] = vrt[0];
+    this->vrt[1] = vrt[1];
+    this->vrt[2] = vrt[2];
+    this->covvrt[0] = vrte[0];
+    this->covvrt[1] = vrte[1];
+    this->covvrt[2] = vrte[2];
+    this->covvrt[3] = vrte[3];
+    this->covvrt[4] = vrte[4];
+    this->covvrt[5] = vrte[5];
+    irob = 0;
+    IterationNumber    = 50;
+    IterationPrecision = 1.e-3;
+    for (int i = 0; i < vkalNTrkM; ++i) robres[i]=1.; //Safety
 //
 // Reset all constraints
 //
-forcft_1.useMassCnst = 0;
-forcft_1.usePhiCnst = 0;
-forcft_1.useThetaCnst = 0;
-forcft_1.useAprioriVrt = 0;
-forcft_1.usePointingCnst = 0;
-forcft_1.usePassNear = 0;
+useMassCnst = 0;
+usePhiCnst = 0;
+useThetaCnst = 0;
+useAprioriVrt = 0;
+usePointingCnst = 0;
+usePassNear = 0;
 //forcft_1.usePlaneCnst = 0;   //Used only on demand=> must NOT be reset here!!!
 } 
 
 
-void vksetIterationNum(long int Iter)
+void ForCFT::vksetIterationNum(long int Iter) noexcept
 {
     if (Iter<3)   Iter=3;
     if (Iter>100) Iter=100;
-    forcft_1.IterationNumber    = Iter;
+    IterationNumber    = Iter;
 }
 
-void vksetIterationPrec(double Prec)
+void ForCFT::vksetIterationPrec(double Prec) noexcept
 {
     if (Prec<1.e-5)   Prec=1.e-5;
     if (Prec>1.e-1)   Prec=1.e-1;
-    forcft_1.IterationPrecision = Prec;
+    IterationPrecision = Prec;
 }
 
-void vksetRobustScale(double Scale)
+void ForCFT::vksetRobustScale(double Scale) noexcept
 {
     if (Scale<0.01)   Scale=0.01;
     if (Scale>100.)   Scale=100.;
-    forcft_1.RobustScale = Scale;
+    RobustScale = Scale;
 }
 
-void vksetRobustness(long int Rob)
+void ForCFT::vksetRobustness(long int Rob) noexcept
 {
     if (Rob<0)   Rob=0;
     if (Rob>7)   Rob=7;
-    forcft_1.irob = Rob;
+    irob = Rob;
 }
 
-void vksetUseMassCnst()  { forcft_1.useMassCnst = 1;}
-void vksetUsePhiCnst()   { forcft_1.usePhiCnst = 1;}
-void vksetUsePlaneCnst(double a, double b, double c, double d)   { 
-  if(a+b+c+d == 0.){  forcft_1.usePlaneCnst = 0;
-  }else{              forcft_1.usePlaneCnst = 1; }
-  forcft_1.Ap = a; forcft_1.Bp = b; forcft_1.Cp = c; forcft_1.Dp = d;
+void ForCFT::vksetUseMassCnst() noexcept { useMassCnst = 1;}
+void ForCFT::vksetUsePhiCnst()  noexcept { usePhiCnst = 1;}
+void ForCFT::vksetUsePlaneCnst(double a, double b, double c, double d) noexcept  { 
+  if(a+b+c+d == 0.){  usePlaneCnst = 0;
+  }else{              usePlaneCnst = 1; }
+  Ap = a; Bp = b; Cp = c; Dp = d;
 }
-void vksetUseThetaCnst() { forcft_1.useThetaCnst = 1;}
-void vksetUseAprioriVrt(){ forcft_1.useAprioriVrt = 1;}
-void vksetUsePointingCnst(int iType = 1 ) { forcft_1.usePointingCnst = iType<2 ? 1 : 2 ;}
-void vksetUsePassNear(int iType = 1 ) { forcft_1.usePassNear = iType<2 ? 1 : 2 ;}
 
 
-void setmasscnst_(long int *ncnsttrk, long int *indextrk, double  *wmcnst)
+
+void ForCFT::setmasscnst_(long int *ncnsttrk, long int *indextrk, double  *wmcnst) noexcept
 {
     if (indextrk==0) return;  //Protection!  Track indices start from 1 (not 0)!
     --indextrk;
 
-    ++forcft_1.nmcnst;
-    if (forcft_1.nmcnst > 8) return ;
+    ++nmcnst;
+    if (nmcnst > 8) return ;
     for (int i = 0; i < vkalNTrkM; ++i) {
-	forcft_1.indtrkmc[forcft_1.nmcnst-1][i] = 0;
+	indtrkmc[nmcnst-1][i] = 0;
     }
     for (int i = 0; i < (*ncnsttrk);  ++i) {
 	if (indextrk[i] > 0 && indextrk[i] < vkalNTrkM) {
-	    forcft_1.indtrkmc[forcft_1.nmcnst-1][indextrk[i]] = 1;
+	    indtrkmc[nmcnst-1][indextrk[i]] = 1;
 	}
     }
-    forcft_1.wmfit[forcft_1.nmcnst - 1] = (*wmcnst);
+    wmfit[nmcnst - 1] = (*wmcnst);
  }
 
 } /* End of namespace */

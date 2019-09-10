@@ -72,7 +72,7 @@ StatusCode xAODTrigT2MbtsBitsContainerCnv::createObj(IOpaqueAddress* pAddr,
 xAOD::TrigT2MbtsBitsContainer* xAODTrigT2MbtsBitsContainerCnv::createTransient() {
 
   // The known ID(s) for this container:
-  static pool::Guid v1_guid( "FF96BF06-1206-11E4-9605-02163E00A892" );
+  static const pool::Guid v1_guid( "FF96BF06-1206-11E4-9605-02163E00A892" );
 
   // Check if we're reading the most up to date type:
   if( compareClassGuid( v1_guid ) ) {

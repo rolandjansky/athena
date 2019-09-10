@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT2MinBias/TrigCountSpacePoints.h"
+#include "TrigCountSpacePoints.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "eformat/DetectorMask.h"
@@ -31,11 +31,10 @@
 //---------------------------------------------------------------------------------
 
 TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator* pSvcLocator)
-  : HLT::AllTEAlgo(name, pSvcLocator), 
+  : HLT::AllTEAlgo(name, pSvcLocator),
     m_hltExecuteInitialisationRun(kFALSE),
-    m_detStore("DetectorStore", name),
     m_regionSelector("RegSelSvc", name),
-    m_doPixelSp(true), 
+    m_doPixelSp(true),
     m_doSctSp(true),
     m_doOnlyBLayer(false),
     m_pixHelper(0),
@@ -43,7 +42,7 @@ TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator*
     m_pixelClusEndcapC(0),
     m_pixelClusBarrel(0),
     m_pixelClusEndcapA(0),
-    m_useCachedResult(false), 
+    m_useCachedResult(false),
     m_spacePointCounts(0),
     m_cachedTE(0),
     m_sct_barrel_a_side(true),
@@ -51,13 +50,13 @@ TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator*
     m_sct_endcap_a_side(true),
     m_sct_endcap_c_side(true),
     m_pixel_barrel(true),
-    m_pixel_b_layer(true),    
+    m_pixel_b_layer(true),
     m_pixel_disk(true)  {
 
   declareProperty( "PixelSP_ContainerName",                   m_pixelSpName = "PixelTrigSpacePoints"  );
   declareProperty( "SCT_SP_ContainerName",                    m_sctSpName = "SCT_TrigSpacePoints"     );
   declareProperty("RegionSelectorTool",                       m_regionSelector);
-  declareProperty( "ReadPixelSp",                             m_doPixelSp = true ); 
+  declareProperty( "ReadPixelSp",                             m_doPixelSp = true );
   declareProperty( "ReadSctSp",                               m_doSctSp = true );
   declareProperty( "OnlyCountBLayer",                         m_doOnlyBLayer = false );
 
@@ -74,12 +73,12 @@ TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator*
   declareProperty( "PixelClusSizeMax",                        m_hPixelClusSizeMax = 2. );
 
   // Monitoring of the data stored in TrigSpacePointCounts
-  declareMonitoredStdContainer("PixelClusEndcapC_Tot",        m_pixelClusEndcapC_Tot); 
-  declareMonitoredStdContainer("PixelClusEndcapC_Size",       m_pixelClusEndcapC_Size); 
-  declareMonitoredStdContainer("PixelClusBarrel_Tot",         m_pixelClusBarrel_Tot); 
-  declareMonitoredStdContainer("PixelClusBarrel_Size",        m_pixelClusBarrel_Size); 
-  declareMonitoredStdContainer("PixelClusEndcapA_Tot",        m_pixelClusEndcapA_Tot); 
-  declareMonitoredStdContainer("PixelClusEndcapA_Size",       m_pixelClusEndcapA_Size); 
+  declareMonitoredStdContainer("PixelClusEndcapC_Tot",        m_pixelClusEndcapC_Tot);
+  declareMonitoredStdContainer("PixelClusEndcapC_Size",       m_pixelClusEndcapC_Size);
+  declareMonitoredStdContainer("PixelClusBarrel_Tot",         m_pixelClusBarrel_Tot);
+  declareMonitoredStdContainer("PixelClusBarrel_Size",        m_pixelClusBarrel_Size);
+  declareMonitoredStdContainer("PixelClusEndcapA_Tot",        m_pixelClusEndcapA_Tot);
+  declareMonitoredStdContainer("PixelClusEndcapA_Size",       m_pixelClusEndcapA_Size);
   declareMonitoredVariable("sctSpEndcapC",                    m_sctSpEndcapC);
   declareMonitoredVariable("sctSpBarrel",                     m_sctSpBarrel);
   declareMonitoredVariable("sctSpEndcapA",                    m_sctSpEndcapA);
@@ -118,7 +117,7 @@ TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator*
   declareMonitoredStdContainer("sctBarrL1_sp_occ_eta",        m_sctBarrL1_sp_occ_eta );
   declareMonitoredStdContainer("sctBarrL2_sp_occ_eta",        m_sctBarrL2_sp_occ_eta );
   declareMonitoredStdContainer("sctBarrL3_sp_occ_eta",        m_sctBarrL3_sp_occ_eta );
-  declareMonitoredStdContainer("sctBarrL4_sp_occ_eta",        m_sctBarrL4_sp_occ_eta );  
+  declareMonitoredStdContainer("sctBarrL4_sp_occ_eta",        m_sctBarrL4_sp_occ_eta );
   declareMonitoredStdContainer("sctBarrL1_sp_occ_phi",        m_sctBarrL1_sp_occ_phi );
   declareMonitoredStdContainer("sctBarrL2_sp_occ_phi",        m_sctBarrL2_sp_occ_phi );
   declareMonitoredStdContainer("sctBarrL3_sp_occ_phi",        m_sctBarrL3_sp_occ_phi );
@@ -177,19 +176,9 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
-  // get detector store
-  if(m_detStore.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to connect to " << m_detStore.typeAndName());
-    return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    //    return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_INFO("Successfully initialised DetectorStore !");
-  }
- 
   // Only get the Pixel helper if Pixel spacepoints are requested
-  if(m_doPixelSp) { 
-    StatusCode sc_pixH = m_detStore->retrieve(m_pixHelper, "PixelID");
+  if(m_doPixelSp) {
+    StatusCode sc_pixH = detStore()->retrieve(m_pixHelper, "PixelID");
     if( sc_pixH.isFailure() ){
       ATH_MSG_WARNING("Could not obtain pix helper!");
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
@@ -199,14 +188,14 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
 
   // Only get the SCT helper if SCT spacepoints are requested
   if(m_doSctSp) {
-    StatusCode sc_sctH = m_detStore->retrieve(m_sctHelper, "SCT_ID");
+    StatusCode sc_sctH = detStore()->retrieve(m_sctHelper, "SCT_ID");
     if( sc_sctH.isFailure() ){
       ATH_MSG_WARNING("Could not obtain sct helper!");
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       //return StatusCode::FAILURE;
     }
   }
-  
+
   // Create timers
   if ( timerSvc() ) {
     m_pixSPCTimer      = addTimer("PixTotalPartSPC");
@@ -226,13 +215,13 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
   m_pixelClusBarrel->makePrivateStore();
   m_pixelClusBarrel->initialize(m_hPixelClusTotBins, m_hPixelClusTotMin, m_hPixelClusTotMax,
               m_hPixelClusSizeBins, m_hPixelClusSizeMin, m_hPixelClusSizeMax);
-  
+
   m_pixelClusEndcapA = new xAOD::TrigHisto2D();
   m_pixelClusEndcapA->makePrivateStore();
   m_pixelClusEndcapA->initialize(m_hPixelClusTotBins, m_hPixelClusTotMin, m_hPixelClusTotMax,
                m_hPixelClusSizeBins, m_hPixelClusSizeMin, m_hPixelClusSizeMax);
 
-  // Set the size of the vectors to pass the monitoring's 
+  // Set the size of the vectors to pass the monitoring's
   // kVecUO size check.
   m_pixelClusEndcapC_Tot.resize((m_hPixelClusTotBins+2),0);
   m_pixelClusEndcapC_Size.resize((m_hPixelClusSizeBins+2),0);
@@ -241,8 +230,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltInitialize() {
   m_pixelClusEndcapA_Tot.resize((m_hPixelClusTotBins+2),0);
   m_pixelClusEndcapA_Size.resize((m_hPixelClusSizeBins+2),0);
 
-  ATH_MSG_INFO(" TrigCountSpacePoints initialized successfully"); 
-  return HLT::OK;  
+  ATH_MSG_INFO(" TrigCountSpacePoints initialized successfully");
+  return HLT::OK;
 }
 
 
@@ -258,7 +247,7 @@ HLT::ErrorCode TrigCountSpacePoints::checkDetectorMask() {
     return HLT::SG_ERROR;
   }
   else {
-    ATH_MSG_INFO("xAOD::EventInfo Run Information [Run,Evt,Lumi,Time,BunchCross,DetMask] = [" 
+    ATH_MSG_INFO("xAOD::EventInfo Run Information [Run,Evt,Lumi,Time,BunchCross,DetMask] = ["
       << evinfo->runNumber()
       << "," << evinfo->eventNumber()
       << "," << evinfo->lumiBlock()
@@ -272,7 +261,7 @@ HLT::ErrorCode TrigCountSpacePoints::checkDetectorMask() {
     eformat::helper::DetectorMask decoder(mask);
 
     if (mask == 0) {
-      ATH_MSG_INFO("Detector Mask == 0. Assuming MC file and setting all of ID to ON."); 
+      ATH_MSG_INFO("Detector Mask == 0. Assuming MC file and setting all of ID to ON.");
       m_sct_barrel_a_side = true;
       m_sct_barrel_c_side = true;
       m_sct_endcap_a_side = true;
@@ -294,7 +283,7 @@ HLT::ErrorCode TrigCountSpacePoints::checkDetectorMask() {
     ATH_MSG_INFO("sct_barrel_c_side is " << (m_sct_barrel_c_side==true? "present" : "OFF! "));
     ATH_MSG_INFO("sct_endcap_a_side is " << (m_sct_endcap_a_side==true? "present" : "OFF! "));
     ATH_MSG_INFO("sct_endcap_c_side is " << (m_sct_endcap_c_side==true? "present" : "OFF! "));
-      
+
     ATH_MSG_INFO("pixel_barrel is      " << (m_pixel_barrel==true? "present" : "OFF! "));
     ATH_MSG_INFO("pixel_b_layer is     " << (m_pixel_b_layer==true? "present" : "OFF! "));
     ATH_MSG_INFO("pixel_disk is        " << (m_pixel_disk==true? "present" : "OFF! "));
@@ -315,26 +304,26 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   // First check whether we executed this instance before:
   if (m_useCachedResult) {
     ATH_MSG_DEBUG("Executing " << name() << " in cached mode");
-    
+
     // Get all input TEs (for seeding relation of navigation structure)
     HLT::TEVec allTEs;
     std::vector<HLT::TEVec>::const_iterator itEnd = tes_in.end();
     for( std::vector<HLT::TEVec>::const_iterator it = tes_in.begin(); it != itEnd; ++it ){
-      
+
       HLT::TEVec::const_iterator inner_it = (*it).begin();
       HLT::TEVec::const_iterator inner_itEnd = (*it).end();
       for( ; inner_it != inner_itEnd; ++inner_it) {
         allTEs.push_back(*inner_it);
       }
     }
-    
+
     // Create an output TE seeded by the inputs
     HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
     outputTE->setActiveState(true);
-    
+
     // Save (cached) feature to output TE:
     m_config->getNavigation()->copyAllFeatures( m_cachedTE, outputTE );
-    
+
     return HLT::OK;
   }
 
@@ -342,7 +331,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   beforeExecMonitors().ignore();
 
   std::vector<IdentifierHash>::iterator hashIt, hashItEnd;
- 
+
   // ------ PIXEL PART ---------------------------------------------
   if( !(m_pixel_barrel &&  m_pixel_b_layer &&  m_pixel_disk) ) {
     ATH_MSG_DEBUG("NO pixel detector present.");
@@ -356,26 +345,26 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   m_pixelClusEndcapC->clear();
   m_pixelClusBarrel->clear();
   m_pixelClusEndcapA->clear();
-  
-  m_nPixSP = 0; 
+
+  m_nPixSP = 0;
   m_pixelDataErrors.clear();
   m_pixSpPerModule.clear();
 
   // for storing noisy modules
   std::vector<Identifier> droppedPixelModules;
   droppedPixelModules.clear();
-  
+
   // pixel cluster part
-  m_pixClSize = 0; 
-  m_nPixCL_1 = 0; 
-  m_nPixCL_2 = 0; 
-  m_nPixCLmin3 = 0; // # pixel clusters with size >= 3 
+  m_pixClSize = 0;
+  m_nPixCL_1 = 0;
+  m_nPixCL_2 = 0;
+  m_nPixCLmin3 = 0; // # pixel clusters with size >= 3
   m_totNumPixSP = 0;
-  m_totNumPixCL_1 = 0; 
-  m_totNumPixCL_2 = 0; 
-  m_totNumPixCLmin3 = 0; 
+  m_totNumPixCL_1 = 0;
+  m_totNumPixCL_2 = 0;
+  m_totNumPixCLmin3 = 0;
   m_pixclToT = 0.;
- 
+
   // pixel spacepoints according to position EC/Barrel
   m_pixClBarrel = 0;
   m_pixClEndcapA = 0;
@@ -389,44 +378,44 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   if (m_doPixelSp && ( m_pixel_barrel ||  m_pixel_b_layer ||  m_pixel_disk)) {
     StatusCode sc;
     if( timerSvc() ) m_pixGetCollTimer->start();
-    
+
     // this counts timing for pixels only though SCT SP are retrieved at the same time
     m_listOfPixIds.clear();
     m_listOfSctIds.clear();
     const SpacePointContainer* pixCont = 0;
     sc = store()->retrieve( pixCont, m_pixelSpName );
     if(sc.isFailure() || !pixCont){
-      ATH_MSG_ERROR("Trig Pixel SP container " << m_pixelSpName <<" not found"); 
+      ATH_MSG_ERROR("Trig Pixel SP container " << m_pixelSpName <<" not found");
       return HLT::TOOL_FAILURE;
     } else {
       ATH_MSG_DEBUG("Successfully retrieved pixel SP container!");
       //sc = StatusCode::FAILURE;
     }
-    
+
     m_regionSelector->DetHashIDList(PIXEL, m_listOfPixIds );
-    m_pixListSize = m_listOfPixIds.size();
-    
+    m_pixListSize = m_listOfPixIds.size();//.....................................................................
+
     if( m_pixListSize != 0 ){
       // Initialise monitoring histogram variables
       m_pixECA_clust_occ_disk.clear();
       m_pixECC_clust_occ_disk.clear();
       m_pixECA_clust_occ_phi.clear();
       m_pixECC_clust_occ_phi.clear();
-      
+
       m_pixBarrL0_clust_occ_eta.clear();
       m_pixBarrL1_clust_occ_eta.clear();
       m_pixBarrL2_clust_occ_eta.clear();
       m_pixBarrL0_clust_occ_phi.clear();
       m_pixBarrL1_clust_occ_phi.clear();
       m_pixBarrL2_clust_occ_phi.clear();
-      
+
       // loop over pixel collections
       const InDet::PixelCluster* pixClust;
       const std::vector<Identifier>& rdoList();
-      
+
       hashIt=m_listOfPixIds.begin();
       hashItEnd=m_listOfPixIds.end();
-      
+
       //std::vector<int>::iterator idItEnd = m_listOfPixIds.end();
       //std::vector<int>::iterator idIt = m_listOfPixIds.begin();
       for( ; hashIt != hashItEnd; ++hashIt ){
@@ -434,42 +423,42 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
         SpacePointContainer::const_iterator pixSpCollIt = pixCont->indexFind( (*hashIt) );
         if( pixSpCollIt == pixCont->end() ) continue;
         if( (*pixSpCollIt) == NULL ) continue;
-    
+
         // identify a module/wafer
-        Identifier pixid = (*pixSpCollIt)->identify(); 
+        Identifier pixid = (*pixSpCollIt)->identify();
 
         // If B-layer only mode, then enforce layer 0
         if (m_doOnlyBLayer == true && m_pixHelper->layer_disk(pixid) != 0) continue;
-  
+
         int bec = m_pixHelper->barrel_ec(pixid);
-  
+
         // retrieve number of pixel SP/CL per collection
         SpacePointCollection::const_iterator spItEnd = (*pixSpCollIt)->end();
         SpacePointCollection::const_iterator spIt = (*pixSpCollIt)->begin();
-  
+
         for( ; spIt != spItEnd; ++spIt ){
           const Trk::SpacePoint* pSP = (*spIt);
           //pixClust = dynamic_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
           pixClust = static_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
           m_pixClSize = (pixClust->rdoList()).size();
           m_pixclToT = pixClust->totalToT();
-    
+
           if( m_pixclToT > m_pixelClusToTCut ){
             ++m_nPixSP;
-            if( m_pixClSize == 1 )++m_nPixCL_1; 
-            if( m_pixClSize == 2 )++m_nPixCL_2; 
-            if( m_pixClSize >= 3 )++m_nPixCLmin3; 
+            if( m_pixClSize == 1 )++m_nPixCL_1;
+            if( m_pixClSize == 2 )++m_nPixCL_2;
+            if( m_pixClSize >= 3 )++m_nPixCLmin3;
           }
-    
+
           // Histogram time over threshold against pixel size {1,2,3+}
           if(bec == -2) {
             m_pixelClusEndcapC->fill(m_pixclToT, m_pixClSize,1);
             ATH_MSG_DEBUG(" ECC pixel totalToT is " << m_pixclToT);
             ATH_MSG_DEBUG(" ECC pixel size is " << m_pixclToT);
-          } else if(bec == 0) { 
+          } else if(bec == 0) {
             m_pixelClusBarrel->fill(m_pixclToT, m_pixClSize,1);
             ATH_MSG_DEBUG(" Barr pixel totalToT is " << m_pixclToT);
-          } else if(bec == 2) { 
+          } else if(bec == 2) {
             m_pixelClusEndcapA->fill(m_pixclToT, m_pixClSize,1);
             ATH_MSG_DEBUG(" ECA pixel totalToT is " << m_pixclToT);
           }
@@ -486,13 +475,13 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
           m_SPpixECC = m_nPixSP;
           ATH_MSG_VERBOSE(" Formed  " << m_nPixSP << " PIX spacepoints in PIX ECC after ToT cut.");
         }
-        // total 
+        // total
         m_pixSpPerModule.push_back(m_nPixSP);
-        
+
         // check if there is a hot module and monitor it
         if( (m_SPpixBarr > m_pixModuleThreshold) || (m_SPpixECA > m_pixModuleThreshold) || (m_SPpixECC > m_pixModuleThreshold) ){
           ATH_MSG_WARNING(" This pixel module : " << pixid << " produced " << m_nPixSP << " pix spacepoints. ");
-    
+
           unsigned int nPixModId = droppedPixelModules.size();
           if( nPixModId <= m_maxnid ) {
             droppedPixelModules.push_back(pixid);
@@ -503,7 +492,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
           int layer_disk  = m_pixHelper->layer_disk(pixid);
           int phi_module  = m_pixHelper->phi_module(pixid);
           int eta_module  = m_pixHelper->eta_module(pixid);
-    
+
           // check which module makes noise
           // barrel
           if( (m_SPpixBarr > m_pixModuleThreshold) ) {
@@ -525,7 +514,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
             ATH_MSG_DEBUG(" PIX module in the ECA in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nPixSP << " spacepoints!");
             ATH_MSG_DEBUG(" Will not account them. ");
             m_pixECA_clust_occ_disk.push_back( layer_disk );
-            m_pixECA_clust_occ_phi.push_back( phi_module ); 
+            m_pixECA_clust_occ_phi.push_back( phi_module );
           } else if( m_SPpixECC > m_pixModuleThreshold ){
             ATH_MSG_DEBUG(" PIX module in the ECC in disk " << layer_disk  << " with eta index " << eta_module << " and phi_module " << phi_module  << " produced " << m_nPixSP << " spacepoints!");
             ATH_MSG_DEBUG(" Will not account them. ");
@@ -533,65 +522,65 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
             m_pixECC_clust_occ_phi.push_back( phi_module );
           }
         } else {
-          m_totNumPixSP += m_nPixSP;  
-          m_totNumPixCL_1 += m_nPixCL_1; 
-          m_totNumPixCL_2 += m_nPixCL_2; 
-          m_totNumPixCLmin3 += m_nPixCLmin3; 
+          m_totNumPixSP += m_nPixSP;
+          m_totNumPixCL_1 += m_nPixCL_1;
+          m_totNumPixCL_2 += m_nPixCL_2;
+          m_totNumPixCLmin3 += m_nPixCLmin3;
           m_pixClBarrel += m_SPpixBarr;
           m_pixClEndcapA += m_SPpixECA;
           m_pixClEndcapC += m_SPpixECC;
         }
-        m_nPixSP = 0;      
-        m_nPixSP = 0; 
-        m_nPixCL_1 = 0; 
-        m_nPixCL_2 = 0; 
-        m_nPixCLmin3 = 0; 
+        m_nPixSP = 0;
+        m_nPixSP = 0;
+        m_nPixCL_1 = 0;
+        m_nPixCL_2 = 0;
+        m_nPixCLmin3 = 0;
         m_SPpixBarr = 0;
         m_SPpixECA = 0;
         m_SPpixECC = 0;
       }
     } else{ //end //if( m_pixListSize != 0 ){
-      ATH_MSG_DEBUG("Data is ok, but pixel detector might be off or not a single pixel hit was produced.");    
+      ATH_MSG_DEBUG("Data is ok, but pixel detector might be off or not a single pixel hit was produced.");
     }// end of pixel data quality check
-    
-    ATH_MSG_DEBUG("REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints in total."); 
-    ATH_MSG_DEBUG("REGTEST : " << m_totNumPixCL_1 << " have cl size == 1 in total."); 
-    ATH_MSG_DEBUG("REGTEST : " << m_totNumPixCL_2 << " have cl size == 2 in total."); 
-    ATH_MSG_DEBUG("REGTEST : " << m_totNumPixCLmin3 << " have cl size >= 3 in total."); 
+
+    ATH_MSG_DEBUG("REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints in total.");
+    ATH_MSG_DEBUG("REGTEST : " << m_totNumPixCL_1 << " have cl size == 1 in total.");
+    ATH_MSG_DEBUG("REGTEST : " << m_totNumPixCL_2 << " have cl size == 2 in total.");
+    ATH_MSG_DEBUG("REGTEST : " << m_totNumPixCLmin3 << " have cl size >= 3 in total.");
     ATH_MSG_DEBUG("REGTEST : Formed  " << m_totNumPixSP << " pixel spacepoints after ToT cut in total.");
     ATH_MSG_DEBUG("REGTEST : Formed " << m_pixClBarrel << " SP in pixel barrel in total.");
     ATH_MSG_DEBUG("REGTEST : Formed " << m_pixClEndcapA << " SP in pixel ECA in total.");
     ATH_MSG_DEBUG("REGTEST : Formed " << m_pixClEndcapC << " SP in pixel ECC in total.");
-    
+
     // Monitor the data stored in TrigSpacePointCounts
-    
+
     // Project the TrigHisto2D histograms into 1D histograms and dump
     // their contents such that it can be integrated by the online
     // monitoring.
-    
+
     m_pixelClusEndcapC_Tot  = m_pixelClusEndcapC->profileX();
     m_pixelClusEndcapC_Size = m_pixelClusEndcapC->profileY();
     m_pixelClusBarrel_Tot   = m_pixelClusBarrel->profileX();
     m_pixelClusBarrel_Size  = m_pixelClusBarrel->profileY();
     m_pixelClusEndcapA_Tot  = m_pixelClusEndcapA->profileX();
     m_pixelClusEndcapA_Size = m_pixelClusEndcapA->profileY();
-    
-    // Calculate the pixel cluser ratio values for this event.  
-    m_ratioA = -1.;  m_ratioB = -1.;  
-    if( m_totNumPixSP > 0. ) m_ratioA = (m_totNumPixCL_2 + m_totNumPixCLmin3)/m_totNumPixSP;  
-    
+
+    // Calculate the pixel cluser ratio values for this event.
+    m_ratioA = -1.;  m_ratioB = -1.;
+    if( m_totNumPixSP > 0. ) m_ratioA = (m_totNumPixCL_2 + m_totNumPixCLmin3)/m_totNumPixSP;
+
     if( m_totNumPixCL_1 > 0. ) m_ratioB = m_totNumPixCL_2/m_totNumPixCL_1;
-    
+
   } // end of doPixelSp
-  
+
   if( timerSvc() ) m_pixSPCTimer->stop();
-  
+
   // ------ SCT PART ------------------------------------------------
-  
+
   if( !(m_sct_barrel_a_side && m_sct_barrel_c_side &&  m_sct_endcap_a_side &&  m_sct_endcap_c_side) ) ATH_MSG_DEBUG("NO sct detector present.");
-  
+
   if( timerSvc() ) m_sctSPCTimer->start();
-  
+
   std::vector<Identifier> droppedSctModules;
   droppedSctModules.clear();
 
@@ -607,11 +596,11 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 
   // Only get the SCT space points if requested to do so and included
   if(m_doSctSp && (m_sct_barrel_a_side || m_sct_barrel_c_side || m_sct_endcap_a_side || m_sct_endcap_c_side)) {
-    
+
     StatusCode sc;
 
     if( timerSvc() ) m_sctGetCollTimer->start();
-    
+
     // empty the pixel list here
     m_listOfPixIds.clear();
     m_listOfSctIds.clear();
@@ -619,51 +608,51 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
     const SpacePointContainer* sctCont;
     sc = store()->retrieve( sctCont, m_sctSpName );
     if( sc.isFailure() ){
-      ATH_MSG_WARNING("Trig SP SCT container " << m_sctSpName <<" not found"); 
+      ATH_MSG_WARNING("Trig SP SCT container " << m_sctSpName <<" not found");
       return HLT::TOOL_FAILURE;
     }
-      
+
     m_regionSelector->DetHashIDList(SCT, m_listOfSctIds );
     m_sctListSize = m_listOfSctIds.size();
-    
+
     if( m_sctListSize !=0 ){
       // initialise histogram values
       m_sctBarrL1_sp_occ_eta.clear();
       m_sctBarrL2_sp_occ_eta.clear();
       m_sctBarrL3_sp_occ_eta.clear();
       m_sctBarrL4_sp_occ_eta.clear();
-      
+
       m_sctBarrL1_sp_occ_phi.clear();
       m_sctBarrL2_sp_occ_phi.clear();
       m_sctBarrL3_sp_occ_phi.clear();
       m_sctBarrL4_sp_occ_phi.clear();
-      
+
       // ec
       m_sctECA_sp_occ_disk.clear();
       m_sctECA_sp_occ_phi.clear();
       m_sctECC_sp_occ_disk.clear();
       m_sctECC_sp_occ_phi.clear();
-      
+
       // loop over SCT collections
       std::vector<IdentifierHash>::iterator sctItEnd = m_listOfSctIds.end();
       std::vector<IdentifierHash>::iterator sctIt = m_listOfSctIds.begin();
       for ( ; sctIt != sctItEnd; ++sctIt ) {
         SpacePointContainer::const_iterator sctSpCollIt = sctCont->indexFind( (*sctIt) );
-  
+
         if( sctSpCollIt == sctCont->end() ) continue;
         if( (*sctSpCollIt) == NULL ) continue;
-  
+
         const std::vector<Identifier>& rdoList();
         m_nSctSP = (*sctSpCollIt)->size();
-  
+
         // returns detector element identifier
         Identifier sctid = (*sctSpCollIt)->identify();
-  
+
         int bec = (int)m_sctHelper->barrel_ec(sctid);
-  
+
         ATH_MSG_VERBOSE(" Formed " << m_nSctSP << " sct spacepoints");
         ATH_MSG_VERBOSE(" with sctid module " << sctid);
-          
+
         // barrel
         if( bec==0 ){
           m_SPsctBarr = m_nSctSP;
@@ -675,28 +664,28 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
           m_SPsctECC = m_nSctSP;
           ATH_MSG_VERBOSE(" Formed  " << m_nSctSP << " SCT ECC spacepoints.");
         }
-  
-        // total 
+
+        // total
         m_sctSpPerModule.push_back(m_nSctSP);
-  
+
         // check if there is a tripped module
         if( (m_SPsctBarr > m_sctModuleThreshold) || (m_SPsctECA > m_sctModuleThreshold) || (m_SPsctECC > m_sctModuleThreshold) ){
-    
+
           unsigned int nSctModIds = droppedSctModules.size();
           if( nSctModIds <= m_maxnid ) {
             droppedSctModules.push_back(sctid);
           } else {
             ATH_MSG_WARNING("More than " << m_maxnid << " sct modules are noisy, dump their id : " << sctid);
           }
-    
+
           int layer_disk  = m_sctHelper->layer_disk(sctid); // reference table in SCT_ID.h
           int phi_module  = m_sctHelper->phi_module(sctid);
           int eta_module  = m_sctHelper->eta_module(sctid);
-    
+
           ATH_MSG_VERBOSE(" SCT layer_disk = " << layer_disk);
           ATH_MSG_VERBOSE(" SCT phi_module = " << phi_module);
           ATH_MSG_VERBOSE(" SCT eta_module = " << eta_module);
-    
+
           if( m_SPsctBarr > m_sctModuleThreshold ){
             ATH_MSG_DEBUG(" SCT module in the barrel in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nSctSP << " spacepoints!");
             ATH_MSG_DEBUG(" Will not account them. ");
@@ -715,7 +704,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
             }
           } else if( m_SPsctECA > m_sctModuleThreshold ) {
             ATH_MSG_DEBUG(" SCT module in the ECA in disk " << layer_disk << " with eta index " << eta_module << " and phi_module " << phi_module << " produced " << m_nSctSP << " spacepoints!");
-            ATH_MSG_DEBUG(" Will not account them. ");    
+            ATH_MSG_DEBUG(" Will not account them. ");
             m_sctECA_sp_occ_disk.push_back( layer_disk );
             m_sctECA_sp_occ_phi.push_back( phi_module );
           } else if( m_SPsctECC > m_sctModuleThreshold ) {
@@ -735,17 +724,17 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
         }
       } // end of for ( ; sctIt != sctItEnd; ++sctIt )
     }//end of //if( m_sctListSize !=0 )
-    
+
     m_totNumSctSP = m_sctSpEndcapC + m_sctSpBarrel + m_sctSpEndcapA;
     ATH_MSG_DEBUG("REGTEST : Formed  " << m_totNumSctSP << " sct spacepoints in total.");
     ATH_MSG_DEBUG("REGTEST : Formed  " << m_sctSpEndcapC << " sct ECC spacepoints in total.");
     ATH_MSG_DEBUG("REGTEST : Formed  " << m_sctSpBarrel << " sct Barr spacepoints in total.");
-    ATH_MSG_DEBUG("REGTEST : Formed  " << m_sctSpEndcapA << " sct ECA spacepoints in total.");    
+    ATH_MSG_DEBUG("REGTEST : Formed  " << m_sctSpEndcapA << " sct ECA spacepoints in total.");
   } // end of doSctSp
 
-  if( timerSvc() ) { 
+  if( timerSvc() ) {
     m_sctSPCTimer->stop();
-  }  
+  }
 
   // TODO: use the arrays of identifiers to store modules that have
   // been dropped when dynamic prescaling is enabled.  Only a maximum
@@ -754,7 +743,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   if( timerSvc() ) m_attachFTimer->start();
 
   m_spacePointCounts = new xAOD::TrigSpacePointCounts();
-  
+
   m_spacePointCounts->makePrivateStore();
   m_spacePointCounts->setContentsPixelClusEndcapC(m_pixelClusEndcapC->contents());
   m_spacePointCounts->setContentsPixelClusBarrel(m_pixelClusBarrel->contents());
@@ -774,7 +763,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
   // trigger elements.  For example, L1_RD0, L1_BCM_2, L1_MBTS_2 are
   // each a vector of one element.  Therefore start by concatenating
   // the trigger elements.
-  
+
   HLT::TEVec allTEs;
   std::vector<HLT::TEVec>::const_iterator itEnd = tes_in.end();
   for( std::vector<HLT::TEVec>::const_iterator it = tes_in.begin(); it != itEnd ; ++it) {
@@ -790,7 +779,7 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 
   HLT::ErrorCode hltStatus = attachFeature( outputTE, m_spacePointCounts, "spacepoints");
 
-  if( timerSvc() ) m_attachFTimer->stop(); 
+  if( timerSvc() ) m_attachFTimer->stop();
   if(hltStatus != HLT::OK) {
     ATH_MSG_ERROR("Unable to attach HLT feature spacepoints to output TE.");
     return hltStatus;
@@ -809,14 +798,14 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 //---------------------------------------------------------------------------------------------------------------------------------------------
 
 HLT::ErrorCode TrigCountSpacePoints::hltFinalize() {
-  ATH_MSG_DEBUG(" finalizing TrigCountSpacePoints : "<< name()); 
-  return HLT::OK;  
+  ATH_MSG_DEBUG(" finalizing TrigCountSpacePoints : "<< name());
+  return HLT::OK;
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------
 HLT::ErrorCode TrigCountSpacePoints::hltEndEvent() {
     m_useCachedResult = false;
-    m_spacePointCounts = 0;   
+    m_spacePointCounts = 0;
     m_cachedTE=0;
     return HLT::OK;
 }

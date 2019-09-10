@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****************************************************************************************
-// Randomize calo cell energy according to CaloNoiseTool
+// Randomize calo cell energy according to CaloNoise
 //
 // D. Varouchas 
 //
@@ -12,7 +12,7 @@
 #include "CaloCellRandomizer.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "AthenaKernel/RNGWrapper.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "CLHEP/Random/Randomize.h"
@@ -28,12 +28,11 @@ CaloCellRandomizer::CaloCellRandomizer(
 			     const std::string& name, 
 			     const IInterface* parent)
   : CaloCellCorrection(type, name, parent),
-    m_noiseTool("undefined"),  m_corrSampleMin(0),m_corrSampleMax(0),m_fractionSigma(1),m_GaussRand(false),m_GaussRandGroupedSamples(false),m_GaussRandShifted(false),m_GaussRandShifted_Custom(false), m_shift_EMB(1),m_shift_EMEC(1),m_shift_HEC(1),m_shift_TileBar(1),m_shift_TileGap(1),m_shift_TileExt(1),m_shift_FCAL(1),
+    m_corrSampleMin(0),m_corrSampleMax(0),m_fractionSigma(1),m_GaussRand(false),m_GaussRandGroupedSamples(false),m_GaussRandShifted(false),m_GaussRandShifted_Custom(false), m_shift_EMB(1),m_shift_EMEC(1),m_shift_HEC(1),m_shift_TileBar(1),m_shift_TileGap(1),m_shift_TileExt(1),m_shift_FCAL(1),
     m_athRNGSvc ("AthRNGSvc", name),
     m_randomEngine (nullptr)
 {
  declareInterface<CaloCellCorrection>(this);
- declareProperty("noiseTool",m_noiseTool,"Tool Handle for noise tool");
  // declareProperty("SampleNums",m_sampleNums);
  declareProperty("DoRandomSampleMin",m_corrSampleMin);
  declareProperty("DoRandomSampleMax",m_corrSampleMax);
@@ -60,7 +59,7 @@ CaloCellRandomizer::CaloCellRandomizer(
 StatusCode CaloCellRandomizer::initialize()
 {
   ATH_MSG_INFO( " in CaloCellRandomizer::initialize() "  );
-  ATH_CHECK( m_noiseTool.retrieve() );
+  ATH_CHECK( m_caloNoiseKey.initialize() );
   ATH_MSG_INFO( "Noise Tool retrieved"  );
   ATH_MSG_INFO( "CaloCellRandomizer initialize() end"  );
   ATH_CHECK( m_athRNGSvc.retrieve() );
@@ -87,9 +86,9 @@ void CaloCellRandomizer::MakeCorrection (CaloCell* theCell,
   const CaloDetDescrElement* caloDDE = theCell->caloDDE();
   sampl=caloDDE->getSampling();    
    
-  //CaloNoiseTool
-  // FIXME: CaloNoiseTool doesn't have const interfaces.
-  double SigmaNoise = m_noiseTool->getNoise(theCell,ICalorimeterNoiseTool::ELECTRONICNOISE);
+  //CaloNoise
+  SG::ReadCondHandle<CaloNoise> caloNoise (m_caloNoiseKey, ctx);
+  double SigmaNoise = caloNoise->getNoise(theCell->ID(), theCell->gain());
   
 
   Gauss = RandGauss::shoot(engine, 0.,1.);
@@ -150,7 +149,7 @@ void CaloCellRandomizer::MakeCorrection (CaloCell* theCell,
   
   //check if cells were masked before from tile reco alg, so to remove them, Tile Case only
   //  const TileCell* aTileCell = dynamic_cast<const TileCell*> (theCell);
-  //if CaloNoiseTool big values means we have bad cells (for tile when badcell is not applicalble). get ride of these cells
+  //if CaloNoise big values means we have bad cells (for tile when badcell is not applicalble). get ride of these cells
   if ( (sampl>11 && sampl<21) && SigmaNoise>999){
     setenergy(theCell,0);
   }

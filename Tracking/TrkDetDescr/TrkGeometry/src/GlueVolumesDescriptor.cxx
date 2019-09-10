@@ -10,7 +10,7 @@
 #include "TrkGeometry/GlueVolumesDescriptor.h"
 #include "TrkGeometry/TrackingVolume.h"
 
-std::vector<const Trk::TrackingVolume*> Trk::GlueVolumesDescriptor::s_emptyVector;
+const std::vector<const Trk::TrackingVolume*> Trk::GlueVolumesDescriptor::s_emptyVector;
 
 Trk::GlueVolumesDescriptor::GlueVolumesDescriptor(const std::map<Trk::BoundarySurfaceFace, std::vector<const Trk::TrackingVolume*> >& glv) :
  m_glueVolumes(glv)

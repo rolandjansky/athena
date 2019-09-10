@@ -57,7 +57,7 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p0::createTransient(SCT_Clu
   const InDetDD::SiDetectorElementCollection* elements(*sctDetEleHandle);
   if (not sctDetEleHandle.isValid() or elements==nullptr) {
     log << MSG::FATAL << m_SCTDetEleCollKey.fullKey() << " is not available." << endmsg;
-    return nullptr;
+    return trans.release();
   }
   
   for (InDet::SCT_ClusterCollection* dcColl : *persObj) {
@@ -80,5 +80,5 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p0::createTransient(SCT_Clu
       return nullptr;
     }
   }
-  return(trans.release());
+  return trans.release();
 }

@@ -1,4 +1,4 @@
-#include "ByteStreamEmonSvc/ByteStreamEmonInputSvc.h"
+#include "../ByteStreamEmonInputSvc.h"
 
 DECLARE_COMPONENT( ByteStreamEmonInputSvc )
 

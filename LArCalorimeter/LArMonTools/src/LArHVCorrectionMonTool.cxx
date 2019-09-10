@@ -43,7 +43,6 @@ LArHVCorrectionMonTool::LArHVCorrectionMonTool(const std::string& type,
     m_LArFCAL_IDHelper(0),
     m_LArHEC_IDHelper(0),
     m_caloIdMgr(0),
-    m_CaloDetDescrMgr(0),
     m_strHelper(0),
     m_rootStore(0),
     m_larCablingService("LArCablingLegacyService"),
@@ -89,7 +88,6 @@ StatusCode LArHVCorrectionMonTool::initialize()
   m_LArHEC_IDHelper  = idHelper->hec_idHelper();
   m_LArFCAL_IDHelper = idHelper->fcal_idHelper();
   
-  ATH_CHECK( detStore()->retrieve(m_CaloDetDescrMgr) );
   ATH_CHECK( m_larCablingService.retrieve() );
 
   ATH_CHECK( m_scaleCorrKey.initialize() );
@@ -238,22 +236,17 @@ StatusCode
 LArHVCorrectionMonTool::fillHistograms()
 {
   ATH_MSG_DEBUG( "in fillHists()" );
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   
   m_eventsCounter++;
   
   if(m_eventsCounter == 1){ // Fill only at the beginning of LB. m_eventsCounter is reset at the begining of each LB.
+
+    const CaloDetDescrManager* ddman = nullptr;
+    ATH_CHECK( detStore()->retrieve (ddman, "CaloMgr") );
     
     // Retrieve event information
-    const xAOD::EventInfo* thisEventInfo;
-    if (evtStore()->retrieve(thisEventInfo).isFailure()) {
-      ATH_MSG_ERROR( "Failed to retrieve EventInfo object" );
-      return StatusCode::FAILURE;
-    }
-    //const DataHandle<EventInfo> event_info;
-    //EventID::number_type bunch_crossing_id = event_info->event_ID()->bunch_crossing_id();
-    //EventID::number_type lumi_block        = event_info->event_ID()->lumi_block();
-    int lumi_block = thisEventInfo->lumiBlock();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    int lumi_block = ctx.eventID().lumi_block();
     
     // Counter for deviating channels in each partition
     float nonNominal[] = {0.,0.,0.,0.,0.,0.,0.,0.};
@@ -285,7 +278,7 @@ LArHVCorrectionMonTool::fillHistograms()
       
       // Get Physical Coordinates
       float etaChan = 0; float phiChan = 0.;
-      const CaloDetDescrElement* caloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
+      const CaloDetDescrElement* caloDetElement = ddman->get_element(offlineID);
       if(caloDetElement == 0 ){
 	ATH_MSG_ERROR( "Cannot retrieve (eta,phi) coordinates for raw channels" );
 	continue; 
@@ -299,10 +292,11 @@ LArHVCorrectionMonTool::fillHistograms()
       
       // Retrieve HV correction info
       float hvdev = 0;
-      float hvcorr = scaleCorr->HVScaleCorr(id);
-      //ATH_MSG_VERBOSE( "hvcorr" << hvcorr );
       float hvonline = onlineScaleCorr->HVScaleCorr(id);
       if (hvonline<=0) continue; //No valid online correction
+      // Correction in scaleCorr has already been divided by hvonline.
+      float hvcorr = scaleCorr->HVScaleCorr(id) * hvonline;
+      //ATH_MSG_VERBOSE( "hvcorr" << hvcorr );
       //ATH_MSG_VERBOSE( "hvonline" << hvonline );
       if (hvcorr>hvonline) hvdev = hvonline-hvcorr; //Monitor only channels that get a higher correction from DCS (eg are at a lower voltage). 
 

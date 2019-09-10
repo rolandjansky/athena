@@ -25,7 +25,7 @@
 #include <cassert>
 #include <iostream>
 
-bool IVP1System::s_vp1verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT");
+bool IVP1System::s_vp1verbose = VP1QtUtils::environmentVariableIsOn("VP1_VERBOSE_OUTPUT"); // TODO: is this used at all?
 
 class IVP1System::Imp {
 public:
@@ -68,16 +68,19 @@ const QString& IVP1System::contact_info() const
 IVP1System::IVP1System(const QString & n, const QString & i, const QString & c)
   : m_d(new Imp(n,i,c))
 {
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("IVP1System()");
+  }
   setObjectName("IVP1System:"+n);
+
 }
 
 //________________________________________________________
 IVP1System::~IVP1System()
 {
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("IVP1System() Destructor. Start...");
+  }
 
   assert(m_d->state==UNCREATED||m_d->state==CONSTRUCTED);
   assert(!m_d->controller);
@@ -92,7 +95,7 @@ IVP1System::~IVP1System()
 //_______________________________________________________
 void IVP1System::setChannel(IVP1ChannelWidget*cw)
 {
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     messageVerbose("setChannel ");
     messageVerbose("setChannel m_d->state==CONSTRUCTED = "+QString(m_d->state==CONSTRUCTED?"true":"false"));
     messageVerbose("setChannel cw!=0 = "+QString(cw!=0?"true":"false"));
@@ -112,8 +115,9 @@ bool IVP1System::isRefreshing()
 //________________________________________________________
 void IVP1System::setRefreshing(const bool& b)
 {
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("setRefreshing() called with b="+QString(b?"true":"false"));
+  }
   if (b) {
     assert(m_d->state==ERASED);
   } else {
@@ -189,7 +193,7 @@ void IVP1System::setActiveState(const ActiveState&s,const bool& donttriggererase
 //________________________________________________________
 void IVP1System::uncreate()
 {
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     messageVerbose("uncreate() base implementation");
     messageVerbose("registerController m_d->state==ERASED = "+QString(m_d->state==ERASED?"true":"false"));
   }
@@ -198,7 +202,7 @@ void IVP1System::uncreate()
 
 //________________________________________________________
 QWidget * IVP1System::controllerWidget() {
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     messageVerbose("controllerWidget()");
     messageVerbose("registerController m_d->state==ERASED = "+QString(m_d->state==ERASED?"true":"false"));
     messageVerbose("registerController m_d->state==REFRESHED = "+QString(m_d->state==REFRESHED?"true":"false"));
@@ -210,8 +214,9 @@ QWidget * IVP1System::controllerWidget() {
 //_______________________________________________________
 void IVP1System::deleteController()
 {
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("deleteController()");
+  }
   if (m_d->controller)
     m_d->controller->deleteLater();
   m_d->controller = 0;
@@ -220,7 +225,7 @@ void IVP1System::deleteController()
 //________________________________________________________
 void IVP1System::registerController(QWidget*w)
 {
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     messageVerbose("registerController ");
     messageVerbose("registerController m_d->canregistercontroller = "+QString(m_d->canregistercontroller?"true":"false"));
     messageVerbose("registerController m_d->state==CONSTRUCTED = "+QString(m_d->state==CONSTRUCTED?"true":"false"));
@@ -271,8 +276,9 @@ void IVP1System::updateGUI() {
 //________________________________________________________
 IVP1ChannelWidget * IVP1System::channel() const
 {
-  if (verbose()&&!m_d->channel)
+  if (VP1Msg::verbose()&&!m_d->channel){
     messageVerbose("WARNING channel() returning NULL");
+  }
   assert(m_d->channel);
   return m_d->channel;
 }
@@ -280,23 +286,26 @@ IVP1ChannelWidget * IVP1System::channel() const
 //_______________________________________________________
 void IVP1System::setCanRegisterController(const bool&c)
 {
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("setCanRegisterController called with"+QString(c?"true":"false"));
+  }
   m_d->canregistercontroller=c;
 }
 
 //_______________________________________________________
 QByteArray IVP1System::saveState() {
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("base saveState called [IVP1System]");
+  }
   return QByteArray();
 }
 
 //_______________________________________________________
 void IVP1System::restoreFromState(QByteArray ba)
 {
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("base restoreFromState called");
+  }
   if (!ba.isEmpty())
     message("Error in IVP1System::restoreFromState: Received non-empty saved state.");
 }
@@ -328,10 +337,12 @@ IToolSvc * IVP1System::toolSvc() const
 //_______________________________________________________
 void IVP1System::message(const QString& str) const
 {
-  if (receivers(SIGNAL(sysmessage(QString))) > 0)
+  if (receivers(SIGNAL(sysmessage(QString))) > 0){
     sysmessage(str);
-  else
+  }
+  else{
     std::cout<<VP1Msg::prefix_msg()<<" ["<<m_d->name.toStdString()<<"]: "<<str.toStdString()<<std::endl;
+  }
 }
 
 //_______________________________________________________
@@ -343,7 +354,7 @@ void IVP1System::messageDebug(const QString& str) const
 //_______________________________________________________
 void IVP1System::messageVerbose(const QString& str) const
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     std::cout<<VP1Msg::prefix_verbose()<<" ["<<m_d->name.toStdString()<<"]: "<<str.toStdString()<<std::endl;
 }
 
@@ -375,7 +386,7 @@ void IVP1System::messageDebug(const QStringList& l, const QString& addtoend ) co
 //____________________________________________________________________
 void IVP1System::messageVerbose(const QStringList& l, const QString& addtoend ) const
 {
-  if (!verbose())
+  if (!VP1Msg::verbose())
     return;
   if (addtoend.isEmpty()) {
     foreach(QString s, l)
@@ -421,7 +432,7 @@ void IVP1System::messageDebug(const QString& addtostart, const QStringList& l, c
 //____________________________________________________________________
 void IVP1System::messageVerbose(const QString& addtostart, const QStringList& l, const QString& addtoend ) const
 {
-  if (!verbose())
+  if (!VP1Msg::verbose())
     return;
   if (addtostart.isEmpty()) {
     messageVerbose(l,addtoend);
@@ -435,3 +446,52 @@ void IVP1System::messageVerbose(const QString& addtostart, const QStringList& l,
       messageVerbose(addtostart+s+addtoend);
   }
 }
+
+#ifdef BUILDVP1LIGHT
+//____________________________________________________________________
+xAOD::TEvent* IVP1System::getEvent(){
+  return m_event;
+}
+
+void IVP1System::setEvent( xAOD::TEvent* event ){
+  m_event = event;
+}
+
+//____________________________________________________________________
+QStringList IVP1System::getObjectList(xAOD::Type::ObjectType type){
+  if( type == xAOD::Type::Vertex ) {
+
+      message("(((((((((())))))))))))))))");
+      message(m_list[0]);
+    return m_list[0];
+  }
+  else if ( type == xAOD::Type::Other ) {
+    return m_list[1];
+  }
+  else if ( type == xAOD::Type::Jet ){
+    return m_list[2];
+  }
+  else if ( type == xAOD::Type::CaloCluster ) {
+    return m_list[3];
+  }
+  else if ( type == xAOD::Type::TrackParticle ) {
+    return m_list[4];
+  }
+  else if ( type == xAOD::Type::Muon ) {
+    return m_list[5];
+  }
+  else if ( type == xAOD::Type::Electron ) {
+    return m_list[6];
+  }
+  else {
+    message("Unknown xAOD type requested");
+    return QStringList {};
+  }
+}
+
+void IVP1System::setObjectList(QList<QStringList> list){
+  m_list = list;
+}
+
+
+#endif // BUILDVP1LIGHT

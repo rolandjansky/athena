@@ -1,8 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Thresholds import LVL1Threshold, ThresholdValue
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Thresholds import ThresholdValue
 from TriggerMenuMT.LVL1MenuConfig.LVL1.Limits import CaloLimits as CL
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 ClusterOff   = CL.ClusterOff
 IsolationOff = CL.IsolationOff
@@ -12,7 +10,7 @@ EtMissOff    = CL.EtMissOff
 JetEtOff     = CL.JetEtOff
 
 
-class ThresholdDef:
+class ThresholdDef(object):
 
     @staticmethod
     def registerThresholds(tc):

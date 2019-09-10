@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SGTOOLS_DATAPROXY_H
@@ -236,6 +236,22 @@ class DataStore;
     void resetBoundHandles (bool hard);
 
     IConverter* loader();
+
+
+    /**
+     * @brief Read in a new copy of the object referenced by this proxy.
+     *
+     * If this proxy has an associated loader and address, then load
+     * a new copy of the object and return it.  Any existing copy
+     * held by the proxy is unaffected.
+     *
+     * This will fail if the proxy does not refer to an object read from an
+     * input file.
+     *
+     * Returns a null pointer on failure.
+     */
+    std::unique_ptr<DataObject> readData() const;
+
 
   private:
     /// For access to requestRelease.

@@ -25,18 +25,20 @@ AndHelperTool::AndHelperTool(const std::string& type,
 }
 
 
-bool AndHelperTool::pass(HypoJetVector& jets,
-                         ITrigJetHypoInfoCollector* collector) const {
+bool
+AndHelperTool::pass(HypoJetVector& jets,
+		    xAODJetCollector& jetCollector,
+		    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   ATH_MSG_DEBUG("AndHelperTool::pass... " << jets.size() << " jets");
 
   JetTrigTimer timer;
   if(collector){
     timer.start();
   }
-  bool pass = m_lhs->pass(jets, collector);
+  bool pass = m_lhs->pass(jets, jetCollector, collector);
   if (pass){
     ATH_MSG_DEBUG("LHS passed");
-    pass = m_rhs->pass(jets, collector);
+    pass = m_rhs->pass(jets, jetCollector, collector);
     ATH_MSG_DEBUG("RHS " <<std::boolalpha << pass);
   } else {
     ATH_MSG_DEBUG("LHS failed");
@@ -60,7 +62,10 @@ std::string AndHelperTool::toString() const{
 
 StatusCode AndHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
-  m_lhs->getDescription(c);
-  m_rhs->getDescription(c);
-  return StatusCode::SUCCESS;
+  return m_lhs->getDescription(c) & m_rhs->getDescription(c);
 }
+
+std::size_t AndHelperTool::requiresNJets() const {
+  return m_lhs->requiresNJets() + m_rhs->requiresNJets();
+}
+

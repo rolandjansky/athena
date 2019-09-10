@@ -2,13 +2,14 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/*
- * eigen_migration
- * GeoPrimitivesCompare.h
+/**
+ * @file GeoPrimitivesCompare.h
  *
- *  Created on: Mar 25, 2014
- *      Author: rbianchi <Riccardo.Maria.Bianchi@cern.ch>
+ * @date Mar 25, 2014
+ * @author Riccardo.Maria.Bianchi <riccardo.maria.bianchi@cern.ch>
  *
+ * @section Description
+ * Methods to compare Eigen-based vectors
  */
 
 #ifndef GEOPRIMITIVESCOMPARE_H_
@@ -20,7 +21,7 @@
 namespace Amg {
 
 
-/*
+/**
  * comparison of two Vector3D,
  * needed for the definition of a std::set<Amg::Vector3D>
  *
@@ -30,7 +31,6 @@ namespace Amg {
  *   bool Hep3Vector::operator < (const Hep3Vector & v) const;
  *
  */
-
 struct Vector3DComparer
 {
 	bool operator()(Amg::Vector3D const &v1, Amg::Vector3D const &v2) const

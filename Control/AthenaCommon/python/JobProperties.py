@@ -13,6 +13,10 @@
     .............................................................
     
 """
+
+from __future__ import print_function
+import six
+
 #
 #
 __author__=  'M. Gallas, P. Calafiura, S. Binet'  
@@ -23,8 +27,8 @@ __all__ = [ "JobProperties"]
 #=======================================================================
 # imports
 #=======================================================================
-import re, os, pickle, pprint, types
-import Logging
+import re, os, pickle, pprint
+from AthenaCommon import Logging
 
 #=======================================================================
 def _isCompatible( allowedTypes, value ):
@@ -47,7 +51,7 @@ def _isCompatible( allowedTypes, value ):
         elif type(value) == str and not isinstance( value, tp ):
          # similarly, insist on exact match for str (no conversions allowed)
             pass # offcount will cause a failure, unless another type matches
-        elif ( tp == int or tp == long ) and type(value) == float:
+        elif tp in six.integer_types and type(value) == float:
          # special case, insist on strict match for integer types
             pass # id. as for strings above
         elif ( tp == bool ) and not (type(value) in [bool, int]):
@@ -96,6 +100,7 @@ class _JobPropertyMeta(type):
         return type.__new__( self, name, bases, dct )
 
 
+@six.add_metaclass(_JobPropertyMeta)
 class JobProperty(object):
     """ Base class for the job properties.  
         
@@ -119,7 +124,6 @@ class JobProperty(object):
         The actual Value of the JobProperty is (statusOn AND StoredValue)
 
     """
-    __metaclass__ = _JobPropertyMeta
 
     statusOn=False
     allowedTypes=list()
@@ -200,7 +204,7 @@ class JobProperty(object):
             self.__dict__['statusOn']=True
             self._do_action()
         else:
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
 
     def set_Off(self):
         """ Sets statusOn equals to False. 
@@ -209,7 +213,7 @@ class JobProperty(object):
             self.__dict__['statusOn']=False
             self._undo_action()
         else:
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
 
     def lock(self):
         """ lock the property
@@ -261,7 +265,7 @@ class JobProperty(object):
                         (n_value, self._context_name)
                         )
             elif name == 'StoredValue' and self._locked:
-                self._log.info('The JobProperty %s is blocked' % self.__name__)
+                self._log.info('The JobProperty %s is blocked', self.__name__)
             else: 
                 self.__dict__[name] = n_value
         elif name == '__name__' or name == '_context_name':
@@ -295,7 +299,7 @@ class JobProperty(object):
            otherwise it gives None. 
         """
         obj_p=object.__getattribute__(self, 'StoredValue')
-        if isinstance(obj_p, types.BooleanType):
+        if isinstance(obj_p, type(True)):
             return  obj_p  & self.statusOn 
         else: 
             if self.statusOn: 
@@ -330,10 +334,10 @@ class JobProperty(object):
                         self.__class__)
         self._log.info(self.__doc__)
     
-        print '##  job property:',self._context_name, self.statusOn, self.StoredValue
-        print '## allowed Values:',self.allowedValues
-        print '## default Value:', self.__class__.StoredValue         
-        print '## allowed Types :',self.allowedTypes 
+        print ('##  job property:',self._context_name, self.statusOn, self.StoredValue)
+        print ('## allowed Values:',self.allowedValues)
+        print ('## default Value:', self.__class__.StoredValue         )
+        print ('## allowed Types :',self.allowedTypes )
         self._log.info('### End of the help for the class %s ###',
                         self.__class__)
 
@@ -403,7 +407,7 @@ class JobProperty(object):
                            'locked :',self.is_locked(),
                            'StoredValue :',pprint.pformat(obj_p))
         elif(mode=='tree'):
-            print '     |'+indent+' '+self.__name__
+            print ('     |'+indent+' '+self.__name__)
         elif(mode.startswith('tree&value')):    
             if mode=='tree&value':
                 printit=True
@@ -415,8 +419,8 @@ class JobProperty(object):
             else:
                 raise RuntimeError("This is a non valid print mode %s " % (mode,))
             if printit:        
-                print '     |'+indent+' '+self.__name__+" = "+\
-                    self.toBePrinted()
+                print ('     |'+indent+' '+self.__name__+" = "+\
+                    self.toBePrinted())
 #                   fnToBePrinted(self)
 
         elif(mode=='print_v'):
@@ -559,7 +563,7 @@ class JobPropertyContainer (object):
                  setattr(self,mok.__name__,mok(self._context_name))
 
     def import_Flags(self,module_name):
-        """ OBSOLET: Use import_JobProperties
+        """ OBSOLETE: Use import_JobProperties
 
             Import modules with JobProperties specific to a given job 
            configuration.  
@@ -677,8 +681,8 @@ class JobPropertyContainer (object):
                            self.__name__ ,additionalinfo)
 
             if(mode=='tree' or mode.startswith('tree&value')):
-                print '    [-]'+self.__name__
-                print '     | '
+                print ('    [-]'+self.__name__)
+                print ('     | ')
             elif(mode=='print_v'):
                 print_view+='    [-]'+self.__name__+'\n'+'     | '+'\n' 
             else:
@@ -695,7 +699,7 @@ class JobPropertyContainer (object):
                 for i in range(m._context_name.count('.')-1):
                     indent+='-'
                 if(mode=='tree' or mode.startswith('tree&value')):    
-                    print '     /'+indent+'> ## '+m.__name__+' ## '
+                    print ('     /'+indent+'> ## '+m.__name__+' ## ')
                 elif(mode=='print_v'): 
                     print_view+='     /'+indent+'> ## '+m.__name__+' ## '+'\n' 
                 else:
@@ -789,7 +793,7 @@ def save_jobproperties(file_name):
         pickle.dump(jobproperties,f)
         f.close()
     except IOError:
-        print 'It is not possible to save the jobproperties '
+        print ('It is not possible to save the jobproperties ')
 def load_jobproperties(file_name):
     """ Loads the "jobproperties" container of JobProperties. 
     """
@@ -799,5 +803,5 @@ def load_jobproperties(file_name):
         f=open(file_name,'r')
         return pickle.load(f)
     except IOError:
-        print 'It is not possible to load the jobproperties '
+        print ('It is not possible to load the jobproperties ')
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -43,17 +43,12 @@
 #include <fstream>
 
 class AtlasDetectorID;
-//class StoreGateSvc;
 class IIOVRegistrationSvc; 
 class IToolSvcl; 
 class IIOVSvc; 
 class IClassIDSvc;
 class Identifier;
 class PixelID;
-
-namespace InDetDD{ 
-  class PixelDetectorManager; 
-}
 
 
 class PixelDCSTool: virtual public AthAlgTool,
@@ -86,9 +81,6 @@ class PixelDCSTool: virtual public AthAlgTool,
 
   //mutable MsgStream m_log;
   
-  //  StoreGateSvc* m_detStore; 
-  //ServiceHandle< StoreGateSvc > m_detStore; 
-
   //  IToolSvc* m_toolsvc; 
   ServiceHandle< IToolSvc > m_toolsvc; 
 
@@ -102,7 +94,6 @@ class PixelDCSTool: virtual public AthAlgTool,
   PublicToolHandle< IAthenaOutputStreamTool > m_streamer
      {this,"AthenaPoolOutputStreamTool","AthenaPoolOutputStreamTool/CondStreamPixelDCSTest",""};
 
-  const InDetDD::PixelDetectorManager* m_pixman; 
   const PixelID* m_pixid; 
 
   PixelDCSData* m_pixelDCSData;

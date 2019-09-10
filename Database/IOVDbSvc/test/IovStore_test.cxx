@@ -21,6 +21,7 @@
 
 #include "../src/IovStore.h"
 #include <stdexcept>
+namespace utf = boost::unit_test;
 
 using namespace IOVDbNamespace;
 
@@ -50,6 +51,7 @@ BOOST_AUTO_TEST_SUITE(IovStore_test)
     IovStore::Iov_t crossingBothBoundsIov(3,300);
     storeWithBounds.addIov(lowerCrossingIov);
     typedef std::pair<unsigned int, unsigned int> intPair;
+    intPair zero(0,0);
     intPair count0(1,0);
     bool correctCount0 = (storeWithBounds.numberOfIovsOnBoundaries() == count0);
     BOOST_TEST(correctCount0);
@@ -70,6 +72,9 @@ BOOST_AUTO_TEST_SUITE(IovStore_test)
     //bool minimumSpanIsCorrect=(correctSpan==span);
     BOOST_TEST(correctSpan.first == span.first);
     BOOST_TEST(correctSpan.second == span.second);
+    storeWithBounds.clear();
+    auto resetToZeroCorrectly=(storeWithBounds.numberOfIovsOnBoundaries() == zero);
+    BOOST_TEST(resetToZeroCorrectly);
   }
   
 BOOST_AUTO_TEST_SUITE_END()

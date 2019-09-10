@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -8,7 +8,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
@@ -18,9 +18,9 @@
 #include <sstream>
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "TrigOnlineSpacePointTool/FastPixelClusterization.h"
+#include "FastPixelClusterization.h"
 
-#include "TrigOnlineSpacePointTool/PixelClusterCacheTool.h"
+#include "PixelClusterCacheTool.h"
 #include "eformat/SourceIdentifier.h" 
 using eformat::helper::SourceIdentifier;
 #include "ByteStreamData/ROBData.h" 
@@ -33,7 +33,6 @@ PixelClusterCacheTool::PixelClusterCacheTool( const std::string& type,
 					    const std::string& name, 
 					    const IInterface* parent )
   : AthAlgTool(type, name, parent), 
-    m_IdMapping("PixelCablingSvc",name), 
     m_offlineDecoder("PixelRodDecoder",this), 
     m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
     m_clusteringTool("InDet::MergedPixelsTool/InDetTrigMergedPixelsTool") 
@@ -70,8 +69,6 @@ StatusCode PixelClusterCacheTool::initialize()  {
     return StatusCode::FAILURE;
   } 
 
-  p_indet_mgr = mgr;  
-
   m_clusterization.setPixelID(m_pixel_id);
   m_clusterization.initializeGeometry(mgr);
   m_clusterization.setLorentzAngleTool(m_lorentzAngleTool.get());
@@ -85,12 +82,6 @@ StatusCode PixelClusterCacheTool::initialize()  {
   } 
 
   if(m_doBS) {
-
-    sc = m_IdMapping.retrieve();
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR("cannot retrieve PixelCablingService ");  
-      return sc;
-    }   
 
     if(StatusCode::SUCCESS !=m_offlineDecoder.retrieve()) {
       ATH_MSG_ERROR("initialize(): Can't get PixelRodDecoder ");
@@ -139,6 +130,8 @@ StatusCode PixelClusterCacheTool::initialize()  {
     m_rdoContainer->addRef();
   }
 
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
+
   return sc;
 }
 
@@ -158,6 +151,14 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
                                                       const std::vector<IdentifierHash>& listOfPixIds,
 							std::vector<int>& errorVect, bool isFullScan)
 {
+  // Get PixelDetectorElementCollection
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(pixelDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " could not be retrieved");
+    return StatusCode::FAILURE;
+  }
+
   if(!evtStore()->contains<InDet::PixelClusterContainer>(m_containerName))
     {
       m_clusterContainer->cleanup();
@@ -292,6 +293,7 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
   int npixels=0;
   for (std::vector<IdentifierHash>::iterator it=reducedList.begin(); it != reducedList.end(); ++it)
     {
+      const InDetDD::SiDetectorElement* element = elements->getDetectorElement((*it));
       PixelRDO_Container::const_iterator collIt=m_rdoContainer->indexFind((*it));
       if(collIt==m_rdoContainer->end())
 	continue;
@@ -309,13 +311,14 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
 		  npixels++;
 		  m_clusterization.addHit(coll_id,coll_hash_id,
 					  m_pixel_id->phi_index(pixId),
-					  m_pixel_id->eta_index(pixId),(*rdoIt));
+					  m_pixel_id->eta_index(pixId),(*rdoIt),
+                                          element);
 		}
 	    }
 	  else 
 	    {
 	      const InDetRawDataCollection<PixelRDORawData>* pRdoColl = (*collIt);
-	      InDet::PixelClusterCollection* pColl=m_clusteringTool->clusterize(*pRdoColl,*p_indet_mgr,*m_pixel_id);
+	      InDet::PixelClusterCollection* pColl=m_clusteringTool->clusterize(*pRdoColl,*m_pixel_id);
 	      if(pColl!=NULL)
 		offlineCollVector.push_back(pColl);
 	    }

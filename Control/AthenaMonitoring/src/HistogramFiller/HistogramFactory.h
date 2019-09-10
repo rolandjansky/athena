@@ -13,6 +13,8 @@
 
 #include "AthenaMonitoring/HistogramDef.h"
 
+#include "HistogramException.h"
+
 namespace Monitored {
   /**
    * @brief Bridge between ROOT framework and monitoring code
@@ -41,7 +43,7 @@ namespace Monitored {
      * @param def Histogram definition 
      * @return ROOT object handler
      */
-    TNamed* create(const HistogramDef& def);
+    virtual TNamed* create(const HistogramDef& def);
   private:
     /**
      * @brief Create and register histogram
@@ -134,7 +136,8 @@ namespace Monitored {
     std::string getFullName(const HistogramDef& def);
 
     ServiceHandle<ITHistSvc> m_histSvc;
-    std::string m_groupName; //!< defines location of histograms
+    std::string m_streamName; //!< defines the stream for THistSvc
+    std::string m_groupName;  //!< defines location of group of histograms
   };
 }
 

@@ -45,7 +45,7 @@ from TrigFTKSim.TrigFTKSimConf import FTKMergerAlgo
 import os
 import sys
 
-FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=VERBOSE)
+FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=INFO)
 FTKMerger.doMerging = True # this enables the behavior of the FTKMergerAlgo as FTK streams merger
 
 runArgsMandatory =  ['NBanks', 'NSubRegions', 'pmap_path', 'loadHWConf_path']
@@ -306,7 +306,6 @@ elif hasattr(runArgs,'outputRDO_FTKFile') :
     from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
     StreamRDO = AthenaPoolOutputStream( "StreamRDO", runArgs.outputRDO_FTKFile)
     #StreamRDO.TakeItemsFromInput=True
-    StreamRDO.ForceRead=TRUE
     StreamRDO.ItemList+=["FTK_RawTrackContainer#*"]
   else :
     # generate RDO file from scratch, this represents an RDO

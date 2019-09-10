@@ -42,7 +42,7 @@
 
 
 struct GaudiKernelFixture:public GaudiKernelFixtureBase{
-  GaudiKernelFixture():GaudiKernelFixtureBase(__FILE__){
+  GaudiKernelFixture():GaudiKernelFixtureBase(){
     //nop, everything in base.
   }
 };
@@ -68,7 +68,7 @@ struct TestFolderFixture{
     coolDb = dbSvc.createDatabase("sqlite://;schema=FolderTypesTest.db;dbname=OFLP200");
     spec.extend ("int", cool::StorageType::Int32);
     cool::FolderSpecification fSpec (cool::FolderVersioning::SINGLE_VERSION,spec,cool::PayloadMode::INLINEPAYLOAD);
-    std::string desc = "<timeStamp>run-event</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
+    std::string desc = "<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
     {
       folderPtr = coolDb->createFolder (fixtureFoldername, fSpec, desc);
       cool::Record payload (folderPtr->payloadSpecification());

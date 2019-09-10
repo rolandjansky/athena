@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/AlgSequence.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Sebastien Binet (binet@cern.ch)
+
+from __future__ import print_function
 
 __version__ = '$Revision: 1.21 $'
 __author__  = """Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -44,7 +46,7 @@ class AthSequencer( GaudiSequencerConf.AthSequencer ):
        ## synchronize the list of Members with our Configurable children
        self.Members = [ c.getFullName() for c in self.getChildren() ]
 
-       import Logging
+       from AthenaCommon import Logging
        msg = Logging.logging.getLogger( "AthSequencer" )
        msg.debug( 'setup of sequence: %s', self.getName() )
        if msg.isEnabledFor( Logging.logging.VERBOSE ):
@@ -55,7 +57,7 @@ class AthSequencer( GaudiSequencerConf.AthSequencer ):
        super( AthSequencer, self ).setup()
 
 # store the new AthSequencer into CfgMgr to make it available
-import CfgMgr
+from AthenaCommon import CfgMgr
 setattr( CfgMgr, 'AthSequencer', AthSequencer )
 del CfgMgr
 
@@ -86,7 +88,7 @@ if hasattr(GaudiSequencerConf, 'AthRetrySequencer'):
             ## synchronize the list of Members with our Configurable children
             self.Members = [ c.getFullName() for c in self.getChildren() ]
 
-            import Logging
+            from AthenaCommon import Logging
             msg = Logging.logging.getLogger( "AthRetrySequencer" )
             msg.debug( 'setup of sequence: %s', self.getName() )
             if msg.isEnabledFor( Logging.logging.VERBOSE ):
@@ -97,7 +99,7 @@ if hasattr(GaudiSequencerConf, 'AthRetrySequencer'):
             super( AthRetrySequencer, self ).setup()
         pass # AthRetrySequencer
     # store the new AthRetrySequencer into CfgMgr to make it available
-    import CfgMgr
+    from AthenaCommon import CfgMgr
     setattr( CfgMgr, 'AthRetrySequencer', AthRetrySequencer )
     del CfgMgr
     pass # monkey-patching AthRetrySequencer
@@ -128,7 +130,7 @@ def iter_algseq(seq):
     >>> aaa.aaa1.aaa2.aaa3.aaa4 += CfgMgr.AthSequencer('aaa5')
     >>> aaa += CfgMgr.AthSequencer('aaa11')
     >>> aaa.aaa11 += CfgMgr.AthSequencer('aaa21')
-    >>> print [c.getName() for c in acas.iter_algseq(aaa)]
+    >>> print ([c.getName() for c in acas.iter_algseq(aaa)])
     ['aaa', 'aaa1', 'aaa2', 'aaa3', 'aaa4', 'aaa5', 'aaa11', 'aaa21']
     """
     def _iter_algseq(seq):
@@ -148,7 +150,7 @@ def dumpSequence (seq, indent=0):
     out = [(seq.getFullName(),indent)]
     out.extend( _dump( seq, indent=indent+1 ) )
     for n,i in out:
-        print "  "*i,"+--",n
+        print ("  "*i,"+--",n)
 
 def dumpMasterSequence():
     """
@@ -156,7 +158,7 @@ def dumpMasterSequence():
     """
     # if the application manager has already been setup()'d we just have to
     # dump the AthMasterSeq as all the work has been done for us
-    from AppMgr import theApp, AthAppMgr
+    from AthenaCommon.AppMgr import theApp, AthAppMgr
     app_state = theApp.state()
     if app_state != AthAppMgr.State.OFFLINE:
         return dumpSequence( AthSequencer ("AthMasterSeq") )

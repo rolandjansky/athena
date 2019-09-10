@@ -11,15 +11,12 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Control/SGTools
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           Event/EventInfo
                           Generators/GeneratorObjects
                           Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Atlas/G4AtlasTools
-                          Simulation/G4Sim/MCTruth
                           Simulation/G4Sim/MCTruthBase
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Simulation/Barcode/BarcodeInterfaces)
@@ -31,21 +28,21 @@ find_package( HepMC )
 find_package( XercesC )
 find_package( Eigen )
 
-# G4AtlasAlgLib library 
+# G4AtlasAlgLib library
 
 atlas_add_library( G4AtlasAlgLib
                      src/*.cxx
                      PUBLIC_HEADERS G4AtlasAlg
                      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
  ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel G4AtlasInterfaces G4AtlasToolsLib CxxUtils SGTools StoreGateLib SGtests EventInfo GeneratorObjects MCTruth MCTruthBaseLib )
+                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel G4AtlasInterfaces SGTools StoreGateLib SGtests EventInfo GeneratorObjects MCTruthBaseLib )
 
 # Component(s) in the package:
 atlas_add_component( G4AtlasAlg
                      src/components/*.cxx
                      PUBLIC_HEADERS G4AtlasAlg
                      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel G4AtlasInterfaces G4AtlasToolsLib G4AtlasAlgLib CxxUtils SGTools StoreGateLib SGtests EventInfo GeneratorObjects MCTruth MCTruthBaseLib )
+                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${EIGEN_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel G4AtlasInterfaces G4AtlasAlgLib SGTools StoreGateLib SGtests EventInfo GeneratorObjects MCTruthBaseLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

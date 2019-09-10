@@ -5,6 +5,8 @@
 
 //  Update: Riccardo Maria BIANCHI rbianchi@cern.ch Feb 2014                   //
 
+#ifndef BUILDVP1LIGHT
+
 #include "VP1Utils/HitToSoNode.h"
 #include "VP1Utils/HitsSoNodeManager.h"
 #include "VP1Utils/VP1LinAlgUtils.h"
@@ -524,3 +526,5 @@ void HitToSoNode::fillSiValues(Identifier& id, const Trk::TrkDetElementBase* bas
     stripThickness = detEl->thickness()/10.0;
     
 }
+
+#endif // BUILDVP1LIGHT

@@ -26,7 +26,7 @@ StatusCode TriggerBitsMakerTool::initialize() {
 StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   auto chainsHandle = SG::makeHandle( m_finalChainDecisions );
   if (!chainsHandle.isValid()) {
-    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
   }
 
@@ -39,11 +39,14 @@ StatusCode TriggerBitsMakerTool::fill( HLT::HLTResultMT& resultToFill ) const {
   }
 
   if (passRawChains == nullptr) {
-    ATH_MSG_ERROR("Unable to read in the HLTSummary from the DecisionSummaryMakerAlg");
+    ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
   }
 
-  for ( TrigCompositeUtils::DecisionID chain: TrigCompositeUtils::decisionIDs( passRawChains ) ) {
+  TrigCompositeUtils::DecisionIDContainer passRawIDs;
+  TrigCompositeUtils::decisionIDs(passRawChains, passRawIDs);
+
+  for ( TrigCompositeUtils::DecisionID chain: passRawIDs ) {
     auto mappingIter = m_mapping.find( chain );
     // each chain has to have stream
     if( mappingIter == m_mapping.end() ) { 

@@ -11,8 +11,9 @@
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamData/RawEvent.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 
 // =============================================================================
 // Standard constructor
@@ -129,13 +130,18 @@ StatusCode TrigEventSelectorByteStream::createAddress(const IEvtSelector::Contex
   const EventContext* eventContext = nullptr;
   ATH_CHECK(m_evtStore->retrieve(eventContext));
 
-  // Perhaps the name shouldn't be hard-coded
-  ByteStreamAddress* addr = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
+  // Create and record ByteStreamAddress for xAOD::EventInfo
+  ByteStreamAddress* addr = new ByteStreamAddress(ClassID_traits<xAOD::EventInfo>::ID(), "EventInfo", "");
   addr->setEventContext(*eventContext);
   iop = static_cast<IOpaqueAddress*>(addr);
-  ATH_CHECK(m_evtStore->recordAddress("ByteStreamEventInfo",iop));
+  ATH_CHECK(m_evtStore->recordAddress("EventInfo",iop));
+  ATH_MSG_DEBUG("Recorded new ByteStreamAddress for xAOD::EventInfo with event context " << *eventContext);
 
-  ATH_MSG_DEBUG("Recorded new ByteStreamAddress for EventInfo with event context " << *eventContext);
+  // Create and record ByteStreamAddress for xAOD::EventAuxInfo
+  ByteStreamAddress* auxaddr = new ByteStreamAddress(ClassID_traits<xAOD::EventAuxInfo>::ID(), "EventInfoAux.", "");
+  auxaddr->setEventContext(*eventContext);
+  ATH_CHECK(m_evtStore->recordAddress("EventInfoAux.", static_cast<IOpaqueAddress*>(auxaddr)));
+  ATH_MSG_DEBUG("Recorded new ByteStreamAddress for xAOD::EventAuxInfo with event context " << *eventContext);
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return StatusCode::SUCCESS;

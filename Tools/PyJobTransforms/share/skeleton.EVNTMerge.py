@@ -16,7 +16,6 @@ outStream = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNT_MRGFile)
 ## copy everything from the input file
 ## must force reading of all input objects
 outStream.TakeItemsFromInput = True
-outStream.ForceRead          = True
 
 
 #==============================================================

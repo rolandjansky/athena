@@ -30,9 +30,11 @@ from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 from CaloRec.CaloTopoClusterFlags import jobproperties
 
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg()
+
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += theCaloNoiseTool
-print theCaloNoiseTool
 
 doTopoClusterLocalCalib=False
 
@@ -104,10 +106,7 @@ TileTopoMaker.CalorimeterNames=["TILE"]
 TileTopoMaker.SeedSamplingNames = ["TileBar0", "TileBar1", "TileBar2",
                                    "TileExt0", "TileExt1", "TileExt2",
                                    "TileGap1", "TileGap2", "TileGap3"] 
-TileTopoMaker.CaloNoiseTool=theCaloNoiseTool
 #TileTopoMaker.NoiseSigma= 1.68 / 1023 / 64 * 800 * 1.414214 * GeV
-TileTopoMaker.UseCaloNoiseTool=True
-TileTopoMaker.UsePileUpNoise=True
 TileTopoMaker.NeighborOption = "super3D"
 TileTopoMaker.RestrictHECIWandFCalNeighbors  = False
 TileTopoMaker.CellThresholdOnEorAbsEinSigma  =    0.0

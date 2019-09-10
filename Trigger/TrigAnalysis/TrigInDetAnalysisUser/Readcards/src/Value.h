@@ -1,27 +1,25 @@
-// emacs: this is -*- c++ -*- 
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/**************************************************************************
+/* emacs: this is -*- c++ -*- */
+/**
  **
- **   File:         Value.h  
+ **   @file         Value.h  
  **
- **   Description:    
+ **                   
  **                   
  **                   
  ** 
- **   Author:       M.Sutton  
+ **   @author       M.Sutton  
  **
- **   Created:      Wed May  4 11:14:42 BST 2005
- **   Modified:     
+ **   @date         Wed May  4 11:14:42 BST 2005
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 
-#ifndef __VALUE_H
-#define __VALUE_H
+#ifndef READCARDS_VALUE_H
+#define READCARDS_VALUE_H
 
 
 #include <string>
@@ -63,7 +61,7 @@ private:
 std::ostream& operator<<(std::ostream& s, const Value& v);
 
 
-#endif  /* __VALUE_H */
+#endif  /* READCARDS_VALUE_H */
 
 
 

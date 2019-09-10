@@ -111,6 +111,8 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
         config.inputKey = defaultInputKey['Truth']
         config.outputKey = config.objType
     if suffix == 'Calo':
+        from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+        CaloNoiseCondAlg ('totalNoise')
         tool = CfgMgr.met__METCaloRegionsTool('MET_CaloRegionsTool')
         if doCells:
             tool.UseCells     = True
@@ -277,9 +279,15 @@ class METConfig:
         if not hasattr(ToolSvc,self.trkisotool.name()):
             ToolSvc += self.trkisotool
         #
+        from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool            
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+        CaloExtensionTool= Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+        CaloCellAssocTool =  Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = CaloExtensionTool)
         self.caloisotool = CfgMgr.xAOD__CaloIsolationTool("CaloIsolationTool_MET",
                                                           saveOnlyRequestedCorrections=True,
-                                                          addCaloExtensionDecoration=False)
+                                                          addCaloExtensionDecoration=False,
+                                                          ParticleCaloExtensionTool = CaloExtensionTool,
+                                                          ParticleCaloCellAssociationTool = CaloCellAssocTool)
         if not hasattr(ToolSvc,self.caloisotool.name()):
             ToolSvc += self.caloisotool
 

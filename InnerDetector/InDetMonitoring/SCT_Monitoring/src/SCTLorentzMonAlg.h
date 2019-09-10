@@ -20,8 +20,8 @@ class SCTLorentzMonAlg : public AthMonitorAlgorithm {
  public:
   SCTLorentzMonAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~SCTLorentzMonAlg() = default;
-  virtual StatusCode initialize() override;
-  virtual StatusCode fillHistograms(const EventContext& ctx) const override;
+  virtual StatusCode initialize() override final;
+  virtual StatusCode fillHistograms(const EventContext& ctx) const override final;
 
  private:
   enum SiliconSurface { surface100, surface111, allSurfaces, nSurfaces };

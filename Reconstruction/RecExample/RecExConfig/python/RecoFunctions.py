@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 ##=============================================================================
 ## Name:        RecoFunctions.py
 ## Author:      David Cote (DESY)
 ## Created:     July 2008
 ## Description: This is a collection of utility functions for RecExCommon
 ##=============================================================================
+
+from __future__ import print_function
 
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
@@ -107,10 +109,10 @@ def OutputFileName(suffix=""):
 
         if suffix!="":
             OutFileName=OutFileName+"_"+suffix
-        print "Generated OutFileName",OutFileName
+        print ("Generated OutFileName",OutFileName)
     else:
         OutFileName=rec.OutputFileNameForRecoStep()
-        print "User defined OutFileName",OutFileName
+        print ("User defined OutFileName",OutFileName)
     return OutFileName
 
 def isDefault(flagInstance):
@@ -163,7 +165,7 @@ def RemoveValidItemFromList(item,aList):
         if ItemInList(item,aList):
             aList.remove(item)
         else:
-            print "WARNING you asked to remove item '%s' but this item is not present"%item
+            print ("WARNING you asked to remove item '%s' but this item is not present"%item)
     else:
         raise TypeError("RecoFunctions.RemoveValidItemFromList() does not support item of type %s"%type(item))
     return

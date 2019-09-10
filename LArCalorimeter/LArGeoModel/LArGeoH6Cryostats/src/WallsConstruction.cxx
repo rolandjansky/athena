@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoH6Cryostats/WallsConstruction.h"
@@ -28,7 +28,6 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 #include "GeoModelKernel/GeoShapeShift.h"
-#include "CxxUtils/make_unique.h" 
 #include "GeoGenericFunctions/Variable.h"
 
 // For the database:
@@ -71,7 +70,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   StatusCode status = svcLocator->service("MessageSvc", msgSvc);
 
   if(!status.isFailure()){
-    m_msg = CxxUtils::make_unique<MsgStream>(msgSvc, "WallsConstruction");
+    m_msg = std::make_unique<MsgStream>(msgSvc, "WallsConstruction");
   } else {
     throw std::runtime_error("WallsConstruction: cannot initialze message service");
   }

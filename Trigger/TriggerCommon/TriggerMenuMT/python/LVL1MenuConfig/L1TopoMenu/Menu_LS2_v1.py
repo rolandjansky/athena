@@ -8,8 +8,8 @@ def defineMenu():
 
     """
     
-    from TriggerMenuMT.LVL1MenuConfig.L1Topo.L1TopoFlags import L1TopoFlags
-    from TriggerMenuMT.LVL1MenuConfig.L1Topo.TopoOutput import TopoOutput
+    from ..L1Topo.L1TopoFlags import L1TopoFlags
+    from ..L1Topo.TopoOutput import TopoOutput
     from TriggerJobOpts.TriggerFlags import TriggerFlags
 
     # if this flag is True for mc v7: produce xml with full v7 menu
@@ -196,7 +196,6 @@ def defineMenu():
 #        TopoOutput( algoname='4INVM8-MU6ab-MU4ab',                          module=1, fpga=1, clock=1, firstbit=15 ), 
         TopoOutput( algoname='2INVM8-MU6ab-MU4ab',                          module=1, fpga=1, clock=1, firstbit=15 ), #v6
 # ATR-15197        TopoOutput( algoname='2INVM9-MU6ab-MU4ab',                          module=1, fpga=1, clock=1, firstbit=15 ), #v6
-
         ]
 
 
@@ -204,3 +203,4 @@ def defineMenu():
         L1TopoFlags.algos +=  newalgos_onlyinv6
     else:
         L1TopoFlags.algos +=  newalgos_onlyinv5 
+

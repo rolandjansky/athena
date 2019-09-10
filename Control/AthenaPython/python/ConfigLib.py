@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaPython/ConfigLib.py
 # @purpose functions to ease the configuration of reading/copying files
 # @date January 2010
+
+from __future__ import print_function
 
 __doc__ = "functions to ease the configuration of reading/copying files"
 __version__ = "$Revision: 285924 $"
@@ -115,7 +117,6 @@ def _copy_file_impl(cfg, hints):
             import AthenaPoolCnvSvc.WriteAthenaPool as wap
 
             outstream = wap.AthenaPoolOutputStream(af.infos['stream_names'][0], dst)
-            outstream.ForceRead=True
             outstream.TakeItemsFromInput=True
 
             pass
@@ -372,7 +373,7 @@ class AutoCfg(object):
                         genevt = evtdata.get('McEventCollection', [])
                         if 'GEN_EVENT' in genevt:
                             return True
-            except Exception, err:
+            except Exception as err:
                 self.msg.info('caught:\n%s', err)
         return False
 
@@ -390,7 +391,7 @@ class AutoCfg(object):
                         'StreamHITS',
                         )):
                         return True
-            except Exception, err:
+            except Exception as err:
                 self.msg.info('caught:\n%s', err)
         return False
         
@@ -418,7 +419,7 @@ class AutoCfg(object):
                                            'RawChannelContainer',
                                            'RdoContainer',)):
                                 return True
-            except Exception, err:
+            except Exception as err:
                 self.msg.info('caught:\n%s', err)
         return False
 
@@ -441,7 +442,7 @@ class AutoCfg(object):
                         'StreamD2ESDM',
                         )):
                         return True
-            except Exception, err:
+            except Exception as err:
                 self.msg.info('caught:\n%s', err)
         return False
 
@@ -465,7 +466,7 @@ class AutoCfg(object):
                         'StreamD2AODM',
                         )):
                         return True
-            except Exception, err:
+            except Exception as err:
                 self.msg.info('caught:\n%s', err)
         return False
 
@@ -481,7 +482,7 @@ class AutoCfg(object):
                 for stream_name in infos['stream_names']:
                     if stream_name.startswith(('StreamTAG', 'TAG')):
                         return True
-            except Exception, err:
+            except Exception as err:
                 self.msg.info('caught:\n%s', err)
         return False
 
@@ -499,7 +500,7 @@ class AutoCfg(object):
                         'StreamUSR',
                         )):
                         return True
-            except Exception, err:
+            except Exception as err:
                 self.msg.info('caught:\n%s', err)
         return False
         

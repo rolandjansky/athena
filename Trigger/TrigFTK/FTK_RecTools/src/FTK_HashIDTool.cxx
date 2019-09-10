@@ -13,7 +13,6 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
@@ -40,7 +39,6 @@ FTK_HashIDTool::FTK_HashIDTool(const std::string& t,
   m_max_tower(64),
   m_pixelId(0),
   m_id_helper(0),
-  m_pixelManager(0),
   m_maxD0(0.)
 {
 
@@ -82,13 +80,12 @@ StatusCode FTK_HashIDTool::initialize(){
     
   }  
   if (ret.isSuccess()) {
-    StoreGateSvc* detStore;
-    ATH_CHECK(service("DetectorStore", detStore));
-    
-    ATH_CHECK(detStore->retrieve(m_pixelId, "PixelID"));
-    ATH_CHECK(detStore->retrieve(m_id_helper, "AtlasID"));
-    ATH_CHECK(detStore->retrieve(m_pixelManager));
+    ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID"));
+    ATH_CHECK(detStore()->retrieve(m_id_helper, "AtlasID"));
   }
+
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
+
   return ret; 
 }
 
@@ -393,13 +390,12 @@ int FTK_HashIDTool::readModuleIds(unsigned int itower, ftk_sectormap& hashID) {
 const Amg::Vector3D FTK_HashIDTool::getPixelClusterPosition(const FTK_RawPixelCluster& raw_pixel_cluster, const bool reverseIBL) {
   IdentifierHash hash = raw_pixel_cluster.getModuleID();
   Identifier wafer_id = m_pixelId->wafer_id(hash); // Need to set up this tool
-  const InDetDD::SiDetectorElement* pDE = m_pixelManager->getDetectorElement(hash);
+  const InDetDD::SiDetectorElement* pDE = getPixelDetectorElement(hash);
 
   ATH_MSG_VERBOSE( "FTK_HashIDTool::getPixelClusterPosition: Pixel FTKHit hashID 0x" << std::hex << hash << std::dec << " " << m_id_helper->print_to_string(pDE->identify()));
 
-  const InDetDD::SiDetectorElement* pixelDetectorElement = m_pixelManager->getDetectorElement(hash);
   const InDetDD::PixelModuleDesign* design
-    (dynamic_cast<const InDetDD::PixelModuleDesign*>(&pixelDetectorElement->design()));
+    (dynamic_cast<const InDetDD::PixelModuleDesign*>(&pDE->design()));
 
   ATH_MSG_VERBOSE( "FTK_HashIDTool::getPixelClusterPosition: raw FTK cluster position: " <<
       " Row(phi): " <<  raw_pixel_cluster.getRowCoord() << " Col(eta): " << raw_pixel_cluster.getColCoord() <<
@@ -517,9 +513,15 @@ const Amg::Vector3D FTK_HashIDTool::getPixelClusterPosition(const FTK_RawPixelCl
 
   ATH_MSG_VERBOSE("FTK_HashIDTool::getPixelClusterPosition: Setting defaulterrors (*cov)(0,0) " <<  (*cov)(0,0) << " (*cov)(1,1)" << (*cov)(1,1) );
 
-  InDet::PixelCluster pixel_cluster(pixel_id, position, rdoList, siWidth,pixelDetectorElement, cov);
+  InDet::PixelCluster pixel_cluster(pixel_id, position, rdoList, siWidth,pDE, cov);
 
   Amg::Vector3D pos (pixel_cluster.globalPosition().x(),pixel_cluster.globalPosition().y(), pixel_cluster.globalPosition().z());
 
   return pos;
+}
+
+const InDetDD::SiDetectorElement* FTK_HashIDTool::getPixelDetectorElement(const IdentifierHash hash) const {
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> condData{m_pixelDetEleCollKey};
+  if (not condData.isValid()) return nullptr;
+  return condData->getDetectorElement(hash);
 }

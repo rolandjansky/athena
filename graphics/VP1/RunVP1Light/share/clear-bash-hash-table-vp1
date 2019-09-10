@@ -1,0 +1,12 @@
+##
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+##
+
+#!/bin/bash
+# Script which rebuilds the Bash hash table for the 'vp1' executable,
+# after changing and recompiling the share/vp1 script
+#
+# Riccardo M. BIANCHI <rbianchi@cern.ch>, First version Jan 2016.
+
+echo "clear the Bash hash table for the 'vp1' executable
+hash -d vp1

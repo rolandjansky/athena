@@ -22,6 +22,7 @@
 #include "VP1Base/IVP13DSystem.h"
 #include "VP1Base/VP1CameraHelper.h"
 #include "VP1Base/VP1MaterialButton.h"
+#include "VP1Base/VP1Msg.h"
 
 #include <QStringList>
 #include <QComboBox>
@@ -545,7 +546,7 @@ QStringList VP1VertexCollection::infoOnClicked(SoPath* pickedPath)
 //____________________________________________________________________
 void VP1VertexCollection::collVisibilityChanged(bool vis)
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("VP1VertexCollection::collVisibilityChanged => "+str(vis));
   if (vis) {
     recheckAllCuts();

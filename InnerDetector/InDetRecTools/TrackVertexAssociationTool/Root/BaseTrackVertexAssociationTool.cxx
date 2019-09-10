@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackVertexAssociationTool/BaseTrackVertexAssociationTool.h"
@@ -29,6 +29,8 @@ StatusCode BaseTrackVertexAssociationTool::initialize()
 
   ATH_MSG_INFO("Cut on d0 significance: " << m_d0sig_cut << "\t(d0sig_cut)");
   ATH_MSG_INFO("Cut on Δz * sin θ: " << m_dzSinTheta_cut << "\t(dzSinTheta_cut)");
+
+  ATH_MSG_WARNING("BaseTrackVertexAssociationTool is being depricated. Please use the new TrackVertexAssociationTool instead.");
 
   return StatusCode::SUCCESS;
 }

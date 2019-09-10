@@ -10,6 +10,9 @@
 # ATLAS default Application Configuration options
 #--------------------------------------------------------------
 
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.triggerMenuSetup = "LS2_emu_v1"
+
 from TrigUpgradeTest.EmuStepProcessingConfig import generateL1DecoderAndChains
 
 # signatures
@@ -27,11 +30,13 @@ topSequence = AlgSequence()
 l1Decoder, HLTChains = generateL1DecoderAndChains()
 topSequence += l1Decoder
 ##### Make all HLT #######
-makeHLTTree(HLTChains)
+from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
    
-
-from AthenaCommon.AlgSequence import dumpMasterSequence
-dumpMasterSequence()
+print "EmuStepProcessing: dump top Sequence after CF/DF Tree build"
+from AthenaCommon.AlgSequence import dumpMasterSequence, dumpSequence
+dumpSequence( topSequence )
+#dumpMasterSequence()
 
 theApp.EvtMax = 4
 

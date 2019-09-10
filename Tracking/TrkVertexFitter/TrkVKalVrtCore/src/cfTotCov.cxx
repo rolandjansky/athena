@@ -22,7 +22,7 @@ namespace Trk {
 //--------------------------------------------------------------
 extern int getFullVrtCov(VKVertex *, double *, double *, double[6][6]);
 extern void cfsetdiag(long int , double *, double );
-extern vkalMagFld      myMagFld;
+extern const vkalMagFld      myMagFld;
 
 int afterFit(VKVertex *vk, double *ader, double * dcv, double * ptot, double * VrtMomCov, const VKalVrtControlBase* CONTROL )
 {
@@ -35,14 +35,14 @@ int afterFit(VKVertex *vk, double *ader, double * dcv, double * ptot, double * V
     for (i=1; i<=6; ++i) {
 	for (j=1; j<=NVar  ; ++j) dcv[i + j*6 - 7] = 0.;
     }
-    cfsetdiag( 6, VrtMomCov, 10.);
+    cfsetdiag( 6, VrtMomCov, 100.);
     ptot[0] = 0.;
     ptot[1] = 0.;
     ptot[2] = 0.;
     double constBF = myMagFld.getMagFld(vk->refIterV,CONTROL) * myMagFld.getCnvCst() ;
 
     for (i = 1; i <= NTRK; ++i) {
-        VKTrack *trk=vk->TrackList[i-1];
+        VKTrack *trk=vk->TrackList[i-1].get();
         invR = trk->fitP[2];
 	cth = 1. / tan(trk->fitP[0]);
 	pt = constBF / fabs(invR);
@@ -62,6 +62,7 @@ int afterFit(VKVertex *vk, double *ader, double * dcv, double * ptot, double * V
     dcv[0]  = 1.;
     dcv[7]  = 1.;
     dcv[14] = 1.;
+    if(!ader)return 0;
     int IERR=getFullVrtCov(vk, ader, dcv, verr);     if (IERR) return IERR;
     int ijk = 0;
     for ( i=0; i<6; ++i) {
@@ -96,7 +97,7 @@ int afterFitWithIniPar(VKVertex *vk, double *ader, double * dcv, double * ptot, 
     double constBF = myMagFld.getMagFld(vk->refIterV,CONTROL) * myMagFld.getCnvCst() ;
 
     for (i = 1; i <= NTRK; ++i) {
-        VKTrack *trk=vk->TrackList[i-1];
+        VKTrack *trk=vk->TrackList[i-1].get();
         invR = trk->iniP[2];
 	cth = 1. / tan(trk->iniP[0]);
 	pt = constBF / fabs(invR);
@@ -116,6 +117,7 @@ int afterFitWithIniPar(VKVertex *vk, double *ader, double * dcv, double * ptot, 
     dcv[0]  = 1.;
     dcv[7]  = 1.;
     dcv[14] = 1.;
+    if(!ader)return 0;
     int IERR=getFullVrtCov(vk, ader, dcv, verr);     if (IERR) return IERR;
     int ijk = 0;
     for ( i=0; i<6; ++i) {

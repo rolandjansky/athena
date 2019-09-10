@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@ namespace InDet
       @author  Tatjana Lenz <tatjana.lenz@cern.ch>
   */  
 
-  class ZVTOP_SimpleVtxProbCalc : virtual public IZVTOP_SimpleVtxProbCalc, public AthAlgTool
+  class ZVTOP_SimpleVtxProbCalc : public extends<AthAlgTool, IZVTOP_SimpleVtxProbCalc>
     {
     public:
       ZVTOP_SimpleVtxProbCalc(const std::string&,const std::string&,const IInterface*);
@@ -30,15 +30,11 @@ namespace InDet
       virtual ~ZVTOP_SimpleVtxProbCalc ();
       
        /** standard Athena-Algorithm method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
        /** standard Athena-Algorithm method */
-      virtual StatusCode finalize  ();
+      virtual StatusCode finalize  () override;
       
-      double calcVtxProb(double & trk_func_sum, double & trk_func_sum2);
-    private:
-
-     
-      
+      virtual double calcVtxProb(double & trk_func_sum, double & trk_func_sum2) const override;
     }; 
 } // end of namespace
 

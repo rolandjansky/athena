@@ -70,8 +70,8 @@ StatusCode xAODTestWriteHVec::execute (const EventContext& ctx) const
     hview->push_back (hvec->at (19-i));
   }
 
-  ATH_CHECK( SG::makeHandle(m_hvecKey).record (std::move(hvec),
-                                               std::move(store)) );
+  ATH_CHECK( SG::makeHandle(m_hvecKey, ctx).record (std::move(hvec),
+                                                    std::move(store)) );
 
   SG::WriteHandle<DMTest::HView> hviewH (m_hviewKey, ctx);
   ATH_CHECK( DMTest::recordView2 (hviewH, std::move(hview)) );

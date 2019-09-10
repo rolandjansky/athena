@@ -1,5 +1,5 @@
-#include "IDScanZFinder/IDScanZFinder.h"
-#include "IDScanZFinder/TrigZFinder.h"
+#include "../IDScanZFinder.h"
+#include "../TrigZFinder.h"
 
 DECLARE_COMPONENT( IDScanZFinder )
 DECLARE_COMPONENT( TrigZFinder )

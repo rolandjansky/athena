@@ -17,6 +17,8 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 #include "ArgStrToDouble.h"
+#include "./groupsMatcherFactoryMT.h"
+
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 #include <algorithm>
@@ -85,15 +87,15 @@ StatusCode TrigJetHypoToolConfig_dijet::initialize() {
 
 
 
-ConditionsMT TrigJetHypoToolConfig_dijet::getConditions() const {
-  auto conditions = conditionsFactoryDijetMT(m_massMins,
-                                             m_massMaxs,
-                                             m_dEtaMins,
-                                             m_dEtaMaxs,
-                                             m_dPhiMins,
-                                             m_dPhiMaxs);
- 
-  return conditions;
+std::optional<ConditionsMT>
+TrigJetHypoToolConfig_dijet::getConditions() const {
+  return
+    std::make_optional<ConditionsMT>(conditionsFactoryDijetMT(m_massMins,
+							      m_massMaxs,
+							      m_dEtaMins,
+							      m_dEtaMaxs,
+							      m_dPhiMins,
+							      m_dPhiMaxs));
 }
 
  
@@ -131,4 +133,15 @@ TrigJetHypoToolConfig_dijet::getCleaners() const {
   return v;
 }
 
+std::unique_ptr<IGroupsMatcherMT>
+TrigJetHypoToolConfig_dijet::getMatcher () const {
+
+  auto opt_conds = getConditions();
+
+  if(!opt_conds.has_value()){
+    return std::unique_ptr<IGroupsMatcherMT>(nullptr);
+  }
+  
+  return groupsMatcherFactoryMT_MaxBipartite(std::move(*opt_conds));
+}
 

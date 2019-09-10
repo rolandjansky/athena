@@ -17,7 +17,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include "./IConditionMT.h"
 
-class IConditionVisitor;
+class ITrigJetHypoInfoCollector;
 
 
 class TLAConditionMT: public IConditionMT{
@@ -39,8 +39,10 @@ class TLAConditionMT: public IConditionMT{
   ~TLAConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
-                   IConditionVisitor*) const override;
+                   const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
   std::string toString() const noexcept override;
+
+  virtual unsigned int capacity() const override {return s_capacity;}
 
  private:
   double m_etaMin;
@@ -49,6 +51,9 @@ class TLAConditionMT: public IConditionMT{
   double m_ystarMax;
   double m_massMin;
   double m_massMax;
+
+  const static unsigned int s_capacity{1};
+
 };
 
 #endif

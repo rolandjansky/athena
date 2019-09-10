@@ -26,5 +26,4 @@ atlas_add_component( TRT_PAI_Process
 
 # Install files from the package:
 atlas_install_headers( TRT_PAI_Process )
-atlas_install_joboptions( share/TRT_PAI_Process.py )
-
+atlas_install_python_modules( python/*.py )

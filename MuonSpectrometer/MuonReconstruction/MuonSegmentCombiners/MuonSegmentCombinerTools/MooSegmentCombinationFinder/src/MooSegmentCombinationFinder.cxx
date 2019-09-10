@@ -15,7 +15,7 @@
 #include "MuonSegmentCombinerToolInterfaces/IMuonCurvedSegmentCombiner.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentSelectionTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonIdHelpers/MuonStationIndex.h"
 
@@ -35,7 +35,6 @@
 
 
 #include "GaudiKernel/IAuditor.h"
-#include "StoreGate/StoreGateSvc.h"
 
   //================ Constructor =================================================
 
@@ -46,15 +45,14 @@ Muon::MooSegmentCombinationFinder::MooSegmentCombinationFinder(const std::string
   AthAlgTool(t,n,p),
     m_auditorExecute(false),
     m_edmPrinter("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-    m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker"),
-    m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker"),
+    m_csc2dSegmentFinder("Csc2dSegmentMaker/Csc2dSegmentMaker", this),
+    m_csc4dSegmentFinder("Csc4dSegmentMaker/Csc4dSegmentMaker", this),
     m_houghPatternFinder("Muon::MuonHoughPatternFinderTool/MuonHoughPatternFinderTool"),
-    m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker"),
-    m_curvedSegmentCombiner("Muon::MuonCurvedSegmentCombiner/MuonCurvedSegmentCombiner"),
-    m_segmentCombinationCleaner("Muon::MuonSegmentCombinationCleanerTool/MuonSegmentCombinationCleanerTool"),
-    m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool"),
+    m_patternSegmentMaker("Muon::MuonPatternSegmentMaker/MuonPatternSegmentMaker", this),
+    m_curvedSegmentCombiner("Muon::MuonCurvedSegmentCombiner/MuonCurvedSegmentCombiner", this),
+    m_segmentCombinationCleaner("Muon::MuonSegmentCombinationCleanerTool/MuonSegmentCombinationCleanerTool", this),
+    m_segmentSelector("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool", this),
     m_nevents(0),
     m_ncsc2SegmentCombinations(0),
     m_ncsc4SegmentCombinations(0),
@@ -102,7 +100,7 @@ Muon::MooSegmentCombinationFinder::initialize()
     m_auditorExecute = dynamic_cast<const BooleanProperty&>(getProperty("AuditTools")).value();
     
     ATH_CHECK( m_edmPrinter.retrieve() );
-    ATH_CHECK( m_helperTool.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_idHelperTool.retrieve() );
 
     if( m_doCscSegments ){
@@ -224,7 +222,9 @@ void Muon::MooSegmentCombinationFinder::findSegments( const std::vector<const Md
     if( m_doMdtSegments ){
       // search for global patterns 
       auditorBefore( m_houghPatternFinder );
-      output.patternCombinations = m_houghPatternFinder->find( mdtCols, cscCols, tgcCols, rpcCols, csc4dSegmentCombinations.get() );
+      auto [combis, houghData] = m_houghPatternFinder->find( mdtCols, cscCols, tgcCols, rpcCols, csc4dSegmentCombinations.get() );
+      output.patternCombinations = combis.release();
+      output.houghDataPerSectorVec = std::move(houghData);
       auditorAfter( m_houghPatternFinder, output.patternCombinations );
       printSummary( "Pattern finding", output.patternCombinations );
 
@@ -426,7 +426,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
       if( !segments || segments->empty() ) continue;
 
       // get chamber identifier, chamber index and station index
-      Identifier chid = m_helperTool->chamberId( *segments->front() );
+      Identifier chid = m_edmHelperSvc->chamberId( *segments->front() );
       Muon::MuonStationIndex::ChIndex chIndex = m_idHelperTool->chamberIndex(chid);
 
       // add segments to region segment map, remove ambigueties (missing at the moment)

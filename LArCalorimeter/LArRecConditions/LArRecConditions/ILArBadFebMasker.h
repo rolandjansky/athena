@@ -14,11 +14,7 @@ class LArBadFeb;
 class ILArBadFebMasker : public virtual IAlgTool
 {
 public:
-   static const InterfaceID& interfaceID()
-   { 
-      static const InterfaceID IID_ILArBadFebMasker("ILArBadFebMasker", 1, 0);
-      return IID_ILArBadFebMasker; 
-   }
+  DeclareInterfaceID (ILArBadFebMasker, 1, 0);
 
    virtual ~ILArBadFebMasker()
    {}

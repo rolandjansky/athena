@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import traceback
 
 from AthenaCommon.Logging import logging
@@ -179,7 +181,6 @@ Stream1.ItemList+=["RPCSimHitCollection#RPC_Hits"]
 #TGC
 Stream1.ItemList+=["TGCSimHitCollection#TGC_Hits"]
 
-Stream1.ForceRead = True
 
 #--------------------------------------------------------------
 # the Tile, LAr and Calo detector description package
@@ -283,4 +284,4 @@ if hasattr(runArgs,"postExec"):
         filterHitLog.info(cmd)
         exec(cmd)
 #--------------------------------------------------------------
-print topSequence
+print(topSequence)

@@ -5,32 +5,29 @@ from AthenaCommon import CfgMgr
 def getPixelDetectorTool(name="PixelDetectorTool", **kwargs):
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     if InDetGeometryFlags.isSLHC():
-        kwargs.setdefault("ServiceBuilderTool",    "InDetServMatBuilderToolSLHC");
+        kwargs.setdefault("ServiceBuilderTool",    "InDetServMatBuilderToolSLHC")
     else:
-        kwargs.setdefault("ServiceBuilderTool",    "");
+        kwargs.setdefault("ServiceBuilderTool",    "")
 
     return CfgMgr.PixelDetectorTool(name, **kwargs)
 
 
 ############## ComponentAccumulator
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def PixelGeometryCfg( flags ):
   from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-  acc,geoModelSvc = GeoModelCfg( flags )
+  acc = GeoModelCfg( flags )
+  geoModelSvc=acc.getPrimary()
   from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
   acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
   from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
   pixelDetectorTool = PixelDetectorTool("PixelDetectorTool")
   from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
   bcmTool = InDetDD__BCM_Builder()
-  acc.addPublicTool( bcmTool )
   pixelDetectorTool.BCM_Tool = bcmTool
   from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
   blmTool = InDetDD__BLM_Builder()
-  acc.addPublicTool( blmTool )
   pixelDetectorTool.BLM_Tool = blmTool
   if flags.GeoModel.Run=="RUN4":
       from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatBuilderToolSLHC
@@ -53,4 +50,13 @@ def PixelGeometryCfg( flags ):
       acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
     else:
       acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align"))
+  if flags.Common.Project is not "AthSimulation": # Protection for AthSimulation builds
+      if (not flags.Detector.SimulatePixel) or flags.Detector.OverlayPixel:
+          from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
+          pixelAlignCondAlg = PixelAlignCondAlg(name = "PixelAlignCondAlg",
+                                                UseDynamicAlignFolders = flags.GeoModel.Align.Dynamic)
+          acc.addCondAlgo(pixelAlignCondAlg)
+          from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
+          pixelDetectorElementCondAlg = PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg")
+          acc.addCondAlgo(pixelDetectorElementCondAlg)
   return acc

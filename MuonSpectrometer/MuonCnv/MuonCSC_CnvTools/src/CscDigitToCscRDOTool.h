@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCDIGITTOCSCRDOTOOL_H
@@ -19,7 +19,7 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "CSCcabling/CSCcablingSvc.h"
 
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "CscCalibTools/ICscCalibTool.h"
@@ -28,44 +28,40 @@ class ActiveStoreSvc;
 
 /////////////////////////////////////////////////////////////////////////////
 
-class CscDigitToCscRDOTool : virtual public IMuonDigitizationTool, public AthAlgTool  {
+class CscDigitToCscRDOTool final : public extends<AthAlgTool, IMuonDigitizationTool> {
 
  public:
 
   CscDigitToCscRDOTool (const std::string& type, const std::string& name, const IInterface* pIID);
-  ~CscDigitToCscRDOTool() {}
+  virtual ~CscDigitToCscRDOTool() = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode digitize() override;
 
  private:
 
-  std::map<uint16_t, CscRawDataCollection *> m_cscRdoMap;
-  uint16_t m_samplingRate;
-  uint16_t m_numSamples;
-  uint16_t m_latency;
-  double m_startTime;
-  double m_signalWidth;
-  bool m_addNoise;
-  
- private:
-
   StatusCode fill_CSCdata();
   CscRawDataCollection * cscRdo(uint16_t subDetectorId, uint16_t rodId) ;
-  uint16_t m_samplingTime;   
-  uint16_t m_numberOfIntegration;
+
+  std::map<uint16_t, CscRawDataCollection *> m_cscRdoMap;
+  uint16_t m_samplingRate{}; //!< set during initialize from cscCalibTool
+  uint16_t m_numSamples{4};
+  uint16_t m_latency{0};
+  double m_startTime{}; //!< set during initialize from cscCalibTool
+  double m_signalWidth{}; //!< set during initialize from cscCalibTool
+  bool m_addNoise{true};
+  uint16_t m_samplingTime; //!< set during initialize from cscCalibTool
+  uint16_t m_numberOfIntegration{}; //!< set during initialize from cscCalibTool
 
  protected:
 
   SG::WriteHandleKey<CscRawDataContainer> m_rdoContainerKey{this,"OutputObjectName","CSCRDO","WriteHandleKey for Output CswRawDataContainer"};
   SG::ReadHandleKey<CscDigitContainer> m_digitContainerKey{this,"InputObjectName","CSC_DIGITS","ReadHandleKey for Input CscDigitContainer"};
-  const CscIdHelper   * m_cscHelper;
-  ServiceHandle<CSCcablingSvc> m_cscCablingSvc;
-  ToolHandle<ICscCalibTool>  m_cscCalibTool;
+  const CscIdHelper   * m_cscHelper{};
+  ServiceHandle<CSCcablingSvc> m_cscCablingSvc{this, "CSCcablingSvc", "CSCcablingSvc", ""};
+  ToolHandle<ICscCalibTool> m_cscCalibTool{this, "cscCalibTool", "CscCalibTool", ""};
 
-  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
-  CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
-  std::string m_rndmEngineName;// name of random engine
+  ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
 };
 
 #endif

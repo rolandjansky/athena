@@ -6,7 +6,6 @@
 #include "TrigMuonEFStandaloneTrackTool.h"
 
 #include "StoreGate/ActiveStoreSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/Timeout.h"
@@ -460,22 +459,15 @@ StatusCode TrigMuonEFStandaloneTrackTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  StoreGateSvc* detStore;
-  if (serviceLocator()->service("DetectorStore", detStore).isSuccess()) {
-    const MuonGM::MuonDetectorManager* muonMgr;
-    if (detStore->retrieve(  muonMgr ).isFailure()) {
-      msg() << MSG::ERROR << " Cannot retrieve MuonGeoModel " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    m_cscIdHelper =  muonMgr->cscIdHelper();
-    m_mdtIdHelper =  muonMgr->mdtIdHelper();
-    m_rpcIdHelper =  muonMgr->rpcIdHelper();
-    m_tgcIdHelper =  muonMgr->tgcIdHelper();
-  } else {
-    msg() << MSG::ERROR << "DetectorStore not found " << endmsg;
+  const MuonGM::MuonDetectorManager* muonMgr;
+  if (detStore()->retrieve(  muonMgr ).isFailure()) {
+    msg() << MSG::ERROR << " Cannot retrieve MuonGeoModel " << endmsg;
     return StatusCode::FAILURE;
   }
-
+  m_cscIdHelper =  muonMgr->cscIdHelper();
+  m_mdtIdHelper =  muonMgr->mdtIdHelper();
+  m_rpcIdHelper =  muonMgr->rpcIdHelper();
+  m_tgcIdHelper =  muonMgr->tgcIdHelper();
 
   // register EndEvent incident
   IIncidentSvc* pIncsvc;
@@ -998,10 +990,10 @@ if (m_useMdtData>0) {
         ATH_MSG_DEBUG("ROB-based seeded decoding of TGC requested, which is neither available nor needed. Calling the PRD-based seeded decoding.");
       }
       if (m_decodeTgcBS) {// bytesream conversion
-	if (m_tgcRawDataProvider->convert( getTgcRobList(muonRoI) ).isSuccess()) {
-	  ATH_MSG_DEBUG("TGC BS conversion for ROB-based seeded PRD decoding done successfully");
+	if (m_tgcRawDataProvider->convert( tgc_hash_ids ).isSuccess()) {
+	  ATH_MSG_DEBUG("TGC BS conversion for hashID-based seeded PRD decoding done successfully");
 	} else {
-	  ATH_MSG_WARNING("TGC BS conversion for ROB-based seeded PRD decoding failed");
+	  ATH_MSG_WARNING("TGC BS conversion for hashID-based seeded PRD decoding failed");
 	}
       }
       

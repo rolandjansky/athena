@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBIdentifiedParticleCnv.h"
@@ -8,7 +8,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 // Athena
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 
 // Constructor - call base constructor and initialize local attributes
@@ -35,14 +35,16 @@ StatusCode TBIdentifiedParticleCnv::initialize()
 }
 
 
-StatusCode TBIdentifiedParticleCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
+StatusCode TBIdentifiedParticleCnv::PoolToDataObject(DataObject*& pObj,
+                                                     const Token* token,
+                                                     const std::string& key)
 {
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
   MsgStream log(msgSvc(), "TBIdentifiedParticleCnv::PoolToDataObject" );
    
-  StatusCode sc = TBIdentifiedParticleCnvBase::PoolToDataObject(pObj, token);
+  StatusCode sc = TBIdentifiedParticleCnvBase::PoolToDataObject(pObj, token, key);
   if (sc.isFailure()) {
     log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;

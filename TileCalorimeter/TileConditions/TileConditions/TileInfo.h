@@ -21,13 +21,12 @@
 //***************************************************************************
 
 #include "TileConditions/TilePulseShapes.h"
-#include "TileConditions/TileOptFilterWeights.h"
 #include "TileConditions/TileCablingSvc.h"
 #include "Identifier/Identifier.h"
 #include "CaloIdentifier/CaloGain.h"
-#include "StoreGate/DataHandle.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
 #include "TileIdentifier/TileFragHash.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -45,9 +44,8 @@ class TileCablingService;
 class IdContext;
 class TileCalibDrawerFlt;
 
-static const CLID CLID_TileInfo = 2910;
 
-class TileInfo : public DataObject {
+class ATLAS_CHECK_THREAD_SAFETY TileInfo {
   friend class TileInfoLoader;
 
  public:
@@ -55,9 +53,7 @@ class TileInfo : public DataObject {
   typedef std::vector<const TileCalibDrawerFlt*> DrawerVecFlt;
 
   TileInfo(ISvcLocator *svcLocator);
-  virtual ~TileInfo();
-  static const CLID& classID(void) { return CLID_TileInfo;}
-  virtual const CLID& clID(void) const { return CLID_TileInfo;}
+  ~TileInfo();
 
 
   //==================================================================
@@ -262,13 +258,6 @@ class TileInfo : public DataObject {
   /** Return pointer to TilePulseShapes*/
   TilePulseShapesStruct * getPulseShapes() const {return m_pulseShapes->TilePSstruct();}
 
-  /** Return pointer to TileOptFilterWeight */
-  TileOptFilterWeightsStruct * getOptFilterWeights() const {return m_OptFilterWeights->TileOFWstruct();}
-
-  /** Return pointer to TileOptFilterCorrelation */
-  TileOptFilterCorrelationStruct * getOptFilterCorrelation() const {return m_OptFilterCorrelation->TileOFCorrstruct();}
-
-
   //==================================================================
   //==
   //== Temporary backwards compatible functions
@@ -398,9 +387,6 @@ class TileInfo : public DataObject {
 
   TilePulseShapes *m_pulseShapes;
 
-  TileOptFilterWeights *m_OptFilterWeights;
-  TileOptFilterWeights *m_OptFilterCorrelation;
-
   double m_emscaleTB[32];
   double m_mev2adcTB[32];
 
@@ -415,6 +401,9 @@ class TileInfo : public DataObject {
   std::vector <std::vector <std::vector <TMatrixD *> > > m_decoCovaria;
 
 };
+
+
+CLASS_DEF (TileInfo, 2910, 0)
 
 
 // inlines

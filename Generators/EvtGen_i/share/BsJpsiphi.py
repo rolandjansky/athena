@@ -145,7 +145,7 @@ Stream1.OutputFile = "pythiaB.pool.root"
 Stream1.ItemList += [ "2101#*", "133273#*" ]
 Stream1.AcceptAlgs = ["BSignalFilter"]
 
-include("AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include("AthenaServices/AthenaSealSvc_joboptions.py" )
 AthenaSealSvc.CheckDictionary = TRUE
 
 

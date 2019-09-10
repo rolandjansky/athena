@@ -13,7 +13,6 @@
 
 //Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 
 //Inner detector includes
@@ -53,15 +52,15 @@ class SCT_CalibHitmapTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
   //@}
 
  private:
-  const SCT_ID* m_pSCTHelper;
+  const SCT_ID* m_pSCTHelper{nullptr};
   SCT_ID::const_id_iterator m_waferItrBegin;
   SCT_ID::const_id_iterator m_waferItrEnd;
   typedef std::vector<int> VecInt;
-  VecInt* m_sct_waferHash;
-  VecInt* m_sct_firstStrip;
-  VecInt* m_sct_rdoGroupSize;
+  VecInt* m_sct_waferHash{nullptr};
+  VecInt* m_sct_firstStrip{nullptr};
+  VecInt* m_sct_rdoGroupSize{nullptr};
 
-  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey;
+  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "RDOContainer", "SCT_RDOs"};
 
 };
 #endif

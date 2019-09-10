@@ -1169,7 +1169,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
     }
 
     // Place components in chamber envelope
-    if (lvm) {
+    if (lvm && manager->mdtIdHelper()) {
       int stationEta = zi;
       int stationPhi = fi+1;
       int ml = 1;
@@ -1264,7 +1264,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
     }
 
-      if (lvc) {
+      if (lvc && manager->cscIdHelper()) {
         CscComponent* cs = (CscComponent*)m_station->GetComponent(i);
         int stationEta = zi;
         int stationPhi = fi+1;
@@ -1331,7 +1331,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
       }
 
-      if (lvt) {
+      if (lvt && manager->tgcIdHelper()) {
         if (debug) log << MSG::DEBUG
                          << " Adding a TGC chamber to the tree zi,fi, is_mirrored "
                          << zi << " " << fi+1 << " " << is_mirrored << endmsg;
@@ -1394,7 +1394,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
       }
 			
-      if (lvr && RPCON){
+      if (lvr && RPCON && manager->rpcIdHelper()) {
         RpcComponent* rp = (RpcComponent*)c;
         int ndivy = rp->ndivy;
         int ndivz = rp->ndivz;

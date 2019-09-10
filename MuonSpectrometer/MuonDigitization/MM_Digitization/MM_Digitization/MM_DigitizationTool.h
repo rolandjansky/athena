@@ -20,8 +20,8 @@
 	which is also initialized in the initialize() method.
 	In the execute() method, the digits and the SDOs (Simulation Data Object,
 	container for simulation data to be preserved after the digitization procedue, and persistified together with the RDOs)
-	containers are created and recorded on StoreGate; the GenericMuonSimHit collection are merged using the
-	TimedHitCollection sorted container (done in handleMicroMegasSimhit(TimedHitPtr<GenericMuonSimHit>& hit)) method);
+	containers are created and recorded on StoreGate; the MMSimHit collection are merged using the
+	TimedHitCollection sorted container (done in handleMicroMegasSimhit(TimedHitPtr<MMSimHit>& hit)) method);
 	into a loop over the TimedHitCollection for the given DetectorElement,
 	the handleMicroMegasSimhit() method converts the SimID into the Offline ID to be associated to the Digit and pass to the
 	digitization tool the drift radius and the distance to the chamber RO side (for the propagation delay computation).
@@ -41,6 +41,8 @@
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimEvent/MMSimHitCollection.h"
 #include "MuonSimEvent/MMSimHit.h"
+#include "MuonSimData/MuonSimDataCollection.h"
+#include "MuonDigitContainer/MmDigitContainer.h"
 #include "PileUpTools/PileUpToolBase.h"
 #include "Identifier/Identifier.h"
 
@@ -55,9 +57,6 @@
 #include "MM_Digitization/MM_StripsResponseSimulation.h"
 #include "MM_Digitization/MM_ElectronicsResponseSimulation.h"
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
-
-#include "xAODEventInfo/EventInfo.h"   // SubEventIterator
-#include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
 
 #include <string>
 #include <sstream>
@@ -79,15 +78,12 @@ class StoreGateSvc;
 class ActiveStoreSvc;
 class PileUpMergeSvc;
 
-class MmDigitContainer;
-class MmDigitCollection;
 class MmIdHelper;
 class MicromegasHitIdHelper;
 class IAtRndmGenSvc;
 class MsgStream;
 
 class IMM_DigitizationTool;
-class MuonSimDataCollection;
 
 class TTree;
 class TFile;
@@ -135,7 +131,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 	private:
 
 		/** Record MmDigitContainer and MuonSimDataCollection */
-		StatusCode recordDigitAndSdoContainers();
 		StatusCode getNextEvent();
 		StatusCode doDigitization();
 
@@ -144,16 +139,11 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		// Services
 		ServiceHandle<StoreGateSvc> m_storeGateService;
-		ActiveStoreSvc*             m_activeStore;
 		ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
 		PileUpMergeSvc *m_mergeSvc; // Pile up service
 		ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
 		CLHEP::HepRandomEngine *m_rndmEngine;    // Random nu
 		std::string m_rndmEngineName;// name of random enginember engine used - not init in SiDigitization
-
-		// Containers
-		MmDigitContainer*      m_digitContainer;
-		MuonSimDataCollection* m_sdoContainer;
 
 		// Tools
 		ToolHandle <IMM_DigitizationTool> m_digitTool;
@@ -172,8 +162,8 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		TimedHitCollection<MMSimHit>* m_timedHitCollection_MM; // the pileup hits
 
 		std::string m_inputObjectName; // name of the input objects
-		std::string m_outputObjectName; // name of the output digits
-		std::string m_outputSDOName; // name of the output SDOs
+        SG::WriteHandleKey<MmDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","MM_DIGITS","WriteHandleKey for Output MmigitContainer"}; // name of the output digits
+        SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","MM_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
 		bool m_checkMMSimHits;
 

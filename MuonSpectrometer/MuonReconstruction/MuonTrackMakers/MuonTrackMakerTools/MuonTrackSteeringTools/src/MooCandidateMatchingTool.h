@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MOOCANDIDATEMATCHINGTOOL_H
@@ -7,19 +7,24 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-#include "MuonIdHelpers/MuonStationIndex.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
+//#include "MuonIdHelpers/MuonStationIndex.h"
+//#include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
-
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "MuonIdHelpers/MuonStationIndex.h"
+#include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
+#include "MuonTrackFindingEvent/MuonTrackSegmentMatchResult.h"
 
+#include <array>
+#include <atomic>
 #include <string>
 #include <set>
-
-#include "MuonTrackFindingEvent/MuonTrackSegmentMatchResult.h"
-#include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
-#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 class MsgStream;
 
@@ -32,7 +37,6 @@ namespace Trk {
 
 namespace Muon {
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class MuonEDMPrinterTool;
   class MuPatCandidateTool;
   class MuonSegment;
@@ -168,7 +172,9 @@ namespace Muon {
     double m_matchChiSquaredCutTight;
     
     ToolHandle<MuonIdHelperTool>          m_idHelperTool;       //<! tool to assist with Identifiers
-    ToolHandle<MuonEDMHelperTool>         m_helperTool;         //<! multipurpose helper tool
+    ServiceHandle<IMuonEDMHelperSvc>      m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };         //<! multipurpose helper tool
     ToolHandle<MuonEDMPrinterTool>        m_printer;            //<! tool to print EDM objects
     ToolHandle<Trk::IExtrapolator>        m_slExtrapolator;     //<! straight line extrapolator
     ToolHandle<Trk::IExtrapolator>        m_atlasExtrapolator;  //<! curved extrapolator
@@ -180,20 +186,20 @@ namespace Muon {
     bool                                  m_doTrackSegmentMatching; //!< apply track-segment matching or not
 
     /** matching counters */
-    mutable unsigned int m_goodSegmentMatches;
-    mutable unsigned int m_goodSegmentMatchesTight;
-    mutable unsigned int m_segmentMatches;
-    mutable unsigned int m_segmentMatchesTight;
-    mutable unsigned int m_goodSegmentTrackMatches;
-    mutable unsigned int m_goodSegmentTrackMatchesTight;
-    mutable unsigned int m_sameSideOfPerigee;
-    mutable unsigned int m_otherSideOfPerigee;
-    mutable unsigned int m_sameSideOfPerigeeTrk;
-    mutable unsigned int m_otherSideOfPerigeeTrk;
-    mutable unsigned int m_segmentTrackMatches;
-    mutable unsigned int m_segmentTrackMatchesTight;
-    mutable std::vector<unsigned int> m_reasonsForMatchOk;
-    mutable std::vector<unsigned int> m_reasonsForMatchNotOk;
+    mutable std::atomic_uint m_goodSegmentMatches;
+    mutable std::atomic_uint m_goodSegmentMatchesTight;
+    mutable std::atomic_uint m_segmentMatches;
+    mutable std::atomic_uint m_segmentMatchesTight;
+    mutable std::atomic_uint m_goodSegmentTrackMatches;
+    mutable std::atomic_uint m_goodSegmentTrackMatchesTight;
+    mutable std::atomic_uint m_sameSideOfPerigee;
+    mutable std::atomic_uint m_otherSideOfPerigee;
+    mutable std::atomic_uint m_sameSideOfPerigeeTrk;
+    mutable std::atomic_uint m_otherSideOfPerigeeTrk;
+    mutable std::atomic_uint m_segmentTrackMatches;
+    mutable std::atomic_uint m_segmentTrackMatchesTight;
+    mutable std::array<std::atomic_uint, TrackSegmentMatchResult::NumberOfReasons> m_reasonsForMatchOk ATLAS_THREAD_SAFE; // Guarded by atomicity
+    mutable std::array<std::atomic_uint, TrackSegmentMatchResult::NumberOfReasons> m_reasonsForMatchNotOk ATLAS_THREAD_SAFE; // Guarded by atomicity
 
     double m_caloMatchZ; //!< Z position of calo end-cap disks. Used to determine if segments are on same side of Calo
 

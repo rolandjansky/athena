@@ -84,7 +84,6 @@ LArRawChannelBuilder::LArRawChannelBuilder (const std::string& name, ISvcLocator
  declareProperty("ShapeMode",                 m_shapeMode=0); 
  declareProperty("SkipSaturCellsMode",        m_skipSaturCells=0);
  declareProperty("ADCMax",                    m_AdcMax=4095);
- declareProperty("HVcorr",                    m_hvcorr=false);
  declareProperty("ADC2MeVTool", 	      m_adc2mevTool);
  declareProperty("OFCTool",                   m_OFCTool);
  declareProperty("firstSample",               m_firstSample,"  first sample used in shape");
@@ -113,7 +112,6 @@ StatusCode LArRawChannelBuilder::initialize()
   }
   
   ATH_CHECK( m_cablingKey.initialize() );
-  ATH_CHECK( m_scaleCorrKey.initialize(m_hvcorr) );
 
 
   //Set counters for errors and warnings to zero
@@ -241,12 +239,6 @@ StatusCode LArRawChannelBuilder::execute()
 
   // Now all data is available, start loop over Digit Container
   int ntot_raw=0;
-
-  const ILArHVScaleCorr* scaleCorr = nullptr;
-  if (m_hvcorr) {
-    SG::ReadCondHandle<ILArHVScaleCorr> scaleCorrH (m_scaleCorrKey, ctx);
-    scaleCorr = scaleCorrH.retrieve();
-  }
 
   for (const LArDigit* digit : *digitContainer) {
 
@@ -473,14 +465,6 @@ StatusCode LArRawChannelBuilder::execute()
        ADCPeakPower*=ADCPeak;
       }
 
-// HV correction
-
-    if (scaleCorr) {
-// HV tool
-       float hvCorr = scaleCorr->HVScaleCorr(chid);
-       energy = energy*hvCorr;
-    }
-  
     //Check if energy is above threshold for time & quality calculation
     if (energy>m_Ecut) {
       highE++;

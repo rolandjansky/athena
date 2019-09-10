@@ -72,7 +72,7 @@ namespace Trk{
         therefore the quantity is not part of the constructor.
         The quantities are mainly aimed at completing the information
         for the EDM class EstimatedBremOnTrack. */
-    void setDeltaP(double deltaP, double sigmaDeltaP = 0.0) const;
+    void setDeltaP(double deltaP, double sigmaDeltaP = 0.0) ;
     double deltaP()               const;
     double sigmaDeltaP()          const;
 
@@ -85,8 +85,8 @@ namespace Trk{
   private:
     double m_xmin,m_dxmin,m_chi2min,m_thickness,m_sigmaDNA,m_addSigmaQoverP;
     bool   m_foundByForwardFilter;
-    mutable double m_deltaP;
-    mutable double m_sigmaDeltaP;
+    double m_deltaP;
+    double m_sigmaDeltaP;
     const Surface* m_associatedSurface;
   };
 
@@ -108,7 +108,7 @@ namespace Trk{
   inline double DNA_MaterialEffects::addSigmaQoverP() const
   { return m_addSigmaQoverP; }
   inline void DNA_MaterialEffects::setDeltaP(double deltaP,
-                                             double sigmaDeltaP) const
+                                             double sigmaDeltaP) 
   { m_deltaP = deltaP;
     m_sigmaDeltaP = sigmaDeltaP; }
   inline double DNA_MaterialEffects::deltaP() const

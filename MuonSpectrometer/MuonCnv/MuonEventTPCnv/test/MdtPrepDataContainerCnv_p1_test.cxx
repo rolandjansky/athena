@@ -19,7 +19,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
-#include "MuonEventTPCnv/CreateTransientTemplates.h"
+
 
 #include "make_dd.icc"
 

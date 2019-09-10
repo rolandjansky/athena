@@ -2,11 +2,18 @@ from eflowRec.eflowRecConf import PFLeptonSelector
 PFLeptonSelector=PFLeptonSelector("PFLeptonSelector")
 topSequence += PFLeptonSelector
 
+PFLeptonSelector.electronID = "LHMedium"
+PFLeptonSelector.selectElectrons = False
+
 from eflowRec.eflowRecConf import PFTrackSelector
 PFTrackSelector=PFTrackSelector("PFTrackSelector")
 
+from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
+pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = AtlasExtrapolator())
+
 from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
-TrackCaloExtensionTool=eflowTrackCaloExtensionTool()
+TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
 
 PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
@@ -15,6 +22,9 @@ TrackSelectionTool = InDet__InDetTrackSelectionTool()
 
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += TrackSelectionTool
+
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg()
 
 TrackSelectionTool.CutLevel = "TightPrimary"
 TrackSelectionTool.minPt = 500.0 
@@ -43,6 +53,7 @@ PFCellLevelSubtractionTool.eflowCellEOverPTool=CellEOverPTool
 
 from eflowRec.eflowRecFlags import jobproperties
 if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+   PFCellLevelSubtractionTool.CalcEOverP = True
    PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
 else:
    PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
@@ -93,7 +104,8 @@ MatchingTool_Recover.DistanceType        = 'EtaPhiSquareDistance' # str
 MatchingTool_Recover.MatchCut = 0.2*0.2 # float
 PFRecoverSplitShowersTool.PFTrackClusterMatchingTool = MatchingTool_Recover
 
-PFAlgorithm.SubtractionToolList += [PFRecoverSplitShowersTool]
+if jobproperties.eflowRecFlags.eflowAlgType != "EOverP":
+   PFAlgorithm.SubtractionToolList += [PFRecoverSplitShowersTool]
 
 from eflowRec.eflowRecConf import PFMomentCalculatorTool
 PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
@@ -103,16 +115,9 @@ PFClusterMomentsMaker = CaloClusterMomentsMaker("PFClusterMomentsMaker")
 
 from CaloRec.CaloTopoClusterFlags import jobproperties
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theCaloNoiseTool
-
 PFClusterMomentsMaker.MaxAxisAngle = 20*deg
 PFClusterMomentsMaker.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
 PFClusterMomentsMaker.MinBadLArQuality = 4000
-PFClusterMomentsMaker.CaloNoiseTool = theCaloNoiseTool
-PFClusterMomentsMaker.UsePileUpNoise = True
 PFClusterMomentsMaker.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
 PFClusterMomentsMaker.OutputLevel = INFO
 PFClusterMomentsMaker.MomentsNames = [
@@ -225,6 +230,9 @@ topSequence += PFAlgorithm
 from eflowRec.eflowRecConf import PFOChargedCreatorAlgorithm
 PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
 
+if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+   PFOChargedCreatorAlgorithm.PFOOutputName="EOverPChargedParticleFlowObjects"
+
 topSequence += PFOChargedCreatorAlgorithm
 
 from eflowRec.eflowRecConf import PFONeutralCreatorAlgorithm
@@ -232,6 +240,9 @@ PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgor
 if jobproperties.eflowRecFlags.useCalibHitTruth:
    PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
    
+if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":
+   PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
+
 topSequence += PFONeutralCreatorAlgorithm
 
 if jobproperties.eflowRecFlags.usePFEGammaPFOAssoc:

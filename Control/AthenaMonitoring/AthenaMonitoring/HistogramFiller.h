@@ -10,11 +10,9 @@
 #include <memory>
 #include <vector>
 
-#include "TNamed.h"
-#include "TEfficiency.h"
-
-#include "AthenaMonitoring/IMonitoredVariable.h"
 #include "AthenaMonitoring/HistogramDef.h"
+#include "AthenaMonitoring/IHistogramProvider.h"
+#include "AthenaMonitoring/IMonitoredVariable.h"
 
 namespace Monitored {
   /**
@@ -25,22 +23,23 @@ namespace Monitored {
     /**
      * @brief Default constructor
      * 
-     * @param hist ROOT object to fill
      * @param histDef Histogram definition of ROOT object
      */
-    HistogramFiller(TNamed* hist, const HistogramDef& histDef) 
-      : m_hist(hist), 
-        m_mutex(std::make_shared<std::mutex>()), 
-        m_histDef(new HistogramDef(histDef)) {}
+    HistogramFiller(const HistogramDef& histDef, std::shared_ptr<IHistogramProvider> histogramProvider) 
+      : m_mutex(std::make_shared<std::mutex>()), 
+        m_histDef(new HistogramDef(histDef)),
+        m_histogramProvider(histogramProvider),
+        m_monWeight(nullptr) {}
     /**
      * @brief Copy constructor
      * 
      * @param hf Other HistogramFiller
      */
     HistogramFiller(const HistogramFiller& hf) 
-      : m_hist(hf.m_hist)
-      , m_mutex(hf.m_mutex)
-      , m_histDef(hf.m_histDef) {}
+      : m_mutex(hf.m_mutex), 
+        m_histDef(hf.m_histDef),
+        m_histogramProvider(hf.m_histogramProvider),
+        m_monWeight(hf.m_monWeight) {}
     /**
      * @brief Move constructor
      */
@@ -61,29 +60,40 @@ namespace Monitored {
      */
     virtual HistogramFiller* clone() = 0;
   
-    void setMonitoredVariables(std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables) {
+    void setMonitoredVariables(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) {
       m_monVariables = monitoredVariables;
+    }
+
+    /** 
+     * @brief Stores histogram weight
+     * @param monitoredWeight weight to use
+     */
+    void setMonitoredWeight(Monitored::IMonitoredVariable* monitoredWeight) {
+      m_monWeight = monitoredWeight;
     }
   
     std::vector<std::string> histogramVariablesNames() const {
       return m_histDef->name;
     }
+
+    std::string histogramWeightName() {
+      return m_histDef->weight;
+    }
     
   protected:
-    /**
-     * @brief Getter for associated ROOT object
-     * 
-     * @return Instance of ROOT object
-     */
-    virtual TNamed* histogram() = 0;
-  
-    TNamed* m_hist;
+    template <class H>
+    H* histogram() {
+      return static_cast<H*>(m_histogramProvider->histogram());
+    }
+
     std::shared_ptr<std::mutex> m_mutex;
     std::shared_ptr<HistogramDef> m_histDef;
+    std::shared_ptr<IHistogramProvider> m_histogramProvider;
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> m_monVariables;
+    Monitored::IMonitoredVariable* m_monWeight;
     
   private:
     HistogramFiller& operator=(HistogramFiller const&) = delete;
   };
 }
-#endif /* AthenaMonitoring_HistogramFiller_h */
+#endif /* AthenaMonitoring_HistogramFiller_HistogramFiller_h */

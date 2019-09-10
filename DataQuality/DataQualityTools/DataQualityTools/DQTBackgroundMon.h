@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -32,6 +32,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "TagEvent/RawInfoSummaryForTag.h"
@@ -42,7 +43,7 @@
 #include "RecBackgroundEvent/BeamBackgroundData.h"
 #include "xAODMuon/MuonSegment.h"
 #include "xAODTracking/VertexContainer.h"
-
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 #include "DataQualityTools/DataQualityFatherMonTool.h"
 
@@ -55,7 +56,6 @@ namespace MuonCalib
   class IIdToFixedIdTool;
 }
 namespace Muon{
-  class MuonEDMHelperTool;
   class MuonIdHelperTool;
 }
 
@@ -87,7 +87,9 @@ class DQTBackgroundMon: public DataQualityFatherMonTool
 private:
 
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
-  ToolHandle<Muon::MuonEDMHelperTool> m_helperTool;
+  ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+    "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+    "Handle to the service providing the IMuonEDMHelperSvc interface" };
   ToolHandle<Muon::MuonIdHelperTool>  m_idHelperTool;
   ToolHandle<MuonCalib::IIdToFixedIdTool> m_idToFixedIdTool;
 

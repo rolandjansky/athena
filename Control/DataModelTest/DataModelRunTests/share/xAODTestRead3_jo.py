@@ -43,6 +43,10 @@ theApp.EvtMax = 20
 # Application:
 #--------------------------------------------------------------
 
+from AthenaServices.AthenaServicesConf import AthReadAlg
+topSequence += AthReadAlg ('cvecCnv',
+                           Key = 'DMTest::CVec/cvec')
+
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec, \
      DMTest__xAODTestReadCInfo, \
@@ -83,5 +87,6 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 #svcMgr.ExceptionSvc.Catch = "None"
 
 # Avoid races when running tests in parallel.
-FILECATALOG = 'xAODTestRead3_catalog.xml'
+if 'FILECATALOG' not in globals():
+    FILECATALOG = 'xAODTestRead3_catalog.xml'
 include ('DataModelRunTests/setCatalog.py')

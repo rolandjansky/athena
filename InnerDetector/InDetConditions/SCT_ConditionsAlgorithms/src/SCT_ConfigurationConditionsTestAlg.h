@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -42,7 +44,7 @@ class SCT_ConfigurationConditionsTestAlg : public AthReentrantAlgorithm {
   
  private:
   ToolHandle<ISCT_ConfigurationConditionsTool> m_configConditions{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool", "Tool to retrieve SCT DAQ configuration"};
-  const SCT_ID* m_sctId;
+  const SCT_ID* m_sctId{nullptr};
 };
 
 #endif // SCT_TestConfigConditions_H

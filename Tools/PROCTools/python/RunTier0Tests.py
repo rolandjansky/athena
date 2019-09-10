@@ -317,7 +317,7 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
 
     logging.info("Reading the reference file from location "+clean_dir)
 
-    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RecoTimingObj_p1_RAWtoALL_mems  RecoTimingObj_p1_RAWtoALL_timings  RAWtoALL_mems  RAWtoALL_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
+    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  index_ref  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RecoTimingObj_p1_RAWtoALL_mems  RecoTimingObj_p1_RAWtoALL_timings  RAWtoALL_mems  RAWtoALL_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     # We want to catch/print both container additions/subtractions as well as
@@ -575,6 +575,11 @@ def main():
                       dest="overlay_flag",
                       default=False,
                       help="overlay will run the Digi_tf.py overlay test")
+    parser.add_option("--pileup",
+                      action="store_true",
+                      dest="pileup_flag",
+                      default=False,
+                      help="will run digi+reco with pile-up")
     parser.add_option("-p",
                       "--patched",
                       action="store_true",
@@ -605,6 +610,7 @@ def main():
     RunOverlay      = options.overlay_flag
     RunFast         = options.fast_flag
     RunPatchedOnly  = options.patched_flag
+    RunPileUp       = options.pileup_flag
     CleanRunHeadDir = options.cleanDir
     r2aMode         = options.r2a_flag
     trigRun2Config  = options.trigRun2Config_flag    
@@ -676,15 +682,19 @@ def main():
             qTestsToRun = {
             'overlay-d1498':[ 'OverlayPool' ]
             }
+        elif RunPileUp:
+            qTestsToRun = { 
+            'q440':[ 'HITtoRDO', 'RAWtoESD', 'ESDtoAOD' ]
+            }
         elif r2aMode:
             qTestsToRun = { 
-            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],
+            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD'],
             'q431':[ 'RAWtoALL']
             }
         else:
             qTestsToRun = { 
-            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],
-            'q431':[ 'RAWtoESD','ESDtoAOD','AODtoTAG']
+            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD'],
+            'q431':[ 'RAWtoESD','ESDtoAOD']
             }          
 
         
@@ -701,7 +711,10 @@ def main():
             logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local setup area will not be considered!!!" %(cleanSetup, mysetup))
             logging.info("this option is mainly designed for comparing release versions!!")
         else:
-            list_patch_packages(ciMode)
+            try:
+                list_patch_packages(ciMode)
+            except:
+                logging.warning("Cannot list patch packages...\n")
 
 ########### Get unique name for the clean run directory
         UniqName = str(uuid.uuid4())
@@ -817,6 +830,9 @@ def main():
             elif RunOverlay:
                 if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
+            elif RunPileUp:
+                if not RunFrozenTier0PolicyTest(q,"AOD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                    All_Tests_Passed = False
             else:
                 if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
                     All_Tests_Passed = False
@@ -826,7 +842,7 @@ def main():
 
             if RunPatchedOnly: continue  # Performance checks against static references not possible
     
-            if 'q221' in q: 
+            if 'q221' in q or 'q440' in q: 
                 if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName):
                     All_Tests_Passed = False
             

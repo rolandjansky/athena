@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -30,40 +32,38 @@ class SCT_Amp : public extends<AthAlgTool, ISCT_Amp> {
   /** Destructor */
   virtual ~SCT_Amp() = default;
   /** AlgTool initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** AlgTool finalize */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
    
   /** main purpose: CR-RC^3 response to a list of charges with times */
-  float response(const list_t& Charges, const float timeOverThreshold) const;
-  void response(const list_t& Charges, const float timeOverThreshold, std::vector<float>& resp) const;
+  virtual float response(const list_t& Charges, const float timeOverThreshold) const override;
+  virtual void response(const list_t& Charges, const float timeOverThreshold, std::vector<float>& resp) const override;
 
   /** Neighbour strip cross talk response strip to a list of charges with times */
-  float crosstalk(const list_t& Charges, const float timeOverThreshold) const;
-  void crosstalk(const list_t& Charges, const float timeOverThreshold, std::vector<float>& resp) const;
+  virtual float crosstalk(const list_t& Charges, const float timeOverThreshold) const override;
+  virtual void crosstalk(const list_t& Charges, const float timeOverThreshold, std::vector<float>& resp) const override;
 
 private:
 
   /** signal peak time */   
-  float m_PeakTime;
+  FloatProperty m_PeakTime{this, "PeakTime", 21., "Front End Electronics peaking time"};
 
   /** Cross factor 2 side */
-  float m_CrossFactor2sides;
+  FloatProperty m_CrossFactor2sides{this, "CrossFactor2sides", 0.1, "Loss of charge to neighbour strip constant"};
 
   /** cross factor */
-  float m_CrossFactorBack;
+  FloatProperty m_CrossFactorBack{this, "CrossFactorBack", 0.07, "Loss of charge to back plane constant"};
+
+  FloatProperty m_tmin{this, "Tmin", -25.0};
+  FloatProperty m_tmax{this, "Tmax", 150.0};
+  FloatProperty m_dt{this, "deltaT", 1.0};
 
   /** Normalisation factor for the signal response */
-  float m_NormConstCentral;
+  float m_NormConstCentral{0.};
 
   /** Normalisation factor for the neighbour strip signal response */
-  float m_NormConstNeigh;
-
-  float m_tmin;
-  float m_tmax;
-  float m_dt;
-
+  float m_NormConstNeigh{0.};
 };
 
 #endif // SCT_DIGITIZATION_SCTAMP_H
-

@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for RDO merging
@@ -25,8 +26,12 @@ if hasattr(runArgs,"inputRDOFile"): athenaCommonFlags.FilesInput.set_Value_and_L
 else: raise RuntimeError("No inputRDOFile provided.")
 from RecJobTransforms.RDOFilePeeker import RDOFilePeeker
 RDOFilePeeker(runArgs, merRDOLog)
-#from AthenaCommon.AppMgr import theApp
-#theApp.EvtMax = -1
+
+# Common athena flags
+if hasattr(runArgs, "skipEvents"):
+  athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)
+if hasattr(runArgs, "maxEvents"):
+  athenaCommonFlags.EvtMax.set_Value_and_Lock(runArgs.maxEvents)
 
 #from AthenaCommon.GlobalFlags import globalflags
 #if hasattr(runArgs,"geometryVersion"): globalflags.DetDescrVersion.set_Value_and_Lock( runArgs.geometryVersion )
@@ -127,7 +132,7 @@ ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
 try:
   ServiceMgr.EventSelector.CollectionType = CollType
 except:
-  print "Reading from file"
+  print("Reading from file")
 
 SkipEvents=0
 ServiceMgr.EventSelector.SkipEvents = SkipEvents
@@ -135,15 +140,21 @@ ServiceMgr.EventSelector.SkipEvents = SkipEvents
 #--------------------------------------------------------------
 # Setup Output
 #--------------------------------------------------------------
-if hasattr(runArgs,"outputRDO_MRGFile"): Out = runArgs.outputRDO_MRGFile
+if hasattr(runArgs, "outputRDO_MRGFile"):
+  outputFile = runArgs.outputRDO_MRGFile
+else:
+  outputFile = "DidNotSetOutputName.root"
+
+from Digitization.DigitizationFlags import digitizationFlags
+if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+  from OverlayCommonAlgs.OverlayFlags import overlayFlags
+  eventInfoKey = overlayFlags.bkgPrefix() + "EventInfo"
+else:
+  eventInfoKey = "EventInfo"
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-try:
-  StreamRDO = AthenaPoolOutputStream( "StreamRDO", Out, True, noTag=True )
-except:
-  StreamRDO = AthenaPoolOutputStream( "StreamRDO", "DidNotSetOutputName.root", True, noTag=True )
+StreamRDO = AthenaPoolOutputStream( "StreamRDO", outputFile, asAlg=True, noTag=True, eventInfoKey=eventInfoKey )
 StreamRDO.TakeItemsFromInput=TRUE;
-StreamRDO.ForceRead=TRUE;  #force read of output data objs
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #StreamRDO.ExcludeList = ['6421#*']
 
@@ -151,15 +162,15 @@ StreamRDO.ForceRead=TRUE;  #force read of output data objs
 try:
   StreamRDO.AcceptAlgs = AcceptList
 except:
-  print "No accept algs indicated in AcceptList"
+  print("No accept algs indicated in AcceptList")
 try:
   StreamRDO.RequireAlgs = RequireList
 except:
-  print "No accept algs indicated in RequireList"
+  print("No accept algs indicated in RequireList")
 try:
   StreamRDO.VetoAlgs = VetoList
 except:
-  print "No accept algs indicated in VetoList"
+  print("No accept algs indicated in VetoList")
 
 # Perfmon
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
@@ -173,8 +184,8 @@ MessageSvc.OutputLevel = INFO
 StreamRDO.ExtendProvenanceRecord = False
 
 ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
-ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_ALGORITHM = '2'" ]
-ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_LEVEL = '1'" ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + outputFile + "'; COMPRESSION_ALGORITHM = '2'" ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + outputFile + "'; COMPRESSION_LEVEL = '1'" ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"):

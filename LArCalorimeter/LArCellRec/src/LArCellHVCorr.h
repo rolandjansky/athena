@@ -10,10 +10,8 @@
 
 #include "CaloUtils/CaloCellCorrection.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArElecCalib/ILArCellHVCorrTool.h"
-#include "StoreGate/DataHandle.h"  
 #include "LArCabling/LArOnOffIdMapping.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -47,20 +45,18 @@ public:
   //Implements the ILArCellHVCorrTool interface
   virtual float getCorrection(const Identifier id) override;
 
-  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override;
+  virtual StatusCode LoadCalibration(IOVSVC_CALLBACK_ARGS) override
+  { return StatusCode::SUCCESS; }
 
-  virtual bool updateOnLastCallback() override {return m_updateOnLastCallback;}
+  virtual bool updateOnLastCallback() override {return true;}
 
- private: 
+private: 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
  float getCorrection(const Identifier id) const;
 
- ToolHandle<ILArHVCorrTool> m_hvCorrTool;
- std::string m_keyHVScaleCorr;
- bool m_undoHVonline;
- bool m_updateOnLastCallback;
- const DataHandle<ILArHVScaleCorr> m_dd_HVScaleCorr;
+ SG::ReadCondHandleKey<ILArHVScaleCorr> m_scaleCorrKey
+ { this, "LArHVScaleCorr", "LArHVScaleCorrRecomputed", "" };
 
 };
 

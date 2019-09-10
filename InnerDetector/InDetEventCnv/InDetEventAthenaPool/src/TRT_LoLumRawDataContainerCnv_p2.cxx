@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRawData/TRT_LoLumRawData.h"
@@ -10,7 +10,7 @@
 #include "TRT_LoLumRawDataCnv_p2.h"
 #include "TRT_LoLumRawDataContainerCnv_p2.h"
 #include "MsgUtil.h"
-#include "CreateTransientTemplate.h"
+
 
 
 void TRT_LoLumRawDataContainerCnv_p2::transToPers(const TRT_RDO_Container* transCont, InDetRawDataContainer_p2* persCont, MsgStream &log) 
@@ -127,7 +127,7 @@ void  TRT_LoLumRawDataContainerCnv_p2::persToTrans(const InDetRawDataContainer_p
 
 //================================================================
 TRT_RDO_Container* TRT_LoLumRawDataContainerCnv_p2::createTransient(const InDetRawDataContainer_p2* persObj, MsgStream& log) {
-    std::unique_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
+    std::unique_ptr<TRT_RDO_Container> trans(std::make_unique<TRT_RDO_Container>(m_trtId->straw_layer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

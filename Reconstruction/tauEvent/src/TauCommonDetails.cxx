@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @file TauCommonDetails.cxx
@@ -20,7 +20,7 @@
 #include "tauEvent/TauCommonDetails.h"
 //Other includes
 #include "AthLinks/ElementLink.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 #include "VxVertex/RecVertex.h"
 //C/C++ includes
 #include <string>

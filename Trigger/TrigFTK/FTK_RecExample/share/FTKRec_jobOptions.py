@@ -1,18 +1,29 @@
 include.block('FTK_RecExample/FTKRec_jobOptions.py')
 
+from FTK_RecExample.FTKJobProperties import FTKFlags
+FTKFlags.init()
+
 from RecExConfig.RecFlags import rec
 from AthenaCommon.BeamFlags import jobproperties
- 
-if rec.doFTK():
+
+from FTK_RecExample.FTKJobProperties import FTKFlags
+FTKFlags.init()
+
+if rec.doFTK() and (globalflags.InputFormat() == 'bytestream' or rec.readRDO):
     from AthenaCommon.GlobalFlags import GlobalFlags
     if rec.doFTK() and globalflags.InputFormat() == 'bytestream':
         ByteStreamAddressProviderSvc = Service( "ByteStreamAddressProviderSvc")
         ByteStreamAddressProviderSvc.TypeNames += [ "FTK_RawTrackContainer/FTK_RDO_Tracks"]
 
-    from TrigFTK_RecExample.TrigFTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
-    theFTK_DataProviderSvc = TrigFTK_DataProviderSvc("TrigFTK_DataProviderSvc")
-    ServiceMgr += theFTK_DataProviderSvc
+    from TrigFTK_RecExample.TrigFTKLoadTools import theFTK_DataProviderSvc
 
+    from FTK_RecExample.FTKJobProperties import FTKFlags
+    if FTKFlags.doSmearing:
+        theFTKrandomSvc = AtRanluxGenSvc("FTKFastSim_Smearing")
+        theFTKrandomSvc.EventReseeding = True
+        theFTKrandomSvc.UseOldBrokenSeeding = False
+        ServiceMgr += theFTKrandomSvc
+    
     from TrigFTK_RawDataAlgs.TrigFTK_RawDataAlgsConf import FTK_RDO_ReaderAlgo
 
     FTK_RDO_Reader = FTK_RDO_ReaderAlgo( "FTK_RDO_ReaderAlgo")
@@ -38,7 +49,7 @@ if rec.doFTK():
     alg += FTK_RDO_Reader 
     
 
-    if rec.doTruth() and (rec.doWriteAOD() or rec.doWriteESD()):
+    if FTKFlags.doTruthLinks() and rec.doTruth() and (rec.doWriteAOD() or rec.doWriteESD()):
         include ('FTK_RecExample/ConfiguredFTK_TrackTruth.py')
         FTK_TracksTruth = ConfiguredFTK_TrackTruth(Tracks="FTK_TrackCollection",
                                                 TracksTruth = "FTK_Tracks_TruthCollection",
@@ -67,29 +78,4 @@ if rec.doFTK():
         FTKRefitTrackParticleCnvAlg.TrackTruthContainerName = "FTK_RefitTracks_TruthCollection"
         FTKRefitTrackParticleCnvAlg.PrintIDSummaryInfo = True
         topSequence += FTKRefitTrackParticleCnvAlg
-
-        augmentation_tools = []
-        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (DerivationFramework__TrackParametersForTruthParticles)
-
-        TruthDecor = DerivationFramework__TrackParametersForTruthParticles(
-           name="TruthTPDecor",
-           TruthParticleContainerName="TruthParticles",
-           DecorationPrefix="")
-        augmentation_tools.append(TruthDecor)
-
-        # Set up derivation framework
-        from AthenaCommon import CfgMgr
-        
-        theFTKseq = CfgMgr.AthSequencer("FTKSeq")
-        from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
-            DerivationFramework__CommonAugmentation)
-        
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += DerivationFramework__TrackParametersForTruthParticles('TruthTPDecor')
-        theFTKseq += CfgMgr.DerivationFramework__CommonAugmentation(
-          "TSOS_Kernel",
-          AugmentationTools=augmentation_tools,
-          OutputLevel=INFO)
-        topSequence += theFTKseq
-
 

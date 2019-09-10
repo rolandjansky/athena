@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #################################################################################################
 #  file: TrigJetMonitoring_physics.py
@@ -137,7 +137,8 @@ if (pp) or (mc):
                   "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
                   "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
                   "a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
-                  #"a10rtcemsubjesFS"   : "HLT_xAOD__JetContainer_a10r_tcemsubjesFS",
+		  "a10r_tcemsubjesISFS": "HLT_xAOD__JetContainer_a10r_tcemsubjesISFS",
+		  "a4tcemnojcalibFS": "HLT_xAOD__JetContainer_a4tcemnojcalibFS",
                   "a10tclcwsubjesFS"   : "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
                   "a10ttclcwjesFS"   : "HLT_xAOD__JetContainer_a10ttclcwjesFS",
                   "a4tcemsubjesISFSftk"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFSftk",
@@ -178,12 +179,12 @@ if (pp) or (mc):
   
   
 # HLT items
-  hlt_hltEtThresholds            = { 'j0_perf_L1RD0FILLED': 0.,
-                                     'j0_perf_ftk_L1RD0FILLED': 0.,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 0.,
+  hlt_hltEtThresholds            = { 'j0_perf_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftk_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 0.,
                                      'j35':20.,
                                      'j35_jes':20.,
                                      'j35_lcw':20.,
@@ -208,14 +209,27 @@ if (pp) or (mc):
                                      '4j45':20.,
                                      '6j45':20.,
                                      '6j45_0eta240':20.,
-                                     '10j40_L14J20':0.}
+                                     '10j40_L14J20':0.,
+                                     'j15':0.,
+                                     'j45':20.,
+                                     'j175':100.,
+                                     'j420':200.,
+                                     'j260_nojcalib':100.,
+                                     'j260_320eta490':100.,
+                                     'j260_320eta490_nojcalib':100.,
+                                     'j460_a10_lcw_subjes_L1J100':200.,
+                                     'j460_a10r_L1J100':200.,
+                                     '4j120':20.,
+                                     '6j70':20.,
+                                     '6j55_0eta240_L14J15':20.}
+
     
-  hlt_hltEtaHighThresholds       = { 'j0_perf_L1RD0FILLED': 2.5,
-                                     'j0_perf_ftk_L1RD0FILLED': 2.5,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 2.5,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 2.5,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 2.5,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 2.5,
+  hlt_hltEtaHighThresholds       = { 'j0_perf_L1RD0_FILLED': 2.5,
+                                     'j0_perf_ftk_L1RD0_FILLED': 2.5,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 2.5,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 2.5,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 2.5,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 2.5,
                                      'j35':3.2,
                                      'j35_jes':3.2,
                                      'j35_lcw':3.2,
@@ -239,14 +253,29 @@ if (pp) or (mc):
                                      '4j45':3.2,
                                      '6j45':3.2,
                                      '6j45_0eta240':2.4,
-                                     '10j40_L14J20':3.2}
+                                     '10j40_L14J20':3.2,
+                                     'j15':3.2,
+                                     'j45':3.2,
+                                     'j175':3.2,
+                                     'j420':3.2,
+                                     'j260_nojcalib':3.2,
+                                     'j260_320eta490':4.9,
+                                     'j260_320eta490_nojcalib':4.9,
+                                     'j460_a10_lcw_subjes_L1J100':3.2,
+                                     'j460_a10r_L1J100':3.2,
+                                     '4j120':3.2,
+                                     '6j70':3.2,
+                                     '6j55_0eta240_L14J15':2.4}
+
+
+
   
-  hlt_hltEtaLowThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
-                                     'j0_perf_ftk_L1RD0FILLED': 0.,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 0.,
+  hlt_hltEtaLowThresholds        = { 'j0_perf_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftk_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 0.,
                                      'j35':0.0,
                                      'j35_jes':0.0,
                                      'j35_lcw':0.0,
@@ -273,15 +302,28 @@ if (pp) or (mc):
                                      '4j45':0.0,
                                      '6j45':0.0,
                                      '6j45_0eta240':0.0,
-                                     '10j40_L14J20':0.0}
+                                     '10j40_L14J20':0.0,
+                                     'j15':0.0,
+                                     'j45':0.0,
+                                     'j175':0.0,
+                                     'j420':0.0,
+                                     'j260_nojcalib':0.0,
+                                     'j260_320eta490':3.2,
+                                     'j260_320eta490_nojcalib':3.2,
+                                     'j460_a10_lcw_subjes_L1J100':0.0,
+                                     'j460_a10r_L1J100':0.0,
+                                     '4j120':0.0,
+                                     '6j70':0.0,
+                                     '6j55_0eta240_L14J15':0.0}
+
   
   
-  hlt_hltJetn                    = { 'j0_perf_L1RD0FILLED': 1,
-                                     'j0_perf_ftk_L1RD0FILLED': 1,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 1,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 1,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 1,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 1,
+  hlt_hltJetn                    = { 'j0_perf_L1RD0_FILLED': 1,
+                                     'j0_perf_ftk_L1RD0_FILLED': 1,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 1,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 1,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 1,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 1,
                                      'j35':1,
                                      'j35_jes':1,
                                      'j35_lcw':1,
@@ -305,15 +347,28 @@ if (pp) or (mc):
                                      '4j45':4,
                                      '6j45':6,
                                      '6j45_0eta240':6,
-                                     '10j40_L14J20':10}
+                                     '10j40_L14J20':10,
+                                     'j15':1,
+                                     'j45':1,
+                                     'j175':1,
+                                     'j420':1,
+                                     'j260_nojcalib':1,
+                                     'j260_320eta490':1,
+                                     'j260_320eta490_nojcalib':1,
+                                     'j460_a10_lcw_subjes_L1J100':1,
+                                     'j460_a10r_L1J100':1,
+                                     '4j120':4,
+                                     '6j70':6,
+                                     '6j55_0eta240_L14J15':6}
+
   
   
-  hlt_hltContainers              = { 'j0_perf_L1RD0FILLED':'a4tcemsubjesISFS',
-                                     'j0_perf_ftk_L1RD0FILLED':'a4tcemsubjesISFSftk',
-                                     'j0_perf_ftkrefit_L1RD0FILLED':'a4tcemsubjesISFSftkrefit',
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED':'a4tcemsubjesISFS',
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED':'a4tcemsubjesISFSftk',
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED':'a4tcemsubjesISFSftkrefit',
+  hlt_hltContainers              = { 'j0_perf_L1RD0_FILLED':'a4tcemsubjesISFS',
+                                     'j0_perf_ftk_L1RD0_FILLED':'a4tcemsubjesISFSftk',
+                                     'j0_perf_ftkrefit_L1RD0_FILLED':'a4tcemsubjesISFSftkrefit',
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED':'a4tcemsubjesISFS',
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED':'a4tcemsubjesISFSftk',
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED':'a4tcemsubjesISFSftkrefit',
                                      'j35':'a4tcemsubjesISFS',
                                      'j35_sub':'a4tcemsubFS',
                                      'j35_jes':'a4tcemjesFS',
@@ -341,16 +396,28 @@ if (pp) or (mc):
                                      '4j45':'a4tcemsubjesISFS',
                                      '6j45':'a4tcemsubjesISFS',
                                      '6j45_0eta240':'a4tcemsubjesISFS',
-                                     '10j40_L14J20':'a4tcemsubjesISFS'
-                                     }
+                                     '10j40_L14J20':'a4tcemsubjesISFS',
+                                     'j15':'a4tcemsubjesISFS',
+                                     'j45':'a4tcemsubjesISFS',
+                                     'j175':'a4tcemsubjesISFS',
+                                     'j420':'a4tcemsubjesISFS',
+                                     'j260_nojcalib':'a4tcemnojcalibFS',
+                                     'j260_320eta490':'a4tcemsubjesISFS',
+                                     'j260_320eta490_nojcalib':'a4tcemnojcalibFS',
+                                     'j460_a10_lcw_subjes_L1J100':'a10tclcwsubjesFS',
+                                     'j460_a10r_L1J100':'a10r_tcemsubjesISFS',
+                                     '4j120':'a4tcemsubjesISFS',
+                                     '6j70':'a4tcemsubjesISFS',
+                                     '6j55_0eta240_L14J15':'a4tcemsubjesISFS'}
+
                 
 # Offline 
-  hlt_offlineEtThresholds        = { 'j0_perf_L1RD0FILLED': 0.,
-                                     'j0_perf_ftk_L1RD0FILLED': 0.,
-                                     'j0_perf_ftkrefit_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftk_L1RD0FILLED': 0.,
-                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0FILLED': 0.,
+  hlt_offlineEtThresholds        = { 'j0_perf_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftk_L1RD0_FILLED': 0.,
+                                     'j0_perf_ftkrefit_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftk_L1RD0_FILLED': 0.,
+                                     'j0_gsc0_boffperf_split_ftkrefit_L1RD0_FILLED': 0.,
                                      'L1_J15':0., 
                                      'j35_jes':20.,
                                      'j35_lcw':20.,
@@ -384,7 +451,21 @@ if (pp) or (mc):
                                      'j85_cleanL':30,
                                      'j85_cleanT':30,
                                      'j0_1i2c300m500TLA':0.,
-                                     'j0_0i1c500m900TLA':0.}
+                                     'j0_0i1c500m900TLA':0.,
+                                     'j15':0.,
+                                     'j45':20.,
+                                     'j175':100.,
+                                     'j420':200.,
+                                     'j260_nojcalib':100.,
+                                     'j260_320eta490':100.,
+                                     'j260_320eta490_nojcalib':100.,
+                                     'j460_a10_lcw_subjes_L1J100':200.,
+                                     'j460_a10r_L1J100':200.,
+                                     '4j120':20.,
+                                     '6j70':20.,
+                                     '6j55_0eta240_L14J15':20.}
+
+
 #Dijet chains
   
   l1_DijetChains  = ['L1_J400']
@@ -884,12 +965,6 @@ def TrigJetMonitoringTool():
         );
   from AthenaCommon.AppMgr import ToolSvc
   #from AthenaCommon import CfgMgr
-
- # from LumiBlockComps.LuminosityToolDefault import LuminosityToolDefault
- # ToolSvc+=LuminosityToolDefault()
-  
- # from LumiBlockComps.TrigLivefractionToolDefault import TrigLivefractionToolDefault
- # ToolSvc+=TrigLivefractionToolDefault()
 
  # from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
  # HLTMonFlags.doEgamma.set_Value_and_Lock(False)

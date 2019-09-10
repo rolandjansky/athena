@@ -3,20 +3,106 @@
 */
 
 
-////////////////////////////////////////////////////////////////
-//                                                            //
-//  Implementation of class VP1QtUtils                        //
-//                                                            //
-//  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
-//  Initial version: April 2008                               //
-//                                                            //
-////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//                                                              //
+//  Implementation of class VP1QtUtils                          //
+//                                                              //
+//  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)    //
+//  Initial version: April 2008                                 //
+//  Update: October 2017                                        //
+//  Sebastian A. Merkt (sebastian.andreas.merkt@cern.ch         //
+//                                                              //
+//////////////////////////////////////////////////////////////////
 
 #include "VP1Base/VP1QtUtils.h"
 #include "VP1Base/VP1Msg.h"
 #include <cstdlib>//For setenv/unsetenv
 #include <QImage>
 #include <QColor>
+#include <QSettings>
+#include <QCoreApplication>
+
+
+//____________________________________________________________________
+bool VP1QtUtils::expertSettingIsSet(const QString& type, const QString& name)
+{
+  bool set;
+  if(type=="general"){
+    QSettings generalSettings("ATLAS", "VP1Light");
+    set = !generalSettings.value(name).toString().isEmpty();
+  } else {
+    QSettings expertSettings(QCoreApplication::applicationDirPath()+"/../vp1.ini", QSettings::NativeFormat);
+    set = !expertSettings.value(name).toString().isEmpty();
+  }
+  if (VP1Msg::verbose())
+    VP1Msg::messageVerbose("VP1QtUtils::expertSettingIsSet called for variable '"+name+"'. Returning "+VP1Msg::str(set));
+  return set;
+}
+
+//____________________________________________________________________
+QString VP1QtUtils::expertSettingValue(const QString& type, const QString& name)
+{
+  QString env;
+  if(type=="general"){
+    QSettings generalSettings("ATLAS", "VP1Light");
+    env = generalSettings.value(name).toString();
+  } else {
+    QSettings expertSettings(QCoreApplication::applicationDirPath()+"/../vp1.ini", QSettings::NativeFormat);
+    env = expertSettings.value(name).toString();
+  }
+  QString val(env.isNull() ? "" : env);
+  if (VP1Msg::verbose())
+    VP1Msg::messageVerbose("VP1QtUtils::expertSettingValue called for variable '"+name+"'. Returning '"+ val+"'.");
+  return val;
+}
+
+//____________________________________________________________________
+bool VP1QtUtils::expertSettingIsOn(const QString& type, const QString& name)
+{
+  QString env;
+    if(type=="general"){
+    QSettings generalSettings("ATLAS", "VP1Light");
+    env = generalSettings.value(name).toString();
+  } else {
+    QSettings expertSettings(QCoreApplication::applicationDirPath()+"/../vp1.ini", QSettings::NativeFormat);
+    env = expertSettings.value(name).toString();
+  }
+  QString val(env.isNull() ? "" : env );
+  bool ison = true;
+  if (val==""||val=="0")
+    ison = false;
+  else if (0==QString::compare(val,"false",Qt::CaseInsensitive))
+    ison = false;
+  else if (0==QString::compare(val,"off",Qt::CaseInsensitive))
+    ison = false;
+  else if (0==QString::compare(val,"no",Qt::CaseInsensitive))
+    ison = false;
+  if (VP1Msg::verbose())
+    VP1Msg::messageVerbose("VP1QtUtils::expertSettingIsOn called for variable '"+name+"'. Returning "+ VP1Msg::str(ison)+".");
+  return ison;
+}
+
+//____________________________________________________________________
+void VP1QtUtils::setExpertSetting(const QString& type, const QString& name, const QString& content )
+{
+  if (name.isEmpty()) {
+    VP1Msg::messageDebug("VP1QtUtils::setEnvironmentVariable WARNING: called with empty variable name!");
+    return;
+  }
+
+  if (VP1Msg::verbose())
+    VP1Msg::messageVerbose("VP1QtUtils::setEnvironmentVariable: Setting variable '"+name+"' to value '"+content+"'.");
+
+  if(type=="general"){
+    QSettings generalSettings("ATLAS", "VP1Light");
+    generalSettings.setValue(name, content);
+  } else {
+    QSettings expertSettings(QCoreApplication::applicationDirPath()+"/../vp1.ini", QSettings::NativeFormat);
+    expertSettings.setValue(name, content);
+  }
+}
+
+
 
 //____________________________________________________________________
 bool VP1QtUtils::environmentVariableIsSet(const QString& name)

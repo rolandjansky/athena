@@ -14,11 +14,13 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "ITrigJetHypoToolHelperMT.h"
+#include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolConfig.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
+#include "./ITrigJetHypoInfoCollector.h"
 
 class ITrigJetHypoInfoCollector;
+class xAODJetCollector;
 
 class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 
@@ -29,9 +31,12 @@ class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
                 const IInterface* parent);
   
   bool pass(HypoJetVector&,
-            ITrigJetHypoInfoCollector*) const override;
+	    xAODJetCollector&,
+            const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   virtual StatusCode getDescription(ITrigJetHypoInfoCollector&) const override;
+  virtual std::string toString() const override;
+  virtual std::size_t requiresNJets() const override;
 
  private:
 
@@ -48,7 +53,6 @@ class AndHelperTool: public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
   Gaudi::Property<int>
     m_nodeID {this, "node_id", {}, "hypo tool tree node id"};
 
-  std::string toString() const;
 
 };
 #endif

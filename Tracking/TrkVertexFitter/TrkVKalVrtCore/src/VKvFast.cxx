@@ -25,7 +25,7 @@ void vkvfast_(double *p1, double *p2, double *dbmag, double *out)
 
 void vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)
 {
-    extern void vkPerigeeToP( double*, double*, double );
+    extern void vkPerigeeToP( const double*, double*, double );
     double d__1;
 
     double diff, coef, cent1[2], cent2[2], angle, cross[6];/* was [3][2] */

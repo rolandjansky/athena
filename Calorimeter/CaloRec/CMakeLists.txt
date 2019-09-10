@@ -85,3 +85,14 @@ atlas_add_test( CaloCellContainerFromClusterTool_test
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+
+
+atlas_add_test( CaloBCIDAvgAlgConfig_test
+                SCRIPT python -m CaloRec.CaloBCIDAvgAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+
+
+atlas_add_test( CaloTopoClusterConfig_test
+                SCRIPT python -m CaloRec.CaloTopoClusterConfig
+                PROPERTIES TIMEOUT 300
+                POST_EXEC_SCRIPT nopost.sh)

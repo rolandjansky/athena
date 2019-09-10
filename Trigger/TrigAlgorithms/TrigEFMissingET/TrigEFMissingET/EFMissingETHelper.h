@@ -47,8 +47,8 @@ class TrigEFMissingEtComponent {
         JET      ,                                      // Jet 
         JETB1    , JETB2    ,                           // 
         JETE1    , JETE2    ,                           // 
-        TCPUC    ,                                      // Topo. cluster Fit 
-        TCPUCUnc ,                                      // Topo. cluster Fit -- uncorrected
+        TCPufit    ,                                    // Topo. cluster Fit 
+        TCPufitUnc ,                                    // Topo. cluster Fit -- uncorrected
         Muons,                                          // Muons 
         ComponentSize
     };

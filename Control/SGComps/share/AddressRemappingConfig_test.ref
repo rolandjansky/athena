@@ -1,0 +1,74 @@
+Py:ComponentAccumulator    INFO Event Inputs
+Py:ComponentAccumulator    INFO set([])
+Py:ComponentAccumulator    INFO Event Algorithm Sequences
+Py:ComponentAccumulator    INFO /***** Algorithm AthSequencer/AthAlgSeq ************************************************************
+|-Atomic                     = False
+|-AuditAlgorithms            = False
+|-AuditBeginRun              = False
+|-AuditEndRun                = False
+|-AuditExecute               = False
+|-AuditFinalize              = False
+|-AuditInitialize            = False
+|-AuditReinitialize          = False
+|-AuditRestart               = False
+|-AuditStart                 = False
+|-AuditStop                  = False
+|-Cardinality                = 0
+|-ContinueEventloopOnFPE     = False
+|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
+|-Enable                     = True
+|-ErrorCounter               = 0
+|-ErrorMax                   = 1
+|-EvtStore                   = ServiceHandle('StoreGateSvc')
+|-ExtraInputs                = []  (default: [])
+|-ExtraOutputs               = []  (default: [])
+|-FilterCircularDependencies = True
+|-IgnoreFilterPassed         = False
+|-IsIOBound                  = False
+|-Members                    = []  (default: [])
+|-ModeOR                     = False
+|-MonitorService             = 'MonitorSvc'
+|-NeededResources            = []  (default: [])
+|-OutputLevel                = 0
+|-RegisterForContextService  = False
+|-Sequential                 = True  (default: False)
+|-StopOverride               = False
+|-TimeOut                    = 0.0
+|-Timeline                   = True
+\----- (End of Algorithm AthSequencer/AthAlgSeq) ---------------------------------------------------
+Py:ComponentAccumulator    INFO Condition Algorithms
+Py:ComponentAccumulator    INFO []
+Py:ComponentAccumulator    INFO Services
+Py:ComponentAccumulator    INFO ['AddressRemappingSvc', 'ProxyProviderSvc']
+Py:ComponentAccumulator    INFO Outputs
+Py:ComponentAccumulator    INFO {}
+Py:ComponentAccumulator    INFO Public Tools
+Py:ComponentAccumulator    INFO [
+Py:ComponentAccumulator    INFO ]
+/***** Service ProxyProviderSvc/ProxyProviderSvc ***************************************************
+|-AuditFinalize     = False
+|-AuditInitialize   = False
+|-AuditReinitialize = False
+|-AuditRestart      = False
+|-AuditServices     = False
+|-AuditStart        = False
+|-AuditStop         = False
+|-OutputLevel       = 0
+|-ProviderNames     = ['AddressRemappingSvc']  (default: [])
+\----- (End of Service ProxyProviderSvc/ProxyProviderSvc) ------------------------------------------
+/***** Service AddressRemappingSvc/AddressRemappingSvc *********************************************
+|-AlgResourcePool      = ServiceHandle('AlgResourcePool')
+|-AuditFinalize        = False
+|-AuditInitialize      = False
+|-AuditReinitialize    = False
+|-AuditRestart         = False
+|-AuditServices        = False
+|-AuditStart           = False
+|-AuditStop            = False
+|-OutputLevel          = 0
+|-ProxyDict            = ServiceHandle('StoreGateSvc')
+|-SkipBadRemappings    = False
+|-TypeKeyOverwriteMaps = []  (default: [])
+|-TypeKeyRenameMaps    = ['Type1#from->to', 'Type2#a->b', 'Foo#foo->bar', 'Foo#foo.d1->bar.x1', 'FromType#fromName->ToType#toName']
+|                      (default: [])
+\----- (End of Service AddressRemappingSvc/AddressRemappingSvc) ------------------------------------

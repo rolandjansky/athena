@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 """
@@ -16,7 +16,6 @@ def getFastCaloSimCaloExtrapolation(name="FastCaloSimCaloExtrapolation", **kwarg
     kwargs.setdefault("CaloBoundaryZ"             , [3550.0, 4587.0, 4587.0] )
     kwargs.setdefault("CaloMargin"                , 100    )
     kwargs.setdefault("Extrapolator"              , "TimedExtrapolator" )
-    kwargs.setdefault("CaloSurfaceHelper"         , "CaloSurfaceHelper" )
     kwargs.setdefault("CaloGeometryHelper"        , "FastCaloSimGeometryHelper" )
     kwargs.setdefault("CaloEntrance"              , "InDet::Containers::InnerDetector"     )
 

@@ -22,7 +22,6 @@
 
 typedef MuonRdoContainerTPCnv<RpcPadContainer, RpcPadContainer_p2, RpcPadContainerCnv_p2 >
 RpcPadContainerCnv;
-#include "MuonEventAthenaPool/CreateTransientTemplates.h"
 
 template < >
 inline

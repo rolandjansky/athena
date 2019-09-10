@@ -143,7 +143,6 @@ class CaloDmEnergy
   private:
     int make_dmcell_vector(std::vector<const CaloCalibrationHitContainer *> &v_dmcchc);
     int get_key(Identifier id) const;
-    int get_calo_deta_dphi(Identifier &id_cel, double &deta_cel, double &dphi_cel);
 
     int m_max_dmhit;
     int m_max_cluster;
@@ -159,12 +158,10 @@ class CaloDmEnergy
 
     const CaloDmDescrManager *m_caloDmDescrManager;
     const CaloDmNeighbours* m_caloDmNeighbours;
-    const CaloDetDescrManager* m_caloDetDescrManager;
     const CaloDM_ID*    m_caloDM_ID;
     const CaloCell_ID*    m_caloCell_ID;
     const AtlasDetectorID* m_id_helper;
     StoreGateSvc* m_storeGate;
-    StoreGateSvc* m_detStore;
 
     CaloDmEnergy (const CaloDmEnergy&);
     CaloDmEnergy& operator= (const CaloDmEnergy&);

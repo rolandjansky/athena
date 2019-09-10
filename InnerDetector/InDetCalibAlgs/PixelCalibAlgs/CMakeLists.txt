@@ -19,6 +19,7 @@ atlas_depends_on_subdirs(
    Event/EventInfo
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsData
+   InnerDetector/InDetDetDescr/PixelCabling
    InnerDetector/InDetConditions/PixelConditionsServices
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry

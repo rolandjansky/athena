@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Simulation-specific flags.
@@ -516,7 +516,7 @@ class NeutronEnergyCut(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = -1.
 
-class RussianRouletteThreshold(JobProperty):
+class NRRThreshold(JobProperty):
     """
     Energy threshold for the Neutron Russian Roulette in MeV
     """
@@ -524,9 +524,25 @@ class RussianRouletteThreshold(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = 1. # MeV
 
-class RussianRouletteWeight(JobProperty):
+class NRRWeight(JobProperty):
     """
     Weight for the Neutron Russian Roulette
+    """
+    statusOn = False
+    allowedTypes = ['int','float']
+    StoredValue = 10
+
+class PRRThreshold(JobProperty):
+    """
+    Energy threshold for the Photon Russian Roulette in MeV
+    """
+    statusOn = False
+    allowedTypes = ['int','float']
+    StoredValue = 1. # MeV
+
+class PRRWeight(JobProperty):
+    """
+    Weight for the Photon Russian Roulette
     """
     statusOn = False
     allowedTypes = ['int','float']
@@ -772,6 +788,23 @@ class TruthService(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ISF_TruthService'
 
+class ParticleSimWhiteList(JobProperty):
+    """Steering of ISF: set the ParticleSimWhiteList tool"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_ParticleSimWhiteList'
+
+class ExtraParticlesPDGTABLE(JobProperty):
+    """Steering of ISF: set filename of PDGTABLE"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PDGTABLE.MeV'
+
+class ExtraParticlesRanges(JobProperty):
+    """Steering of ISF: set ranges for pdgIDs to be added"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = '111-556,1112-9090226'
 
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):

@@ -1,21 +1,23 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/ObjectBrowser.py
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
+
+from __future__ import print_function
 
 import sys
 
 try:
    import idlelib.ObjectBrowser as ibrowser
-except ImportError, problem:
-   print """It would appear that IDLE is not properly installed. IDLE, the python
+except ImportError as problem:
+   print ("""It would appear that IDLE is not properly installed. IDLE, the python
 IDE, comes standard with python 2.3. For older pythons, please install
 it from http://sourceforge.net/projects/idlefork.
-"""
+""")
 
  # detailed exception information follows:
    import traceback
-   traceback.print_tb( sys.exc_traceback )
+   traceback.print_exc()
 
  # stop processing
    raise problem

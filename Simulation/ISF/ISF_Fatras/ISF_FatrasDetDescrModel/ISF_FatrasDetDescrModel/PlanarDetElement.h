@@ -279,7 +279,8 @@ namespace iFatras {
   
   inline const Trk::SurfaceBounds& PlanarDetElement::bounds() const
   {
-    return m_bounds->getRef();
+    return *(m_bounds->get());
+
   }
   
   inline double PlanarDetElement::pitchX() const 

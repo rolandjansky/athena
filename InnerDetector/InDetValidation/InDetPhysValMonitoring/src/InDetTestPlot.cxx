@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -73,7 +73,7 @@ InDetTestPlot::fill(const xAOD::TrackParticle& /*particle*/) {
   const float ybin = (rand() % 20);
   fillHisto(m_test2D, eta, ybin);
   const bool passed(p > 25);
-  fillHisto(m_testEff, passed, p);
+  fillHisto(m_testEff, p, passed);
 
   fillHisto(m_nonsense, pt);
 }

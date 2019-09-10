@@ -9,31 +9,26 @@
  **/
 
 #include "SCT_RODVetoTool.h"
-//STL includes
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <iterator>
-#include <sstream>
 
 //Athena includes
-
+#include "CxxUtils/make_unique.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-
-//StoreGate Includes
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
-#include "CxxUtils/make_unique.h"
+
+//STL includes
+#include <algorithm>
+#include <iterator>
+#include <list>
+#include <sstream>
+#include <vector>
 
 // Constructor
 SCT_RODVetoTool::SCT_RODVetoTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_badModuleIds{"BadSCTModuleIds_RODVeto"},
-  m_pHelper{nullptr}
-  {
-    declareProperty("BadModuleIds", m_badModuleIds, "Read key for bad module identifiers");
-  }
+  base_class(type, name, parent)
+{
+}
 
 //Initialize
 StatusCode 

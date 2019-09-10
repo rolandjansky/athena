@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyUtils.RootUtils
 # @author Sebastien Binet
 # @purpose a few utils to ease the day-to-day work with ROOT
 # @date November 2009
 
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
 __version__ = "$Revision: 739816 $"
@@ -20,6 +20,7 @@ __all__ = [
 import os
 import sys
 import re
+import six
 from pprint import pprint
 from array import array
 
@@ -30,7 +31,7 @@ from .Decorators import memoize
 # The argument to SetSize is in elements, not bytes.
 def _set_byte_size (buf, sz):
     eltsz = array(buf.typecode).itemsize
-    buf.SetSize (sz / eltsz)
+    buf.SetSize (sz // eltsz)
     return
 
 def import_root(batch=True):
@@ -81,7 +82,7 @@ def root_compile(src=None, fname=None, batch=True):
         import tempfile
         src_file = tempfile.NamedTemporaryFile(prefix='root_aclic_',
                                                suffix='.cxx')
-        src_file.write(textwrap.dedent(src))
+        src_file.write(textwrap.dedent(src).encode())
         src_file.flush()
         src_file.seek(0)
         fname = src_file.name
@@ -146,17 +147,19 @@ def _pythonize_tfile():
         FIXME: probably doesn't follow python file-like conventions...
         """
         SZ = 4096
-        
+
         if size>=0:
             #size = _adjust_sz(size)
-            #print "-->0",self.tell(),size
+            #print ("-->0",self.tell(),size)
             c_buf = read_root_file(self, size)
             if c_buf and c_buf.sz:
-                #print "-->1",self.tell(),c_buf.sz
+                #print ("-->1",self.tell(),c_buf.sz)
                 #self.seek(c_buf.sz+self.tell())
-                #print "-->2",self.tell()
+                #print ("-->2",self.tell())
                 buf = c_buf.buffer()
                 _set_byte_size (buf, c_buf.sz)
+                if six.PY3:
+                    return buf.tobytes()
                 return str(buf[:])
             return ''
         else:
@@ -272,32 +275,34 @@ class RootFileDumper(object):
                     _n = int(itr_entries)
                     itr_entries = xrange(_n)
                 except ValueError:
-                    print "** err ** invalid 'itr_entries' argument. will iterate over all entries."
+                    print ("** err ** invalid 'itr_entries' argument. will iterate over all entries.")
                     itr_entries = xrange(nentries)
+        elif isinstance(itr_entries, list):
+            itr_entries = itr_entries
         else:
             itr_entries = xrange(itr_entries)
                 
         for ientry in itr_entries:
             hdr = ":: entry [%05i]..." % (ientry,)
-            #print hdr
-            #print >> self.fout, hdr
+            #print (hdr)
+            #print (hdr, file=self.fout)
             err = tree.LoadTree(ientry)
             if err < 0:
-                print "**err** loading tree for entry",ientry
+                print ("**err** loading tree for entry",ientry)
                 self.allgood = False
                 break
 
             nbytes = tree.GetEntry(ientry)
             if nbytes <= 0:
-                print "**err** reading entry [%s] of tree [%s]" % (ientry, tree_name)
+                print ("**err** reading entry [%s] of tree [%s]" % (ientry, tree_name))
                 hdr = ":: entry [%05i]... [ERR]" % (ientry,)
-                print hdr
+                print (hdr)
                 self.allgood = False
                 continue
 
             for br_name in leaves:
                 hdr = "::  branch [%s]..." % (br_name,)
-                #print hdr
+                #print (hdr)
                 #tree.GetBranch(br_name).GetEntry(ientry)
                 py_name = [br_name]
 
@@ -313,15 +318,15 @@ class RootFileDumper(object):
                     else:
                         val = tuple(vals)
                 if not (val is None):
-                    #print "-->",val,br_name
+                    #print ("-->",val,br_name)
                     try:
                         vals = _pythonize(val, py_name, True)
-                    except Exception, err:
-                        print "**err** for branch [%s] val=%s (type=%s)" % (
+                    except Exception as err:
+                        print ("**err** for branch [%s] val=%s (type=%s)" % (
                             br_name, val, type(val),
-                            )
+                            ))
                         self.allgood = False
-                        print err
+                        print (err)
                     for o in vals:
                         n = map(str, o[0])
                         v = o[1]
@@ -336,9 +341,11 @@ def _test_main():
     root = import_root()
     def no_raise(msg, fct, *args, **kwds):
         caught = False
+        err = None
         try:
             fct(*args, **kwds)
-        except Exception, err:
+        except Exception as xerr:
+            err = xerr
             caught = True
         assert not caught, "%s:\n%s\nERROR" % (msg, err,)
 
@@ -351,12 +358,12 @@ def _test_main():
     # PvG workaround for ROOT-7059
     dummy = tempfile.NamedTemporaryFile(prefix="foo_",suffix=".cxx")
     with tempfile.NamedTemporaryFile(prefix="foo_",suffix=".cxx") as tmp:
-        print >> tmp, "void foo2() { return ; }"
+        tmp.write (b"void foo2() { return ; }\n")
         tmp.flush()
         no_raise("problem compiling a file",
                  fct=root_compile, fname=tmp.name)
 
-    print "OK"
+    print ("OK")
     return True
 
 if __name__ == "__main__":

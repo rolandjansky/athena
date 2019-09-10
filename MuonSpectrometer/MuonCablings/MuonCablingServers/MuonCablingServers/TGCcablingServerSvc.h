@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCcablingServerSvc_H
@@ -10,18 +10,11 @@
 #include "AthenaBaseComps/AthService.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
 
-class ITagInfoMgr;
-
-
 class TGCcablingServerSvc : public AthService, 
                             virtual public ITGCcablingServerSvc
 {
    private:
-  //    mutable bool m_atlas;
-    mutable BooleanProperty m_atlas;
-    StoreGateSvc* m_pDetStore;        // The Transient Detector Store Service
-    ITagInfoMgr*  m_tagInfoMgr;                   // Tag Info Manager
-    mutable bool  m_tagsCompared;
+    BooleanProperty m_atlas;
 
     bool m_forcedUse;
     bool m_useMuonTGC_CablingSvc;
@@ -38,9 +31,6 @@ class TGCcablingServerSvc : public AthService,
     // Interface implementation
     virtual StatusCode giveCabling( const ITGCcablingSvc*&) const;
     virtual bool isAtlas(void) const;
-    virtual bool isConfigured(void) const;
-
-    virtual StatusCode compareTags() const;
 };
  
 #endif

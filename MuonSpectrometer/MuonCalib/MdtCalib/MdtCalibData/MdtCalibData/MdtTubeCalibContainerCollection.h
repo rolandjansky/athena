@@ -25,4 +25,7 @@ It is a DataVector. It can be saved to storegate.
 typedef DataVector<MuonCalib::MdtTubeCalibContainer> MdtTubeCalibContainerCollection;
 CLASS_DEF(MdtTubeCalibContainerCollection, 1221928754, 1 )
 
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF( MdtTubeCalibContainerCollection, 1164762092 );
+
 #endif

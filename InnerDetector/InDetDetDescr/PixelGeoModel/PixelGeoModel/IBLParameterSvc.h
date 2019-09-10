@@ -47,7 +47,6 @@ public:
     std::string setStringParameters(const std::string param,std::string paramName) {
         if (m_IBLpresent) {
 	      if (m_disableAllClusterSplitting && paramName=="clusterSplitter") return "";
-	      if (m_disableCalibCondDB && paramName=="PixelCalibSvc") return ""; 
         }
         return param;
      }
@@ -74,11 +73,9 @@ public:
 	if (m_IBLpresent) {
 	     if (m_disablePixMapCondDB && paramName=="UsePixMapCondDB") param=false;
 	     if (m_disableSpecialPixels && paramName=="EnableSpecialPixels") param=false;
-	     if (m_disableCalibCondDB && paramName=="UseCalibCondDB") param=false;
 	     if (m_disableAlignable && paramName=="alignable") param=false;
 	     if (m_disableAllClusterSplitting && paramName=="applyNNcorrection") param = false; 
 	     if (m_disableAllClusterSplitting && paramName=="doPixelClusterSplitting") param = false;
-	     if (m_disableCalibCondDB && paramName=="UsePixelCalibCondDB") param = false; 
 	     if (m_disableDCS && paramName=="useDCS") param=false;
 	     if (paramName=="IBLAbsent") param=false;
 	}
@@ -94,7 +91,6 @@ private:
   ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;  
   bool m_disablePixMapCondDB;
   bool m_disableSpecialPixels;
-  bool m_disableCalibCondDB;
   bool m_disableAlignable;
   bool m_disableAllClusterSplitting;
   bool m_disableDCS;

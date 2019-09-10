@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -82,7 +82,7 @@ namespace CxxUtils {
  *  // has returned true.
  *  bool overlap (const RANGE& r1, const RANGE& r2) const;
  *  // Required only for extendLastRange --- which see.
- *  bool extendRange (Range& range, const Range& newRange) const;
+ *  int extendRange (Range& range, const Range& newRange) const;
  @endcode
  *
  * In order to implement updating concurrently with reading, we need to
@@ -146,6 +146,7 @@ public:
   struct DeletePayload
   {
     /// Initialize with an explicit deletion function.
+    // cppcheck-suppress uninitMemberVar  // false positive
     DeletePayload (delete_function* delfcn)
       : m_delete (delfcn)
     {
@@ -158,6 +159,7 @@ public:
       delete reinterpret_cast<const U*>(p);
     }
     template <class U>
+    // cppcheck-suppress uninitMemberVar  // false positive
     DeletePayload (const std::default_delete<U>&)
     {
       m_delete = delfcn<U>;
@@ -184,7 +186,7 @@ public:
    *   payload_unique_ptr p = std::unique_ptr<U> (...);
    @endcode
    *
-   * where U* must be convertable to T*.  In this case, the pointer
+   * where U* must be convertible to T*.  In this case, the pointer
    * will be deleted as a U*.
    * Second, one can supply an explicit deletion function:
    *
@@ -305,7 +307,11 @@ public:
     OVERLAP,
 
     /// New object duplicates an existing range, and was not added.
-    DUPLICATE
+    DUPLICATE,
+
+    // Existing range was extended to match the new range; new object
+    // was deleted.
+    EXTENDED
   };
 
 
@@ -313,16 +319,27 @@ public:
    * @brief Add a new element to the map.
    * @param range Validity range for this element.
    * @param ptr Payload for this element.
+   * @param tryExtend If true, then allow an existing range to be extended
+   *                  (see below).
    * @param ctx Execution context.
    *
    * Returns SUCCESS if the new element was successfully inserted.
-   * Returns DUPLICATE if the range compared equal to an existing one. In that case,
-   * no new element is inserted (and @c ptr gets deleted).
+   * Returns DUPLICATE if the range compared equal to an existing one.
+   *         In that case, no new element is inserted (and @c ptr gets deleted).
+   * Returns EXTEND if the range of the last element was extended to @c range.
+   *         This happens if @c tryExtend is true, @c range is equal
+   *         to the range of the last element (according to @c m_compare),
+   *         and the range can be extended according to @c extendRange.
+   *         (This will generally mean that the start time of @c range
+   *         matches the last range, and end time of @c range is after
+   *         the end time of the last range.)  In this case, again no
+   *         new element is inserted and @c ptr is deleted.
    * Returns OVERLAP if the range of the new element overlaps
-   * an existing element (the new element is still inserted).
+   *         an existing element (the new element is still inserted).
    */
   EmplaceResult emplace (const RANGE& range,
                          payload_unique_ptr ptr,
+                         bool tryExtend = false,
                          const typename Updater_t::Context_t& ctx =
                            Updater_t::defaultContext());
 
@@ -350,25 +367,26 @@ public:
    * @c extendRange method of the @c COMPARE object:
    *
    *@code
-   *  bool extendRange (Range& range, const Range& newRange) const;
+   *  int extendRange (Range& range, const Range& newRange) const;
    @endif
    *
    * This is called with the existing range and the end range, and returns
-   * a success flag.
+   * a flag.  -1 indicates an error, 0 indicates that no change
+   * was made to the range, and 1 indicates that the range was extended.
    * It should generally be safe to extend a range by making the end later.
    * Suggested semantics are:
-   *  - Return false if the start keys don't match.
+   *  - Return -1 if the start keys don't match.
    *  - If the end value of @c newRange is later then then end value of @c range,
    *    then update the end value of @c range to match @c newRange and
-   *    return true.
-   *  - Otherwise do nothing and return true.
+   *    return 1.
+   *  - Otherwise do nothing and return 0.
    *
-   * If the extendRange call returns true, then this function returns an iterator
-   * pointing at the last element.  Otherwise, it returns nullptr.
+   * Returns -1 if there was an error; 1 if the last range was extended;
+   * and 0 if nothing was changed.
    */
-  const_iterator extendLastRange (const RANGE& newRange,
-                                  const typename Updater_t::Context_t& ctx =
-                                    Updater_t::defaultContext());
+  int extendLastRange (const RANGE& newRange,
+                       const typename Updater_t::Context_t& ctx =
+                         Updater_t::defaultContext());
 
 
   /**
@@ -444,6 +462,11 @@ public:
 
 
 private:
+  /// Type of the mutex for this container.
+  typedef std::mutex mutex_t;
+  typedef std::lock_guard<mutex_t> lock_t;
+
+
   /**
    * @brief Return the begin/last pointers.
    * @param [inout] last Current value of last.
@@ -493,6 +516,21 @@ private:
                     value_type* new_end,
                     const typename Updater_t::Context_t& ctx);
 
+  
+  /**
+   * @brief Extend the range of the last entry of the map.
+   * @param Lock object.
+   * @param newRange New range to use for the last entry.
+   * @param ctx Execution context.
+   *
+   * Implementation of @c extendLastRange; see there for details.
+   * Must be called with the lock held.
+   */
+  int extendImpl (lock_t& lock,
+                  const RANGE& newRange,
+                    const typename Updater_t::Context_t& ctx);
+
+
 
   /// Updater object.  This maintains ownership of the current implementation
   /// class and the older versions.
@@ -526,8 +564,6 @@ private:
   size_t m_maxSize;
 
   /// Mutex protecting the container.
-  typedef std::mutex mutex_t;
-  typedef std::lock_guard<mutex_t> lock_t;
   mutex_t m_mutex;
 };
 

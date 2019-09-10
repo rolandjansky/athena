@@ -75,10 +75,10 @@ def getStreamRDO_ItemList(log):
     if DetFlags.writeRDOPool.Truth_on():
         StreamRDO_ItemList+=["McEventCollection#*"]
         StreamRDO_ItemList+=["TrackRecordCollection#*"]
-        StreamRDO_ItemList+=["xAOD::JetContainer#InTimeAntiKt4TruthJets"]
-        StreamRDO_ItemList+=["xAOD::JetAuxContainer#InTimeAntiKt4TruthJetsAux."]
-        StreamRDO_ItemList+=["xAOD::JetContainer#OutOfTimeAntiKt4TruthJets"]
-        StreamRDO_ItemList+=["xAOD::JetAuxContainer#OutOfTimeAntiKt4TruthJetsAux."]
+        StreamRDO_ItemList+=["xAOD::JetContainer#*InTimeAntiKt4TruthJets"]
+        StreamRDO_ItemList+=["xAOD::JetAuxContainer#*InTimeAntiKt4TruthJetsAux."]
+        StreamRDO_ItemList+=["xAOD::JetContainer#*OutOfTimeAntiKt4TruthJets"]
+        StreamRDO_ItemList+=["xAOD::JetAuxContainer#*OutOfTimeAntiKt4TruthJetsAux."]
         if DetFlags.writeRDOPool.Calo_on():
             StreamRDO_ItemList += ["CaloCalibrationHitContainer#*"]
             # Temporary for debugging MBTSHits
@@ -89,7 +89,7 @@ def getStreamRDO_ItemList(log):
             if fastDigiOutputExpected():
                 StreamRDO_ItemList+=["PRD_MultiTruthCollection#*"]
         if DetFlags.writeRDOPool.Muon_on():
-            StreamRDO_ItemList+=["CscSimDataCollection#CSC_SDO"]
+            StreamRDO_ItemList+=["CscSimDataCollection#*CSC_SDO"]
             StreamRDO_ItemList+=["MuonSimDataCollection#*"]
     # Forward Detector Output
     if DetFlags.digitize.Lucid_on():
@@ -150,10 +150,10 @@ def getStreamRDO_ItemList(log):
             if 'AddCaloDigi' in digitizationFlags.experimentalDigi():
                 StreamRDO_ItemList+=["TileDigitsContainer#*"]
             elif digitizationFlags.PileUpPremixing:
-                StreamRDO_ItemList+=["TileDigitsContainer#TileDigitsCnt"]
+                StreamRDO_ItemList+=["TileDigitsContainer#*TileDigitsCnt"]
             else:
                 StreamRDO_ItemList+=["TileDigitsContainer#TileDigitsFlt"]
-            StreamRDO_ItemList+=["TileL2Container#TileL2Cnt"]
+            StreamRDO_ItemList+=["TileL2Container#*TileL2Cnt"]
     # Muon Spectrometer Output
     if DetFlags.digitize.Muon_on():
         if DetFlags.writeRDOPool.CSC_on():
@@ -168,13 +168,11 @@ def getStreamRDO_ItemList(log):
             StreamRDO_ItemList+=["sTgcDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
             StreamRDO_ItemList+=["Muon::STGC_RawDataContainer#*"]
             # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
-            StreamRDO_ItemList+=["GenericMuonSimHitCollection#sTGCSensitiveDetector"]
             StreamRDO_ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
         if DetFlags.writeRDOPool.Micromegas_on():
             StreamRDO_ItemList+=["MmDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
             StreamRDO_ItemList+=["Muon::MM_RawDataContainer#*"]
             # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
-            StreamRDO_ItemList+=["GenericMuonSimHitCollection#MicromegasSensitiveDetector"]
             StreamRDO_ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
     # LVL1 Emulation Output
     if DetFlags.simulateLVL1.LAr_on():
@@ -183,8 +181,9 @@ def getStreamRDO_ItemList(log):
     if DetFlags.simulateLVL1.Tile_on():
         if DetFlags.writeRDOPool.Tile_on():
             StreamRDO_ItemList+=["TileTTL1Container#*"]
-            StreamRDO_ItemList+=["TileDigitsContainer#MuRcvDigitsCnt"]
-            StreamRDO_ItemList+=["TileRawChannelContainer#MuRcvRawChCnt"]
+            StreamRDO_ItemList+=["TileDigitsContainer#*MuRcvDigitsCnt"]
+            if not digitizationFlags.PileUpPremixing:
+                StreamRDO_ItemList+=["TileRawChannelContainer#MuRcvRawChCnt"]
             StreamRDO_ItemList+=["TileMuonReceiverContainer#*"]
     if DetFlags.digitize.LVL1_on():
         if DetFlags.writeRDOPool.LVL1_on():

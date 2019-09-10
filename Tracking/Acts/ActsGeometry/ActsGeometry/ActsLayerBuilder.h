@@ -11,9 +11,10 @@
 // ATHENA
 
 // ACTS
-#include "Acts/Tools/ILayerBuilder.hpp"
+#include "Acts/Geometry/ILayerBuilder.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "Acts/Utilities/BinningType.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 class ActsTrackingGeomtrySvc;
 
@@ -77,13 +78,13 @@ public:
   ~ActsLayerBuilder() {}
 
   const Acts::LayerVector
-  negativeLayers() const override;
+  negativeLayers(const Acts::GeometryContext& gctx) const override;
 
   const Acts::LayerVector
-  centralLayers() const override;
+  centralLayers(const Acts::GeometryContext& gctx) const override;
 
   const Acts::LayerVector
-  positiveLayers() const override;
+  positiveLayers(const Acts::GeometryContext& gctx) const override;
 
   /// Name identification
   // const std::string&
@@ -139,7 +140,7 @@ private:
   // @param layers is goint to be filled
   // @param type is the indication which ones to build -1 | 0 | 1
   void
-  buildLayers(Acts::LayerVector& layersOutput, int type = 0);
+  buildLayers(const Acts::GeometryContext& gctx, Acts::LayerVector& layersOutput, int type = 0);
 };
 
 #endif

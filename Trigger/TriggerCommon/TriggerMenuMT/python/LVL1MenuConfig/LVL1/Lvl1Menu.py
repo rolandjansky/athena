@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from Lvl1Thresholds import LVL1Thresholds, LVL1Threshold, ThresholdValue
-from Lvl1MenuItems import LVL1MenuItems, LVL1MenuItem
+from Lvl1Thresholds import LVL1Thresholds
+from Lvl1MenuItems import LVL1MenuItems
 from Lvl1MonCounters import Lvl1MonCounters
 from CaloInfo import CaloInfo
 from MuctpiInfo import MuctpiInfo
@@ -12,7 +12,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenu.l1.Lvl1Menu")
 
-class Lvl1Menu:
+class Lvl1Menu(object):
 
     def __init__(self, menuName):
         self.menuName = menuName
@@ -108,7 +108,8 @@ class Lvl1Menu:
     def printCabling(self):
         cablemap = []
         for thr in self.thresholds:
-            if thr.ttype=='TOPO': continue
+            if thr.ttype=='TOPO':
+                continue
             cabling = thr.cableinfo
             cablemap += [(cabling.slot, cabling.connector, thr.ttype, cabling.range_begin, cabling.range_end, str(thr))]
 
@@ -119,16 +120,15 @@ class Lvl1Menu:
             k = (c[0],c[1])
             if k != cable:
                 cable = k
-                print "\nCable %s, %s" % cable
-                print "================="
-            print "%s  bit %i-%i (%s)" % (c[2],c[3],c[4],c[5])
+                print("\nCable %s, %s" % cable)                   # noqa: ATL901
+                print("=================")                        # noqa: ATL901
+            print("%s  bit %i-%i (%s)" % (c[2],c[3],c[4],c[5]))   # noqa: ATL901
 
     def checkL1(self):
         """
         All other checks should be implemented in TrigConfStorage/src/CheckConsistency.cxx
         This method is only for quick solutions but should be intermediate
         """
-        from Lvl1Flags import Lvl1Flags
 
         success = True
         
@@ -138,7 +138,7 @@ class Lvl1Menu:
             itemThrNames = item.thresholdNames(include_bgrp=False)
             for thrName in itemThrNames:
                 if thrName not in allThrNames:
-                    log.error('Menu item %s contains threshold %s which is not part of the menu!' % (item.name,thrName))
+                    log.error('Menu item %s contains threshold %s which is not part of the menu!', item.name, thrName)
                     success = False
 
         if not success:
@@ -148,11 +148,11 @@ class Lvl1Menu:
         for item in self.items:
             conditions = item.conditions()
             for c in conditions:
-                log.debug("Item %s has threshold %s on cable %s with multiplicity %i" % (item, c.threshold, c.threshold.cableinfo, c.multiplicity) )
+                log.debug("Item %s has threshold %s on cable %s with multiplicity %i", item, c.threshold, c.threshold.cableinfo, c.multiplicity)
                 maxAllowMult = {1 : 1, 2 : 3, 3 : 7} [c.threshold.cableinfo.bitnum]
                 if c.multiplicity > maxAllowMult:
-                    log.error("Item %s has condition %s. Threshold %s is on cable %s which allows maximum multiplicity %i" %
-                              (item.name, c, c.threshold.name, c.threshold.cableinfo.name, maxAllowMult) )
+                    log.error("Item %s has condition %s. Threshold %s is on cable %s which allows maximum multiplicity %i",
+                              item.name, c, c.threshold.name, c.threshold.cableinfo.name, maxAllowMult)
                     success = False
                     
         if not success:
@@ -173,13 +173,13 @@ class Lvl1Menu:
         bgpart = dict( [("BGRP%i" % bg.internalNumber, bg.menuPartition) for bg in self.CTPInfo.bunchGroupSet.bunchGroups] )
         for item in self.items:
             bgs = [t for t in item.thresholdNames(include_bgrp=True) if t.startswith('BGRP')]
-            if not 'BGRP0' in bgs:
-                log.error('Item %s (partition %i) is not using BGRP0 which is mandatory!' % (item.name,item.partition))
+            if 'BGRP0' not in bgs:
+                log.error('Item %s (partition %i) is not using BGRP0 which is mandatory!', item.name,item.partition)
             else:
                 bgs.remove('BGRP0')
             for bg in bgs:
                 if bgpart[bg] != item.partition:
-                    log.error('Item %s (partition %i) uses BG %s which is in partition %i!' % (item.name,item.partition,bg,bgpart[bg]))
+                    log.error('Item %s (partition %i) uses BG %s which is in partition %i!', item.name,item.partition,bg,bgpart[bg])
                     success = False
 
         if not success:
@@ -191,7 +191,7 @@ class Lvl1Menu:
         for name, ctpid in caldef.items():
             calitem = self.getItem(name)
             if calitem and calitem.ctpid != ctpid:
-                log.error('Item %s is not on CTPID %i' % (name,ctpid))
+                log.error('Item %s is not on CTPID %i', name, ctpid)
                 success = False
         if not success:
             raise RuntimeError("There is a problem in the menu that needs fixing")
@@ -217,24 +217,24 @@ class Lvl1Menu:
 
         
         if lutsLF + lutsHF <= 8:
-            log.info("LVL1 monitoring with %i LF groups (%i items) and %i HF groups (%i items)" % (lutsLF, max(counts_LF.values()), lutsHF, max(counts_HF.values())) )
+            log.info("LVL1 monitoring with %i LF groups (%i items) and %i HF groups (%i items)", lutsLF, max(counts_LF.values()), lutsHF, max(counts_HF.values()))
         else:
-            log.error("WARNING: too many monitoring items are defined")
-            print "   low frequency  TBP: %i" % counts_LF[TBP]
-            print "                  TAP: %i" % counts_LF[TAP]
-            print "                  TAV: %i" % counts_LF[TAV]
-            print "   required LUTs: %i" % lutsLF
-            print "   high frequency TBP: %i" % counts_HF[TBP]
-            print "                  TAP: %i" % counts_HF[TAP]
-            print "                  TAV: %i" % counts_HF[TAV]
-            print "   required LUTs: %i" % lutsHF
-            print "   this menu requires %i monitoring LUTs while only 8 are available" % (lutsLF + lutsHF)
-            print "   LF TBP:\n     %r" % sorted(items_LF[TBP])
-            print "   LF TAP:\n     %r" % sorted(items_LF[TAP])
-            print "   LF TAV:\n     %r" % sorted(items_LF[TAV])
-            print "   HF TBP:\n     %r" % sorted(items_HF[TBP])
-            print "   HF TAP:\n     %r" % sorted(items_HF[TAP])
-            print "   HF TAV:\n     %r" % sorted(items_HF[TAV])
+            log.error("too many monitoring items are defined")
+            log.error("   low frequency  TBP: %i", counts_LF[TBP])
+            log.error("                  TAP: %i", counts_LF[TAP])
+            log.error("                  TAV: %i", counts_LF[TAV])
+            log.error("   required LUTs: %i", lutsLF)
+            log.error("   high frequency TBP: %i", counts_HF[TBP])
+            log.error("                  TAP: %i", counts_HF[TAP])
+            log.error("                  TAV: %i", counts_HF[TAV])
+            log.error("   required LUTs: %i", lutsHF)
+            log.error("   this menu requires %i monitoring LUTs while only 8 are available", lutsLF + lutsHF)
+            log.error("   LF TBP:\n     %r", sorted(items_LF[TBP]))
+            log.error("   LF TAP:\n     %r", sorted(items_LF[TAP]))
+            log.error("   LF TAV:\n     %r", sorted(items_LF[TAV]))
+            log.error("   HF TBP:\n     %r", sorted(items_HF[TBP]))
+            log.error("   HF TAP:\n     %r", sorted(items_HF[TAP]))
+            log.error("   HF TAV:\n     %r", sorted(items_HF[TAV]))
             success = False
         if not success:
             raise RuntimeError("There is a problem in the menu that needs fixing")

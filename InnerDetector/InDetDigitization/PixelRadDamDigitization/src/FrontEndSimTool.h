@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELDIGITIZATION_FrontEndSimTool_H
@@ -16,8 +16,12 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "InDetSimEvent/SiTotalCharge.h"
+
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "CommissionEvent/ComTime.h"
 
@@ -32,7 +36,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       m_rndmEngineName("PixelDigitization"),
       m_rndmEngine(nullptr),
       m_pixelConditionsSvc("PixelConditionsSummarySvc",name),
-      m_pixelCalibSvc("PixelCalibSvc",name),
       m_timeBCN(1),
       m_timeZero(5.0),
       m_timePerBCO(25.0),
@@ -40,7 +43,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       m_ComputedTime(nullptr),
       m_comTime(0.0),
       m_timeJitter(0.0),
-      m_eventStore("StoreGateSvc", name),
       m_BarrelAnalogthreshold({-1,-1,-1,-1,-1,-1,-1}),
       m_EndcapAnalogthreshold({-1,-1,-1,-1,-1,-1,-1}),
       m_BarrelToTthreshold({-1,-1,-1,-1,-1,-1,-1}),
@@ -52,7 +54,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     declareProperty("RndmSvc",                   m_rndmSvc,        "Random number service used in FE simulation");
     declareProperty("RndmEngine",                m_rndmEngineName, "Random engine name");
     declareProperty("PixelConditionsSummarySvc", m_pixelConditionsSvc);
-    declareProperty("PixelCalibSvc",             m_pixelCalibSvc);
 	  declareProperty("TimeBCN",                   m_timeBCN,        "Number of BCID");	
 	  declareProperty("TimeZero",                  m_timeZero,       "Time zero...?");
 	  declareProperty("TimePerBCO",                m_timePerBCO,     "Time per BCO - should be 25ns");
@@ -75,7 +76,9 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
 
       CHECK(m_pixelConditionsSvc.retrieve());
 
-      CHECK(m_pixelCalibSvc.retrieve());
+      ATH_CHECK(m_pixelCabling.retrieve());
+      ATH_CHECK(m_chargeDataKey.initialize());
+
 
       m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
       if (!m_rndmEngine) {
@@ -87,8 +90,7 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       }
 
       if (m_useComTime) {
-        CHECK(m_eventStore.retrieve());
-        if (StatusCode::SUCCESS==m_eventStore->retrieve(m_ComputedTime,"ComTime")) {
+        if (StatusCode::SUCCESS==evtStore()->retrieve(m_ComputedTime,"ComTime")) {
           m_comTime = m_ComputedTime->getTime();
           ATH_MSG_DEBUG("Found tool for cosmic/commissioning timing: ComTime");
         } 
@@ -113,7 +115,10 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     CLHEP::HepRandomEngine      *m_rndmEngine;	
 
     ServiceHandle<IInDetConditionsSvc>   m_pixelConditionsSvc;
-    ServiceHandle<IPixelCalibSvc>        m_pixelCalibSvc;
+    ServiceHandle<IPixelCablingSvc>  m_pixelCabling{this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
+
+    SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+    {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
 
     double m_timeBCN;
     double m_timeZero;
@@ -122,7 +127,6 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     ComTime  *m_ComputedTime;
     double m_comTime;       /**< cosmics timing ofs */
     double m_timeJitter; 
-    ServiceHandle<StoreGateSvc>  m_eventStore;
     std::vector<int> m_BarrelAnalogthreshold;
     std::vector<int> m_EndcapAnalogthreshold;
     std::vector<int> m_BarrelToTthreshold;

@@ -5,6 +5,8 @@
 #ifndef GEOMODELSVC_GEOMODELTOOL_H
 #define GEOMODELSVC_GEOMODELTOOL_H
 
+#ifndef BUILDVP1LIGHT
+
 #include "GeoModelInterfaces/IGeoModelTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -30,6 +32,8 @@ protected:
 
     GeoVDetectorManager*   m_detector;        		// The corresponding 
 };
+
+#endif  // BUILDVP1LIGHT
 
 #endif // GEOMODELSVC_DETDESCRTOOL_H
 

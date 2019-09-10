@@ -10,7 +10,9 @@
 
 #include <string>
 #include "IDistanceCalculator.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
+#ifndef BUILDVP1LIGHT
+    #include "RDBAccessSvc/IRDBAccessSvc.h"
+#endif
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 class LArWheelCalculator;

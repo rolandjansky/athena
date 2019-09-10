@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,9 @@
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1Settings.h"
 #include "VP1Base/IVP1System.h"
-#include "VP1Utils/VP1JobConfigInfo.h"
+#ifndef BUILDVP1LIGHT
+    #include "VP1Utils/VP1JobConfigInfo.h"
+#endif
 
 #include "ui_geometrysystemcontroller.h"
 #include "ui_settings_display_form.h"
@@ -87,6 +89,7 @@ GeoSysController::GeoSysController(IVP1System * sys)
   m_d->pickStyle = new SoPickStyle;
   m_d->pickStyle->ref();
 
+  #ifndef BUILDVP1LIGHT
   //Possibly hide parts of gui, depending on job configuration:
   if (!VP1JobConfigInfo::hasGeoModelExperiment()) {
     m_d->ui.groupBox_innerdetector->setVisible(false);
@@ -97,6 +100,7 @@ GeoSysController::GeoSysController(IVP1System * sys)
     m_d->ui_misc.groupBox_sctactivemodules->setVisible(false);
     m_d->ui.groupBox_misc->setVisible(false);
     m_d->ui_muon.groupBox_muonchamberconfig->setVisible(false);
+    m_d->ui_misc.groupBox_show_NSW_chambers->setVisible(false);
     m_d->ui_int.checkBox_AutomaticMuonChamberEndViews->setVisible(false);
     message("GeoModel not properly initialised.");
   } else {
@@ -112,8 +116,10 @@ GeoSysController::GeoSysController(IVP1System * sys)
     m_d->ui.pushButton_settings_muonchambers->setEnabled(VP1JobConfigInfo::hasMuonGeometry());
     m_d->ui_int.checkBox_print_muonstationinfo->setVisible(VP1JobConfigInfo::hasMuonGeometry());
     m_d->ui_muon.groupBox_muonchamberconfig->setVisible(VP1JobConfigInfo::hasMuonGeometry());
+    m_d->ui_misc.groupBox_show_NSW_chambers->setVisible(VP1JobConfigInfo::hasMuonNSWGeometry());
     m_d->ui_int.checkBox_AutomaticMuonChamberEndViews->setVisible(VP1JobConfigInfo::hasMuonGeometry());
   }
+  #endif
 
 
   m_d->zappedVolumeListModel = new ZappedVolumeListModel(m_d->ui_iconisedvols.listView_iconisedvolumes);
@@ -165,6 +171,9 @@ GeoSysController::GeoSysController(IVP1System * sys)
 
   connect(m_d->ui_misc.toolButton_pixelmod_adapt,SIGNAL(clicked(bool)),this,SLOT(emit_autoAdaptPixelsOrSCT()));
   connect(m_d->ui_misc.toolButton_sctmod_adapt,SIGNAL(clicked(bool)),this,SLOT(emit_autoAdaptPixelsOrSCT()));
+  
+  connect(m_d->ui_misc.toolButton_nswchambers_adapt,SIGNAL(clicked(bool)),this,SLOT(emit_autoAdaptMuonNSW()));
+  connect(m_d->ui_misc.toolButton_nswchambers_reset,SIGNAL(clicked(bool)),this,SLOT(emit_autoAdaptMuonNSW()));
 
   connect(m_d->ui_misc.toolButton_pixelmod_reset,SIGNAL(clicked(bool)),this,SLOT(emit_resetSubSystems()));
   connect(m_d->ui_misc.toolButton_sctmod_reset,SIGNAL(clicked(bool)),this,SLOT(emit_resetSubSystems()));
@@ -194,7 +203,7 @@ GeoSysController::GeoSysController(IVP1System * sys)
   m_d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationCSC] = m_d->ui.checkBox_MuonEndcapStationCSC;
   m_d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationTGC] = m_d->ui.checkBox_MuonEndcapStationTGC;
   m_d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationMDT] = m_d->ui.checkBox_MuonEndcapStationMDT;
-  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonNSW] = m_d->ui.checkBox_NSW;
+  m_d->subSysCheckBoxMap[VP1GeoFlags::MuonEndcapStationNSW] = m_d->ui.checkBox_NSW;
   m_d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationInner] = m_d->ui.checkBox_MuonBarrelStationInner;
   m_d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationMiddle] = m_d->ui.checkBox_MuonBarrelStationMiddle;
   m_d->subSysCheckBoxMap[VP1GeoFlags::MuonBarrelStationOuter] = m_d->ui.checkBox_MuonBarrelStationOuter;
@@ -544,6 +553,23 @@ void GeoSysController::emit_autoAdaptPixelsOrSCT()
   emit autoAdaptPixelsOrSCT(pixel,brl,ecA,ecC,bcmA,bcmC);
 }
 
+
+//____________________________________________________________________
+void GeoSysController::emit_autoAdaptMuonNSW()
+{
+  bool reset = false;
+  if (sender()==m_d->ui_misc.toolButton_nswchambers_reset) {
+    reset = true;
+  }
+  bool stgc = m_d->ui_misc.checkBox_NSW_sTGC->isChecked();
+  bool mm   = m_d->ui_misc.checkBox_NSW_MM->isChecked();
+
+  messageVerbose ("Emitting autoAdaptPixelsOrSCT("+str(reset)+","+str(stgc)+","+str(mm)+")");
+  emit autoAdaptMuonNSW(reset, stgc, mm);
+}
+
+
+
 //____________________________________________________________________
 void GeoSysController::emit_autoExpandByVolumeOrMaterialName()
 {
@@ -565,6 +591,22 @@ void GeoSysController::emit_actionOnAllNonStandardVolumes() {
 }
 
 //____________________________________________________________________
+//! Reset to the sub-system top volume.
+/*!
+  The method reset the view to the whole sub-system 
+  by contracting all children to the mother volume.
+  It does work properly only if the top sub-system 
+  volume has a concrete shape. If, instead, it is a 
+  mere container, then this method does not work 
+  because it will hide the children of the top 
+  container volume. In that case, you should implement 
+  a custom method. 
+  
+  Note: for an example of a custom solution, 
+  please refer to the 'VP1GeometrySystem::autoAdaptMuonNSW()' 
+  method, triggered by the emission of the 'autoAdaptMuonNSW()'
+  signal in the 'emit_autoAdaptMuonNSW()' of this class.
+*/
 void GeoSysController::emit_resetSubSystems()
 {
   VP1GeoFlags::SubSystemFlags f(0);
@@ -581,7 +623,7 @@ void GeoSysController::emit_resetSubSystems()
 //____________________________________________________________________
 int GeoSysController::currentSettingsVersion() const
 {
-  return 5;
+  return 6;
 }
 
 //____________________________________________________________________
@@ -628,6 +670,10 @@ void GeoSysController::actualSaveSettings(VP1Serialise&s) const
   s.save(m_d->ui_disp.checkBox_labels_mboyt0s);
   s.save(m_d->ui_disp.checkBox_labels_mooret0s);
   s.save(m_d->ui_disp.checkBox_labels_hits); 
+  // version >=6
+  s.save(m_d->ui_misc.checkBox_NSW_MM);
+  s.save(m_d->ui_misc.checkBox_NSW_sTGC);
+  
   
   s.ignoreWidget(m_d->ui_disp.matButton_lastSel);
   std::map<VP1GeoFlags::SubSystemFlag,QCheckBox*>::const_iterator it,itE(m_d->subSysCheckBoxMap.end());
@@ -695,6 +741,10 @@ void GeoSysController::actualRestoreSettings(VP1Deserialise& s)
     s.restore(m_d->ui_disp.checkBox_labels_mboyt0s);
     s.restore(m_d->ui_disp.checkBox_labels_mooret0s);
     s.restore(m_d->ui_disp.checkBox_labels_hits);
+  }
+  if (s.version()>=6){
+    s.restore(m_d->ui_misc.checkBox_NSW_MM);
+    s.restore(m_d->ui_misc.checkBox_NSW_sTGC);
   }
 
   s.ignoreWidget(m_d->ui_disp.matButton_lastSel);

@@ -3,7 +3,6 @@
 */
 
 #include "MuonEventTPCnv/MdtPrepDataContainerCnv_tlp1.h"
-#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 MdtPrepDataContainerCnv_tlp1::MdtPrepDataContainerCnv_tlp1()
 {

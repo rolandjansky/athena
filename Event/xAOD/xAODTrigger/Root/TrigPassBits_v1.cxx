@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigPassBits_v1.cxx 773869 2016-09-19 15:27:05Z krasznaa $
 
 // System include(s):
 #include <functional>
@@ -35,7 +34,7 @@ namespace xAOD {
       }
 
       // Access the serialised bits:
-      static SG::AuxElement::Accessor< std::vector< uint32_t > >
+      static const SG::AuxElement::Accessor< std::vector< uint32_t > >
          accBits( "passBits" );
       std::vector< uint32_t >& bits = accBits( *this );
 
@@ -101,7 +100,7 @@ namespace xAOD {
    uint32_t TrigPassBits_v1::hash( const std::string& key ) {
 
       // The helper object:
-      static std::hash< std::string > helper;
+      static const std::hash< std::string > helper;
 
       // The mask comes from how StoreGate creates hashes from keys. Could use
       // some other value here as well though.

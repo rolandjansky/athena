@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -14,6 +14,7 @@
 
 #include "VP1Base/IVP13DSystemSimple.h"
 #include "VP1Base/SoCooperativeSelection.h"
+#include "VP1Base/VP1Msg.h"
 #include "Inventor/SoPath.h"
 #include "Inventor/nodes/SoSeparator.h"
 #include <iostream>
@@ -91,12 +92,15 @@ void IVP13DSystemSimple::ensureBuildController()
   if (m_d->controllerBuilt)
     return;
   m_d->controllerBuilt=true;
-
-  messageVerbose("IVP13DSystemSimple build controller");
+  if(VP1Msg::verbose()){
+    messageVerbose("IVP13DSystemSimple build controller");
+  }
   QWidget * controller = buildController();
   if (controller)
     registerController(controller);
-  messageVerbose("IVP13DSystemSimple controller was = "+str(controller));
+  if(VP1Msg::verbose()){
+    messageVerbose("IVP13DSystemSimple controller was = "+str(controller));
+  }
 }
 
 //___________________________________________________________________________________________________________
@@ -115,9 +119,8 @@ void IVP13DSystemSimple::Imp::made_selection( void * userdata, SoPath * path )
   if (!selectedNode)
     return;
 
-//  std::cout << "calling system->userPickedNode()..." << std::endl;
   system->userPickedNode(selectedNode, path);
-//  std::cout << "called system->userPickedNode()." << std::endl;
+  std::cout << "selected nodes: " << system->m_d->root->getNumSelected() << ", " << system->m_d->root->getPath(0) << std::endl;
 }
 
 //___________________________________________________________
@@ -129,7 +132,9 @@ SoSeparator * IVP13DSystemSimple::getSceneGraph() const
 //___________________________________________________________
 void IVP13DSystemSimple::create(StoreGateSvc* /*detstore*/)
 {
-  messageVerbose("IVP13DSystemSimple create");
+  if(VP1Msg::verbose()){
+    messageVerbose("IVP13DSystemSimple create");
+  }
   assert(!m_d->wasrefreshed);
   assert(!m_d->wascreated);
   ensureBuildController();//TODO: Move to refresh.
@@ -144,7 +149,9 @@ void IVP13DSystemSimple::refresh(StoreGateSvc* sg)
   assert(!m_d->wasrefreshed);
 
   if (m_d->first) {
-    messageVerbose("IVP13DSystemSimple first refresh - so calling create methods (i.e. delayed create).");
+  if(VP1Msg::verbose()){
+      messageVerbose("IVP13DSystemSimple first refresh - so calling create methods (i.e. delayed create).");
+    }
     systemcreate(detectorStore());
     m_d->first = false;
     m_d->root->removeChild(m_d->rootR);
@@ -165,16 +172,19 @@ void IVP13DSystemSimple::refresh(StoreGateSvc* sg)
 //___________________________________________________________
 void IVP13DSystemSimple::erase()
 {
-  messageVerbose("IVP13DSystemSimple::erase() start");
+  if(VP1Msg::verbose()){
+    messageVerbose("IVP13DSystemSimple::erase() start");
+  }
   assert(m_d->wascreated);
   assert(m_d->wasrefreshed);
 
   bool saveE = m_d->rootE->enableNotify(false);
 
   systemerase();
-  messageVerbose("IVP13DSystemSimple::erase() Removing all event objects from scene");
-  if (verbose())
+  if(VP1Msg::verbose()){
+    messageVerbose("IVP13DSystemSimple::erase() Removing all event objects from scene");
     warnOnDisabledNotifications();
+  }
   m_d->rootE->removeAllChildren();
 
   if (saveE) {
@@ -183,13 +193,18 @@ void IVP13DSystemSimple::erase()
   }
 
   m_d->wasrefreshed=false;
-  messageVerbose("IVP13DSystemSimple::erase() end");
+  if(VP1Msg::verbose()){
+    messageVerbose("IVP13DSystemSimple::erase() end");
+  }
 }
 
 //___________________________________________________________
 void IVP13DSystemSimple::uncreate()
 {
-	messageDebug("uncreate()...");
+
+  if(VP1Msg::verbose()){
+  	messageDebug("uncreate()...");
+  }
 
   assert(m_d->wascreated);
   assert(!m_d->wasrefreshed);

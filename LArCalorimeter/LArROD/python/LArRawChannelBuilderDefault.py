@@ -1,5 +1,6 @@
 from LArROD.LArRODFlags import larRODFlags
 from AthenaCommon.GlobalFlags import globalflags
+from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg
 
 def LArRawChannelBuilderDefault():
     from AthenaCommon.AlgSequence import AlgSequence
@@ -7,13 +8,10 @@ def LArRawChannelBuilderDefault():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
     if larRODFlags.readDigits() and globalflags.InputFormat() == 'bytestream':
+        if LArRawDataReadingAlg() not in topSequence:
+            print "Adding LArRawDataReaderAlg"
+            topSequence+=LArRawDataReadingAlg()
 
-        if not "LArDigitContainer/FREE" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-            svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
-        
-        if not larRODFlags.keepDSPRaw():
-            svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
-            
         from LArRecUtils.LArADC2MeVCondAlgDefault import LArADC2MeVCondAlgDefault
 
         LArADC2MeVCondAlgDefault()

@@ -55,7 +55,7 @@ namespace InDet
 
     int m_status;
 
-    std::vector<float> m_errPar;
+    std::array<float, 6> m_errPar;
 
     Amg::Vector3D m_beamPos;
 

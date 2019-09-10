@@ -3,151 +3,212 @@
 */
 
 #include "xAODJet/JetContainerInfo.h"
-#include "CxxUtils/checker_macros.h"
 #include <string>
 #include <map>
 
 namespace xAOD {
   
   namespace JetAlgorithmType {
-    std::map<std::string, ID> nameToIDmap;
-    std::map<ID, std::string> idToNamemap;
 
-    const std::string c_unknonwAlg = "UnknwonAlg";
-    
-    void initMap  ATLAS_NOT_THREAD_SAFE  (){
-      static bool inited = false;
-      if(inited) return;
-      // name in the atlas convention
-      nameToIDmap["Kt"] = JetAlgorithmType::kt_algorithm;
-      nameToIDmap["CamKt"] = JetAlgorithmType::cambridge_algorithm;
-      nameToIDmap["AntiKt"] = JetAlgorithmType::antikt_algorithm;
-      nameToIDmap["GenKt"] = JetAlgorithmType::genkt_algorithm;
-      nameToIDmap["CamKtPassive"] = JetAlgorithmType::cambridge_for_passive_algorithm;
-      nameToIDmap["GenKtPassive"] = JetAlgorithmType::genkt_for_passive_algorithm;
-      nameToIDmap["EEKt"] =        JetAlgorithmType::ee_kt_algorithm;
-      nameToIDmap["EEGenKt"] = JetAlgorithmType::ee_genkt_algorithm;      
-      
-      // name as in fastjet (lower case)
-      nameToIDmap["kt"] = JetAlgorithmType::kt_algorithm;
-      nameToIDmap["cambridge"] = JetAlgorithmType::cambridge_algorithm;
-      nameToIDmap["antikt"] = JetAlgorithmType::antikt_algorithm;
-      nameToIDmap["genkt"] = JetAlgorithmType::genkt_algorithm;
-      nameToIDmap["cambridge_for_passive"] = JetAlgorithmType::cambridge_for_passive_algorithm;
-      nameToIDmap["genkt_for_passive"] = JetAlgorithmType::genkt_for_passive_algorithm;
-      nameToIDmap["ee_kt"] =        JetAlgorithmType::ee_kt_algorithm;
-      nameToIDmap["ee_genkt"] = JetAlgorithmType::ee_genkt_algorithm;      
+    static const std::string c_unknownAlg = "UnknownAlg";
 
-      nameToIDmap["FastJetPlugin"] = JetAlgorithmType::plugin_algorithm;      
-      nameToIDmap[c_unknonwAlg] = JetAlgorithmType::undefined_jet_algorithm;      
+    /// Map associating string names to enumeration values
+    ///
+    /// Note that multiple string names may be associated to the same
+    /// enum value.
+    ///
+    static const std::map<std::string, ID> nameToIDmap = {
+      // Names in the ATLAS convention
+      { "Kt",            JetAlgorithmType::kt_algorithm },
+      { "CamKt",         JetAlgorithmType::cambridge_algorithm },
+      { "AntiKt",        JetAlgorithmType::antikt_algorithm },
+      { "GenKt",         JetAlgorithmType::genkt_algorithm },
+      { "CamKtPassive",  JetAlgorithmType::cambridge_for_passive_algorithm },
+      { "GenKtPassive",  JetAlgorithmType::genkt_for_passive_algorithm },
+      { "EEKt",          JetAlgorithmType::ee_kt_algorithm },
+      { "EEGenKt",       JetAlgorithmType::ee_genkt_algorithm },
+      // Names as FastJet understands them (in lower case)
+      { "kt",            JetAlgorithmType::kt_algorithm },
+      { "cambridge",     JetAlgorithmType::cambridge_algorithm },
+      { "antikt",        JetAlgorithmType::antikt_algorithm },
+      { "genkt",         JetAlgorithmType::genkt_algorithm },
+      { "cambridge_for_passive", JetAlgorithmType::cambridge_for_passive_algorithm },
+      { "genkt_for_passive",     JetAlgorithmType::genkt_for_passive_algorithm },
+      { "ee_kt",         JetAlgorithmType::ee_kt_algorithm },
+      { "ee_genkt",      JetAlgorithmType::ee_genkt_algorithm },
+      // Technical entries
+      { "FastJetPlugin", JetAlgorithmType::plugin_algorithm },
+      { c_unknownAlg,    JetAlgorithmType::undefined_jet_algorithm }
+    };
 
-      std::map<std::string, ID>::iterator it = nameToIDmap.begin();
-      std::map<std::string, ID>::iterator itE = nameToIDmap.end();
-      for( ; it!=itE; ++it) idToNamemap[ it->second ] = it->first;      
+    /// Map associating enum values to string names
+    ///
+    /// Note that this is *not* an inverse of the previous map! Here
+    /// the association from enum values to strings is 1-to-1. While
+    /// the previous map associates multiple strings to the same enum
+    /// value.
+    ///
+    /// Also note that the association is to the "ATLAS names", and
+    /// not to the "FastJet names".
+    ///
+    static const std::map<ID, std::string> idToNamemap = {
+      { JetAlgorithmType::kt_algorithm,                    "Kt" },
+      { JetAlgorithmType::cambridge_algorithm,             "CamKt" },
+      { JetAlgorithmType::antikt_algorithm,                "AntiKt" },
+      { JetAlgorithmType::genkt_algorithm,                 "GenKt" },
+      { JetAlgorithmType::cambridge_for_passive_algorithm, "CamKtPassive" },
+      { JetAlgorithmType::genkt_for_passive_algorithm,     "GenKtPassive" },
+      { JetAlgorithmType::ee_kt_algorithm,                 "EEKt" },
+      { JetAlgorithmType::ee_genkt_algorithm,              "EEGenKt" },
+      { JetAlgorithmType::plugin_algorithm,                "FastJetPlugin" },
+      { JetAlgorithmType::undefined_jet_algorithm,         c_unknownAlg }
+    };
+
+    const std::string& algName( ID id ) {
+
+      auto itr = idToNamemap.find( id );
+      if( itr != idToNamemap.end() ) {
+        return itr->second;
+      }
+      return c_unknownAlg;
     }
 
-  
+    ID algId( const std::string& n ) {
 
-  
-  const std::string & algName  ATLAS_NOT_THREAD_SAFE  (ID id){
-    initMap();
-    if( idToNamemap.find( id ) != idToNamemap.end() ) return idToNamemap[id];
-    return c_unknonwAlg;
-      
- 
-  }
-  ID algId  ATLAS_NOT_THREAD_SAFE  (const std::string & n){
-    initMap();
-    if( nameToIDmap.find( n ) != nameToIDmap.end() ) return nameToIDmap[n];
-    return undefined_jet_algorithm;
-  }
+      auto itr = nameToIDmap.find( n );
+      if( itr != nameToIDmap.end() ) {
+	return itr->second;
+      }
+      return undefined_jet_algorithm;
+    }
 
   }// JetAlgorithmType namespace
 
-
   namespace JetInput {
-    std::map<std::string, Type> nameToTypemap;
-    std::map<Type, std::string> typeToNamemap;
 
-    const std::string c_unCategorized = "Uncategorized";
-    
-    void initMap  ATLAS_NOT_THREAD_SAFE  (){
-      static bool inited = false;
-      if(inited) return;
-      // name in the atlas convention
-      nameToTypemap["LCTopo"] =                LCTopo;
-      nameToTypemap["EMTopo"] =                EMTopo;
-      nameToTypemap["LCTopoOrigin"] =          LCTopoOrigin;
-      nameToTypemap["EMTopoOrigin"] =          EMTopoOrigin;
-      nameToTypemap["TopoTower"] =             TopoTower;
-      nameToTypemap["Tower"] =                 Tower;
-      nameToTypemap["Truth"] =                 Truth;
-      nameToTypemap["TruthWZ"] =               TruthWZ;
-      nameToTypemap["TruthDressedWZ"] =        TruthDressedWZ;
-      nameToTypemap["TruthCharged"] =          TruthCharged;
-      nameToTypemap["Track"] =                 Track;
-      nameToTypemap["PFlow"] =                 PFlow;
-      nameToTypemap["LCPFlow"] =               LCPFlow;
-      nameToTypemap["EMPFlow"] =               EMPFlow;
-      nameToTypemap["EMCPFlow"] =              EMCPFlow;
-      nameToTypemap["TrackCaloCluster"] =      TrackCaloCluster;
-      nameToTypemap["EMTopoOriginSK"] =        EMTopoOriginSK;
-      nameToTypemap["EMTopoOriginCS"] =        EMTopoOriginCS;
-      nameToTypemap["EMTopoOriginCSSK"] =      EMTopoOriginCSSK;
-      nameToTypemap["EMTopoOriginVorSK"] =     EMTopoOriginVorSK;
-      nameToTypemap["EMTopoOriginTime"] =      EMTopoOriginTime;
-      nameToTypemap["EMTopoOriginSKTime"] =    EMTopoOriginSKTime;
-      nameToTypemap["EMTopoOriginCSSKTime"] =  EMTopoOriginCSSKTime;
-      nameToTypemap["EMTopoOriginVorSKTime"] = EMTopoOriginVorSKTime;
-      nameToTypemap["LCTopoOriginSK"] =        LCTopoOriginSK;
-      nameToTypemap["LCTopoOriginCS"] =        LCTopoOriginCS;
-      nameToTypemap["LCTopoOriginCSSK"] =      LCTopoOriginCSSK;
-      nameToTypemap["LCTopoOriginVorSK"] =     LCTopoOriginVorSK;
-      nameToTypemap["EMPFlowSK"] =             EMPFlowSK;
-      nameToTypemap["EMPFlowCS"] =             EMPFlowCS;
-      nameToTypemap["EMPFlowCSSK"] =           EMPFlowCSSK;
-      nameToTypemap["EMPFlowVorSK"] =          EMPFlowVorSK;
-      nameToTypemap["EMPFlowTime"] =           EMPFlowTime;
-      nameToTypemap["EMPFlowSKTime"] =         EMPFlowSKTime;
-      nameToTypemap["EMPFlowCSSKTime"] =       EMPFlowCSSKTime;
-      nameToTypemap["EMPFlowVorSKTime"] =      EMPFlowVorSKTime;
-      nameToTypemap["HI"] =                    HI;
-      nameToTypemap[c_unCategorized] =         Uncategorized;
+    static const std::string c_unCategorized = "Uncategorized";
 
-      std::map<std::string, Type>::iterator it = nameToTypemap.begin();
-      std::map<std::string, Type>::iterator itE = nameToTypemap.end();
-      for( ; it!=itE; ++it) typeToNamemap[ it->second ] = it->first;      
+    /// Map associating string names to enumeration values
+    ///
+    /// Note that multiple string names may be associated to the same
+    /// enum value. Even though currently they aren't.
+    ///
+    static const std::map<std::string, Type> nameToTypemap = {
+      { "LCTopo",                LCTopo },
+      { "EMTopo",                EMTopo },
+      { "LCTopoOrigin",          LCTopoOrigin },
+      { "EMTopoOrigin",          EMTopoOrigin },
+      { "TopoTower",             TopoTower },
+      { "Tower",                 Tower },
+      { "Jet",                   Jet },
+      { "Truth",                 Truth },
+      { "TruthWZ",               TruthWZ },
+      { "TruthDressedWZ",        TruthDressedWZ },
+      { "TruthCharged",          TruthCharged },
+      { "Track",                 Track },
+      { "PFlow",                 PFlow },
+      { "LCPFlow",               LCPFlow },
+      { "EMPFlow",               EMPFlow },
+      { "EMCPFlow",              EMCPFlow },
+      { "TrackCaloCluster",      TrackCaloCluster },
+      { "EMTopoOriginSK",        EMTopoOriginSK },
+      { "EMTopoOriginCS",        EMTopoOriginCS },
+      { "EMTopoOriginCSSK",      EMTopoOriginCSSK },
+      { "EMTopoOriginVorSK",     EMTopoOriginVorSK },
+      { "EMTopoOriginTime",      EMTopoOriginTime },
+      { "EMTopoOriginSKTime",    EMTopoOriginSKTime },
+      { "EMTopoOriginCSSKTime",  EMTopoOriginCSSKTime },
+      { "EMTopoOriginVorSKTime", EMTopoOriginVorSKTime },
+      { "LCTopoOriginSK",        LCTopoOriginSK },
+      { "LCTopoOriginCS",        LCTopoOriginCS },
+      { "LCTopoOriginCSSK",      LCTopoOriginCSSK },
+      { "LCTopoOriginVorSK",     LCTopoOriginVorSK },
+      { "EMPFlowSK",             EMPFlowSK },
+      { "EMPFlowCS",             EMPFlowCS },
+      { "EMPFlowCSSK",           EMPFlowCSSK },
+      { "EMPFlowVorSK",          EMPFlowVorSK },
+      { "EMPFlowTime",           EMPFlowTime },
+      { "EMPFlowSKTime",         EMPFlowSKTime },
+      { "EMPFlowCSSKTime",       EMPFlowCSSKTime },
+      { "EMPFlowVorSKTime",      EMPFlowVorSKTime },
+      { "HI",                    HI },
+      { c_unCategorized,         Uncategorized }
+    };
+
+    /// Map associating enum values to string names
+    ///
+    /// Note that this is *not* necessarily an inverse of the previous
+    /// map! Here the association from enum values to strings is 1-to-1.
+    /// While the previous map may associate multiple strings to the
+    /// same enum value.
+    ///
+    static const std::map<Type, std::string> typeToNamemap {
+      { LCTopo,                "LCTopo" },
+      { EMTopo,                "EMTopo" },
+      { LCTopoOrigin,          "LCTopoOrigin" },
+      { EMTopoOrigin,          "EMTopoOrigin" },
+      { TopoTower,             "TopoTower" },
+      { Tower,                 "Tower" },
+      { Jet,                   "Jet" },
+      { Truth,                 "Truth" },
+      { TruthWZ,               "TruthWZ" },
+      { TruthDressedWZ,        "TruthDressedWZ" },
+      { TruthCharged,          "TruthCharged" },
+      { Track,                 "Track" },
+      { PFlow,                 "PFlow" },
+      { LCPFlow,               "LCPFlow" },
+      { EMPFlow,               "EMPFlow" },
+      { EMCPFlow,              "EMCPFlow" },
+      { TrackCaloCluster,      "TrackCaloCluster" },
+      { EMTopoOriginSK,        "EMTopoOriginSK" },
+      { EMTopoOriginCS,        "EMTopoOriginCS" },
+      { EMTopoOriginCSSK,      "EMTopoOriginCSSK" },
+      { EMTopoOriginVorSK,     "EMTopoOriginVorSK" },
+      { EMTopoOriginTime,      "EMTopoOriginTime" },
+      { EMTopoOriginSKTime,    "EMTopoOriginSKTime" },
+      { EMTopoOriginCSSKTime,  "EMTopoOriginCSSKTime" },
+      { EMTopoOriginVorSKTime, "EMTopoOriginVorSKTime" },
+      { LCTopoOriginSK,        "LCTopoOriginSK" },
+      { LCTopoOriginCS,        "LCTopoOriginCS" },
+      { LCTopoOriginCSSK,      "LCTopoOriginCSSK" },
+      { LCTopoOriginVorSK,     "LCTopoOriginVorSK" },
+      { EMPFlowSK,             "EMPFlowSK" },
+      { EMPFlowCS,             "EMPFlowCS" },
+      { EMPFlowCSSK,           "EMPFlowCSSK" },
+      { EMPFlowVorSK,          "EMPFlowVorSK" },
+      { EMPFlowTime,           "EMPFlowTime" },
+      { EMPFlowSKTime,         "EMPFlowSKTime" },
+      { EMPFlowCSSKTime,       "EMPFlowCSSKTime" },
+      { EMPFlowVorSKTime,      "EMPFlowVorSKTime" },
+      { HI,                    "HI" },
+      { Uncategorized,         c_unCategorized }
+    };
+
+    bool isValidConstitType( Type t ) {
+
+      auto itr = typeToNamemap.find( t );
+      return ( ( itr != typeToNamemap.end() ) && ( t != Uncategorized ) );
     }
 
-  bool isValidConstitType(Type t) { 
-    const static std::unordered_set<Type> validJetContitTypes = { LCTopo, EMTopo,
-                                                                  LCTopoOrigin, EMTopoOrigin, EMTopoOriginTime,
-                                                                  LCTopoOriginSK, EMTopoOriginSK, EMTopoOriginSKTime,
-                                                                  LCTopoOriginCS, EMTopoOriginCS,
-                                                                  LCTopoOriginVor, EMTopoOriginVor,
-                                                                  LCTopoOriginCSSK, EMTopoOriginCSSK, EMTopoOriginCSSKTime,
-                                                                  LCTopoOriginVorSK, EMTopoOriginVorSK, EMTopoOriginVorSKTime,
-                                                                  EMPFlowSK, EMPFlowSKTime,
-                                                                  EMPFlowCS, EMPFlowCSSK, EMPFlowCSSKTime,
-                                                                  EMPFlowVor, EMPFlowVorSK, EMPFlowVorSKTime
-                                                                };
-    return validJetContitTypes.count(t)==1;
-  } 
+    const std::string& typeName( Type id ) {
 
-  const std::string & typeName  ATLAS_NOT_THREAD_SAFE  (Type id){
-    initMap();
-    if( typeToNamemap.find( id ) != typeToNamemap.end() ) return typeToNamemap[id];
-    return c_unCategorized ;     
-  }
+      auto itr = typeToNamemap.find( id );
+      if( itr != typeToNamemap.end() ) {
+        return itr->second;
+      }
+      return c_unCategorized;
+    }
 
-  Type inputType  ATLAS_NOT_THREAD_SAFE  (const std::string & n){
-    initMap();
-    if( nameToTypemap.find( n ) != nameToTypemap.end() ) return nameToTypemap[n];
-    return Uncategorized;
-  }
+    Type inputType( const std::string& n ) {
 
+      auto itr = nameToTypemap.find( n );
+      if( itr != nameToTypemap.end() ) {
+	return itr->second;
+      }
+      return Uncategorized;
+    }
 
-  }
+  } // namespace JetInput
 
   namespace JetTransform {
 
@@ -165,7 +226,7 @@ namespace xAOD {
       return "UnknownTransform";
     }
 
-    Type type(std::string name) {
+    Type type(const std::string& name) {
       if ( name == "UnknownTransform" ) return NoTransform;
       if ( name == "NoTransform" )      return NoTransform;
       if ( name == "Trim" )             return Trim;

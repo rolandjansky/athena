@@ -89,10 +89,10 @@ class BasicConfigurableWorkingsTestCase( unittest.TestCase ):
       seq = AlgSequence( name + 'Sequence' )
       seq += HelloWorld
       getattr(seq,name).MyDouble = 2.71828
-      exec 'del seq.%s' % name
+      exec ('del seq.%s' % name)
       seq.setup()
 
-      self.assert_( name not in JobOptionsSvc.getClients() )
+      self.assertTrue( name not in JobOptionsSvc.getClients() )
 
       del HelloWorld
 
@@ -150,30 +150,30 @@ class BasicJobOptionsTestCase( JobOptionsTestBase ):
       HelloWorld.setup()
 
       self.assertEqual( HelloWorld.MyInt, 42 )
-      self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyInt', '42' ) )
+      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyInt', '42' ) )
 
       self.assertEqual( HelloWorld.MyBool, True )
-      self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyBool', 'True' ) )
+      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyBool', 'True' ) )
 
       self.assertEqual( round( HelloWorld.MyDouble - 3.14159, 8 ), 0. )
-      self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyDouble', '3.14159' ) )
+      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyDouble', '3.14159' ) )
 
     # the following may be too sensitive to non-consequential changes in formatting
       self.assertEqual( HelloWorld.MyStringVec,
          [ "Welcome", "to", "Athena", "Framework", "Tutorial", "!" ] )
-      self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyStringVec',
+      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyStringVec',
          "['Welcome', 'to', 'Athena', 'Framework', 'Tutorial', '!']" ) )
 
       self.assertEqual( HelloWorld.MyDict,
          {'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'} )
-      self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyDict',
-         "{'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'}" ) )
+      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyDict',
+         {'Bonjour': 'Guten Tag', 'one': 'uno', 'Goeiedag': 'Ni Hao', 'Good Morning': 'Bonjour'} ) )
       self.assertEqual( HelloWorld.MyTable, [(1, 1), (2, 4), (3, 9), (4, 16)] )
-      self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyTable',
+      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyTable',
          "[(1, 1), (2, 4), (3, 9), (4, 16)]" ) )
 
       self.assertEqual( HelloWorld.MyMatrix, [[1, 2, 3], [4, 5, 6], [7, 8, 9]] )
-      self.assert_( JobOptionsSvc.verify( 'HelloWorld', 'MyMatrix',
+      self.assertTrue( JobOptionsSvc.verify( 'HelloWorld', 'MyMatrix',
          "[[1, 2, 3], [4, 5, 6], [7, 8, 9]]" ) )
 
    def test2SetToolProperties( self ):
@@ -202,10 +202,10 @@ class BasicJobOptionsTestCase( JobOptionsTestBase ):
 
       self.assertEqual( HelloWorld.MyPrivateHelloTool.MyMessage, msg1 )
       client = HelloWorld.getName() + '.' + HelloWorld.MyPrivateHelloTool.getName()
-      self.assert_( JobOptionsSvc.verify( client, 'MyMessage', msg1 ) )
+      self.assertTrue( JobOptionsSvc.verify( client, 'MyMessage', msg1 ) )
 
       self.assertEqual( ToolSvc.PublicHello.MyMessage, msg2 )
-      self.assert_( JobOptionsSvc.verify( 'ToolSvc.PublicHello', 'MyMessage', msg2 ) )
+      self.assertTrue( JobOptionsSvc.verify( 'ToolSvc.PublicHello', 'MyMessage', msg2 ) )
 
    def test3SetAuditorProperties( self ):
       """Test setting of Auditor properties"""
@@ -217,15 +217,15 @@ class BasicJobOptionsTestCase( JobOptionsTestBase ):
       import AthenaCommon.AtlasUnixStandardJob
 
       theAuditorSvc += NameAuditor()
-      self.assert_( theAuditorSvc.NameAuditor.getFullName()\
+      self.assertTrue( theAuditorSvc.NameAuditor.getFullName()\
                     in ServiceMgr.AuditorSvc.Auditors )
 
       theAuditorSvc.NameAuditor.OutputLevel = FATAL
 
       theAuditorSvc.setup()
 
-      self.assert_( JobOptionsSvc.verify( 'AuditorSvc', 'Auditors', str(theAuditorSvc.Auditors) ) )
-      self.assert_( JobOptionsSvc.verify( 'NameAuditor', 'OutputLevel', str(FATAL) ) )
+      self.assertTrue( JobOptionsSvc.verify( 'AuditorSvc', 'Auditors', str(theAuditorSvc.Auditors) ) )
+      self.assertTrue( JobOptionsSvc.verify( 'NameAuditor', 'OutputLevel', str(FATAL) ) )
 
 
 ## actual test run

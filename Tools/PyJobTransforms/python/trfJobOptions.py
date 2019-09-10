@@ -1,3 +1,6 @@
+from __future__ import print_function
+from future.utils import iteritems
+from builtins import object
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfJobOptions
@@ -57,24 +60,24 @@ class JobOptionsTemplate(object):
         with open(self._runArgsFile, 'w') as runargsFile:
             try:
                 # First write a little header
-                print >>runargsFile, os.linesep.join(("# Run arguments file auto-generated on {0} by:".format(time.asctime()),
+                print(os.linesep.join(("# Run arguments file auto-generated on {0} by:".format(time.asctime()),
                                                      "# JobTransform: {0}".format(self._exe.name),
                                                      "# Version: {0}".format(self._version)
-                                                     ))
+                                                     )), file=runargsFile)
                 
                 # Now make sure we import the runArgs class for out job options
-                print >>runargsFile, os.linesep.join(("# Import runArgs class",
+                print(os.linesep.join(("# Import runArgs class",
                                                       "from PyJobTransforms.trfJobOptions import RunArguments",
                                                       "{0} = RunArguments()".format(self._runArgsName)
-                                                      ))
+                                                      )), file=runargsFile)
                 
                 # Handy to write the substep name here as it can be used as (part of) a random seed
                 # in some cases
-                print >>runargsFile, '{0}.trfSubstepName = {1!r}'.format(self._runArgsName, self._exe.name), os.linesep
+                print('{0}.trfSubstepName = {1!r}'.format(self._runArgsName, self._exe.name), os.linesep, file=runargsFile)
     
                 # Now loop over the core argdict and see what needs to be given as a runArg
                 declaredRunargs = []
-                for k, v in self._exe.conf.argdict.iteritems():
+                for k, v in iteritems(self._exe.conf.argdict):
                     # Check if this arg is supposed to be in runArgs
                     if isinstance(v, trfArgClasses.argument) and v.isRunarg:
                         # Files handled later
@@ -89,11 +92,11 @@ class JobOptionsTemplate(object):
                         if isinstance(v, trfArgClasses.argSubstep):
                             myValue = v.returnMyValue(exe = self._exe)
                             if myValue is not None:
-                                print >>runargsFile, "{0}.{1!s} = {2!r}".format(self._runArgsName, k, myValue)
+                                print("{0}.{1!s} = {2!r}".format(self._runArgsName, k, myValue), file=runargsFile)
                                 msg.debug('Added substep type argument {0} as: {1}'.format(k, myValue))
                                 declaredRunargs.append(k)
                         else:
-                            print >>runargsFile, "{0}.{1!s} = {2!r}".format(self._runArgsName, k, v.value)
+                            print("{0}.{1!s} = {2!r}".format(self._runArgsName, k, v.value), file=runargsFile)
                             declaredRunargs.append(k)
                     else:
                         msg.debug('Argument {0} is not a runarg - ignored'.format(k))
@@ -101,93 +104,93 @@ class JobOptionsTemplate(object):
                 # Now make sure that if we did not add maxEvents  then we set this to -1, which
                 # avoids some strange defaults that only allow 5 events to be processed
                 if 'maxEvents' not in declaredRunargs:
-                    print >>runargsFile, os.linesep.join(("", "# Explicitly added to process all events in this step",
+                    print(os.linesep.join(("", "# Explicitly added to process all events in this step",
                                                           "{0}.maxEvents = -1".format(self._runArgsName),
-                                                          ))
+                                                          )), file=runargsFile)
             
                 # Now deal with our input and output files
-                print >>runargsFile, os.linesep, "# Input data"
-                for dataType, dataArg in input.iteritems():
-                    print >>runargsFile, '{0}.input{1}File = {2!r}'.format(self._runArgsName, dataType, dataArg.value)
-                    print >>runargsFile, '{0}.input{1}FileType = {2!r}'.format(self._runArgsName, dataType, dataArg.type)
+                print(os.linesep, "# Input data", file=runargsFile)
+                for dataType, dataArg in iteritems(input):
+                    print('{0}.input{1}File = {2!r}'.format(self._runArgsName, dataType, dataArg.value), file=runargsFile)
+                    print('{0}.input{1}FileType = {2!r}'.format(self._runArgsName, dataType, dataArg.type), file=runargsFile)
                     # Add the input event count, if we know it
                     if dataArg.isCached(metadataKeys = ['nentries']):
-                        print >>runargsFile, '{0}.input{1}FileNentries = {2!r}'.format(self._runArgsName, dataType, dataArg.nentries)
-                    print >>runargsFile, "{0}.{1}FileIO = {2!r}".format(self._runArgsName, dataType, self._exe.conf.dataDictionary[dataType].io) 
+                        print('{0}.input{1}FileNentries = {2!r}'.format(self._runArgsName, dataType, dataArg.nentries), file=runargsFile)
+                    print("{0}.{1}FileIO = {2!r}".format(self._runArgsName, dataType, self._exe.conf.dataDictionary[dataType].io), file=runargsFile) 
                 
-                print >>runargsFile, os.linesep, "# Output data"
-                for dataType, dataArg in output.iteritems():
+                print(os.linesep, "# Output data", file=runargsFile)
+                for dataType, dataArg in iteritems(output):
                     # Need to be careful to convert _output_ filename as a strings, not a list
-                    print >>runargsFile, '{0}.output{1}File = {2!r}'.format(self._runArgsName, dataType, dataArg.value[0])
-                    print >>runargsFile, '{0}.output{1}FileType = {2!r}'.format(self._runArgsName, dataType, dataArg.type)
+                    print('{0}.output{1}File = {2!r}'.format(self._runArgsName, dataType, dataArg.value[0]), file=runargsFile)
+                    print('{0}.output{1}FileType = {2!r}'.format(self._runArgsName, dataType, dataArg.type), file=runargsFile)
     
                     
                 # Process all of the tweaky special runtime arguments
-                print >>runargsFile, os.linesep, "# Extra runargs"
+                print(os.linesep, "# Extra runargs", file=runargsFile)
                 ## @note extraRunargs are passed using repr, i.e., they should be constants
-                for k, v in self._exe._extraRunargs.iteritems():
+                for k, v in iteritems(self._exe._extraRunargs):
                     ## @note: What to do if this is a CLI argument as well, in particular
                     #  for arguments like preExec we want to add to the list, not replace it 
                     if k in declaredRunargs:
                         if isinstance(self._exe.conf.argdict[k].value, list):
                             msg.debug('Extending runarg {0!s}={1!r}'.format(k, v))
-                            print >>runargsFile, '{0}.{1!s}.extend({2!r})'.format(self._runArgsName, k, v)
+                            print('{0}.{1!s}.extend({2!r})'.format(self._runArgsName, k, v), file=runargsFile)
                     else:
                         msg.debug('Adding runarg {0!s}={1!r}'.format(k, v))
-                        print >>runargsFile, '{0}.{1!s} = {2!r}'.format(self._runArgsName, k, v)
+                        print('{0}.{1!s} = {2!r}'.format(self._runArgsName, k, v), file=runargsFile)
     
                 ## @note runtime runargs are passed as strings, i.e., they can be evaluated
-                print >>runargsFile, os.linesep, '# Extra runtime runargs'
-                for k, v in self._exe._runtimeRunargs.iteritems():
+                print(os.linesep, '# Extra runtime runargs', file=runargsFile)
+                for k, v in iteritems(self._exe._runtimeRunargs):
                     # These options are string converted, not repred, so they can write an option
                     # which is evaluated at runtime
                     # Protect this with try: except: for the Embedding use case
                     msg.debug('Adding runarg {0!s}={1!r}'.format(k, v))
-                    print >>runargsFile, os.linesep.join(('try:',
+                    print(os.linesep.join(('try:',
                                                           '    {0}.{1!s} = {2!s}'.format(self._runArgsName, k, v),
                                                           'except AttributeError:',
-                                                          '    print "WARNING - AttributeError for {0}"'.format(k)))
+                                                          '    print "WARNING - AttributeError for {0}"'.format(k))), file=runargsFile)
     
                 ## @note Now write the literals into the runargs file
                 if self._exe._literalRunargs is not None:
-                    print >>runargsFile, os.linesep, '# Literal runargs snippets'
+                    print(os.linesep, '# Literal runargs snippets', file=runargsFile)
                     for line in self._exe._literalRunargs:
-                        print >>runargsFile, line
+                        print(line, file=runargsFile)
                         
                 ## Another special option - dataArgs are always written to the runargs file
                 for dataType in self._exe._dataArgs:
-                    print >>runargsFile, os.linesep, '# Forced data value arguments'
+                    print(os.linesep, '# Forced data value arguments', file=runargsFile)
                     if dataType in self._exe.conf.dataDictionary:
-                        print >>runargsFile, '{0}.data{1}arg = {2!r}'.format(self._runArgsName, dataType, 
-                                                                          self._exe.conf.dataDictionary[dataType].value)
+                        print('{0}.data{1}arg = {2!r}'.format(self._runArgsName, dataType, 
+                                                                          self._exe.conf.dataDictionary[dataType].value), file=runargsFile)
                     else:
-                        print >>runargsFile, '# Warning: data type "{0}" is not part of this transform'.format(dataType)
+                        print('# Warning: data type "{0}" is not part of this transform'.format(dataType), file=runargsFile)
     
                 # This adds the correct JO fragment for AthenaMP job, where we need to ask
                 # the FileMgr to produce the requested log and report files
                 # Also, aggregating the workers' logfiles into the mother's makes life
                 # easier for debugging
                 if self._exe._athenaMP:
-                    print >>runargsFile, os.linesep, '# AthenaMP Options. nprocs = %d' % self._exe._athenaMP
+                    print(os.linesep, '# AthenaMP Options. nprocs = %d' % self._exe._athenaMP, file=runargsFile)
                     # Proxy for both options
-                    print >>runargsFile, os.linesep.join((os.linesep,
+                    print(os.linesep.join((os.linesep,
                                                          'from AthenaMP.AthenaMPFlags import jobproperties as AthenaMPJobProps',
                                                          'AthenaMPJobProps.AthenaMPFlags.WorkerTopDir="{0}"'.format(self._exe._athenaMPWorkerTopDir),
                                                          'AthenaMPJobProps.AthenaMPFlags.OutputReportFile="{0}"'.format(self._exe._athenaMPFileReport),
                                                          'AthenaMPJobProps.AthenaMPFlags.EventOrdersFile="{0}"'.format(self._exe._athenaMPEventOrdersFile),
                                                          'AthenaMPJobProps.AthenaMPFlags.CollectSubprocessLogs=True'
-                                                         ))
+                                                         )), file=runargsFile)
                     if self._exe._athenaMPStrategy:
                         # Beware of clobbering a non default value (a feature used by EventService)
-                        print >>runargsFile, 'if AthenaMPJobProps.AthenaMPFlags.Strategy.isDefault():'
-                        print >>runargsFile, '\tAthenaMPJobProps.AthenaMPFlags.Strategy="{0}"'.format(self._exe._athenaMPStrategy)
+                        print('if AthenaMPJobProps.AthenaMPFlags.Strategy.isDefault():', file=runargsFile)
+                        print('\tAthenaMPJobProps.AthenaMPFlags.Strategy="{0}"'.format(self._exe._athenaMPStrategy), file=runargsFile)
                     if self._exe._athenaMPReadEventOrders:
                         if os.path.isfile(self._exe._athenaMPEventOrdersFile):
-                            print >>runargsFile, 'AthenaMPJobProps.AthenaMPFlags.ReadEventOrders=True'
+                            print('AthenaMPJobProps.AthenaMPFlags.ReadEventOrders=True', file=runargsFile)
                         else:
                             raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_EXEC_RUNARGS_ERROR"), "Failed to find file: {0} required by athenaMP option: --athenaMPUseEventOrders true".format(self._exe._athenaMPEventOrdersFile))
                     if 'athenaMPEventsBeforeFork' in self._exe.conf.argdict:
-                        print >>runargsFile, 'AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value)
+                        print('AthenaMPJobProps.AthenaMPFlags.EventsBeforeFork={0}'.format(self._exe.conf.argdict['athenaMPEventsBeforeFork'].value), file=runargsFile)
 
                 msg.info('Successfully wrote runargs file {0}'.format(self._runArgsFile))
                 

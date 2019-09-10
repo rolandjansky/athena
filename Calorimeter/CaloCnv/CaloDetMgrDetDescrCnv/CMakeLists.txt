@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
-                          Control/SGTools
                           Control/StoreGate
                           Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
@@ -32,7 +31,7 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 atlas_add_component( CaloDetMgrDetDescrCnv
                      src/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} DetDescrCnvSvcLib Identifier GaudiKernel CaloDetDescrLib CaloIdentifier AthenaKernel SGTools StoreGateLib SGtests GeoModelUtilities LArReadoutGeometry TileDetDescr )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} DetDescrCnvSvcLib Identifier GaudiKernel CaloDetDescrLib CaloIdentifier AthenaKernel StoreGateLib SGtests GeoModelUtilities LArReadoutGeometry TileDetDescr )
 
 # Install files from the package:
 atlas_install_headers( CaloDetMgrDetDescrCnv )

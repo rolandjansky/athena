@@ -21,10 +21,7 @@ class FEI3SimTool:public FrontEndSimTool {
   private:
     FEI3SimTool();
 
-    int m_timingTune;
-
     int relativeBunch2009(const double threshold, const double intimethreshold, const SiTotalCharge &totalCharge, CLHEP::HepRandomEngine *rndmEngine) const;
-
     int relativeBunch2015(const SiTotalCharge &totalCharge, int barrel_ec, int layer_disk, int moduleID, CLHEP::HepRandomEngine *rndmEngine) const;
 
 };

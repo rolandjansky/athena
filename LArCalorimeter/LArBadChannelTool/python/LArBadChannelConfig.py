@@ -3,7 +3,7 @@ from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBad
 from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
-def LArBadChannelCfg(configFlags):
+def LArBadChannelCfg(configFlags, tag=""):
 
     result=LArOnOffIdMappingCfg(configFlags)
     
@@ -18,14 +18,14 @@ def LArBadChannelCfg(configFlags):
     else:
         dbname="LAR_OFL"
 
-    result.merge(addFolders(configFlags,foldername,detDb=dbname,className="CondAttrListCollection"))
+    result.merge(addFolders(configFlags,foldername + tag,detDb=dbname,className="CondAttrListCollection"))
     
     theLArBadChannelCondAlgo=LArBadChannelCondAlg(ReadKey=foldername)
     result.addCondAlgo(theLArBadChannelCondAlgo)
     return result
 
 
-def LArBadFebCfg(configFlags):
+def LArBadFebCfg(configFlags, tag=""):
     result=ComponentAccumulator()
 
     if configFlags.Common.isOnline or configFlags.Input.isMC:
@@ -39,7 +39,7 @@ def LArBadFebCfg(configFlags):
     else:
         dbname="LAR_OFL"
 
-    result.merge(addFolders(configFlags,foldername,detDb=dbname,className="AthenaAttributeList"))
+    result.merge(addFolders(configFlags,foldername + tag,detDb=dbname,className="AthenaAttributeList"))
     result.addCondAlgo(LArBadFebCondAlg(ReadKey=foldername))
     return result
 

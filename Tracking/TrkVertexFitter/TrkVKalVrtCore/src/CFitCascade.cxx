@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -13,8 +13,8 @@
 
 namespace Trk {
 
-extern vkalPropagator  myPropagator;
-extern vkalMagFld      myMagFld;
+extern const vkalPropagator  myPropagator;
+extern const vkalMagFld      myMagFld;
 
 extern int cfdinv(double *, double *, long int );
 extern int cfInv5(double *cov, double *wgt );
@@ -35,7 +35,7 @@ extern void setFittedParameters(double * , std::vector<int> &, CascadeEvent &);
 extern int getCascadeNPar(CascadeEvent &, int Type=0);
 extern VKTrack * getCombinedVTrack(VKVertex *);
 extern void vpderiv(bool, long int , double *, double *, double *, double *, double *, double *, double *, const VKalVrtControl * =0);
-extern std::array<double, 4> getFitParticleMom( VKTrack *, double);
+extern std::array<double, 4> getFitParticleMom( const VKTrack *, double);
 
 extern void setFittedMatrices(double * , long int , std::vector<int> &, std::vector< std::vector<double> > &, CascadeEvent& );
 extern std::vector<double> transformCovar(int , double **, const std::vector<double>& );
@@ -63,7 +63,7 @@ int setVTrackMass(VKVertex * vk)
    NTRK = vk->TrackList.size();                   // Number of tracks at vertex
    totP.Px=0.;totP.Py=0.;totP.Pz=0.;totP.E=0.;
    for(it=0; it<NTRK; it++){
-       std::array<double, 4> pp = getFitParticleMom( vk->TrackList[it], vBz );
+       std::array<double, 4> pp = getFitParticleMom( vk->TrackList[it].get(), vBz );
        totP.Px += pp[0];     
        totP.Py += pp[1];     
        totP.Pz += pp[2];     
@@ -95,7 +95,7 @@ long int getVertexCharge( VKVertex * vk){
 double cascadeCnstRemnants(CascadeEvent & cascadeEvent_){
   double cnstRemnants=0.;
   for(int iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     VKVertex * vk = cascadeEvent_.cascadeVertexList[iv];
+     VKVertex * vk = cascadeEvent_.cascadeVertexList[iv].get();
      for(int ii=0; ii<(int)vk->ConstraintList.size();ii++){
         for(int ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
            cnstRemnants +=  fabs( vk->ConstraintList[ii]->aa[ic] ); 
@@ -131,8 +131,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //
   bool existPointingCnst=false;
   for(int ic=0; ic<(int)vk->ConstraintList.size(); ic++){
-    VKPointConstraint * p_cnst=dynamic_cast<VKPointConstraint *>(vk->ConstraintList[ic]);
-    if(p_cnst) existPointingCnst=true;
+    if(vk->ConstraintList[ic]->getType() == VKContraintType::Point) { existPointingCnst=true; break; }
   }
 //
 //-------- Then fit
@@ -240,7 +239,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //   For last in structure (mother in cascade...) always calculate it - needed for pointing
 //
    CascadeEvent & cascadeEvent_ = *(vk->vk_fitterControl->getCascadeEvent());
-   if( vk->passNearVertex || vk==cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1]){
+   if( vk->passNearVertex || vk==cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1].get()){
       double dptot[4],VrtMomCov[21];      
       IERR = afterFit( vk, vk->ader, vk->FVC.dcv, dptot, VrtMomCov, (vk->vk_fitterControl).get());
       if (IERR) return -13;                        /* NONINVERTIBLE COV.MATRIX */
@@ -273,7 +272,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 // This initial step is needed to get initial estimation for "passing near constraint 
 //
   for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     vk = cascadeEvent_.cascadeVertexList[iv];
+     vk = cascadeEvent_.cascadeVertexList[iv].get();
      IERR = fitVertexCascade( vk, 0);     if(IERR)return IERR;   //fit 
      IERR = setVTrackMass(vk);            if(IERR)return IERR;   //mass of combined particle
   }
@@ -286,7 +285,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
   for(Iter=0; Iter<100; Iter++){
      Chi2Cur=0.;
      for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-       vk = cascadeEvent_.cascadeVertexList[iv];
+       vk = cascadeEvent_.cascadeVertexList[iv].get();
 //
 //Calculate derivatives for "passing near" cnst. Initial vertex position is used for derivatives.
 //Results are saved in ForVRTClose structure
@@ -322,10 +321,10 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //     of correct size
 //
   for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     vk = cascadeEvent_.cascadeVertexList[iv];
+     vk = cascadeEvent_.cascadeVertexList[iv].get();
      if(vk->nextCascadeVrt){
        long int NTRK = vk->TrackList.size();  
-       vk->ConstraintList.push_back(new VKPointConstraint( NTRK, vk->nextCascadeVrt->refIterV , vk, false));
+       vk->ConstraintList.emplace_back(new VKPointConstraint( NTRK, vk->nextCascadeVrt->refIterV , vk, false));
      }
   }
   long int fullNPar = getCascadeNPar(cascadeEvent_);
@@ -355,7 +354,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
      NStart=0;
      for( iv=0; iv<fullNPar*fullNPar; iv++)fullMatrix[iv]=0.;  // zero full matrix
      for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-       vk = cascadeEvent_.cascadeVertexList[iv];
+       vk = cascadeEvent_.cascadeVertexList[iv].get();
 //
 //Calculate derivatives for "passing near" cnst. Initial vertex position is used for derivatives.
 //Results are saved in ForVRTClose structure
@@ -434,15 +433,14 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
        IERR = vkMSolve(fullMatrix, fullLSide, fullNPar);
        if(IERR){ delete[] fullMatrix; delete[] fullLSide; delete[] tmpLSide; delete[] iniCovMatrix;return IERR;}
      }else{                                               //Last step. Solution+full error matrix
-       if(cascadeEvent_.fullCovMatrix)delete[] cascadeEvent_.fullCovMatrix;
-       cascadeEvent_.fullCovMatrix = new double[fullNPar*fullNPar];     //Create fresh matrix
-       IERR = vkMSolve(fullMatrix, fullLSide, fullNPar, cascadeEvent_.fullCovMatrix);
+       cascadeEvent_.fullCovMatrix = std::make_unique< double[] >(fullNPar*fullNPar);     //Create fresh matrix
+       IERR = vkMSolve(fullMatrix, fullLSide, fullNPar, cascadeEvent_.fullCovMatrix.get());
        if(IERR){ delete[] fullMatrix; delete[] fullLSide; delete[] tmpLSide; delete[] iniCovMatrix;
-                 delete[] cascadeEvent_.fullCovMatrix; cascadeEvent_.fullCovMatrix=0; return IERR;}
+                 cascadeEvent_.fullCovMatrix.reset(); return IERR;}
 //std::cout<<"fulcov="; for(int tt=0; tt<fullNPar; tt++)std::cout<<cascadeEvent_.fullCovMatrix[tt*fullNPar+tt]<<", "; std::cout<<'\n';
-       double *  newCov = new double[fullNPar*fullNPar];  //Check via error transfer from left side (measured values). Gives exactly the same errors - correct!!! 
-       getNewCov(iniCovMatrix, cascadeEvent_.fullCovMatrix, newCov, fullNPar);
-       delete[] cascadeEvent_.fullCovMatrix; cascadeEvent_.fullCovMatrix=newCov;
+       auto  newCov = std::make_unique<double[]>(fullNPar*fullNPar);  //Check via error transfer from left side (measured values). Gives exactly the same errors - correct!!! 
+       getNewCov(iniCovMatrix, cascadeEvent_.fullCovMatrix.get(), newCov.get(), fullNPar);
+       cascadeEvent_.fullCovMatrix=std::move(newCov); //Unique_ptr will handle deletion automatically
      }
 //
 // Set fitted parameters
@@ -453,9 +451,9 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //
      double Chi2Full=0.;
      for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-        vk = cascadeEvent_.cascadeVertexList[iv];
+        vk = cascadeEvent_.cascadeVertexList[iv].get();
         for(int it=0; it<(int)vk->TrackList.size(); it++){
-           VKTrack * trk=vk->TrackList[it]; if(trk->Id >= 0)Chi2Full+=trk->Chi2;    // real track in cascade
+           VKTrack * trk=vk->TrackList[it].get(); if(trk->Id >= 0)Chi2Full+=trk->Chi2;    // real track in cascade
         }
         if(cascadeEvent_.nearPrmVertex && iv==(cascadeEvent_.cascadeNV-1)){   //only last vertex in cascade may have it
            double signift = cfVrtDstSig( vk, vk->passWithTrkCov);
@@ -478,10 +476,10 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
      if(IERR){ delete[] fullMatrix; delete[] fullLSide; delete[] tmpLSide; delete[] iniCovMatrix; return IERR;}
 
      for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-        vk = cascadeEvent_.cascadeVertexList[iv];
+        vk = cascadeEvent_.cascadeVertexList[iv].get();
         if(vk->nextCascadeVrt){
           int pntCnst = vk->ConstraintList.size() - 1;  // pointing constraint is always last in the list
-          VKPointConstraint * pcnst = dynamic_cast<VKPointConstraint*>(vk->ConstraintList[pntCnst]);
+          VKPointConstraint * pcnst = dynamic_cast<VKPointConstraint*>(vk->ConstraintList[pntCnst].get());
           pcnst->setTargetVertex(vk->nextCascadeVrt->refIterV);
         }
      }
@@ -519,7 +517,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
  int processCascadePV(CascadeEvent & cascadeEvent_, double *primVrt, double *primVrtCov )
 {
     double aermd[6],tmpd[6];  // temporary arrays
-    VKVertex * vk = cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1]; //Main vertex
+    VKVertex * vk = cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1].get(); //Main vertex
 
     vk->vk_fitterControl->vk_forcft.vrt[0] = primVrt[0];
     vk->vk_fitterControl->vk_forcft.vrt[1] = primVrt[1];
@@ -547,7 +545,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
  int processCascade(CascadeEvent & cascadeEvent_, double *primVrt, double *primVrtCov )
 { 
     cascadeEvent_.nearPrmVertex=1;                                             //setting up additional Chi2 term
-    VKVertex * vk = cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1]; //Main vertex
+    VKVertex * vk = cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1].get(); //Main vertex
     vk->passNearVertex  =true;                        // For fitting machinery
     vk->passWithTrkCov  =true;                        // For fitting machinery
     vk->FVC.vrt[0] = primVrt[0];
@@ -567,9 +565,9 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //
  int processCascade(CascadeEvent & cascadeEvent_, double *primVrt )
 { 
-    VKVertex * vk = cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1]; //Main vertex
+    VKVertex * vk = cascadeEvent_.cascadeVertexList[cascadeEvent_.cascadeNV-1].get(); //Main vertex
     long int NTRK = vk->TrackList.size();  
-    vk->ConstraintList.push_back(new VKPointConstraint( NTRK, primVrt, vk, false));
+    vk->ConstraintList.emplace_back(new VKPointConstraint( NTRK, primVrt, vk, false));
     cascadeEvent_.nearPrmVertex=0;                 //explicitly turn off additional Chi2 term
     return processCascade(cascadeEvent_);
 }
@@ -588,7 +586,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
   if(Step>1.)Step=1.;
   
   for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     vk=cascadeEvent_.cascadeVertexList[iv];
+     vk=cascadeEvent_.cascadeVertexList[iv].get();
      NTRK = vk->TrackList.size();            // Number of tracks at vertex
      targetVertex[0]=vk->refIterV[0] + vk->fitV[0]*Step;  // target vertex for extrapolation
      targetVertex[1]=vk->refIterV[1] + vk->fitV[1]*Step;
@@ -598,11 +596,11 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
                    +(vk->refV[2]-targetVertex[2])*(vk->refV[2]-targetVertex[2]) );
 //std::cout<<"target="<<targetVertex[0]<<", "<<targetVertex[1]<<", "<<targetVertex[2]<<" vsht="<<vShift<<'\n';
      bool insideGoodVolume=false;
-     if(vk->vk_fitterControl && vk->vk_fitterControl->vk_objProp) { insideGoodVolume = vk->vk_fitterControl->vk_objProp->checkTarget(targetVertex);}
+     if(vk->vk_fitterControl && vk->vk_fitterControl->vk_objProp) { insideGoodVolume = vk->vk_fitterControl->vk_objProp->checkTarget(targetVertex, *vk->vk_fitterControl->vk_istate);}
      else                                                      { insideGoodVolume = myPropagator.checkTarget(targetVertex); }
      if(!insideGoodVolume) { return -16; }       //Vertex is definitely outside working volume
      for(it=0; it<NTRK; it++){
-       trk=vk->TrackList[it];
+       trk=vk->TrackList[it].get();
        if(trk->Id < 0){                // pseudo-track from cascade vertex
           trk->fitP[0] =trk->iniP[0]+ Step*(trk->fitP[0]-trk->iniP[0]);
           trk->fitP[1] =trk->iniP[1]+ Step*(trk->fitP[1]-trk->iniP[1]);
@@ -634,7 +632,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
      vk->iniV[1] = vk->fitV[1] = vk->cnstV[1]=0.;
      vk->iniV[2] = vk->fitV[2] = vk->cnstV[2]=0.;
      for(it=0; it<NTRK; it++){
-       trk=vk->TrackList[it];
+       trk=vk->TrackList[it].get();
        if(Step<1.){                          // Step limitation for constraint calculation on next step
          trk->cnstP[0] = trk->iniP[0] =trk->iniP[0]+ Step*(trk->fitP[0]-trk->iniP[0]);
          trk->cnstP[1] = trk->iniP[1] =trk->iniP[1]+ Step*(trk->fitP[1]-trk->iniP[1]);
@@ -660,7 +658,7 @@ int restorePreviousPos(CascadeEvent & cascadeEvent_, std::vector<VKVertex> & SV 
   VKTrack * trk; VKTrack * trks; VKVertex * vk; VKVertex * vks;
   
   for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     vk=cascadeEvent_.cascadeVertexList[iv];
+     vk=cascadeEvent_.cascadeVertexList[iv].get();
      vks=&SV[iv];
      NTRK = vk->TrackList.size();            // Number of tracks at vertex
      vk->refIterV[0]=vks->refIterV[0];
@@ -672,8 +670,8 @@ int restorePreviousPos(CascadeEvent & cascadeEvent_, std::vector<VKVertex> & SV 
      cfdcopy(vks->fitMom,       vk->fitMom, 3);        //saved Momentum
      cfdcopy(vks->fitCovXYZMom, vk->fitCovXYZMom, 21); //saved XYZMom covariance
      for(it=0; it<NTRK; it++){
-       trk =vk ->TrackList[it];                  //  working track
-       trks=vks->TrackList[it];                // track from saved copy
+       trk =vk ->TrackList[it].get();                  //  working track
+       trks=vks->TrackList[it].get();                // track from saved copy
        if(trk->Id < 0) {     // pseudo-track from cascade vertex
           //trk->fitP[2]=0.;        // reset the pseudo-track parameters
           trk->fitP[0] =(trks->iniP[0]+trks->fitP[0])/2.;
@@ -689,12 +687,11 @@ int restorePreviousPos(CascadeEvent & cascadeEvent_, std::vector<VKVertex> & SV 
      }      
   }
   for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-    vk = cascadeEvent_.cascadeVertexList[iv];
+    vk = cascadeEvent_.cascadeVertexList[iv].get();
     if(vk->nextCascadeVrt){
        int pntCnst = vk->ConstraintList.size() - 1;  // pointing constraint is always last in the list
-       VKPointConstraint * pcnst = dynamic_cast<VKPointConstraint*>(vk->ConstraintList[pntCnst]);
-       if(pcnst==0) return -1;
-       pcnst->setTargetVertex(vk->nextCascadeVrt->refIterV);
+       if(vk->ConstraintList[pntCnst]->getType() != VKContraintType::Point) return -1;
+       static_cast< VKPointConstraint* >(vk->ConstraintList[pntCnst].get())->setTargetVertex(vk->nextCascadeVrt->refIterV);
     }
   }
   return 0;
@@ -716,7 +713,7 @@ void getFittedCascade( CascadeEvent & cascadeEvent_,
 //   Split common covariance matrix into pieces
 //
    std::vector< std::vector<double> > cascadeCovarFit;
-   setFittedMatrices(cascadeEvent_.fullCovMatrix, getCascadeNPar(cascadeEvent_), cascadeEvent_.matrixPnt, cascadeCovarFit, cascadeEvent_);
+   setFittedMatrices(cascadeEvent_.fullCovMatrix.get(), getCascadeNPar(cascadeEvent_), cascadeEvent_.matrixPnt, cascadeCovarFit, cascadeEvent_);
 //
    double vBx,vBy,vBz,pp2,pt,invR;
    int iv,it,jt, NTRK, pnt;
@@ -731,11 +728,11 @@ void getFittedCascade( CascadeEvent & cascadeEvent_,
    VectMOM prtMom;
    VKVertex * vk;
    std::vector<VectMOM> momCollector;
-   std::vector<double>  tmpCov(6),Deriv(3);
+   std::vector<double>  tmpCov(6);
 //
    int pntPhys=0;  // Counter for physics cascade parameters 
    for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
-     vk=cascadeEvent_.cascadeVertexList[iv];
+     vk=cascadeEvent_.cascadeVertexList[iv].get();
      vrtPos.X=vk->refIterV[0] + vk->fitV[0];  // target vertex for extrapolation
      vrtPos.Y=vk->refIterV[1] + vk->fitV[1];
      vrtPos.Z=vk->refIterV[2] + vk->fitV[2];
@@ -752,7 +749,7 @@ void getFittedCascade( CascadeEvent & cascadeEvent_,
      myMagFld.getMagFld(vk->refIterV[0]+vk->fitV[0], vk->refIterV[1]+vk->fitV[1], vk->refIterV[2]+vk->fitV[2],
                                                       vBx,vBy,vBz,(vk->vk_fitterControl).get());
      for(it=0; it<NTRK; it++){
-       std::array<double, 4> pp = getFitParticleMom( vk->TrackList[it], vBz );
+       std::array<double, 4> pp = getFitParticleMom( vk->TrackList[it].get(), vBz );
        prtMom.Px=pp[0]; prtMom.Py=pp[1]; prtMom.Pz=pp[2]; prtMom.E=pp[3]; 
        momCollector.push_back( prtMom );
        if(vk->TrackList[it]->Id >= 0) particleChi2.push_back( vk->TrackList[it]->Chi2 ); //Only real tracks

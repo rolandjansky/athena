@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/SiHit.h"
@@ -241,7 +241,7 @@ void SiHitCollectionCnv_p2::transToPers(const SiHitCollection* transCont, SiHitC
 
 
 SiHitCollection* SiHitCollectionCnv_p2::createTransient(const SiHitCollection_p2* persObj, MsgStream &log) {
-  std::auto_ptr<SiHitCollection> trans(new SiHitCollection("DefaultCollectionName",persObj->m_nHits.size()));
+  std::unique_ptr<SiHitCollection> trans(std::make_unique<SiHitCollection>("DefaultCollectionName",persObj->m_nHits.size()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

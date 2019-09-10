@@ -11,9 +11,10 @@
 #include <fstream>
 #include <iostream>
 #include "ObjSurfaceWriter.h"
-#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Logger.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 namespace Acts {
 class TrackingVolume;
@@ -62,7 +63,7 @@ public:
   /// @param tGeometry is the geometry to be written out
   /// @return ProcessCode to indicate success/failure
   void
-  write(const Acts::TrackingGeometry& tGeometry);
+  write(const Acts::GeometryContext& gctx, const Acts::TrackingGeometry& tGeometry);
 
 private:
   Config m_cfg;  ///< the config class
@@ -70,7 +71,7 @@ private:
   /// process this volume
   /// @param tVolume the volume to be processed
   void
-  write(const Acts::TrackingVolume& tVolume);
+  write(const Acts::GeometryContext& gctx, const Acts::TrackingVolume& tVolume);
 
   /// Private access to the logging instance
   const Acts::Logger&

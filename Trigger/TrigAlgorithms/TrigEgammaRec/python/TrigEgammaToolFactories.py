@@ -18,7 +18,7 @@ from AthenaCommon.SystemOfUnits import GeV,MeV,deg
 # New configuration for use in rel 19.X with xAOD
 # Adapted from egammaRec/egammaGetter.py
 # Factory tools, handles configuration of tools and dependencies
-from egammaRec.Factories import Factory, PublicToolFactory, FcnWrapper, getPropertyValue 
+from egammaRec.Factories import Factory, ToolFactory, PublicToolFactory, FcnWrapper, getPropertyValue 
 
 # Import tools required for trigger reconstruction
 # Following offline tools not used at HLT: 
@@ -47,6 +47,16 @@ TrigCaloFillRectangularCluster = PublicToolFactory( Cccc.CaloFillRectangularClus
         phi_size = 7,
         cells_name = "")
 
+# tool to extrapolate to the calo
+from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool, Rec__ParticleCaloCellAssociationTool
+#this is just regular extrapolator, but in ToolFactory form
+from egammaTools.InDetTools import egammaExtrapolator
+CaloExtensionTool =  ToolFactory (Trk__ParticleCaloExtensionTool,
+                                  Extrapolator = egammaExtrapolator)
+
+CaloCellAssocTool =  ToolFactory (Rec__ParticleCaloCellAssociationTool,
+                                  ParticleCaloExtensionTool = CaloExtensionTool)
+
 from AthenaCommon.GlobalFlags import globalflags
 isMC = not globalflags.DataSource()=='data'
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ICT
@@ -55,28 +65,32 @@ IsoCorrectionToolTrig = PublicToolFactory(ICT,
                                     IsMC = isMC)
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool,xAOD__TrackIsolationTool
 from CaloIdentifier import SUBCALO
-TrigCaloIsolationTool = PublicToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloIsolationTool",
+TrigCaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloIsolationTool",
         doEnergyDensityCorrection = False,
         saveOnlyRequestedCorrections = True,
         IsoLeakCorrectionTool          = IsoCorrectionToolTrig,
         CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
+        ParticleCaloExtensionTool      = CaloExtensionTool,
+        ParticleCaloCellAssociationTool = CaloCellAssocTool,
         EMCaloNums = [SUBCALO.LAREM],
         HadCaloNums = [SUBCALO.LARHEC,SUBCALO.TILE])
 
 from ParticlesInConeTools.ParticlesInConeToolsConf import xAOD__CaloClustersInConeTool
 TrigCaloClustersInConeTool = PublicToolFactory(xAOD__CaloClustersInConeTool,CaloClusterLocation = "CaloCalTopoCluster")
 
-TrigCaloTopoIsolationTool = PublicToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloTopoIsolationTool",
+TrigCaloTopoIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "TrigEgammaCaloTopoIsolationTool",
         doEnergyDensityCorrection = True,
         saveOnlyRequestedCorrections = True,
         IsoLeakCorrectionTool          = IsoCorrectionToolTrig,
         ClustersInConeTool              = TrigCaloClustersInConeTool,
         CaloFillRectangularClusterTool = TrigCaloFillRectangularCluster,
         UseEMScale = True,
+        ParticleCaloExtensionTool      = CaloExtensionTool,
+        ParticleCaloCellAssociationTool = CaloCellAssocTool,
         TopoClusterEDCentralContainer = "HLTTopoClusterIsoCentralEventShape",
         TopoClusterEDForwardContainer = "HLTTopoClusterIsoForwardEventShape")
 
-TrigTrackIsolationTool = PublicToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
+TrigTrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
 
 TrkIsoCfg = CfgMgr.xAOD__TrackIsolationTool('TrigEgammaTrackIsolationTool')
 TrkIsoCfg.TrackSelectionTool.maxZ0SinTheta = 3.

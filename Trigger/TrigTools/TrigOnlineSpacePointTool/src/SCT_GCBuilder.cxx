@@ -2,7 +2,7 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineSpacePointTool/SCT_GCBuilder.h"
+#include "SCT_GCBuilder.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"

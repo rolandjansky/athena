@@ -32,29 +32,21 @@ namespace Analysis {
     StatusCode JpsiPlus2Tracks::initialize() {
         
         // retrieving vertex Fitter
-        if ( m_iVertexFitter.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_iVertexFitter);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_iVertexFitter);
-        }
+        ATH_CHECK(m_iVertexFitter.retrieve());
         m_VKVFitter = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_iVertexFitter));
         
         // Get the track selector tool from ToolSvc
-        if ( m_trkSelector.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_trkSelector);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_trkSelector);
-        }
+        ATH_CHECK(m_trkSelector.retrieve());
 
         // Get the vertex point estimator tool from ToolSvc
-        if ( m_vertexEstimator.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_vertexEstimator);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Retrieved tool " << m_vertexEstimator);
-        }
+        ATH_CHECK(m_vertexEstimator.retrieve());
+
+        ATH_CHECK(m_jpsiCollectionKey.initialize());
+        ATH_CHECK(m_TrkParticleCollection.initialize());
+        ATH_CHECK(m_TrkParticleGSFCollection.initialize(!m_TrkParticleGSFCollection.key().empty()));
+        if(m_MuonsUsedInJpsi.key() == "NONE") m_MuonsUsedInJpsi = "";
+        ATH_CHECK(m_MuonsUsedInJpsi.initialize(!m_MuonsUsedInJpsi.key().empty()));
+        ATH_CHECK(m_PVerticesCollection.initialize());
 
         if(!m_manualMassHypo.empty() && m_manualMassHypo.size() !=4){
             ATH_MSG_FATAL("Invalid number of elements given for manualMass hypothesis - needs 4");
@@ -93,8 +85,6 @@ namespace Analysis {
     }
     
     StatusCode JpsiPlus2Tracks::finalize() {
-        
-        ATH_MSG_INFO("Finalize successful");
         return StatusCode::SUCCESS;
         
     }
@@ -116,7 +106,7 @@ namespace Analysis {
     m_jpsiMassLower(0.0),
     m_TrkParticleCollection("InDetTrackParticles"),
     m_TrkParticleGSFCollection("GSFTrackParticles"),
-    m_MuonsUsedInJpsi("NONE"),
+    m_MuonsUsedInJpsi(),
     m_excludeJpsiMuonsOnly(true),
     m_excludeCrossJpsiTracks(false),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
@@ -197,53 +187,48 @@ namespace Analysis {
         bAuxContainer = new xAOD::VertexAuxContainer;
         bContainer->setStore(bAuxContainer);
         
-        // Get the ToolSvc
-        IToolSvc* toolsvc;
-        StatusCode sc1=service("ToolSvc",toolsvc);
-        if (sc1.isFailure() ) {
-            ATH_MSG_ERROR("Problem loading tool service. BContainer will be EMPTY!");
-            return StatusCode::FAILURE;
-        };
-        
-
         
         // Get the J/psis from StoreGate
         const xAOD::VertexContainer* importedJpsiCollection(0);
-        StatusCode sc = evtStore()->retrieve(importedJpsiCollection,m_jpsiCollectionKey);
-        if(sc.isFailure()){
-            ATH_MSG_ERROR("No VertexContainer with key " << m_jpsiCollectionKey << " found in StoreGate. BCandidates will be EMPTY!");
+        SG::ReadHandle<xAOD::VertexContainer> jpsihandle(m_jpsiCollectionKey);
+        if(!jpsihandle.isValid()){
+            ATH_MSG_ERROR("No VertexContainer with key " << m_jpsiCollectionKey.key() << " found in StoreGate. BCandidates will be EMPTY!");
             return StatusCode::FAILURE;
         }else{
-            ATH_MSG_DEBUG("Found VxCandidate container with key "<<m_jpsiCollectionKey);
+            importedJpsiCollection = jpsihandle.cptr();
+            ATH_MSG_DEBUG("Found VxCandidate container with key "<<m_jpsiCollectionKey.key());
         }
         ATH_MSG_DEBUG("VxCandidate container size " << importedJpsiCollection->size());
         
         // Get tracks
         const xAOD::TrackParticleContainer* importedTrackCollection(0);
-        sc = evtStore()->retrieve(importedTrackCollection,m_TrkParticleCollection);
-        if(sc.isFailure()){
-            ATH_MSG_ERROR("No track particle collection with name " << m_TrkParticleCollection << " found in StoreGate!");
+        SG::ReadHandle<xAOD::TrackParticleContainer> trackshandle(m_TrkParticleCollection);
+        if(!trackshandle.isValid()){
+            ATH_MSG_ERROR("No track particle collection with name " << m_TrkParticleCollection.key() << " found in StoreGate!");
             return StatusCode::FAILURE;
         } else {
-            ATH_MSG_DEBUG("Found track particle collection " << m_TrkParticleCollection << " in StoreGate!");
+            importedTrackCollection = trackshandle.cptr();
+            ATH_MSG_DEBUG("Found track particle collection " << m_TrkParticleCollection.key() << " in StoreGate!");
         }
         ATH_MSG_DEBUG("Track container size "<< importedTrackCollection->size());
 
         const xAOD::TrackParticleContainer* importedGSFTrackCollection(nullptr);
-        if(m_useGSFTrack.any()){
-           ATH_CHECK(evtStore()->retrieve(importedGSFTrackCollection, m_TrkParticleGSFCollection));
+        if(m_useGSFTrack.any() && !m_TrkParticleGSFCollection.key().empty()){
+           SG::ReadHandle<xAOD::TrackParticleContainer> h(m_TrkParticleGSFCollection);
+           ATH_CHECK(h.isValid());
+           importedGSFTrackCollection = h.cptr();
         }
-
 
         // Get the muon collection used to build the J/psis
         const xAOD::MuonContainer* importedMuonCollection(0);
-        if (m_MuonsUsedInJpsi!="NONE") {
-            sc = evtStore()->retrieve(importedMuonCollection,m_MuonsUsedInJpsi);
-            if (sc.isFailure()){
-                ATH_MSG_ERROR("No muon collection with name " << m_MuonsUsedInJpsi << " found in StoreGate!");
+        if (!m_MuonsUsedInJpsi.key().empty()) {
+            SG::ReadHandle<xAOD::MuonContainer> h(m_MuonsUsedInJpsi);
+            if (!h.isValid()){
+                ATH_MSG_ERROR("No muon collection with name " << m_MuonsUsedInJpsi.key() << " found in StoreGate!");
                 return StatusCode::FAILURE;
             } else {
-                ATH_MSG_DEBUG("Found muon collection " << m_MuonsUsedInJpsi << " in StoreGate!");
+                importedMuonCollection = h.cptr();
+                ATH_MSG_DEBUG("Found muon collection " << m_MuonsUsedInJpsi.key() << " in StoreGate!");
             }
             ATH_MSG_DEBUG("Muon container size "<< importedMuonCollection->size());
         }
@@ -251,7 +236,9 @@ namespace Analysis {
         // Get primary vertices
         const xAOD::VertexContainer* importedPVerticesCollection(0);
         if(m_vertexFittingWithPV){
-           ATH_CHECK(evtStore()->retrieve(importedPVerticesCollection, m_PVerticesCollection));
+           SG::ReadHandle<xAOD::VertexContainer> h(m_PVerticesCollection);
+           ATH_CHECK(h.isValid());
+           importedPVerticesCollection = h.cptr();
            ATH_MSG_DEBUG("PVertices container size "<< importedPVerticesCollection->size());
         }
         // Typedef for vectors of tracks and VxCandidates
@@ -479,8 +466,8 @@ namespace Analysis {
     xAOD::Vertex* JpsiPlus2Tracks::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,
                                        const xAOD::TrackParticleContainer* importedTrackCollection, const xAOD::Vertex* pv, 
                                        const xAOD::TrackParticleContainer* gsfCollection) const {
-        
-        m_VKVFitter->setDefault();
+
+        std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
         
 
 
@@ -493,22 +480,24 @@ namespace Analysis {
 
         if (m_useMassConst) {
             constexpr double jpsiTableMass = 3096.916;
-            m_VKVFitter->setMassInputParticles(m_altMassMuonTracks);
+            m_VKVFitter->setMassInputParticles(m_altMassMuonTracks,*state);
             std::vector<int> indices= {1, 2};
-            if (m_altMassConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices);
-            if (m_altMassConst>0.0) m_VKVFitter->setMassForConstraint(m_altMassConst,indices);
+            if (m_altMassConst<0.0) m_VKVFitter->setMassForConstraint(jpsiTableMass,indices,*state);
+            if (m_altMassConst>0.0) m_VKVFitter->setMassForConstraint(m_altMassConst,indices,*state);
         }
         if (pv) {
-	   m_VKVFitter->setCnstType(8);
+	   m_VKVFitter->setCnstType(8,*state);
 	   m_VKVFitter->setVertexForConstraint(pv->position().x(),
 					       pv->position().y(),
-					       pv->position().z());
+					       pv->position().z(),
+                                               *state);
 	   m_VKVFitter->setCovVrtForConstraint(pv->covariancePosition()(Trk::x,Trk::x),
 					       pv->covariancePosition()(Trk::y,Trk::x),
 					       pv->covariancePosition()(Trk::y,Trk::y),
 					       pv->covariancePosition()(Trk::z,Trk::x),
 					       pv->covariancePosition()(Trk::z,Trk::y),
-					       pv->covariancePosition()(Trk::z,Trk::z) );
+					       pv->covariancePosition()(Trk::z,Trk::z),
+                                               *state);
 	}
 
         // Do the fit itself.......
@@ -519,7 +508,7 @@ namespace Analysis {
         int errorcode = 0;
         Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1,&aPerigee2,sflag,errorcode);
         if (errorcode != 0) {startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
-        xAOD::Vertex* theResult = m_VKVFitter->fit(inputTracks, startingPoint);
+        xAOD::Vertex* theResult = m_VKVFitter->fit(inputTracks, startingPoint, *state);
 
         // Added by ASC
         if(theResult != 0){

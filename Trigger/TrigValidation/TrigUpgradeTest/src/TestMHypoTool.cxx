@@ -13,8 +13,8 @@ namespace HLTTest {
     ITestHypoTool( name ),
     AthAlgTool( type, name, parent )
   {
-    declareProperty( "Threshold", m_threshold );
-    declareProperty( "Multiplicity", m_multiplicity );
+    declareProperty( "Threshold", m_threshold = 0);
+    declareProperty( "Multiplicity", m_multiplicity = 0 );
     declareProperty( "Property", m_property );
   }
 

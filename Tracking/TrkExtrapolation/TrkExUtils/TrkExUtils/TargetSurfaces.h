@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -121,27 +121,27 @@ namespace Trk {
       ~TargetSurfaces(){};
 
       /** Extract surfaces for charged propagation, step into new frame volume */
-      Trk::ExtrapolationCode  setOnInput(Trk::ExCellCharged, const Trk::Surface* sf, BoundaryCheck bc) const;
+      Trk::ExtrapolationCode  setOnInput(Trk::ExCellCharged, const Trk::Surface* sf, BoundaryCheck bc) ;
       
       /** Extract surfaces for charged propagation, step into new frame volume */
       Trk::ExtrapolationCode  setOnInput(Amg::Vector3D position, Amg::Vector3D direction,
-					 const Trk::TrackingVolume*, const Trk::Surface* sf, BoundaryCheck bc) const;
+					 const Trk::TrackingVolume*, const Trk::Surface* sf, BoundaryCheck bc) ;
 
       /** Ordered intersections for neutral transport, step into new frame volume */
-      TargetSurfaceVector  orderedIntersections(Trk::ExCellNeutral, const Trk::Surface* sf, BoundaryCheck bc) const;
+      TargetSurfaceVector  orderedIntersections(Trk::ExCellNeutral, const Trk::Surface* sf, BoundaryCheck bc);
       
       /** Ordered intersections for neutral transport, step into new frame volume */
       TargetSurfaceVector  orderedIntersections(Amg::Vector3D position, Amg::Vector3D direction,
-						const Trk::TrackingVolume*, const Trk::Surface* sf, BoundaryCheck bc ) const;
+						const Trk::TrackingVolume*, const Trk::Surface* sf, BoundaryCheck bc );
 
       /** update of target surfaces at input or at frame volume boundary */
-      bool initFrameVolume(Amg::Vector3D position, Amg::Vector3D direction,const Trk::TrackingVolume*) const;      
+      bool initFrameVolume(Amg::Vector3D position, Amg::Vector3D direction,const Trk::TrackingVolume*) ;      
 
       /** intersections */
-      void fillSolutions(int index, Amg::Vector3D gp, TargetSurfaceVector& solutions) const;
+      void fillSolutions(int index, Amg::Vector3D gp, TargetSurfaceVector& solutions);
 
       /** distance reevaluation */
-      bool checkDistance(Amg::Vector3D position, Amg::Vector3D direction, double nextStep) const;
+      bool checkDistance(Amg::Vector3D position, Amg::Vector3D direction, double nextStep);
 
       /** estimated distance along path to the nearest surface */
       double distanceToNext();
@@ -172,32 +172,32 @@ namespace Trk {
       
     private:
 
-      void evaluateInputDistance(Trk::TargetSurface& tt, Amg::Vector3D pos, Amg::Vector3D dir, bool base) const;
-      void save(Trk::TargetSurface& tt, bool base) const;
-      void findNext() const;
+      void evaluateInputDistance(Trk::TargetSurface& tt, Amg::Vector3D pos, Amg::Vector3D dir, bool base);
+      void save(Trk::TargetSurface& tt, bool base) ;
+      void findNext();
       TargetSurfaceVector  orderIntersections() const;
-      bool updateDistance(int index, Trk::TargetSurface& tt, Amg::Vector3D position, Amg::Vector3D direction) const;
+      bool updateDistance(int index, Trk::TargetSurface& tt, Amg::Vector3D position, Amg::Vector3D direction);
 
-      mutable bool                              m_orderTrue;       // neutral(true)/charged(false)  
-      mutable TargetSurfaceVector               m_baseSurfaces;    // surfaces to be followed all along the path;
-      mutable std::vector<TargetSurfaceVector>  m_tempSurfaces;    // surfaces shadowed by an envelope  
-      mutable TargetSurfaceVector               m_ordered;         // ordered intersections;
+       bool                              m_orderTrue;       // neutral(true)/charged(false)  
+       TargetSurfaceVector               m_baseSurfaces;    // surfaces to be followed all along the path;
+       std::vector<TargetSurfaceVector>  m_tempSurfaces;    // surfaces shadowed by an envelope  
+       TargetSurfaceVector               m_ordered;         // ordered intersections;
 
-      mutable float                             m_tolerance;
-      mutable Amg::Vector3D                     m_probePos;
-      mutable Amg::Vector3D                     m_probeDir;
-      mutable unsigned int                      m_numAlongPath;
-      mutable int                               m_nextSf;
-      mutable double                            m_distanceToNext;
-      mutable double                            m_lastStep;
-      mutable bool                              m_flipDirection;
-      mutable double                            m_flipDistance;
+       float                             m_tolerance;
+       Amg::Vector3D                     m_probePos;
+       Amg::Vector3D                     m_probeDir;
+       unsigned int                      m_numAlongPath;
+       int                               m_nextSf;
+       double                            m_distanceToNext;
+       double                            m_lastStep;
+       bool                              m_flipDirection;
+       double                            m_flipDistance;
   
-      mutable const Trk::TrackingVolume*        m_currentFrame;
-      mutable const Trk::TrackingVolume*        m_currentDense;
+       const Trk::TrackingVolume*        m_currentFrame;
+       const Trk::TrackingVolume*        m_currentDense;
 
-      mutable bool                              m_debugMode;        
-      mutable bool                              m_absDist;
+       bool                              m_debugMode;        
+       bool                              m_absDist;
     };
            
   inline double TargetSurfaces::distanceToNext() { return m_distanceToNext; }

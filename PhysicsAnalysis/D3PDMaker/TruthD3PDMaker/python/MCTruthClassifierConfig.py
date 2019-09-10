@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -19,8 +19,10 @@ mckey = resolveSGKey ('DataVector<xAOD::TruthParticle_v1>', D3PDMakerFlags.Truth
 
 
 from TruthD3PDAnalysis import D3PDMCTruthClassifier
+from MCTruthClassifier import MCTruthClassifierBase
 D3PDMCTruthClassifier = D3PDMCTruthClassifier (name = 'D3PDMCTruthClassifier',
                                                xAODTruthParticleContainerName = mckey,
+                                               ParticleCaloExtensionTool=MCTruthClassifierBase.ClassifierParticleCaloExtensionTool,
                                                pTNeutralPartCut = 1e-3,
                                                OutputLevel = ERROR,
                                                partExtrConePhi = 0.6, #0.4

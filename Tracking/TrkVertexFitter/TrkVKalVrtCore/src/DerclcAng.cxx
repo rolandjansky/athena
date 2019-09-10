@@ -21,7 +21,7 @@ namespace Trk {
 void calcPhiConstraint( VKPhiConstraint * cnst)
 {
     VKConstraintBase * base_cnst = (VKConstraintBase*) cnst;
-    VKVertex * vk=cnst->getOriginVertex();
+    const VKVertex * vk=cnst->getOriginVertex();
     int NTRK = vk->TrackList.size();
     int i,j;
     double Scale=1.;   // Scaling for better precision VK 28.03.2011 Wrong for error matrix!!! Should always be 1.!!!
@@ -60,7 +60,7 @@ void calcPhiConstraint( VKPhiConstraint * cnst)
 void calcThetaConstraint( VKThetaConstraint * cnst)
 {
     VKConstraintBase * base_cnst = (VKConstraintBase*) cnst;
-    VKVertex * vk=cnst->getOriginVertex();
+    const VKVertex * vk=cnst->getOriginVertex();
     int NTRK = vk->TrackList.size();
     int i,j;
     double Scale=1.;   // Scaling for better precision  VK 28.03.2011 Wrong for error matrix!!! Should always be 1.!!!
@@ -98,7 +98,7 @@ void calcThetaConstraint( VKThetaConstraint * cnst)
 void calcPlaneConstraint( VKPlaneConstraint * cnst)
 {
     VKConstraintBase * base_cnst = (VKConstraintBase*) cnst;
-    VKVertex * vk=cnst->getOriginVertex();
+    const VKVertex * vk=cnst->getOriginVertex();
     int NTRK = vk->TrackList.size();
     double curV[3] = {vk->refIterV[0]+vk->cnstV[0], vk->refIterV[1]+vk->cnstV[1],vk->refIterV[2]+vk->cnstV[2]};
  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -22,7 +22,6 @@
 #include "MuonTrigCoinData/RpcCoinDataContainer.h"
 
 #include "TrkSurfaces/Surface.h"
-//#include "StoreGate/StoreGateSvc.h"
  
 #include "MuonCnvToolInterfaces/IDC_Helper.h"
 
@@ -62,7 +61,6 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
     m_rpcCabling(nullptr),
     //m_padHashIdHelper(0),
     m_rpcRdoDecoderTool("Muon::RpcRDO_Decoder", this),
-    m_rSummarySvc("RPCCondSummarySvc", name),
     m_fullEventDone(false)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
@@ -87,6 +85,7 @@ Muon::RpcRdoToPrepDataTool::RpcRdoToPrepDataTool( const std::string& type, const
   declareProperty("InputCollection", 		m_rpcCoinDataContainerKey = std::string("RPC_triggerHits"),"Muon::RpcCoinDataContainer to record");
 
   m_rpcCoinDataContainer = nullptr;
+  m_rpcPrepDataContainer = nullptr;
 }
 
 //___________________________________________________________________________
@@ -184,14 +183,10 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
     m_processingData = true;
   }
   
-    
+
   if (m_RPCInfoFromDb){
-     StatusCode status = m_rSummarySvc.retrieve();
-     if (status != StatusCode::SUCCESS) {
-       ATH_MSG_WARNING (  "Could not retrieve RPC Info from Db"  );
-       return StatusCode::FAILURE;
-     }
-   }
+    ATH_CHECK(m_readKey.initialize());
+  }
 
   // check if initializing of DataHandle objects success
   ATH_CHECK( m_rdoContainerKey.initialize() );
@@ -941,18 +936,6 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
     ATH_MSG_ERROR ( "RpcRdoToCscPrepDataTool doesn't yet work with MT." );
     return StatusCode::FAILURE;
   }
-  bool first = false;
-  ATH_CHECK( manageOutputContainers (first) );
-  if (!m_rpcPrepDataContainer) {
-    const Muon::RpcPrepDataContainer* rpcPrepDataContainer_c;
-    ATH_CHECK( evtStore()->retrieve (rpcPrepDataContainer_c, m_rpcPrepDataContainerKey.key()) );
-    m_rpcPrepDataContainer = const_cast<Muon::RpcPrepDataContainer*> (rpcPrepDataContainer_c);
-  }
-  if (!m_rpcCoinDataContainer) {
-    const Muon::RpcCoinDataContainer* rpcCoinDataContainer_c;
-    ATH_CHECK( evtStore()->retrieve (rpcCoinDataContainer_c, m_rpcCoinDataContainerKey.key()) );
-    m_rpcCoinDataContainer = const_cast<Muon::RpcCoinDataContainer*> (rpcCoinDataContainer_c);
-  }
 
   ATH_MSG_DEBUG("***************** Start of processPad eta/phiview "
 		<<processingetaview<<"/"<<processingphiview
@@ -1346,10 +1329,12 @@ StatusCode Muon::RpcRdoToPrepDataTool::processPad(const RpcPad *rdoColl,
 
 	      //correct prd time from cool db
 	      if (m_RPCInfoFromDb){
-		ATH_MSG_DEBUG( " Time correction from COOL " << " size of  RPC_TimeMapforStrip " <<m_rSummarySvc->RPC_TimeMapforStrip().size() );	     
+        SG::ReadCondHandle<RpcCondDbData> readHandle{m_readKey};
+        const RpcCondDbData* readCdo{*readHandle};
+		ATH_MSG_DEBUG( " Time correction from COOL " << " size of  RPC_TimeMapforStrip " <<readCdo->getStripTimeMap().size() );	     
 		std::vector<double> StripTimeFromCool;
-		if( m_rSummarySvc->RPC_TimeMapforStrip().find(channelId) != m_rSummarySvc->RPC_TimeMapforStrip().end()){
-		  StripTimeFromCool   = m_rSummarySvc->RPC_TimeMapforStrip     ().find(channelId)->second ;		 
+		if( readCdo->getStripTimeMap().find(channelId) != readCdo->getStripTimeMap().end()){
+		  StripTimeFromCool   = readCdo->getStripTimeMap().find(channelId)->second ;		 
 		  ATH_MSG_DEBUG(" Time "<< time << " Time correction from COOL for jstrip " <<StripTimeFromCool.at(0) );		  
 		  time -= StripTimeFromCool.at(0) ;		
 		}
@@ -1457,7 +1442,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
       return status;
     } else {
       m_rpcPrepDataContainer = rpcPrepDataHandle.ptr();
-      ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key());
+      ATH_MSG_DEBUG("RPC PrepData Container recorded in StoreGate with key " << m_rpcPrepDataContainerKey.key() << ", " << rpcPrepDataHandle.key());
     }
 
     if (m_producePRDfromTriggerWords){
@@ -1478,7 +1463,10 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
     m_decodedRobIds.clear();
 
   }
-  else {
+  else{
+    const Muon::RpcPrepDataContainer* rpcPrepDataContainer_c;
+    ATH_CHECK( evtStore()->retrieve (rpcPrepDataContainer_c, m_rpcPrepDataContainerKey.key()) );
+    m_rpcPrepDataContainer = const_cast<Muon::RpcPrepDataContainer*> (rpcPrepDataContainer_c);
     ATH_MSG_DEBUG("RPC PrepData Container is already in StoreGate ");
     if (m_producePRDfromTriggerWords){
       SG::WriteHandle< Muon::RpcCoinDataContainer > rpcCoinDataHandle(m_rpcCoinDataContainerKey);
@@ -1486,6 +1474,9 @@ StatusCode Muon::RpcRdoToPrepDataTool::manageOutputContainers(bool& firstTimeInT
         ATH_MSG_FATAL("Muon::RpcPrepDataContainer found while Muon::RpcCoinDataContainer not found in Event Store");
         return StatusCode::FAILURE;
       }
+      const Muon::RpcCoinDataContainer* rpcCoinDataContainer_c;
+      ATH_CHECK( evtStore()->retrieve (rpcCoinDataContainer_c, m_rpcCoinDataContainerKey.key()) );
+      m_rpcCoinDataContainer = const_cast<Muon::RpcCoinDataContainer*> (rpcCoinDataContainer_c);
       ATH_MSG_DEBUG("RPC CoinData Container is already in StoreGate ");
     }
   }

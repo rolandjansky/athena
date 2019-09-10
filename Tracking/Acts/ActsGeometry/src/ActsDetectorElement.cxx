@@ -16,6 +16,7 @@
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ActsAlignmentStore.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 
 // ACTS
 #include "Acts/Surfaces/StrawSurface.hpp"
@@ -23,6 +24,8 @@
 #include "Acts/Surfaces/PlaneSurface.hpp"
 #include "Acts/Surfaces/RectangleBounds.hpp"
 #include "Acts/Surfaces/TrapezoidBounds.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 // STL
 #include <mutex>
@@ -34,6 +37,10 @@
 
 using Acts::Transform3D;
 using Acts::Surface;
+
+using namespace Acts::UnitLiterals;
+
+constexpr double length_unit = 1_mm;
 
 ActsDetectorElement::ActsDetectorElement(
     const InDetDD::SiDetectorElement* detElem,
@@ -51,8 +58,8 @@ ActsDetectorElement::ActsDetectorElement(
   if (boundsType == Trk::SurfaceBounds::Rectangle) {
 
     const InDetDD::SiDetectorDesign &design = detElem->design();
-    double hlX = design.width()/2.;
-    double hlY = design.length()/2.;
+    double hlX = design.width()/2. * length_unit;
+    double hlY = design.length()/2. * length_unit;
 
     auto rectangleBounds = std::make_shared<const Acts::RectangleBounds>(
         hlX, hlY);
@@ -68,9 +75,9 @@ ActsDetectorElement::ActsDetectorElement(
 
     const InDetDD::SiDetectorDesign &design = detElem->design();
 
-    double minHlX = design.minWidth()/2.;
-    double maxHlX = design.maxWidth()/2.;
-    double hlY    = design.length()/2.;
+    double minHlX = design.minWidth()/2. * length_unit;
+    double maxHlX = design.maxWidth()/2. * length_unit;
+    double hlY    = design.length()/2. * length_unit;
 
     auto trapezoidBounds = std::make_shared<const Acts::TrapezoidBounds>(
         minHlX, maxHlX, hlY);
@@ -94,33 +101,33 @@ ActsDetectorElement::ActsDetectorElement(
   m_detElement = detElem;
   m_defTransform = trf;
   m_explicitIdentifier = id;
-  
+
   // we know this is a straw
-  double length = detElem->strawLength()*0.5;
+  double length = detElem->strawLength()*0.5 * length_unit;
 
   // we need to find the radius
   auto ecElem = dynamic_cast<const InDetDD::TRT_EndcapElement*>(detElem);
   auto brlElem = dynamic_cast<const InDetDD::TRT_BarrelElement*>(detElem);
   double innerTubeRadius{0.};
   if (ecElem) {
-    innerTubeRadius = ecElem->getDescriptor()->innerTubeRadius();
+    innerTubeRadius = ecElem->getDescriptor()->innerTubeRadius() * length_unit;
   }
   else {
     if (brlElem){
-      innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius();
+      innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius() * length_unit;
     } else {
       throw std::runtime_error("Cannot get tube radius for element in ActsDetectorElement c'tor");
     }
   }
-  
+
   auto lineBounds = std::make_shared<const Acts::LineBounds>(innerTubeRadius, length);
   m_bounds = lineBounds;
 
   m_surface = Acts::Surface::makeShared<Acts::StrawSurface>(lineBounds, *this);
 }
 
-IdentityHelper 
-ActsDetectorElement::identityHelper() const 
+IdentityHelper
+ActsDetectorElement::identityHelper() const
 {
   size_t which = m_detElement.which();
   if (which == 0) {
@@ -129,32 +136,32 @@ ActsDetectorElement::identityHelper() const
     throw std::domain_error("Cannot get IdentityHelper for TRT element");
   }
 }
-  
+
 const Acts::Transform3D&
-ActsDetectorElement::transform() const
+ActsDetectorElement::transform(const Acts::GeometryContext& anygctx) const
 {
+  // any cast to known context type
+  const ActsGeometryContext* gctx = std::any_cast<const ActsGeometryContext*>(anygctx);
 
-
-  auto ctx = Gaudi::Hive::currentContext();
-
-  if (!ctx.valid()) {
-    // this is really only the case single threaded, but let's be safe and lock it down
-    // also, we're not super afraid about performance here
+  // This is needed for initial geometry construction. At that point, we don't have a
+  // consistent view of the geometry yet, and thus we can't populate an alignment store
+  // at that time.
+  if (gctx->construction) {
+    // this should only happen at initialize (1 thread, but mutex anyway)
     return getDefaultTransformMutexed();
   }
 
-  // retrieve GAS from tracking geometry svc
-  const ActsAlignmentStore* alignmentStore = m_trackingGeometrySvc->getAlignmentStore(ctx);
+  // unpack the alignment store from the context
+  const ActsAlignmentStore* alignmentStore = gctx->alignmentStore;
 
   // no GAS, is this initialization?
-  if (alignmentStore == nullptr) {
-    throw std::runtime_error("ActsAlignmentStore could not be found for valid context.");
-  }
+  assert(alignmentStore != nullptr);
 
+  // get the correct cached transform
+  // units should be fine here since we converted at construction
   const Transform3D* cachedTrf = alignmentStore->getTransform(this);
-  if (cachedTrf == nullptr) {
-    throw std::runtime_error("Detector transform not found in ActsAlignmentStore.");
-  }
+
+  assert(cachedTrf != nullptr);
 
   return *cachedTrf;
 }
@@ -169,12 +176,16 @@ ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
 
     Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
     {
-      Amg::Transform3D g2l 
-        = detElem->getMaterialGeom()->getAbsoluteTransform(m_store);
+      Amg::Transform3D g2l
+        = detElem->getMaterialGeom()->getAbsoluteTransform(m_store)
+        * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
 
-      return g2l * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
+      // need to make sure translation has correct units
+      g2l.translation() *= length_unit;
+
+      return g2l;
     }
-    
+
     Transform3D operator()(const InDetDD::TRT_BaseElement*) const
     {
       return *m_trtTrf;
@@ -184,7 +195,7 @@ ActsDetectorElement::storeTransform(ActsAlignmentStore* gas) const
     const Transform3D* m_trtTrf;
   };
 
-  Transform3D trf 
+  Transform3D trf
     = boost::apply_visitor(get_transform(gas, m_defTransform.get()), m_detElement);
 
   gas->setTransform(this, trf);
@@ -203,12 +214,16 @@ ActsDetectorElement::getDefaultTransformMutexed() const
 
     Transform3D operator()(const InDetDD::SiDetectorElement* detElem) const
     {
-      Amg::Transform3D g2l 
-        = detElem->getMaterialGeom()->getDefAbsoluteTransform();
+      Amg::Transform3D g2l
+        = detElem->getMaterialGeom()->getDefAbsoluteTransform()
+        * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
 
-      return g2l * Amg::CLHEPTransformToEigen(detElem->recoToHitTransform());
+      // need to make sure translation has correct units
+      g2l.translation() *= length_unit;
+
+      return g2l;
     }
-    
+
     Transform3D operator()(const InDetDD::TRT_BaseElement*) const
     {
       return *m_trtTrf;
@@ -216,13 +231,13 @@ ActsDetectorElement::getDefaultTransformMutexed() const
 
     const Transform3D* m_trtTrf;
   };
-    
+
   std::lock_guard<std::mutex> guard(m_cacheMutex);
   if (m_defTransform) {
     return *m_defTransform;
   }
   // transform not yet set
-  m_defTransform 
+  m_defTransform
     = std::make_shared<const Transform3D>(
         boost::apply_visitor(get_default_transform(m_defTransform.get()), m_detElement));
 

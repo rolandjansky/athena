@@ -10,8 +10,8 @@
 
 namespace Trk {
 
-extern vkalPropagator  myPropagator;
-extern vkalMagFld      myMagFld;
+extern const vkalPropagator  myPropagator;
+extern const vkalMagFld      myMagFld;
 
 // Function calculates distance between summary track after fit and vertex for constraint
 // Flag UseTrkErr tells if SummaryTrack errors+VertexErrors are used or only VertexErrors
@@ -30,19 +30,19 @@ extern vkalMagFld      myMagFld;
 //--------------------------------------------------------------------------------------------------
 double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
 {
-    long int it,IERR; int i,j,ij;
+    int i,j,ij,it;
     double parV0[5], covParV0[15];
     double Signif;
 
     extern void combinedTrack(long int ICH, double *pv0, double *covi, double BMAG, double *paro, double *covo);
-    extern std::array<double, 4> getCnstParticleMom( VKTrack * , VKVertex *);
+    extern std::array<double, 4> getCnstParticleMom(const VKTrack * , const VKVertex *);
     extern int cfdinv(double *, double *, long int); 
  /* ------------------------------------------------------------------- */
 
     double ptot[3]= {0.,0.,0.};
     int NTRK = vk->TrackList.size();
     for ( it=0; it<NTRK; it++) {
-        std::array<double, 4>  pp=getCnstParticleMom( vk->TrackList[it], vk );
+        std::array<double, 4>  pp=getCnstParticleMom( vk->TrackList[it].get(), vk );
 	ptot[0] += pp[0];
 	ptot[1] += pp[1];
 	ptot[2] += pp[2];
@@ -92,7 +92,7 @@ double cfVrtDstSig( VKVertex * vk, bool UseTrkErr)
     if ( UseTrkErr){ covImp[0] += nCov[0]; covImp[1] += nCov[1]; covImp[2] += nCov[2];}
 
     double dwgt[3];
-    IERR=cfdinv(covImp, dwgt, -2); if(IERR){ IERR=cfdinv(covImp, dwgt, 2); if(IERR){dwgt[0]=dwgt[2]=1.e6; dwgt[1]=0.; IERR=0; }}
+    int IERR=cfdinv(covImp, dwgt, -2); if(IERR){ IERR=cfdinv(covImp, dwgt, 2); if(IERR){dwgt[0]=dwgt[2]=1.e6; dwgt[1]=0.;}}
     Signif = sqrt(dwgt[0] * nPar[0] * nPar[0] +  2. * dwgt[1] * nPar[0] * nPar[1] + 
                   dwgt[2] * nPar[1] * nPar[1]);
  

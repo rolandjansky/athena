@@ -1,8 +1,11 @@
+import builtins
+printfunc = getattr(builtins,'print')
+
 ### execution of user script and drop into batch or interactive mode ---------
 for script in opts.scripts:
    try:
       include( script )
-   except Exception, e:
+   except Exception as e:
       if isinstance(e,SystemExit):
          raise
 
@@ -19,9 +22,9 @@ for script in opts.scripts:
             if not 'AthenaCommon' in frame_info[0]:
                short_tb.append( frame_info )
 
-         print 'Shortened traceback (most recent user call last):'
-         print ''.join( traceback.format_list( short_tb ) ),
-         print ''.join( traceback.format_exception_only( exc_info[0], exc_info[1] ) ),
+         printfunc ('Shortened traceback (most recent user call last):')
+         printfunc (''.join( traceback.format_list( short_tb ) ),)
+         printfunc (''.join( traceback.format_exception_only( exc_info[0], exc_info[1] ) ),)
       else:
          traceback.print_exc()
 
@@ -67,7 +70,7 @@ else:
       try:
          from PerfMonComps.PerfMonEventSelector import repeatEvents
          repeatEvents(nbrReplays=opts.nbr_repeat_evts)
-      except ImportError,err:
+      except ImportError as err:
          # not enough karma (probably b/c of runtime/compiletime deps. mix-up)
          from AthenaCommon.Logging import logging
          _msg.info( "Could not install the stammer eventloop selector" )
@@ -81,6 +84,17 @@ else:
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
       import AthenaMP.PyComps as _amppy
       svcMgr += _amppy.MpEvtLoopMgr(NWorkers=opts.nprocs)
+
+   #if EvtMax and SkipEvents are set, use them
+   from AthenaCommon.AthenaCommonFlags import jobproperties as jps
+   if jps.AthenaCommonFlags.EvtMax.statusOn:
+      theApp.EvtMax = jps.AthenaCommonFlags.EvtMax()
+   if jps.AthenaCommonFlags.SkipEvents.statusOn:
+      if hasattr(svcMgr,"EventSelector"):
+         svcMgr.EventSelector.SkipEvents = jps.AthenaCommonFlags.SkipEvents()
+      else:
+         _msg.warning('No EventSelector in svcMgr, not skipping events')
+
 
  ## in batch, run as many events as requested, otherwise explain
    if opts.run_batch:

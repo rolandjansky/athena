@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DiTauJet_v1.h 631921 2015-09-23 23:30:59Z dkirchme $
@@ -155,12 +155,6 @@ namespace xAOD {
   }; // class DiTauJet
 
 } // namespace xAOD
-
-// Set up a CLID for the class:
-// #ifndef XAOD_STANDALONE
-// #include "SGTools/CLASS_DEF.h"
-// CLASS_DEF( xAOD::DiTauJet_v1 , 67662955 , 1 )
-// #endif // not XAOD_STANDALONE
 
 // Declare IParticle as a base class of DiTauJet_v1:
 #include "AthContainers/DataVector.h"

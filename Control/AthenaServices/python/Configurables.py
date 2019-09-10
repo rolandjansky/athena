@@ -1,13 +1,15 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: Configurables.py
 # @purpose: customized Configurable classes for AthenaServices
 # @author: Sebastien Binet <binet@cern.ch>
 
+from __future__ import print_function
+
 ## import the automatically generated Configurables
-from AthenaServicesConf import ThinningSvc as _ThinningSvc
-from AthenaServicesConf import CoreDumpSvc as _CoreDumpSvc
-from AthenaServicesConf import EvtIdModifierSvc as _EvtIdModifierSvc
+from AthenaServices.AthenaServicesConf import ThinningSvc as _ThinningSvc
+from AthenaServices.AthenaServicesConf import CoreDumpSvc as _CoreDumpSvc
+from AthenaServices.AthenaServicesConf import EvtIdModifierSvc as _EvtIdModifierSvc
 
 ## import configurables module facade
 from AthenaCommon import CfgMgr
@@ -24,7 +26,7 @@ class ThinningSvc( _ThinningSvc ):
 
         # initialize the 'Streams' property with the default value
         # to prevent people messing up with the 'Streams' array
-        if not 'Streams' in kwargs:
+        if 'Streams' not in kwargs:
             self.Streams = self.getDefaultProperty('Streams')[:]
             
         return
@@ -35,9 +37,7 @@ class ThinningSvc( _ThinningSvc ):
         if not isinstance(handle, ThinningSvc):
             return
 
-        from AthenaCommon.AlgSequence import AlgSequence
-        ## get a handle on the ToolSvc
-        from AthenaCommon.AppMgr import ToolSvc as toolSvc
+        from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
         from AthenaCommon.Logging import logging
@@ -89,8 +89,7 @@ class ThinningSvc( _ThinningSvc ):
             """
             from collections import defaultdict
             proxies = defaultdict(list)
-            props = outStream.properties()
-            
+
             from_input = outStream.properties()['TakeItemsFromInput']
             if from_input == outStream.propertyNoValue:
                 from_input = outStream.getDefaultProperty('TakeItemsFromInput')
@@ -140,8 +139,15 @@ class ThinningSvc( _ThinningSvc ):
                 _doScheduleTool(o, streams)):
                 outstreams.append (o)
                 pass
+        ## then loop over OutputStream sequence
+        for o in AthSequencer("AthOutSeq"):
+            if (isinstance(o, AthenaOutputStream) and
+                hasattr(o, 'HelperTools') and
+                _doScheduleTool(o, streams)):
+                outstreams.append (o)
+                pass
         ## then loop over OutStream sequence
-        if AlgSequence.configurables.has_key('Streams'):
+        if 'Streams' in AlgSequence.configurables:
             for o in AlgSequence("Streams"):
                 if (isinstance(o, AthenaOutputStream) and
                     hasattr(o, 'HelperTools') and
@@ -166,7 +172,7 @@ class ThinningSvc( _ThinningSvc ):
             _lvl = handle.getDefaultProperty('OutputLevel')
             pass
         ## get and install the ThinningOutputTool configurable
-        from AthenaServicesConf import ThinningOutputTool
+        from AthenaServices.AthenaServicesConf import ThinningOutputTool
         toolName = "ThinningTool_%s" % handle.name()
         tool = ThinningOutputTool (toolName,
                                    OutputLevel=_lvl,
@@ -203,7 +209,7 @@ def createThinningSvc(svcName = "ThinningSvc", outStreams = []):
     for i,o in enumerate(outStreams):
         if not isinstance(o, AthenaOutputStream):
             msg.error("output stream #%i (n='%s') is not an instance of type "
-                      "AthenaOutputStream [type: %r]" % (i,o.name(),type(o)))
+                      "AthenaOutputStream [type: %r]", i, o.name(), type(o))
             msg.error("check your configuration !")
             allGood = False
     if not allGood:
@@ -228,7 +234,7 @@ class CoreDumpSvc( _CoreDumpSvc ):
       # make sure the application manager explicitly creates the service
       from AthenaCommon.AppMgr import theApp
       handleName = self.getFullJobOptName()
-      if not handleName in theApp.CreateSvc:
+      if handleName not in theApp.CreateSvc:
          theApp.CreateSvc += [ handleName ]
          
       return

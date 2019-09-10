@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # Author: Wim Lavrijsen (LBNL, WLavrijsen@lbl.gov)
 
 """Unit tests for verifying setting of Gaudi/Athena configurables."""
 
 import unittest, sys
+import subprocess, os, tempfile
 
 import AthenaCommon.Configurable as Configurable
 import AthenaCommon.ConfigurableDb as ConfigurableDb
@@ -17,6 +18,10 @@ __author__  = 'Wim Lavrijsen (WLavrijsen@lbl.gov)'
 __all__ = [ 'BasicConfigurableTestCase',
             'BasicConfigurableDbTestCase',
             'KeywordHandlingTestCase' ]
+
+def command (cmd):
+   s = subprocess.check_output (['/bin/sh', '-c', cmd])
+   return s.decode('utf-8')
 
 
 ### basic behavior of Configurable & friends =================================
@@ -139,19 +144,16 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
          'OutputPickleFileName' : pickleName,
          'AsciiFileName'        : asciiFileName,
          }
-      
-      import commands, os, tempfile
-      sc,app = commands.getstatusoutput('which python')
-      self.failUnless(sc==0, "Could not find 'python' exe !")
+
+      app = sys.executable
 
       jobO = tempfile.NamedTemporaryFile(suffix='.py')
-      jobO.writelines([l.strip()+os.linesep for l in job.splitlines()])
+      jobO.writelines([(l.strip()+os.linesep).encode() for l in job.splitlines()])
       jobO.flush()
 
       ## run the job
       cmd = ' '.join([app, jobO.name])
-      sc,out = commands.getstatusoutput(cmd)
-      self.failUnless(sc==0, "Problem running py-script:\n%s" % out)
+      command(cmd)
       jobO.close()
       del jobO
       ## check needed files have been produced
@@ -160,26 +162,26 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       ## which is why I've added the MacOSX-specific hack.
       from sys import platform
       if platform != 'darwin' :
-          self.failUnless(os.path.exists(pickleName))
+          self.assertTrue(os.path.exists(pickleName))
       else:
-          self.failUnless(os.path.exists(pickleName+'.db'))
-      self.failUnless(os.path.exists(asciiFileName+'.ref'))
-      
+          self.assertTrue(os.path.exists(pickleName+'.db'))
+      self.assertTrue(os.path.exists(asciiFileName+'.ref'))
+
       ## load what we have stored...
       from AthenaCommon.ConfigurationShelve import loadFromPickle
       loadFromPickle(pickleName)
 
       from AthenaCommon.AlgSequence import AlgSequence
       topSequence = AlgSequence()
-      self.failUnless(hasattr(topSequence, 'MyOutputStream'),
+      self.assertTrue(hasattr(topSequence, 'MyOutputStream'),
                       "topSequence is missing 'MyOutputStream' !")
-      self.failUnless(hasattr(topSequence, 'MyConditionStream' ),
+      self.assertTrue(hasattr(topSequence, 'MyConditionStream' ),
                       "topSequence is missing 'MyConditionStream' !")
 
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      self.failUnless(hasattr(svcMgr, 'MyTHistSvc'),
+      self.assertTrue(hasattr(svcMgr, 'MyTHistSvc'),
                       "svcMgr is missing 'MyTHistSvc' !")
-      self.failUnless(svcMgr.MyTHistSvc.Output == thistSvcOutput)
+      self.assertTrue(svcMgr.MyTHistSvc.Output == thistSvcOutput)
 
       ## create a job loading the pickle
       job = """
@@ -189,15 +191,15 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       ## test algorithm sequence
       from AthenaCommon.AlgSequence import AlgSequence
       topSequence = AlgSequence()
-      assert(hasattr(topSequence, 'MyOutputStream'),
-             'topSequence is missing MyOutputStream !')
-      assert(hasattr(topSequence, 'MyConditionStream' ),
-             'topSequence is missing MyConditionStream !')
+      assert hasattr(topSequence, 'MyOutputStream'), \
+             'topSequence is missing MyOutputStream !'
+      assert hasattr(topSequence, 'MyConditionStream' ), \
+             'topSequence is missing MyConditionStream !'
       
       ## test service manager
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      assert( hasattr(svcMgr, 'MyTHistSvc'), 'svcMgr is missing MyTHistSvc !' )
-      assert( svcMgr.MyTHistSvc.Output == %(THistSvcOutput)s )
+      assert hasattr(svcMgr, 'MyTHistSvc'), 'svcMgr is missing MyTHistSvc !' 
+      assert svcMgr.MyTHistSvc.Output == %(THistSvcOutput)s 
 
       ## test job properties
       from AthenaCommon.JobProperties import jobproperties as jp
@@ -210,23 +212,21 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
          'AsciiFileName'  : asciiFileName,
          }
       jobO = tempfile.NamedTemporaryFile(suffix='.py')
-      jobO.writelines([l.strip()+os.linesep for l in job.splitlines()])
+      jobO.writelines([(l.strip()+os.linesep).encode() for l in job.splitlines()])
       jobO.flush()
 
       ## run job from pickle
       cmd = ' '.join([app, jobO.name])
-      sc,out = commands.getstatusoutput(cmd)
-      self.failUnless(sc==0, "Problem running py-script:\n%s" % out)
+      command(cmd)
       jobO.close()
       del jobO
 
       ## check needed files have been produced
-      self.failUnless(os.path.exists(asciiFileName))
+      self.assertTrue(os.path.exists(asciiFileName))
 
       ## test hysteresis...
       cmd = 'diff -u %s.ref %s' % (asciiFileName, asciiFileName)
-      sc,out = commands.getstatusoutput(cmd)
-      self.failUnless(sc==0, "ASCII files are NOT identical:\n%s"%out)
+      command(cmd)
       return
 
    def test2ConfigurableShelveConfigs( self ):
@@ -280,19 +280,16 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
          'THistSvcOutput2'      : thistSvcOutput2,
          'OutputPickleFileName' : pickleName,
          }
-      
-      import commands, os, tempfile
-      sc,app = commands.getstatusoutput('which python')
-      self.failUnless(sc==0, "Could not find 'python' exe !")
+
+      app = sys.executable
 
       jobO = tempfile.NamedTemporaryFile(suffix='.py')
-      jobO.writelines([l.strip()+os.linesep for l in job.splitlines()])
+      jobO.writelines([(l.strip()+os.linesep).encode() for l in job.splitlines()])
       jobO.flush()
 
       ## run the job
       cmd = ' '.join([app, jobO.name])
-      sc,out = commands.getstatusoutput(cmd)
-      self.failUnless(sc==0, "Problem running py-script:\n%s" % out)
+      command(cmd)
       jobO.close()
       del jobO
 
@@ -302,9 +299,9 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       ## which is why I've added the MacOSX-specific hack.
       from sys import platform
       if platform != 'darwin' :
-          self.failUnless(os.path.exists(pickleName))
+          self.assertTrue(os.path.exists(pickleName))
       else:
-          self.failUnless(os.path.exists(pickleName+'.db'))
+          self.assertTrue(os.path.exists(pickleName+'.db'))
       
       ## create a job loading the pickle (smallCfg)
       job = """
@@ -312,28 +309,27 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       loadFromPickle('%(PickleFileName)s', cfgName='smallCfg')
 
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      assert( hasattr(svcMgr, 'MyTHistSvc'), 'svcMgr is missing MyTHistSvc !' )
+      assert hasattr(svcMgr, 'MyTHistSvc'), 'svcMgr is missing MyTHistSvc !'
       assert( svcMgr.MyTHistSvc.Output == %(THistSvcOutput)s )
 
       from AthenaCommon.AlgSequence import AlgSequence
       job = AlgSequence()
-      assert(     hasattr(job, 'MyConditionStream'),
-              'topSequence is missing MyConditionStream !')
+      assert     hasattr(job, 'MyConditionStream'), \
+              'topSequence is missing MyConditionStream !'
 
-      assert( not hasattr(job, 'MyOutputStream'),
-              'topSequence has MyOutputStream (and it should NOT) !')
+      assert not hasattr(job, 'MyOutputStream'), \
+              'topSequence has MyOutputStream (and it should NOT) !'
       """ % {
          'THistSvcOutput' : thistSvcOutput2,
          'PickleFileName' : pickleName,
          }
       jobO = tempfile.NamedTemporaryFile(suffix='.py')
-      jobO.writelines([l.strip()+os.linesep for l in job.splitlines()])
+      jobO.writelines([(l.strip()+os.linesep).encode() for l in job.splitlines()])
       jobO.flush()
 
       ## run job from pickle
       cmd = ' '.join([app, jobO.name])
-      sc,out = commands.getstatusoutput(cmd)
-      self.failUnless(sc==0, "Problem running py-script:\n%s" % out)
+      command(cmd)
       jobO.close()
       del jobO
 
@@ -343,28 +339,27 @@ class ConfigurablePersistencyTestCase( unittest.TestCase ):
       loadFromPickle('%(PickleFileName)s', cfgName='wholeCfg')
 
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      assert( hasattr(svcMgr, 'MyTHistSvc'), 'svcMgr is missing MyTHistSvc !' )
+      assert hasattr(svcMgr, 'MyTHistSvc'), 'svcMgr is missing MyTHistSvc !' 
       assert( svcMgr.MyTHistSvc.Output == %(THistSvcOutput)s )
 
       from AthenaCommon.AlgSequence import AlgSequence
       job = AlgSequence()
-      assert(hasattr(job, 'MyOutputStream'),
-             'topSequence is missing MyOutputStream !')
+      assert hasattr(job, 'MyOutputStream'), \
+             'topSequence is missing MyOutputStream !'
 
-      assert(hasattr(job, 'MyConditionStream'),
-             'topSequence is missing MyConditionStream !')
+      assert hasattr(job, 'MyConditionStream'), \
+             'topSequence is missing MyConditionStream !'
       """ % {
          'THistSvcOutput' : thistSvcOutput1,
          'PickleFileName' : pickleName,
          }
       jobO = tempfile.NamedTemporaryFile(suffix='.py')
-      jobO.writelines([l.strip()+os.linesep for l in job.splitlines()])
+      jobO.writelines([(l.strip()+os.linesep).encode() for l in job.splitlines()])
       jobO.flush()
 
       ## run job from pickle
       cmd = ' '.join([app, jobO.name])
-      sc,out = commands.getstatusoutput(cmd)
-      self.failUnless(sc==0, "Problem running py-script:\n%s" % out)
+      command(cmd)
       jobO.close()
       del jobO
 

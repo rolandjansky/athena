@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  ***************************************************************************
 //  *   Author: John Morris (john.morris@cern.ch)                             *
@@ -20,6 +20,9 @@
 #include <map>
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class CaloCell;
 class CaloCellContainer;
@@ -28,7 +31,6 @@ class TileDigitsContainer;
 class Identifier;
 class TileTTL1Cell;
 class CondAttrListCollection;
-class ILArHVCorrTool;
 class L1CaloRxCoolChannelId;
 
 namespace coral{
@@ -165,7 +167,8 @@ namespace LVL1{
       virtual unsigned int                               RxStatus(const coral::AttributeList* attrList) const = 0;
 
 
-      virtual void                                       LArHV(ToolHandle<ILArHVCorrTool>& LArHV) = 0;
+      virtual void                                       LArHV(const SG::ReadCondHandleKey<ILArHVScaleCorr>& scaleCorrKey,
+                                                               const SG::ReadCondHandleKey<LArOnOffIdMapping>& cablingKey) = 0;
       virtual void                                       caloCells(const CaloCellContainer* cells) = 0;
       virtual void                                       larDigits(const LArDigitContainer* lar) = 0;
       virtual void                                       tileDigits(const TileDigitsContainer* tile) = 0;
@@ -192,9 +195,15 @@ namespace LVL1{
       virtual std::vector<std::vector<const CaloCell*> > sortEMCrackCells(const std::vector<const CaloCell*> &cells) const = 0;
 
       virtual float                                      LArNonNominalHV(const std::vector<const CaloCell*> &cells) const = 0;
-      virtual float                                      LArNonNominalHV(const CaloCell* cell) const = 0;
+      virtual float                                      LArNonNominalHV(const CaloCell* cell,
+                                                                         const ILArHVScaleCorr* scaleCorr,
+                                                                         const ILArHVScaleCorr* onlineScaleCorr,
+                                                                         const LArOnOffIdMapping* cabling) const = 0;
       virtual float                                      LArHVScale(const  std::vector<const CaloCell*> &cells) const = 0;
-      virtual float                                      LArHVScale(const CaloCell* cell) const = 0;
+      virtual float                                      LArHVScale(const CaloCell* cell,
+                                                                    const ILArHVScaleCorr* scaleCorr,
+                                                                    const ILArHVScaleCorr* onlineScaleCorr,
+                                                                    const LArOnOffIdMapping* cabling) const = 0;
       virtual float                                      TileNonNominal(const  std::vector<const CaloCell*> &cells) const = 0;
       virtual float                                      TileNonNominal(const CaloCell* cell) const = 0;
 

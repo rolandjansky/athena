@@ -338,16 +338,16 @@ void RegSelectorHashMap::regionSelectorINROB(const int& sampling,
 const double& etaminIn, const double& etamaxIn, const double& phiminIn,
 const double& phimaxIn,
 std::vector<uint32_t>* outList){
-  int iYBeg, iYEnd, iXBeg, iXEnd, k, iPage;
-  int iXTemp;
+  int iYBeg{}, iYEnd{}, iXBeg{}, iXEnd{}, k{}, iPage{};
+  int iXTemp{};
   std::vector<uint32_t>& auxset=(*outList);
 
   /// why do we reduce the size of the RoI here? if we must mess with it, 
   /// shouldn't we make it larger?
-
-  iYBeg = (int) floor((phiminIn - m_phiminDet+7e-3)/m_stepMinPhi);
-  iYEnd = (int) ceilf((phimaxIn - m_phiminDet-7e-3)/m_stepMinPhi);
-
+  if (m_stepMinPhi !=0){
+    iYBeg = (int) floor((phiminIn - m_phiminDet+7e-3)/m_stepMinPhi);
+    iYEnd = (int) ceilf((phimaxIn - m_phiminDet-7e-3)/m_stepMinPhi);
+  }
   // iYBeg = (int) floor((phiminIn - m_phiminDet)/m_stepMinPhi);
   // iYEnd = (int) ceilf((phimaxIn - m_phiminDet)/m_stepMinPhi);
 
@@ -370,10 +370,11 @@ std::vector<uint32_t>* outList){
    //   if(iYEnd > m_iLines) iYEnd = m_iLines;
 
 
-   /// why reduce the size of the RoI?  
-   iXBeg = (int) floor((etaminIn - m_etaminDet+2e-5)/m_stepMinEta);
-   iXEnd = (int) ceilf((etamaxIn - m_etaminDet-2e-5)/m_stepMinEta);
-
+   /// why reduce the size of the RoI? 
+   if (m_stepMinEta!=0) {
+     iXBeg = (int) floor((etaminIn - m_etaminDet+2e-5)/m_stepMinEta);
+     iXEnd = (int) ceilf((etamaxIn - m_etaminDet-2e-5)/m_stepMinEta);
+   }
    // iXBeg = (int) floor((etaminIn - m_etaminDet)/m_stepMinEta);
    // iXEnd = (int) ceilf((etamaxIn - m_etaminDet)/m_stepMinEta);
 

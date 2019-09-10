@@ -8,7 +8,7 @@ from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm
 from AthenaCommon.AlgSequence import dumpMasterSequence
 from AthenaCommon.AppMgr import theApp
 
-from TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO import setupMenu
+
 
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
@@ -24,9 +24,16 @@ flags.Detector.GeometryCSC   = True
 flags.Detector.GeometryRPC   = True     
 flags.Trigger.writeBS=True # switches on HLTResultMT creation
 
+flags.Trigger.CostMonitoring.doCostMonitoring = True
 
+
+import importlib
+setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup
+setupMenuModule = importlib.import_module( setupMenuPath )
+assert setupMenuModule != None, "Could not import module {}".format(setupMenuPath)
+assert setupMenuModule.setupMenu != None, "Could not import setupMenu from {}".format(setupMenuPath)
 flags.needFlagsCategory('Trigger')
-setupMenu(flags)
+setupMenuModule.setupMenu(flags)
 
 
 flags.Input.isMC = False
@@ -72,12 +79,10 @@ acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = DEBUG # hypo algs
 acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = DEBUG # hypo tools
 acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = DEBUG # filters
 acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
+acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = DEBUG # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 
-
 acc.printConfig()
-
-
 
 fname = "newJOtest.pkl"
 print "Storing config in the config", fname

@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-// $Id$
 /**
  * @file AthenaKernel/src/CondCont.cpp
  * @author Vakho, Charles, Scott
@@ -42,6 +41,9 @@ std::string CondContBase::Category::message (code_t code) const
   else if (code == static_cast<code_t> (CondContStatusCode::OVERLAP)) {
     return "OVERLAP";
   }
+  else if (code == static_cast<code_t> (CondContStatusCode::EXTENDED)) {
+    return "EXTENDED";
+  }
   return StatusCode::Category::message (code);
 }
 
@@ -53,6 +55,7 @@ bool CondContBase::Category::isSuccess (code_t code) const
 {
   return code == static_cast<code_t>( CondContStatusCode::DUPLICATE ) ||
     code == static_cast<code_t>( CondContStatusCode::OVERLAP ) ||
+    code == static_cast<code_t>( CondContStatusCode::EXTENDED ) ||
     code == static_cast<code_t>( CondContStatusCode::SUCCESS );
 }
 
@@ -82,6 +85,20 @@ bool CondContBase::Category::isOverlap (code_t code)
 bool CondContBase::Category::isOverlap (StatusCode code)
 {
   return isOverlap (code.getCode());
+}
+
+
+/// Helper to test whether a code is EXTENDED.
+bool CondContBase::Category::isExtended (code_t code)
+{
+  return code == static_cast<code_t> (CondContStatusCode::EXTENDED);
+}
+
+
+/// Helper to test whether a code is EXTENDED.
+bool CondContBase::Category::isExtended (StatusCode code)
+{
+  return isExtended (code.getCode());
 }
 
 
@@ -211,6 +228,8 @@ CondContBase::CondContBase (Athena::IRCUSvc& rcusvc,
  * @param ctx Event context for the current thread.
  *
  * Returns SUCCESS if the object was successfully inserted;
+ * EXTENDS if the last existing range in the container was extended
+ * to match the new range;
  * OVERLAP if the object was inserted but the range partially overlaps
  * with an existing one;
  * DUPLICATE if the object wasn't inserted because the range
@@ -285,11 +304,17 @@ CondContBase::insertBase (const EventIDRange& r,
 
   CondContSet::EmplaceResult reslt =
     m_condSet.emplace( RangeKey(r, start_key, stop_key),
-                       std::move(t), ctx );
+                       std::move(t),
+                       m_keyType != KeyType::MIXED,
+                       ctx );
 
   if (reslt == CondContSet::EmplaceResult::DUPLICATE)
   {
     return CondContStatusCode::DUPLICATE;
+  }
+  else if (reslt == CondContSet::EmplaceResult::EXTENDED)
+  {
+    return CondContStatusCode::EXTENDED;
   }
   else if (reslt == CondContSet::EmplaceResult::OVERLAP) {
     return CondContStatusCode::OVERLAP;
@@ -384,7 +409,7 @@ CondContBase::extendLastRangeBase (const EventIDRange& newRange,
     std::abort();
   }
   
-  if (m_condSet.extendLastRange (RangeKey (newRange, start, stop), ctx) != nullptr)
+  if (m_condSet.extendLastRange (RangeKey (newRange, start, stop), ctx) >= 0)
   {
     return StatusCode::SUCCESS;
   }
@@ -544,6 +569,8 @@ CondContSingleBase::ranges() const
  * The container will take ownership of this object.
  *
  * Returns SUCCESS if the object was successfully inserted;
+ * EXTENDS if the last existing range in the container was extended
+ * to match the new range;
  * OVERLAP if the object was inserted but the range partially overlaps
  * with an existing one;
  * DUPLICATE if the object wasn't inserted because the range
@@ -858,11 +885,15 @@ CondContMixedBase::insertMixed (const EventIDRange& r,
 
   CondContSet::EmplaceResult reslt =
     tsmap->emplace ( RangeKey(r, start_key, stop_key),
-                     std::move(t), ctx );
+                     std::move(t), false, ctx );
 
   if (reslt == CondContSet::EmplaceResult::DUPLICATE)
   {
     return CondContStatusCode::DUPLICATE;
+  }
+  else if (reslt == CondContSet::EmplaceResult::EXTENDED)
+  {
+    std::abort();  // Shouldn't happen.
   }
   else if (reslt == CondContSet::EmplaceResult::OVERLAP) {
     return CondContStatusCode::OVERLAP;

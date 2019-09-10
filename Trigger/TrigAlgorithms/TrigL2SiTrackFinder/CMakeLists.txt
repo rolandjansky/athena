@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           InnerDetector/InDetConditions/BeamSpotConditionsData
                           PRIVATE
+                          Control/CxxUtils
                           Control/StoreGate
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData

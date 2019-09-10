@@ -11,15 +11,21 @@
  */
 
 #include "xAODEventInfo/EventInfo.h"  /*SubEvent*/
-#include "PileUpTools/PileUpToolBase.h"
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "PileUpTools/PileUpToolBase.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "TRTDigit.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "TRT_PAI_Process/ITRT_PAITool.h"
+#include "TRT_Digitization/ITRT_SimDriftTimeTool.h"
+#include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h"
+
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetSimData/InDetSimDataCollection.h"
+#include "TRTDigit.h"
 
+#include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/WriteHandle.h"
 #include <vector>
@@ -27,15 +33,11 @@
 #include <set>
 #include <utility> /* pair */
 
-class ITRT_PAITool;
-class ITRT_SimDriftTimeTool;
 class TRT_ID;
 class TRTProcessingOfStraw;
 class TRTElectronicsProcessing;
 class TRTDigCondBase;
 class TRTNoise;
-class ITRT_StrawNeighbourSvc;
-class ITRT_StrawStatusSummaryTool;
 
 namespace CLHEP{
   class HepRandomEngine;
@@ -55,31 +57,31 @@ namespace InDetDD {
 
 class TRTDigSettings;
 
-static const InterfaceID IID_ITRTDigitizationTool ("TRTDigitizationTool",1,0);
-
 class TRTDigitizationTool : virtual public IPileUpTool, public PileUpToolBase {
 public:
-  static const InterfaceID& interfaceID();
   TRTDigitizationTool( const std::string& type, const std::string& name, const IInterface* parent );
 
   /** Destructor */
   ~TRTDigitizationTool();
 
+  /** Initialize */
+  virtual StatusCode initialize() override final;
+
+  /** Finalize */
+  virtual StatusCode finalize() override final;
+
   ///called at the end of the subevts loop. Not (necessarily) able to access SubEvents
-  StatusCode mergeEvent();
+  virtual StatusCode mergeEvent() override final;
 
   ///called for each active bunch-crossing to process current SubEvents bunchXing is in ns
-  StatusCode processBunchXing( int bunchXing,
-			       SubEventIterator bSubEvents,
-			       SubEventIterator eSubEvents );
+  virtual StatusCode processBunchXing( int bunchXing,
+                                       SubEventIterator bSubEvents,
+                                       SubEventIterator eSubEvents ) override final;
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   //  virtual bool toProcess(int bunchXing) const;
 
-  StatusCode prepareEvent( const unsigned int /*nInputEvents*/ );
-
-  /** Initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode prepareEvent( const unsigned int /*nInputEvents*/ ) override final;
 
   /**
    * Perform digitization:
@@ -88,18 +90,15 @@ public:
    * - Add noise
    * - Create RDO collection
    */
-  virtual StatusCode processAllSubEvents();
-
-  /** Finalize */
-  StatusCode finalize();
+  virtual StatusCode processAllSubEvents() override final;
 
 private:
   CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName) const;
 
   Identifier getIdentifier( int hitID,
-			    IdentifierHash& hashId,
-			    Identifier& layerID,
-			    bool& statusok ) const;
+                            IdentifierHash& hashId,
+                            Identifier& layerID,
+                            bool& statusok ) const;
 
   StatusCode update( IOVSVC_CALLBACK_ARGS );        // Update of database entries.
   StatusCode ConditionsDependingInitialization();
@@ -122,61 +121,55 @@ private:
   unsigned int getRegion(int hitID);
   double getCosmicEventPhase(CLHEP::HepRandomEngine *rndmEngine);
 
-  std::vector<std::pair<unsigned int, int> > m_seen;
-  std::vector<TRTDigit> m_vDigits; /**< Vector of all digits */
-  std::string m_dataObjectName; /**< Name of the hits collections */
+  /// Configurable properties
+  ToolHandle<ITRT_PAITool> m_TRTpaiToolXe{this, "PAI_Tool_Xe", "TRT_PAI_Process_Xe", "The PAI model for ionisation in the TRT Xe gas"};
+  ToolHandle<ITRT_PAITool> m_TRTpaiToolAr{this, "PAI_Tool_Ar", "TRT_PAI_Process_Ar", "The PAI model for ionisation in the TRT Ar gas"};
+  ToolHandle<ITRT_PAITool> m_TRTpaiToolKr{this, "PAI_Tool_Kr", "TRT_PAI_Process_Kr", "The PAI model for ionisation in the TRT Kr gas"};
+  ToolHandle<ITRT_SimDriftTimeTool> m_TRTsimdrifttimetool{this, "SimDriftTimeTool", "TRT_SimDriftTimeTool", "Drift time versus distance (r-t-relation) for TRT straws"};
+  ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool{this, "InDetTRTStrawStatusSummaryTool", "TRT_StrawStatusSummaryTool", ""};
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service"};
+  ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
+  ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc{this, "TRT_StrawNeighbourSvc", "TRT_StrawNeighbourSvc", ""};
+
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<TRTUncompressedHitCollection> m_hitsContainerKey{this, "DataObjectName", "TRTUncompressedHits", "Data Object Name"};
+  std::string m_dataObjectName{""};
   SG::WriteHandleKey<TRT_RDO_Container> m_outputRDOCollName{this,"OutputObjectName","TRT_RDOs","WHK Output Object name"}; /**< name of the output RDOs. */
   SG::WriteHandleKey<InDetSimDataCollection> m_outputSDOCollName{this,"OutputSDOName","TRT_SDO_Map","WHK Output SDO container name"}; /**< name of the output SDOs. */
   SG::WriteHandle<TRT_RDO_Container> m_trtrdo_container; //RDO container handle
 
-  bool m_printOverrideableSettings;
-  bool m_printUsedDigSettings;
-  ToolHandle<ITRT_PAITool> m_TRTpaiToolXe;
-  ToolHandle<ITRT_PAITool> m_TRTpaiToolAr;
-  ToolHandle<ITRT_PAITool> m_TRTpaiToolKr;
-  ToolHandle<ITRT_SimDriftTimeTool> m_TRTsimdrifttimetool;
-  ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
+  Gaudi::Property<bool> m_printOverrideableSettings{this, "PrintOverrideableSettings", false, "Print overrideable settings"};
+  Gaudi::Property<bool> m_printUsedDigSettings{this, "PrintDigSettings", true, "Print ditigization settings"};
+  Gaudi::Property<int> m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, ""};
+  Gaudi::Property<int> m_UseGasMix{this, "UseGasMix", 0, ""};
 
-  TRTElectronicsProcessing * m_pElectronicsProcessing;
-  TRTProcessingOfStraw* m_pProcessingOfStraw;
-  TRTDigCondBase* m_pDigConditions;
-  TRTNoise* m_pNoise;
+  TRTDigSettings* m_settings{};
 
+  std::vector<std::pair<unsigned int, int> > m_seen;
+  std::vector<TRTDigit> m_vDigits; /**< Vector of all digits */
+  TRTElectronicsProcessing * m_pElectronicsProcessing{};
+  TRTProcessingOfStraw* m_pProcessingOfStraw{};
+  TRTDigCondBase* m_pDigConditions{};
+  TRTNoise* m_pNoise{};
   //unsigned int m_timer_eventcount;
-  ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
-  ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
-
-  const InDetDD::TRT_DetectorManager* m_manager;
-  TRTDigSettings* m_settings;
-  const TRT_ID* m_trt_id;       /**< TRT Id Helper */
+  const InDetDD::TRT_DetectorManager* m_manager{};
+  const TRT_ID* m_trt_id{};       /**< TRT Id Helper */
   std::list<TRTUncompressedHitCollection*> m_trtHitCollList;
-  TimedHitCollection<TRTUncompressedHit>* m_thpctrt;
-  bool m_alreadyPrintedPDGcodeWarning;
-  double m_minCrossingTimeSDO;
-  double m_maxCrossingTimeSDO;
-  double m_minpileuptruthEkin;
+  TimedHitCollection<TRTUncompressedHit>* m_thpctrt{};
+  bool m_alreadyPrintedPDGcodeWarning{false};
+  double m_minCrossingTimeSDO{0.0};
+  double m_maxCrossingTimeSDO{0.0};
+  double m_minpileuptruthEkin{0.0};
+  // const  ComTime* m_ComTime{};
+  double m_cosmicEventPhase{0.0};     // local replacement for the comTime service
+  const HepPDT::ParticleDataTable* m_particleTable{};
+  int m_dig_vers_from_condDB{-1};
+  std::string m_digverscontainerkey{"/TRT/Cond/DigVers"};
+  bool m_first_event{true};
+  bool m_condDBdigverfoldersexists{false};
 
-  // const  ComTime* m_ComTime;
-
-  const HepPDT::ParticleDataTable* m_particleTable;
-  int m_dig_vers_from_condDB;
-  std::string m_digverscontainerkey;
-  bool m_first_event;
-  bool m_condDBdigverfoldersexists;
-
-  int m_HardScatterSplittingMode;
-  bool m_HardScatterSplittingSkipper;
-
-  int m_UseGasMix;
-  double m_cosmicEventPhase;     // local replacement for the comTime service
-  ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
-  IntegerProperty m_vetoThisBarcode;
+  bool m_HardScatterSplittingSkipper{false};
 
 };
-
-inline const InterfaceID& TRTDigitizationTool::interfaceID()
-{
-  return IID_ITRTDigitizationTool;
-}
 
 #endif

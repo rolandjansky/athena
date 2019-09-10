@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 725991 2016-02-24 18:16:09Z krasznaa $
 ################################################################################
 # Package: PerfMonComps
 ################################################################################
@@ -26,6 +25,7 @@ find_package( Boost )
 find_package( PythonLibs )
 find_package( ROOT COMPONENTS Core PyROOT )
 find_package( pytools )
+find_package( nlohmann_json )
 
 # Component(s) in the package:
 atlas_add_component( PerfMonComps
@@ -33,9 +33,11 @@ atlas_add_component( PerfMonComps
    INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    ${PYTHON_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES}
-   AthenaBaseComps AthenaKernel RootUtils CxxUtils PerfMonEvent PerfMonKernel SGTools
-   StoreGateLib SGtests GaudiKernel AthDSoCallBacks )
+   ${CMAKE_DL_LIBS} AthenaBaseComps AthenaKernel RootUtils CxxUtils
+   PerfMonEvent PerfMonKernel SGTools StoreGateLib GaudiKernel
+   AthDSoCallBacks nlohmann_json::nlohmann_json)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( scripts/PerfMonMTSvc_plotter.py )

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,27 +26,20 @@ namespace InDet
 {
 
 
-  static const InterfaceID IID_IZVTOP_TrkProbTubeCalc("InDet::IZVTOP_TrkProbTubeCalc", 1, 0);
-
   class IZVTOP_TrkProbTubeCalc : virtual public IAlgTool {
   public:
-    static const InterfaceID& interfaceID( ) ;
+    DeclareInterfaceID (IZVTOP_TrkProbTubeCalc, 1, 0);
 
     // declaration of interface-defining member functions
     //trk
-    virtual double calcProbTube(const Trk::Track& trk, Trk::Vertex& vec) = 0;
-    virtual double calcProbTube(const Rec::TrackParticle& trk, Trk::Vertex& vec) = 0;
-    virtual double calcProbTube(const Trk::TrackParticleBase& trk, Trk::Vertex& vec) = 0;
-    virtual double calcProbTube(const Trk::Perigee* trk, Trk::Vertex& vec) = 0;
+    virtual double calcProbTube(const Trk::Track& trk, Trk::Vertex& vec) const = 0;
+    virtual double calcProbTube(const Rec::TrackParticle& trk, Trk::Vertex& vec) const = 0;
+    virtual double calcProbTube(const Trk::TrackParticleBase& trk, Trk::Vertex& vec) const = 0;
+    virtual double calcProbTube(const Trk::Perigee* trk, Trk::Vertex& vec) const = 0;
     //beam spot
-    virtual double calcProbTube(const Trk::RecVertex& vtx, Trk::Vertex& vec) = 0;
+    virtual double calcProbTube(const Trk::RecVertex& vtx, Trk::Vertex& vec) const = 0;
 
   };
-
-  inline const InterfaceID& InDet::IZVTOP_TrkProbTubeCalc::interfaceID()
-    { 
-      return IID_IZVTOP_TrkProbTubeCalc; 
-    }
 
 } // end of namespace
 

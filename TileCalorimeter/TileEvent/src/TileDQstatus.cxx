@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -76,7 +76,7 @@ TileDQstatus::~TileDQstatus() {
 // If monogain run, both gains contain the same results
 void TileDQstatus::fillArrays(const TileRawChannelCollection *coll,
                               const TileDigitsContainer* digitsCnt,
-                              int gain)
+                              int gain, unsigned short fragBCID)
 {
   if (digitsCnt) {
     m_checkDigi = true;
@@ -92,7 +92,7 @@ void TileDQstatus::fillArrays(const TileRawChannelCollection *coll,
   // attention! it's assignment below, i.e. only single "=", not "=="
   // LF: ... which is something very dangerous. Does it provide any speed advantage?
   if ((m_GlobalCRCErrArray[partition][drawer][gain] = coll->getFragGlobalCRC()))    ++m_counter;
-  if ((m_BCIDErrArray[partition][drawer][gain] = coll->getFragBCID()))              ++m_counter;
+  if ((m_BCIDErrArray[partition][drawer][gain] = fragBCID))                         ++m_counter;
   if ((m_MemoryParityErrArray[partition][drawer][gain] = coll->getFragMemoryPar())) ++m_counter;
   if ((m_SingleStrobeErrArray[partition][drawer][gain] = coll->getFragSstrobe()))   ++m_counter;
   if ((m_DoubleStrobeErrArray[partition][drawer][gain] = coll->getFragDstrobe()))   ++m_counter;
@@ -111,8 +111,8 @@ void TileDQstatus::fillArrays(const TileRawChannelCollection *coll,
     ++m_counter;
   }
 
-  unsigned short BCIDerr =
-      (unsigned short) m_BCIDErrArray[partition][drawer][gain];
+  unsigned short BCIDerr = fragBCID;
+
   if (BCIDerr & 0x2) { // DMU1 (second DMU) is bad - can not trust others 
     m_BCIDErrArray[partition][drawer][gain] = -1;
   } else {
@@ -145,8 +145,11 @@ void TileDQstatus::fillArrays(const TileRawChannelCollection *coll,
     }
   }
 
-  if ((m_BCIDErrArray[partition][drawer][gain] & 0x2) && digitsCnt)
+  if ((m_BCIDErrArray[partition][drawer][gain] & 0x2) && digitsCnt) {
     fillBCIDErrDetail(digitsCnt, frag, gain);
+  } else {
+    m_BCIDErrArrayDetail[partition][drawer][gain] = fragBCID;
+  }
   
   if (m_HeaderFormatErrArray[partition][drawer][gain]
       || m_HeaderParityErrArray[partition][drawer][gain]

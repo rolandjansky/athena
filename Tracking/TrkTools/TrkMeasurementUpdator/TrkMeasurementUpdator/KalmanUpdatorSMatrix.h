@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -68,31 +68,51 @@ class KalmanUpdatorSMatrix : virtual public IUpdator, public AthAlgTool {
   public:	
     //! AlgTool standard constuctor
     KalmanUpdatorSMatrix(const std::string&,const std::string&,const IInterface*);
-    ~KalmanUpdatorSMatrix();
+    virtual ~KalmanUpdatorSMatrix();
 		
     //! AlgTool initialisation
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     //! AlgTool termination
-    StatusCode finalize();	
+    virtual StatusCode finalize() override;
 			
     //! measurement updator for the KalmanFitter getting the meas't coord' from Amg::Vector2D (use eg with PRD)
     // fails: @copydoc Trk::IUpdator::addToState(const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&)
-    virtual const TrackParameters* addToState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&) const;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const Amg::Vector2D&, 
+                                         const Amg::MatrixX&) const override final;
     //! measurement updator for the KalmanFitter getting the coord' from LocalParameters (use for example with MeasurementBase, ROT)
-    virtual const TrackParameters* addToState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&) const;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const LocalParameters&, 
+                                         const Amg::MatrixX&) const override final;
     //! measurement updator interface for the KalmanFitter returning the fit quality of the state at the same time (Amg::Vector2D-version)
-    virtual const TrackParameters* addToState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&, FitQualityOnSurface*& ) const;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const Amg::Vector2D&, 
+                                         const Amg::MatrixX&, 
+                                         FitQualityOnSurface*& ) const override final;
     //! measurement updator interface for the KalmanFitter returning the fit quality of the state at the same time (LocalParameters-version)
-    virtual const TrackParameters* addToState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&, FitQualityOnSurface*& ) const;
+    virtual TrackParameters* addToState (const TrackParameters&, 
+                                         const LocalParameters&, 
+                                         const Amg::MatrixX&, 
+                                         FitQualityOnSurface*& ) const override final;
 
     //! reverse update eg for track property analysis (unbiased residuals) getting the measurement coordinates from the Amg::Vector2D class.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&) const;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const Amg::Vector2D&, 
+                                              const Amg::MatrixX&) const override final;
     //! reverse update eg for track property analysis (unbiased residuals) getting the measurement coordinates from the LocalParameters class.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&) const;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const LocalParameters&, 
+                                              const Amg::MatrixX&) const override final;
     //! reverse update for Kalman filters and other applications using the interface with Amg::Vector2D and FitQualityOnSurface.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX&, FitQualityOnSurface*& ) const;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const Amg::Vector2D&, 
+                                              const Amg::MatrixX&, 
+                                              FitQualityOnSurface*& ) const override final;
     //! reverse update for Kalman filters and other applications using the interface with LocalParameters and FitQualityOnSurface.
-    virtual const TrackParameters* removeFromState (const TrackParameters&, const LocalParameters&, const Amg::MatrixX&, FitQualityOnSurface*& ) const;
+    virtual TrackParameters* removeFromState (const TrackParameters&, 
+                                              const LocalParameters&, 
+                                              const Amg::MatrixX&, 
+                                              FitQualityOnSurface*& ) const override final;
 		
     /** @brief trajectory state updator which combines two parts of a trajectory on a common surface.
 
@@ -100,95 +120,114 @@ class KalmanUpdatorSMatrix : virtual public IUpdator, public AthAlgTool {
         that the local hit is not duplicated in both trajectories!
     */
 
-    virtual const TrackParameters* combineStates   (const TrackParameters&, const TrackParameters&) const;
+    virtual TrackParameters* combineStates   (const TrackParameters&, 
+                                              const TrackParameters&) const override final;
     /** @brief trajectory state updator which combines two parts of a trajectory on a common surface and provides the FitQuality.
 
         Make sure that the TPs' surfaces are identical and that the local hit is not duplicated!
     */
-    virtual const TrackParameters* combineStates   (const TrackParameters&, const TrackParameters&, FitQualityOnSurface*&) const;
+    virtual TrackParameters* combineStates   (const TrackParameters&, 
+                                              const TrackParameters&, 
+                                              FitQualityOnSurface*&) const override final;
 
     //! estimator for FitQuality on Surface from a full track state, that is a state which contains the current hit (expressed as Amg::Vector2D).
-    virtual const FitQualityOnSurface* fullStateFitQuality (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX& ) const;
+    virtual const FitQualityOnSurface* fullStateFitQuality (const TrackParameters&, 
+                                                            const Amg::Vector2D&, 
+                                                            const Amg::MatrixX& ) const override final;
     //! estimator for FitQuality on Surface from a full track state, that is a state which contains the current hit (expressed as LocalParameters).
-    virtual const FitQualityOnSurface* fullStateFitQuality (const TrackParameters&, const LocalParameters&, const Amg::MatrixX& ) const;
+    virtual const FitQualityOnSurface* fullStateFitQuality (const TrackParameters&, 
+                                                            const LocalParameters&, 
+                                                            const Amg::MatrixX& ) const override final;
     //! estimator for FitQuality on Surface from a predicted track state, that is a state which contains the current hit (expressed as Amg::Vector2D).
-    virtual const FitQualityOnSurface* predictedStateFitQuality (const TrackParameters&, const Amg::Vector2D&, const Amg::MatrixX& ) const;
+    virtual const FitQualityOnSurface* predictedStateFitQuality (const TrackParameters&, 
+                                                                 const Amg::Vector2D&,
+                                                                 const Amg::MatrixX& ) const override final;
     //! estimator for FitQuality on Surface from a predicted track state, that is a state which contains the current hit (expressed as LocalParameters).
-    virtual const FitQualityOnSurface* predictedStateFitQuality (const TrackParameters&, const LocalParameters&, const Amg::MatrixX& ) const;
+    virtual const FitQualityOnSurface* predictedStateFitQuality (const TrackParameters&, 
+                                                                 const LocalParameters&, 
+                                                                 const Amg::MatrixX& ) const override final;
     //! estimator for FitQuality on Surface for the situation when a track is fitted to the parameters of another trajectory part extrapolated to the common surface.
-    virtual const FitQualityOnSurface* predictedStateFitQuality (const TrackParameters&, const TrackParameters&) const;
+    virtual const FitQualityOnSurface* predictedStateFitQuality (const TrackParameters&, 
+                                                                 const TrackParameters&) const override final;
     //! interface for reference-track KF, not implemented
-    virtual std::pair<AmgVector(5), AmgSymMatrix(5)>* updateParameterDifference (const AmgVector(5)&, const AmgSymMatrix(5)&, const Amg::VectorX&, const Amg::MatrixX&, const int&, Trk::FitQualityOnSurface*&, bool ) const {return 0;}
+    virtual std::pair<AmgVector(5), AmgSymMatrix(5)>* updateParameterDifference (const AmgVector(5)&, 
+                                                                                 const AmgSymMatrix(5)&, 
+                                                                                 const Amg::VectorX&, 
+                                                                                 const Amg::MatrixX&, 
+                                                                                 const int&, 
+                                                                                 Trk::FitQualityOnSurface*&, 
+                                                                                 bool ) const override final
+    {return 0;}
 
     //! give back how updator is configured for inital covariances
-    virtual const std::vector<double>  initialErrors() const;
+    virtual const std::vector<double>  initialErrors() const override final;
 		
 private:
     //! common code analysing the measurement's rank and calling the appropriate implementation for this rank.
-    const TrackParameters* prepareFilterStep(const TrackParameters&,
-                                             const LocalParameters&,
-                                             const Amg::MatrixX&,
-                                             const int, 
-                                             FitQualityOnSurface*&,
-                                             bool) const;
+    TrackParameters* prepareFilterStep(const TrackParameters&,
+                                       const LocalParameters&,
+                                       const Amg::MatrixX&,
+                                       const int, 
+                                       FitQualityOnSurface*&,
+                                       bool) const;
     //! common maths calculation code for all addToState and removeFromState versions which happen to be called with 1-dim measurements.
-    const TrackParameters* calculateFilterStep_1D(const TrackParameters&,
-                                                  const SParVector5&,
-                                                  const SCovMatrix5&,
-                                                  const double&,
-                                                  const int&,
-                                                  const Amg::MatrixX&,
-                                                  const int,
-                                                  FitQualityOnSurface*&,
-                                                  bool) const;
+    TrackParameters* calculateFilterStep_1D(const TrackParameters&,
+                                            const SParVector5&,
+                                            const SCovMatrix5&,
+                                            const double&,
+                                            const int&,
+                                            const Amg::MatrixX&,
+                                            const int,
+                                            FitQualityOnSurface*&,
+                                            bool) const;
     //! common maths calculation code for all addToState and removeFromState versions which happen to be called with 2-dim measurements.
-    const TrackParameters* calculateFilterStep_2D(const TrackParameters&,
-                                                  const SParVector5&,
-                                                  const SCovMatrix5&,
-                                                  const SParVector2&,
-                                                  const int&,
-                                                  const Amg::MatrixX&,
-                                                  const int,
-                                                  FitQualityOnSurface*&,
-                                                  bool) const;
+    TrackParameters* calculateFilterStep_2D(const TrackParameters&,
+                                            const SParVector5&,
+                                            const SCovMatrix5&,
+                                            const SParVector2&,
+                                            const int&,
+                                            const Amg::MatrixX&,
+                                            const int,
+                                            FitQualityOnSurface*&,
+                                            bool) const;
     //! common maths calculation code for all addToState and removeFromState versions which happen to be called with 3-dim measurements.
-    const TrackParameters* calculateFilterStep_3D(const TrackParameters&,
-                                                  const SParVector5&,
-                                                  const SCovMatrix5&,
-                                                  const LocalParameters&,
-                                                  const Amg::MatrixX&,
-                                                  const int,
-                                                  FitQualityOnSurface*&,
-                                                  bool) const;
+    TrackParameters* calculateFilterStep_3D(const TrackParameters&,
+                                            const SParVector5&,
+                                            const SCovMatrix5&,
+                                            const LocalParameters&,
+                                            const Amg::MatrixX&,
+                                            const int,
+                                            FitQualityOnSurface*&,
+                                            bool) const;
     //! common maths calculation code for all addToState and removeFromState versions which happen to be called with 4-dim measurements.
-    const TrackParameters* calculateFilterStep_4D(const TrackParameters&,
-                                                  const SParVector5&,
-                                                  const SCovMatrix5&,
-                                                  const LocalParameters&,
-                                                  const Amg::MatrixX&,
-                                                  const int,
-                                                  FitQualityOnSurface*&,
-                                                  bool) const;
+    TrackParameters* calculateFilterStep_4D(const TrackParameters&,
+                                            const SParVector5&,
+                                            const SCovMatrix5&,
+                                            const LocalParameters&,
+                                            const Amg::MatrixX&,
+                                            const int,
+                                            FitQualityOnSurface*&,
+                                            bool) const;
     //! common maths calculation code for all addToState and removeFromState versions which happen to be called with 5-dim measurements or two track states.
     /** For 5-dim track states the ParameterKey is known to be 31 and
         does not need to be passed through the interface. */
-    const TrackParameters* calculateFilterStep_5D(const TrackParameters&,
-                                                  const SParVector5&,
-                                                  const SCovMatrix5&,
-                                                  const SParVector5&,
-                                                  const Amg::MatrixX&,
-                                                  const int,
-                                                  FitQualityOnSurface*&,
-                                                  bool) const;
+    TrackParameters* calculateFilterStep_5D(const TrackParameters&,
+                                            const SParVector5&,
+                                            const SCovMatrix5&,
+                                            const SParVector5&,
+                                            const Amg::MatrixX&,
+                                            const int,
+                                            FitQualityOnSurface*&,
+                                            bool) const;
 
     //! Helper method to transform Eigen cov matrix to SMatrix.
     bool getStartCov(SCovMatrix5&, const TrackParameters&, const int) const;
     //! Helper method to convert internal results from SMatrix to Eigen. */
-    const TrackParameters* convertToClonedTrackPars(const TrackParameters&,
-                                                    const SParVector5&,
-                                                    const SCovMatrix5&,
-                                                    const int&, const bool&,
-                                                    const std::string&) const;
+    TrackParameters* convertToClonedTrackPars(const TrackParameters&,
+                                              const SParVector5&,
+                                              const SCovMatrix5&,
+                                              const int&, const bool&,
+                                              const std::string&) const;
     /** also the chi2 calculation and FitQuality object creation is
         combined in an extra method. It is called by all the XXX-FitQuality()
         methods - SMatrix version for 1D, 2D, 5D and Eigen for 3D, 4D.
@@ -260,7 +299,7 @@ private:
     float               m_thetaGainDampingValue;
 
     SCovMatrix5         m_unitMatrix; //!< avoid mem allocation at every call
-    static  ParamDefsAccessor s_enumAccessor;
+    static const ParamDefsAccessor s_enumAccessor;
 };
  inline bool KalmanUpdatorSMatrix::thetaPhiWithinRange_5D (const SParVector5& V,
                                                     const RangeCheckDef rcd) const {

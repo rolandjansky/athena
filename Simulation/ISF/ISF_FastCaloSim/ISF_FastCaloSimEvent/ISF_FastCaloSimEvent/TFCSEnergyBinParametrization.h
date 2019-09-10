@@ -31,7 +31,7 @@ class TFCSEnergyBinParametrization:public TFCSEnergyParametrization
   /// the function will normalize probabilities automatically, if the sum of values is not 1
   /// current convention is to start Ekin_bin counting at 1, to be updated to start counting with 0
   virtual void set_pdgid_Ekin_bin_probability(int id,std::vector< float > prob);
-  virtual void load_pdgid_Ekin_bin_probability_from_file(int id, TFile* file, std::string prob_object_name);
+  virtual bool load_pdgid_Ekin_bin_probability_from_file(int id, TFile* file, std::string prob_object_name);
   
   virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 

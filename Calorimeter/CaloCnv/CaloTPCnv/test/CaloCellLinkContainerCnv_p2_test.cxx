@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloCellLinkContainerCnv_p2_test.cxx,v 1.2 2008-12-18 19:34:49 ssnyder Exp $
@@ -16,9 +16,10 @@
 #include "SGTools/TestStore.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/MsgStream.h"
+#include "TestTools/random.h"
+#include "TestTools/leakcheck.h"
 #include <vector>
 #include <algorithm>
-#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 #include <cstdio>
@@ -26,30 +27,8 @@
 const std::string cont_name = "cells";
 
 
-// Dufus-quality RNG, using LCG.  Constants from numerical recipies.
-// I don't particularly care about RNG quality here, just about
-// getting something that's reproducible.
-#include <stdint.h>
-uint32_t seed = 1;
-uint32_t rngmax = static_cast<uint32_t> (-1);
-uint32_t rng()
-{
-  seed = (1664525*seed + 1013904223);
-  return seed;
-}
-
-float randf (float rmax, float rmin = 0)
-{
-  return static_cast<float>(rng()) / rngmax * (rmax-rmin) + rmin;
-}
-int randi (int rmax, int rmin = 0)
-{
-  return static_cast<int> (randf(rmax, rmin));
-}
-struct randi_fn
-{
-  int operator() (int rmax) { return randi(rmax); }
-};
+using Athena_test::randi;
+using Athena_test::randf;
 
 
 struct cell_t
@@ -138,8 +117,8 @@ CaloCellLink* make_cluslinks (int ncell_min,
   std::sort (cells.begin(), cells.end());
 
   int uend = std::unique (cells.begin(), cells.end()) - cells.begin();
-  randi_fn fn;
-  std::random_shuffle (cells.begin(), cells.begin()+uend, fn);
+  Athena_test::URNG fn;
+  std::shuffle (cells.begin(), cells.begin()+uend, fn);
 
   for (int i = 0; i < uend; i++) {
     lnk->push (cells[i].cell, cells[i].weight);

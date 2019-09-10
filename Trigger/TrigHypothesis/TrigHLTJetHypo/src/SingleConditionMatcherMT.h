@@ -17,12 +17,13 @@
 //
 
 #include "./IGroupsMatcherMT.h"
-#include "./ConditionsDefsMT.h"
+#include "./IConditionMT.h"
+// #include "./ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
-#include <utility>  // std::pair
 #include <set>
 
+class xAODJetCollector;
 
 class SingleConditionMatcherMT: virtual public IGroupsMatcherMT {
 
@@ -33,15 +34,19 @@ class SingleConditionMatcherMT: virtual public IGroupsMatcherMT {
      See Algorithms, Sedgewick and Wayne 4th edition */
 
 public:
-  SingleConditionMatcherMT(const ConditionBridgeMT&);
+  SingleConditionMatcherMT(std::unique_ptr<IConditionMT>&&);
   ~SingleConditionMatcherMT(){}
-  bool match(const HypoJetGroupCIter&,
-             const HypoJetGroupCIter&,
-             IConditionVisitor*) override;
+
+  virtual std::optional<bool>
+    match(const HypoJetGroupCIter&,
+	  const HypoJetGroupCIter&,
+	  xAODJetCollector&,
+	  const std::unique_ptr<ITrigJetHypoInfoCollector>&,
+	  bool debug) const override;
+  
   std::string toString() const noexcept override;
-  ConditionsMT getConditions() const noexcept override;
 private:
-  ConditionBridgeMT m_condition;
+  std::unique_ptr<IConditionMT>  m_condition;
 
 };
 

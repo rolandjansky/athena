@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // JpsiAlg.cxx
@@ -11,7 +11,7 @@
 
 #include "JpsiUpsilonTools/JpsiAlg.h"
 
-#include "xAODTracking/VertexContainer.h"
+
 #include "xAODTracking/VertexAuxContainer.h"
 
 
@@ -36,27 +36,13 @@ StatusCode JpsiAlg::initialize(){
 
   ATH_MSG_DEBUG("in initialize()");
 
-  // get the tool service
-  IToolSvc* toolSvc;
-  StatusCode sc = service("ToolSvc",toolSvc);
-  if (StatusCode::SUCCESS != sc) {
-    ATH_MSG_ERROR("Unable to retrieve ToolSvc");
-    return StatusCode::FAILURE;
-  }
- 
   // get the JpsiFinder tool
-  if ( m_jpsiFinder.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve tool " << m_jpsiFinder);
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Retrieved tool " << m_jpsiFinder);
-  }
-
+  ATH_CHECK(m_jpsiFinder.retrieve());
+  ATH_CHECK(m_jpsiContainerName.initialize());
   m_eventCntr = 0;
   m_jpsiCntr = 0;
 
-  return sc;
-  
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -83,14 +69,10 @@ StatusCode JpsiAlg::execute() {
   m_jpsiCntr += jpsiContainer->size(); // Count the Jpsis
 
   // save in the StoreGate
-  ATH_MSG_DEBUG("Recording to StoreGate: " << m_jpsiContainerName << " size:" <<jpsiContainer->size());
+  ATH_MSG_DEBUG("Recording to StoreGate: " << m_jpsiContainerName.key() << " size:" <<jpsiContainer->size());
   
-  if (!evtStore()->contains<xAOD::VertexContainer>(m_jpsiContainerName))       
-    CHECK(evtStore()->record(jpsiContainer, m_jpsiContainerName));
-  
-  if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_jpsiContainerName+"Aux.")) 
-    CHECK(evtStore()->record(jpsiAuxContainer, m_jpsiContainerName+"Aux."));
-  
+  SG::WriteHandle<xAOD::VertexContainer> whandle (m_jpsiContainerName);
+  ATH_CHECK(whandle.record(std::unique_ptr<xAOD::VertexContainer>(jpsiContainer), std::unique_ptr<xAOD::VertexAuxContainer>(jpsiAuxContainer)));
   // END OF ANALYSIS
   return StatusCode::SUCCESS;
 }

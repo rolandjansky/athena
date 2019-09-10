@@ -21,7 +21,7 @@
 // Include headers from all the publicly used Athena packages:
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 
 #endif // ASGTOOLS_ASGTOOLSATHENA_H

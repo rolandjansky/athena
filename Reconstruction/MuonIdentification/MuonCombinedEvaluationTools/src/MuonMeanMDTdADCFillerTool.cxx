@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonMeanMDTdADCFillerTool.cxx, Implementation file for class MuonMeanMDTdADCFillerTool
@@ -31,7 +31,6 @@ MuonMeanMDTdADCFillerTool::MuonMeanMDTdADCFillerTool
  const std::string&      name, 
  const IInterface*       parent)
   : AthAlgTool              (type, name, parent),
-      m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
       m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_idToFixedIdTool("MuonCalib::IdToFixedIdTool")
 
@@ -160,7 +159,7 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
         if(measurement == NULL) {
             continue;
         }
-        Identifier id = m_helperTool->getIdentifier(*measurement);
+        Identifier id = m_edmHelperSvc->getIdentifier(*measurement);
         if(!(m_idHelperTool->isMuon(id))) {
             continue;    // MS summary variables - don't need other technologies
         }

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
 #
 # File: TileByteStream/TileLaserObjByteStreamCnv_test.py
 # Author: scott snyder
@@ -24,6 +24,7 @@ def find_file (fname):
     return None
 
 # Find reference and input files.
+RunNumber = 363899
 input_base = 'data18_tilecomm.00363899.calibration_tile.daq.RAW._lb0000._TileREB-ROS._0005-200ev.data'
 if not globals().has_key ('ATLAS_REFERENCE_TAG'):
     ATLAS_REFERENCE_TAG = os.environ.get ('ATLAS_REFERENCE_TAG',

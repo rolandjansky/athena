@@ -17,6 +17,7 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <limits>
 #include <string>
 
 class StatusCode;
@@ -63,22 +64,22 @@ class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
 
  private:
 
-  int  m_timeStampBegin;
-  std::string m_tsBeginString;
-  std::string m_tsEndString;
-  int  m_timeStampEnd;
-  int  m_duration;
-  int  m_LBBegin;
-  int  m_LBEnd;
-  int  m_numLB;
-  std::string m_source;
+  std::string m_tsBeginString{""};
+  std::string m_tsEndString{""};
+  int  m_timeStampBegin{std::numeric_limits<int>::max()};
+  int  m_timeStampEnd{std::numeric_limits<int>::min()};
+  int  m_duration{0};
+  int  m_LBBegin{std::numeric_limits<int>::max()};
+  int  m_LBEnd{std::numeric_limits<int>::min()};
+  int  m_numLB{0};
+  std::string m_source{"UNKNOWN"};
 
   //
-  int  m_runNumber;
-  int  m_lumiBlock;
-  int  m_timeStamp;
-  int  m_bunchCrossing;
-  int  m_counter;
+  int  m_runNumber{0};
+  int  m_lumiBlock{0};
+  int  m_timeStamp{0};
+  int  m_bunchCrossing{0};
+  int  m_counter{0};
   std::string toUtc(const int timestamp) const;
 };
 

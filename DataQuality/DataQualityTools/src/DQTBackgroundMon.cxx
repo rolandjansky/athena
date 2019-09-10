@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -15,7 +15,7 @@
 
 #include "DataQualityTools/DQTBackgroundMon.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 
@@ -39,7 +39,6 @@ DQTBackgroundMon::DQTBackgroundMon(const std::string & type,
 					   const IInterface* parent) :
   DataQualityFatherMonTool(type, name, parent),
   m_trigDec("TrigDecisionTool"),
-  m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
   m_idHelperTool("Muon::MuonIdHelperTool"),
   m_idToFixedIdTool("MuonCalib::IdToFixedIdTool"),
   m_doMuons(1),
@@ -597,7 +596,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
 
   if (m_doMuons==true){
 
-    CHECK( m_helperTool.retrieve() );
+    CHECK( m_edmHelperSvc.retrieve() );
     CHECK( m_idHelperTool.retrieve() );
     CHECK( m_idToFixedIdTool.retrieve() );
 
@@ -606,13 +605,13 @@ StatusCode DQTBackgroundMon::fillHistograms()
       for(unsigned int i=0; i<segmentContainer->size(); i++) {
 	const xAOD::MuonSegment* seg = dynamic_cast<const xAOD::MuonSegment*>(segmentContainer->at(i));
 	if ( seg == 0 ) continue ;
-	// The tool MuonEDMHelperTool (m_helperTool)
+	// The tool IMuonEDMHelperSvc (m_edmHelperSvc)
 	// has not been migrated to xAOD yet
 	// one could use the converter:
 	// https://svnweb.cern.ch/trac/atlasoff/browser/MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools/trunk/src/MuonSegmentConverterTool.h
 	// but, hoping that migration will happen soon, we temporarily disable this part.
 	/*
-          Identifier id = m_helperTool->chamberId(*seg);
+          Identifier id = m_edmHelperSvc->chamberId(*seg);
           if ( !id.is_valid() ) continue;
           if ( !m_idHelperTool->isMuon(id) ) continue;
 	  
@@ -650,7 +649,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
 	if ( mSeg == 0 ) continue ;
 	// As above, comment out while waiting for the tool migration
 	/*
-          Identifier id = m_helperTool->chamberId(*mSeg);
+          Identifier id = m_edmHelperSvc->chamberId(*mSeg);
           if ( !id.is_valid() ) continue;
           if ( !m_idHelperTool->isMuon(id) ) continue;
 	  

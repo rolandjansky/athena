@@ -16,7 +16,18 @@
 #include "G4NystromRK4.hh"
 #include "G4ClassicalRK4.hh"
 #include "G4AtlasRK4.hh"
-
+#include "G4BogackiShampine23.hh"
+#include "G4BogackiShampine45.hh"
+#include "G4CashKarpRKF45.hh"
+#include "G4DoLoMcPriRK34.hh"
+#include "G4DormandPrince745.hh"
+#include "G4DormandPrinceRK56.hh"
+#include "G4DormandPrinceRK78.hh"
+#include "G4RK547FEq1.hh"
+#include "G4RK547FEq2.hh"
+#include "G4RK547FEq3.hh"
+#include "G4RKG3_Stepper.hh"
+#include "G4TsitourasRK45.hh"
 // CLHEP includes
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -109,6 +120,18 @@ G4FieldManagerToolBase::getStepper(std::string name, G4MagneticField* field) con
   else if (name=="NystromRK4") return new G4NystromRK4(eqRhs);
   else if (name=="ClassicalRK4") return new G4ClassicalRK4(eqRhs);
   else if (name=="AtlasRK4") return new G4AtlasRK4(eqRhs);
+  else if (name=="BogackiShampine23") return new G4BogackiShampine23(eqRhs);
+  else if (name=="BogackiShampine45") return new G4BogackiShampine45(eqRhs);
+  else if (name=="CashKarpRKF45") return new G4CashKarpRKF45(eqRhs);
+  else if (name=="DoLoMcPriRK34") return new G4DoLoMcPriRK34(eqRhs);
+  else if (name=="DormandPrince745") return new G4DormandPrince745(eqRhs);
+  else if (name=="DormandPrinceRK56") return new G4DormandPrinceRK56(eqRhs);
+  else if (name=="DormandPrinceRK78") return new G4DormandPrinceRK78(eqRhs);
+  else if (name=="RK547FEq1") return new G4RK547FEq1(eqRhs);
+  else if (name=="RK547FEq2") return new G4RK547FEq2(eqRhs);
+  else if (name=="RK547FEq3") return new G4RK547FEq3(eqRhs);
+  else if (name=="RKG3_Stepper") return new G4RKG3_Stepper(eqRhs);
+  else if (name=="TsitourasRK45") return new G4TsitourasRK45(eqRhs);
   else {
     ATH_MSG_ERROR("Stepper " << name << " not available! returning NystromRK4!");
     return new G4NystromRK4(eqRhs);

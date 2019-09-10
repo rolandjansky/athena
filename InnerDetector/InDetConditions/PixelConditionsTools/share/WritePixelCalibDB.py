@@ -78,12 +78,6 @@ include ("AtlasGeoModel/GeoModelInit.py")
 #--------------------------------------------------------------
 # Private Application Configuration options
 #--------------------------------------------------------------
-#theApp.Dlls +=[ "PixelConditionsServices" ]
-
-#configure PixelCalibDbSvc
-#theApp.ExtSvc +=[ "PixelCalibSvc" ]
-#PixelCalibSvc = Service( "PixelCalibSvc" )
-
 theApp.Dlls += [ "PixelConditionsTools" ]
 
 # PixelCalibDbTestWrite.py

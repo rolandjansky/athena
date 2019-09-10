@@ -64,8 +64,8 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type)
   :  asg::AsgTool(type)
 #ifndef XAOD_ANALYSIS //Add Athena Specific parts in the init list of the constructor
   ,
-     m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
-     m_truthInConeTool ("xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool")
+     m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
+     m_truthInConeTool ("xAOD::TruthParticlesInConeTool/TruthParticlesInConeTool", this)
 #endif
 {
 
@@ -127,7 +127,7 @@ StatusCode MCTruthClassifier::initialize(){
     ATH_MSG_WARNING( "Cannot retrieve extrapolateToCaloTool " << m_caloExtensionTool 
                      << " - will not perform extrapolation." );
   }
-  if(m_truthInConeTool.retrieve().isFailure() ) {
+  if( !m_truthInConeTool.empty() && m_truthInConeTool.retrieve().isFailure() ) {
     ATH_MSG_ERROR( "Cannot retrieve Truth in cone Tool " << m_truthInConeTool);
   }
 #endif

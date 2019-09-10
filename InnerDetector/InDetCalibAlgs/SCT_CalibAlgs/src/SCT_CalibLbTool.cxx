@@ -45,26 +45,27 @@ static const string detectorNames[]{"negativeEndcap", "barrel", "positiveEndcap"
 static const string detectorPaths[]{"SCTEC/", "SCTB/","SCTEA/"};
 
 SCT_CalibLbTool::SCT_CalibLbTool(const std::string& type, const std::string& name, const IInterface* parent):
-  base_class(type, name, parent),
-  m_pSCTHelper{nullptr},
-  m_pManager{nullptr},
-  m_sct_waferHash{0},
-  m_sct_firstStrip{0},
-  m_sct_rdoGroupSize{0},
-  m_lumiBlock{0},
-  m_LbRange{0},
-  m_LbsToMerge{0},
-  m_rdoContainerKey{"SCT_RDOs"}
+  base_class(type, name, parent)
 {
-  //nop
 }
 
 StatusCode
 SCT_CalibLbTool::initialize() {
   ATH_MSG_INFO("Initialize of " << PACKAGE_VERSION);
   ATH_CHECK(service("THistSvc", m_thistSvc));
+
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
-  ATH_CHECK(detStore()->retrieve(m_pManager, "SCT"));
+  m_swapPhiReadoutDirection.resize(m_pSCTHelper->wafer_hash_max(), false);
+
+  const InDetDD::SCT_DetectorManager* manager{nullptr};
+  ATH_CHECK(detStore()->retrieve(manager, "SCT"));
+  const InDetDD::SiDetectorElementCollection* sctDetElementColl{manager->getDetectorElementCollection()};
+  for (const InDetDD::SiDetectorElement* element: *sctDetElementColl) {
+    if (element->swapPhiReadoutDirection()) {
+      m_swapPhiReadoutDirection[element->identifyHash()] = true;
+    }
+  }
+
   std::pair<std::string, bool> msgCode{retrievedTool(m_evtInfo)};
   if (not msgCode.second) {
     ATH_MSG_ERROR(msgCode.first);
@@ -266,18 +267,11 @@ SCT_CalibLbTool::fillFromData() {
 
 void
 SCT_CalibLbTool::fillLbForWafer(const IdentifierHash& waferHash, const int theFirstStrip, const int groupSize) {
-  const InDetDD::SiDetectorElement* pElement{m_pManager->getDetectorElement(waferHash)};
-
-  if (pElement) {
-    int stripNumber{pElement->swapPhiReadoutDirection() ? lastStrip - theFirstStrip : theFirstStrip};
-    int index{static_cast<int>(waferHash)*n_chipsPerSide + stripNumber/n_stripsPerChip};
-    //--- Fill LB histograms
-    for (int j{0}; j != groupSize; ++j) {
-      m_phistoVector[index]->Fill(m_lumiBlock);
-    }
-
-  } else {
-    ATH_MSG_FATAL("Element pointer is NULL");
+  int stripNumber{m_swapPhiReadoutDirection[waferHash] ? lastStrip - theFirstStrip : theFirstStrip};
+  int index{static_cast<int>(waferHash)*n_chipsPerSide + stripNumber/n_stripsPerChip};
+  //--- Fill LB histograms
+  for (int j{0}; j != groupSize; ++j) {
+    m_phistoVector[index]->Fill(m_lumiBlock);
   }
 
 }

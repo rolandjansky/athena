@@ -122,7 +122,7 @@ Trk::Layer& Trk::Layer::operator=(const Trk::Layer& lay)
     m_enclosingDetachedTrackingVolume   = lay.m_enclosingDetachedTrackingVolume;
     m_overlapDescriptor                 = (lay.m_overlapDescriptor) ? lay.m_overlapDescriptor->clone() : 0;
     m_surfaceArray                      = (lay.m_surfaceArray) ? lay.m_surfaceArray->clone() : 0;
-    m_layerMaterialProperties           = lay.m_layerMaterialProperties->clone();
+    m_layerMaterialProperties.reset(lay.m_layerMaterialProperties->clone());
     // just assign by pointer
     m_nextLayer               = lay.m_nextLayer;
     m_previousLayer           = lay.m_previousLayer;
@@ -199,7 +199,7 @@ const Trk::Layer* Trk::Layer::nextLayer(const Amg::Vector3D& gp, const Amg::Vect
 }
 
 const Trk::MaterialProperties* Trk::Layer::fullUpdateMaterialProperties(const Trk::TrackParameters& parm) const {
-    if (m_layerMaterialProperties.getPtr()) return m_layerMaterialProperties->fullMaterial(parm.position());
+    if (m_layerMaterialProperties.get()) return m_layerMaterialProperties->fullMaterial(parm.position());
     return 0;
   }
 
@@ -220,7 +220,7 @@ void Trk::Layer::assignMaterialProperties( const LayerMaterialProperties& prop, 
 {
   m_layerMaterialProperties = Trk::SharedObject<LayerMaterialProperties>(prop.clone());  
   if (scale != 1.0) 
-     (*(m_layerMaterialProperties.getPtr())) *= scale;
+     (*(m_layerMaterialProperties.get())) *= scale;
 }
 
 void Trk::Layer::compactify(size_t& cSurfaces, size_t& tSurfaces) const {

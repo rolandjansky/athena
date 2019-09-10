@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************
@@ -14,7 +14,7 @@
 #include <map>
 #include <cmath>
 #include <numeric>
-#include "TrigT2CaloEgamma/RingerFex.h"
+#include "RingerFex.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
@@ -26,6 +26,9 @@
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
+
 //!=================================================================================
 const double RingerFex::ENERGY_THRESHOLD = 0.001;
 const double RingerFex::PI_THRESHOLD = 1.0;
@@ -199,10 +202,10 @@ void RingerFex::maxCell (const std::vector<const CaloCell*>& vcell,
 //!=================================================================================
 StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi, const CaloDetDescrElement*& dde)
 {
-  return execute (rtrigEmCluster, roi, dde, &Gaudi::Hive::currentContext());
+  return execute (rtrigEmCluster, roi, dde, Gaudi::Hive::currentContext());
 }
 
-StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi, const CaloDetDescrElement*& , const EventContext*)
+StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi, const CaloDetDescrElement*& , const EventContext& context)
 {
   m_error = 0x0;
   bool accept=false;
@@ -251,7 +254,7 @@ StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDes
   } else {
     if ( not m_ringsKey.key().empty() ) {
       ATH_MSG_DEBUG("Recording rings in store with a key: " << m_ringsKey.key() );
-      auto handle = SG::makeHandle( m_ringsKey );
+      auto handle = SG::makeHandle( m_ringsKey, context );
       CHECK( handle.record( std::move(rings) )  );    
     }
   }

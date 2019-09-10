@@ -56,6 +56,6 @@ def PoolReadCfg(configFlags):
     result.addService(evSel)
     result.setAppProperty("EvtSel",evSel.getFullJobOptName())
 
-    #(possibly) missing: MetaDataSvc, AddressRemappingSvc
+    #(possibly) missing: MetaDataSvc
 
     return result

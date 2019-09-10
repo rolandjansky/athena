@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //
@@ -41,9 +41,6 @@ namespace {
 
    /// Giga-electronvolts
    static const double GeV = 1000.0;
-
-   /// Multiplier when we want to divide by GeV
-   static const double InvGeV = 1 / GeV;
 
 } // private namespace
 

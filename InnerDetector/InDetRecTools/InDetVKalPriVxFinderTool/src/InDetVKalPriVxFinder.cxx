@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -8,7 +8,6 @@
 // Other stuff
 
 //
-#include  "InDetBeamSpotService/IBeamCondSvc.h"
 //----
 #include  "TrkTrackLink/ITrackLink.h"
 #include  "TrkTrack/LinkToTrack.h"
@@ -58,9 +57,7 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     m_SecTrkChi2Cut(5.5),
     m_WeightCut(0.2),
  
-    m_NPVertexMax(100),
-
-    m_iBeamCondSvc("BeamCondSvc",name)
+    m_NPVertexMax(100)
 
     {
         declareInterface<IVertexFinder>(this);
@@ -95,10 +92,8 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
 
         declareProperty("FitterTool",          m_fitSvc  );
         declareProperty("TrackSummaryTool",    m_sumSvc  );
-        declareProperty("BeamPositionSvc",     m_iBeamCondSvc);
         declareProperty("TrackSelectorTool",   m_trkSelector);
 
-        m_BeamCondSvcExist=0;
 
   }
 
@@ -147,15 +142,9 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     m_BeamCnstWid[1]=0.015;
     m_BeamCnstWid[2]=56.;
 
-    if(m_BeamConstraint){
-      //StatusCode sc = service("BeamCondSvc", m_iBeamCondSvc);
-      if (m_iBeamCondSvc.retrieve().isFailure() ) 
-      {	if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Could not find BeamCondSvc." << endmsg;
-        m_BeamCondSvcExist=0;
-      }else{
-        m_BeamCondSvcExist=1;
-      }
-    }
+
+    ATH_CHECK(m_beamSpotKey.initialize(m_BeamConstraint));
+
 //
 //TrackSelectorTool
 //
@@ -239,13 +228,14 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     const DataVector<Trk::Track>*    newTrkCol = trackTES;
 
     if(m_BeamConstraint){
-      if(m_BeamCondSvcExist){
-         Amg::Vector3D beam=m_iBeamCondSvc->beamPos();
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      if(beamSpotHandle.isValid()){
+         const Amg::Vector3D &beam=beamSpotHandle->beamPos();
          m_BeamCnst[0]=beam.x();
          m_BeamCnst[1]=beam.y();
          m_BeamCnst[2]=beam.z();
-         m_BeamCnstWid[0]=m_iBeamCondSvc->beamSigma(0);
-         m_BeamCnstWid[1]=m_iBeamCondSvc->beamSigma(1);
+         m_BeamCnstWid[0]=beamSpotHandle->beamSigma(0);
+         m_BeamCnstWid[1]=beamSpotHandle->beamSigma(1);
          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "BeamSpot from SVC="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<
 	               ", "<<m_BeamCnst[2]<<" wid="<<m_BeamCnstWid[0]<<", "<<m_BeamCnstWid[1]<<endmsg;
          if(msgLvl(MSG::DEBUG) && m_BeamCnst[2]!=0.)msg(MSG::DEBUG) << "BeamSpot Z must be 0 in finder!!! Make Z=0."<<endmsg;
@@ -419,13 +409,14 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
     std::vector<double> Impact,ImpactError;
 
     if(m_BeamConstraint){
-      if(m_BeamCondSvcExist){
-         Amg::Vector3D beam=m_iBeamCondSvc->beamPos();
+      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+      if(beamSpotHandle.isValid()){
+         const Amg::Vector3D &beam=beamSpotHandle->beamPos();
          m_BeamCnst[0]=beam.x();
          m_BeamCnst[1]=beam.y();
          m_BeamCnst[2]=beam.z();
-         m_BeamCnstWid[0]=m_iBeamCondSvc->beamSigma(0);
-         m_BeamCnstWid[1]=m_iBeamCondSvc->beamSigma(1);
+         m_BeamCnstWid[0]=beamSpotHandle->beamSigma(0);
+         m_BeamCnstWid[1]=beamSpotHandle->beamSigma(1);
          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "BeamSpot from SVC="<<m_BeamCnst[0]<<", "<<m_BeamCnst[1]<<
 	               ", "<<m_BeamCnst[2]<<" wid="<<m_BeamCnstWid[0]<<", "<<m_BeamCnstWid[1]<<endmsg;
       }
@@ -615,8 +606,6 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
      }
      m_savedTrkFittedPerigees.clear();
      m_fittedTrkCov.clear();
-     Trk::TrkVKalVrtFitter* vkalPnt = dynamic_cast<Trk::TrkVKalVrtFitter*>(&(*m_fitSvc));
-     if(vkalPnt)vkalPnt->clearMemory();
      return std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> (vrtCont,vrtAuxCont);
    }
  

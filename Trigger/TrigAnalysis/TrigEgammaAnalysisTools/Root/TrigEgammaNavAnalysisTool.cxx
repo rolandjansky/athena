@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaAnalysisTools/TrigEgammaNavAnalysisTool.h"
@@ -100,7 +100,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
     }
     ATH_MSG_DEBUG("Rnn container in SG " << getSGContainsRnn());
     ATH_MSG_DEBUG("TrigPhotonContainer in SG " << getSGContainsTrigPhoton());
-    for( const auto& tool : m_tools) {
+    for( auto& tool : m_tools) {
         tool->setSGContainsRnn(getSGContainsRnn());
         tool->setSGContainsTrigPhoton(getSGContainsTrigPhoton());
     }
@@ -131,6 +131,7 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
             tool->setEmulation(getEmulation());
             tool->setPVertex(getNPVtx(), getNGoodVertex());
             tool->setAvgMu(getAvgOnlineMu(),getAvgOfflineMu());
+            ATH_MSG_DEBUG("TE Tool...");
             if(tool->toolExecute(m_dir+"/Expert",info,m_objTEList).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match
         }

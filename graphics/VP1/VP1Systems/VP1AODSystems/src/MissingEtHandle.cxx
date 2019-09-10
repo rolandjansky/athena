@@ -38,6 +38,15 @@
 #include "MissingEtCollectionSettingsButton.h"
 #include "MissingEtCollHandle.h"
 
+// System of units
+#ifdef BUILDVP1LIGHT
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // --> 'GeoModelKernelUnits::cm'
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::cm'
+#endif
+
 //double MissingEtHandle::thickness = 1.0;
 //double MissingEtHandle::scale     = 1.0;
 //bool   MissingEtHandle::shape     = true;
@@ -229,10 +238,10 @@ void MissingEtHandle::Imp::createShapeFromJetParameters()
 {
   VP1Msg::messageVerbose("MissingEtHandle::Imp::createShapeFromJetParameters()");
 
-  //double length = m_met->met() * (200.0 * Gaudi::Units::cm /(100.0 * Gaudi::Units::GeV ));//Fixme: Make scale factor (and thickness) adjustable.
+  //double length = m_met->met() * (200.0 * SYSTEM_OF_UNITS::cm /(100.0 * SYSTEM_OF_UNITS::GeV ));//Fixme: Make scale factor (and thickness) adjustable.
 
   // Set length of MET: 200 cm for 100 GeV
-  double length = m_met->met() * (200.0 * Gaudi::Units::cm /(100.0 * Gaudi::Units::GeV ));
+  double length = m_met->met() * (200.0 * SYSTEM_OF_UNITS::cm /(100.0 * SYSTEM_OF_UNITS::GeV ));
   this->length = length;
 
   // Set scale factor for MET length, from user's settings in the GUI
@@ -368,11 +377,11 @@ QStringList MissingEtHandle::clicked() const
 	// see: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODMissingET/xAODMissingET/versions/MissingET_v1.h
 	//
 	l +="   - Name: " + m_d->name();
-	l +="   - MissingEt: " + QString::number(m_d->met() / Gaudi::Units::GeV) +" [GeV]";
+	l +="   - MissingEt: " + QString::number(m_d->met() / SYSTEM_OF_UNITS::GeV) +" [GeV]";
 	l +="   - Phi: " + QString::number(m_d->phi());
-	l +="   - SumEt: " + QString::number(m_d->sumet() / Gaudi::Units::GeV) +" [GeV]";
-	l +="   - mpx: " + QString::number(m_d->mpx() / Gaudi::Units::GeV) +" [GeV]" ;
-	l +="   - mpy: " + QString::number(m_d->mpy() / Gaudi::Units::GeV) +" [GeV]";
+	l +="   - SumEt: " + QString::number(m_d->sumet() / SYSTEM_OF_UNITS::GeV) +" [GeV]";
+	l +="   - mpx: " + QString::number(m_d->mpx() / SYSTEM_OF_UNITS::GeV) +" [GeV]" ;
+	l +="   - mpy: " + QString::number(m_d->mpy() / SYSTEM_OF_UNITS::GeV) +" [GeV]";
 
 	return l;
 }
@@ -432,7 +441,7 @@ QString MissingEtHandle::shortInfo() const
   QString l;
 
   l += m_d->name();
-  l += ", met: " + QString::number(m_d->met() / Gaudi::Units::GeV) +" [GeV]";
+  l += ", met: " + QString::number(m_d->met() / SYSTEM_OF_UNITS::GeV) +" [GeV]";
   l += ", phi: " + QString::number(m_d->phi());
 
   return l;

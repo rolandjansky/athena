@@ -22,6 +22,9 @@
 #include <vector>
 #include <string>
 #include "JpsiUpsilonTools/ICandidateSearch.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 /////////////////////////////////////////////////////////////////////////////
 
 namespace Trk {
@@ -63,14 +66,14 @@ namespace Analysis {
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
         virtual StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) override;
-        std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&);
-        std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::Electron*>&);
-        std::vector<JpsiEECandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Electron*>&, bool);
-        double getInvariantMass(const JpsiEECandidate&, const std::vector<double>& );
+        std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&) const;
+        std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::Electron*>&) const;
+        std::vector<JpsiEECandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Electron*>&, bool) const;
+        double getInvariantMass(const JpsiEECandidate&, const std::vector<double>& ) const;
         std::vector<JpsiEECandidate> selectCharges(const std::vector<JpsiEECandidate>& , const std::string&);
-        xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticleContainer* importedTrackCollection);
-        bool passesEgammaCuts(const xAOD::Electron*);
-        bool isContainedIn(const xAOD::TrackParticle*, const xAOD::TrackParticleContainer*);
+        xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticleContainer* importedTrackCollection) const;
+        bool passesEgammaCuts(const xAOD::Electron*) const;
+        bool isContainedIn(const xAOD::TrackParticle*, const xAOD::TrackParticleContainer*) const;
         TVector3 trackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const;
         //-------------------------------------------------------------------------------------
         
@@ -96,8 +99,8 @@ namespace Analysis {
         bool m_oppChOnly;
         bool m_sameChOnly;
         bool m_allChCombs;
-        std::string m_electronCollectionKey;
-        std::string m_TrkParticleCollection;
+        SG::ReadHandleKey<xAOD::ElectronContainer>      m_electronCollectionKey;
+        SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrkParticleCollection;
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
         ToolHandle < Trk::IVertexFitter > m_iV0VertexFitter;
         ToolHandle < Trk::ITrackSelectorTool > m_trkSelector;

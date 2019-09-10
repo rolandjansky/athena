@@ -1,68 +1,51 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HECHVMODULE_H_HEADER_INCLUDED_DB6688D8
-#define HECHVMODULE_H_HEADER_INCLUDED_DB6688D8
-#include "GeoModelKernel/RCBase.h"
-#include "GeoModelKernel/ConstLink.h"
-#include "LArHV/HECHVSubgapConstLink.h"
+#ifndef LARHV_HECHVMODULE_H
+#define LARHV_HECHVMODULE_H
+
 class HECHVManager;
+class HECHVSubgap;
+
+/**
+ * @class HECHVModule
+ *
+ * @brief Describes one HV Module within the HEC
+ * 
+ * It owns the pointers to HV Subgaps
+ */
 
 
-//##ModelId=47A078E8027A
-class HECHVModule : public RCBase
+class HECHVModule
 {
-  public:
-    //##ModelId=47A078E80280
-    HECHVModule(const HECHVManager *manager, unsigned int iSide, unsigned int iPhi, unsigned int iSampling);
+ public:
+  HECHVModule(const HECHVManager *manager
+	      , unsigned int iSide
+	      , unsigned int iPhi
+	      , unsigned int iSampling);
+  ~HECHVModule();
 
-    // Side Index (0=Negative, 1=Positive)
-    //##ModelId=47A078E80285
-    unsigned int getSideIndex() const;
+  // Side Index (0=Negative, 1=Positive)
+  unsigned int getSideIndex() const;
 
-    // Get eta Index
-    //##ModelId=47A078E80287
-    unsigned int getSamplingIndex() const;
+  unsigned int getSamplingIndex() const;
+  unsigned int getPhiIndex() const;
 
-    // Get phi index
-    //##ModelId=47A078E80289
-    unsigned int getPhiIndex() const;
+  unsigned int getNumSubgaps() const;
+  const HECHVSubgap& getSubgap(unsigned int iElectrode) const;
+  
+  double getPhiMin() const;
+  double getPhiMax() const;
 
-    // Get num electrodes
-    //##ModelId=47A078E8028D
-    unsigned int getNumSubgaps() const;
+  const HECHVManager& getManager() const;
 
-    // Gets an electrode
-    //##ModelId=47A078E8028F
-    HECHVSubgapConstLink getSubgap(unsigned int iElectrode) const;
-    //##ModelId=47AB88CD00F2
-    double getPhiMin() const;
+ private:
+  HECHVModule(const HECHVModule& right);
+  HECHVModule& operator=(const HECHVModule& right);
 
-
-    //##ModelId=47AB88CD0105
-    double getPhiMax() const;
-
-    //##ModelId=47ABB40E02DF
-    const HECHVManager *getManager() const;
-
-  private:
-    // Destructor
-    //##ModelId=47A078E80292
-    virtual ~HECHVModule();
-
-    // Illegal operation
-    //##ModelId=47A078E80294
-    HECHVModule(const HECHVModule& right);
-
-    // Illegal operation
-    //##ModelId=47A078E80296
-    HECHVModule& operator=(const HECHVModule& right);
-
-    class Clockwork;
-    Clockwork *m_c;
-
+  class Clockwork;
+  Clockwork *m_c;
 };
 
-
-#endif /* HECHVMODULE_H_HEADER_INCLUDED_DB6688D8 */
+#endif

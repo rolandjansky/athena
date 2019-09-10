@@ -37,6 +37,11 @@ def setupCommonServices():
     import StoreGate.StoreGateConf as StoreGateConf
     svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
+    # Configure the CoreDumpSvc
+    if not hasattr(svcMgr, "CoreDumpSvc"):
+        from AthenaServices.Configurables import CoreDumpSvc
+        svcMgr += CoreDumpSvc()
+
     # ThreadPoolService thread local initialization
     from GaudiHive.GaudiHiveConf import ThreadPoolSvc
     svcMgr += ThreadPoolSvc("ThreadPoolSvc")
@@ -142,9 +147,11 @@ def setupCommonServices():
 def setupCommonServicesEnd():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr    
     from AthenaCommon.Logging import logging
+    from AthenaCommon.AlgSequence import AlgSequence
 
     log = logging.getLogger( 'TriggerUnixStandardSetup::setupCommonServicesEnd:' )
-    
+    topSequence = AlgSequence()
+
     # --- create the ByteStreamCnvSvc after the Detector Description otherwise
     # --- the initialization of converters fails
     #from AthenaCommon.AppMgr import theApp
@@ -154,13 +161,17 @@ def setupCommonServicesEnd():
     if _Conf.useOnlineTHistSvc:
         svcMgr.THistSvc.Output = []
         if len(svcMgr.THistSvc.Input)>0:
-            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.' % svcMgr.THistSvc.Input)
+            log.error('THistSvc.Input = %s. Input not allowed for online running. Disabling input.', svcMgr.THistSvc.Input)
             svcMgr.THistSvc.Input = []
 
     # For offline running make sure at least the EXPERT stream is defined
     else:
         if 1 not in [ o.count('EXPERT') for o in svcMgr.THistSvc.Output ]:
             svcMgr.THistSvc.Output += ["EXPERT DATAFILE='expert-monitoring.root' OPT='RECREATE'"]
+
+    # Basic operational monitoring
+    from TrigOnlineMonitor.TrigOnlineMonitorConfig import TrigOpMonitor
+    topSequence += TrigOpMonitor()
 
     # Set default properties for some important services after all user job options
     log.info('Configure core services for online runnig')

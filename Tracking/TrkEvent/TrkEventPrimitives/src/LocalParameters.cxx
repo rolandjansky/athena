@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -14,7 +14,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 
-Trk::ProjectionMatricesSet Trk::LocalParameters::s_projectionMatrices(5);
+const Trk::ProjectionMatricesSet Trk::LocalParameters::s_projectionMatrices(5);
 
 Trk::LocalParameters::LocalParameters() :
   Amg::VectorX(1),

@@ -1,5 +1,8 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
+from __future__ import print_function
+import six
+
 from copy import deepcopy
 from AthenaCommon.Logging import logging
 class CfgFlag(object):
@@ -24,7 +27,6 @@ class CfgFlag(object):
     def get(self,flagdict=None):
         if self._value is None:
             #Have to call the method to obtain the default value
-            #print "AutoConfiguring a config flag"
             self._value=self._setDef(flagdict)
         return deepcopy(self._value) 
 
@@ -59,10 +61,19 @@ class FlagAddress(object):
         return self._flags._set( merged, value )
 
     def __cmp__(self, other):
-        raise RuntimeError( "No such a flag: "+ self._name+". Likely the name is incomplete " )
+        raise RuntimeError( "No such flag: "+ self._name+".  The name is likely incomplete." )
+    __eq__ = __cmp__
+    __ne__ = __cmp__
+    __lt__ = __cmp__
+    __le__ = __cmp__
+    __gt__ = __cmp__
+    __ge__ = __cmp__
+
 
     def __nonzero__(self):
-        raise RuntimeError( "No such a flag: "+ self._name+". Likely the name is incomplete " )
+        raise RuntimeError( "No such flag: "+ self._name+".  The name is likely incomplete." )
+    def __bool__(self):
+        raise RuntimeError( "No such flag: "+ self._name+".  The name is likely incomplete." )
         
 
 
@@ -97,20 +108,22 @@ class AthConfigFlags(object):
     def needFlagsCategory(self, name):
         self._loadDynaFlags( name )
     
-    def _loadDynaFlags(self, name):
+    def _loadDynaFlags(self, name, quiet = False):
         flagBaseName = name.split('.')[0]
         if flagBaseName in self._dynaflags:
-            print "dynamically loading the flag", flagBaseName
+            self._msg.debug("dynamically loading the flag %s", flagBaseName)
             isLocked = self._locked
             self._locked = False
             self.join( self._dynaflags[flagBaseName]() )
             self._locked = isLocked
             del self._dynaflags[flagBaseName]
-            self.dump()
+            if not quiet:
+                self.dump()
 
-    def loadAllDynamicFlags(self):
-        for prefix in self._dynaflags.keys():
-            self._loadDynaFlags( prefix )
+    def loadAllDynamicFlags(self, quiet = False):
+        # Need to convert to a list since _loadDynaFlags may change the dict.
+        for prefix in list(self._dynaflags.keys()):
+            self._loadDynaFlags( prefix, quiet = quiet )
 
     def hasFlag(self, name):        
         if name in self._flagdict: 
@@ -200,8 +213,8 @@ class AthConfigFlags(object):
 
         #Last sanity check: Make sure that teh replaced section still contains teh same names:
         if (replacedNames!=replacementNames):
-            print replacedNames
-            print replacementNames
+            self._msg.error(replacedNames)
+            self._msg.error(replacementNames)
             raise RuntimeError("Attempt to replace incompatible subsets: None matching flag names are " 
                                + repr(replacedNames ^ replacementNames ))
 
@@ -210,25 +223,26 @@ class AthConfigFlags(object):
 
 
     def join(self,other):
-         if (self._locked):
+        if (self._locked):
             raise RuntimeError("Attempt to join with and already-locked container")
-         for (name,flag) in other._flagdict.iteritems():
-             if name in self._flagdict:
-                 raise KeyError("Duplicated flag name: %s" % name)
-             self._flagdict[name]=flag
-         return
+        for (name,flag) in six.iteritems(other._flagdict):
+            if name in self._flagdict:
+                raise KeyError("Duplicated flag name: %s" % name)
+            self._flagdict[name]=flag
+        return
 
     def dump(self):
-        print  "%-40.40s : %s" % ("Flag Name","Value")
+        print("%-40.40s : %s" % ("Flag Name","Value"))
         for name in sorted(self._flagdict):
-            print "%-40.40s : %s" % (name,repr(self._flagdict[name]))
+            print("%-40.40s : %s" % (name,repr(self._flagdict[name])))
 
         if len(self._dynaflags) == 0:
             return
-        print "Flag categories that can be loaded dynamically"        
-        print  "%-15.15s : %30s : %s" % ("Category","Generator name", "Defined in" )
-        for name,gen in sorted(self._dynaflags.iteritems()):
-            print "%-15.15s : %30s : %s" % (name, gen.func_name, '/'.join(gen.func_code.co_filename.split('/')[-2:]))
+        print("Flag categories that can be loaded dynamically")
+        print("%-15.15s : %30s : %s" % ("Category","Generator name", "Defined in" ))
+        for name,gen in sorted(six.iteritems(self._dynaflags)):
+            print("%-15.15s : %30s : %s" %
+                  (name, gen.__name__, '/'.join(six.get_function_code(gen).co_filename.split('/')[-2:])))
 
 
     def initAll(self): #Mostly a self-test method
@@ -284,16 +298,16 @@ class TestAccess(TestFlagsSetup):
 
 class TestWrongAccess(TestFlagsSetup):    
     def runTest(self):
-        """ access to the flags below should give an exception"""
+        """access to the flags below should give an exception"""
         with self.assertRaises(RuntimeError):
-            print self.flags.A is True
-            print self.flags.A.B == 6 
+            print(self.flags.A is True)
+            print(self.flags.A.B == 6)
             
 
 
 class TestDependentFlag(TestFlagsSetup):
     def runTest(self):
-        """ The dependent flags will use another flag value to establish its own value"""
+        """The dependent flags will use another flag value to establish its own value"""
         self.flags.A.B.C= True
         self.flags.lock()
         self.assertEqual(self.flags.A.dependentFlag, "TRUE VALUE", " dependent flag setting does not work")
@@ -313,13 +327,13 @@ class TestFlagsSetupDynamic(TestFlagsSetup):
 
 class TestDynamicFlagsRead(TestFlagsSetupDynamic):
     def runTest(self):
-        """ Check if dynaic flags loading works """
+        """Check if dynaic flags loading works"""
         self.assertEqual( self.flags.Z.A, 7, "dynamically loaded flags have wrong value")
         self.flags.dump()        
 
 class TestDynamicFlagsSet(TestFlagsSetupDynamic):
     def runTest(self):
-        """ Check if dynaic flags loading works """
+        """Check if dynaic flags loading works"""
         self.flags.Z.A = 15
         self.assertEqual( self.flags.Z.A, 15, "dynamically loaded flags have wrong value")
         self.flags.dump()        

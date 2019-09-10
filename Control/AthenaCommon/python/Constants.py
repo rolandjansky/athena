@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Constants.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
 """Useful/conventional constants."""
+
+from __future__ import print_function
 
 __all__ = [ 'ALL', 'VERBOSE', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'FATAL',
             'TRUE', 'FALSE' ]

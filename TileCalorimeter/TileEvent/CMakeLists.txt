@@ -21,8 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IdDictParser
                           TileCalorimeter/TileCalib/TileCalibBlobObjs
                           Calorimeter/CaloDetDescr
-                          Calorimeter/CaloIdentifier
-                          Control/SGTools )
+                          Calorimeter/CaloIdentifier )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -33,13 +32,13 @@ atlas_add_library( TileEvent
                    PUBLIC_HEADERS TileEvent
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES CaloEvent AthContainers Identifier GaudiKernel TileIdentifier TileSimEvent StoreGateLib SGtests TileConditionsLib CaloDetDescrLib EventContainers
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier SGTools TileCalibBlobObjs )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel TileCalibBlobObjs )
 
 atlas_add_dictionary( TileEventDict
                       TileEvent/TileEventDict.h
                       TileEvent/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthContainers StoreGateLib SGtests Identifier GaudiKernel TileConditionsLib TileIdentifier TileSimEvent CaloDetDescrLib CaloIdentifier SGTools TileEvent EventContainers )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthContainers StoreGateLib SGtests Identifier GaudiKernel TileConditionsLib TileIdentifier TileSimEvent CaloDetDescrLib CaloIdentifier AthenaKernel TileEvent EventContainers )
 
 
 atlas_add_test( TileRawChannelCollection_test

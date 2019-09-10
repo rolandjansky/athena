@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKFITTER711_H
@@ -129,8 +129,7 @@ protected:
 
   /* void processor_ResolutionMode(const FTKRoad &); */
   /* void processor_ResolutionMode(const FTKRoad &, std::list<FTKTrack> &); */
-   void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &);
-//  void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &, std::list<FTKTrack> &);
+  void processor_Incomplete(const FTKRoad &, std::list<FTKTrack> &, std::list<FTKTrack> &);
   void processor_Extrapolate(const FTKRoad &, std::list<FTKTrack> &);
   void processor_SuperExtrapolate(const FTKRoad &, std::list<FTKTrack> &);
 

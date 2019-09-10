@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -7,12 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "HepPDT/ParticleDataTable.hh"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-
+#include "StoreGate/ReadDecorHandleKey.h"
 
 class TFile;
 class TTree;
@@ -24,9 +23,9 @@ class JpsiExample : public AthAlgorithm {
 
 public:
   JpsiExample (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode execute() override;
+  StatusCode finalize() override;
 
 private:
 
@@ -39,8 +38,8 @@ private:
   TLorentzVector track4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const;
   TVector3       origTrackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const;
   TLorentzVector origTrack4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const;
-  double         invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const;
-  double         massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+  double         invariantMassError(const xAOD::Vertex* vxCandidate, const std::vector<double> &masses) const;
+  double         massErrorVKalVrt(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const;
   double         trackCharge(const xAOD::Vertex * vxCandidate, int i) const;
   Amg::MatrixX*  convertVKalCovMatrix(int NTrk, const std::vector<float> & Matrix) const;
   double m_muonMass;
@@ -84,8 +83,10 @@ private:
   TFile* m_outputFile; // N-tuple output file
   TTree* m_auxTree; // Tree for auxilliary n-tuple
 
-  std::string m_JpsiCandidatesKey; //!< Name of J/psi container
-
+  SG::ReadHandleKey<xAOD::VertexContainer> m_JpsiCandidatesKey; //!< Name of J/psi container
+  SG::ReadDecorHandleKey<xAOD::Vertex> m_refPX;
+  SG::ReadDecorHandleKey<xAOD::Vertex> m_refPY;
+  SG::ReadDecorHandleKey<xAOD::Vertex> m_refPZ;
 
 };
  

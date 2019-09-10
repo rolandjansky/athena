@@ -1,0 +1,15 @@
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_2mu4_bDimu_L12MU4 ID#1730084172
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_2mu6_bJpsimumu_L12MU6 ID#1924924067
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_2mu4_bBmumu_L12MU4 ID#3163510355
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_2mu4_bUpsimumu_L12MU4 ID#4008168535
+TriggerSummaryStep1                     6   0     DEBUG  +++ HLT_2mu4_bJpsimumu_L12MU4 ID#4276347155
+TrigSignatureMoniMT                                INFO HLT_2mu4_bBmumu_L12MU4        10        10        1         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bBmumu_L12MU4 decisions                    4         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bDimu_L12MU4         10        10        1         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bDimu_L12MU4 decisions                    4         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bJpsimumu_L12MU4     10        10        1         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bJpsimumu_L12MU4 decisions                    4         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bUpsimumu_L12MU4     10        10        1         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu4_bUpsimumu_L12MU4 decisions                    4         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu6_bJpsimumu_L12MU6     10        10        1         0         0         0         0         0         
+TrigSignatureMoniMT                                INFO HLT_2mu6_bJpsimumu_L12MU6 decisions                    4         0         0         0         0         

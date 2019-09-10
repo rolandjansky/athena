@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # specifies CaloCell-> CaloTower combined 
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
+from AthenaCommon.SystemOfUnits import GeV
 import traceback
 
 from RecExConfig.Configured import Configured
@@ -26,9 +25,9 @@ class CaloClusterSWCmbGetter ( Configured )  :
         try:
             from CaloRec.CaloTowerCmbGetter import CaloTowerCmbGetter
             theCaloTowerCmbGetter=CaloTowerCmbGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to CaloTowerCmbGetter Quit")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
             
@@ -47,13 +46,13 @@ class CaloClusterSWCmbGetter ( Configured )  :
         # cannot have same name
         try:        
             from CaloRec.CaloRecConf import CaloClusterMaker                
-        except:
+        except Exception:
             mlog.error("could not import CaloRec.CaloClusterMaker")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
         theCaloClusterMaker=CaloClusterMaker("CaloClusterMakerSWCmb")
-        self._CaloClusterMakerHandle = theCaloClusterMaker ;
+        self._CaloClusterMakerHandle = theCaloClusterMaker
 
 
         # configure CaloClusterMaker here
@@ -62,9 +61,9 @@ class CaloClusterSWCmbGetter ( Configured )  :
         try:
             from CaloRec.CaloRecConf import CaloClusterBuilderSW
             theCaloClusterBuilderSW=CaloClusterBuilderSW("CaloClusterBuilderSWCmb")
-        except:
+        except Exception:
             mlog.error("could not get handle to CaloClusterBuilderSWCmb Quit")
-            print traceback.format_exc()
+            print(traceback.format_exc())
             return False
 
         # add the tool to list of tool ( should use ToolHandle eventually) 
@@ -112,7 +111,7 @@ class CaloClusterSWCmbGetter ( Configured )  :
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
 
-        topSequence += theCaloClusterMaker ;
+        topSequence += theCaloClusterMaker
         
         return True
 

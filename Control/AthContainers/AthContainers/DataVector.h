@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: DataVector.h 794113 2017-01-26 22:01:47Z ssnyder $
@@ -76,8 +76,8 @@
  *  - @c std::unique
  *  - @c std::reverse
  *  - @c std::rotate
- *  - @c std::random_shuffle
  *  - @c std::partition
+ *  - @c std::shuffle
  *  - @c std::stable_partition
  *
  * Alternately, for @c sort(), the @c sort() methods defined in @c DataVector
@@ -3298,6 +3298,7 @@ public:
 
 #include "AthContainers/tools/DVLDataBucket.h"
 #include "AthenaKernel/DataBucketTraitFwd.h"
+#include "AthenaKernel/TopBase.h"
 
 
 namespace SG {
@@ -3315,6 +3316,24 @@ struct DataBucketTrait<DataVector<T>, U>
   typedef SG::DVLDataBucket<U> type;
   static void init() { DataVector<T>::dvlinfo(); }
 };
+
+
+/**
+ * @brief Declare @c DataVector base class.
+ * 
+ * Declare that the base class of @c DataVector is @c AuxVectorBase.
+ * Allows retrieving @c DataVector objects from StoreGate as @c AuxVectorBase.
+ */
+template <class T>
+struct Bases<DataVector<T, DataModel_detail::NoBase> > {
+  typedef SG::AuxVectorBase Base1;
+  typedef NoBase Base2;          
+  typedef NoBase Base3;      
+};                               
+template <class T>
+struct TopBase<DataVector<T, DataModel_detail::NoBase> > {
+  typedef DataVector<T, DataModel_detail::NoBase> type;
+};                               
 
 
 } // namespace SG

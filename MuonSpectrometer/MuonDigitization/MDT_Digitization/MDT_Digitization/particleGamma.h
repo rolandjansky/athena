@@ -31,7 +31,6 @@ Function particleGamma returns the value of gamma factor for Qball particle.
 
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/MdtTubeCalibContainer.h"
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
 
 #include "TrkDetDescrUtils/GeometryStatics.h"
 
@@ -54,7 +53,7 @@ double particleGamma(const MDTSimHit& hit){
 		
 		int particleEncoding = genParticle->pdg_id();
 //      std::cout << "SB: pdgId=" << particleEncoding <<std::endl;
-		if (((int)(abs(particleEncoding)/10000000) == 1) && ((int)(abs(particleEncoding)/100000)==100)) {
+		if ((((int)(abs(particleEncoding)/10000000) == 1) && ((int)(abs(particleEncoding)/100000)==100)) || (((int)(abs(particleEncoding)/10000000) == 2) && ((int)(abs(particleEncoding)/100000)==200))) {
 
 			double QPx = genParticle->momentum().px(); 
 			double QPy  = genParticle->momentum().py(); 

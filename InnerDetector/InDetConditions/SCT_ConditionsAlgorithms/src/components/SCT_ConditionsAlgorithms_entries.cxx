@@ -1,4 +1,5 @@
 #include "../SCT_AlignCondAlg.h"
+#include "../SCT_ByteStreamErrorsTestAlg.h"
 #include "../SCT_ConditionsParameterCondAlg.h"
 #include "../SCT_ConditionsParameterTestAlg.h"
 #include "../SCT_ConditionsSummaryTestAlg.h"
@@ -35,6 +36,7 @@
 #include "../SCT_TdaqEnabledTestAlg.h"
 
 DECLARE_COMPONENT( SCT_AlignCondAlg )
+DECLARE_COMPONENT( SCT_ByteStreamErrorsTestAlg )
 DECLARE_COMPONENT( SCT_ConditionsParameterCondAlg )
 DECLARE_COMPONENT( SCT_ConditionsParameterTestAlg )
 DECLARE_COMPONENT( SCT_ConditionsSummaryTestAlg )

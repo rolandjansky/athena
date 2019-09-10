@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloSimEvent
                           Control/StoreGate
                           DetectorDescription/Identifier
-			  DetectorDescription/GeoPrimitives
+			              DetectorDescription/GeoPrimitives
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetSimEvent

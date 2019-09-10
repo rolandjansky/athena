@@ -26,7 +26,7 @@
 
 namespace eflowSubtract {
 
-void Subtractor::subtractTracksFromClusters(eflowRecTrack* efRecTrack, std::vector<xAOD::CaloCluster*> clusterSubtractionList) {
+  void Subtractor::subtractTracksFromClusters(eflowRecTrack* efRecTrack, std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusterSubtractionList) {
 
     /* Make ordered cell list */
     /* (Invokes newCluster() on orderedCells, than adds all the cells in tracksClus) */
@@ -41,49 +41,53 @@ void Subtractor::subtractTracksFromClusters(eflowRecTrack* efRecTrack, std::vect
 
     orderedCells.eraseList();
 
-}
+  }
 
-void Subtractor::makeOrderedCellList(const eflowTrackCaloPoints& trackCalo, const std::vector<xAOD::CaloCluster*>& clusters, eflowCellList& orderedCells) {
-  orderedCells.setNewExtrapolatedTrack(trackCalo);
-  std::vector<xAOD::CaloCluster*>::const_iterator  itMatchedCluster = clusters.begin();
-  std::vector<xAOD::CaloCluster*>::const_iterator endMatchedCluster = clusters.end();
-  for (int countMatchedClusters = 0; itMatchedCluster != endMatchedCluster ; ++itMatchedCluster, ++countMatchedClusters){
-    xAOD::CaloCluster *thisCluster = *itMatchedCluster;
+  void Subtractor::makeOrderedCellList(const eflowTrackCaloPoints& trackCalo, const std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters, eflowCellList& orderedCells) {
+    orderedCells.setNewExtrapolatedTrack(trackCalo);
 
-    const CaloClusterCellLink* theCellLink = thisCluster->getCellLinks();
-    CaloClusterCellLink::const_iterator firstCell = theCellLink->begin();
-    CaloClusterCellLink::const_iterator lastCell = theCellLink->end();
+    unsigned int countMatchedClusters = 0;
+    for (auto thisPair : clusters){
 
-    /* Loop over cells in cluster */
-    for (; firstCell != lastCell; firstCell++) {
-      std::pair<CaloCell*,int> myPair(const_cast<CaloCell*>(*firstCell), countMatchedClusters);
-      orderedCells.addCell(myPair);
+      xAOD::CaloCluster *thisCluster = thisPair.first;
+
+      const CaloClusterCellLink* theCellLink = thisCluster->getCellLinks();
+      CaloClusterCellLink::const_iterator firstCell = theCellLink->begin();
+      CaloClusterCellLink::const_iterator lastCell = theCellLink->end();
+
+      /* Loop over cells in cluster */
+      for (; firstCell != lastCell; firstCell++) {
+	std::pair<CaloCell*,int> myPair(const_cast<CaloCell*>(*firstCell), countMatchedClusters);
+	orderedCells.addCell(myPair);
+      }
+      countMatchedClusters++;
     }
   }
-}
 
 
-void Subtractor::annihilateClusters(std::vector<xAOD::CaloCluster*>& clusters) {
-  std::vector<xAOD::CaloCluster*>::iterator  itCluster = clusters.begin();
-  std::vector<xAOD::CaloCluster*>::iterator endCluster = clusters.end();
-  for (; itCluster != endCluster; ++itCluster) {
-    annihilateCluster(*itCluster);
+  void Subtractor::annihilateClusters(std::vector<std::pair<xAOD::CaloCluster*, bool> >& clusters) {
+
+    for (auto& thisPair : clusters) {
+      annihilateCluster(thisPair.first);
+      //mark subtraction status as true
+      thisPair.second = true;
+    }
+
   }
-}
 
-void Subtractor::annihilateCluster(xAOD::CaloCluster* cluster) {
+  void Subtractor::annihilateCluster(xAOD::CaloCluster* cluster) {
 
-  CaloClusterCellLink* theCellLink = cluster->getCellLinks();
+    CaloClusterCellLink* theCellLink = cluster->getCellLinks();
 
-  CaloClusterCellLink::iterator theFirstCell = theCellLink->begin();
-  CaloClusterCellLink::iterator theLastCell = theCellLink->end();
+    CaloClusterCellLink::iterator theFirstCell = theCellLink->begin();
+    CaloClusterCellLink::iterator theLastCell = theCellLink->end();
 
-  for (; theFirstCell != theLastCell; ++theFirstCell) theCellLink->removeCell(theFirstCell);
+    for (; theFirstCell != theLastCell; ++theFirstCell) theCellLink->removeCell(theFirstCell);
 
-  cluster->setE(0.0);
-  cluster->setRawE(0.0);
-  CaloClusterKineHelper::calculateKine(cluster,true, true);
+    cluster->setE(0.0);
+    cluster->setRawE(0.0);
+    CaloClusterKineHelper::calculateKine(cluster,true, true);
 
-}
+  }
 
 } //namespace eflowSubtract

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -39,6 +39,7 @@ class TrackStateOnSurface;
 class IMaterialAllocator : virtual public IAlgTool
 {
 public:
+    typedef std::vector<std::unique_ptr<const TrackStateOnSurface> > Garbage_t;
 
     /**Virtual destructor*/
     virtual ~IMaterialAllocator(){}
@@ -49,16 +50,15 @@ public:
     /**IMaterialAllocator interface: add leading material effects to fit measurements and parameters */
     virtual void	addLeadingMaterial (std::vector<FitMeasurement*>& measurements,
 					    ParticleHypothesis		  particleHypothesis,
-					    FitParameters&		  fitParameters) const = 0;
+					    FitParameters&		  fitParameters,
+                                            Garbage_t&                    garbage) const = 0;
     
     /**IMaterialAllocator interface: allocate material */
     virtual void	allocateMaterial (std::vector<FitMeasurement*>&	measurements,
 					  ParticleHypothesis		particleHypothesis,
 					  const FitParameters&		fitParameters,
-					  const TrackParameters&	startParameters) const = 0;
-
-    /**IMaterialAllocator interface: clear temporary TSOS*/
-    virtual void	clear (void) = 0;
+					  const TrackParameters&	startParameters,
+                                          Garbage_t&                    garbage) const = 0;
 
     /**IMaterialAllocator interface: initialize scattering (needs to know X0 integral) */
     virtual void	initializeScattering (std::vector<FitMeasurement*>& measurements) const = 0;
@@ -66,7 +66,8 @@ public:
     /**IMaterialAllocator interface:
        material TSOS between spectrometer entrance surface and parameters given in spectrometer */
     virtual std::vector<const TrackStateOnSurface*>*    leadingSpectrometerTSOS(
-	const TrackParameters& spectrometerParameters) const = 0;
+	const TrackParameters& spectrometerParameters,
+        Garbage_t& garbage) const = 0;
     
     /**IMaterialAllocator interface: clear temporary TSOS*/
     virtual void	orderMeasurements (std::vector<FitMeasurement*>& measurements,
@@ -75,7 +76,8 @@ public:
     
     /**IMaterialAllocator interface: has material been reallocated? */   
     virtual bool	reallocateMaterial (std::vector<FitMeasurement*>& measurements,
-					    const FitParameters&	  fitParameters) const = 0;
+					    const FitParameters&	  fitParameters,
+                                            Garbage_t&                    garbage) const = 0;
 
 };
  

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -18,14 +18,13 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "IdDictParser/IdDictParser.h"
 #include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "GaudiKernel/MsgStream.h"
 
 #include <cassert>
 #include <iostream>
-
+#include <memory>
 
 void compare (const InDet::SiWidth& p1,
               const InDet::SiWidth& p2)
@@ -106,10 +105,10 @@ void testit (const InDet::SCT_ClusterContainer& trans1, const SCT_ID& sct_id)
 std::unique_ptr<const InDet::SCT_ClusterContainer>
 makeclusts(const SCT_ID& sct_id)
 {
-  auto cont = CxxUtils::make_unique<InDet::SCT_ClusterContainer>(5);
+  auto cont = std::make_unique<InDet::SCT_ClusterContainer>(5);
 
   for (int hash=2; hash <= 3; hash++) {
-    auto coll = CxxUtils::make_unique<InDet::SCT_ClusterCollection>(IdentifierHash(hash));
+    auto coll = std::make_unique<InDet::SCT_ClusterCollection>(IdentifierHash(hash));
     coll->setIdentifier (sct_id.wafer_id (hash));
 
     for (int i=0; i < 10; i++) {
@@ -126,7 +125,7 @@ makeclusts(const SCT_ID& sct_id)
         for (int j=0; j < 2; j++)
           cov(i,j) = 100*(i+1)*(j+1) + offs;
 
-      auto cl = CxxUtils::make_unique<InDet::SCT_Cluster>
+      auto cl = std::make_unique<InDet::SCT_Cluster>
         (Identifier (offs+1234),
          locpos,
          rdoList,
@@ -164,7 +163,7 @@ void test1(const SCT_ID& sct_id)
 
 const SCT_ID& make_dd()
 {
-  auto sct_id = CxxUtils::make_unique<SCT_ID>();
+  auto sct_id = std::make_unique<SCT_ID>();
   const SCT_ID& ret = *sct_id;
   IdDictParser parser;
   parser.register_external_entity ("InnerDetector",

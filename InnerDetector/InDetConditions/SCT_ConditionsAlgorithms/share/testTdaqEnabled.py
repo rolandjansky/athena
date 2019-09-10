@@ -9,6 +9,11 @@
 #--------------------------------------------------------------
 import AthenaCommon.AtlasUnixStandardJob
 
+# Setup logger
+from AthenaCommon.Logging import logging
+msg = logging.getLogger("testTdaqEnabled")
+msg.setLevel(logging.INFO)
+
 #--------------------------------------------------------------
 # Thread-specific setup
 #--------------------------------------------------------------
@@ -41,7 +46,7 @@ globalflags.DetDescrVersion="ATLAS-R2-2016-01-00-01"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
-print 'globalTags.DatabaseInstance', globalflags.DatabaseInstance
+msg.info(globalflags)
 
 
 #--------------------------------------------------------------
@@ -110,7 +115,7 @@ ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 1
 # increment of 3 minutes
 ServiceMgr.EventSelector.TimeStampInterval = 180
 
-theApp.EvtMax                   = 20
+theApp.EvtMax                   = 6
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)

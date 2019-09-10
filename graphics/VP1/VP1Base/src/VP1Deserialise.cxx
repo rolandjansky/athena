@@ -154,7 +154,9 @@ QDataStream * VP1Deserialise::stream()
 //____________________________________________________________________
 void VP1Deserialise::restore( SoMaterial* m )
 {
-  messageDebug("VP1Deserialise::restore(SoMaterial)");
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(SoMaterial)");
+  }
   QByteArray ba(restoreByteArray());
   if (!m||ba.isEmpty())
     return;
@@ -164,7 +166,9 @@ void VP1Deserialise::restore( SoMaterial* m )
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1MaterialButton* mb)
 {
-  messageDebug("VP1Deserialise::restore(VP1MaterialButton)");
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(VP1MaterialButton)");
+  }
   m_d->handle(mb);
   SoMaterial * m(0);
   QList<SoMaterial*> mats = mb ? mb->handledMaterials() : QList<SoMaterial*>();
@@ -188,8 +192,10 @@ QColor VP1Deserialise::restoreColor()
 {
   QColor c;
   (*(m_d->state)) >> c;
-  messageDebug("VP1Deserialise::restore(QColor) - name: " + c.name());
-  if (verbose())
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QColor) - name: " + c.name());
+  }
+  if (VP1Msg::verbose())
     messageVerbose("Restoring color "+str(c));
   return c;
 }
@@ -197,7 +203,9 @@ QColor VP1Deserialise::restoreColor()
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1ColorSelectButton*cb)
 {
-  messageDebug("VP1Deserialise::restore(VP1ColorSelectButton) - name: " + cb->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(VP1ColorSelectButton) - name: " + cb->objectName());
+  }
   m_d->handle(cb);
   QColor c = restoreColor();
   if (c.isValid()&&cb&&cb->color()!=c) {
@@ -210,7 +218,9 @@ void VP1Deserialise::restore(VP1ColorSelectButton*cb)
 //____________________________________________________________________
 void VP1Deserialise::restore(PhiSectionWidget* phi)
 {
-  messageDebug("VP1Deserialise::restore(PhiSectionWidget) - name: " + phi->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(PhiSectionWidget) - name: " + phi->objectName());
+  }
   m_d->handle(phi);
   QByteArray ba(restoreByteArray());
   if (phi&&ba != QByteArray()) {
@@ -225,26 +235,33 @@ QByteArray VP1Deserialise::restoreByteArray()
 {
   QByteArray ba;
   (*(m_d->state)) >> ba;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Restoring byte array (length = "+QString::number(ba.count())+")");
+  }
   return ba;
 }
 
 //____________________________________________________________________
 void VP1Deserialise::restore(QCheckBox *cb )
 {
-  messageDebug("VP1Deserialise::restore(QCheckBox) - name: " + cb->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QCheckBox) - name: " + cb->objectName());
+  }
 
   m_d->handle(cb);
 
   bool b = restoreBool();
 
-  messageDebug("bool b: "+QString::number(b));
-  messageDebug("bool cb: "+QString::number( cb->isChecked() ));
+  if(VP1Msg::debug()){
+    messageDebug("bool b: "+QString::number(b));
+    messageDebug("bool cb: "+QString::number( cb->isChecked() ));
+  }
 
   if (cb->isChecked()!=b) {
     m_d->block(cb);
-    messageDebug("setting - checked: "+QString::number( b ));
+    if(VP1Msg::debug()){
+      messageDebug("setting - checked: "+QString::number( b ));
+    }
     cb->setChecked(b);
     m_d->unblock();
   }
@@ -252,8 +269,10 @@ void VP1Deserialise::restore(QCheckBox *cb )
 
 //____________________________________________________________________
 void VP1Deserialise::restore(QGroupBox*gb)
-{
-  messageDebug("VP1Deserialise::restore(QGroupBox) - name: " + gb->objectName());
+{  
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QGroupBox) - name: " + gb->objectName());
+  }
   if (!gb->isCheckable())
     message("WARNING: Asked to handled GroupBox which is not checkable: "+gb->objectName());
   m_d->handle(gb);
@@ -268,7 +287,9 @@ void VP1Deserialise::restore(QGroupBox*gb)
 //____________________________________________________________________
 void VP1Deserialise::restore(QComboBox *cb)
 {
-  messageDebug("VP1Deserialise::restore(QComboBox) - name: " + cb->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QComboBox) - name: " + cb->objectName());
+  }
   m_d->handle(cb);
   QString t = restoreString();
   if (t.isEmpty())
@@ -286,7 +307,9 @@ void VP1Deserialise::restore(QComboBox *cb)
 //____________________________________________________________________
 void VP1Deserialise::restore(QLineEdit* le)
 {
-  messageDebug("VP1Deserialise::restore(QLineEdit) - name: " + le->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QLineEdit) - name: " + le->objectName());
+  }
   m_d->handle(le);
   QString s = restoreString();
   if (s!=le->text()) {
@@ -299,7 +322,9 @@ void VP1Deserialise::restore(QLineEdit* le)
 //____________________________________________________________________
 void VP1Deserialise::restore(QDoubleSpinBox *sb, const double& unit )
 {
-  messageDebug("VP1Deserialise::restore(QDoubleSpinBox) - name: " + sb->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QDoubleSpinBox) - name: " + sb->objectName());
+  }
   m_d->handle(sb);
   double dbl = (unit == 1.0 ? restoreDouble() : restoreDouble()/unit);
   dbl = std:: max(std::min(dbl,sb->maximum()),sb->minimum());
@@ -313,7 +338,9 @@ void VP1Deserialise::restore(QDoubleSpinBox *sb, const double& unit )
 //____________________________________________________________________
 void VP1Deserialise::restore(QSpinBox *sb)
 {
-  messageDebug("VP1Deserialise::restore(QSpinBox) - name: " + sb->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QSpinBox) - name: " + sb->objectName());
+  }
   m_d->handle(sb);
   qint32 i = restoreInt();
   i = std:: max(std::min(i,sb->maximum()),sb->minimum());
@@ -327,7 +354,9 @@ void VP1Deserialise::restore(QSpinBox *sb)
 //____________________________________________________________________
 void VP1Deserialise::restore(QSlider *s)
 {
-  messageDebug("VP1Deserialise::restore(QSlider) - name: " + s->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QSlider) - name: " + s->objectName());
+  }
   m_d->handle(s);
   qint32 i = restoreInt();
   i = std:: max(std::min(i,s->maximum()),s->minimum());
@@ -341,7 +370,9 @@ void VP1Deserialise::restore(QSlider *s)
 //____________________________________________________________________
 void VP1Deserialise::restore(QToolBox *tb)
 {
-  messageDebug("VP1Deserialise::restore(QToolBox) - name: " + tb->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QToolBox) - name: " + tb->objectName());
+  }
   m_d->handle(tb);
   qint32 i = restoreInt();
   if (i>=0&&i<tb->count()&&i!=tb->currentIndex()) {
@@ -354,7 +385,9 @@ void VP1Deserialise::restore(QToolBox *tb)
 //____________________________________________________________________
 void VP1Deserialise::restoreByTitle(QToolBox *tb)
 {
-  messageDebug("VP1Deserialise::restore(QToolBox) - name: " + tb->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(QToolBox) - name: " + tb->objectName());
+  }
   m_d->handle(tb);
   QString s = restoreString();
   int itarget (-1);
@@ -377,8 +410,9 @@ QString VP1Deserialise::restoreString()
 {
   QString t;
   (*(m_d->state)) >> t;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Restoring string "+t);
+  }
   return t;
 }
 //____________________________________________________________________
@@ -386,8 +420,9 @@ bool VP1Deserialise::restoreBool()
 {
   bool b;
   (*(m_d->state)) >> b;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Restoring bool "+str(b));
+  }
   return b;
 }
 //____________________________________________________________________
@@ -395,8 +430,9 @@ double VP1Deserialise::restoreDouble()
 {
   double dbl;
   (*(m_d->state)) >> dbl;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Restoring double "+str(dbl));
+  }
   return dbl;
 }
 
@@ -405,8 +441,9 @@ qint32 VP1Deserialise::restoreInt()
 {
   qint32 i;
   (*(m_d->state)) >> i;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Restoring int "+str(i));
+  }
   return i;
 }
 
@@ -427,7 +464,9 @@ void VP1Deserialise::restore( QRadioButton * rb0,
   l << rb0 << rb1 << rb2 << rb3 << rb4 << rb5 << rb6 << rb7 << rb8 << rb9;
   for (qint32 i = 0; i < l.count(); ++i) {
     if (l.at(i)) {
-    	messageDebug("VP1Deserialise::restore(QRadioButton) - name: " + l.at(i)->objectName());
+      if(VP1Msg::debug()){
+    	  messageDebug("VP1Deserialise::restore(QRadioButton) - name: " + l.at(i)->objectName());
+      }
       m_d->handle(l.at(i));
     }
   }
@@ -447,8 +486,10 @@ void VP1Deserialise::restore( QRadioButton * rb0,
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1CollectionWidget*cw)
 {
-    	messageDebug("VP1Deserialise::restore(VP1CollectionWidget) - name: " + cw->objectName());
-    	messageDebug("VP1Deserialise::restore(VP1CollectionWidget)- start...");
+  if(VP1Msg::debug()){
+   	messageDebug("VP1Deserialise::restore(VP1CollectionWidget) - name: " + cw->objectName());
+   	messageDebug("VP1Deserialise::restore(VP1CollectionWidget)- start...");
+  }
   m_d->handle(cw);
   ignoreWidget(cw);//To ignore all children of the collection widget.
   QByteArray ba(restoreByteArray());
@@ -465,14 +506,18 @@ void VP1Deserialise::restore(VP1CollectionWidget*cw)
   m_d->block(cw);
   cw->addStateInfo(cwstates,true/*overwrite existing*/);
   m_d->unblock();
-  messageDebug("VP1Deserialise::restore(VP1CollectionWidget)- end.");
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(VP1CollectionWidget)- end.");
+  }
 }
 
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1CollectionSettingsButtonBase*w)
 {
-    	messageDebug("VP1Deserialise::restore(VP1CollectionSettingsButtonBase) - name: " + w->objectName());
-    	messageDebug("VP1Deserialise::restore(VP1CollectionSettingsButtonBase)- start...");
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(VP1CollectionSettingsButtonBase) - name: " + w->objectName());
+    messageDebug("VP1Deserialise::restore(VP1CollectionSettingsButtonBase)- start...");
+  }
   m_d->handle(w);
   ignoreWidget(w);//To ignore all children of the widget.
 
@@ -482,7 +527,9 @@ void VP1Deserialise::restore(VP1CollectionSettingsButtonBase*w)
     w->restoreFromState(ba);
     m_d->unblock();
   }
-  messageDebug("VP1Deserialise::restore(VP1CollectionSettingsButtonBase)- end.");
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(VP1CollectionSettingsButtonBase)- end.");
+  }
 }
 ////____________________________________________________________________
 //void VP1Deserialise::restore(JetCollectionSettingsButton*w)
@@ -503,7 +550,9 @@ void VP1Deserialise::restore(VP1CollectionSettingsButtonBase*w)
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1EtaPhiCutWidget*w)
 {
-    	messageDebug("VP1Deserialise::restore(VP1EtaPhiCutWidget) - name: " + w->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(VP1EtaPhiCutWidget) - name: " + w->objectName());
+  }
   m_d->handle(w);
   ignoreWidget(w);//To ignore all children of the widget.
 
@@ -521,7 +570,9 @@ void VP1Deserialise::restore(VP1EtaPhiCutWidget*w)
 //____________________________________________________________________
 void VP1Deserialise::restore(VP1DrawOptionsWidget*w)
 {
-    	messageDebug("VP1Deserialise::restore(VP1DrawOptionsWidget) - name: " + w->objectName());
+  if(VP1Msg::debug()){
+    messageDebug("VP1Deserialise::restore(VP1DrawOptionsWidget) - name: " + w->objectName());
+  }
   m_d->handle(w);
   ignoreWidget(w);//To ignore all children of the widget.
 
@@ -538,8 +589,9 @@ void VP1Deserialise::ignoreBool()
 {
   bool b;
   (*(m_d->state)) >> b;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Ignoring bool "+str(b));
+  }
 }
 
 //____________________________________________________________________
@@ -547,8 +599,9 @@ void VP1Deserialise::ignoreInt()
 {
   qint32 i;
   (*(m_d->state)) >> i;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Ignoring int "+str(i));
+  }
 }
 
 //____________________________________________________________________
@@ -556,8 +609,9 @@ void VP1Deserialise::ignoreDouble()
 {
   double dbl;
   (*(m_d->state)) >> dbl;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Ignoring double "+str(dbl));
+  }
 }
 
 //____________________________________________________________________
@@ -565,8 +619,9 @@ void VP1Deserialise::ignoreString()
 {
   QString t;
   (*(m_d->state)) >> t;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Ignoring string "+t);
+  }
 }
 
 //____________________________________________________________________
@@ -574,8 +629,9 @@ void VP1Deserialise::ignoreByteArray()
 {
   QByteArray ba;
   (*(m_d->state)) >> ba;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Ignoring byte array (length = "+QString::number(ba.count())+")");
+  }
 }
 
 //____________________________________________________________________
@@ -583,14 +639,17 @@ void VP1Deserialise::ignoreObsoletePhiSectionWidgetState()
 {
   QPair<int,QList<int> > state;
   (*(m_d->state)) >> state;
-  if (verbose())
+  if (VP1Msg::verbose()){
     messageVerbose("Ignoring obsolete phi section widget state");
+  }
 }
 
 //____________________________________________________________________
 void VP1Deserialise::ignoreWidget(QWidget*w)
 {
-    	messageDebug("VP1Deserialise::ignoreWidget(QWidget) - name: " + w->objectName());
+  if(VP1Msg::debug()){
+  	messageDebug("VP1Deserialise::ignoreWidget(QWidget) - name: " + w->objectName());
+  }
   if (w)
     m_d->ignoredWidgets.insert(w);
 }
@@ -651,10 +710,12 @@ void VP1Deserialise::warnUnrestored(QObject* object)
     QWidget * wid = static_cast<QWidget*>(object);
     if (!m_d->handledWidgets.contains(wid)&&m_d->expectsPersistification(wid)) {
       QString s("WARNING Unrestored widget of type: "+QString(wid->metaObject()->className())+" and object name = "+wid->objectName());
-      if (verbose())
-	message(s);
-      else
-	messageDebug(s);
+      if (VP1Msg::verbose()){
+	     message(s);
+      }
+      if(VP1Msg::debug()){
+	      messageDebug(s);
+      }
     }
   }
   //Call recursively on all "children":

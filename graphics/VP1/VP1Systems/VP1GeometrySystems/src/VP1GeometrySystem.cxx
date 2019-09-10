@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -12,6 +12,8 @@
 //  Origins of initial version dates back to ~1996, initial VP1        //
 //  version by TK (May 2007) and almost entirely rewritten Oct 2007.   //
 //  Major refactoring october 2008.                                    //
+//  Updates:                                                           //
+//  - Aug 2019, Riccardo.Maria.Bianchi@cern.ch                         //
 //                                                                     //
 /////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +22,6 @@
 
 #include "VP1GeometrySystems/VP1GeoTreeView.h"
 #include "VP1GeometrySystems/VolumeHandle.h"
-#include "VP1GeometrySystems/MuonVolumeHandle.h"
 #include "VP1GeometrySystems/VolumeHandleSharedData.h"
 #include "VP1GeometrySystems/VolumeTreeModel.h"
 #include "VP1GeometrySystems/VP1GeomUtils.h"
@@ -28,15 +29,13 @@
 #include "VP1GeometrySystems/DumpShape.h"
 #include "VP1GeometrySystems/PhiSectorManager.h"
 
-#include "VP1Utils/VP1JobConfigInfo.h"
-#include "VP1Utils/VP1SGAccessHelper.h"
 #include "VP1Utils/VP1LinAlgUtils.h"
-#include "VP1Utils/VP1DetInfo.h"
 
 #include "VP1Base/VP1CameraHelper.h"
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+#include "VP1Base/VP1Msg.h"
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/events/SoKeyboardEvent.h>
@@ -50,6 +49,11 @@
 #include "GeoModelKernel/GeoPrintGraphAction.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 
+#ifndef BUILDVP1LIGHT
+#include "VP1GeometrySystems/MuonVolumeHandle.h"
+#include "VP1Utils/VP1JobConfigInfo.h"
+#include "VP1Utils/VP1SGAccessHelper.h"
+#include "VP1Utils/VP1DetInfo.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
@@ -57,7 +61,25 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonReadoutGeometry/MuonStation.h"
+#endif
 
+#ifdef BUILDVP1LIGHT
+#include "GeoModelKernel/GeoBox.h"
+#include "GeoModelKernel/GeoCountVolAction.h"
+#include "GeoModelKernel/GeoAccessVolumeAction.h"
+#include "GeoModelDBManager/GMDBManager.h"
+#include "GeoRead/GReadIn.h"
+
+// #include "GeoModelExamples/ToyDetectorFactory.h"
+//#include "GeoModelExamples/SimplestToyDetectorFactory.h"
+
+#include <QStack>
+#include <QString>
+#include <QSettings>
+#endif // BUILDVP1LIGHT
+
+
+#include <QDebug>
 #include <QRegExp>
 #include <QByteArray>
 #include <QTimer>
@@ -71,12 +93,15 @@
 
 class VP1GeometrySystem::Imp {
 public:
-  Imp (VP1GeometrySystem*gs,const VP1GeoFlags::SubSystemFlags& ssf)
+  Imp (VP1GeometrySystem*gs, const VP1GeoFlags::SubSystemFlags& ssf)
     : theclass(gs), sceneroot(0),
       detVisAttributes(0), matVisAttributes(0), volVisAttributes(0),
       initialSubSystemsTurnedOn(ssf),controller(0),phisectormanager(0),
       volumetreemodel(0),kbEvent(0),previousAlignedChamberHandle(0),
-      last_appropriatemdtprojections(-1),pv2MuonStationInit(false),m_textSep(0)
+      last_appropriatemdtprojections(-1),m_textSep(0)
+      #ifndef BUILDVP1LIGHT
+        ,pv2MuonStationInit(false)
+      #endif
   {
     const unsigned n_chamber_t0_sources=2;
     for (unsigned i=0;i<n_chamber_t0_sources;++i)
@@ -89,14 +114,21 @@ public:
   std::map<SoSeparator*,VolumeHandle*> sonodesep2volhandle;
   //Might be needed later:  std::map<GeoPVConstLink,VolumeHandle*> pv2volhandle;
 
+    #ifdef BUILDVP1LIGHT
+      GeoModelExperiment* getGeometry();
+      GeoModelExperiment* createTheExperiment(GeoPhysVol* world = nullptr);
+      GeoModelExperiment* getGeometryFromLocalDB();
+      GeoModelExperiment* getDummyGeometry();
+    #endif
+
+
   class SubSystemInfo {
   public:
-    // "geomodellocation" contains name of tree tops, or possible a
-    // bit more complex info in case of muons.
+    // "geomodellocation" contains name of tree tops, 
+    // or possible a bit more complex info in case of muons.
     SubSystemInfo( QCheckBox* cb,const QRegExp& the_geomodeltreetopregexp, bool the_negatetreetopregexp,
 		  const QRegExp& the_geomodelchildrenregexp, bool the_negatechildrenregexp, VP1GeoFlags::SubSystemFlag the_flag,
 		  const std::string& the_matname,
-//		  const QRegExp& _geomodelgrandchildrenregexp=QRegExp(""), bool _negategrandchildrenregexp=false)
 		  const QRegExp& the_geomodelgrandchildrenregexp, bool the_negategrandchildrenregexp=false)
       : isbuilt(false), checkbox(cb),
         geomodeltreetopregexp(the_geomodeltreetopregexp),
@@ -123,24 +155,24 @@ public:
     VolumeHandle::VolumeHandleList vollist;
     QCheckBox* checkbox;
 
-    /* Reg Exprs for three levels of filtering: treetop, children and grandchildren
+    /* Regular Expressions for three levels of filtering: treetop, children, and grandchildren
      *
      * For example:
      *
-     * - Muon
-     * -    ANON
-     * -        BAR_Toroid
+     * - Muon                --> treetop volume
+     * -    ANON             --> child volume
+     * -        BAR_Toroid   --> granchild volume
      *
      */
-    QRegExp geomodeltreetopregexp;//For picking the geomodel treetops
-    QRegExp geomodelchildrenregexp;//If instead of the treetops, this system consists of volumes below the treetop, this is non-empty.
+    QRegExp geomodeltreetopregexp;      //For picking the geomodel treetops
+    QRegExp geomodelchildrenregexp;     //If instead of the treetops, this system consists of volumes below the treetop, this is non-empty.
     QRegExp geomodelgrandchildrenregexp;//If instead of the treetops, this system consists of volumes below the child of a treetop, this is non-empty.
     bool negatetreetopregexp;
     bool negatechildrenregexp;
     bool negategrandchildrenregexp;
 
 
-    std::string matname;//if nonempty, use this from detvisattr instead of the top volname.
+    std::string matname; //if nonempty, use this from detvisattr instead of the top volname.
     VP1GeoFlags::SubSystemFlag flag;
 
 
@@ -167,8 +199,11 @@ public:
     }
 
     bool grandchildrenRegExpNameCompatible(const std::string& volname) const {
-    	//std::cout << "volname: " << volname << " - regexpr: " << geomodelgrandchildrenregexp.pattern().toStdString() << std::endl;
-    	return negategrandchildrenregexp!=geomodelgrandchildrenregexp.exactMatch(volname.c_str());
+        if(VP1Msg::debug()){
+            std::cout << "volname: " << volname << " - regexpr: " << geomodelgrandchildrenregexp.pattern().toStdString() << std::endl;
+            std::cout << "negategrandchildrenregexp: " << negategrandchildrenregexp << std::endl;
+        }
+        return negategrandchildrenregexp!=geomodelgrandchildrenregexp.exactMatch(volname.c_str());
     }
     
     void dump() const {
@@ -210,7 +245,7 @@ public:
   PhiSectorManager * phisectormanager;
   VolumeTreeModel * volumetreemodel;
 
-  //Helpers used for printouts://Fixme: To VolumeHandle!!
+  //Helpers used for printouts://FIXME: To VolumeHandle!!
   static double exclusiveMass(const PVConstLink& pv);
   static double inclusiveMass(const PVConstLink& pv);
   static double volume(const PVConstLink& pv);
@@ -235,11 +270,15 @@ public:
   void changeStateOfVisibleNonStandardVolumesRecursively(VolumeHandle*,VP1GeoFlags::VOLSTATE);
   void expandVisibleVolumesRecursively(VolumeHandle*,const QRegExp&,bool bymatname);
 
-  std::map<GeoPVConstLink,const MuonGM::MuonStation*> pv2MuonStation;
-  bool pv2MuonStationInit;
-  void ensureInitPV2MuonStationMap();
-  void updatePV2MuonStationMap(const MuonGM::MuonReadoutElement* elem);
-  QStringList stationInfo(const MuonGM::MuonStation*);
+  SoSeparator* m_textSep;//!< Separator used to hold all visible labels.
+
+    #ifndef BUILDVP1LIGHT
+      std::map<GeoPVConstLink,const MuonGM::MuonStation*> pv2MuonStation;
+      bool pv2MuonStationInit;
+      void ensureInitPV2MuonStationMap();
+      void updatePV2MuonStationMap(const MuonGM::MuonReadoutElement* elem);
+      QStringList stationInfo(const MuonGM::MuonStation*);
+    #endif
 
   void showPixelModules(VolumeHandle*);
   void showSCTBarrelModules(VolumeHandle*);
@@ -253,15 +292,14 @@ public:
   // path entries (top level volumes, python envelopes) depending on the subsystem of the selected volume
   void createPathExtras(const VolumeHandle*, QString&, QStack<QString>&);
   
-  SoSeparator* m_textSep;//!< Separator used to hold all visible labels.
   QList<const std::map<GeoPVConstLink, float>*> chamberT0s;  
 };
 
 //_____________________________________________________________________________________
 VP1GeometrySystem::VP1GeometrySystem( const VP1GeoFlags::SubSystemFlags& SubSystemsTurnedOn, QString name )
   : IVP13DSystemSimple(name,
-		       "This system displays the geometry as defined by GeoModel.",
-		       "Thomas.Kittelmann@cern.ch"),
+		   "This system displays the geometry as defined in the GeoModel tree.",
+           "Riccardo.Maria.Bianchi@cern.ch"),
     m_d(new Imp(this,SubSystemsTurnedOn))
 {
 }
@@ -325,7 +363,7 @@ void VP1GeometrySystem::Imp::addSubSystem(const VP1GeoFlags::SubSystemFlag& f,
 					  const std::string& matname, bool negatetreetopregexp, bool negatechildrenregexp,
 					  const QString& grandchildrenregexp, bool negategrandchildrenregexp)
 {
-  theclass->message("VP1GeometrySystem::Imp::addSubSystem - "+str(matname.c_str()) );
+  theclass->message("VP1GeometrySystem::Imp::addSubSystem - flag: '" + QString(f) + "' - matName: '" + str(matname.c_str()) + "'." );
   
   QCheckBox * cb = controller->subSystemCheckBox(f);
   if (!cb) {
@@ -364,6 +402,7 @@ QWidget * VP1GeometrySystem::buildController()
   connect(m_d->controller,SIGNAL(autoExpandByVolumeOrMaterialName(bool,QString)),this,SLOT(autoExpandByVolumeOrMaterialName(bool,QString)));
   connect(m_d->controller,SIGNAL(actionOnAllNonStandardVolumes(bool)),this,SLOT(actionOnAllNonStandardVolumes(bool)));
   connect(m_d->controller,SIGNAL(autoAdaptPixelsOrSCT(bool,bool,bool,bool,bool,bool)),this,SLOT(autoAdaptPixelsOrSCT(bool,bool,bool,bool,bool,bool)));
+  connect(m_d->controller,SIGNAL(autoAdaptMuonNSW(bool, bool,bool)),this,SLOT(autoAdaptMuonNSW(bool, bool,bool)));
   connect(m_d->controller,SIGNAL(resetSubSystems(VP1GeoFlags::SubSystemFlags)),this,SLOT(resetSubSystems(VP1GeoFlags::SubSystemFlags)));
 
   connect(m_d->controller,SIGNAL(labelsChanged(int)),this,SLOT(setLabels(int)));
@@ -376,11 +415,13 @@ QWidget * VP1GeometrySystem::buildController()
    * if the reg expr does not match any volume, the corresponding subsystem checkbox in the Geo GUI gets disabled.
    *
    * syntax: addSubSystem(VP1GeoFlags::SubSystemFlag&, // the associated system flag
-		                  QString& treetopregexp, // the regular expr for the top/root name of the main detector system
-		                  QString& childrenregexp="", // the reg expr for the children of the main detector
-		                  std::string& matname="", // a name we choose for displaying in VP1
-		                  bool negatetreetopregexp = false, // if we want to negate the top reg expr
-		                  bool negatechildrenregexp = false); // if we want to negate the children reg expr
+		                  QString& treetopregexp,                // the regular expr for the top/root name of the main sub-detector system
+		                  QString& childrenregexp="",            // the reg expr for the children of the main sub-detector
+		                  std::string& matname="",               // a name we choose for displaying in VP1
+		                  bool negatetreetopregexp = false,      // if we want to negate the top reg expr
+		                  bool negatechildrenregexp = false);    // if we want to negate the children reg expr
+                          const QString& grandchildrenregexp="", // the regex for granchildren of the main sub-detector
+                          bool negategrandchildrenregexp = false // wheter we want to negate teh granchildren regex
    */
 
   m_d->addSubSystem( VP1GeoFlags::Pixel,"Pixel");
@@ -402,17 +443,14 @@ QWidget * VP1GeometrySystem::buildController()
   m_d->addSubSystem( VP1GeoFlags::MuonEndcapStationCSC,"Muon","CS.*","CSC");
   m_d->addSubSystem( VP1GeoFlags::MuonEndcapStationTGC,"Muon","T(1|2|3|4).*","TGC");
   m_d->addSubSystem( VP1GeoFlags::MuonEndcapStationMDT,"Muon","(EI|EM|EO|EE).*","EndcapMdt");
+  m_d->addSubSystem( VP1GeoFlags::MuonEndcapStationNSW,"Muon",".*ANON.*","MuonNSW",false, false, "NewSmallWheel.*");
+
   m_d->addSubSystem( VP1GeoFlags::MuonBarrelStationInner,"Muon","(BI|BEE).*","BarrelInner");
   m_d->addSubSystem( VP1GeoFlags::MuonBarrelStationMiddle,"Muon","BM.*","BarrelMiddle");
   m_d->addSubSystem( VP1GeoFlags::MuonBarrelStationOuter,"Muon","BO.*","BarrelOuter");
 
   //This last one is even more horrible. We want everything from the Muon treetop that is NOT included elsewhere:
 //  m_d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","Muon",false,true);
-
-  // Muon NSW
-  m_d->addSubSystem( VP1GeoFlags::MuonNSW,"Muon",".*ANON.*","MuonNSW",false, false, "NewSmallWheel.*");
-    // m_d->addSubSystem( VP1GeoFlags::MuonMM,  "Muon",".*ANON.*","MM",false,false,"MM.*");
-  // m_d->addSubSystem( VP1GeoFlags::MuonsTGC,"Muon",".*ANON.*","sTGC",false,false,"sTGC.*");
 
   // Toroid
   m_d->addSubSystem( VP1GeoFlags::BarrelToroid,"Muon",".*ANON.*","BarrelToroid", false, false, "BAR_Toroid.*");
@@ -427,7 +465,7 @@ QWidget * VP1GeometrySystem::buildController()
 
 
   // All muon stuff --> this will be linked to the "Services" checkbox in the GUI
-//  m_d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","MuonEtc",false,true);
+  //  m_d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","MuonEtc",false,true);
   m_d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon",".*(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","MuonEtc",false,true,"(ECT_Toroids|BAR_Toroid|Feet|NewSmallWheel|JDSH|JTSH|JFSH).*",true);
   
   //  m_d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","*.Feet.*","MuonEtc");
@@ -464,18 +502,23 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
 {
   m_d->sceneroot = root;
 
-  if (!VP1JobConfigInfo::hasGeoModelExperiment()) {
-    message("Error: GeoModel not configured properly in job.");
-    return;
-  }
+    #ifndef BUILDVP1LIGHT
+      if (!VP1JobConfigInfo::hasGeoModelExperiment()) {
+        message("Error: GeoModel not configured properly in job.");
+        return;
+      }
 
-  //Get the world volume:
-  const GeoModelExperiment * theExpt;
-  if (!VP1SGAccessHelper(this,true).retrieve(theExpt,"ATLAS")) {
-    message("Error: Could not retrieve the ATLAS GeoModelExperiment from detector store");
-    return;
-  }
-  
+      //Get the world volume:
+      const GeoModelExperiment * theExpt;
+      if (!VP1SGAccessHelper(this,true).retrieve(theExpt,"ATLAS")) {
+        message("Error: Could not retrieve the ATLAS GeoModelExperiment from detector store");
+        return;
+      }
+    #endif
+
+  #ifdef BUILDVP1LIGHT
+    GeoModelExperiment* theExpt = m_d->getGeometry();
+  #endif
   PVConstLink world(theExpt->getPhysVol());
 
   if (!m_d->m_textSep) {
@@ -487,7 +530,7 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
   }
   m_d->sceneroot->addChild(m_d->m_textSep);
   
-  // Fixme - what if font is missing?
+  // FIXME - what if font is missing?
   SoFont *myFont = new SoFont;
   myFont->name.setValue("Arial");
   myFont->size.setValue(12.0);
@@ -503,10 +546,13 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
   root->addChild(m_d->controller->drawOptions());
   root->addChild(m_d->controller->pickStyle());
 
+  if(VP1Msg::debug()){
+    qDebug() << "Configuring the default systems... - subsysInfoList len:" << (m_d->subsysInfoList).length();
+  }
   // we switch on the systems flagged to be turned on at start
   foreach (Imp::SubSystemInfo * subsys, m_d->subsysInfoList)
   {
-	messageDebug("Switching on this system: " + QString::fromStdString(subsys->matname) + " - " + subsys->flag);
+	VP1Msg::messageDebug("Switching on this system: " + QString::fromStdString(subsys->matname) + " - " + subsys->flag);
     bool on(m_d->initialSubSystemsTurnedOn & subsys->flag);
     subsys->checkbox->setChecked( on );
     subsys->checkbox->setEnabled(false);
@@ -518,14 +564,19 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
 
   QCheckBox * checkBoxOther = m_d->controller->subSystemCheckBox(VP1GeoFlags::AllUnrecognisedVolumes);
 
+  if(VP1Msg::debug()){
+    qDebug() << "Looping on volumes from the input GeoModel...";
+  }
   GeoVolumeCursor av(world);
   while (!av.atEnd()) {
 
 	  std::string name = av.getName();
-
+    if(VP1Msg::debug()){
+      qDebug() << "volume name:" << QString::fromStdString(name);
+    }
 
 	  // DEBUG
-	  messageDebug("DEBUG: Found GeoModel treetop: "+QString(name.c_str()));
+	  VP1Msg::messageDebug("DEBUG: Found GeoModel treetop: "+QString(name.c_str()));
 
 	  //Let us see if we recognize this volume:
 	  bool found = false;
@@ -536,7 +587,11 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
 				  continue;//The "other" subsystem has a wildcard which matches everything - but we only want stuff that is nowhere else.
 			  }
 
-			  found = true;
+              if(VP1Msg::debug()){
+                qDebug() << (subsys->geomodeltreetopregexp).pattern() << subsys->geomodeltreetopregexp.exactMatch(name.c_str()) << subsys->negatetreetopregexp;
+                qDebug() << "setting 'found' to TRUE for pattern:" << (subsys->geomodeltreetopregexp).pattern();
+              }
+              found = true;
 			  //We did... now, time to extract info:
 			  subsys->treetopinfo.resize(subsys->treetopinfo.size()+1);
 			  subsys->treetopinfo.back().pV = av.getVolume();
@@ -598,6 +653,111 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
   //To ensure we emit it once upon startup:
   QTimer::singleShot(0, this, SLOT(emit_appropriateMDTProjectionsChanged()));
 }
+
+#ifdef BUILDVP1LIGHT
+//_____________________________________________________________________________________
+GeoModelExperiment* VP1GeometrySystem::Imp::getGeometry()
+{
+  // return getDummyGeometry(); // for test
+  return getGeometryFromLocalDB(); // for production
+}
+#endif
+
+#ifdef BUILDVP1LIGHT
+//_____________________________________________________________________________________
+GeoModelExperiment* VP1GeometrySystem::Imp::createTheExperiment(GeoPhysVol* world)
+{
+  if (world == nullptr)
+  {
+    // Setup the 'World' volume from which everything else will be suspended
+    double densityOfAir=0.1;
+    const GeoMaterial* worldMat = new GeoMaterial("std::Air", densityOfAir);
+    const GeoBox* worldBox = new GeoBox(1000*CLHEP::cm, 1000*CLHEP::cm, 1000*CLHEP::cm);
+    const GeoLogVol* worldLog = new GeoLogVol("WorldLog", worldBox, worldMat);
+    // GeoPhysVol* worldPhys = new GeoPhysVol(worldLog);
+    world = new GeoPhysVol(worldLog);
+  }
+  // Setup the 'Experiment' manager
+  GeoModelExperiment* theExperiment = new GeoModelExperiment(world);
+  return theExperiment;
+}
+
+
+//_____________________________________________________________________________________
+GeoModelExperiment* VP1GeometrySystem::Imp::getDummyGeometry()
+{
+  // create the world volume container and its manager
+  GeoModelExperiment* theExperiment = createTheExperiment();
+  //GeoPhysVol* world = theExperiment->getPhysVol();
+
+//   // we create the 'detector' geometry and we add it to the world volume
+//    ToyDetectorFactory factory(NULL); // more complex geometry example
+// //  SimplestToyDetectorFactory factory(NULL); // more complex geometry example
+//     factory.create(world);
+//   std::cout << "treetop numbers: " << factory.getDetectorManager()->getNumTreeTops() << std::endl;
+  VP1Msg::messageDebug("Method VP1GeometrySystem::Imp::getDummyGeometry() has to be ported to the new standalone GeoModel.");
+
+  return theExperiment;
+}
+
+
+//_____________________________________________________________________________________
+GeoModelExperiment* VP1GeometrySystem::Imp::getGeometryFromLocalDB()
+{
+
+  // GET GEOMETRY FROM LOCAL DB
+  // Set valid db path before first run
+  // static const QString path = "../../local/data/geometry.db";
+  QSettings settings("ATLAS", "VP1Light");
+  QString path = settings.value("db/path").toString();
+  if(VP1Msg::debug()){
+    qDebug() << "Using this DB file:" << path;
+  }
+
+
+  // check if DB file exists. If not, return
+  if (! QFileInfo(path).exists() ) {
+        qWarning() << "ERROR!! DB '" << path << "' does not exist!!";
+        qWarning() << "Returning..." << "\n";
+        // return;
+    throw;
+    }
+  // open the DB
+    GMDBManager* db = new GMDBManager(path);
+    /* Open database */
+    if (db->isOpen()) { 
+      if(VP1Msg::debug()){
+        qDebug() << "OK! Database is open!";
+      }
+    }
+  else {
+    if(VP1Msg::debug()){
+      qDebug() << "Database is not open!";
+    }
+    // return;
+    throw;
+  }
+
+  /* setup the GeoModel reader */
+    GeoModelPers::GReadIn readInGeo = GeoModelPers::GReadIn(db);
+    if(VP1Msg::debug()){
+      qDebug() << "GReadIn set.";
+    }
+
+  /* build the GeoModel geometry */
+    GeoPhysVol* dbPhys = readInGeo.buildGeoModel(); // builds the whole GeoModel tree in memory
+    // GeoPhysVol* worldPhys = readInGeo.getGeoModelHandle(); // get only the root volume and its first-level children
+      if(VP1Msg::debug()){
+        qDebug() << "GReadIn::buildGeoModel() done.";
+      }
+  // create the world volume container and its manager
+  GeoModelExperiment* theExperiment = createTheExperiment(dbPhys);
+  // GeoPhysVol* world = theExperiment->getPhysVol();
+
+  return theExperiment;
+
+}
+#endif
 
 //_____________________________________________________________________________________
 void VP1GeometrySystem::checkboxChanged()
@@ -664,7 +824,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   // soshape node represents the volume).
 
 
-	messageDebug("VP1GeometrySystem::userPickedNode()");
+	VP1Msg::messageDebug("VP1GeometrySystem::userPickedNode()");
 
   if (pickedPath->getNodeFromTail(0)->getTypeId()==SoCylinder::getClassTypeId())
     pickedPath->pop();
@@ -677,16 +837,20 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   SoSeparator * nodesep(0);
 
   if (pickedPath->getNodeFromTail(1)->getTypeId()==SoSeparator::getClassTypeId()
-      &&pickedPath->getNodeFromTail(2)->getTypeId()==SoSwitch::getClassTypeId()
-      &&pickedPath->getNodeFromTail(3)->getTypeId()==SoSeparator::getClassTypeId()) {
+      && pickedPath->getNodeFromTail(2)->getTypeId()==SoSwitch::getClassTypeId()
+      && pickedPath->getNodeFromTail(3)->getTypeId()==SoSeparator::getClassTypeId()) 
+  {
     //Scenario 3:
     nodesep = static_cast<SoSeparator*>(pickedPath->getNodeFromTail(3));
     pickedPath->pop();//To get highlighting of siblings also.
-  } else if (pickedPath->getNodeFromTail(1)->getTypeId()==SoSwitch::getClassTypeId()
-	     &&pickedPath->getNodeFromTail(2)->getTypeId()==SoSeparator::getClassTypeId()) {
+  } 
+  else if (pickedPath->getNodeFromTail(1)->getTypeId()==SoSwitch::getClassTypeId() 
+      && pickedPath->getNodeFromTail(2)->getTypeId()==SoSeparator::getClassTypeId()) 
+  {
     //Scenario 2:
     nodesep = static_cast<SoSeparator*>(pickedPath->getNodeFromTail(2));
-  } else if (pickedPath->getNodeFromTail(1)->getTypeId()==SoSeparator::getClassTypeId()) {
+  } 
+  else if (pickedPath->getNodeFromTail(1)->getTypeId()==SoSeparator::getClassTypeId()) {
     //Scenario 1 (normal):
     nodesep = static_cast<SoSeparator*>(pickedPath->getNodeFromTail(1));
   }
@@ -694,7 +858,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     message("Unexpected picked path");
     return;
   }
-  if (!nodesep||m_d->sonodesep2volhandle.find(nodesep)==m_d->sonodesep2volhandle.end()) {
+  if ( (!(nodesep)) || (m_d->sonodesep2volhandle.find(nodesep) == m_d->sonodesep2volhandle.end()) ) {
     message("Problems finding volume handle");
     return;
   }
@@ -746,7 +910,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     //Volume should be put in ZAPPED state.
     deselectAll();
     volhandle->setState(VP1GeoFlags::ZAPPED);
-    message("===&gt; Zapping Node: "+volhandle->getName());
+    message("===> Zapping Node: "+volhandle->getName());
     // std::cout<<"Zapped VH="<<volhandle<<std::endl;
     return;
   }
@@ -781,7 +945,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
       std::set<SoCamera*> cameras = getCameraList();
       std::set<SoCamera*>::iterator it,itE = cameras.end();
       for (it=cameras.begin();it!=itE;++it) {
-	VP1CameraHelper::animatedZoomToSubTree(*it,m_d->sceneroot,volhandle->nodeSoSeparator(),2.0,1.0);
+	    VP1CameraHelper::animatedZoomToSubTree(*it,m_d->sceneroot,volhandle->nodeSoSeparator(),2.0,1.0);
       }
     }
   }
@@ -797,7 +961,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   //  OK, time to print some information for the volume  //
   /////////////////////////////////////////////////////////
 
-  message("===&gt; Selected Node: "+volhandle->getName());
+  message("===> Selected Node: "+volhandle->getName());
   // std::cout<<"VolHandle = "<<volhandle<<std::endl;
   if (m_d->controller->printInfoOnClick_Shape()) {
     foreach (QString str, DumpShape::shapeToStringList(volhandle->geoPVConstLink()->getLogVol()->getShape()))
@@ -805,14 +969,14 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   }
 
   if (m_d->controller->printInfoOnClick_Material()) {
-    message("===&gt; Material:");
+    message("===> Material:");
     foreach (QString line, VP1GeomUtils::geoMaterialToStringList(volhandle->geoMaterial()))
       message("     "+line);
   }
 
   if ( m_d->controller->printInfoOnClick_CopyNumber() ) {
     int cn = volhandle->copyNumber();
-    message("===&gt; CopyNo : "+(cn>=0?QString::number(cn):QString(cn==-1?"Invalid":"Error reconstructing copynumber")));
+    message("===> CopyNo : "+(cn>=0?QString::number(cn):QString(cn==-1?"Invalid":"Error reconstructing copynumber")));
   }
 
   if ( m_d->controller->printInfoOnClick_Transform() ) {
@@ -821,11 +985,11 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     VP1LinAlgUtils::decodeTransformation( volhandle->getLocalTransformToVolume(),
 					  translation_x, translation_y, translation_z,
 					  rotaxis_x, rotaxis_y, rotaxis_z, rotangle_radians );
-    message("===&gt; Local Translation:");
+    message("===> Local Translation:");
     message("        x = "+QString::number(translation_x/CLHEP::mm)+" mm");
     message("        y = "+QString::number(translation_y/CLHEP::mm)+" mm");
     message("        z = "+QString::number(translation_z/CLHEP::mm)+" mm");
-    message("===&gt; Local Rotation:");
+    message("===> Local Rotation:");
     message("        axis x = "+QString::number(rotaxis_x));
     message("        axis y = "+QString::number(rotaxis_y));
     message("        axis z = "+QString::number(rotaxis_z));
@@ -833,11 +997,11 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     VP1LinAlgUtils::decodeTransformation( volhandle->getGlobalTransformToVolume(),
 					  translation_x, translation_y, translation_z,
 					  rotaxis_x, rotaxis_y, rotaxis_z, rotangle_radians );
-    message("===&gt; Global Translation:");
+    message("===> Global Translation:");
     message("        x = "+QString::number(translation_x/CLHEP::mm)+" mm");
     message("        y = "+QString::number(translation_y/CLHEP::mm)+" mm");
     message("        z = "+QString::number(translation_z/CLHEP::mm)+" mm");
-    message("===&gt; Global Rotation:");
+    message("===> Global Rotation:");
     message("        axis x = "+QString::number(rotaxis_x));
     message("        axis y = "+QString::number(rotaxis_y));
     message("        axis z = "+QString::number(rotaxis_z));
@@ -848,16 +1012,16 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     std::ostringstream str;
     GeoPrintGraphAction pg(str);
     volhandle->geoPVConstLink()->exec(&pg);
-    message("===&gt; Tree:");
+    message("===> Tree:");
     foreach (QString line, QString(str.str().c_str()).split("\n"))
       message("     "+line);
   }
 
   if (m_d->controller->printInfoOnClick_Mass()) {
-    //Fixme: Move the mass calculations to the volume handles, and let
+    //FIXME: Move the mass calculations to the volume handles, and let
     //the common data cache some of the volume information by
     //logVolume).
-    message("===&gt; Total Mass &lt;===");
+    message("===> Total Mass &lt;===");
     message("Inclusive "+QString::number(Imp::inclusiveMass(volhandle->geoPVConstLink())/CLHEP::kilogram)+" kg");
     message("Exclusive "+QString::number(Imp::exclusiveMass(volhandle->geoPVConstLink())/CLHEP::kilogram)+" kg");
   }
@@ -865,19 +1029,21 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   if (m_d->controller->printInfoOnClick_MuonStationInfo()&&volhandle->isInMuonChamber()) {
     PVConstLink pvlink = volhandle->topLevelParent()->geoPVConstLink();
     std::map<PVConstLink,VolumeHandle*>::const_iterator itChamber = m_d->muonchambers_pv2handles.find(pvlink);
+    #ifndef BUILDVP1LIGHT
     if (itChamber!=m_d->muonchambers_pv2handles.end()) {
       m_d->ensureInitPV2MuonStationMap();
       std::map<GeoPVConstLink,const MuonGM::MuonStation*>::const_iterator itStation(m_d->pv2MuonStation.find(pvlink));
       if (itStation!=m_d->pv2MuonStation.end()) {
-        message("===&gt; Muon station &lt;===");
+        message("===> Muon station &lt;===");
         message("     ",m_d->stationInfo(itStation->second));
       }
     }
+    #endif
   }
 
-  //////////////////////////////////////////////
-  //  Emit a signal for the PartSpect system  //
-  //////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////
+  //  Emit a signal for the VP1UtilitySystems::PartSpect system  //
+  /////////////////////////////////////////////////////////////////
   QStack<QString> partspectPath, extras;
   QString detFactoryName;  
 
@@ -895,9 +1061,9 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
       
       Query<int> childCopyNo = parentPVLink->getIdOfChildVol(indexOfChild);
       if(childCopyNo.isValid()) {
-	QString strCopyNo;
-	strCopyNo.setNum(childCopyNo);
-	pathEntry += ("::"+strCopyNo);
+	    QString strCopyNo;
+	    strCopyNo.setNum(childCopyNo);
+	    pathEntry += ("::"+strCopyNo);
       }
       partspectPath.push(pathEntry);
       childVH = parentVH;
@@ -919,7 +1085,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
 //_____________________________________________________________________________________
 void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 {
-  theclass->messageDebug("VP1GeometrySystem::Imp::buildSystem()" );
+  VP1Msg::messageDebug("VP1GeometrySystem::Imp::buildSystem()" );
 
   if (!si||si->isbuilt)
     return;
@@ -927,11 +1093,13 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
   int ichild(0);
 
   ensureInitVisAttributes();
-  ensureInitPV2MuonStationMap(); // Needed for Muon Station names.
+    #ifndef BUILDVP1LIGHT
+      ensureInitPV2MuonStationMap(); // Needed for Muon Station names.
+    #endif
 
 //  // DEBUG
 //  foreach(Imp::SubSystemInfo*si,m_d->subsysInfoList) {
-//	  theclass->messageDebug("vol: " + QString((si->flag).str_c()) );
+//	  VP1Msg::messageDebug("vol: " + QString((si->flag).str_c()) );
 //	}
   
   assert(si->soswitch);
@@ -947,7 +1115,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 	  std::vector<SubSystemInfo::TreetopInfo>::const_iterator it, itE = si->treetopinfo.end();
 	  for (it=si->treetopinfo.begin();it!=itE;++it)
 	  {
-		  theclass->messageDebug("toptree vol: " + QString(it->volname.c_str()) );
+		  VP1Msg::messageDebug("toptree vol: " + QString(it->volname.c_str()) );
 
 		  //Find material:
 		  SoMaterial*m = detVisAttributes->get(it->volname);
@@ -968,7 +1136,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 	  std::vector<SubSystemInfo::TreetopInfo>::const_iterator it, itE = si->treetopinfo.end();
 	  for (it=si->treetopinfo.begin();it!=itE;++it) {
 
-		  theclass->messageDebug("group name: " + QString(si->matname.c_str()) );
+		  VP1Msg::messageDebug("group name: " + QString(si->matname.c_str()) );
 
 		  //NB: Here we use the si->matname. Above we use the si->volname. Historical reasons!
 
@@ -989,7 +1157,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 		  while (!av.atEnd()) {
 
 			  // DEBUG
-//			  theclass->messageDebug("child vol: " + QString(av.getName().c_str()) );
+//			  VP1Msg::messageDebug("child vol: " + QString(av.getName().c_str()) );
 
 			  //Use the childrenregexp to select the correct child volumes:
 			  if (si->childrenRegExpNameCompatible(av.getName().c_str())) {
@@ -1001,9 +1169,16 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
           // si->dump();
           // std::cout<<"---"<<std::endl;
 				  if (hasMuonChambers){
+                    #ifndef BUILDVP1LIGHT
 					  vh = new MuonVolumeHandle(volhandle_subsysdata,0,pVD,ichild++,VolumeHandle::MUONCHAMBER_DIRTY,matr,pv2MuonStation[pVD],chamberT0s);
-					  muonchambers_pv2handles[pVD] = vh;
-            // std::cout<<"Has muon chamber VH="<<vh<<std::endl;
+                    #endif
+                    #ifdef BUILDVP1LIGHT
+                      vh = new VolumeHandle(volhandle_subsysdata,0,pVD,ichild++,VolumeHandle::MUONCHAMBER_DIRTY,matr);
+                    #endif
+                    muonchambers_pv2handles[pVD] = vh;
+                    if(VP1Msg::debug()){
+                        std::cout<<"Has muon chamber VH="<<vh<<std::endl;
+                    }
             
 				  } else {
             
@@ -1013,7 +1188,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 				  }
 
 				  // DEBUG
-//				  theclass->messageDebug("granchild vol: " + vh->getName() + " - " + vh->getDescriptiveName() );
+//				  VP1Msg::messageDebug("granchild vol: " + vh->getName() + " - " + vh->getDescriptiveName() );
 
 				  if (si->geomodelgrandchildrenregexp.isEmpty()) {
 					  // append the volume to the current list
@@ -1021,9 +1196,9 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 					  si->vollist.push_back(vh);
 
 				  } else {
-					  theclass->messageDebug("filtering at grandchild level...");
+					  VP1Msg::messageDebug("filtering at grandchild level...");
 					  if (si->grandchildrenRegExpNameCompatible(vh->getName().toStdString() ) ) {
-						  theclass->messageDebug("filtered grandchild inserted : " + vh->getDescriptiveName() + " - " + vh->getName() );
+						  VP1Msg::messageDebug("filtered grandchild inserted : " + vh->getDescriptiveName() + " - " + vh->getName() );
 						  // append the volume to the current list
 						  si->vollist.push_back(vh);
 					  } else {
@@ -1040,26 +1215,36 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
 	  }
   }
 
-  // std::cout<<"volumetreemodel->addSubSystem"<<std::endl;
+  
+  si->dump();
+
+  VP1Msg::messageDebug("volumetreemodel->addSubSystem...");
   volumetreemodel->addSubSystem( si->flag, si->vollist );
 
   //NB: We let the destructor of volumetreemodel take care of deleting
   //our (top) volume handles, since it has to keep a list of them
   //anyway.
 
+  
   //Perform auto expansion of all ether volumes (needed for muon dead material):
+  VP1Msg::messageDebug("Perform auto expansion of all ether volumes (needed for muon dead material)");
   VolumeHandle::VolumeHandleListItr it, itE(si->vollist.end());
+  //int idx=0; // for debug
   for (it = si->vollist.begin(); it!=itE; ++it){
+    //VP1Msg::messageDebug("\nexpanding idx: " + QString::number(++idx)); 
     (*it)->expandMothersRecursivelyToNonEther();
+    //VP1Msg::messageDebug("expand DONE."); 
   }
+  
 
+  VP1Msg::messageDebug("addChild...");
   phisectormanager->updateRepresentationsOfVolsAroundZAxis();
   phisectormanager->largeChangesEnd();
   si->soswitch->addChild(subsystemsep);
   si->soswitch->enableNotify(save);
   if (save)
     si->soswitch->touch();
-  theclass->messageDebug("END of VP1GeometrySystem::Imp::buildSystem() " );
+  VP1Msg::messageDebug("END of VP1GeometrySystem::Imp::buildSystem() " );
 }
 
 //_____________________________________________________________________________________
@@ -1314,16 +1499,21 @@ void VP1GeometrySystem::updateTransparency()
 //_____________________________________________________________________________________
 void VP1GeometrySystem::resetSubSystems(VP1GeoFlags::SubSystemFlags f)
 {
-  if (!f)
-    return;
+  if (!f) {
+    return; 
+  }
+
   deselectAll();
   foreach(Imp::SubSystemInfo*si,m_d->subsysInfoList) {
     if (si->flag & f) {
-      if (!si->isbuilt)
-	continue;
-      VolumeHandle::VolumeHandleListItr it(si->vollist.begin()),itE(si->vollist.end());
-      for (;it!=itE;++it)
-	(*it)->reset();
+        if (!si->isbuilt) {
+	        continue;
+        }
+        VolumeHandle::VolumeHandleListItr it(si->vollist.begin()),itE(si->vollist.end());
+        for (;it!=itE;++it) {
+            messageDebug("resetting volume --> " + (*it)->getName() );
+	        (*it)->reset();
+        }
     }
   }
 }
@@ -1538,11 +1728,11 @@ void VP1GeometrySystem::Imp::updateTouchedMuonChamber(VolumeHandle * chamberhand
 //_____________________________________________________________________________________
 VP1GeometrySystem::Imp::SubSystemInfo * VP1GeometrySystem::Imp::chamberPVToMuonSubSystemInfo(const GeoPVConstLink& chamberPV)
 {
-  theclass->messageDebug("VP1GeometrySystem::Imp::chamberPVToMuonSubSystemInfo()");
+  VP1Msg::messageDebug("VP1GeometrySystem::Imp::chamberPVToMuonSubSystemInfo()");
 
   std::string name = chamberPV->getLogVol()->getName();
 
-  theclass->messageDebug("name: " + QString::fromStdString(name) );
+  VP1Msg::messageDebug("name: " + QString::fromStdString(name) );
 
   foreach (SubSystemInfo * subsys, subsysInfoList) {
     if (!subsys->hasMuonChambers())
@@ -1851,7 +2041,7 @@ void VP1GeometrySystem::actionOnAllNonStandardVolumes(bool zap)
 void VP1GeometrySystem::autoExpandByVolumeOrMaterialName(bool bymatname,QString targetname)
 {
   if (targetname.isEmpty()) {
-	  messageDebug("targetname is empty.");
+	  VP1Msg::messageDebug("targetname is empty.");
     return;
   }
 
@@ -1905,6 +2095,7 @@ void VP1GeometrySystem::Imp::expandVisibleVolumesRecursively(VolumeHandle* handl
     expandVisibleVolumesRecursively(*it,selregexp,bymatname);
 }
 
+#ifndef BUILDVP1LIGHT
 //_____________________________________________________________________________________
 void VP1GeometrySystem::Imp::updatePV2MuonStationMap(const MuonGM::MuonReadoutElement* elem)
 {
@@ -1923,7 +2114,7 @@ void VP1GeometrySystem::Imp::updatePV2MuonStationMap(const MuonGM::MuonReadoutEl
 void VP1GeometrySystem::Imp::ensureInitPV2MuonStationMap()
 {
   if (pv2MuonStationInit) {
-	  theclass->messageDebug("MuonStation map already initialized.");
+	  VP1Msg::messageDebug("MuonStation map already initialized.");
 	  return;
   }
   pv2MuonStationInit = true;
@@ -1931,7 +2122,7 @@ void VP1GeometrySystem::Imp::ensureInitPV2MuonStationMap()
 
   const MuonGM::MuonDetectorManager * mgr = VP1DetInfo::muonDetMgr();
   if (!mgr) {
-    theclass->message("WARNING: Could not get muon detector manager to construct volume -> muon station map!");
+    VP1Msg::message("WARNING: Could not get muon detector manager to construct volume -> muon station map!");
     return;
   }
 
@@ -1944,7 +2135,7 @@ void VP1GeometrySystem::Imp::ensureInitPV2MuonStationMap()
   for (unsigned i = 0; i < mgr->TgcRElMaxHash; ++i)
     updatePV2MuonStationMap(mgr->getTgcReadoutElement(i));
 
-  theclass->messageDebug("Initialised physical volume link -> MuonStation map. Found "+str(pv2MuonStation.size())+" stations.");
+  VP1Msg::messageDebug("Initialised physical volume link -> MuonStation map. Found "+str(pv2MuonStation.size())+" stations.");
 
 }
 
@@ -1960,12 +2151,15 @@ QStringList VP1GeometrySystem::Imp::stationInfo(const MuonGM::MuonStation* stati
   l << "(Eta,Phi) index: ("+str(station->getEtaIndex())+", "+str(station->getPhiIndex())+")";
   return l;
 }
+#endif
 
 //_____________________________________________________________________________________
 void VP1GeometrySystem::autoAdaptPixelsOrSCT(bool pixel,bool brl, bool ecA, bool ecC, bool bcmA, bool bcmC)
 {
-  if (!(pixel?VP1JobConfigInfo::hasPixelGeometry():VP1JobConfigInfo::hasSCTGeometry()))
-    return;
+    #ifndef BUILDVP1LIGHT
+      if (!(pixel?VP1JobConfigInfo::hasPixelGeometry():VP1JobConfigInfo::hasSCTGeometry()))
+        return;
+    #endif
   VP1GeoFlags::SubSystemFlag subSysFlag(pixel?VP1GeoFlags::Pixel:VP1GeoFlags::SCT);
 
   bool bcm(bcmA||bcmC);
@@ -1989,7 +2183,7 @@ void VP1GeometrySystem::autoAdaptPixelsOrSCT(bool pixel,bool brl, bool ecA, bool
   ////////////////////////////////////////////////////////////////
   //Abort if corresponding subsystem is not built:
   if (!subsys->isbuilt) {
-    messageDebug("AutoAdaptPixelsOrSCT: Aborting since subsystem geometry not built yet");
+    VP1Msg::messageDebug("AutoAdaptPixelsOrSCT: Aborting since subsystem geometry not built yet");
     return;//Disabling now due to phi-sector problems if "click some phi sectors"->"adapt pixel"->"turn on pixel"
   }
   bool save = m_d->sceneroot->enableNotify(false);
@@ -2053,10 +2247,94 @@ void VP1GeometrySystem::autoAdaptPixelsOrSCT(bool pixel,bool brl, bool ecA, bool
   }
 }
 
+
+//_____________________________________________________________________________________
+void VP1GeometrySystem::autoAdaptMuonNSW(bool reset, bool stgc, bool mm)
+{
+  VP1Msg::messageDebug("VP1GeometrySystem::autoAdaptMuonNSW()");
+
+    #ifndef BUILDVP1LIGHT
+      // return if Muon and MuonNSW are not configured/present/ON
+      if ( !( VP1JobConfigInfo::hasMuonGeometry() && VP1JobConfigInfo::hasMuonNSWGeometry() ) )
+        return;
+    #endif
+  
+  if( reset )
+    VP1Msg::messageDebug("resetting to full NSW...");
+
+  VP1GeoFlags::SubSystemFlag subSysFlag(VP1GeoFlags::MuonEndcapStationNSW);
+
+  ////////////////////////////////////////////////////////////////
+  //Find subsystem:
+  Imp::SubSystemInfo* subsys(0);
+  foreach(Imp::SubSystemInfo*si,m_d->subsysInfoList) {
+    if (si->flag == subSysFlag) {
+      subsys = si;
+      break;
+    }
+  }
+  if (!subsys) {
+    message("autoAdaptMuonNSW Error: Could not find subsystem");
+    return;
+  }
+
+
+  ////////////////////////////////////////////////////////////////
+  //Abort if corresponding subsystem is not built:
+  if (!subsys->isbuilt) {
+    VP1Msg::messageDebug("autoAdaptMuonNSW: Aborting since subsystem geometry not built yet");
+    return;//Disabling now due to phi-sector problems if "click some phi sectors"->"adapt pixel"->"turn on pixel"
+  }
+  bool save = m_d->sceneroot->enableNotify(false);
+  m_d->phisectormanager->largeChangesBegin();
+  
+  VolumeHandle::VolumeHandleListItr it(subsys->vollist.begin()),itE(subsys->vollist.end());
+  
+    // loop over first level children (i.e., 'NewSmallWheel')
+    for (;it!=itE;++it) {
+      
+      (*it)->initialiseChildren();
+      (*it)->setState(VP1GeoFlags::CONTRACTED);
+      VolumeHandle::VolumeHandleListItr itChl((*it)->childrenBegin()),itChlE((*it)->childrenEnd());
+      
+      // loop over second level children (i.e., 'NSW_sTGC', 'NSW_MM')
+      for (;itChl!=itChlE;++itChl) {
+
+	    bool unzap( reset? true : false );
+
+        if ( !reset ) {
+	        (*itChl)->setState(VP1GeoFlags::ZAPPED);
+	        if ( (stgc) && (*itChl)->hasName("NSW_sTGC") ) {
+	            unzap = true;
+	            //m_d->showPixelModules(*itChl);
+	        } else if ( (mm) && (*itChl)->hasName("NSW_MM") ) {
+	            unzap = true;
+	            //m_d->showPixelModules(*itChl);
+	        } 
+        }
+        if (unzap) {
+	        (*itChl)->setState(VP1GeoFlags::EXPANDED);
+        }
+    }
+    (*it)->setState(VP1GeoFlags::EXPANDED);
+  }
+  
+  m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+  m_d->phisectormanager->largeChangesEnd();
+  
+  if (save) {
+    m_d->sceneroot->enableNotify(true);
+    m_d->sceneroot->touch();
+  }
+}
+
+
+
+
 //_____________________________________________________________________________________
 void VP1GeometrySystem::Imp::showPixelModules(VolumeHandle* h)
 {
-	theclass->messageDebug("VP1GeometrySystem::Imp::showPixelModules()");
+	VP1Msg::messageDebug("VP1GeometrySystem::Imp::showPixelModules()");
   h->initialiseChildren();
   VolumeHandle::VolumeHandleListItr it(h->childrenBegin()),itE(h->childrenEnd());
   for (;it!=itE;++it) {
@@ -2092,7 +2370,7 @@ void VP1GeometrySystem::Imp::showPixelModules(VolumeHandle* h)
 //_____________________________________________________________________________________
 void VP1GeometrySystem::Imp::showSCTBarrelModules(VolumeHandle*h)
 {
-	theclass->messageDebug("VP1GeometrySystem::Imp::showSCTBarrelModules()");
+	VP1Msg::messageDebug("VP1GeometrySystem::Imp::showSCTBarrelModules()");
   h->initialiseChildren();
   VolumeHandle::VolumeHandleListItr it(h->childrenBegin()),itE(h->childrenEnd());
   for (;it!=itE;++it) {
@@ -2160,7 +2438,7 @@ void VP1GeometrySystem::Imp::showSCTBarrelModules(VolumeHandle*h)
 //_____________________________________________________________________________________
 void VP1GeometrySystem::Imp::showSCTEndcapModules(VolumeHandle*h)
 {
-	theclass->messageDebug("VP1GeometrySystem::Imp::showSCTEndcapModules()");
+	VP1Msg::messageDebug("VP1GeometrySystem::Imp::showSCTEndcapModules()");
   h->initialiseChildren();
   VolumeHandle::VolumeHandleListItr it(h->childrenBegin()),itE(h->childrenEnd());
   for (;it!=itE;++it) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -13,7 +13,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "TrigInterfaces/FexAlgo.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 //LVL1 ROIS
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -27,6 +26,8 @@
 //ID TRACKING
 #include "xAODTracking/TrackParticleContainer.h"
 #include "CxxUtils/fpcompare.h"
+#include "CxxUtils/phihelper.h"
+
 
 using namespace std;
 
@@ -233,7 +234,7 @@ HLT::ErrorCode MuonClusterIsolation::hltExecute(std::vector<std::vector<HLT::Tri
     double erat = -99999999.;
     
     double delta_eta = m_CluEta - jetEta;
-    double delta_phi = HLT::wrapPhi(m_CluPhi - jetPhi);
+    double delta_phi = CxxUtils::wrapToPi(m_CluPhi - jetPhi);
 
     double dR = sqrt( (delta_eta*delta_eta) + (delta_phi*delta_phi) );
     
@@ -317,7 +318,7 @@ HLT::ErrorCode MuonClusterIsolation::hltExecute(std::vector<std::vector<HLT::Tri
 	  }
 
 	  double delta_etat = m_CluEta - eta;
-	  double delta_phit = HLT::wrapPhi(m_CluPhi - phi);
+	  double delta_phit = CxxUtils::wrapToPi(m_CluPhi - phi);
 
 	  double dRt = sqrt( (delta_etat*delta_etat) + (delta_phit*delta_phit) );
 	  if (dRt<m_DeltaRTrk) {

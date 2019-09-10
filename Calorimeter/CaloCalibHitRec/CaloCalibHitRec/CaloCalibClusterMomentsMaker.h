@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCALIBCLUSTERMOMENTSMAKER_H
@@ -14,7 +14,6 @@
  * This is a CaloClusterCollectionProcessor which can be plugged into
  * a CaloClusterMaker for calculating calibration hit based moments
  * for each CaloCluster. */
-class StoreGateSvc; 
 class CaloDetDescrManager; 
 class CaloDetDescrElement;
 class CaloCell_ID;
@@ -125,8 +124,6 @@ class CaloCalibClusterMomentsMaker: public AthAlgTool, virtual public CaloCluste
    * The containers specified in this property should hold calibration
    * hits outside the calorimeter systems - i.e. dead material hits ... */
   SG::ReadHandleKeyArray<CaloCalibrationHitContainer> m_DMCalibrationHitContainerNames;
-
-  const CaloDetDescrManager* m_calo_dd_man; 
 
   const CaloCell_ID* m_calo_id;
 

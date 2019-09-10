@@ -1,20 +1,20 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/MuCalStreamerTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-//#include "MuonRDO/RpcPadContainer.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "MuonRDO/RpcPadContainer.h"
+#include "MuonRDO/TgcRdoContainer.h"
 #include "Identifier/IdentifierHash.h"
 
 #include "MuCalDecode/CalibEvent.h"
@@ -39,13 +39,11 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_storeGate( "StoreGateSvc", name ),
    m_regionSelector( "RegSelSvc", name ),
    m_robDataProvider( "ROBDataProviderSvc", name ),
    m_cid(-1),
    m_calibEvent(0),
-   m_roi(NULL),
-   m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator")  
+   m_roi(NULL)
 {
    declareInterface<TrigL2MuonSA::MuCalStreamerTool>(this);
 }
@@ -96,9 +94,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
    //  ATH_MSG_ERROR("Could not retrieve the TGC cabling svc");
    //  return StatusCode::FAILURE;
    //} 
-
-   ATH_CHECK( m_tgcDataPreparator.retrieve() );
-   ATH_MSG_DEBUG("Retrieved service " << m_tgcDataPreparator); 
 
    // locate the region selector
    ATH_CHECK( m_regionSelector.retrieve() );
@@ -250,7 +245,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
 
   // retrieve the event and trigger info
   const EventInfo* eventInfo(0);
-  StatusCode sc = m_storeGate->retrieve(eventInfo);
+  StatusCode sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()){
     ATH_MSG_FATAL("Can't get EventInfo object");
     return StatusCode::FAILURE;
@@ -538,7 +533,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   
   // retrieve the pad container
   const RpcPadContainer* rpcPadContainer; 
-  StatusCode sc = m_storeGate->retrieve(rpcPadContainer,"RPCPAD");
+  StatusCode sc = evtStore()->retrieve(rpcPadContainer,"RPCPAD");
   if ( sc != StatusCode::SUCCESS ) { 
     ATH_MSG_ERROR("Could not retrieve the ");
     return sc;
@@ -647,15 +642,12 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32
 
   tgcFragment = LVL2_MUON_CALIBRATION::TgcCalibFragment(systemId,subSystemId,rdoId,roiNumber);
 
-  // get the list of hash ID's from the TGC data preparator
-  std::vector<IdentifierHash> tgcHashList = m_tgcDataPreparator->getHashList();
-
   // retrieve the tgcrdo container
   const TgcRdoContainer* tgcRdoContainer = Muon::MuonRdoContainerAccess::retrieveTgcRdo("TGCRDO");
   if( tgcRdoContainer==0 ) {
     ATH_MSG_DEBUG("Tgc RDO container not registered by MuonRdoContainerManager");
     ATH_MSG_DEBUG("-> Retrieving it from the StoreGate");
-    StatusCode sc = m_storeGate->retrieve(tgcRdoContainer, "TGCRDO");
+    StatusCode sc = evtStore()->retrieve(tgcRdoContainer, "TGCRDO");
     if( sc.isFailure() ) {
       ATH_MSG_ERROR("Could not retrieve the TgcRdoContainer");
       return sc;

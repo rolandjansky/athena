@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCollisionTimeAlg.h"
@@ -10,10 +10,8 @@
 //Constructor
 LArCollisionTimeAlg:: LArCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
-    m_nevt(0),
-    m_calo_id(nullptr),m_noiseTool("CaloNoiseTool/calonoise")
+    m_calo_id(nullptr)
   {
-    declareProperty("NoiseTool", m_noiseTool);
     declareProperty("cellContainerName", m_cellsContName="AllCalo" );
     declareProperty("collisionTime", m_collTimeName="LArCollisionTime" );
   }
@@ -31,15 +29,10 @@ StatusCode LArCollisionTimeAlg::initialize()
     ATH_MSG_DEBUG ("LArCollisionTimeAlg initialize()");
 
     //retrieve ID helpers 
-    ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
-    m_calo_id      = m_caloIdMgr->getCaloCell_ID();
+    ATH_CHECK(detStore()->retrieve(m_calo_id,"CaloCell_ID"));
 
-
-    // get calonoise tool 
-    if (m_noiseTool) {
-      ATH_CHECK( m_noiseTool.retrieve() );
-    }
-
+    //Initialize VarHandles
+    ATH_CHECK( m_noiseCDOKey.initialize() );
     ATH_CHECK( m_cellsContName.initialize() );
     ATH_CHECK( m_collTimeName.initialize() );
 
@@ -59,21 +52,24 @@ StatusCode LArCollisionTimeAlg::execute()
   {
     //.............................................
     
-    ATH_MSG_DEBUG ("LArCollisionTimeAlg execute()");
-
-   m_nevt++;
+  ATH_MSG_DEBUG ("LArCollisionTimeAlg execute()");
 
   // Get the CaloCellContainer
   SG::ReadHandle<CaloCellContainer> cell_container (m_cellsContName);
 
   if(!cell_container.isValid()) {
       ATH_MSG_INFO (" Could not get pointer to Cell Container ");
-      // Construct the output object
+      // Construct a dummy output object
       SG::WriteHandle<LArCollisionTime> larTime (m_collTimeName);
       ATH_CHECK( larTime.record (std::make_unique<LArCollisionTime>()) );
 
       return StatusCode::SUCCESS;
   }
+
+
+  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+  const CaloNoise* noiseCDO=*noiseHdl;
+
 
   // Loop over the CaloCellContainer
   int ncellA=0;
@@ -108,12 +104,9 @@ StatusCode LArCollisionTimeAlg::execute()
 
       if ( (provenance & mask1) != cut1 && (provenance & 0x3C00) != 0x3000 && !m_isMC) continue;
       if ( (provenance & 0x2C00) != 0x2000 && m_isMC) continue;
-
-      double energy=  (*first_cell)->energy();
-      double noise = -1;
-      if (!m_noiseTool.empty()) {
-        noise = m_noiseTool->totalNoiseRMS((*first_cell));
-      }
+      
+      const double energy=  (*first_cell)->energy();
+      const double noise=noiseCDO->getNoise(cellID,(*first_cell)->gain());
       double signif=9999.;
       if (noise>0.) signif = energy/noise;
       if (signif < 5.) continue;

@@ -75,21 +75,6 @@ TileRawDataContainer<TCOLLECTION>::TileRawDataContainer(bool createColl,
     return; 
 }
 
-template <typename TCOLLECTION> 
-void TileRawDataContainer<TCOLLECTION>::clear()
-{
-    TContainer_const_iterator it1 = this->begin();
-    TContainer_const_iterator it2 = this->end();
-
-    for(;it1!=it2;++it1){
-        const TCOLLECTION * const_coll = *it1; 
-        TCOLLECTION * coll = const_cast<TCOLLECTION *>(const_coll);
-        coll->clear();
-    }
-
-    return; 
-}
-
                               
 template <typename TCOLLECTION> 
 void TileRawDataContainer<TCOLLECTION>::print() const

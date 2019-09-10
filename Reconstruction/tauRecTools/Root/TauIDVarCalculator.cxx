@@ -10,7 +10,6 @@
 
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "xAODTracking/VertexContainer.h"  
-#include "xAODEventInfo/EventInfo.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 #include "TLorentzVector.h"
@@ -26,8 +25,8 @@ TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
 
 StatusCode TauIDVarCalculator::eventInitialize()
 {
-  const xAOD::EventInfo* xEventInfo = nullptr;
-  ATH_CHECK( evtStore()->retrieve(xEventInfo,"EventInfo") );
+
+  SG::ReadHandle<xAOD::EventInfo> xEventInfo(m_eventInfoKey);
   m_mu = xEventInfo->averageInteractionsPerCrossing();
 
   if(!inTrigger()){
@@ -61,6 +60,7 @@ StatusCode TauIDVarCalculator::eventInitialize()
 StatusCode TauIDVarCalculator::initialize()
 {
   ATH_CHECK( m_vertexInputContainer.initialize() );
+  ATH_CHECK( m_eventInfoKey.initialize() );
   return StatusCode::SUCCESS;
 }
 

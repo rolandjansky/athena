@@ -26,46 +26,22 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
 #include "EventKernel/PdtPdg.h"
 namespace Analysis {
     
     StatusCode JpsiFinder_ee::initialize() {
         
         // retrieving vertex Fitter
-        if ( m_iVertexFitter.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_iVertexFitter);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_DEBUG("Retrieved tool " << m_iVertexFitter);
-        }
+        ATH_CHECK(m_iVertexFitter.retrieve());
         
         // retrieving V0 Fitter
-        if ( m_iV0VertexFitter.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_iV0VertexFitter);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_DEBUG("Retrieved tool " << m_iV0VertexFitter);
-        }
-        
+        ATH_CHECK(m_iV0VertexFitter.retrieve());
         // Get the track selector tool from ToolSvc
-        if ( m_trkSelector.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_trkSelector);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_DEBUG("Retrieved tool " << m_trkSelector);
-        }
+        ATH_CHECK(m_trkSelector.retrieve());
         
        
         // Get the vertex point estimator tool from ToolSvc
-        if ( m_vertexEstimator.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve tool " << m_vertexEstimator);
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_DEBUG("Retrieved tool " << m_vertexEstimator);
-        }
+        ATH_CHECK(m_vertexEstimator.retrieve());
 
         
         // Get the Particle Properties Service
@@ -73,7 +49,7 @@ namespace Analysis {
         StatusCode sc = service("PartPropSvc", partPropSvc, true);
         if (sc.isFailure()) {
             ATH_MSG_ERROR("Could not initialize Particle Properties Service");
-            return StatusCode::SUCCESS;
+            return StatusCode::FAILURE;
         } else {
             m_particleDataTable = partPropSvc->PDT();
             const HepPDT::ParticleData* pd_el = m_particleDataTable->particle(PDG::e_minus);
@@ -105,7 +81,7 @@ namespace Analysis {
 
 
 
-        ATH_MSG_INFO("Initialize successful");
+        ATH_MSG_DEBUG("Initialize successful");
         
         return StatusCode::SUCCESS;
         
@@ -198,32 +174,27 @@ namespace Analysis {
         vxAuxContainer = new xAOD::VertexAuxContainer;
         vxContainer->setStore(vxAuxContainer);
         
-        // Get the ToolSvc
-        IToolSvc* toolsvc;
-        StatusCode sc1=service("ToolSvc",toolsvc);
-        if (sc1.isFailure() ) {
-            ATH_MSG_WARNING("Problem loading tool service. JpsiEECandidates will be EMPTY!");
-            return StatusCode::SUCCESS;;
-        };
         
         // Get the electrons from StoreGate
-        const xAOD::ElectronContainer* importedElectronCollection;
-        StatusCode sc = evtStore()->retrieve(importedElectronCollection,m_electronCollectionKey);
-        if(sc.isFailure()){
-            ATH_MSG_WARNING("No electron collection with key " << m_electronCollectionKey << " found in StoreGate. JpsiEECandidates will be EMPTY!");
+        const xAOD::ElectronContainer* importedElectronCollection=nullptr;
+        SG::ReadHandle<xAOD::ElectronContainer> ehandle(m_electronCollectionKey);
+        if(!ehandle.isValid()){
+            ATH_MSG_WARNING("No electron collection with key " << m_electronCollectionKey.key() << " found in StoreGate. JpsiEECandidates will be EMPTY!");
             return StatusCode::SUCCESS;;
         }else{
-            ATH_MSG_DEBUG("Found electron collections with key "<<m_electronCollectionKey);
+            importedElectronCollection = ehandle.cptr();
+            ATH_MSG_DEBUG("Found electron collections with key "<<m_electronCollectionKey.key());
         }
         ATH_MSG_DEBUG("Electron container size "<<importedElectronCollection->size());       
 
         // Get ID tracks
+        SG::ReadHandle<xAOD::TrackParticleContainer> thandle(m_TrkParticleCollection);
         const xAOD::TrackParticleContainer* importedTrackCollection(0);
-        sc = evtStore()->retrieve(importedTrackCollection,m_TrkParticleCollection);
-        if(sc.isFailure()){
+        if(!thandle.isValid()){
             ATH_MSG_WARNING("No TrackParticle collection with name " << m_TrkParticleCollection << " found in StoreGate!");
             return StatusCode::SUCCESS;;
         } else {
+            importedTrackCollection = thandle.cptr();
         }
         
         // Typedef for vectors of tracks and muons
@@ -291,7 +262,6 @@ namespace Analysis {
             }
         }
         
-        std::vector<const xAOD::TrackParticleContainer*>::iterator muTrkCollItr;
         if (m_elel) {
             for (jpsiItr=jpsiCandidates.begin(); jpsiItr!=jpsiCandidates.end(); ++jpsiItr) {
                 if ( m_useTrackMeasurement ) {
@@ -416,7 +386,7 @@ namespace Analysis {
     // fit - does the fit
     // ---------------------------------------------------------------------------------
     
-    xAOD::Vertex* JpsiFinder_ee::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,const xAOD::TrackParticleContainer* importedTrackCollection) {
+    xAOD::Vertex* JpsiFinder_ee::fit(const std::vector<const xAOD::TrackParticle*> &inputTracks,const xAOD::TrackParticleContainer* importedTrackCollection) const {
         ATH_MSG_DEBUG("inside JpsiFinder_ee::fit");
         Trk::TrkV0VertexFitter* concreteVertexFitter=0;
         if (m_useV0Fitter) {
@@ -486,7 +456,7 @@ namespace Analysis {
     // getPairs: forms up 2-plets of tracks
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiEECandidate> JpsiFinder_ee::getPairs(const std::vector<const xAOD::TrackParticle*> &TracksIn){
+    std::vector<JpsiEECandidate> JpsiFinder_ee::getPairs(const std::vector<const xAOD::TrackParticle*> &TracksIn) const {
         
         std::vector<JpsiEECandidate> myPairs;
         JpsiEECandidate pair;
@@ -513,7 +483,7 @@ namespace Analysis {
     // getPairs: forms up 2-plets of electrons
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiEECandidate> JpsiFinder_ee::getPairs(const std::vector<const xAOD::Electron*> &electronsIn){
+    std::vector<JpsiEECandidate> JpsiFinder_ee::getPairs(const std::vector<const xAOD::Electron*> &electronsIn) const {
         
         std::vector<JpsiEECandidate> myPairs;
         JpsiEECandidate pair;
@@ -542,7 +512,7 @@ namespace Analysis {
     // getPairs2Colls: forms up 2-plets of tracks from two independent collections
     // ---------------------------------------------------------------------------------
     
-    std::vector<JpsiEECandidate> JpsiFinder_ee::getPairs2Colls(const std::vector<const xAOD::TrackParticle*> &tracks, const std::vector<const xAOD::Electron*> &electrons, bool tagAndProbe){
+    std::vector<JpsiEECandidate> JpsiFinder_ee::getPairs2Colls(const std::vector<const xAOD::TrackParticle*> &tracks, const std::vector<const xAOD::Electron*> &electrons, bool tagAndProbe) const {
         
         std::vector<JpsiEECandidate> myPairs;
         JpsiEECandidate pair;
@@ -590,7 +560,7 @@ namespace Analysis {
     // getInvariantMass: returns invariant mass
     // ---------------------------------------------------------------------------------
     
-    double JpsiFinder_ee::getInvariantMass(const JpsiEECandidate &jpsiIn, const std::vector<double> &massHypotheses){
+    double JpsiFinder_ee::getInvariantMass(const JpsiEECandidate &jpsiIn, const std::vector<double> &massHypotheses) const {
       double mass1 = massHypotheses.at(0);
       double mass2 = massHypotheses.at(1);
       
@@ -652,7 +622,7 @@ namespace Analysis {
     // Apply the current cuts of the MCP group recommendation.
     // ---------------------------------------------------------------------------------
     
-    bool JpsiFinder_ee::passesEgammaCuts(const xAOD::Electron* electron) {
+    bool JpsiFinder_ee::passesEgammaCuts(const xAOD::Electron* electron) const {
                       
       bool passesSelection =  electron->passSelection(m_elSelection);
       ATH_MSG_DEBUG("Electron with pT, eta: " << electron->pt() << " " << electron->eta() << " passes " << m_elSelection << " " << passesSelection);
@@ -664,17 +634,8 @@ namespace Analysis {
     // Checks whether a TPB is in the collection
     // ---------------------------------------------------------------------------------
     
-    bool JpsiFinder_ee::isContainedIn(const xAOD::TrackParticle* theTrack, const xAOD::TrackParticleContainer* theCollection) {
-        
-        bool isContained(false);
-        xAOD::TrackParticleContainer::const_iterator tpbIt;
-        for (tpbIt=theCollection->begin(); tpbIt!=theCollection->end(); ++tpbIt) {
-            if ( *tpbIt == theTrack ) {
-                isContained=true;
-                break;
-            }
-        }
-        return(isContained);
+    bool JpsiFinder_ee::isContainedIn(const xAOD::TrackParticle* theTrack, const xAOD::TrackParticleContainer* theCollection) const {
+       return std::find(theCollection->begin(), theCollection->end(), theTrack) != theCollection->end();
     }
     
     // ---------------------------------------------------------------------------------

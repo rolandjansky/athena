@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file Tau1P3PDetails.cxx DEPRECATED DO NOT USE
@@ -18,7 +18,7 @@
 /// $Id: Tau1P3PDetails.cxx,v 1.12 2009-05-20 13:10:37 slai Exp $
 
 #include "tauEvent/Tau1P3PDetails.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 
 namespace Analysis
 {

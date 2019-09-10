@@ -39,7 +39,6 @@ StatusCode FCAL_HV_Energy_Rescale::initialize()
 {
   ATH_CHECK( m_cablingKey.initialize());
   ATH_CHECK( m_scaleCorrKey.initialize());
-  ATH_CHECK( m_onlineScaleCorrKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -57,7 +56,6 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
 {  
   const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadCondHandle<ILArHVScaleCorr> scaleCorr (m_scaleCorrKey, ctx);
-  SG::ReadCondHandle<ILArHVScaleCorr> onlineScaleCorr (m_onlineScaleCorrKey, ctx);
 
   const CaloCell_ID*    calocell_id;	
   CHECK(detStore()->retrieve(calocell_id,"CaloCell_ID"));
@@ -98,18 +96,15 @@ StatusCode FCAL_HV_Energy_Rescale::stop()
       ++nFCAL;
       Identifier id=calocell_id->cell_id(h);
       HWIdentifier hwid=cabling->createSignalChannelID(id);
-      const float corrNew=scaleCorr->HVScaleCorr(hwid);
-      const float upd1corr=onlineScaleCorr->HVScaleCorr(hwid);
+      const float corr=scaleCorr->HVScaleCorr(hwid);
       
-      const float corr=corrNew/upd1corr;
-
       if (fabs(1.0-corr)>0.01) {
 	value=corr;
 	++nSet;
       }
       else
 	++nSmall;
-      ATH_MSG_INFO( "FCAL module " << calocell_id->sampling(id) << " : Old= " << upd1corr << ", new=" << corrNew << ", ratio=" << corr << " =>" << value  );
+      ATH_MSG_INFO( "FCAL module " << calocell_id->sampling(id) << " corr=" << corr << " =>" << value  );
     }
     //std::cout << h << " " << value << std::endl;
     setVec[0]=value;

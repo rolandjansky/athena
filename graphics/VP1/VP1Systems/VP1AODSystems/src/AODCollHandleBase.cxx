@@ -28,6 +28,7 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+#include "VP1Base/VP1Msg.h"
 
 //SoCoin
 #include <Inventor/nodes/SoSeparator.h>
@@ -223,7 +224,7 @@ void AODCollHandleBase::update3DObjectsOfAllHandles()
 {
   if (!isLoaded())
     return;
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("update3DObjectsOfAllHandles start");
   largeChangesBegin();
   handleIterationBegin();
@@ -391,7 +392,7 @@ QString AODCollHandleBase::provideSectionToolTip() const {
 //____________________________________________________________________
 void AODCollHandleBase::collVisibilityChanged(bool vis)
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("AODCollHandleBase::collVisibilityChanged => "+str(vis));
 
   if (!m_sephelper)

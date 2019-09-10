@@ -39,10 +39,6 @@ atlas_add_component( TGC_Digitization
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GeoPrimitives Identifier GaudiKernel MuonSimEvent HitManagement xAODEventInfo GeneratorObjects MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData PathResolver )
 
-atlas_add_test( TGC_DigitizationConfigNew_test
-                SCRIPT test/TGC_DigitizationConfigNew_test.py
-                PROPERTIES TIMEOUT 300 )
-
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

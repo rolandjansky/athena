@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 class TauHypoProvider:
     # Provide a centralized way to store hypotheses for tau trigger chains
@@ -63,17 +62,17 @@ class TauHypoProvider:
                 currentHypoKey = 'ef'+part+'_tau'+threshold+'_'+criteria+'_r1'
 
                 if part == '':
-                    if criteria== 'perf' or criteria== 'perf0' or criteria== 'cosmic': 
+                    if criteria in [ 'perf', 'perf0', 'cosmic' ]: 
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_tauNoCut
                         currentHypo = EFTauMVHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
 
-                    elif criteria=='dikaon' or criteria=='dikaontight' or criteria=='dikaonmass' or criteria=='dikaonmasstight' or criteria=='kaonpi1' or criteria=='kaonpi2' or criteria=='dipion1' or criteria=='dipion1loose' or criteria=='dipion2' or criteria=='dipion3':
+                    elif criteria in [ 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3' ]:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
                         theVars = ['massTrkSysMin', 'massTrkSysMax', 'massTrkSysKaonMin', 'massTrkSysKaonMax', 'massTrkSysKaonPiMin', 'massTrkSysKaonPiMax', 'targetMassTrkSysKaonPi', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax']
                         theThresh = self.thresholdsEF_dikaon[(criteria, int(threshold))]
                         currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
 
-                    elif criteria=='singlepion' or criteria=='singlepiontight':
+                    elif criteria in ['singlepion', 'singlepiontight' ]:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
                         theVars = ['leadTrkPtMin','EtCalibMin','nTrackMax','nWideTrackMax','dRmaxMax','etOverPtLeadTrkMin','etOverPtLeadTrkMax']
                         theThresh = self.thresholdsEF_singlepion[(criteria, int(threshold))]
@@ -91,7 +90,7 @@ class TauHypoProvider:
                         theThresh = self.thresholdsEF[('medium1', 0)] # do not apply pt cut at EF
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-                    elif criteria=='verylooseRNN' or criteria=='looseRNN' or criteria=='mediumRNN' or criteria=='tightRNN':
+                    elif criteria in [ 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN' ]:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level']
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
@@ -105,7 +104,7 @@ class TauHypoProvider:
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo' or strategy == 'tracktwoEF' or strategy == 'tracktwoEFmvaTES' or strategy == 'tracktwoMVA' or strategy == 'trackcalo' or strategy == 'tracktwocalo' or strategy == 'tracktwo2015' or strategy == 'FTK' or strategy == 'FTKRefit' or strategy == 'FTKNoPrec':
+        if strategy in [ 'calo', 'ptonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'FTK', 'FTKRefit', 'FTKNoPrec' , 'tracktwoEFmvaTES' ]:
 
             # Simple implementation of 2015 pre-selection
             currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
@@ -120,7 +119,7 @@ class TauHypoProvider:
                 theDetails  = [int(-1)]
                 theFormulas = ['y > '+myThreshold]
 
-                if strategy =='calo' or strategy == 'caloonly' or strategy == 'tracktwocalo' or strategy == 'trackcalo':
+                if strategy in [ 'calo' ]:
                     # centFrac cut (detail #24: 2nd order fit, turn-off at ~ 55 GeV, 95% efficiency)
                     theDetails += [24]
                     theFormulas += ['x > (0.945 - (1.26e-05*TMath::Min(y, 50000.)) + (1.05e-10*TMath::Min(y, 50000.)*TMath::Min(y, 50000.)))']
@@ -129,17 +128,6 @@ class TauHypoProvider:
                 currentHypo.Details = theDetails
                 currentHypo.Formulas = theFormulas
                 
-            #if part == 'calo':
-            #    from TrigTauHypo.TrigTauHypoBase import HLTCaloTauHypo
-            #    theVars = ['LowerPtCut', 'UseCellCut', 'CoreFractionCut', 'HadRadiusCut']
-            #    if strategy == 'calo' or strategy == 'caloonly':
-            #        theThresh = [int(threshold)*self.GeV, 1, 0.63, 0.8]
-            #    if strategy == 'ptonly' or strategy == 'trackonly' or strategy == 'track' or strategy == 'tracktwo':
-            #        theThresh = [int(threshold)*self.GeV, 0, 0.0, 0.8]
-            #    if strategy == 'mvonly':
-            #        theThresh = [0, 0, 0.0, 0.8]
-            #    currentHypo = HLTCaloTauHypo(currentHypoKey, theVars, theThresh)
-
             if part == 'id':
                 from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo
                 from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
@@ -154,7 +142,7 @@ class TauHypoProvider:
                     theThresh = [0,3,1,0.*self.GeV,-1111,0]
                     currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
                 else:
-                    if strategy != 'tracktwo' and strategy != 'tracktwoEF' and strategy != 'tracktwoEFmvaTES' and strategy != 'tracktwoMVA' and strategy != 'FTK' and strategy != 'FTKRefit' and strategy != 'FTKNoPrec':
+                    if strategy not in [ 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwoEFmvaTES' ]:
                         theVars = ['LowerPtCut','LowerTrackPtCut']
                         theThresh = [int(threshold)*self.GeV,1.*self.GeV]
                         currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)

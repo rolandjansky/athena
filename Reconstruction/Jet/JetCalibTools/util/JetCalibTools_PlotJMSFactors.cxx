@@ -146,7 +146,11 @@ int main (int argc, char* argv[])
     jets->setStore(new xAOD::JetAuxContainer());
     jets->push_back(new xAOD::Jet());
     xAOD::Jet* jet = jets->at(0);
-    
+
+    xAOD::JetContainer* calibJets = new xAOD::JetContainer();
+    calibJets->setStore(new xAOD::JetAuxContainer());
+    calibJets->push_back(new xAOD::Jet());
+    xAOD::Jet* calibJet = calibJets->at(0);
     
     // Make the histograms to fill
     std::vector<TH2D*> hists_pt_eta;
@@ -181,10 +185,15 @@ int main (int argc, char* argv[])
             trackMass(*jet) = trackMassFactor*massForScan;
             trackPt(*jet) = trackPtFactor*pt;
             startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
+            // Repeat for jet to calibrate
+            calibJet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,massForScan));
+            detectorEta(*calibJet) = eta;
+            trackMass(*calibJet) = trackMassFactor*massForScan;
+            trackPt(*calibJet) = trackPtFactor*pt;
+            startingScale.setAttribute(*calibJet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
 
             // Jet kinematics set, now apply calibration
-            xAOD::Jet* calibJet = nullptr;
-            calibTool->calibratedCopy(*jet,calibJet);
+            calibTool->modify(*calibJets);
 
             // Calculate the scale factors
             const double JMS     = calibJet->m()/startingScale(*jet).mass();
@@ -199,9 +208,6 @@ int main (int argc, char* argv[])
                 hists_pt_eta.at(plotIndex++)->SetBinContent(xBin,yBin,JMSTA);
             if (doCombMass)
                 hists_pt_eta.at(plotIndex++)->SetBinContent(xBin,yBin,JMS);
-            
-            // Clean up
-            delete calibJet;
         }
     }
 
@@ -217,13 +223,21 @@ int main (int argc, char* argv[])
             // Set the main 4-vector and scale 4-vector
             jet->setJetP4(xAOD::JetFourMom_t(pt,etaForScan,0,mass));
             detectorEta(*jet) = etaForScan;
-            trackMass(*jet) = trackMassFactor*massForScan;
+            trackMass(*jet) = trackMassFactor*mass;
             trackPt(*jet) = trackPtFactor*pt;
             startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,etaForScan,0,mass));
+            // Repeat for jet to calibrate
+            calibJet->setJetP4(xAOD::JetFourMom_t(pt,etaForScan,0,mass));
+            detectorEta(*calibJet) = etaForScan;
+            trackMass(*calibJet) = trackMassFactor*mass;
+            trackPt(*calibJet) = trackPtFactor*pt;
+            startingScale.setAttribute(*calibJet,xAOD::JetFourMom_t(pt,etaForScan,0,mass));
 
             // Jet kinematics set, now apply calibration
-            xAOD::Jet* calibJet = nullptr;
-            calibTool->calibratedCopy(*jet,calibJet);
+            if(calibTool->modify(*calibJets).isFailure()){
+              std::cout << "Failed to apply jet calibration" << std::endl;
+              return 6;
+            }
 
             // Calculate the scale factors
             const double JMS     = calibJet->m()/startingScale(*jet).mass();
@@ -238,9 +252,6 @@ int main (int argc, char* argv[])
                 hists_pt_mpt.at(plotIndex++)->SetBinContent(xBin,yBin,JMSTA);
             if (doCombMass)
                 hists_pt_mpt.at(plotIndex++)->SetBinContent(xBin,yBin,JMS);
-            
-            // Clean up
-            delete calibJet;
         }
     }
 

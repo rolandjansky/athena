@@ -20,9 +20,8 @@ def getPhysicsValidationUserActionTool(name="ISFG4PhysicsValidationUserActionToo
 ### Base Version
 
 def getTrackProcessorUserActionTool(name="ISFG4TrackProcessorUserActionTool", **kwargs):
-    from AthenaCommon.BeamFlags import jobproperties
-    from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvc')
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    kwargs.setdefault('ParticleBroker'     , ISF_Flags.ParticleBroker())
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'         )
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionPassBackTool
     return G4UA__iGeant4__TrackProcessorUserActionPassBackTool(name, **kwargs)
@@ -35,19 +34,16 @@ def getFullG4TrackProcessorUserActionTool(name='FullG4TrackProcessorUserActionTo
     kwargs.setdefault('GeoIDSvc',       'ISF_GeoIDSvc'      )
     from AthenaCommon.BeamFlags import jobproperties
     from G4AtlasApps.SimFlags import simFlags
-    if jobproperties.Beam.beamType() == 'cosmics' or \
-       (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    if simFlags.SimulateCavern.get_Value():
         kwargs.setdefault('TruthVolumeLevel',  2)
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__TrackProcessorUserActionFullG4Tool
     return G4UA__iGeant4__TrackProcessorUserActionFullG4Tool(name, **kwargs)
 
 def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUserActionTool', **kwargs):
-    kwargs.setdefault('ParticleBroker', 'ISF_ParticleBrokerSvcNoOrdering')
     return getTrackProcessorUserActionTool(name, **kwargs)
 
 def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserActionTool', **kwargs):
     from AthenaCommon.SystemOfUnits import MeV
-    kwargs.setdefault('ParticleBroker'                     , 'ISF_AFIIParticleBrokerSvc')
     kwargs.setdefault('GeoIDSvc'                           , 'ISF_AFIIGeoIDSvc'         )
     kwargs.setdefault('PassBackEkinThreshold'              , 0.05*MeV                   )
     kwargs.setdefault('KillBoundaryParticlesBelowThreshold', True                       )

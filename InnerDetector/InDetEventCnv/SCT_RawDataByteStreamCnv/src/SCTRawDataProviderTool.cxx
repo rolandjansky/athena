@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawDataProviderTool.h"
@@ -10,55 +10,57 @@
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 // Constructor
-
 SCTRawDataProviderTool::SCTRawDataProviderTool(const std::string& type, const std::string& name, 
                                                const IInterface* parent) : 
-  base_class(type, name, parent),
-  m_robIDSet{},
-  m_decodeErrCount{0},
-  m_mutex{}
+  base_class(type, name, parent)
 {
 }
 
 // Initialize
-
 StatusCode SCTRawDataProviderTool::initialize()
 {
-  StatusCode sc{AlgTool::initialize()};
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Failed to init baseclass");
-    return StatusCode::FAILURE;
-  }
-   
   ATH_CHECK(m_decoder.retrieve());
 
   return StatusCode::SUCCESS;
 }
 
 // Convert method
-
 StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecROBFrags,
                                            ISCT_RDO_Container& rdoIDCont,
                                            InDetBSErrContainer* errs,
                                            SCT_ByteStreamFractionContainer* bsFracCont) const
 {
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  return convert(vecROBFrags, rdoIDCont, errs, bsFracCont, ctx);
+}
+
+// Convert method
+StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecROBFrags,
+                                           ISCT_RDO_Container& rdoIDCont,
+                                           InDetBSErrContainer* errs,
+                                           SCT_ByteStreamFractionContainer* bsFracCont,
+                                           const EventContext& ctx) const
+{
   if (vecROBFrags.empty()) return StatusCode::SUCCESS;
   ATH_MSG_DEBUG("SCTRawDataProviderTool::convert()");
   
-  StatusCode sc{StatusCode::SUCCESS};
-
-  std::lock_guard<std::mutex> lock(m_mutex);
+  // Retrieve or prepare the already decoded ROBIDs in this thread.
+  std::lock_guard<std::mutex> lock{m_mutex};
+  CacheEntry* ent{m_cache.get(ctx)};
+  if (ent->m_evt != ctx.evt()) {
+    ent->m_evt = ctx.evt();
+    ent->m_robIDSet.clear();
+  }
 
   // loop over the ROB fragments
-
-  std::set<uint32_t> tmpROBIDSet;
-
+  StatusCode sc{StatusCode::SUCCESS};
+  std::unordered_set<uint32_t> tmpROBIDSet;
   for (const ROBFragment* robFrag : vecROBFrags) {
     // get the ID of this ROB/ROD
     uint32_t robid{(robFrag)->rod_source_id()};
     // check if this ROBFragment was already decoded (EF case in ROIs)
-    if (m_robIDSet.count(robid) or tmpROBIDSet.count(robid)) {
-      ATH_MSG_DEBUG(" ROB Fragment with ID  "
+    if (ent->m_robIDSet.count(robid) or tmpROBIDSet.count(robid)) {
+      ATH_MSG_DEBUG(" ROB Fragment with ID "
                     << std::hex<<robid << std::dec
                     << " already decoded, skip");
       continue;
@@ -81,7 +83,8 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
     }
   }
 
-  m_robIDSet.insert(tmpROBIDSet.begin(), tmpROBIDSet.end());
+  // Insert the ROBIDs decoded in this process to the already decoded ROBIDs.
+  ent->m_robIDSet.insert(tmpROBIDSet.begin(), tmpROBIDSet.end());
 
   if (sc == StatusCode::FAILURE) {
     ATH_MSG_ERROR("There was a problem with SCT ByteStream conversion");
@@ -89,13 +92,4 @@ StatusCode SCTRawDataProviderTool::convert(std::vector<const ROBFragment*>& vecR
   }
 
   return sc;
-}
-
-// beginNewEvent method
-
-void SCTRawDataProviderTool::beginNewEvent() const 
-{
-  // reset list of known robIDs
-  std::lock_guard<std::mutex> lock(m_mutex);
-  m_robIDSet.clear();
 }

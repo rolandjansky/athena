@@ -27,6 +27,7 @@
 
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+#include "VP1Base/VP1Msg.h"
 
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoPickStyle.h>
@@ -108,7 +109,9 @@ void VP1GuideLineSystem::buildEventSceneGraph(StoreGateSvc*, SoSeparator *)
 //_____________________________________________________________________________________
 void VP1GuideLineSystem::buildPermanentSceneGraph(StoreGateSvc* /*detstore*/, SoSeparator *root)
 {
-  messageVerbose("buildPermanentSceneGraph");
+  if(VP1Msg::verbose()){
+    messageVerbose("buildPermanentSceneGraph");
+  }
   //No guidelines are pickable:
   SoPickStyle *pickStyle = new SoPickStyle;
   pickStyle->style=SoPickStyle::UNPICKABLE;
@@ -309,8 +312,10 @@ void VP1GuideLineSystem::setIDDetTypesUsingProjections( InDetProjFlags::DetTypeF
   ensureBuildController();
   if (!m_d->controller)
     return;//if receiving signals after uncreate
-  messageVerbose("Signal received in setIDDetTypesUsingProjections("+str(f)+") slot (from "
-		 +QString(sender()?sender()->objectName():"NULL sender")+")");
+  if(VP1Msg::verbose()){
+    messageVerbose("Signal received in setIDDetTypesUsingProjections("+str(f)+") slot (from "
+  		 +QString(sender()?sender()->objectName():"NULL sender")+")");
+  }
   m_d->sender2iddettypeswithprojs[sender()] = f;
   InDetProjFlags::DetTypeFlags used(InDetProjFlags::NoDet);
   std::map<QObject*,InDetProjFlags::DetTypeFlags>::iterator it, itE = m_d->sender2iddettypeswithprojs.end();
@@ -333,7 +338,8 @@ void VP1GuideLineSystem::possiblyEmit_ApplicableProjectionsChanged()
   m_d->lastemit_pixel=new_pixel;
   m_d->lastemit_sct=new_sct;
   m_d->lastemit_trt=new_trt;
-  if (verbose())
+  if(VP1Msg::verbose()){
     messageVerbose("Emitting applicableProjectionsChanged("+str(m_d->lastemit_pixel)+", "+str(m_d->lastemit_sct)+", "+str(m_d->lastemit_trt)+")");
+  }
   emit applicableProjectionsChanged( m_d->lastemit_pixel,m_d->lastemit_sct,m_d->lastemit_trt );
 }

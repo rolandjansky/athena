@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 /***************************************************************************
@@ -32,11 +32,8 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
-#include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
-#include "TrkiPatFitterUtils/FitMeasurement.h"
-#include "TrkiPatFitterUtils/FitParameters.h"
 #include "TrkiPatFitterUtils/FitProcedure.h"
 #include "TrkiPatFitterUtils/FitProcedureQuality.h"
 #include "TrkiPatFitterUtils/IMaterialAllocator.h"
@@ -47,68 +44,24 @@ namespace Trk
 {
   iPatFitter::iPatFitter (const std::string& type,
                           const std::string& name,
-                          const IInterface* parent)
+                          const IInterface* parent,
+                          bool globalFit)
     :   AthAlgTool(type, name, parent),
-    m_fitProcedure(0),
-    m_globalFit(false),
-    m_iterations(0),
-    m_measurements(0),
-    m_parameters(0),
-    m_aggregateMaterial(true),
-    m_asymmetricCaloEnergy(true),
-    m_fullCombinedFit(true),
-    m_lineFit(false),
-    m_lineMomentum(100. * Gaudi::Units::GeV),
-    m_materialAllocator("Trk::MaterialAllocator/MaterialAllocator"),
-    m_rungeKuttaIntersector("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
-    m_solenoidalIntersector("Trk::SolenoidalIntersector/SolenoidalIntersector"),
-    m_stepPropagator("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
-    m_straightLineIntersector("Trk::StraightLineIntersector/StraightLineIntersector"),
+    m_globalFit(globalFit),
+    m_materialAllocator("Trk::MaterialAllocator/MaterialAllocator", this),
+    m_rungeKuttaIntersector("Trk::RungeKuttaIntersector/RungeKuttaIntersector", this),
+    m_solenoidalIntersector("Trk::SolenoidalIntersector/SolenoidalIntersector", this),
+    m_stepPropagator("Trk::STEP_Propagator/AtlasSTEP_Propagator", this),
+    m_straightLineIntersector("Trk::StraightLineIntersector/StraightLineIntersector", this),
     m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc", name),
-    m_orderingTolerance(1. * Gaudi::Units::mm),
-    m_maxWarnings(10),
-    m_constrainedAlignmentEffects(false),
-    m_extendedDebug(false),
-    m_forcedRefitsForValidation(0),
-    m_maxIterations(25),
-    m_useStepPropagator(1),
-    m_calorimeterVolume(0),
-    m_indetVolume(0),
-    m_stepField(Trk::MagneticFieldProperties(Trk::FullField)),
-    m_countFitAttempts(0),
-    m_countGoodFits(0),
-    m_countIterations(0),
-    m_countRefitAttempts(0),
-    m_countGoodRefits(0),
-    m_countRefitIterations(0),
-    m_messageHelper(0) {
-    m_messageHelper = new MessageHelper(*this);
+    m_stepField(Trk::MagneticFieldProperties(Trk::FullField)) {
+    m_messageHelper = std::make_unique<MessageHelper>(*this);
     declareInterface<ITrackFitter>(this);
-    declareProperty("AggregateMaterial", m_aggregateMaterial);
-    declareProperty("AsymmetricCaloEnergy", m_asymmetricCaloEnergy);
-    declareProperty("FullCombinedFit", m_fullCombinedFit);
-    declareProperty("LineFit", m_lineFit);
-    declareProperty("LineMomentum", m_lineMomentum);
     declareProperty("MaterialAllocator", m_materialAllocator);
     declareProperty("RungeKuttaIntersector", m_rungeKuttaIntersector);
     declareProperty("SolenoidalIntersector", m_solenoidalIntersector);
     declareProperty("StraightLineIntersector", m_straightLineIntersector);
     declareProperty("TrackingVolumesSvc", m_trackingVolumesSvc);
-    declareProperty("OrderingTolerance", m_orderingTolerance);
-    declareProperty("MaxNumberOfWarnings", m_maxWarnings,
-                    "Maximum number of permitted WARNING messages per message type.");
-
-    // validation options
-    declareProperty("ConstrainedAlignmentEffects", m_constrainedAlignmentEffects);
-    declareProperty("ExtendedDebug", m_extendedDebug);
-    declareProperty("ForcedRefitsForValidation", m_forcedRefitsForValidation);
-    declareProperty("MaxIterations", m_maxIterations);
-
-    // m_useStepPropagator 0 means not used (so Intersector used)
-    // 1 Intersector not used and StepPropagator used with FullField
-    // 2 StepPropagator with FastField propagation
-    // 99 debug mode where both are ran with FullField
-    declareProperty("UseStepPropagator", m_useStepPropagator);
   }
 
   iPatFitter::~iPatFitter (void)
@@ -117,21 +70,21 @@ namespace Trk
   StatusCode
   iPatFitter::initialize() {
     // print name and package version
-    if (!msgLvl(MSG::DEBUG)) m_extendedDebug = false;
+    if (!msgLvl(MSG::DEBUG)) { m_extendedDebug = false; }
     ATH_MSG_INFO("iPatFitter::initialize() - package version " << PACKAGE_VERSION);
     msg(MSG::INFO) << " with options: ";
-    if (m_aggregateMaterial) msg() << " AggregateMaterial";
-    if (m_asymmetricCaloEnergy) msg() << " AsymmetricCaloEnergy";
-    if (m_fullCombinedFit) msg() << " FullCombinedFit";
-    if (m_globalFit) msg() << " GlobalFitter";
-    if (m_lineFit) msg() << " LineFit with p = "
-                         << m_lineMomentum / Gaudi::Units::GeV << " GeV";
-    if (m_constrainedAlignmentEffects) msg() << " ConstrainedAlignmentEffects";
-    if (m_extendedDebug) msg() << " ExtendedDebug";
-    if (m_forcedRefitsForValidation) msg() << " ForcedRefitsForValidation = "
-                                           << m_forcedRefitsForValidation;
-    if (m_useStepPropagator) msg() << " UseStepPropagator = "
-                                   << m_useStepPropagator;
+    if (m_aggregateMaterial) { msg() << " AggregateMaterial"; }
+    if (m_asymmetricCaloEnergy) { msg() << " AsymmetricCaloEnergy"; }
+    if (m_fullCombinedFit) { msg() << " FullCombinedFit"; }
+    if (m_globalFit) { msg() << " GlobalFitter";
+    if (m_lineFit) { msg() << " LineFit with p = "
+                           << m_lineMomentum / Gaudi::Units::GeV << " GeV"; }
+    if (m_constrainedAlignmentEffects) msg() << " ConstrainedAlignmentEffects"; }
+    if (m_extendedDebug) { msg() << " ExtendedDebug"; }
+    if (m_forcedRefitsForValidation) { msg() << " ForcedRefitsForValidation = "
+                                             << m_forcedRefitsForValidation; }
+    if (m_useStepPropagator) { msg() << " UseStepPropagator = "
+                                     << m_useStepPropagator; }
     msg() << endmsg;
 
     // fill WARNING messages
@@ -166,39 +119,23 @@ namespace Trk
     m_messageHelper->setMessage(25, "flipped track measurement order");
 
     // retrieve the MaterialProvider and various Intersectors
-    if (m_materialAllocator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_materialAllocator);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_materialAllocator);
-    }
-    if (m_rungeKuttaIntersector.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_rungeKuttaIntersector);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_rungeKuttaIntersector);
-    }
-    if (m_solenoidalIntersector.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_solenoidalIntersector);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_solenoidalIntersector);
-    }
-    if (m_useStepPropagator) {
-      if (m_useStepPropagator == 2) m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
-      if (m_stepPropagator.retrieve().isFailure()) {
-        ATH_MSG_FATAL("Failed to retrieve tool " << m_stepPropagator);
-        return StatusCode::FAILURE;
+    auto retrieveTool = [&](auto handle) {
+      if (handle.retrieve().isFailure()) {
+        ATH_MSG_FATAL("Failed to retrieve tool " << handle);
+        return false;
       } else {
-        ATH_MSG_INFO("Retrieved tool " << m_stepPropagator);
+        ATH_MSG_INFO("Retrieved tool " << handle);
+        return true;
       }
+    };
+    if (!retrieveTool(m_materialAllocator)) { return StatusCode::FAILURE; }        
+    if (!retrieveTool(m_rungeKuttaIntersector)) { return StatusCode::FAILURE; }
+    if (!retrieveTool(m_solenoidalIntersector)) { return StatusCode::FAILURE; }
+    if (m_useStepPropagator) {
+      if (m_useStepPropagator == 2) { m_stepField = Trk::MagneticFieldProperties(Trk::FastField); }
+      if (!retrieveTool(m_stepPropagator)) { return StatusCode::FAILURE; };
     }
-    if (m_straightLineIntersector.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_straightLineIntersector);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_straightLineIntersector);
-    }
+    if (!retrieveTool(m_straightLineIntersector)) { return StatusCode::FAILURE; }
 
     // need to create the IndetExit and MuonEntrance TrackingVolumes
     if (m_trackingVolumesSvc.retrieve().isFailure()) {
@@ -206,23 +143,24 @@ namespace Trk
       return StatusCode::FAILURE;
     } else {
       ATH_MSG_INFO("Retrieved Svc " << m_trackingVolumesSvc);
-      m_calorimeterVolume = new Volume(
+      m_calorimeterVolume = std::make_unique<Trk::Volume>(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
-      m_indetVolume = new Volume(
+      m_indetVolume = std::make_unique<Volume>(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
     }
 
     // can now create FitProcedure class
-    m_fitProcedure = new FitProcedure(m_constrainedAlignmentEffects,
-                                      m_extendedDebug,
-                                      m_lineFit,
-                                      m_rungeKuttaIntersector,
-                                      m_solenoidalIntersector,
-                                      m_straightLineIntersector,
-                                      m_stepPropagator,
-                                      m_indetVolume,
-                                      m_maxIterations,
-                                      m_useStepPropagator);
+    m_fitProcedure = std::make_unique<FitProcedure>(
+      m_constrainedAlignmentEffects,
+      m_extendedDebug,
+      m_lineFit,
+      m_rungeKuttaIntersector,
+      m_solenoidalIntersector,
+      m_straightLineIntersector,
+      m_stepPropagator,
+      m_indetVolume.get(),
+      m_maxIterations,
+      m_useStepPropagator);
 
     return StatusCode::SUCCESS;
   }
@@ -234,9 +172,9 @@ namespace Trk
     double goodFit = 0.;
     double iterations = 0.;
 
-    if (m_countFitAttempts) goodFit = static_cast<double>(100 * m_countGoodFits) / fits;
-    if (m_countGoodFits) iterations = static_cast<double>(m_countIterations) /
-                                      static_cast<double>(m_countGoodFits);
+    if (m_countFitAttempts) { goodFit = static_cast<double>(100 * m_countGoodFits) / fits; }
+    if (m_countGoodFits) { iterations = static_cast<double>(m_countIterations) /
+                                        static_cast<double>(m_countGoodFits); }
     ATH_MSG_INFO(std::setiosflags(std::ios::fixed)
                  << "finalized after " << m_countFitAttempts
                  << " track-fits attempted, out of which "
@@ -248,9 +186,9 @@ namespace Trk
       double refits = static_cast<double>(m_countRefitAttempts);
       double goodRefit = 0.;
       double refitIterations = 0.;
-      if (m_countRefitAttempts) goodRefit = static_cast<double>(100 * m_countGoodRefits) / refits;
-      if (m_countGoodRefits) refitIterations = static_cast<double>(m_countRefitIterations) /
-                                               static_cast<double>(m_countGoodRefits);
+      if (m_countRefitAttempts) { goodRefit = static_cast<double>(100 * m_countGoodRefits) / refits; }
+      if (m_countGoodRefits) { refitIterations = static_cast<double>(m_countRefitIterations) /
+                                                 static_cast<double>(m_countGoodRefits); }
       ATH_MSG_INFO(std::setiosflags(std::ios::fixed)
                    << "finalized after " << m_countRefitAttempts
                    << "     refits attempted, out of which "
@@ -262,90 +200,100 @@ namespace Trk
 
     m_messageHelper->printSummary();
 
-    // delete all objects owned by class
-    if (m_globalFit && m_measurements) {
-      for (auto m : *m_measurements) {
-        delete m;
-      }
-      m_measurements->clear();
-    }
-    delete m_calorimeterVolume;
-    delete m_fitProcedure;
-    delete m_indetVolume;
-    delete m_measurements;
-    delete m_messageHelper;
-    delete m_parameters;
-
     return StatusCode::SUCCESS;
+  }
+
+  auto iPatFitter::fitWithState(
+    const Track& track,
+    const RunOutlierRemoval runOutlier,
+    const ParticleHypothesis particleHypothesis) const 
+    -> std::pair<std::unique_ptr<Track>, std::unique_ptr<FitState>>
+  {
+    ATH_MSG_VERBOSE(" track fit ");
+    auto fitState = std::make_unique<FitState>();
+
+    m_countFitAttempts++;
+    // outlier removal not implemented
+    if (runOutlier) { m_messageHelper->printWarning(0); } // TODO Make thread-safe
+
+    // create Perigee if starting parameters are for a different surface type
+    const Perigee* perigeeParameters = track.perigeeParameters(); 
+    // Note: we don't own the Perigee from perigeeParameters(), but if it returns nullptr, we have to make our own, 
+    // and we need to delete it, so it's put in this unique_ptr
+    std::unique_ptr<Perigee> newPerigee;
+    std::unique_ptr<PerigeeSurface> perigeeSurface;
+
+    if (!perigeeParameters) {
+      auto i = track.trackStateOnSurfaces()->begin();
+      while (i != track.trackStateOnSurfaces()->end() && !(**i).trackParameters()) { i++; }
+      const TrackStateOnSurface& s = (**i);
+      if (!s.trackParameters()) {
+        // input track without parameters
+        m_messageHelper->printWarning(1);
+        return {nullptr, std::move(fitState)};
+      }
+
+      Amg::Vector3D origin(s.trackParameters()->position());
+      perigeeSurface = std::make_unique<PerigeeSurface>(origin);
+      newPerigee = std::make_unique<Perigee>(
+        s.trackParameters()->position(),
+        s.trackParameters()->momentum(),
+        s.trackParameters()->charge(),
+        *perigeeSurface);
+    }
+
+    const Perigee& perigee = newPerigee ? *newPerigee : *perigeeParameters; // Use the valid Perigee
+
+    fitState->parameters = std::make_unique<FitParameters>(perigee);
+
+    // set up the measurements
+    if (!track.trackStateOnSurfaces()) {
+      // input track without trackStateOnSurfaces
+      m_messageHelper->printWarning(2); // TODO Make thread-safe
+      return {nullptr, std::move(fitState)};
+    }
+
+    fitState->newMeasurements();
+
+    bool haveMaterial = addMeasurements(fitState->getMeasurements(),
+                                        *fitState->parameters,
+                                        particleHypothesis,
+                                        *track.trackStateOnSurfaces());
+
+    // allocate material
+    Garbage_t garbage;
+    if (!haveMaterial && particleHypothesis != Trk::nonInteracting) {
+      m_materialAllocator->allocateMaterial(fitState->getMeasurements(),
+                                            particleHypothesis,
+                                            *fitState->parameters,
+                                            perigee,
+                                            garbage);
+    }
+
+    // perform fit and return fitted track
+    TrackInfo trackInfo(TrackInfo::iPatTrackFitter, particleHypothesis);
+    trackInfo.addPatternReco(track.info());
+    std::unique_ptr<Trk::Track> fittedTrack { performFit(*fitState,
+                                                         particleHypothesis,
+                                                         trackInfo,
+                                                         nullptr,
+                                                         nullptr,
+                                                         garbage) };
+
+    // validation
+    for (int i = 0; i < m_forcedRefitsForValidation; ++i) {
+      if (fittedTrack) { refit(*fitState, *fittedTrack, runOutlier, particleHypothesis); }
+    }
+
+    return {std::move(fittedTrack), std::move(fitState)};
   }
 
   Track*
   iPatFitter::fit(const Track& track,
                   const RunOutlierRemoval runOutlier,
                   const ParticleHypothesis particleHypothesis) const {
-    ATH_MSG_VERBOSE(" track fit ");
-    ++m_countFitAttempts;
-    // outlier removal not implemented
-    if (runOutlier) m_messageHelper->printWarning(0);
-
-    // create Perigee if starting parameters are for a different surface type
-    const Perigee* perigee = track.perigeeParameters();
-    PerigeeSurface* perigeeSurface = 0;
-    if (!perigee) {
-      DataVector<const TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-      while (s != track.trackStateOnSurfaces()->end() && !(**s).trackParameters()) ++s;
-      if (!(**s).trackParameters()) {
-        // input track without parameters
-        m_messageHelper->printWarning(1);
-        return 0;
-      }
-
-      Amg::Vector3D origin((**s).trackParameters()->position());
-      perigeeSurface = new PerigeeSurface(origin);
-      perigee = new Perigee((**s).trackParameters()->position(),
-                            (**s).trackParameters()->momentum(),
-                            (**s).trackParameters()->charge(),
-                            *perigeeSurface);
-    }
-
-    delete m_parameters;
-    m_parameters = new FitParameters(*perigee);
-
-    // set up the measurements
-    if (!track.trackStateOnSurfaces()) {
-      // input track without trackStateOnSurfaces
-      m_messageHelper->printWarning(2);
-      return 0;
-    }
-
-    std::vector<FitMeasurement*>* measurements = measurementList();
-    bool haveMaterial = addMeasurements(*measurements,
-                                        *m_parameters,
-                                        particleHypothesis,
-                                        *track.trackStateOnSurfaces());
-
-    // allocate material
-    if (!haveMaterial && particleHypothesis != Trk::nonInteracting) {
-      m_materialAllocator->allocateMaterial(*measurements,
-                                            particleHypothesis,
-                                            *m_parameters,
-                                            *perigee);
-    }
-
-    // perform fit and return fitted track
-    TrackInfo trackInfo(TrackInfo::iPatTrackFitter, particleHypothesis);
-    trackInfo.addPatternReco(track.info());
-    Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo);
-    if (perigeeSurface) {
-      delete perigeeSurface;
-      delete perigee;
-    }
-
-    // validation
-    for (int i = 0; i < m_forcedRefitsForValidation; ++i)
-      if (fittedTrack) refit(*fittedTrack, runOutlier, particleHypothesis);
-
-    return fittedTrack;
+    auto [fittedTrack, fitState] = fitWithState(track, runOutlier, particleHypothesis);
+    return fittedTrack.release();
   }
 
   Track*
@@ -353,10 +301,10 @@ namespace Trk
                   const PrepRawDataSet& /*prepRawDataSet*/,
                   const RunOutlierRemoval /*trackrunOutlier*/,
                   const ParticleHypothesis /*trackparticleHypothesis*/) const {
-    ++m_countFitAttempts;
+    m_countFitAttempts++;
     // track + PrepRawDataSet interface not implemented
     m_messageHelper->printWarning(3);
-    return 0;
+    return nullptr;
   }
 
   Track*
@@ -364,10 +312,10 @@ namespace Trk
                   const TrackParameters& /*estimatedParametersNearOrigin*/,
                   const RunOutlierRemoval /*trackrunOutlier*/,
                   const ParticleHypothesis /*trackparticleHypothesis*/) const {
-    ++m_countFitAttempts;
+    m_countFitAttempts++;
     // PrepRawDataSet interface not implemented
     m_messageHelper->printWarning(4);
-    return 0;
+    return nullptr;
   }
 
   Track*
@@ -376,52 +324,49 @@ namespace Trk
                   const RunOutlierRemoval runOutlier,
                   const ParticleHypothesis particleHypothesis) const {
     ATH_MSG_VERBOSE(" track + measurementSet fit ");
-    ++m_countFitAttempts;
+    m_countFitAttempts++;
     // outlier removal not implemented
-    if (runOutlier) m_messageHelper->printWarning(5);
+    if (runOutlier) { m_messageHelper->printWarning(5); }
 
     // create starting parameters
     if (!track.trackStateOnSurfaces()) {
       // track without trackStateOnSurfaces
       m_messageHelper->printWarning(6);
-      return 0;
+      return nullptr;
     }
     const Perigee* perigee = dynamic_cast<const Perigee*>
                              ((**track.trackStateOnSurfaces()->begin()).trackParameters());
     if (!perigee) {
       // track without measuredPerigee
       m_messageHelper->printWarning(7);
-      return 0;
+      return nullptr;
     }
 
-    delete m_parameters;
-    m_parameters = new FitParameters(*perigee);
+    FitState fitState;
+    fitState.parameters = std::make_unique<FitParameters>(*perigee);
 
     // set up the measurements (and material)
-    std::vector<FitMeasurement*>* measurements = measurementList();
-    if (addMeasurements(*measurements, *m_parameters, particleHypothesis,
+    fitState.newMeasurements();
+    if (addMeasurements(fitState.getMeasurements(), *fitState.parameters, particleHypothesis,
                         *track.trackStateOnSurfaces())) m_messageHelper->printWarning(8); // FIX needed: material may
                                                                                           // get double counted
-    addMeasurements(*measurements,
+    addMeasurements(fitState.getMeasurements(),
                     measurementSet,
-                    *m_parameters);
+                    *fitState.parameters);
+    Garbage_t garbage;
     if (particleHypothesis != Trk::nonInteracting) {
       const TrackParameters& endParams = *(track.trackStateOnSurfaces()->back()->trackParameters());
-      m_materialAllocator->allocateMaterial(*measurements,
+      m_materialAllocator->allocateMaterial(fitState.getMeasurements(),
                                             particleHypothesis,
-                                            *m_parameters,
-                                            endParams);
+                                            *fitState.parameters,
+                                            endParams,
+                                            garbage);
     }
 
     // perform fit and return fitted track
     TrackInfo trackInfo(TrackInfo::iPatTrackFitter, particleHypothesis);
     trackInfo.addPatternReco(track.info());
-    return performFit(measurements,
-                      m_parameters,
-                      particleHypothesis,
-                      trackInfo,
-                      track.trackStateOnSurfaces(),
-                      track.fitQuality());
+    return performFit(fitState, particleHypothesis, trackInfo, track.trackStateOnSurfaces(), track.fitQuality(), garbage);
   }
 
   Track*
@@ -430,32 +375,35 @@ namespace Trk
                   const RunOutlierRemoval runOutlier,
                   const ParticleHypothesis particleHypothesis) const {
     ATH_MSG_VERBOSE(" fit from measurement set + perigeeStartValue ");
-    ++m_countFitAttempts;
+    m_countFitAttempts++;
     // outlier removal not implemented
-    if (runOutlier) m_messageHelper->printWarning(9);
+    if (runOutlier) { m_messageHelper->printWarning(9); }
 
     const Perigee* perigee = dynamic_cast<const Perigee*>(&perigeeStartValue);
     if (!perigee) {
       // track without Perigee start value
       m_messageHelper->printWarning(10);
-      return 0;
+      return nullptr;
     }
-    delete m_parameters;
-    m_parameters = new FitParameters(*perigee);
+
+    FitState fitState;
+    fitState.parameters = std::make_unique<FitParameters>(*perigee);
 
     // set up the measurements (and material)
-    std::vector<FitMeasurement*>* measurements = measurementList();
-    addMeasurements(*measurements, measurementSet, *m_parameters);
+    fitState.newMeasurements();
+    addMeasurements(fitState.getMeasurements(), measurementSet, *fitState.parameters);
+    Garbage_t garbage;
     if (particleHypothesis != Trk::nonInteracting) {
-      m_materialAllocator->allocateMaterial(*measurements,
+      m_materialAllocator->allocateMaterial(fitState.getMeasurements(),
                                             particleHypothesis,
-                                            *m_parameters,
-                                            perigeeStartValue);
+                                            *fitState.parameters,
+                                            perigeeStartValue,
+                                            garbage);
     }
 
     // perform fit and return fitted track
     TrackInfo trackInfo(TrackInfo::iPatTrackFitter, particleHypothesis);
-    return performFit(measurements, m_parameters, particleHypothesis, trackInfo);
+    return performFit(fitState, particleHypothesis, trackInfo, nullptr, nullptr, garbage);
   }
 
   Track*
@@ -464,45 +412,45 @@ namespace Trk
                   const RunOutlierRemoval runOutlier,
                   const ParticleHypothesis particleHypothesis) const {
     ATH_MSG_VERBOSE(" combined muon fit ");
-    ++m_countFitAttempts;
+    m_countFitAttempts++;
     // outlier removal not implemented
-    if (runOutlier) m_messageHelper->printWarning(11);
+    if (runOutlier) { m_messageHelper->printWarning(11); }
 
     // indet (full refit to measurements or use measured perigee)
     bool haveMaterial = true;
-    std::vector<FitMeasurement*>* measurements = measurementList();
-    delete m_parameters;
+    FitState fitState;
+    fitState.newMeasurements();
     if (indetTrack.perigeeParameters()) {
-      m_parameters = new FitParameters(*indetTrack.perigeeParameters());
+      fitState.parameters = std::make_unique<FitParameters>(*indetTrack.perigeeParameters());
     } else if (spectrometerTrack.perigeeParameters()
                && m_indetVolume->inside(spectrometerTrack.perigeeParameters()->associatedSurface().center())) {
-      m_parameters = new FitParameters(*spectrometerTrack.perigeeParameters());
+      fitState.parameters = std::make_unique<FitParameters>(*spectrometerTrack.perigeeParameters());
     } else {
       // combined muon fit without Perigee start value"
       m_messageHelper->printWarning(12);
-      return 0;
+      return nullptr;
     }
 
     // get both perigee parameters, use most precise for momentum starting value
     const Perigee* indetPerigee = dynamic_cast<const Perigee*>(indetTrack.perigeeParameters());
     const Perigee* spectrometerPerigee = dynamic_cast<const Perigee*>(spectrometerTrack.perigeeParameters());
     if (spectrometerPerigee
-        && !m_indetVolume->inside(spectrometerPerigee->associatedSurface().center())) spectrometerPerigee = 0;
+        && !m_indetVolume->inside(spectrometerPerigee->associatedSurface().center())) { spectrometerPerigee = 0; }
     if (!spectrometerTrack.info().trackProperties(Trk::TrackInfo::StraightTrack)
         && spectrometerPerigee) {
       if (indetTrack.info().trackProperties(Trk::TrackInfo::StraightTrack)
           || !indetPerigee
           || !indetPerigee->covariance()) {
-        m_parameters->qOverP(spectrometerPerigee->parameters()[Trk::qOverP]);
+        fitState.parameters->qOverP(spectrometerPerigee->parameters()[Trk::qOverP]);
         ATH_MSG_VERBOSE(" set starting momentum from spectrometer "
-                        << 1. / (m_parameters->qOverP() * Gaudi::Units::GeV) << " GeV");
+                        << 1. / (fitState.parameters->qOverP() * Gaudi::Units::GeV) << " GeV");
       } else if (indetPerigee) {
         if (spectrometerPerigee->covariance()
             && (*spectrometerPerigee->covariance())(Trk::qOverP, Trk::qOverP) <
             (*indetPerigee->covariance())(Trk::qOverP, Trk::qOverP)) {
-          m_parameters->qOverP(spectrometerPerigee->parameters()[Trk::qOverP]);
+          fitState.parameters->qOverP(spectrometerPerigee->parameters()[Trk::qOverP]);
           ATH_MSG_VERBOSE(" set starting momentum from spectrometer "
-                          << 1. / (m_parameters->qOverP() * Gaudi::Units::GeV) << " GeV");
+                          << 1. / (fitState.parameters->qOverP() * Gaudi::Units::GeV) << " GeV");
         }
       }
     }
@@ -512,26 +460,28 @@ namespace Trk
       if (!indetTrack.trackStateOnSurfaces()) {
         // fail as indet track without trackStateOnSurfaces
         m_messageHelper->printWarning(13);
-        return 0;
+        return nullptr;
       }
-      if (!addMeasurements(*measurements,
-                           *m_parameters,
+      if (!addMeasurements(fitState.getMeasurements(),
+                           *fitState.parameters,
                            particleHypothesis,
-                           *indetTrack.trackStateOnSurfaces())) haveMaterial = false;
+                           *indetTrack.trackStateOnSurfaces())) { haveMaterial = false; }
     }
 
     // add the spectrometer measurements
-    if (!addMeasurements(*measurements,
-                         *m_parameters,
+    if (!addMeasurements(fitState.getMeasurements(),
+                         *fitState.parameters,
                          particleHypothesis,
-                         *spectrometerTrack.trackStateOnSurfaces())) haveMaterial = false;
+                         *spectrometerTrack.trackStateOnSurfaces())) { haveMaterial = false; }
+    Garbage_t garbage;
     if (!haveMaterial && particleHypothesis != Trk::nonInteracting) {
-      Perigee* startingPerigee = m_parameters->startingPerigee();
+      Perigee* startingPerigee = fitState.parameters->startingPerigee();
       if (startingPerigee) {
-        m_materialAllocator->allocateMaterial(*measurements,
+        m_materialAllocator->allocateMaterial(fitState.getMeasurements(),
                                               particleHypothesis,
-                                              *m_parameters,
-                                              *startingPerigee);
+                                              *fitState.parameters,
+                                              *startingPerigee,
+                                              garbage);
         delete startingPerigee;
       }
     }
@@ -541,31 +491,29 @@ namespace Trk
     trackInfo.addPatternReco(indetTrack.info());
     trackInfo.addPatternReco(spectrometerTrack.info());
     if (m_fullCombinedFit) {
-      Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo);
+      Trk::Track* fittedTrack = performFit(fitState, particleHypothesis, trackInfo, nullptr, nullptr, garbage);
 
       // validation
-      for (int i = 0; i < m_forcedRefitsForValidation; ++i)
-        if (fittedTrack) refit(*fittedTrack, runOutlier, particleHypothesis);
+      for (int i = 0; i < m_forcedRefitsForValidation; ++i) {
+        if (fittedTrack) { refit(fitState, *fittedTrack, runOutlier, particleHypothesis); }
+      }
 
       return fittedTrack;
     } else { // hybrid fit
       if (!indetPerigee) {
         // fail combined muon fit as indet track without measuredPerigee
         m_messageHelper->printWarning(14);
-        return 0;
+        return nullptr;
       }
-      measurements->insert(measurements->begin(), new FitMeasurement(*indetPerigee));
+      fitState.getMeasurements().insert(fitState.getMeasurements().begin(), new FitMeasurement(*indetPerigee));
       FitParameters measuredParameters(*indetPerigee);
-      Trk::Track* fittedTrack = performFit(measurements,
-                                           &measuredParameters,
-                                           particleHypothesis,
-                                           trackInfo,
-                                           indetTrack.trackStateOnSurfaces(),
-                                           indetTrack.fitQuality());
+      Trk::Track* fittedTrack = performFit(fitState, particleHypothesis, trackInfo, indetTrack.trackStateOnSurfaces(),
+          indetTrack.fitQuality(), garbage);
 
       // validation
-      for (int i = 0; i < m_forcedRefitsForValidation; ++i)
-        if (fittedTrack) refit(*fittedTrack, runOutlier, particleHypothesis);
+      for (int i = 0; i < m_forcedRefitsForValidation; ++i) {
+        if (fittedTrack) { refit(fitState, *fittedTrack, runOutlier, particleHypothesis); }
+      }
 
       return fittedTrack;
     }
@@ -585,41 +533,41 @@ namespace Trk
     Amg::Vector3D startDirection = parameters.direction();
     Amg::Vector3D startPosition = parameters.position();
     ExtrapolationType type = FittedTrajectory;
-    const TrackSurfaceIntersection* vertex = parameters.intersection();
-    const TrackSurfaceIntersection* intersection = vertex;
+    std::unique_ptr<const TrackSurfaceIntersection> intersection {parameters.intersection()};
 
     int hit = measurements.size();
     for (MeasurementSet::const_iterator m = measurementSet.begin();
          m != measurementSet.end();
-         ++m, ++hit) {
-      const TrackSurfaceIntersection* newIntersection = m_useStepPropagator >= 1 ?
-                                                        m_stepPropagator->intersectSurface((**m).associatedSurface(),
-                                                                                           intersection,
-                                                                                           qOverP,
-                                                                                           m_stepField,
-                                                                                           Trk::muon) :
-                                                        m_rungeKuttaIntersector->intersectSurface(
-        (**m).associatedSurface(),
-        intersection,
-        qOverP);
+         m++, hit++) {
+      std::unique_ptr<const TrackSurfaceIntersection> newIntersection {
+        m_useStepPropagator >= 1 ?
+        m_stepPropagator->intersectSurface((**m).associatedSurface(),
+                                            intersection.get(),
+                                            qOverP,
+                                            m_stepField,
+                                            Trk::muon) :
+        m_rungeKuttaIntersector->intersectSurface(
+          (**m).associatedSurface(),
+          intersection.get(),
+          qOverP)};
       if (m_useStepPropagator == 99 && newIntersection) {
-        const TrackSurfaceIntersection* newIntersectionSTEP =
+        std::unique_ptr<const TrackSurfaceIntersection> newIntersectionSTEP {
           m_stepPropagator->intersectSurface((**m).associatedSurface(),
-                                             intersection,
+                                             intersection.get(),
                                              qOverP,
                                              m_stepField,
-                                             Trk::muon);
+                                             Trk::muon)};
         if (newIntersectionSTEP) {
 //              double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
 //              std::cout << " iPat 1 distance STEP and Intersector " << dist << std::endl;
 //              if(dist>10.) std::cout << " iPat 1 ALARM distance STEP and Intersector " << dist << std::endl;
-          delete newIntersectionSTEP;
+          newIntersectionSTEP.reset();
 //            } else {
 //              std::cout << " iPat 1 ALARM STEP did not intersect! " << std::endl;
         }
       }
       if (newIntersection) {
-        intersection = newIntersection;
+        intersection = std::move(newIntersection);
 
         // check if ordering OK
         if (!reorder) {
@@ -630,7 +578,7 @@ namespace Trk
             (positionMst.x() - startPosition.x()) * (positionMst.x() - startPosition.x()) +
             (positionMst.y() - startPosition.y()) * (positionMst.y() - startPosition.y()));
           double distanceZ = (positionMst.z() - startPosition.z());
-          if (startDirection.z() < 0) distanceZ = -distanceZ;
+          if (startDirection.z() < 0) { distanceZ = -distanceZ; }
           if (distance < previousDistance
               && distanceR < previousDistanceR
               && distanceZ < previousDistanceZ) {
@@ -647,18 +595,16 @@ namespace Trk
         // FIXME
         // no intersection to MeasurementSet
         m_messageHelper->printWarning(15);
-        intersection = new TrackSurfaceIntersection(*intersection);
+        intersection = std::make_unique<TrackSurfaceIntersection>(*intersection.get());
       }
-      FitMeasurement* measurement = new FitMeasurement(hit, 0, *m);
-      measurement->intersection(type, intersection);
+      auto measurement = std::make_unique<FitMeasurement>(hit, nullptr, *m);
+      measurement->intersection(type, intersection.get());
       measurement->qOverP(qOverP);
-      measurements.push_back(measurement);
+      measurements.push_back(measurement.release());
     }
 
     // reorder if necessary
-    if (reorder) m_materialAllocator->orderMeasurements(measurements, startDirection, startPosition);
-
-    delete vertex;
+    if (reorder) { m_materialAllocator->orderMeasurements(measurements, startDirection, startPosition); }
   }
 
   bool
@@ -673,26 +619,24 @@ namespace Trk
     int tsos = 0;
     //  BUG that shifts ...   misAlignmentNumbers.push_back(misAlignmentNumber);
     for (DataVector<const TrackStateOnSurface>::const_iterator
-         r = trackStateOnSurfaces.begin();
-         r != trackStateOnSurfaces.end();
-         ++r, ++tsos) {
-      if (!(**r).alignmentEffectsOnTrack() || !(**r).trackParameters()) continue;
-      const AlignmentEffectsOnTrack& AEOT = *(**r).alignmentEffectsOnTrack();
+         i = trackStateOnSurfaces.begin();
+         i != trackStateOnSurfaces.end();
+         ++i, ++tsos) {
+      const TrackStateOnSurface& r = (**i);
+      if (!r.alignmentEffectsOnTrack() || !r.trackParameters()) { continue; }
+      const AlignmentEffectsOnTrack& AEOT = *r.alignmentEffectsOnTrack();
       ++misAlignmentNumber;
-      for (std::vector<Identifier>::const_iterator
-           a = AEOT.vectorOfAffectedTSOS().begin();
-           a != AEOT.vectorOfAffectedTSOS().end();
-           ++a) {
-        misAlignedTSOS.push_back(*a);
+      for (const Identifier& a : AEOT.vectorOfAffectedTSOS()) {
+        misAlignedTSOS.push_back(a);
         misAlignmentNumbers.push_back(misAlignmentNumber);
       }
-      if (m_extendedDebug) ATH_MSG_DEBUG(" tsos " << tsos
-                                                  << " misAlignedTSOS.size() " << misAlignedTSOS.size()
-                                                  << "        misAlignmentNumber " << misAlignmentNumber
-                                                  << "  offset " << AEOT.deltaTranslation()
-                                                  << " +- " << AEOT.sigmaDeltaTranslation()
-                                                  << "  rotation " << AEOT.deltaAngle()
-                                                  << " +- " << AEOT.sigmaDeltaAngle());
+      if (m_extendedDebug) { ATH_MSG_DEBUG(" tsos " << tsos
+                                                    << " misAlignedTSOS.size() " << misAlignedTSOS.size()
+                                                    << "        misAlignmentNumber " << misAlignmentNumber
+                                                    << "  offset " << AEOT.deltaTranslation()
+                                                    << " +- " << AEOT.sigmaDeltaTranslation()
+                                                    << "  rotation " << AEOT.deltaAngle()
+                                                    << " +- " << AEOT.sigmaDeltaAngle()); }
     }
 
     // create ordered list of FitMeasurements
@@ -703,69 +647,65 @@ namespace Trk
     double previousDistanceR = -m_orderingTolerance;
     double previousDistanceZ = -m_orderingTolerance;
     bool reorder = false;
-    bool skipVertexMeasurement = measurements.size();
-    Amg::Vector3D startDirection = parameters.direction();
-    Amg::Vector3D startPosition = parameters.position();
+    const bool skipVertexMeasurement = measurements.size() > 0;
+    const Amg::Vector3D startDirection = parameters.direction();
+    const Amg::Vector3D startPosition = parameters.position();
     const TrackSurfaceIntersection* vertex = parameters.intersection();
     const TrackSurfaceIntersection* intersection = vertex;
     bool measurementsFlipped = false;
     double qOverP = parameters.qOverP();
-    ExtrapolationType type = FittedTrajectory;
+    const ExtrapolationType type = FittedTrajectory;
     tsos = 0;
     for (DataVector<const TrackStateOnSurface>::const_iterator
-         s = trackStateOnSurfaces.begin();
-         s != trackStateOnSurfaces.end();
-         ++s, ++hit, ++tsos) {
-      FitMeasurement* measurement1 = 0;
-      FitMeasurement* measurement2 = 0;
-      const Surface* surface = 0;
-      if ((**s).materialEffectsOnTrack() && (**s).trackParameters()) {
-        Amg::Vector3D position = (**s).trackParameters()->position();
+         i = trackStateOnSurfaces.begin();
+         i != trackStateOnSurfaces.end();
+         ++i, ++hit, ++tsos) {
+      const TrackStateOnSurface& s = (**i);
+      std::unique_ptr<FitMeasurement> measurement1;
+      std::unique_ptr<FitMeasurement> measurement2;
+      const Surface* surface = nullptr;
+      if (s.materialEffectsOnTrack() && s.trackParameters()) {
+        Amg::Vector3D position = s.trackParameters()->position();
         bool calo = (!m_indetVolume->inside(position)
                      && m_calorimeterVolume->inside(position));
-        qOverP = (**s).trackParameters()->parameters()[Trk::qOverP];
-        surface = &(**s).trackParameters()->associatedSurface();
+        qOverP = s.trackParameters()->parameters()[Trk::qOverP];
+        surface = &s.trackParameters()->associatedSurface();
 
         // skip negligibly thin scatterers (exception for CaloEnergy)
         bool keepScatterer = true;
-        if ((**s).materialEffectsOnTrack()->thicknessInX0() < 0.0001) {
+        if (s.materialEffectsOnTrack()->thicknessInX0() < 0.0001) {
           keepScatterer = false;
           if (calo) {
             const MaterialEffectsOnTrack* meot =
-              dynamic_cast<const MaterialEffectsOnTrack*>((**s).materialEffectsOnTrack());
+              dynamic_cast<const MaterialEffectsOnTrack*>(s.materialEffectsOnTrack());
             if (meot) {
               const EnergyLoss* energyLoss = meot->energyLoss();
-              if (energyLoss && std::abs(energyLoss->deltaE()) > 0.1 * Gaudi::Units::MeV) keepScatterer = true;
+              if (energyLoss && std::abs(energyLoss->deltaE()) > 0.1 * Gaudi::Units::MeV) { keepScatterer = true; }
             }
           }
         }
         if (keepScatterer) {
-          measurement1 = new FitMeasurement((**s).materialEffectsOnTrack(),
-                                            ParticleMasses().mass[particleHypothesis],
-                                            position,
-                                            qOverP,
-                                            calo);
+          measurement1 = std::make_unique<FitMeasurement>(s.materialEffectsOnTrack(), 
+            ParticleMasses().mass[particleHypothesis], position, qOverP, calo);
           if (!calo
               && !haveMaterial
-              && (haveMeasurement || (**s).measurementOnTrack())) haveMaterial = true;
+              && (haveMeasurement || s.measurementOnTrack())) { haveMaterial = true; }
         }
-      } else if ((**s).alignmentEffectsOnTrack() && (**s).trackParameters()) {
-        Amg::Vector3D direction = (**s).trackParameters()->momentum().unit();
-        Amg::Vector3D position = (**s).trackParameters()->position();
-        measurement1 = new FitMeasurement((**s).alignmentEffectsOnTrack(),
-                                          direction,
-                                          position);
+      } else if (s.alignmentEffectsOnTrack() && s.trackParameters()) {
+        Amg::Vector3D direction = s.trackParameters()->momentum().unit();
+        Amg::Vector3D position = s.trackParameters()->position();
+        measurement1 = std::make_unique<FitMeasurement>(s.alignmentEffectsOnTrack(), direction, position);
       }
-      if ((**s).measurementOnTrack()) {
+      if (s.measurementOnTrack()) {
         // option to skip vertex measurement (i.e. when not at front of list)
-        if (skipVertexMeasurement && dynamic_cast<const PerigeeSurface*>(&(**s).surface())) {
-          delete measurement1;
+        if (skipVertexMeasurement && dynamic_cast<const PerigeeSurface*>(&s.surface())) {
+          measurement1.reset();
           continue;
         }
         haveMeasurement = true;
-        surface = &(**s).measurementOnTrack()->associatedSurface();
-        measurement2 = new FitMeasurement(hit, 0, (**s).measurementOnTrack());
-        if ((**s).type(TrackStateOnSurface::Outlier)) measurement2->setOutlier();
+        surface = &s.measurementOnTrack()->associatedSurface();
+        measurement2 = std::make_unique<FitMeasurement>(hit, nullptr, s.measurementOnTrack());
+        if (s.type(TrackStateOnSurface::Outlier)) { measurement2->setOutlier(); }
         // redundant surely??
         // if (measurement2->isCluster() || measurement2->isDrift()) haveMeasurement = true;
 //	    if (misAlignmentNumber && misAlignedTSOS.back() == *s)
@@ -779,7 +719,7 @@ namespace Trk
 //	    Peter
 //	    measurement2->alignmentParameter(0);
         if (misAlignmentNumber) {
-          const Trk::MeasurementBase* meas = (**s).measurementOnTrack();
+          const Trk::MeasurementBase* meas = s.measurementOnTrack();
           Identifier id = Identifier();
           if (meas) {
             const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
@@ -794,12 +734,12 @@ namespace Trk
             }
           }
           for (unsigned int im = 0; im < misAlignedTSOS.size(); ++im) {
-            if (misAlignedTSOS[im] != id) continue;
+            if (misAlignedTSOS[im] != id) { continue; }
             measurement2->alignmentParameter(misAlignmentNumbers[im]);
           }
           if (m_extendedDebug) {
             for (unsigned int im = 0; im < misAlignedTSOS.size(); ++im) {
-              if (misAlignedTSOS[im] != id) continue;
+              if (misAlignedTSOS[im] != id) { continue; }
               if (measurement2->isDrift()) {
                 ATH_MSG_DEBUG(" tsos " << tsos
                                        << "   Drift Measurement im " << im
@@ -812,44 +752,44 @@ namespace Trk
             }
           }
         }
-      } else if (!measurement1 && (**s).trackParameters()) {
-        if ((**s).type(TrackStateOnSurface::Hole)) {
+      } else if (!measurement1 && s.trackParameters()) {
+        if (s.type(TrackStateOnSurface::Hole)) {
           // ATH_MSG_VERBOSE( " addMeasurements: adding hole" );
-          measurement2 = new FitMeasurement(**s);
-        } else if ((**s).type(TrackStateOnSurface::Perigee)) {
-          if (s == trackStateOnSurfaces.begin()) continue;
-          const Perigee* perigee = dynamic_cast<const Perigee*>((**s).trackParameters());
-          if (!perigee) continue;
-          measurement2 = new FitMeasurement(*perigee);
-        } else if ((**s).type(TrackStateOnSurface::Parameter)) {
+          measurement2 = std::make_unique<FitMeasurement>(s);
+        } else if (s.type(TrackStateOnSurface::Perigee)) {
+          if (i == trackStateOnSurfaces.begin()) { continue; }
+          const Perigee* perigee = dynamic_cast<const Perigee*>(s.trackParameters());
+          if (!perigee) { continue; }
+          measurement2 = std::make_unique<FitMeasurement>(*perigee);
+        } else if (s.type(TrackStateOnSurface::Parameter)) {
           continue;
         } else {
           // TSOS type not understood.
-          m_messageHelper->printWarning(16, (**s).dumpType());
+          m_messageHelper->printWarning(16, s.dumpType());
           continue;
         }
-      } else if ((**s).materialEffectsOnTrack()) {
-        surface = &(**s).materialEffectsOnTrack()->associatedSurface();
-      } else if ((**s).alignmentEffectsOnTrack()) {
-        surface = &(**s).alignmentEffectsOnTrack()->associatedSurface();
+      } else if (s.materialEffectsOnTrack()) {
+        surface = &s.materialEffectsOnTrack()->associatedSurface();
+      } else if (s.alignmentEffectsOnTrack()) {
+        surface = &s.alignmentEffectsOnTrack()->associatedSurface();
       } else {
         // skip TSOS with missing trackParameters
         // this should never happen (i.e. where's the surface?)
-        m_messageHelper->printWarning(17, (**s).dumpType());
+        m_messageHelper->printWarning(17, s.dumpType());
         continue;
       }
 
       // current intersection
-      if ((**s).trackParameters() && (measurement1 || measurement2)) {
-        Amg::Vector3D direction = (**s).trackParameters()->momentum().unit();
+      if (s.trackParameters() && (measurement1 || measurement2)) {
+        Amg::Vector3D direction = s.trackParameters()->momentum().unit();
         if (startDirection.dot(direction) < 0.) {
           measurementsFlipped = true;
           direction = -direction;
-          if (measurement1) measurement1->flipDriftDirection();
-          if (measurement2) measurement2->flipDriftDirection();
+          if (measurement1) { measurement1->flipDriftDirection(); }
+          if (measurement2) { measurement2->flipDriftDirection(); }
         }
-        qOverP = (**s).trackParameters()->parameters()[Trk::qOverP];
-        intersection = new TrackSurfaceIntersection((**s).trackParameters()->position(),
+        qOverP = s.trackParameters()->parameters()[Trk::qOverP];
+        intersection = new TrackSurfaceIntersection(s.trackParameters()->position(),
                                                     direction,
                                                     0.);
       } else if (surface) {
@@ -862,19 +802,18 @@ namespace Trk
                                                           m_rungeKuttaIntersector->intersectSurface(*surface,
                                                                                                     intersection,
                                                                                                     qOverP);
-        if (m_useStepPropagator == 99 && newIntersection) {
-          const TrackSurfaceIntersection* newIntersectionSTEP =
+        if ((m_useStepPropagator == 99) && newIntersection) {
+          auto newIntersectionSTEP = std::unique_ptr<const TrackSurfaceIntersection>{
             m_stepPropagator->intersectSurface(*surface,
                                                intersection,
                                                qOverP,
                                                m_stepField,
-                                               Trk::muon);
+                                               Trk::muon)};
           if (newIntersectionSTEP) {
             //                double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
             //                std::cout << " iPat 2 distance STEP and Intersector " << dist << std::endl;
             //                if(dist>10.) std::cout << " iPat 2 ALARM distance STEP and Intersector " << dist <<
             // std::endl;
-            delete newIntersectionSTEP;
             //              } else {
             //                std::cout << " iPat 2 ALARM STEP did not intersect! " << std::endl;
           }
@@ -884,7 +823,7 @@ namespace Trk
           // addMeasurements: skip measurement as fail to intersect
           //                  associated surface from given starting parameters
           m_messageHelper->printWarning(18);
-          delete measurement2;
+          measurement2.reset();
           continue;
         }
 
@@ -893,21 +832,18 @@ namespace Trk
         } else {
           intersection = newIntersection;
         }
-        if ((**s).materialEffectsOnTrack()) {
+        if (s.materialEffectsOnTrack()) {
           Amg::Vector3D position = intersection->position();
           bool calo = (!m_indetVolume->inside(position)
                        && m_calorimeterVolume->inside(position));
-          measurement1 = new FitMeasurement((**s).materialEffectsOnTrack(),
-                                            ParticleMasses().mass[particleHypothesis],
-                                            intersection->position(),
-                                            qOverP,
-                                            calo);
+          measurement1 = std::make_unique<FitMeasurement>(s.materialEffectsOnTrack(), 
+            ParticleMasses().mass[particleHypothesis], intersection->position(), qOverP, calo);
           if (!calo
               && !haveMaterial
-              && haveMeasurement) haveMaterial = true;
+              && haveMeasurement) { haveMaterial = true; }
         } else if (!measurement2) {
           // TSOS skipped
-          m_messageHelper->printWarning(19, (**s).dumpType());
+          m_messageHelper->printWarning(19, s.dumpType());
           // delete intersection;
           continue;
         }
@@ -917,13 +853,13 @@ namespace Trk
       if (!reorder) {
         double distance = startDirection.dot(intersection->position() - startPosition);
         Amg::Vector3D positionMst = startPosition;
-        if ((**s).measurementOnTrack()) positionMst = (**s).measurementOnTrack()->globalPosition();
-        if ((**s).materialEffectsOnTrack()) positionMst = (**s).materialEffectsOnTrack()->associatedSurface().center();
+        if (s.measurementOnTrack()) { positionMst = s.measurementOnTrack()->globalPosition(); }
+        if (s.materialEffectsOnTrack()) { positionMst = s.materialEffectsOnTrack()->associatedSurface().center(); }
         double distanceR = sqrt(
           (positionMst.x() - startPosition.x()) * (positionMst.x() - startPosition.x()) +
           (positionMst.y() - startPosition.y()) * (positionMst.y() - startPosition.y()));
         double distanceZ = (positionMst.z() - startPosition.z());
-        if (startDirection.z() < 0) distanceZ = -distanceZ;
+        if (startDirection.z() < 0) { distanceZ = -distanceZ; }
         if (distance < previousDistance
             && distanceR < previousDistanceR
             && distanceZ < previousDistanceZ) {
@@ -944,22 +880,22 @@ namespace Trk
             new TrackSurfaceIntersection(*intersection);
 
           measurement1->intersection(type, intersectionCopy);
-          measurements.push_back(measurement1);
+          measurements.push_back(measurement1.release());
         } else {
           measurement1->intersection(type, intersection);
           measurement1->qOverP(qOverP);
-          measurements.push_back(measurement1);
+          measurements.push_back(measurement1.release());
         }
       }
       if (measurement2) {
         measurement2->intersection(type, intersection);
         measurement2->qOverP(qOverP);
-        measurements.push_back(measurement2);
+        measurements.push_back(measurement2.release());
       }
     }
 
     // reorder if necessary
-    if (reorder) m_materialAllocator->orderMeasurements(measurements, startDirection, startPosition);
+    if (reorder) { m_materialAllocator->orderMeasurements(measurements, startDirection, startPosition); }
     if (measurementsFlipped) {
       m_messageHelper->printWarning(25);
     }
@@ -969,85 +905,76 @@ namespace Trk
     return haveMaterial;
   }
 
-  std::vector<FitMeasurement*>*&
-  iPatFitter::measurementList(void) const {
-    if (m_globalFit && m_measurements) {
-      for (auto m : *m_measurements) {
-        delete m;
-      }
-      m_measurements->clear();
-    } else {
-      m_measurements = new std::vector<FitMeasurement*>;
-    }
-
-    return m_measurements;
-  }
-
   Track*
-  iPatFitter::performFit(std::vector<FitMeasurement*>* measurements,
-                         FitParameters* parameters,
-                         const ParticleHypothesis particleHypothesis,
-                         const TrackInfo& trackInfo,
-                         const DataVector<const TrackStateOnSurface>* leadingTSOS,
-                         const FitQuality* perigeeQuality) const {
+  iPatFitter::performFit(
+      FitState& fitState,
+      const ParticleHypothesis particleHypothesis,
+      const TrackInfo& trackInfo,
+      const DataVector<const TrackStateOnSurface>* leadingTSOS,
+      const FitQuality* perigeeQuality,
+      Garbage_t& garbage) const {
+    std::vector<FitMeasurement*>& measurements = fitState.getMeasurements();
+    FitParameters* parameters = fitState.parameters.get();
     // initialize the scattering centres
-    m_materialAllocator->initializeScattering(*measurements);
+    m_materialAllocator->initializeScattering(measurements);
 
     // set fixed momentum in lineFit case according to configuration
     if (m_lineFit) {
       parameters->fitMomentum(false);
-      if (m_lineMomentum > 0.) parameters->qOverP(1. / m_lineMomentum);
+      if (m_lineMomentum > 0.) { parameters->qOverP(1. / m_lineMomentum); }
     }
 
     // perform fit
     MsgStream log(msgSvc(), name());
     const FitProcedureQuality& quality = m_fitProcedure->execute(m_asymmetricCaloEnergy,
                                                                  log,
-                                                                 *measurements,
+                                                                 measurements,
                                                                  parameters,
                                                                  perigeeQuality);
-    Track* fittedTrack = 0;
+    std::unique_ptr<Track> fittedTrack;
     if (!quality.fitCode()) {
 //  // iterate if material reallocation needed
 //  if (m_materialAllocator->reallocateMaterial(*measurements,parameters))
 //  {
 //      // do something
 //      quality	= m_fitProcedure->execute(log,
-//                        *measurements,
+//                        measurements,
 //                        parameters,
 //                        perigeeQuality);
 //  }
 
       // include leading material
-      m_materialAllocator->addLeadingMaterial(*measurements, particleHypothesis, *parameters);
+      m_materialAllocator->addLeadingMaterial(measurements, particleHypothesis, *parameters, garbage);
 
 
       // construct the fitted track
-      fittedTrack = m_fitProcedure->constructTrack(*measurements,
+      fittedTrack.reset(m_fitProcedure->constructTrack(measurements,
                                                    *parameters,
                                                    trackInfo,
-                                                   leadingTSOS);
+                                                   leadingTSOS));
       if (fittedTrack) {
         // set StraightLine when momentum unfitted
-        if (!parameters->fitMomentum()) fittedTrack->info().setTrackProperties(TrackInfo::StraightTrack);
+        if (!parameters->fitMomentum()) { fittedTrack->info().setTrackProperties(TrackInfo::StraightTrack); }
 
         // special check for CaloDeposit - parameters must be inside calorimeter
         for (DataVector<const TrackStateOnSurface>::const_iterator
              s = fittedTrack->trackStateOnSurfaces()->begin();
              s != fittedTrack->trackStateOnSurfaces()->end();
              ++s) {
-          if (!(**s).type(TrackStateOnSurface::CaloDeposit)) continue;
+          if (!(**s).type(TrackStateOnSurface::CaloDeposit)) { 
+            continue; 
+          }
           if ((**s).trackParameters()) {
             Amg::Vector3D position = (**s).trackParameters()->position();
-            if (!m_indetVolume->inside(position)
-                && m_calorimeterVolume->inside(position)) break;
+            if (!m_indetVolume->inside(position) && m_calorimeterVolume->inside(position)) { 
+              break; 
+            }
           }
 
           // something badly wrong: WARN and kill track
           // fail fit as CaloDeposit outside calo volume
           m_messageHelper->printWarning(20);
-          delete fittedTrack;
-          fittedTrack = 0;
+          fittedTrack.reset();
           break;
         }
       }
@@ -1056,7 +983,7 @@ namespace Trk
       if (fittedTrack) {
         ++m_countGoodFits;
         m_countIterations += quality.iterations();
-        m_iterations = quality.iterations();
+        fitState.iterations = quality.iterations();
 
         // report material
         if (msgLvl(MSG::DEBUG)) {
@@ -1069,33 +996,33 @@ namespace Trk
           int spect = 0;
           double spectX0 = 0.;
           double spectEloss = 0.;
-          for (auto m : *measurements) {
+          for (FitMeasurement* m : measurements) {
             if (m->isEnergyDeposit()) {
-              ++calo;
+              calo++;
               caloEloss += m->energyLoss();
             } else if (!m->isScatterer()) {
               continue;
             }
 
             if (m_indetVolume->inside(m->position())) {
-              ++indet;
+              indet++;
               indetX0 += m->materialEffects()->thicknessInX0();
               indetEloss += m->energyLoss();
               // conflicting energy deposit sign for inDet material
-              if (m->energyLoss() * indetEloss < 0.) m_messageHelper->printWarning(21);
+              if (m->energyLoss() * indetEloss < 0.) { m_messageHelper->printWarning(21); }
               continue;
             } else if (m_calorimeterVolume->inside(
                          m->intersection(FittedTrajectory).position())) {
-              ++calo;
+              calo++;
               caloX0 += m->materialEffects()->thicknessInX0();
               continue;
             }
 
-            ++spect;
+            spect++;
             spectX0 += m->materialEffects()->thicknessInX0();
             spectEloss += m->energyLoss();
             // conflicting energy deposit sign for spectrometer material
-            if (m->energyLoss() * spectEloss < 0.) m_messageHelper->printWarning(22);
+            if (m->energyLoss() * spectEloss < 0.) { m_messageHelper->printWarning(22); }
           }
 
           // WARN in case of bug #56297
@@ -1111,8 +1038,8 @@ namespace Trk
             }
 
             // excessive spectrometer energy loss
-            if (std::abs(spectEloss) > 0.5 * Gaudi::Units::GeV
-                && std::abs(spectEloss * caloX0) > std::abs(4. * caloEloss * spectX0)
+            if ((std::abs(spectEloss) > (0.5 * Gaudi::Units::GeV))
+                && (std::abs(spectEloss * caloX0) > std::abs(4. * caloEloss * spectX0))
                 && m_messageHelper->wouldPrintWarning(24)) {
               std::stringstream ss;
               ss << spectEloss / Gaudi::Units::GeV
@@ -1147,26 +1074,13 @@ namespace Trk
             msg() << std::setw(7) << std::setprecision(3) << spectEloss / Gaudi::Units::GeV;
           }
 
-          if (!indet && !spect) msg() << "    0 scatterers - no tracking material";
+          if (!indet && !spect) { msg() << "    0 scatterers - no tracking material"; }
           msg() << endmsg;
         }
       }
     }
 
-    // clean up and return
-    if (!m_globalFit || !fittedTrack) {
-      for (auto m: *m_measurements) {
-        delete m;
-      }
-      measurements->clear();
-      delete measurements;
-      delete parameters;
-      m_measurements = 0;
-      m_parameters = 0;
-    }
-    m_materialAllocator->clear();
-
-    return fittedTrack;
+    return fittedTrack.release();
   }
 
   void
@@ -1213,23 +1127,29 @@ namespace Trk
   }
 
   void
-  iPatFitter::refit(const Track& track,
+  iPatFitter::refit(FitState& fitState,
+                    const Track& track,
                     const RunOutlierRemoval runOutlier,
                     const ParticleHypothesis particleHypothesis) const {
     ATH_MSG_VERBOSE(" refit ");
     unsigned countGoodFits = m_countGoodFits;
     unsigned countIterations = m_countIterations;
-    ++m_countRefitAttempts;
+    m_countRefitAttempts++;
     // outlier removal not implemented
-    if (runOutlier) m_messageHelper->printWarning(0);
+    if (runOutlier) { m_messageHelper->printWarning(0); }
 
     // create Perigee if starting parameters are for a different surface type
-    const Perigee* perigee = track.perigeeParameters();
-    PerigeeSurface* perigeeSurface = 0;
-    if (!perigee) {
-      DataVector<const TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
-      while (s != track.trackStateOnSurfaces()->end() && !(**s).trackParameters()) ++s;
-      if (!(**s).trackParameters()) {
+    const Perigee* perigeeParameters = track.perigeeParameters(); 
+    // Note: we don't own the Perigee from perigeeParameters(), but if it returns nullptr, we have to make our own, 
+    // and we need to delete it, so it's put in this unique_ptr
+    std::unique_ptr<Perigee> newPerigee;
+    std::unique_ptr<PerigeeSurface> perigeeSurface;
+
+    if (!perigeeParameters) {
+      auto i = track.trackStateOnSurfaces()->begin();
+      while (i != track.trackStateOnSurfaces()->end() && !(**i).trackParameters()) { i++; }
+      const TrackStateOnSurface& s = (**i);
+      if (!s.trackParameters()) {
         // input track without parameters
         m_messageHelper->printWarning(1);
         m_countGoodRefits += m_countGoodFits - countGoodFits;
@@ -1239,16 +1159,18 @@ namespace Trk
         return;
       }
 
-      Amg::Vector3D origin((**s).trackParameters()->position());
-      perigeeSurface = new PerigeeSurface(origin);
-      perigee = new Perigee((**s).trackParameters()->position(),
-                            (**s).trackParameters()->momentum(),
-                            (**s).trackParameters()->charge(),
-                            *perigeeSurface);
+      Amg::Vector3D origin(s.trackParameters()->position());
+      perigeeSurface = std::make_unique<PerigeeSurface>(origin);
+      newPerigee = std::make_unique<Perigee>(
+        s.trackParameters()->position(),
+        s.trackParameters()->momentum(),
+        s.trackParameters()->charge(),
+        *perigeeSurface);
     }
 
-    delete m_parameters;
-    m_parameters = new FitParameters(*perigee);
+    const Perigee& perigee = newPerigee ? *newPerigee : *perigeeParameters; // Use the valid Perigee
+
+    fitState.parameters = std::make_unique<FitParameters>(perigee);
 
     // set up the measurements
     if (!track.trackStateOnSurfaces()) {
@@ -1260,33 +1182,34 @@ namespace Trk
       m_countIterations = countIterations;
       return;
     }
-
-    std::vector<FitMeasurement*>* measurements = measurementList();
-    bool haveMaterial = addMeasurements(*measurements,
-                                        *m_parameters,
+    
+    fitState.newMeasurements();
+    
+    bool haveMaterial = addMeasurements(fitState.getMeasurements(),
+                                        *fitState.parameters,
                                         particleHypothesis,
                                         *track.trackStateOnSurfaces());
 
     // allocate material
+    Garbage_t garbage;
     if (!haveMaterial && particleHypothesis != Trk::nonInteracting) {
-      m_materialAllocator->allocateMaterial(*measurements,
+      m_materialAllocator->allocateMaterial(fitState.getMeasurements(),
                                             particleHypothesis,
-                                            *m_parameters,
-                                            *perigee);
+                                            *fitState.parameters,
+                                            perigee,
+                                            garbage);
     }
 
     // perform fit and return fitted track
     TrackInfo trackInfo(TrackInfo::iPatTrackFitter, particleHypothesis);
     trackInfo.addPatternReco(track.info());
-    Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo);
-    if (perigeeSurface) {
-      delete perigeeSurface;
-      delete perigee;
-    }
+    std::unique_ptr<Trk::Track> fittedTrack { performFit(fitState, particleHypothesis, trackInfo, nullptr, nullptr, garbage) };
+
     m_countGoodRefits += m_countGoodFits - countGoodFits;
     m_countGoodFits = countGoodFits;
     m_countRefitIterations += m_countIterations - countIterations;
     m_countIterations = countIterations;
-    delete fittedTrack;
+
+    return;
   }
 } // end of namespace

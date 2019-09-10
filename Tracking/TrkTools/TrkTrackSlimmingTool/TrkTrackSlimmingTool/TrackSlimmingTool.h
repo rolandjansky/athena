@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,7 +11,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/ITrackSlimmingTool.h"
-
+#include "TrkTrack/Track.h"
+#include <memory>
+#include "CxxUtils/checker_macros.h"
 class AtlasDetectorID;
 class Identifier;
 
@@ -42,11 +44,23 @@ namespace Trk
       /** standard Athena-Algorithm method */
       virtual StatusCode finalize  () override;
       
-      /**This method 'skims' interesting information from the passed track, and creates a new one with cloned copies of this information
-	 @param track A reference to the track to be skimmed. It will not be modified in any way.
-	 @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is configured
+      /**This method 'skims' interesting information from the passed track, and creates a 
+       * new one with cloned copies of this information
+       * When m_setPersistificationHints = False
+	     @param track A const reference to the track to be skimmed. It will not be modified in any way.
+	     @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is configured
+       * When m_setPersistificationHints = True
+       @param track A reference to the track to be skimmed.It gets modified by setting persistification hints
+       @return nullptr
+       The later behaviour can be not thread-safe , look method slimCopy below 
       */
-      Trk::Track* slim(const Trk::Track& track) const override;
+      Trk::Track* slim  ATLAS_NOT_THREAD_SAFE (const Trk::Track& track) const override final;
+      /**This method always creates a std::unique_ptr<Trk::Track*> with information removed
+       * based on the tool configuration (m_setPersistificationHints is not used)
+       @param track A const reference to the track to be skimmed. It will not be modified in any way.
+       @return A 'slimmed' version of 'track', where exactly what information is copied depends on how the tool is configured
+       */
+      std::unique_ptr<Trk::Track> slimCopy(const Trk::Track& track) const override final;
       
     private:
       /** any CaloDeposit with its adjacent MEOT's will be kept on the slimmed track (combined muon property) */
@@ -67,7 +81,17 @@ namespace Trk
       
       void checkForValidMeas(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas, bool& isMSmeas) const;
       
-      void checkIfInDet(const Trk::TrackStateOnSurface* tsos, bool& isIDmeas);
+
+      void findLastValidTSoS(const DataVector<const Trk::TrackStateOnSurface>* oldTrackStates,
+                             const Trk::TrackStateOnSurface*& lastValidIDTSOS,
+                             const TrackStateOnSurface*& lastValidMSTSOS) const;
+    
+      bool keepParameters(const Trk::TrackStateOnSurface* TSoS,
+                          const TrackStateOnSurface*& firstValidIDTSOS, 
+                          const TrackStateOnSurface*& lastValidIDTSOS,
+                          const TrackStateOnSurface*& firstValidMSTSOS,
+                          const TrackStateOnSurface*& lastValidMSTSOS) const;
+
 
     }; 
 } // end of namespace

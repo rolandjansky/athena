@@ -8,7 +8,8 @@ if opts.trace_pattern:
 
 
 ### debugging helper, hooks debugger to running interpreter process ----------
-from AthenaCommon.Debugging import hookDebugger
+from AthenaCommon.Debugging import hookDebugger, allowPtrace
+allowPtrace()
 
 ### athena/gaudi -------------------------------------------------------------
 from AthenaCommon.Configurable import *
@@ -34,12 +35,12 @@ if not opts.run_batch:                               # i.e. interactive
 
 ## create the application manager and start in a non-initialised state
 from AthenaCommon.AppMgr import ToolSvc, ServiceMgr, theAuditorSvc
-exec 'theApp.setOutputLevel( %s )' % opts.msg_lvl
+theApp.setOutputLevel( globals()[opts.msg_lvl] )
 theApp._opts = opts                                     # FIXME
 
 ## further job messaging configuration
-if not os.environ.has_key( "POOL_OUTMSG_LEVEL" ):
-   exec 'os.environ[ "POOL_OUTMSG_LEVEL" ] = str(%s)' % opts.msg_lvl
+if not "POOL_OUTMSG_LEVEL" in os.environ:
+   os.environ[ "POOL_OUTMSG_LEVEL" ] = str(globals()[opts.msg_lvl])
 
 ## basic job configuration
 include( "AthenaCommon/Atlas.UnixStandardJob.py" )
@@ -163,7 +164,7 @@ if not opts.minimal:
 
 if opts.command:
    _msg.info( 'executing CLI (-c) command: "%s"' % opts.command )
-   exec opts.command
+   exec (opts.command)
 
 if DbgStage.value == "conf":
    hookDebugger()
@@ -183,43 +184,44 @@ if opts.do_leak_chk != False:
       mode = opts.memchk_mode, auditOn = opts.do_leak_chk )
 
 ## basic job configuration for Hive and AthenaMP
-if not opts.minimal:
-   from AthenaCommon.ConcurrencyFlags import jobproperties as jps
-   if opts.nprocs and (opts.nprocs >= 1 or opts.nprocs==-1):
-      jps.ConcurrencyFlags.NumProcs = opts.nprocs
-      _msg.info ("configuring AthenaMP with [%s] sub-workers", 
-                 jps.ConcurrencyFlags.NumProcs())
 
-      if (opts.debug_worker == True) :
-         jps.ConcurrencyFlags.DebugWorkers = True
-         _msg.info ("   Workers will pause after fork until SIGUSR1 signal received")
+from AthenaCommon.ConcurrencyFlags import jobproperties as jps
+if opts.nprocs and (opts.nprocs >= 1 or opts.nprocs==-1):
+   jps.ConcurrencyFlags.NumProcs = opts.nprocs
+   _msg.info ("configuring AthenaMP with [%s] sub-workers", 
+              jps.ConcurrencyFlags.NumProcs())
 
-   if ( (opts.threads and (opts.threads != 0)) or (opts.concurrent_events and (opts.concurrent_events != 0)) ):
+   if (opts.debug_worker == True) :
+      jps.ConcurrencyFlags.DebugWorkers = True
+      _msg.info ("   Workers will pause after fork until SIGUSR1 signal received")
 
-      if (opts.threads == 0 and opts.concurrent_events > 0) :
-         ## num threads = num concurrent evts
-         jps.ConcurrencyFlags.NumThreads = opts.concurrent_events
-         jps.ConcurrencyFlags.NumConcurrentEvents = opts.concurrent_events
-      elif ( opts.threads > 0 and opts.concurrent_events == 0) :
-         ## num concurrent evts = num threads
-         jps.ConcurrencyFlags.NumThreads = opts.threads
-         jps.ConcurrencyFlags.NumConcurrentEvents = opts.threads
-      else :
-         ## both concurrent evts and threads set individually
-         jps.ConcurrencyFlags.NumThreads = opts.threads
-         jps.ConcurrencyFlags.NumConcurrentEvents = opts.concurrent_events
+if ( (opts.threads and (opts.threads != 0)) or (opts.concurrent_events and (opts.concurrent_events != 0)) ):
+
+   if (opts.threads == 0 and opts.concurrent_events > 0) :
+      ## num threads = num concurrent evts
+      jps.ConcurrencyFlags.NumThreads = opts.concurrent_events
+      jps.ConcurrencyFlags.NumConcurrentEvents = opts.concurrent_events
+   elif ( opts.threads > 0 and opts.concurrent_events == 0) :
+      ## num concurrent evts = num threads
+      jps.ConcurrencyFlags.NumThreads = opts.threads
+      jps.ConcurrencyFlags.NumConcurrentEvents = opts.threads
+   else :
+      ## both concurrent evts and threads set individually
+      jps.ConcurrencyFlags.NumThreads = opts.threads
+      jps.ConcurrencyFlags.NumConcurrentEvents = opts.concurrent_events
          
 
-      if (jps.ConcurrencyFlags.NumProcs() > 0) :
-         _msg.info ("configuring hybrid AthenaMP/AthenaMT with [%s] concurrent threads and [%s] concurrent events per AthenaMP worker", jps.ConcurrencyFlags.NumThreads, jps.ConcurrencyFlags.NumConcurrentEvents)
-      elif (jps.ConcurrencyFlags.NumProcs() == 0) :
-         _msg.info ("configuring AthenaHive with [%s] concurrent threads and [%s] concurrent events", jps.ConcurrencyFlags.NumThreads(), jps.ConcurrencyFlags.NumConcurrentEvents())
-      else:
-         # we should never get here
-         _msg.error ("ConcurrencyFlags.NumProcs() cannot == -1 !!")
-         sys.exit()
+   if (jps.ConcurrencyFlags.NumProcs() > 0) :
+      _msg.info ("configuring hybrid AthenaMP/AthenaMT with [%s] concurrent threads and [%s] concurrent events per AthenaMP worker", jps.ConcurrencyFlags.NumThreads, jps.ConcurrencyFlags.NumConcurrentEvents)
+   elif (jps.ConcurrencyFlags.NumProcs() == 0) :
+      _msg.info ("configuring AthenaHive with [%s] concurrent threads and [%s] concurrent events", jps.ConcurrencyFlags.NumThreads(), jps.ConcurrencyFlags.NumConcurrentEvents())
+   else:
+      # we should never get here
+      _msg.error ("ConcurrencyFlags.NumProcs() cannot == -1 !!")
+      sys.exit()
 
-      import AthenaCommon.AtlasThreadedJob
+
+   import AthenaCommon.AtlasThreadedJob
 
 
 

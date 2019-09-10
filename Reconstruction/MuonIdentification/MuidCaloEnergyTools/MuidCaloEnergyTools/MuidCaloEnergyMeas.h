@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,11 +23,13 @@
 #include "MuidInterfaces/IMuidCaloEnergyMeas.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloConditions/CaloNoise.h"
+
+#include <atomic>
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class CaloCellContainer;
-class ICaloNoiseTool;
 class Identifier;
 class LArEM_ID;
 class LArHEC_ID;
@@ -90,8 +92,7 @@ private:
 						     double phi) const;
     
     // helpers, managers, tools
-    // FIXME: mutable
-    mutable ToolHandle<ICaloNoiseTool>		m_caloNoiseTool;
+    SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
     ToolHandle<IMuidCaloEnergyParam>		m_caloParamTool;
 
     const TileID*				m_tileID;
@@ -108,14 +109,13 @@ private:
 
     double			m_sigmasAboveNoise;	// The minimum sigmas above the noise tool rms
     double			m_sigmasAboveNoiseCore;	// The minimum sigmas above the noise tool rms
-    bool			m_useCaloNoiseTool;	// use the CaloNoiseTool?  
 
-    mutable int			m_totalCoreCellsEM;
-    mutable int			m_totalCoreCellsHEC;
-    mutable int			m_totalCoreCellsTile;
-    mutable int			m_totalSelectedEM;
-    mutable int			m_totalSelectedHEC;
-    mutable int			m_totalSelectedTile;
+    mutable std::atomic_int	m_totalCoreCellsEM;
+    mutable std::atomic_int	m_totalCoreCellsHEC;
+    mutable std::atomic_int	m_totalCoreCellsTile;
+    mutable std::atomic_int	m_totalSelectedEM;
+    mutable std::atomic_int	m_totalSelectedHEC;
+    mutable std::atomic_int	m_totalSelectedTile;
 };
 
 }	// end of namespace

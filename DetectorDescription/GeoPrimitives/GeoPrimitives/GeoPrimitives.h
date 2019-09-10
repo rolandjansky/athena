@@ -23,12 +23,13 @@
 
     @author  Robert Johannes Langenberg <robert.langenberg@cern.ch>
     @author Andreas Salzburger <Andreas.Salzburger@cern.ch>
+    @author Riccardo Maria BIANCHI <riccardo.maria.bianchi@cern.ch>
         
 */
 
 namespace Amg {
 
-    /** elment for code readability
+    /** element for code readability
         - please use these for access to the member variables if needed, e.g.
             double z  = position[Amg::z];
             double px = momentum[Amg::px];

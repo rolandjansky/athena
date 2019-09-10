@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 The CTP monitors three different types of signals. In the XML file
@@ -29,10 +29,12 @@ For each of these type 64 L1Items can be monitored independently
 
 """
 
-from TriggerMenu.l1.Lvl1Menu import Lvl1Menu
-from TriggerMenu.l1.Lvl1MonCounters import Lvl1MonCounters, Lvl1CtpinCounter, Lvl1CtpmonCounter
+from TriggerMenu.l1.Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
-class MonitorDef:
+from AthenaCommon.Logging import logging
+log = logging.getLogger('LVL1Menu.MonitorDef')
+
+class MonitorDef(object):
 
     LOW_FREQ = 0
     HIGH_FREQ = 1
@@ -49,7 +51,8 @@ class MonitorDef:
             # this special check addresses the LUT size issue for the monitoring (see file header and Cabling.py)
             dontGenerateCounter = (thr.ttype=="JET" and (thr.mapping==8 or thr.mapping==9)) \
                                   or thr.ttype=="TOPO" or thr.ttype=="ALFA"
-            if dontGenerateCounter: continue
+            if dontGenerateCounter:
+                continue
             for mult in range(1, 2**thr.cableinfo.bitnum):
                 counters += [ Lvl1CtpinCounter(thr.name,mult) ]
 
@@ -201,16 +204,16 @@ class MonitorDef:
             lutsHF = ( max(counts_HF.values())-1) / 8 + 1
 
             if lutsLF + lutsHF > 8:
-                print "WARNING: too many monitoring items are defined:"
-                print "   low frequency  TBP: %i" % counts_LF[TBP]
-                print "                  TAP: %i" % counts_LF[TAP]
-                print "                  TAV: %i" % counts_LF[TAV]
-                print "   required LUTs: %i" % lutsLF
-                print "   high frequency TBP: %i" % counts_HF[TBP]
-                print "                  TAP: %i" % counts_HF[TAP]
-                print "                  TAV: %i" % counts_HF[TAV]
-                print "   required LUTs: %i" % lutsHF
-                print "   this menu requires %i monitoring LUTs while only 8 are available" % (lutsLF + lutsHF)
+                log.warning("too many monitoring items are defined:")
+                log.warning("   low frequency  TBP: %i", counts_LF[TBP])
+                log.warning("                  TAP: %i", counts_LF[TAP])
+                log.warning("                  TAV: %i", counts_LF[TAV])
+                log.warning("   required LUTs: %i", lutsLF)
+                log.warning("   high frequency TBP: %i", counts_HF[TBP])
+                log.warning("                  TAP: %i", counts_HF[TAP])
+                log.warning("                  TAV: %i", counts_HF[TAV])
+                log.warning("   required LUTs: %i", lutsHF)
+                log.warning("   this menu requires %i monitoring LUTs while only 8 are available", (lutsLF + lutsHF))
             
 
 

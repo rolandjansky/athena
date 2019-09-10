@@ -5,6 +5,8 @@
 
 """Dump all properties from Gaudi objects in a given namespace."""
 
+from __future__ import print_function
+
 import os
 import sys
 import GaudiPython
@@ -62,7 +64,7 @@ def _printFromLookup( ns, listing, lookup, extra, klass ):
 def pprint( obj, stream = sys.stdout ):
    """Pretty print the properties of the given Gaudi object."""
 
-   from Configurable import Configurable
+   from AthenaCommon.Configurable import Configurable
    if isinstance( obj, Configurable ):
       stream.write( str(obj) )
       stream.write( '\n' )
@@ -71,7 +73,7 @@ def pprint( obj, stream = sys.stdout ):
    try:
       stream.write( obj.name() + os.linesep )
    except TypeError:
-      print obj
+      print (obj)
    for prop, value in obj.properties().items():
       if not obj._ip:
          try:

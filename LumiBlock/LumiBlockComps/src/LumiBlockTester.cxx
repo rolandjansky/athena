@@ -1,20 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LumiBlockComps/LumiBlockTester.h"
-#include "GaudiKernel/MsgStream.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/errorcheck.h"
 
 //--------------------------------------------------
 LumiBlockTester::LumiBlockTester(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator),
-  m_lumiTool("LuminosityTool"),
-  m_liveTool("TrigLivefractionTool"),
+  AthReentrantAlgorithm(name,pSvcLocator),
   m_muTool("LumiBlockMuTool")
 {
-  declareProperty("LuminosityTool", m_lumiTool);
-  declareProperty("TrigLivefractionTool", m_liveTool);
   declareProperty("LumiBlockMuTool", m_muTool);
 }
 
@@ -25,11 +21,8 @@ LumiBlockTester::initialize()
 
   ATH_CHECK(m_eventInfoKey.initialize());
 
-  // Get the luminosity tool
-  CHECK(m_lumiTool.retrieve());
-
-  // Get the livefration tool
-  CHECK(m_liveTool.retrieve());
+  ATH_CHECK( m_luminosityCondDataKey.initialize() );
+  ATH_CHECK( m_trigLiveFractionCondDataKey.initialize() );
 
   // Get the mu tool
   CHECK(m_muTool.retrieve());
@@ -40,11 +33,11 @@ LumiBlockTester::initialize()
 }
 
 StatusCode
-LumiBlockTester::execute() 
+LumiBlockTester::execute (const EventContext& ctx)  const
 {
   ATH_MSG_DEBUG("LumiBlockTester::execute()");
 
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey);  
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfoKey, ctx);
 
   // only there for serial running; remove when only doing MT
   if(!eventInfo.isValid()) {
@@ -57,16 +50,18 @@ LumiBlockTester::execute()
 
   ATH_MSG_DEBUG(" lumiblock " << lumiblock << " BCID " << bcid);
 
-  float avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
+  SG::ReadCondHandle<LuminosityCondData> lumiData (m_luminosityCondDataKey, ctx);
+  float avgmu = lumiData->lbAverageInteractionsPerCrossing();
   float instmu = 0.;
 
-  if (m_lumiTool->muToLumi() > 0.)
-    instmu = m_lumiTool->lbLuminosityPerBCID()/m_lumiTool->muToLumi(); 
+  if (lumiData->muToLumi() > 0.)
+    instmu = lumiData->lbLuminosityPerBCIDVector().at(bcid)/lumiData->muToLumi(); 
   else
-    ATH_MSG_DEBUG(" Lumi: " << m_lumiTool->lbLuminosityPerBCID() << " muToLumi: " << m_lumiTool->muToLumi() << "!");
+    ATH_MSG_DEBUG(" Lumi: " << lumiData->lbLuminosityPerBCIDVector().at(bcid) << " muToLumi: " << lumiData->muToLumi() << "!");
 
-  float live = m_liveTool->livefractionPerBCID();
-  float lumilive = m_liveTool->lbAverageLivefraction();
+  SG::ReadCondHandle<TrigLiveFractionCondData> liveData (m_trigLiveFractionCondDataKey, ctx);
+  float live = liveData->l1LiveFractionVector().at(bcid);
+  float lumilive = liveData->lbAverageLiveFraction();
 
   ATH_MSG_INFO( "LB: " << lumiblock << " BCID: " << bcid << " <mu>: " << avgmu << " mu: " << instmu << " livefraction: " << live << " lumiavg livefraction: " << lumilive );
 

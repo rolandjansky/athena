@@ -11,7 +11,7 @@ set( ATHDATAQUALITY_PROJECT_VERSION ${_version}
 unset( _version )
 
 # Set the version of tdaq-common to use for the build:
-set( TDAQ-COMMON_VERSION "03-00-00" CACHE STRING
+set( TDAQ-COMMON_VERSION "03-04-01" CACHE STRING
    "The version of tdaq-common to use for the build" )
 set( TDAQ-COMMON_ATROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}"
@@ -21,26 +21,29 @@ set( TDAQ-COMMON_ATROOT
 find_package( AtlasCMake REQUIRED )
 
 # Build the project against LCG:
-set( LCG_VERSION_POSTFIX "a"
+set( LCG_VERSION_POSTFIX ""
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 94
+set( LCG_VERSION_NUMBER 96
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
-# External(s) needed at runtime:
+# External(s) needed at build/runtime:
 find_package( Xrootd )
 find_package( GSL )
 find_package( PNG )
+find_package( TBB )
+find_package( TIFF )
 
 # Make CMake find the project specific code we have here:
-list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/modules )
+list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/cmake )
 
 # Set up CTest:
 atlas_ctest_setup()
 
 # Set up a work directory project:
 atlas_project( AthDataQuality ${ATHDATAQUALITY_PROJECT_VERSION}
-   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../ )
+   PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
+   LANGUAGES CXX )
 
 # Generate the environment setup for the externals, to be used during the build:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
@@ -73,9 +76,13 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
-configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PreConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )
+configure_file( ${CMAKE_SOURCE_DIR}/cmake/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
+install( FILES
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Set up CPack:

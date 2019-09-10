@@ -34,7 +34,14 @@
 #include <Inventor/nodes/SoSwitch.h>
 #include <SoDebug.h> // it's stored at /afs/cern.ch/sw/lcg/external/coin3d/3.1.3p2/x86_64-slc6-gcc47-opt/include/SoDebug.h
 
-
+// System of units
+#ifdef BUILDVP1LIGHT
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // --> 'GeoModelKernelUnits::cm'
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::cm'
+#endif
 
 
 //____________________________________________________________________
@@ -70,8 +77,8 @@ public:
 	//Settings:
 	bool considerTransverseEnergies = true; // TODO: update with button connection "E/Et" (see VP1JetCollection.cxx)
 	double coneRPar = -1; // FIXME: add calculation of coneRPar, like in the old VP1 Jet
-	double scale = (10.0 * Gaudi::Units::m) / (100.0*Gaudi::Units::GeV); // the default scale of all jets: 10m/100GeV
-	double maxR = 0.0 * Gaudi::Units::m; // default value for maxR is 0.0
+	double scale = (10.0 * SYSTEM_OF_UNITS::m) / (100.0*SYSTEM_OF_UNITS::GeV); // the default scale of all jets: 10m/100GeV
+	double maxR = 0.0 * SYSTEM_OF_UNITS::m; // default value for maxR is 0.0
 
 	//	SoLineSet * line;//This represents the line(s) representing the trackparticle. Can be interpolated.
 	//	SoPointSet * points;//This represents the points(s) representing the trackparticle's parameters.
@@ -142,7 +149,7 @@ IParticleHandle_Jet::~IParticleHandle_Jet()
 void IParticleHandle_Jet::setScale( const double& sc) { m_d->scale = sc; }
 
 //____________________________________________________________________
-void IParticleHandle_Jet::setMaxR(const double& maxR) { m_d->maxR = maxR * Gaudi::Units::m; }
+void IParticleHandle_Jet::setMaxR(const double& maxR) { m_d->maxR = maxR * SYSTEM_OF_UNITS::m; }
 
 //____________________________________________________________________
 void IParticleHandle_Jet::rerandomiseMaterial() {m_d->rerandomiseMaterial(); }
@@ -720,6 +727,15 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
    }
     
 	
+
+	// const xAOD::BTagging * myBTag = nullptr;
+ //    myBTag = d->m_jet->btagging();
+
+ //   if (myBTag == nullptr) {
+ //    VP1Msg::messageWarningRed("It was not possible to access the pointer to b-tagging info, for the selected collection! Returning 'weight': 0.0"); //("It was not possible to access the tagger '"+ tagger +"' for the selected collection: " + d->m_jet->getInputType() + d->m_jet->getAlgorithmType() );
+ //    return weight;
+ //   }
+
 
 	// TODO: add the other taggers
 

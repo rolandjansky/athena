@@ -5,7 +5,7 @@
 include( "AthenaPoolCnvSvc/WriteAthenaPool_jobOptions.py" )
 
 # check dictionary
-include( "AthenaSealSvc/AthenaSealSvc_joboptions.py" )
+include( "AthenaServices/AthenaSealSvc_joboptions.py" )
 
 #AthenaSealSvc.CheckDictionary = true;
 # Define the output Db parameters (the default value are shown)

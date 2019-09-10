@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
-			  DetectorDescription/GeoPrimitives
+			              DetectorDescription/GeoPrimitives
                           GaudiKernel
                           MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry

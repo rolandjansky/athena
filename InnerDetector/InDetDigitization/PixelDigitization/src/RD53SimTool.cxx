@@ -37,16 +37,18 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
 
   const PixelID* pixelId = static_cast<const PixelID *>(chargedDiodes.element()->getIdHelper());
   const IdentifierHash moduleHash = pixelId->wafer_hash(chargedDiodes.identify()); // wafer hash
+  Identifier moduleID = pixelId->wafer_id(chargedDiodes.element()->identify());
 
   int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
   int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
 
   if (abs(barrel_ec)!=m_BarrelEC) { return; }
 
-  SG::ReadCondHandle<PixelModuleData> module_data(m_moduleDataKey);
+  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
 
   //int maxRD53SmallHit = 0; unused
-  int overflowToT     = 256;
+  int overflowToT     = moduleData->getFEI4OverflowToT(barrel_ec,layerIndex);
 
   std::vector<Pixel1RawData*> p_rdo_small_fei4;
   //int nSmallHitsRD53 = 0; unused
@@ -56,49 +58,52 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
   std::vector<std::vector<int>> RD53Map(maxRow+16,std::vector<int>(maxCol+16));
 
   // Add cross-talk
-  CrossTalk(module_data->getCrossTalk(barrel_ec,layerIndex),chargedDiodes);
+  CrossTalk(moduleData->getCrossTalk(barrel_ec,layerIndex),chargedDiodes);
 
-  // Add thermal noise
-  ThermalNoise(module_data->getThermalNoise(barrel_ec,layerIndex),chargedDiodes,rndmEngine);
+  if (m_doNoise) {
+    // Add thermal noise
+    ThermalNoise(moduleData->getThermalNoise(barrel_ec,layerIndex),chargedDiodes,rndmEngine);
 
-  // Add random noise
-  RandomNoise(chargedDiodes,rndmEngine);
+    // Add random noise
+    RandomNoise(chargedDiodes,rndmEngine);
+  }
 
   // Add random diabled pixels
-  RandomDisable(chargedDiodes,rndmEngine);
+  RandomDisable(chargedDiodes,rndmEngine); // FIXME How should we handle disabling pixels in Overlay jobs?
 
   for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
 
     Identifier diodeID = chargedDiodes.getId((*i_chargedDiode).first);
     double charge = (*i_chargedDiode).second.charge();
 
-    // Apply analogu threshold, timing simulation
-    double th0  = m_pixelCalibSvc->getThreshold(diodeID);
+    int circ = m_pixelCabling->getFE(&diodeID,moduleID);
+    int type = m_pixelCabling->getPixelType(diodeID);
 
-    double threshold = th0+m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(rndmEngine)+m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(rndmEngine);
+    // Apply analogu threshold, timing simulation
+    double th0 = calibData->getAnalogThreshold((int)moduleHash, circ, type);
+
+    double threshold = th0+calibData->getAnalogThresholdSigma((int)moduleHash,circ,type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine)+calibData->getAnalogThresholdNoise((int)moduleHash, circ, type)*CLHEP::RandGaussZiggurat::shoot(rndmEngine); // This noise check is unaffected by digitizationFlags.doInDetNoise in 21.0 - see PixelCellDiscriminator.cxx in that branch
 
     if (charge>threshold) {
 
       int bunchSim = 0;
       if ((*i_chargedDiode).second.totalCharge().fromTrack()) {
-        bunchSim = static_cast<int>(floor((getG4Time((*i_chargedDiode).second.totalCharge())+m_timeZero)/m_timePerBCO));
+        bunchSim = static_cast<int>(floor((getG4Time((*i_chargedDiode).second.totalCharge())+moduleData->getTimeOffset(barrel_ec,layerIndex))/moduleData->getBunchSpace()));
       } 
       else {
-        bunchSim = CLHEP::RandFlat::shootInt(rndmEngine,m_timeBCN);
+        bunchSim = CLHEP::RandFlat::shootInt(rndmEngine,moduleData->getNumberOfBCID(barrel_ec,layerIndex));
       }
 
-      if (bunchSim<0 || bunchSim>m_timeBCN) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-      else                                  { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim, &msg()); }
+      if (bunchSim<0 || bunchSim>moduleData->getNumberOfBCID(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+      else                                                                          { SiHelper::SetBunch((*i_chargedDiode).second,bunchSim); }
     } 
     else {
       SiHelper::belowThreshold((*i_chargedDiode).second,true,true);
     }
 
-    if (charge<module_data->getAnalogThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
-
     // charge to ToT conversion
-    double tot    = m_pixelCalibSvc->getTotMean(diodeID,charge);
-    double totsig = m_pixelCalibSvc->getTotRes(diodeID,tot);
+    double tot    = calibData->getToT((int)moduleHash, circ, type, charge);
+    double totsig = calibData->getTotRes((int)moduleHash, circ, tot);
     int nToT = static_cast<int>(CLHEP::RandGaussZiggurat::shoot(rndmEngine,tot,totsig));
 
     if (nToT<1) { nToT=1; }
@@ -106,7 +111,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     // RD53 HitDiscConfig
     if (nToT>=overflowToT) { nToT=overflowToT; }
 
-    if (nToT<=module_data->getToTThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
+    if (nToT<=moduleData->getToTThreshold(barrel_ec,layerIndex)) { SiHelper::belowThreshold((*i_chargedDiode).second,true,true); }
 
     // Filter events
     if (SiHelper::isMaskOut((*i_chargedDiode).second))  { continue; } 
@@ -128,7 +133,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     if (iicol>=maxCol) { iicol=iicol-maxCol; } // RD53 copy mechanism works per FE.
 
     // Front-End simulation
-    if (bunch>=0 && bunch<m_timeBCN) {
+    if (bunch>=0 && bunch<moduleData->getNumberOfBCID(barrel_ec,layerIndex)) {
       Pixel1RawData *p_rdo = new Pixel1RawData(id_readout,nToT,bunch,0,bunch);
       //see commented code below for clarification why this is always executed
       rdoCollection.push_back(p_rdo);
@@ -150,6 +155,7 @@ void RD53SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
         RD53Map[iirow][iicol] = 1; //Flag for low hits
         nSmallHitsRD53++;
       } **/
+      p_rdo = nullptr;
     }
   }
   // again, the following code is never reached but left here for the developer to comment

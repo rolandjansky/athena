@@ -26,7 +26,7 @@ int announce(const char* name, int clid) {
 #endif
 
 #ifdef ASGTOOL_ATHENA
-  #include "SGTools/CLASS_DEF.h"
+  #include "AthenaKernel/CLASS_DEF.h"
 #else
   #ifdef CLASSDEF_SHOWDEFS
     #define CLASS_DEF(NAME, CLID, VER) int clid_CLASS = announce(#NAME, CLID);

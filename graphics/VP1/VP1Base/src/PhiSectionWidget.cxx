@@ -96,7 +96,9 @@ PhiSectionWidget::PhiSectionWidget(QWidget * parent,IVP1System * sys)
     VP1HelperClassBase(sys,"PhiSectionWidget"),
     m_d(new Imp)
 {
-  messageVerbose("PhiSectionWidget constr");
+  if(VP1Msg::verbose()){
+    messageVerbose("PhiSectionWidget constr");
+  }
 
   m_d->theclass = this;
   m_d->popup_menu = 0;
@@ -149,11 +151,15 @@ PhiSectionWidget::~PhiSectionWidget()
 //____________________________________________________________________
 void PhiSectionWidget::setNumberOfSectors(int nsectors,bool forceAllEnabled)
 {
-	messageDebug("setNumberOfSectors()");
+  if(VP1Msg::debug()){
+	 messageDebug("setNumberOfSectors()");
+  }
 
 
   if (nsectors<4||nsectors>99) {
-	  messageDebug("nsectors<4||nsectors>99. Returning.");
+    if(VP1Msg::debug()){
+	    messageDebug("nsectors<4||nsectors>99. Returning.");
+    }
     return;
   }
 
@@ -169,12 +175,16 @@ void PhiSectionWidget::setNumberOfSectors(int nsectors,bool forceAllEnabled)
     }
     nsectors = n>0 ? n : m_d->allowedNSectors.back();
   } else if (!m_d->sectorstatus.isEmpty() && nsectors==static_cast<int>(m_d->sectorstatus.count())) {
-	  messageDebug("!sectorstatus.isEmpty() && nsectors==sectorstatus.count(). Returning...");
+    if(VP1Msg::debug()){
+	   messageDebug("!sectorstatus.isEmpty() && nsectors==sectorstatus.count(). Returning...");
+    }
     return;
   }
 
   if ( m_d->sectorstatus.isEmpty() ) {
-	  messageDebug("m_d->sectorstatus is Empty.");
+    if(VP1Msg::debug()){
+	   messageDebug("m_d->sectorstatus is Empty.");
+    }
   }
 
   // check if sectors have already been defined
@@ -212,7 +222,9 @@ void PhiSectionWidget::setNumberOfSectors(int nsectors,bool forceAllEnabled)
   m_d->checkForChanges();
 
   if ( m_d->sectorstatus.isEmpty() ) {
-	  messageDebug("WARNING. m_d->sectorstatus is still Empty...");
+    if(VP1Msg::debug()){
+	   messageDebug("WARNING. m_d->sectorstatus is still Empty...");
+    }
   }
 }
 
@@ -475,7 +487,9 @@ void PhiSectionWidget::Imp::wrap(QList<VP1Interval>& l)
 //____________________________________________________________________
 QList<VP1Interval> PhiSectionWidget::Imp::enabledPhiRangesNoCache(const QVector<bool>& secstatus, bool& allOn, bool& allOff) const
 {
-	theclass->messageVerbose("enabledPhiRangesNoCache()");
+  if(VP1Msg::verbose()){
+	 theclass->messageVerbose("enabledPhiRangesNoCache()");
+  }
   QList<VP1Interval> l;
   allOn = true;
   allOff = true;
@@ -483,7 +497,9 @@ QList<VP1Interval> PhiSectionWidget::Imp::enabledPhiRangesNoCache(const QVector<
   const unsigned int n = secstatus.count();
 
   const double dphi = (2*M_PI)/n;
-  qDebug() << "n: " << n << " - dphi:" << dphi;
+  if(VP1Msg::debug()){
+    qDebug() << "n: " << n << " - dphi:" << dphi;
+  }
 
   bool open(false);
   double tmp(-999);
@@ -510,7 +526,9 @@ QList<VP1Interval> PhiSectionWidget::Imp::enabledPhiRangesNoCache(const QVector<
     l << VP1Interval(tmp,(2*M_PI));
   wrap(l);
 
-  theclass->messageDebug("exiting enabledPhiRangesNoCache()...");
+  if(VP1Msg::debug()){
+    theclass->messageDebug("exiting enabledPhiRangesNoCache()...");
+  }
 
   return l;
 }
@@ -519,11 +537,15 @@ QList<VP1Interval> PhiSectionWidget::Imp::enabledPhiRangesNoCache(const QVector<
 //____________________________________________________________________
 QList<VP1Interval> PhiSectionWidget::enabledPhiRanges() const
 {
-	messageDebug("enabledPhiRanges()");
+  if(VP1Msg::debug()){
+	 messageDebug("enabledPhiRanges()");
+  }
 
   if (!m_d->cacheValid) {
-	  messageDebug("Cache not valid. Checking for changes...");
-      m_d->checkForChanges();
+    if(VP1Msg::debug()){
+	   messageDebug("Cache not valid. Checking for changes...");
+    }
+    m_d->checkForChanges();
   }
   return m_d->cachedRanges;
 }
@@ -531,7 +553,9 @@ QList<VP1Interval> PhiSectionWidget::enabledPhiRanges() const
 //____________________________________________________________________
 QList<VP1Interval> PhiSectionWidget::enabledPhiRanges(double phi_min,double phi_max) const
 {
-	messageDebug("enabledPhiRanges(double phi_min,double phi_max)");
+  if(VP1Msg::debug()){
+	 messageDebug("enabledPhiRanges(double phi_min,double phi_max)");
+  }
 
   if (phi_min>=phi_max)
     return QList<VP1Interval>();
@@ -603,7 +627,9 @@ QString PhiSectionWidget::enabledRangesToString() const
 //____________________________________________________________________
 void PhiSectionWidget::Imp::checkForChanges()
 {
-	theclass->messageDebug("checkForChanges()");
+  if(VP1Msg::debug()){
+	 theclass->messageDebug("checkForChanges()");
+  }
 
   //Ensure caches are updated, and emit signal in case of any change:
   cacheValid = true;
@@ -615,7 +641,7 @@ void PhiSectionWidget::Imp::checkForChanges()
   updateColors();
   cachedRanges = r;
 
-  if (theclass->verbose()) {
+  if(VP1Msg::verbose()){
     QString s;
     for(int i=0;i<r.count();++i)
     s+= r.at(i).toString()+(i==r.count()-1?"":", ");
@@ -698,7 +724,9 @@ QByteArray PhiSectionWidget::state() const
 //____________________________________________________________________
 void PhiSectionWidget::setState(QByteArray ba)
 {
-  this->messageVerbose("setState()");
+  if(VP1Msg::verbose()){
+    this->messageVerbose("setState()");
+  }
   // ===> Setup stream for getting the contents of the byteArray:
   QBuffer buffer(&ba);
   buffer.open(QIODevice::ReadOnly);
@@ -780,16 +808,22 @@ void PhiSectionWidget::dragLeaveEvent ( QDragLeaveEvent * )
 //____________________________________________________________________
 void PhiSectionWidget::setAllowedNumberOfSectors(QList<int> allowedNSectors, bool allowCustom)
 {
-	messageVerbose("setAllowedNumberOfSectors()");
+  if(VP1Msg::verbose()){
+  	messageVerbose("setAllowedNumberOfSectors()");
+  }
 
   //Check validity:
   if (allowedNSectors.isEmpty()) {
-	messageVerbose("allowedNSectors empty. Returning.");
+    if(VP1Msg::verbose()){
+	    messageVerbose("allowedNSectors empty. Returning.");
+    }
     return;
   }
   foreach(int s, allowedNSectors) {
     if (s<4) {
-		messageVerbose("allowedNSectors s < 4. Returning.");
+      if(VP1Msg::verbose()){
+		    messageVerbose("allowedNSectors s < 4. Returning.");
+      }
       return;
     }
   }
@@ -815,6 +849,8 @@ void PhiSectionWidget::setAllowedNumberOfSectors(QList<int> allowedNSectors, boo
 
   int checkA = m_d->sectorstatus.isEmpty();
   int checkB = m_d->sectorstatus.count();
-  messageDebug("check - sectorstatus.isEmpty? " + str(checkA + checkB) );
+  if(VP1Msg::debug()){
+    messageDebug("check - sectorstatus.isEmpty? " + str(checkA + checkB) );
+  }
 
 }

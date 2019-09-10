@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEventTPCnv/InDetHits/TRT_HitCollectionCnv_p1.h"
@@ -34,19 +34,19 @@ TRTUncompressedHitCollection* TRTUncompressedHitCollectionCnv::createTransient()
 
     TRTUncompressedHitCollection       *trans_cont(0);
     if( this->compareClassGuid(p4_guid)) {
-        std::auto_ptr< TRT_HitCollection_p4 >   col_vect( this->poolReadObject< TRT_HitCollection_p4 >() );
+        std::unique_ptr< TRT_HitCollection_p4 >   col_vect( this->poolReadObject< TRT_HitCollection_p4 >() );
         trans_cont = converter_p4.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p1_guid)) {
-        std::auto_ptr< TRT_HitCollection_p1 >   col_vect( this->poolReadObject< TRT_HitCollection_p1 >() );
+        std::unique_ptr< TRT_HitCollection_p1 >   col_vect( this->poolReadObject< TRT_HitCollection_p1 >() );
         trans_cont = converter_p1.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p2_guid)) {
-        std::auto_ptr< TRT_HitCollection_p2 >   col_vect( this->poolReadObject< TRT_HitCollection_p2 >() );
+        std::unique_ptr< TRT_HitCollection_p2 >   col_vect( this->poolReadObject< TRT_HitCollection_p2 >() );
         trans_cont = converter_p2.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(p3_guid)) {
-        std::auto_ptr< TRT_HitCollection_p3 >   col_vect( this->poolReadObject< TRT_HitCollection_p3 >() );
+        std::unique_ptr< TRT_HitCollection_p3 >   col_vect( this->poolReadObject< TRT_HitCollection_p3 >() );
         trans_cont = converter_p3.createTransient( col_vect.get(), mlog );
     }
     else if( this->compareClassGuid(old_guid)) {

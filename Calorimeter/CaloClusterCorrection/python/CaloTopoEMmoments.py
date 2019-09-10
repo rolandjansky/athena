@@ -16,10 +16,8 @@ from CaloRec                      import CaloRecConf
 from CaloClusterCorrection.common import *
 from AthenaCommon.SystemOfUnits   import deg
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg()
 
 #
 # This table lists all available versions of this correction.
@@ -73,8 +71,6 @@ def make_CaloTopoEMmoments (name = None,
 
 class CaloTopoEMmoments_parms:
     MaxAxisAngle = 20*deg
-    CaloNoiseTool = theCaloNoiseTool
-    UsePileUpNoise = True
     MinBadLArQuality = 4000
     MomentsNames = [
         "FIRST_PHI" 

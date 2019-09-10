@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthContainers/DataVector.h"
 
-#include "TrigTauHypo/HLTVertexPreSelHypo.h"
+#include "HLTVertexPreSelHypo.h"
 #include "xAODTracking/VertexContainer.h"
 
 #include "TrigNavStructure/TrigNavStructure.h"

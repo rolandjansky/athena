@@ -168,9 +168,6 @@ namespace InDet{
       /**local position along wire to be written out*/
       mutable std::atomic<float> m_positionAlongWire;
       
-      /** the contained RIO (PRD, PrepRawData) - TRT_DriftCircle in this case */
-//       mutable const InDet::TRT_DriftCircle*  m_rio;
-
       ElementLinkToIDCTRT_DriftCircleContainer m_rio;
       
       /** the IdentifierHash - probably not used*/

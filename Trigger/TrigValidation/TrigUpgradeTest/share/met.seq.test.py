@@ -7,8 +7,6 @@ include("TrigUpgradeTest/testHLT_MT.py")
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-# from L1Decoder.L1DecoderConf import CreateFullScanRoI
-# topSequence += CreateFullScanRoI()
 
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
 InputMakerAlg = InputMakerForRoI("MetCellInputMaker", RoIsLink="initialRoI")
@@ -17,7 +15,7 @@ InputMakerAlg.InputMakerInputDecisions=["L1MET"]
 InputMakerAlg.InputMakerOutputDecisions=["InputMaker_from_L1MET"]
 topSequence += InputMakerAlg
 
-from TriggerMenuMT.HLTMenuConfig.MET.metDefs import metCellRecoSequence
+from TriggerMenuMT.HLTMenuConfig.MET.METSequences import metCellRecoSequence
 cellRecoSeq, METkey = metCellRecoSequence(InputMakerAlg.RoIs)
 topSequence += cellRecoSeq
 
@@ -35,4 +33,4 @@ metHypoAlg.HypoOutputDecisions = "EFMETDecisions"
 topSequence += metHypoAlg
 
 
-topSequence.L1DecoderTest.Chains="HLTChains"
+topSequence.L1Decoder.Chains="HLTChains"

@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from .lib import DCSC_Subdetector, DCSC_Variable, GoodIOV, OUT_OF_CONFIG, DCSC_DefectTranslate_Subdetector
+from DCSCalculator2.lib import DCSC_Variable, GoodIOV, OUT_OF_CONFIG, DCSC_DefectTranslate_Subdetector
 
 from DQUtils.events import process_iovs_mc
 from DQUtils.sugar import IOVSet
@@ -112,7 +112,7 @@ class Pixels(DCSC_DefectTranslate_Subdetector):
 
     def done(self):
         if logger.isEnabledFor(logging.DEBUG):
-            print "The following ranges indicate bad modules:"
+            logger.debug("The following ranges indicate bad modules:")
             #from pprint import pprint
             #pprint(list(self.bad_modules))
 

@@ -17,7 +17,6 @@
 #include "TrigMufastHypoTool.h"
 #include "DecisionHandling/HypoBase.h"
 
-class StoreGateSvc;
 class TriggerElement;
 
 // --------------------------------------------------------------------------------

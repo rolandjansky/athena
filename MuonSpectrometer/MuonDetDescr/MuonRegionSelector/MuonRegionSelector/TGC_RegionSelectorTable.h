@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 //   @file    TGC_RegionSelectorTable.h        
@@ -25,7 +25,6 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
-// class StoreGateSvc;
 class RegSelSiLUT;
 class MuonTGC_CablingSvc;
 

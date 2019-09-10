@@ -109,7 +109,7 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   m_TrackToTrackParticleConvTool("TrackToTrackParticleConvTool",this),
   m_muonCreatorTool("MuonCreatorTool"),
   m_stauCreatorTool("MuonCreatorTool"),
-  m_muonSystemExtensionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool"),
+  m_muonSystemExtensionTool("Muon::MuonSystemExtensionTool/MuonSystemExtensionTool", this),
   m_doMuonFeature(false),
   m_useL2Info(false),
   m_doCache(true)
@@ -1911,8 +1911,10 @@ HLT::ErrorCode TrigMuSuperEF::rebuildCache(const IRoiDescriptor* muonRoI, HLT::T
   addElement( m_tracksCache, m_extrTrkTrackColl);
   if(m_doOutsideIn && (!m_insideOutFirst || !m_doInsideOut) ) { // run TrigMuonEF
     auto hltStatus = runOutsideInOnly(muonRoI, TEout, muonCandidates, inDetCandidates, muonContainerOwn, elv_xaodidtrks); 
-    if(hltStatus != HLT::OK && hltStatus != HLT::MISSING_FEATURE)
+    if(hltStatus != HLT::OK && hltStatus != HLT::MISSING_FEATURE){
+      if(muonCandidates) delete muonCandidates;
       return hltStatus;
+    }
     if(m_doInsideOut) {
       if(m_forceBoth || hltStatus==HLT::MISSING_FEATURE){
 	m_muGirlTrkSegColl=new Trk::SegmentCollection();
@@ -1959,11 +1961,9 @@ HLT::ErrorCode TrigMuSuperEF::rebuildCache(const IRoiDescriptor* muonRoI, HLT::T
     ATH_MSG_ERROR("Problem building muons");
     return hltStatus;
   }
-  if(muonCandidates)
-    delete muonCandidates;
 
   //set cache objects
-  if(muonCandidates && combTrackParticleCont && saTrackParticleCont && m_combTrkTrackColl && m_combTrkTrackColl && m_muGirlTrkSegColl){ 
+  if(muonCandidates && combTrackParticleCont && saTrackParticleCont && m_combTrkTrackColl  && m_muGirlTrkSegColl){ 
     InternalCache *cacheStore = new InternalCache();	  
     cacheStore->SetMuonCandidates(muonCandidates);
     cacheStore->SetCombinedTracks(combTrackParticleCont);
@@ -1975,6 +1975,8 @@ HLT::ErrorCode TrigMuSuperEF::rebuildCache(const IRoiDescriptor* muonRoI, HLT::T
     if(!m_doInsideOut) m_CacheMapTMEFonly[m_hashlist] = cacheStore;
     else m_CacheMap[m_hashlist] = cacheStore;
   }
+
+  if(muonCandidates) delete muonCandidates;
   return HLT::OK;
 }
 

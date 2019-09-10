@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Matrix/SymMatrix.h"
 
 #include "TrkTrack/TrackStateOnSurface.h"
@@ -72,7 +71,7 @@ namespace Trk {
   }
 
   //________________________________________________________________________
-  bool AlignTrackDresser::dressAlignTrack(AlignTrack* alignTrack) const
+  bool AlignTrackDresser::dressAlignTrack(AlignTrack* alignTrack)
   {
     // set hit residuals
     setResiduals(alignTrack);

@@ -59,7 +59,7 @@ public:
 signals:
   void appropriateMDTProjectionsChanged(int);//To give hints to prd/track/segment systems about
   //0: No projections, 1: Project to end of tubes, 2: Project to end of chamber volume.
-  void plotSpectrum(QStack<QString>&, int copyNumber=-1); // Send information oabout selected volume to the PartSpectSystem
+  void plotSpectrum(QStack<QString>&, int copyNumber=-1); // Send information about selected volume to the VP1UtilitySystems::PartSpectSystem
   //The stack represents the path to the selected volume. The entries of this patch have form Volname::CopyNo
   //The Volname is either physical volume name, or, in case the former is absent, the logical volume name
   //The ::CopyNo suffix is added only when CopyNo is applicable
@@ -78,6 +78,7 @@ protected slots:
   void emit_appropriateMDTProjectionsChanged();
 
   void autoAdaptPixelsOrSCT(bool,bool,bool,bool,bool,bool);//pixel,brl,ecA,ecC,bcmA,bcmC
+  void autoAdaptMuonNSW(bool reset, bool stgc, bool mm); // reset to full NSW geo, sTGC, MicroMegas
   void resetSubSystems(VP1GeoFlags::SubSystemFlags);
   void autoExpandByVolumeOrMaterialName(bool,QString);//volname: (false,namestr), matname: (true,namestr)
   void actionOnAllNonStandardVolumes(bool);//true: zap, false: expand.

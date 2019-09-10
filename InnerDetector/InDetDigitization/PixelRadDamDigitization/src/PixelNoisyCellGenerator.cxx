@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -13,8 +13,6 @@
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoisson.h"
@@ -29,12 +27,10 @@ using namespace RadDam;
 
 PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const std::string& name,const IInterface* parent):
   PixelProcessorTool(type,name,parent),
-  m_pixelCalibSvc("PixelCalibSvc", name),
   m_timeBCN(1),
   m_mergeCharge(false),
   m_pixelID{},
-  m_rndNoiseProb(5e-8),
-  m_pixMgr{}
+  m_rndNoiseProb(5e-8)
 {
 	declareProperty("TimeBCN",      m_timeBCN,      "Number of BCID");	
   declareProperty("NoiseShape",   m_noiseShape,   "Vector containing noise ToT shape");
@@ -47,12 +43,10 @@ PixelNoisyCellGenerator::~PixelNoisyCellGenerator() {}
 StatusCode PixelNoisyCellGenerator::initialize() {
   CHECK(PixelProcessorTool::initialize());
  
-  CHECK(m_pixelCalibSvc.retrieve());
-  ATH_MSG_DEBUG("Retrieved PixelCalibSvc");
+  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_chargeDataKey.initialize());
 
   CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
-
-  CHECK(detStore()->retrieve(m_pixMgr,"Pixel"));
 
   ATH_MSG_DEBUG("PixelNoisyCellGenerator::initialize()");
   return StatusCode::SUCCESS;
@@ -100,6 +94,12 @@ void PixelNoisyCellGenerator::addRandomNoise(SiChargedDiodeCollection &collectio
 }
 
 void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const InDetDD::PixelModuleDesign *design, int circuit, int column, int row) const {
+
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+
+  const PixelID* pixelId = static_cast<const PixelID *>(collection.element()->getIdHelper());
+  const IdentifierHash moduleHash = pixelId->wafer_hash(collection.identify()); // wafer hash
+
   ATH_MSG_DEBUG("addCell 1 circuit = " << circuit << ", column = " << column << ", row = " << row);
 #ifdef __PIXEL_DEBUG__
   ATH_MSG_DEBUG("addCell: circuit,column,row=" << circuit << "," << column << "," << row);
@@ -137,7 +137,10 @@ void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const
     ATH_MSG_DEBUG ( "addCell 7b circuit = " << circuit << ", column = " << column << ", row = " << row);
 
     ATH_MSG_DEBUG ( "addCell 7c circuit = " << circuit << ", column = " << column << ", row = " << row);
-    double chargeShape = m_pixelCalibSvc->getCharge(noisyID,ToT);
+
+    int type = m_pixelCabling->getPixelType(noisyID);
+    double chargeShape = calibData->getCharge((int)moduleHash, circuit, type, ToT);
+
     ATH_MSG_DEBUG ( "addCell 7d circuit = " << circuit << ", column = " << column << ", row = " << row);
     //    const double chargeGauss = chargeOfs + chargeVar*CLHEP::RandGaussZiggurat::shoot( m_rndmEngine );
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloFillRectangularCluster.cxx,v 1.20 2009-04-25 17:57:01 ssnyder Exp $
@@ -131,6 +131,50 @@ void etaphi_range (double eta,
 //**************************************************************************
 
 
+// Helper to get calorimeter segmentation.
+// We need to defer this until after initialize(), when the detector
+// description is available.
+class Segmentation
+{
+public:
+  Segmentation (StoreGateSvc* detStore);
+
+  /// middle layer  cell segmentation size 
+  double m_detas2;
+  double m_dphis2;
+};
+
+
+Segmentation::Segmentation (StoreGateSvc* detStore)
+{
+  const CaloDetDescrManager* dd_man = nullptr;
+  if (detStore->retrieve (dd_man, "CaloMgr").isFailure()) {
+    m_detas2 = 0;
+    m_dphis2 = 0;
+  }
+  else {
+    const CaloDetDescrElement* elt = dd_man->get_element (CaloCell_ID::EMB2,
+                                                          0.001,
+                                                          0.001);
+    if (elt) {
+      m_detas2 = elt->deta();
+      m_dphis2 = elt->dphi();
+    }
+    else {
+      // various TB configurations might have other eta/phi ranges or
+      // no access at all to EMB2 but would need still the standard
+      // EMB2 cell width as reference. Therefore the nominal eta and
+      // phi width is assumed here
+      m_detas2 = 0.025;
+      m_dphis2 = M_PI/128.;
+    }
+  }
+}
+
+
+//**************************************************************************
+
+
 /**
  * @brief Sampling calculator helper class.
  *
@@ -148,9 +192,11 @@ public:
   /**
    * @brief Constructor.
    * @param parent The parent correction class.
+   * @param windows Per-layer array of window eta,phi sizes.
    * @param cluster The cluster being operated on.
    */
   SamplingHelper (const CaloClusterCorrection& parent,
+                  const CaloFillRectangularCluster::WindowArray_t& windows,
                   CaloCluster* cluster);
 
 
@@ -218,36 +264,34 @@ public:
    * @brief Calculate layer variables and update cluster.
    * @param eta Center of the cluster in @f$\eta@f$.
    * @param phi Center of the cluster in @f$\phi@f$.
-   * @param deta Full width of the cluster in @f$\eta@f$.
-   * @param dphi Full width of the cluster in @f$\phi@f$.
-   * @param fallback_eta @f$\eta@f$ result to use if there's an error.
-   * @param fallback_phi @f$\phi@f$ result to use if there's an error.
-   * @param sampling The sampling for which to do the calculation.
+   * @param layer Calorimeter layer being calculated (0-3).
+   * @param fallback_layer Layer for fallback values (see below).
+   * @param samplings List of samplings for this region.
    * @param allow_badpos Should error flags be allowed into the cluster?
    *
    * This method selects the cells within the specified
-   * window in the specified sampling from the current list of cells
-   * in the cluster and calculates the layer variables.
+   * window for the sampling for the specified layer from the current list
+   * of cells in the cluster and calculates the layer variables.
    *
    * The result of the calculation will be held in internal variables.
    * In addition, the cluster variables for this sampling will
    * be updated with the result.
    *
    * In some cases, the calculation of the cluster position may yield
-   * an error (for example, if there are no selected cells).  In this case,
-   * the values specified by @c fallback_eta and @c fallback_phi are used
-   * instead of the calculated result.  If @c allow_badpos is true,
+   * an error (for example, if there are no selected cells).
+   * In this case, we use the cluster eta/phi from the layer
+   * given by @c fallback_layer instead of the calculated result.
+   * (If @c fallback_layer is < 0, then we use the @c eta, @c phi
+   * arguments instead.)  If @c allow_badpos is true,
    * then the error flags are used to update the cluster variables;
    * otherwise, the fallback position is used when updating the cluster.
    */
   void
   calculate_and_set (double eta,
                      double phi,
-                     double deta,
-                     double dphi,
-                     double fallback_eta,
-                     double fallback_phi,
-                     CaloSampling::CaloSample sampling,
+                     int layer,
+                     int fallback_layer,
+                     const CaloSampling::CaloSample samplings[4],
                      bool allow_badpos = false);
 
 
@@ -269,6 +313,10 @@ public:
   // return also the real value (now that the raw value are returned instead)
   double etareal() const { return m_calc.etam(); }
 
+  // Return cluster window size for a given layer.
+  double deta (int layer) const { return m_windows[layer].first; }
+  double dphi (int layer) const { return m_windows[layer].second; }
+
 
 protected:
   /// The calculator object.
@@ -279,6 +327,9 @@ protected:
 
   /// The cluster we're updating.
   CaloCluster* m_cluster;
+
+  /// Window size, per layer.
+  CaloFillRectangularCluster::WindowArray_t m_windows;
 
   /// @f$\eta@f$ position from last calculation.
   double m_etam;
@@ -291,12 +342,15 @@ protected:
 /**
  * @brief Constructor.
  * @param parent The parent correction class.
+ * @param windows Per-layer array of window eta,phi sizes.
  * @param cluster The cluster being operated on.
  */
 SamplingHelper::SamplingHelper (const CaloClusterCorrection& parent,
+                                const CaloFillRectangularCluster::WindowArray_t& windows,
                                 CaloCluster* cluster)
   : m_parent (parent),
     m_cluster (cluster),
+    m_windows (windows),
     m_etam(0),
     m_phim(0)
 {
@@ -307,25 +361,25 @@ SamplingHelper::SamplingHelper (const CaloClusterCorrection& parent,
  * @brief Calculate layer variables and update cluster.
  * @param eta Center of the cluster in @f$\eta@f$.
  * @param phi Center of the cluster in @f$\phi@f$.
- * @param deta Full width of the cluster in @f$\eta@f$.
- * @param dphi Full width of the cluster in @f$\phi@f$.
- * @param fallback_eta @f$\eta@f$ result to use if there's an error.
- * @param fallback_phi @f$\phi@f$ result to use if there's an error.
- * @param sampling The sampling for which to do the calculation.
+ * @param layer Calorimeter layer being calculated (0-3).
+ * @param fallback_layer Layer for fallback values (see below).
+ * @param samplings List of samplings for this region.
  * @param allow_badpos Should error flags be allowed into the cluster?
  *
  * This method selects the cells within the specified
- * window in the specified sampling from the current list of cells
- * in the cluster and calculates the layer variables.
+ * window for the sampling for the specified layer from the current list
+ * of cells in the cluster and calculates the layer variables.
  *
  * The result of the calculation will be held in internal variables.
  * In addition, the cluster variables for this sampling will
  * be updated with the result.
  *
  * In some cases, the calculation of the cluster position may yield
- * an error (for example, if there are no selected cells).  In this case,
- * the values specified by @c fallback_eta and @c fallback_phi are used
- * instead of the calculated result.  If @c allow_badpos is true,
+ * an error (for example, if there are no selected cells).
+ * In this case, we use the cluster eta/phi from the layer
+ * given by @c fallback_layer instead of the calculated result.
+ * (If @c fallback_layer is < 0, then we use the @c eta, @c phi
+ * arguments instead.)  If @c allow_badpos is true,
  * then the error flags are used to update the cluster variables;
  * otherwise, the fallback position is used when updating the cluster.
  */
@@ -333,17 +387,23 @@ void
 SamplingHelper::calculate_and_set
   (double eta,
    double phi,
-   double deta,
-   double dphi,
-   double fallback_eta,
-   double fallback_phi,
-   CaloSampling::CaloSample sampling,
+   int layer,
+   int fallback_layer,
+   const CaloSampling::CaloSample samplings[4],
    bool allow_badpos)
 {
-  calculate (eta, phi, deta, dphi, sampling, true);
+  calculate (eta, phi, deta(layer), dphi(layer), samplings[layer], true);
 
   double seteta = m_calc.etam();
   double setphi = m_calc.phim();
+
+  double fallback_eta = eta;
+  double fallback_phi = phi;
+  if ((seteta == -999 || setphi == -999) && fallback_layer >= 0) {
+    // In the calo frame
+    fallback_eta = m_cluster->etaSample (samplings[fallback_layer]);
+    fallback_phi = m_cluster->phiSample (samplings[fallback_layer]);
+  }
 
   if (!allow_badpos) {
     //if (m_etam == -999) m_etam = fallback_eta;
@@ -354,7 +414,7 @@ SamplingHelper::calculate_and_set
 
   //FIXME: Sampling pattern not yet set! 
   m_parent.setsample (m_cluster,
-                      sampling,
+                      samplings[layer],
                       m_calc.em(),
 		      seteta,
 		      setphi,
@@ -482,11 +542,13 @@ public:
   /**
    * @brief Constructor.
    * @param parent The parent correction class.
+   * @param windows Per-layer array of window eta,phi sizes.
    * @param cluster The cluster being operated on.
    * @param list The cell list.
    * @param cell_container The container from which the cells came.
    */
   SamplingHelper_CaloCellList (const CaloClusterCorrection& parent,
+                               const CaloFillRectangularCluster::WindowArray_t& windows,
                                CaloCluster* cluster,
                                const CaloCellList& list,
                                const CaloCellContainer* cell_container);
@@ -533,16 +595,18 @@ private:
 /**
  * @brief Constructor.
  * @param parent The parent correction class.
+ * @param windows Per-layer array of window eta,phi sizes.
  * @param cluster The cluster being operated on.
  * @param list The cell list.
  * @param cell_container The container from which the cells came.
  */
 SamplingHelper_CaloCellList::SamplingHelper_CaloCellList
    (const CaloClusterCorrection& parent,
+    const CaloFillRectangularCluster::WindowArray_t& windows,
     CaloCluster* cluster,
     const CaloCellList& list,
     const CaloCellContainer* /*cell_container*/)
-     : SamplingHelper (parent, cluster),
+     : SamplingHelper (parent, windows, cluster),
        m_list (list)
 {
 }
@@ -610,9 +674,11 @@ public:
   /**
    * @brief Constructor.
    * @param parent The parent correction class.
+   * @param windows Per-layer array of window eta,phi sizes.
    * @param cluster The cluster being operated on.
    */
   SamplingHelper_Cluster (const CaloClusterCorrection& parent,
+                          const CaloFillRectangularCluster::WindowArray_t& windows,
                           CaloCluster* cluster);
 
   /**
@@ -649,11 +715,13 @@ public:
 /**
  * @brief Constructor.
  * @param parent The parent correction class.
+ * @param windows Per-layer array of window eta,phi sizes.
  * @param cluster The cluster being operated on.
  */
 SamplingHelper_Cluster::SamplingHelper_Cluster (const CaloClusterCorrection& parent,
+                                                const CaloFillRectangularCluster::WindowArray_t& windows,
                                                 CaloCluster* cluster)
-  : SamplingHelper (parent, cluster)
+  : SamplingHelper (parent, windows, cluster)
 {
 }
 
@@ -717,17 +785,7 @@ CaloFillRectangularCluster::CaloFillRectangularCluster
   (const std::string& type,
    const std::string& name,
    const IInterface* parent)
-    : CaloClusterCorrection(type, name, parent),
-      m_detas2(0),
-      m_dphis2(0),
-      m_deta0(0),
-      m_deta1(0),
-      m_deta2(0),
-      m_deta3(0),
-      m_dphi0(0),
-      m_dphi1(0),
-      m_dphi2(0),
-      m_dphi3(0)
+    : CaloClusterCorrection(type, name, parent)
 { 
   // properties 
   declareProperty("eta_size",     m_neta = 5);
@@ -749,44 +807,6 @@ StatusCode CaloFillRectangularCluster::initialize()
   CHECK( CaloClusterCorrection::initialize() );
   if (!m_cellsName.key().empty())
     CHECK( m_cellsName.initialize() );
-
-  // Look up the middle layer cell segmentation.
-  {
-    const CaloDetDescrManager* dd_man = CaloDetDescrManager::instance();
-    const CaloDetDescrElement* elt = dd_man->get_element (CaloCell_ID::EMB2,
-                                                          0.001,
-                                                          0.001);
-    if (elt) {
-      m_detas2 = elt->deta();
-      m_dphis2 = elt->dphi();
-    }
-    else {
-      // various TB configurations might have other eta/phi ranges or
-      // no access at all to EMB2 but would need still the standard
-      // EMB2 cell width as reference. Therefore the nominal eta and
-      // phi width is assumed here
-      m_detas2 = 0.025;
-      m_dphis2 = M_PI/128.;
-    }
-  }
-
-  // set up the sampling windows:
-  m_deta0 = m_detas2*m_neta;
-  m_dphi0 = m_dphis2*4;
-
-  if (m_nphi >= 7)
-    m_dphi0 = m_dphi0*2;
-  else
-    m_dphi0 = m_dphi0*1.5;
-
-  m_deta1 = m_deta0;
-  m_dphi1 = m_dphi0;
-
-  m_deta2 = m_detas2*m_neta;
-  m_dphi2 = m_dphis2*m_nphi;
-
-  m_deta3 = (2*m_detas2)*(0.5 + (m_neta/2.));
-  m_dphi3 = m_dphi2;
 
   return StatusCode::SUCCESS;
 }
@@ -810,8 +830,7 @@ CaloFillRectangularCluster::makeCorrection1(const EventContext& ctx,
                                              samplings[4]) const
 {
   // Do sampling 2.
-  helper.calculate_and_set (eta, phi, m_deta2, m_dphi2, eta, phi,
-                            samplings[2], true);
+  helper.calculate_and_set (eta, phi, 2, -1, samplings, true);
   // the etam and phim of the helper are now filled with etamr and phimr from the CaloLayerCalculator
   double eta2 = helper.etam();
   double phi2 = helper.phim();
@@ -819,13 +838,8 @@ CaloFillRectangularCluster::makeCorrection1(const EventContext& ctx,
   if (eta2 == -999.) eta2 = eta;
   if (phi2 == -999.) phi2 = phi;
 
-  // But the fall back are in the calo frame
-  double etaf = helper.cluster()->etaSample(samplings[2]);
-  double phif = helper.cluster()->phiSample(samplings[2]);
-
   // Now do sampling 1; use the result from sampling 2 as the seed.
-  helper.calculate_and_set (eta2, phi2, m_deta1, m_dphi1, etaf, phif,
-                            samplings[1]);
+  helper.calculate_and_set (eta2, phi2, 1, -1, samplings);
   double eta1 = helper.etam();
   double phi1 = helper.phim();
   bool refine = true;
@@ -865,16 +879,10 @@ CaloFillRectangularCluster::makeCorrection1(const EventContext& ctx,
   }
 
   // Now do sampling 0 using the eta1 point: 
-  etaf = helper.cluster()->etaSample(samplings[1]);
-  phif = helper.cluster()->phiSample(samplings[1]);
-  helper.calculate_and_set (eta1, phi2, m_deta0, m_dphi0, etaf, phif,
-                            samplings[0]);
+  helper.calculate_and_set (eta1, phi2, 0, 1, samplings);
 
   // Do for sampling 3 (using the sampling 2 seed).
-  etaf = helper.cluster()->etaSample(samplings[2]);
-  phif = helper.cluster()->phiSample(samplings[2]);
-  helper.calculate_and_set (eta2, phi2, m_deta3, m_dphi3, etaf, phif,
-                            samplings[3]);
+  helper.calculate_and_set (eta2, phi2, 3, -1, samplings);
 
   // Crack;
   // Check if the cluster has TileGap3 sampling and avoid to calculate the TileGap3 energy twice
@@ -955,8 +963,7 @@ CaloFillRectangularCluster::makeCorrection2 (const EventContext& ctx,
   // Get the seed position of the cluster.
   CaloCluster* cluster = helper.cluster();
   double eta, phi;
-  const CaloCell* cell_max = helper.max_et_cell();
-  get_seed (cluster, cell_max, eta, phi);
+  get_seed (helper, cluster, eta, phi);
   double aeta = fabs(eta);  
 
   // set the appropriate cluster size
@@ -1067,8 +1074,15 @@ CaloFillRectangularCluster::makeCorrection2 (const EventContext& ctx,
 void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
                                                 CaloCluster* cluster) const
 {
-
   ATH_MSG_DEBUG( "Executing CaloFillRectangularCluster" << endmsg) ;
+
+  CaloClusterCorr::Segmentation seg (&*detStore());
+  if (seg.m_detas2 == 0) {
+    ATH_MSG_ERROR ("Retrieving cell segmentation");
+    return;
+  }
+  WindowArray_t windows = initWindows (m_neta, m_nphi,
+                                       seg.m_detas2, seg.m_dphis2);
 
   if (m_fill_cluster) {
 
@@ -1099,10 +1113,11 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
     // This 5 is a safe margin for cell_list calculation
     // and should not be changed.
     CaloCellList cell_list(cell_container); 
-    cell_list.select(eta,phi,m_detas2*(m_neta+5),m_dphis2*(m_nphi+5));
+    cell_list.select(eta,phi,seg.m_detas2*(m_neta+5),seg.m_dphis2*(m_nphi+5));
 
     // Do the calculation.
     CaloClusterCorr::SamplingHelper_CaloCellList helper (*this,
+                                                         windows,
                                                          cluster,
                                                          cell_list,
                                                          cell_container);
@@ -1110,7 +1125,7 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
   }
   else {
     // We're recalculating a cluster using the existing cells.
-    CaloClusterCorr::SamplingHelper_Cluster helper (*this, cluster);
+    CaloClusterCorr::SamplingHelper_Cluster helper (*this, windows, cluster);
     makeCorrection2 (ctx, helper);
   }
 }
@@ -1118,20 +1133,21 @@ void CaloFillRectangularCluster::makeCorrection(const EventContext& ctx,
 
 /*
  * @brief Return the seed position of a cluster.
+ * @param helper Sampling calculation helper object.
  * @param cluster The cluster on which to operate.
- * @param max_et_cell The cell with the largest energy
- *  (of those being considered for inclusion in the cluster).
  * @param[out] eta The @f$\eta@f$ location of the cluster seed.
  * @param[out] phi The @f$\phi@f$ location of the cluster seed.
  *
  * The cluster seed is the center of rectangular cluster windows.
  * This may be overridden by derived classes to change the seed definition.
  */
-void CaloFillRectangularCluster::get_seed (const CaloCluster* cluster,
-                                           const CaloCell* max_et_cell,
+void CaloFillRectangularCluster::get_seed (CaloClusterCorr::SamplingHelper& helper,
+                                           const CaloCluster* cluster,
                                            double& eta,
                                            double& phi) const
 {
+  const CaloCell* max_et_cell = helper.max_et_cell();
+
   ///!!! NEW way of the endcap-shift treatment (same for barrel and endcap)
   // a.b.c 2004 : for barrel, correct for the alignment before 
   //               comparing the Tower direction and the cell's
@@ -1171,7 +1187,7 @@ void CaloFillRectangularCluster::get_seed (const CaloCluster* cluster,
            elt->descriptor()->calo_eta_max()))
   {
     // Max cell is at the edge.  Is it outside the window?
-    if (std::abs (eta - elt->eta()) > m_deta2/2) {
+    if (std::abs (eta - elt->eta()) > helper.deta(2)/2) {
       // Yes --- change the seed.
       eta = elt->eta();
     }
@@ -1196,3 +1212,41 @@ CaloFillRectangularCluster::setCaloCellContainerName
   return this->setProperty (StringProperty ("cells_name", name));
 }
 
+
+/** 
+ * @brief Set up layer-by-layer cluster window sizes.
+ * @param neta Cluster eta size.
+ * @param nphi Cluster phi size.
+ * @param detas2 Middle layer cell eta size.
+ * @param detas2 Middle layer cell phi size.
+ *
+ * Returns per-layer array of deta,dphi pairs.
+ */
+CaloFillRectangularCluster::WindowArray_t
+CaloFillRectangularCluster::initWindows (const int neta,
+                                         const int nphi,
+                                         const double detas2,
+                                         const double dphis2) const
+{
+  CaloFillRectangularCluster::WindowArray_t w;
+
+  // set up the sampling windows:
+  w[0].first  = detas2*neta;
+  w[0].second = dphis2*4;
+
+  if (nphi >= 7)
+    w[0].second *= 2;
+  else
+    w[0].second *= 1.5;
+
+  w[1].first  = w[0].first;
+  w[1].second = w[0].second;
+
+  w[2].first  = detas2*neta;
+  w[2].second = dphis2*nphi;
+
+  w[3].first  = (2*detas2)*(0.5 + (neta/2.));
+  w[3].second = w[2].second;
+
+  return w;
+}

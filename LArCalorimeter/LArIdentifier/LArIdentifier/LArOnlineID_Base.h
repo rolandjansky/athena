@@ -98,10 +98,6 @@ class Range;
    *
    *    int   channelInSlotMax         (const HWIdentifier Id) const;  
    *
-   * The following methods are now disabled:
-   *    bool  isEMB_BACK               (const HWIdentifier id) const;
-   *    bool  isEMB_MIDDLE             (const HWIdentifier id) const;
-   *    bool  isEMB_FRONT              (const HWIdentifier id) const;
    *===========================================================================
    */
 class LArOnlineID_Base : public AtlasDetectorID
@@ -242,6 +238,77 @@ class LArOnlineID_Base : public AtlasDetectorID
    *  @brief Define channel hash tables max size 
    */
   size_type  channelHashMax (void) const;
+
+  /**
+   * @brief Build calibration module identifier from fields
+   */
+  HWIdentifier calib_module_Id(int barrel_ec,
+			       int pos_neg,
+			       int feedthrough, 
+			       int slot ) const;
+  /**
+   * @brief Create calibration module identifier from hash identifiers
+   */
+  HWIdentifier calib_module_Id(IdentifierHash calibModuleHash) const;	
+  /**
+   * @brief create calibration module_hash identifier from module Identifier
+   */
+  IdentifierHash calib_module_Hash(HWIdentifier calibModuleId) const;
+
+  /**
+   * @brief Return an iterator pointing to a calibFeb identifier 's collection
+   */
+  std::vector<HWIdentifier>::const_iterator calib_module_begin(void) const;
+  std::vector<HWIdentifier>::const_iterator calib_module_end  (void) const;
+
+
+  /**
+   * @brief create calibration channel identifiers from fields 
+   */
+  HWIdentifier calib_channel_Id(int barrel_ec,
+				int pos_neg,
+				int feedthrough, 
+				int slot,
+				int channel ) const;
+  /**
+   * @brief create calibration channel identifiers from hash identifiers 
+   */
+  HWIdentifier calib_channel_Id(IdentifierHash calibChannelHash) const;	
+  /**
+   * @brief Return an iterator pointing to a collection of calibration channel identifiers
+   */
+  std::vector<HWIdentifier>::const_iterator calib_channel_begin(void) const;
+  std::vector<HWIdentifier>::const_iterator calib_channel_end  (void) const;
+
+
+  /**
+   * @brief Define a calibration module identifier from a channel identifier
+   */
+  HWIdentifier calib_module_Id(const HWIdentifier ChannelId) const ;
+  /**
+   * @brief Define a calibration module identifier from a feedthrough identifier
+   */
+  HWIdentifier calib_module_Id(const HWIdentifier FeedthroughId, int slot) const ;
+  /**
+   * @brief Define a calibration channel identifier from a feedthrough identifier
+   */
+  HWIdentifier calib_channel_Id(const HWIdentifier FeedthroughId, int slot, int channel ) const ;
+  /**
+   * @brief Define a calibration channel identifier from a feb identifier
+   */
+  HWIdentifier calib_channel_Id(const HWIdentifier febId, int ChannelId) const ;
+
+  IdentifierHash calib_channel_Hash (HWIdentifier channelId) const ;
+
+  /**
+   *  @brief Define calibration module hash tables max size 
+   */
+  size_type  calibModuleHashMax (void) const;
+
+  /**
+   *  @brief Define calibration channel hash tables max size 
+   */
+  size_type  calibChannelHashMax (void) const;
 
 
   /** 
@@ -394,6 +461,8 @@ protected:
 			       const IdContext* context) const;
   int  initLevelsFromDict(const std::string& group_name) ;
   int  init_hashes(void) ;
+  int  init_calib_hashes(void) ;
+
   size_type m_laronlineRegion_index;   // LArOnline_region
   size_type m_lar_index;               // LAr
   size_type m_laronline_index;         // 4
@@ -416,6 +485,14 @@ protected:
   std::vector<HWIdentifier>     m_feedthrough_vec;
   std::vector<HWIdentifier>     m_feb_vec;
   std::vector<HWIdentifier>     m_channel_vec;
+
+  /* Calib */
+  MultiRange                    m_full_calib_laronline_range;
+  MultiRange                    m_full_calib_module_range;
+  size_type                     m_calibModuleHashMax;
+  size_type                     m_calibChannelHashMax;
+  std::vector<HWIdentifier>     m_calib_module_vec;
+  std::vector<HWIdentifier>     m_calib_channel_vec;
 
   /** Field Implementation */
   IdDictFieldImplementation     m_lar_impl;
@@ -453,10 +530,183 @@ protected:
 static const int s_lar_online_field_value = 4 ;
 static const int s_lar_onlineCalib_field_value = 5 ;
 
+//=====================
+// Inline Definitions
+//=====================
+
+inline IdentifierHash LArOnlineID_Base::feb_Hash_binary_search (HWIdentifier febId) const
+/*=============================================================================== */
+{
+    std::vector<HWIdentifier>::const_iterator it = std::lower_bound(m_feb_vec.begin(),m_feb_vec.end(),febId);
+    if ( it != m_feb_vec.end() ){
+	return (it - m_feb_vec.begin());
+    }
+    return (0);
+}
+
+
+inline IdentifierHash LArOnlineID_Base::channel_Hash_binary_search (HWIdentifier channelId) const
+/*=========================================================================*/
+{
+  std::vector<HWIdentifier>::const_iterator it = std::lower_bound(m_channel_vec.begin(),m_channel_vec.end(),channelId);
+  if ( it != m_channel_vec.end() ){
+    return (it - m_channel_vec.begin());
+  }
+  return(0) ;
+}
+
+/* CALIB inline Identifiers */
+/*==========================*/
+
+inline HWIdentifier LArOnlineID_Base::calib_module_Id(int barrel_ec, int pos_neg, 
+						 int feedthrough, int slot ) const 
+/*=============================================================== */
+{
+  HWIdentifier result(0);  
+  /*Pack fields independently */
+  m_lar_impl.pack        (lar_field_value(), result);
+  m_laronline_impl.pack  (5                , result);
+  m_bec_impl.pack        (barrel_ec        , result);
+  m_side_impl.pack       (pos_neg          , result);
+  m_feedthrough_impl.pack(feedthrough      , result);
+  m_slot_impl.pack       (slot             , result); 
+  return result;
+}
+
+inline HWIdentifier LArOnlineID_Base::calib_module_Id(const HWIdentifier feedthroughId , int slot) const
+/*==================================================================================== */
+{
+  HWIdentifier result(feedthroughId);
+  /* Pack fields independently */
+  m_slot_impl.reset           (result);
+  m_slot_impl.pack            (slot  , result);
+  return(result);
+}
+
+inline HWIdentifier LArOnlineID_Base::calib_module_Id(const HWIdentifier calibChannelId ) const
+/*======================================================================= */
+{
+  HWIdentifier result(calibChannelId);
+  m_channel_in_slot_impl.reset(result);
+  return(result);
+}
+
+inline HWIdentifier LArOnlineID_Base::calib_module_Id(IdentifierHash calibModuleHashId) const
+/*=========================================================================== */
+{
+  return(m_calib_module_vec[calibModuleHashId]);
+}
+
+inline IdentifierHash LArOnlineID_Base::calib_module_Hash (HWIdentifier calibModuleId) const
+/*=============================================================================== */
+{
+    std::vector<HWIdentifier>::const_iterator it = std::lower_bound(m_calib_module_vec.begin(),m_calib_module_vec.end(),calibModuleId);
+    if ( it != m_calib_module_vec.end() ){
+	return (it - m_calib_module_vec.begin());
+    }
+    return (0);
+}
+
+inline HWIdentifier LArOnlineID_Base::calib_channel_Id( int barrel_ec, int pos_neg, int feedthrough, 
+						   int slot,      int channel ) const 
+/*============================================================================== */
+{  
+  HWIdentifier result(0);
+  /* Pack fields independently */
+  m_lar_impl.pack            (lar_field_value()    , result);
+  m_laronline_impl.pack      (5                    , result);
+  m_bec_impl.pack            (barrel_ec            , result);
+  m_side_impl.pack           (pos_neg              , result);
+  m_feedthrough_impl.pack    (feedthrough          , result);
+  m_slot_impl.pack           (slot                 , result);
+  m_channel_in_slot_impl.pack(channel              , result);
+
+  return result;
+}
+
+inline HWIdentifier LArOnlineID_Base::calib_channel_Id(const HWIdentifier feedthroughId,int slot,int channel) const 
+/*==================================================================================================== */
+{  
+  HWIdentifier result(feedthroughId);
+  /* Pack fields independently */
+  m_slot_impl.reset           (result);
+  m_channel_in_slot_impl.reset(result);
+  m_slot_impl.pack            (slot  , result);
+  m_channel_in_slot_impl.pack (channel, result);
+
+  return result;
+}
+
+inline HWIdentifier LArOnlineID_Base::calib_channel_Id(const HWIdentifier febId, int channel) const 
+/*======================================================================================= */
+{  
+  HWIdentifier result(febId);
+  /* Pack fields independently */
+  m_channel_in_slot_impl.reset(result);
+  m_channel_in_slot_impl.pack (channel, result);
+
+  return result;
+}
+inline HWIdentifier LArOnlineID_Base::calib_channel_Id(IdentifierHash channelHashId) const
+/*===================================================================*/
+{
+    return(m_calib_channel_vec[channelHashId]);
+}
+
+inline IdentifierHash LArOnlineID_Base::calib_channel_Hash (HWIdentifier channelId) const
+/*=========================================================================*/
+{
+  std::vector<HWIdentifier>::const_iterator it = std::lower_bound(m_calib_channel_vec.begin(),m_calib_channel_vec.end(),channelId);
+  if ( it != m_calib_channel_vec.end() ){
+    return (it - m_calib_channel_vec.begin());
+  }
+  return(0) ;
+}
+
+/* Calib */
+inline LArOnlineID_Base::size_type LArOnlineID_Base::calibModuleHashMax (void) const
+/*=======================================================================*/
+{
+  return m_calibModuleHashMax;
+}
+inline LArOnlineID_Base::size_type LArOnlineID_Base::calibChannelHashMax (void) const
+/*====================================================================*/
+{
+  return m_calibChannelHashMax;
+}
+
+
+
+
+
+/* Calib */
+inline std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::calib_module_begin(void) const
+/*====================================================================*/
+{
+  return(m_calib_module_vec.begin());
+}
+inline std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::calib_module_end(void) const
+/*==================================================================*/
+{
+  return(m_calib_module_vec.end());
+}
+
+inline std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::calib_channel_begin(void) const
+/*======================================================================*/
+{
+  return(m_calib_channel_vec.begin());
+}
+inline std::vector<HWIdentifier>::const_iterator LArOnlineID_Base::calib_channel_end(void) const
+/*======================================================================*/
+{
+  return(m_calib_channel_vec.end());
+}
+
+
 
 //using the macro below we can assign an identifier (and a version)
 //This is required and checked at compile time when you try to record/retrieve
-//CLASS_DEF( LArOnlineID , 158698068 , 1 )
+CLASS_DEF( LArOnlineID_Base , 28598761 , 1 )
 
 
 #endif // LARONLINE_ID_BASE_H

@@ -1,9 +1,11 @@
 #Files for use in configuration unit tests
 
-class defaultTestFiles():
+from __future__ import print_function
+
+class defaultTestFiles(object):
     import os
     d = os.environ.get ("ATLAS_REFERENCE_DATA",
-                       "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art")
+                        "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art")
     EVNT= [d + "/SimCoreTests/mcatnlojimmy_ttbar_leptonfilter.19.2.5.37.EVNT.pool.root"] #find an official file.
     HITS= [d + "/Tier0ChainTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000425.pool.root.1"]
     HITS_SPECIAL = [d + "/DigitizationTests/mc16_13TeV.HITS.16965029._000024.pool.root.1"]

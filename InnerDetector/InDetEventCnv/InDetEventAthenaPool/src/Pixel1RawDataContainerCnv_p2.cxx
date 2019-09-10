@@ -11,7 +11,7 @@
 #include "Pixel1RawDataCnv_p2.h"
 #include "Pixel1RawDataContainerCnv_p2.h"
 #include "MsgUtil.h"
-#include "CreateTransientTemplate.h"
+
 
 
 void Pixel1RawDataContainerCnv_p2::transToPers(const PixelRDO_Container* transCont, InDetRawDataContainer_p2* persCont, MsgStream &log) 
@@ -128,7 +128,7 @@ void  Pixel1RawDataContainerCnv_p2::persToTrans(const InDetRawDataContainer_p2* 
 
 //================================================================
 PixelRDO_Container* Pixel1RawDataContainerCnv_p2::createTransient(const InDetRawDataContainer_p2* persObj, MsgStream& log) {
-    std::unique_ptr<PixelRDO_Container> trans(new PixelRDO_Container(m_pixId->wafer_hash_max()));
+    std::unique_ptr<PixelRDO_Container> trans(std::make_unique<PixelRDO_Container>(m_pixId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

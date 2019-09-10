@@ -25,11 +25,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CaloConditions/CaloNoise.h"
+#include "GaudiKernel/EventContext.h"
 
 class CaloCell_ID;
 class CaloDetDescrManager;
 class ICalorimeterNoiseTool;
-class StoreGateSvc;
 class CaloCluster;
 
 class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightTool
@@ -38,7 +39,7 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
 
   virtual ~CaloLCWeightTool();
 
-  virtual StatusCode weight(xAOD::CaloCluster* theCluster) const override;
+  virtual StatusCode weight(xAOD::CaloCluster* theCluster, const EventContext& ctx) const override;
   virtual StatusCode initialize() override;
 
   CaloLCWeightTool(const std::string& type, 
@@ -95,7 +96,7 @@ class CaloLCWeightTool : public AthAlgTool, virtual public IClusterCellWeightToo
   const CaloCell_ID* m_calo_id;
   const CaloDetDescrManager* m_calo_dd_man; 
   
-  mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+  SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","electronicNoise","SG Key of CaloNoise data object"};
 };
 
 #endif

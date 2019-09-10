@@ -11,6 +11,7 @@
 
 // Members
 #include "G4VSensitiveDetector.hh"
+#include "G4Types.hh"
 #ifdef G4MULTITHREADED
 #  include "tbb/concurrent_unordered_map.h"
 #endif

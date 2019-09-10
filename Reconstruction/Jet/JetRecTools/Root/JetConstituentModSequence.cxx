@@ -31,10 +31,6 @@ StatusCode JetConstituentModSequence::initialize() {
 
 
   ATH_CHECK( m_modifiers.retrieve() );
-  if( m_modifiers.empty() ) {
-    ATH_MSG_ERROR(" empty container !!" );
-    return StatusCode::FAILURE;
-  }
 
   // Set and initialise DataHandleKeys only for the correct input type
   // Die if the input type is unsupported

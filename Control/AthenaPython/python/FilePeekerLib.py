@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file PyAthena.FilePeekerLib
 # @purpose provide components to peek into pool files
 # @author Sebastien Binet
 # @date February 2010
+
+from __future__ import print_function
 
 __version__= "$Revision: 668532 $"
 __author__ = "Sebastien Binet"
@@ -183,7 +185,7 @@ class FilePeeker(PyAthena.Alg):
         msg = self.msg
         try:
             obj = store[metadata_name]
-        except KeyError,err:
+        except KeyError as err:
             msg.warning('could not retrieve [%s]', metadata_name)
             return
         msg.info('processing container [%s]', obj.folderName())
@@ -198,7 +200,7 @@ class FilePeeker(PyAthena.Alg):
                 payloads.append(_tmp.at(ii))
             pass
         for ii,payload in zip(range(payloads_sz), payloads):
-            # print "-->",ii,payload,type(payload),'\n' 
+            # print ("-->",ii,payload,type(payload),'\n' )
             if not payload:
                 msg.info ("**error** null-pointer ?")
                 continue
@@ -270,9 +272,9 @@ class FilePeeker(PyAthena.Alg):
         
         #payload.dump()
         ##  if len(data)>1 and obj.folderName() == "/TagInfo":
-        ##      print "="*80,metadata_name
+        ##      print ("="*80,metadata_name)
         ##      for d in data:
-        ##        print "==",d
+        ##        print ("==",d)
         return data
 
     def finalize(self):
@@ -385,7 +387,7 @@ class FilePeeker(PyAthena.Alg):
             item_list = esi.item_list()
             item_list = map(_make_item_list, item_list)
             peeked_data['eventdata_items'] = item_list
-            # print "======",len(item_list)
+            # print ("======",len(item_list))
             peeked_data['lumi_block'] = esi.lumi_blocks()
             peeked_data['run_number'] = esi.run_numbers()
             #peeked_data['evt_number'] = esi.event_number()
@@ -620,7 +622,7 @@ class FilePeeker(PyAthena.Alg):
                 clid_name = _typename(clid)
                 if clid_name:
                     clid = clid_name
-            except Exception,err:
+            except Exception as err:
                 msg.info("no typename for clid [%s] (%s)", clid, err)
             item_list.append((str(clid), sgkey))
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -24,7 +24,7 @@ class IParticleToCaloExtensionMap {
 
 };
 
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( IParticleToCaloExtensionMap , 221362399 , 1 )
 
 #endif // TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_IPARTICLETOCALEXTENSIONMAP_H

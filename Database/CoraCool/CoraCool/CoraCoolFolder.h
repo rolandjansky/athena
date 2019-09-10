@@ -17,7 +17,9 @@
 #include "CoolKernel/ChannelSelection.h"
 #include "CoolKernel/RecordSpecification.h"
 #include "CoolKernel/IField.h"
+#include "CoolKernel/pointers.h"
 #include "CoraCool/CoraCoolTypes.h"
+
 
 class CoraCoolSequence;
 

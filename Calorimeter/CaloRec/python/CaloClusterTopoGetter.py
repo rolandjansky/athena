@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: CaloClusterTopoGetter.py,v 1.10 2009-05-19 09:41:18 menke Exp $
 #
 # File: CaloRec/python/CaloClusterTopoGetter.py
 # Created: September 2008, S.Menke
@@ -13,8 +12,6 @@
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 from RecExConfig.ObjKeyStore import objKeyStore
-from AthenaCommon.JobProperties import jobproperties as jp
-import traceback
 
 #from CaloUtils.CaloUtilsConf import H1ClusterCellWeightTool, EMFracClusterClassificationTool, OutOfClusterCorrectionTool, DeadMaterialCorrectionTool2
 from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
@@ -25,19 +22,18 @@ from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterCellWeigh
 #<<
 
 from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker, CaloClusterSnapshot, CaloClusterMomentsMaker_DigiHSTruth #, CaloClusterLockVars, CaloClusterPrinter
-from CaloRec import CaloRecFlags
 from CaloRec.CaloTopoClusterFlags import jobproperties
-from AthenaCommon.SystemOfUnits import deg, GeV, MeV
-from AthenaCommon.AlgSequence import AlgSequence
+from AthenaCommon.SystemOfUnits import deg, MeV
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 
 from LArCellRec.LArCellRecConf import LArHVFraction
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theCaloNoiseTool
+from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+CaloNoiseCondAlg()
+#For LCWeightsTool needs electronic noise
+CaloNoiseCondAlg(noisetype="electronicNoise") 
+
 
 def addSnapshot(corrName,contName):
     from AthenaCommon.AlgSequence import AlgSequence
@@ -53,9 +49,9 @@ def addSnapshot(corrName,contName):
             newCorrTools.append(newSnapshot)
             found=True
     if not found:
-        mlog.error("Did not find cluster correction tool %s" % corrName)
+        mlog.error("Did not find cluster correction tool %s", corrName)
     else:
-        mlog.info("Added cluster snapshot after correction tool %s" % corrName)
+        mlog.info("Added cluster snapshot after correction tool %s", corrName)
         topSequence.CaloTopoCluster.ClusterCorrectionTools=newCorrTools
         topSequence.CaloTopoCluster+=newSnapshot
     return
@@ -82,13 +78,13 @@ class CaloClusterTopoGetter ( Configured )  :
 
 
         # get handle to upstream object
+        from CaloRec.CaloRecFlags import jobproperties
         theCaloCellGetter = self.getInputGetter\
-                            (jp.CaloRecFlags.clusterCellGetterName())
+                            (jobproperties.CaloRecFlags.clusterCellGetterName())
 
         # configure cell weight calibration
         if jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
-            from CaloClusterCorrection.CaloClusterCorrectionConf import H1WeightToolCSC12Generic
-            from CaloClusterCorrection.StandardCellWeightCalib   import H1Calibration, getCellWeightTool
+            from CaloClusterCorrection.StandardCellWeightCalib import getCellWeightTool
             CellWeights = CaloClusterCellWeightCalib("CellWeights")
             # -- configure weight tool
             finder = jobproperties.CaloTopoClusterFlags.cellWeightRefFinder.get_Value()
@@ -117,7 +113,6 @@ class CaloClusterTopoGetter ( Configured )  :
             # H1Weight = H1ClusterCellWeightTool("H1Weight")
             # H1Weight.CorrectionKey       = "H1ClusterCellWeights"
             # H1Weight.SignalOverNoiseCut  = 2.0
-            # H1Weight.CaloNoiseTool       = theCaloNoiseTool
             # 
             # OOCC     = OutOfClusterCorrectionTool("OOCC")
             # OOCC.CorrectionKey       = "OOCCorrection"
@@ -137,7 +132,6 @@ class CaloClusterTopoGetter ( Configured )  :
             LCWeight = CaloLCWeightTool("LCWeight")
             LCWeight.CorrectionKey       = "H1ClusterCellWeights"
             LCWeight.SignalOverNoiseCut  = 2.0
-            LCWeight.CaloNoiseTool       = theCaloNoiseTool
             LCWeight.UseHadProbability   = True
 
             LCOut     = CaloLCOutOfClusterTool("LCOut")
@@ -155,7 +149,6 @@ class CaloClusterTopoGetter ( Configured )  :
             #DMTool.SignalOverNoiseCut  = 1.0
             #DMTool.ClusterRecoStatus   = 0
             #DMTool.WeightModeDM        = 2 
-            #DMTool.CaloNoiseTool       = theCaloNoiseTool
             
             LCDeadMaterial   = CaloLCDeadMaterialTool("LCDeadMaterial")
             LCDeadMaterial.HadDMCoeffKey       = "HadDMCoeff2"
@@ -205,8 +198,6 @@ class CaloClusterTopoGetter ( Configured )  :
         TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
         TopoMoments.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
         TopoMoments.MaxAxisAngle = 20*deg
-        TopoMoments.CaloNoiseTool = theCaloNoiseTool
-        TopoMoments.UsePileUpNoise = True
         TopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
         TopoMoments.MinBadLArQuality = 4000
         TopoMoments.MomentsNames = ["FIRST_PHI" 
@@ -243,13 +234,14 @@ class CaloClusterTopoGetter ( Configured )  :
                                     ,"AVG_TILE_Q"
                                     ,"PTD"
                                     ,"MASS"
+                                    ,"EM_PROBABILITY"
                                     ]
 
         doDigiTruthFlag = False
         try:
             from Digitization.DigitizationFlags import digitizationFlags
             doDigiTruthFlag = digitizationFlags.doDigiTruth()
-        except:
+        except Exception:
             log = logging.getLogger('CaloClusterTopoGetter')
             log.info('Unable to import DigitizationFlags in CaloClusterTopoGetter. Expected in AthenaP1')
 
@@ -258,8 +250,6 @@ class CaloClusterTopoGetter ( Configured )  :
           TopoMoments_Truth.LArHVFraction=LArHVFraction(HVScaleCorrKey="LArHVScaleCorr")
           TopoMoments_Truth.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute() 
           TopoMoments_Truth.MaxAxisAngle = 20*deg
-          TopoMoments_Truth.CaloNoiseTool = theCaloNoiseTool
-          TopoMoments_Truth.UsePileUpNoise = True
           TopoMoments_Truth.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
           TopoMoments_Truth.MinBadLArQuality = 4000
           TopoMoments_Truth.MomentsNames = ["FIRST_PHI_DigiHSTruth"
@@ -366,15 +356,15 @@ class CaloClusterTopoGetter ( Configured )  :
                                        "TileExt0", "TileExt1", "TileExt2",
                                        "TileGap1", "TileGap2", "TileGap3",
                                        "FCAL0", "FCAL1", "FCAL2"] 
-        TopoMaker.CaloNoiseTool=theCaloNoiseTool
-        TopoMaker.UseCaloNoiseTool=True
-        TopoMaker.UsePileUpNoise=True
         TopoMaker.NeighborOption = "super3D"
         TopoMaker.RestrictHECIWandFCalNeighbors  = False
         TopoMaker.RestrictPSNeighbors  = True
         TopoMaker.CellThresholdOnEorAbsEinSigma     =    0.0
         TopoMaker.NeighborThresholdOnEorAbsEinSigma =    2.0
         TopoMaker.SeedThresholdOnEorAbsEinSigma     =    4.0
+        #timing
+        TopoMaker.SeedCutsInT = jobproperties.CaloTopoClusterFlags.doTimeCut()
+
         # note E or AbsE 
         #
         # the following property must be set to TRUE in order to make double
@@ -552,7 +542,7 @@ class CaloClusterTopoGetter ( Configured )  :
         # pool/cool part
         #
         if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
-            from CaloRec import CaloClusterTopoCoolFolder
+            from CaloRec import CaloClusterTopoCoolFolder  # noqa: F401
             if globalflags.DetDescrVersion().startswith("Rome"):
                 CaloTopoCluster.LocalCalib.LCClassify.MaxProbability = 0.85
                 CaloTopoCluster.LocalCalib.LCClassify.UseNormalizedEnergyDensity = False 

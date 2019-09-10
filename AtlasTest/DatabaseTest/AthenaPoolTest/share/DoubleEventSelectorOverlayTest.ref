@@ -1,14 +1,14 @@
-Thu Apr  4 17:04:54 CEST 2019
+Thu Apr 18 18:48:07 CEST 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaExternals-22.0.1] [x86_64-slc6-gcc8-opt] [2.0.26/d4d5e51] -- built on [2019-04-01T2109]
+Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-slc6-gcc8-opt] [master-DES-ReadWrite-Handle/ef4bb18542] -- built on [2019-04-18T1721]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthenaPoolTest/DoubleEventSelectorOverlayTest.py"
-Py:ConfigurableDb    INFO Read module info for 5470 configurables from 8 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5471 configurables from 8 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:ConfiguredFactory    INFO imported 131 confDb modules in 0.76 seconds
+Py:ConfiguredFactory    INFO imported 132 confDb modules in 1.08 seconds
 Py:Athena            INFO including file "AthenaPoolTest/NoStats_jobOptions.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -16,7 +16,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
-                                          running on f9pc23.ijs.si on Thu Apr  4 17:05:07 2019
+                                          running on f9pc23.ijs.si on Thu Apr 18 18:48:21 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
@@ -41,63 +41,64 @@ DoubleEventSele...   INFO Initializing DoubleEventSelector - package version Eve
 DoubleEventSele...  DEBUG Service base class initialized successfully
 DoubleEventSele...   INFO reinitialization...
 DoubleEventSele...   INFO EventSelection with query 
-DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v1/RDO.merged-pileup-MT.100events.pool.root" from the collection list.
+DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/RDO.merged-pileup-MT.unittest.pool.root" from the collection list.
 DoubleEventSele...   INFO EventSelection with query 
 DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" from the collection list.
 ApplicationMgr       INFO Application Manager Initialized successfully
-DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v1/RDO.merged-pileup-MT.100events.pool.root" from the collection list.
+DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/RDO.merged-pileup-MT.unittest.pool.root" from the collection list.
 DoubleEventSele...  DEBUG Try item: "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/HITS.10504490._000765.pool.root.1" from the collection list.
 ApplicationMgr       INFO Application Manager Started successfully
 DoubleEventSele...  DEBUG guid != m_primaryGuid
 DoubleEventSele...  DEBUG guid != m_secondaryGuid
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000000].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000000].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000000].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000000].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000000].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000000]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000000].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000000]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000000]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits
@@ -122,54 +123,55 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000001].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000001].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000001].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000001].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000001].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000001]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000001].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000001]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000001]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits
@@ -194,54 +196,55 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000002].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000002].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000002].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000002].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000002].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000002]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000002].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000002]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000002]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits
@@ -266,54 +269,55 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000003].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000003].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000003].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000003].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000003].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000003]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000003].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000003]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000003]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits
@@ -338,54 +342,55 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000004].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000004].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000004].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000004].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000004].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000004]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000004].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000004]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000004]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits
@@ -410,54 +415,55 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000005].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000005].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000005].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000005].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000005].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000005]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000005].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000005]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000005]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits
@@ -482,54 +488,55 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000006].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000006].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000006].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000006].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000006].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000006]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000006].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000006]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000006]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits
@@ -554,54 +561,55 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000007].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000007].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000007].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000007].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000007].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000007]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000007].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000007]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000007]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits
@@ -626,54 +634,55 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000008].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000008].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000008].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000008].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000008].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000008]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000008].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000008]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000008]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits
@@ -698,54 +707,55 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, 
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonExitLayer
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1312841250, name = LArCalibrationHitDeadMaterial
-DoubleEventSele...  DEBUG Try recording AttributeList
+DoubleEventSele...  DEBUG Try recording AttributeLists
 DoubleEventSele...  DEBUG Get AttributeList from the collection
 DoubleEventSele...  DEBUG AttributeList size 12
-DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000009].
-DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000009].
-DoubleEventSele...  DEBUG Try appending to AttributeList
+DoubleEventSele...  DEBUG record AthenaAttribute, name = Token = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000009].
+DoubleEventSele...  DEBUG Append secondary attribute list properties to the primary one with a suffix: secondary
 DoubleEventSele...  DEBUG record AthenaAttribute, name = Token_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000009].
 DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000009].
-DoubleEventSele...  DEBUG found PrimaryAthenaAttribute, name = eventRef = [DB=108E29D8-3D38-474D-9E9A-D1FA34A36CB4][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000028-0000000000000009]
+DoubleEventSele...  DEBUG record AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000009].
+DoubleEventSele...  DEBUG found AthenaAttribute, name = eventRef = [DB=8BCD9728-EB56-6042-AFDF-61C0C379D70E][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=0000000000000029-0000000000000009]
 AthenaPoolAddre...  DEBUG found AthenaAttribute, name = eventRef_secondary = [DB=9553B87B-1832-3346-A65E-916E6C1DEAB5][CNT=POOLContainer(DataHeader)][CLID=D82968A1-CF91-4320-B2DD-E0F739CBC7E6][TECH=00000202][OID=000000000000001B-0000000000000009]
 AthenaPoolAddre...  DEBUG Created dataHeader SecondaryEventSelector
-AthenaPoolAddre...  DEBUG The current Event contains: 37 objects
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = PixelRDOs
+AthenaPoolAddre...  DEBUG The current Event contains: 38 objects
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2540, name = Bkg_PixelRDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2541, name = Bkg_SCT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = TRT_RDOs
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2542, name = Bkg_TRT_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_BCM_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_PixelSDO_Map
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_SCT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = PixelSDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = TRT_SDO_Map
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = BCM_RDOs
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2543, name = Bkg_TRT_SDO_Map
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2590, name = Bkg_BCM_RDOs
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2711, name = Bkg_LArDigitContainer_MC
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1EM
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2771, name = Bkg_LArTTL1HAD
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = MuRcvDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = TileDigitsCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2927, name = MuRcvRawChCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = TileTTL1MBTS
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = TileL2Cnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = TileMuRcvCnt
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = CSCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = TGCRDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = MDTCSM
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = RPCPAD
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_MuRcvDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2925, name = Bkg_TileDigitsCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2933, name = Bkg_TileTTL1MBTS
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2934, name = Bkg_TileL2Cnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2954, name = Bkg_TileMuRcvCnt
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4183, name = Bkg_CSCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4186, name = Bkg_TGCRDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4187, name = Bkg_MDTCSM
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 4190, name = Bkg_RPCPAD
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 133273, name = Bkg_TruthEvent
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 38853911, name = Bkg_EventInfoAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = MDT_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = RPC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = TGC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_MDT_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_RPC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 41658935, name = Bkg_TGC_SDO
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 45903698, name = Bkg_EventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_EVNTtoHITS_timings
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 76321643, name = Bkg_HITStoRDO_timings
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = CSC_SDO
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = MuonEntryLayer
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = InTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = OutOfTimeAntiKt4TruthJets
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = InTimeAntiKt4TruthJetsAux.
-AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1095642046, name = Bkg_CSC_SDO
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1235574503, name = Bkg_MuonEntryLayer
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_InTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1244316195, name = Bkg_OutOfTimeAntiKt4TruthJets
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1272974287, name = PileUpEventInfoAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_InTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1294631886, name = Bkg_OutOfTimeAntiKt4TruthJetsAux.
+AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 1320594112, name = PileUpEventInfo
 AthenaPoolAddre...  DEBUG The current Event contains: 24 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2545, name = BCMHits

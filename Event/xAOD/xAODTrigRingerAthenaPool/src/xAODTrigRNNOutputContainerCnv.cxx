@@ -64,8 +64,8 @@ createPersistent( xAOD::TrigRNNOutputContainer* trans ) {
 xAOD::TrigRNNOutputContainer* xAODTrigRNNOutputContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
-   static pool::Guid v1_guid( "E96CE49C-6A88-47A0-8DA0-F1D42E0813C8" );
-   static pool::Guid v2_guid( "6410C90B-57BE-48A9-9A96-A203E4EF90F1" );
+   static const pool::Guid v1_guid( "E96CE49C-6A88-47A0-8DA0-F1D42E0813C8" );
+   static const pool::Guid v2_guid( "6410C90B-57BE-48A9-9A96-A203E4EF90F1" );
 
    // Check if we're reading the most up to date type:
    if( compareClassGuid( v2_guid ) ) {

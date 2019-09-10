@@ -12,6 +12,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "Identifier/HWIdentifier.h"
 #include "LArElecCalib/ILArMCSymTool.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "AthenaKernel/IOVSvcDefs.h"
 
@@ -27,7 +28,7 @@ Used in MC when symmetry can be assumed. For most of the detector phi symmetry i
 
 */
 
-class LArMCSymTool: public AthAlgTool, virtual public ILArMCSymTool 
+class ATLAS_NOT_THREAD_SAFE LArMCSymTool: public AthAlgTool, virtual public ILArMCSymTool 
 {
  public:
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -8,25 +8,21 @@
 #include "TrkVKalVrtCore/TrkVKalVrtCore.h"
 #include "TrkVKalVrtCore/TrkVKalVrtCoreBase.h"
 #include "TrkVKalVrtCore/Derivt.h"
+#include "TrkVKalVrtCore/ForCFT.h"
 
 namespace Trk {
 
   VKalVrtControlBase::VKalVrtControlBase(const baseMagFld* baseFld,   const addrMagHandler addrFld, 
-                                     const basePropagator* baseP, const addrPropagator addrP): 
+                                         const basePropagator* baseP, const addrPropagator addrP,
+                                         const IVKalState* istate): 
        vk_objMagFld(baseFld),
        vk_funcMagFld(addrFld),
        vk_objProp(baseP), 
-       vk_funcProp(addrP){}
+       vk_funcProp(addrP),
+       vk_istate(istate)
+  {}
 
-  VKalVrtControlBase::~VKalVrtControlBase(){}
-
-  VKalVrtControlBase::VKalVrtControlBase(const VKalVrtControlBase & src ): 
-       vk_objMagFld(src.vk_objMagFld),
-       vk_funcMagFld(src.vk_funcMagFld),
-       vk_objProp(src.vk_objProp), 
-       vk_funcProp(src.vk_funcProp){}
-
-  VKalVrtControl::VKalVrtControl(const VKalVrtControlBase & base): VKalVrtControlBase(base) { 
+  VKalVrtControl::VKalVrtControl(const VKalVrtControlBase & base): VKalVrtControlBase(base), vk_forcft() { 
     m_fullCovariance=nullptr;
     m_vrtMassTot=-1.;
     m_vrtMassError=-1.;
@@ -39,8 +35,6 @@ namespace Trk {
     m_vrtMassError=src.m_vrtMassError;
     m_cascadeEvent=src.m_cascadeEvent;
   }
-  VKalVrtControl::~VKalVrtControl()  { if(m_fullCovariance) delete[] m_fullCovariance;}
-
 
   VKTrack::VKTrack(long int iniId, double Perigee[], double Covariance[], VKVertex * vk, double m):
   Chi2(0), m_mass(m)
@@ -51,7 +45,6 @@ namespace Trk {
      for(int i=0; i<15; i++) {refCovar[i]=Covariance[i];}
      m_originVertex = vk;
   }
-
 
   void VKTrack::setCurrent(double Perigee[], double Weight[])
   {  for(int i=0; i<5;  i++) Perig[i]=Perigee[i];
@@ -118,14 +111,10 @@ namespace Trk {
      Chi2=0.;
      truncatedStep=false;
      existFullCov=0;
-     std::fill_n(ader,(3*vkalNTrkM+3)*(3*vkalNTrkM+3),0);
   }
 
   VKVertex::~VKVertex()
   {  
-       for( int i=0; i<(int)TrackList.size(); i++) delete TrackList[i];
-       for( int i=0; i<(int)tmpArr.size(); i++) delete tmpArr[i];
-       for( int i=0; i<(int)ConstraintList.size(); i++) delete ConstraintList[i];
        for( int i=0; i<(int)includedVrt.size(); i++) includedVrt[i]=0;  // these vertice are not owned, then must not be deleted.
   }
   void VKVertex::setRefV(double v[3]){ refV[0]=v[0]; refV[1]=v[1]; refV[2]=v[2];}
@@ -140,7 +129,9 @@ namespace Trk {
   useApriorVertex(src.useApriorVertex),   //for a priory vertex position knowledge usage
   passNearVertex(src.passNearVertex),     // needed for "passing near vertex" constraint
   passWithTrkCov(src.passWithTrkCov),     //  Vertex, CovVertex, Charge and derivatives 
-  FVC(src.FVC)
+  FVC(src.FVC),
+  TrackList(0), 
+  ConstraintList(0)
   {
     for( int i=0; i<6; i++) {
       fitVcov[i]    =src.fitVcov[i];  // range[0:5]
@@ -161,10 +152,17 @@ namespace Trk {
     nextCascadeVrt = 0;
     truncatedStep = src.truncatedStep;
     existFullCov = src.existFullCov;
-    std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
-    //----- Creation of track copies
-    TrackList.clear();
-    for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.push_back( new VKTrack(*(src.TrackList[i])) );
+
+    int NTrack=src.TrackList.size();
+    int FULLSIZE=3*vkalNTrkM+3;
+    int SIZE=3*NTrack+3;
+    for(int i=0; i<SIZE; i++) for(int j=0; j<SIZE; j++) { ader[i*FULLSIZE+j]=src.ader[i*FULLSIZE+j]; }
+    //----- Creation of track and constraint copies
+    for( int i=0; i<NTrack; i++) TrackList.emplace_back( new VKTrack(*(src.TrackList[i])) );
+    ConstraintList.reserve(src.ConstraintList.size());
+    for( int ic=0; ic<(int)src.ConstraintList.size(); ic++){
+        ConstraintList.emplace_back(src.ConstraintList[ic]->clone());
+    }
     vk_fitterControl = std::unique_ptr<VKalVrtControl>(new VKalVrtControl(*src.vk_fitterControl));
    }
 
@@ -197,13 +195,20 @@ namespace Trk {
       nextCascadeVrt = 0;
       truncatedStep = src.truncatedStep;
       existFullCov = src.existFullCov;
-      std::copy(src.ader,src.ader+(3*vkalNTrkM+3)*(3*vkalNTrkM+3),ader);
-    //----- Creation of track copies
+
+      int NTrack=src.TrackList.size();
+      int FULLSIZE=3*vkalNTrkM+3;
+      int SIZE=3*NTrack+3;
+      for(int i=0; i<SIZE; i++) for(int j=0; j<SIZE; j++) { ader[i*FULLSIZE+j]=src.ader[i*FULLSIZE+j]; }
+    //----- Creation of track and constraint copies
       TrackList.clear();
       tmpArr.clear();
       ConstraintList.clear();
-      for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.push_back( new VKTrack(*(src.TrackList[i])) );
-    //for( int i=0; i<(int)src.ConstraintList.size(); i++) ConstraintList.push_back( new (*(src.TrackList[i])) );
+      for( int i=0; i<NTrack; i++) TrackList.emplace_back( new VKTrack(*(src.TrackList[i])) );
+      ConstraintList.reserve(src.ConstraintList.size());
+      for( int ic=0; ic<(int)src.ConstraintList.size(); ic++){
+        ConstraintList.emplace_back(src.ConstraintList[ic]->clone());
+      }
     }
     return *this;
   }
@@ -246,12 +251,13 @@ namespace Trk {
     }
     vk_forcft.useMassCnst = 1;
   }
-  void VKalVrtControl::setMassCnstData(int Ntrk, std::vector<int> & Index, double Mass){
+  void VKalVrtControl::setMassCnstData(int NtrkTot, const std::vector<int> & Index, double Mass){
     double sumM(0.);
+    int Ntrk=std::min((int)Index.size(),NtrkTot);
     for(int it=0; it<Ntrk; it++) sumM +=   vk_forcft.wm[Index[it]];                 //sum of particle masses
     if(sumM<Mass) {
       vk_forcft.wmfit[0]=Mass;
-      for(int it=0; it<Ntrk; it++) vk_forcft.indtrkmc[vk_forcft.nmcnst][Index[it]]=1;  //Set participating particles
+      for(int it=0; it<Ntrk; it++) vk_forcft.indtrkmc[vk_forcft.nmcnst][Index[it]-1]=1;  //Set participating particles
       vk_forcft.nmcnst++;
     }
     vk_forcft.useMassCnst = 1;
@@ -267,15 +273,12 @@ namespace Trk {
   void VKalVrtControl::setUseAprioriVrt(){ vk_forcft.useAprioriVrt = 1;}
   void VKalVrtControl::setUsePointingCnst(int iType = 1 ) { vk_forcft.usePointingCnst = iType<2 ? 1 : 2 ;}
   void VKalVrtControl::setUsePassNear(int iType = 1 ) { vk_forcft.usePassNear = iType<2 ? 1 : 2 ;}
-  CascadeEvent * VKalVrtControl::getCascadeEvent() const { return m_cascadeEvent;}
   void VKalVrtControl::renewCascadeEvent(CascadeEvent * newevt) { 
      if(m_cascadeEvent)delete m_cascadeEvent;
      m_cascadeEvent=newevt;
   }
-  double * VKalVrtControl::getFullCovariance() const { return m_fullCovariance; }
   void VKalVrtControl::renewFullCovariance(double * newarray) { 
-     if(m_fullCovariance) delete[] m_fullCovariance;
-     m_fullCovariance=newarray;
+     m_fullCovariance.reset(newarray);
   }
 
 } /* End of namespace */

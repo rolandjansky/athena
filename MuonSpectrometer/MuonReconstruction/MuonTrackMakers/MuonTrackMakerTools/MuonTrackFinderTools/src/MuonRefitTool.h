@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONREFITTOOL_H
@@ -13,6 +13,8 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonRefitTool.h"
 
 #include "TrkDriftCircleMath/DCSLFitter.h"
@@ -23,7 +25,6 @@
 
 namespace Muon {
   class MuonEDMPrinterTool;
-  class MuonEDMHelperTool;
   class MuonIdHelperTool;
   class IMdtDriftCircleOnTrackCreator;
   class IMuonClusterOnTrackCreator;
@@ -82,7 +83,9 @@ namespace Muon {
 			    std::set<Identifier>& removedIdentifiers, const Settings& settings ) const;
 
     ToolHandle<MuonEDMPrinterTool>  m_printer; //<! helper to nicely print out tracks
-    ToolHandle<MuonEDMHelperTool>   m_helper; //<! muon EDM helper
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" }; //<! muon EDM helper
     ToolHandle<MuonIdHelperTool>    m_idHelper; //<! muon id helper
     ToolHandle<Trk::ITrkAlignmentDeviationTool>  m_alignErrorTool; //<! alignment error tool
 
@@ -95,6 +98,7 @@ namespace Muon {
 
     ToolHandle<Trk::ITrackFitter>                    m_trackFitter;
     ToolHandle<Trk::IExtrapolator>                   m_extrapolator;
+    ToolHandle<Trk::IExtrapolator>                   m_muonExtrapolator;
     ToolHandle<IMdtDriftCircleOnTrackCreator>        m_mdtRotCreator;
     ToolHandle<IMuonClusterOnTrackCreator>           m_cscRotCreator;
     ToolHandle<IMuonClusterOnTrackCreator>           m_triggerRotCreator;
@@ -158,6 +162,9 @@ namespace Muon {
     bool   m_deweightBOE;
     bool   m_deweightEEL1C05;
     bool   m_deweightTwoStationTracks;
+
+  private:
+    std::unique_ptr<const Trk::Perigee> createPerigee( const Trk::TrackParameters& pars ) const;
   }; 
 }
 

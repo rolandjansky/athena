@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _TrkVKalVrtCore_VKalVrtCore_H
-#define _TrkVKalVrtCore_VKalVrtCore_H
+#ifndef TRKVKALVRTCORE_VKALVRTCORE_H
+#define TRKVKALVRTCORE_VKALVRTCORE_H
 
 #include "TrkVKalVrtCore/CommonPars.h"
 #include "TrkVKalVrtCore/VKalVrtBMag.h"
@@ -20,18 +20,24 @@ namespace Trk {
 //--------------------------------------------------------------------
 
    class CascadeEvent;
+   class IVKalState;
 
    class VKalVrtControlBase
    {
      public:
-       VKalVrtControlBase(const baseMagFld*, const addrMagHandler, const basePropagator*, const addrPropagator);
-       VKalVrtControlBase(const VKalVrtControlBase & src);              //copy
-      ~VKalVrtControlBase();
+       VKalVrtControlBase(const baseMagFld*,
+                          const addrMagHandler,
+                          const basePropagator*,
+                          const addrPropagator,
+                          const IVKalState* istate = nullptr);
+      VKalVrtControlBase(const VKalVrtControlBase & src) = default;
+      ~VKalVrtControlBase() = default;
 
        const baseMagFld*      vk_objMagFld;
        const addrMagHandler   vk_funcMagFld;
        const basePropagator*  vk_objProp;
        const addrPropagator   vk_funcProp;
+       const IVKalState*      vk_istate;
    };
 
    class VKalVrtControl : public VKalVrtControlBase
@@ -39,7 +45,7 @@ namespace Trk {
      public:
        VKalVrtControl(const VKalVrtControlBase &);
        VKalVrtControl(const VKalVrtControl & src);              //copy
-      ~VKalVrtControl();
+      ~VKalVrtControl() = default;
 
      public:
 
@@ -48,7 +54,7 @@ namespace Trk {
        void setRobustScale(double Scale);
        void setRobustness(int Rob);
        void setMassCnstData(int Ntrk, double Mass);
-       void setMassCnstData(int Ntrk, std::vector<int> &Index, double Mass);
+       void setMassCnstData(int Ntrk, const std::vector<int> &Index, double Mass);
 
        void setUseMassCnst();
        void setUsePhiCnst();
@@ -59,26 +65,30 @@ namespace Trk {
        void setUsePassNear(int);
 
        void renewCascadeEvent(CascadeEvent *);
-       CascadeEvent * getCascadeEvent() const;
+       //Only edit the CascadeEvent in the same thread it was created in
+       const CascadeEvent * getCascadeEvent() const{ return m_cascadeEvent;};
+       CascadeEvent * getCascadeEvent() { return m_cascadeEvent;};
        void renewFullCovariance(double *);
-       double * getFullCovariance() const;
-
+       //Only edit the covariance in the same thread it was created.
+       const double * getFullCovariance () const { return m_fullCovariance.get(); }
+       double * getFullCovariance () { return m_fullCovariance.get(); }
        void setVertexMass(double mass) { m_vrtMassTot=mass;}
        void setVrtMassError(double error) { m_vrtMassError=error;}
-       double getVertexMass() { return m_vrtMassTot;}
-       double getVrtMassError() {return m_vrtMassError;}
+       double getVertexMass() const { return m_vrtMassTot;}
+       double getVrtMassError() const {return m_vrtMassError;}
 
-       ForCFT vk_forcft;
+
 
      private:
 
-       double * m_fullCovariance;   // On vertex fit exit contains full covariance matrix 
+       std::unique_ptr<double[]> m_fullCovariance;   // On vertex fit exit contains full covariance matrix 
                                     // (x,y,z,px_0,py_0,pz_0,....,px_n,py_n,pz_n)
                                     // in symmetric form
        double m_vrtMassTot;
        double m_vrtMassError;
        CascadeEvent * m_cascadeEvent=nullptr;       
-
+     public:
+       ForCFT vk_forcft;
   };
 
 } // end of namespace bracket

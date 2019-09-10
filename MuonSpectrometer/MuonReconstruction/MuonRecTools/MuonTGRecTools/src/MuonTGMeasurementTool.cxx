@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -1395,13 +1395,7 @@ const Trk::Layer* Muon::MuonTGMeasurementTool::match(Identifier id, const Trk::L
 
 StatusCode Muon::MuonTGMeasurementTool::getTrackingGeometry() const
 {
-  StoreGateSvc* detStore(0);
-  StatusCode sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL("Detector service not found !");
-    return StatusCode::FAILURE;
-  }
-  sc = detStore->retrieve(m_trackingGeometry, m_trackingGeometryName);
+  StatusCode sc = detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName);
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Could not find tool "<< m_trackingGeometryName<<". Exiting.");
     return StatusCode::FAILURE;

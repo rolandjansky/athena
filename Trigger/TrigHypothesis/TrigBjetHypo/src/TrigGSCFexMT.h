@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -12,8 +12,8 @@
 //
 // ************************************************
 
-#ifndef TRIGGSCFEX_MT_H
-#define TRIGGSCFEX_MT_H
+#ifndef TRIGBJETHYPO_TRIGGSCFEX_MT_H
+#define TRIGBJETHYPO_TRIGGSCFEX_MT_H
 
 #include <vector>
 #include <string>
@@ -24,13 +24,12 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrigInterfaces/FexAlgo.h"
 #include "JetCalibTools/IJetCalibrationTool.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
-class MsgStream;
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 /**
  * @brief FEX class for the b-jet weight construction using offline tools
@@ -46,12 +45,9 @@ class TrigGSCFexMT : public AthAlgorithm {
  public:
   /** @brief Constructor */
   TrigGSCFexMT(const std::string&, ISvcLocator*);
-  /** @brief Destructor */
-  ~TrigGSCFexMT();
 
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
 
  private:
   bool trkIsGood(const xAOD::TrackParticle *trk);

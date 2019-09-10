@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-__all__ = ['log', 'idgen', 'binstr', 'get_smk_psk_Name', 'applyLVL1Prescale', 'oldStyle']
+__all__ = ['log', 'idgen', 'binstr', 'get_smk_psk_Name', 'oldStyle']
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerConfigL1")
@@ -17,7 +17,7 @@ def oldStyle():
 
 
 # unique id generator
-class idgen:
+class idgen(object):
     from collections import defaultdict
     a =  defaultdict(int)
     def get(self, kind):
@@ -27,7 +27,8 @@ class idgen:
         if kind:
             self.a[kind] = 0
         else:
-            for kind in self.a: self.a[kind] = 0
+            for kind in self.a:
+                self.a[kind] = 0
             
 idgen = idgen()
 
@@ -105,13 +106,13 @@ def getJetWeights(triggerPythonConfig, use_fj=False):
     l1_thrs = triggerPythonConfig.Lvl1Thresholds()
     jet_thresholds = l1_thrs.allThresholdsOf('JET')
     fjet_thresholds = l1_thrs.allThresholdsOf('JF')
-    log.debug('N jet thresholds: %d (8 expected)' % len(jet_thresholds))
-    log.debug('N fjet thresholds: %d (4 expected)' % len(fjet_thresholds))
+    log.debug('N jet thresholds: %d (8 expected)', len(jet_thresholds))
+    log.debug('N fjet thresholds: %d (4 expected)', len(fjet_thresholds))
     jthr = [1023]*8
     fjthr = [1023]*4
     jet_names, fjet_names = ['---']*8, ['---']*4
     for j in jet_thresholds:
-        log.debug('jet threshold %s: %d' % (j.name, j.thresholdInGeV()))
+        log.debug('jet threshold %s: %d', j.name, j.thresholdInGeV())
         # jthr.append(j.thresholdInGeV())
         jthr[j.mapping] = j.thresholdInGeV()
         jet_names[j.mapping] = j.name
@@ -122,7 +123,7 @@ def getJetWeights(triggerPythonConfig, use_fj=False):
         for tv in tvalues:
             if tv.priority > priority:
                 threshold_value = tv.value
-        log.debug('fjet threshold %s: %d' % (j.name, threshold_value))
+        log.debug('fjet threshold %s: %d', j.name, threshold_value)
         fjthr.append(threshold_value)
         fjthr[j.mapping] = threshold_value
         fjet_names[j.mapping] = j.name
@@ -130,11 +131,11 @@ def getJetWeights(triggerPythonConfig, use_fj=False):
     s = ''
     for j in jet_names:
         s += '%s ' % j
-    log.debug('Jet thresholds: %s' % s)
+    log.debug('Jet thresholds: %s', s)
     s = ''
     for j in fjet_names:
         s += '%s ' % j
-    log.debug('Fjet thresholds: %s' % s)
+    log.debug('Fjet thresholds: %s', s)
     if len(jthr) <= 8:
         w = thr2weights(jthr)
         jw = w

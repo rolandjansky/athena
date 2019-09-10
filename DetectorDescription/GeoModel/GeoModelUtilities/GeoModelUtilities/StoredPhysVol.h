@@ -13,7 +13,9 @@
 #ifndef STOREDPHYSVOL_H 
 #define STOREDPHYSVOL_H
 #include "GeoModelKernel/GeoVPhysVol.h"
-#include "AthenaKernel/CLASS_DEF.h"
+#ifndef BUILDVP1LIGHT
+    #include "AthenaKernel/CLASS_DEF.h"
+#endif
 #include <set>
 #include <string>
 
@@ -44,7 +46,9 @@ public:
 
 };
 
-CLASS_DEF(StoredPhysVol, 9877, 1)
+#ifndef BUILDVP1LIGHT
+ CLASS_DEF(StoredPhysVol, 9877, 1)
+#endif
 
 #endif 
 

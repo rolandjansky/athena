@@ -10,10 +10,9 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
@@ -168,8 +167,8 @@ StatusCode TrigTauTrackRoiUpdaterMT::execute(const EventContext& ctx) const
     phi      = leadTrkPhi;
     double deltaPhiMinus = roiDescriptor->phi() - roiDescriptor->phiMinus();
     double deltaPhiPlus  = roiDescriptor->phiPlus()-roiDescriptor->phiMinus();
-    phiMinus = leadTrkPhi - HLT::wrapPhi(deltaPhiMinus);  
-    phiPlus  = leadTrkPhi + HLT::wrapPhi(deltaPhiPlus); 
+    phiMinus = leadTrkPhi - CxxUtils::wrapToPi(deltaPhiMinus);  
+    phiPlus  = leadTrkPhi + CxxUtils::wrapToPi(deltaPhiPlus); 
 
   }
   

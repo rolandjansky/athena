@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @author: Sebastien Binet <binet@cern.ch>
 # @date:   March 2008
@@ -6,7 +6,7 @@
 #           from here:
 #           http://www.phyast.pitt.edu/~micheles/python/documentation.html
 #
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
@@ -14,7 +14,7 @@ __author__  = "Sebastien Binet <binet@cern.ch>"
 __all__ = [
     'memoize',
     'forking',
-    'async',
+    'async_decor',
     ]
 
 import sys
@@ -45,7 +45,6 @@ def memoize(func, *args):
 
 # FIXME: does not work... func is an instance of FunctionMaker which cannot
 #        be pickled...
-import __builtin__
 @decorator
 def mp_forking(func, *args, **kwargs):
     import multiprocessing as mp
@@ -59,7 +58,7 @@ def mp_forking(func, *args, **kwargs):
             try:
                 res = func(*args, **kwargs)
             # catch *everything* and 're-raise'
-            except BaseException,err:
+            except BaseException as err:
                 #import traceback; traceback.print_exc()
                 res = err
             q.put(res)
@@ -82,7 +81,7 @@ def reraise_exception(new_exc, exc_info=None):
     if exc_info is None:
         exc_info = sys.exc_info()
     _exc_class, _exc, tb = exc_info
-    raise new_exc.__class__, new_exc, tb
+    raise new_exc.__class__ (new_exc, tb)
     
 @decorator
 def forking(func, *args, **kwargs):
@@ -122,17 +121,17 @@ def forking(func, *args, **kwargs):
         try:
             result = func(*args, **kwargs)
             status = 0
-        except (Exception, KeyboardInterrupt), exc:
+        except (Exception, KeyboardInterrupt) as exc:
             import traceback
             exc_string = traceback.format_exc(limit=10)
             for l in exc_string.splitlines():
-                print "[%d]"%os.getpid(),l.rstrip()
+                print ("[%d]"%os.getpid(),l.rstrip())
             result = exc, exc_string
             status = 1
         with os.fdopen(pwrite, 'wb') as f:
             try:
                 pickle.dump((status,result), f, pickle.HIGHEST_PROTOCOL)
-            except pickle.PicklingError, exc:
+            except pickle.PicklingError as exc:
                 pickle.dump((2,exc), f, pickle.HIGHEST_PROTOCOL)
         os._exit(0)
     pass # forking
@@ -147,7 +146,7 @@ def _async_on_success(result): # default implementation
 def _async_on_failure(exc_info): # default implementation
     "Called if the function fails"
     _exc_class, _exc, tb = exc_info
-    raise _exc_class, _exc, tb
+    raise _exc_class (_exc, tb)
     pass
 
 def _async_on_closing(): # default implementation
@@ -193,7 +192,7 @@ class Async(object):
         return thread
 
 # default async decorator: using processes
-def async(async_type='mp'):
+def async_decor(async_type='mp'):
     if async_type in ("mp", "multiprocessing"):
         from multiprocessing import Process
         factory = Process

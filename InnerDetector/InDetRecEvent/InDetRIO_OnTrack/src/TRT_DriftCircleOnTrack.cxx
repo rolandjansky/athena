@@ -119,9 +119,10 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( const I
 { 
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
-    if (m_globalPosition) delete m_globalPosition.release().get();
     if (rot.m_globalPosition) {
       m_globalPosition.set(std::make_unique<const Amg::Vector3D>(*(rot.m_globalPosition)));
+    } else if (m_globalPosition) {
+      m_globalPosition.release().reset();
     }
     m_rio                   = rot.m_rio;
     m_localAngle            = rot.m_localAngle.load();
@@ -140,7 +141,6 @@ InDet::TRT_DriftCircleOnTrack& InDet::TRT_DriftCircleOnTrack::operator=( InDet::
 { 
   if ( &rot != this) {
     Trk::RIO_OnTrack::operator= (rot);
-    if (m_globalPosition) delete m_globalPosition.release().get();
     m_globalPosition        = std::move(rot.m_globalPosition);
     m_rio                   = rot.m_rio;
     m_localAngle            = rot.m_localAngle.load();

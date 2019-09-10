@@ -1,6 +1,5 @@
+from __future__ import print_function
 
-
-from AthenaCommon.JobProperties import jobproperties
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def HelloWorldCfg():
@@ -55,7 +54,7 @@ def HelloWorldCfg():
     pt.MyMessage="A public Message!"    
 
     result.addPublicTool(pt)
-    print pt
+    print (pt)
 
 
     HelloWorld.MyPublicHelloTool=pt
@@ -70,12 +69,6 @@ def HelloWorldCfg():
 if __name__=="__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
-
-    from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG
-    #log.setLevel(DEBUG)
-
-    
 
     from AthenaConfiguration.MainServicesConfig import MainServicesSerialCfg
     cfg=MainServicesSerialCfg()

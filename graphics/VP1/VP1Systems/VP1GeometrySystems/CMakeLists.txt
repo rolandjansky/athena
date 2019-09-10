@@ -16,14 +16,20 @@ atlas_depends_on_subdirs(
    graphics/VP1/VP1Base
    PRIVATE
    DetectorDescription/GeoModel/GeoModelUtilities
+   DetectorDescription/GeoModel/GeoModelExamples
+   DetectorDescription/GeoModel/GeoModelStandalone/GeoModelDBManager
+   DetectorDescription/GeoModel/GeoModelStandalone/GeoRead
    graphics/VP1/VP1HEPVis
    graphics/VP1/VP1Utils )
 
 # External dependencies:
 find_package( CLHEP )
 find_package( Coin3D )
-find_package( Qt5 COMPONENTS Core Gui Widgets  )
+find_package( Qt5 COMPONENTS Core Gui Widgets Sql )
 find_package( GeoModel )
+if( APPLE )
+  find_package(OpenGL REQUIRED)
+endif()
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -40,6 +46,7 @@ set( CMAKE_AUTORCC ON )
 # CMAKE_CURRENT_BINARY_DIR, so it needs to be added explicitly to the
 # declaration of PRIVATE_INCLUDE_DIRS.
 
+if(NOT BUILDVP1LIGHT)
 atlas_add_library( VP1GeometrySystems
    VP1GeometrySystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1GeometrySystems
@@ -48,3 +55,48 @@ atlas_add_library( VP1GeometrySystems
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} MuonReadoutGeometry TruthUtils xAODTruth VP1Base GL Qt5::Core Qt5::Widgets
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities VP1HEPVis VP1Utils Qt5::Gui )
+endif()
+if(BUILDVP1LIGHT)
+# Files
+file(GLOB SOURCES src/DumpShape.cxx
+                  src/VP1GeomUtils.cxx
+                  src/VolumeTreeModel.cxx
+                  src/GeoSysController.cxx
+                  src/VP1GeometrySystem.cxx
+                  src/ZappedVolumeListModel.cxx
+                  src/PhiSectorManager.cxx
+                  src/VisAttributes.cxx
+                  src/VP1GeoFlags.cxx
+                  src/VolumeHandle.cxx
+                  src/VP1GeoTreeView.cxx
+                  src/VolumeHandleSharedData.cxx
+ )
+file(GLOB HEADERS VP1GeometrySystems/PhiSectorManager.h
+                      VP1GeometrySystems/ZappedVolumeListModel.h
+                      VP1GeometrySystems/GeoSysController.h
+                      VP1GeometrySystems/VP1GeometrySystem.h
+                      VP1GeometrySystems/VP1GeoTreeView.h
+                      VP1GeometrySystems/VolumeTreeModel.h
+)
+
+if( APPLE )
+  atlas_add_library( VP1GeometrySystems
+     ${HEADERS} ${SOURCES}
+     PUBLIC_HEADERS VP1GeometrySystems
+     INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
+     PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
+     PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+     LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelDBManager GeoRead TruthUtils xAODTruth VP1Base ${OPENGL_gl_LIBRARY} Qt5::Core Qt5::Widgets
+     PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities GeoModelExamplesLib VP1HEPVis VP1Utils Qt5::Gui Qt5::Sql )
+endif()
+if( UNIX AND NOT APPLE )
+  atlas_add_library( VP1GeometrySystems
+    ${HEADERS} ${SOURCES}
+    PUBLIC_HEADERS VP1GeometrySystems
+    INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
+    PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
+    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+    LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelDBManager GeoRead TruthUtils xAODTruth VP1Base GL Qt5::Core Qt5::Widgets
+    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities GeoModelExamplesLib VP1HEPVis VP1Utils Qt5::Gui Qt5::Sql )
+endif()
+endif()

@@ -1,6 +1,6 @@
-# needed to get	the right dictionary from IdDictParser  
+# needed to get the right dictionary from IdDictParser
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
 GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.07.00-NSW"
-
-if 'ReadAGDD' in ToolSvc.NewSmallWheel.__slots__ : ToolSvc.NewSmallWheel.ReadAGDD=False
+from AthenaCommon.AppMgr import ServiceMgr
+if 'ReadAGDD' in ServiceMgr.AGDDtoGeoSvc.Builders["NewSmallWheel"].__slots__ : ServiceMgr.AGDDtoGeoSvc.Builders["NewSmallWheel"].ReadAGDD=False

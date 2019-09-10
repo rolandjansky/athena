@@ -4,7 +4,7 @@ from __future__ import division
 
 from collections import namedtuple
 
-from ..sugar import IOVMIN, IOVMAX, RunLumi
+from ..sugar import IOVMAX, RunLumi
 
 def restore_iov_type(name, fields, bases, content, empty, _memoized={}):
     """
@@ -129,8 +129,7 @@ def make_iov_type(name, variables, bases=(IOVType,), _memoized={}):
     cls._has_channel = has_channel
     cls._has_insertion_time = has_insertion_time
     
-    from new import classobj
-    cls._emptycls = classobj(name + "_EMPTY", (cls,), dict(
+    cls._emptycls = type(name + "_EMPTY", (cls,), dict(
         _is_empty=True,
         __nonzero__ = lambda self: False,
     ))   

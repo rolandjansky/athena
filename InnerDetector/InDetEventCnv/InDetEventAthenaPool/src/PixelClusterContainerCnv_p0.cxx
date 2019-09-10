@@ -1,30 +1,34 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelClusterContainerCnv_p0.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetIdentifier/PixelID.h"
+
 #include "MsgUtil.h"
 
-// Gaudi
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
-
 // Athena
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "InDetIdentifier/PixelID.h"
+#include "StoreGate/ReadCondHandle.h"
+#include "StoreGate/StoreGateSvc.h"
 
-#include <string>
+// Gaudi
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/StatusCode.h"
+
 #include <iostream>
 #include <sstream>
+#include <string>
 
 //================================================================
 
+PixelClusterContainerCnv_p0::PixelClusterContainerCnv_p0():
+  m_pixelDetEleCollKey{"PixelDetectorElementCollection"}
+{
+}
 
 StatusCode PixelClusterContainerCnv_p0::initialize(MsgStream &log ) {
 
@@ -32,11 +36,10 @@ StatusCode PixelClusterContainerCnv_p0::initialize(MsgStream &log ) {
 
    log << MSG::INFO << "PixelClusterContainerCnv::initialize()" << endmsg;
 
-   StoreGateSvc *detStore = nullptr;
+   StoreGateSvc* detStore = nullptr;
    CHECK( svcLocator->service("DetectorStore", detStore) );
    CHECK( detStore->retrieve(m_pixId, "PixelID") );
-   CHECK( detStore->retrieve(m_pixMgr) );
-
+   CHECK( m_pixelDetEleCollKey.initialize() );
    MSG_DEBUG(log,"Converter initialized.");
 
    return StatusCode::SUCCESS;
@@ -47,13 +50,20 @@ StatusCode PixelClusterContainerCnv_p0::initialize(MsgStream &log ) {
 
 InDet::PixelClusterContainer* PixelClusterContainerCnv_p0::createTransient(PixelClusterContainer_p0* persObj, MsgStream& log) {
 
-  std::unique_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()) );
+  std::unique_ptr<InDet::PixelClusterContainer> trans(std::make_unique<InDet::PixelClusterContainer>(m_pixId->wafer_hash_max()) );
   MSG_DEBUG(log,"Read PRD vector, size " << persObj->size());
+
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(*pixelDetEleHandle);
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    log << MSG::FATAL << m_pixelDetEleCollKey.fullKey() << " is not available." << endmsg;
+    return trans.release();
+  }
 
   for (InDet::PixelClusterCollection* dcColl : *persObj) {
       // Add detElem to each drift circle
       IdentifierHash collHash = dcColl->identifyHash();
-      const InDetDD::SiDetectorElement * de = m_pixMgr->getDetectorElement(collHash);
+      const InDetDD::SiDetectorElement * de = elements->getDetectorElement(collHash);
       MSG_DEBUG(log,"Set PixelCluster detector element to "<< de);
 
       InDet::PixelClusterCollection::iterator itColl   = dcColl->begin();
@@ -71,6 +81,6 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv_p0::createTransient(Pixel
          return 0;
       }
    }
-  return(trans.release());
+  return trans.release();
 }
 

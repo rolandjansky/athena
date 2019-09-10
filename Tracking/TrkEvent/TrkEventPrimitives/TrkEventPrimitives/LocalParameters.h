@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ namespace Trk {
   /**@class LocalParameters 
     
      Class inheriting from HepVector for 1-5 dimensional parameter vectors.
-     It holds a static projection matrices set
+     It holds a  static const projection matrices set
      for expanding the actual dimension to 5 dimension, 
      respectively reducing a 5 dimensional object to the actual dimension of
      this object.
@@ -91,8 +91,7 @@ namespace Trk {
      </table>
      
     The accessors are optimized for full track parameters, 1 dim  and 2 dim local parameters.
-     
-     @author Andreas.Salzburger@cern.ch
+    @author Andreas.Salzburger@cern.ch
     */
      
   class LocalParameters : public Amg::VectorX {
@@ -172,10 +171,11 @@ namespace Trk {
   
     protected:     
      friend class ::LocalParametersCnv_p1;
-     int                                   m_parameterkey;
+     int    m_parameterkey;
      
     private: 
-     static  ProjectionMatricesSet         s_projectionMatrices;
+     static const ProjectionMatricesSet s_projectionMatrices;
+     
   };    
 
 inline LocalParameters* LocalParameters::clone() const { return new LocalParameters(*this); }  

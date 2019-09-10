@@ -96,9 +96,9 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 # Unfiltered stream
 StreamAll = AthenaPoolOutputStream( "StreamAll2", "AthenaPoolMultiTest_StreamAll2.root", False, noTag=False )
 StreamAll.CheckNumberOfWrites = False
+StreamAll.WritingTool.AttributeListKey="SimpleTag"
 StreamAll.WritingTool.SaveDecisions = True
 StreamAll.TakeItemsFromInput = True
-StreamAll.ForceRead=TRUE
 
 # Add the outputstreams to the execution sequence
 #athOutSeq+=StreamAll
@@ -111,7 +111,6 @@ svcMgr.MessageSvc.debugLimit = 5000
 import AthenaCommon.CfgMgr as CfgMgr
 if not hasattr(svcMgr, 'DecisionSvc'): svcMgr += CfgMgr.DecisionSvc()
 svcMgr.DecisionSvc.CalcStats = True
-svcMgr.DecisionSvc.SaveDecisions = True
 if not hasattr(svcMgr, 'ItemListSvc'): svcMgr += CfgMgr.ItemListSvc()
 svcMgr.ItemListSvc.OutputLevel = DEBUG
 #==============================================================

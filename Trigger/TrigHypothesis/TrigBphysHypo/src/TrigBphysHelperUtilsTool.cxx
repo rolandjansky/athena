@@ -17,9 +17,6 @@
 // FrameWork includes
 #include "GaudiKernel/IToolSvc.h"
 
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
-
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -313,7 +310,10 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     trks.push_back(*particles[0]);
     trks.push_back(*particles[1]);
     xAOD::Vertex * vx(0);
-    if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
+    std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
+    std::vector<double> masses(particles.size(), m_massMuon);
+    m_VKVFitter->setMassInputParticles(masses, *state); // give input tracks muon mass
+    if (doFit) vx =  m_VKVFitter->fit(trks,startingPoint,*state);
 
     if (!vx){
         ATH_MSG_DEBUG("No Vertex returned from fit / fitting not allowed" );
@@ -328,10 +328,8 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     } else {
         //std::vector<int> trkIndices(particles.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        std::vector<double> masses(particles.size(), m_massMuon);
-        m_VKVFitter->setMassInputParticles(masses); // give input tracks muon mass
         //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
-        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError).isSuccess())) {
+        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError,*state).isSuccess())) {
             ATH_MSG_DEBUG("Warning from VKaVrt - cannot calculate uncertainties!");
         } // if
         
@@ -373,7 +371,16 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
 
 StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
                                                const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
-                                               const std::vector<double>& inputMasses) {
+                                               const std::vector<double>& inputMasses) const
+{
+  std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
+  return vertexFit (result, particles, inputMasses, *state);
+}
+StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
+                                               const std::vector<ElementLink<xAOD::TrackParticleContainer> > &particles,
+                                               const std::vector<double>& inputMasses,
+                                               Trk::IVKalState& istate) const
+{
     ATH_MSG_DEBUG("In vertexFit" );
     if (!result) {
         ATH_MSG_DEBUG("Need to provide valid TrigBphys object" );
@@ -401,7 +408,8 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     const Amg::Vector3D startingPoint(0.,0.,0.); // #FIXME use beamline for starting point?
     //const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
     xAOD::Vertex * vx(0);
-    if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
+    m_VKVFitter->setMassInputParticles( inputMasses, istate); // give input tracks muon mass
+    if (doFit) vx =  m_VKVFitter->fit(trks,startingPoint,istate);
     TLorentzVector tracks_p;
 
     if (!vx){
@@ -419,9 +427,8 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     } else {
         //std::vector<int> trkIndices(particles.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
         //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
-        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError).isSuccess())) {
+        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError,istate).isSuccess())) {
             ATH_MSG_DEBUG("Warning from VKaVrt - cannot calculate uncertainties!");
             invariantMass = -9999.;
         } // if
@@ -463,7 +470,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
 
 StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
                                                const std::vector<const xAOD::TrackParticle*> &trks,
-                                               const std::vector<double>& inputMasses) {
+                                               const std::vector<double>& inputMasses) const {
     ATH_MSG_DEBUG("In vertexFit" );
     if (!result) {
         ATH_MSG_DEBUG("Need to provide valid TrigBphys object" );
@@ -478,7 +485,9 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     const Amg::Vector3D startingPoint(0.,0.,0.); // #FIXME use beamline for starting point?
     //const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
     xAOD::Vertex * vx(0);
-    if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
+    std::unique_ptr<Trk::IVKalState> state = m_VKVFitter->makeState();
+    m_VKVFitter->setMassInputParticles( inputMasses, *state); // give input tracks muon mass
+    if (doFit) vx =  m_VKVFitter->fit(trks,startingPoint,*state);
     TLorentzVector tracks_p;
 
     if (!vx){
@@ -496,9 +505,8 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     } else {
         std::vector<int> trkIndices(trks.size(),1);
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
-        m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
         //if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
-        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError).isSuccess())) {
+        if (!(m_VKVFitter->VKalGetMassError(invariantMass,invariantMassError,*state).isSuccess())) {
             ATH_MSG_DEBUG("Warning from VKaVrt - cannot calculate uncertainties!");
             invariantMass = -9999.;
         } // if
@@ -672,3 +680,10 @@ void TrigBphysHelperUtilsTool::setBeamlineDisplacement(xAOD::TrigBphys* bphys,
     bphys->setTau     (BsTau);
     bphys->setTauError(BsTauError);
 } // setBeamlineDisplacement
+
+
+std::unique_ptr<Trk::IVKalState>
+TrigBphysHelperUtilsTool::makeVKalState() const
+{
+  return m_VKVFitter->makeState();
+}

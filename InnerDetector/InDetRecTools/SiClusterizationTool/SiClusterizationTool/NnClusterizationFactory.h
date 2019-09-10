@@ -37,7 +37,10 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "SiClusterizationTool/TTrainedNetworkCollection.h"
-#include "PixelConditionsServices/IPixelCalibSvc.h"
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "CxxUtils/checker_macros.h"
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
@@ -45,7 +48,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
  class TTrainedNetwork;
  class TH1;
  class ICoolHistSvc;
- class IPixelCalibSvc;
 
 namespace Trk {
   class NeuralNetworkToHistoTool;
@@ -91,7 +93,7 @@ namespace InDet {
 
      NnClusterizationFactory(const std::string& name,
                      const std::string& n, const IInterface* p);
-     ~NnClusterizationFactory();
+     ~NnClusterizationFactory() = default;
 
     virtual StatusCode initialize();
     virtual StatusCode finalize() { return StatusCode::SUCCESS; };
@@ -193,24 +195,31 @@ namespace InDet {
                         kErrorYNN,
                         kNNetworkTypes};
     static const char* const s_nnTypeNames[kNNetworkTypes];
-    std::vector<unsigned int> m_nParticleGroup;
-    std::vector<std::regex>   m_nnNames;
+    std::vector<unsigned int> m_nParticleGroup{0U,1U,1U,1U}; // unsigned int
+    std::vector<std::regex>   m_nnNames{
+      std::regex("^NumberParticles(|/|_.*)$"),
+      std::regex("^ImpactPoints([0-9])P(|/|_.*)$"),
+      std::regex("^ImpactPointErrorsX([0-9])(|/|_.*)$"),
+      std::regex("^ImpactPointErrorsY([0-9])(|/|_.*)$"),
+    };
 
     unsigned int                             m_nParticleNNId;
     std::vector< std::vector<unsigned int> > m_NNId;
 
     // Function to be called to assemble the inputs
-    std::vector<double> (InDet::NnClusterizationFactory:: *m_assembleInput)(NNinput& input,int sizeX, int sizeY) const;
+    std::vector<double> (InDet::NnClusterizationFactory:: *m_assembleInput)(NNinput& input,int sizeX, int sizeY) const {&NnClusterizationFactory::assembleInputRunII};
 
     // Function to be called to compute the output
-    std::vector<Double_t> (::TTrainedNetwork:: *m_calculateOutput)(const std::vector<Double_t> &input) const;
-
+    std::vector<Double_t> (::TTrainedNetwork:: *m_calculateOutput)(const std::vector<Double_t> &input) const {&TTrainedNetwork::calculateNormalized};
 
     ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool
        {this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
 
-    ServiceHandle<IPixelCalibSvc> m_calibSvc
-       {this,  "PixelCalibSvc", "PixelCalibSvc", "Pixel calibration service" };
+    ServiceHandle<IPixelCablingSvc>  m_pixelCabling
+       {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service" };
+
+    SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+       {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Output key"};
 
     SG::ReadCondHandleKey<TTrainedNetworkCollection> m_readKeyWithoutTrack
        {this, "NnCollectionReadKey", "PixelClusterNN", "The conditions statore key for the pixel cluster NNs"};

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILEDCSCONDALG_H
@@ -10,9 +10,10 @@
 // Tile includes
 #include "TileConditions/TileDCSState.h"
 #include "TileConditions/TileEMScale.h"
+#include "TileConditions/TileCablingSvc.h"
 
 // Athena includes
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -31,14 +32,14 @@ class TileCablingService;
  * if it is not negative otherwise reference HV is used from Cesium folder. Using this information
  * the algorithm prepares TileDCSState condition object and put it into condition store.
  */
-class TileDCSCondAlg: public AthAlgorithm {
+class TileDCSCondAlg: public AthReentrantAlgorithm {
   public:
 
     TileDCSCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    ~TileDCSCondAlg();
+    virtual ~TileDCSCondAlg() = default;
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
+    virtual StatusCode execute(const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
 
   private:
@@ -77,7 +78,7 @@ class TileDCSCondAlg: public AthAlgorithm {
     * @param[out] dcsState TileDCSState to store reference HV
     * @param[out] eventRange Event range within which reference HV is valid
     */
-    StatusCode fillReferenceHV(TileDCSState& dcsState, EventIDRange& eventRange);
+    StatusCode fillReferenceHV(TileDCSState& dcsState, EventIDRange& eventRange, const EventContext& ctx) const;
 
    /**
     * @ brief Return Tile channel key used as index in internal caches
@@ -86,7 +87,7 @@ class TileDCSCondAlg: public AthAlgorithm {
     * @ channel Tile channel number
     */
 
-    unsigned int getChannelKey(unsigned int ros, unsigned int drawer, unsigned int channel);
+    unsigned int getChannelKey(unsigned int ros, unsigned int drawer, unsigned int channel) const;
 
    /**
     * @brief The Tile DCS HV COOL folder name
@@ -190,7 +191,17 @@ class TileDCSCondAlg: public AthAlgorithm {
         "File name with mapping Tile DCS STATES DB COOL channels to ROS and drawer"};
 
 
-    ServiceHandle<ICondSvc> m_condSvc;
+   /**
+    * @brief Name of conditions service
+    */
+    ServiceHandle<ICondSvc> m_condSvc{this,
+        "CondSvc", "CondSvc", "The conditions service"};
+
+   /**
+    * @brief Name of Tile cabling service
+    */
+    ServiceHandle<TileCablingSvc> m_cablingSvc{ this,
+        "TileCablingSvc", "TileCablingSvc", "The Tile cabling service" };
 
     const TileCablingService* m_cabling;
 
@@ -209,7 +220,7 @@ class TileDCSCondAlg: public AthAlgorithm {
 // inlines
 
 inline
-unsigned int TileDCSCondAlg::getChannelKey(unsigned int ros, unsigned int drawer, unsigned int channel) {
+unsigned int TileDCSCondAlg::getChannelKey(unsigned int ros, unsigned int drawer, unsigned int channel) const {
   return ( ((((ros - 1) << 6) | drawer) << 6) | channel );
 }
 

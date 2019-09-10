@@ -54,16 +54,12 @@
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 
 class AtlasDetectorID;
-class StoreGateSvc;
 class ITruthParameters;
 class TruthSelector; 
 class PixelID; 
 class SCT_ID;
 class EventID;
 
-namespace InDetDD {
-  class PixelDetectorManager;
-}
 namespace HepPDT { 
   class ParticleDataTable; 
 }
@@ -118,14 +114,9 @@ private:
 
   
   boost::shared_ptr<AtlasDetectorID> m_idHelper;
-  StoreGateSvc*  m_storeGate;
-  StoreGateSvc*  m_detStore;
-  StoreGateSvc*  m_evtStore;
 
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;
-
-  const InDetDD::PixelDetectorManager*     m_PIX_mgr;
 
   const InDet::SiClusterContainer*  m_pixelContainer;
   const InDet::SiClusterContainer*  m_sctContainer;
@@ -149,6 +140,7 @@ private:
 
   SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
   // job configuration 

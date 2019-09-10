@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -25,7 +25,7 @@ class TrigL2Bjet_p1
  public:
   
   TrigL2Bjet_p1() {}
-  virtual ~TrigL2Bjet_p1(){}
+  virtual ~TrigL2Bjet_p1() = default;
  
   //private:
 

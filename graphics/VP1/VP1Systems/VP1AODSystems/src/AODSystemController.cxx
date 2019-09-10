@@ -29,9 +29,11 @@
 
 // VP1
 #include "VP1Utils/VP1AvailableToolsHelper.h"
-#include "VP1Utils/VP1ToolAccessHelper.h"
-#include "VP1Utils/VP1JobConfigInfo.h"
-#include "VP1Utils/VP1ParticleData.h"
+#ifndef BUILDVP1LIGHT
+    #include "VP1Utils/VP1ToolAccessHelper.h"
+    #include "VP1Utils/VP1JobConfigInfo.h"
+    #include "VP1Utils/VP1ParticleData.h"
+#endif
 #include "VP1Base/VP1QtUtils.h"
 #include "VP1Base/IVP1System.h"
 #include "VP1Base/VP1Serialise.h"

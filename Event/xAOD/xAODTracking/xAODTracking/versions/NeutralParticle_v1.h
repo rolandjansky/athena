@@ -22,9 +22,7 @@
 #include <stdint.h>
 
 #ifndef XAOD_STANDALONE
-#ifndef XAOD_MANACORE
 #include "TrkNeutralParameters/NeutralParameters.h"
-#endif // not XAOD_MANACORE
 #endif // not XAOD_STANDALONE
 
 // ROOT include(s):
@@ -125,24 +123,24 @@ namespace xAOD {
       /// Set the origin for the parameters.
       void setParametersOrigin(float x, float y, float z);
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_STANDALONE
       /// @brief Returns the Trk::NeutralPerigee track parameters.
       ///
       /// These are defined as:
       ///  \f$\left(\begin{array}{c}d_0\\z_0\\\phi_0\\\theta\\1/p\\\end{array}\right)\f$
       /// @note This is only available in Athena. 
       const Trk::NeutralPerigee& perigeeParameters() const;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_STANDALONE
 
       /// Reset the internal cache of the object
       void resetCache();
  
   private:
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) ) && !defined(__CLING__)
+#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(__CLING__) )
       /// @brief Cached NeutralPerigee, built from this object.
       /// @note This is only available in Athena.
       CxxUtils::CachedValue<Trk::NeutralPerigee> m_perigeeParameters;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE and not __GCCXML__
+#endif // not XAOD_STANDALONE and not __CLING__
 
     }; // class NeutralParticle_v1
 

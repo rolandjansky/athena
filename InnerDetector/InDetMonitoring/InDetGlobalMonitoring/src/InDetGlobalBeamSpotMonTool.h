@@ -29,11 +29,11 @@
 #include "InDetGlobalMotherMonTool.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class TH1F_LW;
 class TH2F_LW;
 
-class IBeamCondSvc;
 
 class InDetGlobalBeamSpotMonTool : public InDetGlobalMotherMonTool {
 
@@ -48,8 +48,7 @@ public:
   virtual StatusCode procHistograms();
 
 protected:
-  ServiceHandle<IBeamCondSvc> m_beamCondSvc;
-  bool m_hasBeamCondSvc;
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   TH1F_LW* m_hTrNPt;
   TH1F_LW* m_hTrPt;

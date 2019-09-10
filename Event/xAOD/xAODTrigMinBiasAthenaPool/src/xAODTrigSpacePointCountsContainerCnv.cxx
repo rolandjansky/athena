@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODTrigSpacePointCountsContainerCnv.cxx
@@ -72,7 +72,7 @@ StatusCode xAODTrigSpacePointCountsContainerCnv::createObj(IOpaqueAddress* pAddr
 xAOD::TrigSpacePointCountsContainer* xAODTrigSpacePointCountsContainerCnv::createTransient() {
 
   // The known ID(s) for this container:
-  static pool::Guid v1_guid( "519EBE61-C135-46C7-AD7D-C661DC6FC4B5" );
+  static const pool::Guid v1_guid( "519EBE61-C135-46C7-AD7D-C661DC6FC4B5" );
 
   // Check if we're reading the most up to date type:
   if( compareClassGuid( v1_guid ) ) {

@@ -25,14 +25,19 @@ namespace Monitored {
     std::string path;              //!< booking path
     std::string title;             //!< title of the histogram
     std::string opt;               //!< options
+    std::string tld{""};           //!< top level directory (below THistSvc stream)
+    std::string convention;        //!< path naming convention (e.g. OFFLINE)
+    std::string weight;            //!< names of weights
 
     int xbins{0};  //!< number of bins in X
     float xmin{0}; //!< left
     float xmax{0}; //!< right
+    std::vector<double> xArray; //!< array of x bins
 
     int ybins{0};  //!< number of bins in Y
     float ymin{0}; //!< bottom
     float ymax{0}; //!< top
+    std::vector<double> yArray; //!< array of y bins
 
     float zmin{0}; //!< in
     float zmax{0}; //!< out

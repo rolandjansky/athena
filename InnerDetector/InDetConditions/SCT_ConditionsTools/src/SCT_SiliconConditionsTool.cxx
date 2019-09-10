@@ -13,27 +13,8 @@
 
 // Constructor
 SCT_SiliconConditionsTool::SCT_SiliconConditionsTool(const std::string& type, const std::string& name, const IInterface* parent):
-  base_class(type, name, parent),
-  m_defaultTemperature{10.},
-  m_defaultBiasVoltage{150.},
-  m_defaultDepletionVoltage{70.},
-  m_useDB{true},
-  m_checkGeoModel{true},
-  m_forceUseGeoModel{false},
-  m_geoModelSvc{"GeoModelSvc", name},
-  m_rdbSvc{"RDBAccessSvc", name},
-  m_useGeoModel{false},
-  m_sct_id{nullptr}
+  base_class(type, name, parent)
 {
-  declareProperty("Temperature",      m_defaultTemperature     );
-  declareProperty("BiasVoltage",      m_defaultBiasVoltage     );
-  declareProperty("DepletionVoltage", m_defaultDepletionVoltage);
-  declareProperty("UseDB",            m_useDB                  );
-  declareProperty("CheckGeoModel",    m_checkGeoModel          );
-  declareProperty("ForceUseGeoModel", m_forceUseGeoModel       );
-  declareProperty("GeoModelSvc",      m_geoModelSvc            );
-  declareProperty("RDBAccessSvc",     m_rdbSvc                 );
-
   // These will get overwritten if used but give them some initial value anyway.
   m_geoModelTemperature      = m_defaultTemperature;
   m_geoModelBiasVoltage      = m_defaultBiasVoltage;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -15,7 +15,6 @@
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 
 #include "GaudiKernel/SmartDataPtr.h"
@@ -37,39 +36,41 @@ PixelGangedAmbiguitiesFinder::PixelGangedAmbiguitiesFinder(
   AthAlgTool(type,name,parent)
 { 
   declareInterface<PixelGangedAmbiguitiesFinder>(this);
-  declareProperty("InternalSolving",m_internalSolving = false, "Standalone resolution of ganged pixel ambiguities"); 
 } 
 
+StatusCode PixelGangedAmbiguitiesFinder::initialize() {
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
-//---------------------------------------------------------------------------
-// destructor
-PixelGangedAmbiguitiesFinder::~PixelGangedAmbiguitiesFinder(){}
+  return StatusCode::SUCCESS;
+}
 
 //----------------------------------------------------------------------------
 // Execute method:
 // Called by the PixelClusterization algorithms of InDetPrepRawDataFormation
   // A map containing the pairs of Pixel Clusters which shares the same 
   // ganged pixel is created.
-  // Inputs are the cluster collection of a module, and the silicon 
-  // detector manager, and the map to be filled.
+  // Inputs are the cluster collection of a module, and the map to be filled.
   // Output is the map.
 void PixelGangedAmbiguitiesFinder::execute(
                               PixelClusterCollection* collection,
-                              const InDetDD::SiDetectorManager& manager,
                               PixelGangedClusterAmbiguities& theMap){
     if (collection->size()<2) return;
 
-    if (msgLvl(MSG::DEBUG)){
-        msg() << collection->size() << " clusters" << endmsg;
-        msg() << "The map has " << theMap.size() << " entries already" << endmsg;
-    }
+    ATH_MSG_DEBUG(collection->size() << " clusters");
+    ATH_MSG_DEBUG("The map has " << theMap.size() << " entries already");
 
-    Identifier elementID = collection->identify();
+    IdentifierHash elementHash = collection->identifyHash();
 
     // Get detector info.
     // Find detector element for these RDOs
 
-    SiDetectorElement* element = manager.getDetectorElement(elementID);
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+    const InDetDD::SiDetectorElementCollection* pixelDetEle(*pixelDetEleHandle);
+    if (not pixelDetEleHandle.isValid() or pixelDetEle==nullptr) {
+      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
+      return;
+    }
+    const InDetDD::SiDetectorElement* element = pixelDetEle->getDetectorElement(elementHash);
     const InDetDD::PixelModuleDesign* design =(dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
 	  if (not design){
 			ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of PixelGangedAmbiguitiesFinder.cxx.");
@@ -119,15 +120,15 @@ void PixelGangedAmbiguitiesFinder::execute(
 
       if(hasGanged){
 
-	if(msgLvl(MSG::DEBUG)) msg() << "Ganged pixel, find combi..." << endmsg;
+	ATH_MSG_DEBUG("Ganged pixel, find combi...");
 	std::vector<Identifier>::const_iterator gangedPixelsBegin = gangedPixels.begin();
 	std::vector<Identifier>::const_iterator gangedPixelsEnd = gangedPixels.end();
 	PixelClusterCollection::iterator cluster2=cluster+1;
 	for( ; cluster2!=clend; ++cluster2){
-          if(msgLvl(MSG::DEBUG)) msg() << "Comparing " 
-	      << std::hex << (*cluster)->identify() 
-	      << " and " << (*cluster2)->identify()
-	      << std::dec << endmsg;
+          ATH_MSG_DEBUG("Comparing " 
+                        << std::hex << (*cluster)->identify() 
+                        << " and " << (*cluster2)->identify()
+                        << std::dec);
 	  bool sharedGanged = false;
           int rmin2=999, cmin2=999; // bottom left corner of cluster2
 	  const std::vector<Identifier>& rdos2 = (*cluster2)->rdoList();
@@ -164,9 +165,9 @@ void PixelGangedAmbiguitiesFinder::execute(
 	      // cluster 1 is likely to be fake
 	      if (m_internalSolving) {
 		rmList.push_back(cluster);
-		if(msgLvl(MSG::DEBUG)) msg() << std::hex 
-		    << ": deleted " << (*cluster)->identify() 
-		    << std::dec << endmsg;
+		ATH_MSG_DEBUG(std::hex 
+                              << ": deleted " << (*cluster)->identify() 
+                              << std::dec);
 		break;
 	      }
 	      else (*cluster)->setFake(true);
@@ -175,9 +176,9 @@ void PixelGangedAmbiguitiesFinder::execute(
 	      // cluster 2 is likely to be fake
 	      if (m_internalSolving) {
 		rmList.push_back(cluster2);
-		if(msgLvl(MSG::DEBUG)) msg() << std::hex 
-		    << ": deleted " << (*cluster2)->identify() 
-		    << std::dec << endmsg;
+		ATH_MSG_DEBUG(std::hex 
+                              << ": deleted " << (*cluster2)->identify() 
+                              << std::dec);
 		continue;
 	      }
 	      else (*cluster2)->setFake(true);
@@ -240,9 +241,9 @@ void PixelGangedAmbiguitiesFinder::execute(
                   // cluster 2 is likely to be fake
                   if (m_internalSolving) {
                     rmList.push_back(cluster2);
-                    if(msgLvl(MSG::DEBUG)) msg() << std::hex
-                                                 << ": deleted " << (*cluster2)->identify()
-                                                 << std::dec << endmsg;
+                    ATH_MSG_DEBUG(std::hex
+                                  << ": deleted " << (*cluster2)->identify()
+                                  << std::dec);
                     continue;
                   }
                   else {
@@ -254,9 +255,9 @@ void PixelGangedAmbiguitiesFinder::execute(
 		  // cluster 1 is likely to be fake
 		  if (m_internalSolving) {
 		    rmList.push_back(cluster);
-		    if(msgLvl(MSG::DEBUG)) msg() << std::hex 
-                                                 << ": deleted " << (*cluster)->identify() 
-                                                 << std::dec << endmsg;
+		    ATH_MSG_DEBUG(std::hex 
+                                  << ": deleted " << (*cluster)->identify() 
+                                  << std::dec);
                     continue;
                   }
                   else {
@@ -284,20 +285,15 @@ void PixelGangedAmbiguitiesFinder::execute(
               // to add both permutations
               theMap.insert(std::make_pair(*cluster,*cluster2));
               theMap.insert(std::make_pair(*cluster2,*cluster));
-              if(msgLvl(MSG::DEBUG)) msg() << std::hex 
-                                           << ": added ambiguity entry"
-                                           << std::dec << endmsg;
+              ATH_MSG_DEBUG(std::hex 
+                            << ": added ambiguity entry"
+                            << std::dec);
             }
 	  }
 	}
       }
     }
-    if (msgLvl(MSG::DEBUG))
-    {
-      msg(MSG::DEBUG) << "The map has " << theMap.size() << " entries " 
-                      << endmsg;
-    }
-    
+    ATH_MSG_DEBUG("The map has " << theMap.size() << " entries ");
 
     // to remove clusters from the collection, the vector of iterators need to be 
     // sorted. Moreover, when preceeding iterators are removed, one must take into
@@ -308,13 +304,12 @@ void PixelGangedAmbiguitiesFinder::execute(
     std::sort(rmit,rmend);
     for ( ; rmit!=rmend ; ++rmit){
       Identifier gangedID;
-      if(msgLvl(MSG::DEBUG)) msg() << "Removed " << rmNumber+1 << " cluster: "  
-	  << std::hex << (*(*rmit-rmNumber))->identify() << std::dec
-	  << endmsg ; 
+      ATH_MSG_DEBUG("Removed " << rmNumber+1 << " cluster: "  
+                    << std::hex << (*(*rmit-rmNumber))->identify() << std::dec);
       collection->erase(*rmit-rmNumber); // The position of the iterator
       rmNumber++;
     }    
-    if(msgLvl(MSG::DEBUG)) msg() << rmNumber << " fake clusters from ganged pixel have been removed" << endmsg;
+    ATH_MSG_DEBUG(rmNumber << " fake clusters from ganged pixel have been removed");
 
 }
   

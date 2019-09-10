@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT2MinBias/T2MbtsUtils.h"
+#include "T2MbtsUtils.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include <bitset>

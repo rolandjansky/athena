@@ -14,7 +14,7 @@
 //
 // ********************************************************************
 
-#include "TrigL2MissingET/T2MissingET.h"
+#include "T2MissingET.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "TrigT1Interfaces/RecEnergyRoI.h"
 #include "TrigSteeringEvent/Enums.h"

@@ -1,58 +1,55 @@
-Tue Oct  9 18:23:36 CEST 2018
+Wed May 22 16:37:00 CEST 2019
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.1] [x86_64-slc6-gcc8-dbg] [atlas-work3/eea13fb904b] -- built on [2018-10-09T1607]
+Py:Athena            INFO using release [WorkDir-22.0.2] [x86_64-centos7-gcc8-dbg] [atlas-work3/a2d84b85b4c] -- built on [2019-05-22T0547]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/AuxDataTestTypelessRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5504 configurables from 72 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5470 configurables from 64 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
-                                          running on lxplus028.cern.ch on Tue Oct  9 18:24:23 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v31r0)
+                                          running on lxplus729.cern.ch on Wed May 22 16:37:24 2019
 ====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
 ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2946 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 7169 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadReadDicts        INFO Initializing LoadReadDicts...
-ClassIDSvc           INFO  getRegistryEntries: read 9870 CLIDRegistry entries for module ALL
-DecisionSvc          INFO Inserting stream: Stream1 with no Algs
+ClassIDSvc           INFO  getRegistryEntries: read 7481 CLIDRegistry entries for module ALL
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy-wigner.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-10-08T2213/Athena/22.0.1/InstallArea/x86_64-slc6-gcc8-dbg/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus028.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-05-20T2152/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-dbg/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus729.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:AuxDataTestTypelessRead_catalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
-EventSelector        INFO reinitialization...
+MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
 EventSelector        INFO EventSelection with query 
 PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] BD743C69-DFE3-2AF1-523D-40853CCDE86A
 Domain[ROOT_All]     INFO                           auxdata.root
-RootDatabase.open    INFO auxdata.root File version:61404
+RootDatabase.open    INFO auxdata.root File version:61600
 auxdata.root         INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] BD743C69-DFE3-2AF1-523D-40853CCDE86A
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
@@ -61,18 +58,20 @@ DbSession            INFO     Open     DbSession
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] BD743C69-DFE3-2AF1-523D-40853CCDE86A
 Domain[ROOT_All]     INFO                           auxdata.root
-RootDatabase.open    INFO auxdata.root File version:61404
+RootDatabase.open    INFO auxdata.root File version:61600
 auxdata.root         INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] BD743C69-DFE3-2AF1-523D-40853CCDE86A
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 6CD4A4E0-A47E-5846-A32C-F877B5207EF0
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] FDCB4AE9-BC4C-3D45-AD8A-E6AF7C9455A4
 Domain[ROOT_All]     INFO                           auxdata.root
-RootDatabase.open    INFO auxdata.root File version:61404
-ClassIDSvc           INFO  getRegistryEntries: read 802 CLIDRegistry entries for module ALL
+RootDatabase.open    INFO auxdata.root File version:61600
+ClassIDSvc           INFO  getRegistryEntries: read 858 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
+ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
 Stream1              INFO Found HelperTools = PrivateToolHandleArray([])
 Stream1              INFO Data output: auxdata3.root
@@ -81,757 +80,756 @@ HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 auxdata.root         INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 6CD4A4E0-A47E-5846-A32C-F877B5207EF0
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FDCB4AE9-BC4C-3D45-AD8A-E6AF7C9455A4
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 6CD4A4E0-A47E-5846-A32C-F877B5207EF0
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] FDCB4AE9-BC4C-3D45-AD8A-E6AF7C9455A4
 Domain[ROOT_All]     INFO                           auxdata.root
-RootDatabase.open    INFO auxdata.root File version:61404
+RootDatabase.open    INFO auxdata.root File version:61600
 ApplicationMgr       INFO Application Manager Started successfully
-ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
 AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-1
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 1300; aFloat1: 1200.500; anInt1: 1100; dFloat1: 1400.500; pfloat: 0.010; pint: 2; 
+AuxDataTestType...   INFO 1
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 1300; aFloat1: 1200.500; anInt1: 1100; dFloat1: 1400.500; pfloat: 0.010; pint: 2; 
     pvfloat: []; 
     pvint: []; 
-  aB: 1301; aFloat1: 1201.500; anInt1: 1101; dFloat1: 1401.500; pfloat: 1.010; pint: 0; 
+AuxDataTestType...   INFO   aB: 1301; aFloat1: 1201.500; anInt1: 1101; dFloat1: 1401.500; pfloat: 1.010; pint: 0; 
     pvfloat: [-0.489 ]; 
     pvint: [-390 ]; 
-  aB: 1302; aFloat1: 1202.500; anInt1: 1102; dFloat1: 1402.500; pfloat: 2.010; pint: 1; 
+AuxDataTestType...   INFO   aB: 1302; aFloat1: 1202.500; anInt1: 1102; dFloat1: 1402.500; pfloat: 2.010; pint: 1; 
     pvfloat: [-0.479 -0.379 ]; 
     pvint: [-380 -379 ]; 
-  aB: 1303; aFloat1: 1203.500; anInt1: 1103; dFloat1: 1403.500; pfloat: 3.010; pint: 2; 
+AuxDataTestType...   INFO   aB: 1303; aFloat1: 1203.500; anInt1: 1103; dFloat1: 1403.500; pfloat: 3.010; pint: 2; 
     pvfloat: [-0.469 -0.369 -0.269 ]; 
     pvint: [-370 -369 -368 ]; 
-  aB: 1304; aFloat1: 1204.500; anInt1: 1104; dFloat1: 1404.500; pfloat: 4.010; pint: 0; 
+AuxDataTestType...   INFO   aB: 1304; aFloat1: 1204.500; anInt1: 1104; dFloat1: 1404.500; pfloat: 4.010; pint: 0; 
     pvfloat: [-0.459 -0.359 -0.259 -0.159 ]; 
     pvint: [-360 -359 -358 -357 ]; 
-  aB: 1305; aFloat1: 1205.500; anInt1: 1105; dFloat1: 1405.500; pfloat: 5.010; pint: 1; 
+AuxDataTestType...   INFO   aB: 1305; aFloat1: 1205.500; anInt1: 1105; dFloat1: 1405.500; pfloat: 5.010; pint: 1; 
     pvfloat: [-0.449 -0.349 -0.249 -0.149 -0.049 ]; 
     pvint: [-350 -349 -348 -347 -346 ]; 
-  aB: 1306; aFloat1: 1206.500; anInt1: 1106; dFloat1: 1406.500; pfloat: 6.010; pint: 2; 
+AuxDataTestType...   INFO   aB: 1306; aFloat1: 1206.500; anInt1: 1106; dFloat1: 1406.500; pfloat: 6.010; pint: 2; 
     pvfloat: [-0.439 -0.339 -0.239 -0.139 -0.039 0.061 ]; 
     pvint: [-340 -339 -338 -337 -336 -335 ]; 
-  aB: 1307; aFloat1: 1207.500; anInt1: 1107; dFloat1: 1407.500; pfloat: 7.010; pint: 0; 
+AuxDataTestType...   INFO   aB: 1307; aFloat1: 1207.500; anInt1: 1107; dFloat1: 1407.500; pfloat: 7.010; pint: 0; 
     pvfloat: [-0.429 -0.329 -0.229 -0.129 -0.029 0.071 0.171 ]; 
     pvint: [-330 -329 -328 -327 -326 -325 -324 ]; 
-  aB: 1308; aFloat1: 1208.500; anInt1: 1108; dFloat1: 1408.500; pfloat: 8.010; pint: 1; 
+AuxDataTestType...   INFO   aB: 1308; aFloat1: 1208.500; anInt1: 1108; dFloat1: 1408.500; pfloat: 8.010; pint: 1; 
     pvfloat: [-0.419 -0.319 -0.219 -0.119 -0.019 0.081 0.181 0.281 ]; 
     pvint: [-320 -319 -318 -317 -316 -315 -314 -313 ]; 
-  aB: 1309; aFloat1: 1209.500; anInt1: 1109; dFloat1: 1409.500; pfloat: 9.010; pint: 2; 
+AuxDataTestType...   INFO   aB: 1309; aFloat1: 1209.500; anInt1: 1109; dFloat1: 1409.500; pfloat: 9.010; pint: 2; 
     pvfloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 0.391 ]; 
     pvint: [-310 -309 -308 -307 -306 -305 -304 -303 -302 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 10099; aFloat1: 9999.500; anEL: bauxvec[1]; anInt1: 9999; dFloat1: 10199.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 10099; aFloat1: 9999.500; anEL: bauxvec[1]; anInt1: 9999; dFloat1: 10199.500; 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] C813E3DD-D997-E44C-8134-CED54D756A85
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 185DD5F6-5F4D-FB40-8F72-983B9F0C0180
 Domain[ROOT_All]     INFO                           auxdata3.root
-RootDatabase.open    INFO auxdata3.root File version:61404
+RootDatabase.open    INFO auxdata3.root File version:61600
 ClassIDSvc           INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
-2
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 2300; aFloat1: 2200.500; anInt1: 2100; dFloat1: 2400.500; pfloat: 0.020; pint: 1; 
+AuxDataTestType...   INFO 2
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 2300; aFloat1: 2200.500; anInt1: 2100; dFloat1: 2400.500; pfloat: 0.020; pint: 1; 
     pvfloat: []; 
     pvint: []; 
-  aB: 2301; aFloat1: 2201.500; anInt1: 2101; dFloat1: 2401.500; pfloat: 1.020; pint: 2; 
+AuxDataTestType...   INFO   aB: 2301; aFloat1: 2201.500; anInt1: 2101; dFloat1: 2401.500; pfloat: 1.020; pint: 2; 
     pvfloat: [-0.488 ]; 
     pvint: [-290 ]; 
-  aB: 2302; aFloat1: 2202.500; anInt1: 2102; dFloat1: 2402.500; pfloat: 2.020; pint: 0; 
+AuxDataTestType...   INFO   aB: 2302; aFloat1: 2202.500; anInt1: 2102; dFloat1: 2402.500; pfloat: 2.020; pint: 0; 
     pvfloat: [-0.478 -0.378 ]; 
     pvint: [-280 -279 ]; 
-  aB: 2303; aFloat1: 2203.500; anInt1: 2103; dFloat1: 2403.500; pfloat: 3.020; pint: 1; 
+AuxDataTestType...   INFO   aB: 2303; aFloat1: 2203.500; anInt1: 2103; dFloat1: 2403.500; pfloat: 3.020; pint: 1; 
     pvfloat: [-0.468 -0.368 -0.268 ]; 
     pvint: [-270 -269 -268 ]; 
-  aB: 2304; aFloat1: 2204.500; anInt1: 2104; dFloat1: 2404.500; pfloat: 4.020; pint: 2; 
+AuxDataTestType...   INFO   aB: 2304; aFloat1: 2204.500; anInt1: 2104; dFloat1: 2404.500; pfloat: 4.020; pint: 2; 
     pvfloat: [-0.458 -0.358 -0.258 -0.158 ]; 
     pvint: [-260 -259 -258 -257 ]; 
-  aB: 2305; aFloat1: 2205.500; anInt1: 2105; dFloat1: 2405.500; pfloat: 5.020; pint: 0; 
+AuxDataTestType...   INFO   aB: 2305; aFloat1: 2205.500; anInt1: 2105; dFloat1: 2405.500; pfloat: 5.020; pint: 0; 
     pvfloat: [-0.448 -0.348 -0.248 -0.148 -0.048 ]; 
     pvint: [-250 -249 -248 -247 -246 ]; 
-  aB: 2306; aFloat1: 2206.500; anInt1: 2106; dFloat1: 2406.500; pfloat: 6.020; pint: 1; 
+AuxDataTestType...   INFO   aB: 2306; aFloat1: 2206.500; anInt1: 2106; dFloat1: 2406.500; pfloat: 6.020; pint: 1; 
     pvfloat: [-0.438 -0.338 -0.238 -0.138 -0.038 0.062 ]; 
     pvint: [-240 -239 -238 -237 -236 -235 ]; 
-  aB: 2307; aFloat1: 2207.500; anInt1: 2107; dFloat1: 2407.500; pfloat: 7.020; pint: 2; 
+AuxDataTestType...   INFO   aB: 2307; aFloat1: 2207.500; anInt1: 2107; dFloat1: 2407.500; pfloat: 7.020; pint: 2; 
     pvfloat: [-0.428 -0.328 -0.228 -0.128 -0.028 0.072 0.172 ]; 
     pvint: [-230 -229 -228 -227 -226 -225 -224 ]; 
-  aB: 2308; aFloat1: 2208.500; anInt1: 2108; dFloat1: 2408.500; pfloat: 8.020; pint: 0; 
+AuxDataTestType...   INFO   aB: 2308; aFloat1: 2208.500; anInt1: 2108; dFloat1: 2408.500; pfloat: 8.020; pint: 0; 
     pvfloat: [-0.418 -0.318 -0.218 -0.118 -0.018 0.082 0.182 0.282 ]; 
     pvint: [-220 -219 -218 -217 -216 -215 -214 -213 ]; 
-  aB: 2309; aFloat1: 2209.500; anInt1: 2109; dFloat1: 2409.500; pfloat: 9.020; pint: 1; 
+AuxDataTestType...   INFO   aB: 2309; aFloat1: 2209.500; anInt1: 2109; dFloat1: 2409.500; pfloat: 9.020; pint: 1; 
     pvfloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 0.392 ]; 
     pvint: [-210 -209 -208 -207 -206 -205 -204 -203 -202 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 20098; aFloat1: 19998.500; anEL: bauxvec[2]; anInt1: 19998; dFloat1: 20198.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 20098; aFloat1: 19998.500; anEL: bauxvec[2]; anInt1: 19998; dFloat1: 20198.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
-3
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 3300; aFloat1: 3200.500; anInt1: 3100; dFloat1: 3400.500; pfloat: 0.030; pint: 0; 
+AuxDataTestType...   INFO 3
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 3300; aFloat1: 3200.500; anInt1: 3100; dFloat1: 3400.500; pfloat: 0.030; pint: 0; 
     pvfloat: []; 
     pvint: []; 
-  aB: 3301; aFloat1: 3201.500; anInt1: 3101; dFloat1: 3401.500; pfloat: 1.030; pint: 1; 
+AuxDataTestType...   INFO   aB: 3301; aFloat1: 3201.500; anInt1: 3101; dFloat1: 3401.500; pfloat: 1.030; pint: 1; 
     pvfloat: [-0.487 ]; 
     pvint: [-190 ]; 
-  aB: 3302; aFloat1: 3202.500; anInt1: 3102; dFloat1: 3402.500; pfloat: 2.030; pint: 2; 
+AuxDataTestType...   INFO   aB: 3302; aFloat1: 3202.500; anInt1: 3102; dFloat1: 3402.500; pfloat: 2.030; pint: 2; 
     pvfloat: [-0.477 -0.377 ]; 
     pvint: [-180 -179 ]; 
-  aB: 3303; aFloat1: 3203.500; anInt1: 3103; dFloat1: 3403.500; pfloat: 3.030; pint: 0; 
+AuxDataTestType...   INFO   aB: 3303; aFloat1: 3203.500; anInt1: 3103; dFloat1: 3403.500; pfloat: 3.030; pint: 0; 
     pvfloat: [-0.467 -0.367 -0.267 ]; 
     pvint: [-170 -169 -168 ]; 
-  aB: 3304; aFloat1: 3204.500; anInt1: 3104; dFloat1: 3404.500; pfloat: 4.030; pint: 1; 
+AuxDataTestType...   INFO   aB: 3304; aFloat1: 3204.500; anInt1: 3104; dFloat1: 3404.500; pfloat: 4.030; pint: 1; 
     pvfloat: [-0.457 -0.357 -0.257 -0.157 ]; 
     pvint: [-160 -159 -158 -157 ]; 
-  aB: 3305; aFloat1: 3205.500; anInt1: 3105; dFloat1: 3405.500; pfloat: 5.030; pint: 2; 
+AuxDataTestType...   INFO   aB: 3305; aFloat1: 3205.500; anInt1: 3105; dFloat1: 3405.500; pfloat: 5.030; pint: 2; 
     pvfloat: [-0.447 -0.347 -0.247 -0.147 -0.047 ]; 
     pvint: [-150 -149 -148 -147 -146 ]; 
-  aB: 3306; aFloat1: 3206.500; anInt1: 3106; dFloat1: 3406.500; pfloat: 6.030; pint: 0; 
+AuxDataTestType...   INFO   aB: 3306; aFloat1: 3206.500; anInt1: 3106; dFloat1: 3406.500; pfloat: 6.030; pint: 0; 
     pvfloat: [-0.437 -0.337 -0.237 -0.137 -0.037 0.063 ]; 
     pvint: [-140 -139 -138 -137 -136 -135 ]; 
-  aB: 3307; aFloat1: 3207.500; anInt1: 3107; dFloat1: 3407.500; pfloat: 7.030; pint: 1; 
+AuxDataTestType...   INFO   aB: 3307; aFloat1: 3207.500; anInt1: 3107; dFloat1: 3407.500; pfloat: 7.030; pint: 1; 
     pvfloat: [-0.427 -0.327 -0.227 -0.127 -0.027 0.073 0.173 ]; 
     pvint: [-130 -129 -128 -127 -126 -125 -124 ]; 
-  aB: 3308; aFloat1: 3208.500; anInt1: 3108; dFloat1: 3408.500; pfloat: 8.030; pint: 2; 
+AuxDataTestType...   INFO   aB: 3308; aFloat1: 3208.500; anInt1: 3108; dFloat1: 3408.500; pfloat: 8.030; pint: 2; 
     pvfloat: [-0.417 -0.317 -0.217 -0.117 -0.017 0.083 0.183 0.283 ]; 
     pvint: [-120 -119 -118 -117 -116 -115 -114 -113 ]; 
-  aB: 3309; aFloat1: 3209.500; anInt1: 3109; dFloat1: 3409.500; pfloat: 9.030; pint: 0; 
+AuxDataTestType...   INFO   aB: 3309; aFloat1: 3209.500; anInt1: 3109; dFloat1: 3409.500; pfloat: 9.030; pint: 0; 
     pvfloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 0.393 ]; 
     pvint: [-110 -109 -108 -107 -106 -105 -104 -103 -102 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 30097; aFloat1: 29997.500; anEL: bauxvec[3]; anInt1: 29997; dFloat1: 30197.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 30097; aFloat1: 29997.500; anEL: bauxvec[3]; anInt1: 29997; dFloat1: 30197.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
-4
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 4300; aFloat1: 4200.500; anInt1: 4100; dFloat1: 4400.500; pfloat: 0.040; pint: 2; 
+AuxDataTestType...   INFO 4
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 4300; aFloat1: 4200.500; anInt1: 4100; dFloat1: 4400.500; pfloat: 0.040; pint: 2; 
     pvfloat: []; 
     pvint: []; 
-  aB: 4301; aFloat1: 4201.500; anInt1: 4101; dFloat1: 4401.500; pfloat: 1.040; pint: 0; 
+AuxDataTestType...   INFO   aB: 4301; aFloat1: 4201.500; anInt1: 4101; dFloat1: 4401.500; pfloat: 1.040; pint: 0; 
     pvfloat: [-0.486 ]; 
     pvint: [-90 ]; 
-  aB: 4302; aFloat1: 4202.500; anInt1: 4102; dFloat1: 4402.500; pfloat: 2.040; pint: 1; 
+AuxDataTestType...   INFO   aB: 4302; aFloat1: 4202.500; anInt1: 4102; dFloat1: 4402.500; pfloat: 2.040; pint: 1; 
     pvfloat: [-0.476 -0.376 ]; 
     pvint: [-80 -79 ]; 
-  aB: 4303; aFloat1: 4203.500; anInt1: 4103; dFloat1: 4403.500; pfloat: 3.040; pint: 2; 
+AuxDataTestType...   INFO   aB: 4303; aFloat1: 4203.500; anInt1: 4103; dFloat1: 4403.500; pfloat: 3.040; pint: 2; 
     pvfloat: [-0.466 -0.366 -0.266 ]; 
     pvint: [-70 -69 -68 ]; 
-  aB: 4304; aFloat1: 4204.500; anInt1: 4104; dFloat1: 4404.500; pfloat: 4.040; pint: 0; 
+AuxDataTestType...   INFO   aB: 4304; aFloat1: 4204.500; anInt1: 4104; dFloat1: 4404.500; pfloat: 4.040; pint: 0; 
     pvfloat: [-0.456 -0.356 -0.256 -0.156 ]; 
     pvint: [-60 -59 -58 -57 ]; 
-  aB: 4305; aFloat1: 4205.500; anInt1: 4105; dFloat1: 4405.500; pfloat: 5.040; pint: 1; 
+AuxDataTestType...   INFO   aB: 4305; aFloat1: 4205.500; anInt1: 4105; dFloat1: 4405.500; pfloat: 5.040; pint: 1; 
     pvfloat: [-0.446 -0.346 -0.246 -0.146 -0.046 ]; 
     pvint: [-50 -49 -48 -47 -46 ]; 
-  aB: 4306; aFloat1: 4206.500; anInt1: 4106; dFloat1: 4406.500; pfloat: 6.040; pint: 2; 
+AuxDataTestType...   INFO   aB: 4306; aFloat1: 4206.500; anInt1: 4106; dFloat1: 4406.500; pfloat: 6.040; pint: 2; 
     pvfloat: [-0.436 -0.336 -0.236 -0.136 -0.036 0.064 ]; 
     pvint: [-40 -39 -38 -37 -36 -35 ]; 
-  aB: 4307; aFloat1: 4207.500; anInt1: 4107; dFloat1: 4407.500; pfloat: 7.040; pint: 0; 
+AuxDataTestType...   INFO   aB: 4307; aFloat1: 4207.500; anInt1: 4107; dFloat1: 4407.500; pfloat: 7.040; pint: 0; 
     pvfloat: [-0.426 -0.326 -0.226 -0.126 -0.026 0.074 0.174 ]; 
     pvint: [-30 -29 -28 -27 -26 -25 -24 ]; 
-  aB: 4308; aFloat1: 4208.500; anInt1: 4108; dFloat1: 4408.500; pfloat: 8.040; pint: 1; 
+AuxDataTestType...   INFO   aB: 4308; aFloat1: 4208.500; anInt1: 4108; dFloat1: 4408.500; pfloat: 8.040; pint: 1; 
     pvfloat: [-0.416 -0.316 -0.216 -0.116 -0.016 0.084 0.184 0.284 ]; 
     pvint: [-20 -19 -18 -17 -16 -15 -14 -13 ]; 
-  aB: 4309; aFloat1: 4209.500; anInt1: 4109; dFloat1: 4409.500; pfloat: 9.040; pint: 2; 
+AuxDataTestType...   INFO   aB: 4309; aFloat1: 4209.500; anInt1: 4109; dFloat1: 4409.500; pfloat: 9.040; pint: 2; 
     pvfloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 0.394 ]; 
     pvint: [-10 -9 -8 -7 -6 -5 -4 -3 -2 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 40096; aFloat1: 39996.500; anEL: bauxvec[4]; anInt1: 39996; dFloat1: 40196.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 40096; aFloat1: 39996.500; anEL: bauxvec[4]; anInt1: 39996; dFloat1: 40196.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
-5
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 5300; aFloat1: 5200.500; anInt1: 5100; dFloat1: 5400.500; pfloat: 0.050; pint: 1; 
+AuxDataTestType...   INFO 5
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 5300; aFloat1: 5200.500; anInt1: 5100; dFloat1: 5400.500; pfloat: 0.050; pint: 1; 
     pvfloat: []; 
     pvint: []; 
-  aB: 5301; aFloat1: 5201.500; anInt1: 5101; dFloat1: 5401.500; pfloat: 1.050; pint: 2; 
+AuxDataTestType...   INFO   aB: 5301; aFloat1: 5201.500; anInt1: 5101; dFloat1: 5401.500; pfloat: 1.050; pint: 2; 
     pvfloat: [-0.485 ]; 
     pvint: [10 ]; 
-  aB: 5302; aFloat1: 5202.500; anInt1: 5102; dFloat1: 5402.500; pfloat: 2.050; pint: 0; 
+AuxDataTestType...   INFO   aB: 5302; aFloat1: 5202.500; anInt1: 5102; dFloat1: 5402.500; pfloat: 2.050; pint: 0; 
     pvfloat: [-0.475 -0.375 ]; 
     pvint: [20 21 ]; 
-  aB: 5303; aFloat1: 5203.500; anInt1: 5103; dFloat1: 5403.500; pfloat: 3.050; pint: 1; 
+AuxDataTestType...   INFO   aB: 5303; aFloat1: 5203.500; anInt1: 5103; dFloat1: 5403.500; pfloat: 3.050; pint: 1; 
     pvfloat: [-0.465 -0.365 -0.265 ]; 
     pvint: [30 31 32 ]; 
-  aB: 5304; aFloat1: 5204.500; anInt1: 5104; dFloat1: 5404.500; pfloat: 4.050; pint: 2; 
+AuxDataTestType...   INFO   aB: 5304; aFloat1: 5204.500; anInt1: 5104; dFloat1: 5404.500; pfloat: 4.050; pint: 2; 
     pvfloat: [-0.455 -0.355 -0.255 -0.155 ]; 
     pvint: [40 41 42 43 ]; 
-  aB: 5305; aFloat1: 5205.500; anInt1: 5105; dFloat1: 5405.500; pfloat: 5.050; pint: 0; 
+AuxDataTestType...   INFO   aB: 5305; aFloat1: 5205.500; anInt1: 5105; dFloat1: 5405.500; pfloat: 5.050; pint: 0; 
     pvfloat: [-0.445 -0.345 -0.245 -0.145 -0.045 ]; 
     pvint: [50 51 52 53 54 ]; 
-  aB: 5306; aFloat1: 5206.500; anInt1: 5106; dFloat1: 5406.500; pfloat: 6.050; pint: 1; 
+AuxDataTestType...   INFO   aB: 5306; aFloat1: 5206.500; anInt1: 5106; dFloat1: 5406.500; pfloat: 6.050; pint: 1; 
     pvfloat: [-0.435 -0.335 -0.235 -0.135 -0.035 0.065 ]; 
     pvint: [60 61 62 63 64 65 ]; 
-  aB: 5307; aFloat1: 5207.500; anInt1: 5107; dFloat1: 5407.500; pfloat: 7.050; pint: 2; 
+AuxDataTestType...   INFO   aB: 5307; aFloat1: 5207.500; anInt1: 5107; dFloat1: 5407.500; pfloat: 7.050; pint: 2; 
     pvfloat: [-0.425 -0.325 -0.225 -0.125 -0.025 0.075 0.175 ]; 
     pvint: [70 71 72 73 74 75 76 ]; 
-  aB: 5308; aFloat1: 5208.500; anInt1: 5108; dFloat1: 5408.500; pfloat: 8.050; pint: 0; 
+AuxDataTestType...   INFO   aB: 5308; aFloat1: 5208.500; anInt1: 5108; dFloat1: 5408.500; pfloat: 8.050; pint: 0; 
     pvfloat: [-0.415 -0.315 -0.215 -0.115 -0.015 0.085 0.185 0.285 ]; 
     pvint: [80 81 82 83 84 85 86 87 ]; 
-  aB: 5309; aFloat1: 5209.500; anInt1: 5109; dFloat1: 5409.500; pfloat: 9.050; pint: 1; 
+AuxDataTestType...   INFO   aB: 5309; aFloat1: 5209.500; anInt1: 5109; dFloat1: 5409.500; pfloat: 9.050; pint: 1; 
     pvfloat: [-0.405 -0.305 -0.205 -0.105 -0.005 0.095 0.195 0.295 0.395 ]; 
     pvint: [90 91 92 93 94 95 96 97 98 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 50095; aFloat1: 49995.500; anEL: bauxvec[5]; anInt1: 49995; dFloat1: 50195.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 50095; aFloat1: 49995.500; anEL: bauxvec[5]; anInt1: 49995; dFloat1: 50195.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
-6
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 6300; aFloat1: 6200.500; anInt1: 6100; dFloat1: 6400.500; pfloat: 0.060; pint: 0; 
+AuxDataTestType...   INFO 6
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 6300; aFloat1: 6200.500; anInt1: 6100; dFloat1: 6400.500; pfloat: 0.060; pint: 0; 
     pvfloat: []; 
     pvint: []; 
-  aB: 6301; aFloat1: 6201.500; anInt1: 6101; dFloat1: 6401.500; pfloat: 1.060; pint: 1; 
+AuxDataTestType...   INFO   aB: 6301; aFloat1: 6201.500; anInt1: 6101; dFloat1: 6401.500; pfloat: 1.060; pint: 1; 
     pvfloat: [-0.484 ]; 
     pvint: [110 ]; 
-  aB: 6302; aFloat1: 6202.500; anInt1: 6102; dFloat1: 6402.500; pfloat: 2.060; pint: 2; 
+AuxDataTestType...   INFO   aB: 6302; aFloat1: 6202.500; anInt1: 6102; dFloat1: 6402.500; pfloat: 2.060; pint: 2; 
     pvfloat: [-0.474 -0.374 ]; 
     pvint: [120 121 ]; 
-  aB: 6303; aFloat1: 6203.500; anInt1: 6103; dFloat1: 6403.500; pfloat: 3.060; pint: 0; 
+AuxDataTestType...   INFO   aB: 6303; aFloat1: 6203.500; anInt1: 6103; dFloat1: 6403.500; pfloat: 3.060; pint: 0; 
     pvfloat: [-0.464 -0.364 -0.264 ]; 
     pvint: [130 131 132 ]; 
-  aB: 6304; aFloat1: 6204.500; anInt1: 6104; dFloat1: 6404.500; pfloat: 4.060; pint: 1; 
+AuxDataTestType...   INFO   aB: 6304; aFloat1: 6204.500; anInt1: 6104; dFloat1: 6404.500; pfloat: 4.060; pint: 1; 
     pvfloat: [-0.454 -0.354 -0.254 -0.154 ]; 
     pvint: [140 141 142 143 ]; 
-  aB: 6305; aFloat1: 6205.500; anInt1: 6105; dFloat1: 6405.500; pfloat: 5.060; pint: 2; 
+AuxDataTestType...   INFO   aB: 6305; aFloat1: 6205.500; anInt1: 6105; dFloat1: 6405.500; pfloat: 5.060; pint: 2; 
     pvfloat: [-0.444 -0.344 -0.244 -0.144 -0.044 ]; 
     pvint: [150 151 152 153 154 ]; 
-  aB: 6306; aFloat1: 6206.500; anInt1: 6106; dFloat1: 6406.500; pfloat: 6.060; pint: 0; 
+AuxDataTestType...   INFO   aB: 6306; aFloat1: 6206.500; anInt1: 6106; dFloat1: 6406.500; pfloat: 6.060; pint: 0; 
     pvfloat: [-0.434 -0.334 -0.234 -0.134 -0.034 0.066 ]; 
     pvint: [160 161 162 163 164 165 ]; 
-  aB: 6307; aFloat1: 6207.500; anInt1: 6107; dFloat1: 6407.500; pfloat: 7.060; pint: 1; 
+AuxDataTestType...   INFO   aB: 6307; aFloat1: 6207.500; anInt1: 6107; dFloat1: 6407.500; pfloat: 7.060; pint: 1; 
     pvfloat: [-0.424 -0.324 -0.224 -0.124 -0.024 0.076 0.176 ]; 
     pvint: [170 171 172 173 174 175 176 ]; 
-  aB: 6308; aFloat1: 6208.500; anInt1: 6108; dFloat1: 6408.500; pfloat: 8.060; pint: 2; 
+AuxDataTestType...   INFO   aB: 6308; aFloat1: 6208.500; anInt1: 6108; dFloat1: 6408.500; pfloat: 8.060; pint: 2; 
     pvfloat: [-0.414 -0.314 -0.214 -0.114 -0.014 0.086 0.186 0.286 ]; 
     pvint: [180 181 182 183 184 185 186 187 ]; 
-  aB: 6309; aFloat1: 6209.500; anInt1: 6109; dFloat1: 6409.500; pfloat: 9.060; pint: 0; 
+AuxDataTestType...   INFO   aB: 6309; aFloat1: 6209.500; anInt1: 6109; dFloat1: 6409.500; pfloat: 9.060; pint: 0; 
     pvfloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 0.396 ]; 
     pvint: [190 191 192 193 194 195 196 197 198 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 60094; aFloat1: 59994.500; anEL: bauxvec[6]; anInt1: 59994; dFloat1: 60194.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 60094; aFloat1: 59994.500; anEL: bauxvec[6]; anInt1: 59994; dFloat1: 60194.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
-7
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 7300; aFloat1: 7200.500; anInt1: 7100; dFloat1: 7400.500; pfloat: 0.070; pint: 2; 
+AuxDataTestType...   INFO 7
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 7300; aFloat1: 7200.500; anInt1: 7100; dFloat1: 7400.500; pfloat: 0.070; pint: 2; 
     pvfloat: []; 
     pvint: []; 
-  aB: 7301; aFloat1: 7201.500; anInt1: 7101; dFloat1: 7401.500; pfloat: 1.070; pint: 0; 
+AuxDataTestType...   INFO   aB: 7301; aFloat1: 7201.500; anInt1: 7101; dFloat1: 7401.500; pfloat: 1.070; pint: 0; 
     pvfloat: [-0.483 ]; 
     pvint: [210 ]; 
-  aB: 7302; aFloat1: 7202.500; anInt1: 7102; dFloat1: 7402.500; pfloat: 2.070; pint: 1; 
+AuxDataTestType...   INFO   aB: 7302; aFloat1: 7202.500; anInt1: 7102; dFloat1: 7402.500; pfloat: 2.070; pint: 1; 
     pvfloat: [-0.473 -0.373 ]; 
     pvint: [220 221 ]; 
-  aB: 7303; aFloat1: 7203.500; anInt1: 7103; dFloat1: 7403.500; pfloat: 3.070; pint: 2; 
+AuxDataTestType...   INFO   aB: 7303; aFloat1: 7203.500; anInt1: 7103; dFloat1: 7403.500; pfloat: 3.070; pint: 2; 
     pvfloat: [-0.463 -0.363 -0.263 ]; 
     pvint: [230 231 232 ]; 
-  aB: 7304; aFloat1: 7204.500; anInt1: 7104; dFloat1: 7404.500; pfloat: 4.070; pint: 0; 
+AuxDataTestType...   INFO   aB: 7304; aFloat1: 7204.500; anInt1: 7104; dFloat1: 7404.500; pfloat: 4.070; pint: 0; 
     pvfloat: [-0.453 -0.353 -0.253 -0.153 ]; 
     pvint: [240 241 242 243 ]; 
-  aB: 7305; aFloat1: 7205.500; anInt1: 7105; dFloat1: 7405.500; pfloat: 5.070; pint: 1; 
+AuxDataTestType...   INFO   aB: 7305; aFloat1: 7205.500; anInt1: 7105; dFloat1: 7405.500; pfloat: 5.070; pint: 1; 
     pvfloat: [-0.443 -0.343 -0.243 -0.143 -0.043 ]; 
     pvint: [250 251 252 253 254 ]; 
-  aB: 7306; aFloat1: 7206.500; anInt1: 7106; dFloat1: 7406.500; pfloat: 6.070; pint: 2; 
+AuxDataTestType...   INFO   aB: 7306; aFloat1: 7206.500; anInt1: 7106; dFloat1: 7406.500; pfloat: 6.070; pint: 2; 
     pvfloat: [-0.433 -0.333 -0.233 -0.133 -0.033 0.067 ]; 
     pvint: [260 261 262 263 264 265 ]; 
-  aB: 7307; aFloat1: 7207.500; anInt1: 7107; dFloat1: 7407.500; pfloat: 7.070; pint: 0; 
+AuxDataTestType...   INFO   aB: 7307; aFloat1: 7207.500; anInt1: 7107; dFloat1: 7407.500; pfloat: 7.070; pint: 0; 
     pvfloat: [-0.423 -0.323 -0.223 -0.123 -0.023 0.077 0.177 ]; 
     pvint: [270 271 272 273 274 275 276 ]; 
-  aB: 7308; aFloat1: 7208.500; anInt1: 7108; dFloat1: 7408.500; pfloat: 8.070; pint: 1; 
+AuxDataTestType...   INFO   aB: 7308; aFloat1: 7208.500; anInt1: 7108; dFloat1: 7408.500; pfloat: 8.070; pint: 1; 
     pvfloat: [-0.413 -0.313 -0.213 -0.113 -0.013 0.087 0.187 0.287 ]; 
     pvint: [280 281 282 283 284 285 286 287 ]; 
-  aB: 7309; aFloat1: 7209.500; anInt1: 7109; dFloat1: 7409.500; pfloat: 9.070; pint: 2; 
+AuxDataTestType...   INFO   aB: 7309; aFloat1: 7209.500; anInt1: 7109; dFloat1: 7409.500; pfloat: 9.070; pint: 2; 
     pvfloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 0.397 ]; 
     pvint: [290 291 292 293 294 295 296 297 298 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 70093; aFloat1: 69993.500; anEL: bauxvec[7]; anInt1: 69993; dFloat1: 70193.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 70093; aFloat1: 69993.500; anEL: bauxvec[7]; anInt1: 69993; dFloat1: 70193.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
-8
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 8300; aFloat1: 8200.500; anInt1: 8100; dFloat1: 8400.500; pfloat: 0.080; pint: 1; 
+AuxDataTestType...   INFO 8
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 8300; aFloat1: 8200.500; anInt1: 8100; dFloat1: 8400.500; pfloat: 0.080; pint: 1; 
     pvfloat: []; 
     pvint: []; 
-  aB: 8301; aFloat1: 8201.500; anInt1: 8101; dFloat1: 8401.500; pfloat: 1.080; pint: 2; 
+AuxDataTestType...   INFO   aB: 8301; aFloat1: 8201.500; anInt1: 8101; dFloat1: 8401.500; pfloat: 1.080; pint: 2; 
     pvfloat: [-0.482 ]; 
     pvint: [310 ]; 
-  aB: 8302; aFloat1: 8202.500; anInt1: 8102; dFloat1: 8402.500; pfloat: 2.080; pint: 0; 
+AuxDataTestType...   INFO   aB: 8302; aFloat1: 8202.500; anInt1: 8102; dFloat1: 8402.500; pfloat: 2.080; pint: 0; 
     pvfloat: [-0.472 -0.372 ]; 
     pvint: [320 321 ]; 
-  aB: 8303; aFloat1: 8203.500; anInt1: 8103; dFloat1: 8403.500; pfloat: 3.080; pint: 1; 
+AuxDataTestType...   INFO   aB: 8303; aFloat1: 8203.500; anInt1: 8103; dFloat1: 8403.500; pfloat: 3.080; pint: 1; 
     pvfloat: [-0.462 -0.362 -0.262 ]; 
     pvint: [330 331 332 ]; 
-  aB: 8304; aFloat1: 8204.500; anInt1: 8104; dFloat1: 8404.500; pfloat: 4.080; pint: 2; 
+AuxDataTestType...   INFO   aB: 8304; aFloat1: 8204.500; anInt1: 8104; dFloat1: 8404.500; pfloat: 4.080; pint: 2; 
     pvfloat: [-0.452 -0.352 -0.252 -0.152 ]; 
     pvint: [340 341 342 343 ]; 
-  aB: 8305; aFloat1: 8205.500; anInt1: 8105; dFloat1: 8405.500; pfloat: 5.080; pint: 0; 
+AuxDataTestType...   INFO   aB: 8305; aFloat1: 8205.500; anInt1: 8105; dFloat1: 8405.500; pfloat: 5.080; pint: 0; 
     pvfloat: [-0.442 -0.342 -0.242 -0.142 -0.042 ]; 
     pvint: [350 351 352 353 354 ]; 
-  aB: 8306; aFloat1: 8206.500; anInt1: 8106; dFloat1: 8406.500; pfloat: 6.080; pint: 1; 
+AuxDataTestType...   INFO   aB: 8306; aFloat1: 8206.500; anInt1: 8106; dFloat1: 8406.500; pfloat: 6.080; pint: 1; 
     pvfloat: [-0.432 -0.332 -0.232 -0.132 -0.032 0.068 ]; 
     pvint: [360 361 362 363 364 365 ]; 
-  aB: 8307; aFloat1: 8207.500; anInt1: 8107; dFloat1: 8407.500; pfloat: 7.080; pint: 2; 
+AuxDataTestType...   INFO   aB: 8307; aFloat1: 8207.500; anInt1: 8107; dFloat1: 8407.500; pfloat: 7.080; pint: 2; 
     pvfloat: [-0.422 -0.322 -0.222 -0.122 -0.022 0.078 0.178 ]; 
     pvint: [370 371 372 373 374 375 376 ]; 
-  aB: 8308; aFloat1: 8208.500; anInt1: 8108; dFloat1: 8408.500; pfloat: 8.080; pint: 0; 
+AuxDataTestType...   INFO   aB: 8308; aFloat1: 8208.500; anInt1: 8108; dFloat1: 8408.500; pfloat: 8.080; pint: 0; 
     pvfloat: [-0.412 -0.312 -0.212 -0.112 -0.012 0.088 0.188 0.288 ]; 
     pvint: [380 381 382 383 384 385 386 387 ]; 
-  aB: 8309; aFloat1: 8209.500; anInt1: 8109; dFloat1: 8409.500; pfloat: 9.080; pint: 1; 
+AuxDataTestType...   INFO   aB: 8309; aFloat1: 8209.500; anInt1: 8109; dFloat1: 8409.500; pfloat: 9.080; pint: 1; 
     pvfloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 0.398 ]; 
     pvint: [390 391 392 393 394 395 396 397 398 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 80092; aFloat1: 79992.500; anEL: bauxvec[8]; anInt1: 79992; dFloat1: 80192.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 80092; aFloat1: 79992.500; anEL: bauxvec[8]; anInt1: 79992; dFloat1: 80192.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
-9
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 9300; aFloat1: 9200.500; anInt1: 9100; dFloat1: 9400.500; pfloat: 0.090; pint: 0; 
+AuxDataTestType...   INFO 9
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 9300; aFloat1: 9200.500; anInt1: 9100; dFloat1: 9400.500; pfloat: 0.090; pint: 0; 
     pvfloat: []; 
     pvint: []; 
-  aB: 9301; aFloat1: 9201.500; anInt1: 9101; dFloat1: 9401.500; pfloat: 1.090; pint: 1; 
+AuxDataTestType...   INFO   aB: 9301; aFloat1: 9201.500; anInt1: 9101; dFloat1: 9401.500; pfloat: 1.090; pint: 1; 
     pvfloat: [-0.481 ]; 
     pvint: [410 ]; 
-  aB: 9302; aFloat1: 9202.500; anInt1: 9102; dFloat1: 9402.500; pfloat: 2.090; pint: 2; 
+AuxDataTestType...   INFO   aB: 9302; aFloat1: 9202.500; anInt1: 9102; dFloat1: 9402.500; pfloat: 2.090; pint: 2; 
     pvfloat: [-0.471 -0.371 ]; 
     pvint: [420 421 ]; 
-  aB: 9303; aFloat1: 9203.500; anInt1: 9103; dFloat1: 9403.500; pfloat: 3.090; pint: 0; 
+AuxDataTestType...   INFO   aB: 9303; aFloat1: 9203.500; anInt1: 9103; dFloat1: 9403.500; pfloat: 3.090; pint: 0; 
     pvfloat: [-0.461 -0.361 -0.261 ]; 
     pvint: [430 431 432 ]; 
-  aB: 9304; aFloat1: 9204.500; anInt1: 9104; dFloat1: 9404.500; pfloat: 4.090; pint: 1; 
+AuxDataTestType...   INFO   aB: 9304; aFloat1: 9204.500; anInt1: 9104; dFloat1: 9404.500; pfloat: 4.090; pint: 1; 
     pvfloat: [-0.451 -0.351 -0.251 -0.151 ]; 
     pvint: [440 441 442 443 ]; 
-  aB: 9305; aFloat1: 9205.500; anInt1: 9105; dFloat1: 9405.500; pfloat: 5.090; pint: 2; 
+AuxDataTestType...   INFO   aB: 9305; aFloat1: 9205.500; anInt1: 9105; dFloat1: 9405.500; pfloat: 5.090; pint: 2; 
     pvfloat: [-0.441 -0.341 -0.241 -0.141 -0.041 ]; 
     pvint: [450 451 452 453 454 ]; 
-  aB: 9306; aFloat1: 9206.500; anInt1: 9106; dFloat1: 9406.500; pfloat: 6.090; pint: 0; 
+AuxDataTestType...   INFO   aB: 9306; aFloat1: 9206.500; anInt1: 9106; dFloat1: 9406.500; pfloat: 6.090; pint: 0; 
     pvfloat: [-0.431 -0.331 -0.231 -0.131 -0.031 0.069 ]; 
     pvint: [460 461 462 463 464 465 ]; 
-  aB: 9307; aFloat1: 9207.500; anInt1: 9107; dFloat1: 9407.500; pfloat: 7.090; pint: 1; 
+AuxDataTestType...   INFO   aB: 9307; aFloat1: 9207.500; anInt1: 9107; dFloat1: 9407.500; pfloat: 7.090; pint: 1; 
     pvfloat: [-0.421 -0.321 -0.221 -0.121 -0.021 0.079 0.179 ]; 
     pvint: [470 471 472 473 474 475 476 ]; 
-  aB: 9308; aFloat1: 9208.500; anInt1: 9108; dFloat1: 9408.500; pfloat: 8.090; pint: 2; 
+AuxDataTestType...   INFO   aB: 9308; aFloat1: 9208.500; anInt1: 9108; dFloat1: 9408.500; pfloat: 8.090; pint: 2; 
     pvfloat: [-0.411 -0.311 -0.211 -0.111 -0.011 0.089 0.189 0.289 ]; 
     pvint: [480 481 482 483 484 485 486 487 ]; 
-  aB: 9309; aFloat1: 9209.500; anInt1: 9109; dFloat1: 9409.500; pfloat: 9.090; pint: 0; 
+AuxDataTestType...   INFO   aB: 9309; aFloat1: 9209.500; anInt1: 9109; dFloat1: 9409.500; pfloat: 9.090; pint: 0; 
     pvfloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 0.399 ]; 
     pvint: [490 491 492 493 494 495 496 497 498 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 90091; aFloat1: 89991.500; anEL: bauxvec[9]; anInt1: 89991; dFloat1: 90191.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 90091; aFloat1: 89991.500; anEL: bauxvec[9]; anInt1: 89991; dFloat1: 90191.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
-10
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 10300; aFloat1: 10200.500; anInt1: 10100; dFloat1: 10400.500; pfloat: 0.100; pint: 2; 
+AuxDataTestType...   INFO 10
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 10300; aFloat1: 10200.500; anInt1: 10100; dFloat1: 10400.500; pfloat: 0.100; pint: 2; 
     pvfloat: []; 
     pvint: []; 
-  aB: 10301; aFloat1: 10201.500; anInt1: 10101; dFloat1: 10401.500; pfloat: 1.100; pint: 0; 
+AuxDataTestType...   INFO   aB: 10301; aFloat1: 10201.500; anInt1: 10101; dFloat1: 10401.500; pfloat: 1.100; pint: 0; 
     pvfloat: [-0.480 ]; 
     pvint: [510 ]; 
-  aB: 10302; aFloat1: 10202.500; anInt1: 10102; dFloat1: 10402.500; pfloat: 2.100; pint: 1; 
+AuxDataTestType...   INFO   aB: 10302; aFloat1: 10202.500; anInt1: 10102; dFloat1: 10402.500; pfloat: 2.100; pint: 1; 
     pvfloat: [-0.470 -0.370 ]; 
     pvint: [520 521 ]; 
-  aB: 10303; aFloat1: 10203.500; anInt1: 10103; dFloat1: 10403.500; pfloat: 3.100; pint: 2; 
+AuxDataTestType...   INFO   aB: 10303; aFloat1: 10203.500; anInt1: 10103; dFloat1: 10403.500; pfloat: 3.100; pint: 2; 
     pvfloat: [-0.460 -0.360 -0.260 ]; 
     pvint: [530 531 532 ]; 
-  aB: 10304; aFloat1: 10204.500; anInt1: 10104; dFloat1: 10404.500; pfloat: 4.100; pint: 0; 
+AuxDataTestType...   INFO   aB: 10304; aFloat1: 10204.500; anInt1: 10104; dFloat1: 10404.500; pfloat: 4.100; pint: 0; 
     pvfloat: [-0.450 -0.350 -0.250 -0.150 ]; 
     pvint: [540 541 542 543 ]; 
-  aB: 10305; aFloat1: 10205.500; anInt1: 10105; dFloat1: 10405.500; pfloat: 5.100; pint: 1; 
+AuxDataTestType...   INFO   aB: 10305; aFloat1: 10205.500; anInt1: 10105; dFloat1: 10405.500; pfloat: 5.100; pint: 1; 
     pvfloat: [-0.440 -0.340 -0.240 -0.140 -0.040 ]; 
     pvint: [550 551 552 553 554 ]; 
-  aB: 10306; aFloat1: 10206.500; anInt1: 10106; dFloat1: 10406.500; pfloat: 6.100; pint: 2; 
+AuxDataTestType...   INFO   aB: 10306; aFloat1: 10206.500; anInt1: 10106; dFloat1: 10406.500; pfloat: 6.100; pint: 2; 
     pvfloat: [-0.430 -0.330 -0.230 -0.130 -0.030 0.070 ]; 
     pvint: [560 561 562 563 564 565 ]; 
-  aB: 10307; aFloat1: 10207.500; anInt1: 10107; dFloat1: 10407.500; pfloat: 7.100; pint: 0; 
+AuxDataTestType...   INFO   aB: 10307; aFloat1: 10207.500; anInt1: 10107; dFloat1: 10407.500; pfloat: 7.100; pint: 0; 
     pvfloat: [-0.420 -0.320 -0.220 -0.120 -0.020 0.080 0.180 ]; 
     pvint: [570 571 572 573 574 575 576 ]; 
-  aB: 10308; aFloat1: 10208.500; anInt1: 10108; dFloat1: 10408.500; pfloat: 8.100; pint: 1; 
+AuxDataTestType...   INFO   aB: 10308; aFloat1: 10208.500; anInt1: 10108; dFloat1: 10408.500; pfloat: 8.100; pint: 1; 
     pvfloat: [-0.410 -0.310 -0.210 -0.110 -0.010 0.090 0.190 0.290 ]; 
     pvint: [580 581 582 583 584 585 586 587 ]; 
-  aB: 10309; aFloat1: 10209.500; anInt1: 10109; dFloat1: 10409.500; pfloat: 9.100; pint: 2; 
+AuxDataTestType...   INFO   aB: 10309; aFloat1: 10209.500; anInt1: 10109; dFloat1: 10409.500; pfloat: 9.100; pint: 2; 
     pvfloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 0.400 ]; 
     pvint: [590 591 592 593 594 595 596 597 598 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 100090; aFloat1: 99990.500; anEL: bauxvec[0]; anInt1: 99990; dFloat1: 100190.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 100090; aFloat1: 99990.500; anEL: bauxvec[0]; anInt1: 99990; dFloat1: 100190.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
-11
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 11300; aFloat1: 11200.500; anInt1: 11100; dFloat1: 11400.500; pfloat: 0.110; pint: 1; 
+AuxDataTestType...   INFO 11
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 11300; aFloat1: 11200.500; anInt1: 11100; dFloat1: 11400.500; pfloat: 0.110; pint: 1; 
     pvfloat: []; 
     pvint: []; 
-  aB: 11301; aFloat1: 11201.500; anInt1: 11101; dFloat1: 11401.500; pfloat: 1.110; pint: 2; 
+AuxDataTestType...   INFO   aB: 11301; aFloat1: 11201.500; anInt1: 11101; dFloat1: 11401.500; pfloat: 1.110; pint: 2; 
     pvfloat: [-0.479 ]; 
     pvint: [610 ]; 
-  aB: 11302; aFloat1: 11202.500; anInt1: 11102; dFloat1: 11402.500; pfloat: 2.110; pint: 0; 
+AuxDataTestType...   INFO   aB: 11302; aFloat1: 11202.500; anInt1: 11102; dFloat1: 11402.500; pfloat: 2.110; pint: 0; 
     pvfloat: [-0.469 -0.369 ]; 
     pvint: [620 621 ]; 
-  aB: 11303; aFloat1: 11203.500; anInt1: 11103; dFloat1: 11403.500; pfloat: 3.110; pint: 1; 
+AuxDataTestType...   INFO   aB: 11303; aFloat1: 11203.500; anInt1: 11103; dFloat1: 11403.500; pfloat: 3.110; pint: 1; 
     pvfloat: [-0.459 -0.359 -0.259 ]; 
     pvint: [630 631 632 ]; 
-  aB: 11304; aFloat1: 11204.500; anInt1: 11104; dFloat1: 11404.500; pfloat: 4.110; pint: 2; 
+AuxDataTestType...   INFO   aB: 11304; aFloat1: 11204.500; anInt1: 11104; dFloat1: 11404.500; pfloat: 4.110; pint: 2; 
     pvfloat: [-0.449 -0.349 -0.249 -0.149 ]; 
     pvint: [640 641 642 643 ]; 
-  aB: 11305; aFloat1: 11205.500; anInt1: 11105; dFloat1: 11405.500; pfloat: 5.110; pint: 0; 
+AuxDataTestType...   INFO   aB: 11305; aFloat1: 11205.500; anInt1: 11105; dFloat1: 11405.500; pfloat: 5.110; pint: 0; 
     pvfloat: [-0.439 -0.339 -0.239 -0.139 -0.039 ]; 
     pvint: [650 651 652 653 654 ]; 
-  aB: 11306; aFloat1: 11206.500; anInt1: 11106; dFloat1: 11406.500; pfloat: 6.110; pint: 1; 
+AuxDataTestType...   INFO   aB: 11306; aFloat1: 11206.500; anInt1: 11106; dFloat1: 11406.500; pfloat: 6.110; pint: 1; 
     pvfloat: [-0.429 -0.329 -0.229 -0.129 -0.029 0.071 ]; 
     pvint: [660 661 662 663 664 665 ]; 
-  aB: 11307; aFloat1: 11207.500; anInt1: 11107; dFloat1: 11407.500; pfloat: 7.110; pint: 2; 
+AuxDataTestType...   INFO   aB: 11307; aFloat1: 11207.500; anInt1: 11107; dFloat1: 11407.500; pfloat: 7.110; pint: 2; 
     pvfloat: [-0.419 -0.319 -0.219 -0.119 -0.019 0.081 0.181 ]; 
     pvint: [670 671 672 673 674 675 676 ]; 
-  aB: 11308; aFloat1: 11208.500; anInt1: 11108; dFloat1: 11408.500; pfloat: 8.110; pint: 0; 
+AuxDataTestType...   INFO   aB: 11308; aFloat1: 11208.500; anInt1: 11108; dFloat1: 11408.500; pfloat: 8.110; pint: 0; 
     pvfloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 ]; 
     pvint: [680 681 682 683 684 685 686 687 ]; 
-  aB: 11309; aFloat1: 11209.500; anInt1: 11109; dFloat1: 11409.500; pfloat: 9.110; pint: 1; 
+AuxDataTestType...   INFO   aB: 11309; aFloat1: 11209.500; anInt1: 11109; dFloat1: 11409.500; pfloat: 9.110; pint: 1; 
     pvfloat: [-0.399 -0.299 -0.199 -0.099 0.001 0.101 0.201 0.301 0.401 ]; 
     pvint: [690 691 692 693 694 695 696 697 698 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 110089; aFloat1: 109989.500; anEL: bauxvec[1]; anInt1: 109989; dFloat1: 110189.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 110089; aFloat1: 109989.500; anEL: bauxvec[1]; anInt1: 109989; dFloat1: 110189.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
-12
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 12300; aFloat1: 12200.500; anInt1: 12100; dFloat1: 12400.500; pfloat: 0.120; pint: 0; 
+AuxDataTestType...   INFO 12
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 12300; aFloat1: 12200.500; anInt1: 12100; dFloat1: 12400.500; pfloat: 0.120; pint: 0; 
     pvfloat: []; 
     pvint: []; 
-  aB: 12301; aFloat1: 12201.500; anInt1: 12101; dFloat1: 12401.500; pfloat: 1.120; pint: 1; 
+AuxDataTestType...   INFO   aB: 12301; aFloat1: 12201.500; anInt1: 12101; dFloat1: 12401.500; pfloat: 1.120; pint: 1; 
     pvfloat: [-0.478 ]; 
     pvint: [710 ]; 
-  aB: 12302; aFloat1: 12202.500; anInt1: 12102; dFloat1: 12402.500; pfloat: 2.120; pint: 2; 
+AuxDataTestType...   INFO   aB: 12302; aFloat1: 12202.500; anInt1: 12102; dFloat1: 12402.500; pfloat: 2.120; pint: 2; 
     pvfloat: [-0.468 -0.368 ]; 
     pvint: [720 721 ]; 
-  aB: 12303; aFloat1: 12203.500; anInt1: 12103; dFloat1: 12403.500; pfloat: 3.120; pint: 0; 
+AuxDataTestType...   INFO   aB: 12303; aFloat1: 12203.500; anInt1: 12103; dFloat1: 12403.500; pfloat: 3.120; pint: 0; 
     pvfloat: [-0.458 -0.358 -0.258 ]; 
     pvint: [730 731 732 ]; 
-  aB: 12304; aFloat1: 12204.500; anInt1: 12104; dFloat1: 12404.500; pfloat: 4.120; pint: 1; 
+AuxDataTestType...   INFO   aB: 12304; aFloat1: 12204.500; anInt1: 12104; dFloat1: 12404.500; pfloat: 4.120; pint: 1; 
     pvfloat: [-0.448 -0.348 -0.248 -0.148 ]; 
     pvint: [740 741 742 743 ]; 
-  aB: 12305; aFloat1: 12205.500; anInt1: 12105; dFloat1: 12405.500; pfloat: 5.120; pint: 2; 
+AuxDataTestType...   INFO   aB: 12305; aFloat1: 12205.500; anInt1: 12105; dFloat1: 12405.500; pfloat: 5.120; pint: 2; 
     pvfloat: [-0.438 -0.338 -0.238 -0.138 -0.038 ]; 
     pvint: [750 751 752 753 754 ]; 
-  aB: 12306; aFloat1: 12206.500; anInt1: 12106; dFloat1: 12406.500; pfloat: 6.120; pint: 0; 
+AuxDataTestType...   INFO   aB: 12306; aFloat1: 12206.500; anInt1: 12106; dFloat1: 12406.500; pfloat: 6.120; pint: 0; 
     pvfloat: [-0.428 -0.328 -0.228 -0.128 -0.028 0.072 ]; 
     pvint: [760 761 762 763 764 765 ]; 
-  aB: 12307; aFloat1: 12207.500; anInt1: 12107; dFloat1: 12407.500; pfloat: 7.120; pint: 1; 
+AuxDataTestType...   INFO   aB: 12307; aFloat1: 12207.500; anInt1: 12107; dFloat1: 12407.500; pfloat: 7.120; pint: 1; 
     pvfloat: [-0.418 -0.318 -0.218 -0.118 -0.018 0.082 0.182 ]; 
     pvint: [770 771 772 773 774 775 776 ]; 
-  aB: 12308; aFloat1: 12208.500; anInt1: 12108; dFloat1: 12408.500; pfloat: 8.120; pint: 2; 
+AuxDataTestType...   INFO   aB: 12308; aFloat1: 12208.500; anInt1: 12108; dFloat1: 12408.500; pfloat: 8.120; pint: 2; 
     pvfloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 ]; 
     pvint: [780 781 782 783 784 785 786 787 ]; 
-  aB: 12309; aFloat1: 12209.500; anInt1: 12109; dFloat1: 12409.500; pfloat: 9.120; pint: 0; 
+AuxDataTestType...   INFO   aB: 12309; aFloat1: 12209.500; anInt1: 12109; dFloat1: 12409.500; pfloat: 9.120; pint: 0; 
     pvfloat: [-0.398 -0.298 -0.198 -0.098 0.002 0.102 0.202 0.302 0.402 ]; 
     pvint: [790 791 792 793 794 795 796 797 798 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 120088; aFloat1: 119988.500; anEL: bauxvec[2]; anInt1: 119988; dFloat1: 120188.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 120088; aFloat1: 119988.500; anEL: bauxvec[2]; anInt1: 119988; dFloat1: 120188.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
-13
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 13300; aFloat1: 13200.500; anInt1: 13100; dFloat1: 13400.500; pfloat: 0.130; pint: 2; 
+AuxDataTestType...   INFO 13
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 13300; aFloat1: 13200.500; anInt1: 13100; dFloat1: 13400.500; pfloat: 0.130; pint: 2; 
     pvfloat: []; 
     pvint: []; 
-  aB: 13301; aFloat1: 13201.500; anInt1: 13101; dFloat1: 13401.500; pfloat: 1.130; pint: 0; 
+AuxDataTestType...   INFO   aB: 13301; aFloat1: 13201.500; anInt1: 13101; dFloat1: 13401.500; pfloat: 1.130; pint: 0; 
     pvfloat: [-0.477 ]; 
     pvint: [810 ]; 
-  aB: 13302; aFloat1: 13202.500; anInt1: 13102; dFloat1: 13402.500; pfloat: 2.130; pint: 1; 
+AuxDataTestType...   INFO   aB: 13302; aFloat1: 13202.500; anInt1: 13102; dFloat1: 13402.500; pfloat: 2.130; pint: 1; 
     pvfloat: [-0.467 -0.367 ]; 
     pvint: [820 821 ]; 
-  aB: 13303; aFloat1: 13203.500; anInt1: 13103; dFloat1: 13403.500; pfloat: 3.130; pint: 2; 
+AuxDataTestType...   INFO   aB: 13303; aFloat1: 13203.500; anInt1: 13103; dFloat1: 13403.500; pfloat: 3.130; pint: 2; 
     pvfloat: [-0.457 -0.357 -0.257 ]; 
     pvint: [830 831 832 ]; 
-  aB: 13304; aFloat1: 13204.500; anInt1: 13104; dFloat1: 13404.500; pfloat: 4.130; pint: 0; 
+AuxDataTestType...   INFO   aB: 13304; aFloat1: 13204.500; anInt1: 13104; dFloat1: 13404.500; pfloat: 4.130; pint: 0; 
     pvfloat: [-0.447 -0.347 -0.247 -0.147 ]; 
     pvint: [840 841 842 843 ]; 
-  aB: 13305; aFloat1: 13205.500; anInt1: 13105; dFloat1: 13405.500; pfloat: 5.130; pint: 1; 
+AuxDataTestType...   INFO   aB: 13305; aFloat1: 13205.500; anInt1: 13105; dFloat1: 13405.500; pfloat: 5.130; pint: 1; 
     pvfloat: [-0.437 -0.337 -0.237 -0.137 -0.037 ]; 
     pvint: [850 851 852 853 854 ]; 
-  aB: 13306; aFloat1: 13206.500; anInt1: 13106; dFloat1: 13406.500; pfloat: 6.130; pint: 2; 
+AuxDataTestType...   INFO   aB: 13306; aFloat1: 13206.500; anInt1: 13106; dFloat1: 13406.500; pfloat: 6.130; pint: 2; 
     pvfloat: [-0.427 -0.327 -0.227 -0.127 -0.027 0.073 ]; 
     pvint: [860 861 862 863 864 865 ]; 
-  aB: 13307; aFloat1: 13207.500; anInt1: 13107; dFloat1: 13407.500; pfloat: 7.130; pint: 0; 
+AuxDataTestType...   INFO   aB: 13307; aFloat1: 13207.500; anInt1: 13107; dFloat1: 13407.500; pfloat: 7.130; pint: 0; 
     pvfloat: [-0.417 -0.317 -0.217 -0.117 -0.017 0.083 0.183 ]; 
     pvint: [870 871 872 873 874 875 876 ]; 
-  aB: 13308; aFloat1: 13208.500; anInt1: 13108; dFloat1: 13408.500; pfloat: 8.130; pint: 1; 
+AuxDataTestType...   INFO   aB: 13308; aFloat1: 13208.500; anInt1: 13108; dFloat1: 13408.500; pfloat: 8.130; pint: 1; 
     pvfloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 ]; 
     pvint: [880 881 882 883 884 885 886 887 ]; 
-  aB: 13309; aFloat1: 13209.500; anInt1: 13109; dFloat1: 13409.500; pfloat: 9.130; pint: 2; 
+AuxDataTestType...   INFO   aB: 13309; aFloat1: 13209.500; anInt1: 13109; dFloat1: 13409.500; pfloat: 9.130; pint: 2; 
     pvfloat: [-0.397 -0.297 -0.197 -0.097 0.003 0.103 0.203 0.303 0.403 ]; 
     pvint: [890 891 892 893 894 895 896 897 898 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 130087; aFloat1: 129987.500; anEL: bauxvec[3]; anInt1: 129987; dFloat1: 130187.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 130087; aFloat1: 129987.500; anEL: bauxvec[3]; anInt1: 129987; dFloat1: 130187.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
-14
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 14300; aFloat1: 14200.500; anInt1: 14100; dFloat1: 14400.500; pfloat: 0.140; pint: 1; 
+AuxDataTestType...   INFO 14
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 14300; aFloat1: 14200.500; anInt1: 14100; dFloat1: 14400.500; pfloat: 0.140; pint: 1; 
     pvfloat: []; 
     pvint: []; 
-  aB: 14301; aFloat1: 14201.500; anInt1: 14101; dFloat1: 14401.500; pfloat: 1.140; pint: 2; 
+AuxDataTestType...   INFO   aB: 14301; aFloat1: 14201.500; anInt1: 14101; dFloat1: 14401.500; pfloat: 1.140; pint: 2; 
     pvfloat: [-0.476 ]; 
     pvint: [910 ]; 
-  aB: 14302; aFloat1: 14202.500; anInt1: 14102; dFloat1: 14402.500; pfloat: 2.140; pint: 0; 
+AuxDataTestType...   INFO   aB: 14302; aFloat1: 14202.500; anInt1: 14102; dFloat1: 14402.500; pfloat: 2.140; pint: 0; 
     pvfloat: [-0.466 -0.366 ]; 
     pvint: [920 921 ]; 
-  aB: 14303; aFloat1: 14203.500; anInt1: 14103; dFloat1: 14403.500; pfloat: 3.140; pint: 1; 
+AuxDataTestType...   INFO   aB: 14303; aFloat1: 14203.500; anInt1: 14103; dFloat1: 14403.500; pfloat: 3.140; pint: 1; 
     pvfloat: [-0.456 -0.356 -0.256 ]; 
     pvint: [930 931 932 ]; 
-  aB: 14304; aFloat1: 14204.500; anInt1: 14104; dFloat1: 14404.500; pfloat: 4.140; pint: 2; 
+AuxDataTestType...   INFO   aB: 14304; aFloat1: 14204.500; anInt1: 14104; dFloat1: 14404.500; pfloat: 4.140; pint: 2; 
     pvfloat: [-0.446 -0.346 -0.246 -0.146 ]; 
     pvint: [940 941 942 943 ]; 
-  aB: 14305; aFloat1: 14205.500; anInt1: 14105; dFloat1: 14405.500; pfloat: 5.140; pint: 0; 
+AuxDataTestType...   INFO   aB: 14305; aFloat1: 14205.500; anInt1: 14105; dFloat1: 14405.500; pfloat: 5.140; pint: 0; 
     pvfloat: [-0.436 -0.336 -0.236 -0.136 -0.036 ]; 
     pvint: [950 951 952 953 954 ]; 
-  aB: 14306; aFloat1: 14206.500; anInt1: 14106; dFloat1: 14406.500; pfloat: 6.140; pint: 1; 
+AuxDataTestType...   INFO   aB: 14306; aFloat1: 14206.500; anInt1: 14106; dFloat1: 14406.500; pfloat: 6.140; pint: 1; 
     pvfloat: [-0.426 -0.326 -0.226 -0.126 -0.026 0.074 ]; 
     pvint: [960 961 962 963 964 965 ]; 
-  aB: 14307; aFloat1: 14207.500; anInt1: 14107; dFloat1: 14407.500; pfloat: 7.140; pint: 2; 
+AuxDataTestType...   INFO   aB: 14307; aFloat1: 14207.500; anInt1: 14107; dFloat1: 14407.500; pfloat: 7.140; pint: 2; 
     pvfloat: [-0.416 -0.316 -0.216 -0.116 -0.016 0.084 0.184 ]; 
     pvint: [970 971 972 973 974 975 976 ]; 
-  aB: 14308; aFloat1: 14208.500; anInt1: 14108; dFloat1: 14408.500; pfloat: 8.140; pint: 0; 
+AuxDataTestType...   INFO   aB: 14308; aFloat1: 14208.500; anInt1: 14108; dFloat1: 14408.500; pfloat: 8.140; pint: 0; 
     pvfloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 ]; 
     pvint: [980 981 982 983 984 985 986 987 ]; 
-  aB: 14309; aFloat1: 14209.500; anInt1: 14109; dFloat1: 14409.500; pfloat: 9.140; pint: 1; 
+AuxDataTestType...   INFO   aB: 14309; aFloat1: 14209.500; anInt1: 14109; dFloat1: 14409.500; pfloat: 9.140; pint: 1; 
     pvfloat: [-0.396 -0.296 -0.196 -0.096 0.004 0.104 0.204 0.304 0.404 ]; 
     pvint: [990 991 992 993 994 995 996 997 998 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 140086; aFloat1: 139986.500; anEL: bauxvec[4]; anInt1: 139986; dFloat1: 140186.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 140086; aFloat1: 139986.500; anEL: bauxvec[4]; anInt1: 139986; dFloat1: 140186.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
-15
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 15300; aFloat1: 15200.500; anInt1: 15100; dFloat1: 15400.500; pfloat: 0.150; pint: 0; 
+AuxDataTestType...   INFO 15
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 15300; aFloat1: 15200.500; anInt1: 15100; dFloat1: 15400.500; pfloat: 0.150; pint: 0; 
     pvfloat: []; 
     pvint: []; 
-  aB: 15301; aFloat1: 15201.500; anInt1: 15101; dFloat1: 15401.500; pfloat: 1.150; pint: 1; 
+AuxDataTestType...   INFO   aB: 15301; aFloat1: 15201.500; anInt1: 15101; dFloat1: 15401.500; pfloat: 1.150; pint: 1; 
     pvfloat: [-0.475 ]; 
     pvint: [1010 ]; 
-  aB: 15302; aFloat1: 15202.500; anInt1: 15102; dFloat1: 15402.500; pfloat: 2.150; pint: 2; 
+AuxDataTestType...   INFO   aB: 15302; aFloat1: 15202.500; anInt1: 15102; dFloat1: 15402.500; pfloat: 2.150; pint: 2; 
     pvfloat: [-0.465 -0.365 ]; 
     pvint: [1020 1021 ]; 
-  aB: 15303; aFloat1: 15203.500; anInt1: 15103; dFloat1: 15403.500; pfloat: 3.150; pint: 0; 
+AuxDataTestType...   INFO   aB: 15303; aFloat1: 15203.500; anInt1: 15103; dFloat1: 15403.500; pfloat: 3.150; pint: 0; 
     pvfloat: [-0.455 -0.355 -0.255 ]; 
     pvint: [1030 1031 1032 ]; 
-  aB: 15304; aFloat1: 15204.500; anInt1: 15104; dFloat1: 15404.500; pfloat: 4.150; pint: 1; 
+AuxDataTestType...   INFO   aB: 15304; aFloat1: 15204.500; anInt1: 15104; dFloat1: 15404.500; pfloat: 4.150; pint: 1; 
     pvfloat: [-0.445 -0.345 -0.245 -0.145 ]; 
     pvint: [1040 1041 1042 1043 ]; 
-  aB: 15305; aFloat1: 15205.500; anInt1: 15105; dFloat1: 15405.500; pfloat: 5.150; pint: 2; 
+AuxDataTestType...   INFO   aB: 15305; aFloat1: 15205.500; anInt1: 15105; dFloat1: 15405.500; pfloat: 5.150; pint: 2; 
     pvfloat: [-0.435 -0.335 -0.235 -0.135 -0.035 ]; 
     pvint: [1050 1051 1052 1053 1054 ]; 
-  aB: 15306; aFloat1: 15206.500; anInt1: 15106; dFloat1: 15406.500; pfloat: 6.150; pint: 0; 
+AuxDataTestType...   INFO   aB: 15306; aFloat1: 15206.500; anInt1: 15106; dFloat1: 15406.500; pfloat: 6.150; pint: 0; 
     pvfloat: [-0.425 -0.325 -0.225 -0.125 -0.025 0.075 ]; 
     pvint: [1060 1061 1062 1063 1064 1065 ]; 
-  aB: 15307; aFloat1: 15207.500; anInt1: 15107; dFloat1: 15407.500; pfloat: 7.150; pint: 1; 
+AuxDataTestType...   INFO   aB: 15307; aFloat1: 15207.500; anInt1: 15107; dFloat1: 15407.500; pfloat: 7.150; pint: 1; 
     pvfloat: [-0.415 -0.315 -0.215 -0.115 -0.015 0.085 0.185 ]; 
     pvint: [1070 1071 1072 1073 1074 1075 1076 ]; 
-  aB: 15308; aFloat1: 15208.500; anInt1: 15108; dFloat1: 15408.500; pfloat: 8.150; pint: 2; 
+AuxDataTestType...   INFO   aB: 15308; aFloat1: 15208.500; anInt1: 15108; dFloat1: 15408.500; pfloat: 8.150; pint: 2; 
     pvfloat: [-0.405 -0.305 -0.205 -0.105 -0.005 0.095 0.195 0.295 ]; 
     pvint: [1080 1081 1082 1083 1084 1085 1086 1087 ]; 
-  aB: 15309; aFloat1: 15209.500; anInt1: 15109; dFloat1: 15409.500; pfloat: 9.150; pint: 0; 
+AuxDataTestType...   INFO   aB: 15309; aFloat1: 15209.500; anInt1: 15109; dFloat1: 15409.500; pfloat: 9.150; pint: 0; 
     pvfloat: [-0.395 -0.295 -0.195 -0.095 0.005 0.105 0.205 0.305 0.405 ]; 
     pvint: [1090 1091 1092 1093 1094 1095 1096 1097 1098 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 150085; aFloat1: 149985.500; anEL: bauxvec[5]; anInt1: 149985; dFloat1: 150185.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 150085; aFloat1: 149985.500; anEL: bauxvec[5]; anInt1: 149985; dFloat1: 150185.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
-16
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 16300; aFloat1: 16200.500; anInt1: 16100; dFloat1: 16400.500; pfloat: 0.160; pint: 2; 
+AuxDataTestType...   INFO 16
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 16300; aFloat1: 16200.500; anInt1: 16100; dFloat1: 16400.500; pfloat: 0.160; pint: 2; 
     pvfloat: []; 
     pvint: []; 
-  aB: 16301; aFloat1: 16201.500; anInt1: 16101; dFloat1: 16401.500; pfloat: 1.160; pint: 0; 
+AuxDataTestType...   INFO   aB: 16301; aFloat1: 16201.500; anInt1: 16101; dFloat1: 16401.500; pfloat: 1.160; pint: 0; 
     pvfloat: [-0.474 ]; 
     pvint: [1110 ]; 
-  aB: 16302; aFloat1: 16202.500; anInt1: 16102; dFloat1: 16402.500; pfloat: 2.160; pint: 1; 
+AuxDataTestType...   INFO   aB: 16302; aFloat1: 16202.500; anInt1: 16102; dFloat1: 16402.500; pfloat: 2.160; pint: 1; 
     pvfloat: [-0.464 -0.364 ]; 
     pvint: [1120 1121 ]; 
-  aB: 16303; aFloat1: 16203.500; anInt1: 16103; dFloat1: 16403.500; pfloat: 3.160; pint: 2; 
+AuxDataTestType...   INFO   aB: 16303; aFloat1: 16203.500; anInt1: 16103; dFloat1: 16403.500; pfloat: 3.160; pint: 2; 
     pvfloat: [-0.454 -0.354 -0.254 ]; 
     pvint: [1130 1131 1132 ]; 
-  aB: 16304; aFloat1: 16204.500; anInt1: 16104; dFloat1: 16404.500; pfloat: 4.160; pint: 0; 
+AuxDataTestType...   INFO   aB: 16304; aFloat1: 16204.500; anInt1: 16104; dFloat1: 16404.500; pfloat: 4.160; pint: 0; 
     pvfloat: [-0.444 -0.344 -0.244 -0.144 ]; 
     pvint: [1140 1141 1142 1143 ]; 
-  aB: 16305; aFloat1: 16205.500; anInt1: 16105; dFloat1: 16405.500; pfloat: 5.160; pint: 1; 
+AuxDataTestType...   INFO   aB: 16305; aFloat1: 16205.500; anInt1: 16105; dFloat1: 16405.500; pfloat: 5.160; pint: 1; 
     pvfloat: [-0.434 -0.334 -0.234 -0.134 -0.034 ]; 
     pvint: [1150 1151 1152 1153 1154 ]; 
-  aB: 16306; aFloat1: 16206.500; anInt1: 16106; dFloat1: 16406.500; pfloat: 6.160; pint: 2; 
+AuxDataTestType...   INFO   aB: 16306; aFloat1: 16206.500; anInt1: 16106; dFloat1: 16406.500; pfloat: 6.160; pint: 2; 
     pvfloat: [-0.424 -0.324 -0.224 -0.124 -0.024 0.076 ]; 
     pvint: [1160 1161 1162 1163 1164 1165 ]; 
-  aB: 16307; aFloat1: 16207.500; anInt1: 16107; dFloat1: 16407.500; pfloat: 7.160; pint: 0; 
+AuxDataTestType...   INFO   aB: 16307; aFloat1: 16207.500; anInt1: 16107; dFloat1: 16407.500; pfloat: 7.160; pint: 0; 
     pvfloat: [-0.414 -0.314 -0.214 -0.114 -0.014 0.086 0.186 ]; 
     pvint: [1170 1171 1172 1173 1174 1175 1176 ]; 
-  aB: 16308; aFloat1: 16208.500; anInt1: 16108; dFloat1: 16408.500; pfloat: 8.160; pint: 1; 
+AuxDataTestType...   INFO   aB: 16308; aFloat1: 16208.500; anInt1: 16108; dFloat1: 16408.500; pfloat: 8.160; pint: 1; 
     pvfloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 ]; 
     pvint: [1180 1181 1182 1183 1184 1185 1186 1187 ]; 
-  aB: 16309; aFloat1: 16209.500; anInt1: 16109; dFloat1: 16409.500; pfloat: 9.160; pint: 2; 
+AuxDataTestType...   INFO   aB: 16309; aFloat1: 16209.500; anInt1: 16109; dFloat1: 16409.500; pfloat: 9.160; pint: 2; 
     pvfloat: [-0.394 -0.294 -0.194 -0.094 0.006 0.106 0.206 0.306 0.406 ]; 
     pvint: [1190 1191 1192 1193 1194 1195 1196 1197 1198 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 160084; aFloat1: 159984.500; anEL: bauxvec[6]; anInt1: 159984; dFloat1: 160184.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 160084; aFloat1: 159984.500; anEL: bauxvec[6]; anInt1: 159984; dFloat1: 160184.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
-17
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 17300; aFloat1: 17200.500; anInt1: 17100; dFloat1: 17400.500; pfloat: 0.170; pint: 1; 
+AuxDataTestType...   INFO 17
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 17300; aFloat1: 17200.500; anInt1: 17100; dFloat1: 17400.500; pfloat: 0.170; pint: 1; 
     pvfloat: []; 
     pvint: []; 
-  aB: 17301; aFloat1: 17201.500; anInt1: 17101; dFloat1: 17401.500; pfloat: 1.170; pint: 2; 
+AuxDataTestType...   INFO   aB: 17301; aFloat1: 17201.500; anInt1: 17101; dFloat1: 17401.500; pfloat: 1.170; pint: 2; 
     pvfloat: [-0.473 ]; 
     pvint: [1210 ]; 
-  aB: 17302; aFloat1: 17202.500; anInt1: 17102; dFloat1: 17402.500; pfloat: 2.170; pint: 0; 
+AuxDataTestType...   INFO   aB: 17302; aFloat1: 17202.500; anInt1: 17102; dFloat1: 17402.500; pfloat: 2.170; pint: 0; 
     pvfloat: [-0.463 -0.363 ]; 
     pvint: [1220 1221 ]; 
-  aB: 17303; aFloat1: 17203.500; anInt1: 17103; dFloat1: 17403.500; pfloat: 3.170; pint: 1; 
+AuxDataTestType...   INFO   aB: 17303; aFloat1: 17203.500; anInt1: 17103; dFloat1: 17403.500; pfloat: 3.170; pint: 1; 
     pvfloat: [-0.453 -0.353 -0.253 ]; 
     pvint: [1230 1231 1232 ]; 
-  aB: 17304; aFloat1: 17204.500; anInt1: 17104; dFloat1: 17404.500; pfloat: 4.170; pint: 2; 
+AuxDataTestType...   INFO   aB: 17304; aFloat1: 17204.500; anInt1: 17104; dFloat1: 17404.500; pfloat: 4.170; pint: 2; 
     pvfloat: [-0.443 -0.343 -0.243 -0.143 ]; 
     pvint: [1240 1241 1242 1243 ]; 
-  aB: 17305; aFloat1: 17205.500; anInt1: 17105; dFloat1: 17405.500; pfloat: 5.170; pint: 0; 
+AuxDataTestType...   INFO   aB: 17305; aFloat1: 17205.500; anInt1: 17105; dFloat1: 17405.500; pfloat: 5.170; pint: 0; 
     pvfloat: [-0.433 -0.333 -0.233 -0.133 -0.033 ]; 
     pvint: [1250 1251 1252 1253 1254 ]; 
-  aB: 17306; aFloat1: 17206.500; anInt1: 17106; dFloat1: 17406.500; pfloat: 6.170; pint: 1; 
+AuxDataTestType...   INFO   aB: 17306; aFloat1: 17206.500; anInt1: 17106; dFloat1: 17406.500; pfloat: 6.170; pint: 1; 
     pvfloat: [-0.423 -0.323 -0.223 -0.123 -0.023 0.077 ]; 
     pvint: [1260 1261 1262 1263 1264 1265 ]; 
-  aB: 17307; aFloat1: 17207.500; anInt1: 17107; dFloat1: 17407.500; pfloat: 7.170; pint: 2; 
+AuxDataTestType...   INFO   aB: 17307; aFloat1: 17207.500; anInt1: 17107; dFloat1: 17407.500; pfloat: 7.170; pint: 2; 
     pvfloat: [-0.413 -0.313 -0.213 -0.113 -0.013 0.087 0.187 ]; 
     pvint: [1270 1271 1272 1273 1274 1275 1276 ]; 
-  aB: 17308; aFloat1: 17208.500; anInt1: 17108; dFloat1: 17408.500; pfloat: 8.170; pint: 0; 
+AuxDataTestType...   INFO   aB: 17308; aFloat1: 17208.500; anInt1: 17108; dFloat1: 17408.500; pfloat: 8.170; pint: 0; 
     pvfloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 ]; 
     pvint: [1280 1281 1282 1283 1284 1285 1286 1287 ]; 
-  aB: 17309; aFloat1: 17209.500; anInt1: 17109; dFloat1: 17409.500; pfloat: 9.170; pint: 1; 
+AuxDataTestType...   INFO   aB: 17309; aFloat1: 17209.500; anInt1: 17109; dFloat1: 17409.500; pfloat: 9.170; pint: 1; 
     pvfloat: [-0.393 -0.293 -0.193 -0.093 0.007 0.107 0.207 0.307 0.407 ]; 
     pvint: [1290 1291 1292 1293 1294 1295 1296 1297 1298 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 170083; aFloat1: 169983.500; anEL: bauxvec[7]; anInt1: 169983; dFloat1: 170183.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 170083; aFloat1: 169983.500; anEL: bauxvec[7]; anInt1: 169983; dFloat1: 170183.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
-18
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 18300; aFloat1: 18200.500; anInt1: 18100; dFloat1: 18400.500; pfloat: 0.180; pint: 0; 
+AuxDataTestType...   INFO 18
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 18300; aFloat1: 18200.500; anInt1: 18100; dFloat1: 18400.500; pfloat: 0.180; pint: 0; 
     pvfloat: []; 
     pvint: []; 
-  aB: 18301; aFloat1: 18201.500; anInt1: 18101; dFloat1: 18401.500; pfloat: 1.180; pint: 1; 
+AuxDataTestType...   INFO   aB: 18301; aFloat1: 18201.500; anInt1: 18101; dFloat1: 18401.500; pfloat: 1.180; pint: 1; 
     pvfloat: [-0.472 ]; 
     pvint: [1310 ]; 
-  aB: 18302; aFloat1: 18202.500; anInt1: 18102; dFloat1: 18402.500; pfloat: 2.180; pint: 2; 
+AuxDataTestType...   INFO   aB: 18302; aFloat1: 18202.500; anInt1: 18102; dFloat1: 18402.500; pfloat: 2.180; pint: 2; 
     pvfloat: [-0.462 -0.362 ]; 
     pvint: [1320 1321 ]; 
-  aB: 18303; aFloat1: 18203.500; anInt1: 18103; dFloat1: 18403.500; pfloat: 3.180; pint: 0; 
+AuxDataTestType...   INFO   aB: 18303; aFloat1: 18203.500; anInt1: 18103; dFloat1: 18403.500; pfloat: 3.180; pint: 0; 
     pvfloat: [-0.452 -0.352 -0.252 ]; 
     pvint: [1330 1331 1332 ]; 
-  aB: 18304; aFloat1: 18204.500; anInt1: 18104; dFloat1: 18404.500; pfloat: 4.180; pint: 1; 
+AuxDataTestType...   INFO   aB: 18304; aFloat1: 18204.500; anInt1: 18104; dFloat1: 18404.500; pfloat: 4.180; pint: 1; 
     pvfloat: [-0.442 -0.342 -0.242 -0.142 ]; 
     pvint: [1340 1341 1342 1343 ]; 
-  aB: 18305; aFloat1: 18205.500; anInt1: 18105; dFloat1: 18405.500; pfloat: 5.180; pint: 2; 
+AuxDataTestType...   INFO   aB: 18305; aFloat1: 18205.500; anInt1: 18105; dFloat1: 18405.500; pfloat: 5.180; pint: 2; 
     pvfloat: [-0.432 -0.332 -0.232 -0.132 -0.032 ]; 
     pvint: [1350 1351 1352 1353 1354 ]; 
-  aB: 18306; aFloat1: 18206.500; anInt1: 18106; dFloat1: 18406.500; pfloat: 6.180; pint: 0; 
+AuxDataTestType...   INFO   aB: 18306; aFloat1: 18206.500; anInt1: 18106; dFloat1: 18406.500; pfloat: 6.180; pint: 0; 
     pvfloat: [-0.422 -0.322 -0.222 -0.122 -0.022 0.078 ]; 
     pvint: [1360 1361 1362 1363 1364 1365 ]; 
-  aB: 18307; aFloat1: 18207.500; anInt1: 18107; dFloat1: 18407.500; pfloat: 7.180; pint: 1; 
+AuxDataTestType...   INFO   aB: 18307; aFloat1: 18207.500; anInt1: 18107; dFloat1: 18407.500; pfloat: 7.180; pint: 1; 
     pvfloat: [-0.412 -0.312 -0.212 -0.112 -0.012 0.088 0.188 ]; 
     pvint: [1370 1371 1372 1373 1374 1375 1376 ]; 
-  aB: 18308; aFloat1: 18208.500; anInt1: 18108; dFloat1: 18408.500; pfloat: 8.180; pint: 2; 
+AuxDataTestType...   INFO   aB: 18308; aFloat1: 18208.500; anInt1: 18108; dFloat1: 18408.500; pfloat: 8.180; pint: 2; 
     pvfloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 ]; 
     pvint: [1380 1381 1382 1383 1384 1385 1386 1387 ]; 
-  aB: 18309; aFloat1: 18209.500; anInt1: 18109; dFloat1: 18409.500; pfloat: 9.180; pint: 0; 
+AuxDataTestType...   INFO   aB: 18309; aFloat1: 18209.500; anInt1: 18109; dFloat1: 18409.500; pfloat: 9.180; pint: 0; 
     pvfloat: [-0.392 -0.292 -0.192 -0.092 0.008 0.108 0.208 0.308 0.408 ]; 
     pvint: [1390 1391 1392 1393 1394 1395 1396 1397 1398 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 180082; aFloat1: 179982.500; anEL: bauxvec[8]; anInt1: 179982; dFloat1: 180182.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 180082; aFloat1: 179982.500; anEL: bauxvec[8]; anInt1: 179982; dFloat1: 180182.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
-19
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 19300; aFloat1: 19200.500; anInt1: 19100; dFloat1: 19400.500; pfloat: 0.190; pint: 2; 
+AuxDataTestType...   INFO 19
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 19300; aFloat1: 19200.500; anInt1: 19100; dFloat1: 19400.500; pfloat: 0.190; pint: 2; 
     pvfloat: []; 
     pvint: []; 
-  aB: 19301; aFloat1: 19201.500; anInt1: 19101; dFloat1: 19401.500; pfloat: 1.190; pint: 0; 
+AuxDataTestType...   INFO   aB: 19301; aFloat1: 19201.500; anInt1: 19101; dFloat1: 19401.500; pfloat: 1.190; pint: 0; 
     pvfloat: [-0.471 ]; 
     pvint: [1410 ]; 
-  aB: 19302; aFloat1: 19202.500; anInt1: 19102; dFloat1: 19402.500; pfloat: 2.190; pint: 1; 
+AuxDataTestType...   INFO   aB: 19302; aFloat1: 19202.500; anInt1: 19102; dFloat1: 19402.500; pfloat: 2.190; pint: 1; 
     pvfloat: [-0.461 -0.361 ]; 
     pvint: [1420 1421 ]; 
-  aB: 19303; aFloat1: 19203.500; anInt1: 19103; dFloat1: 19403.500; pfloat: 3.190; pint: 2; 
+AuxDataTestType...   INFO   aB: 19303; aFloat1: 19203.500; anInt1: 19103; dFloat1: 19403.500; pfloat: 3.190; pint: 2; 
     pvfloat: [-0.451 -0.351 -0.251 ]; 
     pvint: [1430 1431 1432 ]; 
-  aB: 19304; aFloat1: 19204.500; anInt1: 19104; dFloat1: 19404.500; pfloat: 4.190; pint: 0; 
+AuxDataTestType...   INFO   aB: 19304; aFloat1: 19204.500; anInt1: 19104; dFloat1: 19404.500; pfloat: 4.190; pint: 0; 
     pvfloat: [-0.441 -0.341 -0.241 -0.141 ]; 
     pvint: [1440 1441 1442 1443 ]; 
-  aB: 19305; aFloat1: 19205.500; anInt1: 19105; dFloat1: 19405.500; pfloat: 5.190; pint: 1; 
+AuxDataTestType...   INFO   aB: 19305; aFloat1: 19205.500; anInt1: 19105; dFloat1: 19405.500; pfloat: 5.190; pint: 1; 
     pvfloat: [-0.431 -0.331 -0.231 -0.131 -0.031 ]; 
     pvint: [1450 1451 1452 1453 1454 ]; 
-  aB: 19306; aFloat1: 19206.500; anInt1: 19106; dFloat1: 19406.500; pfloat: 6.190; pint: 2; 
+AuxDataTestType...   INFO   aB: 19306; aFloat1: 19206.500; anInt1: 19106; dFloat1: 19406.500; pfloat: 6.190; pint: 2; 
     pvfloat: [-0.421 -0.321 -0.221 -0.121 -0.021 0.079 ]; 
     pvint: [1460 1461 1462 1463 1464 1465 ]; 
-  aB: 19307; aFloat1: 19207.500; anInt1: 19107; dFloat1: 19407.500; pfloat: 7.190; pint: 0; 
+AuxDataTestType...   INFO   aB: 19307; aFloat1: 19207.500; anInt1: 19107; dFloat1: 19407.500; pfloat: 7.190; pint: 0; 
     pvfloat: [-0.411 -0.311 -0.211 -0.111 -0.011 0.089 0.189 ]; 
     pvint: [1470 1471 1472 1473 1474 1475 1476 ]; 
-  aB: 19308; aFloat1: 19208.500; anInt1: 19108; dFloat1: 19408.500; pfloat: 8.190; pint: 1; 
+AuxDataTestType...   INFO   aB: 19308; aFloat1: 19208.500; anInt1: 19108; dFloat1: 19408.500; pfloat: 8.190; pint: 1; 
     pvfloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 ]; 
     pvint: [1480 1481 1482 1483 1484 1485 1486 1487 ]; 
-  aB: 19309; aFloat1: 19209.500; anInt1: 19109; dFloat1: 19409.500; pfloat: 9.190; pint: 2; 
+AuxDataTestType...   INFO   aB: 19309; aFloat1: 19209.500; anInt1: 19109; dFloat1: 19409.500; pfloat: 9.190; pint: 2; 
     pvfloat: [-0.391 -0.291 -0.191 -0.091 0.009 0.109 0.209 0.309 0.409 ]; 
     pvint: [1490 1491 1492 1493 1494 1495 1496 1497 1498 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 190081; aFloat1: 189981.500; anEL: bauxvec[9]; anInt1: 189981; dFloat1: 190181.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 190081; aFloat1: 189981.500; anEL: bauxvec[9]; anInt1: 189981; dFloat1: 190181.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
-20
-bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
-  aB: 20300; aFloat1: 20200.500; anInt1: 20100; dFloat1: 20400.500; pfloat: 0.200; pint: 1; 
+AuxDataTestType...   INFO 20
+AuxDataTestType...   INFO bvec types: aB/DMTest::B aFloat1/float anInt1/int dFloat1/float pfloat/float pint/unsigned int pvfloat/std::vector<float,std::allocator<float> > pvint/std::vector<int,std::allocator<int> > 
+AuxDataTestType...   INFO   aB: 20300; aFloat1: 20200.500; anInt1: 20100; dFloat1: 20400.500; pfloat: 0.200; pint: 1; 
     pvfloat: []; 
     pvint: []; 
-  aB: 20301; aFloat1: 20201.500; anInt1: 20101; dFloat1: 20401.500; pfloat: 1.200; pint: 2; 
+AuxDataTestType...   INFO   aB: 20301; aFloat1: 20201.500; anInt1: 20101; dFloat1: 20401.500; pfloat: 1.200; pint: 2; 
     pvfloat: [-0.470 ]; 
     pvint: [1510 ]; 
-  aB: 20302; aFloat1: 20202.500; anInt1: 20102; dFloat1: 20402.500; pfloat: 2.200; pint: 0; 
+AuxDataTestType...   INFO   aB: 20302; aFloat1: 20202.500; anInt1: 20102; dFloat1: 20402.500; pfloat: 2.200; pint: 0; 
     pvfloat: [-0.460 -0.360 ]; 
     pvint: [1520 1521 ]; 
-  aB: 20303; aFloat1: 20203.500; anInt1: 20103; dFloat1: 20403.500; pfloat: 3.200; pint: 1; 
+AuxDataTestType...   INFO   aB: 20303; aFloat1: 20203.500; anInt1: 20103; dFloat1: 20403.500; pfloat: 3.200; pint: 1; 
     pvfloat: [-0.450 -0.350 -0.250 ]; 
     pvint: [1530 1531 1532 ]; 
-  aB: 20304; aFloat1: 20204.500; anInt1: 20104; dFloat1: 20404.500; pfloat: 4.200; pint: 2; 
+AuxDataTestType...   INFO   aB: 20304; aFloat1: 20204.500; anInt1: 20104; dFloat1: 20404.500; pfloat: 4.200; pint: 2; 
     pvfloat: [-0.440 -0.340 -0.240 -0.140 ]; 
     pvint: [1540 1541 1542 1543 ]; 
-  aB: 20305; aFloat1: 20205.500; anInt1: 20105; dFloat1: 20405.500; pfloat: 5.200; pint: 0; 
+AuxDataTestType...   INFO   aB: 20305; aFloat1: 20205.500; anInt1: 20105; dFloat1: 20405.500; pfloat: 5.200; pint: 0; 
     pvfloat: [-0.430 -0.330 -0.230 -0.130 -0.030 ]; 
     pvint: [1550 1551 1552 1553 1554 ]; 
-  aB: 20306; aFloat1: 20206.500; anInt1: 20106; dFloat1: 20406.500; pfloat: 6.200; pint: 1; 
+AuxDataTestType...   INFO   aB: 20306; aFloat1: 20206.500; anInt1: 20106; dFloat1: 20406.500; pfloat: 6.200; pint: 1; 
     pvfloat: [-0.420 -0.320 -0.220 -0.120 -0.020 0.080 ]; 
     pvint: [1560 1561 1562 1563 1564 1565 ]; 
-  aB: 20307; aFloat1: 20207.500; anInt1: 20107; dFloat1: 20407.500; pfloat: 7.200; pint: 2; 
+AuxDataTestType...   INFO   aB: 20307; aFloat1: 20207.500; anInt1: 20107; dFloat1: 20407.500; pfloat: 7.200; pint: 2; 
     pvfloat: [-0.410 -0.310 -0.210 -0.110 -0.010 0.090 0.190 ]; 
     pvint: [1570 1571 1572 1573 1574 1575 1576 ]; 
-  aB: 20308; aFloat1: 20208.500; anInt1: 20108; dFloat1: 20408.500; pfloat: 8.200; pint: 0; 
+AuxDataTestType...   INFO   aB: 20308; aFloat1: 20208.500; anInt1: 20108; dFloat1: 20408.500; pfloat: 8.200; pint: 0; 
     pvfloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 ]; 
     pvint: [1580 1581 1582 1583 1584 1585 1586 1587 ]; 
-  aB: 20309; aFloat1: 20209.500; anInt1: 20109; dFloat1: 20409.500; pfloat: 9.200; pint: 1; 
+AuxDataTestType...   INFO   aB: 20309; aFloat1: 20209.500; anInt1: 20109; dFloat1: 20409.500; pfloat: 9.200; pint: 1; 
     pvfloat: [-0.390 -0.290 -0.190 -0.090 0.010 0.110 0.210 0.310 0.410 ]; 
     pvint: [1590 1591 1592 1593 1594 1595 1596 1597 1598 ]; 
-b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
-aB: 200080; aFloat1: 199980.500; anEL: bauxvec[0]; anInt1: 199980; dFloat1: 200180.500; 
+AuxDataTestType...   INFO b types: aB/DMTest::B aFloat1/float anEL/ElementLink<DMTest::BAuxVec> anInt1/int dFloat1/float 
+AuxDataTestType...   INFO aB: 200080; aFloat1: 199980.500; anEL: bauxvec[0]; anInt1: 199980; dFloat1: 200180.500; 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 Stream1              INFO Records written: 21
 auxdata.root         INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 6CD4A4E0-A47E-5846-A32C-F877B5207EF0
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] FDCB4AE9-BC4C-3D45-AD8A-E6AF7C9455A4
 auxdata3.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] C813E3DD-D997-E44C-8134-CED54D756A85
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 185DD5F6-5F4D-FB40-8F72-983B9F0C0180
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 LoadReadDicts        INFO Finalizing LoadReadDicts...
 IncidentProcAlg2     INFO Finalize
+DecisionSvc          INFO Finalized successfully.
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 XMLCatalog           INFO File 'AuxDataTestTypelessRead_catalog.xml' does not exist. New file created.
-DecisionSvc          INFO Finalized successfully.
 PyComponentMgr       INFO Finalizing PyComponentMgr...
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc

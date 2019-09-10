@@ -1,12 +1,15 @@
+from __future__ import print_function
+
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.AlgSequence import AthSequencer
 
-def MainServicesMiniCfg(LoopMgr='AthenaEventLoopMgr'):
+def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'):
     #Mininmal basic config, just good enough for HelloWorld and alike
-    cfg=ComponentAccumulator()
-    cfg.setAppProperty('TopAlg',['AthSequencer/AthAlgSeq']) #Just one sequence, no nesting
+    cfg=ComponentAccumulator(masterSequence)
+    cfg.setAsTopLevel()
+    cfg.setAppProperty('TopAlg',['AthSequencer/'+masterSequence])
     cfg.setAppProperty('MessageSvcType', 'MessageSvc')
-    cfg.setAppProperty('EventLoop', LoopMgr) 
+    cfg.setAppProperty('EventLoop', loopMgr)
     cfg.setAppProperty('ExtSvcCreates', 'False')
     cfg.setAppProperty('JobOptionsSvcType', 'JobOptionsSvc')
     cfg.setAppProperty('JobOptionsType', 'NONE')
@@ -31,14 +34,11 @@ def MainServicesThreadedCfg(cfgFlags):
         if cfgFlags.Concurrency.NumConcurrentEvents==0:
             # In a threaded job this will mess you up because no events will be processed
             raise Exception("Requested Concurrency.NumThreads>0 and Concurrency.NumConcurrentEvents==0, which will not process events!")
-
         LoopMgr = "AthenaHiveEventLoopMgr"
 
     ########################################################################
     # Core components needed for serial and threaded jobs
-    cfg=ComponentAccumulator("AthMasterSeq")
-    cfg.merge( MainServicesMiniCfg(LoopMgr) )
-    cfg.setAppProperty('TopAlg',['AthSequencer/AthMasterSeq'],overwrite=True)
+    cfg=MainServicesMiniCfg(loopMgr=LoopMgr, masterSequence='AthMasterSeq')
     cfg.setAppProperty('OutStreamType', 'AthenaOutputStream')
 
     #Build standard sequences:
@@ -63,6 +63,7 @@ def MainServicesThreadedCfg(cfgFlags):
 
     cfg.addSequence(AthSequencer('AthEndSeq',Sequential=True),parentName='AthAlgEvtSeq') 
 
+    
     #Set up incident firing:
     from AthenaServices.AthenaServicesConf import AthIncFirerAlg
     from GaudiCoreSvc.GaudiCoreSvcConf import IncidentProcAlg

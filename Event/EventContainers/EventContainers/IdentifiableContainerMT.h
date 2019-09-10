@@ -22,7 +22,7 @@
 #include "GaudiKernel/DataObject.h"
 #include "EventContainers/IdentifiableContainerBase.h"
 #include "EventContainers/IDC_WriteHandleBase.h"
-
+#include "CxxUtils/AthUnlikelyMacros.h"
 //const_iterator and indexFind are provided for backwards compatability. they are not optimal
 /*
 IT is faster to iterate over the container with this method:
@@ -49,11 +49,11 @@ public:
         IDC_WriteHandle() : IDC_WriteHandleBase(), m_IDC_ptr(0), m_hashId(0), m_alreadyPresent(false) { }
         IDC_WriteHandle& operator=(const IDC_WriteHandle& other) = delete;
         IDC_WriteHandle(const IDC_WriteHandle& other) = delete;
-        IDC_WriteHandle& operator=(IDC_WriteHandle&& other){
+        IDC_WriteHandle& operator=(IDC_WriteHandle&& other) noexcept{
            Swap(*this, other);
            return *this;
         }
-        void Swap(IDC_WriteHandle& a, IDC_WriteHandle& b){
+        void Swap(IDC_WriteHandle& a, IDC_WriteHandle& b) noexcept {
            if(&a == &b) return;
            std::swap(a.m_IDC_ptr, b.m_IDC_ptr);
            std::swap(a.m_hashId, b.m_hashId);
@@ -64,16 +64,10 @@ public:
         IDC_WriteHandle(IDC_WriteHandle&& other) : IDC_WriteHandle() {
            Swap(*this, other);
         }
-        StatusCode addOrDelete(std::unique_ptr<T> ptr, bool &deleted){
-           if(m_IDC_ptr==nullptr) return StatusCode::FAILURE;
-           StatusCode sc = m_IDC_ptr->addOrDelete(std::move(ptr), m_hashId, deleted);
-           IDC_WriteHandleBase::ReleaseLock();
-           m_alreadyPresent = true;
-           return sc;
-        }
-        StatusCode addOrDelete(std::unique_ptr<T> ptr){
-           if(m_IDC_ptr==nullptr) return StatusCode::FAILURE;
-           StatusCode sc = m_IDC_ptr->addOrDelete(std::move(ptr), m_hashId);
+
+        [[nodiscard]] StatusCode addOrDelete(std::unique_ptr<T> ptr){
+           if(ATH_UNLIKELY(m_IDC_ptr==nullptr)) return StatusCode::FAILURE;
+           StatusCode sc = m_IDC_ptr->addLock(std::move(ptr), m_hashId);
            IDC_WriteHandleBase::ReleaseLock();
            m_alreadyPresent = true;
            return sc;
@@ -251,7 +245,7 @@ public:
 
     /// insert collection into container with id hash
     /// if IDC should not take ownership of collection, set ownsColl to false
-    StatusCode addCollection(const T* coll, IdentifierHash hashId) override final;
+    virtual StatusCode addCollection(const T* coll, IdentifierHash hashId) override final;
 
     /// Tries to add the item to the cache, if the item already exists then it is deleted
     /// This is a convenience method for online multithreaded scenarios
@@ -260,9 +254,12 @@ public:
     ///identical to previous excepts allows counting of deletions
     virtual StatusCode addOrDelete(std::unique_ptr<T>, IdentifierHash hashId, bool &deleted);
 
+    ///Like the other add methods but optimized for changing from the inprogress state
+    StatusCode addLock(std::unique_ptr<T> ptr, IdentifierHash hashId);
+
     /// Looks in the cache to see if item already exists if not it returns false,
     /// If it does exist it incorporates it into the IDC view but changing the mask.
-    virtual bool tryFetch(IdentifierHash hashId) override final;
+    virtual bool tryAddFromCache(IdentifierHash hashId) override final;
 
     /// Tries will look for item in cache, if it doesn't exist will call the cache IMAKER
     /// If cache doesn't have an IMAKER then this fails.
@@ -319,12 +316,12 @@ public:
         return const_iterator(nullptr, true);
     }
 
-    IDC_WriteHandle getWriteHandle(IdentifierHash hash)
+    [[nodiscard]] IDC_WriteHandle getWriteHandle(IdentifierHash hash)
     {
        IDC_WriteHandle lock;
        lock.m_hashId = hash;
        lock.m_IDC_ptr = this;
-       lock.m_alreadyPresent = IdentifiableContainerBase::tryFetch(hash, lock);
+       lock.m_alreadyPresent = IdentifiableContainerBase::tryAddFromCache(hash, lock);
        return lock;
     }
 };
@@ -373,7 +370,7 @@ StatusCode
 IdentifiableContainerMT<T>::addCollection(const T* coll, IdentifierHash hashId)
 {
     // update m_hashids
-    if (! castCache()->add(hashId, coll)) return StatusCode::FAILURE;
+    if (ATH_UNLIKELY(! castCache()->add(hashId, coll))) return StatusCode::FAILURE;
     m_mask[hashId] = true;
     return StatusCode::SUCCESS;
 
@@ -406,16 +403,16 @@ IdentifiableContainerMT<T>::fetchOrCreate(const std::vector<IdentifierHash> &has
 
 template < class T>
 bool
-IdentifiableContainerMT<T>::tryFetch(IdentifierHash hashId)
+IdentifiableContainerMT<T>::tryAddFromCache(IdentifierHash hashId)
 {
-    return IdentifiableContainerBase::tryFetch(hashId);
+    return IdentifiableContainerBase::tryAddFromCache(hashId);
 }
 
 template < class T >
 StatusCode 
 IdentifiableContainerMT<T>::naughtyRetrieve(IdentifierHash hashId, T* &collToRetrieve) const
 {
-   if(m_OnlineMode) return StatusCode::FAILURE;//NEVER ALLOW FOR EXTERNAL CACHE
+   if(ATH_UNLIKELY(m_OnlineMode)) return StatusCode::FAILURE;//NEVER ALLOW FOR EXTERNAL CACHE
    else {
       collToRetrieve = const_cast< T* > (castCache()->find(hashId));//collToRetrieve can be null on success
       return StatusCode::SUCCESS;
@@ -426,13 +423,24 @@ template < class T>
 StatusCode
 IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId)
 {
-    if(hashId >= m_mask.size()) return StatusCode::FAILURE;
-    bool added = castCache()->add(hashId, std::move(ptr));
-    m_mask[hashId] = true;
-    if(added) {
-       return StatusCode::SUCCESS;
+    if(ATH_UNLIKELY(hashId >= m_mask.size())) return StatusCode::FAILURE;
+    castCache()->add(hashId, std::move(ptr));
+    m_mask[hashId] = true; //it wasn't added it is already present therefore mask could be true
+    return StatusCode::SUCCESS;
+}
+
+template < class T>
+StatusCode
+IdentifiableContainerMT<T>::addLock(std::unique_ptr<T> ptr, IdentifierHash hashId)
+{
+    if(ATH_UNLIKELY(hashId >= m_mask.size())) return StatusCode::FAILURE;
+    [[maybe_unused]] bool deleted = !castCache()->addLock(hashId, std::move(ptr));
+#ifndef NDEBUG
+    if(deleted){
+      std::cout << "IDC WARNING Deletion shouldn't occur in addLock paradigm" << std::endl;
     }
-    ptr.reset();//Explicity delete my ptr - should not be necessary maybe remove this line for optimization
+#endif
+    m_mask[hashId] = true; //it wasn't added it is already present therefore mask could be true
     return StatusCode::SUCCESS;
 }
 
@@ -440,14 +448,10 @@ template < class T>
 StatusCode
 IdentifiableContainerMT<T>::addOrDelete(std::unique_ptr<T> ptr, IdentifierHash hashId, bool &deleted)
 {
-    if(hashId >= m_mask.size()) return StatusCode::FAILURE;
+    if(ATH_UNLIKELY(hashId >= m_mask.size())) return StatusCode::FAILURE;
     bool added = castCache()->add(hashId, std::move(ptr));
     m_mask[hashId] = true;
     deleted = !added;
-    if(added) {
-       return StatusCode::SUCCESS;
-    }
-    ptr.reset();//Explicity delete my ptr - should not be necessary maybe remove this line for optimization
     return StatusCode::SUCCESS;
 }
 

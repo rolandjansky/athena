@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -23,7 +23,7 @@ CLASS_DEF( xAOD::CutBookkeeperAuxContainer, 1147935274, 1 )
 #ifndef XAOD_STANDALONE
 #include "AthenaKernel/MetaCont.h"
 CLASS_DEF( MetaCont<xAOD::CutBookkeeperAuxContainer> , 1422109 , 1 )
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( MetaCont<xAOD::CutBookkeeperAuxContainer>, MetaContBase );
 #endif // not XAOD_STANDALONE
 

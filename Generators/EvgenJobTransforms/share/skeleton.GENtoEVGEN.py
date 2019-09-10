@@ -1,4 +1,10 @@
 """Functionality core of the Generate_tf transform"""
+from __future__ import print_function
+from __future__ import division
+from builtins import filter
+
+from future import standard_library
+standard_library.install_aliases()
 
 ##==============================================================
 ## Basic configuration
@@ -349,7 +355,6 @@ else:
 #StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", runArgs.outputEVNTFile)
 StreamEVGEN = AthenaPoolOutputStream("StreamEVGEN", poolFile)
 
-StreamEVGEN.ForceRead = True
 StreamEVGEN.ItemList += ["EventInfo#*", "McEventCollection#*"]
 StreamEVGEN.RequireAlgs += ["EvgenFilterSeq"]
 ## Used for pile-up (remove dynamic variables except flavour labels)
@@ -475,7 +480,7 @@ def mk_symlink(srcfile, dstfile):
             os.remove(dstfile)
         if not os.path.exists(dstfile):
             evgenLog.info("Symlinking %s to %s" % (srcfile, dstfile))
-            print "Symlinking %s to %s" % (srcfile, dstfile)
+            print("Symlinking %s to %s" % (srcfile, dstfile))
             os.symlink(srcfile, dstfile)
         else:
             evgenLog.debug("Symlinking: %s is already the same as %s" % (dstfile, srcfile))
@@ -530,26 +535,26 @@ if _checkattr("description", required=True):
     msg = evgenConfig.description
     if _checkattr("notes"):
         msg += " " + evgenConfig.notes
-    print "MetaData: %s = %s" % ("physicsComment", msg)
+    print("MetaData: %s = %s" % ("physicsComment", msg))
 if _checkattr("generators", required=True):
-    print "MetaData: %s = %s" % ("generatorName", "+".join(gennames))
+    print("MetaData: %s = %s" % ("generatorName", "+".join(gennames)))
 if _checkattr("process"):
-    print "MetaData: %s = %s" % ("physicsProcess", evgenConfig.process)
+    print("MetaData: %s = %s" % ("physicsProcess", evgenConfig.process))
 if _checkattr("tune"):
-    print "MetaData: %s = %s" % ("generatorTune", evgenConfig.tune)
+    print("MetaData: %s = %s" % ("generatorTune", evgenConfig.tune))
 if _checkattr("hardPDF"):
-    print "MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF)
+    print("MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF))
 if _checkattr("softPDF"):
-    print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
+    print("MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF))
 if _checkattr("keywords"):
-    print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())      
+    print("MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower()))      
 if _checkattr("specialConfig"):
-   print "MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig)
+   print("MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig))
 # TODO: Require that a contact / JO author is always set
 if _checkattr("contact"):
-    print "MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact))
+    print("MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact)))
 #if _checkattr( "randomSeed") :
-print "MetaData: %s = %s" % ("randomSeed", str(runArgs.randomSeed))
+print("MetaData: %s = %s" % ("randomSeed", str(runArgs.randomSeed)))
  
     
     
@@ -558,7 +563,7 @@ print "MetaData: %s = %s" % ("randomSeed", str(runArgs.randomSeed))
 filterNames = [alg.getType() for alg in acas.iter_algseq(filtSeq)]
 excludedNames = ['AthSequencer', 'PyAthena::Alg', 'TestHepMC']
 filterNames = list(set(filterNames) - set(excludedNames))
-print "MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames))
+print("MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames)))
 
 
 ##==============================================================
@@ -570,8 +575,8 @@ runPars = RunArguments()
 runPars.minevents = evgenConfig.minevents
 runPars.maxeventsstrategy = evgenConfig.maxeventsstrategy
 with open("config.pickle", 'w') as f:
-    import cPickle
-    cPickle.dump(runPars, f)
+    import pickle
+    pickle.dump(runPars, f)
 
 
 ##==============================================================

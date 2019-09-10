@@ -37,8 +37,26 @@ atlas_add_component( G4AtlasTools
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps G4AtlasInterfaces GaudiKernel G4PhysicsLists G4AtlasToolsLib )
 
-atlas_add_test( G4GeometryToolConfig_test
+
+#testing just the simulation parts, no forward detectors or region
+atlas_add_test( G4GeometryToolConfig_Simtest
+                SCRIPT test/G4GeometryToolConfig_Simtest.py
+                PROPERTIES TIMEOUT 300 )
+
+#full test
+if( NOT SIMULATIONBASE )
+  atlas_add_test( G4GeometryToolConfig_test
                 SCRIPT test/G4GeometryToolConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+endif()
+
+atlas_add_test( G4PhysicsRegionConfig_test
+                SCRIPT test/G4PhysicsRegionConfig_test.py
+                PROPERTIES TIMEOUT 300 )
+
+
+atlas_add_test( G4FieldConfig_test
+                SCRIPT test/G4FieldConfig_test.py
                 PROPERTIES TIMEOUT 300 )
 
 

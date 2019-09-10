@@ -25,8 +25,10 @@ NotHelperTool::NotHelperTool(const std::string& type,
   base_class(type, name, parent){
 }
 
-bool NotHelperTool::pass(HypoJetVector& jets,
-                         ITrigJetHypoInfoCollector* collector) const {
+bool
+NotHelperTool::pass(HypoJetVector& jets,
+		    xAODJetCollector& jetCollector,
+		    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   ATH_MSG_DEBUG("NotHelperTool::pass... " << jets.size() << " jets");
 
   JetTrigTimer timer;
@@ -34,7 +36,7 @@ bool NotHelperTool::pass(HypoJetVector& jets,
     timer.start();
   }
   
-  auto pass =  !m_hypoTool->pass(jets, collector);
+  auto pass =  !m_hypoTool->pass(jets, jetCollector, collector);
   if (collector){
     timer.stop();
     collector->collect(name(), nodeIDPrinter(name(),
@@ -56,6 +58,9 @@ std::string NotHelperTool::toString() const{
 
 StatusCode NotHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
-  m_hypoTool->getDescription(c);
-  return StatusCode::SUCCESS;
+  return m_hypoTool->getDescription(c);
+}
+
+std::size_t NotHelperTool::requiresNJets() const {
+  return m_hypoTool->requiresNJets();
 }

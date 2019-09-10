@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //
 // InDetTrkInJetType.h - Description
@@ -28,35 +28,30 @@
 //
 
 class TLorentzVector;
-namespace Rec{
-  class TrackParticle;
-}
-
-namespace Trk{
-  class TrkVKalVrtFitter;
-}
+class IChronoStatSvc;
+namespace Rec{ class TrackParticle; }
+namespace MVAUtils { class BDT; }
+namespace Trk {  class TrkVKalVrtFitter; }
 namespace TMVA { class Reader; }
 
 namespace InDet {
 
 //------------------------------------------------------------------------
-  static const InterfaceID IID_IInDetTrkInJetType("IInDetTrkInJetType", 1, 0);
-
   class IInDetTrkInJetType : virtual public IAlgTool {
     public:
-      static const InterfaceID& interfaceID() { return IID_IInDetTrkInJetType;}
+      DeclareInterfaceID( IInDetTrkInJetType, 1, 0 );
 //---------------------------------------------------------------------------
 //Interface itself
 
-      virtual std::vector<float> trkTypeWgts( const xAOD::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) =0;
-      virtual std::vector<float> trkTypeWgts( const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) =0;
+      virtual std::vector<float> trkTypeWgts( const xAOD::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const =0;
+      virtual std::vector<float> trkTypeWgts( const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const =0;
 
   };
 
 
 
 
-  class InDetTrkInJetType : public AthAlgTool, virtual public IInDetTrkInJetType
+  class InDetTrkInJetType : public extends<AthAlgTool, IInDetTrkInJetType>
   {
 
    public:
@@ -66,11 +61,11 @@ namespace InDet {
       virtual ~InDetTrkInJetType();
 
 
-      StatusCode initialize();
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
 
-      std::vector<float> trkTypeWgts(const xAOD::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &);
-      std::vector<float> trkTypeWgts(const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &);
+      virtual std::vector<float> trkTypeWgts(const xAOD::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const override;
+      virtual std::vector<float> trkTypeWgts(const Rec::TrackParticle *, const xAOD::Vertex &, const TLorentzVector &) const override;
 
 //------------------------------------------------------------------------------------------------------------------
 // Private data and functions
@@ -78,11 +73,16 @@ namespace InDet {
 
    private:
 
-    TMVA::Reader* m_tmvaReader;
+    TMVA::Reader* m_tmvaReader{};
+    MVAUtils::BDT* m_localBDT{};
+    IChronoStatSvc * m_timingProfile{}; 
+   
     int m_trkSctHitsCut{};
     int m_trkPixelHitsCut{};
     float m_trkChi2Cut{};
     float m_trkMinPtCut{};
+    float m_jetMaxPtCut{};
+    float m_jetMinPtCut{};
     float m_d0_limLow{};
     float m_d0_limUpp{};
     float m_Z0_limLow{};
@@ -93,18 +93,16 @@ namespace InDet {
 
     int m_initialised{};
 
-    float m_prbS{};
     float m_Sig3D{};
     float m_prbP{};
     float m_d0{};
     float m_pTvsJet{};
-    float m_prodTJ{};
     float m_SigZ{};
     float m_SigR{};
     float m_ptjet{};
-    float m_etajet{};
-    float   m_ibl{};
-    float   m_bl{};
+    float m_etatrk{};
+    float m_ibl{};
+    float m_bl{};
  };
 
 

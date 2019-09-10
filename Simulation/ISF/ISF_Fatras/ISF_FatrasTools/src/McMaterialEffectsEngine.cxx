@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -72,7 +72,6 @@ iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, 
   m_rndGenSvc("AtDSFMTGenSvc", n),
   m_randomEngine(0),
   m_randomEngineName("FatrasRnd"),
-  m_trackingGeometry(0),
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc", n),
   m_trackingGeometryName("AtlasTrackingGeometry"),
   m_validationMode(false),

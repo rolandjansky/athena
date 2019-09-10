@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ATHENA
@@ -9,22 +9,22 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 // PACKAGE
 #include "ActsGeometry/IActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ActsDetectorElement.h"
 #include "ActsGeometry/ActsAlignmentStore.h"
+#include "ActsGeometry/ActsGeometryContext.h"
 
 // ACTS
 #include "Acts/Utilities/Definitions.hpp"
-#include "Acts/Detector/TrackingGeometry.hpp"
+#include "Acts/Geometry/TrackingGeometry.hpp"
 #include "Acts/Surfaces/Surface.hpp"
 
 
-NominalAlignmentCondAlg::NominalAlignmentCondAlg( const std::string& name, 
-            ISvcLocator* pSvcLocator ) : 
+NominalAlignmentCondAlg::NominalAlignmentCondAlg( const std::string& name,
+            ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
   m_cs("CondSvc",name),
   m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
@@ -46,7 +46,7 @@ StatusCode NominalAlignmentCondAlg::initialize() {
   }
 
   if (m_cs->regHandle(this, m_wchk).isFailure()) {
-    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wchk.fullKey() 
+    ATH_MSG_ERROR("unable to register WriteCondHandle " << m_wchk.fullKey()
                   << " with CondSvc");
     return StatusCode::FAILURE;
   }
@@ -62,7 +62,7 @@ StatusCode NominalAlignmentCondAlg::finalize() {
 StatusCode NominalAlignmentCondAlg::execute() {
   ATH_MSG_DEBUG(name() << "::" << __FUNCTION__);
 
-  SG::WriteCondHandle<ActsAlignmentStore> wch(m_wchk);
+  SG::WriteCondHandle<ActsGeometryContext> wch(m_wchk);
 
   EventIDBase now(getContext().eventID());
 
@@ -74,7 +74,7 @@ StatusCode NominalAlignmentCondAlg::execute() {
 
   } else {
 
-    ATH_MSG_DEBUG("  CondHandle " << wch.key() 
+    ATH_MSG_DEBUG("  CondHandle " << wch.key()
                   << " not valid now (" << now << "). Setting nominal alignment cond");
 
 
@@ -87,30 +87,14 @@ StatusCode NominalAlignmentCondAlg::execute() {
 
     ATH_MSG_DEBUG("Will register nominal alignment for range: " << r);
 
-    // create empty alignment store, no deltas
-    ActsAlignmentStore* alignmentStore = new ActsAlignmentStore();
+    // get a nominal alignment store from the tracking geometry service
+    // and plug it into a geometry context
+    auto gctx = std::make_unique<ActsGeometryContext>();
+    gctx->alignmentStore = m_trackingGeometrySvc->getNominalAlignmentStore();
 
-    // populate the alignment store with all detector elements
-    auto trkGeom = m_trackingGeometrySvc->trackingGeometry();
-
-    
-    ATH_MSG_DEBUG("Populating ActsAlignmentStore for IOV");
-    size_t nElems = 0;
-    trkGeom->visitSurfaces(
-      [alignmentStore, &nElems](const Acts::Surface* srf) {
-      const Acts::DetectorElementBase* detElem = srf->associatedDetectorElement();
-      const auto* gmde = dynamic_cast<const ActsDetectorElement*>(detElem);
-      if (gmde){
-        gmde->storeTransform(alignmentStore);
-        nElems++;
-      }
-    });
-    ATH_MSG_DEBUG("ActsAlignmentStore populated for " << nElems << " detector elements");
-
-
-    if (wch.record(r, alignmentStore).isFailure()) {
-      ATH_MSG_ERROR("could not record nominal ActsAlignmentStore " << wch.key() 
-		    << " = " << alignmentStore
+    // and write it to the conditions store
+    if (wch.record(r, gctx.release()).isFailure()) {
+      ATH_MSG_ERROR("could not record nominal ActsGeometryContext " << wch.key()
                     << " with EventRange " << r);
       return StatusCode::FAILURE;
     }

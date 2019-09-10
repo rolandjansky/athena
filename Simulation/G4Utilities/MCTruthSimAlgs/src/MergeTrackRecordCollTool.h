@@ -1,18 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCTRUTHSIMALGS_MERGETRACKRECORDCOLLTOOL_H
 #define MCTRUTHSIMALGS_MERGETRACKRECORDCOLLTOOL_H
 
 #include "PileUpTools/PileUpToolBase.h"
+#include "TrackRecord/TrackRecordCollection.h"
 
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include <string>
 
-class PileUpMergeSvc;
 /** @class MergeTrackRecordCollTool
  *  @brief an algorithm to merge MC track record collTool in the overlay store
  *
@@ -25,6 +26,8 @@ public:
   MergeTrackRecordCollTool(const std::string& type,
                            const std::string& name,
                            const IInterface* parent);
+  /// Initialize tool
+  virtual StatusCode initialize() override final;
   ///called before the subevts loop. Not (necessarily) able to access
   ///SubEvents
   virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
@@ -44,8 +47,9 @@ public:
      */
   virtual StatusCode processAllSubEvents() override final;
 private:
-  ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
-  StringProperty m_trRecCollKey;
-  bool m_firstSubEvent;
+  ServiceHandle<PileUpMergeSvc> m_pMergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""};
+  StringProperty m_trRecCollKey{this, "TrackRecordCollKey", "MuonEntryLayer", ""};
+  SG::WriteHandleKey<TrackRecordCollection> m_outputKey{ this, "TrackRecordCollOutputKey", "MuonExitLayer", "" };
+  bool m_firstSubEvent{true};
 };
 #endif //MCTRUTHSIMALGS_MERGETRACKRECORDCOLLTOOL_H

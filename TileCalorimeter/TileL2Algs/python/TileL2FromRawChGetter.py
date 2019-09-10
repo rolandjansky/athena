@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # Author: J. Poveda (Ximo.Poveda@cern.ch)
 # TileL2 creation from TileRawChannel
@@ -6,8 +6,6 @@
 
 __author__  = 'J. Poveda'
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 import traceback
@@ -28,9 +26,9 @@ class TileL2FromRawChGetter ( Configured )  :
         try:
             from TileL2Algs.TileL2FromRawChGetter import TileL2FromRawChGetter
             theTileL2FromRawChGetter=TileL2FromRawChGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to TileL2FromRawChGetter Quit")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         if not theTileL2FromRawChGetter.usable():
@@ -43,16 +41,21 @@ class TileL2FromRawChGetter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from TileL2Algs.TileL2AlgsConf import TileRawChannelToL2                
-        except:
+        except Exception:
             mlog.error("could not import TileL2Algs.TileRawChannelToL2")
-            print traceback.format_exc()
+            traceback.print_exc()
             return False
 
         theTileRawChannelToL2=TileRawChannelToL2()
-        self._TileRawChannelToL2Handle = theTileRawChannelToL2 ;
+        self._TileRawChannelToL2Handle = theTileRawChannelToL2
 
         # sets output key  
-        theTileRawChannelToL2.TileL2Container=self.outputKey()        
+        from Digitization.DigitizationFlags import digitizationFlags
+        if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+            from OverlayCommonAlgs.OverlayFlags import overlayFlags
+            theTileRawChannelToL2.TileL2Container = overlayFlags.bkgPrefix() + self.outputKey()
+        else:
+            theTileRawChannelToL2.TileL2Container = self.outputKey()
 
 
         # register output in objKeyStore
@@ -68,7 +71,7 @@ class TileL2FromRawChGetter ( Configured )  :
         mlog.info(" now adding to topSequence")        
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        topSequence += theTileRawChannelToL2;
+        topSequence += theTileRawChannelToL2
         
         return True
 

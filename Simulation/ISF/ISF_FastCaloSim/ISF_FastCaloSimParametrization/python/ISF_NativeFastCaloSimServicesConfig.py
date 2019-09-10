@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF_NativeFastCaloSimServices
@@ -48,10 +48,8 @@ def getCaloNoiseTool(name="ISF_FCS_CaloNoiseTool", **kwargs):
     return CaloNoiseToolDefault(name, **kwargs )
 
 def getAddNoiseCellBuilderTool(name="ISF_AddNoiseCellBuilderTool", **kwargs):
-    kwargs.setdefault("CaloNoiseTool" , getPublicTool('ISF_FCS_CaloNoiseTool').getFullName())
-
-    from FastCaloSim.FastCaloSimConf import AddNoiseCellBuilderTool
-    return AddNoiseCellBuilderTool(name, **kwargs )
+    from FastCaloSim.AddNoiseCellBuilderToolDefault import AddNoiseCellBuilderToolDefault
+    return AddNoiseCellBuilderToolDefault(name, **kwargs )
 
 def getCaloCellContainerFinalizerTool(name="ISF_CaloCellContainerFinalizerTool", **kwargs):
     from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool     
@@ -66,7 +64,7 @@ def getNativeFastCaloSimSvc(name="ISF_NativeFastCaloSimSvc", **kwargs):
     kwargs.setdefault("CaloCellsOutputName"              , ISF_NativeFastCaloSimFlags.CaloCellsName()              )
     kwargs.setdefault("PunchThroughTool"                 , getPublicTool('ISF_PunchThroughTool')             )
     kwargs.setdefault("DoPunchThroughSimulation"         , False                                             )
-    kwargs.setdefault("ParticleBroker"                   , getService('ISF_ParticleBrokerSvc')               )
+    kwargs.setdefault('ParticleBroker'                   , ISF_Flags.ParticleBroker())
     kwargs.setdefault("CaloCellMakerTools_setup"         , [
                                                              getPublicTool('ISF_EmptyCellBuilderTool'),
                                                            ])

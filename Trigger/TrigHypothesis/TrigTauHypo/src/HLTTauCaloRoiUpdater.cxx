@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigTauHypo/HLTTauCaloRoiUpdater.h"
+#include "HLTTauCaloRoiUpdater.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -10,7 +10,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "TLorentzVector.h"
 
@@ -57,7 +57,7 @@ HLT::ErrorCode HLTTauCaloRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT:
 
   // Preserve the dEta and dPhi requirements from the original RoI
   float dEta = fabs(roiDescriptor->etaPlus() - roiDescriptor->eta());
-  float dPhi = fabs(HLT::wrapPhi(roiDescriptor->phiPlus()-roiDescriptor->phi()));
+  float dPhi = fabs(CxxUtils::wrapToPi(roiDescriptor->phiPlus()-roiDescriptor->phi()));
   
   // Retrieve Calocluster container
   std::vector<const xAOD::CaloClusterContainer*> vectorCaloClusterContainer;
@@ -128,7 +128,7 @@ HLT::ErrorCode HLTTauCaloRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT:
   // Prepare the new RoI
   TrigRoiDescriptor *outRoi = new TrigRoiDescriptor(roiDescriptor->roiWord(), roiDescriptor->l1Id(), roiDescriptor->roiId(),
 						    TauDetectorAxis.Eta(), TauDetectorAxis.Eta()-dEta, TauDetectorAxis.Eta()+dEta,
-						    TauDetectorAxis.Phi(), HLT::wrapPhi(TauDetectorAxis.Phi()-dPhi), HLT::wrapPhi(TauDetectorAxis.Phi()+dPhi),
+						    TauDetectorAxis.Phi(), CxxUtils::wrapToPi(TauDetectorAxis.Phi()-dPhi), CxxUtils::wrapToPi(TauDetectorAxis.Phi()+dPhi),
 						    roiDescriptor->zed() ,roiDescriptor->zedMinus(), roiDescriptor->zedPlus());
   
   ATH_MSG_DEBUG("Input RoI " << *roiDescriptor);

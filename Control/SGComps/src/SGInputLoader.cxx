@@ -116,7 +116,7 @@ SGInputLoader::execute()
         toLoad.emplace(*obj);
       } else {
         ATH_MSG_WARNING("Will not auto-load proxy for non-EventStore object: "
-                        << obj);
+                        << *obj);
       }
     }
     m_load = toLoad;

@@ -161,7 +161,6 @@ void ArrayStore<IdType, StorageType>::cleanUp(){
   this->clear();
   int i(-tmp.size());
   for (;i<(int)tmp.size();i++){
-    //std::cout << indexmap.count(i) << " " << i << std::endl;
     bool first(true);
     IdType shared_id;
     typename std::multimap<int,IdType>::iterator pos;

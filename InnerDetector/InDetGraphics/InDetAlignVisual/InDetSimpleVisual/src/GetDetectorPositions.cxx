@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /** 
@@ -27,7 +27,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+
 #include "EventPrimitives/EventPrimitives.h"
 
 #include "StoreGate/ReadCondHandle.h"
@@ -45,7 +45,6 @@ GetDetectorPositions::GetDetectorPositions(std::string const&  name, ISvcLocator
 
   /** ID Tools */
   m_PixelHelper(0),
-  m_pixelDetectorManager(0),
   m_SCTHelper(0),
   m_TRTHelper(0),
   m_TRTDetectorManager(0)
@@ -88,11 +87,7 @@ StatusCode GetDetectorPositions::initialize(){
     return StatusCode::FAILURE;
     }
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "got the Pixel ID" << endmsg;
-  
-  if ((detStore()->retrieve(m_pixelDetectorManager)).isFailure()) {
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Problem retrieving PixelDetectorManager" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   
   /** Output text File */
   m_outputFile.open((m_outputFileName).c_str());
@@ -143,20 +138,25 @@ StatusCode GetDetectorPositions::finalize() {
 void GetDetectorPositions::writePixelPositions(){
   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In writePixelPositions()" << endmsg;
 
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements{*pixelDetEleHandle};
+  if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+    ATH_MSG_ERROR(m_pixelDetEleCollKey.fullKey() << " is not available.");
+    return;
+  }
   //Loop over pixel elements
-  std::vector<Identifier>::const_iterator pixIt = m_PixelHelper->wafer_begin();
-  std::vector<Identifier>::const_iterator pixItE = m_PixelHelper-> wafer_end();
-  for(; pixIt != pixItE; pixIt++  ) {
-    
-    InDetDD::SiDetectorElement* si_hit = m_pixelDetectorManager->getDetectorElement( *pixIt );
+  for (const InDetDD::SiDetectorElement* si_hit: *elements) {
     Amg::Vector3D p3d = si_hit->center();
+
+    const IdentifierHash wafer_hash = si_hit->identifyHash();
+    const Identifier wafer_id = m_SCTHelper->wafer_id(wafer_hash);
     
-    int   pix_barrel_ec = m_PixelHelper->barrel_ec(*pixIt);
-    int   pix_layer_disk= m_PixelHelper->layer_disk(*pixIt);
-    int   pix_phi_module= m_PixelHelper->phi_module(*pixIt);
-    int   pix_eta_module = m_PixelHelper->eta_module(*pixIt);
-    int   nPixPhi      = m_PixelHelper->phi_index_max(*pixIt)+1;
-    int   nPixEta      = m_PixelHelper->eta_index_max(*pixIt)+1;
+    int   pix_barrel_ec = m_PixelHelper->barrel_ec(wafer_id);
+    int   pix_layer_disk= m_PixelHelper->layer_disk(wafer_id);
+    int   pix_phi_module= m_PixelHelper->phi_module(wafer_id);
+    int   pix_eta_module = m_PixelHelper->eta_module(wafer_id);
+    int   nPixPhi      = m_PixelHelper->phi_index_max(wafer_id)+1;
+    int   nPixEta      = m_PixelHelper->eta_index_max(wafer_id)+1;
     float pix_x = p3d.x();
     float pix_y = p3d.y();
     float pix_z = p3d.z();

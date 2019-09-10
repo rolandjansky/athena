@@ -36,9 +36,23 @@ monitoring_jet = ['j25',
                   'j85_cleanL',
                   'j85_cleanT',
                   'j0_1i2c300m500TLA',
-                  'j0_0i1c500m900TLA'] 
-
-
+                  'j0_0i1c500m900TLA',
+                  'j15',
+                  'j45',
+                  'j175',
+                  'j420',
+                  'j260_nojcalib',
+                  'j260_320eta490',
+                  'j260_320eta490_nojcalib',
+                  'j460_a10_lcw_subjes_L1J100',
+                  'j460_a10r_L1J100',
+                  '4j120',
+                  '6j70',
+                  '6j55_0eta240_L14J15',
+                  'j35_nojcalib',
+                  'j45',
+                  'j0_perf_ftk_L1RD0_FILLED',
+                  'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 
@@ -76,7 +90,23 @@ primary_jet                = ['j25',
                               'j85_cleanL',
                               'j85_cleanT',
                               'j0_1i2c300m500TLA',
-                              'j0_0i1c500m900TLA'] 
+                              'j0_0i1c500m900TLA',
+                              'j15',
+                              'j45',
+                              'j175',
+                              'j420',
+                              'j260_nojcalib',
+                              'j260_320eta490',
+                              'j260_320eta490_nojcalib',
+                              'j460_a10_lcw_subjes_L1J100',
+                              'j460_a10r_L1J100',
+                              '4j120',
+                              '6j70',
+                              '6j55_0eta240_L14J15',
+                              'j35_nojcalib',
+                              'j45_320eta490',
+                              'j0_perf_ftk_L1RD0_FILLED',
+                              'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 
@@ -116,10 +146,23 @@ monitoring_jet_pp = ['j25',
                      'j85_cleanL',
                      'j85_cleanT',
                      'j0_1i2c300m500TLA',
-                     'j0_0i1c500m900TLA'] 
-
-
-
+                     'j0_0i1c500m900TLA',
+                     'j15',
+                     'j45',
+                     'j175',
+                     'j420',
+                     'j260_nojcalib',
+                     'j260_320eta490',
+                     'j260_320eta490_nojcalib',
+                     'j460_a10_lcw_subjes_L1J100',
+                     'j460_a10r_L1J100',
+                     '4j120',
+                     '6j70',
+                     '6j55_0eta240_L14J15',
+                     'j35_nojcalib',
+                     'j45_320eta490',
+                     'j0_perf_ftk_L1RD0_FILLED',
+                     'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 
@@ -156,7 +199,23 @@ primary_jet_pp                = ['j25',
                                  'j85_cleanL',
                                  'j85_cleanT',
                                  'j0_1i2c300m500TLA',
-                                 'j0_0i1c500m900TLA'] 
+                                 'j0_0i1c500m900TLA',
+                                 'j15',
+                                 'j45',
+                                 'j175',
+                                 'j420',
+                                 'j260_nojcalib',
+                                 'j260_320eta490',
+                                 'j260_320eta490_nojcalib',
+                                 'j460_a10_lcw_subjes_L1J100',
+                                 'j460_a10r_L1J100',
+                                 '4j120',
+                                 '6j70',
+                                 '6j55_0eta240_L14J15',
+                                 'j35_nojcalib',
+                                 'j45_320eta490',
+                                 'j0_perf_ftk_L1RD0_FILLED',
+                                 'j0_perf_ftkrefit_L1RD0_FILLED']
 
 
 ########################## validation Config ###############################################
@@ -195,7 +254,24 @@ monitoring_jet_validation = ['j25',
                              'j85_cleanL',
                              'j85_cleanT',
                              'j0_1i2c300m500TLA',
-                             'j0_0i1c500m900TLA'] 
+                             'j0_0i1c500m900TLA',
+                             'j15',
+                             'j45',
+                             'j175',
+                             'j420',
+                             'j260_nojcalib',
+                             'j260_320eta490',
+                             'j260_320eta490_nojcalib',
+                             'j460_a10_lcw_subjes_L1J100',
+                             'j460_a10r_L1J100',
+                             '4j120',
+                             '6j70',
+                             '6j55_0eta240_L14J15',
+                             'j35_nojcalib',
+                             'j45_320eta490',
+                             'j0_perf_ftk_L1RD0_FILLED',
+                             'j0_perf_ftkrefit_L1RD0_FILLED']
+
 
 
 
@@ -235,7 +311,24 @@ primary_jet_validation        = ['j25',
                                  'j85_cleanL',
                                  'j85_cleanT',
                                  'j0_1i2c300m500TLA',
-                                 'j0_0i1c500m900TLA'] 
+                                 'j0_0i1c500m900TLA',
+                                 'j15',
+                                 'j45',
+                                 'j175',
+                                 'j420',
+                                 'j260_nojcalib',
+                                 'j260_320eta490',
+                                 'j260_320eta490_nojcalib',
+                                 'j460_a10_lcw_subjes_L1J100',
+                                 'j460_a10r_L1J100',
+                                 '4j120',
+                                 '6j70',
+                                 '6j55_0eta240_L14J15',
+                                 'j35_nojcalib',
+                                 'j45_320eta490',
+                                 'j0_perf_ftk_L1RD0_FILLED',
+                                 'j0_perf_ftkrefit_L1RD0_FILLED']
+
 
 
 

@@ -41,14 +41,9 @@ timedExtrapolator.STEP_Propagator = niPropagator
 timedExtrapolator.ApplyMaterialEffects = False
 ToolSvc+=timedExtrapolator
 
-from CaloTrackingGeometry.CaloTrackingGeometryConf import CaloSurfaceHelper
-caloSurfaceHelper = CaloSurfaceHelper()
-ToolSvc+=caloSurfaceHelper
-
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags 
 
 ISF_HitAnalysis.CaloEntrance=TrkDetFlags.InDetContainerName()
-ISF_HitAnalysis.CaloSurfaceHelper=caloSurfaceHelper
 ISF_HitAnalysis.Extrapolator=timedExtrapolator
 
 #############################

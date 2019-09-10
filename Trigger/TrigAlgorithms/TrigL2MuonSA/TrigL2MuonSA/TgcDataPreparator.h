@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_TGCDATAPREPARATOR_H
@@ -73,9 +73,6 @@ class TgcDataPreparator: public AthAlgTool
 
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
-      // access the list of hash ID's
-      std::vector<IdentifierHash> getHashList() { return m_tgcHashList; }
-
    private:
 
       // internal methods
@@ -84,9 +81,6 @@ class TgcDataPreparator: public AthAlgTool
 			      TrigL2MuonSA::TgcHits& tgcHits);
 
    private:
-
-      // Reference to StoreGateSvc;
-      ServiceHandle<StoreGateSvc>    m_storeGateSvc;
 
       const MuonGM::MuonDetectorManager* m_muonMgr;
       const MuonGM::TgcReadoutElement* m_tgcReadout;
@@ -124,14 +118,11 @@ class TgcDataPreparator: public AthAlgTool
 
       bool m_use_RoIBasedDataAccess;
 
+      // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
+      Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };
+
       // Flag to decide whether or not to run BS decoding
       Gaudi::Property< bool > m_decodeBS { this, "DecodeBS", true, "Flag to decide whether or not to run BS->RDO decoding" };
-
-      // vector of the TGC hash ID list
-      std::vector<IdentifierHash> m_tgcHashList;         
-
-      // TGC raw data
-      std::vector<tgcRawData> m_tgcRawData;
 
 };
 

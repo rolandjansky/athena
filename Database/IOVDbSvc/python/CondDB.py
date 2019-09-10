@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # CondDB.py
 # Configuration for Athena conditions DB access
@@ -53,10 +53,9 @@ class CondDB:
         self.msg.debug("Loading basic services for CondDBSetup...")
     
         # AthenaPool and IOVDbSvc configuration
-        from AthenaPoolCnvSvc import AthenaPool
-        from IOVDbSvc import IOVDb
+        from AthenaPoolCnvSvc import AthenaPool  # noqa: F401
+        from IOVDbSvc import IOVDb               # noqa: F401
         # local access to IOVDbSvc parameters
-        from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
         self.iovdbsvc=svcMgr.IOVDbSvc
 
         # initialise list of allowed DBs
@@ -88,7 +87,7 @@ class CondDB:
                 if (self.dbdata=='auto'):
                     from RecExConfig.RecFlags import rec
                     self.dbdata=self._InstanceFromProjectName(rec.projectName())
-                    self.msg.info("Configuring database instance %s based on project tag %s" % (self.dbdata,rec.projectName()))
+                    self.msg.info("Configuring database instance %s based on project tag %s", self.dbdata, rec.projectName())
                 self.dbname=self.dbdata
                 self.poolcats=['comcond','oflcond']
         elif (globalflags.DetGeo() in ['ctbh8','ctbh6']):
@@ -105,7 +104,7 @@ class CondDB:
         else:
             raise RuntimeError("Unknown globalflags.DetGeo: %s" % globalflags.DetGeo())
         if (self.dbname!=''):
-            self.msg.info('Setting up conditions DB access to instance %s' % self.dbname)
+            self.msg.info('Setting up conditions DB access to instance %s', self.dbname)
             # set up all access options - online schemas
             self._SetAcc('INDET','COOLONL_INDET')
             self._SetAcc('INDET_ONL','COOLONL_INDET')
@@ -187,7 +186,8 @@ class CondDB:
                 self.iovdbsvc.CacheAlign=3
             # setup PoolSvc catalogues
             from PoolSvc.PoolSvcConf import PoolSvc
-            svcMgr+=PoolSvc()
+            if not hasattr (svcMgr, 'PoolSvc'):
+                svcMgr+=PoolSvc()
             # add the standard catalogues
             for i in self.poolcats:
                 svcMgr.PoolSvc.ReadCatalog+=["prfile:poolcond/PoolCat_%s.xml" % i]
@@ -209,7 +209,7 @@ Subsequent accesses will update this end time for subsequent events.
 This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
         # first check if access to this folder was blocked, unless forcing
         for block in self.blocklist:
-            if (folder.find(block)>=0 and force==False): return
+            if (folder.find(block)>=0 and not force): return
         folderadd=''
         # now check if ident is defined, and add folder
         if (ident in self.dblist.keys()):
@@ -227,7 +227,9 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
         self.iovdbsvc.Folders+=[folderadd]
 
         if className:
-            condInputLoader.Load += [ (className, self.extractFolder(folder)) ]
+            key = (className, self.extractFolder(folder))
+            if key not in condInputLoader.Load:
+                condInputLoader.Load += [ key ]
 
     def addFolderWithTag(self,ident,folder,tag,force=False,forceMC=False,forceData=False,className=None):
         "Add access to the given folder/schema, using a specified tag"
@@ -252,10 +254,6 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
     def addOverride(self,folder,tag):
         "Add a tag override for the specified folder"
         self.iovdbsvc.overrideTags+=['<prefix>%s</prefix> <tag>%s</tag>' % (folder,tag)]
-
-    def toMetaData(self,folder):
-        "Add a folder to the list to be written out for meta-data"
-        self.iovdbsvc.FoldersToMetaData+=[folder]
 
     def blockFolder(self,folder):
         "Block use of specified conditions DB folder so data can be read from elsewhere"
@@ -291,7 +289,11 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
     def setRequireLock(self,lock=True):
         "Set the flag indicating global tags will be required to be locked"
         self.iovdbsvc.CheckLock=lock
-        
+
+    def setWriteDataToFile(self, writeData=False):
+        "Set option to write data to file"
+        self.iovdbsvc.OutputToFile=writeData
+
 
     def extractFolder(self,folderstr):
         "Extract the folder name (non-XML text) from a IOVDbSvc.Folders entry"
@@ -388,8 +390,8 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
 #decide database instance based on project tag dataXX_
     def _InstanceFromProjectName(self,projectName):
         try:
-            year=int(projectName[4:6]);
-        except:
+            year=int(projectName[4:6])
+        except Exception:
             self.msg.warning("Failed to extract year from project tag "+ projectName+". Guessing run2")
             return "CONDBR2"
         

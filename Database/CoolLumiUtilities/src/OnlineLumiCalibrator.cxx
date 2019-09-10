@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CoolLumiUtilities/OnlineLumiCalibrator.h"
@@ -10,6 +10,12 @@
 
 #include <cmath>
 #include <iostream>
+
+#ifdef __linux__
+#include <endian.h>
+static_assert (__FLOAT_WORD_ORDER == __LITTLE_ENDIAN,
+               "OnlineLumiCalibrator assumes little-endian byte ordering.");
+#endif
 
 //--------------------------------------------------
 OnlineLumiCalibrator::OnlineLumiCalibrator() :
@@ -83,9 +89,9 @@ OnlineLumiCalibrator::calibrateLumi(const std::vector<float>& rawLumi, std::vect
   calLumi.clear();
   bool error = false;
   float calValue;
-  for(std::vector<float>::const_iterator it = rawLumi.begin(); it != rawLumi.end(); it++) {
+  for (float val : rawLumi) {
     calValue = 0;
-    if (!calibrateLumi(*it, calValue)) {
+    if (!calibrateLumi(val, calValue)) {
 	error = true; 
 	calLumi.push_back(0.);
     } else {
@@ -102,9 +108,9 @@ OnlineLumiCalibrator::calibrateMu(const std::vector<float>& rawLumi, std::vector
   calMu.clear();
   bool error = false;
   float calValue;
-  for(std::vector<float>::const_iterator it = rawLumi.begin(); it != rawLumi.end(); it++) {
+  for (float val : rawLumi) {
     calValue = 0;
-    if (!calibrateMu(*it, calValue)) {
+    if (!calibrateMu(val, calValue)) {
 	error = true; 
 	calMu.push_back(0.);
     } else {

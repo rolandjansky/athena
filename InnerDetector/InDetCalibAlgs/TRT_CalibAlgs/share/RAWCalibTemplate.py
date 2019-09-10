@@ -20,9 +20,14 @@ from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbour
 TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
 ServiceMgr += TRTStrawNeighbourSvc
 
-#from TRT_ConditionsTools.TRT_ConditionsToolsConf import TRTCalDbTool
-#TRTCalibDBTool=TRTCalDbTool()
-#ToolSvc+=TRTCalibDBTool
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
+InDetCalDbTool=TRT_CalDbTool(name = "TRT_CalDbTool")
+
+from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
+InDetStrawSummaryTool=TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
+                             isGEANT4=(globalflags.DataSource == 'geant4'))
+
+
 
 from TRT_CalibTools.TRT_CalibToolsConf import FitTool
 TRTCalFitTool = FitTool (name = 'TRTCalFitTool')
@@ -44,7 +49,9 @@ print      FillAlignTrkInfo
 from TRT_CalibTools.TRT_CalibToolsConf import FillAlignTRTHits 
 FillAlignTRTHits = FillAlignTRTHits ( name = 'FillAlignTRTHits',
                                       NeighbourSvc=TRTStrawNeighbourSvc,
-                                      TRTCalDbSvc=TRTCalibDBSvc)
+                                      TRTCalDbTool = InDetCalDbTool,
+                                      TRTStrawSummaryTool = InDetStrawSummaryTool)
+
 ToolSvc += FillAlignTRTHits
 print      FillAlignTRTHits
 
@@ -79,36 +86,11 @@ TRTCalibrator = TRTCalibrator ( name = 'TRTCalibrator',
     if config["DoArXe"]:
     	ostring+="""                                DoArXenonSep    = True,
 """
-    ostring+="""                                TRTCalDbSvc=TRTCalibDBSvc)
+    ostring+="""                                TRTCalDbTool=InDetCalibDbTool)
 ToolSvc += TRTCalibrator
 print      TRTCalibrator
 
 # select good quality tracks
-#from TRT_AlignAlgs.TRT_AlignAlgsConf import TRTTrackSelectionAlg
-#SelectTRTAlignTracks = TRTTrackSelectionAlg( name = "SelectTRTAlignTracks",
-#                                             DoPtCut = False,
-#                                             D0Max = 10000,
-#                                             D0Min = -10000,
-#                                            # PtMin = 2000,
-#                                            # PtMax = 'inf',
-#                                             inputTrackList = "StandaloneTRTTracks",
-##                                             UseCosmicTrackSelection = True,
-#                                             MinEventPhase = -1000,
-#                                             MaxEventPhase = 1000,
-#                                             outputTrackList = "TRTCalibTracks",
-#                                             SummaryTool = InDetTrackSummaryTool,
-#                                             MaxChisqPerDof = 3, #50.,
-#                                             MinPixelHits = -1000,
-#                                             MinSCTHits = -1000,
-#                                             MinTRTHits = 45,
-#                                             EtaMin    = -1000,
-#                                             PhiMin    = -1000,
-#                                             EtaMax   = 1000,
-#                                             PhiMax   = 1000)
-#
-#topSequence += SelectTRTAlignTracks
-#print          SelectTRTAlignTracks
-
 
 
 from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool

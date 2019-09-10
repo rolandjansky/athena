@@ -16,12 +16,6 @@ from TrigHLTJetHypo.TrigHLTJetHypo2Monitoring import (
 
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
-from GaudiKernel.Constants import (VERBOSE,
-                                   DEBUG,
-                                   INFO,
-                                   WARNING,
-                                   ERROR,
-                                   FATAL,)
 class TrigHLTJetHypo2 (TrigHLTJetHypoConf.TrigHLTJetHypo2):
     __slots__ = []
     def __init__(self, name, **kwargs):

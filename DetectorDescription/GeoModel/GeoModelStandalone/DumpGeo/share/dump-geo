@@ -1,0 +1,998 @@
+#/*
+#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#*/
+
+#!/bin/bash
+
+# Script for constructing command which launches athena on dump-geo.py, with appropriate options (in the -c flag).
+#
+# Author: Riccardo.Maria.Bianchi@cern.ch
+# First useful version: July 2007 by Thomas.Kittelmann@cern.ch
+# Modified: Manuel.Proissl@cern.ch, March 2012
+#           Riccardo.Maria.Bianchi@cern.ch, November 2012
+#           Edward.Moyse@cern.ch, multiple times
+#           Riccardo.Maria.Bianchi@cern.ch, November 2017
+#
+#
+# Questions: Riccardo.Maria.Bianchi@cern.ch
+#
+#
+
+
+echo
+echo "******************************************"
+echo
+echo "      Launching ATLASGeoModelDumper"
+echo
+echo "******************************************"
+echo
+echo
+
+##################################################
+#echo "*** VP1 NOTE *** setting QT_PLUGIN_PATH to '${QTDIR}/plugins', to let Qt load the SQLite driver"
+#export QT_PLUGIN_PATH=$QTDIR/plugins
+#echo;
+##################################################
+
+
+#fixme/todo: option to start cruise mode (event/second)
+#fixme/todo: MULTINP_CPY should not be allowed to exist beforehand!
+
+APP=`basename $0`
+
+which athena.py > /dev/null 2>&1
+if [ $? != 0 ]; then
+    echo "Error: athena.py not found in path. Please setup atlas release before running"
+    exit 1
+fi
+
+#######################################
+##       Init config variables       ##
+#######################################
+
+LIVEDEFAULTDETDESCR="ATLAS-GEO-10-00-00"
+LIVEDEFAULTGLOBCOND="COMCOND-BLKPST-004-01"
+LIVEDEFAULTEVENTSRC="https://atlas-live.cern.ch/event_files/L1MinBias/vp1fileinfo.txt"
+LIVELOCALDEFAULTEVENTSRC="/VP1_events/"
+LIVEBOOTSTRAPSRC="http://atlas-vp1.web.cern.ch/atlas-vp1/live-bootstrap/vp1fileinfo.txt"
+
+declare -a FILES_POOLROOT
+declare -a FILES_VP1CFG
+declare -a FILES_EXTRAJOBOPT
+declare -a LOCALEVENTSRC_AVAILDIRS
+FLAG_FORCE=0
+FLAG_HELP=0
+FLAG_DATA=0
+FLAG_TEST=0
+ERRORS=""
+DETDESCRTAG=""
+TREETOPFILTER=""
+GLOBCONDTAG=""
+SKIPEVENTS=""
+CRUISEWITHTIME=""
+LOGFILE=""
+FILTEREVENTS=""
+FLAG_LARHV=0
+# FLAG_FULLTOROIDS=0
+FLAG_DONTCLEANUPEVTCPY=0
+FLAG_LIVE=0
+FLAG_LIVELOCAL=0
+FLAG_NOAUTOCONF=0
+FLAG_TRIG=0
+FLAG_NOCALO=0
+FLAG_NOID=0
+FLAG_NOSORTDBREPLICAS=0
+FLAG_NOMUON=0
+FLAG_LUCID=0
+FLAG_ONLINE=0
+FLAG_ALFA=0
+FLAG_FORWARD_REGION=0
+FLAG_ZDC=0
+FLAG_CAVERN=0
+FLAG_TOYDETECTOR=0
+FLAG_GEOMODELSTATS=0
+FLAG_EXTRAPOLATOR=0
+FLAG_SPACEPOINTS=0
+FLAG_NOEXTRAPOLATOR=0
+FLAG_FITTER=0
+FLAG_MC=0
+FLAG_FATRAS=0
+FLAG_NOGUI=0
+FLAG_CGAL=0
+FLAG_NSW=0
+FLAG_SLHC=0
+FLAG_CUSTOMGEOMETRY=0
+MULTINP_SRC=""
+MULTINP_CPY=""
+TRIGDEC=""
+FATRAS_TRUTHKEY=""
+ATHENAOPTS=""
+
+#######################################
+##    Decode command line options    ##
+#######################################
+
+i=1
+while [ $i -le $# ]; do
+    arg=${!i}
+    if [ "x${arg}" == "x-h" -o "x${arg}" == "x-help" -o "x${arg}" == "x--help" ]; then
+	FLAG_HELP=1
+    elif [ "x${arg}" == "x-larhv" ]; then
+	FLAG_LARHV=1
+  #     elif [ "x${arg}" == "x-fulltoroids" ]; then
+  # FLAG_FULLTOROIDS=1
+    elif [ "x${arg}" == "x-live" ]; then
+	FLAG_LIVE=1
+    elif [ "x${arg}" == "x-livelocal" ]; then
+	FLAG_LIVELOCAL=1
+    elif [ "x${arg}" == "x-noautoconf" ]; then
+	FLAG_NOAUTOCONF=1
+    elif [ "x${arg}" == "x-nocleanupeventcpy" ]; then
+	FLAG_DONTCLEANUPEVTCPY=1
+    elif [ "x${arg}" == "x-data" ]; then
+	FLAG_DATA=1
+    elif [ "x${arg}" == "x-test" ]; then
+	FLAG_TEST=1
+    elif [ "x${arg}" == "x-trig" ]; then
+        FLAG_TRIG=1
+    elif [ "x${arg}" == "x-nocalo" ]; then
+	FLAG_NOCALO=1
+    elif [ "x${arg}" == "x-noid" ]; then
+	FLAG_NOID=1
+    elif [ "x${arg}" == "x-nomuon" ]; then
+	FLAG_NOMUON=1
+    elif [ "x${arg}" == "x-nosortdbreplicas" ]; then
+	FLAG_NOSORTDBREPLICAS=1
+    elif [ "x${arg}" == "x-lucid" ]; then
+	FLAG_LUCID=1
+    elif [ "x${arg}" == "x-online" ]; then
+	FLAG_ONLINE=1
+    elif [ "x${arg}" == "x-alfa" ]; then
+	FLAG_ALFA=1
+    elif [ "x${arg}" == "x-forwardregion" ]; then
+	FLAG_FORWARD_REGION=1
+    elif [ "x${arg}" == "x-zdc" ]; then
+	FLAG_ZDC=1
+    elif [ "x${arg}" == "x-cavern" ]; then
+	FLAG_CAVERN=1
+    elif [ "x${arg}" == "x-toy-detector" ]; then
+	FLAG_TOYDETECTOR=1
+    elif [ "x${arg}" == "x-geomodel-stats" ]; then
+	FLAG_GEOMODELSTATS=1
+    elif [ "x${arg}" == "x-spacepoints" ]; then
+	FLAG_SPACEPOINTS=1
+    elif [ "x${arg}" == "x-extrapolator" ]; then
+	FLAG_EXTRAPOLATOR=1
+    elif [ "x${arg}" == "x-noextrapolator" ]; then
+	FLAG_NOEXTRAPOLATOR=1
+    elif [ "x${arg}" == "x-refit" ]; then
+	FLAG_FITTER=1
+    elif [ "x${arg}" == "x-fatras" ]; then
+	FLAG_FATRAS=1
+    elif [ "x${arg}" == "x-nogui" ]; then
+	FLAG_NOGUI=1
+    elif [ "x${arg}" == "x-cgal" ]; then
+	FLAG_CGAL=1
+    elif [ "x${arg}" == "x-nsw" ]; then
+	FLAG_NSW=1
+    elif [ "x${arg}" == "x-slhc" ]; then
+        echo "SLHC Mode: ON"
+        FLAG_SLHC=1
+    elif [ "x${arg}" == "x-customgeom" ]; then
+        FLAG_CUSTOMGEOMETRY=1
+    elif [ "x${arg}" == "x-mc" ]; then
+	FLAG_MC=1
+    elif [ "x${arg}" == "x-multinp" ]; then
+	echo "IGNORING OBSOlETE FLAG -multinp"
+    elif [ "x${arg:0:10}" == "x-detdescr=" ]; then
+	DETDESCRTAG=${arg:10:$((${#arg}-10))}
+	if [ "x$DETDESCRTAG" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -detdescr"
+	fi
+    elif [ "x${arg:0:9}" == "x-treetop=" ]; then
+	TREETOPFILTER=${arg:9:$((${#arg}-9))}
+	if [ "x$TREETOPFILTER" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -treetop"
+	fi
+    elif [ "x${arg}" == "x-f" ]; then
+    FLAG_FORCE=1
+    elif [ "x${arg:0:10}" == "x-globcond=" ]; then
+	GLOBCONDTAG=${arg:10:$((${#arg}-10))}
+	if [ "x$GLOBCONDTAG" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -globcond"
+	fi
+    elif [ "x${arg:0:10}" == "x-eventsrc=" ]; then
+	MULTINP_SRC=${arg:10:$((${#arg}-10))}
+	if [ "x$MULTINP_SRC" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -eventsrc"
+	fi
+    elif [ "x${arg:0:10}" == "x-eventcpy=" ]; then
+	MULTINP_CPY=${arg:10:$((${#arg}-10))}
+	if [ "x$MULTINP_CPY" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -eventcpy"
+	fi
+    elif [ "x${arg:0:9}" == "x-logfile=" ]; then
+	LOGFILE=${arg:9:$((${#arg}-9))}
+	if [ "x$LOGFILE" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -logfile"
+	fi
+    elif [ "x${arg:0:9}" == "x-trigdec=" ]; then
+	TRIGDEC=${arg:9:$((${#arg}-9))}
+	if [ "x$TRIGDEC" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -trigdec"
+	fi
+    elif [ "x${arg:0:11}" == "x-fatraskey=" ]; then
+	FATRAS_TRUTHKEY=${arg:11:$((${#arg}-11))}
+	if [ "x$FATRAS_TRUTHKEY" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -fatraskey"
+	fi
+    elif [ "x${arg:0:12}" == "x-skipevents=" ]; then
+	SKIPEVENTS=${arg:12:$((${#arg}-12))}
+	if [ "x$SKIPEVENTS" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -skipevents"
+	else
+	    #check it is integer:
+	    echo "$SKIPEVENTS" | grep '^[0-9][0-9]*$' > /dev/null 2>&1 || \
+		ERRORS="$ERRORS\nArgument to -skipevents must be an integer!"
+	fi
+    elif [ "x${arg:0:11}" == "x-evtfilter=" ]; then
+	FILTEREVENTS=${arg:11:$((${#arg}-11))}
+	if [ "x$FILTEREVENTS" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -evtfilter"
+	fi
+    elif [ "x${arg:0:8}" == "x-cruise=" ]; then
+	CRUISEWITHTIME=${arg:8:$((${#arg}-8))}
+	if [ "x$CRUISEWITHTIME" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -cruise"
+	else
+	    #check it is integer:
+	    echo "$CRUISEWITHTIME" | grep '^[0-9][0-9]*$' > /dev/null 2>&1 || \
+		ERRORS="$ERRORS\nArgument to -cruise must be an integer!"
+	    if [ "x$CRUISEWITHTIME" == "x0" ]; then
+		ERRORS="$ERRORS\nArgument to -cruise must be positive!"
+	    fi
+	fi
+    elif [ "x${arg:0:12}" == "x-athenaopts=" ]; then
+	ATHENAOPTS=${arg:12:$((${#arg}-12))}
+	if [ "x$ATHENAOPTS" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -athenaopts"
+	fi
+    elif [ "x${arg:0:16}" == "x-extraevtsrcdir=" ]; then
+	EXTRADIR=${arg:16:$((${#arg}-16))}
+	if [ "x$EXTRADIR" == "x" ]; then
+	    ERRORS="$ERRORS\nNeed argument to -extraevtsrcdir"
+	else
+	    if [ ! -d $EXTRADIR ]; then
+		ERRORS="$ERRORS\nExtra event source directory $EXTRADIR does not exist"
+	    else
+		LOCALEVENTSRC_AVAILDIRS[${#LOCALEVENTSRC_AVAILDIRS[@]}]="$EXTRADIR"
+	    fi
+	fi
+    elif [ ${#arg} -gt 4 -a ${arg:$((${#arg}-4)):4} == ".vp1" ]; then
+	FILES_VP1CFG[${#FILES_VP1CFG[@]}]="${arg}"
+    elif [ ${#arg} -gt 3 -a ${arg:$((${#arg}-3)):3} == ".py" ]; then
+	FILES_EXTRAJOBOPT[${#FILES_EXTRAJOBOPT[@]}]="${arg}"
+    elif [[ ${#arg} -gt 3 && ${arg:0:1} != "-" && ( "${arg}" =~ "^LFN:" || -f "${arg}" ) ]]; then
+	FILES_POOLROOT[${#FILES_POOLROOT[@]}]="${arg}"
+    elif [[ ${#arg} -gt 3 && ${arg:0:1} != "-" && ( "${arg}" =~ "^root:" || -f "${arg}" ) ]]; then
+	echo "Opening a file through the 'root://' protocol..."
+    FILES_POOLROOT[${#FILES_POOLROOT[@]}]="${arg}"
+    else
+	ERRORS="$ERRORS\nUnknown argument: ${arg}"
+    fi
+    i=$((i+1))
+done
+
+#live & noautoconf flags (AutoConfiguration is disabled in live and livelocal modes)
+
+if [ "x$FLAG_LIVE" == "x1" ]; then
+    if [ "x$FLAG_MC" == "x1" ]; then
+	echo "Notice: -mc flag is ignored when -live is present"
+    fi
+    FLAG_MC=0
+    if [ "x$FLAG_NOAUTOCONF" == "x1" ]; then
+	echo "Notice: -noautoconf flag is redundant when -live is present"
+    fi
+    FLAG_NOAUTOCONF=1
+    if [ "x$MULTINP_SRC" == "x" ]; then
+	MULTINP_SRC="$LIVEDEFAULTEVENTSRC"
+    fi
+    if [ "x$DETDESCRTAG" == "x" ]; then
+	DETDESCRTAG="$LIVEDEFAULTDETDESCR"
+    fi
+    if [ "x$GLOBCONDTAG" == "x" ]; then
+	GLOBCONDTAG="$LIVEDEFAULTGLOBCOND"
+    fi
+elif [ "x$FLAG_LIVELOCAL" == "x1" ]; then
+    if [ "x$FLAG_MC" == "x1" ]; then
+	echo "Notice: -mc flag is ignored when -livelocal is present"
+    fi
+    FLAG_MC=0
+    if [ "x$FLAG_NOAUTOCONF" == "x1" ]; then
+	echo "Notice: -noautoconf flag is redundant when -livelocal is present"
+    fi
+    FLAG_NOAUTOCONF=1
+    if [ "x$MULTINP_SRC" == "x" ]; then
+	MULTINP_SRC="$LIVELOCALDEFAULTEVENTSRC"
+    fi
+    if [ "x$DETDESCRTAG" == "x" ]; then
+	DETDESCRTAG="$LIVEDEFAULTDETDESCR"
+    fi
+    if [ "x$GLOBCONDTAG" == "x" ]; then
+	GLOBCONDTAG="$LIVEDEFAULTGLOBCOND"
+    fi
+elif [ "x$FLAG_NOAUTOCONF" == "x0" -a ${#FILES_POOLROOT[@]} != 0 ]; then
+    if [ "x$FLAG_MC" == "x1" ]; then
+	echo "Notice: -mc flag is ignored when autoconfiguration is ON"
+    fi
+    FLAG_MC=0
+fi
+
+if [ "x$FLAG_LIVE" == "x1" -a "x$FLAG_LIVELOCAL" == "x1" ]; then
+    ERRORS="$ERRORS\nDon't specify both -live and -livelocal"
+fi
+
+#default:
+if [ "x$MULTINP_SRC" != "x" -a "x$MULTINP_CPY" == "x" ]; then
+    MULTINP_CPY="/tmp/$USER/vp1events/$RANDOM"
+fi
+
+# Sanity checks:
+if [ "x$MULTINP_SRC" == "x" -a "x$FLAG_DONTCLEANUPEVTCPY" == "x1" ]; then
+    ERRORS="$ERRORS\nOption -nocleanupeventcpy can't be set without -eventsrc=..."
+fi
+if [ "x$MULTINP_CPY" != "x" -a "x$MULTINP_SRC" == "x" ]; then
+    ERRORS="$ERRORS\nOption -eventcpy=... can't be set without -eventsrc=..."
+fi
+
+if [ "x$FLAG_NOID" == "x1" -a "x$FLAG_FATRAS" == "x1" ]; then
+    ERRORS="$ERRORS\nOptions -fatras and -noid can not be applied simultaneously"
+fi
+
+if [ "x$FLAG_LIVE" == "x1" -a "x$FLAG_FATRAS" == "x1" ]; then
+    ERRORS="$ERRORS\nOptions -fatras and -live can not be applied simultaneously"
+fi
+
+if [ "x$FLAG_LIVELOCAL" == "x1" -a "x$FLAG_FATRAS" == "x1" ]; then
+    ERRORS="$ERRORS\nOptions -fatras and -livelocal can not be applied simultaneously"
+fi
+
+if [ "x$FLAG_NOID" == "x1" -a "x$FLAG_NOMUON" == "x1" -a "x$FLAG_EXTRAPOLATOR" == "x1" ]; then
+    ERRORS="$ERRORS\nOptions -extrapolator can not be used when both -noid and -nomuon are specified"
+fi
+if [ "x$FLAG_NOID" == "x1" -a "x$FLAG_SPACEPOINTS" == "x1" ]; then
+    ERRORS="$ERRORS\nOptions -spacepoints can not be used when -noid is specified"
+fi
+
+if [ "x$FLAG_EXTRAPOLATOR" == "x1" -a "x$FLAG_NOEXTRAPOLATOR" == "x1" ]; then
+    ERRORS="$ERRORS\nOptions -extrapolator and -noextrapolator are incompatible"
+fi
+
+if [ "x$FLAG_NOID" == "x1" -a "x$FLAG_NOMUON" == "x1" -a "x$FLAG_FITTER" == "x1" ]; then
+    ERRORS="$ERRORS\nOptions -refit can not be used when both -noid and -nomuon are specified"
+fi
+
+if [ "x$MULTINP_CPY" != "x" -a -f "$MULTINP_CPY" ]; then
+    ERRORS="$ERRORS\n-eventcpy directory set to point to a file"
+fi
+
+
+BOOTSTRAPNAME="bootstrapevent.pool.root"
+BOOTSTRAPFILE="${MULTINP_CPY}/${BOOTSTRAPNAME}"
+BOOTSTRAP_HTTPFILEINFO="${MULTINP_CPY}/bootstrap_fileinfo.txt"
+HTTPMODE=0
+if [ "x$MULTINP_SRC" != "x" ]; then
+    if [ ${#FILES_POOLROOT[@]} != 0 ]; then
+            #cant have input files.
+	ERRORS="$ERRORS\nPlease don't specify input files when running with -live, -livelocal or -eventsrc=..."
+    else
+	FILES_POOLROOT[${#FILES_POOLROOT[@]}]="${BOOTSTRAPFILE}"
+    fi
+    HTTPMODE=1
+    echo $MULTINP_SRC|grep '^https://..*/..*' > /dev/null || HTTPMODE=0
+    echo $MULTINP_SRC|grep '/$' > /dev/null && HTTPMODE=0
+    if [ "x$HTTPMODE" == "x0" ]; then
+	if [ "x$MULTINP_SRC" != "x" -a ! -d "$MULTINP_SRC" ]; then
+	    ERRORS="$ERRORS\n-eventsrc directory does not exists"
+	fi
+    elif [ "x$MULTINP_CPY" == "x$MULTINP_SRC" ]; then
+        #Fixme: Could probably cheat this check by presense of trailing '/', symlinks, etc.
+	ERRORS="$ERRORS\n-eventsrc and -eventcpy directories must be different"
+    fi
+fi
+
+if [ ${#LOCALEVENTSRC_AVAILDIRS[@]} != 0 ]; then
+    if [ "x$MULTINP_SRC" == "x" ]; then
+	ERRORS="$ERRORS\n-extraevtsrcdir can not be specified without the -eventsrc flag"
+    fi
+    if [ "x$HTTPMODE" != "x0" ]; then
+	ERRORS="$ERRORS\n-extraevtsrcdir can not be used when -eventsrc is not a local directory"
+    fi
+fi
+
+if [ "x$FLAG_EXTRAPOLATOR" == "x0" -a "x$FLAG_EXTRAPOLATOR" == "x0" ]; then
+    if [ "x$FLAG_NOID" == "x1" -a "x$FLAG_NOMUON" == "x1" ]; then
+	FLAG_NOEXTRAPOLATOR=1
+    else
+	FLAG_EXTRAPOLATOR=1
+    fi
+fi
+
+
+#######################################
+##  Possibly print out errors/usage  ##
+#######################################
+
+if [ "x$ERRORS" != "x" ]; then
+    echo "================================================================="
+    echo "Errors found in commandline options!!!:"
+    echo -e "$ERRORS"
+    echo
+    echo "Run 'vp1 -h' for more information"
+    echo "================================================================="
+    echo
+    exit 1
+fi
+
+if [ "x$FLAG_HELP" != "x0" ]; then
+    echo "The $APP script serves as a frontend which runs athena with vp1.py and appropriate options."
+    echo
+    echo "Usage: "
+    echo
+    echo "$APP [inputfiles] [configfiles] [jobopt fragments] [options]"
+    echo
+    echo "Config files must have the .vp1 extension, joboption fragments the .py extension,"
+    echo "and any other argument which doesn't start with '-' is assumed to be an input file if such a file exists."
+    echo
+    echo "  -h, -help, --help           : Display this help (with examples) and exit."
+    echo
+    echo "  -larhv                      : Access current LAr HV data in the DCS_OFL database via VP1 CaloReadout system."
+    echo "  -data                       : Input files are data [default assumption is simulation]. "
+    echo
+    echo "  -detdescr=TAG               : Set global geometry tag. Overrides autoconfiguration"
+    echo
+    echo "  -treetop=FILTER             : Only output the GeoModel Treetop specified in the FILTER list. "
+    echo "                                Format is a comma separated list of event numbers"
+    echo
+    echo "  -f                          : 'force' mode, which overwrites the geometry dump file in the local folder, if present."
+    echo
+    echo "  -globcond=TAG               : Set global conditions tag. Overrides autoconfiguration"
+    echo
+    echo "  -skipevents=N               : Skip the first N events"
+    echo
+    echo "  -evtfilter=FILTER           : Only process the events in the FILTER list."
+    echo "                                Format is a comma separated list of event numbers, where each event number"
+    echo "                                can optionally be preceeded by a run number and a semicolon."
+    echo "                                Prepend the list with an \"%\" to instead exclude the events."
+    echo "                                For instance select a few nice events like: --evtfilter=7,13,5300:26,54"
+    echo "                                Or exclude a few bad events like: --evtfilter=%7,13,5300:26,54"
+    echo
+    echo "                                It is also possible to specify one or more files with run/evt numbers"
+    echo "                                specified on each line: --evtfilter=%7,13,5300:26,54,myevents1.txt"
+    echo
+    echo "  -cruise=N                   : Start in cruise mode, changing events after N seconds"
+    echo
+    echo "  -logfile=mylogfile.txt      : Leave a copy of the output in mylogfile.txt (both stdout and stderr)"
+    echo
+    echo "  -trig                       : Init trigger information to be displayed with the Trigger Plugin"
+    echo
+    echo "  -nocalo                     : Don't init geometry and converters for calorimeter systems."
+    echo "  -noid                       : Don't init geometry and converters for the inner detector."
+    echo "  -nomuon                     : Don't init geometry and converters for muon systems."
+    # echo "  -fulltoroids                : Build complete and rather heavyweight description of muon dead materials."
+    # echo "                                A lightweight version is built by default"
+    echo "  -lucid                      : Init geometry and converters for the LUCID forward detector."
+    echo "  -alfa                       : Init geometry and converters for the ALFA forward detector."
+    echo "  -forwardregion              : Init geometry and converters for the FrwardRegion."
+    echo "  -zdc                        : Init geometry and converters for the ZDC forward detector."
+    echo "  -cavern                     : Init geometry for the cavern infrastructure."
+    echo
+    echo "  -toy-detector               : Let VP1 visualize the "ToyDetector" volumes of GeoModelExamples (as 'Other unrecognized volumes.' in the Geo system)"
+    echo
+    echo "  -geomodel-stats             : Write GeoModel stats to a file."
+    echo
+    echo "  -extrapolator               : Whether to configure an extrapolator for more precise track representation."
+    echo "  -noextrapolator               Default is -extrapolator unless both -nomuon and -noid are specified."
+    echo
+    echo "  -refit                      : Allows VP1-controlled refit from PrepRawData."
+    echo
+    echo "  -online                     : Use this flag for running VP1 at P1."
+    echo
+    echo "  -mc                         : Tell VP1 that it is running over MC data. The flag is ignored when autoconfiguration is ON"
+    echo "                                (default mode when running over data files)"
+    echo
+    echo "  -fatras                     : Use Fatras (in single-track-simulation mode if no input file with generated event)"
+    echo "  -fatraskey=KEY              : Optionally override truth key used by Fatras (typical values are GEN_EVENT or TruthEvent)"
+    echo
+    echo "  -eventsrc=DIR               : Directory to take single event files from (do not specify input files in this case)."
+    echo "                                To get files from a web server (i.e. live events), put instead the url to the file"
+    echo "                                residing in the same directory (most users should just use the -live option instead)."
+    echo
+    echo "  -extraevtsrcdir=DIR         : Directory to add to the menu to allow user to change eventsrc on the fly."
+    echo "                                This argument can appear several times and should only be used when eventsrc is"
+    echo "                                a local directory"
+    echo
+    echo "  -eventcpy=DIR               : Directory to keep local copies of processed event files."
+    echo "                                If -eventsrc is set, then -eventcpy will default to /tmp/$USER/vp1events/$RANDOM "
+    echo "  -nocleanupeventcpy          : Prevent removal of eventcpy directory after athena process finishes."
+    echo
+    echo "  -live                       : Run on live events from point 1. This is a convenience option which implies"
+    echo "                                other options [unless explicitly set]:"
+    echo "                                  -noautoconf"
+    echo "                                  -eventsrc=$LIVEDEFAULTEVENTSRC"
+    echo "                                  -detdescr=$LIVEDEFAULTDETDESCR"
+    echo "                                  -globcond=$LIVEDEFAULTGLOBCOND"
+    echo
+    echo "  -livelocal                  : Run on live events from point 1 in local directory. This is a convenience option"
+    echo "                                which implies other options [unless explicitly set]:"
+    echo "                                  -noautoconf"
+    echo "                                  -eventsrc=$LIVELOCALDEFAULTEVENTSRC"
+    echo "                                  -detdescr=$LIVEDEFAULTDETDESCR"
+    echo "                                  -globcond=$LIVEDEFAULTGLOBCOND"
+    echo
+    echo "  -noautoconf                 : Disable AutoConfiguration. VP1 runs in the 'data' mode by default"
+    echo "                                use '-mc' flag for switching to the MC mode"
+    echo
+    echo "  -nosortdbreplicas           : Do not attempt to sort DB replicas according to geographical proximity."
+    echo
+    echo "  -trigdec=file.xml           : Use file.xml as source of trigger decision category data."
+    echo "  -trigdec=embedded           : Trigger decision category data is embedded in the input file(s)."
+    echo "  -trigdec=someserver.cern.ch : Trigger decision category data is available from the server someserver.cern.ch."
+    echo
+    echo "  -athenaopts=<options>       : Pass <options> onto athena invocation (type 'athena.py -h' to see available options)."
+    echo "                                NB: You can not use the -c option."
+    echo
+    echo "  -cgal                       : Use CGAL boolean instead of vp1 boolean."
+    echo
+    echo "  -nsw                        : Enable the Muon New Small Wheel geometry (and disable the existing small wheel)."
+    echo
+    echo "  -slhc                        : Enable special configurations for SLHC studies."
+    echo
+    echo "  -customgeom                 : Enable a custom geometry."
+    echo
+    echo "  -test                       : Show the athena command instead of executing it."
+    echo
+    echo "Note that the order of specified files/options is not important, and that they can in general be mixed quite"
+    echo "liberally (when it makes sense - of course dont put e.g. both -trigdec=file.xml and -trigdec=embedded)"
+    echo
+    echo
+    echo "Examples:"
+    echo
+    echo "  * Simply run on the input files myevents1.pool.root and myevents2.pool.root"
+    echo
+    echo "     \$>$APP myevents1.pool.root myevents2.pool.root"
+    echo
+    echo "  * Simply run on the input file myevents.pool.root and have the joboption fragments myopts1.py and myopts2.py"
+    echo "     included after the standard vp1 setup"
+    echo
+    echo "     \$>$APP myevents.pool.root myopts1.py myopts2.py"
+    echo
+    echo "  * Run on myevents1.pool.root, and use a file, mytrigger.xml, as source of trigger decision data:"
+    echo
+    echo "     \$>$APP myevents1.pool.root -trigdec=mytrigger.xml"
+    echo
+    echo "  * Run on myevents1.pool.root, don't init geometry and converters for the calorimeter systems:"
+    echo
+    echo "     \$>$APP myevents1.pool.root -nocalo"
+    echo
+    echo "  * Run on myevents1.pool.root, and use detector description tag \"ATLAS-GEO-10-00-00\":"
+    echo
+    echo "     \$>$APP myevents1.pool.root -detdescr=ATLAS-GEO-10-00-00"
+    echo
+    echo "  * Run on myevents1.pool.root, and pass on a couple of options to the athena invocation (in this case"
+    echo "     we want to run with a debugger and also set the loglevel to WARNING):"
+    echo
+    echo "     \$>$APP myevents1.pool.root -athenaopts='-d -l WARNING'"
+    echo
+    echo "  * Run on myevents1.pool.root, and preload the tab/channel configuration files myconfig1.vp1 and myconfig2.vp1:"
+    echo
+    echo "     \$>$APP myevents1.pool.root myconfig1.vp1 myconfig2.vp1"
+    echo
+    echo "  * Run on myevents1.pool.root, and preload the tab/channel configuration files myconfig1.vp1 and myconfig2.vp1:"
+    echo
+    echo "     \$>$APP myevents1.pool.root myconfig1.vp1 myconfig2.vp1"
+    echo
+    echo "  * Some more advanced examples, using several options at once:"
+    echo
+    echo "     \$>$APP -detdescr=ATLAS-GEO-10-00-00 myevents1.pool.root myevents2.pool.root myconfig1.vp1 -athenaopts='-d'"
+    echo "     \$>$APP -detdescr=ATLAS-GEO-10-00-00 myevents1.pool.root myconfig1.vp1 -nocalo -nomuon -trigdec=embedded"
+    echo
+    exit 0
+fi
+
+########################################
+##  Setup & run according to options  ##
+########################################
+
+if [ "x$FLAG_DONTCLEANUPEVTCPY" != "x1" -a "x$MULTINP_CPY" != "x" ]; then
+    if [ ${#MULTINP_CPY} -lt 8 -o "x$MULTINP_CPY" == "$HOME" -o "x$MULTINP_CPY" == "$HOME/" ]; then
+	echo "NOTICE: Turning off removal of ${MULTINP_CPY} since it seems to be too short or pointing at $HOME."
+	FLAG_DONTCLEANUPEVTCPY=1
+    fi
+fi
+
+if [ "x$FLAG_DATA" != "x0" ]; then
+    echo "Error: Support for the -data flag is actually not implemented yet!"
+    exit 1
+fi
+
+PYTHONFILES=""
+i=0
+while [ $i -le $((${#FILES_VP1CFG[@]}-1)) ]; do
+    if [ "x$PYTHONFILES" == "x" ]; then
+	PYTHONFILES='vp1CfgFiles=["'"${FILES_VP1CFG[$i]}"'"'
+    else
+	PYTHONFILES="${PYTHONFILES},${FILES_VP1CFG[$i]}"'"'
+    fi
+    i=$((i+1))
+done
+if [ "x$PYTHONFILES" != "x" ]; then
+    PYTHONFILES="${PYTHONFILES}"']'
+fi
+
+
+POOLROOTFILES=""
+i=0
+while [ $i -le $((${#FILES_POOLROOT[@]}-1)) ]; do
+    if [ "x$POOLROOTFILES" == "x" ]; then
+	POOLROOTFILES='vp1InputFiles=["'"${FILES_POOLROOT[$i]}"'"'
+    else
+	POOLROOTFILES="${POOLROOTFILES}"',"'"${FILES_POOLROOT[$i]}"'"'
+    fi
+    i=$((i+1))
+done
+if [ "x$POOLROOTFILES" != "x" ]; then
+    POOLROOTFILES="${POOLROOTFILES}"']'
+fi
+
+EXTRAINPUTDIRS=""
+i=0
+while [ $i -le $((${#LOCALEVENTSRC_AVAILDIRS[@]}-1)) ]; do
+    if [ "x$EXTRAINPUTDIRS" == "x" ]; then
+	EXTRAINPUTDIRS='vp1MultiAvailableSrcDirs=["'"${LOCALEVENTSRC_AVAILDIRS[$i]}"'"'
+    else
+	EXTRAINPUTDIRS="${EXTRAINPUTDIRS}"',"'"${LOCALEVENTSRC_AVAILDIRS[$i]}"'"'
+    fi
+    i=$((i+1))
+done
+if [ "x$EXTRAINPUTDIRS" != "x" ]; then
+    EXTRAINPUTDIRS="${EXTRAINPUTDIRS}"']'
+fi
+
+EXTRAJOBOPT=""
+i=0
+while [ $i -le $((${#FILES_EXTRAJOBOPT[@]}-1)) ]; do
+    if [ "x$EXTRAJOBOPT" == "x" ]; then
+	EXTRAJOBOPT="${FILES_EXTRAJOBOPT[$i]}"
+    else
+	EXTRAJOBOPT="${EXTRAJOBOPT} ${FILES_EXTRAJOBOPT[$i]}"
+    fi
+    i=$((i+1))
+done
+
+JOBOPT="DumpGeo/dump-geo.py"
+if [ -f dump-geo.py ]; then
+    JOBOPT=dump-geo.py
+fi
+
+OPTS="$PYTHONFILES"
+if [ "x$POOLROOTFILES" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}$POOLROOTFILES"
+fi
+if [ "x$EXTRAINPUTDIRS" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}$EXTRAINPUTDIRS"
+fi
+if [ "x$DETDESCRTAG" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}DetDescrVersion=\"$DETDESCRTAG\""
+    # save the DetDescr tag for later
+    export DUMPGEODETDESCRTAG=$DETDESCRTAG
+    echo "DetDescrTag: ${DUMPGEODETDESCRTAG}"
+fi
+if [ "x$TREETOPFILTER" != "x" ]; then
+    #if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi # not needed
+    #OPTS="${OPTS}GeoModelTreetopFilter=\"$TREETOPFILTER\"" # not needed
+    # save the GeoModelTreetopFilter tag for later
+    # it will be accessed by the package (Athena algorithm) GeoModelStandalone/DumpGeo
+    export DUMPGEOTREETOPFILTER=$TREETOPFILTER
+    echo "User's 'GeoModel Treetop' filter set: ${DUMPGEOTREETOPFILTER}"
+fi
+if [ "x$FLAG_FORCE" != "x0" ]; then
+    #if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    #OPTS="${OPTS}vp1NSW=True"
+    export DUMPGEOOVERWRITE=$FLAG_FORCE
+    echo "User's Overwrite local geometry dump file, if present: ${DUMPGEOOVERWRITE}"
+fi
+if [ "x$GLOBCONDTAG" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1GlobCond=\"$GLOBCONDTAG\""
+fi
+if [ "x$SKIPEVENTS" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}skipEvents=$SKIPEVENTS"
+fi
+if [ "x$FILTEREVENTS" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1FilterEvents=\"$FILTEREVENTS\""
+fi
+if [ "x$CRUISEWITHTIME" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1CruiseTime=$CRUISEWITHTIME"
+fi
+if [ "x$FLAG_TRIG" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Trig=True"
+fi
+if [ "x$FLAG_NOCALO" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Calo=False"
+    export DUMPGEO_NOCALO="1";
+fi
+if [ "x$FLAG_NOID" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1ID=False"
+    export DUMPGEO_NOID="1";
+fi
+if [ "x$FLAG_NOMUON" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Muon=False"
+    export DUMPGEO_NOMUON="1";
+fi
+if [ "x$FLAG_NOSORTDBREPLICAS" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1NoSortDBReplicas=True"
+fi
+if [ "x$FLAG_LARHV" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1LarHvData=True"
+fi
+# if [ "x$FLAG_FULLTOROIDS" != "x0" ]; then
+#     if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+#     OPTS="${OPTS}vp1FullToroids=True"
+# fi
+if [ "x$FLAG_ONLINE" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Online=True"
+fi
+if [ "x$FLAG_LUCID" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1LUCID=True"
+fi
+if [ "x$FLAG_ALFA" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1ALFA=True"
+fi
+if [ "x$FLAG_FORWARD_REGION" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1ForwardRegion=True"
+fi
+if [ "x$FLAG_ZDC" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1ZDC=True"
+fi
+if [ "x$FLAG_CAVERN" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Cavern=True"
+fi
+if [ "x$FLAG_TOYDETECTOR" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1ToyDetector=True"
+fi
+if [ "x$FLAG_GEOMODELSTATS" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1GeoModelStats=True"
+fi
+if [ "x$FLAG_SPACEPOINTS" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1SpacePoints=True"
+fi
+if [ "x$FLAG_EXTRAPOLATOR" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Extrapolator=True"
+fi
+if [ "x$FLAG_NOEXTRAPOLATOR" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Extrapolator=False"
+fi
+if [ "x$FLAG_NOAUTOCONF" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1NoAutoConf=True"
+fi
+if [ "x$FLAG_FITTER" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Fitter=True"
+fi
+if [ "x$FLAG_FATRAS" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Fatras=True"
+fi
+if [ "x$FLAG_NSW" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1NSW=True"
+fi
+if [ "x$FLAG_SLHC" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1SLHC=True"
+fi
+if [ "x$FLAG_CUSTOMGEOMETRY" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1CustomGeometry=True"
+fi
+if [ "x$FLAG_NOGUI" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1NoGui=True"
+fi
+if [ "x$FLAG_MC" != "x0" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Mc=True"
+fi
+if [ "x$MULTINP_SRC" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Multinp=True"
+fi
+if [ "x$MULTINP_SRC" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Multinpsrc=\"$MULTINP_SRC\""
+fi
+if [ "x$MULTINP_CPY" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1Multinpcpy=\"$MULTINP_CPY\""
+fi
+if [ "x$TRIGDEC" != "x" ]; then
+    if [ ${#TRIGDEC} -gt 5 -a ${TRIGDEC:$((${#TRIGDEC}-4)):4} == ".xml" ]; then
+	if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+	OPTS="${OPTS}vp1TrigDecXML=\"$TRIGDEC\""
+    else
+	echo "Error: Support for the -trigdec flag for embedded or server is actually not implemented in this script yet! So far only .xml sources work"
+	exit 1
+    fi
+fi
+if [ "x$FATRAS_TRUTHKEY" != "x" ]; then
+    if [ "x$OPTS" != "x" ]; then OPTS="$OPTS;"; fi
+    OPTS="${OPTS}vp1FatrasTruthKey=\"$FATRAS_TRUTHKEY\""
+fi
+
+if [ "x$LOGFILE" != "x" ]; then
+    #Fixme: Check that this actually redirects stderr correctly!!
+    CMD="$CMD 2>&1|tee $LOGFILE"
+fi
+#Test mode:
+if [ "x$FLAG_TEST" != "x0" ]; then
+    if [ "x$HTTPMODE" == "x1" ]; then
+	echo "--> Start by downloading a fresh file from $MULTINP_SRC to $BOOTSTRAPFILE"
+    fi
+    if [ "x$MULTINP_CPY" != "x" -a ! -d "$MULTINP_CPY" ]; then
+	echo mkdir -p $MULTINP_CPY
+    fi
+    if [ "x$LOGFILE" != "x" ]; then
+	echo athena.py $ATHENAOPTS  -c "'$OPTS'" $JOBOPT $EXTRAJOBOPT "2>&1|tee $LOGFILE"
+    else
+	echo athena.py $ATHENAOPTS  -c "'$OPTS'" $JOBOPT $EXTRAJOBOPT
+    fi
+    exit 0
+fi
+
+##################################################
+##  Possibly get boot-strap file for http mode  ##
+##################################################
+
+if [ "x$MULTINP_CPY" != "x" -a ! -d "$MULTINP_CPY" ]; then
+    mkdir -p $MULTINP_CPY
+    if [ $? != 0 ]; then
+	echo
+	echo "Failed to create $MULTINP_CPY"
+	echo
+	exit 1
+    fi
+fi
+
+
+if [ "x$HTTPMODE" == "x1" ]; then
+    if [ -f $BOOTSTRAPFILE ]; then
+	echo
+	echo
+	echo "Using existing $BOOTSTRAPFILE as first event."
+	echo
+	echo "In case of problems, try first to remove this file and then restart"
+	echo
+	echo
+    else
+	echo "Need to acquire $BOOTSTRAPFILE"
+	while [ 1 ]; do
+	    rm -f $BOOTSTRAP_HTTPFILEINFO
+	    echo
+	    echo "Executing wget $LIVEBOOTSTRAPSRC --output-document=$BOOTSTRAP_HTTPFILEINFO"
+	    wget $LIVEBOOTSTRAPSRC --output-document=$BOOTSTRAP_HTTPFILEINFO
+	    if [ $? != 0 ]; then
+		echo
+		echo "Download failed!"
+		echo
+		rm -f $BOOTSTRAP_HTTPFILEINFO
+		exit 1
+	    fi
+	    echo "Download succesful"
+	    #Check integrity of downloaded file:
+	    OK=1
+	    grep '^vp1_.*_.*_.*.pool.root' $BOOTSTRAP_HTTPFILEINFO |grep -v "copy " > /dev/null || OK=0
+	    grep 'begin_checksums' $BOOTSTRAP_HTTPFILEINFO > /dev/null || OK=0
+	    grep 'end_checksums' $BOOTSTRAP_HTTPFILEINFO > /dev/null || OK=0
+	    if [ "x$OK" == "x1" ]; then
+		echo "Downloaded info file content seems sane."
+		break
+	    else
+		echo "Problems with content of downloaded info file. Will retry in 5 seconds."
+		sleep 5
+	    fi
+	done
+	#Decode to find recent file:
+	FILELINE=`grep '^vp1_.*_.*_.*.pool.root' $BOOTSTRAP_HTTPFILEINFO |grep -v "copy "|head -1|tr '\t' ' '`
+	FILE=`echo $FILELINE|awk '{print $1}'`
+	SUM=`echo $FILELINE|awk '{print $2}'`
+	FILEURL=`echo $LIVEBOOTSTRAPSRC|sed 's#http://\(.*\)/.*$#http://\1/#'`$FILE
+	echo FILE=$FILE
+	echo FILEURL=$FILEURL
+	echo SUM=$SUM
+	OK=1
+	BOOTSTRAPFILE_SUMFILE=$BOOTSTRAPFILE.md5sum
+	rm -f $BOOTSTRAPFILE $BOOTSTRAPFILE_SUMFILE
+	echo "Executing wget ${FILEURL} --output-document=$BOOTSTRAP_HTTPFILEINFO"
+	wget ${FILEURL} --output-document=$BOOTSTRAPFILE || OK=0
+	if [ $? != 0 ]; then
+	    echo
+	    echo "Download failed!"
+	    echo
+	    rm -f $BOOTSTRAPFILE $BOOTSTRAPFILE_SUMFILE
+	    exit 1
+	fi
+	echo "$SUM  $BOOTSTRAPFILE" > $BOOTSTRAPFILE_SUMFILE
+	if [ $? != 0 ]; then
+	    echo
+	    echo "Could not create md5sum check file"
+	    echo
+	    rm -f $BOOTSTRAPFILE $BOOTSTRAPFILE_SUMFILE
+	    exit 1
+	fi
+	md5sum --status --check $BOOTSTRAPFILE_SUMFILE
+	if [ $? != 0 ]; then
+	    echo
+	    echo "md5sum check of downloaded bootstrap event file failed!"
+	    echo
+	    rm -f $BOOTSTRAPFILE $BOOTSTRAPFILE_SUMFILE
+	    exit 1
+	fi
+	echo "Checksum of downloaded Bootstrap event file is OK. Proceeding to launch athena."
+    fi
+elif [ "x$MULTINP_SRC" != "x" ]; then
+    NEWEST=`ls -1rt $MULTINP_SRC/*_*_*.pool.root |tail -1`
+    if [ ! -f $NEWEST ]; then
+	echo
+	echo "Could not find event file in $MULTINP_SRC to use to bootstrap athena. "
+	echo
+	exit 1
+    fi
+    cp $NEWEST -f $BOOTSTRAPFILE
+    if [ $? != 0 -o ! -f $BOOTSTRAPFILE ]; then
+	echo
+	echo "Could not copy newest event file $BOOTSTRAPFILE!"
+	echo
+	rm -f $BOOTSTRAPFILE
+	exit 1
+    fi
+fi
+
+
+echo "JOBOPT: " ${JOBOPT}
+echo "EXTRAJOBOPT: " ${EXTRAJOBOPT}
+if [ "x$LOGFILE" != "x" ]; then
+    athena.py $ATHENAOPTS  -c "$OPTS" $JOBOPT $EXTRAJOBOPT 2>&1|tee $LOGFILE
+else
+    athena.py $ATHENAOPTS  -c "$OPTS" $JOBOPT $EXTRAJOBOPT
+fi
+
+if [ "x$FLAG_DONTCLEANUPEVTCPY" != "x1" -a "x$MULTINP_CPY" != "x" ]; then
+    if [ -d "${MULTINP_CPY}" -a -f "${MULTINP_CPY}/${BOOTSTRAPNAME}" ]; then
+	rm -rf "${MULTINP_CPY}"
+    fi
+fi

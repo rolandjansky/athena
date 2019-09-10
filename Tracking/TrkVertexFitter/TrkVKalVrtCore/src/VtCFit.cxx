@@ -160,7 +160,7 @@ namespace Trk {
 
     double chi2i = 0.;
     for ( kt = 0; kt < NTRK; ++kt) {
-       VKTrack* trk = vk->TrackList[kt];
+       VKTrack* trk = vk->TrackList[kt].get();
        double theta_ini =trk->iniP[0];
        double phi_ini   =trk->iniP[1];
        double invR_ini  =trk->iniP[2];
@@ -289,7 +289,7 @@ namespace Trk {
 	double ew35 = e13 * trk->WgtM[10]+ e23 * trk->WgtM[11]+ e43 * trk->WgtM[13]+ trk->WgtM[14];
 
 /*   computation of vector  TT = EW * DPAR */
-        TWRK* t_trk=vk->tmpArr[kt];
+        TWRK* t_trk=vk->tmpArr[kt].get();
 	t_trk->tt[0]  = ew11*deps[kt] + ew12*dzp[kt];
 	t_trk->tt[1]  = ew21*deps[kt] + ew22*dzp[kt];
 	t_trk->tt[2]  = ew31*deps[kt] + ew32*dzp[kt];
@@ -569,7 +569,7 @@ namespace Trk {
 	    }
 	    double tparf0[3]={0.};
 	    for (it = 1; it <= NTRK; ++it) {
-                TWRK* t_trk=vk->tmpArr[it-1];
+                TWRK* t_trk=vk->tmpArr[it-1].get();
 		for (j=0; j<3; ++j) {
                    tparf0[j] = 0.;
 		   for (ii = 1; ii <= NParam; ++ii) { tparf0[j] +=  ader_ref(it*3+j+1, ii)*fortst[ii-1];}
@@ -678,8 +678,8 @@ namespace Trk {
     }
 
     for(int ii = 0; ii < NTRK; ++ii) {         // track parameters at intermediate vertex. Also save to cnstP for constraint
-        VKTrack*  trk=vk->TrackList[ii]; 
-        TWRK*   t_trk=vk->tmpArr[ii];
+        VKTrack*  trk=vk->TrackList[ii].get(); 
+        TWRK*   t_trk=vk->tmpArr[ii].get();
         t_trk->part[0]=trk->cnstP[0]= trk->iniP[0] + (alf+bet)*(trk->fitP[0] - trk->iniP[0]) + bet*dCoefNorm * t_trk->parf0[0];
 	t_trk->part[1]=trk->cnstP[1]= trk->iniP[1] + (alf+bet)*(trk->fitP[1] - trk->iniP[1]) + bet*dCoefNorm * t_trk->parf0[1];
 	t_trk->part[2]=trk->cnstP[2]= trk->iniP[2] + (alf+bet)*(trk->fitP[2] - trk->iniP[2]) + bet*dCoefNorm * t_trk->parf0[2];
@@ -724,7 +724,7 @@ namespace Trk {
     if (vk->ConstraintList.size()) {                     // Restore initial derivatives 
       int NTRK=vk->TrackList.size();
       vk->setCnstV(vk->iniV); 
-      for(int i=0; i<NTRK; ++i){ VKTrack* trk=vk->TrackList[i]; for (int j=0;j<3;j++){trk->cnstP[j]=trk->iniP[j];}}
+      for(int i=0; i<NTRK; ++i){ VKTrack* trk=vk->TrackList[i].get(); for (int j=0;j<3;j++){trk->cnstP[j]=trk->iniP[j];}}
       applyConstraints(vk);
     }
   }
@@ -762,11 +762,11 @@ namespace Trk {
 	if (NCNST) {         //VK 25.10.2006 new mechanism for constraint treatment
             applyConstraints(vk);
 	    double dCnstContrib=getCnstValues2(vk);
-	    if(j == 1 ) { dScale = std::max(chi2t[0],10.) / (dCnstContrib + 1/dScaleMax);
+	    if(j == 1 ) { dScale = std::max(chi2t[0],5.*NTRK) / (dCnstContrib + 1/dScaleMax);
 	                  if(dScale > dScaleMax)  dScale=dScaleMax;
 	                  if(dScale < 0.01)       dScale=0.01;
 	    }
-	    ContribC[jm1] = 25.*dCnstContrib*dScale;
+	    ContribC[jm1] = dCnstContrib*dScale;
 	    if ( j != PostFitIteration) {  chi2t[jm1] += 25.*ContribC[jm1]; }  // Last cycle is ALWAYS without constraints
 	}
 //Having 3 points (0,0.5,1.) find a pabolic minimum
@@ -827,7 +827,7 @@ namespace Trk {
 //--------------------------------------------------------------------------------------------------------
     if (NCNST) {                  /* Restore initial derivatives */
       vk->setCnstV(vk->iniV); 
-      for (ii=0; ii<NTRK; ++ii){ VKTrack* trk=vk->TrackList[ii]; for (j=0;j<3;j++){trk->cnstP[j]=trk->iniP[j];}}
+      for (ii=0; ii<NTRK; ++ii){ VKTrack* trk=vk->TrackList[ii].get(); for (j=0;j<3;j++){trk->cnstP[j]=trk->iniP[j];}}
       applyConstraints(vk);
     }
    

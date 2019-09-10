@@ -33,8 +33,6 @@ namespace Root {
   class TGoodRunsListReader;
 }
 
-class StoreGateSvc;
-
 class GoodRunsListSelectorTool : virtual public AthAlgTool, virtual public IGoodRunsListSelectorTool, virtual public IAthenaEvtLoopPreSelectTool
 {
  public:    
@@ -47,7 +45,7 @@ class GoodRunsListSelectorTool : virtual public AthAlgTool, virtual public IGood
   /// Initialize AlgTool
   StatusCode initialize();
   /// called for each event by EventSelector to decide if the event should be passed
-  bool passEvent(const EventInfo* pEvent) ;
+  bool passEvent(const EventIDBase& pEvent) ;
   /// Finalize AlgTool
   StatusCode finalize();
 
@@ -93,8 +91,6 @@ class GoodRunsListSelectorTool : virtual public AthAlgTool, virtual public IGood
   bool m_verbose;
   bool m_rejectanybrl;
   bool m_eventselectormode;
-
-  StoreGateSvc* m_storeGate;
 
   std::map< std::string, vvPair > m_registry;
 

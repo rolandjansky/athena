@@ -1,7 +1,10 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaCommon/python/KeyStore.py
 # @author: Sebastien Binet (binet@cern.ch)
+
+from __future__ import print_function
+import six
 
 ### data
 __version__ = '$Revision: 1.11 $'
@@ -14,13 +17,12 @@ __all__ = [ "CfgItemList", "CfgKeyStore",
 import weakref
 import os
 import copy
-import types
 import re
 
 _allowedTriggerKeys = re.compile( r"(?P<KlassName>.*?)#HLTAutoKey.*\*$" )
 
 ### Configurable code we can recycle
-from Configurable import Configurable
+from AthenaCommon.Configurable import Configurable
 
 ### logging
 from AthenaCommon.Logging import logging
@@ -208,7 +210,7 @@ class CfgItemList( object ):
         return True
 
     def removeItem( self, item ):
-        if not type(item) in ( types.ListType, types.TupleType ):
+        if not type(item) in ( type([]), type(()) ):
             items = ( item, )
         else:
             items = item
@@ -225,7 +227,7 @@ class CfgItemList( object ):
         return
     
     def remove( self, items ):
-        if not type(items) in ( types.ListType, types.TupleType ):
+        if not type(items) in ( type([]), type(()) ):
             items = [ items ]
 
         self._children = [ e for e in self._children if e not in items ]
@@ -309,7 +311,7 @@ class CfgItemList( object ):
             try:
                 for i in c.list( key ):
                     items.add( i )
-            except AttributeError,err:
+            except AttributeError as err:
                 msg.warning( err )
                 pass
         items = [ i for i in items ]
@@ -471,7 +473,7 @@ class CfgKeyStore( object ):
         return
     
     def __getnewargs__( self ):
-        return (self.name,)
+        return (self.name(),)
     ##
 
     def __getitem__( self, k ):
@@ -483,7 +485,7 @@ class CfgKeyStore( object ):
             root = getattr( root, self._name+'_transient' )
         try:
             return getattr( root, self._name+"_"+k )
-        except AttributeError,err:
+        except AttributeError as err:
             raise KeyError(str(err))
     
     def __setitem__( self, k, v ):
@@ -502,7 +504,7 @@ class CfgKeyStore( object ):
             if k in CfgKeyStore.__slots__:
                 return super(CfgKeyStore, self).__getattribute__(k)
             return super(CfgKeyStore, self).__getattribute__(k)
-        except KeyError,err:
+        except KeyError as err:
             raise AttributeError(str(err))
 
     def __setattr__( self, k, v ):
@@ -565,7 +567,10 @@ class CfgKeyStore( object ):
         try:
             from pprint import pprint
             from datetime import datetime
-            from cStringIO import StringIO
+            if six.PY2:
+                from cStringIO import StringIO
+            else:
+                from io import StringIO
             buf = StringIO()
             pprint( item.dict(), stream = buf )
             
@@ -581,8 +586,8 @@ class CfgKeyStore( object ):
                 "## EOF ##",
                 ] ) )
             out.close()
-        except Exception, e:
-            print "Py:Error :",e
+        except Exception as e:
+            print ("Py:Error :",e)
             raise e
         return
 
@@ -647,14 +652,14 @@ def keystore_diff (ref, chk, labels=None, ofile=None):
             between the two CfgKeyStores
     """
     if isinstance (ref, str):
-        if not CfgKeyStore.instances.has_key (ref):
+        if ref not in CfgKeyStore.instances:
             raise ValueError \
                   ('invalid `ref` argument (non existing instance name [%s])'%\
                    ref)
         ref = CfgKeyStore.instances [ref]
 
     if isinstance (chk, str):
-        if not CfgKeyStore.instances.has_key (chk):
+        if chk not in CfgKeyStore.instances:
             raise ValueError \
                   ('invalid `chk` argument (non existing instance name [%s])'%\
                    chk)

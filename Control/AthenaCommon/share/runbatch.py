@@ -8,13 +8,6 @@
 #   athena.py <myJobOptions.py> runbatch.py
 
 try:
-   #first check if command-line evtMax or skipEvents options were provided
-   if opts.evtMax != None:
-      theApp.EvtMax = jps.AthenaCommonFlags.EvtMax()
-   if opts.skipEvents != None:
-      if hasattr(svcMgr,"EventSelector"):
-         svcMgr.EventSelector.SkipEvents = jps.AthenaCommonFlags.SkipEvents()
-
    theApp.run()     # runs until theApp.EvtMax events reached
    from AthenaCommon.Debugging import hookDebugger,DbgStage
    if DbgStage.value == "fini":
@@ -41,6 +34,6 @@ finally:
           aths.setStatus( theApp._exitstate )
           aths.createSummary()
       except ImportError:
-         print "import of PyAthena failed: unable to trigger AthenaSummarySvc"
+         print ("import of PyAthena failed: unable to trigger AthenaSummarySvc")
    theApp.exit()    # exits program, yields theApp._exitstate on shell,
                     # ok if re-thrown C++ exception: try to exit clean

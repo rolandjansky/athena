@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  StatusCode.h
 //  TopoCore
@@ -18,29 +18,24 @@ namespace TCS {
       
       StatusCode():
          m_status(SUCCESS)
-         , m_checked(false)
       {}
       
    public:
       StatusCode(code_t code):
          m_status(code)
-         , m_checked(false)
       {}
       
       code_t getCode()  const { return m_status; }
       
       bool isSuccess() const {
-         m_checked = true;
          return m_status == SUCCESS;
       }
       
       bool isRecoverable() const {
-         m_checked = true;
          return m_status == RECOVERABLE;
       }
       
       bool isFailure() {
-         m_checked = true;
          return m_status == FAILURE;
       }
       
@@ -54,8 +49,6 @@ namespace TCS {
 
    private:
       code_t       m_status;
-      mutable bool m_checked;
-      
    };
    
 } // end of namespace TCS

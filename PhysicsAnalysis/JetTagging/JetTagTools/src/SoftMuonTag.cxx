@@ -33,7 +33,6 @@ PURPOSE:  b-tagging based on soft muon identification
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h" 
-#include "JetTagTools/JetTagUtils.h"
 
 #include "JetTagInfo/TruthInfo.h"
 #include "JetTagInfo/SoftMuonInfo.h"
@@ -48,9 +47,6 @@ PURPOSE:  b-tagging based on soft muon identification
 
 #include "AthenaKernel/Units.h"
 
-#include "TObjArray.h"
-#include "TObjString.h"
-#include "TTree.h"
 #include <fstream>
 #include <algorithm>
 #include <utility>
@@ -64,14 +60,13 @@ namespace Analysis
 {
 
   SoftMuonTag::SoftMuonTag(const std::string& t, const std::string& n, const IInterface* p)
-    : AthAlgTool(t,n,p),
+    : base_class(t,n,p),
       m_trackToVertexIPEstimator(this),
       m_muonSelectorTool("JVC_MuonSelectorTool", this),
       m_likelihoodTool("Analysis::NewLikelihoodTool", this),
       m_SVmuonFinder("InDet::InDetSVWithMuonTool/findSVwithMuon", this),
       m_histoHelper(0)
   {
-    declareInterface<ITagTool>(this);
     /** ANDREA **/
     // which calibration folder to use
     declareProperty("taggerNameBase", m_taggerNameBase = "SMT");
@@ -166,7 +161,6 @@ namespace Analysis
     // prepare readKey for calibration data:
     ATH_CHECK(m_readKey.initialize());
     
-    m_egammaBDTs.clear();
     /** ANDREA **/
 
     /** retrieving ToolSvc: */
@@ -273,23 +267,25 @@ namespace Analysis
   {
     /** ANDREA **/
     ATH_MSG_DEBUG("#BTAG# Finalizing SoftMuonTag.");
-    for( auto temp: m_egammaBDTs ) if(temp.second) delete temp.second;
     /** ANDREA **/
     return StatusCode::SUCCESS;
   }
 
 
-  StatusCode SoftMuonTag::tagJet(const xAOD::Jet* jetToTag, xAOD::BTagging* BTag) {
-
+  StatusCode SoftMuonTag::tagJet(const xAOD::Vertex& priVtx,
+                                 const xAOD::Jet& jetToTag,
+                                 xAOD::BTagging& BTag,
+                                 const std::string &jetName) const
+  {
     ATH_MSG_DEBUG( "#BTAG# Starting tagJet");
 
     /** author to know which jet algorithm: */
-    std::string author = JetTagUtils::getJetAuthor(jetToTag);
+    std::string author = jetName;
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
     /* The jet */
-    double jeteta = jetToTag->eta(), jetphi = jetToTag->phi(), jetpt = jetToTag->pt();
+    double jeteta = jetToTag.eta(), jetphi = jetToTag.phi(), jetpt = jetToTag.pt();
     ATH_MSG_DEBUG( "#BTAG# Jet properties : eta = "<<jeteta
 		   <<" phi = "<<jetphi
 		   <<" pT  = "<<jetpt/1.e3 
@@ -312,74 +308,43 @@ namespace Analysis
       }
     }
 
-    // #1: Preparation of MVA instance using egammaBDT
+    // #1: Preparation of MVA instance using BDT
     ATH_MSG_DEBUG("#BTAG# Jet author for SoftMuon: " << author );
-
-    MVAUtils::BDT *bdt=nullptr; std::map<std::string, MVAUtils::BDT*>::iterator it_egammaBDT;
 
     //Retrieval of Calibration Condition Data objects
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
 
-    TObjArray* toa=readCdo->retrieveTObject<TObjArray>("SoftMu",author, m_taggerNameBase+"Calib/"+m_varStrName);
-    TTree *tree = readCdo->retrieveTObject<TTree>("SoftMu",author, m_taggerNameBase+"Calib/"+m_treeName);
-    std::string commaSepVars="";
-    if (toa) {
-      TObjString *tos= nullptr;
-      if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
-      commaSepVars=tos->GetString().Data();
-    } else {
-      ATH_MSG_WARNING("#BTAG# calibVariables has no elements! PLEASE CHECK OUT!");
-      m_disableAlgo=true;
-      return StatusCode::SUCCESS;
-    }
-
-    //prepare inputVars
-    std::vector<std::string> inputVars; inputVars.clear();
-    while (commaSepVars.find(",")!=std::string::npos) {
-      inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
-      commaSepVars.erase(0,commaSepVars.find(",")+1);
-    }
-    inputVars.push_back(commaSepVars.substr(0,-1));
-
-    ATH_MSG_DEBUG("#BTAG# tree name= "<< tree->GetName() <<" inputVars.size()= "<< inputVars.size());// <<" toa->GetEntries()= "<< toa->GetEntries() <<"commaSepVars= "<< commaSepVars);
-    for (unsigned int asv=0; asv<inputVars.size(); asv++) ATH_MSG_DEBUG("#BTAG# inputVar= "<< inputVars.at(asv));
-
     ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
-  
-    if (tree) {
-      ATH_MSG_DEBUG("#BTAG# TTree with name: "<<m_treeName<<" exists in the calibration file."); 
-      bdt = new MVAUtils:: BDT(tree);
-    }
-    else {
-      ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
+    //Retrieve BDT from cond object
+    MVAUtils::BDT *bdt(nullptr);
+    ATH_MSG_DEBUG("#BTAG# Booking MVAUtils::BDT for "<<m_taggerNameBase);
+    bdt = readCdo->retrieveBdt("SoftMu",author);
+    if (!bdt) {
+      ATH_MSG_WARNING("#BTAG# No BDT for " << m_taggerNameBase<<" exists in the condition object.. Disabling algorithm.");
       m_disableAlgo=true;
-      delete bdt;
       return StatusCode::SUCCESS;
     }
+
+    //Retrieve input variables of BDT from cond object
+    std::vector<std::string> inputVars = readCdo->retrieveInputVars(m_taggerNameBase,author, m_taggerNameBase+"Calib/"+m_varStrName);
 
     std::string alias = readCdo->getChannelAlias(author);
     std::vector<float*>  inputPointers; inputPointers.clear();
     unsigned nConfgVar=0; bool badVariableFound=false;
 
-    SetVariableRefs(inputVars,nConfgVar,badVariableFound,inputPointers);
+    Vars vars;
+    vars.SetVariableRefs(msg(),inputVars,nConfgVar,badVariableFound,inputPointers);
     ATH_MSG_DEBUG("#BTAG# nConfgVar"<<nConfgVar
 		    <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
     if ( inputVars.size()!=nConfgVar or badVariableFound ) {
       ATH_MSG_WARNING("#BTAG# Number of expected variables for SoftMu: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
       m_disableAlgo=true;
-      delete bdt;
       return StatusCode::SUCCESS;
     }
  
     bdt->SetPointers(inputPointers);
 
-    it_egammaBDT = m_egammaBDTs.find(alias);
-    if(it_egammaBDT!=m_egammaBDTs.end()) {
-      delete it_egammaBDT->second;
-      m_egammaBDTs.erase(it_egammaBDT);
-    }
-    m_egammaBDTs.insert( std::make_pair( alias, bdt ) );  
 
     // Reference only: Fill control histograms and get jet label
     std::string pref = "";
@@ -395,7 +360,7 @@ namespace Analysis
     }
 
     std::vector<ElementLink<xAOD::MuonContainer> > assocMuons;
-    assocMuons= BTag->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_muonAssociationName);
+    assocMuons= BTag.auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_muonAssociationName);
     if ( assocMuons.size()==0 ) {
       ATH_MSG_DEBUG( "#BTAG# Found no associated muons to the jet");
       ///return StatusCode::SUCCESS; /// need to go untill the end to decorate
@@ -430,7 +395,7 @@ namespace Analysis
     
 
       // muon selection here:
-      float dR = jetToTag->p4().DeltaR(tmpMuon->p4());
+      float dR = jetToTag.p4().DeltaR(tmpMuon->p4());
       if(dR>=0.4) continue;
     
 
@@ -457,13 +422,13 @@ namespace Analysis
       tmpMuon->parameter(scatNeighSignif, xAOD::Muon::scatteringNeighbourSignificance);
       ATH_MSG_DEBUG("#BTAG# scatNeighSignif= "<< scatNeighSignif );
       TLorentzVector myjet, mymu;
-      myjet.SetPtEtaPhiM(jetToTag->pt(),jetToTag->eta(),jetToTag->phi(),0);
+      myjet.SetPtEtaPhiM(jetToTag.pt(),jetToTag.eta(),jetToTag.phi(),0);
       mymu.SetPtEtaPhiM(tmpMuon->pt(),tmpMuon->eta(),tmpMuon->phi(),0);
       float pTrel      =myjet.Vect().Perp(mymu.Vect()); // VD: everything MUST be in MeV
       float qOverPratio=(*pMuIDTrack)->qOverP()/(*pMuMSTrack)->qOverP();
     
       float d0 = tmpMuon->primaryTrackParticle()->d0();
-      float z0 = tmpMuon->primaryTrackParticle()->z0()+(tmpMuon->primaryTrackParticle()->vz())-(m_priVtx->z()) ;
+      float z0 = tmpMuon->primaryTrackParticle()->z0()+(tmpMuon->primaryTrackParticle()->vz())-(priVtx.z()) ;
 
       //Finding SV with a muon
       SG::ReadHandle<xAOD::TrackParticleContainer> h_TrackParticles (m_TrackParticles);
@@ -480,7 +445,7 @@ namespace Analysis
 	const xAOD::TrackParticle* trackParticle = ( *trackItr );
 	my_trkparticles.push_back(trackParticle);
       }
-      const xAOD::Vertex *SVtx = m_SVmuonFinder->findSVwithMuon(*m_priVtx,tmpMuon->primaryTrackParticle(),my_trkparticles);
+      const xAOD::Vertex *SVtx = m_SVmuonFinder->findSVwithMuon(priVtx,tmpMuon->primaryTrackParticle(),my_trkparticles);
       if(SVtx!=NULL) {
 	ATH_MSG_DEBUG("**********ANDREA: Found SV with muon!!!");
 	jet_mu_sv_mass        = xAOD::SecVtxHelper::VertexMass     (SVtx);
@@ -488,14 +453,14 @@ namespace Analysis
 	jet_mu_sv_ntrk        = xAOD::SecVtxHelper::VtxNtrk        (SVtx);
 	jet_mu_sv_VtxnormDist = xAOD::SecVtxHelper::VtxnormDist    (SVtx);
 	jet_mu_sv_ntrkVtx = SVtx->nTrackParticles();
-	const Amg::Vector3D PVposition = m_priVtx->position();
+	const Amg::Vector3D PVposition = priVtx.position();
 	const Amg::Vector3D position   = SVtx    ->position();
 	Amg::Vector3D PvSvDir( position.x() - PVposition.x(),
 			       position.y() - PVposition.y(),
 			       position.z() - PVposition.z() );
 	jet_mu_sv_Lxy=sqrt(pow(PvSvDir(0,0),2)+pow(PvSvDir(1,0),2));
 	jet_mu_sv_L3d=sqrt(pow(PvSvDir(0,0),2)+pow(PvSvDir(1,0),2)+pow(PvSvDir(2,0),2));
-	TVector3 jetDir;  jetDir .SetPtEtaPhi(jetToTag->pt(),jetToTag->eta(),jetToTag->phi());
+	TVector3 jetDir;  jetDir .SetPtEtaPhi(jetToTag.pt(),jetToTag.eta(),jetToTag.phi());
 	TVector3 PvSvDIR; PvSvDIR.SetXYZ(position.x() - PVposition.x(),position.y() - PVposition.y(),position.z() - PVposition.z());
 	jet_mu_sv_dR=deltaR(jetDir.Eta(),PvSvDIR.Eta(),jetDir.Phi(),PvSvDIR.Phi());
 	TLorentzVector tlv;
@@ -539,85 +504,67 @@ namespace Analysis
 
     // now decorate the b-tagging object
     std::string xAODBaseName="SMT";
-    BTag->setVariable<float>(xAODBaseName, "mu_pt"           , jet_mu_dRmin_pt);
-    BTag->setVariable<float>(xAODBaseName, "dR"              , jet_mu_dRmin_dR);
-    BTag->setVariable<float>(xAODBaseName, "qOverPratio"     , jet_mu_dRmin_qOverPratio);
-    BTag->setVariable<float>(xAODBaseName, "mombalsignif"    , jet_mu_dRmin_mombalsignif);
-    BTag->setVariable<float>(xAODBaseName, "scatneighsignif" , jet_mu_dRmin_scatneighsignif);
-    BTag->setVariable<float>(xAODBaseName, "pTrel"           , jet_mu_dRmin_pTrel);
-    BTag->setVariable<float>(xAODBaseName, "mu_d0"           , jet_mu_dRmin_d0);
-    BTag->setVariable<float>(xAODBaseName, "mu_z0"           , jet_mu_dRmin_z0);
-    BTag->setVariable<float>(xAODBaseName, "ID_qOverP"       , jet_mu_dRmin_ID_qOverP_var);
+    BTag.setVariable<float>(xAODBaseName, "mu_pt"           , jet_mu_dRmin_pt);
+    BTag.setVariable<float>(xAODBaseName, "dR"              , jet_mu_dRmin_dR);
+    BTag.setVariable<float>(xAODBaseName, "qOverPratio"     , jet_mu_dRmin_qOverPratio);
+    BTag.setVariable<float>(xAODBaseName, "mombalsignif"    , jet_mu_dRmin_mombalsignif);
+    BTag.setVariable<float>(xAODBaseName, "scatneighsignif" , jet_mu_dRmin_scatneighsignif);
+    BTag.setVariable<float>(xAODBaseName, "pTrel"           , jet_mu_dRmin_pTrel);
+    BTag.setVariable<float>(xAODBaseName, "mu_d0"           , jet_mu_dRmin_d0);
+    BTag.setVariable<float>(xAODBaseName, "mu_z0"           , jet_mu_dRmin_z0);
+    BTag.setVariable<float>(xAODBaseName, "ID_qOverP"       , jet_mu_dRmin_ID_qOverP_var);
   
     ElementLink<xAOD::MuonContainer> theLink; 
     if (muonIndex!=-1) theLink=assocMuons.at(muonIndex);
   
-    BTag->auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link")=theLink; 
+    BTag.auxdata< ElementLink<xAOD::MuonContainer> >("SMT_mu_link")=theLink; 
 
     // #2: Set necessary MVA-input variables
-    m_pt     = jetToTag->pt();
-    m_absEta = fabs(jetToTag->eta());
+    vars.m_pt     = jetToTag.pt();
+    vars.m_absEta = fabs(jetToTag.eta());
 
     /*** Retrieving soft muon variables ***/
-    m_sm_dR=jet_mu_dRmin_dR;
-    m_sm_pTrel=jet_mu_dRmin_pTrel;
-    m_sm_qOverPratio=jet_mu_dRmin_qOverPratio;  
-    m_sm_mombalsignif=jet_mu_dRmin_mombalsignif;
-    m_sm_scatneighsignif=jet_mu_dRmin_scatneighsignif;
-    m_sm_mu_d0=jet_mu_dRmin_d0;
+    vars.m_sm_dR=jet_mu_dRmin_dR;
+    vars.m_sm_pTrel=jet_mu_dRmin_pTrel;
+    vars.m_sm_qOverPratio=jet_mu_dRmin_qOverPratio;  
+    vars.m_sm_mombalsignif=jet_mu_dRmin_mombalsignif;
+    vars.m_sm_scatneighsignif=jet_mu_dRmin_scatneighsignif;
+    vars.m_sm_mu_d0=jet_mu_dRmin_d0;
     //SVMT
-    m_sm_mu_sv_mass=jet_mu_sv_mass;
-    m_sm_mu_sv_efrc=jet_mu_sv_efrc;
-    m_sm_mu_sv_VtxnormDist=jet_mu_sv_VtxnormDist;
-    m_sm_mu_sv_Lxy=jet_mu_sv_Lxy;
-    m_sm_mu_sv_L3d=jet_mu_sv_L3d;
-    m_sm_mu_sv_dR=jet_mu_sv_dR;
-    m_sm_mu_sv_dmaxPt=jet_mu_sv_dmaxPt;
-    m_sm_mu_sv_ntrk=jet_mu_sv_ntrk;
-    m_sm_mu_sv_ntrkVtx=jet_mu_sv_ntrkVtx;
+    vars.m_sm_mu_sv_mass=jet_mu_sv_mass;
+    vars.m_sm_mu_sv_efrc=jet_mu_sv_efrc;
+    vars.m_sm_mu_sv_VtxnormDist=jet_mu_sv_VtxnormDist;
+    vars.m_sm_mu_sv_Lxy=jet_mu_sv_Lxy;
+    vars.m_sm_mu_sv_L3d=jet_mu_sv_L3d;
+    vars.m_sm_mu_sv_dR=jet_mu_sv_dR;
+    vars.m_sm_mu_sv_dmaxPt=jet_mu_sv_dmaxPt;
+    vars.m_sm_mu_sv_ntrk=jet_mu_sv_ntrk;
+    vars.m_sm_mu_sv_ntrkVtx=jet_mu_sv_ntrkVtx;
 
     //////////////////////////////////
     // End of SMT inputs retrieving //
     //////////////////////////////////
 
-    if(m_sm_dR==10.){
-      m_my_smt=-1.1;
-      ATH_MSG_DEBUG("#BTAG# Found no muons, assigning default value to SMT: "<< m_my_smt);
-    } 
-    PrintInputs(); 
+    PrintInputs(vars); 
 
     // #3: Computation of MVA output variable(s)
     /* compute SMT: */
     double smt = -1.1;
-    it_egammaBDT = m_egammaBDTs.find(alias);
-    if(it_egammaBDT==m_egammaBDTs.end()) {
-      int alreadyWarned = std::count(m_undefinedReaders.begin(),m_undefinedReaders.end(),alias);
-      if(0==alreadyWarned) {
-	ATH_MSG_WARNING("#BTAG# no egammaBDT defined for jet collection alias, author: "<<alias<<" "<<author);
-	m_undefinedReaders.push_back(alias);
-      }
-    }
-    else {
-      if(it_egammaBDT->second) {
-	smt = GetClassResponse(it_egammaBDT->second);//this gives back double
-      }
-      else ATH_MSG_WARNING("#BTAG# egamma BDT is 0 for alias, author: "<<alias<<" "<<author);
-    } 
-    if (m_sm_dR==10.) smt=-1.1;
+
+    smt = GetClassResponse(bdt);//this gives back double
+
+    if (vars.m_sm_dR==10.) smt=-1.1;
     ATH_MSG_DEBUG("#BTAG# SMT weight: " << smt <<", "<<alias<<", "<<author);
 
     // #4: Fill MVA output variable(s) into xAOD
     /** give information to the info class. */
     // Can be uncommented if SVMT evaluation wants to be checked (rather than SMT)
-    //if(inputVars.size()<10) BTag->setVariable<double>(xAODBaseName, "discriminant", smt);
-    //else            	  BTag->setVariable<double>("SVMT", "discriminant", smt);
-    BTag->setVariable<double>(xAODBaseName, "discriminant", smt);
-    BTag->setVariable<char>(xAODBaseName, "discriminantIsValid", true);
+    //if(inputVars.size()<10) BTag.setVariable<double>(xAODBaseName, "discriminant", smt);
+    //else            	  BTag.setVariable<double>("SVMT", "discriminant", smt);
+    BTag.setVariable<double>(xAODBaseName, "discriminant", smt);
+    BTag.setVariable<char>(xAODBaseName, "discriminantIsValid", true);
 
     /** ANDREA **/
-
-
-
 
     return  StatusCode::SUCCESS;
   }
@@ -659,12 +606,12 @@ namespace Analysis
     }
   }
   
-  /* ANDREA */
-  void SoftMuonTag::ClearInputs() {
-    m_sm_pTrel=0.;
-  }
-
-  void SoftMuonTag::SetVariableRefs(const std::vector<std::string> inputVars, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
+  void SoftMuonTag::Vars::SetVariableRefs(MsgStream& msg,
+                                          const std::vector<std::string>& inputVars,
+                                          unsigned &nConfgVar,
+                                          bool &badVariableFound,
+                                          std::vector<float*> &inputPointers)
+  {
     for (unsigned ivar=0; ivar<inputVars.size(); ivar++) {
       if      (inputVars.at(ivar)=="pt"         	     ) { inputPointers.push_back(&m_pt   ) ; nConfgVar++; }
       else if (inputVars.at(ivar)=="abs(eta)"   	     ) { inputPointers.push_back(&m_absEta   ) ; nConfgVar++; }
@@ -684,25 +631,25 @@ namespace Analysis
       else if (inputVars.at(ivar)=="j_m_s_L3d" 	     ) { inputPointers.push_back(&m_sm_mu_sv_L3d ) ; nConfgVar++; }
       else if (inputVars.at(ivar)=="j_m_s_dR"  	     ) { inputPointers.push_back(&m_sm_mu_sv_dR ) ; nConfgVar++; }
       else {
-	ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in SMT... CHECK PLEASE!!!");
+	msg << MSG::WARNING << "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in SMT... CHECK PLEASE!!!" << endmsg;
 	badVariableFound=true;
       } 
     }
   }//void SoftMuonTag::SetVariableRefs
 
-  void SoftMuonTag::PrintInputs() {
+  void SoftMuonTag::PrintInputs(const Vars& vars) const {
     ATH_MSG_DEBUG("#BTAG# SMT jet info: " <<
-                  "  jet pt= "     << m_pt  <<
-                  ", jet eta= "    << m_absEta <<
-		  ", dR= "         << m_sm_dR <<
-		  ", pTrel= "      << m_sm_pTrel <<
-		  ", q/p="         << m_sm_qOverPratio <<
-                  ", momb="        << m_sm_mombalsignif <<
-		  ", scat="        << m_sm_scatneighsignif <<
-		  ", d0 ="         << m_sm_mu_d0);
+                  "  jet pt= "     << vars.m_pt  <<
+                  ", jet eta= "    << vars.m_absEta <<
+		  ", dR= "         << vars.m_sm_dR <<
+		  ", pTrel= "      << vars.m_sm_pTrel <<
+		  ", q/p="         << vars.m_sm_qOverPratio <<
+                  ", momb="        << vars.m_sm_mombalsignif <<
+		  ", scat="        << vars.m_sm_scatneighsignif <<
+		  ", d0 ="         << vars.m_sm_mu_d0);
   }
 
-  float SoftMuonTag:: deltaR(float eta1, float eta2, float phi1, float phi2) {
+  float SoftMuonTag:: deltaR(float eta1, float eta2, float phi1, float phi2) const {
     float DEta = fabs(eta1 - eta2);
     float DPhi = acos(cos(fabs(phi1 - phi2)));
     return sqrt(pow(DEta, 2) + pow(DPhi, 2));

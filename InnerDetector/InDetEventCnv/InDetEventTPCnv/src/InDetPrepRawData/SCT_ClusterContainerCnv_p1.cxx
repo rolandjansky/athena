@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterContainerCnv_p1.h"
@@ -152,7 +152,7 @@ InDet::SCT_ClusterContainer* InDet::SCT_ClusterContainerCnv_p1::createTransient(
       log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p1 " << endmsg;
      } 
     }
-    std::auto_ptr<InDet::SCT_ClusterContainer> trans(new InDet::SCT_ClusterContainer(m_sctId->wafer_hash_max()));
+    std::unique_ptr<InDet::SCT_ClusterContainer> trans(std::make_unique<InDet::SCT_ClusterContainer>(m_sctId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }
@@ -191,9 +191,7 @@ StatusCode InDet::SCT_ClusterContainerCnv_p1::initialize(MsgStream &log) {
    //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endmsg;
    //   }
 
-   if (m_useDetectorElement) {
-      CHECK(m_SCTDetEleCollKey.initialize());
-   }
+   CHECK(m_SCTDetEleCollKey.initialize(m_useDetectorElement));
 
    //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;

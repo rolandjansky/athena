@@ -19,18 +19,27 @@ atlas_depends_on_subdirs( PUBLIC
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread GenVector )
 
+# Extra dependencies, based on what environment we are in:
+if (BUILDVP1LIGHT)
+    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
+        set( extra_libs GenVector )
+    endif()
+endif()
+
 # Component(s) in the package:
 atlas_add_library( xAODTrigEgamma
                    Root/*.cxx
                    PUBLIC_HEADERS xAODTrigEgamma
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCaloEvent xAODCore xAODEgamma xAODTracking xAODTrigCalo
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${extra_libs} )
 
 atlas_add_dictionary( xAODTrigEgammaDict
                       xAODTrigEgamma/xAODTrigEgammaDict.h
                       xAODTrigEgamma/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase xAODCaloEvent xAODCore xAODEgamma xAODTracking xAODTrigCalo xAODTrigEgamma
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks
+                      xAODBase xAODCaloEvent xAODCore xAODEgamma xAODTracking
+                      xAODTrigCalo xAODTrigEgamma ${extra_libs}
                       EXTRA_FILES Root/dict/*.cxx )
 

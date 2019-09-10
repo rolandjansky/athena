@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CaloClusterCellLinksUpdater.h 
@@ -15,12 +15,14 @@
 #include <string>
 
 // FrameWork includes
-#include "AthenaBaseComps/AthAlgorithm.h"
-
-
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 
 class CaloClusterCellLinksUpdater
-  : public ::AthAlgorithm
+  : public ::AthReentrantAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -28,37 +30,28 @@ class CaloClusterCellLinksUpdater
   /////////////////////////////////////////////////////////////////// 
  public: 
 
-  // Copy constructor: 
-
   /// Constructor with parameters: 
-  CaloClusterCellLinksUpdater( const std::string& name, ISvcLocator* pSvcLocator );
+  using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
   /// Destructor: 
-  virtual ~CaloClusterCellLinksUpdater(); 
+  virtual ~CaloClusterCellLinksUpdater() = default;
 
   // Athena algorithm's Hooks
   /// Standard algorithm initialize
-  virtual StatusCode  initialize();
+  virtual StatusCode  initialize() override;
   /// Standard algorithm execute
-  virtual StatusCode  execute();
-  /// Standard algorithm finalize
-  virtual StatusCode  finalize();
+  virtual StatusCode  execute(const EventContext& ctx) const override;
 
  private: 
-  /// Default constructor: 
-  CaloClusterCellLinksUpdater();
 
   /// Name of the CaloCellContainer the links should point to(jobProperty) 
-  std::string m_newCaloCellName;
+  SG::ReadHandleKey<CaloCellContainer> m_caloCellContainerKey{this,
+      "NewCaloCellName", "AODCellContainer", "Name of the CaloCellContainer the links should point to"};
 
   /// CaloClusters to be considered (jobProperty)
-  std::vector<std::string> m_caloClusterNames;
+  SG::ReadHandleKeyArray<xAOD::CaloClusterContainer> m_clusterKeys{this,
+      "CaloClusterNames", {}, "CaloClusters to be considered"};
 
-  /// Set fo CaloClusters to be considered (no duplicates)
-  std::set<std::string> m_caloClusterNameSet;
-
-  bool m_firstEvent;
- 
 }; 
 
 #endif //> !CALOREC_CALOCLUSTERCELLLINKSUPDATER_H

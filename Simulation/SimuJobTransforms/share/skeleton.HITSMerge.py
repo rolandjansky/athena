@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 #import glob, os, re
 import traceback
 
@@ -93,7 +95,7 @@ EventSelector.InputCollections = In
 try:
   EventSelector.CollectionType = CollType
 except:
-  print "Reading from file"
+  print("Reading from file")
 
 SkipEvents=0
 if hasattr(runArgs,"skipEvents"):
@@ -112,7 +114,6 @@ try:
 except:
   StreamHITS = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", True, noTag=True )
 StreamHITS.TakeItemsFromInput=TRUE;
-StreamHITS.ForceRead=TRUE;  #force read of output data objs
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #StreamHITS.ExcludeList = ['6421#*']
 
@@ -120,15 +121,15 @@ StreamHITS.ForceRead=TRUE;  #force read of output data objs
 try:
   StreamHITS.AcceptAlgs = AcceptList
 except:
-  print "No accept algs indicated in AcceptList"
+  print("No accept algs indicated in AcceptList")
 try:
   StreamHITS.RequireAlgs = RequireList
 except:
-  print "No accept algs indicated in RequireList"
+  print("No accept algs indicated in RequireList")
 try:
   StreamHITS.VetoAlgs = VetoList
 except:
-  print "No accept algs indicated in VetoList"
+  print("No accept algs indicated in VetoList")
 
 # Perfmon
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
@@ -168,4 +169,4 @@ if hasattr(runArgs,"postExec"):
         merHitLog.info(cmd)
         exec(cmd)
 #--------------------------------------------------------------
-print topSequence
+print(topSequence)

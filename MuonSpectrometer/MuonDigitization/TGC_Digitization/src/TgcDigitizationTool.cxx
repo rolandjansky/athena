@@ -19,7 +19,6 @@
 #include "MuonSimEvent/TgcHitIdHelper.h"
 #include "TgcDigitMaker.h"
 
-#include "PileUpTools/PileUpMergeSvc.h"
 #include "PileUpTools/IPileUpTool.h" // for SubEventIterator
 #include "xAODEventInfo/EventInfo.h"
 
@@ -29,26 +28,11 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 
-static constexpr unsigned int crazyParticleBarcode(
-    std::numeric_limits<int32_t>::max());
-// Barcodes at the HepMC level are int
-
-TgcDigitizationTool::TgcDigitizationTool(const std::string& type, 
-					 const std::string& name,
-					 const IInterface* parent) : 
-  PileUpToolBase(type, name, parent),
-  m_mergeSvc(0), 
-  m_hitIdHelper(0), 
-  m_idHelper(0),
-  m_mdManager(0),
-  m_digitizer(0),
-  m_thpcTGC(0),
-  m_inputHitCollectionName("TGC_Hits"),
-  m_vetoThisBarcode(crazyParticleBarcode) 
+TgcDigitizationTool::TgcDigitizationTool(const std::string& type,
+                                         const std::string& name,
+                                         const IInterface* parent) :
+  PileUpToolBase(type, name, parent)
 {
-  declareProperty("InputObjectName",  m_inputHitCollectionName    = "TGC_Hits",   "name of the input object");
-  declareProperty("IncludePileUpTruth",  m_includePileUpTruth     =  true,        "Include pile-up truth info");
-  declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode        =  crazyParticleBarcode, "Barcode of particle to ignore");
 }
 
 //--------------------------------------------
@@ -56,38 +40,31 @@ StatusCode TgcDigitizationTool::initialize()
 {
 
   // retrieve MuonDetctorManager from DetectorStore
-  if(detStore()->retrieve(m_mdManager).isFailure()) {
-    return StatusCode::FAILURE; 
-  } 
+  ATH_CHECK(detStore()->retrieve(m_mdManager));
   ATH_MSG_DEBUG("Retrieved MuonDetectorManager from DetectorStore.");
 
-  if(!m_mergeSvc) {
-    //locate the PileUpMergeSvc
-    const bool CREATEIF = true;
-    if(!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
-       !m_mergeSvc) {
-      ATH_MSG_FATAL("Could not find PileUpMergeSvc");
-      return StatusCode::FAILURE;
-    }
-  }
-  
+  ATH_CHECK(m_mergeSvc.retrieve());
+
   //initialize the TgcIdHelper
   m_idHelper = m_mdManager->tgcIdHelper();
-  if(!m_idHelper) {
+  if (!m_idHelper) {
     ATH_MSG_WARNING("tgcIdHelper could not be retrieved.");
     return StatusCode::FAILURE;
   }
-  
+
   // TgcHitIdHelper
   m_hitIdHelper = TgcHitIdHelper::GetHelper();
 
   // check the input object name
-  if(m_inputHitCollectionName=="") {
+  if (m_hitsContainerKey.key().empty()) {
     ATH_MSG_FATAL("Property InputObjectName not set !");
     return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Input objects: '" << m_inputHitCollectionName << "'");
   }
+  if(m_onlyUseContainerName) m_inputHitCollectionName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputHitCollectionName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   //initialize the output WriteHandleKeys
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
@@ -106,23 +83,23 @@ StatusCode TgcDigitizationTool::initialize()
 
   IRDBRecordset_ptr atlasCommonRec = rdbAccess->getRecordsetPtr("AtlasCommon",atlasVersion,"ATLAS");
   unsigned int runperiod = 1;
-  if(atlasCommonRec->size()==0) runperiod = 1;
+  if (atlasCommonRec->size()==0) runperiod = 1;
   else {
     std::string configVal = (*atlasCommonRec)[0]->getString("CONFIG");
     if(configVal=="RUN1") runperiod = 1;
-    else if(configVal=="RUN2") runperiod = 2;
-    else if(configVal=="RUN3") runperiod = 3; // currently runperiod 3 means no masking => ok for upgrade
-    else if(configVal=="RUN4") runperiod = 3; // currently runperiod 3 means no masking => ok for upgrade
+    else if (configVal=="RUN2") runperiod = 2;
+    else if (configVal=="RUN3") runperiod = 3; // currently runperiod 3 means no masking => ok for upgrade
+    else if (configVal=="RUN4") runperiod = 3; // currently runperiod 3 means no masking => ok for upgrade
     else {
-      ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal);  
+      ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal);
       return StatusCode::FAILURE;
     }
   }
 
-  // initialize class to execute digitization 
-  m_digitizer = new TgcDigitMaker(m_hitIdHelper, 
-				  m_mdManager,
-				  runperiod);
+  // initialize class to execute digitization
+  m_digitizer = new TgcDigitMaker(m_hitIdHelper,
+                                  m_mdManager,
+                                  runperiod);
   m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   ATH_CHECK(m_rndmSvc.retrieve());
 
@@ -230,22 +207,28 @@ StatusCode TgcDigitizationTool::finalize() {
 // Get next event and extract collection of hit collections:
 StatusCode TgcDigitizationTool::getNextEvent()
 {
-  if(!m_mergeSvc) { 
-    //locate the PileUpMergeSvc 
-    const bool CREATEIF = true;
-    if(!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
-       !m_mergeSvc) { 
-      ATH_MSG_FATAL("Could not find PileUpMergeSvc");
-      return StatusCode::FAILURE;
-    }
-  }
-  
   // initialize pointer
-  m_thpcTGC = 0;
+  m_thpcTGC = nullptr;
   
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<TGCSimHitCollection>::type TimedHitCollList;
   
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<TGCSimHitCollection> hitCollection(m_hitsContainerKey);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get TGCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcTGC = new TimedHitCollection<TGCSimHit>{1};
+    m_thpcTGC->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("TGCSimHitCollection found with " << hitCollection->size() << " hits");
+
+    return StatusCode::SUCCESS;
+  }
+
   //this is a list<pair<time_t, DataLink<TGCSimHitCollection> > >
   TimedHitCollList hitCollList;
   
@@ -278,7 +261,7 @@ StatusCode TgcDigitizationTool::getNextEvent()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TgcDigitizationTool::digitizeCore() {
+StatusCode TgcDigitizationTool::digitizeCore() const {
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmSvc->getEngine(this);
   rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
@@ -328,7 +311,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	uint16_t newBcTag    = (*it_digiHits)->bcTag();
 	Identifier elemId    = m_idHelper->elementID(newDigiId);
 	
-	TgcDigitCollection* digitCollection = 0;
+	TgcDigitCollection* digitCollection ATLAS_THREAD_SAFE = nullptr;
 	
 	IdentifierHash coll_hash;
 	if(m_idHelper->get_hash(elemId, coll_hash, &tgcContext)) {

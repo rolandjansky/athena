@@ -37,13 +37,13 @@ atlas_add_library( DerivationFrameworkMuonsLib
                    PUBLIC_HEADERS DerivationFrameworkMuons
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES CaloEvent CaloGeoHelpers AthenaBaseComps xAODCaloEvent xAODMuon GaudiKernel RecoToolInterfaces ExpressionEvaluationLib TrigDecisionToolLib TrigMuonMatchingLib ICaloTrkMuIdTools CaloTrkMuIdTools TrkExInterfaces
+                   LINK_LIBRARIES CaloEvent CaloGeoHelpers AthenaBaseComps xAODCaloEvent xAODMuon GaudiKernel RecoToolInterfaces ExpressionEvaluationLib TrigDecisionToolLib TrigMuonMatchingLib ICaloTrkMuIdTools TrkExInterfaces
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel xAODEventInfo xAODTracking xAODTruth )
 
 atlas_add_component( DerivationFrameworkMuons
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloGeoHelpers AthenaBaseComps xAODCaloEvent xAODMuon GaudiKernel ExpressionEvaluationLib RecoToolInterfaces TrigDecisionToolLib TrigMuonMatchingLib AthenaKernel xAODEventInfo xAODTracking xAODTruth DerivationFrameworkMuonsLib ICaloTrkMuIdTools CaloTrkMuIdTools TrkExInterfaces)
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent CaloGeoHelpers AthenaBaseComps xAODCaloEvent xAODMuon GaudiKernel ExpressionEvaluationLib RecoToolInterfaces TrigDecisionToolLib TrigMuonMatchingLib AthenaKernel xAODEventInfo xAODTracking xAODTruth DerivationFrameworkMuonsLib ICaloTrkMuIdTools TrkExInterfaces)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

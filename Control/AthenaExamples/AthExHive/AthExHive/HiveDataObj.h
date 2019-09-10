@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHEXHIVE_HIVEDATAOBJ_H
@@ -38,7 +38,7 @@ private:
 //using the macros below we can assign an identifier (and a version) 
 //to the type HiveDataObj
 //This is required and checked at compile time when you try to record/retrieve
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( HiveDataObj , 37539154 , 1 )
 
 #endif

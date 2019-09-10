@@ -12,7 +12,7 @@ from calendar import timegm
 #set date to compute the correction
 
 if "date" not in dir():
-    date="2013-02-06:09:45:00"
+    date="2015-02-06:09:45:00"
 
 
 if "TimeStamp" not in dir():
@@ -66,7 +66,7 @@ WriteIOV      = True
 
 # global tag to read other conditions if needed
 if "GlobalTag" not in dir():
-    GlobalTag     = 'LARCALIB-RUN2-00'
+    GlobalTag     = 'CONDBR2-BLKPA-2015-05'
 
 # begin run IOV
 IOVBegin = 0
@@ -104,7 +104,7 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.AthenaPool
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-20-00-00'
+jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-04-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -123,26 +123,17 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
 #include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 #include( "LArDetDescr/LArDetDescr_joboptions.py" )
 #include("TileConditions/TileConditions_jobOptions.py" )
-conddb.blockFolder(LArHVScaleCorrFolder);
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 #include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
 
+from LArConditionsCommon import LArHVDB #Sets HV Cabling and DCS Database folders
+#block to read the existing HVCorr
+conddb.blockFolder(LArHVScaleCorrFolder);
 
-from LArConditionsCommon import LArHVDB #Sets HV Calbling and DCS Database folders
 #conddb.addOverride("/LAR/IdentifierOfl/HVLineToElectrodeMap","LARIdentifierOflHVLineToElectrodeMap-UPD3-00")
-from LArCondUtils.LArCondUtilsConf import LArHVToolDB
-theLArHVToolDB = LArHVToolDB("LArHVToolDB")
-ToolSvc += theLArHVToolDB
-
-from LArRecUtils.LArRecUtilsConf import LArHVCorrTool
-theLArHVCorrTool = LArHVCorrTool("LArHVCorrTool")
-theLArHVCorrTool.keyOutput = keyOutput
-theLArHVCorrTool.folderName= LArHVScaleCorrFolder
-theLArHVCorrTool.HVTool = theLArHVToolDB
-ToolSvc += theLArHVCorrTool
 
 from LArCalibUtils.LArCalibUtilsConf import LArHVCorrMaker
 theLArHVCorrMaker = LArHVCorrMaker("LArHVCorrMaker")

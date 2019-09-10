@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIMPLECOOKEDOBJ_H
 #define SIMPLECOOKEDOBJ_H 1
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "SGTools/BuiltinsClids.h"
 
 typedef float SimpleCookedObj;

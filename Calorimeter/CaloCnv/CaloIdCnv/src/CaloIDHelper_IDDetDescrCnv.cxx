@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,7 +15,7 @@
 #include "IdDictDetDescr/IdDictManager.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "Identifier/IdHelper.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/errorcheck.h"

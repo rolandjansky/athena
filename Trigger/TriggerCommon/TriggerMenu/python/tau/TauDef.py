@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ Tau slice signatures """
 
@@ -14,7 +14,6 @@ from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_tau, TrigCaloCluster
 from TrigFTK_RecAlgs.TrigFTK_RecAlgs_Config import TrigFTK_VxPrimary_EF
 from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-from TrigTauDiscriminant.TrigTauDiscriGetter import TrigTauDiscriGetter2015
 from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo_rejectNoTracks
 from TrigTauHypo.TrigTauHypoConf import HLTTauCaloRoiUpdater, HLTTauTrackRoiUpdater
 from TrigTauRec.TrigTauRecConfig import (TrigTauRecMerged_TauCaloOnly,
@@ -197,7 +196,6 @@ class L2EFChain_tau(L2EFChainDef):
         theTrigFTK_VxPrimary_EF.useRawTracks = False
         theTrigFTK_VxPrimary_EF.useRefittedTracks = False
         theTrigFTK_VxPrimary_EF.vertexContainerName= 'PrimVertexFTK'
-        theTrigFTK_VxPrimary_EF.getVertexContainer = True
         vertexAlgorithms = [theTrigFTK_VxPrimary_EF]
 
         self.EFsequenceList += [[[ self.currentItem ], vertexAlgorithms, self.continueChain('L2', 'vertex')]]
@@ -291,16 +289,15 @@ class L2EFChain_tau(L2EFChainDef):
 
         # Cleaner if-statements
         # Strategies which need calorimeter pre-selection
-        needsCaloPre  = ['calo', 'ptonly', 'mvonly', 'caloonly',
-                         'track', 'trackonly', 'tracktwo', 'tracktwoEF',
-                         'trackcalo', 'tracktwocalo','tracktwo2015']
-        needsCaloMVAPre = ['tracktwoEFmvaTES','tracktwoMVA']
+        needsCaloPre  = ['calo', 'ptonly',
+                         'track', 'tracktwo', 'tracktwoEF']
+        needsCaloMVAPre = ['tracktwoMVA', 'tracktwoEFmvaTES' ]
         # Strategies which need fast-track finding
-        needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo','tracktwo2015']
-        needsTrackTwoNoPre = ['tracktwoEF','tracktwoEFmvaTES','tracktwoMVA']
-        needsTrackPre    = ['track', 'trackonly', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec']
+        needsTrackTwoPre = ['tracktwo', 'tracktwoonly']
+        needsTrackTwoNoPre = ['tracktwoEF','tracktwoMVA', 'tracktwoEFmvaTES']
+        needsTrackPre    = ['track', 'FTK', 'FTKRefit', 'FTKNoPrec']
         # Strategies which need Run-II final hypo
-        needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly', 'trackonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'tracktwoMVA', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
+        needsRun2Hypo = ['calo', 'ptonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwoEFmvaTES']
         fastTrackingUsed = needsTrackPre + needsTrackTwoPre + needsTrackTwoNoPre
 
 
@@ -308,17 +305,15 @@ class L2EFChain_tau(L2EFChainDef):
         preselection2018 = needsCaloMVAPre + needsTrackTwoNoPre
         # MVA TES for preselection and precision steps
         MVATES = preselection in needsCaloMVAPre
-        # track counting based on EF tracks + BDT classification for core tracks
-        #TrackBDT = preselection in ['tracktwoMVA']
-        # can't afford to use track BDT unfortunately, rates too high (especially when including 0p)
-        TrackBDT = False
-        # evaluate RNN for triggers using RNN ID, and 2018 support triggers (even those using BDT ID, to avoid too many different precision sequences)
-        RNN = selection in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'] or preselection in preselection2018
+        # evaluate RNN for tracktwoMVA chains
+        RNN = selection in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'] or preselection in ['tracktwoMVA']
         # chains using 2018 features
-        needsAlgo2018 = (preselection in preselection2018) or MVATES or TrackBDT or RNN 
+        needsAlgo2018 = (preselection in preselection2018) or MVATES or RNN 
         # give unique name to precision sequence
+        # we could now live with a single flag, but will keep two in case modularity is needed for Run3 triggers
+        # tracktwoEF is (MVATES=false, RNN=false) and tracktwoMVA is (MVATES=true, RNN=true)
         use = {True:'', False:'no'}
-        MVAprefix = '{0}MVATES_{1}TrackBDT_{2}RNN'.format(use[MVATES], use[TrackBDT], use[RNN])
+        MVAprefix = '{0}MVATES_{1}RNN'.format(use[MVATES], use[RNN])
 
         
         #Set the default values
@@ -366,7 +361,7 @@ class L2EFChain_tau(L2EFChainDef):
 
         if preselection in needsRun2Hypo:
             # Only run tracking and tau-rec : no need for topoclustering
-            if preselection == 'caloonly' or preselection == 'trackonly' or selection == 'cosmic':
+            if selection == 'cosmic':
                 theEFHypo       = self.hypoProvider.GetHypo('EF', threshold, 'perf', '', 'r1')
             else: 
                 theEFHypo       = self.hypoProvider.GetHypo('EF', threshold, selection, '', 'r1')
@@ -377,7 +372,7 @@ class L2EFChain_tau(L2EFChainDef):
                 recmerged    = TrigTauRecCosmics_Tau2012()
             else:
                 if needsAlgo2018:
-                    recmerged    = TrigTauRecMerged_TauPrecisionMVA(name='TrigTauMVA_{}'.format(MVAprefix), doMVATES=MVATES, doTrackBDT=TrackBDT, doRNN=RNN)
+                    recmerged    = TrigTauRecMerged_TauPrecisionMVA(name='TrigTauMVA_{}'.format(MVAprefix), doMVATES=MVATES, doRNN=RNN)
                 else:
                     recmerged    = TrigTauRecMerged_TauPrecision()
 
@@ -393,21 +388,14 @@ class L2EFChain_tau(L2EFChainDef):
                                      efidinsideout,
                                      self.continueChain('EF', 'tr')]]
 
-            # TrigTauRec and Hypo (no BDT)
-            if selection == 'kaonpi1' or selection == 'kaonpi2' or selection == 'dipion1' or selection=='dipion1loose' or selection == 'dipion2' or selection == 'dipion3' or selection == 'dikaon' or selection == 'dikaontight' or selection == 'dikaonmass' or selection == 'dikaonmasstight' or selection == 'singlepion' or selection == 'singlepiontight':
+            # TrigTauRec and Hypo (BDT not needed, but now included in TrigTauRecMerged_TauPrecision)
+            if selection in [ 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight' ]:
                 self.EFsequenceList += [[[ self.currentItem ],
                                          [recmerged, theEFHypo],
-                                         self.continueChain('EF', 'effinal')]]                
+                                         self.continueChain('EF', 'effinal')]]
 
             elif needsAlgo2018:
                 
-                # don't evaluate BDT for RNN chains
-                EFsequence = []
-                if selection not in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN']:
-                    EFsequence.append( TrigTauDiscriGetter2015() )
-
-                EFsequence.append( theEFHypo )
-
                 self.EFsequenceList += [[[ self.currentItem ],
                                          [recmerged],
                                          self.continueChain('EF', 'taurecef')]]
@@ -419,13 +407,12 @@ class L2EFChain_tau(L2EFChainDef):
                                          self.continueChain('EF', 'trackpre')]]
 
                 self.EFsequenceList += [[[ self.currentItem ],
-                                         EFsequence,
+                                         [theEFHypo],
                                          self.continueChain('EF', 'effinal')]]
      
             else:
-            # TrigTauRec, BDT and Hypo
-                efmv              = TrigTauDiscriGetter2015()
+                # TrigTauRec (now includes BDT) and Hypo
                 self.EFsequenceList += [[[ self.currentItem ],
-                                         [recmerged, efmv, theEFHypo],
+                                         [recmerged, theEFHypo],
                                          self.continueChain('EF', 'effinal')]]
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDAlignMonSivsTRT_H
@@ -33,10 +33,6 @@ class PixelID;
 
 namespace InDetAlignMon{
   class TrackSelectionTool;
-}
-
-namespace InDetDD{
-  class PixelDetectorManager; 
 }
 
 namespace Trk {

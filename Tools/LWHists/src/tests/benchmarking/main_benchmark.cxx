@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -206,7 +206,7 @@ int performBenchmark( const unsigned nhists,
   memCheckStart();
   timerStart();
   for (;it!=itE;++it)
-    it->second = book<T>(it->first,title.c_str(),nbins);
+    it->second = book<T>(it->first,title,nbins);
   timerEnd(histClassName<T>()+" booking",nhists);
   double mem_booked = memCheckEnd("Booked size ["+histClassName<T>()+"]",hists.size());
 

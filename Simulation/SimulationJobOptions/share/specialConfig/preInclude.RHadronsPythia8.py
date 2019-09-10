@@ -66,9 +66,9 @@ try:
     # MC Channel Number.  Try the standard two spots, and fall back to the run number for evgen
     if 'mc_channel_number' in f.infos and len(f.infos['mc_channel_number'])>0:
         runNumber = f.infos['mc_channel_number'][0]
-    if runNumber<=0 and 'mc_channel_number' in f.infos['tag_info']:
+    elif 'mc_channel_number' in f.infos['tag_info']:
         runNumber = f.infos['tag_info']['mc_channel_number']
-    if runNumber<=0:
+    else:
         runNumber = f.infos['run_number'][0]
     # This is also used for digitization, so protect in case we're there
     if "StreamHITS" in f.infos["stream_names"]:
@@ -174,16 +174,22 @@ load_files_for_rhadrons_scenario('SLHA_INPUT.DAT',spectrum)
 # Add any lines that were missing
 # In case we want to use Pythia8 for decays during simulation
 lifetime = float(simdict['LIFETIME']) if simdict.has_key("LIFETIME") else -1.
-if lifetime<1. and hasattr(runArgs,'outputEVNT_TRFile'):
-    rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')
-    rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
+if lifetime>0.:
+    if lifetime<1. and hasattr(runArgs,'outputEVNT_TRFile'):
+        rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')
+        rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
+    else:
+        addLineToPhysicsConfiguration("DoDecays","1")
+        addLineToPhysicsConfiguration("HadronLifeTime", str(lifetime))
+    # If we are reading particle records, and the lifetime is short, stop them as well
+    if lifetime<1. and hasattr(runArgs,'inputEVNT_TRFile'):
+        addLineToPhysicsConfiguration("DoDecays","1")
+        addLineToPhysicsConfiguration("HadronLifeTime", 0.000001)
 else:
-    addLineToPhysicsConfiguration("DoDecays","1")
-    addLineToPhysicsConfiguration("HadronLifeTime", str(lifetime))
-# If we reading particle records, and the lifetime is short, stop them as well
-if lifetime<1. and hasattr(runArgs,'inputEVNT_TRFile'):
-    addLineToPhysicsConfiguration("DoDecays","1")
-    addLineToPhysicsConfiguration("HadronLifeTime", 0.000001)
+    # Stable case. Can be unset lifetime or lifetime=0 or lifetime=-1
+    addLineToPhysicsConfiguration("DoDecays","0")
+    addLineToPhysicsConfiguration("HadronLifeTime", -1)
+
 
 # Capture Pythia8 commands
 # Set up R-hadron masses in Pythia8

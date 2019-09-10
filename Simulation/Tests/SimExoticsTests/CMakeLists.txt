@@ -10,5 +10,4 @@ atlas_depends_on_subdirs( PRIVATE
                           TestPolicy )
 
 # Install files from the package:
-atlas_install_runtime( test/SimExoticsTests_TestConfiguration.xml )
-
+atlas_install_scripts( test/*.sh )

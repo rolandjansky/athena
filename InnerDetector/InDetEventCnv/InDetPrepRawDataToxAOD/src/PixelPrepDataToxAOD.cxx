@@ -30,7 +30,6 @@
 #include "TMath.h" 
 #include "CLHEP/Geometry/Point3D.h"
 
-#include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
 #define AUXDATA(OBJ, TYP, NAME) \
@@ -45,8 +44,6 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   AthAlgorithm(name,pSvcLocator),
   m_PixelHelper(0),
   m_useSiHitsGeometryMatching(true),
-  m_calibSvc("PixelCalibSvc", name),
-  m_pixelBSErrorsSvc("PixelByteStreamErrorsSvc", name),
   m_firstEventWarnings(true),
   m_need_sihits{false}
 { 
@@ -86,14 +83,15 @@ StatusCode PixelPrepDataToxAOD::initialize()
     m_writeSiHits = false;
   }
 
-  CHECK(m_calibSvc.retrieve());
+  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_chargeDataKey.initialize());
 
   ATH_CHECK(m_condDCSStateKey.initialize());
   ATH_CHECK(m_condDCSStatusKey.initialize());
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
 
-  CHECK(m_pixelBSErrorsSvc.retrieve());
+  ATH_CHECK(m_pixelBSErrorsSvc.retrieve());
 
   ATH_CHECK(m_lorentzAngleTool.retrieve());
 
@@ -176,7 +174,11 @@ StatusCode PixelPrepDataToxAOD::execute()
   
   // Loop over the container
   unsigned int counter(0);
-  
+ 
+  SG::ReadCondHandle<PixelModuleData> dcsState(m_condDCSStateKey);
+  SG::ReadCondHandle<PixelModuleData> dcsHV(m_readKeyHV);
+  SG::ReadCondHandle<PixelModuleData> dcsTemp(m_readKeyTemp);
+
   for( const auto& clusterCollection : * PixelClusterContainer ){
 
     //Fill Offset container
@@ -266,11 +268,11 @@ StatusCode PixelPrepDataToxAOD::execute()
       if(m_writeRDOinformation) {
         IdentifierHash moduleHash = clusterCollection->identifyHash();
         AUXDATA(xprd,int,isBSError) = (int)m_pixelBSErrorsSvc->isActive(moduleHash);
-        AUXDATA(xprd,int,DCSState) = SG::ReadCondHandle<PixelModuleData>(m_condDCSStateKey)->getModuleStatus(moduleHash);
+        AUXDATA(xprd,int,DCSState) = dcsState->getModuleStatus(moduleHash);
 
         float deplVoltage = 0.0;
-        AUXDATA(xprd,float,BiasVoltage) = SG::ReadCondHandle<PixelModuleData>(m_readKeyHV)->getBiasVoltage(moduleHash);
-        AUXDATA(xprd,float,Temperature) = SG::ReadCondHandle<PixelModuleData>(m_readKeyTemp)->getTemperature(moduleHash);
+        AUXDATA(xprd,float,BiasVoltage) = dcsHV->getBiasVoltage(moduleHash);
+        AUXDATA(xprd,float,Temperature) = dcsTemp->getTemperature(moduleHash);
         AUXDATA(xprd,float,DepletionVoltage) = deplVoltage;
 
         AUXDATA(xprd,float,LorentzShift) = (float)m_lorentzAngleTool->getLorentzShift(moduleHash);
@@ -648,6 +650,7 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
   std::vector<float> ATerm;
   std::vector<float> ETerm;
 
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
 
   ATH_MSG_VERBOSE( "Number of RDOs: " << rdos.size() );
   
@@ -666,9 +669,14 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
     etaIndexList.push_back( m_PixelHelper->eta_index(rId) );  
 
     // charge calibration parameters
-    CTerm.push_back( m_calibSvc->getQ2TotC(rId) );
-    ATerm.push_back( m_calibSvc->getQ2TotA(rId) );
-    ETerm.push_back( m_calibSvc->getQ2TotE(rId) );
+    Identifier moduleID = m_PixelHelper->wafer_id(rId);
+    IdentifierHash moduleHash = m_PixelHelper->wafer_hash(moduleID); // wafer hash
+    int circ = m_pixelCabling->getFE(&rId,moduleID);
+    int type = m_pixelCabling->getPixelType(rId);
+
+    CTerm.push_back(calibData->getQ2TotC((int)moduleHash, circ, type));
+    ATerm.push_back(calibData->getQ2TotA((int)moduleHash, circ, type));
+    ETerm.push_back(calibData->getQ2TotE((int)moduleHash, circ, type));
 
   }//end iteration on rdos
 

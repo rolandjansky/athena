@@ -12,7 +12,10 @@
 
 #ifndef STOREDALIGNX_H 
 #define STOREDALIGNX_H
-#include "AthenaKernel/CLASS_DEF.h"
+
+#ifndef BUILDVP1LIGHT
+    #include "AthenaKernel/CLASS_DEF.h"
+#endif
 #include <set>
 #include <string>
 
@@ -43,9 +46,11 @@ public:
 
 };
 
-CLASS_DEF(StoredAlignX, 9878, 1)
+#ifndef BUILDVP1LIGHT
+ CLASS_DEF(StoredAlignX, 9878, 1)
+#endif
 
-#endif 
+#endif // class
 
 
 

@@ -42,7 +42,7 @@ namespace {
 
 // Constructor
 SCT_CablingToolInc::SCT_CablingToolInc(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent), m_idHelper(nullptr), m_usingDatabase(true) {
+  base_class(type, name, parent) {
   declareProperty("DataSource", m_cablingDataSource=defaultSource);
 }
 

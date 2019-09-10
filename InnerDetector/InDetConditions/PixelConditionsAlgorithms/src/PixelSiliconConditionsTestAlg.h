@@ -10,10 +10,9 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
-
-// OLD #include "PixelConditionsTools/IPixelDCSConditionsTool.h"
 
 class PixelSiliconConditionsTestAlg : public AthAlgorithm {
   public:
@@ -25,11 +24,21 @@ class PixelSiliconConditionsTestAlg : public AthAlgorithm {
     virtual StatusCode finalize() override;
 
   private:
-// OLD    ToolHandle<IPixelDCSConditionsTool>     m_siliconTool{this, "PixelDCSConditionsTool", "PixelDCSConditionsTool", "Tool to retrieve Pixel information"};
-    SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp{this, "ReadKeyeTemp", "PixelDCSTempCondData",         "Key of input sensor temperature conditions folder"};
-    SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV  {this, "ReadKeyHV",    "PixelDCSHVCondData",           "Key of input bias voltage conditions folder"};
-    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey{this, "PixelModuleData", "PixelModuleData", "Output key"};
-    ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
+    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
+    {this, "PixelModuleData", "PixelModuleData", "Output key"};
+
+    SG::ReadCondHandleKey<PixelModuleData> m_readKeyTemp
+    {this, "ReadKeyeTemp", "PixelDCSTempCondData", "Key of input sensor temperature conditions folder"};
+
+    SG::ReadCondHandleKey<PixelModuleData> m_readKeyHV
+    {this, "ReadKeyHV", "PixelDCSHVCondData", "Key of input bias voltage conditions folder"};
+
+    ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool
+    {this, "LorentzAngleTool", "PixelLorentzAngleTool", "Tool to retreive Lorentz angle"};
+
+    SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+    {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Output key"};
+
 };
 
 #endif

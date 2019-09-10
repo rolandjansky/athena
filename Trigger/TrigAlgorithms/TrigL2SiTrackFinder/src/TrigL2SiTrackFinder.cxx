@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,10 +16,9 @@
 #include <algorithm>
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "CxxUtils/phihelper.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
@@ -44,7 +43,6 @@
 #include "InDetIdentifier/PixelID.h" 
 
 #include "IRegionSelector/IRegSelSvc.h"
-// #include "RegionSelector/RegSelSvc.h"
 
 
 #include "TrigL2SiTrackFinder/TrigL2SiTrackFinder.h"
@@ -233,17 +231,11 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltInitialize() {
     return HLT::BAD_JOB_SETUP;
   }
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    msg() << MSG::ERROR << "DetStore service not found" << endmsg;
-    return HLT::BAD_JOB_SETUP;
-  }
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
     msg() << MSG::ERROR << "Could not get Pixel ID helper" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {  
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {  
     msg() << MSG::ERROR << "Could not get SCT ID helper" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
@@ -508,7 +500,7 @@ HLT::ErrorCode TrigL2SiTrackFinder::hltExecute(const HLT::TriggerElement* inputT
       m_roiEta = internalRoI->eta();
       m_roiEtaWidth = internalRoI->etaPlus() - internalRoI->etaMinus();
       m_roiPhi = internalRoI->phi();
-      m_roiPhiWidth = HLT::wrapPhi(internalRoI->phiPlus() - internalRoI->phiMinus());
+      m_roiPhiWidth = CxxUtils::wrapToPi(internalRoI->phiPlus() - internalRoI->phiMinus());
       
       if(msgLvl()<=MSG::DEBUG) {
         msg() <<  MSG::DEBUG << "REGTEST / RoI: " << *roi << endmsg;
@@ -986,7 +978,7 @@ void TrigL2SiTrackFinder::convertToTrkTrack(const TrigInDetTrackCollection* oldT
   for(; trIt !=lastIt; trIt++) 
   {
     nTracks++;
-    float phi0=HLT::wrapPhi((*trIt)->param()->phi0());
+    float phi0=CxxUtils::wrapToPi((*trIt)->param()->phi0());
     float theta=2.0*atan(exp(-(*trIt)->param()->eta())); 
     float pT = (*trIt)->param()->pT();
 

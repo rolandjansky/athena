@@ -20,5 +20,5 @@ ApplicationMgr Ready
 test1
 ClassIDSvc           INFO  getRegistryEntries: read 426 CLIDRegistry entries for module ALL
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
-IOVSvcTool           INFO IOVRanges will be checked at every Event
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
 IOVSvc              ERROR unable to get range from db for 932847540 key

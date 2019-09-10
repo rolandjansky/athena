@@ -25,7 +25,7 @@ namespace xAOD {
    /// Auxiliary store for TrigComposite containers
    ///
    /// This v2 changes the base class from ByteStreamAuxContainer_v1 to AuxContainerBase 
-   /// for Run 3. Otherwise, it is the same.
+   /// for Run 3. It additionally adds "decisions" as a static member. Otherwise, it is the same.
    ///
    /// $Date: 2019-01-23 $
    ///

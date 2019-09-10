@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 """ TrigTauRec """
@@ -7,14 +7,8 @@ __author__  = 'S.Xella, O.Igonkina, F.Friedrich'
 __version__ =""
 __doc__     ="Configuration of TrigTauRec"
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-
 from TrigTauRec.TrigTauRecConf import TrigTauRecMerged
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-from AthenaCommon.AppMgr import ToolSvc
 
 class TrigTauRecMerged_Tau (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
@@ -56,9 +50,7 @@ class TrigTauRecMerged_Tau (TrigTauRecMerged) :
 	    
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
-	    
+                tool.calibFolder = 'TrigTauRec/00-11-02/'	    
 	    
             self.Tools = tools
 
@@ -112,7 +104,6 @@ class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
 
             self.Tools = tools
 
@@ -132,15 +123,6 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             super( TrigTauRecMerged_TauPreselection , self ).__init__( name )
             self._mytools = []
             
-            # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
-            from TrigTauRec.TrigTauRecMonitoring import TrigTauRecValidationMonitoring, TrigTauRecOnlineMonitoring 
-            validation = TrigTauRecValidationMonitoring()        
-            online     = TrigTauRecOnlineMonitoring()
-                
-            from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-            time = TrigTimeHistToolConfig("Time")
-            self.AthenaMonTools = [ time, validation, online ]
-
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
@@ -171,13 +153,12 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            tools.append(taualgs.getPileUpCorrection())
+            #tools.append(taualgs.getPileUpCorrection())
 
 
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
 
             self.Tools = tools
                 
@@ -235,13 +216,12 @@ class TrigTauRecMerged_TauFTK (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            tools.append(taualgs.getPileUpCorrection())
+            #tools.append(taualgs.getPileUpCorrection())
 
 
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
 
             self.Tools = tools
                 
@@ -290,7 +270,6 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
 
             self.Tools = tools
 
@@ -338,7 +317,6 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
 
             self.Tools = tools
 
@@ -392,12 +370,25 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            tools.append(taualgs.getPileUpCorrection())
-            
+            #tools.append(taualgs.getPileUpCorrection())
+            tools.append(taualgs.getTauIDVarCalculator())
+            tools.append(taualgs.getTauJetBDTEvaluator(suffix="JetBDTEvaluator_1p", 
+                                                       weightsFile="vars2016_pt_gamma_1p_isofix.root", 
+                                                       calibFolder="tauRecTools/00-02-00/",
+                                                       minNTracks=0, 
+                                                       maxNTracks=1))
+            tools.append(taualgs.getTauJetBDTEvaluator(suffix="JetBDTEvaluator_mp", 
+                                                       weightsFile="vars2016_pt_gamma_3p_isofix.root", 
+                                                       calibFolder="tauRecTools/00-02-00/",
+                                                       minNTracks=2, 
+                                                       maxNTracks=1000))
+            tools.append(taualgs.getTauWPDecoratorJetBDT())
+
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
+                # all but JetBDTEvaluator tunes
+                if "JetBDTEvaluator" not in "{}".format(tool.name):
+                    tool.calibFolder = 'TrigTauRec/00-11-02/'
 
             self.Tools = tools
 
@@ -410,7 +401,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
 class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
 
-        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doTrackBDT=False, doRNN=False):
+        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doRNN=False):
         
             super( TrigTauRecMerged_TauPrecisionMVA , self ).__init__( name )
 
@@ -452,10 +443,6 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                 # tightened to 0.75 mm for tracktwoMVA (until the track BDT can be used)
                 tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=0.75, prefix='TrigTauTightDZ_'))            
 
-            if doTrackBDT:                
-                # BDT track classification
-                tools.append(taualgs.getTauTrackClassifier())
-
             # Calibrate to calo TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
 
@@ -474,10 +461,25 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # Cluster-based sub-structure, with dRMax also
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-            tools.append(taualgs.getPileUpCorrection())
+            #tools.append(taualgs.getPileUpCorrection())
+            
+            # tracktwoEF
+            if not doMVATES:
+                tools.append(taualgs.getTauIDVarCalculator())
+                tools.append(taualgs.getTauJetBDTEvaluator(suffix="JetBDTEvaluator_1p", 
+                                                           weightsFile="vars2016_pt_gamma_1p_isofix.root", 
+                                                           calibFolder="tauRecTools/00-02-00/",
+                                                           minNTracks=0, 
+                                                           maxNTracks=1))
+                tools.append(taualgs.getTauJetBDTEvaluator(suffix="JetBDTEvaluator_mp", 
+                                                           weightsFile="vars2016_pt_gamma_3p_isofix.root", 
+                                                           calibFolder="tauRecTools/00-02-00/",
+                                                           minNTracks=2, 
+                                                           maxNTracks=1000))
+                tools.append(taualgs.getTauWPDecoratorJetBDT())
 
+            # tracktwoMVA
             if doRNN:
-                # RNN tau ID
                 tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v3.json",
                                                            NetworkFile1P="rnnid_config_1p_v3.json",
                                                            NetworkFile3P="rnnid_config_mp_v3.json",
@@ -487,12 +489,12 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                 # flattened RNN score and WP
                 tools.append(taualgs.getTauWPDecoratorJetRNN())
 
-
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
-
+                # all but JetBDTEvaluator tunes
+                if "JetBDTEvaluator" not in "{}".format(tool.name):
+                    tool.calibFolder = 'TrigTauRec/00-11-02/'
+                
             self.Tools = tools
 
             ## add beam type flag

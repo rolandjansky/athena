@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // local includes
@@ -121,7 +121,7 @@ MMLoadVariables::~MMLoadVariables() {
       double phi_pos=phiPosition;
 
       //get hits container
-      const GenericMuonSimHitCollection *nswContainer = nullptr;
+      const MMSimHitCollection *nswContainer = nullptr;
       StatusCode sc5 = m_evtStore->retrieve(nswContainer,"MicromegasSensitiveDetector");
 
       for(auto digitCollectionIter : *nsw_MmDigitContainer) {
@@ -239,7 +239,7 @@ MMLoadVariables::~MMLoadVariables() {
             MicromegasHitIdHelper* hitHelper = MicromegasHitIdHelper::GetHelper();
             MM_SimIdToOfflineId simToOffline(*m_MmIdHelper);
             for( auto it2 : *nswContainer ) { //get hit variables
-              const GenericMuonSimHit hit = it2;
+              const MMSimHit hit = it2;
               fillVars.NSWMM_globalTime.push_back(hit.globalTime());
 
               const Amg::Vector3D globalPosition = hit.globalPosition();
@@ -254,18 +254,12 @@ MMLoadVariables::~MMLoadVariables() {
                 fillVars.NSWMM_hitGlobalDirectionY.push_back(globalDirection.y());
                 fillVars.NSWMM_hitGlobalDirectionZ.push_back(globalDirection.z());
 
-                const Amg::Vector3D localPosition = hit.localPosition();
-                fillVars.NSWMM_hitLocalPositionX.push_back(localPosition.x());
-                fillVars.NSWMM_hitLocalPositionY.push_back(localPosition.y());
-                fillVars.NSWMM_hitLocalPositionZ.push_back(localPosition.z());
-
                 fillVars.NSWMM_particleEncoding.push_back(hit.particleEncoding());
                 fillVars.NSWMM_kineticEnergy.push_back(hit.kineticEnergy());
                 fillVars.NSWMM_depositEnergy.push_back(hit.depositEnergy());
-                fillVars.NSWMM_StepLength.push_back(hit.StepLength());
               }
 
-              int simId = hit.GenericId();
+              int simId = hit.MMId();
               std::string sim_stationName = hitHelper->GetStationName(simId);
               int sim_stationEta  = hitHelper->GetZSector(simId);
               int sim_stationPhi  = hitHelper->GetPhiSector(simId);

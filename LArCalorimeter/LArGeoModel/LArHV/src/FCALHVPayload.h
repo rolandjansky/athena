@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _FCALHVPayload_h_
-#define _FCALHVPayload_h_
+#ifndef LARHV_FCALHVPAYLOAD_H
+#define LARHV_FCALHVPAYLOAD_H
 #include <iostream>
 struct FCALHVPayload {
   double         voltage;

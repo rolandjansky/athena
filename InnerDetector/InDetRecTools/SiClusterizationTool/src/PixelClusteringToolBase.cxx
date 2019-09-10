@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -19,47 +19,33 @@ namespace InDet
   PixelClusteringToolBase::PixelClusteringToolBase(const std::string &type,
       const std::string &name,
       const IInterface *parent) :
-      AthAlgTool(type,name,parent),
-      m_clusterMaker("InDet::ClusterMakerTool", this),
-      m_posStrategy(0),
-      m_errorStrategy(1),
-      m_acceptDiagonalClusters(1),
-      m_splitClusters(0),
-      m_useModuleMap(true),
-      m_usePixelMap(true)
+      base_class(type,name,parent)
   {
-    declareProperty("globalPosAlg" , m_clusterMaker);
-    declareProperty("posStrategy"  , m_posStrategy);
-    declareProperty("errorStrategy", m_errorStrategy);
-    declareProperty("acceptDiagonalClusters"  , m_acceptDiagonalClusters);
-    declareProperty("splitClusters", m_splitClusters);
-    declareProperty("UsePixelModuleMap",m_useModuleMap,"Use bad modules map");
-    declareProperty("UseSpecialPixelMap",m_usePixelMap,"Use bad pixel map");
   }
 
   StatusCode PixelClusteringToolBase::initialize()
   {
-    msg(MSG::INFO) << "initialize()" << endmsg;
+    ATH_MSG_INFO("initialize()");
     if ( m_clusterMaker.retrieve().isFailure() )
     {
-      msg(MSG::FATAL) << m_clusterMaker.propertyName() << ": Failed to retrieve tool " << m_clusterMaker.type() << endmsg;
+      ATH_MSG_FATAL(m_clusterMaker.propertyName() << ": Failed to retrieve tool " << m_clusterMaker.type());
       return StatusCode::FAILURE;
     }
     else
     {
-      msg(MSG::INFO) << m_clusterMaker.propertyName() << ": Retrieved tool " << m_clusterMaker.type() << endmsg;
+      ATH_MSG_INFO(m_clusterMaker.propertyName() << ": Retrieved tool " << m_clusterMaker.type());
     }
 
    StatusCode sc = m_summaryTool.retrieve();
    if (sc.isFailure() || !m_summaryTool) {
-      msg(MSG::WARNING) <<  m_summaryTool.type() << " not found! "<< endmsg;
+      ATH_MSG_WARNING(m_summaryTool.type() << " not found! ");
       if ( m_usePixelMap || m_useModuleMap ) {
-	msg(MSG::FATAL) << m_summaryTool.type() << " is compulsory with this tool configuration" << endmsg;
+	ATH_MSG_FATAL(m_summaryTool.type() << " is compulsory with this tool configuration");
 	return StatusCode::FAILURE;
       }
    }
    else{
-      msg(MSG::INFO) << "Retrieved service " <<  m_summaryTool.type() << endmsg;
+     ATH_MSG_INFO("Retrieved service " <<  m_summaryTool.type());
    }
    
     return StatusCode::SUCCESS;
@@ -87,7 +73,7 @@ namespace InDet
 
 bool 
 PixelClusteringToolBase::areNeighbours(const std::vector<Identifier>& group, const Identifier& rdoID,
-   InDetDD::SiDetectorElement* /*element*/,
+   const InDetDD::SiDetectorElement* /*element*/,
    const PixelID& pixelID) const{
     std::vector<Identifier>::const_iterator groupBegin = group.begin();
     std::vector<Identifier>::const_iterator groupEnd = group.end();

@@ -1,14 +1,17 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/share/AppMgr.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
 """Application manager and other global Gaudi components."""
 
-import sys, os
-import ExitCodes
+from __future__ import print_function
 
-import AlgSequence, Configurable, Logging
+import sys, os
+import six
+from AthenaCommon import ExitCodes
+
+from AthenaCommon import AlgSequence, Configurable, Logging
 import GaudiSvc.GaudiSvcConf as GaudiSvcConf
 
 
@@ -36,7 +39,7 @@ def _type_and_name(n):
 def release_metadata():
    """`release_metadata` returns informations about the current release being used
    """
-   import ConfigParser
+   import configparser
    import os
    d = {
       'project name': '?',
@@ -45,18 +48,20 @@ def release_metadata():
       'nightly release': '?',
       'nightly name': '?',
       'date': '?',
-      'platform': os.getenv('CMTCONFIG', '?'),
+      'platform': '?',
       }
 
-   for ld_path in os.environ['LD_LIBRARY_PATH'].split(os.pathsep):
-      release_data = os.path.join(ld_path, '..', 'ReleaseData')
+   for cmake_path in os.environ['CMAKE_PREFIX_PATH'].split(os.pathsep):
+      release_data = os.path.join(cmake_path, 'ReleaseData')
       if os.path.exists(release_data):
          d1=d
-         cfg = ConfigParser.SafeConfigParser()
+         cfg = configparser.SafeConfigParser()
          try:
             cfg.read( release_data )
             if cfg.has_section( 'release_metadata' ):
                d1.update( dict( cfg.items( 'release_metadata' ) ) )
+               d1['platform'] = os.getenv( '%s_PLATFORM' % d1['project name'],
+                                           '?' )
                release = d1['release'].split('.')
                base_release = d1['base release'].split('.')
                if len(release)>=3 or len(base_release)>=3:
@@ -72,6 +77,14 @@ def iadd( self, tool ):
       tool = (tool,)
 
  # only add once (allow silently)
+   if self.configurableRun3Behavior:
+      # But if duplicates may not be the same Configurable instances,
+      # need to force the owner to prevent errors about public tools
+      # not in ToolSvc when old configuration fragments are imported
+      # in new configurations.
+      dups = [t for t in tool if t in self.getChildren()]
+      for t in dups:
+         t.setParent (self.name())
    tool = [t for t in tool if t not in self.getChildren()]
    if len(tool)==0: return self
 
@@ -133,10 +146,10 @@ class OldToNewSequenceProxy( object ):
       self.sequence = seq
 
    def __get__( self, obj, type = None ):
-      return map( lambda x: x.getFullName(), self.sequence.getChildren() )
+      return list(map( lambda x: x.getFullName(), self.sequence.getChildren() ))
 
    def __set__( self, obj, value ):
-      from OldStyleConfig import Algorithm
+      from AthenaCommon.OldStyleConfig import Algorithm
 
     # explicit removal/addition is required to maintain copy identity
       current = self.sequence.getChildren()
@@ -270,7 +283,7 @@ class AthAppMgr( AppMgr ):
          # transfer old TopAlg to new AthAlgSeq
          _top_alg = _as.AlgSequence("TopAlg")
          # first transfer properties
-         for n,prop in _top_alg.properties().iteritems():
+         for n,prop in six.iteritems(_top_alg.properties()):
             if hasattr(_top_alg, n) and n != "Members":
                setattr(athAlgSeq, n, prop)
                
@@ -344,7 +357,7 @@ class AthAppMgr( AppMgr ):
       if self._cppApp: return self._cppApp.service(name)
       svcMgr = self.serviceMgr()
       if not hasattr( svcMgr, name ):
-         import CfgMgr
+         from AthenaCommon import CfgMgr
          svcMgr += getattr( CfgMgr, name )()
       return getattr( svcMgr, name )
    
@@ -420,7 +433,7 @@ class AthAppMgr( AppMgr ):
        # ConfigurableDb when no configuration is done; FIXME: minimal is set
        # to go when all code has been cleaned up
          if self._opts and not self._opts.minimal:
-            from ConfigurableDb import getConfigurable
+            from AthenaCommon.ConfigurableDb import getConfigurable
             if not hasattr(svcMgr, 'JobOptionsSvc'):
                svcMgr += getConfigurable(self.JobOptionsSvcType)("JobOptionsSvc")
             if not hasattr(svcMgr, 'MessageSvc'):
@@ -461,7 +474,7 @@ class AthAppMgr( AppMgr ):
       if not recursive and (self._opts and (self._opts.drop_reload or self._opts.config_only)):
        # store configuration on disk
          import os, sys
-         import ConfigurationShelve
+         from AthenaCommon import ConfigurationShelve
 
          if self._opts.config_only:
             fn = self._opts.config_only
@@ -526,11 +539,13 @@ class AthAppMgr( AppMgr ):
     # even if not, still ok. Remove the gaudimodule exit handlers as to
     # prevent them from clobbering Athena ones.
       import atexit
-      for handler in atexit._exithandlers[:]:
-         if hasattr(handler[0], '__module__') and handler[0].__module__:
-            if 'audi' in handler[0].__module__:  # removes gaudimodule and GaudiPython handlers
-               #print "removed ", handler[0].__module__
-               atexit._exithandlers.remove( handler )
+      handler = None
+      if hasattr(atexit, '_exithandlers'):
+         for handler in atexit._exithandlers[:]:
+            if hasattr(handler[0], '__module__') and handler[0].__module__:
+               if 'audi' in handler[0].__module__:  # removes gaudimodule and GaudiPython handlers
+                  #print "removed ", handler[0].__module__
+                  atexit._exithandlers.remove( handler )
       del handler, atexit
 
       def _setattr( self, n, v ):
@@ -569,7 +584,7 @@ class AthAppMgr( AppMgr ):
     # setup output streams, and tell self about them
       streams = self.__dict__[ '_streams' ]
       streams.setup()
-      handle.OutStream = map( lambda x: x.getFullName(), streams.getChildren() )
+      handle.OutStream = list(map( lambda x: x.getFullName(), streams.getChildren() ))
 
     # synchronize 'Dlls'
     # note: we synchronize in the opposite direction wrt CreateSvc
@@ -597,9 +612,9 @@ class AthAppMgr( AppMgr ):
       Logging.log.debug( 'Updating (C++) "CreateSvc" property... [ok]' )
       
     # finally, print a warning for the generic Algorithms that were left over
-      names  = map( lambda x: x[x.find( '/' )+1:], handle.TopAlg )
-      names += map( lambda x: x[x.find( '/' )+1:], handle.OutStream )
-      from OldStyleConfig import Algorithm
+      names  = list(map( lambda x: x[x.find( '/' )+1:], handle.TopAlg ))
+      names += list(map( lambda x: x[x.find( '/' )+1:], handle.OutStream ))
+      from AthenaCommon.OldStyleConfig import Algorithm
       for grc in Algorithm.configurables.values():
          if not (grc._flags & Configurable.Configurable._fSetupOk):      # debugging variable
           # first, back-hack ... this will go rather wrong, so issue an error no matter what
@@ -611,7 +626,7 @@ class AthAppMgr( AppMgr ):
 
     # if requested, print a (summary of) the list of potential property clashes
       if self._opts and self._opts.check_properties:
-         import PropertyHistoryCheck
+         from AthenaCommon import PropertyHistoryCheck
          PropertyHistoryCheck.check( self._opts.check_properties )
          del PropertyHistoryCheck
 
@@ -621,7 +636,7 @@ class AthAppMgr( AppMgr ):
          cs.saveToAscii(self._opts.config_dump_file)
 
     # need to miminize this to configurables only
-      import ConfigurationCleanup
+      from AthenaCommon import ConfigurationCleanup
       ConfigurationCleanup.Cleanse()
       del ConfigurationCleanup
 
@@ -650,7 +665,7 @@ class AthAppMgr( AppMgr ):
       self.setup()
 
     # create C++-side AppMgr
-      from ConcurrencyFlags import jobproperties as jp
+      from AthenaCommon.ConcurrencyFlags import jobproperties as jp
       try:
          # Set threaded flag to release the python GIL when we're in C++
          is_threaded = jp.ConcurrencyFlags.NumThreads() > 0
@@ -710,7 +725,7 @@ class AthAppMgr( AppMgr ):
 
     # another communication that needs improving (TODO) ...
       try:
-         from Debugging import DbgStage
+         from AthenaCommon.Debugging import DbgStage
          if DbgStage.value == "exec":
             from Debugging import hookDebugger
             hookDebugger()
@@ -719,7 +734,7 @@ class AthAppMgr( AppMgr ):
 
     # actual run (FIXME: capture beginRun() exceptions and failures, which is
     #               not currently supported by IEventProcessor interface)
-      from ConcurrencyFlags import jobproperties as jp
+      from AthenaCommon.ConcurrencyFlags import jobproperties as jp
       try:
          # Set threaded flag to release the GIL on execution
          executeRunMethod = self.getHandle()._evtpro.executeRun
@@ -777,7 +792,7 @@ class AthAppMgr( AppMgr ):
          if not self._cppApp:
             raise RuntimeError("C++ application not instantiated : Nothing to finalize !")
          # Set threaded flag to release the GIL when finalizing in the c++
-         from ConcurrencyFlags import jobproperties as jp
+         from AthenaCommon.ConcurrencyFlags import jobproperties as jp
          finalizeMethod = self.getHandle()._appmgr.finalize
          finalizeMethod._threaded = jp.ConcurrencyFlags.NumThreads() > 0
          sc = finalizeMethod()
@@ -908,10 +923,10 @@ ToolSvc     = ServiceMgr.ToolSvc
 def auditor( self, auditor ):
    Logging.log.warning( """AuditorSvc.auditor is deprecated, use instead:
    from GaudiAud import %s
-   svcMgr.AuditorSvc += %s()""" % (auditor,auditor) )
+   svcMgr.AuditorSvc += %s()""", auditor, auditor )
 
    if type(auditor) == str:
-      import ConfigurableDb
+      from AthenaCommon import ConfigurableDb
       auditor = ConfigurableDb.getConfigurable( auditor )()
    self.__iadd__( auditor )
    return auditor
@@ -934,7 +949,7 @@ GaudiSvcConf.AuditorSvc.__iadd__ =iadd
 del iadd
 
 
-def delattr( self, attr ):
+def _delattr( self, attr ):
    try:
       c = getattr( self, attr )
 
@@ -953,8 +968,8 @@ def delattr( self, attr ):
 
    super( GaudiSvcConf.AuditorSvc, self ).__delattr__( attr )
 
-GaudiSvcConf.AuditorSvc.__delattr__ = delattr
-del delattr
+GaudiSvcConf.AuditorSvc.__delattr__ = _delattr
+del _delattr
 
 
 # AuditorSvc globals

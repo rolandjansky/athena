@@ -145,10 +145,9 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
 
   // --- tools ---
   const LArOnlineID         *m_lar_online_id_ptr; //!< LAr online structure
-  const CaloDetDescrManager *m_calo_description_mgr_ptr;
   const CaloIdManager       *m_calo_id_mgr_ptr; //!< offline calo structure
 
-  ToolHandle<LArCablingLegacyService>    m_cabel_service_tool;//!< LAr connections
+  ToolHandle<LArCablingLegacyService>    m_cable_service_tool;//!< LAr connections
   ToolHandle<ICaloNoiseTool>       m_calo_noise_tool;   //!< Calorimeter noise
   ToolHandle<ILArBadChannelMasker> m_masking_tool;      //!< LAr Masking
 
@@ -267,30 +266,7 @@ class LArRawChannelMonTool: public ManagedMonitorToolBase
 			  const std::string& merge = "");
 
   LArMonTools::IHistoProxyBase * createLWHistProxy(LWHist*h);
-
-  //! Helper function to connect handles
-  /*!
-    Helper function to connects gaudi handles and reports progress.
-    \param handle is a ToolHandle or a ServiceHandle
-  */
-  template <class HANDLE> bool RetrieveHandle( const HANDLE& handle );
-
-
 };
-
-
-/* -------------------------------------------------------------------------- */
-template <class HANDLE>
-bool LArRawChannelMonTool::RetrieveHandle( const HANDLE& handle )
-{
-  if ( handle.retrieve().isSuccess() ) {
-    msg(MSG::DEBUG) << "successfully retrieved: " << handle << endmsg;
-  } else {
-    msg(MSG::ERROR) << "unable to retrieve: " << handle << endmsg;
-    return false;
-  }
-  return true;
-}
 
 
 #endif // LAR_RAW_CHANNEL_MON_TOOL_H

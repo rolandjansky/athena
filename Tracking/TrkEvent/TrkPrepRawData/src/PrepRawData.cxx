@@ -12,8 +12,8 @@
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
 namespace Trk{
+    std::atomic<unsigned int> PrepRawData::s_numberOfInstantiations{0};
 
-    unsigned int PrepRawData::s_numberOfInstantiations=0;
 
 
     PrepRawData::PrepRawData( 

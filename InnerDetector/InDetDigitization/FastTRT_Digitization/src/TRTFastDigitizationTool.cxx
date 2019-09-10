@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -46,11 +46,8 @@
 // Conditions data
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "CxxUtils/make_unique.h"
 
-
-static constexpr unsigned int crazyParticleBarcode( std::numeric_limits< int32_t >::max() );
-// Barcodes at the HepMC level are int
+#include <memory>
 
 TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
                                                   const std::string &name,
@@ -72,7 +69,6 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
     m_trt_id( nullptr ),
     m_HardScatterSplittingMode( 0 ),
     m_HardScatterSplittingSkipper( false ),
-    m_vetoThisBarcode( crazyParticleBarcode ),
     m_useEventInfo( false ),
     m_EventInfoKey( "McEventInfo" ),
     m_NCollPerEvent( 30 )
@@ -88,7 +84,6 @@ TRTFastDigitizationTool::TRTFastDigitizationTool( const std::string &type,
   declareProperty( "trtDriftCircleContainer",     m_trtDriftCircleContainer );
   declareProperty( "trtPrdMultiTruthCollection",  m_trtPrdTruth );
   declareProperty( "HardScatterSplittingMode",    m_HardScatterSplittingMode, "Control pileup & signal splitting" );
-  declareProperty( "ParticleBarcodeVeto",         m_vetoThisBarcode, "Barcode of particle to ignore");
   declareProperty( "useEventInfo",                m_useEventInfo);
   declareProperty( "EventInfoKey",                m_EventInfoKey);
   declareProperty( "NCollPerEvent",               m_NCollPerEvent);
@@ -394,7 +389,7 @@ StatusCode TRTFastDigitizationTool::createOutputContainers() {
 
   // Create OUTPUT TRT_DriftCircleContainer and register it in StoreGate
   if ( !m_trtDriftCircleContainer.isValid() ) {
-    m_trtDriftCircleContainer = CxxUtils::make_unique< InDet::TRT_DriftCircleContainer >( m_trt_id->straw_layer_hash_max() );
+    m_trtDriftCircleContainer = std::make_unique< InDet::TRT_DriftCircleContainer >( m_trt_id->straw_layer_hash_max() );
     if ( !m_trtDriftCircleContainer.isValid() ) {
       ATH_MSG_FATAL( "Could not create TRT_DriftCircleContainer" );
       return StatusCode::FAILURE;
@@ -404,7 +399,7 @@ StatusCode TRTFastDigitizationTool::createOutputContainers() {
 
   // Create OUTPUT PRD_MultiTruthCollection for TRT measurements
   if ( !m_trtPrdTruth.isValid() ) {
-    m_trtPrdTruth = CxxUtils::make_unique< PRD_MultiTruthCollection >();
+    m_trtPrdTruth = std::make_unique< PRD_MultiTruthCollection >();
     if ( !m_trtPrdTruth.isValid() ) {
       ATH_MSG_FATAL( "Could not record collection " << m_trtPrdTruth.name() );
       return StatusCode::FAILURE;

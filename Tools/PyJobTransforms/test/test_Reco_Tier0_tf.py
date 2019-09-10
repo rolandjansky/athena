@@ -1,3 +1,5 @@
+from future import standard_library
+standard_library.install_aliases()
 #! /usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
@@ -14,7 +16,7 @@ import json
 import subprocess
 import os
 import os.path
-import cPickle as pickle
+import pickle as pickle
 import sys
 import unittest
 
@@ -63,7 +65,7 @@ class RecoTier0test(unittest.TestCase):
             md = json.load(jr)
             self.assertEqual(isinstance(md, dict), True)
             dataDict = pyJobReportToFileDict(md)
-            self.assertTrue('ESD' in dataDict.keys())
+            self.assertTrue('ESD' in dataDict)
             self.assertEqual(dataDict['ESD']['subFiles'][0]['nentries'], 5)
             self.assertEqual(dataDict['ESD']['subFiles'][0]['name'], 'newESD.pool.root')
             

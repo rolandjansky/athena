@@ -13,9 +13,6 @@
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkTrack/TrackCollection.h" 
 
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-
 #include "TrigFTK_RawData/FTK_RawTrack.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 
@@ -35,10 +32,6 @@
 class PixelID;
 class SCT_ID;
 
-namespace InDetDD {
-  class PixelDetectorManager;
-  }
-
 class FTKTrackMakerMT: public AthAlgorithm {
 public:
   FTKTrackMakerMT (const std::string& name, ISvcLocator* pSvcLocator);
@@ -49,8 +42,8 @@ public:
 private:
 
   // Private methods
-  const Trk::RIO_OnTrack* createSCT_Cluster(const FTK_RawSCT_Cluster& raw_cluster, const Trk::TrackParameters& trkPerigee, InDet::SCT_ClusterContainer* sctClusterContainer, SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctCondData, const SCT_ID* sctidHelper) const;
-  const Trk::RIO_OnTrack*  createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee,InDet::PixelClusterContainer* pixelClusterContainer, const PixelID* pixidHelper, const InDetDD::PixelDetectorManager* pixelManager) const;
+  const Trk::RIO_OnTrack* createSCT_Cluster(const FTK_RawSCT_Cluster& raw_cluster, const Trk::TrackParameters& trkPerigee, InDet::SCT_ClusterContainer* sctClusterContainer, const InDetDD::SiDetectorElementCollection* sctElements, const SCT_ID* sctidHelper) const;
+  const Trk::RIO_OnTrack*  createPixelCluster(const FTK_RawPixelCluster& raw_pixel_cluster,  const Trk::TrackParameters& trkPerigee,InDet::PixelClusterContainer* pixelClusterContainer, const InDetDD::SiDetectorElementCollection* pixelElements, const PixelID* pixidHelper) const;
   InDet::PixelClusterCollection* getPixelClusterCollection(IdentifierHash hashId, InDet::PixelClusterContainer* pixelClusterContainer, const PixelID* pixidHelper) const;
   InDet::SCT_ClusterCollection* getSCT_ClusterCollection(IdentifierHash hashId,InDet::SCT_ClusterContainer* sctClusterContainer, const SCT_ID* pixidHelper) const;
 
@@ -82,6 +75,7 @@ private:
   ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retrieve Lorentz angle of Pixel"};
   ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retrieve Lorentz angle of SCT"};
 
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
 
@@ -96,8 +90,8 @@ private:
   Gaudi::Property<double> m_pTscaleFactor{this,"pTscaleFactor", 1., "ScaleFactor for FTK pT"};
   Gaudi::Property<std::vector<float> > m_pixelBarrelPhiOffsets{this,"PixelBarrelPhiOffsets",{0.,0.,0.,0.}," Pixel Barrel Phi Offsets in mm" };
   Gaudi::Property<std::vector<float> > m_pixelBarrelEtaOffsets{this,"PixelBarrelEtaOffsets",{0.,0.,0.,0.}," Pixel Barrel Eta Offsets in mm" };
-  Gaudi::Property<std::vector<float> > m_pixelEndCapPhiOffsets{this,"PixelBarrelPhiOffsets",{0.,0.,0.}," Pixel EndCap Phi Offsets in mm" };
-  Gaudi::Property<std::vector<float> > m_pixelEndCapEtaOffsets{this,"PixelBarrelEtaOffsets",{0.,0.,0.}," Pixel EndCap Eta Offsets in mm" };
+  Gaudi::Property<std::vector<float> > m_pixelEndCapPhiOffsets{this,"PixelEndCapPhiOffsets",{0.,0.,0.}," Pixel EndCap Phi Offsets in mm" };
+  Gaudi::Property<std::vector<float> > m_pixelEndCapEtaOffsets{this,"PixelEndCapEtaOffsets",{0.,0.,0.}," Pixel EndCap Eta Offsets in mm" };
   Gaudi::Property<bool> m_correctPixelClusters {this,"CorrectPixelClusters",true,"Correct Pixel cluster positions using the ROTcreatorTool"};
   Gaudi::Property<bool> m_correctSCTClusters {this,"CorrectSCTClusters",true,"Correct SCT cluster positions using the ROTcreatorTool"};
   Gaudi::Property<bool> m_broadPixelErrors{this,"setBroadPixelClusterOnTrackErrors",false," set isBroad as parameter of PixelClusterOnTrack"};

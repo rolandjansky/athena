@@ -1,5 +1,5 @@
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 # Authors: joao victor pinto <jodafons@cern.ch>
 
 
@@ -35,8 +35,8 @@ class TrigL2CaloRingerFex( TrigL2CaloRingerFexBase ):
     super( TrigL2CaloRingerFex, self ).__init__( name ) 
 
     from AthenaCommon.AppMgr import ToolSvc
-    from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-    ToolSvc += LuminosityToolOnline()
+    from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
+    LuminosityCondAlgOnlineDefault()
     pconstants,pthresholds=_GetPath(trigType,IDinfo)
     #if this is empty, the fex will work like EtCut
     self.CalibPath =pconstants

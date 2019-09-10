@@ -53,6 +53,8 @@ class TrigMuonEFMSonlyHypoTool: public ::AthAlgTool {
     this, "AcceptAll", false, "Ignore selection" };
   Gaudi::Property<bool>  m_decisionPerRoI { 
     this, "DecisionPerRoI", true, "Is multiplicity requirement refering to muons ( false ) or RoIs with muons ( true ), relevant only in when multiplicity > 1" };
+  Gaudi::Property<bool> m_threeStationCut{
+    this, "RequireThreeStations", false, "Apply cut on N GoodPrecisionLayers in endcaps"};
   // Other members:   
   std::vector<size_t> m_bins={0};
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

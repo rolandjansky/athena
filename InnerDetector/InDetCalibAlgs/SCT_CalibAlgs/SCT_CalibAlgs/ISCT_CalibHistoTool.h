@@ -14,7 +14,6 @@
 //Gaudi includes
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/IAlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
 #include <string>
@@ -60,11 +59,11 @@ class ISCT_CalibHistoTool: virtual public IAlgTool {
  protected:
   std::vector<TH1F*> m_phistoVector;
   std::vector<TH2F*> m_phistoVector2D;
-  TH1I* m_numberOfEventsHisto;
-  ITHistSvc* m_thistSvc;
-  const SCT_ID* m_pSCTHelper;
-  int m_nLb;
-  int m_nLbMerge;
+  TH1I* m_numberOfEventsHisto{nullptr};
+  ITHistSvc* m_thistSvc{nullptr};
+  const SCT_ID* m_pSCTHelper{nullptr};
+  int m_nLb{0};
+  int m_nLbMerge{0};
   //
   bool init();
   template<class T>

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,21 +21,21 @@
 #include "VP1Base/VP1String.h"
 
 
-/* utility function to declare that a variable or a function parameter is unused by design
- * and not that somebody has forgotten about it.
- * Used also for assert() statements; otherwise compiler throw warnings while building
- * in "opt" (release, because the assert() are removed and sometimes the variable used
- * as assert() parameters appear to not be used at all, to the compiler.
- */
 #pragma once
-#define _UNUSED(x) ((void)x)
 
 
 
 class IVP1System;
 class VP1Msg : public VP1String {
 public:
-  static bool verbose() { return s_verbose; } // Returns true if env var VP1_VERBOSE_OUTPUT=1
+  static bool verbose() { return m_verbose; } // Returns true if env var VP1_VERBOSE_OUTPUT=1
+  static bool debug() { return m_debug; } // Returns true if env var VP1_DEBUG_OUTPUT=1
+
+  #if defined BUILDVP1LIGHT
+    static void enableMsg(const QString&, const QString&);  
+  #else
+    static void enableMsg(const QString&);
+  #endif
 
   static void message(const QString&, IVP1System*sys = 0);//Non-zero sys pointer to get message in GUI
   static void messageDebug(const QString&);
@@ -60,7 +60,8 @@ public:
 private:
   VP1Msg(){}
   ~VP1Msg(){}
-  static bool s_verbose;
+  static bool m_verbose;
+  static bool m_debug;
 };
 
 #endif

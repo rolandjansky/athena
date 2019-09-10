@@ -21,7 +21,7 @@
 #include <vector>
 #include <string>
 
-class IConditionVisitor;
+class ITrigJetHypoInfoCollector;
 
 class DijetConditionMT: public IConditionMT{
  public:
@@ -36,9 +36,11 @@ class DijetConditionMT: public IConditionMT{
   ~DijetConditionMT() override {}
 
   bool isSatisfied(const HypoJetVector&,
-                   IConditionVisitor*) const override;
+                   const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
   
   std::string toString() const noexcept override;
+
+  virtual unsigned int capacity() const override{return s_capacity;}
 
  private:
 
@@ -55,6 +57,9 @@ class DijetConditionMT: public IConditionMT{
   
   double m_dphiMin;
   double m_dphiMax;
+
+  const static unsigned int s_capacity{2};
+
 };
 
 #endif

@@ -16,7 +16,6 @@
 #include "PixelRDO_ContainerCnv_p0.h"
 #include "Pixel1RawDataContainerCnv_p1.h"
 #include "Pixel1RawDataContainerCnv_p2.h"
-#include "CreateTransientTemplate.h"
 
 // the latest persistent representation type of DataCollection:
 typedef  InDetRawDataContainer_p2      PixelRDO_Container_PERS;

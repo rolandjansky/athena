@@ -18,7 +18,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsTools/ISCT_MonitorConditionsTool.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -46,9 +45,9 @@ class SCT_CalibModuleListTool : public extends<AthAlgTool, ISCT_CalibModuleListT
   virtual StatusCode readModuleList(std::map<Identifier, std::set<Identifier>>& moduleList) const;
 
  private:
-  const SCT_ID* m_pSCTHelper;
+  const SCT_ID* m_pSCTHelper{nullptr};
   ToolHandle<ISCT_MonitorConditionsTool> m_MonitorConditionsTool{this, "SCT_MonitorConditionsTool", "SCT_MonitorConditionsTool/InDetSCT_MonitorConditionsTool", "Tool to retrieve noisy strip information"};
-  ServiceHandle<IIOVDbSvc> m_IOVDbSvc;
+  ServiceHandle<IIOVDbSvc> m_IOVDbSvc{this, "IOVDbSvc", "IOVDbSvc"};
 
 };
 #endif

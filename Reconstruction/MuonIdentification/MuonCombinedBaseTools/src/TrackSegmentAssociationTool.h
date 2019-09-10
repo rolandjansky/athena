@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKSEGMENTASSOCIATIONTOOL_H
 #define TRACKSEGMENTASSOCIATIONTOOL_H
 
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -12,7 +13,7 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 
 /** @class TrackSegmentAssociationTool
@@ -49,7 +50,9 @@ namespace Muon{
 
     const xAOD::MuonSegmentContainer* retrieveSegments( std::string location ) const;
 
-    ToolHandle<Muon::MuonEDMHelperTool>  m_helper;
+    ServiceHandle<Muon::IMuonEDMHelperSvc>  m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
 
     SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_segments{this,"MuonSegmentLocation","MuonSegments","muon segments"};

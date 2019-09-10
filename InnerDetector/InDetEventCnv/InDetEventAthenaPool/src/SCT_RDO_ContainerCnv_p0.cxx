@@ -4,7 +4,7 @@
 
 #include "SCT_RDO_ContainerCnv_p0.h"
 
-#include "CreateTransientTemplate.h"
+
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetRawData/SCT_RDO_Container.h"

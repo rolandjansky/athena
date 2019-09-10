@@ -5,11 +5,6 @@
 #include "CaloTrkMuIdTools/CaloMuonLikelihoodTool.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/Algorithm.h"
 #include "PathResolver/PathResolver.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthenaKernel/Units.h"
@@ -35,7 +30,7 @@ namespace Units = Athena::Units;
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   AthAlgTool(type,name,parent),
-  m_trkEnergyInCalo("TrackEnergyInCaloTool"),
+  m_trkEnergyInCalo("TrackEnergyInCaloTool",this),
   m_fileNames{"CaloMuonLikelihood.PDF.A0.root", "CaloMuonLikelihood.PDF.A1.root", 
   "CaloMuonLikelihood.PDF.A2.root", "CaloMuonLikelihood.PDF.B0.root", "CaloMuonLikelihood.PDF.B1.root",
   "CaloMuonLikelihood.PDF.B2.root", "CaloMuonLikelihood.PDF.C0.root", "CaloMuonLikelihood.PDF.C1.root",

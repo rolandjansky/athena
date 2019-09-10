@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  MuonTOB.cpp
 //  TopoCore
@@ -10,10 +10,10 @@
 unsigned int TCS::MuonTOB::fg_instances = 0;
 TCS::Heap<TCS::MuonTOB> TCS::MuonTOB::fg_heap("Muon");
 
-unsigned int TCS::MuonTOB::g_nBitsEt = 8;
-unsigned int TCS::MuonTOB::g_nBitsIsolation = 5;
-unsigned int TCS::MuonTOB::g_nBitsEta = 6;
-unsigned int TCS::MuonTOB::g_nBitsPhi = 6;
+const unsigned int TCS::MuonTOB::g_nBitsEt = 8;
+const unsigned int TCS::MuonTOB::g_nBitsIsolation = 5;
+const unsigned int TCS::MuonTOB::g_nBitsEta = 6;
+const unsigned int TCS::MuonTOB::g_nBitsPhi = 6;
 
 // default constructor
 TCS::MuonTOB::MuonTOB(uint32_t roiWord) :

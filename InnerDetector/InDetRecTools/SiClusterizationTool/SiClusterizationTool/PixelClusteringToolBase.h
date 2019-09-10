@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ namespace InDet {
 
 class ClusterMakerTool;
 
-class PixelClusteringToolBase : public AthAlgTool, virtual public IPixelClusteringTool 
+class PixelClusteringToolBase : public extends<AthAlgTool, IPixelClusteringTool> 
 {
 
 public:
@@ -33,7 +33,7 @@ public:
 	    const std::string& name,
 	    const IInterface* parent);
      
-     virtual ~PixelClusteringToolBase() {};
+     virtual ~PixelClusteringToolBase() = default;
      virtual StatusCode initialize();
      virtual StatusCode finalize();
 
@@ -48,7 +48,7 @@ protected:
   // The last argument is the Pixel Identifier helper class
      bool areNeighbours(const std::vector<Identifier>& group, 
                         const Identifier& rdoID,
-                        InDetDD::SiDetectorElement* element,
+                        const InDetDD::SiDetectorElement* element,
    	                const PixelID& pixelID) const;
 
      // Check wether the RDO is a duplicate of one already in the cluster
@@ -60,16 +60,15 @@ protected:
    	               int lvl1,
                        const PixelID& pixelID) const;
 
-     ToolHandle< ClusterMakerTool > m_clusterMaker;
+     ToolHandle< ClusterMakerTool > m_clusterMaker{this, "globalPosAlg", "InDet::ClusterMakerTool"};
 
-     int m_posStrategy;
-     int m_errorStrategy;
-     int m_acceptDiagonalClusters;
-     int m_splitClusters;
+     IntegerProperty m_posStrategy{this, "posStrategy", 0};
+     IntegerProperty m_errorStrategy{this, "errorStrategy", 1};
+     IntegerProperty m_acceptDiagonalClusters{this, "acceptDiagonalClusters", 1};
+     IntegerProperty m_splitClusters{this, "splitClusters", 0};
      ToolHandle<IInDetConditionsTool> m_summaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
-     bool m_useModuleMap;
-     bool m_usePixelMap;
-     //     mutable MsgStream m_log;
+     BooleanProperty m_useModuleMap{this, "UsePixelModuleMap", true, "Use bad modules map"};
+     BooleanProperty m_usePixelMap{this, "UseSpecialPixelMap", true, "Use bad pixel map"};
 
 };
 

@@ -33,8 +33,6 @@ TrigEgammaNavBaseTool( const std::string& myname )
     m_dir(myname)
 {
   declareProperty("Analysis",m_anatype="Analysis");
-  declareProperty("ElectronIsEMSelector"      , m_electronIsEMTool            );
-  declareProperty("ElectronLikelihoodTool"    , m_electronLHTool              );
   declareProperty("TriggerList"               , m_trigInputList               );
   declareProperty("PhotonPid"                 , m_photonPid = "Tight"         );
   declareProperty("doUnconverted"             , m_doUnconverted=false         );
@@ -44,7 +42,6 @@ TrigEgammaNavBaseTool( const std::string& myname )
   declareProperty("ForcePidSelection"         , m_forcePidSelection=true      );
   declareProperty("ForceEtThreshold"          , m_forceEtThr=true             ); 
   declareProperty("ForceVetoVeryLoose"        , m_forceVetoVeryLoose=false    ); 
-  declareProperty("ElectronLHVLooseTool"      , m_electronLHVLooseTool        );
 
   m_offElectrons=nullptr;
   m_offPhotons=nullptr;
@@ -78,14 +75,6 @@ TrigEgammaNavBaseTool::childInitialize() {
     if ( (m_electronIsEMTool.retrieve()).isFailure() ){
         ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
         return StatusCode::FAILURE;
-    }
-    if ( (m_electronLHTool.retrieve()).isFailure() ){
-        ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
-        return StatusCode::FAILURE;
-    }
-    if ( (m_electronLHVLooseTool.retrieve()).isFailure() ){
-      ATH_MSG_ERROR( "Could not retrieve VeryLoose LH Selector Tool! Can't work");
-      return StatusCode::FAILURE;
     }
 
     return StatusCode::SUCCESS;
@@ -136,7 +125,7 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
         if(ApplyElectronPid(eg,"LHLoose")) hist1(m_anatype+"_electrons")->AddBinContent(4);
         if(ApplyElectronPid(eg,"LHMedium")) hist1(m_anatype+"_electrons")->AddBinContent(5);
         if(ApplyElectronPid(eg,"LHTight")) hist1(m_anatype+"_electrons")->AddBinContent(6); 
-        if(ApplyElectronPid(eg,"LHMediumHI")) hist1(m_anatype+"_electrons")->AddBinContent(7); 
+        // if(ApplyElectronPid(eg,"LHMediumHI")) hist1(m_anatype+"_electrons")->AddBinContent(7); 
     }
    
     //Calculate number of vertex 
@@ -159,38 +148,43 @@ StatusCode TrigEgammaNavBaseTool::executeNavigation( const TrigInfo info ){
 }
 
 bool TrigEgammaNavBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
-    
-    ATH_MSG_DEBUG("Applying Electron PID with pidname =  " << pidname);
-    if (pidname == "Tight"){
-        bool accept = (bool) m_electronIsEMTool[0]->accept(eg);
-        return static_cast<bool>(accept);
+    try{
+
+	ATH_MSG_DEBUG("Applying Electron PID with pidname =  " << pidname);
+	bool accept=false;
+	if (pidname == "Tight"){
+	    accept = (bool) m_electronIsEMTool[0]->accept(eg);
+	}
+	else if (pidname == "Medium"){
+	    accept = (bool) m_electronIsEMTool[1]->accept(eg);
+	    return static_cast<bool>(accept);
+	}
+	else if (pidname == "Loose"){
+	    accept = (bool) m_electronIsEMTool[2]->accept(eg);
+	}
+	else if (pidname == "LHTight"){
+	    accept = (bool) m_electronLHTool[0]->accept(eg);
+	}
+	else if (pidname == "LHMedium"){
+	    accept = (bool) m_electronLHTool[1]->accept(eg);
+	}
+	else if (pidname == "LHLoose"){
+	    accept = (bool) m_electronLHTool[2]->accept(eg);
+	}
+	// HI lh medium not working in master. Commenting out untill fixed
+	// else if (pidname == "LHMediumHI"){
+	//     bool accept = (bool) m_electronLHTool[3]->accept(eg);
+	//     return static_cast<bool>(accept);
+	// }
+	else {
+	    ATH_MSG_DEBUG("No Pid tool, continue without PID");
+	}
+	ATH_MSG_DEBUG("ElectronLHTool for " << pidname << " = " <<  (int) accept );
+	return accept;
+    } catch (...) {
+        ATH_MSG_WARNING("Failed to apply pid " << pidname);
+	return false;
     }
-    else if (pidname == "Medium"){
-        bool accept = (bool) m_electronIsEMTool[1]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "Loose"){
-        bool accept = (bool) m_electronIsEMTool[2]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "LHTight"){
-        bool accept = (bool) m_electronLHTool[0]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "LHMedium"){
-        bool accept = (bool) m_electronLHTool[1]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "LHLoose"){
-        bool accept = (bool) m_electronLHTool[2]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "LHMediumHI"){
-        bool accept = (bool) m_electronLHTool[3]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else ATH_MSG_DEBUG("No Pid tool, continue without PID");
-    return false;
 }
 
 
@@ -234,7 +228,7 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
       }
 
       if(m_forceVetoVeryLoose){///default is false
-        bool veto = (bool)m_electronLHVLooseTool->accept(eg);
+        bool veto = (bool)this->m_electronLHVLooseTool->accept(eg);
         if(veto)  continue;
       }
 

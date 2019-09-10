@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.Decorators import memoize
 
@@ -9,7 +9,7 @@ def _resolve_db_tag(origDbTag):
     else:
         dbtag = globalflags.ConditionsTag()
         dbtag = dbtag if dbtag != '' else 'HEAD'
-    print "RESOLVED AS TAG", dbtag
+    print("RESOLVED AS TAG %s" % dbtag)
     return dbtag
 
 #decide database instance based on project tag dataXX_
@@ -18,8 +18,8 @@ def _InstanceFromProjectName():
     from RecExConfig.RecFlags import rec
     projectName=rec.projectName()
     try:
-        year=int(projectName[4:6]);
-    except:
+        year=int(projectName[4:6])
+    except Exception:
         log = logging.getLogger('BadLBFilterTool')
         log.error("Failed to extract year from project tag "+ projectName+". Guessing run2")
         return "CONDBR2"
@@ -41,8 +41,6 @@ def GetBadLBFilterAlg(name, defects, writekey, ignoreRecoverable=False, origDbTa
         - ignoreRecoverable (optional; default=False): if True, the algorithm will ignore defects that are marked as recoverable
         - origDbTag (optional): if set, will override automatic configuration of database tag (only for testing)
     """
-    import operator
-    from AthenaMonitoring.DQMonFlags import DQMonFlags
     from AthenaCommon.GlobalFlags  import globalflags
     from AthenaCommon.Logging import logging
     from AthenaCommon.AlgSequence import AthSequencer 
@@ -94,7 +92,6 @@ def GetBadLBFilterTool(name, defects, alwaysReturnTrue=False, ignoreRecoverable=
         - autoconfigure (optional; default=True): automatically handle certain cases, e.g. Monte Carlo, where we want to always return True
         - origDbTag (optional): if set, will override automatic configuration of database tag (only for testing)
     """
-    import operator
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     from AthenaCommon.GlobalFlags  import globalflags
     from AthenaCommon.Logging import logging
@@ -133,9 +130,6 @@ def LArBadDefectList(origDbTag=None):
     dbtag = _resolve_db_tag(origDbTag)
     dbname = _InstanceFromProjectName()
     ddb = DefectsDB('COOLOFL_GLOBAL/'+dbname, tag=dbtag)
-    defects = ddb.defect_names
-    defectliststr = []
-    defectlist = []
     lar_defects = reduce(operator.or_, [set(ddb.virtual_defect_logics[z].clauses) for z in \
                                             ('EMBA', 'EMBC', 'EMECA', 'EMECC', 
                                              'HECA', 'HECC', 'FCALA',

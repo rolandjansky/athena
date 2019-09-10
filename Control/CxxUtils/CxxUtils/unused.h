@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* $Id$ */
@@ -7,34 +7,21 @@
  * @file CxxUtils/unused.h
  * @author scott snyder <snyder@bnl.gov>
  * @date Mar, 2011
- * @brief Macro to mark a variable as unused.
+ * @brief Macro to mark a member as unused.
  *
  * Use like:
  *
- *   int ATH_UNUSED(v);
+ *   int ATH_UNUSED_MEMBER(m_v);
  *
- * Of course, if a variable is really unused, it's better to simply
+ * Of course, if a member is really unused, it's better to simply
  * remove it rather than trying to paper over the warning like this.
  *
- * But there are some cases where in regression tests one might want
- * to legitimately have an unused variable (particularly with gcc 4.6,
- * where the unused warnings also catch variables assigned to but
- * not read).  This is really meant for these cases.
+ * For non-members, just use [[maybe_unused]] (except for parameters,
+ * which should usually just be left unnamed).
  */
 
 #ifndef CXXUTILS_UNUSED_H
 #define CXXUTILS_UNUSED_H
-
-
-// For now, declare both UNUSED and ATH_UNUSED.  ATH_UNUSED is preferred for new code;
-// UNUSED has been found to conflict with some externals.
-#ifdef __GNUC__
-# define UNUSED(v) v __attribute__((unused))
-# define ATH_UNUSED(v) v __attribute__((unused))
-#else
-# define UNUSED(v) v
-# define ATH_UNUSED(v) v
-#endif
 
 
 // Declare that a member is unused, to suppress warnings.

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CoolLumiUtilities/LumiBlobUtil.h"
@@ -253,10 +253,15 @@ LumiBlobUtil::unpack(const cool::Float &ARI, const coral::Blob &blobBC, const st
       if (y==0) {
         for (unsigned int i =0; i<PV.size(); i++) {
           BCID = PV[i];
-          const float * y40 = (const float*) k;
+          union {
+            unsigned int i;
+            float f;
+          } cnv;
+          const unsigned int * y40 = reinterpret_cast<const unsigned int*> (k);
           for (unsigned int j = BCIDold; j <= BCID; j++, y40++) {
             if (j==BCID) {
-              tmk = *y40;
+              cnv.i = *y40;
+              tmk = cnv.f;
               BV = ARI*tmk/fact;
               m_bunchLumis.push_back(BV);
 	      AB1 += BV;
@@ -274,9 +279,14 @@ LumiBlobUtil::unpack(const cool::Float &ARI, const coral::Blob &blobBC, const st
 	//	std::cout << AB1 << std::endl;
       }        //This ends y=0   
       if (y==1) {
-        const float* y41 = (const float*) k;
+        union {
+          unsigned int i;
+          float f;
+        } cnv;
+        const unsigned int * y41 = (const unsigned int*) k;
         for (unsigned int i = 0; i < ((blobBC.size()-1)/x); i++, y41++) {
-          BV = *y41;
+          cnv.i = *y41;
+          BV = cnv.f;
           m_bunchLumis.push_back(BV);
           AB1 +=  BV;
         }
@@ -287,13 +297,18 @@ LumiBlobUtil::unpack(const cool::Float &ARI, const coral::Blob &blobBC, const st
         const uint16_t* k4 = (const uint16_t*) k;
         unsigned int len = *k4;
         k4++;
-        const float* y42 = (const float*) (k+2*(1+len));
+        union {
+          unsigned int i;
+          float f;
+        } cnv;
+        const unsigned int* y42 = (const unsigned int*) (k+2*(1+len));
         for (unsigned int i = 0; i<len; i++, k4++) {
           BCID = *k4;
 
           for (unsigned int j=BCIDold; j<=(BCID); j++, y42++) {
             if (j==BCID) {
-              BV = *y42;
+              cnv.i = *y42;
+              BV = cnv.f;
               m_bunchLumis.push_back(BV);
               AB1 +=  BV;
             }

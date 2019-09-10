@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloHVCorrectionsForDB.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -16,7 +15,6 @@
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "LArElecCalib/ILArHVCorrTool.h"
 
 L1CaloHVCorrectionsForDB::L1CaloHVCorrectionsForDB(const std::string& name, ISvcLocator *pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
@@ -25,14 +23,12 @@ L1CaloHVCorrectionsForDB::L1CaloHVCorrectionsForDB(const std::string& name, ISvc
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
     m_jmTools("LVL1::L1CaloOfflineTriggerTowerTools/L1CaloOfflineTriggerTowerTools"),
-    m_LArHVCorrTool("LArHVCorrTool"),
     m_rxLayersContainer(0),
     m_hvCorrectionsContainer(0),
     m_firstEvent(true)
 {
     declareProperty("TriggerTowerCollectionName", m_triggerTowerCollectionName);
     declareProperty("CaloCellContainerName", m_caloCellContainerName);
-    declareProperty("LArHVCorrTool",m_LArHVCorrTool);
 }
 
 L1CaloHVCorrectionsForDB::~L1CaloHVCorrectionsForDB()
@@ -41,32 +37,13 @@ L1CaloHVCorrectionsForDB::~L1CaloHVCorrectionsForDB()
 
 StatusCode L1CaloHVCorrectionsForDB::initialize()
 {
-    StatusCode sc;
+    ATH_CHECK( m_ttTool.retrieve() );
+    ATH_CHECK( m_cells2tt.retrieve() );
+    ATH_CHECK( m_jmTools.retrieve() );
 
-    sc = m_ttTool.retrieve();
-    if(sc.isFailure()){
-      msg(MSG::ERROR) << "Cannot retrieve L1TriggerTowerTool" << endmsg;
-     return sc;
-    }
-
-    sc = m_cells2tt.retrieve();
-    if(sc.isFailure()){
-      msg(MSG::ERROR) << "Cannot retrieve L1CaloCells2TriggerTowers" << endmsg;
-     return sc;
-    }
-
-    sc = m_jmTools.retrieve();
-    if(sc.isFailure()){
-      msg(MSG::ERROR) << "Cannot retrieve L1CaloOfflineTriggerTowerTools" << endmsg;
-      return sc;
-    }    
-
-    sc = m_LArHVCorrTool.retrieve();
-    if(sc.isFailure()){
-      msg(MSG::ERROR) << "Cannot retrieve LArHVCorrTool" << endmsg;
-      return sc;
-    }
-    m_jmTools->LArHV(m_LArHVCorrTool);
+    ATH_CHECK( m_scaleCorrKey.initialize() );
+    ATH_CHECK( m_cablingKey.initialize() );
+    m_jmTools->LArHV(m_scaleCorrKey, m_cablingKey);
 
     m_rxLayersContainer.reset(new L1CaloRxLayersContainer());
     m_hvCorrectionsContainer.reset(new L1CaloHVCorrectionsContainer());

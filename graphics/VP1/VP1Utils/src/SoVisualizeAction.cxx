@@ -14,8 +14,10 @@
 #include "GeoModelKernel/GeoTessellatedSolid.h"
 #include "GeoModelKernel/GeoFacet.h"
 #include "GeoModelKernel/GeoGenericTrap.h"
-#include "GeoSpecialShapes/LArCustomShape.h"
-#include "GeoSpecialShapes/LArWheelCalculator.h"
+#ifndef BUILDVP1LIGHT
+    #include "GeoSpecialShapes/LArCustomShape.h"
+    #include "GeoSpecialShapes/LArWheelCalculator.h"
+#endif
 #include "VP1HEPVis/nodes/SoTubs.h"
 #include "VP1HEPVis/nodes/SoCons.h"
 #include "VP1HEPVis/nodes/SoGenericBox.h"
@@ -26,7 +28,17 @@
 #include "VP1HEPVis/nodes/SoPolyhedron.h"
 #include "VP1HEPVis/VP1HEPVisUtils.h"
 #include "VP1Utils/SbPolyhedrizeAction.h"
-#include "GaudiKernel/SystemOfUnits.h"
+
+// System of units
+#ifdef BUILDVP1LIGHT
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // --> 'GeoModelKernelUnits::cm'
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::cm'
+#endif
+
+#include <iostream>
 
 SoVisualizeAction::SoVisualizeAction()
   : m_shape(0)
@@ -42,6 +54,7 @@ SoVisualizeAction::~SoVisualizeAction()
 
 void SoVisualizeAction::handleShape(const GeoShape *shape)
 {
+  //qDebug() << "SoVisualizeAction::handleShape";
   // We don't recognize it.  Try to polyhedrize it!
   SbPolyhedrizeAction a;
   shape->exec(&a);
@@ -55,6 +68,7 @@ void SoVisualizeAction::handleShape(const GeoShape *shape)
 
 void SoVisualizeAction::handleBox(const GeoBox *box)
 {
+  //qDebug() << "SoVisualizeAction::handleBox";
   SoGenericBox * gb = new SoGenericBox;
   gb->setParametersForBox( box->getXHalfLength(),box->getYHalfLength(),box->getZHalfLength() );
   m_shape=gb;
@@ -62,6 +76,7 @@ void SoVisualizeAction::handleBox(const GeoBox *box)
 
 void SoVisualizeAction::handleCons(const GeoCons *cons)
 {
+  //qDebug() << "SoVisualizeAction::handleCons";
   SoCons::initClass();
   SoCons *socons= new SoCons;
   socons->fRmin1 =cons->getRMin1();
@@ -78,6 +93,7 @@ void SoVisualizeAction::handleCons(const GeoCons *cons)
 void SoVisualizeAction::handlePcon(const GeoPcon *pcon)
 {
 
+  //qDebug() << "SoVisualizeAction::handlePcon";
 
   //Set up temporary data arrays for profile:
   float *z  = new float[pcon->getNPlanes()];
@@ -109,6 +125,7 @@ void SoVisualizeAction::handlePcon(const GeoPcon *pcon)
 
 void SoVisualizeAction::handleTrap(const GeoTrap *trap)
 {
+  //qDebug() << "SoVisualizeAction::handleTrap";
   SoGenericBox * gb = new SoGenericBox;
   gb->setParametersForTrapezoid(trap->getZHalfLength(), trap->getTheta(), trap->getPhi(),
 				trap->getDydzn(), trap->getDxdyndzn(), trap->getDxdypdzn(),
@@ -119,6 +136,7 @@ void SoVisualizeAction::handleTrap(const GeoTrap *trap)
 
 void SoVisualizeAction::handleTrd(const GeoTrd *trd)
 {
+  //qDebug() << "SoVisualizeAction::handleTrd";
   SoGenericBox * gb = new SoGenericBox;
   gb->setParametersForTrd( trd->getXHalfLength1(), trd->getXHalfLength2(),
 			   trd->getYHalfLength1(), trd->getYHalfLength2(),
@@ -128,6 +146,7 @@ void SoVisualizeAction::handleTrd(const GeoTrd *trd)
 
 void SoVisualizeAction::handleTube(const GeoTube *tube)
 {
+  //qDebug() << "SoVisualizeAction::handleTube";
   SoTubs *sotubs= new SoTubs;
   sotubs->pRMin= tube->getRMin();
   sotubs->pRMax= tube->getRMax();
@@ -139,6 +158,7 @@ void SoVisualizeAction::handleTube(const GeoTube *tube)
 
 void SoVisualizeAction::handleTubs(const GeoTubs *tubs)
 {
+  //qDebug() << "SoVisualizeAction::handleTubs";
   SoTubs *sotubs= new SoTubs;
   sotubs->pRMin= tubs->getRMin();
   sotubs->pRMax= tubs->getRMax();
@@ -148,18 +168,20 @@ void SoVisualizeAction::handleTubs(const GeoTubs *tubs)
   m_shape=sotubs;
 }
 
+#ifndef BUILDVP1LIGHT
 void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
 {
+  //qDebug() << "SoVisualizeAction::handleLArCustom";
   static const double eta_hi  = 3.2;
   static const double eta_mid = 2.5;
   static const double eta_low = 1.375;
 
 
-  //  static const double zWheelRefPoint       = 3689.5*Gaudi::Units::mm;  //=endg_z0
-  static const double dMechFocaltoWRP      = 3691. *Gaudi::Units::mm;  //=endg_z1
-  //  static const double dElecFocaltoWRP      = 3689. *Gaudi::Units::mm;  //=endg_dcf
-  static const double dWRPtoFrontFace      =   11. *Gaudi::Units::mm;
-  static const double rOuterCutoff         = 2034. *Gaudi::Units::mm;  //=endg_rlimit
+  //  static const double zWheelRefPoint       = 3689.5*SYSTEM_OF_UNITS::mm;  //=endg_z0
+  static const double dMechFocaltoWRP      = 3691. *SYSTEM_OF_UNITS::mm;  //=endg_z1
+  //  static const double dElecFocaltoWRP      = 3689. *SYSTEM_OF_UNITS::mm;  //=endg_dcf
+  static const double dWRPtoFrontFace      =   11. *SYSTEM_OF_UNITS::mm;
+  static const double rOuterCutoff         = 2034. *SYSTEM_OF_UNITS::mm;  //=endg_rlimit
 
 
   SoLAr::initClass();
@@ -182,7 +204,7 @@ void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
     rInner[1] = zWheelBackFace  * tanThetaInner;
     // Note that there is a 3mm gap between the outer surface of the
     // inner wheel and the inner surface of the outer wheel.
-    double HalfGapBetweenWheels = 0.15*Gaudi::Units::cm;  // In DB EMECGEOMETRY.DCRACK
+    double HalfGapBetweenWheels = 0.15*SYSTEM_OF_UNITS::cm;  // In DB EMECGEOMETRY.DCRACK
     rOuter[0] = zWheelFrontFace * tanThetaMid - HalfGapBetweenWheels;
     rOuter[1] = zWheelBackFace  * tanThetaMid - HalfGapBetweenWheels;
     solar->fRmin.setValues(0,2,rInner);
@@ -202,7 +224,7 @@ void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
     double zWheelBackFace = zWheelFrontFace + calc->GetWheelThickness();
     // Note that there is a 3mm gap between the outer surface of the
     // inner wheel and the inner surface of the outer wheel.
-    double HalfGapBetweenWheels = 0.15*Gaudi::Units::cm;  // In DB! (EMECGEOMETRY.DCRACK);
+    double HalfGapBetweenWheels = 0.15*SYSTEM_OF_UNITS::cm;  // In DB! (EMECGEOMETRY.DCRACK);
     rInner[0] = zWheelFrontFace * tanThetaMid + HalfGapBetweenWheels;
     rInner[2] = zWheelBackFace  * tanThetaMid + HalfGapBetweenWheels;
     rOuter[0] = zWheelFrontFace * tanThetaOuter;
@@ -233,10 +255,11 @@ void SoVisualizeAction::handleLArCustom(const LArCustomShape *custom)
   solar->fDPhi= 2*M_PI;
   m_shape=solar;
 }
-
+#endif
 
 void SoVisualizeAction::handleSimplePolygonBrep(const GeoSimplePolygonBrep *brep)
 {
+  //qDebug() << "SoVisualizeAction::handleSimplePolygonBrep";
   //Fixme: Detect if order of vertices is the wrong way around... and reorder if necessary.
 
   double dz = brep->getDZ();
@@ -254,6 +277,7 @@ void SoVisualizeAction::handleSimplePolygonBrep(const GeoSimplePolygonBrep *brep
 
 void SoVisualizeAction::handleTessellatedSolid (const GeoTessellatedSolid* geoTessellated)
 {
+  //qDebug() << "SoVisualizeAction::handleTessellatedSolid";
 
   SoTessellated * soTessellated = new SoTessellated;
   for(size_t i=0; i<geoTessellated->getNumberOfFacets();++i) {
@@ -298,6 +322,7 @@ void SoVisualizeAction::handleTessellatedSolid (const GeoTessellatedSolid* geoTe
 
 void SoVisualizeAction::handleGenericTrap(const GeoGenericTrap *gentrap)
 {
+  //qDebug() << "SoVisualizeAction::handleGenericTrap";
   SoGenericBox * gb = new SoGenericBox;
   const GeoGenericTrapVertices& trapVertices = gentrap->getVertices();
   double dZ = gentrap->getZHalfLength();

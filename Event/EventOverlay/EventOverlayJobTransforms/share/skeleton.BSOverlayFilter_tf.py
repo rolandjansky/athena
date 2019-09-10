@@ -69,8 +69,8 @@ from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import CTPByteStreamTool,
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
-#svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult", "MuCTPI_RDO/MUCTPI_RDO", "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO"]
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult",  "HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", 
+#svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["MuCTPI_RDO/MUCTPI_RDO", "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", 
                                                   "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
 
 # main alg

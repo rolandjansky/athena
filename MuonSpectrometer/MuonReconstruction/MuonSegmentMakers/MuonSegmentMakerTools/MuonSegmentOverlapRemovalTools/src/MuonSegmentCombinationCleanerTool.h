@@ -12,18 +12,18 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonSegmentCombinerToolInterfaces/IMuonSegmentCombinationCleanerTool.h"
 #include "MuonSegmentMakerUtils/MuonSegmentCombiSummary.h"
 #include "MuonSegmentMakerUtils/MuonSegmentCombiOverlapSummary.h"
-
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 namespace Muon {
 
   class MuonSegment;
   class MuonEDMPrinterTool;
-  class MuonEDMHelperTool;
   class MuonIdHelperTool;
   class IMuonSegmentOverlapRemovalTool;
 
@@ -73,7 +73,9 @@ namespace Muon {
 
     /** ToolHandle for EDM printing of segments */
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
-    ToolHandle<Muon::MuonEDMHelperTool>  m_helperTool;
+    ServiceHandle<Muon::IMuonEDMHelperSvc>  m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonIdHelperTool>   m_idHelperTool;
     ToolHandle<IMuonSegmentOverlapRemovalTool> m_overlapRemovalTool;    
 

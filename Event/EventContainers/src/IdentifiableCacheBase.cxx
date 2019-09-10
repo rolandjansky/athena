@@ -16,12 +16,12 @@
 // INVALID --- Conversion in progress or intention to add soon.
 
 #include "EventContainers/IdentifiableCacheBase.h"
-
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 namespace EventContainers {
 
-static const void* INVALID = reinterpret_cast<const void*>(IdentifiableCacheBase::INVALIDflag);
-static const void* ABORTED = reinterpret_cast<const void*>(IdentifiableCacheBase::ABORTEDflag);
+const void* const INVALID = reinterpret_cast<const void*>(IdentifiableCacheBase::INVALIDflag);
+const void* const ABORTED = reinterpret_cast<const void*>(IdentifiableCacheBase::ABORTEDflag);
 
 IdentifiableCacheBase::IdentifiableCacheBase (IdentifierHash maxHash,
                                               const IMaker* maker)
@@ -121,9 +121,9 @@ int IdentifiableCacheBase::itemInProgress (IdentifierHash hash){
 }
 
 
-const void* IdentifiableCacheBase::find (IdentifierHash hash)
+const void* IdentifiableCacheBase::find (IdentifierHash hash) noexcept
 {
-  if (hash >= m_vec.size()) return nullptr;
+  if (ATH_UNLIKELY(hash >= m_vec.size())) return nullptr;
   const void* p = m_vec[hash].load();
   if (p >= ABORTED)
     return nullptr;
@@ -153,7 +153,7 @@ void IdentifiableCacheBase::cancelWait(IdentifierHash hash){
 #endif
 const void* IdentifiableCacheBase::findWait (IdentifierHash hash)
 {
-  if (hash >= m_vec.size()) return nullptr;
+  if (ATH_UNLIKELY(hash >= m_vec.size())) return nullptr;
   const void* p = waitFor(hash);
   if(p>=ABORTED) return nullptr;
   return p;
@@ -171,7 +171,7 @@ const void* IdentifiableCacheBase::get (IdentifierHash hash)
 {
   // If it's there already, return directly without locking.
   const void* ptr = nullptr;
-  if (hash >= m_vec.size()) return ptr;
+  if (ATH_UNLIKELY(hash >= m_vec.size())) return ptr;
 
   if(m_vec[hash].compare_exchange_strong(ptr, INVALID) ) {//Exchanges ptr with current value!!
      // Make the payload.
@@ -246,9 +246,9 @@ std::vector<IdentifierHash> IdentifiableCacheBase::ids()
 }
 
 
-bool IdentifiableCacheBase::add (IdentifierHash hash, const void* p)
+bool IdentifiableCacheBase::add (IdentifierHash hash, const void* p) noexcept
 {
-  if (hash >= m_vec.size()) return false;
+  if (ATH_UNLIKELY(hash >= m_vec.size())) return false;
   if(p==nullptr) return false;
   const void* nul=nullptr;
   if(m_vec[hash].compare_exchange_strong(nul, p)){
@@ -264,8 +264,35 @@ bool IdentifiableCacheBase::add (IdentifierHash hash, const void* p)
 }
 
 
+bool IdentifiableCacheBase::addLock (IdentifierHash hash, const void* p) noexcept
+{ //Same as method above except we check for invalid state first,
+  // more optimal for calling using writehandle lock method
+  assert(hash < m_vec.size());
+  if(p==nullptr) return false;
+  const void* invalid = INVALID;
+  if(m_vec[hash].compare_exchange_strong(invalid, p)){
+     m_currentHashes++;
+     return true;
+  }
+  const void* nul=nullptr;
+  if(m_vec[hash].compare_exchange_strong(nul, p)){
+     m_currentHashes++;
+     return true;
+  }
+  return false;
+}
+
+bool IdentifiableCacheBase::addLock (IdentifierHash hash,
+                                 void_unique_ptr p) noexcept
+{
+  bool b = addLock(hash, p.get());
+  if(b) p.release();
+  return b;
+}
+
+
 bool IdentifiableCacheBase::add (IdentifierHash hash,
-                                 void_unique_ptr p)
+                                 void_unique_ptr p) noexcept
 {
   bool b = add(hash, p.get());
   if(b) p.release();

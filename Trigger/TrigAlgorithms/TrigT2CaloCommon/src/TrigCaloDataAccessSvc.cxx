@@ -11,6 +11,7 @@
 
 TrigCaloDataAccessSvc::TrigCaloDataAccessSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : base_class( name, pSvcLocator ), m_lateInitDone(false), m_nSlots(0) {
+  m_bcidAvgKey="CaloBCIDAverage";
 }
 
 TrigCaloDataAccessSvc::~TrigCaloDataAccessSvc() {}
@@ -21,6 +22,7 @@ StatusCode TrigCaloDataAccessSvc::initialize() {
   CHECK( m_tileDecoder.retrieve() );
   CHECK( m_robDataProvider.retrieve() );
   CHECK( m_regionSelector.retrieve() );
+  CHECK( m_bcidAvgKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -63,6 +65,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
                                                     LArTT_Selector<LArCellCont>& loadedCells ) {
 
   std::vector<IdentifierHash> requestHashIDs;  
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
 
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
   unsigned int sc = prepareLArCollections( context, roi, sampling, detID );
@@ -143,6 +146,7 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
                                                         ConstDataVector<CaloCellContainer>& cont ) {
 
 
+  SG::ReadHandle<CaloBCIDAverage> avg (m_bcidAvgKey, context);
   // Gets all data
   {
   std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
@@ -154,10 +158,10 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   }
 
   unsigned int sc = prepareLArFullCollections( context );
-  if ( sc ) return StatusCode::FAILURE;
+  ATH_CHECK( sc == 0 );
 
   sc = prepareTileFullCollections( context );
-  if ( sc ) return StatusCode::FAILURE;
+  ATH_CHECK( sc == 0 );
 
   m_hLTCaloSlot.get(context)->lastFSEvent = context.evt();
 
@@ -167,8 +171,8 @@ StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& cont
   cont.reserve( cont_to_copy->size() );
   for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
       
-  if ( sc ) return StatusCode::FAILURE;
-  else return StatusCode::SUCCESS;
+  ATH_CHECK( sc == 0 );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -176,6 +180,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
 
   ATH_MSG_DEBUG( "Full Col " << " requested for event " << context );
   if ( !m_lateInitDone && lateInit() ) {
+    ATH_MSG_ERROR("Could not execute late init");
     return 0x1; // dummy code
   }
 
@@ -204,7 +209,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContex
       
       if ( vrodid32fullDet.size() != robFrags.size() ) {
         ATH_MSG_DEBUG( "Missing ROBs, requested " << vrodid32fullDet.size() << " obtained " << robFrags.size() );
-        status |= 0x1; // dummy code
+        //status |= 0x1; // dummy code
         clearMissing( vrodid32fullDet, robFrags, ( cache->larContainer ) );
       }
 
@@ -221,6 +226,7 @@ unsigned int TrigCaloDataAccessSvc::prepareTileFullCollections( const EventConte
 
   ATH_MSG_DEBUG( "Full Col " << " requested for event " << context );
   if ( !m_lateInitDone && lateInit() ) {
+    ATH_MSG_ERROR("Could not execute late init");
     return 0x1; // dummy code
   }
 
@@ -412,7 +418,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
       			 "event: Bad ROB block ( eformat checks ) : 0x"
       			 << std::hex << sourceID << std::dec );
       	// Data seems corrupted
-      	status |= 0x1; // dummy code
+      	//status |= 0x1; // dummy code
       	reset_LArCol ( coll );
 
       } else {
@@ -425,7 +431,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 			   "event: Empty ROD block ( less than 3 words ) : 0x"
 			   << std::hex << sourceID << std::dec );
 	  // Data seems corrupted
-	  status |= 0x1; // dummy code
+	  //status |= 0x1; // dummy code
 	  reset_LArCol ( coll );
 	} else { // End of if small size
 	  //TB the converter has state
@@ -434,7 +440,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 
 	  // Accumulates inferior byte from ROD Decoder
 	  // TB the converter has state
-	  status |= (m_larDecoder->report_error());
+	  //status |= (m_larDecoder->report_error());
 
 	  if ( m_applyOffsetCorrection ) larcell->applyBCIDCorrection( sourceID );
 	} 
@@ -566,7 +572,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
 
   if ( requestROBs.size() != robFrags.size() ) {
     ATH_MSG_DEBUG( "Missing ROBs, requested " << requestROBs.size() << " obtained " << robFrags.size() );
-    status |= 0x1; // dummy code
+    //status |= 0x1; // dummy code
     clearMissing( requestROBs, robFrags, ( cache->larContainer ) );
   }
   auto roiROBs = Monitored::Scalar( "roiROBs_LAr", robFrags.size() );

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 # The earliest bunch crossing time for which interactions will be sent
@@ -50,9 +50,6 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     sct_SiPropertiesToolSetup.setup()
     ## Charge trapping tool - used by SCT_SurfaceChargesGenerator
     from AthenaCommon.AppMgr import ToolSvc
-    if not hasattr(ToolSvc, "InDetSCT_RadDamageSummaryTool"):
-        from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
-        ToolSvc += SCT_RadDamageSummaryTool(name = "InDetSCT_RadDamageSummaryTool")
     ## SiLorentzAngleTool for SCT_SurfaceChargesGenerator
     from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
     sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
@@ -82,8 +79,9 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
         from SCT_Digitization.SCT_DigitizationConf import SCT_DetailedSurfaceChargesGenerator
         return SCT_DetailedSurfaceChargesGenerator(name, **kwargs)
     else:
+        from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
+        kwargs.setdefault("RadDamageSummaryTool", SCT_RadDamageSummaryTool(name = "InDetSCT_RadDamageSummaryTool"))
         from SCT_Digitization.SCT_DigitizationConf import SCT_SurfaceChargesGenerator
-        kwargs.setdefault("RadDamageSummaryTool", getattr(ToolSvc, "InDetSCT_RadDamageSummaryTool"))
         return SCT_SurfaceChargesGenerator(name, **kwargs)
 
 ######################################################################################
@@ -254,9 +252,9 @@ def SCT_DigitizationToolSplitNoMergePU(name="SCT_DigitizationToolSplitNoMergePU"
 def SCT_OverlayDigitizationTool(name="SCT_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
-        kwargs.setdefault("InputSingleHitsName", "SCT_Hits")
-        kwargs.setdefault("OutputObjectName", "StoreGateSvc+" + overlayFlags.sigPrefix() + "SCT_RDOs")
-        kwargs.setdefault("OutputSDOName", "StoreGateSvc+" + overlayFlags.sigPrefix() + "SCT_SDO_Map")
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "SCT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "SCT_SDO_Map")
     else:
         kwargs.setdefault("OutputObjectName", overlayFlags.evtStore() + "+SCT_RDOs")
         kwargs.setdefault("OutputSDOName", overlayFlags.evtStore() + "+SCT_SDO_Map")

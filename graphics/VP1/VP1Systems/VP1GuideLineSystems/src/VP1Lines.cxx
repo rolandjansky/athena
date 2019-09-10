@@ -9,8 +9,6 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/SbColor4f.h>
 
-#include "GaudiKernel/SystemOfUnits.h"
-
 
 //____________________________________________________________________
 class VP1Lines::Imp {

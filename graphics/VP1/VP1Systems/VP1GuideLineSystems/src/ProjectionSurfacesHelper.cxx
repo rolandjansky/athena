@@ -5,6 +5,7 @@
 #include "VP1GuideLineSystems/ProjectionSurfacesHelper.h"
 #include "VP1GuideLineSystems/InDetProjParams.h"
 #include "VP1HEPVis/nodes/SoTubs.h"
+#include "VP1Base/VP1Msg.h"
 
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoSeparator.h>
@@ -230,7 +231,7 @@ ProjectionSurfacesHelper::~ProjectionSurfacesHelper()
 //____________________________________________________________________
 InDetProjFlags::InDetProjPartsFlags ProjectionSurfacesHelper::shownParts() const
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("shownParts");
   return m_d->parts;
 }
@@ -364,7 +365,7 @@ void ProjectionSurfacesHelper::Imp::initPartsSep(float zpos, SoSeparator*&sep, S
 //____________________________________________________________________
 SoMaterial * ProjectionSurfacesHelper::material()
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("material");
   return m_d->material;
 }
@@ -449,7 +450,7 @@ SoShape * ProjectionSurfacesHelper::Imp::endcapZAsRCylShape()
 //____________________________________________________________________
 void ProjectionSurfacesHelper::Imp::ensureDetached(SoSeparator*s)
 {
-  if (theclass->verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose("ensureDetached");
   if (!sep||!s)
     return;
@@ -460,7 +461,7 @@ void ProjectionSurfacesHelper::Imp::ensureDetached(SoSeparator*s)
 //____________________________________________________________________
 void ProjectionSurfacesHelper::Imp::ensureAttached(SoSeparator*s)
 {
-  if (theclass->verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose("ensureAttached");
   if (!s)
     return;
@@ -475,6 +476,6 @@ void ProjectionSurfacesHelper::Imp::ensureAttached(SoSeparator*s)
     attachsep->addChild(sep);
   }
   sep->addChild(s);
-  if (theclass->verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose("ensureAttached done");
 }

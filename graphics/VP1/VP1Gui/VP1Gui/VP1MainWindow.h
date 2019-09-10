@@ -98,6 +98,9 @@ public:
 public slots:
   void loadPluginFile(QString filename);
 
+  #ifdef BUILDVP1LIGHT
+    void request_expertSettings();
+  #endif
   void request_addEmptyTab();
   void request_channelInformation();
   void request_printChannel();
@@ -131,6 +134,10 @@ public slots:
 
   //For use when going to a new event (this updates system lists and quit()'s the app):
   void goToNextEvent();
+  #if defined BUILDVP1LIGHT
+    void goToPreviousEvent();
+    void chooseEvent();
+  #endif
 public:
   void setRunEvtNumber(const int& runnumber, const unsigned long long& eventnumber, const unsigned& triggerType = 0, const unsigned& time = 0, const bool& printmessage = true );
   bool mustQuit() const;
@@ -220,6 +227,7 @@ protected:
   QMenu * m_menu_changeStyle;
   QMenu * m_menu_changeFontSize;
   QAction * m_actionAdd_empty_tab;
+  QAction * m_actionEnableExpertSettings;
   QAction * m_actionSave_current_tabs;
   QAction* m_action_addEventFile;
   QAction* m_action_openUsersGuide;

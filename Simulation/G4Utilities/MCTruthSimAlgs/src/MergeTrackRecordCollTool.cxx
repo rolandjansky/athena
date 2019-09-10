@@ -1,22 +1,24 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MergeTrackRecordCollTool.h"
 
 #include "AthenaKernel/errorcheck.h"
-#include "PileUpTools/PileUpMergeSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "TrackRecord/TrackRecordCollection.h"
 
 MergeTrackRecordCollTool::MergeTrackRecordCollTool(const std::string& type,
                                                    const std::string& name,
                                                    const IInterface* parent) :
-  PileUpToolBase(type, name, parent),
-  m_pMergeSvc("PileUpMergeSvc", name),
-  m_firstSubEvent(true)
+  PileUpToolBase(type, name, parent)
 {
-  declareProperty("TrackRecordCollKey", m_trRecCollKey=std::string("MuonEntryLayer"));
+}
+
+StatusCode MergeTrackRecordCollTool::initialize()
+{
+  ATH_MSG_DEBUG( "initialize()" );
+  ATH_CHECK( m_pMergeSvc.retrieve() );
+  ATH_CHECK( m_outputKey.initialize() );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MergeTrackRecordCollTool::prepareEvent(unsigned int nInputEvents)
@@ -33,33 +35,32 @@ StatusCode MergeTrackRecordCollTool::processBunchXing(int bunchXing,
 {
   ATH_MSG_VERBOSE ( "processBunchXing()" );
   //We are only interested in the TrackRecordCollection for the original event
-  if(m_firstSubEvent && bunchXing==0)
-    {
-    if (bSubEvents != eSubEvents)
-      {
-        const TrackRecordCollection* oldColl(0);
-	if (m_pMergeSvc->retrieveSingleSubEvtData(m_trRecCollKey.value(), oldColl,
-						  bunchXing, bSubEvents).isSuccess())
-	    {
-	      TrackRecordCollection* newColl = new TrackRecordCollection();
-	      for(auto trcit : *oldColl)
-		{
-		  newColl->push_back( TrackRecord(trcit) );
-		}
-	      CHECK(evtStore()->record(newColl, m_trRecCollKey));
-	      ATH_MSG_DEBUG( "processBunchXing: copied original event TrackRecordCollection" );
-	      m_firstSubEvent=false;
-	    }
-        else
-          {
-            ATH_MSG_ERROR ( "processBunchXing: TimedTruthList is empty" );
-          }
+  if(m_firstSubEvent && bunchXing==0) {
+    if (bSubEvents != eSubEvents) {
+      const TrackRecordCollection* oldColl(nullptr);
+      if (m_pMergeSvc->retrieveSingleSubEvtData(m_trRecCollKey.value(), oldColl,
+                                                bunchXing, bSubEvents).isSuccess()) {
+        SG::WriteHandle<TrackRecordCollection> outputCollection(m_outputKey);
+        ATH_CHECK(outputCollection.record(std::make_unique<TrackRecordCollection>()));
+        if (!outputCollection.isValid()) {
+          ATH_MSG_ERROR("Could not record output TrackRecordCollection " << outputCollection.name() << " to store " << outputCollection.store());
+          return StatusCode::FAILURE;
+        }
+
+        for(auto trcit : *oldColl) {
+          outputCollection->push_back( TrackRecord(trcit) );
+        }
+        ATH_MSG_DEBUG( "processBunchXing: copied original event TrackRecordCollection" );
+        m_firstSubEvent=false;
       }
-    else
-      {
-        ATH_MSG_ERROR ( "processBunchXing: Can not find TimedTruthList" );
+      else {
+        ATH_MSG_ERROR ( "processBunchXing: TimedTruthList is empty" );
       }
     }
+    else {
+      ATH_MSG_ERROR ( "processBunchXing: Can not find TimedTruthList" );
+    }
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -80,37 +81,33 @@ bool MergeTrackRecordCollTool::toProcess(int bunchXing) const
 StatusCode MergeTrackRecordCollTool::processAllSubEvents()
 {
   ATH_MSG_VERBOSE ( "processAllSubEvents()" );
-  if(!m_pMergeSvc)
-    {
-      CHECK(m_pMergeSvc.retrieve());
-    }
 
   typedef PileUpMergeSvc::TimedList<TrackRecordCollection>::type TimedTruthList;
   TimedTruthList truthList;
-  if ( (m_pMergeSvc->retrieveSubEvtsData(m_trRecCollKey.value(), truthList)).isSuccess() )
-    {
-      if (truthList.begin() != truthList.end())
-        {
-          //FIXME we are forced to do a deep copy
-          const TrackRecordCollection &oldColl=*(truthList.begin())->second;
-          TrackRecordCollection *newColl = new TrackRecordCollection();
+  if ( (m_pMergeSvc->retrieveSubEvtsData(m_trRecCollKey.value(), truthList)).isSuccess() ) {
+    if (truthList.begin() != truthList.end()) {
+      //FIXME we are forced to do a deep copy
+      const TrackRecordCollection &oldColl=*(truthList.begin())->second;
 
-          for (auto trcit : oldColl)
-            {
-              newColl->push_back( TrackRecord(trcit) );
-            }
+      SG::WriteHandle<TrackRecordCollection> outputCollection(m_outputKey);
+      ATH_CHECK(outputCollection.record(std::make_unique<TrackRecordCollection>()));
+      if (!outputCollection.isValid()) {
+        ATH_MSG_ERROR("Could not record output TrackRecordCollection " << outputCollection.name() << " to store " << outputCollection.store());
+        return StatusCode::FAILURE;
+      }
 
-          CHECK(evtStore()->record(newColl, m_trRecCollKey));
-          ATH_MSG_DEBUG ( "processAllSubEvents: copied original event TrackRecordCollection" );
-        }
-      else
-        {
-          ATH_MSG_ERROR ( "processAllSubEvents: TimedTruthList is empty" );
-        }
+      for (auto trcit : oldColl) {
+        outputCollection->push_back( TrackRecord(trcit) );
+      }
+
+      ATH_MSG_DEBUG ( "processAllSubEvents: copied original event TrackRecordCollection" );
     }
-  else
-    {
-      ATH_MSG_ERROR ( "processAllSubEvents: Can not find TimedTruthList" );
+    else {
+      ATH_MSG_ERROR ( "processAllSubEvents: TimedTruthList is empty" );
     }
+  }
+  else {
+    ATH_MSG_ERROR ( "processAllSubEvents: Can not find TimedTruthList" );
+  }
   return StatusCode::SUCCESS;
 }

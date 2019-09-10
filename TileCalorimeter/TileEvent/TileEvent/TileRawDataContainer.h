@@ -56,9 +56,6 @@ public:
     void initialize(bool createColl, TYPE type,
                     SG::OwnershipPolicy ownPolicy=SG::OWN_ELEMENTS);
 
-    // clear all collections
-    void clear();
-  
     inline TYPE get_hashType() const { return this->m_hashFunc.type(); }
     inline UNIT get_unit() const { return this->m_unit; }
     inline void set_unit(UNIT unit) { m_unit=unit; }

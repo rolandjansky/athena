@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -65,29 +65,35 @@ namespace Trk{
       virtual ~VertexOnTrack();
 
       /** Pseudo-constructor, needed to avoid excessive RTTI*/
-      VertexOnTrack* clone() const;
+      VertexOnTrack* clone() const override;
 
       /** returns the surface for the local to global transformation 
       - interface from MeasurementBase */
-      const PerigeeSurface& associatedSurface() const;
+      virtual const PerigeeSurface& associatedSurface() const override;
 
       /**Interface method to get the global Position
       - interface from MeasurementBase */
-      const Amg::Vector3D& globalPosition() const;
+      virtual const Amg::Vector3D& globalPosition() const override;
+
+      /** Extended method checking the type*/
+      virtual bool type(MeasurementBaseType::Type type) const override {
+        return (type==MeasurementBaseType::VertexOnTrack);
+      }
+
 
       /**returns the some information about this VertexOnTrack. */
-      virtual MsgStream&    dump( MsgStream& out ) const;
+      virtual MsgStream&    dump( MsgStream& out ) const override;
       /**returns the some information about this VertexOnTrack. */
-      virtual std::ostream& dump( std::ostream& out ) const;
+      virtual std::ostream& dump( std::ostream& out ) const override;
 
      // perhaps return Vertex Object
 
     protected:
       /** Perigee surface of the VoT*/
-      mutable const PerigeeSurface* m_associatedSurface;
+      const PerigeeSurface* m_associatedSurface;
 
       /** Global position of the VoT*/
-      mutable const Amg::Vector3D*  m_globalPosition;
+      const Amg::Vector3D*  m_globalPosition;
   };
 
   inline VertexOnTrack* VertexOnTrack::clone() const 
@@ -96,11 +102,6 @@ namespace Trk{
   inline const PerigeeSurface& VertexOnTrack::associatedSurface() const
   { return *m_associatedSurface; }
 
-  inline const Amg::Vector3D& VertexOnTrack::globalPosition() const
-  {
-    if (m_globalPosition == 0) {m_globalPosition = new Amg::Vector3D();}
-    return *m_globalPosition;
-  }
 
 }
 

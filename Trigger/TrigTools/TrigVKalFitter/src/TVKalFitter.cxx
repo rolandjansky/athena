@@ -45,7 +45,7 @@ TrigVKalFitter:: TrigVKalFitter(const std::string& type,
    m_Constraint(0),
    m_CalcMomCovariance(0),
    m_MassForConstraint(0.),
-   m_magFieldAthenaSvc("AtlasDefault", name)            //Athena magnetic field
+   m_magFieldAthenaSvc("AtlasDefault", name), m_coreFit()            //Athena magnetic field
 {
    //
    // Declare additional interface

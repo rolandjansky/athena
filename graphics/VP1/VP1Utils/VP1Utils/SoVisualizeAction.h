@@ -40,7 +40,9 @@ public:
 
   virtual void handleTubs(const GeoTubs *tubs);
 
-  virtual void handleLArCustom(const LArCustomShape *);
+  #ifndef BUILDVP1LIGHT
+    virtual void handleLArCustom(const LArCustomShape *);
+  #endif
 
   virtual void handleSimplePolygonBrep(const GeoSimplePolygonBrep *);
 

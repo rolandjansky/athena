@@ -7,7 +7,7 @@ def usage():
    print "Syntax for UPD4 open-end IoV noise update"
    print " The first parameter is the run number of IoV start, the second parameter is the lumiblock number for IoV start"
    print " The third and fourth parameter are the Run/lb for IoV end (if run is -1, uses open ended IoV)"
-   print " The fith parameter is the upd4 tag name"
+   print " The fifth parameter is the upd4 tag name"
    print " The sixth parameter is input text file name (default calonoise.txt)"
    print " The seventh parameter is output sqlite file name (default caloSqlite.db)"
    print " The eigth parameter is output DB  name (default CONDBR2)"
@@ -25,12 +25,15 @@ lbkSince = sys.argv[2]
 runUntil = sys.argv[3]
 lbkUntil = sys.argv[4]
 tag = sys.argv[5]
-if len(sys.argv)>=6:
+if len(sys.argv)>6:
    inputFile=sys.argv[6]
 else:
    inputFile="calonoise.txt"
+
 if len(sys.argv)>7:
    filename=sys.argv[7]
+else:
+   filename="larnoisesqlite.db"
 
 if len(sys.argv)>8:
    dbname=sys.argv[8]
@@ -43,9 +46,14 @@ else:
    folderPath = "/LAR/NoiseOfl/CellNoise"
 
 if len(sys.argv)>10:
-   mu = int(sys.argv[10])
-else:
+   mu = int(sys.argv[10]
+else:         
    mu = -1
+
+if len(sys.argv)>11:
+   dt = int(sys.argv[11])
+else:
+   dt = -1
 
 if len(sys.argv)>11:
    dt = int(sys.argv[11])
@@ -56,6 +64,7 @@ else:
 print "input:  ",inputFile
 print "runUntil ", runUntil, lbkUntil
 print "output:",filename
+print "input:  ",inputFile
 
 import ROOT
 import cppyy
@@ -187,6 +196,13 @@ try:
               noiseB /= math.sqrt(mu/29.*10.) 
         pass
         flt.setData(hash,gain,0,noiseA)
+        if mu > 0 and dt > 0:
+           # new normalization
+           if dt > 25:
+              noiseB /= math.sqrt(mu/53.*10.)
+           else:
+              noiseB /= math.sqrt(mu/29.*10.) 
+        pass
         flt.setData(hash,gain,1,noiseB)
         
     #=== write to DB

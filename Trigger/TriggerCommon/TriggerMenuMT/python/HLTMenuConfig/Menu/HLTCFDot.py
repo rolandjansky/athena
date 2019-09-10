@@ -28,24 +28,30 @@ def stepCF_ControlFlow_to_dot(stepCF):
         return o
 
     def _parOR (seq):
-        if seq.ModeOR is True:
-            if seq.Sequential is False:
-                if seq.StopOverride is True:
-                    return True
+        try:
+            if seq.ModeOR is True:
+                if seq.Sequential is False:
+                    if seq.StopOverride is True:
+                        return True
+        except AttributeError:
+            return False # Offline sequence may not have these set
         return False
 
     def _seqAND(seq):
-        if seq.ModeOR is False:
-            if seq.Sequential is True:
-                if seq.StopOverride is False:
-                    return True
+        try:
+            if seq.ModeOR is False:
+                if seq.Sequential is True:
+                    if seq.StopOverride is False:
+                        return True
+        except AttributeError:
+            return False # Offline sequence may not have these set
         return False
 
     def _seqColor(seq):
         if _parOR(seq): 
             return "red"
         if _seqAND(seq): 
-            return "blue"
+            return "dodgerblue3"
 
         return "black"
 
@@ -55,6 +61,7 @@ def stepCF_ControlFlow_to_dot(stepCF):
     #strict
         file.write( 'digraph step  {\n'\
                     +'\n'\
+                    +' rankdir="LR";\n'
                     +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                     +'  edge [ fontname=Helvetica ]\n'
                     +'  %s   [shape=Mdiamond]\n'%stepCF.name())
@@ -75,6 +82,7 @@ def all_DataFlow_to_dot(name, step_list):
     with open('%s.dot'%(name), mode="wt") as file:
         file.write( 'digraph step  {\n'\
                         +'\n'\
+                        +' rankdir="LR";\n'
                         +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                         +'  edge [ fontname=Helvetica ]\n'
                         +'  %s   [shape=Mdiamond]\n'%name)
@@ -88,8 +96,7 @@ def all_DataFlow_to_dot(name, step_list):
             # reset the last step
             last_step_hypoNodes =[]
             for cfseq in cfseq_list:
-#                print cfseq.name
-                file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))            
+                file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))
                 step_connections.append(cfseq.filter)                      
                 file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.step.name)\
                             +'     node [color=white style=filled]\n'\
@@ -107,6 +114,9 @@ def all_DataFlow_to_dot(name, step_list):
                     else:
                         menuseq.reuse=False
 
+                if len(cfseq.step.sequences)==0:
+                    last_step_hypoNodes.append(cfseq.filter)
+
                 for menuseq in cfseq.step.sequences:
                     cfseq_algs.append(menuseq.maker)
                     cfseq_algs.append(menuseq.sequence )
@@ -114,21 +124,29 @@ def all_DataFlow_to_dot(name, step_list):
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                         file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
                         menuseq.reuse=True
-                    cfseq_algs.append(menuseq.hypo)
+                    if type(menuseq.hypo) is list:
+                       for hp in menuseq.hypo:
+                          cfseq_algs.append(hp)
+                          file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
+                    else:
+                       cfseq_algs.append(menuseq.hypo)
+                       file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
                     if not cfseq.step.isCombo:
-                        last_step_hypoNodes.append(menuseq.hypo)
-                    file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
+                        if type(menuseq.hypo) is list:
+                           last_step_hypoNodes.append(menuseq.hypo[-1])
+                        else:
+                           last_step_hypoNodes.append(menuseq.hypo)
 
                     #combo
                 if cfseq.step.isCombo:
-                    file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
-                    cfseq_algs.append(cfseq.step.combo)
-                    last_step_hypoNodes.append(cfseq.step.combo)
+                    if cfseq.step.combo is not None:
+                        file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
+                        cfseq_algs.append(cfseq.step.combo)
+                        last_step_hypoNodes.append(cfseq.step.combo)
                 file.write('  }\n')              
-
                 file.write(findConnections(cfseq_algs))
                 file.write('\n')
-
+           
             file.write(findConnections(step_connections))
             nstep+=1
 
@@ -141,13 +159,13 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
     #strict
         file.write( 'digraph step  {\n'\
                     +'\n'\
+                    +' rankdir="LR";\n'
                     +'  node [ shape=polygon, fontname=Helvetica ]\n'\
                     +'  edge [ fontname=Helvetica ]\n'
                     +'  %s   [shape=Mdiamond]\n'%name)
 
 
         for cfseq in cfseq_list:
-#            print cfseq.name
             file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.Alg.name(),algColor(cfseq.filter.Alg)))
             for inp in cfseq.filter.getInputList():
                 file.write(addConnection(name, cfseq.filter.Alg.name(), inp))
@@ -175,14 +193,20 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.maker.Alg.name(), algColor(menuseq.maker.Alg)))
                     file.write("    %s[fillcolor=%s]\n"%(menuseq.sequence.Alg.name(), algColor(menuseq.sequence.Alg)))
                     menuseq.reuse=True
-                cfseq_algs.append(menuseq.hypo)
-                file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
+                if type(menuseq.hypo) is list:
+                   for hp in menuseq.hypo:
+                      cfseq_algs.append(hp)
+                      file.write("    %s[color=%s]\n"%(hp.Alg.name(), algColor(hp.Alg)))
+                else:
+                   cfseq_algs.append(menuseq.hypo)
+                   file.write("    %s[color=%s]\n"%(menuseq.hypo.Alg.name(), algColor(menuseq.hypo.Alg)))
 
 
                 #combo
             if cfseq.step.isCombo:
-                file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
-                cfseq_algs.append(cfseq.step.combo)
+                if cfseq.step.combo is not None:
+                    file.write("    %s[color=%s]\n"%(cfseq.step.combo.Alg.name(), algColor(cfseq.step.combo.Alg)))
+                    cfseq_algs.append(cfseq.step.combo)
             file.write('  }\n')              
 
             file.write(findConnections(cfseq_algs))
@@ -195,14 +219,16 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 def findConnections(alg_list):
     lineconnect=''
 
-    for nodeA, nodeB in itertools.combinations(alg_list, 2):
+    alg_set = set(alg_list) # make them unique
+    for nodeA, nodeB in itertools.permutations(alg_set, 2):
         ins=nodeB.getInputList()
         outs=nodeA.getOutputList()
         dataIntersection = list(set(outs) & set(ins))
         if len(dataIntersection) > 0:
             for line in dataIntersection:
                 lineconnect+=addConnection(nodeA.Alg.name(),nodeB.Alg.name(), line)
-#                print 'Data connections between %s and %s: %s'%(nodeA.Alg.name(), nodeB.Alg.name(), line)
+#                print "Data connections between %s and %s: %s"%(nodeA.Alg.name(), nodeB.Alg.name(), line)
+
     return lineconnect
 
 
@@ -222,7 +248,7 @@ def findDHconnections(nodeA, nodeB):
     if len(dataIntersection) > 0:
         for line in dataIntersection:
             lineconnect+=addConnection(nodeA.Alg.name(),nodeB.Alg.name(), line)
-            print 'Data DH connections between %s and %s: %s'%(nodeA.Alg.name(), nodeB.Alg.name(), line)
+            #print 'Data DH connections between %s and %s: %s'%(nodeA.Alg.name(), nodeB.Alg.name(), line)
     return lineconnect
     
 
@@ -243,10 +269,10 @@ def getValuesProperties(node):
         for k, cval in alg.getValuedProperties().items():
             if type(cval) is list:  
                 for val in cval:
-                    if val is '': # CAT type(val) is None ??
+                    if val == '': # CAT type(val) is None ??
                         if val not in Excluded:
                             values.append(val)            
-            elif cval is '': # CAT type(val) is None ??
+            elif cval == '': # CAT type(val) is None ??
                 if cval not in Excluded:
                     values.append(cval)
             else:

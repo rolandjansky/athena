@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiClusterizationTool/TotPixelClusterSplitter.h"
@@ -12,25 +12,18 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-#include "PixelConditionsServices/IPixelCalibSvc.h"
-
 InDet::TotPixelClusterSplitter::TotPixelClusterSplitter(const std::string & type, const std::string & name, const IInterface * parent) :
-  AthAlgTool(type, name, parent),
-  m_calibSvc("PixelCalibSvc", name),
+  base_class(type, name, parent),
   m_minPixels(3),
   m_maxPixels(25),
   m_doLongPixels(true)
 {
-  declareInterface<IPixelClusterSplitter>(this);
-  declareProperty("PixelCalibSvc", m_calibSvc);
 }
-
-InDet::TotPixelClusterSplitter::~TotPixelClusterSplitter()
-{}
 
 StatusCode InDet::TotPixelClusterSplitter::initialize() {
 
-  CHECK(m_calibSvc.retrieve());
+  ATH_CHECK(m_pixelCabling.retrieve());
+  ATH_CHECK(m_chargeDataKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -52,6 +45,8 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   if (NumPixels < m_minPixels || NumPixels > m_maxPixels) return Parts;
 
   InDetDD::SiCellId * CellIds = new InDetDD::SiCellId[NumPixels];
+
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
 
   // Detect special pixels and exclude them if necessary.
   // Veto removed on 28-7-2011 by K. Barry - residual-level 
@@ -213,7 +208,7 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   if (!pixelIDp){
     ATH_MSG_ERROR("Could not get PixelID pointer");
   } 
-  //  const PixelID& pixelID = *pixelIDp;
+  const PixelID& pixelID = *pixelIDp;
 
   
   for (unsigned int i = 0; i < NumPixels; i++)
@@ -235,8 +230,15 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
     {
       for (int j = 0; j < 2; j++)
       {
+
+        Identifier pixid = Rdos[i];
+        Identifier moduleID = pixelID.wafer_id(pixid);
+        IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
+        int circ = m_pixelCabling->getFE(&pixid,moduleID);
+        int type = m_pixelCabling->getPixelType(pixid);
+
         SplitRdos[j].push_back(Rdos[i]);
-        Totgroups[j].push_back(static_cast<int>(m_calibSvc->getTotMean(Rdos[i],Charges[i]/2.)));
+        Totgroups[j].push_back(static_cast<int>(calibData->getToT((int)moduleHash,circ,type,Charges[i]/2.0)));
         Lvl1groups[j].push_back(Lvl1a);
       }
     }

@@ -6,10 +6,9 @@ include("TrigUpgradeTest/testHLT_MT.py")
 
 testChains = ["HLT_g5_etcut"]
 
-from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
+from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+theFastCaloAlgo=T2CaloEgamma_ReFastAlgo("FastCaloAlgo" )
 theFastCaloAlgo.ClustersName="L2CaloClusters"
-svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
  
 from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
@@ -25,11 +24,9 @@ def createFastCaloSequence(rerun=False):
    __l1RoIDecisions = "RerunEMRoIDecisions" if rerun else "EMRoIDecisions"
    __forViewDecsions = "RerunEMRoIDecisions"  if rerun else "Filtered"+__l1RoIDecisions 
 
-   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
-   #clusterMaker=T2CaloEgamma_FastAlgo(__prefix+"FastClusterMaker" )
-   clusterMaker=T2CaloEgamma_FastAlgo( "FastClusterMaker" )
+   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
+   clusterMaker=T2CaloEgamma_ReFastAlgo( "FastClusterMaker" )
    clusterMaker.ClustersName="L2CaloClusters"
-   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
    fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker ])
 
@@ -145,7 +142,7 @@ def addTC(name):
 for tc in edmCreator.TrigCompositeContainer:
    addTC( tc )
 
-addTC("HLTSummary")
+addTC("HLTNav_Summary")
 
 StreamESD.ItemList += [ "xAOD::TrigPhotonContainer#HLT_photons"]
 

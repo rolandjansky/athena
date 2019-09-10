@@ -4,7 +4,6 @@
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataFlow( True )
-from AthenaCommon.Constants import DEBUG
 
 from TriggerJobOpts.TriggerFlags              import TriggerFlags
 
@@ -13,6 +12,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
 from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuPrescaleConfig import MenuPrescaleConfig
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 
 
 from AthenaCommon.Logging import logging
@@ -20,7 +20,7 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT' )
 
 _func_to_modify_signatures = None
 
-class GenerateMenuMT:   
+class GenerateMenuMT(object):
 
     def overwriteSignaturesWith(f):
         """
@@ -29,15 +29,13 @@ class GenerateMenuMT:
         log.info('In overwriteSignaturesWith ')
         global _func_to_modify_signatures
         if _func_to_modify_signatures is not None:
-            log.warning('Updating the function to modify signatures from %s to %s'\
-                        % (_func_to_modify_signatures.__name__, f.__name__))
+            log.warning('Updating the function to modify signatures from %s to %s',
+                        _func_to_modify_signatures.__name__, f.__name__)
         _func_to_modify_signatures = f
     overwriteSignaturesWith = staticmethod(overwriteSignaturesWith)
             
     
-    def __init__(self, logLevel=DEBUG):
-        log.setLevel(logLevel)
-        self.triggerConfigHLT = None
+    def __init__(self):
         self.chains = []
         self.chainDefs = []
         self.listOfErrorChainDefs = []
@@ -49,8 +47,8 @@ class GenerateMenuMT:
         self.signaturesToGenerate = []
         self.allSignatures = ['Egamma', 'Muon', 'Jet', 'Bjet', 'Bphysics', 'MET', 'Tau', 
                               'HeavyIon', 'Beamspot', 'Cosmic', 'EnhancedBias', 
-                              'Monitor', 'Calib', 'Streaming', ] #, AFP, 'Combined'
-        self.calibCosmicMonSigs = ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
+                              'Monitor', 'Calib', 'Streaming', 'Combined'] #, AFP
+        self.calibCosmicMonSigs = ['Streaming'] #others not implemented yet ['Beamspot', 'Cosmic', 'EnhancedBias', 'Monitor', 'Calib', 'Streaming']
 
         # flags
         self.doEgammaChains         = True 
@@ -78,9 +76,6 @@ class GenerateMenuMT:
         == Setup of TriggerConfigHLT, menu and prescale names
         """
         (HLTPrescales) = self.setupMenu()
-        self.triggerConfigHLT = TriggerConfigHLT(TriggerFlags.outputHLTconfigFile(), self.signaturesOverwritten)
-        self.triggerConfigHLT.menuName = TriggerFlags.triggerMenuSetup()
-        log.debug("Working with menu: %s", self.triggerConfigHLT.menuName)
         log.debug("   and prescales : %s", HLTPrescales)
         
 
@@ -91,10 +86,10 @@ class GenerateMenuMT:
         # go over the slices and put together big list of signatures requested
         #(L1Prescales, HLTPrescales, streamConfig) = MenuPrescaleConfig(self.triggerPythonConfig)
         # that does not seem to work
-        (self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(self.triggerConfigHLT)
+        (self.L1Prescales, self.HLTPrescales) = MenuPrescaleConfig(TriggerConfigHLT)
         global _func_to_modify_signatures
         if _func_to_modify_signatures is not None:
-            log.info('setupMenu:  Modifying trigger signatures in TriggerFlags with %s' % \
+            log.info('setupMenu:  Modifying trigger signatures in TriggerFlags with %s',
                      _func_to_modify_signatures.__name__)
             _func_to_modify_signatures()
             self.signaturesOverwritten = True
@@ -109,12 +104,12 @@ class GenerateMenuMT:
         == Generates the L1Topo menu
         """
         if not TriggerFlags.readL1TopoConfigFromXML() and not TriggerFlags.readMenuFromTriggerDb():
-            log.info('Generating L1 topo configuration for %s' % TriggerFlags.triggerMenuSetup())
+            log.info('Generating L1 topo configuration for %s', TriggerFlags.triggerMenuSetup())
             from TriggerMenuMT.LVL1MenuConfig.TriggerConfigL1Topo import TriggerConfigL1Topo
             self.trigConfL1Topo = TriggerConfigL1Topo( outputFile = TriggerFlags.outputL1TopoConfigFile() )
             # build the menu structure
             self.trigConfL1Topo.generateMenu()        
-            log.debug('Topo Menu has %i trigger lines' % len(self.trigConfL1Topo.menu) )
+            log.debug('Topo Menu has %i trigger lines', len(self.trigConfL1Topo.menu))
             # write xml file
             self.trigConfL1Topo.writeXML()
         elif TriggerFlags.readLVL1configFromXML():
@@ -128,12 +123,12 @@ class GenerateMenuMT:
         == Generates the LVL1 menu
         """
         if not TriggerFlags.readLVL1configFromXML() and not TriggerFlags.readMenuFromTriggerDb():
-            log.info('Generating L1 configuration for %s' % TriggerFlags.triggerMenuSetup() )
+            log.info('Generating L1 configuration for %s', TriggerFlags.triggerMenuSetup() )
             from TriggerMenuMT.LVL1MenuConfig.TriggerConfigLVL1 import TriggerConfigLVL1
             self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile())
             # build the menu structure
             self.trigConfL1.generateMenu()        
-            log.debug('Menu has %i items' % len(self.trigConfL1.menu.items) )
+            log.debug('Menu has %i items', len(self.trigConfL1.menu.items) )
             # write xml file
             self.trigConfL1.writeXML()
         elif TriggerFlags.readLVL1configFromXML():
@@ -158,7 +153,6 @@ class GenerateMenuMT:
         for chain in chainsInMenu:
             log.debug("Currently processing chain: %s ", chain) 
             chainDict = decodeChainName.getChainDict(chain)
-            self.triggerConfigHLT.allChainDicts.append(chainDict)
 
             chainCounter += 1
             chainDict['chainCounter'] = chainCounter
@@ -167,10 +161,10 @@ class GenerateMenuMT:
             chainConfig= self.generateChainConfig(chainDict)
 
             log.debug("Finished with retrieving chain configuration for chain %s", chain) 
-            self.triggerConfigHLT.allChainConfigs.append(chainConfig)
+            TriggerConfigHLT.registerChain( chainDict, chainConfig )
 
-        return self.triggerConfigHLT.allChainConfigs
 
+        return TriggerConfigHLT.configsList()
 
     def getChainsFromMenu(self):
         """
@@ -194,7 +188,9 @@ class GenerateMenuMT:
                 self.signaturesToGenerate.append(sig)
                 log.debug('Signatures to generate %s', sig)
             else:
-                log.debug('Signature %s is not switched on', sig)
+                log.debug('Signature %s is not switched on (no chains in menu or disabled by flag)', sig)
+        
+        log.info("The following signature(s) is (are) enabled: %s", self.signaturesToGenerate)
 
         if len(chains) == 0:
             log.warning("There seem to be no chains in the menu - please check")
@@ -204,7 +200,7 @@ class GenerateMenuMT:
         return chains 
                                 
 
-    def generateChainConfig(self, chainDicts):
+    def generateChainConfig(self, mainChainDict):
         """
         # Assembles the chain configuration and returns a chain object with (name, L1see and list of ChainSteps)
         """
@@ -215,7 +211,7 @@ class GenerateMenuMT:
                 if eval('self.do' + sig + 'Chains'):
                     if sig == 'Egamma':
                         sigFolder = sig
-                        subSigs = ['Electron',] #'Photon']
+                        subSigs = ['Electron', 'Photon']
                     elif sig in self.calibCosmicMonSigs:
                         sigFolder = 'CalibCosmicMon'
                         subSigs = self.calibCosmicMonSigs
@@ -223,16 +219,26 @@ class GenerateMenuMT:
                         sigFolder = sig
                         subSigs = [sig]
 
-                    for ss in subSigs:                        
-                        exec('import TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.generate' + ss + 'ChainDefs')                
-                        self.availableSignatures.append(ss)
+                    for ss in subSigs: 
+                        if sigFolder == 'Combined':
+                            continue
+                        else:
+                            exec('import TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + ss + 'ChainDefs')                
+                            if ss not in self.availableSignatures:
+                                self.availableSignatures.append(ss)                        
 
             except ImportError:
-                log.exception('Problems when importing ChainDef generating code for %s' % sig)
+                log.exception('Problems when importing ChainDef generating code for %s', sig)
+
+        log.info('Available signature(s) for chain generation: %s', self.availableSignatures)
+
+        import pprint
+        pp = pprint.PrettyPrinter(indent=4, depth=8)
+
 
 
         # split the the chainDictionaries for each chain and print them in a pretty way
-        chainDicts = splitInterSignatureChainDict(chainDicts)  
+        chainDicts = splitInterSignatureChainDict(mainChainDict) 
 
         if log.isEnabledFor(logging.DEBUG):
             import pprint
@@ -256,29 +262,40 @@ class GenerateMenuMT:
             else:
                 sigFolder = currentSig
 
-            if currentSig in self.availableSignatures:
+            if currentSig in self.availableSignatures and currentSig != 'Combined':
                 try:                    
                     log.debug("Trying to get chain config for %s", currentSig)
-                    functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.generate' + currentSig + 'ChainDefs.generateChainConfigs(chainDict)' 
+                    functionToCall ='TriggerMenuMT.HLTMenuConfig.' + sigFolder + '.Generate' + currentSig + 'ChainDefs.generateChainConfigs(chainDict)' 
                     chainConfigs = eval(functionToCall)
                 except RuntimeError:
-                    log.exception( 'Problems creating ChainDef for chain\n %s ' % chainName) 
+                    log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)
                     continue
             else:                
-                log.error('Chain %s ignored - Signature not available' %(chainDict['chainName']))
+                log.error('Chain %s ignored - Signature not available', chainDict['chainName'])
             
-            log.debug('ChainConfigs  %s ' % chainConfigs)
+            log.debug('ChainConfigs  %s ', chainConfigs)
             listOfChainConfigs.append(chainConfigs)
 
+        if log.isEnabledFor(logging.DEBUG):
+            import pprint
+            pp = pprint.PrettyPrinter(indent=4, depth=8)
+            log.debug('mainChainDict dictionary: %s', pp.pformat(mainChainDict))
+
+
+        # This part is to deal with combined chains between different signatures
         if len(listOfChainConfigs) == 0:  
             log.error('No Chain Configuration found ')
             return False        
+
         elif len(listOfChainConfigs)>1:
-            if ("mergingStrategy" in chainDicts[0].keys()):
-                log.warning("Need to define merging strategy, returning only first chain part configuration")
-                theChainConfig = listOfChainConfigs[0]
-            else:
-                log.error("No merging strategy specified for combined chain %s" % chainDicts[0]['chainName'])
+                log.debug("Merging strategy from dictionary: %s", mainChainDict["mergingStrategy"])
+                theChainConfig = mergeChainDefs(listOfChainConfigs, mainChainDict, mainChainDict["mergingStrategy"], mainChainDict["mergingOffset"])
+
+                # This needs to be added for topological chains - needs implementation
+                #doTopo = self.CheckIntraSignatureTopo(chainDicts) and chainDict["topo"]
+                #if doTopo:
+                # theChainDef = TriggerMenu.combined.generateCombinedChainDefs._addTopoInfo(theChainDef,chainDicts,listOfChainDefs)
+
         else:
             theChainConfig = listOfChainConfigs[0]
             
@@ -309,12 +326,15 @@ class GenerateMenuMT:
         log.debug("finalListOfChainConfig %s", finalListOfChainConfigs)
         for cc in finalListOfChainConfigs:
             log.debug('ChainName %s', cc.name)
-            log.debug('  L1Seed %s', cc.seed)
             log.debug('  ChainSteps %s', cc.steps)
             for step in cc.steps:
-                print step
+                log.debug(step)
 
-        makeHLTTree(finalListOfChainConfigs, self.triggerConfigHLT)
+        makeHLTTree(newJO=False, triggerConfigHLT = TriggerConfigHLT)
         # the return values used for debugging, might be removed later
+
+        from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON
+        generateJSON()
+
         return finalListOfChainConfigs
             

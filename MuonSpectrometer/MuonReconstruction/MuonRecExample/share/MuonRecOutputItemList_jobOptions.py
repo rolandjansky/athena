@@ -62,13 +62,15 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
 
 
    #PRDs
-   MuonESDList+=["Muon::CscPrepDataContainer#CSC_Clusters"]
-   MuonESDList+=["Muon::CscStripPrepDataContainer#CSC_Measurements"]
+   if muonRecFlags.doNSWNewThirdChain():
+      MuonESDList+=["Muon::MMPrepDataContainer#MM_Measurements"]
+      MuonESDList+=["Muon::sTgcPrepDataContainer#STGC_Measurements"]
+   if muonRecFlags.doCSCs:
+      MuonESDList+=["Muon::CscPrepDataContainer#CSC_Clusters"]
+      MuonESDList+=["Muon::CscStripPrepDataContainer#CSC_Measurements"]
    MuonESDList+=["Muon::RpcPrepDataContainer#RPC_Measurements"]
    MuonESDList+=["Muon::TgcPrepDataContainer#TGC_MeasurementsAllBCs"]
    MuonESDList+=["Muon::MdtPrepDataContainer#MDT_DriftCircles"]
-   MuonESDList+=["Muon::MMPrepDataContainer#MM_Measurements"]
-   MuonESDList+=["Muon::sTgcPrepDataContainer#STGC_Measurements"]
 
    #trigger related info for offline DQA
    MuonESDList+=["Muon::TgcCoinDataContainer#TrigT1CoinDataCollection"]
@@ -97,12 +99,14 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
       MuonESDList+=["TrackTruthCollection#MuonSpectrometerTracksTruth"]
 
       if muonRecFlags.writeSDOs():
-         MuonESDList+=["CscSimDataCollection#CSC_SDO"]
+         if muonRecFlags.doCSCs:
+            MuonESDList+=["CscSimDataCollection#CSC_SDO"]
          MuonESDList+=["MuonSimDataCollection#MDT_SDO"]
          MuonESDList+=["MuonSimDataCollection#RPC_SDO"]
          MuonESDList+=["MuonSimDataCollection#TGC_SDO"]
-         MuonESDList+=["MuonSimDataCollection#STGC_SDO"]
-         MuonESDList+=["MuonSimDataCollection#MM_SDO"]
+         if muonRecFlags.doNSWNewThirdChain():
+            MuonESDList+=["MuonSimDataCollection#STGC_SDO"]
+            MuonESDList+=["MuonSimDataCollection#MM_SDO"]
 
    # commenting if-statement since mandatory for e.g. RPC calibration
    # Write out CSC, RPC, and MDT RDOs.
@@ -111,7 +115,7 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
    if ( muonRecFlags.writeRDOs() or muonRecFlags.writeMdtRDOs() ):
       import MuonCnvExample.MuonCablingConfig
       MuonESDList += [ "MdtCsmContainer#MDTCSM" ]
-   if ( muonRecFlags.writeRDOs() or muonRecFlags.writeCscRDOs() ):
+   if ( muonRecFlags.writeRDOs() or muonRecFlags.writeCscRDOs() and muonRecFlags.doCSCs):
       import MuonCnvExample.MuonCablingConfig
       MuonESDList += [ "CscRawDataContainer#CSCRDO" ] 
    if ( muonRecFlags.writeRDOs() or muonRecFlags.writeRpcRDOs() ):

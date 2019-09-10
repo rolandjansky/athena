@@ -117,7 +117,7 @@ void HLTUtils::file2hashes( const std::string& fileName) {
     }
     HLTHash hash = std::stoul(line);
     std::string name;
-    std::getline(fin, category);
+    std::getline(fin, name);
     HLTHash check = string2hash(name, category);
     if (check != hash) {
       std::cerr << "Inconsistency in file2hashes(" << fileName << ") function,"

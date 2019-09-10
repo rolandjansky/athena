@@ -29,11 +29,9 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 // C++ Standard Library
-#include <limits>
 #include <memory>
 #include <sstream>
 
-static constexpr unsigned int crazyParticleBarcode(std::numeric_limits<int32_t>::max());
 // Barcodes at the HepMC level are int
 
 using InDetDD::SiCellId;
@@ -41,27 +39,9 @@ using InDetDD::SiCellId;
 SCT_DigitizationTool::SCT_DigitizationTool(const std::string& type,
                                            const std::string& name,
                                            const IInterface* parent) :
-  base_class(type, name, parent),
-  m_HardScatterSplittingSkipper{false},
-  m_detID{nullptr},
-  m_mergeSvc{"PileUpMergeSvc", name},
-  m_thpcsi{nullptr},
-  m_vetoThisBarcode{crazyParticleBarcode} {
-    declareProperty("FixedTime", m_tfix = -999., "Fixed time for Cosmics run selection");
-    declareProperty("CosmicsRun", m_cosmicsRun = false, "Cosmics run selection");
-    declareProperty("EnableHits", m_enableHits = true, "Enable hits");
-    declareProperty("OnlyHitElements", m_onlyHitElements = false, "Process only elements with hits");
-    declareProperty("BarrelOnly", m_barrelonly = false, "Only Barrel layers");
-    declareProperty("RandomDisabledCells", m_randomDisabledCells = false, "Use Random disabled cells, default no");
-    declareProperty("CreateNoiseSDO", m_createNoiseSDO = false, "Set create noise SDO flag");
-    declareProperty("WriteSCT1_RawData", m_WriteSCT1_RawData = false, "Write out SCT1_RawData rather than SCT3_RawData");
-    declareProperty("InputObjectName", m_inputObjectName = "", "Input Object name");
-    declareProperty("MergeSvc", m_mergeSvc, "Merge service used in Pixel & SCT digitization");
-    declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode = 0, "Control pileup & signal splitting");
-    declareProperty("ParticleBarcodeVeto", m_vetoThisBarcode = crazyParticleBarcode, "Barcode of particle to ignore");
-
-    m_WriteSCT1_RawData.declareUpdateHandler(&SCT_DigitizationTool::SetupRdoOutputType, this);
-  }
+  base_class(type, name, parent) {
+  m_WriteSCT1_RawData.declareUpdateHandler(&SCT_DigitizationTool::SetupRdoOutputType, this);
+}
 
 SCT_DigitizationTool::~SCT_DigitizationTool() {
   delete m_thpcsi;
@@ -77,13 +57,6 @@ SCT_DigitizationTool::~SCT_DigitizationTool() {
 // ----------------------------------------------------------------------
 StatusCode SCT_DigitizationTool::initialize() {
   ATH_MSG_DEBUG("SCT_DigitizationTool::initialize()");
-
-  if (m_inputObjectName == "") {
-    ATH_MSG_FATAL("Property InputObjectName not set !");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG("Input objects: '" << m_inputObjectName << "'");
-  }
 
   // +++ Init the services
   ATH_CHECK(initServices());
@@ -103,12 +76,17 @@ StatusCode SCT_DigitizationTool::initialize() {
   } else {
     m_sct_RandomDisabledCellGenerator.disable();
   }
-  
-  // Initialize ReadHandleKey
-  if (!m_hitsContainerKey.key().empty()) {
-    ATH_MSG_INFO("Loading single input HITS");
+
+  // check the input object name
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
+    return StatusCode::FAILURE;
   }
-  ATH_CHECK(m_hitsContainerKey.initialize(!m_hitsContainerKey.key().empty()));
+  if(m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container : '" << m_inputObjectName << "'");
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   // +++ Initialize WriteHandleKey
   ATH_CHECK(m_rdoContainerKey.initialize());
@@ -742,7 +720,7 @@ StatusCode SCT_DigitizationTool::getNextEvent() {
   // this is a list<pair<time_t, DataLink<SiHitCollection> >
 
   // In case of single hits container just load the collection using read handles
-  if (!m_hitsContainerKey.key().empty()) {
+  if (!m_onlyUseContainerName) {
     SG::ReadHandle<SiHitCollection> hitCollection(m_hitsContainerKey);
     if (!hitCollection.isValid()) {
       ATH_MSG_ERROR("Could not get SCT SiHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());

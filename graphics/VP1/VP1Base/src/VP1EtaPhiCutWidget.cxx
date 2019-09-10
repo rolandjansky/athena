@@ -66,7 +66,9 @@ VP1EtaPhiCutWidget::~VP1EtaPhiCutWidget()
 //____________________________________________________________________
 VP1Interval VP1EtaPhiCutWidget::allowedEta() const
 {
-	messageVerbose("VP1EtaPhiCutWidget::allowedEta()");
+  if(VP1Msg::verbose()){
+	 messageVerbose("VP1EtaPhiCutWidget::allowedEta()");
+  }
 
   // if "eta cut" is not set: we return an interval ]-inf,inf[, so all objects will pass the internal eta cut
   if (!m_d->ui.checkBox_cut_etarange->isChecked()) {
@@ -83,7 +85,9 @@ VP1Interval VP1EtaPhiCutWidget::allowedEta() const
   // FIXME: checkBox_etacut_excludeRange is not actually used now, check and fix!
   // if "Exclude Eta range" is selected, we set the "excludeInterval" flag in the instance of the VP1Interval class
   if (m_d->ui.checkBox_etacut_excludeRange) {
-	  messageVerbose("excludeRange=true");
+    if(VP1Msg::verbose()){
+	    messageVerbose("excludeRange=true");
+    }
 	  return VP1Interval(min, max, true, true, true);
   }
   return VP1Interval( min, max );//fixme: closed interval?? Ckeck!
@@ -156,8 +160,9 @@ void VP1EtaPhiCutWidget::possibleChange_allowedEta()
   if ( m_d->last_allowedEta == newAllowedEta )
     return;
   m_d->last_allowedEta = newAllowedEta;
-  if (verbose())
+  if(VP1Msg::verbose()){
     messageVerbose("Emitting allowedEtaChanged("+newAllowedEta.toString()+")");
+  }
   emit allowedEtaChanged(newAllowedEta);
 }
 
@@ -168,7 +173,7 @@ void VP1EtaPhiCutWidget::possibleChange_allowedPhi()
   if ( m_d->last_allowedPhi == newAllowedPhi )
     return;
   m_d->last_allowedPhi = newAllowedPhi;
-  if (verbose()) {
+  if(VP1Msg::verbose()){
     QString s;
     for(int i=0;i<newAllowedPhi.count();++i)
       s+= newAllowedPhi.at(i).toString()+(i==newAllowedPhi.count()-1?"":", ");

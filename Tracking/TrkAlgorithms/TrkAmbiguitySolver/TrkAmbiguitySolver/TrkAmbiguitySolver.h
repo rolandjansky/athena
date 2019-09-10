@@ -16,11 +16,13 @@ TrkAmbiguitySolver Algorithm
 #include "TrkTrack/TrackCollection.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
+#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include <string>
 
 namespace Trk 
 {
   class ITrackAmbiguityProcessorTool;
+  class ITrackAmbiguityScoreProcessorTool;
 
   /**Algorithm does ambiguity processing
      This algorithm uses the TrkAmbiguityProcessorTool AlgTool to resolve ambiguities in the passed tracks.
@@ -40,34 +42,24 @@ namespace Trk
       StatusCode	      finalize(void) override;
 
     private:
-      //!<where to find tracks (set in jobOptions and can be multiple collections)  
-      SG::ReadHandleKeyArray<TrackCollection> m_tracksLocation;
-      SG::WriteHandleKey<TrackCollection> m_resolvedTracksLocation;//!<where to save the resolved tracks
-        
+      //!<where to find tracks (set in jobOptions and can be multiple collections
+      SG::ReadHandleKey<TracksScores> m_scoredTracksKey;
+      SG::WriteHandleKey<TrackCollection> m_resolvedTracksKey;//!<where to save the resolved tracks
+      ToolHandle<ITrackAmbiguityProcessorTool> m_ambiTool;
+      
       /** decides whether ambi processing actually occurs 
 	  (if not, the tracks are just resaved). 
 	  Default=false.*/
-      bool              m_resolveTracks; 
-
+      bool              m_applySolve; 
       
       /**Number of tracks input. Useful for debugging*/
       long int          m_trackInCount; 
       /**Number of tracks passing Ambi solving. Useful for debugging*/
       long int          m_trackOutCount; 
       
-      /** responsible for actual amiguity processing*/                  
-      ToolHandle<ITrackAmbiguityProcessorTool> m_ambiTool;
-
-      /** get tracks */
-      StatusCode        getTracks(ConstDataVector<TrackCollection> &oldTracks);
-
       /** Save the processed tracks. If ambiguity process has not been called then they will 
 	  still be the original converted tracks */
-      
-      /** Eventually this will use the TrkAmbiguityProcessorTool to resolve the track ambiguities.
-	  At the moment it just saves a new vector of converted tracks. */
-      void resolveTracks(std::unique_ptr<TrackCollection>&,  ConstDataVector<TrackCollection>&);
-};
+    };
 
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1GeometrySystems/VolumeHandle.h"
@@ -10,6 +10,7 @@
 #include "VP1GeometrySystems/GeoSysController.h"
 
 #include "VP1Base/VP1ExtraSepLayerHelper.h"
+#include "VP1Base/VP1Msg.h"
 // #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Utils/VP1LinAlgUtils.h"
 #include "VP1HEPVis/nodes/SoTransparency.h"
@@ -46,7 +47,7 @@ public:
 
   VolumeHandleSharedData * commondata;
   GeoPVConstLink pV;
-  const SbMatrix accumTrans;//Fixme: Use pointer - and free once children are created AND nodesep has been build. Or just construct on the fly!
+  const SbMatrix accumTrans;//FIXME: Use pointer - and free once children are created AND nodesep has been build. Or just construct on the fly!
 
   VP1ExtraSepLayerHelper * attachsepHelper;
   VP1ExtraSepLayerHelper * attachlabelSepHelper;
@@ -139,11 +140,13 @@ void VolumeHandle::initialiseChildren()
   unsigned ichild(0);
   GeoVolumeCursor av(m_d->pV);
   while (!av.atEnd()) {
+    
     //Add transformation between parent and child to find the complete transformation of the child:
     SbMatrix matr;
     VP1LinAlgUtils::transformToMatrix(Amg::EigenTransformToCLHEP(av.getTransform()), matr);
     matr.multRight(m_d->accumTrans);
     m_children.push_back(new VolumeHandle(m_d->commondata,this,av.getVolume(),ichild++,(isInMuonChamber()?MUONCHAMBERCHILD:NONMUONCHAMBER),matr));
+    //std::cout << "initialised: " << av.getName() << " - " << m_children.back()->getName().toStdString() << " - " << m_children.back() << std::endl;
     av.next();
   }
 
@@ -229,13 +232,14 @@ SoSeparator * VolumeHandle::nodeSoSeparator() const
 //____________________________________________________________________
 void VolumeHandle::ensureBuildNodeSep()
 {
+  VP1Msg::messageDebug("VolumeHandle::ensureBuildNodeSep()");
   if (m_d->nodesep && m_d->label_sep)
     return;
 
   m_d->label_sep = new SoSeparator;
   m_d->label_sep->ref();
 
-  m_d->nodesep = new SoSeparator;//Fixme: rendercaching??
+  m_d->nodesep = new SoSeparator;//FIXME: rendercaching??
   //   m_d->nodesep->renderCaching.setValue(SoSeparator::ON);
   //   m_d->nodesep->boundingBoxCaching.setValue(SoSeparator::ON);
   m_d->nodesep->ref();//Since we are keeping it around irrespective of whether it is attached or not.
@@ -243,6 +247,7 @@ void VolumeHandle::ensureBuildNodeSep()
   //Transform:
   m_d->nodesep->addChild(VP1LinAlgUtils::toSoTransform(m_d->accumTrans));
 
+  //VP1Msg::messageDebug("calling toShapeNode()...");
   SoNode * shape = m_d->commondata->toShapeNode(m_d->pV);//NB: Ignore contained transformation of GeoShapeShifts.
   if (!shape) {
     m_d->nodesep->removeAllChildren();
@@ -253,15 +258,21 @@ void VolumeHandle::ensureBuildNodeSep()
   //What phi sector do we belong in?
   int iphi = m_d->commondata->phiSectorManager()->getVolumeType(m_d->accumTrans, shape);
 
-  if (iphi>=-1 ) {
+  if (iphi >= -1 ) {
+    //VP1Msg::messageDebug("Cylinders [iphi >= -1]...");
     //Substitute shapes that are essentially cylinders with such. This
     //can be done safely since this tube won't need
     //phi-slicing and is done to gain render performance.
-    if ( m_d->pV->getLogVol()->getShape()->typeID()==GeoTube::getClassTypeID() ) {
+    if ( m_d->pV->getLogVol()->getShape()->typeID()==GeoTube::getClassTypeID() ) 
+    {
+      //VP1Msg::messageDebug("GeoTube...");
       const GeoTube * geotube = static_cast<const GeoTube*>(m_d->pV->getLogVol()->getShape());
       if (geotube->getRMin()==0.0)
         shape = m_d->commondata->getSoCylinderOrientedLikeGeoTube(geotube->getRMax(),geotube->getZHalfLength());
-    } else if ( m_d->pV->getLogVol()->getShape()->typeID()==GeoTubs::getClassTypeID() ) {
+    } 
+    else if ( m_d->pV->getLogVol()->getShape()->typeID()==GeoTubs::getClassTypeID() ) 
+    {
+      //VP1Msg::messageDebug("GeoTubs...");
       const GeoTubs * geotubs = static_cast<const GeoTubs*>(m_d->pV->getLogVol()->getShape());
       if (geotubs->getRMin()==0.0 && geotubs->getDPhi() >= 2*M_PI-1.0e-6)
         shape = m_d->commondata->getSoCylinderOrientedLikeGeoTube(geotubs->getRMax(),geotubs->getZHalfLength());
@@ -274,7 +285,7 @@ void VolumeHandle::ensureBuildNodeSep()
     m_d->nodesep->addChild(VP1LinAlgUtils::toSoTransform(Amg::EigenTransformToCLHEP(dynamic_cast<const GeoShapeShift*>(m_d->pV->getLogVol()->getShape())->getX())));
 
   //Add shape child(ren) and get the separator (helper) where we attach the nodesep when volume is visible:
-  if (iphi>=-1) {
+  if (iphi >= -1) {
     m_d->nodesep->addChild(shape);
     m_d->attachsepHelper = m_d->commondata->phiSectorManager()->getSepHelperForNode(m_d->commondata->subSystemFlag(), iphi);
     m_d->attachlabelSepHelper = m_d->commondata->phiSectorManager()->getLabelSepHelperForNode(m_d->commondata->subSystemFlag(), iphi);
@@ -293,21 +304,28 @@ void VolumeHandle::ensureBuildNodeSep()
   //NB: "shape" might be shared between several volumes, so we use the separator above for the actual link!
   //(this must be done last as it also sets outline defaults)
   m_d->commondata->registerNodeSepForVolumeHandle(m_d->nodesep,this);
+
+  //VP1Msg::messageDebug("VolumeHandle::ensureBuildNodeSep() - DONE.");
 }
 
 //____________________________________________________________________
 void VolumeHandle::Imp::attach(VolumeHandle*vh)
 {
+  VP1Msg::messageDebug("VolumeHandle::Imp::attach() - name: " + vh->getName());
   if (!isattached) {
     vh->ensureBuildNodeSep();
-    if (attachsepHelper)
+    if (attachsepHelper) {
+      VP1Msg::messageDebug("adding node..."); 
       attachsepHelper->addNodeUnderMaterial(nodesep,vh->material());
-    if (attachlabelSepHelper)
+    }
+    if (attachlabelSepHelper) {
+      VP1Msg::messageDebug("adding label..."); 
       attachlabelSepHelper->addNode(label_sep);
+    }
     isattached=true;
     commondata->volumeBrowser()->scheduleUpdateOfAllNonHiddenIndices();//Browser need to change e.g. colour for this volume
   }
-
+  //VP1Msg::messageDebug("attach: DONE.");
 }
 
 //____________________________________________________________________
@@ -493,17 +511,22 @@ bool VolumeHandle::isEther() const
 
 //____________________________________________________________________
 void VolumeHandle::expandMothersRecursivelyToNonEther() {
-  // std::cout<<" VolumeHandle::expandMothersRecursivelyToNonEther() for "<<this<<std::endl;
-  if (!nChildren()||!isEther())
+  //std::cout<<"VolumeHandle::expandMothersRecursivelyToNonEther() for "<<this->getNameStdString() << " [" <<this<< "]" << " - n. children: " << nChildren() << std::endl;
+  
+  if (!nChildren()||!isEther()) {
+    //VP1Msg::messageDebug("====> no children or not 'Ether' material. Skipping & returning.");
     return;
+  }
+
   setState(VP1GeoFlags::ZAPPED);
   initialiseChildren();
   VolumeHandleListItr childItrE = m_children.end();
   for (VolumeHandleListItr childItr = m_children.begin(); childItr!=childItrE; ++childItr) {
+    //std::cout << "\t-->expanding child " << (*childItr)->getNameStdString() << " - " << (*childItr) << std::endl ;
     (*childItr)->expandMothersRecursivelyToNonEther();
   }
   setState(VP1GeoFlags::EXPANDED);
-  // std::cout<<" VolumeHandle::expandMothersRecursivelyToNonEther() for "<<this<<" DONE"<<std::endl;
+  //std::cout<<"VolumeHandle::expandMothersRecursivelyToNonEther() for "<<this->getNameStdString() << " [" <<this<< "]" <<" DONE.\n\n"<<std::endl;
   
 }
 

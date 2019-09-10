@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ResourceLimits.py
 # Author: Grigori Rybkine (Grigori.Rybkine@rhul.ac.uk)
@@ -6,7 +6,9 @@
 
 """Helper to max soft resource limits to the hard ones."""
 
-from Logging import logging
+from __future__ import print_function
+
+from AthenaCommon.Logging import logging
 import resource
 
 
@@ -22,14 +24,14 @@ log = logging.getLogger( 'ResourceLimits' )
 ### private helper -----------------------------------------------------------
 def _maxout( what, descr ):
    soft, hard = resource.getrlimit( what )
-   if soft < hard or ( hard == -1L and soft != hard ):
+   if soft < hard or ( hard == -1 and soft != hard ):
       log.debug( 'setting soft %s limit to %s (was: %s)', descr,
-                 hard == -1L and 'unlimited' or str(hard),
-                 soft == -1L and 'unlimited' or str(soft), )
+                 hard == -1 and 'unlimited' or str(hard),
+                 soft == -1 and 'unlimited' or str(soft), )
       try:
          resource.setrlimit( what, (hard,hard) )
       except ValueError:
-         if what != resource.RLIMIT_AS or hard != -1L: raise
+         if what != resource.RLIMIT_AS or hard != -1: raise
          import platform
          if platform.architecture()[0] != '32bit': raise
          if platform.machine() in ['i386', 'i486', 'i586', 'i686']: raise
@@ -58,6 +60,6 @@ def SetMaxLimits():
     try:
        _maxout( resource.RLIMIT_AS,  'address space' )
        _maxout( resource.RLIMIT_RSS, 'resident state' )
-    except (ValueError,resource.error), e:
+    except (ValueError,resource.error) as e:
        log.warning( 'failed to set max resource limits (%s)', str(e) )
 

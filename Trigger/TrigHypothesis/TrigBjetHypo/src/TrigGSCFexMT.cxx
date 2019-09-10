@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -9,11 +9,10 @@
 //
 // ************************************************
 
-#include "src/TrigGSCFexMT.h"
+#include "TrigGSCFexMT.h"
 
 // ONLINE INFRASTRUCTURE
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h" // TO BE REMOVED
 
 // EDM
 
@@ -27,7 +26,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
@@ -37,16 +36,9 @@ TrigGSCFexMT::TrigGSCFexMT(const std::string& name, ISvcLocator* pSvcLocator) :
 
 // ----------------------------------------------------------------------------------------------------------------- 
 
-TrigGSCFexMT::~TrigGSCFexMT() {}
-
-// ----------------------------------------------------------------------------------------------------------------- 
-
 StatusCode TrigGSCFexMT::initialize() {
 
-  // Get message service 
-  ATH_MSG_INFO( "Initializing TrigGSCFexMT, version " << PACKAGE_VERSION );
-
-  // declareProperty overview 
+  // declareProperty overview
   ATH_MSG_DEBUG( "declareProperty review:"                );
   ATH_MSG_DEBUG( "   "     << m_JetContainerKey           );
   ATH_MSG_DEBUG( "   "     << m_VertexContainerKey        );
@@ -99,7 +91,15 @@ StatusCode TrigGSCFexMT::execute() {
     ATH_MSG_DEBUG( "  ** PV = " << primVtx->x() << "," << primVtx->y() << "," << primVtx->z() );
 
   //  SG::ReadHandle< xAOD::VertexContainer > prmVtxContainerHandle = SG::makeHandle( m_VertexContainerKey,ctx );
-  //  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
+
+  SG::ReadHandle< xAOD::TrackParticleContainer > trkParticlesHandle = SG::makeHandle( m_TrackParticleContainerKey,ctx );
+  CHECK( trkParticlesHandle.isValid() );
+  const xAOD::TrackParticleContainer *trkParticlesContainer = trkParticlesHandle.get();
+  ATH_MSG_DEBUG( "Retrieved " << trkParticlesContainer->size() <<" Precision Tracks." );
+  for ( const xAOD::TrackParticle *particle : *trkParticlesContainer ) {
+    ATH_MSG_DEBUG( "   ** pt=" << particle->p4().Et() <<" eta="<<particle->eta()<< " phi="<< particle->phi() );
+  }
+
 
 
   // ==============================================================================================================================
@@ -136,7 +136,7 @@ StatusCode TrigGSCFexMT::execute() {
 	fabs( (trk->z0() + trk->vz() - primaryVertex->z()) * sin(trk->theta()) ) <= 1.0 ){
 
       float dEta = (trk->eta() - jet.p4().Eta());
-      float dPhi =  HLT::deltaPhi(trk->phi(), jet.p4().Phi());
+      float dPhi =  CxxUtils::deltaPhi(trk->phi(), jet.p4().Phi());
       width += trk->pt() * sqrt( dEta*dEta + dPhi*dPhi);
       ptsum += trk->pt();
 
@@ -208,11 +208,6 @@ StatusCode TrigGSCFexMT::execute() {
 
 
 // ----------------------------------------------------------------------------------------------------------------- 
-
-StatusCode TrigGSCFexMT::finalize() {
-  return StatusCode::SUCCESS;
-}
-
 
 bool TrigGSCFexMT::trkIsGood(const xAOD::TrackParticle *trk){
 

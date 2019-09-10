@@ -9,12 +9,15 @@ atlas_subdir( AthenaCommon )
 atlas_depends_on_subdirs( PRIVATE
                           TestPolicy )
 
+# External dependencies:
+find_package( six )
+
 # Install files from the package:
 atlas_install_headers( AthenaCommon )
 atlas_install_python_modules( python/*.py python/Utils )
 atlas_install_joboptions( share/Preparation.py share/Execution.py share/Atlas.UnixStandardJob.py test/*.py 
                           share/zeroJO.py share/Atlas_Gen.UnixStandardJob.py share/MemTraceInclude.py share/runbatch.py)
-atlas_install_scripts( share/athena.py share/athena_preload.sh share/chappy.py share/find_cfg_dups.py share/test_cfg_pickling.py )
+atlas_install_scripts( share/athena.py share/athena3.py share/athena_preload.sh share/chappy.py share/find_cfg_dups.py share/test_cfg_pickling.py )
 atlas_install_runtime(share/*.pkl)
 
 # Aliases:
@@ -44,5 +47,5 @@ atlas_add_test( GenerateBootstrapTest
 
 # Check python syntax:
 atlas_add_test( flake8
-   SCRIPT flake8 --select=F,E101,E112,E113,E7,E9,W6 --ignore=E701,E741 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   SCRIPT flake8 --select ATL,F,E7,E9,W6 --extend-ignore E701,E741,ATL233,ATL238 ${CMAKE_CURRENT_SOURCE_DIR}/python
    POST_EXEC_SCRIPT nopost.sh )

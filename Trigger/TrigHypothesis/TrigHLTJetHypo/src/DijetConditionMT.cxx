@@ -3,7 +3,7 @@
 */
 
 #include "./DijetConditionMT.h"
-#include "./IConditionVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include <sstream>
 #include <stdexcept>
 #include <TLorentzVector.h>
@@ -25,8 +25,9 @@ DijetConditionMT::DijetConditionMT(double massMin,
 }
   
 
-bool DijetConditionMT::isSatisfied(const HypoJetVector& ips,
-                                   IConditionVisitor* visitor) const{
+bool
+DijetConditionMT::isSatisfied(const HypoJetVector& ips,
+                              const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const{
 
   if(ips.size() != 2){
     std::stringstream ss;
@@ -40,8 +41,8 @@ bool DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   auto j0 = ips[0];
   auto j1 = ips[1];
 
-  auto rj0 = 0.001 * (j0 -> p4());
-  auto rj1 = 0.001 * (j1 -> p4());
+  auto rj0 = j0 -> p4();
+  auto rj1 = j1 -> p4();
 
   auto mass = (rj0 + rj1).M();
 
@@ -51,30 +52,39 @@ bool DijetConditionMT::isSatisfied(const HypoJetVector& ips,
   auto dphi = std::abs(rj0.DeltaPhi(rj1));
 
 
-  typedef std::pair<std::string, double> CallHistoryElement;
-
   bool pass{true};
   
   if (m_dphiMin > dphi or dphi >= m_dphiMax){pass = false;}
   if (m_massMin > mass or mass >= m_massMax){pass = false;}
   if (m_detaMin > adeta or adeta >= m_detaMax){pass = false;}
 
-   if(visitor){
-    visitor->visit(this,
-                   std::to_string(dphi)+ " " +
-                   std::to_string(mass) + " " +
-                   std::to_string(adeta) + " " +
-                   std::to_string(pass) +
-                   '\n');
+   if(collector){
+     std::stringstream ss0;
+     const void* address = static_cast<const void*>(this);
+     ss0 << "DijetConditionMT: " << address << " dphi "
+        << dphi <<  " mass " <<  mass <<  " adeta "  << adeta <<  " pass: " 
+        <<std::boolalpha << pass <<  " jet group: \n";
+
+     std::stringstream ss1;
+
+     for(auto ip : ips){
+       address = static_cast<const void*>(ip);
+       ss1 << "    "  << address << " " << ip->eta() << " e " << ip->e() << '\n';
+     }
+     ss1 << '\n';
+     collector -> collect(ss0.str(), ss1.str());
    }
-  return pass;
+   return pass;
 
 }
 
 std::string DijetConditionMT::toString() const noexcept {
-  std::stringstream ss;
-  ss << "DijetConditionMT: "
 
+
+  std::stringstream ss;
+  const void* address = static_cast<const void*>(this);
+  ss << "DijetConditionMT: " << address << " "
+    
      << " mass min: " 
      << m_massMin
      << " mass max: " 

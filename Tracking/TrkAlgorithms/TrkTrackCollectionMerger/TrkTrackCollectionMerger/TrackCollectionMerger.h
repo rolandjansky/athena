@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
 
       /** @brief A routine that merges the track collections. */
-      StatusCode    mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol) const;
+      StatusCode    mergeTrack(const TrackCollection* trackCol, TrackCollection* outputCol);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;

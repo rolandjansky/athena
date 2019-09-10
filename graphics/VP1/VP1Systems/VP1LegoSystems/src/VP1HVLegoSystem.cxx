@@ -17,6 +17,7 @@
 
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+#include "VP1Base/VP1Msg.h"
 #include "VP1Utils/VP1SGAccessHelper.h"
 #include "VP1Utils/VP1JobConfigInfo.h"
 
@@ -135,7 +136,7 @@ void VP1HVLegoSystem::buildPermanentSceneGraph(StoreGateSvc */*detStore*/, SoSep
     message("ERROR: Cannot access LArElectrodeID");
   }
   else {
-    if (verbose()) {
+    if (VP1Msg::verbose()) {
       std::vector<HWIdentifier>::const_iterator begin=elecId->electrode_begin(), end=elecId->electrode_end(), e;
       for (e=begin;e!=end;e++) {
 	if (elecId->detector(*e) ==0) {

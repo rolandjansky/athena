@@ -11,8 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          Reconstruction/Particle
-                          Tracking/TrkVertexFitter/TrkVKalVrtFitter
                           PRIVATE
                           Tools/PathResolver
                           DetectorDescription/GeoPrimitives
@@ -23,7 +21,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxSecVertex
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
+                          Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
+                          Tracking/TrkVertexFitter/TrkVKalVrtFitter
+                          Reconstruction/Particle
+			  Reconstruction/MVAUtils )
 #InnerDetector/InDetRecTools/InDetMaterialRejTool
 
 # External dependencies:
@@ -37,7 +38,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread TMVA )
 #		   PUBLIC_HEADERS InDetVKalVxInJetTool InDetTrkInJetType
 #                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
 #                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel 
-#		        InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters 
+#		        InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
 #		        TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver )
 
 # Component(s) in the package:
@@ -45,10 +46,19 @@ atlas_add_component( InDetVKalVxInJetTool
                      src/*.cxx  src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking PathResolver GaudiKernel 
-		        InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters 
+		        InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
 		        TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver )
  
 # Install files from the package:
 atlas_install_headers( InDetVKalVxInJetTool )
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*.txt )
 
+
+atlas_add_test( InDetTrkInJetType_test
+                SOURCES test/InDetTrkInJetType_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking PathResolver GaudiKernel 
+		InDetRecToolInterfaces Particle TrkVKalVrtFitterLib GeoPrimitives AnalysisUtilsLib TrkNeutralParameters MVAUtils
+		TrkParticleBase TrkTrackSummary VxSecVertex VxVertex TrkToolInterfaces TrkVertexFitterInterfaces PathResolver
+                EXTRA_PATTERNS "Booking|AtlasFieldSvc|weight file" )

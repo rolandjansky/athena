@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # $Id: TPyEvent.py 790263 2016-12-16 21:24:02Z ssnyder $
 #
@@ -85,7 +85,7 @@ class TPyEvent( ROOT.xAOD.TPyEvent ):
     #          or <code>xAOD::TReturnCode::kFailure</code> if not
     #
     def record( self, obj, key, basketSize = 32000, splitLevel = 0 ):
-        return super( TPyEvent, self ).record( obj, key,
+        return super( TPyEvent, self ).record( 0, obj, key,
                                                _typename (obj.__class__),
                                                basketSize,
                                                splitLevel )

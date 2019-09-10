@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONERROROPTIMISATIONTOOL_H
@@ -9,12 +9,13 @@
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonRefitTool.h"
 #include "MuonRecToolInterfaces/IMuonErrorOptimisationTool.h"
 
 namespace Muon {
   class MuonEDMPrinterTool;
-  class MuonEDMHelperTool;
   class MuonIdHelperTool;
 }
 
@@ -44,7 +45,9 @@ namespace Muon {
 
 
     ToolHandle<MuonEDMPrinterTool>  m_printer; //<! helper to nicely print out tracks
-    ToolHandle<MuonEDMHelperTool>   m_helper; //<! muon EDM helper
+    ServiceHandle<IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" }; //<! muon EDM helper
     ToolHandle<MuonIdHelperTool>    m_idHelper; //<! muon id helper
     ToolHandle<Trk::ITrackSummaryHelperTool>    m_trackSummaryTool; //<! muon id helper
     ToolHandle<IMuonRefitTool>      m_refitTool;

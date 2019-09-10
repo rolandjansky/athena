@@ -16,9 +16,7 @@
 //
 // ********************************************************************
 
-#include "TrigL2MissingET/T2CaloMissingET.h"
-#include "TrigT2CaloCommon/TrigDataAccess.h"
-//#include "TrigCaloEvent/TrigEMCluster.h"
+#include "T2CaloMissingET.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -26,13 +24,14 @@
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 
 #include "TrigT1Interfaces/RecEnergyRoI.h"
+#include "TrigTimeAlgs/TrigTimer.h"
 
 #include <cmath>
 #include <cstdio>
 
 #define USECABLINGSERVICE
 #ifndef USECABLINGSERVICE
-#include "TrigL2MissingET/febmapL2.h"
+#include "febmapL2.h"
 #endif
 
 // number of components for the MET feature

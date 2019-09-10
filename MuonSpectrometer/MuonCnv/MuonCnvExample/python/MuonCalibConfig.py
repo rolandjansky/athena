@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
 # JobOption fragments for Condition Database access
@@ -139,18 +139,69 @@ else:
 
 
 def setupMdtCondDB():
+
     global mdt_folder_name_appendix
     from IOVDbSvc.CondDB import conddb
 
     if mdtCalibFlags.mdtCalibrationSource()=="MDT":
-        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix)
-        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix)
+        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix, className='CondAttrListCollection')
+        conddb.addFolderSplitOnline("MDT", '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix, className='CondAttrListCollection')
     else:
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["MDTCalibrationSource", mdtCalibFlags.mdtCalibrationSource()]
         specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/RT' + mdt_folder_name_appendix,'/MDT/RT' + mdt_folder_name_appendix)
         specialAddFolderSplitOnline(mdtCalibFlags.mdtCalibrationSource(), '/MDT/Onl/T0' + mdt_folder_name_appendix,'/MDT/T0' + mdt_folder_name_appendix)
+
+    from AthenaCommon.AlgSequence import AthSequencer
+    from MdtCalibDbCoolStrTool.MdtCalibDbCoolStrToolConf import MdtCalibDbAlg
+    condSequence = AthSequencer("AthCondSeq")
+    if not hasattr(condSequence,"MdtCalibDbAlg"):
+        condSequence += MdtCalibDbAlg("MdtCalibDbAlg")
+
+    if conddb.isOnline and not conddb.isMC:
+        MdtCalibDbAlg.TubeFolder = "/MDT/T0"
+        MdtCalibDbAlg.RtFolder = "/MDT/RT"
+        MdtCalibDbAlg.ReadKeyTube = "/MDT/T0"
+        MdtCalibDbAlg.ReadKeyRt = "/MDT/RT"
+    else:
+        MdtCalibDbAlg.TubeFolder = "/MDT/T0" + mdt_folder_name_appendix
+        MdtCalibDbAlg.RtFolder = "/MDT/RT" + mdt_folder_name_appendix
+        MdtCalibDbAlg.ReadKeyTube = "/MDT/T0" + mdt_folder_name_appendix
+        MdtCalibDbAlg.ReadKeyRt = "/MDT/RT" + mdt_folder_name_appendix
+    MdtCalibDbAlg.RT_InputFiles = ["Muon_RT_default.data"]
+    if globalflags.DataSource == 'data':
+        MdtCalibDbAlg.defaultT0 = 40
+    elif globalflags.DataSource == 'geant4':
+        MdtCalibDbAlg.defaultT0 = 799
+    MdtCalibDbAlg.UseMLRt = mdtCalibFlags.useMLRt()
+    MdtCalibDbAlg.TimeSlewingCorrection = mdtCalibFlags.correctMdtRtForTimeSlewing()
+    MdtCalibDbAlg.MeanCorrectionVsR = [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ]
+    MdtCalibDbAlg.PropagationSpeedBeta = mdtCalibFlags.mdtPropagationSpeedBeta()
+    # the same as MdtCalibrationDbTool
+    MdtCalibDbAlg.CreateBFieldFunctions = mdtCalibFlags.correctMdtRtForBField()
+    MdtCalibDbAlg.CreateWireSagFunctions = mdtCalibFlags.correctMdtRtWireSag()
+    MdtCalibDbAlg.CreateSlewingFunctions = mdtCalibFlags.correctMdtRtForTimeSlewing()
+
+    from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationTool
+    MdtCalibrationTool.DoSlewingCorrection = mdtCalibFlags.correctMdtRtForTimeSlewing()
+    MdtCalibrationTool.DoTemperatureCorrection = mdtCalibFlags.applyRtScaling()
+    MdtCalibrationTool.DoWireSagCorrection = mdtCalibFlags.correctMdtRtWireSag()
+    if beamFlags.beamType() == 'collisions':
+        MdtCalibrationTool.DoTofCorrection = True
+        if globalflags.DataSource() == 'geant4':
+            MdtCalibrationTool.TimeWindowSetting = mdtCalibWindowNumber('Collision_G4')
+        elif globalflags.DataSource() == 'data':
+            MdtCalibrationTool.TimeWindowSetting = mdtCalibWindowNumber('Collision_G4')
+    else: # cosmics or single beam
+        MdtCalibrationTool.DoTofCorrection = False
+
+    from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbTool
+    MdtCalibrationDbTool.CreateBFieldFunctions = mdtCalibFlags.correctMdtRtForBField()
+    MdtCalibrationDbTool.CreateWireSagFunctions = mdtCalibFlags.correctMdtRtWireSag()
+    MdtCalibrationDbTool.CreateSlewingFunctions = mdtCalibFlags.correctMdtRtForTimeSlewing()
+
 # end of function setupMdtCondDB()
+
 
 def MdtCalibDbTool(name="MdtCalibDbTool",**kwargs):
     # setup COOL folders
@@ -187,8 +238,7 @@ def MdtCalibrationSvc(name="MdtCalibrationSvc",**kwargs):
     from AthenaCommon.CfgGetter import getService
     getService("MdtCalibrationDbSvc")
     kwargs.setdefault( "DoSlewingCorrection",  mdtCalibFlags.correctMdtRtForTimeSlewing() )
-
-# Hack to use DoTemperatureCorrection for applyRtScaling; but applyRtScaling should not be used anyway, since MLRT can be used
+    # Hack to use DoTemperatureCorrection for applyRtScaling; but applyRtScaling should not be used anyway, since MLRT can be used
     kwargs.setdefault( "DoTemperatureCorrection", mdtCalibFlags.applyRtScaling() )
     kwargs.setdefault( "DoWireSagCorrection",  mdtCalibFlags.correctMdtRtWireSag() )
     if beamFlags.beamType() == 'collisions':
@@ -199,9 +249,7 @@ def MdtCalibrationSvc(name="MdtCalibrationSvc",**kwargs):
         elif globalflags.DataSource() == 'data':
             # for collisions cut away hits that are far outside of the MDT time window
             kwargs.setdefault( "TimeWindowSetting", mdtCalibWindowNumber('Collision_G4') )
-
     else: # cosmics or single beam
         kwargs.setdefault("DoTofCorrection",False)
-
     return CfgMgr.MdtCalibrationSvc(name,**kwargs)
 

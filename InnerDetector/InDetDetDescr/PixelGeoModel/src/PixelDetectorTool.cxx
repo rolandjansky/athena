@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,25 +9,20 @@
 #include "PixelDetectorFactoryDC2.h" 
 #include "PixelGeometryManager.h" 
 #include "PixelSwitches.h" 
-#include "PixelGeoModel/IBLParameterSvc.h"
+
 #include "InDetReadoutGeometry/PixelDetectorManager.h" 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "PixelGeoModelAthenaComps.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-#include "GeometryDBSvc/IGeometryDBSvc.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "GeoModelInterfaces/IGeoSubDetTool.h"
-#include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
 
-#include "SGTools/ClassID_traits.h"
+#include "AthenaKernel/ClassID_traits.h"
 #include "SGTools/DataProxy.h"
 
 using InDetDD::PixelDetectorManager; 
@@ -37,33 +32,15 @@ using InDetDD::SiDetectorManager;
  ** Constructor(s)
  **/
 PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string& name, const IInterface* parent )
-  : GeoModelTool( type, name, parent ),
-    m_detectorName("PixelDetector"),
-    m_IBLParameterSvc("IBLParameterSvc",name),
-    m_buildDBM(0),
-    m_useDynamicAlignFolders(false),
-    m_bcmTool(""),
-    m_blmTool(""),
-    m_serviceBuilderTool(""),
-    m_geoDbTagSvc("GeoDbTagSvc",name),
-    m_rdbAccessSvc("RDBAccessSvc",name),
-    m_geometryDBSvc("InDetGeometryDBSvc",name),
-    m_manager(0),
-    m_athenaComps(0)
+  : GeoModelTool( type, name, parent )
 {
-  declareProperty("Services",m_services=true);
-  declareProperty("ServicesOnLadder",m_servicesOnLadder=true); ///JBdV
-  declareProperty("Alignable", m_alignable=true);
-  declareProperty("TweakIBLDist", m_tweakIBLDist=true);
-  declareProperty("DC1Geometry",m_dc1Geometry=false); 
-  declareProperty("InitialLayout",m_initialLayout=false);
-  declareProperty("DevVersion", m_devVersion=false);
-  declareProperty("BCM_Tool", m_bcmTool);
-  declareProperty("BLM_Tool", m_blmTool);
-  declareProperty("ServiceBuilderTool", m_serviceBuilderTool);
-  declareProperty("GeoDbTagSvc", m_geoDbTagSvc);
-  declareProperty("RDBAccessSvc", m_rdbAccessSvc);
-  declareProperty("GeometryDBSvc", m_geometryDBSvc);
+  declareProperty("Services",m_services);
+  declareProperty("ServicesOnLadder",m_servicesOnLadder); ///JBdV
+  declareProperty("Alignable", m_alignable);
+  declareProperty("TweakIBLDist", m_tweakIBLDist);
+  declareProperty("DC1Geometry",m_dc1Geometry);
+  declareProperty("InitialLayout",m_initialLayout);
+  declareProperty("DevVersion", m_devVersion);
   declareProperty("OverrideVersionName", m_overrideVersionName);
   declareProperty("useDynamicAlignFolders", m_useDynamicAlignFolders);
 }

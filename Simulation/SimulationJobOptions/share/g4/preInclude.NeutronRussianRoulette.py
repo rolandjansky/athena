@@ -12,12 +12,12 @@ threshold = 1. # MeV
 weight = 10.
 
 from G4AtlasApps.SimFlags import simFlags
-if hasattr(simFlags, 'RussianRouletteThreshold') and \
-   hasattr(simFlags, 'RussianRouletteWeight'):
-    simFlags.RussianRouletteThreshold = threshold
-    simFlags.RussianRouletteWeight = weight
-    print "Turning on RussianRoulette with threshold %s MeV and weight %s." % (
-      simFlags.RussianRouletteThreshold.get_Value(),
-      simFlags.RussianRouletteWeight.get_Value())
+if hasattr(simFlags, 'NRRThreshold') and \
+   hasattr(simFlags, 'NRRWeight'):
+    simFlags.NRRThreshold = threshold
+    simFlags.NRRWeight = weight
+    print "Turning on NeutronRussianRoulette with threshold %s MeV and weight %s." % (
+      simFlags.NRRThreshold.get_Value(),
+      simFlags.NRRWeight.get_Value())
 else:
-  print "WARNING: attribute RussianRouletteThreshold or RussianRouletteWeight not found in simFlags."
+  print "WARNING: attribute NRRThreshold or NRRWeight not found in simFlags."

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAMP_ATHMPEVTLOOPMGR_H
@@ -9,7 +9,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaInterprocess/FdsRegistry.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 class IAthenaMPTool;
 class ISvcLocator;
@@ -29,9 +29,11 @@ class AthMpEvtLoopMgr
 				    void** ppvInterface);
 
   virtual StatusCode nextEvent(int maxevt);
-  virtual StatusCode executeEvent(void* par);
+  virtual StatusCode executeEvent(EventContext &&ctx);
   virtual StatusCode executeRun(int maxevt);
   virtual StatusCode stopRun();
+
+  EventContext createEventContext();
 
  private:
   ServiceHandle<IEventProcessor> m_evtProcessor;
@@ -61,7 +63,7 @@ class AthMpEvtLoopMgr
 
   StatusCode wait();
   StatusCode generateOutputReport(); 
-  boost::shared_ptr<AthenaInterprocess::FdsRegistry> extractFds();
+  std::shared_ptr<AthenaInterprocess::FdsRegistry> extractFds();
   StatusCode updateSkipEvents(int skipEvents);
 }; 
 

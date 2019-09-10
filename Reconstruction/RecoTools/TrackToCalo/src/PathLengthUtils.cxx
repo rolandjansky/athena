@@ -19,7 +19,7 @@ PathLengthUtils::~PathLengthUtils(){
 }
 
 //=========================================================================================================================
-double PathLengthUtils::get3DPathLength(const CaloCell& cell, const Amg::Vector3D& entrance, const Amg::Vector3D& exit, double drFix, double dzFix){
+double PathLengthUtils::get3DPathLength(const CaloCell& cell, const Amg::Vector3D& entrance, const Amg::Vector3D& exit, double drFix, double dzFix) const{
 //=========================================================================================================================
 
     int debugLevel = 0;
@@ -483,7 +483,7 @@ double PathLengthUtils::get3DPathLength(const CaloCell& cell, const Amg::Vector3
     return path; 
  
 }
-bool PathLengthUtils::crossingMatrix(Amg::MatrixX Matrix ,Amg::Vector3D entry, Amg::Vector3D& path) {
+bool PathLengthUtils::crossingMatrix(Amg::MatrixX Matrix ,Amg::Vector3D entry, Amg::Vector3D& path) const {
 
 //    std::cout << " Matrix determinant " << Matrix.determinant() << std::endl;
 //    std::cout << " Matrix " << std::endl; 
@@ -509,7 +509,7 @@ bool PathLengthUtils::crossingMatrix(Amg::MatrixX Matrix ,Amg::Vector3D entry, A
     return crossing;
 }
 
-double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vector3D& entrance, const Amg::Vector3D& exit){
+double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vector3D& entrance, const Amg::Vector3D& exit) const {
 //=========================================================================================================================
     // OBTAIN LAYER INDICES FOR LINEAR INTERPOLATION
     unsigned int SampleID = cell.caloDDE()->getSampling();
@@ -733,7 +733,7 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
 
 
 
-CaloSampling::CaloSample PathLengthUtils::tileEntrance(CaloSampling::CaloSample sample){
+CaloSampling::CaloSample PathLengthUtils::tileEntrance(CaloSampling::CaloSample sample) const {
     if(sample==CaloSampling::TileBar0||sample==CaloSampling::TileBar1||sample==CaloSampling::TileBar2||sample==CaloSampling::TileGap2) return CaloSampling::TileBar0;
     if(sample==CaloSampling::TileGap1)                                                       return CaloSampling::TileBar1;
     if(sample==CaloSampling::TileGap3||sample==CaloSampling::TileExt0||sample==CaloSampling::TileExt1||sample==CaloSampling::TileExt2) return CaloSampling::TileExt0;
@@ -741,7 +741,7 @@ CaloSampling::CaloSample PathLengthUtils::tileEntrance(CaloSampling::CaloSample 
     //return sample;
 } // PathLengthUtils::entrance 
 
-CaloSampling::CaloSample PathLengthUtils::tileExit(CaloSampling::CaloSample sample){
+CaloSampling::CaloSample PathLengthUtils::tileExit(CaloSampling::CaloSample sample) const {
     if(sample==CaloSampling::TileBar0||sample==CaloSampling::TileBar1||sample==CaloSampling::TileBar2||sample==CaloSampling::TileGap1) return CaloSampling::TileBar2;
     if(sample==CaloSampling::TileGap2)                                                       return CaloSampling::TileBar1;
     if(sample==CaloSampling::TileGap3)                                                       return CaloSampling::TileExt1;
@@ -751,7 +751,7 @@ CaloSampling::CaloSample PathLengthUtils::tileExit(CaloSampling::CaloSample samp
 } // PathLengthUtils::exit 
 
 /** Return the length(mm) of the path crossed inside the cell, given the parameters for the extrapolation at entrance and exit of the layer **/
-double PathLengthUtils::pathInsideCell(const CaloCell& cell, const CaloExtensionHelpers::EntryExitLayerMap&  entryExitLayerMap) {
+double PathLengthUtils::pathInsideCell(const CaloCell& cell, const CaloExtensionHelpers::EntryExitLayerMap&  entryExitLayerMap) const {
   
   CaloSampling::CaloSample sample = cell.caloDDE()->getSampling();
 

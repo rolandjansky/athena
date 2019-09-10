@@ -141,12 +141,12 @@ public:
   static void DoCleanup();
 
 protected:
-  const double init_Ekin_nominal=0;
-  const double init_Ekin_min=0;
-  const double init_Ekin_max=14000000;
-  const double init_eta_nominal=0;
-  const double init_eta_min=-100;
-  const double init_eta_max=100;
+  static constexpr double init_Ekin_nominal=0;//! Do not persistify!
+  static constexpr double init_Ekin_min=0;//! Do not persistify!
+  static constexpr double init_Ekin_max=14000000;//! Do not persistify!
+  static constexpr double init_eta_nominal=0;//! Do not persistify!
+  static constexpr double init_eta_min=-100;//! Do not persistify!
+  static constexpr double init_eta_max=100;//! Do not persistify!
 
   static std::vector< TFCSParametrizationBase* > s_cleanup_list;
 
@@ -196,7 +196,7 @@ private:
 private:
   static std::set< int > s_no_pdgid;
 
-  ClassDef(TFCSParametrizationBase,1)  //TFCSParametrizationBase
+  ClassDef(TFCSParametrizationBase,2)  //TFCSParametrizationBase
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)

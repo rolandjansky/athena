@@ -28,6 +28,7 @@
 #include "LArCabling/LArCablingLegacyService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 
 #include <map>
@@ -86,8 +87,6 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   const LArFCAL_ID*  m_LArFCAL_IDHelper;
   const LArHEC_ID*   m_LArHEC_IDHelper;
   const CaloIdManager*       m_caloIdMgr;
-  const CaloDetDescrManager* m_CaloDetDescrMgr;
-  const ILArPedestal* m_larPedestal;
 
 
   //LArOnlineIDStrHelper* m_strHelper;
@@ -104,7 +103,8 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
 
   // Properties
   std::string m_LArDigitContainerKey;
-  std::string m_larPedestalKey;
+  SG::ReadCondHandleKey<ILArPedestal> m_larPedestalKey
+  { this, "LArPedestalKey", "Pedestal", "" };
   std::string m_channelKey;
   float m_muonADCthreshold_EM_barrel;
   float m_muonADCthreshold_EM_endcap;
@@ -118,7 +118,8 @@ class LArCosmicsMonTool: public ManagedMonitorToolBase
   std::string sampling_str(int sampling);
 
   // To get physical coordinates
-  StatusCode returnEtaPhiCoord(Identifier offlineID,float& eta,float& phi);
+  StatusCode returnEtaPhiCoord(const CaloDetDescrManager* ddmgr,
+                               Identifier offlineID,float& eta,float& phi);
 
   // Muon Seeds with Digits
   TH2F* m_hMuonMapEMDig; TH2F* m_hMuonMapHECDig; TH2F* m_hMuonMapFCALDig;

@@ -18,20 +18,21 @@
 #ifndef INDETRIOMAKER_CLUSTERMAKERTOOL_H
 #define INDETRIOMAKER_CLUSTERMAKERTOOL_H
 
-//#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
-#include <vector>
+
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
-
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-#include <atomic>
+#include "GaudiKernel/ToolHandle.h"
 
-class IPixelCalibSvc;
+#include <atomic>
+#include <vector>
+
 template <class T> class ServiceHandle;
 class Identifier;
 class StatusCode;
@@ -60,7 +61,7 @@ public:
   ClusterMakerTool(const std::string &type,
 		   const std::string &name,
 		   const IInterface *parent);
-  ~ClusterMakerTool();
+  ~ClusterMakerTool() = default;
   
   static const InterfaceID& interfaceID() { return IID_ClusterMakerTool; };
 
@@ -142,15 +143,29 @@ public:
  
 private:
 
-  //  mutable MsgStream m_log;
-  bool m_calibrateCharge;
-  mutable std::atomic_bool m_issueErrorA;
-  mutable std::atomic_bool m_forceErrorStrategy1A;
-  mutable std::atomic_bool m_issueErrorB;
-  mutable std::atomic_bool m_forceErrorStrategy1B;
-  ServiceHandle<IPixelCalibSvc> m_calibSvc;
-  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool{this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
-  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool{this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
+  ServiceHandle<IPixelCablingSvc> m_pixelCabling
+  {this, "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
+
+  SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
+  {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
+
+  SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+  {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
+
+  ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool
+  {this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
+
+  ToolHandle<ISiLorentzAngleTool> m_sctLorentzAngleTool
+  {this, "SCTLorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle of SCT"};
+
+  // These std::atomic_bool may be dropped.
+  // m_issueErrorA and m_issueErrorB are changed in pixelCluster but do not affect any computation.
+  // The default values of m_forceErrorStrategy1A and m_forceErrorStrategy1B are unchanged.
+  // If they are changed in event processing and affect some computation, they are not thread-safe.
+  mutable std::atomic_bool m_issueErrorA{true};
+  mutable std::atomic_bool m_forceErrorStrategy1A{false};
+  mutable std::atomic_bool m_issueErrorB{true};
+  mutable std::atomic_bool m_forceErrorStrategy1B{false};
 
   // Parametrization of the Pixel errors
   // now moved in PixelConditionsData, except for CTB parametrization

@@ -4,6 +4,9 @@
 # @author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # @author: Sebastien Binet <binet@cern.ch>
 
+from __future__ import print_function
+import six
+
 try:
    import cPickle as pickle
 except ImportError:
@@ -65,12 +68,12 @@ class ConfigurationShelve( object ):
        # remove current configuration first, as much as possible, to prevent
        # hysteresis; note that if the user keeps configurables around in the
        # main (or any other) space, a merge will occur
-         from AlgSequence import AlgSequence
+         from AthenaCommon.AlgSequence import AlgSequence
 
          topSeq = AlgSequence()
          topSeq.removeAll()
 
-         from AppMgr import theApp, ServiceMgr, ToolSvc, theAuditorSvc
+         from AthenaCommon.AppMgr import theApp, ServiceMgr, ToolSvc, theAuditorSvc
 
          theApp._streams.removeAll()
          ServiceMgr.removeAll()
@@ -96,8 +99,8 @@ class ConfigurationJar( object ):
    def __init__( self, name ):
       self.name = name
 
-      from AppMgr import theApp, ServiceMgr
-      from JobProperties import jobproperties
+      from AthenaCommon.AppMgr import theApp, ServiceMgr
+      from AthenaCommon.JobProperties import jobproperties
 
       from . import AlgSequence as _as
       self.athMasterSeq = _as.AthSequencer ("AthMasterSeq")
@@ -141,7 +144,7 @@ class ConfigurationJar( object ):
     # of instances shared on name for all configurables
 
     # now handle jobproperties
-      import JobProperties as JobProperties
+      import AthenaCommon.JobProperties as JobProperties
       setattr( JobProperties, 'jobproperties',  d['JobProperties'] )
       pass
 
@@ -169,19 +172,24 @@ def storeJobOptionsCatalogue( cfg_fname ):
            v = str( v.toStringProperty() )
         elif hasattr( v, 'toString' ):
            v = str( v.toString() )
+        elif type (v) == float:
+           # str(1.8e12) will give '1.8e+12' in py2
+           # and `1800000000000.0' in py3.
+           # Convert floats like this for consistency.
+           v = '%g'%v
         else:
            v = str( v )
         jocfg[ client ][ n ] = v
 
-   from AppMgr import theApp
-   from AppMgr import ServiceMgr as svcMgr
-   from Configurable import Configurable as C
+   from AthenaCommon.AppMgr import theApp
+   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+   from AthenaCommon.Configurable import Configurable as C
 
  # tickle the Gaudi C++ side and configure the ApplicationMgr
    theApp.setup( recursive = True )
 
    app_props = [ (k,v.value())
-                 for k,v in theApp.getHandle().properties().iteritems() ]
+                 for k,v in six.iteritems(theApp.getHandle().properties()) ]
    _fillCfg( 'ApplicationMgr', app_props )
 
  # get all services that now already exist, as they require special treatment;
@@ -200,7 +208,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
    for svcname in cfgSvcs:
       svc = theApp.service( svcname )
       props = []
-      for k,v in svc.properties().iteritems():
+      for k,v in six.iteritems(svc.properties()):
          if v.value() != C.propertyNoValue:
             props.append( (k,v.value()) )
       _fillCfg( svcname, props )
@@ -211,7 +219,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
       evLoop = getattr( svcMgr, evLoopName )
 
       props = []
-      for k,v in evLoop.properties().iteritems():
+      for k,v in six.iteritems(evLoop.properties()):
          if v != C.propertyNoValue:
             props.append( (k,v) )
       _fillCfg( evLoopName, props )
@@ -239,7 +247,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
 
  # workaround for pycomps
    pycomps = []
-   for c in C.allConfigurables.itervalues():
+   for c in six.itervalues(C.allConfigurables):
       if not isinstance( c, (PyAthena.Alg,
                              PyAthena.AlgTool,
                              PyAthena.Svc,
@@ -284,7 +292,7 @@ def loadJobOptionsCatalogue( cfg_fname ):
    cfg.close()
 
    kw = jocfg[ 'ApplicationMgr' ]
-   from AppMgr import theApp
+   from AthenaCommon.AppMgr import theApp
    theApp.JobOptionsSvcType = kw[ 'JobOptionsSvcType' ]
    theApp.MessageSvcType    = kw[ 'MessageSvcType' ]
    theApp.getHandle( kw )
@@ -303,14 +311,14 @@ def loadJobOptionsCatalogue( cfg_fname ):
  # restore job catalogue entries
    import GaudiPython.Bindings as gaudi
    for client in jocat:
-      for n,v in jocat[ client ].iteritems():
+      for n,v in six.iteritems(jocat[ client ]):
          # In Gaudi v28, the second argument of the ctor is passed by move,
          # which pyroot doesn't handle correctly.  Do this as a workaround.
          p = gaudi.StringProperty( n, '' )
          try:
             p.fromString(v).ignore()
          except Exception:
-            print "Failed to convert",n,v
+            print ("Failed to convert",n,v)
 
          if not josvc.addPropertyToCatalogue( client, p ).isSuccess():
             raise RuntimeError( 'could not add property [%s.%s = %s]' % (client, n, v) )
@@ -318,7 +326,7 @@ def loadJobOptionsCatalogue( cfg_fname ):
  # restore special services properties
    for client in jocfg:
       svc = PyAthena.py_svc( client, createIf = False, iface='IProperty' )
-      for n,v in jocfg[ client ].iteritems():
+      for n,v in six.iteritems(jocfg[ client ]):
          # See comment above.
          p = gaudi.StringProperty( n, '' )
          p.fromString(v).ignore()
@@ -343,7 +351,8 @@ def saveToAscii(out, cfgName=None):
 
  # temporarily set the Configurable log level to make sure that the printout
  # does not get suppressed
-   import Configurable, Constants
+   from AthenaCommon import Configurable
+   from AthenaCommon import Constants
    llevel = Configurable.log.level
    Configurable.log.setLevel( Constants.INFO )
 
@@ -372,6 +381,7 @@ def saveToPickle(fileName, cfgName=None):
    shelve = ConfigurationShelve( fileName )
    jar = ConfigurationJar( cfgName )
    shelve.store( jar )
+   
    return
 
 def loadFromPickle(fileName, cfgName=None):
@@ -419,15 +429,19 @@ def cmpConfigs (ref, chk, refName=None, chkName=None):
       jobofile = NamedTemporaryFile(suffix='.py')
       map (jobofile.writelines, [l+os.linesep for l in job])
       jobofile.flush()
-      from commands import getstatusoutput
+
+      from future import standard_library
+      standard_library.install_aliases()
+      from subprocess import getstatusoutput
       sc,out = getstatusoutput ('athena.py %s' % jobofile.name)
+
       jobofile.close()
       if sc==0:
          return fname
       return (sc, out)
 
    if os.path.splitext(ref)[1]=='.py':
-      print "::: creating a shelve on the fly for [%s]..."%ref
+      print ("::: creating a shelve on the fly for [%s]..."%ref)
       ref = _create_shelve (ref)
       if not isinstance(ref, str):
          raise RuntimeError (
@@ -436,7 +450,7 @@ def cmpConfigs (ref, chk, refName=None, chkName=None):
       atexit.register (os.unlink, ref)
       
    if os.path.splitext(chk)[1]=='.py':
-      print "::: creating a shelve on the fly for [%s]..."%chk
+      print ("::: creating a shelve on the fly for [%s]..."%chk)
       chk = _create_shelve (chk)
       if not isinstance(chk, str):
          raise RuntimeError (
@@ -466,8 +480,8 @@ def cmpConfigs (ref, chk, refName=None, chkName=None):
                v = cfg.getDefaultProperty(k)
             return v
 
-         from Configurable import Configurable
-         for k,v in props.iteritems():
+         from AthenaCommon.Configurable import Configurable
+         for k,v in six.iteritems(props):
             if not isinstance(v, Configurable):
                all_cfgs[name][k] = _get_value(cfg,k,v)
             else:

@@ -8,6 +8,7 @@ atlas_subdir( TrigFTKSim )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+                          Control/CxxUtils
                           Control/PileUpTools
                           Control/StoreGate
                           GaudiKernel
@@ -44,7 +45,7 @@ find_package( Boost COMPONENTS iostreams program_options filesystem thread syste
 find_package( Eigen )
 find_package( HepMC )
 find_package( HepPDT )
-find_package( ROOT COMPONENTS Matrix Cint Core Tree MathCore Hist RIO pthread Table MathMore Minuit Minuit2 Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( ROOT COMPONENTS Matrix Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 find_package( TBB )
 
 add_definitions(-DHAVE_BOOST_IOSTREAMS)
@@ -77,7 +78,8 @@ atlas_add_library( TrigFTKSimLib
                    src/FTKSetup.cxx
                    src/PatternBank.cxx
                    src/FTK_AMBank.cxx
-                   src/atlClustering.cxx
+                   src/FTKClusteringPrintout.cxx
+                   src/FTKClusteringEngine.cxx
                    src/FTKRoadFileOutput.cxx
                    src/FTKConstantBank.cxx
                    src/FTKTrackInput.cxx
@@ -115,6 +117,9 @@ atlas_add_library( TrigFTKSimLib
                    src/FTKRootFile.cxx
                    src/FTKMergeRoot.cxx
                    src/FTK_AMsimulation_base.cxx
+                   src/FTK_HitMask.cxx
+                   src/FTK_CompressedPatternList.cxx
+                   src/FTK_CompressedSectorPatternList.cxx
                    src/FTK_CompressedAMBank.cxx
                    src/FTKSteering.cxx
                    ${TrigFTKSimLibDictSource}
@@ -140,8 +145,23 @@ atlas_add_executable( trigftk_efficiency
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
 
+atlas_add_executable( trigftk_efficiency_step_by_step
+                      standalone/efficiency_step_by_step.cc
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+
 atlas_add_executable( trigftk_dataflow
                       standalone/dataflow.cc
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+
+atlas_add_executable( trigftk_makeconn
+                      standalone/make_conn.cc
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+
+atlas_add_executable( trigftk_makecompressedbank
+                      standalone/makecompressedbank.cc
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
 

@@ -20,7 +20,7 @@ def SCT_SiPropertiesCfg(flags, name="SCTSiPropertiesCondAlg", **kwargs):
     acc = ComponentAccumulator()
     tool = kwargs.get("SiPropertiesTool", SCT_SiPropertiesToolCfg(flags))
     alg = SCTSiPropertiesCondAlg(name, **kwargs)
-    acc.addEventAlgo(alg)
+    acc.addCondAlgo(alg)
     acc.setPrivateTools(tool)
     return acc
 

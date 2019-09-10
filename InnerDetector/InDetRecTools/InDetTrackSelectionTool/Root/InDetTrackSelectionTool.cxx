@@ -841,13 +841,12 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
   }
 
   const Trk::TrackSummary* summary = track.trackSummary();
+  Trk::Track tmpTrack;
   if (summary == nullptr && m_trackSumToolAvailable) {
-    // unfortunately the const must be cast away because the tool needs
-    // to update the track to make a summary (it is a friend of the track)
-    Trk::Track& nonConstTrack = const_cast<Trk::Track&>(track);
-    m_trackSumTool->updateTrack(nonConstTrack);
-    // now get the summary from the track (the track has ownership)
-    summary = nonConstTrack.trackSummary();
+    tmpTrack = Trk::Track(track);
+    m_trackSumTool->updateTrack(tmpTrack);
+    // now get the summary from the tmpTrack (the tmpTrack has ownership)
+    summary = tmpTrack.trackSummary();
   }
   if (summary == nullptr) {
     ATH_MSG_INFO( "Track preselection: cannot get a track summary. This track will not pass any cuts." );

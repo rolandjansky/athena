@@ -61,7 +61,6 @@ ExampleJpsiFinder = Analysis__JpsiFinder(name                       = "JpsiFinde
                                          #TrkVertexFitterTool        = InDetFullVxFitterTool,   # Full Billoir vertex fitter
                                          #TrkVertexFitterTool        = InDetFastVxFitterTool,   # Fast Billoir vertex fitter
                                          TrackSelectorTool          = InDetTrackSelectorTool,
-                                         ConversionFinderHelperTool = InDetConversionHelper,
                                          VertexPointEstimator       = VtxPointEstimator)
 
 
@@ -100,7 +99,6 @@ ExampleJpsiEEFinder = Analysis__JpsiEEFinder(name                       = "JpsiE
                                              #TrkVertexFitterTool       = InDetFastVxFitterTool,   # Fast Billoir vertex fitter
                                              EgammaTrkRefitterTool      = electronRefitterToolGSFCalo,
                                              TrackSelectorTool          = InDetTrackSelectorToolEE,
-                                             ConversionFinderHelperTool = InDetConversionHelper,
                                              VertexPointEstimator       = VtxPointEstimator)
 
 ToolSvc += ExampleJpsiFinder

@@ -1,23 +1,21 @@
-/*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
 
-/**************************************************************************
+/**
  **
- **   File:         Resplot.cxx  
+ **   @file         Resplot.cxx  
  **
- **   Description:    
+ **                   
  **                   
  **                   
  ** 
- **   Author:       M.Sutton  
+ **   @author       M.Sutton  
  **
- **   Created:      Mon Jun 21 18:35:22 BST 2004
- **   Modified:     
+ **   @date         Mon Jun 21 18:35:22 BST 2004
+ **
+ **   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  **                   
  **                   
  **
- **************************************************************************/ 
+ **/
 
 #include <iostream>
 #include <sstream>

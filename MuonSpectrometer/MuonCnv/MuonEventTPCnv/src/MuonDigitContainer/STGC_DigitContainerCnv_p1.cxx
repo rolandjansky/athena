@@ -17,7 +17,7 @@
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-#include "MuonEventTPCnv/CreateTransientTemplates.h"
+
 
 
 //#include "DataModel/DataPool.h"
@@ -66,7 +66,7 @@ StatusCode Muon::STGC_DigitContainerCnv_p1::initialize(MsgStream &log) {
 /*******************************************************************************/
 void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* transCont,  Muon::STGC_DigitContainer_p1* persCont, MsgStream &log) 
 {
-  if(log.level() <= MSG::DEBUG && !m_isInitialized) {
+  if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
       log << MSG::FATAL << "Could not initialize STGC_DigitContainerCnv_p1 " << endmsg;
     } 
@@ -138,10 +138,8 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
       STGC_Digit_p1*   pchan = &(persCont->m_digits[pchanIndex]); // persistent version to fill
       chanCnv.transToPers(chan, pchan, log); // convert from sTgcDigit to STGC_Digit_p1
       unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
-      unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
-      unsigned int diff = clusIdCompact - collIdCompact;
-      if (diff>std::numeric_limits<uint16_t>::max()) log << MSG::ERROR<<"Diff of "<<diff<<" is greater than max size of diff permitted!!! ("<<std::numeric_limits<uint16_t>::max()<<")"<<endmsg;
-      persCont->m_digitDeltaId[pchanIndex]=diff; //store delta identifiers, rather than full identifiers
+
+      persCont->m_digitDeltaId[pchanIndex]=clusIdCompact; //store delta identifiers, rather than full identifiers
     }
   }
   if (log.level() <= MSG::DEBUG) 
@@ -164,6 +162,12 @@ void  Muon::STGC_DigitContainerCnv_p1::persToTrans(const Muon::STGC_DigitContain
   //
   // So here we loop over all collection and extract their channels
   // from the vector.
+
+  if(!m_isInitialized) {
+    if (this->initialize(log) != StatusCode::SUCCESS) {
+      log << MSG::FATAL << "Could not initialize STGC_DigitContainerCnv_p1 " << endmsg;
+    } 
+  }
 
   sTgcDigitCollection* coll = 0;
 

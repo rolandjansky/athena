@@ -1,15 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetByteStreamErrorsAthenaPool/InDetBSErrContainer_p1.h"
-#include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetBSErrContainerCnv_p1.h"
 
-#include "Identifier/IdentifierHash.h"
-#include "AthAllocators/DataPool.h"
-
-void InDetBSErrContainerCnv_p1::transToPers(const InDetBSErrContainer* transCont, InDetBSErrContainer_p1* persCont, MsgStream & /*log */) 
+void InDetBSErrContainerCnv_p1::transToPers ATLAS_NOT_THREAD_SAFE (const InDetBSErrContainer* transCont, InDetBSErrContainer_p1* persCont, MsgStream& /*log*/)
 {
   InDetBSErrContainer::const_iterator it = transCont->begin();
   InDetBSErrContainer::const_iterator itEnd = transCont->end();
@@ -24,9 +19,8 @@ void InDetBSErrContainerCnv_p1::transToPers(const InDetBSErrContainer* transCont
   return;
 }
 
-void  InDetBSErrContainerCnv_p1::persToTrans(const InDetBSErrContainer_p1* persCont, InDetBSErrContainer* transCont, MsgStream & /*log */) 
+void  InDetBSErrContainerCnv_p1::persToTrans(const InDetBSErrContainer_p1* persCont, InDetBSErrContainer* transCont, MsgStream& /*log*/)
 {
-
   std::vector<std::pair<IdentifierHash, int>* >::const_iterator it = (persCont->m_bsErrs).begin();
   std::vector<std::pair<IdentifierHash, int>* >::const_iterator itEnd = (persCont->m_bsErrs).end();
   transCont->reserve((persCont->m_bsErrs).size());
@@ -40,7 +34,7 @@ void  InDetBSErrContainerCnv_p1::persToTrans(const InDetBSErrContainer_p1* persC
 
 //================================================================
 InDetBSErrContainer* InDetBSErrContainerCnv_p1::createTransient(const InDetBSErrContainer_p1* persObj, MsgStream& log) {
-  std::auto_ptr<InDetBSErrContainer> trans(new InDetBSErrContainer());
+  std::unique_ptr<InDetBSErrContainer> trans(std::make_unique<InDetBSErrContainer>());
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

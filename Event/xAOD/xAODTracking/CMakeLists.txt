@@ -15,6 +15,12 @@ if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
    set( extra_libs  TrkNeutralParameters TrkParameters TrkTrack VxVertex )
 endif()
 
+if (BUILDVP1LIGHT)
+    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
+        set( extra_libs ${extra_libs} GenVector )
+    endif()
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
@@ -36,7 +42,8 @@ atlas_add_library( xAODTracking
    xAODTracking/*.h xAODTracking/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODTracking
    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks GeoPrimitives
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} AthContainers 
+   AthLinks GeoPrimitives
    EventPrimitives xAODBase xAODCore ${extra_libs} )
 
 atlas_add_dictionary( xAODTrackingDict

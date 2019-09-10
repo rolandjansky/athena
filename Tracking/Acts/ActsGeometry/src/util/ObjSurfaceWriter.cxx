@@ -10,12 +10,12 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "Acts/Layers/Layer.hpp"
+#include "Acts/Geometry/Layer.hpp"
 #include "Acts/Surfaces/CylinderBounds.hpp"
 #include "Acts/Surfaces/PlanarBounds.hpp"
 #include "Acts/Surfaces/RadialBounds.hpp"
 #include "Acts/Surfaces/SurfaceBounds.hpp"
-#include "Acts/Utilities/GeometryID.hpp"
+#include "Acts/Geometry/GeometryID.hpp"
 
 #include "Acts/Surfaces/PolyhedronRepresentation.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
@@ -52,7 +52,8 @@ Acts::ObjSurfaceWriter::write(const std::string& sinfo)
 }
 
 void
-Acts::ObjSurfaceWriter::write(const Acts::Surface& surface)
+Acts::ObjSurfaceWriter::write(const Acts::GeometryContext &gctx,
+                              const Acts::Surface &surface)
 {
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
@@ -62,7 +63,7 @@ Acts::ObjSurfaceWriter::write(const Acts::Surface& surface)
   auto scalor = m_cfg.outputScalor;
   // let's get the bounds & the transform
   const Acts::SurfaceBounds& surfaceBounds = surface.bounds();
-  auto                       sTransform    = surface.transform();
+  auto sTransform = surface.transform(gctx);
 
   // dynamic_cast to PlanarBounds
   const Acts::PlanarBounds* planarBounds
@@ -112,14 +113,16 @@ Acts::ObjSurfaceWriter::write(const Acts::Surface& surface)
       
       auto cylinderSurface = dynamic_cast<const Acts::CylinderSurface*>(&surface);
 
-      Acts::PolyhedronRepresentation ph = cylinderSurface->polyhedronRepresentation();
+      Acts::PolyhedronRepresentation ph =
+          cylinderSurface->polyhedronRepresentation(gctx);
       (*(m_cfg.outputStream)) << ph.objString(m_vtnCounter.vcounter);
       m_vtnCounter.vcounter += ph.vertices.size();
 
     }
     else if(strawSurface) {
 
-      Acts::PolyhedronRepresentation ph = strawSurface->polyhedronRepresentation();
+      Acts::PolyhedronRepresentation ph =
+          strawSurface->polyhedronRepresentation(gctx);
       (*(m_cfg.outputStream)) << ph.objString(m_vtnCounter.vcounter);
       m_vtnCounter.vcounter += ph.vertices.size();
 

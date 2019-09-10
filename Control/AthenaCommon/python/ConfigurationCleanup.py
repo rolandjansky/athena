@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/ConfigurationCleanup.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -6,6 +6,8 @@
 # Forced (!) cleanup of the configuration set of Configurables. If PerfMon is
 # being used, only call this function after initialize(). Part of this code has
 # been experimentally defined, and so it does not cover all situations.
+
+from __future__ import print_function
 
 doCleanse = False
 
@@ -28,7 +30,7 @@ def Cleanse():
 
    import gc, __main__, __builtin__, sys
 
-   print 'There are %d python objects outstanding. Now cleansing ... ' % len(gc.get_objects())
+   print ('There are %d python objects outstanding. Now cleansing ... ' % len(gc.get_objects()))
 
  # to be able to run, theApp has to live
    import AthenaCommon.Include as inc
@@ -55,11 +57,11 @@ def Cleanse():
          return False
 
  # two classes to keep alive for later
-   from Configurable import Configurable
-   from JobProperties import JobProperty
+   from AthenaCommon.Configurable import Configurable
+   from AthenaCommon.JobProperties import JobProperty
 
  # make JobProperty shut up
-   import Logging
+   from AthenaCommon import Logging
    Logging.logging.getLogger('JobProperty ::').setLevel( Logging.logging.FATAL )
    del Logging
 
@@ -74,10 +76,10 @@ def Cleanse():
    for name, conf in Configurable.allConfigurables.items():
 
       if _is_special (conf):
-         #print "::: skipping [%s]..." % conf.name()
+         #print ("::: skipping [%s]..." % conf.name())
          continue
       else:
-         #print ">>> cleansing [%s]..." % conf.name()
+         #print (">>> cleansing [%s]..." % conf.name())
          pass
       
     # delete user-side added variables (derived classes only)
@@ -115,7 +117,7 @@ def Cleanse():
       pass
 
  # destroy the database of Configurables
-   import ConfigurableDb
+   from AthenaCommon import ConfigurableDb
    ConfigurableDb.unloadConfigurableDb()
    del ConfigurableDb
 
@@ -244,5 +246,5 @@ def Cleanse():
    f.close()
 
  # report on success
-   print 'End of cleanup, there are %d python objects left' % len(gc.get_objects())
+   print ('End of cleanup, there are %d python objects left' % len(gc.get_objects()))
    del gc

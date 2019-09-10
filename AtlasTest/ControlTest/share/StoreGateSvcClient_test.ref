@@ -548,7 +548,7 @@ Now we expect to see an error message:
  recorded with key Const of type Foo (CLID 8101) in DataObject @0xffd390[m
 <<---Error Message Ends-------
 IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"[m
-IOVSvcTool           INFO [92;1mIOVRanges will be checked at every [96;1mEvent[m
+IOVSvc.IOVSvcTool    INFO [92;1mIOVRanges will be checked at every [96;1mEvent[m
 ClassIDSvc           INFO  getRegistryEntries: read 325 CLIDRegistry entries for module ALL[m
 *** StoreGateSvcClient_test records OK ***
 

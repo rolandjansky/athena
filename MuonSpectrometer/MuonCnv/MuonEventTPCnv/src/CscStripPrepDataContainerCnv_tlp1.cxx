@@ -3,7 +3,6 @@
 */
 
 #include "MuonEventTPCnv/CscStripPrepDataContainerCnv_tlp1.h"
-#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 CscStripPrepDataContainerCnv_tlp1::CscStripPrepDataContainerCnv_tlp1()
 {

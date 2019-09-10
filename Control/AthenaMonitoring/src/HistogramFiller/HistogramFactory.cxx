@@ -6,6 +6,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
+#include "TROOT.h"
 
 #include "HistogramException.h"
 #include "HistogramFactory.h"
@@ -13,8 +14,14 @@
 using namespace Monitored;
 
 HistogramFactory::HistogramFactory(const ServiceHandle<ITHistSvc>& histSvc,
-                                   std::string groupName)
-    : m_histSvc(histSvc), m_groupName(std::move(groupName)) {}
+                                   std::string histoPath)
+: m_histSvc(histSvc)
+{
+  size_t split = histoPath.find('/');
+  m_streamName = histoPath.substr(0,split);
+  m_groupName = split!=std::string::npos ? histoPath.substr(split) : "";
+}
+
 
 TNamed* HistogramFactory::create(const HistogramDef& def) {
   TNamed* rootObj(0);
@@ -59,26 +66,57 @@ TNamed* HistogramFactory::create(const HistogramDef& def) {
 
 template<class H> 
 TH1* HistogramFactory::create1D(const HistogramDef& def) {
-  return create<H,TH1>(def, def.xbins, def.xmin, def.xmax);
+  if ( def.xArray.size()!=0 ) {
+    return create<H,TH1>(def, def.xbins, &(def.xArray)[0]);
+  } else {
+    return create<H,TH1>(def, def.xbins, def.xmin, def.xmax);
+  }
 }
 
 template<class H> 
 TH1* HistogramFactory::create1DProfile(const HistogramDef& def) {
-  return create<H,TH1>(def, def.xbins, def.xmin, def.xmax, 
-                            def.ymin, def.ymax);
+  if (def.xArray.size()!=0) {
+    return create<H,TH1>(def, def.xbins, &(def.xArray)[0],
+                              def.ymin, def.ymax);
+  } else {
+    return create<H,TH1>(def, def.xbins, def.xmin, def.xmax, 
+                              def.ymin, def.ymax);
+  }
 }
 
 template<class H> 
 TH2* HistogramFactory::create2D(const HistogramDef& def) {
-  return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
-                            def.ybins, def.ymin, def.ymax);
+  if (def.xArray.size()!=0 && def.yArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, &(def.yArray)[0]);
+  } else if (def.yArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, def.xmin, def.xmax,
+                              def.ybins, &(def.yArray)[0]);
+  } else if (def.xArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, def.ymin, def.ymax);
+  } else {
+    return create<H,TH2>(def, def.xbins, def.xmin, def.xmax,
+                              def.ybins, def.ymin, def.ymax);
+  }
 }
 
 template<class H> 
 TH2* HistogramFactory::create2DProfile(const HistogramDef& def) {
-  return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
-                            def.ybins, def.ymin, def.ymax, 
-                            def.zmin, def.zmax);
+  if (def.xArray.size()!=0 && def.yArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, &(def.yArray)[0]);
+  } else if (def.yArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
+                              def.ybins, &(def.yArray)[0]);
+  } else if (def.xArray.size()!=0) {
+    return create<H,TH2>(def, def.xbins, &(def.xArray)[0],
+                              def.ybins, def.ymin, def.ymax);
+  } else {
+    return create<H,TH2>(def, def.xbins, def.xmin, def.xmax, 
+                              def.ybins, def.ymin, def.ymax, 
+                              def.zmin, def.zmax);
+  }
 }
 
 TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {    
@@ -97,6 +135,7 @@ TEfficiency* HistogramFactory::createEfficiency(const HistogramDef& def) {
   // Otherwise, create the efficiency and register it
   e = new TEfficiency(def.alias.c_str(),def.title.c_str(),def.xbins,def.xmin,def.xmax);
   TGraph* g = reinterpret_cast<TGraph*>(e);
+  e->SetDirectory(gROOT);
   if ( !m_histSvc->regGraph(fullName,g) ) {
     delete e;
     throw HistogramException("Histogram >"+ fullName + "< can not be registered in THistSvc");
@@ -130,15 +169,12 @@ HBASE* HistogramFactory::create(const HistogramDef& def, Types&&... hargs) {
 
 void HistogramFactory::setOpts(TH1* hist, const std::string& opt) {
   // try to apply an option
-  if ( opt.find("kCanRebin") != std::string::npos ) {
-     hist->SetCanExtend(TH1::kAllAxes);
-  } else {
-     hist->SetCanExtend(TH1::kNoAxis);  
-  }
+  const unsigned canExtendPolicy = opt.find("kCanRebin") != std::string::npos ? TH1::kAllAxes : TH1::kNoAxis;
+  hist->SetCanExtend(canExtendPolicy);
+
   // try to apply option to make Sumw2 in histogram
-  if ( opt.find("Sumw2") != std::string::npos ) {
-    hist->Sumw2();
-  }
+  const bool shouldActivateSumw2 = opt.find("Sumw2") != std::string::npos;
+  hist->Sumw2(shouldActivateSumw2);
 }
 
 void HistogramFactory::setLabels(TH1* hist, const std::vector<std::string>& labels) {
@@ -161,15 +197,15 @@ std::string HistogramFactory::getFullName(const HistogramDef& def) {
   const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
   
   std::string path;
-  if( online.count( def.path) != 0 ) {
-    path =  "/" + def.path + "/" + m_groupName;
-  } else if ( def.path == "DEFAULT" ) {
-    path = "/" + m_groupName;
+  if ( online.count( def.path)!=0 ) {
+    path =  "/" + def.path + "/" + m_streamName + "/" + m_groupName;
+  } else if ( def.path=="DEFAULT" ) {
+    path = "/" + m_streamName + "/" + m_groupName;
   } else {
-    path = "/" + m_groupName + "/"+def.path; 
+    path = "/" + m_streamName + "/" + def.tld + "/" + m_groupName + "/" + def.path;
   }
-  
-  // remove duplicate
+
+  // remove duplicate slashes
   std::string fullName = path + "/" + def.alias;
   fullName.erase( std::unique( fullName.begin(), fullName.end(), 
     [](const char a, const char b) { 

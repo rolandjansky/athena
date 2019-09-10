@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 797343 2017-02-15 15:13:34Z ssnyder $
 ################################################################################
 # Package: CxxUtils
 ################################################################################
@@ -11,7 +10,7 @@ atlas_depends_on_subdirs(
    PRIVATE AtlasTest/TestTools )
 
 # External dependencies:
-find_package( Boost COMPONENTS program_options regex filesystem thread system timer )
+find_package( Boost COMPONENTS program_options regex filesystem thread system timer unit_test_framework )
 find_package( TBB )
 
 # The main library of the package:
@@ -20,18 +19,20 @@ atlas_add_library( CxxUtils
    PUBLIC_HEADERS CxxUtils
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES}
-   PRIVATE_LINK_LIBRARIES TestTools )
+   PRIVATE_LINK_LIBRARIES ${CMAKE_DL_LIBS} TestTools )
 
 # Additional libraries in the package:
 atlas_add_library( exctrace_collector src/exctrace/exctrace_collector.cxx
-   PUBLIC_HEADERS CxxUtils )
+   PUBLIC_HEADERS CxxUtils
+   PRIVATE_LINK_LIBRARIES ${CMAKE_DL_LIBS} )
 
 atlas_add_library( calg src/libcalg/*.c
    PUBLIC_HEADERS CxxUtils )
 
 atlas_add_library( AthDSoCallBacks src/AthDsoCbk.c
    PUBLIC_HEADERS CxxUtils
-   LINK_LIBRARIES calg )
+   LINK_LIBRARIES calg
+   PRIVATE_LINK_LIBRARIES ${CMAKE_DL_LIBS} )
 
 # Unit tests in the package:
 atlas_add_test( read_athena_statm_test
@@ -65,7 +66,7 @@ atlas_add_test( BitPackerUnpacker_test
 
 atlas_add_test( stacktrace_test
    SOURCES test/stacktrace_test.cxx
-   LINK_LIBRARIES CxxUtils dl )
+   LINK_LIBRARIES CxxUtils ${CMAKE_DL_LIBS} )
 
 atlas_add_test( MD5_test
    SOURCES test/MD5_test.cxx
@@ -104,12 +105,13 @@ atlas_add_test( exctrace2_test
 # Set up the "simple" tests:
 foreach( test sincos_test copyif_test ArrayScanner_test Arrayrep_test
       Array_test PackedArray_test pointer_list_test FloatPacker_test
-      fpcompare_test StrFormat_test
+      fpcompare_test StrFormat_test phihelper_test
       prefetch_test ClassName_test make_unique_test ones_test
       exctrace1_test bitscan_test ConcurrentRangeMap_test
       CachedValue_test CachedPointer_test CachedUniquePtr_test
       atomic_fetch_minmax_test
-      MurmurHash2_test bitmask_test crc64_test Ring_test )
+      MurmurHash2_test bitmask_test crc64_test Ring_test
+      restrict_test vectorize_test get_unaligned_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       EXTRA_PATTERNS "no version information available"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_INTERFACES_BASESIMULATORTOOL_H
@@ -67,14 +67,14 @@ namespace ISF {
 
     /** Setup Event chain - in case of a begin-of event action is needed (called by ISimulationSvc) */
     virtual StatusCode setupEventST() override
-    { return StatusCode::FAILURE; }
+    { return setupEvent(); }
 
     /** */
-    virtual StatusCode simulate( const ISFParticle& , ISFParticleContainer&, McEventCollection*) override
+    virtual StatusCode simulate( const ISFParticle& , ISFParticleContainer&, McEventCollection*) const override
     { return StatusCode::FAILURE; }
 
     /** Simulation call for vectors of particles */
-    virtual StatusCode simulateVector(const ConstISFParticleVector& particles, ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) override
+    virtual StatusCode simulateVector(const ConstISFParticleVector& particles, ISFParticleContainer& secondaries, McEventCollection* mcEventCollection) const override
     {
       // this implementation is a wrapper in case the simulator does
       // implement particle-vector input
@@ -94,7 +94,7 @@ namespace ISF {
 
     /** Release Event chain - in case of an end-of event action is needed (called by ISimulationSvc) */
     virtual StatusCode releaseEventST() override
-    { return StatusCode::FAILURE; }
+    { return releaseEvent(); }
 
     /** wrapper call to start chrono with given tag */
     const ChronoEntity* chronoStart(const IChronoSvc::ChronoTag& tag ) {

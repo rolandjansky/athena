@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTTPCNV_EVENTSTREAMINFO_P2_H
@@ -35,7 +35,7 @@ public: // Non-static members
 friend class EventStreamInfoCnv_p2;
  friend class PoolFilePeeker;
 
-private:
+public:
    unsigned int	m_numberOfEvents;	// Number of Events
    std::vector<unsigned int> m_runNumbers;	// Run#
    std::vector<unsigned int> m_lumiBlockNumbers;	// LumiBlock#

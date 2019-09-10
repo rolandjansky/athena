@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONSEGMENTTAGTOOL_H
@@ -17,9 +17,13 @@
 #include "MuonSegmentTaggerToolInterfaces/IMuTagIMOTool.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
 #include "xAODMuon/MuonSegmentContainer.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 
 
+#include <array>
+#include <atomic>
 #include <string>
+
 namespace Trk {
   class IParticleCaloExtensionTool;
 }
@@ -28,7 +32,6 @@ namespace Muon {
   class MuonSegment;
   class MuonEDMPrinterTool;
   class MuonIdHelperTool;
-  class MuonEDMHelperTool;
   class IMuonSegmentSelectionTool;
 }
 
@@ -81,18 +84,20 @@ namespace MuonCombined {
     ToolHandle< IMuTagAmbiguitySolverTool> p_MuTagAmbiguitySolverTool ;  //!< Pointer to MuTagAmbiguitySolverTool
     ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
     ToolHandle< Muon::MuonIdHelperTool   > m_idHelper    ;  //!< Pointer to IPropagator
-    ToolHandle< Muon::MuonEDMHelperTool  > m_edmHelper    ;  //!< Pointer to IPropagator
+    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", 
+      "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
+      "Handle to the service providing the IMuonEDMHelperSvc interface" };  //!< Pointer to IPropagator
     ToolHandle< Muon::IMuonSegmentSelectionTool> m_segmentSelector; 
     ToolHandle<Muon::IMuonSegmentHitSummaryTool> m_hitSummaryTool;
 
     MSSurfaces*   m_surfaces;     //!< Pointer to a set of abstract surfaces describing MuonSpectrometer levels.
-    mutable unsigned int  m_ntotTracks;
-    mutable unsigned int  m_nangleMatch;
-    mutable unsigned int  m_npmatch;
-    mutable unsigned int  m_natMSEntrance;
-    mutable unsigned int  m_naccepted;
-    mutable std::vector<int> m_extrapolated;
-    mutable std::vector<int> m_goodExtrapolated;
+    mutable std::atomic_uint m_ntotTracks;
+    mutable std::atomic_uint m_nangleMatch;
+    mutable std::atomic_uint m_npmatch;
+    mutable std::atomic_uint m_natMSEntrance;
+    mutable std::atomic_uint m_naccepted;
+    mutable std::array<std::atomic_int, 15> m_extrapolated{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // 15 is maximum possible size
+    mutable std::array<std::atomic_int, 15> m_goodExtrapolated{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}; // 15 is maximum possible size
 
   };
 

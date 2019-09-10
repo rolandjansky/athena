@@ -62,7 +62,7 @@ uint16_t TgcRdo::calculateOnlineId (uint16_t subDetectorId, uint16_t rodId)
 
     const ITGCcablingServerSvc* tgcCabGet = 0; 
     StatusCode sc = svcLoc->service("TGCcablingServerSvc", tgcCabGet, true);
-    if(!sc.isSuccess() || !tgcCabGet || !tgcCabGet->isConfigured()) {
+    if(!sc.isSuccess() || !tgcCabGet ) {
       IMessageSvc* msgSvc =0 ;
       if(!(svcLoc->service("MessageSvc", msgSvc).isSuccess()) || !msgSvc) return 9999;
       
@@ -70,7 +70,6 @@ uint16_t TgcRdo::calculateOnlineId (uint16_t subDetectorId, uint16_t rodId)
       log << MSG::ERROR << "Could not get TGCcablingServerSvc! " 
 	  << (!sc.isSuccess() ? "service(\"TGCcablingServerSvc\", tgcCabGet, true) is failed" : "") 
 	  << (!tgcCabGet ? "TGCcablingServerSvc pointer is NULL" : "") 
-	  << (tgcCabGet && !tgcCabGet->isConfigured() ? "TGCcablingServerSvc is NOT configured yet" : "") 
 	  << endmsg;
       return 9999;
     }

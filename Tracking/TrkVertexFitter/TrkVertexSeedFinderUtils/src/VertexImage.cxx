@@ -1,32 +1,31 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVertexSeedFinderUtils/VertexImage.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "fftw3.h"
 #include <cmath>
 #include <iostream>
 
 namespace Trk {
 
-  VertexImage::VertexImage( ) : VertexImage(NULL, 0, 0, 0, 0.0f, 0.0f, 0.0f, false) { }
-
-  VertexImage::VertexImage( float * hist_3d, int nx, int ny, int nz, 
-                            float xrange, float yrange, float zrange,
-                            bool inplace ) :
-    m_hist_3d(hist_3d),
+  VertexImage::VertexImage( float* array,
+                            arrayDeleter* deleter,
+                            int nx, int ny, int nz, 
+                            float xrange, float yrange, float zrange) :
+    m_hist_3d(array),
+    m_deleter(deleter),
     m_nbinsx(nx),
     m_nbinsy(ny),
     m_nbinsz(nz),
     m_xrange(xrange),
     m_yrange(yrange),
-    m_zrange(zrange),
-    m_inplace(inplace) {
-
+    m_zrange(zrange)
+  {
     //Calculate size of histogram and storage array
     m_binstot = m_nbinsx*m_nbinsy*m_nbinsz;
-    m_arraytot = m_inplace ? m_nbinsx*m_nbinsy*(m_nbinsz+2) :
-      m_nbinsx*m_nbinsy*m_nbinsz;
+    m_arraytot = m_nbinsx*m_nbinsy*(m_nbinsz+2);
 
     //Calculate binwidths
     m_wx = 2*m_xrange/((float) m_nbinsx);
@@ -34,24 +33,18 @@ namespace Trk {
     m_wz = 2*m_zrange/((float) m_nbinsz);
   }
 
+
   // Given indices (x,y,z), return overall array index of that bin
   int VertexImage::getRMBin(const int & x, const int & y, const int & z) const {
-    int ret = m_inplace ? z + (m_nbinsz+2)*y + (m_nbinsz+2)*m_nbinsy*x :
-      z + m_nbinsz*y + m_nbinsz*m_nbinsy*x;
+    int ret = z + (m_nbinsz+2)*y + (m_nbinsz+2)*m_nbinsy*x;
     return ret;
   }
 
   // Given overall array index i of a bin, return indices (x,y,z) by reference
   void VertexImage::getInvRMBin( const int & i, int & x, int & y, int &z ) const {
-    if(m_inplace) {
-      z = i % (m_nbinsz+2);
-      y = ( (i-z)/(m_nbinsz+2) ) % m_nbinsy;
-      x = ( i - z - y*(m_nbinsz+2) )/( (m_nbinsz+2)*m_nbinsy );
-    } else {
-      z = i % (m_nbinsz);
-      y = ( (i-z)/(m_nbinsz) ) % m_nbinsy;
-      x = ( i - z - y*(m_nbinsz) )/( (m_nbinsz)*m_nbinsy );
-    }
+    z = i % (m_nbinsz+2);
+    y = ( (i-z)/(m_nbinsz+2) ) % m_nbinsy;
+    x = ( i - z - y*(m_nbinsz+2) )/( (m_nbinsz+2)*m_nbinsy );
   }
 
   // Find array indices of all bins adjacent to index

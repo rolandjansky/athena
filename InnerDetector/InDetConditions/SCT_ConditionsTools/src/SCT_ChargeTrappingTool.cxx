@@ -23,30 +23,8 @@
 #include <cmath>
 
 SCT_ChargeTrappingTool::SCT_ChargeTrappingTool(const std::string& type, const std::string& name, const IInterface* parent) :
-  base_class(type, name, parent),
-  m_isSCT{true},
-  m_conditionsToolValid{false},
-  m_conditionsToolWarning{false},
-  m_PotentialValue{{0.}}
+  base_class(type, name, parent)
 {
-  
-  declareProperty("DetectorName", m_detectorName="SCT",  "Detector name");
-  // Temperature and voltages from job options only used if  SiConditionsServices is None or
-  // if value read from database is out of range.
-  declareProperty("Temperature",m_temperature = -2., "Default temperature in Celcius.");
-  declareProperty("TemperatureMin",m_temperatureMin = -80.,  "Minimum temperature allowed in Celcius.");
-  declareProperty("TemperatureMax",m_temperatureMax = 100.,  "Maximum temperature allowed in Celcius.");
-  declareProperty("BiasVoltage", m_biasVoltage = 150., "Default  bias voltage in Volt.");
-  declareProperty("DepletionVoltage", m_deplVoltage = -30.,  "Default depletion voltage in Volt.");
-  
-  // -- Radiation damage specific
-  declareProperty("CalcHoles", m_calcHoles=true, "Default is to consider holes in signal formation.");
-  // -- Fluence: Need to make it layer-dependent
-  declareProperty("Fluence", m_fluence=3.0E13, "Fluence received by the detector.");
-  declareProperty("BetaElectrons",m_betaElectrons=3.1E-16,"Constant for the trapping model for electrons, in [cm^2/ns] "
-                  "-- average value from Table 2 in ATL-INDET-2003-014");
-  declareProperty("BetaHoles",m_betaHoles=(double)5.1E-16,"Constant for the trapping model for holes in [cm^2/ns] "
-                  "-- average value from Table 2 in ATL-INDET-2003-014");
 }
 
 StatusCode 

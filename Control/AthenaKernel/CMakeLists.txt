@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 787829 2016-12-02 10:10:58Z krasznaa $
 ################################################################################
 # Package: AthenaKernel
 ################################################################################
@@ -22,10 +21,10 @@ find_package( ROOT COMPONENTS Core )
 find_package( UUID )
 find_package(CLHEP)
 find_package( TBB )
-# Only link agains the RT library on Linux:
-set( rt_library )
-if( UNIX AND NOT APPLE )
-   set( rt_library rt )
+# Only link agains the RT library if it's available.
+find_library( RT_LIBRARY rt )
+if( NOT RT_LIBRARY )
+   unset( RT_LIBRARY )
 endif()
 
 # Libraries in the package:
@@ -35,8 +34,9 @@ atlas_add_library( AthenaKernel
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${UUID_LIBRARIES} CxxUtils DataModelRoot
-   GaudiKernel ${rt_library}
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES})
+   GaudiKernel ${RT_LIBRARY}
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES}
+   ${CMAKE_DL_LIBS} )
 
 atlas_add_dictionary( AthenaKernelDict
    AthenaKernel/AthenaKernelDict.h

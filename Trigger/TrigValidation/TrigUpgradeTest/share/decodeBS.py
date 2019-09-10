@@ -4,19 +4,22 @@
 
 include("TrigUpgradeTest/testHLT_MT.py")
 
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
-topSequence = AlgSequence()
+
+from AthenaCommon.CFElements import seqAND
+
+decodingSeq = seqAND("Decoding")
 
 from TrigHLTResultByteStream.TrigHLTResultByteStreamConf import HLTResultMTByteStreamDecoderAlg
 decoder = HLTResultMTByteStreamDecoderAlg()
 decoder.OutputLevel=DEBUG
-topSequence += decoder
+decodingSeq += decoder
+
 
 
 from TrigOutputHandling.TrigOutputHandlingConf import TriggerEDMDeserialiserAlg
 deserialiser = TriggerEDMDeserialiserAlg("TrigDeserialiser")
 deserialiser.OutputLevel=DEBUG
-topSequence += deserialiser
+decodingSeq += deserialiser
 
 from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
 StreamESD=createOutputStream("StreamESD","myESDfromBS.pool.root",True)
@@ -38,7 +41,6 @@ StreamESD.ItemList += [ "xAOD::TrigCompositeAuxContainer#remap_"+d+"Aux." for d 
 
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 egammaCreator = HLTEDMCreator("egammaCreator")
-egammaCreator.FixLinks=False
 egammaCreator.OutputLevel=DEBUG
 egammaCreator.TrigCompositeContainer = [ "remap_"+d for d in decisions ]
 
@@ -50,8 +52,12 @@ from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreatorAlg
 fillGaps = HLTEDMCreatorAlg( "FillMissingEDM" )
 fillGaps.OutputTools = [ egammaCreator ]
 
+decodingSeq += fillGaps
+
+from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+topSequence = AlgSequence()
+topSequence += decodingSeq
 
 outSequence = AthSequencer("AthOutSeq")
-outSequence += fillGaps
 outSequence += StreamESD
 

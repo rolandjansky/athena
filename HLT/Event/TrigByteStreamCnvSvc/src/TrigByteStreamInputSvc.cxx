@@ -8,7 +8,6 @@
 
 // Athena includes
 #include "AthenaKernel/EventContextClid.h"
-#include "EventInfo/EventInfo.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // TDAQ includes
@@ -149,15 +148,7 @@ const RawEvent* TrigByteStreamInputSvc::currentEvent() const {
 
 // =============================================================================
 void TrigByteStreamInputSvc::EventCache::releaseEvent() {
-  if (this->rawData) {
-    delete[] this->rawData.release();
-  }
-  if (this->fullEventFragment) {
-    delete this->fullEventFragment.release();
-  }
+  this->rawData.reset();
+  this->fullEventFragment.reset();
 }
 
-// =============================================================================
-TrigByteStreamInputSvc::EventCache::~EventCache() {
-  releaseEvent();
-}

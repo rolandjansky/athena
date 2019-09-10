@@ -9,6 +9,9 @@
 //  Author: Thomas Kittelmann <Thomas.Kittelmann@cern.ch>  //
 //                                                         //
 //  Initial version: April 2007                            //
+//
+//  Updates:
+//  - Riccardo.Maria.Bianchi@cern.ch
 //                                                         //
 /////////////////////////////////////////////////////////////
 
@@ -23,6 +26,13 @@
 #include "VP1Gui/VP1AvailEvents.h"
 #include "VP1Gui/VP1AvailEvtsLocalDir.h"
 #include "VP1StreamMenuUpdater.h"
+
+#ifdef BUILDVP1LIGHT
+    #include "VP1Gui/VP1ExpertSettings.h"
+    #include "VP1Gui/VP1GeoDBSelection.h"
+    #include "VP1Gui/VP1AODSelection.h"
+    #include "VP1Gui/VP1SelectEvent.h"
+#endif
 
 #include "VP1UtilsBase/VP1FileUtilities.h"
 
@@ -55,6 +65,8 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QtGui>
+#include <QSettings>
+#include <QScrollBar>
 
 
 
@@ -99,7 +111,13 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 
 	setupStatusBar();
 	//
-	if (!VP1QtUtils::environmentVariableIsOn("VP1_DEVEL_SHOW_ALL_CRUISE_AND_EVENT_CONTROLS")) {
+	#if defined BUILDVP1LIGHT
+		bool checkShowAllCruiseAndEventControls = VP1QtUtils::expertSettingIsSet("expert","ExpertSettings/VP1_DEVEL_SHOW_ALL_CRUISE_AND_EVENT_CONTROLS");
+	#else
+		bool checkShowAllCruiseAndEventControls = VP1QtUtils::environmentVariableIsOn("VP1_DEVEL_SHOW_ALL_CRUISE_AND_EVENT_CONTROLS");
+	#endif
+
+	if (!checkShowAllCruiseAndEventControls) {
 		pushButton_eventseek->setVisible(false);
 		groupBox_cruise->setVisible(false);
 	}
@@ -120,6 +138,31 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 		connect(m_action_addEventFile,SIGNAL(triggered(bool)),this,SLOT(addEventFile()));
 	}
 
+	#ifndef BUILDVP1LIGHT
+		pushButton_previousevent->setVisible(false);
+		pushButton_eventselect->setVisible(false);
+	#else
+		pushButton_eventselect->setVisible(true);
+		pushButton_eventselect->setText("Event: 0/0");
+		pushButton_eventselect->setEnabled(false);
+		pushButton_previousevent->setEnabled(false);
+		//Disable all controls that are not available in VP1Light
+		// pushButton_quicksetup_3dcocktail->setEnabled(false);
+		// pushButton_quicksetup_3dcocktail->setToolTip("Not available in VP1Light");
+	  pushButton_quicksetup_trackingstudies->setEnabled(false);
+	  pushButton_quicksetup_trackingstudies->setToolTip("Not available in VP1Light");
+	  pushButton_quicksetup_calostudies->setEnabled(false);
+	  pushButton_quicksetup_calostudies->setToolTip("Not available in VP1Light");
+	  action_quicklaunch_Tracking_studies->setEnabled(false);
+	  action_quicklaunch_Tracking_studies->setToolTip("Not available in VP1Light");
+	  action_quicklaunch_Calo_studies->setEnabled(false);
+	  action_quicklaunch_Calo_studies->setToolTip("Not available in VP1Light");
+	  action_quicklaunch_Storegate_browser->setEnabled(false);
+	  action_quicklaunch_Storegate_browser->setToolTip("Not available in VP1Light");
+	  action_quicklaunch_trackcalo_commis->setEnabled(false);
+	  action_quicklaunch_trackcalo_commis->setToolTip("Not available in VP1Light");
+	  m_action_addEventFile->setEnabled(false);
+	#endif
 
 	////////////////////////////////////////////////////
 	//Do we need a menu for multiple input directories?
@@ -200,9 +243,13 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 	frame_instructions->setFrameShape(QFrame::StyledPanel);
 	//   textBrowser_intro1->setStyleSheet("QTextBrowser#textBrowser_intro1 { background-color: rgba(0, 0, 0, 0%) } ");
 	//   textBrowser_intro2->setStyleSheet("QTextBrowser#textBrowser_intro2 { background-color: rgba(0, 0, 0, 0%) } ");
-	connect(pushButton_quicksetup_3dcocktail,SIGNAL(     clicked()),this,SLOT(quickSetupTriggered()));
+	#ifndef BUILDVP1LIGHT
+		connect(pushButton_quicksetup_3dcocktail,SIGNAL(clicked()),this,SLOT(quickSetupTriggered()));
+	#else
+		connect(pushButton_quicksetup_3dcocktail,SIGNAL(clicked()),this,SLOT(quickSetupTriggered()));
+	#endif
 	connect(pushButton_quicksetup_trackingstudies,SIGNAL(clicked()),this,SLOT(quickSetupTriggered()));
-	connect(pushButton_quicksetup_calostudies,SIGNAL(    clicked()),this,SLOT(quickSetupTriggered()));
+	connect(pushButton_quicksetup_calostudies,SIGNAL(clicked()),this,SLOT(quickSetupTriggered()));
 	connect(pushButton_quicksetup_geometrystudies,SIGNAL(clicked()),this,SLOT(quickSetupTriggered()));
 	connect(pushButton_quicksetup_analysisstudies,SIGNAL(clicked()),this,SLOT(quickSetupTriggered()));
 
@@ -237,6 +284,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 	connect(action_quicklaunch_Tracking_studies,SIGNAL(triggered(bool)),this,SLOT(quickSetupTriggered()));
 	connect(action_quicklaunch_Calo_studies,SIGNAL(triggered(bool)),this,SLOT(quickSetupTriggered()));
 	connect(action_quicklaunch_Geometry_studies,SIGNAL(triggered(bool)),this,SLOT(quickSetupTriggered()));
+	connect(action_quicklaunch_analysisstudies,SIGNAL(triggered(bool)),this,SLOT(quickSetupTriggered()));
 	connect(action_quicklaunch_Storegate_browser,SIGNAL(triggered(bool)),this,SLOT(quickSetupTriggered()));
 	connect(action_quicklaunch_3dcocktail,SIGNAL(triggered(bool)),this,SLOT(quickSetupTriggered()));
 	connect(action_quicklaunch_trackcalo_commis,SIGNAL(triggered(bool)),this,SLOT(quickSetupTriggered()));
@@ -260,7 +308,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 	QAction * laststyleact(0);
 	bool foundplastique=false;
 	QSettings s(m_settingsfile,QSettings::IniFormat);
-	QString defaultstyle=s.value("style/defaultstyle", "Plastique").toString();
+	QString defaultstyle=s.value("style/defaultstyle", "Fusion").toString();
 	foreach (QString style, QStyleFactory::keys() ) {
 		QAction * act = m_menu_changeStyle->addAction(style);
 		act->setStatusTip("Change application style to "+style);
@@ -326,8 +374,20 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 	connect(m_actionAdd_empty_tab,SIGNAL(triggered(bool)),this,SLOT(request_addEmptyTab()));
 	connect(m_actionSave_current_tabs,SIGNAL(triggered(bool)),this,SLOT(request_saveasConfig()));
 
+	//ExpertSettings
+	#ifdef BUILDVP1LIGHT
+	    menuConfiguration->addSeparator();
+	    m_actionEnableExpertSettings = menuConfiguration->addAction ( "&Settings" );
+	    m_actionEnableExpertSettings->setStatusTip("Open additional settings");
+	    connect(m_actionEnableExpertSettings, &QAction::triggered, this, &VP1MainWindow::request_expertSettings);
+	#endif
+
 	//Event navigation:
 	connect(pushButton_nextevent,SIGNAL(clicked()),this,SLOT(goToNextEvent()));
+	#ifdef BUILDVP1LIGHT
+		connect(pushButton_previousevent,SIGNAL(clicked()),this,SLOT(goToPreviousEvent()));
+		connect(pushButton_eventselect,SIGNAL(clicked()),this,SLOT(chooseEvent()));
+	#endif
 
 	//Listen for external requests:
 	connect(&m_tcpserver,SIGNAL(receivedExternalRequest(VP1ExternalRequest)),this,SLOT(receivedExternalRequest(VP1ExternalRequest)));
@@ -366,7 +426,9 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
   connect(m_action_openAbout,SIGNAL(triggered(bool)),this,SLOT(help_openAbout()));
 
   // FIXME: enabling menubar again. It's part of a quickfix, described here: https://its.cern.ch/jira/browse/ATLASVPONE-120
-  menubar->setEnabled(false);
+  #ifndef BUILDVP1LIGHT
+  	menubar->setEnabled(false);
+  #endif
 }
 
 //_________________________________________________________________________________
@@ -724,10 +786,22 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
   qDebug() << "VP1MainWindow::availableFiles()";
  	qDebug() << "extension:" << extension << "pathvar:" << pathvar << "instareasubdir:" << instareasubdir << "extradirenvvar:" << extradirenvvar << "currentdir:" << currentdir;
 
-	//Add directories from extradirenvvar (e.g. $VP1PlUGINPATH)
-	QStringList vp1pluginpath = extradirenvvar.isEmpty() ? QStringList() : QString(::getenv(extradirenvvar.toStdString().c_str())).split(":",QString::SkipEmptyParts);
-    qDebug() << "extradirenvvar:" << extradirenvvar << "vp1pluginpath:" << vp1pluginpath;
 
+	//Add directories from extradirenvvar (e.g. $VP1PLUGINPATH)
+	QStringList vp1pluginpath = extradirenvvar.isEmpty() ? QStringList() : QString(::getenv(extradirenvvar.toStdString().c_str())).split(":",QString::SkipEmptyParts);
+    if(VP1Msg::debug()){
+      qDebug() << "extradirenvvar:" << extradirenvvar;
+      qDebug()  << "vp1pluginpath:" << vp1pluginpath;
+  	}
+
+    #ifdef BUILDVP1LIGHT
+		//Add dir from Expert Settings
+		if(VP1QtUtils::expertSettingValue("expert","ExpertSettings/VP1PLUGINPATH")==""){
+			vp1pluginpath<<QCoreApplication::applicationDirPath()+"/../lib";
+		} else{
+			vp1pluginpath<<VP1QtUtils::expertSettingValue("expert","ExpertSettings/VP1PLUGINPATH");
+		}
+	#endif
 
 	//Currentdir:
 	if (currentdir) {
@@ -774,6 +848,8 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 //_________________________________________________________________________________
 QMap<QString,QString> VP1MainWindow::availablePluginFiles() const
 {
+VP1Msg::messageDebug("VP1MainWindow::availablePluginFiles()");
+
 #ifdef __APPLE__
 	QString sharedlibsuffix = "dylib";
 #else
@@ -836,8 +912,8 @@ bool VP1MainWindow::okToProceedToNextEvent() const
 //_________________________________________________________________________________
 void VP1MainWindow::nextEvent() {
 	m_betweenevents=true;
-	if (m_availEvents) {
-		QList<VP1EventFile>  evts = m_availEvents->freshEvents();
+    if (m_availEvents) {
+        QList<VP1EventFile>  evts = m_availEvents->freshEvents();
 		if (evts.empty()) {
 			addToMessageBox("ERROR: Going to next event, but one is not available!");
 			m_scheduler->setNextRequestedEventFile("");
@@ -850,16 +926,57 @@ void VP1MainWindow::nextEvent() {
 
 //_________________________________________________________________________________
 void VP1MainWindow::goToNextEvent() {
+	#if defined BUILDVP1LIGHT
+			std::cout << "goToNextEvent: \n"
+					 << "m_scheduler->getEvtNr()+2: " << m_scheduler->getEvtNr()+2
+					 << "\nm_scheduler->getTotEvtNr(): " << m_scheduler->getTotEvtNr() << std::endl;
+		if ( m_scheduler->getEvtNr()+2 < m_scheduler->getTotEvtNr() ) {
+			std::cout << "First case" << std::endl;
+			m_scheduler->setEvtNr(m_scheduler->getEvtNr()+1);
+			nextEvent();
+		  qApp->quit();
+		}
+		else if( m_scheduler->getEvtNr()+2 == m_scheduler->getTotEvtNr() ) {
+			std::cout << "Second case" << std::endl;
+			m_scheduler->setEvtNr(m_scheduler->getEvtNr()+1);
+			nextEvent();
+		  qApp->quit();
+		}
+	#else
 	nextEvent();
-	qApp->quit();
+  qApp->quit();
+  #endif
 }
+
+#if defined BUILDVP1LIGHT
+//_________________________________________________________________________________
+void VP1MainWindow::goToPreviousEvent() {
+	if ( m_scheduler->getEvtNr()-1 > 0 ) {
+		m_scheduler->setEvtNr(m_scheduler->getEvtNr()-1);
+		nextEvent();
+	  qApp->quit();
+	}
+	else if( m_scheduler->getEvtNr()-1 == 0 ) {
+		m_scheduler->setEvtNr(m_scheduler->getEvtNr()-1);
+		nextEvent();
+	  qApp->quit();
+	}
+}
+#endif
 
 //_________________________________________________________________________________
 void VP1MainWindow::closeEvent(QCloseEvent * event)
 {
 	VP1Msg::messageDebug("VP1MainWindow::closeEvent()");
 
-	if (VP1QtUtils::environmentVariableIsOn("VP1_ENABLE_ASK_ON_CLOSE")) {
+	bool checkEnableAskOnClose;
+	#if defined BUILDVP1LIGHT
+		checkEnableAskOnClose = VP1QtUtils::expertSettingIsSet("general","ExpertSettings/VP1_ENABLE_ASK_ON_CLOSE");
+	#else
+		checkEnableAskOnClose = VP1QtUtils::environmentVariableIsOn("VP1_ENABLE_ASK_ON_CLOSE");
+	#endif
+
+	if (checkEnableAskOnClose) {
 		int ret = QMessageBox::warning(this,
 				"Close VP1?",
 				"You are about to close VP1 and end the job.\nProceed?",
@@ -910,7 +1027,13 @@ void VP1MainWindow::setRunEvtNumber(const int& r, const unsigned long long& e, c
 				+ QString(trighex.isEmpty()?QString(""):", triggerType: "+trighex)
 				+ QString(time>0 ? ", time: "+QDateTime::fromTime_t(time).toString(Qt::ISODate).replace('T',' ') : "")
 				+ QString(m_currentStream.isEmpty()?"":", "+m_currentStream);
-		setWindowTitle("Virtual Point 1 ["+expandedevtstr+"]");
+
+	#ifdef BUILDVP1LIGHT
+		setWindowTitle("VP1Light ["+expandedevtstr+"]");
+   	#else
+		setWindowTitle("VP1 (Virtual Point 1) ["+expandedevtstr+"]");
+    	#endif // BUILDVP1LIGHT
+
 		groupBox_event->setTitle("Event [loaded]");
 		label_run_event->setText("["+evtstr+"]");
 
@@ -937,6 +1060,7 @@ void VP1MainWindow::addToMessageBox( const QString& m, const QString& extrastyle
 	textBrowser_channelmessages->append(titlepart
 			+ ( extrastyleopts.isEmpty() ? m
 					: "<span style=\"font-style:italic;"+extrastyleopts+";\">"+m+"</span>"));
+	textBrowser_channelmessages->verticalScrollBar()->setSliderPosition(textBrowser_channelmessages->verticalScrollBar()->maximum());
 }
 
 //_________________________________________________________________________________
@@ -1289,7 +1413,6 @@ QString VP1MainWindow::request_saveChannelSnapshot(QString xLabel)
 		return QString();
 
 	pm.save(filename);
-
 	return filename;
 }
 
@@ -1331,7 +1454,7 @@ void VP1MainWindow::listenOnTcp()
 {
 	QString err;
 	if (!m_tcpserver.listen(err)) {
-		qDebug(err.toStdString().c_str());
+		qDebug("%s", err.toStdString().c_str());
 	}
 }
 
@@ -1452,10 +1575,11 @@ void VP1MainWindow::showMenu_loadConfFile()
 
 	QMap<QString,QString> conffile2fullpath =  availableFiles( ".vp1", "DATAPATH", "", "VP1CONFIGFILEPATH", true );
 
-	if (conffile2fullpath.empty()) {
-		m_menu_loadConfFile->addAction("No .vp1 config files found")->setEnabled(false);
-		return;
-	}
+	#ifndef BUILDVP1LIGHT
+		if (conffile2fullpath.empty()) {
+			m_menu_loadConfFile->addAction("No .vp1 config files found")->setEnabled(false);
+			return;
+		}
 
 	QStringList filelist(conffile2fullpath.keys());
 	filelist.sort();
@@ -1468,6 +1592,7 @@ void VP1MainWindow::showMenu_loadConfFile()
 		act->setStatusTip(fullpath);
 		connect(act,SIGNAL(triggered(bool)),this,SLOT(showMenu_loadConfFileItemSelected()));
 	}
+	#endif
 
 	m_menu_loadConfFile->addSeparator();
 	QAction * act_browse = m_menu_loadConfFile->addAction("&Browse...");
@@ -1558,18 +1683,31 @@ void VP1MainWindow::updateCentralStackWidget()
 //_________________________________________________________________________________
 void VP1MainWindow::quickSetupTriggered()
 {
-	VP1Msg::messageVerbose("VP1MainWindow::quickSetupTriggered()");
+  VP1Msg::messageVerbose("VP1MainWindow::quickSetupTriggered()");
 
-	QString plugfile, channelname, tabname;
+  QSettings settings("ATLAS", "VP1Light");
 
-	if (sender()==pushButton_quicksetup_geometrystudies||sender()==action_quicklaunch_Geometry_studies) {
-		plugfile="libVP1GeometryPlugin.so";
-		channelname="Geometry";
-		tabname = "Geometry";
-	} else if (sender()==pushButton_quicksetup_trackingstudies||sender()==action_quicklaunch_Tracking_studies) {
-		plugfile="libVP1TrackPlugin.so";
-		channelname="Tracking";
-		tabname = "Tracking";
+  QString plugfile, channelname, tabname;
+
+  if (sender()==pushButton_quicksetup_geometrystudies||sender()==action_quicklaunch_Geometry_studies) {
+
+    //Open geometry database selection dialog for VP1Light
+#ifdef BUILDVP1LIGHT
+    if(settings.value("db/dbByEnv").toString().isEmpty()){
+      VP1GeoDBSelection dbSelection;
+      dbSelection.exec();
+      if(!dbSelection.result())
+        return;
+    }
+#endif // BUILDVP1LIGHT
+
+    plugfile="libVP1GeometryPlugin.so";
+    channelname="Geometry";
+    tabname = "Geometry";
+  } else if (sender()==pushButton_quicksetup_trackingstudies||sender()==action_quicklaunch_Tracking_studies) {
+    plugfile="libVP1TrackPlugin.so";
+    channelname="Tracking";
+    tabname = "Tracking";
 	} else if (sender()==pushButton_quicksetup_calostudies||sender()==action_quicklaunch_Calo_studies) {
 		plugfile="libVP1CaloPlugin.so";
 		channelname="Calo Cells";
@@ -1578,31 +1716,70 @@ void VP1MainWindow::quickSetupTriggered()
 		plugfile="libVP1BanksPlugin.so";
 		channelname="Banks";
 		tabname = "StoreGate";
-	} else if (sender()==pushButton_quicksetup_3dcocktail||sender()==action_quicklaunch_3dcocktail) {
-		plugfile="libVP13DCocktailPlugin.so";
-		channelname="3DCocktail";
-		tabname = "3D Cocktail";
-	} else if (sender()==action_quicklaunch_trackcalo_commis) {
-		plugfile="libVP13DCocktailPlugin.so";
-		channelname="TrackCalo";
-		tabname = "Track/Calo";
-	} else if (sender()==pushButton_quicksetup_analysisstudies) {
-		plugfile="libVP1AODPlugin.so";
-		channelname="AOD";
-		tabname = "Analysis";
-	} else {
-		addToMessageBox("quickSetupTriggered() Error: Unknown sender");
-		return;
-	}
+  } else if (sender()==pushButton_quicksetup_3dcocktail||sender()==action_quicklaunch_3dcocktail) {
+#ifndef BUILDVP1LIGHT
+    plugfile="libVP13DCocktailPlugin.so";
+    channelname="3DCocktail";
+    tabname = "3D Cocktail";
+#else
+    //Open Geometry DB and AOD file selection dialog for VP1Light
+    if(settings.value("aod/aodByEnv").toString().isEmpty()){
+      VP1AODSelection aodSelection;
+      aodSelection.exec();
+      if(!aodSelection.result())
+        return;
+    }
+    if(settings.value("db/dbByEnv").toString().isEmpty()){
+      VP1GeoDBSelection dbSelection;
+      dbSelection.exec();
+      if(!dbSelection.result())
+        return;
+    }
+    m_scheduler->loadEvent();
+
+    pushButton_eventselect->setEnabled(true);
+    plugfile="libVP1LightPlugin.so";
+    channelname="VP1Light";
+    tabname = "Geometry/AOD";
+#endif // BUILDVP1LIGHT
+  } else if (sender()==action_quicklaunch_trackcalo_commis) {
+    plugfile="libVP13DCocktailPlugin.so";
+    channelname="TrackCalo";
+    tabname = "Track/Calo";
+  } else if (sender()==pushButton_quicksetup_analysisstudies||sender()==action_quicklaunch_analysisstudies) {
+
+    //Open AOD file selection dialog for VP1Light
+#ifdef BUILDVP1LIGHT
+    if(settings.value("aod/aodByEnv").toString().isEmpty()){
+      VP1AODSelection aodSelection;
+      aodSelection.exec();
+      if(!aodSelection.result())
+        return;
+    }
+    m_scheduler->loadEvent();
+    pushButton_eventselect->setEnabled(true);
+#endif // BUILDVP1LIGHT
+
+    plugfile="libVP1AODPlugin.so";
+    channelname="AOD";
+    tabname = "Analysis";
+  } else {
+    addToMessageBox("quickSetupTriggered() Error: Unknown sender");
+    return;
+  }
 
 #ifdef __APPLE__
-	if (plugfile.endsWith(".so"))
-		plugfile = plugfile.left(plugfile.count()-3)+".dylib";
+  if (plugfile.endsWith(".so"))
+    plugfile = plugfile.left(plugfile.count()-3)+".dylib";
 #endif
 
 
 	//Check that the plugin is available:
 	QMap<QString,QString> plugins2fullpath = availablePluginFiles();
+	if(VP1Msg::debug()){
+		qDebug() << "plugins2fullpath: " << plugins2fullpath;
+	}
+
 	if (!plugins2fullpath.contains(plugfile)) {
 		QMessageBox::critical(0, "Error - could not locate plugin file: "+plugfile,
 				"could not locate plugin file: "
@@ -1663,14 +1840,15 @@ void VP1MainWindow::quickSetupTriggered()
 
 
 	setUpdatesEnabled(save);
-
-
 }
 
 //_________________________________________________________________________________
 void VP1MainWindow::updateEventControls()
 {
 	pushButton_nextevent->setEnabled(okToProceedToNextEvent());
+	#if defined BUILDVP1LIGHT
+		pushButton_previousevent->setEnabled(okToProceedToNextEvent());
+	#endif
 }
 
 //_________________________________________________________________________________
@@ -1741,3 +1919,24 @@ void VP1MainWindow::addEventFile()
 				newEventFile + " either does not exist or is not readable",
 				QMessageBox::Ok,QMessageBox::Ok);
 }
+
+//_________________________________________________________________________________
+#ifdef BUILDVP1LIGHT
+void VP1MainWindow::request_expertSettings(){
+        	VP1ExpertSettings es;
+        	es.exec();
+}
+
+void VP1MainWindow::chooseEvent(){
+	//Open event selection dialog for VP1Light
+	VP1SelectEvent selectEvent(m_scheduler->getTotEvtNr(), m_scheduler->getEvtNr());
+	selectEvent.exec();
+	int newEvtNr = selectEvent.result()-1;
+
+	if( (newEvtNr >= 0) && (newEvtNr <= m_scheduler->getTotEvtNr()-1) ){
+		m_scheduler->setEvtNr(newEvtNr);
+		nextEvent();
+  	qApp->quit();
+	}
+}
+#endif // BUILDVP1LIGHT

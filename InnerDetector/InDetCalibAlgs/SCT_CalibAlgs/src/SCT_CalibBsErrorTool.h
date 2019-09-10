@@ -49,21 +49,21 @@ class SCT_CalibBsErrorTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
 
  private:
   ToolHandle<ISCT_ByteStreamErrorsTool> m_bytestreamErrorsTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
-  const SCT_ID* m_pSCTHelper;
+  const SCT_ID* m_pSCTHelper{nullptr};
 
   // SCT specific numbers
   SCT_ID::const_id_iterator m_waferItrBegin;
   SCT_ID::const_id_iterator m_waferItrEnd;
   typedef std::vector<int> VecInt;
-  VecInt* m_scterr_bec;
-  VecInt* m_scterr_layer;
-  VecInt* m_scterr_eta;
-  VecInt* m_scterr_phi;
-  VecInt* m_scterr_side;
-  VecInt* m_scterr_type;
-  int m_maxHash;
+  VecInt* m_scterr_bec{nullptr};
+  VecInt* m_scterr_layer{nullptr};
+  VecInt* m_scterr_eta{nullptr};
+  VecInt* m_scterr_phi{nullptr};
+  VecInt* m_scterr_side{nullptr};
+  VecInt* m_scterr_type{nullptr};
+  int m_maxHash{0};
 
-  void fillBsErrorsForWafer(const Identifier & waferId, const int type);
+  void fillBsErrorsForWafer(const Identifier& waferId, const int type);
 
 };
 #endif

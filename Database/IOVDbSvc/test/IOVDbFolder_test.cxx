@@ -32,7 +32,7 @@
 
 
 struct GaudiKernelFixture:public GaudiKernelFixtureBase{
-  GaudiKernelFixture():GaudiKernelFixtureBase(__FILE__){
+  GaudiKernelFixture():GaudiKernelFixtureBase(){
     //nop, everything in base.
   }
 };
@@ -62,7 +62,7 @@ struct IOVDbParserFixture{
   MsgStream log;
   IOVDbParser parser;
   IOVDbParserFixture():msgSvc("msgSvc","test"),
-   descriptionString{"/key1<timeStamp>run-event</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>"},
+   descriptionString{"/key1<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>"},
    log(msgSvc.get(), "IOVDbFolder_test"),
    parser(descriptionString, log){
   }
@@ -84,7 +84,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
     BOOST_AUTO_TEST_CASE(PublicMethods){
       //preload tests
       IOVDbConn connection("sqlite://;schema=IOVDbFolderTest.db;dbname=OFLP200", true, parserFixture.log);
-      IOVDbFolder iovDbFolder(&connection, parserFixture.parser, parserFixture.log, clidSvc.get(),false);
+      IOVDbFolder iovDbFolder(&connection, parserFixture.parser, parserFixture.log, clidSvc.get(),false,true);
       BOOST_TEST_CHECKPOINT("After instantiation, but before any loading method call");
       BOOST_TEST(iovDbFolder.folderName() == "/key1");
       BOOST_TEST(iovDbFolder.key() == "/key1");
@@ -132,6 +132,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       BOOST_TEST(iovDbFolder.retrieved() == true);
       IOVRange actualRange{100,cool::ValidityKeyMax};
       BOOST_TEST(returnRange == actualRange);
+      BOOST_CHECK_NO_THROW(iovDbFolder.resetCache());
     }
   BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

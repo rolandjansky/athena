@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -183,12 +183,15 @@ namespace InDet{
           //if( !((*i_ntrk)->summaryValue(InmOutlier,xAOD::numberOfInnermostOutliers))   )  InmOutlier=-1;
 //std::cout<<"NwInnerM="<<(long int)InmHits<<", "<<(long int)InmSharedH<<", "<<(long int)InmSplitH<<", "<<(long int)InmOutlier<<'\n';
 
+          Amg::Vector3D perigeePos=mPer.position();
+          double ImpactA0=sqrt( (perigeePos.x()-PrimVrt.x())*(perigeePos.x()-PrimVrt.x())
+                               +(perigeePos.y()-PrimVrt.y())*(perigeePos.y()-PrimVrt.y()) );
+          double ImpactZ=perigeePos.z()-PrimVrt.z();
+          double ImpactSignif=sqrt(ImpactA0*ImpactA0/CovTrkMtx11+ImpactZ*ImpactZ/CovTrkMtx22);
 
-          m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
-          //double ImpactA0=VectPerig[0];                         // Temporary
-          //double ImpactZ=VectPerig[1]-PrimVrt.position().z();   // Temporary
-	  double ImpactA0=Impact[0];  
-	  double ImpactZ=Impact[1];   
+          //double ImpactSignif = m_fitSvc->VKalGetImpact((*i_ntrk), PrimVrt.position(), 1, Impact, ImpactError);
+          //double ImpactA0=Impact[0];  
+          //double ImpactZ=Impact[1];   
           if(m_fillHist){  m_hb_trkD0->Fill( ImpactA0, m_w_1); }
 //---- Improved cleaning
 /////          if(PixelHits<=2 && ( outPixHits || splPixHits )) continue;  //VK Bad idea at high Pt!
@@ -198,24 +201,21 @@ namespace InDet{
             else          {if(PixelHits)PixelHits -=1;}                                      // 3-layer pixel detector
           }
           if(fabs((*i_ntrk)->eta())>1.65)   if(SctHits)SctHits   -=1;
-//----Anti-pileup cut
+//----Anti-pileup cut (in Sel2TrVrt now)
 //          double SignifR = Impact[0]/ sqrt(ImpactError[0]);
 //          if(fabs(SignifR) < m_AntiPileupSigRCut) {   // cut against tracks from pileup vertices
 //            double SignifZ = Impact[1]/ sqrt(ImpactError[2]);
 //            if(SignifZ > 1.+m_AntiPileupSigZCut ) continue;
 //            if(SignifZ < 1.-m_AntiPileupSigZCut ) continue;
 //          }
-//---- Use classificator to remove Pileup+Interactions
-          std::vector<float> trkRank=m_trackClassificator->trkTypeWgts(*i_ntrk, PrimVrt, JetDir);
-          if(trkRank[2] > m_antiGarbageCut)continue;
 //----
           StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
                           ImpactA0 , ImpactZ, trkChi2,
                           PixelHits, SctHits, SharedHits, BLayHits);
           if( sc.isFailure() )                 continue;
-	  //double rankBTrk=RankBTrk((*i_ntrk)->pt(),JetDir.Perp(),ImpactSignif);
-	  if(trkRank[1]>0.5)NPrimTrk += 1;
-	  orderedTrk.emplace(trkRank[0],*i_ntrk);
+	  double rankBTrk=RankBTrk(0.,0.,ImpactSignif);
+	  if(rankBTrk<0.7)NPrimTrk += 1;
+	  orderedTrk.emplace(rankBTrk,*i_ntrk);
       }
 //---- Order tracks according to ranks
       std::map<double,const xAOD::TrackParticle*>::reverse_iterator rt=orderedTrk.rbegin();

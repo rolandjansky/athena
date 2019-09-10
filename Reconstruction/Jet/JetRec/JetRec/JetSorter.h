@@ -26,7 +26,7 @@ public:
   JetSorter(const std::string& t);
   
   
-  virtual int modify(xAOD::JetContainer& jets) const ;
+  virtual StatusCode modify(xAOD::JetContainer& jets) const ;
 
 protected:
   std::string m_sortType;

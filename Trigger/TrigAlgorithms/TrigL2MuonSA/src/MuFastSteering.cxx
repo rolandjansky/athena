@@ -9,10 +9,7 @@
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/TriggerInfo.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -31,7 +28,6 @@ using namespace SG;
 
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
-    m_storeGate("StoreGateSvc", name), 
     m_timerSvc("TrigTimerSvc", name),
     m_regionSelector("RegSelSvc", name),
     m_recMuonRoIUtils(),
@@ -55,11 +51,6 @@ MuFastSteering::~MuFastSteering() {
 HLT::ErrorCode MuFastSteering::hltInitialize()
 {
   ATH_MSG_DEBUG("Initializing MuFastSteering - package version " << PACKAGE_VERSION);
-  
-  if (m_storeGate.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Cannot retrieve service StoreGateSvc");
-    return HLT::BAD_JOB_SETUP;
-  }
   
   StatusCode sc;
 
@@ -198,6 +189,10 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   } 
 
   // DataHandles for AthenaMT
+  if (m_eventInfoKey.initialize().isFailure() ) {
+    ATH_MSG_ERROR("ReadHandleKey for xAOD::EventInfo key:" << m_eventInfoKey.key()  << " initialize Failure!");
+    return HLT::BAD_JOB_SETUP;
+  }
   if (m_roiCollectionKey.initialize().isFailure() ) { 
     ATH_MSG_ERROR("ReadHandleKey for TrigRoiDescriptorCollection key:" << m_roiCollectionKey.key()  << " initialize Failure!");
     return HLT::BAD_JOB_SETUP;   
@@ -861,8 +856,8 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
         
         if ( updateTriggerElement ) {
           
-          ATH_MSG_INFO("Updating the trigger element");
-          ATH_MSG_INFO(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
+          ATH_MSG_DEBUG("Updating the trigger element");
+          ATH_MSG_DEBUG(">> Retrieved the buffer, with size: " << m_calStreamer->getLocalBufferSize());
 	  // create the TrigCompositeContainer to store the calibration buffer
 	  // at StatusCode execute() and hltExecute().
 
@@ -966,23 +961,11 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
 
   const int currentRoIId = roids->roiId();
 
-   
-  const EventInfo* pEventInfo(0);
-  StatusCode sc = m_storeGate->retrieve(pEventInfo);
-  if (sc.isFailure()){
-    ATH_MSG_FATAL("Can't get EventInfo object");
-    return HLT::SG_ERROR;
-  }
-  
-  const EventID* pEventId = pEventInfo->event_ID();
-  if (pEventId==0) {
-    ATH_MSG_ERROR("Could not find EventID object");
-    return HLT::SG_ERROR;
-  }
-  
-  const TriggerInfo* pTriggerInfo = pEventInfo->trigger_info();
-  if (pTriggerInfo==0) {
-    ATH_MSG_ERROR("Could not find TriggerInfo object");
+  const EventContext& ctx = getContext();
+  const EventIDBase& eventID = ctx.eventID();
+  auto eventInfo = SG::makeHandle(m_eventInfoKey, ctx);
+  if (!eventInfo.isValid()) {
+    ATH_MSG_ERROR("Failed to retrieve xAOD::EventInfo object");
     return HLT::SG_ERROR;
   }
   
@@ -1026,7 +1009,7 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
     ATH_MSG_DEBUG("pattern#0: # of hits at barrel endcap inner  =" << pattern.mdtSegments[endcapinner].size());
   }
   ATH_MSG_DEBUG("### ************************************* ###");
-  ATH_MSG_INFO("Estimated muon pt = " << pattern.pt << " GeV");
+  ATH_MSG_DEBUG("Estimated muon pt = " << pattern.pt << " GeV");
 
   // ---------
   // store xAOD
@@ -1106,9 +1089,9 @@ bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
   /// Set input TE ID
   //muonSA->setTeId( inputTE->getId() );	// move to hltExecute()	
   /// Set level-1 ID
-  muonSA->setLvl1Id( pTriggerInfo->extendedLevel1ID() );
+  muonSA->setLvl1Id( eventInfo->extendedLevel1ID() );
   /// Set lumi block
-  muonSA->setLumiBlock( pEventId->lumi_block() );
+  muonSA->setLumiBlock( eventID.lumi_block() );
   /// Set muon detector mask
   muonSA->setMuonDetMask( muondetmask );
   /// Set RoI ID
@@ -1436,8 +1419,8 @@ bool MuFastSteering::storeIDRoiDescriptor(const TrigRoiDescriptor*              
                                                                roids->eta() - (roids->eta() - roids->etaMinus()) * scaleRoIforZeroPt,
                                                                roids->eta() + (roids->etaPlus() - roids->eta()) * scaleRoIforZeroPt,
                                                                roids->phi(),
-                                                               HLT::wrapPhi(roids->phi() - HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt),
-                                                               HLT::wrapPhi(roids->phi() + HLT::wrapPhi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt));
+                                                               CxxUtils::wrapToPi(roids->phi() - CxxUtils::wrapToPi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt),
+                                                               CxxUtils::wrapToPi(roids->phi() + CxxUtils::wrapToPi(roids->phiPlus() - roids->phiMinus())/2. * scaleRoIforZeroPt));
 
     ATH_MSG_VERBOSE("will Record an RoiDescriptor for Inner Detector in case with zero pT:"
       	     << " phi=" << IDroiDescriptor->phi()

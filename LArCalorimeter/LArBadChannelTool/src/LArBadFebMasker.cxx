@@ -9,13 +9,12 @@
 
 LArBadFebMasker::LArBadFebMasker(const std::string& type, 
       const std::string& name, const IInterface* parent) :
-  AthAlgTool(type, name, parent), 
+  base_class(type, name, parent), 
   m_bfContKey("LArBadFeb"),
   m_bitMask(0), 
   m_problemWords(defaultProblems()),
   m_doMasking(false)
 {
-  declareInterface<ILArBadFebMasker>(this);
   declareProperty("BFKey",m_bfContKey,"Key of the BadFebContainer in the conditions store");
   declareProperty("ProblemsToMask", m_problemWords, "List of FEB problems to be masked.");
   declareProperty("DoMasking", m_doMasking, "Flag to turn FEB masking on or off.");
@@ -91,28 +90,5 @@ const std::vector<std::string>& LArBadFebMasker::defaultProblems()
     defaults.push_back("deadAllBit");
   }
   return defaults;
-}
-
-StatusCode LArBadFebMasker::queryInterface(const InterfaceID& riid, void** ppvIf )
-{
-   if(riid == ILArBadFebMasker::interfaceID())
-   {
-      *ppvIf = static_cast<ILArBadFebMasker*>(this);
-      addRef();
-      return StatusCode::SUCCESS;
-   }
-   else if(riid == interfaceID())
-   {
-      *ppvIf = this;
-      addRef();
-      return StatusCode::SUCCESS;
-   }
-   else return AthAlgTool::queryInterface( riid, ppvIf );
-}
-
-const InterfaceID& LArBadFebMasker::interfaceID() 
-{
-  static const InterfaceID id("LArBadFebMasker", 1 , 0);
-  return id; 
 }
 

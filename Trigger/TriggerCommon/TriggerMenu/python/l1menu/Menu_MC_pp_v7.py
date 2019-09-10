@@ -1,4 +1,19 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+# Run this file in order to print out the empty slots
+
+def print_available():
+    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
+    defineMenu()
+    available = []
+    for i in range(512):
+      if i==463: continue #reserved for L1_RD2_BGRP14, L1_RD3_BGRP15 now assigned to 510 for partition 3 ATR-17737
+      if i>=509 and i<=511: continue #reserved for CALREQ
+      if not i in Lvl1Flags.CtpIdMap().values(): available.append(i)
+    available.sort()
+    print "There are %d available CTP IDs:"%len(available),",".join(map(str,available))
+    print "IDs >= 472 go in partition 2, IDs >= 492 go in partition 3"
+
 
 def defineMenu():
     """
@@ -396,7 +411,7 @@ def defineMenu():
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY","L1_TAU8_UNPAIRED_NONISO",
 
         # multi tau
-        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM",
+        "L1_TAU20IM_2TAU12IM", "L1_TAU20_2TAU12", "L1_TAU40_2TAU20IM", "L1_TAU60_2TAU40",
 
         # combined tau - lepton
         "L1_EM15HI_2TAU12IM",          
@@ -869,6 +884,7 @@ def defineMenu():
         'L1_DR-TAU20ITAU12I-J25_FTK',
         'L1_4J15_FTK',
         'L1_4J15.0ETA25_FTK',
+        'L1_4J20_FTK',
         'L1_J15_FTK',
         'L1_J40_FTK',
         'L1_J100_FTK'
@@ -1095,6 +1111,7 @@ def defineMenu():
         'L1_J40.0ETA25_XE50' : 177,
         'L1_MU10_2J20' : 278,
 	'L1_TAU40_2TAU20IM' : 254,
+	'L1_TAU60_2TAU40' : 274,
         'L1_MU10_2J15_J20' : 255,
 # freeing some CTPIDs  
 #        'L1_MBTSA0' : 170,
@@ -1526,6 +1543,7 @@ def defineMenu():
         'L1_DR-TAU20ITAU12I-J25_FTK'           : 503,
         'L1_4J15_FTK'                          : 504,
         'L1_4J15.0ETA25_FTK'                   : 505,
+        'L1_4J20_FTK'                          : 488,
         'L1_J15_FTK'                           : 506,
         'L1_J40_FTK'                           : 507,
         'L1_J100_FTK'                          : 508,           
@@ -1548,3 +1566,4 @@ def defineMenu():
 
     Lvl1Flags.prescales = {}
 
+if __name__ == "__main__": print_available()

@@ -33,11 +33,12 @@ public:
 
 	IParticleCollHandle_Jet( AODSysCommonData *,
 			const QString& name, xAOD::Type::ObjectType type );
+
 	virtual ~IParticleCollHandle_Jet();
 
 	virtual void init(VP1MaterialButtonBase* matBut=0);//reimplementations must start with a call to this.
 	virtual void setupSettingsFromControllerSpecific(AODSystemController*);
-  virtual void dumpToJSON( std::ofstream& ) const ;
+  	virtual void dumpToJSON( std::ofstream& ) const ;
 
 	const JetCollectionSettingsButton& collSettingsButton() const;
 	bool isRandomColors() const;

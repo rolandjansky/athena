@@ -106,7 +106,7 @@ class VxCandidate
     std::vector<Trk::VxTrackAtVertex*> m_vxTrackAtVertex; 
    
   private:
-    static unsigned int s_numberOfInstantiations;
+    static std::atomic<unsigned int> s_numberOfInstantiations;
 
 };//end of class definitions
 

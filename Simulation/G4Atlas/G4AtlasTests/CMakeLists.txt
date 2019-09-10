@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloSimEvent
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoAdaptors
                           DetectorDescription/GeoPrimitives

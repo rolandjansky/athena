@@ -8,6 +8,8 @@ atlas_subdir( CaloClusterCorrection )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloConditions
+			  TileCalorimeter/TileConditions
+			  LArCalorimeter/LArRecConditions
                           Calorimeter/CaloEvent
                           Calorimeter/CaloInterface
                           Calorimeter/CaloRec
@@ -27,7 +29,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArCabling
-                          LArCalorimeter/LArRecConditions
                           Control/AthContainers
                           DetectorDescription/Identifier
                           Event/EventKernel
@@ -43,7 +44,7 @@ atlas_add_library( CaloClusterCorrectionLib
                    PUBLIC_HEADERS CaloClusterCorrection
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES CaloCondBlobObjs CaloConditions CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel CxxUtils AthenaPoolUtilities xAODCaloEvent GaudiKernel LArIdentifier LArRecConditions CaloRecLib StoreGateLib SGtests LArToolsLib CaloDetDescrLib CaloUtilsLib
+                   LINK_LIBRARIES CaloCondBlobObjs CaloConditions CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel CxxUtils AthenaPoolUtilities xAODCaloEvent GaudiKernel LArIdentifier LArRecConditions TileConditionsLib CaloRecLib StoreGateLib SGtests LArToolsLib CaloDetDescrLib CaloUtilsLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TestTools CaloGeoHelpers Identifier EventKernel PathResolver )
 
 atlas_add_component( CaloClusterCorrection

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -158,27 +158,19 @@ GoodRunsListSelectorTool::initialize()
     *m_brlcollection = m_reader->GetMergedGRLCollection(static_cast<Root::BoolOperation>(m_boolop));
   }
 
-  /// get StoreGateSvc interface, crashes in preeventselector 15.6.x
-  if (!m_eventselectormode) {
-    if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-      ATH_MSG_ERROR ("Cannot get StoreGateSvc.");
-      return StatusCode::FAILURE;
-    }
-  }
-
   return StatusCode::SUCCESS;
 }
 
 
 bool 
-GoodRunsListSelectorTool::passEvent(const EventInfo* pEvent) 
+GoodRunsListSelectorTool::passEvent(const EventIDBase& pEvent) 
 {
   ATH_MSG_DEBUG ("passEvent() ");
 
-  int eventNumber = pEvent->event_ID()->event_number();
-  int runNumber   = pEvent->event_ID()->run_number();
-  int lumiBlockNr = pEvent->event_ID()->lumi_block();
-  int timeStamp   = pEvent->event_ID()->time_stamp();
+  int eventNumber = pEvent.event_number();
+  int runNumber   = pEvent.run_number();
+  int lumiBlockNr = pEvent.lumi_block();
+  int timeStamp   = pEvent.time_stamp();
 
   ATH_MSG_DEBUG ("passEvent() :: run number = " << runNumber <<
                  " ; event number = " << eventNumber <<
@@ -208,7 +200,7 @@ GoodRunsListSelectorTool::passThisRunLB( const std::vector<std::string>& grlname
   ATH_MSG_DEBUG ("passThisRunLB() ");
 
   const EventInfo*  pEvent = 0;
-  StatusCode status = m_storeGate->retrieve(pEvent);
+  StatusCode status = evtStore()->retrieve(pEvent);
 
   if(!(status.isSuccess() && pEvent!=0)) {
     ATH_MSG_ERROR ("Unable to retrieve EventInfo from StoreGate. Don't pass LB.");

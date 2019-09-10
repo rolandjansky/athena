@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKALIGNGENDRESSERS_ALIGN_TRACK_DRESSER_H
@@ -40,7 +40,7 @@ namespace Trk {
     StatusCode finalize();
     
     /** dresses alignTrack with derivatives and other information */
-    bool dressAlignTrack(AlignTrack * alignTrack) const;
+    bool dressAlignTrack(AlignTrack * alignTrack);
 
     /** sets residuals for TSOS on alignTrack */
     void setResiduals(AlignTrack * alignTrack) const;

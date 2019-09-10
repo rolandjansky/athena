@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
-from copy import deepcopy 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 log = logging.getLogger("TopoAlgo") 
@@ -35,7 +34,7 @@ class TopoAlgo(object):
             raise RuntimeError("Generic parameter '%s' does not exist for algorithm %s of type %s,\navailable parameters are %r" % (name,self.name, self.classtype, self._availableVars))
         return self
 
-
+        
     
 class Variable(object):
     def __init__(self, name, selection, value):
@@ -61,8 +60,10 @@ class SortingAlgo(TopoAlgo):
         self.outputs = outputs
         self.inputvalue=  self.inputs
         if self.inputs.find("Cluster")>=0: # to extract inputvalue (for FW) from output name
-            if self.outputs.find("TAU")>=0: self.inputvalue= self.inputvalue.replace("Cluster","Tau")            
-            if self.outputs.find("EM")>=0:  self.inputvalue= self.inputvalue.replace("Cluster","Em")
+            if self.outputs.find("TAU")>=0:
+                self.inputvalue = self.inputvalue.replace("Cluster","Tau")
+            if self.outputs.find("EM")>=0:
+                self.inputvalue = self.inputvalue.replace("Cluster","Em")
             
     def xml(self):
         _emscale_for_decision=2
@@ -70,7 +71,7 @@ class SortingAlgo(TopoAlgo):
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
             if TriggerFlags.useRun1CaloEnergyScale :
                 _emscale_for_decision=1
-                log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale" % _emscale_for_decision)  
+                log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale", _emscale_for_decision)
         
         s='  <SortAlgo type="%s" name="%s" output="%s" algoId="%i">\n' % (self.classtype, self.name, self.outputs, self.algoId)
         s+='    <Fixed>\n'
@@ -105,7 +106,7 @@ class DecisionAlgo(TopoAlgo):
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
             if TriggerFlags.useRun1CaloEnergyScale :
                 _emscale_for_decision=1
-                log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale" % _emscale_for_decision)  
+                log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale", _emscale_for_decision)
         
         s='  <DecisionAlgo type="%s" name="%s" algoId="%i">\n' % (self.classtype, self.name, self.algoId )
         s+='    <Fixed>\n'

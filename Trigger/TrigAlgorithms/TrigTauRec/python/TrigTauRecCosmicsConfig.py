@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """ TrigTauRecCosmics """
 
@@ -6,11 +6,6 @@ __author__  = 'S.Xella, O.Igonkina, S.Tsuno'
 __version__=""
 __doc__="Configuration of Cosmics TrigTauRec"
 
-from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-
-from TrigTauRec.TrigTauRecConf import TrigTauRecMerged
 from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_Tau
 from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_Tau2012
 
@@ -87,10 +82,10 @@ class TrigTauRecCosmics_Tau2012 (TrigTauRecMerged_Tau2012) :
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc +=trigTauCosmicsTrackSelectTool
 
-            self.Tools['TrigTau_TauTrackFinder'].TrackSelectorToolTau = trigTauCosmicsTrackSelectTool
-            self.Tools['TrigTau_TauTrackFinder'].MaxJetDrTau = 9999.0   # CoreTrackDist
-            self.Tools['TrigTau_TauTrackFinder'].MaxJetDrWide = 9999.0   # WideTrackDist
-            self.Tools['TrigTau_TauTrackFinder'].removeTracksOutsideZ0wrtLeadTrk = False
+            self.Tools['TrigTau2012_TauTrackFinder'].TrackSelectorToolTau = trigTauCosmicsTrackSelectTool
+            self.Tools['TrigTau2012_TauTrackFinder'].MaxJetDrTau = 9999.0   # CoreTrackDist
+            self.Tools['TrigTau2012_TauTrackFinder'].MaxJetDrWide = 9999.0   # WideTrackDist
+            self.Tools['TrigTau2012_TauTrackFinder'].removeTracksOutsideZ0wrtLeadTrk = False
             #self.useTauPVTool = False # dont't print out deltaZ0 cuts
 
 

@@ -128,7 +128,7 @@ namespace Trk {
      @author esben.lund@fys.uio.no
   **/
 
-  class STEP_Propagator : public AthAlgTool, virtual public IPropagator
+  class STEP_Propagator final : public AthAlgTool, virtual public IPropagator
   {
     /////////////////////////////////////////////////////////////////////////////////
     // Public methods:
@@ -144,11 +144,11 @@ namespace Trk {
 
 
     /** AlgTool initailize method.*/
-    virtual StatusCode initialize() override;
+    virtual StatusCode initialize() override final;
 
 
     /** AlgTool finalize method */
-    virtual StatusCode finalize() override;
+    virtual StatusCode finalize() override final;
 
 
     /** Main propagation method for ParametersBase. Use StraightLinePropagator for neutrals */
@@ -165,16 +165,16 @@ namespace Trk {
     */
 
     /** Main propagation method NeutralParameters. Use StraightLinePropagator for neutrals*/
-    virtual const Trk::NeutralParameters*
+    virtual  Trk::NeutralParameters*
       propagate (const Trk::NeutralParameters&,
                  const Trk::Surface&,
                  Trk::PropDirection,
                  Trk::BoundaryCheck,
-                 bool rC=false) const override;
+                 bool rC=false) const override final;
 
 
     /** Propagate parameters and covariance without returning the Jacobian */
-    virtual const Trk::TrackParameters*
+    virtual Trk::TrackParameters*
       propagate (const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
                  Trk::PropDirection            propagationDirection,
@@ -182,10 +182,10 @@ namespace Trk {
                  const      MagneticFieldProperties& magneticFieldProperties,
                  ParticleHypothesis            particle,
                  bool                          returnCurv = false,
-                 const Trk::TrackingVolume*          tVol = 0) const override;
+                 const Trk::TrackingVolume*          tVol = 0) const override final;
 
     /** Propagate parameters and covariance with search of closest surface */
-    virtual const Trk::TrackParameters*    
+    virtual  Trk::TrackParameters*    
       propagate  (const Trk::TrackParameters&        trackParameters,
                   std::vector<Trk::DestSurf>&        targetSurfaces,
                   Trk::PropDirection                 propagationDirection,
@@ -195,10 +195,10 @@ namespace Trk {
                   double&                            path,
                   bool                               usePathLimit = false,
                   bool                               returnCurv = false,
-                  const Trk::TrackingVolume*          tVol = 0) const override;       
+                  const Trk::TrackingVolume*          tVol = 0) const override final;       
 
     /** Propagate parameters and covariance with search of closest surface */
-    virtual const Trk::TrackParameters*    
+    virtual  Trk::TrackParameters*    
       propagateT  (const Trk::TrackParameters&        trackParameters,
                    std::vector<Trk::DestSurf>&        targetSurfaces,
                    Trk::PropDirection                 propagationDirection,
@@ -209,10 +209,10 @@ namespace Trk {
                    Trk::TimeLimit&                    time,
                    bool                               returnCurv,
                    const Trk::TrackingVolume*         tVol,
-                   std::vector<Trk::HitInfo>*& hitVector) const override;
+                   std::vector<Trk::HitInfo>*& hitVector) const override final;
 
     /** Propagate parameters and covariance with search of closest surface and material collection */
-    virtual const Trk::TrackParameters*    
+    virtual Trk::TrackParameters*    
       propagateM  (const Trk::TrackParameters&        trackParameters,
                    std::vector<Trk::DestSurf>&        targetSurfaces,
                    Trk::PropDirection                 propagationDirection,
@@ -225,10 +225,10 @@ namespace Trk {
                    bool                               usePathLimit = false,
                    bool                               returnCurv = false,
                    const Trk::TrackingVolume*         tVol = nullptr,
-                   Trk::ExtrapolationCache*           = nullptr) const override;       
+                   Trk::ExtrapolationCache*           = nullptr) const override final;       
 
     /** Propagate parameters and covariance, and return the Jacobian. WARNING: Multiple Scattering is not included in the Jacobian! */
-    virtual const Trk::TrackParameters*
+    virtual  Trk::TrackParameters*
       propagate (const Trk::TrackParameters&         trackParameters,
                  const Trk::Surface&                 targetSurface,
                  Trk::PropDirection                  propagationDirection,
@@ -238,11 +238,11 @@ namespace Trk {
                  double&                             pathLimit,
                  ParticleHypothesis                  particle,
                  bool                                returnCurv=false,
-                 const Trk::TrackingVolume*          tVol = nullptr) const override;       
+                 const Trk::TrackingVolume*          tVol = nullptr) const override final;       
 
 
     /** Propagate parameters only */
-    virtual const Trk::TrackParameters*
+    virtual Trk::TrackParameters*
       propagateParameters (const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
                            Trk::PropDirection                  propagationDirection,
@@ -250,11 +250,11 @@ namespace Trk {
                            const MagneticFieldProperties&      magneticFieldProperties,
                            ParticleHypothesis                  particle,
                            bool                                returnCurv = false,
-                           const Trk::TrackingVolume*          tVol = nullptr) const override;       
+                           const Trk::TrackingVolume*          tVol = nullptr) const override final;       
 
 
     /** Propagate parameters and return Jacobian. WARNING: Multiple Scattering is not included in the Jacobian! */
-    virtual const Trk::TrackParameters*
+    virtual Trk::TrackParameters*
       propagateParameters (const Trk::TrackParameters&         trackParameters,
                            const Trk::Surface&                 targetSurface,
                            Trk::PropDirection                  propagationDirection,
@@ -263,7 +263,7 @@ namespace Trk {
                            Trk::TransportJacobian*&            jacobian,
                            ParticleHypothesis                  particle,
                            bool                                returnCurv = false,
-                           const Trk::TrackingVolume*          tVol = 0) const override;       
+                           const Trk::TrackingVolume*          tVol = 0) const override final;       
 
 
     /** Propagate parameters and return path (Similar to propagateParameters */
@@ -272,7 +272,7 @@ namespace Trk {
                  const Trk::Surface&                 targetSurface,
                  const Trk::MagneticFieldProperties& magneticFieldProperties,
                  ParticleHypothesis                  particle,
-                 const Trk::TrackingVolume*          tVol = 0) const override;       
+                 const Trk::TrackingVolume*          tVol = 0) const override final;       
 
     /** Intersection and propagation:
      */
@@ -281,7 +281,7 @@ namespace Trk {
                                                              const TrackSurfaceIntersection*    trackIntersection,
                                                              const double               qOverP,
                                                              const MagneticFieldProperties& mft,
-                                                             ParticleHypothesis       particle) const override; 
+                                                             ParticleHypothesis       particle) const override final; 
 
     /** Return a list of positions along the track */
     virtual void
@@ -291,7 +291,7 @@ namespace Trk {
                        const CylinderBounds&            cylinderBounds,
                        double                           maxStepSize,
                        ParticleHypothesis               particle,
-                       const Trk::TrackingVolume*       tVol = 0) const override;       
+                       const Trk::TrackingVolume*       tVol = 0) const override final;       
 
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -358,7 +358,7 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////
     // Main functions for propagation
     /////////////////////////////////////////////////////////////////////////////////
-    const Trk::TrackParameters*
+     Trk::TrackParameters*
       propagateRungeKutta (Cache&                              cache,
                            bool 	                             errorPropagation,
                            const Trk::TrackParameters&         trackParameters,
@@ -374,7 +374,7 @@ namespace Trk {
     // Main function for propagation
     // with search of closest surface (ST) 
     /////////////////////////////////////////////////////////////////////////////////
-    const Trk::TrackParameters*
+     Trk::TrackParameters*
       propagateRungeKutta (Cache&                              cache,
                            bool 	                             errorPropagation,
                            const Trk::TrackParameters&         trackParameters,
@@ -493,7 +493,7 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////
     // Create straight line in case q/p = 0
     /////////////////////////////////////////////////////////////////////////////////
-    const Trk::TrackParameters*
+    Trk::TrackParameters*
       createStraightLine( const Trk::TrackParameters*  inputTrackParameters) const;
 
     void clearCache(Cache& cache) const;
@@ -515,7 +515,7 @@ namespace Trk {
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // propagation of neutrals (simulation mode)
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    const Trk::TrackParameters*  propagateNeutral(const Trk::TrackParameters&   parm,
+    Trk::TrackParameters*  propagateNeutral(const Trk::TrackParameters&   parm,
                                                   std::vector<DestSurf>&        targetSurfaces,
                                                   Trk::PropDirection            propagationDirection,
                                                   std::vector<unsigned int>&    solutions,

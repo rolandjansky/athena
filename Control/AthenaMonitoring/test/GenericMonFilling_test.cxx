@@ -333,26 +333,28 @@ int main() {
     return -1;
   }
   MsgStream log( Athena::getMessageSvc(), "GenericMonFilling_test" );
+  log.setLevel(0);
 
   ITHistSvc* histSvc;
   if( pSvcLoc->service( "THistSvc", histSvc, true ).isFailure()  ) {
     log << MSG::ERROR << "THistSvc not available " << endmsg;
     return -1;
   }
-  
+
+  ISvcManager* svcmgr = dynamic_cast<ISvcManager*>( pSvcLoc );
+  svcmgr->startServices().ignore();
+
   // we need to test what happens to the monitoring when tool is not valid
   ToolHandle<GenericMonitoringTool> emptyMon("");
   VALUE( emptyMon.isEnabled() ) EXPECTED( false ); // self test
   log << MSG::DEBUG << " mon tool validity " << emptyMon.isValid() << endmsg;
-
-    
   
   ToolHandle<GenericMonitoringTool> validMon( "GenericMonitoringTool/MonTool" );
   if ( validMon.retrieve().isFailure() ) {
     log << MSG::ERROR << "Failed to acquire the MonTool tools via the ToolHandle" << endmsg;
     return -1;
   }
-  
+
   assert( fillFromScalarWorked( validMon, histSvc ) );
   assert( noToolBehaviourCorrect( emptyMon ) );
   assert( fillFromScalarIndependentScopesWorked( validMon, histSvc ) );
@@ -368,8 +370,8 @@ int main() {
   // Make sure that THistSvc gets finalized.
   // Otherwise, the output file will get closed while global dtors are running,
   // which can lead to crashes.
-  if (ISvcManager* svcmgr = dynamic_cast<ISvcManager*>( pSvcLoc )) {
-    svcmgr->finalizeServices().ignore();
-  }
+  svcmgr->stopServices().ignore();
+  svcmgr->finalizeServices().ignore();
+
   return 0;
 }

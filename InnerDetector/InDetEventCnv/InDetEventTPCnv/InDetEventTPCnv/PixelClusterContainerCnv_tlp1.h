@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELCLUSTERCONTAINERCNV_TLP1_H
@@ -33,6 +33,8 @@ public:
 // return list of tokens to extending persistent objects
 // it is stored in m_tokenList member of the Track persistent rep
   virtual TPCnvTokenList_p1* 	getTokenListVar() { return &(getTLPersObject()->m_tokenList); }
+
+  void setUseDetectorElement(const bool useDetectorElement);
 
 protected:
 

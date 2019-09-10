@@ -13,7 +13,6 @@
 // Trk
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
-#include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSegment/Segment.h"
 #include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
@@ -34,10 +33,8 @@ Trk::EventDataModelMonitor::~EventDataModelMonitor() {
     ATH_MSG_INFO( "EventDataModelMonitor AFTER finalize of algorithms (dbg only):" );
     ATH_MSG_INFO( "left over all Surfaces    : \t"<<Trk::Surface::numberOfInstantiations() ); 
     ATH_MSG_INFO( "left over free Surfaces   : \t"<<Trk::Surface::numberOfFreeInstantiations() ); 
-    //ATH_MSG_INFO( "left over TrackParameters : \t"<<Trk::TrackParameters::numberOfInstantiations() ); 
     ATH_MSG_INFO( "left over PrepRawDatas    : \t"<<Trk::PrepRawData::numberOfInstantiations() ); 
     ATH_MSG_INFO( "left over RIO_OnTracks    : \t"<<Trk::RIO_OnTrack::numberOfInstantiations() ); 
-    ATH_MSG_INFO( "left over SpacePoints     : \t"<<Trk::SpacePoint::numberOfInstantiations() ); 
     ATH_MSG_INFO( "left over Segments        : \t"<<Trk::Segment::numberOfInstantiations() ); 
     ATH_MSG_INFO( "left over Tracks          : \t"<<Trk::Track::numberOfInstantiations() ); 
     ATH_MSG_INFO( "left over TrackSummaries  : \t"<<Trk::TrackSummary::numberOfInstantiations() ); 
@@ -46,8 +43,8 @@ Trk::EventDataModelMonitor::~EventDataModelMonitor() {
     ATH_MSG_INFO( "left over VxCandidates    : \t"<<Trk::VxCandidate::numberOfInstantiations() );
     ATH_MSG_INFO( "==> this may still contain the ID geometry and last event, (srv finalize comes now)" );
 
-    if (/*Trk::TrackParameters::numberOfInstantiations() ||*/ Trk::RIO_OnTrack::numberOfInstantiations() || Trk::PrepRawData::numberOfInstantiations() 
-       || Trk::SpacePoint::numberOfInstantiations() || Trk::Segment::numberOfInstantiations() || Trk::Track::numberOfInstantiations() 
+    if (Trk::RIO_OnTrack::numberOfInstantiations() || Trk::PrepRawData::numberOfInstantiations() 
+       || Trk::Segment::numberOfInstantiations() || Trk::Track::numberOfInstantiations() 
        || Trk::TrackSummary::numberOfInstantiations() || Trk::VxTrackAtVertex::numberOfInstantiations()
        || Trk::Vertex::numberOfInstantiations() > 2 || Trk::VxCandidate::numberOfInstantiations() ) 
        ATH_MSG_WARNING("Leaks detected!");
@@ -66,10 +63,8 @@ StatusCode Trk::EventDataModelMonitor::execute() {
     ATH_MSG_INFO( "EventDataModelMonitor at start of event (dbg only):" );
     ATH_MSG_INFO( "number of all Surfaces    (about const) : \t"<<Trk::Surface::numberOfInstantiations() ); 
     ATH_MSG_INFO( "number of free Surfaces   (about const) : \t"<<Trk::Surface::numberOfFreeInstantiations() ); 
-    //ATH_MSG_INFO( "number of TrackParameters (should be 0) : \t"<<Trk::TrackParameters::numberOfInstantiations() ); 
     ATH_MSG_INFO( "number of PrepRawData     (about const) : \t"<<Trk::PrepRawData::numberOfInstantiations() ); 
     ATH_MSG_INFO( "number of RIO_OnTrack     (should be 0) : \t"<<Trk::RIO_OnTrack::numberOfInstantiations() ); 
-    ATH_MSG_INFO( "number of SpacePoints     (about const) : \t"<<Trk::SpacePoint::numberOfInstantiations() ); 
     ATH_MSG_INFO( "number of Segments        (should be 0) : \t"<<Trk::Segment::numberOfInstantiations() ); 
     ATH_MSG_INFO( "number of Tracks          (should be 0) : \t"<<Trk::Track::numberOfInstantiations() ); 
     ATH_MSG_INFO( "number of TrackSummaries  (should be 0) : \t"<<Trk::TrackSummary::numberOfInstantiations() ); 

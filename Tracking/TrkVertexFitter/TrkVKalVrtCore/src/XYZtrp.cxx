@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <math.h>
@@ -10,7 +10,7 @@
 
 namespace Trk {
 
-extern vkalPropagator  myPropagator;
+extern const vkalPropagator  myPropagator;
 extern void tdasatVK(double *, double *, double *, long int, long int);
 
 #define cnv_ref(a_1,a_2) cnv[(a_2)*6 + (a_1) - 7]

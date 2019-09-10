@@ -72,7 +72,7 @@ StatusCode xAODTrigT2ZdcSignalsContainerCnv::createObj(IOpaqueAddress* pAddr,
 xAOD::TrigT2ZdcSignalsContainer* xAODTrigT2ZdcSignalsContainerCnv::createTransient() {
 
   // The known ID(s) for this container:
-  static pool::Guid v1_guid( "8313279A-5E27-11E4-A635-02163E00A82C" );
+  static const pool::Guid v1_guid( "8313279A-5E27-11E4-A635-02163E00A82C" );
 
   // Check if we're reading the most up to date type:
   if( compareClassGuid( v1_guid ) ) {

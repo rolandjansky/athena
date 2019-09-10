@@ -175,7 +175,7 @@ def main():
       opts.skip += ["signatureAcceptance"]
       opts.skip += ["ErrorCodes_vs_Chains_"]
       opts.skip += ["Initital_RoIs_phi_vs_eta"]
-      opts.skip += ["Time$","time_","Time_"]
+      opts.skip += ["Time$","time_","Time_", "_time"]
       opts.skip += ["Unpck$"]
       opts.skip += ["BufFreeCnt$", "CalEvtSize$"]     # muon calibration buffer
       opts.skip += ["/TrigMemMonitor/"]               # memory monitor
@@ -191,7 +191,8 @@ def main():
       opts.skip += ["run_[0-9]/lb_[0-9]+/"]           # LB histograms (ATR-15027)
       opts.skip += ["Average Hlt Result size for physics streams"]  # ATR-14330
       opts.skip += ["HltEDMSizes:Events_Without_Truncation"]        # ATR-14330
-      
+      opts.skip += ["Trig.*CaloCellMaker.*/TCRec_"] # timing histograms in TrigCaloCellMaker
+
    # Default thresholds
    if not opts.threshold:
       if opts.chi2: opts.threshold = 0.95

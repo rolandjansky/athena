@@ -7,10 +7,9 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
+#include "CxxUtils/phihelper.h"
 
 #include "TLorentzVector.h"
 
@@ -70,7 +69,7 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
   // fill local variables for RoI reference position
   // Preserve the dEta and dPhi requirements from the original RoI
   float dEta = fabs(roiDescriptor->etaPlus() - roiDescriptor->eta());
-  float dPhi = fabs(HLT::wrapPhi(roiDescriptor->phiPlus()-roiDescriptor->phi()));
+  float dPhi = fabs(CxxUtils::wrapToPi(roiDescriptor->phiPlus()-roiDescriptor->phi()));
 
 
   // Make a minimal effort to speed things up ;)
@@ -98,7 +97,7 @@ StatusCode TrigTauCaloRoiUpdaterMT::execute() {
   // Prepare the new RoI
   TrigRoiDescriptor *outRoi = new TrigRoiDescriptor(roiDescriptor->roiWord(), roiDescriptor->l1Id(), roiDescriptor->roiId(),
                       TauDetectorAxis.Eta(), TauDetectorAxis.Eta()-dEta, TauDetectorAxis.Eta()+dEta,
-                      TauDetectorAxis.Phi(), HLT::wrapPhi(TauDetectorAxis.Phi()-dPhi), HLT::wrapPhi(TauDetectorAxis.Phi()+dPhi),
+                      TauDetectorAxis.Phi(), CxxUtils::wrapToPi(TauDetectorAxis.Phi()-dPhi), CxxUtils::wrapToPi(TauDetectorAxis.Phi()+dPhi),
                       roiDescriptor->zed() ,roiDescriptor->zedMinus(), roiDescriptor->zedPlus());
 
   ATH_MSG_DEBUG("Input RoI " << *roiDescriptor);

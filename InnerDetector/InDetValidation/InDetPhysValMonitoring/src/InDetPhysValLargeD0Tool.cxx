@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -123,7 +123,7 @@ InDetPhysValLargeD0Tool::initialize() {
   }
   ATH_CHECK(m_truthSelectionTool.retrieve( EnableTool {not m_truthParticleName.key().empty()} ));
   m_LargeD0Plots =
-    std::move(std::unique_ptr<InDetRttLargeD0Plots> (new InDetRttLargeD0Plots(0, "IDPerformanceMon/" + m_folder)));
+    std::make_unique<InDetRttLargeD0Plots> (nullptr, "IDPerformanceMon/" + m_folder);
 
   if (this->msgLvl(MSG::VERBOSE)) {
     std::string sid;

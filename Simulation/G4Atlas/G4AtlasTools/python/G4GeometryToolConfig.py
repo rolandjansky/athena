@@ -1,14 +1,23 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 
 from Geo2G4.Geo2G4Conf import GeoDetectorTool
 from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-from G4AtlasTools.G4AtlasToolsConf import CylindricalEnvelope
+from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg, InDetServiceMaterialCfg
+from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+from TileGeoModel.TileGMConfig import TileGMCfg
+from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
+
+from G4AtlasTools.G4AtlasToolsConf import CylindricalEnvelope, PolyconicalEnvelope, MaterialDescriptionTool,G4AtlasDetectorConstructionTool#, BoxEnvelope #(check)
 
 from AthenaCommon.SystemOfUnits import mm, cm, m
 
-#tool cfg or just cfg?
+#ToDo - finish migrating this (dnoel)
+#Todo - just return component accumulator
+#to still migrate: getCavernWorld, getCavernInfraGeoDetectorTool
+#from ForwardRegionProperties.ForwardRegionPropertiesToolConfig import ForwardRegionPropertiesCfg
+
 def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
     #set up geometry
     result=BeamPipeGeometryCfg(ConfigFlags)
@@ -17,72 +26,90 @@ def BeamPipeGeoDetectorToolCfg(ConfigFlags, name='BeamPipe', **kwargs):
 
 def PixelGeoDetectorToolCfg(ConfigFlags, name='Pixel', **kwargs):    
     #set up geometry
-    result=BeamPipeGeometryCfg(ConfigFlags)
+    result=InDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Pixel")
     return result, GeoDetectorTool(name, **kwargs)
 
 def SCTGeoDetectorToolCfg(ConfigFlags, name='SCT', **kwargs):
     #set up geometry
-    result=BeamPipeGeometryCfg(ConfigFlags)
+    result=InDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "SCT")
     return result, GeoDetectorTool(name, **kwargs)
 
 def TRTGeoDetectorToolCfg(ConfigFlags, name='TRT', **kwargs):
     #set up geometry
-    result=BeamPipeGeometryCfg(ConfigFlags)
+    result=InDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "TRT")
     return result, GeoDetectorTool(name, **kwargs)
 
 def IDetServicesMatGeoDetectorToolCfg(ConfigFlags, name='IDetServicesMat', **kwargs):
     #set up geometry
-    result=BeamPipeGeometryCfg(ConfigFlags)
+    result=InDetServiceMaterialCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "InDetServMat")
     return result, GeoDetectorTool(name, **kwargs)
 
-def getLArMgrGeoDetectorTool(name='LArMgr', **kwargs):
+def LArMgrGeoDetectorToolCfg(ConfigFlags, name='LArMgr', **kwargs):
+    #set up geometry
+    result=LArGMCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "LArMgr")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return result, GeoDetectorTool(name, **kwargs)
 
-def getTileGeoDetectorTool(name='Tile', **kwargs):
+def TileGeoDetectorToolCfg(ConfigFLags, name='Tile', **kwargs):
+    #set up geometry
+    result=TileGMCfg(ConfigFLags)
     kwargs.setdefault("DetectorName", "Tile")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return result, GeoDetectorTool(name, **kwargs)
 
-def getLucidGeoDetectorTool(name='Lucid', **kwargs):
+def LucidGeoDetectorToolCfg(ConfigFlags, name='Lucid', **kwargs):
+    #set up geometry
+    result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "LUCID")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return result, GeoDetectorTool(name, **kwargs)
 
-def getALFAGeoDetectorTool(name='ALFA', **kwargs):
+def ALFAGeoDetectorToolCfg(ConfigFlags, name='ALFA', **kwargs):
+    #set up geometry
+    result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ALFA")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return result, GeoDetectorTool(name, **kwargs)
 
-def getZDCGeoDetectorTool(name='ZDC', **kwargs):
+def ZDCGeoDetectorToolCfg(ConfigFlags, name='ZDC', **kwargs):
+    #set up geometry
+    result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "ZDC")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return result, GeoDetectorTool(name, **kwargs)
 
-def getAFPGeoDetectorTool(name='AFP', **kwargs):
+def AFPGeoDetectorToolCfg(ConfigFlags, name='AFP', **kwargs):
+    #set up geometry
+    result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "AFP")
     kwargs.setdefault("GeoDetectorName", "AFP_GeoModel")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return result, GeoDetectorTool(name, **kwargs)
 
-def getFwdRegionGeoDetectorTool(name='FwdRegion', **kwargs):
+def FwdRegionGeoDetectorToolCfg(ConfigFlags, name='FwdRegion', **kwargs):
+    #set up geometry
+    result=ForDetGeometryCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "FwdRegion")
     kwargs.setdefault("GeoDetectorName", "ForwardRegionGeoModel")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return result, GeoDetectorTool(name, **kwargs)
 
-def getMuonGeoDetectorTool(name='Muon', **kwargs):
+def MuonGeoDetectorToolCfg(ConfigFlags, name='Muon', **kwargs):
+    #set up geometry
+    result=MuonGeoModelCfg(ConfigFlags)
     kwargs.setdefault("DetectorName", "Muon")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return result, GeoDetectorTool(name, **kwargs)
 
+#todo - set this up
 def getCavernInfraGeoDetectorTool(name='CavernInfra', **kwargs):
     kwargs.setdefault("DetectorName", "CavernInfra")
-    return CfgMgr.GeoDetectorTool(name, **kwargs)
+    return GeoDetectorTool(name, **kwargs)
 
 def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
     result = ComponentAccumulator()
 
     isUpgrade = ConfigFlags.GeoModel.Run =="RUN4" 
     isRUN2 = ConfigFlags.GeoModel.Run in ["RUN2", "RUN3"]
-    isRUN1 = not (isRUN2 or isUpgrade)
+
+    #isRUN1 = not (isRUN2 or isUpgrade) #not used, remove?
 
     kwargs.setdefault("DetectorName", "IDET")
     innerRadius = 37.*mm # RUN1 default
@@ -114,54 +141,73 @@ def IDETEnvelopeCfg(ConfigFlags, name="IDET", **kwargs):
     kwargs.setdefault("SubDetectors", SubDetectorList)
     return result, CylindricalEnvelope(name, **kwargs)
 
-def getCALOEnvelope(name="CALO", **kwargs):
+def CALOEnvelopeCfg(ConfigFlags, name="CALO", **kwargs):
+    result = ComponentAccumulator() 
+
     kwargs.setdefault("DetectorName", "CALO")
     kwargs.setdefault("NSurfaces", 18)
     kwargs.setdefault("InnerRadii", [41.,41.,41.,41.,41.,41.,120.,120.,1148.,1148.,120.,120.,41.,41.,41.,41.,41.,41.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [415.,415,3795.,3795.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,4251.,3795.,3795.,415.,415.]) #FIXME Units?
     kwargs.setdefault("ZSurfaces", [-6781.,-6735.,-6735.,-6530.,-6530.,-4587.,-4587.,-3475.,-3475.,3475.,3475.,4587.,4587.,6530.,6530.,6735.,6735.,6781.]) #FIXME Units?
     SubDetectorList=[]
-    from AthenaCommon.DetFlags import DetFlags
-    if DetFlags.geometry.LAr_on():
-        SubDetectorList += ['LArMgr']
-    if DetFlags.geometry.Tile_on():
-        SubDetectorList += ['Tile']
+    if ConfigFlags.Detector.GeometryLAr:
+        accLArMgr, toolLArMgr = LArMgrGeoDetectorToolCfg(ConfigFlags)
+        SubDetectorList += [ toolLArMgr ]
+        result.merge(accLArMgr)
+    if ConfigFlags.Detector.GeometryTile:
+        accTile, toolTile = TileGeoDetectorToolCfg(ConfigFlags)
+        SubDetectorList += [ toolTile ]
+        result.merge(accTile)
     kwargs.setdefault("SubDetectors", SubDetectorList)
-    return CfgMgr.PolyconicalEnvelope(name, **kwargs)
+    return result, PolyconicalEnvelope(name, **kwargs)
 
-def getForwardRegionEnvelope(name='ForwardRegion', **kwargs):
+def ForwardRegionEnvelopeCfg(ConfigFlags, name='ForwardRegion', **kwargs):
+    result = ComponentAccumulator()
+
     kwargs.setdefault("DetectorName", "ForDetEnvelope")
     SubDetectorList=[]
-    from AthenaCommon.DetFlags import DetFlags
-    if DetFlags.geometry.FwdRegion_on():
-        SubDetectorList += ['FwdRegion']
-        # FIXME Temporary solution - looking for a better place to add this one.
-        from AthenaCommon.CfgGetter import getPublicTool
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += getPublicTool("ForwardRegionProperties")
-    if DetFlags.geometry.ZDC_on():
-        SubDetectorList += ['ZDC']
-    if DetFlags.geometry.ALFA_on():
-        SubDetectorList += ['ALFA']
-    if DetFlags.geometry.AFP_on():
-        SubDetectorList += ['AFP']
-    kwargs.setdefault("SubDetectors", SubDetectorList)
-    return CfgMgr.GeoDetectorTool(name, **kwargs) ##FIXME Should this really be a GeoDetectorTool???
 
-def getMUONEnvelope(name="MUONQ02", **kwargs): #FIXME rename to MUON when safe
+    if ConfigFlags.Detector.SimulateFwdRegion:
+        accFwdRegion, toolFwdRegion = FwdRegionGeoDetectorToolCfg(ConfigFlags)
+        SubDetectorList += [ toolFwdRegion ]
+        result.merge(accFwdRegion)
+
+        #TODO - migrate this over (WIP at the moment) (dnoel)
+        #toolFwdRegionProperties = ForwardRegionPropertiesCfg(ConfigFlags)
+        #result.addPublicTool(toolFwdRegionProperties) #add this as a service later?
+    if ConfigFlags.Detector.GeometryZDC:
+        accZDC, toolZDC = ZDCGeoDetectorToolCfg(ConfigFlags)
+        SubDetectorList += [ toolZDC ]
+        result.merge(accZDC)
+    if ConfigFlags.Detector.GeometryALFA:
+        accALFA, toolALFA = ALFAGeoDetectorToolCfg(ConfigFlags)
+        SubDetectorList += [ toolALFA ]
+        result.merge(accALFA)
+    if ConfigFlags.Detector.GeometryAFP:
+        accAFP, toolAFP = AFPGeoDetectorToolCfg(ConfigFlags)
+        SubDetectorList += [ toolAFP ]
+        result.merge(accAFP)
+    kwargs.setdefault("SubDetectors", SubDetectorList)
+    return result, GeoDetectorTool(name, **kwargs) ##FIXME Should this really be a GeoDetectorTool???
+
+def MUONEnvelopeCfg(ConfigFlags, name="MUONQ02", **kwargs): #FIXME rename to MUON when safe (IS IT SAFE?))
+    result = ComponentAccumulator()
+
     kwargs.setdefault("DetectorName", "MUONQ02") #FIXME rename to MUON when safe
     kwargs.setdefault("NSurfaces", 34)
     kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,4255.,4255.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
     kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
     kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6736.,-6736.,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,6736.,6736.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
-    from AthenaCommon.DetFlags import DetFlags
-    if DetFlags.geometry.Muon_on():
-        SubDetectorList += ['Muon']
-    kwargs.setdefault("SubDetectors", SubDetectorList)
-    return CfgMgr.PolyconicalEnvelope(name, **kwargs)
+    if ConfigFlags.Detector.SimulateMuon:
+        accMuon, toolMuon = MuonGeoDetectorToolCfg(ConfigFlags)
+        SubDetectorList += [ toolMuon ]
+        result.merge(accMuon)
 
-def getCosmicShortCut(name="CosmicShortCut", **kwargs):
+    kwargs.setdefault("SubDetectors", SubDetectorList)
+    return result, PolyconicalEnvelope(name, **kwargs)
+
+def CosmicShortCutCfg(ConfigFlags, name="CosmicShortCut", **kwargs):
     kwargs.setdefault("DetectorName", "TTR_BARREL")
     kwargs.setdefault("NSurfaces", 14)
     kwargs.setdefault("InnerRadii", [70.,70.,12500.,12500.,12500.,12500.,13000.,13000.,12500.,12500.,12500.,12500.,70.,70.]) #FIXME Units?
@@ -169,41 +215,51 @@ def getCosmicShortCut(name="CosmicShortCut", **kwargs):
     kwargs.setdefault("ZSurfaces", [-22031.,-22030.,-22030.,-12901.,-12901.,-12900.,-12900., 12900.,12900.,12901.,12901.,22030.,22030.,22031.]) #FIXME Units?
     SubDetectorList=[]
     kwargs.setdefault("SubDetectors", SubDetectorList)
-    return CfgMgr.PolyconicalEnvelope(name, **kwargs)
+    return PolyconicalEnvelope(name, **kwargs)
 
-def generateSubDetectorList():
+def generateSubDetectorList(ConfigFlags):
+    result = ComponentAccumulator()
     SubDetectorList=[]
-    from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties
-    if jobproperties.Beam.beamType() == 'cosmics' or \
-            (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
-        if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, "ReadTR"):
-            SubDetectorList += ['CosmicShortCut']
-    from AthenaCommon.DetFlags import DetFlags
-    if DetFlags.Muon_on():
-        SubDetectorList += ['MUONQ02'] #FIXME rename to MUON when safe
-    if DetFlags.ID_on():
-        SubDetectorList += ['IDET']
-    if DetFlags.Calo_on():
-        SubDetectorList += ['CALO']
-    if DetFlags.ID_on(): #HACK
-        if DetFlags.bpipe_on(): #HACK
-            SubDetectorList += ['BeamPipe'] #HACK
-    if DetFlags.geometry.Lucid_on():
-        SubDetectorList += ['Lucid']
-    if simFlags.ForwardDetectors.statusOn:
-        SubDetectorList += ['ForwardRegion']
+
+    if ConfigFlags.Beam.Type == 'cosmics' or ConfigFlags.Sim.CavernBG != 'Signal':
+        if ConfigFlags.Beam.Type == 'cosmics' and ConfigFlags.Sim.ReadTR:
+            SubDetectorList += [ CosmicShortCutCfg(ConfigFlags) ]
+
+    if ConfigFlags.Detector.SimulateMuon:
+        accMuon, toolMuon = MUONEnvelopeCfg(ConfigFlags)
+        SubDetectorList += [ toolMuon ] #FIXME rename to MUON when safe
+        result.merge(accMuon)
+    if ConfigFlags.Detector.SimulateID:
+        accIDET, toolIDET = IDETEnvelopeCfg(ConfigFlags)
+        SubDetectorList += [ toolIDET ]
+        result.merge(accIDET)
+    if ConfigFlags.Detector.SimulateCalo:
+        accCALO, toolCALO = CALOEnvelopeCfg(ConfigFlags)
+        SubDetectorList += [ toolCALO ]
+        result.merge(accCALO)
+    if ConfigFlags.Detector.SimulateBpipe:
+        accBpipe, toolBpipe = BeamPipeGeoDetectorToolCfg(ConfigFlags)
+        SubDetectorList += [ toolBpipe ]
+        result.merge(accBpipe)
+    if ConfigFlags.Detector.GeometryLucid:
+        accLucid, toolLucid = LucidGeoDetectorToolCfg(ConfigFlags)
+        SubDetectorList += [ toolLucid ]
+        result.merge(accLucid)
+    if ConfigFlags.Detector.SimulateForward: 
+        AccForward, toolForward = ForwardRegionEnvelopeCfg(ConfigFlags)
+        SubDetectorList += [ toolForward ]
+        result.merge(AccForward)
+
     #if DetFlags.Muon_on(): #HACK
     #    SubDetectorList += ['MUONQ02'] #FIXME rename to MUON when safe #HACK
     #SubDetectorList += generateFwdSubDetectorList() #FIXME Fwd Detectors not supported yet.
-    return SubDetectorList
+    return result, SubDetectorList
 
-def getATLAS(name="Atlas", **kwargs):
+def ATLASEnvelopeCfg(ConfigFlags, name="Atlas", **kwargs):
+    result = ComponentAccumulator()
+
     kwargs.setdefault("DetectorName", "Atlas")
     kwargs.setdefault("NSurfaces", 18)
-    from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import jobproperties
-    from AthenaCommon.DetFlags import DetFlags
     ## InnerRadii
     innerRadii = [0.0] * 18
     kwargs.setdefault("InnerRadii", innerRadii)
@@ -215,12 +271,11 @@ def getATLAS(name="Atlas", **kwargs):
     AtlasForwardOuterR = 2751.
     AtlasOuterR1 = 14201.
     AtlasOuterR2 = 14201.
-    AtlasOuterR3 =  1501.
-    if jobproperties.Beam.beamType() != 'cosmics' and not DetFlags.Muon_on() and not \
-       (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    if ConfigFlags.Beam.Type != 'cosmics' and not ConfigFlags.Detector.SimulateMuon and not \
+       (ConfigFlags.Sim.CavernBG != 'Signal'):
         AtlasOuterR1 = 4251.
         AtlasOuterR2 = 4251.
-        if not DetFlags.Calo_on():
+        if not ConfigFlags.Detector.SimulateCalo:
             AtlasOuterR1 = 1150.
             AtlasOuterR2 = 1150.
 
@@ -235,76 +290,47 @@ def getATLAS(name="Atlas", **kwargs):
         outerRadii[i] = AtlasOuterR1
 
     ## World R range
-    if simFlags.WorldRRange.statusOn:
-        if simFlags.WorldRRange.get_Value() > max(AtlasOuterR1, AtlasOuterR2):
-            routValue = simFlags.WorldRRange.get_Value()
-            for i in xrange(4, 14):
-                outerRadii[i] = routValue
-        else:
-            raise RuntimeError('getATLASEnvelope: ERROR simFlags.WorldRRange must be > %f. Current value %f' % max(AtlasOuterR1, AtlasOuterR2), routValue)
+    routValue = ConfigFlags.Sim.WorldRRange
+    if ConfigFlags.Sim.WorldRRange > max(AtlasOuterR1, AtlasOuterR2):
+        for i in xrange(4, 14):
+            outerRadii[i] = routValue
+    else:
+        raise RuntimeError('getATLASEnvelope: ERROR ConfigFlags.Sim.WorldRRange must be > %f. Current value %f' % (max(AtlasOuterR1, AtlasOuterR2), routValue) )
     kwargs.setdefault("OuterRadii", outerRadii)
 
     ## ZSurfaces
     zSurfaces = [-26046., -23001., -23001., -22031., -22031., -12899., -12899., -6741., -6741.,  6741.,  6741.,  12899., 12899., 22031., 22031., 23001., 23001., 26046.] # FIXME units mm??
 
-    if simFlags.ForwardDetectors.statusOn:
+    if ConfigFlags.Detector.SimulateForward:
         zSurfaces[0]  = -400000.
         zSurfaces[17] =  400000.
 
-    if simFlags.WorldZRange.statusOn:
-        if simFlags.WorldZRange.get_Value() < 26046.:
-              AtlasG4Eng.G4Eng.log.error('')
-              raise RuntimeError('getATLASEnvelope: ERROR simFlags.WorldZRange must be > 26046. Current value: %f' % simFlags.WorldZRange.get_Value())
-        zSurfaces[17] =  simFlags.WorldZRange.get_Value() + 100.
-        zSurfaces[16] =  simFlags.WorldZRange.get_Value() + 50.
-        zSurfaces[15] =  simFlags.WorldZRange.get_Value() + 50.
-        zSurfaces[14] =  simFlags.WorldZRange.get_Value()
-        zSurfaces[13] =  simFlags.WorldZRange.get_Value()
-        zSurfaces[0] =  -simFlags.WorldZRange.get_Value() - 100.
-        zSurfaces[1] =  -simFlags.WorldZRange.get_Value() - 50.
-        zSurfaces[2] =  -simFlags.WorldZRange.get_Value() - 50.
-        zSurfaces[3] =  -simFlags.WorldZRange.get_Value()
-        zSurfaces[4] =  -simFlags.WorldZRange.get_Value()
+    #leave a check in for WorldRrange and WorldZrange?
+    #if simFlags.WorldZRange.statusOn:
+
+    if ConfigFlags.Sim.WorldZRange < 26046.:
+          raise RuntimeError('getATLASEnvelope: ERROR ConfigFlags.Sim.WorldZRange must be > 26046. Current value: %f' % ConfigFlags.Sim.WorldZRange)
+    zSurfaces[17] =  ConfigFlags.Sim.WorldZRange + 100.
+    zSurfaces[16] =  ConfigFlags.Sim.WorldZRange + 50.
+    zSurfaces[15] =  ConfigFlags.Sim.WorldZRange + 50.
+    zSurfaces[14] =  ConfigFlags.Sim.WorldZRange
+    zSurfaces[13] =  ConfigFlags.Sim.WorldZRange
+    zSurfaces[0] =  -ConfigFlags.Sim.WorldZRange - 100.
+    zSurfaces[1] =  -ConfigFlags.Sim.WorldZRange - 50.
+    zSurfaces[2] =  -ConfigFlags.Sim.WorldZRange - 50.
+    zSurfaces[3] =  -ConfigFlags.Sim.WorldZRange
+    zSurfaces[4] =  -ConfigFlags.Sim.WorldZRange
+
     kwargs.setdefault("ZSurfaces", zSurfaces)
-    kwargs.setdefault("SubDetectors", generateSubDetectorList())
-    return CfgMgr.PolyconicalEnvelope(name, **kwargs)
+    accSubDetectors, SubDetectorList = generateSubDetectorList(ConfigFlags) 
+    kwargs.setdefault("SubDetectors", SubDetectorList)
+    result.merge(accSubDetectors)
 
-def getCavernWorld(name="Cavern", **kwargs):
-    kwargs.setdefault("DetectorName", "World")
-    bedrockDX = 302700
-    bedrockDZ = 301000
-    from G4AtlasApps.SimFlags import simFlags
-    if not (hasattr(simFlags,'CavernBG') and simFlags.CavernBG.statusOn ):
-        ## Be ready to resize bedrock if the cosmic generator needs more space
-        if simFlags.ISFRun:
-            # for ISF cosmics simulation, set world volume to biggest possible case
-            bedrockDX = 1000.*3000 # 3 km
-            bedrockDZ = 1000.*3000 # 3 km
-        else:
-            from CosmicGenerator.CosmicGeneratorConfig import CavernPropertyCalculator
-            theCavernProperties = CavernPropertyCalculator()
-            if theCavernProperties.BedrockDX() > bedrockDX:
-                bedrockDX = theCavernProperties.BedrockDX()
-            if theCavernProperties.BedrockDZ() > bedrockDZ:
-                bedrockDZ = theCavernProperties.BedrockDZ()
-    kwargs.setdefault("dX", bedrockDX) #FIXME Units?
-    kwargs.setdefault("dY", 57300 + 41000 + 1000) # 1 extra metre to help voxelization... #FIXME Units?
-    kwargs.setdefault("dZ", bedrockDZ) #FIXME Units?
-    # Subtraction Solid - has to be a better way to do this!!
-    kwargs.setdefault("NumberOfHoles", 1)
-    kwargs.setdefault("HoleNames", ['BelowCavern'])
-    kwargs.setdefault("Hole_dX",   [bedrockDX]);
-    kwargs.setdefault("Hole_dY",   [41000]);
-    kwargs.setdefault("Hole_dZ",   [bedrockDZ]);
-    kwargs.setdefault("HolePosX",  [0]);
-    kwargs.setdefault("HolePosY",  [-58300]);
-    kwargs.setdefault("HolePosZ",  [0]);
-    kwargs.setdefault("SubDetectors", ['CavernInfra', 'Atlas'])
-    return CfgMgr.BoxEnvelope(name, **kwargs)
+    return result, PolyconicalEnvelope(name, **kwargs)
 
-def getG4AtlasDetectorConstructionTool(name="G4AtlasDetectorConstructionTool", **kwargs):
-    return CfgMgr.G4AtlasDetectorConstructionTool(name, **kwargs)
+def G4AtlasDetectorConstructionToolCfg(ConfigFlags, name="G4AtlasDetectorConstructionTool", **kwargs):
+    return G4AtlasDetectorConstructionTool(name, **kwargs)
 
-def getMaterialDescriptionTool(name="MaterialDescriptionTool", **kwargs):
+def MaterialDescriptionToolCfg(ConfigFlags, name="MaterialDescriptionTool", **kwargs):
     ## kwargs.setdefault("SomeProperty", aValue)
-    return CfgMgr.MaterialDescriptionTool(name, **kwargs)
+    return MaterialDescriptionTool(name, **kwargs)

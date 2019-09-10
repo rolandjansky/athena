@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,11 +20,13 @@
 ///Needed for my scoring
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 
+#include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
+
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/FitQuality.h"
-#include "CxxUtils/make_unique.h"
+
+#include <memory>
 using namespace std;
-//using CLHEP::HepVector;
 
 ///////////////////////////////////////////////////////////////////
 // Constructor
@@ -173,12 +175,15 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
     ATH_MSG_DEBUG ("TRT track container size huge; will process event partially if number of max segments reached !!!");
   }
 
+  // Event dependent data of SiCombinatorialTrackFinder_xk
+  InDet::SiCombinatorialTrackFinderData_xk combinatorialData;
+
   // Initialize the TRT seeded track tool's new event
-  m_trackmaker  ->newEvent();
+  m_trackmaker  ->newEvent(combinatorialData);
   m_trtExtension->newEvent();
 
 //  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output
-  m_outTracks = CxxUtils::make_unique<TrackCollection>();
+  m_outTracks = std::make_unique<TrackCollection>();
 
   std::vector<Trk::Track*> tempTracks;                           //Temporary track collection
   tempTracks.reserve(128);
@@ -222,7 +227,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
         m_nTrtSegGood++;
 
 	// ok, call track maker and get list of possible track candidates
-        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(*trackTRT); //Get the possible Si extensions
+        std::list<Trk::Track*> trackSi = m_trackmaker->getTrack(combinatorialData, *trackTRT); //Get the possible Si extensions
 
         if (trackSi.size()==0) {
           ATH_MSG_DEBUG ("No Si track candidates associated to the TRT track ");
@@ -474,7 +479,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
   for (auto p : tempTracks){
     delete p;
   }
-  m_trackmaker->endEvent();
+  m_trackmaker->endEvent(combinatorialData);
 
   //Print common event information
   if(msgLvl(MSG::DEBUG)){

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 #
 # InDet GeoModel initialization
@@ -40,12 +40,10 @@ elif ( DetFlags.detdescr.ID_on() ):
             from AthenaCommon.AppMgr import ToolSvc
             from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
             bcmTool = InDetDD__BCM_Builder()
-            ToolSvc += bcmTool
             GeoModelSvc.DetectorTools['PixelDetectorTool'].BCM_Tool = bcmTool
 
             from BLM_GeoModel.BLM_GeoModelConf import InDetDD__BLM_Builder
             blmTool = InDetDD__BLM_Builder()
-            ToolSvc += blmTool
             GeoModelSvc.DetectorTools['PixelDetectorTool'].BLM_Tool = blmTool
 
         GeoModelSvc.DetectorTools['PixelDetectorTool'].useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
@@ -71,9 +69,6 @@ elif ( DetFlags.detdescr.ID_on() ):
     if ( DetFlags.detdescr.TRT_on() ):
         from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
         trtDetectorTool = TRT_DetectorTool()
-        if ( DetFlags.simulate.TRT_on() ):
-            trtDetectorTool.DoXenonArgonMixture = True
-            trtDetectorTool.DoKryptonMixture = True
         trtDetectorTool.useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
         GeoModelSvc.DetectorTools += [ trtDetectorTool ]
 

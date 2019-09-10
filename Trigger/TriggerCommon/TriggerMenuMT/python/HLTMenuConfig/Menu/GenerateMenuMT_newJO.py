@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.CFElements import seqAND
 
@@ -6,9 +6,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import generateDecisionTreeOld
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
 
 from AthenaCommon.Logging import logging
-from AthenaCommon.Constants import VERBOSE
 _log = logging.getLogger('GenerateMenuMT_newJO')
-_log.setLevel( VERBOSE )
 
 def fillGeneratorsMap( sigMap, signature ):
     """ Fill the mapping from the flag container name to the function responsible for generating the Chain objects
@@ -24,7 +22,7 @@ def fillGeneratorsMap( sigMap, signature ):
 
     gen = __import__(importString, globals(), locals(), ['generateChains'])
     sigMap[signature] = gen.generateChains
-    _log.info( 'Imported generator for %s' % signature )
+    _log.info( 'Imported generator for %s', signature )
 
 
 def generateMenu( flags ):
@@ -69,6 +67,7 @@ def generateMenu( flags ):
 
             counter += 1
             chainDict['chainCounter'] = counter
+
             allChainDicts.append(chainDict)
             # TODO topo threshold
 
@@ -84,8 +83,10 @@ def generateMenu( flags ):
     useReworked = True
 
     if useReworked:
+        menuAcc.wasMerged()
         menuAcc = generateDecisionTree(menuChains)
     else:
+        menuAcc.wasMerged()
         menuAcc = ComponentAccumulator()
         mainSequenceName = 'HLTAllSteps'
         menuAcc.addSequence( seqAND(mainSequenceName) )
@@ -94,9 +95,12 @@ def generateMenu( flags ):
 
     menuAcc.printConfig()
 
-    # kaboom
-
     _log.info('CF is built')
+
+
+    # # generate JOSON representation of the config
+    from TriggerMenuMT.HLTMenuConfig.Menu.HLTMenuJSON import generateJSON_newJO    
+    generateJSON_newJO( allChainDicts, menuChains )
 
     return menuAcc
 

@@ -16,17 +16,16 @@
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
+#include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
-#include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "InDetSimEvent/SiTotalCharge.h"
 
 #include "SiDigitization/SiHelper.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SiCellId.h"
 
-#include "CommissionEvent/ComTime.h"
-
 #include "PixelConditionsData/PixelModuleData.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -38,31 +37,12 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
   public:
     FrontEndSimTool( const std::string& type, const std::string& name,const IInterface* parent):
       AthAlgTool(type,name,parent),
-      m_pixelCalibSvc("PixelCalibSvc",name),
-      m_timeBCN(1),
-      m_timeZero(5.0),
-      m_timePerBCO(25.0),
-      m_comTime(0.0),
-      m_useComTime(false),
-      m_timeJitter(0.0),
-      m_ComTimeKey("ComTime"),
-      m_eventStore("StoreGateSvc", name),
       m_BarrelEC(0),
-      m_noiseShape({0.0,1.0}),
-      m_noiseOccupancy(1e-8),
-      m_disableProbability(9e-3)
+      m_doNoise(true)
   {
     declareInterface<FrontEndSimTool>(this);
-    declareProperty("PixelCalibSvc",             m_pixelCalibSvc);
-	  declareProperty("TimeBCN",                   m_timeBCN,        "Number of BCID");	
-	  declareProperty("TimeZero",                  m_timeZero,       "Time zero...?");
-	  declareProperty("TimePerBCO",                m_timePerBCO,     "Time per BCO - should be 25ns");
-    declareProperty("UseComTime",                m_useComTime,     "Use ComTime for timing");
-	  declareProperty("TimeJitter",                m_timeJitter,     "Time jitter");
     declareProperty("BarrelEC",                  m_BarrelEC,       "Index of barrel or endcap");
-    declareProperty("NoiseShape",                m_noiseShape,           "Vector containing noise ToT shape");
-    declareProperty("NoiseOccupancy",            m_noiseOccupancy);
-    declareProperty("DisableProbability",        m_disableProbability);
+    declareProperty("DoNoise",                   m_doNoise);
   }
 
     static const InterfaceID& interfaceID() { return IID_IFrontEndSimTool; }
@@ -70,21 +50,10 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     virtual StatusCode initialize() {
       ATH_CHECK(m_pixelConditionsTool.retrieve());
 
-      ATH_CHECK(m_pixelCalibSvc.retrieve());
-
+      ATH_CHECK(m_pixelCabling.retrieve());
       ATH_CHECK(m_moduleDataKey.initialize());
+      ATH_CHECK(m_chargeDataKey.initialize());
 
-      ATH_CHECK(m_ComTimeKey.initialize(m_useComTime));
-      if (m_useComTime) {
-        SG::ReadHandle<ComTime> comTime(m_ComTimeKey);
-        if (comTime.isValid()) {
-          m_comTime = comTime->getTime();
-          ATH_MSG_DEBUG("Found tool for cosmic/commissioning timing: ComTime");
-        } 
-        else {
-          ATH_MSG_WARNING("Did not find tool needed for cosmic/commissioning timing: ComTime");
-        }
-      }
       return StatusCode::SUCCESS;
     }
 
@@ -131,8 +100,16 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     }
 
     void RandomNoise(SiChargedDiodeCollection &chargedDiodes, CLHEP::HepRandomEngine *rndmEngine) const {
+      SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+      SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
       const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&(chargedDiodes.element())->design());
-      int nNoise = CLHEP::RandPoisson::shoot(rndmEngine, p_design->numberOfCircuits()*p_design->columnsPerCircuit()*p_design->rowsPerCircuit()*m_noiseOccupancy*static_cast<double>(m_timeBCN)); 
+
+      const PixelID* pixelId = static_cast<const PixelID *>(chargedDiodes.element()->getIdHelper());
+      const IdentifierHash moduleHash = pixelId->wafer_hash(chargedDiodes.identify()); // wafer hash
+      int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
+      int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
+      int nNoise = CLHEP::RandPoisson::shoot(rndmEngine, p_design->numberOfCircuits()*p_design->columnsPerCircuit()*p_design->rowsPerCircuit()*moduleData->getNoiseOccupancy(barrel_ec,layerIndex)*static_cast<double>(moduleData->getNumberOfBCID(barrel_ec,layerIndex))); 
+
       for (int i=0; i<nNoise; i++) {
         int circuit = CLHEP::RandFlat::shootInt(rndmEngine,p_design->numberOfCircuits());
         int column  = CLHEP::RandFlat::shootInt(rndmEngine,p_design->columnsPerCircuit());
@@ -147,13 +124,16 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
 
           double x = CLHEP::RandFlat::shoot(rndmEngine,0.,1.);
           int bin=0;
-          for (size_t j=1; j<m_noiseShape.size(); j++) {
-            if (x>m_noiseShape[j-1] && x<=m_noiseShape[j]) { bin=j-1; continue; }
+          std::vector<float> noiseShape = moduleData->getNoiseShape(barrel_ec,layerIndex);
+          for (size_t j=1; j<noiseShape.size(); j++) {
+            if (x>noiseShape[j-1] && x<=noiseShape[j]) { bin=j-1; continue; }
           }
           double noiseToTm = bin+1.5;
           double noiseToT = CLHEP::RandGaussZiggurat::shoot(rndmEngine,noiseToTm,1.);
 
-          double chargeShape = m_pixelCalibSvc->getCharge(noisyID,noiseToT);
+          int type = m_pixelCabling->getPixelType(noisyID);
+          double chargeShape = calibData->getCharge((int)moduleHash, circuit, type, noiseToT);
+
           chargedDiodes.add(diodeNoise,SiCharge(chargeShape,0,SiCharge::noise));
         }
       }
@@ -161,36 +141,36 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     }
 
     void RandomDisable(SiChargedDiodeCollection &chargedDiodes, CLHEP::HepRandomEngine *rndmEngine) const {
+      SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
+      const PixelID* pixelId = static_cast<const PixelID *>(chargedDiodes.element()->getIdHelper());
+      int barrel_ec   = pixelId->barrel_ec(chargedDiodes.element()->identify());
+      int layerIndex  = pixelId->layer_disk(chargedDiodes.element()->identify());
       for (SiChargedDiodeIterator i_chargedDiode=chargedDiodes.begin(); i_chargedDiode!=chargedDiodes.end(); ++i_chargedDiode) {
-        if (CLHEP::RandFlat::shoot(rndmEngine)<m_disableProbability) {
+        if (CLHEP::RandFlat::shoot(rndmEngine)<moduleData->getDisableProbability(barrel_ec,layerIndex)) {
           SiHelper::disabled((*i_chargedDiode).second,true,false);
         }
       }
       return;
     }
 
-
   private:
     FrontEndSimTool();
 
   protected:
-    ToolHandle<IInDetConditionsTool> m_pixelConditionsTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
-    ServiceHandle<IPixelCalibSvc>        m_pixelCalibSvc;
+    ToolHandle<IInDetConditionsTool> m_pixelConditionsTool
+    {this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
-    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey{this, "PixelModuleData", "PixelModuleData", "Output key of pixel module"};
+    ServiceHandle<IPixelCablingSvc> m_pixelCabling
+    {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
 
-    double m_timeBCN;
-    double m_timeZero;
-    double m_timePerBCO;
-    double m_comTime;       /**< cosmics timing ofs */
-    bool   m_useComTime;    /**< use ComTime for timing */
-    double m_timeJitter; 
-    SG::ReadHandleKey<ComTime>   m_ComTimeKey;
-    ServiceHandle<StoreGateSvc>  m_eventStore;
+    SG::ReadCondHandleKey<PixelModuleData> m_moduleDataKey
+    {this, "PixelModuleData", "PixelModuleData", "Pixel module data"};
+
+    SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+    {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
+
     int m_BarrelEC;
-    std::vector<double> m_noiseShape;
-    double m_noiseOccupancy;
-    double m_disableProbability;
+    bool   m_doNoise;
 
     double getG4Time(const SiTotalCharge &totalCharge) const {
       // If there is one single charge, return its time:

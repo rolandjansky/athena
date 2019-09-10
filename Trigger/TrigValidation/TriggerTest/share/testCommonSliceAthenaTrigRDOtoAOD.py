@@ -34,7 +34,6 @@ except:
 # flags for RecExCommon
 #thanks to Olya for the "magic" AOD combination - see: https://its.cern.ch/jira/browse/ATR-11211
 doTrigger=True
-TriggerModernConfig=True
 
 import os
 if os.environ['AtlasProject'] == 'AtlasP1HLT' or os.environ['AtlasProject'] == 'AtlasCAFHLT':

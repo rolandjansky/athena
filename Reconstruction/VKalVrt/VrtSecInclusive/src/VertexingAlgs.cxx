@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -16,17 +16,12 @@
 #include "TLorentzVector.h"
 
 #include <iostream>
-
+#include "TrkVKalVrtCore/PGraph.h"
 //-------------------------------------------------
 
 using namespace std;
 
-namespace Trk {
-  extern 
-    int  pgraphm_(
-        long int *weit, long int *edges, long int *nodes,
-        long int *set, long int *nptr,  long int *nth);
-}
+
 
 namespace VKalVrtAthena {
 
@@ -87,17 +82,19 @@ namespace VKalVrtAthena {
         // new code to find initial approximate vertex
         Amg::Vector3D IniVertex;
 
-        StatusCode sc = m_fitSvc->VKalVrtFitFast( ListBaseTracks, IniVertex );/* Fast crude estimation */
+        std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+        StatusCode sc = m_fitSvc->VKalVrtFitFast( ListBaseTracks, IniVertex, *state );/* Fast crude estimation */
         if(sc.isFailure()) ATH_MSG_DEBUG(" > extractIncompatibleTracks: fast crude estimation fails ");
 
-        m_fitSvc->setApproximateVertex( IniVertex.x(), IniVertex.y(), IniVertex.z() );
+        m_fitSvc->setApproximateVertex( IniVertex.x(), IniVertex.y(), IniVertex.z(), *state );
 
         // Vertex VKal Fitting
         sc = m_fitSvc->VKalVrtFit( ListBaseTracks,
             dummyNeutrals,
             FitVertex, Momentum, Charge,
             ErrorMatrix, Chi2PerTrk,
-            TrkAtVrt, Chi2  );
+            TrkAtVrt, Chi2,
+            *state);
 
         if( sc.isFailure() )  continue;          /* No fit */ 
 
@@ -230,8 +227,8 @@ namespace VKalVrtAthena {
     vector<const xAOD::TrackParticle*>    ListBaseTracks;
     vector<const xAOD::NeutralParticle*>  dummyNeutrals(0);
 
-    m_fitSvc->setDefault();
-
+    std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
+    auto pgraph = std::make_unique<Trk::PGraph>();
     // Main iteration
     while(true) {
 
@@ -239,7 +236,7 @@ namespace VKalVrtAthena {
       WrkVrt newvrt;
 
       // Find a solution from the given set of incompatible tracks (==weit)
-      Trk::pgraphm_( weit, &edges, &NTracks, Solution, &NPTR, &nth);
+      pgraph->pgraphm_( weit, &edges, &NTracks, Solution, &NPTR, &nth);
 
       ATH_MSG_VERBOSE(" > reconstruct2TrackVertices(): Trk::pgraphm_() output: NPTR = " << NPTR );
 
@@ -265,7 +262,8 @@ namespace VKalVrtAthena {
           newvrt.vertexCov,
           newvrt.Chi2PerTrk, 
           newvrt.TrkAtVrt,
-          newvrt.Chi2);   
+          newvrt.Chi2,
+          *state);
 
       ATH_MSG_DEBUG(" > reconstruct2TrackVertices(): FoundAppVrt="<<NPTR<<", "<<newvrt.vertex[0]<<", "<<newvrt.vertex[1]<<
           ", "<<newvrt.vertex[2]<<", "<<newvrt.Chi2);
@@ -382,7 +380,6 @@ namespace VKalVrtAthena {
     // Fill TrkInVrt with vertex IDs of each track
     TrackClassification( WrkVrtSet, TrkInVrt );
 
-    m_fitSvc->setDefault();
     while( (FoundMax=MaxOfShared( WrkVrtSet, TrkInVrt, SelectedTrack, SelectedVertex))>0 ) {
       // std::cout << "MAX="<<FoundMax<<", "<<SelectedTrack<<", "<<SelectedVertex<<'\n';
       // std::cout << "VRT="<<minVrtVrtDist( WrkVrtSet, foundV1, foundV2)<<", "<<foundV1<<", "<<foundV2<<'\n';
@@ -478,18 +475,17 @@ namespace VKalVrtAthena {
     //----------------------------------------------------------
     //Amg::MatrixX CovMtx(3, 3);
 
-    m_fitSvc->setDefault();
-    m_fitSvc->setMomCovCalc(1);
-
     // Loop over vertices
     for( auto WrkVrt : *WrkVrtSet ) {
+
+      std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
 
       WrkVrt.Good = false;
       int nth = WrkVrt.SelTrk.size();
 
       if(nth <= 1) continue;               /* Bad vertices */
 
-      StatusCode sc = RefitVertex( WrkVrt, selectedBaseTracks);
+      StatusCode sc = RefitVertex( WrkVrt, selectedBaseTracks, *state);
       if( sc.isFailure() )  continue;   /* Bad fit - goto next solution */
 
 
@@ -518,7 +514,8 @@ namespace VKalVrtAthena {
       // CovMtx(2,2)            =WrkVrt.vertexCov[5];
 
       std::vector <double> CovFull;
-      sc = m_fitSvc->VKalGetFullCov( static_cast<long int>( nth ), CovFull); 
+      sc = m_fitSvc->VKalGetFullCov( static_cast<long int>( nth ), CovFull,
+                                     *state);
 
       if( sc.isFailure() )  ATH_MSG_VERBOSE(" here 6 ");
       

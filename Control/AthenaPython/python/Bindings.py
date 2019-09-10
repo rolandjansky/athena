@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaPython/python/Bindings.py
 # @author: Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 ### data
 __version__ = "$Revision: 1.30 $"
@@ -37,7 +39,7 @@ def _import_ROOT():
         def __call__(self, *args):
             try:
                 result = ROOT._Template.__call__(self, *args)
-            except Exception,err:
+            except Exception as err:
                 # try again...
                 result = ROOT._Template.__call__(self, *args)
 
@@ -98,7 +100,7 @@ class _PyAthenaBindingsCatalog(object):
         """
         try:
             if cb is None: eval( 'cb = _py_init_%s'%klass )
-        except Exception, err:
+        except Exception as err:
             _msg = _PyAthenaBindingsCatalog.msg
             _msg.error("Problem registering callback for [%s]" % klass)
             _msg.error("Exception: %s", err)
@@ -174,7 +176,7 @@ def py_svc(svcName, createIf=True, iface=None):
         svc = PyComponents.instances[svcName]
 
     if svc:
-        import PyAthena
+        from AthenaPython import PyAthena
         setattr(PyAthena.services, svcName, svc)
     return svc
 
@@ -227,7 +229,7 @@ def py_tool(toolName, createIf=True, iface=None):
         tool = PyComponents.instances[toolName]
 
     if tool:
-        import PyAthena
+        from AthenaPython import PyAthena
         setattr(PyAthena.services.ToolSvc, toolName, tool)
     return tool
 
@@ -272,7 +274,7 @@ def py_alg(algName, iface='IAlgorithm'):
         alg = PyComponents.instances[algName]
 
     if alg:
-        import PyAthena
+        from AthenaPython import PyAthena
         setattr(PyAthena.algs, algName, alg)
     return alg
 
@@ -406,8 +408,8 @@ def _py_init_ClassIDSvc():
     IClassIDSvc = cppyy.gbl.IClassIDSvc
 
     _missing_clids  = {
-        'DataHistory' : 83814411L, 
-        83814411L     : 'DataHistory',
+        'DataHistory' : 83814411, 
+        83814411     : 'DataHistory',
         }
 
     # re-use the python-based clid generator
@@ -473,7 +475,7 @@ def _py_init_THistSvc():
     # to improve look-up time from python
     for n in ('Hist', 'Graph', 'Tree'):
         code = "ITHistSvc._cpp_reg%s = ITHistSvc.reg%s" % (n,n)
-        exec code in globals(),locals()
+        exec (code, globals(),locals())
 
     def book(self, oid, obj=None, *args, **kw):
         """book a histogram, profile or tree
@@ -632,7 +634,7 @@ def reg%s(self, oid, oid_type=None):
     raise ValueError(err)
 ITHistSvc.reg%s = reg%s
 del reg%s""" % (n,n,n,n,n)
-        exec code in globals(),locals()
+        exec (code, globals(),locals())
         pass
     def load(self, oid, oid_type):
         """Helper method to load a given object `oid' from a stream, knowing
@@ -666,7 +668,7 @@ def %s(self, *args, **kw):
     return self._py_cache.%s(*args,**kw)
 ITHistSvc.%s = %s
 del %s""" % (n,n,n,n,n)
-        exec code in globals(),locals()
+        exec (code, globals(),locals())
     def pop(self, k):
         obj = self.get(k)
         assert self.deReg(obj).isSuccess(), \

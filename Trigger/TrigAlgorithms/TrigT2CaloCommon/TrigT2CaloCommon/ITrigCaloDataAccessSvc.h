@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TrigT2CaloCommon_ITrigCaloDataAccessSvc_h
 #define TrigT2CaloCommon_ITrigCaloDataAccessSvc_h
@@ -10,6 +10,7 @@
 #include "LArRecEvent/LArFebEnergyCollection.h"
 #include "TileEvent/TileCellCollection.h"
 #include "TileEvent/TileL2Container.h"
+#include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RegSelEnums.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
@@ -163,8 +164,6 @@ private :
 	  LArTT_Selector<LArCellCont>::const_iterator l;
 	  TileCellCollection::const_iterator t;
 	  CaloCellContainer * cont=NULL;
-	  l=l;
-	  t=t;
 	  storeCells(context, l,l,cont);
 	  storeCells(context, t,t,cont);
 	}

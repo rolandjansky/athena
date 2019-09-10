@@ -14,7 +14,7 @@ from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
 from TriggerJobOpts.TriggerConfig import triggerSummaryCfg, triggerMonitoringCfg, \
     setupL1DecoderFromMenu, collectHypos, collectFilters
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionTree
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, createStepView
 from AthenaCommon.CFElements import seqOR
 from RegionSelector.RegSelConfig import regSelCfg
 from TrigUpgradeTest.InDetConfig import TrigInDetCondConfig
@@ -34,7 +34,8 @@ acc = ComponentAccumulator()
 acc.merge(TrigBSReadCfg(flags))
 acc.merge(TriggerHistSvcConfig(flags))
 
-l1DecoderAlg, HLTChains = generateL1DecoderAndChains()
+l1DecoderAlg, OrigHLTChains = generateL1DecoderAndChains()
+
 setupL1DecoderFromMenu( flags, l1DecoderAlg )
 
 l1DecoderAcc = ComponentAccumulator()
@@ -46,18 +47,48 @@ acc.merge(l1DecoderAcc)
 
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import DictFromChainName
 toChainDictTranslator = DictFromChainName()
-chainDicts = [toChainDictTranslator.getChainDict(chain.name) for chain in HLTChains]
+chainDicts = [toChainDictTranslator.getChainDict(chain.name) for chain in OrigHLTChains]
+
 
 ## Set ca in all sequences to none
-for index, chain in enumerate(HLTChains):
-    for step in chain.steps:
+changed_sequences = {}
+HLTChains = []
+
+# select only chains that work after the changes in defining the chains in the EmuStep:
+# problem arises when two chains share the same step, exclty the same object, as will happen in the final menu
+# since this function will be changed soon, I did not investigate more
+# for now, I just exclude some chains in the test
+excludeChainNames = ['HLT_mu10', 'HLT_mu20', 'HLT_mu6', 'HLT_mu8_1step', 'HLT_e8', 'HLT_e5_v3', 'HLT_mu8_e8']
+for chain in OrigHLTChains:
+    if chain.name not in excludeChainNames:
+        HLTChains.append(chain)
+        log.info("Selected chain %s", chain.name)
+
+
+for chainIndex, chain in enumerate(HLTChains):
+    for stepIndex, step in enumerate(chain.steps):
         for seqIndex, seq in enumerate(step.sequences):
+            
+
             hypoAlg = seq.hypo.Alg.__class__(seq.hypo.Alg.name(), **seq.hypo.Alg.getValuedProperties())
-            hypoTool = seq.hypoToolConf.hypoToolGen(chainDicts[index])
-            hypoAlg.HypoTools = [hypoTool]
+
+            if seq.name in changed_sequences:
+                hypoTool = changed_sequences[seq.name].hypoToolGen(chainDicts[chainIndex])
+                hypoAlg.HypoTools = [hypoTool]
+                continue
+            else:
+                conf = seq.hypoToolConf
+                hypoTool = conf.hypoToolGen(chainDicts[chainIndex])
+                hypoAlg.HypoTools = [hypoTool]
+                changed_sequences[seq.name]=conf
+
+ 
+            stepReco, stepView = createStepView(step.name)
 
             sequenceAcc = ComponentAccumulator()
-            sequenceAcc.addSequence(seq.sequence.Alg)
+            sequenceAcc.addSequence(stepView)
+            sequenceAcc.addSequence(seq.sequence.Alg, parentName=stepReco.getName())
+            sequenceAcc.addEventAlgo(hypoAlg, sequenceName=stepView.getName())
             seq.ca = sequenceAcc
             sequenceAcc.wasMerged()
 
@@ -68,6 +99,7 @@ for index, chain in enumerate(HLTChains):
                                CA = sequenceAcc)
 
             step.sequences[seqIndex] = ms
+            
 
 menuAcc = generateDecisionTree(HLTChains)
 

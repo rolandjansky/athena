@@ -52,9 +52,9 @@ namespace Trk {
     VxCascadeInfo();
 
     /* constructor */
-    VxCascadeInfo(const std::vector<xAOD::Vertex*> & vertices,
-                  const std::vector<std::vector<TLorentzVector> > & moms,
-                              const std::vector< Amg::MatrixX >   & covs,
+    VxCascadeInfo(std::vector<xAOD::Vertex*>  vertices,
+                  std::vector<std::vector<TLorentzVector> >  moms,
+                              std::vector< Amg::MatrixX >    covs,
 			       int nDoF, double Chi2);
 
 

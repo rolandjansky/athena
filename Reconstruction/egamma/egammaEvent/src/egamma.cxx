@@ -966,31 +966,11 @@ void
 egamma::setUncombined4Mom (const CLHEP::HepLorentzVector & hlv )
 { m_momentumCluster.set4Mom (hlv); }
 
-// ==========================================================
-void egamma::setupErrorMatrices() const
-{
-  const EMErrorDetail* cont = detail<EMErrorDetail>();
-  if (cont) {
-    egamma *trans = const_cast<egamma *>(this);
-    trans->setErrorMatrix(cont->get4x4CombinedErrorMatrix()) ;
-    trans->setUncombinedErrorMatrix(cont->get4x4UncombinedErrorMatrix()) ;
-  }
-}
 
 // ==========================================================
 const I4MomentumError* egamma::errors() const
 {
-  const I4MomentumError* errors = momentumBase().errors();
-  if (errors == 0) {
-    const EMErrorDetail* cont = detail<EMErrorDetail>();
-    if (cont) {
-      egamma *trans = const_cast<egamma *>(this);
-      trans->setErrorMatrix(cont->get4x4CombinedErrorMatrix()) ;
-      trans->setUncombinedErrorMatrix(cont->get4x4UncombinedErrorMatrix()) ;
-      return trans->momentumBase().errors();
-    }
-  }
-  return errors;
+  return momentumBase().errors();
 }
 
 // ==========================================================

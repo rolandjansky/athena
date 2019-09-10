@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //this
@@ -36,7 +36,7 @@
 namespace MuonCalib {
 
 MdtValidationAlg::MdtValidationAlg(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator), 
-p_reg_sel_svc(NULL), m_tube_chamber(NULL),  m_detStore(NULL), m_MdtIdHelper(NULL),m_detMgr(NULL),  m_db(NULL), m_t0_op(NULL), m_rt_op(NULL), m_head_ops(NULL),
+p_reg_sel_svc(NULL), m_tube_chamber(NULL), m_MdtIdHelper(NULL),m_detMgr(NULL),  m_db(NULL), m_t0_op(NULL), m_rt_op(NULL), m_head_ops(NULL),
 m_fitter(1), m_writeToDbEnable(true), m_limitslevel(0), m_makeHistos(0), m_lastdate(0), 
 m_validationTask(""), m_db_ConnectionString(""),m_db_WorkingSchema(""),m_defaultRtFile("./RT_default_comm.dat"),
 m_minSegs(-1), m_minDAngle(-999.), m_Histos(NULL), m_HistosList(NULL),

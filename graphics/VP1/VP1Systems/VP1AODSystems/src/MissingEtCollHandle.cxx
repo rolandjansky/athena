@@ -30,8 +30,10 @@
 #include "VP1Base/VP1Interval.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
-#include "VP1Utils/VP1SGAccessHelper.h"
-#include "VP1Utils/VP1SGContentsHelper.h"
+#ifndef BUILDVP1LIGHT
+  #include "VP1Utils/VP1SGAccessHelper.h"
+  #include "VP1Utils/VP1SGContentsHelper.h"
+#endif
 
 //Qt
 #include <QStringList>
@@ -47,12 +49,25 @@
 //#include "Inventor/nodes/SoDrawStyle.h"
 //#include "Inventor/nodes/SoLightModel.h"
 
+#ifdef BUILDVP1LIGHT
+  #include <QSettings>
+  #include "xAODRootAccess/Init.h"
+  #include "xAODRootAccess/TEvent.h"
+#endif // BUILDVP1LIGHT
+
 
 //____________________________________________________________________
-QStringList MissingEtCollHandle::availableCollections( IVP1System*sys )
-{
-  return VP1SGContentsHelper(sys).getKeys<xAOD::MissingETContainer>();
-}
+#if defined BUILDVP1LIGHT
+  QStringList MissingEtCollHandle::availableCollections( IVP1System*sys )
+  {
+    return sys->getObjectList(xAOD::Type::Other);
+  }
+#else
+  QStringList MissingEtCollHandle::availableCollections( IVP1System*sys )
+  {
+    return VP1SGContentsHelper(sys).getKeys<xAOD::MissingETContainer>();
+  }
+#endif // BUILDVP1LIGHT
 
 //____________________________________________________________________
 class MissingEtCollHandle::Imp {
@@ -380,11 +395,21 @@ bool MissingEtCollHandle::load()
   messageVerbose("loading MissingEt collection");
 
   //Get collection:
-  const xAOD::MissingETContainer * coll(0);
-  if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
-    message("Error: Could not retrieve MET collection with key="+name());
-    return false;
-  }
+  const xAOD::MissingETContainer * coll(nullptr);
+
+  #if defined BUILDVP1LIGHT
+    // Retrieve objects from the event
+    if( !(systemBase()->getEvent())->retrieve( coll, name().toStdString()).isSuccess() ) {
+      QString errMsg = "Failed to retrieve " + name();
+      message("Error: Could not retrieve collection with key="+name());
+       return false;
+    }
+  #else
+    if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
+      message("Error: Could not retrieve MET collection with key="+name());
+      return false;
+    }
+  #endif // BUILDVP1LIGHT
 
   // // Retrieve the xAOD particles:
   //  const xAOD::MissingETContainer* xaod = evtStore()->retrieve<const xAOD::MissingETContainer>( m_JetCollection );

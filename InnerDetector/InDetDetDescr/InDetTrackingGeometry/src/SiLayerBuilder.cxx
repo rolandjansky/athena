@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -41,8 +41,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/SmartDataPtr.h"
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 // STL
 #include <map>
 
@@ -297,7 +295,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
        const Trk::Surface* moduleSurface = takeIt ? (&((*sidetIter)->surface())) : (&(otherSide->surface()));
   
        // register the module surface
-       Trk::SharedObject<const Trk::Surface> sharedSurface(moduleSurface, true);
+       Trk::SharedObject<const Trk::Surface> sharedSurface(moduleSurface, Trk::do_not_delete<const Trk::Surface>);
   
        Trk::SurfaceOrderPosition surfaceOrder(sharedSurface, orderPosition);
        if (takeIt) (layerSurfaces[currentlayer]).push_back(surfaceOrder);
@@ -708,7 +706,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
         // get the center position
         const Amg::Vector3D& orderPosition = chosenSide->center();
         // register the chosen side in the object array
-        Trk::SharedObject<const Trk::Surface> sharedSurface(&(chosenSide->surface()), true);
+        Trk::SharedObject<const Trk::Surface> sharedSurface(&(chosenSide->surface()), [](const Trk::Surface*){});
         Trk::SurfaceOrderPosition surfaceOrder(sharedSurface, orderPosition);
         if (takeIt) (discSurfaces[currentlayer]).push_back(surfaceOrder);      
     }      

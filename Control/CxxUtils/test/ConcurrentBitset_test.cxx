@@ -18,7 +18,7 @@
 #include "CxxUtils/checker_macros.h"
 #include "TestTools/random.h"
 // tbb/machine/gcc_generic.h has spurious trailing semicolons after
-// the clz() functiosn (as of TBB 2019 U1).
+// the clz() functions (as of TBB 2019 U1).
 #if defined(__GNUC__)
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wpedantic"
@@ -30,6 +30,7 @@
 #include "boost/timer/timer.hpp"
 #ifdef HAVE_CK
 extern "C" {
+#pragma GCC diagnostic ignored "-Wpedantic"
 #include "ck_hs.h"
 #include "ck_bitmap.h"
 }

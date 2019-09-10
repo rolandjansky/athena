@@ -4,8 +4,8 @@
 //@file IOVDbStringFunctions.h
 //@brief Helper functions for string manipulation and parsing
 //@author Shaun Roe
-#ifndef IOVDbStringFunctions_H
-#define IOVDbStringFunctions_H
+#ifndef IOVDbSvc_IOVDbStringFunctions_h
+#define IOVDbSvc_IOVDbStringFunctions_h
 
 #include <string>
 #include <vector>
@@ -101,6 +101,10 @@ namespace IOVDbNamespace{
   std::string 
   sanitiseFilename(const std::string & fname);
   
+  ///return valid CREST tag name from folder name
+  std::string 
+  sanitiseCrestTag(const std::string & fname);
+  
   ///replace an uppercase NULL (such as returned by oracle) in string with a lowercase null
   ///(such as used in JSON)
   std::string
@@ -119,16 +123,23 @@ namespace IOVDbNamespace{
   bool
   tagIsMagic(const std::string & candidateTag);
   
+  ///Takes a tag of form TagInfo{Major|Minor}/<tag> or TagInfo{Major|Minor}/<prefix>/<tag>
+  ///and resolve it to a string vector{"Major|Minor", <prefix>, <tag>}
+  ///returns an empty vector if a match is not found
   std::vector<std::string>
   parseMagicTag(const std::string & candidateTag);
   
+  ///Takes a vector<string> containing {"<fulltag>", "Major|Minor", "<prefix>", "<tag>"}
+  ///and returns a pair of {"<prefix>", "<tag>"}. Note "<prefix>" is optional in the input
+  ///and if missing will be an empty string on output.
   std::pair<std::string, std::string>
   tag2PrefixTarget(const std::vector<std::string>& parseResult);
 
   bool
   replaceServiceType71(std::string & addrHeader);
-
   
+  std::string
+  unescapeQuotes(const std::string & original);
   //! Parse string of format "A:X::B:C" to "A" , "X::B", "C"
   std::vector<std::string>
   parseLinkNames(const std::string &linktext);

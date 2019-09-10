@@ -43,7 +43,8 @@ private:
 
   //!< iterates over all inputs filling the multiplicity map for each input collection
   typedef std::map<TrigCompositeUtils::DecisionID, int> MultiplicityMap;
-  void fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, const EventContext& context) const;
+  void fillDecisionsMap( std::vector< MultiplicityMap >&  dmap, std::map<TrigCompositeUtils::DecisionID,std::map<int,int>>& featureMap, const EventContext& context) const;
+
 };
 
 #endif // DECISIONHANDLING_COMBOHYPO_H

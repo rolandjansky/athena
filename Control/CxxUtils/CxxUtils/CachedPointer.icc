@@ -16,8 +16,9 @@ namespace CxxUtils {
 /**
  * @brief Default constructor.  Sets the element to null.
  */
+template <class T>
 inline
-CachedPointer::CachedPointer()
+CachedPointer<T>::CachedPointer()
   : m_a (nullptr)
 {
 }
@@ -26,8 +27,9 @@ CachedPointer::CachedPointer()
 /**
  * @brief Constructor from an element.
  */
+template <class T>
 inline
-CachedPointer::CachedPointer (pointer_t elt)
+CachedPointer<T>::CachedPointer (pointer_t elt)
   : m_a (elt)
 {
 }
@@ -36,8 +38,9 @@ CachedPointer::CachedPointer (pointer_t elt)
 /**
  * @brief Copy constructor.
  */
+template <class T>
 inline
-CachedPointer::CachedPointer (const CachedPointer& other)
+CachedPointer<T>::CachedPointer (const CachedPointer& other)
   : m_a (other.get())
 {
 }
@@ -46,9 +49,10 @@ CachedPointer::CachedPointer (const CachedPointer& other)
 /**
  * @brief Assignment.
  */
+template <class T>
 inline
-CachedPointer&
-CachedPointer::operator= (const CachedPointer& other)
+CachedPointer<T>&
+CachedPointer<T>::operator= (const CachedPointer& other)
 {
   if (this != &other) {
     store (other.get());
@@ -70,8 +74,9 @@ CachedPointer::operator= (const CachedPointer& other)
  * don't want a write to conflict with a non-atomic read.  (Such a read
  * can only happen after the element has been set for the first time.)
  */
+template <class T>
 inline
-void CachedPointer::set (pointer_t elt) const
+void CachedPointer<T>::set (pointer_t elt) const
 {
   // Set the element to ELT if it is currently null.
   pointer_t null = nullptr;
@@ -87,8 +92,9 @@ void CachedPointer::set (pointer_t elt) const
 /**
  * @brief Store a new value to the element.
  */
+template <class T>
 inline
-void CachedPointer::store (pointer_t elt)
+void CachedPointer<T>::store (pointer_t elt)
 {
   m_a.store (elt, std::memory_order_relaxed);
 }
@@ -97,9 +103,10 @@ void CachedPointer::store (pointer_t elt)
 /**
  * @brief Return the current value of the element.
  */
+template <class T>
 inline
-CachedPointer::pointer_t
-CachedPointer::get() const
+typename CachedPointer<T>::pointer_t
+CachedPointer<T>::get() const
 {
   return m_a.load (std::memory_order_relaxed);
 }
@@ -108,9 +115,10 @@ CachedPointer::get() const
 /**
  * @brief Return a pointer to the cached element.
  */
+template <class T>
 inline
-const CachedPointer::pointer_t*
-CachedPointer::ptr() const
+const typename CachedPointer<T>::pointer_t*
+CachedPointer<T>::ptr() const
 {
   return &m_e;
 }

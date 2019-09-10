@@ -12,7 +12,7 @@
 #include "SCT_ConditionsParameterTool.h"
 
 //c'tor
-SCT_ConditionsParameterTool::SCT_ConditionsParameterTool(const std::string &type, const std::string &name, const IInterface *parent) :
+SCT_ConditionsParameterTool::SCT_ConditionsParameterTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent) {
 }
 

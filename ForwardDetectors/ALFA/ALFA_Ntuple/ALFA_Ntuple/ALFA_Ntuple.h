@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ALFA_Ntuple_h
-#define ALFA_Ntuple_h
+#ifndef ALFA_NTUPLE_H
+#define ALFA_NTUPLE_H
 
 #include "AthenaBaseComps/AthHistogramAlgorithm.h"
 
@@ -50,12 +50,6 @@
 
 //for truth particles
 #include "GeneratorObjects/McEventCollection.h"
-
-// Event info
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
 
 // for ALFA
 #include "ALFA_RawEv/ALFA_RawData.h"

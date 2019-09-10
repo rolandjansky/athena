@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************************
@@ -29,7 +29,7 @@ class TrigEFBphys_p3
  public:
   
   TrigEFBphys_p3() {}
-  virtual ~TrigEFBphys_p3(){}
+  virtual ~TrigEFBphys_p3() = default;
   
   //private:
 

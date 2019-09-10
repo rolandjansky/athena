@@ -7,7 +7,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "LArElecCalib/LArConditionsException.h"
 
@@ -23,6 +22,7 @@ LArAutoCorrDecoderTool::LArAutoCorrDecoderTool(const std::string& type,
   declareProperty("KeyAutoCorr",m_keyAutoCorr="LArAutoCorr");
   declareProperty("DecodeMode", m_decodemode=0);
   declareProperty("UseAlwaysHighGain", m_alwaysHighGain=false);
+  declareProperty("isSC",       m_isSC=false);
 }
 
 
@@ -33,14 +33,20 @@ StatusCode LArAutoCorrDecoderTool::initialize()
 {
   ATH_MSG_DEBUG("LArAutoCorrDecoderTool initialize() begin");
   
-  StatusCode sc = detStore()->retrieve(m_onlineID,"LArOnlineID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR( "Unable to retrieve  LArOnlineID from DetectorStore" );
-    return StatusCode::FAILURE;
+  if ( m_isSC ) {
+    const LArOnline_SuperCellID* ll;
+    ATH_CHECK( detStore()->retrieve(ll, "LArOnline_SuperCellID") );
+    m_onlineID = (const LArOnlineID_Base*)ll;
+    ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    ATH_CHECK( detStore()->retrieve(ll, "LArOnlineID") );
+    m_onlineID = (const LArOnlineID_Base*)ll;
+    ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
   }
 
-
-  sc=detStore()->regHandle(m_autoCorr,m_keyAutoCorr);
+  StatusCode sc=detStore()->regHandle(m_autoCorr,m_keyAutoCorr);
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Failed to register Datahandle<ILArAutoCorr> to SG key " << m_keyAutoCorr );
     return sc;

@@ -68,7 +68,6 @@ class SimSkeleton(object):
         #import EventInfoMgt.EventInfoMgtInit
 
         ## EventInfo & TruthEvent always written by default
-        stream1.ForceRead=True
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
                             "JetCollection#*"]
@@ -108,7 +107,6 @@ class SimSkeleton(object):
             if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
                 stream1.ItemList += ["sTGCSimHitCollection#*"]
                 stream1.ItemList += ["MMSimHitCollection#*"]
-                stream1.ItemList += ["GenericMuonSimHitCollection#*"]
         ## Lucid
         if DetFlags.Lucid_on():
             stream1.ItemList += ["LUCID_SimHitCollection#*"]

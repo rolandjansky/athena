@@ -450,10 +450,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
     nGoodChannels_total += nGoodChannels_layer[getPixLayerIDWithDBM(i)];
   }
 
-  if (!(evtStore()->contains<InDetTimeCollection>(m_PixelBCIDName.key()))) {
-    ATH_MSG_DEBUG("Pixel BCID collection " <<m_PixelBCIDName.key() << " is not in event store!");
-    return StatusCode::SUCCESS;
-  }
   auto Pixel_BCIDColl = SG::makeHandle(m_PixelBCIDName);
   int pix_rod_bcid = 0;
   if (Pixel_BCIDColl.isValid()) {

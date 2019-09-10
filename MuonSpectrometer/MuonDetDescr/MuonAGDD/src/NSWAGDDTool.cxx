@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonAGDD/NSWAGDDTool.h"
-#include "MuonAGDD/MuonAGDDToolHelper.h"
+#include "MuonAGDDToolHelper.h"
 #include "AGDDControl/AGDDController.h"
 #include "AGDDControl/AGDD2GeoModelBuilder.h"
 #include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
@@ -44,12 +44,7 @@ StatusCode NSWAGDDTool::initialize()
 	m_outFileName = "Out.AmdcOracle.AM." + m_outFileType + "temp.data";
 	m_outPREsqlName = "Out.AmdcOracle.AM." + m_outFileType + ".PREsql";
 
-	StatusCode result;
-	result = AGDDToolBase::initialize();
-	if (result.isFailure())
-    {
-    	ATH_MSG_FATAL("could not initialize AGDDToolBase!!! ");
-    }
+        ATH_CHECK(AGDDToolBase::initialize());
 	
 	static int iEntries=0;
 	
@@ -60,7 +55,8 @@ StatusCode NSWAGDDTool::initialize()
 		theHelper.SetNSWComponents();
 	}
 
-	return result;
+        ATH_CHECK(construct());
+	return StatusCode::SUCCESS;
 }
 
 StatusCode NSWAGDDTool::construct() 

@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPattern
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
+                          MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
                           Tracking/TrkEvent/TrkSegment )
 
 # Install files from the package:

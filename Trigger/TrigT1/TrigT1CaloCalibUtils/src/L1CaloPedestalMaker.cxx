@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibUtils/L1CaloPedestalMaker.h"
@@ -19,8 +19,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 L1CaloPedestalMaker::L1CaloPedestalMaker(const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator),
-    m_detStore(0),
-    m_storeGate(0),
     m_caloMgr(0),
     m_lvl1Helper(0),
     m_ttSvc(0),
@@ -63,20 +61,6 @@ StatusCode L1CaloPedestalMaker::initialize()
 
     StatusCode sc;
 
-    //get a pointer to DetectorStore services
-    sc = service("DetectorStore", m_detStore);
-    if (sc.isFailure()) {
-        ATH_MSG_ERROR( "Cannot access DetectorStore" );
-        return StatusCode::FAILURE;
-    }
-
-    //get a pointer to Event StoreGate services
-    sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure()) {
-        ATH_MSG_ERROR( "Cannot access StoreGate" );
-        return StatusCode::FAILURE;
-    }
-
 	sc = service("L1CaloCondSvc", m_l1CondSvc);
 	if(sc.isFailure()){
 		ATH_MSG_ERROR( "Could not retrieve L1CaloCondSvc" );
@@ -84,7 +68,7 @@ StatusCode L1CaloPedestalMaker::initialize()
  	}
 
     // Retrieve CaloIdManager
-	sc = m_detStore->retrieve(m_caloMgr);
+	sc = detStore()->retrieve(m_caloMgr);
     if (sc.isFailure()) {
         ATH_MSG_ERROR( "Unable to retrieve CaloIdManager from DetectorStore" );
         return StatusCode::FAILURE;
@@ -146,7 +130,7 @@ StatusCode L1CaloPedestalMaker::execute()
 
   // retrieve triggertowers container from storegate
   const TriggerTowerCollection* ttCollection = 0;
-  sc = m_storeGate->retrieve(ttCollection, m_triggerTowerLocation);
+  sc = evtStore()->retrieve(ttCollection, m_triggerTowerLocation);
   if (sc.isFailure() || !ttCollection) {
     ATH_MSG_ERROR( "No Trigger Towers found" );
     return StatusCode::SUCCESS;
@@ -270,7 +254,7 @@ StatusCode L1CaloPedestalMaker::finalize()
       pedestalContainer->push_back(pedestal);
   }
 
-  sc = m_detStore->record(pedestalContainer, m_PedestalsKey);
+  sc = detStore()->record(pedestalContainer, m_PedestalsKey);
   if (sc.isSuccess()) ATH_MSG_DEBUG( "Stored Pedestals in DetStore at "<< m_PedestalsKey<< " with size: "<< pedestalContainer->size() );
   else {
     ATH_MSG_ERROR( "failed to write Pedestals to DetStore at " << m_PedestalsKey );

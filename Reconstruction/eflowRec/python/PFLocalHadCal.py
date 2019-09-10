@@ -66,36 +66,13 @@ class PFLocalHadCal:
             print traceback.format_exc()
             return False
 
-        
-        try:
-            from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-            theCaloNoiseTool = CaloNoiseToolDefault()
-        except:
-            mlog.error("could not import  CaloTools.CaloNoiseToolDefault")
-            print traceback.format_exc()
-            return False
-
-
-        try:
+            from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+            #For LCWeightsTool needs electronic noise
+            CaloNoiseCondAlg(noisetype="electronicNoise")     
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        except:
-            mlog.error("coud not import svcMgr")
-            print traceback.format_ec()
-            return False
-                        
-        if (False == hasattr(svcMgr.ToolSvc, "CaloNoiseToolDefault") ):
-            try:
-                from AthenaCommon.AppMgr import ToolSvc
-            except:
-                mlog.error("could not import ToolSvc")
-                print traceback.format_ec()
-                return False
-            
-            ToolSvc += theCaloNoiseTool
                    
         LCWeight.CorrectionKey       = "H1ClusterCellWeights"
         LCWeight.SignalOverNoiseCut  = 2.0
-        LCWeight.CaloNoiseTool       = theCaloNoiseTool
         LCWeight.UseHadProbability   = True
 
         return LCWeight

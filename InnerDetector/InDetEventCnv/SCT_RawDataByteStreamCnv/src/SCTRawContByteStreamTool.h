@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -70,15 +72,15 @@ class SCTRawContByteStreamTool : public extends<AthAlgTool, ISCTRawContByteStrea
 
   /** Identifier helper class for the SCT subdetector that creates compact Identifier objects and 
       IdentifierHash or hash IDs. Also allows decoding of these IDs. */ 
-  const SCT_ID* m_sctIDHelper;
+  const SCT_ID* m_sctIDHelper{nullptr};
 
-  unsigned short m_rodBlockVersion;
+  UnsignedShortProperty m_rodBlockVersion{this, "RodBlockVersion", 0};
 
   /** Conversion between Lower level Source ID to higher level source ID, used to assemble
       fragments from ROD fragments to assemble full ATLAS raw events. */ 
   mutable FullEventAssembler<SrcIdMap> m_fullEventAssembler ATLAS_THREAD_SAFE;
 
-  mutable std::mutex m_mutex;
+  mutable std::mutex m_mutex{};
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMTOOL_H

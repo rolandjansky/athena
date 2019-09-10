@@ -6,15 +6,15 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('runHLT_forXMLgeneration.py')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.GlobalFlags import globalflags
 
-# We don't need input files
-athenaCommonFlags.FilesInput=[]
+# Input file is only needed so that TileCal picks up the correct cabling according to the year
+athenaCommonFlags.FilesInput=["/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data18_13TeV.00349335.physics_EnhancedBias.merge.RAW._lb0200._SFO-1._0001.1"]
 athenaCommonFlags.BSRDOInput=[]
 athenaCommonFlags.PoolRDOInput=[]
 athenaCommonFlags.isOnline = True
-# Pretend to use bytestream to avoid the inputFilePeeker to run
-from AthenaCommon.GlobalFlags import globalflags
 globalflags.InputFormat='bytestream'
+globalflags.DataSource='data'
 
 # in Standalone mode, don't allow any configuration errors
 athenaCommonFlags.AllowIgnoreConfigError = False

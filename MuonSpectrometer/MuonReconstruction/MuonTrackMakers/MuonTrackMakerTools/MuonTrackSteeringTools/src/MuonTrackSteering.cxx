@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -12,7 +12,7 @@
 //#include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentMerger.h"
@@ -50,21 +50,20 @@ namespace Muon {
   
   MuonTrackSteering::MuonTrackSteering(const std::string& t,const std::string& n,const IInterface* p) 
     : AthAlgTool(t,n,p)
-      , m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool")
-        , m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
-          , m_candidateTool("Muon::MuPatCandidateTool/MuPatCandidateTool")
-            , m_trackBTool("Muon::MooTrackBuilder/MooMuonTrackBuilder")
-              , m_ambiTool("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor")
-                , m_mooBTool("Muon::MooTrackBuilder/MooMuonTrackBuilder")
-                  , m_candidateMatchingTool("Muon::MooCandidateMatchingTool/MooCandidateMatchingTool")
-                    , m_trackRefineTool("Muon::MooTrackBuilder/MooMuonTrackBuilder")
-                      , m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool")
-                        , m_segmentMerger("")
-                          , m_trackSelector("Muon::MuonTrackSelectorTool/MuonTrackSelectorTool")
-                            , m_muonHoleRecoverTool("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool")
-                              , m_combinedSLOverlaps(false)
-                                , m_findingDepth(0)
-                                  , m_seedCombinatorics(0)
+  , m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+  , m_candidateTool("Muon::MuPatCandidateTool/MuPatCandidateTool", this)
+  , m_trackBTool("Muon::MooTrackBuilder/MooMuonTrackBuilder", this)
+  , m_ambiTool("Trk::TrackSelectionProcessorTool/MuonAmbiProcessor")
+  , m_mooBTool("Muon::MooTrackBuilder/MooMuonTrackBuilder", this)
+  , m_candidateMatchingTool("Muon::MooCandidateMatchingTool/MooCandidateMatchingTool", this)
+  , m_trackRefineTool("Muon::MooTrackBuilder/MooMuonTrackBuilder", this)
+  , m_segmentFitter("Muon::MuonSegmentFittingTool/MuonSegmentFittingTool", this)
+  , m_segmentMerger("")
+  , m_trackSelector("Muon::MuonTrackSelectorTool/MuonTrackSelectorTool", this)
+  , m_muonHoleRecoverTool("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool", this)
+  , m_combinedSLOverlaps(false)
+  , m_findingDepth(0)
+  , m_seedCombinatorics(0)
   {
     declareInterface<IMuonTrackFinder>(this);
 
@@ -74,7 +73,6 @@ namespace Muon {
     declareProperty( "Seg2ndQCut" , m_segQCut[1]=-2 , "Required quality for segments to be the second on a track" );
     declareProperty( "SegOtherQCut" , m_segQCut[2]=-2 , "Required quality for segments to be added to a track" );
 
-    declareProperty( "EDMHelperTool" , m_helper );
     declareProperty( "MuPatCandidateTool" , m_candidateTool );
     declareProperty( "TrackBuilderTool" , m_trackBTool );
     declareProperty( "AmbiguityTool",   m_ambiTool);
@@ -97,7 +95,7 @@ namespace Muon {
   
   StatusCode MuonTrackSteering::initialize() {
 
-    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK (m_printer.retrieve() );
     ATH_CHECK( m_candidateTool.retrieve() );
     ATH_CHECK( m_candidateMatchingTool.retrieve() );

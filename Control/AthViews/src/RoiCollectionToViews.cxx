@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RoiCollectionToViews.h"
@@ -9,7 +9,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "CxxUtils/make_unique.h"
 #include "AthContainers/ConstDataVector.h"
 
 namespace AthViews {
@@ -36,19 +35,11 @@ RoiCollectionToViews::~RoiCollectionToViews()
 ////////////////////////////
 StatusCode RoiCollectionToViews::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
   CHECK( m_trigRoIs.initialize() );
   CHECK( m_viewRoIs.initialize() );
   CHECK( m_w_views.initialize() );
-  CHECK( m_scheduler.retrieve() );
-
-  return StatusCode::SUCCESS;
-}
-
-StatusCode RoiCollectionToViews::finalize()
-{
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
@@ -91,7 +82,7 @@ StatusCode RoiCollectionToViews::execute()
   CHECK( ViewHelper::ScheduleViews( viewVector.get(), //View vector
 				    m_viewNodeName,                       //CF node to attach views to
 				    ctx,                                  //Context to attach the views to
-				    m_scheduler.get() ) );                //Scheduler
+				    svcLoc()->service<IScheduler>(m_schedulerName,false) ) ); //Scheduler
 
   //Store the collection of views
   SG::WriteHandle< ViewContainer > outputViewHandle( m_w_views, ctx );

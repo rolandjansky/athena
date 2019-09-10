@@ -26,7 +26,7 @@
 
 
 #include "AthAllocators/DataPool.h"
-#include "MuonEventTPCnv/CreateTransientTemplates.h"
+
 
 
 StatusCode Muon::TgcCoinDataContainerCnv_p2::initialize(MsgStream &log) {

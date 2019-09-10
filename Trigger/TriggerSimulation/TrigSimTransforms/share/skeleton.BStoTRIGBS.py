@@ -231,7 +231,7 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
    from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
    svcMgr += ByteStreamAddressProviderSvc()
 
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += [  "ROIB::RoIBResult/RoIBResult", "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO", 
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO", 
 "PixelRDO_Container/PixelRDOs", 
 "SCT_RDO_Container/SCT_RDOs", 
 "TRT_RDO_Container/TRT_RDOs", 
@@ -246,7 +246,6 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames += [  "ROIB::RoIBResult/RoIBResult
 "LArTTL1Container/LArTTL1HAD",
 "TileTTL1Container/TileTTL1Cnt",
 "TileTTL1Container/TileTTL1MBTS",
-"ROIB::RoIBResult/RoIBResult",
 "MuCTPI_RDO/MUCTPI_RDO",
 "CTP_RDO/CTP_RDO",
 "MuCTPI_RIO/MUCTPI_RIO",
@@ -258,7 +257,6 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames += [  "ROIB::RoIBResult/RoIBResult
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ 
   "LArRawChannelContainer/LArRawChannels", 
   "TileRawChannelContainer/TileRawChannelCnt", 
-  "ROIB::RoIBResult/RoIBResult",
   "MuCTPI_RDO/MUCTPI_RDO",        
   "CTP_RDO/CTP_RDO"
   ] 

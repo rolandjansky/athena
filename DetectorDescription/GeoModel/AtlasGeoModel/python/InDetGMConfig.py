@@ -3,12 +3,11 @@
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
-from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def InDetServiceMaterialCfg (flags):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    acc,geoModelSvc = GeoModelCfg( flags )
+    acc = GeoModelCfg( flags )
+    geoModelSvc=acc.getPrimary()
     from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
@@ -37,7 +36,6 @@ def InDetGeometryCfg (flags):
 
 
 if __name__ == "__main__":
-  import os
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
   from AthenaCommon.Configurable import Configurable

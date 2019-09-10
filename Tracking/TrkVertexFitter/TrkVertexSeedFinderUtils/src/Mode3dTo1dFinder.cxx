@@ -16,41 +16,34 @@ namespace Trk
 {
 
   Mode3dTo1dFinder::Mode3dTo1dFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
-    AthAlgTool(t,n,p),
-    m_mode1dfinder("Trk::FsmwMode1dFinder")
+    base_class(t,n,p),
+    m_mode1dfinder("Trk::FsmwMode1dFinder", this)
   {   
     declareProperty("Mode1dFinder", m_mode1dfinder);
-    declareInterface<IMode3dFinder>(this);
   }
 
-  Mode3dTo1dFinder::~Mode3dTo1dFinder() {}
 
   StatusCode Mode3dTo1dFinder::initialize() 
   { 
-    StatusCode s = AlgTool::initialize();
-    if (s.isFailure() )
-    {
-      msg(MSG::FATAL) << "AlgTool::initialize() initialize failed!" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    if ( m_mode1dfinder.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_mode1dfinder << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_mode1dfinder << endmsg;
-    }
-    msg(MSG::INFO) << "Initialize successfull" << endmsg;
+    ATH_CHECK( AlgTool::initialize() );
+    ATH_CHECK( m_mode1dfinder.retrieve() );
+    ATH_MSG_INFO( "Initialize successfull"  );
     return StatusCode::SUCCESS;
   }
+
 
   StatusCode Mode3dTo1dFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successfull" << endmsg;
+    ATH_MSG_INFO( "Finalize successfull"  );
     return StatusCode::SUCCESS;
   }
 
-  const Amg::Vector3D Mode3dTo1dFinder::getMode(const std::vector<Trk::PositionAndWeight> & myVectorOfPoints) const {
-    
+
+  const Amg::Vector3D
+  Mode3dTo1dFinder::getMode(const double /*vx*/,
+                            const double /*vy*/,
+                            const std::vector<Trk::PositionAndWeight> & myVectorOfPoints) const
+  {
     //create a vector of double values from a vector of "Point" objects
     
     std::vector<Trk::PositionAndWeight>::const_iterator begin = myVectorOfPoints.begin();
@@ -73,10 +66,22 @@ namespace Trk
   }
 
 
-  //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
-  const Amg::Vector3D Mode3dTo1dFinder::getMode(const std::vector<Amg::Vector3D> & myVectorOfPoints) const
+  const Amg::Vector3D
+  Mode3dTo1dFinder::getMode(const double vx,
+                            const double vy,
+                            const std::vector<Trk::PositionAndWeight> & myVectorOfPoints,
+                            std::unique_ptr<IMode3dInfo>& /*info*/) const
   {
+    return getMode (vx, vy, myVectorOfPoints);
+  }
 
+
+  //obtain the 3d-mode (position) from a list of positions (distribution in space) - NO WEIGHTS
+  const Amg::Vector3D
+  Mode3dTo1dFinder::getMode(const double /*vx*/,
+                            const double /*vy*/,
+                            const std::vector<Amg::Vector3D> & myVectorOfPoints) const
+  {
     //create a vector of double values from a vector of "Point" objects
     
     std::vector<Amg::Vector3D>::const_iterator begin = myVectorOfPoints.begin();
@@ -99,25 +104,15 @@ namespace Trk
   }
 
 
-  void Mode3dTo1dFinder::setPriVtxPosition(double /* x */, double /* y */) {
-    //implemented to satisfy inheritance
+  const Amg::Vector3D
+  Mode3dTo1dFinder::getMode(const double vx,
+                            const double vy,
+                            const std::vector<Amg::Vector3D> & myVectorOfPoints,
+                            std::unique_ptr<IMode3dInfo>& /*info*/) const
+                            
+  {
+    return getMode (vx, vy, myVectorOfPoints);
   }
 
-  unsigned int Mode3dTo1dFinder::Modes1d(std::vector<float> &/* a */, std::vector<float> &/* b */, 
-					 std::vector<float> &/* c */, std::vector<float> &/* d */) const {
-    //implemented to satisfy inheritance
-    return 0;
-  }
-
-  const std::vector<int> & Mode3dTo1dFinder::AcceptedCrossingPointsIndices() const{
-    //implemented to satisfy inheritance
-    return m_acceptedCrossingPoint;
-  }
-
-  void Mode3dTo1dFinder::getCorrelationDistance( double &/* cXY */, double &/* cZ */ ){
-    //implemented to satisfy inheritance
-  }
 
 }
-
-

@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/SGTools
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/Identifier
@@ -21,7 +22,8 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonRDO
-                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData )
+                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonPrepRawData 
+			  MuonSpectrometer/MuonReconstruction/MuonDataPrep/MMClusterization )
 
 # External dependencies:
 find_package( tdaq-common COMPONENTS eformat_write DataWriter )
@@ -31,7 +33,7 @@ atlas_add_component( MuonMM_CnvTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData ByteStreamData_test GaudiKernel AthenaBaseComps SGTools StoreGateLib SGtests AtlasDetDescr Identifier ByteStreamCnvSvcBaseLib MuonContainerManager MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonRDO MuonPrepRawData MMClusterizationLib )
 
 # Install files from the package:
 atlas_install_headers( MuonMM_CnvTools )

@@ -1,7 +1,7 @@
 #Correctly configure ID reconstruction
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doVtxBeamSpot.set_Value_and_Lock(True)
-InDetFlags.doTrackSegmentsPixelPrdAssociation.set_Value_and_Lock(False)
+InDetFlags.doTrackSegmentsDisappearing.set_Value_and_Lock(False)
 
 #Turn off all useless parts of the detector
 from AthenaCommon.DetFlags import DetFlags

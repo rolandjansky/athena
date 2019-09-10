@@ -1,8 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 This temporarily holds CTP sizes
 """
+import six
+
+from AthenaCommon.Logging import logging
+log = logging.getLogger('LVL1.Limits')
 
 class Access(type):
     """Metaclass to implement __getattr__ for class variables"""
@@ -18,7 +22,7 @@ class Access(type):
             raise AttributeError("Neither class 'CTPdataformat' nor class 'L1Common' have an attribute '%s'" % key)
     
     def __str__(cls):
-        if cls.ctpDataFormat == None:
+        if cls.ctpDataFormat is None:
             return "None"
 
         s = "CTP DataFormat version %i\n" % cls.CTPVersion
@@ -36,28 +40,24 @@ class Access(type):
 
 
 
-
-class Limits:
-
-    __metaclass__ = Access
+@six.add_metaclass(Access)
+class Limits(object):
 
     CTPVersion      = None
     L1CommonVersion = None
 
     ctpDataFormat = None
     l1common      = None
-    
+
     @staticmethod
     def getCTPdataformat(version):
         module = __import__('CTPfragment.CTPdataformat_v%i' % version, globals(), locals(), ['CTPdataformat_v%i' % version], -1)
-        exec("CTPdataformat = module.CTPdataformat_v%i" % version)
-        return CTPdataformat
+        return getattr(module, "CTPdataformat_v%i" % version)
 
     @staticmethod
     def getL1Common(version):
         module = __import__('L1Common.L1Common_v%i' % version, globals(), locals(), ['L1Common_v%i' % version], -1)
-        exec("L1Common = module.L1Common_v%i" % version)
-        return L1Common
+        return getattr(module, "L1Common_v%i" % version)
 
     @staticmethod
     def setLimits(CTPVersion, verbose = False):
@@ -67,12 +67,12 @@ class Limits:
         Limits.ctpDataFormat = Limits.getCTPdataformat( Limits.CTPVersion )
         Limits.l1common = Limits.getL1Common( Limits.L1CommonVersion )
         if verbose:
-            print Limits
+            log.debug(Limits)
 
     
 
 
-class CaloLimits:
+class CaloLimits(object):
     # Maximum values for calo thresholds to disable that threshold
     ClusterOff   = 255
     IsolationOff = 63

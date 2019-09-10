@@ -1,27 +1,32 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @author: Sebastien Binet <binet@cern.ch>
 # @date:   March 2007
 #
 #
-from __future__ import with_statement
+from __future__ import with_statement, print_function
 
 __version__ = "$Revision$"
 __author__  = "Sebastien Binet <binet@cern.ch>"
 
 import sys
 import os
+import six
 
 from AthenaCommon.Logging import log
 
 
 def ROOT6Setup():
    log.info('executing ROOT6Setup')
-   import __builtin__
-   oldimporthook = __builtin__.__import__
+   if six.PY3:
+      import builtins as builtin_mod
+   else:
+      import __builtin__ as builtin_mod
+   oldimporthook = builtin_mod.__import__
    autoload_var_name = 'ROOT6_NamespaceAutoloadHook'
    
    def root6_importhook(name, globals={}, locals={}, fromlist=[], level=-1):
+       if six.PY3 and level < 0: level = 0
        m = oldimporthook(name, globals, locals, fromlist, level)
        if m and (m.__name__== 'ROOT' or name[0:4]=='ROOT'):
           log.debug('Python import module=%s  fromlist=%s'%(name, str(fromlist)))
@@ -40,7 +45,7 @@ def ROOT6Setup():
                 pass
        return m
    
-   __builtin__.__import__ = root6_importhook
+   builtin_mod.__import__ = root6_importhook
       
 
 
@@ -83,6 +88,11 @@ class ShutUp(object):
             os.dup2( sys.stderr.fileno(), self.save_err.fileno() )
             os.dup2( sys.stdout.fileno(), self.save_out.fileno() )
         return
+
+    def __del__ (self):
+       self.save_err.close()
+       self.save_out.close()
+       return
     
     def mute(self):
         if not self._dummy:
@@ -108,7 +118,7 @@ class ShutUp(object):
                 if re.match(filter, l):
                     printOut = False
             if printOut:
-                print "PyRoot:",l.replace("\n","")
+                print ("PyRoot:",l.replace("\n",""))
             pass
         return
 

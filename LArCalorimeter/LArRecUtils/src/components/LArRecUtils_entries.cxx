@@ -3,7 +3,6 @@
 #include "../LArAutoCorrTotalTool.h"
 #include "../LArCellFakeProbElectronics.h"
 //#include "LArRecUtils/LArCellFakeProbHV.h"
-#include "../LArHVCorrTool.h"
 //#include "LArRecUtils/LArHVGeometryTool.h"
 #include "../LArOFCTool.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
@@ -36,7 +35,6 @@ DECLARE_COMPONENT( LArAutoCorrNoiseTool )
 DECLARE_COMPONENT( LArAutoCorrTotalTool )
 DECLARE_COMPONENT( LArCellFakeProbElectronics )
 //DECLARE_COMPONENT( LArCellFakeProbHV )
-DECLARE_COMPONENT( LArHVCorrTool )
 //DECLARE_COMPONENT( LArHVGeometryTool )
 DECLARE_COMPONENT( LArOFCTool )
 DECLARE_COMPONENT( LArOFPeakRecoTool )

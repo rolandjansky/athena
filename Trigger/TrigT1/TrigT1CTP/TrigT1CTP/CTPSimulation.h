@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef TRIGT1CTP_CTPSIMULATION_H
 #define TRIGT1CTP_CTPSIMULATION_H
@@ -12,11 +11,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "StoreGate/DataHandle.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 // monitoring from HLT
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
+#include "TrigT1Interfaces/MuCTPICTP.h"
 
 // local includes:
 #include "TrigT1CTP/ISpecialTrigger.h"
@@ -24,8 +26,10 @@
 // For handling different CTP versions:
 #include "CTPfragment/CTPdataformatVersion.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "TrigConfData/L1Menu.h"
+
 // Forward includes:
-class StoreGateSvc;
 class IAtRndmGenSvc;
 class IMonitorToolBase;
 class TH1I;
@@ -80,7 +84,7 @@ namespace LVL1CTP {
     *
     */
 
-   class CTPSimulation : public AthAlgorithm, public IMonitoredAlgo, public IIncidentListener {
+   class CTPSimulation : public AthAlgorithm, virtual public IMonitoredAlgo, virtual public IIncidentListener {
 
    public:
 
@@ -97,8 +101,6 @@ namespace LVL1CTP {
 
      virtual void handle(const Incident& incident);
      
-      StoreGateSvc *m_detStore;
-
    private:
       StatusCode loadFixedConditions();
       //! Function pointer to the correct multiplicity extraction function:
@@ -121,7 +123,6 @@ namespace LVL1CTP {
       ToolHandleArray < IMonitorToolBase > m_monitors;        //!< property, see @link CTPSimulation::CTPSimulation @endlink 
 
       // Inputs to the CTP:
-      const DataHandle< LVL1::MuCTPICTP > m_muctpiCTP;        //!< MUCTPI input
       const DataHandle< LVL1::EmTauCTP >  m_emtauCTP;         //!< EmTau input
       const DataHandle< LVL1::JetCTP >    m_jetCTP;           //!< Jet input
       const DataHandle< LVL1::EnergyCTP > m_energyCTP;        //!< Energy input
@@ -133,7 +134,6 @@ namespace LVL1CTP {
       const DataHandle< LVL1::NimCTP >    m_nimCTP;           //!< NIM input
       const DataHandle< LVL1::BptxCTP >   m_bptxCTP;          //!< BPTX input
       const DataHandle< LVL1::FrontPanelCTP >   m_topoCTP;    //!< Topo input
-
     
       // Maps between the different trigger objects:
       ThresholdMap*       m_decisionMap;                      //!< pointer to threshold map
@@ -170,6 +170,10 @@ namespace LVL1CTP {
       std::string m_bptxCTPLoc;                               //!< property, see @link CTPSimulation::CTPSimulation @endlink
       std::string m_nimCTPLoc;                                //!< property, see @link CTPSimulation::CTPSimulation @endlink
       std::string m_topoCTPLoc;                               //!< property, see @link CTPSimulation::CTPSimulation @endlink
+
+
+      SG::ReadHandleKey<LVL1::MuCTPICTP> m_muctpiInputKey { LVL1MUCTPI::DEFAULT_MuonCTPLocation };
+
 
       // Properties: StoreGate location of output
       std::string m_roiOutputLoc;                             //!< property, see @link CTPSimulation::CTPSimulation @endlink
@@ -228,6 +232,9 @@ namespace LVL1CTP {
       TH1I*  m_thrTETot { nullptr };
       TH1I*  m_thrXETot { nullptr };
       TH1I*  m_thrXSTot { nullptr };
+
+      bool m_useCondL1Menu { false }; //!< flag to enable/disable use of new conditions-based configuration
+      SG::ReadCondHandleKey<TrigConf::L1Menu> m_l1MenuKey { "L1Menu" };
 
    }; // class CTPSimulation
 

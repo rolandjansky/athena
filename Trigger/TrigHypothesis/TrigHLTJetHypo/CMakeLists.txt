@@ -30,12 +30,16 @@ atlas_add_library( TrigHLTJetHypoLib
 
 atlas_add_component( TrigHLTJetHypo
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib TrigHLTJetHypoLib DecisionHandlingLib )
+                     LINK_LIBRARIES TrigHLTJetHypoLib )
 
 atlas_add_test( TrigHLTJetHypoTool SCRIPT python -m TrigHLTJetHypo.TrigJetHypoToolConfig
 				POST_EXEC_SCRIPT nopost.sh )
 
+atlas_add_test( flake8
+   SCRIPT flake8 --select=F,E7,E9,W6 --ignore=E701 ${CMAKE_CURRENT_SOURCE_DIR}/python
+   POST_EXEC_SCRIPT nopost.sh )
+
+		      
 # Install files from the package:
 atlas_install_python_modules( python/*.py ) 
 

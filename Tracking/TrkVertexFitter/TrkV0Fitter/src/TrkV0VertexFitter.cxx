@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -40,7 +40,7 @@ namespace
 
 namespace Trk
 {
-  TrkV0VertexFitter::TrkV0VertexFitter(const std::string& t, const std::string& n, const IInterface*  p) : AthAlgTool(t,n,p),
+  TrkV0VertexFitter::TrkV0VertexFitter(const std::string& t, const std::string& n, const IInterface*  p) : base_class(t,n,p),
       m_maxIterations(10),
       m_maxDchi2PerNdf(0.1),
       m_maxR(2000.),
@@ -94,7 +94,7 @@ namespace Trk
 
   /** Interface for Trk::Track with Amg::Vector3D starting point */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk,
-                                        const Amg::Vector3D& firstStartingPoint)
+                                        const Amg::Vector3D& firstStartingPoint) const
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
@@ -104,7 +104,7 @@ namespace Trk
 
   /** Interface for Trk::Track with xAOD::Vertex starting point */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*> & vectorTrk,
-                                        const xAOD::Vertex& firstStartingPoint)
+                                        const xAOD::Vertex& firstStartingPoint) const
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
@@ -114,7 +114,7 @@ namespace Trk
   }
 
   /** Interface for Trk::Track with no starting point. (0,0,0) will be assumed */
-  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk)
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::Track*>& vectorTrk) const
   {
     Amg::Vector3D tmpVtx;
     return fit(vectorTrk, tmpVtx);
@@ -125,7 +125,7 @@ namespace Trk
                                         const std::vector<double> masses,
                                         const double& constraintMass,
                                         const xAOD::Vertex* pointingVertex,
-                                        const Amg::Vector3D& firstStartingPoint)
+                                        const Amg::Vector3D& firstStartingPoint) const
   {
     // push_back measured perigees at first measurements into vector<const Trk::ParametersBase*>
     std::vector<const Trk::TrackParameters*> measuredPerigees;
@@ -173,7 +173,7 @@ namespace Trk
 
   /** Interface for Trk::TrackParticleBase with Amg::Vector3D starting point */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-                                        const Amg::Vector3D& firstStartingPoint)
+                                        const Amg::Vector3D& firstStartingPoint) const
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
@@ -183,7 +183,7 @@ namespace Trk
 
   /** Interface for Trk::TrackParticleBase with xAOD::Vertex starting point */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*> & vectorTrk,
-                                        const xAOD::Vertex& firstStartingPoint)
+                                        const xAOD::Vertex& firstStartingPoint) const
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
@@ -193,7 +193,7 @@ namespace Trk
   }
 
   /** Interface for Trk::TrackParticleBase with no starting point. (0,0,0) will be assumed */
-  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk)
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParticleBase*>& vectorTrk) const
   {
     Amg::Vector3D tmpVtx;
     return fit(vectorTrk, tmpVtx);
@@ -204,7 +204,7 @@ namespace Trk
                                         const std::vector<double> masses,
                                         const double& constraintMass,
                                         const xAOD::Vertex* pointingVertex,
-                                        const Amg::Vector3D& firstStartingPoint)
+                                        const Amg::Vector3D& firstStartingPoint) const
   {
     // push_back measured perigees at first measurements into vector<const Trk::ParametersBase*>
     std::vector<const Trk::TrackParameters*> measuredPerigees;
@@ -239,7 +239,7 @@ namespace Trk
 
   /** Interface for xAOD::TrackParticle with Amg::Vector3D starting point */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                        const Amg::Vector3D& firstStartingPoint)
+                                        const Amg::Vector3D& firstStartingPoint) const
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
@@ -249,7 +249,7 @@ namespace Trk
 
   /** Interface for xAOD::TrackParticle with xAOD::Vertex starting point */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
-                                        const xAOD::Vertex& firstStartingPoint)
+                                        const xAOD::Vertex& firstStartingPoint) const
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
@@ -259,7 +259,7 @@ namespace Trk
   }
 
   /** Interface for xAOD::TrackParticle with no starting point. (0,0,0) will be assumed */
-  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk)
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk) const
   {
     Amg::Vector3D tmpVtx;
     return fit(vectorTrk, tmpVtx);
@@ -270,7 +270,7 @@ namespace Trk
                                         const std::vector<double> masses,
                                         const double& constraintMass,
                                         const xAOD::Vertex* pointingVertex,
-                                        const Amg::Vector3D& firstStartingPoint)
+                                        const Amg::Vector3D& firstStartingPoint) const
   {
     std::vector<const Trk::TrackParameters*> measuredPerigees;
     std::vector<const Trk::TrackParameters*> measuredPerigees_delete;
@@ -333,7 +333,7 @@ namespace Trk
 
   /** Interface for Trk::TrackParameters with Amg::Vector3D starting point */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*> & originalPerigees,
-                                        const Amg::Vector3D& firstStartingPoint)
+                                        const Amg::Vector3D& firstStartingPoint) const
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
@@ -343,7 +343,7 @@ namespace Trk
 
   /** Interface for Trk::TrackParameters with xAOD::Vertex starting point */
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*> & originalPerigees,
-                                        const xAOD::Vertex& firstStartingPoint)
+                                        const xAOD::Vertex& firstStartingPoint) const
   {
     std::vector<double> masses;
     double constraintMass = -9999.;
@@ -353,7 +353,7 @@ namespace Trk
   }
 
   /** Interface for Trk::TrackParameters with no starting point. (0,0,0) will be assumed */
-  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*>& originalPerigees)
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*>& originalPerigees) const
   {
     Amg::Vector3D tmpVtx;
     return fit(originalPerigees, tmpVtx);
@@ -364,7 +364,7 @@ namespace Trk
                                         const std::vector<double> masses,
                                         const double& constraintMass,
                                         const xAOD::Vertex* pointingVertex,
-                                        const Amg::Vector3D& firstStartingPoint)
+                                        const Amg::Vector3D& firstStartingPoint) const
   {
 
     if ( originalPerigees.empty() )

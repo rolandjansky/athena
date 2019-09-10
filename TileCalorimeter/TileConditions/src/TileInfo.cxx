@@ -25,7 +25,6 @@
 #include "TileConditions/TileInfo.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TilePulseShapes.h"
-#include "TileConditions/TileOptFilterWeights.h"
 
 #include "TileCalibBlobObjs/TileCalibDrawerFlt.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
@@ -103,8 +102,6 @@ TileInfo::TileInfo(ISvcLocator *svcLocator)
   , m_MuL1Time0Bin(0)
   , m_MuL1BinsPerX(0)
   , m_pulseShapes(0)
-  , m_OptFilterWeights(0)
-  , m_OptFilterCorrelation(0)
   , m_tileCablingSvc("TileCablingSvc","TileInfo")
   , m_nPhElec(0)
   , m_nPhElecVec()
@@ -166,13 +163,6 @@ TileInfo::initialize()
 
   if(debug) log<<MSG::DEBUG<<"In TileInfo::initialize..."<<endmsg;
 
-  // Declare our CLID.
-  IClassIDSvc* clidsvc = 0;
-  CHECK( m_svcLocator->service("ClassIDSvc", clidsvc, true) );
-  clidsvc->setTypePackageForID (classID(),
-                                "TileInfo",
-                                Athena::PackageInfo (BOOST_PP_STRINGIZE(PACKAGE_VERSION_UQ)));
-
     //=== get TileCablingSvc
   StatusCode sc = m_tileCablingSvc.retrieve();
   if(sc.isFailure()){
@@ -202,12 +192,6 @@ TileInfo::initialize()
   if (m_pulseShapes)
     m_pulseShapes->load(log);
   
-  //=== Read OptFilter Weights &&/|| Correlation in TileInfoLoader.cxx
-  if (m_OptFilterWeights)
-    m_OptFilterWeights->loadWeights(log);
-  if (m_OptFilterCorrelation)
-    m_OptFilterCorrelation->loadCorrelation(log);
-
   if(debug) log << MSG::DEBUG << " TileInfo initialization completed. " << endmsg;  
   return StatusCode::SUCCESS;
 }

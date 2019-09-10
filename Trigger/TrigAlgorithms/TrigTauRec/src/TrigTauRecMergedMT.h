@@ -1,18 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-//
-/********************************************************************
- *
- * NAME:     TrigTauRecMergedMT.h
- * PACKAGE:  Trigger/TrigAlgorithms/TrigTauRecMerged
- *
- * AUTHOR:   R. Soluk (based on tauBuilder)
- * CREATED:  Nov 21 2005
- * MODIFIED: Dec 14 2006 S.Xella
- *           Mar 02 2001 ccuenca
- *********************************************************************/
 
 #ifndef TRIGTAURECMERGEDMT_H
 #define TRIGTAURECMERGEDMT_H
@@ -35,8 +23,7 @@
 #include <vector>
 #include "tauRecTools/ITauToolBase.h"
 
-#include "LumiBlockComps/ILuminosityTool.h" 
-#include "InDetBeamSpotService/IBeamCondSvc.h"
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
@@ -57,6 +44,8 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   virtual StatusCode finalize() override;
   virtual StatusCode execute() override;
 
+  template<class T, class U, class V> StatusCode deepCopy(T*& containerOut, U*& containerStoreOut, const V* dummyContainerType,
+                                 const T*& oldContainer);
 
  private:
 
@@ -93,8 +82,8 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   /** Luminosity Tool */
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 
-  /** Beam spot service */
-  ServiceHandle<IBeamCondSvc>  m_beamSpotSvc;
+  /** Beam spot Object */
+  SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };
 
   /** vector of Timers */
   std::vector<TrigTimer* > m_mytimers;
@@ -102,21 +91,47 @@ class TrigTauRecMergedMT: public AthAlgorithm {
   // Monitoring tool
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey {this,"RoIInputKey","Undefined",""};
-  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_L1RoIKey {this, "L1RoIKey","Undefined",""};
-  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "clustersKey", "caloclusters", "caloclusters in view" };
-  SG::ReadHandleKey< xAOD::TrackParticleContainer > m_tracksKey { this, "Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
-  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey {this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
-  SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey { this, "TrigTauJet", "", "" };
-  SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey {this,"TrigTauJetOutputKey","seed tau jet","Key for output jets which are seed for tau jets"};
-  SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"TrigTauRecOutputKey","output tau jet object","Output taujet container"};
-  SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"TrigTauTrkOutputKey","output tau track object","Output tautrack container"};
+  //Gaudi::Property< std::string > m_outputName {this,"OutputCollection","TrigTauRecMerged","Name of output collection"};
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_roIInputKey { this,"RoIInputKey","Undefined",""};
+  SG::ReadHandleKey< TrigRoiDescriptorCollection > m_L1RoIKey    { this, "L1RoIKey","Undefined",""};
+  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey  { this, "clustersKey", "Undefined", "caloclusters in view" };
+  SG::ReadHandleKey< xAOD::TrackParticleContainer > m_tracksKey  { this, "Key_trackPartInputContainer", "Undefined", "input track particle container key"};
+  SG::ReadHandleKey< xAOD::VertexContainer> m_vertexKey          { this, "Key_vertexInputContainer", "Undefined", "input vertex container key"};
+  SG::ReadHandleKey< xAOD::TauJetContainer> m_trigTauJetKey      { this, "TrigTauJet", "Undefined", "input taujet container" };
 
-  Gaudi::Property< std::string > m_outputName {this,"OutputCollection","TrigTauRecMerged","Name of output collection"};
-  Gaudi::Property< float > m_maxeta {this,"maxeta",2.5,"max eta for tau"};
-  Gaudi::Property< float > m_minpt {this,"minpt",10000.0,"min pt for tau"};
-  Gaudi::Property< std::string > m_beamType {this,"BeamType","collisions","Beam type"};
-  Gaudi::Property< float > m_trkcone {this,"trkcone",0.2,"max distance track seed from roi center"};
+  Gaudi::Property<bool> m_useCaloClusters {this, "UseCaloClusters", true, "Use the data object"};
+  
+  SG::WriteHandleKey< xAOD::JetContainer > m_trigtauSeedOutKey   { this,"TrigTauJetOutputKey","HLT_seed_tau_jet","Key for output jets which are seed for tau jets"};
+  SG::WriteHandleKey< xAOD::TauJetContainer > m_trigtauRecOutKey {this,"TrigTauRecOutputKey","HLT_taujet","Output taujet container"};
+  SG::WriteHandleKey< xAOD::TauTrackContainer > m_trigtauTrkOutKey {this,"TrigTauTrkOutputKey","HLT_tautrack","Output tautrack container"};
+
+  Gaudi::Property< float > m_maxeta         { this, "maxeta", 2.5,"max eta for tau"};
+  Gaudi::Property< float > m_minpt          { this, "minpt", 10000.0, "min pt for tau"};
+  Gaudi::Property< std::string > m_beamType { this, "BeamType", "collisions", "Beam type"};
+  Gaudi::Property< float > m_trkcone        { this, "trkcone", 0.2, "max distance track seed from roi center"};
 
 };
+
+  // Function to perform deep copy on container
+  template<class T, class U, class V> StatusCode TrigTauRecMergedMT::deepCopy(T*& container, U*& containerStore, const V* /*dummyContainerElementType*/,
+                                       const T*& oldContainer){
+   // The new container should be null, check here
+   if(container==0 && containerStore==0){
+     container = new T();
+     containerStore = new U();
+     container->setStore(containerStore);
+   }else{
+     ATH_MSG_FATAL("Proviced non-null containters, not initializing please provide null containers: ");
+     return StatusCode::FAILURE;
+   }
+   for( const V* v : *oldContainer ){
+     V* newV = new V();
+     // Put objects into new container
+     container->push_back(newV);
+     // Copy across aux store
+     *newV = *v;
+   }
+   return StatusCode::SUCCESS;
+  }
+
 #endif

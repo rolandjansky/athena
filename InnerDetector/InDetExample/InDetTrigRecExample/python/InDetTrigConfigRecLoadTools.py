@@ -31,10 +31,6 @@ sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
 from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
 InDetTrigClusterMakerTool = \
     InDet__ClusterMakerTool( name = "InDetTrigClusterMakerTool",
-                             UsePixelCalibCondDB = False,  #simpler setup for EFID
-                             #UsePixelCalibCondDB = True,  #simpler setup for EFID
-                             #pixLorentzAnleSvc = "InDetTrigPixLorentzAngleSvc",
-                             #UseLorentzAngleCorrections = False
                              PixelLorentzAngleTool = TrigPixelLorentzAngleTool,
                              SCTLorentzAngleTool = TrigSCTLorentzAngleTool
                              )
@@ -93,8 +89,8 @@ if InDetTrigFlags.loadRotCreator():
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
     from InDetRecExample.TrackingCommon import createAndAddCondAlg,getPixelClusterNnCondAlg,getPixelClusterNnWithTrackCondAlg
-    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelNnClusterNnCondAlg',          GetInputsInfo = do_runI)
-    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelNnClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnCondAlg,         'PixelClusterNnCondAlg',          GetInputsInfo = do_runI)
+    createAndAddCondAlg( getPixelClusterNnWithTrackCondAlg,'PixelClusterNnWithTrackCondAlg', GetInputsInfo = do_runI)
     if do_runI :
       TrigNnClusterizationFactory = InDet__NnClusterizationFactory( name                 = "TrigNnClusterizationFactory",
                                                                     PixelLorentzAngleTool              = TrigPixelLorentzAngleTool,
@@ -712,12 +708,9 @@ if InDetTrigFlags.loadSummaryTool():
   # Configrable version of loading the InDetTrackSummaryHelperTool
   #
   from AthenaCommon.GlobalFlags import globalflags
-  # Straw status DB Tool
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
-  InDetTrigTRTStrawStatusSummaryTool = TRT_StrawStatusSummaryTool(name = "TRT_StrawStatusSummaryTool",
-                                                              isGEANT4=(globalflags.DataSource == 'geant4'))
-
-
+  
+  from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
+  
   from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
@@ -760,8 +753,7 @@ if InDetTrigFlags.loadSummaryTool():
   from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   # Calibration DB Tool
   from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
-  InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool",
-                                    isGEANT4=(globalflags.DataSource == 'geant4'))
+  InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
 
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
   InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy",
@@ -790,8 +782,8 @@ if InDetTrigFlags.loadSummaryTool():
   from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
   InDetTrigTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryTool",
                                                     InDetSummaryHelperTool = InDetTrigTrackSummaryHelperTool,
-                                                    InDetHoleSearchTool    = InDetTrigHoleSearchTool,
                                                     doSharedHits           = False,
+                                                    doHolesInDet           = True,
                                                     #this may be temporary #61512 (and used within egamma later)
                                                     #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool, 
                                                     TRT_ElectronPidTool    = None, 
@@ -826,7 +818,7 @@ if InDetTrigFlags.loadSummaryTool():
     InDetTrigTrackSummaryToolSharedHits = Trk__TrackSummaryTool(name = "InDetTrigTrackSummaryToolSharedHits",
                                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
                                                                 doSharedHits           = InDetTrigFlags.doSharedHits(),
-                                                                InDetHoleSearchTool    = InDetTrigHoleSearchTool,
+                                                                doHolesInDet           = True,
                                                                 TRT_ElectronPidTool    = None)
 
     ToolSvc += InDetTrigTrackSummaryToolSharedHits
@@ -916,17 +908,7 @@ if InDetTrigFlags.doNewTracking():
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
       from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadCondAlg_xk
-      # Copied from InDetAlignFolders.py
-      useDynamicAlignFolders = False
-      try:
-        from InDetRecExample.InDetJobProperties import InDetFlags
-        from IOVDbSvc.CondDB import conddb
-        if InDetFlags.useDynamicAlignFolders and conddb.dbdata == "CONDBR2":
-          useDynamicAlignFolders = True
-      except ImportError:
-        pass
-      condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk",
-                                                    UseDynamicAlignFolders = useDynamicAlignFolders)
+      condSeq += InDet__SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk")
 
   # Local combinatorial track finding using space point seed and detector element road
   #
@@ -944,38 +926,45 @@ if InDetTrigFlags.doNewTracking():
                                                                  PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                  SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                                                  )															
-  ToolSvc += InDetTrigSiComTrackFinder
+  if DetFlags.haveRIO.pixel_on():
+    # Condition algorithm for SiCombinatorialTrackFinder_xk
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
+      from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                            ReadKey = "PixelDetectorElementCollection",
+                                                            WriteKey = "PixelDetElementBoundaryLinks_xk")
   if DetFlags.haveRIO.SCT_on():
     # Condition algorithm for SiCombinatorialTrackFinder_xk
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksCondAlg"):
+    if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
       from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksCondAlg")
-  #to here
+      condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                            ReadKey = "SCT_DetectorElementCollection",
+                                                            WriteKey = "SCT_DetElementBoundaryLinks_xk")
+      #to here
 
-#move 
-if InDetTrigFlags.doAmbiSolving():
-
-  from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
-  InDetTrigAmbiTrackSelectionTool = \
-      InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
-                                         AssociationTool    = InDetTrigPrdAssociationTool,
-                                         DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
-                                         minHits         = InDetTrigCutValues.minClusters(),
-                                         minNotShared    = InDetTrigCutValues.minSiNotShared(),
-                                         maxShared       = InDetTrigCutValues.maxShared(),
-                                         minTRTHits      = 0,  # used for Si only tracking !!!
-                                         Cosmics         = False,  #there is a different instance
-                                         UseParameterization = False,
-                                         # sharedProbCut   = 0.10,
-                                         # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
-                                         )
-   
-   
-  ToolSvc += InDetTrigAmbiTrackSelectionTool
-  if (InDetTrigFlags.doPrintConfigurables()):
-    print InDetTrigAmbiTrackSelectionTool
+from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
+InDetTrigAmbiTrackSelectionTool = \
+    InDet__InDetAmbiTrackSelectionTool(name               = 'InDetTrigAmbiTrackSelectionTool',
+                                       AssociationTool    = InDetTrigPrdAssociationTool,
+                                       DriftCircleCutTool = InDetTrigTRTDriftCircleCut,
+                                       minHits         = InDetTrigCutValues.minClusters(),
+                                       minNotShared    = InDetTrigCutValues.minSiNotShared(),
+                                       maxShared       = InDetTrigCutValues.maxShared(),
+                                       minTRTHits      = 0,  # used for Si only tracking !!!
+                                       Cosmics         = False,  #there is a different instance
+                                       UseParameterization = False,
+                                       # sharedProbCut   = 0.10,
+                                       # doPixelSplitting = InDetTrigFlags.doPixelClusterSplitting()
+                                       )
+ 
+ 
+ToolSvc += InDetTrigAmbiTrackSelectionTool
+if (InDetTrigFlags.doPrintConfigurables()):
+  print InDetTrigAmbiTrackSelectionTool
 
 if InDetTrigFlags.doNewTracking():
 

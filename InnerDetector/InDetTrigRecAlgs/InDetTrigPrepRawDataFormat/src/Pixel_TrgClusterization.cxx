@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -24,7 +24,6 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/PixelRDORawData.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 
@@ -57,7 +56,6 @@ namespace InDet{
     m_gangedAmbiguitiesFinder("InDet::PixelGangedAmbiguitiesFinder"),
     m_clusteringTool("InDet::MergedPixelsTool"),
     m_pixelRDOContainerName("PixelRDOs"),    // RDO container
-    m_managerName("Pixel"),
     m_clustersName("PixelTrigClusters"),
     m_ambiguitiesMapName("TrigPixelClusterAmbiguitiesMap"),
     m_regionSelector("RegSelSvc", name),
@@ -66,10 +64,10 @@ namespace InDet{
     m_phiHalfWidth(0.1),
     m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
-    m_doTimeOutChecks(true)
+    m_doTimeOutChecks(true),
+    m_skipBSDecoding(false)
   {  
     // Get parameter values from jobOptions file
-    declareProperty("DetectorManagerName",     m_managerName);
     declareProperty("clusteringTool",          m_clusteringTool);
     declareProperty("gangedAmbiguitiesFinder", m_gangedAmbiguitiesFinder);
     declareProperty("ClustersName",            m_clustersName);
@@ -82,6 +80,7 @@ namespace InDet{
     declareProperty("Pixel_RDOContainerName",  m_pixelRDOContainerName);
     declareProperty("RawDataProvider",         m_rawDataProvider);
     declareProperty("doTimeOutChecks",         m_doTimeOutChecks);
+    declareProperty("skipBSDecoding",          m_skipBSDecoding);
 
     declareMonitoredVariable("numPixClusters", m_numPixClusters    );
     declareMonitoredVariable("numPixIds", m_numPixIds    );
@@ -144,16 +143,6 @@ namespace InDet{
       ATH_MSG_INFO( m_gangedAmbiguitiesFinder.propertyName() << ": Retrieved tool " << m_gangedAmbiguitiesFinder.type() );
     }
 
-  
-    StatusCode sc =detStore()->retrieve(m_manager,m_managerName);
-    if (sc.isFailure()){
-      ATH_MSG_FATAL( "Cannot retrieve the Pixel detector manager " 
-		     << m_managerName );
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    } else {
-      ATH_MSG_DEBUG( "Pixel detector manager retrieved!" );
-    }
-
     const PixelID * IdHelper(0);
     if (detStore()->retrieve(IdHelper, "PixelID").isFailure()) {
       ATH_MSG_FATAL( "Could not get PixelID helper" );
@@ -180,7 +169,7 @@ namespace InDet{
       }
     }
     else {    
-      sc = store()->retrieve(m_clusterContainer, m_clustersName);
+      StatusCode sc = store()->retrieve(m_clusterContainer, m_clustersName);
       
       if (sc.isFailure()) {
 	ATH_MSG_ERROR( "Failed to get Cluster Container" );
@@ -196,7 +185,7 @@ namespace InDet{
       
     // symlink the collection
     const SiClusterContainer* symSiContainer(0);
-    sc = store()->symLink(m_clusterContainer,symSiContainer);
+    StatusCode sc = store()->symLink(m_clusterContainer,symSiContainer);
     if (sc.isFailure()) {
       ATH_MSG_WARNING( "Pixel clusters could not be symlinked in StoreGate !" );
     } else {
@@ -331,7 +320,6 @@ namespace InDet{
     //-------------------------------------------------------------------------
 
     //handling of decoding problems
-    StatusCode scdec = StatusCode::SUCCESS;
     m_bsErrorSvc->resetCounts();
 
 
@@ -373,21 +361,6 @@ namespace InDet{
 
     ATH_MSG_DEBUG( "REGTEST:" << *roi );
 
-    
-    if(doTiming()) m_timerDecoder->start();
-    scdec = m_rawDataProvider->decode(roi);
-    if(doTiming()) m_timerDecoder->stop();
-
-    
-    //   Get the Pixel RDO's:
-    //     - First get the Pixel ID's using the RegionSelector
-    //     - Retrieve from SG the RDOContainer: 
-    //       Identifiable Container that contains pointers to all the RDO 
-    //        collections (one collection per detector)
-    //     - Retrieve from StoreGate the RDO collections.
-    //       (the ByteStreamConvertors are called here).
-    
-    
     if (!(roi->isFullscan())){
       if(doTiming()) m_timerRegSel->start();
       m_regionSelector->DetHashIDList( PIXEL, *roi, m_listOfPixIds);
@@ -397,42 +370,55 @@ namespace InDet{
       
       if(doTiming()) m_timerRegSel->stop();
     }
-
-
-    if (scdec.isSuccess()){
-      //check for recoverable errors
-
-      int n_err_total = 0;
-       
-      int bsErrors[IPixelByteStreamErrorsSvc::lastErrType+1];
+    
+    if (!m_skipBSDecoding){
+      StatusCode scdec = StatusCode::SUCCESS;
+      if(doTiming()) m_timerDecoder->start();
+      scdec = m_rawDataProvider->decode(roi);
+      if(doTiming()) m_timerDecoder->stop();
+    
+      //   Get the Pixel RDO's:
+      //     - First get the Pixel ID's using the RegionSelector
+      //     - Retrieve from SG the RDOContainer: 
+      //       Identifiable Container that contains pointers to all the RDO 
+      //        collections (one collection per detector)
+      //     - Retrieve from StoreGate the RDO collections.
+      //       (the ByteStreamConvertors are called here).
       
-      for (size_t idx = 0; idx<=size_t(IPixelByteStreamErrorsSvc::lastErrType); idx++){
-	int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
-	n_err_total += n_errors;
-	bsErrors[idx] = n_errors;
-      }
-
-
-      ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
-
-      if (n_err_total){
-	for (size_t idx = 0; idx<=size_t(IPixelByteStreamErrorsSvc::lastErrType); idx++){
-	  //	  m_PixBSErr.push_back(bsErrors[idx]);
-	  if (bsErrors[idx])
-	    m_PixBSErr.push_back(idx);
-	  if(msgLvl(MSG::DEBUG))
-	     msg(MSG::DEBUG) << " " << bsErrors[idx];
+      
+      if (scdec.isSuccess()){
+	//check for recoverable errors
+	
+	int n_err_total = 0;
+	
+	int bsErrors[IPixelByteStreamErrorsSvc::lastErrType+1];
+	
+	for (const auto idx : { IPixelByteStreamErrorsSvc::firstErrType , IPixelByteStreamErrorsSvc::lastErrType } ){
+	  int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
+	  n_err_total += n_errors;
+	  bsErrors[idx] = n_errors;
 	}
-      }	     
-      ATH_MSG_DEBUG( "" );
-
-    } else {
-      ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
+	
+	ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
+	
+	if (n_err_total){
+	for (const auto idx : { IPixelByteStreamErrorsSvc::firstErrType , IPixelByteStreamErrorsSvc::lastErrType } ){
+	    if (bsErrors[idx])
+	      m_PixBSErr.push_back(idx);
+	    if(msgLvl(MSG::DEBUG))
+	      msg(MSG::DEBUG) << " " << bsErrors[idx];
+	  }
+	}	     
+	ATH_MSG_DEBUG( "" );
+	
+      } else {
+	ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
+      }
     }
-
+    
     if(doTiming()) m_timerSGate->resume();
     
-    PixelRDO_Container* p_pixelRDOContainer;
+    const PixelRDO_Container* p_pixelRDOContainer = nullptr;
     if (store()->retrieve(p_pixelRDOContainer,  m_pixelRDOContainerName).isFailure() ) {
       ATH_MSG_WARNING( "Could not find the PixelRDO_Container " 
 		       << m_pixelRDOContainerName );
@@ -449,6 +435,7 @@ namespace InDet{
     }
     if(doTiming()) m_timerSGate->pause();
 
+    ATH_MSG_VERBOSE("Size of " << m_pixelRDOContainerName << ":" << p_pixelRDOContainer->size());
 
     if (!(roi->isFullscan())){
 
@@ -480,7 +467,7 @@ namespace InDet{
       
 	if (RDO_Collection->size() != 0){
 	
-	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,*m_manager,*m_idHelper);
+	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,*m_idHelper);
 	
 	  if (m_clusterCollection && m_clusterCollection->size()!=0){ 
 	  
@@ -502,7 +489,7 @@ namespace InDet{
 	      
 	      const size_t ambiMapSize = AmbiguitiesMap->size();
 	      m_gangedAmbiguitiesFinder->execute(m_clusterCollection,
-						 *m_manager, *AmbiguitiesMap);
+						 *AmbiguitiesMap);
 	      
 	      if (ambiMapSize != AmbiguitiesMap->size())
 		ATH_MSG_DEBUG( "After filling - Ambiguities map: " 
@@ -525,8 +512,6 @@ namespace InDet{
       PixelRDO_Container::const_iterator rdoCollections      = p_pixelRDOContainer->begin();
       PixelRDO_Container::const_iterator rdoCollectionsEnd   = p_pixelRDOContainer->end();
     
-      AtlasDetectorID detType;
-
       if(doTiming()) m_timerCluster->resume();
 
       for(; rdoCollections!=rdoCollectionsEnd; ++rdoCollections){
@@ -548,7 +533,7 @@ namespace InDet{
 
 	if (RDO_Collection->size() != 0){
 	  // Use one of the specific clustering AlgTools to make clusters
-	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,*m_manager,
+	  m_clusterCollection = m_clusteringTool->clusterize(*RDO_Collection,
 							     *m_idHelper);
 	  if (m_clusterCollection){
 	    if (m_clusterCollection->size() != 0) {
@@ -565,7 +550,6 @@ namespace InDet{
 		ATH_MSG_VERBOSE( "Filling ambiguities map" );  
 		
 		m_gangedAmbiguitiesFinder->execute(m_clusterCollection,
-						   *m_manager,
 						   *AmbiguitiesMap);
 		
 		ATH_MSG_VERBOSE( "Ambiguities map: " 

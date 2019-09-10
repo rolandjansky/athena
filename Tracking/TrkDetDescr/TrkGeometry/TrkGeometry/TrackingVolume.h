@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -347,7 +347,7 @@ namespace Trk {
       void addMaterial( const Material& mat, float fact=1. ) const;
 
       /** remove content */
-      void clear() const;
+      void clear();
 
       /** dump to screen */
       void screenDump(MsgStream& msg) const;
@@ -408,13 +408,13 @@ namespace Trk {
       std::vector< SharedObject<const BoundarySurface<TrackingVolume> > >* m_boundarySurfaces;  //!< boundary Surfaces
       //(a)
       mutable const LayerArray*                                             m_confinedLayers;   //!< Array of Layers inside the Volume
-      mutable const TrackingVolumeArray*                                    m_confinedVolumes;  //!< Array of Volumes inside the Volume
+      const TrackingVolumeArray*                                            m_confinedVolumes;  //!< Array of Volumes inside the Volume
       //(b)                                                                 
-      mutable const std::vector<const DetachedTrackingVolume*>*             m_confinedDetachedVolumes; //!< Detached subvolumes
+      const std::vector<const DetachedTrackingVolume*>*                     m_confinedDetachedVolumes; //!< Detached subvolumes
       // additionally                                                            
-      mutable const std::vector<const TrackingVolume*>*                     m_confinedDenseVolumes;    //!< Unordered subvolumes
+      const std::vector<const TrackingVolume*>*                             m_confinedDenseVolumes;    //!< Unordered subvolumes
       //(b)                                                                      
-      mutable const std::vector<const Layer*>*                              m_confinedArbitraryLayers; //!< Unordered Layers inside the Volume
+      const std::vector<const Layer*>*                                      m_confinedArbitraryLayers; //!< Unordered Layers inside the Volume
                                                                             
       mutable GlueVolumesDescriptor*                                        m_outsideGlueVolumes;      //!< Volumes to glue Volumes from the outside
                                                                             
@@ -489,13 +489,13 @@ namespace Trk {
       auto& bSurfaces = boundarySurfaces();
       // fast loop pointer comparison of the surfaces 
       for (auto& bsIter : bSurfaces ){
-          const BoundarySurface<TrackingVolume>* bSurface = bsIter.getPtr();
+          const BoundarySurface<TrackingVolume>* bSurface = bsIter.get();
           // pointer of the parameter surface is identical with one of the boundary surface pointers
           if (pSurface == &bSurface->surfaceRepresentation()) return true;
       }
       // slow loop - checking the onSurface (does pointer comparison as well)
       for (auto& bsIter : bSurfaces ){
-          const BoundarySurface<TrackingVolume>* bSurface = bsIter.getPtr();
+          const BoundarySurface<TrackingVolume>* bSurface = bsIter.get();
           // pointer of the parameter surface is identical with one of the boundary surface pointers
           if (bSurface->onBoundary(pars)) return true;
       }
@@ -595,7 +595,7 @@ namespace Trk {
       std::vector< BoundaryIntersection<T> > bIntersections;
       auto& bSurfaces = boundarySurfaces();
       for (auto& bsIter : bSurfaces ){
-          const BoundarySurface<TrackingVolume>* bSurface = bsIter.getPtr();
+          const BoundarySurface<TrackingVolume>* bSurface = bsIter.get();
           Intersection bsIntersection   = bSurface->surfaceRepresentation().straightLineIntersection(pars.position(),dir,true,false);
           if (bsIntersection.valid)
               bIntersections.push_back(BoundaryIntersection<T>(bsIntersection,bSurface,&(bSurface->surfaceRepresentation()),0,pDir));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionHandling/InputMakerBase.h"
@@ -69,7 +69,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
     TrigCompositeUtils::createAndStore(outputHandles[outputIndex]);
 
 
-    auto outDecisions = outputHandles[outputIndex].ptr();
+    TrigCompositeUtils::DecisionContainer* outDecisions = outputHandles[outputIndex].ptr();
 
     // If using m_mergeOutputs, then collate all RoIs that are stored in this input container
     ElementLinkVector<TrigRoiDescriptorCollection> RoIsFromDecision;
@@ -112,19 +112,17 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
           return StatusCode::FAILURE;
         }
         const size_t roiCounter = std::distance( RoIsFromDecision.begin(), roiIt );
-        newDec = outDecisions[outputIndex][roiCounter];
+        newDec = outDecisions->at(roiCounter);
       }
 
-      TrigCompositeUtils::linkToPrevious( newDec, inputDecision ); // Link inputDecision object as the 'seed' of newDec
+      TrigCompositeUtils::linkToPrevious( newDec, inputDecision, context ); // Link inputDecision object as the 'seed' of newDec
       TrigCompositeUtils::insertDecisionIDs( inputDecision, newDec ); // Copy decision IDs from inputDecision into newDec
       ATH_MSG_DEBUG("New decision has "<< (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( newDec,  m_roisLink.value())).isValid() <<" valid "<<m_roisLink.value() <<" and "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions");     
       input_counter++;  
     } // loop over input decisions
 
     ATH_MSG_DEBUG( "Filled output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<outDecisions->size()  <<" at index "<< outputIndex);
-    for (auto i : *outDecisions) msg() << i << " ";
-    msg() << endmsg;
-    outputIndex++;         
+    outputIndex++;
   } // end of first loop over input keys
 
   return StatusCode::SUCCESS;
@@ -132,7 +130,7 @@ StatusCode InputMakerBase::decisionInputToOutput(const EventContext& context, st
 
 
 
-StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const{
+void InputMakerBase::debugPrintOut(const EventContext& context, const std::vector< SG::WriteHandle<TrigCompositeUtils::DecisionContainer> >& outputHandles) const{
   size_t validInput=0;
   for ( auto inputKey: decisionInputs() ) {
     auto inputHandle = SG::makeHandle( inputKey, context );
@@ -169,7 +167,6 @@ StatusCode InputMakerBase::debugPrintOut(const EventContext& context, const std:
       }  
     }
   }
-  return StatusCode::SUCCESS;
 }
 
 

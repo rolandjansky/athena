@@ -14,9 +14,17 @@
 Trk::MaterialLayer::MaterialLayer(const Surface& surfaceRepresentation, 
                                   const LayerMaterialProperties& mlprop):
  Trk::Layer(),                                     
- m_surfaceRepresentation(SharedObject<const Surface>(&surfaceRepresentation,true))
+ //m_surfaceRepresentation(SharedObject<const Surface>(&surfaceRepresentation,true))
+ 
+ /* 
+  * The above line was setting the not delete ndel to true
+  * do the same with no-op deleter for shared_ptr
+  * Probably ownership might need some clean up here 
+  */
+m_surfaceRepresentation(SharedObject<const Surface>(&surfaceRepresentation,
+                                                    do_not_delete<const Surface>))
 {
-    m_layerMaterialProperties = mlprop.clone();
+    m_layerMaterialProperties.reset(mlprop.clone());
     m_layerThickness = 1.;
 }
 
@@ -26,7 +34,7 @@ Trk::MaterialLayer::MaterialLayer(const SharedObject<const Surface>& surfaceRepr
  Trk::Layer(),                                     
  m_surfaceRepresentation(surfaceRepresentation)
 {
-    m_layerMaterialProperties = mlprop.clone();
+    m_layerMaterialProperties.reset(mlprop.clone());
     m_layerThickness = 1.;
 }
 
@@ -52,6 +60,6 @@ Trk::MaterialLayer& Trk::MaterialLayer::operator =(const Trk::MaterialLayer& lay
 }
 
 bool Trk::MaterialLayer::isOnLayer(const Amg::Vector3D& gp, const BoundaryCheck& bcheck) const {
-  return m_surfaceRepresentation.getPtr()->isOnSurface(gp, bcheck);
+  return m_surfaceRepresentation.get()->isOnSurface(gp, bcheck);
 }
 

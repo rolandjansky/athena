@@ -10,7 +10,7 @@
 #include "TrigT1Interfaces/RecMuonRoI.h" 
 #include "GaudiKernel/IIncidentListener.h"
 
-#include "TrigBphysHypo/Constants.h"
+#include "Constants.h"
 
 class TriggerElement;
 class TrigBphysHelperUtilsTool;

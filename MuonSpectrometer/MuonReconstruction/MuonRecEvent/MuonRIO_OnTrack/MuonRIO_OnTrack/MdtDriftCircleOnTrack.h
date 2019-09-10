@@ -25,11 +25,13 @@
 
 #include "TrkEventPrimitives/DriftCircleSide.h"
 #include "TrkEventPrimitives/DriftCircleStatus.h"
-#include <cassert>
 
 #include "MuonPrepRawData/MdtPrepDataContainer.h"
 #include "AthLinks/ElementLink.h"
 #include "MuonRIO_OnTrack/MuonDriftCircleErrorStrategy.h"
+#include "CxxUtils/CachedUniquePtr.h"
+
+#include <cassert>
 
 typedef ElementLink<Muon::MdtPrepDataContainer> ElementLinkToIDC_MDT_Container;
 
@@ -248,7 +250,7 @@ private:
     ElementLinkToIDC_MDT_Container              m_rio;
 
     /** global position of the measurement. */
-    mutable const Amg::Vector3D*          m_globalPosition;
+    CxxUtils::CachedUniquePtr<const Amg::Vector3D> m_globalPosition;
     
     /** Surface at postion of sagged wire. This is owned by this object, and will be deleted when it 
     is.*/

@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/PropertyHistoryCheck.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
 """Check the set history of properties to look for duplicates and other
 such problems."""
+
+from __future__ import print_function
 
 
 ### data ---------------------------------------------------------------------
@@ -16,7 +18,7 @@ __all__ = [ 'check' ]
 
 ### history checker, output based on requested level of detail ---------------
 def check( level ):
-   import Configurable
+   from AthenaCommon import Configurable
    import GaudiKernel.GaudiHandles as GH
 
    ghbases = (GH.GaudiHandle, GH.GaudiHandleArray, Configurable.Configurable)
@@ -55,6 +57,6 @@ def check( level ):
    overwrites_msg = string.join( [ '   %-40s %-30s %s' % t for t in overwrites ], '\n' )
 
  # provide report
-   import Logging
+   from AthenaCommon import Logging
    log = Logging.logging.getLogger( 'PropertyHistoryCheck' )
    log.info( 'Overwritten properties:\n%s', overwrites_msg )

@@ -4,7 +4,7 @@
 
 #include "./EtaEtAsymmetricConditionMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
-#include "./IConditionVisitor.h"
+#include "./ITrigJetHypoInfoCollector.h"
 
 #include <sstream>
 #include <cmath>
@@ -21,18 +21,41 @@ EtaEtAsymmetricConditionMT::EtaEtAsymmetricConditionMT(double etaMin,
 
 bool
 EtaEtAsymmetricConditionMT::isSatisfied(const pHypoJet& ip,
-                                        IConditionVisitor*) const {
+                                        const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   auto eta = ip->eta();
   auto et = ip->et();
-  return 
+  
+  bool pass =
     m_etaMin <= eta and
     m_etaMax > eta and
     m_threshold <= et;
+  
+  if(collector){
+    std::stringstream ss0;
+    const void* address = static_cast<const void*>(this);
+    ss0 << "EtatAsymmetricConditionMT: (" << address << ") eta ["
+        << m_etaMin << ", " <<  m_etaMax << "] "
+        << " et thresh " <<  m_threshold <<  " pass " 
+        << std::boolalpha << pass <<  '\n';
+                                      
+                                      
+    std::stringstream ss1;
+    auto j_addr = static_cast<const void*>(ip);
+    ss1 << "    jet: ("  << j_addr << ")"
+        << " eta " << eta
+        << " et " << et << '\n';
+    
+    collector->collect(ss0.str(), ss1.str());
+  }
+  
+  return pass;
+
 }
 
 
-bool EtaEtAsymmetricConditionMT::isSatisfied(const HypoJetVector& ips,
-                                             IConditionVisitor* v) const {
+bool
+EtaEtAsymmetricConditionMT::isSatisfied(const HypoJetVector& ips,
+                                        const std::unique_ptr<ITrigJetHypoInfoCollector>& v) const {
   return isSatisfied(ips[0], v);
 }
 

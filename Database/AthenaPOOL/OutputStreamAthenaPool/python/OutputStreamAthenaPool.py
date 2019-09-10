@@ -6,13 +6,15 @@
 ## $Id: OutputStreamAthenaPool.py,v 1.10 2009-04-27 18:19:34 gemmeren Exp $
 ###############################################################
 
+from __future__ import print_function
+
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
 def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
-                        eventInfoKey = "EventInfo" ):
+                        eventInfoKey = "EventInfo", decisionFilter="" ):
    # define athena output stream
    writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
@@ -37,10 +39,9 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
          # Tell tool to pick it up
          outputStream.WritingTool.AttributeListKey=key
          # build eventinfo attribute list
-         from OutputStreamAthenaPoolConf import EventInfoAttListTool
+         from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
          svcMgr.ToolSvc += EventInfoAttListTool()
-         from OutputStreamAthenaPoolConf import EventInfoTagBuilder
-         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey)
+         EventInfoTagBuilder   = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter)
          topSequence += EventInfoTagBuilder
 
    # decide where to put outputstream in sequencing
@@ -51,9 +52,10 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
 
    if fileName != "":
       outputStream.OutputFile = fileName
-      from OutputStreamAthenaPoolConf import MakeEventStreamInfo 
+      from .OutputStreamAthenaPoolConf import MakeEventStreamInfo 
       streamInfoTool = MakeEventStreamInfo( streamName + "_MakeEventStreamInfo" )
       streamInfoTool.Key = streamName
+      streamInfoTool.EventInfoKey = eventInfoKey
       outputStream.HelperTools = [ streamInfoTool ]
 
    # Set the list of transient items based on what we know is in the transient
@@ -89,3 +91,4 @@ def createOutputConditionStream( streamName, fileName = "" ):
 ## backward compat
 AthenaPoolOutputStream          = createOutputStream
 AthenaPoolOutputConditionStream = createOutputConditionStream
+

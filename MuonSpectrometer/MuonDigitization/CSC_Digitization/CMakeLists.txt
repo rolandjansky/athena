@@ -33,10 +33,6 @@ atlas_add_component( CSC_Digitization
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib GaudiKernel MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonSimData MuonSimEvent HitManagement StoreGateLib SGtests GeneratorObjects )
 
-atlas_add_test( CSC_DigitizationConfigNew_test
-                SCRIPT test/CSC_DigitizationConfigNew_test.py
-                PROPERTIES TIMEOUT 300 )
-
 # Install files from the package:
 atlas_install_headers( CSC_Digitization )
 atlas_install_python_modules( python/*.py )

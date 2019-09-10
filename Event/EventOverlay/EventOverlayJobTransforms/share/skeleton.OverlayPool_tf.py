@@ -158,7 +158,7 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
 if DetFlags.overlay.LAr_on() or DetFlags.overlay.Tile_on():
    include ( "EventOverlayJobTransforms/CaloOverlay_jobOptions.py" )
 
-if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on():
+if DetFlags.overlay.CSC_on() or DetFlags.overlay.MDT_on() or DetFlags.overlay.RPC_on() or DetFlags.overlay.TGC_on() or DetFlags.overlay.sTGC_on() or DetFlags.overlay.Micromegas_on():
    include ( "EventOverlayJobTransforms/MuonOverlay_jobOptions.py" )
 
 if DetFlags.overlay.LVL1_on():

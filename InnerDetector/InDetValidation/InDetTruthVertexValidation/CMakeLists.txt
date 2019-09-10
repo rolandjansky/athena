@@ -33,8 +33,9 @@ find_package( ROOT COMPONENTS Core Geometry Tree MathCore Hist RIO pthread TBB )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( InDetTruthVertexValidationLib _cintDictSource
-                           ROOT_HEADERS Root/LinkDef.h
-                           EXTERNAL_PACKAGES ROOT )
+   ROOT_HEADERS InDetTruthVertexValidation/InDetVertexTruthMatchUtils.h
+   InDetTruthVertexValidation/InDetVertexTruthMatchTool.h Root/LinkDef.h
+   EXTERNAL_PACKAGES ROOT )
 
 # Component(s) in the package:
 atlas_add_library( InDetTruthVertexValidationLib

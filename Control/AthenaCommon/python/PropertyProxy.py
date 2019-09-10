@@ -1,14 +1,20 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/PropertyProxy.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
-import os, weakref, copy, types
+from __future__ import print_function
+
+import six
+import os, weakref, copy
 from GaudiKernel.GaudiHandles import GaudiHandle, GaudiHandleArray
 
 # dictionary with configurable class : python module entries
-import ConfigurableDb
+from AthenaCommon import ConfigurableDb
+
+if six.PY3:
+   long = int
 
 
 ### data ---------------------------------------------------------------------
@@ -20,7 +26,7 @@ __all__ = [ 'PropertyProxy',
             'GaudiHandleArrayPropertyProxy' ]
 
 ## for messaging
-from Logging import logging
+from AthenaCommon.Logging import logging
 log = logging.getLogger( 'PropertyProxy' ) 
 
 
@@ -48,6 +54,8 @@ def _isCompatible( tp, value ):
  # compatibility check that relies on conversion (which will always fail
  # for configurables) is acceptable.
 
+   if six.PY2 and type(value) == unicode:
+      value = value.encode()
    if ( tp == str or type(value) == str ) and not isinstance( value, tp ):
     # special case, insist on exact match for str (no conversions allowed)
       raise ValueError( "received an instance of %s, but %s expected" % (type(value),tp) )
@@ -142,7 +150,7 @@ class PropertyProxy( object ):
          proptype = type( self.history[ obj ][ 0 ] )
 
     # check if type known; allow special initializer for typed instances
-      if proptype and not isinstance(proptype, types.NoneType):
+      if proptype and not isinstance(proptype, type(None)):
         # check value itself
           value = _isCompatible( proptype, value )
 

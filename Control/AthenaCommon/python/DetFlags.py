@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # DetFlags : Author Tadashi Maeno
 #            Mods: David Rousseau, Paolo Calafiura, M. Gallas ( more flags and 
@@ -59,6 +59,8 @@
 #if DetFlags.detdescr.LAr_allOn() : true if all LAr det is true 
 #if DetFlags.haveRIO.Calo_on() : true if any Calo RIO are present (made or read from file) 
     
+from __future__ import print_function
+
 class DetFlags:
     # detectors
     class SubDetectors:
@@ -554,7 +556,7 @@ class DetFlags:
             format += "%"+str(max(6,len(det)+1))+"s" #"%10s"
             item.append(det)
         # print detectors row
-        print format % tuple(item)
+        print (format % tuple(item))
 
         # print flags for each task
         for attr in dir(cls)[:]:
@@ -571,7 +573,7 @@ class DetFlags:
                     else:
                         item.append("--")
                 # print
-                print format % tuple(item)
+                print (format % tuple(item))
 
     # class method
     _setAllTask  = classmethod(_setAllTask)

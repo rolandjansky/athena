@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthenaPython/python/tests/PyTestsLib.py
 # @purpose: a set of py-components to test various aspects of PyAthena
 # @author: Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 __doc__ = """Module containing a set of py-components to test various aspects
 of PyAthena.

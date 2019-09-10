@@ -31,9 +31,6 @@
 
 //fwd declarations
 
-namespace InDetDD {
-  class  SCT_DetectorManager;
-}
 class StatusCode;
 class ISvcLocator;
 class IdentifierHash;
@@ -60,22 +57,24 @@ class SCT_CalibLbTool : public extends<AthAlgTool, ISCT_CalibHistoTool>
  private:
   ToolHandle<ISCT_CalibEvtInfo> m_evtInfo{this, "SCT_CalibEvtInfo", "SCT_CalibEvtInfo"};
 
-  const SCT_ID* m_pSCTHelper;
-  const InDetDD::SCT_DetectorManager* m_pManager;
+  const SCT_ID* m_pSCTHelper{nullptr};
   SCT_ID::const_id_iterator m_waferItrBegin;
   SCT_ID::const_id_iterator m_waferItrEnd;
   typedef std::vector<int> VecInt;
-  VecInt* m_sct_waferHash;
-  VecInt* m_sct_firstStrip;
-  VecInt* m_sct_rdoGroupSize;
+  VecInt* m_sct_waferHash{nullptr};
+  VecInt* m_sct_firstStrip{nullptr};
+  VecInt* m_sct_rdoGroupSize{nullptr};
 
-  int m_lumiBlock;
+  int m_lumiBlock{0};
 
   //private use in this class
-  int m_LbRange;
-  int m_LbsToMerge;
+  int m_LbRange{0};
+  int m_LbsToMerge{0};
 
-  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey;
+  /** Swap phi readout direction */
+  std::vector<bool> m_swapPhiReadoutDirection{};
+
+  SG::ReadHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "RDOContainer", "SCT_RDOs"};
 
   void fillLbForWafer(const IdentifierHash& waferHash, const int theFirstStrip, const int groupSize);
 

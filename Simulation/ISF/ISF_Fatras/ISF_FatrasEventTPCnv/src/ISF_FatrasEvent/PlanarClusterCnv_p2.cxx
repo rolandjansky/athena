@@ -14,7 +14,6 @@
 #include "ISF_FatrasEventTPCnv/ISF_FatrasEvent/PlanarClusterCnv_p2.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "CxxUtils/make_unique.h"
 
 #include <algorithm>
 
@@ -43,7 +42,7 @@ PlanarClusterCnv_p2::createPlanarCluster (const iFatras::PlanarCluster_p2 *persO
   localPos[Trk::locY] = persObj->m_localPosY;
   
   // Error matrix
-  auto cmat = CxxUtils::make_unique<Amg::MatrixX>(2,2);
+  auto cmat = std::make_unique<Amg::MatrixX>(2,2);
   (*cmat)(0,0) = static_cast<double>(persObj->m_mat00);
   (*cmat)(1,0) = static_cast<double>(persObj->m_mat01);
   (*cmat)(0,1) = static_cast<double>(persObj->m_mat01);

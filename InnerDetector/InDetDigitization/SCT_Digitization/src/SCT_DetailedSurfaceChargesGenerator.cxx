@@ -11,16 +11,10 @@
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 
-// random number service includes
-
-// Gaudi
-#include "GaudiKernel/ITHistSvc.h" // for ITHistSvc
-
 // CLHEP
+#include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussZiggurat.h" // for RandGaussZiggurat
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 // ROOT
@@ -36,55 +30,8 @@ using InDetDD::SiLocalPosition;
 
 // constructor
 SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type, name, parent),
-  m_tHalfwayDrift{0.},
-  m_distInterStrip{1.0},
-  m_distHalfInterStrip{0.},
-  m_SurfaceDriftFlag{false},
-  m_thistSvc{"THistSvc", name},
-  m_h_efieldz{nullptr},
-  m_h_yzRamo{nullptr},
-  m_h_yzEfield{nullptr},
-  m_h_yEfield{nullptr},
-  m_h_zEfield{nullptr},
-  m_bulk_depth{0.0285}, //<!285 micron, expressed in cm units
-  m_strip_pitch{0.0080}, //<! 80 micron, expressed in cm units
-  m_depletion_depth{0.0285},
-  m_y_origin_min{0.0}, //<! zero unless under-depleted
-  m_kB{1.38E-23}, //<! Boltzmann const [m^2*kg/s^2/K]
-  m_e{1.602E-19}, //<! electron charge [Coulomb]
-  m_vs_e{11615084.7393}, //<! mobility at 273.15K
-  m_Ec_e{6034.20429},
-  m_vs_h{8761659.83530}, //<! hole mobility at 273.15K
-  m_Ec_h{15366.52650},
-  m_PotentialValue{{0.}},
-  m_ExValue150{{0.}},
-  m_EyValue150{{0.}},
-  //m_stripCharge{{{{0.}}}},
-  // sroe: the following were never initialised before, which begs the question:
-  // Did this code *ever* work? Has it *ever* been used?
-  m_stripCharge_iymax{285-1},
-  m_stripCharge_dx{1.},
-  m_stripCharge_dy{1.}
+  : base_class(type, name, parent)
   {
-    declareProperty("FixedTime", m_tfix=-999.); //!< fixed timing
-    declareProperty("SubtractTime", m_tsubtract=-999.); //!< substract drift time
-    declareProperty("SurfaceDriftTime", m_tSurfaceDrift=10); //!< max surface drift time
-    declareProperty("NumberOfCharges", m_numberOfCharges=1);
-    declareProperty("SmallStepLength", m_smallStepLength=5);
-    declareProperty("ChargeDriftModel", m_chargeDriftModel=ehTransport);
-    declareProperty("EFieldModel", m_eFieldModel=FEMsolution);
-    declareProperty("DepletionVoltage", m_depletionVoltage=70.);
-    declareProperty("BiasVoltage", m_biasVoltage=150.);
-    declareProperty("MagneticField", m_magneticField=-2.0);
-    declareProperty("SensorTemperature", m_sensorTemperature=0.+CLHEP::STP_Temperature);
-    declareProperty("TransportTimeStep", m_transportTimeStep=0.25);
-    declareProperty("TransportTimeMax", m_transportTimeMax=25.0);
-    declareProperty("doDistortions", m_doDistortions=false, "Simulation of module distortions");
-    declareProperty("doHistoTrap", m_doHistoTrap=false, "Allow filling of histos for charge trapping effect");
-    declareProperty("doTrapping", m_doTrapping=false, "Simulation of charge trapping effect");
-    declareProperty("Fluence", m_Fluence=0., "Fluence for charge trapping effect");
-    declareProperty("isOverlay", m_isOverlay=false);
 }
 
 //----------------------------------------------------------------------
@@ -142,8 +89,8 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
   }
   //////////////////////////////////////////////////
 
-  m_smallStepLength *= CLHEP::micrometer;
-  m_tSurfaceDrift *= CLHEP::ns;
+  m_smallStepLength.setValue(m_smallStepLength.value() * CLHEP::micrometer);
+  m_tSurfaceDrift.setValue(m_tSurfaceDrift.value() * CLHEP::ns);
 
   // Surface drift time calculation Stuff
   m_tHalfwayDrift = m_tSurfaceDrift/2.0;
@@ -432,7 +379,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiDetectorElement* 
           if (p_design->inActiveArea(position)) {
             float sdist{static_cast<float>(p_design->scaledDistanceToNearestDiode(position))}; //!< dist on the surface from the hit point to the nearest strip (diode)
             float tsurf{this->SurfaceDriftTime(2.0*sdist)}; //!< Surface drift time
-            float totaltime{(m_tfix>-998.) ? m_tfix : tdrift + timeOfFlight + tsurf}; //!< Total drift time
+            float totaltime{(m_tfix>-998.) ? m_tfix.value() : tdrift + timeOfFlight + tsurf}; //!< Total drift time
             inserter(SiSurfaceCharge(position, SiCharge(q1, totaltime, hitproc, trklink)));
 
 #ifdef SCT_DIG_DEBUG
@@ -814,7 +761,7 @@ void SCT_DetailedSurfaceChargesGenerator::EField(double x, double y, double& Ex,
   //---------- case for flat diode model ------------------------------
   if (m_eFieldModel==flatDiodeModel) {
     if (m_biasVoltage > m_depletionVoltage) {
-      Ey = (m_biasVoltage+m_depletionVoltage)/m_depletion_depth - 2.*m_depletionVoltage*(m_bulk_depth-y)/(m_bulk_depth*m_bulk_depth);
+      Ey = (static_cast<double>(m_biasVoltage)+m_depletionVoltage)/m_depletion_depth - 2.*m_depletionVoltage*(m_bulk_depth-y)/(m_bulk_depth*m_bulk_depth);
     } else {
       double Emax{2.* m_depletion_depth * m_depletionVoltage / (m_bulk_depth*m_bulk_depth)};
       Ey = Emax*(1-(m_bulk_depth-y)/m_depletion_depth);

@@ -1,7 +1,7 @@
 /*
   General-purpose view creation algorithm <bwynne@cern.ch>
   
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EventViewCreatorAlgorithm.h"
@@ -21,7 +21,6 @@ StatusCode EventViewCreatorAlgorithm::initialize() {
   ATH_MSG_DEBUG("Will produce views=" << m_viewsKey << " roIs=" << m_inViewRoIs );
   ATH_CHECK( m_viewsKey.initialize() );
   ATH_CHECK( m_inViewRoIs.initialize() );
-  ATH_CHECK( m_scheduler.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -33,7 +32,7 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   ATH_CHECK (decisionInputToOutput(context, outputHandles));
 
   // make the views
-  auto viewsHandle = SG::makeHandle( m_viewsKey ); 
+  auto viewsHandle = SG::makeHandle( m_viewsKey, context ); 
   auto viewVector1 = std::make_unique< ViewContainer >();
   ATH_CHECK( viewsHandle.record(  std::move( viewVector1 ) ) );
   auto viewVector = viewsHandle.ptr();
@@ -87,15 +86,17 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
           contexts.back().setExtension( Atlas::ExtendedEventContext( viewVector->back(), conditionsRun, roi ) );
           
           // link decision to this view
-          outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
+          outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), viewVector->size()-1 ));//adding view to TC
           ATH_MSG_DEBUG( "Adding new view to new decision; storing view in viewVector component " << viewVector->size()-1 );
           ATH_CHECK( linkViewToParent( inputDecision, viewVector->back() ) );
           ATH_CHECK( placeRoIInView( roi, viewVector->back(), contexts.back() ) );  
         }
         else {
           int iview = roiIt - RoIsFromDecision.begin();
-          outputDecision->setObjectLink( "view", ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
+          outputDecision->setObjectLink( TrigCompositeUtils::viewString(), ElementLink< ViewContainer >(m_viewsKey.key(), iview ) ); //adding view to TC
           ATH_MSG_DEBUG( "Adding already mapped view " << iview << " in ViewVector , to new decision");
+          auto theview = viewVector->at(iview);
+          ATH_CHECK( linkViewToParent( inputDecision, theview ) );
         }
       }// loop over previous inputs
     } // loop over decisions   
@@ -108,36 +109,37 @@ StatusCode EventViewCreatorAlgorithm::execute( const EventContext& context ) con
   ATH_CHECK( ViewHelper::ScheduleViews( viewVector,           // Vector containing views
           m_viewNodeName,             // CF node to attach views to
           context,                    // Source context
-          m_scheduler.get() ) );
+          getScheduler() ) );
   
   // report number of views, stored already when container was created
   // auto viewsHandle = SG::makeHandle( m_viewsKey );
   // ATH_CHECK( viewsHandle.record(  std::move( viewVector ) ) );
   ATH_MSG_DEBUG( "Store "<< viewsHandle->size() <<" Views");
   
-  ATH_CHECK( debugPrintOut(context, outputHandles) );
+  if (msgLvl(MSG::DEBUG)) debugPrintOut(context, outputHandles);
   return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode EventViewCreatorAlgorithm::linkViewToParent( const TrigCompositeUtils::Decision* inputDecision, SG::View* newView ) const {
-  // see if there is a view linked to the decision object, if so link it to the view that is just made
-  TrigCompositeUtils::LinkInfo<ViewContainer> parentViewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(inputDecision, "view" );
-  if ( parentViewLinkInfo.isValid() ) {
-    ATH_CHECK( parentViewLinkInfo.link.isValid() );
-    auto parentView = *parentViewLinkInfo.link;
-    newView->linkParent( parentView );
-    ATH_MSG_DEBUG( "Parent view linked" );
-  } else {
-    if ( m_requireParentView ) {
+  if ( m_requireParentView ) {
+    // see if there is a view linked to the decision object, if so link it to the view that is just made
+    TrigCompositeUtils::LinkInfo<ViewContainer> parentViewLinkInfo = TrigCompositeUtils::findLink<ViewContainer>(inputDecision, "view" );
+    if ( parentViewLinkInfo.isValid() ) {
+      ATH_CHECK( parentViewLinkInfo.link.isValid() );
+      auto parentView = *parentViewLinkInfo.link;
+      newView->linkParent( parentView );
+      ATH_MSG_DEBUG( "Parent view linked" );
+    } else {
       ATH_MSG_ERROR( "Parent view not linked because it could not be found" );
-      ATH_MSG_ERROR( TrigCompositeUtils::dump( inputDecision, [](const xAOD::TrigComposite* tc){ 
+      ATH_MSG_ERROR( TrigCompositeUtils::dump( inputDecision, [](const xAOD::TrigComposite* tc){
         return "TC " + tc->name() + ( tc->hasObjectLink("view") ? " has view " : " has no view " );
       } ) );
       return StatusCode::FAILURE;
     }
-    
+  } else {
+    ATH_MSG_DEBUG( "Parent view linking not required" );
   }
   return StatusCode::SUCCESS;
 }

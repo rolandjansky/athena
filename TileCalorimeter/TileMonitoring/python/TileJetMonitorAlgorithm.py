@@ -8,7 +8,7 @@
 '''
 
 
-def TileJetMonitoringConfig(inputFlags, **kwargs):
+def TileJetMonitoringConfig(flags, **kwargs):
 
     ''' Function to configure TileJetMonitorAlgorithm algorithm in the monitoring system.'''
 
@@ -21,25 +21,27 @@ def TileJetMonitoringConfig(inputFlags, **kwargs):
     result = ComponentAccumulator()
 
     from TileGeoModel.TileGMConfig import TileGMCfg
-    result.merge(TileGMCfg(inputFlags))
+    result.merge(TileGMCfg(flags))
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    result.merge(LArGMCfg(inputFlags))
+    result.merge(LArGMCfg(flags))
 
-    from TileConditions.TileConditionsConfig import tileCondCfg
-    result.merge(tileCondCfg(inputFlags))
+    from TileConditions.TileCablingSvcConfig import TileCablingSvcCfg
+    result.merge( TileCablingSvcCfg(flags) )
+
+    from TileConditions.TileBadChannelsConfig import TileBadChanToolCfg
+    badChanTool = result.popToolsAndMerge( TileBadChanToolCfg(flags) )
 
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper
-    helper = AthMonitorCfgHelper(inputFlags,'TileMonitoring')
+    helper = AthMonitorCfgHelper(flags,'TileMonitoring')
 
     # Adding an TileJetMonitorAlgorithm algorithm to the helper
     from TileMonitoring.TileMonitoringConf import TileJetMonitorAlgorithm
     tileJetMonAlg = helper.addAlgorithm(TileJetMonitorAlgorithm, 'TileJetMonAlg')
 
-    from AthenaCommon.Constants import DEBUG, INFO, VERBOSE
-    # tileJetMonAlg.OutputLevel = VERBOSE
+    tileJetMonAlg.TileBadChanTool = badChanTool
     tileJetMonAlg.TriggerChain = ''
 
     for k, v in kwargs.items():
@@ -50,7 +52,7 @@ def TileJetMonitoringConfig(inputFlags, **kwargs):
     DoEnergyDiffHistograms  = kwargs.get('DoEnergyDiffHistograms', tileJetMonAlg.getDefaultProperty('DoEnergyDiffHistograms'))
 
 
-    if not inputFlags.DQ.DataType == 'heavyioncollision':
+    if not flags.DQ.DataType == 'heavyioncollision':
 
         tileJetMonAlg.JVT = CfgMgr.JetVertexTaggerTool()
 
@@ -93,7 +95,7 @@ def TileJetMonitoringConfig(inputFlags, **kwargs):
 
 
     from TileMonitoring.TileMonitoringCfgHelper import addValueVsModuleAndChannelMaps, getPartitionName
-    runNumber = inputFlags.Input.RunNumber[0]
+    runNumber = flags.Input.RunNumber[0]
 
 
     # 2) Configure 2D histograms (profiles/maps) with Tile channel time vs module and channel per partion (DQ summary)
@@ -225,9 +227,9 @@ def TileJetMonitoringConfig(inputFlags, **kwargs):
 
 
     
-    accumalator, sequence = helper.result()
+    accumalator = helper.result()
     result.merge(accumalator)
-    return result, sequence
+    return result
 
 if __name__=='__main__':
 
@@ -237,18 +239,14 @@ if __name__=='__main__':
 
     # Setup logs
     from AthenaCommon.Logging import log
-    from AthenaCommon.Constants import DEBUG,INFO
+    from AthenaCommon.Constants import INFO
     log.setLevel(INFO)
 
     # Set the Athena configuration flags
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    # from AthenaConfiguration.TestDefaults import defaultTestFiles
-    # ConfigFlags.Input.Files = defaultTestFiles.ESD
-
-    ConfigFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root']
-    ConfigFlags.Input.isMC = False
-
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = defaultTestFiles.ESD
     ConfigFlags.Output.HISTFileName = 'TileJetMonitorOutput.root'
     ConfigFlags.lock()
 
@@ -258,9 +256,17 @@ if __name__=='__main__':
     cfg = MainServicesSerialCfg()
     cfg.merge(PoolReadCfg(ConfigFlags))
 
-    tileJetMonitorAccumulator, tileMonitoringSequence  = TileJetMonitoringConfig(ConfigFlags, 
-                                                                                 Do1DHistograms = True, 
-                                                                                 DoEnergyDiffHistograms = True)
+    tileJetMonitorAccumulator  = TileJetMonitoringConfig(ConfigFlags, 
+                                                         Do1DHistograms = True, 
+                                                         DoEnergyDiffHistograms = True)
     cfg.merge(tileJetMonitorAccumulator)
+    cfg.printConfig(withDetails = True, summariseProps = True)
+    ConfigFlags.dump()
 
-    cfg.run()
+    cfg.store( open('TileJetMonitorAlgorithm.pkl','w') )
+
+    sc = cfg.run(maxEvents=3)
+
+    import sys
+    # Success should be 0
+    sys.exit(not sc.isSuccess())

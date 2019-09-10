@@ -23,13 +23,15 @@ AtlasG4_tf.py \
 --postInclude 'PyJobTransforms/UseFrontier.py' \
 --imf False
 
-echo  "art-result: $? simulation"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc simulation"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
 
-ArtPackage=$1
-ArtJobName=$2
-
-# TODO Here we also want to be able to grep the log file for:
-#<fileGrepperPattern>skipping event 1.*skipping event 2.*skipping event 3.*skipping event 4.*skipping event 5</fileGrepperPattern>
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-
-echo  "art-result: $? regression"
+echo  "art-result: $rc2 regression"

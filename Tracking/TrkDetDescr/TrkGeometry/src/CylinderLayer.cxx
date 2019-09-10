@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -169,7 +169,7 @@ const Trk::CylinderSurface& Trk::CylinderLayer::surfaceRepresentation() const
 double Trk::CylinderLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                    Trk::PropDirection dir) const
 {    
-    if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+    if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0.;
     // calculate the direction to the normal 
     const Amg::Vector3D& parmPos = parm.position();
@@ -182,7 +182,7 @@ double Trk::CylinderLayer::preUpdateMaterialFactor(const Trk::TrackParameters& p
 double Trk::CylinderLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                     Trk::PropDirection dir) const 
 {
-   if (!Trk::Layer::m_layerMaterialProperties.getPtr())
+   if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0;
     const Amg::Vector3D& parmPos = parm.position();
     Amg::Vector3D pastStep(parmPos + dir*parm.momentum().normalized());
@@ -194,12 +194,15 @@ double Trk::CylinderLayer::postUpdateMaterialFactor(const Trk::TrackParameters& 
 
 void Trk::CylinderLayer::moveLayer(Amg::Transform3D& shift) const {
        Amg::Transform3D transf = shift * (*m_transform);
-       delete m_transform;
-       m_transform = new Amg::Transform3D(transf);
-       delete m_center;
-       m_center = new Amg::Vector3D(m_transform->translation());
-       delete m_normal;
-       m_normal = new Amg::Vector3D(m_transform->rotation().col(2));
+       /*
+        * AthenaMT note . This method
+        * should not be probably const
+        * const_cast / mutable kind of issue
+        * Looks like a const "setter" 
+        */
+      Trk::CylinderSurface::m_transform.set(std::make_unique<Amg::Transform3D>(transf));
+       m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
+       m_normal.set(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
 
        if (m_approachDescriptor &&  m_approachDescriptor->rebuild()){
            // build the new approach descriptor - deletes the current one
@@ -208,6 +211,13 @@ void Trk::CylinderLayer::moveLayer(Amg::Transform3D& shift) const {
 }
 
 void Trk::CylinderLayer::resizeLayer(const VolumeBounds& bounds, double envelope) const {
+    /*
+     * AthenaMT note . This method
+     * should not be probably const
+     * const_cast / mutable kind of issue
+     * Looks like a const "setter" 
+     */
+
     // only do this if the volume bounds a CylinderVolumeBounds
     const Trk::CylinderVolumeBounds* cvb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&bounds);
     if (cvb){
@@ -216,9 +226,10 @@ void Trk::CylinderLayer::resizeLayer(const VolumeBounds& bounds, double envelope
         double r        = surfaceRepresentation().bounds().r();
         // (0) first, resize the layer itself
         Trk::CylinderBounds* rCylinderBounds = new Trk::CylinderBounds(r,hLengthZ-envelope);
-        Trk::CylinderSurface::m_bounds = Trk::SharedObject<const Trk::CylinderBounds>(rCylinderBounds);
+        const_cast<Trk::SharedObject<const Trk::CylinderBounds>&> (Trk::CylinderSurface::m_bounds) 
+        = Trk::SharedObject<const Trk::CylinderBounds>(rCylinderBounds);
         // (1) resize the material properties by updating the BinUtility, assuming rphi/z binning
-        if (Trk::Layer::m_layerMaterialProperties.getPtr() ){
+        if (Trk::Layer::m_layerMaterialProperties.get() ){
             const BinUtility* layerMaterialBU = Trk::Layer::m_layerMaterialProperties->binUtility();
             if (layerMaterialBU && layerMaterialBU->dimensions() > 1 ){
                 size_t binsRPhi = layerMaterialBU->max(0)+1;
@@ -312,13 +323,16 @@ void Trk::CylinderLayer::resizeAndRepositionLayer(const VolumeBounds& vBounds, c
     resizeLayer(vBounds,envelope);
     // now reposition to the potentially center if necessary, do not change layers with no transform
     if ( Trk::CylinderSurface::m_transform || center().isApprox(vCenter) ) return;
-    // else set to the new volume center
-    delete Trk::CylinderSurface::m_transform;
-    Trk::CylinderSurface::m_transform = new Amg::Transform3D;
-    (*Trk::CylinderSurface::m_transform) = Amg::Translation3D(vCenter);
+    /*
+     * AthenaMT note . This method
+     * should not be probably const
+     * const_cast / mutable kind of issue
+     * Looks like a const "setter" 
+     */
+    Trk::CylinderSurface::m_transform.set(std::make_unique<Amg::Transform3D>(vCenter));
     // delete derived and the cache
-    delete Trk::CylinderSurface::m_center; Trk::CylinderSurface::m_center = new Amg::Vector3D(vCenter);
-    delete Trk::CylinderSurface::m_normal; Trk::CylinderSurface::m_normal = 0;
+    Trk::CylinderSurface::m_center.set(std::make_unique<Amg::Vector3D>(vCenter));
+    Trk::CylinderSurface::m_normal.set(nullptr);
     // rebuild approaching layers if needed
     if (m_approachDescriptor &&  m_approachDescriptor->rebuild()) 
         buildApproachDescriptor();

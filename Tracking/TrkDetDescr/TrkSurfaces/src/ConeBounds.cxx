@@ -6,84 +6,83 @@
 // ConeBounds.cxx, (c) ATLAS Detector Software
 ///////////////////////////////////////////////////////////////////
 
-//Trk
+// Trk
 #include "TrkSurfaces/ConeBounds.h"
-//Gaudi
+// Gaudi
 #include "GaudiKernel/MsgStream.h"
-//STD
-#include <iostream>
+// STD
 #include <iomanip>
+#include <iostream>
 #include <math.h>
 
-Trk::ConeBounds::ConeBounds() :
-  m_boundValues(ConeBounds::bv_length, 0.),
-  m_tanAlpha(0.),
-  m_sinAlpha(0.),
-  m_cosAlpha(0.)
-{
-}
+Trk::ConeBounds::ConeBounds()
+  : m_boundValues(ConeBounds::bv_length, 0.)
+  , m_tanAlpha(0.)
+  , m_sinAlpha(0.)
+  , m_cosAlpha(0.)
+{}
 
-
-Trk::ConeBounds::ConeBounds(double alpha, bool symm, double halfphi, double avphi) :
-  m_boundValues(ConeBounds::bv_length, 0.),
-  m_tanAlpha(0.),
-  m_sinAlpha(0.),
-  m_cosAlpha(0.)
+Trk::ConeBounds::ConeBounds(double alpha, bool symm, double halfphi, double avphi)
+  : m_boundValues(ConeBounds::bv_length, 0.)
+  , m_tanAlpha(0.)
+  , m_sinAlpha(0.)
+  , m_cosAlpha(0.)
 {
-  m_boundValues[ConeBounds::bv_alpha]         = alpha;
-  m_boundValues[ConeBounds::bv_minZ]          = symm ? -MAXBOUNDVALUE : 0.;
-  m_boundValues[ConeBounds::bv_maxZ]          = MAXBOUNDVALUE;
-  m_boundValues[ConeBounds::bv_averagePhi]    = avphi;
+  m_boundValues[ConeBounds::bv_alpha] = alpha;
+  m_boundValues[ConeBounds::bv_minZ] = symm ? -MAXBOUNDVALUE : 0.;
+  m_boundValues[ConeBounds::bv_maxZ] = MAXBOUNDVALUE;
+  m_boundValues[ConeBounds::bv_averagePhi] = avphi;
   m_boundValues[ConeBounds::bv_halfPhiSector] = halfphi;
   initCache();
 }
 
-
-Trk::ConeBounds::ConeBounds(double alpha, double zmin, double zmax, double halfphi, double avphi) :
-  m_boundValues(ConeBounds::bv_length, 0.),
-  m_tanAlpha(0.),
-  m_sinAlpha(0.),
-  m_cosAlpha(0.)
+Trk::ConeBounds::ConeBounds(double alpha, double zmin, double zmax, double halfphi, double avphi)
+  : m_boundValues(ConeBounds::bv_length, 0.)
+  , m_tanAlpha(0.)
+  , m_sinAlpha(0.)
+  , m_cosAlpha(0.)
 {
-  m_boundValues[ConeBounds::bv_alpha]         = alpha;
-  m_boundValues[ConeBounds::bv_minZ]          = zmin;
-  m_boundValues[ConeBounds::bv_maxZ]          = zmax;
-  m_boundValues[ConeBounds::bv_averagePhi]    = avphi;
+  m_boundValues[ConeBounds::bv_alpha] = alpha;
+  m_boundValues[ConeBounds::bv_minZ] = zmin;
+  m_boundValues[ConeBounds::bv_maxZ] = zmax;
+  m_boundValues[ConeBounds::bv_averagePhi] = avphi;
   m_boundValues[ConeBounds::bv_halfPhiSector] = halfphi;
   initCache();
-  
 }
 
-Trk::ConeBounds::ConeBounds(const Trk::ConeBounds& conebo) :
-  m_boundValues(conebo.m_boundValues),
-  m_tanAlpha(conebo.m_tanAlpha),
-  m_sinAlpha(conebo.m_sinAlpha),
-  m_cosAlpha(conebo.m_cosAlpha)
+Trk::ConeBounds::ConeBounds(const Trk::ConeBounds& conebo)
+  : m_boundValues(conebo.m_boundValues)
+  , m_tanAlpha(conebo.m_tanAlpha)
+  , m_sinAlpha(conebo.m_sinAlpha)
+  , m_cosAlpha(conebo.m_cosAlpha)
 {}
 
-Trk::ConeBounds::~ConeBounds()
-{}
+Trk::ConeBounds::~ConeBounds() {}
 
-Trk::ConeBounds& Trk::ConeBounds::operator=(const Trk::ConeBounds& conebo)
+Trk::ConeBounds&
+Trk::ConeBounds::operator=(const Trk::ConeBounds& conebo)
 {
-  if(this != &conebo) {
-    m_tanAlpha      = conebo.m_tanAlpha;
-    m_sinAlpha      = conebo.m_sinAlpha;
-    m_cosAlpha      = conebo.m_cosAlpha;
-    m_boundValues   = conebo.m_boundValues;
+  if (this != &conebo) {
+    m_tanAlpha = conebo.m_tanAlpha;
+    m_sinAlpha = conebo.m_sinAlpha;
+    m_cosAlpha = conebo.m_cosAlpha;
+    m_boundValues = conebo.m_boundValues;
   }
   return *this;
 }
 
-bool Trk::ConeBounds::operator==(const SurfaceBounds& sbo) const
+bool
+Trk::ConeBounds::operator==(const SurfaceBounds& sbo) const
 {
   // check the type first not to compare apples with oranges
   const Trk::ConeBounds* conebo = dynamic_cast<const Trk::ConeBounds*>(&sbo);
-  if (!conebo) return false;
+  if (!conebo)
+    return false;
   return (m_boundValues == conebo->m_boundValues);
 }
 
-double Trk::ConeBounds::minDistance(const Amg::Vector2D& pos) const
+double
+Trk::ConeBounds::minDistance(const Amg::Vector2D& pos) const
 {
   // This needs to be split based on where pos is with respect to the
   // cone. Inside, its easy, inside the z-region or inside the phi
@@ -105,7 +104,7 @@ double Trk::ConeBounds::minDistance(const Amg::Vector2D& pos) const
   // NB this works only if the localPos is in the same hemisphere as
   // the cone (i.e. if the localPos has z < 0 and the cone only
   // defined for z > z_min where z_min > 0, this is wrong)
-  double zDist = sqrt(toZ*toZ*(1.+m_tanAlpha*m_tanAlpha));
+  double zDist = sqrt(toZ * toZ * (1. + m_tanAlpha * m_tanAlpha));
   if (toZ < 0.) // positive if outside the cone only
     zDist = -zDist;
 
@@ -119,13 +118,15 @@ double Trk::ConeBounds::minDistance(const Amg::Vector2D& pos) const
   // going to the correct phi by a straight line at the point that was
   // input by the user (not at the point of closest approach to the
   // cone)
-  double posR = pos[locZ]*m_tanAlpha;
+  double posR = pos[locZ] * m_tanAlpha;
   double deltaPhi = pos[locRPhi] / posR - m_boundValues[ConeBounds::bv_averagePhi]; // from center
-  if (deltaPhi >  M_PI) deltaPhi = 2*M_PI - deltaPhi;
-  if (deltaPhi < -M_PI) deltaPhi = 2*M_PI + deltaPhi;
+  if (deltaPhi > M_PI)
+    deltaPhi = 2 * M_PI - deltaPhi;
+  if (deltaPhi < -M_PI)
+    deltaPhi = 2 * M_PI + deltaPhi;
 
   // straight line distance (goes off cone)
-  double phiDist = 2*posR*sin(.5*(deltaPhi-m_boundValues[ConeBounds::bv_halfPhiSector]));
+  double phiDist = 2 * posR * sin(.5 * (deltaPhi - m_boundValues[ConeBounds::bv_halfPhiSector]));
 
   // if inside the cone, return the smaller length (since both are
   // negative, the *larger* of the 2 is the *smaller* distance)
@@ -137,42 +138,38 @@ double Trk::ConeBounds::minDistance(const Amg::Vector2D& pos) const
   }
 
   // if inside the phi or z boundary, return the other
-  if (phiDist <= 0.) return zDist;
-  if (zDist   <= 0.) return phiDist;
+  if (phiDist <= 0.)
+    return zDist;
+  if (zDist <= 0.)
+    return phiDist;
 
   // otherwise, return both (this should be the distance to the corner
   // closest to the cone
-  return sqrt(zDist*zDist + phiDist*phiDist);
+  return sqrt(zDist * zDist + phiDist * phiDist);
 }
 
 // ostream operator overload
 
-MsgStream& Trk::ConeBounds::dump( MsgStream& sl ) const
+MsgStream&
+Trk::ConeBounds::dump(MsgStream& sl) const
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::ConeBounds: (tanAlpha, minZ, maxZ, averagePhi, halfPhiSector) = ";
-    sl << "(" <<
-      this->tanAlpha() << ", " <<
-      this->minZ() << ", " <<
-      this->maxZ() << ", " <<
-      this->averagePhi() << ", " <<
-      this->halfPhiSector() << ")";
-    sl << std::setprecision(-1);
-    return sl;
+  sl << std::setiosflags(std::ios::fixed);
+  sl << std::setprecision(7);
+  sl << "Trk::ConeBounds: (tanAlpha, minZ, maxZ, averagePhi, halfPhiSector) = ";
+  sl << "(" << this->tanAlpha() << ", " << this->minZ() << ", " << this->maxZ() << ", " << this->averagePhi() << ", "
+     << this->halfPhiSector() << ")";
+  sl << std::setprecision(-1);
+  return sl;
 }
 
-std::ostream& Trk::ConeBounds::dump( std::ostream& sl ) const
+std::ostream&
+Trk::ConeBounds::dump(std::ostream& sl) const
 {
-    sl << std::setiosflags(std::ios::fixed);
-    sl << std::setprecision(7);
-    sl << "Trk::ConeBounds: (tanAlpha, minZ, maxZ, averagePhi, halfPhiSector) = ";
-    sl << "(" <<
-      this->tanAlpha() << ", " <<
-      this->minZ() << ", " <<
-      this->maxZ() << ", " <<
-      this->averagePhi() << ", " <<
-      this->halfPhiSector() << ")";
-    sl << std::setprecision(-1);
-    return sl;
+  sl << std::setiosflags(std::ios::fixed);
+  sl << std::setprecision(7);
+  sl << "Trk::ConeBounds: (tanAlpha, minZ, maxZ, averagePhi, halfPhiSector) = ";
+  sl << "(" << this->tanAlpha() << ", " << this->minZ() << ", " << this->maxZ() << ", " << this->averagePhi() << ", "
+     << this->halfPhiSector() << ")";
+  sl << std::setprecision(-1);
+  return sl;
 }

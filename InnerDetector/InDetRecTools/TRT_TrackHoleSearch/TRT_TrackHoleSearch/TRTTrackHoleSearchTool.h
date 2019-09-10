@@ -18,6 +18,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
+#include <atomic>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -95,7 +96,7 @@ class TRTTrackHoleSearchTool : public Trk::ITrackHoleSearchTool, public AthAlgTo
        
 	// private data
 	//----------------------------------
-	mutable bool m_has_been_called;
+	mutable std::atomic_bool m_has_been_called;
 	const TRT_ID* m_TRT_ID;
 	Trk::CylinderSurface* m_trt_outer_surf;
 

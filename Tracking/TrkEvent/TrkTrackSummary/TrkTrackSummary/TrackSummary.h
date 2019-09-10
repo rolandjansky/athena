@@ -15,6 +15,7 @@ email                : edward.moyse@cern.ch
 #include <vector>
 #include <iostream>
 #include <bitset>
+#include <atomic>
 
 class MsgStream;
 class TrackSummaryCnv_p1;
@@ -45,14 +46,14 @@ enum SummaryType {
         numberOfBLayerOutliers          =31,  //!< number of blayer outliers  
         numberOfBLayerSharedHits        =16,  //!< number of Pixel b-layer hits shared by several tracks.
         numberOfBLayerSplitHits         =43,  //!< number of Pixel b-layer hits split by cluster splitting 
-	expectBLayerHit                 =42,  //!< Do we expect a b-layer hit for this track?
+        expectBLayerHit                 =42,  //!< Do we expect a b-layer hit for this track?
         expectInnermostPixelLayerHit                 =52,  //!< Do we expect a 0th-layer hit for this track?
-	numberOfInnermostPixelLayerHits              =53,  //!< these are the hits in the 0th pixel layer?
+        numberOfInnermostPixelLayerHits              =53,  //!< these are the hits in the 0th pixel layer?
         numberOfInnermostPixelLayerOutliers          =54,  //!< number of 0th layer outliers  
         numberOfInnermostPixelLayerSharedHits        =55,  //!< number of Pixel 0th layer hits shared by several tracks.
         numberOfInnermostLayerSplitHits         =56,  //!< number of Pixel 0th layer hits split by cluster splitting 
-	expectNextToInnermostPixelLayerHit                 =57,  //!< Do we expect a 1st-layer hit for this track?
-	numberOfNextToInnermostPixelLayerHits              = 58,  //!< these are the hits in the 1st pixel layer
+        expectNextToInnermostPixelLayerHit                 =57,  //!< Do we expect a 1st-layer hit for this track?
+        numberOfNextToInnermostPixelLayerHits              = 58,  //!< these are the hits in the 1st pixel layer
         numberOfNextToInnermostPixelLayerOutliers          =59,  //!< number of 1st pixel layer outliers  
         numberOfNextToInnermostPixelLayerSharedHits        =60,  //!< number of Pixel 1st layer hits shared by several tracks.
         numberOfNextToInnermostLayerSplitHits         =61,  //!< number of Pixel 1st layer hits split by cluster splitting 
@@ -65,7 +66,7 @@ enum SummaryType {
         numberOfGangedFlaggedFakes      =32,  //!< number of Ganged Pixels flagged as fakes
         numberOfPixelDeadSensors        =33,  //!< number of dead pixel sensors crossed
         numberOfPixelSpoiltHits         =35,  //!< number of pixel hits with broad errors (width/sqrt(12))
-	numberOfDBMHits                 =63,  //!< number of DBM Hits
+        numberOfDBMHits                 =63,  //!< number of DBM Hits
         numberOfSCTHits                 = 3,  //!< number of hits in SCT
         numberOfSCTOutliers             =39,  //!< number of SCT outliers
         numberOfSCTHoles                = 4,  //!< number of SCT holes
@@ -83,7 +84,7 @@ enum SummaryType {
         numberOfTRTDeadStraws           =37,  //!< number of dead TRT straws crossed
         numberOfTRTTubeHits             =38,  //!< number of TRT tube hits
         numberOfTRTXenonHits            =46,  //!< number of TRT hits on track in straws with xenon
-	numberOfTRTSharedHits           =62,  //!< number of TRT hits used by more than one track
+        numberOfTRTSharedHits           =62,  //!< number of TRT hits used by more than one track
          
     // --- Muon Spectrometer
         numberOfMdtHits                 = 7,       //!< number of mdt hits
@@ -109,19 +110,19 @@ enum SummaryType {
         numberOfStgcPhiHoles            =71,       //! number of TGC Phi measurements missing from the track
         numberOfMmHoles              =72,       //! number of TGC Eta measurements missing from the track
 
-        numberOfCscUnspoiltEtaHits      =45,       //! number of unspoilt CSC eta measurements (all CSC phi measurements are by definition spoilt). See Muon::CscClusterStatus for definitions of 'spoiled' hits.
-	numberOfGoodMdtHits             =66,       //!number of non-deweighted MDT hits.  Only here as a placeholder, will be filled only on xAOD::Muon
+        numberOfCscUnspoiltEtaHits      =45,  //! number of unspoilt CSC eta measurements (all CSC phi measurements are by definition spoilt). See Muon::CscClusterStatus for definitions of 'spoiled' hits.
+        numberOfGoodMdtHits             =66,       //!number of non-deweighted MDT hits.  Only here as a placeholder, will be filled only on xAOD::Muon
     // --- all
         numberOfOutliersOnTrack =15,       //!< number of measurements flaged as outliers in TSOS
         standardDeviationOfChi2OS = 30,    //!< 100 times the standard deviation of the chi2 from the surfaces
 	
 	//reserved: added to keep synchronisation with xAOD::TrackSummary in anticipation of the two being merged
  
-	eProbabilityComb_res                = 47, //!< Electron probability from combining the below probabilities [float].
-	eProbabilityHT_res                  = 48, //!< Electron probability from  High Threshold (HT) information [float].   
-	eProbabilityToT_res                 = 49, //!< Electron probability from Time-Over-Threshold (ToT) information [float].   
-	eProbabilityBrem_res                = 50, //!< Electron probability from Brem fitting (DNA) [float]. 
-	pixeldEdx_res                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
+        eProbabilityComb_res                = 47, //!< Electron probability from combining the below probabilities [float].
+        eProbabilityHT_res                  = 48, //!< Electron probability from  High Threshold (HT) information [float].   
+        eProbabilityToT_res                 = 49, //!< Electron probability from Time-Over-Threshold (ToT) information [float].   
+        eProbabilityBrem_res                = 50, //!< Electron probability from Brem fitting (DNA) [float]. 
+        pixeldEdx_res                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
 
  // -- numbers...
         numberOfTrackSummaryTypes = 73
@@ -130,11 +131,11 @@ enum SummaryType {
 // Troels.Petersen@cern.ch:
     enum eProbabilityType {
         eProbabilityComb            = 0,       //!< Electron probability from combining the below probabilities.
-            eProbabilityHT              = 1,       //!< Electron probability from High Threshold (HT) information.
-            eProbabilityToT             = 2,       //!< Electron probability from Time-Over-Threshold (ToT) information.
-            eProbabilityBrem            = 3,       //!< Electron probability from Brem fitting (DNA).
-            numberOfeProbabilityTypes   = 4        
-        }; 
+        eProbabilityHT              = 1,       //!< Electron probability from High Threshold (HT) information.
+        eProbabilityToT             = 2,       //!< Electron probability from Time-Over-Threshold (ToT) information.
+        eProbabilityBrem            = 3,       //!< Electron probability from Brem fitting (DNA).
+        numberOfeProbabilityTypes   = 4        
+    }; 
   // the eProbability vector is abused to store : 
   // [4] TRT local occupancy
   // [5] TRT dE/dx
@@ -145,7 +146,7 @@ enum DetectorType {
         pixelBarrel0 = 0, //!< there are three or four pixel barrel layers (R1/R2)
         pixelBarrel1 = 1,
         pixelBarrel2 = 2,
-	pixelBarrel3 = 3,
+        pixelBarrel3 = 3,
 
         pixelEndCap0 = 4, //!< three pixel discs (on each side)
         pixelEndCap1 = 5,
@@ -169,9 +170,9 @@ enum DetectorType {
         trtBarrel    = 20,
         trtEndCap    = 21,
 
-	DBM0 = 22,
-	DBM1 = 23,
-	DBM2 = 24,
+        DBM0 = 22,
+        DBM1 = 23,
+        DBM2 = 24,
 
         numberOfDetectorTypes = 25
 
@@ -217,7 +218,7 @@ public:
         std::bitset<numberOfDetectorTypes>& hitPattern,
         float dedx=-1,
         int nhitsuseddedx=-1,
-	int nhitsoverflowdedx=-1
+        int nhitsoverflowdedx=-1
     );
 
     /** copy ctor*/
@@ -299,8 +300,8 @@ private: // data members
     unsigned long m_idHitPattern;
 
     /** number of objects of this type in memory */
-    static unsigned int s_numberOfInstantiations;
-
+    static std::atomic<unsigned int> s_numberOfInstantiations;
+ 
     /** pointer to the InDetTrackSummary */
     const InDetTrackSummary* m_indetTrackSummary;
 

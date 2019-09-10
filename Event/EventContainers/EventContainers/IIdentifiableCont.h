@@ -23,7 +23,7 @@ public:
 
     virtual size_t numberOfCollections() const =0;
 
-    virtual bool  tryFetch(IdentifierHash hashId) = 0;
+    virtual bool  tryAddFromCache(IdentifierHash hashId) = 0;
 
     virtual bool hasExternalCache() const =0;
 

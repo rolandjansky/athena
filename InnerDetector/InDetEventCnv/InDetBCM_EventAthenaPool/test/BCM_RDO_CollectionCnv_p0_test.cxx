@@ -56,7 +56,7 @@ void test1()
   BCM_RDO_Collection trans1 (543);
   for (int i=0; i < 10; i++) {
     int o = i*100;
-    trans1.push_back (new BCM_RawData (123+o, 234+o));
+    trans1.push_back (std::make_unique<BCM_RawData> (123+o, 234+o));
   }
     
   testit (trans1);

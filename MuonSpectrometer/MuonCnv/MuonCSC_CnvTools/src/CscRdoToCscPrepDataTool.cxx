@@ -445,22 +445,6 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
 //************** Process for all in case of Offline
 StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContainer, std::vector<IdentifierHash>& decodedIdhs)
 {
-  // FIXME: This needs to be redone to work properly with MT.
-  if (Gaudi::Hive::currentContext().slot() > 1) {
-    ATH_MSG_ERROR ( "CscRdoToCscPrepDataTool doesn't yet work with MT." );
-    return StatusCode::FAILURE;
-  }
-  Muon::CscStripPrepDataContainer* outputCollection = nullptr;
-  SG::WriteHandle< Muon::CscStripPrepDataContainer > outputHandle (m_outputCollectionKey);
-  if (evtStore()->contains<Muon::CscStripPrepDataContainer>(m_outputCollectionKey.key())) {
-    const Muon::CscStripPrepDataContainer* outputCollection_c = nullptr;
-    ATH_CHECK( evtStore()->retrieve (outputCollection_c, m_outputCollectionKey.key()) );
-    outputCollection = const_cast<Muon::CscStripPrepDataContainer*> (outputCollection_c);
-  }
-  else {
-    ATH_CHECK( outputHandle.record(std::make_unique<Muon::CscStripPrepDataContainer>(m_muonMgr->cscIdHelper()->module_hash_max())) );
-    outputCollection = outputHandle.ptr();
-  }
   
   typedef CscRawDataContainer::const_iterator collection_iterator;
   
@@ -522,12 +506,12 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
 	}
 
 	if (oldId != stationId) {
-	  Muon::CscStripPrepDataContainer::const_iterator it_coll = outputCollection->indexFind(cscHashId);
-	  if (outputCollection->end() == it_coll) {
+	  Muon::CscStripPrepDataContainer::const_iterator it_coll = m_outputCollection->indexFind(cscHashId);
+	  if (m_outputCollection->end() == it_coll) {
 	    CscStripPrepDataCollection * newCollection = new CscStripPrepDataCollection(cscHashId);
 	    newCollection->setIdentifier(stationId);
 	    collection = newCollection;
-	    if ( outputCollection->addCollection(newCollection, cscHashId).isFailure() )
+	    if ( m_outputCollection->addCollection(newCollection, cscHashId).isFailure() )
 	      ATH_MSG_WARNING( "Couldn't record CscStripPrepdataCollection with key=" << (unsigned int) cscHashId
 			       << " in StoreGate!" );
 	    decodedIdhs.push_back(cscHashId); //Record that this collection contains data

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 from IOVSvc.IOVSvcConf import CondInputLoader
@@ -76,53 +76,70 @@ def IOVDbSvcCfg(configFlags):
 
 
 #Convenience method to add folders:
-
-def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False):
-    """Add access to the given set of folders, in the identified subdetector schema.
-If EXTENSIBLE is set, then if we access an open-ended IOV at the end of the list,
-the end time for this range will be set to just past the current event.
-Subsequent accesses will update this end time for subsequent events.
-This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
+def addFolders(configFlags,folderstrings,detDb=None,className=None,extensible=False,tag=None):
+    tagstr = ''
+    if tag is not None:
+        tagstr = '<tag>%s</tag>' % tag
 
     #Convenience hack: Allow a single string as parameter:
     if isinstance(folderstrings,str):
-        folderstrings=[folderstrings,]
+        return addFolderList(configFlags,((folderstrings+tagstr,detDb,className),),extensible)
+
+    else: #Got a list of folders
+        folderdefs=[]
+
+        for fs in folderstrings:
+            folderdefs.append((fs+tagstr,detDb,className))
+        
+    return addFolderList(configFlags,folderdefs,extensible)
+    
+
+
+
+
+def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False):
+    """Add access to the given set of folders, in the identified subdetector schema.
+    FolerInfoTuple consists of (foldername,detDB,classname)
+
+    If EXTENSIBLE is set, then if we access an open-ended IOV at the end of the list,
+    the end time for this range will be set to just past the current event.
+    Subsequent accesses will update this end time for subsequent events.
+    This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
+
 
     result=IOVDbSvcCfg(configFlags)
-    iovDbSvc=result()
+    iovDbSvc=result.getPrimary()
+
+    loadFolders=[]
+
+    for (fs,detDb,className) in listOfFolderInfoTuple:
+       
+        #Add class-name to CondInputLoader (if reqired)
+        if className is not None:
+            loadFolders.append((className, _extractFolder(fs)))
+
+    
+        if detDb is not None and fs.find("<db>")==-1:
+            dbname=configFlags.IOVDb.DatabaseInstance
+            if detDb not in _dblist.keys():
+                raise ConfigurationError("Error, db shorthand %s not known" % detDb)
+            #Append database string to folder-name
+            fs+="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
+    
+        if extensible:
+            fs = fs + '<extensible/>'
+    
+        #Append (modified) folder-name string to IOVDbSvc Folders property
+        iovDbSvc.Folders.append(fs)
 
 
-    #Add class-name to CondInputLoader (if reqired)
-    if className is not None:
-        loadFolders=[]
-        for fs in folderstrings:
-            loadFolders.append((className, _extractFolder(fs)));
+    if len(loadFolders)>0:
         result.getCondAlgo("CondInputLoader").Load+=loadFolders
-        #result.addCondAlgo(CondInputLoader(Load=loadFolders))
-
         from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
         apcs=AthenaPoolCnvSvc()
         result.addService(apcs)
         from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
         result.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[apcs.getFullJobOptName(),]))
-
-    
-    if detDb is not None:
-        dbname=configFlags.IOVDb.DatabaseInstance
-        if not detDb in _dblist.keys():
-            raise ConfigurationError("Error, db shorthand %s not known")
-        dbstr="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
-    else:
-        dbstr=""
-    
-    
-    for fs in folderstrings:
-        if extensible:
-            fs = fs + '<extensible/>'
-        if fs.find("<db>")==-1:
-            iovDbSvc.Folders.append(fs+dbstr)
-        else:
-            iovDbSvc.Folders.append(fs)
 
     return result
     
@@ -229,7 +246,6 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc  = IOVDbSvcCfg(ConfigFlags)
 
     f=open('test.pkl','w')

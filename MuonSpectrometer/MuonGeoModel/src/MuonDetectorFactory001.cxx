@@ -90,7 +90,7 @@ namespace MuonGM {
     : m_includeCutouts(0), m_includeCutoutsBog(0), m_includeCtbBis(0), m_rdb(1), m_controlAlines(0),
       m_minimalGeoFlag(0), m_controlCscIntAlines(0), m_dumpAlines(false), m_dumpCscIntAlines(false),
       m_useCscIntAlinesFromGM(true), m_caching(0), m_cacheFillingFlag(0), m_mdtDeformationFlag(0),
-      m_mdtAsBuiltParaFlag(0), m_dumpMemoryBreakDown(false), m_muon(NULL), m_manager(NULL),
+      m_mdtAsBuiltParaFlag(0), m_dumpMemoryBreakDown(false), m_useCSC(true), m_muon(NULL), m_manager(NULL),
       m_pDetStore(pDetStore), m_pRDBAccess(0)
   {
     MsgStream log(Athena::getMessageSvc(), "MuonGeoModel");
@@ -213,11 +213,13 @@ namespace MuonGM {
     if (sc.isFailure() )log<<MSG::ERROR<<" not found TGC "<<endmsg;
     else log<<MSG::INFO<<"TGCIDHELPER retrieved from DetStore"<<endmsg;
     m_manager->set_tgcIdHelper(tgcidh);
-    const CscIdHelper* cscidh = nullptr;
-    sc = m_pDetStore->retrieve(cscidh,"CSCIDHELPER");
-    if (sc.isFailure() )log<<MSG::ERROR<<" not found CSC "<<endmsg;
-    else log<<MSG::INFO<<"CSCIDHELPER retrieved from DetStore"<<endmsg;
-    m_manager->set_cscIdHelper(cscidh);
+    if (m_useCSC) {
+        const DataHandle<CscIdHelper> cscidh;
+        sc = m_pDetStore->retrieve(cscidh,"CSCIDHELPER");
+        if (sc.isFailure() )log<<MSG::ERROR<<" not found CSC "<<endmsg;
+        else log<<MSG::INFO<<"CSCIDHELPER retrieved from DetStore"<<endmsg;
+        m_manager->set_cscIdHelper(cscidh);
+    }
 
     //for nSW
     const sTgcIdHelper* stgcidh = nullptr;

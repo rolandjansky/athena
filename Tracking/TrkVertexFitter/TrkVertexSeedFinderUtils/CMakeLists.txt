@@ -18,6 +18,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/VxVertex
    InnerDetector/InDetConditions/BeamSpotConditionsData
    PRIVATE
+   AtlasTest/TestTools
    Event/EventPrimitives
    Event/xAOD/xAODTruth
    InnerDetector/InDetConditions/InDetBeamSpotService
@@ -48,3 +49,76 @@ atlas_add_component( TrkVertexSeedFinderUtils
    TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
 
 atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.txt )
+
+
+atlas_add_test( NewtonTrkDistanceFinder_test
+                SOURCES test/NewtonTrkDistanceFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
+                EXTRA_PATTERNS "reading the map|field map" )
+
+
+atlas_add_test( Trk2dDistanceSeeder_test
+                SOURCES test/Trk2dDistanceSeeder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
+                EXTRA_PATTERNS "reading the map|field map" )
+
+
+atlas_add_test( SeedNewtonTrkDistanceFinder_test
+                SOURCES test/SeedNewtonTrkDistanceFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
+                EXTRA_PATTERNS "reading the map|field map" )
+
+
+atlas_add_test( Trk2DDistanceFinder_test
+                SOURCES test/Trk2DDistanceFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib
+                EXTRA_PATTERNS "reading the map|field map" )
+
+
+atlas_add_test( GaussianTrackDensity_test
+                SOURCES test/GaussianTrackDensity_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+# Needed to avoid spurious ubsan warnings.
+set_target_properties( TrkVertexSeedFinderUtils_GaussianTrackDensity_test PROPERTIES ENABLE_EXPORTS True )
+
+
+atlas_add_test( SimpleVertexClusterFinder_test
+                SOURCES test/SimpleVertexClusterFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+
+
+atlas_add_test( Mode3dFromFsmw1dFinder_test
+                SOURCES test/Mode3dFromFsmw1dFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+# Needed to avoid spurious ubsan warnings.
+set_target_properties( TrkVertexSeedFinderUtils_Mode3dFromFsmw1dFinder_test PROPERTIES ENABLE_EXPORTS True )
+
+
+atlas_add_test( Mode3dTo1dFinder_test
+                SOURCES test/Mode3dTo1dFinder_test.cxx
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} TestTools
+                EventPrimitives
+                xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
+                TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )

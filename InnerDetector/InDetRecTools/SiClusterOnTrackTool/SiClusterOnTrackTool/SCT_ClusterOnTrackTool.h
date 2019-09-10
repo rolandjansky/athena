@@ -19,14 +19,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
-#include "CxxUtils/checker_macros.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCTRIO_OnTrackErrorScaling.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 #include "TrkParameters/TrackParameters.h"
-
-ATLAS_CHECK_FILE_THREAD_SAFETY;
 
 namespace InDet {
 

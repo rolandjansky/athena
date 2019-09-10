@@ -7,6 +7,7 @@ atlas_subdir( InDetBeamSpotExample )
 
 # Necessary external(s):
 find_package( cx_Oracle )
+find_package( pyyaml )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

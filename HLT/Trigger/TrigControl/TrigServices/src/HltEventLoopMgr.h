@@ -15,12 +15,13 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/EventContextClid.h"
 #include "AthenaKernel/Timeout.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h" // number_type
+#include "CxxUtils/checker_macros.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
 // Gaudi includes
+#include "GaudiKernel/EventIDBase.h" // number_type
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -28,6 +29,9 @@
 
 // TDAQ includes
 #include "eformat/write/FullEventFragment.h"
+
+// ROOT includes
+#include <TH2I.h>
 
 // System includes
 #include <atomic>
@@ -75,6 +79,7 @@ public:
   /// @name Gaudi state transitions (overriden from AthService)
   ///@{
   virtual StatusCode initialize() override;
+  virtual StatusCode start() override;
   virtual StatusCode stop() override;
   virtual StatusCode finalize() override;
   virtual StatusCode reinitialize() override;
@@ -83,7 +88,7 @@ public:
 
   /// @name State transitions of ITrigEventLoopMgr interface
   ///@{
-  virtual StatusCode prepareForRun(const boost::property_tree::ptree& pt);
+  virtual StatusCode prepareForRun ATLAS_NOT_THREAD_SAFE (const boost::property_tree::ptree& pt);
   virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt);
   ///@}
 
@@ -101,9 +106,14 @@ public:
 
   /**
    * Implementation of IEventProcessor::executeEvent which processes a single event
-   * @param par generic parameter
+   * @param ctx the current EventContext
    */
-  virtual StatusCode executeEvent(void* par);
+  virtual StatusCode executeEvent( EventContext &&ctx );
+
+  /**
+   * create an Event Context object
+   */
+  virtual EventContext createEventContext() override;
 
   /**
    * Implementation of IEventProcessor::stopRun (obsolete for online runnning)
@@ -153,8 +163,8 @@ private:
   /// The method executed by the event timeout monitoring thread
   void runEventTimer();
 
-  /// Uses AlgExecStateSvc to determine if any algorithm in the event returned Athena::Status::TIMEOUT
-  bool isTimedOut(const EventContext& eventContext) const;
+  /// Produce a subset of IAlgExecStateSvc::algExecStates with only non-success StatusCodes
+  std::unordered_map<std::string_view,StatusCode> algExecErrors(const EventContext& eventContext) const;
 
   /// Drain the scheduler from all actions that may be queued
   DrainSchedulerStatusCode drainScheduler();
@@ -169,6 +179,9 @@ private:
    *  Method of the last resort, used in attempts to recover from framework errors
    **/
   StatusCode drainAllSlots();
+
+  /// Register monitoring histograms with THistSvc
+  void bookHistograms();
 
   // ------------------------- Handles to required services/tools --------------
   ServiceHandle<IIncidentSvc>        m_incidentSvc;
@@ -228,17 +241,26 @@ private:
   Gaudi::Property<bool> m_setMagFieldFromPtree{
     this, "setMagFieldFromPtree", false, "Read magnet currents from ptree"};
 
+  Gaudi::Property<unsigned int> m_forceRunNumber{
+    this, "forceRunNumber", 0, "Override run number during prepareForRun"};
+
+  Gaudi::Property<unsigned long long> m_forceSOR_ns{
+    this, "forceStartOfRunTime", 0, "Override SOR time during prepareForRun (epoch in nano-seconds)"};
+
   SG::WriteHandleKey<EventContext> m_eventContextWHKey{
     this, "EventContextWHKey", "EventContext", "StoreGate key for recording EventContext"};
 
-  SG::ReadHandleKey<EventInfo> m_eventInfoRHKey{
-    this, "EventInfoRHKey", "ByteStreamEventInfo", "StoreGate key for reading EventInfo"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoRHKey{
+    this, "EventInfoRHKey", "EventInfo", "StoreGate key for reading xAOD::EventInfo"};
 
   SG::ReadHandleKey<HLT::HLTResultMT> m_hltResultRHKey;    ///< StoreGate key for reading the HLT result
 
+  // ------------------------- Monitoring histograms ---------------------------
+  TH2I* m_errorCodePerAlg{nullptr}; ///< Non-success StatusCodes per algorithm name
+
   // ------------------------- Other private members ---------------------------
   /// typedef used for detector mask fields
-  typedef EventID::number_type numt;
+  typedef EventIDBase::number_type numt;
   /**
    * Detector mask0,1,2,3 - bit field indicating which TTC zones have been built into the event,
    * one bit per zone, 128 bit total, significance increases from first to last
@@ -273,7 +295,6 @@ private:
   std::string m_applicationName;
   /// Worker ID
   std::string m_workerId;
-
 
 };
 

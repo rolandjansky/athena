@@ -54,7 +54,13 @@ VP1Authenticator::Imp::Imp(VP1Authenticator* theClass
   , m_fileInfoUrl(fileInfoUrl)
   , m_loginServer("login.cern.ch")
 {
-  if(VP1QtUtils::environmentVariableIsOn("VP1_AUTH_ENABLELOG")) {
+  #if defined BUILDVP1LIGHT
+    bool checkAuthEnabled = VP1QtUtils::expertSettingIsOn("expert","ExpertSettings/VP1_AUTH_ENABLELOG");
+  #else
+    bool checkAuthEnabled = VP1QtUtils::environmentVariableIsOn("VP1_AUTH_ENABLELOG");
+  #endif
+
+  if(checkAuthEnabled) {
     QString logname("vp1live-auth.log");
     if(QFileInfo(logname).exists() && !QFile(logname).remove())
       std::cerr << "VP1Authenticator ERROR: Unable to remove old logfile" << std::endl;

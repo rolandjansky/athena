@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Property.h"
@@ -82,7 +82,7 @@ StatusCode TrigL2CaloHypoAlgMT::execute( const EventContext& context ) const {
     }
     d->setObjectLink( "roi", roiELInfo.link );
     
-    TrigCompositeUtils::linkToPrevious( d, previousDecision );
+    TrigCompositeUtils::linkToPrevious( d, previousDecision, context );
     ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision " << counter << " for view " << (*viewELInfo.link)->name()  );
     counter++;
 
@@ -95,19 +95,7 @@ StatusCode TrigL2CaloHypoAlgMT::execute( const EventContext& context ) const {
     ATH_CHECK( tool->decide( toolInput ) );
   }
  
-  {// make output handle and debug
-
-    ATH_MSG_DEBUG ( "Exit with "<<outputHandle->size() <<" decisions");
-    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
-    if ( outputHandle.isValid() ) {
-      for ( auto decisionObject: *outputHandle )  {
-	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
-      }
-      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
-	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
-      }
-    }
-  }
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
   return StatusCode::SUCCESS;
 }

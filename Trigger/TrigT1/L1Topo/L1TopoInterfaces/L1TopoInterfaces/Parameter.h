@@ -65,8 +65,8 @@ namespace TCS {
       unsigned int m_position {0};      // parameter position
       unsigned int m_selection {0};     // parameter selection
       parType_t    m_defaultValue {0};  // default value
-      mutable bool m_isDefault {true};  // indicates if the value has been overwritten, the logic of this is defined by the outside
-      mutable bool m_isExtended {false};
+      bool m_isDefault {true};          // indicates if the value has been overwritten, the logic of this is defined by the outside
+      bool m_isExtended {false};
       
       // new private vars
       std::string  m_val;

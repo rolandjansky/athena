@@ -12,6 +12,12 @@ if( NOT XAOD_ANALYSIS )
    set( extra_libs TrkSegment )
 endif()
 
+if (BUILDVP1LIGHT)
+    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
+        set( extra_libs ${extra_libs} GenVector )
+    endif()
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC

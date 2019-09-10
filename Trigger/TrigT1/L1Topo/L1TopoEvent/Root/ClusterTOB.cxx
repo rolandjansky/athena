@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  ClusterTOB.cpp
 //  TopoCore
@@ -10,10 +10,10 @@
 unsigned int TCS::ClusterTOB::fg_instances = 0;
 TCS::Heap<TCS::ClusterTOB> TCS::ClusterTOB::fg_heap("Cluster");
 
-unsigned int TCS::ClusterTOB::g_nBitsEt = 10;
-unsigned int TCS::ClusterTOB::g_nBitsIsolation = 5;
-unsigned int TCS::ClusterTOB::g_nBitsEta = 6;
-unsigned int TCS::ClusterTOB::g_nBitsPhi = 7;
+const unsigned int TCS::ClusterTOB::g_nBitsEt = 10;
+const unsigned int TCS::ClusterTOB::g_nBitsIsolation = 5;
+const unsigned int TCS::ClusterTOB::g_nBitsEta = 6;
+const unsigned int TCS::ClusterTOB::g_nBitsPhi = 7;
 
 // default constructor
 TCS::ClusterTOB::ClusterTOB(uint32_t roiWord) :

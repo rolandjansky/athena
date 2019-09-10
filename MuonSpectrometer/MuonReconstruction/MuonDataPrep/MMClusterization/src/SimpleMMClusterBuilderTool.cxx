@@ -30,16 +30,9 @@ StatusCode Muon::SimpleMMClusterBuilderTool::initialize()
 {
 
   /// get the detector descriptor manager
-  StoreGateSvc* detStore=0;
-  StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
-  if (sc.isSuccess()) {
-    sc = detStore->retrieve( m_muonMgr );
-    if (sc.isFailure()) {
-      ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
-      return sc;
-    }
-  } else {
-    ATH_MSG_ERROR("DetectorStore not found ");
+  StatusCode sc = detStore()->retrieve( m_muonMgr );
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL(" Cannot retrieve MuonReadoutGeometry ");
     return sc;
   }
   
@@ -59,7 +52,6 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 							 std::vector<Muon::MMPrepData*>& clustersVect)
 
 {
-
   ATH_MSG_DEBUG("Size of the input vector: " << MMprds.size()); 
   ATH_MSG_DEBUG("Size of the output vector: " << clustersVect.size()); 
   std::vector<int> MMflag;

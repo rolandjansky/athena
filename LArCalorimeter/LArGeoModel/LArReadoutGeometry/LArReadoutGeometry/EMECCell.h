@@ -9,9 +9,8 @@
 #include "LArReadoutGeometry/EMECDetectorManager.h"
 #include "GeoModelKernel/CellBinning.h"
 #include "GeoModelKernel/RCBase.h"
-#include "LArHV/EMECPresamplerHVModuleConstLink.h"
-#include "LArHV/EMECPresamplerHVModule.h"
 #include "LArHV/EMECHVElectrode.h"
+#include "LArHV/EMECPresamplerHVModule.h"
 
 /**
  * @class EMECCell
@@ -139,7 +138,7 @@ class EMECCell : public RCBase
   /**
    * @Get HVModule (presampler cells)
    */
-  const EMECPresamplerHVModuleConstLink & getPresamplerHVModule () const;
+  const EMECPresamplerHVModule& getPresamplerHVModule () const;
 
  private:
   
@@ -157,7 +156,7 @@ class EMECCell : public RCBase
   // The cell does NOT own the pointers to its electrodes
   mutable std::vector<const EMECHVElectrode*> m_electrode;
 
-  mutable EMECPresamplerHVModuleConstLink m_presamplerModule;
+  mutable const EMECPresamplerHVModule* m_presamplerModule{nullptr};
 
   unsigned int m_clockwork;
 

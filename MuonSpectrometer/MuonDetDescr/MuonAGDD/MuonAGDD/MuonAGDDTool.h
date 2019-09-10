@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MuonAGDDTool_H
@@ -11,10 +11,7 @@
 class IInterface;
 class ISvcLocator;
 class IToolSvc;
-class ITagInfoMgr;
-class IRDBAccessSvc;
-class IGeoModelSvc;
-class GeoFullPhysVol;
+
 #ifndef SIMULATIONBASE
 #include "AmdcAth/AmdcsimrecAthenaSvc.h"
 #endif
@@ -33,7 +30,6 @@ private:
 	
 	std::vector<std::string> m_structuresToBuild;
 	std::vector<std::string> m_structuresFromFlags;
-	//std::vector<GeoFullPhysVol*>* m_detectors;
 	std::string m_outFileType;
 	std::string m_outPREsqlName;
 

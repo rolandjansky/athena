@@ -1,11 +1,10 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-
 
 def ForDetGeometryCfg( ConfigFlags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    acc,geoModelSvc = GeoModelCfg( ConfigFlags )
+    acc = GeoModelCfg( ConfigFlags )
+    geoModelSvc=acc.getPrimary()
     from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc"))
     # LUCID

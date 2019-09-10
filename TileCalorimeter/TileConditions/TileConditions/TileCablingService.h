@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECABLINGSERVICE_H
@@ -16,27 +16,23 @@
 #include "CaloIdentifier/TileTBID.h" 
 #include "CaloIdentifier/CaloLVL1_ID.h" 
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector>
 
-class TileCablingService
-{
+class ATLAS_CHECK_THREAD_SAFETY TileCablingService {
   friend class TileInfoLoader;
   friend class TileDetectorTool;
   friend class TileDetectorFactory;
   friend class TileTBFactory;
   friend class TileCablingSvc;
+  friend class TileCablingSvcMock;
   friend class TileROD_Decoder;
   
 public:
 
     /** get pointer to service instance*/
-    static TileCablingService * instance(bool del);
-    static TileCablingService * getInstance() {return instance(false); }
-
-    /** delete service instance */
-    static TileCablingService * deleteInstance() {return instance(true); }
+    static TileCablingService* getInstance();
     
     // Conversion between TileID and Trigger Tower ID
 
@@ -92,22 +88,18 @@ public:
                            CrackAndMBTS = 3,
                            RUN2Cabling = 4,
                            RUN2aCabling = 5,
+                           RUN3Cabling = 6,
                            UpgradeA = 10,
                            UpgradeBC = 11,
                            UpgradeABC = 12,
                            UnknownCabling };
 
-    bool is_MBTS_merged_run2(int module) const;
-    int E1_merged_with_run2(int ros, int module) const;
+    bool is_MBTS_merged_run2plus(int module) const;
+    int E1_merged_with_run2plus(int ros, int module) const;
 
     int getMaxChannels(void) const { return m_maxChannels; };
     int getMaxGains(void) const { return m_maxGains; };
 
-
-    /// Log a message using the Athena controlled logging system
-    MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
-    /// Check whether the logging system is active at the provided verbosity level
-    bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
 protected:
     
@@ -160,12 +152,12 @@ private:
            int          hwid2MBTSeta_real       ( int ros, int drawer, int channel) const;
            int          MBTS2drawer_real        ( int side, int phi, int eta) const;
 
-           bool         hwid2MBTSconnected_run2 (int ros, int drawer, int channel) const;
-           bool         hwid2MBTSconnected_run2 (int ros, int drawer) const;
-           int          hwid2MBTSphi_run2       (int ros, int drawer) const;
-           int          hwid2MBTSeta_run2       (int ros, int drawer) const;
-           int          MBTS2drawer_run2        (int side, int phi, int eta) const;
-           int          MBTS2channel_run2       (int eta) const;
+           bool         hwid2MBTSconnected_run2plus (int ros, int drawer, int channel) const;
+           bool         hwid2MBTSconnected_run2plus (int ros, int drawer) const;
+           int          hwid2MBTSphi_run2plus       (int ros, int drawer) const;
+           int          hwid2MBTSeta_run2plus       (int ros, int drawer) const;
+           int          MBTS2drawer_run2plus        (int side, int phi, int eta) const;
+           int          MBTS2channel_run2plus       (int eta) const;
 
            bool         hwid2E4prconnected_run2 (int ros, int drawer, int channel) const;
            bool         hwid2E4prconnected_run2 (int ros, int drawer) const;
@@ -177,7 +169,7 @@ private:
            int          hwid2module_gapscin     ( int ros,  int drawer, int channel) const;
            int          hwid2tower_gapscin      ( int ros,  int drawer, int channel) const;
 
-           int          swid2drawer_gapscin_run2( int side, int module, int tower) const;
+           int          swid2drawer_gapscin_run2plus( int side, int module, int tower) const;
 
     inline bool         isTileITCGapCrack       (int channel) const {return (channel < 6 || channel == 12 || channel == 13);}
     inline bool         isTileGapCrack          (int channel) const {return (channel < 2 || channel == 12 || channel == 13);}
@@ -204,6 +196,7 @@ private:
     void setConnected(int ros, int draMin, int draMax);
     void setRun2Merged();
     void setRun2aMerged();
+    void setRun3Merged();
 
     enum Partition { Ancillary = 0,
                      LBA = 1,
@@ -235,7 +228,7 @@ private:
     }
     
     TileCablingType m_cablingType;
-    void setCablingType (TileCablingType type);
+    bool setCablingType (TileCablingType type);
   
     int m_drawer_table[512];
     int m_channel_table[512];
@@ -260,19 +253,19 @@ private:
 
    bool isChannelFromOppositeSide(int channel) const {return channel == m_maxChannels;};
 
-   std::vector<bool> m_MBTSmergedRun2;
-   std::vector<int> m_E1mergedRun2;
+   std::vector<bool> m_MBTSmergedRun2Plus;
+   std::vector<int> m_E1mergedRun2Plus;
 
    std::vector<int> m_ch2pmtUpgradeABC;
    std::vector<int> m_ch2sampleUpgradeABC;
    std::vector<int> m_ch2towerUpgradeABC;
 
    bool m_run2;
+   bool m_run2plus;
+   bool m_run3;
 
    int m_maxChannels;
    int m_maxGains;
-
-   mutable Athena::MsgStreamMember m_msg;
 
 public:
 
@@ -284,7 +277,8 @@ public:
     inline bool  connected (int ros, int drawer)   const { return m_connected[ros][drawer]; }
     inline int                 getCablingType()    const { return m_cablingType; }
     inline bool                isRun2Cabling()     const { return m_run2; }
-
+    inline bool                isRun2PlusCabling() const { return m_run2plus; }
+    inline bool                isRun3Cabling()     const { return m_run3; }
 };
 
 #endif // TILECONDITIONS_TILECABLINGSERVICE_H

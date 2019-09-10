@@ -29,33 +29,7 @@ using namespace InDetDD;
 
 // constructor
 SCT_FrontEnd::SCT_FrontEnd(const std::string& type, const std::string& name, const IInterface* parent)
-  : base_class(type, name, parent),
-    m_strip_max{768},
-    m_mutex{},
-    m_SCTdetMgr{nullptr},
-    m_sct_id{nullptr} {
-  declareProperty("NoiseBarrel", m_NoiseBarrel = 1500.0, "NoiseBarrel");
-  declareProperty("NoiseBarrel3", m_NoiseBarrel3 = 1541.0, "NoiseBarrel3");
-  declareProperty("NoiseInners", m_NoiseInners = 1090.0, "NoiseInners");
-  declareProperty("NoiseMiddles", m_NoiseMiddles = 1557.0, "NoiseMiddles");
-  declareProperty("NoiseShortMiddles", m_NoiseShortMiddles = 940.0, "NoiseShortMiddles");
-  declareProperty("NoiseOuters", m_NoiseOuters = 1618.0, "NoiseOuters");
-  declareProperty("NOBarrel", m_NOBarrel = 1.5e-5, "NoiseOccupancyBarrel");
-  declareProperty("NOBarrel3", m_NOBarrel3 = 2.1e-5, "NoiseOccupancyBarrel3");
-  declareProperty("NOInners", m_NOInners = 5.0e-9, "NoiseOccupancyInners");
-  declareProperty("NOMiddles", m_NOMiddles = 2.7e-5, "NoiseOccupancyMiddles");
-  declareProperty("NOShortMiddles", m_NOShortMiddles = 2.0e-9, "NoiseOccupancyShortMiddles");
-  declareProperty("NOOuters", m_NOOuters = 3.5e-5, "NoiseOccupancyOuters");
-  declareProperty("NoiseOn", m_NoiseOn = true, "To know if noise is on or off when using calibration data");
-  declareProperty("AnalogueNoiseOn", m_analogueNoiseOn = true, "To know if analogue noise is on or off");
-  declareProperty("GainRMS", m_GainRMS = 0.031, "Gain spread parameter within the strips for a given Chip gain");
-  declareProperty("Ospread", m_Ospread = 0.0001, "offset spread within the strips for a given Chip offset");
-  declareProperty("OffsetGainCorrelation", m_OGcorr = 0.00001, "Gain/offset correlation for the strips");
-  declareProperty("Threshold", m_Threshold = 1.0, "Threshold");
-  declareProperty("TimeOfThreshold", m_timeOfThreshold = 30.0, "Threshold time");
-  declareProperty("DataCompressionMode", m_data_compression_mode = 1, "Front End Data Compression Mode");
-  declareProperty("DataReadOutMode", m_data_readout_mode = 0, "Front End Data Read out mode Mode");
-  declareProperty("UseCalibData", m_useCalibData = true, "Flag to use Calib Data");
+  : base_class(type, name, parent) {
 }
 
 // ----------------------------------------------------------------------
@@ -215,7 +189,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
       if (roCell.isValid()) {
         int strip = roCell.strip();
         int i = std::max(strip - 1, 0);
-        int i_end = std::min(strip + 2, m_strip_max);
+        int i_end = std::min(strip + 2, m_strip_max.load());
 
         // loop over strips
         for (; i < i_end; i++) {
@@ -337,7 +311,7 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(SiChargedDiodeCollection& collecti
       if (roCell.isValid()) {
         int strip = roCell.strip();
         int i = std::max(strip - 1, 0);
-        int i_end = std::min(strip + 2, m_strip_max);
+        int i_end = std::min(strip + 2, m_strip_max.load());
 
         // loop over strips
         for (; i < i_end; i++) {

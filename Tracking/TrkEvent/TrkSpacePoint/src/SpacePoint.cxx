@@ -23,16 +23,10 @@
 namespace Trk
 {
   
-  unsigned int SpacePoint::s_numberOfInstantiations=0;
-
-  
   // Destructor:
   SpacePoint::~SpacePoint()
   {
     delete m_clusList;
-#ifndef NDEBUG
-    s_numberOfInstantiations--; // delete SpacePoint, so decrement total count
-#endif
   }
   
   // ------------------------------------------------------------------
@@ -45,9 +39,6 @@ namespace Trk
     m_position(),
     m_globalCovariance()
   {
-#ifndef NDEBUG
-    s_numberOfInstantiations++; // new SpacePoint, so increment total count
-#endif
   } 
   
   // ------------------------------------------------------------------
@@ -64,9 +55,6 @@ namespace Trk
       m_clusList=nullptr;
     }    
     m_globalCovariance = SP.m_globalCovariance; 
-#ifndef NDEBUG
-    s_numberOfInstantiations++; // new SpacePoint, so increment total count
-#endif
   }
   
   // ------------------------------------------------------------------
@@ -128,14 +116,6 @@ namespace Trk
       assert(m_clusList->first->detectorElement()); 
       return m_clusList->first->detectorElement()->surface(); 
     }
-
-  // ------------------------------------------------------------------
-  
-  unsigned int SpacePoint::numberOfInstantiations()
-  {
-    return s_numberOfInstantiations;
-  }
-
 
 } // end of namespace
 

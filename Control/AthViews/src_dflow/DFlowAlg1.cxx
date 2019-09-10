@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // DFlowAlg1.cxx 
@@ -19,7 +19,6 @@
 #include "GaudiKernel/Property.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "CxxUtils/make_unique.h"
 
 namespace AthViews {
 
@@ -93,7 +92,7 @@ StatusCode DFlowAlg1::execute()
   ATH_MSG_INFO("store [" << outputData.store() << "]");
   ATH_MSG_INFO("clid: [" << outputData.clid() << "]");
   
-  outputData.record( CxxUtils::make_unique< int >( seedData ) );
+  outputData.record( std::make_unique< int >( seedData ) );
 
   //redundant check as op = would throw if outputData was not valid (e.g. because if clid/key combo was duplicated)
   if ( outputData.isValid() )

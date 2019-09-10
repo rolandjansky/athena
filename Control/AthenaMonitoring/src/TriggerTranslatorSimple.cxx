@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoring/TriggerTranslatorSimple.h"
@@ -21,7 +21,7 @@ StatusCode TriggerTranslatorToolSimple::initialize() {
   std::vector<std::string> junk;
   //m_trigmap[""] = junk;
   for(const auto item : m_trigmap_property) {
-    ATH_MSG_DEBUG( "Key " << item.first << " Value " << item.second << std::endl );
+    ATH_MSG_DEBUG( "Key " << item.first << " Value " << item.second );
     std::vector<std::string> triggers;
     boost::split(triggers, item.second, boost::is_any_of(","));
     m_trigmap[item.first] = triggers;
@@ -30,6 +30,6 @@ StatusCode TriggerTranslatorToolSimple::initialize() {
 }
 
 
-const std::vector<std::string> TriggerTranslatorToolSimple::translate(const std::string& key) {
+const std::vector<std::string> TriggerTranslatorToolSimple::translate(const std::string& key) const {
   return m_trigmap.at(key);
 }

@@ -18,6 +18,7 @@
 #include "VP1Base/IVP13DSystem.h"
 #include "VP1Base/SoCooperativeSelection.h"
 #include "VP1Base/VP1QtInventorUtils.h"
+#include "VP1Base/VP1Msg.h"
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/SoPath.h>
 #include <QApplication>
@@ -136,7 +137,7 @@ SoSeparator * AscObjSelectionManager::getAscObjAttachSep() const
 //____________________________________________________________________
 void AscObjSelectionManager::registerAscObj(SoSeparator*simple,SoSeparator *detailed,AssociatedObjectHandleBase*handle)
 {
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     if (!simple||!detailed||!handle) {
       message("registerAscObj ERROR: Received null pointer!");
       return;
@@ -160,7 +161,7 @@ void AscObjSelectionManager::registerAscObj(SoSeparator*simple,SoSeparator *deta
 //____________________________________________________________________
 void AscObjSelectionManager::unregisterAscObj(SoSeparator*simple,SoSeparator *detailed)
 {
-  if (verbose()) {
+  if (VP1Msg::verbose()) {
     if (!simple||!detailed) {
       message("unregisterAscObj ERROR: Received null pointer!");
       return;

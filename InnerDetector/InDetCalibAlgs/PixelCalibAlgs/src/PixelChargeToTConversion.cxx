@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // conditions
 #include "PixelCalibAlgs/PixelChargeToTConversion.h"
-#include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
 #define private public
 
@@ -15,11 +14,9 @@
 
 PixelChargeToTConversion::PixelChargeToTConversion(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_calibsvc("PixelCalibSvc", name),
   m_IBLParameterSvc("IBLParameterSvc",name),
   m_Pixel_clcontainer(0)
 {
-  declareProperty("PixelCalibSvc", m_calibsvc);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -32,19 +29,16 @@ StatusCode PixelChargeToTConversion::initialize(){
 
   ATH_MSG_INFO( "Initializing PixelChargeToTConversion" );
 
-  if (StatusCode::SUCCESS!=m_calibsvc.retrieve() ) {
-    msg(MSG::FATAL) << "PixelCalibSvc not found" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  msg(MSG::INFO) << " PixelCalibSvc found " << endmsg;
-
   if (m_IBLParameterSvc.retrieve().isFailure()) { 
       ATH_MSG_FATAL("Could not retrieve IBLParameterSvc"); 
       return StatusCode::FAILURE; 
   } else  
       ATH_MSG_INFO("Retrieved service " << m_IBLParameterSvc); 
- 
+
+  ATH_CHECK(m_pixelCabling.retrieve());
   ATH_CHECK(m_moduleDataKey.initialize());
+  ATH_CHECK(m_chargeDataKey.initialize());
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -62,8 +56,10 @@ StatusCode PixelChargeToTConversion::execute(){
 
   int overflowIBLToT=0;
   if( m_IBLParameterSvc->containsIBL()) {
-    overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getIBLOverflowToT();
+    overflowIBLToT = SG::ReadCondHandle<PixelModuleData>(m_moduleDataKey)->getFEI4OverflowToT(0,0);
   }
+
+  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
 
   typedef InDet::PixelClusterContainer::const_iterator ClusterIter;
   ClusterIter itrCluster;
@@ -108,17 +104,12 @@ StatusCode PixelChargeToTConversion::execute(){
   for (int i=0; i<nRDO; i++) {
     Identifier pixid=RDOs[i];
     int Charge=Charges[i];
-    float A = m_calibsvc->getQ2TotA(pixid);
-    float E = m_calibsvc->getQ2TotE(pixid);
-    float C = m_calibsvc->getQ2TotC(pixid);
-    float tot;
-    if (fabs(Charge+C)>0) {
-      tot = A*(Charge+E)/(Charge+C);
-    } else tot=0.;
 
-    ATH_MSG_DEBUG( "A   E   C  tot " << A <<"  "<<E <<"  "<<C<<"  "<<tot);
-
-    int totInt = (int) (tot + 0.1);
+    Identifier moduleID = pixelID.wafer_id(pixid);
+    IdentifierHash moduleHash = pixelID.wafer_hash(moduleID);
+    int circ = m_pixelCabling->getFE(&pixid,moduleID);
+    int type = m_pixelCabling->getPixelType(pixid);
+    int totInt = (int)calibData->getToT((int)moduleHash, circ, type, Charges[i]);
 
     if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
       int tot0 = totInt;

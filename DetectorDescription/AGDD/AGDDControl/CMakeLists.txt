@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AGDD/AGDDModel
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
-			  DetectorDescription/GeoPrimitives
+			              DetectorDescription/GeoPrimitives
                           GaudiKernel
                           Tools/PathResolver )
 

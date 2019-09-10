@@ -8,7 +8,6 @@ atlas_subdir( TRT_ConditionsData )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-                          Control/AthToolSupport/AsgTools
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/DetDescrCond/DetDescrConditions
                           DetectorDescription/Identifier

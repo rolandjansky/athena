@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL includes:
@@ -10,7 +10,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 
 // Athena/Gaudi includes:
-#include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
@@ -45,7 +44,6 @@
 #include "TrigT1Interfaces/CTPSLink.h"
 
 // Inputs to the CTP:
-#include "TrigT1Interfaces/MuCTPICTP.h"
 #include "TrigT1Interfaces/EmTauCTP.h"
 #include "TrigT1Interfaces/JetCTP.h"
 #include "TrigT1Interfaces/EnergyCTP.h"
@@ -82,6 +80,9 @@
 #include "TrigT1CTP/PrescaledClockTrigger.h"
 #include "TrigT1CTP/BunchGroupTrigger.h"
 #include "TrigT1CTP/CustomBit.h"
+
+// Move to MT
+#include "StoreGate/ReadCondHandle.h"
 
 
 // Facilitate reading from COOL
@@ -126,8 +127,7 @@ LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSv
 	declareProperty( "DoBPTX",  m_doBPTX = false, "Use inputs from BPTX system" );
 	declareProperty( "DoRNDM",  m_doRNDM = true, "Simulate internal random trigger" );
 	declareProperty( "DoPSCL",  m_doPSCL = true, "Simulate internal prescaled clock trigger" );
-	declareProperty( "PrescaleMode", m_prescaleMode = RANDOM, 
-									"Mode for applying prescale: 0 - as hardware, 1 - random offset, 2 - random prescales"); 
+	declareProperty( "PrescaleMode", m_prescaleMode = RANDOM, "Mode for applying prescale: 0 - as hardware, 1 - random offset, 2 - random prescales"); 
 	m_prescaleMode.verifier().setLower(DEFAULT); m_prescaleMode.verifier().setUpper(RANDOM);
 	declareProperty( "IsData", m_IsData = false, "Rerun simulation on data" );  
 	declareProperty( "UseDeadTime", m_applyDeadTime = false, "Simulate DeadTime" );    
@@ -136,7 +136,7 @@ LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSv
 	
 	// Properties setting up the location of the data sent to the CTP:
 	declareProperty( "MuonCTPLocation", m_muonCTPLoc = LVL1MUCTPI::DEFAULT_MuonCTPLocation, 
-                     "StoreGate location of Muon inputs" );
+                         "StoreGate location of Muon inputs" );
 	declareProperty( "EmTauCTPLocation", m_emTauCTPLoc = LVL1::TrigT1CaloDefs::EmTauCTPLocation, 
                      "StoreGate location of EmTau inputs" );
 	declareProperty( "JetCTPLocation", m_jetCTPLoc = LVL1::TrigT1CaloDefs::JetCTPLocation, 
@@ -178,6 +178,12 @@ LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSv
 	declareProperty( "AthenaMonTools",  m_monitors, "List of monitoring tools to be run within this instance, if incorrect then tool is silently skipped.");
 	
 	declareProperty("HistBase", m_histbase, "/<stream>/<subdir>");
+
+        // run 3
+	declareProperty( "MuonCTPLoc", m_muctpiInputKey, "Name of input from Muctpi" );
+
+        declareProperty( "UseCondL1Menu", m_useCondL1Menu=false, "Use the new conditions-base configuration");
+	declareProperty( "L1Menu", m_l1MenuKey, "Name of L1 menu configuration");
 	
 	// declare monitoring variables
 	declareMonitoredCustomVariable("TIP", new CustomBit(this, &ResultBuilder::tip)); // custom monitoring: TIP
@@ -193,8 +199,9 @@ LVL1CTP::CTPSimulation::~CTPSimulation()
 
 StatusCode
 LVL1CTP::CTPSimulation::initialize() {
-	
-   ATH_MSG_INFO("Initializing - package version " << PACKAGE_VERSION);
+
+
+   ATH_MSG_INFO("initializing");
 	
    // TrigConfigSvc for the trigger configuration
    CHECK(m_configSvc.retrieve());
@@ -204,7 +211,15 @@ LVL1CTP::CTPSimulation::initialize() {
    incidentSvc->addListener(this,"BeginRun", 100);
    incidentSvc.release().ignore();
 
-   
+   ATH_CHECK( m_muctpiInputKey.initialize() );
+
+   if (! m_doMuon) {
+      renounce( m_muctpiInputKey );
+   }
+
+   if( m_useCondL1Menu ) {
+      ATH_CHECK( m_l1MenuKey.initialize() );
+   }
 	
    //
    // Set up the logger object:
@@ -367,14 +382,7 @@ LVL1CTP::CTPSimulation::bookHists() {
    size_t runNrPos = histstream.find("RUNNR");
    if( runNrPos != string::npos ) {
 
-      string runnr = "0";
-
-      const DataHandle< ::EventInfo> evt;
-      const DataHandle< ::EventInfo> evtEnd;
-      StatusCode sc = evtStore()->retrieve( evt, evtEnd );
-      if( sc.isSuccess() ) {
-         runnr = boost::lexical_cast<string, unsigned int>(evt->event_ID()->run_number());
-      }
+      string runnr = boost::lexical_cast<string, unsigned int>(Gaudi::Hive::currentContext().eventID().run_number());
       histstream.replace(runNrPos, 5, runnr);
    }
 
@@ -468,7 +476,6 @@ LVL1CTP::CTPSimulation::bookHists() {
 }
 
 
-
 StatusCode
 LVL1CTP::CTPSimulation::loadFixedConditions() {
    ATH_MSG_DEBUG("loadFixedConditions()");
@@ -559,15 +566,15 @@ LVL1CTP::CTPSimulation::loadFixedConditions() {
          }
       
          unsigned int rate1 = (0x1 << (8+random.rate1())) - 1;
-         ATH_MSG_INFO("REGTEST - Rate for random trigger RNDM0: " << rate1 << " / " << 40080./rate1 << " Hz");
+         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate1 << " / " << 40080./rate1 << " Hz");
          m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,0)] = new RandomTrigger(0, rate1, ctpVersion, rndmEngine);
       
          if (random.rate2() < 0) {
-            ATH_MSG_INFO("Rate factor for random trigger RNDM1 below zero (" << random.rate2() << "): only possible in simulation");
+            ATH_MSG_DEBUG("Rate factor for random trigger RNDM1 below zero (" << random.rate2() << "): only possible in simulation");
          }
       
          unsigned int rate2 = (0x1 << (8+random.rate2())) - 1;
-         ATH_MSG_INFO("REGTEST - Rate for random trigger RNDM1: " << rate2 << " / " << 40080./rate2 << " Hz");
+         ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM1: " << rate2 << " / " << 40080./rate2 << " Hz");
          m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,1)] = new RandomTrigger(1, rate2, ctpVersion, rndmEngine);
       
       } else {//XXX How to treat random triggers in run-II?
@@ -589,9 +596,9 @@ LVL1CTP::CTPSimulation::loadFixedConditions() {
             if(cut==0) { cut = 0x1; }
             double prescale = double(0xFFFFFF) / (0x1000000-cut);
 
-            ATH_MSG_INFO("REGTEST - Cut for random trigger  RNDM " << rndmIdx << " : " << "0x" << hex << cut << dec << " (" << cut << ")");
-            ATH_MSG_INFO("REGTEST - PS (from 40.08MHz)           " << rndmIdx << " : " << prescale);
-            ATH_MSG_INFO("REGTEST - Rate                         " << rndmIdx << " : " << 40080./prescale << " kHz");
+            ATH_MSG_DEBUG("REGTEST - Cut for random trigger  RNDM " << rndmIdx << " : " << "0x" << hex << cut << dec << " (" << cut << ")");
+            ATH_MSG_DEBUG("REGTEST - PS (from 40.08MHz)           " << rndmIdx << " : " << prescale);
+            ATH_MSG_DEBUG("REGTEST - Rate                         " << rndmIdx << " : " << 40080./prescale << " kHz");
             m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,rndmIdx)] = new RandomTrigger(rndmIdx, (unsigned int)prescale, ctpVersion, rndmEngine);
          }
       }
@@ -906,7 +913,22 @@ StatusCode
 LVL1CTP::CTPSimulation::execute() {
    
    ATH_MSG_DEBUG("Executing CTPSimulation algorithm");
- 
+
+   ATH_MSG_DEBUG( "execute: old style configSvc provides menu " << m_configSvc->ctpConfig()->name()
+                  << " with " << m_configSvc->ctpConfig()->menu().items().size() << " items and "
+                  << m_configSvc->ctpConfig()->menu().thresholdConfig().size() << " thresholds");
+
+   if( m_useCondL1Menu ) {
+      const TrigConf::L1Menu * l1menu = SG::ReadCondHandle( m_l1MenuKey ).retrieve();
+      if ( l1menu == nullptr || !l1menu->isValid() || l1menu->empty()) {
+         ATH_MSG_ERROR ( "No L1 menu provided, can't run");
+         return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG( "execute: new style cond alg provides menu " << l1menu->name()
+                     << " with " << l1menu->size() << " items and "
+                     << l1menu->thresholds().size() << " thresholds");
+   }
+
    unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
 
 	
@@ -981,19 +1003,7 @@ LVL1CTP::CTPSimulation::execute() {
    //                   Retrieve the inputs to the CTP                       //
    //                                                                        //
    ////////////////////////////////////////////////////////////////////////////
-	
-   // Get the input from the MuCTPI:
-   if (m_doMuon) {
-      StatusCode sc = evtStore()->retrieve( m_muctpiCTP, m_muonCTPLoc );
-      if ( sc.isFailure() ) {
-         ATH_MSG_WARNING("Couldn't retrieve input from MuCTPI from StoreGate");
-         ATH_MSG_WARNING("Setting muon inputs to CTP to zero");
-      } else {
-         ATH_MSG_DEBUG("Retrieved input from MuCTPI from StoreGate");
-         ATH_MSG_DEBUG("MuCTPI word is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << m_muctpiCTP->muCTPIWord());
-      }
-   }
-	
+
    // Get the Calo info:
    if (m_doCalo) {
       // Get the egamma input from calo:
@@ -1354,6 +1364,9 @@ LVL1CTP::CTPSimulation::execute() {
 StatusCode
 LVL1CTP::CTPSimulation::extractMultiplicities() {
 
+
+   auto muctpiCTP = SG::makeHandle(m_muctpiInputKey);
+
    for ( TrigConf::TriggerThreshold* thr : m_configSvc->ctpConfig()->menu().thresholdVector() ) {
 		
       int multiplicity = 0;
@@ -1369,9 +1382,9 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
       }
       
       if ( thr->cableName() == "MU" || thr->cableName() == "MUCTPI" ) {
-			
-         if ( m_muctpiCTP.isValid() ) {
-            multiplicity = CTPUtil::getMult( m_muctpiCTP->muCTPIWord(), thr->cableStart(), thr->cableEnd() );
+
+         if ( muctpiCTP.isValid() ) {
+            multiplicity = CTPUtil::getMult( muctpiCTP->muCTPIWord(), thr->cableStart(), thr->cableEnd() );
             for(int x=0; x<=multiplicity; x++)
                m_thrMUMult->AddBinContent(1+ 8 * thr->mapping() + x);
             m_thrMUTot->AddBinContent(1+ thr->mapping(), multiplicity);

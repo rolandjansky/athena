@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -56,9 +56,9 @@ int main() {
   //initGaudi(pSvc); 
   IToolSvc* pTS(0);
   assert((pSvc->service("ToolSvc", pTS, true)).isSuccess());
-  IAlgTool* pTool(0);
-  assert((pTS->retrieve("IOVSvcTool", IIOVSvcTool::interfaceID(), pTool, 0, true)).isSuccess());
-  IOVSvcTool_test(dynamic_cast<IIOVSvcTool*>(pTool));
+  IIOVSvcTool* pTool(0);
+  assert((pTS->retrieveTool("IOVSvcTool", pTool, 0, true)).isSuccess());
+  IOVSvcTool_test(pTool);
   std::cout << "*** IOVSvcTool_test OK ***" << std::endl;
   return 0; 
 }

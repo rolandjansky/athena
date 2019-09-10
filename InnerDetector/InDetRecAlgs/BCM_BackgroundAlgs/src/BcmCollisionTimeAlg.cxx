@@ -58,7 +58,7 @@ StatusCode BcmCollisionTimeAlg::execute()
   SG::ReadHandle<BCM_RDO_Container> bcmRDO(m_bcmContainerName);
   if( !bcmRDO.isValid() ) {
     ATH_MSG_WARNING("Cannot find BCM RDO " << m_bcmContainerName.key() << " ! " );
-    return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
   }
   else {
      int num_collect = bcmRDO->size();

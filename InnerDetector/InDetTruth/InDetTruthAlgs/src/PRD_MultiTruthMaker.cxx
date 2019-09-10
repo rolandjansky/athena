@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Algorithm producing truth info for PrepRawData, keeping all MC particles contributed to a PRD.
@@ -68,6 +68,7 @@ StatusCode PRD_MultiTruthMaker::initialize()
   ATH_CHECK(m_PRDTruthNameTRT.initialize(not m_PRDTruthNameTRT.key().empty()));
 
   // Read Cond Handle Key
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   return StatusCode::SUCCESS;
@@ -133,7 +134,7 @@ StatusCode PRD_MultiTruthMaker::execute(const EventContext &ctx) const {
     ATH_MSG_DEBUG ("SCT Cluster Container " << m_SCTClustersName.key() << " found");
 
     // Create and fill the PRD truth structure
-    SG::WriteHandle<PRD_MultiTruthCollection> prdt_sct(m_PRDTruthNameSCT);
+    SG::WriteHandle<PRD_MultiTruthCollection> prdt_sct(m_PRDTruthNameSCT, ctx);
     ATH_CHECK(prdt_sct.record(std::make_unique<PRD_MultiTruthCollection>()));
     addPRDCollections(prdt_sct.ptr(), prdContainer->begin(), prdContainer->end(), simDataMap.cptr(), false);
     ATH_MSG_DEBUG ("PRD truth structure '" << m_PRDTruthNameSCT.key() << "' is registered in StoreGate, size="<<prdt_sct->size());

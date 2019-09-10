@@ -10,6 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/PerformanceMonitoring/PerfMonEvent )
 
 # External dependencies:
+find_package( pandas )
+find_package( sqlalchemy )
 find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
 
 # Install files from the package:

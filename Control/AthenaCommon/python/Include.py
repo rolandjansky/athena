@@ -7,8 +7,12 @@
 JOBOPTSEARCHPATH envar and globally executed. If requested, files will be
 traced. Note, however, that this option interferes with pdb and trace."""
 
+# Don't want to use from __future__ import print_function here: that would
+# then apply to everything that we read with include().
+import builtins
+printfunc = getattr(builtins,'print')
 import os, sys, re, fnmatch
-from Utils.unixtools import FindFile
+from AthenaCommon.Utils.unixtools import FindFile
 
 
 ### data ---------------------------------------------------------------------
@@ -47,7 +51,7 @@ includeTracePattern = [ '*/AthenaCommon/Bootstrap.py',
 
 
 ### logging and messages -----------------------------------------------------
-import Logging
+from AthenaCommon import Logging
 log = Logging.logging.getLogger( 'Athena' )
 
 class IncludeError( RuntimeError ):
@@ -168,7 +172,9 @@ class Include( object ):
 
       else:
        # non-traced
-         execfile( name, self._workspace, self._workspace )
+         #execfile( name, self._workspace, self._workspace )
+         exec(compile(open(name).read(), name, 'exec'), self._workspace, self._workspace)
+         
 
       if hasattr( self, '_collect' ):
          if not self._collect % 10:
@@ -277,13 +283,13 @@ class Include( object ):
 
  # formatted line printer
    def _oneline( self, fid, lineno, detail, buf ):
-      print marker, fidMarker % fid, lineMarker % lineno, detail,
+      printfunc (marker, fidMarker % fid, lineMarker % lineno, detail,)
 
       try:
 
        # simple eol case
          if not buf or not buf[ lineno ]:
-            print
+            printfunc()
             return
 
        # in general, an interpreter "line" may be longer than a file line
@@ -292,22 +298,22 @@ class Include( object ):
           # this line appears to have a continuation ...
             try:
              # output traced line
-               print line
+               printfunc (line)
 
              # output continued line
                lineno += 1
-               print marker, fidMarker % fid, lineMarker % lineno, detail,
+               printfunc (marker, fidMarker % fid, lineMarker % lineno, detail,)
                line = buf[ lineno ].rstrip()
             except IndexError:
              # shouldn't happen; but must mean that the diagnosis above is
              # wrong and that there is no continuation, keep silent
                break
 
-         print line
+         printfunc (line)
 
       except IndexError:
          log.warning( 'index (%d) out of range while scanning include file %d', lineno, fid )
 
 
 # use this for backward compatibility
-include = Include()
+include = Include(show = False)

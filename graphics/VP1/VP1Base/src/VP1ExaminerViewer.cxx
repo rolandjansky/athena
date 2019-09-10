@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,7 +11,7 @@
 //  Author: Thomas H. Kittelmann (Thomas.Kittelmann@cern.ch)  //
 //  Initial version: March 2008                               //
 //                                                            //
-//  Updates:                                                  //
+//  Major updates:                                            //
 //  Sep 2013, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
 //  Sep 2017, Riccardo-Maria BIANCHI rbianchi@cern.ch         //
 //                                                            //
@@ -1661,7 +1661,17 @@ void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
     //        glDisable(GL_MULTISAMPLE);
 
     bool printWarning = false;
-    const char* env_aa = std::getenv("VP1_ADVANCED_ANTIALIASING");
+    const char* env_aa;
+    #ifndef BUILDVP1LIGHT
+    	env_aa = std::getenv("VP1_ADVANCED_ANTIALIASING");
+    #else
+    	bool antialiasingIsOn = VP1QtUtils::expertSettingIsOn("general","ExpertSettings/VP1_ADVANCED_ANTIALIASING");
+    	if(antialiasingIsOn){
+    		env_aa = "1";
+    	} else {
+    		env_aa = "0";
+    	}
+    #endif
     if (env_aa != NULL) {
      std::string env_aa_string( env_aa );
      if(env_aa_string == "1") {

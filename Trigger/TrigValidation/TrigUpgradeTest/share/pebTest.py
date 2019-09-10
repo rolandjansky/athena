@@ -1,3 +1,4 @@
+
 #
 #  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
@@ -12,7 +13,7 @@ doMuon   = True
 doJet    = False
 doCombo  = False
 
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, MenuSequence
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, MenuSequence, RecoFragmentsPool
 testChains = []
 
 ##################################################################
@@ -30,23 +31,22 @@ AllowedEventBuildingIdentifiers.extend(['pebtestfour','pebtestfive'])
 # egamma chains
 ##################################################################
 if (doElectron):
-    from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCaloMenuSequence
-    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import electronMenuSequence, inDetSetup
+    from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronDef import electronFastCaloCfg, fastElectronSequenceCfg, precisionCaloSequenceCfg
+    fastCaloSeq = RecoFragmentsPool.retrieve( electronFastCaloCfg, None )
+    electronSeq = RecoFragmentsPool.retrieve( fastElectronSequenceCfg, None )
+    precisionCaloSeq = RecoFragmentsPool.retrieve( precisionCaloSequenceCfg, None )
 
-    inDetSetup()
-    fastCaloStep= fastCaloMenuSequence("Ele")
-    electronStep= electronMenuSequence()
-
-    step1=ChainStep("Step1_etcut", [fastCaloStep])
-    step2=ChainStep("Step2_etcut", [electronStep])
+    FastCaloStep = ChainStep("ElectronFastCaloStep", [fastCaloSeq])
+    FastElectronStep = ChainStep("ElectronFastTrackStep", [electronSeq])
+    PrecisionCaloStep = ChainStep("ElectronPrecisionCaloStep", [precisionCaloSeq])
     step3_pebtestone=ChainStep("Step3_pebtestone", [pebInfoWriterSequence("pebtestone")])
     step3_pebtestfour=ChainStep("Step3_pebtestfour", [pebInfoWriterSequence("pebtestfour")])
 
-    egammaChains = [
-        Chain(name='HLT_e3_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestone]  ),
-        Chain(name='HLT_e5_etcut_pebtestone',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestone]  ),
-        Chain(name='HLT_e5_etcut_pebtestfour',  Seed="L1_EM3",  ChainSteps=[step1, step2, step3_pebtestfour]  ),
-        Chain(name='HLT_e7_etcut',             Seed="L1_EM3",  ChainSteps=[step1, step2]  )
+    egammaChains  = [
+        Chain(name='HLT_e3_etcut_pebtestone_L1EM3',  L1Item="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, step3_pebtestone]  ),
+        Chain(name='HLT_e5_etcut_pebtestone_L1EM3',  L1Item="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, step3_pebtestone]  ),
+        Chain(name='HLT_e5_etcut_pebtestfour_L1EM3', L1Item="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep, step3_pebtestfour]  ),
+        Chain(name='HLT_e7_etcut_L1EM3',             L1Item="L1_EM3",  ChainSteps=[FastCaloStep, FastElectronStep]  )
     ]
     testChains += egammaChains
 
@@ -62,9 +62,9 @@ if (doMuon):
     step2_pebtestfive=ChainStep("Step2_pebtestfive", [pebInfoWriterSequence("pebtestfive")])
 
     muonChains = [
-        Chain(name='HLT_mu6_pebtesttwo',  Seed="L1_MU6",  ChainSteps=[step1mufast, step2_pebtesttwo]  ),
-        Chain(name='HLT_mu6_pebtestfive',  Seed="L1_MU6",  ChainSteps=[step1mufast, step2_pebtestfive]  ),
-        Chain(name='HLT_2mu6',        Seed="L1_MU6",  ChainSteps=[step1mufast]  )
+        Chain(name='HLT_mu6_pebtesttwo_L1MU6',  L1Item="L1_MU6",  ChainSteps=[step1mufast, step2_pebtesttwo]  ),
+        Chain(name='HLT_mu6_pebtestfive_L1MU6',  L1Item="L1_MU6",  ChainSteps=[step1mufast, step2_pebtestfive]  ),
+        Chain(name='HLT_2mu6_L12MU6',        L1Item="L1_2MU6",  ChainSteps=[step1mufast]  )
     ]
     testChains += muonChains
 
@@ -73,8 +73,8 @@ if (doMuon):
 #################################
 
 # this is a temporary hack to include new test chains
-EnabledChainNamesToCTP = dict([ (c.name, c.seed)  for c in testChains])
-topSequence.L1DecoderTest.ChainToCTPMapping = EnabledChainNamesToCTP
+EnabledChainNamesToCTP = dict([ (c.name, c.L1Item)  for c in testChains])
+topSequence.L1Decoder.ChainToCTPMapping = EnabledChainNamesToCTP
 
 ##########################################
 # CF construction
@@ -106,21 +106,22 @@ for chain, decisionKey in chainToDecisionKeyDict.iteritems():
 ##########################################
 # EDM Maker
 ##########################################
-l1decoder = getSequence("L1DecoderTest")
+l1decoder = getSequence("L1Decoder")
 hltAllSteps = getSequence("HLTAllSteps")
-from TriggerJobOpts.TriggerConfig import collectHypos,collectFilters,collectDecisionObjects,triggerAddMissingEDMCfg
+from TriggerJobOpts.TriggerConfig import collectHypos,collectFilters,collectViewMakers,collectDecisionObjects,triggerMergeViewsAndAddMissingEDMCfg
 hypos = collectHypos(hltAllSteps)
 filters = collectFilters(hltAllSteps)
+viewMakers = collectViewMakers(hltAllSteps)
 decisionObjects = collectDecisionObjects(hypos,filters,l1decoder)
-edmMakerAlg = triggerAddMissingEDMCfg([],decisionObjects)
-topSequence.hltTop += edmMakerAlg
+edmMakerAlg = triggerMergeViewsAndAddMissingEDMCfg( [], hypos, viewMakers, decisionObjects )
+topSequence.HLTTop += edmMakerAlg
 
 # Add Electrons merger (somehow not created by triggerAddMissingEDMCfg above)
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 electronsMerger = HLTEDMCreator("electronsMerger")
 electronsMerger.TrigElectronContainerViews = [ "EMElectronViews" ]
-electronsMerger.TrigElectronContainerInViews = [ "Electrons" ]
-electronsMerger.TrigElectronContainer = [ "Electrons" ]
+electronsMerger.TrigElectronContainerInViews = [ "HLT_L2Electrons" ]
+electronsMerger.TrigElectronContainer = [ "HLT_L2Electrons" ]
 edmMakerAlg.OutputTools += [ electronsMerger ]
 
 # Make a list of HLT decision objects to be added to the ByteStream output
@@ -147,10 +148,10 @@ serialiser.addCollectionListToMainResult(decisionObjectsToRecord)
 
 # Serialise L2 calo clusters and electrons
 serialiser.addCollectionListToMainResult([
-    "xAOD::TrigEMClusterContainer_v1#L2CaloEMClusters",
-    "xAOD::TrigEMClusterAuxContainer_v2#L2CaloEMClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
-    "xAOD::TrigElectronContainer_v1#Electrons",
-    "xAOD::TrigElectronAuxContainer_v1#ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
+    "xAOD::TrigEMClusterContainer_v1#HLT_L2CaloEMClusters",
+    "xAOD::TrigEMClusterAuxContainer_v2#HLT_L2CaloEMClustersAux.RoIword.clusterQuality.e233.e237.e277.e2tsts1.ehad1.emaxs1.energy.energySample.et.eta.eta1.fracs1.nCells.phi.rawEnergy.rawEnergySample.rawEt.rawEta.rawPhi.viewIndex.weta2.wstot",
+    "xAOD::TrigElectronContainer_v1#HLT_L2Electrons",
+    "xAOD::TrigElectronAuxContainer_v1#HLT_L2ElectronsAux.pt.eta.phi.rawEnergy.rawEt.rawEta.nCells.energy.et.e237.e277.fracs1.weta2.ehad1.wstot",
 ])
 
 ##### Result maker part 2 - stream tags #####
@@ -163,19 +164,19 @@ streamPhysicsPebtestfive = ['pebtestfive', 'physics', "True", "False"]
 
 stmaker = StreamTagMakerTool()
 stmaker.OutputLevel = DEBUG
-stmaker.ChainDecisions = "HLTSummary"
+stmaker.ChainDecisions = "HLTNav_Summary"
 stmaker.PEBDecisionKeys = pebDecisionKeys
 stmaker.ChainToStream = dict( [(c.name, streamPhysicsMain) for c in testChains ] )
-stmaker.ChainToStream["HLT_e3_etcut_pebtestone"] = streamPhysicsPebtestone
-stmaker.ChainToStream["HLT_e5_etcut_pebtestone"] = streamPhysicsPebtestone
-stmaker.ChainToStream["HLT_e5_etcut_pebtestfour"] = streamPhysicsPebtestfour
-stmaker.ChainToStream["HLT_mu6_pebtesttwo"] = streamCalibPebtesttwo
-stmaker.ChainToStream["HLT_mu6_pebtestfive"] = streamPhysicsPebtestfive
+stmaker.ChainToStream["HLT_e3_etcut_pebtestone_L1EM3"] = streamPhysicsPebtestone
+stmaker.ChainToStream["HLT_e5_etcut_pebtestone_L1EM3"] = streamPhysicsPebtestone
+stmaker.ChainToStream["HLT_e5_etcut_pebtestfour_L1EM3"] = streamPhysicsPebtestfour
+stmaker.ChainToStream["HLT_mu6_pebtesttwo_L1MU6"] = streamCalibPebtesttwo
+stmaker.ChainToStream["HLT_mu6_pebtestfive_L1MU6"] = streamPhysicsPebtestfive
 
 ##### Result maker part 3 - HLT bits #####
 
 bitsmaker = TriggerBitsMakerTool()
-bitsmaker.ChainDecisions = "HLTSummary"
+bitsmaker.ChainDecisions = "HLTNav_Summary"
 bitsmaker.ChainToBit = dict( [ (chain.name, 10*num) for num,chain in enumerate(testChains) ] )
 bitsmaker.OutputLevel = DEBUG
 
@@ -188,7 +189,7 @@ hltResultMakerTool.OutputLevel = DEBUG
 hltResultMakerAlg =  HLTResultMTMakerAlg("HLTRMakerAlg")
 
 hltResultMakerAlg.ResultMaker = hltResultMakerTool
-topSequence.hltTop += hltResultMakerAlg
+topSequence.HLTTop += hltResultMakerAlg
 
 ##########################################
 # Some debug

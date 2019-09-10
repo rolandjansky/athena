@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -42,7 +42,6 @@ using std::string;
 TauShotFinder::TauShotFinder(   const string& name ) :
     TauRecToolBase(name)
     , m_caloWeightTool("H1WeightToolCSC12Generic")
-    , m_calo_dd_man(NULL)
     , m_calo_id(NULL)
     , m_pt1(0)
     , m_pt3(0)
@@ -75,8 +74,7 @@ StatusCode TauShotFinder::initialize() {
     ATH_CHECK( m_caloCellInputContainer.initialize() );
 
     // initialize calo cell geo
-    m_calo_dd_man  = CaloDetDescrManager::instance();
-    m_calo_id      = m_calo_dd_man->getCaloCell_ID();
+    ATH_CHECK( detStore()->retrieve (m_calo_id, "CaloCell_ID") );
 
     /*
     //---------------------------------------------------------------------

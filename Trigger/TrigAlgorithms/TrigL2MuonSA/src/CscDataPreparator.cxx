@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/CscDataPreparator.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -35,8 +34,6 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
-   m_storeGateSvc( "StoreGateSvc", name ),
-   m_activeStore( "ActiveStoreSvc", name ),
    m_regionSelector( "RegSelSvc", name ),
    m_rawDataProviderTool("Muon::CSC_RawDataProviderTool/CSC_RawDataProviderTool"),
    m_cscPrepDataProvider("Muon::CscRdoToCscPrepDataTool/CscPrepDataProviderTool"),
@@ -62,40 +59,30 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 {
 
 
-   ATH_MSG_DEBUG("Initializing CscDataPreparator - package version " << PACKAGE_VERSION);
-   
-   StatusCode sc;
-   sc = AthAlgTool::initialize();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-      return sc;
-   }
-   
-   ATH_CHECK( m_storeGateSvc.retrieve() );
+   ATH_MSG_DEBUG("Initializing CscDataPreparator - package version " << PACKAGE_VERSION);   
+   ATH_MSG_DEBUG(m_decodeBS);
+   ATH_MSG_DEBUG(m_doDecoding);
 
-   // Retrieve ActiveStore
-   ATH_CHECK( m_activeStore.retrieve() ); 
-
-   // Retreive raw data provider tool
-   ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
-   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
-     msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
+   // consistency check for decoding flag settings
+   if(m_decodeBS && !m_doDecoding) {
+     ATH_MSG_FATAL("Inconsistent setup, you tried to enable BS decoding but disable all decoding. Please fix the configuration");
      return StatusCode::FAILURE;
-   } else
-     msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
+   }
+
+   // Retreive raw data provider tool, but only if we need to decode the BS
+   ATH_CHECK( m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding}) );
    
-   ATH_CHECK( m_cscPrepDataProvider.retrieve() );
+   ATH_MSG_INFO("Retrieved Tool " << m_rawDataProviderTool);
+   
+   // Retrieve PRD and cluster tools if we are doing the decoding
+   ATH_CHECK( m_cscPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_INFO("Retrieved " << m_cscPrepDataProvider);
 
-   ATH_CHECK( m_cscClusterProvider.retrieve() );
+   ATH_CHECK( m_cscClusterProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_INFO("Retrieved " << m_cscClusterProvider);
 
-   // Detector Store
-   ServiceHandle<StoreGateSvc> detStore("DetectorStore", name());
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
    // CSC ID helper
-   ATH_CHECK( detStore->retrieve(m_muonMgr, "Muon") );
+   ATH_CHECK( detStore()->retrieve(m_muonMgr, "Muon") );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_cscIdHelper = m_muonMgr->cscIdHelper();
 
@@ -128,56 +115,58 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 {
   const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
 
+  const bool to_full_decode=( fabs(p_roids->etaMinus())>1.7 || fabs(p_roids->etaPlus())>1.7 ) && !m_use_RoIBasedDataAccess;
 
-  // Select RoI hits
   std::vector<IdentifierHash> cscHashIDs;
-  cscHashIDs.clear();
-  if (m_use_RoIBasedDataAccess) {
-    ATH_MSG_DEBUG("Use RoI based data access");
-    m_regionSelector->DetHashIDList( CSC, *iroi, cscHashIDs );
-  } else {
-    ATH_MSG_DEBUG("Use full data access");
-    //    m_regionSelector->DetHashIDList( CSC, cscHashIDs ); full decoding is executed with an empty vector
-  }
-  ATH_MSG_DEBUG("cscHashIDs.size()=" << cscHashIDs.size());
-
-  bool to_full_decode=( fabs(p_roids->etaMinus())>1.7 || fabs(p_roids->etaPlus())>1.7 ) && !m_use_RoIBasedDataAccess;
 
   // Decode
-  if(m_decodeBS) {
-    if ( m_rawDataProviderTool->convert(cscHashIDs).isFailure()) {
-      ATH_MSG_WARNING("Conversion of BS for decoding of CSCs failed");
+  if(m_doDecoding) {
+    // Select RoI hits
+    if (m_use_RoIBasedDataAccess) {
+      ATH_MSG_DEBUG("Use Csc RoI based data access");
+      m_regionSelector->DetHashIDList( CSC, *iroi, cscHashIDs );
+    } else {
+      ATH_MSG_DEBUG("Use full data access");
+      //    m_regionSelector->DetHashIDList( CSC, cscHashIDs ); full decoding is executed with an empty vector
     }
-  }
-  std::vector<IdentifierHash> cscHashIDs_decode;
-  cscHashIDs_decode.clear();
-  if( !cscHashIDs.empty() || to_full_decode ){
-    if( m_cscPrepDataProvider->decode( cscHashIDs, cscHashIDs_decode ).isFailure() ){
-      ATH_MSG_WARNING("Problems when preparing CSC PrepData");
-    }
-    cscHashIDs.clear();
-  }
-  ATH_MSG_DEBUG("cscHashIDs_decode.size()=" << cscHashIDs_decode.size());
+    ATH_MSG_DEBUG("cscHashIDs.size()=" << cscHashIDs.size());
 
-  // Clustering
-  std::vector<IdentifierHash> cscHashIDs_cluster;
-  cscHashIDs_cluster.clear();
-  if(to_full_decode) cscHashIDs_decode.clear();
-  if( !cscHashIDs_decode.empty() || to_full_decode ){
-    if( m_cscClusterProvider->getClusters( cscHashIDs_decode, cscHashIDs_cluster ).isFailure() ){
-      ATH_MSG_WARNING("Problems when preparing CSC Clusters");
+    if(m_decodeBS) {
+      if ( m_rawDataProviderTool->convert(cscHashIDs).isFailure()) {
+        ATH_MSG_WARNING("Conversion of BS for decoding of CSCs failed");
+      }
     }
+    std::vector<IdentifierHash> cscHashIDs_decode;
     cscHashIDs_decode.clear();
-  }
+    if( !cscHashIDs.empty() || to_full_decode ){
+      if( m_cscPrepDataProvider->decode( cscHashIDs, cscHashIDs_decode ).isFailure() ){
+        ATH_MSG_WARNING("Problems when preparing CSC PrepData");
+      }
+      cscHashIDs.clear();
+    }
+    ATH_MSG_DEBUG("cscHashIDs_decode.size()=" << cscHashIDs_decode.size());
 
-  // Debug info
-  ATH_MSG_DEBUG("CSC cluster #hash = " << cscHashIDs_cluster.size());
+    // Clustering
+    std::vector<IdentifierHash> cscHashIDs_cluster;
+    cscHashIDs_cluster.clear();
+    if(to_full_decode) cscHashIDs_decode.clear();
+    if( !cscHashIDs_decode.empty() || to_full_decode ){
+      if( m_cscClusterProvider->getClusters( cscHashIDs_decode, cscHashIDs_cluster ).isFailure() ){
+        ATH_MSG_WARNING("Problems when preparing CSC Clusters");
+      }
+      cscHashIDs_decode.clear();
+    }
+
+    // Debug info
+    ATH_MSG_DEBUG("CSC cluster #hash = " << cscHashIDs_cluster.size());
+    cscHashIDs = cscHashIDs_cluster;// use the cscHashIDs vector later to know if there is any CSC data to process
+  }//doDecoding
 
   // Clear the output
   cscHits.clear();
 
   // Get CSC container
-  if( !cscHashIDs_cluster.empty() ){
+  if( !m_doDecoding || to_full_decode || !cscHashIDs.empty() ){
     auto cscPrepContainerHandle = SG::makeHandle(m_cscPrepContainerKey);
     const CscPrepDataContainer* cscPrepContainer = cscPrepContainerHandle.cptr();
     if (!cscPrepContainerHandle.isValid()) {

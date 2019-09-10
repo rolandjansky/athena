@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -36,11 +36,11 @@
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh" // for chi2prob calculation
 
 #include "xAODTracking/TrackingPrimitives.h"
-#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "HepPDT/ParticleDataTable.hh"
 #include "xAODTracking/VertexContainer.h"
 
+#include "StoreGate/WriteDecorHandle.h"
 
 #include <vector>
 #include <cmath>
@@ -95,8 +95,7 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   m_vert_lxy_sig(2.),
   m_vert_lxy_cut(500.),
   m_vert_a0xy_cut(3.),
-  m_vert_a0z_cut(15.),
-  m_beamConditionsService("BeamCondSvc", n)
+  m_vert_a0z_cut(15.)
 {
   declareInterface<InDetV0FinderTool>(this);
   declareProperty("VertexFitterTool", m_iVertexFitter);
@@ -143,7 +142,16 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   declareProperty("vert_lxy_cut", m_vert_lxy_cut );
   declareProperty("vert_a0xy_cut", m_vert_a0xy_cut );
   declareProperty("vert_a0z_cut", m_vert_a0z_cut );
-  declareProperty("BeamConditionsSvc", m_beamConditionsService); 
+
+  declareProperty("V0Link", m_v0LinksDecorkey);
+  declareProperty("KshortLink", m_v0_ksLinksDecorkey);
+  declareProperty("LambdaLink", m_v0_laLinksDecorkey);
+  declareProperty("LambdabarLink", m_v0_lbLinksDecorkey);
+
+  declareProperty("gamma_fit", m_mDecor_gfit);
+  declareProperty("gamma_mass", m_mDecor_gmass);
+  declareProperty("gamma_massError", m_mDecor_gmasserr);
+  declareProperty("gamma_probability", m_mDecor_gprob);  
 }
 
 InDetV0FinderTool::~InDetV0FinderTool() {}
@@ -155,30 +163,30 @@ StatusCode InDetV0FinderTool::initialize()
 // Get the right vertex fitting tool from ToolSvc 
   if (m_useV0Fitter) {
     ATH_CHECK( m_iVertexFitter.retrieve() );
-    msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_iVertexFitter << endmsg;
  
     ATH_CHECK( m_iGammaFitter.retrieve() );
-    msg(MSG::INFO) << "Retrieved tool " << m_iGammaFitter << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_iGammaFitter << endmsg;
 
   } else {
     ATH_CHECK( m_iVKVertexFitter.retrieve() );
-    msg(MSG::INFO) << "Retrieved tool " << m_iVKVertexFitter << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_iVKVertexFitter << endmsg;
 
 // Get the VKalVrt Ks vertex fitting tool from ToolSvc
     ATH_CHECK( m_iKshortFitter.retrieve() );
-    msg(MSG::INFO) << "Retrieved tool " << m_iKshortFitter << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_iKshortFitter << endmsg;
 
 // Get the VKalVrt Lambda vertex fitting tool from ToolSvc
     ATH_CHECK( m_iLambdaFitter.retrieve() );
-    msg(MSG::INFO) << "Retrieved tool " << m_iLambdaFitter << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_iLambdaFitter << endmsg;
 
 // Get the VKalVrt Lambdabar vertex fitting tool from ToolSvc
     ATH_CHECK( m_iLambdabarFitter.retrieve() );
-    msg(MSG::INFO) << "Retrieved tool " << m_iLambdabarFitter << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_iLambdabarFitter << endmsg;
 
 // Get the VKalVrt Gamma vertex fitting tool from ToolSvc
     ATH_CHECK( m_iGammaFitter.retrieve() );
-    msg(MSG::INFO) << "Retrieved tool " << m_iGammaFitter << endmsg;
+    msg(MSG::DEBUG) << "Retrieved tool " << m_iGammaFitter << endmsg;
   }
 
 // get the Particle Properties Service
@@ -188,32 +196,50 @@ StatusCode InDetV0FinderTool::initialize()
 
 // uploading the V0 tools
   ATH_CHECK( m_V0Tools.retrieve() );
-  msg(MSG::INFO) << "Retrieved tool " << m_V0Tools << endmsg;
+  msg(MSG::DEBUG) << "Retrieved tool " << m_V0Tools << endmsg;
 
 // Get the TrackToVertex extrapolator tool
   ATH_CHECK( m_trackToVertexTool.retrieve() );
 
 // Get the extrapolator
   ATH_CHECK( m_extrapolator.retrieve() );
-  msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
-
-  ATH_CHECK( m_beamConditionsService.retrieve() );
-  msg(MSG::INFO) << "Retrieved service " << m_beamConditionsService << endmsg;
-
-// Get the helpertool from ToolSvc
-  ATH_CHECK( m_helpertool.retrieve() );
-  msg(MSG::INFO) << "Retrieved tool " << m_helpertool << endmsg;
-
-// Get the track selector tool from ToolSvc
-  ATH_CHECK( m_trkSelector.retrieve() );
-  msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endmsg;
-
-// Get the vertex point estimator tool from ToolSvc
-  ATH_CHECK( m_vertexEstimator.retrieve() );
-  msg(MSG::INFO) << "Retrieved tool " << m_vertexEstimator << endmsg;
+  msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endmsg;
 
   // Initialize vertex container key
   ATH_CHECK( m_vertexKey.initialize() );
+
+  m_v0LinksDecorkey = m_vertexKey.key() + ".V0Link";
+  m_v0_ksLinksDecorkey = m_vertexKey.key() + ".KshortLink";
+  m_v0_laLinksDecorkey = m_vertexKey.key() + ".LambdaLink";
+  m_v0_lbLinksDecorkey = m_vertexKey.key() + ".LambdabarLink";
+  ATH_CHECK( m_v0LinksDecorkey.initialize());
+  ATH_CHECK( m_v0_ksLinksDecorkey.initialize());
+  ATH_CHECK( m_v0_laLinksDecorkey.initialize());
+  ATH_CHECK( m_v0_lbLinksDecorkey.initialize());
+
+  m_mDecor_gfit = m_vertexKey.key() + ".gamma_fit";
+  m_mDecor_gmass = m_vertexKey.key() + ".gamma_mass";
+  m_mDecor_gmasserr = m_vertexKey.key() + ".gamma_massError";
+  m_mDecor_gprob = m_vertexKey.key() + ".gamma_probability";
+  ATH_CHECK( m_mDecor_gfit.initialize());
+  ATH_CHECK( m_mDecor_gmass.initialize());
+  ATH_CHECK( m_mDecor_gmasserr.initialize());
+  ATH_CHECK( m_mDecor_gprob.initialize());
+
+  ATH_CHECK( m_beamSpotKey.initialize());
+
+
+// Get the helpertool from ToolSvc
+  ATH_CHECK( m_helpertool.retrieve() );
+  msg(MSG::DEBUG) << "Retrieved tool " << m_helpertool << endmsg;
+
+// Get the track selector tool from ToolSvc
+  ATH_CHECK( m_trkSelector.retrieve() );
+  msg(MSG::DEBUG) << "Retrieved tool " << m_trkSelector << endmsg;
+
+// Get the vertex point estimator tool from ToolSvc
+  ATH_CHECK( m_vertexEstimator.retrieve() );
+  msg(MSG::DEBUG) << "Retrieved tool " << m_vertexEstimator << endmsg;
 
   const HepPDT::ParticleData* pd_pi = m_particleDataTable->particle(PDG::pi_plus);
   const HepPDT::ParticleData* pd_p  = m_particleDataTable->particle(PDG::p_plus);
@@ -235,7 +261,7 @@ StatusCode InDetV0FinderTool::initialize()
   m_Lambda_stored    = 0;
   m_Gamma_stored     = 0;
 
-  msg(MSG::INFO) << "Initialization successful" << endmsg;
+  msg(MSG::DEBUG) << "Initialization successful" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -295,7 +321,8 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
     ATH_MSG_DEBUG("Vertex  container size " << vertColl->size());
   }
 
-  Amg::Vector3D beamspot = Amg::Vector3D(m_beamConditionsService->beamVtx().position());
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+  Amg::Vector3D beamspot = Amg::Vector3D(beamSpotHandle->beamVtx().position());
 
 // track preselection
   std::vector<const xAOD::TrackParticle*> posTracks; posTracks.clear();
@@ -365,6 +392,14 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
       }
     }
 
+    SG::WriteDecorHandle<xAOD::VertexContainer, ElementLink<xAOD::VertexContainer>> v0LinksDecor(m_v0LinksDecorkey);
+    SG::WriteDecorHandle<xAOD::VertexContainer, ElementLink<xAOD::VertexContainer>> v0_ksLinksDecor(m_v0_ksLinksDecorkey);
+    SG::WriteDecorHandle<xAOD::VertexContainer, ElementLink<xAOD::VertexContainer>> v0_laLinksDecor(m_v0_laLinksDecorkey);
+    SG::WriteDecorHandle<xAOD::VertexContainer, ElementLink<xAOD::VertexContainer>> v0_lbLinksDecor(m_v0_lbLinksDecorkey);
+    SG::WriteDecorHandle<xAOD::VertexContainer, int> mDecor_gfit(m_mDecor_gfit);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> mDecor_gmass(m_mDecor_gmass);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> mDecor_gmasserr(m_mDecor_gmasserr);
+    SG::WriteDecorHandle<xAOD::VertexContainer, float> mDecor_gprob(m_mDecor_gprob); 
     unsigned int i2 = 0;
     for (tpIt2 = negTracks.begin(); tpIt2 != negTracks.end(); ++tpIt2)
     {
@@ -527,13 +562,9 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                       if (foundKshort || foundLambda || foundLambdabar) doGamma = true;
 
                       ElementLink<xAOD::VertexContainer> v0Link;
-                      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0LinksDecor("V0Link");
                       ElementLink<xAOD::VertexContainer> ksLink;
-                      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_ksLinksDecor("KshortLink");
                       ElementLink<xAOD::VertexContainer> laLink;
-                      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_laLinksDecor("LambdaLink");
                       ElementLink<xAOD::VertexContainer> lbLink;
-                      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_lbLinksDecor("LambdabarLink");
 
                       if (m_doSimpleV0 || (!m_doSimpleV0 && doGamma)) {
                         m_V0s_stored++;
@@ -625,10 +656,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                             gamma_mass = m_V0Tools->invariantMass(myGamma.get(),m_masse,m_masse);
                             gamma_massErr = m_V0Tools->invariantMassError(myGamma.get(),m_masse,m_masse);
                           }
-                          SG::AuxElement::Decorator<int> mDecor_gfit("gamma_fit");
-                          SG::AuxElement::Decorator<float> mDecor_gmass("gamma_mass");
-                          SG::AuxElement::Decorator<float> mDecor_gmasserr("gamma_massError");
-                          SG::AuxElement::Decorator<float> mDecor_gprob("gamma_probability");
+
                           mDecor_gfit( *(v0Container->back()) ) = gamma_fit;
                           mDecor_gmass( *(v0Container->back()) ) = gamma_mass;
                           mDecor_gmasserr( *(v0Container->back()) ) = gamma_massErr;

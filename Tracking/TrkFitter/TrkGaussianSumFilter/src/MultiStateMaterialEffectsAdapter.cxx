@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************************
@@ -12,90 +12,71 @@ decription           : Implementation code for MultiStateMaterialEffectsAdapter 
 **************************************************************************************/
 
 #include "TrkGaussianSumFilter/MultiStateMaterialEffectsAdapter.h"
-#include "TrkExInterfaces/IMaterialEffectsUpdator.h"
+#include "TrkGaussianSumFilter/IGSFMaterialEffects.h"
 
-void Trk::IMultiStateMaterialEffects::Cache::reset()
+void
+Trk::MultiStateMaterialEffectsAdapter::compute(Trk::IMultiStateMaterialEffects::Cache& cache,
+                                               const ToolHandle<IGSFMaterialEffects>& tool,
+                                               const ComponentParameters& componentParameters,
+                                               const MaterialProperties& materialProperties,
+                                               double pathLength,
+                                               PropDirection direction,
+                                               ParticleHypothesis particleHypothesis)
 {
-  weights.clear();
-  deltaPs.clear();
-
-  if ( !deltaCovariances.empty() ){
-    std::vector<const AmgSymMatrix(5)*>::const_iterator componentDeltaCovariance = deltaCovariances.begin();
-    for ( ; componentDeltaCovariance != deltaCovariances.end(); ++componentDeltaCovariance )
-      delete *componentDeltaCovariance;
-    deltaCovariances.clear();
-  }
-}
-
-void Trk::MultiStateMaterialEffectsAdapter::compute (
-                  Trk::IMultiStateMaterialEffects::Cache& cache,
-			            const ToolHandle<IMaterialEffectsUpdator>& tool,
-                  const ComponentParameters& componentParameters,
-                  const MaterialProperties& materialProperties,
-                  double pathLength,
-                  PropDirection direction,
-                  ParticleHypothesis particleHypothesis )
-{
-
   // Reset the cache
   cache.reset();
-
   // Request track parameters from component parameters
   const Trk::TrackParameters* originalTrackParameters = componentParameters.first;
 
   // Update this track parameters object
-  const Trk::TrackParameters* updatedTrackParameters
-    = tool->update( *originalTrackParameters, materialProperties, pathLength, direction, particleHypothesis );
-
+  std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
+    tool->update(*originalTrackParameters, materialProperties, pathLength, direction, particleHypothesis);
   /* Extract the required values for the Gsf Material Effects Updator
      - weight = 1 for single state
      - deltaP
      - deltaSigma
   */
-
-  double deltaP = Trk::MultiStateMaterialEffectsAdapter::extractDeltaP( *updatedTrackParameters, *originalTrackParameters );
-	const AmgSymMatrix(5)* deltaErrorMatrix = Trk::MultiStateMaterialEffectsAdapter::extractDeltaCovariance( *updatedTrackParameters, *originalTrackParameters );
-
+  double deltaP =
+    Trk::MultiStateMaterialEffectsAdapter::extractDeltaP(*updatedTrackParameters, *originalTrackParameters);
+  std::unique_ptr<const AmgSymMatrix(5)> deltaErrorMatrix(
+    Trk::MultiStateMaterialEffectsAdapter::extractDeltaCovariance(*updatedTrackParameters, *originalTrackParameters));
   cache.weights.push_back(1.);
   cache.deltaPs.push_back(deltaP);
 
-  if (deltaErrorMatrix)
-    cache.deltaCovariances.push_back(deltaErrorMatrix);
-
-  // Clean up memory
-  delete updatedTrackParameters;
-
+  if (deltaErrorMatrix) {
+    cache.deltaCovariances.push_back(std::move(deltaErrorMatrix));
+  }
 }
 
 double
-Trk::MultiStateMaterialEffectsAdapter::extractDeltaP ( const Trk::TrackParameters& updatedParameters, const Trk::TrackParameters& originalParameters)
+Trk::MultiStateMaterialEffectsAdapter::extractDeltaP(const Trk::TrackParameters& updatedParameters,
+                                                     const Trk::TrackParameters& originalParameters)
 {
 
   double deltaP(0.);
   double originalP = 1. / originalParameters.parameters()[Trk::qOverP];
-  double updatedP  = 1. / updatedParameters.parameters()[Trk::qOverP];
+  double updatedP = 1. / updatedParameters.parameters()[Trk::qOverP];
 
   if (originalP < 0.)
     deltaP = fabs(originalP) + updatedP;
   else
     deltaP = fabs(originalP) - updatedP;
 
-  //std::cout << "originalP " << originalP << "\tupdatedP " << updatedP << "\tDelta " << deltaP << std::endl;
+  // std::cout << "originalP " << originalP << "\tupdatedP " << updatedP << "\tDelta " << deltaP << std::endl;
 
   return deltaP;
-
 }
 
-const AmgSymMatrix(5)*
-Trk::MultiStateMaterialEffectsAdapter::extractDeltaCovariance ( const Trk::TrackParameters& updatedParameters, const Trk::TrackParameters& originalParameters ) 
+const AmgSymMatrix(5) * Trk::MultiStateMaterialEffectsAdapter::extractDeltaCovariance(
+                          const Trk::TrackParameters& updatedParameters,
+                          const Trk::TrackParameters& originalParameters)
 {
 
   const AmgSymMatrix(5)* originalMeasuredCov = originalParameters.covariance();
-  const AmgSymMatrix(5)* updatedMeasuredCov  = updatedParameters.covariance();
+  const AmgSymMatrix(5)* updatedMeasuredCov = updatedParameters.covariance();
 
   if (!originalMeasuredCov || !updatedMeasuredCov)
     return 0;
 
-  return new AmgSymMatrix(5)( *updatedMeasuredCov - *originalMeasuredCov);
-
+  return new AmgSymMatrix(5)(*updatedMeasuredCov - *originalMeasuredCov);
 }

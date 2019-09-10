@@ -11,11 +11,9 @@
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "LArRecConditions/ILArBadFebMasker.h"
 
-//class StoreGateSvc;
-
 #include "StoreGate/ReadCondHandleKey.h"
 
-class LArBadFebMasker : virtual public ILArBadFebMasker, public AthAlgTool
+class LArBadFebMasker : public extends<AthAlgTool, ILArBadFebMasker>
 {
 public:
 
@@ -30,9 +28,6 @@ public:
 
    virtual bool isMaskingOn() const override final//allow the client code to check in order to optimize
       {return m_doMasking;}
-
-   StatusCode queryInterface(const InterfaceID& riid, void** ppvIf);
-   static const InterfaceID& interfaceID();
 
 private:
 

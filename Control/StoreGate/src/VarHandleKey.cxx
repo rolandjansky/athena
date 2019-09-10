@@ -112,6 +112,7 @@ StatusCode VarHandleKey::initialize (bool used /*= true*/)
   if (!used) {
     Gaudi::DataHandle::updateKey ( "" );
     m_sgKey = "";
+    m_hashedKey = 0;
     return StatusCode::SUCCESS;
   }
 
@@ -129,6 +130,8 @@ StatusCode VarHandleKey::initialize (bool used /*= true*/)
       << "Cannot locate store: " << m_storeHandle.typeAndName();
     return StatusCode::FAILURE;
   }
+
+  m_hashedKey = m_storeHandle->stringToKey (m_sgKey, clid());
 
   return StatusCode::SUCCESS;
 }
@@ -216,6 +219,8 @@ void VarHandleKey::updateKey(const std::string& /*key*/) const
 void VarHandleKey::parseKey (const std::string& key,
                              const std::string& storeName)
 {
+  m_hashedKey = 0;
+
   std::string sn;
   // test if storeName has classname
   std::string::size_type sp = storeName.find("/");
@@ -296,6 +301,7 @@ void VarHandleKey::updateHandle (const std::string& name)
   // Don't invalidate a stored pointer if the handle is already pointing
   // at the desired service.
   if (m_storeHandle.name() != name) {
+    m_hashedKey = 0;
     m_storeHandle = ServiceHandle<IProxyDict>(name, "VarHandleKey");
     m_isEventStore =  (name == StoreID::storeName(StoreID::EVENT_STORE) ||
                        name == StoreID::storeName(StoreID::PILEUP_STORE));

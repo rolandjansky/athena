@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -469,7 +469,13 @@ IVP1ChannelWidget* VP1TabManager::selectedChannelWidget() const {
 //_______________________________________________________________________
 IVP1ChannelWidget * VP1TabManager::addChannelToTab(QString channelbasename,QString tabname) {
 
-  if (m_d->channelwidget_2_dockwidget.size()&&VP1QtUtils::environmentVariableIsOn("VP1_DISALLOW_MULTIPLE_CHANNELS")) {
+  #if defined BUILDVP1LIGHT
+    bool checkDisallowMultipleChannels = VP1QtUtils::expertSettingIsOn("general","ExpertSettings/VP1_DISALLOW_MULTIPLE_CHANNELS");
+  #else
+    bool checkDisallowMultipleChannels = VP1QtUtils::environmentVariableIsOn("VP1_DISALLOW_MULTIPLE_CHANNELS");
+  #endif
+
+  if (m_d->channelwidget_2_dockwidget.size()&&checkDisallowMultipleChannels) {
     QMessageBox::critical(0, "Error - Not allowed to open channel",
 			  "The possibility to launch multiple channels has been disabled by the environment variable VP1_DISALLOW_MULTIPLE_CHANNELS."
 			  " This was likely set since some badly written 3D drivers have been known to cause crashes when showing multiple 3D views."
@@ -633,9 +639,9 @@ void VP1TabManager::removeChannel(QString channeluniquename) {
   //delete channel
   cw->hide();
   dw->ensureCWHasNoParent();
+  [[maybe_unused]] //To avoid compile warning in opt mode.
   bool ok=m_d->channelmanager->deleteChannel(cw->unique_name());
   assert(ok);
-  _UNUSED(ok);//To avoid compile warning in opt mode.
 
   //delete dock widget
   delete dw;

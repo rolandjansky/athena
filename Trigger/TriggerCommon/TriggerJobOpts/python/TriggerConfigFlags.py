@@ -33,7 +33,14 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doTruth', False)
 
     # only enable services for analysis and BS -> ESD processing (we need better name)
-    flags.addFlag('Trigger.doTriggerConfigOnly', False)    
+    flags.addFlag('Trigger.doTriggerConfigOnly', False)
+
+    # Enables collection and export of detailed monitoring data of the HLT execution
+    flags.addFlag('Trigger.CostMonitoring.doCostMonitoring', False)
+    flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor')
+    flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
+    flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', True) # Defaulting to "True" is temporary
+
 
     # enable Bcm inputs simulation
     flags.addFlag('Trigger.L1.doBcm', True)
@@ -80,13 +87,20 @@ def createTriggerFlags():
     flags.addFlag('Trigger.triggerConfig', 'MCRECO:DEFAULT')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'MC_pp_v7_tight_mc_prescale')
+    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1_newJO')
 
     # version of the menu
     from AthenaCommon.AppMgr import release_metadata
     flags.addFlag('Trigger.menuVersion',
                   lambda prevFlags:  release_metadata()['release'] )
     
+    # generate or not the HLT configuration
+    flags.addFlag('Trigger.generateHLTConfig', False)
+    
+    # HLT XML file name 
+    flags.addFlag('Trigger.HLTConfigFile',
+                lambda prevFlags: 'HLTconfig_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+
     # generate or not the L1 configuration
     flags.addFlag('Trigger.generateLVL1Config', False)
     
@@ -98,8 +112,14 @@ def createTriggerFlags():
     flags.addFlag('Trigger.generateLVL1TopoConfig', False)
     
     # L1 topo XML file name
-    flags.addFlag('Trigger.LVL1TopoConfigFile',
-                lambda prevFlags: 'LVL1config_'+prevFlags.Trigger.triggerMenuSetup+'_' + prevFlags.Trigger.menuVersion + '.xml')
+    def _deriveTopoConfigName(prevFlags):
+        import re
+        menuSetup = prevFlags.Trigger.triggerMenuSetup
+        m = re.match(r'(.*v\d).*', menuSetup)
+        if m:
+            menuSetup = m.groups()[0]
+        return "L1Topoconfig_" + menuSetup + "_" + prevFlags.Trigger.menuVersion + ".xml"
+    flags.addFlag('Trigger.LVL1TopoConfigFile', _deriveTopoConfigName)
 
     
     # trigger reconstruction 
@@ -131,7 +151,7 @@ def createTriggerFlags():
                         ver2017='v12phiflip_noecorrnogap')( prevFlags.Trigger.run2Config )
     )
     # tune of MVA
-    flags.addFlag('Trigger.egamma.calibMVAVersiona',
+    flags.addFlag('Trigger.egamma.calibMVAVersion',
                   lambda prevFlags:
                   __tunes(default='egammaMVACalib/online/v3',
                           ver2016='egammaMVACalib/online/v3',

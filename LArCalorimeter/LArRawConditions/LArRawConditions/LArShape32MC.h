@@ -9,11 +9,8 @@
 #include "LArRawConditions/LArShapeP1.h"
 #include "LArRawConditions/LArConditionsContainer.h"
 #include "AthenaKernel/BaseInfo.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include <vector>
-
-class ILArMCSymTool;
 
 /** This class implements the ILArShape interface
  *
@@ -48,12 +45,6 @@ class LArShape32MC: public ILArShape,
   void set(const HWIdentifier& CellID, int gain, 
 	   const std::vector<float>& vShape,
            const std::vector<float>& vShapeDer);
-
- protected: 
-  
- 
-  // helper for MC z-phi symmetry 
-  ToolHandle<ILArMCSymTool> m_larmcsym;
 
 };
 

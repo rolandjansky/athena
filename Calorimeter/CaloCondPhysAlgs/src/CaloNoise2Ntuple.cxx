@@ -7,8 +7,8 @@
 #include "CaloEvent/CaloCell.h"
 #include "Identifier/Identifier.h"
 #include "xAODEventInfo/EventInfo.h"
-
-
+#include "CaloConditions/CaloNoise.h"
+ 
 //Constructor
 CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
@@ -16,6 +16,7 @@ CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
   m_calo_id(NULL),
   m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
   m_averageTool(""),
+  m_noiseCDOKey(""),
   m_iCool(0),
   m_SubHash(0),
   m_Hash(0),
@@ -34,6 +35,8 @@ CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
 {
   declareProperty("noiseTool",m_noiseTool,"noise tool");
   declareProperty("averageTool",m_averageTool,"average tool");
+  declareProperty("NoiseKey",m_noiseCDOKey,"read noise from this Conditions Data Object");
+  declareProperty("TreeName",m_treeName="mytree");
 }
 
 //__________________________________________________________________________
@@ -53,12 +56,22 @@ StatusCode CaloNoise2Ntuple::initialize()
   ATH_CHECK( detStore()->retrieve( mgr ) );
   m_calo_id      = mgr->getCaloCell_ID();
 
-  ATH_CHECK( m_noiseTool.retrieve() );
+  if (m_noiseCDOKey.key().empty()) {
+    ATH_CHECK( m_noiseTool.retrieve() );
+  }
+  else {
+    ATH_CHECK(m_noiseCDOKey.initialize());
+    m_noiseTool.disable();
+  }
 
-  if (!m_averageTool.empty())
+  if (!m_averageTool.empty()) {
     ATH_CHECK( m_averageTool.retrieve() );
+  }
+  else {
+    m_averageTool.disable();
+  }
 
-  m_tree = new TTree("mytree","Calo Noise ntuple");
+  m_tree = new TTree(m_treeName.c_str(),"Calo Noise ntuple");
   m_tree->Branch("iCool",&m_iCool,"iCool/I");
   m_tree->Branch("iSubHash",&m_SubHash,"iSubHash/I");
   m_tree->Branch("iHash",&m_Hash,"iHash/I");
@@ -71,7 +84,7 @@ StatusCode CaloNoise2Ntuple::initialize()
   m_tree->Branch("ElecNoise",&m_elecNoise,"ElecNoise/F");
   m_tree->Branch("PileupNoise",&m_pileupNoise,"PileupNoise/F");
   m_tree->Branch("Average",&m_average,"Average/F");
-  ATH_CHECK( m_thistSvc->regTree("/file1/calonoise/mytree",m_tree) );
+  ATH_CHECK( m_thistSvc->regTree((std::string("/file1/calonoise/")+m_treeName).c_str(),m_tree));
 
   ATH_MSG_INFO ( " end of CaloNoise2Ntuple::initialize " );
   return StatusCode::SUCCESS; 
@@ -100,6 +113,14 @@ StatusCode CaloNoise2Ntuple::stop()
 
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
   ATH_CHECK( detStore()->retrieve(calodetdescrmgr) );
+
+
+  const CaloNoise* noiseCDO=nullptr;
+  if (!m_noiseCDOKey.key().empty()) {
+    SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey};
+    noiseCDO=*noiseHdl;
+  }
+
 
   int ncell=m_calo_id->calo_cell_hash_max();
   ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
@@ -166,9 +187,14 @@ StatusCode CaloNoise2Ntuple::stop()
           }
           m_Gain = igain;
 
-          m_noise = m_noiseTool->totalNoiseRMS(calodde,gain);
-          m_elecNoise = m_noiseTool->elecNoiseRMS(calodde,gain,-1);
-          m_pileupNoise = m_noiseTool->pileupNoiseRMS(calodde);
+	  if (noiseCDO) {
+	    m_noise=noiseCDO->getNoise(id,gain);
+	  } 
+	  else{    
+	    m_noise = m_noiseTool->totalNoiseRMS(calodde,gain);
+	    m_elecNoise = m_noiseTool->elecNoiseRMS(calodde,gain,-1);
+	    m_pileupNoise = m_noiseTool->pileupNoiseRMS(calodde);
+	  }
 
           if (!m_averageTool.empty()) {
               m_average = m_averageTool->average(calodde,gain);

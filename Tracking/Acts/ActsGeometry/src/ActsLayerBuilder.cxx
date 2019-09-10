@@ -11,49 +11,53 @@
 #include "ActsInterop/IdentityHelper.h"
 
 // ACTS
-#include "Acts/Material/SurfaceMaterialProxy.hpp"
+#include "Acts/Material/ProtoSurfaceMaterial.hpp"
 #include "Acts/Surfaces/CylinderSurface.hpp"
 #include "Acts/Surfaces/DiscSurface.hpp"
-#include "Acts/Layers/GenericApproachDescriptor.hpp"
-#include "Acts/Utilities/ApproachDescriptor.hpp"
-#include "Acts/Layers/ProtoLayer.hpp"
-#include "Acts/Tools/LayerCreator.hpp"
+#include "Acts/Geometry/GenericApproachDescriptor.hpp"
+#include "Acts/Geometry/ApproachDescriptor.hpp"
+#include "Acts/Geometry/ProtoLayer.hpp"
+#include "Acts/Geometry/LayerCreator.hpp"
 #include "Acts/Utilities/Definitions.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
+#include "Acts/Utilities/Units.hpp"
 
 using Acts::Surface;
 using Acts::Transform3D;
 using Acts::Translation3D;
 
+using namespace Acts::UnitLiterals;
+
 const Acts::LayerVector
-ActsLayerBuilder::negativeLayers() const
+ActsLayerBuilder::negativeLayers(const Acts::GeometryContext& gctx) const
 {
   ACTS_VERBOSE("Building negative layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<ActsLayerBuilder*>(this);
   Acts::LayerVector nVector;
-  mutableThis->buildLayers(nVector, -1);
+  mutableThis->buildLayers(gctx, nVector, -1);
   return nVector;
 }
 
 const Acts::LayerVector
-ActsLayerBuilder::centralLayers() const
+ActsLayerBuilder::centralLayers(const Acts::GeometryContext& gctx) const
 {
   ACTS_VERBOSE("Building central layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<ActsLayerBuilder*>(this);
   Acts::LayerVector cVector;
-  mutableThis->buildLayers(cVector, 0);
+  mutableThis->buildLayers(gctx, cVector, 0);
   return cVector;
 }
 
 const Acts::LayerVector
-ActsLayerBuilder::positiveLayers() const
+ActsLayerBuilder::positiveLayers(const Acts::GeometryContext& gctx) const
 {
   ACTS_VERBOSE("Building positive layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<ActsLayerBuilder*>(this);
   Acts::LayerVector pVector;
-  mutableThis->buildLayers(pVector, 1);
+  mutableThis->buildLayers(gctx, pVector, 1);
   return pVector;
 
 }
@@ -80,7 +84,8 @@ ActsLayerBuilder::getDetectorElements() const
 }
 
 void
-ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
+ActsLayerBuilder::buildLayers(const Acts::GeometryContext& gctx,
+    Acts::LayerVector& layersOutput, int type)
 {
 
   std::vector<std::shared_ptr<const ActsDetectorElement>> elements = getDetectorElements();
@@ -138,7 +143,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
     for (const auto& layerPair : layers) {
       const std::vector<std::shared_ptr<const Surface>>& layerSurfaces = layerPair.second;
       auto key = layerPair.first;
-      Acts::ProtoLayer pl(layerSurfaces);
+      Acts::ProtoLayer pl(gctx, layerSurfaces);
       ACTS_VERBOSE("Layer #" << n << " with layerKey: ("
           << key.first << ", " << key.second << ")");
       if (type == 0) {  // BARREL
@@ -155,16 +160,16 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
   for (const auto& layerPair : layers) {
 
     std::unique_ptr<Acts::ApproachDescriptor> approachDescriptor = nullptr;
-    std::shared_ptr<const Acts::SurfaceMaterialProxy> materialProxy = nullptr;
+    std::shared_ptr<const Acts::ProtoSurfaceMaterial> materialProxy = nullptr;
 
     // use ref here, copy later
     const std::vector<std::shared_ptr<const Surface>>& layerSurfaces = layerPair.second;
 
     if (type == 0) {  // BARREL
       // layers and extent are determined, build actual layer
-      Acts::ProtoLayer pl(layerSurfaces);
-      pl.envR    = {0, 0};
-      pl.envZ    = {20, 20};
+      Acts::ProtoLayer pl(gctx, layerSurfaces);
+      pl.envR    = {0_mm, 0_mm};
+      pl.envZ    = {20_mm, 20_mm};
         
       double binPosZ   = 0.5 * (pl.minZ + pl.maxZ);
       double envZShift = 0.5 * (-pl.envZ.first + pl.envZ.second);
@@ -194,7 +199,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
             binsZ, -layerHalfZ, layerHalfZ, Acts::open, Acts::binZ, transform);
 
       materialProxy
-        = std::make_shared<const Acts::SurfaceMaterialProxy>(materialBinUtil);
+        = std::make_shared<const Acts::ProtoSurfaceMaterial>(materialBinUtil);
 
       ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
           "inner=0 / center=1 / outer=2 ) : " << "inner");
@@ -207,7 +212,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
 
       // set material on inner
       // @TODO: make this configurable somehow
-      innerBoundary->setAssociatedMaterial(materialProxy);
+      innerBoundary->assignSurfaceMaterial(materialProxy);
 
       std::vector<std::shared_ptr<const Acts::Surface>> aSurfaces;
       aSurfaces.push_back(std::move(innerBoundary));
@@ -217,18 +222,19 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       approachDescriptor 
         = std::make_unique<Acts::GenericApproachDescriptor>(std::move(aSurfaces));
 
-      auto layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces,
-                                                     Acts::equidistant, 
-                                                     Acts::equidistant, 
-                                                     pl, 
+      auto layer = m_cfg.layerCreator->cylinderLayer(gctx,
+                                                     layerSurfaces,
+                                                     Acts::equidistant,
+                                                     Acts::equidistant,
+                                                     pl,
                                                      transform,
                                                      std::move(approachDescriptor));
 
       layersOutput.push_back(layer);
     } else {  // ENDCAP
-      Acts::ProtoLayer pl(layerSurfaces);
-      pl.envR    = {0, 0};
-      pl.envZ    = {10, 10};
+      Acts::ProtoLayer pl(gctx, layerSurfaces);
+      pl.envR    = {0_mm, 0_mm};
+      pl.envZ    = {10_mm, 10_mm};
 
       // copied from layercreator
       double layerZ
@@ -269,7 +275,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
           matBinsR, pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
       
       materialProxy
-        = std::make_shared<const Acts::SurfaceMaterialProxy>(materialBinUtil);
+        = std::make_shared<const Acts::ProtoSurfaceMaterial>(materialBinUtil);
 
       ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
           "inner=0 / center=1 / outer=2 ) : " << "inner");
@@ -283,7 +289,7 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
 
       // set material on inner
       // @TODO: make this configurable somehow
-      innerBoundary->setAssociatedMaterial(materialProxy);
+      innerBoundary->assignSurfaceMaterial(materialProxy);
 
       int nModPhi = std::numeric_limits<int>::max();
       int nModR = 0;
@@ -319,9 +325,10 @@ ActsLayerBuilder::buildLayers(Acts::LayerVector& layersOutput, int type)
       approachDescriptor 
         = std::make_unique<Acts::GenericApproachDescriptor>(aSurfaces);
 
-      auto layer = m_cfg.layerCreator->discLayer(layerSurfaces, 
-                                                 nBinsR, 
-                                                 nBinsPhi, 
+      auto layer = m_cfg.layerCreator->discLayer(gctx,
+                                                 layerSurfaces,
+                                                 nBinsR,
+                                                 nBinsPhi,
                                                  pl,
                                                  transformNominal,
                                                  std::move(approachDescriptor));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -7,13 +7,11 @@
 #include "MdtSegmentT0Fitter/MdtSegmentT0Fitter.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
-#include "MdtCalibSvc/MdtCalibrationSvc.h"
 #include "MdtCalibSvc/MdtCalibrationSvcSettings.h"
-//#include "MdtCalibSvc/MdtCalibrationSvcInput.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
-#include "MdtCalibSvc/MdtCalibrationDbSvc.h"
+#include "MdtCalibSvc/MdtCalibrationDbTool.h"
 #include "MuonCalibTools/IdToFixedIdTool.h"
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/IRtResolution.h"
@@ -64,7 +62,7 @@ namespace TrkDriftCircleMath {
   MdtSegmentT0Fitter::MdtSegmentT0Fitter(const std::string& ty,const std::string& na,const IInterface* pa)
   : AthAlgTool(ty,na,pa),
     DCSLFitter(), 
-    m_calibDbSvc("MdtCalibrationDbSvc", na),
+    m_calibrationDbTool("MdtCalibrationDbTool",this),
     m_ntotalCalls(0),
     m_npassedNHits(0),
     m_npassedSelectionConsistency(0),
@@ -83,6 +81,7 @@ namespace TrkDriftCircleMath {
     declareProperty("RejectWeakTopologies",  m_rejectWeakTopologies = true);
     declareProperty("RescaleErrors",m_scaleErrors = true );
     declareProperty("PropagateErrors",m_propagateErrors = true );
+    declareProperty("CalibrationDbTool",m_calibrationDbTool);
   }
   
   
@@ -94,11 +93,7 @@ namespace TrkDriftCircleMath {
     use_hardcoded = m_useInternalRT;
     use_shift_constraint = m_constrainShifts;
     constrainT0Error = m_constrainT0Error;
-//		count = 0;
-    
-        
-    // Get pointer to MdtCalibrationDbSvc and cache it :
-    ATH_CHECK ( m_calibDbSvc.retrieve() );
+    //count = 0;
 
     TMinuit* oldMinuit = gMinuit;
     m_minuit = new TMinuit(3);
@@ -341,7 +336,7 @@ namespace TrkDriftCircleMath {
     if(a<0) return -1;
     return 0;
   }
-  bool MdtSegmentT0Fitter::fit( const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed ) const {
+  bool MdtSegmentT0Fitter::fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed ) const {
 
     ++m_ntotalCalls;
 
@@ -351,7 +346,7 @@ namespace TrkDriftCircleMath {
 
     unsigned int N = dcs_keep.size();
     used=0;
-    m_result.setT0Shift(-99999,-99999);
+    result.setT0Shift(-99999,-99999);
     
     if(N<2) {
       return false;
@@ -394,7 +389,7 @@ namespace TrkDriftCircleMath {
 	dcs_new.push_back( dc_new );
         if( selection[i] == 0 ){
           double t = ds->rot()->driftTime();
-          const MuonCalib::MdtRtRelation *rtInfo = m_calibDbSvc->getRtCalibration(ds->rot()->identify());
+          const MuonCalib::MdtRtRelation *rtInfo = m_calibrationDbTool->getRtCalibration(ds->rot()->identify());
           double tUp = rtInfo->rt()->tUpper();
           double tLow = rtInfo->rt()->tLower();
           if(t<tLow) chi2p += (t-tLow)*(t-tLow)*0.1;
@@ -402,13 +397,13 @@ namespace TrkDriftCircleMath {
         }
       }
       if(m_trace&&chi2p>0) std::cout << " NO Minuit Fit TOO few hits Chi2 penalty " << chi2p << std::endl;
-      bool oldrefit = DCSLFitter::fit( line, dcs_new, selection ); 
-      chi2p += m_result.chi2();
+      bool oldrefit = DCSLFitter::fit( result, line, dcs_new, selection ); 
+      chi2p += result.chi2();
 // add chi2 penalty for too large or too small driftTimes  t < 0 or t> t upper
-      m_result.set( chi2p, m_result.ndof(),  m_result.dtheta(),  m_result.dy0() );
+      result.set( chi2p, result.ndof(),  result.dtheta(),  result.dy0() );
       int iok = 0;
       if(oldrefit) iok = 1;
-      if(m_trace) std::cout << " chi2 total " << m_result.chi2() << " angle " << m_result.line().phi() << " y0 " << m_result.line().y0()  << " nhits "<< selection.size() << " refit ok " << iok << std::endl;
+      if(m_trace) std::cout << " chi2 total " << result.chi2() << " angle " << result.line().phi() << " y0 " << result.line().y0()  << " nhits "<< selection.size() << " refit ok " << iok << std::endl;
       return oldrefit;
     } else {
       if(m_trace) ATH_MSG_DEBUG( "FITTING FOR T0 N "<<N<<" used " << used  );
@@ -418,7 +413,7 @@ namespace TrkDriftCircleMath {
 
     
     if (m_trace) ATH_MSG_DEBUG(" in  MdtSegmentT0Fitter::fit with N dcs "<< N << " hit selection size " <<  selection.size()  );
-    if(m_trace) ATH_MSG_DEBUG("in fit "<<m_result.hasT0Shift()<< " " <<m_result.t0Shift() );
+    if(m_trace) ATH_MSG_DEBUG("in fit "<<result.hasT0Shift()<< " " <<result.t0Shift() );
     
     
     double Zc=0, Yc=0, S=0, Sz=0, Sy=0;
@@ -456,7 +451,7 @@ namespace TrkDriftCircleMath {
           return false;
         }
         Identifier id = roto->identify();
-        const MuonCalib::MdtRtRelation *rtInfo = m_calibDbSvc->getRtCalibration(id);
+        const MuonCalib::MdtRtRelation *rtInfo = m_calibrationDbTool->getRtCalibration(id);
         rtpointers[ii] = rtInfo->rt();
         t[ii] = roto->driftTime();
 
@@ -655,7 +650,7 @@ namespace TrkDriftCircleMath {
 	dcs_new.push_back( dc_new );
         if( selection[i] == 0 ){
           double t = ds->rot()->driftTime();
-          const MuonCalib::MdtRtRelation *rtInfo = m_calibDbSvc->getRtCalibration(ds->rot()->identify());
+          const MuonCalib::MdtRtRelation *rtInfo = m_calibrationDbTool->getRtCalibration(ds->rot()->identify());
           double tUp = rtInfo->rt()->tUpper();
           double tLow = rtInfo->rt()->tLower();
           if(t<tLow) chi2p += (t-tLow)*(t-tLow)*0.1;
@@ -663,10 +658,10 @@ namespace TrkDriftCircleMath {
         } 
       }
       if(m_trace&&chi2p>0) ATH_MSG_DEBUG( " Rejected weak topology Chi2 penalty " << chi2p  );
-      bool oldrefit = DCSLFitter::fit( line, dcs_new, selection ); 
-      chi2p += m_result.chi2();
+      bool oldrefit = DCSLFitter::fit( result, line, dcs_new, selection ); 
+      chi2p += result.chi2();
 // add chi2 penalty for too large or too small driftTimes  t < 0 or t> t upper
-      m_result.set( chi2p, m_result.ndof(),  m_result.dtheta(),  m_result.dy0() );
+      result.set( chi2p, result.ndof(),  result.dtheta(),  result.dy0() );
       return oldrefit;
     }  // end rejection of weak topologies  
 
@@ -776,7 +771,7 @@ namespace TrkDriftCircleMath {
 	dcs_new.push_back( dc_new );
       }
 
-      bool oldrefit =  DCSLFitter::fit( line , dcs_new, selection );
+      bool oldrefit =  DCSLFitter::fit( result, line , dcs_new, selection );
       //int iok = 0;
       //if(oldrefit) iok = 1;
       return  oldrefit;
@@ -839,9 +834,9 @@ namespace TrkDriftCircleMath {
       }
     }
     
-    m_result.dcs().clear();
-    m_result.clusters().clear();
-    m_result.emptyTubes().clear();
+    result.dcs().clear();
+    result.clusters().clear();
+    result.emptyTubes().clear();
 
     if(m_trace) ATH_MSG_DEBUG("after fit theta "<<ang<<" sinus "<<sinus<< " cosin "<< cosin  );
     
@@ -941,25 +936,25 @@ namespace TrkDriftCircleMath {
 	  chi2 += ((t[i]-t0-lowercut)*(t[i]-t0-lowercut))*0.1;
         }
       } 
-      m_result.dcs().push_back( dc_new );
+      result.dcs().push_back( dc_new );
     }
     
     double oldshift;
-    oldshift = m_result.t0Shift();
+    oldshift = result.t0Shift();
     if(m_trace) ATH_MSG_DEBUG("end fit old "<<oldshift<< " new " <<t0 );
     // Final Minuit Fit result
     if(nhits==NUMPAR) {
       nhits++;
       chi2 += 1.;
     }
-    m_result.set( chi2, nhits-NUMPAR, dtheta, -1.*dy0 );
-    m_result.line().set( LocPos( Zc - sinus*d, Yc + cosin*d ), ang );
+    result.set( chi2, nhits-NUMPAR, dtheta, -1.*dy0 );
+    result.line().set( LocPos( Zc - sinus*d, Yc + cosin*d ), ang );
     if(t0==0.) t0=0.00001;
-    m_result.setT0Shift(t0,t0Err);
-    if(m_trace) std::cout << "Minuit Fit complete: Chi2 " << chi2 << " angle " << m_result.line().phi() << " nhits "<< nhits  << " t0result " << t0 << std::endl;
+    result.setT0Shift(t0,t0Err);
+    if(m_trace) std::cout << "Minuit Fit complete: Chi2 " << chi2 << " angle " << result.line().phi() << " nhits "<< nhits  << " t0result " << t0 << std::endl;
     
     if(m_trace) {
-      ATH_MSG_DEBUG( "Minuit Fit complete: Chi2 " << chi2 << " angle " << m_result.line().phi() << " nhits "<<nhits<<" numpar "<<NUMPAR << " per dof " << chi2/(nhits-NUMPAR)   );
+      ATH_MSG_DEBUG( "Minuit Fit complete: Chi2 " << chi2 << " angle " << result.line().phi() << " nhits "<<nhits<<" numpar "<<NUMPAR << " per dof " << chi2/(nhits-NUMPAR)   );
 
       ATH_MSG_DEBUG( "Fit complete: Chi2 " << chi2 <<" nhits "<<nhits<<" numpar "<<NUMPAR << " per dof " << chi2/(nhits-NUMPAR)   );
       if(chi2/(nhits-NUMPAR) > 5) {
@@ -971,11 +966,11 @@ namespace TrkDriftCircleMath {
     // Do standard DCSL fit using the t0 updated results 
     // if minuit MIGRAD failed to converge (and t0 fit converged) 
 //    if (errFlag5!=0&&errFlag4!=0)  {
-//      bool oldrefit =  DCSLFitter::fit( m_result.line() , m_result.dcs(), selection );
+//      bool oldrefit =  DCSLFitter::fit( result, result.line() , result.dcs(), selection );
 //      int iok = 0;
 //      if(oldrefit) iok = 1;
 //      if(m_trace)*m_log << MSG::DEBUG << " ALARM Minimize fix " << errFlag1 << " ALARM minimize release " << errFlag2 << " ALARM migrad fix 1 " << errFlag3 << " ALARM minimize all free " << errFlag4 << " ALARM migrad all free " << errFlag5 << endmsg;
-//      if(m_trace) std::cout << " ALARM Migrad and Minimize failed DCSL Fit Chi2 " << m_result.chi2() << " angle " << m_result.line().phi() << " y0 " << m_result.line().y0() << " nhits "<< selection.size() << " fitretval " << fitretval << " refit ok " << iok  << std::endl;
+//      if(m_trace) std::cout << " ALARM Migrad and Minimize failed DCSL Fit Chi2 " << result.chi2() << " angle " << result.line().phi() << " y0 " << result.line().y0() << " nhits "<< selection.size() << " fitretval " << fitretval << " refit ok " << iok  << std::endl;
 //      return  oldrefit;
 //    } 
     

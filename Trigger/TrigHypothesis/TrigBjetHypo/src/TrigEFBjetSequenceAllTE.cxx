@@ -17,13 +17,10 @@
 #include "TrigBjetHypo/TrigEFBjetSequenceAllTE.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigSuperRoi.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 #include "TrigNavigation/TriggerElement.h"
 
 #include "AthContainers/ConstDataVector.h"
-
-//#include "JetEvent/Jet.h"
-//#include "JetEvent/JetCollection.h"
+#include "CxxUtils/phihelper.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/Jet.h"
@@ -150,8 +147,8 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       std::cout << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << std::endl;
       
       // create RoI correspondinding to the jet
-      double phiMin = HLT::wrapPhi((*jet)->phi()-m_phiHalfWidth); 
-      double phiMax = HLT::wrapPhi((*jet)->phi()+m_phiHalfWidth); 
+      double phiMin = CxxUtils::wrapToPi((*jet)->phi()-m_phiHalfWidth); 
+      double phiMax = CxxUtils::wrapToPi((*jet)->phi()+m_phiHalfWidth); 
       
       double etaMin = (*jet)->eta()-m_etaHalfWidth;  
       double etaMax = (*jet)->eta()+m_etaHalfWidth; 
@@ -204,8 +201,8 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       outputTE->setActiveState(true);
 
       // create RoI correspondinding to the jet
-      double phiMin = HLT::wrapPhi((*jet)->phi()-m_phiHalfWidth); 
-      double phiMax = HLT::wrapPhi((*jet)->phi()+m_phiHalfWidth); 
+      double phiMin = CxxUtils::wrapToPi((*jet)->phi()-m_phiHalfWidth); 
+      double phiMax = CxxUtils::wrapToPi((*jet)->phi()+m_phiHalfWidth); 
       
       double etaMin = (*jet)->eta()-m_etaHalfWidth;  
       double etaMax = (*jet)->eta()+m_etaHalfWidth; 

@@ -16,36 +16,38 @@ StatusCode PixelSiliconConditionsTestAlg::initialize()
 {  
   ATH_MSG_INFO("Calling initialize");
 
-// OLD  ATH_CHECK(m_siliconTool.retrieve());
+  ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
   ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_lorentzAngleTool.retrieve());
+  ATH_CHECK(m_chargeDataKey.initialize());
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode PixelSiliconConditionsTestAlg::execute(){
-  //This method is only used to test the summary service, and only used within this package,
-  // so the INFO level messages have no impact on performance of these services when used by clients
 
   SG::ReadCondHandle<PixelModuleData> hv(m_readKeyHV);
   SG::ReadCondHandle<PixelModuleData> temp(m_readKeyTemp);
   SG::ReadCondHandle<PixelModuleData> deadmap(m_moduleDataKey);
+  SG::ReadCondHandle<PixelChargeCalibCondData> calib(m_chargeDataKey);
 
-  // Check HV
-  for (int i=0; i<2048; i++) { std::cout << "PIXEL HV : " << i << " " << hv->getBiasVoltage(i) << std::endl; }
-// OLD  for (int i=0; i<2048; i++) { std::cout << "PIXEL HV : " << i << " " << m_siliconTool->biasVoltage(IdentifierHash(i)) << std::endl; }
-
-  // Check temperature
-  for (int i=0; i<2048; i++) { std::cout << "PIXEL Temperature : " << i << " " << temp->getTemperature(i) << std::endl; }
-// OLD  for (int i=0; i<2048; i++) { std::cout << "PIXEL Temperature : " << i << " " << m_siliconTool->temperature(IdentifierHash(i)) << std::endl; }
-
-  // Check deadmap
-  for (int i=0; i<2048; i++) { std::cout << "PIXEL Deadmap : " << i << " " << deadmap->getModuleStatus(i) << std::endl; }
-// OLD  for (int i=0; i<2048; i++) { std::cout << "PIXEL Deadmap : " << i << " " << deadmap->getModuleStatus(IdentifierHash(i)) << std::endl; }
-
-  for (int i=0; i<2048; i++) { std::cout << "PIXEL LorentzAngle : " << i << " " << m_lorentzAngleTool->getLorentzShift(IdentifierHash(i)) << std::endl; }
+  for (int i=0; i<2048; i++) { 
+    ATH_MSG_DEBUG("PIXEL Module hash=" << i 
+                    << " HV=" << hv->getBiasVoltage(i) 
+                    << " Temperature=" << temp->getTemperature(i) 
+                    << " Status=" << deadmap->getModuleStatus(i)
+                    << " LorentzShift=" << m_lorentzAngleTool->getLorentzShift(IdentifierHash(i)));
+    ATH_MSG_DEBUG("Charge:");
+    for (int j=0; j<16; j++) {
+      ATH_MSG_DEBUG("  FE=" << j 
+                    << " Threshold=" << calib->getAnalogThreshold(i,j,0)
+                    << " Parameter A=" << calib->getQ2TotA(i,j,0)
+                    << " Parameter E=" << calib->getQ2TotE(i,j,0)
+                    << " Parameter C=" << calib->getQ2TotC(i,j,0));
+    }
+  }
 
   return StatusCode::SUCCESS;
 }

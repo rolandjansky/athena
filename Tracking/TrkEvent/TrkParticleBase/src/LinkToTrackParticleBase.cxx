@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,9 +16,6 @@ namespace Trk
 			: ElementLink<TrackParticleBaseCollection> ( link )
 	{}
 
-	LinkToTrackParticleBase::~LinkToTrackParticleBase()
-	{}
-
 	const TrackParameters * LinkToTrackParticleBase::parameters() const
 	{
 		if ( isValid() )
@@ -33,15 +30,6 @@ namespace Trk
          Trk::LinkToTrackParticleBase* Trk::LinkToTrackParticleBase::clone() const
 	{
 		return new LinkToTrackParticleBase ( *this );
-	}
-
-	Trk::LinkToTrackParticleBase& Trk::LinkToTrackParticleBase::operator= ( const Trk::LinkToTrackParticleBase& rhs )
-	{
-		if ( this!=&rhs )
-		{
-			ElementLink<TrackParticleBaseCollection>::operator= ( rhs );
-		}
-		return *this;
 	}
 
 }//end of namespace definitions

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "PixelGeoModel/IIBLParameterSvc.h"
@@ -69,7 +68,6 @@ FTK_PixelClusterOnTrackTool::FTK_PixelClusterOnTrackTool
   (const std::string &t, const std::string &n, const IInterface *p) :
   ::AthAlgTool(t, n, p),
   m_pixDistoTool("PixelDistortionsTool", this),
-  m_detStore(nullptr),
   m_disableDistortions(false),
   m_rel13like(false),
   m_pixelid(nullptr),
@@ -78,7 +76,6 @@ FTK_PixelClusterOnTrackTool::FTK_PixelClusterOnTrackTool
   m_NNIBLcorrection(false),
   m_IBLAbsent(true),
   m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
-  m_storeGate("StoreGateSvc", n),
   m_IBLParameterSvc("IBLParameterSvc", n),
   m_dRMap(""),
   m_dRMapName("dRMap"),
@@ -96,7 +93,6 @@ FTK_PixelClusterOnTrackTool::FTK_PixelClusterOnTrackTool
   declareProperty("applyNNcorrection", m_applyNNcorrection);
   declareProperty("applydRcorrection", m_applydRcorrection);
   declareProperty("NNIBLcorrection", m_NNIBLcorrection);
-  declareProperty("EventStore", m_storeGate);
   declareProperty("NnClusterizationFactory", m_NnClusterizationFactory);
   declareProperty("SplitClusterAmbiguityMap", m_splitClusterMapName);//Remove Later
   declareProperty("dRMapName", m_dRMapName);  //This is a string to prevent the scheduler seeing trkAmbSolver as both creating and requiring the map
@@ -166,15 +162,6 @@ FTK_PixelClusterOnTrackTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  sc = service("DetectorStore", m_detStore);
-  if (!sc.isSuccess() || 0 == m_detStore) {
-    return msg(MSG:: ERROR) << "Could not find DetStore" << endmsg, StatusCode::FAILURE;
-  }
-  if (m_storeGate.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Can not retrieve " << m_storeGate << ". Exiting.");
-    return StatusCode::FAILURE;
-  }
-   
   m_dRMap = SG::ReadHandleKey<InDet::DRMap>(m_dRMapName);
   ATH_CHECK( m_dRMap.initialize() );
   // Include IBL calibration constants
@@ -210,7 +197,7 @@ void
 FTK_PixelClusterOnTrackTool::FillFromDataBase() const{
     if (m_fX.empty()) {
       const CondAttrListCollection *atrlistcol = nullptr;
-      if (StatusCode::SUCCESS == m_detStore->retrieve(atrlistcol, "/PIXEL/PixelClustering/PixelCovCorr")) {
+      if (StatusCode::SUCCESS == detStore()->retrieve(atrlistcol, "/PIXEL/PixelClustering/PixelCovCorr")) {
         // loop over objects in collection
         for (CondAttrListCollection::const_iterator citr = atrlistcol->begin(); citr != atrlistcol->end(); ++citr) {
           std::vector<float> fx, fy, fb, fc, fd;
@@ -397,7 +384,7 @@ FTK_PixelClusterOnTrackTool::correctDefault
     double shift = m_lorentzAngleTool->getLorentzShift(iH);
     int nrows = pix->width().colRow()[Trk::locX];
     int ncol = pix->width().colRow()[Trk::locX];
-    double ang = 999.;
+    double ang = 180 * angle * M_1_PI;
     double eta = 999.;
     ATH_MSG_VERBOSE(" row " << row << " col " << col << " nrows " << nrows << 
 		    " ncol " << ncol << " locX " << centroid.xPhi() << " locY " << centroid.xEta());

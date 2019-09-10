@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfFileValidationFunctions
@@ -32,9 +33,9 @@ def returnIntegrityOfNTUPFile(fname):
 def returnIntegrityOfBSFile(fname):
     try:
         from PyJobTransforms.trfUtils import call
-        rc = call(["AtlListBSEvents.exe", "-c", fname],
+        rc = call(["AtlListBSEvents", "-c", fname],
             logger = msg,
-            message = "Report by AtlListBSEvents.exe: ",
+            message = "Report by AtlListBSEvents: ",
             timeout = None
         )
     except trfExceptions.TransformTimeoutException:

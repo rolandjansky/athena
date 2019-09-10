@@ -52,7 +52,7 @@ def BTagCfg(inputFlags,**kwargs):
     result=ComponentAccumulator()
 
     from TrkDetDescrSvc.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc, geom_svc = TrackingGeometrySvcCfg(inputFlags)
+    acc = TrackingGeometrySvcCfg(inputFlags)
     result.merge(acc)
 
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
@@ -64,15 +64,12 @@ def BTagCfg(inputFlags,**kwargs):
     from AthenaCommon import CfgGetter
     result.getService("GeoModelSvc").DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline,IOVDbSvcCfg
+    from IOVDbSvc.IOVDbSvcConfig import addFolders, addFoldersSplitOnline
     result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_OFL'))
     #result.merge(addFolders(inputFlags,['/GLOBAL/BField/Maps <noover/>'],'GLOBAL_ONL'))
     #result.merge(addFolders(inputFlags,['/GLOBAL/TrackingGeo/LayerMaterialV2'],'GLOBAL_ONL'))
     result.merge(addFolders(inputFlags,['/EXT/DCS/MAGNETS/SENSORDATA'],'DCS_OFL'))
     
-    iovDbSvc=result.getService("IOVDbSvc")
-    iovDbSvc.FoldersToMetaData+=['/GLOBAL/BField/Maps']
-
     from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
     kwargs.setdefault( "UseDCS", True )
     result.addService(MagField__AtlasFieldSvc("AtlasFieldSvc",**kwargs))
@@ -157,7 +154,6 @@ if __name__=="__main__":
 
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge(OutputStreamCfg(cfgFlags,"ESD", ItemList=BTaggingFlags.btaggingESDList))
-    cfg.getEventAlgo("OutputStreamESD").ForceRead = True
 
 
     #cfg.getService("StoreGateSvc").Dump=True

@@ -7,7 +7,7 @@ class DefectUnknownError(RuntimeError):
     "The defect ID or string specified is unknown in the COOL database"
 
 class InvalidTagError(RuntimeError):
-	"The tag specified is unknown"
+    "The tag specified is unknown"
 
 class InvalidDefectTagError(InvalidTagError):
     """

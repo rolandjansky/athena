@@ -1570,10 +1570,11 @@ StatusCode HLTJetMonTool::fillBasicHists() {
         double eta = thisjet->eta();
         double phi = thisjet->phi();
 
-	double  emfrac  =1;
-	double  hecfrac =1;
-	if (m_isPP || m_isCosmic || m_isMC){
-	  emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
+	float  emfrac  =1;
+	float  hecfrac =1;
+	if ((m_isPP || m_isCosmic || m_isMC) &&
+            thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
+        {
 	  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	  ATH_MSG_VERBOSE( "REGTEST    emfrac: " << emfrac ); 
 	  ATH_MSG_VERBOSE( "REGTEST    hecfrac: " << hecfrac ); 
@@ -1674,10 +1675,11 @@ StatusCode HLTJetMonTool::fillBasicHists() {
             ATH_MSG_DEBUG( lvl << " thisjet->pt() =  " << et );
             double  eta     = thisjet->eta();
             double  phi     = thisjet->phi();
-	    double  emfrac  =1;
-	    double  hecfrac =1;
-	    if (m_isPP || m_isCosmic || m_isMC){
-	      emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
+	    float  emfrac  =1;
+	    float  hecfrac =1;
+	    if ((m_isPP || m_isCosmic || m_isMC) &&
+                thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
+            {
 	      hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
 
@@ -1764,68 +1766,127 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
       h->Fill(m_lumiBlock,m_lumi_weight);
     }
 
-    auto cg = getTDT()->getChainGroup(Form("HLT_%s",theChain.c_str())); //get features
-    auto fc = cg->features();
+    if (getTDT()->getNavigationFormat() == "TriggerElement") {
 
-     auto JetFeatureContainers = fc.get<xAOD::JetContainer>(); //get features container
-     
-     for(auto jcont : JetFeatureContainers) {
+      auto cg = getTDT()->getChainGroup(Form("HLT_%s",theChain.c_str())); //get features
+      auto fc = cg->features();
 
-       // ATH_MSG_INFO("Loop Over Features");
+      auto JetFeatureContainers = fc.get<xAOD::JetContainer>(); //get features container
+       
+      for(auto jcont : JetFeatureContainers) {
 
-       for (auto j : *jcont.cptr()) {
+        // ATH_MSG_INFO("Loop Over Features");
+        for (auto j : *jcont.cptr()) {
 
-	 double e = (j->e())/Gaudi::Units::GeV;
-	 double et = 0., epsilon = 1.e-3;
+          double e = (j->e())/Gaudi::Units::GeV;
+          double et = 0., epsilon = 1.e-3;
 
-	 if(j->pt() > epsilon) et = (j->pt())/Gaudi::Units::GeV;
+          if(j->pt() > epsilon) et = (j->pt())/Gaudi::Units::GeV;
 
-	 ATH_MSG_DEBUG("jet et = "<<et);
+           ATH_MSG_DEBUG("jet et = "<<et);
 
 
-	 if(et < epsilon) et = 0;
-	 bool hlt_thr_pass = ( et > thrHLT );
-	 if(hlt_thr_pass) {
-	   double eta     = j->eta();
-	   double phi     = j->phi();
-	   double  emfrac  =1;
-	   double  hecfrac =1;
-	   if (m_isPP || m_isCosmic || m_isMC){
-	      emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
-	      hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
-	    }
+          if(et < epsilon) et = 0;
+          bool hlt_thr_pass = ( et > thrHLT );
+          if(hlt_thr_pass) {
+            double eta     = j->eta();
+            double phi     = j->phi();
+            float  emfrac  =1;
+            float  hecfrac =1;
+            if ((m_isPP || m_isCosmic || m_isMC) &&
+              j->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
+            {
+              hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
+            }
 
-	   v_thisjet.SetPtEtaPhiE(j->pt()/Gaudi::Units::GeV,j->eta(), j->phi(),j->e()/Gaudi::Units::GeV);
-	   m_v_HLTjet.push_back(v_thisjet);
-           m_n_index++;
-		   
-	   if((h  = hist("HLTJet_Et")))            h->Fill(et,      m_lumi_weight);
-	   if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
-	   if((h  = hist("HLTJet_eta")))           h->Fill(eta,     m_lumi_weight);
-	   if((h  = hist("HLTJet_phi")))           h->Fill(phi,     m_lumi_weight);
-	   if((h  = hist("HLTJet_emfrac")))        h->Fill(emfrac,  m_lumi_weight);
-	   if((h  = hist("HLTJet_hecfrac")))       h->Fill(hecfrac, m_lumi_weight);
+            v_thisjet.SetPtEtaPhiE(j->pt()/Gaudi::Units::GeV,j->eta(), j->phi(),j->e()/Gaudi::Units::GeV);
+            m_v_HLTjet.push_back(v_thisjet);
+            m_n_index++;
 
-	   if (count==0){
-	     if((h  = hist("HLTJet_Leading_Et")))            h->Fill(et,      m_lumi_weight);
-	   }
-	   
-	   if((h2 = hist2("HLTJet_phi_vs_eta")))   h2->Fill(eta,phi,m_lumi_weight);  
-	   if((h2 = hist2("HLTJet_E_vs_eta")))     h2->Fill(eta,e,m_lumi_weight); 
-	   if((h2 = hist2("HLTJet_E_vs_phi")))     h2->Fill(phi,e,m_lumi_weight); 
-	   
-	 }// if hlt threshold
+            if((h  = hist("HLTJet_Et")))            h->Fill(et,      m_lumi_weight);
+            if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
+            if((h  = hist("HLTJet_eta")))           h->Fill(eta,     m_lumi_weight);
+            if((h  = hist("HLTJet_phi")))           h->Fill(phi,     m_lumi_weight);
+            if((h  = hist("HLTJet_emfrac")))        h->Fill(emfrac,  m_lumi_weight);
+            if((h  = hist("HLTJet_hecfrac")))       h->Fill(hecfrac, m_lumi_weight);
 
-	 count++;
+            if (count==0){
+              if((h  = hist("HLTJet_Leading_Et")))            h->Fill(et,      m_lumi_weight);
+            }
 
-       }// loop over jet container
-     }// loop over features container
+            if((h2 = hist2("HLTJet_phi_vs_eta")))   h2->Fill(eta,phi,m_lumi_weight);  
+            if((h2 = hist2("HLTJet_E_vs_eta")))     h2->Fill(eta,e,m_lumi_weight); 
+            if((h2 = hist2("HLTJet_E_vs_phi")))     h2->Fill(phi,e,m_lumi_weight); 
 
-     if((h  = hist("HLTJet_n")))            h->Fill(count,      m_lumi_weight);
+          }// if hlt threshold
+          count++;
+
+        }// loop over jet container
+      }// loop over features container
+
+    } else { // TrigComposite mode
+
+      // Note: Only getting jets which pass theChain here
+      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > fc = 
+        getTDT()->features<xAOD::JetContainer>( Form("HLT_%s",theChain.c_str()) );
+       
+      for(const auto& jetLinkInfo : fc) {
+        if (!jetLinkInfo.isValid()) {
+          ATH_MSG_ERROR("Invalid ElementLink to online jet");
+          continue;
+        }
+        ElementLink<xAOD::JetContainer> j = jetLinkInfo.link;
+        // ATH_MSG_INFO("Loop Over Features");
+        double e = ((*j)->e())/Gaudi::Units::GeV;
+        double et = 0., epsilon = 1.e-3;
+
+        if((*j)->pt() > epsilon) et = ((*j)->pt())/Gaudi::Units::GeV;
+
+        ATH_MSG_DEBUG("jet et = "<<et);
+
+        if(et < epsilon) et = 0;
+        bool hlt_thr_pass = ( et > thrHLT );
+        if(hlt_thr_pass) {
+          double eta     = (*j)->eta();
+          double phi     = (*j)->phi();
+          float  emfrac  =1;
+          float  hecfrac =1;
+          if ((m_isPP || m_isCosmic || m_isMC) &&
+                   (*j)->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
+          {
+            hecfrac = (*j)->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
+          }
+
+          v_thisjet.SetPtEtaPhiE((*j)->pt()/Gaudi::Units::GeV,(*j)->eta(), (*j)->phi(),(*j)->e()/Gaudi::Units::GeV);
+          m_v_HLTjet.push_back(v_thisjet);
+          m_n_index++;
+           
+          if((h  = hist("HLTJet_Et")))            h->Fill(et,      m_lumi_weight);
+          if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
+          if((h  = hist("HLTJet_eta")))           h->Fill(eta,     m_lumi_weight);
+          if((h  = hist("HLTJet_phi")))           h->Fill(phi,     m_lumi_weight);
+          if((h  = hist("HLTJet_emfrac")))        h->Fill(emfrac,  m_lumi_weight);
+          if((h  = hist("HLTJet_hecfrac")))       h->Fill(hecfrac, m_lumi_weight);
+
+          if (count==0){
+            if((h  = hist("HLTJet_Leading_Et")))            h->Fill(et,      m_lumi_weight);
+          }
+         
+          if((h2 = hist2("HLTJet_phi_vs_eta")))   h2->Fill(eta,phi,m_lumi_weight);  
+          if((h2 = hist2("HLTJet_E_vs_eta")))     h2->Fill(eta,e,m_lumi_weight); 
+          if((h2 = hist2("HLTJet_E_vs_phi")))     h2->Fill(phi,e,m_lumi_weight); 
+        }// if hlt threshold
+
+        count++;
+      }// loop over jet container
+
+    } // TriggerElement or TrigComposite
+
+    if((h  = hist("HLTJet_n")))            h->Fill(count,      m_lumi_weight);
      
   }// if chain passed
 
-   m_v_HLTindex.push_back(m_n_index);
+  m_v_HLTindex.push_back(m_n_index);
 
 }//EoF
 
@@ -1854,6 +1915,8 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
       h->Fill(m_lumiBlock,m_lumi_weight);
     }
     
+    // TODO - L1 access is not yet implimented for R3 feature access
+
     Trig::FeatureContainer chainFeatures = getTDT()->features(theChain.c_str());
     for(Trig::FeatureContainer::combination_const_iterator chIt = chainFeatures.getCombinations().begin(); 
         chIt != chainFeatures.getCombinations().end(); ++chIt ) {
@@ -2882,52 +2945,89 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
 
     ATH_MSG_DEBUG("Chain "<<ChainName.c_str());
  
-    auto cg = getTDT()->getChainGroup(Form("HLT_%s",ChainName.c_str())); //get features
-    auto fc = cg->features();
-    auto JetFeatureContainers = fc.get<xAOD::JetContainer>(); //get features container
-    
-    for(auto jcont : JetFeatureContainers) {
+    if (getTDT()->getNavigationFormat() == "TriggerElement") {
+
+      auto cg = getTDT()->getChainGroup(Form("HLT_%s",ChainName.c_str())); //get features
+      auto fc = cg->features();
+      auto JetFeatureContainers = fc.get<xAOD::JetContainer>(); //get features container
       
-      for (auto j : *jcont.cptr()) {
-		
-	double et = 0., epsilon = 1.e-3;
-	if(j->pt() > epsilon) et = (j->pt())/Gaudi::Units::GeV;
-	if(et < epsilon) et = 0;
+      for(auto jcont : JetFeatureContainers) {
+        
+        for (auto j : *jcont.cptr()) {
+      
+          double et = 0., epsilon = 1.e-3;
+          if(j->pt() > epsilon) et = (j->pt())/Gaudi::Units::GeV;
+          if(et < epsilon) et = 0;
 
-	TLorentzVector v_HLT;
-	v_HLT.SetPtEtaPhiE(j->pt(),j->eta(), j->phi(),j->e());
-	
-	double DR=v_OF.DeltaR(v_HLT);
-	//double DR=delta_r(j->eta(),j->phi(),jet->eta(),jet->phi());
-	
+          TLorentzVector v_HLT;
+          v_HLT.SetPtEtaPhiE(j->pt(),j->eta(), j->phi(),j->e());
+    
+          double DR=v_OF.DeltaR(v_HLT);
+        
+          ATH_MSG_DEBUG("Jet pt= "<<j->pt()<<" Jet eta= "<<j->eta()<<" Eta Low= "<<m_hltEtaLowThres[ChainName.c_str()]<<" Eta High= "<<m_hltEtaHighThres[ChainName.c_str()]);      
+          if (DR<DRmin){ //select best matching jet 
+            DRmin=DR;
+          }
 
+          if (fabs(v_HLT.Eta())>m_hltEtaLowThres[ChainName.c_str()] && fabs(v_HLT.Eta())<m_hltEtaHighThres[ChainName.c_str()] && v_HLT.Pt()>Ptmin && m_hltJetn[ChainName.c_str()]==1){ //select leading jet in the chosen eta range
+            Ptmin= v_HLT.Pt();
+            v_best_match=v_HLT;    
+            ATH_MSG_DEBUG("is leading");
+          }
+          else if (fabs(v_HLT.Eta())>m_hltEtaLowThres[ChainName.c_str()] &&
+                   fabs(v_HLT.Eta())<m_hltEtaHighThres[ChainName.c_str()] &&
+                   m_hltJetn[ChainName.c_str()]==count &&
+                   m_hltJetn[ChainName.c_str()] != 1) { // select nth jet in the chosen eta range
+            v_best_match=v_HLT;    
+            ATH_MSG_DEBUG("is leading");
+          }
+          count=count+1;
+        }// loop over jet container
+      }// loop over features container
 
-	ATH_MSG_DEBUG("Jet pt= "<<j->pt()<<" Jet eta= "<<j->eta()<<" Eta Low= "<<m_hltEtaLowThres[ChainName.c_str()]<<" Eta High= "<<m_hltEtaHighThres[ChainName.c_str()]);      
+    } else {
 
+      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > fc = 
+        getTDT()->features<xAOD::JetContainer>( Form("HLT_%s",ChainName.c_str()) );
+       
+      for(const auto& jetLinkInfo : fc) {
+        if (!jetLinkInfo.isValid()) {
+          ATH_MSG_ERROR("Invalid ElementLink to online jet");
+          continue;
+        }
+        ElementLink<xAOD::JetContainer> j = jetLinkInfo.link;
 
-	if (DR<DRmin){ //select best matching jet 
-	  DRmin=DR;
-	  // v_best_match=v_HLT;
-	}
+        double et = 0., epsilon = 1.e-3;
+        if((*j)->pt() > epsilon) et = ((*j)->pt())/Gaudi::Units::GeV;
+        if(et < epsilon) et = 0;
 
-	if (fabs(v_HLT.Eta())>m_hltEtaLowThres[ChainName.c_str()] && fabs(v_HLT.Eta())<m_hltEtaHighThres[ChainName.c_str()] && v_HLT.Pt()>Ptmin && m_hltJetn[ChainName.c_str()]==1){ //select leading jet in the chosen eta range
-	  Ptmin= v_HLT.Pt();
-	  v_best_match=v_HLT;	  
-	  ATH_MSG_DEBUG("is leading");
+        TLorentzVector v_HLT;
+        v_HLT.SetPtEtaPhiE((*j)->pt(),(*j)->eta(), (*j)->phi(),(*j)->e());
+  
+        double DR=v_OF.DeltaR(v_HLT);
+      
+        ATH_MSG_DEBUG("Jet pt= "<<(*j)->pt()<<" Jet eta= "<<(*j)->eta()<<" Eta Low= "<<m_hltEtaLowThres[ChainName.c_str()]<<" Eta High= "<<m_hltEtaHighThres[ChainName.c_str()]);      
+        if (DR<DRmin){ //select best matching jet 
+          DRmin=DR;
+        }
 
-	}
+        if (fabs(v_HLT.Eta())>m_hltEtaLowThres[ChainName.c_str()] && fabs(v_HLT.Eta())<m_hltEtaHighThres[ChainName.c_str()] && v_HLT.Pt()>Ptmin && m_hltJetn[ChainName.c_str()]==1){ //select leading jet in the chosen eta range
+          Ptmin= v_HLT.Pt();
+          v_best_match=v_HLT;    
+          ATH_MSG_DEBUG("is leading");
+        }
         else if (fabs(v_HLT.Eta())>m_hltEtaLowThres[ChainName.c_str()] &&
                  fabs(v_HLT.Eta())<m_hltEtaHighThres[ChainName.c_str()] &&
                  m_hltJetn[ChainName.c_str()]==count &&
                  m_hltJetn[ChainName.c_str()] != 1) { // select nth jet in the chosen eta range
-	  v_best_match=v_HLT;	  
-	  ATH_MSG_DEBUG("is leading");
-	}
-	
-       	count=count+1;
-	
+          v_best_match=v_HLT;    
+          ATH_MSG_DEBUG("is leading");
+        }
+        count=count+1;
       }// loop over jet container
-    }// loop over features container
+
+    } // if TriggerElement or TriggerComposite
+
   }// if level is HLT
 
   if (DRmin<DRCut){

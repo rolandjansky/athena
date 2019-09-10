@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -25,6 +25,6 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileCellIDC.h"
 #include "TileEvent/TileBeamElemContainer.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
  
 SG_ADD_BASE (TileContainer<TileCell>, DataVector<TileCell>);

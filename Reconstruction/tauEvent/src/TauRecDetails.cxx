@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///@file TauRecDetails.cxx  DEPRECATED DO NOT USE
@@ -16,7 +16,7 @@
 /// $Id: TauRecDetails.cxx,v 1.11 2009-05-20 13:10:37 slai Exp $
 
 #include "tauEvent/TauRecDetails.h"
-#include "SGTools/ClassName.h"
+#include "AthenaKernel/ClassName.h"
 
 namespace Analysis
 {

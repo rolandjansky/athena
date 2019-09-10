@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file AthenaCommon/python/AthenaCommonFlags.py
@@ -17,6 +17,8 @@
 
 """
 
+from __future__ import print_function
+
 __author__ = "S.Binet, M.Gallas"
 __version__= "$Revision: 1.11 $"
 __doc__    = "AthenaCommonFlags"
@@ -26,15 +28,15 @@ __all__    = [ "athenaCommonFlags" ]
 ##-----------------------------------------------------------------------------
 ## Import
 
-from JobProperties import JobProperty, JobPropertyContainer
-from JobProperties import jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import jobproperties
 
 ##-----------------------------------------------------------------------------
 ## 1st step: define JobProperty classes
 
 class EvtMax(JobProperty):
     """Number of events to process or generate"""
-    statusOn     = True
+    statusOn     = False
     allowedTypes = ['int']
     StoredValue  = 5
 
@@ -42,7 +44,7 @@ class SkipEvents(JobProperty):
     """Number of events to skip when reading an input POOL file. This should
     be given to the EventSelector service.
     """
-    statusOn     = True
+    statusOn     = False
     allowedTypes = ['int']
     StoredValue  = 0
 
@@ -212,7 +214,7 @@ class RuntimeStrictness(JobProperty):
 
     def _do_action( self, *args, **kwds ):
         if self.StoredValue != 'none':
-            import CfgMgr, AppMgr
+            from AthenaCommon import CfgMgr, AppMgr
 
             if not hasattr( AppMgr.ServiceMgr, 'FPEControlSvc' ):
                 AppMgr.ServiceMgr += CfgMgr.FPEControlSvc()
@@ -228,7 +230,7 @@ class RuntimeStrictness(JobProperty):
         return super( RuntimeStrictness, self )._do_action( *args, **kwds )
 
     def _undo_action( self, *args, **kwds ):
-        import AppMgr
+        from AthenaCommon import AppMgr
 
         try:
             AppMgr.theApp.CreateSvc.remove( AppMgr.ServiceMgr.FPEControlSvc.getFullJobOptName() )

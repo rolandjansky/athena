@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,8 +57,8 @@ namespace InDetDD {
       ~PixelDetectorManager();
     
       /** Access to raw geometry: */
-      virtual unsigned int getNumTreeTops() const;
-      virtual PVConstLink getTreeTop(unsigned int i) const;
+      virtual unsigned int getNumTreeTops() const override;
+      virtual PVConstLink getTreeTop(unsigned int i) const override;
     
       /** Add a Tree top: */
       void addTreeTop(PVLink);
@@ -67,10 +67,10 @@ namespace InDetDD {
       // Access Readout Elements
       //
       /** access to individual elements : via Identifier */
-      virtual SiDetectorElement * getDetectorElement(const Identifier &id) const;
+      virtual SiDetectorElement * getDetectorElement(const Identifier &id) const override;
 
       /** access to individual elements : via IdentifierHash */
-      virtual SiDetectorElement * getDetectorElement(const IdentifierHash &idHash) const;
+      virtual SiDetectorElement * getDetectorElement(const IdentifierHash &idHash) const override;
 
       /** access to individual elements : via element identification */
       SiDetectorElement * getDetectorElement(int barrel_endcap,
@@ -79,12 +79,12 @@ namespace InDetDD {
     					                     int eta_module) const;
 
       /** access to whole collection via Iterators */
-      virtual const SiDetectorElementCollection * getDetectorElementCollection() const;
-      virtual SiDetectorElementCollection::const_iterator getDetectorElementBegin() const;
-      virtual SiDetectorElementCollection::const_iterator getDetectorElementEnd() const;
+      virtual const SiDetectorElementCollection * getDetectorElementCollection() const override;
+      virtual SiDetectorElementCollection::const_iterator getDetectorElementBegin() const override;
+      virtual SiDetectorElementCollection::const_iterator getDetectorElementEnd() const override;
     
       /** Add elememts */
-      virtual void addDetectorElement(SiDetectorElement * element);
+      virtual void addDetectorElement(SiDetectorElement * element) override;
     
       /** Add alignable transforms. No access to these, they will be changed by manager: */
       virtual void addAlignableTransform (int level,
@@ -100,18 +100,18 @@ namespace InDetDD {
     
       // DEPRECATED
       virtual void addAlignableTransform (int,
-    				                      const Identifier &, 
-    				                      GeoAlignableTransform *) {}; // For backward compatibility
+                                          const Identifier &, 
+                                          GeoAlignableTransform *) override {}; // For backward compatibility
     
     
       /** Initialize the neighbours. This can only be done when all elements are built. */
-      virtual void initNeighbours();
+      virtual void initNeighbours() override;
         
       /** Methods to query which manager we have */
-      virtual bool isPixel() const {return true;}
+      virtual bool isPixel() const override {return true;}
     
       /** Check identifier is for this detector */
-      virtual bool identifierBelongs(const Identifier & id) const;
+      virtual bool identifierBelongs(const Identifier & id) const override;
     
       
       /** Layers built. Deprecated. Recommend to access via numerology (see SiDetectorManager) 
@@ -128,12 +128,17 @@ namespace InDetDD {
       virtual const PixelModuleDesign * getPixelDesign(int i) const;
 
       /** Process new IBLDist DB folder **/
-      bool processSpecialAlignment(const std::string &, InDetDD::AlignFolderType) const;
+      bool processSpecialAlignment(const std::string &, InDetDD::AlignFolderType) const override;
+
+      bool processSpecialAlignment(const std::string& key,
+                                   const CondAttrListCollection* obj=nullptr,
+                                   GeoVAlignmentStore* alignStore=nullptr) const override;
 
       /** Process new global DB folders for L1 and L2 **/
+      virtual
       bool processGlobalAlignment(const std::string &, int level, FrameType frame,
                                   const CondAttrListCollection* obj,
-                                  GeoVAlignmentStore* alignStore) const;
+                                  GeoVAlignmentStore* alignStore) const override;
     
      private:  
     
@@ -144,7 +149,7 @@ namespace InDetDD {
                                               const Identifier & id, 
                                               const Amg::Transform3D & delta,
                                               FrameType frame,
-                                              GeoVAlignmentStore* alignStore) const;
+                                              GeoVAlignmentStore* alignStore) const override;
       
     
       /** prevent copy and assignment */
@@ -152,7 +157,7 @@ namespace InDetDD {
       PixelDetectorManager(const PixelDetectorManager &right);
     
     
-      virtual const PixelID  * getIdHelper() const;
+      virtual const PixelID  * getIdHelper() const override;
     
       // data members
       std::vector<PVLink>                                           m_volume;

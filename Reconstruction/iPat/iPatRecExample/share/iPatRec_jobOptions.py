@@ -33,7 +33,7 @@ if DetFlags.detdescr.ID_on() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRI
 
     # svc used by fitter to distinguish indet/muon clients
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
-    ServiceMgr += Trk__TrackingVolumesSvc(BuildVolumesFromTagInfo = False)
+    ServiceMgr += Trk__TrackingVolumesSvc()
 
     # set up the extrapolator and fitter as used by iPatRec
     #from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import \
@@ -66,7 +66,6 @@ if DetFlags.detdescr.ID_on() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRI
         name                      = 'iPatMaterialAllocator',
         #AggregateMaterial         = True,
         Extrapolator              = iPatExtrapolator,
-        SpectrometerExtrapolator  = "",
         TrackingGeometrySvc       = ServiceMgr.AtlasTrackingGeometrySvc)
     ToolSvc += iPatMaterialAllocator
 

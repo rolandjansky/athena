@@ -57,7 +57,6 @@ namespace Trk {
   class TrackingVolume;
 }
 
-class ICaloSurfaceHelper;
 class ICaloCoordinateTool;
 class CaloDepthTool;
 class ParticleEnergyParametrization;
@@ -114,6 +113,7 @@ public:
                               const EventContext& ctx) const;
 
   StatusCode callBack( IOVSVC_CALLBACK_ARGS );
+  StatusCode caloAligned( IOVSVC_CALLBACK_ARGS );
 
   typedef std::map<int,int> MCdo_simul_state;
   typedef std::vector<const HepMC::GenParticle*> MCparticleCollection ;
@@ -160,7 +160,6 @@ private:
   /** The Extrapolator setup */
   ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator; //public tool
 
-  ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper; //public tool
   ToolHandle<ICaloCoordinateTool>  m_calo_tb_coord; //public tool
 
   bool                           m_jo_interpolate{false}; //ATA: make marjorie's iterpolation optional

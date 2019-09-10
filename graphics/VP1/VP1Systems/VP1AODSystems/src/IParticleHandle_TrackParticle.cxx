@@ -30,9 +30,19 @@
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoRotationXYZ.h>
 
-//Athena
-#include "TrkExInterfaces/IExtrapolationEngine.h"
-#include "GaudiKernel/SystemOfUnits.h"
+#ifndef BUILDVP1LIGHT
+	#include "TrkExInterfaces/IExtrapolationEngine.h"
+#endif
+
+// System of units
+#ifdef BUILDVP1LIGHT
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // --> 'GeoModelKernelUnits::cm'
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::cm'
+#endif
+
 
 //____________________________________________________________________
 class IParticleHandle_TrackParticle::Imp {
@@ -101,10 +111,13 @@ SoNode* IParticleHandle_TrackParticle::nodes(){
 
   bool fromTrack=m_d->collHandle->collSettingsButton().useExistingParameters();
   
-  if (fromTrack) 
+  if (fromTrack) {
     addLine_FromTrackParticle();
-  else
-    addLine_Extrapolated();
+  } else {
+    #ifndef BUILDVP1LIGHT
+      addLine_Extrapolated();
+    #endif // BUILDVP1LIGHT
+  }
 
   if (m_d->collHandle->collSettingsButton().showParameters()) 
       addParameterShapes();  
@@ -162,13 +175,18 @@ void IParticleHandle_TrackParticle::addLine_FromTrackParticle(){
 
   std::vector<Amg::Vector3D> positions, momenta;
 
-
+#if defined BUILDVP1LIGHT
+  positions.push_back(position());
+  momenta.  push_back(momentum());
+#else
   const Trk::Perigee& peri = m_d->trackparticle->perigeeParameters (); // FIXME - I'd quite like not to use anything which requires Athena ...
  
   positions.push_back(Amg::Vector3D(peri.position().x(),peri.position().y(),peri.position().z()));
   momenta.  push_back(Amg::Vector3D(peri.momentum().x(),peri.momentum().y(),peri.momentum().z()));
   // std::cout<<"i:"<<0<<"/"<<m_d->trackparticle->numberOfParameters()+1<<": ("<<peri.position().x()<<","<<peri.position().y()<<","<<peri.position().z()<<")"<<std::endl;
-  
+#endif // BUILDVP1LIGHT
+
+
   VP1Msg::messageVerbose("IParticleHandle_TrackParticle::addLine_FromTrackParticle - has "+QString::number(m_d->trackparticle->numberOfParameters())+" extra parameters.");
    for (unsigned int i=0; i<m_d->trackparticle->numberOfParameters() ; ++i){
     // std::cout<<"i:"<<i+1<<"/"<<m_d->trackparticle->numberOfParameters()+1<<": ("<<m_d->trackparticle->parameterX(i)<<","<<m_d->trackparticle->parameterY(i)<<","<<m_d->trackparticle->parameterZ(i)<<")"<<std::endl;
@@ -179,6 +197,7 @@ void IParticleHandle_TrackParticle::addLine_FromTrackParticle(){
     momenta.push_back(Amg::Vector3D(  m_d->trackparticle->parameterPX(i),
                                       m_d->trackparticle->parameterPY(i),
                                       m_d->trackparticle->parameterPZ(i)));      
+
   } // end of loop.
 
   // if ( positions.size()<2 ) VP1Msg::messageVerbose("IParticleHandle_TrackParticle::addLine_FromTrackParticle - WARNING - not enough points to make a line.");
@@ -273,8 +292,10 @@ void IParticleHandle_TrackParticle::fillLineFromSplineFit(const std::vector<Amg:
   
 }
 
+#ifndef BUILDVP1LIGHT
 void IParticleHandle_TrackParticle::addLine_Extrapolated(){
   VP1Msg::messageVerbose("IParticleHandle_TrackParticle::addLine_Extrapolated().");
+
   const Trk::Perigee& peri = m_d->trackparticle->perigeeParameters (); // FIXME - I'd quite like not to use anything which requires Athena ...
   
   Trk::CurvilinearParameters startParameters(peri.position(),peri.momentum(),peri.charge());
@@ -296,10 +317,11 @@ void IParticleHandle_TrackParticle::addLine_Extrapolated(){
   
   std::vector<Amg::Vector3D> positions; 
   std::vector<Amg::Vector3D> momenta;
-  
+
   // Add start positions
   positions.push_back(Amg::Vector3D(peri.position().x(),peri.position().y(),peri.position().z()));
   momenta.  push_back(Amg::Vector3D(peri.momentum().x(),peri.momentum().y(),peri.momentum().z()));
+
   
   Trk::ExtrapolationCode eCode = engine->extrapolate(ecc);
   
@@ -340,6 +362,7 @@ void IParticleHandle_TrackParticle::addLine_Extrapolated(){
 
   m_d->sep->addChild(m_d->line);
 }
+#endif // BUILDVP1LIGHT
 
 //____________________________________________________________________
 QStringList IParticleHandle_TrackParticle::clicked() const
@@ -351,11 +374,70 @@ QStringList IParticleHandle_TrackParticle::clicked() const
 }
 
 //____________________________________________________________________
-Amg::Vector3D IParticleHandle_TrackParticle::momentum() const
-{
-  const Trk::Perigee& p = m_d->trackparticle->perigeeParameters();
-  return p.momentum();
-}
+#if defined BUILDVP1LIGHT
+  Amg::Vector3D IParticleHandle_TrackParticle::momentum() const
+  {
+    double phi = m_d->trackparticle->phi0();
+    double theta = m_d->trackparticle->theta();
+
+    // decide the sign of the charge
+    double qop = m_d->trackparticle->qOverP();
+    // if(qop < 0.) 
+    //   m_chargeDef->setCharge(-1.);
+    // else
+    //   m_chargeDef->setCharge(1.);
+    static constexpr double INVALID_P(10e9);
+    static constexpr double INVALID_QOP(10e-9);
+
+    // check qoverp is physical
+    double p = 0.;
+    if(qop != 0.)
+      p = fabs(1./qop);
+    else
+    {
+      // qop is unphysical. No momentum measurement.
+      p = INVALID_P;
+      qop = INVALID_QOP;
+    }
+
+    const Amg::Vector3D mom = Amg::Vector3D(p*cos(phi)*sin(theta), p*sin(phi)*sin(theta), p*cos(theta));
+
+    return mom;
+  }
+#else
+  Amg::Vector3D IParticleHandle_TrackParticle::momentum() const
+  {
+    const Trk::Perigee& p = m_d->trackparticle->perigeeParameters();
+    return p.momentum();
+  }
+#endif // BUILDVP1LIGHT
+
+//____________________________________________________________________
+// TODO: probably, we can move this function to the common base class for all trackparticles
+#if defined BUILDVP1LIGHT
+  Amg::Vector3D IParticleHandle_TrackParticle::position() const
+  {
+    double d0 = m_d->trackparticle->d0();
+    double z0 = m_d->trackparticle->z0();
+    double phi = m_d->trackparticle->phi0();
+
+    // glopos[Amg::x] = - locpos[Trk::d0]*sin(phi);
+    // glopos[Amg::y] =   locpos[Trk::d0]*cos(phi);
+    // glopos[Amg::z] =   locpos[Trk::z0];
+
+
+    const Amg::Vector3D pos = Amg::Vector3D(- d0*sin(phi), d0*cos(phi), z0);
+
+    return pos;
+  }
+#else
+    Amg::Vector3D IParticleHandle_TrackParticle::position() const
+  {
+    const Trk::Perigee& p = m_d->trackparticle->perigeeParameters();
+    return p.position(); // TODO: check what this returns
+  }
+#endif
+
 
 //____________________________________________________________________
 const xAOD::IParticle& IParticleHandle_TrackParticle::iParticle() const
@@ -420,7 +502,7 @@ unsigned IParticleHandle_TrackParticle::getNMuonPhiHoleLayers() const
 
 QString IParticleHandle_TrackParticle::shortInfo() const
 {
-  QString l("|P|="+VP1Msg::str(momentum().mag()/Gaudi::Units::GeV)+" [GeV], ");
+  QString l("|P|="+VP1Msg::str(momentum().mag()/SYSTEM_OF_UNITS::GeV)+" [GeV], ");
   l+= "Pix["+QString::number(getNPixelHits())+"], SCT["+QString::number(getNSCTHits())+"], TRT["+QString::number(getNTRTHits())
    +"], Muon prec. layers/holes ["+QString::number(getNMuonPrecisionLayers())+"/"+QString::number(getNMuonPrecisionHoleLayers())+"]";
   return l;
@@ -490,8 +572,12 @@ const QList<std::pair<xAOD::ParameterPosition, Amg::Vector3D> >& IParticleHandle
   
   typedef std::pair<xAOD::ParameterPosition, Amg::Vector3D> paramAndPos;
   
+#if defined BUILDVP1LIGHT
+  m_d->parametersAndPositions.append(paramAndPos(xAOD::BeamLine, position() ) );
+#else
   const Trk::Perigee& peri = m_d->trackparticle->perigeeParameters (); // FIXME - I'd quite like not to use anything which requires Athena ...
   m_d->parametersAndPositions.append(paramAndPos(xAOD::BeamLine, Amg::Vector3D(peri.position().x(),peri.position().y(),peri.position().z()) ) );
+#endif // BUILDVP1LIGHT
 
   float x,y,z;
   for (unsigned int i=0; i<m_d->trackparticle->numberOfParameters() ; ++i){
@@ -526,3 +612,4 @@ void IParticleHandle_TrackParticle::dumpToJSON( std::ofstream& str) const {
   }
   str << "] ";
 }
+

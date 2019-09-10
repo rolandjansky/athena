@@ -19,7 +19,7 @@
 #ifndef _TrkVKalVrtCore_CommonPars_H
 #define _TrkVKalVrtCore_CommonPars_H
 
-#define vkalNTrkM  300
+#define vkalNTrkM  200
 #define vkalMagCnvCst 0.29979246
 #define vkalInternalStepLimit   20.
 #define vkalAllowedPtChange      3.

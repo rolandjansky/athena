@@ -14,7 +14,7 @@
  * @class DecisionsSummaryMakerAlg
  * @brief Executes after both the first-pass and secon-pass (rerun) chains have finished.
  *        Makes decision objects containing decision IDs per passing chain, prescaled chain and rerun chain.
- *        Sends end-of-HLT processing trigger to cost monitoring. Writes HLTSummary container.
+ *        Sends end-of-HLT processing trigger to cost monitoring. Writes HLTNav_Summary container.
  **/
 class DecisionSummaryMakerAlg : public AthReentrantAlgorithm {
 public:
@@ -26,13 +26,13 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{ this, "DecisionsSummaryKey", "HLTSummary", 
+  SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_summaryKey{ this, "DecisionsSummaryKey", "HLTNav_Summary", 
       "location of final decision" };
 
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_finalDecisionKeys{ this, "FinalDecisionKeys", {}, 
       "Final stage of all decisions" };
 
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_costWriteHandleKey { this, "CostWriteHandleKey", "TrigCostContainer",
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_costWriteHandleKey { this, "CostWriteHandleKey", "HLT_TrigCostContainer",
     "Trig composite collections summarising the HLT execution" };
 
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1SummaryKey { this, "L1DecoderSummaryKey", "L1DecoderSummary",
@@ -44,7 +44,7 @@ private:
   Gaudi::Property< std::map< std::string, std::string > > m_lastStepForChain{ this, "FinalStepDecisions", {}, 
     "The map of chain name to name of the collection in which the final decision is found" };
 
-  Gaudi::Property<bool> m_enableCostMonitoring{this, "EnableCostMonitoring", false, 
+  Gaudi::Property<bool> m_doCostMonitoring{this, "DoCostMonitoring", false, 
     "Enables end-of-event cost monitoring behavior."};
 
   std::map<std::string, TrigCompositeUtils::DecisionIDContainer> m_collectionFilter;

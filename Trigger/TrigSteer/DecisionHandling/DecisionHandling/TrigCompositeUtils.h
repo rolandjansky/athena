@@ -211,12 +211,47 @@ namespace TrigCompositeUtils {
     std::string m_name;
   };
 
+  /**
+   * @brief Query all DecisionCollections in the event store, locate all Decision nodes in the graph where an object failed selection for a given chain.
+   * @param[in] eventStore Pointer to event store within current event context
+   * @param[in] id ID of chain to located failed decision nodes for. Passing 0 returns all decision nodes which failed at least one chain.
+   * @return Vector of Decision nodes whose attached feature failed the trigger chain logic for chain with DecisionID id
+   **/
+  std::vector<const Decision*> getRejectedDecisionNodes(StoreGateSvc* eventStore, const DecisionID id = 0);
   
   /**
-   * @brief collects all TC linked back to the start TC
-   * @return true if search worked, false if a composite TC was found but not links back were found there
+   * @brief Search back in time from "start" and locate all linear paths back through Decision objects for a given chain.
+   * @param[in] start The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTNav_Summary (regular or rerun).
+   * @param[out] linkVector Each entry in the outer vector represents a path through the graph. For each path, a vector of ElementLinks describing the path is returned.
+   * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
+   * @param[in] enforceDecisionOnStartNode If the check of DecisionID should be carried out on the start node.
+   * enforceDecisionOnStartNode should be true if navigating for a trigger which passed (e.g. starting from HLTPassRaw)
+   * enforceDecisionOnStartNode should be false if navigating for a trigger which failed but whose failing start node(s) were recovered via getRejectedDecisionNodes
    **/
-  bool recursiveGetObjectLinks( const xAOD::TrigComposite* start, ElementLinkVector<xAOD::TrigCompositeContainer>& linkVector);
+  void recursiveGetDecisions(const Decision* start, 
+    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    const DecisionID id = 0,
+    const bool enforceDecisionOnStartNode = true);
+
+
+  /**
+   * @brief Used by recursiveGetDecisions
+   * @see recursiveGetDecisions
+   **/
+  void recursiveGetDecisionsInternal(const Decision* start, 
+    const size_t location, 
+    std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    const DecisionID id = 0,
+    const bool enforceDecisionOnNode = true);
+
+  /**
+   * @brief Additional information returned by the TrigerDecisionTool's feature retrieval, contained within the LinkInfo.
+   **/
+  enum ActiveState {
+    UNSET, //!< Default property of state. Indicates that the creator of the LinkInfo did not supply this information
+    ACTIVE, //!< The link was still active for one-or-more of the HLT Chains requested in the TDT
+    INACTIVE //!< The link was inactive for all of the HLT Chains requested in the TDT. I.e. the object was rejected by these chains.
+  };
 
   /**
    * @brief Helper to keep the TC & object it has linked together (for convenience)
@@ -225,8 +260,8 @@ namespace TrigCompositeUtils {
   struct LinkInfo {
     LinkInfo()
       : source{0} {}
-    LinkInfo(const xAOD::TrigComposite *s, const ElementLink<T>& l)
-      : source{s}, link{l} {}
+    LinkInfo(const xAOD::TrigComposite *s, const ElementLink<T>& l, ActiveState as = ActiveState::UNSET)
+      : source{s}, link{l}, state{as} {}
 
     bool isValid() const {
       return source && link.isValid(); }
@@ -238,17 +273,70 @@ namespace TrigCompositeUtils {
 
     const xAOD::TrigComposite *source;
     ElementLink<T> link;
+    ActiveState state;
   };
 
+
+  /// @name Constant string literals used within the HLT
+  /// @{
+  const std::string& initialRoIString();
+  const std::string& initialRecRoIString();
+  const std::string& roiString();
+  const std::string& viewString();
+  const std::string& featureString();
+  const std::string& seedString();
+  /// @}
+
+
   /**
-   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * @brief Extract features from the supplied linkVector (obtained through recursiveGetDecisions).
+   * @param[in] linkVector Vector of paths through the navigation which are to be considered.
+   * @param[in] oneFeaturePerLeg True for TrigDefs::oneFeaturePerLeg. stops at the first feature (of the correct type) found per path through the navigation.
+   * @param[in] featureName Optional name of feature link as saved online. The "feature" link is enforced, others may have been added. 
+   * @param[in] chains Optional set of Chain IDs which features are being requested for. Used to set the ActiveState of returned LinkInfo objects.
+   * @return Typed vector of LinkInfo. Each LinkInfo wraps an ElementLink to a feature and a pointer to the feature's Decision object in the navigation.
+   **/
+  template<class CONTAINER>
+  const std::vector< LinkInfo<CONTAINER> > getFeaturesOfType( 
+    const std::vector<ElementLinkVector<DecisionContainer>>& linkVector, 
+    const bool oneFeaturePerLeg = true,
+    const std::string& featureName = featureString(),
+    const DecisionIDContainer chainIDs = DecisionIDContainer());
+
+  /**
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively).
+   * For the case of multiple links, this function only returns the first one found. @see findLinks
    * @arg start the TC  from where the link back is to be looked for
    * @arg linkName the name with which the Link was added to the source TC
+   * @arg suppressMultipleLinksWarning findLink will print a warning if more than one link is found, this can be silenced here
    * @return pair of link and TC with which it was associated, 
    */
   template<typename T>
   LinkInfo<T>
-  findLink(const xAOD::TrigComposite* start, const std::string& linkName);
+  findLink(const xAOD::TrigComposite* start, const std::string& linkName, const bool suppressMultipleLinksWarning = false);
+
+  /**
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * Populates provided vector with all located links to T of the corresponding name. 
+   * @arg start the TC  from where the link back is to be looked for
+   * @arg linkName the name with which the Link was added to the source TC
+   * @arg links Reference to vector, this will be populated with the found links. 
+   */
+  template<typename T>
+  void
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName, std::vector<LinkInfo<T>>& links);
+
+  /**
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * This version returns a vector rather than requiring that one be passed to it. 
+   * @arg start the TC  from where the link back is to be looked for
+   * @arg linkName the name with which the Link was added to the source TC
+   * @return Vector with the found links. 
+   */
+  template<typename T>
+  std::vector<LinkInfo<T>>
+  findLinks(const xAOD::TrigComposite* start, const std::string& linkName);
+
 
   /**
    * Prints the TC including the linked seeds
@@ -256,15 +344,7 @@ namespace TrigCompositeUtils {
    **/  
   std::string dump( const xAOD::TrigComposite*  tc, std::function< std::string( const xAOD::TrigComposite* )> printerFnc );
 
-  /// @name Constant string literals used within the HLT
-  /// @{
-  const std::string& initialRoIString();
-  const std::string& intitalRecRoIString();
-  const std::string& roiString();
-  const std::string& viewString();
-  const std::string& featureString();
-  const std::string& seedString();
-  /// @}
+
 
 
 }

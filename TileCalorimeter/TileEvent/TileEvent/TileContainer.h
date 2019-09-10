@@ -87,7 +87,7 @@ CLASS_DEF(TileMuonReceiverContainer, 2954, 0)
 
 // explicitly declared inheritance information about template  class 
 // TileContainer<> , information may be read in
-// http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Control/SGTools/SGTools/BaseInfo.h#0047
+// AthenaKernel/BaseInfo.h.
 namespace SG {
   template <class T>
   struct Bases<TileContainer<T> > {

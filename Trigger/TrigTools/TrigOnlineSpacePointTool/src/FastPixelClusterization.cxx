@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigOnlineSpacePointTool/FastPixelClusterization.h"
+#include "FastPixelClusterization.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 
@@ -51,8 +51,7 @@ FastPixelClusterization::FastPixelClusterization () {
 
 void FastPixelClusterization::initializeGeometry(const InDetDD::PixelDetectorManager* manager){
 
-  ///@todo WARNING - hack needed here for non-const method of PixelDetectorManager
-  m_man = const_cast<InDetDD::PixelDetectorManager*>(manager);
+  m_man = manager;
 
   // Barrel geometry : get a B-layer barrel element (part 0 layer 0 phi 0, eta 1)
   InDetDD::SiDetectorElement* element = m_man->getDetectorElement(0, 0, 1, 1);
@@ -114,7 +113,12 @@ void FastPixelClusterization::initializeGeometry(const InDetDD::PixelDetectorMan
 
 
 
-void FastPixelClusterization::addHit( const Identifier waferId, const IdentifierHash  hashElemId, const unsigned int phi_channel, const unsigned int rz_channel, const PixelRDORawData* pHit ) {
+void FastPixelClusterization::addHit( const Identifier waferId,
+                                      const IdentifierHash hashElemId,
+                                      const unsigned int phi_channel,
+                                      const unsigned int rz_channel,
+                                      const PixelRDORawData* pHit,
+                                      const InDetDD::SiDetectorElement* element ) {
 
 #ifdef CLUSTERING_DBG   
   std::cout << "phi_channel = " << phi_channel << "  rz_channel = " << rz_channel << std::endl; 
@@ -140,7 +144,7 @@ void FastPixelClusterization::addHit( const Identifier waferId, const Identifier
     m_element = waferId;
     m_currentClusterColl = new InDet::PixelClusterCollection(hashElemId);
     m_currentClusterColl->setIdentifier(waferId);
-    m_detEl=m_man->getDetectorElement(hashElemId);
+    m_detEl=element;
 
     // Add the hit
     filling_withHit(phi_channel, rz_channel,tot);
@@ -199,7 +203,7 @@ void FastPixelClusterization::addHit( const Identifier waferId, const Identifier
 	m_splittedCollection=false;
       }
 
-    m_detEl=m_man->getDetectorElement(hashElemId);
+    m_detEl=element;
 
     // Add the hit
 

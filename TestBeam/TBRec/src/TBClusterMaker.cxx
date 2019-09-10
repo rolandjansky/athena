@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TBClusterMaker.h"
@@ -32,8 +32,6 @@ TBClusterMaker::TBClusterMaker(const std::string& type,
     m_deltaR(0.02),
     m_maxIter(4),
     m_CellEnergyInADC(false),
-    m_eventStore(0),
-    m_detectorStore(0),
     m_calo_DDM(0),
     m_calo_id(0),
     m_toolSvc(0),
@@ -78,26 +76,11 @@ StatusCode TBClusterMaker::initialize(){
   log << MSG::INFO << "in initialize()" << endmsg;
 
   // Get pointer to detector manager and CaloCell_ID:
-   m_calo_DDM  = CaloDetDescrManager::instance(); 
-   m_calo_id   = m_calo_DDM->getCaloCell_ID();
-
-  // Get StoreGateSvc //
-  StatusCode sc = service ( "StoreGateSvc" , m_eventStore ) ;  
-  if( sc.isFailure() ) {
-    log<<MSG::FATAL<<" Cannot locate StoreGateSvc " << endmsg ;
-    sc = StatusCode::FAILURE ;
-    return sc ;
-  }
-
-   // allocate detectorStore
-  sc = service("DetectorStore", m_detectorStore);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "cannot allocate DetectorStore" << endmsg;
-    return sc;
-  }
+  m_calo_DDM  = CaloDetDescrManager::instance(); 
+  m_calo_id   = m_calo_DDM->getCaloCell_ID();
 
   // allocate ToolSvc
-  sc = service("ToolSvc", m_toolSvc);
+  StatusCode sc = service("ToolSvc", m_toolSvc);
   if (sc.isFailure()) {
     log << MSG::FATAL << "cannot allocate ToolSvc" << endmsg;
     return sc;
@@ -189,7 +172,7 @@ StatusCode TBClusterMaker::execute(const EventContext& /*ctx*/,
   // CaloCells
   const CaloCellContainer* cellContainer;
   StatusCode sc 
-    = m_eventStore->retrieve(cellContainer, m_caloCellContainerName);
+    = evtStore()->retrieve(cellContainer, m_caloCellContainerName);
   if (sc.isFailure()) {
     log << MSG::ERROR
 	<< "cannot allocate CaloCellContainer with key <"

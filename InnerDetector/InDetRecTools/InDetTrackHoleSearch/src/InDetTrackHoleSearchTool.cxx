@@ -303,13 +303,15 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
     // get sct volume
     const Trk::TrackingVolume* sctVolume = trackingGeometry->trackingVolume("InDet::Detectors::SCT::Barrel"); 
     //get BoundarySurface for cylinder between sct and trt
-    const Trk::CylinderSurface* sctCylinder = dynamic_cast<const Trk::CylinderSurface*>
-      (sctVolume->boundarySurfaces()[Trk::tubeOuterCover].getPtr());
+    const Trk::CylinderSurface* sctCylinder = nullptr;
+    const Trk::Surface* sctSurface= &(sctVolume->boundarySurfaces()[Trk::tubeOuterCover].get()->surfaceRepresentation());
+    if(sctSurface->type()==Trk::Surface::Cylinder){
+      sctCylinder= static_cast<const Trk::CylinderSurface*> (sctSurface);
+    }
     if (!sctCylinder) {
       ATH_MSG_ERROR ("cast to CylinderSurface failed, should never happen !");
       return false;
     }
-
     // extrapolate track to cylinder; take this as starting point for hole search
 
     if (firstsipar) {
@@ -326,14 +328,20 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
       ATH_MSG_DEBUG("no start parameters on SCT cylinder, try TRT ec disc");
       // get BoundarySurface for disk which encloses TRT ECs
       // depending on track origin use neg or pos EC
-      const Trk::DiscSurface* trtDisc;
+      const Trk::DiscSurface* trtDisc=nullptr;
       // inverse logic: tracks with theta < M_PI/2 have origin in negative EC
       if (firstsipar->parameters()[Trk::theta] < M_PI/2.) {
         const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::NegativeEndcap");
-        trtDisc = dynamic_cast<const Trk::DiscSurface*> (trtVolume->boundarySurfaces()[Trk::negativeFaceXY].getPtr());
+        const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::negativeFaceXY].get()->surfaceRepresentation());
+        if(trtSurface->type()==Trk::Surface::Disc){
+          trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
+        }
       } else {
         const Trk::TrackingVolume* trtVolume = trackingGeometry->trackingVolume("InDet::Detectors::TRT::PositiveEndcap");  
-        trtDisc = dynamic_cast<const Trk::DiscSurface*> (trtVolume->boundarySurfaces()[Trk::positiveFaceXY].getPtr());
+        const Trk::Surface* trtSurface = &(trtVolume->boundarySurfaces()[Trk::positiveFaceXY].get()->surfaceRepresentation());
+        if(trtSurface->type()==Trk::Surface::Disc){
+          trtDisc = static_cast<const Trk::DiscSurface*> (trtSurface);
+        }
       }
       // extrapolate track to disk
       startParameters = m_extrapolator->extrapolate(*firstsipar,
@@ -382,7 +390,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
   if (m_cosmic) {
     while (iterTSOS!=track.trackStateOnSurfaces()->end()
            && (!(*iterTSOS)->type(Trk::TrackStateOnSurface::Measurement)
-               || !dynamic_cast<const Trk::PlaneSurface*>(&(*iterTSOS)->measurementOnTrack()->associatedSurface()))) {
+               || (*iterTSOS)->measurementOnTrack()->associatedSurface().type()!=Trk::Surface::Plane)) {
       iterTSOS++;
     }
   }
@@ -401,7 +409,12 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
         ((*iterTSOS)->type(Trk::TrackStateOnSurface::Perigee) && m_cosmic)) {
       hasID=false;
       per=nullptr;
-      if (m_cosmic && (*iterTSOS)->trackParameters()) per=dynamic_cast<const Trk::Perigee*>((*iterTSOS)->trackParameters());
+      const Trk::TrackParameters* tmpParam= (*iterTSOS)->trackParameters();
+      if (m_cosmic && tmpParam) {
+        if(tmpParam->associatedSurface().type()==Trk::Surface::Perigee){
+          per=static_cast<const Trk::Perigee*>(tmpParam) ;
+        }
+      }
       if ((*iterTSOS)->measurementOnTrack() != nullptr
           && (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement() != nullptr
           && (*iterTSOS)->measurementOnTrack()->associatedSurface().associatedDetectorElement()->identify() != 0) { 
@@ -452,7 +465,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
             id2 = (thisParameters->associatedSurface()).associatedDetectorElement()->identify();
           } else {
             ATH_MSG_VERBOSE("Surface has no detector element ID, skip it");
-            if (dynamic_cast<const Trk::Perigee*>(thisParameters)) {
+            if(thisParameters->associatedSurface().type()==Trk::Surface::Perigee){
               delete startParameters;
               startParameters = thisParameters->clone();
             }
@@ -462,10 +475,9 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
           // check if it is Si or Pixel
           if (!(m_atlasId->is_pixel(id2) || m_atlasId->is_sct(id2))) {
             ATH_MSG_VERBOSE("Surface is not Pixel or SCT, stop loop over parameters in this step");
-          
             // for collisions, we want to stop at the first trt measurement; whereas for cosmics not
             // here we will have trt measurements on the track before the first si measurement!
-            if (dynamic_cast<const Trk::Perigee*>(thisParameters)) {
+            if(thisParameters->associatedSurface().type()==Trk::Surface::Perigee){
               delete startParameters;
               startParameters = thisParameters->clone();
             }
@@ -543,7 +555,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track,
       
     Trk::CylinderVolumeBounds* cylinderBounds = new Trk::CylinderVolumeBounds(560, 2750); 
     // don't delete the cylinderBounds -> it's taken care of by Trk::VOlume (see Trk::SharedObject)
-    Trk::Volume* boundaryVol = new Trk::Volume(0, dynamic_cast<Trk::VolumeBounds*>(cylinderBounds)); 
+    Trk::Volume* boundaryVol = new Trk::Volume(0, cylinderBounds); 
     // extrapolate this parameter blindly to search for more Si hits (not very fast, I know)
     const std::vector<const Trk::TrackParameters*>* paramList = m_extrapolator->extrapolateBlindly(*startParameters,
                                                                                                    Trk::alongMomentum,
@@ -908,27 +920,21 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
 
   if (perigee) {
 
-    Trk::TrackStateOnSurfaceComparisonFunction* CompFunc = 
-      new Trk::TrackStateOnSurfaceComparisonFunction(perigee->momentum());
+    Trk::TrackStateOnSurfaceComparisonFunction CompFunc(perigee->momentum());
   
     // we always have to sort holes in 
-    // if (!is_sorted(trackTSOS->begin(),trackTSOS->end(), *CompFunc)) {
+    // if (!is_sorted(trackTSOS->begin(),trackTSOS->end(), CompFunc)) {
       
     if (fabs(perigee->parameters()[Trk::qOverP]) > 0.002) {
       /* invest n*(logN)**2 sorting time for lowPt, coping with a possibly
          not 100% transitive comparison functor.
-         DataVector doesn't have stable sort, so we need to tamper with
-         its vector content in order to avoid sort to get caught in DV full
-         object ownership */
+      */
       ATH_MSG_DEBUG("sorting vector with stable_sort ");
-      std::vector<const Trk::TrackStateOnSurface*>* PtrVector
-        = const_cast<std::vector<const Trk::TrackStateOnSurface*>* > (&trackTSOS->stdcont());
-      stable_sort(PtrVector->begin(), PtrVector->end(), *CompFunc);
+      stable_sort(trackTSOS->begin(), trackTSOS->end(), CompFunc);
     } else {
-      trackTSOS->sort(*CompFunc); // respects DV object ownership
+      trackTSOS->sort(CompFunc); // respects DV object ownership
     }
 
-    delete CompFunc;
   }
 
   // create copy of track

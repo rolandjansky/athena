@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyAthena.py
 # @purpose: a set of Python classes for PyAthena
 # @author: Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 __doc__     = """Module containing a set of Python base classes for PyAthena"""
 __version__ = "$Revision: 1.16 $"
@@ -118,13 +120,13 @@ def py_reload (*args):
     import types, sys
     for i,arg in enumerate(args):
         if isinstance (arg, types.ModuleType):
-##             print " ==> moduletype"
+##             print (" ==> moduletype")
             reload (arg)
         elif isinstance (arg, types.StringType):
             # no-op
             continue
         elif isinstance (arg, types.MethodType):
-##             print " ==> methodtype"
+##             print (" ==> methodtype")
             # reload module holding the class' definition
             modname = arg.im_self.__class__.__module__
             module = reload (sys.modules[modname])
@@ -134,11 +136,11 @@ def py_reload (*args):
             fct_name = arg.im_func.__name__
             new_fct = getattr (klass, fct_name)
             #new_fct.im_class = klass
-##             print "-->fct:",new_fct.im_func
+##             print ("-->fct:",new_fct.im_func)
             setattr (obj, fct_name,
                      new_fct.__get__(obj))
         elif hasattr (arg, '__class__'):
-##             print " ==> classtype"
+##             print (" ==> classtype")
             # reload module holding the class' definition
             modname = arg.__class__.__module__
             module = reload (sys.modules[modname])
@@ -154,24 +156,24 @@ def py_reload (*args):
                     v = getattr (klass, k)
                     try:
                         v = v.__get__ (arg)
-                    except AttributeError, err:
+                    except AttributeError as err:
                         # 'handle' not-yet-set gaudi properties
                         continue
                     setattr (arg, k, v.__get__(arg))
                 # FIXME: should we remove methods which disappeared ?
                 v = getattr (arg, k)
-##                 print " ==> reloading [%s.%s <- %s]" % (
+##                 print (" ==> reloading [%s.%s <- %s]" % (
 ##                     arg.__class__.__name__,
-##                     k, v)
+##                     k, v))
                 py_reload (v)
         else:
-            print "*** unhandled type: [%s] (arg #%i) ***" % (type(arg),i)
+            print ("*** unhandled type: [%s] (arg #%i) ***" % (type(arg),i))
         pass
     return
 
 ### imports
-import PyAthenaComps
-from Bindings import _PyAthenaBindingsCatalog as _pycat
+from AthenaPython import PyAthenaComps
+from AthenaPython.Bindings import _PyAthenaBindingsCatalog as _pycat
 
 ### module facade to allow loading classes as attributes ----------------------
 import types

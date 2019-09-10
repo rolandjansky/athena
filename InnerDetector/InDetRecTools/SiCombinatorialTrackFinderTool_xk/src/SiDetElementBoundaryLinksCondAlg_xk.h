@@ -8,7 +8,7 @@
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "SiCombinatorialTrackFinderTool_xk/SiDetElementBoundaryLinks_xk.h"
+#include "SiSPSeededTrackFinderData/SiDetElementBoundaryLinks_xk.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/WriteCondHandleKey.h"
 
@@ -28,8 +28,8 @@ namespace InDet {
     virtual bool isClonable() const override { return true; };
 
   private:
-    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_readKey{this, "ReadKey", "SCT_DetectorElementCollection", "Key of input SiDetectorElementCollection for SCT"};
-    SG::WriteCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_writeKey{this, "WriteKey", "SCT_DetElementBoundaryLinks_xk", "Key of output SiDetElementBoundaryLinks_xk for SCT"};
+    SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_readKey{this, "ReadKey", "SCT_DetectorElementCollection", "Key of input SiDetectorElementCollection"};
+    SG::WriteCondHandleKey<InDet::SiDetElementBoundaryLinks_xk> m_writeKey{this, "WriteKey", "SCT_DetElementBoundaryLinks_xk", "Key of output SiDetElementBoundaryLinks_xk"};
 
     ServiceHandle<ICondSvc> m_condSvc;
   };

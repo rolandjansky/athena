@@ -1,31 +1,28 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetPrepRawData/PixelCluster.h"
-#include "InDetEventTPCnv/InDetPrepRawData/PixelCluster_p3.h"
-#include "InDetEventTPCnv/PixelClusterContainer_p3.h"
-#include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
-#include "InDetPrepRawData/PixelClusterContainer.h"
-
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetEventTPCnv/InDetPrepRawData/PixelClusterCnv_p3.h"
 #include "InDetEventTPCnv/PixelClusterContainerCnv_p3.h"
-#include "AthAllocators/DataPool.h"
-
-// Gaudi
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
 // Athena
+#include "AthenaKernel/errorcheck.h"
+#include "Identifier/Identifier.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Collection_p2.h"
+#include "InDetEventTPCnv/PixelClusterContainer_p3.h"
+#include "InDetEventTPCnv/InDetPrepRawData/PixelCluster_p3.h"
+#include "InDetEventTPCnv/InDetPrepRawData/PixelClusterCnv_p3.h"
+#include "InDetPrepRawData/PixelCluster.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
+// Gaudi
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/StatusCode.h"
 
 void PixelClusterContainerCnv_p3::transToPers(const InDet::PixelClusterContainer* transCont, InDet::PixelClusterContainer_p3* persCont, MsgStream &log) {
 
@@ -113,6 +110,15 @@ void  PixelClusterContainerCnv_p3::persToTrans(const InDet::PixelClusterContaine
     // So here we loop over all collection and extract their channels
     // from the vector.
 
+    const InDetDD::SiDetectorElementCollection* elements(nullptr);
+    if (m_useDetectorElement) {
+        SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
+        elements = *pixelDetEleHandle;
+        if (not pixelDetEleHandle.isValid() or elements==nullptr) {
+            log << MSG::FATAL << m_pixelDetEleCollKey.fullKey() << " is not available." << endmsg;
+            return;
+        }
+    }
 
     InDet::PixelClusterCollection* coll = 0;
 
@@ -136,7 +142,7 @@ void  PixelClusterContainerCnv_p3::persToTrans(const InDet::PixelClusterContaine
         coll->setIdentifier(Identifier(collID));
         unsigned int nchans           = pcoll.m_size;
         coll->resize(nchans);
-        InDetDD::SiDetectorElement * de = m_pixMgr->getDetectorElement(collIDHash);
+        const InDetDD::SiDetectorElement * de = (elements==nullptr ? nullptr : elements->getDetectorElement(collIDHash));
         // Fill with channels:
         // This is used to read the vector of errMat
         // values and lenght of the value are specified in separate vectors
@@ -181,7 +187,7 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv_p3::createTransient(const
       log << MSG::FATAL << "nullptr for m_pixId in PixelClusterContainerCnv_p3::createTransient" << endmsg;
       return nullptr;
     }
-    std::auto_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()));
+    std::unique_ptr<InDet::PixelClusterContainer> trans(std::make_unique<InDet::PixelClusterContainer>(m_pixId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }
@@ -211,7 +217,7 @@ StatusCode PixelClusterContainerCnv_p3::initialize(MsgStream &log) {
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
    //   }
 
-   // Get the sct helper from the detector store
+   // Get the Pixel helper from the detector store
    sc = detStore->retrieve(m_pixId, "PixelID");
    if (sc.isFailure()) {
       log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
@@ -221,12 +227,12 @@ StatusCode PixelClusterContainerCnv_p3::initialize(MsgStream &log) {
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the PixelID helper." << endmsg;
    //   }
 
-   sc = detStore->retrieve(m_pixMgr);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
-      return sc;
-   }
+   CHECK(m_pixelDetEleCollKey.initialize(m_useDetectorElement));
 
    //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
+}
+
+void PixelClusterContainerCnv_p3::setUseDetectorElement(const bool useDetectorElement) {
+  m_useDetectorElement = useDetectorElement;
 }

@@ -22,9 +22,9 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
 //
+#include "CxxUtils/phihelper.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/PhiHelper.h"
 //
 #include "CaloEvent/CaloCellContainer.h"
 //
@@ -38,7 +38,7 @@
 #include "TrigCaloRec/IAlgToolEFCalo.h"
 #include "TrigCaloRec/TrigCaloQuality.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "TrigT2CaloCommon/TrigDataAccess.h"
+#include "TrigT2CaloCommon/ITrigDataAccess.h"
 
 //
 class ISvcLocator;
@@ -249,7 +249,7 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
       double   eta0 = roiDescriptor->eta();
       /// don't really need to wrap phi, as the RoI does it anyway, so phi
       /// from the RoI should always be wrapped anyway
-      double   phi0 = HLT::wrapPhi(roiDescriptor->phi());
+      double   phi0 = CxxUtils::wrapToPi(roiDescriptor->phi());
       
       // Set Phi in [0, 2Pi]
       //while (phi0 > 2.*M_PI) phi0 -= 2. * M_PI;
@@ -265,10 +265,10 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
       double etamin = eta0-(m_detas2*(float)m_neta)/2.;
       double etamax = eta0+(m_detas2*(float)m_neta)/2.;
       // What if phimin < 0 or phimax > 2Pi ??  question
-      double phimin = HLT::wrapPhi(phi0 - (m_dphis2*(float)m_nphi)/2.);
-      double phimax = HLT::wrapPhi(phi0 + (m_dphis2*(float)m_nphi)/2.);
+      double phimin = CxxUtils::wrapToPi(phi0 - (m_dphis2*(float)m_nphi)/2.);
+      double phimax = CxxUtils::wrapToPi(phi0 + (m_dphis2*(float)m_nphi)/2.);
       
-      /// need to map the limits as well !!!  - NB: HLT::wrapPhi does this now
+      /// need to map the limits as well !!!  - NB: CxxUtils::wrapToPi does this now
       //  while (phimin > M_PI) phimin -= 2. * M_PI;
       //  while (phimin <-M_PI) phimin += 2. * M_PI;
       
@@ -463,8 +463,8 @@ else {
 						     roiDescriptor->eta()-m_etaWidthForID, 
 						     roiDescriptor->eta()+m_etaWidthForID, 
 						     roiDescriptor->phi(), 
-						     HLT::wrapPhi(roiDescriptor->phi()-m_phiWidthForID), 
-						     HLT::wrapPhi(roiDescriptor->phi()+m_phiWidthForID) ); 
+						     CxxUtils::wrapToPi(roiDescriptor->phi()-m_phiWidthForID),
+						     CxxUtils::wrapToPi(roiDescriptor->phi()+m_phiWidthForID) );
 
     if ( m_etaWidthForID==0 || m_phiWidthForID==0 )  {
       msg() << MSG::WARNING << "ZERO width RoI requested for the ID: " <<  *roi << endmsg;

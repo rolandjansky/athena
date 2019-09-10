@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -49,8 +49,21 @@ void test1()
 }
 
 
+void test2()
+{
+  std::cout << "test2\n";
+  {
+    auto uptr = std::make_unique<MyObj>();
+    SG::DataObjectSharedPtr<MyObj> ptr (std::move (uptr));
+    assert (ptr->refCount() == 1);
+    std::cout << "should call dtor now\n";
+  }
+}
+
+
 int main()
 {
   test1();
+  test2();
   return 0;
 }

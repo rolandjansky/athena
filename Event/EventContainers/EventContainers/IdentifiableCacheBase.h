@@ -82,7 +82,7 @@ typedef std::set<IdentifierHash> idset_t;
   };
   
   /// Return payload if there, null if not there.
-  const void* find (IdentifierHash hash);
+  const void* find (IdentifierHash hash) noexcept;
   /// Retrieve ptr, will wait if there is something in progress
   const void* findWait (IdentifierHash hash);
 
@@ -92,8 +92,13 @@ typedef std::set<IdentifierHash> idset_t;
   ///In a threaded situation this collection will be valid but will not container hashes later added
   std::vector<IdentifierHash> ids();
   
-  bool add (IdentifierHash hash, const void* p);
-  bool add (IdentifierHash hash, void_unique_ptr p);
+  bool add (IdentifierHash hash, const void* p) noexcept;
+
+  // addLock is same as method above except we check for invalid state first,
+  // more optimal for calling using writehandle lock method
+  bool addLock (IdentifierHash hash, const void* p) noexcept;
+  bool addLock (IdentifierHash hash, void_unique_ptr p) noexcept;
+  bool add (IdentifierHash hash, void_unique_ptr p) noexcept;
 
   bool IMakerPresent() const { return m_maker!=nullptr; }
 

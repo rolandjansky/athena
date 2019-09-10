@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -50,10 +50,6 @@ class TrigTimer;
 class PixelID;
 class IROBDataProviderSvc;
 
-namespace InDetDD {
-  class SiDetectorManager;
-}
-
 namespace InDet {
   
   class ITrigRawDataProviderTool;
@@ -63,9 +59,7 @@ namespace InDet {
     ///////////////////////////////////////////////////////////////////
     //!< Public methods:
     ///////////////////////////////////////////////////////////////////
-  public:
-    
-    typedef InDetDD::SiDetectorManager SiDetectorManager;
+  public:    
     
     // Constructor with parameters:
     Pixel_TrgClusterization(const std::string &name,ISvcLocator *pSvcLocator);
@@ -116,13 +110,11 @@ namespace InDet {
     
     std::string              m_pixelRDOContainerName; //!< RDO container name
     std::string              m_elementsObjectName; 
-    std::string              m_managerName;     //!< detector manager name in StoreGate
     std::string              m_clustersName; 
     std::string              m_ambiguitiesMapName;
     
     const PixelID*           m_idHelper{};
     PixelClusterContainer*   m_clusterContainer{};
-    const SiDetectorManager* m_manager{};
     
     ServiceHandle<IRegSelSvc>     m_regionSelector;     //!< region selector service
     bool m_doFullScan;             //!< support for FullScan mode
@@ -131,7 +123,7 @@ namespace InDet {
     ServiceHandle<IPixelByteStreamErrorsSvc>   m_bsErrorSvc;
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
     bool                     m_doTimeOutChecks;   //check global timer
-
+    bool                     m_skipBSDecoding;    //option to skip BS decoding in MC
     
     // Timing
     TrigTimer   *m_timerRegSel;

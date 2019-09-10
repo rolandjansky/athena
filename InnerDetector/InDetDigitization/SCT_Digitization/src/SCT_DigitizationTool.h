@@ -36,6 +36,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 // STL headers
+#include <limits>
 #include <string>
 
 // Forward declarations
@@ -59,7 +60,7 @@ public:
   /**
      @brief Called before processing physics events
   */
-  StatusCode prepareEvent(unsigned int) override final;
+  virtual StatusCode prepareEvent(unsigned int) override final;
   virtual StatusCode processBunchXing(int bunchXing,
                                       SubEventIterator bSubEvents,
                                       SubEventIterator eSubEvents) override final;
@@ -70,9 +71,9 @@ public:
 
 protected:
 
-  bool       digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const ; //!
-  void       applyProcessorTools(SiChargedDiodeCollection* chargedDiodes, CLHEP::HepRandomEngine * rndmEngine) const; //!
-  void       addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const;
+  bool digitizeElement(SiChargedDiodeCollection* chargedDiodes, TimedHitCollection<SiHit>*& thpcsi, CLHEP::HepRandomEngine * rndmEngine) const ; //!
+  void applyProcessorTools(SiChargedDiodeCollection* chargedDiodes, CLHEP::HepRandomEngine * rndmEngine) const; //!
+  void addSDO(SiChargedDiodeCollection* collection, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap) const;
 
   void storeTool(ISiChargedDiodesProcessorTool* p_processor) {m_diodeCollectionTools.push_back(p_processor);}
 
@@ -111,51 +112,47 @@ private:
   void       digitizeAllHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, std::vector<bool>* processedElements, TimedHitCollection<SiHit>* thpcsi, CLHEP::HepRandomEngine * rndmEngine) const; //!< digitize all hits
   void       digitizeNonHits(SG::WriteHandle<SCT_RDO_Container>* rdoContainer, SG::WriteHandle<InDetSimDataCollection>* simDataCollMap, const std::vector<bool>* processedElements, CLHEP::HepRandomEngine * rndmEngine) const;     //!< digitize SCT without hits
 
-  float m_tfix;           //!< Use fixed timing for cosmics
-
-  bool m_enableHits;            //!< Flag to enable hits
-  bool m_onlyHitElements;       //!<
-  bool m_cosmicsRun;            //!< Select a cosmic run
-  bool m_barrelonly;            //!< Only the barrel layers
-  bool m_randomDisabledCells;   //!< Use Random disabled cells, default no
-  bool m_createNoiseSDO;        //!< Create SDOs for strips with only noise hits (huge increase in SDO collection size)
-  int  m_HardScatterSplittingMode; //!< Process all SiHit or just those from signal or background events
-  bool m_HardScatterSplittingSkipper;
-  BooleanProperty m_WriteSCT1_RawData;     //!< Write out SCT1_RawData rather than SCT3_RawData RDOs
-
-  std::vector<bool> m_processedElements; //!< vector of processed elements - set by digitizeHits() */
   /**
      @brief Called when m_WriteSCT1_RawData is altered. Does nothing, but required by Gaudi.
   */
-
   void SetupRdoOutputType(Property&);
 
-  const SCT_ID*                                      m_detID;                             //!< Handle to the ID helper
-  ToolHandle<ISCT_FrontEnd> m_sct_FrontEnd{this, "FrontEnd", "SCT_FrontEnd", "Handle the Front End Electronic tool"};
-  ToolHandle<ISCT_SurfaceChargesGenerator> m_sct_SurfaceChargesGenerator{this, "SurfaceChargesGenerator", "SCT_SurfaceChargesGenerator", "Choice of using a more detailed charge drift model"};
-  ToolHandle<ISCT_RandomDisabledCellGenerator> m_sct_RandomDisabledCellGenerator{this, "RandomDisabledCellGenerator", "SCT_RandomDisabledCellGenerator", ""};
+  FloatProperty m_tfix{this, "FixedTime", -999., "Fixed time for Cosmics run selection"};
+  BooleanProperty m_enableHits{this, "EnableHits", true, "Enable hits"};
+  BooleanProperty m_onlyHitElements{this, "OnlyHitElements", false, "Process only elements with hits"};
+  BooleanProperty m_cosmicsRun{this, "CosmicsRun", false, "Cosmics run selection"};
+  BooleanProperty m_barrelonly{this, "BarrelOnly", false, "Only Barrel layers"};
+  BooleanProperty m_randomDisabledCells{this, "RandomDisabledCells", false, "Use Random disabled cells, default no"};
+  BooleanProperty m_createNoiseSDO{this, "CreateNoiseSDO", false, "Create SDOs for strips with only noise hits (huge increase in SDO collection size"};
+  IntegerProperty m_HardScatterSplittingMode{this, "HardScatterSplittingMode", 0, "Control pileup & signal splitting. Process all SiHit or just those from signal or background events"};
+  BooleanProperty m_WriteSCT1_RawData{this, "WriteSCT1_RawData", false, "Write out SCT1_RawData rather than SCT3_RawData"};
 
-  std::vector<SiHitCollection*> m_hitCollPtrs;
+  BooleanProperty m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<SiHitCollection> m_hitsContainerKey{this, "InputObjectName", "SCT_Hits", "Input HITS collection name"};
+  std::string m_inputObjectName{""};
 
-  SG::ReadHandleKey<SiHitCollection> m_hitsContainerKey{this, "InputSingleHitsName", "", "Input Single HITS name"};
   SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey{this, "OutputObjectName", "SCT_RDOs", "Output Object name"};
   SG::WriteHandle<SCT_RDO_Container> m_rdoContainer; //!< RDO container handle
   SG::WriteHandleKey<InDetSimDataCollection> m_simDataCollMapKey{this, "OutputSDOName", "SCT_SDO_Map", "Output SDO container name"};
   SG::WriteHandle<InDetSimDataCollection>            m_simDataCollMap; //!< SDO Map handle
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
 
-  std::string                                        m_inputObjectName;     //! name of the sub event  hit collections.
+  ToolHandle<ISCT_FrontEnd> m_sct_FrontEnd{this, "FrontEnd", "SCT_FrontEnd", "Handle the Front End Electronic tool"};
+  ToolHandle<ISCT_SurfaceChargesGenerator> m_sct_SurfaceChargesGenerator{this, "SurfaceChargesGenerator", "SCT_SurfaceChargesGenerator", "Choice of using a more detailed charge drift model"};
+  ToolHandle<ISCT_RandomDisabledCellGenerator> m_sct_RandomDisabledCellGenerator{this, "RandomDisabledCellGenerator", "SCT_RandomDisabledCellGenerator", ""};
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
-  ServiceHandle <PileUpMergeSvc>                     m_mergeSvc; //!
+  ServiceHandle <PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in Pixel & SCT digitization"}; //!
 
-  std::list<ISiChargedDiodesProcessorTool*>          m_diodeCollectionTools;
-  TimedHitCollection<SiHit>*                         m_thpcsi;
-  IntegerProperty                                    m_vetoThisBarcode;
+  const SCT_ID* m_detID{nullptr}; //!< Handle to the ID helper
+  TimedHitCollection<SiHit>* m_thpcsi{nullptr};
+  std::list<ISiChargedDiodesProcessorTool*> m_diodeCollectionTools;
+  std::vector<bool> m_processedElements; //!< vector of processed elements - set by digitizeHits() */
+  std::vector<SiHitCollection*> m_hitCollPtrs;
+  bool m_HardScatterSplittingSkipper{false};
 };
 
-static const InterfaceID IID_ISCT_DigitizationTool ("SCT_DigitizationTool", 1, 0);
-inline const InterfaceID& SCT_DigitizationTool::interfaceID()
-{
+static const InterfaceID IID_ISCT_DigitizationTool("SCT_DigitizationTool", 1, 0);
+inline const InterfaceID& SCT_DigitizationTool::interfaceID() {
   return IID_ISCT_DigitizationTool;
 }
 

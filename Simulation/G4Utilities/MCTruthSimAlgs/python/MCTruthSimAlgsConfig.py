@@ -6,7 +6,7 @@ from AthenaCommon import CfgMgr
 ############################################################################
 
 def genericMergeMcEventCollTool(name="MergeMcEventCollTool", **kwargs):
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent")
     else:
@@ -99,7 +99,14 @@ def getMergeTruthJetsTool(name="MergeTruthJetsTool", **kwargs):
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", TruthJet_FirstXing() )
         kwargs.setdefault("LastXing",  TruthJet_LastXing() )
-    #kwargs.setdefault("OutputLevel",  1 )
+
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("InTimeOutputTruthJetCollKey", overlayFlags.bkgPrefix() + "InTimeAntiKt4TruthJets")
+        kwargs.setdefault("OutOfTimeTruthJetCollKey", overlayFlags.bkgPrefix() + "OutOfTimeAntiKt4TruthJets")
+    else:
+        kwargs.setdefault("InTimeOutputTruthJetCollKey", "InTimeAntiKt4TruthJets")
+        kwargs.setdefault("OutOfTimeTruthJetCollKey", "OutOfTimeAntiKt4TruthJets")
 
     return CfgMgr.MergeTruthJetsTool(name, **kwargs)
 
@@ -111,7 +118,7 @@ def getNewMergeMcEventCollTool_Base(name="NewMergeMcEventCollTool_Base", **kwarg
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", -30000)
         kwargs.setdefault("LastXing",   30000)
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent")
     else:
@@ -135,7 +142,7 @@ def getNewMergeMcEventCollTool_Signal(name="NewMergeMcEventCollTool_Signal", **k
 def getNewMergeMcEventCollTool_MinBias(name="NewMergeMcEventCollTool_MinBias", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.MinimumBias)
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent_PU")
     else:
@@ -145,7 +152,7 @@ def getNewMergeMcEventCollTool_MinBias(name="NewMergeMcEventCollTool_MinBias", *
 def getNewMergeMcEventCollTool_HighPtMinBias(name="NewMergeMcEventCollTool_HighPtMinBias", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.HighPtMinimumBias)
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent_HighPtPU")
     else:
@@ -155,7 +162,7 @@ def getNewMergeMcEventCollTool_HighPtMinBias(name="NewMergeMcEventCollTool_HighP
 def getNewMergeMcEventCollTool_Cavern(name="NewMergeMcEventCollTool_Cavern", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.Cavern)
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent_Cavern")
     else:
@@ -165,7 +172,7 @@ def getNewMergeMcEventCollTool_Cavern(name="NewMergeMcEventCollTool_Cavern", **k
 def getNewMergeMcEventCollTool_HaloGas(name="NewMergeMcEventCollTool_HaloGas", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.HaloGas)
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent_HaloGas")
     else:
@@ -182,7 +189,7 @@ def getInTimeOnlyNewMergeMcEventCollTool_Base(name="InTimeOnlyNewMergeMcEventCol
 def getInTimeOnlyNewMergeMcEventCollTool_MinBias(name="InTimeOnlyNewMergeMcEventCollTool_MinBias", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.MinimumBias)
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent_PU")
     else:
@@ -192,7 +199,7 @@ def getInTimeOnlyNewMergeMcEventCollTool_MinBias(name="InTimeOnlyNewMergeMcEvent
 def getInTimeOnlyNewMergeMcEventCollTool_HighPtMinBias(name="InTimeOnlyNewMergeMcEventCollTool_HighPtMinBias", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.HighPtMinimumBias)
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent_HighPtPU")
     else:
@@ -202,7 +209,7 @@ def getInTimeOnlyNewMergeMcEventCollTool_HighPtMinBias(name="InTimeOnlyNewMergeM
 def getInTimeOnlyNewMergeMcEventCollTool_Cavern(name="InTimeOnlyNewMergeMcEventCollTool_Cavern", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.Cavern)
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent_Cavern")
     else:
@@ -212,7 +219,7 @@ def getInTimeOnlyNewMergeMcEventCollTool_Cavern(name="InTimeOnlyNewMergeMcEventC
 def getInTimeOnlyNewMergeMcEventCollTool_HaloGas(name="InTimeOnlyNewMergeMcEventCollTool_HaloGas", **kwargs):
     from Digitization import PileUpEventType
     kwargs.setdefault("PileUpType", PileUpEventType.HaloGas)
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("TruthCollOutputKey", overlayFlags.bkgPrefix() + "TruthEvent_HaloGas")
     else:
@@ -249,14 +256,29 @@ def MergeTrackRecordCollTool(name="MergeTrackRecordCollTool", **kwargs):
 
 def MergeCaloEntryLayerTool(name="MergeCaloEntryLayerTool", **kwargs):
     kwargs.setdefault("TrackRecordCollKey", "CaloEntryLayer" )
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("TrackRecordCollOutputKey", overlayFlags.bkgPrefix() + "CaloEntryLayer")
+    else:
+        kwargs.setdefault("TrackRecordCollOutputKey", "CaloEntryLayer" )
     return MergeTrackRecordCollTool(name, **kwargs)
 
 def MergeMuonEntryLayerTool(name="MergeMuonEntryLayerTool", **kwargs):
     kwargs.setdefault("TrackRecordCollKey", "MuonEntryLayer" )
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("TrackRecordCollOutputKey", overlayFlags.bkgPrefix() + "MuonEntryLayer")
+    else:
+        kwargs.setdefault("TrackRecordCollOutputKey", "MuonEntryLayer" )
     return MergeTrackRecordCollTool(name, **kwargs)
 
 def MergeMuonExitLayerTool(name="MergeMuonExitLayerTool", **kwargs):
     kwargs.setdefault("TrackRecordCollKey", "MuonExitLayer" )
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("TrackRecordCollOutputKey", overlayFlags.bkgPrefix() + "MuonExitLayer")
+    else:
+        kwargs.setdefault("TrackRecordCollOutputKey", "MuonExitLayer" )
     return MergeTrackRecordCollTool(name, **kwargs)
 
 
@@ -336,7 +358,7 @@ def MergeRecoTimingObjTool(name="MergeRecoTimingObjTool", **kwargs):
         kwargs.setdefault("LastXing",  TimingObj_LastXing() )
 
     kwargs.setdefault("RecoTimingObjInputKey", "EVNTtoHITS_timings")
-    if 'OverlayMT' in digitizationFlags.experimentalDigi():
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
         from OverlayCommonAlgs.OverlayFlags import overlayFlags
         kwargs.setdefault("RecoTimingObjOutputKey", overlayFlags.bkgPrefix() + "EVNTtoHITS_timings")
     else:

@@ -160,11 +160,9 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
     xAOD::JetContainer *& calibJets = calibJetsPair.first;//create a reference to the first element of the pair (i.e. the JetContainer)
     met::addGhostMuonsToJets(*muons, *calibJets);
     if(calibjets) {
-      for ( const auto& jet : *calibJets ) {
 	//Shallow copy is needed (see links below)
-	if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
+	if(jetCalibrationTool->applyCalibration(*calibJets).isFailure())//apply the calibration
 	  return 1;
-      }
     }
     if(!xAOD::setOriginalObjectLink(*uncalibJets, *calibJets)){//tell calib container what old container it matches
       if(debug) std::cout << "Failed to set the original object links" << std::endl;

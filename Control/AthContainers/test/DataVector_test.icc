@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -73,7 +73,6 @@ void throw_dv_test_err (const char* file, int line, const char* what)
 #include "AthContainers/DataVector.h"
 #include "AthContainers/ConstDataVector.h"
 #include "AthContainers/AuxStoreInternal.h"
-#include "CxxUtils/unused.h"
 #include "TestTools/random.h"
 
 
@@ -3124,7 +3123,14 @@ void test2_operator_assign1()
     }
     check_dtor_log();
 
+#ifdef __clang__
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wself-assign-overloaded"
+#endif
     v1 = v1;
+#ifdef __clang__
+# pragma clang diagnostic pop
+#endif
     check_dtor_log();
     CHECK_INDICES(v1);
 
@@ -5417,91 +5423,10 @@ void test2_rotate()
 
 
 template <class DV>
-void test2_random_shuffle()
+void test2_shuffle()
 {
   typedef typename DV::base_value_type T;
   const int N=5;
-  {
-    clear_dtor_log();
-    DV v;
-    SG::AuxStoreInternal store;
-    for (int i=0; i<N; i++)
-      v.push_back (new T(i));
-    setaux(v, store);
-    DV v2(v);
-    std::random_shuffle (v2.begin(), v2.end()); // Check that this doesn't affect v's auxdata.
-    checkaux(v);
-    std::random_shuffle (v.begin(), v.end());
-    CHECK_INDICES(v);
-    checkaux(v);
-    std::random_shuffle (v2.begin(), v2.end()); // Check that this doesn't affect v's auxdata.
-    checkaux(v);
-    std::random_shuffle (v.rbegin(), v.rend());
-    check_dtor_log();
-    CHECK_INDICES(v);
-    checkaux(v);
-
-    DV v3;
-    for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    std::random_shuffle (v3.begin(), v3.end());
-    CHECK_INDICES(v3);
-    std::random_shuffle (v3.rbegin(), v3.rend());
-    CHECK_INDICES(v3);
-  }
-
-  {
-    int exp1[N] = {1,2,3,4,0};
-    int exp2[N] = {0,2,1,3,4};
-
-    Athena_test::RNG stlrand;
-    stlrand.seed = 1;
-    Athena_test::RNG stlrand2;
-    stlrand2.seed = 82346;
-    clear_dtor_log();
-    DV v;
-    SG::AuxStoreInternal store;
-    for (int i=0; i<N; i++)
-      v.push_back (new T(i));
-    setaux(v, store);
-    DV v2(v);
-    std::random_shuffle (v2.begin(), v2.end(), stlrand2); // Check that this doesn't affect v's auxdata.
-    checkaux(v);
-    std::random_shuffle (v.begin(), v.end(), stlrand);
-    for (int i=0; i<N; i++)
-      myassert (v[i]->x == exp1[i]);
-    CHECK_INDICES(v);
-    checkaux(v);
-
-    std::random_shuffle (v2.rbegin(), v2.rend(), stlrand2); // Check that this doesn't affect v's auxdata.
-    checkaux(v);
-    std::random_shuffle (v.rbegin(), v.rend(), stlrand);
-    for (int i=0; i<N; i++)
-      myassert (v[i]->x == exp2[i]);
-    check_dtor_log();
-    CHECK_INDICES(v);
-    checkaux(v);
-
-    DV v3;
-    for (int i=0; i<N; i++)
-      v3.push_back (new T(i));
-    std::random_shuffle (v3.begin(), v3.end(), stlrand);
-    CHECK_INDICES(v3);
-    std::random_shuffle (v3.rbegin(), v3.rend(), stlrand);
-    CHECK_INDICES(v3);
-
-    v.setStore (v.getConstStore());
-    bool caught = false;
-    try {
-      std::random_shuffle (v.begin(), v.end(), stlrand);
-    }
-    catch (SG::ExcConstAuxData&) {
-      caught = true;
-    }
-    myassert (caught ||
-              !typename SG::AuxStore_traits<T>::flag() ||
-              !v.trackIndices());
-  }
 
   {
     Athena_test::URNG stlurand;
@@ -5562,12 +5487,12 @@ void test2_random_shuffle()
   }
 }
 template <class B, class D>
-void test2_random_shuffle()
+void test2_shuffle()
 {
-  test2_random_shuffle<DataVector<B> > ();
-  test2_random_shuffle<DataVector<D> > ();
-  test2_random_shuffle<DataVector<typename test2_maybeconst<D>::type> > ();
-  test2_random_shuffle<ConstDataVector<DataVector<D> > > ();
+  test2_shuffle<DataVector<B> > ();
+  test2_shuffle<DataVector<D> > ();
+  test2_shuffle<DataVector<typename test2_maybeconst<D>::type> > ();
+  test2_shuffle<ConstDataVector<DataVector<D> > > ();
 }
 
 
@@ -5585,17 +5510,17 @@ void test2_partition()
   typedef typename DV::base_value_type T;
   const int N=10;
   {
-    Athena_test::RNG stlrand;
-    stlrand.seed = 2;
-    Athena_test::RNG stlrand2;
-    stlrand2.seed = 9134;
+    Athena_test::URNG stlurand;
+    stlurand.seed = 2;
+    Athena_test::URNG stlurand2;
+    stlurand2.seed = 9134;
     clear_dtor_log();
     DV v;
     SG::AuxStoreInternal store;
     for (int i=0; i<N; i++)
       v.push_back (new T(i));
     setaux(v, store);
-    std::random_shuffle (v.begin(), v.end(), stlrand);
+    std::shuffle (v.begin(), v.end(), stlurand);
     CHECK_INDICES(v);
     checkaux(v);
     DV v2(v);
@@ -5610,9 +5535,9 @@ void test2_partition()
     CHECK_INDICES(v);
     checkaux(v);
 
-    std::random_shuffle (v.begin(), v.end(), stlrand);
+    std::shuffle (v.begin(), v.end(), stlurand);
     CHECK_INDICES(v);
-    std::random_shuffle (v2.begin(), v2.end(), stlrand2);
+    std::shuffle (v2.begin(), v2.end(), stlurand2);
     std::partition (v2.rbegin(), v2.rend(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
     checkaux(v);
     typename DV::reverse_iterator rit =
@@ -5628,10 +5553,10 @@ void test2_partition()
     DV v3;
     for (int i=0; i<N; i++)
       v3.push_back (new T(i));
-    std::random_shuffle (v3.begin(), v3.end(), stlrand2);
+    std::shuffle (v3.begin(), v3.end(), stlurand2);
     std::partition (v3.begin(), v3.end(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
     CHECK_INDICES(v3);
-    std::random_shuffle (v3.begin(), v3.end(), stlrand2);
+    std::shuffle (v3.begin(), v3.end(), stlurand2);
     std::partition (v3.rbegin(), v3.rend(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
     CHECK_INDICES(v3);
 
@@ -5649,17 +5574,17 @@ void test2_partition()
   }
 
   {
-    Athena_test::RNG stlrand;
-    stlrand.seed = 3;
-    Athena_test::RNG stlrand2;
-    stlrand2.seed = 1254387;
+    Athena_test::URNG stlurand;
+    stlurand.seed = 3;
+    Athena_test::URNG stlurand2;
+    stlurand2.seed = 1254387;
     clear_dtor_log();
     DV v;
     SG::AuxStoreInternal store;
     for (int i=0; i<N; i++)
       v.push_back (new T(i));
     setaux(v, store);
-    std::random_shuffle (v.begin(), v.end(), stlrand);
+    std::shuffle (v.begin(), v.end(), stlurand);
     CHECK_INDICES(v);
     checkaux(v);
     DV v2(v);
@@ -5674,9 +5599,9 @@ void test2_partition()
     CHECK_INDICES(v);
     checkaux(v);
 
-    std::random_shuffle (v.begin(), v.end(), stlrand);
+    std::shuffle (v.begin(), v.end(), stlurand);
     CHECK_INDICES(v);
-    std::random_shuffle (v2.begin(), v2.end(), stlrand2);
+    std::shuffle (v2.begin(), v2.end(), stlurand2);
     std::stable_partition (v2.rbegin(), v2.rend(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
     checkaux(v);
     typename DV::reverse_iterator rit =
@@ -5692,10 +5617,10 @@ void test2_partition()
     DV v3;
     for (int i=0; i<N; i++)
       v3.push_back (new T(i));
-    std::random_shuffle (v3.begin(), v3.end(), stlrand2);
+    std::shuffle (v3.begin(), v3.end(), stlurand2);
     std::stable_partition (v3.begin(), v3.end(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
     CHECK_INDICES(v3);
-    std::random_shuffle (v3.begin(), v3.end(), stlrand2);
+    std::shuffle (v3.begin(), v3.end(), stlurand2);
     std::stable_partition (v3.rbegin(), v3.rend(), PPred<T>(5)); // Check that this doesn't affect v's auxdata.
     CHECK_INDICES(v3);
   }
@@ -5887,8 +5812,8 @@ void test2_resortaux1()
 {
   typedef typename DV::base_value_type T;
   const int N=10;
-  Athena_test::RNG stlrand;
-  stlrand.seed = 2;
+  Athena_test::URNG stlurand;
+  stlurand.seed = 2;
 
   DV v;
   SG::AuxStoreInternal store;
@@ -5899,13 +5824,13 @@ void test2_resortaux1()
   typename DV::BaseContainer& pv = test2_resortaux_ptrvector (v);
 
   for (int j=0; j < 10; j++) {
-    std::random_shuffle (pv.begin(), pv.end(), stlrand);
+    std::shuffle (pv.begin(), pv.end(), stlurand);
     v.resortAux (v.begin(), v.end());
     CHECK_INDICES(v);
     checkaux(v);
   }
   for (int j=0; j < 10; j++) {
-    std::random_shuffle (pv.begin()+2, pv.end()-2, stlrand);
+    std::shuffle (pv.begin()+2, pv.end()-2, stlurand);
     v.resortAux (v.begin()+2, v.end()-2);
     CHECK_INDICES(v);
     checkaux(v);
@@ -5914,7 +5839,7 @@ void test2_resortaux1()
   DV v2(v);
   typename DV::BaseContainer& pv2 = test2_resortaux_ptrvector (v2);
   for (int j=0; j < 10; j++) {
-    std::random_shuffle (pv2.begin(), pv2.end(), stlrand);
+    std::shuffle (pv2.begin(), pv2.end(), stlurand);
     v.resortAux (v2.begin(), v2.end());
     CHECK_INDICES(v);
     checkaux(v);
@@ -5925,7 +5850,7 @@ void test2_resortaux1()
   for (int i=0; i<N; i++)
     v3.push_back (new T(i));
   for (int j=0; j < 10; j++) {
-    std::random_shuffle (pv3.begin(), pv3.end(), stlrand);
+    std::shuffle (pv3.begin(), pv3.end(), stlurand);
     v3.resortAux (v3.begin(), v3.end());
     CHECK_INDICES(v3);
   }
@@ -6126,7 +6051,7 @@ void do_test2()
   test2_unique<B,D> ();
   test2_reverse<B,D> ();
   test2_rotate<B,D> ();
-  test2_random_shuffle<B,D> ();
+  test2_shuffle<B,D> ();
   test2_partition<B,D> ();
   test2_asdatavector<D> ();
   test2_assignelement<B,D> ();

@@ -8,6 +8,7 @@
 // TrigEFMissingET includes
 #include "TrigEFMissingET/IMissingETTool.h"
 #include "EFMissingETFromCellsMT.h"
+#include "TrigEFMissingET/EFMissingETHelper.h"
 
 
 EFMissingETFromCellsMT::EFMissingETFromCellsMT( const std::string& type, 
@@ -31,7 +32,7 @@ StatusCode EFMissingETFromCellsMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
+StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET *met,
 					   TrigEFMissingEtHelper *metHelper,
              const EventContext& ctx ) const {
 
@@ -42,7 +43,6 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
   auto countUsedCells = Monitored::Scalar<unsigned>( "UsedCells", 0 );
 
   // now it is time to iterate over the cells
-  ATH_MSG_INFO("About to loop over cells from CellMET");
   int nCells(0), nZeroCells(0);
   for ( const CaloCell* cell: *caloCellsHandle ) {
     nCells++;
@@ -109,6 +109,49 @@ StatusCode EFMissingETFromCellsMT::update( xAOD::TrigMissingET */*met*/,
     // ATH_MSG_INFO("metComp->m_sumEt" << metComp->m_sumEt);
     // ATH_MSG_INFO("metComp->m_sumE" << metComp->m_sumE);
        
+  }
+
+  // After iterating over all cells, fill the final met object and include calibrations
+  for (uint helper_i=0; helper_i<metHelper->GetElements(); ++helper_i){
+    switch(static_cast<TrigEFMissingEtComponent::Component>(helper_i))
+    {
+      case TrigEFMissingEtComponent::PreSamplB:
+      case TrigEFMissingEtComponent::EMB1: case TrigEFMissingEtComponent::EMB2: case TrigEFMissingEtComponent::EMB3:
+
+      case TrigEFMissingEtComponent::PreSamplE:
+      case TrigEFMissingEtComponent::EME1: case TrigEFMissingEtComponent::EME2: case TrigEFMissingEtComponent::EME3: 
+
+      case TrigEFMissingEtComponent::HEC0: case TrigEFMissingEtComponent::HEC1:
+      case TrigEFMissingEtComponent::HEC2: case TrigEFMissingEtComponent::HEC3:
+
+      case TrigEFMissingEtComponent::TileBar0: case TrigEFMissingEtComponent::TileBar1: case TrigEFMissingEtComponent::TileBar2: 
+      case TrigEFMissingEtComponent::TileGap1: case TrigEFMissingEtComponent::TileGap2: case TrigEFMissingEtComponent::TileGap3:
+      case TrigEFMissingEtComponent::TileExt0: case TrigEFMissingEtComponent::TileExt1: case TrigEFMissingEtComponent::TileExt2:
+
+      case TrigEFMissingEtComponent::FCalEM:
+      case TrigEFMissingEtComponent::FCalHad1: case TrigEFMissingEtComponent::FCalHad2:
+      {
+        TrigEFMissingEtComponent* metComp = metHelper->GetComponent(helper_i);
+
+        float ex =            metComp->m_ex;
+        float ey =            metComp->m_ey;
+        float ez =            metComp->m_ez;
+        float sumE =          metComp->m_sumE;
+        float sumEt =         metComp->m_sumEt;
+        float c0 =            metComp->m_calib0;
+        float c1 =            metComp->m_calib1;
+        short sumOfSigns =    metComp->m_sumOfSigns;
+
+        met->setEx(       met->ex() + sumOfSigns * c0 + c1 * ex );
+        met->setEy(       met->ey() + sumOfSigns * c0 + c1 * ey );
+        met->setEz(       met->ez() + sumOfSigns * c0 + c1 * ez );
+        met->setSumE(   met->sumE() + sumOfSigns * c0 + c1 * sumE );
+        met->setSumEt( met->sumEt() + sumOfSigns * c0 + c1 * sumEt );
+      } break;
+
+      default:
+        break;
+    }
   }
   ATH_MSG_DEBUG("Number of cells considered: " << nCells);
   ATH_MSG_DEBUG("Number of cells with E==0: " << nZeroCells);

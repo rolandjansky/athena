@@ -23,7 +23,13 @@
 #include <algorithm>
 #include <vector>
 
-#include "GaudiKernel/SystemOfUnits.h"
+#ifdef BUILDVP1LIGHT
+  #include "CLHEP/Units/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS CLHEP
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units
+#endif
 
 //____________________________________________________________________
 class VP1Letters::Imp {
@@ -200,7 +206,7 @@ SoNode * VP1Letters::Imp::createLetter(const std::vector<double>& x, const std::
   SoPolyhedron::initClass();
   //  SbPolyhedron * sbpoly = static_cast<SbPolyhedron*>(new SbPolyhedronPolygonXSect(x,y,0.3*m));
   //  SoPolyhedron * poly = new SoPolyhedron(sbpoly);
-  SoPolyhedron * poly = new SoPolyhedron(SbPolyhedronPolygonXSect(x,y,0.3*Gaudi::Units::m));
+  SoPolyhedron * poly = new SoPolyhedron(SbPolyhedronPolygonXSect(x,y,0.3*SYSTEM_OF_UNITS::m));
   return poly;
 }
 
@@ -216,10 +222,10 @@ void VP1Letters::Imp::ensureInit3DObjects()
   //Create letters:
   std::vector<double> x,y;
   createLetterAData(x,y);
-  normalizeLetterData(x,y,2*Gaudi::Units::m);
+  normalizeLetterData(x,y,2*SYSTEM_OF_UNITS::m);
   SoNode * letterA = createLetter(x,y);
   createLetterCData(x,y);
-  normalizeLetterData(x,y,2*Gaudi::Units::m);
+  normalizeLetterData(x,y,2*SYSTEM_OF_UNITS::m);
   SoNode * letterC = createLetter(x,y);
 
   transA = new SoTranslation;
@@ -229,7 +235,7 @@ void VP1Letters::Imp::ensureInit3DObjects()
 
   SoRotationXYZ * xf = new SoRotationXYZ();
   xf->axis=SoRotationXYZ::Z;
-  xf->angle = 180*Gaudi::Units::deg;
+  xf->angle = 180*SYSTEM_OF_UNITS::deg;
 
   sep->addChild(transC);
   sep->addChild(letterC);

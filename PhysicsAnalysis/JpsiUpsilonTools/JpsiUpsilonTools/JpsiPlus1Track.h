@@ -23,6 +23,7 @@
 #include <vector>
 #include <string>
 #include "JpsiUpsilonTools/ICandidateSearch.h"
+#include "StoreGate/ReadHandleKey.h"
 /////////////////////////////////////////////////////////////////////////////
 
 namespace Trk {
@@ -63,11 +64,11 @@ namespace Analysis {
         double m_BThresholdPt;
         double m_BMassUpper;
         double m_BMassLower;
-        std::string m_jpsiCollectionKey;
+        SG::ReadHandleKey<xAOD::VertexContainer> m_jpsiCollectionKey;
         double m_jpsiMassUpper;
         double m_jpsiMassLower;
-        std::string m_TrkParticleCollection;
-        std::string m_MuonsUsedInJpsi;
+        SG::ReadHandleKey<xAOD::TrackParticleContainer> m_TrkParticleCollection;
+        SG::ReadHandleKey<xAOD::MuonContainer> m_MuonsUsedInJpsi;
         bool m_excludeJpsiMuonsOnly;
         bool m_excludeCrossJpsiTracks; //Added by Matteo Bedognetti
         ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
@@ -84,7 +85,7 @@ namespace Analysis {
         int m_requiredNMuons;
         std::vector<double> m_muonMasses;
         std::vector<int>    m_useGSFTrackIndices;
-        std::string         m_TrkParticleGSFCollection;
+        SG::ReadHandleKey<xAOD::TrackParticleContainer>   m_TrkParticleGSFCollection;
         std::bitset<3>      m_useGSFTrack;
 
     };

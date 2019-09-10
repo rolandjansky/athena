@@ -25,7 +25,11 @@ def setupMenu():
 
     TriggerFlags.Slices_all_setOff()
 
-    TriggerFlags.TestSlice.signatures = []
+    TriggerFlags.TestSlice.signatures = [
+        #this seems to do nothing
+        # ChainProp(name='HLT_mu20_L1MU10', groups=SingleMuonGroup),
+        # ChainProp(name='HLT_e5_e8_L12EM3', groups=SingleMuonGroup),         
+        ]
 
     TriggerFlags.MuonSlice.signatures = [
         #['HLT_mu20_L1MU10',   [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon']],
@@ -73,7 +77,7 @@ def setupMenu():
     Prescales.HLTPrescales_cosmics = deepcopy(mydict)
     
 
-class Prescales:
+class Prescales(object):
     #   Item name             | Prescale
     #----------------------------------------------------------
     L1Prescales = {}

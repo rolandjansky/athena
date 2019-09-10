@@ -44,7 +44,7 @@ public:
    /** return class ID */
   static const CLID& classID() 
     {
-      static CLID id = 1273119430 ; 
+      static const CLID id = 1273119430 ; 
       return id; 
       // we do not know why using the traits does not work
       //return ClassID_traits<SpacePointContainer>::ID();

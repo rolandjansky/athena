@@ -1,6 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # module LumiQuery
+from __future__ import print_function
+
 """ Simple module for interaction with the luminosity metadata in a file. """
 
 global LumiRangeList
@@ -53,16 +55,16 @@ def ListFromFile(filename="FewEventsLumi.pool.root", label = "LumiBlockCollectio
     LumiRangeList = []
     try:
         T = a.Get(metadatatree)
-        T.SetBranchStatus("*",0);
+        T.SetBranchStatus("*",0)
         T.SetBranchStatus(label,1)
         T.SetBranchStatus("vector<LumiBlockRange_p1>",1)
         T.SetBranchStatus("vector<LumiBlockRange_p1>.m_start",1)
         T.SetBranchStatus("vector<LumiBlockRange_p1>.m_stop",1)
         T.GetEntry(0)
     except AttributeError:
-        print "There is no tree named", metadatatree, "in file" ,filename
+        print("There is no tree named", metadatatree, "in file" ,filename)
         if a.__repr__() != 'None':
-            print 8*'--', "Contents:", 8*'--'
+            print(8*'--', "Contents:", 8*'--')
             a.ls()
         return
 
@@ -73,8 +75,8 @@ def ListFromFile(filename="FewEventsLumi.pool.root", label = "LumiBlockCollectio
     try:    
         iterRange = getattr( T, label ).size() #T.GetLeaf("vector<LumiBlockRange_p1>.m_start").GetLen() 
     except AttributeError, a:
-        print a
-        print "The tree", metadatatree, "in file" ,filename, "has no vector<LumiBlockRange_p1>.m_start branch, so I don't understand its format."
+        print(a)
+        print("The tree", metadatatree, "in file" ,filename, "has no vector<LumiBlockRange_p1>.m_start branch, so I don't understand its format.")
         return    
     for i in xrange(iterRange): 
         LumiRangeList += [ (PyRunLumiP1( getattr( T, label )[i].m_start                           ),PyRunLumiP1( getattr( T, label )[i].m_stop                           ))]
@@ -84,7 +86,7 @@ def ListFromFile(filename="FewEventsLumi.pool.root", label = "LumiBlockCollectio
 def PrintList():
     """ An example function. It prints the list returned by ListFromFile. """
     global LumiRangeList
-    for (x,y) in LumiRangeList: print x, 'to', y
+    for (x,y) in LumiRangeList: print(x, 'to', y)
 
 
 if __name__ == '__main__':

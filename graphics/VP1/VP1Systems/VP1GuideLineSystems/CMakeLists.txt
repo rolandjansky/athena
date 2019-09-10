@@ -25,6 +25,7 @@ set( CMAKE_AUTOUIC TRUE )
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
 
+if(NOT BUILDVP1LIGHT)
 # Component(s) in the package:
 atlas_add_library( VP1GuideLineSystems VP1GuideLineSystems/*.h src/*.cxx
    PUBLIC_HEADERS VP1GuideLineSystems
@@ -33,3 +34,14 @@ atlas_add_library( VP1GuideLineSystems VP1GuideLineSystems/*.h src/*.cxx
    Qt5::Core Qt5::Gui
    PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
    PRIVATE_LINK_LIBRARIES GaudiKernel VP1HEPVis )
+endif()
+if(BUILDVP1LIGHT)
+# Component(s) in the package:
+atlas_add_library( VP1GuideLineSystems VP1GuideLineSystems/*.h src/*.cxx
+   PUBLIC_HEADERS VP1GuideLineSystems
+   INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
+   LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives VP1Base VP1Utils
+   Qt5::Core Qt5::Gui
+   PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
+   PRIVATE_LINK_LIBRARIES VP1HEPVis )
+endif()

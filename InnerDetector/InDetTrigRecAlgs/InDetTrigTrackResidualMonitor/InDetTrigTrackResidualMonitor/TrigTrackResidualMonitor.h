@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -25,6 +25,8 @@
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 class AtlasDetectorID;
 class Track;
@@ -32,7 +34,6 @@ class PixelID;
 class SCT_ID;
 
 class SvcLocator;
-class StoreGateSvc;
 class SCT_NeighboursTable;
 
 class IInDetAlignHitQualSelTool; 

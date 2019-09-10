@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ##########################################################################################
 ##########################################################################################
@@ -31,13 +31,8 @@ def generateChainDefs(chainDict):
 
     myProvider = TauHypoProvider()
 
-    
-
     for subChainDict in listOfChainDicts:
-        if "IdTest" in subChainDict["chainParts"]["addInfo"]:
-            Tau = L2EFChain_tau_IdTest(subChainDict, myProvider)
-        else:
-            Tau = L2EFChain_tau(subChainDict, myProvider)
+        Tau = L2EFChain_tau(subChainDict, myProvider)
  
         listOfChainDefs += [Tau.generateHLTChainDef()]
 

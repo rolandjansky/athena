@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -15,7 +15,6 @@
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/exceptions.h"
 #include "TestTools/expect_exception.h"
-#include "CxxUtils/make_unique.h"
 #include <iostream>
 #include <cassert>
 #include <memory>
@@ -447,7 +446,7 @@ void test_copy()
   store5.m_set.insert (ityp1_id);
   store5.m_set.insert (ityp3_id);
   store5.m_set.insert (ftyp1_id);
-  auto vptr = CxxUtils::make_unique<std::vector<float> >();
+  auto vptr = std::make_unique<std::vector<float> >();
   vptr->resize(5);
   (*vptr)[1] = 3.5;
   store5.add (ftyp1_id, std::move(vptr));

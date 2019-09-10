@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
+                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           MagneticField/MagFieldInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
@@ -21,7 +22,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
-                          Event/EventInfo
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkMaterialOnTrack
@@ -36,7 +36,7 @@ atlas_add_component( SiCombinatorialTrackFinderTool_xk
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkEventPrimitives TrkPatternParameters TrkTrack TrkExInterfaces TrkToolInterfaces EventInfo InDetRIO_OnTrack TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData SiSPSeededTrackFinderData InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkEventPrimitives TrkPatternParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetRIO_OnTrack TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack )
 
 # Install files from the package:
 atlas_install_headers( SiCombinatorialTrackFinderTool_xk )

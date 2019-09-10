@@ -19,13 +19,20 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( ROOT COMPONENTS Core Physics GenVector)
 
+# Extra dependencies, based on what environment we are in:
+if (BUILDVP1LIGHT)
+    if( BUILDVP1LIGHT_DIST STREQUAL "ubuntu")
+        set( extra_libs GenVector )
+    endif()
+endif()
+
 # Component(s) in the package:
 atlas_add_library( xAODPFlow
    xAODPFlow/*.h xAODPFlow/versions/*.h xAODPFlow/versions/*.icc Root/*.cxx
    PUBLIC_HEADERS xAODPFlow
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase
-   xAODCaloEvent xAODCore xAODTracking )
+   xAODCaloEvent xAODCore xAODTracking ${extra_libs} )
 
 atlas_add_dictionary( xAODPFlowDict
    xAODPFlow/xAODPFlowDict.h

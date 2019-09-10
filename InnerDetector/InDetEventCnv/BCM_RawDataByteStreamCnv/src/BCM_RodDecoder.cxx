@@ -368,10 +368,10 @@ unsigned int BCM_RodDecoder::getChannelID(int ROD_source_ID, unsigned int datawo
 ////////////////////////
 BCM_RDO_Collection* BCM_RodDecoder::getCollection(unsigned int chan, BCM_RDO_Container* cont) {
   BCM_RDO_Collection* coll;
-  BCM_RDO_Container::const_iterator cont_it;
+  BCM_RDO_Container::iterator cont_it;
   bool collExists = false;
-  BCM_RDO_Container::const_iterator it = cont->begin();
-  BCM_RDO_Container::const_iterator itE= cont->end();
+  BCM_RDO_Container::iterator it = cont->begin();
+  BCM_RDO_Container::iterator itE= cont->end();
   for (; it!=itE; ++it) {
     if ((*it)->getChannel() == chan) {
       collExists = true;
@@ -379,7 +379,7 @@ BCM_RDO_Collection* BCM_RodDecoder::getCollection(unsigned int chan, BCM_RDO_Con
     }
   }
   if (collExists) {
-    coll = const_cast<BCM_RDO_Collection*>(&**cont_it);
+    coll = *cont_it;
   } else {  // if collection does not exist create it
     coll = new BCM_RDO_Collection(chan);
     cont->push_back(coll);  // add collection to container

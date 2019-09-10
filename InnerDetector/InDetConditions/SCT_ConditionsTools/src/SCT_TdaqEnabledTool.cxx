@@ -16,9 +16,7 @@
 
 // Constructor
 SCT_TdaqEnabledTool::SCT_TdaqEnabledTool(const std::string& type, const std::string& name, const IInterface* parent):
-  base_class(type, name, parent),
-  m_pHelper{nullptr},
-  m_useDatabase{true}
+  base_class(type, name, parent)
 {
 }
 

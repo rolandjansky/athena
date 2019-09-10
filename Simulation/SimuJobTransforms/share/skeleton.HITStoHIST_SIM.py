@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 include("SimuJobTransforms/CommonSkeletonJobOptions.py")
 include( "ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
 include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
@@ -31,8 +33,8 @@ if hasattr(runArgs,"inputHITSFile"):
 
 ## Output HIST File
 if hasattr(runArgs,"outputHIST_SIMFile"):
-    print "Output is"
-    print  runArgs.outputHIST_SIMFile
+    print("Output is")
+    print(runArgs.outputHIST_SIMFile)
     from GaudiSvc.GaudiSvcConf import THistSvc
     ServiceMgr += THistSvc()
     ServiceMgr.THistSvc.Output +=["HitAnalysis DATAFILE='"+runArgs.outputHIST_SIMFile+"' OPT='RECREATE'"]

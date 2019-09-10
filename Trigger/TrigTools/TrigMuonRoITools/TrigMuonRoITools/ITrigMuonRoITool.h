@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __ITRIGMUONROITOOL_H__ 
-#define __ITRIGMUONROITOOL_H__ 
+#ifndef TRIGMUONROITOOLS_ITRIGMUONROITOOL_H
+#define TRIGMUONROITOOLS_ITRIGMUONROITOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
 #include <vector>
@@ -16,13 +16,7 @@ namespace ROIB {
 class ITrigMuonRoITool: virtual public IAlgTool 
 {
  public:
-  /**
-   * @brief ITrigMuonRoITool Interface ID 
-   */
-  static const InterfaceID& interfaceID() { 
-    static InterfaceID s_iTrigMuonRoIToolID("ITrigMuonRoITool", 1 , 0); 
-    return s_iTrigMuonRoIToolID; 
-  }
+  DeclareInterfaceID( ITrigMuonRoITool, 1, 0 );
 
   /**
    * @brief Accessor to an iterator over all RoIs in time with the event

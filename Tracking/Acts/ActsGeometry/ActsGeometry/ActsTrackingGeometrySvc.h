@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_ACTSTRACKINGGEOMETRYSVC_H
@@ -44,44 +44,41 @@ public:
 
   StatusCode initialize() override;
   //virtual StatusCode finalize() override;
-    
+
   ActsTrackingGeometrySvc( const std::string& name, ISvcLocator* pSvcLocator );
 
   std::shared_ptr<const Acts::TrackingGeometry>
   trackingGeometry() override;
-  
-  void 
-  setAlignmentStore(const ActsAlignmentStore* gas, const EventContext& ctx) override;
-    
-  const ActsAlignmentStore*
-  getAlignmentStore(const EventContext& ctx) const override;
 
+  void
+  populateAlignmentStore(ActsAlignmentStore *store) const override;
+
+  const ActsAlignmentStore*
+  getNominalAlignmentStore() const override;
 
 private:
-  std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
+  std::shared_ptr<const Acts::ITrackingVolumeBuilder>
   makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline = false);
 
   ServiceHandle<StoreGateSvc> m_detStore;
   const InDetDD::SiDetectorManager* p_pixelManager;
   const InDetDD::SiDetectorManager* p_SCTManager;
   const InDetDD::TRT_DetectorManager* p_TRTManager;
-    
+
   std::shared_ptr<std::vector<std::shared_ptr<const ActsDetectorElement>>> m_elementStore;
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
-  
+
   const TRT_ID *m_TRT_idHelper;
-    
+
+  std::unique_ptr<const ActsAlignmentStore> m_nominalAlignmentStore{nullptr};
+
   Gaudi::Property<bool> m_useMaterialMap{this, "UseMaterialMap", false, ""};
   Gaudi::Property<std::string> m_materialMapInputFile{this, "MaterialMapInputFile", "", ""};
   Gaudi::Property<std::vector<size_t>> m_barrelMaterialBins{this, "BarrelMaterialBins", {10, 10}};
   Gaudi::Property<std::vector<size_t>> m_endcapMaterialBins{this, "EndcapMaterialBins", {5, 20}};
-  
-  mutable std::unordered_map<EventContext::ContextID_t, const ActsAlignmentStore*> m_gasMap;
-  mutable std::mutex m_gasMapMutex;
-
 
 };
 
 
 
-#endif 
+#endif

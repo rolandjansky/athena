@@ -12,7 +12,8 @@ def SCT_TestCablingAlgCfg(configFlags):
     cfg.merge(SCT_CablingCondAlgCfg(configFlags))
 
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-    geoCfg,gms=GeoModelCfg(configFlags)
+    geoCfg=GeoModelCfg(configFlags)
+    gms=geoCfg.getPrimary()
     cfg.merge(geoCfg)
 
     from AthenaCommon.Constants import INFO

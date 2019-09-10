@@ -19,7 +19,9 @@ namespace Muon
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
     m_detEl(detEl),
     m_time(time),
-    m_charge(charge)
+    m_charge(charge),
+    m_angle(0.0),
+    m_chisqProb(0.0)
   { }
 
   MMPrepData::MMPrepData( const Identifier& RDOId,
@@ -31,7 +33,9 @@ namespace Muon
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
     m_detEl(detEl),
     m_time(0),
-    m_charge(0)
+    m_charge(0),
+    m_angle(0.0),
+    m_chisqProb(0.0)
   { }
 
   // Destructor:
@@ -45,7 +49,9 @@ namespace Muon
     MuonCluster(),
     m_detEl(0),
     m_time(0),
-    m_charge(0)
+    m_charge(0),
+    m_angle(0.0),
+    m_chisqProb(0.0)
   { }
 
   //copy constructor:
@@ -53,7 +59,9 @@ namespace Muon
     MuonCluster(RIO),
     m_detEl( RIO.m_detEl ),
     m_time(RIO.m_time),
-    m_charge(RIO.m_charge)
+    m_charge(RIO.m_charge),
+    m_angle(RIO.m_angle),
+    m_chisqProb(RIO.m_chisqProb)
   { }
 
   //move constructor:
@@ -61,8 +69,18 @@ namespace Muon
     MuonCluster(std::move(RIO)),
     m_detEl( RIO.m_detEl ),
     m_time(RIO.m_time),
-    m_charge(RIO.m_charge)
+    m_charge(RIO.m_charge),
+    m_angle(RIO.m_angle),
+    m_chisqProb(RIO.m_chisqProb)
   { }
+
+  /// set the micro-tpc quantities
+  void MMPrepData::setMicroTPC(double angle, double chisqProb)
+  {
+    m_angle = angle;
+    m_chisqProb = chisqProb;
+  }
+
 
   //assignment operator
   MMPrepData&

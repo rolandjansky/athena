@@ -18,6 +18,7 @@
 #define VP1DESERIALISE_H
 
 #include "VP1Base/VP1HelperClassBase.h"
+#include "VP1Base/VP1Msg.h"
 #include <typeinfo>
 class VP1EtaPhiCutWidget;
 class VP1DrawOptionsWidget;

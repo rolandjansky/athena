@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -822,99 +822,6 @@ void partial_sort (std::reverse_iterator<DataModel_detail::iterator<DVL> > beg,
   DataModel_detail::resortAux (beg, end);
 }
 
-
-/**
- * @brief Specialization of @c random_shuffle for @c DataVector/List.
- * @param beg The start iterator for the shuffle operation.
- * @param end The end iterator for the shuffle operation.
- *
- * @c beg and @c end should both be iterators
- * from the same @c DataVector/List.
- * This performs the operation in a way
- * that doesn't run afoul of @c DataVector/List's
- * object ownership rules.
- */
-template <class DVL>
-void random_shuffle (typename DataModel_detail::iterator<DVL> beg,
-                     typename DataModel_detail::iterator<DVL> end)
-{
-  std::random_shuffle (beg.base(), end.base());
-  DataModel_detail::resortAux (beg, end);
-}
-
-
-/**
- * @brief Specialization of @c random_shuffle for @c DataVector/List.
- * @param beg The start iterator for the shuffle operation.
- * @param end The end iterator for the shuffle operation.
- * @param rand The random generator.
- *
- * @c beg and @c end should both be iterators
- * from the same @c DataVector/List.
- * This performs the operation in a way
- * that doesn't run afoul of @c DataVector/List's
- * object ownership rules.
- */
-template <class DVL, class Random>
-void random_shuffle (typename DataModel_detail::iterator<DVL> beg,
-                     typename DataModel_detail::iterator<DVL> end,
-                     Random& rand)
-{
-  std::random_shuffle (beg.base(), end.base(), rand);
-  DataModel_detail::resortAux (beg, end);
-}
-
-
-/**
- * @brief Specialization of @c random_shuffle for @c DataVector/List.
- * @param beg The start reverse_iterator for the shuffle operation.
- * @param end The end reverse_iterator for the shuffle operation.
- *
- * @c beg and @c end should both be reverse_iterators
- * from the same @c DataVector/List.
- * This performs the operation in a way
- * that doesn't run afoul of @c DataVector/List's
- * object ownership rules.
- */
-template <class DVL>
-void
-random_shuffle
-  (typename std::reverse_iterator<DataModel_detail::iterator<DVL> > beg,
-   typename std::reverse_iterator<DataModel_detail::iterator<DVL> > end)
-{
-  typedef typename DVL::BaseContainer::reverse_iterator ri;
-  std::random_shuffle (ri(beg.base().base()),
-                       ri(end.base().base()));
-  DataModel_detail::resortAux (beg, end);
-}
-
-
-/**
- * @brief Specialization of @c random_shuffle for @c DataVector/List.
- * @param beg The start reverse_iterator for the shuffle operation.
- * @param end The end reverse_iterator for the shuffle operation.
- * @param rand The random generator.
- *
- * @c beg and @c end should both be reverse_iterators
- * from the same @c DataVector/List.
- * This performs the operation in a way
- * that doesn't run afoul of @c DataVector/List's
- * object ownership rules.
- */
-template <class DVL, class Random>
-void
-random_shuffle
-  (typename std::reverse_iterator<DataModel_detail::iterator<DVL> > beg,
-   typename std::reverse_iterator<DataModel_detail::iterator<DVL> > end,
-   Random& rand)
-{
-  typedef typename DVL::BaseContainer::reverse_iterator ri;
-  std::random_shuffle (ri(beg.base().base()),
-                       ri(end.base().base()),
-                       rand);
-  DataModel_detail::resortAux (beg, end);
-}
-                          
 
 /**
  * @brief Specialization of @c shuffle for @c DataVector/List.

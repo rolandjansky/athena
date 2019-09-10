@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // local includes
@@ -61,8 +61,11 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
   if (m_debug)
     msg() << MSG::DEBUG << "Running isolation over EF Muon!" << endmsg;
   
-  // clear results vector
+  // clear vectors
   results.clear();
+  dzvals->clear();
+  drvals->clear();
+  selfremoval->clear();
 
   // this will point to the muon (combined or extrapolated)
   const xAOD::TrackParticle* muon=0;

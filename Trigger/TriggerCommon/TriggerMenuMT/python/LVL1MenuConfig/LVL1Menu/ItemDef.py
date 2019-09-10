@@ -1,23 +1,23 @@
-#!/usr/bin/env python
-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+# Disable flake8 checking due to the use of 'exec':
+# flake8: noqa
+#
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-import re
+
+# The trigger types
+from ..LVL1.TriggerTypeDef import TT
+from ..LVL1.Limits import Limits
+from ..LVL1.Logic import Logic, Not
+from ..LVL1.Lvl1MenuItems import LVL1MenuItem
+from ..LVL1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger
+
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerMenuMT.Lvl1.py')
 
-# The trigger types
-from TriggerMenuMT.LVL1MenuConfig.LVL1.TriggerTypeDef import TT
-from TriggerMenuMT.LVL1MenuConfig.LVL1.Limits import Limits
-from TriggerMenuMT.LVL1MenuConfig.LVL1.Logic import Logic,Not
-from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1MenuItems import LVL1MenuItem
-from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Condition import ThrCondition, Lvl1InternalTrigger
-
-
-class ItemDef:
+class ItemDef(object):
     """
     Defines any items that might be needed in Run2
     """

@@ -20,18 +20,10 @@
 static const std::string databaseSignature{"database"};
 
 // Constructor
-SCT_ModuleVetoTool::SCT_ModuleVetoTool(const std::string &type, const std::string &name, const IInterface *parent) :
-  base_class(type, name, parent),
-  m_localCondData{},
-  m_pHelper{nullptr},
-  m_useDatabase{false}
-  {
-    declareProperty("BadModuleIdentifiers", m_badElements);
-    declareProperty("MaskLayers",  m_maskLayers=false, "Mask full layers/disks in overlay" );
-    declareProperty("MaskSide",  m_maskSide=-1, "Mask full modules (-1), innwe (0) or outer (1) sides" );
-    declareProperty("LayersToMask", m_layersToMask, "Which barrel layers to mask out, goes from 0 to N-1");
-    declareProperty("DisksToMask", m_disksToMask, "Which endcap disks to mask out, goes from -N+1 to N+1 , skipping zero");
-  }
+SCT_ModuleVetoTool::SCT_ModuleVetoTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent)
+{
+}
 
 //Initialize
 StatusCode 
@@ -69,10 +61,10 @@ SCT_ModuleVetoTool::initialize() {
       ATH_MSG_FATAL("Failed to fill data");
       return StatusCode::FAILURE;
     }
-  } else {
-    // Read Cond Handle
-    CHECK(m_condKey.initialize());
   }
+
+  // Read Cond Handle
+  CHECK(m_condKey.initialize(m_useDatabase));
 
   const std::string databaseUseString{m_useDatabase ? "" : "not "};
   ATH_MSG_INFO("Initialized veto service with data, "

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetByteStreamErrorsAthenaPool/SCT_ByteStreamFractionContainer_p1.h"
@@ -40,7 +40,7 @@ void SCT_ByteStreamFractionContainerCnv_p1::persToTrans(const SCT_ByteStreamFrac
 
 //================================================================
 SCT_ByteStreamFractionContainer* SCT_ByteStreamFractionContainerCnv_p1::createTransient(const SCT_ByteStreamFractionContainer_p1* persObj, MsgStream& log) {
-  std::auto_ptr<SCT_ByteStreamFractionContainer> trans(new SCT_ByteStreamFractionContainer());
+  std::unique_ptr<SCT_ByteStreamFractionContainer> trans(std::make_unique<SCT_ByteStreamFractionContainer>());
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

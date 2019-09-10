@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #                                                                      #
@@ -9,7 +9,7 @@
 import cppyy
 try:
     cppyy.loadDictionary('xAODBaseObjectTypeDict')
-except:
+except Exception:
     pass
 from ROOT import xAODType
 xAODType.ObjectType
@@ -17,8 +17,6 @@ xAODType.ObjectType
 
 from AthenaCommon import Logging
 constmodlog = Logging.logging.getLogger('ConstModHelpers')
-
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from JetRec import JetRecConf
 from JetRecTools import JetRecToolsConf
@@ -29,73 +27,88 @@ from PFlowUtils import PFlowUtilsConf
 
 # Maybe we need a config class in JetDefinition?
 ConstModTools = {
+    # Topoclusters
     "Origin": JetRecToolsConf.CaloClusterConstituentsOrigin,
     "EM":     JetRecToolsConf.ClusterAtEMScaleTool,
+    # Particle flow
+    "CorrectPFO":
+              JetRecToolsConf.CorrectPFOTool,
+    "CHS":    JetRecToolsConf.ChargedHadronSubtractionTool,
+    # Pileup suppression
     "Vor":    JetRecToolsConf.VoronoiWeightTool,
     "CS":     JetRecToolsConf.ConstituentSubtractorTool,
     "SK":     JetRecToolsConf.SoftKillerWeightTool
 }
 
 ConstModConfigs = {
+    # Topoclusters
     "Origin": {},
     "EM":     {},
+    # Particle flow
+    "CorrectPFO":
+              {"WeightPFOTool": PFlowUtilsConf.CP__WeightPFOTool("weightPFO")},
+    "CHS":    {},
+    # Pileup suppression
     "Vor":    {"doSpread":False, "nSigma":0},
     "CS":     {"MaxEta":5.},
     "SK":     {}
 }
 
-def ConstitModAlg(inputtype,sequence,suffix=""):
-    # May wish to pass an empty sequence for regular PFlow
-    modlist = []
-    if inputtype == xAODType.ParticleFlow:
-        weightPFO = PFlowUtilsConf.CP__WeightPFOTool("weightPFO")
-        correctPFO = JetRecToolsConf.CorrectPFOTool("correctPFO",
-            InputType = inputtype,
-            WeightPFOTool = weightPFO
-        )
-        modlist.append(correctPFO)
-    inputname = {xAODType.CaloCluster:  "TopoCluster",
-                 xAODType.ParticleFlow: "EMPFlow"
-                 }[inputtype]
+def getConstitModAlg(constit,suffix=""):
+    inputtype = constit.basetype
 
+    # Need to extend to TCC
+    if inputtype not in [xAODType.CaloCluster, xAODType.ParticleFlow]:
+        constmodlog.error("Only ParticleFlow and CaloCluster currently supported!")
+        raise TypeError("Unsupported input type {0}".format(inputtype))
+
+
+    sequence = list(constit.modifiers) # Copy, as we may make some additions
+    typename = {xAODType.CaloCluster:  "TopoCluster",
+                xAODType.ParticleFlow: "EMPFlow"
+                }[inputtype]
+
+    if inputtype == xAODType.ParticleFlow:
+        # Always do 4mom corrections first and CHS last
+        sequence = ["CorrectPFO"] + sequence + ["CHS"]
+
+    # If no mods are needed, don't give back a tool
+    if sequence == []: return None
+
+    modlist = []
     for step in sequence:
         if step == "LC":
             continue # Nothing to do for LC clusters
         tool = None
 
-        toolname = "ConstitMod{0}_{1}{2}".format(inputname,step,suffix)
+        toolname = "ConstitMod{0}_{1}{2}".format(typename,step,suffix)
         tool = ConstModTools[step](toolname,**ConstModConfigs[step])
-        if inputtype == xAODType.ParticleFlow:
+        if inputtype == xAODType.ParticleFlow and step not in ["CorrectPFO","CHS"]:
             tool.IgnoreChargedPFO=True
             tool.ApplyToChargedPFO=False
         tool.InputType = inputtype
         modlist.append(tool)
 
     sequenceshort = "".join(sequence)
-    seqname = "ConstitMod{0}_{1}{2}".format(sequenceshort,inputname,suffix)
-    inputcontainer = ""
-    outputcontainer = ""
+    seqname = "ConstitMod{0}_{1}{2}".format(sequenceshort,typename,suffix)
+    inputcontainer = str(constit.rawname)
+    outputcontainer = str(constit.inputname)
     if inputtype==xAODType.ParticleFlow:
-        inputcontainer = "JetETMiss"
-        outputcontainer = sequenceshort if sequenceshort else "CHS"
-        chstool = JetRecToolsConf.ChargedHadronSubtractionTool("chsPFO")
-        chstool.InputType = inputtype
-        modlist.append(chstool)
-    elif inputtype==xAODType.CaloCluster:
-        inputcontainer = "CaloCalTopoClusters"
-        outputcontainer = sequenceshort+"TopoClusters"
-    else:
-        constmodlog.error("Only ParticleFlow and CaloCluster currently supported!")
-        raise TypeError("Unsupported input type {0}".format(inputtype))
-
-    # If no mods are needed, don't give back a tool
-    if not modlist: return components
+        # Tweak PF names because ConstModSequence needs to work with
+        # up to 4 containers
+        def chopPFO(thestring):
+            pfostr = "ParticleFlowObjects"
+            if thestring.endswith(pfostr):
+                return thestring[:-len(pfostr)]
+            return thestring
+        inputcontainer = chopPFO(inputcontainer)
+        outputcontainer = chopPFO(outputcontainer)
 
     modseq = JetRecToolsConf.JetConstituentModSequence(seqname,
         InputType=inputtype,
         OutputContainer = outputcontainer,
         InputContainer= inputcontainer,
-        Modifiers = [ mod for mod in modlist]
+        Modifiers = modlist
     )
 
     constitmodalg = JetRecConf.JetAlgorithm("jetalg_{0}".format(modseq.getName()))

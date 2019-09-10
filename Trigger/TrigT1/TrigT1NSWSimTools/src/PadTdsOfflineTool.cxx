@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Athena/Gaudi includes
@@ -8,16 +8,12 @@
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
 
-
 #include "TrigT1NSWSimTools/PadTdsOfflineTool.h"
 #include "TrigT1NSWSimTools/PadOfflineData.h"
-#include "TrigT1NSWSimTools/PadUtil.h"
 #include "TrigT1NSWSimTools/tdr_compat_enum.h"
-
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/sTgcReadoutElement.h"
@@ -27,25 +23,28 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 
-
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"
 
 
 #include "TTree.h"
+#include "TVector3.h"
+#include <functional>
+#include <algorithm>
 #include <map>
 #include <utility>
 
 
+
 namespace NSWL1 {
     
-    struct PadHits {
+    class PadHits {
+    public:
         Identifier      t_id;
         std::shared_ptr<PadOfflineData> t_pad;
         int             t_cache_index;
 
-        // constructor
         PadHits(Identifier id, std::shared_ptr<PadOfflineData> p, int c) { t_id = id; t_pad=p; t_cache_index=c; }
     };
 
@@ -125,29 +124,16 @@ namespace NSWL1 {
         std::string algo_name = pnamed->name();
 
         if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
-            if(TTree *tree = get_tree_from_histsvc()){
-                m_validation_tree.init_tree(tree);
-            } else {
-                ATH_MSG_FATAL("cannot book requested output tree");
-                return StatusCode::FAILURE;
-            }
+         TTree *tree=nullptr;
+         ATH_CHECK( get_tree_from_histsvc(tree));
+          m_validation_tree.init_tree(tree);
         }           
         // retrieve the Incident Service
-        if( m_incidentSvc.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve the Incident Service");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Incident Service successfully rertieved");
-        }
+        ATH_CHECK( m_incidentSvc.retrieve() );
         m_incidentSvc->addListener(this,IncidentType::BeginEvent);
 
         // retrieve the Random Service
-        if( m_rndmSvc.retrieve().isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve the Random Number Service");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("Random Number Service successfully retrieved");
-        }
+        ATH_CHECK( m_rndmSvc.retrieve() );
 
         // retrieve the random engine
         m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
@@ -157,21 +143,9 @@ namespace NSWL1 {
         }
 
         //  retrieve the MuonDetectormanager
-        if( detStore()->retrieve( m_detManager ).isFailure() ) {
-            ATH_MSG_FATAL("Failed to retrieve the MuonDetectorManager");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("MuonDetectorManager successfully retrieved");
-        }
-
+        ATH_CHECK( detStore()->retrieve( m_detManager) );
         //  retrieve the sTGC offline Id helper
-        if( detStore()->retrieve( m_sTgcIdHelper ).isFailure() ){
-            ATH_MSG_FATAL("Failed to retrieve sTgcIdHelper");
-            return StatusCode::FAILURE;
-        } else {
-            ATH_MSG_INFO("sTgcIdHelper successfully retrieved");
-        }
-
+        ATH_CHECK( detStore()->retrieve( m_sTgcIdHelper ));
         bool testGeometryAccess=false; // for now this is just an example DG-2014-07-11
         if(testGeometryAccess)
             printStgcGeometryFromAgdd();
@@ -182,7 +156,7 @@ namespace NSWL1 {
     void PadTdsOfflineTool::handle(const Incident& inc) {
         if( inc.type()==IncidentType::BeginEvent ) {
             this->clear_cache();
-            m_validation_tree.reset_ntuple_variables();
+            if(m_doNtuple) m_validation_tree.reset_ntuple_variables();
             m_pad_cache_status = CLEARED;
         }
     }
@@ -240,13 +214,6 @@ namespace NSWL1 {
                 PadOfflineData* pad_offline = dynamic_cast<PadOfflineData*>( pd.get() );
                 m_validation_tree.fill_hit_global_pos(pad_gpos);
                 m_validation_tree.fill_offlineid_info(*pad_offline, bin_offset);
-
-                std::pair<int,int> old_id(-999, -999), new_id(-999, -999);
-                if(determine_pad_indices_with_old_algo(*pad_offline, pad_gpos, old_id, msg())) {
-                    old_id = std::make_pair(old_id.first   + bin_offset, old_id.second  + bin_offset);
-                    new_id = std::make_pair(pd->padEtaId() + bin_offset, pd->padPhiId() + bin_offset);
-                }
-                m_validation_tree.fill_matched_old_id_new_id(old_id, new_id);
             }
         }
     }
@@ -264,9 +231,10 @@ namespace NSWL1 {
             return StatusCode::FAILURE;
         }
         // retrieve the current run number and event number
-        const EventInfo* pevt = 0;
-        StatusCode sc = evtStore()->retrieve(pevt);
-        if ( !sc.isSuccess() ) {
+        const DataHandle<EventInfo> pevt; 
+        StatusCode sc =evtStore()->retrieve(pevt) ;
+        
+        if ( ! (StatusCode::SUCCESS==evtStore()->retrieve(pevt) ) ) {
             ATH_MSG_WARNING( "Could not retrieve the EventInfo, so cannot associate run and event number to the current PAD cache" );
             m_pad_cache_runNumber   = -1;
             m_pad_cache_eventNumber = -1;
@@ -274,6 +242,10 @@ namespace NSWL1 {
             m_pad_cache_runNumber = pevt->event_ID()->run_number();
             m_pad_cache_eventNumber = pevt->event_ID()->event_number();
         }
+
+        m_pad_cache_runNumber = pevt->event_ID()->run_number();
+        m_pad_cache_eventNumber = pevt->event_ID()->event_number();
+
         if (m_pad_cache_status==CLEARED) {
             // renew the PAD cache if this is the next event
             m_pad_cache_status = fill_pad_cache();
@@ -330,23 +302,13 @@ namespace NSWL1 {
         sTgcDigitContainer::const_iterator it_e = digit_container->end();
         ATH_MSG_DEBUG("retrieved sTGC Digit Container with size "<<digit_container->digit_size());
 
+        //int pad_hit_number = 0;
         std::vector<PadHits> pad_hits;
         for(; it!=it_e; ++it) {
             const sTgcDigitCollection* coll = *it;
             ATH_MSG_DEBUG( "processing collection with size " << coll->size() );
             for (unsigned int item=0; item<coll->size(); item++) {
                 const sTgcDigit* digit = coll->at(item);
-                //////////////////////////////////////////////////////////////////////////////////////////
-                // ASM - 01/3/2017 - testing timing 
-                //pad_hit_number++;
-                //print_digit(digit);
-                //double delayed_time = 0.0;
-                //uint16_t BCtag = 0x0;
-                //if(determine_delay_and_bc(digit, pad_hit_number, delayed_time, BCtag)){
-                //    Identifier Id = digit->identify();
-                //    PadOfflineData* pad = new PadOfflineData(Id, delayed_time, BCtag, m_sTgcIdHelper);
-                //    pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
-                //}
                 if(digit) { 
                     if(is_pad_digit(digit)) {
                         Identifier Id = digit->identify();
@@ -354,26 +316,23 @@ namespace NSWL1 {
                         uint16_t BCP1 = 1, BC0 = 0, BCM1 = ~BCP1;
                         if(digit->bcTag()==BCM1 || digit->bcTag()==BC0 || digit->bcTag()==BCP1) { 
                             print_digit(digit);
+                            //PadOfflineData* pad = new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
+                            //S.I
+                            //std::shared_ptr<PadOfflineData> pad(new PadOfflineData(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper));
                             auto pad=std::make_shared<PadOfflineData>(Id, digit->time(), digit->bcTag(), m_sTgcIdHelper);
+                            //pad_hits.push_back(PadHits(Id, pad, cache_index(digit)));
                             pad_hits.emplace_back(Id, pad, cache_index(digit));//avoids extra copy
+                            //S.I
                         }
                     }
                 } 
-                //////////////////////////////////////////////////////////////////////////////////////////
             } //for(item)
         } // for(it)
 
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        //// ASM - 01/3/2017 - testing timing 
-        ////// apply the other VMM functionalities
-        //print_pad_time(pad_hits, "Before VMM dead time");
-        //if(m_applyVMM_DeadTime) simulateDeadTime(pad_hits);
-        //print_pad_time(pad_hits, "After VMM dead time");
-        ////////////////////////////////////////////////////////////////////////////////////////////
-
         store_pads(pad_hits);
         print_pad_cache();
-        this->fill_pad_validation_id();
+        //The other tools should have separated Ntuple filling from the actual trigger stuff at least like this here      
+        if(m_doNtuple) this->fill_pad_validation_id();
         ATH_MSG_DEBUG( "fill_pad_cache: end of processing" );
         return OK;
     }
@@ -415,7 +374,6 @@ namespace NSWL1 {
         // vector are already ordered in time so check for dead time overlap.
         PAD_MAP_IT it = channel_map.begin();
         while ( it!=channel_map.end() ) {
-            
             std::vector<PadHits>& hits = (*it).second;
             std::vector<PadHits>::iterator p_next = hits.begin();
             std::vector<PadHits>::iterator p = p_next++;
@@ -458,21 +416,16 @@ namespace NSWL1 {
         return (stationEta>0)? trigger_sector + 16 : trigger_sector;
     }
     //------------------------------------------------------------------------------
-    TTree* PadTdsOfflineTool::get_tree_from_histsvc()
+    StatusCode PadTdsOfflineTool::get_tree_from_histsvc(TTree*& tree)
     {
-        TTree *tree=NULL;
-        ITHistSvc* tHistSvc=NULL;
+        ITHistSvc* tHistSvc=nullptr;
         m_validation_tree.clear_ntuple_variables();
-        if(service("THistSvc", tHistSvc).isFailure()) {
-            ATH_MSG_FATAL("Unable to retrieve THistSvc");
-        } else {         
-            std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
-            std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
-            if(tHistSvc->getTree(treename, tree).isFailure()) {            
-                ATH_MSG_FATAL(("Could not retrieve the analysis ntuple "+treename+" from the THistSvc").c_str());
-            }
-        }
-        return tree;
+        ATH_CHECK(service("THistSvc", tHistSvc));
+        std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
+        std::string treename = PadTdsValidationTree::treename_from_algoname(algoname);
+        ATH_CHECK(tHistSvc->getTree(treename, tree));
+
+        return StatusCode::SUCCESS;
     }
     //------------------------------------------------------------------------------
     bool PadTdsOfflineTool::determine_delay_and_bc(const sTgcDigit* digit, const int &pad_hit_number,
@@ -566,8 +519,6 @@ namespace NSWL1 {
     void PadTdsOfflineTool::store_pads(const std::vector<PadHits> &pad_hits)
     {
         for (unsigned int i=0; i<pad_hits.size(); i++) {
-            ////////////////////
-            // ASM-2017-06-21
             const std::vector<std::shared_ptr<PadData>>& pads = m_pad_cache.at(pad_hits[i].t_cache_index);
             bool fill = pads.size() == 0 ? true : false;
             for(unsigned int p=0; p<pads.size(); p++)  {
@@ -581,7 +532,6 @@ namespace NSWL1 {
             if( fill ) {
                 m_pad_cache.at(pad_hits[i].t_cache_index).push_back(pad_hits[i].t_pad);
             }
-            ////////////////////
         }
     }
     //------------------------------------------------------------------------------
@@ -620,7 +570,7 @@ namespace NSWL1 {
         for (size_t i=0; i<pad_hits.size(); i++)
             ATH_MSG_DEBUG("pad hit "<<i<<" has time "<< pad_hits[i].t_pad->time());
     }
-    //------------------------------------------------------------------------------
+
     void PadTdsOfflineTool::print_pad_cache() const
     {
         if ( msgLvl(MSG::DEBUG) ) {
@@ -637,6 +587,5 @@ namespace NSWL1 {
             }
         }
     }
-    //------------------------------------------------------------------------------
 
 } // NSWL1

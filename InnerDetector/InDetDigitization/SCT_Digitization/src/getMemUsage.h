@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PS_GETMEMUSAGE_H
@@ -24,4 +26,4 @@ namespace PSUtils
   std::ostream& operator<<(std::ostream&, const MemStruct&); 
   std::istream& operator>>(std::istream&, MemStruct&); 
 }
-#endif
+#endif // PS_GETMEMUSAGE_H

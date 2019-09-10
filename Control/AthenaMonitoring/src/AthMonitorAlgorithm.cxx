@@ -3,13 +3,13 @@
 */
 
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
+#include "StoreGate/ReadCondHandle.h"
 
 AthMonitorAlgorithm::AthMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
 :AthReentrantAlgorithm(name,pSvcLocator)
 ,m_environment(Environment_t::user)
 ,m_dataType(DataType_t::userDefined)
 ,m_vTrigChainNames({})
-,m_hasRetrievedLumiTool(false)
 {}
 
 
@@ -27,6 +27,7 @@ StatusCode AthMonitorAlgorithm::initialize() {
     // Retrieve the trigger decision tool if requested
     if ( !m_trigDecTool.empty() ) {
         ATH_CHECK( m_trigDecTool.retrieve() );
+        ATH_MSG_DEBUG( "TDT retrieved" );
 
         // If the trigger chain is specified, parse it into a list.
         if ( m_triggerChainString!="" ) {
@@ -50,21 +51,9 @@ StatusCode AthMonitorAlgorithm::initialize() {
     m_dataType = dataTypeStringToEnum(m_dataTypeStr);
     m_environment = envStringToEnum(m_environmentStr);
 
-    // Retrieve the luminosity tool if requested and whenever not using Monte Carlo
-    if (m_useLumi) {
-        if (m_dataType == DataType_t::monteCarlo) {
-            ATH_MSG_WARNING("Lumi tool requested, but AthMonitorAlgorithm is configured for MC. Disabling lumi tool.");
-        } else {
-            // Retrieve the luminosity and live fraction tools
-            StatusCode sc_lumiTool = m_lumiTool.retrieve();
-            StatusCode sc_liveTool = m_liveTool.retrieve();
-
-            // Set m_hasRetrievedLumiTool to true if both tools are retrieved successfully
-            if ( sc_lumiTool.isSuccess() && sc_liveTool.isSuccess() ) {
-               m_hasRetrievedLumiTool = true;
-            }
-        }
-    }
+    ATH_CHECK( m_lumiDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
+    ATH_CHECK( m_lbDurationDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
+    ATH_CHECK( m_trigLiveFractionDataKey.initialize (m_useLumi && m_dataType != DataType_t::monteCarlo) );
 
     // get event info key
     ATH_CHECK( m_EventInfoKey.initialize() );
@@ -81,16 +70,31 @@ StatusCode AthMonitorAlgorithm::execute( const EventContext& ctx ) const {
     // fails, return SUCCESS code and do not fill the histograms with the event.
     for ( const auto& filterItr : m_DQFilterTools ) {
         if (!filterItr->accept()) {
+            ATH_MSG_DEBUG("Event rejected due to filter tool.");
             return StatusCode::SUCCESS;
         }
     }
 
     // Trigger: If there is a decision tool and the chains fail, skip the event.
     if ( !m_trigDecTool.empty() && !trigChainsArePassed(m_vTrigChainNames) ) {
+        ATH_MSG_DEBUG("Event rejected due to trigger filter.");
         return StatusCode::SUCCESS;
     }
 
+    ATH_MSG_DEBUG("Event accepted!");
     return fillHistograms(ctx);
+}
+
+
+void AthMonitorAlgorithm::fill( const ToolHandle<GenericMonitoringTool>& groupHandle,
+                                MonVarVec_t variables ) const {
+    Monitored::Group(groupHandle,variables).fill();
+}
+
+
+void AthMonitorAlgorithm::fill( const std::string& groupName,
+                                MonVarVec_t variables ) const {
+    fill(getGroup(groupName),variables);
 }
 
 
@@ -163,17 +167,25 @@ AthMonitorAlgorithm::DataType_t AthMonitorAlgorithm::dataTypeStringToEnum( const
 
 ToolHandle<GenericMonitoringTool> AthMonitorAlgorithm::getGroup( const std::string& name ) const {
     // get the pointer to the tool, and check that it exists
-    const ToolHandle<GenericMonitoringTool> toolHandle = *(m_tools[name]);
+    const ToolHandle<GenericMonitoringTool>* toolPtr = m_tools[name];
+    if ( !toolPtr ) {
+        std::string available = std::accumulate( m_tools.begin(), m_tools.end(),
+            m_tools.begin()->name(), [](std::string s,auto h){return s + "," + h->name();} );
+        ATH_MSG_FATAL( "The tool " << name << " could not be found in the tool array of the " <<
+            "monitoring algorithm " << m_name << ". This probably reflects a discrepancy between " <<
+            "your python configuration and c++ filling code. Note: your available groups are {" <<
+            available << "}." << endmsg );
+    }
+    const ToolHandle<GenericMonitoringTool> toolHandle = *toolPtr;
     if ( toolHandle.empty() ) {
-        ATH_MSG_FATAL("The tool "<<name<<" could not be found in the monitoring algorithm's tool array."<<endmsg);
+        ATH_MSG_FATAL("The tool "<<name<<" could not be found because of an empty tool handle."<<endmsg);
     }
     // return the tool handle
     return toolHandle;
 }
 
 
-
-const ToolHandle<Trig::ITrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() {
+const ToolHandle<Trig::ITrigDecisionTool>& AthMonitorAlgorithm::getTrigDecisionTool() const {
     return m_trigDecTool;
 }
 
@@ -190,9 +202,11 @@ bool AthMonitorAlgorithm::trigChainsArePassed( const std::vector<std::string>& v
 }
 
 
-float AthMonitorAlgorithm::lbAverageInteractionsPerCrossing() const {
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbAverageInteractionsPerCrossing();
+float AthMonitorAlgorithm::lbAverageInteractionsPerCrossing (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+{
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        return lumi->lbAverageInteractionsPerCrossing();
     } else {
         ATH_MSG_DEBUG("AthMonitorAlgorithm::lbAverageInteractionsPerCrossing() - luminosity tools are not retrieved.");
         return -1.0;
@@ -200,13 +214,15 @@ float AthMonitorAlgorithm::lbAverageInteractionsPerCrossing() const {
 }
 
 
-float AthMonitorAlgorithm::lbInteractionsPerCrossing() const {
-    if ( m_hasRetrievedLumiTool ) {
-        float instmu = 0.;
-        if (m_lumiTool->muToLumi() > 0.) {
-            instmu = m_lumiTool->lbLuminosityPerBCID()/m_lumiTool->muToLumi();
+float AthMonitorAlgorithm::lbInteractionsPerCrossing (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+{
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        float muToLumi = lumi->muToLumi();
+        if (muToLumi > 0) {
+          return lumi->lbLuminosityPerBCIDVector().at (ctx.eventID().bunch_crossing_id()) / muToLumi;
         }
-        return instmu;
+        return 0;
     } else {
         ATH_MSG_DEBUG("AthMonitorAlgorithm::lbInteractionsPerCrossing() - luminosity tools are not retrieved.");
         return -1.0;
@@ -214,9 +230,11 @@ float AthMonitorAlgorithm::lbInteractionsPerCrossing() const {
 }
 
 
-float AthMonitorAlgorithm::lbAverageLuminosity() const {
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbAverageLuminosity();
+float AthMonitorAlgorithm::lbAverageLuminosity (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+{
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        return lumi->lbAverageLuminosity();
     } else {
         ATH_MSG_DEBUG("AthMonitorAlgorithm::lbAverageLuminosity() - luminosity tools are not retrieved.");
         return -1.0;
@@ -224,9 +242,11 @@ float AthMonitorAlgorithm::lbAverageLuminosity() const {
 }
 
 
-float AthMonitorAlgorithm::lbLuminosityPerBCID() const {
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbLuminosityPerBCID();
+float AthMonitorAlgorithm::lbLuminosityPerBCID (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+{
+    if (!m_lumiDataKey.empty()) {
+        SG::ReadCondHandle<LuminosityCondData> lumi (m_lumiDataKey, ctx);
+        return lumi->lbLuminosityPerBCIDVector().at (ctx.eventID().bunch_crossing_id());
     } else {
         ATH_MSG_DEBUG("AthMonitorAlgorithm::lbLuminosityPerBCID() - luminosity tools are not retrieved.");
         return -1.0;
@@ -234,37 +254,42 @@ float AthMonitorAlgorithm::lbLuminosityPerBCID() const {
 }
 
 
-float AthMonitorAlgorithm::lbAverageLivefraction() const {
+float AthMonitorAlgorithm::lbAverageLivefraction (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+{
     if (m_environment == Environment_t::online) {
         return 1.0;
     }
 
-    if ( m_hasRetrievedLumiTool ) {
-        return m_liveTool->lbAverageLivefraction();
+    if (!m_trigLiveFractionDataKey.empty()) {
+        SG::ReadCondHandle<TrigLiveFractionCondData> live (m_trigLiveFractionDataKey, ctx);
+        return live->lbAverageLiveFraction();
     } else {
-        ATH_MSG_DEBUG("AthMonitorAlgorithm::lbAverageLivefraction() - luminosity tools are not retrieved.");
+        ATH_MSG_DEBUG("AthMonitorAlgorithm::lbAverageLivefraction() - luminosity not available.");
         return -1.0;
     }
 }
 
 
-float AthMonitorAlgorithm::livefractionPerBCID() const {
+float AthMonitorAlgorithm::livefractionPerBCID (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+{
     if (m_environment == Environment_t::online) {
         return 1.0;
     }
 
-    if ( m_hasRetrievedLumiTool ) {
-        return m_liveTool->livefractionPerBCID();
+    if (!m_trigLiveFractionDataKey.empty()) {
+        SG::ReadCondHandle<TrigLiveFractionCondData> live (m_trigLiveFractionDataKey, ctx);
+        return live->l1LiveFractionVector().at (ctx.eventID().bunch_crossing_id());
     } else {
-        ATH_MSG_DEBUG("AthMonitorAlgorithm::livefractionPerBCID() - luminosity tools are not retrieved.");
+        ATH_MSG_DEBUG("AthMonitorAlgorithm::livefractionPerBCID() - luminosity not available.");
         return -1.0;
     }
 }
 
 
-double AthMonitorAlgorithm::lbLumiWeight() const {
-    if ( m_hasRetrievedLumiTool ) {
-        return (lbAverageLuminosity()*lbDuration())*lbAverageLivefraction();
+double AthMonitorAlgorithm::lbLumiWeight (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+{
+    if (!m_lumiDataKey.empty()) {
+        return (lbAverageLuminosity(ctx)*lbDuration(ctx))*lbAverageLivefraction(ctx);
     } else {
         ATH_MSG_DEBUG("AthMonitorAlgorithm::lbLumiWeight() - luminosity tools are not retrieved.");
         return -1.0;
@@ -272,13 +297,15 @@ double AthMonitorAlgorithm::lbLumiWeight() const {
 }
 
 
-double AthMonitorAlgorithm::lbDuration() const {
+double AthMonitorAlgorithm::lbDuration (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+{
     if ( m_environment == Environment_t::online ) {
         return m_defaultLBDuration;
     }
 
-    if ( m_hasRetrievedLumiTool ) {
-        return m_lumiTool->lbDuration();
+    if (!m_lbDurationDataKey.empty()) {
+        SG::ReadCondHandle<LBDurationCondData> dur (m_lbDurationDataKey, ctx);
+        return dur->lbDuration();
     } else {
         ATH_MSG_DEBUG("AthMonitorAlgorithm::lbDuration() - luminosity tools are not retrieved.");
         return m_defaultLBDuration;
@@ -286,11 +313,11 @@ double AthMonitorAlgorithm::lbDuration() const {
 }
 
 
-StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<std::string>& result) {
+StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<std::string>& result) const {
     std::string item;
     std::stringstream ss(line);
 
-    ATH_MSG_DEBUG("AthMonitorAlgorithm::parseList()" << endmsg);
+    ATH_MSG_DEBUG( "AthMonitorAlgorithm::parseList()" );
 
     while ( std::getline(ss, item, ',') ) {
         std::stringstream iss(item); // remove whitespace
@@ -302,7 +329,7 @@ StatusCode AthMonitorAlgorithm::parseList(const std::string& line, std::vector<s
 }
 
 
-void AthMonitorAlgorithm::unpackTriggerCategories(std::vector<std::string>& vTrigChainNames) {
+void AthMonitorAlgorithm::unpackTriggerCategories(std::vector<std::string>& vTrigChainNames) const {
     for (size_t i = 0; i < vTrigChainNames.size(); ++i) {
         std::string& thisName = vTrigChainNames[i];
 

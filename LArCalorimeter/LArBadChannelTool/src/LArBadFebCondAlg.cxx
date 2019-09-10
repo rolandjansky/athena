@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArBadChannelTool/LArBadFebCondAlg.h"
@@ -105,7 +105,11 @@ StatusCode LArBadFebCondAlg::execute() {
     }
   } else {
 
-    rangeW=EventIDRange( EventIDBase(0,0), EventIDBase(std::numeric_limits<unsigned int>::max()-1,0)); 
+    EventIDBase start(0, 0);
+    EventIDBase stop(std::numeric_limits<unsigned int>::max()-1,0);
+    start.set_lumi_block(0);
+    stop.set_lumi_block(std::numeric_limits<unsigned int>::max()-1);
+    rangeW=EventIDRange( start, stop );
 
   }
 

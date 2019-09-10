@@ -34,7 +34,7 @@
 using namespace IOVDbNamespace;
 
 struct GaudiKernelFixture:public GaudiKernelFixtureBase{
-  GaudiKernelFixture():GaudiKernelFixtureBase(__FILE__){
+  GaudiKernelFixture():GaudiKernelFixtureBase(){
     //nop, everything in base.
   }
 };
@@ -60,7 +60,7 @@ struct TestFolderFixture{
     coolDb = dbSvc.createDatabase("sqlite://;schema=TagFunctionsTest.db;dbname=OFLP200");
     spec.extend ("int", cool::StorageType::Int32);
     cool::FolderSpecification fSpec (cool::FolderVersioning::SINGLE_VERSION,spec,cool::PayloadMode::INLINEPAYLOAD);
-    std::string desc = "<timeStamp>run-event</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
+    std::string desc = "<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
     {
       folderPtr = coolDb->createFolder (fixtureFoldername, fSpec, desc);
       cool::Record payload (folderPtr->payloadSpecification());
@@ -85,9 +85,22 @@ BOOST_FIXTURE_TEST_SUITE(TagFunctionsBasicTest , GaudiKernelFixture)
   //
   BOOST_FIXTURE_TEST_SUITE(TagFunctionsTest, TestFolderFixture)
     BOOST_AUTO_TEST_CASE(AllFunctions){
-      BOOST_TEST(getTagInfo("dummy", detStore.get()).empty());
-      BOOST_TEST(!checkTagLock(folderPtr,"dummy").has_value());
-      //BOOST_TEST(getGeoAtlasVersion().empty()); cant get
+      const std::string dummyMagicTag{"TagInfoMajor/AtlasLayerMat_v21_/Dummy"};
+      const std::string trialMagicTag{"TagInfoMajor/AtlasLayerMat_v21_/Trial"};
+      BOOST_TEST(getTagInfo("dummy", detStore.get()).empty(),"Getting tag info for a non existent tag but valid detStore should return an empty string");
+      BOOST_TEST(getTagInfo("dummy",nullptr) == "","Getting tag info for a non existent tag and null detStore should return an empty string");
+      TagInfo t{};
+      const std::string empty{};
+      const std::string someTag{"MyTag_6Char"};
+      t.addTag(std::pair<std::string, std::string>(dummyMagicTag,empty));
+      t.addTag(std::pair<std::string, std::string>(trialMagicTag,someTag));
+      BOOST_TEST_MESSAGE("Calling resolveUsingTagInfo(..) with dummy magic tag should throw (test mode: TagInfo object passed in)");
+      BOOST_CHECK_THROW(resolveUsingTagInfo(dummyMagicTag,nullptr, t), std::runtime_error);
+      BOOST_TEST(resolveUsingTagInfo(trialMagicTag,nullptr, t) == "MyTag", "resolveUsingTagInfo(..) with magic tag returns valid string (test mode)");
+      BOOST_TEST(!checkTagLock(folderPtr,trialMagicTag).has_value(), "checkTagLock(..) doesn't have a value if there are no tags in the db");
+      BOOST_TEST_MESSAGE("getGeoAtlasVersion() throws if the GeoModelSvc has not been set up");
+      BOOST_CHECK_THROW(getGeoAtlasVersion(),std::runtime_error); //cant get
+      //@todo : Create database with tags to check valid returns on these methods
     }
   BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE_END()

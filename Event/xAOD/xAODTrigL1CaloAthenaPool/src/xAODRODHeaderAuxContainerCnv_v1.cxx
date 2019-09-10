@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODRODHeaderAuxContainerCnv_v1.cxx 694352 2015-09-11 12:05:29Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -73,18 +72,18 @@ persToTrans( const xAOD::RODHeaderAuxContainer_v1* oldObj,
                          oldRH->payloadSize() );
 
       // Helper objects to access the auxiliary IDs of the base variables:
-      static SG::AuxElement::TypelessConstAccessor accVersion( "version" );
-      static SG::AuxElement::TypelessConstAccessor accSourceId( "sourceId" );
-      static SG::AuxElement::TypelessConstAccessor accRun( "run" );
-      static SG::AuxElement::TypelessConstAccessor accLvl1Id( "lvl1Id" );
-      static SG::AuxElement::TypelessConstAccessor accBcid( "bcId" );
-      static SG::AuxElement::TypelessConstAccessor accTrigType( "trigType" );
-      static SG::AuxElement::TypelessConstAccessor accDetType( "detType" );
-      static SG::AuxElement::TypelessConstAccessor
+      static const SG::AuxElement::TypelessConstAccessor accVersion( "version" );
+      static const SG::AuxElement::TypelessConstAccessor accSourceId( "sourceId" );
+      static const SG::AuxElement::TypelessConstAccessor accRun( "run" );
+      static const SG::AuxElement::TypelessConstAccessor accLvl1Id( "lvl1Id" );
+      static const SG::AuxElement::TypelessConstAccessor accBcid( "bcId" );
+      static const SG::AuxElement::TypelessConstAccessor accTrigType( "trigType" );
+      static const SG::AuxElement::TypelessConstAccessor accDetType( "detType" );
+      static const SG::AuxElement::TypelessConstAccessor
          accStatusWords( "statusWords" );
-      static SG::AuxElement::TypelessConstAccessor
+      static const SG::AuxElement::TypelessConstAccessor
          accPayloadSize( "payloadSize" );
-      static std::array< SG::AuxElement::TypelessConstAccessor*, 9 >
+      static const std::array< const SG::AuxElement::TypelessConstAccessor*, 9 >
          knownVars{ { &accVersion, &accSourceId, &accRun, &accLvl1Id, &accBcid,
                &accTrigType, &accDetType, &accStatusWords, &accPayloadSize } };
 

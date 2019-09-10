@@ -35,26 +35,26 @@ xAOD::TrigComposite_v1::setObjectLink ERROR link is not valid
 
 New decision d3b with name & context 
 d3b: TrigComposite_v1 name:'d3b'
-  N Lnks:1
+  N Links:1, isRemapped:NO
     Link Name:testlink, Key:1042135810, Index:1, CLID:1333228823
 el2 1042135810 1
 d3: TrigComposite_v1 name:''
-  N Lnks:1
+  N Links:1, isRemapped:NO
     Link Name:seed__COLL, Key:1042135810, Index:1, CLID:1333228823
-  N Decisions: '2
+  N Decisions:2
     95, 99, 
 d4: TrigComposite_v1 name:''
-  N Lnks:1
+  N Links:1, isRemapped:NO
     Link Name:seed__COLL, Key:1042135810, Index:1, CLID:1333228823
 el: key 1042135810 index 1
 create d5 
 set link 
 d5: TrigComposite_v1 name:'d5'
-  N Lnks:1
+  N Links:1, isRemapped:NO
     Link Name:feature, Key:1042135810, Index:1, CLID:1333228823
 create d6 
 d6: TrigComposite_v1 name:'d6'
-  N Lnks:1
+  N Links:1, isRemapped:NO
     Link Name:seed__COLL, Key:1042135810, Index:5, CLID:1333228823
 get d5 feature link 
 get d6 feature link 

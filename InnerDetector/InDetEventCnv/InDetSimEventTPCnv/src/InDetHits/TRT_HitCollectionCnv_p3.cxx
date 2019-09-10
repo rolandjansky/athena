@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetSimEvent/TRTUncompressedHit.h"
@@ -278,7 +278,7 @@ void TRT_HitCollectionCnv_p3::transToPers(const TRTUncompressedHitCollection* tr
 
 // Create Transient
 TRTUncompressedHitCollection* TRT_HitCollectionCnv_p3::createTransient(const TRT_HitCollection_p3* persObj, MsgStream &log) {
-  std::auto_ptr<TRTUncompressedHitCollection> trans(new TRTUncompressedHitCollection("DefaultCollectionName",persObj->m_nHits.size()));
+  std::unique_ptr<TRTUncompressedHitCollection> trans(std::make_unique<TRTUncompressedHitCollection>("DefaultCollectionName",persObj->m_nHits.size()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 } //createTransient

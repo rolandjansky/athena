@@ -15,24 +15,21 @@ namespace Monitored {
    */
   class HistogramFiller2DProfile : public HistogramFiller {
   public:
-    HistogramFiller2DProfile(TProfile2D* hist, const HistogramDef& histDef)
-      : HistogramFiller(hist, histDef) {};
+    HistogramFiller2DProfile(const HistogramDef& definition, std::shared_ptr<IHistogramProvider> provider)
+      : HistogramFiller(definition, provider) {}
 
     virtual HistogramFiller2DProfile* clone() override { return new HistogramFiller2DProfile(*this); };
     
     virtual unsigned fill() override {
-      using namespace std; 
-
       if (m_monVariables.size() != 3) {
         return 0;
       }
 
-      unsigned i(0);
-      auto hist = histogram();
+      auto histogram = this->histogram<TProfile2D>();
       auto valuesVector1 = m_monVariables[0].get().getVectorRepresentation();
       auto valuesVector2 = m_monVariables[1].get().getVectorRepresentation();
       auto valuesVector3 = m_monVariables[2].get().getVectorRepresentation();
-      lock_guard<mutex> lock(*(this->m_mutex));
+      std::lock_guard<std::mutex> lock(*(this->m_mutex));
       /*HERE NEED TO INCLUDE CASE IN WHICH SOME VARIABLES ARE SCALAR AND SOME VARIABLES ARE VECTORS
       unsigned i(0);
       if (m_variable1->size() != m_variable2->size() || m_variable1->size() != m_variable3->size() || m_variable2->size() != m_variable3->size() ) {
@@ -40,14 +37,22 @@ namespace Monitored {
       }*/
 
       //For now lets just consider the case in which all variables are of the same length
-      for (i = 0; i < valuesVector1.size(); ++i) {
-        hist->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+      if ( m_monWeight && m_monWeight->getVectorRepresentation().size()==valuesVector1.size() ) {
+        // Weighted fill
+        auto weightVector = m_monWeight->getVectorRepresentation();
+        double value1,value2,value3,weight;
+        for (const auto& zipped : boost::combine(valuesVector1,valuesVector2,valuesVector3,weightVector)) {
+          boost::tie(value1,value2,value3,weight) = zipped;
+          histogram->Fill(value1,value2,value3,weight);
+        }
+      } else {
+        // Unweighted fill
+        for (unsigned i = 0; i < std::size(valuesVector1); ++i) {
+          histogram->Fill(valuesVector1[i], valuesVector2[i], valuesVector3[i]);
+        }
       }
-      
-      return i;
+      return std::size(valuesVector1);
     }
-  protected:
-    virtual TProfile2D* histogram() override { return static_cast<TProfile2D*>(m_hist); }
   };
 }
 

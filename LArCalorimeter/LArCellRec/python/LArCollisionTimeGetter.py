@@ -32,16 +32,13 @@ class LArCollisionTimeGetter ( Configured )  :
 
         import traceback
         try:
-            from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-            from AthenaCommon.AppMgr import ToolSvc
-            theCaloNoiseTool = CaloNoiseToolDefault()
-            ToolSvc+=theCaloNoiseTool
+            from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+            CaloNoiseCondAlg()
 
             from LArCellRec.LArCellRecConf import LArCollisionTimeAlg
             from AthenaCommon.GlobalFlags  import globalflags
             self._handle = \
               LArCollisionTimeAlg("LArCollisionTimeAlg",
-                                  NoiseTool = theCaloNoiseTool,
                                   isMC = globalflags.DataSource != 'data',
                                   cutIteration=False)
 

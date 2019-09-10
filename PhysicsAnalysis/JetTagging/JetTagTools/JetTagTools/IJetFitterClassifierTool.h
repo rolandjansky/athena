@@ -1,7 +1,7 @@
 //-*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BTAGTOOL_IJETFITTERCLASSIFIERTOOL_C
@@ -27,34 +27,21 @@ namespace Analysis {
 
   class IJetFitterTagInfo;
 
-  static const InterfaceID 
-  IID_IJetFitterClassifierTool("Analysis::IJetFitterClassifierTool", 1, 0);
-
   class IJetFitterClassifierTool : virtual public IAlgTool 
   {
     
   public:
+    DeclareInterfaceID( IJetFitterClassifierTool, 1, 0 );
     
-    virtual ~IJetFitterClassifierTool(){};
+    virtual ~IJetFitterClassifierTool() = default;
     
-    virtual StatusCode initialize() = 0;
-    virtual StatusCode finalize() = 0;
-    
-
     virtual StatusCode fillLikelihoodValues(xAOD::BTagging* BTag,
 					    const std::string & jetauthor,
 					    const std::string& inputbasename,
 					    const std::string& outputbasename,
 					    double jetpT,
 					    double jeteta,
-					    double IP3dlike=-5000) = 0;
-
-
-    static const InterfaceID& interfaceID() { 
-      return IID_IJetFitterClassifierTool; 
-    };
-
-
+					    double IP3dlike=-5000) const = 0;
   }; 
 }
 

@@ -68,6 +68,7 @@
 #include <QSet>
 #include <QStringList>
 #include <QMessageBox>
+#include <QCommandLineParser>
 
 #include <Inventor/C/errors/debugerror.h>
 #include <Inventor/Qt/SoQt.h>
@@ -91,6 +92,39 @@ std::vector<std::string> qstringlistToVecString(QStringList list)
 	}
 	return vec;
 }
+
+
+#ifdef BUILDVP1LIGHT
+	//Qt
+  #include <QSettings>
+
+	// XAOD
+	#include "xAODRootAccess/Init.h"
+	#include "xAODRootAccess/TEvent.h"
+	#include "xAODRootAccess/TStore.h"
+	#include "xAODRootAccess/tools/Message.h"
+	#include "xAODRootAccess/TAuxStore.h"
+	#include "xAODCore/AuxContainerBase.h"
+	#include "xAODCore/tools/ReadStats.h"
+	#include "xAODCore/tools/IOStats.h"
+
+	// // For testing
+	#include "xAODEventInfo/EventInfo.h"
+	#include <QDebug>
+	#include "xAODRootAccessInterfaces/TActiveEvent.h"
+	#include "xAODRootAccessInterfaces/TVirtualEvent.h"
+	#include <TTree.h>
+	#include <regex>
+	#include <QString>
+
+	// ROOT include(s):
+	#include <TTree.h>
+	#include <TFile.h>
+	#include <TError.h>
+
+	template <typename... Args> inline void unused(Args&&...) {} // to declare unused variables (see executeNewEvent() ).
+#endif // BUILDVP1LIGHT
+
 
 
 //___________________________________________________________________
@@ -243,7 +277,9 @@ VP1ExecutionScheduler::VP1ExecutionScheduler( QObject * parent,
 
 	// check if 'batch mode'
 	bool batchMode = VP1QtUtils::environmentVariableIsSet("VP1_BATCHMODE"); // ::getenv("VP1_BATCHMODE");
-	qDebug() << "VP1ExecutionScheduler:: Do we run in 'batch' mode?" << batchMode;
+    if(VP1Msg::debug()){
+		qDebug() << "VP1ExecutionScheduler:: Do we run in 'batch' mode?" << batchMode;
+	}
 	if (batchMode) {
 		VP1Msg::messageWarningAllRed("User has run VP1 in 'batch-mode', so the main window of the program will not be shown.");
 		m_d->batchMode = true;
@@ -270,7 +306,13 @@ VP1ExecutionScheduler::VP1ExecutionScheduler( QObject * parent,
 	connect(m_d->cruisetimer, SIGNAL(timeout()), this, SLOT(performCruise()));
 	m_d->cruisetab_waitingtoproceed=false;
 
-	if (VP1QtUtils::environmentVariableIsOn("VP1_DISPLAY_MOUSE_CLICKS")) {
+	#if defined BUILDVP1LIGHT
+		bool checkDisplayMouseClicks = VP1QtUtils::expertSettingIsOn("general","ExpertSettings/VP1_DISPLAY_MOUSE_CLICKS");
+	#else
+		bool checkDisplayMouseClicks = VP1QtUtils::environmentVariableIsOn("VP1_DISPLAY_MOUSE_CLICKS");
+	#endif
+
+	if (checkDisplayMouseClicks) {
 		m_d->globalEventFilter = new Imp::GlobalEventFilter;
 		qApp->installEventFilter(m_d->globalEventFilter);
 	} else {
@@ -343,6 +385,18 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore,
 		VP1QtUtils::setEnvironmentVariable("DISPLAY",alternative);
 	}
 
+
+
+    QCoreApplication::setOrganizationName("ATLAS");
+	#if defined BUILDVP1LIGHT
+		QCoreApplication::setApplicationName("VP1Light");
+	#else
+		QCoreApplication::setApplicationName("VP1");
+	#endif
+    QCoreApplication::setAttribute(Qt::AA_UseDesktopOpenGL);
+
+
+
 	// here we check if the main (and unique!) Qt application has been initialized already. If not we initialize it.
 	if (qApp) {
 		VP1Msg::message("VP1ExecutionScheduler::init ERROR: QApplication already initialized. Expect problems!!!");
@@ -362,8 +416,6 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore,
 		//new QApplication(argc, argv);
 		new VP1QtApplication(argc, argv);
 	}
-	QCoreApplication::setOrganizationName("ATLAS");
-	QCoreApplication::setApplicationName("VP1");
 
 	VP1AvailEvents * availEvents(0);
 	if (!singleEventSource.isEmpty()&&!singleEventLocalTmpDir.isEmpty()) {
@@ -455,8 +507,13 @@ VP1ExecutionScheduler* VP1ExecutionScheduler::init( StoreGateSvc* eventStore,
 //___________________________________________________________________
 void VP1ExecutionScheduler::cleanup(VP1ExecutionScheduler*scheduler)
 {
-	if (VP1QtUtils::environmentVariableIsOn("VP1_ENABLE_INFORM_ON_END_OF_JOB")
-	&& ( !scheduler||!(scheduler->m_d->mainwindow->userRequestedExit()) ) )
+	#if defined BUILDVP1LIGHT
+	bool checkEnableInformOnEndOfJob = VP1QtUtils::expertSettingIsOn("expert","ExpertSettings/VP1_ENABLE_INFORM_ON_END_OF_JOB");
+	#else
+	bool checkEnableInformOnEndOfJob = VP1QtUtils::environmentVariableIsOn("VP1_ENABLE_INFORM_ON_END_OF_JOB");
+	#endif
+
+	if (checkEnableInformOnEndOfJob	&& ( !scheduler||!(scheduler->m_d->mainwindow->userRequestedExit()) ) )
 		QMessageBox::information(0, "End of job reached",Qt::convertFromPlainText("Job about to end.\n\nThis is most"
 				" likely since there are no more available events to process."),QMessageBox::Ok,QMessageBox::Ok);
 
@@ -473,8 +530,17 @@ void VP1ExecutionScheduler::cleanup(VP1ExecutionScheduler*scheduler)
 		SoQt::done();
 	}
 
+
+
 	const QString quickExitEnv("VP1_HARD_EXIT_AT_END");
-	if (VP1QtUtils::environmentVariableIsOn(quickExitEnv)) {
+
+	#if defined BUILDVP1LIGHT
+		bool checkHardExitAtEnd = VP1QtUtils::expertSettingIsOn("expert","ExpertSettings/"+quickExitEnv);
+	#else
+		bool checkHardExitAtEnd = VP1QtUtils::environmentVariableIsOn(quickExitEnv);
+	#endif
+
+	if (checkHardExitAtEnd) {
 		VP1Msg::message("Hard job exit (unset "+quickExitEnv+" to disable this behaviour).");
 		exit(0);
 	}
@@ -529,7 +595,33 @@ bool VP1ExecutionScheduler::executeNewEvent(const int& runnumber, const unsigned
 
 	m_d->nextRequestedEvent="";
 
+#if defined BUILDVP1LIGHT
+	unused(runnumber,eventnumber,triggerType,time); // silences the "unused parameter" warnings when building VP1Light. In this case, in fact, those variables will be used later in loadEvent().
+	if ( !firstlaunch ) {
+		if ( (getEvtNr() >= 0) && (getEvtNr() < m_totEvtNr) ) {	// If selected event number is available in file
+			loadEvent();
+			//Pass the event to the AOD System
+			std::set<IVP1System *>::iterator itsys, itsysE = m_d->mainwindow->tabManager()->selectedChannelWidget()->systems().end();
+			for (itsys = m_d->mainwindow->tabManager()->selectedChannelWidget()->systems().begin();itsys!=itsysE;++itsys) {
+				if((*itsys)->name()=="Analysis"){
+					passEvent(*itsys);
+				}
+			}
+		}
+		else if ( (getEvtNr() < 0) && (getEvtNr() >= m_totEvtNr) ) {
+			QMessageBox msgBox;
+			msgBox.setWindowTitle("No more events");
+			msgBox.setText("There are no more events in this file. Returning to previous event.");
+			msgBox.setIcon(QMessageBox::Icon::Information);
+			msgBox.exec();
+		}
+	}
+	else{
+		firstlaunch = false;
+	}
+#else
 	m_d->mainwindow->setRunEvtNumber(runnumber, eventnumber, triggerType, time, !m_d->skipEvent);
+#endif
 
 	m_d->goingtonextevent = false;
 	m_d->calctimethisevent=0;
@@ -676,10 +768,15 @@ void VP1ExecutionScheduler::channelCreated(IVP1ChannelWidget* cw)
 {
 	std::set<IVP1System*>::const_iterator it, itE = cw->systems().end();
 	for (it=cw->systems().begin();it!=itE;++it) {
+		qInfo() << "System name:" << (*it)->name();
 		connect(*it,SIGNAL(inactiveSystemTurnedActive()),this,SLOT(startRefreshQueueIfAppropriate()));
 		connect(*it,SIGNAL(needErase()),this,SLOT(systemNeedErase()));
+		#ifdef BUILDVP1LIGHT
+			connect(*it,SIGNAL(signalLoadEvent(IVP1System*)),this,SLOT(passEvent(IVP1System*)));
+		#endif // BUILDVP1LIGHT
 	}
 	startRefreshQueueIfAppropriate();
+
 }
 
 //___________________________________________________________________
@@ -1103,6 +1200,7 @@ bool VP1ExecutionScheduler::hasAllActiveSystemsRefreshed( IVP1ChannelWidget* cw 
 
 		i++;
 	}
+
 	return true;
 }
 
@@ -1278,3 +1376,126 @@ QStringList VP1ExecutionScheduler::userRequestedFiles()
 
 //Actually: Floating widgets from other tabs should get docked anyway when going FS-tab when in cruise-TAB mode...
 
+
+//___________________________________________________________________
+#ifdef BUILDVP1LIGHT
+void VP1ExecutionScheduler::loadEvent(){
+  // Get the name of the application:
+  const char* appName = "VP1Light";
+
+  // Initialize the environment:
+  if( !xAOD::Init( appName ).isSuccess() ) {
+	  ::Error( appName, XAOD_MESSAGE( "Failed to execute xAOD::Init" ) );
+     return;
+  }
+
+  m_event = new xAOD::TEvent( xAOD::TEvent::kAthenaAccess );
+
+  // Get local xAOD and set valid xAOD path
+  QSettings settings("ATLAS", "VP1Light");
+  std::string path = settings.value("aod/path").toString().toStdString();
+
+  // Open xAOD file and read it in
+  m_ifile = ::TFile::Open( path.c_str(), "READ" );
+  if( ! m_ifile ) {
+     ::Error( appName, XAOD_MESSAGE( "File %s couldn't be opened..." ),
+              path.c_str() );
+     return;
+  }
+  if( !m_event->readFrom( m_ifile ).isSuccess() ) {
+	  ::Error( appName, XAOD_MESSAGE( "Failed to read from xAOD file %s" ),
+	       path.c_str() );
+     return;
+  }
+
+  // Check if file is empty:
+  if( m_event->getEntry( 0 ) < 0 ) {
+     ::Error( appName, XAOD_MESSAGE( "Couldn't load entry 0 from file %s" ),
+              path.c_str() );
+     return;
+  }
+
+  //Load the current event
+  m_event->getEntry( m_evtNr );
+
+  // List for available collections
+  QStringList jetList;
+  QStringList vertexList;
+  QStringList otherList;
+  QStringList caloClusterList;
+  QStringList trackParticleList;
+  QStringList muonList;
+  QStringList electronList;
+
+
+  // // Loop over all entries in the CollectionTree
+  TTree* ct = (TTree*)m_ifile->Get("CollectionTree");
+  m_totEvtNr = ct->GetEntriesFast();
+  for (int i = 0; i<ct->GetListOfBranches()->GetEntries();i++){
+    std::string className = ct->GetBranch(ct->GetListOfBranches()->At(i)->GetName())->GetClassName();
+
+    // Store collections in their respective QStringList
+    if(split(className,"_v[1-9]")=="DataVector<xAOD::Vertex>"){
+      vertexList << ct->GetListOfBranches()->At(i)->GetName();
+    }
+    if(split(className,"_v[1-9]")=="xAOD::MissingETContainer"){
+      otherList << ct->GetListOfBranches()->At(i)->GetName();
+    }
+    if(split(className,"_v[1-9]")=="DataVector<xAOD::Jet>"){
+      jetList << ct->GetListOfBranches()->At(i)->GetName();
+    }
+    if(split(className,"_v[1-9]")=="DataVector<xAOD::CaloCluster>"){
+      caloClusterList << ct->GetListOfBranches()->At(i)->GetName();
+    }
+    if(split(className,"_v[1-9]")=="DataVector<xAOD::TrackParticle>"){
+      trackParticleList << ct->GetListOfBranches()->At(i)->GetName();
+    }
+    if(split(className,"_v[1-9]")=="DataVector<xAOD::Muon>"){
+      muonList << ct->GetListOfBranches()->At(i)->GetName();
+    }
+    if(split(className,"_v[1-9]")=="DataVector<xAOD::Electron>"){
+      electronList << ct->GetListOfBranches()->At(i)->GetName();
+    }
+  }
+
+  //Fill the collection lists
+  m_list.append(vertexList);
+  m_list.append(otherList);
+  m_list.append(jetList);
+  m_list.append(caloClusterList);
+  m_list.append(trackParticleList);
+  m_list.append(muonList);
+  m_list.append(electronList);
+
+  // Get the event info:
+  const xAOD::EventInfo *eventInfo = nullptr;
+	if( !m_event->retrieve (eventInfo, "EventInfo").isSuccess() ) {
+  	VP1Msg::messageWarningRed("Failed to retrieve EventInfo");
+     return;
+  }
+  // Save Event info
+	m_d->mainwindow->setRunEvtNumber(eventInfo->runNumber(),eventInfo->eventNumber(),eventInfo->level1TriggerType(),eventInfo->timeStamp());
+
+  // Update the GUI event counter
+	QString currentEvt = "Event: " + QString::number(getEvtNr()+1) + "/" + QString::number(getTotEvtNr());
+	m_d->mainwindow->pushButton_eventselect->setText(currentEvt);
+}
+
+//____________________________________________________________________
+void VP1ExecutionScheduler::passEvent(IVP1System* sys){
+	sys->setEvent(m_event);
+	sys->setObjectList(m_list);
+}
+
+//____________________________________________________________________
+QString VP1ExecutionScheduler::split(const std::string& input, const std::string& regex) {
+  std::regex re(regex);
+  std::sregex_token_iterator first{input.begin(), input.end(), re, -1}, last;
+  std::vector<std::string> vec = {first, last};
+  QStringList list;
+  for (unsigned int i=0;i<vec.size();i++){
+    list << QString::fromStdString(vec[i]);
+  }
+  return list.join("");
+}
+#endif // BUILDVP1LIGHT

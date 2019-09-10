@@ -42,7 +42,7 @@ StatusCode LArFEBConfigCondAlg::initialize() {
 StatusCode LArFEBConfigCondAlg::execute(const EventContext& ctx) const {
   ATH_MSG_DEBUG("executing");
 
-  SG::WriteCondHandle<LArFebConfig> writeHandle{m_configKey};
+  SG::WriteCondHandle<LArFebConfig> writeHandle{m_configKey, ctx};
   if (writeHandle.isValid()) {
       ATH_MSG_DEBUG("Found valid write LArFebConfig handle");
       return StatusCode::SUCCESS;

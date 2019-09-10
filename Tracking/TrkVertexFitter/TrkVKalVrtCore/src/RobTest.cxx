@@ -42,7 +42,7 @@ void robtest(VKVertex * vk, long int ifl)
 
     if ( ifl == 0) {                               /* FILLING OF EIGENVALUES AND VECTORS */
 	for (it = 0; it < NTRK ; ++it) {               /* RESTORE MATRIX */
-            VKTrack *trk=vk->TrackList[it];
+            VKTrack *trk=vk->TrackList[it].get();
             if(trk->Id < 0) continue;  // Not a real track
 	    //k = 0;   double dest[5][5];
 	    //for (i = 0; i < 5; ++i) {
@@ -64,7 +64,7 @@ void robtest(VKVertex * vk, long int ifl)
 /* -- */
     double    halfPi=M_PI/2.;
     for (it = 0; it < NTRK; ++it) {
-        VKTrack *trk=vk->TrackList[it];
+        VKTrack *trk=vk->TrackList[it].get();
         if(trk->Id < 0) continue;  // Not a real track
         c[0]=c[1]=c[2]=c[3]=c[4]=0.;
         for( k = 0; k < 5; k++){

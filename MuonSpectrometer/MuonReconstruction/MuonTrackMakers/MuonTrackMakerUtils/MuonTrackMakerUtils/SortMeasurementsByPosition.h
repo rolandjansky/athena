@@ -11,7 +11,7 @@ Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #include <functional>
 #include <iostream>
 #include "MuonIdHelpers/MuonIdHelperTool.h"
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "CxxUtils/fpcompare.h"
 
 namespace Muon {
@@ -72,7 +72,7 @@ namespace Muon {
 	std::cout << "Muon::SortTSOSs: state 2 without parameters " << std::endl;
 	return true;
       }
-      //check between muon and non-muon hits first, but only if neither hit is a hole!
+      //first, address rare problems with funky track directions leading to strange orderings by checking for comparisons of calo deposits and MS hits
       const Trk::MeasurementBase* meas1 = tsos1->measurementOnTrack();
       Identifier id1 = meas1 ? m_helperTool->getIdentifier(*meas1) : Identifier();
 
@@ -80,27 +80,22 @@ namespace Muon {
       Identifier id2 = meas2 ? m_helperTool->getIdentifier(*meas2) : Identifier();	  
 
       bool okId1 = id1.is_valid() && m_idHelperTool->isMuon(id1) ? true : false;
-      bool okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;
-      // put invalid hits and non-muon hits after valid muon hits
-      if(!tsos1->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::Hole) && !tsos2->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::Hole)){
-	if(  okId1 && !okId2 ) return true;
-	if( !okId1 &&  okId2 ) return false;
+      bool okId2 = id2.is_valid() && m_idHelperTool->isMuon(id2) ? true : false;      
+
+      if(tsos1->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) || tsos2->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit)){
+	if(  okId1 && tsos2->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) ) return false;
+	if( tsos1->type(Trk::TrackStateOnSurface::TrackStateOnSurfaceType::CaloDeposit) && okId2 ) return true;
       }
+      
       // get average direction of the 2 TSOSs
       Amg::Vector3D trackDir = tsos1->trackParameters()->momentum().unit();
       trackDir += tsos2->trackParameters()->momentum().unit();
       const Amg::Vector3D& pos1 = tsos1->trackParameters()->position();
       const Amg::Vector3D& pos2 = tsos2->trackParameters()->position();
       double dist = (pos2 - pos1).dot(trackDir);
-      //std::cout<<"tsos1 is at "<<pos1<<", tsos2 at "<<pos2<<std::endl;
-      
-      //std::cout << "Muon::SortTSOSs: comparing " << tsos1 << "  " << tsos2 << " dist " << dist
-      //	<</* "\n  mom1 " << tsos1->trackParameters()->momentum() <<*/ " \n dir1 " <<  tsos1->trackParameters()->momentum().unit()
-      //	<</* "\n  mom2 " << tsos2->trackParameters()->momentum() <<*/ " \n dir2 " <<  tsos2->trackParameters()->momentum().unit()
-      //        << "\n  trackDir " << trackDir << std::endl;
+
       if( fabs(dist) < 1e-5 ){
-	//std::cout << " close hits " << tsos1->measurementOnTrack() << "   " << tsos2->measurementOnTrack()
-        //          << "\ndist " << dist << std::endl;
+	//one is a good muon hit and one is not: good muon hit comes after
 	if(  okId1 && !okId2 ) return true;
         if( !okId1 &&  okId2 ) return false;
 	// both invalid or non-muon: consider them equal
@@ -108,30 +103,27 @@ namespace Muon {
 	// now we have 2 valid muon Ids
 	bool measPhi1 = m_idHelperTool->measuresPhi(id1);
 	bool measPhi2 = m_idHelperTool->measuresPhi(id2);
-	//std::cout << " meas1 " << okId1 << "  " << measPhi1 << "   meas2 " << okId2 << "  " << measPhi2 << std::endl;
 	// put phi measurement in front of eta measurements
 	if(  measPhi1 && !measPhi2 ) return true;
 	if( !measPhi1 &&  measPhi2 ) return false;
 	// now both are phi or both are eta
 	// decide on identifier (increasing away from IP within same technology)
 	double inOrOut = (pos1 + pos2).dot(trackDir);
-	//std::cout << "sortTSOSs(): inOrOut = " << inOrOut << std::endl;
 	if ( inOrOut >= 0.0 ) {
 	  return id1 < id2;
 	} else {
 	  return id1 > id2;
 	}
           
-	//std::cout << " no decision " << std::endl;
         // if we get here, there was no decision
 	return false; //consider them equal
       }
       return dist > 0.;
     }
 
-    SortTSOSs( const MuonEDMHelperTool* h, const MuonIdHelperTool*  idh ) : m_helperTool(h),m_idHelperTool(idh) {}
+    SortTSOSs( const IMuonEDMHelperSvc* h, const MuonIdHelperTool*  idh ) : m_helperTool(h),m_idHelperTool(idh) {}
   
-    const MuonEDMHelperTool* m_helperTool;
+    const IMuonEDMHelperSvc* m_helperTool;
     const MuonIdHelperTool*  m_idHelperTool;
   };
 

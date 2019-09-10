@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/*
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file CoolLumiUtilities/src/OnlineLumiCalibrationCondAlg.cxx
- * @author scott snyder <snyder@bnl.gov>
+ * @author scott snyder <snyder@bnl.gov>,
+ *         from existing OnlineLumiCalibrationTool
  * @date Aug, 2018
- * @brief 
+ * @brief Produce lumi calibration data from COOL.
  */
 
 
@@ -17,29 +16,27 @@
 #include "StoreGate/WriteCondHandle.h"
 
 
-OnlineLumiCalibrationCondAlg::OnlineLumiCalibrationCondAlg
-  (const std::string& name,
-   ISvcLocator* svcloc)
-    : AthReentrantAlgorithm (name, svcloc)
-{
-}
-
-
-
+/**
+ * @brief Gaudi initialize method.
+ */
 StatusCode
 OnlineLumiCalibrationCondAlg::initialize()
 {
-  ATH_CHECK( m_calibrationFolderName.initialize() );
-  ATH_CHECK( m_condDataName.initialize() );
+  ATH_CHECK( m_calibrationFolderInputKey.initialize() );
+  ATH_CHECK( m_lumiCalibOutputKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
 
+/**
+ * @brief Algorithm execute method.
+ * @param ctx Event Context.
+ */
 StatusCode
 OnlineLumiCalibrationCondAlg::execute (const EventContext& ctx) const
 {
   SG::ReadCondHandle<CondAttrListCollection> calibrationFolder
-    (m_calibrationFolderName, ctx);
+    (m_calibrationFolderInputKey, ctx);
   EventIDRange range;
   ATH_CHECK( calibrationFolder.range (range) );
 
@@ -57,8 +54,8 @@ OnlineLumiCalibrationCondAlg::execute (const EventContext& ctx) const
     }
   }
 
-  SG::WriteCondHandle<OnlineLumiCalibrationCondData> condData
-    (m_condDataName, ctx);
-  ATH_CHECK( condData.record (range, std::move (cali)) );
+  SG::WriteCondHandle<OnlineLumiCalibrationCondData> lumiCalib
+    (m_lumiCalibOutputKey, ctx);
+  ATH_CHECK( lumiCalib.record (range, std::move (cali)) );
   return StatusCode::SUCCESS;
 }

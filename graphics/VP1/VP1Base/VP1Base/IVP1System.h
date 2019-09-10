@@ -19,6 +19,10 @@
 #include <QObject>
 #include <QByteArray>
 
+#ifdef BUILDVP1LIGHT
+  #include "xAODBase/IParticle.h"
+#endif // BUILDVP1LIGHT
+
 class IVP1ChannelWidget;
 class StoreGateSvc;
 class ISvcLocator;
@@ -85,8 +89,19 @@ public:
   void messageDebug(const QString& addtostart, const QStringList&, const QString& addtoend = "") const;
   void messageVerbose(const QString& addtostart, const QStringList&, const QString& addtoend = "") const;
 
+#ifdef BUILDVP1LIGHT
+  xAOD::TEvent* getEvent();
+  void setEvent(xAOD::TEvent* event );
+  QStringList getObjectList(xAOD::Type::ObjectType);  // Pass the collection names
+  void setObjectList(QList<QStringList>);
+#endif // BUILDVP1LIGHT
+
 signals:
   void sysmessage(QString) const;
+
+#ifdef BUILDVP1LIGHT
+  void signalLoadEvent(IVP1System*);
+#endif // BUILDVP1LIGHT
 
 public://Public for easier use in helper classes.
 
@@ -136,6 +151,12 @@ signals:
 
 private:
   static bool s_vp1verbose;
+
+#ifdef BUILDVP1LIGHT
+  QList<QStringList> m_list;
+  xAOD::TEvent* m_event;
+#endif // BUILDVP1LIGHT
+
 };
 
 #endif

@@ -28,11 +28,6 @@
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CaloInterface/ICalorimeterNoiseTool.h"
-//#include "GaudiKernel/ISvcLocator.h"
-//#include "GaudiKernel/ListItem.h"
-//#include "StoreGate/StoreGateSvc.h" 
-
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 CaloLCWeightTool::CaloLCWeightTool(const std::string& type,
@@ -44,8 +39,7 @@ CaloLCWeightTool::CaloLCWeightTool(const std::string& type,
     m_useHadProbability(false),
     m_interpolate(false),
     m_calo_id(nullptr),
-    m_calo_dd_man(nullptr),
-    m_noiseTool("CaloNoiseTool/CaloNoiseToolDefault")
+    m_calo_dd_man(nullptr)
 {
 
   declareInterface<IClusterCellWeightTool>(this);
@@ -54,7 +48,6 @@ CaloLCWeightTool::CaloLCWeightTool(const std::string& type,
   declareProperty("SignalOverNoiseCut",m_signalOverNoiseCut);
   // Use EM_PROBABILITY Moment to apply relative weights
   declareProperty("UseHadProbability",m_useHadProbability);
-  declareProperty("CaloNoiseTool", m_noiseTool);
   // Use Interpolation or not
   declareProperty("Interpolate",m_interpolate);
   m_interpolateDimensionNames.resize(3);
@@ -91,26 +84,24 @@ StatusCode CaloLCWeightTool::initialize()
   ATH_CHECK( detStore()->retrieve (m_calo_dd_man, "CaloMgr") );
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
    
-  //---- retrieve the noisetool ----------------
-   
-  if(m_noiseTool.retrieve().isFailure()){
-    ATH_MSG_INFO( "Unable to find tool for CaloNoiseTool");
-  }    else {
-    ATH_MSG_INFO(  "Noise Tool retrieved"  );
-  } 
- 
   m_sampnames.reserve(CaloSampling::Unknown);
   for (int iSamp=0;iSamp<CaloSampling::Unknown;iSamp++) {
      m_sampnames.push_back(CaloSamplingHelper::getSamplingName((CaloSampling::CaloSample)iSamp));
   }
 
+  ATH_CHECK(m_noiseCDOKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
+StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster, const EventContext& ctx) const
 {
   const CaloLocalHadCoeff* data(0);
-  SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key);
+  SG::ReadCondHandle<CaloLocalHadCoeff> rch(m_key, ctx);
+
+  SG::ReadCondHandle<CaloNoise> noiseHdl{m_noiseCDOKey,ctx};
+  const CaloNoise* noiseCDO=*noiseHdl;
+
   data = *rch;
   if(data==0) {
     ATH_MSG_ERROR("Unable to access conditions object");
@@ -160,7 +151,7 @@ StatusCode CaloLCWeightTool::weight(xAOD::CaloCluster *theCluster) const
       Identifier myId = itrCell->ID();
       CaloCell_ID::CaloSample theSample = CaloCell_ID::CaloSample(m_calo_id->calo_sample(myId));
       if ( isAmpMap[theSample] >= 0 ) {
-	double sigma =  m_noiseTool->getNoise(*itrCell,ICalorimeterNoiseTool::ELECTRONICNOISE);
+	double sigma =  noiseCDO->getNoise(itrCell->ID(),itrCell->gain());
 	double energy = fabs(itrCell->e());
 	double ratio = 0;
 	if ( std::isfinite(sigma) && sigma > 0 ) 

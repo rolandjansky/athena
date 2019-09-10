@@ -24,7 +24,8 @@ class MMPrepDataCnv_p1
   MMPrepDataCnv_p1() {}
 
   Muon::MMPrepData
-  createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
+  createMMPrepData ( const Muon::MMPrepData_p1 *persObj, 
+		     Identifier clusId,
                      const MuonGM::MMReadoutElement* detEl,
                      MsgStream & log );
 

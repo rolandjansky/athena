@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenuMT.LVL1MenuConfig.L1Seeds")
@@ -44,7 +44,7 @@ def Lvl1ItemByTriggerType(l1object, triggertypebit, triggertypebitmask):
     
     itemsForMenu = [item for item in l1object if item.ctpid != -1]    
     if not itemsForMenu:
-        log.error( 'No item defined for the L1 Menu, the TriggerConfL1 object does not contain items')
+        log.error('No item defined for the L1 Menu, the TriggerConfL1 object does not contain items')
     res = [item.name for item in itemsForMenu if (triggertypebitmask & item.trigger_type)==triggertypebit ]
     return res
 
@@ -61,7 +61,7 @@ def getL1BackgroundSeed(menul1items):
     l1bgditems = l1background_seeds.split(',')
     for item in l1bgditems:
         if item not in menul1items:
-            log.error('L1 item %s from background seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from background seeds is not in current L1 menu', item)
             
     return l1background_seeds
 
@@ -74,7 +74,7 @@ def getL1_ALFA_Diff_Phys_Seeds(menul1items):
     l1items = l1_seeds.split(',')
     for item in l1items:
         if item not in menul1items:
-            log.error('L1 item %s from background seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from background seeds is not in current L1 menu', item)
             
     return l1_seeds
 
@@ -87,7 +87,7 @@ def getL1_ALFA_CDiff_Phys_Seeds (menul1items):
     l1items = l1_seeds.split(',')
     for item in l1items:
         if item not in menul1items:
-            log.error('L1 item %s from background seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from background seeds is not in current L1 menu', item)
             
     return l1_seeds
 ##############################
@@ -99,7 +99,7 @@ def getL1_ALFA_Jet_Phys_Seeds (menul1items):
     l1items = l1_seeds.split(',')
     for item in l1items:
         if item not in menul1items:
-            log.error('L1 item %s from background seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from background seeds is not in current L1 menu', item)
             
     return l1_seeds
 
@@ -140,7 +140,7 @@ def getL1BSSeed(menul1items):
     l1items = l1_seeds.split(',')
     for item in l1items:
         if item not in menul1items:
-            log.error('L1 item %s from beamspot seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from beamspot seeds is not in current L1 menu', item)
             
     return l1_seeds
 
@@ -190,13 +190,13 @@ def getEBnoL1PSSeed(l1items, l1seedname):
     elif ('L1_ABORTGAPNOTCALIB' in l1seedname): 
       noL1PS_seeds = 'L1_J12_ABORTGAPNOTCALIB'
     else:
-      log.error('Do not know how to supply EnhancedBias L1 seeds for %s' % l1seedname)
+      log.error('Do not know how to supply EnhancedBias L1 seeds for %s', l1seedname)
 
     # check if all the l1 seeds given are in the current L1 menu
     l1EBitems = noL1PS_seeds.split(',')
     for item in l1EBitems:
         if item not in l1items:
-            log.error('L1 item %s from %s seed is not in current L1 menu (EnhancedBias)' % (item, l1seedname))
+            log.error('L1 item %s from %s seed is not in current L1 menu (EnhancedBias)', item, l1seedname)
             
     return noL1PS_seeds
 
@@ -209,7 +209,7 @@ def getL1_ALFA_Phys(l1seed):
     l1bgditems = L1ALFA_Phys_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
-            log.error('L1 item %s from L1ALFA_Phys seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from L1ALFA_Phys seeds is not in current L1 menu', item)
             
     return L1ALFA_Phys_seeds
 
@@ -222,7 +222,7 @@ def getL1_ALFA_Phys_Any(l1seed):
     l1bgditems = L1ALFA_Phys_Any_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
-            log.error('L1 item %s from L1ALFA_Phys_Any_seeds seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from L1ALFA_Phys_Any_seeds seeds is not in current L1 menu', item)
             
     return L1ALFA_Phys_Any_seeds
 
@@ -237,7 +237,7 @@ def getL1ALFA_Calib(l1seed):
     l1bgditems = L1ALFA_Calib_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
-            log.error('L1 item %s from L1ALFA_Calib_seeds seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from L1ALFA_Calib_seeds seeds is not in current L1 menu', item)
             
     return L1ALFA_Calib_seeds
 
@@ -251,7 +251,7 @@ def getL1ALFA_CEP(l1seed):
     l1bgditems = L1ALFA_CEP_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
-            log.error('L1 item %s from L1ALFA_CEP_seeds seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from L1ALFA_CEP_seeds seeds is not in current L1 menu', item)
             
     return L1ALFA_CEP_seeds
 
@@ -266,7 +266,7 @@ def getL1ALFA_SYS(l1seed):
     l1bgditems = L1ALFA_SYS_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
-            log.error('L1 item %s from L1ALFA_SYS_seeds seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from L1ALFA_SYS_seeds seeds is not in current L1 menu', item)
             
     return L1ALFA_SYS_seeds
 
@@ -279,7 +279,7 @@ def getL1ALFA_ELAS(l1seed):
     l1bgditems = L1ALFA_ELAS_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
-            log.error('L1 item %s from L1ALFA_ELAS_seeds seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from L1ALFA_ELAS_seeds seeds is not in current L1 menu', item)
             
     return L1ALFA_ELAS_seeds
 
@@ -295,7 +295,7 @@ def getL1LowLumi(l1seed):
     l1bgditems = L1LowLumi_seeds.split(',')
     for item in l1bgditems:
         if item not in l1seed:
-            log.error('L1 item %s from L1LowLumi_seeds seeds is not in current L1 menu' % item)
+            log.error('L1 item %s from L1LowLumi_seeds seeds is not in current L1 menu', item)
             
     return L1LowLumi_seeds
         
@@ -304,7 +304,6 @@ def getL1LowLumi(l1seed):
 #####################################
 def getSpecificL1Seeds(l1seedname, l1itemobject):
     l1items = [i.name for i in l1itemobject]
-    l1ctpid = [i.ctpid for i in l1itemobject]
     L1Seed = ''
     if l1seedname == 'L1_J':
         L1Seed = getL1JetBS()
@@ -426,7 +425,7 @@ def getInputTEfromL1Item(l1item):
         
     if l1item in L1Map:
         TE = L1Map[l1item]
-        log.debug('Mapped L1 input TE from %s to %s.'% (l1item, TE)) 
+        log.debug('Mapped L1 input TE from %s to %s.', l1item, TE)
         return TE
     else:
         TE = l1item.replace("L1_","").split("_")[0]

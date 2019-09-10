@@ -1,5 +1,7 @@
+// -*- C++ -*-
+
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -16,96 +18,89 @@
 #define SiZvertexMaker_xk_H
 
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h"  
-#include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "Identifier/IdentifierHash.h"
+#include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
+
+#include "GaudiKernel/ToolHandle.h"
+
+#include <iosfwd>
 #include <list>
 #include <vector>
-#include <iosfwd>
 
-namespace Trk{
+namespace Trk {
   class Vertex;
 }
 
-
 class MsgStream;
 
-namespace InDet{
+namespace InDet {
 
-  class SiZvertexMaker_xk : virtual public ISiZvertexMaker, public AthAlgTool
-    {
-      ///////////////////////////////////////////////////////////////////
-      // Public methods:
-      ///////////////////////////////////////////////////////////////////
+  class SiSpacePointsSeedMakerEventData;
+
+  class SiZvertexMaker_xk : public extends<AthAlgTool, ISiZvertexMaker>
+  {
+    ///////////////////////////////////////////////////////////////////
+    // Public methods:
+    ///////////////////////////////////////////////////////////////////
       
-    public:
+  public:
       
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // Standard tool methods
+    ///////////////////////////////////////////////////////////////////
 
-      SiZvertexMaker_xk
-	(const std::string&,const std::string&,const IInterface*);
-      virtual ~SiZvertexMaker_xk();
-      virtual StatusCode initialize ();
-      virtual StatusCode finalize   ();
+    SiZvertexMaker_xk(const std::string&,
+                      const std::string&,
+                      const IInterface*);
+    virtual ~SiZvertexMaker_xk() = default;
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
-      ///////////////////////////////////////////////////////////////////
-      // Methods to initialize tool for new event or region
-      ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // Methods to initialize tool for new event or region
+    ///////////////////////////////////////////////////////////////////
 
-      virtual void newEvent();
-      virtual void newRegion
-	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&);
-      virtual void newRegion
-	(const std::vector<IdentifierHash>&,const std::vector<IdentifierHash>&,const IRoiDescriptor&);
+    virtual std::list<Trk::Vertex> newEvent(SiSpacePointsSeedMakerEventData& data) const override;
+    virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
+                                             const std::vector<IdentifierHash>&,
+                                             const std::vector<IdentifierHash>&) const override;
+    virtual std::list<Trk::Vertex> newRegion(SiSpacePointsSeedMakerEventData& data,
+                                             const std::vector<IdentifierHash>&,
+                                             const std::vector<IdentifierHash>&,
+                                             const IRoiDescriptor&) const override;
 
-      ///////////////////////////////////////////////////////////////////
-      // Methods for primary vertices production
-      ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // Print internal tool parameters and status
+    ///////////////////////////////////////////////////////////////////
 
-      virtual const std::list<Trk::Vertex>&  getVertices();
-
-      ///////////////////////////////////////////////////////////////////
-      // Print internal tool parameters and status
-      ///////////////////////////////////////////////////////////////////
-
-      MsgStream&    dump          (MsgStream   & out) const;
-      std::ostream& dump          (std::ostream& out) const;
+    virtual MsgStream& dump(MsgStream& out) const override;
       
-    protected:
+  protected:
       
-      ///////////////////////////////////////////////////////////////////
-      // Protected data and methods
-      ///////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////
+    // Protected data and methods
+    ///////////////////////////////////////////////////////////////////
       
-      int*                                       m_histogram{}     ;
-      double*                                    m_z_histogram{}   ;
-      int                                        m_outputlevel{}   ;
-      int                                        m_nprint {}       ;
-      int                                        m_nspoint{}       ;
-      int                                        m_histsize{}      ;
-      int                                        m_mincontent{}    ;
-      int                                        m_maxcontent{}    ;
-      double                                     m_zmin{}          ;
-      double                                     m_zmax {}         ;
-      double                                     m_ratio {}        ;
-      std::list<Trk::Vertex>                     m_vertex        ;
-      ToolHandle<InDet::ISiSpacePointsSeedMaker> m_seedsgenerator; 
+    ToolHandle<InDet::ISiSpacePointsSeedMaker> m_seedsgenerator
+    {this, "SeedMakerTool", "InDet::SiSpacePointsSeedMaker_ATLxk"};
 
-      ///////////////////////////////////////////////////////////////////
-      // Protected methods
-      ///////////////////////////////////////////////////////////////////
+    IntegerProperty m_nspoint{this, "SeedSize", 2};
+    IntegerProperty m_histsize{this, "HistSize", 500};
+    IntegerProperty m_mincontent{this, "minContent", 20};
+    DoubleProperty m_zmin{this, "Zmin", -250.};
+    DoubleProperty m_zmax{this, "Zmax", +250.};
+    DoubleProperty m_ratio{this, "minRatio", 0.25};
 
-      void production();
-      MsgStream&    dumpConditions(MsgStream   & out) const;
-      MsgStream&    dumpEvent     (MsgStream   & out) const;
-   };
-  MsgStream&    operator << (MsgStream&   ,const SiZvertexMaker_xk&);
-  std::ostream& operator << (std::ostream&,const SiZvertexMaker_xk&); 
+    ///////////////////////////////////////////////////////////////////
+    // Protected methods
+    ///////////////////////////////////////////////////////////////////
+
+    std::list<Trk::Vertex> production(SiSpacePointsSeedMakerEventData& data) const;
+    MsgStream& dumpConditions(MsgStream& out) const;
+  };
 }
 
 #endif // SiZvertexMaker_xk_H
-

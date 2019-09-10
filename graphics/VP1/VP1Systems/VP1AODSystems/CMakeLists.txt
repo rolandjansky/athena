@@ -9,6 +9,7 @@ atlas_subdir( VP1AODSystems )
 atlas_depends_on_subdirs(
    PUBLIC
    Event/xAOD/xAODMuon
+   Event/xAOD/xAODEgamma
    Event/xAOD/xAODTracking
    GaudiKernel
    graphics/VP1/VP1Base
@@ -36,16 +37,30 @@ set( CMAKE_AUTOUIC TRUE )
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
 
-# Component(s) in the package:
-atlas_add_library( VP1AODSystems
-   VP1AODSystems/*.h src/*.h src/*.cxx
-   PUBLIC_HEADERS VP1AODSystems
-   PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
-   LINK_LIBRARIES xAODMuon xAODTracking GaudiKernel VP1Base StoreGateLib
-   Qt5::Core Qt5::Gui
-   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
-   xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver TrkExInterfaces
-   VP1HEPVis VP1Utils Qt5::Gui )
+if(NOT BUILDVP1LIGHT)
+    # Component(s) in the package:
+    atlas_add_library( VP1AODSystems
+       VP1AODSystems/*.h src/*.h src/*.cxx
+       PUBLIC_HEADERS VP1AODSystems
+       PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
+       LINK_LIBRARIES xAODMuon xAODEgamma xAODTracking GaudiKernel VP1Base StoreGateLib
+       Qt5::Core Qt5::Gui
+       PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
+       xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver TrkExInterfaces
+       VP1HEPVis VP1Utils Qt5::Gui )
+endif()
+if(BUILDVP1LIGHT)
+    # Component(s) in the package:
+    atlas_add_library( VP1AODSystems
+       src/*.h VP1AODSystems/*.h src/*cxx
+       PUBLIC_HEADERS VP1AODSystems
+       PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR}
+       LINK_LIBRARIES xAODMuon xAODEgamma xAODTracking VP1Base
+       Qt5::Core Qt5::Gui
+       PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoPrimitives EventPrimitives
+       xAODBase xAODCaloEvent xAODJet xAODMissingET PathResolver xAODEventInfo
+       VP1HEPVis VP1Utils Qt5::Gui )
+endif()
 
 # Install files from the package:
 atlas_install_runtime( textures/*.png )

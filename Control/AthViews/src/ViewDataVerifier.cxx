@@ -1,7 +1,5 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ViewDataVerifier.cxx 
@@ -16,31 +14,20 @@
 // FrameWork includes
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "AthViews/View.h"
+
 namespace AthViews {
 
-/////////////////////////////////////////////////////////////////// 
-// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
-// Constructors
-////////////////
-ViewDataVerifier::ViewDataVerifier( const std::string& name, 
+ViewDataVerifier::ViewDataVerifier( const std::string& name,
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator )
 {
 }
 
-// Destructor
-///////////////
 ViewDataVerifier::~ViewDataVerifier()
 {}
 
-// Athena Algorithm's Hooks
-////////////////////////////
 StatusCode ViewDataVerifier::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-
   StatusCode sc = StatusCode::SUCCESS;
 
   // Debug message indicating what containers will be loaded
@@ -66,21 +53,12 @@ StatusCode ViewDataVerifier::initialize()
   return sc;
 }
 
-StatusCode ViewDataVerifier::finalize()
-{
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
-
-  return StatusCode::SUCCESS;
-}
-
 StatusCode ViewDataVerifier::execute()
 {  
-  ATH_MSG_DEBUG ("Executing " << name() << "...");
-
   // Retrieve the current view from the EventContext
   auto viewProxy = getContext().getExtension<Atlas::ExtendedEventContext>().proxy();
 
-  ATH_MSG_INFO( name() << " running with store " << viewProxy->name() );
+  ATH_MSG_DEBUG( "Executing " << name() << " running with store " << viewProxy->name() );
 
   // Test each container
   for ( auto &obj : m_load.value() ) {
@@ -93,14 +71,14 @@ StatusCode ViewDataVerifier::execute()
 
     // Test if the proxy is valid
     if ( dp ) { 
-      ATH_MSG_INFO( "Found " << obj.key() << " in " << viewProxy->name() );
+      ATH_MSG_DEBUG( "Found " << obj.key() << " in " << viewProxy->name() );
     } else {
       ATH_MSG_ERROR( "Did not find " << obj.key() << " in " << viewProxy->name() );
       const SG::View* view = dynamic_cast<const SG::View*>( viewProxy );
       if ( view != 0 ) {
-	ATH_MSG_ERROR( "Available content is: " << view->dump() );
+        ATH_MSG_ERROR( "Available content is: " << view->dump() );
       } else {
-	ATH_MSG_ERROR( "Not a View" );
+        ATH_MSG_ERROR( "Not a View" );
       }
       return StatusCode::FAILURE;
     }
@@ -108,25 +86,5 @@ StatusCode ViewDataVerifier::execute()
 
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthViews

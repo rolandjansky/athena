@@ -25,12 +25,15 @@ AtlasG4_tf.py \
 --preInclude 'AtlasG4Tf:LArG4FastSimulation/LArG4FastSimulation_setupTimer_jobOptions.py' \
 --imf False
 
-echo  "art-result: $? simulation"
+rc=$?
+rc2=-9999
+echo  "art-result: $rc simulation"
+if [ $rc -eq 0 ]
+then
+    ArtPackage=$1
+    ArtJobName=$2
+    art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary
+    rc2=$?
+fi
 
-ArtPackage=$1
-ArtJobName=$2
-
-# TODO Need to run DCube on timing histograms
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-
-echo  "art-result: $? regression"
+echo  "art-result: $rc2 regression"

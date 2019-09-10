@@ -19,6 +19,13 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
         kwargs.setdefault("FirstXing", TGC_FirstXing() ) 
         kwargs.setdefault("LastXing",  TGC_LastXing() )
 
+    kwargs.setdefault("OutputObjectName", "TGC_DIGITS")
+    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "TGC_SDO")
+    else:
+        kwargs.setdefault("OutputSDOName", "TGC_SDO")
+
     return CfgMgr.TgcDigitizationTool(name, **kwargs)
 
 def getTgcRange(name="TgcRange", **kwargs):
@@ -30,10 +37,15 @@ def getTgcRange(name="TgcRange", **kwargs):
 
 def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
-    if not overlayFlags.isDataOverlay():
-        kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+TGC_SDO")
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName",overlayFlags.sigPrefix()+"TGC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName",overlayFlags.sigPrefix()+"TGC_SDO")
+    else:
+        kwargs.setdefault("OutputObjectName",overlayFlags.evtStore()+"+TGC_DIGITS")
+        if not overlayFlags.isDataOverlay():
+            kwargs.setdefault("OutputSDOName",overlayFlags.evtStore()+"+TGC_SDO")
     return TgcDigitizationTool(name,**kwargs)
 
 def getTGC_OverlayDigitizer(name="TGC_OverlayDigitizer", **kwargs):

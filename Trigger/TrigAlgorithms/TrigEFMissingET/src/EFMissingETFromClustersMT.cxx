@@ -24,7 +24,7 @@ PURPOSE:  athenaMT migration
 
 // TrigEFMissingET includes
 #include "EFMissingETFromClustersMT.h"
-
+#include "EFMissingETComponentCopier.h"
 
 #include <cmath>
 #include <string>
@@ -67,21 +67,11 @@ StatusCode EFMissingETFromClustersMT::initialize()
 
 
 StatusCode EFMissingETFromClustersMT::update(xAOD::TrigMissingET *met ,
-					      TrigEFMissingEtHelper *metHelper, const EventContext& ctx ) const
+					      TrigEFMissingEtHelper *metHelper, 
+					     const EventContext& ctx ) const
 {
   
-  ATH_MSG_DEBUG( "called EFMissingETFromClustersMT::execute()" );
-
-  /* This is a bit opaque but necessary to cooperate with how the MET helper 
-     and MissingETFromHelper classes work. This will be cleaned up (ATR-19488).
-     - @ggallard
-   */
-  const std::vector<std::string> vComp = {"TCLCWB1", "TCLCWB2", 
-                                          "TCLCWE1", "TCLCWE2", 
-                                          "TCEMB1", "TCEMB2", 
-                                          "TCEME1", "TCEME2",
-                                          "Muons" };
-  met->defineComponents(vComp);
+  ATH_MSG_DEBUG( "called EFMissingETFromClustersMT::update()" );
 
   auto totalTimer = Monitored::Timer( "TIME_Total" );
   auto caloClustersHandle = SG::makeHandle( m_clustersKey, ctx );
@@ -173,6 +163,30 @@ StatusCode EFMissingETFromClustersMT::update(xAOD::TrigMissingET *met ,
      metComp->m_status |= m_maskProcessed;  // switch on bit
      
   } // end for (tcComp : tcComponents)
+
+  // Save met helper components to met object
+  EFMissingETComponentCopier copier = EFMissingETComponentCopier(met, metHelper);
+  if (m_saveuncalibrated)
+  {
+    const std::vector<std::string> vComp{"TCEMB1", "TCEMB2", "TCEME1", "TCEME2"};
+    met->defineComponents( vComp );
+    copier.addHelperCompToMET(TrigEFMissingEtComponent::TCEM);
+    copier.setMETCompFromHelper(0, TrigEFMissingEtComponent::TCEMB1);
+    copier.setMETCompFromHelper(1, TrigEFMissingEtComponent::TCEMB2);
+    copier.setMETCompFromHelper(2, TrigEFMissingEtComponent::TCEME1);
+    copier.setMETCompFromHelper(3, TrigEFMissingEtComponent::TCEME2);
+  } else 
+  {
+    const std::vector<std::string> vComp{"TCLCWB1", "TCLCWB2", "TCLCWE1", "TCLCWE2"};
+    met->defineComponents( vComp );
+    copier.addHelperCompToMET(TrigEFMissingEtComponent::TCLCW);
+    copier.setMETCompFromHelper(0, TrigEFMissingEtComponent::TCLCWB1);
+    copier.setMETCompFromHelper(1, TrigEFMissingEtComponent::TCLCWB2);
+    copier.setMETCompFromHelper(2, TrigEFMissingEtComponent::TCLCWE1);
+    copier.setMETCompFromHelper(3, TrigEFMissingEtComponent::TCLCWE2); 
+  }
+
+
 
   return StatusCode::SUCCESS;
 

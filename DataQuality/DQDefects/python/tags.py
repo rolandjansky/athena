@@ -9,6 +9,8 @@ from DQUtils import IOVSet
 from DQDefects import DEFECT_LOGIC_TAG_FORMAT
 
 from .exceptions import InvalidTagError, InvalidDefectTagError, InvalidLogicTagError
+
+from .virtual_mixin import NONHEAD_MODIFICATION_MSG
                                 
 class DefectsDBTagsMixin(object):
     def __init__(self):

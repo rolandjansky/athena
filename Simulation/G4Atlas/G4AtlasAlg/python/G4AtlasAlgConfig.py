@@ -1,33 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
-
-def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs):
-    from G4AtlasApps.SimFlags import simFlags
-    ## Killing neutrinos
-    if "ATLAS" in simFlags.SimLayout():
-        kwargs.setdefault('KillAllNeutrinos',  True)
-    ## Neutron Russian Roulette
-    if hasattr(simFlags, 'RussianRouletteThreshold') and simFlags.RussianRouletteThreshold.statusOn and \
-       hasattr(simFlags, 'RussianRouletteWeight') and simFlags.RussianRouletteWeight.statusOn:
-        if simFlags.CalibrationRun.statusOn:
-            raise NotImplementedError("Neutron Russian Roulette should not be used in Calibration Runs.")
-        kwargs.setdefault('RussianRouletteThreshold',  simFlags.RussianRouletteThreshold.get_Value())
-        kwargs.setdefault('RussianRouletteWeight',  simFlags.RussianRouletteWeight.get_Value())
-    kwargs.setdefault('IsISFJob', simFlags.ISFRun())
-    return CfgMgr.G4UA__AthenaStackingActionTool(name,**kwargs)
-
-def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs):
-    kwargs.setdefault('SecondarySavingLevel', 2)
-    subDetLevel=1
-    from AthenaCommon.BeamFlags import jobproperties
-    from G4AtlasApps.SimFlags import simFlags
-    if "ATLAS" in simFlags.SimLayout() and \
-    (jobproperties.Beam.beamType() == 'cosmics' or \
-     (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ) ):
-        subDetLevel=2
-    kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
-    return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)
 
 def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
     kwargs.setdefault("InputTruthCollection", "BeamTruthEvent")

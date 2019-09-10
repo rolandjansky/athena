@@ -19,6 +19,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/InDetCondTools
    InnerDetector/InDetConditions/PixelConditionsData
+   InnerDetector/InDetDetDescr/PixelCabling
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetRawEvent/InDetRawData
@@ -33,7 +34,6 @@ atlas_depends_on_subdirs(
    Database/APR/FileCatalog
    DetectorDescription/AtlasDetDescr
    DetectorDescription/DetDescrCond/DetDescrCondTools
-   InnerDetector/InDetConditions/PixelConditionsServices
    InnerDetector/InDetDetDescr/PixelGeoModel
    Tracking/TrkDetDescr/TrkSurfaces
    Tracking/TrkEvent/TrkEventPrimitives

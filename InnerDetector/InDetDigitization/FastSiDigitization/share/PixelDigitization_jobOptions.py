@@ -21,8 +21,28 @@ if not "ToolSvc"         in theApp.ExtSvc and \
     theApp.ExtSvc += [ "ToolSvc/ToolSvc"]
     pass
 
-from IOVDbSvc.CondDB import conddb
+#################################
+# Config pixel conditions setup #
+#################################
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+if not hasattr(condSeq, 'PixelConfigCondAlg'):
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
+  condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                UseDeadMap=False,
+                                ReadDeadMapKey="/PIXEL/PixMapOverlay",
+                                UseCalibConditions=True)
 
+#####################
+# Calibration setup #
+#####################
+from IOVDbSvc.CondDB import conddb
+if not conddb.folderRequested("/PIXEL/PixCalib"):
+  conddb.addFolder("PIXEL_OFL", "/PIXEL/PixCalib", className="CondAttrListCollection")
+
+if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+  condSeq += PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib")
 
 from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
 ToolSvc += PixelRecoDbTool()
@@ -31,14 +51,8 @@ ToolSvc.PixelRecoDbTool.InputSource = 1
 from PixelConditionsTools.PixelConditionsToolsConf import PixelCalibDbTool
 ToolSvc += PixelCalibDbTool()
 
-if not conddb.folderRequested('/PIXEL/PixCalib'):
-  conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib")
 if not conddb.folderRequested('/PIXEL/ReadoutSpeed'):
   conddb.addFolder("PIXEL_OFL","/PIXEL/ReadoutSpeed")
-from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
-InDetPixelCalibSvc = PixelCalibSvc()
-ServiceMgr += InDetPixelCalibSvc
-
 
 
 from FastSiDigitization.FastSiDigitizationConf import PixelFastDigitization

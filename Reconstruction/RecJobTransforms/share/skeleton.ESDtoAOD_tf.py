@@ -1,3 +1,4 @@
+from __future__ import print_function
 ###############################################################
 #
 # Skeleton top job options for ESD->AOD
@@ -34,6 +35,33 @@ if hasattr(runArgs,"outputAODFile"):
     rec.doAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True ) 
     athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
+    # Begin temporary trigger block
+    from RecExConfig.ObjKeyStore import objKeyStore
+    if TriggerFlags.doMT():
+        recoLog.info("Scheduling temporary ESDtoAOD propagation of Trigger MT EDM collections")
+        # Note this mirrors skeleton.RDOtoRDOTrigger_tf and skeleton.RAWtoESD_py. It should migrate to a getTriggerEDMList style function
+        from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+        for item in TriggerHLTListRun3:
+            if "ESD" in item[1]:
+                objKeyStore.addManyTypesStreamESD( [item[0]] )
+            if "AOD" in item[1]:
+                objKeyStore.addManyTypesStreamAOD( [item[0]] )
+        # We also want to propagate the navigation to ESD and AOD. For now, unconditionally
+        # Note: Not every TrigComposite collection is navigation, there are other use cases too.
+        # So in future we should filter more heavily than this too.
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        rawCollections = convert_itemList(layout='#join')
+        for item in rawCollections:
+            if item.startswith("xAOD::TrigComposite"):
+                objKeyStore.addManyTypesStreamESD( [item] )
+                objKeyStore.addManyTypesStreamAOD( [item] )
+        if rec.doFileMetaData():
+            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+            objKeyStore.addManyTypesMetaData( metadataItems )
+    else: # not TriggerFlags.doMT()
+        pass # See TriggerJobOpts/python/TriggerGetter.py for Run 2. Called by RecExCommon
+
 
 if hasattr(runArgs,"outputTAGFile"):
     # should be used as outputTAGFile_e2a=myTAG.root so that it does not trigger AODtoTAG
@@ -96,7 +124,7 @@ if hasattr(runArgs,"preExec"):
 ## Pre-include
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
-        print "preInclude",fragment
+        print("preInclude",fragment)
         include(fragment)
 
 #========================================================
@@ -111,7 +139,7 @@ if hasattr(runArgs,"outputAODFile"):
         try:
             StreamAOD.ExtendProvenanceRecord = False
         except:
-            print "StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags."
+            print("StreamAOD was not defined, cannot set ExtendProvenanceRecord = False. Check your flags.")
 
 #D3PDMaker outputs
 if hasattr(runArgs,"outputNTUP_MINBIASFile"):

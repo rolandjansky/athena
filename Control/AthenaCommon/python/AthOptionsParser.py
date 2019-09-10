@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaCommon.AthOptionsParser
 # @purpose the central module to parse command line options of athena.py
 # @date December 2009
+
+from __future__ import print_function
 
 __version__ = "$Revision: 721711 $"
 __doc__ = "a module to parse command line options for athena.py"
@@ -24,7 +26,7 @@ _userlongopts = [
     "batch", "interactive", "no-display", "debug=", "command=", "help",
     "loglevel=", "showincludes", "trace=", "check-properties",
     "version",
-    "leak-check=", "leak-check-execute", "delete-check=", "heapmon",
+    "leak-check=", "leak-check-execute", "delete-check=",
     "perfmon", "pmon=", "repeat-evts=", "profile-python=",
     "enable-ers-hdlr=",
     "keep-configuration","drop-configuration", "drop-and-reload", "config-only=",
@@ -67,7 +69,6 @@ Accepted command line options:
                                            This disables the use of tcmalloc.
      --delete-check=<stage>           ...  perform double delete checking.
                                            This disables the use of tcmalloc.
-     --heapmon                        ...  enable heap fragmentation profiling tool, HeapMon 
      --profile-python=<file>.pkl|txt  ...  profile python code, dump in <file>.pkl|txt
  -c, --command                        ...  one-liner, runs before any scripts
  -h, --help                           ...  print this help message
@@ -119,7 +120,7 @@ class AthOptionsError(SystemExit):
         except KeyError:
             message = ath_codes.codes[ath_codes.OPTIONS_UNKNOWN]
 
-        print _error_msg
+        print (_error_msg)
         SystemExit.__init__(self, reason, message)
     pass
 
@@ -150,7 +151,6 @@ def parse(chk_tcmalloc=True):
     opts.config_dump_file = None # not used by default
     opts.do_leak_chk = False     # default is not to do any leak checking
     opts.memchk_mode = ''        # no mode selected by default 
-    opts.do_heap_mon = False     # default is not to do any heap monitoring
     opts.profile_python = None   # set to file name to collect and dump python profile
     opts.nprocs = 0              # enable AthenaMP if >= 1 or == -1
     opts.threads = 0             # enable AthenaMT if >= 1
@@ -210,20 +210,20 @@ def parse(chk_tcmalloc=True):
     try:
         optlist, args = getopt.getopt(_opts, _useropts, _userlongopts)
     except getopt.error:
-        print sys.exc_value
+        print (sys.exc_value)
         _help_and_exit()
 
     if warn_tcmalloc and chk_tcmalloc:
-        print '*******************************************************************************'
-        print 'WARNING: option --tcmalloc used or implied, but libtcmalloc.so not loaded.'
-        print '         This is probably because you\'re using athena.py in a non standard way'
-        print '         such as "python athena.py ..." or "nohup athena.py"'
-        print '         If you wish to use tcmalloc, you will have to manually LD_PRELOAD it'
-        print '*******************************************************************************'
-        print ''
+        print ('*******************************************************************************')
+        print ('WARNING: option --tcmalloc used or implied, but libtcmalloc.so not loaded.')
+        print ('         This is probably because you\'re using athena.py in a non standard way')
+        print ('         such as "python athena.py ..." or "nohup athena.py"')
+        print ('         If you wish to use tcmalloc, you will have to manually LD_PRELOAD it')
+        print ('*******************************************************************************')
+        print ('')
 
     if args:
-        print "Unhandled arguments:", args
+        print ("Unhandled arguments:", args)
         _help_and_exit()
         pass
 
@@ -252,8 +252,8 @@ def parse(chk_tcmalloc=True):
             opts.command = string.strip(arg)
 
         elif opt in ("-h", "--help"):
-            from AthenaCommon.ExitCodes import ALL_OK
-            _help_and_exit(ALL_OK)
+            print (_error_msg)
+            sys.exit()
 
         elif opt in ("-l", "--loglevel"):
             opts.msg_lvl = string.upper(arg)
@@ -271,11 +271,11 @@ def parse(chk_tcmalloc=True):
                     raise ValueError
                 opts.check_properties = iarg
             except ValueError:
-                print 'properties check expects a numerical argument of 2 or greater'
+                print ('properties check expects a numerical argument of 2 or greater')
                 _help_and_exit()
             
         elif opt in ("-v", "--version"):
-            print __version__
+            print (__version__)
             sys.exit()
             
         elif opt in ("--leak-check", "--leak-check-execute", "--delete-check"):
@@ -297,19 +297,16 @@ def parse(chk_tcmalloc=True):
                 elif arg in allowed:
                     opts.do_leak_chk = [ arg ]
                 else:
-                    print "invalid argument to hephaestus leak check [%s]" % arg
-                    print "allowed values are: %r" % allowed
+                    print ("invalid argument to hephaestus leak check [%s]" % arg)
+                    print ("allowed values are: %r" % allowed)
                     _help_and_exit()
             else:
-                print "disabling Hephaestus leak check as it is incompatible with tcmalloc"
+                print ("disabling Hephaestus leak check as it is incompatible with tcmalloc")
 
-        elif opt in ("--heapmon",):
-            opts.do_heap_mon = True
-            
         elif opt in ("--profile-python",):
             pos = arg.rfind('.')
             if pos < 0 or (arg[pos+1:] != "txt" and arg[pos+1:] != "pkl"):
-               print "no recognizable profile output requested (%s): assuming txt" % arg
+               print ("no recognizable profile output requested (%s): assuming txt" % arg)
                opts.profile_python = arg + ".txt"
             else:
                opts.profile_python = arg
@@ -325,8 +322,8 @@ def parse(chk_tcmalloc=True):
                     if a.startswith(('+','-')):
                         a = a[1:]
                     if a not in allowed:
-                        print "invalid argument to perfmon [%s]" % (a,)
-                        print "allowed values are: %r" % (allowed,)
+                        print ("invalid argument to perfmon [%s]" % (a,))
+                        print ("allowed values are: %r" % (allowed,))
                         _help_and_exit()
                         
                 opts.do_pmon = arg.split(',')[:]
@@ -336,8 +333,8 @@ def parse(chk_tcmalloc=True):
             if not arg:
                 arg = 0
             try: arg = int(arg)
-            except Exception,err:
-                print "ERROR:",err
+            except Exception as err:
+                print ("ERROR:",err)
                 _help_and_exit()
             opts.nbr_repeat_evts = arg
             
@@ -364,8 +361,8 @@ def parse(chk_tcmalloc=True):
 
         elif opt in ("--pycintex_minvmem", "--cppyy_minvmem"):
             try: opts.cppyy_minvmem = float(arg)
-            except Exception,err:
-                print "ERROR:",err
+            except Exception as err:
+                print ("ERROR:",err)
                 _help_and_exit()
 
         elif opt in ("--minimal",):
@@ -375,8 +372,8 @@ def parse(chk_tcmalloc=True):
             if not arg:
                 arg = 0
             try: arg = int(arg)
-            except Exception,err:
-                print "ERROR:",err
+            except Exception as err:
+                print ("ERROR:",err)
                 _help_and_exit()
             opts.nprocs = arg
 
@@ -384,8 +381,8 @@ def parse(chk_tcmalloc=True):
             if not arg:
                 arg = 0
             try: arg = int(arg)
-            except Exception,err:
-                print "ERROR:",err
+            except Exception as err:
+                print ("ERROR:",err)
                 _help_and_exit()
             opts.threads = arg
 
@@ -393,8 +390,8 @@ def parse(chk_tcmalloc=True):
             if not arg:
                 arg = 0
             try: arg = int(arg)
-            except Exception,err:
-                print "ERROR:",err
+            except Exception as err:
+                print ("ERROR:",err)
                 _help_and_exit()
             opts.concurrent_events = arg
 
@@ -403,7 +400,7 @@ def parse(chk_tcmalloc=True):
 
         elif opt in("--filesInput",):
             #set the jps.AthenaCommonFlags.FilesInput property
-            from AthenaCommonFlags import jobproperties as jps
+            from AthenaCommon.AthenaCommonFlags import jobproperties as jps
             from glob import glob
             #split string by , character
             #and for each use glob to expand path
@@ -416,18 +413,18 @@ def parse(chk_tcmalloc=True):
             jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(files)
 
         elif opt in("--evtMax",):
-            from AthenaCommonFlags import jobproperties as jps
+            from AthenaCommon.AthenaCommonFlags import jobproperties as jps
             try: arg = int(arg)
-            except Exception,err:
-                print "ERROR: --evtMax option - ",err
+            except Exception as err:
+                print ("ERROR: --evtMax option - ",err)
                 _help_and_exit()
             opts.evtMax = arg
             jps.AthenaCommonFlags.EvtMax.set_Value_and_Lock(arg)
         elif opt in("--skipEvents",):
-            from AthenaCommonFlags import jobproperties as jps
+            from AthenaCommon.AthenaCommonFlags import jobproperties as jps
             try: arg = int(arg)
-            except Exception,err:
-                print "ERROR: --skipEvents option - ",err
+            except Exception as err:
+                print ("ERROR: --skipEvents option - ",err)
                 _help_and_exit()
             opts.skipEvents = arg
             jps.AthenaCommonFlags.SkipEvents.set_Value_and_Lock(arg)
@@ -436,15 +433,6 @@ def parse(chk_tcmalloc=True):
     # This behavior can be controlled by a flag, if needed
     os.environ['LIBC_FATAL_STDERR_']='1'
 
-    # overwrite nprovs if ATHENA_PROC_NUMBER is set
-    envNProcs = os.getenv('ATHENA_PROC_NUMBER')
-    if envNProcs :
-        envNProcs = int(envNProcs)
-        print "ATHENA_PROC_NUMBER set to ", envNProcs, " will run by default with --nprocs=", envNProcs
-        opts.nprocs = envNProcs      # enable AthenaMP if >= 1 or == -1
-        from ConcurrencyFlags import jobproperties as jps
-        jps.ConcurrencyFlags.NumProcs = envNProcs
-    
     # for the benefit of PyROOT
     if not opts.display and '-b' not in sys.argv:
         sys.argv = sys.argv[:1] + ['-b'] + sys.argv[1:]

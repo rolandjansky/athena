@@ -37,8 +37,7 @@ using namespace std;
 using namespace SCT_Cabling;
  
 SCT_TestCablingAlg::SCT_TestCablingAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthReentrantAlgorithm(name, pSvcLocator),
-  m_idHelper{nullptr} {
+  AthReentrantAlgorithm(name, pSvcLocator) {
   //nop
 }
 
@@ -64,7 +63,8 @@ SCT_TestCablingAlg::coordString(const Identifier& offlineId) const {
 
 StatusCode
 SCT_TestCablingAlg::execute(const EventContext& ctx) const {
-  const string testAreaPath{CoveritySafe::getenv("TestArea")};
+  // const string testAreaPath{CoveritySafe::getenv("TestArea")};
+  const string testAreaPath = ".";
   string filename{testAreaPath+"/cabling.txt"};
   ATH_MSG_INFO("Filename: " << filename << " will be written to your $TestArea.");
   ofstream opFile1{filename.c_str(), ios::out};
@@ -110,7 +110,7 @@ SCT_TestCablingAlg::execute(const EventContext& ctx) const {
     rodHashMap[rods[i]]=i;
   }
   //open a file for writing
-  const std::string fullFileName{testAreaPath + "/" + makeCablingFileName()};
+  const std::string fullFileName{testAreaPath + "/SCT_Cabling_svc" + (m_POSIXtime ? ("_" +std::to_string(m_POSIXtime)) : "") + ".dat"};
   ATH_MSG_INFO("Open file for write " << fullFileName);
   ofstream opFile{fullFileName.c_str(), ios::out};
   opFile << XmlHeader << endl;

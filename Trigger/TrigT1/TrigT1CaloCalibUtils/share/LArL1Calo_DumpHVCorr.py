@@ -125,19 +125,14 @@ include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 
 from LArConditionsCommon import LArHVDB #Sets HV Calbling and DCS Database folders
 #conddb.addOverride("/LAR/IdentifierOfl/HVLineToElectrodeMap","LARIdentifierOflHVLineToElectrodeMap-UPD3-00")
-from LArCondUtils.LArCondUtilsConf import LArHVToolDB
-theLArHVToolDB = LArHVToolDB("LArHVToolDB")
-ToolSvc += theLArHVToolDB
 
-from LArRecUtils.LArRecUtilsConf import LArHVCorrTool
-theLArHVCorrTool = LArHVCorrTool("LArHVCorrTool")
-theLArHVCorrTool.keyOutput = keyOutput
-theLArHVCorrTool.HVTool = theLArHVToolDB
-ToolSvc += theLArHVCorrTool
+from LArConditionsCommon import LArHVDB
 
-#from LArCalibUtils.LArCalibUtilsConf import LArHVCorrMaker
-#theLArHVCorrMaker = LArHVCorrMaker("LArHVCorrMaker")
-#topSequence += theLArHVCorrMaker
+from LArCalibUtils.LArCalibUtilsConf import LArHVCorrMaker
+theLArHVCorrMaker = LArHVCorrMaker("LArHVCorrMaker")
+theLArHVCorrMaker.keyOutput = keyOutput
+theLArHVCorrMaker.folderName = LArHVScaleCorrFolder
+topSequence += theLArHVCorrMaker
 
 from TrigT1CaloCalibUtils.TrigT1CaloCalibUtilsConf import L1CaloHVDummyContainers
 theL1CaloHVDummyContainers = L1CaloHVDummyContainers("L1CaloHVDummyContainers")
@@ -161,10 +156,6 @@ ToolSvc += LVL1__L1CaloOfflineTriggerTowerTools("L1CaloOfflineTriggerTowerTools"
 # configure actual db maker algorithm
 from TrigT1CaloCalibUtils.TrigT1CaloCalibUtilsConf import L1CaloHVCorrectionsForDB
 topSequence += L1CaloHVCorrectionsForDB()
-#from LArRecUtils.LArHVCorrToolDefault import LArHVCorrToolDefault
-#theLArHVCorrTool = LArHVCorrToolDefault()
-#ToolSvc += theLArHVCorrTool
-topSequence.L1CaloHVCorrectionsForDB.LArHVCorrTool = theLArHVCorrTool
 
 # configure writing of calib database
 from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg

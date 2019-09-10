@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MCAST_IMUONCALIBRATIONANDSMEARINGTOOL_H
@@ -27,10 +27,19 @@ class IMuonCalibrationAndSmearingTool : public virtual asg::IAsgTool, virtual pu
   ASG_TOOL_INTERFACE( CP::IMuonCalibrationAndSmearingTool )
 
 public:
+  class IVars
+  {
+  public:
+    virtual ~IVars() = default;
+  };
+
+
   //::: Apply the correction on a modifyable object
-  virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) = 0;
+  virtual CorrectionCode applyCorrection( xAOD::Muon& mu ) const = 0;
+  virtual CorrectionCode applyCorrection( xAOD::Muon& mu,
+                                          std::unique_ptr<IVars>& vars) const = 0;
   //::: Create a corrected copy from a constant muon
-  virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) = 0;
+  virtual CorrectionCode correctedCopy( const xAOD::Muon& input, xAOD::Muon*& output ) const = 0;
   //::: Is the tool affected by a specific systematic?
   virtual bool isAffectedBySystematic( const SystematicVariation& systematic ) const = 0;
   //::: Which systematics have an effect on the tool's behaviour?
@@ -39,28 +48,12 @@ public:
   virtual SystematicSet recommendedSystematics() const = 0;
   //::: Use specific systematic
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig ) = 0;
-  //::: External setting of random seed
-  virtual void setRandomSeed( unsigned seed ) = 0;
   //::: expectedResolution
-  virtual double expectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const=0;
+  virtual double expectedResolution( const IVars& vars, const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const=0;
   //::: expectedResolution
-  virtual double expectedResolution( const int DetType, xAOD::Muon& mu, const bool mc) const=0;
+  virtual double expectedResolution( const IVars& vars, const int DetType, const xAOD::Muon& mu, const bool mc) const=0;
 
-  virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle, 
-                                               const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
-                                               int charge,
-                                               AmgVector(5)& parsCB,
-                                               AmgSymMatrix(5)& covCB,
-                                               double& chi2)  = 0;
-  virtual CorrectionCode applyStatCombination( xAOD::Muon& mu ) =0 ;  
-  
   virtual void setUseStatCombination(bool flag) = 0;
-  
-  virtual  CorrectionCode applySagittaBiasCorrectionAuto(const int DetType,xAOD::Muon& mu,bool isMC,const unsigned int SytCase)=0; 
-  virtual  CorrectionCode CorrectForCharge(double p2,double& pt,int q, bool isMC)=0; 
-  virtual  CorrectionCode applyiSagittaBiasCorrection(const unsigned int SgCorrType, xAOD::Muon& mu,unsigned int iter,bool stop,bool isMC)=0; 
-  
-
 }; // class IMuonCalibrationAndSmearingTool
 
 } // namespace CP

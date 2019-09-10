@@ -35,11 +35,21 @@ dimuonMassSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRA
                                                                      expression = dimuonMassString)
 ToolSvc += dimuonMassSkimmingTool
 
-# Tightening by requiring at least one good (i.e. preselected) muon and either a single-muon or dimuon trigger to have passed
-from DerivationFrameworkMuons.MuonsCommon import *
-goodMuonString = 'count((Muons.DFCommonGoodMuon) && (Muons.pt > 20*GeV)) >= 1'
-goodMuonSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_GoodMuon_SkimmingTool",
-                                                                   expression = goodMuonString)
+# Muon selector tool
+from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool
+goodMuonTool = CP__MuonSelectionTool(name = "DRAW_ZMUMU_MuonsSelector")
+goodMuonTool.MaxEta = 3.
+goodMuonTool.MuQuality = 3
+# turn of the momentum correction which is not needed for IDHits cut and Preselection
+goodMuonTool.TurnOffMomCorr = True
+ToolSvc += goodMuonTool
+print goodMuonTool
+from PrimaryDPDMaker.PrimaryDPDMakerConf import DerivationFramework__DRAW_ZMUMUSkimmingTool
+goodMuonSkimmingTool = DerivationFramework__DRAW_ZMUMUSkimmingTool(name = "DRAW_ZMUMU_GoodMuon_SkimmingTool",
+                                                               MuonContainerKey = "Muons",
+                                                               MuonSelectorTool = goodMuonTool,
+                                                               MinimumNumberOfMuons = 1,
+                                                               MuonPtCut = 20.0) 
 ToolSvc += goodMuonSkimmingTool
 
 periods = TriggerPeriod.future | TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017

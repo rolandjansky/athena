@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import with_statement, division
 
 import logging; log = logging.getLogger("DCSCalculator2.variable")
-
-from collections import namedtuple
-from pprint import pprint
 
 from DQUtils import fetch_iovs
 from DQUtils.general import timer
@@ -13,9 +10,8 @@ from DQUtils.sugar import define_iov_type, RunLumi, IOVSet, RANGEIOV_VAL
 from DQUtils.events import quantize_iovs_slow_mc
 
 import DCSCalculator2.config as config
-from .lib import map_channels
-from .consts import (BLACK, WHITE, GREY, RED, YELLOW, GREEN, 
-                     EMPTY, OUT_OF_CONFIG, BAD, GOOD)
+from DCSCalculator2.libcore import map_channels
+from DCSCalculator2.consts import ( RED, YELLOW, GREEN )
 
 
 @define_iov_type
@@ -79,7 +75,7 @@ class DCSC_Variable(object):
             # For relative folders prepend the folder_base
             folder_path = "/".join((folder_base, folder_name))
         
-        log.info("Querying COOL folder %s" % folder_path)
+        log.info("Querying COOL folder %s", folder_path)
         
         if config.opts.check_input_time:
             self.fetch_args["with_time"] = True
@@ -89,7 +85,10 @@ class DCSC_Variable(object):
             newdbstring = self.input_db.rsplit('/', 1)[0]
         else:
             newdbstring = self.input_db
-        self.fetch_args['database'] = ('%s/%s' % (newdbstring, config.opts.input_database))
+        if config.opts.input_database.startswith('sqlite'):
+            self.fetch_args['database'] = config.opts.input_database
+        else:
+            self.fetch_args['database'] = ('%s/%s' % (newdbstring, config.opts.input_database))
         if self.fetch_args:
             log.debug("Fetching with args: %r", self.fetch_args)
             
@@ -142,7 +141,7 @@ class DCSC_Variable(object):
         the same lumiblock.
         """
         IOVSet = iovs.empty
-        iovs = [iovs for c, iovs in sorted(iovs.by_channel.iteritems())]
+        iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.iteritems())]
         
         quantizer = lambda iovs: min(i.good for i in iovs) if iovs else None
         
@@ -253,13 +252,13 @@ class DCSC_Global_Variable(DCSC_Variable):
         """
         Needs a different quantizer. (The default DQ quantizer will do)
         """
-        iovs = [iovs for c, iovs in sorted(iovs.by_channel.iteritems())]
+        iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.iteritems())]
         # Custom quantizer not needed        
         result = quantize_iovs_slow_mc(lbtime, iovs)
         return IOVSet(CodeIOV(*iov) 
-        			  for iovs in result 
-        			  for iov in iovs 
-        			  if iov[0].run == iov[1].run)
+                      for iovs in result 
+                      for iov in iovs 
+                      if iov[0].run == iov[1].run)
 
 class DCSC_Defect_Global_Variable(DCSC_Variable):
     """
@@ -281,10 +280,10 @@ class DCSC_Defect_Global_Variable(DCSC_Variable):
             #return (True, list(current_events)[0].comment)
         
     def quantize(self, lbtime, iovs):
-        iovs = [iovs for c, iovs in sorted(iovs.by_channel.iteritems())]
+        iovs = [iovs_ for c, iovs_ in sorted(iovs.by_channel.iteritems())]
         result = quantize_iovs_slow_mc(lbtime, iovs,
                                        DCSC_Defect_Global_Variable.quantizing_function)
         return IOVSet(DefectIOV(*iov, comment='Automatically set') 
-        			  for iovi in result 
-        			  for iov in iovi 
-        			  if iov[0].run == iov[1].run)
+                      for iovi in result 
+                      for iov in iovi 
+                      if iov[0].run == iov[1].run)

@@ -1,19 +1,20 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#
+# Disable flake8 checking due to the use of 'exec':
+# flake8: noqa
+#
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger('TriggerMenu.L1Topo.py')
+log = logging.getLogger('TriggerMenuMT.L1Topo.TopoAlgoDef')
 
-from TriggerMenuMT.LVL1MenuConfig.L1Topo.TopoAlgos import SortingAlgo, DecisionAlgo
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 # algorithm python base classes generated from C++ code
 import L1TopoAlgorithms.L1TopoAlgConfig as AlgConf
 import L1TopoHardware.L1TopoHardware as HW
 
-import re
 
-
-class TopoAlgoDef:
+class TopoAlgoDef(object):
 
     @staticmethod
     def registerTopoAlgos(tm):
@@ -21,16 +22,10 @@ class TopoAlgoDef:
 
         _etamax = 49
         _minet = 0
-        usev6 = False
         usev7 = False
-        doPhysics = False
 
-        if '_v6' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
-            usev6 = True
         if '_v7' in TriggerFlags.triggerMenuSetup():
             usev7 = True
-        if 'Physics' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
-            doPhysics = True
         if 'LS2_v' in TriggerFlags.triggerMenuSetup():
             usev7 = True
         
@@ -38,7 +33,7 @@ class TopoAlgoDef:
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
             if TriggerFlags.useRun1CaloEnergyScale :
                 _emscale_for_decision=1     
-                log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale" % _emscale_for_decision)
+                log.info("Changed mscale_for_decision %s for Run1CaloEnergyScale", _emscale_for_decision)
 
         alg = AlgConf.ClusterNoSort( name = 'EMall', inputs = 'ClusterTobArray', outputs = 'EMall', algoId = currentAlgoId) ; currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthEM)
@@ -355,7 +350,7 @@ class TopoAlgoDef:
             obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
             toponame = "%iINVM%i-%s%s%s"  % (minInvm, maxInvm, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
 
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
 
             inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]
@@ -402,7 +397,7 @@ class TopoAlgoDef:
             obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
             toponame = "%iDR%i-%s%s%s"  % (minDr, maxDr, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
 
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]
             algoname = AlgConf.DeltaRSqrIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaRSqrIncl2
@@ -442,7 +437,7 @@ class TopoAlgoDef:
             obj2 = "-%s%s%s" % (otype2, str(ocut2) if ocut2>0 else "", olist2)
             toponame = "%sDETA%s-%sDPHI%s-%s%s"  % (minDeta, maxDeta, minDphi, maxDphi, obj1, "" if mult>1 else obj2)
             
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = [otype1 + olist1] if (mult>1 or otype1==otype2) else [otype1 + olist1, otype2 + olist2]
             algoname = AlgConf.DeltaEtaPhiIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaEtaPhiIncl2            
@@ -491,7 +486,7 @@ class TopoAlgoDef:
             obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2)
             toponame = "%iDR%i-%s%s"  % (minDr, maxDr, obj1, obj2)
 
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = [otype1 + olist1] if otype1==otype2 else [otype1 + olist1, otype2 + olist2]
             algoname = AlgConf.DeltaRSqrIncl1 if otype1==otype2 else AlgConf.DeltaRSqrIncl2
@@ -537,7 +532,7 @@ class TopoAlgoDef:
                 
             toponame = "HT%d-%s%s%s%s.ETA%s" % (minHT, otype, str(ocut), olist, str(nleading) if olist=="s" else "", str(oeta))
             
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = otype + olist
 
@@ -606,7 +601,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
                 
             toponame = "%02dMINDPHI-%s%s%s%s-XE0"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = otype + olist
 
@@ -635,7 +630,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
 
             toponame = "%iMT-%s%s%s%s-XE0"  % (minMT, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = otype + olist
             
@@ -664,7 +659,7 @@ class TopoAlgoDef:
                                                         otype, str(ocut1) if ocut1 > 0 else "", olist, str(nleading1) if olist=="s" else "",
                                                         otype, str(ocut2) if ocut2 > 0 else "", olist, str(nleading2) if olist=="s" else "")
             
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             inputList = otype + olist
             
             alg = AlgConf.DeltaEtaIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
@@ -696,7 +691,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
                 
             toponame = "%iMINDPHI-%s%s%s%s-XE%i"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "",ocut2)
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = otype + olist
 
@@ -726,7 +721,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
 
             toponame = "%iDR%02d-%s%s%s-%s%s%s"  % (minDr, maxDr, otype1, str(ocut1), olist1, otype2, str(ocut2), olist2)
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = [otype1 + olist1, otype2 + olist2]
 
@@ -773,7 +768,7 @@ class TopoAlgoDef:
             obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
             toponame = "%iINVM%i-%s%s%s"  % (minInvm, maxInvm, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
 
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
 
             inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]
@@ -815,7 +810,7 @@ class TopoAlgoDef:
             obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
             toponame = "%iDR%i-%s%s%s"  % (minDr, maxDr, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
 
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]
             algoname = AlgConf.DeltaRSqrIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaRSqrIncl2
@@ -859,7 +854,7 @@ class TopoAlgoDef:
             obj2 = "-%s%s%s" % (otype2, str(ocut2) if ocut2>0 else "", olist2)
             toponame = "%sDETA%s-%sDPHI%s-%s%s"  % (minDeta, maxDeta, minDphi, maxDphi, obj1, "" if mult>1 else obj2)
             
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = [otype1 + olist1] if (mult>1 or otype1==otype2) else [otype1 + olist1, otype2 + olist2]
             algoname = AlgConf.DeltaEtaPhiIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaEtaPhiIncl2
@@ -907,7 +902,7 @@ class TopoAlgoDef:
 
             toponame = "%sDETA%s-%s%s%s-%s%s%s"  % (minDeta, maxDeta, otype1, str(ocut1), olist1, otype2, str(ocut2) if ocut2>0 else "", olist2)
  
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = [otype1 + olist1, otype2 + olist2]
             alg = AlgConf.DeltaEtaIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
@@ -939,7 +934,7 @@ class TopoAlgoDef:
             
             toponame = "%sDPHI%s-%s%s%s-%s%s%s"  % (minDphi, maxDphi, otype1, str(ocut1), olist1, otype2, str(ocut2) if ocut2>0 else "", olist2)
  
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = [otype1 + olist1, otype2 + olist2]
             alg = AlgConf.DeltaPhiIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
@@ -1020,7 +1015,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
                 
             toponame = "%02d%s-XE0-HT0-AJj%sall.ETA49"  % (minRatio, Ratio, str(ocut))
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             alg = AlgConf.Ratio( name = toponame, inputs = ['XE', 'AJjall'], outputs = [ toponame ], algoId = currentAlgoId ) 
             currentAlgoId += 1
@@ -1080,7 +1075,7 @@ class TopoAlgoDef:
                 
             toponame = "MULT-%s%s%s" % (otype1, str(ocut1), olist1)
             toponames = [toponame+"[0]", toponame+"[1]"]
-            log.info("Define %s" % toponames)
+            log.debug("Define %s", toponames)
             
             inputList = [otype1 + olist1] 
             alg = AlgConf.Multiplicity( name = toponame,  inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1
@@ -1106,7 +1101,7 @@ class TopoAlgoDef:
             obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2)
             toponame = "%sDISAMB-%s%s"  % ( disamb if disamb>0 else "", obj1, obj2)
             
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = [otype1 + olist1, otype2 + olist2]
             alg = AlgConf.DisambiguationIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
@@ -1136,7 +1131,7 @@ class TopoAlgoDef:
             obj3 = "-%s%s%s" % (otype3, str(ocut3), olist3)
             toponame = "%sDISAMB-%s%s%s"  % ( disamb if disamb>0 else "", obj1, obj2, obj3)
             
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = [otype1 + olist1, otype2 + olist2, otype3 + olist3]
             alg = AlgConf.DisambiguationIncl3( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
@@ -1172,7 +1167,7 @@ class TopoAlgoDef:
             obj3 = "%s%s%s" % (otype3, str(ocut3), olist3)
             toponame = "%sDISAMB-%s-%dDR%d%s%s"  % ( str(disamb) if disamb>0 else "", obj3, drcutmin, drcutmax, obj1, obj2)
 
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = [otype1 + olist1, otype2 + olist2, otype3 + olist3]
             alg = AlgConf.DisambiguationDRIncl3( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
@@ -1203,7 +1198,7 @@ class TopoAlgoDef:
 
             toponame = "LAR-%s%ss1"  % ( otype, str(ocut) if not otype=="EM" else "50" )
             
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = otype + 's'
             
@@ -1229,7 +1224,7 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
             
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = ['XENoSort', 'AJall']
             toponames=[]
@@ -1259,7 +1254,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
                 
             toponame = "%02dMINDPHI-%s%s%s%s-XE0"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = otype + olist
 
@@ -1287,7 +1282,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
 
             toponame = "%iMT-%s%s%s%s-XE0"  % (minMT, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = otype + olist
             
@@ -1316,7 +1311,7 @@ class TopoAlgoDef:
             obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2.replace('shi','his') + (str(nleading2) if olist2.find('s')>=0 else ""))
             toponame = "%sDISAMB-%dDR%d%s%s"  % ( str(disamb) if disamb>0 else "", drcutmin, drcutmax, obj1, obj2)
 
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = [otype1 + olist1, otype2 + olist2]
             alg = AlgConf.DisambiguationDRIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
@@ -1342,7 +1337,7 @@ class TopoAlgoDef:
                 exec("%s = x[k]" % k)
                 
             toponame = "%iMINDPHI-%s%s%s%s-XE50"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
             
             inputList = otype + olist
 
@@ -1369,7 +1364,7 @@ class TopoAlgoDef:
 
             toponame = "%s%ss1"  % ( otype, str(ocut) )
 
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = 'LMUs'
 
@@ -1392,7 +1387,7 @@ class TopoAlgoDef:
 
             toponame = "SC%d-%s%s%s%s.ETA%s" % (minHT, otype, str(ocut), olist, str(nleading) if olist=="s" else "", str(oeta))
 
-            log.info("Define %s" % toponame)
+            log.debug("Define %s", toponame)
 
             inputList = otype + olist
 
@@ -1418,7 +1413,7 @@ class TopoAlgoDef:
                 obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2)
                 toponame = "%sDISAMB-%iINVM%s-%s%s"  % ( disamb if disamb>0 else "", minInvm, str(maxInvm) if maxInvm<9999 else "", obj1, obj2)          
 
-                log.info("Define %s" % toponame)
+                log.debug("Define %s", toponame)
                 inputList = [otype1 + olist1, otype2 + olist2]               
                 #alg = AlgConf.DisambiguationInvariantMass2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
                 alg = AlgConf.DisambiguationInvmIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1

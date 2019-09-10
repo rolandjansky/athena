@@ -4,7 +4,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-class InDetCacheNames:
+class InDetCacheNames(object):
   Pixel_ClusterKey   = "PixelTrigClustersCache"
   SCT_ClusterKey     = "SCT_ClustersCache"
   SpacePointCachePix = "PixelSpacePointCache"
@@ -40,6 +40,7 @@ def TrigInDetCondConfig( flags ):
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection"))
   acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
+  acc.merge(addFoldersSplitOnline(flags, "INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection"))
 
   from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_DCSConditionsTool
   dcsTool = SCT_DCSConditionsTool(ReadAllDBFolders = True, ReturnHVTemp = True)
@@ -54,12 +55,12 @@ def TrigInDetCondConfig( flags ):
   sctSiliconConditionsTool.CheckGeoModel = False
   sctSiliconConditionsTool.ForceUseGeoModel = False
 
-
   from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_AlignCondAlg
-  acc.addCondAlgo(SCT_AlignCondAlg(UseDynamicAlignFolders =  True))
+  acc.addCondAlgo(SCT_AlignCondAlg(UseDynamicAlignFolders = True))
 
   from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DetectorElementCondAlg
   acc.addCondAlgo(SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg"))
+
   from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
   acc.merge(SCT_CablingCondAlgCfg(flags))
   from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConfigurationConditionsTool
@@ -115,6 +116,24 @@ def TrigInDetCondConfig( flags ):
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib",className="CondAttrListCollection"))
   acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Calib/HTCalib","/TRT/Calib/HTCalib",className="CondAttrListCollection"))
 
+  acc.merge(addFolders(flags, "/PIXEL/ReadoutSpeed", "PIXEL", className="AthenaAttributeList"))
+  acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList"))
+  acc.merge(addFolders(flags, "/PIXEL/HitDiscCnfg", "PIXEL", className="AthenaAttributeList"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelAlignCondAlg
+  acc.addCondAlgo(PixelAlignCondAlg(UseDynamicAlignFolders = True))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDetectorElementCondAlg
+  acc.addCondAlgo(PixelDetectorElementCondAlg(name = "PixelDetectorElementCondAlg"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
+  acc.addCondAlgo(PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
+  acc.addCondAlgo(PixelCablingCondAlg(name="PixelCablingCondAlg"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+  acc.addCondAlgo(PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg"))
 
   from AthenaCommon.CfgGetter import getService
   PixelCablingSvc = getService("PixelCablingSvc")
@@ -124,18 +143,18 @@ def TrigInDetCondConfig( flags ):
   PixelTDAQInstance = "TDAQ_ONL"
   acc.merge(addFolders(flags, PixelTDAQFolder, PixelTDAQInstance, className="CondAttrListCollection"))
 
-  PixelHVFolder = "/PIXEL/DCS/HV"
-  PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
-  PixelDBInstance = "DCS_OFL"
-
-  acc.merge(addFolders(flags, PixelHVFolder, PixelDBInstance, className="CondAttrListCollection"))
-  acc.merge(addFolders(flags, PixelTempFolder, PixelDBInstance, className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, "/PIXEL/DCS/HV", "DCS_OFL", className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, "/PIXEL/DCS/TEMPERATURE", "DCS_OFL", className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, "/PIXEL/PixCalib", "PIXEL_OFL", className="CondAttrListCollection"))
 
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondHVAlg
-  acc.addCondAlgo(PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey=PixelHVFolder))
+  acc.addCondAlgo(PixelDCSCondHVAlg(name="PixelDCSCondHVAlg", ReadKey="/PIXEL/DCS/HV"))
 
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDCSCondTempAlg
-  acc.addCondAlgo(PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey=PixelTempFolder))
+  acc.addCondAlgo(PixelDCSCondTempAlg(name="PixelDCSCondTempAlg", ReadKey="/PIXEL/DCS/TEMPERATURE"))
+
+  from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeCalibCondAlg
+  acc.addCondAlgo(PixelChargeCalibCondAlg(name="PixelChargeCalibCondAlg", ReadKey="/PIXEL/PixCalib"))
 
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelTDAQCondAlg
   acc.addCondAlgo(PixelTDAQCondAlg(name="PixelTDAQCondAlg", ReadKey=PixelTDAQFolder))
@@ -143,11 +162,11 @@ def TrigInDetCondConfig( flags ):
   PixelDeadMapFolder = "/PIXEL/PixMapOverlay"
   PixelDeadMapInstance = "PIXEL_OFL"
 
-  acc.merge(addFolders(flags, PixelTempFolder, PixelDBInstance, className="CondAttrListCollection"))
+  acc.merge(addFolders(flags, "/PIXEL/DCS/TEMPERATURE", "DCS_OFL", className="CondAttrListCollection"))
   acc.merge(addFolders(flags, PixelDeadMapFolder, PixelDeadMapInstance, className="CondAttrListCollection"))
 
   from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-  acc.addCondAlgo(PixelConfigCondAlg(name="PixelConfigCondAlg", UseDeadMap=False, ReadDeadMapKey=PixelDeadMapFolder))
+  acc.addCondAlgo(PixelConfigCondAlg(name="PixelConfigCondAlg", UseDeadMap=False, ReadDeadMapKey=PixelDeadMapFolder, UseCalibConditions=False))
 
   from SiPropertiesTool.SiPropertiesToolConf import PixelSiPropertiesCondAlg
   acc.addCondAlgo(PixelSiPropertiesCondAlg(name="PixelSiPropertiesCondAlg"))
@@ -273,10 +292,8 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
 
 
   #Pixel clusterisation
-
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
-  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
-                                                  UsePixelCalibCondDB  = False)
+  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool")
 
   acc.addPublicTool(InDetClusterMakerTool)
 
@@ -288,7 +305,7 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
                                                   MaximalSplitSize        = 49,
                                                   MinimalSplitProbability = 0,
                                                   DoIBLSplitting = True,
-                                                  SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
+                                                  )
   acc.addPublicTool(InDetMergedPixelsTool)
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder
@@ -299,7 +316,6 @@ def TrigInDetConfig( flags, roisKey="EMRoIs" ):
   InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
                                                         clusteringTool          = InDetMergedPixelsTool,
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                        DetectorManagerName     = InDetKeys.PixelManager(),
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
                                                         AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
                                                         ClustersName            = "PixelTrigClusters",)
@@ -445,5 +461,4 @@ if __name__ == "__main__":
 
     acc.printConfig()
     acc.store( open("test.pkl", "w") )
-    print 'All ok'
-    
+    print('All ok')

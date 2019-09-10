@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -238,7 +238,8 @@ void FlexBinChunk<T>::fill NO_SANITIZE_UNDEFINED (unsigned bin, const double& we
 #if FLEXBINCHUNK_CONVERTALLTHRESHOLD != FLEXBINCHUNK_NBINS
   if (m_stages==FLEXBINCHUNK_ALLFULLSTAGE) {
     //Special case: all bins in full mode. Deal with this fast.
-    ((reinterpret_cast<T*>(m_data))[bin]) += static_cast<T>(weight);
+    T* data = reinterpret_cast<T*>(m_data);
+    data[bin] += static_cast<T>(weight);
     assert(std::fabs(getBinContent(bin)-expectedval)<1.0e-5);
     return;
   }

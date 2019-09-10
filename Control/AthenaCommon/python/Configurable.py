@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Configurable.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
-import copy, types, os, weakref
+from __future__ import print_function
+
+import copy, os, weakref
+import six
 from AthenaCommon import ConfigurableMeta
 
 # Note: load iProperty etc. from GaudiPython only as-needed
@@ -24,12 +27,12 @@ __all__ = [ 'Configurable',
 
 
 ## for messaging
-from Logging import logging
+from AthenaCommon.Logging import logging
 log = logging.getLogger( 'Configurable' )
 
 
 ### base class for configurable Gaudi algorithms/services/algtools/etc. ======
-class Configurable( object ):
+class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, object)):
    """Base class for Gaudi components that implement the IProperty interface.
       Provides most of the boilerplate code, but the actual useful classes
       are its derived ConfigurableAlgorithm, ConfigurableService, and
@@ -49,8 +52,6 @@ class Configurable( object ):
    _fIsPrinting    = 0x04      # inside __str__ to avoid setting of private AlgTools
    _fInitOk        = 0x08      # used to enforce base class init
    _fSetupOk       = 0x10      # for debugging purposes (temporary (?))
-
-   __metaclass__ = ConfigurableMeta.ConfigurableMeta
 
    __slots__ = (
       '__weakref__',          # required for dealing with weak references
@@ -72,19 +73,19 @@ class Configurable( object ):
          this is mimicked in the configuration: instantiating a new Configurable
          of a type with the same name will return the same instance."""
 
-    # try to get the name of the Configurable (having a name is compulsary)
+    # try to get the name of the Configurable (having a name is compulsory)
       if 'name' in kwargs:
        # simple keyword (by far the easiest)
          name = kwargs[ 'name' ]
-      elif 'name' in cls.__init__.func_code.co_varnames:
+      elif 'name' in six.get_function_code(cls.__init__).co_varnames:
        # either positional in args, or default
-         index =  list(cls.__init__.func_code.co_varnames).index( 'name' )
+         index =  list(six.get_function_code(cls.__init__).co_varnames).index( 'name' )
          try:
           # var names index is offset by one as __init__ is to be called with self
             name = args[ index - 1 ]
          except IndexError:
           # retrieve default value, then
-            name = cls.__init__.func_defaults[ index - (len(args)+1) ]
+            name = six.get_function_defaults(cls.__init__)[ index - (len(args)+1) ]
       else:
        # positional index is assumed (will work most of the time)
          try:
@@ -147,8 +148,8 @@ class Configurable( object ):
                       # the following may result in the same init tried several
                       # times, but we shouldn't be in this loop too often anyway
                         confinit = getattr( confklass, '__init__' )
-                        if n in confinit.func_code.co_varnames:
-                           log.debug( 'accepting keyword "%s" as an argument for %s.__init__' % (n,confklass.__name__) )
+                        if n in six.get_function_code(confinit).co_varnames:
+                           log.debug( 'accepting keyword "%s" as an argument for %s.__init__', n, confklass.__name__ )
                            acceptableKeyWord = True
                            break
                      except AttributeError:
@@ -159,14 +160,6 @@ class Configurable( object ):
                   if not acceptableKeyWord:
                      raise originalAttributeError
             return conf
-         except KeyError:
-            pass
-
-       # the following is purely for debugging support and should realistically bomb
-         try:
-            conf = cls.allConfigurables[ name ]
-            raise TypeError( 'attempt to redefine type of "%s" (was: %s, new: %s)' %
-                             (name,conf.__class__.__name__,cls.__name__) )
          except KeyError:
             pass
       else:
@@ -189,7 +182,9 @@ class Configurable( object ):
          cls.configurables[ name ] = conf
 
     # update generics super-cache
-      if cls.configurableRun3Behavior==0:
+         if name in cls.allConfigurables  and conf.getType() != cls.allConfigurables[ name ].getType():
+            raise TypeError( 'attempt to redefine type of "%s" (was: %s, new: %s)' %
+                             (name,cls.allConfigurables[ name ].getType(), conf.getType()) )
          cls.allConfigurables[ name ] = conf
 
       return conf
@@ -261,6 +256,15 @@ class Configurable( object ):
       del dct['_fIsLocked']
       self._flags &= ~self._fIsPrinting
       for (n, v) in dct.items():
+
+         # Don't overwrite these objects.  In py3, the TopAlg object
+         # gets unpicked before AppMgr (it's the other way round with py2),
+         # so otherwise the child lists can be overwritten due to the
+         # special cases in AppMgr.__setattr__.
+         if ((n == 'TopAlg' or n == 'OutStream') and
+             len(v) == 0 and
+             len(getattr(self, n)) > 0):
+            continue
          setattr( self, n, v )
 
       return
@@ -309,7 +313,7 @@ class Configurable( object ):
          ccjo = cc.getJobOptName()
          for c in self.__children:
             if c.getJobOptName() == ccjo:
-               log.error( 'attempt to add a duplicate (%s.%s) ... dupe ignored' % (joname or self.name(),ccjo) )
+               log.error( 'attempt to add a duplicate (%s.%s) ... dupe ignored', joname or self.name(), ccjo )
                break
          else:
             if index is None:
@@ -401,6 +405,9 @@ class Configurable( object ):
 
    def getChildren( self ):
       return self.__children[:]    # read only
+
+   def overwriteChild( self, idx, newChild ):
+      self.__children[idx] = newChild
 
    def getAllChildren( self ):
       """Get all (private) configurable children, both explicit ones (added with +=)
@@ -614,7 +621,7 @@ class Configurable( object ):
       #elif type(svcs) == types.StringType:
       #   svcs = [ svcs ]
 
-      import OldStyleConfig
+      from AthenaCommon import OldStyleConfig
       for svc in svcs:
          handle = OldStyleConfig.Service( svc )  # noqa: F841
        # services should be configurables as well, but aren't for now
@@ -628,10 +635,10 @@ class Configurable( object ):
       dlls = self.getDlls()
       if not dlls:
          dlls = []
-      elif isinstance(dlls, types.StringType):
+      elif isinstance(dlls, str):
          dlls = [ dlls ]
 
-      from AppMgr import theApp
+      from AthenaCommon.AppMgr import theApp
       dlls = filter( lambda d: d not in theApp.Dlls, dlls )
       if dlls: theApp.Dlls += dlls
 
@@ -763,7 +770,7 @@ class Configurable( object ):
       self._flags |= self._fIsPrinting
       properties = self.getValuedProperties()
       propstr = ""
-      for key,val in sorted(properties.iteritems()):
+      for key,val in sorted(six.iteritems(properties)):
          if isinstance(val,GaudiHandles.PublicToolHandle) or isinstance(val,GaudiHandles.PrivateToolHandle):
             propstr += val.getFullName()
          elif isinstance(val,Configurable):
@@ -806,6 +813,11 @@ class Configurable( object ):
       return self.getStrDescriptor() == rhs.getStrDescriptor()
    def __ne__(self,rhs):
       return (not self.__eq__(rhs))
+
+   __hash__ = object.__hash__
+
+   def __bool__ (self):
+      return True
 
 ### base classes for individual Gaudi algorithms/services/algtools ===========
 

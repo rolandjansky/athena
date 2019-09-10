@@ -12,8 +12,8 @@
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
 
 // ACTS
-#include "Acts/Detector/DetectorElementBase.hpp"
-
+#include "Acts/Geometry/DetectorElementBase.hpp"
+#include "Acts/Geometry/GeometryContext.hpp"
 
 // STL
 #include <mutex>
@@ -57,11 +57,11 @@ public:
   identify() const;
 
   /// Return local to global transform associated with this identifier
-  virtual const Acts::Transform3D&
-  transform() const final override;
   
   void
   storeTransform(ActsAlignmentStore* gas) const;
+  virtual const Acts::Transform3D &
+  transform(const Acts::GeometryContext &gctx) const final override;
 
 
   /// Return surface associated with this identifier, which should come from the

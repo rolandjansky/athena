@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOINTERFACE_CALOINTERFACEDICT_H
@@ -13,7 +13,7 @@
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 #include "CaloInterface/ICaloAffectedTool.h"
-#include "CaloInterface/ICaloLumiBCIDTool.h"
+#include "CaloInterface/ICaloEstimatedGainTool.h"
 
 #endif 
 

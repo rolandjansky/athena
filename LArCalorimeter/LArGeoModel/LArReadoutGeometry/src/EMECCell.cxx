@@ -25,23 +25,23 @@ const EMECHVElectrode& EMECCell::getElectrode (unsigned int i) const {
   return *(m_electrode[i]);
 }
 
-const EMECPresamplerHVModuleConstLink & EMECCell::getPresamplerHVModule () const {
+const EMECPresamplerHVModule& EMECCell::getPresamplerHVModule () const {
   if (m_electrode.size()==0 && !m_presamplerModule) initHV();
-  return m_presamplerModule;
+  return *m_presamplerModule;
 }
 
 void EMECCell::initHV() const {
 
   if (getSamplingIndex()==0) {
-    const EMECPresamplerHVManager *presamplerHVManager=getDescriptor()->getManager()->getPresamplerHVManager();
+    const EMECPresamplerHVManager& presamplerHVManager=getDescriptor()->getManager()->getPresamplerHVManager();
     double phiUpper = getPhiMaxNominal();
     double phiLower = getPhiMinNominal();
     double phi=fabs(phiUpper+phiLower)/2.0;
 
-    const CellBinning * phiBinning=presamplerHVManager->getPhiBinning();
+    const CellBinning * phiBinning=presamplerHVManager.getPhiBinning();
     unsigned int iPhi = int((phi - phiBinning->getStart())/phiBinning->getDelta()) + phiBinning->getFirstDivisionNumber();
     unsigned int iSide=getEndcapIndex();
-    m_presamplerModule = presamplerHVManager->getHVModule(iSide,iPhi);
+    m_presamplerModule = &(presamplerHVManager.getHVModule(iSide,iPhi));
 
   }
   else {

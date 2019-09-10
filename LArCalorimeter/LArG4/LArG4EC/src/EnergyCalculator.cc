@@ -2204,7 +2204,6 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 
   G4int sampling = geometry[c].sampling;
   G4int region   = geometry[c].region;
-
   const G4int atlasside = lwc()->GetAtlasZside() * geometry[c].zSide;
 
   if(lwc()->GetisModule() && atlasside < 0 ) {

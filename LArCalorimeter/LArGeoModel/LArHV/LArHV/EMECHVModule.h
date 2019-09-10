@@ -54,11 +54,11 @@ class EMECHVModule
   const EMECHVManager& getManager() const;
   
  private:
-    EMECHVModule(const EMECHVModule& right);
-    EMECHVModule& operator=(const EMECHVModule& right);
-
-    class Clockwork;
-    Clockwork *m_c;
+  EMECHVModule(const EMECHVModule& right);
+  EMECHVModule& operator=(const EMECHVModule& right);
+  
+  class Clockwork;
+  Clockwork *m_c;
 };
 
 #endif

@@ -250,10 +250,12 @@ namespace Trig {
                 deltaR = dR(eg->eta(),eg->phi(), el->eta(),el->phi());
                 if(deltaR < m_dR){
                     finalFC = (feat.te());
+		    ATH_MSG_DEBUG("Electron finalFC matches offline");
                     return true;
                 }
             }
         }
+	ATH_MSG_DEBUG("Reached the end in matchHLTElectron. So didn't match!");
         return false;
     }
 
@@ -460,7 +462,10 @@ namespace Trig {
         ATH_MSG_DEBUG("Match objec with trigger " << trigger);
         if(xAOD::EgammaHelpers::isElectron(eg)){
             const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-            if( matchHLTElectron(el,trigger,finalFC) ) return true;
+            if( matchHLTElectron(el,trigger,finalFC) ) {
+		ATH_MSG_DEBUG("Matchched!");
+		return true;
+	    }
         }
         else if(xAOD::EgammaHelpers::isPhoton(eg)){
             const xAOD::Photon* ph =static_cast<const xAOD::Photon*> (eg);
@@ -478,6 +483,7 @@ namespace Trig {
         }
         if( matchL2Calo(eg,trigger,finalFC) ) return true;
         if( matchL1(eg,trigger,finalFC) ) return true;
+	ATH_MSG_DEBUG("match() failed!");
         return false;// otherwise, someone matched!*/
     }
 

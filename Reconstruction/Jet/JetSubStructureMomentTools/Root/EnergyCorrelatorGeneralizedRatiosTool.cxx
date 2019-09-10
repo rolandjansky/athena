@@ -4,7 +4,6 @@
 
 #include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureUtils/EnergyCorrelatorGeneralized.h" 
-#include <math.h>
 
 using fastjet::PseudoJet;
 
@@ -15,12 +14,10 @@ EnergyCorrelatorGeneralizedRatiosTool::EnergyCorrelatorGeneralizedRatiosTool(std
 
 int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
 
-  
   if (!jet.isAvailable<float>(m_prefix+"ECFG_2_1") ||
       !jet.isAvailable<float>(m_prefix+"ECFG_3_2") ||
       !jet.isAvailable<float>(m_prefix+"ECFG_4_2") ||
       !jet.isAvailable<float>(m_prefix+"ECFG_3_1") ||
-      
 
       !jet.isAvailable<float>(m_prefix+"ECFG_2_1_2") ||
       !jet.isAvailable<float>(m_prefix+"ECFG_3_1_1") ||
@@ -32,7 +29,6 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
     ATH_MSG_WARNING("Energy correlation fractions with prefix '"<<m_prefix<<"' are not all available. Exiting..");
     return 1;
   }
-  
   
   float ecfg_2_1 = jet.getAttribute<float>(m_prefix+"ECFG_2_1");
   float ecfg_3_2 = jet.getAttribute<float>(m_prefix+"ECFG_3_2");
@@ -51,19 +47,19 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
 
   // N2
     
-  if(fabs(ecfg_2_1) > 1e-8) // Prevent div-0
+  if(ecfg_2_1 > 1e-8) // Prevent div-0
     jet.setAttribute(m_prefix+"N2", ecfg_3_2  / (pow(ecfg_2_1, 2.0)));
   else
     jet.setAttribute(m_prefix+"N2", -999.0);
 
   // N3
-  if(fabs(ecfg_3_1) > 1e-8) // Prevent div-0
+  if(ecfg_3_1 > 1e-8) // Prevent div-0
     jet.setAttribute(m_prefix+"N3", ecfg_4_2  / (pow(ecfg_3_1, 2.0)));
   else
     jet.setAttribute(m_prefix+"N3", -999.0);
 
   // M2
-  if(fabs(ecfg_2_1) > 1e-8) // Prevent div-0
+  if(ecfg_2_1 > 1e-8) // Prevent div-0
     jet.setAttribute(m_prefix+"M2", ecfg_3_2  / ecfg_2_1);
   else
     jet.setAttribute(m_prefix+"M2", -999.0);
@@ -84,7 +80,7 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
     E = (3*1) / (1*2) = 3./2.
   */
 
-  if(fabs(ecfg_2_1_2) > 1e-8)
+  if(ecfg_2_1_2 > 1e-8) // Prevent div-0
     {
       jet.setAttribute(m_prefix+"L1", ecfg_3_2_1 / (pow(ecfg_2_1_2, (1.) )));
       jet.setAttribute(m_prefix+"L2", ecfg_3_3_1 / (pow(ecfg_2_1_2, (3./2.) )));
@@ -95,7 +91,7 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
       jet.setAttribute(m_prefix+"L2",-999.0);
     }
 
-  if(fabs(ecfg_3_3_1) > 1e-8)
+  if(ecfg_3_3_1 > 1e-8) // Prevent div-0
     {  
       jet.setAttribute(m_prefix+"L3", ecfg_3_1_1 / (pow(ecfg_3_3_1, (1./3.) )) );
       jet.setAttribute(m_prefix+"L4", ecfg_3_2_2 / (pow(ecfg_3_3_1, (4./3.) )) );
@@ -106,7 +102,7 @@ int EnergyCorrelatorGeneralizedRatiosTool::modifyJet(xAOD::Jet &jet) const {
       jet.setAttribute(m_prefix+"L4",-999.0);
     }
 
-  if(fabs(ecfg_4_4_1) > 1e-8)
+  if(ecfg_4_4_1 > 1e-8) // Prevent div-0
     jet.setAttribute(m_prefix+"L5", ecfg_4_2_2 / (pow(ecfg_4_4_1, (1.) )) );
   else
     jet.setAttribute(m_prefix+"L5",-999.0);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -15,6 +15,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadCondHandle.h"
 // #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h" // Get CTP ROB 
 
 // Trigger
@@ -49,7 +50,6 @@ TrigCostTool::TrigCostTool(const std::string& type,
    m_parentAlg(0),
    m_timer(0),
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
-   m_toolBunchGroup("BunchGroupTool", this),
    m_scalerTool("HLT::RandomScaler/TrigCostScaler", this),
    m_eventInfoAccessTool("HLT::EventInfoAccessTool/EventInfoAccessTool", this),
    m_toolConf("Trig::TrigNtConfTool/TrigNtConfTool", this),
@@ -156,11 +156,8 @@ StatusCode TrigCostTool::initialize()
     m_keySteerOPI = "HLT_TrigOperationalInfoCollection_OPI_HLT";
   }
 
-  // Only get this tool offline
-  if (m_costForCAF == true) {
-    CHECK(m_toolBunchGroup.retrieve());
-    ATH_MSG_INFO("Retrieved " << m_toolBunchGroup);
-  }
+  // Only get this offline
+  ATH_CHECK( m_bunchGroupKey.initialize (m_costForCAF) );
 
   CHECK(m_toolConf.retrieve());
   ATH_MSG_INFO("Retrieved " << m_toolConf);
@@ -616,20 +613,13 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
 
       //Offline, get the BunchGroup info at this point. TODO: Migrate to 16x BGs when the tool updates
       if (m_costForCAF == true) {
-        unsigned bunchGroupLength[8] = {0};
-        bunchGroupLength[0] = m_toolBunchGroup->nBunchGroup0();
-        bunchGroupLength[1] = m_toolBunchGroup->nBunchGroup1();
-        bunchGroupLength[2] = m_toolBunchGroup->nBunchGroup2();
-        bunchGroupLength[3] = m_toolBunchGroup->nBunchGroup3();
-        bunchGroupLength[4] = m_toolBunchGroup->nBunchGroup4();   
-        bunchGroupLength[5] = m_toolBunchGroup->nBunchGroup5();
-        bunchGroupLength[6] = m_toolBunchGroup->nBunchGroup6();
-        bunchGroupLength[7] = m_toolBunchGroup->nBunchGroup7();
-        for (unsigned bg = 0; bg < 8; ++bg) {
+        SG::ReadCondHandle<BunchGroupCondData> bunchGroup (m_bunchGroupKey);
+        for (unsigned bg = 0; bg < BunchGroupCondData::NBUNCHGROUPS; ++bg) {
+          unsigned int bglen = bunchGroup->bunchGroup(bg).size();
           std::stringstream ssKey, ssVal;
           ssKey << "DB:BGRP" << bg;
-          ssVal << bunchGroupLength[bg];
-          ATH_MSG_DEBUG( "Database DB:BGRP" << bg << " size:" << bunchGroupLength[bg] );
+          ssVal << bglen;
+          ATH_MSG_DEBUG( "Database DB:BGRP" << bg << " size:" << bglen );
           m_config_sv.addValue(ssKey.str(), ssVal.str());
         }
       }

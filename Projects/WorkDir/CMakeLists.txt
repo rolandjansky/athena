@@ -4,7 +4,7 @@
 #
 
 # Set the minimum required CMake version:
-cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+cmake_minimum_required( VERSION 3.6 FATAL_ERROR )
 
 # Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
 # Remember that it's not a problem if AtlasCMake is not found, that's why
@@ -15,7 +15,7 @@ find_package( AtlasCMake QUIET )
 # of possible project names. Basically the names of all the other
 # sub-directories inside the Projects/ directory in the repository.
 set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysisBase
-   AthSimulation AthDerivation )
+   AthSimulation AthDerivation AthDataQuality )
 set( _defaultParentProject Athena )
 set( _defaultUseFortran TRUE )
 foreach( _pp ${_parentProjectNames} )

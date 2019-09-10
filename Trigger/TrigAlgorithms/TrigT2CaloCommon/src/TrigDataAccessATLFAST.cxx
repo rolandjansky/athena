@@ -16,13 +16,10 @@
 // ********************************************************************
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CaloIdentifier/LArEM_ID.h"
 #include "LArRecEvent/LArCell.h"
 #include "LArRecEvent/LArFebEnergyCollection.h"
-// #include "Identifier/IdentifierHash.h"
-// #include "LArRawUtils/LArTT_Selector.h"
 
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloEvent/CaloCluster.h"
@@ -31,7 +28,7 @@
 #include "LArRawUtils/LArRoI_Map.h"
 #include "IRegionSelector/IRegSelSvc.h"
 
-#include "TrigT2CaloCommon/TrigDataAccessATLFAST.h"
+#include "TrigDataAccessATLFAST.h"
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
@@ -41,6 +38,8 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 // Initialize method for all tools
 // Retrieval of all Tools to be used during run

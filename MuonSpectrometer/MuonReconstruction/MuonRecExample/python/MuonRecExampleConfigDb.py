@@ -8,7 +8,6 @@ from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorit
 
 from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 
-
 addNamesToSkipIfNotAvailable( "MuonIsolationTool" )
 addTypesOnlyToSkip( "ICaloNoiseTool" )
 
@@ -57,7 +56,7 @@ addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MCTBPropagator")
 addTool("Trk::STEP_Propagator", "MuonStraightLinePropagator")
 
 addTool("MuonRecExample.MuonRecTools.MuonExtrapolator", "MuonExtrapolator")
-addTool("MuonRecExample.MuonRecTools.MuonExtrapolator", "MuonStraightLineExtrapolator")
+addTool("MuonRecExample.MuonRecTools.MuonStraightLineExtrapolator", "MuonStraightLineExtrapolator")
 
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
@@ -65,9 +64,9 @@ addTool("Muon::MuonIdHelperTool", "MuonIdHelperTool")
 
 addTool("Muon::MuonTrackTruthTool", "MuonTrackTruthTool")
 
-addTool("Muon::MuonTrackToSegmentTool", "MuonTrackToSegmentTool")
+addTool("MuonRecExample.MooreTools.MuonTrackToSegmentTool", "MuonTrackToSegmentTool")
 
-addTool("MuonRecExample.MuonRecTools.MuonEDMHelperTool", "MuonEDMHelperTool")
+addService("MuonRecExample.MuonRecTools.MuonEDMHelperSvc", "MuonEDMHelperSvc")
 
 addTool("MuonRecExample.MuonRecTools.MuonEDMPrinterTool", "MuonEDMPrinterTool")
 
@@ -98,7 +97,9 @@ addTool( "MuonRecExample.MuonRecTools.MdtMathT0FitSegmentFinder", "MdtMathT0FitS
 addTool( "MuonRecExample.MuonRecTools.DCMathSegmentMaker", "DCMathSegmentMaker" )
 addTool( "MuonRecExample.MuonRecTools.DCMathT0FitSegmentMaker", "DCMathT0FitSegmentMaker" )
 
+addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinder", "MuonClusterSegmentFinder") 
 addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinderTool", "MuonClusterSegmentFinderTool" )
+#N.B. Both of these are tools. They do slightly different things, but the naming is unfortunate.
 
 addTool( "MuonRecExample.MuonRecTools.MuonLayerHoughTool","MuonLayerHoughTool" )
 
@@ -121,6 +122,8 @@ addTool( "MuonRecExample.MuonPrdProviderToolsConfig.RpcPrepDataProviderTool", "R
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.MdtPrepDataProviderTool", "MdtPrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.TgcPrepDataProviderTool", "TgcPrepDataProviderTool" )
 addTool( "MuonRecExample.MuonPrdProviderToolsConfig.CscPrepDataProviderTool", "CscPrepDataProviderTool" )
+addTool( "MuonRecExample.MuonPrdProviderToolsConfig.MM_PrepDataProviderTool", "MM_PrepDataProviderTool" )
+addTool( "MuonRecExample.MuonPrdProviderToolsConfig.STGC_PrepDataProviderTool", "STGC_PrepDataProviderTool" )
 
 #addAlgorithm("MuonRecExample.MuonPrdProviderToolsConfig.CscRdoToCscPrepData", "CscRdoToCscPrepData")
 
@@ -143,7 +146,7 @@ addTool("MuonRecExample.MooreTools.MCTBFitter",  "MCTBFitter")
 addTool("MuonRecExample.MooreTools.MCTBSLFitter","MCTBSLFitter")
 
 addTool("MuonRecExample.MooreTools.MCTBFitter",   "MCTBFitterMaterialFromTrack", GetMaterialFromTrack=True)
-addTool("MuonRecExample.MooreTools.MCTBSLFitter", "MCTBSLFitterMaterialFromTrack", GetMaterialFromTrack=True)
+addTool("MuonRecExample.MooreTools.MCTBSLFitterMaterialFromTrack", "MCTBSLFitterMaterialFromTrack")
 
 addToolClone("MdtMathSegmentFinder", "MCTBMdtMathSegmentFinder", UseChamberTheta = False, AssociationRoadWidth = 1.5 )
 
@@ -222,7 +225,12 @@ addTool("MuonRecExample.CscTools.CscSegmentUtilTool","CscSegmentUtilTool")
 
 addAlgorithm("MuonRecExample.CscTools.CscThresholdClusterBuilder","CscThresholdClusterBuilder")
 
-
+################################################################################
+# Tools from MuonRecExample.NSWTools  (NSW - MicroMegas and STgc reconstruction tools)
+################################################################################
+addTool("MuonRecExample.NSWTools.SimpleMMClusterBuilderTool","SimpleMMClusterBuilderTool")
+addTool("MuonRecExample.NSWTools.UTPCMMClusterBuilderTool","UTPCMMClusterBuilderTool")
+addTool("MuonRecExample.NSWTools.SimpleSTgcClusterBuilderTool","SimpleSTgcClusterBuilderTool")
 
 ################################################################################
 # Tools from MuonRecExample.MuPatTools
@@ -245,6 +253,7 @@ addTool("Muon::MuonSegmentCombinationCleanerTool","MuonSegmentCombinationCleaner
 ################################################################################
 
 addTool( "MuonRecExample.MuonStandalone.MuonTrackSteering", "MuonTrackSteering" )
+addTool("MuonRecExample.MuonRecTools.MuonSegmentFittingTool", "MuonSegmentFittingTool")
 
 ################################################################################
 # MS vertex

@@ -17,11 +17,11 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaKernel/IOVTime.h"
 #include "EventInfo/EventInfo.h"
 #include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/StoreGate.h"
 
 #include "CoralBase/AttributeListSpecification.h"
 
@@ -45,7 +45,6 @@ class SCT_ID;
 class IIOVRegistrationSvc;
 class IAthenaOutputStreamTool;
 class CondAttrListCollection;
-class StoreGateSvc;
 
 /**
  ** Algorithm to test writing conditions data and reading them back.
@@ -137,7 +136,7 @@ public:
   StatusCode wrapUpLorentzAngle();
 
 private:
-  SG::ReadHandleKey<EventInfo> m_eventInfoKey;
+  SG::ReadHandleKey<EventInfo> m_eventInfoKey{this, "EventInfo", "ByteStreamEventInfo"};
 
   int stringToInt(const std::string& s) const;
 
@@ -168,46 +167,46 @@ private:
   static const std::string s_LAFolderName;
 
   // cache for the Collections, access by foldername
-  mutable std::mutex m_mutex;
+  mutable std::mutex m_mutex{};
   mutable std::map<const std::string, const CondAttrListCollection*>  m_attrListCollectionMap ATLAS_THREAD_SAFE; // Guarded by m_mutex
-  CondAttrListCollection*      m_attrListColl;
-  CondAttrListCollection*      m_attrListColl_deadStrip;
-  CondAttrListCollection*      m_attrListColl_deadChip;
-  CondAttrListCollection*      m_attrListColl_eff;
-  CondAttrListCollection*      m_attrListColl_no;
-  CondAttrListCollection*      m_attrListColl_RawOccu;
-  CondAttrListCollection*      m_attrListColl_BSErr;
-  CondAttrListCollection*      m_attrListColl_LA;
-  BooleanProperty              m_writeCondObjs;
-  BooleanProperty              m_regIOV;
-  BooleanProperty              m_readWriteCool;
-  BooleanProperty              m_twoStepWriteReg;
-  BooleanProperty              m_manualiov;
-  IntegerProperty              m_version;
-  IntegerProperty              m_beginRun;
-  IntegerProperty              m_endRun;
-  StringProperty               m_streamName;
-  std::string                  m_tagID4NoisyStrips;
-  std::string                  m_tagID4DeadStrips;
-  std::string                  m_tagID4DeadChips;
-  std::string                  m_tagID4Efficiency;
-  std::string                  m_tagID4NoiseOccupancy;
-  std::string                  m_tagID4RawOccupancy;
-  std::string                  m_tagID4BSErrors;
-  std::string                  m_tagID4LorentzAngle;
+  CondAttrListCollection*      m_attrListColl{nullptr};
+  CondAttrListCollection*      m_attrListColl_deadStrip{nullptr};
+  CondAttrListCollection*      m_attrListColl_deadChip{nullptr};
+  CondAttrListCollection*      m_attrListColl_eff{nullptr};
+  CondAttrListCollection*      m_attrListColl_no{nullptr};
+  CondAttrListCollection*      m_attrListColl_RawOccu{nullptr};
+  CondAttrListCollection*      m_attrListColl_BSErr{nullptr};
+  CondAttrListCollection*      m_attrListColl_LA{nullptr};
+  BooleanProperty              m_writeCondObjs{this, "WriteCondObjs", true};
+  BooleanProperty              m_regIOV{this, "RegisterIOV", true};
+  BooleanProperty              m_readWriteCool{this, "ReadWriteCool", true};
+  BooleanProperty              m_twoStepWriteReg{this, "TwoStepWriteReg", false};
+  BooleanProperty              m_manualiov{this, "ManualIOV", true};
+  IntegerProperty              m_version{this, "Version", 0};
+  IntegerProperty              m_beginRun{this, "BeginRun", IOVTime::MINRUN};
+  IntegerProperty              m_endRun{this, "EndRun", IOVTime::MAXRUN};
+  StringProperty               m_streamName{this, "StreamName", "CondStreamTest"};
+  StringProperty               m_tagID4NoisyStrips{this, "TagID4NoisyStrips", ""};
+  StringProperty               m_tagID4DeadStrips{this, "TagID4DeadStrips", ""};
+  StringProperty               m_tagID4DeadChips{this, "TagID4DeadChips", ""};
+  StringProperty               m_tagID4Efficiency{this, "TagID4Efficiency", ""};
+  StringProperty               m_tagID4NoiseOccupancy{this, "TagID4NoiseOccupancy", ""};
+  StringProperty               m_tagID4RawOccupancy{this, "TagID4RawOccupancy", ""};
+  StringProperty               m_tagID4BSErrors{this, "TagID4BSErrors", ""};
+  StringProperty               m_tagID4LorentzAngle{this, "TagID4LorentzAngle", ""};
 
-  IIOVRegistrationSvc*         m_regSvc;
-  IAthenaOutputStreamTool*     m_streamer;
+  IIOVRegistrationSvc*         m_regSvc{nullptr};
+  IAthenaOutputStreamTool*     m_streamer{nullptr};
 
-  bool                         m_defectRecorded;
-  bool                         m_deadStripRecorded;
-  bool                         m_deadChipRecorded;
-  bool                         m_effRecorded;
-  bool                         m_noRecorded;
-  bool                         m_RawOccuRecorded;
-  bool                         m_BSErrRecorded;
-  bool                         m_LARecorded;
-  const SCT_ID*                m_pHelper;
+  bool                         m_defectRecorded{false};
+  bool                         m_deadStripRecorded{false};
+  bool                         m_deadChipRecorded{false};
+  bool                         m_effRecorded{false};
+  bool                         m_noRecorded{false};
+  bool                         m_RawOccuRecorded{false};
+  bool                         m_BSErrRecorded{false};
+  bool                         m_LARecorded{false};
+  const SCT_ID*                m_pHelper{nullptr};
 };
 
 inline const InterfaceID& SCTCalibWriteTool::interfaceID() {

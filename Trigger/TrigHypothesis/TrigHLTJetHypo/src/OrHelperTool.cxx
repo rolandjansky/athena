@@ -25,8 +25,10 @@ OrHelperTool::OrHelperTool(const std::string& type,
 }
 
 
-bool OrHelperTool::pass(HypoJetVector& jets,
-                        ITrigJetHypoInfoCollector* collector) const {
+bool
+OrHelperTool::pass(HypoJetVector& jets,
+		   xAODJetCollector& jetCollector,
+		   const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const {
   ATH_MSG_DEBUG("OrHelperTool::pass... " << jets.size() << " jets");
 
  JetTrigTimer timer;
@@ -34,12 +36,12 @@ bool OrHelperTool::pass(HypoJetVector& jets,
        timer.start();
   }
   
-  bool pass = m_lhs->pass(jets, collector);
+  bool pass = m_lhs->pass(jets, jetCollector, collector);
   if (pass){
     ATH_MSG_DEBUG("LHS passed");
     return pass;
   } else {
-    pass = m_rhs->pass(jets, collector);
+    pass = m_rhs->pass(jets, jetCollector, collector);
     ATH_MSG_DEBUG("RHS " <<std::boolalpha << pass);
   }    
 
@@ -62,7 +64,9 @@ std::string OrHelperTool::toString() const{
 
 StatusCode OrHelperTool::getDescription(ITrigJetHypoInfoCollector& c) const {
   c.collect(name(), toString());
-  m_lhs->getDescription(c);
-  m_rhs->getDescription(c);
-  return StatusCode::SUCCESS;
+  return m_lhs->getDescription(c) & m_rhs->getDescription(c);
+}
+
+std::size_t OrHelperTool::requiresNJets() const {
+  return m_lhs->requiresNJets() + m_rhs->requiresNJets();
 }

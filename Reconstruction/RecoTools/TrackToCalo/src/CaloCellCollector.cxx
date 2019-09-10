@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackToCalo/CaloCellCollector.h"
 
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
-#include "CaloInterface/ICaloNoiseTool.h"
+#include "CaloConditions/CaloNoise.h"
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -260,16 +260,9 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
 void
 Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
                                        std::vector<float>& etcore,
-                                       const ToolHandle <ICaloNoiseTool>& caloNoiseTool,
-                                       bool applyNoiseCut,
+                                       const CaloNoise* caloNoise,
                                        float sigmaNoiseCut) const
 {
-  // FIXME: const_cast
-  ICaloNoiseTool* caloNoiseTool_nc = nullptr;
-  if (!caloNoiseTool.empty()) {
-    const ICaloNoiseTool* caloNoiseTool_c = &*caloNoiseTool;
-    caloNoiseTool_nc = const_cast<ICaloNoiseTool*> (caloNoiseTool_c);
-  }
     // Collect the cells in the core for a muon
 
     // Collect etCore for the different samples
@@ -307,15 +300,10 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
         }
         // Check if cell passes the noise threshold of 3.4sigma
         if (m_doDebug && addCell) {
-           if( !caloNoiseTool.empty() ) std::cout << " cell E,3.4*noise: " << cell->energy() << "/" << 3.4*caloNoiseTool_nc->getNoise(cell);
-           else std::cout << " cell E, NO CaloNoiseTool available: " << cell->energy() << "/ - ";
+           if( caloNoise != nullptr ) std::cout << " cell E,3.4*noise: " << cell->energy() << "/" << 3.4*caloNoise->getNoise(cell->ID(), cell->gain());
+           else std::cout << " cell E, NO CaloNoise available: " << cell->energy() << "/ - ";
         }
-        if (applyNoiseCut && caloNoiseTool.empty() ){
-           std::cout << "ERROR : Configured to apply calo noise cut, however no CaloNoiseTool available.\n "
-                     << "ERROR : Changing configuration to NOT apply calo noise cut!" << std::endl;
-           applyNoiseCut = false;
-        }
-        if (applyNoiseCut && addCell && cell->energy() < sigmaNoiseCut*caloNoiseTool_nc->getNoise(cell)) {
+        if (caloNoise && addCell && cell->energy() < sigmaNoiseCut*caloNoise->getNoise(cell->ID(), cell->gain())) {
             addCell = false;
         }
         // sum of et, defined by cell E, and muon track eta

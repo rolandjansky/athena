@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -15,12 +15,15 @@
 #ifndef ISiTrackMaker_H
 #define ISiTrackMaker_H
 
-#include <list>
-#include "GaudiKernel/AlgTool.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSpacePoint/SpacePoint.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkTrack/Track.h"
+
+#include "GaudiKernel/AlgTool.h"
+
+#include <list>
 
 class MsgStream;
 
@@ -29,6 +32,8 @@ namespace InDetDD {
 }
 
 namespace InDet {
+
+  class SiTrackMakerEventData_xk;
 
   static const InterfaceID IID_ISiTrackMaker
     ("InDet::ISiTrackMaker",1,0);
@@ -41,72 +46,31 @@ namespace InDet {
       
     public:
 
-      ///////////////////////////////////////////////////////////////////
-      // Standard tool methods
-      ///////////////////////////////////////////////////////////////////
-
-      static const InterfaceID& interfaceID();
-      virtual StatusCode initialize ()=0;
-      virtual StatusCode finalize   ()=0;
+      // InterfaceID
+      DeclareInterfaceID(ISiTrackMaker, 1, 0);
 
       ///////////////////////////////////////////////////////////////////
       // Main methods for track-finding
       ///////////////////////////////////////////////////////////////////
 
-      virtual const std::list<Trk::Track*>& 
-	getTracks(const std::list<const Trk::SpacePoint*>&)=0;
-      virtual const std::list<Trk::Track*>& 
-	getTracks(const Trk::TrackParameters&,const std::list<Amg::Vector3D>&)=0;
+      virtual std::list<Trk::Track*>
+	getTracks(SiTrackMakerEventData_xk& data, const std::list<const Trk::SpacePoint*>&) const =0;
+      virtual std::list<Trk::Track*>
+	getTracks(SiTrackMakerEventData_xk& data, const Trk::TrackParameters&, const std::list<Amg::Vector3D>&) const =0;
       
-      virtual void newEvent    (bool,bool)=0;
-      virtual void newTrigEvent(bool,bool)=0;
+      virtual void newEvent(SiTrackMakerEventData_xk& data, bool, bool) const =0;
+      virtual void newTrigEvent(SiTrackMakerEventData_xk& data, bool, bool) const =0;
       
-      virtual void endEvent()=0;
+      virtual void endEvent(SiTrackMakerEventData_xk& data) const =0;
      
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
       ///////////////////////////////////////////////////////////////////
      
-      virtual MsgStream&    dump(MsgStream&    out) const=0;
-      virtual std::ostream& dump(std::ostream& out) const=0;
+      virtual MsgStream& dump(SiTrackMakerEventData_xk& data, MsgStream& out) const=0;
      
     };
-  
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator for MsgStream and  std::ostream
-  ///////////////////////////////////////////////////////////////////
-  
-  MsgStream&    operator << (MsgStream&   ,const ISiTrackMaker&);
-  std::ostream& operator << (std::ostream&,const ISiTrackMaker&);
-  
-  ///////////////////////////////////////////////////////////////////
-  // Inline methods
-  ///////////////////////////////////////////////////////////////////
-
-  inline const InterfaceID& ISiTrackMaker::interfaceID()
-    {
-      return IID_ISiTrackMaker;
-    }
-
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator MsgStream
-  ///////////////////////////////////////////////////////////////////
-   
-  inline MsgStream& operator    << 
-    (MsgStream& sl,const ISiTrackMaker& se)
-    { 
-      return se.dump(sl); 
-    }
-  ///////////////////////////////////////////////////////////////////
-  // Overload of << operator std::ostream
-  ///////////////////////////////////////////////////////////////////
-  
-  inline std::ostream& operator << 
-    (std::ostream& sl,const ISiTrackMaker& se)
-    { 
-      return se.dump(sl); 
-    }   
 
 } // end of name space
 

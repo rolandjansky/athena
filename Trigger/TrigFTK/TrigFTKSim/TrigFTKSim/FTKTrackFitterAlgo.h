@@ -57,12 +57,13 @@ private:
   int m_chi2cut;
   int m_chi2cut_maj;
   int m_chi2cut_vetmaj;
-  int m_chi2dofcut;
+  int m_chi2dofcutAux;
+  int m_chi2dofcutSSB;
 
   bool m_doAuxFW;
  
   int m_HitWarrior;
-  int m_HitWarrior_first;
+  bool m_AuxDoctor;
   int m_KeepRejected; 
   int m_FitRemoved;
   int m_DoMajority;
@@ -87,6 +88,7 @@ private:
   float m_SSF_TR_max_eta;
 
   bool m_save_1stStageTrks;
+  bool m_save_StepByStepTrks;
 
   //output
   bool m_doTrackFile;

@@ -24,7 +24,7 @@ namespace Trk {
     
   
   private:
-    static TrackParametersIdHelper m_helper;
+    static const TrackParametersIdHelper m_helper;
   };
 
   inline TrackParametersIdentifier TrackParametersIdentificationHelper::getIdentifier( const CurvilinearParameters& pars ) {

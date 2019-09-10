@@ -47,10 +47,7 @@ class Node(object):
             c.accept_cf(modifier)
         modifier.mod(self)
 
-    def makeTool(self):
-        if self.scenario not in logicals:
-            self.tool = DummyTool(self.toolName)
-            
+
     def buildTree(self, treeVisitor):
         if self.children:
             if self.scenario in logicals:
@@ -64,10 +61,6 @@ class Node(object):
 
         else:
             treeVisitor.add(self.tool.name() + ' ')
-            
-
-    
-        return s
         
     def dump(self, n_in=0):
         indent = ' '*n_in

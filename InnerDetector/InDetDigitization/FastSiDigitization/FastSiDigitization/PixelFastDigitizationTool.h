@@ -21,10 +21,12 @@
 #include "InDetPrepRawData/PixelClusterContainer.h" //typedef, cannot fwd declare
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h" //typedef, cannot fwd declare
-#include "PixelConditionsServices/IPixelCalibSvc.h"
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-
+#include "PixelCabling/IPixelCablingSvc.h"
+#include "PixelConditionsData/PixelChargeCalibCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 //New digi
 #include "TrkDigEvent/DigitizationModule.h"
@@ -47,7 +49,6 @@ class IAtRndmGenSvc;
 
 namespace InDetDD{
   class SiDetectorElement;
-  class PixelDetectorManager;
 }
 namespace CLHEP {class HepRandomEngine;}
 
@@ -93,7 +94,6 @@ private:
   CLHEP::HepRandomEngine*           m_randomEngine;
   std::string                m_randomEngineName;         //!< Name of the random number stream
 
-  const InDetDD::PixelDetectorManager* m_manager;
   const PixelID* m_pixel_ID;                             //!< Handle to the ID helper
 
   ToolHandle<InDet::ClusterMakerTool>  m_clusterMaker;   //!< ToolHandle to ClusterMaker
@@ -106,7 +106,6 @@ private:
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
   int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
   bool                      m_HardScatterSplittingSkipper;
-  IntegerProperty  m_vetoThisBarcode;
 
   typedef std::multimap<IdentifierHash, InDet::PixelCluster*> Pixel_detElement_RIO_map;
   Pixel_detElement_RIO_map* m_pixelClusterMap;
@@ -146,7 +145,14 @@ private:
   bool m_acceptDiagonalClusters; //!< merging parameter used to define two clusters as neighbour >
   std::string                           m_pixelClusterAmbiguitiesMapName;
   InDet::PixelGangedClusterAmbiguities* m_ambiguitiesMap;
-  ServiceHandle<IPixelCalibSvc>         m_pixelCalibSvc;
+  ServiceHandle<IPixelCablingSvc> m_pixelCabling
+  {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service" };
+
+  SG::ReadCondHandleKey<PixelChargeCalibCondData> m_chargeDataKey
+  {this, "PixelChargeCalibCondData", "PixelChargeCalibCondData", "Pixel charge calibration data"};
+
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey
+  {this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
 
   //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
   bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, const InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;

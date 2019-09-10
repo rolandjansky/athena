@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // CompositeContainer.h 
@@ -16,8 +16,7 @@
 
 #include "AthContainers/DataVector.h"
 
-// SGTools includes (for persistency)
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 // NavFourMom includes
 #include "NavFourMom/INavigable4MomentumCollection.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PIXELGEOMODEL_PIXELDETECTORTOOL_H
@@ -9,14 +9,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-class PixelGeoModelAthenaComps;
-class IGeoDbTagSvc;
-class IRDBAccessSvc;
-class IGeometryDBSvc;
-class IGeoSubDetTool;
-class IInDetServMatBuilderTool;
-class IBLParameterSvc;
+#include "GeoModelInterfaces/IGeoSubDetTool.h"
+#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeometryDBSvc/IGeometryDBSvc.h"
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
+#include "InDetGeoModelUtils/IInDetServMatBuilderTool.h"
 
+class PixelGeoModelAthenaComps;
 
 namespace InDetDD {
   class PixelDetectorManager;
@@ -24,7 +24,7 @@ namespace InDetDD {
 
 class PixelDetectorTool : public GeoModelTool {
 
- public: 
+ public:
   // Standard Constructor
   PixelDetectorTool( const std::string& type, const std::string& name, const IInterface* parent );
   // Standard Destructor
@@ -43,27 +43,27 @@ class PixelDetectorTool : public GeoModelTool {
 
 private:
   //
-  bool m_services;
-  bool m_servicesOnLadder; //JBdV
-  std::string m_detectorName;
-  ServiceHandle<IBLParameterSvc>                        m_IBLParameterSvc; 
-  bool m_dc1Geometry;
-  bool m_alignable;
-  bool m_tweakIBLDist; // whether to tweak L3 transforms with IBLDist
-  bool m_initialLayout;
-  bool m_devVersion;
-  bool m_buildDBM;
-  bool m_useDynamicAlignFolders;
-  ToolHandle< IGeoSubDetTool > m_bcmTool;
-  ToolHandle< IGeoSubDetTool > m_blmTool;
-  ToolHandle< IInDetServMatBuilderTool > m_serviceBuilderTool;
-  ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
-  ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
-  ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
-  const InDetDD::PixelDetectorManager * m_manager;
+  bool m_services{true};
+  bool m_servicesOnLadder{true}; //JBdV
+  std::string m_detectorName{"PixelDetector"};
+  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc{this,"IBLParameterSvc","IBLParameterSvc",""};
+  bool m_dc1Geometry{false};
+  bool m_alignable{true};
+  bool m_tweakIBLDist{true}; // whether to tweak L3 transforms with IBLDist
+  bool m_initialLayout{false};
+  bool m_devVersion{false};
+  bool m_buildDBM{false};
+  bool m_useDynamicAlignFolders{false};
+  ToolHandle< IGeoSubDetTool > m_bcmTool{this,"BCM_Tool","",""};
+  ToolHandle< IGeoSubDetTool > m_blmTool{this,"BLM_Tool","",""};
+  PublicToolHandle< IInDetServMatBuilderTool > m_serviceBuilderTool{this,"ServiceBuilderTool","",""};
+  ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc{this,"GeoDbTagSvc","GeoDbTagSvc",""};
+  ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc{this,"RDBAccessSvc","RDBAccessSvc",""};
+  ServiceHandle< IGeometryDBSvc > m_geometryDBSvc{this,"GeometryDBSvc","InDetGeometryDBSvc",""};
+  const InDetDD::PixelDetectorManager * m_manager{};
   std::string m_overrideVersionName;
 
-  PixelGeoModelAthenaComps * m_athenaComps;
+  PixelGeoModelAthenaComps * m_athenaComps{};
 
 };
 

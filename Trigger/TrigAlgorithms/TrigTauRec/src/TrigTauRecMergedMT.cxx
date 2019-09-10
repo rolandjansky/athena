@@ -1,17 +1,7 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-/********************************************************************
- *
- * NAME:     TrigTauRecMergedMT.cxx
- * PACKAGE:  Trigger/TrigAlgorithms/TrigTauRecMerged    
- *
- * AUTHOR:   E.Carquin
- * MODIFIED: Nov 23 2018
- *   
- *           Run a subset of the offline tauRec routines at the HLT
- *********************************************************************/
 
 #include "GaudiKernel/SystemOfUnits.h"
 
@@ -34,6 +24,8 @@
 
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/TauJet.h"
+
 #include "xAODTau/TauDefs.h"
 #include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauTrackAuxContainer.h"
@@ -52,8 +44,7 @@ TrigTauRecMergedMT::TrigTauRecMergedMT(const std::string& name,ISvcLocator* pSvc
   :AthAlgorithm(name, pSvcLocator),
    m_tools(this),
    m_endtools(this),
-   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-   m_beamSpotSvc("BeamCondSvc", name)
+   m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
   declareProperty("Tools", m_tools, "List of ITauToolBase tools" );
   declareProperty("EndTools", m_endtools, "List of End ITauToolBase tools" );
@@ -115,12 +106,7 @@ StatusCode TrigTauRecMergedMT::initialize()
   }
 
   // Retrieve beam conditions
-  if(m_beamSpotSvc.retrieve().isFailure()) {
-    ATH_MSG_WARNING("Unable to retrieve Beamspot service");
-  } 
-  else {
-    ATH_MSG_WARNING("Successfully retrieved Beamspot service");
-  }
+  CHECK(m_beamSpotKey.initialize());
 
   if ( not m_monTool.name().empty() ) {
     ATH_CHECK( m_monTool.retrieve() );
@@ -129,7 +115,7 @@ StatusCode TrigTauRecMergedMT::initialize()
   ATH_MSG_DEBUG( "Initialising HandleKeys" );
   CHECK( m_roIInputKey.initialize()        );
   CHECK( m_L1RoIKey.initialize()           );
-  CHECK( m_clustersKey.initialize()        );
+  CHECK( m_clustersKey.initialize(m_useCaloClusters));
   CHECK( m_tracksKey.initialize()          );
   CHECK( m_vertexKey.initialize()          );
   CHECK( m_trigTauJetKey.initialize(SG::AllowEmpty) );
@@ -188,13 +174,13 @@ StatusCode TrigTauRecMergedMT::execute()
   auto beamspot_x         = Monitored::Scalar<float>("EF_beamspot_x",-999.9);
   auto beamspot_y         = Monitored::Scalar<float>("EF_beamspot_y",-999.9);
   auto beamspot_z         = Monitored::Scalar<float>("EF_beamspot_z",-999.9);
-  auto EtaL1                 = Monitored::Scalar<float>("EtaL1",-99.9);
-  auto PhiL1                 = Monitored::Scalar<float>("PhiL1",-99.9);
-  auto EtaEF                 = Monitored::Scalar<float>("EtaEF",-99.9);
-  auto PhiEF                 = Monitored::Scalar<float>("PhiEF",-99.9);
+  auto EtaL1              = Monitored::Scalar<float>("EtaL1",-99.9);
+  auto PhiL1              = Monitored::Scalar<float>("PhiL1",-99.9);
+  auto EtaEF              = Monitored::Scalar<float>("EtaEF",-99.9);
+  auto PhiEF              = Monitored::Scalar<float>("PhiEF",-99.9);
 
-  auto EF_calo_errors        = Monitored::Collection("calo_errors",calo_errors);
-  auto EF_track_errors       = Monitored::Collection("track_errors",track_errors);
+  auto EF_calo_errors     = Monitored::Collection("calo_errors",calo_errors);
+  auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
 
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
 				     EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
@@ -207,6 +193,11 @@ StatusCode TrigTauRecMergedMT::execute()
 
   // Get RoiDescriptor
   SG::ReadHandle< TrigRoiDescriptorCollection > roisHandle = SG::makeHandle( m_roIInputKey, ctx );
+  if ( not roisHandle.isValid() ) {
+    calo_errors.push_back(NoROIDescr);
+    return StatusCode::SUCCESS;
+  }
+
   if(roisHandle->size() == 0){
     ATH_MSG_DEBUG("RoIHandle size = Zero");
     return StatusCode::SUCCESS;
@@ -222,23 +213,210 @@ StatusCode TrigTauRecMergedMT::execute()
     return StatusCode::SUCCESS;
   }
 
-  // Retrieve Calocluster container
-  SG::ReadHandle< xAOD::CaloClusterContainer > CCContainerHandle = SG::makeHandle( m_clustersKey,ctx );
-  CHECK( CCContainerHandle.isValid() );
+  double mu = 0.0;
+  double avg_mu = 0.0;
+  if(m_lumiBlockMuTool){
+    mu     = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+    avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+    ActualInteractions = mu;
+    AvgInteractions    = avg_mu;
+    ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
+    ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
+  }
+	
 
-  const xAOD::CaloClusterContainer *RoICaloClusterContainer = CCContainerHandle.get();
-  ATH_MSG_DEBUG( "Found " << RoICaloClusterContainer->size() << " caloClusters, updating the corresponding RoI ... " );
+  //-------------------------------------------------------------------------
+  // Get beamspot
+  //-------------------------------------------------------------------------
 
-  if(RoICaloClusterContainer != nullptr) {
-    ATH_MSG_DEBUG( "REGTEST: Size of vector CaloCluster container is " << RoICaloClusterContainer->size());
-    if(RoICaloClusterContainer->size() == 0) {
-      ATH_MSG_DEBUG( "Cannot proceed, size of vector CaloCluster container is " << RoICaloClusterContainer->size());
+  // Copy the first vertex from a const object
+  xAOD::Vertex theBeamspot;
+  theBeamspot.makePrivateStore();
+  const xAOD::Vertex* ptrBeamspot = nullptr;
+
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+  if(beamSpotHandle.isValid()){
+	
+    // Alter the position of the vertex
+    theBeamspot.setPosition(beamSpotHandle->beamPos());
+	
+    beamspot_x=theBeamspot.x();
+    beamspot_y=theBeamspot.y();
+    beamspot_z=theBeamspot.z();
+
+    // Create a AmgSymMatrix to alter the vertex covariance mat.
+    const auto& cov = beamSpotHandle->beamVtx().covariancePosition();
+    theBeamspot.setCovariancePosition(cov);
+
+    ptrBeamspot = &theBeamspot;
+  }
+
+  if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
+  if(beamSpotHandle.isValid()) m_tauEventData.setObject("Beamspot", ptrBeamspot);
+  if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
+
+  //-------------------------------------------------------------------------
+  // setup TauCandidate data
+  //-------------------------------------------------------------------------
+
+  m_tauEventData.clear();
+
+  //xAOD::TauJetContainer *pContainer = 0;
+
+  // get TauJetContainer
+  const xAOD::TauJetContainer *pTauContainer = 0;
+  if (!m_trigTauJetKey.empty() && !m_useCaloClusters) {
+    SG::ReadHandle<xAOD::TauJetContainer> tauInputHandle(m_trigTauJetKey);
+    pTauContainer = tauInputHandle.cptr();
+    ATH_MSG_DEBUG("Tau Calo Only Container Size" << pTauContainer->size());
+    //const xAOD::JetContainer *pJetColl = 0;
+    //const xAOD::Jet* aJet = 0;
+    //tempTauContainer = SG::makeHandle( m_trigTauJetKey,ctx ).get();
+    /*for(auto tauIt: *tempCaloOnlyCont){
+	      ATH_MSG_DEBUG("On the loop");
+	      ATH_MSG_DEBUG("pT(tau) = " << tauIt->pt() << " pT(caloOnly) = " << tauIt->ptTrigCaloOnly() );
+         p_tau = const_cast<xAOD::TauJet*>(tauIt);
+         //if (tauIt->jetLink().isValid()) aJet = * a_tau->jetLink();
+         //p_tau->setJet(pJetColl,aJet);
+	      p_tau->setP4(xAOD::TauJetParameters::TrigCaloOnly, tauIt->ptTrigCaloOnly(), tauIt->etaTrigCaloOnly(), tauIt->phiTrigCaloOnly(), tauIt->mTrigCaloOnly());
+    }*/
+  }
+
+  // Make new container which is deep copy of that
+  xAOD::TauJetContainer* pContainer = 0;
+  xAOD::TauJetAuxContainer* pAuxContainer = 0;
+  //xAOD::TauTrackContainer *pTrackContainer = 0;
+  //xAOD::TauTrackAuxContainer *pTrackAuxContainer = 0;
+  xAOD::TauJet* tau(0);
+  xAOD::TauJet* p_tau(0);
+
+  // write tautrack container
+  xAOD::TauTrackContainer* pTrackContainer = new xAOD::TauTrackContainer();
+  xAOD::TauTrackAuxContainer* pTrackAuxContainer = new xAOD::TauTrackAuxContainer();
+  pTrackContainer->setStore(pTrackAuxContainer);
+  SG::WriteHandle<xAOD::TauTrackContainer> tauTrackHandle( m_trigtauTrkOutKey );
+  ATH_MSG_DEBUG("  write: " << tauTrackHandle.key() << " = " << "..." );
+  ATH_CHECK(tauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTrackContainer}, std::unique_ptr<xAOD::TauTrackAuxContainer>{pTrackAuxContainer}));
+
+  // See function in header file
+  if(!m_trigTauJetKey.empty() && !m_useCaloClusters){
+    ATH_CHECK(deepCopy(pContainer, pAuxContainer, tau, pTauContainer));
+    p_tau = pContainer->back();
+  }
+
+  const xAOD::CaloClusterContainer *RoICaloClusterContainer = nullptr;
+
+  if(m_useCaloClusters){
+    // Retrieve Calocluster container
+    SG::ReadHandle< xAOD::CaloClusterContainer > CCContainerHandle = SG::makeHandle( m_clustersKey,ctx );
+    CHECK( CCContainerHandle.isValid() );
+
+    RoICaloClusterContainer = CCContainerHandle.get();
+    ATH_MSG_DEBUG( "Found " << RoICaloClusterContainer->size() << " caloClusters, updating the corresponding RoI ... " );
+
+    if(RoICaloClusterContainer != nullptr) {
+      ATH_MSG_DEBUG( "REGTEST: Size of vector CaloCluster container is " << RoICaloClusterContainer->size());
+      if(RoICaloClusterContainer->size() == 0) {
+        ATH_MSG_DEBUG( "Cannot proceed, size of vector CaloCluster container is " << RoICaloClusterContainer->size());
+        return StatusCode::SUCCESS;
+      }
+    }
+    else {
+      ATH_MSG_DEBUG( "no CaloCluster container found " );
       return StatusCode::SUCCESS;
     }
-  }
-  else {
-    ATH_MSG_DEBUG( "no CaloCluster container found " );
-    return StatusCode::SUCCESS;
+
+    //-------------------------------------------------------------------------
+    // Creating jet container used as "tau seed" for tau reconstruction
+    //-------------------------------------------------------------------------
+
+    pContainer = new xAOD::TauJetContainer();
+    pAuxContainer = new xAOD::TauJetAuxContainer();
+
+    pTrackContainer = new xAOD::TauTrackContainer();
+    pTrackAuxContainer = new xAOD::TauTrackAuxContainer();
+
+    pContainer->setStore(pAuxContainer);
+    pTrackContainer->setStore(pTrackAuxContainer);
+
+    m_tauEventData.setObject("TauTrackContainer", pTrackContainer);
+    m_tauEventData.xAODTauContainer = pContainer;
+    m_tauEventData.tauAuxContainer = pAuxContainer;
+
+    p_tau = new xAOD::TauJet();
+
+    pContainer->push_back(p_tau);
+    p_tau->setROIWord(roiDescriptor->roiWord());
+
+
+    // Ensure that we are using a TrigAuxContainer
+    xAOD::JetContainer *theJetCollection = new xAOD::JetContainer();
+    xAOD::JetTrigAuxContainer *theJetContainer = new xAOD::JetTrigAuxContainer();
+    theJetCollection->setStore(theJetContainer);
+
+    xAOD::Jet* aJet = new xAOD::Jet();
+
+    theJetCollection->push_back(aJet);
+	
+    // Build the jet, also keep track of the kinematics by hand
+    // We are using calibrated clusters, we need to keep track of this
+    aJet->setConstituentsSignalState(xAOD::JetConstitScale::CalibratedJetConstituent);
+	
+    // Make a minimal effort to speed things up ;)
+    // Eventually, want to use FastJet here?
+    TLorentzVector myCluster;
+    TLorentzVector TauBarycenter(0., 0., 0., 0.);
+
+  //if(m_useCaloClusters){
+    xAOD::CaloClusterContainer::const_iterator clusterIt;
+    for (clusterIt=RoICaloClusterContainer->begin(); clusterIt != RoICaloClusterContainer->end(); ++clusterIt) {
+      ATH_MSG_DEBUG(" Cluster (e, eta, phi) : ("<< (*clusterIt)->e() << " , " <<(*clusterIt)->eta()<<" , "<<(*clusterIt)->phi()<< " )");
+    
+      if((*clusterIt)->e() < 0)
+        {
+	  ATH_MSG_DEBUG(" Negative energy cluster is rejected");
+	  continue;
+        }
+    
+      myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
+      aJet->addConstituent(*clusterIt);
+
+      TauBarycenter += myCluster;
+    }
+	 
+    aJet->setJetP4(xAOD::JetFourMom_t(TauBarycenter.Pt(), TauBarycenter.Eta(), TauBarycenter.Phi(), TauBarycenter.M() ) ); 
+
+    ATH_MSG_DEBUG("jet formed"<< aJet->eta() <<" , " << aJet->phi() <<" , " << aJet->pt() << " , "<< aJet->e() );
+
+    const xAOD::JetContainer *jetCollection = theJetCollection;
+    //jetCollection = theJetCollection;
+
+    //-------------------------------------------------------------------------
+    // using Jet collection
+    // setup tau candidate structure
+    //-------------------------------------------------------------------------
+    ATH_MSG_DEBUG("Jet Collection Size: " << theJetCollection->size());
+    xAOD::Jet* p_seed = (*theJetCollection->begin());  //there is only one jet stored
+    const xAOD::Jet *p_tseed = (*jetCollection->begin());
+    ATH_MSG_DEBUG("Seed Jet"<< p_seed->eta() <<" , " << p_seed->phi() <<" , " << p_seed->pt() << " , "<< p_seed->e() );
+    p_tau->setJet(jetCollection, p_tseed);
+    m_tauEventData.seedContainer = theJetCollection;
+    m_tauEventData.setObject("JetCollection", theJetCollection );
+
+    if(p_seed->e()<=0) {
+      ATH_MSG_DEBUG( "Roi: changing eta due to energy " << p_seed->e() );
+      p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
+		
+      ATH_MSG_DEBUG( "Roi: " << roiDescriptor->roiId() << " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi() );
+    }
+
+    // Prepare Outputs
+    std::unique_ptr< xAOD::JetContainer > tauSeedContainer( new xAOD::JetContainer() );
+
+    // Save Outputs
+    SG::WriteHandle< xAOD::JetContainer > outTauSeedHandle = SG::makeHandle( m_trigtauSeedOutKey,ctx );
+    CHECK( outTauSeedHandle.record( std::move( tauSeedContainer ) ) );
+
   }
 
   // get TrackContainer
@@ -270,123 +448,26 @@ StatusCode TrigTauRecMergedMT::execute()
     ATH_MSG_DEBUG("REGTEST: Size of vector Vertex  container " << RoIVxContainer->size());
   }
 
-  double mu = 0.0;
-  double avg_mu = 0.0;
-  if(m_lumiBlockMuTool){
-    mu     = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
-    avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
-    ActualInteractions = mu;
-    AvgInteractions    = avg_mu;
-    ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
-    ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
-  }
-	
-
-  //-------------------------------------------------------------------------
-  // Get beamspot
-  //-------------------------------------------------------------------------
-
-  // Copy the first vertex from a const object
-  xAOD::Vertex theBeamspot;
-  theBeamspot.makePrivateStore();
-  const xAOD::Vertex* ptrBeamspot = nullptr;
-
-  if(m_beamSpotSvc){
-	
-    // Alter the position of the vertex
-    theBeamspot.setPosition(m_beamSpotSvc->beamPos());
-	
-    beamspot_x=theBeamspot.x();
-    beamspot_y=theBeamspot.y();
-    beamspot_z=theBeamspot.z();
-
-    // Create a AmgSymMatrix to alter the vertex covariance mat.
-    AmgSymMatrix(3) cov = m_beamSpotSvc->beamVtx().covariancePosition();
-    theBeamspot.setCovariancePosition(cov);
-
-    ptrBeamspot = &theBeamspot;
-  }
-
-
-  //-------------------------------------------------------------------------
-  // Creating jet container used as "tau seed" for tau reconstruction
-  //-------------------------------------------------------------------------
-
-  // Ensure that we are using a TrigAuxContainer
-  xAOD::JetContainer* theJetCollection = new xAOD::JetContainer();
-  xAOD::JetTrigAuxContainer theJetContainer;
-  theJetCollection->setStore(&theJetContainer);
-	
-  xAOD::Jet* aJet = new xAOD::Jet();
-
-  theJetCollection->push_back(aJet);
-	
-  // Build the jet, also keep track of the kinematics by hand
-  // We are using calibrated clusters, we need to keep track of this
-  aJet->setConstituentsSignalState(xAOD::JetConstitScale::CalibratedJetConstituent);
-	
-  // Make a minimal effort to speed things up ;)
-  // Eventually, want to use FastJet here?
-  TLorentzVector myCluster;
-  TLorentzVector TauBarycenter(0., 0., 0., 0.);
-  
-  xAOD::CaloClusterContainer::const_iterator clusterIt;
-  for (clusterIt=RoICaloClusterContainer->begin(); clusterIt != RoICaloClusterContainer->end(); ++clusterIt) {
-    ATH_MSG_DEBUG(" Cluster (e, eta, phi) : ("<< (*clusterIt)->e() << " , " <<(*clusterIt)->eta()<<" , "<<(*clusterIt)->phi()<< " )");
-    
-    if((*clusterIt)->e() < 0)
-      {
-	ATH_MSG_DEBUG(" Negative energy cluster is rejected");
-	continue;
-      }
-    
-    myCluster.SetPtEtaPhiE((*clusterIt)->pt(), (*clusterIt)->eta(), (*clusterIt)->phi(), (*clusterIt)->e());
-    aJet->addConstituent(*clusterIt);
-
-    TauBarycenter += myCluster;
-  }
-	
-  aJet->setJetP4(xAOD::JetFourMom_t(TauBarycenter.Pt(), TauBarycenter.Eta(), TauBarycenter.Phi(), TauBarycenter.M() ) ); 
-
-  ATH_MSG_DEBUG("jet formed"<< aJet->eta() <<" , " << aJet->phi() <<" , " << aJet->pt() << " , "<< aJet->e() );
-
-  // Prepare Outputs
-  std::unique_ptr< xAOD::JetContainer > tauSeedContainer( new xAOD::JetContainer() );
-
-  // Save Outputs
-  SG::WriteHandle< xAOD::JetContainer > outTauSeedHandle = SG::makeHandle( m_trigtauSeedOutKey,ctx );
-  CHECK( outTauSeedHandle.record( std::move( tauSeedContainer ) ) );
-
-  StatusCode processStatus    = StatusCode::SUCCESS;
-
-  // Save Outputs
-  SG::WriteHandle<xAOD::TauJetContainer> outTauJetHandle( m_trigtauRecOutKey );
-  SG::WriteHandle<xAOD::TauTrackContainer> outTauTrackHandle( m_trigtauTrkOutKey );
-
-  //-------------------------------------------------------------------------
-  // setup TauCandidate data
-  //-------------------------------------------------------------------------
-  m_tauEventData.clear();
-  xAOD::TauJetContainer *pContainer = new xAOD::TauJetContainer();
-  xAOD::TauJetAuxContainer *pAuxContainer = new xAOD::TauJetAuxContainer();
-
-  xAOD::TauTrackContainer *pTrackContainer = new xAOD::TauTrackContainer();
-  xAOD::TauTrackAuxContainer *pTrackAuxContainer = new xAOD::TauTrackAuxContainer();
-
-  pContainer->setStore(pAuxContainer);
-  pTrackContainer->setStore(pTrackAuxContainer);
-
-  m_tauEventData.setObject("TauTrackContainer", pTrackContainer);
-  m_tauEventData.xAODTauContainer = pContainer;
-  m_tauEventData.tauAuxContainer = pAuxContainer;
-
   // Set the Objects that we can attach right now
   m_tauEventData.setObject("TrackContainer", RoITrackParticleContainer);
   m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
-  if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
-  if(m_beamSpotSvc) m_tauEventData.setObject("Beamspot", ptrBeamspot);
-  if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
 
+  // This sets one track and link. Need to have at least 1 track linked to retrieve track container
+  // Can't we instead implement in the EDM a function to retrieve the track container of a tau?
+  if(m_useCaloClusters) setEmptyTauTrack(p_tau, pTrackContainer);
+
+  ATH_MSG_DEBUG(" roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << p_tau->ROIWord() );
+
+  StatusCode processStatus    = StatusCode::SUCCESS;
+
+  // Write final taujets container
+  SG::WriteHandle<xAOD::TauJetContainer> outputTauHandle(m_trigtauRecOutKey);
+  ATH_CHECK( outputTauHandle.record(std::unique_ptr<xAOD::TauJetContainer>(pContainer),
+                       std::unique_ptr<xAOD::TauJetAuxContainer>(pAuxContainer)) );
+
+  // Save Outputs
+  //SG::WriteHandle<xAOD::TauJetContainer> outTauJetHandle( m_trigtauRecOutKey );
+  //SG::WriteHandle<xAOD::TauTrackContainer> outTauTrackHandle( m_trigtauTrkOutKey );
 
   //-------------------------------------------------------------------------
   // eventInitialize tauRec colls
@@ -402,33 +483,6 @@ StatusCode TrigTauRecMergedMT::execute()
     }
   }
   ATH_MSG_DEBUG(" initialize all good ");
-
-  //-------------------------------------------------------------------------
-  // using Jet collection
-  // setup tau candidate structure
-  //-------------------------------------------------------------------------
-  xAOD::Jet* p_seed = (*theJetCollection->begin());  //there is only one jet stored
-
-  xAOD::TauJet* p_tau = new xAOD::TauJet();
-  pContainer->push_back(p_tau);
-  p_tau->setROIWord(roiDescriptor->roiWord());
-  p_tau->setJet(theJetCollection, p_seed);
-  m_tauEventData.seedContainer = theJetCollection;
-
-  // This sets one track and link. Need to have at least 1 track linked to retrieve track container
-  // Can't we instead implement in the EDM a function to retrieve the track container of a tau?
-  setEmptyTauTrack(p_tau, pTrackContainer);
-
-  if(p_seed->e()<=0) {
-    ATH_MSG_DEBUG( "Roi: changing eta due to energy " << p_seed->e() );
-    p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
-		
-    ATH_MSG_DEBUG( "Roi: " << roiDescriptor->roiId() << " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi() );
-  }
-
-  ATH_MSG_DEBUG(" roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << p_tau->ROIWord() );
-
-  m_tauEventData.setObject("JetCollection", theJetCollection );
 
   //-------------------------------------------------------------------------
   // loop over booked tau tools
@@ -555,39 +609,6 @@ StatusCode TrigTauRecMergedMT::execute()
 
     //std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
 
-    // get TauJetContainer
-    const xAOD::TauJetContainer *tempCaloOnlyCont=nullptr;
-    if (!m_trigTauJetKey.empty()) {
-      tempCaloOnlyCont = SG::makeHandle( m_trigTauJetKey,ctx ).get();
-    }
-    //tempCaloOnlyContVec.push_back(tempCaloOnlyCont);
-
-    /*if( !tempCaloOnlyContVec.isValid()){
-
-      ATH_MSG_DEBUG( "Can't get container TrigTauRecCaloOnly to copy four-vector");
-
-      } else {*/
-    if (tempCaloOnlyCont) {
-
-      // const xAOD::TauJetContainer* tempCaloOnlyTauCont = tempCaloOnlyContVec.back();
-      // for(xAOD::TauJetContainer::const_iterator tauIt = tempCaloOnlyTauCont->begin(); tauIt != tempCaloOnlyTauCont->end(); tauIt++){ 
-
-      // const xAOD::TauJetContainer* tempCaloOnlyTauCont = tempCaloOnlyContVec.back();
-
-      for(auto tauIt: *tempCaloOnlyCont){
-	ATH_MSG_DEBUG("On the loop");
-	ATH_MSG_DEBUG("pT(tau) = " << tauIt->pt() << " pT(caloOnly) = " << tauIt->ptTrigCaloOnly() );
-	  	
-	p_tau->setP4(xAOD::TauJetParameters::TrigCaloOnly, tauIt->ptTrigCaloOnly(), tauIt->etaTrigCaloOnly(), tauIt->phiTrigCaloOnly(), tauIt->mTrigCaloOnly());
-      }
-	      
-      //}
-	    
-    }
-    else{
-      ATH_MSG_WARNING( "TauJetContainer not found :");
-    }
-    
     ATH_MSG_DEBUG("REGTEST: Roi: " << roiDescriptor->roiId()
 		  << " Tau being saved eta: " << EtaEF << " Tau phi: " << PhiEF
 		  << " wrt L1 dEta "<< dEta<<" dPhi "<<dPhi
@@ -615,8 +636,8 @@ StatusCode TrigTauRecMergedMT::execute()
   ATH_MSG_DEBUG("Output TauJetContainer size:"<< pContainer->size());
   ATH_MSG_DEBUG("Output TauTrackJetContainer size:"<< pTrackContainer->size());
   
-  CHECK( outTauJetHandle.record(std::unique_ptr<xAOD::TauJetContainer>{pContainer}, std::unique_ptr<xAOD::TauJetAuxContainer>{pAuxContainer}) );
-  CHECK( outTauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTrackContainer}, std::unique_ptr<xAOD::TauTrackAuxContainer>{pTrackAuxContainer}) );
+  //CHECK( outTauJetHandle.record(std::unique_ptr<xAOD::TauJetContainer>{pContainer}, std::unique_ptr<xAOD::TauJetAuxContainer>{pAuxContainer}) );
+  //CHECK( outTauTrackHandle.record(std::unique_ptr<xAOD::TauTrackContainer>{pTrackContainer}, std::unique_ptr<xAOD::TauTrackAuxContainer>{pTrackAuxContainer}) );
   
   ATH_MSG_DEBUG("Recorded a tau container: HLT_TrigTauRecMergedMT");
   ATH_MSG_DEBUG("the tau object has been registered in the tau container");

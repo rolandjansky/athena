@@ -25,7 +25,7 @@
 #include "GaudiKernelFixtureBase.h"
 
 struct GaudiKernelFixture:public GaudiKernelFixtureBase{
-  GaudiKernelFixture():GaudiKernelFixtureBase(__FILE__){
+  GaudiKernelFixture():GaudiKernelFixtureBase(){
     //nop, everything in base.
   }
 };
@@ -36,7 +36,7 @@ struct IOVMetaDataContainerFixture{
   const std::string  folderDescription;
   IOVMetaDataContainer metaDataContainer;
   IOVMetaDataContainerFixture():folderName{"/key1"}, 
-   folderDescription{"<timeStamp>run-event</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>"},
+   folderDescription{"<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>"},
    metaDataContainer{folderName, folderDescription}{
     //nop
   }

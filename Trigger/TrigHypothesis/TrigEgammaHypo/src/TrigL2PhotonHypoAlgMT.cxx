@@ -116,19 +116,7 @@ StatusCode TrigL2PhotonHypoAlgMT::execute( const EventContext& context ) const {
   } 
 
   
-  ATH_MSG_DEBUG( "Exiting with "<< outputHandle->size() <<" decisions");
-  //debug
-  for (auto outh: *outputHandle){
-    TrigCompositeUtils::DecisionIDContainer objDecisions;      
-    TrigCompositeUtils::decisionIDs( outh, objDecisions );
-    
-    ATH_MSG_DEBUG("Number of positive decisions for this input: " << objDecisions.size() );
-    
-    for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
-      ATH_MSG_DEBUG( " --- found new decision " << HLT::Identifier( id ) );
-    }  
-    
-  }
+  ATH_CHECK( hypoBaseOutputProcessing(outputHandle) );
 
   return StatusCode::SUCCESS;
 }

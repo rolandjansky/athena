@@ -71,7 +71,6 @@ if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
 
 # This is the list of proxies to set up so that retrieval attempt will trigger the BS conversion
 svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
-    "ROIB::RoIBResult/RoIBResult",
     "MuCTPI_RDO/MUCTPI_RDO",
     "CTP_RDO/CTP_RDO",
     "MuCTPI_RIO/MUCTPI_RIO",

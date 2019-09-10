@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -87,13 +87,13 @@ class EnergyLoss {
   double length() const;
 
   //update from mean values
-  void update(double ioni, double sigi, double rad, double sigr, bool mpv=false) const; 
+  void update(double ioni, double sigi, double rad, double sigr, bool mpv=false) ; 
   
   //update 
-  void update( EnergyLoss&, bool mpv=false ) const; 
+  void update( EnergyLoss&, bool mpv=false ) ; 
   
   //set
-  void set(double eLoss, double sigde, double ioni, double sigi, double rad, double sigr) const; 
+  void set(double eLoss, double sigde, double ioni, double sigi, double rad, double sigr) ; 
   
   //! Interface method for output, can be overloaded by child classes
   virtual MsgStream&    dump( MsgStream& sl ) const;
@@ -103,19 +103,19 @@ class EnergyLoss {
 
  private:
   //! @f$ \Delta E @f$        - the estimated or measured energy loss
-  mutable double  m_deltaE;           
+  double  m_deltaE;           
   //!< @f$ \sigma(\Delta E) @f$ - error on the energy loss
-  mutable double  m_sigmaDeltaE;
+  double  m_sigmaDeltaE;
   //!< @f$ \sigma(\Delta E) @f$ - negative error on the energy loss
-  double  m_sigmaMinusDeltaE;
+  double m_sigmaMinusDeltaE;
   //!< @f$ \sigma(\Delta E) @f$ - positive error on the energy loss
-  double  m_sigmaPlusDeltaE;
+  double m_sigmaPlusDeltaE;
   // additional information about components (cache only, not persistified)
-  mutable double  m_mean_ioni;          // mean value for ionization 
-  mutable double  m_sig_ioni;          // sigma for ionization 
-  mutable double  m_mean_rad;          // mean value for radiation 
-  mutable double  m_sig_rad;           // sigma for radiation 
-  mutable double  m_length;           // 3D length of material 
+  double  m_mean_ioni;          // mean value for ionization 
+  double  m_sig_ioni;          // sigma for ionization 
+  double  m_mean_rad;          // mean value for radiation 
+  double  m_sig_rad;           // sigma for radiation 
+  double  m_length;           // 3D length of material 
 
 };
 
@@ -149,7 +149,7 @@ class EnergyLoss {
  inline double EnergyLoss::length() const
  { return m_length;  } // length can be positive and negative like Eloss depending on (back)tracking
  
- inline void EnergyLoss::update(double ioni, double sigi, double rad, double sigr, bool mpv) const
+ inline void EnergyLoss::update(double ioni, double sigi, double rad, double sigr, bool mpv) 
  { m_mean_ioni += ioni;
    m_mean_rad += rad;
    m_sig_ioni += sigi; 
@@ -158,7 +158,7 @@ class EnergyLoss {
    m_sigmaDeltaE = sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad);  
  }
 
- inline void EnergyLoss::update(EnergyLoss& eloss, bool mpv) const
+ inline void EnergyLoss::update(EnergyLoss& eloss, bool mpv) 
  { m_mean_ioni += eloss.meanIoni();
    m_mean_rad += eloss.meanRad();
    m_sig_ioni += eloss.sigmaIoni(); 
@@ -167,7 +167,7 @@ class EnergyLoss {
    m_sigmaDeltaE = sqrt( m_sig_ioni*m_sig_ioni + m_sig_rad*m_sig_rad);  
  }
 
- inline void EnergyLoss::set(double eloss, double sigde, double ioni, double sigi, double rad, double sigr) const
+ inline void EnergyLoss::set(double eloss, double sigde, double ioni, double sigi, double rad, double sigr) 
  { m_mean_ioni = ioni;
    m_mean_rad = rad;
    m_sig_ioni = sigi; 

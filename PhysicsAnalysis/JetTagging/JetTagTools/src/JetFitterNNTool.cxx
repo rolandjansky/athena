@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ namespace Analysis {
 
 JetFitterNNTool::JetFitterNNTool(const std::string& name,
                                  const std::string& n, const IInterface* p):
-        AthAlgTool(name, n,p),
+        base_class(name, n,p),
         m_calibrationDirectory("JetFitter"),
         m_calibrationSubDirectory("NeuralNetwork"),
         m_networkToHistoTool("Trk::NeuralNetworkToHistoTool", this),
@@ -52,28 +52,10 @@ JetFitterNNTool::JetFitterNNTool(const std::string& name,
   declareProperty("maximumRegisteredLayers",m_maximumRegisteredLayers);
 
   declareProperty("usePtCorrectedMass",m_usePtCorrectedMass = false);
+}
 
-  declareInterface<IJetFitterClassifierTool>(this);
-
-} 
-
-/////////////////////////////////////////////////////////////////////////////////////
-/// Destructor - check up memory allocation
-/// delete any memory allocation on the heap
-
-JetFitterNNTool::~JetFitterNNTool() {
-
-  std::map<std::string,TTrainedNetwork*>::iterator NNbegin=m_NN.begin();
-  std::map<std::string,TTrainedNetwork*>::iterator NNend=m_NN.end();
-
-  for (std::map<std::string,TTrainedNetwork*>::iterator NNiter=NNbegin;
-       NNiter!=NNend;
-       ++NNiter)
-  {
-    delete (*NNiter).second;
-    (*NNiter).second=0;
-  }
-  
+JetFitterNNTool::~JetFitterNNTool()
+{
 }
 
 StatusCode JetFitterNNTool::initialize() {
@@ -96,13 +78,14 @@ StatusCode JetFitterNNTool::finalize() {
 
   //here you should probably delete something :-)
   
-  ATH_MSG_INFO(" Finalization of JetFitterNNTool succesfull");
+  ATH_MSG_DEBUG(" Finalization of JetFitterNNTool succesful");
   return StatusCode::SUCCESS;
 }
 
-  void JetFitterNNTool::loadCalibration(const std::string & jetauthor) {
+  std::unique_ptr<TTrainedNetwork>
+  JetFitterNNTool::loadCalibration(const std::string & jetauthor) const {
     
-    std::vector<TH1*> retrievedHistos;
+    std::vector<const TH1*> retrievedHistos;
     
     SG::ReadCondHandle<JetTagCalibCondData> readCdo(m_readKey);
     
@@ -120,16 +103,16 @@ StatusCode JetFitterNNTool::finalize() {
     }
     directory+="/";
     
-    TH1* histoLayers = readCdo->retrieveHistogram("JetFitterNN", 
+    const TH1* histoLayers = readCdo->retrieveHistogram("JetFitterNN", 
                                                                              jetauthor, 
                                                                              std::string((const char*)(directory+TString("LayersInfo"))));
 
-    TH1F* myHistoLayers=dynamic_cast<TH1F*>(histoLayers);
+    const TH1F* myHistoLayers=dynamic_cast<const TH1F*>(histoLayers);
 
     if (myHistoLayers==0)
     {
       ATH_MSG_ERROR(" Cannot retrieve LayersInfo histogram ");
-      return;
+      return std::unique_ptr<TTrainedNetwork>();
     }
 
     retrievedHistos.push_back(myHistoLayers);
@@ -149,11 +132,11 @@ StatusCode JetFitterNNTool::finalize() {
       thresholdName+=i;
       thresholdName+="_thresholds";
       
-      TH1* weightHisto = readCdo->retrieveHistogram("JetFitterNN", 
+      const TH1* weightHisto = readCdo->retrieveHistogram("JetFitterNN", 
                                                                                jetauthor, 
                                                                                std::string((const char*)(directory+weightName)));
       
-      TH2F* myWeightHisto=dynamic_cast<TH2F*>(weightHisto);
+      const TH2F* myWeightHisto=dynamic_cast<const TH2F*>(weightHisto);
       
       if (myWeightHisto==0)
       {
@@ -168,11 +151,11 @@ StatusCode JetFitterNNTool::finalize() {
 
       retrievedHistos.push_back(myWeightHisto);
 
-      TH1* thresholdHisto = readCdo->retrieveHistogram("JetFitterNN", 
+      const TH1* thresholdHisto = readCdo->retrieveHistogram("JetFitterNN", 
                                                                                   jetauthor, 
                                                                                   std::string((const char*)(directory+thresholdName)));
 
-      TH1F* myThresholdHisto=dynamic_cast<TH1F*>(thresholdHisto);
+      const TH1F* myThresholdHisto=dynamic_cast<const TH1F*>(thresholdHisto);
       
       if (myThresholdHisto==0)
       {
@@ -183,18 +166,8 @@ StatusCode JetFitterNNTool::finalize() {
     
     }
     
-    TTrainedNetwork* NN=m_NN[jetauthor];
-    if (NN!=0)
-    {
-      delete NN;
-      NN=0;
-      ATH_MSG_DEBUG(" Istantiating TTrainedNetwork for jet author: " << jetauthor);
-    }
-
-    m_NN[jetauthor]=m_networkToHistoTool->fromHistoToTrainedNetwork(retrievedHistos);
-
-    
-
+    return std::unique_ptr<TTrainedNetwork>
+      (m_networkToHistoTool->fromHistoToTrainedNetwork(retrievedHistos));
   }
 
 
@@ -205,20 +178,18 @@ StatusCode JetFitterNNTool::finalize() {
 					       const std::string& outputbasename,
 					       double jetpT,
 					       double jeteta,
-					       double IP3dlike) {
- 
-
+					       double IP3dlike) const
+  {
   if (jetauthor=="") {
     ATH_MSG_WARNING(" Hypothesis or jetauthor is empty. No likelihood value given back. ");
   }
 
   //at each fillLikelihood call check if the calibration is updated
   //(or load it for the first time)
-  loadCalibration(jetauthor);
+  std::unique_ptr<TTrainedNetwork> NN = loadCalibration(jetauthor);
   
   
-  TTrainedNetwork* NN=m_NN[jetauthor];
-  if (NN==0)
+  if (!NN)
   {
     ATH_MSG_WARNING(" JetFitter NN instance not found: cannot do any calculation...");
     return StatusCode::SUCCESS;

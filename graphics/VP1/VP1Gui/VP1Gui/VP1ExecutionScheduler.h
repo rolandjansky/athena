@@ -25,6 +25,10 @@
 #include <QObject>
 #include <QStringList>
 
+#ifdef BUILDVP1LIGHT
+  #include <TTree.h>
+  #include "xAODBase/IParticle.h"
+#endif //  BUILDVP1LIGHT
 
 
 class IVP1System;
@@ -94,8 +98,18 @@ public:
 
   QString saveSnaphsotToFile(IVP1System* s, bool batch = false);
 
+
+  #if defined BUILDVP1LIGHT
+    void loadEvent();
+    QString split(const std::string& input, const std::string& regex);
+    int getEvtNr(){ return m_evtNr; };
+    void setEvtNr(int evtNr){ m_evtNr = evtNr; };
+    int getTotEvtNr(){ return m_totEvtNr; };
+  #endif // BUILDVP1LIGHT
+
 signals:
   void refreshingStatusChanged(bool);
+
 
 
 private:
@@ -104,6 +118,16 @@ private:
   void refreshSystem(IVP1System*);
   void eraseSystem(IVP1System*);
   void actualUncreateAndDelete(IVP1ChannelWidget*);
+
+  #if defined BUILDVP1LIGHT
+    xAOD::TEvent* m_event;
+    ::TFile* m_ifile;
+    QList<QStringList> m_list;
+    int m_evtNr = 0;
+    int m_totEvtNr = -1;
+    bool m_goBackFlag = false;
+    bool firstlaunch = true;
+  #endif // BUILDVP1LIGHT
 
 private slots:
   void processSystemForRefresh();
@@ -116,6 +140,10 @@ private slots:
   void performCruise();
   //OPVASK: void abortCruise();
   //Start
+
+  #if defined BUILDVP1LIGHT
+    void passEvent(IVP1System*);
+  #endif // BUILDVP1LIGHT
 };
 
 #endif

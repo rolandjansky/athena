@@ -12,8 +12,17 @@
 #
 #########################################################
 
-from AthenaCommon.CfgGetter import getPublicTool
-mergemceventcoll = getPublicTool("MergeMcEventCollTool")
-mergemceventcoll.SaveOutOfTimeMinBias = False
-mergemceventcoll.LowTimeToKeep = 0.0
-mergemceventcoll.HighTimeToKeep = 25.0
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+
+for alg in topSequence:
+    if 'PileUpToolsAlg' in alg.name():
+        alg.PileUpTools["MergeMcEventCollTool"].SaveOutOfTimeMinBias = False
+        alg.PileUpTools["MergeMcEventCollTool"].LowTimeToKeep = 0.0
+        alg.PileUpTools["MergeMcEventCollTool"].HighTimeToKeep = 25.0
+        break
+    if 'MergeMcEventCollection' == alg.name():
+        alg.MergeMcEventCollTool.SaveOutOfTimeMinBias = False
+        alg.MergeMcEventCollTool.LowTimeToKeep = 0.0
+        alg.MergeMcEventCollTool.HighTimeToKeep = 25.0
+        break

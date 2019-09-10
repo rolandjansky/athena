@@ -22,31 +22,20 @@
 
 class PixelID;
 
-namespace InDetDD
-{
-  class SiDetectorManager;
-}
-
 namespace InDet
 {
-
-  static const InterfaceID IID_IPixelClusteringTool("InDet::IPixelClusteringTool", 1, 0);
 
   class IPixelClusteringTool : virtual public IAlgTool
   {
 
   public:
 
-    virtual ~IPixelClusteringTool() {};
-    virtual StatusCode initialize() = 0;
-    virtual StatusCode finalize() = 0;
-
-    static const InterfaceID& interfaceID() { return IID_IPixelClusteringTool; };
+    // InterfaceID
+    DeclareInterfaceID(IPixelClusteringTool, 1, 0);
 
     // Clusterize a collection of pixel raw data objects
     virtual PixelClusterCollection* clusterize
     (const InDetRawDataCollection<PixelRDORawData> &RDOs,
-     const InDetDD::SiDetectorManager& manager,
      const PixelID& idHelper) const = 0;
 
   };

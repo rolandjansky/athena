@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 # The earliest bunch crossing time for which interactions will be sent
@@ -70,8 +70,14 @@ def BasicTRTDigitizationTool(name, **kwargs):
     return CfgMgr.TRTDigitizationTool(name,**kwargs)
 
 def TRTDigitizationTool(name="TRTDigitizationTool",**kwargs):
-    kwargs.setdefault("OutputObjectName", "TRT_RDOs")
-    kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputObjectName", overlayFlags.bkgPrefix() + "TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "TRT_SDO_Map")
+    else:
+        kwargs.setdefault("OutputObjectName", "TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", "TRT_SDO_Map")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicTRTDigitizationTool(name,**kwargs)
 
@@ -109,16 +115,21 @@ def TRTDigitizationPU(name="TRTDigitizationPU",**kwargs):
     return CfgMgr.TRTDigitization(name,**kwargs)
 
 def TRT_OverlayDigitizationTool(name="TRT_OverlayDigitizationTool",**kwargs):
-     from OverlayCommonAlgs.OverlayFlags import overlayFlags
-     kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"+TRT_RDOs")
-     kwargs.setdefault("OutputSDOName", overlayFlags.evtStore()+ "+TRT_SDO_Map")
-     kwargs.setdefault("HardScatterSplittingMode", 0)
-     kwargs.setdefault("Override_getT0FromData", 0)
-     kwargs.setdefault("Override_noiseInSimhits", 0)
-     kwargs.setdefault("Override_noiseInUnhitStraws", 0)
-     kwargs.setdefault("Override_isOverlay", 1)
-     return BasicTRTDigitizationTool(name,**kwargs)
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
+        kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "TRT_SDO_Map")
+    else:
+        kwargs.setdefault("OutputObjectName", overlayFlags.evtStore()+"+TRT_RDOs")
+        kwargs.setdefault("OutputSDOName", overlayFlags.evtStore()+ "+TRT_SDO_Map")
+    kwargs.setdefault("HardScatterSplittingMode", 0)
+    kwargs.setdefault("Override_getT0FromData", 0)
+    kwargs.setdefault("Override_noiseInSimhits", 0)
+    kwargs.setdefault("Override_noiseInUnhitStraws", 0)
+    kwargs.setdefault("Override_isOverlay", 1)
+    return BasicTRTDigitizationTool(name,**kwargs)
 
 def TRT_OverlayDigitization(name="TRT_OverlayDigitization",**kwargs):
-     kwargs.setdefault("DigitizationTool", "TRT_OverlayDigitizationTool")
-     return CfgMgr.TRTDigitization(name,**kwargs)
+    kwargs.setdefault("DigitizationTool", "TRT_OverlayDigitizationTool")
+    return CfgMgr.TRTDigitization(name,**kwargs)

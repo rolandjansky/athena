@@ -29,6 +29,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "VP1Base/VP1QtUtils.h"
+#include "VP1Base/VP1Msg.h"
 #include <limits>
 
 //____________________________________________________________________
@@ -152,7 +153,7 @@ TrackPropagationHelper::~TrackPropagationHelper()
   //____________________________________________________________________
 bool TrackPropagationHelper::makePointsNeutral( std::vector<Amg::Vector3D >& points, const Trk::Track* track )
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("makePointsNeutral start");
 
   points.clear();
@@ -197,7 +198,7 @@ bool TrackPropagationHelper::makePointsNeutral( std::vector<Amg::Vector3D >& poi
     }
   }
 
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("makePointsNeutral_SinglePar end");
   return true;
 }
@@ -205,7 +206,7 @@ bool TrackPropagationHelper::makePointsNeutral( std::vector<Amg::Vector3D >& poi
   //____________________________________________________________________
 bool TrackPropagationHelper::Imp::makePointsNeutral_SinglePar( std::vector<Amg::Vector3D >& points, const Trk::Track* track )
 {
-  if (theclass->verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose("makePointsNeutral_SinglePar start");
   points.clear();
   const Trk::TrackParameters * par = *(track->trackParameters()->begin());
@@ -232,7 +233,7 @@ bool TrackPropagationHelper::Imp::makePointsNeutral_SinglePar( std::vector<Amg::
   points.reserve(2);
   points.push_back(a);
   points.push_back(b);
-  if (theclass->verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose("makePointsNeutral_SinglePar (single track parameter) end");
   return true;
 }
@@ -241,7 +242,7 @@ bool TrackPropagationHelper::Imp::makePointsNeutral_SinglePar( std::vector<Amg::
 bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& points, const Trk::Track* track,
             Trk::IExtrapolator * extrapolator, Trk::ParticleHypothesis hypo, bool useMEOT,const Trk::Volume* volume )
 {
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("makePointsCharged start with hypo="+str(hypo)+", useMEOT="+str(useMEOT)+", volume=" +str(volume));
   // if (volume) std::cout<<volume->volumeBounds()<<std::endl;
     ///////////////////////////////////////////////////////////////
@@ -325,7 +326,7 @@ bool TrackPropagationHelper::makePointsCharged( std::vector<Amg::Vector3D >& poi
       messageDebug("WARNING: Problems encountered getting boundary surfaces from Volume");
     }
   }
-  if (verbose())
+  if (VP1Msg::verbose())
     messageVerbose("makePointsCharged end with "+str(points.size())+"points");
   return true;
 }
@@ -433,7 +434,7 @@ bool TrackPropagationHelper::showExtrapolationSurfaces() const {
 bool TrackPropagationHelper::Imp::makePointsCharged_SinglePar( std::vector<Amg::Vector3D >& points, const Trk::Track* track,
                      Trk::IExtrapolator * extrapolator, Trk::ParticleHypothesis hypo )
 {
-  if (theclass->verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose("makePointsCharged_SinglePar start");
   points.clear();
   if (!extrapolator) {
@@ -485,7 +486,7 @@ bool TrackPropagationHelper::Imp::makePointsCharged_SinglePar( std::vector<Amg::
   if (prevpars!=par)
     delete prevpars;
 
-  if (verbose())
+  if (VP1Msg::verbose())
     theclass->messageVerbose("makePointsCharged_SinglePar end");
   return true;
 
@@ -515,14 +516,14 @@ bool TrackPropagationHelper::Imp::addPointsBetweenParameters_Charged( std::vecto
     // theclass->messageVerbose("distadded: "+str(distadded)+", distance left="+str(sqrt((prevpars->position()-p2).mag2()))+", jump="+str(maxPointDistSq(prevpars->position())));
     const Trk::TrackParameters * newpars = extrapolateToNewPar( extrapolator, trk, prevpars, hypo, maxPointDistSq(prevpars->position()) );
     if (!newpars){
-      if (verbose())
+      if (VP1Msg::verbose())
         theclass->messageVerbose("TrackPropagationHelper::Imp::addPointsBetweenParameters_Charged: Extrapolation failed.");
       return false;
     }
     const double distsq = (par2->position()-newpars->position()).mag2();
     if (distsq>olddistsq) {
       delete newpars;
-      if (verbose())
+      if (VP1Msg::verbose())
         theclass->messageVerbose("TrackPropagationHelper::Imp::addPointsBetweenParameters_Charged: distq("+str(distsq)+")>olddistsq ("+str(olddistsq)+") so overshot?");
       return false;
     }

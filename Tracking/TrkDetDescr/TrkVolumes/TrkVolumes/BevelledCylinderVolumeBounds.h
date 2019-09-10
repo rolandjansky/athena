@@ -14,6 +14,7 @@
 #include "TrkVolumes/BevelledCylinderVolumeBoundaryAccessors.h"
 // Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/CachedUniquePtr.h"
 
 class MsgStream;
 
@@ -208,9 +209,9 @@ namespace Trk {
     BevelledCylinderVolumeBoundaryAccessors            m_boundaryAccessors;
 
     /** numerical stability */
-    static double s_numericalStable;
+    static const double s_numericalStable;
     
-    mutable Trk::Volume*                  m_subtractedVolume;  
+    CxxUtils::CachedUniquePtrT<Trk::Volume> m_subtractedVolume;  
  };
 
  inline BevelledCylinderVolumeBounds* BevelledCylinderVolumeBounds::clone() const

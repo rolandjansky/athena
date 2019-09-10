@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 730711 2016-03-17 13:37:39Z krasznaa $
 ################################################################################
 # Package: L1TopoAlgorithms
 ################################################################################
@@ -53,7 +52,8 @@ add_custom_command( OUTPUT
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1TopoAlgorithms/L1TopoAlgConfig.py
    COMMAND ${CMAKE_COMMAND} -E make_directory
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1TopoAlgorithms
-   COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh TrigConfL1TopoGenPyAlg
+   COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
+   TrigConfL1TopoGenPyAlg
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1TopoAlgorithms/L1TopoAlgConfig.py
    DEPENDS TrigConfL1TopoGenPyAlg )
 add_custom_target( L1TopoPyGenAlg ALL SOURCES

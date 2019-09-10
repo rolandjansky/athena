@@ -31,9 +31,6 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODTrigger/EmTauRoIContainer.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 namespace Trig{
             class FeatureContainer;
@@ -143,10 +140,6 @@ class TrigEgammaNavTPBaseTool: public TrigEgammaAnalysisBaseTool,
 
     // In python order will matter. Should always be tight, medium, loose
     // Order no longer important since using a map
-    ///*! Offline isEM Selectors */
-    ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
-    /*! Offline LH Selectors */
-    ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool;
   
     std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
     //std::map< std::string, std::string > m_PidMap; /*! Map trigger pid to selector pid */ 

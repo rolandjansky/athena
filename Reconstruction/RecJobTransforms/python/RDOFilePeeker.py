@@ -1,43 +1,47 @@
+from past.builtins import basestring
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 def RDOFilePeeker(runArgs, skeletonLog):
-    import PyUtils.AthFile as af
+    from PyUtils.MetaReader import read_metadata
     try:
-        f = af.fopen(runArgs.inputRDOFile[0])
+        input_file = runArgs.inputRDOFile[0]
+        metadata_lite = read_metadata(input_file)  # Use this only to read the key 'eventTypes', which is promoted in 'lite' mode.
+        # promote keys stored under input filename key one level up to access them directly
+        metadata_lite = metadata_lite[input_file]
+        # use the mode 'full' to access all metadata (needed for '/Digitization/Parameters')
+        metadata = read_metadata(input_file, mode= 'full')
+        # promote keys stored under input filename key one level up to access them directly
+        metadata = metadata[input_file]
     except AssertionError:
         skeletonLog.error("Failed to open input file: %s", runArgs.inputRDOFile[0])
-    #check evt_type of input file
-    if 'evt_type' in f.infos.keys():
-        import re
-        if not re.match(str(f.infos['evt_type'][0]), 'IS_SIMULATION') :
-            skeletonLog.error('This input file has incorrect evt_type: %s',str(f.infos['evt_type']))
+    #check eventTypes of input file
+    if 'eventTypes' in metadata_lite:
+        if 'IS_SIMULATION' not in metadata_lite['eventTypes']:
+            skeletonLog.error('This input file has incorrect eventTypes: %s', metadata_lite['eventTypes'])
             skeletonLog.info('Please make sure you have set input file metadata correctly.')
             skeletonLog.info('Consider using the job transforms for earlier steps if you aren\'t already.')
             #then exit gracefully
-            raise SystemExit("Input file evt_type is incorrect, please check your digi, g4sim and evgen jobs.")
-    else :
-        skeletonLog.warning('Could not find \'evt_type\' key in athfile.infos. Unable to that check evt_type is correct.')
-    metadatadict = dict()
-    if 'metadata' in f.infos.keys():
-        if '/Digitization/Parameters' in f.infos['metadata'].keys():
-            metadatadict = f.infos['metadata']['/Digitization/Parameters']
-            if isinstance(metadatadict, list):
-                skeletonLog.warning("%s inputfile: %s contained %s sets of Dititization Metadata. Using the final set in the list.",inputtype,inputfile,len(metadatadict))
-                metadatadict=metadatadict[-1]
-        ##Get IOVDbGlobalTag
-        if 'IOVDbGlobalTag' not in metadatadict.keys():
+            raise SystemExit("Input file eventTypes is incorrect, please check your digi, g4sim and evgen jobs.")
+    else:
+        skeletonLog.warning('Could not find \'eventTypes\' key in MetaReader -> metadata. Unable to that check if eventTypes is correct.')
+
+    metadatadict = {}
+    if '/Digitization/Parameters' in metadata:
+        metadatadict = metadata['/Digitization/Parameters']
+        if isinstance(metadatadict, list):
+            skeletonLog.warning("%s inputfile: %s contained %s sets of Dititization Metadata. Using the final set in the list.",inputtype,inputfile,len(metadatadict))
+            metadatadict = metadatadict[-1]
+    ##Get IOVDbGlobalTag
+        if 'IOVDbGlobalTag' not in metadatadict:
             try:
-                assert f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag'] is not None
-                metadatadict['IOVDbGlobalTag'] = f.fileinfos['metadata']['/TagInfo']['IOVDbGlobalTag']
+                if metadata['/TagInfo']['IOVDbGlobalTag'] is not None:
+                    metadatadict['IOVDbGlobalTag'] = metadata['/TagInfo']['IOVDbGlobalTag']
             except:
-                try:
-                    assert f.fileinfos['conditions_tag'] is not None
-                    metadatadict['IOVDbGlobalTag'] = f.fileinfos['conditions_tag']
-                except:
-                    skeletonLog.warning("Failed to find IOVDbGlobalTag.")
+                skeletonLog.warning("Failed to find IOVDbGlobalTag.")
     else:
         ##Patch for older hit files
-        if 'DigitizedDetectors' not in metadatadict.keys():
+        if 'DigitizedDetectors' not in metadatadict:
             metadatadict['DigitizedDetectors'] = ['pixel','SCT','TRT','BCM','Lucid','LAr','Tile','MDT','CSC','TGC','RPC','Truth']
 
     import re
@@ -46,15 +50,15 @@ def RDOFilePeeker(runArgs, skeletonLog):
     ## Configure DetDescrVersion
     if hasattr(runArgs,"geometryVersion"):
         inputGeometryVersion = runArgs.geometryVersion
-        if type(inputGeometryVersion) == str and inputGeometryVersion.endswith("_VALIDATION"):
+        if isinstance(inputGeometryVersion, basestring) and inputGeometryVersion.endswith("_VALIDATION"):
             inputGeometryVersion = inputGeometryVersion.replace("_VALIDATION", "")
-        if 'DetDescrVersion' in metadatadict.keys():
+        if 'DetDescrVersion' in metadatadict:
             if not re.match(metadatadict['DetDescrVersion'], inputGeometryVersion):
                 skeletonLog.warning("command-line geometryVersion (%s) does not match the value used in the Simulation step (%s) !",
                                     inputGeometryVersion, metadatadict['DetDescrVersion'])
         globalflags.DetDescrVersion.set_Value_and_Lock( inputGeometryVersion )
         skeletonLog.info("Using geometryVersion from command-line: %s", globalflags.DetDescrVersion.get_Value())
-    elif 'DetDescrVersion' in metadatadict.keys():
+    elif 'DetDescrVersion' in metadatadict:
         globalflags.DetDescrVersion.set_Value_and_Lock( metadatadict['DetDescrVersion'] )
         skeletonLog.info("Using geometryVersion from RDO file metadata %s", globalflags.DetDescrVersion.get_Value())
     else:
@@ -62,20 +66,20 @@ def RDOFilePeeker(runArgs, skeletonLog):
 
     ## Configure ConditionsTag
     if hasattr(runArgs,"conditionsTag"):
-        if 'IOVDbGlobalTag' in metadatadict.keys():
+        if 'IOVDbGlobalTag' in metadatadict:
             if not re.match(metadatadict['IOVDbGlobalTag'], runArgs.conditionsTag):
                 skeletonLog.warning("command-line conditionsTag (%s) does not match the value used in the Simulation step (%s) !",
                                     runArgs.conditionsTag, metadatadict['IOVDbGlobalTag'])
         #globalflags.ConditionsTag.set_Value_and_Lock( runArgs.conditionsTag ) ## already done in CommonSkeletonJobOptions.py
         skeletonLog.info("Using conditionsTag from command-line: %s", globalflags.ConditionsTag.get_Value())
-    elif 'IOVDbGlobalTag' in metadatadict.keys():
+    elif 'IOVDbGlobalTag' in metadatadict:
         globalflags.ConditionsTag.set_Value_and_Lock( metadatadict['IOVDbGlobalTag'] )
         skeletonLog.info("Using conditionsTag from RDO file metadata %s", globalflags.ConditionsTag.get_Value())
     else:
         raise SystemExit("conditionsTag not found in RDO file metadata or on transform command-line!")
 
     ## Configure DetFlags
-    if 'DigitizedDetectors' in metadatadict.keys():
+    if 'DigitizedDetectors' in metadatadict:
         from AthenaCommon.DetFlags import DetFlags
         # by default everything is off
         DetFlags.all_setOff()
@@ -84,7 +88,7 @@ def RDOFilePeeker(runArgs, skeletonLog):
             cmd='DetFlags.%s_setOn()' % subdet
             skeletonLog.debug(cmd)
             try:
-                exec cmd
+                exec(cmd)
             except:
                 skeletonLog.warning('Failed to switch on subdetector %s',subdet)
         #hacks to reproduce the sub-set of DetFlags left on by RecExCond/AllDet_detDescr.py

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ************************************************
@@ -31,11 +31,8 @@ class TrigJetSplitterMT : public AthAlgorithm {
  public:
   /** @brief Constructor */
   TrigJetSplitterMT(const std::string&, ISvcLocator*);
-  /** @brief Destructor */
-  ~TrigJetSplitterMT();
 
   StatusCode initialize();
-  StatusCode finalize();
   StatusCode execute();
 
  private:
@@ -53,9 +50,10 @@ class TrigJetSplitterMT : public AthAlgorithm {
   Gaudi::Property< float > m_maxJetEta {this,"JetMaxEta",3.2,"Maximum eta acceptance of output Jet"};
   //=========== Handles                                                                                                                                                                      
   SG::ReadHandleKey< xAOD::JetContainer > m_inputJetsKey {this,"Jets","Jets","Input Jet Container Key"};
+  SG::ReadHandleKey< xAOD::VertexContainer > m_inputVertexKey {this,"InputVertex","Undefined","Output Vertex Key"};
+
   SG::WriteHandleKey< xAOD::JetContainer > m_outputJetsKey {this,"OutputJets","SplitJets","Output Jet Container Key"};
   SG::WriteHandleKey< TrigRoiDescriptorCollection > m_outputRoiKey {this,"OutputRoi","SplitJet","Output RoI Container Key -- Same as OutputJets"};
-  SG::WriteHandleKey< xAOD::VertexContainer > m_outputVertexKey {this,"OutputVertex","PrimaryVertex","Output Vertex Key"}; // TMP
 
   // Tmp Part for creating custom jet collection. These Jets will be used for creating the output Jet collection
   SG::ReadHandleKey< TrigRoiDescriptorCollection > m_inputRoIKey {this,"RoIs","FSJETRoI",""};

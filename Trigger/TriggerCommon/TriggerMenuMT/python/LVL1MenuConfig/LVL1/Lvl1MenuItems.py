@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from PrescaleHelper import getCutFromPrescale, getPrescaleFromCut, maxPrescaleCut
+from PrescaleHelper import getCutFromPrescale, getPrescaleFromCut
 from Lvl1MenuUtil import oldStyle
 
 from AthenaCommon.Logging import logging
@@ -20,7 +20,7 @@ class LVL1MenuItem(object):
         self.name             = name
         self.group            = group
         self.ctpid            = int(ctpid)
-        self.psCut            = psCut if psCut!=None else getCutFromPrescale(prescale)
+        self.psCut            = psCut if psCut is not None else getCutFromPrescale(prescale)
         self.complex_deadtime = complex_deadtime
         self.trigger_type     = 0
         self.partition        = LVL1MenuItem.currentPartition
@@ -30,7 +30,7 @@ class LVL1MenuItem(object):
         self.verbose          = verbose
 
         if self.verbose:
-            print "Created",name
+            log.debug("Created %s", name)
 
         if LVL1MenuItem.l1configForRegistration:
             LVL1MenuItem.l1configForRegistration.registerItem(self.name, self)
@@ -51,13 +51,12 @@ class LVL1MenuItem(object):
 
     @property
     def priority(self):
-        print "Item priority not used anymore, replaced by complex_deadtime"
+        log.error("Item priority not used anymore, replaced by complex_deadtime")
         return self.complex_deadtime
 
     @priority.setter
     def priority(self,priority):
-        print "Setter: item priority not used anymore, replaced by complex_deadtime"
-        
+        log.error("Setter: item priority not used anymore, replaced by complex_deadtime")
 
     def addMonitor(self, flag, frequency):
         from TriggerMenu.l1menu.MonitorDef import MonitorDef
@@ -69,7 +68,7 @@ class LVL1MenuItem(object):
     def setLogic(self, logic):
         self.logic = logic
         if self.verbose:
-            print self
+            log.debug('%s', self)
         return self
 
     def setCtpid(self, x):
@@ -77,13 +76,13 @@ class LVL1MenuItem(object):
         return self
 
     def thresholdNames(self, include_bgrp=False):
-        if self.logic!=None:
+        if self.logic is not None:
             return self.logic.thresholdNames(include_bgrp)
         else:
             return []
 
     def conditions(self, include_internal=False):
-        if self.logic!=None:
+        if self.logic is not None:
             return self.logic.conditions(include_internal)
         else:
             return []
@@ -109,7 +108,7 @@ class LVL1MenuItem(object):
         return s
 
 
-class LVL1MenuItems:
+class LVL1MenuItems(object):
     def __init__(self):
         self.menuName = ''
         self.pssName = ''
@@ -126,12 +125,13 @@ class LVL1MenuItems:
         return ([x for x in self.items if x.name==name] + [None])[0]
 
     def __iadd__(self, item):
-        if item is None: return self
+        if item is None:
+            return self
         if item.name in [x.name for x in self.items]:
-            log.warning("LVL1 item %s is already in the menu, will not add it again" % item.name)
+            log.warning("LVL1 item %s is already in the menu, will not add it again", item.name)
             return self
         if item.ctpid in [x.ctpid for x in self.items]:
-            log.warning("LVL1 item with ctpid %i is already in the menu, will not add %s" % (item.ctpid, item.name) )
+            log.warning("LVL1 item with ctpid %i is already in the menu, will not add %s", item.ctpid, item.name)
             return self
         self.items += [ item ]
         return self
@@ -171,7 +171,6 @@ class PrescaleHandler(object):
         self.items = menuitems
         self.itemsByPartition = {}
 
-        from Lvl1Flags import Lvl1Flags
         for item in menuitems:
             self.itemsByPartition.setdefault(item.partition,[]).append(item)
 

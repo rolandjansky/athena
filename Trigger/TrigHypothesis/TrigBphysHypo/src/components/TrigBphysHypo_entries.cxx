@@ -31,6 +31,9 @@
 #include "../TrigEFMultiMuFex.h"
 #include "../TrigEFTrkMassFex.h"
 
+#include "../TrigMultiTrkHypoMT.h"
+#include "../TrigMultiTrkHypoToolMT.h"
+
 //#include "../TrigBphysL1DiMuComboFex.h"
 
 
@@ -60,8 +63,12 @@ DECLARE_COMPONENT( TrigBphysHelperUtilsTool )
 DECLARE_COMPONENT( TrigEFBMuMuFex   )
 DECLARE_COMPONENT( TrigEFMultiMuFex )
 DECLARE_COMPONENT( TrigMultiTrkFex )
+
 DECLARE_COMPONENT( TrigEFTrkMassFex )
 DECLARE_COMPONENT( TrigBphysMuonCounter )
 DECLARE_COMPONENT( TrigBphysTrackRoiMaker )
 DECLARE_COMPONENT( TrigBphysElectronCounter )
 //DECLARE_COMPONENT( TrigBphysL1DiMuComboFex )
+DECLARE_COMPONENT( TrigMultiTrkHypoMT )
+DECLARE_COMPONENT( TrigMultiTrkHypoToolMT )
+

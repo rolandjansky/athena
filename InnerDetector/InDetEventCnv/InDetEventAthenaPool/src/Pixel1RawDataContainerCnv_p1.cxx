@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetRawData/Pixel1RawData.h"
@@ -11,7 +11,7 @@
 #include "Pixel1RawDataCnv_p1.h"
 #include "Pixel1RawDataContainerCnv_p1.h"
 #include "MsgUtil.h"
-#include "CreateTransientTemplate.h"
+
 
 void Pixel1RawDataContainerCnv_p1::transToPers(const PixelRDO_Container* transCont, InDetRawDataContainer_p1* persCont, MsgStream &log) 
 {
@@ -126,7 +126,7 @@ void  Pixel1RawDataContainerCnv_p1::persToTrans(const InDetRawDataContainer_p1* 
 
 //================================================================
 PixelRDO_Container* Pixel1RawDataContainerCnv_p1::createTransient(const InDetRawDataContainer_p1* persObj, MsgStream& log) {
-    std::unique_ptr<PixelRDO_Container> trans(new PixelRDO_Container(m_pixId->wafer_hash_max()));
+    std::unique_ptr<PixelRDO_Container> trans(std::make_unique<PixelRDO_Container>(m_pixId->wafer_hash_max()));
     persToTrans(persObj, trans.get(), log);
     return(trans.release());
 }

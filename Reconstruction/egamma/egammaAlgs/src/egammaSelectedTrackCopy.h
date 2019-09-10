@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EGAMMAALGS_EGAMMASELECTEDTRACKCOPY_H
@@ -101,14 +101,11 @@ private:
       "egammaCaloClusterSelector", "egammaCaloClusterSelector",
       "Tool that makes the cluster selection"};
 
+  // For P->T converters of ID tracks with Pixel
+  SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_pixelDetEleCollKey{this, "PixelDetEleCollKey", "PixelDetectorElementCollection", "Key of SiDetectorElementCollection for Pixel"};
   // For P->T converters of ID tracks with SCT
   SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-
-  /* counters. For now use mutable atomic
-   * the methods will increment a local variable
-   * inside the loops.
-   * At the end they will add_fetch to these ones
-   */
+  
   mutable Gaudi::Accumulators::Counter<unsigned long> m_AllClusters;
   mutable Gaudi::Accumulators::Counter<unsigned long> m_SelectedClusters;
   mutable Gaudi::Accumulators::Counter<unsigned long> m_AllTracks;

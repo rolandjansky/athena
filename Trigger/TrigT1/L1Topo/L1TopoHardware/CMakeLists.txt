@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 730705 2016-03-17 12:59:16Z krasznaa $
 ################################################################################
 # Package: L1TopoHardware
 ################################################################################
@@ -6,9 +5,13 @@
 # Declare the package name:
 atlas_subdir( L1TopoHardware )
 
+# External dependencies:
+find_package( Boost )
+
 # Component(s) in the package:
 atlas_add_library( L1TopoHardware
    L1TopoHardware/*.h Root/*.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PUBLIC_HEADERS L1TopoHardware )
 
 atlas_add_executable( TrigConfL1TopoGenPyHardware
@@ -32,7 +35,8 @@ add_custom_command( OUTPUT
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1TopoHardware/L1TopoHardware.py
    COMMAND ${CMAKE_COMMAND} -E make_directory
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1TopoHardware
-   COMMAND ${CMAKE_BINARY_DIR}/atlas_build_run.sh TrigConfL1TopoGenPyHardware
+   COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
+   TrigConfL1TopoGenPyHardware
    ${CMAKE_PYTHON_OUTPUT_DIRECTORY}/L1TopoHardware/L1TopoHardware.py
    DEPENDS TrigConfL1TopoGenPyHardware )
 add_custom_target( L1TopoPyGenHardware ALL SOURCES

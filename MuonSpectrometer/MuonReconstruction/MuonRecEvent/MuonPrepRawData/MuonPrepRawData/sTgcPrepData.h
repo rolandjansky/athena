@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONPREPRAWDATA_STGCPREPDATA_H
@@ -53,6 +53,7 @@ namespace Muon
 		  const Amg::MatrixX* locErrMat,
 		  const MuonGM::sTgcReadoutElement* detEl,
 		  const int charge = 0,
+		  const int time   = 0,
 		  const uint16_t bcBitMap=0);
 
 
@@ -76,6 +77,7 @@ namespace Muon
     /** @brief Returns the bcBitMap of this PRD
 	bit2 for Previous BC, bit1 for Current BC, bit0 for Next BC */
     int charge() const;
+    int time() const;
     uint16_t getBcBitMap() const;
     enum {BCBIT_UNDEFINED=0, BCBIT_NEXT=1, BCBIT_CURRENT=2, BCBIT_PREVIOUS=4};
 
@@ -84,6 +86,7 @@ namespace Muon
     /** Cached pointer to the detector element - should never be zero.*/
     const MuonGM::sTgcReadoutElement* m_detEl;
     int m_charge;
+    int m_time;
     uint16_t m_bcBitMap;
 
   };
@@ -95,15 +98,20 @@ namespace Muon
   // return globalPosition:
   inline const Amg::Vector3D& sTgcPrepData::globalPosition() const
   {
-    if (m_globalPosition==0) m_globalPosition = m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition());
+    if (not m_globalPosition) m_globalPosition.set(std::unique_ptr<const Amg::Vector3D>(m_detEl->surface(identify()).Trk::Surface::localToGlobal(localPosition())));
 
-    if (m_globalPosition==0) throw Trk::PrepRawDataUndefinedVariable();
+    if (not m_globalPosition) throw Trk::PrepRawDataUndefinedVariable();
     return *m_globalPosition;
   }
 
   inline int sTgcPrepData::charge() const
   {
     return m_charge;
+  }
+
+  inline int sTgcPrepData::time() const
+  {
+    return m_time;
   }
 
   inline uint16_t sTgcPrepData::getBcBitMap() const

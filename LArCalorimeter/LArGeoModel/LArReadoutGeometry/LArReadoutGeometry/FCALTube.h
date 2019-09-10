@@ -1,17 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_FCALTUBE_H
 #define LARREADOUTGEOMETRY_FCALTUBE_H
 
 #include "GeoModelKernel/RCBase.h"
-//
-// This class represents an FCAL Tube. The tube has a position and it also has
-// links to the High Voltage Lines.
-//
-#include "LArHV/FCALHVLineConstLink.h"
 #include "LArHV/FCALHVLine.h"
+
+/**
+ * @class FCALTube
+ * 
+ * @brief This class represents an FCAL Tube. The tube has a position and it also has
+ * links to the High Voltage Lines.
+ */
 
 class FCALTile;
 
@@ -20,7 +22,7 @@ class FCALTube : public RCBase {
  public:
 
   // Constructor
-  FCALTube(const FCALTile *tile, FCALHVLineConstLink line, double x, double y);
+  FCALTube(const FCALTile *tile, const FCALHVLine& line, double x, double y);
 
   // Get the tube position (x)
   double getXLocal() const;
@@ -32,7 +34,7 @@ class FCALTube : public RCBase {
   const FCALTile *getTile() const;
 
   // Get the High Voltage Line
-  FCALHVLineConstLink getHVLine() const;
+  const FCALHVLine& getHVLine() const;
 
  private:
 
@@ -43,7 +45,7 @@ class FCALTube : public RCBase {
   virtual ~FCALTube();
 
   const FCALTile      *m_tile;        // link to the Tile
-  FCALHVLineConstLink  m_hvLine;      // link to HVLine
+  const FCALHVLine&    m_hvLine;      // link to HVLine
   double               m_x;           // nominal x position
   double               m_y;           // nominal y position;
   

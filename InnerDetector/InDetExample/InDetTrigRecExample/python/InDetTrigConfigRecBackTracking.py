@@ -221,21 +221,6 @@ class TRT_TrigSeededTrackFinder_EF( InDet__TRT_TrigSeededTrackFinder ):
       # and also change the name of the instance 
       #
       
-      # from AthenaCommon.DetFlags    import DetFlags
-      # from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
-      # InDetTrigSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                   = 'InDetTrigSiComTrackFinder2',
-      #                                                                  PropagatorTool         = InDetTrigPatternPropagator,
-      #                                                                  UpdatorTool            = InDetTrigPatternUpdator,
-      #                                                                  RIOonTrackTool         = InDetTrigRotCreator,
-      #                                                                  AssosiationTool        = InDetTrigPrdAssociationTool,
-      #                                                                  usePixel               = DetFlags.haveRIO.pixel_on(),
-      #                                                                  useSCT                 = DetFlags.haveRIO.SCT_on(),
-      #                                                                  PixManagerLocation     = 'Pixel',
-      #                                                                  SCTManagerLocation     = 'SCT',
-      #                                                                  PixelClusterContainer  = 'PixelTrigClusters',
-      #
-      #                                                                  SCT_ClusterContainer   = 'SCT_TrigClusters')
-
       # if (DetFlags.haveRIO.SCT_on()):
       #    InDetTrigSiComTrackFinder.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
       # else:

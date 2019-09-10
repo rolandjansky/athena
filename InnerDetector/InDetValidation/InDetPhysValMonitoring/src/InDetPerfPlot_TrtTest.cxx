@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -44,15 +44,6 @@ InDetPerfPlot_TrtTest::InDetPerfPlot_TrtTest(InDetPlotBase* pParent, const std::
   m_z0{}, m_z0_ext{}, m_z0_trtHit{}, m_z0_trtHitNoOut{}, m_z0_trtOutlier{}, m_z0_trtHitOut{}, m_z0_noTrt{},
   m_tube{}, m_tube_ext{}, m_tube_trtHit{}, m_tube_trtHitNoOut{}, m_tube_trtOutlier{}, m_tube_trtHitOut{},
   m_tube_noTrt{},
-
-  m_pt_tubeHitFrac_05_1{}, m_eta_tubeHitFrac_05_1{}, m_phi_tubeHitFrac_05_1{}, m_d0_tubeHitFrac_05_1{},
-  m_z0_tubeHitFrac_05_1{},
-  m_pt_tubeHitFrac_04_05{}, m_eta_tubeHitFrac_04_05{}, m_phi_tubeHitFrac_04_05{}, m_d0_tubeHitFrac_04_05{},
-  m_z0_tubeHitFrac_04_05{},
-  m_pt_tubeHitFrac_03_04{}, m_eta_tubeHitFrac_03_04{}, m_phi_tubeHitFrac_03_04{}, m_d0_tubeHitFrac_03_04{},
-  m_z0_tubeHitFrac_03_04{},
-  m_pt_tubeHitFrac_0_03{}, m_eta_tubeHitFrac_0_03{}, m_phi_tubeHitFrac_0_03{}, m_d0_tubeHitFrac_0_03{},
-  m_z0_tubeHitFrac_0_03{},
 
   m_pt_vs_nTrtTubeHits{}, m_eta_vs_nTrtTubeHits{}, m_phi_vs_nTrtTubeHits{}, m_d0_vs_nTrtTubeHits{},
   m_z0_vs_nTrtTubeHits{}, m_mu_vs_nTrtTubeHits{}, m_nPV_vs_nTrtTubeHits{},

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -15,6 +15,7 @@
 #include "TestTools/initGaudi.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
+#include "AthenaKernel/DummyRCUSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/CLASS_DEF.h"
@@ -39,25 +40,6 @@ public:
 
 CLASS_DEF(Payload, 932847540, 0)
 CLASS_DEF(CondCont<Payload>, 932847546, 0)
-
-
-class TestRCUSvc
-  : public Athena::IRCUSvc
-{
-public:
-  virtual StatusCode remove (Athena::IRCUObject* /*obj*/) override
-  {
-    return StatusCode::SUCCESS;
-  }
-  virtual size_t getNumSlots() const override
-  { return 1; }
-  virtual void add (Athena::IRCUObject* /*obj*/) override
-  { }
-
-  virtual unsigned long addRef() override { std::abort(); }
-  virtual unsigned long release() override { std::abort(); }
-  virtual StatusCode queryInterface(const InterfaceID &/*ti*/, void** /*pp*/) override { std::abort(); }
-};
 
 
 class TestAddress
@@ -196,7 +178,7 @@ public:
   virtual void       signalEndProxyPreload() override
   { std::abort(); }
 
-  virtual StatusCode registerTagInfoCallback() override
+  virtual StatusCode processTagInfo() override
   { std::abort(); }
 
   virtual std::vector<std::string> getKeyList() override
@@ -272,7 +254,7 @@ std::string dump_cc (const CondCont<Payload>& cc)
 
 
 // Testing extending containers.
-void test1 (TestRCUSvc& rcusvc, StoreGateSvc& detStore, IIOVSvc& iovsvc)
+void test1 (Athena_test::DummyRCUSvc& rcusvc, StoreGateSvc& detStore, IIOVSvc& iovsvc)
 {
   std::cout << "test1\n";
 
@@ -347,7 +329,7 @@ int main()
   ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "test");
   if (detStore.retrieve().isFailure()) return 1;
 
-  TestRCUSvc rcusvc;
+  Athena_test::DummyRCUSvc rcusvc;
   test1 (rcusvc, *detStore.get(), *iovsvc.get());
 
   return 0;

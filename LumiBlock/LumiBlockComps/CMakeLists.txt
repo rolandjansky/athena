@@ -33,6 +33,7 @@ else()
       GaudiKernel
       LumiBlock/LumiCalc
       PRIVATE
+      Control/CxxUtils
       DataQuality/GoodRunsLists
       Database/AthenaPOOL/AthenaPoolUtilities
       Database/AthenaPOOL/DBDataModel
@@ -79,5 +80,31 @@ atlas_add_executable( getLumi
    xAODRootAccess LumiBlockCompsLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py
+   POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
+atlas_install_joboptions( share/*.txt )
+
+atlas_add_test( LBDurationCondAlg_test
+   SOURCES test/LBDurationCondAlg_test.cxx
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+
+atlas_add_test( LuminosityCondAlg_test
+   SOURCES test/LuminosityCondAlg_test.cxx
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+
+atlas_add_test( TrigLiveFractionCondAlg_test
+   SOURCES test/TrigLiveFractionCondAlg_test.cxx
+   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib )
+
+atlas_add_test( LuminosityCondAlgConfig_test
+                SCRIPT python -m LumiBlockComps.LuminosityCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( LBDurationCondAlgConfig_test
+                SCRIPT python -m LumiBlockComps.LBDurationCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
+
+atlas_add_test( TrigLiveFractionCondAlgConfig_test
+                SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
+                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )

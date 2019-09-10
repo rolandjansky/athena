@@ -34,8 +34,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/SystemOfUnits.h"
-// StoreGate
-#include "StoreGate/StoreGateSvc.h"
 // STL
 #include <map>
 
@@ -359,7 +357,12 @@ const std::vector< const Trk::CylinderLayer* >* InDet::TRT_LayerBuilder::cylindr
                        takeSmallerBigger(phiMin, phiMax, currentPhi);
                        // make the ordering position
                        Amg::Vector3D strawOrderPos(currentStraw->center());
-                       Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, true);
+                       //Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, true);
+                       /*
+                        * The above line was using the nodel (not delete option for the old shared object
+                        * now that SharedObject is a shared_ptr typeded do the same with empty deleter
+                        */
+                       Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, Trk::do_not_delete<const Trk::Surface>);
                        strawsPerPhiSecLayer.push_back(Trk::SurfaceOrderPosition(sharedSurface, strawOrderPos));
                        // and record
                        ++sectorStraws;
@@ -643,7 +646,7 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
                     double zPos = currentStraw->center().z();
                     takeSmaller(zMin,zPos);
                     takeBigger(zMax,zPos);                    
-                    Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, true);
+                    Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, [](const Trk::Surface*){});
                     strawPerEndcapLayer.push_back(Trk::SurfaceOrderPosition(sharedSurface, strawOrderPos));
                     ++numberOfStraws;
                 }

@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file: PyAthenaComps.py
 # @purpose: a set of Python classes for PyAthena
 # @author: Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 __doc__     = """Module containing a set of Python base classes for PyAthena"""
 __version__ = "$Revision: 1.12 $"
@@ -23,10 +25,10 @@ __all__ = [ 'StatusCode',
 import sys
 from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable  import *
-from Configurables import (CfgPyAlgorithm,
-                           CfgPyService,
-                           CfgPyAlgTool,
-                           CfgPyAud)
+from AthenaPython.Configurables import (CfgPyAlgorithm,
+                                        CfgPyService,
+                                        CfgPyAlgTool,
+                                        CfgPyAud)
 
 ### helpers -------------------------------------------------------------------
 import weakref
@@ -72,6 +74,10 @@ class Alg( CfgPyAlgorithm ):
     should be overridden.
     """
     def __init__(self, name = None, **kw):
+        # Needed to prevent spurious root errors about streams in CreateRealData.
+        import ROOT
+        ROOT.GaudiPython.CallbackStreamBuf
+
         if name is None: name = kw.get('name', self.__class__.__name__)
         ## init base class
         super(Alg, self).__init__(name, **kw)

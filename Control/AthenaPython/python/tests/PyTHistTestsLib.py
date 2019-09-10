@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # @file    AthenaPython/python/tests/PyTHistTestsLib.py
 # @purpose Test read and write histograms and trees via the @c ITHistSvc
 # @author  Sebastien Binet <binet@cern.ch>
+
+from __future__ import print_function
 
 __doc__ = """Test read and write histograms and trees via ITHistSvc"""
 __version__ = "$Revision: 1.4 $"
@@ -53,7 +55,7 @@ class PyHistReader(PyAthena.Alg):
         try:
             o = self.hsvc.load('/read2/trees/stuff/tree1', oid_type='tree')
             _info(' -%-20s: %i', o.GetName(), o.GetEntries())
-        except KeyError,err:
+        except KeyError as err:
             self.msg.error(err)
             self.msg.error('bug #36379 still not fixed...')
         return StatusCode.Success

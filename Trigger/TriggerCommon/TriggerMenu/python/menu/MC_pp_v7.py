@@ -9,7 +9,7 @@ from copy                                 import deepcopy
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'MC_pp_v6.py' )
+log = logging.getLogger( 'MC_pp_v7.py' )
 
 
 #---------------------------------------------------------------------
@@ -981,19 +981,11 @@ def setupMenu():
         ['tau35_perf_tracktwo_tau25_perf_tracktwo_ditauT', 'L1_TAU20IM_2TAU12IM' , ['L1_TAU20IM','L1_TAU12IM'],[PhysicsStream, 'express'], ['RATE:MultiTau','BW:Tau'], -1],
                                                                        
                                                                              
-        ['tau25_idperf_tracktwo2015',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_perf_tracktwo2015',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_medium1_tracktwo2015',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-
         # Run-II - No BDT: variations
         ['tau25_perf_calo',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_perf_calo_L1TAU12',                'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_perf_trackcalo',                   'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_perf_tracktwocalo',                'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - With BDT: main calo-based items
         ['tau25_medium1_calo',                     'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_medium1_trackcalo',                'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_medium1_tracktwocalo',             'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - High-pT variations
         ['tau35_medium1_calo',                     'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau80_medium1_calo',                     'L1_TAU40', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
@@ -1009,7 +1001,6 @@ def setupMenu():
         ['tau35_perf_ptonly_tau25_perf_ptonly_L1TAU20IM_2TAU12IM',   'L1_TAU20IM_2TAU12IM',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_perf_ptonly","tau25_perf_ptonly"]]],
 
         ['tau35_loose1_tracktwo_tau25_loose1_tracktwo_L1TAU20IM_2TAU12IM',   'L1_TAU20IM_2TAU12IM',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_loose1_tracktwo","tau25_loose1_tracktwo"]]],
-        ['tau35_tight1_tracktwo_tau25_tight1_tracktwo_L1TAU20IM_2TAU12IM',   'L1_TAU20IM_2TAU12IM',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_tight1_tracktwo","tau25_tight1_tracktwo"]]],
 
         # Works now
         ['tau35_medium1_tracktwo_L1TAU20_tau25_medium1_tracktwo_L1TAU12',   'L1_TAU20_2TAU12',['L1_TAU20','L1_TAU12'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo_L1TAU20","tau25_medium1_tracktwo_L1TAU12"]]],
@@ -1023,8 +1014,6 @@ def setupMenu():
 	# new L1Topo chains with 0DR25 (ATR-14349,ATR-15225)
         ['tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR27_L1DR25-TAU20ITAU12I',   'L1_DR25-TAU20ITAU12I',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo","tau25_medium1_tracktwo"]]],
         ['tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR27_L1DR25-TAU20ITAU12I-J25',   'L1_DR25-TAU20ITAU12I-J25',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo","tau25_medium1_tracktwo"]]],
-        ['tau35_tight1_tracktwo_tau25_tight1_tracktwo_03dR27_L1DR25-TAU20ITAU12I',   'L1_DR25-TAU20ITAU12I',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_tight1_tracktwo","tau25_tight1_tracktwo"]]],
-        ['tau35_tight1_tracktwo_tau25_tight1_tracktwo_03dR27_L1DR25-TAU20ITAU12I-J25',   'L1_DR25-TAU20ITAU12I-J25',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_tight1_tracktwo","tau25_tight1_tracktwo"]]],
 
         ['tau80_medium1_tracktwo_L1TAU60_tau25_medium1_tracktwo_L1TAU12','L1_TAU60',['L1_TAU60','L1_TAU12'],[PhysicsStream],['RATE:MultiTau', 'BW:Tau'],-1,['serial',-1,["tau80_medium1_tracktwo_L1TAU60","tau25_medium1_tracktwo_L1TAU12"]]],
 
@@ -1034,14 +1023,11 @@ def setupMenu():
         # Run-I comparison
         ['tau25_perf_track_L1TAU12',               'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         # Run-II - With BDT: no pre-selection
-        ['tau25_medium1_mvonly',                   'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_loose1_ptonly',                    'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_medium1_track',                    'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_medium1_tracktwo_L1TAU20',         'L1_TAU20', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_medium1_ptonly',                   'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_medium1_ptonly_L1TAU20',           'L1_TAU20', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau35_tight1_tracktwo',                  'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau35_tight1_ptonly',                    'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_perf_tracktwo',                    'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau35_perf_ptonly',                      'L1_TAU20IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau125_perf_tracktwo',                   'L1_TAU60', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
@@ -3233,33 +3219,23 @@ ps_perform_list = [
     'tau125_perf_ptonly',
     'tau160_perf_track',
     'tau25_idperf_track',
-    'tau25_idperf_tracktwo2015',
     'tau25_loose1_ptonly',
     'tau25_medium1_calo',
-    'tau25_medium1_mvonly',
     'tau25_medium1_ptonly',
     'tau25_medium1_track',
-    'tau25_medium1_trackcalo',
-    'tau25_medium1_tracktwo2015',
-    'tau25_medium1_tracktwocalo',
     'tau25_perf_calo',
     'tau25_perf_calo_L1TAU12',
     'tau25_perf_ptonly',
     'tau25_perf_ptonly_L1TAU12',
     'tau25_perf_track',
     'tau25_perf_track_L1TAU12',
-    'tau25_perf_trackcalo',
-    'tau25_perf_tracktwo2015',
     'tau25_perf_tracktwo_L1TAU12',
-    'tau25_perf_tracktwocalo',
-    'tau25_tight1_ptonly',
     'tau35_loose1_ptonly',
     'tau35_medium1_calo',
     'tau35_medium1_ptonly',
     'tau35_medium1_ptonly_L1TAU20',
     'tau35_medium1_track',
     'tau35_perf_ptonly',
-    'tau35_tight1_ptonly',
     'tau5_perf_ptonly_L1TAU8',
     'tau80_medium1_calo',
     'tau80_medium1_track',

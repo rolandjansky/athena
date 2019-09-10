@@ -18,7 +18,7 @@
 // Constructor
 
 SCTRawContByteStreamCnv::SCTRawContByteStreamCnv(ISvcLocator* svcLoc) :
-  Converter(storageType(), classID(),svcLoc),
+  Converter(storageType(), classID(), svcLoc),
   m_rawContByteStreamTool{"SCTRawContByteStreamTool"},
   m_byteStreamEventAccess{"ByteStreamCnvSvc", "SCTRawContByteStreamCnv"},
   m_log{msgSvc(), "SCTRawContByteStreamCnv"}

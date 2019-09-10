@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////
@@ -59,6 +59,7 @@ StatusCode  Trk::PRD_TruthTrajectoryBuilder::initialize()
         ATH_MSG_ERROR ("Could not get configured " << m_prdTruthTrajectoryManipulators << ". Arborting ..." );
         return StatusCode::FAILURE;
     }
+    ATH_CHECK( m_prdMultiTruthCollectionNames.initialize() );
 
     return StatusCode::SUCCESS;
 }

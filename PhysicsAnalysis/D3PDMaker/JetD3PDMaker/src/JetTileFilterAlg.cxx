@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /* 
@@ -14,7 +14,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h" 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetCollection.h"
@@ -54,17 +53,6 @@ StatusCode JetTileFilterAlg::initialize(){
     
     StatusCode sc;
     
-    // get StoreGate 
-    
-    // Find the detector store service.
-    StoreGateSvc* detStore;
-    sc = service("DetectorStore",detStore);
-    if (sc.isFailure()) {
-        log << MSG::ERROR
-                << "Unable to get pointer to Detector Store Service" << endmsg;
-        return sc;
-    }
-    
     return StatusCode::SUCCESS;
 }
 
@@ -82,8 +70,6 @@ StatusCode JetTileFilterAlg::execute(){
     }
     
     JetCollection* jout=new JetCollection(SG::VIEW_ELEMENTS);
-    //JetCollectionHelper jhelper;
-    //sc=jhelper.record_jets(evtStore(),jout, m_jetsOut);
     sc=evtStore()->record(jout, m_jetsOut);
     
     if(sc!=StatusCode::SUCCESS){

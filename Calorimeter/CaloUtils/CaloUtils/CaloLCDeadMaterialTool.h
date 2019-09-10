@@ -25,9 +25,9 @@
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/ToolHandle.h" 
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "GaudiKernel/EventContext.h"
 
 #include <map>
 #include <vector>
@@ -61,7 +61,7 @@ class CaloLCDeadMaterialTool : public AthAlgTool, virtual public IClusterCellWei
 
     virtual ~CaloLCDeadMaterialTool() override;
 
-    virtual StatusCode weight(xAOD::CaloCluster* theCluster) const override;
+    virtual StatusCode weight(xAOD::CaloCluster* theCluster, const EventContext& ctx) const override;
     virtual StatusCode initialize() override;
 
     CaloLCDeadMaterialTool(const std::string& type,

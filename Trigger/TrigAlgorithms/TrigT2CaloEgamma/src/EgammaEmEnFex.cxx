@@ -15,9 +15,9 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "TrigT2CaloEgamma/EgammaEmEnFex.h"
+#include "EgammaEmEnFex.h"
 #include "TrigT2CaloCommon/Calo_Def.h"
-#include "TrigT2CaloEgamma/T2CalibrationEgamma.h"
+#include "T2CalibrationEgamma.h"
 
 
 EgammaEmEnFex::EgammaEmEnFex(const std::string & type, const std::string & name, 

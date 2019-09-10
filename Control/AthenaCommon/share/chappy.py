@@ -9,12 +9,14 @@
 # lxplus> chappy McParticleAlgs/rwtest_genEvent.py
 #
 
+from __future__ import print_function
+
 import sys
 
 from AthenaCommon.Include import include
 include.setShowIncludes( False )
 
-print ":"*80
-print "::: ChapPy is launching script [%s] :::" % sys.argv[1]
+print (":"*80)
+print ("::: ChapPy is launching script [%s] :::" % sys.argv[1])
 include( sys.argv[1] )
-print ":"*80
+print (":"*80)

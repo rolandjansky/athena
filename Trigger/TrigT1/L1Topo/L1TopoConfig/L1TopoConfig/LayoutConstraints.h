@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 //  LayoutConstraints.h
 //  TopoCore
@@ -27,18 +27,18 @@ namespace TCS {
       
    private:
       // Maximum number of components that require parameters
-      static unsigned int g_maxComponents;
+      static const unsigned int g_maxComponents;
       
       // Max number of TOBs to be received by L1Topo
-      static unsigned int g_maxJets;
-      static unsigned int g_maxClusters;
+      static const unsigned int g_maxJets;
+      static const unsigned int g_maxClusters;
       
       // Max number of TOBs to be analysed by inclusive algorithms:
-      static unsigned int g_maxInclJets;
-      static unsigned int g_maxInclClusters;
+      static const unsigned int g_maxInclJets;
+      static const unsigned int g_maxInclClusters;
 
       // Maximum number of parameters per algorithm
-      static unsigned int g_maxParams;
+      static const unsigned int g_maxParams;
 
    };
    

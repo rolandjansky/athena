@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLESINCONETOOLS_TRACKSINCONETOOL_H
@@ -13,7 +13,7 @@
 #include "IParticlesLookUpTable.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
  
 namespace xAOD {
 

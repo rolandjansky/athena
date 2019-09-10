@@ -10,9 +10,9 @@
 
 namespace Trk {
 
-extern vkalMagFld      myMagFld;
+extern const vkalMagFld      myMagFld;
 
-void vkPerigeeToP( double *perig3, double *pp, double BMAG)
+void vkPerigeeToP( const double *perig3, double *pp, double BMAG)
 {
     double constB =BMAG  * vkalMagCnvCst;
     double phiv = perig3[1];
@@ -24,7 +24,7 @@ void vkPerigeeToP( double *perig3, double *pp, double BMAG)
 
 
 
-std::array<double, 4> getFitParticleMom( VKTrack * trk, VKVertex *vk)
+std::array<double, 4> getFitParticleMom( const VKTrack * trk, const VKVertex *vk)
 {
     std::array<double, 4> p;
     double fieldPos[3];
@@ -43,7 +43,7 @@ std::array<double, 4> getFitParticleMom( VKTrack * trk, VKVertex *vk)
     p[3] = sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2] + m*m );
     return p;
 }
-std::array<double, 4> getFitParticleMom( VKTrack * trk, double BMAG)
+std::array<double, 4> getFitParticleMom(const VKTrack * trk, double BMAG)
 {
     std::array<double, 4> p;
     double magConst =BMAG  * vkalMagCnvCst;
@@ -59,7 +59,7 @@ std::array<double, 4> getFitParticleMom( VKTrack * trk, double BMAG)
     return p;
 }
 
-std::array<double, 4> getIniParticleMom( VKTrack * trk, VKVertex *vk)
+std::array<double, 4> getIniParticleMom( const VKTrack * trk, const VKVertex *vk)
 {
     std::array<double, 4> p;
     double magConst = myMagFld.getMagFld(vk->refIterV,(vk->vk_fitterControl).get())  * myMagFld.getCnvCst();
@@ -74,7 +74,7 @@ std::array<double, 4> getIniParticleMom( VKTrack * trk, VKVertex *vk)
     p[3] = sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2] + m*m );
     return p;
 }
-std::array<double, 4> getIniParticleMom( VKTrack * trk, double BMAG)
+std::array<double, 4> getIniParticleMom(const VKTrack * trk, double BMAG)
 {
     std::array<double, 4> p;
     double magConst =BMAG  * vkalMagCnvCst;
@@ -91,7 +91,7 @@ std::array<double, 4> getIniParticleMom( VKTrack * trk, double BMAG)
 }
 
 
-std::array<double, 4> getCnstParticleMom( VKTrack * trk, VKVertex *vk )
+std::array<double, 4> getCnstParticleMom( const VKTrack * trk, const VKVertex *vk )
 {
     std::array<double, 4> p;
     double cnstPos[3];
@@ -110,7 +110,7 @@ std::array<double, 4> getCnstParticleMom( VKTrack * trk, VKVertex *vk )
     p[3] = sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2] + m*m );
     return p;
 }
-std::array<double, 4> getCnstParticleMom( VKTrack * trk, double BMAG )
+std::array<double, 4> getCnstParticleMom(const VKTrack * trk, double BMAG )
 {
     std::array<double, 4> p;
     double magConst =BMAG  * vkalMagCnvCst;

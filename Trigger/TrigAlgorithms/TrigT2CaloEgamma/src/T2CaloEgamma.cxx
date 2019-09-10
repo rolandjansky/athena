@@ -28,7 +28,7 @@
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 
-#include "TrigT2CaloEgamma/T2CaloEgamma.h"
+#include "T2CaloEgamma.h"
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 

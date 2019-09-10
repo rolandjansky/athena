@@ -131,6 +131,7 @@ JetChainParts = {
 #    'bMatching'    : ['mu4antidr05', 'mu6antidr05'],
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
+    'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     'trkopt'       : ['notrk', 'ftk', 'ftkrefit'],
 }
 
@@ -158,6 +159,7 @@ JetChainParts_Default = {
     'bConfig'      : [],
     'bMatching'    : [],
     'dataScouting' : '',
+    'smc'          : 'nosmc',
     'trkopt'       : 'notrk',
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
@@ -259,15 +261,15 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo','tracktwo2015'],
-    'selection'    : ['medium0','loose1', 'medium1', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
+    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'ptonly', 'tracktwo', 'tracktwoEF', 'tracktwoMVA', 't2MVA', 'tracktwoEFmvaTES' ],
+    'selection'    : ['medium0', 'loose1', 'medium1', 'medium1NoPt', 'perf', 'perf0', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'mRNN', 'tightRNN'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],
     'extra'        : '',
     'recoAlg'      : '',
     'calib'        : '',
-    'addInfo'      : ['IdTest'],
+    'addInfo'      : '',
     'topo'         : AllowedTopos_Tau,
 }
 TauChainParts_Default = {

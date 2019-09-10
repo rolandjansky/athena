@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
 #ifndef MUONCALIB_MUONCALIBEXTRATREETRIGGERALG_H
 #define MUONCALIB_MUONCALIBEXTRATREETRIGGERALG_H
 
-#include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
@@ -14,7 +13,6 @@
 #include "MuonCalibExtraTreeAlg/MuonCalibCaloBranch.h"
 #include "MuonCalibExtraTreeAlg/MuonCalibTriggerInfoBranch.h"
 
-class StoreGateSvc;
 class MdtIdHelper;
 class CscIdHelper;
 class RpcIdHelper;
@@ -66,8 +64,6 @@ namespace MuonCalib {
     void addCalo();
     void finishEvent();
 
-    StoreGateSvc* p_StoreGateSvc;                   //!< Pointer to StoreGateSvc 
-    StoreGateSvc* m_detStore;                     //!< Pointer to Detector store 
     ServiceHandle< LVL1::RecMuonRoiSvc > m_rpcRoiService;
     ServiceHandle< LVL1::RecMuonRoiSvc > m_tgcRoiService;
 

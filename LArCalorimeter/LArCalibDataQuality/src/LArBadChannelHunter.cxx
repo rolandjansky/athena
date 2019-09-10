@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibDataQuality/LArBadChannelHunter.h"
@@ -11,7 +11,6 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "LArRecConditions/LArBadChanBitPacking.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //#include <sstream> 
 #include <fstream>

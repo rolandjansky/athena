@@ -34,7 +34,14 @@
 #include <Inventor/nodes/SoSwitch.h>
 #include <SoDebug.h> // it's stored at /afs/cern.ch/sw/lcg/external/coin3d/3.1.3p2/x86_64-slc6-gcc47-opt/include/SoDebug.h
 
-
+// System of units
+#ifdef BUILDVP1LIGHT
+	#include "GeoModelKernel/Units.h"
+	#define SYSTEM_OF_UNITS GeoModelKernelUnits // --> 'GeoModelKernelUnits::cm'
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units // --> 'Gaudi::Units::cm'
+#endif
 
 
 //____________________________________________________________________
@@ -121,7 +128,8 @@ bool IParticleHandle_CaloCluster::isConsiderTransverseEnergies() const
 //void IParticleHandle_CaloCluster::setScale( const double& sc) { m_d->scale = sc; }
 
 //____________________________________________________________________
-//void IParticleHandle_CaloCluster::setMaxR(const double& maxR) { m_d->maxR = maxR * Gaudi::Units::m; }
+//void IParticleHandle_CaloCluster::setMaxR(const double& maxR) { m_d->maxR = maxR * SYSTEM_OF_UNITS::m; }
+
 
 //____________________________________________________________________
 //void IParticleHandle_CaloCluster::rerandomiseMaterial() {m_d->rerandomiseMaterial(); }
@@ -230,6 +238,7 @@ void IParticleHandle_CaloCluster::Imp::createShapeFromParameters(const IParticle
 	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::Imp::createShapeFromParameters()");
 
 	if (!m_genericBox) {	
+		SoGenericBox::initClass();
 		m_genericBox = new SoGenericBox();
 		m_genericBox->drawEdgeLines = coll_handle->showOutlines();
 		m_genericBox->forceEdgeLinesInBaseColour = true;
@@ -403,12 +412,12 @@ QStringList IParticleHandle_CaloCluster::clicked() const
 	// they go in the "Information" column in the Browser window
 	// see: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODCaloEvent/xAODCaloEvent/versions/CaloCluster_v1.h
 	//
-	l +="    - pt: " + QString::number(m_d->m_cluster->pt() / Gaudi::Units::GeV) +" [GeV]";
-	l +="    - et: " + QString::number(m_d->et() / Gaudi::Units::GeV) +" [GeV]";
+	l +="    - pt: " + QString::number(m_d->m_cluster->pt() / SYSTEM_OF_UNITS::GeV) +" [GeV]";
+	l +="    - et: " + QString::number(m_d->et() / SYSTEM_OF_UNITS::GeV) +" [GeV]";
 	l +="    - eta: " + QString::number(m_d->eta());
 	l +="    - phi: " + QString::number(m_d->phi());
-	l +="    - m: " + QString::number(m_d->m_cluster->m() / Gaudi::Units::GeV) +" [GeV] (invariant mass of the particle)";
-	l +="    - e: " + QString::number(m_d->m_cluster->e() / Gaudi::Units::GeV) +" [GeV] (total energy of the particle)";
+	l +="    - m: " + QString::number(m_d->m_cluster->m() / SYSTEM_OF_UNITS::GeV) +" [GeV] (invariant mass of the particle)";
+	l +="    - e: " + QString::number(m_d->m_cluster->e() / SYSTEM_OF_UNITS::GeV) +" [GeV] (total energy of the particle)";
 	l +="    - rapidity: " + QString::number(m_d->m_cluster->rapidity());
 	l +="    - type: " + QString::number(m_d->m_cluster->type());
 	l +="    - ClusterSize: " + QString::number(m_d->m_cluster->clusterSize());
@@ -473,10 +482,10 @@ QString IParticleHandle_CaloCluster::shortInfo() const
 	// info and parameters,
 	// they go in the "Information" column in the Browser window
 	dParameters +="pt: ";
-	dParameters += QString::number(m_d->m_cluster->pt() / Gaudi::Units::GeV);
+	dParameters += QString::number(m_d->m_cluster->pt() / SYSTEM_OF_UNITS::GeV);
 
 	dParameters +=", et: ";
-	dParameters += QString::number(m_d->m_cluster->et() / Gaudi::Units::GeV);
+	dParameters += QString::number(m_d->m_cluster->et() / SYSTEM_OF_UNITS::GeV);
 
 	dParameters +=", eta: ";
 	dParameters += QString::number(m_d->m_cluster->eta());

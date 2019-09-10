@@ -1,0 +1,10 @@
+TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3       20        20        18        0         0         18        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut1step_L1EM3 decisions                    54        0         0         
+TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3            20        20        18        17        17        17        
+TrigSignatureMoniMT                                INFO HLT_e3_etcut_L1EM3 decisions                      54        313       81        
+TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3            20        20        17        16        16        16        
+TrigSignatureMoniMT                                INFO HLT_e5_etcut_L1EM3 decisions                      50        300       47        
+TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3            20        20        15        14        12        12        
+TrigSignatureMoniMT                                INFO HLT_e7_etcut_L1EM3 decisions                      36        238       25        
+TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3            20        20        17        17        0         17        
+TrigSignatureMoniMT                                INFO HLT_g5_etcut_L1EM3 decisions                      50        50        0         

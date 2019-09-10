@@ -7,6 +7,7 @@
 #  @author graeme.andrew.stewart@cern.ch
 #  @version $Id: test_trfMPTools.py 772406 2016-09-09 12:10:12Z mavogel $
 
+from __future__ import print_function
 import os
 import subprocess
 import unittest
@@ -24,7 +25,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 ## Unit tests
 class AthenaMPProcTests(unittest.TestCase):
     def setUp(self):
-        os.environ.pop("ATHENA_PROC_NUMBER", "")
+        os.environ.pop("ATHENA_CORE_NUMBER", "")
     
     def test_noMP(self):
         self.assertEqual(detectAthenaMPProcs(), 0)
@@ -32,21 +33,7 @@ class AthenaMPProcTests(unittest.TestCase):
     def test_noMPwithArgdict(self):
         argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['some', 'random', 'values'])}
         self.assertEqual(detectAthenaMPProcs(argdict), 0)
-        
-    def test_MPfromEnv(self):
-        os.environ["ATHENA_PROC_NUMBER"] = "8"
-        self.assertEqual(detectAthenaMPProcs(), 8)
-        
-    def test_MPfromEnvEmpty(self):
-        os.environ["ATHENA_PROC_NUMBER"] = "0"
-        self.assertEqual(detectAthenaMPProcs(), 0)
-        
-    def test_MPBadfromEnv(self):
-        os.environ["ATHENA_PROC_NUMBER"] = "-1"
-        self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs)
-        os.environ["ATHENA_PROC_NUMBER"] = "notAnInt"
-        self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs)
-        
+             
     def test_MPfromArgdict(self):
         argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=8', 'random', 'values'])}
         self.assertEqual(detectAthenaMPProcs(argdict), 8)
@@ -62,13 +49,6 @@ class AthenaMPProcTests(unittest.TestCase):
         self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs, argdict)
         argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=4', '--nprocs=8', 'values'])}
         self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs, argdict)
-
-    def test_MPfromBoth(self):
-        # Env should have priority
-        os.environ["ATHENA_PROC_NUMBER"] = "4"
-        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=2', 'random', 'values'])}
-        self.assertEqual(detectAthenaMPProcs(argdict), 4)
-
 
 class AthenaMPOutputParseTests(unittest.TestCase):
     def setUp(self):
@@ -90,7 +70,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                 open(os.path.join(delement[0], fname), "w")
         
         with open("athenaMP-outputs-RAWtoESD-r2e", "w") as mpoutput:
-            print >>mpoutput, """<?xml version="1.0" encoding="utf-8"?>
+            print("""<?xml version="1.0" encoding="utf-8"?>
 <athenaFileReport>
   <Files OriginalName="data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002">
     <File description="POOL" mode="WRITE|CREATE" name="{CWD}/athenaMP-workers-RAWtoESD-r2e/worker_0/data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002" shared="True" technology="ROOT"/>
@@ -113,7 +93,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
     <File description="HIST" mode="WRITE" name="{CWD}/athenaMP-workers-RAWtoESD-r2e/worker_7/tmp.HIST_ESD_INT" shared="False" technology="ROOT"/>
   </Files>
 </athenaFileReport>
-""".format(CWD=os.getcwd())
+""".format(CWD=os.getcwd()), file=mpoutput)
 
     def tearDown(self):
         subprocess.call(['rm -fr athenaMP* data15* tmp.*'], shell=True)

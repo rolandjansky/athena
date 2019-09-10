@@ -18,7 +18,13 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/SbColor4f.h>
 
-#include "GaudiKernel/SystemOfUnits.h"
+#ifdef BUILDVP1LIGHT
+  #include "CLHEP/Units/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS CLHEP
+#else
+  #include "GaudiKernel/SystemOfUnits.h"
+  #define SYSTEM_OF_UNITS Gaudi::Units
+#endif
 
 //____________________________________________________________________
 bool VP1Floor::calcParsFromExtentAndSpacing( VP1HelperClassBase*helper,const double& extent, const double& spacing, const int& nmaxlimit, int& nmax, double& distmax )
@@ -98,7 +104,7 @@ void VP1Floor::Imp::rebuild3DObjects()
   int nmax; double distmax;
   if (!calcParsFromExtentAndSpacing( theclass, extent, spacing, VP1Floor::nMax(), nmax, distmax )) {
     nmax = 10;
-    distmax = 10*Gaudi::Units::m;
+    distmax = 10*SYSTEM_OF_UNITS::m;
     theclass->message("ERROR: Problems calculating nmax/distmax.");
   }
 

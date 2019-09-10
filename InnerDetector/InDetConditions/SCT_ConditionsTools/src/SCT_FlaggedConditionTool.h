@@ -1,3 +1,5 @@
+// -*- C++ -*-
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -11,13 +13,14 @@
 #ifndef SCT_FlaggedConditionTool_h
 #define SCT_FlaggedConditionTool_h
  
-// Gaudi
-
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_FlaggedConditionTool.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "StoreGate/ReadHandleKey.h"
+
+// STL
+#include <atomic>
 
 // Forward declarations
 class SCT_ID;
@@ -63,9 +66,14 @@ public:
   virtual const SCT_FlaggedCondData* getBadIds(const EventContext& ctx) const override;
 
  private:
-  SG::ReadHandleKey<SCT_FlaggedCondData> m_badIds;
+  // SCT_FlaggedCondData created by SCT_Clusterization
+  // SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization for InDetTrigInDetSCT_FlaggedConditionTool
+  SG::ReadHandleKey<SCT_FlaggedCondData> m_badIds{this, "SCT_FlaggedCondData", "SCT_FlaggedCondData", "SCT flagged conditions data"};
 
-  const SCT_ID* m_sctID; //!< ID helper for SCT
+  UnsignedIntegerProperty m_maxNumWarnForFailures{this, "MaxNumWarnForFailures", 5};
+  mutable std::atomic_uint m_numWarnForFailures{0};
+
+  const SCT_ID* m_sctID{nullptr}; //!< ID helper for SCT
 
   const SCT_FlaggedCondData* getCondData(const EventContext& ctx) const;
 };

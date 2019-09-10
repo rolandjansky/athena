@@ -4,8 +4,8 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H 
-#define MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H 
+#ifndef MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H
+#define MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H
 /** @file TgcDigitizationTool.h
  * @brief implementation of IPileUpTool to produce TgcDigit objects from TGCSimHit
  * @author John Chapman, Yoji Hasegawa, Susumu Oda
@@ -15,6 +15,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
 #include "HitManagement/TimedHitCollection.h"
 #include "MuonSimEvent/TGCSimHit.h"
@@ -37,14 +38,14 @@ namespace MuonGM{
 
 class TgcDigitizationTool : public PileUpToolBase {
 public:
-  TgcDigitizationTool(const std::string& type, 
-		      const std::string& name,
-		      const IInterface* parent);
+  TgcDigitizationTool(const std::string& type,
+                      const std::string& name,
+                      const IInterface* parent);
   /** Initialize */
     virtual StatusCode initialize() override final;
 
   virtual StatusCode prepareEvent(unsigned int /*nInputEvents*/) override final;
-  
+
   /** called for each active bunch-crossing to process current SubEvents
       bunchXing is in ns */
   virtual  StatusCode processBunchXing(
@@ -52,8 +53,8 @@ public:
                                        SubEventIterator bSubEvents,
                                        SubEventIterator eSubEvents
                                        ) override final;
-  
-  /** called at the end of the subevts loop. Not (necessarily) able to access 
+
+  /** called at the end of the subevts loop. Not (necessarily) able to access
       SubEvents (IPileUpTool) */
   virtual StatusCode mergeEvent() override final;
 
@@ -73,28 +74,28 @@ private:
   /** Get next event and extract collection of hit collections */
   StatusCode getNextEvent();
   /** Core part of digitization used by processAllSubEvents and mergeEvent */
-  StatusCode digitizeCore();
+  StatusCode digitizeCore() const;
 
-protected:  
-  PileUpMergeSvc *m_mergeSvc; // Pile up service
+protected:
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "PileUpMergeSvc", "PileUpMergeSvc", ""}; // Pile up service
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", ""};      // Random number service
 
 private:
-  TgcHitIdHelper*                    m_hitIdHelper;
-  //TgcDigitContainer*                 m_digitContainer;
-  const TgcIdHelper*                 m_idHelper;
-  const MuonGM::MuonDetectorManager* m_mdManager;
-  TgcDigitMaker*                     m_digitizer;
-  TimedHitCollection<TGCSimHit>*     m_thpcTGC;
-  //MuonSimDataCollection*             m_sdoContainer;
+  TgcHitIdHelper*                    m_hitIdHelper{};
+  const TgcIdHelper*                 m_idHelper{};
+  const MuonGM::MuonDetectorManager* m_mdManager{};
+  TgcDigitMaker*                     m_digitizer{};
+  TimedHitCollection<TGCSimHit>*     m_thpcTGC{};
   std::list<TGCSimHitCollection*>    m_TGCHitCollList;
 
-  std::string m_inputHitCollectionName; // name of the input objects
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<TGCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "TGC_Hits",
+      "name of the input object"};
+  std::string m_inputHitCollectionName{""};
   SG::WriteHandleKey<TgcDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","TGC_DIGITS","WriteHandleKey for Output TgcDigitContainer"}; // name of the output digits
   SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","TGC_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
   //pileup truth veto
-  bool m_includePileUpTruth;
-  IntegerProperty m_vetoThisBarcode;
+  Gaudi::Property<bool> m_includePileUpTruth{this, "IncludePileUpTruth", true, "Include pile-up truth info"};
 };
 #endif // MUONDIGITIZATION_TGC_DIGITIZATIONTOOL_H

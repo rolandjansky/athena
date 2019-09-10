@@ -10,7 +10,6 @@
 
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "StoreGate/ReadCondHandle.h"
 
@@ -21,7 +20,6 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
 						  const IInterface* parent):
   ManagedMonitorToolBase(type, name, parent),
   m_pixID( 0 ),
-  m_pixManager( 0 ),
   m_sctID( 0 ),
   m_ErrorSvc("PixelByteStreamErrorsSvc",name),
   m_errorGeoPixel(),
@@ -48,10 +46,6 @@ StatusCode InDetGlobalErrorMonTool::initialize() {
     msg(MSG::ERROR) << "Could not retrieve Pixel ID helper" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (detStore()->retrieve(m_pixManager, "Pixel").isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve Pixel Detector Manager" << endmsg;
-    return StatusCode::FAILURE;
-  }
   if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()){
     msg(MSG::ERROR) << "Could not retrieve SCT ID helper" << endmsg;
     return StatusCode::FAILURE;
@@ -62,6 +56,7 @@ StatusCode InDetGlobalErrorMonTool::initialize() {
   ATH_CHECK(m_ConfigurationTool.retrieve());
   ATH_CHECK(m_byteStreamErrTool.retrieve());
 
+  ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
   
   return ManagedMonitorToolBase::initialize();
@@ -297,6 +292,13 @@ bool InDetGlobalErrorMonTool::SyncPixel()
   m_errorGeoPixel.clear();
   m_disabledGeoPixel.clear();
   
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEle(m_pixelDetEleCollKey);
+  const InDetDD::SiDetectorElementCollection* elements(pixelDetEle.retrieve());
+  if (elements==nullptr) {
+    ATH_MSG_ERROR(m_pixelDetEleCollKey.fullKey() << " could not be retrieved in SyncDisabledPixel()");
+    return false;
+  }
+
   PixelID::const_id_iterator fit = m_pixID->wafer_begin();
   PixelID::const_id_iterator fitEnd = m_pixID->wafer_end();
   
@@ -310,7 +312,7 @@ bool InDetGlobalErrorMonTool::SyncPixel()
 	{
 	  moduleGeo_t moduleGeo;
 	  
-	  InDetDD::SiDetectorElement * newElement = m_pixManager->getDetectorElement( (*fit) );
+	  const InDetDD::SiDetectorElement * newElement = elements->getDetectorElement( waferHash );
 	  newElement->getEtaPhiRegion( deltaZ,
 				       moduleGeo.first.first,  moduleGeo.first.second,
 				       moduleGeo.second.first, moduleGeo.second.second,
@@ -324,7 +326,7 @@ bool InDetGlobalErrorMonTool::SyncPixel()
 	{
 	  moduleGeo_t moduleGeo;
 	  
-	  InDetDD::SiDetectorElement * newElement = m_pixManager->getDetectorElement( (*fit) );
+	  const InDetDD::SiDetectorElement * newElement = elements->getDetectorElement( waferHash );
 	  newElement->getEtaPhiRegion( deltaZ,
 				       moduleGeo.first.first,  moduleGeo.first.second,
 				       moduleGeo.second.first, moduleGeo.second.second,

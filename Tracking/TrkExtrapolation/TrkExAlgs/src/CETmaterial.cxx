@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,10 +20,6 @@
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
-
-
-// Framework
-#include "StoreGate/StoreGateSvc.h"
 
 //================ Constructor =================================================
 
@@ -160,7 +156,7 @@ StatusCode Trk::CETmaterial::execute()
   // retrieve outer boundary cylinder surface
   if (!m_outerBoundary) {
     m_trackingGeometry = m_extrapolator->trackingGeometry();
-    m_outerBoundary = &(m_trackingGeometry->highestTrackingVolume()->boundarySurfaces()[2].getPtr()->surfaceRepresentation());
+    m_outerBoundary = &(m_trackingGeometry->highestTrackingVolume()->boundarySurfaces()[2].get()->surfaceRepresentation());
     if (!m_outerBoundary) {
       ATH_MSG_FATAL( "Could not retrieve cylinder boundary  from " << m_extrapolator << ". Exiting." );
       return StatusCode::FAILURE;

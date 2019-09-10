@@ -1,18 +1,18 @@
 *** IOVSvcTool_test starts ***
 
 
-Initializing Gaudi ApplicationMgr using job opts ../share/IOVSvcTool_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/work/s/smh/upgrade/athena/Control/IOVSvc/share/../share/IOVSvcTool_test.txt
+Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/IOVSvc/share/IOVSvcTool_test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/IOVSvc/share/IOVSvcTool_test.txt
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "IOVSvc"]
 JobOptionsSvc        INFO # (3,1): ApplicationMgr.CreateSvc += ["StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO # (5,1): MessageSvc.OutputLevel = 2
-JobOptionsSvc        INFO Job options successfully read in from ../share/IOVSvcTool_test.txt
+JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/IOVSvc/share/IOVSvcTool_test.txt
 MessageSvc          DEBUG Service base class initialized successfully
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r3)
-                                          running on pc-tbed-pub-31.cern.ch on Mon Sep 17 18:28:38 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v32r0)
+                                          running on lxplus782.cern.ch on Wed Jun 26 19:47:01 2019
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, IOVSvc
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -25,9 +25,9 @@ DetectorStore_Impl  DEBUG Service base class initialized successfully
 EventPersistenc...  DEBUG Service base class initialized successfully
 ClassIDSvc          DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [ModuleLoaded] listener 'ClassIDSvc' with priority 100
-ClassIDSvc           INFO  getRegistryEntries: read 1608 CLIDRegistry entries for module ALL
-ClassIDSvc          DEBUG processCLIDDB: read 1553 entries from CLIDDB file: /afs/cern.ch/work/s/smh/upgrade/bld/x86_64-slc6-gcc62-opt/share/clid.db
-ClassIDSvc          DEBUG processCLIDDB: read 1553 entries from CLIDDB file: /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-09-16T2055/Athena/22.0.1/InstallArea/x86_64-slc6-gcc62-opt/share/clid.db
+ClassIDSvc           INFO  getRegistryEntries: read 1712 CLIDRegistry entries for module ALL
+ClassIDSvc          DEBUG processCLIDDB: read 1661 entries from CLIDDB file: /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/share/clid.db
+ClassIDSvc          DEBUG processCLIDDB: read 1661 entries from CLIDDB file: /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2019-06-25T2127/Athena/22.0.2/InstallArea/x86_64-centos7-gcc8-opt/share/clid.db
 ProxyProviderSvc    DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [EndEvent] listener 'DetectorStore' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'DetectorStore' with priority 100
@@ -47,6 +47,8 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ToolSvc             DEBUG Service base class initialized successfully
 IOVSvc              DEBUG Service base class initialized successfully
+IOVSvc              DEBUG Initializing IOVSvc version IOVSvc-00-00-00
+IOVSvc              DEBUG AthService initialized
 StoreGateSvc        DEBUG Service base class initialized successfully
 StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
 StoreGateSvc_Impl   DEBUG Service base class initialized successfully
@@ -60,9 +62,10 @@ IncidentSvc         DEBUG Adding [EndEvent] listener 'ConditionStore' with prior
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'ConditionStore' with priority 100
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'ToolSvc.IOVSvcTool' with priority 100
 IncidentSvc         DEBUG Adding [BeginRun] listener 'ToolSvc.IOVSvcTool' with priority 100
-IOVSvcTool           INFO IOVRanges will be checked at every Event
-IncidentSvc         DEBUG Adding [CheckIOV] listener 'ToolSvc.IOVSvcTool' with priority 100
+ToolSvc.IOVSvcTool   INFO IOVRanges will be checked at every Event
 IncidentSvc         DEBUG Adding [ReloadProxies] listener 'ToolSvc.IOVSvcTool' with priority 100
+ToolSvc.IOVSvcTool  DEBUG Tool initialized
 ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
-IOVSvcTool          DEBUG replace proxy [Dooo:6666/old] @0x1ef43f0 with [Dooo:6666/new] @0x1f0c300
+ToolSvc.IOVSvcTool  DEBUG registering proxy [Dooo:6666/old] at 0x2309460
+ToolSvc.IOVSvcTool  DEBUG replace proxy [Dooo:6666/old] @0x2309460 with [Dooo:6666/new] @0x23214f0
 *** IOVSvcTool_test OK ***

@@ -10,6 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
 			  Control/AthenaKernel
                           DetectorDescription/Identifier
+			  Calorimeter/CaloCondBlobObjs
+			  Calorimeter/CaloIdentifier
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
@@ -24,7 +26,7 @@ atlas_add_library( CaloConditions
                    src/*.cxx
                    PUBLIC_HEADERS CaloConditions
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CxxUtils Identifier AthenaKernel GaudiKernel
+                   LINK_LIBRARIES CxxUtils Identifier CaloIdentifier CaloCondBlobObjs AthenaKernel GaudiKernel 
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TestTools )
 
 atlas_add_dictionary( CaloConditionsDict
@@ -41,4 +43,5 @@ atlas_add_test( ToolConstants_test
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py )
 

@@ -1,10 +1,8 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL2MuonSA/TgcDataPreparator.h"
-
-#include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -41,7 +39,6 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
   AthAlgTool(type,name,parent),
-   m_storeGateSvc( "StoreGateSvc", name ),
    m_activeStore( "ActiveStoreSvc", name ), 
    m_rawDataProviderTool("Muon::TGC_RawDataProviderTool/TGC_RawDataProviderTool"),
    m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
@@ -77,16 +74,11 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
      return sc;
    }
 
-   ATH_CHECK( m_storeGateSvc.retrieve() );
-
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
    ATH_MSG_DEBUG("Retrieved service RegionSelector");
 
-   ServiceHandle<StoreGateSvc> detStore( "DetectorStore", name() );
-   ATH_CHECK( detStore.retrieve() );
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
-   ATH_CHECK( detStore->retrieve( m_muonMgr,"Muon" ) );
+   ATH_CHECK( detStore()->retrieve( m_muonMgr,"Muon" ) );
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_tgcIdHelper = m_muonMgr->tgcIdHelper();
 
@@ -94,14 +86,17 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
 
    // Retreive TGC raw data provider tool
-   ATH_MSG_DEBUG("Decode BS set to " << m_decodeBS);
-   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS }).isFailure()) {
+   ATH_MSG_DEBUG(m_decodeBS);
+   ATH_MSG_DEBUG(m_doDecoding);
+   // disable TGC Raw data provider if we either don't decode BS or don't decode TGCs
+   if (m_rawDataProviderTool.retrieve(DisableTool{ !m_decodeBS || !m_doDecoding}).isFailure()) {
      msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
      return StatusCode::FAILURE;
    } else
      msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
 
-   ATH_CHECK( m_tgcPrepDataProvider.retrieve() );
+   // Disable PRD converter if we don't do the data decoding
+   ATH_CHECK( m_tgcPrepDataProvider.retrieve(DisableTool{!m_doDecoding}) );
    ATH_MSG_DEBUG("Retrieved tool " << m_tgcPrepDataProvider );
 
    // Locate ROBDataProvider
@@ -159,29 +154,28 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      : m_options.roadParameters().deltaEtaAtInnerForHighPt();
    double mid_phi_test = m_options.roadParameters().deltaPhiAtMiddle();
    double inn_phi_test = m_options.roadParameters().deltaPhiAtInner();
-
-   // clear the hash ID vector
-   m_tgcHashList.clear();
    
-   if (iroi) m_regionSelector->DetHashIDList(TGC, *iroi, m_tgcHashList);
-   else m_regionSelector->DetHashIDList(TGC, m_tgcHashList);
-   if(roi) delete roi;
+   if(m_doDecoding) {
+     std::vector<IdentifierHash> tgcHashList;
+     if (iroi) m_regionSelector->DetHashIDList(TGC, *iroi, tgcHashList);
+     else m_regionSelector->DetHashIDList(TGC, tgcHashList);
+     if(roi) delete roi;
 
-   // Decode BS
-   if (m_decodeBS){
-     if ( m_rawDataProviderTool->convert(m_tgcHashList).isFailure()) {
-       ATH_MSG_WARNING("Conversion of BS for decoding of TGCs failed");
+     // Decode BS
+     if (m_decodeBS){
+       if ( m_rawDataProviderTool->convert(tgcHashList).isFailure()) {
+         ATH_MSG_WARNING("Conversion of BS for decoding of TGCs failed");
+       }
      }
-   }
 
-   // now convert from RDO to PRD
-   std::vector<IdentifierHash> inhash, outhash;
-   inhash = m_tgcHashList; 
-   
-   if( m_tgcPrepDataProvider->decode(inhash, outhash).isFailure() ){
-     ATH_MSG_ERROR("Failed to convert from RDO to PRD");
-     return StatusCode::FAILURE;
-   }
+     // now convert from RDO to PRD
+     std::vector<IdentifierHash> outhash;
+     
+     if( m_tgcPrepDataProvider->decode(tgcHashList, outhash).isFailure() ){
+       ATH_MSG_ERROR("Failed to convert from RDO to PRD");
+       return StatusCode::FAILURE;
+     }
+   }//doDecoding
    
    if ( m_activeStore ) {
      auto tgcContainerHandle = SG::makeHandle(m_tgcContainerKey);

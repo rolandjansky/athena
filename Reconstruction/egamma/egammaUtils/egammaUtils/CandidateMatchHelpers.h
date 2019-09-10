@@ -9,8 +9,8 @@
 #include <iostream>
 
 namespace CandidateMatchHelpers{
-  double CorrectedEta(double clusterEta,double z_first,bool isEndCap);
-  double PhiROT(double Et,double Eta, int charge, double r_first ,bool isEndCap);
+  double CorrectedEta(const double clusterEta,const double z_first,const bool isEndCap);
+  double PhiROT(const double Et,const double Eta, const int charge, const double r_first ,const bool isEndCap);
 }
 
 

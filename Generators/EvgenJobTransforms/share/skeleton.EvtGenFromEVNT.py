@@ -1,3 +1,4 @@
+from __future__ import print_function
 #############################
 ## basic jobO configuration
 include("PATJobTransforms/CommonSkeletonJobOptions.py")
@@ -23,14 +24,13 @@ if hasattr(runArgs,"preExec"):
 ## Pre-include
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
-        print "preInclude",fragment
+        print("preInclude",fragment)
         include(fragment)
 
 
 ## copy everything from the input file
 ## must force reading of all input objects
 outStream.TakeItemsFromInput = True
-outStream.ForceRead          = True
 outStream.ItemList += [ "McEventCollection#*" ]
 
 

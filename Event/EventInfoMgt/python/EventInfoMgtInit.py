@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 ## @file EventInfoMgtInit.py
 ## @brief Configurable for TagInfoMgr service initialization
@@ -11,6 +11,8 @@
 #==============================================================
 #
 # Required libs:
+
+from __future__ import print_function
 
 def _loadBasicEventInfoMgt():
     """Loads the basic services for EventInfoMgt"""
@@ -28,11 +30,11 @@ def _loadBasicEventInfoMgt():
         # Executing a shell command
         #
         def execute (self, cmd):
-            #print '> ' + cmd
+            #print ('> ' + cmd)
             r = os.popen(cmd)
             lines = []
             for line in r.readlines():
-                #print line
+                #print (line)
                 line = string.rstrip (line)
                 lines.append (line)
             r.close()
@@ -42,17 +44,17 @@ def _loadBasicEventInfoMgt():
         # project, AtlasOffline, has the release number
         def getRelease (self):
             try:
-                #print "EventInfoMgtInit.getRelease: get project, version"
+                #print ("EventInfoMgtInit.getRelease: get project, version")
                 project = os.environ ['AtlasProject']
                 version = os.environ ['AtlasVersion']
-                #print "EventInfoMgtInit.getRelease: project, version",project, version
+                #print ("EventInfoMgtInit.getRelease: project, version",project, version)
                 return project + '-' + version
             except:
                 # These variables can be missing during CI builds,
                 # so don't complain if they're not there.
-                #print "EventInfoMgtInit getRelease: except caught"
-                #print sys.exc_info()[0]
-                #print sys.exc_info()[1]
+                #print ("EventInfoMgtInit getRelease: except caught")
+                #print (sys.exc_info()[0])
+                #print (sys.exc_info()[1])
                 pass
             return "Unknown-Unknown"
 
@@ -67,23 +69,25 @@ def _loadBasicEventInfoMgt():
     msg.debug( "Loading basic services for EventInfoMgt..." )
 
     #from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
-    from EventInfoMgtConf import TagInfoMgr
+    from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
     svcMgr += TagInfoMgr()
 
     # Add in extra tag for the release number:
     evtMgt  = EventInfoMgtInit()
     release = evtMgt.release
-    print "EventInfoMgtInit: Got release version ",release
+    print ("EventInfoMgtInit: Got release version ",release)
     svcMgr.TagInfoMgr.ExtraTagValuePairs = ["AtlasRelease", release ]
 
     # Add TagInfoMgr as cnv svc
     from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
-    svcMgr += EvtPersistencySvc( "EventPersistencySvc" )
+    if not hasattr (svcMgr, 'EventPersistencySvc'):
+        svcMgr += EvtPersistencySvc( "EventPersistencySvc" )
     svcMgr.EventPersistencySvc.CnvServices += [ "TagInfoMgr" ]
 
     # Set TagInfoMgr as proxy provider
     from AthenaCommon.ConfigurableDb import getConfigurable
-    svcMgr += getConfigurable("ProxyProviderSvc")()
+    if not hasattr (svcMgr, 'ProxyProviderSvc'):
+        svcMgr += getConfigurable("ProxyProviderSvc")()
     svcMgr.ProxyProviderSvc.ProviderNames += [ "TagInfoMgr" ]
 
     msg.debug( "Loading basic services for EventInfoMgt... [DONE]" )

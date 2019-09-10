@@ -25,11 +25,11 @@ if TriggerFlags.doCalo:
        "HLT_j45" : "L1_J20"
      }
      testChains =[x for x, y in CTPToChainMapping.items()]
-     topSequence.L1DecoderTest.ChainToCTPMapping = CTPToChainMapping
+     topSequence.L1Decoder.ChainToCTPMapping = CTPToChainMapping
      print testChains
 
      # get L1 decisions
-     for unpack in topSequence.L1DecoderTest.roiUnpackers:
+     for unpack in topSequence.L1Decoder.roiUnpackers:
          if unpack.name() is "JRoIsUnpackingTool":
              L1JetDecisions=unpack.Decisions
              
@@ -46,19 +46,13 @@ if TriggerFlags.doCalo:
          filterL1RoIsAlg.Input = [hypoDecisions]
          filterL1RoIsAlg.Output = ["FilteredL1JET"]
          filterL1RoIsAlg.Chains = testChains
+       
 
-         #inputmaker
-         from DecisionHandling.DecisionHandlingConf import InputMakerForRoI
-         InputMakerAlg = InputMakerForRoI("JetInputMaker", RoIsLink="initialRoI")
-         InputMakerAlg.RoIs='FSJETRoI'
-         InputMakerAlg.InputMakerInputDecisions = filterL1RoIsAlg.Output 
-         InputMakerAlg.InputMakerOutputDecisions = ["JETRoIDecisionsOutput"]
-         inputRoIs= InputMakerAlg.RoIs
-         hypoDecisions= InputMakerAlg.InputMakerOutputDecisions[0]
-         
-     # get the reco sequence
-     from TrigUpgradeTest.jetDefs import jetRecoSequence
-     (recoSequence, sequenceOut) = jetRecoSequence(inputRoIs)
+     from TrigUpgradeTest.jetMenuHelper import jetCFSequenceFromString
+     (recoSequence, InputMakerAlg, sequenceOut) = jetCFSequenceFromString("a4_tc_em_subjes")
+     inputRoIs= InputMakerAlg.RoIs
+     hypoDecisions= InputMakerAlg.InputMakerOutputDecisions[0]
+
 
      from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigJetHypoAlgMT
      from TrigHLTJetHypo.TrigJetHypoToolConfig import trigJetHypoToolFromDict

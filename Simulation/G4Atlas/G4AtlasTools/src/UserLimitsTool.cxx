@@ -20,6 +20,7 @@ UserLimitsTool::UserLimitsTool(const std::string& type, const std::string& name,
   , m_MaxTrackLength(-1.)
   , m_MaxTime(-1.)
   , m_MinRange(-1.)
+  , m_matchType("isMatch")
 {
   declareProperty("MaxStep", m_MaxStep, "Maximum step length");
   declareProperty("MinEkine", m_MinEkine, "Minimum remaining kinetic energy for a track");
@@ -27,6 +28,7 @@ UserLimitsTool::UserLimitsTool(const std::string& type, const std::string& name,
   declareProperty("MaxTime", m_MaxTime, "Maximum global time for a track");
   declareProperty("MinRange", m_MinRange, "Minimum remaining range for a track");
   declareProperty("VolumeList" , m_logicalVolumes , "List of Logical volume to which these limits should be applied" );
+  declareProperty("MatchType" , m_matchType , "Use 'contains' or 'isMatch' function for string comparison" );
 }
 
 // Athena method, called at initialization time
@@ -34,8 +36,21 @@ StatusCode UserLimitsTool::initialize()
 {
   ATH_MSG_INFO(" initializing UserLimitsTool "<<name() );
   G4LogicalVolumeStore& lvs=*(G4LogicalVolumeStore::GetInstance());
+  
+  ATH_MSG_INFO("G4LogicalVolumeStore size: " << lvs.size());
+  std::set<G4String> volumes;
+  for (unsigned int i = 0; i < lvs.size(); i++) {
+      volumes.insert(lvs[i]->GetName());
+  }
+  ATH_MSG_INFO("G4LogicalVolumeStore unique size: " << volumes.size());
 
-  //Call Limit setting methods here:
+  // Define with a configurable string which string comparison fucntion to use
+  using function_t = bool (UserLimitsTool::*) (const std::string& pattern, const std::string logicalVolume) const;
+  std::map<std::string, function_t> funcMap;
+  funcMap.emplace("isMatch", &UserLimitsTool::isMatch);
+  funcMap.emplace("contains", &UserLimitsTool::contains);
+
+  // Call Limit setting methods here:
   std::vector<std::string>::const_iterator volumeItr(m_logicalVolumes.begin());
   const std::vector<std::string>::const_iterator endOfVolumesItr(m_logicalVolumes.end());
   while(volumeItr!=endOfVolumesItr)
@@ -45,8 +60,8 @@ StatusCode UserLimitsTool::initialize()
       for (unsigned int i=0;i<lvs.size();i++)
         {
           G4LogicalVolume *lv=lvs[i];
-          if (isMatch(volName,lv->GetName()))
-            {
+          // Compare two strings with a configurable method...
+          if ( (this->*(funcMap[m_matchType]))(volName, lv->GetName()) ){
               G4UserLimits *ul=lv->GetUserLimits();
               if (!ul) ul=new G4UserLimits;
               if (-0.5 < m_MaxStep)        { ul->SetMaxAllowedStep(m_MaxStep); }
@@ -68,6 +83,11 @@ StatusCode UserLimitsTool::initialize()
     }
   // TODO would probably be more CPU efficient to loop over the geometry and compare with each limit volume.
   return StatusCode::SUCCESS;
+}
+
+bool UserLimitsTool::contains(const std::string& pattern, const std::string logicalVolume) const
+{
+    return (logicalVolume.find(pattern) != std::string::npos);
 }
 
 bool UserLimitsTool::isMatch(const std::string& a,const std::string b) const
