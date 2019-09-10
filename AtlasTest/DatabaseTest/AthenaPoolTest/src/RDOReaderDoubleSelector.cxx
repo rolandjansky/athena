@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,9 +40,6 @@
 // test includes
 #include "InDetRawDataFakeCreator.h"
 #include "LArCellContFakeCreator.h"
-
-// TES include
-#include "StoreGate/StoreGateSvc.h"
 
 // Gaudi includes
 #include "GaudiKernel/MsgStream.h"
