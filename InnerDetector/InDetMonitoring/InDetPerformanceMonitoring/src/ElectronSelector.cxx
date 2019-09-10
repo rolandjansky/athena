@@ -20,9 +20,7 @@
 #include "GaudiKernel/IToolSvc.h"
 
 
-// Local debug variables. Global scope, but only accessible by this file.
-static const float CGeV              =  1.0e-3;  // Conversion factor to remove evil MeV
-                                                 // nonsense.
+static const float CGeV =  1.0e-3;  // Conversion factor to remove evil MeV nonsense.
 
 // Static declarations
 unsigned int ElectronSelector::s_uNumInstances;
@@ -33,7 +31,7 @@ unsigned int ElectronSelector::s_uNumInstances;
 ElectronSelector::ElectronSelector():
   m_doDebug ( false ),
   m_ptCut ( 10. ),
-  m_etaCut ( 2.45 ), // 2.47 is used in ANA-HIGG-2018-29-INT1 Higgs to 4leptons Run2 paper
+  m_etaCut ( 2.47 ), // 2.47 is the official acceptance for central electrons. Forward electrons is another story...
   m_deltaXYcut ( 0.1 ),
   m_deltaZcut ( 4. )
 {
@@ -73,21 +71,31 @@ void ElectronSelector::Init()
   // m_doIDCuts = true;
   (*m_msgStream) << MSG::INFO << "ElectronSelector::Init -- Setting up electron LH tool." << endreq;
   m_LHTool2015 = new AsgElectronLikelihoodTool ("m_LHTool2015");
-  //  if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure())
-  //  ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
 
-  //if((m_LHTool2015->setProperty("WorkingPoint","MediumLHElectron")).isFailure()) 
-  //if((m_LHTool2015->setProperty("WorkingPoint","TightLHElectron")).isFailure()) {
-  if((m_LHTool2015->setProperty("WorkingPoint","LooseLHElectron")).isFailure()) {
-    (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool: LooseLHElectron " << endreq;
+  const std::string elecWorkingPoint = "LooseLHElectron"; // "MediumLHElectron" "TightLHElectron"
+
+  if((m_LHTool2015->setProperty("WorkingPoint",elecWorkingPoint.c_str())).isFailure()) {
+    (*m_msgStream) << MSG::WARNING << "Failure loading ConfigFile for electron likelihood tool with working point: " << elecWorkingPoint.c_str()  << endreq;
   } 
   else  {
-    (*m_msgStream) << MSG::WARNING << "Loading ConfigFile for electron likelihood tool: LooseLHElectron. SUCCESS " << endreq;    
+    (*m_msgStream) << MSG::INFO << "Loading ConfigFile for electron likelihood tool with working point: " << elecWorkingPoint << ". SUCCESS " << endreq;    
   } 
 
-  StatusCode lhm = m_LHTool2015->initialize();
-  if(lhm.isFailure())
-    (*m_msgStream) << MSG::WARNING << "Electron likelihood tool initialize() failed!" << endreq;
+  // check config files at: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/EGammaIdentificationRun2
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf";
+  if ( (m_LHTool2015->setProperty("ConfigFile", confDir)).isSuccess()) {
+    (*m_msgStream) << MSG::INFO << "Electron likelihood config ("<< confDir.c_str() << ") setting SUCCESS!" << endreq;
+  }
+  else {
+    (*m_msgStream) << MSG::WARNING << "Electron likelihood config ("<< confDir.c_str() << ") setting FAILURE" << endreq;
+  }
+
+  if (m_LHTool2015->initialize().isSuccess()) {
+    (*m_msgStream) << MSG::INFO << "Electron likelihood tool initialize() SUCCESS!" << endreq;
+  }
+  else {
+    (*m_msgStream) << MSG::WARNING << "Electron likelihood tool initialize() FAILURE!" << endreq;
+  }
 
   (*m_msgStream) << MSG::INFO << " --ElectronSelector::Init -- COMPLETED -- " << endreq;
   return;
@@ -140,7 +148,7 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
   bool electronisgood = true;
 
   // check the electron satisfies the working point
-  if (!m_LHTool2015->accept(thisElec)) {
+  if (!m_LHTool2015->accept(thisElec) ) {
     electronisgood = false;
     (*m_msgStream) << MSG::DEBUG << " -- electron fails workingpoint selection  -- " << endreq;
   }
@@ -165,18 +173,10 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 		   << endreq;
   }
 
-  if (electronisgood && theTrackParticle->pt() * CGeV < m_ptCut ) { // pt cut given in GeV
-    electronisgood = false;
-    (*m_msgStream) << MSG::DEBUG << "   -- electron fails pt cut  -- pt= " << theTrackParticle->pt()
-		   << " < " << m_ptCut << " (cut value) "
-		   << endreq;
-  }
-
   const xAOD::CaloCluster* cluster = thisElec->caloCluster();
   if(!cluster) {
     electronisgood = false;
     (*m_msgStream) << MSG::DEBUG << "   -- electron candidate has no CaloCluster  " << endreq; 
-    std::cout << "   -- electron candidate has no CaloCluster  " << std::endl; 
   }
 
   if (electronisgood && (cluster->e() * sin(theTrackParticle->theta())) * CGeV < m_ptCut) { // cut on et of the cluster
@@ -198,33 +198,11 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
     calocluster4mom.setPz ( cluster->e() * cos(theTrackParticle->theta()) );
     calocluster4mom.setE  ( cluster->e() );
   
-    if (false) {
-      std::cout << " -- ElectronSelector::RecordElectron -- id " << m_pxElTrackList.size()
-		<< "  track Pt: " << theTrackParticle->pt() 
-		<< "  cluster ET: " << calocluster4mom.perp()
-		<< "  cluster E: " << cluster->e() 
-		<< "  theta: " << theTrackParticle->theta()
-		<< "  eta: " << theTrackParticle->eta()
-		<< std::endl;
-    }
-  
     xAOD::TrackParticle* newtp = new xAOD::TrackParticle(*theTrackParticle);
     float qsign = (theTrackParticle->qOverP() > 0) ? 1. : -1.;
     newtp->setDefiningParameters(theTrackParticle->d0(), theTrackParticle->z0(), theTrackParticle->phi(), theTrackParticle->theta(), qsign/cluster->e());
 
-    if (false) {
-      std::cout << " -- new method                       -- id " << m_pxElTrackList.size()
-		<< "  track Pt: " << theTrackParticle->pt() 
-		<< "  new track Pt: " << newtp->pt() 
-		<< "  cluster ET: " << calocluster4mom.perp()
-		<< "  cluster E: " << cluster->e() 
-		<< "  theta: " << theTrackParticle->theta()
-		<< "  new: " << newtp->theta()
-		<< std::endl;
-    }
-
     // store this electron?
-    // m_pxElTrackList.push_back(theTrackParticle);
     m_pxElTrackList.push_back(newtp);
     (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << newtp->pt() << std::endl;
   }
@@ -256,7 +234,6 @@ bool ElectronSelector::OrderElectronList()
   bool goodlist = true;
 
   if (m_pxElTrackList.size() >= 2) { // we need at least 2 electrons
-
     double ptMinus1 = 0.;
     double ptMinus2 = 0.;
     double ptPlus1  = 0.;
@@ -342,7 +319,7 @@ bool ElectronSelector::RetrieveVertices ()
   int nverticesfound = 0;
   if (m_goodElecNegTrackParticleList.size() >= 1 && m_goodElecPosTrackParticleList.size() >= 1) { // we need at least 1 e- and 1 e+
     // then, check the distances between the e- and e+ vertices, and make sure at least 1 pair comes from same vertex
-    for (unsigned int ielec = 0; ielec < m_goodElecNegTrackParticleList.size(); ielec++) {
+    for (size_t ielec = 0; ielec < m_goodElecNegTrackParticleList.size(); ielec++) {
       // loop on e-
       if (m_goodElecNegTrackParticleList.at(ielec)->vertex()) {
 	if (m_doDebug) std::cout << "     e-(" << ielec <<")->vertex()->v= (" << m_goodElecNegTrackParticleList.at(ielec)->vertex()->x()
@@ -350,7 +327,8 @@ bool ElectronSelector::RetrieveVertices ()
 				 << ", " << m_goodElecNegTrackParticleList.at(ielec)->vertex()->z()
 				 << ") " << std::endl;
 
-	for (unsigned int iposi = 0; iposi < m_goodElecPosTrackParticleList.size(); iposi++) {
+	// for (unsigned int iposi = 0; iposi < m_goodElecPosTrackParticleList.size(); iposi++) {
+	for (size_t iposi = 0; iposi < m_goodElecPosTrackParticleList.size(); iposi++) {
 	  if (m_goodElecPosTrackParticleList.at(iposi)->vertex()) {
 	    if (m_doDebug) std::cout << "     e+(" << iposi <<")->vertex()->v= (" << m_goodElecPosTrackParticleList.at(iposi)->vertex()->x()
 				     << ", " << m_goodElecPosTrackParticleList.at(iposi)->vertex()->y()
@@ -375,4 +353,22 @@ bool ElectronSelector::RetrieveVertices ()
 
   if (m_doDebug) std::cout << " -- ElectronSelector::RetrieveVertices -- COMPLETED -- status: " << goodvertices << std::endl; 
   return goodvertices;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
+const xAOD::TrackParticle* ElectronSelector::GetElecNegTrackParticle (size_t i) 
+{
+  if (i >= m_goodElecNegTrackParticleList.size()) { // requesting out of range electron
+    return nullptr;
+  } 
+  return m_goodElecNegTrackParticleList.at(i);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                      
+const xAOD::TrackParticle* ElectronSelector::GetElecPosTrackParticle (size_t i) 
+{
+  if (i >=  m_goodElecPosTrackParticleList.size()) { // requesting out of range electron
+    return nullptr;
+  } 
+  return m_goodElecPosTrackParticleList.at(i);
 }

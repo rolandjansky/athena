@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python                                                                                                                                                                    
 m_year = 2017
 m_storingFolder = ""
@@ -154,9 +155,9 @@ def extractRunsAndProperties (listOfDataSets):
         print (" <acZmumu> #data sets= %d" %(len(listOfDataSets)))
         # extract data set name
         # first is the data project
-        linecount = -1 # init line count
+        lineindex = 0 # init line 
         for theLine in listOfDataSets: 
-            linecount += 1
+            lineindex += 1
             # lines with the main data (warning: there could be lines with left over content
             # Warning: there could be some dataset name left over in the next line
             if(m_dataProject in theLine):
@@ -165,9 +166,9 @@ def extractRunsAndProperties (listOfDataSets):
                 theDataSet = tempString[1:tempString.find("|")] # start from character 1 to avoid blank space
                 theDataSet.rstrip()
                 # check if the dataset name spilled over the next line
-                if ("--------" not in listOfDataSets[linecount+1]):
+                if ("--------" not in listOfDataSets[lineindex]):
                     # retrieve the remainings of the dataset name
-                    theNextLine = listOfDataSets[linecount+1]
+                    theNextLine = listOfDataSets[lineindex]
                     tempString2 = theNextLine[1:]
                     tempString2 = tempString2[1:tempString2.find("|")]
                     tempString2.strip()
@@ -198,7 +199,6 @@ def extractRunsAndProperties (listOfDataSets):
                 print (" ")
 
                 if (m_dataProject not in theLine and theRunNumber in dict):
-                    print " pasa 1 per al run %d i dataproject %s  i theLine %s" %(theRunNumber,m_dataProject,theLine) 
                     # this means this line has leftover content
                     tempString = theLine[1:] # already remove the first "|"
                     theDataSet = tempString[1:tempString.find("|")] # start from character 1 to avoid blank space
@@ -312,10 +312,8 @@ def submitGridJobsUserDataSet ():
     theCommand = getGridSubmissionCommand(0, infoFromAMI)
     if type(theCommand) is tuple:
         tempCommand = theCommand[0]
-        print " -- SALVA -- tenim tuple ",theCommand
-        print " -- SALVA -- posible command: ",tempCommand
         theCommand = tempCommand
-    print " -- SALVA -- theCommand = %s" %theCommand
+
     if (m_submitExec): 
         print (" <acZmumu> m_submitExec = True --> job to be submmited");
         # move to the submission folder
@@ -532,8 +530,7 @@ def getGridSubmissionCommand(runNumber, infoFromAMI):
         theOptions = "--nfiles %d --useShortLivedReplicas  --forceStaged" %(infoFromAMI[runNumber]["nfiles"])
     else: 
         if ("NONE" not in m_userDataSet):
-            #theOptions = "--useShortLivedReplicas  --forceStaged"
-            theOptions = "--useShortLivedReplicas --forceStaged" # under test. Suggested by Ilija Vukotic on 14/July/2019
+            theOptions = "--useShortLivedReplicas  --forceStaged"
 
     theExtraOptions = "" 
     if (len(m_workDirPlatform)>0): 
@@ -706,10 +703,10 @@ if __name__ == '__main__':
 
     # submit the necessary jobs
     listOfSubmittedRuns = submitGridJobs (infoFromAMI, listOfNewRuns, listOfPendingRuns)
-    print (" <acZmumu> main returned a list of submitted runs with %d elements" %(len(listOfSubmittedRuns)))
+    #print (" <acZmumu> main returned a list of submitted runs with %d elements" %(len(listOfSubmittedRuns)))
 
     # store new status
-    updateRecordsFile(listOfUsedRuns, infoFromAMI)
+    #updateRecordsFile(listOfUsedRuns, infoFromAMI)
 
     endBanner ()
 #

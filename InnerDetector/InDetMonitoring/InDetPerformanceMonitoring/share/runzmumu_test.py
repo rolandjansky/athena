@@ -33,7 +33,7 @@ monitoringAllTracks = True
 useGRL = False
 
 # MC
-MC_bool = False
+MC_bool = True
 
 # do Trigger
 DoTrigger = False
@@ -93,9 +93,11 @@ if (grid_bool):
 if (MC_bool): 
     PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ggH400NW_ZZ4lep_AOD.16564460._000001.pool.root.1"]
     #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/ZmumuMC16_AOD.18379878._000123.pool.root.1"]
+    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/mc16_13TeV_361603.PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4.deriv.DAOD_HIGG2D1_file11.pool.root.1"]
+    #PoolInput = ["/eos/user/m/martis/data/InputFileForGridJobs/mc16_13TeV.361603.PowhegPy8EG_CT10nloME_AZNLOCTEQ6L1_ZZllll_mll4.AOD.file01.pool.root.1"]
 
 EvtMax= -1
-EvtMax = 2000
+EvtMax = 5000 #2000
 SkipEvents = 0
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -317,8 +319,8 @@ if zmumuval == True:
                                     doIsoSelection = True,
                                     doIPSelection = True,
                                     doMCPSelection = True, # Medium 
-                                    doFourMuAnalysis = False,
-                                    StoreZmumuNtuple = True,
+                                    doFourMuAnalysis = True,
+                                    StoreZmumuNtuple = False,
                                     #loose selection to keep Z and JPsi events in the ntuple
                                     MassWindowLow = 2.,
                                     MassWindowHigh = 2000.,

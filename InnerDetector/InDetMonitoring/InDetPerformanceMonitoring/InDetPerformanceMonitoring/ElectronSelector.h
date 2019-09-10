@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef IDPERFMON_ELECTRONSELECTOR_H
@@ -33,11 +33,10 @@ class ElectronSelector : public EventAnalysis
 
   void setDebug (bool debug) {m_doDebug = debug;}
  
-  // Override functions from EventAnalysis
-  inline const xAOD::TrackParticle* GetElecNegTrackParticle (int i) {if (i<0 || i >= (int) m_goodElecNegTrackParticleList.size()) {return nullptr;} return m_goodElecNegTrackParticleList.at(i);}
-  inline const xAOD::TrackParticle* GetElecPosTrackParticle (int i) {if (i<0 || i >= (int) m_goodElecPosTrackParticleList.size()) {return nullptr;} return m_goodElecPosTrackParticleList.at(i);}
-
+  const xAOD::TrackParticle*        GetElecNegTrackParticle (size_t i);
+  const xAOD::TrackParticle*        GetElecPosTrackParticle (size_t i);
   inline unsigned int               GetElectronCollectionSize() {return m_goodElecNegTrackParticleList.size() + m_goodElecPosTrackParticleList.size();}
+  // Override functions from EventAnalysis
   void                              Init();
   void                              PrepareElectronList (const xAOD::ElectronContainer* pxElecContainer);
   bool                              RecordElectron (const xAOD::Electron *);
