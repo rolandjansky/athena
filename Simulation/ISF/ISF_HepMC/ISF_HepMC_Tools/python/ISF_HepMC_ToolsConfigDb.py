@@ -4,6 +4,7 @@ from AthenaCommon.CfgGetter import addTool
 ## GenParticle Filters
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticleFinalStateFilter",          "ISF_ParticleFinalStateFilter")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticleSimWhiteList",              "ISF_ParticleSimWhiteList")
+addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticleSimWhiteList_LongLived",    "ISF_ParticleSimWhiteList_LongLived")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterID",          "ISF_ParticlePositionFilterID")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterCalo",        "ISF_ParticlePositionFilterCalo")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterMS",          "ISF_ParticlePositionFilterMS")

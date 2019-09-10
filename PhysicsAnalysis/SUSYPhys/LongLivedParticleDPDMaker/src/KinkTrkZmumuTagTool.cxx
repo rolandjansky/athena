@@ -184,32 +184,12 @@ bool DerivationFramework::KinkTrkZmumuTagTool::checkMuonTrackPair(const xAOD::Mu
 
 bool DerivationFramework::KinkTrkZmumuTagTool::passMuonQuality(const xAOD::Muon *muon) const
 {
-  if (muon->pt() < m_muonPtCut) return false;
-  if (fabs(muon->eta()) > m_muonEtaMax) return false;
+  if( muon->pt() < m_muonPtCut                    ) return false;
+  if( fabs(muon->eta()) > m_muonEtaMax            ) return false;
+  if( !m_muonSelectionTool->passedMuonCuts(*muon) ) return false;
+  if( muon->muonType() != xAOD::Muon::Combined    ) return false;
 
-  bool passID(false);
-  for (unsigned int i=0; i<m_muonIDKeys.size(); i++) {
-    int qflag(0);
-    if (m_muonIDKeys[i] == "VeryLoose") {
-      qflag = xAOD::Muon::VeryLoose;
-    } else if (m_muonIDKeys[i] == "Loose") {
-      qflag = xAOD::Muon::Loose;
-    } else if (m_muonIDKeys[i] == "Medium" ) {
-      qflag = xAOD::Muon::Medium;
-    } else if (m_muonIDKeys[i] == "Tight") { 
-      qflag = xAOD::Muon::Tight;
-    } else {
-      ATH_MSG_WARNING("Cannot find the muon quality flag " << m_muonIDKeys[i] << ". Use Medium instead.");
-      qflag = xAOD::Muon::Medium;
-    }
-
-    if ( m_muonSelectionTool->getQuality(*muon) <= qflag ) {
-      passID = true;
-      break;
-    }
-  }
-  if (!passID) return false;
-
+  // Good muon!
   return true;
 }
 

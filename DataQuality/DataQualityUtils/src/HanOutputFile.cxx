@@ -852,7 +852,7 @@ void getImageBuffer(TImage* img, TCanvas* myC, char** x, int* y){
 bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName,int cnvsType){
   std::pair<std::string,std::string> pngAndJson = getHistogram(nameHis,groupDir,drawRefs,run_min_LB,pathName,cnvsType);
   //std::string tosave = getHistogramPNG(nameHis, groupDir, drawRefs, run_min_LB, pathName);
-  if (pngAndJson.first== "") {
+  if (pngAndJson.first== ""&&pngAndJson.second=="") {
     return false;
   }
   std::string namePNG   = nameHis;
@@ -874,12 +874,12 @@ bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string locati
 std::string
 HanOutputFile::
 getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
-    int cnvsType = 0;
+    int cnvsType = 1;
     return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,cnvsType).first;
 }
 
 std::pair<std::string,std::string> HanOutputFile:: getHistogramJSON( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
-    int cnvsType = 1;
+    int cnvsType = 2;
     return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,cnvsType);
 }
 

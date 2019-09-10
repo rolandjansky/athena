@@ -8,7 +8,7 @@ m_testArea = ""
 m_packagePath = ""
 m_theUser = ""
 m_savingFile = "acZmumu_history.txt"
-m_reconmerge = "deriv" #"merge" # "deriv" "merge" "%"
+m_reconmerge = "merge" # "deriv" "merge" "%"
 m_workDirPlatform = ""
 
 # options

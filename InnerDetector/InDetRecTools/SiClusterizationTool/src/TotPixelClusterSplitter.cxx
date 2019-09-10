@@ -218,7 +218,7 @@ std::vector<InDet::PixelClusterParts> InDet::TotPixelClusterSplitter::splitClust
   if (!pixelIDp){
     ATH_MSG_ERROR("Could not get PixelID pointer");
   } 
-  const PixelID& pixelID = *pixelIDp;
+  //  const PixelID& pixelID = *pixelIDp;
 
   
   for (unsigned int i = 0; i < NumPixels; i++)

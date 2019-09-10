@@ -6,6 +6,7 @@ import sys, os
 import array
 import argparse
 import time
+ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('infile', type=str, help='input HIST file')
