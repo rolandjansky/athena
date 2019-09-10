@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // This source file implements all of the functions related to <OBJECT>
@@ -221,7 +221,7 @@ namespace ST {
     }
 
     for (const auto& jet : *copy) {
-      ATH_CHECK( this->FillJet(*jet, true, true) );
+      ATH_CHECK( this->FillJet(*jet, true, true, true) );
       //...
       const static SG::AuxElement::Decorator<int> dec_wtagged("wtagged");
       const static SG::AuxElement::Decorator<int> dec_ztagged("ztagged");
@@ -307,10 +307,10 @@ namespace ST {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode SUSYObjDef_xAOD::FillJet(xAOD::Jet& input, bool doCalib, bool isFat) {
+  StatusCode SUSYObjDef_xAOD::FillJet(xAOD::Jet& input, bool doCalib, bool isFat, bool isTCC) {
 
     ATH_MSG_VERBOSE( "Starting FillJet on jet with pt=" << input.pt() );
-    ATH_MSG_VERBOSE(  " jet (pt,eta,phi) before calibration " << input.pt() << " " << input.eta() << " " << input.phi() );
+    ATH_MSG_VERBOSE(  "jet (pt,eta,phi) before calibration " << input.pt() << " " << input.eta() << " " << input.phi() );
 
     if (doCalib) {
       if(!isFat){
@@ -328,15 +328,16 @@ namespace ST {
         dec_btag_weight(input) = -999.;
 
         // If a user hasn't specified an uncertainty config, then this tool will be empty
+        // for large R jets
         if (!m_fatjetUncertaintiesTool.empty()){
           CP::CorrectionCode result = m_fatjetUncertaintiesTool->applyCorrection(input);
           switch (result) {
           case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( " Failed to apply largeR jet scale uncertainties.");
+            ATH_MSG_ERROR( "Failed to apply largeR jet scale uncertainties.");
             return StatusCode::FAILURE;
             //break;
           case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( " No valid pt/eta/m range for largeR jet scale uncertainties. ");
+            ATH_MSG_VERBOSE( "No valid pt/eta/m range for largeR jet scale uncertainties. ");
             break;
           default:
             break;
@@ -345,9 +346,27 @@ namespace ST {
           ATH_MSG_DEBUG( "No valid fat jet uncertainty, but FillJet called with a fat jet. Skipping uncertainties." );
         }
 
+        // for TCC jets
+        if (!m_TCCjetUncertaintiesTool.empty() && isTCC){
+          CP::CorrectionCode result = m_TCCjetUncertaintiesTool->applyCorrection(input);
+          switch (result) {
+          case CP::CorrectionCode::Error:
+            ATH_MSG_ERROR( "Failed to apply TCC jet scale uncertainties.");
+            return StatusCode::FAILURE;
+            //break;
+          case CP::CorrectionCode::OutOfValidityRange:
+            ATH_MSG_VERBOSE( "No valid pt/eta/m range for TCC jet scale uncertainties. ");
+            break;
+          default:
+            break;
+          }
+        } else {
+          ATH_MSG_DEBUG( "No valid TCC jet uncertainty, but FillJet called with a TCC jet. Skipping uncertainties." );
+        }
+
         return StatusCode::SUCCESS;
       }
-      ATH_MSG_VERBOSE(  " jet (pt,eta,phi) after calibration " << input.pt() << " " << input.eta() << " " << input.phi() );
+      ATH_MSG_VERBOSE(  "jet (pt,eta,phi) after calibration " << input.pt() << " " << input.eta() << " " << input.phi() );
 
       //central jvt
       float jvt = m_jetJvtUpdateTool->updateJvt(input);
@@ -382,7 +401,7 @@ namespace ST {
       }
     }
   
-    ATH_MSG_VERBOSE(  " jet (pt,eta,phi) after JES correction " << input.pt() << " " << input.eta() << " " << input.phi() );
+    ATH_MSG_VERBOSE(  "jet (pt,eta,phi) after JES correction " << input.pt() << " " << input.eta() << " " << input.phi() );
 
     dec_passJvt(input) = !m_applyJVTCut || m_jetJvtEfficiencyTool->passesJvtCut(input);
     dec_baseline(input) = ( input.pt() > m_jetPt ) || ( input.pt() > 20e3 ); // Allows for setting m_jetPt < 20e3
@@ -442,7 +461,7 @@ namespace ST {
     }
 
     if (m_useBtagging) {
-      if (m_BtagWP != "Continuous") this->IsTrackBJet(input);
+      if (m_BtagWP_trkJet != "Continuous") this->IsTrackBJet(input);
       else this->IsTrackBJetContinuous(input);
     }
 
@@ -620,9 +639,9 @@ namespace ST {
       float sf = 1.;
 
       if ( fabs(jet->eta()) > 2.5 ) {
-        ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for jet with |eta|>2.5 (jet eta=" << jet->eta() << "), jet will be skipped");
+        ATH_MSG_VERBOSE( "Trying to retrieve b-tagging SF for jet with |eta|>2.5 (jet eta=" << jet->eta() << "), jet will be skipped");
       } else if ( jet->pt() < 20e3 ){ 
-        ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for jet with invalid pt (jet pt=" << jet->pt() << "), jet will be skipped");
+        ATH_MSG_VERBOSE( "Trying to retrieve b-tagging SF for jet with invalid pt (jet pt=" << jet->pt() << "), jet will be skipped");
       } else {
 
         CP::CorrectionCode result;
@@ -638,13 +657,13 @@ namespace ST {
 
           switch (result) {
           case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( " Failed to retrieve SF for b-tagged jets in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_ERROR( "Failed to retrieve SF for b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( " No valid SF for b-tagged jets in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_VERBOSE( "No valid SF for b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           default:
-            ATH_MSG_VERBOSE( " Retrieve SF for b-tagged jets in SUSYTools_xAOD::BtagSF with value " << sf );
+            ATH_MSG_VERBOSE( "Retrieve SF for b-tagged jets in SUSYTools_xAOD::BtagSF with value " << sf );
           }
         } else {
 
@@ -652,13 +671,13 @@ namespace ST {
 
           switch (result) {
           case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( " Failed to retrieve SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_ERROR( "Failed to retrieve SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( " No valid inefficiency SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF" );
+            ATH_MSG_VERBOSE( "No valid inefficiency SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF" );
             break;
           default:
-            ATH_MSG_VERBOSE( " Retrieve SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF with value " << sf );
+            ATH_MSG_VERBOSE( "Retrieve SF for non-b-tagged jets in SUSYTools_xAOD::BtagSF with value " << sf );
           }
         }
       }
@@ -704,9 +723,9 @@ namespace ST {
       float sf = 1.;
 
       if ( fabs(trkjet->eta()) > 2.5 ) {
-        ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for trkjet with |eta|>2.5 (trkjet eta=" << trkjet->eta() << "), trkjet will be skipped");
+        ATH_MSG_VERBOSE( "Trying to retrieve b-tagging SF for trkjet with |eta|>2.5 (trkjet eta=" << trkjet->eta() << "), trkjet will be skipped");
       } else if ( trkjet->pt() < 20e3 ){ 
-        ATH_MSG_VERBOSE( " Trying to retrieve b-tagging SF for trkjet with invalid pt (trkjet pt=" << trkjet->pt() << "), jet will be skipped");
+        ATH_MSG_VERBOSE( "Trying to retrieve b-tagging SF for trkjet with invalid pt (trkjet pt=" << trkjet->pt() << "), jet will be skipped");
       } else {
 
         CP::CorrectionCode result;
@@ -722,13 +741,13 @@ namespace ST {
 
           switch (result) {
           case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( " Failed to retrieve SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            ATH_MSG_ERROR( "Failed to retrieve SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
             break;
           case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( " No valid SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            ATH_MSG_VERBOSE( "No valid SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
             break;
           default:
-            ATH_MSG_VERBOSE( " Retrieve SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet with value " << sf );
+            ATH_MSG_VERBOSE( "Retrieve SF for b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet with value " << sf );
           }
         } else {
 
@@ -736,13 +755,13 @@ namespace ST {
 
           switch (result) {
           case CP::CorrectionCode::Error:
-            ATH_MSG_ERROR( " Failed to retrieve SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            ATH_MSG_ERROR( "Failed to retrieve SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
             break;
           case CP::CorrectionCode::OutOfValidityRange:
-            ATH_MSG_VERBOSE( " No valid inefficiency SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
+            ATH_MSG_VERBOSE( "No valid inefficiency SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet" );
             break;
           default:
-            ATH_MSG_VERBOSE( " Retrieve SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet with value " << sf );
+            ATH_MSG_VERBOSE( "Retrieve SF for non-b-tagged trk jets in SUSYTools_xAOD::BtagSF_trkJet with value " << sf );
           }
         }
       }
@@ -801,7 +820,7 @@ namespace ST {
     case CP::CorrectionCode::OutOfValidityRange:
       ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::JVT_SF" );
     default:
-      ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::JVT_SF with value " << totalSF );
+      ATH_MSG_VERBOSE( "Retrieve SF for jet container in SUSYTools_xAOD::JVT_SF with value " << totalSF );
     }
 
     return totalSF;
@@ -854,7 +873,7 @@ namespace ST {
     case CP::CorrectionCode::OutOfValidityRange:
       ATH_MSG_VERBOSE( "No valid SF for jet in SUSYTools_xAOD::FJVT_SF" );
     default:
-      ATH_MSG_VERBOSE( " Retrieve SF for jet container in SUSYTools_xAOD::FJVT_SF with value " << totalSF );
+      ATH_MSG_VERBOSE( "Retrieve SF for jet container in SUSYTools_xAOD::FJVT_SF with value " << totalSF );
     }
 
     return totalSF;
