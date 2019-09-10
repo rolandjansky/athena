@@ -8,12 +8,12 @@ from BTagging.MV2defaultValues import MVTM_varNames
 # import the MV2Tag configurable
 from JetTagTools.JetTagToolsConf import Analysis__MV2Tag
 
-def MV2TagCfg( name = 'MV2c10', scheme = '', useBTagFlagsDefaults = True, **options ):
+def MV2TagCfg( flags, name = 'MV2c10', scheme = '', useBTagFlagsDefaults = True, **options ):
     """Sets up a MV2c10Tag tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
-    Runmodus                            default: BTaggingFlags.Runmodus
+    Runmodus                            default: BTagging.RunModus
     taggerName                          default: "MV2c10"
     taggerNameBase                      default: "MV2c10"
     forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
@@ -29,7 +29,7 @@ def MV2TagCfg( name = 'MV2c10', scheme = '', useBTagFlagsDefaults = True, **opti
     options['xAODBaseName'] = basename
 
     if useBTagFlagsDefaults:
-        defaults = { 'Runmodus'                         : BTaggingFlags.Runmodus,
+        defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'taggerName'                       : basename,
                      'taggerNameBase'                   : basename,
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,

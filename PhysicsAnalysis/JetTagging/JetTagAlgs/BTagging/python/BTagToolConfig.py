@@ -35,7 +35,7 @@ def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, **
 
       if 'SV1' in TaggerList:
           from JetTagTools.SV1TagConfig import SV1TagCfg
-          sv1tool = acc.popToolsAndMerge(SV1TagCfg('SV1Tag'))
+          sv1tool = acc.popToolsAndMerge(SV1TagCfg(ConfigFlags, 'SV1Tag'))
           tagToolList.append(sv1tool)
 
       if 'RNNIP' in TaggerList:
@@ -45,7 +45,7 @@ def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, **
 
       if 'JetFitterNN' in TaggerList:
           from JetTagTools.JetFitterTagConfig import JetFitterTagCfg
-          jetfitterNNtool = acc.popToolsAndMerge(JetFitterTagCfg('JetFitterTagNN'))
+          jetfitterNNtool = acc.popToolsAndMerge(JetFitterTagCfg(ConfigFlags, 'JetFitterTagNN'))
           tagToolList.append(jetfitterNNtool)
       
       if 'SoftMu' in TaggerList:
@@ -55,22 +55,25 @@ def BTagToolCfg(ConfigFlags, jetcol, TaggerList, useBTagFlagsDefaults = True, **
 
       if 'MultiSVbb1' in TaggerList:
           from JetTagTools.MultiSVTagConfig import MultiSVTagCfg
-          multisvbb1tool = acc.popToolsAndMerge(MultiSVTagCfg('MultiSVbb1Tag','MultiSVbb1'))
+          multisvbb1tool = acc.popToolsAndMerge(MultiSVTagCfg(ConfigFlags,'MultiSVbb1Tag','MultiSVbb1'))
           tagToolList.append(multisvbb1tool)
 
       if 'MultiSVbb2' in TaggerList:
           from JetTagTools.MultiSVTagConfig import MultiSVTagCfg
-          multisvbb2tool = acc.popToolsAndMerge(MultiSVTagCfg('MultiSVbb2Tag','MultiSVbb2'))
+          multisvbb2tool = acc.popToolsAndMerge(MultiSVTagCfg(ConfigFlags, 'MultiSVbb2Tag','MultiSVbb2'))
           tagToolList.append(multisvbb2tool)
 
       if 'JetVertexCharge' in TaggerList:
           from JetTagTools.JetVertexChargeConfig import JetVertexChargeCfg
-          jvc = acc.popToolsAndMerge(JetVertexChargeCfg('JetVertexCharge'))
+          jvc = acc.popToolsAndMerge(JetVertexChargeCfg(ConfigFlags, 'JetVertexCharge'))
           tagToolList.append(jvc)
 
-      if 'DL1' in TaggerList or 'DL1mu' in TaggerList or 'DL1rnn' in TaggerList:
+      # list of taggers that use MultivariateTagManager
+      mvtm_taggers = ['MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2c10mu','MV2c10rnn','MV2m','MV2c10hp','DL1','DL1mu','DL1rnn']
+      mvtm_active_taggers = list(set(mvtm_taggers) & set(TaggerList))
+      if len(mvtm_active_taggers) > 0:
           from JetTagTools.MultivariateTagManagerConfig import MultivariateTagManagerCfg
-          mvtm = acc.popToolsAndMerge(MultivariateTagManagerCfg('mvtm', TaggerList = TaggerList))
+          mvtm = acc.popToolsAndMerge(MultivariateTagManagerCfg(ConfigFlags, 'mvtm', TaggerList = mvtm_active_taggers))
           tagToolList.append(mvtm)
 
       options = dict(options)
