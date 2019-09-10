@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -505,12 +505,9 @@ void InDet::TRT_TrackExtensionTool_xk::magneticFieldInit()
 {
   // Build MagneticFieldProperties 
   //
-
-  Trk::MagneticFieldProperties* pMF = 0;
-  if     (m_fieldmode == "NoField"    ) pMF = new Trk::MagneticFieldProperties(Trk::NoField  );
-  else if(m_fieldmode == "MapSolenoid") pMF = new Trk::MagneticFieldProperties(Trk::FastField);
-  else                                  pMF = new Trk::MagneticFieldProperties(Trk::FullField);
-  m_fieldprop = *pMF; delete pMF;
+  if     (m_fieldmode == "NoField"    ) m_fieldprop = Trk::MagneticFieldProperties(Trk::NoField  );
+  else if(m_fieldmode == "MapSolenoid") m_fieldprop = Trk::MagneticFieldProperties(Trk::FastField);
+  else                                  m_fieldprop = Trk::MagneticFieldProperties(Trk::FullField);
   m_trajectory.set(m_fieldprop,m_fieldService);
 }
 
