@@ -33,7 +33,7 @@ StatusCode StreamTagMakerTool::initialize() {
 
   ATH_MSG_INFO("Configuring from " << m_menuJSON << " with " << hltMenu.size() << " chains");
 
-  for (TrigConf::HLTChain chain : hltMenu) {
+  for (const TrigConf::Chain & chain : hltMenu) {
     std::vector<TrigConf::DataStructure> streams = chain.streams();
     if (streams.empty()) {
       ATH_MSG_ERROR("Chain " << chain.name() << " has no streams assigned");
