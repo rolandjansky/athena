@@ -9,7 +9,6 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/ReadCondHandle.h"
 

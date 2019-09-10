@@ -112,7 +112,6 @@ StatusCode FTK_RDO_ReaderAlgo::initialize(){
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
 
   //FIX THESE
-  ATH_CHECK( service("StoreGateSvc", m_StoreGate ));
   ATH_MSG_INFO("Input RDO collection" << m_ftk_raw_trackcollection_Name);
   if (m_getRawTracks) ATH_MSG_INFO("Getting FTK_RawTracks from Storegate");
   if (m_getTracks) ATH_MSG_INFO("Getting FTK Trk::Tracks from "<< m_DataProviderSvc);

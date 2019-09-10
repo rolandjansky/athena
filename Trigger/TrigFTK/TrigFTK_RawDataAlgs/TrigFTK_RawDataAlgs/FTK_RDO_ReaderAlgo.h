@@ -69,7 +69,6 @@ private:
 
   /// Tools and services ///
   ITHistSvc*    m_rootHistSvc;
-  StoreGateSvc* m_StoreGate;
 
 
   /// Track collections ///
