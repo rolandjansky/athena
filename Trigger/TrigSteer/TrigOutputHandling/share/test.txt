@@ -10,3 +10,11 @@ ToolSvc.serialiser.CollectionsToSerialize = ["xAOD::TrigEMClusterContainer_v1#EM
                                         "xAOD::TrigEMClusterAuxContainer_v2#EMClustersAux.viewIndex.testFloat.rawEt.testSmallFloat;0",
 					"xAOD::TrigCompositeContainer_v1#EMClustersDecisions;0,1",
 					"xAOD::TrigCompositeAuxContainer_v2#EMClustersDecisionsAux.detail1.detail2;0,1"];
+
+ToolSvc.schemaTest.OutputLevel=1;
+ToolSvc.schemaTest.SaveDynamic=0;
+ToolSvc.schemaTest.CollectionsToSerialize = ["xAOD::TrigEMClusterContainer_v1#EMClusters;0", 
+                                        "xAOD::TrigEMClusterAuxContainer_v2#EMClustersAux.viewIndex.testFloat.rawEt.testSmallFloat;0",
+					"xAOD::TrigCompositeContainer_v1#EMClustersDecisions;0,1",
+					"xAOD::TrigCompositeAuxContainer_v2#EMClustersDecisionsAux.detail1.detail2;0,1"];
+

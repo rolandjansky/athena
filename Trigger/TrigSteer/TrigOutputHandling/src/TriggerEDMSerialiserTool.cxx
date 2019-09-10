@@ -224,6 +224,9 @@ StatusCode TriggerEDMSerialiserTool::serialisexAODAuxContainer( void* data, cons
   ATH_MSG_DEBUG("xAOD Aux Contianer");
   ATH_CHECK( serialiseContainer( data, address, buffer ) );    
   size_t baseSize = buffer.size();
+  if ( not m_saveDynamic )
+    return StatusCode::SUCCESS;
+
   DataObject* dObj = evtStore()->accessData( address.clid, address.key );
   ATH_CHECK( dObj != nullptr );
   size_t nDynWritten = 0;
