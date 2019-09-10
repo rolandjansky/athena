@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -30,7 +30,6 @@ class IPixelTDAQSvc: virtual public IInterface{
   virtual ~IPixelTDAQSvc(){};
   static const InterfaceID& interfaceID();
 
-  virtual StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS) = 0;
   virtual bool tdaq_module_enabled(const Identifier& moduleId) = 0;
   virtual bool tdaq_module_enabled(const IdentifierHash & elementHash) = 0;
 };
