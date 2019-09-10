@@ -95,6 +95,22 @@ public:
   WriteDecorHandleKey (const std::string& key = "",
                        const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
 
+  /**
+   * @brief auto-declaring Property constructor.
+   * @param name name of the property.
+   * @param key default StoreGate key for the object.
+   *
+   * Associates the named Property with this WDHK via declareProperty.
+   */
+  template <class OWNER, class K,
+            typename = typename std::enable_if<std::is_base_of<IProperty, OWNER>::value>::type>
+  inline WriteDecorHandleKey (OWNER* owner,
+                              std::string name,
+                              const K& key={},
+                              std::string doc="") :
+    Base(owner, name, key, doc),
+    m_contHandleKey(contKeyFromKey(key)) {}
+
 
   /**
    * @brief Change the key of the object to which we're referring.
