@@ -189,6 +189,18 @@ public:
   void setNonConstStore (SG::IAuxStore* store);
 
 
+  /// Mark that this type supports thinning operations.
+  /// See AthContainers/supportsThinning.h and
+  /// AthenaPoolCnvSvc/T_AthenaPoolCnv.h.
+  /// Helps guide which pool converter template will be used.
+  /// If false, the default pool converter will be used
+  /// rather than the aux store-specific one.
+  /// Ordinary xAOD type should not touch this, but
+  /// may be overridden in a derived class to handle
+  /// certain special cases.
+  static constexpr bool supportsThinning = true;
+
+
 protected:
   /**
    * @brief Initialize index tracking mode.
