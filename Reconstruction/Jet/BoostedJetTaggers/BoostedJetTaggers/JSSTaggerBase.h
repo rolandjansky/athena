@@ -45,6 +45,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
 
   // flag to calculate scale factor
   bool m_calcSF;
+  int m_DSID;
   int m_IsMC;
   // truth label
   std::string m_truthLabelDecorationName;

@@ -180,18 +180,22 @@ int JSSTaggerBase::matchToWZ_Sherpa(const xAOD::Jet& jet,
 
 StatusCode JSSTaggerBase::decorateTruthLabel(const xAOD::Jet& jet) const {
   
-  //Get the EventInfo to identify Sherpa samples:
-  
-  const xAOD::EventInfo * eventInfo = 0;
-  static unsigned int eventInfoWarnings = 0;
-  if ( evtStore()->retrieve(eventInfo,"EventInfo").isFailure() || !eventInfo ) {
-    ++eventInfoWarnings;
-    if ( eventInfoWarnings < 20 )
+  int channelNumber = -999;
+
+  if(m_DSID == -1){
+
+    //Get the EventInfo to identify Sherpa samples if DSID is not specified by user
+
+    const xAOD::EventInfo * eventInfo = 0;
+    if ( evtStore()->retrieve(eventInfo,"EventInfo").isFailure() || !eventInfo ) {
       ATH_MSG_ERROR("   BoostedJetTaggers::decorateTruthLabel : Failed to retrieve event information.");
-    return StatusCode::FAILURE;
-  }
+      return StatusCode::FAILURE;
+    }
   
-  int channelNumber = eventInfo->mcChannelNumber();
+    channelNumber = eventInfo->mcChannelNumber();
+  }
+  else
+    channelNumber = m_DSID;
 
   const xAOD::JetContainer* truthJet=nullptr;
   if( evtStore()->contains<xAOD::TruthParticleContainer>( m_truthWBosonContainerName ) ){
