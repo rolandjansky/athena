@@ -31,7 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  InnerDetector/InDetConditions/InDetBeamSpotService
                           Event/EventInfo
                           Generators/GeneratorObjects
-                          InnerDetector/InDetConditions/PixelConditionsServices
+                          InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces

@@ -24,6 +24,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
+#include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
+
 class PixelMonModules1D;
 class PixelMonModulesProf;
 class PixelMonModules2D;
@@ -57,7 +59,6 @@ class ITrackHoleSearchTool;
 }  // namespace Trk
 class IPixelCablingSvc;
 class SpacePointContainer;
-class IPixelByteStreamErrorsSvc;
 class PixelRDORawData;
 
 typedef InDet::PixelCluster PixelCluster;
@@ -168,8 +169,11 @@ class PixelMainMon : public ManagedMonitorToolBase {
   StatusCode procPixelDCSMon(void);
 
  private:
-  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool{this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
-  ServiceHandle<IPixelByteStreamErrorsSvc> m_ErrorSvc;
+  ToolHandle<IInDetConditionsTool> m_pixelCondSummaryTool
+  {this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
+  ToolHandle<IPixelByteStreamErrorsTool> m_ErrorSvc
+  {this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool for PixelByteStreamError"};
+
   ServiceHandle<IPixelCablingSvc> m_pixelCableSvc;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
   ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool;

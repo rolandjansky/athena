@@ -18,7 +18,6 @@
 #include "LWHists/TH2I_LW.h"
 #include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "PixelMonitoring/PixelMainMon.h"
 #include "TH1F.h"
 #include "TH1I.h"

@@ -33,14 +33,11 @@ PixelClusterCacheTool::PixelClusterCacheTool( const std::string& type,
 					    const std::string& name, 
 					    const IInterface* parent )
   : AthAlgTool(type, name, parent), 
-    m_offlineDecoder("PixelRodDecoder",this), 
-    m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
     m_clusteringTool("InDet::MergedPixelsTool/InDetTrigMergedPixelsTool") 
 {
 
   declareInterface< IPixelClusterCacheTool>( this );
   declareProperty( "ClusterContainerName", m_containerName = "PixelClusterCache");
-  declareProperty( "PixelROD_Decoder", m_offlineDecoder,"PixelRodDecoder");
   declareProperty( "RDO_ContainerName", m_rdoContainerName = "PixelRDO_Cache");
   declareProperty( "UseOfflineClustering", m_useOfflineClustering = true);
   declareProperty( "PixelClusteringTool", m_clusteringTool,"InDet::MergedPixelsTool/InDetTrigMergedPixelsTool");
@@ -88,8 +85,8 @@ StatusCode PixelClusterCacheTool::initialize()  {
       return StatusCode::FAILURE; 
     }
 
-    if(StatusCode::SUCCESS !=m_bsErrorSvc.retrieve()) {
-      ATH_MSG_ERROR("initialize(): Can't get PixelByteStreamError service "<<m_bsErrorSvc);
+    if(StatusCode::SUCCESS !=m_bsErrorTool.retrieve()) {
+      ATH_MSG_ERROR("initialize(): Can't get PixelByteStreamError service "<<m_bsErrorTool);
       return StatusCode::FAILURE; 
     }
   }
@@ -259,7 +256,7 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
 	  ATH_MSG_DEBUG(std::hex<<"Det ID 0x"<<detid<<" Rod version 0x"<<
 	    robFrag->rod_version()<<", Type="<<robFrag->rod_detev_type()<<std::dec);
 	
-	m_bsErrorSvc->resetCounts();
+	m_bsErrorTool->resetCounts();
 	
 	StatusCode scRod(StatusCode::SUCCESS);
 	if(!isFullScan) {
@@ -274,7 +271,7 @@ StatusCode PixelClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& 
 	    n_recov_errors++;
 	    for(int idx=0;idx<MAXNUM_PIX_BS_ERRORS;idx++)
 	      {
-		int n_errors = m_bsErrorSvc->getNumberOfErrors(idx);
+		int n_errors = m_bsErrorTool->getNumberOfErrors(idx);
 		for(int ierror = 0; ierror < n_errors; ierror++)
 		  errorVect.push_back(idx);
 	      }

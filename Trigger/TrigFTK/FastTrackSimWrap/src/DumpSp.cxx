@@ -121,7 +121,6 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   , m_truthToTrack( "Trk::TruthToTrack/InDetTruthToTrack" )
   , m_trkSummaryTool( "Trk::TrackSummaryTool/InDetTrackSummaryTool" )
   , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
-  , m_pixelCondSummarySvc("PixelConditionsSummarySvc",name)
   // , m_holeSearchTool( "InDetHoleSearchTool" )
   , m_pixelClustersName( "PixelClusters" )
   , m_sctClustersName( "SCT_Clusters" )
@@ -174,7 +173,6 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("useSimpleCuts" ,           m_useSimpleCuts);
   //#ifdef HAVE_VERSION_15
   declareProperty("TrigDecisionTool",         m_trigDecTool );
-  declareProperty("PixelSummarySvc" ,         m_pixelCondSummarySvc);
   declareProperty("DoTrigger" ,           m_doTrigger);
   declareProperty("DoData" ,                m_doData);
   declareProperty("DoVertex" ,                m_doVertex);
@@ -246,11 +244,11 @@ DumpSp::initialize()
   }
   if( m_doBadMod) {
     // Get PixelConditionsSummarySvc
-    if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummarySvc);
+    if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummaryTool);
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummarySvc);
+      ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummaryTool);
     }
     // Get SctConditionsSummaryTool
     if ( m_sctCondSummaryTool.retrieve().isFailure() ) {
@@ -1448,7 +1446,7 @@ DumpSp::dump_bad_modules() const
          wafer_it!=pixel_wafer_end; wafer_it++) {
       const Identifier id = *wafer_it;
       const IdentifierHash idhash = m_pixelId->wafer_hash(id);
-      const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
+      const bool is_bad = !(m_pixelCondSummaryTool->isGood( idhash ));
       if( is_bad ) { 
         (*m_oflraw) << "B\t"
                   << 1  << '\t' // 1  pixel 0 sct  
