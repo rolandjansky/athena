@@ -105,6 +105,7 @@ StatusCode EFMissingETFromHelper::execute(xAOD::TrigMissingET *met ,
 
   unsigned int comp = met->getNumberOfComponents(); // final no. of aux. compon.
   unsigned char elem = metHelper->GetElements(); // no. of transient aux. compon.
+
   if (elem!=42) {
     ATH_MSG_WARNING( "Found " << elem << " aux components in the transient helper class.  Not supported!" );
   }

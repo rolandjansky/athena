@@ -351,6 +351,8 @@ TriggerHLTList = [
     ('xAOD::TrigMissingETAuxContainer#HLT_T2MissingETAux.',                              'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl_PUC',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocl_PUCAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_cell_PUC',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_cell_PUCAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_EFMissingET_Fex_2sidednoiseSupp_PUC',             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_EFMissingET_Fex_2sidednoiseSupp_PUCAux.',      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_mht',                             'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),

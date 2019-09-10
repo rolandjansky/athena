@@ -60,7 +60,6 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareProperty("ComponentFlags",  m_flags,  "(vector) set to -1 to switch off a component");
   declareProperty("ComponentCalib0", m_calib0, "(vector) additive calibration constants");
   declareProperty("ComponentCalib1", m_calib1, "(vector) multiplicative calib. constants");
-
   declareProperty("DoCaching", m_doCaching = false, "Enable the (buggy) caching");
 
   declareMonitoredVariable("EF_MEx_log",   m_mex_log);
@@ -530,7 +529,7 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerElement*> >& tes_in)
 {
 
-  if(m_doTopoClusters == false && m_doJets == false)
+  if(m_doTopoClusters == false && m_doJets == false && m_doPUC == false)
      m_n_sizePers = 25;
   else if(m_doTopoClusters == true && m_doJets == true && m_doTracks==true)
     m_n_sizePers = 3;

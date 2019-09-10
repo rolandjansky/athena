@@ -425,8 +425,11 @@ def setupMenu():
         ['xe110_trkmht_xe85_pufit_xe65_L1XE50',  'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['x65_L1XE50','xe85_pufit','xe110_trkmht'] ]],
         ['xe115_trkmht_xe85_pufit_xe65_L1XE50',  'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['x65_L1XE50','xe85_pufit','xe115_trkmht'] ]],
         ['xe120_trkmht_xe85_pufit_xe65_L1XE50',  'L1_XE50', [], [PhysicsStream], ['RATE:MET', 'BW:MET' ], -1, ['serial',-1,['x65_L1XE50','xe85_pufit','xe120_trkmht'] ]],
+        # cellPufit
+        ['xe0noL1_l2fsperf_cellpufit', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
+        ['xe100_cellpufit_L1XE50', 'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 ]
-
+ 
     if TriggerFlags.doFTK():
         TriggerFlags.METSlice.signatures = TriggerFlags.METSlice.signatures() + [
             ['xe0noL1_l2fsperf_trkmht_FTK', '', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],

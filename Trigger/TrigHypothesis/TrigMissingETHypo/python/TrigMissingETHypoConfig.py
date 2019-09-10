@@ -178,6 +178,30 @@ class EFMetHypoFEBXE (EFMissingETHypoBase):
         if 'xe30' in name:
             self.onlineMonitoring(True)
 
+class EFMetHypoCellPUCXE_2sided (EFMissingETHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFMetHypo_cellpucxe1000",ef_thr=1000*GeV):
+        super( EFMetHypoCellPUCXE_2sided, self ).__init__( name )
+
+        self.SumETCut=ef_thr
+        self.MissingETCut=ef_thr
+        self.CutType=-2.0
+        self.METLabel='TrigEFMissingET_cell_PUC'
+        self.doMuonCorrection = False
+        self.SumETCut = 100000000*GeV
+        self.forceAccept=False
+        self.onlineMonitoring(False)
+        self.doMETphicut=False
+        if 'METphi' in name:
+            self.doMETphicut = True
+        if 'wMu' in name:
+            self.doMuonCorrection = True
+        if 'noEF' in name:
+            self.MissingETCut=-100*GeV
+            self.SumETCut=-100*GeV
+        if 'xe30' in name:
+            self.onlineMonitoring(True)
+
 class EFMetHypoTCXE (EFMissingETHypoBase):
     __slots__ = []
     def __init__(self, name = "EFMetHypo_tcxe1000",ef_thr=1000*GeV):
