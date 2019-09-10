@@ -172,14 +172,7 @@ namespace CP {
     StatusCode IsolationSelectionTool::addMuonWP(std::string muWPname) {
         IsolationWP* wp = new IsolationWP(muWPname);
         // For flat efficiency in (pT,eta)
-        if (muWPname == "Gradient") {
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.1143*x+92.14");
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.1143*x+92.14");
-        } else if (muWPname == "GradientLoose") {
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::ptvarcone30, "0.057*x+95.57");
-            addCutToWP(wp, m_muWPKey, xAOD::Iso::topoetcone20, "0.057*x+95.57");
-            // Using fixed cuts
-        } else if (muWPname == "FixedCutHighPtTrackOnly") {
+        if (muWPname == "FixedCutHighPtTrackOnly") {
             wp->addCut(new IsolationConditionFormula("ptcone20_1p25", xAOD::Iso::ptcone20, "1.25E03"));  //units are MeV!
         } else if (muWPname == "HighPtTrackOnly") {
             wp->addCut(new IsolationConditionFormula("ptcone20_Tight_1p25", xAOD::Iso::ptcone20_TightTTVA_pt1000, "1.25E03"));  //units are MeV!
@@ -247,7 +240,7 @@ namespace CP {
     StatusCode IsolationSelectionTool::addPhotonWP(std::string phWPname) {
         auto wp = new IsolationWP(phWPname);
         // The old ones (kept here for backward compatibility for the time being)
-        if (phWPname == "FixedCutTightCaloOnly") {
+        if (phWPname == "FixedCutTightCaloOnly" || phWPname == "TightCaloOnly") {
             wp->addCut(new IsolationConditionFormula("PhFixedCut_calo40", xAOD::Iso::topoetcone40, "0.022*x+2450"));
         } else if (phWPname == "FixedCutTight") {
             wp->addCut(new IsolationConditionFormula("PhFixedCut_calo40", xAOD::Iso::topoetcone40, "0.022*x+2450"));
