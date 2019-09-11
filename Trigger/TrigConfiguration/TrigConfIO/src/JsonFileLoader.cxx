@@ -104,3 +104,24 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
 
    return StatusCode::SUCCESS;
 }
+
+
+StatusCode
+TrigConf::JsonFileLoader::checkTriggerLevel( const std::string & filename,
+                                             std::string & level ) {
+   level = "UNKNOWN";
+
+   DataStructure data;
+
+   StatusCode sc = this -> loadFile ( filename, data );
+
+   if (sc == StatusCode::SUCCESS) {
+      if (data.hasChild("chains")) {
+         level = "HLT";
+      } else if (data.hasChild("items")) {
+         level = "L1";
+      }
+   }
+
+   return sc;
+}

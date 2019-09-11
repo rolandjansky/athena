@@ -57,7 +57,7 @@ class L1MenuJSONConverter(object):
         confObj["topoAlgorithms"] = self.menu.topoAlgos.json()
 
         # board definition
-        confObj["boardDefinition"] = self.menu.boards.json()
+        confObj["boards"] = self.menu.boards.json()
 
         # connectors definition
         confObj["connectors"] = self.menu.connectors.json()
