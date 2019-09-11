@@ -21,7 +21,6 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Control/AthAllocators
                           Control/AthenaKernel
-                          Control/CxxUtils
                           Database/AthenaPOOL/RootConversions )
 
 # External dependencies:
@@ -32,29 +31,29 @@ atlas_add_tpcnv_library( RecTPCnv
                          src/*.cxx
                          PUBLIC_HEADERS RecTPCnv
                          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel CxxUtils RootConversions )
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel RootConversions )
 
 atlas_add_dictionary( RecTPCnvDict
                       RecTPCnv/RecTPCnvDict.h
                       RecTPCnv/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel CxxUtils RootConversions RecTPCnv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel RootConversions RecTPCnv )
 
 atlas_add_dictionary( OLD_RecTPCnvDict
                       RecTPCnv/RecTPCnvDict.h
                       RecTPCnv/OLD_selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel CxxUtils RootConversions RecTPCnv )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel RootConversions RecTPCnv )
 
 atlas_add_test( CaloEnergyCnv_p2_test
                 SOURCES
                 test/CaloEnergyCnv_p2_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel CxxUtils RootConversions RecTPCnv )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel RootConversions RecTPCnv )
 
 atlas_add_test( MuonCaloEnergyContainerCnv_p1_test
                 SOURCES
                 test/MuonCaloEnergyContainerCnv_p1_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel CxxUtils RootConversions RecTPCnv )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib StoreGateLib SGtests AthenaPoolCnvSvcLib EventCommonTPCnv GaudiKernel ParticleEventTPCnv MissingETEvent muonEvent TrkMaterialOnTrack TrkEventTPCnv TestTools AthAllocators AthenaKernel RootConversions RecTPCnv )
 
