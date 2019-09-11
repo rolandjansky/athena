@@ -49,8 +49,8 @@ public:
   virtual bool isGood(const IdentifierHash& elementHash) const override;
   virtual bool isGood(const IdentifierHash& elementHash, const Identifier& elementId) const override;
   virtual double goodFraction(const IdentifierHash& elementHash, const Identifier& idStart, const Identifier& idEnd) const override;
-  virtual bool isBSActive(const IdentifierHash & moduleHash) const override final { return true; };
-  virtual bool isBSError(const IdentifierHash & moduleHash) const override final { return true; };
+  virtual bool isBSActive(const IdentifierHash& elementHash) const override;
+  virtual bool isBSError(const IdentifierHash& elementHash) const override;
   //@}
 private:
   StringArrayProperty m_reportingTools; //!< list of tools to be used
