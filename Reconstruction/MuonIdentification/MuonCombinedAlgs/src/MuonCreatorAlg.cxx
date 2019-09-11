@@ -21,7 +21,7 @@
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
   m_muonCreatorTool("MuonCombined::MuonCreatorTool/MuonCreatorTool")
-{  
+{
   declareProperty("MuonCreatorTool",m_muonCreatorTool);
   declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
   declareProperty("CreateSAmuons", m_doSA=false);
@@ -52,11 +52,10 @@ StatusCode MuonCreatorAlg::initialize()
   ATH_CHECK(m_clusterContainerLinkName.initialize(m_makeClusters));
 
   if ( not m_monTool.name().empty() ) {
-    std::cout << "CHECK: RETRIEVE MON TOOL" << std::endl;
     ATH_CHECK( m_monTool.retrieve() );
   }
 
-  return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MuonCreatorAlg::execute()
@@ -81,7 +80,7 @@ StatusCode MuonCreatorAlg::execute()
   SG::WriteHandle<xAOD::MuonContainer> wh_muons(m_muonCollectionName);
   ATH_CHECK(wh_muons.record(std::make_unique<xAOD::MuonContainer>(), std::make_unique<xAOD::MuonAuxContainer>()));
   ATH_MSG_DEBUG( "Recorded Muons with key: " << m_muonCollectionName.key() );
-  
+
   MuonCombined::IMuonCreatorTool::OutputData output(*(wh_muons.ptr()));
 
   // Create and record track particles:
@@ -134,7 +133,7 @@ StatusCode MuonCreatorAlg::execute()
     }
     muonCandidateCollection = muonCandidateRH.cptr();
   }
-  
+
   m_muonCreatorTool->create(muonCandidateCollection, indetCandidateCollection, tagMaps, output);
 
   if(m_makeClusters){
@@ -149,19 +148,28 @@ StatusCode MuonCreatorAlg::execute()
   //---------------------------------------------------------------------------------------------------------------------//
   //------------                Monitoring of the reconstructed muons inside the trigger algs                ------------//
   //------------ Author:        Laurynas Mince                                                               ------------//
-  //------------ Last modified: 30/07/2019                                                                   ------------//
+  //------------ Last modified: 20/08/2019                                                                   ------------//
   //---------------------------------------------------------------------------------------------------------------------//
-  
-  // Variables to initialize and keep for monitoring
-  std::vector<double> ini_mupt(0);
 
-  // Monitoring histograms
-  auto muon_pt = Monitored::Collection("muon_pt", ini_mupt);
-  
-  auto monitorIt = Monitored::Group(m_monTool, muon_pt);
+  // Only run monitoring for online algorithms
+  if ( not m_monTool.name().empty() ) {
+    // Variables to initialize and keep for monitoring
+    std::vector<double> ini_mupt(0);
+    std::vector<double> ini_mueta(0);
+    std::vector<double> ini_muphi(0);
 
-  for (auto const& muon : *(wh_muons.ptr())) {
-    ini_mupt.push_back(muon->pt()/1000); // converted to GeV
+    // Monitoring histograms
+    auto muon_pt = Monitored::Collection("muon_pt", ini_mupt);
+    auto muon_eta = Monitored::Collection("muon_eta", ini_mueta);
+    auto muon_phi = Monitored::Collection("muon_phi", ini_muphi);
+
+    auto monitorIt = Monitored::Group(m_monTool, muon_pt);
+
+    for (auto const& muon : *(wh_muons.ptr())) {
+      ini_mupt.push_back(muon->pt()/1000.0); // converted to GeV
+      ini_mupt.push_back(muon->eta());
+      ini_mupt.push_back(muon->phi());
+    }
   }
 
   return StatusCode::SUCCESS;
