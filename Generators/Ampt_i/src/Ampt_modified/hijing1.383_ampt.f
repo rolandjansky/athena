@@ -564,7 +564,7 @@ C                                suffered
 
 clin-5/22/01 write impact parameter:
         bimp=bb
-        write(6,*) '#impact parameter,nlop,ncolt=',bimp,nlop,ncolt
+C        write(6,*) '#impact parameter,nlop,ncolt=',bimp,nlop,ncolt
 
         IF(NCOLT.EQ.0) THEN
            NLOP=NLOP+1
@@ -1866,11 +1866,11 @@ clin-4/19/01 soft3:
          IF(IHPR2(10).NE.0) 
      &        WRITE(6,*) 'Energy not conserved, repeat the event'
 c                call lulist(1)
-         write(6,*) 'violated:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
+C         write(6,*) 'violated:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
          GO TO 50
         ENDIF
-        write(6,*) 'satisfied:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
-        write(6,*) ' '
+C        write(6,*) 'satisfied:EATT(GeV),NATT,B(fm)=',EATT,NATT,bimp
+C        write(6,*) ' '
 c
 clin-4/2012 write out initial transverse positions of initial nucleons:
 c        write(94,*) IAEVT,MISS,IHNT2(1),IHNT2(3),bimp
@@ -1922,7 +1922,6 @@ cc        SAVE
 
         CALL TITLE
 
-C        print *,'LEBEDEV HIJSET NSEED = ', NSEED
         call srand(NSEED)
 
         IHNT2(1)=IAP
@@ -3658,7 +3657,7 @@ c     because more attempts may be needed:
 c                IF(MISS.LT.50) GO TO 155
                 if(pttrig.gt.0) then
                    if(MISS.LT.maxmiss) then
-                write(6,*) 'Failed to generate minijet Pt>',pttrig,'GeV'
+C                write(6,*) 'Failed to generate minijet Pt>',pttrig,'GeV'
                       GO TO 155
                    endif
                 else
