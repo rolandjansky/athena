@@ -87,18 +87,15 @@ def getCopyMcEventCollection(name="CopyMcEventCollection", **kwargs):
 def getCopyTimings(name="CopyTimings", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
+    # Disable background copying
+    kwargs.setdefault("BkgInputKey", "")
+
     if overlayFlags.isOverlayMT():
-        if overlayFlags.isDataOverlay():
-            # Disable background for data overlay
-            kwargs.setdefault("BkgInputKey", "")
-        else:
-            kwargs.setdefault("BkgInputKey", "StoreGateSvc+" + overlayFlags.bkgPrefix() + "EVNTtoHITS_timings")
         kwargs.setdefault("SignalInputKey", "StoreGateSvc+" + overlayFlags.sigPrefix() + "EVNTtoHITS_timings")
         kwargs.setdefault("OutputKey", "StoreGateSvc+EVNTtoHITS_timings")
     else:
-        kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+EVNTtoHITS_timings")
-    kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+EVNTtoHITS_timings")
-    kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+EVNTtoHITS_timings")
+        kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+EVNTtoHITS_timings")
+        kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+EVNTtoHITS_timings")
 
     return CfgMgr.CopyTimings(name, **kwargs)
 
