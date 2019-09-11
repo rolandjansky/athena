@@ -272,7 +272,10 @@ class RegTestStep(RefComparisonStep):
 
     def rename_ref(self):
         try:
-            new_name = os.path.basename(self.reference) + '.new'
+            if self.reference:
+                new_name = os.path.basename(self.reference) + '.new'
+            else:
+                new_name = os.path.basename(self.input_file) + '.new'
             os.rename(self.input_file, new_name)
             self.log.debug('Renamed %s to %s', self.input_file, new_name)
         except OSError:
@@ -280,15 +283,17 @@ class RegTestStep(RefComparisonStep):
                              self.input_file, new_name)
 
     def run(self, dry_run=False):
-        if self.reference is None:
-            self.log.error('Missing reference for %s', self.name)
-            self.result = 999
-            if self.auto_report_result:
-                self.report_result()
-            return self.result, '# (internal) {} -> failed'.format(self.name)
         if not dry_run and not self.prepare_inputs():
             self.log.error('%s failed in prepare_inputs()', self.name)
             self.result = 1
+            if self.auto_report_result:
+                self.report_result()
+            return self.result, '# (internal) {} -> failed'.format(self.name)
+        if self.reference is None:
+            self.log.error('Missing reference for %s', self.name)
+            if not dry_run:
+                self.rename_ref()
+            self.result = 999
             if self.auto_report_result:
                 self.report_result()
             return self.result, '# (internal) {} -> failed'.format(self.name)
@@ -582,6 +587,8 @@ def default_check_steps(test):
     regtest = RegTestStep()
     if log_to_check is not None:
         regtest.input_base_name = os.path.splitext(log_to_check)[0]
+    if 'athenaHLT' in step_types:
+        regtest.regex = r'(?:HltEventLoopMgr(?!.*athenaHLT-)|REGTEST)'
     check_steps.append(regtest)
 
     # Tail (probably not so useful these days)
