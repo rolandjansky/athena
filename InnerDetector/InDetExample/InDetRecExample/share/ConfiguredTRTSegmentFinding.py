@@ -35,7 +35,7 @@ class ConfiguredTRTSegmentFinding:
       from InDetTrackPRD_Association.InDetTrackPRD_AssociationConf import InDet__InDetTrackPRD_Association
       InDetSegmentPRD_Association = InDet__InDetTrackPRD_Association(name            = 'InDetSegmentPRD_Association'+extension,
                                                                      AssociationTool = InDetPrdAssociationTool,
-                                                                     TracksName      = list(InputCollections)) 
+                                                                     TracksName      = list(InputCollections))
       topSequence += InDetSegmentPRD_Association
       if (InDetFlags.doPrintConfigurables()):
         print InDetSegmentPRD_Association

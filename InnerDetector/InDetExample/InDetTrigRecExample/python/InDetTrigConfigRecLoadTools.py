@@ -192,12 +192,12 @@ if InDetTrigFlags.loadRotCreator():
   #
   if InDetTrigFlags.redoTRT_LR():
 
-    from InDetRecExample.TrackingCommon import getTRT_DriftCircleOnTrackTool
+    from InDetRecExample.TrackingCommon import getInDetTRT_DriftCircleOnTrackTool
     from TRT_DriftCircleOnTrackTool.TRT_DriftCircleOnTrackToolConf import \
         InDet__TRT_DriftCircleOnTrackUniversalTool
     InDetTrigTRT_RefitRotCreator = \
         InDet__TRT_DriftCircleOnTrackUniversalTool(name  = 'InDetTrigTRT_RefitRotCreator',
-                                                   RIOonTrackToolDrift = getTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
+                                                   RIOonTrackToolDrift = getInDetTRT_DriftCircleOnTrackTool(), # special settings for trigger needed ?
                                                    ScaleHitUncertainty = 2.5) # fix from Thijs
 #    if InDetTrigFlags.doCommissioning():    #introduced for cosmics do not use for collisions
 #      InDetTrigTRT_RefitRotCreator.ScaleHitUncertainty = 5.
