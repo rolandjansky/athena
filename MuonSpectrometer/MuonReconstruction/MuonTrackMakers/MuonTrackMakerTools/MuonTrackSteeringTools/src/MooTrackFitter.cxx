@@ -7,7 +7,6 @@
 #include "MuonTrackFindingEvent/MuPatSegment.h"
 #include "MuonTrackFindingEvent/MuPatCandidateBase.h"
 #include "MuPatHitTool.h"
-#include "MuPatCandidateTool.h"
 
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
@@ -77,7 +76,6 @@ namespace Muon {
     m_magFieldProperties(Trk::NoField),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_entryHandler("Muon::MuPatCandidateTool/MuPatCandidateTool"),
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
     m_mdtRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtTubeHitOnTrackCreator"),
     m_phiHitSelector("MuonPhiHitSelector/MuonPhiHitSelector"),
@@ -98,7 +96,6 @@ namespace Muon {
     declareProperty("HitTool",m_hitHandler);
     declareProperty("IdHelper",m_idHelperTool);
     declareProperty("MuonPrinterTool",m_printer);
-    declareProperty("CandidateTool",m_entryHandler);
     declareProperty("TrackToSegmentTool",m_trackToSegmentTool);
     declareProperty("MdtRotCreator",m_mdtRotCreator);
     declareProperty("PhiHitSelector",m_phiHitSelector);
@@ -139,7 +136,6 @@ namespace Muon {
     ATH_CHECK( m_idHelperTool.retrieve() );
     ATH_CHECK( m_edmHelperSvc.retrieve() );
     ATH_CHECK( m_hitHandler.retrieve() );
-    ATH_CHECK( m_entryHandler.retrieve() );
     ATH_CHECK( m_printer.retrieve() );
 
     // Configuration of the material effects
