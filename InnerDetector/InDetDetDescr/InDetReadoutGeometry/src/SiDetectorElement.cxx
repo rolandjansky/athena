@@ -55,6 +55,7 @@ namespace InDetDD {
     m_cacheValid(false),
     m_firstTime(true),
     m_stereoCacheValid(false),
+    m_surfacesValid(false),
     m_isStereo(false),
     m_mutex(),
     m_surface{},
@@ -855,15 +856,19 @@ namespace InDetDD {
   
   const std::vector<const Trk::Surface*>& SiDetectorElement::surfaces() const 
   {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    if (!m_surfaces.size()) {
-      // get this surface
-      m_surfaces.push_back(&surface());
-      // get the other side surface
-      if (otherSide()) {
-        m_surfaces.push_back(&(otherSide()->surface()));
+    if (!m_surfacesValid) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      if (!m_surfacesValid) {
+        // get this surface
+        m_surfaces.push_back(&surface());
+        // get the other side surface
+        if (otherSide()) {
+          m_surfaces.push_back(&(otherSide()->surface()));
+        }
       }
+      m_surfacesValid.store(true);
     }
+
     // return the surfaces
     return m_surfaces;
   }  
