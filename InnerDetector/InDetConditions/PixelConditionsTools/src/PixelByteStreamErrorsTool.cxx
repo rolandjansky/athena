@@ -9,7 +9,6 @@ PixelByteStreamErrorsTool::PixelByteStreamErrorsTool(const std::string& type, co
   :AthAlgTool(type, name, parent),
   m_pixelID(nullptr),
   m_ServiceRecords(),
-  m_checkError(0),
   m_readESD(false)
 { 
   declareProperty("ReadingESD",     m_readESD,"Get summary of BS errors from StoreGate, if available"); 
@@ -338,22 +337,9 @@ StatusCode PixelByteStreamErrorsTool::recordData() {
     }
   }
 
-  StatusCode sc = StatusCode::SUCCESS;
-  if (cont->size()==m_pixelID->wafer_hash_max()) {
-    m_checkError = -1;
-  }
-  else if (cont->size()!=m_checkError) {
-    m_checkError = cont->size();
-    m_BSErrContWrite = SG::makeHandle(m_BSErrContWriteKey);
-    sc = m_BSErrContWrite.record(std::move(cont));
-  }
-
-  if (sc.isFailure() ){
-    ATH_MSG_ERROR("Failed to record/overwrite BSErrors to SG");
-    return sc;
-  }
-
-  return sc;
+  SG::WriteHandle<InDetBSErrContainer> errCont (m_BSErrContWriteKey);
+  ATH_CHECK( errCont.record (std::move (cont)) );
+  return StatusCode::SUCCESS;
 }
 
 void PixelByteStreamErrorsTool::addLinkMaskedByPPC() const {
