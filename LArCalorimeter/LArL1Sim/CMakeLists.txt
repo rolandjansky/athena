@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
+                          Calorimeter/CaloInterface
                           Calorimeter/CaloTriggerTool
                           Control/AthenaKernel
                           Control/PileUpTools
