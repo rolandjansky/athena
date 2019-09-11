@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -14,7 +14,6 @@
 #include "RootD3PDSvc.h"
 #include "RootD3PD.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CxxUtils/make_unique.h"
 #include "TTree.h"
 #include "TROOT.h"
 #include "TFile.h"
@@ -204,7 +203,7 @@ StatusCode RootD3PDSvc::make (const std::string& name, ID3PD* & d3pd)
     tree->BranchRef();
   if (m_autoFlush != -1)
     tree->SetAutoFlush (m_autoFlush);
-  auto rd3pd = CxxUtils::make_unique<RootD3PD>
+  auto rd3pd = std::make_unique<RootD3PD>
     (tree, master,
      m_allowedNames, m_vetoedNames,
      m_basketSize, m_entryOffsetLen);
