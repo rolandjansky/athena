@@ -77,8 +77,6 @@ class JSSTaggerBase :   public asg::AsgTool ,
   // show the user what cuts are configured
   void showCuts() const;
 
-  int m_channelNumber;
-
   public:
   int getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::TruthParticleContainer* truthPartsH, bool isSherpa, double dRmax, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
   int matchToWZ_Sherpa(const xAOD::Jet& jet,
