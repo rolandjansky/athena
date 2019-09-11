@@ -195,6 +195,8 @@ class ZipStep(Step):
 
     def configure(self, test=None):
         self.args += ' '+self.zip_output+' '+self.zip_input
+        # Remove the file after zipping
+        self.args += ' && rm ' + self.zip_input
         super(ZipStep, self).configure(test)
 
 
@@ -541,12 +543,13 @@ def default_check_steps(test):
             logmerge.log_files.append(exec_step.get_log_file_name())
         check_steps.append(logmerge)
     log_to_check = None
+    log_to_zip = None
     if len(check_steps) > 0 and isinstance(check_steps[-1], LogMergeStep):
         log_to_check = check_steps[-1].merged_name
+        log_to_zip = check_steps[-1].merged_name
 
     # Reco_tf log merging
     step_types = [step.type for step in test.exec_steps]
-    log_to_zip = None
     if 'Reco_tf' in step_types:
         reco_tf_logmerge = LogMergeStep('LogMerge_Reco_tf')
         reco_tf_logmerge.warn_if_missing = False
