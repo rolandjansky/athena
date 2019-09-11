@@ -9,15 +9,15 @@
 
 // PACKAGE
 #include "ActsGeometry/ActsAlignmentStore.h"
-#include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
 
 // STL
 #include <iostream>
 #include <memory>
 
 ActsTrackingGeometryTool::ActsTrackingGeometryTool(const std::string& type, const std::string& name,
-    const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+    const IInterface* parent) 
+  : base_class(type, name, parent),
     m_trackingGeometrySvc("ActsTrackingGeometrySvc", name)
 {
 }

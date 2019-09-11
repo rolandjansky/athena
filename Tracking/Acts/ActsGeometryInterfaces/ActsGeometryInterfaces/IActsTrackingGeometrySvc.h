@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ACTSGEOMETRY_IACTSTRACKINGGEOMETRYSVC_H
-#define ACTSGEOMETRY_IACTSTRACKINGGEOMETRYSVC_H
+#ifndef ACTSGEOMETRYINTERFACES_IACTSTRACKINGGEOMETRYSVC_H
+#define ACTSGEOMETRYINTERFACES_IACTSTRACKINGGEOMETRYSVC_H
 
 #include "GaudiKernel/IInterface.h"
 
@@ -19,8 +19,6 @@ class IActsTrackingGeometrySvc : virtual public IInterface {
   public:
 
   DeclareInterfaceID(IActsTrackingGeometrySvc, 1, 0);
-
-  IActsTrackingGeometrySvc() {;}
 
   virtual
   std::shared_ptr<const Acts::TrackingGeometry>

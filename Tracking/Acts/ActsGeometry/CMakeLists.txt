@@ -16,14 +16,15 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           GaudiKernel
                           MagneticField/MagFieldInterfaces
-                          ActsInterop )
+                          Tracking/Acts/ActsGeometryInterfaces
+                          Tracking/Acts/ActsInterop )
 
 # External dependencies:
 find_package( CLHEP )
 find_package( Eigen )
 find_package( Boost )
 
-find_package( Acts REQUIRED COMPONENTS Core )
+find_package( Acts COMPONENTS Core )
 
 # Component(s) in the package:
 
@@ -39,6 +40,7 @@ atlas_add_library( ActsGeometryLib
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES}
                    AthenaKernel
                    ActsInteropLib
+                   ActsGeometryInterfacesLib
                    ActsCore)
 
 atlas_add_component( ActsGeometry
@@ -59,6 +61,7 @@ atlas_add_component( ActsGeometry
                      EventInfo
                      ActsInteropLib 
                      ActsGeometryLib
+                     ActsGeometryInterfacesLib
                      ActsCore)
 
 # Install files from the package:
