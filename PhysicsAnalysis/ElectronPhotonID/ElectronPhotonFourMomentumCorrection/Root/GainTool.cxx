@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
 #include <cmath>
 #include <algorithm>
-#include "CxxUtils/make_unique.h"
 #include <TF1.h>
 #include <TFile.h>
 
@@ -39,8 +38,8 @@ namespace egGain {
 
   void GainTool::Init(string filenameTO, string filenameVar){
 
-    m_TOFile = CxxUtils::make_unique<TFile>(filenameTO.c_str() );
-    m_varFile = CxxUtils::make_unique<TFile>(filenameVar.c_str());
+    m_TOFile = std::make_unique<TFile>(filenameTO.c_str() );
+    m_varFile = std::make_unique<TFile>(filenameVar.c_str());
 
     for (int id = 0 ; id < m_NUM_ETA_BINS ; id++){
       string etabin;
