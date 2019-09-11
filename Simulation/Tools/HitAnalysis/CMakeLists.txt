@@ -44,6 +44,5 @@ atlas_add_component( HitAnalysis
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel CaloDetDescrLib CaloIdentifier CaloSimEvent AthenaBaseComps GeoAdaptors EventInfo AFP_SimEv ALFA_SimEv LUCID_SimEvent ZDC_SimEvent GeneratorObjects InDetSimEvent LArSimEvent MuonSimEvent TileDetDescr TileSimEvent )
 
 # Install files from the package:
-atlas_install_headers( HitAnalysis )
 atlas_install_joboptions( share/*.py )
 

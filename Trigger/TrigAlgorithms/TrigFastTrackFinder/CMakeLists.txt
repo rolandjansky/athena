@@ -47,6 +47,5 @@ atlas_add_component( TrigFastTrackFinder
                      LINK_LIBRARIES ${TBB_LIBRARIES} GaudiKernel TrkEventPrimitives TrigInDetEvent TrigSteeringEvent TrigInterfacesLib TrigInDetPattRecoTools AthenaBaseComps IRegionSelector InDetIdentifier InDetPrepRawData InDetRIO_OnTrack SiSpacePointsSeed SiSPSeededTrackFinderData InDetRecToolInterfaces TrkParameters TrkRIO_OnTrack TrkTrack TrkTrackSummary TrkToolInterfaces TrigInDetPattRecoEvent FTK_DataProviderInterfaces TrigTimeAlgsLib )
 
 # Install files from the package:
-atlas_install_headers( TrigFastTrackFinder )
 atlas_install_python_modules( python/*.py )
 

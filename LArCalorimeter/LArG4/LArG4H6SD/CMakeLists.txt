@@ -49,6 +49,5 @@ atlas_add_component( LArG4H6SD
                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} GaudiKernel CaloG4SimLib CaloSimEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests GeoModelUtilities Identifier GeneratorObjects LArG4Code LArG4RunControl LArG4TBSimEvent LArReadoutGeometry LArSimEvent G4AtlasInterfaces G4AtlasToolsLib SimHelpers HitManagement MCTruth TBEvent PathResolver )
 
 # Install files from the package:
-atlas_install_headers( LArG4H6SD )
 atlas_install_python_modules( python/*.py )
 

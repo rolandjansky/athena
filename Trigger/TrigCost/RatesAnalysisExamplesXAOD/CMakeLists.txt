@@ -23,7 +23,6 @@ atlas_add_component( RatesAnalysisExamplesXAOD
                      LINK_LIBRARIES GaudiKernel xAODMuon xAODTau xAODEgamma xAODMissingET xAODJet RatesAnalysis )
 
 # Install files from the package:
-atlas_install_headers( RatesAnalysisExamplesXAOD )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 

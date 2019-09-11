@@ -21,6 +21,5 @@ atlas_add_poolcnv_library( GeneratorObjectsAthenaPoolPoolCnv
                            LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib GeneratorObjects GeneratorObjectsTPCnv )
 
 # Install files from the package:
-atlas_install_headers( GeneratorObjectsAthenaPool )
 atlas_install_joboptions( share/*.py )
 

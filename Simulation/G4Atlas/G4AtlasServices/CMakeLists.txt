@@ -39,6 +39,5 @@ atlas_add_test( G4AtlasServicesConfig_test
 
 
 # Install files from the package:
-atlas_install_headers( G4AtlasServices )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )

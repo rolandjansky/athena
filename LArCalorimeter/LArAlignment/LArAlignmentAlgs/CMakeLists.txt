@@ -21,6 +21,5 @@ atlas_add_component( LArAlignmentAlgs
                      LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel DetDescrConditions )
 
 # Install files from the package:
-atlas_install_headers( LArAlignmentAlgs )
 atlas_install_joboptions( share/*.py )
 
