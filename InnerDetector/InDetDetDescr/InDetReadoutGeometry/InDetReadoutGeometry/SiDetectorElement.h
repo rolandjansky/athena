@@ -657,6 +657,8 @@ namespace InDetDD {
     mutable std::atomic_bool m_firstTime;
     // Since m_isStereo depends on m_otherSide->sinStereo(), a dedicated validity variable is needed.
     mutable std::atomic_bool m_stereoCacheValid;
+    // Since m_surfaces depends on m_otherSide->surface(), a dedicated validity variable is needed.
+    mutable std::atomic_bool m_surfacesValid;
     mutable bool m_isStereo ATLAS_THREAD_SAFE;
 
     mutable std::mutex m_mutex;
