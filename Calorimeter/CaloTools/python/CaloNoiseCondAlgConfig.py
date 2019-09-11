@@ -106,11 +106,11 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
             result.merge(addFolders(configFlags,"/TILE/OFL02/NOISE/CELL","TILE_OFL",className="CondAttrListCollection"))
 
 
-            if configFlags.Calo.Cell.doLArHVCorr:
+            if configFlags.LAr.doHVCorr:
                 log.info("Run2 & doLArHVCorr=True: Will rescale noise automatically for HV trips")
                 theCaloNoiseAlg.useHVCorr=True
-                from LArCalibUtils.LArHVScaleCorrConfig import LArHVScaleCorrCfg
-                result.merge(LArHVScaleCorrCfg(configFlags))
+                from LArCalibUtils.LArHVScaleConfig import LArHVScaleCfg
+                result.merge(LArHVScaleCfg(configFlags))
                 pass
             pass
         else: #COMP200 case:

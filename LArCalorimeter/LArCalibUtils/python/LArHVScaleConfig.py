@@ -5,8 +5,8 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 def LArHVScaleCfg(configFlags):
     result=ComponentAccumulator()
 
-    from IOVDbSvc.IOVDbSvcConfig import addFolders, IOVDbSvcCfg
-    result.merge(IOVDbSvcCfg(configFlags))
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    #result.merge(IOVDbSvcCfg(configFlags))
 
     if configFlags.Input.isMC:
         result.merge(addFolders(configFlags,["/LAR/Identifier/HVLineToElectrodeMap<tag>LARHVLineToElectrodeMap-001</tag>"], "LAR_OFL", className="AthenaAttributeList"))
