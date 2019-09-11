@@ -7,3 +7,4 @@ addAlgorithm("MuonTruthOverlay.MuonTruthOverlayConfig.getMdtTruthOverlay", "MdtT
 addAlgorithm("MuonTruthOverlay.MuonTruthOverlayConfig.getRpcTruthOverlay", "RpcTruthOverlay")
 addAlgorithm("MuonTruthOverlay.MuonTruthOverlayConfig.getTgcTruthOverlay", "TgcTruthOverlay")
 addAlgorithm("MuonTruthOverlay.MuonTruthOverlayConfig.getSTGC_TruthOverlay", "STGC_TruthOverlay")
+addAlgorithm("MuonTruthOverlay.MuonTruthOverlayConfig.getMM_TruthOverlay", "MM_TruthOverlay")

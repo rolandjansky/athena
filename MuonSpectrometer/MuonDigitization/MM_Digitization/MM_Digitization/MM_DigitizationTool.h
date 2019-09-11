@@ -75,8 +75,6 @@ namespace CLHEP{
   class HepRandomEngine;
 }
 
-class StoreGateSvc;
-class ActiveStoreSvc;
 class PileUpMergeSvc;
 
 class MmDigitContainer;
@@ -143,8 +141,6 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		MM_ElectronicsToolInput combinedStripResponseAllHits(const std::vector< MM_ElectronicsToolInput > & v_stripDigitOutput);
 
 		// Services
-		ServiceHandle<StoreGateSvc> m_storeGateService;
-		ActiveStoreSvc*             m_activeStore;
 		ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
 		PileUpMergeSvc *m_mergeSvc; // Pile up service
 		ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service

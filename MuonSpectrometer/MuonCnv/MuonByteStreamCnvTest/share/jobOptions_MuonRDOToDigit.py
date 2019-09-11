@@ -12,7 +12,8 @@ MuonRdoToMuonDigitTool = MuonRdoToMuonDigitTool (
                          DecodeRpcRDO = True,
                          DecodeTgcRDO = True,
                          DecodeCscRDO = MuonGeometryFlags.hasCSC(),
-                         DecodeSTGC_RDO = False )
+                         DecodeSTGC_RDO = False,
+                         DecodeMM_RDO = False )
 			 
 if MuonGeometryFlags.hasCSC(): MuonRdoToMuonDigitTool.cscCalibTool = getPublicTool("CscCalibTool")
 
