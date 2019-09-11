@@ -18,7 +18,7 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4SystemOfUnits.hh"
 
-#include "src/G4MyPhysicalVolume.h"
+#include "G4AtlasTools/G4MyPhysicalVolume.h"
 
 //set environment
 ISvcLocator* g_svcLoc = nullptr;
