@@ -80,7 +80,6 @@ namespace LVL1TGCTrigger {
     m_TimingManager(0),
     m_system(0),
     m_nEventInSector(0),
-    m_log( msgSvc(), name ),
     m_debuglevel(false),
     m_readCondKey("TGCTriggerData")
 {
@@ -111,7 +110,7 @@ namespace LVL1TGCTrigger {
 ////////////////////////////////////////////////////////////
   LVL1TGCTrigger::~LVL1TGCTrigger()
   {
-    m_log << MSG::DEBUG << "LVL1TGCTrigger destructor called" << endmsg;
+    msg() << MSG::DEBUG << "LVL1TGCTrigger destructor called" << endmsg;
     // delete m_TimingManager ,ElectronicsSystem and Database
     if (m_TimingManager){
       delete m_TimingManager;
@@ -134,14 +133,14 @@ namespace LVL1TGCTrigger {
   {
     // init message stram
 
-//    m_log.setLevel(msgLevel());  // inidividual output level not known before initialize
+//    msg().setLevel(msgLevel());  // inidividual output level not known before initialize
 // msgLevel() is only available in rel.21. Previously, we used outputLevel() which is obsolete in rel.21
 // so we don't call setLevel(). (still works fine)
-    m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug
+    m_debuglevel = (msg().level() <= MSG::DEBUG); // save if threshold for debug
 
     g_DEBUGLEVEL          =  m_debuglevel;
 
-    m_log << MSG::DEBUG << "LVL1TGCTrigger::initialize() called" << endmsg;
+    msg() << MSG::DEBUG << "LVL1TGCTrigger::initialize() called" << endmsg;
 
     g_STRICTWD            = m_STRICTWD.value();
     g_STRICTWT            = m_STRICTWT.value();
@@ -158,10 +157,10 @@ namespace LVL1TGCTrigger {
     // TrigConfigSvc
     StatusCode sc = m_configSvc.retrieve();
     if (sc.isFailure()) {
-      m_log << MSG::ERROR << "Could not connect to " << m_configSvc.typeAndName() << endmsg;
+      msg() << MSG::ERROR << "Could not connect to " << m_configSvc.typeAndName() << endmsg;
     }
     else {
-      m_log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() << endmsg; 
+      msg() << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() << endmsg; 
     }
     
     // clear Masked channel
@@ -173,10 +172,10 @@ namespace LVL1TGCTrigger {
     // For your information
     if (m_debuglevel) {
       if (m_CurrentBunchTag>0) {
-	m_log << MSG::DEBUG 
+	msg() << MSG::DEBUG 
 	      << "---> Take hits with CURRENT banch tag = " << m_CurrentBunchTag << endmsg;
       }
-      m_log << MSG::DEBUG << "OutputRdo " << m_OutputTgcRDO.value() << endmsg;
+      msg() << MSG::DEBUG << "OutputRdo " << m_OutputTgcRDO.value() << endmsg;
     }
    
  
@@ -188,7 +187,7 @@ namespace LVL1TGCTrigger {
     // try to initialize the TGCcabling
     sc = getCabling();
     if(sc.isFailure()) {
-      m_log << MSG::DEBUG
+      msg() << MSG::DEBUG
           << "TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event. "
 	  << endmsg;
     }
@@ -200,7 +199,7 @@ namespace LVL1TGCTrigger {
   StatusCode LVL1TGCTrigger::finalize()
   {
     if (m_debuglevel) {
-      m_log << MSG::DEBUG << "LVL1TGCTrigger::finalize() called" 
+      msg() << MSG::DEBUG << "LVL1TGCTrigger::finalize() called" 
 	    <<  " m_nEventInSector = " << m_nEventInSector << endmsg;
     }
 
@@ -230,7 +229,7 @@ namespace LVL1TGCTrigger {
   StatusCode LVL1TGCTrigger::execute()
   {
     if (m_debuglevel) {
-      m_log << MSG::DEBUG << "LVL1TGCTrigger::execute() called" << endmsg;
+      msg() << MSG::DEBUG << "LVL1TGCTrigger::execute() called" << endmsg;
     }
 
     if(!m_cabling) {
@@ -263,7 +262,7 @@ namespace LVL1TGCTrigger {
     const TgcRdoContainer * rdoCont;
     sc = evtStore()->retrieve( rdoCont, "TGCRDO" );
     if (sc.isFailure()) {
-      m_log << MSG::WARNING << "Cannot retrieve TgcRdoContainer with key=TGCRDO" << endmsg;
+      msg() << MSG::WARNING << "Cannot retrieve TgcRdoContainer with key=TGCRDO" << endmsg;
       return StatusCode::SUCCESS;
     }
     if (rdoCont->size()>0) {
@@ -279,7 +278,7 @@ namespace LVL1TGCTrigger {
     const DataHandle<TgcDigitContainer> tgc_container;
     sc = evtStore()->retrieve(tgc_container, m_keyTgcDigit);
     if (sc.isFailure()) {
-      m_log << MSG::FATAL << " Cannot retrieve TGC Digit Container " << endmsg;
+      msg() << MSG::FATAL << " Cannot retrieve TGC Digit Container " << endmsg;
       return sc;
     }
 
@@ -292,7 +291,7 @@ namespace LVL1TGCTrigger {
       if (doTileMu && bc==m_CurrentBunchTag) { 
         sc = fillTMDB();
         if (sc.isFailure()) {
-          m_log << MSG::WARNING << "Cannot retrieve Tile Mu Data " << endmsg;
+          msg() << MSG::WARNING << "Cannot retrieve Tile Mu Data " << endmsg;
           return sc;
         }
       }
@@ -302,7 +301,7 @@ namespace LVL1TGCTrigger {
         sc=processOneBunch(tgc_container, muctpiinput); 
       }
       if (sc.isFailure()) { 
-        m_log << MSG::FATAL  
+        msg() << MSG::FATAL  
           << "Fail to process the bunch " << m_bctagInProcess << endmsg; 
         return sc; 
       }
@@ -311,7 +310,7 @@ namespace LVL1TGCTrigger {
     // record   MuCTPIInput_TGC 
     sc = evtStore()->record(muctpiinput, m_keyMuCTPIInput_TGC);
     if (sc.isFailure()) { 
-      m_log << MSG::FATAL 
+      msg() << MSG::FATAL 
         << "Could not record MuCTPIInput_TGC."  << endmsg; 
       return StatusCode::FAILURE; 
     }
@@ -444,7 +443,7 @@ void LVL1TGCTrigger::doMaskOperation(const DataHandle<TgcDigitContainer>& tgc_co
       itCh=m_MaskedChannel.find(channelId);
       if (itCh!=m_MaskedChannel.end() && itCh->second==0) {
         if (m_debuglevel) {
-	        m_log << MSG::DEBUG << "This channel is masked! offlineID=" << channelId << endmsg;
+	        msg() << MSG::DEBUG << "This channel is masked! offlineID=" << channelId << endmsg;
 	      }
 	      continue;
       }
@@ -456,7 +455,7 @@ void LVL1TGCTrigger::doMaskOperation(const DataHandle<TgcDigitContainer>& tgc_co
   for(itCh=m_MaskedChannel.begin(); itCh!=m_MaskedChannel.end(); itCh++) {
     if (itCh->second==1) {
       if (m_debuglevel) {
-        m_log << MSG::VERBOSE << "This channel is fired by force! offlineID=" << itCh->first << endmsg;
+        msg() << MSG::VERBOSE << "This channel is fired by force! offlineID=" << itCh->first << endmsg;
       }
       if (TgcDigitIDs.find(itCh->first)==TgcDigitIDs.end()) {
 	      TgcDigitIDs.insert(std::map<Identifier,int>::value_type(itCh->first,1));
@@ -465,7 +464,7 @@ void LVL1TGCTrigger::doMaskOperation(const DataHandle<TgcDigitContainer>& tgc_co
   }
     
   if (m_debuglevel) {
-    m_log << MSG::DEBUG << "# of total hits    " << TgcDigitIDs.size() << endmsg;
+    msg() << MSG::DEBUG << "# of total hits    " << TgcDigitIDs.size() << endmsg;
   }
 
   return;
@@ -496,7 +495,7 @@ void  LVL1TGCTrigger::fillTGCEvent(std::map<Identifier, int>& tgcDigitIDs,  TGCE
                                                       channelNumber);
 
     if(!status) { 
-      m_log << MSG::INFO << " Fail to getOnlineIDfromOfflineID " 
+      msg() << MSG::INFO << " Fail to getOnlineIDfromOfflineID " 
             << "for  " << channelId << endmsg; 
     } else {
       bool fstatus;  
@@ -520,7 +519,7 @@ void  LVL1TGCTrigger::fillTGCEvent(std::map<Identifier, int>& tgcDigitIDs,  TGCE
       }
       if (fstatus) { 
         if (m_debuglevel) { 
-          m_log << MSG::DEBUG << "hit : subsys#=" << subsystemNumber  
+          msg() << MSG::DEBUG << "hit : subsys#=" << subsystemNumber  
                 << " octant#=" << octantNumber 
                 << " mod#=" << moduleNumber  
                 << " layer#=" << layerNumber << " r#=" << rNumber 
@@ -540,21 +539,21 @@ void  LVL1TGCTrigger::fillTGCEvent(std::map<Identifier, int>& tgcDigitIDs,  TGCE
                         channelNumber, 
                         0); 
       } else { 
-        m_log << MSG::INFO << " Fail to getSLBIDfromOfflineID " 
+        msg() << MSG::INFO << " Fail to getSLBIDfromOfflineID " 
               << "for  " << channelId << endmsg; 
       }
     } 
   }     // End Loop on TGC detectors (collections) 
 
   if (m_debuglevel) { 
-    m_log << MSG::DEBUG 
+    msg() << MSG::DEBUG 
           << "Could make TGCEvent with TgcDigitContainer." 
           << "  vector size : " << event.GetNASDOut() 
           << endmsg;
     
     for(int iout=1; iout<= event.GetNASDOut(); iout++){ 
       TGCASDOut* asdout = (event.GetASDOutVector()[iout-1]); 
-      m_log << MSG::DEBUG
+      msg() << MSG::DEBUG
             << " Z:" << asdout->GetTGCReadoutIndex().GetZDirection() 
             << " O:" << asdout->GetTGCReadoutIndex().GetOctantNumber() 
             << " M:" << asdout->GetTGCReadoutIndex().GetModuleNumber() 
@@ -606,7 +605,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
   // Print
   if(m_debuglevel) {
     if ((selectorOut->getNCandidate()) >= 1) {
-      m_log << MSG::DEBUG 
+      msg() << MSG::DEBUG 
 	   	      << "SectorLogic: 1st candidate   " 
             << " roi:" << (selectorOut->getR(0))<<2 + selectorOut->getPhi(0)
             << " pt:" << selectorOut->getPtLevel(0)
@@ -615,7 +614,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
             <<endmsg;
     }
     if ((selectorOut->getNCandidate()) == 2) {
-      m_log << MSG::DEBUG 
+      msg() << MSG::DEBUG 
             << "SectorLogic: 2nd candidate   " 
             << " roi:" << (selectorOut->getR(1))<<2 + selectorOut->getPhi(1)
             << " pt:" << selectorOut->getPtLevel(1)
@@ -678,7 +677,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 					   sswId, sbLoc);
 	if (!status) {
 	  if (m_debuglevel) {
-	    m_log << MSG::DEBUG 
+	    msg() << MSG::DEBUG 
 		  << "TGCcablignSvc::getReadoutIDfromSLBID fails" << endmsg
 		  << MSG::DEBUG
 		  << "phi=" << phi  
@@ -736,7 +735,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 						      true);
 #ifdef TGCDEBUG
 	    ///////HISAYA////////////
-	    m_log << MSG::INFO
+	    msg() << MSG::INFO
 	    	  << " recordRdoSLB : reg=" << (isEndcap ? "EC" : "FWD") 
 	    	  << " phi=" << phiEIFI
 	    	  << " type=" << type
@@ -748,7 +747,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 #endif
 
 	    if(!setEIFITriggerBit) {
-	      m_log << MSG::INFO << "Fail to set Inner trigger bit of" 
+	      msg() << MSG::INFO << "Fail to set Inner trigger bit of" 
 				 << " sideId= " << sector->getSideId() 
 				 << " slotId= " << phiEIFI
 				 << " region= " << (isEndcap ? "EI" : "FI")
@@ -759,7 +758,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	  }
 
 	  if (m_debuglevel) {
-	    m_log << MSG::DEBUG
+	    msg() << MSG::DEBUG
 		  << " recordRdoSLB : reg=" << (isEndcap ? "EC" : "FWD") 
 		  << " rod=" << rodId << " sswId=" << sswId 
 		  << " SBLoc=" << sbLoc << " type=" << itype 
@@ -829,7 +828,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	bool status = m_cabling->getReadoutIDfromHPTID(phi, isAside, isEndcap, isStrip, hpb->getId(),
 						       subDetectorId, rodId, sswId, sbLoc);
 	if (!status) {
-	  m_log << MSG::WARNING << "TGCcablignSvc::getReadoutIDfromHPTID fails" << endmsg;
+	  msg() << MSG::WARNING << "TGCcablignSvc::getReadoutIDfromHPTID fails" << endmsg;
 	  continue;
 	}
 
@@ -859,7 +858,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	    
 #ifdef TGCDEBUG
 	    ///////////HISAYA///////////
-	    m_log << MSG::INFO
+	    msg() << MSG::INFO
 		  << "recordRdoHPT : bdTag =" << bcTag 
 		  << " side=" << ( (isAside)? "A" : "C")
 		  << (isEndcap ? "EC" : "FWD") 
@@ -878,7 +877,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 #endif
 	    // Print
 	    if (m_debuglevel) {
-	      m_log << MSG::DEBUG 
+	      msg() << MSG::DEBUG 
 		    << "recordRdoHPT : bdTag =" << bcTag 
 		    << " side=" << ( (isAside)? "A" : "C")
 		    << (isEndcap ? "EC" : "FWD") 
@@ -951,7 +950,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
     bool status = m_cabling->getReadoutIDfromSLID(phi, isAside, isEndcap,
                              subDetectorId, rodId, sswId, sbLoc);
     if (!status) {
-      m_log << MSG::WARNING 
+      msg() << MSG::WARNING 
             << "TGCcablignSvc::ReadoutIDfromSLID fails in recordRdoInner()" 
             << endmsg;
       return;
@@ -1070,7 +1069,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
     bool status = m_cabling->getReadoutIDfromSLID(phi, isAside, isEndcap, 
 						  subDetectorId, rodId, sswId, sbLoc);	    
     if (!status) {
-      m_log << MSG::WARNING << "TGCcablignSvc::ReadoutIDfromSLID fails"
+      msg() << MSG::WARNING << "TGCcablignSvc::ReadoutIDfromSLID fails"
 	    << (isEndcap ? "  Endcap-" : "  Forward-") 
 	    << (isAside  ? "A  " : "C  ")
 	    << "  phi=" << phi
@@ -1101,7 +1100,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 
 #ifdef TGCDEBUG
       //////////////HISAYA////////////
-      m_log << MSG::INFO
+      msg() << MSG::INFO
 	    << "recordRdoSL  : bcTag =" << bcTag 
       << " side=" << (isAside  ? "A  " : "C  ")
       << " reg=" << (isEndcap ? "EC" : "FWD") 
@@ -1118,7 +1117,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 #endif
 
       if (m_debuglevel) {
-	m_log << MSG::DEBUG
+	msg() << MSG::DEBUG
         << "recordRdoSL  : bcTag =" << bcTag 
         << " side=" << (isAside  ? "A  " : "C  ")
 	      << " reg=" << (isEndcap ? "EC" : "FWD") 
@@ -1147,10 +1146,10 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 
     std::ifstream fin(fullName.c_str());
     if (!fin) {
-      m_log << MSG::FATAL << "Cannot open file " << fullName << endmsg;
+      msg() << MSG::FATAL << "Cannot open file " << fullName << endmsg;
       return StatusCode::FAILURE;
     } else {
-      m_log << MSG::INFO << "Use mask file : " << fullName << endmsg;
+      msg() << MSG::INFO << "Use mask file : " << fullName << endmsg;
     }
     // read database ------------------------------------------------------------------------------
     std::vector<std::string> mask;
@@ -1181,14 +1180,14 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	    bool status = m_cabling->getOfflineIDfromOnlineID(ID,sysno,octno,
 							      ids[3],ids[4],ids[5],ids[6],ids[7]);
 	    if ( m_debuglevel) {
-	      m_log << MSG::VERBOSE 
+	      msg() << MSG::VERBOSE 
 		    << (OnOff==0 ? "Mask" : "Fire") << " : offlineID=" << ID
 		    << " sys=" << sysno << " oct=" << octno << " modno=" << ids[3] 
 		    << " layerno=" << ids[4] << " rNumber=" << ids[5] 
 		    << " strip=" << ids[6] << " chno=" << ids[7] << endmsg;
 	    }
 	    if (!status) {
-	      m_log << MSG::WARNING 
+	      msg() << MSG::WARNING 
 		    << "This onlineID is not valid and cannot be converted to offline ID." 
 		    << endmsg 
 		    << "sys=" << sysno << " oct=" << octno << " modno=" << ids[3] 
@@ -1209,13 +1208,13 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	  for(int octno=octno1; octno<=octno2; octno++) {
 	    bool status = m_cabling->getOfflineIDfromReadoutID(ID, sysno,octno,ids[3],ids[4],ids[5]);
 	    if (m_debuglevel) {
-	      m_log << MSG::VERBOSE 
+	      msg() << MSG::VERBOSE 
 		    << (OnOff==0 ? "Mask" : "Fire") << " : offlineID=" << ID
 		    << " subdetectorID=" << sysno << " rodId=" << octno << " sswID=" << ids[3] 
 		    << " SBLoc=" << ids[4] << " channelId=" << ids[5] << endmsg;
 	    }
 	    if (!status) {
-	      m_log << MSG::WARNING 
+	      msg() << MSG::WARNING 
 		    << "This readoutID is not valid and cannot be converted to offline ID " 
 		    << endmsg
 		    << "subdetectorID=" << sysno << " rodId=" << octno << " sswID=" << ids[3] 
@@ -1231,22 +1230,22 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
       } else if (id_type==3 && ids.size()==2) { // offline id
 	ID = Identifier((unsigned int)ids[1]);
 	if (m_debuglevel) {
-	  m_log << MSG::DEBUG << (OnOff==0 ? "Mask" : "Fire") << " : offlineID=" << ID << endmsg;
+	  msg() << MSG::DEBUG << (OnOff==0 ? "Mask" : "Fire") << " : offlineID=" << ID << endmsg;
 	}
 	m_MaskedChannel.insert(std::map<Identifier, int>::value_type(ID, OnOff));
 	if (OnOff==0)      nmasked+=1;
 	else if (OnOff==1) nfired+=1;
 
       } else {
-	m_log << MSG::INFO 
+	msg() << MSG::INFO 
 	      << "Invalid input. Idtype or number of parameters are invalid: idtype=" << id_type
 	      << " number of elements = " << ids.size() << endmsg;
 	return StatusCode::FAILURE;
       }
     }
     //
-    m_log << MSG::INFO << "Total number of masked channels ... " << nmasked << endmsg;
-    m_log << MSG::INFO << "Total number of fired  channels ... " << nfired  << endmsg;
+    msg() << MSG::INFO << "Total number of masked channels ... " << nmasked << endmsg;
+    msg() << MSG::INFO << "Total number of fired  channels ... " << nfired  << endmsg;
     //
     return StatusCode::SUCCESS;
   }
@@ -1320,18 +1319,18 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
       if(isTracklet && (slbtype == TgcRawData::SLB_TYPE_INNER_WIRE ||
                         slbtype == TgcRawData::SLB_TYPE_INNER_STRIP)) {
 
-        m_log << MSG::DEBUG << "Inner coincidence words without BW hits"
+        msg() << MSG::DEBUG << "Inner coincidence words without BW hits"
                             << " for subDetectorId=" << rawdata->subDetectorId()
                             << " for rodId=" << rawdata->rodId() << endmsg;
 
       } else if (isHipt && isInner) {
-        m_log << MSG::DEBUG << "Inner coincidence words without BW hits" 
+        msg() << MSG::DEBUG << "Inner coincidence words without BW hits" 
 	      << " for subDetectorId=" << rawdata->subDetectorId()
 	      << " for rodId=" << rawdata->rodId()
 	      << endmsg;
 
       } else {
-        m_log << MSG::WARNING << "Inconsistent RodId with hits " 
+        msg() << MSG::WARNING << "Inconsistent RodId with hits " 
 	      << " for subDetectorId=" << rawdata->subDetectorId()
 	      << " for rodId=" << rawdata->rodId()
 	      << "  Type=" << static_cast<int>(rawdata->type()) 
@@ -1356,23 +1355,23 @@ StatusCode LVL1TGCTrigger::getCabling()
   const ITGCcablingServerSvc* TgcCabGet = 0;
   StatusCode sc = service("TGCcablingServerSvc", TgcCabGet);
   if (sc.isFailure()){
-    m_log << MSG::FATAL << " Can't get TGCcablingServerSvc " << endmsg;
+    msg() << MSG::FATAL << " Can't get TGCcablingServerSvc " << endmsg;
     return StatusCode::FAILURE;
   }
   
   // get Cabling Service
   sc = TgcCabGet->giveCabling(m_cabling);
   if (sc.isFailure()){
-    m_log << MSG::FATAL << " Can't get TGCcablingSvc Server" << endmsg;
+    msg() << MSG::FATAL << " Can't get TGCcablingSvc Server" << endmsg;
     return StatusCode::FAILURE; 
   }
 
   int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
   m_cabling->getReadoutIDRanges( maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId);
   if (maxRodId ==12) {
-    m_log << MSG::INFO << m_cabling->name() << " is OK" << endmsg ;
+    msg() << MSG::INFO << m_cabling->name() << " is OK" << endmsg ;
   } else {
-    m_log << MSG::FATAL 
+    msg() << MSG::FATAL 
 	  << " Old TGCcablingSvc(octant segmentation) can not be used !" 
 	  << endmsg;
     return StatusCode::FAILURE; 
@@ -1394,7 +1393,7 @@ StatusCode LVL1TGCTrigger::getCabling()
     m_VerCW = ver;
   }
 
-  if (!g_USE_CONDDB) m_log << MSG::INFO 
+  if (!g_USE_CONDDB) msg() << MSG::INFO 
         << " TGC CW version of " << ver << " is selected " << endmsg;
 
   // check Inner /TileMu   
@@ -1430,7 +1429,7 @@ StatusCode LVL1TGCTrigger::fillTMDB()
   sc = evtStore()->retrieve(tileMuRecCont, m_keyTileMu);
   
   if (sc.isFailure()) {
-    m_log << MSG::WARNING << " Cannot retrieve Tile Muon Receiver Container " << endmsg;
+    msg() << MSG::WARNING << " Cannot retrieve Tile Muon Receiver Container " << endmsg;
     return sc;
   }
   
@@ -1444,9 +1443,9 @@ StatusCode LVL1TGCTrigger::fillTMDB()
       thresholds[ip] = (tmObj_Thresholds->GetThresholds()).at(ip);
     }
     if (m_debuglevel) {
-      m_log << MSG::DEBUG << "thresholds[] :" 
+      msg() << MSG::DEBUG << "thresholds[] :" 
 	    << thresholds[0] << thresholds[1] << thresholds[2] << thresholds[3] << endmsg;
-      m_log << MSG::DEBUG << "type of GetThreshold : " 
+      msg() << MSG::DEBUG << "type of GetThreshold : " 
 	    << typeid((tmObj_Thresholds->GetThresholds())).name() 
 	    << "  ID of GetThreshold : " 
 	    << tmObj_Thresholds->GetID() << endmsg;
