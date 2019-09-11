@@ -17,6 +17,7 @@ StatusCode CaloCellDumper::initialize() {
     return StatusCode::FAILURE;
   }
   
+  ATH_MSG_INFO("Cell energy cut=" << m_eCut.value());
   return StatusCode::SUCCESS;
 }
 
@@ -36,10 +37,39 @@ StatusCode CaloCellDumper::execute() {
   
   const unsigned evt=ctx.eventID().event_number();
   m_outfile << "Event " << evt << " contains " << cells->size() << " CaloCells" << std::endl;
-  m_outfile << "ID\ttime\tQual\tprov" << std::endl;
+  m_outfile << "ID\tEnergy\tTime\tQual\tprov" << std::endl;
+
   for (auto cell : *cells) {
-    if (cell->e()>m_eCut) {
-      m_outfile << "0x" << std::hex << cell->ID().get_identifier32().get_compact() << std::dec 
+    if (cell->e()>m_eCut.value()) {
+      std::stringstream id;
+      if (!m_compact.value()) {
+	const CaloDetDescrElement* dde=cell->caloDDE();
+	if (dde->is_lar_em_barrel()) {
+	  id << "LAr Bar";
+	}
+	else if (dde->is_lar_em_endcap_inner()){
+	  id << "LAR ECI";
+	}
+	else if (dde->is_lar_em_endcap_outer()){
+	  id << "LAR ECO";
+	}
+	else if (dde->is_lar_hec()) {
+	  id << "LAr_HEC";
+	}
+	else if (dde->is_lar_fcal()) {
+	  id << "LAr_FCAL";
+	}
+	else if (dde->is_tile()) {
+	  id << "TILE    ";
+	}
+	else {
+	  id << "UNKONWN";
+	}
+	id << ", samp=" << dde->getSampling() << ", ";
+      }
+     
+      m_outfile << id.str() << "0x" << std::hex << cell->ID().get_identifier32().get_compact() << std::dec 
+      //m_outfile << 
 		<< "\t" << cell->e() << "\t" << cell->time() << "\t" << cell->gain() 
 		<< "\t" << cell->quality() << "\t0x" << std::hex << cell->provenance() << std::dec << std::endl;
     }

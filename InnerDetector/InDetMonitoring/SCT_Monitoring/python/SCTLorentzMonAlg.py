@@ -47,13 +47,6 @@ def SCTLorentzMonAlgConfig(inputFlags):
     # Add some tools. N.B. Do not use your own trigger decion tool. Use the
     # standard one that is included with AthMonitorAlgorithm.
 
-    # # First, add a tool that's set up by a different configuration function. 
-    # # In this case, CaloNoiseToolCfg returns its own component accumulator, 
-    # # which must be merged with the one from this function.
-    # from CaloTools.CaloNoiseToolConfig import CaloNoiseToolCfg
-    # caloNoiseAcc, caloNoiseTool = CaloNoiseToolCfg(inputFlags)
-    # result.merge(caloNoiseAcc)
-    # myMonAlg.CaloNoiseTool = caloNoiseTool
 
     # set up geometry / conditions
     from AtlasGeoModel.InDetGMConfig import InDetGeometryCfg

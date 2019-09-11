@@ -65,10 +65,6 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 
 
-atlas_add_test( CaloNoiseToolConfigTest_test
-                SCRIPT python -m CaloTools.CaloNoiseToolConfig
-                EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
-
 atlas_add_test( CaloEstimatedGainToolConfig_test
                 SCRIPT python -m CaloTools.CaloEstimatedGainToolConfig
                 EXTRA_PATTERNS "-s ComponentAccumulator|^---|^IOVDbSvc" )
