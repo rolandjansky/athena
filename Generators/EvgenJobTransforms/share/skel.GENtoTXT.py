@@ -221,7 +221,7 @@ print ("****************** CHECKING EVGEN CONFIGURATION *****************")
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
-evgenLog.info(".transform                  Gen_tf_txt")      
+evgenLog.info(".transform =                   Gen_tf_txt")      
 
 ## Sort and check generator name / JO name consistency
 ##

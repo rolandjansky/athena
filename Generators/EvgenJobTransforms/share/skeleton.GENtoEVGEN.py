@@ -240,7 +240,7 @@ evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION ****************
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
-evgenLog.info(".transform              Generate_tf")
+evgenLog.info(".transform =               Generate_tf")
 
 ## Sort and check generator name / JO name consistency
 ##
