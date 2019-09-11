@@ -199,11 +199,11 @@ class LogicalExpressionFilter( PyAthena.Alg ):
         if self.Sampling==0:
             mc[0].weights().push_back( int(response) )
         elif not response:
-            self.msg.info('Failed filter with sampling %s and weight %s'%(self.Sampling,mc[0].weights()[0]))
+#            self.msg.info('Failed filter with sampling %s and weight %s'%(self.Sampling,mc[0].weights()[0]))
             response = random.random()<self.Sampling
             for a in xrange(len(mc[0].weights())): mc[0].weights()[a] /= self.Sampling
             event_weight /= self.Sampling
-            self.msg.info('Now filter is %s and weight %s'%(response,mc[0].weights()[0]))
+#            self.msg.info('Now filter is %s and weight %s'%(response,mc[0].weights()[0]))
 
         self.nEventsProcessed+=1
         self.nEventsProcessedWeighted+=event_weight
