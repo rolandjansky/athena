@@ -13,6 +13,7 @@
 #include "JetInterface/IJetSelector.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "BoostedJetTaggers/IJetSelectorLabelTool.h"
 #include "BoostedJetTaggers/FatjetLabelEnum.h"
 
@@ -53,6 +54,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
   std::string m_truthParticleContainerName;
   std::string m_truthWBosonContainerName;
   std::string m_truthZBosonContainerName;
+  std::string m_truthHBosonContainerName;
   std::string m_truthTopQuarkContainerName;
   // parameters for truth labeling
   double m_dR_truthJet;
@@ -76,16 +78,15 @@ class JSSTaggerBase :   public asg::AsgTool ,
   void showCuts() const;
 
   public:
-  int getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, bool isSherpa, double dRmax, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
+  int getFatjetContainment(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::TruthParticleContainer* truthPartsH, bool isSherpa, double dRmax, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
   int matchToWZ_Sherpa(const xAOD::Jet& jet,
 			const xAOD::TruthParticleContainer* truthParts,
 			double dRmax) const;
   virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet) const;
-  virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::JetContainer* truthJets, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ) const;
+  virtual StatusCode decorateTruthLabel(const xAOD::Jet& jet, const xAOD::TruthParticleContainer* truthPartsW, const xAOD::TruthParticleContainer* truthPartsZ, const xAOD::TruthParticleContainer* truthPartsTop, const xAOD::TruthParticleContainer* truthPartsH, const xAOD::JetContainer* truthJets, std::string decorName, double dR_truthJet, double dR_truthPart, double mLowTop, double mHighTop, double mLowW, double mHighW, double mLowZ, double mHighZ, int channelNumber) const;
   bool getIsSherpa(const int DSID) const {
     if( (304307 <= DSID && DSID <=304309) || // Sherpa 2.2.1 W+jets
-	(304707 <= DSID && DSID <=304709) || // Sherpa 2.2.1 Z+jets
-	(364375 <= DSID && DSID <=364380)  // Sherpa 2.2.5 W/Z+jets
+	(304707 <= DSID && DSID <=304709) // Sherpa 2.2.1 Z+jets
 	){ // to be updated
       return true;
     }
