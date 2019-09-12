@@ -71,6 +71,9 @@ private:
                        xAOD::TrackParticleContainer* finalTrkPartContainer,                      
                        const xAOD::TrackParticleContainer* AllTracks) const;
 
+  void updateGSFTrack(const TrackWithIndex& Info, 
+                      const xAOD::TrackParticleContainer* AllTracks) const;
+
   /** @brief The track refitter */
   ToolHandle<IegammaTrkRefitterTool>  m_trkRefitTool {this,
     "TrackRefitTool", "ElectronRefitterTool", "Track refitter tool"};
@@ -93,8 +96,14 @@ private:
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool {this,
     "ExtrapolationTool", "EMExtrapolationTools", "Extrapolation tool"};
 
-  /** @brier Option to do truth*/
+  /** @brief Option to do truth*/
   Gaudi::Property<bool> m_doTruth {this, "DoTruth", false, "do truth"};
+
+  /** @brief Option to do SCT holes estimation*/
+  Gaudi::Property<bool> m_doSCT {this, "useSCT", false, "do SCT"};
+
+  /** @brief Option to do truth*/
+  Gaudi::Property<bool> m_doPix {this, "usePixel", false, "do pix"};
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
     "TrackParticleContainerName", "InDetTrackParticles", 
