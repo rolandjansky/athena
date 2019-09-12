@@ -74,6 +74,8 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
 
   auto iter_diff = groups_e - groups_b;  // number of jet groups
   if (iter_diff < 0){return std::optional<bool>();}  // must be postive
+
+  /* Temp remove - 
   if(static_cast<std::size_t>(iter_diff) < m_nConditions) {
     if(collector){
       collector->collect("FlowNetworkMatcherBase",
@@ -83,6 +85,7 @@ FlowNetworkMatcherBase::match(const HypoJetGroupCIter& groups_b,
     }
     return std::make_optional<bool>(false);
   }
+  */
   std::cerr<<"FlowNetworkMatcherBase::match 200\n";
 
   std::map<int, pHypoJet> nodeToJet; 

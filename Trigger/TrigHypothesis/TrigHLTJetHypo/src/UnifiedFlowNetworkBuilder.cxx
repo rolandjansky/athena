@@ -57,6 +57,7 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   std::map<std::size_t, HypoJetGroupVector> satisfiedBy;
 
   auto leaves = m_tree.leaves();  // indices into Conditions vector
+  for(const auto& i : leaves){std::cerr<<"dumping leaves: " << i << '\n';}
 
   // first edges - single jets - single jet conditions
   // keep track of input jet groups to be connected toi the sink node.
@@ -78,14 +79,17 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
       return std::optional<std::vector<std::shared_ptr<FlowEdge>>>();
     }
     std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 400\n";
-
+    std::cerr<<"processing jet group "<< jg << '\n';
     bool jg_is_used{false};
     for(const auto& leaf: leaves){
+      std::cerr<<"processing condition index "<< leaf-1 << '\n';
+      
       std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 410\n";
       if (m_conditions[leaf-1]->isSatisfied(jg, collector)){
 	jg_is_used = true;
+	std::cerr<<"  condition satisfied\n";
 	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 420\n";
-	satisfiedBy[leaf-1].push_back(jg);  //leaf-1: conditions index
+	satisfiedBy[leaf].push_back(jg);  //leaf: tree index
 	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 430\n";
 	toSink.insert(cur_jg);
 	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 440\n";
@@ -97,7 +101,10 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
 	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 470\n";
 	nodeToJet[cur_jg] = jg[0];
 	std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 480\n";
+      } else {
+	std::cerr<<"  condition not satisfied\n";
       }
+
     }
     if(jg_is_used){++cur_jg;}
   }
@@ -119,7 +126,7 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
   // keep track if a condition's sibling has been processed.
   std::vector<bool> checked(m_conditions.size(), false);
 
-  // initialise the queue with satisfied leaf conditions.
+  // initialise the queue with satisfied leaf conditions indices.
   for(const auto& l : leaves){to_process.push(l);}
 
   std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 600\n";
@@ -131,9 +138,9 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
       std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 650  skipping " << k <<"\n";
       continue;
     }
-    std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges \n";
+    std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges tree index k from queue" << k <<" \n";
 
-    // find the siblings of the condition being processed.
+    // find the siblings indices of the condition being processed.
     auto siblings = m_tree.getSiblings(k);
 
     // mark the siblings as having been processed.
@@ -145,7 +152,7 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
     
     std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 800\n";
     for(const auto& s : siblings){
-      sibling_jgroups.push_back(satisfiedBy[s]);
+      sibling_jgroups.push_back(satisfiedBy[s]);  //s is a tree index
     }
     std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 900\n";
 
@@ -153,6 +160,16 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
     // eg if condition c1 is satisfied by jg11 and jg12, while its only
     // sibling c2 is satisfied by jg21, the external jet groups are
     // jg11jg21, jg12jg21. Each of these  are flattened.
+    std::cerr << "sibling_groups size " << sibling_jgroups.size() << '\n';
+    for(const auto& i : sibling_jgroups){
+      std::cout<< "outer vector sibling job groups size: " << i.size() << '\n';
+
+      for(const auto& j : i){
+	std::cout<< "sibling job group: " << j << '\n';
+      }
+    }
+    
+    
     auto jg_product = JetGroupProduct(sibling_jgroups);
     auto next = jg_product.next();
     auto par = m_tree.getParent(k);
@@ -160,8 +177,8 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
     std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 1000\n";
     while (next.has_value()){
       auto jg = *next;
-      std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 950 \n";
-      if (m_conditions[par]->isSatisfied(jg, collector)){
+      std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 950 "<< par<<"\n";
+      if (m_conditions[par-1]->isSatisfied(jg, collector)){// par is a tree ind.
 	++cur_jg;
       std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 960 cur_jg " << cur_jg <<"\n";
 	satisfiedBy[par].push_back(jg);
@@ -170,13 +187,15 @@ UnifiedFlowNetworkBuilder::make_flowEdges(const HypoJetGroupCIter& groups_b,
 	for(const auto& s : siblings){
 	  edges.push_back(std::make_shared<FlowEdge>(cur_jg,
 						     s,
-						     m_conditions[s]->capacity()));}
+						     m_conditions[s-1]->capacity()));}
 	jetgroups.insert(std::map<int, HypoJetVector>::value_type(cur_jg, jg));
       }      
+      std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 970\n";
       
       next = jg_product.next();
     }
-    to_process.push(par);
+    std::cerr<<"UnifiedFlowNetworkBuilder::make_flowEdges 1000\n";
+    if(par != 0){to_process.push(par);}
   
     to_process.pop();
   }

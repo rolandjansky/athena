@@ -9,6 +9,7 @@
 #include "TrigHLTJetHypo/../src/DebugInfoCollector.h"
 #include "TrigHLTJetHypo/../src/xAODJetCollector.h"
 #include "TrigHLTJetHypo/../src/UnifiedFlowNetworkBuilder.h"
+#include "../src/SpecifiedJetsCondition.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
@@ -91,14 +92,17 @@ public:
 };
 
 
-bool buildAndRunMatcher(const std::vector<double>& etaMins,
-			const std::vector<double>& etaMaxs,
-			const std::vector<double>& jetEtas,
-			const std::vector<std::size_t>& treeVec,
-			const std::string& fn,
-			bool debug
+bool simpleBuildAndRunMatcher(const std::vector<double>& etaMins,
+			      const std::vector<double>& etaMaxs,
+			      const std::vector<double>& jetEtas,
+			      const std::vector<std::size_t>& treeVec,
+			      const std::string& fn,
+			      bool debug
 			){
-  
+  /* 
+     uses real hypo jets and conditions of capacity one to build a flow network
+  */
+ 
   auto out = std::make_unique<std::ofstream>(nullptr);
   if (debug){out.reset(new std::ofstream(fn + ".log"));}
 
@@ -124,13 +128,56 @@ bool buildAndRunMatcher(const std::vector<double>& etaMins,
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
   matcher.reset(new UnifiedFlowNetworkMatcher(std::move(conditions),
 					      treeVec));
-  std::cerr<< "UnifiedFlowNetworkMatcherTest, "<< fn << "  800\n";
-  
+
   bool pass =  *(matcher->match(groups.cbegin(),
 				groups.cend(),
 				j_collector,
 				d_collector));
 
+  
+  if(debug){d_collector->write();}
+  
+  for(auto j : jets){delete j;}
+
+  return pass;
+}
+
+
+bool buildAndRunMatcher(ConditionsMT conditions,
+			HypoJetVector jets,
+			const std::vector<std::size_t>& treeVec,
+			const std::string& fn,
+			bool debug
+  			){
+  /* 
+     uses supplied hypo jets and conditions to build a flow network
+  */
+
+  auto out = std::make_unique<std::ofstream>(nullptr);
+  if (debug){out.reset(new std::ofstream(fn + ".log"));}
+
+  if(out){
+    for(const auto& c : conditions){*out << c->toString();}
+  }
+  
+  std::map<int, pHypoJet> nodeToJet;
+  
+  auto groups = makeJetGroupsMT(jets.begin(), jets.end(), 1u);
+  
+  auto d_collector = std::unique_ptr<ITrigJetHypoInfoCollector>();
+  
+  d_collector.reset(new DebugInfoCollector(fn));   
+  
+  xAODJetCollector j_collector;
+  
+  std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
+  matcher.reset(new UnifiedFlowNetworkMatcher(std::move(conditions),
+					      treeVec));
+  bool pass =  *(matcher->match(groups.cbegin(),
+				groups.cend(),
+				j_collector,
+				d_collector));
+  
   
   if(debug){d_collector->write();}
   
@@ -157,12 +204,12 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_nomatch){
   std::vector<std::size_t> treeVec{0,0,0};
   std::map<int, pHypoJet> nodeToJet;
 
-  bool pass = buildAndRunMatcher(etaMins,
-				 etaMaxs,
-				 jetEtas,
-				 treeVec,
-				 fn,
-				 m_debug);
+  bool pass = simpleBuildAndRunMatcher(etaMins,
+				       etaMaxs,
+				       jetEtas,
+				       treeVec,
+				       fn,
+				       m_debug);
   
   
   EXPECT_FALSE(pass);
@@ -181,12 +228,12 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_onematch){
   std::vector<std::size_t> treeVec{0,0,0};
   std::map<int, pHypoJet> nodeToJet;
 
-  bool pass = buildAndRunMatcher(etaMins,
-				 etaMaxs,
-				 jetEtas,
-				 treeVec,
-				 fn,
-				 m_debug);
+  bool pass = simpleBuildAndRunMatcher(etaMins,
+				       etaMaxs,
+				       jetEtas,
+				       treeVec,
+				       fn,
+				       m_debug);
   
   
   EXPECT_FALSE(pass);
@@ -205,12 +252,12 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_0){
   std::vector<std::size_t> treeVec{0,0,0};
   std::map<int, pHypoJet> nodeToJet;
 
-  bool pass = buildAndRunMatcher(etaMins,
-				 etaMaxs,
-				 jetEtas,
-				 treeVec,
-				 fn,
-				 m_debug);
+  bool pass = simpleBuildAndRunMatcher(etaMins,
+				       etaMaxs,
+				       jetEtas,
+				       treeVec,
+				       fn,
+				       m_debug);
   
   
   EXPECT_FALSE(pass);
@@ -235,12 +282,12 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_1){
   std::vector<std::size_t> treeVec{0,0,0};
   std::map<int, pHypoJet> nodeToJet;
 
-  bool pass = buildAndRunMatcher(etaMins,
-				 etaMaxs,
-				 jetEtas,
-				 treeVec,
-				 fn,
-				 m_debug);
+  bool pass = simpleBuildAndRunMatcher(etaMins,
+				       etaMaxs,
+				       jetEtas,
+				       treeVec,
+				       fn,
+				       m_debug);
   
   
   EXPECT_TRUE(pass);
@@ -251,12 +298,11 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_1){
 
 TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_2){
   /* j0 -> c0
+     j0 -> c1
+     j1 -> c0
      j1 -> c1
 
      Passes.  
-
-     treeVec is {0,0,0} (two condition nodes connected to the source node
-
   */
 
   std::string fn = "mj_flowNetworkBuilder_0";
@@ -266,9 +312,57 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_2){
   std::vector<std::size_t> treeVec{0,0,0};
   std::map<int, pHypoJet> nodeToJet;
 
-  bool pass = buildAndRunMatcher(etaMins,
-				 etaMaxs,
-				 jetEtas,
+  bool pass = simpleBuildAndRunMatcher(etaMins,
+				       etaMaxs,
+				       jetEtas,
+				       treeVec,
+				       fn,
+				       m_debug);
+  
+  
+  EXPECT_TRUE(pass);
+ }
+
+
+TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_dj0){
+  /* j0 -> c2
+     j1 -> c3
+     j2 -> c4
+     j3 -> c5
+     (j0, j1) -> c0
+     (j2, j3) -> c1
+     Passes.  
+  */
+
+  std::string fn = "mj_flowNetworkBuilder_dj0";
+  
+  std::vector<double> jetEtas(4, 0.0);
+  auto jets = makeHypoJets(jetEtas);
+
+  ConditionsMT conditions;
+
+  
+  std::unique_ptr<IConditionMT>  condition01(nullptr);
+  condition01.reset(new SpecifiedJetsCondition
+		    (HypoJetVector{jets[0], jets[1]}));
+  conditions.push_back(std::move(condition01));
+
+  std::unique_ptr<IConditionMT> condition23(nullptr);
+  condition23.reset(new SpecifiedJetsCondition
+		    (HypoJetVector{jets[2], jets[3]}));
+  conditions.push_back(std::move(condition23));
+
+  for(std::size_t i=0; i< jets.size(); ++i){
+    std::unique_ptr<IConditionMT> condition;
+    condition.reset(new SpecifiedJetsCondition(HypoJetVector{jets[i]}));
+    conditions.push_back(std::move(condition));
+  }
+
+  std::vector<std::size_t> treeVec{0, 0, 0, 1, 1, 2, 2};
+  std::map<int, pHypoJet> nodeToJet;
+
+  bool pass = buildAndRunMatcher(std::move(conditions),
+				 jets,
 				 treeVec,
 				 fn,
 				 m_debug);
@@ -276,6 +370,4 @@ TEST_F(UnifiedFlowNetworkMatcherTest, mj_flowNetworkBuilder_2){
   
   EXPECT_TRUE(pass);
  }
-
-
 
