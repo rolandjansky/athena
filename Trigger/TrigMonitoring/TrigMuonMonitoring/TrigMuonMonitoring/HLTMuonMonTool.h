@@ -139,7 +139,7 @@ class HLTMuonMonTool : public IHLTMonTool
 
   //sub functions in each HLT algorithm
   StatusCode fillEFSingleChainHistos(const std::vector<std::string> & triggerlist);
-
+  StatusCode fillL2SASingleChainHistos(const std::vector<std::string> & triggerlist);
   
   // private functions
   float getPtThresTrigMuonEFSA(const int thres, const float eta);

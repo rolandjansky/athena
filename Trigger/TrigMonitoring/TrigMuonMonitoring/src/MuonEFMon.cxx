@@ -1503,20 +1503,36 @@ StatusCode HLTMuonMonTool :: fillEFSingleChainHistos(const std::vector<std::stri
 
   for(std::string trig : triggerlist){
     ATH_MSG_DEBUG("Retrieving feature container for " << trig);
-    const Trig::FeatureContainer fc = getTDT()->features( trig, TrigDefs::alsoDeactivateTEs);
-    const std::vector< Trig::Feature<xAOD::MuonContainer> > fEFs = fc.get<xAOD::MuonContainer>( "", TrigDefs::alsoDeactivateTEs );
-    for(const Trig::Feature<xAOD::MuonContainer> &fEF : fEFs){
-      const xAOD::MuonContainer *cont = fEF.cptr(); 
-      for( const xAOD::Muon* ef : *cont ){
-        const HLT::TriggerElement *efTE = fEF.te();
-        if(efTE->getActiveState()){//pass
-          hist(Form("EF_pt_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->pt()/CLHEP::GeV );
-          hist(Form("EF_eta_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->eta() );
-          hist(Form("EF_phi_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->phi() );
+    if (getTDT()->getNavigationFormat() == "TriggerElement") { // run 2 access
+      const Trig::FeatureContainer fc = getTDT()->features( trig, TrigDefs::alsoDeactivateTEs);
+      const std::vector< Trig::Feature<xAOD::MuonContainer> > fEFs = fc.get<xAOD::MuonContainer>( "", TrigDefs::alsoDeactivateTEs );
+      for(const Trig::Feature<xAOD::MuonContainer> &fEF : fEFs){
+        const xAOD::MuonContainer *cont = fEF.cptr(); 
+        for( const xAOD::Muon* ef : *cont ){
+          const HLT::TriggerElement *efTE = fEF.te();
+          if(efTE->getActiveState()){//pass
+            hist(Form("EF_pt_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->pt()/CLHEP::GeV );
+            hist(Form("EF_eta_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->eta() );
+            hist(Form("EF_phi_%s",trig.c_str()), m_histdirmuonef)->Fill( ef->phi() );
+          }
         }
       }
-    }
-  }
+    }//run 2 access
+    else { // run 3 access
+      ATH_MSG_DEBUG("Run 3 access to EF " << trig.c_str() << " = " << getTDT()->isPassed(trig));
+      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > fc = getTDT()->features<xAOD::MuonContainer>(trig, TrigDefs::includeFailedDecisions);
+      ATH_MSG_DEBUG("N(EF muon LinkInfo) for chain " << trig << " = " << fc.size() << " passed = " << getTDT()->isPassed(trig));
+      for(auto muonLinkInfo : fc) {
+        ATH_CHECK( muonLinkInfo.isValid() );
+        ElementLink<xAOD::MuonContainer> muonLink = muonLinkInfo.link;
+        ATH_CHECK( muonLink.isValid() );
+        hist(Form("EF_pt_%s",trig.c_str()), m_histdirmuonef)->Fill( (*muonLink)->pt()/CLHEP::GeV );
+        hist(Form("EF_eta_%s",trig.c_str()), m_histdirmuonef)->Fill( (*muonLink)->eta() );
+        hist(Form("EF_phi_%s",trig.c_str()), m_histdirmuonef)->Fill( (*muonLink)->phi() );
+      }
+    }// run 3 access
+
+  }// loop on trigger chains
   
   return StatusCode::SUCCESS;
 }
