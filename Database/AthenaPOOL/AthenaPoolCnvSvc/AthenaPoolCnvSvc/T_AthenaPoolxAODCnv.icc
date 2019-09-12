@@ -62,9 +62,11 @@ T_AthenaPoolxAODCnv<XAOD, TPCNVS...>::createTransientWithKey (const std::string&
   }
 
   if (c) {
-    DataLink< SG::IConstAuxStore > dl;
-    dl.toTransient (key + "Aux.");
-    c->setStore( dl );
+    if (c->trackIndices()) {
+      DataLink< SG::IConstAuxStore > dl;
+      dl.toTransient (key + "Aux.");
+      c->setStore( dl );
+    }
     return c;
   }
 
