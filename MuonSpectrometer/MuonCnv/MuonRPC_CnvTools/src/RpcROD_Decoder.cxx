@@ -20,7 +20,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/IIncidentSvc.h"
 
 //niko
 //#include "RpcByteStreamAccess/IRPC_ByteStreamErrorSvc.h"
