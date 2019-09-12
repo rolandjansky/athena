@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENAKERNEL_ITHINNINGSVC_H 
@@ -232,11 +232,12 @@ class IThinningSvc : virtual public IService,
 //    */
 //   virtual
 //   range<Athena::ISlimmingHdlr> end_slimmers() =0;
-
+  
   /////////////////////////////////////////////////////////////////// 
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
- protected: 
+ protected:
+  friend class TrigNavigationThinningSvc;
 
   /** @brief Retrieve the handler (if any) to thin a @c DataProxy
    */
