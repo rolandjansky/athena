@@ -86,7 +86,6 @@ class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamError
 
     SG::ReadHandleKey<InDetBSErrContainer>  m_BSErrContReadKey;
     SG::WriteHandleKey<InDetBSErrContainer> m_BSErrContWriteKey;
-    SG::WriteHandle<InDetBSErrContainer>    m_BSErrContWrite;
 
     mutable std::vector<unsigned int> m_module_errors;
     mutable std::vector<unsigned int> m_moduleROD_errors;
@@ -119,8 +118,6 @@ class PixelByteStreamErrorsTool: public AthAlgTool, public IPixelByteStreamError
     // Array of counters for each code, i.e. m_ServiceRecords[0] is the
     // count for code 0 (BCID counter error)
     mutable unsigned int m_ServiceRecords[32];
-
-    unsigned int m_checkError;
 
     bool m_readESD;
     std::string m_BSErrContainerKey;
