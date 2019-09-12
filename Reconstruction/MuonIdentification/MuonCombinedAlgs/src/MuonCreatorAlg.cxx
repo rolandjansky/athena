@@ -152,7 +152,7 @@ StatusCode MuonCreatorAlg::execute()
   //---------------------------------------------------------------------------------------------------------------------//
 
   // Only run monitoring for online algorithms
-  if ( not m_monTool.name().empty() ) {
+  //if ( not m_monTool.name().empty() ) {
     // Variables to initialize and keep for monitoring
     std::vector<double> ini_mupt(0);
     std::vector<double> ini_mueta(0);
@@ -177,7 +177,7 @@ StatusCode MuonCreatorAlg::execute()
       
     }
     */
-  }
+    //}
 
   return StatusCode::SUCCESS;
 }
