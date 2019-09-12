@@ -755,6 +755,12 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
     def createApp(self,OutputLevel=3):
+        # Create the Gaudi object early.
+        # Without this here, pyroot can sometimes get confused
+        # and report spurious type mismatch errors about this object.
+        import ROOT
+        ROOT.Gaudi
+
         self._wasMerged=True
         from Gaudi.Main import BootstrapHelper
         bsh=BootstrapHelper()
@@ -817,6 +823,14 @@ class ComponentAccumulator(object):
 
         for seqName, algoList in six.iteritems(flatSequencers( self._sequence, algsCollection=self._algorithms )):
             self._msg.debug("Members of %s : %s", seqName, str([alg.getFullName() for alg in algoList]))
+
+            seq = self.getSequence(seqName)
+            for k, v in seq.getValuedProperties().items():
+                if k!="Members": #This property his handled separatly
+                    self._msg.debug("Adding "+seqName+"."+k+" = "+str(v))
+                    bsh.addPropertyToCatalogue(jos,seqName.encode(),k.encode(),str(v).encode())
+                pass
+
             bsh.addPropertyToCatalogue(jos,seqName.encode(),b"Members",str( [alg.getFullName() for alg in algoList]).encode())
             for alg in algoList:
                 addCompToJos(alg)

@@ -2,17 +2,9 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <algorithm>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/Monitored.h"
-
-#include "DecisionHandling/Combinators.h"
-
-#include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigMuisoHypoTool.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
@@ -35,10 +27,10 @@ TrigMuisoHypoTool::~TrigMuisoHypoTool(){
 StatusCode TrigMuisoHypoTool::initialize()
 {
 
-  ATH_MSG_DEBUG("Initializing " << name() << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_DEBUG("Initializing " << name());
 
   if (m_acceptAll) {
-    ATH_MSG_DEBUG( "Accepting all the events with not cut!" );
+    ATH_MSG_DEBUG( "Accepting all the events!" );
   }
  
   ATH_MSG_DEBUG("Initialization completed successfully");

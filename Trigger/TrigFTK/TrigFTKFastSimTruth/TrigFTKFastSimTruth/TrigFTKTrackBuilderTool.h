@@ -20,6 +20,20 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
+#include "TROOT.h"
+#include "TFile.h"
+#include "TTree.h"
+#include "TTreeReader.h"
+#include "TTreeReaderValue.h"
+#include "TTreeReaderArray.h"
+
+namespace FTKSmearingConstants {
+  const int nIBL = 2;
+  const int neta = 5;
+  const int nparam = 8;
+  const int ntp = 5; // Ipt,eta,phi,d0,z0
+  const int nRegion = nIBL*neta*nparam;
+}
 
 namespace HepPDT {
   class ParticleDataTable;
@@ -28,6 +42,13 @@ namespace HepPDT {
 namespace CLHEP {
   class HepRandomEngine;
 }
+
+// double gaussian parameterisation
+class dgparam {
+public:
+  double n1, m1, a1, b1; // core gaussian
+  double n2, m2, a2, b2; // tail gaussian
+};
 
 class FTKPlaneMap;
 
@@ -66,6 +87,11 @@ private:
 
   std::string m_randomStreamName;
   CLHEP::HepRandomEngine* m_randomEngine = nullptr;
+  
+  std::string m_smearingFilePath;
+  std::string m_smearingFileName;
+
+  dgparam m_smearing_parameters[FTKSmearingConstants::nIBL][FTKSmearingConstants::neta][FTKSmearingConstants::ntp];
 };
 
 #endif

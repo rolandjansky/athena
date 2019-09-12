@@ -5,15 +5,6 @@
 #ifndef TRIGMUFASTHYPO_TRIGMUFASTHYPOALG_H 
 #define TRIGMUFASTHYPO_TRIGMUFASTHYPOALG_H 1 
 
-#include <string>
-
-#include "AthenaBaseComps/AthReentrantAlgorithm.h" 
-#include "AthViews/View.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
-
 #include "TrigMufastHypoTool.h"
 #include "DecisionHandling/HypoBase.h"
 
@@ -37,7 +28,6 @@ class TrigMufastHypoAlg
     
   private:
  
-    TrigMufastHypoAlg(); 
     ToolHandleArray<TrigMufastHypoTool> m_hypoTools {this, "HypoTools", {}, "Tools to perform selection"}; 
 
     SG::ReadHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastKey{

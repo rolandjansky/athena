@@ -5,17 +5,10 @@
 #ifndef TRIGMUCOMBHYPO_TRIGMUCOMBHYPOTOOL_H 
 #define TRIGMUCOMBHYPO_TRIGMUCOMBHYPOTOOL_H 1
 
-#include <string>
-#include "AthenaBaseComps/AthAlgTool.h" 
 #include "DecisionHandling/HLTIdentifier.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
-#include "xAODTrigMuon/versions/L2CombinedMuonContainer_v1.h"
-#include "xAODTrigMuon/L2CombinedMuon.h" 
-
-#include "DecisionHandling/TrigCompositeUtils.h" 
-#include "DecisionHandling/Combinators.h"
 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
@@ -63,14 +56,14 @@ class TrigmuCombHypoTool: public ::AthAlgTool {
 
     virtual StatusCode decide(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& toolInput) const;
     
+  private:
+
     bool decideOnSingleObject(TrigmuCombHypoTool::CombinedMuonInfo& input, size_t cutIndex) const;
 
     StatusCode inclusiveSelection(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input) const;
 
     StatusCode multiplicitySelection(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input) const;
    
-  private:
-
     HLT::Identifier m_decisionId;
     
     ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };   

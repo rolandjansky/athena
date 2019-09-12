@@ -138,17 +138,11 @@ def _createCfgFlags():
         return createTileConfigFlags()
     _addFlagsCategory(acf, 'Tile', __tile, 'TileConfiguration' )
 
-#CaloNoise Flags
-    acf.addFlag("Calo.Noise.fixedLumiForNoise",-1)
-    acf.addFlag("Calo.Noise.useCaloNoiseLumi",True)
 
-#CaloCell flags
-    acf.addFlag("Calo.Cell.doLArHVCorr",False) # Disable for now as it is broken...
-    acf.addFlag("Calo.Cell.doPileupOffsetBCIDCorr", True)
-#TopoCluster Flags:
-    acf.addFlag("Calo.TopoCluster.doTwoGaussianNoise",True)
-    acf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)
-    acf.addFlag("Calo.TopoCluster.doTopoClusterLocalCalib",True)
+    def __calo():
+        from CaloRec.CaloConfigFlags import createCaloConfigFlags
+        return createCaloConfigFlags()
+    _addFlagsCategory(acf, 'Calo', __calo, 'CaloRec' )
 
 #Random engine Flags:
     acf.addFlag("Random.Engine", "dSFMT") # Random service used in {"dSFMT", "Ranlux64", "Ranecu"}
@@ -172,6 +166,11 @@ def _createCfgFlags():
         from eflowRec.PFConfigFlags import createPFConfigFlags
         return createPFConfigFlags()
     _addFlagsCategory(acf,"PF",__pflow, 'eflowRec')
+
+    def __btagging():
+        from BTagging.BTaggingConfigFlags import createBTaggingConfigFlags
+        return createBTaggingConfigFlags()
+    _addFlagsCategory(acf,"BTagging",__btagging, 'BTagging')
 
     def __dq():
         from AthenaMonitoring.DQConfigFlags import createDQConfigFlags, createComplexDQConfigFlags

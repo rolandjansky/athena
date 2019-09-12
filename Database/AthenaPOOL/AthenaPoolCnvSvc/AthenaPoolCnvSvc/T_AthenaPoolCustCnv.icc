@@ -53,7 +53,7 @@ void T_AthenaPoolCustCnv<TRANS, PERS>::setPlacementForP(P& /*p*/, const std::str
 template <class TRANS, class PERS>
 template <class P>
 StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::objectToPool(P* pObj, Token*& token, const std::string& key) {
-   const std::string className = ClassName<P>::name();
+   const static std::string className = ClassName<P>::name();
    // Check dictionary
    // Allow for multiple class names
    if (this->m_className != className) {

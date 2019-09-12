@@ -24,7 +24,6 @@ atlas_depends_on_subdirs(
   PhysicsAnalysis/AnalysisCommon/PATCore
   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
   PRIVATE
-  Control/CxxUtils
   Event/FourMomUtils
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODCore
@@ -41,7 +40,7 @@ atlas_add_library( ElectronPhotonSelectorToolsLib
   PUBLIC_HEADERS ElectronPhotonSelectorTools
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES EgammaAnalysisInterfacesLib AsgTools xAODEgamma  xAODTracking xAODHIEvent PATCoreLib
-  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils FourMomUtils
+  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} FourMomUtils
   xAODCaloEvent xAODCore xAODEventInfo PathResolver MVAUtils )
 
 if( NOT XAOD_STANDALONE )
@@ -61,14 +60,14 @@ atlas_add_dictionary( ElectronPhotonSelectorToolsPythonDict
 
 atlas_add_executable( EGIdentification_mem_check
    util/EGIdentification_mem_check.cxx
-   LINK_LIBRARIES CxxUtils ElectronPhotonSelectorToolsLib )
+   LINK_LIBRARIES ElectronPhotonSelectorToolsLib )
 
 if( XAOD_STANDALONE )
 
    atlas_add_executable( EGIdentification_testEGIdentificationPoints
       util/testEGIdentificationPoints.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCore xAODEgamma CxxUtils AsgTools
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCore xAODEgamma AsgTools
       xAODRootAccess ElectronPhotonSelectorToolsLib )
 
    atlas_add_executable( EGIdentification_testEGChargeIDSelector

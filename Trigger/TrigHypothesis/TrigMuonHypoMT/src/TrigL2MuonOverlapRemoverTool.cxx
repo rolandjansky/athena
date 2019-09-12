@@ -2,20 +2,9 @@
 Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <math.h>
-#include <algorithm>
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "AthenaMonitoring/Monitored.h"
-
-#include "DecisionHandling/Combinators.h"
-
-#include "xAODTrigMuon/L2CombinedMuonContainer.h"
-#include "xAODTrigMuon/versions/L2CombinedMuonContainer_v1.h"
-#include "xAODTrigMuon/L2CombinedMuon.h"
-#include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigL2MuonOverlapRemoverTool.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------

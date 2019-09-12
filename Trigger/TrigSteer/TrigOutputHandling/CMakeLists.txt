@@ -72,3 +72,13 @@ atlas_add_test( serial_deserial_test
       POST_EXEC_SCRIPT nopost.sh
       PROPERTIES TIMEOUT 300
       )
+
+atlas_add_test( schema_evolution_test
+      SOURCES test/schema_evolution_test.cxx
+      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
+      LINK_LIBRARIES ${Boost_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} xAODTrigEgamma
+            AthLinks AthenaKernel StoreGateLib GaudiKernel TestTools xAODCore TrigOutputHandlingLib
+      ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share"
+      POST_EXEC_SCRIPT nopost.sh
+      PROPERTIES TIMEOUT 300
+      )

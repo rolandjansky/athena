@@ -50,7 +50,6 @@ atlas_add_component( egammaTools
 	EgammaAnalysisInterfacesLib egammaRecEvent egammaUtils TrkEventPrimitives )
 
 # Install files from the package:
-atlas_install_headers( egammaTools )
 atlas_install_python_modules( python/*.py )
 
 # Check python syntax on Config files

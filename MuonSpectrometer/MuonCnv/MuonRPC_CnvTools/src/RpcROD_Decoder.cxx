@@ -20,7 +20,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ListItem.h"
-//#include "GaudiKernel/IIncidentSvc.h"
 
 //niko
 //#include "RpcByteStreamAccess/IRPC_ByteStreamErrorSvc.h"
@@ -84,7 +83,6 @@ StatusCode Muon::RpcROD_Decoder::initialize() {
 
   //==LBTAG initialize vector and variables for format failure check
   for(int i=0; i<13; i++) m_RPCcheckfail[i]=0;
-  m_previous=0;
   m_printerror=0;
 
   return StatusCode::SUCCESS;

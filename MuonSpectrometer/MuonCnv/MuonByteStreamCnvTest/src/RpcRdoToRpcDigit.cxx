@@ -7,7 +7,7 @@
 
 RpcRdoToRpcDigit::RpcRdoToRpcDigit(const std::string& name,
                                    ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -27,11 +27,11 @@ StatusCode RpcRdoToRpcDigit::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode RpcRdoToRpcDigit::execute()
+StatusCode RpcRdoToRpcDigit::execute(const EventContext& ctx) const
 {
   ATH_MSG_DEBUG( "in execute()"  );
   // retrieve the collection of RDO
-  SG::ReadHandle<RpcPadContainer> rdoRH(m_rpcRdoKey);
+  SG::ReadHandle<RpcPadContainer> rdoRH(m_rpcRdoKey, ctx);
   if (!rdoRH.isValid()) {
     ATH_MSG_WARNING( "No RPC RDO container found!"  );
     return StatusCode::SUCCESS;
@@ -39,7 +39,7 @@ StatusCode RpcRdoToRpcDigit::execute()
   const RpcPadContainer* rdoContainer = rdoRH.cptr();
   ATH_MSG_DEBUG( "Retrieved " << rdoContainer->size() << " RPC RDOs." );
 
-  SG::WriteHandle<RpcDigitContainer> wh_rpcDigit(m_rpcDigitKey);
+  SG::WriteHandle<RpcDigitContainer> wh_rpcDigit(m_rpcDigitKey, ctx);
   ATH_CHECK(wh_rpcDigit.record(std::make_unique<RpcDigitContainer> (m_rpcHelper->module_hash_max())));
   ATH_MSG_DEBUG( "Decoding RPC RDO into RPC Digit"  );
 
@@ -119,7 +119,7 @@ StatusCode RpcRdoToRpcDigit::decodeRpc( const RpcPad * rdoColl, RpcDigitContaine
         }
         else
           {
-            RpcDigitCollection * oldCollection = const_cast<RpcDigitCollection*>( *it_coll );
+            RpcDigitCollection * oldCollection ATLAS_THREAD_SAFE = const_cast<RpcDigitCollection*>( *it_coll ); // FIXME
             oldCollection->push_back(newDigit);
             collection = oldCollection;
           }

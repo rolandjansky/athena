@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Dear emacs, this is -*-c++-*-
@@ -13,7 +13,6 @@
 #include <ios>
 
 #include <boost/format.hpp>
-#include "CxxUtils/make_unique.h"
 
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 #include "ElectronPhotonFourMomentumCorrection/GainTool.h"

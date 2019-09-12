@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -10,7 +10,6 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
-#include "CxxUtils/make_unique.h"
 
 #include <TPRegexp.h>
 #include <TObjArray.h>
@@ -420,7 +419,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   }
   else{
     ATH_MSG_DEBUG("setupBDT " << "Reading trees individually");
-    trees = CxxUtils::make_unique<TObjArray>();
+    trees = std::make_unique<TObjArray>();
     trees->SetOwner(); // to delete the objects when d-tor is called
     for (int i = 0; i < variables->GetEntries(); ++i)
     {

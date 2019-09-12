@@ -37,6 +37,7 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
   virtual StatusCode  initialize() override;
 
  private: 
+  friend StatusCode tester( TriggerEDMSerialiserTool* );
   Gaudi::Property< std::vector< std::string > > m_collectionsToSerialize {
     this, "CollectionsToSerialize", {},
     "EDM streaming configuration \'collectionKeyType;module1,module2,module3\' where collectionKeyType is a string formatted like for "
@@ -44,6 +45,9 @@ class TriggerEDMSerialiserTool: public extends<AthAlgTool, HLTResultMTMakerTool>
     "type. moduleIdVec is the vector of HLTResult ROB module IDs to which the collection should be written. ID=0 is "
     "the main result, other IDs are used for data scouting."
   };
+  Gaudi::Property<bool> m_saveDynamic { this, "SaveDynamic", true, "If false skips serialising of dynamic varaibles. Use for test purpose only." };
+
+
   /// @class Address
   /// Internal structure to keep configuration organised conveniently
   ///

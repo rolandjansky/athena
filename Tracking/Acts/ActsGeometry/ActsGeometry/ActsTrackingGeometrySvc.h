@@ -11,7 +11,7 @@
 #include "GaudiKernel/EventContext.h"
 
 // PACKAGE
-#include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
 
 // STL
 #include <map>

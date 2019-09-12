@@ -10,6 +10,5 @@ atlas_depends_on_subdirs( PRIVATE
                           TestPolicy )
 
 # Install files from the package:
-atlas_install_headers( PyAnalysisUtils )
 atlas_install_python_modules( python/*.py )
 

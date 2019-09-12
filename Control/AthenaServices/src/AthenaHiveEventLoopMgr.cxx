@@ -1293,6 +1293,9 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
 
     // m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
     // 					 *thisFinishedEvtContext ));
+    
+    // Some code still needs global context in addition to that passed in the incident
+    Gaudi::Hive::setCurrentContext( *thisFinishedEvtContext );
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, *thisFinishedEvtContext ));
 
     debug() << "Clearing slot " << thisFinishedEvtContext->slot() 

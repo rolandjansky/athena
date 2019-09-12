@@ -5,18 +5,11 @@
 #ifndef TRIGMUISOHYPO_TRIGMUISOHYPOTOOL_H 
 #define TRIGMUISOHYPO_TRIGMUISOHYPOTOOL_H 1
 
-#include <string>
-#include "AthenaBaseComps/AthAlgTool.h" 
 #include "DecisionHandling/HLTIdentifier.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "DecisionHandling/TrigCompositeUtils.h" 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
-
 #include "xAODTrigMuon/L2IsoMuonContainer.h"
 
-#include "DecisionHandling/Combinators.h"
 
 class StoreGateSvc;
 class TriggerElement;
@@ -53,10 +46,10 @@ class TrigMuisoHypoTool: public ::AthAlgTool {
 
     virtual StatusCode decide( std::vector<MuisoInfo>& toolInput ) const;
 
+  private:
+
     bool decideOnSingleObject( TrigMuisoHypoTool::MuisoInfo& input,
                                size_t cutIndex ) const;
-
-  private:
 
     HLT::Identifier m_decisionId;
     

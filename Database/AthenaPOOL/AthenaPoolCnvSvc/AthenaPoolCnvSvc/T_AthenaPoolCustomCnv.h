@@ -9,6 +9,9 @@
  *  @brief his file contains the class definition for the templated T_AthenaPoolCustomCnv class.
  *  @author Marcin.Nowak@cern.ch
  **/
+
+#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/EventContext.h"
 #include "T_AthenaPoolCustCnv.h"
 #include <vector>
 
@@ -112,9 +115,9 @@ protected:
    /// Callback from the CleanupSvc to delete persistent object in the local list
    virtual StatusCode cleanUp() override;
 
-   /// Local cache for persistent objects created by this converter (Ahena does not use POOL cache).
+   /// Local cache for persistent objects created by this converter, grouped by processing slot
    /// These objects are deleted after a commit.
-   std::vector<PERS*> m_persObjList;
+   std::map<EventContext::ContextID_t, std::vector< std::unique_ptr<PERS> > > m_persObjLists;
 };
 
 

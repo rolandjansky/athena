@@ -171,7 +171,6 @@ class LVL1TGCTrigger : public AthAlgorithm
   StatusCode getCabling();
 
   // log 
-  mutable MsgStream   m_log;
   bool                m_debuglevel;
 
   SG::ReadCondHandleKey<TGCTriggerData> m_readCondKey;

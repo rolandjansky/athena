@@ -47,9 +47,9 @@ StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::DataObjectToPool(DataObjec
       ATH_MSG_ERROR("Failed to create persistent object: " << e.what());
       return(StatusCode::FAILURE);
    }
-   m_persObjList.push_back(persObj);
    Token* token = nullptr;
    StatusCode status = this->objectToPool(persObj, token, key);
+   keepPoolObj(persObj);
    // Null/empty token means ERROR
    if (token == nullptr || token->classID() == Guid::null()) {
       ATH_MSG_ERROR("failed to get Token for " << pObj->name());
@@ -137,16 +137,13 @@ inline void T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::poolReadObject(TopLevelTP
 // Remember the POOL object until commit (then delete it)
 template <class TRANS, class PERS>
 inline void T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::keepPoolObj(PERS* obj) {
-   m_persObjList.push_back(obj);
+   m_persObjLists[ Gaudi::Hive::currentContext().slot() ].emplace_back(obj);
 }
 
-// callback from the CleanupSvc to delete persistent object in the local list
+// callback from the CleanupSvc to delete persistent objects after commit
 template <class TRANS, class PERS>
 StatusCode T_AthenaPoolCustomCnvWithKey<TRANS, PERS>::cleanUp() {
-   for (typename std::vector<PERS*>::const_iterator i = m_persObjList.begin(); i != m_persObjList.end(); i++) {
-      delete *i;
-   }
-   m_persObjList.clear();
+   m_persObjLists[ Gaudi::Hive::currentContext().slot() ].clear();
    return(StatusCode::SUCCESS);
 }
 

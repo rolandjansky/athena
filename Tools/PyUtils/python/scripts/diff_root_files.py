@@ -147,6 +147,9 @@ def main(args):
             if hasattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.'):
                 event_info = getattr(tree,'xAOD::EventAuxInfo_v1_EventInfoAux.')
                 event_number = event_info.eventNumber
+            elif hasattr(tree,'EventInfoAux.'):
+                event_info = getattr(tree,'EventInfoAux.')
+                event_number = event_info.eventNumber
             elif hasattr(tree,'EventInfo_p4_McEventInfo'):
                 event_info = getattr(tree,'EventInfo_p4_McEventInfo')
                 event_number = event_info.m_event_ID.m_event_number

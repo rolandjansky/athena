@@ -17,7 +17,6 @@
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "TrkSurfaces/PlaneSurface.h"
-#include "GaudiKernel/IIncidentSvc.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "PixelGeoModel/IIBLParameterSvc.h"

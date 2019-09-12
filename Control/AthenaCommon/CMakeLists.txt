@@ -13,7 +13,6 @@ atlas_depends_on_subdirs( PRIVATE
 find_package( six )
 
 # Install files from the package:
-atlas_install_headers( AthenaCommon )
 atlas_install_python_modules( python/*.py python/Utils )
 atlas_install_joboptions( share/Preparation.py share/Execution.py share/Atlas.UnixStandardJob.py test/*.py 
                           share/zeroJO.py share/Atlas_Gen.UnixStandardJob.py share/MemTraceInclude.py share/runbatch.py)

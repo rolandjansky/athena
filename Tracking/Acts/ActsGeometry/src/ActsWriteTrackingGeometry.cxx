@@ -11,7 +11,7 @@
 #include "ActsInterop/Logger.h"
 
 // PACKAGE
-#include "ActsGeometry/IActsTrackingGeometrySvc.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
 #include "ActsGeometry/ActsGeometryContext.h"
 
 // STL

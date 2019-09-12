@@ -38,6 +38,5 @@ atlas_add_component( EventTagRawAlgs
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel MagFieldInterfaces TrkSegment CaloEvent CommissionEvent StoreGateLib SGtests xAODCaloEvent InDetBCM_RawData InDetPrepRawData LArRecEvent TagEvent TileEvent TileIdentifier TrkSpacePoint TrkTrack TrkTrackSummary )
 
 # Install files from the package:
-atlas_install_headers( EventTagRawAlgs )
 atlas_install_joboptions( share/*.py )
 

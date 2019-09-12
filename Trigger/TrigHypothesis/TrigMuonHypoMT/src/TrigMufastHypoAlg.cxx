@@ -4,10 +4,7 @@
 
 #include <math.h>
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
 #include "AthLinks/ElementLink.h"
-#include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "TrigMufastHypoAlg.h"
 #include "AthViews/ViewHelper.h"
 

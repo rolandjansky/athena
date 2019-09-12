@@ -25,7 +25,6 @@ atlas_depends_on_subdirs(
    Reconstruction/egamma/egammaMVACalib
    PRIVATE
    Reconstruction/MVAUtils
-   Control/CxxUtils
    Tools/PathResolver
    ${extra_dep} )
 
@@ -39,7 +38,7 @@ atlas_add_library( egammaMVACalibAnalysisLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
    xAODTracking egammaMVACalibLib
-   PRIVATE_LINK_LIBRARIES CxxUtils PathResolver MVAUtils )
+   PRIVATE_LINK_LIBRARIES PathResolver MVAUtils )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( egammaMVACalibAnalysis

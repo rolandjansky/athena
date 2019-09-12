@@ -23,7 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( MuonCondData
                    src/*.cxx
                    PUBLIC_HEADERS MuonCondData
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel AthContainers AthenaPoolUtilities Identifier GaudiKernel StoreGateLib SGtests MuonIdHelpersLib 
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} EventInfo )
+                   PRIVATE_LINK_LIBRARIES EventInfo )
 

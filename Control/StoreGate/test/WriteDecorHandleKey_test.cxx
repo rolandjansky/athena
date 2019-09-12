@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
  */
 
 // $Id$
@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "TestTools/initGaudi.h"
+#include "TestOwner.h"
 #include <cassert>
 #include <iostream>
 
@@ -98,6 +99,20 @@ void test1()
   k1.assign ("ccc.fee");
   assert (k1.key() == "ccc.fee");
   assert (k1.contHandleKey().key() == "ccc");
+
+  TestOwner owner;
+  SG::WriteDecorHandleKey<MyObj> k3 (&owner, "CCCKey", "ccc.dec", "doc string");
+  assert (k3.clid() == 293847295);
+  assert (k3.key() == "ccc.dec");
+  assert (k3.mode() == Gaudi::DataHandle::Writer);
+  assert (k3.contHandleKey().clid() == 293847295);
+  assert (k3.contHandleKey().key() == "ccc");
+  assert (k3.contHandleKey().mode() == Gaudi::DataHandle::Reader);
+  assert (owner.getProperty ("CCCKey").name() == "CCCKey");
+  assert (owner.getProperty ("CCCKey").documentation() == "doc string");
+  assert (owner.getProperty ("CCCKey").type_info() == &typeid(SG::VarHandleKey));
+  assert (owner.getProperty ("CCCKey").toString() == "'StoreGateSvc+ccc.dec'");
+  assert (owner.getProperty ("CCCKey").ownerTypeName() == "TestOwner");
 }
 
 

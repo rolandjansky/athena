@@ -26,7 +26,8 @@ private:
   std::ofstream m_outfile;
   SG::ReadHandleKey<CaloCellContainer> m_key{this,"InputContainer","AllCalo","Input CaloCellContainer key"};
   Gaudi::Property<std::string> m_fileName{this,"FileName","CaloCells.txt","Name of the output text file"};
-  Gaudi::Property<float> m_eCut{this,"EnergyCut",std::numeric_limits<float>::min(),"Energy cut for cell dumping"};
+  Gaudi::Property<float> m_eCut{this,"EnergyCut",std::numeric_limits<float>::lowest(),"Energy cut for cell dumping"};
+  Gaudi::Property<bool> m_compact{this,"Compact",true,"compact or detailed cell identifer"};
 
 };
 

@@ -63,7 +63,6 @@ atlas_add_component( AthenaPoolTest
                      LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaPoolTestData CaloDetDescrLib CaloEvent CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GeoPrimitives Identifier EventInfo GaudiKernel InDetIdentifier InDetReadoutGeometry InDetRawData InDetCompetingRIOsOnTrack InDetPrepRawData InDetRIO_OnTrack LArRecEvent TrkSurfaces TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack TrkParameters TrkTrack TrkVertexOnTrack )
 
 # Install files from the package:
-atlas_install_headers( AthenaPoolTest )
 atlas_install_joboptions( share/*.py )
 
 

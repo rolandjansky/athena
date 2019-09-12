@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from CaloRec.CaloRecConf import CaloCellMaker, CaloCellContainerFinalizerTool     
 from LArCellRec.LArCellBuilderConfig import LArCellBuilderCfg,LArCellCorrectorCfg
 from TileRecUtils.TileCellBuilderConfig import TileCellBuilderCfg
-from CaloCellCorrection.CaloCellCorrectionConfig import CaloCellPedestalCorrCfg, CaloCellNeighborsAverageCorrCfg
+from CaloCellCorrection.CaloCellCorrectionConfig import CaloCellPedestalCorrCfg, CaloCellNeighborsAverageCorrCfg, CaloCellTimeCorrCfg, CaloEnergyRescalerCfg
 
 def CaloCellMakerCfg(configFlags):
     result=ComponentAccumulator()
@@ -21,19 +21,44 @@ def CaloCellMakerCfg(configFlags):
     larCellCorrectors=LArCellCorrectorCfg(configFlags)
     theTileCellBuilder = TileCellBuilderCfg(configFlags)
 
-    theCaloCellPedestalCorr=CaloCellPedestalCorrCfg(configFlags)
-    theCaloCellNeighborsAverageCorr=CaloCellNeighborsAverageCorrCfg(configFlags)
+    caloCellCorrections=[]
+    #Corrections tools that are not LAr or Tile specific:
+    if configFlags.Calo.Cell.doPileupOffsetBCIDCorr or configFlags.Cell.doPedestalCorr:
+        theCaloCellPedestalCorr=CaloCellPedestalCorrCfg(configFlags)
+        caloCellCorrections.append(result.popToolsAndMerge(theCaloCellPedestalCorr))
+
+    #LAr HV scale corr must come after pedestal corr
+    if configFlags.LAr.doHVCorr:
+        from LArCellRec.LArCellBuilderConfig import LArHVCellContCorrCfg
+        theLArHVCellContCorr=LArHVCellContCorrCfg(configFlags)
+        caloCellCorrections.append(result.popToolsAndMerge(theLArHVCellContCorr))
+
+
+    if configFlags.Calo.Cell.doDeadCellCorr:
+        theCaloCellNeighborAvg=CaloCellNeighborsAverageCorrCfg(configFlags)
+        caloCellCorrections.append(result.popToolsAndMerge(theCaloCellNeighborAvg))
+
+    if configFlags.Calo.Cell.doEnergyCorr:
+        theCaloCellEnergyRescaler=CaloEnergyRescalerCfg(configFlags)
+        caloCellCorrections.append(result.popToolsAndMerge(theCaloCellEnergyRescaler))
+
+
+    if configFlags.Calo.Cell.doTimeCorr:
+        theCaloTimeCorr=CaloCellTimeCorrCfg(configFlags)
+        caloCellCorrections.append(result.popToolsAndMerge(theCaloTimeCorr))
+
 
     #Old Config:
     #CaloCellMakerToolNames': PrivateToolHandleArray(['LArCellBuilderFromLArRawChannelTool/LArCellBuilderFromLArRawChannelTool','TileCellBuilder/TileCellBuilder','CaloCellContainerFinalizerTool/CaloCellContainerFinalizerTool','LArCellNoiseMaskingTool/LArCellNoiseMaskingTool','CaloCellPedestalCorr/CaloCellPedestalCorr','CaloCellNeighborsAverageCorr/CaloCellNeighborsAverageCorr','CaloCellContainerCheckerTool/CaloCellContainerCheckerTool']),
 
-    cellAlgo=CaloCellMaker(CaloCellMakerToolNames=[larCellBuilder.popPrivateTools(),theTileCellBuilder.popPrivateTools(),CaloCellContainerFinalizerTool()]+larCellCorrectors.popPrivateTools()+[theCaloCellPedestalCorr.popPrivateTools(),theCaloCellNeighborsAverageCorr.popPrivateTools()],
+    cellAlgo=CaloCellMaker(CaloCellMakerToolNames=[larCellBuilder.popPrivateTools(),theTileCellBuilder.popPrivateTools(),CaloCellContainerFinalizerTool()]+larCellCorrectors.popPrivateTools()+caloCellCorrections,
                            CaloCellsOutputName="AllCalo")
+
+
     result.merge(larCellBuilder)
     result.merge(larCellCorrectors)
     result.merge(theTileCellBuilder)
-    result.merge(theCaloCellPedestalCorr)
-    result.merge(theCaloCellNeighborsAverageCorr)
+
     result.addEventAlgo(cellAlgo,primary=True)
     return result
 
