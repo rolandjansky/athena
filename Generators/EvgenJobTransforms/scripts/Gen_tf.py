@@ -22,10 +22,10 @@ ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup',
 
 class EvgenExecutor(athenaExecutor):
     "Specialised trf executor class for event generation jobs"
-
-    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", 
-substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
+    def __init__(self, name="generate", skeleton=None, substep=None, inData=set(), outData=set()):
         athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
+#    def __init__(self, name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", substep=None, inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT"]):
+#        athenaExecutor.__init__(self, name=name, skeletonFile=skeleton, substep=substep, tryDropAndReload=False, inData=inData, outData=outData)
 
     def preExecute(self, input=set(), output=set()):
         "Get input tarball, unpack and set up env if an evgenJobOpts arg was provided."
@@ -172,7 +172,14 @@ def move_files(main_dir,tmp_dir,whitelist):
 
 def getTransform():
     exeSet = set()
-    exeSet.add(EvgenExecutor(name="generate"))
+    print "Transform arguments %s " % sys.argv[1:]
+    if "--outputEVNTFile" in str(sys.argv[1:]):
+       exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["EVNT"]))
+       print 'output EVNT'
+    else:
+       exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoTXT.py", inData=["inNULL"], outData=["TXT"]))
+       print 'output TXT'
+
     exeSet.add(EvgenExecutor(name="afterburn", skeleton="EvgenJobTransforms/skeleton.ABtoEVGEN.py", inData=["EVNT_Pre"], outData=["EVNT"]))
     exeSet.add(athenaExecutor(name = "AODtoDPD", skeletonFile = "PATJobTransforms/skeleton.AODtoDPD_tf.py",
                               substep = "a2d", inData = ["EVNT"], outData = ["NTUP_TRUTH"], perfMonFile = "ntuple_AODtoDPD.pmon.gz"))
@@ -186,6 +193,7 @@ def getTransform():
 @sigUsrStackTrace
 def main():
     msg.info("This is %s" % sys.argv[0])
+
     main_dir = os.getcwd()
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
