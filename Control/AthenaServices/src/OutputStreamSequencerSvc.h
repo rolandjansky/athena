@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef OUTPUTSTREAMSEQUENCERSVC_H
@@ -23,7 +23,7 @@ static const InterfaceID IID_OutputStreamSequencerSvc("OutputStreamSequencerSvc"
 template <class TYPE> class SvcFactory;
 
 /** @class OutputStreamSequencerSvc
- *  @brief This class provides the interface to the LCG POOL persistency software.
+ *  @brief This class provides configuration properties to enable OutputStream file sequences
  **/
 class OutputStreamSequencerSvc : public ::AthService,
 	virtual public IIncidentListener {
@@ -51,11 +51,20 @@ public: // Non-static members
    /// Returns sequenced file name for output stream
    std::string buildSequenceFileName(const std::string&) const;
 
+   std::string   incidentName() const            { return m_incidentName.value(); }
+   bool          ignoringInputBoundary() const   { return m_ignoreInputFile.value(); }
+   void          setMetaTransOnNextRange( bool val ) { m_metaTransOnNextRange = val; }
+
 private: // data
    ServiceHandle<MetaDataSvc> m_metaDataSvc;
    unsigned int m_fileSequenceNumber;
-   std::string  m_fileSequenceLabel;
 
+   /// Current EventRange ID constructed on the NextRange incident
+   std::string  m_currentRangeID;
+
+   /// If true, do metadata transition on the NextRange incident (false for in AthenaMT)
+   bool         m_metaTransOnNextRange  { true };
+  
 private: // properties
    /// SequenceIncidentName, incident name for triggering file sequencing.
    StringProperty             m_incidentName;

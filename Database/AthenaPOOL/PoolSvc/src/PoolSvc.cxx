@@ -129,7 +129,7 @@ StatusCode PoolSvc::initialize() {
       }
    }
    MSG::Level athLvl = msg().level();
-   ATH_MSG_DEBUG("OutputLevel is " << athLvl);
+   ATH_MSG_DEBUG("OutputLevel is " << (int)athLvl);
    pool::DbPrintLvl::setLevel(athLvl);
    return(setupPersistencySvc());
 }
