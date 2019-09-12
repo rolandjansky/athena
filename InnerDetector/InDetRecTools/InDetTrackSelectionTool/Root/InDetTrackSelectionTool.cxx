@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
@@ -659,6 +659,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
       ATH_CHECK( cut->initialize() );
     }
     const std::string& cutFamilyName = cutFamily.first;
+    // lock(m_mutex) is not needed because this is inside of non-const initialize method.
     m_numTracksPassedCuts.push_back(0);
     if (m_acceptInfo.addCut( cutFamilyName, "Selection of tracks according to " + cutFamilyName ) < 0) {
       ATH_MSG_ERROR( "Failed to add cut family " << cutFamilyName << " because the TAccept object is full." );
@@ -685,6 +686,7 @@ StatusCode InDet::InDetTrackSelectionTool::finalize()
   ATH_MSG_INFO( m_numTracksPassed << " / " << m_numTracksProcessed << " = "
 		<< m_numTracksPassed*100./m_numTracksProcessed << "% passed all cuts." );
   for (const auto& cutFamily : m_trackCuts) {
+    // lock(m_mutex) is not needed because this is inside of non-const finalize method.
     ULong64_t numPassed = m_numTracksPassedCuts.at(m_acceptInfo.getCutPosition(cutFamily.first));
     ATH_MSG_INFO( numPassed << " = " << numPassed*100./m_numTracksProcessed << "% passed "
 		  << cutFamily.first << " cut." );
@@ -778,6 +780,7 @@ asg::AcceptData InDet::InDetTrackSelectionTool::accept( const xAOD::TrackParticl
   }
   // loop over all cuts
   UShort_t cutFamilyIndex = 0;
+  std::lock_guard<std::mutex> lock(m_mutex);
   for ( const auto& cutFamily : m_trackCuts ) {
     bool pass = true;
     //    const std::string& cutFamilyName = cutFamily.first;
@@ -792,6 +795,7 @@ asg::AcceptData InDet::InDetTrackSelectionTool::accept( const xAOD::TrackParticl
       }
     }
     acceptData.setCutResult( cutFamilyIndex, pass );
+    // m_mutex is locked in this method.
     if (pass) m_numTracksPassedCuts.at(cutFamilyIndex)++; // number of tracks that pass each cut family
     cutFamilyIndex++;
   }
@@ -864,6 +868,7 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
   }
   // for faster lookup in setCutResult we will keep track of the index explicitly
   UShort_t cutFamilyIndex = 0;
+  std::lock_guard<std::mutex> lock(m_mutex);
   for ( const auto& cutFamily : m_trackCuts ) {
     bool pass = true;
     for ( const auto& cut : cutFamily.second ) {
@@ -874,8 +879,10 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
       }
     }
     acceptData.setCutResult( cutFamilyIndex, pass );
-    if (pass)
+    if (pass) {
+      // m_mutex is locked in this method.
       m_numTracksPassedCuts.at(cutFamilyIndex)++; // increment the number of tracks that passed this cut family
+    }
     cutFamilyIndex++;
   }
   
