@@ -755,6 +755,12 @@ class ComponentAccumulator(object):
         self._wasMerged=True
 
     def createApp(self,OutputLevel=3):
+        # Create the Gaudi object early.
+        # Without this here, pyroot can sometimes get confused
+        # and report spurious type mismatch errors about this object.
+        import ROOT
+        ROOT.Gaudi
+
         self._wasMerged=True
         from Gaudi.Main import BootstrapHelper
         bsh=BootstrapHelper()
