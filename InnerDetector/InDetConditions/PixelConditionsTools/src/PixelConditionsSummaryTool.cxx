@@ -73,7 +73,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   return StatusCode::SUCCESS;
 }
 
-bool PixelConditionsSummaryTool::isBSError(const IdentifierHash & moduleHash) const {
+bool PixelConditionsSummaryTool::isBSError([[maybe_unused]] const IdentifierHash & moduleHash) const {
 #ifndef SIMULATIONBASE
   SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContReadKey);
   if (m_pixelID->wafer_hash_max()==2048) {   // RUN-2 setup
@@ -106,7 +106,7 @@ bool PixelConditionsSummaryTool::isBSError(const IdentifierHash & moduleHash) co
   return true;
 }
 
-bool PixelConditionsSummaryTool::isBSActive(const IdentifierHash & moduleHash) const {
+bool PixelConditionsSummaryTool::isBSActive([[maybe_unused]] const IdentifierHash & moduleHash) const {
 #ifndef SIMULATIONBASE
   SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContReadKey);
   for (const auto* elt : *errCont) {
