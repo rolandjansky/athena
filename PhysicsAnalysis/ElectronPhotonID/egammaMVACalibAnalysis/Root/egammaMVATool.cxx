@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaMVACalibAnalysis/egammaMVATool.h"
@@ -15,7 +15,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "PathResolver/PathResolver.h"
-#include "CxxUtils/make_unique.h"
 
 egammaMVATool::egammaMVATool( const std::string &name )
   : asg::AsgTool(name),
@@ -36,7 +35,7 @@ StatusCode egammaMVATool::initialize() {
   ATH_MSG_DEBUG("In initialize of " << name() << "..." );
 
   ATH_MSG_DEBUG("initializing egammaMVACalib for electrons");
-  m_mvaElectron = CxxUtils::make_unique<egammaMVACalib>(egammaMVACalib::egELECTRON, // particle type
+  m_mvaElectron = std::make_unique<egammaMVACalib>(egammaMVACalib::egELECTRON, // particle type
 							true, // use new BDT (not TMVA)
 							m_folder, // folder with weight files
 							"BDTG", // method
@@ -58,13 +57,13 @@ StatusCode egammaMVATool::initialize() {
     for (const auto var : el_variables) { ATH_MSG_DEBUG("  " << var); }
     ATH_MSG_INFO(el_variables.size() << " variables for electrons");
 
-    m_MVATreeElectron = CxxUtils::make_unique<egammaMVATreeElectron>("MVATreeElectron", el_variables, m_use_layer_corrected);
+    m_MVATreeElectron = std::make_unique<egammaMVATreeElectron>("MVATreeElectron", el_variables, m_use_layer_corrected);
     m_MVATreeElectron->msg().setLevel(this->msg().level());
     m_mvaElectron->InitTree(m_MVATreeElectron.get());
   }
 
   ATH_MSG_DEBUG("initializing egammaMVACalib for photons");
-  m_mvaPhoton = CxxUtils::make_unique<egammaMVACalib>(egammaMVACalib::egPHOTON, // particle type
+  m_mvaPhoton = std::make_unique<egammaMVACalib>(egammaMVACalib::egPHOTON, // particle type
 						      true, // use new BDT (not TMVA)
 						      m_folder, // folder with weight files
 						      "BDTG", // method
@@ -89,7 +88,7 @@ StatusCode egammaMVATool::initialize() {
     ATH_MSG_INFO(ph_variables.size() << " variables for photons");
     for (const auto var : ph_variables) { ATH_MSG_INFO("  " << var); }
 
-    m_MVATreePhoton = CxxUtils::make_unique<egammaMVATreePhoton>("MVATreePhoton", ph_variables, m_use_layer_corrected, true);
+    m_MVATreePhoton = std::make_unique<egammaMVATreePhoton>("MVATreePhoton", ph_variables, m_use_layer_corrected, true);
     m_MVATreePhoton->msg().setLevel(this->msg().level());
     m_mvaPhoton->InitTree(m_MVATreePhoton.get());
   }
