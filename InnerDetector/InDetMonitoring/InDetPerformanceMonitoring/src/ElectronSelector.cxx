@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+*/
 //==================================================================================
 //
 //  ElectronSelector.cxx :       Class designed to reconstruct di-electrons events
@@ -20,7 +23,7 @@
 #include "GaudiKernel/IToolSvc.h"
 
 
-static const float CGeV =  1.0e-3;  // Conversion factor to remove evil MeV nonsense.
+// static const float CGeV =  1.0e-3;  // Conversion factor to remove evil MeV nonsense.
 
 // Static declarations
 unsigned int ElectronSelector::s_uNumInstances;
@@ -65,7 +68,7 @@ void ElectronSelector::Init()
     return;
   }
   
-  PARENT::Init();
+  // PARENT::Init();
 
   //---Electron Likelihood tool---
   // m_doIDCuts = true;
@@ -204,7 +207,9 @@ bool ElectronSelector::RecordElectron (const xAOD::Electron * thisElec)
 
     // store this electron?
     m_pxElTrackList.push_back(newtp);
-    (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << newtp->pt() << std::endl;
+    //m_pxElTrackList.push_back(theTrackParticle);
+    //(*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << newtp->pt() << std::endl;
+    (*m_msgStream) << MSG::DEBUG << "     - good electron found -> store this electron with pt " << theTrackParticle->pt() << std::endl;
   }
 
   return electronisgood;

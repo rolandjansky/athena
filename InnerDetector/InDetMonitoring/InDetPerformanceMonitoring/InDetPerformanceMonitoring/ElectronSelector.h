@@ -80,6 +80,10 @@ class ElectronSelector : public EventAnalysis
   int m_elecneg2;
   int m_elecpos1;
   int m_elecpos2;
+
+  // MeV to GeV conversion
+  const float CGeV =  1.0e-3;  // Conversion factor to remove evil MeV nonsense.
+
 };
 
 #endif
