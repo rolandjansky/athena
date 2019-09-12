@@ -223,18 +223,18 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
                                               const xAOD::TrackParticleContainer* AllTracks
                                              ) const{
 
-  Trk::Track track= *(Info.track);
+  Trk::Track* track= Info.track.get();
   size_t origIndex = Info.origIndex; 
   const xAOD::TrackParticle* original = AllTracks->at(origIndex);
   /*
    * Create TrackParticle it should be now owned by finalTrkPartContainer
    */
-  xAOD::TrackParticle* aParticle=m_particleCreatorTool->createParticle(track,                                   
+  xAOD::TrackParticle* aParticle=m_particleCreatorTool->createParticle(*track,                                   
                                                                        finalTrkPartContainer,                        
                                                                        nullptr,                                      
                                                                        xAOD::electron);
   if (!aParticle){
-    ATH_MSG_WARNING("Could not create TrackParticle!!! for Track: " << track);
+    ATH_MSG_WARNING("Could not create TrackParticle!!! for Track: " << *track);
     return StatusCode::SUCCESS;
   }
 
@@ -243,8 +243,8 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
    */
   static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
   float QoverPLast(0);
-  auto rtsos = track.trackStateOnSurfaces()->rbegin();
-  for (;rtsos != track.trackStateOnSurfaces()->rend(); ++rtsos){
+  auto rtsos = track->trackStateOnSurfaces()->rbegin();
+  for (;rtsos != track->trackStateOnSurfaces()->rend(); ++rtsos){
     if ((*rtsos)->type(Trk::TrackStateOnSurface::Measurement) 
         && (*rtsos)->trackParameters()!=nullptr
         &&(*rtsos)->measurementOnTrack()!=nullptr
@@ -265,8 +265,8 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
   float perigeeExtrapEta(-999.), perigeeExtrapPhi(-999.);
 
   if(isSilicon){
-    auto tsos = track.trackStateOnSurfaces()->begin();
-    for (;tsos != track.trackStateOnSurfaces()->end(); ++tsos) {
+    auto tsos = track->trackStateOnSurfaces()->begin();
+    for (;tsos != track->trackStateOnSurfaces()->end(); ++tsos) {
       if ((*tsos)->type(Trk::TrackStateOnSurface::Perigee) && (*tsos)->trackParameters()!=0) {
         float extrapEta(-999.), extrapPhi(-999.);
         const Trk::TrackParameters *perigeeTrackParams(0);
@@ -319,7 +319,7 @@ StatusCode EMBremCollectionBuilder::createNew(const TrackWithIndex& Info,
   }//End truth
 
   //Now  Slim the TrK::Track for writing to disk   
-  Trk::Track* slimmed = m_slimTool->slim(track);
+  Trk::Track* slimmed = m_slimTool->slim(*track);
   if(!slimmed){
     ATH_MSG_WARNING ("TrackSlimming failed");
     ElementLink<TrackCollection> dummy;
