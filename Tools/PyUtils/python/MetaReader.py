@@ -295,7 +295,7 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                 # Promote up one level
                 meta_dict[filename]['runNumbers'] = [bs_metadata.get('runNumbers', None)]
                 meta_dict[filename]['lumiBlockNumbers'] = [bs_metadata.get('lumiBlockNumbers', None)]
-                meta_dict[filename]['beam_type'] = [bs_metadata.get('beamType', None)]
+                meta_dict[filename]['beam_type'] = bs_metadata.get('beamType', None)
                 meta_dict[filename]['beam_energy'] = bs_metadata.get('beamEnergy', None)
                 meta_dict[filename]['stream'] = bs_metadata.get('stream', None)
 
